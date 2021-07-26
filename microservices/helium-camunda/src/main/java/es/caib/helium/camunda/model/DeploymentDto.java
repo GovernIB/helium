@@ -17,6 +17,6 @@ public class DeploymentDto implements WDeployment {
     String name;
     String tenantId;
     String category;
-    List<WProcessDefinition> processDefinitions;
+    List<? extends WProcessDefinition> processDefinitions;
 
 }

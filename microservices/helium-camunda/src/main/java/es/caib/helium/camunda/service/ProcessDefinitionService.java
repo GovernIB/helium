@@ -64,4 +64,5 @@ public interface ProcessDefinitionService {
     public WProcessDefinition findProcessDefinitionWithProcessInstanceId(String processInstanceId);
 
 
+    public List<? extends WProcessDefinition> getProcessDefinitions(String deploymentId);
 }

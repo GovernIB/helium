@@ -1,5 +1,6 @@
 package es.caib.helium.camunda.config;
 
+import es.caib.helium.camunda.listener.HeliumHistoryEventHandler;
 import es.caib.helium.camunda.plugin.HeliumListenerPlugin;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.BpmPlatform;
@@ -11,10 +12,11 @@ import org.camunda.bpm.engine.ProcessEngineConfiguration;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
+import org.camunda.bpm.engine.impl.history.handler.CompositeDbHistoryEventHandler;
+import org.camunda.bpm.engine.impl.persistence.StrongUuidGenerator;
 import org.camunda.bpm.engine.spring.ProcessEngineFactoryBean;
 import org.camunda.bpm.engine.spring.SpringProcessEngineConfiguration;
 import org.camunda.bpm.engine.spring.container.ManagedProcessEngineFactoryBean;
-import org.camunda.bpm.extension.reactor.CamundaReactor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -67,9 +69,12 @@ public class CamundaContextConfig implements WebMvcConfigurer {
         config.setDataSource(dataSource);
         config.setTransactionManager(transactionManager());
         config.setJdbcBatchProcessing(false);
+        config.setIdGenerator(new StrongUuidGenerator());
 
-        config.getProcessEnginePlugins().add(CamundaReactor.plugin());
+//        config.getProcessEnginePlugins().add(CamundaReactor.plugin());
         config.getProcessEnginePlugins().add(new HeliumListenerPlugin());
+        var compositeDbHistoryEventHandler = new CompositeDbHistoryEventHandler(new HeliumHistoryEventHandler());
+        config.setHistoryEventHandler(compositeDbHistoryEventHandler);
 //        var preParseListeners = config.getCustomPreBPMNParseListeners();
 //        if (preParseListeners == null) {
 //            preParseListeners = new ArrayList<BpmnParseListener>();
@@ -80,7 +85,7 @@ public class CamundaContextConfig implements WebMvcConfigurer {
         config.setDatabaseSchemaUpdate("true");
         config.setHistory(ProcessEngineConfiguration.HISTORY_FULL);
         config.setJobExecutorActivate(true);
-
+        config.setProcessEngineName("HeliumProcessEngine");
         return config;
     }
 
@@ -95,6 +100,7 @@ public class CamundaContextConfig implements WebMvcConfigurer {
 
 //    @Bean(destroyMethod = "")
 //    public ProcessEngine processEngine(){
+//        ProcessEngine processEngine = ContainerManaged
 //        log.info(">>> CAMUNDA ENGINE: Instanciant processEngine...");
 //        ProcessEngine processEngine = BpmPlatform.getDefaultProcessEngine();
 //        log.info(">>> CAMUNDA ENGINE: OK");
@@ -178,44 +184,5 @@ public class CamundaContextConfig implements WebMvcConfigurer {
         log.info(">>> CAMUNDA ENGINE: OK");
         return restTemplate;
     }
-
-
-//    @EventListener
-//    public void onDelegateTaskEvent(DelegateTask taskDelegate) {
-//        // handle mutable task event
-//        System.out.println("Delegate task: " + taskDelegate.getEventName());
-//        log.info("Delegate task: " + taskDelegate.getEventName());
-//    }
-//
-//    @EventListener
-//    public void onUserTaskEvent(UserTask userTask) {
-//        // handle immutable task event
-//        System.out.println("User task: " + userTask.getName());
-//        log.info("User task: " + userTask.getName());
-//    }
-//
-//    @EventListener
-//    public void onSubProcessCreateEvent(SubProcess subProcess) {
-//        System.out.println("SubProcess: " + subProcess.getName());
-//        log.info("SubProcess: " + subProcess.getName());
-//    }
-//
-//    @EventListener
-//    public void onExecutionEvent(DelegateExecution executionDelegate) {
-//        // handle mutable execution event
-//        System.out.println("Execution delegate: " + executionDelegate.getEventName());
-//        log.info("Execution delegate: " + executionDelegate.getEventName());
-//    }
-
-//    @EventListener
-//    public void onExecutionEvent(ExecutionEvent executionEvent) {
-//        // handle immutable execution event
-//        System.out.println("Execution delegate: " + executionEvent.getEventName());
-//    }
-
-//    @EventListener
-//    public void onHistoryEvent(HistoryEvent historyEvent) {
-//        // handle history event
-//    }
 
 }

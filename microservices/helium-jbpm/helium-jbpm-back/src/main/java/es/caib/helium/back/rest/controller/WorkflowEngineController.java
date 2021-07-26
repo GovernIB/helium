@@ -524,6 +524,26 @@ public class WorkflowEngineController {
                 reassignTask.getEntornId()), HttpStatus.OK);
     }
 
+    @RequestMapping(value="/taskInstances/{taskInstanceId}/reassign/user", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Void> setTaskInstanceActorId(
+            @PathVariable("taskInstanceId") String taskInstanceId,
+            @RequestBody String actorId) {
+        workflowEngineApi.setTaskInstanceActorId(
+                taskInstanceId,
+                actorId);
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @RequestMapping(value="/taskInstances/{taskInstanceId}/reassign/gruop", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Void> setTaskInstancePooledActors(
+            @PathVariable("taskInstanceId") String taskInstanceId,
+            @RequestBody String[] pooledActors) {
+        workflowEngineApi.setTaskInstancePooledActors(taskInstanceId, pooledActors);
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
     @RequestMapping(value="/taskInstances/{taskId}", method = RequestMethod.PUT)
 	@ResponseBody
     public ResponseEntity<Void> updateTaskInstanceInfoCache(
@@ -1004,26 +1024,6 @@ public class WorkflowEngineController {
                 retrocedirAccio.getActionName(),
                 retrocedirAccio.getParams(),
                 retrocedirAccio.getProcessDefinitionPareId());
-        return new ResponseEntity(HttpStatus.OK);
-    }
-
-    @RequestMapping(value="/taskInstances/{taskInstanceId}/actor", method = RequestMethod.POST)
-	@ResponseBody
-    public ResponseEntity<Void> setTaskInstanceActorId(
-            @PathVariable("taskInstanceId") String taskInstanceId,
-            @RequestBody String actorId) {
-        workflowEngineApi.setTaskInstanceActorId(
-                taskInstanceId,
-                actorId);
-        return new ResponseEntity(HttpStatus.OK);
-    }
-
-    @RequestMapping(value="/taskInstances/{taskInstanceId}/pooledActors", method = RequestMethod.POST)
-	@ResponseBody
-    public ResponseEntity<Void> setTaskInstancePooledActors(
-            @PathVariable("taskInstanceId") String taskInstanceId,
-            @RequestBody String[] pooledActors) {
-        workflowEngineApi.setTaskInstancePooledActors(taskInstanceId, pooledActors);
         return new ResponseEntity(HttpStatus.OK);
     }
 

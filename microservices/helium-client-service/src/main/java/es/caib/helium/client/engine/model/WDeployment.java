@@ -9,6 +9,6 @@ public interface WDeployment {
     public String getTenantId();
     public String getCategory();
 
-    public List<WProcessDefinition> getProcessDefinitions();
+    public List<? extends WProcessDefinition> getProcessDefinitions();
 
 }

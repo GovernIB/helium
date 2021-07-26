@@ -887,6 +887,32 @@ public class JbpmHelper implements WorkflowEngineApi {
 		return resposta;
 	}
 
+	@Override
+	public void setTaskInstanceActorId(String taskInstanceId, String actorId) {
+		//adminService.mesuraIniciar("jBPM setTaskInstanceActorId", "jbpmDao");
+		final long id = Long.parseLong(taskInstanceId);
+		ReassignTaskInstanceCommand command = new ReassignTaskInstanceCommand(id);
+		command.setActorId(actorId);
+		commandHelper.executeCommandWithAutoSave(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		//adminService.mesuraCalcular("jBPM setTaskInstanceActorId", "jbpmDao");
+	}
+
+	@Override
+	public void setTaskInstancePooledActors(String taskInstanceId, String[] pooledActors) {
+		//adminService.mesuraIniciar("jBPM setTaskInstancePooledActors", "jbpmDao");
+		final long id = Long.parseLong(taskInstanceId);
+		ReassignTaskInstanceCommand command = new ReassignTaskInstanceCommand(id);
+		command.setPooledActors(pooledActors);
+		commandHelper.executeCommandWithAutoSave(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+		//adminService.mesuraCalcular("jBPM setTaskInstancePooledActors", "jbpmDao");
+	}
+
 	// Caché
 
 	@Override
@@ -1599,35 +1625,6 @@ public class JbpmHelper implements WorkflowEngineApi {
 		}
 		return expedientsDto;
 	}
-
-
-
-	@Override
-	public void setTaskInstanceActorId(String taskInstanceId, String actorId) {
-		//adminService.mesuraIniciar("jBPM setTaskInstanceActorId", "jbpmDao");
-		final long id = Long.parseLong(taskInstanceId);
-		ReassignTaskInstanceCommand command = new ReassignTaskInstanceCommand(id);
-		command.setActorId(actorId);
-		commandHelper.executeCommandWithAutoSave(
-				command,
-				id,
-				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
-		//adminService.mesuraCalcular("jBPM setTaskInstanceActorId", "jbpmDao");
-	}
-
-	@Override
-	public void setTaskInstancePooledActors(String taskInstanceId, String[] pooledActors) {
-		//adminService.mesuraIniciar("jBPM setTaskInstancePooledActors", "jbpmDao");
-		final long id = Long.parseLong(taskInstanceId);
-		ReassignTaskInstanceCommand command = new ReassignTaskInstanceCommand(id);
-		command.setPooledActors(pooledActors);
-		commandHelper.executeCommandWithAutoSave(
-				command,
-				id,
-				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
-		//adminService.mesuraCalcular("jBPM setTaskInstancePooledActors", "jbpmDao");
-	}
-
 
 
 	@Override

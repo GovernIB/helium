@@ -2,6 +2,7 @@ package es.caib.helium.camunda.helper;
 
 import lombok.RequiredArgsConstructor;
 import org.camunda.bpm.engine.RepositoryService;
+import org.camunda.bpm.engine.exception.NullValueException;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,8 @@ public class CacheHelper {
 //                    .processDefinitionId(processDefinitionId)
 ////                    .latestVersion()
 //                    .singleResult();
+        } catch (NullValueException ne) {
+            // No fem res. Retornarem NOT FOUND
         } catch (Exception ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error obtenint la definició de procés amb id: " + processDefinitionId, ex);
         }
