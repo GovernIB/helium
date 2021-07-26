@@ -1,12 +1,13 @@
 package es.caib.helium.client.integracio.notificacio.model;
 
-import java.util.Date;
-import java.util.List;
-
 import es.caib.helium.client.integracio.notificacio.enums.EnviamentTipus;
+import es.caib.helium.client.integracio.notificacio.enums.Idioma;
 import es.caib.helium.client.integracio.notificacio.enums.NotificacioEstat;
 import es.caib.helium.client.integracio.notificacio.enums.ServeiTipusEnum;
 import lombok.Data;
+
+import java.util.Date;
+import java.util.List;
 
 @Data
 public class DadesNotificacioDto {
@@ -24,7 +25,7 @@ public class DadesNotificacioDto {
 	private Date enviamentDataProgramada;
 	private EnviamentTipus enviamentTipus;
 	private ServeiTipusEnum serveiTipusEnum;
-	private List<Enviament> enviaments;
+	private List<DadesEnviamentDto> enviaments;
 	private String procedimentCodi;
 	private Integer retard;
 	private String grupCodi;
@@ -41,6 +42,7 @@ public class DadesNotificacioDto {
 	private boolean entregaPostalActiva;
 	private String enviamentIdentificador;
 	private String enviamentReferencia;
+	private Idioma idioma;
 	
 	private String usuariCodi;
 	private String numExpedient;

@@ -1,21 +1,20 @@
 package es.caib.helium.client.integracio.registre;
 
-import java.util.Date;
-import java.util.Objects;
-
-import org.springframework.stereotype.Service;
-
 import es.caib.helium.client.integracio.registre.model.RegistreAssentament;
 import es.caib.helium.client.integracio.registre.model.RespostaAnotacioRegistre;
 import es.caib.helium.client.integracio.registre.model.RespostaConsultaRegistre;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.Objects;
 
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class RegistreServiceImpl implements RegistreService {
+public class RegistreClientServiceImpl implements RegistreClientService {
 	
 	private final String missatgeLog = "Cridant Integracio Service - Registre - ";
 	

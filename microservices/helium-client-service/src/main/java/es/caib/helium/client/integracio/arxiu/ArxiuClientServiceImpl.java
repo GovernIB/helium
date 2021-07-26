@@ -1,19 +1,18 @@
 package es.caib.helium.client.integracio.arxiu;
 
-import java.util.Objects;
-
-import org.springframework.stereotype.Service;
-
 import es.caib.helium.client.integracio.arxiu.model.DocumentArxiu;
 import es.caib.helium.client.integracio.arxiu.model.Expedient;
 import es.caib.helium.client.integracio.arxiu.model.ExpedientArxiu;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ArxiuServiceImpl implements ArxiuService {
+public class ArxiuClientServiceImpl implements ArxiuClientService {
 	
 	private final String missatgeLog = "Cridant Integracio Service - Arxiu - ";
 	
