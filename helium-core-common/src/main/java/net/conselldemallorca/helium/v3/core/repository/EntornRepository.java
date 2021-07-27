@@ -12,7 +12,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
@@ -30,7 +29,7 @@ public interface EntornRepository extends JpaRepository<Entorn, Long> {
 	@Query(	"from Entorn e " +
 			"where " +
 			"    (:esNullFiltre = true or lower(e.nom) like lower('%'||:filtre||'%') or lower(e.codi) like lower('%'||:filtre||'%')) ")
-	Page<ExpedientTipus> findByFiltrePaginat(
+	Page<Entorn> findByFiltrePaginat(
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
 			Pageable pageable);
