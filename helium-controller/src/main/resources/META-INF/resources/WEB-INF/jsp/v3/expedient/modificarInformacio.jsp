@@ -35,7 +35,7 @@
 	</style>
 </head>
 <body>
-	<form:form cssClass="form-horizontal form-tasca" id="modificarInformacio" name="modificarInformacio" action="modificar" method="post" commandName="expedientEditarCommand">
+	<form:form cssClass="form-horizontal form-tasca" id="modificarInformacio" name="modificarInformacio" action="modificar" method="post" modelAttribute="expedientEditarCommand">
 		<c:if test="${expedient.tipus.teNumero}">
 			<div class="control-group fila_reducida">
 				<hel:inputText required="true" name="numero" textKey="expedient.consulta.numero" placeholderKey="expedient.consulta.numero"/>

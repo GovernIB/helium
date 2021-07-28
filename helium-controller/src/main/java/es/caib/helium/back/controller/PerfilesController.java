@@ -1,5 +1,30 @@
 package es.caib.helium.back.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
+import org.keycloak.KeycloakPrincipal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import es.caib.helium.back.command.PersonaUsuariCommand;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.SessionHelper;
@@ -14,24 +39,6 @@ import es.caib.helium.logic.intf.service.AdminService;
 import es.caib.helium.logic.intf.service.AplicacioService;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.intf.service.EntornService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Controlador per la gestió d'perfils
@@ -57,6 +64,33 @@ public class PerfilesController extends BaseController {
 			HttpServletRequest request,
 			Model model) {
 		model.addAttribute(getFiltreCommand(request, model));
+		
+		// Usuari actual
+		String usuari = "";
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth != null) {
+			usuari = auth.getName();
+			
+			// rols
+			usuari += "[";			
+			if (auth.getPrincipal() instanceof KeycloakPrincipal) {
+				KeycloakPrincipal<?> keycloakPrincipal = ((KeycloakPrincipal<?>)auth.getPrincipal());
+				Set<String> roles = keycloakPrincipal.getKeycloakSecurityContext().getToken().getResourceAccess(
+						keycloakPrincipal.getKeycloakSecurityContext().getToken().getIssuedFor()).getRoles();
+				for (String rol : roles) {
+					usuari += rol + ", ";
+				}
+			} else {
+				for (GrantedAuthority rol : auth.getAuthorities()) {
+					usuari += rol.getAuthority() + ", ";
+				}			
+			}
+			usuari += "]";
+
+		}
+		logger.info("usuari actual: " + usuari);
+		
+		
 		return "v3/persona/perfil";
 	}
 

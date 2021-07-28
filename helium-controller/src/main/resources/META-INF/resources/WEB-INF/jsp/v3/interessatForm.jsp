@@ -108,7 +108,7 @@ $(document).ready(function() {
 
 </head>
 <body>
-	<form:form cssClass="form-horizontal" action="${formAction}"  method="post" commandName="interessatCommand">
+	<form:form cssClass="form-horizontal" action="${formAction}"  method="post" modelAttribute="interessatCommand">
 		<form:hidden id="id" path="id"/>
 			
 		<div class="row">

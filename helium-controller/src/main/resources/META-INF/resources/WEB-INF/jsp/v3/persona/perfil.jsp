@@ -123,7 +123,7 @@
 		</div>
 		<div class="well well-white">
 			<div class="row-fluid">
-				<form:form action="" cssClass="form-horizontal form-tasca" commandName="personaUsuariCommand" method="post">
+				<form:form action="" cssClass="form-horizontal form-tasca" modelAttribute="personaUsuariCommand" method="post">
 					<div class="control-group fila_reducida">
 						<hel:inputText disabled="${esReadOnly}" name="nom" textKey="comuns.nom" placeholderKey="comuns.nom" inline="false"/>
 					</div>
@@ -154,7 +154,7 @@
 	</div>		
 	<div class="well well-white">
 		<div class="row-fluid">    
-			<form:form action="" method="post" cssClass="formbox form-horizontal" commandName="personaUsuariCommand">
+			<form:form action="" method="post" cssClass="formbox form-horizontal" modelAttribute="personaUsuariCommand">
 				<div class="control-group">
 					<div class="label-titol">
 						<label class="control-label" for="lc_time"><spring:message code="perfil.usuari.nota.generales"/></label>

@@ -25,7 +25,7 @@
 	<decorator name="senseCapNiPeus" page="v3SenseCapNiPeus.jsp">
 		<pattern>*/firmapassarela*</pattern>
 	</decorator>
-	<decorator name="default" page="default.jsp">
+	<decorator name="default" page="v3.jsp">
 		<pattern>/*</pattern>
 	</decorator>
 </decorators>

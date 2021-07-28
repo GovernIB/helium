@@ -44,7 +44,7 @@
 </head>
 <body>		
 
-	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="expedientTipusEnumeracioCommand">
+	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" modelAttribute="expedientTipusEnumeracioCommand">
 
 		<div>
 			<input type="hidden" name="id" value="${expedientTipusEnumeracioCommand.id}"/>

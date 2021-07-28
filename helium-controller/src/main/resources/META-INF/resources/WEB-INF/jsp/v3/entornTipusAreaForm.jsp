@@ -126,7 +126,7 @@
 
 </head>
 <body>
-	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="entornTipusAreaCommand">
+	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" modelAttribute="entornTipusAreaCommand">
 		<form:hidden id="id" path="id"/>
 		<div class="row">
 			<div class="col-sm-11">

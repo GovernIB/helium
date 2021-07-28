@@ -304,7 +304,7 @@
 		<div class="label-titol">
 			<label class="control-label"><spring:message code='expedient.massiva.aturar' /></label>
 			<div class="form-group">
-				<form:form cssClass="form-horizontal form-tasca" id="aturarMas" name="aturarMas" action="massiva/aturarMas" method="post" commandName="expedientEinesAturarCommand" onsubmit="return confirmarAturar(event)">
+				<form:form cssClass="form-horizontal form-tasca" id="aturarMas" name="aturarMas" action="massiva/aturarMas" method="post" modelAttribute="expedientEinesAturarCommand" onsubmit="return confirmarAturar(event)">
 					<hel:inputTextarea inline="true" name="motiu" textKey="expedient.eines.motiu" placeholderKey="expedient.eines.motiu"/>
 					<button class="btn btn-primary right" type="submit" name="accio" value="aturar">
 						<spring:message code='comuns.aturar' />
@@ -318,7 +318,7 @@
 		<div class="label-titol">
 			<label class="control-label"><spring:message code='expedient.massiva.executarScriptMas' /></label>
 			<div class="form-group">
-				<form:form cssClass="form-horizontal form-tasca" id="scriptMas" name="scriptMas" action="massiva/scriptMas" method="post" commandName="expedientEinesScriptCommand" onsubmit="return confirmarScript(event)">
+				<form:form cssClass="form-horizontal form-tasca" id="scriptMas" name="scriptMas" action="massiva/scriptMas" method="post" modelAttribute="expedientEinesScriptCommand" onsubmit="return confirmarScript(event)">
 					<hel:inputTextarea inline="true" name="script" textKey="comuns.executar" placeholderKey="comuns.executar"/>
 					<button class="btn btn-primary right" type="submit" name="accio" value="executar">
 						<spring:message code='comuns.executar' />
@@ -332,7 +332,7 @@
 		<div class="label-titol">
 			<label class="control-label"><spring:message code='expedient.massiva.actualitzar' /></label>
 			<div class="form-group">
-				<form:form cssClass="form-horizontal form-tasca" id="massivaCanviVersio" name="massivaCanviVersio" action="massiva/massivaCanviVersio" method="post" commandName="canviVersioProcesCommand" onsubmit="return confirmarCanviVersio(event)">
+				<form:form cssClass="form-horizontal form-tasca" id="massivaCanviVersio" name="massivaCanviVersio" action="massiva/massivaCanviVersio" method="post" modelAttribute="canviVersioProcesCommand" onsubmit="return confirmarCanviVersio(event)">
 					<div class="ctrlHolder">
 						<h4 style="font-weight: bold;"><spring:message code="expedient.massiva.proces.principal"/>:</h4>
 					</div>
@@ -398,7 +398,7 @@
 			<label class="control-label"><spring:message code='expedient.massiva.accions' /></label>
 			<div class="form-group">
 				<c:if test="${not empty accions}">
-					<form:form cssClass="form-horizontal form-tasca" id="massivaExecutarAccio" name="massivaExecutarAccio" action="massiva/massivaExecutarAccio" method="post" commandName="execucioAccioCommand" onsubmit="return confirmarExecutarAccio(event)">
+					<form:form cssClass="form-horizontal form-tasca" id="massivaExecutarAccio" name="massivaExecutarAccio" action="massiva/massivaExecutarAccio" method="post" modelAttribute="execucioAccioCommand" onsubmit="return confirmarExecutarAccio(event)">
 						<hel:inputSelect inline="true" name="accioCodi" textKey="expedient.massiva.exec_accio" placeholderKey="expedient.massiva.exec_accio" optionItems="${accions}" optionValueAttribute="codi" optionTextAttribute="nom"/>
 						
 						<button class="btn btn-primary right" type="submit" name="accio" value="executar_accio">
@@ -482,7 +482,7 @@
 		<div class="label-titol">
 			<label class="control-label"><spring:message code='expedient.massiva.modificar_variables' /></label>
 			<div class="form-group">
-				<form:form cssClass="form-horizontal form-tasca" id="modificarVariablesMasCommand" name="modificarVariablesMasCommand" action="massiva/modificarVariablesMasCommand" method="post" commandName="modificarVariablesCommand" onsubmit="return confirmarModificarVariables(event)">
+				<form:form cssClass="form-horizontal form-tasca" id="modificarVariablesMasCommand" name="modificarVariablesMasCommand" action="massiva/modificarVariablesMasCommand" method="post" modelAttribute="modificarVariablesCommand" onsubmit="return confirmarModificarVariables(event)">
 					<hel:inputSelect inline="true" name="var" textKey="expedient.eines.modificar_variables" placeholderKey="expedient.consulta.select.variable" optionItems="${variables}" optionValueAttribute="id" optionTextAttribute="codi"/>
 					<a class="btn btn-primary right" name="modificar_variable" href="#" data-rdt-link-modal-min-height="300" data-rdt-link-modal="true"><spring:message code='comuns.modificar'/></a>
 				</form:form>
@@ -495,7 +495,7 @@
 			<label class="control-label"><spring:message code='expedient.massiva.documents' /></label>
 			<div class="form-group">
 				<c:if test="${not empty documents}">
-					<form:form cssClass="form-horizontal form-tasca" id="documentMas" name="documentMas" action="massiva/documentMas" method="post" commandName="documentExpedientCommand" onsubmit="return confirmarModificarDocument(event)">
+					<form:form cssClass="form-horizontal form-tasca" id="documentMas" name="documentMas" action="massiva/documentMas" method="post" modelAttribute="documentExpedientCommand" onsubmit="return confirmarModificarDocument(event)">
 						<form:hidden path="expedientId"/>
 						
 						<form:hidden path="expedientId"/>

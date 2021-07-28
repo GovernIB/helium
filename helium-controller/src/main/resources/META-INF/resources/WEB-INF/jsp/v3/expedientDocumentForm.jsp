@@ -138,7 +138,7 @@ function mostrarAmagarFile() {
 </head>
 <body>
 	<c:url value="/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/descarregar" var="downloadUrl"/>
-	<form:form cssClass="form-horizontal form-tasca" action="${formAction}" enctype="multipart/form-data" method="post" commandName="documentExpedientCommand">
+	<form:form cssClass="form-horizontal form-tasca" action="${formAction}" enctype="multipart/form-data" method="post" modelAttribute="documentExpedientCommand">
 		<div class="inlineLabels">
 			<form:hidden path="docId"/>
 			<form:hidden path="expedientId"/>

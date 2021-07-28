@@ -66,7 +66,7 @@
 		</style>
 	</head>
 	<body>		
-		<form:form id="formulariParametres" method="post" cssClass="well_mod form-horizontal form-tasca" commandName="expedientInformeParametrosCommand">
+		<form:form id="formulariParametres" method="post" cssClass="well_mod form-horizontal form-tasca" modelAttribute="expedientInformeParametrosCommand">
 	 		<div class="control-group fila_reducida">
 				<c:forEach var="camp" items="${campsInformeParams}">
 					<c:set var="campErrors"><form:errors path="${camp.varCodi}"/></c:set>

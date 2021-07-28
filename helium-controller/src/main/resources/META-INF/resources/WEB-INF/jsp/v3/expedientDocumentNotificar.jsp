@@ -43,7 +43,7 @@ $(document).ready(function() {
 
 </head>
 <body>		
-	<form:form cssClass="form-horizontal form-tasca" action="notificar"  method="post" commandName="documentNotificacioCommand">
+	<form:form cssClass="form-horizontal form-tasca" action="notificar"  method="post" modelAttribute="documentNotificacioCommand">
 		
 
 		<hel:inputSelect required="true" name="interessatsIds" multiple="true" textKey="expedient.document.notificar.form.camp.titulars" placeholderKey="expedient.document.notificar.form.camp.titulars.placeholder" comment="expedient.document.notificar.form.camp.titulars.info" optionItems="${interessats}" optionValueAttribute="id" optionTextAttribute="fullInfo"/>

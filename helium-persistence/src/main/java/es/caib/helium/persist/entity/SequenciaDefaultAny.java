@@ -68,7 +68,7 @@ public class SequenciaDefaultAny implements Serializable, GenericEntity<Long> {
 		this.any = any;
 	}
 
-	@Column(name="sequenciaDefault", nullable=false)
+	@Column(name="sequenciadefault", nullable=false)
 	public Long getSequenciaDefault() {
 		return sequenciaDefault;
 	}
