@@ -12,5 +12,5 @@ import org.springframework.context.annotation.Profile;
 @Profile(value = {"spring-cloud", "compose"})
 @EnableDiscoveryClient
 @Configuration
-public class LocalDiscovery {
+public class LocalDiscoveryConfig {
 }

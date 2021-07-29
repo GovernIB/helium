@@ -3,10 +3,14 @@ package es.caib.helium.domini.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import es.caib.helium.domini.model.DominiDto;
+import es.caib.helium.domini.model.FilaResultat;
 import es.caib.helium.domini.model.PagedList;
+import es.caib.helium.domini.model.ParellaCodiValor;
 import es.caib.helium.domini.model.ResultatDomini;
 import es.caib.helium.domini.service.DominiService;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +26,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * Controlador que defineix la API REST de dominis
@@ -186,7 +194,6 @@ public class DominiController {
     @GetMapping(value = "/{dominiId}/resultats")
     public ResponseEntity<ResultatDomini> consultaDominiV1(
             @PathVariable("dominiId") Long dominiId,
-//            @RequestParam(value = "identificador", required = false) String identificador,
             @RequestParam(required = false) Map<String, String> parametres) {
 
         log.debug("[CTR] consulta el domini: " + dominiId);
@@ -197,14 +204,82 @@ public class DominiController {
             parametres.remove("identificador");
         }
 
-        return new ResponseEntity<>(
-                dominiService.consultaDomini(
-                        dominiId,
-                        identificador,
-                        parametres),
-                HttpStatus.OK);
+        if (identificador == null) {
+            log.error("Error consultat el domini id=" + dominiId + ". No s'ha indicat l'identificador");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "És obligatori indicar un paràmetre amb el nom identificador, que contingui l'identificador del domini");
+        }
+        try {
+            var resposta = dominiService.consultaDomini(
+                    dominiId,
+                    identificador,
+                    parametres).get();
+            return new ResponseEntity<>(resposta, HttpStatus.OK);
+        } catch (ResponseStatusException rex) {
+            throw rex;
+        } catch (Exception e) {
+            String errorMsg = "Error consultat el domini " +
+                    "id=" + dominiId + ", " +
+                    "identificador=" + identificador + "). ";
+            log.error(errorMsg, e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al consultar el domini " + dominiId, e);
+        }
 
     }
 
+    @PostMapping(value = "resultats")
+    public ResponseEntity<List<ResultatDomini>> consultaDominisV1(
+            @RequestBody List<ConsultaDominiDada> consultaDominiDades) {
+
+        List<ResultatDomini> resultatDominis = new ArrayList<>();
+        List<CompletableFuture<ResultatDomini>> futureList = new ArrayList<>();
+
+        if (consultaDominiDades == null || consultaDominiDades.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "És obligatori indicar com a mínim un domini a consultar");
+        }
+        for (var consultaDominiDada: consultaDominiDades) {
+            log.debug("[CTR] consulta el domini: " + consultaDominiDada.getDominiId());
+
+            String identificador = null;
+            if (consultaDominiDada.getParametres() != null) {
+                identificador = consultaDominiDada.getParametres().get("identificador");
+                consultaDominiDada.getParametres().remove("identificador");
+            }
+
+            if (identificador == null) {
+                log.error("Error consultat el domini id=" + consultaDominiDada.getDominiId() + ". No s'ha indicat l'identificador");
+            }
+            futureList.add(dominiService.consultaDomini(
+                    consultaDominiDada.getDominiId(),
+                    identificador,
+                    consultaDominiDada.getParametres()));
+        }
+
+        // Esperam a que totes les peticions hagin acabat
+        CompletableFuture.allOf(futureList.toArray(new CompletableFuture[futureList.size()]));
+
+        resultatDominis = futureList.stream().map(f ->
+                f.exceptionally(e -> {
+                    log.error("Error consultant domini", e);
+                    ResultatDomini resultatExcepcio = new ResultatDomini();
+                    FilaResultat filaResultat = new FilaResultat();
+                    ParellaCodiValor parellaCodiValor = ParellaCodiValor.builder()
+                            .codi("domini-exception")
+                            .valor(e.getMessage())
+                            .build();
+                    filaResultat.getColumnes().add(parellaCodiValor);
+                    resultatExcepcio.add(filaResultat);
+                    return resultatExcepcio;
+                }).join())
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(resultatDominis, HttpStatus.OK);
+    }
+
+    @Data
+    @Builder
+    public static class ConsultaDominiDada {
+        private Long dominiId;
+        private Map<String, String> parametres;
+    }
 
 }
