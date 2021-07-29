@@ -72,7 +72,7 @@
 </c:choose>
  -->
 
-<form:form onsubmit="return confirmar(this)" action="${tascaFormAction}" cssClass="form-horizontal form-tasca" method="post" commandName="command">
+<form:form onsubmit="return confirmar(this)" action="${tascaFormAction}" cssClass="form-horizontal form-tasca" method="post" modelAttribute="command">
 	<input type="hidden" id="tascaId" name="tascaId" value="${tasca.id}">
 	
 	<!-- 

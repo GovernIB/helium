@@ -62,7 +62,7 @@
 	<div class="opcionMasiva control-group right">
 		<div class="label-titol">
 			<div class="form-group">
-				<form:form cssClass="form-horizontal form-tasca" id="canviVersio" name="canviVersio" action="canviVersio" method="post" commandName="canviVersioProcesCommand" onsubmit="return confirmarCanviVersio(event)">
+				<form:form cssClass="form-horizontal form-tasca" id="canviVersio" name="canviVersio" action="canviVersio" method="post" modelAttribute="canviVersioProcesCommand" onsubmit="return confirmarCanviVersio(event)">
 					<div class="ctrlHolder">
 						<h4 style="font-weight: bold;"><spring:message code="expedient.massiva.proces.principal"/>:</h4>
 					</div>

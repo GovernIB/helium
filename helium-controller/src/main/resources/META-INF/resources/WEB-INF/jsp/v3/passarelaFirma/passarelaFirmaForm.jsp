@@ -39,7 +39,7 @@
 		</div>
 --%>		
 		<c:url value='/v3/tasca/${tascaId}/document/${documentCodi}/firmaPassarela' var="urlform"/>
-		<form:form id="formFirma${passarelaFirmaEnviarCommand.documentId}" action="${urlform}" method="post" cssClass="form-horizontal" commandName="passarelaFirmaEnviarCommand" role="form">
+		<form:form id="formFirma${passarelaFirmaEnviarCommand.documentId}" action="${urlform}" method="post" cssClass="form-horizontal" modelAttribute="passarelaFirmaEnviarCommand" role="form">
 			<input type="hidden" id="documentId" name="documentId" value="${passarelaFirmaEnviarCommand.documentId}"/>
 			<div class="modal-body" style="height: 300px;">
 				<hel:inputText name="motiu" textKey="passarelafirma.form.camp.motiu" required="true"/>

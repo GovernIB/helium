@@ -31,7 +31,7 @@ public class GlobalPropertiesInterceptor implements AsyncHandlerInterceptor {
 		if (request.getUserPrincipal() != null) {
 			request.setAttribute(
 					VARIABLE_REQUEST_GLOBAL_PROPERTIES,
-					aplicacioService.getGlobalProperties());
+					aplicacioService.getGlobalProperties().findAll());
 		}
 		return true;
 	}

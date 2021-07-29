@@ -23,6 +23,10 @@ public class PersonaDto  {
 	
 	private boolean admin;
 
+	public PersonaDto() {
+
+	}
+
 	public PersonaDto(String codi, String nomSencer, String email, Sexe sexe) {
 		this.codi = codi;
 		this.setNomSencer(nomSencer);

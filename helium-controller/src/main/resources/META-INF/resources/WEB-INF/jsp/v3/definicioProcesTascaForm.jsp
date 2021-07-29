@@ -30,7 +30,7 @@
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 </head>
 <body>		
-	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="definicioProcesTascaCommand">
+	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" modelAttribute="definicioProcesTascaCommand">
 		<div>        
 		
 			<input type="hidden" name="id" value="${definicioProcesTascaCommand.id}"/>

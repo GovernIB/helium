@@ -90,7 +90,7 @@
 	</style>
 </head>
 <body>		
-	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="expedientTipusTerminiCommand">
+	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" modelAttribute="expedientTipusTerminiCommand">
 		<div>
         					
 			<input type="hidden" name="id" value="${expedientTipusTerminiCommand.id}"/>

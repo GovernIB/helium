@@ -1,15 +1,14 @@
 package es.caib.helium.client.integracio.registre;
 
-import java.util.Date;
-
-import org.springframework.stereotype.Service;
-
 import es.caib.helium.client.integracio.registre.model.RegistreAssentament;
 import es.caib.helium.client.integracio.registre.model.RespostaAnotacioRegistre;
 import es.caib.helium.client.integracio.registre.model.RespostaConsultaRegistre;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
 
 @Service
-public interface RegistreService {
+public interface RegistreClientService {
 
 	public Date getDataJustificant(String numeroRegistre);
 

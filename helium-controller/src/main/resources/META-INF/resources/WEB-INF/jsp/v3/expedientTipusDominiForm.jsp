@@ -38,7 +38,7 @@
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 </head>
 <body>		
-	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="expedientTipusDominiCommand">
+	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" modelAttribute="expedientTipusDominiCommand">
 		<div>
 			<h3><fmt:message key="expedient.tipus.domini.form.domini.dades"/></h3>
 			<input type="hidden" name="id" value="${expedientTipusDominiCommand.id}"/>

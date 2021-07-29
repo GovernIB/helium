@@ -17,7 +17,7 @@
 <c:choose>
 	<c:when test="${not empty expedientTipus}">
 
-		<form:form cssClass="form-horizontal" enctype="multipart/form-data" method="post" commandName="expedientTipusIntegracioFormsCommand">
+		<form:form cssClass="form-horizontal" enctype="multipart/form-data" method="post" modelAttribute="expedientTipusIntegracioFormsCommand">
 			<div style="height: 400px">        
 				<input type="hidden" id="id" name="id" value="${expedientTipusIntegracioFormsCommand.id}"/>
 				<hel:inputCheckbox name="actiu" textKey="expedient.tipus.integracio.forms.activar"/>

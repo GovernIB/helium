@@ -15,7 +15,7 @@
 </head>
 <body>
     <c:set var="formAction"><rip:modalUrl value="/expedientPeticio/rebutjar"/></c:set>
-	<form:form cssClass="form-horizontal" enctype="multipart/form-data" method="post" commandName="anotacioRebutjarCommand">
+	<form:form cssClass="form-horizontal" enctype="multipart/form-data" method="post" modelAttribute="anotacioRebutjarCommand">
 		<hel:inputHidden name="anotacioId"/>
 		<hel:inputTextarea required="true" name="observacions" textKey="anotacio.form.rebutjar.camp.observacions" placeholderKey="anotacio.form.rebutjar.camp.observacions"/>
 		<div id="modal-botons" class="well">

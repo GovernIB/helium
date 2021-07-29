@@ -80,7 +80,7 @@
 	</style>
 </head>
 <body>		
-	<form:form id="command" commandName="modificarVariablesCommand" action="modificarVariablesMas" cssClass="uniForm" enctype="multipart/form-data" method="post">
+	<form:form id="command" modelAttribute="modificarVariablesCommand" action="modificarVariablesMas" cssClass="uniForm" enctype="multipart/form-data" method="post">
 		<c:set var="inline" value="${false}"/>
 		<c:set var="isRegistre" value="${false}"/>
 		<c:set var="isMultiple" value="${false}"/>

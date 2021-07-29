@@ -188,7 +188,7 @@ public class DadaExpedientControllerTest {
 	public void test_getDadesByProces_success() throws Exception {
 
 		given(expedientService.findByExpedientId(anyLong())).willReturn(expedientMock);
-		given(expedientService.getDadesByProces(anyLong(), any(String.class))).willReturn(dadesMock);
+		given(expedientService.getDadesByExpedientIdAndProcesId(anyLong(), any(String.class))).willReturn(dadesMock);
 
 		mockMvc.perform(get("/api/v1/expedients/{expedientId}/proces/{procesId}/dades", unLong, unLong))
 				.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))

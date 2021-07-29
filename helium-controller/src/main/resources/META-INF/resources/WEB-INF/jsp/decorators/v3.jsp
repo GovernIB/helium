@@ -106,6 +106,9 @@
 		}
 	</c:when>
 	<c:otherwise>
+	
+			<!-- ${globalProperties['es.caib.helium.capsalera.color.fons']} -->
+	
 		<c:if test="${!empty globalProperties['es.caib.helium.capsalera.color.fons']}">
 			.navbar-app {
 				background-color: ${globalProperties['es.caib.helium.capsalera.color.fons']} !important;
@@ -293,8 +296,6 @@
 										<li><a href="<c:url value="/v3/enumeracio"/>"><spring:message code='decorators.entorn.enumeracions' /></a></li>
 										<li><a href="<c:url value="/v3/domini"/>"><spring:message code='decorators.entorn.dominis' /></a></li>
 									</c:if>
-									<li role="separator" class="divider"></li>
-									<li><a target="_BLANK" href="<c:url value="/expedientTipus/llistat.html"/>">Disseny antic</a></li>
 								</ul>
 							</div>
 						</c:if>

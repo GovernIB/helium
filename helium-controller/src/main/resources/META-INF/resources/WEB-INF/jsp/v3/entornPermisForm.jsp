@@ -20,7 +20,7 @@
 	<hel:modalHead/>
 </head>
 <body>
-	<form:form action="" method="post" cssClass="form-horizontal" commandName="permisCommand">
+	<form:form action="" method="post" cssClass="form-horizontal" modelAttribute="permisCommand">
 		<form:hidden path="id"/>
 		<c:if test="${not empty permisCommand.id}">
 			<form:hidden path="principalTipus"/>

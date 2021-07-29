@@ -12,11 +12,15 @@ import java.util.Optional;
 public interface ExpedientRepository extends MongoRepository<Expedient, String>, ExpedientRepositoryCustom {
 
 	@Query("{expedientId: {$in: ?0}}")
-	public Optional<List<Expedient>> findByExpedients(List<Long> expedients);
+	Optional<List<Expedient>> findByExpedients(List<Long> expedients);
 
-	public Optional<Expedient> findByExpedientId(Long expedientId);
+	Optional<Expedient> findByExpedientId(Long expedientId);
 
-	public Long deleteByExpedientId(Long expedientId);
+	Optional<Expedient> findByExpedientIdAndProcesPrincipalId(Long expedientId, String procesPrincipalId);
 
-	public Optional<List<Expedient>> findByEntornId(int entornId);
+	Long deleteByExpedientId(Long expedientId);
+
+	Optional<List<Expedient>> findByEntornId(int entornId);
+
+	Optional<Expedient> findByProcesPrincipalId(String procesId);
 }

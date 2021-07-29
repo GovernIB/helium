@@ -63,7 +63,7 @@
 	</script>
 </head>
 <body>
-	<form:form method="post" action="../../iniciarTitol/${expedientTipus.id}/${definicioProces.id}" id="command" name="command" cssClass="form-horizontal form-tasca" commandName="expedientInicioPasTitolCommand" onsubmit="return confirmar(event)">
+	<form:form method="post" action="../../iniciarTitol/${expedientTipus.id}/${definicioProces.id}" id="command" name="command" cssClass="form-horizontal form-tasca" modelAttribute="expedientInicioPasTitolCommand" onsubmit="return confirmar(event)">
 		<form:hidden path="responsableCodi"/>
 		<form:hidden path="entornId"/>
 		<form:hidden path="expedientTipusId"/>

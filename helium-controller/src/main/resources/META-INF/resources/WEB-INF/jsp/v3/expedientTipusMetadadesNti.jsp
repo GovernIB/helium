@@ -49,7 +49,7 @@ $(document).ready(function() {
 </script>
 <c:choose>
 	<c:when test="${not empty expedientTipus}">
-		<form:form cssClass="form-horizontal" enctype="multipart/form-data" method="post" commandName="expedientTipusMetadadesNtiCommand">
+		<form:form cssClass="form-horizontal" enctype="multipart/form-data" method="post" modelAttribute="expedientTipusMetadadesNtiCommand">
 			<div style="height: 400px">        
 				<hel:inputCheckbox name="actiu" textKey="expedient.tipus.metadades.nti.actiu"/>
 				<div id="inputs_metadadesNti">

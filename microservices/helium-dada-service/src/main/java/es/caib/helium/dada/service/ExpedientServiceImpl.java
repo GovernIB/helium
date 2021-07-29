@@ -88,8 +88,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public boolean createExpedient(Expedient expedient) throws DadaException {
 
 		try {
-			var exp = expedientRepository.findByExpedientId(expedient.getExpedientId());
+			var exp = expedientRepository.findByExpedientIdAndProcesPrincipalId(expedient.getExpedientId(), expedient.getProcesPrincipalId());
 			if (exp.isPresent()) {
+				log.error("Ja existeix l'expedient amb expedientId " + expedient.getExpedientId()
+						+ " i procesPrincipalId " + expedient.getProcesPrincipalId());
 				return false;
 			}
 			expedientRepository.save(expedient);
@@ -406,7 +408,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	 * @return Retorna una llista amb les dades de l'expedient (no son dades de capçalera). Lista buida si no hi han dades o excepció.
 	 */
 	@Override
-	public List<Dada> getDadesByProces(Long expedientId, String procesId) throws DadaException {
+	public List<Dada> getDadesByExpedientIdAndProcesId(Long expedientId, String procesId) throws DadaException {
 
 		try {
 			var dades = dadaRepository.findByExpedientIdAndProcesId(expedientId, procesId);
@@ -504,26 +506,27 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 		try {
 			List<Dada> dadesFoo = new ArrayList<>();
+			var putDades = false;
 			for (var dada : dades) {
-			
 				var d = dadaRepository.findByExpedientIdAndProcesIdAndCodi(expedientId, procesId, dada.getCodi());
 				if (d.isPresent()) {
 					// Evitar dades amb el codi repetit segons proces i codi
-					log.error("[ExpedientServiceImpl.crearDada] Expedient amb id " + expedientId + " procesId "
-							+ procesId + " ja té una dada amb codi " + dada.getCodi());
-					// TODO FER EL PUT
+					log.info("[ExpedientServiceImpl.crearDada] Expedient amb id " + expedientId + " procesId "
+							+ procesId + " ja té una dada amb codi " + dada.getCodi() + " - Acutalitzant la dada...");
+					putDadaByExpedientIdProcesIdAndCodi(expedientId, procesId, dada.getCodi(), dada);
+					putDades = true;
 					continue;
 				}
 				dada.setExpedientId(expedientId);
 				dada.setProcesId(procesId);
 				dadesFoo.add(dada);
 			}
-			if (dadesFoo.isEmpty()) {
+			if (dadesFoo.isEmpty() && !putDades) {
 				return false;
 			}
 			var guardats = dadaRepository.saveAll(dadesFoo).size();
 			log.debug(guardats + "dades per l'expedient " + expedientId + " amb procesId " + procesId + " creades correctament");
-			return guardats > 0;
+			return guardats > 0 || putDades;
 		} catch (Exception ex) {
 			var error = "Error al crear les dades per l'expedient " + expedientId + " amb procesId " + procesId;
 			log.error(error, ex);
@@ -544,6 +547,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 		try {
 			var dadaOptional = dadaRepository.findByExpedientIdAndCodi(expedientId, codi);
 			if (dadaOptional.isEmpty()) {
+//				List<Dada> dades = new ArrayList<>();
+//				dada.setCodi(codi);
+//				dades.add(dada);
+//				return createDades(expedientId,dada.getProcesId(), dades);
+				// No te sentit fer el create ja que no hi ha proces id.
 				return false;
 			}
 
@@ -571,8 +579,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public boolean deleteDadaByExpedientIdAndCodi(Long expedientId, String codi) throws DadaException {
 
 		try {
-			// TODO PREGUNTAR IS ÉS UN DELETE ALL PERQUÈ SINO AIXÒ POT RETORNAR MÉS D'UNA
-			// DADA, O NO, DEPEN DE LES VALIDACIONS
+			// TODO PREGUNTAR IS ÉS UN DELETE ALL PERQUÈ SINO AIXÒ POT RETORNAR MÉS D'UNA DADA, O NO, DEPEN DE LES VALIDACIONS
 			var dada = dadaRepository.findByExpedientIdAndCodi(expedientId, codi);
 			if (dada.isEmpty()) {
 				return false;
@@ -648,7 +655,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 		try {
 			var dadaOptional = dadaRepository.findByExpedientIdAndProcesIdAndCodi(expedientId, procesId, codi);
 			if (dadaOptional.isEmpty()) {
-				return false;
+				List<Dada> dades = new ArrayList<>();
+				dada.setCodi(codi);
+				dades.add(dada);
+ 				return createDades(expedientId, procesId, dades);
 			}
 			var dadaMongo = dadaOptional.get();
 			dadaMongo.setMultiple(dada.isMultiple());
@@ -760,5 +770,16 @@ public class ExpedientServiceImpl implements ExpedientService {
 			log.error(error, ex);
 			throw new DadaException(error, ex);
 		}
+	}
+
+	@Override
+	public boolean createDades(String procesId, List<Dada> dades) throws DadaException {
+
+		var capcalera = expedientRepository.findByProcesPrincipalId(procesId);
+		if (capcalera.isEmpty()) {
+			log.error("No s'ha trobat cap capcalera amb procesPrincipalId " + procesId + " - No es pot recuperar l'expedientId");
+			return false;
+		}
+		return createDades(capcalera.get().getExpedientId(), procesId, dades);
 	}
 }

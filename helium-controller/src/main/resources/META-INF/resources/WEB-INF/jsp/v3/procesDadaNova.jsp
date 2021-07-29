@@ -28,7 +28,7 @@
 	.pad-left-col-xs-3 {left: 20%;}
 </style>
 	
-<form:form id="command" commandName="addVariableCommand" action="" cssClass="form-horizontal form-tasca" method="post">
+<form:form id="command" modelAttribute="addVariableCommand" action="" cssClass="form-horizontal form-tasca" method="post">
 	<input type="hidden" id="procesId" name="procesId" value="${procesId}">
 
 	<c:set var="command" value="${addVariableCommand}"/>

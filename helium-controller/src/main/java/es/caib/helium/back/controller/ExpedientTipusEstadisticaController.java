@@ -78,7 +78,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 			filtreCommand = new ExpedientTipusEstadisticaCommand();
 		
 		// Torna a omplir el model
-		model.addAttribute("expedientTipusEstadisticaCommand", filtreCommand);		
+		model.addAttribute("expedientTipusEstadisticaCommand", filtreCommand);
 		// Valida l'accés a l'entorn
 		Boolean potAdministrarEntorn = SessionHelper.getSessionManager(request).getPotAdministrarEntorn();
 		if (potAdministrarEntorn != null && !potAdministrarEntorn) {

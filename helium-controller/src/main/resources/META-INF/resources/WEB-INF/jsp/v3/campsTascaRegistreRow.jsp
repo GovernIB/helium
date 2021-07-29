@@ -7,7 +7,7 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 
-<form:form id="command" commandName="command" action="" cssClass="form-horizontal form-tasca" method="post">
+<form:form id="command" modelAttribute="command" action="" cssClass="form-horizontal form-tasca" method="post">
 
 	<c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>	
 	<c:set var="dadaActual" value="${dada}"/>

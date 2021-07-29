@@ -1,29 +1,28 @@
 package es.caib.helium.client.integracio.notificacio;
 
-import java.util.Objects;
-
-import org.springframework.stereotype.Service;
-
 import es.caib.helium.client.integracio.notificacio.model.ConsultaEnviament;
 import es.caib.helium.client.integracio.notificacio.model.ConsultaNotificacio;
 import es.caib.helium.client.integracio.notificacio.model.DadesNotificacioDto;
 import es.caib.helium.client.integracio.notificacio.model.RespostaConsultaEstatEnviament;
 import es.caib.helium.client.integracio.notificacio.model.RespostaConsultaEstatNotificacio;
-import es.caib.helium.client.integracio.notificacio.model.RespostaNotificacio;
+import es.caib.helium.client.integracio.notificacio.model.RespostaEnviar;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class NotificacioServiceImpl implements NotificacioService {
+public class NotificacioClientServiceImpl implements NotificacioClientService {
 	
 	private final String missatgeLog = "Cridant Integracio Service - Notificacio - ";
 	
 	private NotificacioFeignClient notificacioClient;
 
 	@Override
-	public RespostaNotificacio altaNotificacio(DadesNotificacioDto dto) {
+	public RespostaEnviar altaNotificacio(DadesNotificacioDto dto) {
 		
 		log.debug(missatgeLog + " alta notificacio" + dto.getConcepte() + " per l'entorn " + dto.getEntornId());
 		var responseEntity = notificacioClient.altaNotificacio(dto);

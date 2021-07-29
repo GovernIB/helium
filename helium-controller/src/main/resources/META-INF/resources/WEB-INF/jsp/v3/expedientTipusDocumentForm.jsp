@@ -37,7 +37,7 @@
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 </head>
 <body>		
-	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="expedientTipusDocumentCommand">
+	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" modelAttribute="expedientTipusDocumentCommand">
 		<div>			
 			<input type="hidden" name="id" value="${expedientTipusDocumentCommand.id}"/>
 			<input type="hidden" name="eliminarContingut" id="eliminarContingut" value="false"/>
