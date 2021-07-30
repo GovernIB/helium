@@ -101,7 +101,30 @@ class DominiControllerTest {
                 nullable(Pageable.class),
                 nullable(Sort.class))).willReturn(dominiDtoPagedList);
 
-        mockMvc.perform(get("/api/v1/dominis").param("entornId", "1"))
+//        var consultaDominisDades = new ConsultaDominisDades();
+//        consultaDominisDades.setEntornId(2L);
+//        consultaDominisDades.setExpedientTipusId(23900L);
+//        consultaDominisDades.setExpedientTipusPareId(18001L);
+//        consultaDominisDades.setFiltre("nom=ic=*Expedient*,codi==enumerats");
+//        consultaDominisDades.setPage(0);
+//        consultaDominisDades.setSize(40);
+//        consultaDominisDades.setSort(List.of(
+//                "codi:DESC",
+//                "nom:ASC"));
+//        ObjectMapper mapper = new ObjectMapper();
+//        String consultaJson = mapper.writeValueAsString(consultaDominisDades);
+
+        mockMvc.perform(
+                get("/api/v1/dominis")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .param("entornId", "1")
+                        .param("entornId", "2")
+                        .param("expedientTipusId", "23900")
+                        .param("expedientTipusPareId", "18001")
+                        .param("page", "0")
+                        .param("size", "40")
+                        .param("sort", "codi:desc,nom:asc")
+                        .param("filtre","nom=ic=*Expedient*,codi==enumerats"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.content").exists())
@@ -294,7 +317,7 @@ class DominiControllerTest {
     @DisplayName("Consulta de dades de domini")
     void whenConsultaDominiV1_thenReturn() throws Exception {
         ResultatDomini resultatDomini = new ResultatDomini();
-        given(dominiService.consultaDomini(anyLong(), identificadorCaptor.capture(), anyMap())).willReturn(resultatDomini);
+        given(dominiService.consultaDomini(anyLong(), identificadorCaptor.capture(), anyMap()).get()).willReturn(resultatDomini);
 
         final String idf = "IDF";
         mockMvc.perform(get("/api/v1/dominis/{dominiId}/resultats", 1L)

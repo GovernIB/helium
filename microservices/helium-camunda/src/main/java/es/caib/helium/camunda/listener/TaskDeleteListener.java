@@ -2,16 +2,20 @@ package es.caib.helium.camunda.listener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateTask;
-import org.camunda.bpm.extension.reactor.CamundaReactor;
-import org.camunda.bpm.extension.reactor.spring.listener.ReactorTaskListener;
+import org.camunda.bpm.engine.delegate.TaskListener;
 
 @Slf4j
-//@Component
-//@CamundaSelector(type = ActivityTypes.TASK_USER_TASK, event = TaskListener.EVENTNAME_DELETE)
-public class TaskDeleteListener extends ReactorTaskListener {
+public class TaskDeleteListener implements TaskListener {
 
-    public TaskDeleteListener() {
-        CamundaReactor.eventBus().register(this);
+    private static TaskDeleteListener instance = null;
+
+    protected TaskDeleteListener() { }
+
+    public static TaskDeleteListener getInstance() {
+        if(instance == null) {
+            instance = new TaskDeleteListener();
+        }
+        return instance;
     }
 
     @Override

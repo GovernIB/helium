@@ -14,9 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -30,6 +28,12 @@ public class TaskController {
     public static final String API_PATH = "/api/v1/taskInstances";
 
     private final TaskInstanceService taskInstanceService;
+
+    // TODO: Veure quan es necessita el WTaskInstance amb tots els detalls!!
+    //      Fer versions que retornin detall i versions amb info bàsica
+    //      Hem de tornar l'expedientId?
+
+
 
     @GetMapping(value="/{taskId}")
     public ResponseEntity<WTaskInstance> getTaskById(
@@ -211,8 +215,7 @@ public class TaskController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @PostMapping(value="/{taskInstanceId}/reassign/gruop")
-    @ResponseBody
+    @PostMapping(value="/{taskInstanceId}/reassign/group")
     public ResponseEntity<Void> setTaskInstancePooledActors(
             @PathVariable("taskInstanceId") String taskInstanceId,
             @RequestBody String[] pooledActors) {
@@ -230,6 +233,34 @@ public class TaskController {
                 info.getInfo());
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+//    @PostMapping(value="/{taskInstanceId}/delegation/create")
+//	public void delegateTaskInstance(
+//            WTaskInstance task,
+//            String actorId,
+//            String comentari,
+//            boolean supervisada) {
+//
+//    }
+//
+//    @GetMapping(value="/{taskInstanceId}/delegation")
+//	public ResponseEntity<DelegationInfo> getDelegationTaskInstanceInfo(
+//            @PathVariable("taskInstanceId") String taskInstanceId,
+//            boolean includeActors) {
+//        return new ResponseEntity<>(
+//                taskInstanceService.getDelegationTaskInstanceInfo(taskInstanceId, true),
+//                HttpStatus.OK);
+//    }
+//
+//    @PostMapping(value="/{taskInstanceId}/delegattion/cancel")
+//	public void cancelDelegationTaskInstance(
+//	        @PathVariable("taskInstanceId") String taskInstanceId) {
+//
+//    }
+
+    // TODO: Mirar si existeixen Conditional Flows de sortida configurats segons el valor d'una variable
+    //      o si el següent node és un decicion que depen del valor d'una variable
+    //      --> S'hauria de configurar a Helium, a la tasca!!!??
 
     @GetMapping(value="/byProcessDefinition/{processDefinitionId}/tasks/{taskName}/leavingTransitions")
     public ResponseEntity<List<String>> findStartTaskOutcomes(

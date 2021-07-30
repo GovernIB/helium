@@ -17,8 +17,11 @@ import org.camunda.bpm.engine.impl.persistence.StrongUuidGenerator;
 import org.camunda.bpm.engine.spring.ProcessEngineFactoryBean;
 import org.camunda.bpm.engine.spring.SpringProcessEngineConfiguration;
 import org.camunda.bpm.engine.spring.container.ManagedProcessEngineFactoryBean;
+import org.camunda.bpm.spring.boot.starter.event.EventPublisherPlugin;
+import org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -38,6 +41,10 @@ public class CamundaContextConfig implements WebMvcConfigurer {
 
     @Autowired
     private DataSource dataSource;
+    @Autowired
+    private CamundaBpmProperties properties;
+    @Autowired
+    private ApplicationEventPublisher publisher;
 
 //    @Bean
 //    public DataSource dataSource() {
@@ -71,16 +78,11 @@ public class CamundaContextConfig implements WebMvcConfigurer {
         config.setJdbcBatchProcessing(false);
         config.setIdGenerator(new StrongUuidGenerator());
 
-//        config.getProcessEnginePlugins().add(CamundaReactor.plugin());
+        // Capturar els events
         config.getProcessEnginePlugins().add(new HeliumListenerPlugin());
         var compositeDbHistoryEventHandler = new CompositeDbHistoryEventHandler(new HeliumHistoryEventHandler());
         config.setHistoryEventHandler(compositeDbHistoryEventHandler);
-//        var preParseListeners = config.getCustomPreBPMNParseListeners();
-//        if (preParseListeners == null) {
-//            preParseListeners = new ArrayList<BpmnParseListener>();
-//            config.setCustomPreBPMNParseListeners(preParseListeners);
-//        }
-//        preParseListeners.add(new HeliumTaskParseListener());
+        config.getProcessEnginePlugins().add(new EventPublisherPlugin(properties.getEventing(), publisher));
 
         config.setDatabaseSchemaUpdate("true");
         config.setHistory(ProcessEngineConfiguration.HISTORY_FULL);
@@ -90,7 +92,7 @@ public class CamundaContextConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public ProcessEngineFactoryBean processEngine() {
+    public ProcessEngineFactoryBean processEngine() throws Exception {
 //        ProcessEngineFactoryBean factoryBean = new ProcessEngineFactoryBean();
 //        factoryBean.setProcessEngineConfiguration(processEngineConfiguration());
         ManagedProcessEngineFactoryBean factoryBean = new ManagedProcessEngineFactoryBean();

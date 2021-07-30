@@ -2,16 +2,20 @@ package es.caib.helium.camunda.listener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateTask;
-import org.camunda.bpm.extension.reactor.CamundaReactor;
-import org.camunda.bpm.extension.reactor.spring.listener.ReactorTaskListener;
+import org.camunda.bpm.engine.delegate.TaskListener;
 
 @Slf4j
-//@Component
-//@CamundaSelector(type = ActivityTypes.TASK_USER_TASK, event = TaskListener.EVENTNAME_UPDATE)
-public class TaskUpdateListener extends ReactorTaskListener {
+public class TaskUpdateListener implements TaskListener {
 
-    public TaskUpdateListener() {
-        CamundaReactor.eventBus().register(this);
+    private static TaskUpdateListener instance = null;
+
+    protected TaskUpdateListener() { }
+
+    public static TaskUpdateListener getInstance() {
+        if(instance == null) {
+            instance = new TaskUpdateListener();
+        }
+        return instance;
     }
 
     @Override

@@ -3,8 +3,10 @@
  */
 package es.caib.helium.camunda.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -15,6 +17,8 @@ import java.util.Date;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class DelegationInfo implements Serializable {
 

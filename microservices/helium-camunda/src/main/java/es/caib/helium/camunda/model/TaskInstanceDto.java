@@ -15,7 +15,7 @@ import java.util.Set;
 public class TaskInstanceDto implements WTaskInstance {
 
     String id;
-    Long taskInstanceId;
+//    Long taskInstanceId;
     String processInstanceId;
     String processDefinitionId;
     Long expedientId;
@@ -38,7 +38,7 @@ public class TaskInstanceDto implements WTaskInstance {
 
     // Cache
     String titol;
-    Long entornId;
+    String entornId;
     Boolean tramitacioMassiva;
     String definicioProcesKey;
     String infoTasca;

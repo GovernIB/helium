@@ -123,6 +123,7 @@ public class ProcessInstanceController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    // TODO: Afegir possibilitat a Helium --> Mirar que fer amb la resta d'events
     @PostMapping(value="/{processInstanceId}/message")
     public ResponseEntity<Void> messageProcessInstance(
             @PathVariable("processInstanceId") String processInstanceId,
