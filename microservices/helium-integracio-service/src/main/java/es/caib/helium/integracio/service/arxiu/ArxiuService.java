@@ -1,25 +1,33 @@
 package es.caib.helium.integracio.service.arxiu;
 
-import org.springframework.stereotype.Service;
-
+import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
+import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
+import es.caib.helium.integracio.domini.arxiu.Anotacio;
 import es.caib.helium.integracio.domini.arxiu.DocumentArxiu;
 import es.caib.helium.integracio.domini.arxiu.ExpedientArxiu;
 import es.caib.helium.integracio.excepcions.arxiu.ArxiuException;
 import es.caib.plugins.arxiu.api.Document;
 import es.caib.plugins.arxiu.api.Expedient;
+import org.springframework.stereotype.Service;
 
 @Service
 public interface ArxiuService {
 	
-	public Expedient getExpedient(String uuId, Long entornId) throws ArxiuException;
-	public boolean crearExpedient(ExpedientArxiu expedient, Long entornId) throws ArxiuException;
-	public boolean modificarExpedient(ExpedientArxiu expedient, Long entornId) throws ArxiuException;
-	public boolean deleteExpedient(String uuId, Long entornId) throws ArxiuException;
-	public boolean obrirExpedient(String uuId, Long entornId) throws ArxiuException;
-	public boolean tancarExpedient(String uuId, Long entornId) throws ArxiuException;
+	Expedient getExpedient(String uuId, Long entornId) throws ArxiuException;
+	boolean crearExpedient(ExpedientArxiu expedient, Long entornId) throws ArxiuException;
+	boolean modificarExpedient(ExpedientArxiu expedient, Long entornId) throws ArxiuException;
+	boolean deleteExpedient(String uuId, Long entornId) throws ArxiuException;
+	boolean obrirExpedient(String uuId, Long entornId) throws ArxiuException;
+	boolean tancarExpedient(String uuId, Long entornId) throws ArxiuException;
 	
-	public Document getDocument(String uuId, String versio, boolean ambContingut, boolean isSignat, Long entornId) throws ArxiuException;
-	public boolean crearDocument(DocumentArxiu document, Long entornId) throws ArxiuException;
-	public boolean modificarDocument(DocumentArxiu document, Long entornId) throws ArxiuException;
-	public boolean deleteDocument(String uuId, Long entornId) throws ArxiuException;
+	Document getDocument(String uuId, String versio, boolean ambContingut, boolean isSignat, Long entornId) throws ArxiuException;
+	boolean crearDocument(DocumentArxiu document, Long entornId) throws ArxiuException;
+	boolean modificarDocument(DocumentArxiu document, Long entornId) throws ArxiuException;
+	boolean deleteDocument(String uuId, Long entornId) throws ArxiuException;
+
+	ArxiuResultat crearExpedientAmbAnotacioRegistre(
+			String arxiuUuId,
+			Long entornId,
+			ArxiuPluginListener arxiuPluginListener,
+			Anotacio anotacio) throws ArxiuException;
 }

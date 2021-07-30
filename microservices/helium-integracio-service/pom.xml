@@ -356,6 +356,18 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+
+		<dependency>
+			<groupId>es.caib.distribucio</groupId>
+			<artifactId>distribucio-ws-client</artifactId>
+			<version>0.9</version>
+		</dependency>
+		<dependency>
+			<groupId>es.caib.distribucio</groupId>
+			<artifactId>distribucio-backoffice-utils</artifactId>
+			<version>0.9.29</version>
+		</dependency>
+
 		<!-- /plugin-arxiu-caib 2.0.8 -->
 
 		<!-- custodia -->

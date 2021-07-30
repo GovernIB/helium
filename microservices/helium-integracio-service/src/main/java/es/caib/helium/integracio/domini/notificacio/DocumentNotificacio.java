@@ -1,7 +1,12 @@
 package es.caib.helium.integracio.domini.notificacio;
 
-import java.io.Serializable;
-import java.util.Date;
+import es.caib.helium.integracio.domini.portafirmes.GenericEntity;
+import es.caib.helium.integracio.enums.notificacio.EnviamentEstat;
+import es.caib.helium.integracio.enums.notificacio.EnviamentTipus;
+import es.caib.helium.integracio.enums.notificacio.NotificacioEnviamentEstatEnumDto;
+import es.caib.helium.integracio.enums.notificacio.NotificacioEstat;
+import lombok.Data;
+import org.apache.commons.lang.StringUtils;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,19 +16,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
-
-import org.apache.commons.lang.StringUtils;
-
-import es.caib.helium.integracio.domini.portafirmes.GenericEntity;
-import es.caib.helium.integracio.enums.notificacio.EnviamentEstat;
-import es.caib.helium.integracio.enums.notificacio.EnviamentTipus;
-import es.caib.helium.integracio.enums.notificacio.NotificacioEnviamentEstatEnumDto;
-import es.caib.helium.integracio.enums.notificacio.NotificacioEstat;
-import lombok.Data;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Objecte de domini que representa una notificació electronica de un expedient.
@@ -270,7 +267,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 		
 		//Titular
 		var titular = enviament.getTitular();
-		titularNif = titular.getNif();
+		titularNif = titular.getDni();
 		titularNom = titular.getNom();
 		titularLlinatge1 = titular.getLlinatge1();
 		titularLlinatge2 = titular.getLlinatge2();
@@ -282,7 +279,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 		if (destinataris != null && !destinataris.isEmpty()) {
 			//TODO Només un destinatari. Helium 3.2
 			var destinatari = destinataris.get(0);
-			destinatariNif = destinatari.getNif();
+			destinatariNif = destinatari.getDni();
 			destinatariNom = destinatari.getNom();
 			destinatariLlinatge1 = destinatari.getLlinatge1();
 			destinatariLlinatge2 = destinatari.getLlinatge2();

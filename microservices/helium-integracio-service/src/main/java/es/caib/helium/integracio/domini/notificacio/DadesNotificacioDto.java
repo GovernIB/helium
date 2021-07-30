@@ -1,15 +1,15 @@
 package es.caib.helium.integracio.domini.notificacio;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-
 import es.caib.helium.integracio.enums.notificacio.EnviamentTipus;
+import es.caib.helium.integracio.enums.notificacio.Idioma;
 import es.caib.helium.integracio.enums.notificacio.NotificacioEstat;
 import es.caib.helium.integracio.enums.notificacio.ServeiTipusEnum;
 import lombok.Data;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import java.util.Date;
+import java.util.List;
 
 @Data
 public class DadesNotificacioDto {
@@ -33,7 +33,7 @@ public class DadesNotificacioDto {
 	private EnviamentTipus enviamentTipus;
 	private ServeiTipusEnum serveiTipusEnum;
 	@NotNull @NotEmpty //Todo queda pendent validar els enviaments i subtipus
-	private List<Enviament> enviaments;
+	private List<DadesEnviamentDto> enviaments;
 	@NotNull @NotEmpty
 	private String procedimentCodi;
 	private Integer retard;
@@ -55,6 +55,7 @@ public class DadesNotificacioDto {
 	private boolean entregaPostalActiva;
 	private String enviamentIdentificador;
 	private String enviamentReferencia;
+	private Idioma idioma;
 	
 	@NotNull @NotEmpty
 	private String usuariCodi;

@@ -1,20 +1,23 @@
 package es.caib.helium.expedient.service;
 
-import java.util.Date;
-
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-
+import es.caib.helium.expedient.domain.Expedient;
 import es.caib.helium.expedient.model.ExpedientDto;
 import es.caib.helium.expedient.model.ExpedientEstatTipusEnum;
 import es.caib.helium.expedient.model.MostrarAnulatsEnum;
 import es.caib.helium.ms.model.PagedList;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
+import java.util.Date;
+import java.util.List;
 
 /** Servei per a la consulta i manteniment de la informació a nivell d'expedients
  * 
  *
  */
 public interface ExpedientService {
+
+    void importarExpedients(List<Expedient> expedients) throws Exception ;
 
     ExpedientDto createExpedient(ExpedientDto expedient);
 

@@ -1,16 +1,14 @@
 package es.caib.helium.integracio.service.arxiu;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.netflix.servo.util.Strings;
-
+import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
+import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
+import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
+import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
+import es.caib.distribucio.core.api.exception.SistemaExternException;
+import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreEntrada;
+import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreId;
+import es.caib.helium.integracio.domini.arxiu.Anotacio;
 import es.caib.helium.integracio.domini.arxiu.Arxiu;
 import es.caib.helium.integracio.domini.arxiu.ArxiuFirma;
 import es.caib.helium.integracio.domini.arxiu.DocumentArxiu;
@@ -43,6 +41,14 @@ import es.caib.plugins.arxiu.api.FirmaTipus;
 import es.caib.plugins.arxiu.api.IArxiuPlugin;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -438,7 +444,7 @@ public class ArxiuServiceCaibImpl implements ArxiuService {
 			throw new ArxiuException(error, ex);
 		}
 	}
-	
+
 	@Override
 	public boolean crearDocument(DocumentArxiu document, Long entornId) throws ArxiuException {
 
@@ -911,6 +917,38 @@ public class ArxiuServiceCaibImpl implements ArxiuService {
 				firma.setPerfil(FirmaPerfil.A);
 				break;
 			}
+		}
+	}
+
+	@Override
+	public ArxiuResultat crearExpedientAmbAnotacioRegistre(
+			String arxiuUuId,
+			Long entornId,
+			ArxiuPluginListener arxiuPluginListener,
+			Anotacio anotacio) throws ArxiuException {
+
+		try {
+			// Utilitza la llibreria d'utilitats de Distribució per incorporar la informació
+			// de l'anotació directament a l'expedient dins l'Arxiu
+			es.caib.plugins.arxiu.api.Expedient expedientArxiu = getExpedient(arxiuUuId, entornId);
+			BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(api);
+			// Posarà els annexos en la carpeta de l'anotació
+			backofficeUtils.setCarpeta(anotacio.getIdentificador());
+			// S'enregistraran els events al monitor d'integració
+			backofficeUtils.setArxiuPluginListener(arxiuPluginListener);
+			// Prepara la consulta a Distribució
+			es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreId idWs = new AnotacioRegistreId();
+			idWs.setClauAcces(anotacio.getDistribucioClauAcces());
+			idWs.setIndetificador(anotacio.getDistribucioId());
+			AnotacioRegistreEntrada anotacioRegistreEntrada;
+
+			anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
+			return backofficeUtils.crearExpedientAmbAnotacioRegistre(expedientArxiu, anotacioRegistreEntrada);
+		} catch (Exception e) {
+			var errMsg = "Error reprocessant la informació de l'anotació de registre \""
+					+ anotacio.getIdentificador() + "\" de Distribució: " + e.getMessage();
+			log.error(errMsg, e);
+			throw new ArxiuException(errMsg, e);
 		}
 	}
 	
