@@ -1,8 +1,10 @@
 package es.caib.helium.client.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -14,6 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class PagedSortedRequest implements Serializable {
@@ -22,7 +25,7 @@ public class PagedSortedRequest implements Serializable {
     private Integer size;
     private List<String> sort;
 
-
+    @JsonIgnore
     public Pageable getPageable() {
         if (isUnPaged()) {
             return Pageable.unpaged();
@@ -31,6 +34,7 @@ public class PagedSortedRequest implements Serializable {
         }
     }
 
+    @JsonIgnore
     public Sort getSort() {
         if (isUnSorted()) {
             return Sort.unsorted();
@@ -59,10 +63,9 @@ public class PagedSortedRequest implements Serializable {
         }
     }
 
-    public boolean isUnPaged() {
+    private boolean isUnPaged() {
         return this.page == null || this.size == null || this.size <= 0;
     }
-
     private boolean isUnSorted() {
         return sort == null || sort.isEmpty();
     }

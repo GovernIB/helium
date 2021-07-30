@@ -2,14 +2,14 @@ package es.caib.helium.client.domini.domini.model;
 
 import es.caib.helium.client.model.PagedSortedRequest;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.NotNull;
 
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ConsultaDominisDades extends PagedSortedRequest {
