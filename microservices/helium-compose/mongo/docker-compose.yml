@@ -1,0 +1,61 @@
+version: '3.8'
+services:
+  mongo1:
+    image: mongo
+    container_name: mongo1
+    command: ["--replSet", "rs0", "--dbpath", "/data/db", "--bind_ip_all"]
+    ports:
+      - "30001:27017"
+    volumes:
+      - /mongo/data1/db:/data/db
+      - /mongo/data1/configdb:/data/configdb
+    networks:
+      - database-mongo
+
+  mongo2:
+    image: mongo
+    container_name: mongo2
+    command: ["--replSet", "rs0", "--dbpath", "/data/db", "--bind_ip_all"]
+    ports:
+      - "30002:27017"
+    volumes:
+      - /mongo/data2/db:/data/db
+      - /mongo/data2/configdb:/data/configdb
+    networks:
+      - database-mongo
+
+  mongo3:
+    image: mongo
+    container_name: mongo3
+    command: ["--replSet", "rs0", "--dbpath", "/data/db", "--bind_ip_all"]
+    ports:
+      - "30003:27017"
+    volumes:
+      - /mongo/data3/db:/data/db
+      - /mongo/data3/configdb:/data/configdb
+    networks:
+      - database-mongo
+
+  mongo-config:
+    image: mongo
+    networks:
+      - database-mongo
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+    volumes:
+      - ./scripts:/scripts
+    entrypoint: ['/scripts/mongo-setup.sh']
+
+  jms:
+    image: vromero/activemq-artemis
+    ports:
+      - 8161:8161
+      - 61616:61616
+    networks:
+      - database-mongo
+
+networks:
+  database-mongo:
+    driver: bridge
