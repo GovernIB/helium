@@ -19,6 +19,7 @@ import java.util.TreeMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -33,6 +34,10 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
+
 @Component
 public class ExportacioHelper {
 	
@@ -46,6 +51,9 @@ public class ExportacioHelper {
 	
 	@Autowired
 	private ExpedientRepository expedientRepository;
+
+	@Autowired
+	private DataSource dataSource;
 	
 	//@Autowired
 	private RestTemplate restTemplate;
@@ -58,11 +66,21 @@ public class ExportacioHelper {
 			logger.info("EXPORTANT EXPEDIENTS");
 			restTemplate = new RestTemplate();
 			expedients = expedientRepository.findAll();
-	//		logger.info("Expedients " + expedients.size());
-	//		List<ExpedientExportacio> expedientsExportacio = prepararExpedients(expedients);
-	//		logger.info("Enviant al micro-servei: ");
-	//		URI uri = URI.create(GlobalProperties.getInstance().getProperty("app.exportacio.expedients.url.servei"));
-	//		restTemplate.postForEntity(uri, expedientsExportacio, ResponseEntity.class);	
+			logger.info("Expedients " + expedients.size());
+			List<ExpedientExportacio> expedientsExportacio = prepararExpedients(expedients);
+			logger.info("Enviant al micro-servei: ");
+			URI uri = URI.create(GlobalProperties.getInstance().getProperty("app.exportacio.expedients.url.servei"));
+	//		restTemplate.postForEntity(uri, expedientsExportacio, ResponseEntity.class);
+			for (ExpedientExportacio expedientExportacio: expedientsExportacio) {
+				try {
+					ResponseEntity response = restTemplate.postForEntity(uri, expedientExportacio, ResponseEntity.class);
+					if (!HttpStatus.CREATED.equals(response.getStatusCode())) {
+						logger.info("Error al exportar l'expedient " + expedientExportacio.getId() + ". " + response.getBody().toString());
+					}
+				} catch (Exception ex) {
+					logger.info("Error al exportar l'expedient " + expedientExportacio.getId(), ex);
+				}
+			}
 	
 		} catch (Exception ex) {
 			throw new Exception("Error al exportar els expedients", ex);
@@ -133,13 +151,20 @@ public class ExportacioHelper {
 			logger.error("No s'exporten tasques. No hi han expedients");
 			return;
 		}
-		
-		String dbURL = "jdbc:oracle:thin:@10.35.3.242:1521:ORCL";
-		String username = "helium";
-		String password = "helium";
-		Connection conn = DriverManager.getConnection(dbURL, username, password);
+
+//		String dbURL = "jdbc:oracle:thin:@10.35.3.242:1521:ORCL";
+//		String username = "helium";
+//		String password = "helium";
+//		Connection conn = DriverManager.getConnection(dbURL, username, password);
+//
+//		String jndi = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.jndi.parameter");
+//		Context initContext = new InitialContext();
+//		DataSource dataSource = (DataSource)initContext.lookup("java:es.caib.helium.db");
+
+		Connection conn = dataSource.getConnection();
+
 		try {
-			
+
 			List<TascaExportacio> tasques = new ArrayList<TascaExportacio>();
 			for (Expedient expedient : expedients) {
 				
@@ -161,6 +186,7 @@ public class ExportacioHelper {
 				*/
 				
 				PreparedStatement ps = conn.prepareStatement("SELECT"
+						+ "	jti.ID_ AS id,\n"
 						+ "	jt.NAME_ AS nom,\n"
 						+ "	jti.NAME_ AS titol,\n"
 						+ "	jti.ACTORID_,\n"
@@ -183,23 +209,24 @@ public class ExportacioHelper {
 					// TODO REVISAR CAMPS COMENTATS I CAMPS QUE ES COMPAREN AMB NULL
 					while (rs.next()) {
 						TascaExportacio tasca = new TascaExportacio();
+						tasca.setId(rs.getLong("id"));
 						tasca.setExpedientId(expedient.getId());
 						tasca.setNom(rs.getString("nom"));
 						tasca.setTitol(rs.getString("titol"));
-						tasca.setAfagada(rs.getString("ACTORID_") != null);
+						// TODO: tasca.setAfagada(rs.getString("ACTORID_") != null);
 						tasca.setCancelada(rs.getBoolean("ISCANCELLED_"));
 						tasca.setSuspesa(rs.getBoolean("ISSUSPENDED_"));
-						//tasca.setCompletada();
-						//tasca.setAssignada();
+						tasca.setCompletada(rs.getDate("END_") != null);
+						tasca.setAssignada(rs.getString("ACTORID_") != null);
 						tasca.setMarcadaFinalitzar(rs.getDate("MARCADAFINALITZAR_") != null);
 						tasca.setErrorFinalitzacio(rs.getString("ERRORFINALITZACIO_") != null);
 						tasca.setDataFins(rs.getDate("DUEDATE_"));
 						tasca.setDataFi(rs.getDate("END_"));
 						tasca.setIniciFinalitzacio(rs.getDate("INICIFINALITZACIO_"));
 						tasca.setDataCreacio(rs.getDate("CREATE_"));
-						tasca.setUsuariAssignat(rs.getString("RESPONSABLE_CODI"));
-						//tasca.setGrupAssignat();
-						
+						tasca.setUsuariAssignat(rs.getString("ACTORID_"));
+						//tasca.setGrupAssignat(); --> JBPM no tenim aquesta informació
+						// TODO: responsables
 						tasques.add(tasca);
 					}
 				} catch (Exception ex) {
@@ -212,9 +239,18 @@ public class ExportacioHelper {
 			}
 			
 			logger.info("Tasques exportades - Cridant el microservei " + tasques.size());
-			
-			//URI uri = URI.create(GlobalProperties.getInstance().getProperty("app.exportacio.tasques.url.servei"));
-			//restTemplate.postForEntity(uri, tasques, ResponseEntity.class);	
+			URI uri = URI.create(GlobalProperties.getInstance().getProperty("app.exportacio.tasques.url.servei"));
+			//restTemplate.postForEntity(uri, tasques, ResponseEntity.class);
+			for(TascaExportacio tasca: tasques) {
+				try {
+					ResponseEntity response = restTemplate.postForEntity(uri, tasca, ResponseEntity.class);
+					if (!HttpStatus.CREATED.equals(response.getStatusCode())) {
+						logger.info("Error al exportar la tasca " + tasca.getId() + ". " + response.getBody().toString());
+					}
+				} catch (Exception ex) {
+					logger.info("Error al exportar la tasca " + tasca.getId() + ". ", ex);
+				}
+			}
 			
 		
 		} catch (Exception ex) {
