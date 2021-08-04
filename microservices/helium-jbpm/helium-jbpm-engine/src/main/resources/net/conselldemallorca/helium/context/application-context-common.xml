@@ -48,7 +48,7 @@
 				<prop key="hibernate.dialect">${config:es.caib.helium-jbpm.hibernate.dialect}</prop>
 				<prop key="hibernate.show_sql">${config:es.caib.helium-jbpm.hibernate.show_sql}</prop>
 				<prop key="hibernate.hbm2ddl.auto">${config:es.caib.helium-jbpm.hibernate.hbm2ddl.auto}</prop>
-				<prop key="hibernate.ejb.cfgfile">/es/caib/helium/context/jbpm3.hibernate.cfg.xml</prop>
+				<prop key="hibernate.ejb.cfgfile">/net/conselldemallorca/helium/context/jbpm3.hibernate.cfg.xml</prop>
 				<prop key="hibernate.generate_statistics">${config:es.caib.helium-jbpm.hibernate.generate_statistics?false}</prop>
 			</props>
 		</property>

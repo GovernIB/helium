@@ -12,7 +12,7 @@
 		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
 	<bean id="jbpm3ObjectFactory" class="net.conselldemallorca.helium.jbpm3.spring.SpringObjectFactory">
-		<constructor-arg value="es/caib/helium/context/jbpm3.cfg.xml" />
+		<constructor-arg value="net/conselldemallorca/helium/context/jbpm3.cfg.xml" />
 	</bean>
 	<bean id="jbpm3CommandService" class="org.jbpm.command.impl.CommandServiceImpl">
 		<constructor-arg ref="jbpm3Configuration" />

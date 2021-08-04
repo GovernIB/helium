@@ -16,6 +16,14 @@ public class RestClientHelper {
     private final static int CONNECT_TIMEOUT = 5000;
     private final static int READ_TIMEOUT = 30000;
 
+    private static String bridgeAddress;
+
+    public static String getBridgeAddress() {
+        if (bridgeAddress == null)
+            bridgeAddress = PropertiesHelper.getInstance().getProperty("es.caib.helium.jbpm.bridge.service.host");
+        return bridgeAddress;
+    }
+
     public static Client generarClient() {
         Client jerseyClient = Client.create();
         jerseyClient.setConnectTimeout(CONNECT_TIMEOUT);
@@ -58,5 +66,4 @@ public class RestClientHelper {
             return response;
         }
     }
-
 }

@@ -7,7 +7,7 @@
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
 	<listener>
-		<listener-class>es.caib.helium.back.config.InicialitzacioListener</listener-class>
+		<listener-class>net.conselldemallorca.helium.back.config.InicialitzacioListener</listener-class>
 	</listener>
 	
 	<context-param>

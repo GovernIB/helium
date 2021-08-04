@@ -9,9 +9,6 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class DefinicioProcesHelper {
 
-    @Value("${es.caib.helium.jbpm.bridge.service.host}")
-    String bridgeAdress;
-
     @Autowired
     RestTemplate restTemplate;
 
@@ -73,7 +70,7 @@ public class DefinicioProcesHelper {
 
 
     private String getDefinicioProcesBridgeAddress() {
-        return bridgeAdress + "/definicionsProces";
+        return RestClientHelper.getBridgeAddress() + "/definicionsProces";
     }
 
 }

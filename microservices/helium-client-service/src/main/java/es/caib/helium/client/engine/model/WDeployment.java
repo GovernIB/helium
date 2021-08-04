@@ -6,7 +6,7 @@ public interface WDeployment {
 
     public String getId();
     public String getName();
-    public String getTenantId();
+//    public String getTenantId();
     public String getCategory();
 
     public List<? extends WProcessDefinition> getProcessDefinitions();

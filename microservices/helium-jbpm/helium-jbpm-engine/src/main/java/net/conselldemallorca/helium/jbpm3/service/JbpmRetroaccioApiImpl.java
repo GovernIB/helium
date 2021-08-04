@@ -5,6 +5,8 @@ import net.conselldemallorca.helium.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.api.dto.CampTipusIgnored;
 import net.conselldemallorca.helium.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.api.dto.ExpedientLogDto;
+import net.conselldemallorca.helium.api.dto.InformacioRetroaccioDto;
+import net.conselldemallorca.helium.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.api.dto.LogObjectDto;
 import net.conselldemallorca.helium.api.service.JbpmRetroaccioApi;
 import net.conselldemallorca.helium.api.service.WProcessInstance;
@@ -81,6 +83,57 @@ public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
     @Autowired
     WorkflowBridgeService workflowBridgeService;
 
+// TODO: Mirar RetroaccioHelper a helium-service
+//    @Override
+//	public SortedSet<Entry<InstanciaProcesDto, List<InformacioRetroaccioDto>>> findInformacioRetroaccioExpedientOrdenatPerData(
+//			Long expedientId,
+//			String instanciaProcesId,
+//			boolean detall) {
+//
+//		Map<InstanciaProcesDto, List<InformacioRetroaccioDto>> resposta = new HashMap<InstanciaProcesDto, List<InformacioRetroaccioDto>>();
+//		List<InstanciaProcesDto> arbre = expedientHelper.getArbreInstanciesProces(instanciaProcesId);
+//		List<ExpedientLog> logs = expedientLoggerRepository.findAmbExpedientIdOrdenatsPerData(expedientId);
+//		List<String> taskIds = new ArrayList<String>();
+//		String parentProcessInstanceId = null;
+//		Map<String, String> processos = new HashMap<String, String>();
+//		for (InstanciaProcesDto ip: arbre) {
+//			resposta.put(ip, new ArrayList<InformacioRetroaccioDto>());
+//			for (ExpedientLog log: logs) {
+//				if (log.getProcessInstanceId().toString().equals(ip.getId())) {
+//					// Inclourem el log si:
+//					//    - Estam mostrant el log detallat
+//					//    - El log no se correspon a una tasca
+//					//    - Si el log pertany a una tasca i encara
+//					//      no s'ha afegit cap log d'aquesta tasca
+//					if (detall || !log.isTargetTasca() || !taskIds.contains(log.getTargetId())) {
+//						taskIds.add(log.getTargetId());
+//						resposta.get(ip).addAll(
+//								getLogs(
+//										processos,
+//										log,
+//										parentProcessInstanceId,
+//										ip.getId(),
+//										detall));
+//					}
+//				}
+//			}
+//		}
+//		SortedSet<Map.Entry<InstanciaProcesDto, List<InformacioRetroaccioDto>>> sortedEntries = new TreeSet<Entry<InstanciaProcesDto, List<InformacioRetroaccioDto>>>(new Comparator<Entry<InstanciaProcesDto, List<InformacioRetroaccioDto>>>() {
+//			@Override
+//			public int compare(Map.Entry<InstanciaProcesDto, List<InformacioRetroaccioDto>> e1, Map.Entry<InstanciaProcesDto, List<InformacioRetroaccioDto>> e2) {
+//				if (e1.getKey() == null || e2.getKey() == null)
+//					return 0;
+//				int res = e1.getKey().getId().compareTo(e2.getKey().getId());
+//				if (e1.getKey().getId().equals(e2.getKey().getId())) {
+//					return res;
+//				} else {
+//					return res != 0 ? res : 1;
+//				}
+//			}
+//		});
+//		sortedEntries.addAll(resposta.entrySet());
+//		return sortedEntries;
+//	}
 
     public void deleteProcessInstanceTreeLogs(String rootProcessInstanceId) {
         final long id = Long.parseLong(rootProcessInstanceId);

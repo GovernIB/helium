@@ -13,16 +13,7 @@ public interface WProcessDefinition {
 	public String getCategory();
 	
 //	public Object getProcessDefinition();
-	
-	/** Tracta el contingut i retorna una definició de procés.
-	 * 
-	 * @param zipInputStream
-	 * @return
-	 * @throws Exception
-	 */
-	public WProcessDefinition parse(ZipInputStream zipInputStream) throws Exception;
-	
-	/** Retorna la llista d'arxius de la definició de procés. */
-	public Map<String, byte[]> getFiles();
+//	public WProcessDefinition parse(ZipInputStream zipInputStream) throws Exception;
+//	public Map<String, byte[]> getFiles();
 	
 }

@@ -90,7 +90,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 			String nomArxiu,
 			byte[] contingut) {
 		//adminService.mesuraIniciar("jBPM desplegar", "jbpmDao");
-		JbpmProcessDefinition resposta = null;
+		JbpmDeployment resposta = null;
 		DeployProcessCommand command;
 		if (nomArxiu.endsWith(".xml")) {
 			try {
@@ -117,14 +117,17 @@ public class JbpmHelper implements WorkflowEngineApi {
 			throw new RuntimeException("Arxiu amb extensió no suportada " + nomArxiu + ". Només es suporten les extensions .xml i .*ar");
 		}
 		ProcessDefinition processDefinition = (ProcessDefinition)commandService.execute(command);
-		resposta = new JbpmProcessDefinition(processDefinition);
+		resposta = new JbpmDeployment(processDefinition);
 		//adminService.mesuraCalcular("jBPM desplegar", "jbpmDao");
 		return resposta;
 	}
 
 	@Override
 	public WDeployment getDesplegament(String processDefinitionId) {
-		return (WDeployment)getProcessDefinition(null, processDefinitionId);
+		ProcessDefinition processDefinition = getProcessDefinition(processDefinitionId);
+		if (processDefinition != null)
+			return new JbpmDeployment(processDefinition);
+		return null;
 	}
 
 	public void esborrarDesplegament(String jbpmId) {
@@ -190,14 +193,11 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	public WProcessDefinition getProcessDefinition(String deploymentId, String processDefinitionId) {
 		//adminService.mesuraIniciar("jBPM getProcessDefinition", "jbpmDao");
-		WProcessDefinition resposta = null;
-		final long pdid = Long.parseLong(processDefinitionId);
-		GetProcessDefinitionByIdCommand command = new GetProcessDefinitionByIdCommand(pdid);
-		ProcessDefinition processDefinition = (ProcessDefinition)commandService.execute(command);
+		ProcessDefinition processDefinition = getProcessDefinition(processDefinitionId);
 		if (processDefinition != null)
-			resposta = new JbpmProcessDefinition((ProcessDefinition)commandService.execute(command));
+			return new JbpmProcessDefinition(processDefinition);
 		//adminService.mesuraCalcular("jBPM getProcessDefinition", "jbpmDao");
-		return resposta;
+		return null;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1303,7 +1303,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	public List<String[]> findCarrecsByFiltre(String filtre) {
 		FindCarrecCommand command = new FindCarrecCommand(FindCarrecCommand.TipusConsulta.FILTRE, filtre);
-		return (List<String[]) commandService.execute(command);
+		return (List<String[]>) commandService.execute(command);
 	}
 
 	public List<String> findPersonesByGrupAndCarrec(String grupCodi, String carrecCodi) {
@@ -1650,7 +1650,8 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	@Override
 	public WProcessDefinition parse(ZipInputStream zipInputStream) throws Exception {
-		return new JbpmProcessDefinition(null).parse(zipInputStream);
+		ProcessDefinition processDefinition = ProcessDefinition.parseParZipInputStream(zipInputStream);
+		return new JbpmProcessDefinition(processDefinition);
 	}
 
 
@@ -1913,6 +1914,13 @@ public class JbpmHelper implements WorkflowEngineApi {
 //		//adminService.mesuraCalcular("jBPM findTasks ids", "jbpmDao");
 //		return resultat;
 //	}
+
+	private ProcessDefinition getProcessDefinition(String processDefinitionId) {
+		final long pdid = Long.parseLong(processDefinitionId);
+		GetProcessDefinitionByIdCommand command = new GetProcessDefinitionByIdCommand(pdid);
+		ProcessDefinition processDefinition = (ProcessDefinition)commandService.execute(command);
+		return processDefinition;
+	}
 
 	@SuppressWarnings("unchecked")
 	public void deleteProcessInstanceTreeLogs(String rootProcessInstanceId) {

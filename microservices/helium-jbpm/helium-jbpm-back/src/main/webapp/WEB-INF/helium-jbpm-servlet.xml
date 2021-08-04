@@ -15,14 +15,20 @@
 		default-autowire="byName">
 
 <!--	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">-->
-<!--		<property name="location" value="${es.caib.helium.properties.path}"/>-->
+<!--		<property name="location" value="${net.conselldemallorca.helium.properties.path}"/>-->
 <!--	</bean>-->
 
-	<context:component-scan base-package="es.caib.helium.back"/>
+	<context:component-scan base-package="net.conselldemallorca.helium"/>
 
 	<context:annotation-config/>
 	<mvc:annotation-driven/>
 	<mvc:default-servlet-handler/>
+
+<!--	<bean id="workflowEngineApi" class="org.springframework.ejb.access.LocalStatelessSessionProxyFactoryBean">-->
+<!--		<property name="jndiName" value="helium-jbpm/WorkflowEngineApiBean/local"/>-->
+<!--		<property name="businessInterface" value="net.conselldemallorca.helium.api.service.WorkflowEngineApi"/>-->
+<!--		<property name="resourceRef" value="true" />-->
+<!--	</bean>-->
 
 <!--	<mvc:interceptors>-->
 <!--		<mvc:interceptor>-->

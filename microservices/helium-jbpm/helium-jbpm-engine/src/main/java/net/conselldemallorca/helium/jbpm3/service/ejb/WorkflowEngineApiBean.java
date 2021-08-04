@@ -335,6 +335,46 @@ public class WorkflowEngineApiBean implements WorkflowEngineApi {
     }
 
     @Override
+    public List<String> findAreesByFiltre(String filtre) {
+        return delegate.findAreesByFiltre(filtre);
+    }
+
+    @Override
+    public List<String> findAreesByPersona(String personaCodi) {
+        return delegate.findAreesByPersona(personaCodi);
+    }
+
+    @Override
+    public List<String> findRolsByPersona(String persona) {
+        return delegate.findRolsByPersona(persona);
+    }
+
+    @Override
+    public List<String[]> findCarrecsByFiltre(String filtre) {
+        return delegate.findCarrecsByFiltre(filtre);
+    }
+
+    @Override
+    public List<String> findPersonesByGrupAndCarrec(String areaCodi, String carrecCodi) {
+        return delegate.findPersonesByGrupAndCarrec(areaCodi, carrecCodi);
+    }
+
+    @Override
+    public List<String> findCarrecsByPersonaAndGrup(String codiPersona, String codiArea) {
+        return delegate.findPersonesByGrupAndCarrec(codiPersona, codiArea);
+    }
+
+    @Override
+    public List<String> findPersonesByCarrec(String codi) {
+        return delegate.findPersonesByCarrec(codi);
+    }
+
+    @Override
+    public List<String> findPersonesByGrup(String rol) {
+        return delegate.findPersonesByGrup(rol);
+    }
+
+    @Override
     public List<String> findStartTaskOutcomes(String jbpmId, String taskName) {
         return delegate.findStartTaskOutcomes(jbpmId, taskName);
     }
