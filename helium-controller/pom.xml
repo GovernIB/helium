@@ -135,11 +135,6 @@
 			<artifactId>webjars-locator</artifactId>
 			<version>${webjars-locator.version}</version>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>org.webjars.bower</groupId>-->
-<!--			<artifactId>jsrender</artifactId>-->
-<!--			<version>1.0.0-rc.70</version>-->
-<!--		</dependency>-->
 		<dependency>
 			<groupId>org.webjars.bowergithub.borismoore</groupId>
 			<artifactId>jsrender</artifactId>

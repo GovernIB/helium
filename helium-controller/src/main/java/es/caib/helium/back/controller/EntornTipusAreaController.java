@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author Limit Tecnologies <limit@limit.es>
  */
 
-@Controller(value = "entornTipusAreaControllerV3")
+@Controller
 @RequestMapping("/v3/entorn-tipus-area")
 public class EntornTipusAreaController extends BaseController {
 

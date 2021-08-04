@@ -3,19 +3,45 @@
  */
 package es.caib.helium.logic.service;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
+
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.HibernateHelper;
 import es.caib.helium.logic.helper.MailHelper;
 import es.caib.helium.logic.helper.MonitorDominiHelper;
 import es.caib.helium.logic.helper.MonitorIntegracioHelper;
-import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.DominiDto;
+import es.caib.helium.logic.intf.dto.IntegracioAccioDto;
+import es.caib.helium.logic.intf.dto.IntegracioAccioEstatEnumDto;
+import es.caib.helium.logic.intf.dto.IntegracioAccioTipusEnumDto;
+import es.caib.helium.logic.intf.dto.IntegracioDto;
+import es.caib.helium.logic.intf.dto.IntegracioParametreDto;
+import es.caib.helium.logic.intf.dto.MesuraTemporalDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.dto.PersonaDto.Sexe;
+import es.caib.helium.logic.intf.dto.ReassignacioDto;
+import es.caib.helium.logic.intf.dto.TascaCompleteDto;
+import es.caib.helium.logic.intf.dto.UsuariPreferenciesDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.service.AdminService;
 import es.caib.helium.logic.intf.util.GlobalProperties;
-import es.caib.helium.ms.domini.DominiMs;
-import es.caib.helium.ms.domini.client.model.Domini;
+import es.caib.helium.logic.ms.DominiMs;
 import es.caib.helium.persist.entity.Entorn;
 import es.caib.helium.persist.entity.Persona;
 import es.caib.helium.persist.entity.Reassignacio;
@@ -24,19 +50,6 @@ import es.caib.helium.persist.repository.EntornRepository;
 import es.caib.helium.persist.repository.PersonaRepository;
 import es.caib.helium.persist.repository.ReassignacioRepository;
 import es.caib.helium.persist.repository.UsuariPreferenciesRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Servei per gestionar la configuració de l'aplicació.
@@ -172,7 +185,7 @@ public class AdminServiceImpl implements AdminService {
 			// Domini no intern
 			DominiDto domini = dominiMs.get(dominiId);
 			if (domini == null) {
-				throw new NoTrobatException(Domini.class,dominiId);
+				throw new NoTrobatException(DominiDto.class,dominiId);
 			}
 		}
 		return monitorDominiHelper.findAccionsByDomini(dominiId);

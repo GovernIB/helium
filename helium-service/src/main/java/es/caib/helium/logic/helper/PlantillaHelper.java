@@ -3,6 +3,25 @@
  */
 package es.caib.helium.logic.helper;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.Writer;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
 import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.integracio.plugins.unitat.UnitatOrganica;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
@@ -19,10 +38,19 @@ import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.extern.domini.FilaResultat;
 import es.caib.helium.logic.intf.util.Constants;
 import es.caib.helium.logic.intf.util.GlobalProperties;
+import es.caib.helium.logic.ms.DominiMs;
 import es.caib.helium.logic.util.NombreEnCastella;
 import es.caib.helium.logic.util.NombreEnCatala;
-import es.caib.helium.ms.domini.DominiMs;
-import es.caib.helium.persist.entity.*;
+import es.caib.helium.persist.entity.Area;
+import es.caib.helium.persist.entity.AreaJbpmId;
+import es.caib.helium.persist.entity.Carrec;
+import es.caib.helium.persist.entity.CarrecJbpmId;
+import es.caib.helium.persist.entity.Document;
+import es.caib.helium.persist.entity.DocumentStore;
+import es.caib.helium.persist.entity.Entorn;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.entity.Persona;
 import es.caib.helium.persist.repository.AreaJbpmIdRepository;
 import es.caib.helium.persist.repository.AreaRepository;
 import es.caib.helium.persist.repository.CarrecJbpmIdRepository;
@@ -49,23 +77,6 @@ import freemarker.template.TemplateModelException;
 import net.sf.jooreports.templates.DocumentTemplate;
 import net.sf.jooreports.templates.DocumentTemplateException;
 import net.sf.jooreports.templates.DocumentTemplateFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.Writer;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * Helper per a generar documents mitjançant plantilles fetes amb ODT
@@ -73,7 +84,7 @@ import java.util.Map;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Component("PlantillaHelperV3")
+@Component
 public class PlantillaHelper {
 
 	@Resource

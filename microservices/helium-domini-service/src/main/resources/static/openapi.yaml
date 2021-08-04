@@ -65,13 +65,12 @@ paths:
       responses:
         '201':
           description: Domini created
-          headers:
-            Location:
-              description: Adressa del domini creat
+          content:
+            application-json:
               schema:
-                type: string
-                format: uri
-                example: http://example.com/v1/dominis/{assignedIdValue}
+                description: Identificador del domini creat
+                type: integer
+                example: 1234
         '400':
           description: Bad request
         '409':

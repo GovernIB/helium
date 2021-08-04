@@ -9,6 +9,9 @@ import es.caib.helium.logic.intf.exception.ValidacioException;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
+
+import org.springframework.context.annotation.Primary;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;

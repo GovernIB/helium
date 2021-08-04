@@ -1,3 +1,4 @@
+<!-- 
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
@@ -55,22 +56,5 @@
 	</bean>
 	<tx:annotation-driven transaction-manager="transactionManager" />
 
-	<!-- Execució de tasques periòdiques
-	<task:annotation-driven executor="taskExecutor" scheduler="taskScheduler"/>
-	<task:executor id="taskExecutor" pool-size="1"/>
-	<task:scheduler id="taskScheduler" pool-size="10"/>
-	/Execució de tasques periòdiques -->
-
-	<!-- Cache
-	<bean id="ehcache" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-		<property name="configLocation" value="classpath:ehcache.xml" />
-	</bean>
-	<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
-		<property name="cacheManager">
-			<ref bean="ehcache"/>
-		</property>
-	</bean>
-	<cache:annotation-driven cache-manager="cacheManager"/>
-	/Cache -->
-
 </beans>
+ -->

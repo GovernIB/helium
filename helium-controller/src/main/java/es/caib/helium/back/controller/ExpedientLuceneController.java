@@ -32,7 +32,7 @@ import java.util.Map;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Controller("expedientLuceneV3")
+@Controller
 @RequestMapping("/v3/expedient/lucene")
 public class ExpedientLuceneController extends BaseExpedientController {
 	

@@ -66,7 +66,7 @@ import java.util.Set;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Service("execucioMassivaServiceV3")
+@Service
 @Transactional(noRollbackForClassName = "java.lang.Exception")
 public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 

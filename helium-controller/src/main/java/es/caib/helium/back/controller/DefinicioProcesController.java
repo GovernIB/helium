@@ -60,7 +60,7 @@ import java.util.Set;
  * detall i dels recursos. La pipella de tasques la serveix el controlador {@link DefinicioProcesTascaController}
  *
  */
-@Controller(value = "definicioProcesControllerV3")
+@Controller
 @RequestMapping("/v3/definicioProces")
 public class DefinicioProcesController extends BaseDefinicioProcesController {
 	

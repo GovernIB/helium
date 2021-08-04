@@ -51,7 +51,7 @@ import java.util.TreeSet;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Controller(value = "entornEstadisticaControllerV3")
+@Controller
 @RequestMapping("/v3/estadistica")
 public class ExpedientTipusEstadisticaController extends BaseController {
 

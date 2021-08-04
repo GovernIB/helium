@@ -5,7 +5,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
-<%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 
 <form:form id="command" modelAttribute="command" action="" cssClass="form-horizontal form-tasca" method="post">
 

@@ -4,7 +4,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
-<%@ taglib uri="http://displaytag.sf.net/el" prefix="display" %>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 
 <link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">

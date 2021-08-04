@@ -160,21 +160,25 @@ public class EntornService extends AbstractService<es.caib.helium.logic.intf.ser
 	}
 
 	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public Long getEntornActualId() {
 		return getDelegateService().getEntornActualId();
 	}
 
 	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void setEntornActualId(Long entornActualId) {
 		getDelegateService().setEntornActualId(entornActualId);
 	}
 
     @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
     public boolean isAdminEntornActual() {
         return getDelegateService().isAdminEntornActual();
     }
 
     @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
     public boolean isDissenyadorEntorn(Long id) {
         return getDelegateService().isDissenyadorEntorn(id);
     }

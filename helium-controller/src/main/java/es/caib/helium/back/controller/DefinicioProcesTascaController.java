@@ -31,7 +31,7 @@ import java.util.List;
  * Controlador per a la pestanya de tasques del disseny de les definicions de procés.
  *
  */
-@Controller(value = "definicioProcesTascaControllerV3")
+@Controller
 @RequestMapping("/v3/definicioProces")
 public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 	

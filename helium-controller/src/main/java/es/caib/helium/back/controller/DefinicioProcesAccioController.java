@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
  * Controlador per a la pipella d'accions de la definició de procés.
  * 
  */
-@Controller(value = "definicioProcesAccioControllerV3")
+@Controller
 @RequestMapping("/v3/definicioProces")
 public class DefinicioProcesAccioController extends BaseDefinicioProcesController {
 

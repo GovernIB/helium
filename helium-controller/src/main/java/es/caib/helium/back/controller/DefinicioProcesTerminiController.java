@@ -35,7 +35,7 @@ import java.util.List;
  * Controlador per a la pipella de terminis de la definició de procés.
  * 
  */
-@Controller(value = "definicioProcesTerminiControllerV3")
+@Controller
 @RequestMapping("/v3/definicioProces")
 public class DefinicioProcesTerminiController extends BaseDefinicioProcesController {
 

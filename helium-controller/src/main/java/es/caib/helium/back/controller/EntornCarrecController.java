@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author Limit Tecnologies <limit@limit.es>
  */
 
-@Controller(value = "entornCarrecControllerV3")
+@Controller
 @RequestMapping("/v3/entorn-carrec")
 public class EntornCarrecController extends BaseController {
 

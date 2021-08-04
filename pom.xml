@@ -66,9 +66,7 @@
 		<module>helium-controller</module>
 		<module>helium-boot</module>
 		<module>helium-back</module>
-		<module>helium-jboss7-ear</module>
-
-		<module>helium-ms</module>
+		<module>helium-ear</module>
 		<module>helium-plugin-api</module>
 		<!-- 
 		<module>helium-core-api</module>

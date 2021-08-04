@@ -110,11 +110,6 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>helium-ms</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-plugin-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>

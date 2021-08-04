@@ -4,7 +4,6 @@
 package es.caib.helium;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
@@ -13,6 +12,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerA
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.boot.autoconfigure.websocket.servlet.WebSocketServletAutoConfiguration;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 
@@ -31,12 +31,17 @@ import org.springframework.context.annotation.FilterType;
 		WebSocketServletAutoConfiguration.class
 })
 @ComponentScan(
-		excludeFilters = @ComponentScan.Filter(
+		excludeFilters =
+				@ComponentScan.Filter(
 				type = FilterType.REGEX,
 				pattern = {
 						"es\\.caib\\.helium\\.logic\\..*",
 						"es\\.caib\\.helium\\.persist\\..*",
-						"es\\.caib\\.helium\\.ejb\\..*"}))
+						"es\\.caib\\.helium\\.ejb\\..*"})
+)
+@EnableFeignClients(
+		basePackages = {"es.caib.helium.client"}
+)
 public class HeliumEjbApp extends HeliumApp {
 
 	public static void main(String[] args) {

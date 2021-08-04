@@ -40,7 +40,7 @@ import java.util.Set;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Service("tascaProgramadaServiceV3")
+@Service
 public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	
 	@Resource

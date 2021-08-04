@@ -43,7 +43,7 @@ import java.util.Map;
  * Controlador per al manteniment de les dominis a nivell d'entorn.
  *
  */
-@Controller(value = "dominiControllerV3")
+@Controller
 @RequestMapping("/v3/domini")
 public class DominiController extends BaseDissenyController {
 	

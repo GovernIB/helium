@@ -44,7 +44,7 @@ import java.util.Set;
  * Controlador per al manteniment de les enumeracions a nivell d'entorn.
  *
  */
-@Controller(value = "enumeracioControllerV3")
+@Controller
 @RequestMapping("/v3/enumeracio")
 public class EnumeracioController extends BaseDissenyController {
 	

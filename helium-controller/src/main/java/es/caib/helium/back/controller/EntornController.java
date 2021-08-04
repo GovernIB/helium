@@ -28,7 +28,7 @@ import javax.validation.Valid;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Controller(value = "entornControllerV3")
+@Controller
 @RequestMapping("/v3/entorn")
 public class EntornController extends BaseController {
 

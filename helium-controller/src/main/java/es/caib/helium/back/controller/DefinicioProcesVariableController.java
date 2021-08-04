@@ -48,7 +48,7 @@ import java.util.List;
  * procés.
  *
  */
-@Controller(value = "definicioProcesVariableControllerV3")
+@Controller
 @RequestMapping("/v3/definicioProces")
 public class DefinicioProcesVariableController extends BaseVariableController {
 

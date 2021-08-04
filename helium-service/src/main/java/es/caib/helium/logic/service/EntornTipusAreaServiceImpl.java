@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.List;
 
-@Service("entornTipusAreaServiceV3")
+@Service
 public class EntornTipusAreaServiceImpl implements EntornTipusAreaService {
 
 	@Resource

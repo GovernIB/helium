@@ -24,7 +24,7 @@ public interface DominiFeignClient {
 	
 
 	@RequestMapping(method = RequestMethod.GET, value = DominiApiPath.CREATE_DOMINI)
-	public ResponseEntity<Void> createDominiV1(@RequestBody DominiDto dominiDto);
+	public ResponseEntity<Long> createDominiV1(@RequestBody DominiDto dominiDto);
 	
 	@RequestMapping(method = RequestMethod.PUT, value = DominiApiPath.UPDATE_DOMINI)
 	public ResponseEntity<Void> updateDominiV1(

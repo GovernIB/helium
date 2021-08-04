@@ -3,6 +3,7 @@
 		<pattern>/js*</pattern>
 		<pattern>/css*</pattern>
 		<pattern>/img*</pattern>
+		<pattern>/webjars*</pattern>
 		<pattern>/ico*</pattern>
 		<pattern>/font*</pattern>
 		<pattern>/dwr*</pattern>

@@ -15,7 +15,7 @@ public interface DominiClient {
 	public PagedList<DominiDto> listDominisV1(
 			ConsultaDominisDades consultaDominisDades);
 
-	public void createDominiV1(DominiDto dominiDto);
+	public Long createDominiV1(DominiDto dominiDto);
 
 	public void updateDominiV1(Long dominiId, DominiDto dominiDto);
 

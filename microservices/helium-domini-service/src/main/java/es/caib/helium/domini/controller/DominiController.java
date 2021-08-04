@@ -138,7 +138,7 @@ public class DominiController {
 
 
     @PostMapping(consumes = { "application/json" })
-    public ResponseEntity<Void> createDominiV1(
+    public ResponseEntity<Long> createDominiV1(
             @Valid @RequestBody DominiDto dominiDto) {
 
         log.debug("[CTR] create domini: " + dominiDto.toString());
@@ -155,9 +155,9 @@ public class DominiController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ja existeix un domini amb el mateix entorn, tipus d'expedient i codi");
         }
 
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("Location", API_PATH + "/" + savedDto.getId());
-        return new ResponseEntity<>(httpHeaders, HttpStatus.CREATED);
+        //HttpHeaders httpHeaders = new HttpHeaders();
+        //httpHeaders.add("Location", API_PATH + "/" + savedDto.getId());
+        return new ResponseEntity<>(savedDto.getId(), HttpStatus.CREATED);
 
     }
 

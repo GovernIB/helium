@@ -44,7 +44,7 @@ import java.util.List;
  * procés.
  * 
  */
-@Controller(value = "definicioProcesDocumentControllerV3")
+@Controller
 @RequestMapping("/v3/definicioProces")
 public class DefinicioProcesDocumentController extends BaseDefinicioProcesController {
 	
