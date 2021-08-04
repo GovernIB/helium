@@ -102,7 +102,7 @@ public class ExpedientTipusService extends AbstractService<es.caib.helium.logic.
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findAmbEntornPermisConsultar(
 			Long entornId) throws NoTrobatException {
-		return findAmbEntornPermisConsultar(entornId);
+		return getDelegateService().findAmbEntornPermisConsultar(entornId);
 	}
 
 	@Override
@@ -125,21 +125,21 @@ public class ExpedientTipusService extends AbstractService<es.caib.helium.logic.
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findAmbEntornPermisDissenyar(
 			Long entornId) throws NoTrobatException {
-		return findAmbEntornPermisDissenyar(entornId);
+		return getDelegateService().findAmbEntornPermisDissenyar(entornId);
 	}
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findAmbEntornPermisAnotacio(
 			Long entornId) throws NoTrobatException {
-		return findAmbEntornPermisAnotacio(entornId);
+		return getDelegateService().findAmbEntornPermisAnotacio(entornId);
 	}
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findAmbEntornPermisExecucioScript(
 			Long entornId) throws NoTrobatException {
-		return findAmbEntornPermisExecucioScript(entornId);
+		return getDelegateService().findAmbEntornPermisExecucioScript(entornId);
 	}
 
 	@Override
@@ -197,7 +197,7 @@ public class ExpedientTipusService extends AbstractService<es.caib.helium.logic.
 	public ExpedientTipusDto findAmbIdPermisDissenyarDelegat(
 			Long entornId,
 			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
-		return findAmbIdPermisDissenyarDelegat(
+		return getDelegateService().findAmbIdPermisDissenyarDelegat(
 				entornId,
 				expedientTipusId);
 	}
@@ -206,14 +206,14 @@ public class ExpedientTipusService extends AbstractService<es.caib.helium.logic.
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findAmbEntornPermisCrear(
 			Long entornId) throws NoTrobatException {
-		return findAmbEntornPermisCrear(entornId);
+		return getDelegateService().findAmbEntornPermisCrear(entornId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findAmbEntorn(
 			Long entornId) throws NoTrobatException {
-		return findAmbEntorn(entornId);
+		return getDelegateService().findAmbEntorn(entornId);
 	}
 	
 	@Override

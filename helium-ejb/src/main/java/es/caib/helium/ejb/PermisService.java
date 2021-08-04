@@ -2,6 +2,7 @@ package es.caib.helium.ejb;
 
 import es.caib.helium.logic.intf.dto.PermisRolDto;
 
+import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import java.util.List;
 
@@ -14,6 +15,7 @@ import java.util.List;
 public class PermisService extends AbstractService<es.caib.helium.logic.intf.service.PermisService> implements es.caib.helium.logic.intf.service.PermisService {
 
 	@Override
+	@PermitAll
 	public List<PermisRolDto> findAll() {
 		return getDelegateService().findAll();
 	}

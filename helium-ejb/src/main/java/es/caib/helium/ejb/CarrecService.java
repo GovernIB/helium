@@ -4,6 +4,7 @@ import es.caib.helium.logic.intf.dto.CarrecJbpmIdDto;
 import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 
@@ -16,7 +17,7 @@ import javax.ejb.Stateless;
 public class CarrecService extends AbstractService<es.caib.helium.logic.intf.service.CarrecService> implements es.caib.helium.logic.intf.service.CarrecService {
 	
 	@Override
-	@RolesAllowed({"HEL_ADMIN"})
+	@PermitAll
 	public PaginaDto<CarrecJbpmIdDto> findConfigurats(PaginacioParamsDto paginacioParams) {
 		return getDelegateService().findConfigurats(paginacioParams);
 	}

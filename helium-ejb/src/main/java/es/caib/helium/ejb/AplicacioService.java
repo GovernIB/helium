@@ -11,6 +11,7 @@ import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.util.GlobalProperties;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import java.util.List;
@@ -66,7 +67,7 @@ public class AplicacioService extends AbstractService<es.caib.helium.logic.intf.
 	}
 
 	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	@PermitAll
 	public GlobalProperties getGlobalProperties() {
 		return getDelegateService().getGlobalProperties();
 	}
