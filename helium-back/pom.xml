@@ -11,7 +11,7 @@
 
 	<artifactId>helium-back</artifactId>
 	<packaging>war</packaging>
-	<description>Aplicació Spring Boot 2</description>
+	<description>Aplicació per l'EAR al servidor d'aplciacions JBoss 7.2</description>
 	<dependencies>
 
 		<dependency>
@@ -116,7 +116,8 @@
 				<dependency>
 					<groupId>org.reactivestreams</groupId>
 					<artifactId>reactive-streams</artifactId>
-				</dependency>
+				</dependency>			
+			
 			</dependencies>
 			<build>
 				<plugins>
@@ -126,7 +127,7 @@
 						<configuration>
 							<packagingExcludes>**/HeliumServletApp.class</packagingExcludes>
 						</configuration>
-					</plugin>
+					</plugin>				
 				</plugins>
 			</build>
 		</profile>

@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.List;
 
-@Service("entornAreaMembreServiceV3")
+@Service
 public class EntornAreaMembreServiceImpl implements EntornAreaMembreService {
 
 	@Resource

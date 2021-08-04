@@ -53,7 +53,7 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 	@Autowired
 	private AplicacioService aplicacioService;
 	
-	@Resource(name="execucioMassivaServiceV3")
+	@Resource
 	private ExecucioMassivaService execucioMassivaService;
 	
 	@RequestMapping(value = "/massivaReassignacioTasca", method = RequestMethod.GET)

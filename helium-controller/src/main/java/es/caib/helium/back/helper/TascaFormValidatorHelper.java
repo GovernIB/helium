@@ -33,9 +33,9 @@ import java.util.List;
  */
 public class TascaFormValidatorHelper implements Validator {
 	private static final int STRING_MAX_LENGTH = 2048;
-	@Resource(name = "tascaServiceV3")
+	@Resource
 	private TascaService tascaService;
-	@Resource(name = "expedientServiceV3")
+	@Resource
 	private ExpedientService expedientService;
 
 	private List<TascaDadaDto> tascaDades;

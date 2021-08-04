@@ -3,6 +3,25 @@
  */
 package es.caib.helium.logic.helper;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import es.caib.helium.client.engine.model.WDeployment;
 import es.caib.helium.client.engine.model.WProcessDefinition;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
@@ -25,7 +44,7 @@ import es.caib.helium.logic.intf.exportacio.RegistreMembreExportacio;
 import es.caib.helium.logic.intf.exportacio.TascaExportacio;
 import es.caib.helium.logic.intf.exportacio.TerminiExportacio;
 import es.caib.helium.logic.intf.exportacio.ValidacioExportacio;
-import es.caib.helium.ms.domini.DominiMs;
+import es.caib.helium.logic.ms.DominiMs;
 import es.caib.helium.persist.entity.Accio;
 import es.caib.helium.persist.entity.Camp;
 import es.caib.helium.persist.entity.Camp.TipusCamp;
@@ -57,23 +76,6 @@ import es.caib.helium.persist.repository.ExpedientTipusRepository;
 import es.caib.helium.persist.repository.FirmaTascaRepository;
 import es.caib.helium.persist.repository.TascaRepository;
 import es.caib.helium.persist.repository.TerminiRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 /**
  * Helper per a les definicions de procés.

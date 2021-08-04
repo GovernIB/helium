@@ -3,30 +3,6 @@
  */
 package es.caib.helium.logic.helper;
 
-import es.caib.helium.client.engine.model.WTaskInstance;
-import es.caib.helium.logic.intf.WorkflowEngineApi;
-import es.caib.helium.logic.intf.dto.*;
-import es.caib.helium.logic.intf.dto.DominiDto.TipusDomini;
-import es.caib.helium.logic.intf.exception.SistemaExternException;
-import es.caib.helium.logic.intf.extern.domini.FilaResultat;
-import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
-import es.caib.helium.logic.intf.service.ExpedientService;
-import es.caib.helium.logic.intf.util.Constants;
-import es.caib.helium.logic.intf.util.GlobalProperties;
-import es.caib.helium.ms.domini.DominiMs;
-import es.caib.helium.persist.entity.*;
-import es.caib.helium.persist.entity.Camp.TipusCamp;
-import es.caib.helium.persist.entity.ConsultaCamp.TipusConsultaCamp;
-import es.caib.helium.persist.repository.CampRepository;
-import es.caib.helium.persist.repository.CampTascaRepository;
-import es.caib.helium.persist.repository.DefinicioProcesRepository;
-import es.caib.helium.persist.repository.ExpedientRepository;
-import es.caib.helium.persist.repository.TascaRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +10,52 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import es.caib.helium.client.engine.model.WTaskInstance;
+import es.caib.helium.logic.intf.WorkflowEngineApi;
+import es.caib.helium.logic.intf.dto.CampAgrupacioDto;
+import es.caib.helium.logic.intf.dto.CampTascaDto;
+import es.caib.helium.logic.intf.dto.CampTipusDto;
+import es.caib.helium.logic.intf.dto.ConsultaDominiDto;
+import es.caib.helium.logic.intf.dto.DadaIndexadaDto;
+import es.caib.helium.logic.intf.dto.DominiDto;
+import es.caib.helium.logic.intf.dto.DominiDto.TipusDomini;
+import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
+import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
+import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
+import es.caib.helium.logic.intf.dto.TascaDadaDto;
+import es.caib.helium.logic.intf.dto.ValidacioDto;
+import es.caib.helium.logic.intf.exception.SistemaExternException;
+import es.caib.helium.logic.intf.extern.domini.FilaResultat;
+import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
+import es.caib.helium.logic.intf.service.ExpedientService;
+import es.caib.helium.logic.intf.util.Constants;
+import es.caib.helium.logic.intf.util.GlobalProperties;
+import es.caib.helium.logic.ms.DominiMs;
+import es.caib.helium.persist.entity.Camp;
+import es.caib.helium.persist.entity.Camp.TipusCamp;
+import es.caib.helium.persist.entity.CampAgrupacio;
+import es.caib.helium.persist.entity.CampRegistre;
+import es.caib.helium.persist.entity.CampTasca;
+import es.caib.helium.persist.entity.ConsultaCamp.TipusConsultaCamp;
+import es.caib.helium.persist.entity.DefinicioProces;
+import es.caib.helium.persist.entity.Entorn;
+import es.caib.helium.persist.entity.Enumeracio;
+import es.caib.helium.persist.entity.EnumeracioValors;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.entity.Tasca;
+import es.caib.helium.persist.repository.CampRepository;
+import es.caib.helium.persist.repository.CampTascaRepository;
+import es.caib.helium.persist.repository.DefinicioProcesRepository;
+import es.caib.helium.persist.repository.ExpedientRepository;
+import es.caib.helium.persist.repository.TascaRepository;
 
 /**
  * Helper per a gestionar les variables dels expedients.
@@ -64,7 +86,7 @@ public class VariableHelper {
 	private ExpedientTipusHelper expedientTipusHelper;
 	@Resource
 	private DominiHelper dominiHelper;
-	@Resource(name="expedientServiceV3")
+	@Resource
 	private ExpedientService expedientService;
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;

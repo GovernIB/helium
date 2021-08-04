@@ -15,6 +15,7 @@ import java.util.Date;
 
 public interface ExpedientFeignClient {
 
+	//TODO: mirar d'encapsular per passar menys paràmetres
 	@RequestMapping(method = RequestMethod.GET, value = ExpedientApiPath.FIND_EXPEDIENTS_AMB_FILTRE_PAGINAT)
 	public ResponseEntity<PagedList<ExpedientDto>> findExpedientsAmbFiltrePaginatV1(
 	           @RequestParam(value = "entornId") Long entornId,

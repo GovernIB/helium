@@ -82,7 +82,7 @@ import java.util.Properties;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Slf4j
-@Component("pluginHelperV3")
+@Component
 public class PluginHelper {
 
 	private static final String CACHE_PERSONA_ID = "personaPluginCache";

@@ -8,8 +8,6 @@
 				http://www.springframework.org/schema/jee
 				http://www.springframework.org/schema/jee/spring-jee-3.0.xsd">
 
-	<!-- 
-	 -->
 	<jee:local-slsb
 			id="accioService"
 			jndi-name="helium/AccioServiceBean/local"

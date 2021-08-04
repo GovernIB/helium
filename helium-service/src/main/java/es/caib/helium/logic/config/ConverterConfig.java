@@ -13,6 +13,8 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class ConverterConfig {
+	
+	
 
     @Value("${es.caib.helium.conversio.openoffice.url}")
     private String url;
@@ -62,5 +64,4 @@ public class ConverterConfig {
     DocumentConverter remoteDocumentConverter(OfficeManager remoteOfficeManager) {
         return RemoteConverter.make(remoteOfficeManager);
     }
-
 }

@@ -22,7 +22,7 @@ public interface DominiClient {
 			Long expedientTipusPareId,
 			final Pageable pageable, final Sort sort);
 
-	public void createDominiV1(DominiDto dominiDto);
+	public Long createDominiV1(DominiDto dominiDto);
 
 	public void updateDominiV1(Long dominiId, DominiDto dominiDto);
 

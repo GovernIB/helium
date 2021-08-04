@@ -66,16 +66,19 @@ public class AplicacioService extends AbstractService<es.caib.helium.logic.intf.
 	}
 
 	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public GlobalProperties getGlobalProperties() {
 		return getDelegateService().getGlobalProperties();
 	}
 
     @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
     public DocumentConversioDto convertFile(String arxiuNom, byte[] arxiuContingut, String extensioSortida) throws Exception {
         return getDelegateService().convertFile(arxiuNom, arxiuContingut, extensioSortida);
     }
 
     @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
     public String getArxiuMediaType(String nomFitxer) {
         return getDelegateService().getArxiuMediaType(nomFitxer);
     }

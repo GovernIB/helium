@@ -33,7 +33,7 @@ import java.util.Map;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Service
+@Service("entornService")
 public class EntornServiceImpl implements EntornService {
 
 	@Resource

@@ -27,12 +27,12 @@ public interface DominiFeignClient {
             @RequestParam(value = "filtre", required = false) String filtre,
             @RequestParam(value = "expedientTipusId", required = false) Long expedientTipusId,
             @RequestParam(value = "expedientTipusPareId", required = false) Long expedientTipusPareId,
-            final Pageable pageable,
-            final Sort sort);
+            @RequestParam(value = "pageable", required = false) final Pageable pageable,
+            @RequestParam(value = "sort", required = false) final Sort sort);
 	
 
-	@RequestMapping(method = RequestMethod.GET, value = DominiApiPath.CREATE_DOMINI)
-	public ResponseEntity<Void> createDominiV1(@Valid @RequestBody DominiDto dominiDto);
+	@RequestMapping(method = RequestMethod.POST, value = DominiApiPath.CREATE_DOMINI)
+	public ResponseEntity<Long> createDominiV1(@RequestBody DominiDto dominiDto);
 	
 	@RequestMapping(method = RequestMethod.PUT, value = DominiApiPath.UPDATE_DOMINI)
 	public ResponseEntity<Void> updateDominiV1(

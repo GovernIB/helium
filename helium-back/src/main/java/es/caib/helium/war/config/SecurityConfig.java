@@ -4,7 +4,9 @@
 package es.caib.helium.war.config;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.ServletException;
@@ -21,7 +23,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.mapping.SimpleAttributes2GrantedAuthoritiesMapper;
+import org.springframework.security.core.authority.mapping.MapBasedAttributes2GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.SimpleMappableAttributesRetriever;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -49,23 +51,33 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.authenticationProvider(preauthAuthProvider()).
-		jee().j2eePreAuthenticatedProcessingFilter(preAuthenticatedProcessingFilter());
+		http.
+			authenticationProvider(preauthAuthProvider()).
+			jee().j2eePreAuthenticatedProcessingFilter(preAuthenticatedProcessingFilter());
+			//mappableAuthorities("ROLE_USER", "ROLE_ADMIN", "HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom").
+			//mappableRoles("ROLE_USER", "ROLE_ADMIN", "HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom");			
 		http.logout().
-		addLogoutHandler(getLogoutHandler()).
-		logoutRequestMatcher(new AntPathRequestMatcher("/logout")).
-		invalidateHttpSession(true).
-		logoutSuccessUrl("/").
-		permitAll(false);
-		http.authorizeRequests().
-		//antMatchers("/test").hasRole("tothom").
-		//antMatchers("/api/**/*").permitAll().
-		//anyRequest().permitAll();
-		anyRequest().authenticated();
+			addLogoutHandler(getLogoutHandler()).
+			logoutRequestMatcher(new AntPathRequestMatcher("/logout")).
+			invalidateHttpSession(true).
+			logoutSuccessUrl("/").
+			permitAll(false);
+        http.authorizeRequests().
+			antMatchers("/js/**").permitAll().
+			antMatchers("/css/**").permitAll().
+			antMatchers("/fonts/**").permitAll().
+			antMatchers("/webjars/**").permitAll().
+			antMatchers("/img/**").permitAll().
+			antMatchers("/extensions/**").permitAll().
+			antMatchers("/**/datatable/**").permitAll().
+			antMatchers("/**/selection/**").permitAll().
+			anyRequest().authenticated();
+
 		http.cors();
 		http.csrf().disable();
 		http.headers().frameOptions().disable();
 	}
+	
 
 	@Bean
 	public PreAuthenticatedAuthenticationProvider preauthAuthProvider() {
@@ -139,12 +151,56 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				return result;
 			}
 		};
+//		SimpleMappableAttributesRetriever mappableAttributesRetriever = new SimpleMappableAttributesRetriever();
+//		mappableAttributesRetriever.setMappableAttributes(new HashSet<String>());
+//		authenticationDetailsSource.setMappableRolesRetriever(mappableAttributesRetriever);
+		
+		// mappableRolesRetriever - net.conselldemallorca.helium.webapp.v3.security.RolesBasedMappableAttributesRetriever  
+		// o recuperar la llista de rols com es fa a la classe en qüestió
+
+		// ! No sembla filtrar bé
 		SimpleMappableAttributesRetriever mappableAttributesRetriever = new SimpleMappableAttributesRetriever();
-		mappableAttributesRetriever.setMappableAttributes(new HashSet<String>());
+		Set<String> rols = new HashSet<String>();
+		rols.add("ROLE_ADMIN");
+		rols.add("ROLE_USER");
+		rols.add("HEL_ADMIN");
+		rols.add("HEL_USER");
+		rols.add("tothom");
+		rols.add("TOTHOM");
+		
+//		String source = aplicacioService.getGlobalProperties().getProperty("app.jbpm.identity.source");
+//		if ("helium".equalsIgnoreCase(source)) {
+//			for (PermisRolDto permis: permisService.findAll()) {
+//				String codi = permis.getCodi();
+//				if (!rols.contains(codi))
+//					rols.add(codi);
+//			}
+//		} else {
+//			PaginacioParamsDto paginacioTots = new PaginacioParamsDto();
+//			paginacioTots.setPaginaNum(0);
+//			paginacioTots.setPaginaTamany(Integer.MAX_VALUE);
+//			for (CarrecJbpmIdDto group: carrecService.findConfigurats(paginacioTots)) {
+//				if (group != null && !rols.contains(group.getCodi()))
+//					rols.add(group.getCodi());
+//			}
+//		}
+		mappableAttributesRetriever.setMappableAttributes(rols);
 		authenticationDetailsSource.setMappableRolesRetriever(mappableAttributesRetriever);
-		SimpleAttributes2GrantedAuthoritiesMapper attributes2GrantedAuthoritiesMapper = new SimpleAttributes2GrantedAuthoritiesMapper();
-		attributes2GrantedAuthoritiesMapper.setAttributePrefix(ROLE_PREFIX);
-		authenticationDetailsSource.setUserRoles2GrantedAuthoritiesMapper(attributes2GrantedAuthoritiesMapper);
+		
+		
+		
+//		SimpleAttributes2GrantedAuthoritiesMapper attributes2GrantedAuthoritiesMapper = new SimpleAttributes2GrantedAuthoritiesMapper();
+//		attributes2GrantedAuthoritiesMapper.setAttributePrefix(ROLE_PREFIX);
+//		authenticationDetailsSource.setUserRoles2GrantedAuthoritiesMapper(attributes2GrantedAuthoritiesMapper);
+		
+		MapBasedAttributes2GrantedAuthoritiesMapper mapBasedAttributes2GrantedAuthoritiesMapper = new MapBasedAttributes2GrantedAuthoritiesMapper();
+		Map<String,String> roleMapping = new HashMap<String, String>();
+		roleMapping.put("HEL_ADMIN", "ROLE_ADMIN,HEL_ADMIN");
+		roleMapping.put("HEL_USER", "ROLE_USER,HEL_USER");
+		roleMapping.put("tothom", "ROLE_USER,tothom");
+		mapBasedAttributes2GrantedAuthoritiesMapper.setAttributes2grantedAuthoritiesMap(roleMapping);
+		authenticationDetailsSource.setUserRoles2GrantedAuthoritiesMapper(mapBasedAttributes2GrantedAuthoritiesMapper);
+		
 		return authenticationDetailsSource;
 	}
 

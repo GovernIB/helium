@@ -148,7 +148,7 @@ import java.util.zip.ZipOutputStream;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Service("expedientServiceV3")
+@Service
 public class ExpedientServiceImpl implements ExpedientService {
 
 	@Resource

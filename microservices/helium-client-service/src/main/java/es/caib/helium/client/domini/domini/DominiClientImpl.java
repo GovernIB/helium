@@ -36,10 +36,12 @@ public class DominiClientImpl implements DominiClient {
 	}
 
 	@Override
-	public void createDominiV1(DominiDto dominiDto) {
+	public Long createDominiV1(DominiDto dominiDto) {
 
 		log.debug(missatgeLog + " creant domini amb codi " + dominiDto.getCodi() + " per l'entorn " + dominiDto.getEntorn());
-		dominiClient.createDominiV1(dominiDto);
+		var responseEntity = dominiClient.createDominiV1(dominiDto);
+		var resultat = Objects.requireNonNull(responseEntity.getBody());
+		return resultat;
 	}
 
 	@Override

@@ -34,7 +34,7 @@ import java.util.List;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Controller(value = "expedientTipusEnumeracioControllerV3")
+@Controller
 @RequestMapping("/v3/expedientTipus")
 public class ExpedientTipusEnumeracioController extends BaseExpedientTipusController {
 

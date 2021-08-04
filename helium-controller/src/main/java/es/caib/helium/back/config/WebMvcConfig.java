@@ -7,9 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.MethodParameter;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +28,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
@@ -39,27 +42,34 @@ import es.caib.helium.back.interceptor.ModalInterceptor;
 import es.caib.helium.back.interceptor.NodecoInterceptor;
 import es.caib.helium.back.interceptor.PersonaInterceptor;
 import es.caib.helium.back.interceptor.VersioInterceptor;
-import lombok.RequiredArgsConstructor;
 
 /**
  * Configuració de Spring web MVC.
  * 
  * @author Limit Tecnologies
  */
-@RequiredArgsConstructor
+@DependsOn("entornService") // Assegura que s'han creat els EJB a EjbClientConfig o del ServiceImpl
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 	
 	private static final Locale DEFAULT_LOCALE = Locale.forLanguageTag("ca");
 
-	private final AjaxInterceptor ajaxInterceptor;
-	private final EntornInterceptor entornInterceptor;
-	private final GlobalPropertiesInterceptor globalPropertiesInterceptor;
-	private final IdiomaInterceptor idiomaInterceptor;
-	private final ModalInterceptor modalInterceptor;
-	private final NodecoInterceptor nodecoInterceptor;
-	private final PersonaInterceptor personaInterceptor;
-	private final VersioInterceptor versioInterceptor;
+	@Autowired
+	private AjaxInterceptor ajaxInterceptor;
+	@Autowired
+	private EntornInterceptor entornInterceptor;
+	@Autowired
+	private GlobalPropertiesInterceptor globalPropertiesInterceptor;
+	@Autowired
+	private IdiomaInterceptor idiomaInterceptor;
+	@Autowired
+	private ModalInterceptor modalInterceptor;
+	@Autowired
+	private NodecoInterceptor nodecoInterceptor;
+	@Autowired
+	private PersonaInterceptor personaInterceptor;
+	@Autowired
+	private VersioInterceptor versioInterceptor;
 
 	@Bean
 	public LocaleResolver localeResolver() {
@@ -87,7 +97,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		
 		List<String> excludePatterns = new ArrayList<String>();
 		excludePatterns.add("/js/**");
 		excludePatterns.add("/css/**");
@@ -106,9 +115,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		registry.addInterceptor(modalInterceptor).excludePathPatterns(excludePatterns);
 		registry.addInterceptor(ajaxInterceptor).excludePathPatterns(excludePatterns);
 		registry.addInterceptor(idiomaInterceptor).excludePathPatterns(excludePatterns);
-		registry.addInterceptor(entornInterceptor).excludePathPatterns(excludePatterns);
-		registry.addInterceptor(entornInterceptor).excludePathPatterns(excludePatterns);
-		registry.addInterceptor(entornInterceptor).excludePathPatterns(excludePatterns);
 	}
 
 	@Override
@@ -123,7 +129,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		resolvers.add(resolver);
 		WebMvcConfigurer.super.addArgumentResolvers(resolvers);
 	}
-
+	
 	public static class CustomPageableHandlerMethodArgumentResolver extends PageableHandlerMethodArgumentResolverSupport implements PageableArgumentResolver {
 		private static final SortHandlerMethodArgumentResolver DEFAULT_SORT_RESOLVER = new SortHandlerMethodArgumentResolver();
 		private SortArgumentResolver sortResolver;
@@ -156,5 +162,4 @@ public class WebMvcConfig implements WebMvcConfigurer {
 			return pageable;
 		}
 	}
-
 }

@@ -656,6 +656,7 @@ public class ExpedientService extends AbstractService<es.caib.helium.logic.intf.
 	}
 
 	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void clearExpedientIniciant() {
 		getDelegateService().clearExpedientIniciant();
 	}

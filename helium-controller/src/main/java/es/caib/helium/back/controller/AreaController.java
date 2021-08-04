@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author Limit Tecnologies <limit@limit.es>
  */
 
-@Controller(value = "areaControllerV3")
+@Controller
 @RequestMapping("/v3/area")
 public class AreaController extends BaseController {
 	

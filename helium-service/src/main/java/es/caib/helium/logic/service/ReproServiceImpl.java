@@ -31,7 +31,7 @@ import java.util.Map;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Service("reproServiceV3")
+@Service
 public class ReproServiceImpl implements ReproService {
 	
 	private static final int MAX_VALOR_LENGTH = 20000;

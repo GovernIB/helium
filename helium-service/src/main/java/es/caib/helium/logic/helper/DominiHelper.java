@@ -3,6 +3,21 @@
  */
 package es.caib.helium.logic.helper;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Component;
+
 import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.integracio.plugins.unitat.UnitatOrganica;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
@@ -16,7 +31,7 @@ import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.extern.domini.FilaResultat;
 import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
 import es.caib.helium.logic.intf.util.GlobalProperties;
-import es.caib.helium.ms.domini.DominiMs;
+import es.caib.helium.logic.ms.DominiMs;
 import es.caib.helium.persist.entity.Area;
 import es.caib.helium.persist.entity.AreaMembre;
 import es.caib.helium.persist.entity.Camp;
@@ -36,19 +51,6 @@ import es.caib.helium.persist.repository.EntornRepository;
 import es.caib.helium.persist.repository.PermisRepository;
 import es.caib.helium.persist.repository.UsuariRepository;
 import net.sf.ehcache.Element;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 /**
  * Helper per a fer consultes a dominis i enumeracions.
  * 

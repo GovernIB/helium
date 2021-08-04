@@ -22,8 +22,8 @@ import es.caib.helium.logic.intf.dto.IntegracioAccioDto;
 import es.caib.helium.logic.intf.dto.IntegracioAccioEstatEnumDto;
 import es.caib.helium.logic.intf.dto.IntegracioAccioTipusEnumDto;
 import es.caib.helium.logic.intf.dto.IntegracioParametreDto;
+import es.caib.helium.logic.ms.DominiMs;
 import es.caib.helium.persist.entity.Entorn;
-import es.caib.helium.ms.domini.DominiMs;
 
 /**
  * Mètodes per a la gestió d'integracions.
@@ -46,7 +46,7 @@ public class MonitorDominiHelper {
 	public synchronized List<DominiDto> findByEntorn(Entorn entorn) {
 		List<DominiDto> dominis;
 		if (entorn != null) {
-			dominis = dominiMs.llistaDominiByEntorn(entorn.getId(), null, null, null, null);
+			dominis = dominiMs.llistaDominiByEntorn(entorn.getId());
 		} else {
 			dominis = new ArrayList<DominiDto>();
 		}

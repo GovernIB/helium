@@ -3,6 +3,34 @@
  */
 package es.caib.helium.logic.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import es.caib.helium.client.engine.model.WProcessDefinition;
 import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
@@ -40,8 +68,8 @@ import es.caib.helium.logic.intf.exportacio.DefinicioProcesExportacio;
 import es.caib.helium.logic.intf.extern.domini.FilaResultat;
 import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
 import es.caib.helium.logic.intf.service.DissenyService;
+import es.caib.helium.logic.ms.DominiMs;
 import es.caib.helium.logic.security.ExtendedPermission;
-import es.caib.helium.ms.domini.DominiMs;
 import es.caib.helium.persist.entity.Area;
 import es.caib.helium.persist.entity.AreaJbpmId;
 import es.caib.helium.persist.entity.Camp;
@@ -65,39 +93,13 @@ import es.caib.helium.persist.repository.DocumentRepository;
 import es.caib.helium.persist.repository.EntornRepository;
 import es.caib.helium.persist.repository.ExpedientTipusRepository;
 import es.caib.helium.persist.repository.TascaRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 /**
  * Servei per gestionar les tasques de disseny.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Service("dissenyServiceV3")
+@Service
 public class DissenyServiceImpl implements DissenyService {
 
 	@Resource

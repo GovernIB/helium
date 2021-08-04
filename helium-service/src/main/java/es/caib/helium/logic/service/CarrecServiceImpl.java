@@ -21,7 +21,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service("carrecServiceV3")
+@Service
 public class CarrecServiceImpl implements CarrecService {
 	
 	@Resource

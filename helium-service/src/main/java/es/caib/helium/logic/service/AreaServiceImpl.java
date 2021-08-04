@@ -19,7 +19,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service("areaServiceV3")
+@Service
 public class AreaServiceImpl implements AreaService {
 	
 	@Resource

@@ -55,7 +55,7 @@ import java.util.Set;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Service("tascaServiceV3")
+@Service
 public class TascaServiceImpl implements TascaService {
 
 	@Resource

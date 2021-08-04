@@ -31,7 +31,7 @@ import java.util.List;
  * @author Limit Tecnologies <limit@limit.es>
  */
 
-@Controller(value = "carrecControllerV3")
+@Controller
 @RequestMapping("/v3/carrec")
 public class CarrecController extends BaseController {
 	

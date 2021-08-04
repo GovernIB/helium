@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
@@ -9,11 +10,19 @@
 	</login-config>
 	<security-role>
 		<description>Administradors de l'aplicació</description>
-		<role-name>EMS_ADMIN</role-name>
+		<role-name>HEL_ADMIN</role-name>
 	</security-role>
 	<security-role>
-		<description>Responsables dels serveis</description>
-		<role-name>EMS_RESP</role-name>
+		<description>Usuari de l'aplicació</description>
+		<role-name>HEL_USER</role-name>
+	</security-role>
+	<security-role>
+		<description>Usuari de l'aplicació</description>
+		<role-name>TOTHOM</role-name>
+	</security-role>
+	<security-role>
+		<description>Usuari de l'aplicació</description>
+		<role-name>tothom</role-name>
 	</security-role>
 	<security-constraint>
 		<display-name>All areas</display-name>
