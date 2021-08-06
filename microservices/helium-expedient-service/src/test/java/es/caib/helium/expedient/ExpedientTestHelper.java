@@ -56,6 +56,7 @@ public class ExpedientTestHelper {
         		.id(expedientId)
         		.processInstanceId(expedientProcessInstanceId)
         		.numero(expedientNumero)
+        		.numeroDefault(expedientNumero)
         		.titol(expedientTitol)
         		.dataInici(new Date())
         		.estatTipus(ExpedientEstatTipusEnum.INICIAT)
@@ -87,6 +88,7 @@ public class ExpedientTestHelper {
         		.id(expedientId)
         		.processInstanceId(expedientProcessInstanceId)
         		.numero(expedientNumero)
+        		.numeroDefault(expedientNumero)
         		.titol(expedientTitol)
         		.dataInici(new Date())
         		.estatTipus(ExpedientEstatTipusEnum.INICIAT)
@@ -109,6 +111,7 @@ public class ExpedientTestHelper {
                 () -> assertEquals(expedient.getId(), trobat.getId(), "Expedient id incorrecte"),
                 () -> assertEquals(expedient.getProcessInstanceId(), trobat.getProcessInstanceId(), "Process instance id incorrecte"),
                 () -> assertEquals(expedient.getNumero(), trobat.getNumero(), "Numero incorrecte"),
+                () -> assertEquals(expedient.getNumeroDefault(), trobat.getNumeroDefault(), "Numero default incorrecte"),
                 () -> assertEquals(expedient.getTitol(), trobat.getTitol(), "Titol incorrecte"),
                 () -> assertEquals(expedient.getDataInici(), trobat.getDataInici(), "Data inici incorrecte"),
                 () -> assertEquals(expedient.getDataFi(), trobat.getDataFi(), "Data fi incorrecte"),
@@ -131,6 +134,7 @@ public class ExpedientTestHelper {
                 () -> assertEquals(expedient.getId(), trobat.getId(), "Expedient id incorrecte"),
                 () -> assertEquals(expedient.getProcessInstanceId(), trobat.getProcessInstanceId(), "Process instance id incorrecte"),
                 () -> assertEquals(expedient.getNumero(), trobat.getNumero(), "Numero incorrecte"),
+                () -> assertEquals(expedient.getNumeroDefault(), trobat.getNumeroDefault(), "Numero default incorrecte"),
                 () -> assertEquals(expedient.getTitol(), trobat.getTitol(), "Titol incorrecte"),
                 () -> assertEquals(expedient.getDataInici(), trobat.getDataInici(), "Data inici incorrecte"),
                 () -> assertEquals(expedient.getDataFi(), trobat.getDataFi(), "Data fi incorrecte"),

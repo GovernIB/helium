@@ -15,6 +15,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -43,18 +44,25 @@ import lombok.Setter;
 		indexes = {
 			@Index(name = "hel_tasca_exp_i", columnList = "expedient_id")
 		})
-public class Tasca implements Persistable<Long> {
+public class Tasca implements Persistable<String> {
 
-	/** Identificador de la tasca que es correspon amb l'identificador a Helium de la instància de la tasca */
+	/** Identificador de la tasca que es correspon amb l'identificador de la instància de la tasca */
 	@Id
-	@NotNull
-	@Column(name="id", nullable=false)
-	private Long id;
+	@NotEmpty
+	@Size(max = 64)
+	@Column(name="id", nullable=false, length = 64)
+	private String id;
 	
 	@ManyToOne(optional=false, cascade={CascadeType.ALL})
 	@JoinColumn(name="expedient_id")
 	// FK HEL_TASCA_EXP_FK
 	private Expedient expedient;
+
+	/** Identificador de la tasca que es correspon amb l'identificador de la instància de la tasca */
+	@NotEmpty
+	@Size(max = 64)
+	@Column(name="procesId", nullable=false, length = 64)
+	private String procesId;
 
 	@Size(max = 255)
 	@Column(name="nom", length=255, nullable=false)
@@ -105,6 +113,10 @@ public class Tasca implements Persistable<Long> {
 	@Size(max = 255)
 	@Column(name="grup_assignat")
 	private String grupAssignat;
+
+	@Builder.Default
+	@Column(name="prioritat")
+	private Integer prioritat = 3;
 	
 	@OneToMany(mappedBy="tasca", cascade={CascadeType.ALL})
 	private List<Responsable> responsables;

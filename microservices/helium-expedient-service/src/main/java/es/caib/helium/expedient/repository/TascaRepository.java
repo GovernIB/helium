@@ -9,10 +9,10 @@ import es.caib.helium.expedient.domain.Tasca;
 import es.caib.helium.ms.repository.BaseRepository;
 
 @Repository
-public interface TascaRepository extends BaseRepository<Tasca, Long>  {
+public interface TascaRepository extends BaseRepository<Tasca, String>  {
 
     @Modifying
     @Query("delete from Tasca where id = :id")
-    void delete(@Param("id") Long id);
+    void delete(@Param("id") String id);
 
 }

@@ -57,6 +57,12 @@ public class ExpedientDto {
 	@NotEmpty
 	private String numero;
 
+	@JsonProperty("numeroDefault")
+	@Schema(example = "123/2021", required = true, description = "Número per defecte de l'expedient")
+	@Size(max = 64)
+	@NotEmpty
+	private String numeroDefault;
+
 	@JsonProperty("titol")
 	@Schema(example = "Títol expedient", required = false, description = "Títol de l'expedient.")
 	@Size(max = 255)

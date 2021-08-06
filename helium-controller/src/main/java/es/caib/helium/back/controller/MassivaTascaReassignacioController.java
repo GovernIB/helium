@@ -1,17 +1,14 @@
 package es.caib.helium.back.controller;
 
-import es.caib.helium.back.command.ReassignacioTasquesCommand;
-import es.caib.helium.back.helper.MissatgesHelper;
-import es.caib.helium.back.helper.ObjectTypeEditorHelper;
-import es.caib.helium.back.helper.SessionHelper;
-import es.caib.helium.back.helper.SessionHelper.SessionManager;
-import es.caib.helium.client.integracio.persones.model.Persona;
-import es.caib.helium.logic.intf.dto.EntornDto;
-import es.caib.helium.logic.intf.dto.ExecucioMassivaDto;
-import es.caib.helium.logic.intf.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
-import es.caib.helium.logic.intf.dto.PersonaDto;
-import es.caib.helium.logic.intf.service.AplicacioService;
-import es.caib.helium.logic.intf.service.ExecucioMassivaService;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,14 +29,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import es.caib.helium.back.command.ReassignacioTasquesCommand;
+import es.caib.helium.back.helper.MissatgesHelper;
+import es.caib.helium.back.helper.ObjectTypeEditorHelper;
+import es.caib.helium.back.helper.SessionHelper;
+import es.caib.helium.back.helper.SessionHelper.SessionManager;
+import es.caib.helium.client.integracio.persones.model.Persona;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.ExecucioMassivaDto;
+import es.caib.helium.logic.intf.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.service.AplicacioService;
+import es.caib.helium.logic.intf.service.ExecucioMassivaService;
 
 /**
  * Controlador per reassignacio massiva de tasques
@@ -64,7 +65,7 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 			@RequestParam(value = "massiva", required = true) boolean massiva,
 			Model model) {
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
-		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();
+		Set<String> seleccio = sessionManager.getSeleccioConsultaTasca();
 		if (seleccio == null || seleccio.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.no.tasc.selec"));
 			return modalUrlTancar(false);
@@ -129,7 +130,7 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 		model.addAttribute("massiva", massiva);		
 		
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
-		Set<Long> ids = sessionManager.getSeleccioConsultaTasca();
+		Set<String> ids = sessionManager.getSeleccioConsultaTasca();
 		if (ids == null || ids.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.no.tasc.selec"));
 			return modalUrlTancar();
@@ -167,11 +168,7 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 			ExecucioMassivaDto dto = new ExecucioMassivaDto();
 			dto.setDataInici(dInici);
 			dto.setEnviarCorreu(enviarCorreu != null);
-			Set<String> idsAsString = new HashSet<String>();
-			for (Long id: ids) {
-				idsAsString.add(id.toString());
-			}
-			dto.setTascaIds(idsAsString.toArray(new String[idsAsString.size()]));
+			dto.setTascaIds(ids.toArray(new String[ids.size()]));
 			dto.setTipus(ExecucioMassivaTipusDto.REASSIGNAR);
 			dto.setParam1(expression);
 			

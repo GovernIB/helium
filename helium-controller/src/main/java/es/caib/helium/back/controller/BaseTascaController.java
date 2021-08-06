@@ -250,11 +250,11 @@ public class BaseTascaController extends BaseController {
 			return "redirect:/v3/tasca/" + tascaId + suf;
 	}
 
-	protected String guardarDatosTramitacionMasiva(HttpServletRequest request, Set<Long> seleccio, String inici, Boolean correu) {
+	protected String guardarDatosTramitacionMasiva(HttpServletRequest request, Set<String> seleccio, String inici, Boolean correu) {
 		Map<String, Object> camps = new HashMap<String, Object>();		
 		String[] tascaIds = new String[seleccio.size()];
 		int i = 0;
-		for (Long tId : seleccio) {
+		for (String tId : seleccio) {
 			tascaIds[i++] = tId.toString();
 		}
 
@@ -295,19 +295,19 @@ public class BaseTascaController extends BaseController {
 		return params;
 	}
 	
-	protected Set<Long> getSeleccioConsultaTasca(HttpServletRequest request) {
+	protected Set<String> getSeleccioConsultaTasca(HttpServletRequest request) {
 		Map<String, Object> dadesTramitacio = getDatosTramitacionMasiva(request);
 		String[] ids = (String[]) dadesTramitacio.get("tasquesTramitar");
-		Set<Long> mySet = new HashSet<Long>();
+		Set<String> mySet = new HashSet<String>();
 		for (String id: ids) {
-			mySet.add(Long.parseLong(id));
+			mySet.add(id);
 		}
 		return mySet;
 	}
 	
 	protected void esborrarSeleccio(HttpServletRequest request) {
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
-		Set<Long> ids = sessionManager.getSeleccioConsultaTasca();
+		Set<String> ids = sessionManager.getSeleccioConsultaTasca();
 		ids.clear();
 	}
 }

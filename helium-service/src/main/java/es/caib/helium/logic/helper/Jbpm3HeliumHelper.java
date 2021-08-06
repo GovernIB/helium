@@ -628,12 +628,11 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 
 	@Override
-	public void alertaEsborrarAmbTaskInstanceId(long taskInstanceId) {
+	public void alertaEsborrarAmbTaskInstanceId(String taskInstanceId) {
 		logger.debug("Esborrant alertes amb taskInstance (" +
 				"taskInstanceId=" + taskInstanceId + ")");
 		Date ara = new Date();
-		List<TerminiIniciat> terminis = terminiIniciatRepository.findByTaskInstanceId(
-				new Long(taskInstanceId).toString());
+		List<TerminiIniciat> terminis = terminiIniciatRepository.findByTaskInstanceId(taskInstanceId);
 		for (TerminiIniciat termini: terminis) {
 			for (Alerta alerta: termini.getAlertes()) {
 				alerta.setDataEliminacio(ara);
@@ -926,7 +925,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 
 	@Override
-	public void createDadesTasca(Long taskId) {
+	public void createDadesTasca(String taskId) {
 		tascaHelper.createDadesTasca(taskId);
 	}
 
@@ -1299,10 +1298,10 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public List<CampTascaDto> findCampsPerTaskInstance(
-			long taskInstanceId) {
+			String taskInstanceId) {
 		logger.debug("Consultant els camps del formulari de la tasca (" +
 				"taskInstanceId=" + taskInstanceId + ")");
-		WTaskInstance task = workflowEngineApi.getTaskById(new Long(taskInstanceId).toString());
+		WTaskInstance task = workflowEngineApi.getTaskById(taskInstanceId);
 		if (task == null)
 			throw new NoTrobatException(WTaskInstance.class, taskInstanceId);
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
@@ -1324,9 +1323,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public List<DocumentTascaDto> findDocumentsPerTaskInstance(
-			long taskInstanceId) {
+			String taskInstanceId) {
 		logger.debug("Consultant els documents de la tasca (taskInstanceId=" + taskInstanceId + ")");
-		WTaskInstance task = workflowEngineApi.getTaskById(new Long(taskInstanceId).toString());
+		WTaskInstance task = workflowEngineApi.getTaskById(taskInstanceId);
 		if (task == null)
 			throw new NoTrobatException(WTaskInstance.class, taskInstanceId);
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
@@ -2356,9 +2355,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 	
 	@Override
-	public void setErrorTascaSegonPla(Long taskId, Exception ex) {
+	public void setErrorTascaSegonPla(String taskId, Exception ex) {
 		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
-			Map<Long, InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
+			Map<String, InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
 			if (map.containsKey(taskId)) {
 				map.get(taskId).setError((ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
 			}
@@ -2371,9 +2370,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 	
 	@Override
-	public void addMissatgeExecucioTascaSegonPla(Long taskId, String[] message) {
+	public void addMissatgeExecucioTascaSegonPla(String taskId, String[] message) {
 		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
-			Map<Long, InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
+			Map<String, InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
 			if (map.containsKey(taskId)) {
 				map.get(taskId).addMessage(message);
 			}
@@ -2381,10 +2380,10 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 	
 	@Override
-	public boolean isTascaEnSegonPla(Long taskId) {
+	public boolean isTascaEnSegonPla(String taskId) {
 		boolean result = false;
 		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
-			Map<Long, InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
+			Map<String, InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
 			result = map.containsKey(taskId);
 		}
 		

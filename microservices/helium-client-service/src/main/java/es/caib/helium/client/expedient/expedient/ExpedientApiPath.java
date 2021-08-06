@@ -6,6 +6,8 @@ public class ExpedientApiPath {
 	
 	public static final String FIND_EXPEDIENTS_AMB_FILTRE_PAGINAT = API_PATH + "";
 
+	public static final String FIND_EXPEDIENTS_IDS_AMB_FILTRE_PAGINAT = API_PATH + "/ids";
+
 	public static final String CREATE_EXPEDIENT = API_PATH + "";
 
 	public static final String UPDATE_EXPEDIENT = API_PATH + "/{expedientId}";

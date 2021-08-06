@@ -90,7 +90,7 @@ public interface TascaService {
 	 *             Si no es tenen permisos per a accedir als elements
 	 *             especificats mitjançant el seu id (entorn, tipus, estat).
 	 */
-	public List<Long> findIdsPerFiltre(
+	public List<String> findIdsPerFiltre(
 			Long entornId,
 			Long expedientTipusId,
 			String titol,
@@ -149,7 +149,7 @@ public interface TascaService {
 	 *             Si no es tenen permisos per a accedir als elements
 	 *             especificats mitjançant el seu id (entorn, tipus, estat).
 	 */
-	public PaginaDto<ExpedientTascaDto> findPerFiltrePaginat(
+	public PaginaDto<TascaLlistatDto> findPerFiltrePaginat(
 			Long entornId,
 			String tramitacioMassivaTascaId,
 			Long expedientTipusId,
@@ -353,7 +353,7 @@ public interface TascaService {
 
 	public List<TascaDadaDto> findDadesPerTascaDto(Long expedientTipusId, ExpedientTascaDto tasca);
 	
-	public List<ExpedientTascaDto> findAmbIds(Set<Long> ids);
+	public List<ExpedientTascaDto> findAmbIds(Set<String> ids);
 
 	/**
 	 * Retorna l'arxiu corresponent a un document de la tasca.
@@ -413,7 +413,7 @@ public interface TascaService {
 	
 	public void guardarErrorFinalitzacio(String tascaId, String errorFinalitzacio);
 
-	public Map<Long, Object> obtenirEstatsPerIds(List<String> tasquesSegonPlaIds);
+	public Map<String, Object> obtenirEstatsPerIds(List<String> tasquesSegonPlaIds);
 	
 	/**
 	 * Retorna si la TaskInstance està registrada en segon pla

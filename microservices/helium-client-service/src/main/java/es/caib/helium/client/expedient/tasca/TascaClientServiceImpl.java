@@ -1,17 +1,18 @@
 package es.caib.helium.client.expedient.tasca;
 
+import java.util.List;
+import java.util.Objects;
+
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.databind.JsonNode;
+
+import es.caib.helium.client.expedient.tasca.model.ConsultaTascaDades;
 import es.caib.helium.client.expedient.tasca.model.TascaDto;
 import es.caib.helium.client.model.PagedList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
 
 @Service
 @Slf4j
@@ -23,20 +24,23 @@ public class TascaClientServiceImpl implements TascaClientService {
 	private final TascaFeignClient tascaClient;
 
 	@Override
-	public PagedList<TascaDto> findTasquesAmbFiltrePaginatV1(Long entornId, Long expedientTipusId,
-			String usuariAssignat, String nom, String titol, Long expedientId, String expedientTitol,
-			String expedientNumero, Date dataCreacioInici, Date dataCreacioFi, Date dataLimitInici, Date dataLimitFi,
-			boolean mostrarAssignadesUsuari, boolean mostrarAssignadesGrup, boolean nomesPendents, String filtre,
-			Pageable pageable, Sort sort) {
+	public PagedList<TascaDto> findTasquesAmbFiltrePaginatV1(ConsultaTascaDades consultaTascaDades) {
 		
-		log.debug(MISSATGE_LOG + " filtrant tasques per l'entorn " + entornId);
-		var responseEntity = tascaClient.findTasquesAmbFiltrePaginatV1(entornId, expedientTipusId,
-				usuariAssignat, nom, titol, expedientId, expedientTitol, expedientNumero, dataCreacioInici, dataCreacioFi, 
-				dataLimitInici, dataLimitFi, mostrarAssignadesUsuari, mostrarAssignadesGrup, nomesPendents, filtre, pageable, sort);
+		log.debug(MISSATGE_LOG + " llista paginada d'expedients segons el filtre = " +  ReflectionToStringBuilder.toString(consultaTascaDades));
+		var responseEntity = tascaClient.findTasquesAmbFiltrePaginatV1(consultaTascaDades);
 		var resultat = Objects.requireNonNull(responseEntity.getBody());
     	return resultat;
 	}
 
+	@Override
+	public PagedList<String> findTasquesIdsAmbFiltrePaginatV1(ConsultaTascaDades consultaTascaDades) {
+		
+		log.debug(MISSATGE_LOG + " llista paginada d'expedients segons el filtre = " +  ReflectionToStringBuilder.toString(consultaTascaDades));
+		var responseEntity = tascaClient.findTasquesIdsAmbFiltrePaginatV1(consultaTascaDades);
+		var resultat = Objects.requireNonNull(responseEntity.getBody());
+    	return resultat;
+	}
+	
 	@Override
 	public void createTascaV1(TascaDto tascaDto) {
 

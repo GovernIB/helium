@@ -74,6 +74,12 @@ public class Expedient implements Persistable<Long> {
 	@Column(name="numero", length=64, nullable=false)
 	private String numero;
 
+	@NotBlank
+	@Size(max = 64)
+	@Column(name="numero_default", length=64, nullable=false)
+	private String numeroDefault;
+
+	
 	@Size(max = 255)
 	@Column(name="titol", length=255)
 	private String titol;

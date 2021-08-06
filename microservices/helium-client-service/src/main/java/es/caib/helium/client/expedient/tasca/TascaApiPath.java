@@ -6,6 +6,8 @@ public class TascaApiPath {
 
 	public static final String FIND_TASQUES_AMB_FILTRE_PAGINAT = API_PATH + "";
 
+	public static final String FIND_TASQUES_IDS_AMB_FILTRE_PAGINAT = API_PATH + "/ids";
+
 	public static final String CREATE_TASCA = API_PATH + "";
 
 	public static final String UPDATE_TASCA = API_PATH + "/{tascaId}";

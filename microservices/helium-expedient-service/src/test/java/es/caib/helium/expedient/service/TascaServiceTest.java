@@ -3,7 +3,6 @@ package es.caib.helium.expedient.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
@@ -77,7 +76,7 @@ class TascaServiceTest {
     @BeforeEach
     void setUp() {
         expedient = ExpedientTestHelper.generateExpedient(1, 1L, 1L, expedientId, "1", "1/2021", "Títol 1");
-        tasca = TascaTestHelper.generateTasca(1, 1L, expedient, "nom 1", "títol 1");
+        tasca = TascaTestHelper.generateTasca(1, "1", expedient, "p1", "nom 1", "títol 1");
     }
     
     @Test
@@ -103,7 +102,7 @@ class TascaServiceTest {
         assertThat(creat).isNotNull();
         TascaTestHelper.comprovaTasca(tascaDto, creat);
 
-        then(expedientRepository).should(times(1)).findById(tascaDto.getId());
+        then(expedientRepository).should(times(1)).findById(tascaDto.getExpedientId());
         then(expedientRepository).shouldHaveNoMoreInteractions();
         then(expedientOptional).should(times(1)).isPresent();
         then(expedientOptional).should(times(1)).get();
@@ -120,6 +119,7 @@ class TascaServiceTest {
     @CsvSource({
             // Descripcio, camp blank o -1
     		"Tasca id -1, id",
+	        "Tasca procesId '', procesId",
 	        "Tasca nom '', nom",
 	        "Tasca títol '', titol"
     })
@@ -132,10 +132,13 @@ class TascaServiceTest {
         // Given
         switch (campNull) {
 	        case "id":
-	            tasca.setId(-1L);
+	            tasca.setId("");
 	            break;
 	        case "expedient":
 	            tasca.setExpedient(null);
+	            break;
+	        case "procesId":
+	            tasca.setProcesId("");
 	            break;
 	        case "nom":
 	            tasca.setNom("");
@@ -165,6 +168,7 @@ class TascaServiceTest {
             // Descripcio, camp null
     		"Tasca id null, id",
 	        "Expedient null, expedient",
+	        "Proces id null, procesId",
 	        "Tasca nom null, nom",
 	        "Tasca títol null, titol",
 	        "Data creació null, dataCreacio"
@@ -182,6 +186,9 @@ class TascaServiceTest {
 	            break;
 	        case "expedient":
 	            tasca.setExpedient(null);
+	            break;
+	        case "procesId":
+	            tasca.setProcesId(null);
 	            break;
 	        case "nom":
 	            tasca.setNom(null);
@@ -210,20 +217,20 @@ class TascaServiceTest {
     @DisplayName("Modificar tasca")
     void whenUpdateTasca_thenReturnTasca() {
         // Given
-        Tasca tasca2 = TascaTestHelper.generateTasca(2, 2L, expedient, "nom 2", "títol 2");
+        Tasca tasca2 = TascaTestHelper.generateTasca(2, "2", expedient, "p2", "nom 2", "títol 2");
         TascaDto tascaDto = mapper.entityToDto(tasca2);
-        given(tascaRepository.findById(anyLong())).willReturn(Optional.of(tasca2));
+        given(tascaRepository.findById(any())).willReturn(Optional.of(tasca2));
         given(tascaRepository.save(any(Tasca.class))).will(
                 (InvocationOnMock invocation) -> invocation.getArgument(0, Tasca.class));
 
         // When
-        TascaDto response = tascaService.updateTasca(2L, tascaDto);
+        TascaDto response = tascaService.updateTasca("2", tascaDto);
 
         // Then
         assertThat(response).isNotNull();
         tascaDto.setId(response.getId());
         TascaTestHelper.comprovaTasca(tascaDto, response);
-        then(tascaRepository).should().findById(anyLong());
+        then(tascaRepository).should().findById(any());
         then(tascaRepository).should().save(any(Tasca.class));
         then(tascaRepository).shouldHaveNoMoreInteractions();
     }
@@ -232,7 +239,8 @@ class TascaServiceTest {
     @DisplayName("Modificar tasca - Errors validació")
     @CsvSource({
 	        // Descripcio, camp null o negatiu
-			"Tasca id -1, id",
+			"Tasca id '', id",
+			"Tasca procesId '', procesId",
 	        "Tasca nom blank, nom,",
 	        "Tasca títol blank, titol"
     })
@@ -243,10 +251,13 @@ class TascaServiceTest {
         System.out.println("Executant test: " + descripcio);
 
         // Given
-        given(tascaRepository.findById(anyLong())).willReturn(Optional.of(tasca));
+        given(tascaRepository.findById(any())).willReturn(Optional.of(tasca));
         switch (campNull) {
 	        case "id":
-	            tasca.setId(-1L);
+	            tasca.setId("");
+	            break;
+	        case "procesId":
+	            tasca.setProcesId("");
 	            break;
 	        case "nom":
 	            tasca.setNom("");
@@ -260,7 +271,7 @@ class TascaServiceTest {
         // When
         Exception exception = assertThrows(
                 ValidationException.class,
-                () -> tascaService.updateTasca(1L, tascaDto));
+                () -> tascaService.updateTasca("1", tascaDto));
 
         // Then
         then(tascaRepository).should(never()).save(any(Tasca.class));
@@ -273,6 +284,7 @@ class TascaServiceTest {
 	        // Descripcio, camp null o negatiu
 			"Tasca id null, id",
 	        "Expedient null, expedient",
+			"Proces id null, procesId",
 	        "Tasca nom null, nom",
 	        "Tasca títol null, titol",
 	        "Data creació null, dataCreacio"
@@ -284,13 +296,16 @@ class TascaServiceTest {
         System.out.println("Executant test: " + descripcio);
 
         // Given
-        given(tascaRepository.findById(anyLong())).willReturn(Optional.of(tasca));
+        given(tascaRepository.findById(any())).willReturn(Optional.of(tasca));
         switch (campNull) {
 	        case "id":
 	            tasca.setId(null);
 	            break;
 	        case "expedient":
 	            tasca.setExpedient(null);
+	            break;
+	        case "procesId":
+	            tasca.setProcesId(null);
 	            break;
 	        case "nom":
 	            tasca.setNom(null);
@@ -307,7 +322,7 @@ class TascaServiceTest {
         // When
         Exception exception = assertThrows(
                 ValidationException.class,
-                () -> tascaService.updateTasca(1L, tascaDto));
+                () -> tascaService.updateTasca("1", tascaDto));
 
         // Then
         then(tascaRepository).should(never()).save(any(Tasca.class));
@@ -319,14 +334,14 @@ class TascaServiceTest {
     @DisplayName("Eliminar tasca")
     void whenDeleteTasca() {
         // Given
-        given(tascaRepository.findById(anyLong())).willReturn(Optional.of(tasca));
+        given(tascaRepository.findById(any())).willReturn(Optional.of(tasca));
 
         // When
-        tascaService.delete(1L);
+        tascaService.delete("1");
 
         // Then
-        then(tascaRepository).should().findById(anyLong());
-        then(tascaRepository).should().delete(anyLong());
+        then(tascaRepository).should().findById(any());
+        then(tascaRepository).should().delete("1");
         then(tascaRepository).shouldHaveNoMoreInteractions();
     }
 
@@ -334,13 +349,13 @@ class TascaServiceTest {
     @DisplayName("Consulta tasca per id")
     void whenGetById_thenReturn() {
         // Given
-        given(tascaRepository.findById(anyLong())).willReturn(Optional.of(tasca));
+        given(tascaRepository.findById(any())).willReturn(Optional.of(tasca));
 
         // When
-        TascaDto dto = tascaService.getById(1L);
+        TascaDto dto = tascaService.getById("1");
 
         // Then
-        then(tascaRepository).should().findById(anyLong());
+        then(tascaRepository).should().findById(any());
         then(tascaRepository).shouldHaveNoMoreInteractions();
         assertThat(dto).isNotNull();
         TascaTestHelper.comprovaTasca(dto, mapper.entityToDto(tasca));
@@ -352,7 +367,7 @@ class TascaServiceTest {
     void whenGetById_thenReturnError() {
         // When
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
-                () -> tascaService.getById(1L));
+                () -> tascaService.getById("1"));
 
         // Then
         assertThat(exception.getStatus()).isEqualTo(HttpStatus.NOT_FOUND);
@@ -360,11 +375,11 @@ class TascaServiceTest {
 
     @Test
     @DisplayName("Consulta tasques")
-    void whenListTascas_thenReturn() {
+    void whenListTasques_thenReturn() {
         // Given
-        List<Tasca> tascas = new ArrayList<>();
-        tascas.add(tasca);
-        given(tascaRepository.findAll(any(Specification.class), any(Sort.class))).willReturn(tascas);
+        List<Tasca> tasques = new ArrayList<>();
+        tasques.add(tasca);
+        given(tascaRepository.findAll(any(Specification.class), any(Sort.class))).willReturn(tasques);
 
         // When
 		Page<TascaDto> page = tascaService.listTasques(null, null, null, null, null, null, null, null, null, null, null,
@@ -378,11 +393,11 @@ class TascaServiceTest {
     }
 
     @Test
-    @DisplayName("Consulta de tascas - Sense resultats")
-    void whenListTascas_thenReturnEmptyPage() {
+    @DisplayName("Consulta de tasques - Sense resultats")
+    void whenListTasques_thenReturnEmptyPage() {
         // Given
-        List<Tasca> tascas = new ArrayList<>();
-        given(tascaRepository.findAll(any(Specification.class), any(Sort.class))).willReturn(tascas);
+        List<Tasca> tasques = new ArrayList<>();
+        given(tascaRepository.findAll(any(Specification.class), any(Sort.class))).willReturn(tasques);
 
         // When
 		Page<TascaDto> page = tascaService.listTasques(null, null, null, null, null, null, null, null, null, null, null,

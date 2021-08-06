@@ -99,7 +99,7 @@ public class TascaServiceImpl implements TascaService {
     @Override
     @Transactional
     public TascaDto updateTasca(
-            Long tascaId,
+            String tascaId,
             TascaDto tascaDto) {
 //            throws NoTrobatException, PermisDenegatException {
 
@@ -137,7 +137,7 @@ public class TascaServiceImpl implements TascaService {
     @Override
     @Transactional
     public void delete(
-            Long tascaId) {
+            String tascaId) {
 
         log.debug("[SRV] Esborrant la tasca (tascaId=" + tascaId +  ")");
 
@@ -149,7 +149,7 @@ public class TascaServiceImpl implements TascaService {
     @Override
     @Transactional(readOnly = true)
     public TascaDto getById(
-            Long tascaId) {
+            String tascaId) {
 
         log.debug("[SRV] Obtenint tasca amb Id: " + tascaId);
 
@@ -229,7 +229,7 @@ public class TascaServiceImpl implements TascaService {
         return pagedList;
     }
 
-    private Tasca getTascaById(Long tascaId) {
+    private Tasca getTascaById(String tascaId) {
         log.debug("Obtenint tasca per id: " + tascaId);
         Optional<Tasca> tascaOptional = tascaRepository.findById(tascaId);
 
@@ -246,11 +246,14 @@ public class TascaServiceImpl implements TascaService {
     private void validateTasca(Tasca tasca) throws ValidationException {
         Map<String, String> errors = new HashMap<>();
 
-        if (tasca.getId() == null || tasca.getId() <= 0L) {
+        if (tasca.getId() == null || tasca.getId().isEmpty()) {
             errors.put("id", "El camp no pot ser null");
         }
         if (tasca.getExpedient() == null) {
             errors.put("expedient", "El camp no pot ser null");        	
+        }
+        if (tasca.getProcesId() == null || tasca.getProcesId().isEmpty()) {
+            errors.put("procesId", "El camp no pot ser null");
         }
         if (tasca.getNom() == null || tasca.getNom().isBlank())
             errors.put("nom", "El camp no pot ser null");
@@ -275,7 +278,7 @@ public class TascaServiceImpl implements TascaService {
 
     @Override
     @Transactional(readOnly = true)
-	public List<ResponsableDto> getResponsables(Long tascaId) {
+	public List<ResponsableDto> getResponsables(String tascaId) {
     	Tasca tasca = getTascaById(tascaId);
     	//List<Responsable> responsables = responsableRepository.findByTascaId(tascaId);
 		return tasca.getResponsables()
@@ -286,11 +289,12 @@ public class TascaServiceImpl implements TascaService {
 
     @Override
     @Transactional
-	public List<ResponsableDto> setResponsables(Long tascaId, List<String> responsables) {
+	public List<ResponsableDto> setResponsables(String tascaId, List<String> responsables) {
     	List<ResponsableDto> responsablesDto = null;
     	deleteResponsables(tascaId);
     	if (responsables != null && responsables.size() > 0) {
-        	Tasca tasca = getTascaById(tascaId);
+    		responsablesDto = new ArrayList<ResponsableDto>();
+    		Tasca tasca = getTascaById(tascaId);
     		Responsable responsable;
     		for (String usuariCodi : responsables) {
     			responsable = Responsable.builder()
@@ -298,18 +302,16 @@ public class TascaServiceImpl implements TascaService {
     					.tasca(tasca)
     					.build();
     			tasca.getResponsables().add(responsable);
+    			responsableRepository.save(responsable);
+    			responsablesDto.add(responsableMapper.entityToDto(responsable));
     		}
-    		responsablesDto = responsableRepository.saveAll(tasca.getResponsables())
-    								.stream()
-    								.map(r -> responsableMapper.entityToDto(r))
-    								.collect(Collectors.toList());
     	}
     	return responsablesDto;
 	}
 
     @Override
     @Transactional
-	public void deleteResponsables(Long tascaId) {
+	public void deleteResponsables(String tascaId) {
     	
     	Tasca tasca = getTascaById(tascaId);
         if (tasca.getResponsables().size() > 0) {

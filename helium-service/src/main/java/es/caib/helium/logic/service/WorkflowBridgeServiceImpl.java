@@ -826,9 +826,9 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 //    }
 
     @Override
-    public void addMissatgeExecucioTascaSegonPla(Long taskId, String[] message) {
+    public void addMissatgeExecucioTascaSegonPla(String taskId, String[] message) {
         if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
-            Map<Long, TascaSegonPlaHelper.InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
+            Map<String, TascaSegonPlaHelper.InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
             if (map.containsKey(taskId)) {
                 map.get(taskId).addMessage(message);
             }
@@ -836,9 +836,9 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     }
 
     @Override
-    public void setErrorTascaSegonPla(Long taskId, String error) {
+    public void setErrorTascaSegonPla(String taskId, String error) {
         if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
-            Map<Long, TascaSegonPlaHelper.InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
+            Map<String, TascaSegonPlaHelper.InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
             if (map.containsKey(taskId)) {
                 map.get(taskId).setError(error);
             }

@@ -1,43 +1,28 @@
 package es.caib.helium.client.expedient.expedient;
 
+import org.springframework.cloud.openfeign.SpringQueryMap;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
 import com.fasterxml.jackson.databind.JsonNode;
-import es.caib.helium.client.expedient.expedient.enums.ExpedientEstatTipusEnum;
-import es.caib.helium.client.expedient.expedient.enums.MostrarAnulatsEnum;
+
+import es.caib.helium.client.expedient.expedient.model.ConsultaExpedientDades;
 import es.caib.helium.client.expedient.expedient.model.ExpedientDto;
 import es.caib.helium.client.model.PagedList;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Date;
 
 public interface ExpedientFeignClient {
 
-	//TODO: mirar d'encapsular per passar menys paràmetres
 	@RequestMapping(method = RequestMethod.GET, value = ExpedientApiPath.FIND_EXPEDIENTS_AMB_FILTRE_PAGINAT)
 	public ResponseEntity<PagedList<ExpedientDto>> findExpedientsAmbFiltrePaginatV1(
-	           @RequestParam(value = "entornId") Long entornId,
-	           @RequestParam(value = "filtre", required = false) String filtre,
-	           @RequestParam(value = "usuariCodi", required = false) String usuariCodi,
-	           @RequestParam(value = "expedientTipusId", required = false) Long expedientTipusId,
-	           @RequestParam(value = "titol", required = false) String titol,
-	           @RequestParam(value = "numero", required = false) String numero,
-	           @RequestParam(value = "dataInici1", required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date dataInici1,
-	           @RequestParam(value = "dataInici2", required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date dataInici2,
-	           @RequestParam(value = "dataFi1", required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date dataFi1,
-	           @RequestParam(value = "dataFi2", required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date dataFi2,
-	           @RequestParam(value = "estatTipus", required = false) ExpedientEstatTipusEnum estatTipus,
-	           @RequestParam(value = "estatId", required = false) Long estatId,
-	           @RequestParam(value = "nomesTasquesPersonals", required = false, defaultValue = "false") boolean nomesTasquesPersonals,
-	           @RequestParam(value = "nomesTasquesGrup", required = false, defaultValue = "false") boolean nomesTasquesGrup,
-	           @RequestParam(value = "nomesAlertes", required = false, defaultValue = "false") boolean nomesAlertes,
-	           @RequestParam(value = "nomesErrors", required = false, defaultValue = "false") boolean nomesErrors,
-	           @RequestParam(value = "mostrarAnulats", required = false) MostrarAnulatsEnum mostrarAnulats,
-			   @RequestParam(value = "pageable") final Pageable pageable,
-			   @RequestParam(value = "sort") final Sort sort);
-	
+			@SpringQueryMap ConsultaExpedientDades consultaExpedientDades);
+
+	@RequestMapping(method = RequestMethod.GET, value = ExpedientApiPath.FIND_EXPEDIENTS_IDS_AMB_FILTRE_PAGINAT)
+	public ResponseEntity<PagedList<Long>> findExpedientsIdsAmbFiltrePaginatV1(
+			@SpringQueryMap ConsultaExpedientDades consultaExpedientDades);
+
 	@RequestMapping(method = RequestMethod.POST, value = ExpedientApiPath.CREATE_EXPEDIENT)
 	public ResponseEntity<Void> createExpedientV1(@RequestBody ExpedientDto expedientDto);
 	

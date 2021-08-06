@@ -131,33 +131,33 @@ public class TascaSpecifications {
 			boolean nomesPendents) {
 		
     	Specification<Tasca> spec  = belongsToEntorn(entornId);
-    	
-    	if (expedientTipusId != null) 
-    		spec = spec.and(belongsToExpedientTipus(expedientTipusId));
-    	if (titol != null) 
-    		spec = spec.and(titolLike(titol));
-    	if (usuariAssignat != null) 
-    		spec = spec.and(usuariAssignatIs(usuariAssignat));
-    	if (nom != null) 
-    		spec = spec.and(nomLike(nom));
-    	if (titol != null) 
-    		spec = spec.and(titolLike(titol));
-    	if (expedientTipusId != null) 
-    		spec = spec.and(belongsToExpedient(expedientId));
-    	if (expedientTitol != null) 
-    		spec = spec.and(expedientTitolLike(expedientTitol));
-    	if (expedientNumero != null) 
-    		spec = spec.and(expedientNumeroLike(expedientNumero));
-    	if (dataCreacioInici != null || dataCreacioFi != null)
-    		spec = spec.and(dataCreacio(dataCreacioInici, dataCreacioFi));
-    	if (dataLimitInici != null || dataLimitFi != null)
-    		spec = spec.and(dataCreacio(dataLimitInici, dataLimitFi));
-    	if (mostrarAssignadesUsuari)
-    		spec = spec.and(mostrarAssignadesUsuari(usuariAssignat));
-    	if (mostrarAssignadesGrup)
-    		spec = spec.and(mostrarAssignadesGrup(usuariAssignat));
-    	if (nomesPendents)
-    		spec = spec.and(nomesPendents());
+//    	
+//    	if (expedientTipusId != null) 
+//    		spec = spec.and(belongsToExpedientTipus(expedientTipusId));
+//    	if (titol != null) 
+//    		spec = spec.and(titolLike(titol));
+//    	if (usuariAssignat != null) 
+//    		spec = spec.and(usuariAssignatIs(usuariAssignat));
+//    	if (nom != null) 
+//    		spec = spec.and(nomLike(nom));
+//    	if (titol != null) 
+//    		spec = spec.and(titolLike(titol));
+//    	if (expedientTipusId != null) 
+//    		spec = spec.and(belongsToExpedient(expedientId));
+//    	if (expedientTitol != null) 
+//    		spec = spec.and(expedientTitolLike(expedientTitol));
+//    	if (expedientNumero != null) 
+//    		spec = spec.and(expedientNumeroLike(expedientNumero));
+//    	if (dataCreacioInici != null || dataCreacioFi != null)
+//    		spec = spec.and(dataCreacio(dataCreacioInici, dataCreacioFi));
+//    	if (dataLimitInici != null || dataLimitFi != null)
+//    		spec = spec.and(dataCreacio(dataLimitInici, dataLimitFi));
+//    	if (mostrarAssignadesUsuari)
+//    		spec = spec.and(mostrarAssignadesUsuari(usuariAssignat));
+//    	if (mostrarAssignadesGrup)
+//    		spec = spec.and(mostrarAssignadesGrup(usuariAssignat));
+//    	if (nomesPendents)
+//    		spec = spec.and(nomesPendents());
     	
     	return spec;	
     }

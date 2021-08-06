@@ -3,8 +3,27 @@
  */
 package es.caib.helium.logic.helper;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
 import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.engine.model.WTaskInstance;
+import es.caib.helium.client.expedient.tasca.model.ResponsableDto;
 import es.caib.helium.logic.helper.TascaSegonPlaHelper.InfoSegonPla;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.DelegationInfo;
@@ -13,6 +32,7 @@ import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
 import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.dto.PersonaDto.Sexe;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
+import es.caib.helium.logic.intf.dto.TascaLlistatDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.TascaNoDisponibleException;
 import es.caib.helium.logic.intf.util.Constants;
@@ -28,21 +48,6 @@ import es.caib.helium.persist.entity.Tasca;
 import es.caib.helium.persist.repository.CampTascaRepository;
 import es.caib.helium.persist.repository.DefinicioProcesRepository;
 import es.caib.helium.persist.repository.TascaRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Helper per a gestionar les tasques dels expedients.
@@ -376,8 +381,8 @@ public class TascaHelper {
 		return titol;
 	}
 
-	public void createDadesTasca(Long taskId) {
-		WTaskInstance task = workflowEngineApi.getTaskById(String.valueOf(taskId));
+	public void createDadesTasca(String taskId) {
+		WTaskInstance task = workflowEngineApi.getTaskById(taskId);
 		setTascaCache(task, null);
 	}
 
@@ -595,6 +600,161 @@ public class TascaHelper {
 		return dto;
 	}
 
+	public TascaLlistatDto toTascaLlistatDto(
+			es.caib.helium.client.expedient.tasca.model.TascaDto tascaMs,
+			Expedient expedient,
+			boolean perTramitacio,
+			boolean ambPermisos) {
+		TascaLlistatDto dto = new TascaLlistatDto();
+//		DefinicioProces defp = definicioProcesRepository.findByJbpmId(tascaMs.getProcessDefinitionId());
+		//DefinicioProces defp = definicioProcesRepository.findById(tascaMs.getDefinicioProcesId());
+		
+		dto.setId(tascaMs.getId());
+		dto.setTitol(tascaMs.getTitol());
+		dto.setJbpmName(tascaMs.getNom());
+		dto.setDescription(tascaMs.getTitol());
+		dto.setAssignee(tascaMs.getUsuariAssignat());
+		dto.setPooledActors( tascaMs.getResponsables()
+					.stream()
+					.map(r -> r.getUsuariCodi())
+					.collect(Collectors.toSet()));
+		dto.setCreateTime(tascaMs.getDataCreacio());
+		
+		//dto.setStartTime(tascaMs.dataInici());
+		dto.setEndTime(tascaMs.getDataFi());
+		dto.setDueDate(tascaMs.getDataFins());
+		
+		//dto.setPriority(tascaMs.getPrioritat());
+		
+		//-dto.setOpen(tascaMs.isOberta());
+		
+		dto.setCompleted(tascaMs.isCompletada());
+		dto.setCancelled(tascaMs.isCancelada());
+		dto.setSuspended(tascaMs.isSuspesa());
+		//dto.setTascaTramitacioMassiva(tascaMs.getTramitacioMassiva());
+		
+		//TODO:
+		//Tasca tasca = findTascaByWTaskInstance(tascaMs);
+//		if (tasca != null) {
+//			dto.setTascaFinalitzacioSegonPla(tasca.isFinalitzacioSegonPla());
+//			if (tasca.isFinalitzacioSegonPla() && 
+//				tascaSegonPlaHelper.isTasquesSegonPlaLoaded() && 
+//				tascaSegonPlaHelper.getTasquesSegonPla().containsKey(tascaMs.getTaskInstanceId())) {
+//				InfoSegonPla infoSegonPla = tascaSegonPlaHelper.getTasquesSegonPla().get(tascaMs.getTaskInstanceId());
+//				dto.setMarcadaFinalitzar(infoSegonPla.getMarcadaFinalitzar());
+//				dto.setIniciFinalitzacio(infoSegonPla.getIniciFinalitzacio());
+//				dto.setErrorFinalitzacio(infoSegonPla.getError());
+//			}
+//		}
+		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded() && 
+				tascaSegonPlaHelper.getTasquesSegonPla().containsKey(tascaMs.getId())) {
+			InfoSegonPla infoSegonPla = tascaSegonPlaHelper.getTasquesSegonPla().get(tascaMs.getId());
+			dto.setMarcadaFinalitzar(infoSegonPla.getMarcadaFinalitzar());
+			dto.setIniciFinalitzacio(infoSegonPla.getIniciFinalitzacio());
+			dto.setErrorFinalitzacio(infoSegonPla.getError());
+		}
+		
+		
+		Expedient expedientNoNull = expedient;
+		if (expedientNoNull == null) {
+			expedientNoNull = expedientHelper.findById(tascaMs.getExpedientId());
+		}
+		if (perTramitacio) {
+		
+			DefinicioProces defp = definicioProcesRepository.findById(50100L).get();
+			
+			Tasca t = tascaRepository.findByJbpmNameAndDefinicioProces(tascaMs.getNom(), defp);
+			if (t != null) {
+				dto.setAmbRepro(t.isAmbRepro());
+				dto.setMostrarAgrupacions(t.isMostrarAgrupacions());
+			}
+		
+//			// Opcional outcomes?
+//			dto.setOutcomes(workflowEngineApi.findTaskInstanceOutcomes(tascaMs.getId()));
+//			// Opcional dades tasca?
+//			
+//			dto.setTascaId(tasca.getId());
+//			dto.setTascaNom(tasca.getNom());
+//			dto.setTascaTipus(
+//					conversioTipusServiceHelper.convertir(
+//							tasca.getTipus(),
+//							ExpedientTascaDto.TascaTipusDto.class));
+//			dto.setTascaMissatgeInfo(tasca.getMissatgeInfo());
+//			dto.setTascaMissatgeWarn(tasca.getMissatgeWarn());
+//			dto.setTascaRecursForm(tasca.getRecursForm());
+//			dto.setTascaFormExternCodi(tasca.getFormExtern());
+//			dto.setTascaDelegable(tasca.getExpressioDelegacio() != null);
+//			// Opcional estat tramitació tasca?
+//			dto.setValidada(isTascaValidada(tascaMs));
+//			dto.setDocumentsComplet(isDocumentsComplet(tascaMs));
+//			dto.setSignaturesComplet(isSignaturesComplet(tascaMs));
+//			// Opcional informació delegacio?
+//			DelegationInfo delegationInfo = getDelegationInfo(tascaMs);
+//			if (delegationInfo != null) {
+//				boolean original = tascaMs.getId().equals(delegationInfo.getSourceTaskId());
+//				dto.setDelegada(true);
+//				dto.setDelegacioOriginal(original);
+//				dto.setDelegacioData(delegationInfo.getStart());
+//				dto.setDelegacioComentari(delegationInfo.getComment());
+//				dto.setDelegacioSupervisada(delegationInfo.isSupervised());
+//				WTaskInstance tascaDelegacio = null;
+//				if (original) {
+//					tascaDelegacio = workflowEngineApi.getTaskById(delegationInfo.getTargetTaskId());
+//				} else {
+//					tascaDelegacio = workflowEngineApi.getTaskById(delegationInfo.getSourceTaskId());
+//				}			
+//				dto.setDelegacioPersona(
+//						pluginHelper.personaFindAmbCodi(tascaDelegacio.getActorId()));
+//			}
+//			DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(tascaMs.getProcessDefinitionId());
+//			if (definicioProces != null) {
+//				dto.setDefinicioProcesId(definicioProces.getId());
+//			}
+		}
+		dto.setAgafada(tascaMs.isAfagada());
+		dto.setProcessInstanceId(tascaMs.getProcesId());
+		dto.setExpedientId(expedientNoNull.getId());
+		dto.setExpedientIdentificador(expedientNoNull.getIdentificador());
+		dto.setExpedientNumero(expedientNoNull.getNumero());
+		dto.setExpedientTipusNom(expedientNoNull.getTipus().getNom());
+		dto.setExpedientTipusId(expedientNoNull.getTipus().getId());
+		if (tascaMs.getUsuariAssignat() != null) {
+			dto.setResponsable(
+					pluginHelper.personaFindAmbCodi(tascaMs.getUsuariAssignat()));
+		}
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (tascaMs.getUsuariAssignat() != null) {
+			if (auth != null) {
+				dto.setAssignadaUsuariActual(tascaMs.getUsuariAssignat().equals(auth.getName()));
+			}
+		} else if (tascaMs.getResponsables() != null && !tascaMs.getResponsables().isEmpty()) {
+			List<PersonaDto> responsables = new ArrayList<PersonaDto>();
+			for (ResponsableDto responsable: tascaMs.getResponsables()) {
+				PersonaDto persona = this.findPersonaOrDefault(responsable.getUsuariCodi());
+				if (persona != null) {
+					if (auth.getName().equals(responsable.getUsuariCodi()))
+						dto.setAssignadaUsuariActual(true);
+					responsables.add(persona);
+				}
+			}
+			Collections.sort(
+					responsables, 
+					new Comparator<PersonaDto>() {
+						public int compare(PersonaDto p1, PersonaDto p2) {
+							return p1.getNom().compareToIgnoreCase(p2.getNom());
+						}
+					});
+			dto.setResponsables(responsables);
+		}
+		if (ambPermisos) {
+			permisosHelper.omplirControlPermisosSegonsUsuariActual(
+					expedientNoNull.getTipus().getId(),
+					dto,
+					ExpedientTipus.class);
+		}
+		return dto;
+	}
+	
 	/** Mètode per evitar l'error quan l'usuari no es troba i com a mínim
 	 * retornar una persona DTO amb el codi informat.
 	 * @param personaCodi

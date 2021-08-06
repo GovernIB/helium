@@ -34,12 +34,19 @@ public class TascaDto {
 
 	@JsonProperty("id")
 	@Schema(example = "1234", required = true, description = "Id de la tasca a Helium.")
-	private Long id;
+	@Size(max = 64)
+	@NotEmpty
+	private String id;
 	
 	@JsonProperty("expedientId")
 	@Schema(example = "1234", required = true, description = "Id de l'expedient de la tasca.")
 	private Long expedientId;
 
+	@JsonProperty("procesId")
+	@Schema(example = "1234", required = true, description = "Id del procés al qual pertany la tasca.")
+	@Size(max = 64)
+	private String procesId;
+	
 	@JsonProperty("nom")
 	@Schema(example = "nom tasca", required = true, description = "Nom de la tasca en el flux")
 	@Size(max = 255)
@@ -113,6 +120,9 @@ public class TascaDto {
 	@Size(max = 255)
 	private String grupAssignat;
 
+	@JsonProperty("prioritat")
+	@Schema(example = "3", required = false, description = "Prioritat assignada a la tasca.")
+	private Integer prioritat;
 	
 	@JsonProperty("responsables")
 	@Schema(example = "{'usuari1', 'usuari2'}", required = false, description = "Llista d'usuaris responsables.")
