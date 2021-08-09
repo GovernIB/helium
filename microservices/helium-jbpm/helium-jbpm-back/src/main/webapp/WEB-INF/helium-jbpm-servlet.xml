@@ -22,6 +22,10 @@
 
 	<context:annotation-config/>
 	<mvc:annotation-driven/>
+<!--		<mvc:message-converters>-->
+<!--			<bean class="org.springframework.http.converter.ByteArrayHttpMessageConverter" />-->
+<!--		</mvc:message-converters>-->
+<!--	</mvc:annotation-driven>-->
 	<mvc:default-servlet-handler/>
 
 <!--	<bean id="workflowEngineApi" class="org.springframework.ejb.access.LocalStatelessSessionProxyFactoryBean">-->
@@ -77,6 +81,7 @@
 		<property name="messageConverters">
 			<list>
 				<bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/>
+				<bean class="org.springframework.http.converter.ByteArrayHttpMessageConverter" />
 			</list>
 		</property>
 	</bean>

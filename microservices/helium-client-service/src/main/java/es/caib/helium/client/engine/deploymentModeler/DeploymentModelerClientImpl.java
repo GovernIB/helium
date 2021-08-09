@@ -12,5 +12,5 @@ public class DeploymentModelerClientImpl implements DeploymentModelerClient {
 
 	private final String missatgeLog = "Cridant Engine Service - DeploymentModeler - ";
 
-	private DeploymentModelerFeignClient deploymentModelerClient;
+	private final DeploymentModelerFeignClient deploymentModelerClient;
 }

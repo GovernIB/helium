@@ -17,6 +17,7 @@
 	<http entry-point-ref="preAuthenticatedProcessingFilterEntryPoint">
 		<intercept-url pattern="/index.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/error.jsp" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<intercept-url pattern="/api/v1/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		<intercept-url pattern="/css/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/js/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<intercept-url pattern="/img/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />

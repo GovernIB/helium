@@ -15,9 +15,6 @@ import java.util.Date;
 @Component
 public class TerminisHelper {
 
-    @Value("${es.caib.helium.jbpm.bridge.service.host}")
-    String bridgeAdress;
-
     @Autowired
     RestTemplate restTemplate;
 
@@ -109,7 +106,7 @@ public class TerminisHelper {
     }
 
     private String getTerminisBridgeAddress() {
-        return bridgeAdress + "/terminis";
+        return RestClientHelper.getBridgeAddress() + "/terminis";
     }
 
     @Data @Builder

@@ -149,7 +149,7 @@ public class TascaHelper {
 		String titol = tasca.getNom();
 		if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0)
 			titol = getTitolPerTasca(task, tasca);
-		task.setEntornId(expedient.getEntorn().getId());
+//		task.setEntornId(expedient.getEntorn().getId());
 		task.setTitol(titol);
 //		task.setFieldToCache(
 //				"identificador",
@@ -186,7 +186,7 @@ public class TascaHelper {
 	
 	private DadesCacheTasca getDadesCacheTasca(WTaskInstance task) {
 		return  new DadesCacheTasca(
-				task.getEntornId(),
+//				task.getEntornId(),
 				task.getTitol(),
 //				task.getFieldFromDescription("identificador"),
 //				task.getFieldFromDescription("identificadorOrdenacio"),
@@ -199,7 +199,7 @@ public class TascaHelper {
 	}
 
 	public class DadesCacheTasca {
-		private Long entornId;
+//		private Long entornId;
 		private String titol;
 //		private String identificador;
 //		private String identificadorOrdenacio;
@@ -210,7 +210,7 @@ public class TascaHelper {
 		private Boolean tramitacioMassiva;
 		private String definicioProcesJbpmKey;
 		public DadesCacheTasca(
-				Long entornId,
+//				Long entornId,
 				String titol,
 //				String identificador,
 //				String identificadorOrdenacio,
@@ -220,7 +220,7 @@ public class TascaHelper {
 //				String processInstanceId,
 				Boolean tramitacioMassiva,
 				String definicioProcesJbpmKey) {
-			this.entornId = entornId;
+//			this.entornId = entornId;
 			this.titol = titol;
 //			this.identificador = identificador;
 //			this.identificadorOrdenacio = identificadorOrdenacio;
@@ -231,9 +231,9 @@ public class TascaHelper {
 			this.tramitacioMassiva = tramitacioMassiva;
 			this.definicioProcesJbpmKey = definicioProcesJbpmKey;
 		}
-		public Long getEntornId() {
-			return entornId;
-		}
+//		public Long getEntornId() {
+//			return entornId;
+//		}
 		public String getTitol() {
 			return titol;
 		}

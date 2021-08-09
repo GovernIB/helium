@@ -58,7 +58,7 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyar(entornActual.getId(),
 					definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
-			model.addAttribute("baseUrl", ("/helium/v3/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
+			model.addAttribute("baseUrl", ("/heliumback/v3/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
 		}
 		return "v3/expedientTipusAccio";
 	}

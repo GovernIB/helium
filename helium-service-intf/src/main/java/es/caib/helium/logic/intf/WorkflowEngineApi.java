@@ -15,7 +15,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.zip.ZipInputStream;
 
 /**
  * Interfície comú dels motors de workflow amb els mètodes necessaris per desplegar, consultar,
@@ -132,23 +131,19 @@ public interface WorkflowEngineApi {
 	
 	/**
 	 * Obté una definició de procés donat el codi de desplegament i de la definició de procés 
-	 * @param deploymentId
 	 * @param processDefinitionId
 	 * @return
 	 */
 	public WProcessDefinition getProcessDefinition(
-            String deploymentId,
             String processDefinitionId);
 	
 	/**
 	 * Obté les definicions de procés dels subprocessos donat el codi de desplegament i de la definició de procés pare
 	 * 
-	 * @param deploymentId
 	 * @param processDefinitionId
 	 * @return
 	 */
 	public List<WProcessDefinition> getSubProcessDefinitions(
-            String deploymentId,
             String processDefinitionId);
 	
 	/**
@@ -866,6 +861,6 @@ public interface WorkflowEngineApi {
 	 * @return
 	 * @throws Exception
 	 */
-	public WProcessDefinition parse(ZipInputStream zipInputStream) throws Exception;
+	public WProcessDefinition parse(String nomArxiu, byte[] contingut) throws Exception;
 
 }

@@ -124,7 +124,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	@Override
 	public WDeployment getDesplegament(String processDefinitionId) {
-		ProcessDefinition processDefinition = getProcessDefinition(processDefinitionId);
+		ProcessDefinition processDefinition = getDefinicioProces(processDefinitionId);
 		if (processDefinition != null)
 			return new JbpmDeployment(processDefinition);
 		return null;
@@ -191,9 +191,9 @@ public class JbpmHelper implements WorkflowEngineApi {
 	// Consulta de Definicions de Procés
 	////////////////////////////////////////////////////////////////////////////////
 
-	public WProcessDefinition getProcessDefinition(String deploymentId, String processDefinitionId) {
+	public WProcessDefinition getProcessDefinition(String processDefinitionId) {
 		//adminService.mesuraIniciar("jBPM getProcessDefinition", "jbpmDao");
-		ProcessDefinition processDefinition = getProcessDefinition(processDefinitionId);
+		ProcessDefinition processDefinition = getDefinicioProces(processDefinitionId);
 		if (processDefinition != null)
 			return new JbpmProcessDefinition(processDefinition);
 		//adminService.mesuraCalcular("jBPM getProcessDefinition", "jbpmDao");
@@ -201,7 +201,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<WProcessDefinition> getSubProcessDefinitions(String deploymentId, String processDefinitionId) {
+	public List<WProcessDefinition> getSubProcessDefinitions(String processDefinitionId) {
 		//adminService.mesuraIniciar("jBPM getSubProcessDefinitions", "jbpmDao");
 		List<WProcessDefinition> resposta = new ArrayList<WProcessDefinition>();
 		final long pdid = Long.parseLong(processDefinitionId);
@@ -215,10 +215,10 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 
 	@SuppressWarnings("unchecked")
-	public List<String> getTaskNamesFromDeployedProcessDefinition(WDeployment dpd, String processDefinitionId) {
+	public List<String> getTaskNamesFromDeployedProcessDefinition(String deploymentId, String processDefinitionId) {
 		//adminService.mesuraIniciar("jBPM getTaskNamesFromDeployedProcessDefinition", "jbpmDao");
+		ProcessDefinition pd = getDefinicioProces(processDefinitionId);
 		List<String> taskNames = new ArrayList<String>();
-		ProcessDefinition pd = (ProcessDefinition)dpd.getProcessDefinitions().get(0);
 		Map<String,Object> tasks = pd.getTaskMgmtDefinition().getTasks();
 		if (tasks != null) {
 			taskNames.addAll(tasks.keySet());
@@ -1915,7 +1915,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 //		return resultat;
 //	}
 
-	private ProcessDefinition getProcessDefinition(String processDefinitionId) {
+	private ProcessDefinition getDefinicioProces(String processDefinitionId) {
 		final long pdid = Long.parseLong(processDefinitionId);
 		GetProcessDefinitionByIdCommand command = new GetProcessDefinitionByIdCommand(pdid);
 		ProcessDefinition processDefinition = (ProcessDefinition)commandService.execute(command);

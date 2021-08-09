@@ -323,10 +323,10 @@ jQuery.autocomplete = function(input, options) {
 			receiveData(qu, data);
 		// if an AJAX url has been supplied, try loading the data now
 		} else if( (typeof options.url == "string") && (options.url.length > 0) ){
-			if (options.url == "/helium/persona/suggest.html" ) {
+			if (options.url == "/heliumback/persona/suggest.html" ) {
 				$.ajax({
 				    type: "POST",
-				    url: "/helium/persona/suggest.html",
+				    url: "/heliumback/persona/suggest.html",
 				    contentType: "application/x-www-form-urlencoded; charset=utf-8",
 				    data: {q: qu},
 				    success: function(data) {

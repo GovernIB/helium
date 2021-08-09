@@ -12,5 +12,5 @@ public class VariableInstanceClientImpl implements VariableInstanceClient {
 
 	private final String missatgeLog = "Cridant Engine Service - VariableInstance - ";
 
-	private VariableInstanceFeignClient variableInstanceClient;
+	private final VariableInstanceFeignClient variableInstanceClient;
 }

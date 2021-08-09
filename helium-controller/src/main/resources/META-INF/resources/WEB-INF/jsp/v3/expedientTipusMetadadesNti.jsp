@@ -29,7 +29,7 @@ $(document).ready(function() {
 		var url = $(this).attr('action'); 
 		$.ajax({
 			type: "POST",
-			url: "/helium/v3/expedientTipus/${expedientTipus.id}/metadadesNti",
+			url: "/heliumback/v3/expedientTipus/${expedientTipus.id}/metadadesNti",
 			data: $(this).serialize(),
 			success: function(ajaxResponse) {
 				if (ajaxResponse.estatError) {

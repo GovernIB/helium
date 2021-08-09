@@ -20,9 +20,6 @@ import java.util.Map;
 @Component
 public class ExpedientsHelper {
 
-    @Value("${es.caib.helium.jbpm.bridge.service.host}")
-    String bridgeAdress;
-
     @Autowired
     RestTemplate restTemplate;
 
@@ -299,7 +296,7 @@ public class ExpedientsHelper {
     }
 
     private String getExpedientBridgeAddress() {
-        return bridgeAdress + "/expedients";
+        return RestClientHelper.getBridgeAddress() + "/expedients";
     }
 
 

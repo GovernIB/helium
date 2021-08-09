@@ -51,7 +51,7 @@
 						</c:if>										
 						<c:if test="${not empty definicioProces.expedientTipus}">
 							<dt><spring:message code="definicio.proces.detall.camp.tipus.expedient"></spring:message></dt>
-							<dd><a href="/helium/v3/expedientTipus/${definicioProces.expedientTipus.id}">
+							<dd><a href="/heliumback/v3/expedientTipus/${definicioProces.expedientTipus.id}">
 									${definicioProces.expedientTipus.codi} - ${definicioProces.expedientTipus.nom}
 								</a></dd>
 						</c:if>										

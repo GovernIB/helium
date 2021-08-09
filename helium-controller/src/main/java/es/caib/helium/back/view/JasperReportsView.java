@@ -29,6 +29,7 @@ import net.sf.jasperreports.export.SimpleWriterExporterOutput;
 import net.sf.jasperreports.export.SimpleXlsReportConfiguration;
 import net.sf.jasperreports.export.SimpleXmlExporterOutput;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.View;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,6 +46,7 @@ import java.util.Map;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Component("jasperReportsView")
 public class JasperReportsView implements View {
 
 	

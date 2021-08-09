@@ -70,7 +70,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyarDelegat(entornActual.getId(),
 					definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
-			model.addAttribute("baseUrl", ("/helium/v3/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
+			model.addAttribute("baseUrl", ("/heliumback/v3/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
 		}
 		model.addAttribute("jbpmKey", jbmpKey);
 		model.addAttribute("definicioProcesId", definicioProcesId);

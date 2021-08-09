@@ -21,7 +21,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -77,11 +76,14 @@ public class WorkflowEngineController {
             @RequestPart(value = "deploymentName", required = false) String deploymentName,
             @RequestPart(value = "tenantId", required = false) String tenantId,
             @RequestPart("deploymentFile") MultipartFile deploymentFile) throws IOException {
-        Resource b;
+        String fileName = deploymentFile.getOriginalFilename();
+        byte[] contingut = deploymentFile.getBytes();
         return new ResponseEntity(
                 workflowEngineApi.desplegar(
-                        deploymentFile.getName(),
-                        deploymentFile.getBytes()),
+                        fileName,
+                        contingut),
+//                        deploymentFile.getName(),
+//                        deploymentFile.getBytes()),
                 HttpStatus.CREATED);
     }
 
@@ -104,9 +106,9 @@ public class WorkflowEngineController {
         return new ResponseEntity(workflowEngineApi.getResourceNames(deploymentId), HttpStatus.OK);
     }
 
-    @RequestMapping(value="/desplegaments/{deploymentId}/resources/{resourceName}",
-            method = RequestMethod.GET,
-            produces = { MediaType.APPLICATION_OCTET_STREAM_VALUE })
+    @RequestMapping(value="/desplegaments/{deploymentId}/resources/{resourceName:.+}",
+            method = RequestMethod.GET)
+//            produces = { MediaType.APPLICATION_OCTET_STREAM_VALUE })
 	@ResponseBody
     public ResponseEntity<byte[]> getResourceBytes(
             @PathVariable("deploymentId") String deploymentId,
@@ -139,17 +141,17 @@ public class WorkflowEngineController {
     @RequestMapping(value="/processDefinitions/{processDefinitionId}", method = RequestMethod.GET)
 	@ResponseBody
     public ResponseEntity<WProcessDefinition> getProcessDefinition(
-            @RequestParam("deploymentId") String deploymentId,
+//            @RequestParam(value = "deploymentId", required = false) String deploymentId,
             @PathVariable("processDefinitionId") String processDefinitionId) {
-        return new ResponseEntity(workflowEngineApi.getProcessDefinition(deploymentId, processDefinitionId), HttpStatus.OK);
+        return new ResponseEntity(workflowEngineApi.getProcessDefinition(processDefinitionId), HttpStatus.OK);
     }
 
     @RequestMapping(value="/processDefinitions/{processDefinitionId}/subProcessDefinition", method = RequestMethod.GET)
 	@ResponseBody
     public ResponseEntity<List<WProcessDefinition>> getSubProcessDefinitions(
-            @RequestParam("deploymentId") String deploymentId,
+//            @RequestParam("deploymentId") String deploymentId,
             @PathVariable("processDefinitionId") String processDefinitionId) {
-        return new ResponseEntity(workflowEngineApi.getSubProcessDefinitions(deploymentId, processDefinitionId), HttpStatus.OK);
+        return new ResponseEntity(workflowEngineApi.getSubProcessDefinitions(processDefinitionId), HttpStatus.OK);
     }
 
     @RequestMapping(value="/processDefinitions/{processDefinitionId}/taskNames", method = RequestMethod.GET)
@@ -157,8 +159,8 @@ public class WorkflowEngineController {
     public ResponseEntity<List<String>> getTaskNamesFromDeployedProcessDefinition(
             @RequestParam("deploymentId") String deploymentId,
             @PathVariable("processDefinitionId") String processDefinitionId) {
-        WDeployment dpd = workflowEngineApi.getDesplegament(deploymentId);
-        return new ResponseEntity(workflowEngineApi.getTaskNamesFromDeployedProcessDefinition(dpd, processDefinitionId), HttpStatus.OK);
+//        WDeployment dpd = workflowEngineApi.getDesplegament(deploymentId);
+        return new ResponseEntity(workflowEngineApi.getTaskNamesFromDeployedProcessDefinition(deploymentId, processDefinitionId), HttpStatus.OK);
     }
 
     @RequestMapping(value="/processDefinitions/{processDefinitionId}/startTaskName", method = RequestMethod.GET)
@@ -181,8 +183,8 @@ public class WorkflowEngineController {
             @RequestParam("processDefinitionId1") String processDefinitionId1,
             @RequestParam("processDefinitionId2") String processDefinitionId2) {
 
-        WProcessDefinition pd1 = workflowEngineApi.getProcessDefinition(null, processDefinitionId1);
-        WProcessDefinition pd2 = workflowEngineApi.getProcessDefinition(null, processDefinitionId2);
+        WProcessDefinition pd1 = workflowEngineApi.getProcessDefinition(processDefinitionId1);
+        WProcessDefinition pd2 = workflowEngineApi.getProcessDefinition(processDefinitionId2);
         workflowEngineApi.updateSubprocessDefinition(processDefinitionId1, processDefinitionId2);
         return new ResponseEntity(HttpStatus.OK);
     }
@@ -1018,7 +1020,7 @@ public class WorkflowEngineController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @RequestMapping(value="/processDefinitions/parse", method = RequestMethod.GET)
+    @RequestMapping(value="/processDefinitions/parse", method = RequestMethod.POST)
 	@ResponseBody
     public ResponseEntity<WProcessDefinition> parse(
             @RequestPart("zipFile") MultipartFile zipFile) throws Exception {

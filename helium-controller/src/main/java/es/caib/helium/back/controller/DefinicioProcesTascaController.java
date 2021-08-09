@@ -126,7 +126,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 		// Especifica les URLs per la pàgina
 		String basicUrl = "definicioProces/" + jbpmKey + "/" + definicioProcesId.toString() + "/tasca/" + tascaId;
 		model.addAttribute("basicUrl", basicUrl);
-		model.addAttribute("baseUrl", "/helium/v3/" + basicUrl);
+		model.addAttribute("baseUrl", "/heliumback/v3/" + basicUrl);
 
 	}
 

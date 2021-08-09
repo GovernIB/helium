@@ -3,10 +3,15 @@
  */
 package es.caib.helium.back.config;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
+import com.opensymphony.sitemesh.webapp.SiteMeshFilter;
+import es.caib.helium.back.interceptor.AjaxInterceptor;
+import es.caib.helium.back.interceptor.EntornInterceptor;
+import es.caib.helium.back.interceptor.GlobalPropertiesInterceptor;
+import es.caib.helium.back.interceptor.IdiomaInterceptor;
+import es.caib.helium.back.interceptor.ModalInterceptor;
+import es.caib.helium.back.interceptor.NodecoInterceptor;
+import es.caib.helium.back.interceptor.PersonaInterceptor;
+import es.caib.helium.back.interceptor.VersioInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -26,22 +31,17 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
+import org.springframework.web.servlet.view.BeanNameViewResolver;
+import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
-import com.opensymphony.sitemesh.webapp.SiteMeshFilter;
-
-import es.caib.helium.back.interceptor.AjaxInterceptor;
-import es.caib.helium.back.interceptor.EntornInterceptor;
-import es.caib.helium.back.interceptor.GlobalPropertiesInterceptor;
-import es.caib.helium.back.interceptor.IdiomaInterceptor;
-import es.caib.helium.back.interceptor.ModalInterceptor;
-import es.caib.helium.back.interceptor.NodecoInterceptor;
-import es.caib.helium.back.interceptor.PersonaInterceptor;
-import es.caib.helium.back.interceptor.VersioInterceptor;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Configuració de Spring web MVC.
@@ -71,12 +71,38 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	@Autowired
 	private VersioInterceptor versioInterceptor;
 
+	@Autowired
+	BeanNameViewResolver beanNameViewResolver;
+
 	@Bean
 	public LocaleResolver localeResolver() {
 		var slr = new SessionLocaleResolver();
 		slr.setDefaultLocale(DEFAULT_LOCALE);
 		return slr;
 	}
+
+	@Bean
+	public ViewResolver viewResolver() {
+		InternalResourceViewResolver resolver = new InternalResourceViewResolver();
+		resolver.setPrefix("/WEB-INF/jsp/");
+		resolver.setSuffix(".jsp");
+		resolver.setOrder(3);
+		return resolver;
+	}
+
+	@Bean
+	public ViewResolver beanViewResolver() {
+		BeanNameViewResolver beanResolver = new BeanNameViewResolver();
+		beanResolver.setOrder(1);
+		return beanResolver;
+	}
+
+//	// Vistes
+//	@Bean("arxiuView")
+//	public View arxiuView() {
+//		return new ArxiuView();
+//	}
+
 
 	/*@Bean
 	public MessageSource messageSource() {

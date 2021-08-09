@@ -17,7 +17,7 @@ public class ExecutionClientImpl implements ExecutionClient {
 
 	private final String missatgeLog = "Cridant Engine Service - Execution - ";
 
-	private ExecutionFeignClient executionClient;
+	private final ExecutionFeignClient executionClient;
 
 	@Override
 	public WToken getTokenById(String tokenId) {

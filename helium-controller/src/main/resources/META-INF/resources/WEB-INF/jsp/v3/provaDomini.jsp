@@ -14,7 +14,7 @@
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 </head>
 <body>		
-	<form id="testForm" class="form-horizontal" action="/helium/v3/domini/${dominiId}/test">
+	<form id="testForm" class="form-horizontal" action="/heliumback/v3/domini/${dominiId}/test">
 	<div class="form-group">
 		<label class="control-label col-md-2">Codi Domini</label>
 		<div class="col-md-6">

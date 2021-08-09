@@ -301,7 +301,7 @@
 			if (tipusId && tipusEntorn) {
 				$('#tipusEntorn').html(tipusEntorn);
 				$('#divExpedientsAmbErrorOPendents').html($('#divCarregant').html());
-				$('#divExpedientsAmbErrorOPendents').load('/helium/nodeco/v3/reindexacions/tipus/' + tipusId + '/expedients', 
+				$('#divExpedientsAmbErrorOPendents').load('/heliumback/nodeco/v3/reindexacions/tipus/' + tipusId + '/expedients',
 					function() {
 						$('#divExpedientsAmbErrorOPendents').find('#taulaExpedients').DataTable({
 							paging: false,

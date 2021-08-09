@@ -15,7 +15,7 @@ public interface DeploymentClient {
 
 	public WDeployment getDesplegament(@PathVariable String deploymentId);
 	
-	public List<WDeployment> getDeployments(MultiValueMap<String, String> requestParams, Integer firstResult, Integer maxResults);
+//	public List<WDeployment> getDeployments(MultiValueMap<String, String> requestParams, Integer firstResult, Integer maxResults);
 
 	public Set<String> getResourceNames(String deploymentId);
 	

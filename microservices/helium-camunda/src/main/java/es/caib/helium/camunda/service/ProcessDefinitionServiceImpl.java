@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
+import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.CallActivity;
 import org.camunda.bpm.model.bpmn.instance.UserTask;
@@ -47,7 +48,7 @@ public class ProcessDefinitionServiceImpl implements ProcessDefinitionService {
     @Override
     @Transactional(readOnly = true)
     public WProcessDefinition getProcessDefinition(
-            String deploymentId,
+//            String deploymentId,
             String processDefinitionId) {
         return processDefinitionMapper.toWProcessDefinition(cacheHelper.getDefinicioProces(processDefinitionId));
     }
@@ -55,8 +56,9 @@ public class ProcessDefinitionServiceImpl implements ProcessDefinitionService {
     @Override
     @Transactional(readOnly = true)
     @Cacheable(value = "subProcessDefinitionCache", key = "#processDefinitionId")
-    public List<WProcessDefinition> getSubProcessDefinitions(String deploymentId, String processDefinitionId) {
+    public List<WProcessDefinition> getSubProcessDefinitions(String processDefinitionId) {
         List<WProcessDefinition> subprocessos = new ArrayList<>();
+        ProcessDefinition processDefinition = cacheHelper.getDefinicioProces(processDefinitionId);
         BpmnModelInstance modelInstance = repositoryService.getBpmnModelInstance(processDefinitionId);
 //        var subprocesses = modelInstance.getModelElementsByType(SubProcess.class);
         var callActivities = modelInstance.getModelElementsByType(CallActivity.class);
@@ -76,7 +78,7 @@ public class ProcessDefinitionServiceImpl implements ProcessDefinitionService {
                 processDefinitionMapper.toWProcessDefinition(
                         repositoryService.createProcessDefinitionQuery()
                                 .processDefinitionKey(c.getCalledElement())
-                                .deploymentId(deploymentId)
+                                .deploymentId(processDefinition.getDeploymentId())
 //                                .latestVersion()
                                 .singleResult())));
         return subprocessos;

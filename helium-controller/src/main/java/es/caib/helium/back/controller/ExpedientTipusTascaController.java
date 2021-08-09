@@ -223,7 +223,7 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 		// Especifica les URLs per la pàgina
 		String basicUrl = "expedientTipus/" + expedientTipusId  + "/tasca/" + tascaId;
 		model.addAttribute("basicUrl", basicUrl);
-		model.addAttribute("baseUrl", "/helium/v3/" + basicUrl);
+		model.addAttribute("baseUrl", "/heliumback/v3/" + basicUrl);
 	}
 	
 	

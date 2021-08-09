@@ -100,7 +100,7 @@
 		
 		<div class="ctrlHolder">
 			<div id="duser">
-				<hel:inputSuggest required="true" name="usuari" urlConsultaInicial="persona/suggestInici" urlConsultaLlistat="/helium/v3/expedient/persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
+				<hel:inputSuggest required="true" name="usuari" urlConsultaInicial="persona/suggestInici" urlConsultaLlistat="/heliumback/v3/expedient/persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
 			</div>
 			<div id="dgrup">
 				<hel:inputText required="true" name="grup" textKey="filtre.expressio.grup" placeholderKey="filtre.expressio.grup"/>

@@ -4,7 +4,6 @@ import es.caib.helium.client.engine.model.WDeployment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -18,7 +17,7 @@ public class DeploymentClientImpl implements DeploymentClient {
 	
 	private final String missatgeLog = "Cridant Engine Service - Deployment - ";
 
-	private DeploymentFeignClient deploymentClient;
+	private final DeploymentFeignClient deploymentClient;
 
 	@Override
 	public WDeployment getDesplegament(String deploymentId) {
@@ -29,14 +28,14 @@ public class DeploymentClientImpl implements DeploymentClient {
     	return resultat;
 	}
 
-	@Override
-	public List<WDeployment> getDeployments(MultiValueMap<String, String> requestParams, Integer firstResult, Integer maxResults) {
-		
-		log.debug(missatgeLog + " obtinguent desplegaments amb parametres " + requestParams.toString());
-		var responseEntity = deploymentClient.getDeployments(requestParams, firstResult, maxResults);
-		var resultat = Objects.requireNonNull(responseEntity.getBody());
-    	return resultat;
-	}
+//	@Override
+//	public List<WDeployment> getDeployments(MultiValueMap<String, String> requestParams, Integer firstResult, Integer maxResults) {
+//
+//		log.debug(missatgeLog + " obtinguent desplegaments amb parametres " + requestParams.toString());
+//		var responseEntity = deploymentClient.getDeployments(requestParams, firstResult, maxResults);
+//		var resultat = Objects.requireNonNull(responseEntity.getBody());
+//    	return resultat;
+//	}
 
 	@Override
 	public Set<String> getResourceNames(String deploymentId) {

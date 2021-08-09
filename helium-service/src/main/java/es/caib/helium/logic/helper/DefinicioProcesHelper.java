@@ -3,25 +3,6 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import es.caib.helium.client.engine.model.WDeployment;
 import es.caib.helium.client.engine.model.WProcessDefinition;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
@@ -76,6 +57,23 @@ import es.caib.helium.persist.repository.ExpedientTipusRepository;
 import es.caib.helium.persist.repository.FirmaTascaRepository;
 import es.caib.helium.persist.repository.TascaRepository;
 import es.caib.helium.persist.repository.TerminiRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Helper per a les definicions de procés.
@@ -181,14 +179,16 @@ public class DefinicioProcesHelper {
 					expedientTipus.getDefinicionsProces().add(definicio);
 				definicio = definicioProcesRepository.saveAndFlush(definicio);
 				// Crea les tasques publicades
-				for (String nomTasca: workflowEngineApi.getTaskNamesFromDeployedProcessDefinition(dpd, wpd.getId())) {
+				List<String> nomTasques = workflowEngineApi.getTaskNamesFromDeployedProcessDefinition(dpd, wpd.getId());
+				Set<String> nomRecursos = workflowEngineApi.getResourceNames(dpd.getId());
+				for (String nomTasca: nomTasques) {
 					Tasca tasca = new Tasca(
 							definicio,
 							nomTasca,
 							nomTasca,
 							TipusTasca.ESTAT);
 					String prefixRecursBo = "forms/" + nomTasca;
-					for (String resourceName: workflowEngineApi.getResourceNames(dpd.getId())) {
+					for (String resourceName: nomRecursos) {
 						if (resourceName.startsWith(prefixRecursBo)) {
 							tasca.setTipus(TipusTasca.FORM);
 							tasca.setRecursForm(nomTasca);
@@ -832,7 +832,9 @@ public class DefinicioProcesHelper {
 					tascaExportacio.setAmbRepro(tasca.isAmbRepro());
 					tascaExportacio.setMostrarAgrupacions(tasca.isMostrarAgrupacions());
 					// Afegeix els camps de la tasca
-					for (CampTasca camp: campTascaRepository.findAmbTascaIdOrdenats(tasca.getId(), definicio.getExpedientTipus().getId())) {
+					for (CampTasca camp: campTascaRepository.findAmbTascaIdOrdenats(
+							tasca.getId(),
+							definicio.getExpedientTipus() != null ? definicio.getExpedientTipus().getId() : null)) {
 						tascaExportacio.addCamp(
 								new CampTascaExportacio(
 									camp.getCamp().getCodi(),
@@ -1647,8 +1649,8 @@ public class DefinicioProcesHelper {
 		for (DefinicioProces dp1: darreresDefinicionsProces.values())
 			for (DefinicioProces dp2 : darreresDefinicionsProces.values())
 				workflowEngineApi.updateSubprocessDefinition(
-						workflowEngineApi.getProcessDefinition(null, dp1.getJbpmId()), //.getProcessDefinition(),
-						workflowEngineApi.getProcessDefinition(null, dp2.getJbpmId())); //.getProcessDefinition());
+						workflowEngineApi.getProcessDefinition(dp1.getJbpmId()), //.getProcessDefinition(),
+						workflowEngineApi.getProcessDefinition(dp2.getJbpmId())); //.getProcessDefinition());
 	}
 	
 	private static final Logger logger = LoggerFactory.getLogger(DefinicioProcesHelper.class);

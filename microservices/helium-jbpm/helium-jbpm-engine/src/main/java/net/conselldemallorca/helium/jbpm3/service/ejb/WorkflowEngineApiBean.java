@@ -60,18 +60,18 @@ public class WorkflowEngineApiBean implements WorkflowEngineApi {
     }
 
     @Override
-    public WProcessDefinition getProcessDefinition(String deploymentId, String processDefinitionId) {
-        return delegate.getProcessDefinition(deploymentId, processDefinitionId);
+    public WProcessDefinition getProcessDefinition(String processDefinitionId) {
+        return delegate.getProcessDefinition(processDefinitionId);
     }
 
     @Override
-    public List<WProcessDefinition> getSubProcessDefinitions(String deploymentId, String processDefinitionId) {
-        return delegate.getSubProcessDefinitions(deploymentId, processDefinitionId);
+    public List<WProcessDefinition> getSubProcessDefinitions(String processDefinitionId) {
+        return delegate.getSubProcessDefinitions(processDefinitionId);
     }
 
     @Override
-    public List<String> getTaskNamesFromDeployedProcessDefinition(WDeployment dpd, String processDefinitionId) {
-        return delegate.getTaskNamesFromDeployedProcessDefinition(dpd, processDefinitionId);
+    public List<String> getTaskNamesFromDeployedProcessDefinition(String deploymentId, String processDefinitionId) {
+        return delegate.getTaskNamesFromDeployedProcessDefinition(deploymentId, processDefinitionId);
     }
 
     @Override

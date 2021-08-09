@@ -14,7 +14,7 @@ public class InicialitzacioListener implements ServletContextListener {
 	private PrintStream out;
 	private PrintStream err;
 
-	@Override
+//	@Override
 	public void contextInitialized(ServletContextEvent sce) {
 		// Redirigeix la sortida stdout cap als logs
 		this.out = System.out;
@@ -26,7 +26,7 @@ public class InicialitzacioListener implements ServletContextListener {
 		System.setErr(soupErr);
 	}
 
-	@Override
+//	@Override
 	public void contextDestroyed(ServletContextEvent sce) {
 		System.setOut(out);
 		System.setErr(err);

@@ -1,8 +1,11 @@
 package es.caib.helium.client.engine.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import java.util.Date;
 import java.util.Set;
 
+@JsonDeserialize(as = TaskInstanceDto.class)
 public interface WTaskInstance {
 
 	public String getId();
@@ -35,8 +38,8 @@ public interface WTaskInstance {
 	// Cache
 	public String getTitol();
 	public void setTitol(String titol);
-	public Long getEntornId();
-	public void setEntornId(Long entornId);
+//	public Long getEntornId();
+//	public void setEntornId(Long entornId);
 	public Boolean getTramitacioMassiva();
 	public void setTramitacioMassiva(Boolean tramitacioMassiva);
 	public String getDefinicioProcesKey();

@@ -209,7 +209,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		Boolean potAdministrarEntorn = SessionHelper.getSessionManager(request).getPotAdministrarEntorn();
 		if (potAdministrarEntorn != null && !potAdministrarEntorn) {
 			try {
-				response.sendRedirect("/helium/v3/estadistica");
+				response.sendRedirect("/heliumback/v3/estadistica");
 			} catch (IOException e) {
 				throw new RuntimeException("Error de permís generant l'XLS d'estadístiques.", e);
 			}

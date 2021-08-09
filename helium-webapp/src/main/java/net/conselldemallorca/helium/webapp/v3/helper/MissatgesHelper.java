@@ -90,6 +90,23 @@ public class MissatgesHelper {
 				delete);
 	}
 
+	public static List<String> getGlobalErrorsFromCommands(HttpServletRequest request) {
+		List<String> response = new ArrayList<String>();
+		Enumeration<String> attributeNames = request.getAttributeNames();
+		while (attributeNames.hasMoreElements()) {
+			String attributeName = attributeNames.nextElement();
+			if (!attributeName.contains(".") && attributeName.contains("ommand")) {
+				BindingResult bindingResult = (BindingResult)request.getAttribute("org.springframework.validation.BindingResult." + attributeName);
+				if (bindingResult.getGlobalErrorCount() > 0) {
+					List<ObjectError> globalErrors = bindingResult.getGlobalErrors();
+					for (ObjectError globalError: globalErrors) {
+						response.add(globalError.getDefaultMessage());
+					}
+				}
+			}
+		}
+		return response;
+	}
 
 	@SuppressWarnings("unchecked")
 	private static void newAlert(

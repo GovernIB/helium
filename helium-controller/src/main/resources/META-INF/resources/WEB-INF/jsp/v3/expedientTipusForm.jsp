@@ -75,7 +75,7 @@
 					var nouDiv =	"<tr class='" + classe + "'>\n" +
 									"	<td><input type='text' style='text-align:right; width: 100%;' class='form-control' value='' name='sequenciesAny' id='seqany_" + nFiles + "'></td>\n" +
 									"	<td><input type='text' style='text-align:right; width: 100%;' class='form-control' value='' name='sequenciesValor' id='seqseq_" + nFiles + "'></td>\n" +
-									"	<td style='width:16px'><a onclick='removeSeq(" + nFiles +")' href='javascript:void(0)'><img border='0' src='/helium/img/cross.png'></a></td>\n" +
+									"	<td style='width:16px'><a onclick='removeSeq(" + nFiles +")' href='javascript:void(0)'><img border='0' src='/heliumback/img/cross.png'></a></td>\n" +
 									"</tr>\n";
 					$("#seqs").append(nouDiv);
 		    	}
@@ -144,7 +144,7 @@
 									<tr class="<%=classes[i%2]%>">
 										<td><input type="text" class="form-control" style="text-align:right; width: 100%;" value="${expedientTipusCommand.sequenciesAny[status.index]}" name="sequenciesAny" id="seqany_<%=i%>"></td>
 										<td><input type="text" class="form-control" style="text-align:right; width: 100%;" value="${expedientTipusCommand.sequenciesValor[status.index]}" name="sequenciesValor" id="seqseq_<%=i%>"></td>
-										<td style="width:16px"><a onclick="removeSeq(<%=i++%>)" href="javascript:void(0)"><img border="0" title="<spring:message code='expedient.tipus.form.boto.esborrar' />" alt="<spring:message code='expedient.tipus.form.boto.esborrar' />" src="/helium/img/cross.png"></a></td>
+										<td style="width:16px"><a onclick="removeSeq(<%=i++%>)" href="javascript:void(0)"><img border="0" title="<spring:message code='expedient.tipus.form.boto.esborrar' />" alt="<spring:message code='expedient.tipus.form.boto.esborrar' />" src="/heliumback/img/cross.png"></a></td>
 									</tr>
 									</c:forEach>
 								</tbody>
@@ -157,7 +157,7 @@
 					</div>
 			</div>						
 			</div>
-			<hel:inputSuggest inline="false" name="responsableDefecteCodi" urlConsultaInicial="/helium/v3/tasca/persona/suggestInici" urlConsultaLlistat="/helium/v3/tasca/persona/suggest" textKey="expedient.tipus.form.camp.responsableDefecteCodi" placeholderKey="expedient.tipus.form.camp.responsableDefecteCodi"/>
+			<hel:inputSuggest inline="false" name="responsableDefecteCodi" urlConsultaInicial="/heliumback/v3/tasca/persona/suggestInici" urlConsultaLlistat="/heliumback/v3/tasca/persona/suggest" textKey="expedient.tipus.form.camp.responsableDefecteCodi" placeholderKey="expedient.tipus.form.camp.responsableDefecteCodi"/>
 			<hel:inputCheckbox name="restringirPerGrup" textKey="expedient.tipus.form.camp.restringirPerGrup" />
 			<hel:inputCheckbox name="seleccionarAny" textKey="expedient.tipus.form.camp.seleccionarAny" />
 			<c:if test="${potDissenyar}">

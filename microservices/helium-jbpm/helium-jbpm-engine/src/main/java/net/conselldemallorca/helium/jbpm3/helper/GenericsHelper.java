@@ -17,9 +17,6 @@ import java.util.List;
 @Component
 public class GenericsHelper {
 
-    @Value("${es.caib.helium.jbpm.bridge.service.host}")
-    String bridgeAdress;
-
     @Autowired
     RestTemplate restTemplate;
 
@@ -53,7 +50,7 @@ public class GenericsHelper {
 
 
     private String getGenericsBridgeAddress() {
-        return bridgeAdress + "/generic";
+        return RestClientHelper.getBridgeAddress() + "/generic";
     }
 
     @Data @Builder

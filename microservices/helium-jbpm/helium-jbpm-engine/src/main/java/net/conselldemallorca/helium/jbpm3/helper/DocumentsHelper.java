@@ -15,9 +15,6 @@ import java.util.Date;
 @Component
 public class DocumentsHelper {
 
-    @Value("${es.caib.helium.jbpm.bridge.service.host}")
-    String bridgeAdress;
-
     @Autowired
     RestTemplate restTemplate;
 
@@ -139,7 +136,7 @@ public class DocumentsHelper {
 
 
     private String getDocumentsBridgeAddress() {
-        return bridgeAdress + "/documents";
+        return RestClientHelper.getBridgeAddress() + "/documents";
     }
 
     @Data @Builder

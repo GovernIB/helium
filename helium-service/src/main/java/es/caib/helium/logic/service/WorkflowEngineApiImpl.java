@@ -6,7 +6,18 @@ import es.caib.helium.client.engine.areaCarrec.AreaCarrecClient;
 import es.caib.helium.client.engine.deployment.DeploymentClient;
 import es.caib.helium.client.engine.execution.ExecutionClient;
 import es.caib.helium.client.engine.helper.VariableHelper;
-import es.caib.helium.client.engine.model.*;
+import es.caib.helium.client.engine.model.ExpressionData;
+import es.caib.helium.client.engine.model.InfoCacheData;
+import es.caib.helium.client.engine.model.ProcessStartData;
+import es.caib.helium.client.engine.model.ReassignTaskData;
+import es.caib.helium.client.engine.model.RedirectTokenData;
+import es.caib.helium.client.engine.model.ScriptData;
+import es.caib.helium.client.engine.model.UpdateVariablesData;
+import es.caib.helium.client.engine.model.WDeployment;
+import es.caib.helium.client.engine.model.WProcessDefinition;
+import es.caib.helium.client.engine.model.WProcessInstance;
+import es.caib.helium.client.engine.model.WTaskInstance;
+import es.caib.helium.client.engine.model.WToken;
 import es.caib.helium.client.engine.processDefiniton.ProcessDefinitionClient;
 import es.caib.helium.client.engine.processInstance.ProcessInstanceClient;
 import es.caib.helium.client.engine.task.TaskClient;
@@ -39,7 +50,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.zip.ZipInputStream;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -60,6 +70,9 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
     private final ExpedientClientService expedientClientService;
     private final TascaClientService tascaClientService;
 
+
+    // Desplegaments
+    ////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public WDeployment desplegar(String nomArxiu, byte[] contingut) {
@@ -109,14 +122,17 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
                 new CustomMultipartFile(deploymentFileContent, deploymentFileName));
     }
 
+    // Definicions de Procés
+    ////////////////////////////////////////////////////////////////////////////////
+
     @Override
-    public WProcessDefinition getProcessDefinition(String deploymentId, String processDefinitionId) {
-        return processDefinitionClient.getProcessDefinition(deploymentId, processDefinitionId);
+    public WProcessDefinition getProcessDefinition(String processDefinitionId) {
+        return processDefinitionClient.getProcessDefinition(processDefinitionId);
     }
 
     @Override
-    public List<WProcessDefinition> getSubProcessDefinitions(String deploymentId, String processDefinitionId) {
-        return processDefinitionClient.getSubProcessDefinitions(deploymentId, processDefinitionId);
+    public List<WProcessDefinition> getSubProcessDefinitions(String processDefinitionId) {
+        return processDefinitionClient.getSubProcessDefinitions(processDefinitionId);
     }
 
     @Override
@@ -138,6 +154,9 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
     public void updateSubprocessDefinition(WProcessDefinition pd1, WProcessDefinition pd2) {
         processDefinitionClient.updateSubprocessDefinition(pd1.getId(), pd2.getId());
     }
+
+    // INSTÀNCIA DE PROCÉS
+    ////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public List<WProcessInstance> findProcessInstancesWithProcessDefinitionId(String processDefinitionId) {
@@ -217,6 +236,10 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
         processInstanceClient.changeProcessInstanceVersion(processInstanceId, newVersion);
     }
 
+    // VARIABLES DE PROCÉS
+    ////////////////////////////////////////////////////////////////////////////////
+    // TODO: Atacar al MS Dades
+
     // TODO: Per consultar dades no necessitam l'expedientId
     @Override
     public Map<String, Object> getProcessInstanceVariables(String processInstanceId) {
@@ -241,6 +264,9 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
     public void deleteProcessInstanceVariable(String processInstanceId, String varName) {
 //        dadaClient.deleteDadaByExpedientIdAndProcesIdAndCodi(expedientId, processInstanceId, varName);
     }
+
+    // INSTÀNCIA DE TASQUES
+    ////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public WTaskInstance getTaskById(String taskId) {
@@ -434,6 +460,9 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
         return taskClient.findTaskInstanceOutcomes(taskInstanceId);
     }
 
+    // VARIABLES DE TASQUES
+    ////////////////////////////////////////////////////////////////////////////////
+
     // Variables
     @Override
     public Map<String, Object> getTaskInstanceVariables(String taskId) {
@@ -471,6 +500,9 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
         taskVariableClient.deleteTaskInstanceVariable(taskId, varName);
     }
 
+    // FILS D'EXECUCIÓ (Token / Execution path)
+    ////////////////////////////////////////////////////////////////////////////////
+
     @Override
     public WToken getTokenById(String tokenId) {
         return executionClient.getTokenById(tokenId);
@@ -507,6 +539,9 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
     public void signalToken(String tokenId, String transitionName) {
         executionClient.signalToken(tokenId, transitionName);
     }
+
+    // ACCIONS
+    ////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public Map<String, Object> evaluateScript(String processInstanceId, String script, Set<String> outputNames) {
@@ -563,6 +598,9 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
                 processDefinitionPareId);
     }
 
+    // TIMERS
+    ////////////////////////////////////////////////////////////////////////////////
+
     @Override
     public void suspendTimer(String timerId, Date dueDate) {
         timerClient.suspendTimer(timerId, dueDate);
@@ -572,6 +610,9 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
     public void resumeTimer(String timerId, Date dueDate) {
         timerClient.resumeTimer(timerId, dueDate);
     }
+
+    // AREES I CARRECS
+    ////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public List<String> findAreesByFiltre(String filtre) {
@@ -614,6 +655,8 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
     }
 
 
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -743,8 +786,8 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
 
 
     @Override
-    public WProcessDefinition parse(ZipInputStream zipInputStream) throws Exception {
-        return null;
+    public WProcessDefinition parse(String nomArxiu, byte[] contingut) throws Exception {
+        return processDefinitionClient.parse(new CustomMultipartFile(contingut, nomArxiu));
     }
 
 

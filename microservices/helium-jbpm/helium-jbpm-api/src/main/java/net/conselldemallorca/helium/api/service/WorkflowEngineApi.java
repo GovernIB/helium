@@ -126,34 +126,32 @@ public interface WorkflowEngineApi {
 	
 	/**
 	 * Obté una definició de procés donat el codi de desplegament i de la definició de procés 
-	 * @param deploymentId
 	 * @param processDefinitionId
 	 * @return
 	 */
 	public WProcessDefinition getProcessDefinition(
-            String deploymentId,
+//            String deploymentId,
             String processDefinitionId);
 	
 	/**
 	 * Obté les definicions de procés dels subprocessos donat el codi de desplegament i de la definició de procés pare
 	 * 
-	 * @param deploymentId
 	 * @param processDefinitionId
 	 * @return
 	 */
 	public List<WProcessDefinition> getSubProcessDefinitions(
-            String deploymentId,
+//            String deploymentId,
             String processDefinitionId);
 	
 	/**
 	 * Obté els noms de les tasques d'una definició de procés donat el desplegament i el codi de definició de procés
 	 * 
-	 * @param dpd
+	 * @param deploymentId
 	 * @param processDefinitionId
 	 * @return
 	 */
 	public List<String> getTaskNamesFromDeployedProcessDefinition(
-            WDeployment dpd,
+            String deploymentId,
             String processDefinitionId);
 	
 	/**

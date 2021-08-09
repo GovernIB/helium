@@ -163,7 +163,7 @@ $(document).ready(function() {
 		</div>
 </form:form>
 
-<form:form id="excel" action="/helium/v3/estadistica/excel" method="post" modelAttribute="expedientTipusEstadisticaCommand">
+<form:form id="excel" action="/heliumback/v3/estadistica/excel" method="post" modelAttribute="expedientTipusEstadisticaCommand">
 	<input type="hidden" name="expedientTipusId" value="${expedientTipusEstadisticaCommand.expedientTipusId}"/>
 	<input type="hidden" name="anyInicial" value="${expedientTipusEstadisticaCommand.anyInicial}">
 	<input type="hidden" name="anyFinal" value="${expedientTipusEstadisticaCommand.anyFinal}">
