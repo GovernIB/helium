@@ -111,13 +111,22 @@ public interface WorkflowEngineApi {
 	 * Actualitza els recursos de tipus acció, sense canviar la versió d'un desplagament
 	 * 
 	 * @param deploymentId
-	 * @param handlers
 	 */
 	public void updateDeploymentActions(
             String deploymentId,
-            Map<String, byte[]> handlers,
+//            Map<String, byte[]> handlers,
 			String deploymentFileName,
 			byte[] deploymentFileContent);
+
+	/**
+	 * Actualitza els recursos de tipus acció, sense canviar la versió d'un desplagament
+	 *
+	 * @param deploymentOrigenId
+	 * @param deploymentDestiId
+	 */
+	public void propagateDeploymentActions(
+			String deploymentOrigenId,
+			String deploymentDestiId);
 	
 	// Consulta de Definicions de Procés
 	////////////////////////////////////////////////////////////////////////////////

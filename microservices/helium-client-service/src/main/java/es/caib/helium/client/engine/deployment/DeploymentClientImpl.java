@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -65,10 +64,21 @@ public class DeploymentClientImpl implements DeploymentClient {
 	}
 
 	@Override
-	public void updateDeploymentActions(String deploymentId, List<MultipartFile> handlers, MultipartFile deploymentFile) {
+	public void updateDeploymentActions(
+			String deploymentId,
+//			List<MultipartFile> handlers,
+			MultipartFile deploymentFile) {
 
 		log.debug(missatgeLog + " update deployment actions amb deploymentId " + deploymentId);
-		deploymentClient.updateDeploymentActions(deploymentId, handlers, deploymentFile);
+		deploymentClient.updateDeploymentActions(deploymentId, deploymentFile);
+	}
+
+	@Override
+	public void propagateDeploymentActions(
+			String deploymentOrigenId,
+			String deploymentDestiId) {
+		log.debug(missatgeLog + " propagate deployment actions origen: " + deploymentOrigenId + ", desti: " + deploymentDestiId);
+		deploymentClient.propagateDeploymentActions(deploymentOrigenId, deploymentDestiId);
 	}
 
 	@Override

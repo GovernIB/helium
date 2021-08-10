@@ -1,14 +1,11 @@
 package es.caib.helium.client.engine.deployment;
 
-import java.util.List;
-import java.util.Set;
-
+import es.caib.helium.client.engine.model.WDeployment;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
-import es.caib.helium.client.engine.model.WDeployment;
+import java.util.Set;
 
 @Service
 public interface DeploymentClient {
@@ -23,7 +20,14 @@ public interface DeploymentClient {
 	
 	public WDeployment createDeployment(String deploymentName, String tenantId, MultipartFile deploymentFile);
 	
-	public void updateDeploymentActions(String deploymentId, List<MultipartFile> handlers, MultipartFile deploymentFile);
+	public void updateDeploymentActions(
+			String deploymentId,
+//			List<MultipartFile> handlers,
+			MultipartFile deploymentFile);
+
+	public void propagateDeploymentActions(
+			String deploymentOrigenId,
+			String deploymentDestiId);
 	
 	public void esborrarDesplegament(String deploymentId);
 }

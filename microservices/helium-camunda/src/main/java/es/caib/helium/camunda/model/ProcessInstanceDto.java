@@ -20,7 +20,7 @@ public class ProcessInstanceDto implements WProcessInstance {
     Date startTime;
     Date endTime;
     String description;
-    Long expedientId;
+//    Long expedientId;
 //    Object processDefinition;
 
 //    public WProcessDefinition parse(ZipInputStream zipInputStream) throws Exception {

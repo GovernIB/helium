@@ -20,6 +20,7 @@ import net.conselldemallorca.helium.api.service.WorkflowRetroaccioApi.Retroaccio
 import net.conselldemallorca.helium.jbpm3.command.*;
 import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
 import net.conselldemallorca.helium.jbpm3.helper.CommandHelper;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 import lombok.extern.slf4j.Slf4j;
@@ -271,9 +272,9 @@ public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
 
             // comprovam si estem retrocedint únicament la tasca actual
             if (jtask != null) {
-                WProcessInstance pi = workflowEngineApi.getProcessInstance(String.valueOf(expedientLog.getProcessInstanceId()));
+                ProcessInstance processInstance = getProcessInstance(Long.parseLong(expedientLog.getProcessInstanceId()));
                 currentToken = getProcessLogById(expedientLog.getJbpmLogId()).getToken();
-                Collection<TaskInstance> tis = ((ProcessInstance)pi.getProcessInstance()).getTaskMgmtInstance().getUnfinishedTasks(currentToken);
+                Collection<TaskInstance> tis = processInstance.getTaskMgmtInstance().getUnfinishedTasks(currentToken);
                 for (TaskInstance ti: tis) {
                     if (ti.getId() == ((JbpmTask)jtask).getTaskInstance().getId()){
                         nodeDesti = ti.getTask().getTaskNode();
@@ -303,10 +304,10 @@ public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
                             if (debugRetroces)
                                 log.info(">>> [RETLOG] Desfer finalitzar procés (" + logo.getName() + ")");
                             revertProcessInstanceEnd(logo.getObjectId());
-                            WProcessInstance jpi = workflowEngineApi.getProcessInstance(String.valueOf(logo.getProcessInstanceId()));
+                            ProcessInstance processInstance = getProcessInstance(logo.getProcessInstanceId());
                             if (debugRetroces)
-                                log.info(">>> [RETLOG] Desfer finalitzar token (" + ((ProcessInstance)jpi.getProcessInstance()).getRootToken().getFullName() + ")");
-                            revertTokenEnd(((ProcessInstance)jpi.getProcessInstance()).getRootToken().getId());
+                                log.info(">>> [RETLOG] Desfer finalitzar token (" + processInstance.getRootToken().getFullName() + ")");
+                            revertTokenEnd(processInstance.getRootToken().getId());
                         }
                         break;
                     case LogObjectDto.LOG_OBJECT_TOKEN:
@@ -1336,6 +1337,11 @@ public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
             log.error("Error al obtenir el recurs " + recurs, ex);
             return null;
         }
+    }
+
+    private ProcessInstance getProcessInstance(Long processInstanceId) {
+        GetProcessInstanceCommand command = new GetProcessInstanceCommand(processInstanceId);
+        return (ProcessInstance)commandService.execute(command);
     }
 
     private ProcessLog getProcessLogById(Long logId) {

@@ -110,16 +110,21 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
     @Override
     public void updateDeploymentActions(
             String deploymentId,
-            Map<String, byte[]> handlers,
+//            Map<String, byte[]> handlers,
             String deploymentFileName,
             byte[] deploymentFileContent) {
 
         List<MultipartFile> handlerFiles = new ArrayList<>();
-        handlers.forEach((key, value) -> handlerFiles.add(new CustomMultipartFile(value, key)));
+//        handlers.forEach((key, value) -> handlerFiles.add(new CustomMultipartFile(value, key)));
         deploymentClient.updateDeploymentActions(
                 deploymentId,
-                handlerFiles,
+//                handlerFiles,
                 new CustomMultipartFile(deploymentFileContent, deploymentFileName));
+    }
+
+    @Override
+    public void propagateDeploymentActions(String deploymentOrigenId, String deploymentDestiId) {
+        deploymentClient.propagateDeploymentActions(deploymentOrigenId, deploymentDestiId);
     }
 
     // Definicions de Procés
@@ -142,6 +147,7 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
 
     @Override
     public String getStartTaskName(String processDefinitionId) {
+
         return processDefinitionClient.getStartTaskName(processDefinitionId);
     }
 

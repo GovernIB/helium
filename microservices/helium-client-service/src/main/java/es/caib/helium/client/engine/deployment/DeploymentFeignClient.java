@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.Set;
 
 public interface DeploymentFeignClient {
@@ -39,13 +38,21 @@ public interface DeploymentFeignClient {
             @RequestPart(value = "tenantId", required = false) String tenantId,
             @RequestPart(value = "deploymentFile") MultipartFile deploymentFile);
 	
-	@RequestMapping(method = RequestMethod.PUT, value = DeploymentApiPath.UPDATE_DEPLOYMENT_ACTIONS)
+	@RequestMapping(method = RequestMethod.POST,
+			value = DeploymentApiPath.UPDATE_DEPLOYMENT_ACTIONS,
+			consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<Void> updateDeploymentActions(
             @PathVariable String deploymentId,
-            @RequestPart(value = "handlers", required = false) List<MultipartFile> handlers,
+//            @RequestPart(value = "handlers", required = false) List<MultipartFile> handlers,
             @RequestPart("deploymentFile") MultipartFile deploymentFile);
-	
-	@RequestMapping(method = RequestMethod.PUT, value = DeploymentApiPath.ESBORRAR_DESPLEGAMENT)
+
+	@RequestMapping(method = RequestMethod.PUT,
+			value=DeploymentApiPath.PROPAGATE_DEPLOYMENT_ACTIONS)
+	public ResponseEntity<Void> propagateDeploymentActions(
+			@PathVariable("deploymentOrigenId") String deploymentOrigenId,
+			@PathVariable("deploymentDestiId") String deploymentDestiId);
+
+	@RequestMapping(method = RequestMethod.DELETE, value = DeploymentApiPath.ESBORRAR_DESPLEGAMENT)
 	public ResponseEntity<Void>  esborrarDesplegament(@PathVariable String deploymentId);
 	
 

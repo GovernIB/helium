@@ -117,21 +117,34 @@ public class WorkflowEngineController {
     }
 
     @RequestMapping(value="/desplegaments/{deploymentId}/actions",
-            method = RequestMethod.PUT,
-            consumes = { "multipart/form-data" })
+            method = RequestMethod.POST,
+            consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
 	@ResponseBody
     public ResponseEntity<Void> updateDeploymentActions(
             @PathVariable("deploymentId") String deploymentId,
-            @RequestPart("handlers") List<MultipartFile> handlers,
+//            @RequestPart("handlers") List<MultipartFile> handlers,
             @RequestPart(value = "deploymentFile", required = false) MultipartFile deploymentFile) throws IOException {
 
-        Map<String, byte[]> handlerBytes = new HashMap<String, byte[]>();
-        if (handlers != null && !handlers.isEmpty()) {
-            for (MultipartFile handler: handlers) {
-                handlerBytes.put(handler.getName(), handler.getBytes());
-            }
-        }
-        workflowEngineApi.updateDeploymentActions(Long.parseLong(deploymentId), handlerBytes);
+//        Map<String, byte[]> handlerBytes = new HashMap<String, byte[]>();
+//        if (handlers != null && !handlers.isEmpty()) {
+//            for (MultipartFile handler: handlers) {
+//                handlerBytes.put(handler.getName(), handler.getBytes());
+//            }
+//        }
+        workflowEngineApi.updateDeploymentActions(Long.parseLong(deploymentId), deploymentFile.getBytes());
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @RequestMapping(value="/desplegaments/{deploymentOrigenId}/propagate/actions/{deploymentDestiId}",
+            method = RequestMethod.PUT)
+    @ResponseBody
+    public ResponseEntity<Void> propagateDeploymentActions(
+            @PathVariable("deploymentOrigenId") String deploymentOrigenId,
+            @PathVariable("deploymentDestiId") String deploymentDestiId) {
+
+        workflowEngineApi.propagateDeploymentActions(
+                deploymentOrigenId,
+                deploymentDestiId);
         return new ResponseEntity(HttpStatus.OK);
     }
 

@@ -3,20 +3,19 @@
  */
 package es.caib.helium.back.helper;
 
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
 
 /**
  * Utilitat per a marcar peticions AJAX.
@@ -25,7 +24,7 @@ import org.springframework.validation.ObjectError;
  */
 public class AjaxHelper {
 
-	private static final String ESQUEMA_PREFIX = "/helium";
+	private static final String ESQUEMA_PREFIX = "/heliumback";
 	private static final String URI_PREFIX_AJAX = ESQUEMA_PREFIX + "/ajax";
 	private static final String REQUEST_ATTRIBUTE_AJAX = "AjaxHelper.Ajax";
 	private static final String SESSION_ATTRIBUTE_URIMAP = "AjaxHelper.UriMap";

@@ -1047,45 +1047,45 @@ public class DissenyServiceImpl implements DissenyService {
 		// Thanks to George Mournos who helped to improve this:
 		ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(contingut));
 		//TODO arreglar update handlers
-//		ProcessDefinition processDefinition;
-//		try {
-//			processDefinition = ProcessDefinition.parseParZipInputStream(zipInputStream);
-//		} catch (Exception e) {
-//			throw new DeploymentException(
-//					messageHelper.getMessage("definicio.proces.actualitzar.error.parse"));
-//		}
-//		JbpmProcessDefinition jbpmProcessDefinition = new JbpmProcessDefinition(processDefinition);
-		WProcessDefinition jbpmProcessDefinition = null;
+		WProcessDefinition processDefinition = null;
+		try {
+			processDefinition = workflowEngineApi.parse(nomArxiu, contingut);
+		} catch (Exception e) {
+			logger.debug("Error parsejant fitxer " + nomArxiu, e);
+			throw new DeploymentException(
+					messageServiceHelper.getMessage("definicio.proces.actualitzar.error.parse"));
+		}
+
     	// Recuperar la darrera versió de la definició de procés
 		DefinicioProces darrera;
 		if (expedientTipusId != null) {
 			// per expedientTipus
-			darrera = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(expedientTipusId, jbpmProcessDefinition.getKey());
+			darrera = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(expedientTipusId, processDefinition.getKey());
 		} else {
 			// global
-			darrera = definicioProcesRepository.findDarreraVersioGlobalAmbJbpmKey(entornId, jbpmProcessDefinition.getKey());
+			darrera = definicioProcesRepository.findDarreraVersioGlobalAmbJbpmKey(entornId, processDefinition.getKey());
 		}			
 		if (darrera == null) {
 			throw new DeploymentException(
 					messageServiceHelper.getMessage(
 							"definicio.proces.actualitzar.error.jbpmKey." + (expedientTipusId != null ? "expedientTipus" : "global"), 
-							new Object[] {jbpmProcessDefinition.getKey()}));
+							new Object[] {processDefinition.getKey()}));
 		}
 		
-		// Construeix la llista de handlers a partir del contingut del fitxer .par que acabin amb .class
-		@SuppressWarnings("unchecked")
-		//TODO: arreglar la optenció dels hanclers
-//		Map<String, byte[]> bytesMap = jbpmProcessDefinition.getProcessDefinition().getFileDefinition().getBytesMap();
-		Map<String, byte[]> bytesMap = null;
-		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
-		for (String nom : bytesMap.keySet()) 
-			if (nom.endsWith(".class")) {
-				handlers.put(nom, bytesMap.get(nom));
-			}
+//		// Construeix la llista de handlers a partir del contingut del fitxer .par que acabin amb .class
+//		@SuppressWarnings("unchecked")
+//		//TODO: arreglar la optenció dels hanclers
+////		Map<String, byte[]> bytesMap = jbpmProcessDefinition.getProcessDefinition().getFileDefinition().getBytesMap();
+//		Map<String, byte[]> bytesMap = null;
+//		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
+//		for (String nom : bytesMap.keySet())
+//			if (nom.endsWith(".class")) {
+//				handlers.put(nom, bytesMap.get(nom));
+//			}
 		// Actualitza els handlers de la darrera versió de la definició de procés
 		workflowEngineApi.updateDeploymentActions(
 				darrera.getJbpmId(),
-				handlers,
+//				handlers,
 				nomArxiu,
 				contingut);
 		
@@ -1104,32 +1104,30 @@ public class DissenyServiceImpl implements DissenyService {
 		
 		DefinicioProces definicioProcesOrigen = definicioProcesRepository.getById(idDefinicioProcesOrigen);
 
-		// TODO: Passar aquesta funcionalitat al Motor (jbpm)
-		// Construeix la llista de handlers a partir del contingut del fitxer .par que acabin amb .class
-		WProcessDefinition wProcessDefinition = workflowEngineApi.getProcessDefinition(definicioProcesOrigen.getJbpmId());
-		String deploymentId = wProcessDefinition.getDeploymentId();
-		Set<String> files = workflowEngineApi.getResourceNames(deploymentId);
-		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
-//		@SuppressWarnings("unchecked")
-//		Map<String, byte[]> bytesMap = wProcessDefinition.getFiles();
-//		for (String nom : bytesMap.keySet())
-//			if (nom.endsWith(".class")) {
-//				handlers.put(nom, bytesMap.get(nom));
-//			}
-		files.stream()
-				.filter(f -> f.endsWith(".class"))
-				.forEach(f -> handlers.put(f, workflowEngineApi.getResourceBytes(deploymentId, f)));
-		
+//		// TODO: Passar aquesta funcionalitat al Motor (jbpm)
+//		// Construeix la llista de handlers a partir del contingut del fitxer .par que acabin amb .class
+//		WProcessDefinition wProcessDefinition = workflowEngineApi.getProcessDefinition(definicioProcesOrigen.getJbpmId());
+//		String deploymentId = wProcessDefinition.getDeploymentId();
+//		Set<String> files = workflowEngineApi.getResourceNames(deploymentId);
+//		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
+////		@SuppressWarnings("unchecked")
+////		Map<String, byte[]> bytesMap = wProcessDefinition.getFiles();
+////		for (String nom : bytesMap.keySet())
+////			if (nom.endsWith(".class")) {
+////				handlers.put(nom, bytesMap.get(nom));
+////			}
+//		files.stream()
+//				.filter(f -> f.endsWith(".class"))
+//				.forEach(f -> handlers.put(f, workflowEngineApi.getResourceBytes(deploymentId, f)));
+
 		// Actualitza les definicions de procés destí
 		DefinicioProces definicioProcesDesti;
 		for (Long idDefinicioProcesDesti : idsDefinicioProcesDesti) {
 			definicioProcesDesti = definicioProcesRepository.getById(idDefinicioProcesDesti);
 			// Actualitza els handlers de la darrera versió de la definició de procés
-			workflowEngineApi.updateDeploymentActions(
-					definicioProcesDesti.getJbpmId(),
-					handlers,
-					null,
-					null);
+			workflowEngineApi.propagateDeploymentActions(
+					definicioProcesOrigen.getJbpmId(),
+					definicioProcesDesti.getJbpmId());
 		}
 	}	
 

@@ -172,20 +172,61 @@ public class JbpmHelper implements WorkflowEngineApi {
 	/** Actualitza els recursos .class de la definició de procés indicada amb els recursos
 	 * continguts en el jbpmProcessDefinition.
 	 * @param jbpmId Identifica la definició de procés a actualtizar.
-	 * @param handlers Conté la informació amb què actualitzar els handlers.
+	 * @param deploymentContent Contingut del fitxer de la definició de procés.
 	 */
 	@Override
 	public void updateDeploymentActions (
 			Long jbpmId,
-			Map<String, byte[]> handlers) {
-		// Omple que command que substitueix els handlers existents
-		UpdateHandlersCommand command = new UpdateHandlersCommand(
-				jbpmId,
-				handlers);
-		commandService.execute(command);
+			byte[] deploymentContent) {
+		ProcessDefinition processDefinition = null;
+		try {
+			processDefinition = ProcessDefinition.parseParZipInputStream(
+					new ZipInputStream(new ByteArrayInputStream(deploymentContent)));
+		} catch (Exception ex) {
+			throw new HeliumJbpmException("Error parsejant fitxer");
+		}
+
+		try {
+			Map<String, byte[]> handlers = new HashMap<String, byte[]>();
+			Map<String, byte[]> bytesMap = processDefinition.getFileDefinition().getBytesMap();
+			for (String nom : bytesMap.keySet()) {
+				if (nom.endsWith(".class")) {
+					handlers.put(nom, bytesMap.get(nom));
+				}
+			}
+			// Omple que command que substitueix els handlers existents
+			UpdateHandlersCommand command = new UpdateHandlersCommand(
+					jbpmId,
+					handlers);
+			commandService.execute(command);
+		} catch (Exception ex) {
+			throw new HeliumJbpmException(ex.getMessage());
+		}
 	}
 
+	@Override
+	public void propagateDeploymentActions(String deploymentOrigenId, String deploymentDestiId) {
 
+		try {
+			ProcessDefinition processDefinitionOrigen = getDefinicioProces(deploymentOrigenId);
+			ProcessDefinition processDefinitionDesti = getDefinicioProces(deploymentDestiId);
+
+			Map<String, byte[]> handlers = new HashMap<String, byte[]>();
+			Map<String, byte[]> bytesMap = processDefinitionOrigen.getFileDefinition().getBytesMap();
+			for (String nom : bytesMap.keySet()) {
+				if (nom.endsWith(".class")) {
+					handlers.put(nom, bytesMap.get(nom));
+				}
+			}
+
+			UpdateHandlersCommand command = new UpdateHandlersCommand(
+					processDefinitionDesti.getId(),
+					handlers);
+			commandService.execute(command);
+		} catch (Exception ex) {
+			throw new HeliumJbpmException(ex.getMessage());
+		}
+	}
 
 
 	// Consulta de Definicions de Procés
@@ -1503,10 +1544,10 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 		// Recuperamos el token EndState más reciente
 		WProcessInstance rootProcessInstance = getRootProcessInstance(processInstanceId);
-		List<WProcessInstance> lista = getProcessInstanceTree(String.valueOf(((ProcessInstance)rootProcessInstance.getProcessInstance()).getId()));
+		List<WProcessInstance> lista = getProcessInstanceTree(rootProcessInstance.getId());
 		Token token = null;
 		for (WProcessInstance pi : lista) {
-			Map<String, WToken> tokens = getAllTokens(String.valueOf(((ProcessInstance)pi.getProcessInstance()).getId()));
+			Map<String, WToken> tokens = getAllTokens(pi.getId());
 			for (String tokenName: tokens.keySet()) {
 				Token tokenTmp = (Token) tokens.get(tokenName).getToken();
 				if (!NodeType.EndState.equals(tokenTmp.getNode().getNodeType())) {
@@ -1540,7 +1581,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		}
 
 		// Activamos la instancia de proceso
-		revertProcessInstanceEnd(((ProcessInstance)rootProcessInstance.getProcessInstance()).getId());
+		revertProcessInstanceEnd(Long.parseLong(rootProcessInstance.getId()));
 
 		//adminService.mesuraCalcular("jBPM reprendreExpedient", "jbpmDao");
 	}
