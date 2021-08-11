@@ -19,6 +19,9 @@
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
+<%--	<script src="<c:url value="/webjars/datatables.net/1.10.19/js/jquery.dataTables.min.js"/>"></script>--%>
+<%--	<script src="<c:url value="/webjars/datatables.net-bs/1.10.19/js/dataTables.bootstrap.min.js"/>"></script>--%>
+<%--	<link href="<c:url value="/webjars/datatables.net-bs/1.10.19/css/dataTables.bootstrap.min.css"/>" rel="stylesheet"></link>--%>
 <script type="text/javascript">
 // <![CDATA[
 var comprovacio = new Array();
@@ -53,28 +56,54 @@ $(document).ready( function() {
 	$("button[name=altaMassiva]").click(function() {
 		window.location.href = "<c:url value="/modal/v3/expedient/altaMassiva"></c:url>";
 	});
+
+	// $('#inici').dataTable();
 });
 
 // ]]>
 </script>
 </head>
 <body>
-	<display:table name="expedientTipus" id="registre" requestURI="" class="table table-striped table-bordered">
-		<display:column property="codi" title="Codi"/>
-		<display:column property="nom" title="Nom"/>
-		<display:column>
-			<form class="form-init-exedient" action="<c:url value="/modal/v3/expedient/iniciar"/>" method="post" onsubmit="return confirmar(event, this)">
-				<input type="hidden" name="expedientTipusId" value="${registre.id}"/>
-				<select name="definicioProcesId" id="definicioProcesId" class="span9">
-					<option value="">&lt;&lt; <spring:message code='expedient.iniciar.darrera_versio' /> &gt;&gt;</option>
-					<c:forEach var="df" items="${definicionsProces[registre.id].listIdAmbEtiqueta}" varStatus="status">
-						<option value="${df.id}">${df.etiqueta}</option>
+	<%--TODO: Multiidioma!!--%>
+	<table id="inici" class="table table-striped table-bordered">
+		<thead>
+			<tr>
+				<th><spring:message code="expedient.tipus.llistat.columna.codi"/></th>
+				<th><spring:message code="expedient.tipus.llistat.columna.titol"/></th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			<c:choose>
+				<c:when test="${empty expedientTipus}">
+					<tr>
+						<td colspan="3"><spring:message code="taula.buida"/></td>
+					</tr>
+				</c:when>
+				<c:otherwise>
+					<c:forEach var="registre" items="${expedientTipus}">
+						<tr>
+							<td>${registre.codi}</td>
+							<td>${registre.nom}</td>
+							<td>
+								<form class="form-init-exedient" action="<c:url value="/modal/v3/expedient/iniciar"/>" method="post" onsubmit="return confirmar(event, this)">
+									<input type="hidden" name="expedientTipusId" value="${registre.id}"/>
+									<select name="definicioProcesId" id="definicioProcesId" class="span9">
+										<option value="">&lt;&lt; <spring:message code='expedient.iniciar.darrera_versio' /> &gt;&gt;</option>
+										<c:forEach var="df" items="${definicionsProces[registre.id].listIdAmbEtiqueta}" varStatus="status">
+											<option value="${df.id}">${df.etiqueta}</option>
+										</c:forEach>
+									</select>
+									<button type="submit" class="btn btn-primary pull-right"><spring:message code='comuns.iniciar' /></button>
+								</form>
+							</td>
+						</tr>
 					</c:forEach>
-				</select>
-				<button type="submit" class="btn btn-primary pull-right"><spring:message code='comuns.iniciar' /></button>
-			</form>
-		</display:column>
-	</display:table>
+				</c:otherwise>
+			</c:choose>
+		</tbody>
+	</table>
+
 	<script>
 		$("select").select2({
 		    width: 'calc(100% - 71px)',
