@@ -1,8 +1,10 @@
 package es.caib.helium.expedient.repository;
 
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 
+import javax.persistence.criteria.CriteriaBuilder.In;
 import javax.persistence.criteria.JoinType;
 
 import org.apache.commons.lang.time.DateUtils;
@@ -10,7 +12,6 @@ import org.springframework.data.jpa.domain.Specification;
 
 import es.caib.helium.expedient.domain.Expedient;
 import es.caib.helium.expedient.model.ExpedientEstatTipusEnum;
-import es.caib.helium.expedient.model.MostrarAnulatsEnum;
 
 /** Especificacions pel filtre en les consultes d'expedients per poder filtrar.
  * 
@@ -24,13 +25,27 @@ public class ExpedientSpecifications {
     public static Specification<Expedient> belongsToExpedientTipus(Long expedientTipusId) {
         return (expedient, cq, cb) -> cb.equal(expedient.get("expedientTipusId"), expedientTipusId);
     }
-    
+
+    public static Specification<Expedient> inTipusIdPermesos(Collection<Long> tipusIdPermesos) {
+    	return (expedient, cq, cb) -> expedient.get("expedientTipusId").in(tipusIdPermesos);
+//        return (expedient, cq, cb) -> {
+//        	In<Long> inClause = cb.in(expedient.get("expedientTipusId"));
+//        	for (Long tipusIdPermes : tipusIdPermesos) {
+//        	    inClause.value(tipusIdPermes);
+//        	}
+//        	return inClause;
+//        	return cb.and(inClause);
+//        	criteriaQuery.select(root).where(inClause);
+//        	return cb.in(expedient.get("expedientTipusId").in(tipusIdPermesos));
+//        };
+    }
+
     public static Specification<Expedient> titolLike(String titol) {
-        return (expedient, cq, cb) -> cb.like(expedient.get("titol"), titol);
+        return (expedient, cq, cb) -> cb.like(cb.lower(expedient.get("titol")), "%" + titol.toLowerCase() + "%");
     }
 
     public static Specification<Expedient> numeroLike(String numero) {
-        return (expedient, cq, cb) -> cb.like(expedient.get("numero"), numero);
+        return (expedient, cq, cb) -> cb.like(expedient.get("numero"), "%" + numero + "%");
     }
 
     public static Specification<Expedient> dataInici(Date dataInici1, Date dataInici2) {
@@ -71,11 +86,24 @@ public class ExpedientSpecifications {
     	return specs;
     }
     
-    public static Specification<Expedient> estatTipusIs(ExpedientEstatTipusEnum estatTipus, Long estatId) {
+    public static Specification<Expedient> estatIs(
+    		boolean nomesIniciats,
+    		boolean nomesFinalitzats,
+    		Long estatId) {
     	Specification<Expedient> specs = null;
-    	if (estatTipus.equals(ExpedientEstatTipusEnum.CUSTOM)) {
+    	if (nomesIniciats) {
+    		
+    	} else if (nomesFinalitzats) {
+    		
+    	} else if (estatId != null) {
+    		
+    	}
+    	if (estatId != null) {
     		specs = (expedient, cq, cb) -> cb.equal(expedient.get("estatId"), estatId);
-    	} else {
+    	} else if (nomesIniciats || nomesFinalitzats) {
+    		ExpedientEstatTipusEnum estatTipus = nomesIniciats ? 
+    				ExpedientEstatTipusEnum.INICIAT 
+    				: ExpedientEstatTipusEnum.FINALITZAT;
     		specs = (expedient, cq, cb) -> cb.equal(expedient.get("estatTipus"), estatTipus);    		
     	}
     	return specs;
@@ -136,22 +164,28 @@ public class ExpedientSpecifications {
             String usuariCodi,
             Long entornId,
             Long expedientTipusId, 
+            Collection<Long> tipusIdPermesos, 
             String titol, 
             String numero, 
             Date dataInici1, 
             Date dataInici2, 
             Date dataFi1, 
             Date dataFi2, 
-            ExpedientEstatTipusEnum estatTipus, 
+            boolean nomesIniciats,
+            boolean nomesFinalitzats,
             Long estatId, 
             boolean nomesTasquesPersonals, 
             boolean nomesTasquesGrup, 
             boolean nomesAlertes, 
             boolean nomesErrors, 
-            MostrarAnulatsEnum mostrarAnulats) {
+            boolean mostrarAnulats,
+            boolean mostrarNomesAnulats) {
     	Specification<Expedient> spec  = belongsToEntorn(entornId);
-    	if (expedientTipusId != null)
+    	if (expedientTipusId != null) {
     		spec = spec.and(belongsToExpedientTipus(expedientTipusId));
+    	} else if (tipusIdPermesos != null && tipusIdPermesos.size() > 0) {
+    		spec = spec.and(inTipusIdPermesos(tipusIdPermesos));
+    	}
     	if (titol != null) {
     		spec = spec.and(titolLike(titol));
     	}
@@ -164,8 +198,8 @@ public class ExpedientSpecifications {
     	if (dataFi1 != null || dataFi2 != null) {
     		spec = spec.and(dataFi(dataFi1, dataFi2));
     	}
-    	if (estatTipus != null) {
-    		spec = spec.and(estatTipusIs(estatTipus, estatId));
+    	if (nomesIniciats || nomesFinalitzats || estatId != null) {
+    		spec = spec.and(estatIs(nomesIniciats, nomesFinalitzats, estatId));
     	}
     	if (nomesTasquesPersonals) {
     		spec = spec.and(nomesTasquesPersonals(usuariCodi));
@@ -179,10 +213,12 @@ public class ExpedientSpecifications {
     	if (nomesErrors) {
     		spec = spec.and(nomesErrors());
     	}
-    	if (mostrarAnulats == null) {
+    	if (mostrarAnulats) {
+    		if (mostrarNomesAnulats) {
+        		spec = spec.and(mostrarNomesAnulats());
+    		}
+    	} else {
     		spec = spec.and(noMostrarAnulats());
-    	} else if (MostrarAnulatsEnum.NOMES_ANULATS.equals(mostrarAnulats)) {
-    		spec = spec.and(mostrarNomesAnulats());
     	}
     	return spec;
     }

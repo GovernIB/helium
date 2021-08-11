@@ -1,24 +1,16 @@
 package es.caib.helium.domini.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import es.caib.helium.domini.model.ConsultaDominisDades;
-import es.caib.helium.domini.model.DominiDto;
-import es.caib.helium.domini.model.FilaResultat;
-import es.caib.helium.domini.model.PagedList;
-import es.caib.helium.domini.model.ParellaCodiValor;
-import es.caib.helium.domini.model.ResultatDomini;
-import es.caib.helium.domini.service.DominiService;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+
+import javax.validation.Valid;
+
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.rest.webmvc.json.patch.JsonPatchPatchConverter;
 import org.springframework.data.rest.webmvc.json.patch.Patch;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -35,12 +27,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import es.caib.helium.domini.model.ConsultaDominisDades;
+import es.caib.helium.domini.model.DominiDto;
+import es.caib.helium.domini.model.FilaResultat;
+import es.caib.helium.domini.model.PagedList;
+import es.caib.helium.domini.model.ParellaCodiValor;
+import es.caib.helium.domini.model.ResultatDomini;
+import es.caib.helium.domini.service.DominiService;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Controlador que defineix la API REST de dominis
@@ -80,43 +80,9 @@ public class DominiController {
      *     <li>filtrar (utilitzant sintaxi rsql)</li>
      * </ul>
      */
-//    @GetMapping(produces = { "application/json" })
-//    public ResponseEntity<PagedList<DominiDto>> listDominisV1(
-//            @RequestParam(value = "entornId") Long entornId,
-//            @RequestParam(value = "filtre", required = false) String filtre,
-//            @RequestParam(value = "expedientTipusId", required = false) Long expedientTipusId,
-//            @RequestParam(value = "expedientTipusPareId", required = false) Long expedientTipusPareId,
-//            Pageable pageable,
-//            Sort sort) {
-//
-//        log.debug("[CTR] llistant dominis: \n" +
-//                "entornId: " + entornId +
-//                "expedientTipusId: " + expedientTipusId +
-//                "expedientTipusPareId: " + expedientTipusPareId +
-//                "filtre: " + filtre);
-//
-//        PagedList<DominiDto> dominiList = dominiService.listDominis(
-//                entornId,
-//                expedientTipusId,
-//                expedientTipusPareId,
-//                filtre,
-//                pageable,
-//                sort);
-//        if (dominiList.getTotalElements() == 0)
-//            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//        return new ResponseEntity<>(dominiList, HttpStatus.OK);
-//    }
-
     @GetMapping(produces = { "application/json" })
     public ResponseEntity<PagedList<DominiDto>> listDominis(
             @Valid ConsultaDominisDades consultaDominisDades) {
-
-        Long entonrId = consultaDominisDades.getEntornId();
-        Long expedientTipusId = consultaDominisDades.getExpedientTipusId();
-        Long expedientTipusPareId = consultaDominisDades.getExpedientTipusPareId();
-        String filtre = consultaDominisDades.getFiltre();
-        Pageable page = consultaDominisDades.getPageable();
-        Sort sort = consultaDominisDades.getSort();
 
         log.debug("[CTR] llistant dominis: \n" +
                 "entornId: " + consultaDominisDades.getEntornId() +

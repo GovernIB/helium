@@ -7,11 +7,8 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.rest.webmvc.json.patch.JsonPatchPatchConverter;
 import org.springframework.data.rest.webmvc.json.patch.Patch;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,13 +22,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import es.caib.helium.client.expedient.tasca.model.ConsultaTascaDades;
 import es.caib.helium.expedient.model.TascaDto;
 import es.caib.helium.expedient.service.TascaService;
 import es.caib.helium.ms.controller.ControllerHelper;
@@ -75,27 +72,26 @@ public class TascaController {
      */
     @GetMapping(produces = { "application/json" })
     public ResponseEntity<PagedList<TascaDto>> findTasquesAmbFiltrePaginatV1(
-            @RequestParam(value = "entornId") Long entornId,
-            @RequestParam(value = "expedientTipusId", required = false) Long expedientTipusId,
-            @RequestParam(value = "usuariAssignat", required = false) String usuariAssignat,
-            @RequestParam(value = "nom", required = false) String nom,
-            @RequestParam(value = "titol", required = false) String titol,
-            @RequestParam(value = "expedientId", required = false) Long expedientId,
-            @RequestParam(value = "expedientTitol", required = false) String expedientTitol,
-            @RequestParam(value = "expedientNumero", required = false) String expedientNumero,
-            @RequestParam(value = "dataCreacioInici", required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date dataCreacioInici,
-            @RequestParam(value = "dataCreacioFi", required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date dataCreacioFi,
-            @RequestParam(value = "dataLimitInici", required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date dataLimitInici,
-            @RequestParam(value = "dataLimitFi", required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date dataLimitFi,
-            @RequestParam(value = "mostrarAssignadesUsuari", required = false, defaultValue = "false") boolean mostrarAssignadesUsuari,
-            @RequestParam(value = "mostrarAssignadesGrup", required = false, defaultValue = "false") boolean mostrarAssignadesGrup,
-            @RequestParam(value = "nomesPendents", required = false, defaultValue = "false") boolean nomesPendents,
-            @RequestParam(value = "filtre", required = false) String filtre,
-                        
-            final Pageable pageable,
-            final Sort sort) {
+    		ConsultaTascaDades consultaTascaDades ) {
+    	
+      Long entornId = consultaTascaDades.getEntornId();
+      Long expedientTipusId = consultaTascaDades.getExpedientTipusId();
+      String usuariAssignat = consultaTascaDades.getUsuariAssignat();
+      String nom = consultaTascaDades.getNom();
+      String titol = consultaTascaDades.getTitol();
+      Long expedientId = consultaTascaDades.getExpedientId();
+      String expedientTitol = consultaTascaDades.getExpedientTitol();
+      String expedientNumero = consultaTascaDades.getExpedientNumero();
+      Date dataCreacioInici = consultaTascaDades.getDataCreacioInici();
+      Date dataCreacioFi = consultaTascaDades.getDataCreacioFi();
+      Date dataLimitInici = consultaTascaDades.getDataLimitInici();
+      Date dataLimitFi = consultaTascaDades.getDataLimitFi();
+      boolean mostrarAssignadesUsuari = consultaTascaDades.isMostrarAssignadesUsuari();
+      boolean mostrarAssignadesGrup = consultaTascaDades.isMostrarAssignadesGrup();
+      boolean nomesPendents = consultaTascaDades.isNomesPendents();
+      String filtreRsql = consultaTascaDades.getFiltre();
 
-        log.debug("[CTR] llistant tasques: \n" +
+    	log.debug("[CTR] llistant tasques: \n" +
                 "entornId: " + entornId +
                 ", expedientTipusId: " + expedientTipusId +
                 ", usuariAssignat: " + usuariAssignat +
@@ -111,7 +107,7 @@ public class TascaController {
                 ", mostrarAssignadesUsuari: " + mostrarAssignadesUsuari +
                 ", mostrarAssignadesGrup: " + mostrarAssignadesGrup +
                 ", nomesPendents: " + nomesPendents +
-                "filtre: " + filtre);
+                "filtreRsql: " + filtreRsql);
 
         PagedList<TascaDto> tascaList = tascaService.listTasques(
         		entornId, 
@@ -129,15 +125,92 @@ public class TascaController {
         		mostrarAssignadesUsuari, 
         		mostrarAssignadesGrup, 
         		nomesPendents, 
-        		filtre, 
-        		pageable, 
-        		sort);
+        		filtreRsql, 
+        		consultaTascaDades.getPageable(), 
+        		consultaTascaDades.getSort());
         if (tascaList.getTotalElements() == 0) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(tascaList, HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(tascaList, HttpStatus.OK);
     }
 
+    /**
+    *
+	 * Consulta els identificadors de tasques amb paràmetres corresponent al
+	 * llistat de tasques. La cerca pot rebre paràmetres per:
+	 * <ul>
+	 * <li>ordenar</li>
+	 * <li>paginar</li>
+	 * <li>filtrar (amb el mateixos paràmetres que en el llistat)</li>
+	 * </ul>
+    */
+   @GetMapping(value = "/ids", produces = { "application/json" })
+   public ResponseEntity<PagedList<String>> findTasquesIdsAmbFiltrePaginatV1(
+   		ConsultaTascaDades consultaTascaDades ) {
+   	
+     Long entornId = consultaTascaDades.getEntornId();
+     Long expedientTipusId = consultaTascaDades.getExpedientTipusId();
+     String usuariAssignat = consultaTascaDades.getUsuariAssignat();
+     String nom = consultaTascaDades.getNom();
+     String titol = consultaTascaDades.getTitol();
+     Long expedientId = consultaTascaDades.getExpedientId();
+     String expedientTitol = consultaTascaDades.getExpedientTitol();
+     String expedientNumero = consultaTascaDades.getExpedientNumero();
+     Date dataCreacioInici = consultaTascaDades.getDataCreacioInici();
+     Date dataCreacioFi = consultaTascaDades.getDataCreacioFi();
+     Date dataLimitInici = consultaTascaDades.getDataLimitInici();
+     Date dataLimitFi = consultaTascaDades.getDataLimitFi();
+     boolean mostrarAssignadesUsuari = consultaTascaDades.isMostrarAssignadesUsuari();
+     boolean mostrarAssignadesGrup = consultaTascaDades.isMostrarAssignadesGrup();
+     boolean nomesPendents = consultaTascaDades.isNomesPendents();
+     String filtreRsql = consultaTascaDades.getFiltre();
+
+   	log.debug("[CTR] llistant identificadors de tasques: \n" +
+               "entornId: " + entornId +
+               ", expedientTipusId: " + expedientTipusId +
+               ", usuariAssignat: " + usuariAssignat +
+               ", nom: " + nom +
+               ", titol: " + titol +
+               ", expedientId: " + expedientId +
+               ", expedientTitol: " + expedientTitol +
+               ", expedientNumero: " + expedientNumero +
+               ", dataCreacioInici: " + dataCreacioInici +
+               ", dataCreacioFi: " + dataCreacioFi +
+               ", dataLimitInici: " + dataLimitInici +
+               ", dataLimitFi: " + dataLimitFi +
+               ", mostrarAssignadesUsuari: " + mostrarAssignadesUsuari +
+               ", mostrarAssignadesGrup: " + mostrarAssignadesGrup +
+               ", nomesPendents: " + nomesPendents +
+               "filtreRsql: " + filtreRsql);
+
+    //TODO: pensar en una consulta al servei que retorni identificadors
+       PagedList<TascaDto> tascaList = tascaService.listTasques(
+       		entornId, 
+       		expedientTipusId,
+       		usuariAssignat, 
+       		nom, 
+       		titol, 
+       		expedientId, 
+       		expedientTitol, 
+       		expedientNumero, 
+       		dataCreacioInici, 
+       		dataCreacioFi, 
+       		dataLimitInici, 
+       		dataLimitFi, 
+       		mostrarAssignadesUsuari, 
+       		mostrarAssignadesGrup, 
+       		nomesPendents, 
+       		filtreRsql, 
+       		consultaTascaDades.getPageable(), 
+       		consultaTascaDades.getSort());
+       if (tascaList.getTotalElements() == 0) {
+           return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+       }
+		List<String> tasquesIds = tascaList.getContent().stream().map(t -> t.getId()).collect(Collectors.toList());
+		PagedList<String> tasquesIdsPagedList = new PagedList<String>(tasquesIds);
+		return new ResponseEntity<>(tasquesIdsPagedList, HttpStatus.OK);
+   }
+   
     @PostMapping(consumes = { "application/json" })
     public ResponseEntity<Void> createTascaV1(
             @Valid @RequestBody TascaDto tascaDto) {
@@ -160,7 +233,7 @@ public class TascaController {
 
     @PutMapping(value = "/{tascaId}", consumes = { "application/json" })
     public ResponseEntity<Void> updateTascaV1(
-            @PathVariable("tascaId") Long tascaId,
+            @PathVariable("tascaId") String tascaId,
             @Valid @RequestBody TascaDto tascaDto) {
 
         log.debug("[CTR] update tasca: " + tascaDto.toString());
@@ -176,7 +249,7 @@ public class TascaController {
     @PatchMapping(value = "/{tascaId}", consumes = { "application/json" })
     public ResponseEntity<Void> patchTascaV1(
 //            HttpServletRequest request,
-            @PathVariable("tascaId") Long tascaId,
+            @PathVariable("tascaId") String tascaId,
             @RequestBody JsonNode tascaJson,
             BindingResult bindingResult) {
 
@@ -202,7 +275,7 @@ public class TascaController {
 
     @DeleteMapping(value = "/{tascaId}")
     public ResponseEntity<Void> deleteTascaV1(
-            @PathVariable("tascaId") Long tascaId) {
+            @PathVariable("tascaId") String tascaId) {
 
         log.debug("[CTR] delete tasca: " + tascaId);
 
@@ -213,7 +286,7 @@ public class TascaController {
 
     @GetMapping(value = "/{tascaId}")
     public ResponseEntity<TascaDto> getTascaV1(
-            @PathVariable("tascaId") Long tascaId) {
+            @PathVariable("tascaId") String tascaId) {
 
         log.debug("[CTR] get tasca: " + tascaId);
         return new ResponseEntity<>(tascaService.getById(tascaId), HttpStatus.OK);
@@ -225,7 +298,7 @@ public class TascaController {
     
     @GetMapping(value = "/{tascaId}/responsables")
     public ResponseEntity<List<String>> getResponsablesV1(
-    		@PathVariable("tascaId") Long tascaId) {
+    		@PathVariable("tascaId") String tascaId) {
     	
         log.debug("[CTR] get responsables tasca: " + tascaId);
 
@@ -237,10 +310,10 @@ public class TascaController {
         return new ResponseEntity<List<String>>(responsables, HttpStatus.OK);
     }
     
-	@PostMapping(value = "/{tascaId}/responsables")
+	@PostMapping(value = "/{tascaId}/responsables", consumes = { "application/json" })
 	public ResponseEntity<Void> setResponsablesV1(
-			@PathVariable("tascaId") Long tascaId,
-			@RequestParam(name = "responsables", required = false) List<String> responsables) {
+			@PathVariable("tascaId") String tascaId,
+			@RequestBody List<String> responsables) {
 
 		log.debug("[CTR] set responsables tasca: " + tascaId + "\n" + 
 					"responsables: " + responsables);
@@ -252,7 +325,7 @@ public class TascaController {
     
 	@DeleteMapping(value = "/{tascaId}/responsables")
     public ResponseEntity<Void> deleteResponsablesV1(
-    		@PathVariable("tascaId") Long tascaId) {
+    		@PathVariable("tascaId") String tascaId) {
 		
         log.debug("[CTR] delete responsables tasca: " + tascaId);
         

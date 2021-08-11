@@ -92,23 +92,24 @@ paths:
           description: Data per filtar per data de finalització de l'expedient. Indica la data del rang de filtre final per consultar els expedients amb data de finalització inferior i igual al valor passat com a paràmetre.
           example: 30/12/2021
         - in: query
-          name: estatTipus
+          name: nomesIniciats
           schema:
-            type: string
-            enum:
-              - INICIAT
-              - FINALITZAT
-              - CUSTOM
+            type: boolean
           required: false
-          description: Camp per filtrar per l'estat de l'expedient. S'ha d'indicar si l'estat és INICIAT, FINALITZAT o CUSTOM. En el cas de CUSTOM s'ha d'informar el paràmetre estatId amb l'identificador exacte de l'estat definit en el tipus d'expedient.
-          example: 'INICIAT'
+          description: Indica si mostrar només expedients amb estat iniciciat.          
+        - in: query
+          name: nomesFinalitzats
+          schema:
+            type: boolean
+          required: false
+          description: Indica si mostrar només expedients amb estat finalitzat.          
         - in: query
           name: estatId
           schema:
             type: integer
             format: int32
           required: false
-          description: En el cas d'indicar que es filtra per estatTipus CUSTOM s'ha d'informar l'identificador exacte del l'estat segons l'id de l'estat en el tipus d'expedient.
+          description: Filtra els expedients amb un estat concret determinat per l'identificador donat definit al tipus d'expedient.
           example: 10 
         - in: query
           name: nomesTasquesPersonals
@@ -137,15 +138,15 @@ paths:
         - in: query
           name: mostrarAnulats
           schema:
-            type: string
-            enum: 
-              - SI
-              - NO
-              - NOMES_ANULATS
+            type: boolean
           required: false
-          description: Opció de filtre per mostrar anul·lats, no mostrar-los o mostrar només els anul·lats. Per defecte, si es deixa buit, no es mostraran en el resultat els expedients anul·lats.
-
-      
+          description: Indica si mostrar o no expedients anul·lats.
+        - in: query
+          name: mostrarNomesAnulats
+          schema:
+            type: boolean
+          required: false
+          description: Indica si mostrar només expedients anul·lats.
       responses:
         '200':
           description: Ok
@@ -184,6 +185,144 @@ paths:
           description: Bad request
         '409':
           description: Conflicte. Ja existeix el expedient
+          
+  /api/v1/expedients/ids:
+    get:
+      tags:
+        - Tramitació
+        - Consulta
+      operationId: findExpedientsIdsAmbFiltrePaginatV1
+      summary: Cerca d'identificadors d'expedients filtrada i paginada
+      description: |
+        Consulta els identificadors amb paràmetres corresponent al llistat d'expedients.
+        
+        La cerca pot rebre paràmetres per
+        - ordenar
+        - paginar
+        - filtrar (amb el mateixos paràmetres que en el llistat)
+      parameters:
+        - $ref: '#/components/parameters/EntornParam'
+        - $ref: '#/components/parameters/FiltreParam'
+        - $ref: '#/components/parameters/TipusExpedientParam'
+        - $ref: '#/components/parameters/PageNumberParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+        - $ref: '#/components/parameters/SortParam'
+        # Paràmetres propis del filtre
+        - in: query
+          name: usuariCodi
+          schema:
+            type: string
+          required: false
+          description: Codi de l'usuari per filtrar etasques assignades a usuaris o grup pel qual pertany l'usuari
+        - in: query
+          name: titol
+          schema:
+            type: string
+          required: false
+          description: Paràmetre per filtrar expedients que continguin en el títol el text passat.
+        - in: query
+          name: numero
+          schema:
+            type: string
+          required: false
+          description: Paràmetre per filtrar expedients que continguin en el número el text passat.
+        - in: query
+          name: dataInici1
+          schema:
+            type: string
+          required: false
+          description: Data per filtar per data d'inici de l'expedient. Indica la data del rang de filtre inicial per consultar els expedients amb data d'inici igual o superior al valor passat com a paràmetre.
+          example: 01/11/2021
+        - in: query
+          name: dataInici2
+          schema:
+            type: string
+          required: false
+          description: Data per filtar per data d'inici de l'expedient. Indica la data del rang de filtre final per consultar els expedients amb data d'inici inferior i igual al valor passat com a paràmetre.
+          example: 30/11/2021
+        - in: query
+          name: dataFi1
+          schema:
+            type: string
+          required: false
+          description: Data per filtar per data de finalització l'expedient. Indica la data del rang de filtre inicial per consultar els expedients amb data de finalització igual o superior al valor passat com a paràmetre.
+          example: 01/12/2021
+        - in: query
+          name: dataFi2
+          schema:
+            type: string
+          required: false
+          description: Data per filtar per data de finalització de l'expedient. Indica la data del rang de filtre final per consultar els expedients amb data de finalització inferior i igual al valor passat com a paràmetre.
+          example: 30/12/2021
+        - in: query
+          name: nomesIniciats
+          schema:
+            type: boolean
+          required: false
+          description: Indica si mostrar només expedients amb estat iniciciat.          
+        - in: query
+          name: nomesFinalitzats
+          schema:
+            type: boolean
+          required: false
+          description: Indica si mostrar només expedients amb estat finalitzat.          
+        - in: query
+          name: estatId
+          schema:
+            type: integer
+            format: int32
+          required: false
+          description: Filtra els expedients amb un estat concret determinat per l'identificador donat definit al tipus d'expedient.
+          example: 10 
+        - in: query
+          name: nomesTasquesPersonals
+          schema:
+            type: boolean
+          required: false
+          description: Indica si mostrar només expedients amb tasques assignades a persones i que coincideixin amb el codi d'usuari passat com a paràmetre.
+        - in: query
+          name: nomesTasquesGrup
+          schema:
+            type: boolean
+          required: false
+          description: Indica si mostrar només expedients amb tasques assignades a un grup de responsables que contingui el codi d'usuari passat com a paràmetre.
+        - in: query
+          name: nomesAlertes
+          schema:
+            type: boolean
+          required: false
+          description: Indica si mostrar només expedients amb alertes.
+        - in: query
+          name: nomesErrors
+          schema:
+            type: boolean
+          required: false
+          description: Indica si mostrar només expedients marcats amb errors.
+        - in: query
+          name: mostrarAnulats
+          schema:
+            type: boolean
+          required: false
+          description: Indica si mostrar o no expedients anul·lats.
+        - in: query
+          name: mostrarNomesAnulats
+          schema:
+            type: boolean
+          required: false
+          description: Indica si mostrar només expedients anul·lats.
+      
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdsPagedList'
+        '204':
+          description: No content
+        '400':
+          description: Bad input parameter          
+          
   /api/v1/expedients/{expedientId}:
     get:
       tags:
@@ -401,6 +540,119 @@ paths:
         '409':
           description: Conflicte. Ja existeix la tasca
 
+  /api/v1/tasques/ids:
+    get:
+      tags:
+        - Tramitació
+        - Consulta
+      operationId: findTasquesIdsAmbFiltrePaginatV1
+      summary: Cerca d'identificadors de tasques filtrada i paginada
+      description: |
+        Consulta amb paràmetres corresponent a la selecció de tasques del llistat de tasques. Conté
+        les mateixes opcions de filtre que la llista paginada
+        
+        La cerca pot rebre paràmetres per
+        - ordenar
+        - paginar
+        - filtrar (amb el mateixos paràmetres que en el llistat)
+      parameters:
+        - $ref: '#/components/parameters/EntornParam'
+        - $ref: '#/components/parameters/FiltreParam'
+        - $ref: '#/components/parameters/TipusExpedientParam'
+        - $ref: '#/components/parameters/PageNumberParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+        - $ref: '#/components/parameters/SortParam'
+        # Paràmetres propis del filtre
+        - in: query
+          name: usuariAssignat
+          schema:
+            type: string
+          required: false
+          description: Codi de l'usuari per filtrar tasques assignades a usuaris o grup pel qual pertany l'usuari
+        - in: query
+          name: nom
+          schema:
+            type: string
+          required: false
+          description: Paràmetre per filtrar tasques per nom donat i que coincideix amb el codi donat en el flux.
+        - in: query
+          name: titol
+          schema:
+            type: string
+          required: false
+          description: Paràmetre per filtrar tasques que continguin en el títol el text passat.
+        - $ref: '#/components/parameters/ExpedientParam'
+        - in: query
+          name: expedientTitol
+          schema:
+            type: string
+          required: false
+          description: Paràmetre per filtrar tasques pel títol de l'expedient.
+        - in: query
+          name: expedientNumero
+          schema:
+            type: string
+          required: false
+          description: Paràmetre per filtrar tasques pel número de l'expedient.
+        - in: query
+          name: dataCreacioInici
+          schema:
+            type: string
+          required: false
+          description: Data per filtar per data de creació de la tasca. Indica la data del rang de filtre inicial per consultar els tasques amb data de creació igual o superior al valor passat com a paràmetre.
+          example: 01/11/2021
+        - in: query
+          name: dataCreacioFi
+          schema:
+            type: string
+          required: false
+          description: Data per filtar per data de creació de la tasca. Indica la data del rang de filtre final per consultar els tasques amb data de creació inferior i igual al valor passat com a paràmetre.
+          example: 30/11/2021
+        - in: query
+          name: dataLimitInici
+          schema:
+            type: string
+          required: false
+          description: Data per filtar per data límit de la tasca. Indica la data del rang de filtre inicial per consultar els tasques amb data límit igual o superior al valor passat com a paràmetre.
+          example: 01/12/2021
+        - in: query
+          name: dataLimitFi
+          schema:
+            type: string
+          required: false
+          description: Data per filtar per data límit de la tasca. Indica la data del rang de filtre final per consultar els tasques amb data límit inferior i igual al valor passat com a paràmetre.
+          example: 30/12/2021
+        - in: query
+          name: mostrarAssignadesUsuari
+          schema:
+            type: boolean
+          required: false
+          description: Indica si mostrar només les tasques que estan assignades a un usuari i si es passa el codi de l'usuari només es mostren les tasques de l'usuari.
+        - in: query
+          name: mostrarAssignadesGrup
+          schema:
+            type: boolean
+          required: false
+          description: Indica si mostrar només les tasques que estan assignades a un grup d'usuaris i si es passa el codi de l'usuari llavors només es mostren les tasques que tenen l'usuari assignat en el grup.
+        - in: query
+          name: nomesPendents
+          schema:
+            type: boolean
+          required: false
+          description: Indica si mostrar només les tasques pendents que no estan finalitzades.
+
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdsPagedList'
+        '204':
+          description: No content
+        '400':
+          description: Bad input parameter
+
   /api/v1/tasques/{tascaId}:
     get:
       tags:
@@ -551,6 +803,7 @@ components:
         - expedientTipusId
         - processInstanceId
         - numero
+        - numeroDefault
         - dataInici
         - estatTipus
       properties:
@@ -576,6 +829,11 @@ components:
           example: 12345678
         numero:
           description: Número de l'expedient
+          type: string
+          maxLength: 64
+          example: 123/2021
+        numeroDefault :
+          description: Número per defecte de l'expedient
           type: string
           maxLength: 64
           example: 123/2021
@@ -651,19 +909,25 @@ components:
       required:
         - id
         - expedientId
-        - nom
+        - procesId
+        - nomres
         - dataCreacio
       properties:
         id:
-          description: Id de la tasca a Helium.
-          type: integer
-          format: int64
-          example: 1234
+          description: Id de la instància de tasca.
+          type: string
+          maxLength: 64
+          example: "1234"
         expedientId:
           description: Id de l'expedient de la tasca.
           type: integer
           format: int64
           example: 1234
+        procesId:
+          description: Id del procés al qual pertany la tasca..
+          type: string
+          maxLength: 64
+          example: "1234"
         nom:
           description: Nom de la tasca en el flux
           type: string
@@ -721,6 +985,10 @@ components:
           type: string
           maxLength: 255
           example: grup_codi
+        prioritat:
+          description: Prioritat assigndada a la tasca.
+          type: integer
+          example: 3
         responsables:
           description: Llista d'usuaris responsables.
           type: array
@@ -742,6 +1010,18 @@ components:
       allOf:
       - $ref: '#/components/schemas/PagedResponse'
 
+    IdsPagedList:
+      description: Llistat paginat d'identificadors en les consultes on només es retorna l'identificador Long.
+      type: object
+      properties:
+        content:
+          type: array
+          items: 
+            type: integer
+            format: int64
+            example: 1234
+      allOf:
+      - $ref: '#/components/schemas/PagedResponse'
 
     PagedResponse:
       type: object

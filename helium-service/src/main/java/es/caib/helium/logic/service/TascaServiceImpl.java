@@ -3,27 +3,19 @@
  */
 package es.caib.helium.logic.service;
 
-import es.caib.helium.client.engine.model.WTaskInstance;
-import es.caib.helium.logic.helper.*;
-import es.caib.helium.logic.helper.PaginacioHelper.Converter;
-import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
-import es.caib.helium.logic.helper.TascaSegonPlaHelper.InfoSegonPla;
-import es.caib.helium.logic.intf.WorkflowEngineApi;
-import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
-import es.caib.helium.logic.intf.dto.*;
-import es.caib.helium.logic.intf.exception.ExecucioHandlerException;
-import es.caib.helium.logic.intf.exception.NoTrobatException;
-import es.caib.helium.logic.intf.exception.SistemaExternException;
-import es.caib.helium.logic.intf.exception.TramitacioException;
-import es.caib.helium.logic.intf.exception.TramitacioHandlerException;
-import es.caib.helium.logic.intf.exception.ValidacioException;
-import es.caib.helium.logic.intf.service.TascaService;
-import es.caib.helium.logic.security.ExtendedPermission;
-import es.caib.helium.persist.entity.*;
-import es.caib.helium.persist.entity.Registre;
-import es.caib.helium.persist.entity.Camp.TipusCamp;
-import es.caib.helium.persist.repository.*;
-import es.caib.helium.persist.util.ThreadLocalInfo;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,17 +30,81 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import es.caib.helium.client.engine.model.WTaskInstance;
+import es.caib.helium.client.expedient.tasca.TascaClientService;
+import es.caib.helium.client.expedient.tasca.model.ConsultaTascaDades;
+import es.caib.helium.client.model.PagedList;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
+import es.caib.helium.logic.helper.DocumentHelper;
+import es.caib.helium.logic.helper.EntornHelper;
+import es.caib.helium.logic.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.ExpedientRegistreHelper;
+import es.caib.helium.logic.helper.ExpedientTipusHelper;
+import es.caib.helium.logic.helper.FormulariExternHelper;
+import es.caib.helium.logic.helper.HerenciaHelper;
+import es.caib.helium.logic.helper.IndexHelper;
+import es.caib.helium.logic.helper.MsHelper;
+import es.caib.helium.logic.helper.PaginacioHelper;
+import es.caib.helium.logic.helper.PaginacioHelper.Converter;
+import es.caib.helium.logic.helper.PermisosHelper;
+import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
+import es.caib.helium.logic.helper.TascaHelper;
+import es.caib.helium.logic.helper.TascaSegonPlaHelper;
+import es.caib.helium.logic.helper.TascaSegonPlaHelper.InfoSegonPla;
+import es.caib.helium.logic.helper.VariableHelper;
+import es.caib.helium.logic.intf.WorkflowEngineApi;
+import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.DelegationInfo;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
+import es.caib.helium.logic.intf.dto.FormulariExternDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
+import es.caib.helium.logic.intf.dto.SeleccioOpcioDto;
+import es.caib.helium.logic.intf.dto.TascaDadaDto;
+import es.caib.helium.logic.intf.dto.TascaDocumentDto;
+import es.caib.helium.logic.intf.dto.TascaDto;
+import es.caib.helium.logic.intf.dto.TascaLlistatDto;
+import es.caib.helium.logic.intf.exception.ExecucioHandlerException;
+import es.caib.helium.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.exception.SistemaExternException;
+import es.caib.helium.logic.intf.exception.TramitacioException;
+import es.caib.helium.logic.intf.exception.TramitacioHandlerException;
+import es.caib.helium.logic.intf.exception.ValidacioException;
+import es.caib.helium.logic.intf.service.TascaService;
+import es.caib.helium.logic.security.ExtendedPermission;
+import es.caib.helium.persist.entity.Alerta;
+import es.caib.helium.persist.entity.Camp;
+import es.caib.helium.persist.entity.Camp.TipusCamp;
+import es.caib.helium.persist.entity.CampRegistre;
+import es.caib.helium.persist.entity.CampTasca;
+import es.caib.helium.persist.entity.DefinicioProces;
+import es.caib.helium.persist.entity.Document;
+import es.caib.helium.persist.entity.DocumentStore;
+import es.caib.helium.persist.entity.Entorn;
+import es.caib.helium.persist.entity.EnumeracioValors;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.entity.FormulariExtern;
+import es.caib.helium.persist.entity.Registre;
+import es.caib.helium.persist.entity.Tasca;
+import es.caib.helium.persist.entity.TerminiIniciat;
+import es.caib.helium.persist.repository.AlertaRepository;
+import es.caib.helium.persist.repository.CampRepository;
+import es.caib.helium.persist.repository.CampTascaRepository;
+import es.caib.helium.persist.repository.DefinicioProcesRepository;
+import es.caib.helium.persist.repository.DocumentRepository;
+import es.caib.helium.persist.repository.EnumeracioValorsRepository;
+import es.caib.helium.persist.repository.ExpedientHeliumRepository;
+import es.caib.helium.persist.repository.ExpedientRepository;
+import es.caib.helium.persist.repository.ExpedientTipusRepository;
+import es.caib.helium.persist.repository.FormulariExternRepository;
+import es.caib.helium.persist.repository.RegistreRepository;
+import es.caib.helium.persist.repository.TascaRepository;
+import es.caib.helium.persist.repository.TerminiIniciatRepository;
+import es.caib.helium.persist.util.ThreadLocalInfo;
 
 /**
  * Servei per gestionar terminis.
@@ -123,6 +179,12 @@ public class TascaServiceImpl implements TascaService {
 	@Resource
 	private FormulariExternRepository formulariExternRepository;
 
+	@Resource
+	private TascaClientService tascaClientService;
+
+	@Autowired
+	private MsHelper msHelper;
+
 
 	@Override
 	@Transactional(readOnly = true)
@@ -163,7 +225,7 @@ public class TascaServiceImpl implements TascaService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<Long> findIdsPerFiltre(
+	public List<String> findIdsPerFiltre(
 			Long entornId,
 			Long expedientTipusId,
 			String titol,
@@ -270,21 +332,42 @@ public class TascaServiceImpl implements TascaService {
 					expedient,
 					null);
 			
-			LlistatIds ids = workflowEngineApi.tascaIdFindByFiltrePaginat(
-					responsable,
-					titol,
-					tasca,
-					idsExpedients,
-					dataCreacioInici,
-					dataCreacioFi,
-					prioritat,
-					dataLimitInici,
-					dataLimitFi,
-					new PaginacioParamsDto(),
-					nomesTasquesPersonals, 
-					nomesTasquesGrup,
-					true);
-			return ids.getIds();
+			ConsultaTascaDades consultaTascaDades = ConsultaTascaDades.builder()
+					.entornId(entornId)
+					.expedientTipusId(expedientTipusId)
+					.usuariAssignat(responsable)
+					.nom(tasca)
+					.titol(titol)
+					.expedientId(expedientTipusId)
+					.expedientTitol(expedient)
+					.expedientNumero(expedient)
+					.dataCreacioInici(dataCreacioInici)
+					.dataCreacioFi(dataCreacioFi)
+					.dataLimitInici(dataLimitInici)
+					.dataLimitFi(dataLimitFi)
+					.mostrarAssignadesUsuari(nomesTasquesPersonals)
+					.mostrarAssignadesGrup(nomesTasquesGrup)
+					.nomesPendents(true)
+					.build();
+			
+			
+			PagedList<String> page = tascaClientService.findTasquesIdsAmbFiltrePaginatV1(consultaTascaDades);
+			
+//			LlistatIds ids = workflowEngineApi.tascaIdFindByFiltrePaginat(
+//					responsable,
+//					titol,
+//					tasca,
+//TODO DANIEL:		idsExpedients, resoldre què s'informa aquí
+//					dataCreacioInici,
+//					dataCreacioFi,
+//					prioritat,
+//					dataLimitInici,
+//					dataLimitFi,
+//					new PaginacioParamsDto(),
+//					nomesTasquesPersonals, 
+//					nomesTasquesGrup,
+//					true);
+			return page.getContent();
 		} finally {
 //			contextTotal.stop();
 //			contextEntorn.stop();
@@ -293,7 +376,7 @@ public class TascaServiceImpl implements TascaService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public PaginaDto<ExpedientTascaDto> findPerFiltrePaginat(
+	public PaginaDto<TascaLlistatDto> findPerFiltrePaginat(
 			Long entornId,
 			String tramitacioMassivaTascaId,
 			Long expedientTipusId,
@@ -365,7 +448,7 @@ public class TascaServiceImpl implements TascaService {
 //							"llistat.consulta",
 //							entorn.getCodi()));
 //			final Timer.Context contextTimerConsultaEntorn = timerConsultaEntorn.time();
-			ResultatConsultaPaginada<WTaskInstance> paginaTasks = null;
+			PagedList<es.caib.helium.client.expedient.tasca.model.TascaDto> page;
 			try {
 				// Comprova l'accés al tipus d'expedient
 				if (expedientTipusId != null) {
@@ -400,25 +483,30 @@ public class TascaServiceImpl implements TascaService {
 				}
 				boolean mostrarAssignadesUsuari = (nomesTasquesPersonals && !nomesTasquesGrup) || (!nomesTasquesPersonals && !nomesTasquesGrup);
 				boolean mostrarAssignadesGrup = (nomesTasquesGrup && !nomesTasquesPersonals) || (!nomesTasquesPersonals && !nomesTasquesGrup);
-				paginaTasks = workflowEngineApi.tascaFindByFiltrePaginat(
-						entornId,
-						responsable,
-						tasca,
-						titol,
-						null,
-						expedient,
-						null, //expedientNumero,
-						expedientTipusId,
-						dataCreacioInici,
-						dataCreacioFi,
-						prioritat,
-						dataLimitInici,
-						dataLimitFi,
-						mostrarAssignadesUsuari,
-						mostrarAssignadesGrup,
-						true,
-						paginacioParams,
-						false);
+
+
+				ConsultaTascaDades consultaTascaDades = ConsultaTascaDades.builder()
+						.entornId(entornId)
+						.expedientTipusId(expedientTipusId)
+						.usuariAssignat(responsable)
+						.nom(tasca)
+						.titol(titol)
+						.expedientTitol(expedient)
+						.expedientNumero(expedient)
+						.dataCreacioInici(dataCreacioInici)
+						.dataCreacioFi(dataCreacioFi)
+						.dataLimitInici(dataLimitInici)
+						.dataLimitFi(dataLimitFi)
+						.mostrarAssignadesUsuari(mostrarAssignadesUsuari)
+						.mostrarAssignadesGrup(mostrarAssignadesGrup)
+						.nomesPendents(true)
+						.page(paginacioParams.getPaginaNum())
+						.size(paginacioParams.getPaginaTamany())
+						.sort(msHelper.getSortList(paginacioParams))
+						.build();
+				
+				page = tascaClientService.findTasquesAmbFiltrePaginatV1(consultaTascaDades);
+				
 			} finally {
 //				contextTimerConsultaTotal.stop();
 //				contextTimerConsultaEntorn.stop();
@@ -435,14 +523,17 @@ public class TascaServiceImpl implements TascaService {
 //							entorn.getCodi()));
 //			final Timer.Context contextTimerConversioEntorn = timerConversioEntorn.time();
 			try {
+//				return paginacioHelper.toPaginaDto(
+//						page, 
+//						ExpedientTascaDto.class);
 				return paginacioHelper.toPaginaDto(
-						paginaTasks.getLlista(),
-						paginaTasks.getCount(),
+						page.getContent(),
+						page.getTotalElements(),
 						paginacioParams,
-						new Converter<WTaskInstance, ExpedientTascaDto>() {
-							public ExpedientTascaDto convert(WTaskInstance task) {
-								return tascaHelper.toExpedientTascaDto(
-										task,
+						new Converter<es.caib.helium.client.expedient.tasca.model.TascaDto, TascaLlistatDto>() {
+							public TascaLlistatDto convert(es.caib.helium.client.expedient.tasca.model.TascaDto tascaMs) {
+								return tascaHelper.toTascaLlistatDto(
+										tascaMs,
 										null,
 										false,
 										true);
@@ -473,13 +564,13 @@ public class TascaServiceImpl implements TascaService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<ExpedientTascaDto> findAmbIds(Set<Long> ids) {
+	public List<ExpedientTascaDto> findAmbIds(Set<String> ids) {
 		logger.debug("Consultant expedients de las tascas (" +
 				"ids=" + ids + ")");
 
 		List<ExpedientTascaDto> expedientTasques = new ArrayList<ExpedientTascaDto>();
-		for (Long id : ids) {
-			WTaskInstance task = workflowEngineApi.getTaskById(String.valueOf(id));
+		for (String id : ids) {
+			WTaskInstance task = workflowEngineApi.getTaskById(id);
 			expedientTasques.add(tascaHelper.toExpedientTascaDto(
 					task,
 					null,
@@ -1234,12 +1325,11 @@ public class TascaServiceImpl implements TascaService {
 	 * s'actualitzaran les dades.
 	 * Si no, es crea una entrada al Map per aquesta tasca que s'ha d'executar en segón pla.
 	 */
-	private void checkFinalitzarSegonPla(String id, Date marcadaFinalitzar) {
-		Long taskId = Long.parseLong(id);
+	private void checkFinalitzarSegonPla(String taskId, Date marcadaFinalitzar) {
 		if (!tascaSegonPlaHelper.isTasquesSegonPlaLoaded())
 			tascaSegonPlaHelper.loadTasquesSegonPla();
 		
-		Map<Long,InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
+		Map<String,InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
 		if (map.containsKey(taskId)) {
 			InfoSegonPla infoSegonPla = map.get(taskId);
 			infoSegonPla.setMarcadaFinalitzar(marcadaFinalitzar);
@@ -1259,7 +1349,7 @@ public class TascaServiceImpl implements TascaService {
 		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
 //			Long taskId = Long.parseLong(taskInstanceId);
 //			TascaSegonPlaHelper.eliminarTasca(taskId);
-			tascaSegonPlaHelper.completarTasca(Long.parseLong(id));
+			tascaSegonPlaHelper.completarTasca(id);
 		}
 	}
 
@@ -1460,10 +1550,10 @@ public class TascaServiceImpl implements TascaService {
 		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded() && tascaSegonPlaHelper.getTasquesSegonPla().size() > 0) {
 //			for (Map.Entry<Long, InfoSegonPla> entry : TascaSegonPlaHelper.getTasquesSegonPla().entrySet()) {
 //			for (Long key : TascaSegonPlaHelper.getTasquesSegonPla().keySet()) {
-			Iterator<Map.Entry<Long, InfoSegonPla>> iter = tascaSegonPlaHelper.getTasquesSegonPla().entrySet().iterator();
+			Iterator<Map.Entry<String, InfoSegonPla>> iter = tascaSegonPlaHelper.getTasquesSegonPla().entrySet().iterator();
 			while (iter.hasNext()) {
-			    Map.Entry<Long, InfoSegonPla> entry = iter.next();
-				String tascaId = entry.getKey().toString();
+			    Map.Entry<String, InfoSegonPla> entry = iter.next();
+				String tascaId = entry.getKey();
 				InfoSegonPla infoSegonPla = entry.getValue();
 				if (infoSegonPla.getMarcadaFinalitzar() != null &&
 					infoSegonPla.getIniciFinalitzacio() == null &&
@@ -1525,9 +1615,9 @@ public class TascaServiceImpl implements TascaService {
 			//Primer carregam les ids de les tasques pendents d'executar en segon pla
 			List<Object[]> tasquesSegonPlaIds = workflowEngineApi.getTasquesSegonPlaPendents();
 			tascaSegonPlaHelper.loadTasquesSegonPla();
-			if(tasquesSegonPlaIds.size() > 0) {
+			if(tasquesSegonPlaIds != null && tasquesSegonPlaIds.size() > 0) {
 				for(Object[] taskResult: tasquesSegonPlaIds) {
-					tascaSegonPlaHelper.afegirTasca((Long)taskResult[0], (Date)taskResult[1], (Date)taskResult[2], (String)taskResult[3]);
+					tascaSegonPlaHelper.afegirTasca((String)taskResult[0], (Date)taskResult[1], (Date)taskResult[2], (String)taskResult[3]);
 				}
 			}
 		}
@@ -1605,10 +1695,9 @@ public class TascaServiceImpl implements TascaService {
 	}
 	
 	@Override
-	public Map<Long,Object> obtenirEstatsPerIds(List<String> tasquesSegonPlaIds){
-		Map<Long,Object> result = new LinkedHashMap<Long, Object>();
-		for (String id: tasquesSegonPlaIds) {
-			Long taskId = Long.parseLong(id);
+	public Map<String, Object> obtenirEstatsPerIds(List<String> tasquesSegonPlaIds){
+		Map<String, Object> result = new LinkedHashMap<String, Object>();
+		for (String taskId: tasquesSegonPlaIds) {
 			if (tascaSegonPlaHelper.getTasquesSegonPla().containsKey(taskId)) {
 				result.put(taskId, tascaSegonPlaHelper.getTasquesSegonPla().get(taskId));
 			}

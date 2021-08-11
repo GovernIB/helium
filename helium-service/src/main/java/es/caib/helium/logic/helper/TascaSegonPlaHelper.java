@@ -17,17 +17,17 @@ public class TascaSegonPlaHelper {
 	@Autowired
 	private TascaService tascaService;
 	
-	private Map<Long,InfoSegonPla> tasquesSegonPla;
+	private Map<String,InfoSegonPla> tasquesSegonPla;
 	
 	public synchronized void loadTasquesSegonPla () {
-		tasquesSegonPla = new LinkedHashMap<Long,InfoSegonPla>();
+		tasquesSegonPla = new LinkedHashMap<String,InfoSegonPla>();
 	}
 	
 	public boolean isTasquesSegonPlaLoaded() {
 		return tasquesSegonPla != null;
 	}
 	
-	public synchronized boolean afegirTasca(Long taskInstanceId, Date marcadaFinalitzar, Date iniciFinalitzacio, String error) {
+	public synchronized boolean afegirTasca(String taskInstanceId, Date marcadaFinalitzar, Date iniciFinalitzacio, String error) {
 		if (tasquesSegonPla != null) {
 			tasquesSegonPla.put(taskInstanceId, new InfoSegonPla(marcadaFinalitzar, iniciFinalitzacio, error));
 			return true;
@@ -36,7 +36,7 @@ public class TascaSegonPlaHelper {
 		}
 	}
 	
-	public synchronized boolean afegirTasca(Long taskInstanceId, Date marcadaFinalitzar) {
+	public synchronized boolean afegirTasca(String taskInstanceId, Date marcadaFinalitzar) {
 		if (tasquesSegonPla != null) {
 			tasquesSegonPla.put(taskInstanceId, new InfoSegonPla(marcadaFinalitzar));
 			return true;
@@ -45,7 +45,7 @@ public class TascaSegonPlaHelper {
 		}
 	}
 	
-	public synchronized boolean eliminarTasca(Long taskInstanceId) {
+	public synchronized boolean eliminarTasca(String taskInstanceId) {
 		if (tasquesSegonPla != null) {
 			tasquesSegonPla.remove(taskInstanceId);
 			return true;
@@ -54,18 +54,18 @@ public class TascaSegonPlaHelper {
 		}
 	}
 	
-	public synchronized void completarTasca(Long taskInstanceId) {
+	public synchronized void completarTasca(String taskInstanceId) {
 		if (tasquesSegonPla != null && tasquesSegonPla.containsKey(taskInstanceId)) {
 			InfoSegonPla infoSegonPla = tasquesSegonPla.get(taskInstanceId);
 			infoSegonPla.completada = true;
 		}
 	}
 	
-	public synchronized void setTasquesSegonPla(Map<Long,InfoSegonPla> tasquesSegonPla) {
+	public synchronized void setTasquesSegonPla(Map<String,InfoSegonPla> tasquesSegonPla) {
 		this.tasquesSegonPla = tasquesSegonPla;
 	}
 	
-	public synchronized Map<Long,InfoSegonPla> getTasquesSegonPla() {
+	public synchronized Map<String,InfoSegonPla> getTasquesSegonPla() {
 		return this.tasquesSegonPla;
 	}
 	

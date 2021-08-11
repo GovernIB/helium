@@ -15,6 +15,7 @@ import org.springframework.boot.autoconfigure.websocket.servlet.WebSocketServlet
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Aplicació Spring Boot de HELIUM per a ser executada des de JBoss.
@@ -42,6 +43,7 @@ import org.springframework.context.annotation.FilterType;
 @EnableFeignClients(
 		basePackages = {"es.caib.helium.client"}
 )
+@EnableScheduling
 public class HeliumEjbApp extends HeliumApp {
 
 	public static void main(String[] args) {

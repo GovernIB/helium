@@ -18,14 +18,14 @@ public interface TascaService {
     TascaDto createTasca(TascaDto expedient);
 
     TascaDto updateTasca(
-            Long expedientId,
-            TascaDto expedient);
+            String tascaId,
+            TascaDto tasca);
 
     void delete(
-            Long expedientId);
+    		String tascaId);
 
     TascaDto getById(
-            Long expedientId);
+    		String tascaId);
 
     PagedList<TascaDto> listTasques(
     		Long entornId,
@@ -48,12 +48,12 @@ public interface TascaService {
             final Sort sort);
 
 	List<ResponsableDto> getResponsables(
-			Long tascaId);
+			String tascaId);
 
 	List<ResponsableDto> setResponsables(
-			Long tascaId, 
+			String tascaId, 
 			List<String> responsables);
 
 	void deleteResponsables(
-			Long tascaId);
+			String tascaId);
 }
