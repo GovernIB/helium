@@ -37,7 +37,7 @@ public class Notificacio implements Serializable, GenericEntity<Long> {
 	@TableGenerator(name="gen_notificacio", table="hel_idgen", pkColumnName="taula", valueColumnName="valor")
 	@Column(name="id")
 	private Long id;
-	@ManyToOne(optional = false, fetch = FetchType.EAGER)
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(
 			name = "expedient_id",
 			foreignKey = @ForeignKey(name = "hel_expedient_notif_fk"))
@@ -52,7 +52,7 @@ public class Notificacio implements Serializable, GenericEntity<Long> {
 	private Date dataEnviament;
 	@Column(name = "observacions", length = 256)
 	private String observacions;
-	@ManyToOne(optional = false, fetch = FetchType.EAGER)
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(
 			name = "document_store_id",
 			foreignKey = @ForeignKey(name = "hel_notif_document_fk"))

@@ -39,13 +39,13 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	@Column(name = "usuari_codi")
 	private String usuariCodi;
 	
-	@ManyToOne(optional = false, fetch = FetchType.EAGER)
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(
 			name = "expedient_id",
 			foreignKey = @ForeignKey(name = "hel_expedient_docnot_fk"))
 	private Expedient expedient;
 	
-	@ManyToOne(optional = false, fetch = FetchType.EAGER)
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(
 			name = "document_store_id",
 			foreignKey = @ForeignKey(name = "hel_document_notif_fk"))
@@ -157,7 +157,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	@Column(name = "env_cert_origen", length = 20)
 	private String enviamentCertificacioOrigen;
 	
-	@ManyToOne(optional = false, fetch = FetchType.EAGER)
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(
 			name = "certificacio_store_id",
 			foreignKey = @ForeignKey(name = "hel_certificacio_notif_fk"))

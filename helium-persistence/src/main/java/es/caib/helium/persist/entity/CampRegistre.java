@@ -83,7 +83,7 @@ public class CampRegistre implements Serializable, GenericEntity<Long> {
 		this.ordre = ordre;
 	}
 
-	@ManyToOne(optional=false, fetch=FetchType.EAGER)
+	@ManyToOne(optional=false, fetch=FetchType.LAZY)
 	@JoinColumn(
 			name="registre_id",
 			foreignKey = @ForeignKey(name="hel_camp_regregistre_fk"))
@@ -94,7 +94,7 @@ public class CampRegistre implements Serializable, GenericEntity<Long> {
 		this.registre = registre;
 	}
 
-	@ManyToOne(optional=false, fetch=FetchType.EAGER)
+	@ManyToOne(optional=false, fetch=FetchType.LAZY)
 	@JoinColumn(
 			name="membre_id",
 			foreignKey = @ForeignKey(name="hel_camp_regmembre_fk"))

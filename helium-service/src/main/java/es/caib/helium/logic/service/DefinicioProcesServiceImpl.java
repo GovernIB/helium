@@ -3,6 +3,7 @@
  */
 package es.caib.helium.logic.service;
 
+import es.caib.helium.logic.converter.TascaDtoConverter;
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.DefinicioProcesHelper;
 import es.caib.helium.logic.helper.EntornHelper;
@@ -419,44 +420,54 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"definicioProcesId=" + definicioProcesId + ", " +
 				"filtre=" + filtre + ")");
 
-		PaginaDto<TascaDto> pagina = paginacioHelper.toPaginaDto(
-				tascaRepository.findByFiltrePaginat(
-						definicioProcesId,
-						filtre == null || "".equals(filtre), 
-						filtre, 
-						paginacioHelper.toSpringDataPageable(
-								paginacioParams)),
-				TascaDto.class);
-		
-		// Marca la tasca com a incicial
 		DefinicioProces definicioProces = definicioProcesRepository.getById(definicioProcesId);
 		String startTaskName = workflowEngineApi.getStartTaskName(definicioProces.getJbpmId());
-		if (startTaskName != null)
-			for (TascaDto tasca : pagina.getContingut())
-				if(tasca.getNom().equals(startTaskName)) {
-					tasca.setInicial(true);
-					break;
-				}
 
 		ExpedientTipus expedientTipus = null;
-		if ( expedientTipusId != null)
+		if ( expedientTipusId != null) {
 			expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(expedientTipusId);
+		}
 		else if (definicioProces.getExpedientTipus() != null) {
 			expedientTipus = definicioProces.getExpedientTipus();
 			expedientTipusId = expedientTipus.getId();
 		}
-		
-		// Determina si les tasques són heretades 
+
 		boolean definicioProcesHeretada = definicioProcesHelper.isDefinicioProcesHeretada(definicioProces, expedientTipus);
-		if (definicioProcesHeretada) {
-			for(TascaDto tasca : pagina.getContingut())
-				tasca.setHeretat(true);
-		}
-		// S'han de llevar els camps, documents i firmes afegides per altres tipus d'expedients
-		if (expedientTipusId != null) {
-			for (TascaDto tasca : pagina.getContingut())
-				this.filtrarDadesPerTipusExpedientId(tasca, expedientTipusId);
-		}			
+
+		TascaDtoConverter tascaDtoConverter = TascaDtoConverter.builder()
+				.startTaskName(startTaskName)
+				.heretada(definicioProcesHeretada)
+				.expedientTipusId(expedientTipusId)
+				.build();
+
+		Page<Tasca> tasques = tascaRepository.findByFiltrePaginat(
+				definicioProcesId,
+				filtre == null || "".equals(filtre),
+				filtre,
+				paginacioHelper.toSpringDataPageable(paginacioParams));
+
+		PaginaDto<TascaDto> pagina = paginacioHelper.toPaginaDto(
+				tasques,
+				TascaDto.class,
+				tascaDtoConverter);
+
+//		// Marca la tasca com a incicial
+//		if (startTaskName != null)
+//			for (TascaDto tasca : pagina.getContingut())
+//				if(tasca.getNom().equals(startTaskName)) {
+//					tasca.setInicial(true);
+//					break;
+//				}
+//		// Determina si les tasques són heretades
+//		if (definicioProcesHeretada) {
+//			for(TascaDto tasca : pagina.getContingut())
+//				tasca.setHeretat(true);
+//		}
+//		// S'han de llevar els camps, documents i firmes afegides per altres tipus d'expedients
+//		if (expedientTipusId != null) {
+//			for (TascaDto tasca : pagina.getContingut())
+//				this.filtrarDadesPerTipusExpedientId(tasca, expedientTipusId);
+//		}
 		return pagina;		
 	}
 

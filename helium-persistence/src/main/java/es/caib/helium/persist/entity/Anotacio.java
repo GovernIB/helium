@@ -147,7 +147,7 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 			mappedBy = "anotacio",
 			cascade = { CascadeType.ALL },
 			orphanRemoval = true,
-			fetch = FetchType.EAGER)
+			fetch = FetchType.LAZY)
 	private List<AnotacioAnnex> annexos = new ArrayList<AnotacioAnnex>();
 	
 	public Long getId() {

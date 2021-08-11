@@ -92,7 +92,7 @@ public class DocumentTasca implements Serializable, GenericEntity<Long> {
 		this.order = order;
 	}
 
-	@ManyToOne(optional=false, fetch=FetchType.EAGER)
+	@ManyToOne(optional=false, fetch=FetchType.LAZY)
 	@JoinColumn(
 			name="document_id",
 			foreignKey = @ForeignKey(name="hel_document_doctasca_fk"))
@@ -103,7 +103,7 @@ public class DocumentTasca implements Serializable, GenericEntity<Long> {
 		this.document = document;
 	}
 
-	@ManyToOne(optional=false, fetch=FetchType.EAGER)
+	@ManyToOne(optional=false, fetch=FetchType.LAZY)
 	@JoinColumn(
 			name="tasca_id",
 			foreignKey = @ForeignKey(name="hel_tasca_doctasca_fk"))
@@ -114,7 +114,7 @@ public class DocumentTasca implements Serializable, GenericEntity<Long> {
 		this.tasca = tasca;
 	}
 
-	@ManyToOne(optional=true, fetch=FetchType.EAGER)
+	@ManyToOne(optional=true, fetch=FetchType.LAZY)
 	@JoinColumn(
 			name="expedient_tipus_id",
 			foreignKey = @ForeignKey(name="hel_extipus_doctasca_fk"))
