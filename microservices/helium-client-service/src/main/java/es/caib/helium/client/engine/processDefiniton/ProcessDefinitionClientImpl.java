@@ -19,7 +19,7 @@ public class ProcessDefinitionClientImpl implements ProcessDefinitionClient {
 
 	private final ProcessDefinitionFeignClient processDefinitionClient;
 
-	@Value("${es.caib.helium.engine.url}")
+	@Value("${es.caib.helium.engine.url:localhost:8083}")
 	private String engineUrl;
 
 	@Override

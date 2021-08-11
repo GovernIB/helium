@@ -122,11 +122,11 @@ public class WorkflowBridgeService extends AbstractService<es.caib.helium.logic.
 //	}
 
 
-	public void addMissatgeExecucioTascaSegonPla(Long taskId, String[] message) {
+	public void addMissatgeExecucioTascaSegonPla(String taskId, String[] message) {
 		getDelegateService().addMissatgeExecucioTascaSegonPla(taskId, message);
 	}
 
-	public void setErrorTascaSegonPla(Long taskId, String error) {
+	public void setErrorTascaSegonPla(String taskId, String error) {
 		getDelegateService().setErrorTascaSegonPla(taskId, error);
 	}
 

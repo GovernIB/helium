@@ -13,8 +13,9 @@ import lombok.Data;
 @Data
 public class TascaDto {
 
-	private Long id;
+	private String id;
 	private Long expedientId;
+	private String procesId;
 	private String nom;
 	private String titol;
 	private boolean afagada = false;
@@ -30,6 +31,7 @@ public class TascaDto {
 	private Date dataCreacio;
 	private String usuariAssignat;
 	private String grupAssignat;
+	private Integer prioritat;
 	private List<ResponsableDto> responsables;
 	
 }

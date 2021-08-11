@@ -1,5 +1,6 @@
 package es.caib.helium.expedient.service;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +21,6 @@ import es.caib.helium.expedient.domain.Expedient;
 import es.caib.helium.expedient.mapper.ExpedientMapper;
 import es.caib.helium.expedient.model.ExpedientDto;
 import es.caib.helium.expedient.model.ExpedientEstatTipusEnum;
-import es.caib.helium.expedient.model.MostrarAnulatsEnum;
 import es.caib.helium.expedient.repository.ExpedientRepository;
 import es.caib.helium.expedient.repository.ExpedientSpecifications;
 import es.caib.helium.ms.model.PagedList;
@@ -129,19 +129,22 @@ public class ExpedientServiceImpl implements ExpedientService {
     		String usuariCodi,
     		Long entornId,
             Long expedientTipusId,
+            Collection<Long> tipusIdPermesos,
             String titol,
             String numero,
             Date dataInici1,
             Date dataInici2,
             Date dataFi1,
             Date dataFi2,
-            ExpedientEstatTipusEnum estatTipus,
+            boolean nomesIniciats,
+            boolean nomesFinalitzats,
             Long estatId,
             boolean nomesTasquesPersonals,
             boolean nomesTasquesGrup,
             boolean nomesAlertes,
             boolean nomesErrors,
-            MostrarAnulatsEnum mostrarAnulats,
+            boolean mostrarAnulats,
+            boolean mostrarNomesAnulats,
             String filtreRsql,
             final Pageable pageable,
             final Sort sort) {
@@ -150,38 +153,44 @@ public class ExpedientServiceImpl implements ExpedientService {
                 "usuariCodi: " + usuariCodi +
                 "entornId: " + entornId + "\n" +
                 "expedientTipusId: " + expedientTipusId + "\n" +
+                "tipusIdPermesos: " + tipusIdPermesos + "\n" +
                 "titol: " + titol + "\n" +
                 "numero: " + numero + "\n" +
                 "dataInici1: " + dataInici1 + "\n" +
                 "dataInici2: " + dataInici2 + "\n" +
                 "dataFi1: " + dataFi1 + "\n" +
                 "dataFi2: " + dataFi2 + "\n" +
-                "estatTipus: " + estatTipus + "\n" +
+                "nomesIniciats: " + nomesIniciats + "\n" +
+                "nomesFinalitzats: " + nomesFinalitzats + "\n" +
                 "estatId: " + estatId + "\n" +
                 "nomesTasquesPersonals: " + nomesTasquesPersonals + "\n" +
                 "nomesTasquesGrup: " + nomesTasquesGrup + "\n" +
                 "expedientTipusId: " + nomesAlertes + "\n" +
                 "nomesErrors: " + nomesErrors + "\n" +
-                "mostrarAnulats: " + mostrarAnulats + "\n" + 
+                "mostrarAnulats: " + mostrarAnulats + "\n" +
+                "mostrarNomesAnulats: " + mostrarNomesAnulats + "\n" +
                 "filtreRsql:" + filtreRsql);
 
         Specification<Expedient> spec = ExpedientSpecifications.expedientsList(
         									usuariCodi,
 											entornId,
-											expedientTipusId, 
+											expedientTipusId,
+											tipusIdPermesos,
 											titol, 
 											numero, 
 											dataInici1, 
 											dataInici2, 
 											dataFi1, 
 											dataFi2, 
-											estatTipus, 
+											nomesIniciats,
+											nomesFinalitzats, 
 											estatId, 
 											nomesTasquesPersonals, 
 											nomesTasquesGrup, 
 											nomesAlertes, 
 											nomesErrors, 
-											mostrarAnulats
+											mostrarAnulats,
+											mostrarNomesAnulats
         								);
 
         PagedList<ExpedientDto> pagedList = ServiceHelper.getDtoPage(

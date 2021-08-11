@@ -3,6 +3,38 @@
  */
 package es.caib.helium.logic.service;
 
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.client.expedient.expedient.ExpedientClientService;
@@ -58,7 +90,6 @@ import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDireccioDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDto;
 import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.dto.RespostaValidacioSignaturaDto;
-import es.caib.helium.logic.intf.dto.ResultatConsultaPaginada;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
 import es.caib.helium.logic.intf.exception.ExecucioHandlerException;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
@@ -70,6 +101,7 @@ import es.caib.helium.logic.intf.exception.ValidacioException;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.util.Constants;
+import es.caib.helium.logic.ms.ExpedientMs;
 import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persist.entity.Accio;
 import es.caib.helium.persist.entity.Alerta;
@@ -112,36 +144,6 @@ import es.caib.helium.persist.repository.TerminiIniciatRepository;
 import es.caib.helium.persist.util.ThreadLocalInfo;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ExpedientMetadades;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 /**
  * Implementació dels mètodes del servei ExpedientService.
@@ -227,6 +229,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Resource
 	private AnotacioService anotacioService;
 
+	@Resource
+	private ExpedientMs expedientMs;
 	@Resource
 	private ExpedientClientService expedientClientService;
 
@@ -645,7 +649,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return listExpedient;
 	}
 
-	// TODO: Passar a MS expedients
 	/**
 	 * {@inheritDoc}
 	 */
@@ -720,7 +723,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Obté la llista de tipus d'expedient permesos
 		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
 		// Executa la consulta amb paginació
-		ResultatConsultaPaginada<Long> expedientsIds = workflowEngineApi.expedientFindByFiltre(
+		PaginaDto<ExpedientDto> expedients = expedientMs.expedientFindByFiltre(
 				entornId,
 				auth.getName(),
 				tipusPermesosIds,
@@ -746,23 +749,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true, // nomesTasquesMeves, // TODO Si no te permis SUPERVISION nomesTasquesMeves = false
 				paginacioParams,
 				false);
-		// Retorna la pàgina amb la resposta
-		List<ExpedientDto> expedients = new ArrayList<ExpedientDto>(); 
-		if (expedientsIds.getCount() > 0) {
-			expedients = conversioTipusServiceHelper.convertirList(
-				expedientRepository.findByIdIn(expedientsIds.getLlista()),
-				ExpedientDto.class);
-		}
-		// Després de la consulta els expedients es retornen en ordre invers
-		Collections.sort(expedients, new ExpedientDtoIdsComparator(expedientsIds.getLlista()));
 
-		if (expedients.size() > 0) {
-			expedientHelper.omplirPermisosExpedients(expedients);
-			expedientHelper.trobarAlertesExpedients(expedients);
+		if (expedients.getContingut().size() > 0) {
+			expedientHelper.omplirPermisosExpedients(expedients.getContingut());
+			expedientHelper.trobarAlertesExpedients(expedients.getContingut());
 		}
 		return paginacioHelper.toPaginaDto(
-				expedients,
-				expedientsIds.getCount(),
+				expedients.getContingut(),
+				expedients.getTotal(),
 				paginacioParams);
 	}
 
@@ -876,7 +870,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Obté la llista de tipus d'expedient permesos
 		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
 		// Executa la consulta amb paginació
-		ResultatConsultaPaginada<Long> expedientsIds = workflowEngineApi.expedientFindByFiltre(
+		PaginaDto<Long> expedientsIds = expedientMs.expedientFindIdsByFiltre(
 				entornId,
 				auth.getName(),
 				tipusPermesosIds,
@@ -902,7 +896,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true, // nomesTasquesMeves, // TODO Si no te permis SUPERVISION nomesTasquesMeves = false
 				new PaginacioParamsDto(),
 				false);
-		return expedientsIds.getLlista();
+		return expedientsIds.getContingut();
 	}
 	/**
 	 * {@inheritDoc}
@@ -2301,7 +2295,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		} else {
 			List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			ResultatConsultaPaginada<Long> expedientsIds = workflowEngineApi.expedientFindByFiltre(
+			PaginaDto<Long> expedientsIds = expedientMs.expedientFindIdsByFiltre(
 					entorn.getId(),
 					auth.getName(),
 					tipusPermesosIds,
@@ -2327,7 +2321,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					nomesMeves,
 					new PaginacioParamsDto(),
 					false);
-			expedientIdsPermesos = expedientsIds.getLlista();
+			expedientIdsPermesos = expedientsIds.getContingut();
 		}
 		// Obte la llista d'expedients de lucene passant els expedients permesos
 		// com a paràmetres
@@ -2443,7 +2437,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Obte la llista d'expedients permesos segons els filtres
 		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		ResultatConsultaPaginada<Long> expedientsIds = workflowEngineApi.expedientFindByFiltre(
+		PaginaDto<Long> expedientsIds = expedientMs.expedientFindIdsByFiltre(
 				entorn.getId(),
 				auth.getName(),
 				tipusPermesosIds,

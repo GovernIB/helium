@@ -1,16 +1,10 @@
 package es.caib.helium.logic.ms;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -24,13 +18,11 @@ import es.caib.helium.client.domini.entorn.EntornClient;
 import es.caib.helium.client.domini.expedientTipus.ExpedientTipusClient;
 import es.caib.helium.client.model.PagedList;
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
-import es.caib.helium.logic.helper.PaginacioHelper;
+import es.caib.helium.logic.helper.MsHelper;
 import es.caib.helium.logic.intf.dto.ConsultaDominiDto;
 import es.caib.helium.logic.intf.dto.DominiDto;
 import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDireccioDto;
-import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDto;
 import es.caib.helium.logic.intf.extern.domini.FilaResultat;
 
 /** Bean per interactuar amb el Micro Servei de Dominis. Encapsula les crides al client
@@ -54,10 +46,13 @@ public class DominiMs {
 	@Autowired
 	private EntornClient entornClient;
 	
-	@Resource
-	private ConversioTipusServiceHelper conversioTipusServiceHelper;
-	@Resource
-	private PaginacioHelper paginacioHelper;
+	@Autowired
+	protected ConversioTipusServiceHelper conversioTipusServiceHelper;
+
+	@Autowired
+	private MsHelper msHelper;
+	
+	
 
 	/// Mètode de Disseny
 
@@ -77,7 +72,9 @@ public class DominiMs {
 			Long expedientTipusPareId,
 			PaginacioParamsDto paginacioParams) {
 		
-		String filtreRsql = "codi=ic=*" + filtre +"* or nom=ic=*" + filtre ;
+		String filtreRsql = (filtre != null && !filtre.isEmpty()) ?
+								filtreRsql = "codi=ic=*" + filtre +"* or nom=ic=*" + filtre
+								: null;
 		
 		ConsultaDominisDades consultaDominisDades = new ConsultaDominisDades(
 				entornId, 
@@ -86,11 +83,11 @@ public class DominiMs {
 				filtreRsql);
 		consultaDominisDades.setPage(paginacioParams.getPaginaNum());
 		consultaDominisDades.setSize(paginacioParams.getPaginaTamany());
-		consultaDominisDades.setSort(this.getSortList(paginacioParams));
+		consultaDominisDades.setSort(msHelper.getSortList(paginacioParams));
 
 		PagedList<es.caib.helium.client.domini.entorn.model.DominiDto> page  = this.dominiClient.listDominisV1(consultaDominisDades);
 		
-		PaginaDto<DominiDto> pagina = this.toPaginaDto(
+		PaginaDto<DominiDto> pagina = msHelper.toPaginaDto(
 				page,
 				DominiDto.class);
 		return pagina; 
@@ -354,71 +351,5 @@ public class DominiMs {
 		if (dominis.size() > 0)
 			domini = dominis.get(0);
 		return domini;
-	}
-	
-	/** Retorna un string amb les propietats i ordenacions.
-	 * 
-	 * @param paginacioParams
-	 * @return
-	 */
-	protected Sort getSort(PaginacioParamsDto paginacioParams) {
-		
-		List<Order> ordres = new ArrayList<Order>();
-		if (paginacioParams.getOrdres() != null && paginacioParams.getOrdres().size() > 0) {
-			for (OrdreDto ordreDto : paginacioParams.getOrdres()) {
-				String propietat = ordreDto.getCamp();
-				Direction direccio = OrdreDireccioDto.DESCENDENT.equals(ordreDto.getDireccio()) ? Sort.Direction.DESC : Sort.Direction.ASC;
-				ordres.add(new Order(
-						direccio,
-						propietat));
-			}
-		}
-		return Sort.by(ordres);
-	}
-	
-	protected List<String> getSortList(PaginacioParamsDto paginacioParams) {
-		List<String> ordres = new ArrayList<String>();
-		if (paginacioParams.getOrdres() != null && paginacioParams.getOrdres().size() > 0) {
-			for (OrdreDto ordreDto : paginacioParams.getOrdres()) {
-				String propietat = ordreDto.getCamp();
-				Direction direccio = OrdreDireccioDto.DESCENDENT.equals(ordreDto.getDireccio()) ? Sort.Direction.DESC : Sort.Direction.ASC;
-				ordres.add(propietat + "," + direccio.toString() );
-			}
-		}
-		return ordres;
-	}
-
-	
-	protected <T> PaginaDto<T> toPaginaDto(PagedList page, Class<T> classT) {
-
-		PaginaDto<T> dto = new PaginaDto<T>();
-		if (page != null) {
-			dto.setNumero(page.getNumber());
-			dto.setTamany(page.getSize());
-			dto.setTotal(page.getTotalPages());
-			dto.setElementsTotal(page.getTotalElements());
-			dto.setAnteriors(page.getNumber() < page.getTotalPages());
-			dto.setPrimera(page.getNumber() == 0);
-			dto.setPosteriors(page.getNumber() < page.getTotalPages());
-			dto.setDarrera(page.getNumber() == page.getTotalPages() - 1);
-			if (page.getContent() != null) {
-				dto.setContingut(
-						this.conversioTipusServiceHelper.convertirList(
-								page.getContent(),
-								classT));
-			}
-		} else {
-			// Pàgina buida
-			dto.setNumero(0);
-			dto.setTamany(0);
-			dto.setTotal(1);
-			dto.setElementsTotal(0);
-			dto.setAnteriors(false);
-			dto.setPrimera(true);
-			dto.setPosteriors(false);
-			dto.setDarrera(true);
-			dto.setContingut(null);
-		}
-		return dto;
 	}
 }

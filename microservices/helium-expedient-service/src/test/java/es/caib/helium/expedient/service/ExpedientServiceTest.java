@@ -198,6 +198,7 @@ class ExpedientServiceTest {
         // Given
         ExpedientDto expedientDto = mapper.entityToDto(expedient);
         Expedient expedient2 = ExpedientTestHelper.generateExpedient(2, 1L, 1L, 2L, "7", "2/2021", "Títol 2");
+        expedient2.setNumeroDefault(expedient.getNumeroDefault());
         given(expedientRepository.findById(anyLong())).willReturn(Optional.of(expedient2));
         given(expedientRepository.save(any(Expedient.class))).will(
                 (InvocationOnMock invocation) -> invocation.getArgument(0, Expedient.class));
@@ -323,8 +324,8 @@ class ExpedientServiceTest {
         given(expedientRepository.findAll(any(Specification.class), any(Sort.class))).willReturn(expedients);
 
         // When
-		Page<ExpedientDto> page = expedientService.listExpedients(null, null, null, null, null, null, null, null, null, null,
-				null, false, false, false, false, null, null, Pageable.unpaged(), null);
+		Page<ExpedientDto> page = expedientService.listExpedients(null, null, null, null, null, null, null, null, null, null, false, false,
+				null, false, false, false, false, false, false, null, Pageable.unpaged(), null);
 
         // Then
         then(expedientRepository).should().findAll(any(Specification.class), any(Sort.class));
@@ -341,8 +342,8 @@ class ExpedientServiceTest {
         given(expedientRepository.findAll(any(Specification.class), any(Sort.class))).willReturn(expedients);
 
         // When
-		Page<ExpedientDto> page = expedientService.listExpedients(null, null, null, null, null, null, null, null, null, null,
-				null, false, false, false, false, null, null, Pageable.unpaged(), null);
+		Page<ExpedientDto> page = expedientService.listExpedients(null, null, null, null, null, null, null, null, null, null, false, false,
+				null, false, false, false, false, false, false, null, Pageable.unpaged(), null);
 
         // Then
         then(expedientRepository).should().findAll(any(Specification.class), any(Sort.class));

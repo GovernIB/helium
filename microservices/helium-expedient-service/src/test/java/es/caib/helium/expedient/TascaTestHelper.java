@@ -22,8 +22,8 @@ public class TascaTestHelper {
 	@Test
     @DisplayName("Prova de generar tasques iguals")
 	public void generateTascaTest() {
-		Tasca tasca1 = TascaTestHelper.generateTasca(0, 1L, null, "nom", "titol");
-		Tasca tasca2 = TascaTestHelper.generateTasca(0, 1L, null, "nom", "titol");
+		Tasca tasca1 = TascaTestHelper.generateTasca(0, "1", null, "p1", "nom", "titol");
+		Tasca tasca2 = TascaTestHelper.generateTasca(0, "1", null, "p1", "nom", "titol");
 		TascaTestHelper.comprovaTasca(tasca1, tasca2);
 		assertNotEquals(tasca1, tasca2);
 		assertNotEquals(tasca1.hashCode(), tasca2.hashCode());
@@ -32,8 +32,8 @@ public class TascaTestHelper {
 	@Test
     @DisplayName("Prova de generar tasques DtO iguals")
 	public void generateTascaDtoTest() {
-		TascaDto tasca1 = TascaTestHelper.generateTascaDto(0, 1L, null, "nom", "titol");
-		TascaDto tasca2 = TascaTestHelper.generateTascaDto(0, 1L, null, "nom", "titol");
+		TascaDto tasca1 = TascaTestHelper.generateTascaDto(0, "1", null, "p1", "nom", "titol");
+		TascaDto tasca2 = TascaTestHelper.generateTascaDto(0, "1", null, "p1", "nom", "titol");
 		TascaTestHelper.comprovaTasca(tasca1, tasca2);
 		assertEquals(tasca1, tasca2);
 		assertEquals(tasca1.hashCode(), tasca2.hashCode());
@@ -41,14 +41,16 @@ public class TascaTestHelper {
 
     public static Tasca generateTasca(
             int index,
-            Long tascaId,
+            String tascaId,
             Expedient expedient,
+            String procesId,
             String nom,
             String titol
     ) {
         Tasca tasca = Tasca.builder()
         		.id(tascaId)
         		.expedient(expedient)
+        		.procesId(procesId)
         		.nom(nom)
         		.titol(titol)
         		.dataCreacio(new Date())
@@ -65,6 +67,7 @@ public class TascaTestHelper {
         		.marcadaFinalitzar(true)
         		.suspesa(false)
         		.usuariAssignat(null)
+        		.prioritat(3)
         		
                 .build();
     	Responsable responsable;
@@ -83,14 +86,16 @@ public class TascaTestHelper {
 
     public static TascaDto generateTascaDto(
             int index,
-            Long tascaId,
+            String tascaId,
             Long expedientId,
+            String procesId,
             String nom,
             String titol
     ) {
     	TascaDto tasca = TascaDto.builder()
         		.id(tascaId)
         		.expedientId(expedientId)
+        		.procesId(procesId)
         		.nom(nom)
         		.titol(titol)
         		.dataCreacio(new Date())
@@ -107,6 +112,7 @@ public class TascaTestHelper {
         		.marcadaFinalitzar(true)
         		.suspesa(false)
         		.usuariAssignat(null)
+        		.prioritat(3)
 
                 .build();
     	ResponsableDto responsable;
@@ -125,6 +131,7 @@ public class TascaTestHelper {
         assertAll("Comprovar dades del tasca",
                 () -> assertEquals(tasca.getId(), trobat.getId(), "Tasca id incorrecte"),
                 () -> assertEquals(tasca.getExpedient(), trobat.getExpedient(), "Expedient incorrecte"),
+                () -> assertEquals(tasca.getProcesId(), trobat.getProcesId(), "Proces incorrecte"),
                 () -> assertEquals(tasca.getNom(), trobat.getNom(), "Nom incorrecte"),
                 () -> assertEquals(tasca.getTitol(), trobat.getTitol(), "Titol incorrecte"),
                 () -> assertEquals(tasca.isAfagada(), trobat.isAfagada(), "Agafada incorrecte"),
@@ -139,6 +146,7 @@ public class TascaTestHelper {
 				() -> assertEquals(tasca.getDataCreacio(), trobat.getDataCreacio(), "Data fins incorrecte"),
 				() -> assertEquals(tasca.getUsuariAssignat(), trobat.getUsuariAssignat(), "Usuari assignat incorrecte"),
 				() -> assertEquals(tasca.getGrupAssignat(), trobat.getGrupAssignat(), "Grup assignat incorrecte"),
+				() -> assertEquals(tasca.getPrioritat(), trobat.getPrioritat(), "Prioritat incorrecte"),
 				() -> {
 					if (tasca.getResponsables() != null || trobat.getResponsables() != null) {
 						assertTrue("Un dels llistats de responsables és null i l'altre no", tasca.getResponsables() != null && trobat.getResponsables() != null);
@@ -155,6 +163,7 @@ public class TascaTestHelper {
         assertAll("Comprovar dades del tasca DTO",
                 () -> assertEquals(tasca.getId(), trobat.getId(), "Tasca id incorrecte"),
                 () -> assertEquals(tasca.getExpedientId(), trobat.getExpedientId(), "Expedient id incorrecte"),
+                () -> assertEquals(tasca.getProcesId(), trobat.getProcesId(), "Proces incorrecte"),
                 () -> assertEquals(tasca.getNom(), trobat.getNom(), "Nom incorrecte"),
                 () -> assertEquals(tasca.getTitol(), trobat.getTitol(), "Titol incorrecte"),
                 () -> assertEquals(tasca.isAfagada(), trobat.isAfagada(), "Agafada incorrecte"),

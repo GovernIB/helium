@@ -91,7 +91,7 @@ public class TascaRestController {
 
 	@PostMapping(value="/{taskId}/missatge")
 	public ResponseEntity<Void> addMissatgeExecucioTascaSegonPla(
-			@PathVariable("taskId") Long taskId,
+			@PathVariable("taskId") String taskId,
 			@RequestBody String[] message) {
 		workflowBridgeService.addMissatgeExecucioTascaSegonPla(taskId, message);
 		return new ResponseEntity<>(HttpStatus.OK);
@@ -99,7 +99,7 @@ public class TascaRestController {
 
 	@PostMapping(value="/{taskId}/error")
 	public ResponseEntity<Void> setErrorTascaSegonPla(
-			@PathVariable("taskId") Long taskId,
+			@PathVariable("taskId") String taskId,
 			@RequestBody String error ) {
 		workflowBridgeService.setErrorTascaSegonPla(taskId, error);
 		return new ResponseEntity<>(HttpStatus.OK);

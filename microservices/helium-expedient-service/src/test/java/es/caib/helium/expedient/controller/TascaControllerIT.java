@@ -64,11 +64,11 @@ class TascaControllerIT {
     	// int index, Long entorn, Long tascaTipus, Long tascaId, 
     	// Long tascaProcessInstanceId, String tascaNumero,String tascaTitol
     	// Tasques
-        tascaService.createTasca(TascaTestHelper.generateTascaDto(0, 1L, expedient1.getId(), "tasca1", "Tasca 1"));
-        tascaService.createTasca(TascaTestHelper.generateTascaDto(1, 2L, expedient1.getId(), "tasca2", "Tasca 2"));
-        tascaService.createTasca(TascaTestHelper.generateTascaDto(2, 3L, expedient1.getId(), "tasca3", "Tasca 3"));
-        tascaService.createTasca(TascaTestHelper.generateTascaDto(3, 4L, expedient2.getId(), "tasca4", "Tasca 4"));
-        tascaService.createTasca(TascaTestHelper.generateTascaDto(4, 5L, expedient2.getId(), "tasca5", "Tasca 5"));
+        tascaService.createTasca(TascaTestHelper.generateTascaDto(0, "1", expedient1.getId(), "p1", "tasca1", "Tasca 1"));
+        tascaService.createTasca(TascaTestHelper.generateTascaDto(1, "2", expedient1.getId(), "p1", "tasca2", "Tasca 2"));
+        tascaService.createTasca(TascaTestHelper.generateTascaDto(2, "3", expedient1.getId(), "p1", "tasca3", "Tasca 3"));
+        tascaService.createTasca(TascaTestHelper.generateTascaDto(3, "4", expedient2.getId(), "p2", "tasca4", "Tasca 4"));
+        tascaService.createTasca(TascaTestHelper.generateTascaDto(4, "5", expedient2.getId(), "p2", "tasca5", "Tasca 5"));
         
 //        List<String> responsables = new ArrayList<String>();
 //        for (long i = 1; i <= 5L; i++) {
@@ -79,7 +79,7 @@ class TascaControllerIT {
 
     @Test
     @DisplayName("Consulta llista de tasques")
-    void whenListTascasV1_thenReturnList() throws Exception {
+    void whenListTasquesV1_thenReturnList() throws Exception {
 
         String url = API_V1_TASCA + "?entornId=1";
 
@@ -93,13 +93,13 @@ class TascaControllerIT {
 
         pagedList.getContent().forEach(tascaDto -> {
             TascaDto fetchedTascadto = restTemplate.getForObject(API_V1_TASCA + tascaDto.getId(), TascaDto.class);
-            assertThat(tascaDto.getId()).isEqualByComparingTo(fetchedTascadto.getId());
+            assertThat(tascaDto.getId()).isEqualTo(fetchedTascadto.getId());
         });
     }
 
     @Test
     @DisplayName("Consulta llistat de tasques sense resposta HttpStatus.NO_CONTENT")
-    void whenListTascasV1_thenReturnNoContent() throws Exception {
+    void whenListTasquesV1_thenReturnNoContent() throws Exception {
         
 		final UriComponentsBuilder builder = UriComponentsBuilder.fromPath(API_V1_TASCA);
 		Map<String, String> queryParams = new HashMap<String, String>();
@@ -141,7 +141,7 @@ class TascaControllerIT {
 
         String url = API_V1_TASCA;
         
-        TascaDto tascaIdExistent = TascaTestHelper.generateTascaDto(1, 1L, 1L, "tasca1", "Tasca 1");
+        TascaDto tascaIdExistent = TascaTestHelper.generateTascaDto(1, "1", 1L, "p1",  "tasca1", "Tasca 1");
 
         ResponseEntity<Void> response = 
         		restTemplate.exchange(
@@ -159,7 +159,7 @@ class TascaControllerIT {
 
         String url = API_V1_TASCA;
         
-        TascaDto tasca6 = TascaTestHelper.generateTascaDto(6, 6L, 1L, "tasca6", "Tasca 6");
+        TascaDto tasca6 = TascaTestHelper.generateTascaDto(6, "6", 1L, "p1", "tasca6", "Tasca 6");
 
         ResponseEntity<Void> response = 
         		restTemplate.exchange(
@@ -324,9 +324,9 @@ class TascaControllerIT {
     @AfterEach
     void tearDown() {
         // TODO: no funciona el delete del repository
-        for (long i = 1L; i <= 6; i++)
+        for (int i = 1; i <= 6; i++)
         	try {
-        		tascaService.delete(i);
+        		tascaService.delete(String.valueOf(i));
         	} catch (Exception e) {
         		System.err.println("Error esborrant la tasca amb ID " + i + ": " + e.getMessage());
         	}
