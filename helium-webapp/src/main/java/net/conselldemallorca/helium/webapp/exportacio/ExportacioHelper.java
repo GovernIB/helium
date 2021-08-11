@@ -2,7 +2,6 @@ package net.conselldemallorca.helium.webapp.exportacio;
 
 import java.net.URI;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -16,10 +15,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -33,10 +38,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.sql.DataSource;
 
 @Component
 public class ExportacioHelper {
@@ -55,7 +56,6 @@ public class ExportacioHelper {
 	@Autowired
 	private DataSource dataSource;
 	
-	//@Autowired
 	private RestTemplate restTemplate;
 	
 	private List<Expedient> expedients;
@@ -102,6 +102,7 @@ public class ExportacioHelper {
 			exp.setExpedientTipusId(expedient.getTipus().getId());
 			exp.setProcessInstanceId(expedient.getProcessInstanceId());
 			exp.setNumero(expedient.getNumero() != null ? expedient.getNumero() : expedient.getNumeroDefault());
+			exp.setNumeroDefault(expedient.getNumeroDefault());
 			exp.setTitol(expedient.getTitol());
 			exp.setDataInici(expedient.getDataInici());
 			exp.setDataFi(expedient.getDataFi());
@@ -187,6 +188,7 @@ public class ExportacioHelper {
 				
 				PreparedStatement ps = conn.prepareStatement("SELECT"
 						+ "	jti.ID_ AS id,\n"
+						+ "	jti.PROCINST_ AS procesId,\n"
 						+ "	jt.NAME_ AS nom,\n"
 						+ "	jti.NAME_ AS titol,\n"
 						+ "	jti.ACTORID_,\n"
@@ -198,6 +200,7 @@ public class ExportacioHelper {
 						+ "	jti.END_,\n"
 						+ "	jti.INICIFINALITZACIO_,\n"
 						+ "	jti.CREATE_,\n"
+						+ "	jti.PRIORITY_,\n"
 						+ "	he.RESPONSABLE_CODI\n"
 						+ "FROM JBPM_TASKINSTANCE jti\n"
 						+ "INNER JOIN JBPM_TASK jt ON jt.ID_ = TASK_ \n"
@@ -209,11 +212,14 @@ public class ExportacioHelper {
 					// TODO REVISAR CAMPS COMENTATS I CAMPS QUE ES COMPAREN AMB NULL
 					while (rs.next()) {
 						TascaExportacio tasca = new TascaExportacio();
-						tasca.setId(rs.getLong("id"));
+						tasca.setId(String.valueOf(rs.getLong("id")));
+						tasca.setProcesId(rs.getString("procesId"));
 						tasca.setExpedientId(expedient.getId());
 						tasca.setNom(rs.getString("nom"));
 						tasca.setTitol(rs.getString("titol"));
 						// TODO: tasca.setAfagada(rs.getString("ACTORID_") != null);
+						// Si es consululten primer els responsables llavors es pot determinar
+						// si l'actor_id està entre els responsables per posar true, decidir
 						tasca.setCancelada(rs.getBoolean("ISCANCELLED_"));
 						tasca.setSuspesa(rs.getBoolean("ISSUSPENDED_"));
 						tasca.setCompletada(rs.getDate("END_") != null);
@@ -225,8 +231,8 @@ public class ExportacioHelper {
 						tasca.setIniciFinalitzacio(rs.getDate("INICIFINALITZACIO_"));
 						tasca.setDataCreacio(rs.getDate("CREATE_"));
 						tasca.setUsuariAssignat(rs.getString("ACTORID_"));
-						//tasca.setGrupAssignat(); --> JBPM no tenim aquesta informació
-						// TODO: responsables
+						//tasca.setGrupAssignat(); // Nova informaicó que no està a BBDD
+						tasca.setPrioritat(rs.getInt("PRIORITY_"));
 						tasques.add(tasca);
 					}
 				} catch (Exception ex) {
@@ -253,6 +259,107 @@ public class ExportacioHelper {
 			}
 			
 		
+		} catch (Exception ex) {
+			throw new Exception("Error al exportar les tasques", ex);
+		} finally  {
+			conn.close();
+		}
+	}
+	
+	public void exportarResponsables() throws Exception {
+		
+		if (expedients == null) {
+			logger.error("No s'exporten responsables. No hi han expedients");
+			return;
+		}
+//		if (restTemplate == null) {
+//			restTemplate = new RestTemplate();
+//		}
+
+//		String dbURL = "jdbc:oracle:thin:@10.35.3.242:1521:ORCL";
+//		String username = "helium";
+//		String password = "helium";
+//		Connection conn = DriverManager.getConnection(dbURL, username, password);
+//
+//		String jndi = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.jndi.parameter");
+//		Context initContext = new InitialContext();
+//		DataSource dataSource = (DataSource)initContext.lookup("java:es.caib.helium.db");
+
+		Connection conn = dataSource.getConnection();
+
+		try {
+			
+			Map<Long, List<String>> responsablesTasques = new HashMap<Long, List<String>>();
+			for (Expedient expedient : expedients) {
+				
+				logger.info("Responsables per les tasques de l'expedient: " + expedient.getId());
+				
+				PreparedStatement ps = conn.prepareStatement(
+						  "SELECT  ti.ID_ AS id,\n"
+						+ "        pa.ACTORID_ AS responsable\n" 
+						+ "FROM JBPM_POOLEDACTOR pa\n" 
+						+ "	       INNER JOIN JBPM_TASKACTORPOOL tp ON pa.ID_ = tp.POOLEDACTOR_ \n" 
+						+ "	       INNER JOIN JBPM_TASKINSTANCE ti ON tp.TASKINSTANCE_ = ti.ID_ \n" 
+						+ "WHERE ti.PROCINST_ = ? \n" 
+						+ "ORDER BY ti.ID_ ASC");
+				ps.setString(1, expedient.getProcessInstanceId());
+				ResultSet rs = ps.executeQuery();
+				try {
+					Long tascaId;
+					String responsable;
+					while (rs.next()) {
+						tascaId = rs.getLong("id");
+						responsable = rs.getString("responsable");
+						if (!responsablesTasques.containsKey(tascaId)) {
+							responsablesTasques.put(tascaId, new ArrayList<String>());
+						}
+						if (!responsablesTasques.get(tascaId).contains(responsable)) {
+							responsablesTasques.get(tascaId).add(responsable);
+						}
+					}
+				} catch (Exception ex) {
+					throw new Exception("Error al llegit el result set", ex);
+				} finally {
+					rs.close();
+					ps.close();
+				}
+			
+			}
+			
+			logger.info("Responsables exportats - Cridant el microservei " + responsablesTasques.size());
+			//restTemplate.postForEntity(uri, tasques, ResponseEntity.class);
+			Map<String, Object> dades = new HashMap<String, Object>();
+			for(Long tascaId: responsablesTasques.keySet()) {
+				URI uri = URI.create(GlobalProperties.getInstance().getProperty("app.exportacio.tasques.url.servei") + tascaId + "/responsables");
+				try {
+					
+					//header
+					HttpHeaders headers = new HttpHeaders();
+					headers.setContentType(MediaType.APPLICATION_JSON);
+					//llista de responsables
+					List<String> responsables = responsablesTasques.get(tascaId);
+					//httpEnitity       
+					HttpEntity<List<String>> requestEntity = new HttpEntity<List<String>>(responsables, headers);
+					ResponseEntity<Void> response = restTemplate.exchange(
+							uri.toString(), 
+							HttpMethod.POST, 
+							requestEntity,
+							Void.class);
+					
+//			        ResponseEntity<Void> response = 
+//			        		restTemplate.exchange(
+//			        				uri.toString(), 
+//			        				HttpMethod.POST, 
+//			        				new HttpEntity<List<String>>(responsablesTasques.get(tascaId)),
+//			        				Void.class);
+
+					if (!HttpStatus.OK.equals(response.getStatusCode())) {
+						logger.info("Error al exportar els resposnables de la tasca " + tascaId + ". " + response.getBody().toString());
+					}
+				} catch (Exception ex) {
+					logger.info("Error al exportar els responsables de la tasca " + tascaId + ". ", ex);
+				}
+			}
 		} catch (Exception ex) {
 			throw new Exception("Error al exportar les tasques", ex);
 		} finally  {

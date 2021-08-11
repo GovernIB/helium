@@ -4,8 +4,9 @@ import java.util.Date;
 
 public class TascaExportacio {
 
-	private Long id;
+	private String id;
 	private Long expedientId;
+	private String procesId;
 	private String nom;
 	private String titol;
 	private boolean afagada;
@@ -21,12 +22,13 @@ public class TascaExportacio {
 	private Date dataCreacio;
 	private String usuariAssignat;
 	private String grupAssignat;
+	private int prioritat;
 	//private List<ResponsableDto> responsables;
 	
-	public Long getId() {
+	public String getId() {
 		return id;
 	}
-	public void setId(Long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 	public Long getExpedientId() {
@@ -34,6 +36,12 @@ public class TascaExportacio {
 	}
 	public void setExpedientId(Long expedientId) {
 		this.expedientId = expedientId;
+	}
+	public String getProcesId() {
+		return procesId;
+	}
+	public void setProcesId(String procesId) {
+		this.procesId = procesId;
 	}
 	public String getNom() {
 		return nom;
@@ -124,5 +132,11 @@ public class TascaExportacio {
 	}
 	public void setGrupAssignat(String grupAssignat) {
 		this.grupAssignat = grupAssignat;
+	}
+	public int getPrioritat() {
+		return prioritat;
+	}
+	public void setPrioritat(int prioritat) {
+		this.prioritat = prioritat;
 	}
 }

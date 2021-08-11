@@ -44,6 +44,12 @@ public class ExportacioController {
 			tempsFinal = System.currentTimeMillis();
 			System.out.println("Fi exportacio Tasques - Duracio: " +  (tempsFinal - tempsInicial) + " milliseconds");
 			
+			System.out.println("Inici exportacio Responsables");
+			tempsInicial = System.currentTimeMillis();
+			exportacioHelper.exportarResponsables();
+			tempsFinal = System.currentTimeMillis();
+			System.out.println("Fi exportacio Responsables - Duracio: " +  (tempsFinal - tempsInicial) + " milliseconds");
+
 			System.out.println("Inici exportacio Dades");
 			tempsInicial = System.currentTimeMillis();
 			exportacioHelper.exportarDades();

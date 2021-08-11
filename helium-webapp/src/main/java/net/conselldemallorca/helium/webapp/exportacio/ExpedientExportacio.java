@@ -10,6 +10,7 @@ public class ExpedientExportacio{
 	private Long expedientTipusId;
 	private String processInstanceId;
 	private String numero;
+	private String numeroDefault;
 	private String titol;
 	private Date dataInici;
 	private Date dataFi;
@@ -51,6 +52,12 @@ public class ExpedientExportacio{
 	}
 	public void setNumero(String numero) {
 		this.numero = numero;
+	}
+	public String getNumeroDefault() {
+		return numeroDefault;
+	}
+	public void setNumeroDefault(String numeroDefault) {
+		this.numeroDefault = numeroDefault;
 	}
 	public String getTitol() {
 		return titol;
