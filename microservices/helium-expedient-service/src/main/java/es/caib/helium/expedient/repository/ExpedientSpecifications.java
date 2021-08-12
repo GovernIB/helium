@@ -213,7 +213,7 @@ public class ExpedientSpecifications {
     	if (nomesErrors) {
     		spec = spec.and(nomesErrors());
     	}
-    	if (mostrarAnulats) {
+    	if (mostrarAnulats || mostrarNomesAnulats) {
     		if (mostrarNomesAnulats) {
         		spec = spec.and(mostrarNomesAnulats());
     		}

@@ -3,6 +3,7 @@ package es.caib.helium.client.domini.domini;
 import com.fasterxml.jackson.databind.JsonNode;
 import es.caib.helium.client.domini.domini.model.ConsultaDominisDades;
 import es.caib.helium.client.domini.domini.model.ResultatDomini;
+import es.caib.helium.client.domini.entorn.model.ConsultaDominiDada;
 import es.caib.helium.client.domini.entorn.model.DominiDto;
 import es.caib.helium.client.model.PagedList;
 import org.springframework.cloud.openfeign.SpringQueryMap;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
+
+import java.util.List;
 import java.util.Map;
 
 public interface DominiFeignClient {
@@ -46,6 +49,10 @@ public interface DominiFeignClient {
 	@RequestMapping(method = RequestMethod.GET, value = DominiApiPath.CONSULTA_DOMINI)
 	public ResponseEntity<ResultatDomini> consultaDominiV1(
             @PathVariable("dominiId") Long dominiId,
-//            @RequestParam(value = "identificador", required = false) String identificador,
             @RequestParam(required = false) Map<String, String> parametres);
+
+	@RequestMapping(method = RequestMethod.GET, value = DominiApiPath.CONSULTA_DOMINIS)
+	public ResponseEntity<List<ResultatDomini>> consultaDominisV1(
+            @RequestParam(required = true) List<ConsultaDominiDada> consultaDominiDades);
+
 }

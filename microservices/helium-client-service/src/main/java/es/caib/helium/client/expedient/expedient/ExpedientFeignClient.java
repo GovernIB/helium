@@ -44,4 +44,22 @@ public interface ExpedientFeignClient {
 	@RequestMapping(method = RequestMethod.GET, value = ExpedientApiPath.GET_EXPEDIENT)
 	public ResponseEntity<ExpedientDto> getExpedientV1(
             @PathVariable("expedientId") Long expedientId);
+
+	@RequestMapping(method = RequestMethod.POST, value = ExpedientApiPath.ATURAR_EXPEDIENT)
+	public void aturar(
+			 @PathVariable("expedientId") Long expedientId, 
+			 @RequestBody String motiu);
+
+	@RequestMapping(method = RequestMethod.POST, value = ExpedientApiPath.REPRENDRE_EXPEDIENT)
+	public void reprendre(
+			 @PathVariable("expedientId") Long expedientId);
+
+	@RequestMapping(method = RequestMethod.POST, value = ExpedientApiPath.ANULAR_EXPEDIENT)
+	public void anular(
+			 @PathVariable("expedientId") Long expedientId, 
+			 @RequestBody String motiu);
+
+	@RequestMapping(method = RequestMethod.POST, value = ExpedientApiPath.DESANULAR_EXPEDIENT)
+	public void desanular(
+			 @PathVariable("expedientId") Long expedientId);
 }

@@ -152,12 +152,13 @@
 			<artifactId>jodreports</artifactId>
 			<version>2.4.0</version>
 		</dependency>
-		<!-- // TODO DANIEL Mirar si s'usa aquesta llibreria realment o es pot substuir per un FileUtils -->
+		<!-- // TODO DANIEL Mirar si s'usa aquesta llibreria realment o es pot substuir per un FileUtils 
 		<dependency>
 			<groupId>org.apache.tika</groupId>
 			<artifactId>tika-core</artifactId>
 			<version>1.26</version>
 		</dependency>
+		-->
 		
 		<!--  plugin-validatesignature-afirmacxf 1.0.2 -->
 		<dependency>

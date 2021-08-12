@@ -252,7 +252,6 @@ public class DominiMs extends BaseMs implements InitializingBean {
 	public Map<Integer, List<FilaResultat>> consultarDominis(List<ConsultaDominiDto> consultesDominis) {
 		Map<Integer, List<FilaResultat>> resultats = new HashMap<Integer, List<FilaResultat>>();
 		List<FilaResultat> resultat;
-		//TODO DANIEL: cridar a un mètode de consulta múltiple a la vegada.
 		for (ConsultaDominiDto consultaDomini : consultesDominis) {
 			resultat = this.consultarDomini( 
 					consultaDomini.getDominiId(), 

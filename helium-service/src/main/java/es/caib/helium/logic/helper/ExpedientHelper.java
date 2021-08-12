@@ -3,8 +3,34 @@
  */
 package es.caib.helium.logic.helper;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.engine.model.WToken;
+import es.caib.helium.client.expedient.expedient.ExpedientClientService;
+import es.caib.helium.client.expedient.expedient.enums.ExpedientEstatTipusEnum;
 import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
@@ -56,28 +82,6 @@ import es.caib.helium.persist.util.ThreadLocalInfo;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ExpedientEstat;
 import es.caib.plugins.arxiu.api.ExpedientMetadades;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.acls.domain.BasePermission;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * Helper per a gestionar els expedients.
@@ -132,6 +136,9 @@ public class ExpedientHelper {
 	private DefinicioProcesHelper definicioProcesHelper;
 	@Resource
 	private GlobalProperties globalProperties;
+	@Resource
+	private ExpedientClientService expedientClientService;
+
 
 	
 	public static String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";
@@ -598,6 +605,17 @@ public class ExpedientHelper {
 			pluginHelper.arxiuExpedientModificar(expedient);
 		}
 		
+		
+		expedientClientService.modificarExpedient(
+				expedient.getId(),
+				expedient.getTipus().getTeNumero(),
+				expedient.getNumero(),
+				expedient.getTipus().getDemanaTitol(),
+				expedient.getTitol(),
+				expedient.getDataInici(),
+				expedient.getDataFi(),
+				expedient.getEstat() != null ? expedient.getEstat().getId() : null);
+		
 		// TODO
 		/*String informacioNova = getInformacioExpedient(expedient);
 		registreDao.crearRegistreModificarExpedient(
@@ -675,6 +693,7 @@ public class ExpedientHelper {
 			ids[i++] = pi.getId();
 		workflowEngineApi.suspendProcessInstances(ids);
 		expedient.setInfoAturat(motiu);
+		expedientClientService.aturar(expedient.getId(), motiu);
 		expedientRegistreHelper.crearRegistreAturarExpedient(
 				expedient.getId(),
 				(usuari != null) ? usuari : SecurityContextHolder.getContext().getAuthentication().getName(),
@@ -706,6 +725,7 @@ public class ExpedientHelper {
 			ids[i++] = pi.getId();
 		workflowEngineApi.resumeProcessInstances(ids);
 		expedient.setInfoAturat(null);
+		expedientClientService.reprendre(expedient.getId());
 		expedientRegistreHelper.crearRegistreReprendreExpedient(
 				expedient.getId(),
 				(usuari != null) ? usuari : SecurityContextHolder.getContext().getAuthentication().getName());
@@ -748,7 +768,10 @@ public class ExpedientHelper {
 		//tancam l'expedient de l'arxiu si escau
 		if (expedient.isArxiuActiu() && expedient.getArxiuUuid() != null) {
 			this.tancarExpedientArxiu(expedient);
-		}		
+		}
+		
+		expedientClientService.finalitzar(expedientId, dataFinalitzacio);
+		
 		crearRegistreExpedient(
 				expedient.getId(),
 				SecurityContextHolder.getContext().getAuthentication().getName(),
@@ -801,6 +824,9 @@ public class ExpedientHelper {
 				expedient.getId(),
 				(expedient.getResponsableCodi() != null) ? expedient.getResponsableCodi() : SecurityContextHolder.getContext().getAuthentication().getName());
 
+		expedientClientService.desfinalitzar(
+				expedient.getId(), 
+				expedient.getEstat() != null ? expedient.getEstat().getId() : null);		
 //		mesuresTemporalsHelper.mesuraCalcular(
 //				"Desfinalitzar",
 //				"expedient",
@@ -1766,6 +1792,38 @@ public class ExpedientHelper {
 			// Indexam l'expedient
 			logger.debug("Indexant nou expedient (id=" + expedient.getProcessInstanceId() + ")");
 			indexHelper.expedientIndexLuceneCreate(expedient.getProcessInstanceId());
+			// Crea l'expedient al MS
+			es.caib.helium.client.expedient.expedient.model.ExpedientDto expedientMs = 
+					es.caib.helium.client.expedient.expedient.model.ExpedientDto.builder()
+						.id(expedient.getId())
+						.entornId(entornId)
+						.expedientTipusId(expedientTipusId)
+						.processInstanceId(expedient.getProcessInstanceId())
+						.numero(expedient.getNumero())
+						.numeroDefault(expedient.getNumeroDefault())
+						.titol(expedient.getTitol())
+						.dataInici(expedient.getDataInici())
+						.dataFi(expedient.getDataFi())
+						.aturat(expedient.isAturat())
+						.infoAturat(expedient.getInfoAturat())
+						.anulat(expedient.isAnulat())
+						.comentariAnulat(expedient.getComentariAnulat())
+						.alertesTotals(Long.valueOf(expedient.getAlertes().size()))
+						.alertesPendents(expedient.getAlertes().stream().filter(a -> true).count())
+						.ambErrors(expedient.isErrorsIntegracions() || expedient.getErrorDesc() != null)
+						.build();
+			// Determina l'estat
+			if (expedient.getDataFi() != null) {
+				expedientMs.setEstatTipus(ExpedientEstatTipusEnum.FINALITZAT);
+			} else {
+				if (expedient.getEstat() != null) {
+					expedientMs.setEstatId(expedient.getEstat().getId());
+					expedientMs.setEstatTipus(ExpedientEstatTipusEnum.CUSTOM);
+				} else {
+					expedientMs.setEstatTipus(ExpedientEstatTipusEnum.INICIAT);
+				}
+			}
+			expedientClientService.createExpedientV1(expedientMs);
 //			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
 		} catch(Exception e) {
 			// Rollback de la creació de l'expedient a l'arxiu

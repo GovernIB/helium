@@ -1,13 +1,17 @@
 package es.caib.helium.client.domini.domini;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import es.caib.helium.client.domini.domini.model.ConsultaDominisDades;
-import es.caib.helium.client.domini.domini.model.ResultatDomini;
-import es.caib.helium.client.domini.entorn.model.DominiDto;
-import es.caib.helium.client.model.PagedList;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import es.caib.helium.client.domini.domini.model.ConsultaDominisDades;
+import es.caib.helium.client.domini.domini.model.ResultatDomini;
+import es.caib.helium.client.domini.entorn.model.ConsultaDominiDada;
+import es.caib.helium.client.domini.entorn.model.DominiDto;
+import es.caib.helium.client.model.PagedList;
 
 @Service
 public interface DominiClient {
@@ -28,7 +32,8 @@ public interface DominiClient {
 	public DominiDto getDominiV1(Long dominiId);
 
 	public ResultatDomini consultaDominiV1(Long dominiId, 
-//            @RequestParam(value = "identificador", required = false) String identificador,
 			Map<String, String> parametres);
+
+	public List<ResultatDomini> consultaDominisV1(List<ConsultaDominiDada> consultaDominiDades);
 
 }

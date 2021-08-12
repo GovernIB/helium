@@ -1167,6 +1167,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		expedient.setAnulat(true);
 		expedient.setComentariAnulat(motiu);
 		// TODO: MS Dades + MS Expedient --> anular expedient
+		expedientClientService.anular(expedient.getId(), motiu);
 //		luceneHelper.deleteExpedient(expedient);
 		crearRegistreExpedient(
 				expedient.getId(),
@@ -1205,6 +1206,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			ids[i++] = pi.getId();
 		workflowEngineApi.resumeProcessInstances(ids);
 		expedient.setAnulat(false);
+		expedientClientService.desanular(id);
 	}
 
 	/**

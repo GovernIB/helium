@@ -35,34 +35,34 @@ public interface TascaFeignClient {
 	
 	@RequestMapping(method = RequestMethod.POST, value = TascaApiPath.UPDATE_TASCA)
 	public ResponseEntity<Void> updateTascaV1(
-            @PathVariable("tascaId") Long tascaId,
+            @PathVariable("tascaId") String tascaId,
             @Valid @RequestBody TascaDto tascaDto);
 	
 	@RequestMapping(method = RequestMethod.PATCH, value = TascaApiPath.PATCH_TASCA)
 	public ResponseEntity<Void> patchTascaV1(
 //          HttpServletRequest request,
-          @PathVariable("tascaId") Long tascaId,
+          @PathVariable("tascaId") String tascaId,
           @RequestBody JsonNode tascaJson);
 	
 	@RequestMapping(method = RequestMethod.DELETE, value = TascaApiPath.PATCH_TASCA)
 	public ResponseEntity<Void> deleteTascaV1(
-            @PathVariable("tascaId") Long tascaId); 
+            @PathVariable("tascaId") String tascaId); 
 	
 	@RequestMapping(method = RequestMethod.GET, value = TascaApiPath.GET_TASCA)
 	public ResponseEntity<TascaDto> getTascaV1(
-            @PathVariable("tascaId") Long tascaId); 
+            @PathVariable("tascaId") String tascaId); 
 	
 	@RequestMapping(method = RequestMethod.GET, value = TascaApiPath.GET_RESPONSABLES)
 	public ResponseEntity<List<String>> getResponsablesV1(
-    		@PathVariable("tascaId") Long tascaId);
+    		@PathVariable("tascaId") String tascaId);
 	
 	
 	@RequestMapping(method = RequestMethod.POST, value = TascaApiPath.SET_RESPONSABLES)
 	public ResponseEntity<Void> setResponsablesV1(
-			@PathVariable("tascaId") Long tascaId,
+			@PathVariable("tascaId") String tascaId,
 			@RequestParam(name = "responsables", required = false) List<String> responsables);
 
 	@RequestMapping(method = RequestMethod.DELETE, value = TascaApiPath.DELETE_RESPONSABLES)
 	public ResponseEntity<Void> deleteResponsablesV1(
-    		@PathVariable("tascaId") Long tascaId);
+    		@PathVariable("tascaId") String tascaId);
 }

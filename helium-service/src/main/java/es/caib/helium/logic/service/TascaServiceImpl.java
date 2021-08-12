@@ -353,20 +353,6 @@ public class TascaServiceImpl implements TascaService {
 			
 			PagedList<String> page = tascaClientService.findTasquesIdsAmbFiltrePaginatV1(consultaTascaDades);
 			
-//			LlistatIds ids = workflowEngineApi.tascaIdFindByFiltrePaginat(
-//					responsable,
-//					titol,
-//					tasca,
-//TODO DANIEL:		idsExpedients, resoldre què s'informa aquí
-//					dataCreacioInici,
-//					dataCreacioFi,
-//					prioritat,
-//					dataLimitInici,
-//					dataLimitFi,
-//					new PaginacioParamsDto(),
-//					nomesTasquesPersonals, 
-//					nomesTasquesGrup,
-//					true);
 			return page.getContent();
 		} finally {
 //			contextTotal.stop();
@@ -884,6 +870,7 @@ public class TascaServiceImpl implements TascaService {
 		workflowRetroaccioApi.actualitzaParametresAccioInformacioRetroaccio(
 				informacioRetroaccioId,
 				previousActors + "::" + currentActors);
+		tascaClientService.setUsuariAssignat(taskInstanceId, auth.getName());
 		ExpedientTascaDto tasca = tascaHelper.toExpedientTascaDto(
 				task,
 				null,
@@ -921,6 +908,7 @@ public class TascaServiceImpl implements TascaService {
 		workflowRetroaccioApi.actualitzaParametresAccioInformacioRetroaccio(
 				informacioRetroaccioId,
 				previousActors + "::" + currentActors);
+		tascaClientService.setUsuariAssignat(id, null);
 		ExpedientTascaDto tasca = tascaHelper.toExpedientTascaDto(
 				task,
 				null,
@@ -1647,6 +1635,7 @@ public class TascaServiceImpl implements TascaService {
 	        SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
+        //TODO DANIEL: no importa que tingui aquest mètode, aquesta informació es pot posar
 		workflowEngineApi.marcarIniciFinalitzacioSegonPla(tascaId, iniciFinalitzacio);
        
         completarTasca(

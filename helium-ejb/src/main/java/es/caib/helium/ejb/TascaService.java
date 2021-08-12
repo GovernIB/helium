@@ -21,6 +21,7 @@ import es.caib.helium.logic.intf.dto.SeleccioOpcioDto;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
 import es.caib.helium.logic.intf.dto.TascaDocumentDto;
 import es.caib.helium.logic.intf.dto.TascaDto;
+import es.caib.helium.logic.intf.dto.TascaLlistatDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
 
@@ -83,7 +84,7 @@ public class TascaService extends AbstractService<es.caib.helium.logic.intf.serv
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto<ExpedientTascaDto> findPerFiltrePaginat(
+	public PaginaDto<TascaLlistatDto> findPerFiltrePaginat(
 			Long entornId,
 			String tramitacioMassivaTascaId,
 			Long expedientTipusId,

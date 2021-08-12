@@ -3,12 +3,14 @@ package es.caib.helium.client.domini.domini;
 import com.fasterxml.jackson.databind.JsonNode;
 import es.caib.helium.client.domini.domini.model.ConsultaDominisDades;
 import es.caib.helium.client.domini.domini.model.ResultatDomini;
+import es.caib.helium.client.domini.entorn.model.ConsultaDominiDada;
 import es.caib.helium.client.domini.entorn.model.DominiDto;
 import es.caib.helium.client.model.PagedList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -75,6 +77,15 @@ public class DominiClientImpl implements DominiClient {
 		
 		log.debug(missatgeLog + " consulta domini amb id " + dominiId + " parametres " + parametres.toString());
 		var responseEntity = dominiFeignClient.consultaDominiV1(dominiId, parametres);
+		var resultat = Objects.requireNonNull(responseEntity.getBody());
+		return resultat;
+	}
+
+	@Override
+	public List<ResultatDomini> consultaDominisV1(List<ConsultaDominiDada> consultaDominiDades) {
+
+		log.debug(missatgeLog + " consulta múltiples dominis " + consultaDominiDades.toString());
+		var responseEntity = dominiFeignClient.consultaDominisV1(consultaDominiDades);
 		var resultat = Objects.requireNonNull(responseEntity.getBody());
 		return resultat;
 	}

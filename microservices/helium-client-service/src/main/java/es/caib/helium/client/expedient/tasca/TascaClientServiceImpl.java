@@ -3,10 +3,15 @@ package es.caib.helium.client.expedient.tasca;
 import java.util.List;
 import java.util.Objects;
 
+import javax.json.Json;
+import javax.json.JsonPatchBuilder;
+import javax.json.JsonValue;
+
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.caib.helium.client.expedient.tasca.model.ConsultaTascaDades;
 import es.caib.helium.client.expedient.tasca.model.TascaDto;
@@ -49,28 +54,28 @@ public class TascaClientServiceImpl implements TascaClientService {
 	}
 
 	@Override
-	public void updateTascaV1(Long tascaId, TascaDto tascaDto) {
+	public void updateTascaV1(String tascaId, TascaDto tascaDto) {
 
 		log.debug(MISSATGE_LOG + " actualitzant tasca amb id " + tascaId + " per l'expedient " + tascaDto.getExpedientId());
 		tascaClient.createTascaV1(tascaDto);
 	}
 
 	@Override
-	public void patchTascaV1(Long tascaId, JsonNode tascaJson) {
+	public void patchTascaV1(String tascaId, JsonNode tascaJson) {
 		
 		log.debug(MISSATGE_LOG + " patch tasca amb id " + tascaId);
 		tascaClient.patchTascaV1(tascaId, tascaJson);
 	}
 
 	@Override
-	public void deleteTascaV1(Long tascaId) {
+	public void deleteTascaV1(String tascaId) {
 
 		log.debug(MISSATGE_LOG + " esborrant tasca amb id " + tascaId);
 		tascaClient.deleteTascaV1(tascaId);
 	}
 
 	@Override
-	public TascaDto getTascaV1(Long tascaId) {
+	public TascaDto getTascaV1(String tascaId) {
 
 		log.debug(MISSATGE_LOG + " obtinguent tasca amb id " + tascaId);
 		var responseEntity = tascaClient.getTascaV1(tascaId);
@@ -79,7 +84,7 @@ public class TascaClientServiceImpl implements TascaClientService {
 	}
 
 	@Override
-	public List<String> getResponsablesV1(Long tascaId) {
+	public List<String> getResponsablesV1(String tascaId) {
 		
 		log.debug(MISSATGE_LOG + " obtinguent responsables de la tasca amb id " + tascaId);
 		var responseEntity = tascaClient.getResponsablesV1(tascaId);
@@ -88,17 +93,57 @@ public class TascaClientServiceImpl implements TascaClientService {
 	}
 
 	@Override
-	public void setResponsablesV1(Long tascaId, List<String> responsables) {
+	public void setResponsablesV1(String tascaId, List<String> responsables) {
 		
 		log.debug(MISSATGE_LOG + " esborrant tasca amb id " + tascaId);
 		tascaClient.deleteTascaV1(tascaId);
 	}
 
 	@Override
-	public void deleteResponsablesV1(Long tascaId) {
+	public void deleteResponsablesV1(String tascaId) {
 		
 		log.debug(MISSATGE_LOG + " esborrant tasca amb id " + tascaId);
 		tascaClient.deleteTascaV1(tascaId);
 	}
+	
+	@Override
+	public void setUsuariAssignat(String tascaId, String usuariAssignat) {
+		
+		log.debug(MISSATGE_LOG + " update usuari tasca " + tascaId + ": " + usuariAssignat);
+		
+		// Posa data fi a null i actualitza estat
+		JsonPatchBuilder jpb = Json.createPatchBuilder();
+		if (usuariAssignat != null) {
+			jpb.replace("usuariAssignat", usuariAssignat);
+		} else {
+			jpb.replace("usuariAssignat", JsonValue.NULL);
+		}
+		tascaClient.patchTascaV1(
+				tascaId, 
+				new ObjectMapper().valueToTree(jpb.build()));
+	}
 
+	@Override
+	public void setCancelada(String tascaId, boolean cancelada) {
+		log.debug(MISSATGE_LOG + " update cancel·lada tasca " + tascaId + ": " + cancelada);
+		
+		// Posa data fi a null i actualitza estat
+		JsonPatchBuilder jpb = Json.createPatchBuilder();
+		jpb.replace("cancelada", cancelada);
+		tascaClient.patchTascaV1(
+				tascaId, 
+				new ObjectMapper().valueToTree(jpb.build()));
+	}
+
+	@Override
+	public void setSuspesa(String tascaId, boolean suspesa) {
+		log.debug(MISSATGE_LOG + " update suspesa tasca " + tascaId + ": " + suspesa);
+		
+		// Posa data fi a null i actualitza estat
+		JsonPatchBuilder jpb = Json.createPatchBuilder();
+		jpb.replace("suspesa", suspesa);
+		tascaClient.patchTascaV1(
+				tascaId, 
+				new ObjectMapper().valueToTree(jpb.build()));
+	}
 }

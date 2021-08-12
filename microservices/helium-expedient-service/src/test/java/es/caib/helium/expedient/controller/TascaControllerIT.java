@@ -132,7 +132,8 @@ class TascaControllerIT {
                 null, 
                 new ParameterizedTypeReference<PagedList<TascaDto>>() {});
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody().getTotalElements()).isEqualByComparingTo(0L);
     }
 
     @Test

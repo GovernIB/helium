@@ -21,17 +21,24 @@ public interface TascaClientService {
 
 	public void createTascaV1(TascaDto tascaDto);
 	
-	public void updateTascaV1(Long tascaId, TascaDto tascaDto);
+	public void updateTascaV1(String tascaId, TascaDto tascaDto);
 	
-	public void patchTascaV1(Long tascaId, JsonNode tascaJson);
+	public void patchTascaV1(String tascaId, JsonNode tascaJson);
 	
-	public void deleteTascaV1(Long tascaId); 
+	public void deleteTascaV1(String tascaId); 
 	
-	public TascaDto getTascaV1(Long tascaId); 
+	public TascaDto getTascaV1(String tascaId); 
 	
-	public List<String> getResponsablesV1(Long tascaId);
+	public List<String> getResponsablesV1(String tascaId);
 	
-	public void setResponsablesV1(Long tascaId, List<String> responsables);
+	public void setResponsablesV1(String tascaId, List<String> responsables);
 
-	public void deleteResponsablesV1(Long tascaId);
+	public void deleteResponsablesV1(String tascaId);
+	
+	
+	public void setUsuariAssignat(String tascaId, String codiUsuari);
+
+	public void setCancelada(String tascaId, boolean cancelada);
+
+	public void setSuspesa(String tascaId, boolean suspesa);
 }
