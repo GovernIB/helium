@@ -54,7 +54,7 @@
   <bean   name="jbpm.mail.address.resolver" class="org.jbpm.identity.mail.IdentityAddressResolver" singleton="true" />
   <string name="jbpm.mail.from.address" value="jbpm@limit.es" />
   <string name="mail.class.name" value="net.conselldemallorca.helium.jbpm3.integracio.HeliumMail"/>
-  
+
   <bean name="jbpm.job.executor" class="org.jbpm.job.executor.JobExecutor">
     <field name="jbpmConfiguration"><ref bean="jbpmConfiguration" /></field>
     <field name="name"><string value="JbpmJobExecutor" /></field>

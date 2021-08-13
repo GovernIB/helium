@@ -437,7 +437,7 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 				Jbpm3HeliumBridge.getInstanceService().registreObtenirOficinaNom(
 						resposta.getNumero(),
 						anotacio.getUsuariCodi(),
-						Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.registre.codi.entitat"),
+						Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("es.caib.helium.registre.codi.entitat"),
 						expedient.getId()),
 				false);
 		

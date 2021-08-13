@@ -3,14 +3,6 @@
  */
 package es.caib.helium.ejb;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Stateless;
-
 import es.caib.helium.logic.intf.dto.ArxiuDto;
 import es.caib.helium.logic.intf.dto.DocumentDto;
 import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
@@ -21,8 +13,16 @@ import es.caib.helium.logic.intf.dto.SeleccioOpcioDto;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
 import es.caib.helium.logic.intf.dto.TascaDocumentDto;
 import es.caib.helium.logic.intf.dto.TascaDto;
+import es.caib.helium.logic.intf.dto.TascaLlistatDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
+
+import javax.annotation.security.RolesAllowed;
+import javax.ejb.Stateless;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat de Helium.
@@ -83,7 +83,7 @@ public class TascaService extends AbstractService<es.caib.helium.logic.intf.serv
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto<ExpedientTascaDto> findPerFiltrePaginat(
+	public PaginaDto<TascaLlistatDto> findPerFiltrePaginat(
 			Long entornId,
 			String tramitacioMassivaTascaId,
 			Long expedientTipusId,

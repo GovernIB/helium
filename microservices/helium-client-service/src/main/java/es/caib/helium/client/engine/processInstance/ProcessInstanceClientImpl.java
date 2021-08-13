@@ -2,12 +2,14 @@ package es.caib.helium.client.engine.processInstance;
 
 import es.caib.helium.client.engine.model.ProcessStartData;
 import es.caib.helium.client.engine.model.WProcessInstance;
+import es.caib.helium.client.model.OptionalString;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -76,7 +78,7 @@ public class ProcessInstanceClientImpl implements ProcessInstanceClient{
     public void signalProcessInstance(String processInstanceId, String signalName) {
 
         log.debug(MISSATGE_LOG + " signalProcessInstance " + processInstanceId + " " + signalName);
-        processInstanceClient.signalProcessInstance(processInstanceId, signalName);
+        processInstanceClient.signalProcessInstance(processInstanceId, new OptionalString(signalName));
     }
 
     @Override

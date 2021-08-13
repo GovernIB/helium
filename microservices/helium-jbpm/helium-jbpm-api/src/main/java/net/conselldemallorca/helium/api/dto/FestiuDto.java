@@ -3,7 +3,11 @@
  */
 package net.conselldemallorca.helium.api.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
@@ -13,7 +17,10 @@ import java.util.Date;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Getter @Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class FestiuDto {
 
 	private Long id;

@@ -208,13 +208,15 @@ public class ProcessInstanceServiceImpl implements ProcessInstanceService {
     @Override
     @Transactional
     public void signalProcessInstance(String processInstanceId, String signalName) {
-        var execution = runtimeService.createExecutionQuery()
-                .processInstanceId(processInstanceId)
-                .signalEventSubscriptionName(signalName)
-                .singleResult();
-        if (execution == null)
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No s'ha trobat cap execució subscrita al signal " + signalName);
-        runtimeService.signalEventReceived(signalName, execution.getId());
+        if (signalName != null) {
+            var execution = runtimeService.createExecutionQuery()
+                    .processInstanceId(processInstanceId)
+                    .signalEventSubscriptionName(signalName)
+                    .singleResult();
+            if (execution == null)
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No s'ha trobat cap execució subscrita al signal " + signalName);
+            runtimeService.signalEventReceived(signalName, execution.getId());
+        }
     }
 
     @Override

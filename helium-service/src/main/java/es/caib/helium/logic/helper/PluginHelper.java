@@ -31,6 +31,7 @@ import es.caib.helium.logic.helper.PortasignaturesHelper.PortasignaturesRollback
 import es.caib.helium.logic.intf.dto.*;
 import es.caib.helium.logic.intf.dto.RegistreNotificacioDto.RegistreNotificacioTramitSubsanacioParametreDto;
 import es.caib.helium.logic.intf.dto.TramitDocumentDto.TramitDocumentSignaturaDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.registre.RegistreAnnex;

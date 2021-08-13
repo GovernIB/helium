@@ -188,7 +188,7 @@ public class HeliumMail implements ActionHandler {
 	}
 
 	public String getFromAddress() {
-		String globalFrom = Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.correu.remitent");
+		String globalFrom = Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("es.caib.helium.correu.remitent");
 		if (globalFrom != null)
 			return globalFrom;
 		if (JbpmConfiguration.Configs.hasObject("jbpm.mail.from.address"))
@@ -197,7 +197,7 @@ public class HeliumMail implements ActionHandler {
 	}
 	
 	public int getRetries() {
-		String retries = Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.correu.reintents");
+		String retries = Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("es.caib.helium.correu.reintents");
 		if (retries != null) {
 			try {
 				return Integer.parseInt(retries);
@@ -277,7 +277,7 @@ public class HeliumMail implements ActionHandler {
 			}
 			templateVariables.put(
 					"heliumBaseUrl",
-					Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.base.url"));
+					Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("es.caib.helium.base.url"));
 		}
 		return (Properties)templates.get(templateName);
 	}

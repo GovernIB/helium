@@ -31,7 +31,7 @@ public class RolesBasedMappableAttributesRetriever implements MappableAttributes
 		mappableAttributes.clear();
 		if (defaultMappableAttributes != null)
 			mappableAttributes.addAll(defaultMappableAttributes);
-//		String source = GlobalProperties.getInstance().getProperty("app.jbpm.identity.source");
+//		String source = GlobalProperties.getInstance().getProperty("es.caib.helium.jbpm.identity.source");
 //		if (source.equalsIgnoreCase("helium")) {
 //			for (PermisRolDto permisRol : permisService.findAll()) {
 //				String codi = permisRol.getCodi();

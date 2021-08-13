@@ -2,8 +2,13 @@ package es.caib.helium.client.engine.processInstance;
 
 import es.caib.helium.client.engine.model.ProcessStartData;
 import es.caib.helium.client.engine.model.WProcessInstance;
+import es.caib.helium.client.model.OptionalString;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -32,7 +37,7 @@ public interface ProcessInstanceFeignClient {
     @RequestMapping(method = RequestMethod.POST, value = ProcessInstanceApiPath.SIGNAL_PROCESS_INSTANCE)
     ResponseEntity<Void> signalProcessInstance(
             @PathVariable("processInstanceId") String processInstanceId,
-            @RequestBody String signalName);
+            @RequestBody OptionalString signalName);
 
     @RequestMapping(method = RequestMethod.DELETE, value = ProcessInstanceApiPath.DELETE_PROCESS_INSTANCE)
     ResponseEntity<Void> deleteProcessInstance(@PathVariable("processInstanceId") String processInstanceId);

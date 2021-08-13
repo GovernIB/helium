@@ -1,9 +1,12 @@
 /**
  * 
  */
-package es.caib.helium.logic.intf.dto;
+package es.caib.helium.logic.intf.dto.expedient;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
@@ -13,7 +16,10 @@ import java.util.Date;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Data
-public class ExpedientInfo {
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class ExpedientInfoDto {
 
 	public enum IniciadorTipus {
 		INTERN,

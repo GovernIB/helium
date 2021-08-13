@@ -5,6 +5,7 @@ import es.caib.helium.logic.helper.*;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.*;
 import es.caib.helium.logic.intf.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.exception.ExecucioMassivaException;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
@@ -2071,7 +2072,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 						false, 
 						variables, 
 						null, 
-						es.caib.helium.logic.intf.dto.ExpedientDto.IniciadorTipusDto.INTERN,
+						ExpedientDto.IniciadorTipusDto.INTERN,
 						null,
 						null,
 						null,

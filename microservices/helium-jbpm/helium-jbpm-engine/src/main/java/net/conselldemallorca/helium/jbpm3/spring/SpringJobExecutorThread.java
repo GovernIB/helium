@@ -92,11 +92,11 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 			transactionTemplate.execute(new TransactionCallback() {
 				public Object doInTransaction(TransactionStatus transactionStatus) {
 					// TODO: Substutuir les mètriques
-					Long metricId = Jbpm3HeliumBridge.getInstanceService().startMetric(
-							JobExecutorThread.class,
-							"job",
-							expedient.getEntorn().getId(),
-							expedient.getTipus().getId());
+//					Long metricId = Jbpm3HeliumBridge.getInstanceService().startMetric(
+//							JobExecutorThread.class,
+//							"job",
+//							expedient.getEntorn().getId(),
+//							expedient.getTipus().getId());
 //					MetricRegistry metricRegistry = Jbpm3HeliumBridge.getInstanceService().getMetricRegistry();
 //			        final com.codahale.metrics.Timer timerTotal = metricRegistry.timer(
 //							MetricRegistry.name(
@@ -172,7 +172,7 @@ public class SpringJobExecutorThread extends JobExecutorThread {
 //						contextTotal.stop();
 //						contextEntorn.stop();
 //						contextTipexp.stop();
-						Jbpm3HeliumBridge.getInstanceService().endMetric(metricId);
+//						Jbpm3HeliumBridge.getInstanceService().endMetric(metricId);
 					}
 					return null;
 				}

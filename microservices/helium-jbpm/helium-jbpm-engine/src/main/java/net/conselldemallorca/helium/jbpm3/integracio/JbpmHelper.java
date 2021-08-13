@@ -10,6 +10,7 @@ import net.conselldemallorca.helium.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.api.dto.PaginacioParamsDto.OrdreDto;
 import net.conselldemallorca.helium.api.dto.ResultatConsultaPaginada;
+import net.conselldemallorca.helium.api.exception.HeliumJbpmException;
 import net.conselldemallorca.helium.api.service.WDeployment;
 import net.conselldemallorca.helium.api.service.WProcessDefinition;
 import net.conselldemallorca.helium.api.service.WProcessInstance;
@@ -177,7 +178,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	@Override
 	public void updateDeploymentActions (
 			Long jbpmId,
-			byte[] deploymentContent) {
+			byte[] deploymentContent) throws Exception {
 		ProcessDefinition processDefinition = null;
 		try {
 			processDefinition = ProcessDefinition.parseParZipInputStream(
@@ -186,46 +187,38 @@ public class JbpmHelper implements WorkflowEngineApi {
 			throw new HeliumJbpmException("Error parsejant fitxer");
 		}
 
-		try {
-			Map<String, byte[]> handlers = new HashMap<String, byte[]>();
-			Map<String, byte[]> bytesMap = processDefinition.getFileDefinition().getBytesMap();
-			for (String nom : bytesMap.keySet()) {
-				if (nom.endsWith(".class")) {
-					handlers.put(nom, bytesMap.get(nom));
-				}
+		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
+		Map<String, byte[]> bytesMap = processDefinition.getFileDefinition().getBytesMap();
+		for (String nom : bytesMap.keySet()) {
+			if (nom.endsWith(".class")) {
+				handlers.put(nom, bytesMap.get(nom));
 			}
-			// Omple que command que substitueix els handlers existents
-			UpdateHandlersCommand command = new UpdateHandlersCommand(
-					jbpmId,
-					handlers);
-			commandService.execute(command);
-		} catch (Exception ex) {
-			throw new HeliumJbpmException(ex.getMessage());
 		}
+		// Omple que command que substitueix els handlers existents
+		UpdateHandlersCommand command = new UpdateHandlersCommand(
+				jbpmId,
+				handlers);
+		commandService.execute(command);
 	}
 
 	@Override
 	public void propagateDeploymentActions(String deploymentOrigenId, String deploymentDestiId) {
 
-		try {
-			ProcessDefinition processDefinitionOrigen = getDefinicioProces(deploymentOrigenId);
-			ProcessDefinition processDefinitionDesti = getDefinicioProces(deploymentDestiId);
+		ProcessDefinition processDefinitionOrigen = getDefinicioProces(deploymentOrigenId);
+		ProcessDefinition processDefinitionDesti = getDefinicioProces(deploymentDestiId);
 
-			Map<String, byte[]> handlers = new HashMap<String, byte[]>();
-			Map<String, byte[]> bytesMap = processDefinitionOrigen.getFileDefinition().getBytesMap();
-			for (String nom : bytesMap.keySet()) {
-				if (nom.endsWith(".class")) {
-					handlers.put(nom, bytesMap.get(nom));
-				}
+		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
+		Map<String, byte[]> bytesMap = processDefinitionOrigen.getFileDefinition().getBytesMap();
+		for (String nom : bytesMap.keySet()) {
+			if (nom.endsWith(".class")) {
+				handlers.put(nom, bytesMap.get(nom));
 			}
-
-			UpdateHandlersCommand command = new UpdateHandlersCommand(
-					processDefinitionDesti.getId(),
-					handlers);
-			commandService.execute(command);
-		} catch (Exception ex) {
-			throw new HeliumJbpmException(ex.getMessage());
 		}
+
+		UpdateHandlersCommand command = new UpdateHandlersCommand(
+				processDefinitionDesti.getId(),
+				handlers);
+		commandService.execute(command);
 	}
 
 
@@ -381,6 +374,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	@SuppressWarnings("unchecked")
 	public List<WProcessInstance> getProcessInstanceTree(
 			String rootProcessInstanceId) {
+
 		//adminService.mesuraIniciar("jBPM getProcessInstanceTree", "jbpmDao");
 		List<WProcessInstance> resposta = new ArrayList<WProcessInstance>();
 		final long id = Long.parseLong(rootProcessInstanceId);

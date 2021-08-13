@@ -261,7 +261,7 @@ protected Entity resolveNextTerm(String term) {
 		return expressio;
   }
   private boolean isHeliumAssignmentActive() {
-		String identitySource = Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.jbpm.identity.source");
+		String identitySource = Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("es.caib.helium.jbpm.identity.source");
 		return "helium".equalsIgnoreCase(identitySource);
   }
   

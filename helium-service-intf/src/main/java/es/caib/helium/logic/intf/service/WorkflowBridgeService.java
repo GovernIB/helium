@@ -1,6 +1,8 @@
 package es.caib.helium.logic.intf.service;
 
 import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.expedient.ExpedientInfoDto;
 
 import java.util.Date;
 import java.util.List;
@@ -17,7 +19,7 @@ public interface WorkflowBridgeService {
 	// EXPEDIENTS
 	////////////////////////////////////////////////////////////////////////////////
 
-	public List<ExpedientInfo> findExpedientsConsultaGeneral(
+	public List<ExpedientInfoDto> findExpedientsConsultaGeneral(
 			Long entornId,
 			String titol,
 			String numero,
@@ -28,7 +30,7 @@ public interface WorkflowBridgeService {
 			boolean nomesIniciats,
 			boolean nomesFinalitzats);
 
-	public List<ExpedientInfo> findExpedientsConsultaDadesIndexades(
+	public List<ExpedientInfoDto> findExpedientsConsultaDadesIndexades(
 			Long entornId,
 			String expedientTipusCodi,
 			Map<String, String> filtreValors);

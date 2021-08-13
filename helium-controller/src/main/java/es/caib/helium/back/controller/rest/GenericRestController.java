@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -74,7 +75,7 @@ public class GenericRestController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	@GetMapping(value="/festius")
+	@GetMapping(value="/festius", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<FestiuDto>> getFestius() {
 		return new ResponseEntity<>(
 				workflowBridgeService.getFestiusAll(),

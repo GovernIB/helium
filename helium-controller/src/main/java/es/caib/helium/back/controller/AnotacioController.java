@@ -12,6 +12,7 @@ import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.back.view.ArxiuView;
 import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.EntornService;

@@ -552,7 +552,7 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(dataInici);
 			int anyInici = cal.get(Calendar.YEAR);
-			return new Integer(anyInici).toString() + new DecimalFormat("0000000000000000000").format(id);
+			return Integer.toString(anyInici) + new DecimalFormat("0000000000000000000").format(id);
 		}
 	}
 	public String getIdentificadorLimitat() {

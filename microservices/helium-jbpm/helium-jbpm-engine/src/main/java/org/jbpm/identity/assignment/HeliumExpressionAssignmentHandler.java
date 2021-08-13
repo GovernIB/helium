@@ -229,7 +229,7 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 	}
 
 	private boolean personesAmbAreaRecursiu() {
-		String esRecursiu = Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.jbpm.identity.recursiu");
+		String esRecursiu = Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("es.caib.helium.jbpm.identity.recursiu");
 		return "true".equalsIgnoreCase(esRecursiu);
 	}
 

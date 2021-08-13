@@ -1,6 +1,8 @@
 package es.caib.helium.ejb;
 
 import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.expedient.ExpedientInfoDto;
 
 import javax.ejb.Stateless;
 import java.util.Date;
@@ -19,7 +21,7 @@ public class WorkflowBridgeService extends AbstractService<es.caib.helium.logic.
 	// EXPEDIENTS
 	////////////////////////////////////////////////////////////////////////////////
 
-	public List<ExpedientInfo> findExpedientsConsultaGeneral(
+	public List<ExpedientInfoDto> findExpedientsConsultaGeneral(
             Long entornId,
             String titol,
             String numero,
@@ -41,7 +43,7 @@ public class WorkflowBridgeService extends AbstractService<es.caib.helium.logic.
 				nomesFinalitzats);
 	}
 
-	public List<ExpedientInfo> findExpedientsConsultaDadesIndexades(
+	public List<ExpedientInfoDto> findExpedientsConsultaDadesIndexades(
             Long entornId,
             String expedientTipusCodi,
             Map<String, String> filtreValors) {

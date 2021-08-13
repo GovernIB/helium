@@ -1,15 +1,14 @@
 package es.caib.helium.logic.intf;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
 import es.caib.helium.logic.intf.dto.InformacioRetroaccioDto;
 import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedSet;
 
 /**
@@ -131,7 +130,8 @@ public interface WorkflowRetroaccioApi {
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
 	 */
-	public void eliminaInformacioRetroaccio(String processInstanceId);
+	public void eliminaInformacioRetroaccioProces(String processInstanceId);
+	public void eliminaInformacioRetroaccio(Long informacioRetroaccioId);
 
 	/**
 	 * Retorna els logs associats a una tasca de l'expedient.

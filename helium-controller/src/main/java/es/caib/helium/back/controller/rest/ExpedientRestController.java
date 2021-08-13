@@ -2,7 +2,7 @@ package es.caib.helium.back.controller.rest;
 
 import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
-import es.caib.helium.logic.intf.dto.ExpedientInfo;
+import es.caib.helium.logic.intf.dto.expedient.ExpedientInfoDto;
 import es.caib.helium.logic.intf.service.WorkflowBridgeService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class ExpedientRestController {
 	private final WorkflowBridgeService workflowBridgeService;
 
 	@GetMapping(value="/{entornId}")
-	public ResponseEntity<List<ExpedientInfo>> findExpedientsConsultaGeneral(
+	public ResponseEntity<List<ExpedientInfoDto>> findExpedientsConsultaGeneral(
 			@PathVariable("entornId") Long entornId,
 			@RequestParam(value = "titol", required = false) String titol,
 			@RequestParam(value = "numero", required = false) String numero,
@@ -60,7 +60,7 @@ public class ExpedientRestController {
 	}
 
 	@GetMapping(value="/{entornId}/byExpedientTipus/{expedientTipusCodi}")
-	public ResponseEntity<List<ExpedientInfo>> findExpedientsConsultaDades(
+	public ResponseEntity<List<ExpedientInfoDto>> findExpedientsConsultaDades(
 			@PathVariable("entornId") Long entornId,
 			@PathVariable("expedientTipusCodi") String expedientTipusCodi,
 			@RequestParam Map<String,String> allParams) {

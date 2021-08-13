@@ -851,7 +851,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		WProcessInstance pi = workflowEngineApi.getRootProcessInstance(processInstanceId);
 		if (pi == null)
 			throw new NoTrobatException(WProcessInstance.class, processInstanceId);
-		workflowRetroaccioApi.eliminaInformacioRetroaccio(pi.getId()); //expedient.getProcessInstanceId());
+		workflowRetroaccioApi.eliminaInformacioRetroaccioProces(pi.getId()); //expedient.getProcessInstanceId());
 	}
 
 	@Override

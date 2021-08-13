@@ -1,5 +1,6 @@
 package net.conselldemallorca.helium.back.rest.controller;
 
+import net.conselldemallorca.helium.api.dto.OptionalString;
 import net.conselldemallorca.helium.back.rest.model.ExpressionData;
 import net.conselldemallorca.helium.back.rest.model.InfoCacheData;
 import net.conselldemallorca.helium.back.rest.model.ProcessStartData;
@@ -123,7 +124,7 @@ public class WorkflowEngineController {
     public ResponseEntity<Void> updateDeploymentActions(
             @PathVariable("deploymentId") String deploymentId,
 //            @RequestPart("handlers") List<MultipartFile> handlers,
-            @RequestPart(value = "deploymentFile", required = false) MultipartFile deploymentFile) throws IOException {
+            @RequestPart(value = "deploymentFile", required = false) MultipartFile deploymentFile) throws Exception {
 
 //        Map<String, byte[]> handlerBytes = new HashMap<String, byte[]>();
 //        if (handlers != null && !handlers.isEmpty()) {
@@ -156,7 +157,8 @@ public class WorkflowEngineController {
     public ResponseEntity<WProcessDefinition> getProcessDefinition(
 //            @RequestParam(value = "deploymentId", required = false) String deploymentId,
             @PathVariable("processDefinitionId") String processDefinitionId) {
-        return new ResponseEntity(workflowEngineApi.getProcessDefinition(processDefinitionId), HttpStatus.OK);
+        WProcessDefinition wProcessDefinition = workflowEngineApi.getProcessDefinition(processDefinitionId);
+        return new ResponseEntity(wProcessDefinition, HttpStatus.OK);
     }
 
     @RequestMapping(value="/processDefinitions/{processDefinitionId}/subProcessDefinition", method = RequestMethod.GET)
@@ -283,8 +285,8 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<Void> signalProcessInstance(
             @PathVariable("processInstanceId") String processInstanceId,
-            @RequestBody(required = false) String transitionName) {
-        workflowEngineApi.signalProcessInstance(processInstanceId, transitionName);
+            @RequestBody OptionalString transitionName) {
+        workflowEngineApi.signalProcessInstance(processInstanceId, transitionName != null ? transitionName.getValue() : null);
         return new ResponseEntity(HttpStatus.OK);
     }
 

@@ -33,6 +33,7 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
 			logoutSuccessUrl("/").
 			permitAll(false);
 		http.authorizeRequests().
+			antMatchers("/bridge/api/**").permitAll().
 			anyRequest().authenticated();
 		http.cors();
 		http.csrf().disable();

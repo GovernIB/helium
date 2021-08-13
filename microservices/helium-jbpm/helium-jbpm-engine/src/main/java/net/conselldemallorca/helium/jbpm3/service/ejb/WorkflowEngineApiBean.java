@@ -55,7 +55,7 @@ public class WorkflowEngineApiBean implements WorkflowEngineApi {
     }
 
     @Override
-    public void updateDeploymentActions(Long deploymentId, byte[] deploymentContent) {
+    public void updateDeploymentActions(Long deploymentId, byte[] deploymentContent) throws Exception {
         delegate.updateDeploymentActions(deploymentId, deploymentContent);
     }
 

@@ -50,7 +50,7 @@ import es.caib.helium.logic.intf.dto.EnumeracioValorDto;
 import es.caib.helium.logic.intf.dto.EstatDto;
 import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
-import es.caib.helium.logic.intf.dto.ExpedientInfo;
+import es.caib.helium.logic.intf.dto.expedient.ExpedientInfoDto;
 import es.caib.helium.logic.intf.dto.FestiuDto;
 import es.caib.helium.logic.intf.dto.InteressatDto;
 import es.caib.helium.logic.intf.dto.InteressatTipusEnumDto;
@@ -185,7 +185,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 
     // TODO: Modificar utilitzant el MS d'expedients i tasques
     @Override
-    public List<ExpedientInfo> findExpedientsConsultaGeneral(
+    public List<ExpedientInfoDto> findExpedientsConsultaGeneral(
             Long entornId,
             String titol,
             String numero,
@@ -228,7 +228,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                         nomesIniciats,
                         nomesFinalitzats);
 
-        List<ExpedientInfo> expedientInfos = new ArrayList<ExpedientInfo>();
+        List<ExpedientInfoDto> expedientInfos = new ArrayList<ExpedientInfoDto>();
         if (expedients != null) {
             for (Expedient expedient : expedients) {
                 expedientInfos.add(expedientHelper.toExpedientInfo(expedient));
@@ -239,7 +239,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 
     // TODO: Modificar amb el MS de dades
     @Override
-    public List<ExpedientInfo> findExpedientsConsultaDadesIndexades(
+    public List<ExpedientInfoDto> findExpedientsConsultaDadesIndexades(
             Long entornId,
             String expedientTipusCodi,
             Map<String, String> filtreValors) {
@@ -247,7 +247,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 "entornId=" + entornId + ", " +
                 "expedientTipusCodi=" + expedientTipusCodi + ", " +
                 "filtreValors=" + filtreValors + ")");
-        List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
+        List<ExpedientInfoDto> resposta = new ArrayList<ExpedientInfoDto>();
 
         Entorn entorn = entornRepository.findById(entornId)
                 .orElseThrow(() -> new NoTrobatException(Entorn.class, entornId));

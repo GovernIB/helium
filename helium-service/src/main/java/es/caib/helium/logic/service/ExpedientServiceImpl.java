@@ -3,38 +3,6 @@
  */
 package es.caib.helium.logic.service;
 
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.client.expedient.expedient.ExpedientClientService;
@@ -91,6 +59,7 @@ import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDto;
 import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.dto.RespostaValidacioSignaturaDto;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
+import es.caib.helium.logic.intf.dto.expedient.ExpedientIniciDto;
 import es.caib.helium.logic.intf.exception.ExecucioHandlerException;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
@@ -144,6 +113,36 @@ import es.caib.helium.persist.repository.TerminiIniciatRepository;
 import es.caib.helium.persist.util.ThreadLocalInfo;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ExpedientMetadades;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Implementació dels mètodes del servei ExpedientService.
@@ -236,10 +235,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	/**
 	 * {@inheritDoc}
+	 * @return
 	 */
 	@Override
 	@Transactional
-	public ExpedientDto create(
+	public ExpedientIniciDto create(
 			Long entornId,
 			String usuari,
 			Long expedientTipusId,
@@ -345,9 +345,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 			}
 
 			// Retorna la informació de l'expedient que s'ha iniciat
-			ExpedientDto dto = conversioTipusServiceHelper.convertir(
+			ExpedientIniciDto dto = conversioTipusServiceHelper.convertir(
 					expedient,
-					ExpedientDto.class);
+					ExpedientIniciDto.class);
 			return dto;
 		} catch (ExecucioHandlerException ex) {
 			throw new TramitacioHandlerException(
@@ -1464,7 +1464,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 						ExtendedPermission.DEFPROC_UPDATE,
 						ExtendedPermission.ADMINISTRATION});
 		if (!expedient.isAmbRetroaccio()) {
-			workflowRetroaccioApi.eliminaInformacioRetroaccio(expedient.getProcessInstanceId());
+			workflowRetroaccioApi.eliminaInformacioRetroaccioProces(expedient.getProcessInstanceId());
 		}
 		if (definicioProcesId != null) {
 			DefinicioProces defprocAntiga = expedientHelper.findDefinicioProcesByProcessInstanceId(expedient.getProcessInstanceId());

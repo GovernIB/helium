@@ -12,6 +12,7 @@ import es.caib.helium.back.view.ArxiuView;
 import es.caib.helium.logic.intf.dto.*;
 import es.caib.helium.logic.intf.dto.DadesEnviamentDto.EntregaPostalTipus;
 import es.caib.helium.logic.intf.dto.DadesEnviamentDto.EntregaPostalViaTipus;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.service.DocumentService;
 import es.caib.helium.logic.intf.service.ExpedientDocumentService;

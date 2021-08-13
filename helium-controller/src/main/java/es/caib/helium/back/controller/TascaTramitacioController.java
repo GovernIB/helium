@@ -16,6 +16,7 @@ import es.caib.helium.back.passarelafirma.PassarelaFirmaHelper;
 import es.caib.helium.back.view.ArxiuView;
 import es.caib.helium.logic.intf.dto.*;
 import es.caib.helium.logic.intf.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternConversioDocumentException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;

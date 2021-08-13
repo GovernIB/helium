@@ -191,8 +191,8 @@ public class JobExecutorThread extends Thread {
 						if (!deleted) {
 							job.setLockOwner(lockOwner);
 							job.setLockTime(lockTime);
-							Hibernate.initialize(job.getProcessInstance().getExpedient().getEntorn());
-							Hibernate.initialize(job.getProcessInstance().getExpedient().getTipus());
+//							Hibernate.initialize(job.getProcessInstance().getExpedient().getEntorn());
+//							Hibernate.initialize(job.getProcessInstance().getExpedient().getTipus());
 							jobs.add(job);
 							
 							if (job instanceof Timer) {

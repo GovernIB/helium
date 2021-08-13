@@ -4,6 +4,7 @@
 package es.caib.helium.logic.intf.service;
 
 import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.exception.TramitacioException;

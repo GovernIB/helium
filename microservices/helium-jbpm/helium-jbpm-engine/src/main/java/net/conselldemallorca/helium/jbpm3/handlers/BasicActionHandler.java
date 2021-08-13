@@ -386,7 +386,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 				}
 			}
 			Jbpm3HeliumBridge.getInstanceService().emailSend(
-					Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.correu.remitent"),
+					Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("es.caib.helium.correu.remitent"),
 					recipients,
 					ccRecipients,
 					bccRecipients,

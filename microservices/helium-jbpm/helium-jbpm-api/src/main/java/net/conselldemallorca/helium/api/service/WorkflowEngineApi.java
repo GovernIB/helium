@@ -111,7 +111,7 @@ public interface WorkflowEngineApi {
 	 */
 	public void updateDeploymentActions(
             Long deploymentId,
-			byte[] deploymentContent);
+			byte[] deploymentContent) throws Exception;
 
 	/**
 	 * Actualitza els recursos de tipus acció, sense canviar la versió d'un desplagament

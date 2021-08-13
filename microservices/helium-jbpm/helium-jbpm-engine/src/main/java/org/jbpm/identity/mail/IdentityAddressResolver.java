@@ -43,7 +43,7 @@ public class IdentityAddressResolver implements AddressResolver, ServiceFactory,
 
 
 	private boolean useHeliumAssignmentHandler() {
-		String organigramaActiu = Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.jbpm.identity.source");
+		String organigramaActiu = Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("es.caib.helium.jbpm.identity.source");
 		return "helium".equalsIgnoreCase(organigramaActiu);
 	}
 	private HeliumAddressResolver getHeliumAddressResolver() {
