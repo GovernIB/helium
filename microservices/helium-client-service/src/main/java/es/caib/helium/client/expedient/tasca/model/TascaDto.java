@@ -3,7 +3,10 @@ package es.caib.helium.client.expedient.tasca.model;
 import java.util.Date;
 import java.util.List;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Informació de la tasca amb les propietats necessàries pel llistat filtrat i paginat de
@@ -11,6 +14,9 @@ import lombok.Data;
  * 
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class TascaDto {
 
 	private String id;
@@ -23,8 +29,8 @@ public class TascaDto {
 	private boolean suspesa = false;
 	private boolean completada = false;
 	private boolean assignada = false;
-	private boolean marcadaFinalitzar = false;
-	private boolean errorFinalitzacio = false;
+	private Date marcadaFinalitzar;
+	private String errorFinalitzacio;
 	private Date dataFins;
 	private Date dataFi;
 	private Date iniciFinalitzacio;

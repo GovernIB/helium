@@ -8,7 +8,7 @@ import javax.json.Json;
 import javax.json.JsonPatchBuilder;
 import javax.json.JsonValue;
 
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -34,9 +34,13 @@ public class ExpedientClientServiceImpl implements ExpedientClientService {
 	@Override
 	public PagedList<ExpedientDto> findExpedientsAmbFiltrePaginatV1(ConsultaExpedientDades consultaExpedientDades) {
 		
-		log.debug(MISSATGE_LOG + " llista paginada d'expedients segons el filtre = " +  ReflectionToStringBuilder.toString(consultaExpedientDades));
+		log.debug(MISSATGE_LOG + " llista paginada d'expedients segons el filtre = " +  consultaExpedientDades);
 		var responseEntity = expedientClient.findExpedientsAmbFiltrePaginatV1(consultaExpedientDades);
-		var resultat = Objects.requireNonNull(responseEntity.getBody());
+		if (HttpStatus.NO_CONTENT.equals(responseEntity.getStatusCode())) {
+			PagedList<ExpedientDto> pagedList = PagedList.emptyPage();
+			return pagedList;
+		}
+		var resultat = responseEntity.getBody();
 		return resultat;
 	}
 	
@@ -44,7 +48,7 @@ public class ExpedientClientServiceImpl implements ExpedientClientService {
 	public PagedList<Long> findExpedientsIdsAmbFiltrePaginatV1(ConsultaExpedientDades consultaExpedientDades) {
 		
 		log.debug(MISSATGE_LOG + " llista paginada d'identificadors d'expedients segons entorn " + consultaExpedientDades.getEntornId()
-				+ " i consultaExpedientDades = " +  ReflectionToStringBuilder.toString(consultaExpedientDades));
+				+ " i consultaExpedientDades = " +  consultaExpedientDades);
 		var responseEntity = expedientClient.findExpedientsIdsAmbFiltrePaginatV1(consultaExpedientDades);
 		var resultat = Objects.requireNonNull(responseEntity.getBody());
 		return resultat;

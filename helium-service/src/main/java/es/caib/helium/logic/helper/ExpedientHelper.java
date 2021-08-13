@@ -31,6 +31,8 @@ import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.engine.model.WToken;
 import es.caib.helium.client.expedient.expedient.ExpedientClientService;
 import es.caib.helium.client.expedient.expedient.enums.ExpedientEstatTipusEnum;
+import es.caib.helium.client.expedient.proces.ProcesClientService;
+import es.caib.helium.client.expedient.proces.model.ProcesDto;
 import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
@@ -138,6 +140,8 @@ public class ExpedientHelper {
 	private GlobalProperties globalProperties;
 	@Resource
 	private ExpedientClientService expedientClientService;
+	@Resource
+	private ProcesClientService procesClientService;
 
 
 	
@@ -1073,8 +1077,7 @@ public class ExpedientHelper {
 			boolean cancelTasks) {
 		WToken token = workflowEngineApi.getTokenById(tokenId);
 		String nodeNameVell = token.getNodeName();
-		Long expId = workflowEngineApi.findExpedientIdByProcessInstanceId(
-				token.getProcessInstanceId());
+		Long expId = procesClientService.getProcesExpedientId(token.getProcessInstanceId());
 		workflowEngineApi.tokenRedirect(
 				tokenId,
 				nodeName,
@@ -1093,8 +1096,7 @@ public class ExpedientHelper {
 	public void comprovarInstanciaProces(
 			Expedient expedient,
 			String processInstanceId) {
-		Long expId = workflowEngineApi.findExpedientIdByProcessInstanceId(
-				processInstanceId);
+		Long expId = procesClientService.getProcesExpedientId(processInstanceId);
 		if (expId != expedient.getId().longValue()) {
 			throw new NoTrobatException(
 					WProcessInstance.class,
@@ -1109,8 +1111,9 @@ public class ExpedientHelper {
 	public Expedient findExpedientByProcessInstanceId(String processInstanceId) {
 		Optional<Expedient> expedientOptional = null;
 		Expedient expedient = null;
-		Long expId = workflowEngineApi.findExpedientIdByProcessInstanceId(
-				processInstanceId);
+		// Obté la informació del procés del MS d'expedients i tasques
+		ProcesDto proces = procesClientService.getProcesV1(processInstanceId);
+		Long expId = proces != null ? proces.getExpedientId() : null;
 		if (expId != null) {
 			expedientOptional = expedientRepository.findById(expId);
 			expedient = expedientOptional.isPresent() ? expedientOptional.get() : null;
@@ -1280,29 +1283,46 @@ public class ExpedientHelper {
 
 	public List<InstanciaProcesDto> getArbreInstanciesProces(
 			String processInstanceId) {
+
+		// TODO DANIEL: crear una consulta al MS per a que retorni directament la llista
+		List<ProcesDto> processos = procesClientService.getLlistatProcessos(processInstanceId);
+//		String procesArrelId = procesClientService.getProcesV1(processInstanceId).getProcesArrelId();
+//		List<ProcesDto> processos = procesClientService.findProcessAmbFiltrePaginatV1(ConsultaProcesDades.builder()
+//				.procesArrelId(procesArrelId)
+//				.build()).getContent();
+
 		List<InstanciaProcesDto> resposta = new ArrayList<InstanciaProcesDto>();
-		WProcessInstance rootProcessInstance = workflowEngineApi.getRootProcessInstance(processInstanceId);
-		List<WProcessInstance> piTree = workflowEngineApi.getProcessInstanceTree(rootProcessInstance.getId());
-		for (WProcessInstance jpi: piTree) {
-			resposta.add(getInstanciaProcesById(jpi.getId()));
+		for (ProcesDto procesMs : processos) {
+			resposta.add(this.procesMsToInstanciaProcesDto(procesMs));
 		}
 		return resposta;
+
 	}
+	
 	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId) {
-		InstanciaProcesDto dto = new InstanciaProcesDto();
-		dto.setId(processInstanceId);
-		// TODO: Afegir Try/Catch per capturar el NOT_FOUND i retornar null
-		WProcessInstance pi = workflowEngineApi.getProcessInstance(processInstanceId);
-		if (pi.getId() == null)
+		
+		ProcesDto procesMs = procesClientService.getProcesV1(processInstanceId);
+		if (procesMs == null)
 			return null;
-		dto.setInstanciaProcesPareId(pi.getParentProcessInstanceId());
-		if (pi.getDescription() != null && pi.getDescription().length() > 0)
-			dto.setTitol(pi.getDescription());
-		dto.setDefinicioProces(conversioTipusServiceHelper.convertir(definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId()), DefinicioProcesDto.class));
+		
+		InstanciaProcesDto dto = this.procesMsToInstanciaProcesDto(procesMs);
+		
 		return dto;
 	}
 
 
+
+	private InstanciaProcesDto procesMsToInstanciaProcesDto(ProcesDto procesMs) {
+		InstanciaProcesDto dto = new InstanciaProcesDto();
+		dto.setId(procesMs.getId());
+		dto.setInstanciaProcesPareId(procesMs.getProcesPareId());
+		if (procesMs.getDescripcio() != null && procesMs.getDescripcio().length() > 0) {
+			dto.setTitol(procesMs.getDescripcio());
+		}
+		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(procesMs.getProcessDefinitionId());
+		dto.setDefinicioProces(conversioTipusServiceHelper.convertir(definicioProces, DefinicioProcesDto.class));
+		return dto;
+	}
 
 	private String getNumeroExpedientExpressio(
 			ExpedientTipus expedientTipus,

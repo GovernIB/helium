@@ -1,4 +1,18 @@
-package es.caib.helium.expedient.service;
+package es.caib.helium.ms.helper;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import cz.jirutka.rsql.parser.RSQLParser;
 import cz.jirutka.rsql.parser.RSQLParserException;
@@ -12,20 +26,6 @@ import es.caib.helium.ms.model.PagedList;
 import es.caib.helium.ms.repository.BaseRepository;
 import es.caib.helium.ms.rsql.CustomRsqlVisitor;
 import es.caib.helium.ms.rsql.RsqlSearchOperation;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class ServiceHelper {
 
@@ -93,15 +93,22 @@ public class ServiceHelper {
             Class<?> dtoClass,
             BaseMapper<E, D> mapper) {
         Page<E> page = getEntityPage(repository, spec, filtreRsql, pageable, sort, dtoClass);
-
-        return new PagedList<>(
-                page.getContent()
-                        .stream()
-                        .map(mapper::entityToDto)
-                        .collect(Collectors.toList()),
-                page.getPageable(),
-                page.getTotalElements()
-        );
+        try {
+	        return new PagedList<>(
+	                page.getContent()
+	                        .stream()
+	                        .map(mapper::entityToDto)
+	                        .collect(Collectors.toList()),
+	//                PageRequest.of(
+	//                        pageable.getPageNumber(),
+	//                        pageable.getPageSize()),
+	                page.getPageable(),
+	                page.getTotalElements()
+	        );
+        } catch (Exception e) {
+			//log.error();
+        	throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error no controlat: " + e.getMessage(), e);
+		}
 
     }
 

@@ -4,7 +4,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 
-import javax.persistence.criteria.CriteriaBuilder.In;
 import javax.persistence.criteria.JoinType;
 
 import org.apache.commons.lang.time.DateUtils;
@@ -28,16 +27,6 @@ public class ExpedientSpecifications {
 
     public static Specification<Expedient> inTipusIdPermesos(Collection<Long> tipusIdPermesos) {
     	return (expedient, cq, cb) -> expedient.get("expedientTipusId").in(tipusIdPermesos);
-//        return (expedient, cq, cb) -> {
-//        	In<Long> inClause = cb.in(expedient.get("expedientTipusId"));
-//        	for (Long tipusIdPermes : tipusIdPermesos) {
-//        	    inClause.value(tipusIdPermes);
-//        	}
-//        	return inClause;
-//        	return cb.and(inClause);
-//        	criteriaQuery.select(root).where(inClause);
-//        	return cb.in(expedient.get("expedientTipusId").in(tipusIdPermesos));
-//        };
     }
 
     public static Specification<Expedient> titolLike(String titol) {
@@ -123,7 +112,7 @@ public class ExpedientSpecifications {
     }
 
     /** La tasca no té usuari assignat però sí està assignat com a un dels responsables. */
-	private static Specification<Expedient> nomesTasquesGrup(String usuariCodi) {
+    public static Specification<Expedient> nomesTasquesGrup(String usuariCodi) {
     	if (usuariCodi != null && !usuariCodi.isBlank()) {
             return (expedient, qb, cb) -> {
             	return cb.and(
@@ -142,19 +131,19 @@ public class ExpedientSpecifications {
 
 	}
 
-	private static Specification<Expedient> nomesErrors() {
+    public static Specification<Expedient> nomesErrors() {
 		return (expedient, cq, cb) -> cb.isTrue(expedient.get("ambErrors"));
 	}
 
-	private static Specification<Expedient> nomesAlertes() {
+    public static Specification<Expedient> nomesAlertes() {
 		return (expedient, cq, cb) -> cb.gt(expedient.get("alertesTotals"), 0L);
 	}
 
-	private static Specification<Expedient> mostrarNomesAnulats() {
+    public static Specification<Expedient> mostrarNomesAnulats() {
 		return (expedient, cq, cb) -> cb.isTrue(expedient.get("anulat"));
 	}
 	
-	private static Specification<Expedient> noMostrarAnulats() {
+    public static Specification<Expedient> noMostrarAnulats() {
 		return (expedient, cq, cb) -> cb.isFalse(expedient.get("anulat"));			
 	}
 

@@ -3,18 +3,39 @@
  */
 package es.caib.helium.ejb;
 
-import es.caib.helium.logic.intf.dto.*;
-import es.caib.helium.logic.intf.dto.ExpedientDto.EstatTipusDto;
-import es.caib.helium.logic.intf.dto.ExpedientDto.IniciadorTipusDto;
-import es.caib.helium.logic.intf.exception.NoTrobatException;
-import es.caib.helium.logic.intf.exception.PermisDenegatException;
-
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Stateless;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.annotation.security.RolesAllowed;
+import javax.ejb.Stateless;
+
+import es.caib.helium.logic.intf.dto.AccioDto;
+import es.caib.helium.logic.intf.dto.AlertaDto;
+import es.caib.helium.logic.intf.dto.ArxiuDetallDto;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.CampDto;
+import es.caib.helium.logic.intf.dto.DadaIndexadaDto;
+import es.caib.helium.logic.intf.dto.DadesDocumentDto;
+import es.caib.helium.logic.intf.dto.DadesNotificacioDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesExpedientDto;
+import es.caib.helium.logic.intf.dto.ExpedientConsultaDissenyDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto.EstatTipusDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto.IniciadorTipusDto;
+import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
+import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
+import es.caib.helium.logic.intf.dto.MostrarAnulatsDto;
+import es.caib.helium.logic.intf.dto.NotificacioDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.dto.RespostaValidacioSignaturaDto;
+import es.caib.helium.logic.intf.dto.TascaDadaDto;
+import es.caib.helium.logic.intf.dto.TascaLlistatDto;
+import es.caib.helium.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.exception.PermisDenegatException;
 
 /**
  * EJB que implementa la interfície del servei ExpedientService.
@@ -257,7 +278,7 @@ public class ExpedientService extends AbstractService<es.caib.helium.logic.intf.
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientTascaDto> findTasquesPendents(
+	public List<TascaLlistatDto> findTasquesPendents(
 			Long expedientId,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup) {
@@ -407,7 +428,7 @@ public class ExpedientService extends AbstractService<es.caib.helium.logic.intf.
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<InstanciaProcesDto> getArbreInstanciesProces(Long processInstanceId) {
+	public List<InstanciaProcesDto> getArbreInstanciesProces(String processInstanceId) {
 		return getDelegateService().getArbreInstanciesProces(processInstanceId);
 	}
 

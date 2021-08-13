@@ -373,7 +373,7 @@ public interface ExpedientService {
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
 	 */
-	public List<ExpedientTascaDto> findTasquesPendents(
+	public List<TascaLlistatDto> findTasquesPendents(
 			Long id,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup) throws NoTrobatException;
@@ -674,7 +674,7 @@ public interface ExpedientService {
 	public List<ExpedientDto> findSuggestAmbEntornLikeIdentificador(Long entornid, String text);
 
 	public List<InstanciaProcesDto> getArbreInstanciesProces(
-			Long processInstanceId);
+			String processInstanceId);
 
 	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId);
 

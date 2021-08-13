@@ -7,6 +7,7 @@
 	<version>1.0.0</version>
 	<name>helium-common-ms</name>
 	<description>Projecte amb codi comú pels MS.</description>
+	<packaging>jar</packaging>
 
 	<properties>
 		<org.projectlombok.version>1.18.18</org.projectlombok.version>

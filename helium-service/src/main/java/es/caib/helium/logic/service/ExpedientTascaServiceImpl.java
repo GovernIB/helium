@@ -16,7 +16,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.client.expedient.tasca.TascaClientService;
 import es.caib.helium.logic.helper.ExpedientHelper;
@@ -99,44 +98,6 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 						false,
 						mostrarTasquesAltresUsuaris));
 		return tasques;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Transactional(readOnly = true)
-	public List<ExpedientTascaDto> findPendents(
-			Long expedientId,
-			boolean nomesTasquesPersonals,
-			boolean nomesTasquesGrup) throws NoTrobatException, PermisDenegatException {
-		logger.debug("Consulta de tasques pendents de l'expedient (" +
-				"id=" + expedientId + ", " +
-				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
-				"nomesTasquesGrup=" + nomesTasquesGrup + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				true,
-				false,
-				false,
-				false);
-		boolean mostrarTasquesAltresUsuaris = expedientHelper.isGrantedAny(
-				expedient,
-				new Permission[] {
-						ExtendedPermission.TASK_SUPERV,
-						ExtendedPermission.SUPERVISION,
-						ExtendedPermission.ADMINISTRATION});
-		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
-		for (WProcessInstance jpi: workflowEngineApi.getProcessInstanceTree(expedient.getProcessInstanceId())) {
-			resposta.addAll(
-					tascaHelper.findTasquesPerExpedientPerInstanciaProces(
-							jpi.getId(),
-							expedient,
-							mostrarTasquesAltresUsuaris,
-							nomesTasquesPersonals,
-							nomesTasquesGrup));
-		}
-		return resposta;
 	}
 
 	/**

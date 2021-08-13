@@ -137,6 +137,10 @@ public class ExpedientController {
     		   filtreRsql,
     		   consultaExpedientDades.getPageable(),
     		   consultaExpedientDades.getSort());
+    		   
+       if (expedientList.getTotalElements() == 0) {
+           return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+       }
        
        return new ResponseEntity<>(expedientList, HttpStatus.OK);
    }
@@ -225,6 +229,9 @@ public class ExpedientController {
    		   consultaExpedientDades.getPageable(),
    		   consultaExpedientDades.getSort());
    		   
+		if (expedientList.getTotalElements() == 0) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
 		List<Long> expedientsIds = expedientList.getContent().stream().map(e -> e.getId()).collect(Collectors.toList());
 		PagedList<Long> expedientIdsPagedList = new PagedList<Long>(expedientsIds);
 		return new ResponseEntity<>(expedientIdsPagedList, HttpStatus.OK);

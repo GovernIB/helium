@@ -57,7 +57,7 @@ public class ExpedientTokenController extends BaseExpedientController {
 			@PathVariable Long expedientId, 
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);	
-		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
+		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(expedient.getProcessInstanceId());
 		Map<InstanciaProcesDto, List<TokenDto>> tokens = new LinkedHashMap<InstanciaProcesDto, List<TokenDto>>();
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
 			List<TokenDto> tokensInstanciaProces = null;

@@ -1,5 +1,6 @@
 package es.caib.helium.client.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.PageImpl;
@@ -44,6 +45,38 @@ public class PagedList<T> extends PageImpl<T> {
 
     public PagedList(List<T> content) {
         super(content);
+    }
+    
+    public static <T>PagedList<T> of(List<T> contingut) {
+        return new PagedList<T>(
+                contingut,
+                PageRequest.of(0, contingut.size()),
+                contingut.size()
+        );
+    }
+
+    public static <T>PagedList<T> emptyPage() {
+        return new PagedList<T>(
+                new ArrayList<T>(),
+                PageRequest.of(0, 10),
+                0L
+        );
+    }
+
+    public static <T>PagedList<T> emptyPage(int size) {
+        return new PagedList<T>(
+                new ArrayList<T>(),
+                PageRequest.of(0, size),
+                0L
+        );
+    }
+
+    public static <T>PagedList<T> emptyPage(int page, int size) {
+        return new PagedList<T>(
+                new ArrayList<T>(),
+                PageRequest.of(page, size),
+                0L
+        );
     }
 
 }

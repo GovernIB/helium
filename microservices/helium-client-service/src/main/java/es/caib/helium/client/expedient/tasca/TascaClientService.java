@@ -1,5 +1,6 @@
 package es.caib.helium.client.expedient.tasca;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -41,4 +42,8 @@ public interface TascaClientService {
 	public void setCancelada(String tascaId, boolean cancelada);
 
 	public void setSuspesa(String tascaId, boolean suspesa);
+	
+	public void setErrorFinalitzacio(String tascaId, String errorFinalitzacio);
+
+	public void marcarFinalitzar(String tascaId, Date marcadaFinalitzar);
 }

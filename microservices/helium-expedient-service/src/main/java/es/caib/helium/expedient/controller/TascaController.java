@@ -128,7 +128,9 @@ public class TascaController {
         		filtreRsql, 
         		consultaTascaDades.getPageable(), 
         		consultaTascaDades.getSort());
-
+        if (tascaList.getTotalElements() == 0) {
+            return new ResponseEntity<>(tascaList, HttpStatus.NO_CONTENT);
+        }
         return new ResponseEntity<>(tascaList, HttpStatus.OK);
     }
 
@@ -201,7 +203,9 @@ public class TascaController {
        		filtreRsql, 
        		consultaTascaDades.getPageable(), 
        		consultaTascaDades.getSort());
-
+       if (tascaList.getTotalElements() == 0) {
+           return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+       }
 		List<String> tasquesIds = tascaList.getContent().stream().map(t -> t.getId()).collect(Collectors.toList());
 		PagedList<String> tasquesIdsPagedList = new PagedList<String>(tasquesIds);
 		return new ResponseEntity<>(tasquesIdsPagedList, HttpStatus.OK);

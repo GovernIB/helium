@@ -1,5 +1,7 @@
 package es.caib.helium.client.expedient.tasca;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -7,7 +9,7 @@ import javax.json.Json;
 import javax.json.JsonPatchBuilder;
 import javax.json.JsonValue;
 
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -31,16 +33,20 @@ public class TascaClientServiceImpl implements TascaClientService {
 	@Override
 	public PagedList<TascaDto> findTasquesAmbFiltrePaginatV1(ConsultaTascaDades consultaTascaDades) {
 		
-		log.debug(MISSATGE_LOG + " llista paginada d'expedients segons el filtre = " +  ReflectionToStringBuilder.toString(consultaTascaDades));
+		log.debug(MISSATGE_LOG + " llista paginada d'expedients segons el filtre = " +  consultaTascaDades);
 		var responseEntity = tascaClient.findTasquesAmbFiltrePaginatV1(consultaTascaDades);
-		var resultat = Objects.requireNonNull(responseEntity.getBody());
+		if (HttpStatus.NO_CONTENT.equals(responseEntity.getStatusCode())) {
+			PagedList<TascaDto> pagedList = PagedList.emptyPage();
+			return pagedList;
+		}
+		var resultat = responseEntity.getBody();
     	return resultat;
 	}
 
 	@Override
 	public PagedList<String> findTasquesIdsAmbFiltrePaginatV1(ConsultaTascaDades consultaTascaDades) {
 		
-		log.debug(MISSATGE_LOG + " llista paginada d'expedients segons el filtre = " +  ReflectionToStringBuilder.toString(consultaTascaDades));
+		log.debug(MISSATGE_LOG + " llista paginada d'expedients segons el filtre = " +  consultaTascaDades);
 		var responseEntity = tascaClient.findTasquesIdsAmbFiltrePaginatV1(consultaTascaDades);
 		var resultat = Objects.requireNonNull(responseEntity.getBody());
     	return resultat;
@@ -111,7 +117,6 @@ public class TascaClientServiceImpl implements TascaClientService {
 		
 		log.debug(MISSATGE_LOG + " update usuari tasca " + tascaId + ": " + usuariAssignat);
 		
-		// Posa data fi a null i actualitza estat
 		JsonPatchBuilder jpb = Json.createPatchBuilder();
 		if (usuariAssignat != null) {
 			jpb.replace("usuariAssignat", usuariAssignat);
@@ -127,7 +132,6 @@ public class TascaClientServiceImpl implements TascaClientService {
 	public void setCancelada(String tascaId, boolean cancelada) {
 		log.debug(MISSATGE_LOG + " update cancel·lada tasca " + tascaId + ": " + cancelada);
 		
-		// Posa data fi a null i actualitza estat
 		JsonPatchBuilder jpb = Json.createPatchBuilder();
 		jpb.replace("cancelada", cancelada);
 		tascaClient.patchTascaV1(
@@ -139,11 +143,36 @@ public class TascaClientServiceImpl implements TascaClientService {
 	public void setSuspesa(String tascaId, boolean suspesa) {
 		log.debug(MISSATGE_LOG + " update suspesa tasca " + tascaId + ": " + suspesa);
 		
-		// Posa data fi a null i actualitza estat
 		JsonPatchBuilder jpb = Json.createPatchBuilder();
 		jpb.replace("suspesa", suspesa);
 		tascaClient.patchTascaV1(
 				tascaId, 
 				new ObjectMapper().valueToTree(jpb.build()));
 	}
+	
+	@Override
+	public void setErrorFinalitzacio(String tascaId, String errorFinalitzacio) {
+		log.debug(MISSATGE_LOG + " update error finalitzacio " + tascaId + ": " + errorFinalitzacio);
+		
+		JsonPatchBuilder jpb = Json.createPatchBuilder();
+		jpb.replace("errorFinalitzacio", errorFinalitzacio);
+		tascaClient.patchTascaV1(
+				tascaId, 
+				new ObjectMapper().valueToTree(jpb.build()));
+	}
+
+	@Override
+	public void marcarFinalitzar(String tascaId, Date marcadaFinalitzar) {
+		log.debug(MISSATGE_LOG + " marcar finalitzar " + tascaId + ": " + marcadaFinalitzar);
+		
+		JsonPatchBuilder jpb = Json.createPatchBuilder();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+		jpb.replace("marcadaFinalitzar", sdf.format(marcadaFinalitzar));
+		jpb.replace("iniciFinalitzacio", JsonValue.NULL);
+		jpb.replace("errorFinalitzacio", JsonValue.NULL);
+		tascaClient.patchTascaV1(
+				tascaId, 
+				new ObjectMapper().valueToTree(jpb.build()));
+	}
+
 }

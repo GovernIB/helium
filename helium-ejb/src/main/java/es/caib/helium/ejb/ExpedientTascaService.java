@@ -3,13 +3,14 @@
  */
 package es.caib.helium.ejb;
 
-import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
-import es.caib.helium.logic.intf.exception.NoTrobatException;
-import es.caib.helium.logic.intf.exception.PermisDenegatException;
+import java.util.List;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
-import java.util.List;
+
+import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
+import es.caib.helium.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.exception.PermisDenegatException;
 
 /**
  * EJB que implementa la interfície del servei ExpedientTascaService.
@@ -28,18 +29,6 @@ public class ExpedientTascaService extends AbstractService<es.caib.helium.logic.
 		return getDelegateService().findAmbInstanciaProces(
 				expedientId,
 				processInstanceId);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientTascaDto> findPendents(
-			Long expedientId,
-			boolean nomesTasquesPersonals,
-			boolean nomesTasquesGrup) {
-		return getDelegateService().findPendents(
-				expedientId,
-				nomesTasquesPersonals,
-				nomesTasquesGrup);
 	}
 
 	@Override
