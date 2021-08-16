@@ -1,7 +1,10 @@
 package es.caib.helium.client.engine.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import java.util.Date;
 
+@JsonDeserialize(as = ProcessInstanceDto.class)
 public interface WProcessInstance {
 
 	public String getId();

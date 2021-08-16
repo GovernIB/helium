@@ -16,7 +16,7 @@ import java.util.Set;
  */
 public class NodecoHelper {
 
-	private static final String ESQUEMA_PREFIX = "/helium";
+	private static final String ESQUEMA_PREFIX = "/heliumback";
 	private static final String URI_PREFIX_NODECO = ESQUEMA_PREFIX + "/nodeco";
 	private static final String REQUEST_ATTRIBUTE_NODECO = "NodecoHelper.Nodeco";
 	private static final String SESSION_ATTRIBUTE_URIMAP = "NodecoHelper.UriMap";

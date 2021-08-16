@@ -20,8 +20,6 @@ public class DadesHelper {
 //    private static final String DADA_API_PATH = "/api/v1/dades";
     private static final String DADA_API_PATH = "/api/v1/expedients"; // TODO: expedients???? --> dades
 
-//    @Value("${es.caib.helium.jbpm.bridge.service.host}")
-//    String bridgeAdress;
 
     @Autowired
     RestTemplate restTemplate;

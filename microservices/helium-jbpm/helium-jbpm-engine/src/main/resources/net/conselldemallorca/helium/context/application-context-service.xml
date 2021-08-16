@@ -15,10 +15,10 @@
 	<task:annotation-driven scheduler="myScheduler"/>
 	<task:scheduler id="myScheduler" pool-size="10"/>
 
-	<context:component-scan base-package="es.caib.helium.jbpm3"/>
-	<!--<context:component-scan base-package="es.caib.helium.jbpm3.service"/>-->
-	<!--<context:component-scan base-package="es.caib.helium.jbpm3.helper"/>-->
-	<!--<context:component-scan base-package="es.caib.helium.jbpm3.integracio"/>-->
+	<context:component-scan base-package="net.conselldemallorca.helium.jbpm3"/>
+	<!--<context:component-scan base-package="net.conselldemallorca.helium.jbpm3.service"/>-->
+	<!--<context:component-scan base-package="net.conselldemallorca.helium.jbpm3.helper"/>-->
+	<!--<context:component-scan base-package="net.conselldemallorca.helium.jbpm3.integracio"/>-->
 
 	<bean id="jbpm3HeliumBridgeFactory" class="net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge" lazy-init="false">
 		<property name="workflowBridgeService" ref="workflowBridgeServiceImpl" />

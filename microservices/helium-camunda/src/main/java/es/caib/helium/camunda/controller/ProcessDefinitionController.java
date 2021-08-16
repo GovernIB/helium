@@ -36,19 +36,19 @@ public class ProcessDefinitionController {
 
     @GetMapping(value="/{processDefinitionId}")
     public ResponseEntity<WProcessDefinition> getProcessDefinition(
-            @RequestParam(value = "deploymentId", required = false) String deploymentId,
+//            @RequestParam(value = "deploymentId", required = false) String deploymentId,
             @PathVariable("processDefinitionId") String processDefinitionId) {
         return new ResponseEntity<>(
-                processDefinitionService.getProcessDefinition(deploymentId, processDefinitionId),
+                processDefinitionService.getProcessDefinition(processDefinitionId),
                 HttpStatus.OK);
     }
 
     @GetMapping(value="/{processDefinitionId}/subProcessDefinition")
     public ResponseEntity<List<WProcessDefinition>> getSubProcessDefinitions(
-            @RequestParam(value = "deploymentId", required = false) String deploymentId,
+//            @RequestParam(value = "deploymentId", required = false) String deploymentId,
             @PathVariable("processDefinitionId") String processDefinitionId) {
 
-        List<WProcessDefinition> processDefinitions = processDefinitionService.getSubProcessDefinitions(deploymentId, processDefinitionId);
+        List<WProcessDefinition> processDefinitions = processDefinitionService.getSubProcessDefinitions(processDefinitionId);
         if (processDefinitions == null || processDefinitions.isEmpty())
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 

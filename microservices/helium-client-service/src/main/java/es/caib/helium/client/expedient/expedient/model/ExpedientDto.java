@@ -18,6 +18,7 @@ public class ExpedientDto {
 	private Long expedientTipusId;
 	private String processInstanceId;
 	private String numero;
+	private String numeroDefault;
 	private String titol;
 	private Date dataInici;
 	private Date dataFi;

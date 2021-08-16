@@ -20,3 +20,9 @@ camunda:
       execution: true
       history: true
       task: true
+
+logging:
+  level:
+    es:
+      caib:
+        helium: info

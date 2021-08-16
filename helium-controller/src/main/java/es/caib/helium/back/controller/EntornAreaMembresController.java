@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletRequest;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Controller(value = "entornAreaMembresControllerV3")
+@Controller
 @RequestMapping("/v3/entorn-area")
 public class EntornAreaMembresController extends BaseController {
 

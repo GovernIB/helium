@@ -3,7 +3,17 @@
  */
 package es.caib.helium.ejb;
 
-import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
+import es.caib.helium.logic.intf.dto.FormulariExternDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.SeleccioOpcioDto;
+import es.caib.helium.logic.intf.dto.TascaDadaDto;
+import es.caib.helium.logic.intf.dto.TascaDocumentDto;
+import es.caib.helium.logic.intf.dto.TascaDto;
+import es.caib.helium.logic.intf.dto.TascaLlistatDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
 
@@ -39,7 +49,7 @@ public class TascaService extends AbstractService<es.caib.helium.logic.intf.serv
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<Long> findIdsPerFiltre(
+	public List<String> findIdsPerFiltre(
 			Long entornId,
 			Long expedientTipusId,
 			String titol,
@@ -73,7 +83,7 @@ public class TascaService extends AbstractService<es.caib.helium.logic.intf.serv
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto<ExpedientTascaDto> findPerFiltrePaginat(
+	public PaginaDto<TascaLlistatDto> findPerFiltrePaginat(
 			Long entornId,
 			String tramitacioMassivaTascaId,
 			Long expedientTipusId,
@@ -232,7 +242,7 @@ public class TascaService extends AbstractService<es.caib.helium.logic.intf.serv
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ExpedientTascaDto> findAmbIds(Set<Long> ids) {
+	public List<ExpedientTascaDto> findAmbIds(Set<String> ids) {
 		return getDelegateService().findAmbIds(ids);
 	}
 
@@ -376,7 +386,7 @@ public class TascaService extends AbstractService<es.caib.helium.logic.intf.serv
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public Map<Long, Object> obtenirEstatsPerIds(List<String> tasquesSegonPlaIds) {
+	public Map<String, Object> obtenirEstatsPerIds(List<String> tasquesSegonPlaIds) {
 		return getDelegateService().obtenirEstatsPerIds(tasquesSegonPlaIds);
 	}
 

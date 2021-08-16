@@ -133,7 +133,7 @@ public class CampTasca implements Serializable, GenericEntity<Long> {
 	public void setBuitCols(int buitCols) {
 		this.buitCols = buitCols;
 	}
-	@ManyToOne(optional=false, fetch=FetchType.EAGER)
+	@ManyToOne(optional=false, fetch=FetchType.LAZY)
 	@JoinColumn(
 			name="camp_id",
 			foreignKey = @ForeignKey(name="hel_camp_camptasca_fk"))
@@ -144,7 +144,7 @@ public class CampTasca implements Serializable, GenericEntity<Long> {
 		this.camp = camp;
 	}
 
-	@ManyToOne(optional=false, fetch=FetchType.EAGER)
+	@ManyToOne(optional=false, fetch=FetchType.LAZY)
 	@JoinColumn(
 			name="tasca_id",
 			foreignKey = @ForeignKey(name="hel_tasca_camptasca_fk"))

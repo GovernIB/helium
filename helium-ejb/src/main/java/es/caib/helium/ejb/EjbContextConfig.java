@@ -40,11 +40,15 @@ import java.util.Properties;
 		FreeMarkerAutoConfiguration.class
 })
 @EnableJpaRepositories({ "es.caib.helium.persist" })
-@ComponentScan({ "es.caib.helium.logic", "es.caib.helium.persist" })
+@ComponentScan({ 
+	"es.caib.helium.logic", 
+	"es.caib.helium.persist",
+	"es.caib.helium.client"
+})
 @PropertySource(ignoreResourceNotFound = true, value = {
 		"classpath:application.properties",
 		"file://${" + Constants.APP_PROPERTIES + "}",
-		"file://${" + Constants.APP_SYSTEM_PROPERTIES + "}"})
+		"file://${" + Constants.APP_SYSTEM_PROPERTIES + "}"}) 
 public class EjbContextConfig {
 
 	@Value("${spring.datasource.jndi-name:java:jboss/datasources/heliumDS}")

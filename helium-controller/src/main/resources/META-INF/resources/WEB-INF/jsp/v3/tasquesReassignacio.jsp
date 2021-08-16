@@ -88,7 +88,7 @@
 		</script>
 	</head>
 	<body>		
-		<form:form id="reassignacioTasques" name="reassignacioTasques" action="" method="post" commandName="reassignacioTasquesCommand" onsubmit="return confirmarReassignar(event)">
+		<form:form id="reassignacioTasques" name="reassignacioTasques" action="" method="post" modelAttribute="reassignacioTasquesCommand" onsubmit="return confirmarReassignar(event)">
 			 <input type="hidden" id="massiva" name="massiva" value="${massiva}">
 			<div class="control-group <c:if test='${massiva}'>hide</c:if>">
 				<div class="label-titol">
@@ -124,7 +124,7 @@
 			
 			<div class="ctrlHolder">
 				<div id="duser">
-					<hel:inputSuggest required="true" name="usuari" urlConsultaInicial="/helium/v3/expedient/persona/suggestInici" urlConsultaLlistat="/helium/v3/expedient/persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
+					<hel:inputSuggest required="true" name="usuari" urlConsultaInicial="/heliumback/v3/expedient/persona/suggestInici" urlConsultaLlistat="/heliumback/v3/expedient/persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
 				</div>
 				<div id="dgrup">
 					<hel:inputText required="true" name="grup" textKey="filtre.expressio.grup" placeholderKey="filtre.expressio.grup"/>

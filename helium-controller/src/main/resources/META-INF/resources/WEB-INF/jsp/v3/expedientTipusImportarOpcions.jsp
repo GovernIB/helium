@@ -4,7 +4,7 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 
-	<form:form id="opcions-form" cssClass="form-horizontal" action="importar" enctype="multipart/form-data" method="post" commandName="command" style="min-height: 500px;">
+	<form:form id="opcions-form" cssClass="form-horizontal" action="importar" enctype="multipart/form-data" method="post" modelAttribute="command" style="min-height: 500px;">
 	
 		<c:set var="fileErrors"><form:errors path="file"/></c:set>
 		<c:if test="${not empty fileErrors}">

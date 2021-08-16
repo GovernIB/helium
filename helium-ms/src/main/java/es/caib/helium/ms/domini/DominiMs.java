@@ -6,9 +6,9 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
-import es.caib.helium.ms.domini.client.model.Domini;
-import es.caib.helium.ms.domini.client.model.ResultatDomini;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -23,7 +23,9 @@ import es.caib.helium.logic.intf.extern.domini.FilaResultat;
 import es.caib.helium.ms.BaseMs;
 import es.caib.helium.ms.HeliumMsPropietats;
 import es.caib.helium.ms.domini.client.DominiApiClient;
+import es.caib.helium.ms.domini.client.model.Domini;
 import es.caib.helium.ms.domini.client.model.DominiPagedList;
+import es.caib.helium.ms.domini.client.model.ResultatDomini;
 
 /** Bean per interactuar amb el Micro Servei de Dominis. Encapsula un client
  * de l'API REST pel disseny i consulta dels dominis.
@@ -31,8 +33,8 @@ import es.caib.helium.ms.domini.client.model.DominiPagedList;
  * @author Limit Tecnologies <limit@limit.es>
  *
  */
-@Service
-public class DominiMs extends BaseMs {
+@Component
+public class DominiMs extends BaseMs implements InitializingBean {
 	
 	@Autowired
 	private HeliumMsPropietats heliumMsPropietats;
@@ -40,6 +42,7 @@ public class DominiMs extends BaseMs {
 	/** Referència a la instànca de client de l'API REST de Dominis. */
 	private DominiApiClient dominiApiClient;
 			
+	
 	/** Mètode per configurar el client de l'API REST de dominis.
 	 */
 	@PostConstruct
@@ -324,5 +327,10 @@ public class DominiMs extends BaseMs {
 		if (dominis.size() > 0)
 			domini = dominis.get(0);
 		return domini;
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		System.out.println("DominiMs Bean");		
 	}
 }

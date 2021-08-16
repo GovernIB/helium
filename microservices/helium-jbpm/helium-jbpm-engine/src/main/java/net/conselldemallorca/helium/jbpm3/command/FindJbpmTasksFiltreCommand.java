@@ -95,7 +95,7 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 
 	@SuppressWarnings("unchecked")
 	public Object execute(JbpmContext jbpmContext) throws Exception {
-		String desactivarOptimitzacioLlistatTascaString = (String) Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.llistat.tasques.optimitzacio.desactivada");
+		String desactivarOptimitzacioLlistatTascaString = (String) Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("es.caib.helium.llistat.tasques.optimitzacio.desactivada");
 		boolean desactivarOptimitzarLlistatTasques = "true".equalsIgnoreCase(desactivarOptimitzacioLlistatTascaString);
 		StringBuilder taskQuerySb = consulta1(desactivarOptimitzarLlistatTasques);
 		Query queryCount = jbpmContext.getSession().createQuery(

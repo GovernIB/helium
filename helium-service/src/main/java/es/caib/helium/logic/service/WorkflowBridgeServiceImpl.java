@@ -1,11 +1,63 @@
 package es.caib.helium.logic.service;
 
-import es.caib.helium.logic.helper.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
+import es.caib.helium.logic.helper.AlertaHelper;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
+import es.caib.helium.logic.helper.DefinicioProcesHelper;
+import es.caib.helium.logic.helper.DocumentHelper;
+import es.caib.helium.logic.helper.DominiHelper;
+import es.caib.helium.logic.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.ExpedientRegistreHelper;
+import es.caib.helium.logic.helper.ExpedientTipusHelper;
+import es.caib.helium.logic.helper.HerenciaHelper;
+import es.caib.helium.logic.helper.IndexHelper;
+import es.caib.helium.logic.helper.MailHelper;
+import es.caib.helium.logic.helper.TascaSegonPlaHelper;
+import es.caib.helium.logic.helper.TerminiHelper;
+import es.caib.helium.logic.helper.VariableHelper;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi.ExpedientRetroaccioEstat;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi.ExpedientRetroaccioTipus;
-import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.CampDto;
+import es.caib.helium.logic.intf.dto.CampTascaDto;
+import es.caib.helium.logic.intf.dto.CampTipusDto;
+import es.caib.helium.logic.intf.dto.CampTipusIgnored;
+import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
+import es.caib.helium.logic.intf.dto.DocumentDissenyDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.DocumentTascaDto;
+import es.caib.helium.logic.intf.dto.DominiDto;
+import es.caib.helium.logic.intf.dto.DominiRespostaColumnaDto;
+import es.caib.helium.logic.intf.dto.DominiRespostaFilaDto;
+import es.caib.helium.logic.intf.dto.EnumeracioValorDto;
+import es.caib.helium.logic.intf.dto.EstatDto;
+import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.expedient.ExpedientInfoDto;
+import es.caib.helium.logic.intf.dto.FestiuDto;
+import es.caib.helium.logic.intf.dto.InteressatDto;
+import es.caib.helium.logic.intf.dto.InteressatTipusEnumDto;
+import es.caib.helium.logic.intf.dto.ReassignacioDto;
+import es.caib.helium.logic.intf.dto.TascaDadaDto;
+import es.caib.helium.logic.intf.dto.TerminiDto;
+import es.caib.helium.logic.intf.dto.TerminiIniciatDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
@@ -14,27 +66,43 @@ import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
 import es.caib.helium.logic.intf.service.WorkflowBridgeService;
 import es.caib.helium.logic.intf.util.Constants;
 import es.caib.helium.logic.intf.util.GlobalProperties;
+import es.caib.helium.logic.ms.DominiMs;
 import es.caib.helium.logic.security.ExtendedPermission;
-import es.caib.helium.ms.domini.DominiMs;
+import es.caib.helium.persist.entity.Alerta;
+import es.caib.helium.persist.entity.Camp;
+import es.caib.helium.persist.entity.CampTasca;
+import es.caib.helium.persist.entity.DefinicioProces;
+import es.caib.helium.persist.entity.Document;
+import es.caib.helium.persist.entity.DocumentTasca;
+import es.caib.helium.persist.entity.Entorn;
+import es.caib.helium.persist.entity.Enumeracio;
+import es.caib.helium.persist.entity.EnumeracioValors;
+import es.caib.helium.persist.entity.Estat;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.entity.Interessat;
+import es.caib.helium.persist.entity.Reassignacio;
 import es.caib.helium.persist.entity.Registre;
+import es.caib.helium.persist.entity.Tasca;
 import es.caib.helium.persist.entity.Termini;
-import es.caib.helium.persist.entity.*;
-import es.caib.helium.persist.repository.*;
+import es.caib.helium.persist.entity.TerminiIniciat;
+import es.caib.helium.persist.repository.CampRepository;
+import es.caib.helium.persist.repository.CampTascaRepository;
+import es.caib.helium.persist.repository.DefinicioProcesRepository;
+import es.caib.helium.persist.repository.DocumentRepository;
+import es.caib.helium.persist.repository.DocumentTascaRepository;
+import es.caib.helium.persist.repository.EntornRepository;
+import es.caib.helium.persist.repository.EnumeracioRepository;
+import es.caib.helium.persist.repository.EnumeracioValorsRepository;
+import es.caib.helium.persist.repository.EstatRepository;
+import es.caib.helium.persist.repository.ExpedientRepository;
+import es.caib.helium.persist.repository.ExpedientTipusRepository;
+import es.caib.helium.persist.repository.FestiuRepository;
+import es.caib.helium.persist.repository.InteressatRepository;
+import es.caib.helium.persist.repository.ReassignacioRepository;
+import es.caib.helium.persist.repository.TascaRepository;
+import es.caib.helium.persist.repository.TerminiIniciatRepository;
 import es.caib.helium.persist.util.ThreadLocalInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @Service
 public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
@@ -117,7 +185,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 
     // TODO: Modificar utilitzant el MS d'expedients i tasques
     @Override
-    public List<ExpedientInfo> findExpedientsConsultaGeneral(
+    public List<ExpedientInfoDto> findExpedientsConsultaGeneral(
             Long entornId,
             String titol,
             String numero,
@@ -160,7 +228,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                         nomesIniciats,
                         nomesFinalitzats);
 
-        List<ExpedientInfo> expedientInfos = new ArrayList<ExpedientInfo>();
+        List<ExpedientInfoDto> expedientInfos = new ArrayList<ExpedientInfoDto>();
         if (expedients != null) {
             for (Expedient expedient : expedients) {
                 expedientInfos.add(expedientHelper.toExpedientInfo(expedient));
@@ -171,7 +239,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 
     // TODO: Modificar amb el MS de dades
     @Override
-    public List<ExpedientInfo> findExpedientsConsultaDadesIndexades(
+    public List<ExpedientInfoDto> findExpedientsConsultaDadesIndexades(
             Long entornId,
             String expedientTipusCodi,
             Map<String, String> filtreValors) {
@@ -179,7 +247,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 "entornId=" + entornId + ", " +
                 "expedientTipusCodi=" + expedientTipusCodi + ", " +
                 "filtreValors=" + filtreValors + ")");
-        List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
+        List<ExpedientInfoDto> resposta = new ArrayList<ExpedientInfoDto>();
 
         Entorn entorn = entornRepository.findById(entornId)
                 .orElseThrow(() -> new NoTrobatException(Entorn.class, entornId));
@@ -758,9 +826,9 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 //    }
 
     @Override
-    public void addMissatgeExecucioTascaSegonPla(Long taskId, String[] message) {
+    public void addMissatgeExecucioTascaSegonPla(String taskId, String[] message) {
         if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
-            Map<Long, TascaSegonPlaHelper.InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
+            Map<String, TascaSegonPlaHelper.InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
             if (map.containsKey(taskId)) {
                 map.get(taskId).addMessage(message);
             }
@@ -768,9 +836,9 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     }
 
     @Override
-    public void setErrorTascaSegonPla(Long taskId, String error) {
+    public void setErrorTascaSegonPla(String taskId, String error) {
         if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
-            Map<Long, TascaSegonPlaHelper.InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
+            Map<String, TascaSegonPlaHelper.InfoSegonPla> map = tascaSegonPlaHelper.getTasquesSegonPla();
             if (map.containsKey(taskId)) {
                 map.get(taskId).setError(error);
             }

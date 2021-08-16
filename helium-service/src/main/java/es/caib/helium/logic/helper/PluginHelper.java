@@ -153,7 +153,7 @@ import java.util.Properties;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Slf4j
-@Component("pluginHelperV3")
+@Component
 public class PluginHelper {
 
 	private static final String CACHE_PERSONA_ID = "personaPluginCache";
@@ -2630,9 +2630,9 @@ public class PluginHelper {
 			if (resposta.getCertificacioData() != null) {
 				var certificacioContingut = resposta.getCertificacioContingut();
 				// Cetificació Títol: [títol document notificat] - Justificant [NIF interessat]
-				var expedientDocument = documentHelper.findDocumentPerDocumentStoreId(document.getProcessInstanceId(), document.getId());
-				var certificacioTitol = expedientDocument.getDocumentNom() + " - Justificant " + notificacio.getTitularNif();
-				var certificacioArxiuExtensio = resposta.getCertificacioTipusMime() != null
+				ExpedientDocumentDto expedientDocument = documentHelper.findDocumentPerDocumentStoreId(document.getProcessInstanceId(), document.getId());
+				String certificacioTitol = expedientDocument.getDocumentNom() + " - Justificant " + notificacio.getTitularNif();
+				String certificacioArxiuExtensio = resposta.getCertificacioTipusMime() != null 
 													&& resposta.getCertificacioTipusMime().toLowerCase().contains("xml") ?
 															  "xml"
 															: "pdf";
@@ -3988,7 +3988,117 @@ public class PluginHelper {
 		}
 		return portasignaturesPlugin;
 	}
-
+	private CustodiaPlugin getCustodiaPlugin() {
+		if (custodiaPlugin == null) {
+			String pluginClass = globalProperties.getProperty("app.custodia.plugin.class");
+			if (pluginClass != null && pluginClass.length() > 0) {
+				try {
+					Class<?> clazz = Class.forName(pluginClass);
+					custodiaPlugin = (CustodiaPlugin)clazz.newInstance();
+				} catch (Exception ex) {
+					throw tractarExcepcioEnSistemaExtern(
+							"Error al crear la instància del plugin de custòdia (" +
+							"pluginClass=" + pluginClass + ")",
+							ex);
+				}
+			} else {
+				throw tractarExcepcioEnSistemaExtern(
+						"No està configurada la classe per al plugin de custòdia",
+						null);
+			}
+		}
+		return custodiaPlugin;
+	}
+	private SignaturaPlugin getSignaturaPlugin() {
+		if (signaturaPlugin == null) {
+			String pluginClass = globalProperties.getProperty("app.signatura.plugin.class");
+			if (pluginClass != null && pluginClass.length() > 0) {
+				try {
+					Class<?> clazz = Class.forName(pluginClass);
+					signaturaPlugin = (SignaturaPlugin)clazz.newInstance();
+				} catch (Exception ex) {
+					throw tractarExcepcioEnSistemaExtern(
+							"Error al crear la instància del plugin de signatura (" +
+							"pluginClass=" + pluginClass + ")",
+							ex);
+				}
+			} else {
+				throw tractarExcepcioEnSistemaExtern(
+						"No està configurada la classe per al plugin de signatura",
+						null);
+			}
+		}
+		return signaturaPlugin;
+	}
+	private FirmaPlugin getFirmaPlugin() {
+		if (firmaPlugin == null) {
+			String pluginClass = globalProperties.getProperty("app.firma.plugin.class");
+			if (pluginClass != null && pluginClass.length() > 0) {
+				try {
+					Class<?> clazz = Class.forName(pluginClass);
+					firmaPlugin = (FirmaPlugin)clazz.newInstance();
+				} catch (Exception ex) {
+					throw tractarExcepcioEnSistemaExtern(
+							"Error al crear la instància del plugin de firma en servidor (" +
+							"pluginClass=" + pluginClass + ")",
+							ex);
+				}
+			} else {
+				throw tractarExcepcioEnSistemaExtern(
+						"No està configurada la classe per al plugin de firma en servidor",
+						null);
+			}
+		}
+		return firmaPlugin;
+	}
+	public IArxiuPlugin getArxiuPlugin() {
+		if (arxiuPlugin == null) {
+			String pluginClass = globalProperties.getProperty(
+					"app.arxiu.plugin.class");
+			if (pluginClass != null && pluginClass.length() > 0) {
+				try {
+					Class<?> clazz = Class.forName(pluginClass);
+						arxiuPlugin = (IArxiuPlugin)clazz.getDeclaredConstructor(
+								String.class,
+								Properties.class).newInstance(
+								"app.",
+								globalProperties.findAll());
+				} catch (Exception ex) {
+					throw tractarExcepcioEnSistemaExtern(
+							"Error al crear la instància del plugin d'arxiu digital (" +
+							"pluginClass=" + pluginClass + ")",
+							ex);
+				}
+			} else {
+				throw tractarExcepcioEnSistemaExtern(
+						"No està configurada la classe per al plugin d'arxiu digital",
+						null);
+			}
+		}
+		return arxiuPlugin;
+	}
+	private NotificacioPlugin getNotificacioPlugin() {
+		if (notificacioPlugin == null) {
+			String pluginClass = globalProperties.getProperty("app.notificacio.plugin.class");
+			if (pluginClass != null && pluginClass.length() > 0) {
+				try {
+					Class<?> clazz = Class.forName(pluginClass);
+					notificacioPlugin = (NotificacioPlugin)clazz.newInstance();
+				} catch (Exception ex) {
+					throw tractarExcepcioEnSistemaExtern(
+							"Error al crear la instància del plugin de NOTIFICACIÓ (" +
+							"pluginClass=" + pluginClass + ")",
+							ex);
+				}
+			} else {
+				throw tractarExcepcioEnSistemaExtern(
+						"No està configurada la classe per al plugin de NOTIFICACIÓ",
+						null);
+			}
+		}
+		return notificacioPlugin;
+	}
+	
 	private IValidateSignaturePlugin getValidaSignaturaPlugin() {		
 		if (validaSignaturaPlugin == null) {
 			//es.caib.ripea.plugin.validatesignature.class

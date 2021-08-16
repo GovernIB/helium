@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 import static es.caib.helium.domini.DominiTestHelper.CODI;
 import static es.caib.helium.domini.DominiTestHelper.VALOR;
@@ -431,7 +432,7 @@ class DominiServiceTest {
 
     @Test
     @DisplayName("Consulta de dades de domini")
-    void whenConsultaDomini_thenReturn() {
+    void whenConsultaDomini_thenReturn() throws ExecutionException, InterruptedException {
         // Given
         domini.setId(1L);
         ResultatDomini resultatDomini = new ResultatDomini();
@@ -447,7 +448,7 @@ class DominiServiceTest {
         System.setProperty("usuari1", "usuari");
         System.setProperty("password1", "password");
         // When
-        ResultatDomini resultat = dominiService.consultaDomini(1L, "IDF", null);
+        ResultatDomini resultat = dominiService.consultaDomini(1L, "IDF", null).get();
 
         // Then
         then(dominiRepository).should().findById(anyLong());

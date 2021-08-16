@@ -29,7 +29,7 @@ $(document).ready(function() {
 		var url = $(this).attr('action'); 
 		$.ajax({
 			type: "POST",
-			url: "/helium/v3/expedientTipus/${expedientTipus.id}/metadadesNti",
+			url: "/heliumback/v3/expedientTipus/${expedientTipus.id}/metadadesNti",
 			data: $(this).serialize(),
 			success: function(ajaxResponse) {
 				if (ajaxResponse.estatError) {
@@ -49,7 +49,7 @@ $(document).ready(function() {
 </script>
 <c:choose>
 	<c:when test="${not empty expedientTipus}">
-		<form:form cssClass="form-horizontal" enctype="multipart/form-data" method="post" commandName="expedientTipusMetadadesNtiCommand">
+		<form:form cssClass="form-horizontal" enctype="multipart/form-data" method="post" modelAttribute="expedientTipusMetadadesNtiCommand">
 			<div style="height: 400px">        
 				<hel:inputCheckbox name="actiu" textKey="expedient.tipus.metadades.nti.actiu"/>
 				<div id="inputs_metadadesNti">

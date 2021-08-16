@@ -127,7 +127,7 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 						ExtendedPermission.LOG_MANAGE,
 						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
-		workflowRetroaccioApi.eliminaInformacioRetroaccio(expedient.getProcessInstanceId());
+		workflowRetroaccioApi.eliminaInformacioRetroaccioProces(expedient.getProcessInstanceId());
 	}
 
 	/**

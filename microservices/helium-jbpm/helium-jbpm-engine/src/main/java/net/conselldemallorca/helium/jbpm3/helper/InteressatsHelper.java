@@ -9,9 +9,6 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class InteressatsHelper {
 
-    @Value("${es.caib.helium.jbpm.bridge.service.host}")
-    String bridgeAdress;
-
     @Autowired
     RestTemplate restTemplate;
 
@@ -30,7 +27,7 @@ public class InteressatsHelper {
     }
 
     private String getInteressatsBridgeAddress() {
-        return bridgeAdress + "/interessats";
+        return RestClientHelper.getBridgeAddress() + "/interessats";
     }
 
 }

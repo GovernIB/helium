@@ -35,6 +35,8 @@ import es.caib.helium.logic.intf.dto.TerminiIniciatDto;
 import es.caib.helium.logic.intf.dto.TramitDto;
 import es.caib.helium.logic.intf.dto.ZonaperEventDto;
 import es.caib.helium.logic.intf.dto.ZonaperExpedientDto;
+import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.exception.TramitacioException;
@@ -78,7 +80,7 @@ public interface Jbpm3HeliumService {
 	 * 
 	 * @param id
 	 */
-	public void createDadesTasca(Long id);
+	public void createDadesTasca(String id);
 	
 	/**
 	 * Obté l'expedient donat l'entorn, el tipus d'expedient i el seu número.
@@ -242,7 +244,7 @@ public interface Jbpm3HeliumService {
 	 * 
 	 * @param taskInstanceId
 	 */
-	public void alertaEsborrarAmbTaskInstanceId(long taskInstanceId);
+	public void alertaEsborrarAmbTaskInstanceId(String taskInstanceId);
 
 	/**
 	 * Modifica l'estat de l'expedient.
@@ -629,7 +631,7 @@ public interface Jbpm3HeliumService {
 	 * @throws TascaNotFoundException
 	 */
 	public List<CampTascaDto> findCampsPerTaskInstance(
-			long taskInstanceId) throws NoTrobatException;
+			String taskInstanceId) throws NoTrobatException;
 
 	/**
 	 * Retorna els documents d'una tasca.
@@ -641,7 +643,7 @@ public interface Jbpm3HeliumService {
 	 * @throws TascaNotFoundException
 	 */
 	public List<DocumentTascaDto> findDocumentsPerTaskInstance(
-			long taskInstanceId) throws NoTrobatException;
+			String taskInstanceId) throws NoTrobatException;
 
 	/**
 	 * Retorna el codi de variable jBPM per un codi de document.
@@ -1145,7 +1147,7 @@ public interface Jbpm3HeliumService {
 	 * Error completar tasca en segon pla
 	 * 
 	 */
-	public void setErrorTascaSegonPla(Long taskId, Exception ex);
+	public void setErrorTascaSegonPla(String taskId, Exception ex);
 	
 	/**
 	 * Obtenir id de tasca a partir de Token
@@ -1157,7 +1159,7 @@ public interface Jbpm3HeliumService {
 	 * Afegir missatge d'execució a la informació de la tasca en segón pla
 	 * 
 	 */
-	public void addMissatgeExecucioTascaSegonPla(Long taskId, String[] message);
+	public void addMissatgeExecucioTascaSegonPla(String taskId, String[] message);
 
 	/**
 	 * Obtenir la llista de rols a partir del codi d'un usuari
@@ -1173,7 +1175,7 @@ public interface Jbpm3HeliumService {
 	 * @param codi taska
 	 * @return booleà si la tasca està en segón pla o no
 	 */
-	public boolean isTascaEnSegonPla(Long taskId);
+	public boolean isTascaEnSegonPla(String taskId);
 
 	/** Retorna la llista de definicions de processos que siguin sub proces de l'indicat.
 	 * 

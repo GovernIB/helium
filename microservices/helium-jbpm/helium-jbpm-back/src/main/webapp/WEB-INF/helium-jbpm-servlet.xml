@@ -15,14 +15,20 @@
 		default-autowire="byName">
 
 <!--	<bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">-->
-<!--		<property name="location" value="${es.caib.helium.properties.path}"/>-->
+<!--		<property name="location" value="${net.conselldemallorca.helium.properties.path}"/>-->
 <!--	</bean>-->
 
-	<context:component-scan base-package="es.caib.helium.back"/>
+	<context:component-scan base-package="net.conselldemallorca.helium"/>
 
 	<context:annotation-config/>
 	<mvc:annotation-driven/>
 	<mvc:default-servlet-handler/>
+
+<!--	<bean id="workflowEngineApi" class="org.springframework.ejb.access.LocalStatelessSessionProxyFactoryBean">-->
+<!--		<property name="jndiName" value="helium-jbpm/WorkflowEngineApiBean/local"/>-->
+<!--		<property name="businessInterface" value="net.conselldemallorca.helium.api.service.WorkflowEngineApi"/>-->
+<!--		<property name="resourceRef" value="true" />-->
+<!--	</bean>-->
 
 <!--	<mvc:interceptors>-->
 <!--		<mvc:interceptor>-->
@@ -61,6 +67,12 @@
 		<property name="order" value="1"/>
 	</bean>
 
+<!--	<bean id="configurationLoader" class="org.springmodules.validation.bean.conf.loader.annotation.AnnotationBeanValidationConfigurationLoader"/>-->
+<!--	<bean id="errorCodeConverter" class="org.springmodules.validation.bean.converter.KeepAsIsErrorCodeConverter" />-->
+<!--	<bean id="annotationValidator" class="org.springmodules.validation.bean.BeanValidator"-->
+<!--		  p:configurationLoader-ref="configurationLoader"-->
+<!--		  p:errorCodeConverter-ref="errorCodeConverter"/>-->
+
 	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver" />
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
 <!--		<property name="maxUploadSize" value="${es.caib.helium.fileupload.maxsize}"/>-->
@@ -71,6 +83,7 @@
 		<property name="messageConverters">
 			<list>
 				<bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/>
+				<bean class="org.springframework.http.converter.ByteArrayHttpMessageConverter" />
 			</list>
 		</property>
 	</bean>

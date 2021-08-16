@@ -17,7 +17,7 @@ public class TaskClientImpl implements TaskClient {
 
 	private final String missatgeLog = "Cridant Engine Service - Task - ";
 
-	private TaskFeignClient taskClient;
+	private final TaskFeignClient taskClient;
 
 	@Override
 	public WTaskInstance getTaskById(String taskId) {

@@ -3,6 +3,18 @@
  */
 package es.caib.helium.back.interceptor;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.AsyncHandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.ModelAndViewDefiningException;
+
 import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.logic.intf.dto.EntornDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
@@ -12,16 +24,6 @@ import es.caib.helium.logic.intf.service.EntornService;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.AsyncHandlerInterceptor;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.ModelAndViewDefiningException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Interceptor per guardar a la sessió les dades de l'entorn
@@ -268,10 +270,13 @@ public class EntornInterceptor implements AsyncHandlerInterceptor {
 	private boolean isRequestResource(HttpServletRequest request) {
 		String uri = request.getRequestURI();
 		String root = request.getContextPath();
-		return uri.contains(root + "/img/") ||
+		return uri.contains(root + "/js/") ||
 				uri.contains(root + "/css/") ||
-				uri.contains(root + "/js/") ||
+				uri.contains(root + "/fonts/") ||
+				uri.contains(root + "/extensions/") ||
+				uri.contains(root + "/webjars/") ||
 				uri.contains("/datatable") ||
+				uri.contains("/error") ||
 				uri.contains("/selection");
 	}
 

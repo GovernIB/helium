@@ -135,6 +135,7 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	public void setNif(String nif) {
 		this.nif = nif;
 	}
+	@Column(name="dir3codi")
 	public String getDir3Codi() {
 		return dir3Codi;
 	}
@@ -171,12 +172,14 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	public void setTelefon(String telefon) {
 		this.telefon = telefon;
 	}
+	@Column(name="entregapostal")
 	public boolean isEntregaPostal() {
 		return entregaPostal;
 	}
 	public void setEntregaPostal(boolean entregaPostal) {
 		this.entregaPostal = entregaPostal;
 	}
+	@Column(name="entregatipus")
 	public EntregaPostalTipus getEntregaTipus() {
 		return entregaTipus;
 	}
@@ -195,18 +198,21 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	public void setLinia2(String linia2) {
 		this.linia2 = linia2;
 	}
+	@Column(name="codipostal")
 	public String getCodiPostal() {
 		return codiPostal;
 	}
 	public void setCodiPostal(String codiPostal) {
 		this.codiPostal = codiPostal;
 	}
+	@Column(name="entregadeh")
 	public boolean isEntregaDeh() {
 		return entregaDeh;
 	}
 	public void setEntregaDeh(boolean entregaDeh) {
 		this.entregaDeh = entregaDeh;
 	}
+	@Column(name="entregadehobligat")
 	public boolean isEntregaDehObligat() {
 		return entregaDehObligat;
 	}

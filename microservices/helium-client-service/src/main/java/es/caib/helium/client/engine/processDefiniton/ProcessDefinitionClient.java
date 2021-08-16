@@ -1,17 +1,17 @@
 package es.caib.helium.client.engine.processDefiniton;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import es.caib.helium.client.engine.model.WProcessDefinition;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Service
 public interface ProcessDefinitionClient {
 
-	public WProcessDefinition getProcessDefinition(String deploymentId, String processDefinitionId);
+	public WProcessDefinition getProcessDefinition(String processDefinitionId);
 	
-	public List<WProcessDefinition> getSubProcessDefinitions(String deploymentId, String processDefinitionId);
+	public List<WProcessDefinition> getSubProcessDefinitions(String processDefinitionId);
 	
 	public List<String> getTaskNamesFromDeployedProcessDefinition(String deploymentId, String processDefinitionId);
 	
@@ -19,5 +19,7 @@ public interface ProcessDefinitionClient {
 	
 	public WProcessDefinition findProcessDefinitionWithProcessInstanceId(String processInstanceId);
 	
-	public void updateSubprocessDefinition(String processDefinitionId1, String processDefinitionId2); 
+	public void updateSubprocessDefinition(String processDefinitionId1, String processDefinitionId2);
+
+	public WProcessDefinition parse(MultipartFile zipFile) throws Exception;
 }

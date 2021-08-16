@@ -35,7 +35,7 @@ import java.util.List;
  * Controlador per a la pipella de terminis de la definició de procés.
  * 
  */
-@Controller(value = "definicioProcesTerminiControllerV3")
+@Controller
 @RequestMapping("/v3/definicioProces")
 public class DefinicioProcesTerminiController extends BaseDefinicioProcesController {
 
@@ -70,7 +70,7 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
 			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyar(entornActual.getId(),
 					definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
-			model.addAttribute("baseUrl", ("/helium/v3/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
+			model.addAttribute("baseUrl", ("/heliumback/v3/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
 		}
 		return "v3/expedientTipusTermini";
 	}

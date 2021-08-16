@@ -1,6 +1,5 @@
 package es.caib.helium.camunda.service;
 
-import es.caib.helium.camunda.model.DelegationInfo;
 import es.caib.helium.camunda.model.WTaskInstance;
 
 import java.util.List;
@@ -122,36 +121,36 @@ public interface TaskInstanceService {
             String taskInstanceId,
             String[] pooledActors);
 
-    /**
-     * Delega una tasca a un altre usuari
-     *
-     * @param task
-     * @param actorId
-     * @param comentari
-     * @param supervisada
-     */
-    public void delegateTaskInstance(
-            WTaskInstance task,
-            String actorId,
-            String comentari,
-            boolean supervisada);
-
-    /**
-     * Obté la informació d'una delegació realitzada
-     *
-     * @param taskId
-     * @param includeActors
-     * @return
-     */
-    public DelegationInfo getDelegationTaskInstanceInfo(
-            String taskId,
-            boolean includeActors);
-
-    /**
-     * Cancel·la una delegació realitzada, i retorna la tasca a l'usuari original
-     * @param task
-     */
-    public void cancelDelegationTaskInstance(WTaskInstance task);
+//    /**
+//     * Delega una tasca a un altre usuari
+//     *
+//     * @param task
+//     * @param actorId
+//     * @param comentari
+//     * @param supervisada
+//     */
+//    public void delegateTaskInstance(
+//            WTaskInstance task,
+//            String actorId,
+//            String comentari,
+//            boolean supervisada);
+//
+//    /**
+//     * Obté la informació d'una delegació realitzada
+//     *
+//     * @param taskId
+//     * @param includeActors
+//     * @return
+//     */
+//    public DelegationInfo getDelegationTaskInstanceInfo(
+//            String taskId,
+//            boolean includeActors);
+//
+//    /**
+//     * Cancel·la una delegació realitzada, i retorna la tasca a l'usuari original
+//     * @param task
+//     */
+//    public void cancelDelegationTaskInstance(WTaskInstance task);
 
     // Caché
 

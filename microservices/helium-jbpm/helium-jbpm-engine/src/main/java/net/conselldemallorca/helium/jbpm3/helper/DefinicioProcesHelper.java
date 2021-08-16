@@ -1,16 +1,14 @@
 package net.conselldemallorca.helium.jbpm3.helper;
 
+import lombok.extern.slf4j.Slf4j;
 import net.conselldemallorca.helium.api.dto.DefinicioProcesDto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+@Slf4j
 @Component
 public class DefinicioProcesHelper {
-
-    @Value("${es.caib.helium.jbpm.bridge.service.host}")
-    String bridgeAdress;
 
     @Autowired
     RestTemplate restTemplate;
@@ -61,7 +59,11 @@ public class DefinicioProcesHelper {
     }
 
     public void initializeDefinicionsProces() {
-        restTemplate.postForLocation(getDefinicioProcesBridgeAddress() + "/initialize", "null");
+        try {
+            restTemplate.postForLocation(getDefinicioProcesBridgeAddress() + "/initialize", "null");
+        } catch (Exception ex) {
+            log.debug("Error al intentar inicialitzar les definicions de procés per al job executor.");
+        }
     }
 
     public String getProcessDefinitionIdHeretadaAmbPid(String processInstanceId) {
@@ -73,7 +75,7 @@ public class DefinicioProcesHelper {
 
 
     private String getDefinicioProcesBridgeAddress() {
-        return bridgeAdress + "/definicionsProces";
+        return RestClientHelper.getBridgeAddress() + "/definicionsProces";
     }
 
 }

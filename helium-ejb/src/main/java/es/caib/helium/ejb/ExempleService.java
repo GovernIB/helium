@@ -17,7 +17,7 @@ public class ExempleService extends AbstractService<es.caib.helium.logic.intf.se
 
 
 	@Override
-	@RolesAllowed({"EMS_ADMIN", "EMS_RESP"})
+	@RolesAllowed({"EMS_ADMIN", "EMS_RESP", "HEL_ADMIN", "HEL_USER", "tothom"})
 	public String hola(
 			String text) {
 		return getDelegateService().hola(text);

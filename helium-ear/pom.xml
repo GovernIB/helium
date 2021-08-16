@@ -1,98 +1,114 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>net.conselldemallorca.helium</groupId>
+		<groupId>es.caib.helium</groupId>
 		<artifactId>helium</artifactId>
-		<version>3.2</version>
+		<version>4.0.0</version>
 	</parent>
 	<artifactId>helium-ear</artifactId>
 	<packaging>ear</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+
 	<dependencies>
+
 		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-validator-legacy</artifactId>
-			<version>4.0.2.GA</version>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
 			<exclusions>
 				<exclusion>
-					<artifactId>slf4j-api</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>hibernate-core</artifactId>
-					<groupId>org.hibernate</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>hibernate-commons-annotations</artifactId>
-					<groupId>org.hibernate</groupId>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-core</artifactId>
-			<version>${hibernate.version}</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>slf4j-api</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-validator</artifactId>
-			<version>${hibernate.validator.version}</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>slf4j-api</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-			</exclusions>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>helium-hibernate-entitymanager</artifactId>
-			<version>${helium.version}</version>
-			<type>jar</type>
+			<artifactId>helium-ejb</artifactId>
+			<version>${project.version}</version>
+			<type>ejb</type>
+			<exclusions>
+				<exclusion>
+					<groupId>org.liquibase</groupId>
+					<artifactId>liquibase-core</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>helium-webapp</artifactId>
-			<version>${helium.version}</version>
+			<groupId>es.caib.helium</groupId>
+			<artifactId>helium-back</artifactId>
+			<version>4.0.0</version>
 			<type>war</type>
 		</dependency>
+		<!-- 
+			 La següent dependència ja està inclosa a dins el .war. Només s'inclou aquí per a que l'ear
+			 contengui les seves dependències. Després s'haurà d'excloure el fitxer emiserv-controller*.jar
+			 de dins la carpeta lib per a evitar conflictes per classes duplicades.
+		-->
 		<dependency>
-			<groupId>commons-beanutils</groupId>
-			<artifactId>commons-beanutils</artifactId>
-			<version>1.9.1</version>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>helium-controller</artifactId>
+			<version>${project.version}</version>
+			<exclusions>
+				<!--
+					Excloem la dependència de keycloak perquè si no ho feim ens dona errors en les classes
+					org.keycloak.* perquè estan carregades a dos classloaders diferents.
+				-->
+				<exclusion>
+					<groupId>org.keycloak</groupId>
+					<artifactId>keycloak-core</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
- 		<dependency>
-			<groupId>org.apache.santuario</groupId>
-			<artifactId>xmlsec</artifactId>
-			<version>1.4.3</version>
-		</dependency>		
 	</dependencies>
+
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-ear-plugin</artifactId>
-				<version>2.3.2</version>
+				<version>3.2.0</version>
 				<configuration>
-					<finalName>helium</finalName>
+					<generateApplicationXml>true</generateApplicationXml>
+					<defaultLibBundleDir>/lib</defaultLibBundleDir>
+					<includeLibInApplicationXml>false</includeLibInApplicationXml>
+					<packagingExcludes>lib/helium-controller-*.jar</packagingExcludes>
+					<version>6</version>
+					<initializeInOrder>true</initializeInOrder>
+					<archive>
+						<manifestEntries>
+							<Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
+							<Implementation-Vendor>Límit Tecnologies</Implementation-Vendor>
+							<Implementation-Version>${project.version}</Implementation-Version>
+							<Implementation-SCM-Branch>${git.branch}</Implementation-SCM-Branch>
+							<Implementation-SCM-Revision>${git.commit.id}</Implementation-SCM-Revision>
+						</manifestEntries>
+					</archive>
 					<modules>
+						<ejbModule>
+							<groupId>${project.groupId}</groupId>
+							<artifactId>helium-ejb</artifactId>
+							<bundleFileName>helium-ejb.jar</bundleFileName>
+						</ejbModule>
 						<webModule>
 							<groupId>${project.groupId}</groupId>
-							<artifactId>helium-webapp</artifactId>
+							<artifactId>helium-back</artifactId>
+							<contextRoot>/heliumback</contextRoot>
+							<bundleFileName>helium-back.war</bundleFileName>
 						</webModule>
 					</modules>
-					<defaultJavaBundleDir>lib/</defaultJavaBundleDir>
 				</configuration>
 			</plugin>
+						 
 		</plugins>
+		<finalName>helium</finalName>
 	</build>
+  
 </project>

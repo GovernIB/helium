@@ -22,7 +22,7 @@
 		</style>
 	</head>
 	<body>		
-		<form:form id="relacionarExpediente" name="relacionarExpedient" action="relacionarExpediente" method="post" commandName="relacionarCommand" cssClass="uniForm">
+		<form:form id="relacionarExpediente" name="relacionarExpedient" action="relacionarExpediente" method="post" modelAttribute="relacionarCommand" cssClass="uniForm">
 			<hel:inputSuggest name="expedientIdDesti" urlConsultaLlistat="expedient/suggest" urlConsultaInicial="expedient/suggest" textKey="expedient.info.relacionar.amb" placeholderKey="expedient.info.relacionar.amb"/>
 			<div id="modal-botons">
 				<button type="button" class="modal-tancar btn btn-default" name="submit" value="cancel">

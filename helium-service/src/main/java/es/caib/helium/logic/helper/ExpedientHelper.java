@@ -19,7 +19,7 @@ import es.caib.helium.logic.intf.dto.EntornDto;
 import es.caib.helium.logic.intf.dto.EstatDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto.IniciadorTipusDto;
-import es.caib.helium.logic.intf.dto.ExpedientInfo;
+import es.caib.helium.logic.intf.dto.expedient.ExpedientInfoDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
 import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
 import es.caib.helium.logic.intf.dto.PersonaDto;
@@ -1662,22 +1662,29 @@ public class ExpedientHelper {
 				definicioProces.getJbpmId(),
 				variables);
 		expedient.setProcessInstanceId(processInstance.getId());
-		
-//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
-		
-		// Emmagatzema el nou expedient
-//		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
-		Expedient expedientPerRetornar = expedientRepository.saveAndFlush(expedient);
-//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
 
-		// Verificar la ultima vegada que l'expedient va modificar el seu estat
-//		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
-		workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
-				processInstance.getId(),
-				ExpedientRetroaccioTipus.EXPEDIENT_INICIAR,
-				null,
-				ExpedientRetroaccioEstat.IGNORAR);
-//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
+		Long infoRetroaccioId = null;
+		Long registreId = null;
+		String arxiuUuid = null;
+
+		Expedient expedientPerRetornar = null;
+
+		try {
+	//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
+
+			// Emmagatzema el nou expedient
+	//		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
+			expedientPerRetornar = expedientRepository.saveAndFlush(expedient);
+	//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
+
+			// Verificar la ultima vegada que l'expedient va modificar el seu estat
+	//		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
+			infoRetroaccioId = workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
+					processInstance.getId(),
+					ExpedientRetroaccioTipus.EXPEDIENT_INICIAR,
+					null,
+					ExpedientRetroaccioEstat.IGNORAR);
+	//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
 
 //		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Crear registre i convertir expedient");
 		// Registra l'inici de l'expedient
@@ -1713,7 +1720,7 @@ public class ExpedientHelper {
 		
 		try {
 			// Afegim els documents
-//			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
+	//			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
 			if (documents != null){
 				for (Map.Entry<String, DadesDocumentDto> doc: documents.entrySet()) {
 					if (doc.getValue() != null) {
@@ -1765,14 +1772,20 @@ public class ExpedientHelper {
 			indexHelper.expedientIndexLuceneCreate(expedient.getProcessInstanceId());
 //			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
 		} catch(Exception e) {
+			// Rollback de la creació del procés al Motor de WF
+			workflowEngineApi.deleteProcessInstance(expedient.getProcessInstanceId());
+
+			// Rollback de la informació de retroacció
+			workflowRetroaccioApi.eliminaInformacioRetroaccio(infoRetroaccioId);
+
 			// Rollback de la creació de l'expedient a l'arxiu
 			if (arxiuUuid != null)
 				try {
-					logger.info("Rollback de la creació de l'expedient a l'Arxiu " + expedientPerRetornar.getIdentificador() + " amb uuid " + arxiuUuid);
+					logger.info("Rollback de la creació de l'expedient a l'Arxiu " + expedient.getIdentificador() + " amb uuid " + arxiuUuid);
 					// Esborra l'expedient de l'arxiu
 					pluginHelper.arxiuExpedientEsborrar(arxiuUuid);
 				} catch(Exception re) {
-					logger.error("Error esborrant l'expedient " + expedientPerRetornar.getIdentificador() + " amb uuid " + arxiuUuid + " :" + re.getMessage());
+					logger.error("Error esborrant l'expedient " + expedient.getIdentificador() + " amb uuid " + arxiuUuid + " :" + re.getMessage());
 				}
 			throw e;
 		}

@@ -32,7 +32,7 @@ class TascaRepositoryIT {
     void setUp() {
         expedient = entityManager.persistAndFlush(
         		ExpedientTestHelper.generateExpedient(1, 1L, 1L, 1L, "1", "1/2021", "Títol 1"));
-        tasca = TascaTestHelper.generateTasca(1, 1L, expedient, "nom 1", "títol 1");
+        tasca = TascaTestHelper.generateTasca(1, "1", expedient, "p1", "nom 1", "títol 1");
     }
 
 

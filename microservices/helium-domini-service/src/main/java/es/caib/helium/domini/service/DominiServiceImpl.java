@@ -23,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -36,6 +37,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -356,8 +358,9 @@ public class DominiServiceImpl implements DominiService {
     // //////////////////////////////////////////////
 
     @Override
+    @Async
     @Transactional(readOnly = true)
-    public ResultatDomini consultaDomini(
+    public CompletableFuture<ResultatDomini> consultaDomini(
             Long dominiId,
             String identificador,
             Map<String, String> parametres) {
@@ -432,7 +435,7 @@ public class DominiServiceImpl implements DominiService {
         } else {
             resultat = resultatCache.getResultatDomini();
         }
-        return resultat;
+        return CompletableFuture.completedFuture(resultat);
     }
 
     // Cache

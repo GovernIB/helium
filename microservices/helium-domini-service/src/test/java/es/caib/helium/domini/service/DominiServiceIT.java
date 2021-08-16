@@ -37,6 +37,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import static com.github.jenspiegsa.wiremockextension.ManagedWireMockServer.with;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -490,7 +491,7 @@ class DominiServiceIT {
 
     @Test
     @DisplayName("Consulta de domini REST")
-    void whenConsultaDominiRest_thenReturn() {
+    void whenConsultaDominiRest_thenReturn() throws ExecutionException, InterruptedException {
         // Given
         final String IDENTIFICADOR = "IDF1";
         Map<String, String> parametres = DominiTestHelper.generateParams();
@@ -498,7 +499,7 @@ class DominiServiceIT {
         wireMockServer.stubFor(get(urlPathEqualTo("/api/rest/test")).willReturn(okJson(jsonResponse)));
 
         // When
-        ResultatDomini resultat = dominiService.consultaDomini(dto1.getId(), IDENTIFICADOR, parametres);
+        ResultatDomini resultat = dominiService.consultaDomini(dto1.getId(), IDENTIFICADOR, parametres).get();
 
         // Then
         assertThat(resultat).isNotNull();
@@ -510,7 +511,7 @@ class DominiServiceIT {
 
     @Test
     @DisplayName("Consulta de domini REST amb caché")
-    void whenConsultaDominiRest_thenReturnCache() {
+    void whenConsultaDominiRest_thenReturnCache() throws ExecutionException, InterruptedException {
         // Given
         final String IDENTIFICADOR = "IDF1";
         Map<String, String> parametres = DominiTestHelper.generateParams();
@@ -518,8 +519,8 @@ class DominiServiceIT {
         wireMockServer.stubFor(get(urlPathEqualTo("/api/rest/test")).willReturn(okJson(jsonResponse)));
 
         // When
-        ResultatDomini resultat = dominiService.consultaDomini(dto1.getId(), IDENTIFICADOR, parametres);
-        ResultatDomini resultat2 = dominiService.consultaDomini(dto1.getId(), IDENTIFICADOR, parametres);
+        ResultatDomini resultat = dominiService.consultaDomini(dto1.getId(), IDENTIFICADOR, parametres).get();
+        ResultatDomini resultat2 = dominiService.consultaDomini(dto1.getId(), IDENTIFICADOR, parametres).get();
 
         // Then
         assertThat(resultat).isNotNull();
@@ -549,7 +550,7 @@ class DominiServiceIT {
 
     @Test
     @DisplayName("Consulta de domini WS")
-    void whenConsultaDominiWs_thenReturn() {
+    void whenConsultaDominiWs_thenReturn() throws ExecutionException, InterruptedException {
         // Given
         final String IDENTIFICADOR = "IDF1";
         Map<String, String> parametres = DominiTestHelper.generateParams();
@@ -561,7 +562,7 @@ class DominiServiceIT {
                 ));
 
         // When
-        ResultatDomini resultat = dominiService.consultaDomini(dto3.getId(), IDENTIFICADOR, parametres);
+        ResultatDomini resultat = dominiService.consultaDomini(dto3.getId(), IDENTIFICADOR, parametres).get();
 
         // Then
         assertThat(resultat).isNotNull();
@@ -590,7 +591,7 @@ class DominiServiceIT {
 
     @Test
     @DisplayName("Consulta de domini intern")
-    void whenConsultaDominiIntern_thenReturn() {
+    void whenConsultaDominiIntern_thenReturn() throws ExecutionException, InterruptedException {
         // Given
         final String IDENTIFICADOR = "UNITAT_PER_CODI";
         Map<String, String> parametres = DominiTestHelper.generateParams();
@@ -604,7 +605,7 @@ class DominiServiceIT {
                 ));
 
         // When
-        ResultatDomini resultat = dominiService.consultaDomini(0L, IDENTIFICADOR, parametres);
+        ResultatDomini resultat = dominiService.consultaDomini(0L, IDENTIFICADOR, parametres).get();
 
         // Then
         assertThat(resultat).isNotNull();
@@ -655,7 +656,7 @@ class DominiServiceIT {
     @DisplayName("Consulta de domini SQL")
     @Sql(scripts = "/scripts/domini_data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, config = @SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED))
     @Sql(scripts = "/scripts/domini_clear.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, config = @SqlConfig(transactionMode = SqlConfig.TransactionMode.ISOLATED))
-    void whenConsultaDominiSql_thenReturn() {
+    void whenConsultaDominiSql_thenReturn() throws ExecutionException, InterruptedException {
         // Given
         final String IDENTIFICADOR = "IDF1";
         Map<String, String> parametres = new HashMap<>();
@@ -663,7 +664,7 @@ class DominiServiceIT {
         parametres.put("entorn_id-type", "int");
 
         // When
-        ResultatDomini resultat = dominiService.consultaDomini(dto2.getId(), IDENTIFICADOR, parametres);
+        ResultatDomini resultat = dominiService.consultaDomini(dto2.getId(), IDENTIFICADOR, parametres).get();
 
         // Then
         assertThat(resultat).isNotNull();

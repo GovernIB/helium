@@ -17,7 +17,7 @@ public class TaskVariableClientImpl implements TaskVariableClient {
 
 	private final String missatgeLog = "Cridant Engine Service - TaskVariable - ";
 
-	private TaskVariableFeignClient taskVariableClient;
+	private final TaskVariableFeignClient taskVariableClient;
 
 	@Override
 	public List<VariableRest> getTaskInstanceVariables(String taskId) {

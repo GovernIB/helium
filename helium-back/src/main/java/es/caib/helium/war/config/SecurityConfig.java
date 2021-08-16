@@ -3,10 +3,13 @@
  */
 package es.caib.helium.war.config;
 
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,7 +24,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.mapping.SimpleAttributes2GrantedAuthoritiesMapper;
+import org.springframework.security.core.authority.mapping.Attributes2GrantedAuthoritiesMapper;
+import org.springframework.security.core.authority.mapping.MappableAttributesRetriever;
 import org.springframework.security.core.authority.mapping.SimpleMappableAttributesRetriever;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,6 +37,12 @@ import org.springframework.security.web.authentication.preauth.j2ee.J2eeBasedPre
 import org.springframework.security.web.authentication.preauth.j2ee.J2eePreAuthenticatedProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import es.caib.helium.logic.intf.dto.CarrecJbpmIdDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.PermisRolDto;
+import es.caib.helium.logic.intf.service.AplicacioService;
+import es.caib.helium.logic.intf.service.CarrecService;
+import es.caib.helium.logic.intf.service.PermisService;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -47,25 +57,42 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	private static final String ROLE_PREFIX = "";
 
+	@Resource
+	private AplicacioService aplicacioService;
+
+	@Resource
+	private PermisService permisService;
+
+	@Resource
+	private CarrecService carrecService;
+
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.authenticationProvider(preauthAuthProvider()).
-		jee().j2eePreAuthenticatedProcessingFilter(preAuthenticatedProcessingFilter());
+		http.
+			authenticationProvider(preauthAuthProvider()).
+			jee().j2eePreAuthenticatedProcessingFilter(preAuthenticatedProcessingFilter());
 		http.logout().
-		addLogoutHandler(getLogoutHandler()).
-		logoutRequestMatcher(new AntPathRequestMatcher("/logout")).
-		invalidateHttpSession(true).
-		logoutSuccessUrl("/").
-		permitAll(false);
-		http.authorizeRequests().
-		//antMatchers("/test").hasRole("tothom").
-		//antMatchers("/api/**/*").permitAll().
-		//anyRequest().permitAll();
-		anyRequest().authenticated();
+			addLogoutHandler(getLogoutHandler()).
+			logoutRequestMatcher(new AntPathRequestMatcher("/logout")).
+			invalidateHttpSession(true).
+			logoutSuccessUrl("/").
+			permitAll(false);
+        http.authorizeRequests().
+			antMatchers("/js/**").permitAll().
+			antMatchers("/css/**").permitAll().
+			antMatchers("/fonts/**").permitAll().
+			antMatchers("/webjars/**").permitAll().
+			antMatchers("/img/**").permitAll().
+			antMatchers("/extensions/**").permitAll().
+			antMatchers("/**/datatable/**").permitAll().
+			antMatchers("/**/selection/**").permitAll().
+			anyRequest().authenticated();
+
 		http.cors();
 		http.csrf().disable();
 		http.headers().frameOptions().disable();
 	}
+	
 
 	@Bean
 	public PreAuthenticatedAuthenticationProvider preauthAuthProvider() {
@@ -138,14 +165,86 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				}
 				return result;
 			}
+			
+			/** Sobreescriu el mètode per retornar tots els rols en el cas d'autenticació keycloak. */
+			@Override
+			protected Collection<String> getUserRoles(HttpServletRequest request) {
+				Collection<String> rols = null;
+				try {
+					if (request.getUserPrincipal() != null) {
+						if (request.getUserPrincipal() instanceof KeycloakPrincipal) {
+							rols = new ArrayList<String>();
+							KeycloakPrincipal<?> keycloakPrincipal = ((KeycloakPrincipal<?>)request.getUserPrincipal());
+							Set<String> roles = keycloakPrincipal.getKeycloakSecurityContext().getToken().getResourceAccess(
+									keycloakPrincipal.getKeycloakSecurityContext().getToken().getIssuedFor()).getRoles();
+							for (String rol : roles) {
+								rols.add(rol);
+							}
+						} else {
+							rols = super.getUserRoles(request);
+						}
+					}
+				} catch(Exception e) {
+					log.error("Error obtenint els rols de l'usuari autenticat: " + e.getMessage());
+				}
+				return rols;
+			}
 		};
-		SimpleMappableAttributesRetriever mappableAttributesRetriever = new SimpleMappableAttributesRetriever();
-		mappableAttributesRetriever.setMappableAttributes(new HashSet<String>());
-		authenticationDetailsSource.setMappableRolesRetriever(mappableAttributesRetriever);
-		SimpleAttributes2GrantedAuthoritiesMapper attributes2GrantedAuthoritiesMapper = new SimpleAttributes2GrantedAuthoritiesMapper();
-		attributes2GrantedAuthoritiesMapper.setAttributePrefix(ROLE_PREFIX);
-		authenticationDetailsSource.setUserRoles2GrantedAuthoritiesMapper(attributes2GrantedAuthoritiesMapper);
+		// Llista de rols permesos a l'apliació
+		authenticationDetailsSource.setMappableRolesRetriever(mappableRolesRetriever());
+		// Mapeig de rols
+		authenticationDetailsSource.setUserRoles2GrantedAuthoritiesMapper(mapBasedAttributes2GrantedAuthoritiesMapper());
+		
 		return authenticationDetailsSource;
+	}
+	
+	/** Construeix el ben que consulta tots els rols mapejables definits a Helium.
+	 * 
+	 * @return
+	 */
+	@Bean
+	public MappableAttributesRetriever mappableRolesRetriever() {
+		SimpleMappableAttributesRetriever mappableRolesRetriever = new SimpleMappableAttributesRetriever();
+		Set<String> rols = new HashSet<String>();
+		
+		// Rols per defecte
+		rols.add("ROLE_ADMIN");
+		rols.add("ROLE_USER");
+		rols.add("HEL_ADMIN");
+		rols.add("HEL_USER");
+		rols.add("tothom");
+		rols.add("TOTHOM");
+		
+		// Rols d'aplicació o assignats en el motor
+		String source = aplicacioService.getGlobalProperties().getProperty("app.jbpm.identity.source");
+		if ("helium".equalsIgnoreCase(source)) {
+			for (PermisRolDto permis: permisService.findAll()) {
+				String codi = permis.getCodi();
+				if (!rols.contains(codi))
+					rols.add(codi);
+			}
+		} else {
+			PaginacioParamsDto paginacioTots = new PaginacioParamsDto();
+			paginacioTots.setPaginaNum(0);
+			paginacioTots.setPaginaTamany(Integer.MAX_VALUE);
+			for (CarrecJbpmIdDto group: carrecService.findConfigurats(paginacioTots)) {
+				if (group != null && !rols.contains(group.getCodi()))
+					rols.add(group.getCodi());
+			}
+		}
+		mappableRolesRetriever.setMappableAttributes(rols);
+
+		return mappableRolesRetriever;
+	}
+	
+	/** Bean per definir el mapeig de rols.
+	 * 
+	 * @return
+	 */
+	@Bean 
+	public Attributes2GrantedAuthoritiesMapper mapBasedAttributes2GrantedAuthoritiesMapper() {
+		
+		return new HeliumMapBasedAttributes2GrantedAuthoritiesMapper();
 	}
 
 	@Bean

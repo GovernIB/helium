@@ -33,7 +33,7 @@ import java.util.Set;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Service("serviceUtilsV3")
+@Service
 public class IndexHelper {
 
 	@Resource

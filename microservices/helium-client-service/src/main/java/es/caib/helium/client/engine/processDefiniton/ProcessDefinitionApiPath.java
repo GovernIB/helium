@@ -4,7 +4,7 @@ public class ProcessDefinitionApiPath {
 	
 	public static final String API_PATH = "/api/v1/processDefinitions";
 
-	public static final String GET_PROCESS_DEFINITION = API_PATH + "";
+	public static final String GET_PROCESS_DEFINITION = API_PATH + "/{processDefinitionId}";
 
 	public static final String GET_SUB_PROCESS_DEFINITIONS = API_PATH + "/{processDefinitionId}/subProcessDefinition";
 	
@@ -15,6 +15,7 @@ public class ProcessDefinitionApiPath {
 	public static final String FIND_PROCESS_DEFINITION_WITH_PROCESS_INSTANCE_ID = API_PATH + "/byProcessInstance/{processInstanceId}";
 	
 	public static final String UPDATE_SUB_PROCESS_DEFINITON = API_PATH + "";
-	
-	
+
+	public static final String PROCESS_DEFINITON_PARSE = API_PATH + "/parse";
+
 }

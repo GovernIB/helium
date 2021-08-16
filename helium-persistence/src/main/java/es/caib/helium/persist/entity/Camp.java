@@ -369,7 +369,7 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		getRegistrePares().remove(registrePare);
 	}
 
-	@OneToMany(mappedBy="registre", cascade={CascadeType.ALL}, fetch=FetchType.EAGER)
+	@OneToMany(mappedBy="registre", cascade={CascadeType.ALL}, fetch=FetchType.LAZY)
 	@OrderBy("ordre asc")
 	@Fetch(value = FetchMode.SUBSELECT)
 	public List<CampRegistre> getRegistreMembres() {

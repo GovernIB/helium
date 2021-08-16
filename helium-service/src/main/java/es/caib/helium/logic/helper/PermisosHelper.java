@@ -738,7 +738,10 @@ public class PermisosHelper {
 					ps.clear();
 				} catch (NotFoundException ex) {}
 			}
-		} catch (NotFoundException ex) {}
+		} catch (NotFoundException ex) {
+			System.out.println("ex: " + ex.getMessage());
+		}
+		
 		return granted;
 	}
 

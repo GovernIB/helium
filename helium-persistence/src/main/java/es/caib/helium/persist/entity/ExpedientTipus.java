@@ -599,7 +599,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 		this.entorn = entorn;
 	}
 
-	@OneToMany(mappedBy="expedientTipus", fetch=FetchType.EAGER, cascade={CascadeType.ALL})
+	@OneToMany(mappedBy="expedientTipus", fetch=FetchType.LAZY, cascade={CascadeType.ALL})
 	@OrderBy("ordre asc")
 	@Fetch(value = FetchMode.SUBSELECT)
 	public List<Estat> getEstats() {
@@ -658,7 +658,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 		getDefinicionsProces().remove(definicioProces);
 	}
 
-	@OneToMany(mappedBy="expedientTipus", fetch=FetchType.EAGER, cascade={CascadeType.ALL})
+	@OneToMany(mappedBy="expedientTipus", fetch=FetchType.LAZY, cascade={CascadeType.ALL})
 	@Fetch(value = FetchMode.SUBSELECT)
 	@OrderBy("ordre asc")
 	public Set<Consulta> getConsultes() {
@@ -703,7 +703,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 		getEnumeracions().remove(enumeracio);
 	}
 
-	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL}, fetch=FetchType.EAGER)
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL}, fetch=FetchType.LAZY)
 	@Fetch(value = FetchMode.SUBSELECT)
 	@MapKey(name = "any")
 	@Sort(type = SortType.NATURAL)
@@ -714,7 +714,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 		this.sequenciaAny = sequenciaAny;
 	}
 
-	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL}, fetch=FetchType.EAGER)
+	@OneToMany(mappedBy="expedientTipus", cascade={CascadeType.ALL}, fetch=FetchType.LAZY)
 	@Fetch(value = FetchMode.SUBSELECT)
 	@MapKey(name = "any")
 	@Sort(type = SortType.NATURAL)

@@ -3,6 +3,18 @@
  */
 package es.caib.helium.logic.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.DominiHelper;
 import es.caib.helium.logic.helper.EntornHelper;
@@ -19,22 +31,11 @@ import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
 import es.caib.helium.logic.intf.extern.domini.FilaResultat;
 import es.caib.helium.logic.intf.service.DominiService;
+import es.caib.helium.logic.ms.DominiMs;
 import es.caib.helium.logic.util.EntornActual;
-import es.caib.helium.ms.domini.DominiMs;
-import es.caib.helium.ms.domini.client.model.Domini;
 import es.caib.helium.persist.entity.Camp;
 import es.caib.helium.persist.entity.ExpedientTipus;
 import es.caib.helium.persist.repository.ExpedientTipusRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Implementació del servei per a gestionar dominis.
@@ -204,7 +205,7 @@ public class DominiServiceImpl implements DominiService {
 				"dominiId=" + dominiId +  ")");
 		DominiDto domini = dominiMs.get(dominiId);
 		if (domini == null) {
-			throw new NoTrobatException(Domini.class, dominiId);
+			throw new NoTrobatException(DominiDto.class, dominiId);
 		}
 		// Herencia
 		domini.setHeretat(expedientTipusId != null && ! expedientTipusId.equals(domini.getExpedientTipusId()));

@@ -1,15 +1,20 @@
 package es.caib.helium.camunda.service;
 
 import es.caib.helium.camunda.mapper.TaskInstanceMapper;
-import es.caib.helium.camunda.model.DelegationInfo;
 import es.caib.helium.camunda.model.WTaskInstance;
+import es.caib.helium.camunda.model.bridge.CampTascaDto;
+import es.caib.helium.camunda.model.bridge.CampTipusDto;
 import lombok.RequiredArgsConstructor;
+import org.camunda.bpm.engine.ActivityTypes;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
+import org.camunda.bpm.engine.impl.persistence.entity.SuspensionState;
+import org.camunda.bpm.engine.impl.persistence.entity.TaskEntity;
 import org.camunda.bpm.engine.task.Task;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
@@ -21,27 +26,30 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TaskInstanceServiceImpl implements TaskInstanceService {
 
+    public final static String CANCEL_REASON = "Cancel task";
+
     private final TaskService taskService;
     private final HistoryService historyService;
     private final RuntimeService runtimeService;
     private final TaskInstanceMapper taskInstanceMapper;
     private final ActionService actionService;
+    private final WorkflowBridgeService workflowBridgeService;
 
     @Override
     public WTaskInstance getTaskById(String taskId) {
-//        var htask = historyService
-//                .createHistoricTaskInstanceQuery()
-//                .taskId(taskId)
-//                .singleResult();
-        Task task = getTask(taskId);
-        return taskInstanceMapper.toWTaskInstance(task);
+        var task = historyService
+                .createHistoricTaskInstanceQuery()
+                .taskId(taskId)
+                .singleResult();
+//        var task = getTask(taskId);
+        return taskInstanceMapper.toWTaskInstanceWithDetails(task);
     }
 
     @Override
     public List<WTaskInstance> findTaskInstancesByProcessInstanceId(String processInstanceId) {
         List<WTaskInstance> wTaskInstances = new ArrayList<>();
-        var tasks = taskService
-                .createTaskQuery()
+        var tasks = historyService
+                .createHistoricTaskInstanceQuery()
                 .processInstanceId(processInstanceId)
                 .list();
         if (tasks != null) {
@@ -55,16 +63,17 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     @Override
     public String getTaskInstanceIdByExecutionTokenId(String executionTokenId) {
         List<WTaskInstance> wTaskInstances = new ArrayList<>();
-        var task = taskService
+        var activeTasks = taskService
                 .createTaskQuery()
                 .executionId(executionTokenId)
                 .active()
-                .singleResult();
-        if (task == null) {
+                .orderByTaskCreateTime().asc()
+                .list();
+        if (activeTasks == null || activeTasks.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Task Not found. tokenId: " + executionTokenId);
         }
         // TODO: Comprovar si retorna un Long!!
-        return task.getId();
+        return activeTasks.get(0).getId();
     }
 
     @Override
@@ -87,31 +96,70 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     @Override
     public void completeTaskInstance(String taskId, String outcome) {
         // TODO: No es pot indicar una transició de sortida
-        taskService.complete(taskId);
-//        return null;
+        var task = getTask(taskId);
+//        taskService.complete(taskId, runtimeService.getVariables(task.getExecutionId()));
+        List<CampTascaDto> campsTasca = new ArrayList<>();
+        try {
+            campsTasca = workflowBridgeService.findCampsPerTaskInstance(
+                    task.getProcessInstanceId(),
+                    task.getProcessDefinitionId(),
+                    task.getName());
+        } catch (Exception ex) {}
+
+        var variableNames = campsTasca.stream()
+                .filter(c -> c.isWriteTo() && !CampTipusDto.ACCIO.equals(c.getCamp().getTipus()))
+                .map(c -> c.getCamp().getCodi())
+                .collect(Collectors.toList());
+        if (variableNames != null && !variableNames.isEmpty()) {
+            taskService.complete(taskId, taskService.getVariables(taskId, variableNames));
+        } else {
+            taskService.complete(taskId);
+        }
+
     }
 
     @Override
     public WTaskInstance cancelTaskInstance(String taskId) {
         Task task = getTask(taskId);
+        var activity = historyService.createHistoricActivityInstanceQuery()
+                .processInstanceId(task.getProcessInstanceId())
+                .activityType(ActivityTypes.TASK_USER_TASK)
+                .activityName(task.getName())
+                .singleResult();
+        if (activity == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No s'ha trobat una intància de la tasca " + taskId);
+        }
+
         runtimeService.createProcessInstanceModification(task.getProcessInstanceId())
 //                .cancelAllForActivity(taskId);
-                .cancelActivityInstance(taskId)
+                .cancelActivityInstance(activity.getId())
                 .execute();
         return taskInstanceMapper.toWTaskInstance(task);
     }
 
     @Override
+    @Transactional
     public WTaskInstance suspendTaskInstance(String taskId) {
         // TODO: No existeix el concepte de suspendre una tasca.
         //       Es pot suspende el processInstance, però no la tasca
-        return taskInstanceMapper.toWTaskInstance(getTask(taskId));
+        TaskEntity task = (TaskEntity) getTask(taskId);
+        if (SuspensionState.ACTIVE.getStateCode() == task.getSuspensionState()) {
+            task.setSuspensionState(SuspensionState.SUSPENDED.getStateCode());
+            taskService.saveTask(task);
+        }
+        return taskInstanceMapper.toWTaskInstance(task);
     }
 
     @Override
+    @Transactional
     public WTaskInstance resumeTaskInstance(String taskId) {
         // TODO idem suspendre
-        return taskInstanceMapper.toWTaskInstance(getTask(taskId));
+        TaskEntity task = (TaskEntity) getTask(taskId);
+        if (task.isSuspended()) {
+            task.setSuspensionState(SuspensionState.ACTIVE.getStateCode());
+            taskService.saveTask(task);
+        }
+        return taskInstanceMapper.toWTaskInstance(task);
     }
 
     @Override
@@ -142,34 +190,33 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
         Arrays.stream(pooledActors).forEach(a -> taskService.addCandidateUser(taskId, a));
     }
 
-    @Override
-    public void delegateTaskInstance(WTaskInstance task, String actorId, String comentari, boolean supervisada) {
-        // TODO: Camunda ofereix la delegació. Però no dóna opció de supervisió...
-        taskService.delegateTask(task.getId(), actorId);
-        taskService.createComment(task.getId(), task.getProcessInstanceId(), comentari);
-    }
-
-    @Override
-    public DelegationInfo getDelegationTaskInstanceInfo(String taskId, boolean includeActors) {
-        // TODO: La informació de delegació actualment es desa a Heliium.
-        //       S'ha de mirar a veure si la hem d'obtenir aquó, o no fa falta
-        var task = getTask(taskId);
-        DelegationInfo delegationInfo = DelegationInfo.builder()
-                .sourceTaskId(taskId)
-                .targetTaskId(taskId)
-                .start(task.getCreateTime())
-//                .end()
-                .supervised(true)
-                .usuariDelegador(task.getOwner())
-                .usuariDelegat(task.getAssignee())
-                .build();
-        return null;
-    }
-
-    @Override
-    public void cancelDelegationTaskInstance(WTaskInstance task) {
-        taskService.resolveTask(task.getId());
-    }
+//    @Override
+//    public void delegateTaskInstance(WTaskInstance task, String actorId, String comentari, boolean supervisada) {
+//        // TODO: Camunda ofereix la delegació. Però no dóna opció de supervisió...
+//        taskService.delegateTask(task.getId(), actorId);
+//        taskService.createComment(task.getId(), task.getProcessInstanceId(), comentari);
+//    }
+//
+//    @Override
+//    public DelegationInfo getDelegationTaskInstanceInfo(String taskId, boolean includeActors) {
+//        // TODO: La informació de delegació actualment es desa a Heliium.
+//        //       S'ha de mirar a veure si la hem d'obtenir aquó, o no fa falta
+//        var task = getTask(taskId);
+//        DelegationInfo delegationInfo = DelegationInfo.builder()
+//                .sourceTaskId(taskId)
+//                .targetTaskId(taskId)
+//                .start(task.getCreateTime())
+//                .supervised(true)
+//                .usuariDelegador(task.getOwner())
+//                .usuariDelegat(task.getAssignee())
+//                .build();
+//        return null;
+//    }
+//
+//    @Override
+//    public void cancelDelegationTaskInstance(WTaskInstance task) {
+//        taskService.resolveTask(task.getId());
+//    }
 
     @Override
     public void updateTaskInstanceInfoCache(String taskId, String titol, String infoCache) {

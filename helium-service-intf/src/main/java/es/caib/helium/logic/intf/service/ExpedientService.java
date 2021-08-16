@@ -4,8 +4,10 @@
 package es.caib.helium.logic.intf.service;
 
 import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto.EstatTipusDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto.IniciadorTipusDto;
+import es.caib.helium.logic.intf.dto.expedient.ExpedientIniciDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
@@ -68,12 +70,12 @@ public interface ExpedientService {
 	 * 			Id de la petició d'anotació de registre que s'associarà a l'expedient.
 	 * @param anotacioInteressatsAssociar
 	 * 			Indica si associar o no els interessats de l'anotació a l'expedient.
-	 * 
+	 *
 	 * @return El nou expedient creat.
 	 * @throws Exception
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
 	 */
-	public ExpedientDto create(
+	public ExpedientIniciDto create(
 			Long entornId,
 			String usuari,
 			Long expedientTipusId,

@@ -1,40 +1,33 @@
 package es.caib.helium.client.expedient.tasca;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import es.caib.helium.client.expedient.tasca.model.TascaDto;
-import es.caib.helium.client.model.PagedList;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 import javax.validation.Valid;
-import java.util.Date;
-import java.util.List;
+
+import org.springframework.cloud.openfeign.SpringQueryMap;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.fasterxml.jackson.databind.JsonNode;
+
+import es.caib.helium.client.expedient.tasca.model.ConsultaTascaDades;
+import es.caib.helium.client.expedient.tasca.model.TascaDto;
+import es.caib.helium.client.model.PagedList;
 
 public interface TascaFeignClient {
 
 	@RequestMapping(method = RequestMethod.GET, value = TascaApiPath.FIND_TASQUES_AMB_FILTRE_PAGINAT)
 	public ResponseEntity<PagedList<TascaDto>> findTasquesAmbFiltrePaginatV1(
-            @RequestParam(value = "entornId") Long entornId,
-            @RequestParam(value = "expedientTipusId", required = false) Long expedientTipusId,
-            @RequestParam(value = "usuariAssignat", required = false) String usuariAssignat,
-            @RequestParam(value = "nom", required = false) String nom,
-            @RequestParam(value = "titol", required = false) String titol,
-            @RequestParam(value = "expedientId", required = false) Long expedientId,
-            @RequestParam(value = "expedientTitol", required = false) String expedientTitol,
-            @RequestParam(value = "expedientNumero", required = false) String expedientNumero,
-            @RequestParam(value = "dataCreacioInici", required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date dataCreacioInici,
-            @RequestParam(value = "dataCreacioFi", required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date dataCreacioFi,
-            @RequestParam(value = "dataLimitInici", required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date dataLimitInici,
-            @RequestParam(value = "dataLimitFi", required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date dataLimitFi,
-            @RequestParam(value = "mostrarAssignadesUsuari", required = false, defaultValue = "false") boolean mostrarAssignadesUsuari,
-            @RequestParam(value = "mostrarAssignadesGrup", required = false, defaultValue = "false") boolean mostrarAssignadesGrup,
-            @RequestParam(value = "nomesPendents", required = false, defaultValue = "false") boolean nomesPendents,
-            @RequestParam(value = "filtre", required = false) String filtre,
-			@RequestParam(value = "pageable") final Pageable pageable,
-			@RequestParam(value = "sort") final Sort sort);
+			@SpringQueryMap ConsultaTascaDades consultaTascaDades);
+
+	@RequestMapping(method = RequestMethod.GET, value = TascaApiPath.FIND_TASQUES_IDS_AMB_FILTRE_PAGINAT)
+	public ResponseEntity<PagedList<String>> findTasquesIdsAmbFiltrePaginatV1(
+			@SpringQueryMap ConsultaTascaDades consultaTascaDades);
+
 	
 	@RequestMapping(method = RequestMethod.POST, value = TascaApiPath.CREATE_TASCA)
 	public ResponseEntity<Void> createTascaV1(

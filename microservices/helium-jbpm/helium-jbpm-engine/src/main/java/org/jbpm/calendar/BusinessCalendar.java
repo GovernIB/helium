@@ -64,16 +64,16 @@ private List holidays = null;
 		  props.put("weekday.sunday", horariDia(7));
 		  props.put(
 				  "business.day.expressed.in.hours",
-				  Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.calendari.horeslab.dia"));
+				  Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("es.caib.helium.calendari.horeslab.dia"));
 		  props.put(
 				  "business.week.expressed.in.hours",
-				  Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.calendari.horeslab.setmana"));
+				  Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("es.caib.helium.calendari.horeslab.setmana"));
 		  props.put(
 				  "business.month.expressed.in.business.days",
-				  Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.calendari.dieslab.mes"));
+				  Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("es.caib.helium.calendari.dieslab.mes"));
 		  props.put(
 				  "business.year.expressed.in.business.days",
-				  Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.calendari.dieslab.any"));
+				  Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("es.caib.helium.calendari.dieslab.any"));
 		  businessCalendarProperties = props;
 		  logger.debug("Propietats del calendari configurades");
 	  }
@@ -209,7 +209,7 @@ private List holidays = null;
   }
   
   private static String horariDia(int indexDia) {
-	  String nolabs = Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.calendari.nolabs");
+	  String nolabs = Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("es.caib.helium.calendari.nolabs");
 	  if (nolabs != null) {
 			String[] dies = nolabs.split(",");
 			for (int i = 0; i < dies.length; i++) {
@@ -218,7 +218,7 @@ private List holidays = null;
 					return "";
 			}
 	  }
-	  return Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("app.calendari.horari");
+	  return Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("es.caib.helium.calendari.horari");
   }
  
   private static final Log logger = LogFactory.getLog(BusinessCalendar.class);

@@ -109,7 +109,7 @@ $(document).ready(function() {
 </script>
 </head>
 <c:if test="${dadesPersona.admin || potAdministrarEntorn}">
-<form:form action="" id="filtre" method="post" cssClass="well" commandName="expedientTipusEstadisticaCommand">
+<form:form action="" id="filtre" method="post" cssClass="well" modelAttribute="expedientTipusEstadisticaCommand">
 		<div class="row">
 			<div class="col-md-3">
 				<hel:inputText name="numero" textKey="expedient.llistat.filtre.camp.numero" placeholderKey="expedient.llistat.filtre.camp.numero" inline="true"/>
@@ -163,7 +163,7 @@ $(document).ready(function() {
 		</div>
 </form:form>
 
-<form:form id="excel" action="/helium/v3/estadistica/excel" method="post" commandName="expedientTipusEstadisticaCommand">
+<form:form id="excel" action="/heliumback/v3/estadistica/excel" method="post" modelAttribute="expedientTipusEstadisticaCommand">
 	<input type="hidden" name="expedientTipusId" value="${expedientTipusEstadisticaCommand.expedientTipusId}"/>
 	<input type="hidden" name="anyInicial" value="${expedientTipusEstadisticaCommand.anyInicial}">
 	<input type="hidden" name="anyFinal" value="${expedientTipusEstadisticaCommand.anyFinal}">

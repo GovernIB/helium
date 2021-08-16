@@ -278,12 +278,12 @@ public class SessionHelper {
 					mapaAfDp);
 		}
 		@SuppressWarnings("unchecked")
-		public Set<Long> getSeleccioConsultaTasca() {
-			return (Set<Long>)getAttribute(
+		public Set<String> getSeleccioConsultaTasca() {
+			return (Set<String>)getAttribute(
 					request,
 					VARIABLE_SELECCIO_TASCA);
 		}
-		public void setSeleccioConsultaTasca(Set<Long> seleccioConsultaTasca) {
+		public void setSeleccioConsultaTasca(Set<String> seleccioConsultaTasca) {
 			setAttribute(
 					request,
 					VARIABLE_SELECCIO_TASCA,

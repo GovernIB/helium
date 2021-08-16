@@ -3,13 +3,14 @@
  */
 package es.caib.helium.back.interceptor;
 
-import es.caib.helium.logic.intf.service.AplicacioService;
-import lombok.RequiredArgsConstructor;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import es.caib.helium.logic.intf.service.AplicacioService;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Interceptor per guardar les propietats globals per a cada petició
@@ -31,7 +32,7 @@ public class GlobalPropertiesInterceptor implements AsyncHandlerInterceptor {
 		if (request.getUserPrincipal() != null) {
 			request.setAttribute(
 					VARIABLE_REQUEST_GLOBAL_PROPERTIES,
-					aplicacioService.getGlobalProperties());
+					aplicacioService.getGlobalProperties().findAll());
 		}
 		return true;
 	}

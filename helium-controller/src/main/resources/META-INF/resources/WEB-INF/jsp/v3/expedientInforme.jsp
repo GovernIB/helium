@@ -157,7 +157,7 @@ function actualizarBotonesFiltros(id) {
 </script>
 </head>
 <body>		
-	<form:form method="post" action="informe" cssClass="well form-horizontal form-tasca" commandName="expedientInformeCommand">
+	<form:form method="post" action="informe" cssClass="well form-horizontal form-tasca" modelAttribute="expedientInformeCommand">
 		<form:hidden path="consultaId"/>
 		<div class="control-group fila_reducida">
 			<c:forEach var="camp" items="${campsFiltre}">

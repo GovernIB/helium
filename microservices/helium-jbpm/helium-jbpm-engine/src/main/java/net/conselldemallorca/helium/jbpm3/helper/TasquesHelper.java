@@ -15,9 +15,6 @@ import java.util.List;
 @Component
 public class TasquesHelper {
 
-    @Value("${es.caib.helium.jbpm.bridge.service.host}")
-    String bridgeAdress;
-
     @Autowired
     RestTemplate restTemplate;
 
@@ -105,7 +102,7 @@ public class TasquesHelper {
     }
 
     private String getTasquesBridgeAddress() {
-        return bridgeAdress + "/tasques";
+        return RestClientHelper.getBridgeAddress() + "/tasques";
     }
 
 }

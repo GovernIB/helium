@@ -1,26 +1,19 @@
 package es.caib.helium.back.controller;
 
-import es.caib.helium.back.command.TascaConsultaCommand;
-import es.caib.helium.back.datatables.DatatablesPagina;
-import es.caib.helium.back.helper.MissatgesHelper;
-import es.caib.helium.back.helper.ObjectTypeEditorHelper;
-import es.caib.helium.back.helper.PaginacioHelper;
-import es.caib.helium.back.helper.SessionHelper;
-import es.caib.helium.back.helper.SessionHelper.SessionManager;
-import es.caib.helium.logic.intf.dto.EntornDto;
-import es.caib.helium.logic.intf.dto.ExpedientDto;
-import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
-import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
-import es.caib.helium.logic.intf.dto.PaginaDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
-import es.caib.helium.logic.intf.dto.PersonaDto;
-import es.caib.helium.logic.intf.dto.TascaCompleteDto;
-import es.caib.helium.logic.intf.service.AdminService;
-import es.caib.helium.logic.intf.service.DissenyService;
-import es.caib.helium.logic.intf.service.EntornService;
-import es.caib.helium.logic.intf.service.ExpedientService;
-import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import es.caib.helium.logic.intf.service.TascaService;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,17 +33,28 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import es.caib.helium.back.command.TascaConsultaCommand;
+import es.caib.helium.back.datatables.DatatablesPagina;
+import es.caib.helium.back.helper.MissatgesHelper;
+import es.caib.helium.back.helper.ObjectTypeEditorHelper;
+import es.caib.helium.back.helper.PaginacioHelper;
+import es.caib.helium.back.helper.SessionHelper;
+import es.caib.helium.back.helper.SessionHelper.SessionManager;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.dto.TascaCompleteDto;
+import es.caib.helium.logic.intf.dto.TascaLlistatDto;
+import es.caib.helium.logic.intf.service.AdminService;
+import es.caib.helium.logic.intf.service.DissenyService;
+import es.caib.helium.logic.intf.service.EntornService;
+import es.caib.helium.logic.intf.service.ExpedientService;
+import es.caib.helium.logic.intf.service.ExpedientTipusService;
+import es.caib.helium.logic.intf.service.TascaService;
 
 /**
  * Controlador per al llistat de tasques.
@@ -170,14 +174,16 @@ public class TascaLlistatController extends BaseController {
 
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
 	@ResponseBody
-	public DatatablesPagina<ExpedientTascaDto> datatable(
+	public DatatablesPagina<TascaLlistatDto> datatable(
 			HttpServletRequest request,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		TascaConsultaCommand filtreCommand = getFiltreCommand(request);
 		SessionHelper.getSessionManager(request).setFiltreConsultaTasca(filtreCommand);
-		DatatablesPagina<ExpedientTascaDto> result = null;
+		DatatablesPagina<TascaLlistatDto> result = null;
 		try {
+			Map<String, String[]> mapeigOrdenacions = new HashMap<String, String[]>();
+			mapeigOrdenacions.put("createTime", new String[] {"dataCreacio"});
 			result = PaginacioHelper.getPaginaPerDatatables(
 					request,
 					tascaService.findPerFiltrePaginat(
@@ -196,7 +202,7 @@ public class TascaLlistatController extends BaseController {
 							filtreCommand.isNomesTasquesPersonals(),
 							filtreCommand.isNomesTasquesGrup(),
 							filtreCommand.isNomesTasquesMeves(),
-							PaginacioHelper.getPaginacioDtoFromDatatable(request)));
+							PaginacioHelper.getPaginacioDtoFromDatatable(request, mapeigOrdenacions)));
 		} catch (Exception e) {
 			if (entornActual == null)
 				MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
@@ -206,7 +212,7 @@ public class TascaLlistatController extends BaseController {
 			}
 			result = PaginacioHelper.getPaginaPerDatatables(
 					request,
-					new PaginaDto<ExpedientTascaDto>());
+					new PaginaDto<TascaLlistatDto>());
 		}
 		return result;
 	}
@@ -234,10 +240,10 @@ public class TascaLlistatController extends BaseController {
 
 	@RequestMapping(value = "/seleccioTots")
 	@ResponseBody
-	public Set<Long> seleccioTots(HttpServletRequest request) {
+	public Set<String> seleccioTots(HttpServletRequest request) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		TascaConsultaCommand filtreCommand = getFiltreCommand(request);
-		List<Long> ids = tascaService.findIdsPerFiltre(
+		List<String> ids = tascaService.findIdsPerFiltre(
 			entornActual.getId(),
 			filtreCommand.getExpedientTipusId(),
 			filtreCommand.getTitol(),
@@ -253,22 +259,22 @@ public class TascaLlistatController extends BaseController {
 			filtreCommand.isNomesTasquesGrup(),
 			filtreCommand.isNomesTasquesMeves());
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
-		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();
+		Set<String> seleccio = sessionManager.getSeleccioConsultaTasca();
 		if (seleccio == null) {
-			seleccio = new HashSet<Long>();
+			seleccio = new HashSet<String>();
 			sessionManager.setSeleccioConsultaTasca(seleccio);
 		}
 		if (ids != null) {
-			for (Long id: ids) {
+			for (String id: ids) {
 				try {
-					if (id >= 0) {
-						seleccio.add(id);
+					if (id.startsWith("-")) {
+						seleccio.remove(id);
 					} else {
-						seleccio.remove(-id);
+						seleccio.add(id);
 					}
 				} catch (NumberFormatException ex) {}
 			}
-			Iterator<Long> iterador = seleccio.iterator();
+			Iterator<String> iterador = seleccio.iterator();
 			while( iterador.hasNext() ) {
 				if (!ids.contains(iterador.next())) {
 					iterador.remove();
@@ -280,33 +286,32 @@ public class TascaLlistatController extends BaseController {
 
 	@RequestMapping(value = "/seleccioNetejar")
 	@ResponseBody
-	public Set<Long> seleccioNetejar(HttpServletRequest request) {
+	public Set<String> seleccioNetejar(HttpServletRequest request) {
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
-		Set<Long> ids = sessionManager.getSeleccioConsultaTasca();
+		Set<String> ids = sessionManager.getSeleccioConsultaTasca();
 		ids.clear();
 		return ids;
 	}
 
 	@RequestMapping(value = "/selection", method = RequestMethod.POST)
 	@ResponseBody
-	public Set<Long> seleccio(
+	public Set<String> seleccio(
 			HttpServletRequest request,
 			@RequestParam(value = "ids", required = false) String ids) {
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
-		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();
+		Set<String> seleccio = sessionManager.getSeleccioConsultaTasca();
 		if (seleccio == null) {
-			seleccio = new HashSet<Long>();
+			seleccio = new HashSet<String>();
 			sessionManager.setSeleccioConsultaTasca(seleccio);
 		}
 		if (ids != null) {
 			String[] idsparts = (ids.contains(",")) ? ids.split(",") : new String[] {ids};
 			for (String id: idsparts) {
 				try {
-					long l = Long.parseLong(id.trim());
-					if (l >= 0) {
-						seleccio.add(l);
+					if (id.startsWith("-")) {
+						seleccio.add(id);
 					} else {
-						seleccio.remove(-l);
+						seleccio.remove(id);
 					}
 				} catch (NumberFormatException ex) {}
 			}
@@ -334,7 +339,7 @@ public class TascaLlistatController extends BaseController {
 	@RequestMapping(value = "/actualitzaEstatsSegonPla", method = RequestMethod.POST)
     public Object actualitzaEstatsSegonPla(@RequestParam("tasquesSegonPlaIds[]") String[] tasquesSegonPlaIds){     
 		@SuppressWarnings("unchecked")
-		Map<Long,Object>result = tascaService.obtenirEstatsPerIds((List<String>) Arrays.asList(tasquesSegonPlaIds));
+		Map<String,Object> result = tascaService.obtenirEstatsPerIds((List<String>) Arrays.asList(tasquesSegonPlaIds));
         return result;
 	}
 	
@@ -366,15 +371,15 @@ public class TascaLlistatController extends BaseController {
 	
 	@RequestMapping(value = "/seleccioAgafar")
 	@ResponseBody
-	public Set<Long> seleccioAgafar(HttpServletRequest request) {
+	public Set<String> seleccioAgafar(HttpServletRequest request) {
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
-		Set<Long> ids = sessionManager.getSeleccioConsultaTasca();
-		Set<Long> idsAgafats = new HashSet<Long>();
+		Set<String> ids = sessionManager.getSeleccioConsultaTasca();
+		Set<String> idsAgafats = new HashSet<String>();
 		if (ids == null || ids.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.no.tasc.selec"));
 		} else {
-			Set<Long> idsError = new HashSet<Long>();
-			for (Long tascaId : ids) {
+			Set<String> idsError = new HashSet<String>();
+			for (String tascaId : ids) {
 				try {
 					tascaService.agafar(tascaId.toString());
 					idsAgafats.add(tascaId);
@@ -400,15 +405,15 @@ public class TascaLlistatController extends BaseController {
 	
 	@RequestMapping(value = "/seleccioAlliberar")
 	@ResponseBody
-	public Set<Long> seleccioAlliberar(HttpServletRequest request) {
+	public Set<String> seleccioAlliberar(HttpServletRequest request) {
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
-		Set<Long> ids = sessionManager.getSeleccioConsultaTasca();
-		Set<Long> idsAgafats = new HashSet<Long>();
+		Set<String> ids = sessionManager.getSeleccioConsultaTasca();
+		Set<String> idsAgafats = new HashSet<String>();
 		if (ids == null || ids.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.no.tasc.selec"));
 		} else {
-			Set<Long> idsError = new HashSet<Long>();
-			for (Long tascaId : ids) {
+			Set<String> idsError = new HashSet<String>();
+			for (String tascaId : ids) {
 				try {
 					tascaService.alliberar(tascaId.toString());
 					idsAgafats.add(tascaId);

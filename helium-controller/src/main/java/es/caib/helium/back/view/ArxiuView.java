@@ -1,5 +1,6 @@
 package es.caib.helium.back.view;
 
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.View;
 
 import javax.activation.MimetypesFileTypeMap;
@@ -12,6 +13,7 @@ import java.util.Map;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Component("arxiuView")
 public class ArxiuView implements View {
 
 	public static final String HEADER_PRAGMA = "Pragma";

@@ -4,7 +4,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
-<%@ taglib uri="http://www.springframework.org/security/tags" prefix="security"%>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <c:set var="potDissenyarDefinicioProcesAdmin" value="${potAdministrarEntorn 
@@ -32,9 +31,9 @@
 	<meta name="title" content="<spring:message code="definicio.proces.pipelles.titol"/>"/>
 	<meta name="subtitle" content="${fn:escapeXml(definicioProces.jbpmKey)} ${fn:escapeXml(expedientTipusCodi)}"/>
 	<meta name="title-icon-class" content="fa fa-folder-open"/>
-	<script src="<c:url value="/webjars/datatables.net/1.10.10/js/jquery.dataTables.min.js"/>"></script>
-	<script src="<c:url value="/webjars/datatables.net-bs/1.10.10/js/dataTables.bootstrap.min.js"/>"></script>
-	<link href="<c:url value="/webjars/datatables.net-bs/1.10.10/css/dataTables.bootstrap.min.css"/>" rel="stylesheet"></link>
+	<script src="<c:url value="/webjars/datatables.net/1.10.19/js/jquery.dataTables.min.js"/>"></script>
+	<script src="<c:url value="/webjars/datatables.net-bs/1.10.19/js/dataTables.bootstrap.min.js"/>"></script>
+	<link href="<c:url value="/webjars/datatables.net-bs/1.10.19/css/dataTables.bootstrap.min.css"/>" rel="stylesheet"></link>
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
@@ -224,9 +223,9 @@
 						<div id="versioAccions" class="dropdown" style="margin-right: -10px;">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								<li><a id="accioExportar" data-toggle="modal" data-modal-id="accioExportarDiv" href="/helium/v3/definicioProces/${definicioProces.jbpmKey}/exportar?definicioProcesId=${definicioProces.id}"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
-								<li><a id="accioImportar" data-toggle="modal" data-modal-id="accioImportarDiv" href="/helium/v3/definicioProces/importar?definicioProcesId=${definicioProces.id}"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.importar"/></a></li>
-								<li><a id="accioEsborrar" href="/helium/v3/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/delete" data-rdt-link-ajax="true" data-confirm="<spring:message code="definicio.proces.pipelles.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
+								<li><a id="accioExportar" data-toggle="modal" data-modal-id="accioExportarDiv" href="/heliumback/v3/definicioProces/${definicioProces.jbpmKey}/exportar?definicioProcesId=${definicioProces.id}"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
+								<li><a id="accioImportar" data-toggle="modal" data-modal-id="accioImportarDiv" href="/heliumback/v3/definicioProces/importar?definicioProcesId=${definicioProces.id}"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.importar"/></a></li>
+								<li><a id="accioEsborrar" href="/heliumback/v3/definicioProces/${definicioProces.jbpmKey}/${definicioProces.id}/delete" data-rdt-link-ajax="true" data-confirm="<spring:message code="definicio.proces.pipelles.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
 							</ul>
 						</div>
 					</c:if>

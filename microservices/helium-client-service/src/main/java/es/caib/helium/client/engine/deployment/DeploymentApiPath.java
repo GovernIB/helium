@@ -15,6 +15,8 @@ public class DeploymentApiPath {
 	public static final String CREATE_DEPLOYMENT = API_PATH + "";
 	
 	public static final String UPDATE_DEPLOYMENT_ACTIONS = API_PATH + "/{deploymentId}/actions";
+
+	public static final String PROPAGATE_DEPLOYMENT_ACTIONS = API_PATH + "/{deploymentOrigenId}/propagate/actions/{deploymentDestiId}";
 	
 	public static final String ESBORRAR_DESPLEGAMENT = API_PATH + "/{deploymentId}";
 }

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public interface DominiService {
 
@@ -59,7 +60,7 @@ public interface DominiService {
             Sort sort);
 
 
-    ResultatDomini consultaDomini(
+    CompletableFuture<ResultatDomini> consultaDomini(
             Long dominiId,
             String identificador,
             Map<String, String> parametres);

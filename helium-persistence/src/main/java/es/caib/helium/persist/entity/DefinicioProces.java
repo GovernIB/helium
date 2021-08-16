@@ -107,7 +107,7 @@ public class DefinicioProces implements Serializable, GenericEntity<Long> {
 		this.etiqueta = etiqueta;
 	}
 
-	@Column(name="dataCreacio", nullable=false)
+	@Column(name="datacreacio", nullable=false)
 	@Temporal(TemporalType.TIMESTAMP)
 	public Date getDataCreacio() {
 		return dataCreacio;

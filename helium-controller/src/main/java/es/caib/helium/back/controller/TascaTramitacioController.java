@@ -16,6 +16,7 @@ import es.caib.helium.back.passarelafirma.PassarelaFirmaHelper;
 import es.caib.helium.back.view.ArxiuView;
 import es.caib.helium.logic.intf.dto.*;
 import es.caib.helium.logic.intf.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternConversioDocumentException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
@@ -919,7 +920,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			@RequestParam(value = "correu", required = false) Boolean correu,
 			Model model) throws IOException, ServletException {
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
-		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();
+		Set<String> seleccio = sessionManager.getSeleccioConsultaTasca();
 		if (seleccio == null || seleccio.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.no.tasc.selec"));
 			return modalUrlTancar(false);
@@ -939,7 +940,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			Model model) {
 //		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 //		Set<Long> seleccio = sessionManager.getSeleccioConsultaTasca();		
-		Set<Long> seleccio = getSeleccioConsultaTasca(request);		
+		Set<String> seleccio = getSeleccioConsultaTasca(request);		
 		model.addAttribute("tasques", tascaService.findAmbIds(seleccio));
 		
 		return "v3/import/tasquesMassivaTaula";

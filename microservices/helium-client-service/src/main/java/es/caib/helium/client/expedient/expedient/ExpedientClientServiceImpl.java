@@ -1,18 +1,18 @@
 package es.caib.helium.client.expedient.expedient;
 
+import java.util.Objects;
+
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.databind.JsonNode;
-import es.caib.helium.client.expedient.expedient.enums.ExpedientEstatTipusEnum;
-import es.caib.helium.client.expedient.expedient.enums.MostrarAnulatsEnum;
+
+import es.caib.helium.client.expedient.expedient.model.ConsultaExpedientDades;
 import es.caib.helium.client.expedient.expedient.model.ExpedientDto;
 import es.caib.helium.client.model.PagedList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.Objects;
 
 @Service
 @Slf4j
@@ -24,48 +24,20 @@ public class ExpedientClientServiceImpl implements ExpedientClientService {
 	private final ExpedientFeignClient expedientClient;
 
 	@Override
-	public PagedList<ExpedientDto> findExpedientsAmbFiltrePaginatV1(
-			Long entornId,
-			String filtre,
-			String usuariCodi,
-			Long expedientTipusId,
-			String titol,
-			String numero,
-			Date dataInici1,
-			Date dataInici2,
-			Date dataFi1,
-			Date dataFi2,
-			ExpedientEstatTipusEnum estatTipus,
-			Long estatId,
-			boolean nomesTasquesPersonals,
-			boolean nomesTasquesGrup,
-			boolean nomesAlertes,
-			boolean nomesErrors,
-			MostrarAnulatsEnum mostrarAnulats,
-			Pageable pageable,
-			Sort sort) {
-
-		log.debug(MISSATGE_LOG + " filtrant tasques per l'entorn " + entornId);
-		var responseEntity = expedientClient.findExpedientsAmbFiltrePaginatV1(
-				entornId,
-				filtre,
-				usuariCodi,
-				expedientTipusId,
-				titol,
-				numero,
-				dataInici1,
-				dataInici2,
-				dataFi1,
-				dataFi2,
-				estatTipus,
-				estatId,
-				nomesTasquesPersonals,
-				nomesTasquesGrup,
-				nomesAlertes,
-				nomesErrors,
-				mostrarAnulats,
-				pageable,
-				sort);
+	public PagedList<ExpedientDto> findExpedientsAmbFiltrePaginatV1(ConsultaExpedientDades consultaExpedientDades) {
+		
+		log.debug(MISSATGE_LOG + " llista paginada d'expedients segons el filtre = " +  ReflectionToStringBuilder.toString(consultaExpedientDades));
+		var responseEntity = expedientClient.findExpedientsAmbFiltrePaginatV1(consultaExpedientDades);
+		var resultat = Objects.requireNonNull(responseEntity.getBody());
+		return resultat;
+	}
+	
+	@Override
+	public PagedList<Long> findExpedientsIdsAmbFiltrePaginatV1(ConsultaExpedientDades consultaExpedientDades) {
+		
+		log.debug(MISSATGE_LOG + " llista paginada d'identificadors d'expedients segons entorn " + consultaExpedientDades.getEntornId()
+				+ " i consultaExpedientDades = " +  ReflectionToStringBuilder.toString(consultaExpedientDades));
+		var responseEntity = expedientClient.findExpedientsIdsAmbFiltrePaginatV1(consultaExpedientDades);
 		var resultat = Objects.requireNonNull(responseEntity.getBody());
 		return resultat;
 	}

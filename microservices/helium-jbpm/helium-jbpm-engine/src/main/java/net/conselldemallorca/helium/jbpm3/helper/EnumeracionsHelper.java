@@ -15,9 +15,6 @@ import java.util.List;
 @Component
 public class EnumeracionsHelper {
 
-    @Value("${es.caib.helium.jbpm.bridge.service.host}")
-    String bridgeAdress;
-
     @Autowired
     RestTemplate restTemplate;
 
@@ -40,7 +37,7 @@ public class EnumeracionsHelper {
     }
 
     private String getEnumetacionsBridgeAddress() {
-        return bridgeAdress + "/enumeracions";
+        return RestClientHelper.getBridgeAddress() + "/enumeracions";
     }
 
 

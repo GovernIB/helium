@@ -98,11 +98,14 @@ class ExpedientControllerIT {
 		queryParams.put("dataFi2", "12/06/2021");
 		queryParams.put("estatTipus", "CUSTOM");
 		queryParams.put("estatId", "1");
+		queryParams.put("nomesIniciats", "true");
+		queryParams.put("nomesFinalitzats", "true");
 		queryParams.put("nomesTasquesPersonals", "true");
 		queryParams.put("nomesTasquesGrup", "true");
 		queryParams.put("nomesAlertes", "true");
 		queryParams.put("nomesErrors", "true");
-		queryParams.put("mostrarAnulats", "NOMES_ANULATS");
+		queryParams.put("mostrarAnulats", "true");
+		queryParams.put("mostrarNomesAnulats", "true");
         
 		if (queryParams != null) {
 			for (String param : queryParams.keySet())
@@ -119,6 +122,27 @@ class ExpedientControllerIT {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 
+    @Test
+    @DisplayName("Consulta llista d'identificadors d'expedients")
+    void whenListExpedientsIdsV1_thenReturnList() throws Exception {
+
+        String url = API_V1_EXPEDIENT + "/ids?entornId=2";
+
+        PagedList<Long> pagedList = restTemplate.exchange(
+        		url,
+        		HttpMethod.GET, 
+                null, 
+                new ParameterizedTypeReference<PagedList<Long>>() {}).getBody();
+
+        assertThat(pagedList.getContent()).hasSize(3);
+
+        pagedList.getContent().forEach(expedientId -> {
+            ExpedientDto fetchedExpedientdto = restTemplate.getForObject(API_V1_EXPEDIENT + expedientId, ExpedientDto.class);
+
+            assertThat(expedientId).isEqualByComparingTo(fetchedExpedientdto.getId());
+        });
+    }
+    
     @Test
     @DisplayName("Creació expedient amb excepció DataIntegrityViolation")
     void whencreateExpedientV1_thenDataIntegrityViolationException() throws Exception {

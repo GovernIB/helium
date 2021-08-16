@@ -44,7 +44,7 @@ public class FindCarrecCommand extends AbstractBaseCommand {
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		Session session = jbpmContext.getSession();
-		Query query;
+		Query query = null;
 		String queryString = "";
 		switch (tipusConsulta) {
 			case FILTRE:
@@ -85,8 +85,9 @@ public class FindCarrecCommand extends AbstractBaseCommand {
 				query.setParameter("personaCodi", personaCodi);
 				query.setParameter("grupCodi", grupCodi);
 				break;
+			default:
+				return null;
 		}
-
 		return query.list();
 	}
 

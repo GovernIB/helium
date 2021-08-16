@@ -17,9 +17,6 @@ public class DominisHelper {
     private static final String DOMINI_SERVICE_NAME = "helium-domini-service";
     private static final String DOMINI_API_PATH = "/api/v1/dominis";
 
-//    @Value("${es.caib.helium.jbpm.bridge.service.host}")
-//    String bridgeAdress;
-
     @Autowired
     RestTemplate restTemplate;
     @Autowired

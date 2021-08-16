@@ -3,11 +3,20 @@ package es.caib.helium.camunda.controller;
 import es.caib.helium.camunda.model.WProcessInstance;
 import es.caib.helium.camunda.service.ProcessInstanceService;
 import es.caib.helium.client.engine.model.ProcessStartData;
+import es.caib.helium.client.model.OptionalString;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -118,11 +127,12 @@ public class ProcessInstanceController {
     @PostMapping(value="/{processInstanceId}/signal")
     public ResponseEntity<Void> signalProcessInstance(
             @PathVariable("processInstanceId") String processInstanceId,
-            @RequestBody String signalName) {
-        processInstanceService.signalProcessInstance(processInstanceId, signalName);
+            @RequestBody OptionalString signalName) {
+        processInstanceService.signalProcessInstance(processInstanceId, signalName.getValue());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    // TODO: Afegir possibilitat a Helium --> Mirar que fer amb la resta d'events
     @PostMapping(value="/{processInstanceId}/message")
     public ResponseEntity<Void> messageProcessInstance(
             @PathVariable("processInstanceId") String processInstanceId,

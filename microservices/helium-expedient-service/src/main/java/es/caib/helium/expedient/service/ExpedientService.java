@@ -1,9 +1,13 @@
 package es.caib.helium.expedient.service;
 
 import es.caib.helium.expedient.domain.Expedient;
+import java.util.Collection;
+import java.util.Date;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 import es.caib.helium.expedient.model.ExpedientDto;
-import es.caib.helium.expedient.model.ExpedientEstatTipusEnum;
-import es.caib.helium.expedient.model.MostrarAnulatsEnum;
 import es.caib.helium.ms.model.PagedList;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -35,19 +39,22 @@ public interface ExpedientService {
     		String usuariCodi,
     		Long entornId,
             Long expedientTipusId,
+            Collection<Long> tipusIdPermesos,
             String titol,
             String numero,
             Date dataInici1,
             Date dataInici2,
             Date dataFi1,
             Date dataFi2,
-            ExpedientEstatTipusEnum estatTipus,
+            boolean nomesIniciats,
+            boolean nomesFinalitzats,
             Long estatId,
             boolean nomesTasquesPersonals,
             boolean nomesTasquesGrup,
             boolean nomesAlertes,
             boolean nomesErrors,
-            MostrarAnulatsEnum mostrarAnulats,
+            boolean mostrarAnulats,
+            boolean mostrarNomesAnulats,
             String filtreRsql,
             final Pageable pageable,
             final Sort sort);

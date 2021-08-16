@@ -202,7 +202,7 @@ public class Tasca implements Serializable, GenericEntity<Long> {
 		this.definicioProces = definicioProces;
 	}
 
-	@OneToMany(mappedBy="tasca", cascade={CascadeType.ALL}, fetch=FetchType.EAGER)
+	@OneToMany(mappedBy="tasca", cascade={CascadeType.ALL}, fetch=FetchType.LAZY)
 	@OrderBy("order asc")
 	public List<CampTasca> getCamps() {
 		return this.camps;

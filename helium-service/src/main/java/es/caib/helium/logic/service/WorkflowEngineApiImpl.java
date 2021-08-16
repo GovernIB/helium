@@ -1,45 +1,44 @@
 package es.caib.helium.logic.service;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import es.caib.helium.client.dada.DadaClient;
 import es.caib.helium.client.engine.action.ActionClient;
 import es.caib.helium.client.engine.areaCarrec.AreaCarrecClient;
 import es.caib.helium.client.engine.deployment.DeploymentClient;
 import es.caib.helium.client.engine.execution.ExecutionClient;
 import es.caib.helium.client.engine.helper.VariableHelper;
-import es.caib.helium.client.engine.model.*;
+import es.caib.helium.client.engine.model.ExpressionData;
+import es.caib.helium.client.engine.model.InfoCacheData;
+import es.caib.helium.client.engine.model.ProcessStartData;
+import es.caib.helium.client.engine.model.ReassignTaskData;
+import es.caib.helium.client.engine.model.RedirectTokenData;
+import es.caib.helium.client.engine.model.ScriptData;
+import es.caib.helium.client.engine.model.UpdateVariablesData;
+import es.caib.helium.client.engine.model.WDeployment;
+import es.caib.helium.client.engine.model.WProcessDefinition;
+import es.caib.helium.client.engine.model.WProcessInstance;
+import es.caib.helium.client.engine.model.WTaskInstance;
+import es.caib.helium.client.engine.model.WToken;
 import es.caib.helium.client.engine.processDefiniton.ProcessDefinitionClient;
 import es.caib.helium.client.engine.processInstance.ProcessInstanceClient;
 import es.caib.helium.client.engine.task.TaskClient;
 import es.caib.helium.client.engine.taskVariable.TaskVariableClient;
 import es.caib.helium.client.engine.timer.TimerClient;
-import es.caib.helium.client.expedient.expedient.ExpedientClientService;
-import es.caib.helium.client.expedient.tasca.TascaClientService;
 import es.caib.helium.client.model.CustomMultipartFile;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
-import es.caib.helium.logic.intf.dto.LlistatIds;
-import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDireccioDto;
-import es.caib.helium.logic.intf.dto.ResultatConsultaPaginada;
 import es.caib.helium.logic.intf.exception.DeploymentException;
 import es.caib.helium.logic.util.EntornActual;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.zip.ZipInputStream;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -57,9 +56,9 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
     private final TimerClient timerClient;
     private final AreaCarrecClient areaCarrecClient;
 
-    private final ExpedientClientService expedientClientService;
-    private final TascaClientService tascaClientService;
 
+    // Desplegaments
+    ////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public WDeployment desplegar(String nomArxiu, byte[] contingut) {
@@ -97,26 +96,34 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
     @Override
     public void updateDeploymentActions(
             String deploymentId,
-            Map<String, byte[]> handlers,
+//            Map<String, byte[]> handlers,
             String deploymentFileName,
             byte[] deploymentFileContent) {
 
         List<MultipartFile> handlerFiles = new ArrayList<>();
-        handlers.forEach((key, value) -> handlerFiles.add(new CustomMultipartFile(value, key)));
+//        handlers.forEach((key, value) -> handlerFiles.add(new CustomMultipartFile(value, key)));
         deploymentClient.updateDeploymentActions(
                 deploymentId,
-                handlerFiles,
+//                handlerFiles,
                 new CustomMultipartFile(deploymentFileContent, deploymentFileName));
     }
 
     @Override
-    public WProcessDefinition getProcessDefinition(String deploymentId, String processDefinitionId) {
-        return processDefinitionClient.getProcessDefinition(deploymentId, processDefinitionId);
+    public void propagateDeploymentActions(String deploymentOrigenId, String deploymentDestiId) {
+        deploymentClient.propagateDeploymentActions(deploymentOrigenId, deploymentDestiId);
+    }
+
+    // Definicions de Procés
+    ////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public WProcessDefinition getProcessDefinition(String processDefinitionId) {
+        return processDefinitionClient.getProcessDefinition(processDefinitionId);
     }
 
     @Override
-    public List<WProcessDefinition> getSubProcessDefinitions(String deploymentId, String processDefinitionId) {
-        return processDefinitionClient.getSubProcessDefinitions(deploymentId, processDefinitionId);
+    public List<WProcessDefinition> getSubProcessDefinitions(String processDefinitionId) {
+        return processDefinitionClient.getSubProcessDefinitions(processDefinitionId);
     }
 
     @Override
@@ -126,6 +133,7 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
 
     @Override
     public String getStartTaskName(String processDefinitionId) {
+
         return processDefinitionClient.getStartTaskName(processDefinitionId);
     }
 
@@ -138,6 +146,9 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
     public void updateSubprocessDefinition(WProcessDefinition pd1, WProcessDefinition pd2) {
         processDefinitionClient.updateSubprocessDefinition(pd1.getId(), pd2.getId());
     }
+
+    // INSTÀNCIA DE PROCÉS
+    ////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public List<WProcessInstance> findProcessInstancesWithProcessDefinitionId(String processDefinitionId) {
@@ -217,6 +228,10 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
         processInstanceClient.changeProcessInstanceVersion(processInstanceId, newVersion);
     }
 
+    // VARIABLES DE PROCÉS
+    ////////////////////////////////////////////////////////////////////////////////
+    // TODO: Atacar al MS Dades
+
     // TODO: Per consultar dades no necessitam l'expedientId
     @Override
     public Map<String, Object> getProcessInstanceVariables(String processInstanceId) {
@@ -242,6 +257,9 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
 //        dadaClient.deleteDadaByExpedientIdAndProcesIdAndCodi(expedientId, processInstanceId, varName);
     }
 
+    // INSTÀNCIA DE TASQUES
+    ////////////////////////////////////////////////////////////////////////////////
+
     @Override
     public WTaskInstance getTaskById(String taskId) {
         return taskClient.getTaskById(taskId);
@@ -256,107 +274,7 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
     public String getTaskInstanceIdByExecutionTokenId(String executionTokenId) {
         return taskClient.getTaskInstanceIdByExecutionTokenId(executionTokenId);
     }
-
-    // TODO: MS Expedients i tasques
-    @Override
-    public ResultatConsultaPaginada<WTaskInstance> tascaFindByFiltrePaginat(
-            Long entornId,
-            String actorId,
-            String taskName,
-            String titol,
-            Long expedientId,
-            String expedientTitol,
-            String expedientNumero,
-            Long expedientTipusId,
-            Date dataCreacioInici,
-            Date dataCreacioFi,
-            Integer prioritat,  // TODO: Prioritat?
-            Date dataLimitInici,
-            Date dataLimitFi,
-            boolean mostrarAssignadesUsuari,
-            boolean mostrarAssignadesGrup,
-            boolean nomesPendents,
-            PaginacioParamsDto paginacioParams,
-            boolean nomesCount) {
-        Pageable pageable = getPageable(paginacioParams);
-
-        // TODO: Rebem TascaDto, i hem de retornar WTaskInstance !!!!!!!!!!!!!!!!!!!!!
-        //  Canviar el nom del TascaDto, i fer que implementi WTaskInstance
-        var tasques = tascaClientService.findTasquesAmbFiltrePaginatV1(
-                entornId,
-                expedientTipusId,
-                actorId,
-                taskName,
-                titol,
-                expedientId,
-                expedientTitol,
-                expedientNumero,
-                dataCreacioInici,
-                dataCreacioFi,
-                dataLimitInici,
-                dataLimitFi,
-                mostrarAssignadesUsuari,
-                mostrarAssignadesGrup,
-                nomesPendents,
-                null,
-                pageable,
-                pageable.getSort()
-        );
-        if (tasques == null || tasques.isEmpty())
-            return null;
-//        return new ResultatConsultaPaginada<WTaskInstance>(
-//                tasques.getTotalElements(),
-//                tasques.getContent());
-        return null;
-    }
-
-    // TODO: Mirar d'on s'utilitza, per a modificar el mètode, que fa dues crides a MS Exp i Tasques
-    @Override
-    public LlistatIds tascaIdFindByFiltrePaginat(
-            String responsable,
-            String tasca,
-            String tascaSel,
-            List<Long> idsPIExpedients,
-            Date dataCreacioInici,
-            Date dataCreacioFi,
-            Integer prioritat,  // TODO: Prioritat?
-            Date dataLimitInici,
-            Date dataLimitFi,
-            PaginacioParamsDto paginacioParams,
-            boolean nomesTasquesPersonals,
-            boolean nomesTasquesGrup,
-            boolean nomesAmbPendents) {
-
-        // TODO: No es pot utilitzar aquest mètode
-        String filtre = null; // TODO: tascaSel, idsPIExpedients
-        var tasques = tascaClientService.findTasquesAmbFiltrePaginatV1(
-                EntornActual.getEntornId(),
-                null,
-                responsable,
-                tasca,
-                null,
-                null,
-                null,
-                null,
-                dataCreacioInici,
-                dataCreacioFi,
-                dataLimitInici,
-                dataLimitFi,
-                nomesTasquesPersonals,
-                nomesTasquesGrup,
-                nomesAmbPendents,
-                filtre,
-                Pageable.unpaged(),
-                Sort.unsorted()
-        );
-        if (tasques == null || tasques.isEmpty())
-            return null;
-        return LlistatIds.builder()
-                .count((int) tasques.getTotalElements())
-                .ids(tasques.getContent().stream().map(t -> t.getId()).collect(Collectors.toList()))
-                .build();
-    }
-
+    
     @Override
     public void takeTaskInstance(String taskId, String actorId) {
         taskClient.takeTaskInstance(taskId, actorId);
@@ -434,6 +352,9 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
         return taskClient.findTaskInstanceOutcomes(taskInstanceId);
     }
 
+    // VARIABLES DE TASQUES
+    ////////////////////////////////////////////////////////////////////////////////
+
     // Variables
     @Override
     public Map<String, Object> getTaskInstanceVariables(String taskId) {
@@ -471,6 +392,9 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
         taskVariableClient.deleteTaskInstanceVariable(taskId, varName);
     }
 
+    // FILS D'EXECUCIÓ (Token / Execution path)
+    ////////////////////////////////////////////////////////////////////////////////
+
     @Override
     public WToken getTokenById(String tokenId) {
         return executionClient.getTokenById(tokenId);
@@ -507,6 +431,9 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
     public void signalToken(String tokenId, String transitionName) {
         executionClient.signalToken(tokenId, transitionName);
     }
+
+    // ACCIONS
+    ////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public Map<String, Object> evaluateScript(String processInstanceId, String script, Set<String> outputNames) {
@@ -563,6 +490,9 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
                 processDefinitionPareId);
     }
 
+    // TIMERS
+    ////////////////////////////////////////////////////////////////////////////////
+
     @Override
     public void suspendTimer(String timerId, Date dueDate) {
         timerClient.suspendTimer(timerId, dueDate);
@@ -572,6 +502,9 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
     public void resumeTimer(String timerId, Date dueDate) {
         timerClient.resumeTimer(timerId, dueDate);
     }
+
+    // AREES I CARRECS
+    ////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public List<String> findAreesByFiltre(String filtre) {
@@ -615,6 +548,8 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
 
 
 
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 
     // TODO: Retrocedir tokens
@@ -622,68 +557,6 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
     public List<String> findArrivingNodeNames(String tokenId) {
         return null;
     }
-
-
-
-
-    // TODO: Mirar on es crida, i substituir per el MS corresponent
-    //      No quadra el mètode utilitzat
-    @Override
-    public ResultatConsultaPaginada<Long> expedientFindByFiltre(
-            Long entornId,
-            String actorId,
-            Collection<Long> tipusIdPermesos,
-            String titol,
-            String numero,
-            Long tipusId,
-            Date dataCreacioInici,
-            Date dataCreacioFi,
-            Date dataFiInici,
-            Date dataFiFi,
-            Long estatId,
-            Double geoPosX,
-            Double geoPosY,
-            String geoReferencia,
-            boolean nomesIniciats,
-            boolean nomesFinalitzats,
-            boolean mostrarAnulats,
-            boolean mostrarNomesAnulats,
-            boolean nomesAlertes,
-            boolean nomesErrors,
-            boolean nomesTasquesPersonals,
-            boolean nomesTasquesGrup,
-            boolean nomesTasquesMeves,
-            PaginacioParamsDto paginacioParams,
-            boolean nomesCount) {
-        Pageable pageable = getPageable(paginacioParams);
-        var expedients = expedientClientService.findExpedientsAmbFiltrePaginatV1(
-                entornId,
-                null,
-                actorId,
-                tipusId,
-                titol,
-                numero,
-                dataCreacioInici,
-                dataCreacioFi,
-                dataFiInici,
-                dataFiFi,
-                null,
-                estatId,
-                nomesTasquesPersonals,
-                nomesTasquesGrup,
-                nomesAlertes,
-                nomesErrors,
-                null,
-                pageable,
-                pageable.getSort());
-
-        if (expedients == null || expedients.isEmpty())
-            return null;
-        return new ResultatConsultaPaginada(
-                expedients.getTotalElements(),
-                expedients.getContent().stream().map(e -> e.getId()).collect(Collectors.toList()));
-    }
-
 
     // Finalitzar expedients
     @Override
@@ -743,31 +616,8 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
 
 
     @Override
-    public WProcessDefinition parse(ZipInputStream zipInputStream) throws Exception {
-        return null;
-    }
-
-
-
-    private Pageable getPageable(PaginacioParamsDto paginacioParams) {
-        Pageable pageable;
-
-        if (paginacioParams.getOrdres() == null || paginacioParams.getOrdres().isEmpty()) {
-            pageable =  PageRequest.of(
-                    paginacioParams.getPaginaNum(),
-                    paginacioParams.getPaginaTamany());
-        } else {
-            pageable =  PageRequest.of(
-                    paginacioParams.getPaginaNum(),
-                    paginacioParams.getPaginaTamany(),
-                    Sort.by(
-                            paginacioParams.getOrdres().stream()
-                                    .map(o -> new Sort.Order(
-                                            OrdreDireccioDto.ASCENDENT.equals(o.getDireccio()) ? Direction.ASC : Direction.DESC,
-                                            o.getCamp()))
-                                    .collect(Collectors.toList())));
-        }
-        return pageable;
+    public WProcessDefinition parse(String nomArxiu, byte[] contingut) throws Exception {
+        return processDefinitionClient.parse(new CustomMultipartFile(contingut, nomArxiu));
     }
 
     private String removeExtension(String fileName) {

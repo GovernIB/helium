@@ -27,6 +27,7 @@ public class TaskVariableController {
 
     private final TaskVariableService taskVariableService;
 
+    // TODO: Definir scope de les variables!!!
 
     @GetMapping(value="/{taskId}/taskInstanceVariables")
     public ResponseEntity<List<VariableRest>> getTaskInstanceVariables(

@@ -24,6 +24,7 @@ public class TaskVariableServiceImpl implements TaskVariableService {
 
     @Override
     public List<VariableRest> getTaskInstanceVariables(String taskId) {
+//        return objectMapToVariableRestConvert(taskService.getVariablesLocal(taskId));
         return objectMapToVariableRestConvert(taskService.getVariablesLocal(taskId));
     }
 

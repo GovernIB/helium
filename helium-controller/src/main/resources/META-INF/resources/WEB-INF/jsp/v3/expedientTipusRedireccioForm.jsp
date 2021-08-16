@@ -34,7 +34,7 @@
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 </head>
 <body>		
-	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="expedientTipusRedireccioCommand">
+	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" modelAttribute="expedientTipusRedireccioCommand">
 		<div style="height: 400px">        
 			<input type="hidden" name="id" value="${expedientTipusRedireccioCommand.id}"/>
 			<hel:inputSelect required="true" name="usuariOrigen" textKey="expedient.tipus.redireccio.form.usuariOrigen" placeholderKey="expedient.tipus.redireccio.form.usuariOrigen" optionItems="${persones}" optionValueAttribute="codi" optionTextAttribute="valor"/>

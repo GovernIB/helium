@@ -51,7 +51,7 @@ $(document).ready(function() {
 <c:choose>
 	<c:when test="${not empty expedientTipus}">
 
-		<form:form cssClass="form-horizontal" enctype="multipart/form-data" method="post" commandName="expedientTipusIntegracioNotibCommand">
+		<form:form cssClass="form-horizontal" enctype="multipart/form-data" method="post" modelAttribute="expedientTipusIntegracioNotibCommand">
 			<div>				
 				<hel:inputCheckbox name="notibActiu" textKey="expedient.tipus.integracio.tramits.notificacions.activar"/>
 				<div id="inputs-notib" style="display:${expedientTipusIntegracioNotibCommand.notibActiu? 'inline' : 'none'}">

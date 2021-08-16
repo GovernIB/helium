@@ -48,7 +48,7 @@ import java.util.List;
  * procés.
  *
  */
-@Controller(value = "definicioProcesVariableControllerV3")
+@Controller
 @RequestMapping("/v3/definicioProces")
 public class DefinicioProcesVariableController extends BaseVariableController {
 
@@ -490,7 +490,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyar(entornActual.getId(),
 					definicioProcesId);
 			model.addAttribute("definicioProces", definicioProces);
-			model.addAttribute("baseUrl", ("/helium/v3/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
+			model.addAttribute("baseUrl", ("/heliumback/v3/definicioProces/" + definicioProces.getJbpmKey() + "/" + definicioProces.getId().toString()));
 			// agrupacions heretades
 			model.addAttribute("agrupacionsHeretadesIds", new ArrayList<Long>());
 			model.addAttribute("agrupacionsSobreescriuenIds", new ArrayList<Long>());

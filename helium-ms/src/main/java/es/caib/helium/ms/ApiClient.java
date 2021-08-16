@@ -19,10 +19,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
 
-import es.caib.helium.ms.auth.ApiKeyAuth;
-import es.caib.helium.ms.auth.Authentication;
-import es.caib.helium.ms.auth.HttpBasicAuth;
-import es.caib.helium.ms.auth.OAuth;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -49,13 +45,18 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
+import es.caib.helium.ms.auth.ApiKeyAuth;
+import es.caib.helium.ms.auth.Authentication;
+import es.caib.helium.ms.auth.HttpBasicAuth;
+import es.caib.helium.ms.auth.OAuth;
+
 /**
  * Client per invocar mètodes REST de forma unificada.
  * 
  *
  */
 @javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.JavaClientCodegen", date = "2021-04-15T16:51:41.639+02:00[Europe/Paris]")
-@Component("net.conselldemallorca.helium.ms.domini.client.invoker.ApiClient")
+@Component
 public class ApiClient {
 
 	public enum CollectionFormat {

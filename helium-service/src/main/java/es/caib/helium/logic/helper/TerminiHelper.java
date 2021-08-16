@@ -31,7 +31,7 @@ import java.util.List;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Component("TerminiHelperV3")
+@Component
 public class TerminiHelper {
 
 	@Resource

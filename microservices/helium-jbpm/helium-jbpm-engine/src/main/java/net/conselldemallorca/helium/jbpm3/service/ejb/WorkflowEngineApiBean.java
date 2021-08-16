@@ -55,23 +55,28 @@ public class WorkflowEngineApiBean implements WorkflowEngineApi {
     }
 
     @Override
-    public void updateDeploymentActions(Long deploymentId, Map<String, byte[]> handlers) {
-        delegate.updateDeploymentActions(deploymentId, handlers);
+    public void updateDeploymentActions(Long deploymentId, byte[] deploymentContent) throws Exception {
+        delegate.updateDeploymentActions(deploymentId, deploymentContent);
     }
 
     @Override
-    public WProcessDefinition getProcessDefinition(String deploymentId, String processDefinitionId) {
-        return delegate.getProcessDefinition(deploymentId, processDefinitionId);
+    public void propagateDeploymentActions(String deploymentOrigenId, String deploymentDestiId) {
+        delegate.propagateDeploymentActions(deploymentOrigenId, deploymentDestiId);
     }
 
     @Override
-    public List<WProcessDefinition> getSubProcessDefinitions(String deploymentId, String processDefinitionId) {
-        return delegate.getSubProcessDefinitions(deploymentId, processDefinitionId);
+    public WProcessDefinition getProcessDefinition(String processDefinitionId) {
+        return delegate.getProcessDefinition(processDefinitionId);
     }
 
     @Override
-    public List<String> getTaskNamesFromDeployedProcessDefinition(WDeployment dpd, String processDefinitionId) {
-        return delegate.getTaskNamesFromDeployedProcessDefinition(dpd, processDefinitionId);
+    public List<WProcessDefinition> getSubProcessDefinitions(String processDefinitionId) {
+        return delegate.getSubProcessDefinitions(processDefinitionId);
+    }
+
+    @Override
+    public List<String> getTaskNamesFromDeployedProcessDefinition(String deploymentId, String processDefinitionId) {
+        return delegate.getTaskNamesFromDeployedProcessDefinition(deploymentId, processDefinitionId);
     }
 
     @Override
@@ -332,6 +337,46 @@ public class WorkflowEngineApiBean implements WorkflowEngineApi {
     @Override
     public void resumeTimer(String timerId, Date dueDate) {
         delegate.resumeTimer(timerId, dueDate);
+    }
+
+    @Override
+    public List<String> findAreesByFiltre(String filtre) {
+        return delegate.findAreesByFiltre(filtre);
+    }
+
+    @Override
+    public List<String> findAreesByPersona(String personaCodi) {
+        return delegate.findAreesByPersona(personaCodi);
+    }
+
+    @Override
+    public List<String> findRolsByPersona(String persona) {
+        return delegate.findRolsByPersona(persona);
+    }
+
+    @Override
+    public List<String[]> findCarrecsByFiltre(String filtre) {
+        return delegate.findCarrecsByFiltre(filtre);
+    }
+
+    @Override
+    public List<String> findPersonesByGrupAndCarrec(String areaCodi, String carrecCodi) {
+        return delegate.findPersonesByGrupAndCarrec(areaCodi, carrecCodi);
+    }
+
+    @Override
+    public List<String> findCarrecsByPersonaAndGrup(String codiPersona, String codiArea) {
+        return delegate.findPersonesByGrupAndCarrec(codiPersona, codiArea);
+    }
+
+    @Override
+    public List<String> findPersonesByCarrec(String codi) {
+        return delegate.findPersonesByCarrec(codi);
+    }
+
+    @Override
+    public List<String> findPersonesByGrup(String rol) {
+        return delegate.findPersonesByGrup(rol);
     }
 
     @Override

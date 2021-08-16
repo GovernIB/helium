@@ -11,7 +11,7 @@ public interface WProcessInstance {
 	public Date getStartTime();
 	public Date getEndTime();
 	public String getDescription();
-	public Long getExpedientId();
+//	public Long getExpedientId();
 	
 //	public Object getProcessInstance();
 	

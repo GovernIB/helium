@@ -126,7 +126,7 @@
 
 </head>
 <body>
-	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="entornCommand">
+	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" modelAttribute="entornCommand">
 		<form:hidden id="id" path="id"/>
 		<div class="row">
 			<div class="col-sm-11">
@@ -147,7 +147,7 @@
 							<input type="color" id="html5ColorFonsPicker" style="display: none;" />
 						</div>
 						<div class="col-sm-12">
-							<hel:inputText name="colorLletra" textKey="entorn.form.camp.colorLletra"placeholder="${colorLletraDefault}"/>		
+							<hel:inputText name="colorLletra" textKey="entorn.form.camp.colorLletra" placeholder="${colorLletraDefault}"/>		
 							<div id="cercleColorLletra" class="cercle" style="background: ${colorLletra}"></div>
 							<input type="color" id="html5ColorLletraPicker" style="display: none;" />
 						</div>

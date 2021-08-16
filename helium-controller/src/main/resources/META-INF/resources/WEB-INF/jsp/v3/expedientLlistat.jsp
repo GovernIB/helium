@@ -1,3 +1,4 @@
+<%@ page import="es.caib.helium.logic.intf.dto.ExpedientDto" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
@@ -132,11 +133,11 @@ $(document).ready(function() {
 		if ($(this).val()) {
 			$.get('<c:url value="/v3/expedient/estatsPerTipus/"/>' + $(this).val())
 			.done(function(data) {
-				$('#estatText').append('<option value="<%=es.caib.helium.logic.intf.dto.ExpedientDto.EstatTipusDto.INICIAT%>"><spring:message code="comu.estat.iniciat"/></option>');
+				$('#estatText').append('<option value="<%=ExpedientDto.EstatTipusDto.INICIAT%>"><spring:message code="comu.estat.iniciat"/></option>');
 				for (var i = 0; i < data.length; i++) {
 					$('#estatText').append('<option value="' + data[i].id + '">' + data[i].nom + '</option>');
 				}
-				$('#estatText').append('<option value="<%=es.caib.helium.logic.intf.dto.ExpedientDto.EstatTipusDto.FINALITZAT%>"><spring:message code="comu.estat.finalitzat"/></option>');
+				$('#estatText').append('<option value="<%=ExpedientDto.EstatTipusDto.FINALITZAT%>"><spring:message code="comu.estat.finalitzat"/></option>');
 				// Es fa el submit del formulari per cercar automàticament per tipus de d'expedient
 				$('#consultar').trigger('click');
 			})
@@ -144,8 +145,8 @@ $(document).ready(function() {
 				alert("<spring:message code="expedient.llistat.estats.ajax.error"/>");
 			});
 		} else {
-			$('#estatText').append('<option value="<%=es.caib.helium.logic.intf.dto.ExpedientDto.EstatTipusDto.INICIAT%>"><spring:message code="comu.estat.iniciat"/></option>');
-			$('#estatText').append('<option value="<%=es.caib.helium.logic.intf.dto.ExpedientDto.EstatTipusDto.FINALITZAT%>"><spring:message code="comu.estat.finalitzat"/></option>');
+			$('#estatText').append('<option value="<%=ExpedientDto.EstatTipusDto.INICIAT%>"><spring:message code="comu.estat.iniciat"/></option>');
+			$('#estatText').append('<option value="<%=ExpedientDto.EstatTipusDto.FINALITZAT%>"><spring:message code="comu.estat.finalitzat"/></option>');
 		}
 	});
 
@@ -369,7 +370,7 @@ function refrescaEstatSegonPla() {
 </script>
 </head>
 <body>
-	<form:form action="" method="post" cssClass="well" commandName="expedientConsultaCommand">
+	<form:form action="" method="post" cssClass="well" modelAttribute="expedientConsultaCommand">
 		<div class="row">
 			<div class="col-md-2">
 				<hel:inputText name="numero" textKey="expedient.llistat.filtre.camp.numero" placeholderKey="expedient.llistat.filtre.camp.numero" inline="true"/>

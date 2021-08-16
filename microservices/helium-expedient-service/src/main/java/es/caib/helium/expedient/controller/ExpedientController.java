@@ -1,15 +1,15 @@
 package es.caib.helium.expedient.controller;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.rest.webmvc.json.patch.JsonPatchPatchConverter;
 import org.springframework.data.rest.webmvc.json.patch.Patch;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,16 +23,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import es.caib.helium.client.expedient.expedient.model.ConsultaExpedientDades;
 import es.caib.helium.expedient.model.ExpedientDto;
-import es.caib.helium.expedient.model.ExpedientEstatTipusEnum;
-import es.caib.helium.expedient.model.MostrarAnulatsEnum;
 import es.caib.helium.expedient.service.ExpedientService;
 import es.caib.helium.ms.controller.ControllerHelper;
 import es.caib.helium.ms.model.PagedList;
@@ -68,65 +66,77 @@ public class ExpedientController {
     */
    @GetMapping(produces = { "application/json" })
    public ResponseEntity<PagedList<ExpedientDto>> findExpedientsAmbFiltrePaginatV1(
-           @RequestParam(value = "entornId") Long entornId,
-           @RequestParam(value = "filtre", required = false) String filtre,
-           @RequestParam(value = "usuariCodi", required = false) String usuariCodi,
-           @RequestParam(value = "expedientTipusId", required = false) Long expedientTipusId,
-           @RequestParam(value = "titol", required = false) String titol,
-           @RequestParam(value = "numero", required = false) String numero,
-           @RequestParam(value = "dataInici1", required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date dataInici1,
-           @RequestParam(value = "dataInici2", required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date dataInici2,
-           @RequestParam(value = "dataFi1", required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date dataFi1,
-           @RequestParam(value = "dataFi2", required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date dataFi2,
-           @RequestParam(value = "estatTipus", required = false) ExpedientEstatTipusEnum estatTipus,
-           @RequestParam(value = "estatId", required = false) Long estatId,
-           @RequestParam(value = "nomesTasquesPersonals", required = false, defaultValue = "false") boolean nomesTasquesPersonals,
-           @RequestParam(value = "nomesTasquesGrup", required = false, defaultValue = "false") boolean nomesTasquesGrup,
-           @RequestParam(value = "nomesAlertes", required = false, defaultValue = "false") boolean nomesAlertes,
-           @RequestParam(value = "nomesErrors", required = false, defaultValue = "false") boolean nomesErrors,
-           @RequestParam(value = "mostrarAnulats", required = false) MostrarAnulatsEnum mostrarAnulats,
-           final Pageable pageable,	
-           final Sort sort) {
+		   ConsultaExpedientDades consultaExpedientDades) {
 
+	   Long entornId = consultaExpedientDades.getEntornId();
+       String filtreRsql = consultaExpedientDades.getFiltreRsql();
+       String usuariCodi = consultaExpedientDades.getActorId();
+       Long expedientTipusId = consultaExpedientDades.getTipusId();
+       Collection<Long> tipusIdPermesos = consultaExpedientDades.getTipusIdPermesos();
+       String titol = consultaExpedientDades.getTitol();
+       String numero = consultaExpedientDades.getNumero();
+       Date dataInici1 = consultaExpedientDades.getDataCreacioInici();
+       Date dataInici2 = consultaExpedientDades.getDataCreacioFi();
+       Date dataFi1 = consultaExpedientDades.getDataFiInici();
+       Date dataFi2 = consultaExpedientDades.getDataFiFi();
+       boolean nomesIniciats = consultaExpedientDades.isNomesIniciats();
+       boolean nomesFinalitzats = consultaExpedientDades.isNomesFinalitzats();
+       Long estatId = consultaExpedientDades.getEstatId();
+       boolean nomesTasquesPersonals = consultaExpedientDades.isNomesTasquesPersonals();
+       boolean nomesTasquesGrup = consultaExpedientDades.isNomesTasquesGrup();
+       boolean nomesAlertes = consultaExpedientDades.isNomesAlertes();
+       boolean nomesErrors = consultaExpedientDades.isNomesErrors();
+       boolean mostrarAnulats = consultaExpedientDades.isMostrarAnulats();
+       boolean mostrarNomesAnulats = consultaExpedientDades.isMostrarNomesAnulats();
+       
        log.debug("[CTR] llistant expedients: \n" +
     		   "usuariCodi: " + usuariCodi +
                ", entornId: " + entornId +
                ", expedientTipusId: " + expedientTipusId +
+               ", tipusIdPermesos: " + tipusIdPermesos +
                ", titol: " + titol +
                ", numero: " + numero +
                ", dataInici1: " + dataInici1 +
                ", dataInici2: " + dataInici2 +
                ", dataFi1: " + dataFi1 +
                ", dataFi2: " + dataFi2 +
-               ", estatTipus: " + estatTipus +
+               ", nomesIniciats: " + nomesIniciats +
+               ", nomesFinalitzats: " + nomesFinalitzats +
                ", estatId: " + estatId +
                ", nomesTasquesPersonals: " + nomesTasquesPersonals +
                ", nomesTasquesGrup: " + nomesTasquesGrup +
                ", expedientTipusId: " + nomesAlertes +
                ", nomesErrors: " + nomesErrors +
                ", mostrarAnulats: " + mostrarAnulats + 
-               ", filtre: " + filtre);
+               ", mostrarNomesAnulats: " + mostrarNomesAnulats + 
+               ", filtre: " + filtreRsql +
+               ", page: " + consultaExpedientDades.getPage() +
+               ", size: " + consultaExpedientDades.getSize() +
+               ", sort: " + consultaExpedientDades.getSort());
 
        PagedList<ExpedientDto> expedientList = expedientService.listExpedients(
     		   usuariCodi,
     		   entornId,
     		   expedientTipusId, 
+    		   tipusIdPermesos,
     		   titol, 
     		   numero, 
     		   dataInici1, 
     		   dataInici2, 
     		   dataFi1, 
     		   dataFi2, 
-    		   estatTipus, 
+               nomesIniciats,
+               nomesFinalitzats,
     		   estatId, 
     		   nomesTasquesPersonals, 
     		   nomesTasquesGrup, 
     		   nomesAlertes, 
     		   nomesErrors, 
-    		   mostrarAnulats, 
-    		   filtre, 
-    		   pageable, 
-    		   sort);
+               mostrarAnulats,
+               mostrarNomesAnulats,
+    		   filtreRsql,
+    		   consultaExpedientDades.getPageable(),
+    		   consultaExpedientDades.getSort());
     		   
        if (expedientList.getTotalElements() == 0) {
            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -134,7 +144,100 @@ public class ExpedientController {
        
        return new ResponseEntity<>(expedientList, HttpStatus.OK);
    }
+   
+	/**
+	 * Consulta els identificadors d'expedients amb paràmetres corresponent al
+	 * llistat d'expedients. La cerca pot rebre paràmetres per:
+	 * <ul>
+	 * <li>ordenar</li>
+	 * <li>paginar</li>
+	 * <li>filtrar (amb el mateixos paràmetres que en el llistat)</li>
+	 * </ul>
+	 */
+	@GetMapping(value = "/ids", produces = { "application/json" })
+	public ResponseEntity<PagedList<Long>> findExpedientsIdsAmbFiltrePaginatV1(
+			ConsultaExpedientDades consultaExpedientDades) {
 
+		Long entornId = consultaExpedientDades.getEntornId();
+		String filtreRsql = consultaExpedientDades.getFiltreRsql();
+		String usuariCodi = consultaExpedientDades.getActorId();
+		Long expedientTipusId = consultaExpedientDades.getTipusId();
+	    Collection<Long> tipusIdPermesos = consultaExpedientDades.getTipusIdPermesos();
+		String titol = consultaExpedientDades.getTitol();
+		String numero = consultaExpedientDades.getNumero();
+		Date dataInici1 = consultaExpedientDades.getDataCreacioInici();
+		Date dataInici2 = consultaExpedientDades.getDataCreacioFi();
+		Date dataFi1 = consultaExpedientDades.getDataFiInici();
+		Date dataFi2 = consultaExpedientDades.getDataFiFi();
+		boolean nomesIniciats = consultaExpedientDades.isNomesIniciats();
+		boolean nomesFinalitzats = consultaExpedientDades.isNomesFinalitzats();
+		Long estatId = consultaExpedientDades.getEstatId();
+		boolean nomesTasquesPersonals = consultaExpedientDades.isNomesTasquesPersonals();
+		boolean nomesTasquesGrup = consultaExpedientDades.isNomesTasquesGrup();
+		boolean nomesAlertes = consultaExpedientDades.isNomesAlertes();
+		boolean nomesErrors = consultaExpedientDades.isNomesErrors();
+		boolean mostrarAnulats = consultaExpedientDades.isMostrarAnulats();
+		boolean mostrarNomesAnulats = consultaExpedientDades.isMostrarNomesAnulats();
+      
+      log.debug("[CTR] llistant identificadors d' expedients: \n" +
+   		   "usuariCodi: " + usuariCodi +
+              ", entornId: " + entornId +
+              ", expedientTipusId: " + expedientTipusId +
+              ", tipusIdPermesos: " + tipusIdPermesos +
+              ", titol: " + titol +
+              ", numero: " + numero +
+              ", dataInici1: " + dataInici1 +
+              ", dataInici2: " + dataInici2 +
+              ", dataFi1: " + dataFi1 +
+              ", dataFi2: " + dataFi2 +
+              ", nomesIniciats: " + nomesIniciats +
+              ", nomesFinalitzats: " + nomesFinalitzats +
+              ", estatId: " + estatId +
+              ", nomesTasquesPersonals: " + nomesTasquesPersonals +
+              ", nomesTasquesGrup: " + nomesTasquesGrup +
+              ", expedientTipusId: " + nomesAlertes +
+              ", nomesErrors: " + nomesErrors +
+              ", mostrarAnulats: " + mostrarAnulats + 
+              ", mostrarNomesAnulats: " + mostrarNomesAnulats + 
+              ", filtre: " + filtreRsql +
+              ", page: " + consultaExpedientDades.getPage() +
+              ", size: " + consultaExpedientDades.getSize() +
+              ", sort: " + consultaExpedientDades.getSort());
+
+      //TODO: pensar en una consulta al servei que retorni identificadors
+      PagedList<ExpedientDto> expedientList = expedientService.listExpedients(
+   		   usuariCodi,
+   		   entornId,
+   		   expedientTipusId, 
+   		tipusIdPermesos,
+   		   titol, 
+   		   numero, 
+   		   dataInici1, 
+   		   dataInici2, 
+   		   dataFi1, 
+   		   dataFi2, 
+           nomesIniciats,
+           nomesFinalitzats,
+   		   estatId, 
+   		   nomesTasquesPersonals, 
+   		   nomesTasquesGrup, 
+   		   nomesAlertes, 
+   		   nomesErrors, 
+           mostrarAnulats,
+           mostrarNomesAnulats,
+   		   filtreRsql,
+   		   consultaExpedientDades.getPageable(),
+   		   consultaExpedientDades.getSort());
+   		   
+		if (expedientList.getTotalElements() == 0) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		List<Long> expedientsIds = expedientList.getContent().stream().map(e -> e.getId()).collect(Collectors.toList());
+		PagedList<Long> expedientIdsPagedList = new PagedList<Long>(expedientsIds);
+		return new ResponseEntity<>(expedientIdsPagedList, HttpStatus.OK);
+	}
+
+  
     @PostMapping(consumes = { "application/json" })
     public ResponseEntity<Void> createExpedientV1(
             @Valid @RequestBody ExpedientDto expedientDto) {

@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -151,15 +150,14 @@ public class DeploymentController {
      * Actualitza els recursos de tipus acció, sense canviar la versió d'un desplegament
      *
      * @param deploymentId Identificador del desplegament
-     * @param handlers No utilitzat!
      * @param deploymentFile Fitxer a desplegar
      */
-    @PutMapping(value = "/{deploymentId}/actions",
+    @PostMapping(value = "/{deploymentId}/actions",
             consumes = { "multipart/form-data" },
             produces = { "application/json" })
     public ResponseEntity<Void> updateDeploymentActions(
             @PathVariable String deploymentId,
-            @RequestPart(value = "handlers", required = false) List<MultipartFile> handlers,
+//            @RequestPart(value = "handlers", required = false) List<MultipartFile> handlers,
             @RequestPart("deploymentFile") MultipartFile deploymentFile) throws Exception {
         WDeployment desplegament = deploymentService.getDesplegament(deploymentId);
         deploymentService.desplegar(

@@ -6,9 +6,9 @@ package es.caib.helium.back.controller;
 import es.caib.helium.back.command.AnotacioAcceptarCommand;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.logic.intf.dto.AnotacioDto;
-import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto.IniciadorTipusDto;
 import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
+import es.caib.helium.logic.intf.dto.expedient.ExpedientIniciDto;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.TascaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +57,7 @@ public class BaseExpedientIniciController extends BaseExpedientController {
 	 * 
 	 * @throws Exception Hi poden haver excepcions no controlades amb sistemes externs.
 	 */
-	protected ExpedientDto iniciarExpedient (
+	protected ExpedientIniciDto iniciarExpedient (
 			HttpServletRequest request,
 			Long entornId,
 			Long expedientTipusId,
@@ -67,8 +67,8 @@ public class BaseExpedientIniciController extends BaseExpedientController {
 			Integer any,
 			Map<String, Object> valors,
 			AnotacioAcceptarCommand anotacioAcceptarCommand) throws Exception  {
-		
-		ExpedientDto iniciat = expedientService.create(
+
+		ExpedientIniciDto iniciat = expedientService.create(
 				entornId,
 				null,
 				expedientTipusId,

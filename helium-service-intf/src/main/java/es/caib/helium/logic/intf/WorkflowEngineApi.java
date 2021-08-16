@@ -1,21 +1,16 @@
 package es.caib.helium.logic.intf;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import es.caib.helium.client.engine.model.WDeployment;
 import es.caib.helium.client.engine.model.WProcessDefinition;
 import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.client.engine.model.WToken;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
-import es.caib.helium.logic.intf.dto.LlistatIds;
-import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.ResultatConsultaPaginada;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.zip.ZipInputStream;
 
 /**
  * Interfície comú dels motors de workflow amb els mètodes necessaris per desplegar, consultar,
@@ -112,13 +107,22 @@ public interface WorkflowEngineApi {
 	 * Actualitza els recursos de tipus acció, sense canviar la versió d'un desplagament
 	 * 
 	 * @param deploymentId
-	 * @param handlers
 	 */
 	public void updateDeploymentActions(
             String deploymentId,
-            Map<String, byte[]> handlers,
+//            Map<String, byte[]> handlers,
 			String deploymentFileName,
 			byte[] deploymentFileContent);
+
+	/**
+	 * Actualitza els recursos de tipus acció, sense canviar la versió d'un desplagament
+	 *
+	 * @param deploymentOrigenId
+	 * @param deploymentDestiId
+	 */
+	public void propagateDeploymentActions(
+			String deploymentOrigenId,
+			String deploymentDestiId);
 	
 	// Consulta de Definicions de Procés
 	////////////////////////////////////////////////////////////////////////////////
@@ -132,23 +136,19 @@ public interface WorkflowEngineApi {
 	
 	/**
 	 * Obté una definició de procés donat el codi de desplegament i de la definició de procés 
-	 * @param deploymentId
 	 * @param processDefinitionId
 	 * @return
 	 */
 	public WProcessDefinition getProcessDefinition(
-            String deploymentId,
             String processDefinitionId);
 	
 	/**
 	 * Obté les definicions de procés dels subprocessos donat el codi de desplegament i de la definició de procés pare
 	 * 
-	 * @param deploymentId
 	 * @param processDefinitionId
 	 * @return
 	 */
 	public List<WProcessDefinition> getSubProcessDefinitions(
-            String deploymentId,
             String processDefinitionId);
 	
 	/**
@@ -425,83 +425,6 @@ public interface WorkflowEngineApi {
 	 * @return
 	 */
 	public String getTaskInstanceIdByExecutionTokenId(String executionTokenId);
-	
-	/**
-	 * Obté un llistat paginat de instàncies de tasques donat un filtre concret 
-	 * 
-	 * @param entornId
-	 * @param actorId
-	 * @param taskName
-	 * @param titol
-	 * @param expedientId
-	 * @param expedientTitol
-	 * @param expedientNumero
-	 * @param expedientTipusId
-	 * @param dataCreacioInici
-	 * @param dataCreacioFi
-	 * @param prioritat
-	 * @param dataLimitInici
-	 * @param dataLimitFi
-	 * @param mostrarAssignadesUsuari
-	 * @param mostrarAssignadesGrup
-	 * @param nomesPendents
-	 * @param paginacioParams
-	 * @param nomesCount
-	 * @return
-	 */
-	public ResultatConsultaPaginada<WTaskInstance> tascaFindByFiltrePaginat(
-            Long entornId,
-            String actorId,
-            String taskName,
-            String titol,
-            Long expedientId,
-            String expedientTitol,
-            String expedientNumero,
-            Long expedientTipusId,
-            Date dataCreacioInici,
-            Date dataCreacioFi,
-            Integer prioritat,
-            Date dataLimitInici,
-            Date dataLimitFi,
-            boolean mostrarAssignadesUsuari,
-            boolean mostrarAssignadesGrup,
-            boolean nomesPendents,
-            PaginacioParamsDto paginacioParams,
-            boolean nomesCount);
-
-	/**
-	 * Obté un llistat d'identificadors de instàncies de tasques donat un filtre concret
-	 * 
-	 * @param responsable
-	 * @param tasca
-	 * @param tascaSel
-	 * @param idsPIExpedients
-	 * @param dataCreacioInici
-	 * @param dataCreacioFi
-	 * @param prioritat
-	 * @param dataLimitInici
-	 * @param dataLimitFi
-	 * @param paginacioParams
-	 * @param nomesTasquesPersonals
-	 * @param nomesTasquesGrup
-	 * @param nomesAmbPendents
-	 * @return
-	 */
-	public LlistatIds tascaIdFindByFiltrePaginat(
-            String responsable,
-            String tasca,
-            String tascaSel,
-            List<Long> idsPIExpedients,
-            Date dataCreacioInici,
-            Date dataCreacioFi,
-            Integer prioritat,
-            Date dataLimitInici,
-            Date dataLimitFi,
-            PaginacioParamsDto paginacioParams,
-            boolean nomesTasquesPersonals,
-            boolean nomesTasquesGrup,
-            boolean nomesAmbPendents);
-	
 	
 	// Tramitació de tasques
 	////////////////////////////////////////////////////////////////////////////////
@@ -784,42 +707,6 @@ public interface WorkflowEngineApi {
 
 	// Expedients
 
-
-	public ResultatConsultaPaginada<Long> expedientFindByFiltre(
-            Long entornId,
-            String actorId,
-            Collection<Long> tipusIdPermesos,
-            String titol,
-            String numero,
-            Long tipusId,
-            Date dataCreacioInici,
-            Date dataCreacioFi,
-			Date dataFiInici,
-			Date dataFiFi,
-            Long estatId,
-            Double geoPosX,
-            Double geoPosY,
-            String geoReferencia,
-            boolean nomesIniciats,
-            boolean nomesFinalitzats,
-            boolean mostrarAnulats,
-            boolean mostrarNomesAnulats,
-            boolean nomesAlertes,
-            boolean nomesErrors,
-            boolean nomesTasquesPersonals,
-            boolean nomesTasquesGrup,
-            boolean nomesTasquesMeves,
-            PaginacioParamsDto paginacioParams,
-            boolean nomesCount);
-			/*
-			| V3
-			|- ExpedientServiceImpl
-			|		- consultaFindNomesIdsPaginat
-			|		- consultaFindPaginat
-			|		- findAmbFiltrePaginat
-			|		- findIdsAmbFiltre
-			*/
-
 	/** Mètode per finalitzar l'expedient. */
 	public void finalitzarExpedient(String[] processInstanceIds, Date dataFinalitzacio);
 	public void desfinalitzarExpedient(String processInstanceId);
@@ -866,6 +753,6 @@ public interface WorkflowEngineApi {
 	 * @return
 	 * @throws Exception
 	 */
-	public WProcessDefinition parse(ZipInputStream zipInputStream) throws Exception;
+	public WProcessDefinition parse(String nomArxiu, byte[] contingut) throws Exception;
 
 }

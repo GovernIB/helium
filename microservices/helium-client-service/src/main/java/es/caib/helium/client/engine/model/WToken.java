@@ -1,7 +1,10 @@
 package es.caib.helium.client.engine.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import java.util.Date;
 
+@JsonDeserialize(as = ExecutionDto.class)
 public interface WToken {
 
 	String getId();

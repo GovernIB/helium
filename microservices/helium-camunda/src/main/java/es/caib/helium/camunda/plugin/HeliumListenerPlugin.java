@@ -18,7 +18,15 @@ public class HeliumListenerPlugin extends AbstractProcessEnginePlugin {
             processEngineConfiguration.setCustomPreBPMNParseListeners(preParseListeners);
         }
         preParseListeners.add(new HeliumTaskParseListener());
+
 //        preParseListeners.add(new VariableParseListener());
 //        super.preInit(processEngineConfiguration);
+
+        var postParseListeners = processEngineConfiguration.getCustomPostBPMNParseListeners();
+        if (postParseListeners == null) {
+            postParseListeners = new ArrayList<BpmnParseListener>();
+            processEngineConfiguration.setCustomPostBPMNParseListeners(postParseListeners);
+        }
+//        postParseListeners.add(new HeliumPostTaskParseListener());
     }
 }

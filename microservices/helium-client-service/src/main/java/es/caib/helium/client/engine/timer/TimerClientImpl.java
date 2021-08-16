@@ -14,7 +14,7 @@ public class TimerClientImpl implements TimerClient {
 
 	private final String missatgeLog = "Cridant Engine Service - TimeController - ";
 
-	private TimerFeignClient timeControllerClient;
+	private final TimerFeignClient timeControllerClient;
 
 	@Override
 	public void suspendTimer(String timerId, Date dueDate) {

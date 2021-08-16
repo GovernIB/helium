@@ -6,7 +6,7 @@ import java.util.Set;
 public interface WTaskInstance {
 
 	public String getId();
-	public Long getTaskInstanceId();
+//	public Long getTaskInstanceId();
 	public String getProcessInstanceId();
 	public String getProcessDefinitionId();
 	public Long getExpedientId();
@@ -30,8 +30,8 @@ public interface WTaskInstance {
 	// Cache
 	public String getTitol();
 	public void setTitol(String titol);
-	public Long getEntornId();
-	public void setEntornId(Long entornId);
+	public String getEntornId();
+	public void setEntornId(String entornId);
 	public Boolean getTramitacioMassiva();
 	public void setTramitacioMassiva(Boolean tramitacioMassiva);
 	public String getDefinicioProcesKey();

@@ -12,9 +12,9 @@
 <head>
 	<title>${titol}</title>
 	<hel:modalHead/>
-		<script src="<c:url value="/webjars/datatables.net/1.10.10/js/jquery.dataTables.min.js"/>"></script>
-	<script src="<c:url value="/webjars/datatables.net-bs/1.10.10/js/dataTables.bootstrap.min.js"/>"></script>
-	<link href="<c:url value="/webjars/datatables.net-bs/1.10.10/css/dataTables.bootstrap.min.css"/>" rel="stylesheet"></link>
+		<script src="<c:url value="/webjars/datatables.net/1.10.19/js/jquery.dataTables.min.js"/>"></script>
+	<script src="<c:url value="/webjars/datatables.net-bs/1.10.19/js/dataTables.bootstrap.min.js"/>"></script>
+	<link href="<c:url value="/webjars/datatables.net-bs/1.10.19/css/dataTables.bootstrap.min.css"/>" rel="stylesheet"></link>
 	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
 	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
 	<script src="<c:url value="/js/webutil.common.js"/>"></script>
@@ -136,7 +136,7 @@
 	<div id="modal-botons" class="well">
 		<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.tancar"/></button>
 	</div>
-	<form:form id="createForm" cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="entornAreaMembreCommand" style='${mostraCreate || mostraUpdate ? "":"display:none;"}'>
+	<form:form id="createForm" cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" modelAttribute="entornAreaMembreCommand" style='${mostraCreate || mostraUpdate ? "":"display:none;"}'>
 		<form:hidden id="id" path="id"/>
 		<div class="row">
 			<div class="col-sm-11">

@@ -58,8 +58,8 @@ import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDireccioDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDto;
 import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.dto.RespostaValidacioSignaturaDto;
-import es.caib.helium.logic.intf.dto.ResultatConsultaPaginada;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
+import es.caib.helium.logic.intf.dto.expedient.ExpedientIniciDto;
 import es.caib.helium.logic.intf.exception.ExecucioHandlerException;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
@@ -70,6 +70,7 @@ import es.caib.helium.logic.intf.exception.ValidacioException;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.util.Constants;
+import es.caib.helium.logic.ms.ExpedientMs;
 import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persist.entity.Accio;
 import es.caib.helium.persist.entity.Alerta;
@@ -148,7 +149,7 @@ import java.util.zip.ZipOutputStream;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Service("expedientServiceV3")
+@Service
 public class ExpedientServiceImpl implements ExpedientService {
 
 	@Resource
@@ -228,14 +229,17 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private AnotacioService anotacioService;
 
 	@Resource
+	private ExpedientMs expedientMs;
+	@Resource
 	private ExpedientClientService expedientClientService;
 
 	/**
 	 * {@inheritDoc}
+	 * @return
 	 */
 	@Override
 	@Transactional
-	public ExpedientDto create(
+	public ExpedientIniciDto create(
 			Long entornId,
 			String usuari,
 			Long expedientTipusId,
@@ -341,9 +345,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 			}
 
 			// Retorna la informació de l'expedient que s'ha iniciat
-			ExpedientDto dto = conversioTipusServiceHelper.convertir(
+			ExpedientIniciDto dto = conversioTipusServiceHelper.convertir(
 					expedient,
-					ExpedientDto.class);
+					ExpedientIniciDto.class);
 			return dto;
 		} catch (ExecucioHandlerException ex) {
 			throw new TramitacioHandlerException(
@@ -645,7 +649,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return listExpedient;
 	}
 
-	// TODO: Passar a MS expedients
 	/**
 	 * {@inheritDoc}
 	 */
@@ -720,7 +723,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Obté la llista de tipus d'expedient permesos
 		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
 		// Executa la consulta amb paginació
-		ResultatConsultaPaginada<Long> expedientsIds = workflowEngineApi.expedientFindByFiltre(
+		PaginaDto<ExpedientDto> expedients = expedientMs.expedientFindByFiltre(
 				entornId,
 				auth.getName(),
 				tipusPermesosIds,
@@ -746,23 +749,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true, // nomesTasquesMeves, // TODO Si no te permis SUPERVISION nomesTasquesMeves = false
 				paginacioParams,
 				false);
-		// Retorna la pàgina amb la resposta
-		List<ExpedientDto> expedients = new ArrayList<ExpedientDto>(); 
-		if (expedientsIds.getCount() > 0) {
-			expedients = conversioTipusServiceHelper.convertirList(
-				expedientRepository.findByIdIn(expedientsIds.getLlista()),
-				ExpedientDto.class);
-		}
-		// Després de la consulta els expedients es retornen en ordre invers
-		Collections.sort(expedients, new ExpedientDtoIdsComparator(expedientsIds.getLlista()));
 
-		if (expedients.size() > 0) {
-			expedientHelper.omplirPermisosExpedients(expedients);
-			expedientHelper.trobarAlertesExpedients(expedients);
+		if (expedients.getContingut().size() > 0) {
+			expedientHelper.omplirPermisosExpedients(expedients.getContingut());
+			expedientHelper.trobarAlertesExpedients(expedients.getContingut());
 		}
 		return paginacioHelper.toPaginaDto(
-				expedients,
-				expedientsIds.getCount(),
+				expedients.getContingut(),
+				expedients.getTotal(),
 				paginacioParams);
 	}
 
@@ -876,7 +870,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Obté la llista de tipus d'expedient permesos
 		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
 		// Executa la consulta amb paginació
-		ResultatConsultaPaginada<Long> expedientsIds = workflowEngineApi.expedientFindByFiltre(
+		PaginaDto<Long> expedientsIds = expedientMs.expedientFindIdsByFiltre(
 				entornId,
 				auth.getName(),
 				tipusPermesosIds,
@@ -902,7 +896,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true, // nomesTasquesMeves, // TODO Si no te permis SUPERVISION nomesTasquesMeves = false
 				new PaginacioParamsDto(),
 				false);
-		return expedientsIds.getLlista();
+		return expedientsIds.getContingut();
 	}
 	/**
 	 * {@inheritDoc}
@@ -1470,7 +1464,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 						ExtendedPermission.DEFPROC_UPDATE,
 						ExtendedPermission.ADMINISTRATION});
 		if (!expedient.isAmbRetroaccio()) {
-			workflowRetroaccioApi.eliminaInformacioRetroaccio(expedient.getProcessInstanceId());
+			workflowRetroaccioApi.eliminaInformacioRetroaccioProces(expedient.getProcessInstanceId());
 		}
 		if (definicioProcesId != null) {
 			DefinicioProces defprocAntiga = expedientHelper.findDefinicioProcesByProcessInstanceId(expedient.getProcessInstanceId());
@@ -2301,7 +2295,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		} else {
 			List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			ResultatConsultaPaginada<Long> expedientsIds = workflowEngineApi.expedientFindByFiltre(
+			PaginaDto<Long> expedientsIds = expedientMs.expedientFindIdsByFiltre(
 					entorn.getId(),
 					auth.getName(),
 					tipusPermesosIds,
@@ -2327,7 +2321,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					nomesMeves,
 					new PaginacioParamsDto(),
 					false);
-			expedientIdsPermesos = expedientsIds.getLlista();
+			expedientIdsPermesos = expedientsIds.getContingut();
 		}
 		// Obte la llista d'expedients de lucene passant els expedients permesos
 		// com a paràmetres
@@ -2443,7 +2437,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Obte la llista d'expedients permesos segons els filtres
 		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		ResultatConsultaPaginada<Long> expedientsIds = workflowEngineApi.expedientFindByFiltre(
+		PaginaDto<Long> expedientsIds = expedientMs.expedientFindIdsByFiltre(
 				entorn.getId(),
 				auth.getName(),
 				tipusPermesosIds,

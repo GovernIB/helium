@@ -5,6 +5,6 @@
 		    http://www.springframework.org/schema/beans
 		    http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
-	<import resource="classpath:es/caib/helium/api/context/application-context-ejb-client.xml" />
-	<import resource="classpath:es/caib/helium/back/context/application-context-security.xml" />
+	<import resource="classpath:net/conselldemallorca/helium/api/context/application-context-ejb-client.xml" />
+	<import resource="classpath:net/conselldemallorca/helium/back/context/application-context-security.xml" />
 </beans>

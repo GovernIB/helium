@@ -12,9 +12,6 @@ import java.util.Date;
 @Component
 public class AlertesHelper {
 
-    @Value("${es.caib.helium.jbpm.bridge.service.host}")
-    String bridgeAdress;
-
     @Autowired
     RestTemplate restTemplate;
 
@@ -29,7 +26,7 @@ public class AlertesHelper {
     }
 
     private String getAlertesBridgeAddress() {
-        return bridgeAdress + "/alertes";
+        return RestClientHelper.getBridgeAddress() + "/alertes";
 //        return PropertiesHelper.getInstance().getProperty("es.caib.helium.jbpm.bridge.service.host");
     }
 

@@ -19,6 +19,7 @@ import es.caib.helium.logic.intf.service.AplicacioService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +31,7 @@ import java.util.Map;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Component("arxiuConvertirView")
 public class ArxiuConvertirView extends ArxiuView {
 
 	public static final String MODEL_ATTRIBUTE_CONVERSIONENABLED = "conversionEnabled";

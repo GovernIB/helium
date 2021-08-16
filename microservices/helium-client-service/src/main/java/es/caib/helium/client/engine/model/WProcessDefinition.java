@@ -1,5 +1,8 @@
 package es.caib.helium.client.engine.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+@JsonDeserialize(as = ProcessDefinitionDto.class)
 public interface WProcessDefinition {
 
     public String getDeploymentId();

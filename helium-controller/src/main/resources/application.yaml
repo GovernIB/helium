@@ -30,16 +30,20 @@ keycloak:
     realm: GOIB
     resource: goib-default
     public-client: true
+    principal-attribute: preferred_username
+    use-resource-role-mappings: true
 
-#logging:
-#    level:
+logging:
+    level:
+      es.caib.helium: DEBUG
 #        org.springframework: TRACE
 #        com: TRACE
+          
 
 # Propietats
 es:
     caib:
         helium:
-            properties: /home/siona/Feina/Conf/Helium/helium4/helium.properties
+            properties: /helium/configMs/helium.properties
             system:
-                properties: /home/siona/Feina/Conf/Helium/helium4/helium_system.properties
+                properties: /helium/configMs/helium_system.properties

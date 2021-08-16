@@ -51,7 +51,7 @@ import java.util.TreeSet;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Controller(value = "entornEstadisticaControllerV3")
+@Controller
 @RequestMapping("/v3/estadistica")
 public class ExpedientTipusEstadisticaController extends BaseController {
 
@@ -78,7 +78,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 			filtreCommand = new ExpedientTipusEstadisticaCommand();
 		
 		// Torna a omplir el model
-		model.addAttribute("expedientTipusEstadisticaCommand", filtreCommand);		
+		model.addAttribute("expedientTipusEstadisticaCommand", filtreCommand);
 		// Valida l'accés a l'entorn
 		Boolean potAdministrarEntorn = SessionHelper.getSessionManager(request).getPotAdministrarEntorn();
 		if (potAdministrarEntorn != null && !potAdministrarEntorn) {
@@ -209,7 +209,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		Boolean potAdministrarEntorn = SessionHelper.getSessionManager(request).getPotAdministrarEntorn();
 		if (potAdministrarEntorn != null && !potAdministrarEntorn) {
 			try {
-				response.sendRedirect("/helium/v3/estadistica");
+				response.sendRedirect("/heliumback/v3/estadistica");
 			} catch (IOException e) {
 				throw new RuntimeException("Error de permís generant l'XLS d'estadístiques.", e);
 			}

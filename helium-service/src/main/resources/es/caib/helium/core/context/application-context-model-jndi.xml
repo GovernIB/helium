@@ -1,3 +1,4 @@
+<!-- 
 <?xml version="1.0" encoding="UTF-8"?>
 <beans
 	xmlns="http://www.springframework.org/schema/beans"
@@ -10,9 +11,5 @@
 		<property name="resourceRef" value="true" />
 		<property name="jndiName" value="${config:es.caib.helium.datasource.jndi}" />
 	</bean>
-	<!--bean id="mailSession" class="org.springframework.jndi.JndiObjectFactoryBean">
-		<property name="resourceRef" value="true"/>
-		<property name="jndiName" value="${config:es.caib.helium.email.jndi}"/>
-	</bean-->
-
 </beans>
+ -->

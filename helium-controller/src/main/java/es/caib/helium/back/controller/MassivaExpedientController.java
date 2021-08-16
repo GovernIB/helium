@@ -17,6 +17,7 @@ import es.caib.helium.back.helper.TascaFormHelper;
 import es.caib.helium.back.helper.TascaFormValidatorHelper;
 import es.caib.helium.logic.intf.dto.*;
 import es.caib.helium.logic.intf.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.service.DocumentService;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;

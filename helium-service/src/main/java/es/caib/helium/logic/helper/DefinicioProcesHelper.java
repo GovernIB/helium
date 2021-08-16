@@ -25,7 +25,7 @@ import es.caib.helium.logic.intf.exportacio.RegistreMembreExportacio;
 import es.caib.helium.logic.intf.exportacio.TascaExportacio;
 import es.caib.helium.logic.intf.exportacio.TerminiExportacio;
 import es.caib.helium.logic.intf.exportacio.ValidacioExportacio;
-import es.caib.helium.ms.domini.DominiMs;
+import es.caib.helium.logic.ms.DominiMs;
 import es.caib.helium.persist.entity.Accio;
 import es.caib.helium.persist.entity.Camp;
 import es.caib.helium.persist.entity.Camp.TipusCamp;
@@ -179,14 +179,16 @@ public class DefinicioProcesHelper {
 					expedientTipus.getDefinicionsProces().add(definicio);
 				definicio = definicioProcesRepository.saveAndFlush(definicio);
 				// Crea les tasques publicades
-				for (String nomTasca: workflowEngineApi.getTaskNamesFromDeployedProcessDefinition(dpd, wpd.getId())) {
+				List<String> nomTasques = workflowEngineApi.getTaskNamesFromDeployedProcessDefinition(dpd, wpd.getId());
+				Set<String> nomRecursos = workflowEngineApi.getResourceNames(dpd.getId());
+				for (String nomTasca: nomTasques) {
 					Tasca tasca = new Tasca(
 							definicio,
 							nomTasca,
 							nomTasca,
 							TipusTasca.ESTAT);
 					String prefixRecursBo = "forms/" + nomTasca;
-					for (String resourceName: workflowEngineApi.getResourceNames(dpd.getId())) {
+					for (String resourceName: nomRecursos) {
 						if (resourceName.startsWith(prefixRecursBo)) {
 							tasca.setTipus(TipusTasca.FORM);
 							tasca.setRecursForm(nomTasca);
@@ -830,7 +832,9 @@ public class DefinicioProcesHelper {
 					tascaExportacio.setAmbRepro(tasca.isAmbRepro());
 					tascaExportacio.setMostrarAgrupacions(tasca.isMostrarAgrupacions());
 					// Afegeix els camps de la tasca
-					for (CampTasca camp: campTascaRepository.findAmbTascaIdOrdenats(tasca.getId(), definicio.getExpedientTipus().getId())) {
+					for (CampTasca camp: campTascaRepository.findAmbTascaIdOrdenats(
+							tasca.getId(),
+							definicio.getExpedientTipus() != null ? definicio.getExpedientTipus().getId() : null)) {
 						tascaExportacio.addCamp(
 								new CampTascaExportacio(
 									camp.getCamp().getCodi(),
@@ -1645,8 +1649,8 @@ public class DefinicioProcesHelper {
 		for (DefinicioProces dp1: darreresDefinicionsProces.values())
 			for (DefinicioProces dp2 : darreresDefinicionsProces.values())
 				workflowEngineApi.updateSubprocessDefinition(
-						workflowEngineApi.getProcessDefinition(null, dp1.getJbpmId()), //.getProcessDefinition(),
-						workflowEngineApi.getProcessDefinition(null, dp2.getJbpmId())); //.getProcessDefinition());
+						workflowEngineApi.getProcessDefinition(dp1.getJbpmId()), //.getProcessDefinition(),
+						workflowEngineApi.getProcessDefinition(dp2.getJbpmId())); //.getProcessDefinition());
 	}
 	
 	private static final Logger logger = LoggerFactory.getLogger(DefinicioProcesHelper.class);

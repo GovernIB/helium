@@ -4,8 +4,10 @@
 package es.caib.helium.ejb;
 
 import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto.EstatTipusDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto.IniciadorTipusDto;
+import es.caib.helium.logic.intf.dto.expedient.ExpedientIniciDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 
@@ -26,7 +28,7 @@ public class ExpedientService extends AbstractService<es.caib.helium.logic.intf.
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ExpedientDto create(
+	public ExpedientIniciDto create(
 			Long entornId,
 			String usuari,
 			Long expedientTipusId,
@@ -656,6 +658,7 @@ public class ExpedientService extends AbstractService<es.caib.helium.logic.intf.
 	}
 
 	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void clearExpedientIniciant() {
 		getDelegateService().clearExpedientIniciant();
 	}

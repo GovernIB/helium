@@ -38,7 +38,7 @@
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 </head>
 <body>		
-	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="expedientTipusAccioCommand">
+	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" modelAttribute="expedientTipusAccioCommand">
 		<div>        
 			<input type="hidden" name="id" value="${expedientTipusAccioCommand.id}"/>
 			<hel:inputText required="true" name="codi" textKey="expedient.tipus.accio.form.accio.codi" />

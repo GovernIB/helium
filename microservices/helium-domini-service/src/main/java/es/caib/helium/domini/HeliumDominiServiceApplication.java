@@ -20,4 +20,5 @@ public class HeliumDominiServiceApplication {
 //	public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
 //		return new JpaTransactionManager(entityManagerFactory);
 //	}
+
 }

@@ -1730,7 +1730,13 @@ public class RetroaccioHelper implements WorkflowRetroaccioApi {
 	}
 
 	@Override
-	public void eliminaInformacioRetroaccio(String processInstanceId) {
+	public void eliminaInformacioRetroaccioProces(String processInstanceId) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void eliminaInformacioRetroaccio(Long informacioRetroaccioId) {
 		// TODO Auto-generated method stub
 		
 	}

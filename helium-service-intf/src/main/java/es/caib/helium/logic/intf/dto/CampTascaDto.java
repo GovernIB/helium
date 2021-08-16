@@ -1,5 +1,10 @@
 package es.caib.helium.logic.intf.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
 import java.io.Serializable;
 
 
@@ -9,6 +14,10 @@ import java.io.Serializable;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
 public class CampTascaDto extends HeretableDto implements Serializable {
 
 	private Long id;
@@ -28,70 +37,10 @@ public class CampTascaDto extends HeretableDto implements Serializable {
 	 */
 	private Long expedientTipusId;
 
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
-	public boolean isReadFrom() {
-		return readFrom;
-	}
-	public void setReadFrom(boolean readFrom) {
-		this.readFrom = readFrom;
-	}
-	public boolean isWriteTo() {
-		return writeTo;
-	}
-	public void setWriteTo(boolean writeTo) {
-		this.writeTo = writeTo;
-	}
-	public boolean isRequired() {
-		return required;
-	}
-	public void setRequired(boolean required) {
-		this.required = required;
-	}
-	public boolean isReadOnly() {
-		return readOnly;
-	}
-	public void setReadOnly(boolean readOnly) {
-		this.readOnly = readOnly;
-	}
-	public int getOrder() {
-		return order;
-	}
-	public void setOrder(int order) {
-		this.order = order;
-	}
-	public int getAmpleCols() {
-		return ampleCols;
-	}
-	public void setAmpleCols(int ampleCols) {
-		this.ampleCols = ampleCols;
-	}
-	public int getBuitCols() {
-		return buitCols;
-	}
-	public void setBuitCols(int buitCols) {
-		this.buitCols = buitCols;
-	}
-	public CampDto getCamp() {
-		return camp;
-	}
-	public void setCamp(CampDto camp) {
-		this.camp = camp;
-	}
-	public Long getExpedientTipusId() {
-		return expedientTipusId;
-	}
-	public void setExpedientTipusId(Long expedientTipusId) {
-		this.expedientTipusId = expedientTipusId;
-	}
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
-	public CampTascaDto() {}
+
 	public CampTascaDto(
 			CampDto camp,
 			boolean readFrom,
@@ -111,30 +60,30 @@ public class CampTascaDto extends HeretableDto implements Serializable {
 		this.buitCols = buitCols;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((camp == null) ? 0 : camp.hashCode());
-		return result;
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		CampTascaDto other = (CampTascaDto) obj;
-		if (camp == null) {
-			if (other.camp != null)
-				return false;
-		} else if (!camp.equals(other.camp))
-			return false;
-		return true;
-	}
+//	@Override
+//	public int hashCode() {
+//		final int prime = 31;
+//		int result = 1;
+//		result = prime * result + ((camp == null) ? 0 : camp.hashCode());
+//		return result;
+//	}
+//
+//	@Override
+//	public boolean equals(Object obj) {
+//		if (this == obj)
+//			return true;
+//		if (obj == null)
+//			return false;
+//		if (getClass() != obj.getClass())
+//			return false;
+//		CampTascaDto other = (CampTascaDto) obj;
+//		if (camp == null) {
+//			if (other.camp != null)
+//				return false;
+//		} else if (!camp.equals(other.camp))
+//			return false;
+//		return true;
+//	}
 
 	private static final long serialVersionUID = 1L;
 

@@ -11,6 +11,7 @@ import org.camunda.bpm.engine.delegate.VariableScope;
 import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.camunda.bpm.engine.impl.interceptor.Command;
 import org.camunda.bpm.engine.impl.interceptor.CommandContext;
+import org.camunda.bpm.engine.impl.persistence.entity.ExecutionEntity;
 import org.camunda.bpm.engine.impl.pvm.runtime.ExecutionImpl;
 import org.camunda.bpm.engine.impl.scripting.ScriptFactory;
 import org.camunda.bpm.engine.impl.scripting.SourceExecutableScript;
@@ -47,7 +48,7 @@ public class ActionServiceImpl implements ActionService {
 
         var variables = new ArrayList<VariableRest>();
 
-        ExecutionImpl execution = (ExecutionImpl) runtimeService.createExecutionQuery()
+        ExecutionEntity execution = (ExecutionEntity) runtimeService.createExecutionQuery()
                 .processInstanceId(processInstanceId)
 //                .active()
                 .list()

@@ -3,6 +3,11 @@
  */
 package es.caib.helium.logic.intf.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.Date;
 
 /**
@@ -10,22 +15,13 @@ import java.util.Date;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class FestiuDto {
 
 	private Long id;
 	private Date data;
-
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
-	public Date getData() {
-		return data;
-	}
-	public void setData(Date data) {
-		this.data = data;
-	}
 
 }
