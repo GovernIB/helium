@@ -6,6 +6,8 @@ package es.caib.helium.logic.intf.dto;
 import java.util.Date;
 import java.util.List;
 
+import es.caib.helium.client.integracio.notificacio.enums.ServeiTipusEnum;
+
 /**
  * Informació d'un enviament d'una notificació.
  * 
@@ -65,7 +67,7 @@ public class DadesEnviamentDto {
 		OTROS
 	}
 	
-	private ServeiTipusEnumDto serveiTipusEnum;
+	private ServeiTipusEnum serveiTipusEnum;
 	private PersonaDto titular;
 	private List<PersonaDto> destinataris;
 	
@@ -99,10 +101,10 @@ public class DadesEnviamentDto {
 	private NotificacioEnviamentEstatEnumDto estat;
 	private Date estatData;
 
-	public ServeiTipusEnumDto getServeiTipusEnum() {
+	public ServeiTipusEnum getServeiTipusEnum() {
 		return serveiTipusEnum;
 	}
-	public void setServeiTipusEnum(ServeiTipusEnumDto serveiTipusEnum) {
+	public void setServeiTipusEnum(ServeiTipusEnum serveiTipusEnum) {
 		this.serveiTipusEnum = serveiTipusEnum;
 	}
 	public PersonaDto getTitular() {

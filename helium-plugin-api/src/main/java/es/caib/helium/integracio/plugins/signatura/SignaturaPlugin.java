@@ -2,7 +2,7 @@
  * 
  */
 package es.caib.helium.integracio.plugins.signatura;
-
+import es.caib.helium.client.model.RespostaValidacioSignatura;
 
 
 /**
@@ -13,7 +13,7 @@ package es.caib.helium.integracio.plugins.signatura;
  */
 public interface SignaturaPlugin {
 
-	public RespostaValidacioSignatura verificarSignatura(
+	RespostaValidacioSignatura verificarSignatura(
 			byte[] document,
 			byte[] signatura,
 			boolean obtenirDadesCertificat) throws SignaturaPluginException;

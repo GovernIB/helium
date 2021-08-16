@@ -6,6 +6,8 @@ package es.caib.helium.logic.helper;
 import es.caib.helium.client.engine.model.WProcessDefinition;
 import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.engine.model.WTaskInstance;
+import es.caib.helium.client.integracio.notificacio.enums.InteressatTipusEnum;
+import es.caib.helium.client.integracio.notificacio.model.DadesNotificacioDto;
 import es.caib.helium.integracio.plugins.registre.DadesAssumpte;
 import es.caib.helium.integracio.plugins.registre.DadesExpedient;
 import es.caib.helium.integracio.plugins.registre.DadesInteressat;
@@ -23,7 +25,6 @@ import es.caib.helium.logic.intf.dto.AreaDto;
 import es.caib.helium.logic.intf.dto.ArxiuDto;
 import es.caib.helium.logic.intf.dto.CampTascaDto;
 import es.caib.helium.logic.intf.dto.CarrecDto;
-import es.caib.helium.logic.intf.dto.DadesNotificacioDto;
 import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
 import es.caib.helium.logic.intf.dto.DocumentDissenyDto;
 import es.caib.helium.logic.intf.dto.DocumentDto;
@@ -38,7 +39,6 @@ import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.dto.FestiuDto;
 import es.caib.helium.logic.intf.dto.InteressatDto;
-import es.caib.helium.logic.intf.dto.InteressatTipusEnumDto;
 import es.caib.helium.logic.intf.dto.NotificacioDto;
 import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.dto.ReassignacioDto;
@@ -122,7 +122,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
 /**
  * Service que implementa la funcionalitat necessària per
  * a integrar Helium i jBPM.
@@ -545,7 +544,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			errors.add("El tipus d'interessat és obligatori");
 		
 		// Llinatge1 per persones físiques
-		if (interessat.getTipus() == InteressatTipusEnumDto.FISICA && (interessat.getLlinatge1() == null || interessat.getLlinatge1().isEmpty())) {			
+		if (interessat.getTipus() == InteressatTipusEnum.FISICA && (interessat.getLlinatge1() == null || interessat.getLlinatge1().isEmpty())) {
 			errors.add("Si el tipus de persona és física llavors el llinatge és obligatori");
 		}
 		

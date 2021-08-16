@@ -3,9 +3,11 @@ package es.caib.helium.integracio.plugins.persones;
 import es.caib.helium.client.integracio.persones.PersonaClientService;
 import es.caib.helium.client.integracio.persones.model.Persona;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public class PersonesPluginImpl implements PersonesPlugin {
 
     @Autowired
@@ -18,17 +20,20 @@ public class PersonesPluginImpl implements PersonesPlugin {
     }
 
     @Override
-    public DadesPersona findAmbCodi(String codi) throws PersonesPluginException {
-        return null;
+    public Persona findAmbCodi(String codi, Long entornId) throws PersonesPluginException {
+
+        return personaClientService.getPersonaByCodi(codi, entornId);
     }
 
     @Override
-    public List<DadesPersona> findAll() throws PersonesPluginException {
-        return null;
+    public List<Persona> findAll(Long entornId) throws PersonesPluginException {
+
+        return personaClientService.findAll(entornId);
     }
 
     @Override
-    public List<String> findRolsAmbCodi(String codi) throws PersonesPluginException {
-        return null;
+    public List<String> findRolsAmbCodi(String codi, Long entornId) throws PersonesPluginException {
+
+        return personaClientService.getPersonaRolsByCodi(codi, entornId);
     }
 }

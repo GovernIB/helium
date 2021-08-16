@@ -3,17 +3,17 @@
  */
 package es.caib.helium.logic.helper;
 
-import es.caib.helium.integracio.plugins.notificacio.RespostaEnviar;
+import es.caib.helium.client.integracio.notificacio.enums.EnviamentTipus;
+import es.caib.helium.client.integracio.notificacio.enums.NotificacioEstat;
+import es.caib.helium.client.integracio.notificacio.model.DadesEnviamentDto;
+import es.caib.helium.client.integracio.notificacio.model.DadesNotificacioDto;
+import es.caib.helium.client.integracio.notificacio.model.RespostaEnviar;
+import es.caib.helium.client.integracio.portafirmes.model.PersonaDto;
 import es.caib.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
-import es.caib.helium.logic.intf.dto.DadesEnviamentDto;
-import es.caib.helium.logic.intf.dto.DadesNotificacioDto;
 import es.caib.helium.logic.intf.dto.DocumentEnviamentEstatEnumDto;
 import es.caib.helium.logic.intf.dto.DocumentNotificacioDto;
-import es.caib.helium.logic.intf.dto.EnviamentTipusEnumDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.dto.NotificacioDto;
-import es.caib.helium.logic.intf.dto.NotificacioEstatEnumDto;
-import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.persist.entity.DocumentNotificacio;
 import es.caib.helium.persist.entity.DocumentStore;
@@ -169,7 +169,7 @@ public class NotificacioHelper {
 		notificacio.setEnviamentIdentificador(resposta.getIdentificador());
 		notificacio.setEnviatData(new Date());
 		try {
-			notificacio.setEstat(NotificacioEstatEnumDto.valueOf(resposta.getEstat().name()));
+			notificacio.setEstat(NotificacioEstat.valueOf(resposta.getEstat().name()));
 		} catch(Exception e) {
 			notificacio.setError(true);
 			notificacio.setErrorDescripcio("No s'ha pogut reconèixer l'estat \"" + resposta.getEstat() + "\" de la resposta");
@@ -212,7 +212,7 @@ public class NotificacioHelper {
 		if (dadesNotificacio.getEnviamentTipus() != null)
 			notificacio.setTipus(dadesNotificacio.getEnviamentTipus());
 		else
-			notificacio.setTipus(EnviamentTipusEnumDto.NOTIFICACIO);
+			notificacio.setTipus(EnviamentTipus.NOTIFICACIO);
 		notificacio.setEmisorDir3Codi(dadesNotificacio.getEmisorDir3Codi());
 		notificacio.setDataProgramada(dadesNotificacio.getEnviamentDataProgramada());
 		notificacio.setRetard(dadesNotificacio.getRetard());
@@ -221,10 +221,10 @@ public class NotificacioHelper {
 		notificacio.setDocument(documentStoreRepository.findById(dadesNotificacio.getDocumentId()).get());
 
 		// TODO: Només 1 enviament
-		DadesEnviamentDto dadesEnviament = dadesNotificacio.getEnviaments().get(0);
+		var dadesEnviament = dadesNotificacio.getEnviaments().get(0);
 
 		// Titular
-		PersonaDto dadesTitular = dadesEnviament.getTitular();
+		var dadesTitular = dadesEnviament.getTitular();
 		notificacio.setTitularNif(dadesTitular.getDni());
 		notificacio.setTitularNom(dadesTitular.getNom());
 		notificacio.setTitularLlinatge1(dadesTitular.getLlinatge1());
@@ -235,7 +235,7 @@ public class NotificacioHelper {
 		// Destinatari
 		if (dadesEnviament.getDestinataris() != null && !dadesEnviament.getDestinataris().isEmpty()) {
 			// TODO: Només 1 destinatari
-			PersonaDto dadesDestinatari = dadesEnviament.getDestinataris().get(0);
+			var dadesDestinatari = dadesEnviament.getDestinataris().get(0);
 			notificacio.setDestinatariNif(dadesDestinatari.getDni());
 			notificacio.setDestinatariNom(dadesDestinatari.getNom());
 			notificacio.setDestinatariLlinatge1(dadesDestinatari.getLlinatge1());
@@ -244,7 +244,7 @@ public class NotificacioHelper {
 			notificacio.setDestinatariEmail(dadesDestinatari.getEmail());
 		}
 			
-		notificacio.setEstat(NotificacioEstatEnumDto.PENDENT);
+		notificacio.setEstat(NotificacioEstat.PENDENT);
 		
 		notificacio.setConcepte(dadesNotificacio.getConcepte());
 		notificacio.setDescripcio(dadesNotificacio.getDescripcio());
@@ -272,7 +272,7 @@ public class NotificacioHelper {
 //		dadesNotificacio.setDocumentArxiuNom(notificacio.getDocument().getArxiuNom());
 //		dadesNotificacio.setDocumentArxiuContingut(notificacio.getDocument().getArxiuContingut());
 		if (notificacio.getTipus() != null)
-			dadesNotificacio.setEnviamentTipus(EnviamentTipusEnumDto.valueOf(notificacio.getTipus().name()));
+			dadesNotificacio.setEnviamentTipus(EnviamentTipus.valueOf(notificacio.getTipus().name()));
 		
 		dadesNotificacio.setEmisorDir3Codi(notificacio.getEmisorDir3Codi());
 		dadesNotificacio.setEnviamentDataProgramada(notificacio.getDataProgramada());

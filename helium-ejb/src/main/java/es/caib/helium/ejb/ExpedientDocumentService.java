@@ -3,7 +3,20 @@
  */
 package es.caib.helium.ejb;
 
-import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.client.integracio.notificacio.model.DadesNotificacioDto;
+import es.caib.helium.logic.intf.dto.ArxiuDetallDto;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.ArxiuFirmaDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.ExpedientDocumentDto;
+import es.caib.helium.logic.intf.dto.NotificacioDto;
+import es.caib.helium.logic.intf.dto.NtiEstadoElaboracionEnumDto;
+import es.caib.helium.logic.intf.dto.NtiOrigenEnumDto;
+import es.caib.helium.logic.intf.dto.NtiTipoDocumentalEnumDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.PortasignaturesDto;
+import es.caib.helium.logic.intf.dto.RespostaValidacioSignaturaDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 
@@ -11,7 +24,6 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import java.util.Date;
 import java.util.List;
-
 /**
  * EJB que implementa la interfície del servei ExpedientDocumentService.
  * 

@@ -3,6 +3,7 @@
  */
 package es.caib.helium.logic.intf.dto;
 
+import es.caib.helium.client.integracio.notificacio.enums.InteressatTipusEnum;
 import es.caib.helium.logic.intf.dto.DadesEnviamentDto.EntregaPostalTipus;
 
 /**
@@ -22,7 +23,7 @@ public class InteressatDto {
 	private String email;  
 	private String telefon;
 	private Long expedientId;
-	private InteressatTipusEnumDto tipus;
+	private InteressatTipusEnum tipus;
 	
 	private Boolean entregaPostal;
 	private EntregaPostalTipus entregaTipus;
@@ -32,10 +33,10 @@ public class InteressatDto {
 	private Boolean entregaDeh;
 	private Boolean entregaDehObligat;
 
-	public InteressatTipusEnumDto getTipus() {
+	public InteressatTipusEnum getTipus() {
 		return tipus;
 	}
-	public void setTipus(InteressatTipusEnumDto tipus) {
+	public void setTipus(InteressatTipusEnum tipus) {
 		this.tipus = tipus;
 	}
 	public Long getExpedientId() {

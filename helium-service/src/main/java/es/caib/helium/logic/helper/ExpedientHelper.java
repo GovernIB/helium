@@ -5,6 +5,7 @@ package es.caib.helium.logic.helper;
 
 import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.engine.model.WToken;
+import es.caib.helium.client.integracio.arxiu.enums.ExpedientEstat;
 import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
@@ -54,8 +55,6 @@ import es.caib.helium.persist.repository.RegistreRepository;
 import es.caib.helium.persist.repository.TerminiIniciatRepository;
 import es.caib.helium.persist.util.ThreadLocalInfo;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
-import es.caib.plugins.arxiu.api.ExpedientEstat;
-import es.caib.plugins.arxiu.api.ExpedientMetadades;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -762,7 +761,7 @@ public class ExpedientHelper {
 	 * 			Expedient amb la propietat isArxiuActiu a true.
 	 */
 	public void tancarExpedientArxiu(Expedient expedient) {
-		List<ContingutArxiu> continguts = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid()).getContinguts();
+		var continguts = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid()).getContinguts();
 		if(continguts == null || continguts.isEmpty()) {
 			// S'eborra l'expedient del arxiu si no te cap document.
 			pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());
@@ -772,7 +771,7 @@ public class ExpedientHelper {
 			expedientHelper.firmarDocumentsPerArxiuFiExpedient(expedient);	
 			
 			// Tanca l'expedient a l'arxiu.
-			ExpedientMetadades metadades = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid()).getMetadades();
+			var metadades = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid()).getMetadades();
 			if(metadades.getEstat() != ExpedientEstat.TANCAT) {
 				pluginHelper.arxiuExpedientTancar(expedient.getArxiuUuid());
 			}
@@ -859,10 +858,8 @@ public class ExpedientHelper {
 				expedientCreat.getIdentificador());
 		// Consulta l'identificador NTI generat per l'arxiu i el modifica
 		// a dins l'expedient creat.
-		es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(
-				expedientCreat.getIdentificador());
-		expedient.setNtiIdentificador(
-				expedientArxiu.getMetadades().getIdentificador());
+		var expedientArxiu = pluginHelper.arxiuExpedientInfo(expedientCreat.getIdentificador());
+		expedient.setNtiIdentificador(expedientArxiu.getMetadades().getIdentificador());
 		
 		List<DocumentStore> documents = documentStoreRepository.findByProcessInstanceId(expedient.getProcessInstanceId());
 		
@@ -1705,7 +1702,7 @@ public class ExpedientHelper {
 					expedientCreat.getIdentificador());
 			// Consulta l'identificador NTI generat per l'arxiu i el modifica
 			// a dins l'expedient creat.
-			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(
+			var expedientArxiu = pluginHelper.arxiuExpedientInfo(
 					expedientCreat.getIdentificador());
 			expedientPerRetornar.setNtiIdentificador(
 					expedientArxiu.getMetadades().getIdentificador());

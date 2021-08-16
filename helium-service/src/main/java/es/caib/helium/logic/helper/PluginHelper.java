@@ -3,16 +3,20 @@
  */
 package es.caib.helium.logic.helper;
 
+import es.caib.helium.client.integracio.arxiu.model.ExpedientArxiu;
+import es.caib.helium.client.integracio.notificacio.enums.NotificacioEstat;
+import es.caib.helium.client.integracio.notificacio.model.ConsultaEnviament;
+import es.caib.helium.client.integracio.notificacio.model.ConsultaNotificacio;
+import es.caib.helium.client.integracio.notificacio.model.DadesNotificacioDto;
+import es.caib.helium.client.integracio.notificacio.model.RespostaEnviar;
 import es.caib.helium.client.integracio.persones.model.Persona;
+import es.caib.helium.client.model.RespostaValidacioSignatura;
+import es.caib.helium.integracio.plugins.arxiu.ArxiuPlugin;
 import es.caib.helium.integracio.plugins.custodia.CustodiaPlugin;
 import es.caib.helium.integracio.plugins.custodia.CustodiaPluginException;
 import es.caib.helium.integracio.plugins.firma.FirmaPlugin;
 import es.caib.helium.integracio.plugins.gesdoc.GestioDocumentalPlugin;
-import es.caib.helium.integracio.plugins.notificacio.Notificacio;
 import es.caib.helium.integracio.plugins.notificacio.NotificacioPlugin;
-import es.caib.helium.integracio.plugins.notificacio.RespostaConsultaEstatEnviament;
-import es.caib.helium.integracio.plugins.notificacio.RespostaConsultaEstatNotificacio;
-import es.caib.helium.integracio.plugins.notificacio.RespostaEnviar;
 import es.caib.helium.integracio.plugins.persones.DadesPersona;
 import es.caib.helium.integracio.plugins.persones.PersonesPlugin;
 import es.caib.helium.integracio.plugins.persones.PersonesPluginException;
@@ -20,17 +24,69 @@ import es.caib.helium.integracio.plugins.portasignatures.DocumentPortasignatures
 import es.caib.helium.integracio.plugins.portasignatures.PasSignatura;
 import es.caib.helium.integracio.plugins.portasignatures.PortasignaturesPlugin;
 import es.caib.helium.integracio.plugins.portasignatures.PortasignaturesPluginException;
-import es.caib.helium.integracio.plugins.registre.*;
-import es.caib.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
+import es.caib.helium.integracio.plugins.registre.DadesAssumpte;
+import es.caib.helium.integracio.plugins.registre.DadesExpedient;
+import es.caib.helium.integracio.plugins.registre.DadesInteressat;
+import es.caib.helium.integracio.plugins.registre.DadesNotificacio;
+import es.caib.helium.integracio.plugins.registre.DadesOficina;
+import es.caib.helium.integracio.plugins.registre.DadesRepresentat;
+import es.caib.helium.integracio.plugins.registre.DocumentRegistre;
+import es.caib.helium.integracio.plugins.registre.RegistreAssentament;
+import es.caib.helium.integracio.plugins.registre.RegistreAssentamentInteressat;
+import es.caib.helium.integracio.plugins.registre.RegistreEntrada;
+import es.caib.helium.integracio.plugins.registre.RegistreInteressatDocumentTipusEnum;
+import es.caib.helium.integracio.plugins.registre.RegistreInteressatTipusEnum;
+import es.caib.helium.integracio.plugins.registre.RegistreNotificacio;
+import es.caib.helium.integracio.plugins.registre.RegistrePlugin;
+import es.caib.helium.integracio.plugins.registre.RegistrePluginException;
+import es.caib.helium.integracio.plugins.registre.RegistrePluginRegWeb3;
+import es.caib.helium.integracio.plugins.registre.RegistreSortida;
+import es.caib.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
+import es.caib.helium.integracio.plugins.registre.RespostaConsultaRegistre;
+import es.caib.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
+import es.caib.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
+import es.caib.helium.integracio.plugins.registre.TramitSubsanacio;
+import es.caib.helium.integracio.plugins.registre.TramitSubsanacioParametre;
 import es.caib.helium.integracio.plugins.signatura.SignaturaPlugin;
 import es.caib.helium.integracio.plugins.signatura.SignaturaPluginException;
-import es.caib.helium.integracio.plugins.tramitacio.*;
+import es.caib.helium.integracio.plugins.tramitacio.DadesTramit;
+import es.caib.helium.integracio.plugins.tramitacio.DadesVistaDocument;
+import es.caib.helium.integracio.plugins.tramitacio.DocumentTramit;
+import es.caib.helium.integracio.plugins.tramitacio.Event;
+import es.caib.helium.integracio.plugins.tramitacio.ObtenirDadesTramitRequest;
+import es.caib.helium.integracio.plugins.tramitacio.ObtenirVistaDocumentRequest;
+import es.caib.helium.integracio.plugins.tramitacio.PublicarEventRequest;
+import es.caib.helium.integracio.plugins.tramitacio.PublicarExpedientRequest;
+import es.caib.helium.integracio.plugins.tramitacio.ResultatProcesTramitRequest;
+import es.caib.helium.integracio.plugins.tramitacio.Signatura;
+import es.caib.helium.integracio.plugins.tramitacio.TramitacioPlugin;
+import es.caib.helium.integracio.plugins.tramitacio.TramitacioPluginException;
 import es.caib.helium.integracio.plugins.unitat.UnitatOrganica;
 import es.caib.helium.integracio.plugins.unitat.UnitatsOrganiquesPlugin;
 import es.caib.helium.logic.helper.PortasignaturesHelper.PortasignaturesRollback;
-import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.ArxiuFirmaDetallDto;
+import es.caib.helium.logic.intf.dto.ArxiuFirmaDto;
+import es.caib.helium.logic.intf.dto.ArxiuFirmaPerfilEnumDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.IntegracioAccioTipusEnumDto;
+import es.caib.helium.logic.intf.dto.IntegracioParametreDto;
+import es.caib.helium.logic.intf.dto.NtiEstadoElaboracionEnumDto;
+import es.caib.helium.logic.intf.dto.NtiOrigenEnumDto;
+import es.caib.helium.logic.intf.dto.NtiTipoDocumentalEnumDto;
+import es.caib.helium.logic.intf.dto.NtiTipoFirmaEnumDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.dto.RegistreAnnexDto;
+import es.caib.helium.logic.intf.dto.RegistreAnotacioDto;
+import es.caib.helium.logic.intf.dto.RegistreIdDto;
+import es.caib.helium.logic.intf.dto.RegistreNotificacioDto;
 import es.caib.helium.logic.intf.dto.RegistreNotificacioDto.RegistreNotificacioTramitSubsanacioParametreDto;
+import es.caib.helium.logic.intf.dto.TramitDocumentDto;
 import es.caib.helium.logic.intf.dto.TramitDocumentDto.TramitDocumentSignaturaDto;
+import es.caib.helium.logic.intf.dto.TramitDto;
+import es.caib.helium.logic.intf.dto.ZonaperEventDto;
+import es.caib.helium.logic.intf.dto.ZonaperExpedientDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.registre.RegistreAnnex;
@@ -38,9 +94,9 @@ import es.caib.helium.logic.intf.registre.RegistreAnotacio;
 import es.caib.helium.logic.intf.registre.RegistreInteressat;
 import es.caib.helium.logic.intf.util.GlobalProperties;
 import es.caib.helium.logic.util.EntornActual;
-import es.caib.helium.persist.entity.Alerta;
 import es.caib.helium.persist.entity.DocumentNotificacio;
 import es.caib.helium.persist.entity.DocumentStore;
+import es.caib.helium.persist.entity.Entorn;
 import es.caib.helium.persist.entity.Expedient;
 import es.caib.helium.persist.entity.Portasignatures;
 import es.caib.helium.persist.entity.Portasignatures.TipusEstat;
@@ -48,7 +104,21 @@ import es.caib.helium.persist.entity.Portasignatures.Transicio;
 import es.caib.helium.persist.repository.DocumentStoreRepository;
 import es.caib.helium.persist.repository.ExpedientRepository;
 import es.caib.helium.persist.repository.PortasignaturesRepository;
-import es.caib.plugins.arxiu.api.*;
+import es.caib.plugins.arxiu.api.ContingutArxiu;
+import es.caib.plugins.arxiu.api.ContingutOrigen;
+import es.caib.plugins.arxiu.api.DocumentContingut;
+import es.caib.plugins.arxiu.api.DocumentEstat;
+import es.caib.plugins.arxiu.api.DocumentEstatElaboracio;
+import es.caib.plugins.arxiu.api.DocumentExtensio;
+import es.caib.plugins.arxiu.api.DocumentFormat;
+import es.caib.plugins.arxiu.api.DocumentMetadades;
+import es.caib.plugins.arxiu.api.DocumentTipus;
+import es.caib.plugins.arxiu.api.ExpedientEstat;
+import es.caib.plugins.arxiu.api.ExpedientMetadades;
+import es.caib.plugins.arxiu.api.Firma;
+import es.caib.plugins.arxiu.api.FirmaPerfil;
+import es.caib.plugins.arxiu.api.FirmaTipus;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -59,6 +129,7 @@ import org.fundaciobit.plugins.validatesignature.api.SignatureRequestedInformati
 import org.fundaciobit.plugins.validatesignature.api.TimeStampInfo;
 import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureRequest;
 import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
@@ -108,6 +179,8 @@ public class PluginHelper {
 	@Resource
 	private GlobalProperties globalProperties;
 
+	// TODO FALTEN ELS AUTOWIRES I FICAR-LOS COM A COMPONENT?
+	private ArxiuPlugin arxiuPlugin;
 	private PersonesPlugin personesPlugin;
 	private TramitacioPlugin tramitacioPlugin;
 	private RegistrePlugin registrePlugin;
@@ -117,17 +190,14 @@ public class PluginHelper {
 	private CustodiaPlugin custodiaPlugin;
 	private SignaturaPlugin signaturaPlugin;
 	private FirmaPlugin firmaPlugin;
-	private IArxiuPlugin arxiuPlugin;
 	private NotificacioPlugin notificacioPlugin;
 	private IValidateSignaturePlugin validaSignaturaPlugin;
 	private UnitatsOrganiquesPlugin unitatsOrganitzativesPlugin;
 
-
-
 	public List<Persona> personaFindLikeNomSencer(String text) {
 		long t0 = System.currentTimeMillis();
 		try {
-			return getPersonesPlugin().findLikeNomSencer(text, EntornActual.getEntornId());
+			return personesPlugin.findLikeNomSencer(text, EntornActual.getEntornId());
 		} catch (PersonesPluginException ex) {
 			var error = "No s'han pogut consultar persones amb el text (text=" + text + ")";
 			log.error(error, ex);
@@ -137,26 +207,14 @@ public class PluginHelper {
 
 	public List<PersonaDto> personaFindAll() {
 		try {
-			List<DadesPersona> persones = getPersonesPlugin().findAll();
-			if (persones == null)
+			var persones = personesPlugin.findAll(EntornActual.getEntornId());
+			if (persones == null) {
 				return new ArrayList<PersonaDto>();
+			}
 			return conversioTipusServiceHelper.convertirList(persones, PersonaDto.class);
 		} catch (PersonesPluginException ex) {
-			log.error(
-					"No s'han pogut consultar totes les persones",
-					ex);
-			throw new SistemaExternException(
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					"No s'han pogut consultar totes les persones",
-					ex);
+			log.error("No s'han pogut consultar totes les persones", ex);
+			throw new SistemaExternException("No s'han pogut consultar totes les persones", ex);
 		}
 	}
 	
@@ -178,68 +236,31 @@ public class PluginHelper {
 
 	public PersonaDto personaFindAmbCodi(String codi) {
 		Cache personaCache = cacheManager.getCache(CACHE_PERSONA_ID);
-		if (personaCache.get(codi) == null) {
-			long t0 = System.currentTimeMillis();
-			try {
-				DadesPersona dadesPersona = getPersonesPlugin().findAmbCodi(codi);
-				monitorIntegracioHelper.addAccioOk(
-						MonitorIntegracioHelper.INTCODI_PERSONA,
-						"Consulta d'usuari amb codi",
-						IntegracioAccioTipusEnumDto.ENVIAMENT,
-						System.currentTimeMillis() - t0,
-						new IntegracioParametreDto("codi", codi));
-				if (dadesPersona == null) {
-					throw new NoTrobatException(DadesPersona.class, codi);
-				}
-				PersonaDto dto = conversioTipusServiceHelper.convertir(
-						dadesPersona,
-						PersonaDto.class);
-				if (dto != null) {
-					personaCache.put(codi, dto);
-				}
-				return dto;
-			} catch (PersonesPluginException ex) {
-				monitorIntegracioHelper.addAccioError(
-						MonitorIntegracioHelper.INTCODI_PERSONA,
-						"Consulta d'usuari amb codi",
-						IntegracioAccioTipusEnumDto.ENVIAMENT,
-						System.currentTimeMillis() - t0,
-						"El plugin ha retornat una excepció",
-						ex,
-						new IntegracioParametreDto("codi", codi));
-				log.error(
-						"No s'han pogut consultar persones amb el codi (codi=" + codi + ")",
-						ex);
-				throw new SistemaExternException(
-						null,
-						null, 
-						null, 
-						null, 
-						null, 
-						null, 
-						null, 
-						null, 
-						null, 
-						"No s'han pogut consultar persones amb el codi (codi=" + codi + ")",
-						ex);
+		if (personaCache.get(codi) != null) {
+			return (PersonaDto) personaCache.get(codi).get();
+		}
+		try {
+			var dadesPersona = personesPlugin.findAmbCodi(codi, EntornActual.getEntornId());
+
+			if (dadesPersona == null) {
+				throw new NoTrobatException(DadesPersona.class, codi);
 			}
-		} else {
-			return (PersonaDto)personaCache.get(codi).get();
+			PersonaDto dto = conversioTipusServiceHelper.convertir(
+					dadesPersona,
+					PersonaDto.class);
+			if (dto != null) {
+				personaCache.put(codi, dto);
+			}
+			return dto;
+		} catch (PersonesPluginException ex) {
+			var error = "No s'han pogut consultar persones amb el codi (codi=" + codi + ")";
+			log.error(error, ex);
+			throw new SistemaExternException(error, ex);
 		}
 	}
 
 	public List<String> personaFindRolsAmbCodi(String codi) throws Exception {
-		return getPersonesPlugin().findRolsAmbCodi(codi);
-	}
-	
-	public boolean personaIsPluginActiu() {
-		String pluginClass = globalProperties.getProperty("es.caib.helium.persones.plugin.class");
-		return pluginClass != null && !pluginClass.isEmpty();
-	}
-
-	public boolean personaIsSyncActiu() {
-		String syncActiu = globalProperties.getProperty("es.caib.helium.persones.plugin.sync.actiu");
-		return "true".equalsIgnoreCase(syncActiu);
+		return personesPlugin.findRolsAmbCodi(codi, EntornActual.getEntornId());
 	}
 
 	public void tramitacioZonaperExpedientCrear(
@@ -1790,227 +1811,64 @@ public class PluginHelper {
 			String nomArxiuSignat,
 			String codiTipusCustodia,
 			byte[] signatura) {
-		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
-				new IntegracioParametreDto(
-						"documentId",
-						documentId),
-				new IntegracioParametreDto(
-						"gesdocId",
-						gesdocId),
-				new IntegracioParametreDto(
-						"nomArxiuSignat",
-						nomArxiuSignat),
-				new IntegracioParametreDto(
-						"codiTipusCustodia",
-						codiTipusCustodia)
-		};
-		long t0 = System.currentTimeMillis();
+
 		try {
-			String custodiaId = getCustodiaPlugin().addSignature(
+			String custodiaId = custodiaPlugin.addSignature(
 					documentId.toString(),
 					gesdocId,
 					nomArxiuSignat,
 					codiTipusCustodia,
-					signatura);
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_CUSTODIA,
-					"Enviament de document a custòdia",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					parametres);
+					signatura,
+					EntornActual.getEntornId());
 			return custodiaId;
 		} catch (CustodiaPluginException ex) {
-			String errorDescripcio = "No s'ha pogut afegir la signatura a la custòdia (" +
+			var error = "No s'ha pogut afegir la signatura a la custòdia (" +
 					"documentId=" + documentId + ", " +
 					"gesdocId=" + gesdocId + ", " +
 					"nomArxiuSignat=" + nomArxiuSignat + ", " +
 					"codiTipusCustodia=" + codiTipusCustodia + ")";
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_CUSTODIA,
-					"Enviament de document a custòdia",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					parametres);
-			log.error(
-					errorDescripcio,
-					ex);
-			throw SistemaExternException.tractarSistemaExternException(
-					null,
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					"(CUSTÒDIA. Afegir signatura: " + errorDescripcio + ")", 
-					ex);
+			log.error(error, ex);
+			throw new SistemaExternException("(CUSTÒDIA. Afegir signatura: " + error + ")", ex);
 		}
 	}
 
-	public List<RespostaValidacioSignatura> custodiaDadesValidacioSignatura(
-			String documentId) {
-		long t0 = System.currentTimeMillis();
+	public List<RespostaValidacioSignatura> custodiaDadesValidacioSignatura(String documentId) {
 		try {
-			List<RespostaValidacioSignatura> validacions = getCustodiaPlugin().dadesValidacioSignatura(
-					documentId);
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_CUSTODIA,
-					"Obtenció de dades de validació de signatura",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					new IntegracioParametreDto(
-							"documentId",
-							documentId));
-			return validacions;
+			return custodiaPlugin.dadesValidacioSignatura(documentId, EntornActual.getEntornId());
 		} catch (CustodiaPluginException ex) {
-			String errorDescripcio = "No s'han pogut obtenir les dades de les signatures de la custòdia (documentId=" + documentId + ")";
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_CUSTODIA,
-					"Obtenció de dades de validació de signatura",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					new IntegracioParametreDto(
-							"documentId",
-							documentId));
-			log.error(
-					errorDescripcio,
-					ex);
-			throw SistemaExternException.tractarSistemaExternException(
-					null,
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					"(CUSTÒDIA. Dades validació signatura: " + errorDescripcio + ")", 
-					ex);
+			var error = "No s'han pogut obtenir les dades de les signatures de la custòdia (documentId=" + documentId + ")";
+			log.error(error, ex);
+			throw new SistemaExternException("(CUSTÒDIA. Dades validació signatura: " + error + ")", ex);
 		}
 	}
 
-	public List<byte[]> custodiaObtenirSignatures(
-			String documentId) {
-		long t0 = System.currentTimeMillis();
+	public List<byte[]> custodiaObtenirSignatures(String documentId) {
 		try {
-			List<byte[]> signatures = getCustodiaPlugin().getSignatures(documentId);
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_CUSTODIA,
-					"Obtenció de signatures",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					new IntegracioParametreDto(
-							"documentId",
-							documentId));
+			var signatures = custodiaPlugin.getSignatures(documentId, EntornActual.getEntornId());
 			return signatures;
 		} catch (CustodiaPluginException ex) {
-			String errorDescripcio = "No s'han pogut obtenirles signatures de la custòdia (documentId=" + documentId + ")";
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_CUSTODIA,
-					"Obtenció de signatures",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					new IntegracioParametreDto(
-							"documentId",
-							documentId));
-			log.error(
-					errorDescripcio,
-					ex);
-			throw SistemaExternException.tractarSistemaExternException(
-					null,
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					"(CUSTÒDIA. Obtenir signatures: " + errorDescripcio + ")", 
-					ex);
+			var error = "No s'han pogut obtenirles signatures de la custòdia (documentId=" + documentId + ")";
+			log.error(error, ex);
+			throw new SistemaExternException("(CUSTÒDIA. Obtenir signatures: " + error + ")", ex);
 		}
 	}
 
-	public byte[] custodiaObtenirSignaturesAmbArxiu(
-			String documentId) {
-		long t0 = System.currentTimeMillis();
+	public byte[] custodiaObtenirSignaturesAmbArxiu(String documentId) {
 		try {
-			byte[] signaturesAmbArxiu = getCustodiaPlugin().getSignaturesAmbArxiu(documentId);
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_CUSTODIA,
-					"Obtenció de signatures amb arxiu",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					new IntegracioParametreDto(
-							"documentId",
-							documentId));
-			return signaturesAmbArxiu;
+			return custodiaPlugin.getSignaturesAmbArxiu(documentId, EntornActual.getEntornId());
 		} catch (CustodiaPluginException ex) {
-			String errorDescripcio = "No s'han pogut obtenirles signatures amb arxiu de la custòdia (documentId=" + documentId + ")";
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_CUSTODIA,
-					"Obtenció de signatures amb arxiu",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					new IntegracioParametreDto(
-							"documentId",
-							documentId));
-			log.error(
-					errorDescripcio,
-					ex);
-			throw SistemaExternException.tractarSistemaExternException(
-					null,
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					"(CUSTÒDIA. Obtenir signatures amb arxiu: " + errorDescripcio + ")", 
-					ex);
+			var error = "No s'han pogut obtenirles signatures amb arxiu de la custòdia (documentId=" + documentId + ")";
+			log.error(error, ex);
+			throw new SistemaExternException("(CUSTÒDIA. Obtenir signatures amb arxiu: " + error + ")", ex);
 		}
 	}
 
-	public void custodiaEsborrarSignatures(
-			String documentId,
-			Expedient expedient) {
-		long t0 = System.currentTimeMillis();
+	public void custodiaEsborrarSignatures(String documentId, Expedient expedient) {
 		try {
-			getCustodiaPlugin().deleteSignatures(documentId);
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_CUSTODIA,
-					"Esborrar documents custodiats",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					new IntegracioParametreDto(
-							"documentId",
-							documentId));
+			custodiaPlugin.deleteSignatures(documentId, EntornActual.getEntornId());
 		} catch (CustodiaPluginException ex) {
-			String errorDescripcio = "No s'ha pogut esborrar el document de la custòdia (documentId=" + documentId + ")";
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_CUSTODIA,
-					"Esborrar documents custodiats",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					new IntegracioParametreDto(
-							"documentId",
-							documentId));
-			log.error(errorDescripcio,ex);
+			var error = "No s'ha pogut esborrar el document de la custòdia (documentId=" + documentId + ")";
+			log.error(error, ex);
 			throw SistemaExternException.tractarSistemaExternException(
 					expedient.getEntorn().getId(),
 					expedient.getEntorn().getCodi(), 
@@ -2021,119 +1879,44 @@ public class PluginHelper {
 					expedient.getTipus().getId(), 
 					expedient.getTipus().getCodi(), 
 					expedient.getTipus().getNom(), 
-					"(CUSTÒDIA: Esborrar signatures: " + errorDescripcio + ")", 
+					"(CUSTÒDIA: Esborrar signatures: " + error + ")",
 					ex);
 		}
 	}
 
-	public String custodiaObtenirUrlComprovacioSignatura(
-			String documentId) {
-		long t0 = System.currentTimeMillis();
+	public String custodiaObtenirUrlComprovacioSignatura(String documentId) {
 		try {
-			String url = getCustodiaPlugin().getUrlComprovacioSignatura(documentId);
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_CUSTODIA,
-					"Obtenir URL de comprovació de signatura",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					new IntegracioParametreDto(
-							"documentId",
-							documentId));
-			return url;
+			return custodiaPlugin.getUrlComprovacioSignatura(documentId, EntornActual.getEntornId());
 		} catch (CustodiaPluginException ex) {
-			String errorDescripcio = "No s'ha pogut obtenir url de comprovació de la custòdia (documentId=" + documentId + ")";
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_CUSTODIA,
-					"Obtenir URL de comprovació de signatura",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					new IntegracioParametreDto(
-							"documentId",
-							documentId));
-			log.error(
-					documentId,
-					ex);
-			throw SistemaExternException.tractarSistemaExternException(
-					null,
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					"(CUSTÒDIA. Obtenir URL comprovació: " + errorDescripcio + ")", 
-					ex);
+			var error = "No s'ha pogut obtenir url de comprovació de la custòdia (documentId=" + documentId + ")";
+			log.error(documentId, ex);
+			throw new SistemaExternException("(CUSTÒDIA. Obtenir URL comprovació: " + error + ")", ex);
 		}
 	}
 
 	public boolean custodiaPotObtenirInfoSignatures() {
-		return getCustodiaPlugin().potObtenirInfoSignatures();
+
+		return custodiaPlugin.potObtenirInfoSignatures();
 	}
 
 	public boolean custodiaIsValidacioImplicita() {
-		return getCustodiaPlugin().isValidacioImplicita();
-	}
-	
-	public boolean custodiaIsPluginActiu() {
-		String pluginClass = globalProperties.getProperty("app.custodia.plugin.class");
-		return pluginClass != null && !pluginClass.isEmpty();
+		return custodiaPlugin.isValidacioImplicita();
 	}
 
-	public RespostaValidacioSignatura signaturaVerificar(
-			byte[] document,
-			byte[] signatura,
-			boolean obtenirDadesCertificat) {
-		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
-				new IntegracioParametreDto(
-						"document",
-						(document != null ? document.length : 0) + " bytes"),
-				new IntegracioParametreDto(
-						"signatura",
-						(signatura != null ? signatura.length : 0) + " bytes"),
-				new IntegracioParametreDto(
-						"obtenirDadesCertificat",
-						new Boolean(obtenirDadesCertificat).toString())
-		};
-		long t0 = System.currentTimeMillis();
+	public boolean custodiaIsPluginActiu() {
+		return custodiaPlugin != null;
+	}
+
+	public RespostaValidacioSignatura signaturaVerificar(byte[] document, byte[] signatura, boolean obtenirDadesCertificat) {
 		try {
-			RespostaValidacioSignatura resposta = getSignaturaPlugin().verificarSignatura(
+			return signaturaPlugin.verificarSignatura(
 					document,
 					signatura,
 					obtenirDadesCertificat);
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_FIRMA,
-					"Validació de signatura",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					parametres);
-			return resposta;
 		} catch (SignaturaPluginException ex) {
-			String errorDescripcio = "No s'han pogut verificar la signatura";
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_FIRMA,
-					"Validació de signatura",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					parametres);
-			log.error(errorDescripcio, ex);
-			throw SistemaExternException.tractarSistemaExternException(
-					null,
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					"(PLUGIN SIGNATURA. Validació de signatura: " + errorDescripcio + ")", 
-					ex);
+			var error = "No s'han pogut verificar la signatura";
+			log.error(error, ex);
+			throw new SistemaExternException("(PLUGIN SIGNATURA. Validació de signatura: " + error + ")", ex);
 		}
 	}
 
@@ -2141,61 +1924,26 @@ public class PluginHelper {
 			Expedient expedient,
 			DocumentStore documentStore,
 			ArxiuDto arxiu,
-			es.caib.helium.integracio.plugins.firma.FirmaTipus firmaTipus,
+			es.caib.helium.client.integracio.firma.enums.FirmaTipus firmaTipus,
 			String motiu) {
-		String accioDescripcio = "Firma en servidor de document";
-		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
-				new IntegracioParametreDto(
-						"expedientIdentificador",
-						expedient.getIdentificador()),
-				new IntegracioParametreDto(
-						"expedientNumero",
-						expedient.getNumero()),
-				new IntegracioParametreDto(
-						"expedientTipusId",
-						expedient.getTipus().getId()),
-				new IntegracioParametreDto(
-						"expedientTipusCodi",
-						expedient.getTipus().getCodi()),
-				new IntegracioParametreDto(
-						"expedientTipusNom",
-						expedient.getTipus().getNom()),
-				new IntegracioParametreDto(
-						"documentCodi",
-						documentStore.getCodiDocument()),
-				new IntegracioParametreDto(
-						"arxiuNom",
-						arxiu.getNom()),
-				new IntegracioParametreDto(
-						"arxiuTamany",
-						arxiu.getTamany())
-		};
-		long t0 = System.currentTimeMillis();
 		try {
-			byte[] firma = getFirmaPlugin().firmar(
+			return firmaPlugin.firmar(
 					firmaTipus,
 					motiu,
 					arxiu.getNom(),
-					arxiu.getContingut());
-//					RegistreAnnexNtiTipusDocumentEnum.valueOf(documentStore.getNtiTipoDocumental().name()).getValor());
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_FIRMA_SERV,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					parametres);
-			return firma;
+					arxiu.getContingut(),
+					arxiu.getTamany(),
+					EntornActual.getEntornId(),
+					expedient.getIdentificador(),
+					expedient.getNumero(),
+					expedient.getTipus().getId(),
+					expedient.getTipus().getCodi(),
+					expedient.getTipus().getNom(),
+					documentStore.getCodiDocument());
 		} catch (Exception ex) {
-			String errorDescripcio = "No s'han pogut firmar el document: " + ex.getMessage();
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_FIRMA_SERV,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					parametres);
-			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+			var error = "No s'han pogut firmar el document: ";
+			log.error(error, ex);
+			throw tractarExcepcioEnSistemaExtern(error, ex);
 		}
 	}
 
@@ -2221,16 +1969,24 @@ public class PluginHelper {
 		};
 		long t0 = System.currentTimeMillis();
 		try {
-			ContingutArxiu expedientCreat = getArxiuPlugin().expedientCrear(
-					toArxiuExpedient(
-							expedient.getIdentificador(),
-							Arrays.asList(obtenirNtiOrgano(expedient)),
-							expedient.getDataInici(),
-							obtenirNtiClasificacion(expedient),
-							false,
-							null,
-							obtenirNtiSerieDocumental(expedient),
-							expedient.getArxiuUuid()));
+			var expArxiu = new ExpedientArxiu();
+			expArxiu.setIdentificador(expedient.getIdentificador());
+			expArxiu.setNtiOrgans(Arrays.asList(obtenirNtiOrgano(expedient)));
+			expArxiu.setNtiDataObertura(expedient.getDataInici());
+			expArxiu.setNtiClassificacio(obtenirNtiClasificacion(expedient));
+			expArxiu.
+			var arxiuExp = toArxiuExpedient(
+					expedient.getIdentificador(),
+					Arrays.asList(obtenirNtiOrgano(expedient)),
+					expedient.getDataInici(),
+					obtenirNtiClasificacion(expedient),
+					false,
+					null,
+					obtenirNtiSerieDocumental(expedient),
+					expedient.getArxiuUuid());
+			ContingutArxiu expedientCreat = arxiuPlugin.expedientCrear(
+					,
+					EntornActual.getEntornId());
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_ARXIU,
 					accioDescripcio,
@@ -2397,42 +2153,21 @@ public class PluginHelper {
 		}
 	}
 
-	public es.caib.plugins.arxiu.api.Expedient arxiuExpedientInfo(
-			String arxiuUuid) {
-		String accioDescripcio = "Consulta d'informació de l'expedient";
-		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
-				new IntegracioParametreDto(
-						"arxiuUuid",
-						arxiuUuid)
-		};
-		long t0 = System.currentTimeMillis();
+	public es.caib.helium.client.integracio.arxiu.model.Expedient arxiuExpedientInfo(String arxiuUuid) {
+
+		log.debug("Consulta d'informació de l'expedient");
 		try {
-			es.caib.plugins.arxiu.api.Expedient exp = getArxiuPlugin().expedientDetalls(arxiuUuid, null);
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_ARXIU,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					parametres);
-			return exp;
+			return arxiuPlugin.expedientDetalls(arxiuUuid, EntornActual.getEntornId());
 		} catch (Exception ex) {
-			String errorDescripcio = "No s'ha pogut consultar la informació de l'expedient: " + ex.getMessage();
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_ARXIU,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					parametres);
-			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+			var error = "No s'ha pogut consultar la informació de l'expedient: ";
+			log.error(error, ex);
+			throw tractarExcepcioEnSistemaExtern(error, ex);
 		}
 	}
 	
 	public boolean arxiuExisteixExpedient(String arxiuUuid) {
 		try {
-			es.caib.plugins.arxiu.api.Expedient exp = getArxiuPlugin().expedientDetalls(arxiuUuid, null);
-			return exp != null;
+			return arxiuPlugin.expedientDetalls(arxiuUuid, EntornActual.getEntornId()) != null;
 		} catch (Exception ex) {
 			return false;
 		}
@@ -2790,85 +2525,40 @@ public class PluginHelper {
 			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
 		}
 	}
-	
-	
+
 	public RespostaEnviar altaNotificacio(Expedient expedient, DadesNotificacioDto dadesNotificacio) {
 		
 		RespostaEnviar resposta;
-		
-		String accioDescripcio = "Alta de notificació";
-		String nifDestinataris = "";
-		for (DadesEnviamentDto dadesEnviament: dadesNotificacio.getEnviaments()) {
-			nifDestinataris += dadesEnviament.getTitular().getDni() + ", ";
-		}
-		if (!nifDestinataris.isEmpty())
-			nifDestinataris = nifDestinataris.substring(0, nifDestinataris.length() - 2);
-		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
-				new IntegracioParametreDto(
-						"expedient.id",
-						expedient.getId()),
-				new IntegracioParametreDto(
-						"expedient",
-						expedient.getIdentificadorLimitat()),
-				new IntegracioParametreDto(
-						"documentArxiuNom",
-						dadesNotificacio.getDocumentArxiuNom()),
-				new IntegracioParametreDto(
-						"titularsNif",
-						nifDestinataris),
-				new IntegracioParametreDto(
-						"idioma",
-						dadesNotificacio.getIdioma())
-		};
-		long t0 = System.currentTimeMillis();
-		
 		try {
-			Notificacio notificacio = conversioTipusServiceHelper.convertir(dadesNotificacio, Notificacio.class);
+			dadesNotificacio.getIdioma();
+			dadesNotificacio.setExpedientId(expedient.getId());
+//			dadesNotificacio.setI
+			dadesNotificacio.setExpedientIdentificadorLimitat(expedient.getIdentificadorLimitat());
 			// Informa de l'estat actual
-			notificacio.setUsuariCodi(usuariActualHelper.getUsuariActual());		
+			dadesNotificacio.setUsuariCodi(usuariActualHelper.getUsuariActual());
 			// Informa el número d'expedient
-			notificacio.setNumExpedient(expedient.getNumero());
+			dadesNotificacio.setNumExpedient(expedient.getNumero());
 			// Invoca el servei
-			resposta = getNotificacioPlugin().enviar(notificacio);
-			
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_NOTIB,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					parametres);
+			resposta = notificacioPlugin.enviar(dadesNotificacio);
 		} catch (Exception ex) {
-			String errorDescripcio = "No s'ha pogut enviar l'alta de notificació: " + ex.getMessage();
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_NOTIB,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					parametres);
-			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+			var error = "No s'ha pogut enviar l'alta de notificació: ";
+			log.error(error, ex);
+			throw tractarExcepcioEnSistemaExtern(error, ex);
 		}
 		return resposta;
 	}
 	
-	public void notificacioActualitzarEstat(
-			DocumentNotificacio notificacio) {
-		Expedient expedient = notificacio.getExpedient();
-		
-		String accioDescripcio = "Consulta d'estat d'una notificació electrònica";
-		
-		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
-				new IntegracioParametreDto("expedientId", expedient.getId()),
-				new IntegracioParametreDto("expedientTitol", expedient.getTitol()),
-				new IntegracioParametreDto("expedientTipusId", expedient.getTipus().getId()),
-				new IntegracioParametreDto("identificador", notificacio.getEnviamentIdentificador()),
-				new IntegracioParametreDto("referencia", notificacio.getEnviamentReferencia())
-		};
-		long t0 = System.currentTimeMillis();
-		
+	public void notificacioActualitzarEstat(DocumentNotificacio notificacio) {
+
+		log.debug("Consulta d'estat d'una notificació electrònica");
+		var expedient = notificacio.getExpedient();
+		var consultaNotificacio = new ConsultaNotificacio();
+		consultaNotificacio.setEntornId(EntornActual.getEntornId());
+		consultaNotificacio.setExpedientId(expedient.getId());
+		consultaNotificacio.setIdentificador(notificacio.getEnviamentIdentificador());
+		consultaNotificacio.setEnviamentReferencia(notificacio.getEnviamentReferencia());
 		try {
-			RespostaConsultaEstatNotificacio resposta = getNotificacioPlugin().consultarNotificacio(notificacio.getEnviamentIdentificador());
+			var resposta = notificacioPlugin.consultarNotificacio(notificacio.getEnviamentIdentificador(), consultaNotificacio);
 			// Revisa que no sigui una resposta amb error de consulta
 			if (resposta.getEstat() == null && resposta.isError()) {
 				throw new es.caib.helium.integracio.plugins.SistemaExternException("Resposta d'error en de la consulta de la notificació \"" + notificacio.getEnviamentIdentificador() + "\" al NOTIB: resposta.errorDescripcio= " + resposta.getErrorDescripcio());
@@ -2877,96 +2567,76 @@ public class PluginHelper {
 			if (resposta.getEstat() != null) {
 				switch(resposta.getEstat()){
 					case ENVIADA:
-						notificacio.setEstat(NotificacioEstatEnumDto.ENVIADA);
+						notificacio.setEstat(NotificacioEstat.ENVIADA);
 						break;
 					case FINALITZADA:
-						notificacio.setEstat(NotificacioEstatEnumDto.FINALITZADA);
+						notificacio.setEstat(NotificacioEstat.FINALITZADA);
 						break;
 					case PENDENT:
-						notificacio.setEstat(NotificacioEstatEnumDto.PENDENT);
+						notificacio.setEstat(NotificacioEstat.PENDENT);
 						break;
 					case PROCESSADA:
-						notificacio.setEstat(NotificacioEstatEnumDto.PROCESSADA);
+						notificacio.setEstat(NotificacioEstat.PROCESSADA);
 						break;
 					case REGISTRADA:
-						notificacio.setEstat(NotificacioEstatEnumDto.REGISTRADA);
+						notificacio.setEstat(NotificacioEstat.REGISTRADA);
 						break;
 				}
 			} 
 			notificacio.setError(resposta.isError());
 			notificacio.setErrorDescripcio(resposta.getErrorDescripcio());
-			
-            // Si hi ha error en la reposta generar una alerta a l'expedient
-            if (resposta.isError()) {
-                String errMsg = "NOTIB ha comunicat un error en l'enviament de la notificació/comunicació amb dada " + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(notificacio.getEnviatData()) +
-                        " pel titular " + notificacio.getTitularNif() + ": " + notificacio.getErrorDescripcio();
-                boolean existeix = false;
-                // Comprova que no hi hagi ja una alerta amb la mateixa descripció
-                for (Alerta alerta : expedient.getAlertes()) {
-                	if (errMsg.equals(alerta.getText()) && !alerta.isEliminada()) {
-                		existeix = true;
-                	}
-                }
-                if (!existeix) {
-                	expedient.addAlerta(alertaHelper.crearAlerta(expedient.getEntorn(), expedient, new Date(), null, errMsg));
-                }
-            } 
-	
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_NOTIB,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.RECEPCIO,
-					System.currentTimeMillis() - t0,
-					parametres);
-			
+
+			// Si hi ha error en la reposta generar una alerta a l'expedient
+			if (resposta.isError()) {
+				var errMsg = "NOTIB ha comunicat un error en l'enviament de la notificació/comunicació amb dada " + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(notificacio.getEnviatData()) +
+						" pel titular " + notificacio.getTitularNif() + ": " + notificacio.getErrorDescripcio();
+				var existeix = false;
+				// Comprova que no hi hagi ja una alerta amb la mateixa descripció
+				for (var alerta : expedient.getAlertes()) {
+					if (errMsg.equals(alerta.getText()) && !alerta.isEliminada()) {
+						existeix = true;
+					}
+				}
+				if (!existeix) {
+					expedient.addAlerta(alertaHelper.crearAlerta(expedient.getEntorn(), expedient, new Date(), null, errMsg));
+				}
+			}
 		} catch (Exception ex) {
-			String errorDescripcio = "No s'ha pogut consultar l'estat de la notificació amb identificador " + notificacio.getEnviamentIdentificador() + ": " + ex.getMessage();
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_NOTIB,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.RECEPCIO,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					parametres);
-			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+			var error = "No s'ha pogut consultar l'estat de la notificació amb identificador " + notificacio.getEnviamentIdentificador();
+			log.error(error, ex);
+			throw tractarExcepcioEnSistemaExtern(error, ex);
 		}
 	}
 	
-	public void notificacioActualitzarEstatEnviament(
-			DocumentNotificacio notificacio) {
-		Expedient expedient = notificacio.getExpedient();
-		DocumentStore document = notificacio.getDocument();
-		DocumentStore certificacio = notificacio.getEnviamentCertificacio();
+	public void notificacioActualitzarEstatEnviament(DocumentNotificacio notificacio) {
+
+		var expedient = notificacio.getExpedient();
+		var document = notificacio.getDocument();
+		var certificacio = notificacio.getEnviamentCertificacio();
 		
-		String accioDescripcio = "Consulta d'estat de l'enviament d'una notificació electrònica";
-		
-		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
-				new IntegracioParametreDto("expedientId", expedient.getId()),
-				new IntegracioParametreDto("expedientTitol", expedient.getTitol()),
-				new IntegracioParametreDto("expedientTipusId", expedient.getTipus().getId()),
-				new IntegracioParametreDto("identificador", notificacio.getEnviamentIdentificador()),
-				new IntegracioParametreDto("referencia", notificacio.getEnviamentReferencia())
-		};
-		long t0 = System.currentTimeMillis();
-		
+		log.debug("Consulta d'estat de l'enviament d'una notificació electrònica");
+		var consulta = new ConsultaEnviament();
+		consulta.setEntornId(EntornActual.getEntornId());
+		consulta.setExpedientId(expedient.getId());
+		consulta.setIdentificador(notificacio.getEnviamentIdentificador());
+		consulta.setEnviamentReferencia(notificacio.getEnviamentReferencia());
 		try {
-			RespostaConsultaEstatEnviament resposta = getNotificacioPlugin().consultarEnviament(notificacio.getEnviamentReferencia());
+			var resposta = notificacioPlugin.consultarEnviament(notificacio.getEnviamentReferencia(), consulta);
 			// Revisa que no sigui una resposta amb error de consulta
 			if (resposta.getEstat() == null && resposta.isError()) {
 				throw new es.caib.helium.integracio.plugins.SistemaExternException("Resposta d'error en de la consulta de l'enviament \"" + notificacio.getEnviamentReferencia() + "\" al NOTIB: resposta.errorDescripcio= " + resposta.getErrorDescripcio());
 			}
-			Long gestioDocumentalId = certificacio != null ? certificacio.getId() : null;
+			var gestioDocumentalId = certificacio != null ? certificacio.getId() : null;
 			if (resposta.getCertificacioData() != null) {
-				byte[] certificacioContingut = resposta.getCertificacioContingut();
+				var certificacioContingut = resposta.getCertificacioContingut();
 				// Cetificació Títol: [títol document notificat] - Justificant [NIF interessat]
-				ExpedientDocumentDto expedientDocument = documentHelper.findDocumentPerDocumentStoreId(document.getProcessInstanceId(), document.getId());
-				String certificacioTitol = expedientDocument.getDocumentNom() + " - Justificant " + notificacio.getTitularNif();
-				String certificacioArxiuExtensio = resposta.getCertificacioTipusMime() != null 
+				var expedientDocument = documentHelper.findDocumentPerDocumentStoreId(document.getProcessInstanceId(), document.getId());
+				var certificacioTitol = expedientDocument.getDocumentNom() + " - Justificant " + notificacio.getTitularNif();
+				var certificacioArxiuExtensio = resposta.getCertificacioTipusMime() != null
 													&& resposta.getCertificacioTipusMime().toLowerCase().contains("xml") ?
 															  "xml"
 															: "pdf";
-				String certificacioArxiuNom = "certificacio_" + notificacio.getEnviamentReferencia() + "." + certificacioArxiuExtensio;				
+				var certificacioArxiuNom = "certificacio_" + notificacio.getEnviamentReferencia() + "." + certificacioArxiuExtensio;
 				if (gestioDocumentalId != null && notificacio.getEnviamentCertificacioData().before(DateUtils.truncate(resposta.getCertificacioData(), Calendar.SECOND))) {
 					gestioDocumentalId = documentHelper.actualitzarDocument(
 							gestioDocumentalId, 
@@ -2996,9 +2666,12 @@ public class PluginHelper {
 							null);
 				}
 			}
-			
-			if (resposta.getEstat() != null) {
-				notificacio.updateEnviamentEstat(
+
+			if (resposta.getEstat() == null) {
+				throw new Exception("L'estat de la resposta és null i no es pot tractar.");
+			}
+
+			notificacio.updateEnviamentEstat(
 						resposta.getEstat(),
 						resposta.getEstatData(),
 						resposta.getEstatOrigen(),
@@ -3007,28 +2680,11 @@ public class PluginHelper {
 						gestioDocumentalId != null ? documentStoreRepository.findById(gestioDocumentalId).get() : null,
 						resposta.isError(),
 						resposta.getErrorDescripcio());
-			} else {
-				throw new Exception("L'estat de la resposta és null i no es pot tractar.");
-			}
-					
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_NOTIB,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.RECEPCIO,
-					System.currentTimeMillis() - t0,
-					parametres);
-			
+
 		} catch (Exception ex) {
-			String errorDescripcio = "No s'ha pogut consultar l'estat de la notificació amb referència " + notificacio.getEnviamentReferencia() + ": " + ex.getMessage();
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_NOTIB,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.RECEPCIO,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					parametres);
-			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+			var error = "No s'ha pogut consultar l'estat de la notificació amb referència ";
+			log.error(error, ex);
+			throw tractarExcepcioEnSistemaExtern(error, ex);
 		}
 	}
 	
@@ -4195,6 +3851,10 @@ public class PluginHelper {
 		}
 	}
 
+	public boolean personaIsPluginActiu() {
+		return true; // TODO S'HA DE MIRAR SI EL SERVEI EXTERN ESTA DISPONIBLE
+	}
+
 	private boolean isIdUsuariPerDni() {
 		return "dni".equalsIgnoreCase(globalProperties.getProperty("app.portasignatures.plugin.usuari.id"));
 	}
@@ -4212,27 +3872,6 @@ public class PluginHelper {
 				globalProperties.getProperty("app.gesdoc.plugin.tipus.directe"));
 	}
 
-	private PersonesPlugin getPersonesPlugin() {
-		if (personesPlugin == null) {
-			String pluginClass = globalProperties.getProperty("es.caib.helium.persones.plugin.class");
-			if (pluginClass != null && pluginClass.length() > 0) {
-				try {
-					Class<?> clazz = Class.forName(pluginClass);
-					personesPlugin = (PersonesPlugin)clazz.newInstance();
-				} catch (Exception ex) {
-					throw tractarExcepcioEnSistemaExtern(
-							"Error al crear la instància del plugin de persones (" +
-							"pluginClass=" + pluginClass + ")",
-							ex);
-				}
-			} else {
-				throw tractarExcepcioEnSistemaExtern(
-						"No està configurada la classe per al plugin de persones",
-						null);
-			}
-		}
-		return personesPlugin;
-	}
 	private TramitacioPlugin getTramitacioPlugin() {
 		if (tramitacioPlugin == null) {
 			String pluginClass = globalProperties.getProperty("app.tramitacio.plugin.class");
@@ -4349,117 +3988,7 @@ public class PluginHelper {
 		}
 		return portasignaturesPlugin;
 	}
-	private CustodiaPlugin getCustodiaPlugin() {
-		if (custodiaPlugin == null) {
-			String pluginClass = globalProperties.getProperty("app.custodia.plugin.class");
-			if (pluginClass != null && pluginClass.length() > 0) {
-				try {
-					Class<?> clazz = Class.forName(pluginClass);
-					custodiaPlugin = (CustodiaPlugin)clazz.newInstance();
-				} catch (Exception ex) {
-					throw tractarExcepcioEnSistemaExtern(
-							"Error al crear la instància del plugin de custòdia (" +
-							"pluginClass=" + pluginClass + ")",
-							ex);
-				}
-			} else {
-				throw tractarExcepcioEnSistemaExtern(
-						"No està configurada la classe per al plugin de custòdia",
-						null);
-			}
-		}
-		return custodiaPlugin;
-	}
-	private SignaturaPlugin getSignaturaPlugin() {
-		if (signaturaPlugin == null) {
-			String pluginClass = globalProperties.getProperty("app.signatura.plugin.class");
-			if (pluginClass != null && pluginClass.length() > 0) {
-				try {
-					Class<?> clazz = Class.forName(pluginClass);
-					signaturaPlugin = (SignaturaPlugin)clazz.newInstance();
-				} catch (Exception ex) {
-					throw tractarExcepcioEnSistemaExtern(
-							"Error al crear la instància del plugin de signatura (" +
-							"pluginClass=" + pluginClass + ")",
-							ex);
-				}
-			} else {
-				throw tractarExcepcioEnSistemaExtern(
-						"No està configurada la classe per al plugin de signatura",
-						null);
-			}
-		}
-		return signaturaPlugin;
-	}
-	private FirmaPlugin getFirmaPlugin() {
-		if (firmaPlugin == null) {
-			String pluginClass = globalProperties.getProperty("app.firma.plugin.class");
-			if (pluginClass != null && pluginClass.length() > 0) {
-				try {
-					Class<?> clazz = Class.forName(pluginClass);
-					firmaPlugin = (FirmaPlugin)clazz.newInstance();
-				} catch (Exception ex) {
-					throw tractarExcepcioEnSistemaExtern(
-							"Error al crear la instància del plugin de firma en servidor (" +
-							"pluginClass=" + pluginClass + ")",
-							ex);
-				}
-			} else {
-				throw tractarExcepcioEnSistemaExtern(
-						"No està configurada la classe per al plugin de firma en servidor",
-						null);
-			}
-		}
-		return firmaPlugin;
-	}
-	public IArxiuPlugin getArxiuPlugin() {
-		if (arxiuPlugin == null) {
-			String pluginClass = globalProperties.getProperty(
-					"app.arxiu.plugin.class");
-			if (pluginClass != null && pluginClass.length() > 0) {
-				try {
-					Class<?> clazz = Class.forName(pluginClass);
-						arxiuPlugin = (IArxiuPlugin)clazz.getDeclaredConstructor(
-								String.class,
-								Properties.class).newInstance(
-								"app.",
-								globalProperties.findAll());
-				} catch (Exception ex) {
-					throw tractarExcepcioEnSistemaExtern(
-							"Error al crear la instància del plugin d'arxiu digital (" +
-							"pluginClass=" + pluginClass + ")",
-							ex);
-				}
-			} else {
-				throw tractarExcepcioEnSistemaExtern(
-						"No està configurada la classe per al plugin d'arxiu digital",
-						null);
-			}
-		}
-		return arxiuPlugin;
-	}
-	private NotificacioPlugin getNotificacioPlugin() {
-		if (notificacioPlugin == null) {
-			String pluginClass = globalProperties.getProperty("app.notificacio.plugin.class");
-			if (pluginClass != null && pluginClass.length() > 0) {
-				try {
-					Class<?> clazz = Class.forName(pluginClass);
-					notificacioPlugin = (NotificacioPlugin)clazz.newInstance();
-				} catch (Exception ex) {
-					throw tractarExcepcioEnSistemaExtern(
-							"Error al crear la instància del plugin de NOTIFICACIÓ (" +
-							"pluginClass=" + pluginClass + ")",
-							ex);
-				}
-			} else {
-				throw tractarExcepcioEnSistemaExtern(
-						"No està configurada la classe per al plugin de NOTIFICACIÓ",
-						null);
-			}
-		}
-		return notificacioPlugin;
-	}
-	
+
 	private IValidateSignaturePlugin getValidaSignaturaPlugin() {		
 		if (validaSignaturaPlugin == null) {
 			//es.caib.ripea.plugin.validatesignature.class
@@ -4533,9 +4062,9 @@ public class PluginHelper {
 	 */
 	public static List<ArxiuFirmaDto> toArxiusFirmesDto(List<Firma> firmes) {
 
-		List<ArxiuFirmaDto> dtos = new ArrayList<ArxiuFirmaDto>();
-		for (Firma firma: firmes) {
-			ArxiuFirmaDto dto = new ArxiuFirmaDto();
+		var dtos = new ArrayList<ArxiuFirmaDto>();
+		for (var firma: firmes) {
+			var dto = new ArxiuFirmaDto();
 			if (firma.getTipus() != null) {
 				switch (firma.getTipus()) {
 				case CSV:
@@ -4603,5 +4132,4 @@ public class PluginHelper {
 		}	
 		return dtos;
 	}
-
 }

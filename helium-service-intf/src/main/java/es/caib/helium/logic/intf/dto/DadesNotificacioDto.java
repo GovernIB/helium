@@ -47,8 +47,6 @@ public class DadesNotificacioDto {
 	private String enviamentReferencia;
 	private IdiomaEnumDto idioma;
 
-
-	
 	public Long getId() {
 		return id;
 	}
