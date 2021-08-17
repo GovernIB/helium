@@ -3,6 +3,24 @@
  */
 package es.caib.helium.logic.helper;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import es.caib.distribucio.backoffice.utils.sistra.BackofficeSistra2Utils;
 import es.caib.distribucio.backoffice.utils.sistra.BackofficeSistra2UtilsImpl;
 import es.caib.distribucio.backoffice.utils.sistra.formulario.Campo;
@@ -18,8 +36,19 @@ import es.caib.distribucio.ws.backofficeintegracio.NtiEstadoElaboracion;
 import es.caib.distribucio.ws.backofficeintegracio.NtiOrigen;
 import es.caib.distribucio.ws.backofficeintegracio.NtiTipoDocumento;
 import es.caib.distribucio.ws.client.BackofficeIntegracioWsClientFactory;
-import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.logic.intf.dto.AnotacioEstatEnumDto;
+import es.caib.helium.logic.intf.dto.ArxiuFirmaPerfilEnumDto;
+import es.caib.helium.logic.intf.dto.DadesDocumentDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto.IniciadorTipusDto;
+import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
+import es.caib.helium.logic.intf.dto.IntegracioAccioTipusEnumDto;
+import es.caib.helium.logic.intf.dto.IntegracioParametreDto;
+import es.caib.helium.logic.intf.dto.NtiEstadoElaboracionEnumDto;
+import es.caib.helium.logic.intf.dto.NtiOrigenEnumDto;
+import es.caib.helium.logic.intf.dto.NtiTipoDocumentalEnumDto;
+import es.caib.helium.logic.intf.dto.NtiTipoFirmaEnumDto;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.DissenyService;
@@ -44,21 +73,6 @@ import es.caib.helium.persist.repository.ExpedientRepository;
 import es.caib.helium.persist.repository.ExpedientTipusRepository;
 import es.caib.helium.persist.repository.MapeigSistraRepository;
 import es.caib.plugins.arxiu.api.Document;
-import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Mètodes comuns per cridar WebService de Distribucio
@@ -655,7 +669,15 @@ public class DistribucioHelper {
 			} else if (camp.getTipus().equals(TipusCamp.BOOLEAN)) {
 				return new Boolean(valor);
 			} else if (camp.getTipus().equals(TipusCamp.PRICE)) {
-				return new BigDecimal(valor);
+				Object preu = null;
+				try {
+					preu = new BigDecimal(valor);
+				} catch(Exception e) {
+					// No compleix amb el format "0.##", es prova amb el format #,##0.###
+					DecimalFormat df = new DecimalFormat("#,##0.###");
+					preu = new BigDecimal(df.parse(valor).doubleValue());
+				}
+				return preu;
 			} else if (camp.getTipus().equals(TipusCamp.INTEGER)) {
 				return new Long(valor);
 			} else if (camp.getTipus().equals(TipusCamp.FLOAT)) {
@@ -663,6 +685,11 @@ public class DistribucioHelper {
 			}
 			return valor;
 		} catch (Exception ex) {
+			if (camp != null) {
+				logger.error("Error en el mapeig de camp [codi=" + camp.getCodi() + 
+						", etiqueta=" + camp.getEtiqueta() + ", tipus=" + camp.getTipus() +
+						" pel valor " + valor + ":" + ex.getMessage());
+			}
 			return null;
 		}
 	}
