@@ -7,9 +7,10 @@ import es.caib.helium.client.dada.model.ValidList;
 import es.caib.helium.client.model.PagedList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import javax.ws.rs.NotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,7 +38,8 @@ public class DadaClientImpl implements DadaClient {
 	 			+ " - expedientTipusId: " + expedientTipusId + " page: " + page + " size: " + size 
 	 			+ " consulta: " + consulta.toString());
 	 	try {
-			return Objects.requireNonNull(dadaServiceFeignClient.consultaResultatsPaginats(entornId, expedientTipusId, page, size, consulta).getBody());
+			var response = dadaServiceFeignClient.consultaResultatsPaginats(entornId, expedientTipusId, page, size, consulta);
+			return Objects.requireNonNull(response.getBody());
     	} catch (Exception ex) {
 			throw new Exception("DadaClient.consultaResultats -> " +
 					"Error inesperat entornId " + entornId + " expedientTipusId " + expedientTipusId
@@ -147,9 +149,13 @@ public class DadaClientImpl implements DadaClient {
 
 		log.debug(missatgeLog + " Get dades per l'expedient: " + expedientId);
 		try {
-			return Objects.requireNonNull(dadaServiceFeignClient.getDades(expedientId).getBody());
+			var response = dadaServiceFeignClient.getDades(expedientId);
+			if (response.getStatusCode().equals(HttpStatus.NO_CONTENT)) {
+				return new ArrayList<>();
+			}
+			return Objects.requireNonNull(response.getBody());
 		} catch (Exception ex) {
-			throw new Exception("DadaClient.getDadaByCodi -> " +
+			throw new Exception("DadaClient.getDades -> " +
 					"INTERNAL_SERVER_ERROR expedient " + expedientId, ex);
 		}
 	}
@@ -171,7 +177,11 @@ public class DadaClientImpl implements DadaClient {
 
 		log.debug(missatgeLog + " Get dades per l'expedient: " + expedientId + " amb procesId: " + procesId);
 		try {
-			return Objects.requireNonNull(dadaServiceFeignClient.getDadesByProces(expedientId, procesId).getBody());
+			var response = dadaServiceFeignClient.getDadesByProces(expedientId, procesId);
+			if (response.getStatusCode().equals(HttpStatus.NO_CONTENT)) {
+				return new ArrayList<>();
+			}
+			return Objects.requireNonNull(response.getBody());
 		} catch (Exception ex) {
 			throw new Exception("DadaClient.getDadesByProces -> " +
 					"INTERNAL_SERVER_ERROR procesId " + procesId + " expedient " + expedientId, ex);
@@ -203,13 +213,14 @@ public class DadaClientImpl implements DadaClient {
 	}
 
 	@Override
-	public Long getDadaExpedientIdByProcesId(String procesId) throws NotFoundException {
+	public Long getDadaExpedientIdByProcesId(String procesId) throws Exception {
 	
 		log.debug(missatgeLog + " Get expedientId de la dada amb procesId: " + procesId);
 		try {
-			return Objects.requireNonNull(dadaServiceFeignClient.getDadaExpedientIdByProcesId(procesId).getBody());
+			var response = dadaServiceFeignClient.getDadaExpedientIdByProcesId(procesId);
+			return Objects.requireNonNull(response.getBody());
 		} catch (Exception ex) {
-			throw new NotFoundException("DadaClient.getDadaExpedientIdByProcesId -> " +
+			throw new Exception("DadaClient.getDadaExpedientIdByProcesId -> " +
 					"INTERNAL_SERVER_ERROR procesId " + procesId, ex);
 		}
 	}

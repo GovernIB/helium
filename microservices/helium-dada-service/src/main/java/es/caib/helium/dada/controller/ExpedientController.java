@@ -263,7 +263,7 @@ public class ExpedientController {
 			return new ResponseEntity<>(expedientId, HttpStatus.OK);
 		}
 		
-		return new ResponseEntity<>(expedientId, HttpStatus.NOT_FOUND);
+		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 
 	@PostMapping(value = "{expedientId}/dades", consumes = "application/json")
