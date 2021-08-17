@@ -3,8 +3,8 @@
  */
 package es.caib.helium.persist.entity;
 
-import es.caib.helium.client.integracio.notificacio.enums.InteressatTipusEnum;
 import es.caib.helium.logic.intf.dto.DadesEnviamentDto.EntregaPostalTipus;
+import es.caib.helium.logic.intf.dto.InteressatTipusEnumDto;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -26,7 +26,7 @@ import java.io.Serializable;
 @Table(	name="hel_interessat")
 public class Interessat implements Serializable, GenericEntity<Long> {
 
-	private InteressatTipusEnum tipus;
+	private InteressatTipusEnumDto tipus;
 	
 	private Long id;
 	@NotBlank
@@ -63,7 +63,7 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 			String dir3codi,
 			String llinatge1, 
 			String llinatge2,
-			InteressatTipusEnum tipus,
+			InteressatTipusEnumDto tipus,
 			String email, 
 			String telefon,
 			Expedient expedient,
@@ -117,10 +117,10 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 		this.expedient = expedient;
 	}
 
-	public InteressatTipusEnum getTipus() {
+	public InteressatTipusEnumDto getTipus() {
 		return tipus;
 	}
-	public void setTipus(InteressatTipusEnum tipus) {
+	public void setTipus(InteressatTipusEnumDto tipus) {
 		this.tipus = tipus;
 	}
 	public String getCodi() {

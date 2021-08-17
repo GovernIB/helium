@@ -11,7 +11,6 @@ import es.caib.helium.client.integracio.notificacio.model.DadesNotificacioDto;
 import es.caib.helium.client.integracio.notificacio.model.RespostaEnviar;
 import es.caib.helium.client.integracio.persones.model.Persona;
 import es.caib.helium.client.model.RespostaValidacioSignatura;
-import es.caib.helium.integracio.plugins.arxiu.ArxiuPlugin;
 import es.caib.helium.integracio.plugins.custodia.CustodiaPlugin;
 import es.caib.helium.integracio.plugins.custodia.CustodiaPluginException;
 import es.caib.helium.integracio.plugins.firma.FirmaPlugin;
@@ -69,6 +68,7 @@ import es.caib.helium.logic.intf.dto.ArxiuFirmaDetallDto;
 import es.caib.helium.logic.intf.dto.ArxiuFirmaDto;
 import es.caib.helium.logic.intf.dto.ArxiuFirmaPerfilEnumDto;
 import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.ExpedientDocumentDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.dto.IntegracioAccioTipusEnumDto;
 import es.caib.helium.logic.intf.dto.IntegracioParametreDto;
@@ -96,7 +96,6 @@ import es.caib.helium.logic.intf.util.GlobalProperties;
 import es.caib.helium.logic.util.EntornActual;
 import es.caib.helium.persist.entity.DocumentNotificacio;
 import es.caib.helium.persist.entity.DocumentStore;
-import es.caib.helium.persist.entity.Entorn;
 import es.caib.helium.persist.entity.Expedient;
 import es.caib.helium.persist.entity.Portasignatures;
 import es.caib.helium.persist.entity.Portasignatures.TipusEstat;
@@ -118,7 +117,7 @@ import es.caib.plugins.arxiu.api.ExpedientMetadades;
 import es.caib.plugins.arxiu.api.Firma;
 import es.caib.plugins.arxiu.api.FirmaPerfil;
 import es.caib.plugins.arxiu.api.FirmaTipus;
-import lombok.Data;
+import es.caib.plugins.arxiu.api.IArxiuPlugin;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -129,7 +128,6 @@ import org.fundaciobit.plugins.validatesignature.api.SignatureRequestedInformati
 import org.fundaciobit.plugins.validatesignature.api.TimeStampInfo;
 import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureRequest;
 import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
@@ -179,8 +177,9 @@ public class PluginHelper {
 	@Resource
 	private GlobalProperties globalProperties;
 
+	public IArxiuPlugin arxiuPlugin; // borrar
 	// TODO FALTEN ELS AUTOWIRES I FICAR-LOS COM A COMPONENT?
-	private ArxiuPlugin arxiuPlugin;
+	//private ArxiuPlugin arxiuPlugin;
 	private PersonesPlugin personesPlugin;
 	private TramitacioPlugin tramitacioPlugin;
 	private RegistrePlugin registrePlugin;
@@ -1974,7 +1973,7 @@ public class PluginHelper {
 			expArxiu.setNtiOrgans(Arrays.asList(obtenirNtiOrgano(expedient)));
 			expArxiu.setNtiDataObertura(expedient.getDataInici());
 			expArxiu.setNtiClassificacio(obtenirNtiClasificacion(expedient));
-			expArxiu.
+
 			var arxiuExp = toArxiuExpedient(
 					expedient.getIdentificador(),
 					Arrays.asList(obtenirNtiOrgano(expedient)),
@@ -1984,9 +1983,10 @@ public class PluginHelper {
 					null,
 					obtenirNtiSerieDocumental(expedient),
 					expedient.getArxiuUuid());
-			ContingutArxiu expedientCreat = arxiuPlugin.expedientCrear(
-					,
-					EntornActual.getEntornId());
+//			ContingutArxiu expedientCreat = arxiuPlugin.expedientCrear(
+//					,
+//					EntornActual.getEntornId());
+			ContingutArxiu expedientCreat = arxiuPlugin.expedientCrear(arxiuExp);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_ARXIU,
 					accioDescripcio,
@@ -2153,11 +2153,12 @@ public class PluginHelper {
 		}
 	}
 
-	public es.caib.helium.client.integracio.arxiu.model.Expedient arxiuExpedientInfo(String arxiuUuid) {
+	//public es.caib.helium.client.integracio.arxiu.model.Expedient arxiuExpedientInfo(String arxiuUuid) {
+	public es.caib.plugins.arxiu.api.Expedient arxiuExpedientInfo(String arxiuUuid) {
 
 		log.debug("Consulta d'informació de l'expedient");
 		try {
-			return arxiuPlugin.expedientDetalls(arxiuUuid, EntornActual.getEntornId());
+			return arxiuPlugin.expedientDetalls(arxiuUuid, EntornActual.getEntornId() + "");
 		} catch (Exception ex) {
 			var error = "No s'ha pogut consultar la informació de l'expedient: ";
 			log.error(error, ex);
@@ -2167,7 +2168,7 @@ public class PluginHelper {
 	
 	public boolean arxiuExisteixExpedient(String arxiuUuid) {
 		try {
-			return arxiuPlugin.expedientDetalls(arxiuUuid, EntornActual.getEntornId()) != null;
+			return arxiuPlugin.expedientDetalls(arxiuUuid, EntornActual.getEntornId() + "") != null;
 		} catch (Exception ex) {
 			return false;
 		}
