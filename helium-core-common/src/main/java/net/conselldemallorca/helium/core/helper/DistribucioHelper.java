@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.core.helper;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -666,7 +667,15 @@ public class DistribucioHelper {
 			} else if (camp.getTipus().equals(TipusCamp.BOOLEAN)) {
 				return new Boolean(valor);
 			} else if (camp.getTipus().equals(TipusCamp.PRICE)) {
-				return new BigDecimal(valor);
+				Object preu = null;
+				try {
+					preu = new BigDecimal(valor);
+				} catch(Exception e) {
+					// No compleix amb el format "0.##", es prova amb el format #,##0.###
+					DecimalFormat df = new DecimalFormat("#,##0.###");
+					preu = new BigDecimal(df.parse(valor).doubleValue());
+				}
+				return preu;
 			} else if (camp.getTipus().equals(TipusCamp.INTEGER)) {
 				return new Long(valor);
 			} else if (camp.getTipus().equals(TipusCamp.FLOAT)) {
@@ -674,6 +683,11 @@ public class DistribucioHelper {
 			}
 			return valor;
 		} catch (Exception ex) {
+			if (camp != null) {
+				logger.error("Error en el mapeig de camp [codi=" + camp.getCodi() + 
+						", etiqueta=" + camp.getEtiqueta() + ", tipus=" + camp.getTipus() +
+						" pel valor " + valor + ":" + ex.getMessage());
+			}
 			return null;
 		}
 	}
