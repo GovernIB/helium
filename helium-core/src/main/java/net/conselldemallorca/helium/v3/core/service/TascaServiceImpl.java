@@ -1225,6 +1225,7 @@ public class TascaServiceImpl implements TascaService {
 			//recollim els rols del tipus de l'expedient
 			String rols = expedientTipusHelper.getRolsTipusExpedient(auth, expedient.getTipus());
 			
+			//TODO DANIEL: resoldre informació marcada finalitzar
 			jbpmHelper.marcarFinalitzar(tascaId, marcadaFinalitzar, outcome, rols);
 			checkFinalitzarSegonPla(tascaId, marcadaFinalitzar);
 			
@@ -1370,6 +1371,7 @@ public class TascaServiceImpl implements TascaService {
 					ExpedientLogAccioTipus.TASCA_COMPLETAR,
 					outcome,
 					usuari);
+			//TODO DANIEL: marcar com a finalitzar la tasca
 			jbpmHelper.startTaskInstance(tascaId);
 			jbpmHelper.endTaskInstance(tascaId, outcome);
 			checkCompletarTasca(tascaId);
@@ -1398,6 +1400,9 @@ public class TascaServiceImpl implements TascaService {
 			Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
 					task.getTaskName(),
 					task.getProcessDefinitionId());
+			
+			// TODO DANIEL: Actualitzar informció de la tascda segons si està oberta, tancada, suspesa o altres
+			
 			Registre registre = new Registre(
 					new Date(),
 					expedientId,

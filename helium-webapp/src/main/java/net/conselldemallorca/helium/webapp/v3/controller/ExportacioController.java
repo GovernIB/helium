@@ -38,6 +38,12 @@ public class ExportacioController {
 			long tempsFinal = System.currentTimeMillis();
 			System.out.println("Fi exportacio Expedients - Duracio: " +  (tempsFinal - tempsInicial) + " milliseconds");
 	
+			System.out.println("Inici exportacio Processos");
+			tempsInicial = System.currentTimeMillis();
+			exportacioHelper.exportarProcessos();
+			tempsFinal = System.currentTimeMillis();
+			System.out.println("Fi exportacio Processos - Duracio: " +  (tempsFinal - tempsInicial) + " milliseconds");
+
 			System.out.println("Inici exportacio Tasques");
 			tempsInicial = System.currentTimeMillis();
 			exportacioHelper.exportarTasques();

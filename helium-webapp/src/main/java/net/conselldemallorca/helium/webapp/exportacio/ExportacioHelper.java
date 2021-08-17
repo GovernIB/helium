@@ -73,7 +73,7 @@ public class ExportacioHelper {
 	//		restTemplate.postForEntity(uri, expedientsExportacio, ResponseEntity.class);
 			for (ExpedientExportacio expedientExportacio: expedientsExportacio) {
 				try {
-					ResponseEntity response = restTemplate.postForEntity(uri, expedientExportacio, ResponseEntity.class);
+					ResponseEntity<ResponseEntity> response = restTemplate.postForEntity(uri, expedientExportacio, ResponseEntity.class);
 					if (!HttpStatus.CREATED.equals(response.getStatusCode())) {
 						logger.info("Error al exportar l'expedient " + expedientExportacio.getId() + ". " + response.getBody().toString());
 					}
@@ -145,7 +145,7 @@ public class ExportacioHelper {
 		logger.info("Fi preparacio expedients - Duracio: " +  (tempsFinal - tempsInicial) + " milliseconds");
 		return expedientsExportacio;
 	}
-	
+
 	public void exportarTasques() throws Exception {
 		
 		if (expedients == null) {
@@ -224,8 +224,8 @@ public class ExportacioHelper {
 						tasca.setSuspesa(rs.getBoolean("ISSUSPENDED_"));
 						tasca.setCompletada(rs.getDate("END_") != null);
 						tasca.setAssignada(rs.getString("ACTORID_") != null);
-						tasca.setMarcadaFinalitzar(rs.getDate("MARCADAFINALITZAR_") != null);
-						tasca.setErrorFinalitzacio(rs.getString("ERRORFINALITZACIO_") != null);
+						tasca.setMarcadaFinalitzar(rs.getDate("MARCADAFINALITZAR_"));
+						tasca.setErrorFinalitzacio(rs.getString("ERRORFINALITZACIO_"));
 						tasca.setDataFins(rs.getDate("DUEDATE_"));
 						tasca.setDataFi(rs.getDate("END_"));
 						tasca.setIniciFinalitzacio(rs.getDate("INICIFINALITZACIO_"));
@@ -236,7 +236,7 @@ public class ExportacioHelper {
 						tasques.add(tasca);
 					}
 				} catch (Exception ex) {
-					throw new Exception("Error al llegit el result set", ex);
+					throw new Exception("Error llegint el result set", ex);
 				} finally {
 					rs.close();
 					ps.close();
@@ -249,7 +249,7 @@ public class ExportacioHelper {
 			//restTemplate.postForEntity(uri, tasques, ResponseEntity.class);
 			for(TascaExportacio tasca: tasques) {
 				try {
-					ResponseEntity response = restTemplate.postForEntity(uri, tasca, ResponseEntity.class);
+					ResponseEntity<ResponseEntity> response = restTemplate.postForEntity(uri, tasca, ResponseEntity.class);
 					if (!HttpStatus.CREATED.equals(response.getStatusCode())) {
 						logger.info("Error al exportar la tasca " + tasca.getId() + ". " + response.getBody().toString());
 					}
@@ -261,6 +261,90 @@ public class ExportacioHelper {
 		
 		} catch (Exception ex) {
 			throw new Exception("Error al exportar les tasques", ex);
+		} finally  {
+			conn.close();
+		}
+	}
+
+	public void exportarProcessos() throws Exception {
+		
+		if (expedients == null) {
+			logger.error("No s'exporten processos. No hi han expedients");
+			return;
+		}
+
+//		String dbURL = "jdbc:oracle:thin:@10.35.3.242:1521:ORCL";
+//		String username = "helium";
+//		String password = "helium";
+//		Connection conn = DriverManager.getConnection(dbURL, username, password);
+//
+//		String jndi = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.jndi.parameter");
+//		Context initContext = new InitialContext();
+//		DataSource dataSource = (DataSource)initContext.lookup("java:es.caib.helium.db");
+
+		Connection conn = dataSource.getConnection();
+
+		try {
+
+			List<ProcesExportacio> processos = new ArrayList<ProcesExportacio>();
+				
+			PreparedStatement ps = conn.prepareStatement(
+						"SELECT pi.ID_ as id, " + 
+						"		pi.EXPEDIENT_ID_ AS expedientId, " +
+						"		pi.PROCESSDEFINITION_ AS processDefinitionId, " +
+						"		parent_token.PROCESSINSTANCE_ AS procesPareId, " +
+						"		root_token.PROCESSINSTANCE_ AS procesArrelId, " +
+						"		pi.KEY_ AS descripcio, " +
+						"		pi.START_ AS dataInici, " +
+						"		pi.END_ AS dataFi, " +
+						"		pi.ISSUSPENDED_  AS suspes " +
+						"FROM JBPM_PROCESSINSTANCE pi " +
+						"	LEFT JOIN JBPM_TOKEN parent_token ON pi.SUPERPROCESSTOKEN_ = parent_token.ID_ " +
+						"	LEFT JOIN JBPM_TOKEN root_token ON pi.ROOTTOKEN_ = root_token.ID_" +
+						"   ORDER BY pi.ID_ ASC ");
+			ResultSet rs = ps.executeQuery();
+			try {
+				while (rs.next()) {
+					ProcesExportacio proces = new ProcesExportacio();
+					proces.setId(String.valueOf(rs.getString("id")));
+					proces.setExpedientId(rs.getLong("expedientId"));
+					proces.setProcessDefinitionId(String.valueOf(rs.getLong("processDefinitionId")));
+					proces.setProcesArrelId(String.valueOf(rs.getLong("procesArrelId")));
+					Long procesPareId = rs.getLong("procesPareId");
+					if (!rs.wasNull()) {
+						proces.setProcesPareId(String.valueOf(procesPareId));
+					}
+					proces.setDescripcio(rs.getString("descripcio"));
+					proces.setDataInici(rs.getDate("dataInici"));
+					proces.setDataFi(rs.getDate("dataFi"));
+					proces.setSuspes(0 == rs.getInt("suspes"));
+					processos.add(proces);
+				}
+			} catch (Exception ex) {
+				throw new Exception("Error llegint el result set", ex);
+			} finally {
+				rs.close();
+				ps.close();
+			}
+			
+			logger.info("Processos exportats - Cridant el microservei " + processos.size());
+			// app.exportacio.processos.url.servei=http://localhost:8085/api/v1/processos/
+			URI uri = URI.create(GlobalProperties.getInstance().getProperty("app.exportacio.processos.url.servei"));
+			//restTemplate.postForEntity(uri, tasques, ResponseEntity.class);
+			for(ProcesExportacio proces: processos) {
+				try {
+					ResponseEntity response = restTemplate.postForEntity(uri, proces, ResponseEntity.class);
+					if (!HttpStatus.CREATED.equals(response.getStatusCode())) {
+						logger.info("Error al exportar el procés " + proces.getId() + ". " + response.getBody().toString());
+					}
+				} catch (Exception ex) {
+					logger.info("Error al exportar el procés" + proces.getId() + ". ", ex);
+				}
+			}
+			
+		
+		} catch (Exception ex) {
+			throw new Exception("Error al exportar els processos", ex);
 		} finally  {
 			conn.close();
 		}
@@ -318,7 +402,7 @@ public class ExportacioHelper {
 						}
 					}
 				} catch (Exception ex) {
-					throw new Exception("Error al llegit el result set", ex);
+					throw new Exception("Error llegint el result set", ex);
 				} finally {
 					rs.close();
 					ps.close();

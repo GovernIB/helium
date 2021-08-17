@@ -14,8 +14,8 @@ public class TascaExportacio {
 	private boolean suspesa;
 	private boolean completada;
 	private boolean assignada;
-	private boolean marcadaFinalitzar;
-	private boolean errorFinalitzacio;
+	private Date marcadaFinalitzar;
+	private String errorFinalitzacio;
 	private Date dataFins;
 	private Date dataFi;
 	private Date iniciFinalitzacio;
@@ -85,16 +85,16 @@ public class TascaExportacio {
 	public void setAssignada(boolean assignada) {
 		this.assignada = assignada;
 	}
-	public boolean isMarcadaFinalitzar() {
+	public Date getMarcadaFinalitzar() {
 		return marcadaFinalitzar;
 	}
-	public void setMarcadaFinalitzar(boolean marcadaFinalitzar) {
+	public void setMarcadaFinalitzar(Date marcadaFinalitzar) {
 		this.marcadaFinalitzar = marcadaFinalitzar;
 	}
-	public boolean isErrorFinalitzacio() {
+	public String getErrorFinalitzacio() {
 		return errorFinalitzacio;
 	}
-	public void setErrorFinalitzacio(boolean errorFinalitzacio) {
+	public void setErrorFinalitzacio(String errorFinalitzacio) {
 		this.errorFinalitzacio = errorFinalitzacio;
 	}
 	public Date getDataFins() {
