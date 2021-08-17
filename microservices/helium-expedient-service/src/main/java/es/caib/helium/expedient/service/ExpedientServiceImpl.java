@@ -23,6 +23,7 @@ import es.caib.helium.expedient.model.ExpedientDto;
 import es.caib.helium.expedient.model.ExpedientEstatTipusEnum;
 import es.caib.helium.expedient.repository.ExpedientRepository;
 import es.caib.helium.expedient.repository.ExpedientSpecifications;
+import es.caib.helium.ms.helper.ServiceHelper;
 import es.caib.helium.ms.model.PagedList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

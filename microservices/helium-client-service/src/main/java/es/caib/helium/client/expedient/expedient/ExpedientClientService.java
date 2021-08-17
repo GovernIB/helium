@@ -1,5 +1,7 @@
 package es.caib.helium.client.expedient.expedient;
 
+import java.util.Date;
+
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -26,4 +28,27 @@ public interface ExpedientClientService {
 	public void deleteExpedientV1(Long expedientId);
 	
 	public ExpedientDto getExpedientV1(Long expedientId);
+
+	public void aturar(Long expedientId, String motiu);
+
+	public void reprendre(Long expedientId);
+
+	public void anular(Long expedientId, String motiu);
+
+	public void desanular(Long expedientId);
+
+	public void finalitzar(long expedientId, Date dataFinalitzacio);
+
+	public void desfinalitzar(Long expedientId, Long estatId);
+
+	public void modificarExpedient(
+			Long expedientId,
+			Boolean teNumero, 
+			String numero, 
+			Boolean demanaTitol, 
+			String titol, 
+			Date dataInici,
+			Date dataFi, 
+			Long estatId);
+
 }

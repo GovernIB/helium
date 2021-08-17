@@ -1,17 +1,15 @@
 package es.caib.helium.camunda.mapper;
 
-import es.caib.helium.camunda.model.ProcessInstanceDto;
-import es.caib.helium.camunda.model.WProcessInstance;
-import es.caib.helium.camunda.service.HeliumDataService;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
-import org.mapstruct.AfterMapping;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import es.caib.helium.camunda.model.ProcessInstanceDto;
+import es.caib.helium.camunda.model.WProcessInstance;
+import es.caib.helium.camunda.service.HeliumDataService;
 
 @Mapper(componentModel="spring")
 public abstract class ProcessInstanceMapper {
@@ -45,14 +43,4 @@ public abstract class ProcessInstanceMapper {
     @Mapping(source = "superProcessInstanceId", target = "parentProcessInstanceId")
     abstract ProcessInstanceDto toProcessInstanceWithExpedient(HistoricProcessInstance historicProcessInstance);
 
-    @AfterMapping
-    @Named("withExpedient")
-    void addExpedient(ProcessInstance processInstance, @MappingTarget ProcessInstanceDto processInstanceDto) {
-        processInstanceDto.setExpedientId(heliumDataService.getExpedientIdByProcessInstanceId(processInstance.getId()));
-    }
-    @AfterMapping
-    @Named("withExpedientHistoric")
-    void addExpedient(HistoricProcessInstance historicProcessInstance, @MappingTarget ProcessInstanceDto processInstanceDto) {
-        processInstanceDto.setExpedientId(heliumDataService.getExpedientIdByProcessInstanceId(historicProcessInstance.getId()));
-    }
 }

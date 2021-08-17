@@ -1,5 +1,6 @@
 package es.caib.helium.logic.ms;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import es.caib.helium.client.domini.domini.DominiClient;
 import es.caib.helium.client.domini.domini.model.ConsultaDominisDades;
 import es.caib.helium.client.domini.domini.model.ResultatDomini;
 import es.caib.helium.client.domini.entorn.EntornClient;
+import es.caib.helium.client.domini.entorn.model.ConsultaDominiDada;
 import es.caib.helium.client.domini.expedientTipus.ExpedientTipusClient;
 import es.caib.helium.client.model.PagedList;
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
@@ -260,15 +262,26 @@ public class DominiMs {
 	 * @return
 	 */
 	public Map<Integer, List<FilaResultat>> consultarDominis(List<ConsultaDominiDto> consultesDominis) {
-		Map<Integer, List<FilaResultat>> resultats = new HashMap<Integer, List<FilaResultat>>();
-		List<FilaResultat> resultat;
-		//TODO DANIEL: cridar a un mètode de consulta múltiple a la vegada.
+		List<ConsultaDominiDada> consultaDominiDades = new ArrayList<ConsultaDominiDada>();
 		for (ConsultaDominiDto consultaDomini : consultesDominis) {
-			resultat = this.consultarDomini( 
-					consultaDomini.getDominiId(), 
-					 consultaDomini.getDominiWsId(), 
-					 consultaDomini.getParametres());
-			resultats.put(consultaDomini.getIdentificadorConsulta(), resultat);
+			Map<String, String> parametresString = new HashMap<String, String>();
+			for (Map.Entry<String, Object> entry : consultaDomini.getParametres().entrySet()) {
+				parametresString.put(entry.getKey(), entry.getValue().toString());
+			}
+			consultaDominiDades.add(
+					ConsultaDominiDada.builder()
+						.dominiId(consultaDomini.getDominiId())
+						.parametres(parametresString).build());
+		}		
+		List<ResultatDomini> resultatsDominis = this.dominiClient.consultaDominisV1(consultaDominiDades);
+		
+		//TODO: revisar si l'ordre en què respon el MS de dominis es correspon amb l'ordre de les peticions
+		Map<Integer, List<FilaResultat>> resultats = new HashMap<Integer, List<FilaResultat>>();
+		for ( int i=0; i < consultesDominis.size(); i++) {
+			resultats.put(
+					consultesDominis.get(i).getDominiId().intValue(),
+					conversioTipusServiceHelper.convertirList(
+							resultatsDominis.get(i), FilaResultat.class));
 		}
 		return resultats;
 	}

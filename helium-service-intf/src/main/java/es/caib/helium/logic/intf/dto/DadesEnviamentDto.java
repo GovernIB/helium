@@ -6,7 +6,8 @@ package es.caib.helium.logic.intf.dto;
 import java.util.Date;
 import java.util.List;
 
-import es.caib.helium.client.integracio.notificacio.enums.ServeiTipusEnum;
+import es.caib.helium.logic.intf.integracio.notificacio.ServeiTipusEnum;
+
 
 /**
  * Informació d'un enviament d'una notificació.

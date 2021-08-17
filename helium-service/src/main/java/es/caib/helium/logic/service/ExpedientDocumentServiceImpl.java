@@ -3,9 +3,24 @@
  */
 package es.caib.helium.logic.service;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
 import es.caib.helium.client.engine.model.WTaskInstance;
-import es.caib.helium.client.integracio.notificacio.model.DadesEnviamentDto;
-import es.caib.helium.client.integracio.notificacio.model.DadesNotificacioDto;
 import es.caib.helium.logic.helper.DocumentHelper;
 import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.logic.helper.ExpedientRegistreHelper;
@@ -18,21 +33,25 @@ import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
 import es.caib.helium.logic.intf.dto.ArxiuDetallDto;
 import es.caib.helium.logic.intf.dto.ArxiuDto;
 import es.caib.helium.logic.intf.dto.ArxiuFirmaDto;
-import es.caib.helium.client.integracio.notificacio.enums.EntregaPostalTipus;
+import es.caib.helium.logic.intf.dto.DadesEnviamentDto;
+import es.caib.helium.logic.intf.dto.DadesEnviamentDto.EntregaPostalTipus;
+import es.caib.helium.logic.intf.dto.DadesNotificacioDto;
 import es.caib.helium.logic.intf.dto.DocumentDto;
 import es.caib.helium.logic.intf.dto.ExpedientDocumentDto;
+import es.caib.helium.logic.intf.dto.InteressatTipusEnumDto;
 import es.caib.helium.logic.intf.dto.NotificacioDto;
 import es.caib.helium.logic.intf.dto.NtiEstadoElaboracionEnumDto;
 import es.caib.helium.logic.intf.dto.NtiOrigenEnumDto;
 import es.caib.helium.logic.intf.dto.NtiTipoDocumentalEnumDto;
 import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
-import es.caib.helium.client.integracio.portafirmes.model.PersonaDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.dto.PortasignaturesDto;
 import es.caib.helium.logic.intf.dto.RespostaValidacioSignaturaDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
+import es.caib.helium.logic.intf.integracio.notificacio.ServeiTipusEnum;
 import es.caib.helium.logic.intf.service.ExpedientDocumentService;
 import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.logic.util.PdfUtils;
@@ -56,21 +75,6 @@ import es.caib.helium.persist.repository.RegistreRepository;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.DocumentMetadades;
 import es.caib.plugins.arxiu.api.Firma;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.acls.domain.BasePermission;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
-import javax.annotation.Resource;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Implementació dels mètodes del servei ExpedientDocumentService.
@@ -364,7 +368,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			destinatari.setCodiDir3(representantEntity.getDir3Codi());
 			destinatari.setTelefon(representantEntity.getTelefon());
 			destinatari.setEmail(representantEntity.getEmail());
-			destinatari.setTipus(representantEntity.getTipus());
+			if (representantEntity.getTipus() != null) {
+				destinatari.setTipus(InteressatTipusEnumDto.valueOf(representantEntity.getTipus().toString()));
+			}
 			destinataris.add(destinatari);
 		}
 		dadesEnviamentDto.setDestinataris(destinataris);
@@ -385,7 +391,10 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			dadesEnviamentDto.setEntregaDehProcedimentCodi(expedientTipus.getNtiClasificacion());
 			dadesEnviamentDto.setEntregaDehObligat(interessatEntity.isEntregaDehObligat());
 		}
-		dadesEnviamentDto.setServeiTipusEnum(dadesNotificacioDto.getServeiTipusEnum());
+		if (dadesNotificacioDto.getServeiTipusEnum() != null) {
+			dadesEnviamentDto.setServeiTipusEnum(ServeiTipusEnum.valueOf(dadesNotificacioDto.getServeiTipusEnum().toString()));
+		}
+
 		enviaments.add(dadesEnviamentDto);
 		dadesNotificacioDto.setEnviaments(enviaments);
 		// Notifica i guarda la informació

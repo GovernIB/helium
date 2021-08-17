@@ -34,7 +34,7 @@ public class ExpedientAccioController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);		
-		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
+		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(expedient.getProcessInstanceId());
 		Map<InstanciaProcesDto, List<AccioDto>> accions = new LinkedHashMap<InstanciaProcesDto, List<AccioDto>>();
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
 			List<AccioDto> accionsTrobades = expedientService.accioFindVisiblesAmbProcessInstanceId(

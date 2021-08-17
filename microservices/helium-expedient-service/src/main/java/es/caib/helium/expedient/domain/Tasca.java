@@ -88,10 +88,10 @@ public class Tasca implements Persistable<String> {
 	private boolean assignada;
 	
 	@Column(name="marcada_finalitzar")
-	private boolean marcadaFinalitzar;
+	private Date marcadaFinalitzar;
 	
-	@Column(name="error_finalitzacio")
-	private boolean errorFinalitzacio;
+	@Column(name="error_finalitzacio", length = 1000, nullable = true)
+	private String errorFinalitzacio;
 	
 	@Column(name="data_fins")
 	private Date dataFins;

@@ -6,9 +6,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import es.caib.helium.client.expedient.tasca.TascaClientService;
 import es.caib.helium.logic.intf.service.TascaService;
 
 @Component
@@ -16,7 +19,10 @@ public class TascaSegonPlaHelper {
 	
 	@Autowired
 	private TascaService tascaService;
-	
+
+	@Resource
+	private TascaClientService tascaClientService;
+
 	private Map<String,InfoSegonPla> tasquesSegonPla;
 	
 	public synchronized void loadTasquesSegonPla () {
@@ -79,6 +85,7 @@ public class TascaSegonPlaHelper {
 	
 	public void guardarErrorFinalitzacio(String tascaId, String errorFinalitzacio) {
 		tascaService.guardarErrorFinalitzacio(tascaId, errorFinalitzacio);
+		tascaClientService.setErrorFinalitzacio(tascaId, errorFinalitzacio);
 	}
 	
 	public class InfoSegonPla {

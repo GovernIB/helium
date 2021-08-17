@@ -91,7 +91,7 @@ public class ExpedientMs {
 		PagedList<es.caib.helium.client.expedient.expedient.model.ExpedientDto> page  = this.expedientClientService.findExpedientsAmbFiltrePaginatV1(consultaExpedientDades);
 		
 		PaginaDto<ExpedientDto> pagina = paginacioHelper.toPaginaDto(
-				page,
+				page, 
 				ExpedientDto.class);
 		
 		this.completaDto(page.getContent(), pagina.getContingut());

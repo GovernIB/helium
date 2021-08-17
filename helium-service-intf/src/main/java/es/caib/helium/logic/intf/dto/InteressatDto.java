@@ -3,8 +3,8 @@
  */
 package es.caib.helium.logic.intf.dto;
 
-import es.caib.helium.client.integracio.notificacio.enums.InteressatTipusEnum;
 import es.caib.helium.logic.intf.dto.DadesEnviamentDto.EntregaPostalTipus;
+import es.caib.helium.logic.intf.integracio.notificacio.InteressatTipusEnum;
 
 /**
  * 

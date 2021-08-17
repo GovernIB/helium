@@ -3,8 +3,21 @@
  */
 package es.caib.helium.logic.service;
 
-import es.caib.helium.client.engine.model.WProcessInstance;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import es.caib.helium.client.engine.model.WTaskInstance;
+import es.caib.helium.client.expedient.tasca.TascaClientService;
 import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.logic.helper.TascaHelper;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
@@ -18,17 +31,6 @@ import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persist.entity.Expedient;
 import es.caib.helium.persist.entity.Registre;
 import es.caib.helium.persist.repository.RegistreRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 
 /**
@@ -52,6 +54,8 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private WorkflowRetroaccioApi workflowRetroaccioApi;
+	@Resource
+	private TascaClientService tascaClientService;
 
 
 
@@ -100,44 +104,6 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	@Transactional(readOnly = true)
-	public List<ExpedientTascaDto> findPendents(
-			Long expedientId,
-			boolean nomesTasquesPersonals,
-			boolean nomesTasquesGrup) throws NoTrobatException, PermisDenegatException {
-		logger.debug("Consulta de tasques pendents de l'expedient (" +
-				"id=" + expedientId + ", " +
-				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
-				"nomesTasquesGrup=" + nomesTasquesGrup + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				true,
-				false,
-				false,
-				false);
-		boolean mostrarTasquesAltresUsuaris = expedientHelper.isGrantedAny(
-				expedient,
-				new Permission[] {
-						ExtendedPermission.TASK_SUPERV,
-						ExtendedPermission.SUPERVISION,
-						ExtendedPermission.ADMINISTRATION});
-		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
-		for (WProcessInstance jpi: workflowEngineApi.getProcessInstanceTree(expedient.getProcessInstanceId())) {
-			resposta.addAll(
-					tascaHelper.findTasquesPerExpedientPerInstanciaProces(
-							jpi.getId(),
-							expedient,
-							mostrarTasquesAltresUsuaris,
-							nomesTasquesPersonals,
-							nomesTasquesGrup));
-		}
-		return resposta;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	@Transactional
 	public void cancelar(
 			Long expedientId,
@@ -156,10 +122,11 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 					task.getProcessInstanceId(),
 					WorkflowRetroaccioApi.ExpedientRetroaccioTipus.TASCA_CANCELAR,
 					null);
-			workflowEngineApi.cancelTaskInstance(String.valueOf(tascaId));
+			workflowEngineApi.cancelTaskInstance(tascaId);
+			tascaClientService.setCancelada(tascaId, true);
 			crearRegistreTasca(
 					expedientId,
-					String.valueOf(tascaId),
+					tascaId,
 					SecurityContextHolder.getContext().getAuthentication().getName(),
 					Registre.Accio.CANCELAR);
 		} else {
@@ -189,10 +156,11 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 					task.getProcessInstanceId(),
 					WorkflowRetroaccioApi.ExpedientRetroaccioTipus.TASCA_SUSPENDRE,
 					null);
-			workflowEngineApi.suspendTaskInstance(String.valueOf(tascaId));
+			workflowEngineApi.suspendTaskInstance(tascaId);
+			tascaClientService.setSuspesa(tascaId, true);
 			crearRegistreTasca(
 					expedientId,
-					String.valueOf(tascaId),
+					tascaId,
 					SecurityContextHolder.getContext().getAuthentication().getName(),
 					Registre.Accio.ATURAR);
 		} else {
@@ -222,10 +190,11 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 					task.getProcessInstanceId(),
 					WorkflowRetroaccioApi.ExpedientRetroaccioTipus.TASCA_CONTINUAR,
 					null);
-			workflowEngineApi.resumeTaskInstance(String.valueOf(tascaId));
+			workflowEngineApi.resumeTaskInstance(tascaId);
+			tascaClientService.setSuspesa(tascaId, false);
 			crearRegistreTasca(
 					expedientId,
-					String.valueOf(tascaId),
+					tascaId,
 					SecurityContextHolder.getContext().getAuthentication().getName(),
 					Registre.Accio.REPRENDRE);
 		} else {
@@ -265,6 +234,13 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 					informacioRetroaccioId,
 					previousActors + "::" + currentActors);
 			String usuari = SecurityContextHolder.getContext().getAuthentication().getName();
+			
+			// Actualitza la informació al MS
+			tascaClientService.setResponsablesV1(
+					task.getId(), new 
+					ArrayList<String>(task.getPooledActors()));
+			tascaClientService.setUsuariAssignat(tascaId, task.getActorId());
+			
 			crearRegistreReassignarTasca(
 					expedient.getId(),
 					tascaId,

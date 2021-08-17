@@ -17,4 +17,6 @@ public class DominiApiPath {
 	public static final String GET_DOMINI = API_PATH + "/{dominiId}";
 
 	public static final String CONSULTA_DOMINI = API_PATH + "/{dominiId}/resultats";
+	
+	public static final String CONSULTA_DOMINIS = API_PATH + "/resultats";	
 }

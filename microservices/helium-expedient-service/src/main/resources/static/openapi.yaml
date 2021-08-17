@@ -154,8 +154,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExpedientPagedList'
-        '204':
-          description: No content
         '400':
           description: Bad input parameter
     post:
@@ -400,6 +398,228 @@ paths:
         '404':
           description: Not found
 
+  /api/v1/processos:
+    get:
+      tags:
+        - Tramitació
+        - Consulta
+      operationId: findProcessosAmbFiltrePaginatV1
+      summary: Cerca de processos filtrada i paginada
+      description:  
+        La cerca pot rebre paràmetres per
+        - ordenar
+        - paginar
+        - filtrar 
+      parameters:
+        - $ref: '#/components/parameters/FiltreParam'
+        - $ref: '#/components/parameters/PageNumberParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+        - $ref: '#/components/parameters/SortParam'
+        # Paràmetres propis del filtre
+        - in: query
+          name: processDefinitionId
+          schema:
+            type: string
+          required: false
+          description: Filtra els processos per identificador de la definició de procés.
+        - in: query
+          name: processArrelId
+          schema:
+            type: string
+          required: false
+          description: Identificador del procés arrel de la instància de procés
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcesPagedList'
+        '400':
+          description: Bad input parameter
+    post:
+      tags:
+        - Tramitació
+      operationId: createProcesV1
+      summary: Crea un nou proces
+      description: Afegiex un nou proces al sistema a partir de la informació passada en el cos de la petició.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Proces'
+        description: Proces a crear
+      responses:
+        '201':
+          description: Proces created
+        '400':
+          description: Bad request
+
+  /api/v1/processos/ids:
+    get:
+      tags:
+        - Tramitació
+        - Consulta
+      operationId: findProcessosIdsAmbFiltrePaginatV1
+      summary: Cerca d'identificadors de processos filtrada i paginada
+      description: |
+        Consulta amb paràmetres corresponent a la selecció de processos del llistat de processos. Conté
+        les mateixes opcions de filtre que la llista paginada
+        
+        La cerca pot rebre paràmetres per
+        - ordenar
+        - paginar
+        - filtrar (amb el mateixos paràmetres que en el llistat)
+      parameters:
+        - $ref: '#/components/parameters/FiltreParam'
+        - $ref: '#/components/parameters/PageNumberParam'
+        - $ref: '#/components/parameters/PageSizeParam'
+        - $ref: '#/components/parameters/SortParam'
+        # Paràmetres propis del filtre
+        - in: query
+          name: processDefinitionId
+          schema:
+            type: string
+          required: false
+          description: Filtra els processos per identificador de la definició de procés.
+        - in: query
+          name: processArrelId
+          schema:
+            type: string
+          required: false
+          description: Identificador del procés arrel de la instància de procés
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdsPagedList'
+        '204':
+          description: No content
+        '400':
+          description: Bad input parameter
+
+  /api/v1/processos/{procesId}:
+    get:
+      tags:
+        - Tramitació
+        - Consulta
+      operationId: getProcesV1
+      summary: Consulta un proces donat el seu identificador
+      description: Retorna les dades del proces amb l'identificador informat al paràmetre `procesId`
+      parameters: 
+        - $ref: '#/components/parameters/ProcesIdPathParam'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Proces'
+        '404':
+          description: Not found
+    put:
+      tags:
+        - Tramitació
+      operationId: updateProcesV1
+      summary: Modifica un proces donat el seu identificador
+      description: Modifica el proces amb l'identificador passat al paràmetre `procesId`, amb les totes dades de l'objecte Proces passat al body de la petició
+      parameters:
+        - $ref: '#/components/parameters/ProcesIdPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Proces'
+      responses:
+        '204':
+          description: Proces actualitzat
+        '404':
+          description: Not found
+        '409':
+          description: Conflicte
+    patch:
+      tags:
+        - Tramitació
+      operationId: patchProcesV1
+      summary: Actualitza camps concrets d'un proces donat el seu identificador
+      description: |
+        Modifica els camps del proces amb l'identificador passat al paràmetre `procesId`, amb els camps de l'objecte Proces passat al body de la petició.  
+        Només modifica els camps informats en l'objecte. Els camps no inclosos en l'objecte no seran modificats.
+      parameters:
+        - $ref: '#/components/parameters/ProcesIdPathParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchBody'
+      responses:
+        '204':
+          description: Proces actualitzat
+        '404':
+          description: Not found
+        '409':
+          description: Conflicte
+    delete:
+      tags:
+        - Tramitació
+      operationId: deleteProcesV1
+      summary: Elimina un proces donat el seu identificador
+      description: Elimina el proces amb l'identificador passat al paràmetre `procesId` i la informació associada de les processos i dels responsables.
+      parameters:
+        - $ref: '#/components/parameters/ProcesIdPathParam'
+      responses:
+        '204':
+          description: Ok. No content
+        '404':
+          description: Not found
+
+  /api/v1/processos/{procesId}/llistat:
+    get:
+      tags:
+        - Tramitació
+        - Consulta
+      operationId: getLlistatProcessosV1
+      summary: Consulta un proces donat el seu identificador
+      description: Consulta el llistat de tots els processos que pengen a partir del procés arrel del procés passat com a argument.
+      parameters: 
+        - $ref: '#/components/parameters/ProcesIdPathParam'
+      responses:
+        '200':
+          description: Retorna la llista de processos que tenen el mateix procés arrel que el procés passat com paràmetre.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Proces'
+        '404':
+          description: Not found
+
+  /api/v1/processos/{procesId}/expedientId:
+    get:
+      tags:
+        - Tramitació
+        - Consulta
+      operationId: getExpedientIdV1
+      summary: Consulta l'identificador de l'expedient a partir de l'identificador de la instància de procés.
+      parameters: 
+        - $ref: '#/components/parameters/ProcesIdPathParam'
+      responses:
+        '200':
+          description: Retorna únicament l'identificador de l'expedient de la instància de procés.
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int64
+                example: 1234
+        '404':
+          description: Not found
 
   /api/v1/tasques:
     get:
@@ -508,8 +728,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TascaPagedList'
-        '204':
-          description: No content
         '400':
           description: Bad input parameter
     post:
@@ -904,6 +1122,113 @@ components:
       allOf:
       - $ref: '#/components/schemas/PagedResponse'
 
+    Proces:
+      type: object
+      required:
+        - id
+        - expedientId
+        - procesId
+        - nomres
+        - dataCreacio
+      properties:
+        id:
+          description: Id de la instància de proces.
+          type: string
+          maxLength: 64
+          example: "1234"
+        expedientId:
+          description: Id de l'expedient de la proces.
+          type: integer
+          format: int64
+          example: 1234
+        procesId:
+          description: Id del procés al qual pertany la proces..
+          type: string
+          maxLength: 64
+          example: "1234"
+        nom:
+          description: Nom de la proces en el flux
+          type: string
+          maxLength: 255
+          example: proces_codi
+        titol:
+          description: Títol de la proces
+          type: string
+          maxLength: 255
+          example: Títol de la proces a l'expedient. Pot coincidir amb el nom.
+        agafada:
+          description: Indica si la proces està agafada.
+          type: boolean
+        cancelada:
+          description: Indica si la proces està cancel·lada.
+          type: boolean
+        suspesa:
+          description: Indica si la proces està suspesa.
+          type: boolean
+        completada:
+          description: Indica si la proces està completada.
+          type: boolean
+        assignada:
+          description: Indica si la proces està assignada.
+          type: boolean
+        marcadaFinalitzar:
+          description: Conté el valor de la data si la proces està marcada per finalitzar.
+          type: string
+          example: '01/12/2021 01:02:03.456'
+        errorFinalitzacio:
+          description: Conté la descripció de l'error de finalització en cas d'error a l'hora de finalitzar la proces
+          type: string
+          maxLength: 1000
+        dataFins:
+          description: Data límit de la proces.
+          type: string
+          example: '01/12/2021 01:02:03.456'
+        dataFi:
+          description: Data de finalització de la proces.
+          type: string
+          example: '31/12/2021 01:02:03.456'
+        iniciFinalitzacio:
+          description: Data d'inici de la finalització de la proces.
+          type: string
+          example: '31/12/2021 01:02:03.456'
+        dataCreacio:
+          description: Data de creació de la proces.
+          type: string
+          example: '31/12/2021 01:02:03.456'
+        usuariAssignat:
+          description: Codi de l'usuari assignat a la proces.
+          type: string
+          maxLength: 255
+          example: usuari_codi
+        grupAssignat:
+          description: Codi del grup assignat a la proces.
+          type: string
+          maxLength: 255
+          example: grup_codi
+        prioritat:
+          description: Prioritat assigndada a la proces.
+          type: integer
+          example: 3
+        responsables:
+          description: Llista d'usuaris responsables.
+          type: array
+          items:
+            type: string
+          example: {'usuari1', 'usuari2'}
+  
+    ProcesList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Proces'
+
+    ProcesPagedList:
+      description: Llistat paginat de tasques
+      type: object
+      properties:
+        content:
+          $ref: '#/components/schemas/ProcesList'
+      allOf:
+      - $ref: '#/components/schemas/PagedResponse'
     Tasca:
       type: object
       required:
@@ -954,11 +1279,13 @@ components:
           description: Indica si la tasca està assignada.
           type: boolean
         marcadaFinalitzar:
-          description: Indica si la tasca està marcada per finalitzar.
-          type: boolean
+          description: Conté el valor de la data si la tasca està marcada per finalitzar.
+          type: string
+          example: '01/12/2021 01:02:03.456'
         errorFinalitzacio:
-          description: Indica si la tasca conté errors de finalització.
-          type: boolean
+          description: Conté la descripció de l'error de finalització en cas d'error a l'hora de finalitzar la tasca
+          type: string
+          maxLength: 1000
         dataFins:
           description: Data límit de la tasca.
           type: string
@@ -1118,6 +1445,15 @@ components:
         type: integer
         format: int64
         
+    ProcesIdPathParam:    
+      name: procesId
+      in: path
+      description: Identificador del procés
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
     TascaIdPathParam:    
       name: tascaId
       in: path
@@ -1126,8 +1462,7 @@ components:
       style: simple
       explode: false
       schema:
-        type: integer
-        format: int64
+        type: string
     EntornParam:
       name: entornId
       in: query

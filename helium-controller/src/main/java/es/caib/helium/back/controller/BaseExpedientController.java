@@ -49,7 +49,7 @@ public class BaseExpedientController extends BaseController {
 		else
 			model.addAttribute("pipellaActiva", "dades");
 		
-		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
+		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(expedient.getProcessInstanceId());
 //		Map<InstanciaProcesDto, List<AccioDto>> accions = new LinkedHashMap<InstanciaProcesDto, List<AccioDto>>();
 		int numAccions = 0;
 		List<String> subprocessos = new ArrayList<String>();

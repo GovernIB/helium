@@ -3,12 +3,12 @@
  */
 package es.caib.helium.logic.intf.service;
 
+import java.util.List;
+
 import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
-
-import java.util.List;
 
 
 /**
@@ -34,22 +34,6 @@ public interface ExpedientTascaService {
 	public List<ExpedientTascaDto> findAmbInstanciaProces(
 			Long expedientId,
 			String processInstanceId) throws NoTrobatException, PermisDenegatException;
-
-	/**
-	 * Retorna la llista de tasques pendents de l'expedient.
-	 * 
-	 * @param expedientId
-	 *            Atribut id de l'expedient.
-	 * @return La llista de tasques pendents.
-	 * @throws NoTrobatException
-	 *             Si no s'ha trobat cap expedient amb l'id especificat.
-	 * @throws PermisDenegatException
-	 *             Si no es tenen els permisos adequats.
-	 */
-	public List<ExpedientTascaDto> findPendents(
-			Long expedientId,
-			boolean nomesTasquesPersonals,
-			boolean nomesTasquesGrup) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Cancel·la una tasca de l'expedient.

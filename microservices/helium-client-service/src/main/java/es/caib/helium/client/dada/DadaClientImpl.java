@@ -32,7 +32,7 @@ public class DadaClientImpl implements DadaClient {
 			Integer expedientTipusId, 
 			Integer page, 
 			Integer size, 
-			Consulta consulta) throws Exception {
+			Consulta consulta) throws RuntimeException {
     	
 	 	log.debug(missatgeLog + " Consulta paginada - entornId: " + entornId 
 	 			+ " - expedientTipusId: " + expedientTipusId + " page: " + page + " size: " + size 
@@ -41,7 +41,7 @@ public class DadaClientImpl implements DadaClient {
 			var response = dadaServiceFeignClient.consultaResultatsPaginats(entornId, expedientTipusId, page, size, consulta);
 			return Objects.requireNonNull(response.getBody());
     	} catch (Exception ex) {
-			throw new Exception("DadaClient.consultaResultats -> " +
+			throw new RuntimeException("DadaClient.consultaResultats -> " +
 					"Error inesperat entornId " + entornId + " expedientTipusId " + expedientTipusId
 					+ " consulta " + consulta, ex);
 		}
@@ -51,7 +51,7 @@ public class DadaClientImpl implements DadaClient {
 	public List<Expedient> consultaResultatsLlistat(
 			Integer entornId,
 			Integer expedientTipusId, 
-			Consulta consulta) throws Exception {
+			Consulta consulta) throws RuntimeException {
     	
 		log.debug(missatgeLog + " Consulta paginada - entornId: " + entornId 
 	 			+ " - expedientTipusId: " + expedientTipusId 
@@ -59,7 +59,7 @@ public class DadaClientImpl implements DadaClient {
 		try {
 			return Objects.requireNonNull(dadaServiceFeignClient.consultaResultatsLlistat(entornId, expedientTipusId, consulta).getBody());
     	} catch (Exception ex) {
-			throw new Exception("DadaClient.consultaResultatsLlistat -> " +
+			throw new RuntimeException("DadaClient.consultaResultatsLlistat -> " +
 					"INTERNAL_SERVER_ERROR entornId " + entornId + " expedientTipusId " + expedientTipusId
 					+ " consulta " + consulta, ex);
 		}
@@ -68,13 +68,13 @@ public class DadaClientImpl implements DadaClient {
 	// Dades capcalera expedient
 	
 	@Override
-	public Expedient findByExpedientId(Long expedientId) throws Exception {
+	public Expedient findByExpedientId(Long expedientId) throws RuntimeException {
 		
 		log.debug(missatgeLog + "expedientId: " + expedientId);
 		try {
 			return Objects.requireNonNull(dadaServiceFeignClient.getExpedient(expedientId).getBody());
 		} catch (Exception ex) {
-			throw new Exception("DadaClient.getDadaExpedientIdByProcesId -> " +
+			throw new RuntimeException("DadaClient.getDadaExpedientIdByProcesId -> " +
 					"INTERNAL_SERVER_ERROR expedient " + expedientId, ex);
 		}
 	}
@@ -145,7 +145,7 @@ public class DadaClientImpl implements DadaClient {
 	// Dades de l'expedient
 
 	@Override
-	public List<Dada> getDades(Long expedientId) throws Exception {
+	public List<Dada> getDades(Long expedientId) throws RuntimeException {
 
 		log.debug(missatgeLog + " Get dades per l'expedient: " + expedientId);
 		try {
@@ -155,25 +155,25 @@ public class DadaClientImpl implements DadaClient {
 			}
 			return Objects.requireNonNull(response.getBody());
 		} catch (Exception ex) {
-			throw new Exception("DadaClient.getDades -> " +
+			throw new RuntimeException("DadaClient.getDades -> " +
 					"INTERNAL_SERVER_ERROR expedient " + expedientId, ex);
 		}
 	}
 
 	@Override
-	public Dada getDadaByCodi(Long expedientId, String codi) throws Exception {
+	public Dada getDadaByCodi(Long expedientId, String codi) throws RuntimeException {
 		
 		log.debug(missatgeLog + " Get dada per l'expedient: " + expedientId + " amb codi: " + codi);
 		try {
 			return Objects.requireNonNull(dadaServiceFeignClient.getDadaByCodi(expedientId, codi).getBody());
 		} catch (Exception ex) {
-			throw new Exception("DadaClient.getDadaByCodi -> " +
+			throw new RuntimeException("DadaClient.getDadaByCodi -> " +
 					"INTERNAL_SERVER_ERROR codi " + codi + " expedient " + expedientId, ex);
 		}
 	}
 
 	@Override
-	public List<Dada> getDadesByProces(Long expedientId, String procesId) throws Exception {
+	public List<Dada> getDadesByProces(Long expedientId, String procesId) throws RuntimeException {
 
 		log.debug(missatgeLog + " Get dades per l'expedient: " + expedientId + " amb procesId: " + procesId);
 		try {
@@ -183,44 +183,44 @@ public class DadaClientImpl implements DadaClient {
 			}
 			return Objects.requireNonNull(response.getBody());
 		} catch (Exception ex) {
-			throw new Exception("DadaClient.getDadesByProces -> " +
+			throw new RuntimeException("DadaClient.getDadesByProces -> " +
 					"INTERNAL_SERVER_ERROR procesId " + procesId + " expedient " + expedientId, ex);
 		}
 	}
 
 	@Override
-	public Dada getDadaByExpedientIdProcesAndCodi(Long expedientId, String procesId, String codi) throws Exception {
+	public Dada getDadaByExpedientIdProcesAndCodi(Long expedientId, String procesId, String codi) throws RuntimeException {
 		
 		log.debug(missatgeLog + " Get dades per l'expedient: " + expedientId + " amb procesId: " + procesId + " i codi: " + codi);
 	 	try {
 			return Objects.requireNonNull(dadaServiceFeignClient.getDadaByExpedientIdProcesAndCodi(expedientId, procesId, codi).getBody());
 		} catch (Exception ex) {
-			throw new Exception("DadaClient.getDadaByExpedientIdProcesAndCodi -> " +
+			throw new RuntimeException("DadaClient.getDadaByExpedientIdProcesAndCodi -> " +
 					"INTERNAL_SERVER_ERROR procesId " + procesId + " expedient " + expedientId, ex);
 		}
 	}
 
 	@Override
-	public Dada getDadaByProcesAndCodi(String procesId, String codi) throws Exception {
+	public Dada getDadaByProcesAndCodi(String procesId, String codi) throws RuntimeException {
 		
 		log.debug(missatgeLog + " Get dada amb procesId: " + procesId + " i codi: " + codi);
 		try {
 			return Objects.requireNonNull(dadaServiceFeignClient.getDadaByProcesAndCodi(procesId, codi).getBody());
 		} catch (Exception ex) {
-			throw new Exception("DadaClient.getDadaByProcesAndCodi -> " +
+			throw new RuntimeException("DadaClient.getDadaByProcesAndCodi -> " +
 					"INTERNAL_SERVER_ERROR procesId " + procesId + " codi " + codi, ex);
 		}
 	}
 
 	@Override
-	public Long getDadaExpedientIdByProcesId(String procesId) throws Exception {
+	public Long getDadaExpedientIdByProcesId(String procesId) throws RuntimeException {
 	
 		log.debug(missatgeLog + " Get expedientId de la dada amb procesId: " + procesId);
 		try {
 			var response = dadaServiceFeignClient.getDadaExpedientIdByProcesId(procesId);
 			return Objects.requireNonNull(response.getBody());
 		} catch (Exception ex) {
-			throw new Exception("DadaClient.getDadaExpedientIdByProcesId -> " +
+			throw new RuntimeException("DadaClient.getDadaExpedientIdByProcesId -> " +
 					"INTERNAL_SERVER_ERROR procesId " + procesId, ex);
 		}
 	}

@@ -3,12 +3,37 @@
  */
 package es.caib.helium.logic.helper;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
+import org.fundaciobit.plugins.validatesignature.api.CertificateInfo;
+import org.fundaciobit.plugins.validatesignature.api.IValidateSignaturePlugin;
+import org.fundaciobit.plugins.validatesignature.api.SignatureDetailInfo;
+import org.fundaciobit.plugins.validatesignature.api.SignatureRequestedInformation;
+import org.fundaciobit.plugins.validatesignature.api.TimeStampInfo;
+import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureRequest;
+import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureResponse;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
 import es.caib.helium.client.integracio.arxiu.model.ExpedientArxiu;
 import es.caib.helium.client.integracio.notificacio.enums.NotificacioEstat;
 import es.caib.helium.client.integracio.notificacio.model.ConsultaEnviament;
 import es.caib.helium.client.integracio.notificacio.model.ConsultaNotificacio;
-import es.caib.helium.client.integracio.notificacio.model.DadesNotificacioDto;
-import es.caib.helium.client.integracio.notificacio.model.RespostaEnviar;
 import es.caib.helium.client.integracio.persones.model.Persona;
 import es.caib.helium.client.model.RespostaValidacioSignatura;
 import es.caib.helium.integracio.plugins.custodia.CustodiaPlugin;
@@ -67,6 +92,7 @@ import es.caib.helium.logic.intf.dto.ArxiuDto;
 import es.caib.helium.logic.intf.dto.ArxiuFirmaDetallDto;
 import es.caib.helium.logic.intf.dto.ArxiuFirmaDto;
 import es.caib.helium.logic.intf.dto.ArxiuFirmaPerfilEnumDto;
+import es.caib.helium.logic.intf.dto.DadesNotificacioDto;
 import es.caib.helium.logic.intf.dto.DocumentDto;
 import es.caib.helium.logic.intf.dto.ExpedientDocumentDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
@@ -89,6 +115,7 @@ import es.caib.helium.logic.intf.dto.ZonaperEventDto;
 import es.caib.helium.logic.intf.dto.ZonaperExpedientDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
+import es.caib.helium.logic.intf.integracio.notificacio.RespostaEnviar;
 import es.caib.helium.logic.intf.registre.RegistreAnnex;
 import es.caib.helium.logic.intf.registre.RegistreAnotacio;
 import es.caib.helium.logic.intf.registre.RegistreInteressat;
@@ -119,31 +146,6 @@ import es.caib.plugins.arxiu.api.FirmaPerfil;
 import es.caib.plugins.arxiu.api.FirmaTipus;
 import es.caib.plugins.arxiu.api.IArxiuPlugin;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateUtils;
-import org.fundaciobit.plugins.validatesignature.api.CertificateInfo;
-import org.fundaciobit.plugins.validatesignature.api.IValidateSignaturePlugin;
-import org.fundaciobit.plugins.validatesignature.api.SignatureDetailInfo;
-import org.fundaciobit.plugins.validatesignature.api.SignatureRequestedInformation;
-import org.fundaciobit.plugins.validatesignature.api.TimeStampInfo;
-import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureRequest;
-import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureResponse;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
-import javax.annotation.Resource;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 /**
  * Helper per a accedir a la funcionalitat dels plugins.
@@ -196,7 +198,7 @@ public class PluginHelper {
 	public List<Persona> personaFindLikeNomSencer(String text) {
 		long t0 = System.currentTimeMillis();
 		try {
-			return personesPlugin.findLikeNomSencer(text, EntornActual.getEntornId());
+			return getPersonesPlugin().findLikeNomSencer(text, EntornActual.getEntornId());
 		} catch (PersonesPluginException ex) {
 			var error = "No s'han pogut consultar persones amb el text (text=" + text + ")";
 			log.error(error, ex);
@@ -206,7 +208,7 @@ public class PluginHelper {
 
 	public List<PersonaDto> personaFindAll() {
 		try {
-			var persones = personesPlugin.findAll(EntornActual.getEntornId());
+			var persones = getPersonesPlugin().findAll(EntornActual.getEntornId());
 			if (persones == null) {
 				return new ArrayList<PersonaDto>();
 			}
@@ -239,7 +241,7 @@ public class PluginHelper {
 			return (PersonaDto) personaCache.get(codi).get();
 		}
 		try {
-			var dadesPersona = personesPlugin.findAmbCodi(codi, EntornActual.getEntornId());
+			var dadesPersona = getPersonesPlugin().findAmbCodi(codi, EntornActual.getEntornId());
 
 			if (dadesPersona == null) {
 				throw new NoTrobatException(DadesPersona.class, codi);
@@ -259,7 +261,7 @@ public class PluginHelper {
 	}
 
 	public List<String> personaFindRolsAmbCodi(String codi) throws Exception {
-		return personesPlugin.findRolsAmbCodi(codi, EntornActual.getEntornId());
+		return getPersonesPlugin().findRolsAmbCodi(codi, EntornActual.getEntornId());
 	}
 
 	public void tramitacioZonaperExpedientCrear(
@@ -2531,16 +2533,21 @@ public class PluginHelper {
 		
 		RespostaEnviar resposta;
 		try {
+			var dadesNotificacioMs = conversioTipusServiceHelper.convertir(
+					dadesNotificacio, 
+					es.caib.helium.client.integracio.notificacio.model.DadesNotificacioDto.class);
 			dadesNotificacio.getIdioma();
 			dadesNotificacio.setExpedientId(expedient.getId());
 //			dadesNotificacio.setI
-			dadesNotificacio.setExpedientIdentificadorLimitat(expedient.getIdentificadorLimitat());
+			dadesNotificacioMs.setExpedientIdentificadorLimitat(expedient.getIdentificadorLimitat());
 			// Informa de l'estat actual
-			dadesNotificacio.setUsuariCodi(usuariActualHelper.getUsuariActual());
+			dadesNotificacioMs.setUsuariCodi(usuariActualHelper.getUsuariActual());
 			// Informa el número d'expedient
-			dadesNotificacio.setNumExpedient(expedient.getNumero());
+			dadesNotificacioMs.setNumExpedient(expedient.getNumero());
 			// Invoca el servei
-			resposta = notificacioPlugin.enviar(dadesNotificacio);
+			resposta = conversioTipusServiceHelper.convertir(
+					notificacioPlugin.enviar(dadesNotificacioMs),
+					RespostaEnviar.class);
 		} catch (Exception ex) {
 			var error = "No s'ha pogut enviar l'alta de notificació: ";
 			log.error(error, ex);
@@ -3873,6 +3880,27 @@ public class PluginHelper {
 				globalProperties.getProperty("app.gesdoc.plugin.tipus.directe"));
 	}
 
+	private PersonesPlugin getPersonesPlugin() {
+		if (personesPlugin == null) {
+			String pluginClass = globalProperties.getProperty("es.caib.helium.persones.plugin.class");
+			if (pluginClass != null && pluginClass.length() > 0) {
+				try {
+					Class<?> clazz = Class.forName(pluginClass);
+					personesPlugin = (PersonesPlugin)clazz.newInstance();
+				} catch (Exception ex) {
+					throw tractarExcepcioEnSistemaExtern(
+							"Error al crear la instància del plugin de persones (" +
+							"pluginClass=" + pluginClass + ")",
+							ex);
+				}
+			} else {
+				throw tractarExcepcioEnSistemaExtern(
+						"No està configurada la classe per al plugin de persones",
+						null);
+			}
+		}
+		return personesPlugin;
+	}
 	private TramitacioPlugin getTramitacioPlugin() {
 		if (tramitacioPlugin == null) {
 			String pluginClass = globalProperties.getProperty("app.tramitacio.plugin.class");

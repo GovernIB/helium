@@ -50,7 +50,6 @@ import es.caib.helium.logic.intf.dto.EnumeracioValorDto;
 import es.caib.helium.logic.intf.dto.EstatDto;
 import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
-import es.caib.helium.logic.intf.dto.expedient.ExpedientInfoDto;
 import es.caib.helium.logic.intf.dto.FestiuDto;
 import es.caib.helium.logic.intf.dto.InteressatDto;
 import es.caib.helium.logic.intf.dto.InteressatTipusEnumDto;
@@ -58,6 +57,7 @@ import es.caib.helium.logic.intf.dto.ReassignacioDto;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
 import es.caib.helium.logic.intf.dto.TerminiDto;
 import es.caib.helium.logic.intf.dto.TerminiIniciatDto;
+import es.caib.helium.logic.intf.dto.expedient.ExpedientInfoDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
@@ -1664,7 +1664,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 interessat.getDir3Codi(),
                 interessat.getLlinatge1(),
                 interessat.getLlinatge2(),
-                interessat.getTipus(),
+                InteressatTipusEnumDto.valueOf(interessat.getTipus().toString()),
                 interessat.getEmail(),
                 interessat.getTelefon(),
                 expedient,
@@ -1698,7 +1698,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         interessatEntity.setNif(interessat.getNif());
         interessatEntity.setLlinatge1(interessat.getLlinatge1());
         interessatEntity.setLlinatge2(interessat.getLlinatge2());
-        interessatEntity.setTipus(interessat.getTipus());
+        interessatEntity.setTipus(InteressatTipusEnumDto.valueOf(interessat.getTipus().toString()));
         interessatEntity.setEmail(interessat.getEmail());
         interessatEntity.setTelefon(interessat.getTelefon());
         interessatEntity.setEntregaPostal(interessat.getEntregaPostal());
@@ -2000,7 +2000,8 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
             errors.add("El tipus d'interessat és obligatori");
 
         // Llinatge1 per persones físiques
-        if (interessat.getTipus() == InteressatTipusEnumDto.FISICA && (interessat.getLlinatge1() == null || interessat.getLlinatge1().isEmpty())) {
+        if (interessat.getTipus() == es.caib.helium.logic.intf.integracio.notificacio.InteressatTipusEnum.FISICA 
+        		&& (interessat.getLlinatge1() == null || interessat.getLlinatge1().isEmpty())) {
             errors.add("Si el tipus de persona és física llavors el llinatge és obligatori");
         }
 

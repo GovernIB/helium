@@ -1208,7 +1208,7 @@ public class VariableHelper {
 		List<FilaResultat> resultat;
 		// Realitza la consulta múltiple
 		Map<Integer, List<FilaResultat>> resultats = dominiMs.consultarDominis(new ArrayList<ConsultaDominiDto>(consultesDomini.values()));
-		// Prepara la consulta múltiple
+		// Processa les resposta múltiple
 		for (Integer identificador : consultesDomini.keySet()) {
 			consultaDomini = consultesDomini.get(identificador);
 			resultat = resultats.get(identificador);

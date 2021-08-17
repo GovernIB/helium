@@ -1,30 +1,24 @@
 package es.caib.helium.logic.service;
 
-import es.caib.helium.client.engine.model.WTaskInstance;
-import es.caib.helium.logic.helper.*;
-import es.caib.helium.logic.intf.WorkflowEngineApi;
-import es.caib.helium.logic.intf.dto.*;
-import es.caib.helium.logic.intf.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
-import es.caib.helium.logic.intf.dto.ExpedientDto;
-import es.caib.helium.logic.intf.exception.ExecucioMassivaException;
-import es.caib.helium.logic.intf.exception.NoTrobatException;
-import es.caib.helium.logic.intf.exception.ValidacioException;
-import es.caib.helium.logic.intf.service.ExecucioMassivaService;
-import es.caib.helium.logic.intf.service.ExpedientDadaService;
-import es.caib.helium.logic.intf.service.ExpedientDocumentService;
-import es.caib.helium.logic.intf.service.ExpedientRegistreService;
-import es.caib.helium.logic.intf.service.ExpedientService;
-import es.caib.helium.logic.intf.service.ExpedientTascaService;
-import es.caib.helium.logic.intf.service.TascaService;
-import es.caib.helium.logic.intf.util.CsvHelper;
-import es.caib.helium.logic.intf.util.GlobalProperties;
-import es.caib.helium.logic.util.EntornActual;
-import es.caib.helium.persist.entity.*;
-import es.caib.helium.persist.entity.ConsultaCamp.TipusConsultaCamp;
-import es.caib.helium.persist.entity.ExecucioMassiva.ExecucioMassivaTipus;
-import es.caib.helium.persist.entity.Termini;
-import es.caib.helium.persist.entity.ExecucioMassivaExpedient.ExecucioMassivaEstat;
-import es.caib.helium.persist.repository.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.StringWriter;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -45,23 +39,75 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.StringWriter;
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import es.caib.helium.client.engine.model.WTaskInstance;
+import es.caib.helium.client.expedient.proces.ProcesClientService;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
+import es.caib.helium.logic.helper.DefinicioProcesHelper;
+import es.caib.helium.logic.helper.DocumentHelper;
+import es.caib.helium.logic.helper.EntornHelper;
+import es.caib.helium.logic.helper.ExpedientHelper;
+import es.caib.helium.logic.helper.ExpedientTipusHelper;
+import es.caib.helium.logic.helper.HerenciaHelper;
+import es.caib.helium.logic.helper.MailHelper;
+import es.caib.helium.logic.helper.MessageServiceHelper;
+import es.caib.helium.logic.helper.PluginHelper;
+import es.caib.helium.logic.helper.TascaHelper;
+import es.caib.helium.logic.helper.TerminiHelper;
+import es.caib.helium.logic.helper.UsuariActualHelper;
+import es.caib.helium.logic.intf.WorkflowEngineApi;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.ExecucioMassivaDto;
+import es.caib.helium.logic.intf.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import es.caib.helium.logic.intf.dto.ExecucioMassivaListDto;
+import es.caib.helium.logic.intf.dto.ExpedientDocumentDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
+import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
+import es.caib.helium.logic.intf.dto.NtiEstadoElaboracionEnumDto;
+import es.caib.helium.logic.intf.dto.NtiOrigenEnumDto;
+import es.caib.helium.logic.intf.dto.NtiTipoDocumentalEnumDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.exception.ExecucioMassivaException;
+import es.caib.helium.logic.intf.exception.NoTrobatException;
+import es.caib.helium.logic.intf.exception.ValidacioException;
+import es.caib.helium.logic.intf.service.ExecucioMassivaService;
+import es.caib.helium.logic.intf.service.ExpedientDadaService;
+import es.caib.helium.logic.intf.service.ExpedientDocumentService;
+import es.caib.helium.logic.intf.service.ExpedientRegistreService;
+import es.caib.helium.logic.intf.service.ExpedientService;
+import es.caib.helium.logic.intf.service.ExpedientTascaService;
+import es.caib.helium.logic.intf.service.TascaService;
+import es.caib.helium.logic.intf.util.CsvHelper;
+import es.caib.helium.logic.intf.util.GlobalProperties;
+import es.caib.helium.logic.util.EntornActual;
+import es.caib.helium.persist.entity.Accio;
+import es.caib.helium.persist.entity.Camp;
+import es.caib.helium.persist.entity.Consulta;
+import es.caib.helium.persist.entity.ConsultaCamp;
+import es.caib.helium.persist.entity.ConsultaCamp.TipusConsultaCamp;
+import es.caib.helium.persist.entity.DefinicioProces;
+import es.caib.helium.persist.entity.Document;
+import es.caib.helium.persist.entity.Entorn;
+import es.caib.helium.persist.entity.ExecucioMassiva;
+import es.caib.helium.persist.entity.ExecucioMassiva.ExecucioMassivaTipus;
+import es.caib.helium.persist.entity.ExecucioMassivaExpedient;
+import es.caib.helium.persist.entity.ExecucioMassivaExpedient.ExecucioMassivaEstat;
+import es.caib.helium.persist.entity.Expedient;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.entity.Persona;
+import es.caib.helium.persist.entity.Termini;
+import es.caib.helium.persist.repository.AccioRepository;
+import es.caib.helium.persist.repository.CampRepository;
+import es.caib.helium.persist.repository.ConsultaCampRepository;
+import es.caib.helium.persist.repository.ConsultaRepository;
+import es.caib.helium.persist.repository.DefinicioProcesRepository;
+import es.caib.helium.persist.repository.DocumentRepository;
+import es.caib.helium.persist.repository.EntornRepository;
+import es.caib.helium.persist.repository.ExecucioMassivaExpedientRepository;
+import es.caib.helium.persist.repository.ExecucioMassivaRepository;
+import es.caib.helium.persist.repository.ExpedientRepository;
+import es.caib.helium.persist.repository.ExpedientTipusRepository;
+import es.caib.helium.persist.repository.PersonaRepository;
 /**
  * Servei per a gestionar la tramitació massiva d'expedients.
  * 
@@ -146,6 +192,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private ExpedientRegistreService expedientRegistreService;
 	@Resource
 	private GlobalProperties globalProperties;
+	@Resource
+	private ProcesClientService procesClientService;
 
 
 
@@ -1302,7 +1350,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				Object[] param2 = (Object[])deserialize(ome.getExecucioMassiva().getParam2());
 				// Proces principal
 				Long definicioProcesId = (Long)param2[0];
-				Long expedientProcesInstanceId = Long.parseLong(exp.getProcessInstanceId());
+				String expedientProcesInstanceId = exp.getProcessInstanceId();
 				InstanciaProcesDto instanciaProces = expedientService
 						.getInstanciaProcesById(exp.getProcessInstanceId());
 				DefinicioProces definicioProces = definicioProcesRepository.getById(definicioProcesId);
@@ -1832,8 +1880,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			ome.setDataInici(new Date());
 			WTaskInstance tasca = tascaHelper.getTascaComprovacionsTramitacio(tascaId, false, false);
 			if (tasca != null && tasca.isOpen()) {
-				Long expId = workflowEngineApi.findExpedientIdByProcessInstanceId(
-						tasca.getProcessInstanceId());
+				Long expId = procesClientService.getProcesExpedientId(tasca.getProcessInstanceId());
 				expedientTascaService.reassignar(
 						expId,
 						tasca.getId(),

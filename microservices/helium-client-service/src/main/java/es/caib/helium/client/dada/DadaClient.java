@@ -18,16 +18,16 @@ public interface DadaClient {
 			Integer expedientTipusId, 
 			Integer page, 
 			Integer size, 
-			Consulta body) throws Exception;
+			Consulta body) throws RuntimeException;
 	
 	List<Expedient> consultaResultatsLlistat(
 			Integer entornId,
 			Integer expedientTipusId, 
-			Consulta consulta) throws Exception;
+			Consulta consulta) throws RuntimeException;
 	
 	// Capcalera expedient
 	
-	Expedient findByExpedientId(Long expedientId) throws Exception;
+	Expedient findByExpedientId(Long expedientId) throws RuntimeException;
 	
 	void crearExpedient(Expedient expedient);
 
@@ -47,17 +47,17 @@ public interface DadaClient {
 	
 	// Dades expedient
 	
-	List<Dada> getDades(Long expedientId) throws Exception;
+	List<Dada> getDades(Long expedientId) throws RuntimeException;
 	
-	Dada getDadaByCodi(Long expedientId, String codi) throws Exception;
+	Dada getDadaByCodi(Long expedientId, String codi) throws RuntimeException;
 	
-	List<Dada> getDadesByProces(Long expedientId, String procesIdId) throws Exception;
+	List<Dada> getDadesByProces(Long expedientId, String procesIdId) throws RuntimeException;
 	
-	Dada getDadaByExpedientIdProcesAndCodi(Long expedientId, String procesIdId, String codi) throws Exception;
+	Dada getDadaByExpedientIdProcesAndCodi(Long expedientId, String procesIdId, String codi) throws RuntimeException;
 	
-	Dada getDadaByProcesAndCodi(String procesIdId, String codi) throws Exception;
+	Dada getDadaByProcesAndCodi(String procesIdId, String codi) throws RuntimeException;
 	
-	Long getDadaExpedientIdByProcesId(String procesIdId) throws Exception;
+	Long getDadaExpedientIdByProcesId(String procesIdId) throws RuntimeException;
 	
 	void postDadesByExpedientId(Long expedientId, String procesIdId, List<Dada> dada);
 	

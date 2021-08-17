@@ -62,9 +62,9 @@ public class TascaTestHelper {
         		.completada(false)
         		.dataFi(null)
         		.dataFins(null)
-        		.errorFinalitzacio(false)
+        		.errorFinalitzacio(null)
         		.iniciFinalitzacio(null)
-        		.marcadaFinalitzar(true)
+        		.marcadaFinalitzar(null)
         		.suspesa(false)
         		.usuariAssignat(null)
         		.prioritat(3)
@@ -107,9 +107,9 @@ public class TascaTestHelper {
         		.completada(false)
         		.dataFi(null)
         		.dataFins(null)
-        		.errorFinalitzacio(false)
+        		.errorFinalitzacio(null)
         		.iniciFinalitzacio(null)
-        		.marcadaFinalitzar(true)
+        		.marcadaFinalitzar(null)
         		.suspesa(false)
         		.usuariAssignat(null)
         		.prioritat(3)
@@ -139,8 +139,8 @@ public class TascaTestHelper {
                 () -> assertEquals(tasca.isCancelada(), trobat.isCancelada(), "Cancel·lada incorrecte"),
                 () -> assertEquals(tasca.isSuspesa(), trobat.isSuspesa(), "Suspesa incorrecte"),
                 () -> assertEquals(tasca.isCompletada(), trobat.isCompletada(), "Completada incorrecte"),
-                () -> assertEquals(tasca.isMarcadaFinalitzar(), trobat.isMarcadaFinalitzar(), "Marcada finalitzar incorrecte"),
-                () -> assertEquals(tasca.isErrorFinalitzacio(), trobat.isErrorFinalitzacio(), "Error finalització incorrecte"),
+                () -> assertEquals(tasca.getMarcadaFinalitzar(), trobat.getMarcadaFinalitzar(), "Marcada finalitzar incorrecte"),
+                () -> assertEquals(tasca.getErrorFinalitzacio(), trobat.getErrorFinalitzacio(), "Error finalització incorrecte"),
                 () -> assertEquals(tasca.getDataFins(), trobat.getDataFins(), "Data fins incorrecte"),
 				() -> assertEquals(tasca.getIniciFinalitzacio(), trobat.getIniciFinalitzacio(), "Data d'inici finalització incorrecte"),
 				() -> assertEquals(tasca.getDataCreacio(), trobat.getDataCreacio(), "Data fins incorrecte"),
@@ -171,8 +171,8 @@ public class TascaTestHelper {
                 () -> assertEquals(tasca.isCancelada(), trobat.isCancelada(), "Cancel·lada incorrecte"),
                 () -> assertEquals(tasca.isSuspesa(), trobat.isSuspesa(), "Suspesa incorrecte"),
                 () -> assertEquals(tasca.isCompletada(), trobat.isCompletada(), "Completada incorrecte"),
-                () -> assertEquals(tasca.isMarcadaFinalitzar(), trobat.isMarcadaFinalitzar(), "Marcada finalitzar incorrecte"),
-                () -> assertEquals(tasca.isErrorFinalitzacio(), trobat.isErrorFinalitzacio(), "Error finalització incorrecte"),
+                () -> assertEquals(tasca.getMarcadaFinalitzar(), trobat.getMarcadaFinalitzar(), "Marcada finalitzar incorrecte"),
+                () -> assertEquals(tasca.getErrorFinalitzacio(), trobat.getErrorFinalitzacio(), "Error finalització incorrecte"),
                 () -> assertEquals(tasca.getDataFins(), trobat.getDataFins(), "Data fins incorrecte"),
 				() -> assertEquals(tasca.getIniciFinalitzacio(), trobat.getIniciFinalitzacio(), "Data d'inici finalització incorrecte"),
 				() -> assertEquals(tasca.getDataCreacio(), trobat.getDataCreacio(), "Data fins incorrecte"),

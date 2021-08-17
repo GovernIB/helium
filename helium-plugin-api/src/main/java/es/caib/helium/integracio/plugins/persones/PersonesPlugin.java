@@ -3,9 +3,9 @@
  */
 package es.caib.helium.integracio.plugins.persones;
 
-import es.caib.helium.client.integracio.persones.model.Persona;
-
 import java.util.List;
+
+import es.caib.helium.client.integracio.persones.model.Persona;
 
 /**
  * Interfície per a la connexió amb un sistema d'usuaris/persones

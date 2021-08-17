@@ -42,16 +42,46 @@ public class ExpedientTascaController extends BaseExpedientController {
 	@Autowired
 	protected TascaService tascaService;
 
-
-
+	/** Càrrega le la pipella de tasques en la gestió de l'expedient. */
 	@RequestMapping(value = "/{expedientId}/tasca", method = RequestMethod.GET)
 	public String tasques(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
+	
+		this.emplenarModelTasques(model, expedientId);		
+		return "v3/expedientTasca";
+	}
+
+	/** Refresc de les tasques de la pipella de tasques en la gestió de l'expedient. */
+	@RequestMapping(value = "/{expedientId}/refrescarLlistat", method = RequestMethod.GET)
+	public String refrescarLlistat(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model) {
+		this.emplenarModelTasques(model, expedientId);		
+		return "v3/procesTasques";
+	}	
+
+	/** Mètode comú per emplenar l'arbre de processos de la pipella de tasques en la gestió d'expedients.
+	 * @param model
+	 * @param expedientId
+	 */
+	private void emplenarModelTasques(Model model, Long expedientId) {
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		if (expedient.isPermisAdministration() || expedient.isPermisRead() || expedient.isPermisSupervision()) {
-			List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
+//			List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(expedient.getProcessInstanceId());
+//			Map<InstanciaProcesDto, List<ExpedientTascaDto>> tasques = new LinkedHashMap<InstanciaProcesDto, List<ExpedientTascaDto>>();
+//			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
+//			model.addAttribute("expedient", expedient);
+//			for (InstanciaProcesDto instanciaProces: arbreProcessos) {
+//				tasques.put(instanciaProces, expedientTascaService.findAmbInstanciaProces(
+//						expedientId,
+//						instanciaProces.getId()));
+//			}
+//			model.addAttribute("tasques", tasques);	
+			
+			List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(expedient.getProcessInstanceId());
 			Map<InstanciaProcesDto, List<ExpedientTascaDto>> tasques = new LinkedHashMap<InstanciaProcesDto, List<ExpedientTascaDto>>();
 			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 			model.addAttribute("expedient", expedient);
@@ -62,9 +92,9 @@ public class ExpedientTascaController extends BaseExpedientController {
 			}
 			model.addAttribute("tasques", tasques);	
 		}
-		return "v3/expedientTasca";
 	}
 
+	
 	@RequestMapping(value = "/{expedientId}/tasca/{tascaId}/refrescarPanel/{procesId}", method = RequestMethod.GET)
 	public String refrescarTasca(
 			HttpServletRequest request,
@@ -82,29 +112,6 @@ public class ExpedientTascaController extends BaseExpedientController {
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("expedient", expedient);
 		model.addAttribute("tasques", tasques);	
-		return "v3/procesTasques";
-	}
-
-	@RequestMapping(value = "/{expedientId}/refrescarLlistat", method = RequestMethod.GET)
-	public String refrescarLlistat(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			Model model) {
-		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
-		if (expedient.isPermisAdministration() || expedient.isPermisRead() || expedient.isPermisSupervision()) {
-			List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
-			Map<InstanciaProcesDto, List<ExpedientTascaDto>> tasques = new LinkedHashMap<InstanciaProcesDto, List<ExpedientTascaDto>>();
-			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
-			model.addAttribute("expedient", expedient);
-			for (InstanciaProcesDto instanciaProces: arbreProcessos) {
-				tasques.put(
-						instanciaProces,
-						expedientTascaService.findAmbInstanciaProces(
-								expedientId,
-								instanciaProces.getId()));
-			}
-			model.addAttribute("tasques", tasques);	
-		}
 		return "v3/procesTasques";
 	}
 

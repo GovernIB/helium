@@ -322,4 +322,107 @@ public class ExpedientController {
         return new ResponseEntity<>(expedientService.getById(expedientId), HttpStatus.OK);
 
     }
+    
+    /** Actualitza l'expedient amb les dades per aturar-lo. 
+     */
+    @PostMapping(value = "/{expedientId}/aturar", consumes = { "application/json" })
+    public ResponseEntity<Void> aturar(
+            @PathVariable("expedientId") Long expedientId,
+            @Valid @RequestBody String comentari) {
+
+        log.debug("[CTR] aturar expedient: " + expedientId);
+
+        try {
+        	ExpedientDto expedientDto = expedientService.getById(expedientId);
+        	if (expedientDto == null)
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        	expedientDto.setAturat(true);
+        	expedientDto.setInfoAturat(comentari);
+            expedientService.updateExpedient(
+                    expedientId,
+                    expedientDto);
+        } catch (DataIntegrityViolationException ex) {
+        	String errMsg = "Error aturant l'expedient " + expedientId + ": " + ex.getMessage();
+            log.error("[CTR] Aturar: " + errMsg, ex);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errMsg);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    /** Reprén l'expedient. 
+     */
+    @PostMapping(value = "/{expedientId}/reprendre", consumes = { "application/json" })
+    public ResponseEntity<Void> reprendre(
+            @PathVariable("expedientId") Long expedientId) {
+
+        log.debug("[CTR] reprendre expedient: " + expedientId);
+
+        try {
+        	ExpedientDto expedientDto = expedientService.getById(expedientId);
+        	if (expedientDto == null)
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        	expedientDto.setAturat(false);
+        	expedientDto.setInfoAturat(null);
+            expedientService.updateExpedient(
+                    expedientId,
+                    expedientDto);
+        } catch (DataIntegrityViolationException ex) {
+        	String errMsg = "Error reprenent l'expedient " + expedientId + ": " + ex.getMessage();
+            log.error("[CTR] Reprendre: " + errMsg, ex);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errMsg);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    /** Actualitza l'expedient amb les dades d'anul·lació. 
+     */
+    @PostMapping(value = "/{expedientId}/anular", consumes = { "application/json" })
+    public ResponseEntity<Void> anular(
+            @PathVariable("expedientId") Long expedientId,
+            @Valid @RequestBody String comentari) {
+
+        log.debug("[CTR] anular expedient: " + expedientId);
+
+        try {
+        	ExpedientDto expedientDto = expedientService.getById(expedientId);
+        	if (expedientDto == null)
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        	expedientDto.setAnulat(true);
+        	expedientDto.setComentariAnulat(comentari);
+            expedientService.updateExpedient(
+                    expedientId,
+                    expedientDto);
+        } catch (DataIntegrityViolationException ex) {
+        	String errMsg = "Error anul·lant l'expedient " + expedientId + ": " + ex.getMessage();
+            log.error("[CTR] Anular: " + errMsg, ex);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errMsg);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    /** Desanul·la l'expedient. 
+     */
+    @PostMapping(value = "/{expedientId}/desanular", consumes = { "application/json" })
+    public ResponseEntity<Void> desanular(
+            @PathVariable("expedientId") Long expedientId) {
+
+        log.debug("[CTR] desanular expedient: " + expedientId);
+
+        try {
+        	ExpedientDto expedientDto = expedientService.getById(expedientId);
+        	if (expedientDto == null)
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        	expedientDto.setAnulat(false);
+        	expedientDto.setComentariAnulat(null);
+            expedientService.updateExpedient(
+                    expedientId,
+                    expedientDto);
+        } catch (DataIntegrityViolationException ex) {
+        	String errMsg = "Error desanul·lant l'expedient " + expedientId + ": " + ex.getMessage();
+            log.error("[CTR] Desanular: " + errMsg, ex);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errMsg);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }
