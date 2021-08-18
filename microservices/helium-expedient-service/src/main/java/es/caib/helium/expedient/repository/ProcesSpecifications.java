@@ -15,7 +15,7 @@ public class ProcesSpecifications {
 	}
 
 	public static Specification<Proces> processArrelIdLike(String procesArrelId) {
-        return (proces, cq, cb) -> cb.like(proces.get("procesArrelId"), procesArrelId);
+        return (proces, cq, cb) -> cb.like(proces.get("procesArrel").get("id"), procesArrelId);
 	}
 
 	public static Specification<Proces> procesList(

@@ -1,31 +1,7 @@
 /**
- * 
+ *
  */
 package es.caib.helium.logic.helper;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.acls.domain.BasePermission;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.engine.model.WToken;
@@ -83,10 +59,32 @@ import es.caib.helium.persist.repository.TerminiIniciatRepository;
 import es.caib.helium.persist.util.ThreadLocalInfo;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ExpedientEstat;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Helper per a gestionar els expedients.
- * 
+ *
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Component
@@ -143,10 +141,10 @@ public class ExpedientHelper {
 	private ProcesClientService procesClientService;
 
 
-	
+
 	public static String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";
-	
-	
+
+
 	public ExpedientDto toExpedientDto(Expedient expedient) {
 		ExpedientDto dto = new ExpedientDto();
 		dto.setId(expedient.getId());
@@ -200,7 +198,7 @@ public class ExpedientHelper {
 		dto.setNotificacioTelematicaHabilitada(expedient.isNotificacioTelematicaHabilitada());
 		dto.setTramitExpedientIdentificador(expedient.getTramitExpedientIdentificador());
 		dto.setTramitExpedientClau(expedient.getTramitExpedientClau());
-		dto.setErrorsIntegracions(expedient.isErrorsIntegracions());		
+		dto.setErrorsIntegracions(expedient.isErrorsIntegracions());
 		dto.setDataFi(expedient.getDataFi());
 		dto.setAmbRetroaccio(expedient.isAmbRetroaccio());
 		dto.setReindexarData(expedient.getReindexarData());
@@ -268,11 +266,11 @@ public class ExpedientHelper {
 		Optional<Expedient> expedientOptional = expedientRepository.findById(id);
 		if (expedientOptional.isEmpty()) {
 			throw new NoTrobatException(
-					Expedient.class, 
+					Expedient.class,
 					id);
 		}
 		Expedient expedient = expedientOptional.get();
-		
+
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		// Si no te accés a l'entorn no te accés a l'expedient
 		Entorn entorn = expedient.getEntorn();
@@ -301,7 +299,7 @@ public class ExpedientHelper {
 		}
 		return expedient;
 	}
-			
+
 	public Expedient getExpedientComprovantPermisos(
 			Long id,
 			boolean comprovarPermisRead,
@@ -330,13 +328,13 @@ public class ExpedientHelper {
 		Optional<Expedient> expedientOptional = expedientRepository.findById(id);
 		if (expedientOptional.isEmpty()) {
 			throw new NoTrobatException(
-					Expedient.class, 
+					Expedient.class,
 					id);
 		}
 		Expedient expedient = expedientOptional.get();
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		Entorn entorn = expedient.getEntorn();
-		
+
 		Permission[] permisos = new Permission[] {
 				ExtendedPermission.READ,
 				ExtendedPermission.ADMINISTRATION};
@@ -551,7 +549,7 @@ public class ExpedientHelper {
 						expedient.getProcessInstanceId(),
 						RetroaccioInfo.ESTAT + "#@#" + "---"); // No seria: (expedient.getEstat() == null ? "---" : expedient.getEstat().getId())); ?
 				Estat estat = estatRepository.findByExpedientTipusAndIdAmbHerencia(
-						expedient.getTipus().getId(), 
+						expedient.getTipus().getId(),
 						estatId);
 				if (estat == null)
 					throw new NoTrobatException(Estat.class, estatId);
@@ -597,9 +595,9 @@ public class ExpedientHelper {
 		}
 		// Reindexació a lucene. Pot ser síncrona o asíncrona depenent del tipus d'expedient
 		indexHelper.expedientIndexLuceneUpdate(
-				expedient.getProcessInstanceId(), 
+				expedient.getProcessInstanceId(),
 				false);
-		
+
 		//Actualitzem el nom de l'expedient a l'arxiu
 		if (expedient.getTipus().isArxiuActiu() &&
 			expedient.getArxiuUuid() != null &&
@@ -607,7 +605,7 @@ public class ExpedientHelper {
 			// Modifiquem l'expedient a l'arxiu.
 			pluginHelper.arxiuExpedientModificar(expedient);
 		}
-		
+
 		
 		expedientClientService.modificarExpedient(
 				expedient.getId(),
@@ -740,7 +738,7 @@ public class ExpedientHelper {
 
 	@Transactional
 	public void finalitzar(long expedientId) {
-		
+
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
@@ -763,7 +761,7 @@ public class ExpedientHelper {
 		int i = 0;
 		for (WProcessInstance pi: processInstancesTree)
 			ids[i++] = pi.getId();
-		
+
 		Date dataFinalitzacio = new Date();
 		workflowEngineApi.finalitzarExpedient(ids, dataFinalitzacio);
 		expedient.setDataFi(dataFinalitzacio);
@@ -783,7 +781,7 @@ public class ExpedientHelper {
 
 	/** Mètode comú per tancar l'expedient a l'Arxiu en el cas de finalitzar manualment un expedient o des de la verificació
 	 * i finalització d'una tasca. Si no té contingut l'esborra de l'arxiu i si en té firma els documents sense firma i el tanca.
-	 * 
+	 *
 	 * @param expedient
 	 * 			Expedient amb la propietat isArxiuActiu a true.
 	 */
@@ -795,8 +793,8 @@ public class ExpedientHelper {
 			expedient.setArxiuUuid(null);
 		}else {
 			//firmem els documents que no estan firmats
-			expedientHelper.firmarDocumentsPerArxiuFiExpedient(expedient);	
-			
+			expedientHelper.firmarDocumentsPerArxiuFiExpedient(expedient);
+
 			// Tanca l'expedient a l'arxiu.
 			var metadades = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid()).getMetadades();
 			if(metadades.getEstat() != ExpedientEstat.TANCAT) {
@@ -834,7 +832,7 @@ public class ExpedientHelper {
 //				"Desfinalitzar",
 //				"expedient",
 //				expedient.getTipus().getNom());
-		
+
         if (expedient.isArxiuActiu()) {
     		reobrirExpedient(expedient);
         }
@@ -851,20 +849,20 @@ public class ExpedientHelper {
 			expedientHelper.migrarArxiu(expedient);
 		}
 	}
-	
+
 	@Transactional
 	public void migrarArxiu(Expedient expedient) {
-		
+
 		if (!expedient.getTipus().isNtiActiu())
 			throw new ValidacioException("Aquest expedient no es pot migrar perquè el tipus d'expedient no té activades les metadades NTI");
 
 		// Fa validacions prèvies
 		if (!expedient.getTipus().isArxiuActiu())
 			throw new ValidacioException("Aquest expedient no es pot migrar perquè el tipus d'expedient no té activada la intagració amb l'arxiu");
-		
+
 		if (expedient.getArxiuUuid() != null && !expedient.getArxiuUuid().isEmpty())
 			throw new ValidacioException("Aquest expedient ja està vinculat a l'arxiu amb la uuid: " + expedient.getArxiuUuid());
-		
+
 		// Valida que els documents siguin convertibles
 		List<String> noConvertibles = new ArrayList<String>();
 		for (DocumentStore document: documentStoreRepository.findByProcessInstanceId(expedient.getProcessInstanceId())) {
@@ -879,7 +877,7 @@ public class ExpedientHelper {
 			expedient.setNtiVersion(VERSIO_NTI);
 			expedient.setNtiOrgano(expedient.getTipus().getNtiOrgano());
 			expedient.setNtiClasificacion(expedient.getTipus().getNtiClasificacion());
-			expedient.setNtiSerieDocumental(expedient.getTipus().getNtiSerieDocumental());			
+			expedient.setNtiSerieDocumental(expedient.getTipus().getNtiSerieDocumental());
 		}
 
 		// Migra a l'Arxiu
@@ -890,28 +888,28 @@ public class ExpedientHelper {
 		// a dins l'expedient creat.
 		var expedientArxiu = pluginHelper.arxiuExpedientInfo(expedientCreat.getIdentificador());
 		expedient.setNtiIdentificador(expedientArxiu.getMetadades().getIdentificador());
-		
+
 		List<DocumentStore> documents = documentStoreRepository.findByProcessInstanceId(expedient.getProcessInstanceId());
-		
+
 		Set<String> documentsExistents = new HashSet<String>();
 		for (DocumentStore documentStore: documents) {
-			
+
 			Document document = documentHelper.findDocumentPerInstanciaProcesICodi(
 					expedient.getProcessInstanceId(),
 					documentStore.getCodiDocument());
-			
+
 			if (!expedient.isNtiActiu()) {
 				// Informa les metadades NTI del document
 				documentHelper.actualizarMetadadesNti(
-						expedient, 
-						document, 
-						documentStore, 
+						expedient,
+						document,
+						documentStore,
 						null, //ntiOrigen
 						null, //ntiEstadoElaboracion
 						null, //ntiTipoDocumental
 						null); //ntiIdDocumentoOrigen
 			}
-			
+
 			String documentDescripcio;
 			if (documentStore.isAdjunt()) {
 				documentDescripcio = documentStore.getAdjuntTitol();
@@ -919,20 +917,20 @@ public class ExpedientHelper {
 				// El document pot ser null si s'ha esborrat al tipus d'exedient
 				documentDescripcio = document != null ? document.getNom() : documentStore.getCodiDocument();
 			}
-			
+
 			ArxiuDto arxiu = documentHelper.getArxiuPerDocumentStoreId(
 					documentStore.getId(),
 					false,
 					false);
-			
+
 			if (arxiu.getTipusMime() == null)
 				arxiu.setTipusMime(documentHelper.getContentType(arxiu.getNom()));
-			
+
 			// Si la descripició no acaba amb l'extensió l'afegeix
 			String extensio = "." + arxiu.getExtensio();
 			if (!documentDescripcio.endsWith(extensio))
 				documentDescripcio += extensio;
-			
+
 			// Corregeix el nom si ja hi ha un altre document amb el mateix nom i posant l'extensio
 			if (documentsExistents.contains(documentDescripcio)) {
 				int occurrences = 1;
@@ -944,7 +942,7 @@ public class ExpedientHelper {
 				documentDescripcio = novaDescripcio;
 			}
 			documentsExistents.add(documentDescripcio);
-			
+
 			ContingutArxiu contingutArxiu = pluginHelper.arxiuDocumentCrearActualitzar(
 					expedient,
 					documentDescripcio,
@@ -958,9 +956,9 @@ public class ExpedientHelper {
 					true);
 			documentStore.setNtiIdentificador(
 					documentArxiu.getMetadades().getIdentificador());
-			
+
 			if (documentStore.isSignat()) {
-				
+
 				pluginHelper.arxiuDocumentGuardarPdfFirmat(
 						expedient,
 						documentStore,
@@ -973,7 +971,7 @@ public class ExpedientHelper {
 						true);
 				documentHelper.actualitzarNtiFirma(documentStore, documentArxiu);
 			}
-			documentStore.setArxiuContingut(null);			
+			documentStore.setArxiuContingut(null);
 		}
 
 		// Informa convorme l'expedient és NTI i a l'Arxiu
@@ -984,10 +982,10 @@ public class ExpedientHelper {
 			this.tancarExpedientArxiu(expedient);
 		}
 	}
-	
+
 	/** Mètode per firmar els documents de l'expedient sense firma. Primer fa una validació
 	 * de que es pugui firmar.
-	 * 
+	 *
 	 * @param expedient
 	 */
 	@Transactional
@@ -996,18 +994,18 @@ public class ExpedientHelper {
 		//List<DocumentStore> documents = documentStoreRepository.findByProcessInstanceId(expedient.getProcessInstanceId());
 		List<DocumentStore> documents = new ArrayList<DocumentStore>();
 		List<InstanciaProcesDto> arbreProcesInstance = expedientHelper.getArbreInstanciesProces(expedient.getProcessInstanceId());
-		
+
 		// Genera llista de tots els documents del expedient
 		for(InstanciaProcesDto procesInstance :arbreProcesInstance) {
 			documents.addAll(
 					documentStoreRepository.findByProcessInstanceId(procesInstance.getId())
 					);
 		}
-		
-		
+
+
 		List<DocumentStore> documentsPerSignar = new ArrayList<DocumentStore>();
 		List<DocumentStore> documentsNoValids = new ArrayList<DocumentStore>();
-		
+
 		// Valida que els documents es puguin firmar
 		for (DocumentStore documentStore : documents) {
 			if (!documentStore.isSignat()) {
@@ -1028,18 +1026,18 @@ public class ExpedientHelper {
 			}
 			throw new ValidacioException(messageServiceHelper.getMessage("document.controller.firma.servidor.validacio.conversio.documents", new Object[]{ llistaDocuments.toString(), PdfUtils.getExtensionsConvertiblesPdf()}));
 		}
-		
+
 		// Firma en el servidor els documents pendents de firma
 		for (DocumentStore documentStore: documentsPerSignar) {
 				documentHelper.firmaServidor(
 						documentStore.getProcessInstanceId(),
-						//expedient.getProcessInstanceId(), 
-						documentStore.getId(), 
+						//expedient.getProcessInstanceId(),
+						documentStore.getId(),
 						messageServiceHelper.getMessage("document.controller.firma.servidor.default.message"),
 						true);
 		}
 	}
-	
+
 	public void relacioCrear(
 			Expedient origen,
 			Expedient desti) {
@@ -1104,7 +1102,7 @@ public class ExpedientHelper {
 	public Expedient findAmbEntornIId(Long entornId, Long id) {
 		return expedientRepository.findByEntornIdAndId(entornId, id);
 	}
-	
+
 	public Expedient findExpedientByProcessInstanceId(String processInstanceId) {
 		Optional<Expedient> expedientOptional = null;
 		Expedient expedient = null;
@@ -1125,9 +1123,9 @@ public class ExpedientHelper {
 		}
 		return expedient;
 	}
-	
+
 	/** Per buscar per títol
-	 * 
+	 *
 	 * @param entornId
 	 * @param expedientTipusId
 	 * @param titol
@@ -1135,14 +1133,14 @@ public class ExpedientHelper {
 	 */
 	public List<Expedient> findByEntornIdAndTipusAndTitol(Long entornId, Long expedientTipusId, String titol) {
 		List<Expedient> expedients = expedientRepository.findByEntornIdAndTipusIdAndTitol(
-				entornId, 
-				expedientTipusId, 
-				titol == null, 
+				entornId,
+				expedientTipusId,
+				titol == null,
 				titol != null? titol : "");
 		return expedients;
 	}
 
-	
+
 	public DefinicioProces findDefinicioProcesByProcessInstanceId(
 			String processInstanceId) {
 		String processDefinitionId = workflowEngineApi.getProcessInstance(processInstanceId).getProcessDefinitionId();
@@ -1192,7 +1190,7 @@ public class ExpedientHelper {
 				expedientsTipus,
 				ExpedientTipus.class);
 	}
-	
+
 	public void omplirPermisosExpedientTipus(ExpedientTipusDto expedientTipus) {
 		List<ExpedientTipusDto> expedientsTipus = new ArrayList<ExpedientTipusDto>();
 		expedientsTipus.add(expedientTipus);
@@ -1259,14 +1257,14 @@ public class ExpedientHelper {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param expedient
 	 */
 	public void verificarFinalitzacioExpedient(
 			Expedient expedient) {
 		// actualitza l'expedient si el seu procés està finalitzat
 		verificarFinalitzacioProcessInstance(expedient.getProcessInstanceId());
-		
+
 		// Obté la llista de totes les instancies de processos finalitzats excepte l'actual
 		List<String> processInstanceFinalitzatIds = ThreadLocalInfo.getProcessInstanceFinalitzatIds();
 		processInstanceFinalitzatIds.remove(expedient.getProcessInstanceId());
@@ -1335,7 +1333,7 @@ public class ExpedientHelper {
 					if (expedientTipus.getSequenciaDefaultAny().containsKey(any)) {
 						seq = expedientTipus.getSequenciaDefaultAny().get(any).getSequenciaDefault() + increment;
 					} else {
-						// TODO: podriem comprovar, segons el format del número per defecte si hi ha expedients ja creats de 
+						// TODO: podriem comprovar, segons el format del número per defecte si hi ha expedients ja creats de
 						// l'any, i d'aquesta manera assignar com a número inicial el major utilitzat + 1
 						SequenciaDefaultAny sda = new SequenciaDefaultAny(
 								expedientTipus, any, 1L);
@@ -1460,7 +1458,7 @@ public class ExpedientHelper {
 
 	private void omplirNumAlertes(List<Long> ids, List<ExpedientDto> dtos) {
 		List<Object[]> comptadorsAlertes = alertaRepository.findByExpedientIds(ids);
-		
+
 		for (Object[] comptadorsAlerta: comptadorsAlertes) {
 			long id = (Long)comptadorsAlerta[0];
 			for (ExpedientDto dto: dtos) {
@@ -1478,20 +1476,20 @@ public class ExpedientHelper {
 
 	/**
 	 * No verifica res, actualitza l'expedient si el procés està finalitzat
-	 * 
+	 *
 	 * @param processInstanceId Identificador de la instancia del procés de l'expedient
 	 */
 	private void verificarFinalitzacioProcessInstance(
 			String processInstanceId) {
 		WProcessInstance processInstance = workflowEngineApi.getRootProcessInstance(processInstanceId);
-		
+
 		// Si el procés està finalitzat
 		if (processInstance.getEndTime() != null) {
 			// Actualitzar data de fi de l'expedient
 			Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
 			if (expedient != null) {
 				expedient.setDataFi(processInstance.getEndTime());
-				
+
 				//tancam l'expedient de l'arxiu si escau
 				if (expedient.isArxiuActiu()) {
 					this.tancarExpedientArxiu(expedient);
@@ -1542,7 +1540,7 @@ public class ExpedientHelper {
 			String responsableCodi,
 			Map<String, DadesDocumentDto> documents,
 			List<DadesDocumentDto> adjunts) throws Exception {
-		
+
 		Expedient expedient = new Expedient();
 		Entorn entorn = entornHelper.getEntorn(entornId);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -1557,7 +1555,7 @@ public class ExpedientHelper {
 		}
 		// Consulta de l'expedient tipus amb bloqueig del registre #1423
 		ExpedientTipus expedientTipus = expedientTipusRepository.findByIdAmbBloqueig(expedientTipusId);
-		
+
 		if (expedientTipus == null) {
 			throw new NoTrobatException(ExpedientTipus.class, expedientTipusId);
 		}
@@ -1685,21 +1683,21 @@ public class ExpedientHelper {
 				throw new ValidacioException(
 						messageServiceHelper.getMessage(
 								"error.expedient.titolrepetit",
-								new Object[]{expedient.getNumero()}) );			
+								new Object[]{expedient.getNumero()}) );
 		}
-		
+
 //		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Actualitzar any i sequencia");
-		
+
 		// Inicia l'instància de procés jBPM
 //		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
-		
+
 		ThreadLocalInfo.setExpedient(expedient);
 		DefinicioProces definicioProces = null;
 		if (definicioProcesId != null) {
 			definicioProces = definicioProcesRepository.findById(definicioProcesId).get();
 		} else {
 			definicioProces = definicioProcesHelper.findDarreraVersioDefinicioProces(
-					expedientTipus, 
+					expedientTipus,
 					expedientTipus.getJbpmProcessDefinitionKey());
 		}
 		//MesurarTemps.diferenciaImprimirStdoutIReiniciar(mesuraTempsIncrementalPrefix, "7");
@@ -1738,7 +1736,7 @@ public class ExpedientHelper {
 				usuari,
 				Registre.Accio.INICIAR);
 //		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Crear registre i convertir expedient");
-					
+
 		// Crear expedient a l'Arxiu
 //		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Metadades NTI i creació a dins l'arxiu");
 		if (expedientTipus.isNtiActiu()) {
@@ -1801,7 +1799,7 @@ public class ExpedientHelper {
 				}
 			}
 //			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
-			
+
 //			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
 			// Actualitza les variables del procés
 			workflowEngineApi.signalProcessInstance(expedient.getProcessInstanceId(), transitionName);
@@ -1863,7 +1861,7 @@ public class ExpedientHelper {
 				}
 			throw e;
 		}
-		
+
 //		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom());
 		return expedientPerRetornar;
 	}
@@ -1885,7 +1883,7 @@ public class ExpedientHelper {
 		long increment = 0;
 		String numero = null;
 		Expedient expedient = null;
-		if (any == null) 
+		if (any == null)
 			any = Calendar.getInstance().get(Calendar.YEAR);
 		do {
 			numero = this.getNumeroExpedientDefaultActual(
@@ -1923,9 +1921,9 @@ public class ExpedientHelper {
 			Integer any) {
 		long increment = 0;
 		String numero = null;
-		
+
 		Expedient expedient = null;
-		if (any == null) 
+		if (any == null)
 			any = Calendar.getInstance().get(Calendar.YEAR);
 		do {
 			numero = this.getNumeroExpedientActual(
@@ -1943,7 +1941,7 @@ public class ExpedientHelper {
 		}
 		return numero;
 	}
-	
+
 	public String getNumeroExpedientActual(
 			ExpedientTipus expedientTipus,
 			int any,
@@ -1986,7 +1984,7 @@ public class ExpedientHelper {
 	}
 
 	/** Mètode per consultar l'expedient per ID o llençar excepció si no existeix.
-	 * 
+	 *
 	 * @param expedientId
 	 * @return L'expedient trobat.
 	 * @throws NoTrobatException Si no troba l'expedient per identificador.

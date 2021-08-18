@@ -1,22 +1,5 @@
 package es.caib.helium.expedient.service;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.validation.ValidationException;
-
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-
 import es.caib.helium.expedient.domain.Expedient;
 import es.caib.helium.expedient.mapper.ExpedientMapper;
 import es.caib.helium.expedient.model.ExpedientDto;
@@ -37,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.ValidationException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -251,10 +235,9 @@ public class ExpedientServiceImpl implements ExpedientService {
         if (expedientOptional.isPresent()) {
             log.debug("Trobat expedient amb id: " + expedientId);
             return expedientOptional.get();
-        } else {
-            log.error("[SRV] Delete: No existeix cap expedient amb id=" + expedientId);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found. Id: " + expedientId);
         }
+        log.error("[SRV] GetById: No existeix cap expedient amb id=" + expedientId);
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found. Id: " + expedientId);
     }
 
     

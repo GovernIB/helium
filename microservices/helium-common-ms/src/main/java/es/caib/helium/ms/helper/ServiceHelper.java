@@ -1,19 +1,5 @@
 package es.caib.helium.ms.helper;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
-
 import cz.jirutka.rsql.parser.RSQLParser;
 import cz.jirutka.rsql.parser.RSQLParserException;
 import cz.jirutka.rsql.parser.ast.ComparisonOperator;
@@ -26,6 +12,19 @@ import es.caib.helium.ms.model.PagedList;
 import es.caib.helium.ms.repository.BaseRepository;
 import es.caib.helium.ms.rsql.CustomRsqlVisitor;
 import es.caib.helium.ms.rsql.RsqlSearchOperation;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ServiceHelper {
 
@@ -92,6 +91,9 @@ public class ServiceHelper {
             Sort sort,
             Class<?> dtoClass,
             BaseMapper<E, D> mapper) {
+        if (pageable == null) {
+            pageable = Pageable.unpaged();
+        }
         Page<E> page = getEntityPage(repository, spec, filtreRsql, pageable, sort, dtoClass);
         try {
 	        return new PagedList<>(

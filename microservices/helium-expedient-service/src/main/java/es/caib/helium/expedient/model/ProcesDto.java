@@ -1,15 +1,7 @@
 package es.caib.helium.expedient.model;
 
-import java.util.Date;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
-
-import org.springframework.validation.annotation.Validated;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sun.istack.NotNull;
-
 import es.caib.helium.ms.model.DefaultOrder;
 import es.caib.helium.ms.model.DefaultSort;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,6 +10,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.validation.annotation.Validated;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
+import java.util.Date;
 
 /**
  * Informació d'una instància de procés amb les propietats necessàries pel llistat filtrat i paginat de
@@ -29,7 +26,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-@DefaultSort(sortFields = @DefaultOrder(field = "dataCreacio"))
+@DefaultSort(sortFields = @DefaultOrder(field = "dataInici"))
 public class ProcesDto {
 
 	@JsonProperty("id")

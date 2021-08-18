@@ -19,6 +19,8 @@
         <hibernate.version>3.6.5.Final</hibernate.version>
         <lombok.version>1.18.20</lombok.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
     </properties>
 
     <modules>
