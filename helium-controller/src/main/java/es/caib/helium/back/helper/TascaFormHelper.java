@@ -3,16 +3,28 @@
  */
 package es.caib.helium.back.helper;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import es.caib.helium.logic.intf.dto.CampTipusDto;
 import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
+import es.caib.helium.logic.intf.dto.ValidacioDto;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtField;
+import javassist.CtNewMethod;
+import javassist.Modifier;
+import javassist.bytecode.AnnotationsAttribute;
+import javassist.bytecode.ConstPool;
+import javassist.bytecode.annotation.Annotation;
+import javassist.bytecode.annotation.AnnotationMemberValue;
+import javassist.bytecode.annotation.ArrayMemberValue;
+import javassist.bytecode.annotation.ClassMemberValue;
+import javassist.bytecode.annotation.StringMemberValue;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.cglib.beans.BeanGenerator;
-import org.springframework.validation.Validator;
+import org.junit.jupiter.api.Assertions;
 
-import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -24,6 +36,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 
 /**
@@ -36,32 +50,8 @@ public class TascaFormHelper {
 	private static final String VARIABLE_SESSIO_COMMAND_TMP = "TascaFormUtil_CommandSessioTmp";
 
 
-
-	public static Object getCommandForFiltre(
-			List<TascaDadaDto> campsFiltre,
-			Map<String, Object> valors,
-			Map<String, Object> campsAddicionals,
-			Map<String, Class<?>> campsAddicionalsClasses) {
-		return getCommandForCamps(
-				campsFiltre,
-				valors,
-				campsAddicionals,
-				campsAddicionalsClasses,
-				true);
-	}
-	public static Object getCommandForRegistre(
-			TascaDadaDto camp,
-			Map<String, Object> valors,
-			Map<String, Object> campsAddicionals,
-			Map<String, Class<?>> campsAddicionalsClasses) {
-		return getCommandForCamps(
-				camp.getRegistreDades(),
-				valors,
-				campsAddicionals,
-				campsAddicionalsClasses,
-				false);
-	}
-
+	// VALORS
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public static Map<String, Object> getValorsFromCommand(
 			List<TascaDadaDto> tascaDades,
 			Object command,
@@ -152,69 +142,91 @@ public class TascaFormHelper {
     	return resposta;
 	}
 
-	// TODO: Validador
-	public static Validator getBeanValidatorForCommand(List<TascaDadaDto> tascaDadas) {
-//		SimpleBeanValidationConfigurationLoader validationConfigurationLoader = new SimpleBeanValidationConfigurationLoader();
-//		DefaultBeanValidationConfiguration beanValidationConfiguration = new DefaultBeanValidationConfiguration();
-//		for (TascaDadaDto camp: tascaDadas) {
-//			for (ValidacioDto validacio: camp.getValidacions()) {
-//				ExpressionValidationRule validationRule = new ExpressionValidationRule(
-//						new ValangConditionExpressionParser(),
-//						validacio.getExpressio());
-//				String codiError = "error.camp." + camp.getVarCodi();
-//				validationRule.setErrorCode(codiError);
-//				validationRule.setDefaultErrorMessage(camp.getCampEtiqueta() + ": " + validacio.getMissatge());
-//				beanValidationConfiguration.addPropertyRule(
-//						camp.getVarCodi(),
-//						validationRule);
-//			}
-//			if (	camp.getCampTipus().equals(CampTipusDto.STRING)) {// ||
-//					//camp.getTipus().equals(CampTipusDto.TEXTAREA)) {
-//				ExpressionValidationRule validationRule = new ExpressionValidationRule(
-//						new ValangConditionExpressionParser(),
-//						camp.getVarCodi() + " is null or length(" + camp.getVarCodi() + ") < 2049");
-//				validationRule.setErrorCode("max.length");
-//				validationRule.setDefaultErrorMessage("El contingut d'aquest camp excedeix la llargada màxima");
-//				beanValidationConfiguration.addPropertyRule(
-//						camp.getVarCodi(),
-//						validationRule);
-//			}
-//		}
-//		validationConfigurationLoader.setClassValidation(
-//				Object.class,
-//				beanValidationConfiguration);
-//		return new BeanValidator(validationConfigurationLoader);
-		return null;
+	public static String varValorToString(Object valor) {
+		String valorComString = null;
+		if (valor == null) return null;
+		if (valor instanceof Object[]) {
+			Object[] array = (Object[])valor;
+			StringBuilder sb = new StringBuilder();
+			sb.append("[");
+			for (int i = 0; i < array.length; i++) {
+				if (array[i] != null) {
+					if (array[i] instanceof Object[]) {
+						Object[] a = (Object[])array[i];
+						sb.append("[");
+						for (int j = 0; j < a.length; j++) {
+							if (a[j] != null)
+								sb.append(a[j].toString());
+							else
+								sb.append("null");
+							if (j < a.length - 1)
+								sb.append(", ");
+						}
+						sb.append("]");
+					} else {
+						sb.append(array[i].toString());
+					}
+				} else {
+					sb.append("null");
+				}
+				if (i < array.length - 1)
+					sb.append(", ");
+			}
+			sb.append("]");
+			valorComString = sb.toString();
+		} else if (valor != null) {
+			valorComString = valor.toString();
+		}
+		return valorComString.toString();
 	}
 
-	public static void guardarCommandTemporal(
-			HttpServletRequest request,
-			Object command) {
-		request.getSession().setAttribute(VARIABLE_SESSIO_COMMAND_TMP, command);
+	public static String varValorClassToString(Object valor) {
+		String valorComString = null;
+		if (valor == null) return null;
+		if (valor instanceof Object[]) {
+			Object[] array = (Object[])valor;
+			StringBuilder sb = new StringBuilder();
+			sb.append("[");
+			for (int i = 0; i < array.length; i++) {
+				if (array[i] != null) {
+					if (array[i] instanceof Object[]) {
+						Object[] a = (Object[])array[i];
+						sb.append("[");
+						for (int j = 0; j < a.length; j++) {
+							if (a[j] != null)
+								sb.append(a[j].getClass().getName());
+							else
+								sb.append("null");
+							if (j < a.length - 1)
+								sb.append(", ");
+						}
+						sb.append("]");
+					} else {
+						sb.append(array[i].getClass().getName());
+					}
+				} else {
+					sb.append("null");
+				}
+				if (i < array.length - 1)
+					sb.append(", ");
+			}
+			sb.append("]");
+			valorComString = sb.toString();
+		} else if (valor != null) {
+			valorComString = valor.getClass().toString();
+		}
+		return valorComString.toString();
 	}
-	public static Object recuperarCommandTemporal(
-			HttpServletRequest request,
-			boolean esborrar) {
-		Object command = request.getSession().getAttribute(VARIABLE_SESSIO_COMMAND_TMP);
-		if (command != null && esborrar)
-			request.getSession().removeAttribute(VARIABLE_SESSIO_COMMAND_TMP);
-		return command;
-	}
-	
-	public static Object getCommandForCamps(
-			List<TascaDadaDto> tascaDades,
-			HttpServletRequest request) {
-		return getCommandForCamps(
-				tascaDades,
-				null,
-				null,
-				null,
-				false);
-	}
-	
+
+
+	// COMMANDS
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// MassivaExpedientController --> validar {inicial: false, validarObligatoris: false, validarExpresions: false, consultaPerTipus: false}
 	public static Object getCommandForCampsExpedient(
 			List<ExpedientDadaDto> expedientDades,
-			Map<String, Object> valors) {
+			Map<String, Object> valors,
+			String processInstanceId) throws Exception {
 		List<TascaDadaDto> tascaDades = new ArrayList<TascaDadaDto>();
 		for (ExpedientDadaDto expedientDada: expedientDades) {
 			TascaDadaDto tascaDada = getTascaDadaDtoFromExpedientDadaDto(expedientDada);
@@ -225,56 +237,60 @@ public class TascaFormHelper {
 				valors,
 				null,
 				null,
-				false);
+				true,
+				false,
+				false,
+				processInstanceId);
 	}
-	
-	public static TascaDadaDto getTascaDadaDtoFromExpedientDadaDto(
-			ExpedientDadaDto expedientDadaDto) {
-		TascaDadaDto tascaDto = new TascaDadaDto();
-		tascaDto.setVarCodi(expedientDadaDto.getVarCodi());
-		tascaDto.setVarValor(expedientDadaDto.getVarValor());
-		tascaDto.setCampId(expedientDadaDto.getCampId());
-		tascaDto.setCampTipus(expedientDadaDto.getCampTipus());
-		tascaDto.setCampEtiqueta(expedientDadaDto.getCampEtiqueta());
-		tascaDto.setCampMultiple(expedientDadaDto.isCampMultiple());
-		tascaDto.setCampOcult(expedientDadaDto.isCampOcult());
-		tascaDto.setCampParams(expedientDadaDto.getCampParams());
-		tascaDto.setRequired(expedientDadaDto.isRequired());
-		tascaDto.setText(expedientDadaDto.getText());
-		tascaDto.setError(expedientDadaDto.getError());
-		tascaDto.setObservacions(expedientDadaDto.getObservacions());
-		tascaDto.setJbpmAction(expedientDadaDto.getJbpmAction());
-		tascaDto.setValidacions(expedientDadaDto.getValidacions());
-		if (expedientDadaDto.getMultipleDades() != null) {
-			List<TascaDadaDto> multipleDades = new ArrayList<TascaDadaDto>();
-			for (ExpedientDadaDto dto: expedientDadaDto.getMultipleDades()) {
-				multipleDades.add(getTascaDadaDtoFromExpedientDadaDto(dto));
-			}
-			tascaDto.setMultipleDades(multipleDades);
-		}
-		if (expedientDadaDto.getRegistreDades() != null) {
-			List<TascaDadaDto> registreDades = new ArrayList<TascaDadaDto>();
-			for (ExpedientDadaDto dto: expedientDadaDto.getRegistreDades()) {
-				registreDades.add(getTascaDadaDtoFromExpedientDadaDto(dto));
-			}
-			tascaDto.setRegistreDades(registreDades);
-		}
-		return tascaDto;
+
+	// - CampTascaController --> NO validar
+	// - ExpedientDadaController: populateCommand --> NO validar
+	// - ExpedientInicioPasFormController: populateCommand --> NO validar
+	// - MassivaExpedientController: populateCommand --> NO validar
+	// - ReproController: populateCommand --> NO validar
+	// - TascaTramitacioController: pipelles --> NO validar
+	// - TascaTramitacioController: inicialitzarTasca --> NO validar
+	public static Object getCommandForCamps(
+			List<TascaDadaDto> tascaDades,
+			Map<String, Object> valors,
+			Map<String, Object> campsAddicionals,
+			Map<String, Class<?>> campsAddicionalsClasses) throws Exception {
+		return getCommandForCamps(
+				tascaDades,
+				valors,
+				campsAddicionals,
+				campsAddicionalsClasses,
+				false,
+				false,
+				false,
+				null);
 	}
-	
+
+	// - ExpedientDadaController: dadaEditar --> validar {inicial: true, validarObligatoris: true, validarExpresions: false, consultaPerTipus: false}
+	// - ExpedientDadaController: novaDada --> validar {inicial: true, validarObligatoris: false, validarExpresions: false, consultaPerTipus: false}
+	// - ExpedientInicioPasFormController: iniciarFormPost --> validar {inicial: false, validarObligatoris: true, validarExpresions: true, consultaPerTipus: false}
+	// - TascaTramitacioController: validar --> validar {inicial: false, validarObligatoris: true, validarExpresions: true, consultaPerTipus: false}
 	public static Object getCommandForCamps(
 			List<TascaDadaDto> tascaDades,
 			Map<String, Object> valors,
 			Map<String, Object> campsAddicionals,
 			Map<String, Class<?>> campsAddicionalsClasses,
-			boolean esConsultaPerTipus) {
+			boolean perValidar,
+			boolean validarObligatoris,
+			boolean validarExpressions,
+			String processInstanceId) throws Exception {
 		Map<String, Object> registres = new HashMap<String, Object>();
 		// Empram cglib per generar el command de manera dinàmica
 		Object command = getCommandModelForCamps(
 				tascaDades,
 				campsAddicionalsClasses,
 				registres,
-				esConsultaPerTipus);
+				false,
+				perValidar,
+				validarObligatoris,
+				validarExpressions,
+				processInstanceId);
+//				esConsultaPerTipus);
 		// Inicialitza els camps del command amb els valors de la tasca
 		for (TascaDadaDto camp: tascaDades) {
 			Object valor = null;
@@ -287,7 +303,7 @@ public class TascaFormHelper {
 				}
 				if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
 					// Camps múltiples
-					if (isCampMultiple(camp, esConsultaPerTipus)) {
+					if (isCampMultiple(camp, false)) {
 						Object valorMultiple = null;
 						if (valor != null) {
 							if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
@@ -320,7 +336,7 @@ public class TascaFormHelper {
 								String[][] terminis = new String[][]{new String[]{"0","0",""}};
 								final_valor = terminis;
 							} else {
-								final_valor = Array.newInstance(camp.getJavaClass(), esConsultaPerTipus ? 2 : 1);
+								final_valor = Array.newInstance(camp.getJavaClass(), 1);
 							}
 							setSimpleProperty(
 									command,
@@ -344,7 +360,7 @@ public class TascaFormHelper {
 								valor);
 					}
 				// REGISTRES:
-				} else if (!esConsultaPerTipus) {
+				} else {
 					// En al cas de que el camp a emplenar els valor sigui tipus registre, calcularem el seu contingut a valorRegistre:
 					Object registre = registres.get(camp.getVarCodi());
 					Object valorRegistre = null;
@@ -425,12 +441,30 @@ public class TascaFormHelper {
 		
 		return command;
 	}
-	
+
+	// ExpedientConsultaInformeController --> NO validar
+	// ExpedientDadaController --> NO validar
+	// ExpedientDadaController --> NO validar
+	// TascaTramitacioController --> NO validar
+	public static Object getCommandBuitForCamps(
+			List<TascaDadaDto> tascaDades,
+			Map<String, Object> campsAddicionals,
+			Map<String, Class<?>> campsAddicionalsClasses) throws Exception {
+		return getCommandBuitForCamps(
+				tascaDades,
+				campsAddicionals,
+				campsAddicionalsClasses,
+				null, // Sense valors per defecte
+				false);
+	}
+
+	// ExpedientInformeController: getFiltreCommand --> NO validar {consultaPerTipus: true}
+	// ExpedientInformeController: getFiltreParameterCommand --> NO validar {consultaPerTipus: true}
 	public static Object getCommandBuitForCamps(
 			List<TascaDadaDto> tascaDades,
 			Map<String, Object> campsAddicionals,
 			Map<String, Class<?>> campsAddicionalsClasses,
-			boolean esConsultaPerTipus) {
+			boolean esConsultaPerTipus) throws Exception {
 		return getCommandBuitForCamps(
 				tascaDades, 
 				campsAddicionals, 
@@ -439,19 +473,24 @@ public class TascaFormHelper {
 				esConsultaPerTipus);
 	}
 
-		public static Object getCommandBuitForCamps(
+	// TascaTramitacioController: validar --> NO validar {consultaPerTipus: true}
+	public static Object getCommandBuitForCamps(
 			List<TascaDadaDto> tascaDades,
 			Map<String, Object> campsAddicionals,
 			Map<String, Class<?>> campsAddicionalsClasses,
 			Map<String, String> valorsPerDefecte,
-			boolean esConsultaPerTipus) {
+			boolean esConsultaPerTipus) throws Exception {
 		Map<String, Object> registres = new HashMap<String, Object>();
 		// Empram cglib per generar el command de manera dinàmica
 		Object command = getCommandModelForCamps(
 				tascaDades,
 				campsAddicionalsClasses,
 				registres,
-				esConsultaPerTipus);
+				esConsultaPerTipus,
+				false,
+				false,
+				false,
+				null);
 		// Inicialitza els camps del command amb valors buits o els valors per defecte
 		for (TascaDadaDto camp: tascaDades) {
 			if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
@@ -525,6 +564,7 @@ public class TascaFormHelper {
 		}
 		return command;
 	}
+
 	public static void ompleMultiplesBuits(
 			Object command,
 			List<TascaDadaDto> tascaDadas,
@@ -580,105 +620,119 @@ public class TascaFormHelper {
 		}
 	}
 
-	public static String varValorToString(Object valor) {
-		String valorComString = null;
-		if (valor == null) return null;
-		if (valor instanceof Object[]) {
-			Object[] array = (Object[])valor;
-			StringBuilder sb = new StringBuilder();
-			sb.append("[");
-			for (int i = 0; i < array.length; i++) {
-				if (array[i] != null) {
-					if (array[i] instanceof Object[]) {
-						Object[] a = (Object[])array[i];
-						sb.append("[");
-						for (int j = 0; j < a.length; j++) {
-							if (a[j] != null)
-								sb.append(a[j].toString());
-							else
-								sb.append("null");
-							if (j < a.length - 1)
-								sb.append(", ");
-						}
-						sb.append("]");
-					} else {
-						sb.append(array[i].toString());
-					}
-				} else {
-					sb.append("null");
+	/** Comprova que l'objecte command tingui tots els camps del filtre. Si no els retorna fals.*/
+	public static boolean commandForCampsValid(
+			Object command,
+			List<TascaDadaDto> tascaDades) {
+
+		if (command == null)
+			return false;
+
+		boolean valid = true;
+		// Crea un conjunt de propietats
+		Set<String> propietats = new HashSet<String>();
+		String name;
+		for  (Method method : command.getClass().getDeclaredMethods()) {
+			if (method.getReturnType() != void.class) {
+				name=method.getName();
+				if(name.startsWith("get"))
+				{
+					name = name.substring(3);
+				}else if(name.startsWith("is"))
+				{
+					name = name.substring(2);
 				}
-				if (i < array.length - 1)
-					sb.append(", ");
+				propietats.add(name.toLowerCase());
 			}
-			sb.append("]");
-			valorComString = sb.toString();
-		} else if (valor != null) {
-			valorComString = valor.toString();
 		}
-		return valorComString.toString();
+		// Comprova que hi siguin totes
+		for (TascaDadaDto dada :tascaDades)
+			if (!propietats.contains(dada.getVarCodi().toLowerCase())) {
+				valid = false;
+				break;
+			}
+		return valid;
 	}
 
-	public static String varValorClassToString(Object valor) {
-		String valorComString = null;
-		if (valor == null) return null;
-		if (valor instanceof Object[]) {
-			Object[] array = (Object[])valor;
-			StringBuilder sb = new StringBuilder();
-			sb.append("[");
-			for (int i = 0; i < array.length; i++) {
-				if (array[i] != null) {
-					if (array[i] instanceof Object[]) {
-						Object[] a = (Object[])array[i];
-						sb.append("[");
-						for (int j = 0; j < a.length; j++) {
-							if (a[j] != null)
-								sb.append(a[j].getClass().getName());
-							else
-								sb.append("null");
-							if (j < a.length - 1)
-								sb.append(", ");
-						}
-						sb.append("]");
-					} else {
-						sb.append(array[i].getClass().getName());
-					}
-				} else {
-					sb.append("null");
-				}
-				if (i < array.length - 1)
-					sb.append(", ");
+	// DADES TASCA
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	public static TascaDadaDto getTascaDadaDtoFromExpedientDadaDto(
+			ExpedientDadaDto expedientDadaDto) {
+		TascaDadaDto tascaDto = new TascaDadaDto();
+		tascaDto.setVarCodi(expedientDadaDto.getVarCodi());
+		tascaDto.setVarValor(expedientDadaDto.getVarValor());
+		tascaDto.setCampId(expedientDadaDto.getCampId());
+		tascaDto.setCampTipus(expedientDadaDto.getCampTipus());
+		tascaDto.setCampEtiqueta(expedientDadaDto.getCampEtiqueta());
+		tascaDto.setCampMultiple(expedientDadaDto.isCampMultiple());
+		tascaDto.setCampOcult(expedientDadaDto.isCampOcult());
+		tascaDto.setCampParams(expedientDadaDto.getCampParams());
+		tascaDto.setRequired(expedientDadaDto.isRequired());
+		tascaDto.setText(expedientDadaDto.getText());
+		tascaDto.setError(expedientDadaDto.getError());
+		tascaDto.setObservacions(expedientDadaDto.getObservacions());
+		tascaDto.setJbpmAction(expedientDadaDto.getJbpmAction());
+		tascaDto.setValidacions(expedientDadaDto.getValidacions());
+		if (expedientDadaDto.getMultipleDades() != null) {
+			List<TascaDadaDto> multipleDades = new ArrayList<TascaDadaDto>();
+			for (ExpedientDadaDto dto: expedientDadaDto.getMultipleDades()) {
+				multipleDades.add(getTascaDadaDtoFromExpedientDadaDto(dto));
 			}
-			sb.append("]");
-			valorComString = sb.toString();
-		} else if (valor != null) {
-			valorComString = valor.getClass().toString();
+			tascaDto.setMultipleDades(multipleDades);
 		}
-		return valorComString.toString();
+		if (expedientDadaDto.getRegistreDades() != null) {
+			List<TascaDadaDto> registreDades = new ArrayList<TascaDadaDto>();
+			for (ExpedientDadaDto dto: expedientDadaDto.getRegistreDades()) {
+				registreDades.add(getTascaDadaDtoFromExpedientDadaDto(dto));
+			}
+			tascaDto.setRegistreDades(registreDades);
+		}
+		return tascaDto;
 	}
 
 
+
+
+
+	// PRIVATS
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// TODO: Validació --> Afegir validacions a nivell de tasca!!!
 
 	private static Object getCommandModelForCamps(
 			List<TascaDadaDto> tascaDades,
 			Map<String, Class<?>> campsAddicionalsClasses,
 			Map<String, Object> registres,
-			boolean esConsultaPerTipus) {
+			boolean esConsultaPerTipus,
+			boolean isPerValidar,
+			boolean validarObligatoris,
+			boolean validarExpresions,
+			String processInstanceId) throws Exception {
+
 		logger.debug("Generant command per tasca");
-		// Empram cglib per generar el command de manera dinàmica
-		BeanGenerator bg = new BeanGenerator();
+
+		// Empram javassist per generar el command de manera dinàmica
+		String pkgName = "es.caib.helium.back";
+
+		ClassPool pool = ClassPool.getDefault();
+		CtClass cc = pool.makeClass("TaskCommand_" + UUID.randomUUID());
+
+
 		if (campsAddicionalsClasses != null) {
 			for (String codi: campsAddicionalsClasses.keySet()) {
-				addpropertyToBean(
-						bg,
+				addField(
+						pool,
+						cc,
 						codi,
-						campsAddicionalsClasses.get(codi));
+						campsAddicionalsClasses.get(codi).getName());
 			}
 		}
 		if (registres == null) registres = new HashMap<String, Object>();
 		for (TascaDadaDto tascaDada: tascaDades) {
 			Class<?> propertyClass;
 			if (!tascaDada.getCampTipus().equals(CampTipusDto.REGISTRE)) {
-				if (tascaDada.getCampTipus() != null)  {
+				if (tascaDada.getCampTipus() != null) {
 					if (isCampMultiple(tascaDada, esConsultaPerTipus)) {
 						propertyClass = Array.newInstance(tascaDada.getJavaClass(), 1).getClass();
 					} else {
@@ -687,31 +741,185 @@ public class TascaFormHelper {
 				} else {
 					propertyClass = Object.class;
 				}
-				addpropertyToBean(
-						bg,
+				addField(
+						pool,
+						cc,
 						tascaDada.getVarCodi(),
-						propertyClass);
+						propertyClass.getName());
 			} else if (!esConsultaPerTipus) {
 				// En cas de registres cream un objecte amb els membres del registre com a atributs (l'anomenarem Registre)
 				Object registre = getCommandModelForCamps(
-						tascaDada.isCampMultiple() ? tascaDada.getMultipleDades().get(0).getRegistreDades(): tascaDada.getRegistreDades(),
+						tascaDada.isCampMultiple() ? tascaDada.getMultipleDades().get(0).getRegistreDades() : tascaDada.getRegistreDades(),
 						null,
 						registres,
-						false);
+						false,
+						isPerValidar,
+						validarObligatoris,
+						validarExpresions,
+						processInstanceId);
 				if (tascaDada.isCampMultiple()) {
 					// En cas de ser un registre múltiple el que cream és un array de Registre
 					propertyClass = Array.newInstance(registre.getClass(), 1).getClass();
 				} else {
 					propertyClass = registre.getClass();
 				}
-				addpropertyToBean(
-						bg,
+				addField(
+						pool,
+						cc,
 						tascaDada.getVarCodi(),
-						propertyClass);
+						propertyClass.getName());
 				registres.put(tascaDada.getVarCodi(), registre);
 			}
 		}
-		return bg.create();
+
+		if (isPerValidar) {
+			ObjectMapper objectMapper = new ObjectMapper();
+			List<AnnotationData> classAnnotations = new ArrayList<>();
+			for (TascaDadaDto camp : tascaDades) {
+				List<AnnotationData> fieldAnnotations = new ArrayList<>();
+
+				// Obligatoris
+				if (validarObligatoris && (camp.isRequired() || camp.getCampTipus().equals(CampTipusDto.REGISTRE))) {
+					if (camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
+						List<TascaDadaDto> registreDades = camp.isCampMultiple() ? camp.getMultipleDades().get(0).getRegistreDades() : camp.getRegistreDades();
+						if (camp.isRequired() || registreAmbCampsRequired(registreDades)) {
+							if (camp.isReadOnly()) {
+								fieldAnnotations.add(AnnotationData.builder()
+										.annotationName("javax.validation.constraints.NotNull")
+										.members(Map.of("message", MessageHelper.getInstance().getMessage("not.blank")))
+										.build());
+							}
+						} else {
+							List<ValidationUtils.CampRegistreRequired> campsRequired = registreDades
+									.stream()
+									.map(r -> ValidationUtils.CampRegistreRequired.builder()
+											.varCodi(r.getVarCodi())
+											.required(r.isRequired())
+											.multiple(r.isCampMultiple())
+											.build()
+									).collect(Collectors.toList());
+							String strCcampsRequired = objectMapper.writeValueAsString(campsRequired);
+							fieldAnnotations.add(AnnotationData.builder()
+									.annotationName("es.caib.helium.back.validator.SpELAssert")
+									.members(Map.of(
+											"value", "#registreNotEmpty(#this, " + strCcampsRequired + ", " + camp.isCampMultiple() + ", " + camp.isRequired() + ")",
+											"message", MessageHelper.getInstance().getMessage("registre.not.blank")))
+									.build());
+						}
+					// Camp simple - NO Registre
+					} else if (!camp.isCampMultiple()) {
+						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
+							fieldAnnotations.add(AnnotationData.builder()
+									.annotationName("es.caib.helium.back.validator.SpELAssert")
+									.members(Map.of(
+											"value", "#terminiNotEmpty(#this)",
+											"message", MessageHelper.getInstance().getMessage("not.blank")))
+									.build());
+						} else {
+							fieldAnnotations.add(AnnotationData.builder()
+									.annotationName("javax.validation.constraints.NotEmpty")
+									.members(Map.of("message", MessageHelper.getInstance().getMessage("not.blank")))
+									.build());
+						}
+					// Camp Múltiple - NO Registre
+					} else {
+						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
+							fieldAnnotations.add(AnnotationData.builder()
+									.annotationName("es.caib.helium.back.validator.SpELAssert")
+									.members(Map.of(
+											"value", "#listTerminisNotEmpty(#this)",
+											"message", MessageHelper.getInstance().getMessage("members.not.blank")))
+									.build());
+						} else {
+							fieldAnnotations.add(AnnotationData.builder()
+									.annotationName("es.caib.helium.back.validator.SpELAssert")
+									.members(Map.of(
+											"value", "#listMembersNotEmpty(#this)",
+											"message", MessageHelper.getInstance().getMessage("members.not.blank")))
+									.build());
+						}
+					}
+				}
+
+				// comprovaCamp
+				if (camp.getCampTipus().equals(CampTipusDto.STRING)) {
+					if (camp.isCampMultiple()) {
+						fieldAnnotations.add(AnnotationData.builder()
+								.annotationName("es.caib.helium.back.validator.SpELAssert")
+								.members(Map.of(
+										"value", "#listStringLengthValid(#this)",
+										"message", MessageHelper.getInstance().getMessage("members.max.length")))
+								.build());
+					} else {
+						fieldAnnotations.add(AnnotationData.builder()
+								.annotationName("es.caib.helium.back.validator.SpELAssert")
+								.members(Map.of(
+										"value", "#stringLengthValid(#this)",
+										"message", MessageHelper.getInstance().getMessage("max.length")))
+								.build());
+					}
+				} else if (camp.getCampTipus().equals(CampTipusDto.DATE) && camp.getText() != null && !camp.getText().isEmpty()) {
+					fieldAnnotations.add(AnnotationData.builder()
+							.annotationName("es.caib.helium.back.validator.SpELAssert")
+							.members(Map.of(
+									"value", "#dataValida(#this)",
+									"message", MessageHelper.getInstance().getMessage("error.camp.dada.valida")))
+							.build());
+				}
+
+				if (!fieldAnnotations.isEmpty()) {
+					addFieldAnnotations(
+							cc,
+							camp.getVarCodi(),
+							fieldAnnotations);
+				}
+
+				// expressions
+				if (validarExpresions) {
+					var validacions = camp.getValidacions();
+					for (ValidacioDto validacio: validacions) {
+						if (processInstanceId != null || validExpression(validacio.getExpressio())) {
+							String expression = transformExpression(processInstanceId, validacio.getExpressio());
+							classAnnotations.add(AnnotationData.builder()
+									.annotationName("es.caib.helium.back.validator.SpELAssert")
+									.members(Map.of(
+											"value", expression,
+											"message", camp.getCampEtiqueta() + ": " + validacio.getMissatge()))
+									.build());
+						}
+					}
+				}
+			}
+
+			if (!classAnnotations.isEmpty()) {
+				addClassAnnotations(
+						cc,
+						classAnnotations
+				);
+			}
+		}
+		var taskCommand = cc.toClass().getConstructor().newInstance();
+		cc.detach();
+
+		return taskCommand;
+	}
+
+	private static boolean validExpression(String expression) {
+		return !expression.contains("#valor(");
+	}
+
+	private static String transformExpression(String processInstanceId, String expression) {
+		expression = expression.replace("#valor(", "@expedientDadaService.findOnePerInstanciaProces(null, " + processInstanceId + ", ");
+		return expression;
+	}
+
+	private static boolean registreAmbCampsRequired(List<TascaDadaDto> registreDades) {
+		for (TascaDadaDto campRegistre : registreDades) {
+			if (campRegistre.isRequired()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private static Object getArrayFromRegistre(
@@ -824,17 +1032,17 @@ public class TascaFormHelper {
 		return ambArray;
 	}
 
-	private static void addpropertyToBean(
-			BeanGenerator bg,
-			String propietatNom,
-			Class<?> propietatClass) {
-		logger.debug("Afegint propietat al command(" +
-				"nom=" + propietatNom + ", " + 
-				"class=" + propietatClass.getName() + ")");
-		bg.addProperty(
-				propietatNom,
-				propietatClass);
-	}
+//	private static void addPropertyToBean(
+//			BeanGenerator bg,
+//			String propietatNom,
+//			Class<?> propietatClass) {
+//		logger.debug("Afegint propietat al command(" +
+//				"nom=" + propietatNom + ", " +
+//				"class=" + propietatClass.getName() + ")");
+//		bg.addProperty(
+//				propietatNom,
+//				propietatClass);
+//	}
 
 	private static void setSimpleProperty(
 			Object command,
@@ -936,38 +1144,106 @@ public class TascaFormHelper {
 	private static final Log logger = LogFactory.getLog(TascaFormHelper.class);
 
 
-	/** Comprova que l'objecte command tingui tots els camps del filtre. Si no els retorna fals.*/
-	public static boolean commandForCampsValid(
-		Object command, 
-		List<TascaDadaDto> tascaDades) {
-	
-		if (command == null)
-			return false;
-		
-		boolean valid = true;
-		// Crea un conjunt de propietats
-		Set<String> propietats = new HashSet<String>();
-		String name;
-		for  (Method method : command.getClass().getDeclaredMethods()) {
-			if (method.getReturnType() != void.class) {
-				name=method.getName();
-			    if(name.startsWith("get"))
-			    {
-			        name = name.substring(3);
-			    }else if(name.startsWith("is"))
-			    {
-			        name = name.substring(2);
-			    }
-				propietats.add(name.toLowerCase());
-			}
+
+
+
+
+
+
+
+
+
+
+
+	private static void addField(
+			ClassPool pool,
+			CtClass cc,
+			String name,
+			String className) throws Exception {
+
+		CtField field = new CtField(pool.get(className),name, cc);
+		field.setModifiers(Modifier.PRIVATE);
+		cc.addField(field);
+		String capitalizedName = capitalize(name);
+		cc.addMethod(CtNewMethod.setter("set" + capitalizedName, field));
+		cc.addMethod(CtNewMethod.getter("get" + capitalizedName, field));
+	}
+
+	private static void addFieldAnnotations(
+			CtClass cc,
+			String fieldName,
+			List<AnnotationData> annotationData) throws Exception {
+
+		Assertions.assertNotNull(annotationData, "No s'ha indicat cap anotació");
+		Assertions.assertFalse(annotationData.isEmpty(), "No s'ha indicat cap anotació");
+
+		CtField field = cc.getField(fieldName);
+		ConstPool cpool = cc.getClassFile().getConstPool();
+
+		AnnotationsAttribute attr = new AnnotationsAttribute(cpool, AnnotationsAttribute.visibleTag);
+
+		if (annotationData.size() > 1) {
+			Annotation rootAnnotation = new Annotation("es.caib.helium.back.validator.SpELAsserts", cpool);
+			var childAnnotationsMemberList = new ArrayMemberValue(cpool);
+			var childAnnotationMemberValues = new ArrayList<AnnotationMemberValue>();
+
+			annotationData.forEach(a ->
+					childAnnotationMemberValues.add(new AnnotationMemberValue(createAnnotation(cpool, a), cpool))
+			);
+			childAnnotationsMemberList.setValue(childAnnotationMemberValues.toArray(AnnotationMemberValue[]::new));
+			rootAnnotation.addMemberValue("value", childAnnotationsMemberList);
+			attr.addAnnotation(rootAnnotation);
+		} else {
+			AnnotationData data = annotationData.get(0);
+			Annotation annotation = createAnnotation(cpool, data);
+			attr.addAnnotation(annotation);
 		}
-		// Comprova que hi siguin totes
-		for (TascaDadaDto dada :tascaDades)
-			if (!propietats.contains(dada.getVarCodi().toLowerCase())) {
-				valid = false;
-				break;
-			}
-		return valid;
+		field.getFieldInfo().addAttribute(attr);
+	}
+
+	private static void addClassAnnotations(
+			CtClass cc,
+			List<AnnotationData> annotationData) throws Exception {
+
+		Assertions.assertNotNull(annotationData, "No s'ha indicat cap anotació");
+		Assertions.assertFalse(annotationData.isEmpty(), "No s'ha indicat cap anotació");
+
+		ConstPool cpool = cc.getClassFile().getConstPool();
+
+		AnnotationsAttribute attr = new AnnotationsAttribute(cpool, AnnotationsAttribute.visibleTag);
+
+		if (annotationData.size() > 1) {
+			Annotation rootAnnotation = new Annotation("es.caib.helium.back.validator.SpELAsserts", cpool);
+			var childAnnotationsMemberList = new ArrayMemberValue(cpool);
+			var childAnnotationMemberValues = new ArrayList<AnnotationMemberValue>();
+
+			annotationData.forEach(a ->
+					childAnnotationMemberValues.add(new AnnotationMemberValue(createAnnotation(cpool, a), cpool))
+			);
+			childAnnotationsMemberList.setValue(childAnnotationMemberValues.toArray(AnnotationMemberValue[]::new));
+			rootAnnotation.addMemberValue("value", childAnnotationsMemberList);
+			attr.addAnnotation(rootAnnotation);
+		} else {
+			AnnotationData data = annotationData.get(0);
+			Annotation annotation = createAnnotation(cpool, data);
+			attr.addAnnotation(annotation);
+		}
+		cc.getClassFile().addAttribute(attr);
+	}
+
+	private static Annotation createAnnotation(ConstPool cpool, AnnotationData data) {
+		var annotation = new Annotation(data.getAnnotationName(), cpool);
+		if (data.getMembers() != null) {
+			data.getMembers().entrySet().forEach(e -> annotation.addMemberValue(e.getKey(), new StringMemberValue(e.getValue(), cpool)));
+		}
+		annotation.addMemberValue("helpers", new ClassMemberValue(ValidationUtils.class.getName(), cpool));
+		return annotation;
+	}
+
+	private static String capitalize(String nom) {
+		String firstLetStr = nom.substring(0, 1).toUpperCase();
+		String remLetStr = nom.substring(1);
+		return firstLetStr + remLetStr;
 	}
 
 }

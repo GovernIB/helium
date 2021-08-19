@@ -276,7 +276,7 @@ public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
                 currentToken = getProcessLogById(expedientLog.getJbpmLogId()).getToken();
                 Collection<TaskInstance> tis = processInstance.getTaskMgmtInstance().getUnfinishedTasks(currentToken);
                 for (TaskInstance ti: tis) {
-                    if (ti.getId() == ((JbpmTask)jtask).getTaskInstance().getId()){
+                    if (ti.getId() == Long.parseLong(jtask.getId())) { //((JbpmTask)jtask).getTaskInstance().getId()){
                         nodeDesti = ti.getTask().getTaskNode();
                         tascaActual = true;
                         if (debugRetroces)
@@ -352,7 +352,9 @@ public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
 
 //						boolean enterNode = (nodeRetrocedir == logo.getLogId());
                             Node ndesti = getNodeByName(logo.getProcessInstanceId(), desti);
-                            boolean enterNode = retrocedirPerTasques && (jtask != null && ndesti.getId() == ((JbpmTask)jtask).getTaskInstance().getTask().getTaskNode().getId()); // és la tasca a la que volem retrocedir!!
+                            GetTaskInstanceCommand command = new GetTaskInstanceCommand(Long.parseLong(jtask.getId()));
+                            TaskInstance ti = (TaskInstance)commandService.execute(command);
+                            boolean enterNode = retrocedirPerTasques && (jtask != null && ndesti.getId() == ti.getTask().getTaskNode().getId()); // és la tasca a la que volem retrocedir!!
                             boolean executeNode = (!isProcessStateNodeJoinOrFork(
                                     logo.getProcessInstanceId(),
                                     (String)logo.getValorInicial()));
@@ -676,12 +678,14 @@ public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
         }
         if (retrocedirPerTasques && nodeEnterTokenId != null) {
             WTaskInstance task = findEquivalentTaskInstance(nodeEnterTokenId, Long.valueOf(expedientLog.getTargetId()));
-            TaskInstance ti = ((JbpmTask)task).getTaskInstance();
+            GetTaskInstanceCommand command = new GetTaskInstanceCommand(Long.parseLong(task.getId()));
+            TaskInstance ti = (TaskInstance)commandService.execute(command);
+//            TaskInstance ti = ((JbpmTask)task).getTaskInstance();
             ContextInstance ci = ti.getProcessInstance().getContextInstance();
 //            List<CampTascaDto> campsTasca = workflowBridgeService.getCampsPerTaskInstance(
             List<CampTascaDto> campsTasca = workflowBridgeService.findCampsPerTaskInstance(
-                    new Long(ti.getProcessInstance().getId()).toString(),
-                    new Long(ti.getProcessInstance().getProcessDefinition().getId()).toString(),
+                    task.getProcessInstanceId(),
+                    task.getProcessDefinitionId(),
                     ti.getTask().getName());
             for (CampTascaDto camp: campsTasca) {
                 if (camp.isReadFrom()) {
@@ -1411,10 +1415,16 @@ public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
         GetTaskInstanceCommand commandGetTask = new GetTaskInstanceCommand(taskInstanceId);
         TaskInstance ti = (TaskInstance)commandService.execute(commandGetTask);
         FindTaskInstanceForTokenAndTaskCommand command = new FindTaskInstanceForTokenAndTaskCommand(tokenId, ti.getTask().getName());
-        WTaskInstance resultat = new JbpmTask((TaskInstance)commandService.execute(command));
-        if (resultat.getTaskInstance() == null)
-            ((JbpmTask)resultat).setTaskInstance(ti);
-        return resultat;
+//        WTaskInstance resultat = new JbpmTask((TaskInstance)commandService.execute(command));
+//        if (resultat.getTaskInstance() == null)
+//            ((JbpmTask)resultat).setTaskInstance(ti);
+//        return resultat;
+        Object eti = commandService.execute(command);
+        WTaskInstance resultat = null;
+        if (eti == null)
+            return new JbpmTask(ti);
+        else
+            return new JbpmTask((TaskInstance) eti);
     }
 
     private Long getVariableIdFromVariableLog(Long variableLogId) {

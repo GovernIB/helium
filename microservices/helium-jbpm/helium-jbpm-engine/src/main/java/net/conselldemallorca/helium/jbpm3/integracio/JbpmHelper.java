@@ -1865,11 +1865,18 @@ public class JbpmHelper implements WorkflowEngineApi {
 		GetTaskInstanceCommand commandGetTask = new GetTaskInstanceCommand(taskInstanceId);
 		TaskInstance ti = (TaskInstance)commandService.execute(commandGetTask);
 		FindTaskInstanceForTokenAndTaskCommand command = new FindTaskInstanceForTokenAndTaskCommand(tokenId, ti.getTask().getName());
-		WTaskInstance resultat = new JbpmTask((TaskInstance)commandService.execute(command));
-		if (resultat.getTaskInstance() == null)
-			((JbpmTask)resultat).setTaskInstance(ti);
-		//adminService.mesuraCalcular("jBPM findEquivalentTaskInstance", "jbpmDao");
-		return resultat;
+//		WTaskInstance resultat = new JbpmTask((TaskInstance)commandService.execute(command));
+//		if (resultat.getTaskInstance() == null)
+//			((JbpmTask)resultat).setTaskInstance(ti);
+//		//adminService.mesuraCalcular("jBPM findEquivalentTaskInstance", "jbpmDao");
+//		return resultat;
+
+		Object eti = commandService.execute(command);
+		WTaskInstance resultat = null;
+		if (eti == null)
+			return new JbpmTask(ti);
+		else
+			return new JbpmTask((TaskInstance) eti);
 	}
 
 

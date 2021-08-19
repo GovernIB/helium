@@ -7,20 +7,18 @@ import es.caib.helium.logic.intf.dto.CampTipusDto;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.TascaService;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.NotReadablePropertyException;
 import org.springframework.cglib.beans.BeanGenerator;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
-import org.springframework.validation.ValidationUtils;
-import org.springframework.validation.Validator;
 
 import javax.annotation.Resource;
 import javax.servlet.jsp.jstl.core.LoopTagStatus;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,17 +29,21 @@ import java.util.List;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class TascaFormValidatorHelper implements Validator {
-	private static final int STRING_MAX_LENGTH = 2048;
+public class TascaFormValidatorHelper {
+	public static final int STRING_MAX_LENGTH = 2048;
 	@Resource
 	private TascaService tascaService;
 	@Resource
 	private ExpedientService expedientService;
 
+	@Getter @Setter
 	private List<TascaDadaDto> tascaDades;
-	boolean inicial;
-	boolean validarObligatoris;
-	boolean validarExpresions;
+	@Getter @Setter
+	private boolean inicial;
+	@Getter @Setter
+	private boolean validarObligatoris;
+	@Getter @Setter
+	private boolean validarExpresions;
 
 
 
@@ -66,136 +68,129 @@ public class TascaFormValidatorHelper implements Validator {
 		this.validarExpresions = true;
 	}
 
-	public void setValidarObligatoris(boolean validarObligatoris) {
-		this.validarObligatoris = validarObligatoris;
-	}
-	public void setValidarExpresions(boolean validarExpresions) {
-		this.validarExpresions = validarExpresions;
-	}
-
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public boolean supports(Class clazz) {
 		return clazz.isAssignableFrom(Object.class);
 	}
 
-	public void validate(Object command, Errors errors) {
-		try {
-			List<TascaDadaDto> tascaDades = getTascaDades(command);
-			for (TascaDadaDto camp : tascaDades) {
-				if (validarObligatoris && (camp.isRequired() || camp.getCampTipus().equals(CampTipusDto.REGISTRE))) {
-					if (camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
-						Object valorRegistre = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
-						if ((valorRegistre == null && camp.isRequired()) || registreInvalid(camp, valorRegistre, errors)) {
-							if (camp.isReadOnly())
-								errors.rejectValue(camp.getVarCodi(), "not.blank");
-						} else {
-							Object[] registres = null;
-							List<TascaDadaDto> registreDades = null;
-							if (valorRegistre != null) {
-								if (camp.isCampMultiple()) {
-									registreDades = camp.getMultipleDades().get(0).getRegistreDades();
-									registres = (Object[])valorRegistre;
-								} else {
-									registreDades = camp.getRegistreDades();
-									registres = new Object[] {valorRegistre};
-								}
-								int i = 0;
-								for (Object reg: registres) {
-									boolean emptyReg = true;
-									for (TascaDadaDto campRegistre : registreDades) {
-										if (campRegistre.isRequired()) {
-											boolean emptyVal = true;
-											Object oValor = PropertyUtils.getProperty(reg, campRegistre.getVarCodi());
-											if (oValor != null) {
-												if (oValor instanceof String[]) {
-													String[] oValor_arr = (String[])oValor;
-													emptyVal = (oValor_arr.length < 3 || (oValor_arr[0].equalsIgnoreCase("0") && oValor_arr[1].equalsIgnoreCase("0") && (oValor_arr[2].equalsIgnoreCase("0") || oValor_arr[2] == null)));
-												} else if (oValor instanceof String && "".equals(oValor)) {
-													emptyVal = true;
-												} else {
-													emptyVal = false;
-												}
-											}
-											if (emptyVal) {
-												if (campRegistre.isRequired()) {
-													errors.rejectValue(camp.getVarCodi() + (camp.isCampMultiple() ? "[" + i + "]." : ".") + campRegistre.getVarCodi(), "not.blank");
-												}
-											} else {
-												emptyReg = false;
-											}
-										} else {
-											emptyReg = false;
-										}
-									}
-									if (emptyReg && (i > 0 || camp.isRequired()))
-										errors.rejectValue(camp.getVarCodi() + (camp.isCampMultiple() ? "[" + i + "]" : ""), "fila.not.blank");
-									i++;
-								}
-							}
-						}
-					} else if (!camp.isCampMultiple()) {
-						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
-							Object termini = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
-							String[] termini_arr = (String[])termini;
-							if (termini == null || termini_arr.length < 3 || (termini_arr[0].equalsIgnoreCase("0") && termini_arr[1].equalsIgnoreCase("0") && (termini_arr[2].equalsIgnoreCase("") || termini_arr[2] == null)))
-								errors.rejectValue(camp.getVarCodi(), "not.blank");
-						} else {
-							ValidationUtils.rejectIfEmpty(errors, camp.getVarCodi(), "not.blank");
-						}
-					} else {
-						Object valors = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
-						if (valors == null) {
-							errors.rejectValue(camp.getVarCodi(), "not.blank");
-						} else {
-							for (int i = 0; i < Array.getLength(valors); i++) {
-								Object valor = Array.get(valors, i);
-								if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
-									String[] valor_arr = (String[])valor;
-									if (valor == null || (valor_arr).length < 3 || (valor_arr[0].equalsIgnoreCase("0") && valor_arr[1].equalsIgnoreCase("0") && (valor_arr[2].equalsIgnoreCase("0") || valor_arr[2] == null)))
-										errors.rejectValue(camp.getVarCodi() + "[" + i + "]", "not.blank");
-								} else {
-									if ((valor instanceof String && "".equals(valor)) || (!(valor instanceof String) && valor == null)) {
-										errors.rejectValue(camp.getVarCodi() + "[" + i + "]", "not.blank");
-									}
-								}
-							}
-						}
-					}
-				}
-				comprovaCamp(camp, command, errors);
-			}
-			// Només valida amb expressions si no hi ha errors previs
-			if (validarExpresions && !errors.hasErrors()) {
-				boolean errorPropietatNoPresent;
-				String propietatAddicional = null;
-				Object commandPerValidadorExpressions = command;
-				do {
-					errorPropietatNoPresent = false;
-					try {
-						commandPerValidadorExpressions = getCommandPerValidadorExpressions(commandPerValidadorExpressions, propietatAddicional);
-						// TODO: Validador
-//						getValidatorPerExpressions(tascaDades, command).validate(
-//								commandPerValidadorExpressions,
-//								errors);
-					} catch (NotReadablePropertyException ex) {
-						// Si dona un error de que no troba una propietat l'afegeix amb el valor "" i torna a intentar la validació.
-						int iinici = ex.getMessage().indexOf("'");
-						if (iinici != -1) {
-							int ifi = ex.getMessage().indexOf("'", iinici + 1);
-							propietatAddicional = ex.getMessage().substring(iinici + 1, ifi);
-							errorPropietatNoPresent = true;
-						} else
-							errorPropietatNoPresent = false;
-					}
-				} while(errorPropietatNoPresent);
-			}
-			logger.debug(errors.toString());
-		} catch (Exception ex) {
-			logger.error("Error en el validator", ex);
-			errors.reject("error.validator");
-		}
-		logger.debug("Errors de validació en el formulari de la tasca: " + errors.toString());
-	}
+//	public void validate(Object command, Errors errors) {
+//		try {
+//			List<TascaDadaDto> tascaDades = getTascaDades(command);
+//			for (TascaDadaDto camp : tascaDades) {
+//				if (validarObligatoris && (camp.isRequired() || camp.getCampTipus().equals(CampTipusDto.REGISTRE))) {
+//					if (camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
+//						Object valorRegistre = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
+//						if ((valorRegistre == null && camp.isRequired()) || registreInvalid(camp, valorRegistre, errors)) {
+//							if (camp.isReadOnly())
+//								errors.rejectValue(camp.getVarCodi(), "not.blank");
+//						} else {
+//							Object[] registres = null;
+//							List<TascaDadaDto> registreDades = null;
+//							if (valorRegistre != null) {
+//								if (camp.isCampMultiple()) {
+//									registreDades = camp.getMultipleDades().get(0).getRegistreDades();
+//									registres = (Object[])valorRegistre;
+//								} else {
+//									registreDades = camp.getRegistreDades();
+//									registres = new Object[] {valorRegistre};
+//								}
+//								int i = 0;
+//								for (Object reg: registres) {
+//									boolean emptyReg = true;
+//									for (TascaDadaDto campRegistre : registreDades) {
+//										if (campRegistre.isRequired()) {
+//											boolean emptyVal = true;
+//											Object oValor = PropertyUtils.getProperty(reg, campRegistre.getVarCodi());
+//											if (oValor != null) {
+//												if (oValor instanceof String[]) {
+//													String[] oValor_arr = (String[])oValor;
+//													emptyVal = (oValor_arr.length < 3 || (oValor_arr[0].equalsIgnoreCase("0") && oValor_arr[1].equalsIgnoreCase("0") && (oValor_arr[2].equalsIgnoreCase("0") || oValor_arr[2] == null)));
+//												} else if (oValor instanceof String && "".equals(oValor)) {
+//													emptyVal = true;
+//												} else {
+//													emptyVal = false;
+//												}
+//											}
+//											if (emptyVal) {
+//												if (campRegistre.isRequired()) {
+//													errors.rejectValue(camp.getVarCodi() + (camp.isCampMultiple() ? "[" + i + "]." : ".") + campRegistre.getVarCodi(), "not.blank");
+//												}
+//											} else {
+//												emptyReg = false;
+//											}
+//										} else {
+//											emptyReg = false;
+//										}
+//									}
+//									if (emptyReg && (i > 0 || camp.isRequired()))
+//										errors.rejectValue(camp.getVarCodi() + (camp.isCampMultiple() ? "[" + i + "]" : ""), "fila.not.blank");
+//									i++;
+//								}
+//							}
+//						}
+//					} else if (!camp.isCampMultiple()) {
+//						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
+//							Object termini = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
+//							String[] termini_arr = (String[])termini;
+//							if (termini == null || termini_arr.length < 3 || (termini_arr[0].equalsIgnoreCase("0") && termini_arr[1].equalsIgnoreCase("0") && (termini_arr[2].equalsIgnoreCase("") || termini_arr[2] == null)))
+//								errors.rejectValue(camp.getVarCodi(), "not.blank");
+//						} else {
+//							ValidationUtils.rejectIfEmpty(errors, camp.getVarCodi(), "not.blank");
+//						}
+//					} else {
+//						Object valors = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
+//						if (valors == null) {
+//							errors.rejectValue(camp.getVarCodi(), "not.blank");
+//						} else {
+//							for (int i = 0; i < Array.getLength(valors); i++) {
+//								Object valor = Array.get(valors, i);
+//								if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
+//									String[] valor_arr = (String[])valor;
+//									if (valor == null || (valor_arr).length < 3 || (valor_arr[0].equalsIgnoreCase("0") && valor_arr[1].equalsIgnoreCase("0") && (valor_arr[2].equalsIgnoreCase("0") || valor_arr[2] == null)))
+//										errors.rejectValue(camp.getVarCodi() + "[" + i + "]", "not.blank");
+//								} else {
+//									if ((valor instanceof String && "".equals(valor)) || (!(valor instanceof String) && valor == null)) {
+//										errors.rejectValue(camp.getVarCodi() + "[" + i + "]", "not.blank");
+//									}
+//								}
+//							}
+//						}
+//					}
+//				}
+//				comprovaCamp(camp, command, errors);
+//			}
+//			// Només valida amb expressions si no hi ha errors previs
+//			if (validarExpresions && !errors.hasErrors()) {
+//				boolean errorPropietatNoPresent;
+//				String propietatAddicional = null;
+//				Object commandPerValidadorExpressions = command;
+//				do {
+//					errorPropietatNoPresent = false;
+//					try {
+//						commandPerValidadorExpressions = getCommandPerValidadorExpressions(commandPerValidadorExpressions, propietatAddicional);
+//						// TODO: Validador
+////						getValidatorPerExpressions(tascaDades, command).validate(
+////								commandPerValidadorExpressions,
+////								errors);
+//					} catch (NotReadablePropertyException ex) {
+//						// Si dona un error de que no troba una propietat l'afegeix amb el valor "" i torna a intentar la validació.
+//						int iinici = ex.getMessage().indexOf("'");
+//						if (iinici != -1) {
+//							int ifi = ex.getMessage().indexOf("'", iinici + 1);
+//							propietatAddicional = ex.getMessage().substring(iinici + 1, ifi);
+//							errorPropietatNoPresent = true;
+//						} else
+//							errorPropietatNoPresent = false;
+//					}
+//				} while(errorPropietatNoPresent);
+//			}
+//			logger.debug(errors.toString());
+//		} catch (Exception ex) {
+//			logger.error("Error en el validator", ex);
+//			errors.reject("error.validator");
+//		}
+//		logger.debug("Errors de validació en el formulari de la tasca: " + errors.toString());
+//	}
 
 	public static String getErrorField(Errors errors, TascaDadaDto dada, LoopTagStatus index) {
 		try {
@@ -222,40 +217,40 @@ public class TascaFormValidatorHelper implements Validator {
 		return empty;
 	}
 	
-	/** Valid el registre i retorna true si el registre és inválid. És invàlid si té algun camp obligatori buit. */
-	private boolean registreInvalid(TascaDadaDto camp, Object registre, Errors errors) throws Exception {
-		boolean invalid = false;
-		// Registre
-		if (registre != null) {
-			if  (camp.isCampMultiple()) {
-				List<TascaDadaDto> registreDades = camp.getMultipleDades().get(0).getRegistreDades();
-				Object[] registres = (Object[])registre;
-				int i = 0;
-				for (Object reg: registres) {
-					for (TascaDadaDto campRegistre : registreDades) {
-						if (campRegistre.isRequired()) {
-							if (isCampRegistreEmpty(PropertyUtils.getProperty(reg, campRegistre.getVarCodi()))) {
-								errors.rejectValue(camp.getVarCodi() + "[" + i + "]." + campRegistre.getVarCodi(), "not.blank");								
-								invalid = true;
-							}
-						}
-					}
-					i++;
-				}
-			} else {
-				List<TascaDadaDto> registreDades = camp.getRegistreDades();
-				for (TascaDadaDto campRegistre : registreDades) {
-					if (campRegistre.isRequired()) {
-						if (isCampRegistreEmpty(PropertyUtils.getProperty(registre, campRegistre.getVarCodi()))) {
-							invalid = true;
-							errors.rejectValue(camp.getVarCodi() + "." + campRegistre.getVarCodi(), "not.blank");								
-						}
-					}
-				}
-			}				
-		}
-		return invalid;
-	}
+//	/** Valid el registre i retorna true si el registre és inválid. És invàlid si té algun camp obligatori buit. */
+//	private boolean registreInvalid(TascaDadaDto camp, Object registre, Errors errors) throws Exception {
+//		boolean invalid = false;
+//		// Registre
+//		if (registre != null) {
+//			if  (camp.isCampMultiple()) {
+//				List<TascaDadaDto> registreDades = camp.getMultipleDades().get(0).getRegistreDades();
+//				Object[] registres = (Object[])registre;
+//				int i = 0;
+//				for (Object reg: registres) {
+//					for (TascaDadaDto campRegistre : registreDades) {
+//						if (campRegistre.isRequired()) {
+//							if (isCampRegistreEmpty(PropertyUtils.getProperty(reg, campRegistre.getVarCodi()))) {
+//								errors.rejectValue(camp.getVarCodi() + "[" + i + "]." + campRegistre.getVarCodi(), "not.blank");
+//								invalid = true;
+//							}
+//						}
+//					}
+//					i++;
+//				}
+//			} else {
+//				List<TascaDadaDto> registreDades = camp.getRegistreDades();
+//				for (TascaDadaDto campRegistre : registreDades) {
+//					if (campRegistre.isRequired()) {
+//						if (isCampRegistreEmpty(PropertyUtils.getProperty(registre, campRegistre.getVarCodi()))) {
+//							invalid = true;
+//							errors.rejectValue(camp.getVarCodi() + "." + campRegistre.getVarCodi(), "not.blank");
+//						}
+//					}
+//				}
+//			}
+//		}
+//		return invalid;
+//	}
 
 	private void comprovaCamp(TascaDadaDto camp, Object command, Errors errors) throws Exception {
 		if (camp != null && camp.getCampTipus() != null) {
@@ -294,14 +289,14 @@ public class TascaFormValidatorHelper implements Validator {
 		}
 	}
 
-	private List<TascaDadaDto> getTascaDades(Object command) throws Exception {
-		if (tascaDades != null) {
-			return tascaDades;
-		} else {
-			String id = (String)PropertyUtils.getSimpleProperty(command, "id");
-			return tascaService.findDades(id);
-		}
-	}
+//	private List<TascaDadaDto> getTascaDades(Object command) throws Exception {
+//		if (tascaDades != null) {
+//			return tascaDades;
+//		} else {
+//			String id = (String)PropertyUtils.getSimpleProperty(command, "id");
+//			return tascaService.findDades(id);
+//		}
+//	}
 
 	// TODO: Validador
 //	private Validator getValidatorPerExpressions(
@@ -495,9 +490,9 @@ public class TascaFormValidatorHelper implements Validator {
 		return command;
 	}
 	
-	public void setTascaDades(List<TascaDadaDto> tascaDades) {
-		this.tascaDades = tascaDades;
-	}
+//	public void setTascaDades(List<TascaDadaDto> tascaDades) {
+//		this.tascaDades = tascaDades;
+//	}
 
 	private static final Log logger = LogFactory.getLog(TascaFormValidatorHelper.class);
 
