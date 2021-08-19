@@ -3,7 +3,20 @@
  */
 package es.caib.helium.logic.helper;
 
-import es.caib.helium.integracio.plugins.notificacio.RespostaEnviar;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import es.caib.helium.client.integracio.notificacio.enums.EnviamentTipus;
+import es.caib.helium.client.integracio.notificacio.enums.NotificacioEstat;
 import es.caib.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
 import es.caib.helium.logic.intf.dto.DadesEnviamentDto;
 import es.caib.helium.logic.intf.dto.DadesNotificacioDto;
@@ -12,9 +25,11 @@ import es.caib.helium.logic.intf.dto.DocumentNotificacioDto;
 import es.caib.helium.logic.intf.dto.EnviamentTipusEnumDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.dto.NotificacioDto;
+import es.caib.helium.logic.intf.dto.NotificacioEnviamentEstatEnumDto;
 import es.caib.helium.logic.intf.dto.NotificacioEstatEnumDto;
 import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
+import es.caib.helium.logic.intf.integracio.notificacio.RespostaEnviar;
 import es.caib.helium.persist.entity.DocumentNotificacio;
 import es.caib.helium.persist.entity.DocumentStore;
 import es.caib.helium.persist.entity.Expedient;
@@ -23,16 +38,6 @@ import es.caib.helium.persist.repository.DocumentNotificacioRepository;
 import es.caib.helium.persist.repository.DocumentStoreRepository;
 import es.caib.helium.persist.repository.ExpedientRepository;
 import es.caib.helium.persist.repository.NotificacioRepository;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Helper per a les notificacions a la safata telemàtica de SISTRA i pel NOTIB.
@@ -169,7 +174,7 @@ public class NotificacioHelper {
 		notificacio.setEnviamentIdentificador(resposta.getIdentificador());
 		notificacio.setEnviatData(new Date());
 		try {
-			notificacio.setEstat(NotificacioEstatEnumDto.valueOf(resposta.getEstat().name()));
+			notificacio.setEstat(NotificacioEstat.valueOf(resposta.getEstat().name()));
 		} catch(Exception e) {
 			notificacio.setError(true);
 			notificacio.setErrorDescripcio("No s'ha pogut reconèixer l'estat \"" + resposta.getEstat() + "\" de la resposta");
@@ -206,13 +211,13 @@ public class NotificacioHelper {
 		if (usuari == null || usuari.isEmpty())
 			usuari = "Handler";
 		notificacio.setUsuariCodi(usuari);
-		notificacio.setTipus(dadesNotificacio.getEnviamentTipus());
+		notificacio.setTipus(EnviamentTipus.valueOf(dadesNotificacio.getEnviamentTipus().toString()));
 				
 		notificacio.setExpedient(expedientRepository.findById(dadesNotificacio.getExpedientId()).get());
 		if (dadesNotificacio.getEnviamentTipus() != null)
-			notificacio.setTipus(dadesNotificacio.getEnviamentTipus());
+			notificacio.setTipus(EnviamentTipus.valueOf(dadesNotificacio.getEnviamentTipus().toString()));
 		else
-			notificacio.setTipus(EnviamentTipusEnumDto.NOTIFICACIO);
+			notificacio.setTipus(EnviamentTipus.NOTIFICACIO);
 		notificacio.setEmisorDir3Codi(dadesNotificacio.getEmisorDir3Codi());
 		notificacio.setDataProgramada(dadesNotificacio.getEnviamentDataProgramada());
 		notificacio.setRetard(dadesNotificacio.getRetard());
@@ -221,10 +226,10 @@ public class NotificacioHelper {
 		notificacio.setDocument(documentStoreRepository.findById(dadesNotificacio.getDocumentId()).get());
 
 		// TODO: Només 1 enviament
-		DadesEnviamentDto dadesEnviament = dadesNotificacio.getEnviaments().get(0);
+		var dadesEnviament = dadesNotificacio.getEnviaments().get(0);
 
 		// Titular
-		PersonaDto dadesTitular = dadesEnviament.getTitular();
+		var dadesTitular = dadesEnviament.getTitular();
 		notificacio.setTitularNif(dadesTitular.getDni());
 		notificacio.setTitularNom(dadesTitular.getNom());
 		notificacio.setTitularLlinatge1(dadesTitular.getLlinatge1());
@@ -235,7 +240,7 @@ public class NotificacioHelper {
 		// Destinatari
 		if (dadesEnviament.getDestinataris() != null && !dadesEnviament.getDestinataris().isEmpty()) {
 			// TODO: Només 1 destinatari
-			PersonaDto dadesDestinatari = dadesEnviament.getDestinataris().get(0);
+			var dadesDestinatari = dadesEnviament.getDestinataris().get(0);
 			notificacio.setDestinatariNif(dadesDestinatari.getDni());
 			notificacio.setDestinatariNom(dadesDestinatari.getNom());
 			notificacio.setDestinatariLlinatge1(dadesDestinatari.getLlinatge1());
@@ -244,7 +249,7 @@ public class NotificacioHelper {
 			notificacio.setDestinatariEmail(dadesDestinatari.getEmail());
 		}
 			
-		notificacio.setEstat(NotificacioEstatEnumDto.PENDENT);
+		notificacio.setEstat(NotificacioEstat.PENDENT);
 		
 		notificacio.setConcepte(dadesNotificacio.getConcepte());
 		notificacio.setDescripcio(dadesNotificacio.getDescripcio());
@@ -282,7 +287,9 @@ public class NotificacioHelper {
 		// TODO: Només 1 enviament
 		List<DadesEnviamentDto> enviaments = new ArrayList<DadesEnviamentDto>();
 		DadesEnviamentDto dadesEnviament = new DadesEnviamentDto();
-		dadesEnviament.setEstat(notificacio.getEnviamentDatatEstat());
+		if (notificacio.getEnviamentDatatEstat() != null) {
+			dadesEnviament.setEstat(NotificacioEnviamentEstatEnumDto.valueOf(notificacio.getEnviamentDatatEstat().toString()));
+		}
 		dadesEnviament.setEstatData(notificacio.getEnviamentDatatData());
 
 		// Titular
@@ -311,7 +318,9 @@ public class NotificacioHelper {
 		enviaments.add(dadesEnviament);
 		dadesNotificacio.setEnviaments(enviaments);
 		
-		dadesNotificacio.setEstat(notificacio.getEstat());
+		if (notificacio.getEstat() != null) {
+			dadesNotificacio.setEstat(NotificacioEstatEnumDto.valueOf(notificacio.getEstat().toString()));
+		}
 		dadesNotificacio.setError(notificacio.isError());
 		dadesNotificacio.setErrorDescripcio(notificacio.getErrorDescripcio());
 		

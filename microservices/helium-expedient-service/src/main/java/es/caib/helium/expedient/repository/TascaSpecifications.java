@@ -10,7 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import es.caib.helium.expedient.domain.Tasca;
 
-/** Especificacions pel filtre en les consultes d'expedients per poder filtrar.
+/** Especificacions pel filtre en les consultes de tasques per poder filtrar.
  * 
  */
 public class TascaSpecifications {
@@ -28,11 +28,11 @@ public class TascaSpecifications {
 	}
 
 	public static Specification<Tasca> nomLike(String nom) {
-        return (tasca, cq, cb) -> cb.like(tasca.get("nom"), nom);
+        return (tasca, cq, cb) -> cb.like(tasca.get("nom"), "%" + nom + "%");
 	}
 	
 	public static Specification<Tasca> titolLike(String titol) {
-        return (tasca, cq, cb) -> cb.like(tasca.get("titol"), titol);
+        return (tasca, cq, cb) -> cb.like(tasca.get("titol"), "%" + titol + "%");
 	}
 
     public static Specification<Tasca> belongsToExpedient(Long expedientId) {
@@ -42,11 +42,11 @@ public class TascaSpecifications {
     
     public static Specification<Tasca> expedientTitolLike(String expedientTitol) {
         
-    	return (tasca, cq, cb) -> cb.like(cb.lower(tasca.<Long> get("expedient").get("titol")), expedientTitol.toLowerCase() );
+    	return (tasca, cq, cb) -> cb.like(cb.lower(tasca.<Long> get("expedient").get("titol")), "%" + expedientTitol.toLowerCase() + "%" );
     }
 
     public static Specification<Tasca> expedientNumeroLike(String expedientNumero) {
-    	return (tasca, cq, cb) -> cb.like(cb.lower(tasca.<Long> get("expedient").get("numero")), expedientNumero.toLowerCase() );
+    	return (tasca, cq, cb) -> cb.like(cb.lower(tasca.<Long> get("expedient").get("numero")), "%" + expedientNumero.toLowerCase() + "%" );
     }
 
     public static Specification<Tasca> dataCreacio(Date dataCreacioInici, Date dataCreacioFi) {
@@ -104,14 +104,13 @@ public class TascaSpecifications {
     	}
 	}
 
-	private static Specification<Tasca> nomesPendents() {
+	/** Tasques no suspeses i obertes */
+	public static Specification<Tasca> nomesPendents() {
 		return (tasca, cq, cb) -> cb.and(
-					cb.isFalse(tasca.get("suspesa")),
-					cb.isFalse(tasca.get("completada"))
-				);
+						cb.isFalse(tasca.get("suspesa")),
+						cb.isFalse(tasca.get("completada")));
 	}
 
-	
 
 	public static Specification<Tasca> tasquesList(
 			Long entornId, 
@@ -131,27 +130,27 @@ public class TascaSpecifications {
 			boolean nomesPendents) {
 		
     	Specification<Tasca> spec  = belongsToEntorn(entornId);
-//    	
-//    	if (expedientTipusId != null) 
-//    		spec = spec.and(belongsToExpedientTipus(expedientTipusId));
-//    	if (titol != null) 
-//    		spec = spec.and(titolLike(titol));
+    	
+    	if (expedientTipusId != null) 
+    		spec = spec.and(belongsToExpedientTipus(expedientTipusId));
+    	if (titol != null) 
+    		spec = spec.and(titolLike(titol));
 //    	if (usuariAssignat != null) 
 //    		spec = spec.and(usuariAssignatIs(usuariAssignat));
-//    	if (nom != null) 
-//    		spec = spec.and(nomLike(nom));
-//    	if (titol != null) 
-//    		spec = spec.and(titolLike(titol));
-//    	if (expedientTipusId != null) 
-//    		spec = spec.and(belongsToExpedient(expedientId));
-//    	if (expedientTitol != null) 
-//    		spec = spec.and(expedientTitolLike(expedientTitol));
-//    	if (expedientNumero != null) 
-//    		spec = spec.and(expedientNumeroLike(expedientNumero));
-//    	if (dataCreacioInici != null || dataCreacioFi != null)
-//    		spec = spec.and(dataCreacio(dataCreacioInici, dataCreacioFi));
-//    	if (dataLimitInici != null || dataLimitFi != null)
-//    		spec = spec.and(dataCreacio(dataLimitInici, dataLimitFi));
+    	if (nom != null) 
+    		spec = spec.and(nomLike(nom));
+    	if (titol != null) 
+    		spec = spec.and(titolLike(titol));
+    	if (expedientId != null) 
+    		spec = spec.and(belongsToExpedient(expedientId));
+    	if (expedientTitol != null) 
+    		spec = spec.and(expedientTitolLike(expedientTitol));
+    	if (expedientNumero != null) 
+    		spec = spec.and(expedientNumeroLike(expedientNumero));
+    	if (dataCreacioInici != null || dataCreacioFi != null)
+    		spec = spec.and(dataCreacio(dataCreacioInici, dataCreacioFi));
+    	if (dataLimitInici != null || dataLimitFi != null)
+    		spec = spec.and(dataCreacio(dataLimitInici, dataLimitFi));
 //    	if (mostrarAssignadesUsuari)
 //    		spec = spec.and(mostrarAssignadesUsuari(usuariAssignat));
 //    	if (mostrarAssignadesGrup)
@@ -161,5 +160,4 @@ public class TascaSpecifications {
     	
     	return spec;	
     }
-
 }

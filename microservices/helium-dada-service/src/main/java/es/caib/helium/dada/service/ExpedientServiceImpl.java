@@ -49,7 +49,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			log.debug("[SRV] Consultant resultats paginats");
 			var pagina = expedientRepository.findByFiltres(consulta);
 			var pageable = PageRequest.of(consulta.getPage(), pagina.size() > 0 ? pagina.size() : 1);
-			var resultat = new PagedList<Expedient>(pagina, pageable, pagina.size());
+			var resultat = new PagedList<>(pagina, pageable, pagina.size());
 			log.debug("Consulta resultats paginat correctament");
 			return resultat;
 			
@@ -199,11 +199,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 				return false;
 			}
 			var esborrades = expedientRepository.esborrarExpedientsCascade(expedients);
-			log.debug("Dades esborrades per múltiples expedients " + expedients.toString());
+			log.debug("Dades esborrades per múltiples expedients " + expedients);
 			return esborrades > 0;
 			
 		} catch (Exception ex) {
-			var error = "Error esborrant les dades de capçalera per multiples expedients " + expedients.toString();
+			var error = "Error esborrant les dades de capçalera per multiples expedients " + expedients;
 			log.error(error, ex);
 			throw new DadaException(error, ex);
 		}
@@ -272,7 +272,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			}
 			
 			var guardats = expedientRepository.saveAll(exps).size();
-			log.debug("Expedients (put) guardats correctament " + expedients.toString());
+			log.debug("Expedients (put) guardats correctament " + expedients);
 			return guardats > 0;
 		} catch (Exception ex) {
 			var error = "Error actualitzant (put) les dades de capçalera per els expedients " + expedients.toString();
@@ -350,7 +350,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				return false;
 			}
 			var actualitzats = expedientRepository.saveAll(exps).size();
-			log.debug("Actualitzats (patch) els expedients " + expedients.toString());
+			log.debug("Actualitzats (patch) els expedients " + expedients);
 			return actualitzats > 0;
 			
 		} catch (Exception ex) {
@@ -373,7 +373,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		try {
 			var dades = dadaRepository.findByExpedientId(expedientId);
 			log.debug("Consulta de dades correctament per l'expedient " + expedientId);
-			return dades.isPresent() ? dades.get() : new ArrayList<Dada>();
+			return dades.isPresent() ? dades.get() : new ArrayList<>();
 		} catch (Exception ex) {
 			var error = "Error obtinguent les dades per l'expedientId " + expedientId;
 			log.error(error, ex);
@@ -413,7 +413,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		try {
 			var dades = dadaRepository.findByExpedientIdAndProcesId(expedientId, procesId);
 			log.debug("Consulta de dades correctament per l'expedient " + expedientId + " amb procesId " + procesId);
-			return dades.isPresent() ? dades.get() : new ArrayList<Dada>();
+			return dades.isPresent() ? dades.get() : new ArrayList<>();
 		} catch (Exception ex) {
 			var error = "Error obtinguent les dades per l'expedientId " + expedientId + " amb procesId " + procesId;
 			log.error(error, ex);
@@ -713,7 +713,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		try {
 			var dades = dadaRepository.findByProcesId(procesId);
 			log.debug("Consulta de dades correctament amb procesId " + procesId);
-			return dades.isPresent() ? dades.get() : new ArrayList<Dada>();
+			return dades.isPresent() ? dades.get() : new ArrayList<>();
 		} catch (Exception ex) {
 			var error = "Error obtinguent les dades amb procesId " + procesId;
 			log.error(error, ex);

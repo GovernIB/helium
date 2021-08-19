@@ -3,9 +3,9 @@
  */
 package es.caib.helium.integracio.plugins.persones;
 
-import es.caib.helium.client.integracio.persones.model.Persona;
-
 import java.util.List;
+
+import es.caib.helium.client.integracio.persones.model.Persona;
 
 /**
  * Interfície per a la connexió amb un sistema d'usuaris/persones
@@ -31,14 +31,14 @@ public interface PersonesPlugin {
 	 * @param codi el codi de la persona
 	 * @return la persona
 	 */
-	public DadesPersona findAmbCodi(String codi) throws PersonesPluginException;
+	public Persona findAmbCodi(String codi, Long entornId) throws PersonesPluginException;
 
 	/**
 	 * Retorna totes les persones
 	 * 
 	 * @return totes les persones
 	 */
-	public List<DadesPersona> findAll() throws PersonesPluginException;
+	public List<Persona> findAll(Long entornId) throws PersonesPluginException;
 
 	/**
 	 * Retorna els rols d'una persona amb el codi especificat
@@ -46,5 +46,5 @@ public interface PersonesPlugin {
 	 * @param codi el codi de la persona
 	 * @return els rols de la persona
 	 */
-	public List<String> findRolsAmbCodi(String codi) throws PersonesPluginException;
+	public List<String> findRolsAmbCodi(String codi, Long entonId) throws PersonesPluginException;
 }

@@ -3,9 +3,47 @@
  */
 package es.caib.helium.logic.service;
 
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.client.expedient.expedient.ExpedientClientService;
+import es.caib.helium.client.expedient.proces.ProcesClientService;
+import es.caib.helium.client.expedient.proces.model.ConsultaProcesDades;
+import es.caib.helium.client.expedient.tasca.TascaClientService;
+import es.caib.helium.client.expedient.tasca.model.ConsultaTascaDades;
+import es.caib.helium.client.expedient.tasca.model.TascaDto;
+import es.caib.helium.client.model.PagedList;
 import es.caib.helium.logic.helper.ConsultaHelper;
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.DistribucioHelper;
@@ -35,9 +73,7 @@ import es.caib.helium.logic.intf.dto.CampDto;
 import es.caib.helium.logic.intf.dto.DadaIndexadaDto;
 import es.caib.helium.logic.intf.dto.DadesDocumentDto;
 import es.caib.helium.logic.intf.dto.DadesNotificacioDto;
-import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
 import es.caib.helium.logic.intf.dto.DefinicioProcesExpedientDto;
-import es.caib.helium.logic.intf.dto.DocumentDto;
 import es.caib.helium.logic.intf.dto.DocumentNotificacioDto;
 import es.caib.helium.logic.intf.dto.ExpedientConsultaDissenyDto;
 import es.caib.helium.logic.intf.dto.ExpedientDocumentDto;
@@ -59,6 +95,7 @@ import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDto;
 import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.dto.RespostaValidacioSignaturaDto;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
+import es.caib.helium.logic.intf.dto.TascaLlistatDto;
 import es.caib.helium.logic.intf.dto.expedient.ExpedientIniciDto;
 import es.caib.helium.logic.intf.exception.ExecucioHandlerException;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
@@ -113,36 +150,6 @@ import es.caib.helium.persist.repository.TerminiIniciatRepository;
 import es.caib.helium.persist.util.ThreadLocalInfo;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ExpedientMetadades;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 /**
  * Implementació dels mètodes del servei ExpedientService.
@@ -232,6 +239,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private ExpedientMs expedientMs;
 	@Resource
 	private ExpedientClientService expedientClientService;
+	@Resource
+	private TascaClientService tascaClientService;
+	@Resource
+	private ProcesClientService procesClientService;
 
 	/**
 	 * {@inheritDoc}
@@ -994,6 +1005,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public List<PersonaDto> findParticipants(Long id) {
 		logger.debug("Consulta de participants per a l'expedient (" +
 				"id=" + id + ")");
+		//TODO DANIEL: crear un mètode al ms d'expedients i tasques per obtenir usuaris participants
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
 				true,
@@ -1025,7 +1037,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	// No pot ser readOnly per mor de la cache de les tasques
 	@Transactional
-	public List<ExpedientTascaDto> findTasquesPendents(
+	public List<TascaLlistatDto> findTasquesPendents(
 			Long expedientId,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup) {
@@ -1050,15 +1062,29 @@ public class ExpedientServiceImpl implements ExpedientService {
 						ExtendedPermission.TASK_SUPERV,
 						ExtendedPermission.ADMINISTRATION},
 					auth);
-		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
-		for (WProcessInstance jpi: workflowEngineApi.getProcessInstanceTree(expedient.getProcessInstanceId())) {
-			resposta.addAll(
-					tascaHelper.findTasquesPerExpedientPerInstanciaProces(
-							jpi.getId(),
-							expedient,
-							tasquesAltresUsuaris,
-							nomesTasquesPersonals,
-							nomesTasquesGrup));
+
+		List<TascaLlistatDto> resposta = new ArrayList<TascaLlistatDto>();
+		List<TascaDto> tasquesMs = tascaClientService.findTasquesAmbFiltrePaginatV1(ConsultaTascaDades.builder()
+				.expedientId(expedient.getId())
+				.nomesPendents(true)
+				.build())
+				.getContent();
+		for (TascaDto tascaMs : tasquesMs) {
+			if (tasquesAltresUsuaris || auth.getName().equals(tascaMs.getUsuariAssignat())) {
+				TascaLlistatDto tasca = tascaHelper.toTascaLlistatDto(
+						tascaMs,
+						expedient,
+						true,
+						false);
+				boolean esTareaGrupo = !tasca.isAgafada() && tasca.getResponsables() != null && !tasca.getResponsables().isEmpty();
+				if (nomesTasquesGrup && esTareaGrupo) {						
+					resposta.add(tasca);
+				} else if (nomesTasquesPersonals && !esTareaGrupo) {
+					resposta.add(tasca);
+				} else if (!nomesTasquesPersonals && !nomesTasquesGrup) {
+					resposta.add(tasca);
+				}
+			}			
 		}
 		return resposta;
 	}
@@ -1167,6 +1193,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		expedient.setAnulat(true);
 		expedient.setComentariAnulat(motiu);
 		// TODO: MS Dades + MS Expedient --> anular expedient
+		expedientClientService.anular(expedient.getId(), motiu);
 //		luceneHelper.deleteExpedient(expedient);
 		crearRegistreExpedient(
 				expedient.getId(),
@@ -1205,6 +1232,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			ids[i++] = pi.getId();
 		workflowEngineApi.resumeProcessInstances(ids);
 		expedient.setAnulat(false);
+		expedientClientService.desanular(id);
 	}
 
 	/**
@@ -1428,7 +1456,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		logger.debug("Canviant versió de la definició de procés (" +
 				"processInstanceId=" + processInstanceId + ", " +
 				"versio=" + versio + ")");
-		Long expId = workflowEngineApi.findExpedientIdByProcessInstanceId(processInstanceId);
+		Long expId = procesClientService.getProcesExpedientId(processInstanceId);
 		expedientHelper.getExpedientComprovantPermisos(
 				expId,
 				new Permission[] {
@@ -1764,8 +1792,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<InstanciaProcesDto> getArbreInstanciesProces(
-				Long processInstanceId) {
-		return expedientHelper.getArbreInstanciesProces(String.valueOf(processInstanceId));
+				String processInstanceId) {
+		return expedientHelper.getArbreInstanciesProces(processInstanceId);
 	}
 
 
@@ -1918,24 +1946,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	@Transactional(readOnly=true)
 	public InstanciaProcesDto getInstanciaProcesById(String processInstanceId) {
-		InstanciaProcesDto dto = new InstanciaProcesDto();
-		dto.setId(processInstanceId);
-		WProcessInstance pi = workflowEngineApi.getProcessInstance(processInstanceId);
-		if (pi.getId() == null)
-			return null;
-		dto.setInstanciaProcesPareId(pi.getParentProcessInstanceId());
-		if (pi.getDescription() != null && pi.getDescription().length() > 0)
-			dto.setTitol(pi.getDescription());
-		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId());
-		dto.setDefinicioProces(conversioTipusServiceHelper.convertir(definicioProces, DefinicioProcesDto.class));
-		List<ExpedientDocumentDto> documents = documentHelper.findDocumentsPerInstanciaProces(processInstanceId);
-				//documentRepository.findByDefinicioProces(definicioProces);
-		Map<String, DocumentDto> documentsDto = new HashMap<String, DocumentDto>();
-		for(ExpedientDocumentDto doc : documents) {
-			documentsDto.put(doc.getDocumentCodi(), conversioTipusServiceHelper.convertir(doc, DocumentDto.class));
-		}
-		dto.setVarsDocuments(documentsDto);
-		return dto;
+
+		return expedientHelper.getInstanciaProcesById(processInstanceId);
 	}
 
 	/**
@@ -2887,11 +2899,16 @@ public class ExpedientServiceImpl implements ExpedientService {
 			Long definicioProcesId) {
 		logger.debug("Consultant instancies de procés amb process definition id(" + 
 			"definicioProcesId = " + definicioProcesId + ")");
+		
 		DefinicioProces definicioProces = definicioProcesRepository.getById(definicioProcesId);
-		List<String> processInstancesIds = new ArrayList<String>();
-		for (WProcessInstance processInstance : workflowEngineApi.findProcessInstancesWithProcessDefinitionId(definicioProces.getJbpmId()))
-			processInstancesIds.add(processInstance.getId());
-		return processInstancesIds;
+		PagedList<String> pagedIds = procesClientService.findProcessIdsAmbFiltrePaginatV1(ConsultaProcesDades.builder()
+				.processDefinitionId(definicioProces.getJbpmId()).build());		
+		return pagedIds.getContent();
+		
+//		List<String> processInstancesIds = new ArrayList<String>();
+//		for (WProcessInstance processInstance : workflowEngineApi.findProcessInstancesWithProcessDefinitionId(definicioProces.getJbpmId()))
+//			processInstancesIds.add(processInstance.getId());
+//		return processInstancesIds;		
 	}
 
 	/**

@@ -1,14 +1,13 @@
 package es.caib.helium.integracio.domini.notificacio;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-
 import es.caib.helium.integracio.enums.notificacio.EnviamentTipus;
 import lombok.Getter;
 import lombok.Setter;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -28,8 +27,9 @@ public class Notificacio {
 	private Date enviamentDataProgramada;
 	@NotNull
 	private EnviamentTipus enviamentTipus;
-	@NotNull @NotEmpty //TODO QUEDA PENDENT VALIDAR ELS ENVIAMENTS I ELS SEUS SUBTIPUS
-	private List<Enviament> enviaments;
+	//TODO QUEDA PENDENT VALIDAR ELS ENVIAMENTS I ELS SEUS SUBTIPUS
+	//private @NotNull @NotEmpty List<Enviament> enviaments; // veure si funciona amb DadesEnviamentDto
+	private @NotNull @NotEmpty List<Enviament> enviaments;
 	private String grupCodi;
 	@NotNull @NotEmpty
 	private String procedimentCodi;

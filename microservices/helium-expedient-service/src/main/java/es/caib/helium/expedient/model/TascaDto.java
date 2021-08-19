@@ -85,14 +85,12 @@ public class TascaDto {
 	private boolean assignada = false;
 
 	@JsonProperty("marcadaFinalitzar")
-	@Schema(example = "true", required = false, description = "Indica si la tasca està marcada per finalitzar.")
-	@Builder.Default
-	private boolean marcadaFinalitzar = false;
+	@Schema(example = "2021-01-31 22:33:44.555", required = false, description = "Conté el valor de la data si la tasca està marcada per finalitzar.")
+	private Date marcadaFinalitzar;
 
 	@JsonProperty("errorFinalitzacio")
-	@Schema(example = "true", required = false, description = "Indica si la tasca ha tingut errors de finalització.")
-	@Builder.Default
-	private boolean errorFinalitzacio = false;
+	@Schema(example = "Error descripció", required = false, description = "Conté la descripció de l'error de finalització en cas d'error a l'hora de finalitzar la tasca")
+	private String errorFinalitzacio;
 			
 	@JsonProperty("dataFins")
 	@Schema(example = "2021-01-31 22:33:44.555", required = false, description = "Data límit de la tasca.")

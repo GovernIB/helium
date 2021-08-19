@@ -29,6 +29,7 @@ import es.caib.helium.expedient.repository.ExpedientRepository;
 import es.caib.helium.expedient.repository.ResponsableRepository;
 import es.caib.helium.expedient.repository.TascaRepository;
 import es.caib.helium.expedient.repository.TascaSpecifications;
+import es.caib.helium.ms.helper.ServiceHelper;
 import es.caib.helium.ms.model.PagedList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -118,8 +119,8 @@ public class TascaServiceImpl implements TascaService {
         tasca.setSuspesa( tascaDto.isSuspesa() );
         tasca.setCompletada( tascaDto.isCompletada() );
         tasca.setAssignada( tascaDto.isAssignada() );
-        tasca.setMarcadaFinalitzar( tascaDto.isMarcadaFinalitzar() );
-        tasca.setErrorFinalitzacio( tascaDto.isErrorFinalitzacio() );
+        tasca.setMarcadaFinalitzar( tascaDto.getMarcadaFinalitzar() );
+        tasca.setErrorFinalitzacio( tascaDto.getErrorFinalitzacio() );
         tasca.setDataFins( tascaDto.getDataFins() );
         tasca.setDataFi( tascaDto.getDataFi() );
         tasca.setIniciFinalitzacio( tascaDto.getIniciFinalitzacio() );

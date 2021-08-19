@@ -26,8 +26,6 @@ import java.io.Serializable;
 @Table(	name="hel_interessat")
 public class Interessat implements Serializable, GenericEntity<Long> {
 
-	
-	
 	private InteressatTipusEnumDto tipus;
 	
 	private Long id;
@@ -64,7 +62,7 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 			String nif, 
 			String dir3codi,
 			String llinatge1, 
-			String llinatge2, 
+			String llinatge2,
 			InteressatTipusEnumDto tipus,
 			String email, 
 			String telefon,

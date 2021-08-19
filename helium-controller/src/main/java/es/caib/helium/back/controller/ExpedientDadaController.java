@@ -536,7 +536,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		// Obtenim l'arbre de processos, per a poder mostrar la informació de tots els processos
-		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
+		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(expedient.getProcessInstanceId());
 		Map<InstanciaProcesDto, Map<CampAgrupacioDto, List<ExpedientDadaDto>>> dades = new LinkedHashMap<InstanciaProcesDto, Map<CampAgrupacioDto,List<ExpedientDadaDto>>>();
 		Map<InstanciaProcesDto,Integer> totalsPerProces = new LinkedHashMap<InstanciaProcesDto, Integer>();
 		// Per a cada instància de procés ordenem les dades per agrupació  

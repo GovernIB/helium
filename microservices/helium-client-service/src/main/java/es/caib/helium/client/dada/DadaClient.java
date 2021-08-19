@@ -18,16 +18,16 @@ public interface DadaClient {
 			Integer expedientTipusId, 
 			Integer page, 
 			Integer size, 
-			Consulta body);
+			Consulta body) throws RuntimeException;
 	
 	List<Expedient> consultaResultatsLlistat(
 			Integer entornId,
 			Integer expedientTipusId, 
-			Consulta consulta);
+			Consulta consulta) throws RuntimeException;
 	
 	// Capcalera expedient
 	
-	Expedient findByExpedientId(Long expedientId);
+	Expedient findByExpedientId(Long expedientId) throws RuntimeException;
 	
 	void crearExpedient(Expedient expedient);
 
@@ -47,27 +47,27 @@ public interface DadaClient {
 	
 	// Dades expedient
 	
-	List<Dada> getDades(Long expedientId);
+	List<Dada> getDades(Long expedientId) throws RuntimeException;
 	
-	Dada getDadaByCodi(Long expedientId, String codi);
+	Dada getDadaByCodi(Long expedientId, String codi) throws RuntimeException;
 	
-	List<Dada> getDadesByProces(Long expedientId, String procesIdId);
+	List<Dada> getDadesByProces(Long expedientId, String procesIdId) throws RuntimeException;
 	
-	Dada getDadaByExpedientIdProcesAndCodi(Long expedientId, String procesIdId, String codi);
+	Dada getDadaByExpedientIdProcesAndCodi(Long expedientId, String procesIdId, String codi) throws RuntimeException;
 	
-	Dada getDadaByProcesAndCodi(String procesIdId, String codi);
+	Dada getDadaByProcesAndCodi(String procesIdId, String codi) throws RuntimeException;
 	
-	Long getDadaExpedientIdByProcesId(String procesIdId);
+	Long getDadaExpedientIdByProcesId(String procesIdId) throws RuntimeException;
 	
 	void postDadesByExpedientId(Long expedientId, String procesIdId, List<Dada> dada);
 	
 	void putDadaByExpedientIdAndCodi(Long expedientId, String codi, Dada dada);
 	
-	public void deleteDadaByExpedientIdAndCodi(Long expedientId, String codi);
+	void deleteDadaByExpedientIdAndCodi(Long expedientId, String codi);
 	
-	public void postDadesByExpedientIdProcesId(Long expedientId, String procesIdId, List<Dada> dades);
+	void postDadesByExpedientIdProcesId(Long expedientId, String procesIdId, List<Dada> dades);
 	
-	public void putDadaByExpedientIdProcesIdAndCodi(Long expedientId, String procesIdId, String codi, Dada dada);
+	void putDadaByExpedientIdProcesIdAndCodi(Long expedientId, String procesIdId, String codi, Dada dada);
 	
-	public void deleteDadaByExpedientIdAndProcesIdAndCodi(Long expedientId, String procesIdId, String codi); 
+	void deleteDadaByExpedientIdAndProcesIdAndCodi(Long expedientId, String procesIdId, String codi);
 }

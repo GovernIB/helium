@@ -3,8 +3,15 @@
  */
 package es.caib.helium.expedient.domain;
 
-import java.util.Date;
-import java.util.List;
+import es.caib.helium.expedient.model.ExpedientEstatTipusEnum;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.springframework.data.domain.Persistable;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -19,22 +26,15 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
-import org.springframework.data.domain.Persistable;
-
-import es.caib.helium.expedient.model.ExpedientEstatTipusEnum;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Objecte d'expedient que representa un expedient pel llistat d'expedients.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@ToString
 @Getter
 @Setter
 @NoArgsConstructor

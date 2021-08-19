@@ -19,4 +19,13 @@ public class ExpedientApiPath {
 	public static final String DELETE_EXPEDIENT = API_PATH + "/{expedientId}";
 	
 	public static final String GET_EXPEDIENT = API_PATH + "/{expedientId}";
+
+	public static final String ATURAR_EXPEDIENT = API_PATH + "/{expedientId}/aturar";
+
+	public static final String REPRENDRE_EXPEDIENT = API_PATH + "/{expedientId}/reprendre";
+
+	public static final String ANULAR_EXPEDIENT = API_PATH + "/{expedientId}/anular";
+
+	public static final String DESANULAR_EXPEDIENT = API_PATH + "/{expedientId}/desanular";
+
 }

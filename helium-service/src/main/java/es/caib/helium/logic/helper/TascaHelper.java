@@ -81,7 +81,6 @@ public class TascaHelper {
 	private MessageServiceHelper messageServiceHelper;
 
 
-
 	public WTaskInstance getTascaComprovacionsTramitacio(
 			String id,
 			boolean comprovarAssignacio,
@@ -394,36 +393,6 @@ public class TascaHelper {
 		return tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
 				task.getTaskName(),
 				task.getProcessDefinitionId());
-	}
-
-	public List<ExpedientTascaDto> findTasquesPerExpedientPerInstanciaProces(
-			String processInstanceId,
-			Expedient expedient,
-			boolean permisosVerOtrosUsuarios,
-			boolean nomesTasquesPersonals,
-			boolean nomesTasquesGrup) {
-		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
-		List<WTaskInstance> tasks = workflowEngineApi.findTaskInstancesByProcessInstanceId(processInstanceId);
-		for (WTaskInstance task: tasks) {
-			if (!task.isCompleted()) {
-				ExpedientTascaDto tasca = toExpedientTascaDto(
-						task,
-						expedient,
-						true,
-						false);
-				if (permisosVerOtrosUsuarios || tasca.isAssignadaUsuariActual()) {
-					boolean esTareaGrupo = !tasca.isAgafada() && tasca.getResponsables() != null && !tasca.getResponsables().isEmpty();
-					if (nomesTasquesGrup && esTareaGrupo) {						
-						resposta.add(tasca);
-					} else if (nomesTasquesPersonals && !esTareaGrupo) {
-						resposta.add(tasca);
-					} else if (!nomesTasquesPersonals && !nomesTasquesGrup) {
-						resposta.add(tasca);
-					}
-				}
-			}
-		}
-		return resposta;
 	}
 
 	/**

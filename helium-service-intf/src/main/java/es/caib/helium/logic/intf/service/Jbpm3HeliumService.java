@@ -3,19 +3,47 @@
  */
 package es.caib.helium.logic.intf.service;
 
-import es.caib.helium.logic.intf.dto.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import es.caib.helium.logic.intf.dto.AreaDto;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.CampTascaDto;
+import es.caib.helium.logic.intf.dto.CarrecDto;
+import es.caib.helium.logic.intf.dto.DadesNotificacioDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
+import es.caib.helium.logic.intf.dto.DocumentDissenyDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.DocumentTascaDto;
+import es.caib.helium.logic.intf.dto.DominiRespostaFilaDto;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.EnumeracioValorDto;
+import es.caib.helium.logic.intf.dto.EstatDto;
+import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.FestiuDto;
+import es.caib.helium.logic.intf.dto.InteressatDto;
+import es.caib.helium.logic.intf.dto.NotificacioDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.dto.ReassignacioDto;
+import es.caib.helium.logic.intf.dto.RegistreAnotacioDto;
+import es.caib.helium.logic.intf.dto.RegistreIdDto;
+import es.caib.helium.logic.intf.dto.RegistreNotificacioDto;
+import es.caib.helium.logic.intf.dto.RespostaJustificantDetallRecepcioDto;
+import es.caib.helium.logic.intf.dto.RespostaJustificantRecepcioDto;
+import es.caib.helium.logic.intf.dto.RespostaNotificacio;
+import es.caib.helium.logic.intf.dto.TascaDadaDto;
+import es.caib.helium.logic.intf.dto.TerminiDto;
+import es.caib.helium.logic.intf.dto.TerminiIniciatDto;
+import es.caib.helium.logic.intf.dto.TramitDto;
+import es.caib.helium.logic.intf.dto.ZonaperEventDto;
+import es.caib.helium.logic.intf.dto.ZonaperExpedientDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.exception.TramitacioException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
 import es.caib.helium.logic.intf.registre.RegistreAnotacio;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-
 /**
  * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat
  * de Helium.

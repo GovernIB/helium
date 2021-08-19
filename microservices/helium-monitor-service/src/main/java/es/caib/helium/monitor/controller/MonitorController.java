@@ -1,9 +1,11 @@
 package es.caib.helium.monitor.controller;
 
-import java.util.List;
-
-import javax.validation.Valid;
-
+import es.caib.helium.monitor.domini.Consulta;
+import es.caib.helium.monitor.domini.IntegracioEvent;
+import es.caib.helium.monitor.domini.PagedList;
+import es.caib.helium.monitor.service.BddService;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,12 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import es.caib.helium.monitor.domini.Consulta;
-import es.caib.helium.monitor.domini.IntegracioEvent;
-import es.caib.helium.monitor.domini.PagedList;
-import es.caib.helium.monitor.service.BddService;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -58,6 +56,4 @@ public class MonitorController {
     	}
     	return new ResponseEntity<PagedList<IntegracioEvent>>(events, HttpStatus.OK);
     }
-    
-
 }

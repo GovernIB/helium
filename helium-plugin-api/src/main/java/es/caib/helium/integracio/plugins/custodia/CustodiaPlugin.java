@@ -3,9 +3,8 @@
  */
 package es.caib.helium.integracio.plugins.custodia;
 
+import es.caib.helium.client.model.RespostaValidacioSignatura;
 import java.util.List;
-
-import es.caib.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 
 /**
  * Interfície del plugin de custòdia documental
@@ -29,7 +28,8 @@ public interface CustodiaPlugin {
 			String gesdocId,
 			String arxiuNom,
 			String tipusDocument,
-			byte[] signatura) throws CustodiaPluginException;
+			byte[] signatura,
+			Long entornId) throws CustodiaPluginException;
 
 	/**
 	 * Obté les signatures per a un document
@@ -37,7 +37,7 @@ public interface CustodiaPlugin {
 	 * @param id
 	 * @return
 	 */
-	public List<byte[]> getSignatures(String id) throws CustodiaPluginException;
+	public List<byte[]> getSignatures(String id, Long entornId) throws CustodiaPluginException;
 
 	/**
 	 * Retorna l'arxiu amb les signatures en el cas de que les signatures es guardin
@@ -46,21 +46,21 @@ public interface CustodiaPlugin {
 	 * @return
 	 * @throws CustodiaPluginException
 	 */
-	public byte[] getSignaturesAmbArxiu(String id) throws CustodiaPluginException;
+	public byte[] getSignaturesAmbArxiu(String id, Long entornId) throws CustodiaPluginException;
 
 	/**
 	 * Esborra totes les signatures d'un document
 	 * 
 	 * @param id
 	 */
-	public void deleteSignatures(String id) throws CustodiaPluginException;
+	public void deleteSignatures(String id, Long entornId) throws CustodiaPluginException;
 
 	/**
 	 * Retorna informació de les signatures d'un document
 	 * 
 	 * @param id
 	 */
-	public List<RespostaValidacioSignatura> dadesValidacioSignatura(String id) throws CustodiaPluginException;
+	public List<RespostaValidacioSignatura> dadesValidacioSignatura(String id, Long entornId) throws CustodiaPluginException;
 
 	/**
 	 * Indica si la implementació del plugin és capaç de retornar informació
@@ -81,6 +81,6 @@ public interface CustodiaPlugin {
 	 * @return
 	 * @throws CustodiaPluginException
 	 */
-	public String getUrlComprovacioSignatura(String id) throws CustodiaPluginException;
+	public String getUrlComprovacioSignatura(String id, Long entornId) throws CustodiaPluginException;
 
 }

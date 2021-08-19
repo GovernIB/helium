@@ -1,6 +1,13 @@
 package es.caib.helium.integracio.plugins.notificacio;
 
 
+import es.caib.helium.client.integracio.notificacio.model.ConsultaEnviament;
+import es.caib.helium.client.integracio.notificacio.model.ConsultaNotificacio;
+import es.caib.helium.client.integracio.notificacio.model.DadesNotificacioDto;
+import es.caib.helium.client.integracio.notificacio.model.RespostaEnviar;
+import es.caib.helium.client.integracio.notificacio.model.RespostaConsultaEstatNotificacio;
+import es.caib.helium.client.integracio.notificacio.model.RespostaConsultaEstatEnviament;
+
 /**
  * Plugin per a l'enviament de notificacions.
  * 
@@ -15,8 +22,8 @@ public interface NotificacioPlugin {
 	 * @return la informació resultant de l'enviament de la notificació.
 	 * @throws NotificacioPluginException
 	 */
-	public RespostaEnviar enviar(
-			Notificacio notificacio) throws NotificacioPluginException;
+	RespostaEnviar enviar(
+			DadesNotificacioDto notificacio) throws NotificacioPluginException;
 
 	/**
 	 * Consulta l'estat d'una notificació.
@@ -25,8 +32,9 @@ public interface NotificacioPlugin {
 	 * @return l'estat de la notificació.
 	 * @throws NotificacioPluginException
 	 */
-	public RespostaConsultaEstatNotificacio consultarNotificacio(
-			String identificador) throws NotificacioPluginException;
+	RespostaConsultaEstatNotificacio consultarNotificacio(
+			String identificador,
+			ConsultaNotificacio consulta) throws NotificacioPluginException;
 
 	/**
 	 * Consulta l'estat d'una notificació.
@@ -35,7 +43,8 @@ public interface NotificacioPlugin {
 	 * @return l'estat de l'enviament.
 	 * @throws NotificacioPluginException
 	 */
-	public RespostaConsultaEstatEnviament consultarEnviament(
-			String referencia) throws NotificacioPluginException;
+	RespostaConsultaEstatEnviament consultarEnviament(
+			String referencia,
+			ConsultaEnviament consulta) throws NotificacioPluginException;
 
 }

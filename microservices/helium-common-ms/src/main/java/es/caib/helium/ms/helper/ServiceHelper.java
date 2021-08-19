@@ -1,4 +1,4 @@
-package es.caib.helium.expedient.service;
+package es.caib.helium.ms.helper;
 
 import cz.jirutka.rsql.parser.RSQLParser;
 import cz.jirutka.rsql.parser.RSQLParserException;
@@ -12,7 +12,6 @@ import es.caib.helium.ms.model.PagedList;
 import es.caib.helium.ms.repository.BaseRepository;
 import es.caib.helium.ms.rsql.CustomRsqlVisitor;
 import es.caib.helium.ms.rsql.RsqlSearchOperation;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -92,16 +91,26 @@ public class ServiceHelper {
             Sort sort,
             Class<?> dtoClass,
             BaseMapper<E, D> mapper) {
+        if (pageable == null) {
+            pageable = Pageable.unpaged();
+        }
         Page<E> page = getEntityPage(repository, spec, filtreRsql, pageable, sort, dtoClass);
-
-        return new PagedList<>(
-                page.getContent()
-                        .stream()
-                        .map(mapper::entityToDto)
-                        .collect(Collectors.toList()),
-                page.getPageable(),
-                page.getTotalElements()
-        );
+        try {
+	        return new PagedList<>(
+	                page.getContent()
+	                        .stream()
+	                        .map(mapper::entityToDto)
+	                        .collect(Collectors.toList()),
+	//                PageRequest.of(
+	//                        pageable.getPageNumber(),
+	//                        pageable.getPageSize()),
+	                page.getPageable(),
+	                page.getTotalElements()
+	        );
+        } catch (Exception e) {
+			//log.error();
+        	throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error no controlat: " + e.getMessage(), e);
+		}
 
     }
 

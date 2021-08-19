@@ -1,8 +1,18 @@
 package es.caib.helium.logic.service;
 
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.intf.dto.InteressatDto;
+import es.caib.helium.logic.intf.dto.InteressatTipusEnumDto;
 import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
@@ -11,13 +21,6 @@ import es.caib.helium.persist.entity.Expedient;
 import es.caib.helium.persist.entity.Interessat;
 import es.caib.helium.persist.repository.ExpedientRepository;
 import es.caib.helium.persist.repository.InteressatRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * Servei per gestionar els terminis dels expedients
@@ -50,26 +53,27 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		
 		Expedient expedient = expedientRepository.getById(interessat.getExpedientId());
 		
+		
 			Interessat interessatEntity = new Interessat(
-				interessat.getId(),
-				interessat.getCodi(),
-				interessat.getNom(),
-				interessat.getNif(),
-				interessat.getDir3Codi(),
-				interessat.getLlinatge1(), 
-				interessat.getLlinatge2(), 
-				interessat.getTipus(),
-				interessat.getEmail(), 
-				interessat.getTelefon(),
-				expedient,
-				interessat.getEntregaPostal(),
-				interessat.getEntregaTipus(),
-				interessat.getLinia1(),
-				interessat.getLinia2(),
-				interessat.getCodiPostal(),
-				interessat.getEntregaDeh(),
-				interessat.getEntregaDehObligat());
-
+					interessat.getId(),
+					interessat.getCodi(),
+					interessat.getNom(),
+					interessat.getNif(),
+					interessat.getDir3Codi(),
+					interessat.getLlinatge1(), 
+					interessat.getLlinatge2(), 
+					InteressatTipusEnumDto.valueOf(interessat.getTipus().toString()),
+					interessat.getEmail(), 
+					interessat.getTelefon(),
+					expedient, 
+					interessat.getEntregaPostal(),
+					interessat.getEntregaTipus(),
+					interessat.getLinia1(),
+					interessat.getLinia2(),
+					interessat.getCodiPostal(),
+					interessat.getEntregaDeh(),
+					interessat.getEntregaDehObligat());
+			
 		return conversioTipusServiceHelper.convertir(
 				interessatRepository.save(interessatEntity),
 				InteressatDto.class);
@@ -91,7 +95,9 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		interessatEntity.setNif(interessat.getNif());
 		interessatEntity.setLlinatge1(interessat.getLlinatge1());  
 		interessatEntity.setLlinatge2(interessat.getLlinatge2());
-		interessatEntity.setTipus(interessat.getTipus());
+		if (interessat.getTipus() != null) {
+			interessatEntity.setTipus(InteressatTipusEnumDto.valueOf(interessat.getTipus().toString()));
+		}
 		interessatEntity.setEmail(interessat.getEmail());
 		interessatEntity.setTelefon(interessat.getTelefon());
 		interessatEntity.setEntregaPostal(interessat.getEntregaPostal());

@@ -3,7 +3,21 @@
  */
 package es.caib.helium.logic.helper;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import javax.annotation.Resource;
+
+import org.hibernate.Hibernate;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
 import es.caib.helium.client.engine.model.WTaskInstance;
+import es.caib.helium.client.expedient.proces.ProcesClientService;
 import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.PermisDto;
@@ -16,17 +30,6 @@ import es.caib.helium.persist.entity.Expedient;
 import es.caib.helium.persist.entity.ExpedientTipus;
 import es.caib.helium.persist.repository.ExpedientRepository;
 import es.caib.helium.persist.repository.ExpedientTipusRepository;
-import org.hibernate.Hibernate;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Helper per als tipus d'expedient.
@@ -45,6 +48,8 @@ public class ExpedientTipusHelper {
 	private WorkflowEngineApi workflowEngineApi;
 	@Resource
 	private PermisosHelper permisosHelper;
+	@Resource
+	private ProcesClientService procesClientService;
 	
 
 	/** Consulta el tipus d'expedient comprovant el permís de lectura. */
@@ -224,7 +229,8 @@ public class ExpedientTipusHelper {
 
 	public ExpedientTipus findAmbProcessInstanceId(
 			String processInstanceId) {
-		Long expId = workflowEngineApi.findExpedientIdByProcessInstanceId(processInstanceId);
+		Long expId = procesClientService.getProcesExpedientId(processInstanceId);
+		
 		Expedient expedient = expedientRepository.getById(expId);
 		return expedient.getTipus(); //expedientTipusRepository.findById(expedient.getTipus().getId()).get();
 	}

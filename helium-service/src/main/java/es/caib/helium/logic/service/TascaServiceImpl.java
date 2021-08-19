@@ -4,6 +4,7 @@
 package es.caib.helium.logic.service;
 
 import es.caib.helium.client.engine.model.WTaskInstance;
+import es.caib.helium.client.expedient.proces.ProcesClientService;
 import es.caib.helium.client.expedient.tasca.TascaClientService;
 import es.caib.helium.client.expedient.tasca.model.ConsultaTascaDades;
 import es.caib.helium.client.model.PagedList;
@@ -179,6 +180,9 @@ public class TascaServiceImpl implements TascaService {
 
 	@Resource
 	private TascaClientService tascaClientService;
+	
+	@Resource
+	private ProcesClientService procesClientService;
 
 	@Autowired
 	private MsHelper msHelper;
@@ -351,20 +355,6 @@ public class TascaServiceImpl implements TascaService {
 			
 			PagedList<String> page = tascaClientService.findTasquesIdsAmbFiltrePaginatV1(consultaTascaDades);
 			
-//			LlistatIds ids = workflowEngineApi.tascaIdFindByFiltrePaginat(
-//					responsable,
-//					titol,
-//					tasca,
-//TODO DANIEL:		idsExpedients, resoldre què s'informa aquí
-//					dataCreacioInici,
-//					dataCreacioFi,
-//					prioritat,
-//					dataLimitInici,
-//					dataLimitFi,
-//					new PaginacioParamsDto(),
-//					nomesTasquesPersonals, 
-//					nomesTasquesGrup,
-//					true);
 			return page.getContent();
 		} finally {
 //			contextTotal.stop();
@@ -882,6 +872,7 @@ public class TascaServiceImpl implements TascaService {
 		workflowRetroaccioApi.actualitzaParametresAccioInformacioRetroaccio(
 				informacioRetroaccioId,
 				previousActors + "::" + currentActors);
+		tascaClientService.setUsuariAssignat(taskInstanceId, auth.getName());
 		ExpedientTascaDto tasca = tascaHelper.toExpedientTascaDto(
 				task,
 				null,
@@ -919,6 +910,7 @@ public class TascaServiceImpl implements TascaService {
 		workflowRetroaccioApi.actualitzaParametresAccioInformacioRetroaccio(
 				informacioRetroaccioId,
 				previousActors + "::" + currentActors);
+		tascaClientService.setUsuariAssignat(id, null);
 		ExpedientTascaDto tasca = tascaHelper.toExpedientTascaDto(
 				task,
 				null,
@@ -1264,7 +1256,10 @@ public class TascaServiceImpl implements TascaService {
 			String rols = expedientTipusHelper.getRolsTipusExpedient(auth, expedient.getTipus());
 
 			workflowEngineApi.marcarFinalitzar(tascaId, marcadaFinalitzar, outcome, rols);
+			tascaClientService.marcarFinalitzar(tascaId, marcadaFinalitzar);
+			
 			checkFinalitzarSegonPla(tascaId, marcadaFinalitzar);
+			
 
 			workflowRetroaccioApi.afegirInformacioRetroaccioPerTasca(
 					tascaId,
@@ -1357,8 +1352,8 @@ public class TascaServiceImpl implements TascaService {
 			WTaskInstance task,
 			String outcome,
 			String usuari) {
-		Long expId = workflowEngineApi.findExpedientIdByProcessInstanceId(
-				task.getProcessInstanceId());
+
+		Long expId = procesClientService.getProcesExpedientId(task.getProcessInstanceId());
 		Expedient expedient = expedientRepository.getById(expId);
 
 		// TODO: Mètriques
@@ -1645,6 +1640,7 @@ public class TascaServiceImpl implements TascaService {
 	        SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 
+        //TODO DANIEL: no importa que tingui aquest mètode, aquesta informació es pot posar
 		workflowEngineApi.marcarIniciFinalitzacioSegonPla(tascaId, iniciFinalitzacio);
         // TODO - MS: obtenir l'expedientId a partir del processInstanceId --> MS Exp. Així només serveix si la tasca està al proces arrel
 		Expedient expedient = expedientRepository.findByProcessInstanceId(task.getProcessInstanceId());
@@ -1663,6 +1659,7 @@ public class TascaServiceImpl implements TascaService {
 	@Transactional
 	public void guardarErrorFinalitzacio(String tascaId, String errorFinalitzacio) {
 		workflowEngineApi.guardarErrorFinalitzacio(tascaId, errorFinalitzacio);
+		tascaClientService.setErrorFinalitzacio(tascaId, errorFinalitzacio);
 	}
 	
 	@Override

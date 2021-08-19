@@ -6,7 +6,7 @@ package es.caib.helium.logic.helper;
 import es.caib.helium.client.engine.model.WProcessDefinition;
 import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.engine.model.WTaskInstance;
-import es.caib.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
+import es.caib.helium.client.model.RespostaValidacioSignatura;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.ArxiuDto;
 import es.caib.helium.logic.intf.dto.ArxiuFirmaDto;
@@ -1503,7 +1503,7 @@ public class DocumentHelper {
 				expedient,
 				documentStore,
 				arxiuPerFirmar,
-				es.caib.helium.integracio.plugins.firma.FirmaTipus.PADES,
+				es.caib.helium.client.integracio.firma.enums.FirmaTipus.PADES,
 				(motiu != null) ? motiu : "Firma en servidor HELIUM");
 
 		guardarDocumentFirmat(

@@ -317,7 +317,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 
 			// Utilitza la llibreria d'utilitats de Distribució per incorporar la informació
 			// de l'anotació directament a l'expedient dins l'Arxiu
-			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper
+			var expedientArxiu = pluginHelper
 					.arxiuExpedientInfo(expedient.getArxiuUuid());
 			BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
 			// Posarà els annexos en la carpeta de l'anotació

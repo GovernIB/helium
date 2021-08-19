@@ -1,14 +1,16 @@
 package es.caib.helium.integracio.service.firma;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import es.caib.helium.integracio.domini.firma.FirmaPost;
+import es.caib.helium.integracio.enums.firma.FirmaTipus;
+import es.caib.helium.integracio.excepcions.firma.FirmaException;
+import es.caib.helium.integracio.service.monitor.MonitorIntegracionsService;
+import es.caib.helium.jms.domini.Parametre;
+import es.caib.helium.jms.enums.CodiIntegracio;
+import es.caib.helium.jms.enums.EstatAccio;
+import es.caib.helium.jms.enums.TipusAccio;
+import es.caib.helium.jms.events.IntegracioEvent;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.fundaciobit.plugins.signature.api.CommonInfoSignature;
@@ -27,17 +29,14 @@ import org.fundaciobit.plugins.signatureserver.api.ISignatureServerPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import es.caib.helium.integracio.domini.firma.FirmaPost;
-import es.caib.helium.integracio.enums.firma.FirmaTipus;
-import es.caib.helium.integracio.excepcions.firma.FirmaException;
-import es.caib.helium.integracio.service.monitor.MonitorIntegracionsService;
-import es.caib.helium.jms.domini.Parametre;
-import es.caib.helium.jms.enums.CodiIntegracio;
-import es.caib.helium.jms.enums.EstatAccio;
-import es.caib.helium.jms.enums.TipusAccio;
-import es.caib.helium.jms.events.IntegracioEvent;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 @Service
@@ -59,7 +58,15 @@ public class FirmaServicePortaFibImpl implements FirmaService {
 	public byte[] firmar(FirmaPost firma, Long entornId) throws FirmaException {
 		
 		List<Parametre> parametres = new ArrayList<>();
+		parametres.add(new Parametre("expedientIdentificador", firma.getExpedientIdentificador()));
+		parametres.add(new Parametre("expedientNumero", firma.getExpedientNumero()));
+		parametres.add(new Parametre("expedientTipusId", firma.getExpedientTipusId() + ""));
+		parametres.add(new Parametre("expedientTipusCodi", firma.getExpedientTipusCodi()));
+		parametres.add(new Parametre("expedientTipusNom", firma.getExpedientTipusNom()));
+		parametres.add(new Parametre("documentCodi", firma.getCodiDocument()));
 		parametres.add(new Parametre("arxiuNom", firma.getArxiuNom()));
+		parametres.add(new Parametre("arxiuTamany", firma.getTamany() + ""));
+
 		var t0 = System.currentTimeMillis();
 		var descripcio = "Firmant el fitxer " + firma.getArxiuNom();
 		File sourceFile = null;

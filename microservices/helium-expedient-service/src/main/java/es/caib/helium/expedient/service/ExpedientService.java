@@ -1,5 +1,6 @@
 package es.caib.helium.expedient.service;
 
+import es.caib.helium.expedient.domain.Expedient;
 import java.util.Collection;
 import java.util.Date;
 
@@ -8,12 +9,19 @@ import org.springframework.data.domain.Sort;
 
 import es.caib.helium.expedient.model.ExpedientDto;
 import es.caib.helium.ms.model.PagedList;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
+import java.util.Date;
+import java.util.List;
 
 /** Servei per a la consulta i manteniment de la informació a nivell d'expedients
  * 
  *
  */
 public interface ExpedientService {
+
+    void importarExpedients(List<Expedient> expedients) throws Exception ;
 
     ExpedientDto createExpedient(ExpedientDto expedient);
 
@@ -31,7 +39,7 @@ public interface ExpedientService {
     		String usuariCodi,
     		Long entornId,
             Long expedientTipusId,
-            Collection<Long> tipusIdPermesos, 
+            Collection<Long> tipusIdPermesos,
             String titol,
             String numero,
             Date dataInici1,

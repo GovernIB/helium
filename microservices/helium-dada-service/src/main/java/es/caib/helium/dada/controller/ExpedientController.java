@@ -23,7 +23,7 @@ public class ExpedientController {
 	@ExceptionHandler({ Exception.class })
 	public ResponseEntity<Void> handleException(Exception e) {
 		e.printStackTrace();
-		return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
+		return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@PostMapping(value = "consulta/resultats", consumes = "application/json")
@@ -37,7 +37,7 @@ public class ExpedientController {
 		body.setExpedientTipusId(expedientTipusId);
 		body.setPage(page);
 		body.setSize(size);
-		return new ResponseEntity<PagedList<Expedient>>(expedientService.consultaResultats(body), HttpStatus.OK);
+		return new ResponseEntity<>(expedientService.consultaResultats(body), HttpStatus.OK);
 	}
 
 	@PostMapping(value = "consulta/resultats/llistat", consumes = "application/json")
@@ -48,7 +48,7 @@ public class ExpedientController {
 
 		body.setEntornId(entornId);
 		body.setExpedientTipusId(expedientTipusId);
-		return new ResponseEntity<List<Expedient>>(expedientService.consultaResultatsLlistat(body), HttpStatus.OK);
+		return new ResponseEntity<>(expedientService.consultaResultatsLlistat(body), HttpStatus.OK);
 	}
 
 	// Gestió dades capçalera de l'expedient
@@ -59,9 +59,9 @@ public class ExpedientController {
 
 		var expedient = expedientService.findByExpedientId(expedientId);
 		if (expedient == null) {
-			return new ResponseEntity<Expedient>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<Expedient>(expedient, HttpStatus.OK);
+		return new ResponseEntity<>(expedient, HttpStatus.OK);
 	}
 
 	@PostMapping(consumes = { "application/json" })
@@ -180,14 +180,14 @@ public class ExpedientController {
 
 		var dades = expedientService.getDades(expedientId);
 		if (!dades.isEmpty()) {
-			return new ResponseEntity<List<Dada>>(dades, HttpStatus.OK);
+			return new ResponseEntity<>(dades, HttpStatus.OK);
 		}
 
 		if (expedientService.findByExpedientId(expedientId) == null) {
-			return new ResponseEntity<List<Dada>>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 
-		return new ResponseEntity<List<Dada>>(dades, HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(dades, HttpStatus.NO_CONTENT);
 	}
 
 	@GetMapping(value = "{expedientId}/dades/{codi}")
@@ -197,14 +197,14 @@ public class ExpedientController {
 
 		var dada = expedientService.getDadaByCodi(expedientId, codi);
 		if (dada != null) {
-			return new ResponseEntity<Dada>(dada, HttpStatus.OK);
+			return new ResponseEntity<>(dada, HttpStatus.OK);
 		}
 
 		if (expedientService.findByExpedientId(expedientId) == null) {
-			return new ResponseEntity<Dada>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 
-		return new ResponseEntity<Dada>(dada, HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 	@GetMapping(value = "{expedientId}/proces/{procesId}/dades")
@@ -214,13 +214,13 @@ public class ExpedientController {
 
 		var dades = expedientService.getDadesByExpedientIdAndProcesId(expedientId, procesId);
 		if (!dades.isEmpty()) {
-			return new ResponseEntity<List<Dada>>(dades, HttpStatus.OK);
+			return new ResponseEntity<>(dades, HttpStatus.OK);
 		}
 
 		if (expedientService.findByExpedientId(expedientId) == null) {
-			return new ResponseEntity<List<Dada>>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<List<Dada>>(dades, HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(dades, HttpStatus.NO_CONTENT);
 	}
 
 	@GetMapping(value = "{expedientId}/proces/{procesId}/dades/{codi}")
@@ -231,14 +231,14 @@ public class ExpedientController {
 
 		var dada = expedientService.getDadaByExpedientIdProcesAndCodi(expedientId, procesId, codi);
 		if (dada != null) {
-			return new ResponseEntity<Dada>(dada, HttpStatus.OK);
+			return new ResponseEntity<>(dada, HttpStatus.OK);
 		}
 
 		if (expedientService.findByExpedientId(expedientId) == null) {
-			return new ResponseEntity<Dada>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 
-		return new ResponseEntity<Dada>(dada, HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	
 	@GetMapping(value = "proces/{procesId}/dades/{codi}")
@@ -248,10 +248,10 @@ public class ExpedientController {
 		
 		var dada = expedientService.getDadaByProcesAndCodi(procesId, codi);
 		if (dada != null) {
-			return new ResponseEntity<Dada>(dada, HttpStatus.OK);
+			return new ResponseEntity<>(dada, HttpStatus.OK);
 		}
 		
-		return new ResponseEntity<Dada>(dada, HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(dada, HttpStatus.NO_CONTENT);
 	}
 
 	@GetMapping(value = "proces/{procesId}/dades/expedient/id")
@@ -260,10 +260,10 @@ public class ExpedientController {
 		
 		var expedientId = expedientService.getDadaExpedientIdByProcesId(procesId);
 		if (expedientId != null) {
-			return new ResponseEntity<Long>(expedientId, HttpStatus.OK);
+			return new ResponseEntity<>(expedientId, HttpStatus.OK);
 		}
 		
-		return new ResponseEntity<Long>(expedientId, HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 	}
 
 	@PostMapping(value = "{expedientId}/dades", consumes = "application/json")
@@ -365,9 +365,9 @@ public class ExpedientController {
 		}
 		var created = expedientService.createDades(procesId, dades);
 		if (created) {
-			return new ResponseEntity<Boolean>(created, HttpStatus.CREATED);
+			return new ResponseEntity<>(created, HttpStatus.CREATED);
 		}
-		return new ResponseEntity<Boolean>(created, HttpStatus.CONFLICT);
+		return new ResponseEntity<>(created, HttpStatus.CONFLICT);
 	}
 
 	@DeleteMapping(value = "proces/{procesId}/dades/{codi}", produces = "application/json")

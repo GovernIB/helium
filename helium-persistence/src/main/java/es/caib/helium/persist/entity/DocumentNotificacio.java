@@ -3,13 +3,31 @@
  */
 package es.caib.helium.persist.entity;
 
-import es.caib.helium.integracio.plugins.notificacio.EnviamentEstat;
-import es.caib.helium.logic.intf.dto.EnviamentTipusEnumDto;
-import es.caib.helium.logic.intf.dto.NotificacioEnviamentEstatEnumDto;
-import es.caib.helium.logic.intf.dto.NotificacioEstatEnumDto;
+import es.caib.helium.client.integracio.notificacio.enums.EnviamentEstat;
+import es.caib.helium.client.integracio.notificacio.enums.EnviamentTipus;
+import es.caib.helium.client.integracio.notificacio.enums.NotificacioEstat;
+import es.caib.helium.client.integracio.notificacio.enums.NotificacioEnviamentEstatEnumDto;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.TableGenerator;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -65,7 +83,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	
 	@Column(name = "tipus")
 	@Enumerated(EnumType.STRING)
-	private EnviamentTipusEnumDto tipus;
+	private EnviamentTipus tipus;
 	
 	@Column(name = "data_programada")
 	@Temporal(TemporalType.DATE)
@@ -167,7 +185,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	
 	@Column(name = "estat", nullable = false)
 	@Enumerated(EnumType.STRING)
-	private NotificacioEstatEnumDto estat;
+	private NotificacioEstat estat;
 	
 	@Column(name = "enviat_data")
 	@Temporal(TemporalType.TIMESTAMP)
@@ -277,11 +295,11 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 		this.document = document;
 	}
 
-	public EnviamentTipusEnumDto getTipus() {
+	public EnviamentTipus getTipus() {
 		return tipus;
 	}
 
-	public void setTipus(EnviamentTipusEnumDto tipus) {
+	public void setTipus(EnviamentTipus tipus) {
 		this.tipus = tipus;
 	}
 
@@ -413,11 +431,11 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 		this.destinatariEmail = destinatariEmail;
 	}
 
-	public NotificacioEstatEnumDto getEstat() {
+	public NotificacioEstat getEstat() {
 		return estat;
 	}
 
-	public void setEstat(NotificacioEstatEnumDto estat) {
+	public void setEstat(NotificacioEstat estat) {
 		this.estat = estat;
 	}
 
@@ -723,7 +741,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 			String enviamentReferencia) {
 		this.enviamentIdentificador = enviamentIdentificador;
 		this.enviamentReferencia = enviamentReferencia;
-		this.estat = NotificacioEstatEnumDto.ENVIADA;
+		this.estat = NotificacioEstat.ENVIADA;
 		this.enviatData = enviatData;
 		this.error = false;
 		this.errorDescripcio = null;
@@ -734,7 +752,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	
 	public void updateEnviat(
 			Date enviatData) {
-		this.estat = NotificacioEstatEnumDto.ENVIADA;
+		this.estat = NotificacioEstat.ENVIADA;
 		this.enviatData = enviatData;
 		this.error = false;
 		this.errorDescripcio = null;
@@ -745,7 +763,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	public void updateEnviatError(
 			String errorDescripcio,
 			Date intentProximData) {
-		this.estat = NotificacioEstatEnumDto.PENDENT;
+		this.estat = NotificacioEstat.PENDENT;
 		this.error = true;
 		this.errorDescripcio = StringUtils.abbreviate(errorDescripcio, ERROR_DESC_TAMANY);
 		this.enviatData = null;
@@ -757,7 +775,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	public void updateProcessat(
 			boolean processat,
 			Date processatData) {
-		this.estat = (processat) ? NotificacioEstatEnumDto.PROCESSADA : NotificacioEstatEnumDto.ENVIADA;
+		this.estat = (processat) ? NotificacioEstat.PROCESSADA : NotificacioEstat.ENVIADA;
 		this.processatData = processatData;
 		this.error = false;
 		this.errorDescripcio = null;
@@ -768,7 +786,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	public void updateProcessatError(
 			String errorDescripcio,
 			Date intentProximData) {
-		this.estat = NotificacioEstatEnumDto.ENVIADA;
+		this.estat = NotificacioEstat.ENVIADA;
 		this.error = true;
 		this.errorDescripcio = StringUtils.abbreviate(errorDescripcio, ERROR_DESC_TAMANY);
 		this.processatData = null;
@@ -779,7 +797,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 
 	public void updateCancelat(
 			Date cancelatData) {
-		this.estat = NotificacioEstatEnumDto.FINALITZADA;
+		this.estat = NotificacioEstat.FINALITZADA;
 		this.cancelatData = cancelatData;
 		this.error = false;
 		this.errorDescripcio = null;
@@ -789,7 +807,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	}
 
 	protected void inicialitzar() {
-		this.estat = NotificacioEstatEnumDto.PENDENT;
+		this.estat = NotificacioEstat.PENDENT;
 		this.enviatData = null;
 		this.processatData = null;
 		this.cancelatData = null;

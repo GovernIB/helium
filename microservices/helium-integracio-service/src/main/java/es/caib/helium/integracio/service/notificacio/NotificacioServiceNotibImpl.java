@@ -1,19 +1,5 @@
 package es.caib.helium.integracio.service.notificacio;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import es.caib.helium.integracio.domini.notificacio.ConsultaEnviament;
 import es.caib.helium.integracio.domini.notificacio.ConsultaNotificacio;
 import es.caib.helium.integracio.domini.notificacio.DadesNotificacioDto;
@@ -49,6 +35,18 @@ import es.caib.notib.ws.notificacio.NotificacioV2;
 import es.caib.notib.ws.notificacio.RespostaAlta;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -67,11 +65,12 @@ public class NotificacioServiceNotibImpl implements NotificacioService {
 		RespostaNotificacio resposta = null;
 		long t0 = System.currentTimeMillis();
 		List<Parametre> parametres = new ArrayList<>();
-		parametres.add(new Parametre("expedient.id", dto.getExpedientId()+ ""));
+		parametres.add(new Parametre("expedient.id", dto.getExpedientId() + ""));
 		parametres.add(new Parametre("expedient", dto.getExpedientIdentificadorLimitat()));
 		parametres.add(new Parametre("documentArxiuNom", dto.getDocumentArxiuNom()));
 		parametres.add(new Parametre("titularsNif", preparaNifDestinataris(dto.getEnviaments())));
-		
+		parametres.add(new Parametre("idioma", dto.getIdioma().name()));
+
 		var descripcio = "Alta notificació per l'expedient " + dto.getExpedientId();
 		
 		try {

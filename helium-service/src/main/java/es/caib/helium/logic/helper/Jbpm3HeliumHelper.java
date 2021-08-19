@@ -3,6 +3,24 @@
  */
 package es.caib.helium.logic.helper;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.hibernate.Hibernate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import es.caib.helium.client.engine.model.WProcessDefinition;
 import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.engine.model.WTaskInstance;
@@ -106,23 +124,6 @@ import es.caib.helium.persist.repository.ReassignacioRepository;
 import es.caib.helium.persist.repository.TascaRepository;
 import es.caib.helium.persist.repository.TerminiIniciatRepository;
 import es.caib.helium.persist.util.ThreadLocalInfo;
-import org.hibernate.Hibernate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
 /**
  * Service que implementa la funcionalitat necessària per
  * a integrar Helium i jBPM.
@@ -470,7 +471,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				interessat.getDir3Codi(),
 				interessat.getLlinatge1(), 
 				interessat.getLlinatge2(), 
-				interessat.getTipus(),
+				InteressatTipusEnumDto.valueOf(interessat.getTipus().toString()),
 				interessat.getEmail(), 
 				interessat.getTelefon(),
 				expedient,
@@ -505,8 +506,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		interessatEntity.setNif(interessat.getNif());
 		interessatEntity.setLlinatge1(interessat.getLlinatge1());
 		interessatEntity.setLlinatge2(interessat.getLlinatge2());
-		interessatEntity.setTipus(interessat.getTipus());
-		interessatEntity.setEmail(interessat.getEmail());
+		interessatEntity.setTipus(InteressatTipusEnumDto.valueOf(interessat.getTipus().toString()));
+				interessatEntity.setEmail(interessat.getEmail());
 		interessatEntity.setTelefon(interessat.getTelefon());
 		interessatEntity.setEntregaPostal(interessat.getEntregaPostal());
 		interessatEntity.setEntregaTipus(interessat.getEntregaTipus());
@@ -545,7 +546,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			errors.add("El tipus d'interessat és obligatori");
 		
 		// Llinatge1 per persones físiques
-		if (interessat.getTipus() == InteressatTipusEnumDto.FISICA && (interessat.getLlinatge1() == null || interessat.getLlinatge1().isEmpty())) {			
+		if (interessat.getTipus() == es.caib.helium.logic.intf.integracio.notificacio.InteressatTipusEnum.FISICA 
+				&& (interessat.getLlinatge1() == null || interessat.getLlinatge1().isEmpty())) {
 			errors.add("Si el tipus de persona és física llavors el llinatge és obligatori");
 		}
 		

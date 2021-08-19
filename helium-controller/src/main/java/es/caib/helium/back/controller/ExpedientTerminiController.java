@@ -67,7 +67,7 @@ public class ExpedientTerminiController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			Model model) {		
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
-		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
+		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(expedient.getProcessInstanceId());
 		Map<InstanciaProcesDto, List<TerminiDto>> terminis = new LinkedHashMap<InstanciaProcesDto, List<TerminiDto>>();
 		Map<String, List<TerminiIniciatDto>> iniciats = new LinkedHashMap<String, List<TerminiIniciatDto>>();
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
