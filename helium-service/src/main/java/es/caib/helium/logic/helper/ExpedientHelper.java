@@ -5,6 +5,10 @@ package es.caib.helium.logic.helper;
 
 import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.engine.model.WToken;
+import es.caib.helium.client.expedient.expedient.ExpedientClientService;
+import es.caib.helium.client.expedient.expedient.enums.ExpedientEstatTipusEnum;
+import es.caib.helium.client.expedient.proces.ProcesClientService;
+import es.caib.helium.client.expedient.proces.model.ProcesDto;
 import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
@@ -55,7 +59,6 @@ import es.caib.helium.persist.repository.TerminiIniciatRepository;
 import es.caib.helium.persist.util.ThreadLocalInfo;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ExpedientEstat;
-import es.caib.plugins.arxiu.api.ExpedientMetadades;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -14,6 +14,7 @@ import es.caib.helium.back.helper.TascaFormValidatorHelper;
 import es.caib.helium.back.passarelafirma.PassarelaFirmaConfig;
 import es.caib.helium.back.passarelafirma.PassarelaFirmaHelper;
 import es.caib.helium.back.view.ArxiuView;
+import es.caib.helium.client.expedient.tasca.TascaClientService;
 import es.caib.helium.logic.intf.dto.ArxiuDto;
 import es.caib.helium.logic.intf.dto.CampAgrupacioDto;
 import es.caib.helium.logic.intf.dto.DocumentDto;
@@ -124,6 +125,8 @@ public class TascaTramitacioController extends BaseTascaController {
 	private ReproService reproService;
 	@Resource
 	private DocumentService documentService;
+	@Resource
+	private TascaClientService tascaClientService;
 
 	@Autowired
 	private Validator validator;
@@ -250,8 +253,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			SessionStatus status,
 			Model model) throws Exception {
 		List<TascaDadaDto> tascaDades = tascaService.findDades(tascaId);
-		// TODO: Obtenir processInstance per tascaId
-//		String processInstanceId = null;
+		String processInstanceId = getProcessInstanceIdByTaskInstanceId(tascaId);
 		//afegirVariablesInstanciaProces(tascaDades, tascaId);
 		TascaFormValidatorHelper validatorHelper = new TascaFormValidatorHelper(
 				tascaService,
@@ -299,8 +301,7 @@ public class TascaTramitacioController extends BaseTascaController {
 					null,
 					null);
 		}
-		// TODO: Obtenir processInstance per tascaId
-//		String processInstanceId = null;
+		String processInstanceId = getProcessInstanceIdByTaskInstanceId(tascaId);
 		List<TascaDadaDto> tascaDades = tascaService.findDades(tascaId);
 		//afegirVariablesInstanciaProces(tascaDades, tascaId);
 		TascaFormValidatorHelper validatorHelper = new TascaFormValidatorHelper(
@@ -338,7 +339,8 @@ public class TascaTramitacioController extends BaseTascaController {
 					commandValidar,
 					result,
 					request,
-					tascaId);
+					tascaId,
+					processInstanceId);
 		}
 		status.setComplete();
 		SessionHelper.setAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId, command);
@@ -407,8 +409,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			BindingResult result,
 			SessionStatus status,
 			Model model) throws Exception {
-		// TODO: Obtenir processInstance per tascaId
-//		String processInstanceId = null;
+		String processInstanceId = getProcessInstanceIdByTaskInstanceId(tascaId);
 		List<TascaDadaDto> tascaDades = tascaService.findDades(tascaId);
 		//afegirVariablesInstanciaProces(tascaDades, tascaId);
 		TascaFormValidatorHelper validatorHelper = new TascaFormValidatorHelper(
@@ -1162,9 +1163,8 @@ public class TascaTramitacioController extends BaseTascaController {
 			Object commandValidar, 
 			BindingResult result, 
 			HttpServletRequest request,
-			String tascaId) throws Exception {
-		// TODO: Obtenir processInstance per tascaId
-//		String processInstanceId = null;
+			String tascaId,
+			String processInstanceId) throws Exception {
 		validatorHelper.setValidarObligatoris(true);
 		validatorHelper.setValidarExpresions(true);
 		commandValidar = TascaFormHelper.getCommandForCamps(
@@ -1778,6 +1778,14 @@ public class TascaTramitacioController extends BaseTascaController {
 			ret = "redirect:/modal/v3/tasca/" + tascaId;
 		}
 		return ret;
+	}
+
+	private String getProcessInstanceIdByTaskInstanceId(String taskInstanceId) {
+		var tasca = tascaClientService.getTascaV1(taskInstanceId);
+		if (tasca == null) {
+			return null;
+		}
+		return tasca.getProcesId();
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(TascaTramitacioController.class);
