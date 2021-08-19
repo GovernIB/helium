@@ -17,7 +17,7 @@ import java.util.List;
 import static es.caib.helium.back.helper.TascaFormValidatorHelper.STRING_MAX_LENGTH;
 
 @Slf4j
-public class ValidationUtils {
+public class ValidationHelper {
 
     public static boolean listMembersNotEmpty(Object valors) {
         if (valors == null) {

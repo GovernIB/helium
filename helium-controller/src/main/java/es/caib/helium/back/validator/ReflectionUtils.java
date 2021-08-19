@@ -28,10 +28,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Jakub Jirutka <jakub@jirutka.cz>
- */
-final class ReflectionUtils {
+public class ReflectionUtils {
 
     private ReflectionUtils() {}
 

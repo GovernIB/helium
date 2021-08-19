@@ -3,25 +3,19 @@
  */
 package es.caib.helium.back.helper;
 
-import es.caib.helium.logic.intf.dto.CampTipusDto;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.TascaService;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.cglib.beans.BeanGenerator;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 
 import javax.annotation.Resource;
 import javax.servlet.jsp.jstl.core.LoopTagStatus;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -35,6 +29,8 @@ public class TascaFormValidatorHelper {
 	private TascaService tascaService;
 	@Resource
 	private ExpedientService expedientService;
+	@Resource
+	private BeanFactory beanFactory;
 
 	@Getter @Setter
 	private List<TascaDadaDto> tascaDades;
@@ -161,30 +157,8 @@ public class TascaFormValidatorHelper {
 //			}
 //			// Només valida amb expressions si no hi ha errors previs
 //			if (validarExpresions && !errors.hasErrors()) {
-//				boolean errorPropietatNoPresent;
-//				String propietatAddicional = null;
-//				Object commandPerValidadorExpressions = command;
-//				do {
-//					errorPropietatNoPresent = false;
-//					try {
-//						commandPerValidadorExpressions = getCommandPerValidadorExpressions(commandPerValidadorExpressions, propietatAddicional);
-//						// TODO: Validador
-////						getValidatorPerExpressions(tascaDades, command).validate(
-////								commandPerValidadorExpressions,
-////								errors);
-//					} catch (NotReadablePropertyException ex) {
-//						// Si dona un error de que no troba una propietat l'afegeix amb el valor "" i torna a intentar la validació.
-//						int iinici = ex.getMessage().indexOf("'");
-//						if (iinici != -1) {
-//							int ifi = ex.getMessage().indexOf("'", iinici + 1);
-//							propietatAddicional = ex.getMessage().substring(iinici + 1, ifi);
-//							errorPropietatNoPresent = true;
-//						} else
-//							errorPropietatNoPresent = false;
-//					}
-//				} while(errorPropietatNoPresent);
+//				validateExpressions(tascaDades, command, errors);
 //			}
-//			logger.debug(errors.toString());
 //		} catch (Exception ex) {
 //			logger.error("Error en el validator", ex);
 //			errors.reject("error.validator");
@@ -252,42 +226,42 @@ public class TascaFormValidatorHelper {
 //		return invalid;
 //	}
 
-	private void comprovaCamp(TascaDadaDto camp, Object command, Errors errors) throws Exception {
-		if (camp != null && camp.getCampTipus() != null) {
-			if (camp.getCampTipus().equals(CampTipusDto.STRING)) {
-				try {
-					if (camp.isCampMultiple()) {
-						String[] valors = (String[]) PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
-						if (valors != null)
-							for (String valor : valors) {
-								if (valor != null && valor.length() > STRING_MAX_LENGTH)
-									errors.rejectValue(camp.getVarCodi(), "max.length");
-							}
-					} else {
-						String valor = (String) PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
-						if (valor != null && valor.length() > STRING_MAX_LENGTH)
-							errors.rejectValue(camp.getVarCodi(), "max.length");
-					}
-				} catch (NoSuchMethodException ex) {
-					logger.error("No s'ha pogut trobar la propietat '" + camp.getVarCodi() + "' con campId " + camp.getCampId());
-				}
-			} else if (camp.getCampTipus().equals(CampTipusDto.DATE) && camp.getText() != null && !camp.getText().isEmpty()) {
-				try {
-					PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
-					String valor = camp.getText(); 
-					if (valor != null) {
-						SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-						sdf.setLenient(false);
-						sdf.parse(valor);
-					}
-				} catch (NoSuchMethodException ex) {
-					logger.error("No s'ha pogut trobar la propietat '" + camp.getVarCodi() + "' con campId " + camp.getCampId());
-				} catch (ParseException  ex) {
-					errors.rejectValue(camp.getVarCodi(), "error.camp.dada.valida");
-				}
-			}
-		}
-	}
+//	private void comprovaCamp(TascaDadaDto camp, Object command, Errors errors) throws Exception {
+//		if (camp != null && camp.getCampTipus() != null) {
+//			if (camp.getCampTipus().equals(CampTipusDto.STRING)) {
+//				try {
+//					if (camp.isCampMultiple()) {
+//						String[] valors = (String[]) PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
+//						if (valors != null)
+//							for (String valor : valors) {
+//								if (valor != null && valor.length() > STRING_MAX_LENGTH)
+//									errors.rejectValue(camp.getVarCodi(), "max.length");
+//							}
+//					} else {
+//						String valor = (String) PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
+//						if (valor != null && valor.length() > STRING_MAX_LENGTH)
+//							errors.rejectValue(camp.getVarCodi(), "max.length");
+//					}
+//				} catch (NoSuchMethodException ex) {
+//					logger.error("No s'ha pogut trobar la propietat '" + camp.getVarCodi() + "' con campId " + camp.getCampId());
+//				}
+//			} else if (camp.getCampTipus().equals(CampTipusDto.DATE) && camp.getText() != null && !camp.getText().isEmpty()) {
+//				try {
+//					PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
+//					String valor = camp.getText();
+//					if (valor != null) {
+//						SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+//						sdf.setLenient(false);
+//						sdf.parse(valor);
+//					}
+//				} catch (NoSuchMethodException ex) {
+//					logger.error("No s'ha pogut trobar la propietat '" + camp.getVarCodi() + "' con campId " + camp.getCampId());
+//				} catch (ParseException  ex) {
+//					errors.rejectValue(camp.getVarCodi(), "error.camp.dada.valida");
+//				}
+//			}
+//		}
+//	}
 
 //	private List<TascaDadaDto> getTascaDades(Object command) throws Exception {
 //		if (tascaDades != null) {
@@ -298,7 +272,55 @@ public class TascaFormValidatorHelper {
 //		}
 //	}
 
-	// TODO: Validador
+//	private void validateExpressions(
+//			List<TascaDadaDto> tascaDadas,
+//			Object command,
+//			Errors errors) {
+//
+//		ExpressionParser parser = new SpelExpressionParser();
+//		StandardEvaluationContext context = createEvaluationContext(command);
+//
+//		for (var tascaDada: tascaDadas) {
+//			if (tascaDada.getValidacions() != null && !tascaDada.getValidacions().isEmpty()) {
+//				for (var validacio: tascaDada.getValidacions()) {
+//					String expressio = transformExpression(validacio.getExpressio(), processInstanceId);
+//					Expression expression = parser.parseExpression(expressio);
+//					Boolean result = expression.getValue(context, Boolean.class);
+//					if (result == null || result == false) {
+//						errors.rejectValue(tascaDada.getVarCodi(), validacio.getMissatge());
+//					}
+//				}
+//			}
+//		}
+//
+//	}
+//
+//	private String transformExpression(String processInstanceId, String expression) {
+//		expression = expression.replace("#valor(", "@expedientDadaService.findOnePerInstanciaProces(null, " + processInstanceId + ", ");
+//		return expression;
+//	}
+
+//	private StandardEvaluationContext createEvaluationContext(Object rootObject) {
+//		StandardEvaluationContext context = new StandardEvaluationContext();
+//
+//		context.setRootObject(rootObject);
+//		context.setTypeConverter(new RelaxedBooleanTypeConverterDecorator(new StandardTypeConverter()));
+//
+//		if (beanFactory != null) {
+//			context.setBeanResolver(new BeanFactoryResolver(beanFactory));
+//		}
+//
+//		List<Method> functions = extractStaticMethods(ValidationHelper.class);
+//		for (Method helper : functions) {
+//			context.registerFunction(helper.getName(), helper);
+//		}
+//
+//		return context;
+//	}
+
+
+// ANTIC:
+
 //	private Validator getValidatorPerExpressions(
 //			List<TascaDadaDto> tascaDadas,
 //			Object command) {
@@ -318,7 +340,6 @@ public class TascaFormValidatorHelper {
 //		return new BeanValidator(validationConfigurationLoader);
 //	}
 
-	// TODO: Validador
 //	/** Afegeix en el beanValidationCofiguration una configuració pel camp en el cas que tingui validacions. Si
 //	 * el camp és un registre llavors invoca la funció amb cada camp del registre passant el registre com a paràmetre
 //	 * per adequar els codis de les variables.
@@ -433,7 +454,6 @@ public class TascaFormValidatorHelper {
 //		}
 //	}
 
-	// TODO: Validador
 //	private void afegirExpressioValidacio(
 //			String varCodi,
 //			String validacioExpressio,
@@ -454,41 +474,41 @@ public class TascaFormValidatorHelper {
 //				validationRule);
 //	}
 
-	private Object getCommandPerValidadorExpressions(
-			Object commandOriginal,
-			String propietatAddicional) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-		// Crea una còpia del command amb els strings que sigin NULL amb valor buit
-		// per evitar excepcions en les expressions VALANG
-		BeanGenerator bg = new BeanGenerator();
-		for (PropertyDescriptor descriptor: PropertyUtils.getPropertyDescriptors(commandOriginal)) {
-			if (!"class".equals(descriptor.getName())) {
-				bg.addProperty(descriptor.getName(), descriptor.getPropertyType());
-			}
-		}
-		if (propietatAddicional != null) {
-			bg.addProperty(propietatAddicional, String.class);
-		}
-		Object command = bg.create();
-		for (PropertyDescriptor descriptor: PropertyUtils.getPropertyDescriptors(commandOriginal)) {
-			if (!"class".equals(descriptor.getName())) {
-				Object valor = PropertyUtils.getProperty(commandOriginal, descriptor.getName());
-				if (String.class.equals(descriptor.getPropertyType()) && valor == null) {
-					valor = "";
-				}
-				PropertyUtils.setProperty(
-						command,
-						descriptor.getName(),
-						valor);
-			}
-		}
-		if (propietatAddicional != null) {
-			PropertyUtils.setProperty(
-					command,
-					propietatAddicional,
-					"");
-		}
-		return command;
-	}
+//	private Object getCommandPerValidadorExpressions(
+//			Object commandOriginal,
+//			String propietatAddicional) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+//		// Crea una còpia del command amb els strings que sigin NULL amb valor buit
+//		// per evitar excepcions en les expressions VALANG
+//		BeanGenerator bg = new BeanGenerator();
+//		for (PropertyDescriptor descriptor: PropertyUtils.getPropertyDescriptors(commandOriginal)) {
+//			if (!"class".equals(descriptor.getName())) {
+//				bg.addProperty(descriptor.getName(), descriptor.getPropertyType());
+//			}
+//		}
+//		if (propietatAddicional != null) {
+//			bg.addProperty(propietatAddicional, String.class);
+//		}
+//		Object command = bg.create();
+//		for (PropertyDescriptor descriptor: PropertyUtils.getPropertyDescriptors(commandOriginal)) {
+//			if (!"class".equals(descriptor.getName())) {
+//				Object valor = PropertyUtils.getProperty(commandOriginal, descriptor.getName());
+//				if (String.class.equals(descriptor.getPropertyType()) && valor == null) {
+//					valor = "";
+//				}
+//				PropertyUtils.setProperty(
+//						command,
+//						descriptor.getName(),
+//						valor);
+//			}
+//		}
+//		if (propietatAddicional != null) {
+//			PropertyUtils.setProperty(
+//					command,
+//					propietatAddicional,
+//					"");
+//		}
+//		return command;
+//	}
 	
 //	public void setTascaDades(List<TascaDadaDto> tascaDades) {
 //		this.tascaDades = tascaDades;

@@ -790,9 +790,9 @@ public class TascaFormHelper {
 										.build());
 							}
 						} else {
-							List<ValidationUtils.CampRegistreRequired> campsRequired = registreDades
+							List<ValidationHelper.CampRegistreRequired> campsRequired = registreDades
 									.stream()
-									.map(r -> ValidationUtils.CampRegistreRequired.builder()
+									.map(r -> ValidationHelper.CampRegistreRequired.builder()
 											.varCodi(r.getVarCodi())
 											.required(r.isRequired())
 											.multiple(r.isCampMultiple())
@@ -1236,7 +1236,7 @@ public class TascaFormHelper {
 		if (data.getMembers() != null) {
 			data.getMembers().entrySet().forEach(e -> annotation.addMemberValue(e.getKey(), new StringMemberValue(e.getValue(), cpool)));
 		}
-		annotation.addMemberValue("helpers", new ClassMemberValue(ValidationUtils.class.getName(), cpool));
+		annotation.addMemberValue("helpers", new ClassMemberValue(ValidationHelper.class.getName(), cpool));
 		return annotation;
 	}
 
