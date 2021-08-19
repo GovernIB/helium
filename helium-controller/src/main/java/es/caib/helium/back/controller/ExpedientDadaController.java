@@ -28,6 +28,7 @@ import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Validator;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -60,6 +61,9 @@ public class ExpedientDadaController extends BaseExpedientController {
 	private ExpedientService expedientService;
 	@Autowired
 	private ExpedientDadaService expedientDadaService;
+
+	@Autowired
+	private Validator validator;
 
 
 
@@ -171,8 +175,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 		// del POSTs amb les modificacions al formulari de la tasca
 		if (procesId != null && !"".equals(procesId) && varCodi != null && !"".equals(varCodi)) {
 		try {
-			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+//			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+//			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
 			List<TascaDadaDto> llistTasca = new ArrayList<TascaDadaDto>();
 			TascaDadaDto tascaDada = TascaFormHelper.getTascaDadaDtoFromExpedientDadaDto(
 					expedientDadaService.findOnePerInstanciaProces(
@@ -189,15 +193,13 @@ public class ExpedientDadaController extends BaseExpedientController {
 				return TascaFormHelper.getCommandForCamps(
 						llistTasca,
 						null,
-						campsAddicionals,
-						campsAddicionalsClasses,
-						false);
+						null, //campsAddicionals,
+						null); //campsAddicionalsClasses);
 			else 
 				return TascaFormHelper.getCommandBuitForCamps(
 						llistTasca,
-						campsAddicionals,
-						campsAddicionalsClasses,
-						false);
+						null, //campsAddicionals,
+						null); //campsAddicionalsClasses);
 		} catch (Exception ex) {
 			MissatgesHelper.error(request, ex.getMessage());
 			logger.error("No s'ha pogut obtenir la informació de la dada " + varCodi + ": "  + ex.getMessage(), ex);
@@ -249,20 +251,24 @@ public class ExpedientDadaController extends BaseExpedientController {
 							varCodi));
 			tascaDades.add(tascaDada);
 			Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDades, command, false);
-			TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
+			TascaFormValidatorHelper validatorHelper = new TascaFormValidatorHelper(
 					expedientService,
 					tascaDades);
-			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+//			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+//			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+			validatorHelper.setValidarExpresions(false);
+			validatorHelper.setValidarObligatoris(true);
 			Object commandValidar = TascaFormHelper.getCommandForCamps(
 					tascaDades,
 					variables,
-					campsAddicionals,
-					campsAddicionalsClasses,
-					false);
-			validator.setValidarExpresions(false);
-			validator.setValidarObligatoris(true);
+					null, //campsAddicionals,
+					null, //campsAddicionalsClasses,
+					true,
+					validatorHelper.isValidarObligatoris(),
+					validatorHelper.isValidarExpresions(),
+					procesId);
 			validator.validate(commandValidar, result);
+//			validatorHelper.validate(commandValidar, result);
 			if (result.hasErrors()) {
 				return "v3/expedientDadaModificar";
 			}
@@ -343,8 +349,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 				return TascaFormHelper.getCommandBuitForCamps(
 						llistTasca,
 						campsAddicionals,
-						campsAddicionalsClasses,
-						false);
+						campsAddicionalsClasses);
 			} catch (Exception ex) {
 				MissatgesHelper.error(request, ex.getMessage());
 				logger.error("No s'ha pogut obtenir la informació de la dada " + varCodi + ": "  + ex.getMessage(), ex);
@@ -437,20 +442,24 @@ public class ExpedientDadaController extends BaseExpedientController {
 								varCodi));
 				tascaDades.add(tascaDada);
 				Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDades, command, false);
-				Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-				Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+//				Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+//				Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+				TascaFormValidatorHelper validatorHelper = new TascaFormValidatorHelper(
+						expedientService,
+						tascaDades);
+				validatorHelper.setValidarExpresions(false);
+				validatorHelper.setValidarObligatoris(true);
 				Object commandValidar = TascaFormHelper.getCommandForCamps(
 						tascaDades,
 						variables,
-						campsAddicionals,
-						campsAddicionalsClasses,
-						false);
-				TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
-						expedientService,
-						tascaDades);
-				validator.setValidarExpresions(false);
-				validator.setValidarObligatoris(true);
-				validator.validate(commandValidar, result);				
+						null, //campsAddicionals,
+						null, //campsAddicionalsClasses,
+						true,
+						validatorHelper.isValidarObligatoris(),
+						validatorHelper.isValidarExpresions(),
+						procesId);
+				validator.validate(commandValidar, result);
+//				validatorHelper.validate(commandValidar, result);
 				if (!result.hasErrors()) {
 					expedientDadaService.create(
 							expedientId,

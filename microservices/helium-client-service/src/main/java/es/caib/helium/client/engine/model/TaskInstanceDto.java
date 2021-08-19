@@ -18,7 +18,7 @@ public class TaskInstanceDto implements WTaskInstance {
     Long taskInstanceId;
     String processInstanceId;
     String processDefinitionId;
-    Long expedientId;
+//    Long expedientId;
     String taskName;
     String description;
     String actorId;
@@ -38,8 +38,8 @@ public class TaskInstanceDto implements WTaskInstance {
 
     // Cache
     String titol;
-    String entornId;
-    Boolean tramitacioMassiva;
+//    String entornId;
+//    Boolean tramitacioMassiva;
     String definicioProcesKey;
     String infoTasca;
 }

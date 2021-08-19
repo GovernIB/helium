@@ -14,9 +14,22 @@ import es.caib.helium.back.helper.TascaFormValidatorHelper;
 import es.caib.helium.back.passarelafirma.PassarelaFirmaConfig;
 import es.caib.helium.back.passarelafirma.PassarelaFirmaHelper;
 import es.caib.helium.back.view.ArxiuView;
-import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.CampAgrupacioDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.DocumentTipusFirmaEnumDto;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.ExecucioMassivaDto;
 import es.caib.helium.logic.intf.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
+import es.caib.helium.logic.intf.dto.FirmaTascaDto;
+import es.caib.helium.logic.intf.dto.FormulariExternDto;
+import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.dto.ReproDto;
+import es.caib.helium.logic.intf.dto.TascaDadaDto;
+import es.caib.helium.logic.intf.dto.TascaDocumentDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternConversioDocumentException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
@@ -50,6 +63,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Validator;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -110,13 +124,16 @@ public class TascaTramitacioController extends BaseTascaController {
 	private ReproService reproService;
 	@Resource
 	private DocumentService documentService;
+
+	@Autowired
+	private Validator validator;
 	
 	@ModelAttribute("command")
 	public Object modelAttributeCommand(
 			HttpServletRequest request,
 			String tascaId,
 			String[] tasquesTramitar,
-			Model model) {
+			Model model) throws Exception {
 		// S'ha de inicialitzar el command abans de processar el RequestMapping
 		// del POSTs amb les modificacions al formulari de la tasca
 		if (tascaId != null && !tascaId.isEmpty()) {
@@ -125,8 +142,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			return TascaFormHelper.getCommandBuitForCamps(
 					tascaService.findDades(tascaId),
 					campsAddicionals,
-					campsAddicionalsClasses,
-					false);
+					campsAddicionalsClasses);
 		}
 		return null;
 	}
@@ -136,7 +152,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			HttpServletRequest request,
 			@PathVariable String tascaId,
 			@RequestParam(required=false) Long reproId,
-			Model model) {
+			Model model) throws Exception {
 		SessionHelper.removeAttribute(request,VARIABLE_TRAMITACIO_MASSIVA);
 		boolean bloquejarEdicioTasca = tascaService.isEnSegonPla(tascaId);
 		model.addAttribute("bloquejarEdicioTasca", bloquejarEdicioTasca);
@@ -145,16 +161,15 @@ public class TascaTramitacioController extends BaseTascaController {
 		if (reproId != null) {
 			variables = reproService.findValorsById(reproId);
 			List<TascaDadaDto> tascaDades = tascaService.findDades(tascaId);
-			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
-			Object commandValidar = TascaFormHelper.getCommandForCamps(
+//			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+//			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+			Object command = TascaFormHelper.getCommandForCamps(
 					tascaDades,
 					variables,
-					campsAddicionals,
-					campsAddicionalsClasses,
-					false);
-			model.addAttribute("command", commandValidar);
-			SessionHelper.setAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId, commandValidar);
+					null, //campsAddicionals,
+					null); //campsAddicionalsClasses);
+			model.addAttribute("command", command);
+			SessionHelper.setAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId, command);
 		}
 
 		if (bloquejarEdicioTasca) {
@@ -200,7 +215,7 @@ public class TascaTramitacioController extends BaseTascaController {
 	public String form(
 			HttpServletRequest request,
 			@PathVariable String tascaId,
-			Model model) {
+			Model model) throws Exception {
 		model.addAttribute("bloquejarEdicioTasca", tascaService.isEnSegonPla(tascaId));
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(tasca.getExpedientTipusId(), tasca.getJbpmName());
@@ -233,20 +248,31 @@ public class TascaTramitacioController extends BaseTascaController {
 			@Valid @ModelAttribute("command") Object command,
 			BindingResult result,
 			SessionStatus status,
-			Model model) {
+			Model model) throws Exception {
 		List<TascaDadaDto> tascaDades = tascaService.findDades(tascaId);
+		// TODO: Obtenir processInstance per tascaId
+//		String processInstanceId = null;
 		//afegirVariablesInstanciaProces(tascaDades, tascaId);
-		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
+		TascaFormValidatorHelper validatorHelper = new TascaFormValidatorHelper(
 				tascaService,
 				tascaDades);
 		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(
 				tascaDades,
 				command,
 				false);
-		guardarForm(
-				validator,
+		Object commandValidar = TascaFormHelper.getCommandForCamps(
+				tascaDades,
 				variables,
-				command,
+				null,
+				null,
+				true,
+				validatorHelper.isValidarObligatoris(),
+				validatorHelper.isValidarExpresions(),
+				processInstanceId);
+		guardarForm(
+				validatorHelper,
+				variables,
+				commandValidar,
 				result,
 				request,
 				tascaId);
@@ -264,7 +290,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			@Valid @ModelAttribute("command") Object command, 
 			BindingResult result, 
 			SessionStatus status, 
-			Model model) {
+			Model model) throws Exception {
 		if (tascaService.isTascaValidada(tascaId)) {
 			return mostrarInformacioTascaPerPipelles(
 					request,
@@ -273,9 +299,11 @@ public class TascaTramitacioController extends BaseTascaController {
 					null,
 					null);
 		}
+		// TODO: Obtenir processInstance per tascaId
+//		String processInstanceId = null;
 		List<TascaDadaDto> tascaDades = tascaService.findDades(tascaId);
 		//afegirVariablesInstanciaProces(tascaDades, tascaId);
-		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
+		TascaFormValidatorHelper validatorHelper = new TascaFormValidatorHelper(
 				tascaService,
 				tascaDades);
 		//validator.setTasca(tascaDades);
@@ -283,26 +311,29 @@ public class TascaTramitacioController extends BaseTascaController {
 				tascaDades,
 				command,
 				false);
-		if (guardarForm(
-				validator,
+		Object commandValidar = TascaFormHelper.getCommandForCamps(
+				tascaDades,
 				variables,
-				command,
+				null,
+				null,
+				true,
+				validatorHelper.isValidarObligatoris(),
+				validatorHelper.isValidarExpresions(),
+				processInstanceId);
+		if (guardarForm(
+				validatorHelper,
+				variables,
+				commandValidar,
 				result,
 				request,
 				tascaId)) {
 			// Recarrega les dades guardades
 			tascaDades = tascaService.findDades(tascaId);
-			validator.setTascaDades(tascaDades); // Actualitzam les dades de la tasca al validador
-			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
-			Object commandValidar = TascaFormHelper.getCommandForCamps(
-					tascaDades,
-					variables,
-					campsAddicionals,
-					campsAddicionalsClasses,
-					false);
+			validatorHelper.setTascaDades(tascaDades); // Actualitzam les dades de la tasca al validador
+//			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+//			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
 			validarForm(
-					validator,
+					validatorHelper,
 					variables,
 					commandValidar,
 					result,
@@ -324,7 +355,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			@ModelAttribute("command") Object command, 
 			BindingResult result, 
 			SessionStatus status, 
-			Model model) {
+			Model model) throws Exception {
 		validar(request, tascaId, command, result, status, model);
 		if (result.hasErrors() || !accioCompletarForm(request, tascaId, transicio)) {
 			return mostrarInformacioTascaPerPipelles(
@@ -375,20 +406,31 @@ public class TascaTramitacioController extends BaseTascaController {
 			@ModelAttribute("command") Object command,
 			BindingResult result,
 			SessionStatus status,
-			Model model) {
+			Model model) throws Exception {
+		// TODO: Obtenir processInstance per tascaId
+//		String processInstanceId = null;
 		List<TascaDadaDto> tascaDades = tascaService.findDades(tascaId);
 		//afegirVariablesInstanciaProces(tascaDades, tascaId);
-		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
+		TascaFormValidatorHelper validatorHelper = new TascaFormValidatorHelper(
 				tascaService,
 				tascaDades);
 		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(
 				tascaDades,
 				command,
 				false);
-		boolean guardado = guardarForm(
-				validator,
+		Object commandValidar = TascaFormHelper.getCommandForCamps(
+				tascaDades,
 				variables,
-				command,
+				null,
+				null,
+				true,
+				validatorHelper.isValidarObligatoris(),
+				validatorHelper.isValidarExpresions(),
+				processInstanceId);
+		boolean guardado = guardarForm(
+				validatorHelper,
+				variables,
+				commandValidar,
 				result,
 				request,
 				tascaId);
@@ -975,7 +1017,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			HttpServletRequest request,
 			String tascaId,
 			Model model,
-			Map<String, Object> valorsFormulariExtern) {		
+			Map<String, Object> valorsFormulariExtern) throws Exception {
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 		model.addAttribute("tasca", tasca);
 		List<TascaDadaDto> dades = tascaService.findDades(tascaId);
@@ -1087,26 +1129,26 @@ public class TascaTramitacioController extends BaseTascaController {
 			HttpServletRequest request,
 			String tascaId,
 			Model model,
-			Map<String, Object> valorsFormulariExtern) {
-		Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-		Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+			Map<String, Object> valorsFormulariExtern) throws Exception {
+//		Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+//		Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
 		
 		return TascaFormHelper.getCommandForCamps(
 				tascaService.findDades(tascaId),
 				valorsFormulariExtern,
-				campsAddicionals,
-				campsAddicionalsClasses,
-				false);
+				null, //campsAddicionals,
+				null); //campsAddicionalsClasses);
 	}
 
 	private boolean guardarForm(
-			TascaFormValidatorHelper validator, 
+			TascaFormValidatorHelper validatorHelper,
 			Map<String, Object> variables, 
 			Object command, 
 			BindingResult result, 
 			HttpServletRequest request,
 			String tascaId) {
 		validator.validate(command, result);
+//		validatorHelper.validate(command, result);
 		if (result.hasErrors() || !accioGuardarForm(request, tascaId, variables)) {
 			MissatgesHelper.error(request, getMessage(request, "error.guardar.dades"));
 			return false;
@@ -1115,15 +1157,27 @@ public class TascaTramitacioController extends BaseTascaController {
 	}
 	
 	private boolean validarForm(
-			TascaFormValidatorHelper validator, 
+			TascaFormValidatorHelper validatorHelper,
 			Map<String, Object> variables,
 			Object commandValidar, 
 			BindingResult result, 
 			HttpServletRequest request,
-			String tascaId) {
-		validator.setValidarObligatoris(true);
-		validator.setValidarExpresions(true);
+			String tascaId) throws Exception {
+		// TODO: Obtenir processInstance per tascaId
+//		String processInstanceId = null;
+		validatorHelper.setValidarObligatoris(true);
+		validatorHelper.setValidarExpresions(true);
+		commandValidar = TascaFormHelper.getCommandForCamps(
+				validatorHelper.getTascaDades(),
+				variables,
+				null, //campsAddicionals,
+				null, //campsAddicionalsClasses);
+				true,
+				validatorHelper.isValidarObligatoris(),
+				validatorHelper.isValidarExpresions(),
+				processInstanceId);
 		validator.validate(commandValidar, result);
+//		validatorHelper.validate(commandValidar, result);
 		if (result.hasErrors()) {
 			MissatgesHelper.error(request, getMessage(request, "error.validacio"));
 			return false;

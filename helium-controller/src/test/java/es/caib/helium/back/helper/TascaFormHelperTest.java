@@ -12,12 +12,10 @@ import javassist.bytecode.annotation.Annotation;
 import javassist.bytecode.annotation.AnnotationMemberValue;
 import javassist.bytecode.annotation.ArrayMemberValue;
 import javassist.bytecode.annotation.StringMemberValue;
-import lombok.Builder;
 import lombok.Data;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.ComponentScan;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -210,13 +208,13 @@ class TascaFormHelperTest {
     }
 
 
-@ComponentScan
-    @Data
-    @Builder
-    public static class AnnotationData {
-        String annotationName;
-        Map<String, String> members;
-    }
+//@ComponentScan
+//    @Data
+//    @Builder
+//    public static class AnnotationData {
+//        String annotationName;
+//        Map<String, String> members;
+//    }
 
 
 

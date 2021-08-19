@@ -3,24 +3,6 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
 import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.client.expedient.tasca.model.ResponsableDto;
@@ -48,6 +30,22 @@ import es.caib.helium.persist.entity.Tasca;
 import es.caib.helium.persist.repository.CampTascaRepository;
 import es.caib.helium.persist.repository.DefinicioProcesRepository;
 import es.caib.helium.persist.repository.TascaRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Helper per a gestionar les tasques dels expedients.
@@ -112,21 +110,22 @@ public class TascaHelper {
 		}
 		return task;
 	}
-	
+
+	// TODO: Revisar tema caché de tasques
 	public DadesCacheTasca getDadesCacheTasca(
 			WTaskInstance task,
 			Expedient expedient) {
 		DadesCacheTasca dadesCache = null;
-		if (!task.isCacheActiu()) {
-			setTascaCache(task, expedient);
-		}
-		try {
-			dadesCache = getDadesCacheTasca(task);
-		} catch (Exception e) {
-			task.setCacheInactiu();
-			setTascaCache(task, expedient);
-			dadesCache = getDadesCacheTasca(task);
-		}
+//		if (!task.isCacheActiu()) {
+//			setTascaCache(task, expedient);
+//		}
+//		try {
+//			dadesCache = getDadesCacheTasca(task);
+//		} catch (Exception e) {
+//			task.setCacheInactiu();
+//			setTascaCache(task, expedient);
+//			dadesCache = getDadesCacheTasca(task);
+//		}
 		return dadesCache;
 	}
 	
@@ -155,7 +154,7 @@ public class TascaHelper {
 		if (tasca.getNomScript() != null && tasca.getNomScript().length() > 0)
 			titol = getTitolPerTasca(task, tasca);
 //		task.setEntornId(expedient.getEntorn().getId());
-		task.setTitol(titol);
+//		task.setTitol(titol);
 //		task.setFieldToCache(
 //				"identificador",
 //				expedient.getIdentificador());
@@ -180,13 +179,13 @@ public class TascaHelper {
 //		task.setFieldToCache(
 //				"definicioProcesJbpmKey",
 //				tasca.getDefinicioProces().getJbpmKey());
-		task.setCacheActiu();
-		task.setTramitacioMassiva(tasca.isTramitacioMassiva());
-		task.setDefinicioProcesKey(tasca.getDefinicioProces().getJbpmKey());
-		workflowEngineApi.updateTaskInstanceInfoCache(
-				task.getId(),
-				titol,
-				task.getInfoTasca());
+//		task.setCacheActiu();
+//		task.setTramitacioMassiva(tasca.isTramitacioMassiva());
+//		task.setDefinicioProcesKey(tasca.getDefinicioProces().getJbpmKey());
+//		workflowEngineApi.updateTaskInstanceInfoCache(
+//				task.getId(),
+//				titol,
+//				task.getInfoTasca());
 	}
 	
 	private DadesCacheTasca getDadesCacheTasca(WTaskInstance task) {
@@ -199,7 +198,7 @@ public class TascaHelper {
 //				new Long(task.getFieldFromDescription("expedientTipusId")),
 //				task.getFieldFromDescription("expedientTipusNom"),
 //				task.getFieldFromDescription("processInstanceId"),
-				task.getTramitacioMassiva(),
+//				task.getTramitacioMassiva(),
 				task.getDefinicioProcesKey());
 	}
 
@@ -212,7 +211,7 @@ public class TascaHelper {
 //		private Long expedientTipusId;
 //		private String expedientTipusNom;
 //		private String processInstanceId;
-		private Boolean tramitacioMassiva;
+//		private Boolean tramitacioMassiva;
 		private String definicioProcesJbpmKey;
 		public DadesCacheTasca(
 //				Long entornId,
@@ -223,7 +222,7 @@ public class TascaHelper {
 //				Long expedientTipusId,
 //				String expedientTipusNom,
 //				String processInstanceId,
-				Boolean tramitacioMassiva,
+//				Boolean tramitacioMassiva,
 				String definicioProcesJbpmKey) {
 //			this.entornId = entornId;
 			this.titol = titol;
@@ -233,7 +232,7 @@ public class TascaHelper {
 //			this.expedientTipusId = expedientTipusId;
 //			this.expedientTipusNom = expedientTipusNom;
 //			this.processInstanceId = processInstanceId;
-			this.tramitacioMassiva = tramitacioMassiva;
+//			this.tramitacioMassiva = tramitacioMassiva;
 			this.definicioProcesJbpmKey = definicioProcesJbpmKey;
 		}
 //		public Long getEntornId() {
@@ -260,9 +259,9 @@ public class TascaHelper {
 //		public String getProcessInstanceId() {
 //			return processInstanceId;
 //		}
-		public boolean isTramitacioMassiva() {
-			return tramitacioMassiva != null ? tramitacioMassiva.booleanValue() : false;
-		}
+//		public boolean isTramitacioMassiva() {
+//			return tramitacioMassiva != null ? tramitacioMassiva.booleanValue() : false;
+//		}
 		public String getDefinicioProcesJbpmKey() {
 			return definicioProcesJbpmKey;
 		}
@@ -495,7 +494,8 @@ public class TascaHelper {
 		dto.setCompleted(task.isCompleted());
 		dto.setCancelled(task.isCancelled());
 		dto.setSuspended(task.isSuspended());
-		dto.setTascaTramitacioMassiva(task.getTramitacioMassiva());
+		// TODO: obtenir informació de tramitació massiva
+//		dto.setTascaTramitacioMassiva(task.getTramitacioMassiva());
 		Tasca tasca = findTascaByWTaskInstance(task);
 		if (tasca != null) {
 			dto.setTascaFinalitzacioSegonPla(tasca.isFinalitzacioSegonPla());

@@ -66,7 +66,7 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 	@ModelAttribute("expedientConsultaCommand")
 	public Object getFiltreCommand(
 			HttpServletRequest request,
-			Long consultaId) {
+			Long consultaId) throws Exception {
 		if (consultaId == null) 
 			return null;
 		Object filtreCommand = SessionHelper.getAttribute(
@@ -104,7 +104,7 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 	public String get(
 			HttpServletRequest request,
 			@PathVariable Long consultaId,
-			Model model) {
+			Model model) throws Exception {
 		ConsultaDto consulta;
 		try {
 			consulta = dissenyService.findConsulteById(consultaId);			
@@ -163,7 +163,7 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 			@Valid @ModelAttribute("expedientConsultaCommand") Object filtreCommand,			
 			BindingResult bindingResult,
 			@RequestParam(value = "accio", required = false) String accio,
-			Model model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException  {
+			Model model) throws Exception {
 		if ("netejar".equals(accio)) {
 			SessionHelper.removeAttribute(request, SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId);
 			filtreCommand = getFiltreCommand(request, consultaId);
@@ -242,7 +242,7 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 	@ResponseBody
 	public Set<Long> selectionAll(
 			HttpServletRequest request,
-			@PathVariable Long consultaId) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException  {
+			@PathVariable Long consultaId) throws Exception {
 		Object filtreCommand = getFiltreCommand(request, consultaId);
 		List<TascaDadaDto> dadesFiltre = expedientService.findConsultaFiltre(consultaId);
 		Map<String, Object> filtreValors = TascaFormHelper.getValorsFromCommand(

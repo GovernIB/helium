@@ -87,6 +87,9 @@ public class MassivaExpedientController extends BaseExpedientController {
 	@Resource
 	private NtiHelper ntiHelper;
 
+	@Autowired
+	private Validator validator;
+
 
 
 	private Set<Long> guardarIdsAccionesMasivas(HttpServletRequest request, Long consultaId) {
@@ -563,14 +566,16 @@ public class MassivaExpedientController extends BaseExpedientController {
 						tascaDades,
 						command,
 						false);
-				TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
+				TascaFormValidatorHelper validatorHelper = new TascaFormValidatorHelper(
 						expedientService,
 						tascaDades);
 				Object commandPerValidacio = TascaFormHelper.getCommandForCampsExpedient(
 						expedientDades,
-						variables);
+						variables,
+						expedient.getProcessInstanceId());
 
 				validator.validate(commandPerValidacio, result);
+//				validatorHelper.validate(commandPerValidacio, result);
 				if (result.hasErrors()) {
 					model.addAttribute("modificarVariablesCommand", command);
 					return "v3/massivaInfoModificarVariables";
@@ -599,8 +604,8 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Long campId,			
 			Model model) {
 		try {
-			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+//			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+//			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
 			Set<Long> ids = recuperarIdsAccionesMasivas(request);
 			List<Long> listIds = new ArrayList<Long>(ids);			
 			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(listIds.get(0));
@@ -631,8 +636,8 @@ public class MassivaExpedientController extends BaseExpedientController {
 			return TascaFormHelper.getCommandForCamps(
 					listTasca,
 					null,
-					campsAddicionals,
-					campsAddicionalsClasses, false);
+					null, //campsAddicionals,
+					null); //campsAddicionalsClasses);
 		} catch (NoTrobatException ex) {
 			MissatgesHelper.error(request, ex.getMessage());
 			logger.error("No s'han pogut encontrar la tasca: " + ex.getMessage(), ex);

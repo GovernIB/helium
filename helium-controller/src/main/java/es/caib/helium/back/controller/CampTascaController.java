@@ -61,11 +61,14 @@ public class CampTascaController extends BaseExpedientController {
 			llistTasca.add(tascaDada);
 			model.addAttribute("varCodi", varCodi);
 			model.addAttribute("dada", tascaDada);
-			Object command = TascaFormHelper.getCommandForCamps(llistTasca, null, campsAddicionals,
-					campsAddicionalsClasses, false);
+			Object command = TascaFormHelper.getCommandForCamps(
+					llistTasca,
+					null,
+					campsAddicionals,
+					campsAddicionalsClasses);
 			TascaFormHelper.ompleMultiplesBuits(
 					command,
-					llistTasca, 
+					llistTasca,
 					false);
 			model.addAttribute("command", command);
 		} catch (Exception ex) {

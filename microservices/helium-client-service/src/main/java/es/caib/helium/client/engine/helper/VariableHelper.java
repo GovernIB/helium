@@ -50,8 +50,8 @@ public class VariableHelper {
         return VariableRest.builder()
                 .nom(nom)
                 .tipus(tipus)
-                .className(valor.getClass().getName())
-                .valor(valorToString(valor, tipus))
+                .className(valor != null ? valor.getClass().getName() : null)
+                .valor(valor != null ? valorToString(valor, tipus) : null)
                 .build();
     }
 

@@ -12,7 +12,7 @@ public interface WTaskInstance {
 	public Long getTaskInstanceId();
 	public String getProcessInstanceId();
 	public String getProcessDefinitionId();
-	public Long getExpedientId();
+//	public Long getExpedientId();
 	public String getTaskName();
 	public String getDescription();
 	public String getActorId();
@@ -37,22 +37,22 @@ public interface WTaskInstance {
 
 	// Cache
 	public String getTitol();
-	public void setTitol(String titol);
+//	public void setTitol(String titol);
 //	public Long getEntornId();
 //	public void setEntornId(Long entornId);
-	public Boolean getTramitacioMassiva();
-	public void setTramitacioMassiva(Boolean tramitacioMassiva);
+//	public Boolean getTramitacioMassiva();
+//	public void setTramitacioMassiva(Boolean tramitacioMassiva);
 	public String getDefinicioProcesKey();
 	public void setDefinicioProcesKey(String definicioProcesKey);
-	public String getInfoTasca();
+//	public String getInfoTasca();
 	
 //	public Object getTaskInstance();
 
 	// TODO: Mirar que fer amb això:
-	default public boolean isCacheActiu() {
-		return false;
-	}
-	default public void setCacheActiu() {};
-	default public void setCacheInactiu() {};
+//	default public boolean isCacheActiu() {
+//		return false;
+//	}
+//	default public void setCacheActiu() {};
+//	default public void setCacheInactiu() {};
 	
 }

@@ -1067,13 +1067,14 @@ public class ExpedientHelper {
 	public void comprovarInstanciaProces(
 			Expedient expedient,
 			String processInstanceId) {
-		Long expId = workflowEngineApi.findExpedientIdByProcessInstanceId(
-				processInstanceId);
-		if (expId != expedient.getId().longValue()) {
-			throw new NoTrobatException(
-					WProcessInstance.class,
-					Long.valueOf(processInstanceId));
-		}
+		// TODO - MS: obtenir l'expedientId a partir del processInstanceId
+//		Long expId = workflowEngineApi.findExpedientIdByProcessInstanceId(
+//				processInstanceId);
+//		if (expId != expedient.getId().longValue()) {
+//			throw new NoTrobatException(
+//					WProcessInstance.class,
+//					Long.valueOf(processInstanceId));
+//		}
 	}
 
 	public Expedient findAmbEntornIId(Long entornId, Long id) {

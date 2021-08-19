@@ -114,11 +114,13 @@ public class ReproController extends BaseController {
 					tascaService.findDadesPerTascaDto(expedientTipusId, tasca),
 					valorsFormulariExtern,
 					campsAddicionals,
-					campsAddicionalsClasses,
-					false);
+					campsAddicionalsClasses);
 		} catch (NoTrobatException ex) {
 			MissatgesHelper.error(request, ex.getMessage());
 			logger.error("No s'han pogut encontrar la tasca: " + ex.getMessage(), ex);
+		} catch (Exception e) {
+			MissatgesHelper.error(request, e.getMessage());
+			logger.error("No s'ha pogut generar el command: " + e.getMessage(), e);
 		}
 		return null;
 	}

@@ -64,7 +64,6 @@ $(document).ready( function() {
 </script>
 </head>
 <body>
-	<%--TODO: Multiidioma!!--%>
 	<table id="inici" class="table table-striped table-bordered">
 		<thead>
 			<tr>

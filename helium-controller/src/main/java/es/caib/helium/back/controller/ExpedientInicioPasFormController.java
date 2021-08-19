@@ -27,6 +27,7 @@ import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Validator;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -60,7 +61,8 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 	@Autowired
 	private TascaService tascaInicialService;
 
-
+	@Autowired
+	private Validator validator;
 
 	@SuppressWarnings("unchecked")
 	@ModelAttribute("command")
@@ -105,19 +107,20 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 						tascaService.findDadesPerTascaDto(expedientTipusId, tasca),
 						valorsFormulariExtern,
 						campsAddicionals,
-						campsAddicionalsClasses,
-						false);
+						campsAddicionalsClasses);
 			} else {
 				return TascaFormHelper.getCommandForCamps(
 						tascaService.findDadesPerTascaDto(expedientTipusId, tasca),
 						valorsRepro,
 						campsAddicionals,
-						campsAddicionalsClasses,
-						false);
+						campsAddicionalsClasses);
 			}
 		} catch (NoTrobatException ex) {
 			MissatgesHelper.error(request, ex.getMessage());
 			logger.error("No s'han pogut encontrar la tasca: " + ex.getMessage(), ex);
+		} catch (Exception e) {
+			MissatgesHelper.error(request, e.getMessage());
+			logger.error("No s'han pogut generar els commands: " + e.getMessage(), e);
 		}
 		return null;
 	}
@@ -165,12 +168,12 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 			@Valid @ModelAttribute("command") Object command,
 			BindingResult result, 
 			SessionStatus status, 
-			Model model) {
+			Model model) throws Exception {
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 		ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);
 		List<TascaDadaDto> tascaDades = tascaService.findDadesPerTascaDto(expedientTipusId, tasca);
-		TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
+		TascaFormValidatorHelper validatorHelper = new TascaFormValidatorHelper(
 				tascaService,
 				tascaDades);
 		Map<String, Object> valors = TascaFormHelper.getValorsFromCommand(
@@ -178,9 +181,21 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 				command,
 				false,
 				true);
-		validator.setValidarObligatoris(true);
-		validator.setValidarExpresions(true);
-		validator.validate(command, result);
+//		Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+//		Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+		validatorHelper.setValidarObligatoris(true);
+		validatorHelper.setValidarExpresions(true);
+		Object commandValidar = TascaFormHelper.getCommandForCamps(
+				tascaDades,
+				valors,
+				null, //campsAddicionals,
+				null, //campsAddicionalsClasses,
+				true,
+				validatorHelper.isValidarObligatoris(),
+				validatorHelper.isValidarExpresions(),
+				null);
+		validator.validate(commandValidar, result);
+//		validatorHelper.validate(commandValidar, result);
 		DefinicioProcesDto definicioProces = null;
 		if (definicioProcesId != null) {
 			definicioProces = dissenyService.getById(definicioProcesId);
