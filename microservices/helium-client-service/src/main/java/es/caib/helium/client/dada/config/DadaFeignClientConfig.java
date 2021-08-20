@@ -1,10 +1,8 @@
 package es.caib.helium.client.dada.config;
 
-import org.springframework.context.annotation.Configuration;
-
-@Configuration
+//@Configuration
 public class DadaFeignClientConfig {
-	
+
 	// TODO DESCOMENTAR I FER FUNCIONAR
 //
 //    @Bean
