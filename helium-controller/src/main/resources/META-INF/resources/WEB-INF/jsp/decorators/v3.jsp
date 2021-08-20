@@ -255,6 +255,7 @@
 							<ul id="ul-perfil" class="dropdown-menu" role="menu" aria-labelledby="dLabel">
 								<li><a href="<c:url value="/v3/perfil"/>"><spring:message code='perfil.info.meu_perfil' /></a></li>
 								<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/modal/v3/execucionsMassives/user"/>"><spring:message code='comuns.massiu' /></a></li>
+								<li><a href="<c:url value="/v3/perfil/logout"/>"><span class="fa fa-power-off"></span> <spring:message code="decorator.menu.desconnectar"/></a></li>
 			    			</ul>
 			    			<script type="text/javascript">
 								$('#ul-perfil a').heliumEvalLink({

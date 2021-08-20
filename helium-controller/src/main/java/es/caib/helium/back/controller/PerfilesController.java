@@ -6,6 +6,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.keycloak.KeycloakPrincipal;
@@ -92,6 +93,22 @@ public class PerfilesController extends BaseController {
 		
 		
 		return "v3/persona/perfil";
+	}
+	
+	/** Mètode per tancar al sessió des del menú del perfil de l'usuari. */
+	@RequestMapping(value = "/logout", method = RequestMethod.GET)
+	public String logout(HttpServletRequest request, HttpServletResponse response) {
+		try {
+			request.logout();
+		} catch (Exception e) {
+			String errMsg = getMessage(
+					request, 
+					"decorator.menu.desconnectar.error",
+					new String[] {e.getMessage()});
+			logger.error(errMsg);
+			MissatgesHelper.error(request, errMsg);
+		}
+		return "redirect:/";
 	}
 
 	@RequestMapping(value = "/consulta/{entornCodi}", method = RequestMethod.GET)
