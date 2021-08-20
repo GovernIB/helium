@@ -32,7 +32,7 @@ public class DadaClientImpl implements DadaClient {
 			Integer expedientTipusId, 
 			Integer page, 
 			Integer size, 
-			Consulta consulta) {
+			Consulta consulta) throws Exception {
     	
 	 	log.debug(missatgeLog + " Consulta paginada - entornId: " + entornId 
 	 			+ " - expedientTipusId: " + expedientTipusId + " page: " + page + " size: " + size 
@@ -46,7 +46,7 @@ public class DadaClientImpl implements DadaClient {
 	public List<Expedient> consultaResultatsLlistat(
 			Integer entornId,
 			Integer expedientTipusId, 
-			Consulta consulta) {
+			Consulta consulta) throws Exception {
     	
 		log.debug(missatgeLog + " Consulta paginada - entornId: " + entornId 
 	 			+ " - expedientTipusId: " + expedientTipusId 
@@ -58,7 +58,7 @@ public class DadaClientImpl implements DadaClient {
 	// Dades capcalera expedient
 	
 	@Override
-	public Expedient findByExpedientId(Long expedientId) {
+	public Expedient findByExpedientId(Long expedientId) throws Exception {
 		
 		log.debug(missatgeLog + "expedientId: " + expedientId);
 		return Objects.requireNonNull(dadaServiceFeignClient.getExpedient(expedientId).getBody());
@@ -130,7 +130,7 @@ public class DadaClientImpl implements DadaClient {
 	// Dades de l'expedient
 
 	@Override
-	public List<Dada> getDades(Long expedientId) {
+	public List<Dada> getDades(Long expedientId) throws Exception{
 
 		log.debug(missatgeLog + " Get dades per l'expedient: " + expedientId);
 		var response = dadaServiceFeignClient.getDades(expedientId);
@@ -141,7 +141,7 @@ public class DadaClientImpl implements DadaClient {
 	}
 
 	@Override
-	public Dada getDadaByCodi(Long expedientId, String codi) {
+	public Dada getDadaByCodi(Long expedientId, String codi) throws Exception {
 		
 		log.debug(missatgeLog + " Get dada per l'expedient: " + expedientId + " amb codi: " + codi);
 		return Objects.requireNonNull(dadaServiceFeignClient.getDadaByCodi(expedientId, codi).getBody());
@@ -149,7 +149,7 @@ public class DadaClientImpl implements DadaClient {
 	}
 
 	@Override
-	public List<Dada> getDadesByProces(Long expedientId, String procesId) {
+	public List<Dada> getDadesByProces(Long expedientId, String procesId) throws Exception {
 
 		log.debug(missatgeLog + " Get dades per l'expedient: " + expedientId + " amb procesId: " + procesId);
 		var response = dadaServiceFeignClient.getDadesByProces(expedientId, procesId);
@@ -160,26 +160,25 @@ public class DadaClientImpl implements DadaClient {
 	}
 
 	@Override
-	public Dada getDadaByExpedientIdProcesAndCodi(Long expedientId, String procesId, String codi) {
+	public Dada getDadaByExpedientIdProcesAndCodi(Long expedientId, String procesId, String codi) throws Exception {
 		
 		log.debug(missatgeLog + " Get dades per l'expedient: " + expedientId + " amb procesId: " + procesId + " i codi: " + codi);
 	 	return Objects.requireNonNull(dadaServiceFeignClient.getDadaByExpedientIdProcesAndCodi(expedientId, procesId, codi).getBody());
 	}
 
 	@Override
-	public Dada getDadaByProcesAndCodi(String procesId, String codi) {
+	public Dada getDadaByProcesAndCodi(String procesId, String codi) throws Exception {
 		
 		log.debug(missatgeLog + " Get dada amb procesId: " + procesId + " i codi: " + codi);
 		return Objects.requireNonNull(dadaServiceFeignClient.getDadaByProcesAndCodi(procesId, codi).getBody());
 	}
 
 	@Override
-	public Long getDadaExpedientIdByProcesId(String procesId) {
+	public Long getDadaExpedientIdByProcesId(String procesId) throws Exception {
 	
 		log.debug(missatgeLog + " Get expedientId de la dada amb procesId: " + procesId);
 		var response = dadaServiceFeignClient.getDadaExpedientIdByProcesId(procesId);
 		return Objects.requireNonNull(response.getBody());
-
 	}
 
 	@Override
