@@ -28,11 +28,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.caib.helium.expedient.ExpedientTestHelper;
+import es.caib.helium.expedient.ProcesTestHelper;
 import es.caib.helium.expedient.TascaTestHelper;
 import es.caib.helium.expedient.model.ExpedientDto;
+import es.caib.helium.expedient.model.ProcesDto;
 import es.caib.helium.expedient.model.TascaDto;
 import es.caib.helium.expedient.repository.TascaRepository;
 import es.caib.helium.expedient.service.ExpedientService;
+import es.caib.helium.expedient.service.ProcesService;
 import es.caib.helium.expedient.service.TascaService;
 import es.caib.helium.ms.model.PagedList;
 
@@ -50,6 +53,8 @@ class TascaControllerIT {
     @Autowired
     ExpedientService expedientService;
     @Autowired
+    ProcesService procesService;
+    @Autowired
     TascaRepository tascaRepository;
     
     @Spy
@@ -61,14 +66,17 @@ class TascaControllerIT {
     	// Expedients
         ExpedientDto expedient1 = expedientService.createExpedient(ExpedientTestHelper.generateExpedientDto(1, 1L, 1L, 1L, "1", "1/2021", "Expedient 1"));
         ExpedientDto expedient2 = expedientService.createExpedient(ExpedientTestHelper.generateExpedientDto(2, 1L, 1L, 2L, "2", "2/2021", "Expedient 2"));
+        // Processos
+        ProcesDto proces1 = procesService.createProces(ProcesTestHelper.generateProcesDto(0, "p1", 1L, "pd1", "desc1"));
+        ProcesDto proces2 = procesService.createProces(ProcesTestHelper.generateProcesDto(0, "p2", 2L, "pd2", "desc1"));
     	// int index, Long entorn, Long tascaTipus, Long tascaId, 
     	// Long tascaProcessInstanceId, String tascaNumero,String tascaTitol
     	// Tasques
-        tascaService.createTasca(TascaTestHelper.generateTascaDto(0, "1", expedient1.getId(), "p1", "tasca1", "Tasca 1"));
-        tascaService.createTasca(TascaTestHelper.generateTascaDto(1, "2", expedient1.getId(), "p1", "tasca2", "Tasca 2"));
-        tascaService.createTasca(TascaTestHelper.generateTascaDto(2, "3", expedient1.getId(), "p1", "tasca3", "Tasca 3"));
-        tascaService.createTasca(TascaTestHelper.generateTascaDto(3, "4", expedient2.getId(), "p2", "tasca4", "Tasca 4"));
-        tascaService.createTasca(TascaTestHelper.generateTascaDto(4, "5", expedient2.getId(), "p2", "tasca5", "Tasca 5"));
+        tascaService.createTasca(TascaTestHelper.generateTascaDto(0, "1", expedient1.getId(), proces1.getId(), "tasca1", "Tasca 1"));
+        tascaService.createTasca(TascaTestHelper.generateTascaDto(1, "2", expedient1.getId(), proces1.getId(), "tasca2", "Tasca 2"));
+        tascaService.createTasca(TascaTestHelper.generateTascaDto(2, "3", expedient1.getId(), proces1.getId(), "tasca3", "Tasca 3"));
+        tascaService.createTasca(TascaTestHelper.generateTascaDto(3, "4", expedient2.getId(), proces2.getId(), "tasca4", "Tasca 4"));
+        tascaService.createTasca(TascaTestHelper.generateTascaDto(4, "5", expedient2.getId(), proces2.getId(), "tasca5", "Tasca 5"));
         
 //        List<String> responsables = new ArrayList<String>();
 //        for (long i = 1; i <= 5L; i++) {
@@ -111,10 +119,10 @@ class TascaControllerIT {
 		queryParams.put("expedientId", "1");
 		queryParams.put("expedientTitol", "Expedient títol");
 		queryParams.put("expedientNumero", "Expedient número");
-		queryParams.put("dataCreacioInici", "01/06/2021");
-		queryParams.put("dataCreacioFi", "02/06/2021");
-		queryParams.put("dataLimitInici", "04/06/2021");
-		queryParams.put("dataLimitFi", "05/06/2021");
+		queryParams.put("dataCreacioInici", "01-06-2021");
+		queryParams.put("dataCreacioFi", "02-06-2021");
+		queryParams.put("dataLimitInici", "04-06-2021");
+		queryParams.put("dataLimitFi", "05-06-2021");
 		queryParams.put("mostrarAssignadesUsuari", "true");
 		queryParams.put("mostrarAssignadesGrup", "true");
 		queryParams.put("nomesPendents", "true");
@@ -132,8 +140,7 @@ class TascaControllerIT {
                 null, 
                 new ParameterizedTypeReference<PagedList<TascaDto>>() {});
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody().getTotalElements()).isEqualByComparingTo(0L);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 
     @Test
@@ -324,7 +331,6 @@ class TascaControllerIT {
     
     @AfterEach
     void tearDown() {
-        // TODO: no funciona el delete del repository
         for (int i = 1; i <= 6; i++)
         	try {
         		tascaService.delete(String.valueOf(i));
@@ -333,7 +339,12 @@ class TascaControllerIT {
         	}
         for (long i = 1L; i <= 2; i++)
         	try {
-        		// les tasques s'esborren en cascada
+        		procesService.delete("p"+i);
+        	} catch (Exception e) {
+        		System.err.println("Error esborrant el procés amb ID p" + i + ": " + e.getMessage());
+        	}
+        for (long i = 1L; i <= 2; i++)
+        	try {
         		expedientService.delete(i);
         	} catch (Exception e) {
         		System.err.println("Error esborrant l'expedient amb ID " + i + ": " + e.getMessage());

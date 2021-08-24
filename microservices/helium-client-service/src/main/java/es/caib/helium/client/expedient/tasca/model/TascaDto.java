@@ -40,4 +40,6 @@ public class TascaDto {
 	private Integer prioritat;
 	private List<ResponsableDto> responsables;
 	
+	
+	private String processDefinitionId;	
 }

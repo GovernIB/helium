@@ -128,8 +128,25 @@ public class ExpedientSpecifications {
             			);
             };
     	}
-
 	}
+    
+	public static Specification<Expedient> nomesTasquesMevesPersonalsGrup(
+			String usuariCodi, 
+			boolean nomesTasquesMeves,
+			boolean nomesTasquesPersonals, 
+			boolean nomesTasquesGrup) {
+		Specification<Expedient> ret;
+		if (!nomesTasquesMeves) {
+			usuariCodi = null;
+		}
+		if (nomesTasquesPersonals) {
+			ret = nomesTasquesPersonals(usuariCodi);
+		} else {
+			ret = nomesTasquesGrup(usuariCodi);
+		}
+		return ret;
+	}
+
 
     public static Specification<Expedient> nomesErrors() {
 		return (expedient, cq, cb) -> cb.isTrue(expedient.get("ambErrors"));
@@ -164,6 +181,7 @@ public class ExpedientSpecifications {
             boolean nomesFinalitzats,
             Long estatId, 
             boolean nomesTasquesPersonals, 
+            boolean nomesTasquesMeves,
             boolean nomesTasquesGrup, 
             boolean nomesAlertes, 
             boolean nomesErrors, 
@@ -190,11 +208,12 @@ public class ExpedientSpecifications {
     	if (nomesIniciats || nomesFinalitzats || estatId != null) {
     		spec = spec.and(estatIs(nomesIniciats, nomesFinalitzats, estatId));
     	}
-    	if (nomesTasquesPersonals) {
-    		spec = spec.and(nomesTasquesPersonals(usuariCodi));
-    	}
-    	if (nomesTasquesGrup) {
-    		spec = spec.and(nomesTasquesGrup(usuariCodi));
+    	if (nomesTasquesPersonals || nomesTasquesGrup) {
+    		spec = spec.and(nomesTasquesMevesPersonalsGrup(
+			    				usuariCodi, 
+			    				nomesTasquesMeves, 
+			    				nomesTasquesPersonals, 
+			    				nomesTasquesGrup));
     	}
     	if (nomesAlertes) {
     		spec = spec.and(nomesAlertes());
@@ -211,5 +230,4 @@ public class ExpedientSpecifications {
     	}
     	return spec;
     }
-
 }
