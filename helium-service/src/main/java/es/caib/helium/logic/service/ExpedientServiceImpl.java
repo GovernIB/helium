@@ -109,6 +109,7 @@ import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.util.Constants;
 import es.caib.helium.logic.ms.ExpedientMs;
 import es.caib.helium.logic.security.ExtendedPermission;
+import es.caib.helium.logic.util.EntornActual;
 import es.caib.helium.persist.entity.Accio;
 import es.caib.helium.persist.entity.Alerta;
 import es.caib.helium.persist.entity.Anotacio;
@@ -1065,6 +1066,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 		List<TascaLlistatDto> resposta = new ArrayList<TascaLlistatDto>();
 		List<TascaDto> tasquesMs = tascaClientService.findTasquesAmbFiltrePaginatV1(ConsultaTascaDades.builder()
+				.entornId(EntornActual.getEntornId())
 				.expedientId(expedient.getId())
 				.nomesPendents(true)
 				.build())

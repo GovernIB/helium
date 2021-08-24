@@ -9,6 +9,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,13 +36,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import es.caib.helium.expedient.ExpedientTestHelper;
+import es.caib.helium.expedient.ProcesTestHelper;
 import es.caib.helium.expedient.TascaTestHelper;
 import es.caib.helium.expedient.domain.Expedient;
+import es.caib.helium.expedient.domain.Proces;
 import es.caib.helium.expedient.domain.Responsable;
 import es.caib.helium.expedient.domain.Tasca;
 import es.caib.helium.expedient.mapper.TascaMapper;
 import es.caib.helium.expedient.model.TascaDto;
 import es.caib.helium.expedient.repository.ExpedientRepository;
+import es.caib.helium.expedient.repository.ProcesRepository;
 import es.caib.helium.expedient.repository.ResponsableRepository;
 import es.caib.helium.expedient.repository.TascaRepository;
 
@@ -55,7 +59,13 @@ class TascaServiceTest {
     ExpedientRepository expedientRepository;
 
     @Mock
+    ProcesRepository procesRepository;
+
+    @Mock
 	Optional<Expedient> expedientOptional;
+
+    @Mock
+	Optional<Proces> procesOptional;
 
     @Mock
     ResponsableRepository responsableRepository;
@@ -71,12 +81,14 @@ class TascaServiceTest {
 
     long expedientId = 1L;
     Expedient expedient;
+    Proces proces;
     Tasca tasca;
 
     @BeforeEach
     void setUp() {
         expedient = ExpedientTestHelper.generateExpedient(1, 1L, 1L, expedientId, "1", "1/2021", "Títol 1");
-        tasca = TascaTestHelper.generateTasca(1, "1", expedient, "p1", "nom 1", "títol 1");
+        proces = ProcesTestHelper.generateProces(0, "1", expedient, "pd1", "descripcio", new Date());
+        tasca = TascaTestHelper.generateTasca(1, "1", expedient, proces, "nom 1", "títol 1");
     }
     
     @Test
@@ -90,9 +102,12 @@ class TascaServiceTest {
         tascaDto.setExpedientId(expedient.getId());
 
         given(expedientRepository.findById(tascaDto.getExpedientId())).willReturn(expedientOptional);
+        given(procesRepository.findById(tascaDto.getProcesId())).willReturn(procesOptional);
         given(tascaRepository.save(any(Tasca.class))).willReturn(tasca);
         given(expedientOptional.isPresent()).willReturn(true);
         given(expedientOptional.get()).willReturn(expedient);
+        given(procesOptional.isPresent()).willReturn(true);
+        given(procesOptional.get()).willReturn(proces);
         given(responsableRepository.save(any(Responsable.class))).willReturn(responsable);
 
         // When
@@ -107,6 +122,11 @@ class TascaServiceTest {
         then(expedientOptional).should(times(1)).isPresent();
         then(expedientOptional).should(times(1)).get();
         then(expedientOptional).shouldHaveNoMoreInteractions();
+        then(procesRepository).should(times(1)).findById(tascaDto.getProcesId());
+        then(procesRepository).shouldHaveNoMoreInteractions();
+        then(procesOptional).should(times(1)).isPresent();
+        then(procesOptional).should(times(1)).get();
+        then(procesOptional).shouldHaveNoMoreInteractions();
         then(tascaRepository).should(times(1)).save(any(Tasca.class));
         then(tascaRepository).shouldHaveNoMoreInteractions();
         then(responsableRepository).should(times(1)).save(any(Responsable.class));
@@ -119,7 +139,6 @@ class TascaServiceTest {
     @CsvSource({
             // Descripcio, camp blank o -1
     		"Tasca id -1, id",
-	        "Tasca procesId '', procesId",
 	        "Tasca nom '', nom",
 	        "Tasca títol '', titol"
     })
@@ -136,9 +155,6 @@ class TascaServiceTest {
 	            break;
 	        case "expedient":
 	            tasca.setExpedient(null);
-	            break;
-	        case "procesId":
-	            tasca.setProcesId("");
 	            break;
 	        case "nom":
 	            tasca.setNom("");
@@ -168,7 +184,7 @@ class TascaServiceTest {
             // Descripcio, camp null
     		"Tasca id null, id",
 	        "Expedient null, expedient",
-	        "Proces id null, procesId",
+	        "Proces null, proces",
 	        "Tasca nom null, nom",
 	        "Tasca títol null, titol",
 	        "Data creació null, dataCreacio"
@@ -187,8 +203,8 @@ class TascaServiceTest {
 	        case "expedient":
 	            tasca.setExpedient(null);
 	            break;
-	        case "procesId":
-	            tasca.setProcesId(null);
+	        case "proces":
+	            tasca.setProces(null);
 	            break;
 	        case "nom":
 	            tasca.setNom(null);
@@ -217,7 +233,7 @@ class TascaServiceTest {
     @DisplayName("Modificar tasca")
     void whenUpdateTasca_thenReturnTasca() {
         // Given
-        Tasca tasca2 = TascaTestHelper.generateTasca(2, "2", expedient, "p2", "nom 2", "títol 2");
+        Tasca tasca2 = TascaTestHelper.generateTasca(2, "2", expedient, proces, "nom 2", "títol 2");
         TascaDto tascaDto = mapper.entityToDto(tasca2);
         given(tascaRepository.findById(any())).willReturn(Optional.of(tasca2));
         given(tascaRepository.save(any(Tasca.class))).will(
@@ -240,7 +256,6 @@ class TascaServiceTest {
     @CsvSource({
 	        // Descripcio, camp null o negatiu
 			"Tasca id '', id",
-			"Tasca procesId '', procesId",
 	        "Tasca nom blank, nom,",
 	        "Tasca títol blank, titol"
     })
@@ -255,9 +270,6 @@ class TascaServiceTest {
         switch (campNull) {
 	        case "id":
 	            tasca.setId("");
-	            break;
-	        case "procesId":
-	            tasca.setProcesId("");
 	            break;
 	        case "nom":
 	            tasca.setNom("");
@@ -284,7 +296,7 @@ class TascaServiceTest {
 	        // Descripcio, camp null o negatiu
 			"Tasca id null, id",
 	        "Expedient null, expedient",
-			"Proces id null, procesId",
+			"Proces null, proces",
 	        "Tasca nom null, nom",
 	        "Tasca títol null, titol",
 	        "Data creació null, dataCreacio"
@@ -304,8 +316,8 @@ class TascaServiceTest {
 	        case "expedient":
 	            tasca.setExpedient(null);
 	            break;
-	        case "procesId":
-	            tasca.setProcesId(null);
+	        case "proces":
+	            tasca.setProces(null);
 	            break;
 	        case "nom":
 	            tasca.setNom(null);

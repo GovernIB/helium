@@ -18,6 +18,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Informació de la tasca amb les propietats necessàries pel llistat filtrat i paginat de
@@ -126,5 +127,10 @@ public class TascaDto {
 	@Schema(example = "{'usuari1', 'usuari2'}", required = false, description = "Llista d'usuaris responsables.")
 	@Size(max = 255)
 	private List<ResponsableDto> responsables;
-	
+
+	@JsonProperty("processDefinitionId")
+	@Schema(example = "{'usuari1', 'usuari2'}", required = false, description = "Identificador de la definició de procés del procés relacionat a la tasca"
+			+ "informat en les consultes de tasques. És un atribut de només lectura")
+	@Size(max = 255)
+	private String processDefinitionId;	
 }

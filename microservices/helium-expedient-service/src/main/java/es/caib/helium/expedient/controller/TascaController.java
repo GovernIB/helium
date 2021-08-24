@@ -129,7 +129,7 @@ public class TascaController {
         		consultaTascaDades.getPageable(), 
         		consultaTascaDades.getSort());
         if (tascaList.getTotalElements() == 0) {
-            return new ResponseEntity<>(tascaList, HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(tascaList, HttpStatus.OK);
     }

@@ -384,10 +384,12 @@ public class TascaHelper {
 		setTascaCache(task, null);
 	}
 
+	//TODO substituir mètode
 	public Tasca findTascaByWTaskInstanceId(
 			String jbpmTaskId) {
 		return findTascaByWTaskInstance(workflowEngineApi.getTaskById(jbpmTaskId));
 	}
+	//TODO substituir mètode
 	public Tasca findTascaByWTaskInstance(
 			WTaskInstance task) {
 		return tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
@@ -574,10 +576,7 @@ public class TascaHelper {
 			Expedient expedient,
 			boolean perTramitacio,
 			boolean ambPermisos) {
-		TascaLlistatDto dto = new TascaLlistatDto();
-//		DefinicioProces defp = definicioProcesRepository.findByJbpmId(tascaMs.getProcessDefinitionId());
-		//DefinicioProces defp = definicioProcesRepository.findById(tascaMs.getDefinicioProcesId());
-		
+		TascaLlistatDto dto = new TascaLlistatDto();		
 		dto.setId(tascaMs.getId());
 		dto.setTitol(tascaMs.getTitol());
 		dto.setJbpmName(tascaMs.getNom());
@@ -593,7 +592,7 @@ public class TascaHelper {
 		dto.setEndTime(tascaMs.getDataFi());
 		dto.setDueDate(tascaMs.getDataFins());
 		
-		//dto.setPriority(tascaMs.getPrioritat());
+		dto.setPriority(tascaMs.getPrioritat());
 		
 		//-dto.setOpen(tascaMs.isOberta());
 		
@@ -602,19 +601,22 @@ public class TascaHelper {
 		dto.setSuspended(tascaMs.isSuspesa());
 		//dto.setTascaTramitacioMassiva(tascaMs.getTramitacioMassiva());
 		
-		//TODO:
+
+		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
+				tascaMs.getNom(),
+				tascaMs.getProcessDefinitionId());		
 		//Tasca tasca = findTascaByWTaskInstance(tascaMs);
-//		if (tasca != null) {
-//			dto.setTascaFinalitzacioSegonPla(tasca.isFinalitzacioSegonPla());
-//			if (tasca.isFinalitzacioSegonPla() && 
-//				tascaSegonPlaHelper.isTasquesSegonPlaLoaded() && 
-//				tascaSegonPlaHelper.getTasquesSegonPla().containsKey(tascaMs.getTaskInstanceId())) {
-//				InfoSegonPla infoSegonPla = tascaSegonPlaHelper.getTasquesSegonPla().get(tascaMs.getTaskInstanceId());
-//				dto.setMarcadaFinalitzar(infoSegonPla.getMarcadaFinalitzar());
-//				dto.setIniciFinalitzacio(infoSegonPla.getIniciFinalitzacio());
-//				dto.setErrorFinalitzacio(infoSegonPla.getError());
-//			}
-//		}
+		if (tasca != null) {
+			//dto.setTascaFinalitzacioSegonPla(tasca.isFinalitzacioSegonPla());
+			if (tasca.isFinalitzacioSegonPla() && 
+				tascaSegonPlaHelper.isTasquesSegonPlaLoaded() && 
+				tascaSegonPlaHelper.getTasquesSegonPla().containsKey(tascaMs.getId())) {
+					InfoSegonPla infoSegonPla = tascaSegonPlaHelper.getTasquesSegonPla().get(tascaMs.getId());
+					dto.setMarcadaFinalitzar(infoSegonPla.getMarcadaFinalitzar());
+					dto.setIniciFinalitzacio(infoSegonPla.getIniciFinalitzacio());
+					dto.setErrorFinalitzacio(infoSegonPla.getError());
+			}
+		}
 		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded() && 
 				tascaSegonPlaHelper.getTasquesSegonPla().containsKey(tascaMs.getId())) {
 			InfoSegonPla infoSegonPla = tascaSegonPlaHelper.getTasquesSegonPla().get(tascaMs.getId());
@@ -623,14 +625,13 @@ public class TascaHelper {
 			dto.setErrorFinalitzacio(infoSegonPla.getError());
 		}
 		
-		
 		Expedient expedientNoNull = expedient;
 		if (expedientNoNull == null) {
 			expedientNoNull = expedientHelper.findById(tascaMs.getExpedientId());
 		}
 		if (perTramitacio) {
 		
-			DefinicioProces defp = definicioProcesRepository.findById(50100L).get();
+			DefinicioProces defp = definicioProcesRepository.findByJbpmId(tascaMs.getProcessDefinitionId());
 			
 			Tasca t = tascaRepository.findByJbpmNameAndDefinicioProces(tascaMs.getNom(), defp);
 			if (t != null) {

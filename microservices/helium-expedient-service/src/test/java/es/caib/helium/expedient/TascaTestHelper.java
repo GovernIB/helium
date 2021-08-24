@@ -12,6 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import es.caib.helium.expedient.domain.Expedient;
+import es.caib.helium.expedient.domain.Proces;
 import es.caib.helium.expedient.domain.Responsable;
 import es.caib.helium.expedient.domain.Tasca;
 import es.caib.helium.expedient.model.ResponsableDto;
@@ -22,8 +23,8 @@ public class TascaTestHelper {
 	@Test
     @DisplayName("Prova de generar tasques iguals")
 	public void generateTascaTest() {
-		Tasca tasca1 = TascaTestHelper.generateTasca(0, "1", null, "p1", "nom", "titol");
-		Tasca tasca2 = TascaTestHelper.generateTasca(0, "1", null, "p1", "nom", "titol");
+		Tasca tasca1 = TascaTestHelper.generateTasca(0, "1", null, null, "nom", "titol");
+		Tasca tasca2 = TascaTestHelper.generateTasca(0, "1", null, null, "nom", "titol");
 		TascaTestHelper.comprovaTasca(tasca1, tasca2);
 		assertNotEquals(tasca1, tasca2);
 		assertNotEquals(tasca1.hashCode(), tasca2.hashCode());
@@ -43,14 +44,14 @@ public class TascaTestHelper {
             int index,
             String tascaId,
             Expedient expedient,
-            String procesId,
+            Proces proces,
             String nom,
             String titol
     ) {
         Tasca tasca = Tasca.builder()
         		.id(tascaId)
         		.expedient(expedient)
-        		.procesId(procesId)
+        		.proces(proces)
         		.nom(nom)
         		.titol(titol)
         		.dataCreacio(new Date())
@@ -131,7 +132,7 @@ public class TascaTestHelper {
         assertAll("Comprovar dades del tasca",
                 () -> assertEquals(tasca.getId(), trobat.getId(), "Tasca id incorrecte"),
                 () -> assertEquals(tasca.getExpedient(), trobat.getExpedient(), "Expedient incorrecte"),
-                () -> assertEquals(tasca.getProcesId(), trobat.getProcesId(), "Proces incorrecte"),
+                () -> assertEquals(tasca.getProces(), trobat.getProces(), "Proces incorrecte"),
                 () -> assertEquals(tasca.getNom(), trobat.getNom(), "Nom incorrecte"),
                 () -> assertEquals(tasca.getTitol(), trobat.getTitol(), "Titol incorrecte"),
                 () -> assertEquals(tasca.isAfagada(), trobat.isAfagada(), "Agafada incorrecte"),
