@@ -51,7 +51,7 @@ public interface DominiFeignClient {
             @PathVariable("dominiId") Long dominiId,
             @RequestParam(required = false) Map<String, String> parametres);
 
-	@RequestMapping(method = RequestMethod.GET, value = DominiApiPath.CONSULTA_DOMINIS)
+	@RequestMapping(method = RequestMethod.POST, value = DominiApiPath.CONSULTA_DOMINIS)
 	public ResponseEntity<List<ResultatDomini>> consultaDominisV1(
             @RequestParam(required = true) List<ConsultaDominiDada> consultaDominiDades);
 

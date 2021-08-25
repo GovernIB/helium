@@ -3,10 +3,10 @@
  */
 package es.caib.helium.client.dada.model;
 
-import java.util.List;
-
 import es.caib.helium.client.dada.enums.Tipus;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class Dada {
@@ -19,5 +19,14 @@ public class Dada {
 	
 	private Long expedientId;
 	private String procesId;
-	   
+
+	public String getValors() {
+
+			var valorString = "";
+			for (var v : valor) {
+				valorString += v instanceof ValorSimple ? ((ValorSimple) v).getValor() : "";
+			}
+
+			return valorString;
+	}
 }
