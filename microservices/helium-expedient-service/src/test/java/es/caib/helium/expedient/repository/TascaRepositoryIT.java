@@ -2,6 +2,7 @@ package es.caib.helium.expedient.repository;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Date;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -12,8 +13,10 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import es.caib.helium.expedient.ExpedientTestHelper;
+import es.caib.helium.expedient.ProcesTestHelper;
 import es.caib.helium.expedient.TascaTestHelper;
 import es.caib.helium.expedient.domain.Expedient;
+import es.caib.helium.expedient.domain.Proces;
 import es.caib.helium.expedient.domain.Tasca;
 
 @DataJpaTest
@@ -26,13 +29,16 @@ class TascaRepositoryIT {
     private TascaRepository tascaRepository;
 
     private Expedient expedient;
+    private Proces proces;
     private Tasca tasca;
     
     @BeforeEach
     void setUp() {
         expedient = entityManager.persistAndFlush(
         		ExpedientTestHelper.generateExpedient(1, 1L, 1L, 1L, "1", "1/2021", "Títol 1"));
-        tasca = TascaTestHelper.generateTasca(1, "1", expedient, "p1", "nom 1", "títol 1");
+        proces = entityManager.persistAndFlush(
+        		ProcesTestHelper.generateProces(0, "1", expedient, "dp1", "descripcio1", new Date()));
+        tasca = TascaTestHelper.generateTasca(1, "1", expedient, proces, "nom 1", "títol 1");
     }
 
 

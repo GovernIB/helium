@@ -83,6 +83,7 @@ public class ExpedientController {
        boolean nomesFinalitzats = consultaExpedientDades.isNomesFinalitzats();
        Long estatId = consultaExpedientDades.getEstatId();
        boolean nomesTasquesPersonals = consultaExpedientDades.isNomesTasquesPersonals();
+       boolean nomesTasquesMeves = consultaExpedientDades.isNomesTasquesMeves();
        boolean nomesTasquesGrup = consultaExpedientDades.isNomesTasquesGrup();
        boolean nomesAlertes = consultaExpedientDades.isNomesAlertes();
        boolean nomesErrors = consultaExpedientDades.isNomesErrors();
@@ -104,6 +105,7 @@ public class ExpedientController {
                ", nomesFinalitzats: " + nomesFinalitzats +
                ", estatId: " + estatId +
                ", nomesTasquesPersonals: " + nomesTasquesPersonals +
+               ", nomesTasquesMeves: " + nomesTasquesMeves +
                ", nomesTasquesGrup: " + nomesTasquesGrup +
                ", expedientTipusId: " + nomesAlertes +
                ", nomesErrors: " + nomesErrors +
@@ -128,7 +130,8 @@ public class ExpedientController {
                nomesIniciats,
                nomesFinalitzats,
     		   estatId, 
-    		   nomesTasquesPersonals, 
+    		   nomesTasquesPersonals,
+    		   nomesTasquesMeves,
     		   nomesTasquesGrup, 
     		   nomesAlertes, 
     		   nomesErrors, 
@@ -173,6 +176,7 @@ public class ExpedientController {
 		boolean nomesFinalitzats = consultaExpedientDades.isNomesFinalitzats();
 		Long estatId = consultaExpedientDades.getEstatId();
 		boolean nomesTasquesPersonals = consultaExpedientDades.isNomesTasquesPersonals();
+		boolean nomesTasquesMeves = consultaExpedientDades.isNomesTasquesMeves();
 		boolean nomesTasquesGrup = consultaExpedientDades.isNomesTasquesGrup();
 		boolean nomesAlertes = consultaExpedientDades.isNomesAlertes();
 		boolean nomesErrors = consultaExpedientDades.isNomesErrors();
@@ -194,6 +198,7 @@ public class ExpedientController {
               ", nomesFinalitzats: " + nomesFinalitzats +
               ", estatId: " + estatId +
               ", nomesTasquesPersonals: " + nomesTasquesPersonals +
+              ", nomesTasquesMeves: " + nomesTasquesMeves +
               ", nomesTasquesGrup: " + nomesTasquesGrup +
               ", expedientTipusId: " + nomesAlertes +
               ", nomesErrors: " + nomesErrors +
@@ -209,7 +214,7 @@ public class ExpedientController {
    		   usuariCodi,
    		   entornId,
    		   expedientTipusId, 
-   		tipusIdPermesos,
+   		   tipusIdPermesos,
    		   titol, 
    		   numero, 
    		   dataInici1, 
@@ -220,6 +225,7 @@ public class ExpedientController {
            nomesFinalitzats,
    		   estatId, 
    		   nomesTasquesPersonals, 
+   		   nomesTasquesMeves, 
    		   nomesTasquesGrup, 
    		   nomesAlertes, 
    		   nomesErrors, 

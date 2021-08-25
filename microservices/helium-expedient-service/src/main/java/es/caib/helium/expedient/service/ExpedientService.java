@@ -50,6 +50,7 @@ public interface ExpedientService {
             boolean nomesFinalitzats,
             Long estatId,
             boolean nomesTasquesPersonals,
+            boolean nomesTasquesMeves,
             boolean nomesTasquesGrup,
             boolean nomesAlertes,
             boolean nomesErrors,

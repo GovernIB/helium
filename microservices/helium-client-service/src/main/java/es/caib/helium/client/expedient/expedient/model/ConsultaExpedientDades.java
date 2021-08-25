@@ -3,7 +3,10 @@ package es.caib.helium.client.expedient.expedient.model;
 import java.util.Collection;
 import java.util.Date;
 
+import javax.json.bind.annotation.JsonbDateFormat;
 import javax.validation.constraints.NotNull;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 import es.caib.helium.client.model.PagedSortedRequest;
 import lombok.AllArgsConstructor;
@@ -31,9 +34,13 @@ public class ConsultaExpedientDades extends PagedSortedRequest {
     private String titol;
     private String numero;
     private Long tipusId;
+	@DateTimeFormat(pattern="yyyy-MM-dd")
     private Date dataCreacioInici;
+	@DateTimeFormat(pattern="yyyy-MM-dd")
     private Date dataCreacioFi;
+	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private Date dataFiInici;
+	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private Date dataFiFi;
     private Long estatId;
     private Double geoPosX;

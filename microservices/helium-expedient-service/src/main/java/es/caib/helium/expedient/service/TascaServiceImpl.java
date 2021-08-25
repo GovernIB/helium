@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import es.caib.helium.expedient.domain.Expedient;
+import es.caib.helium.expedient.domain.Proces;
 import es.caib.helium.expedient.domain.Responsable;
 import es.caib.helium.expedient.domain.Tasca;
 import es.caib.helium.expedient.mapper.ResponsableMapper;
@@ -26,6 +27,7 @@ import es.caib.helium.expedient.mapper.TascaMapper;
 import es.caib.helium.expedient.model.ResponsableDto;
 import es.caib.helium.expedient.model.TascaDto;
 import es.caib.helium.expedient.repository.ExpedientRepository;
+import es.caib.helium.expedient.repository.ProcesRepository;
 import es.caib.helium.expedient.repository.ResponsableRepository;
 import es.caib.helium.expedient.repository.TascaRepository;
 import es.caib.helium.expedient.repository.TascaSpecifications;
@@ -42,6 +44,7 @@ public class TascaServiceImpl implements TascaService {
     private final TascaRepository tascaRepository;
     private final ResponsableRepository responsableRepository;
     private final ExpedientRepository expedientRepository;
+    private final ProcesRepository procesRepository;
     
     private final TascaMapper tascaMapper;
     private final ResponsableMapper responsableMapper;
@@ -65,7 +68,7 @@ public class TascaServiceImpl implements TascaService {
         }
         
         Tasca tasca = tascaMapper.dtoToEntity(tascaDto);
-        if (tasca.getResponsables() != null) { // TODO sense if passava validacio i petava.
+        if (tasca.getResponsables() != null) {
         	tasca.getResponsables().clear();
         }
         
@@ -73,6 +76,12 @@ public class TascaServiceImpl implements TascaService {
         	Optional<Expedient> expedientOptional = expedientRepository.findById(tascaDto.getExpedientId());
         	if (expedientOptional.isPresent()) {
         		tasca.setExpedient(expedientOptional.get());
+        	}
+        }        
+        if (tascaDto.getProcesId() != null) {
+        	Optional<Proces> procesOptional = procesRepository.findById(tascaDto.getProcesId());
+        	if (procesOptional.isPresent()) {
+        		tasca.setProces(procesOptional.get());
         	}
         }        
         log.debug("[SRV] Validant tasca");
@@ -253,8 +262,8 @@ public class TascaServiceImpl implements TascaService {
         if (tasca.getExpedient() == null) {
             errors.put("expedient", "El camp no pot ser null");        	
         }
-        if (tasca.getProcesId() == null || tasca.getProcesId().isEmpty()) {
-            errors.put("procesId", "El camp no pot ser null");
+        if (tasca.getProces() == null) {
+            errors.put("proces", "El camp no pot ser null");
         }
         if (tasca.getNom() == null || tasca.getNom().isBlank())
             errors.put("nom", "El camp no pot ser null");

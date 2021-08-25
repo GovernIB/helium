@@ -163,6 +163,7 @@ public class ExpedientServiceImpl implements ExpedientService {
             boolean nomesFinalitzats,
             Long estatId,
             boolean nomesTasquesPersonals,
+            boolean nomesTasquesMeves,
             boolean nomesTasquesGrup,
             boolean nomesAlertes,
             boolean nomesErrors,
@@ -187,6 +188,7 @@ public class ExpedientServiceImpl implements ExpedientService {
                 "nomesFinalitzats: " + nomesFinalitzats + "\n" +
                 "estatId: " + estatId + "\n" +
                 "nomesTasquesPersonals: " + nomesTasquesPersonals + "\n" +
+                "nomesTasquesMeves: " + nomesTasquesMeves + "\n" +
                 "nomesTasquesGrup: " + nomesTasquesGrup + "\n" +
                 "expedientTipusId: " + nomesAlertes + "\n" +
                 "nomesErrors: " + nomesErrors + "\n" +
@@ -209,6 +211,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 											nomesFinalitzats,
 											estatId, 
 											nomesTasquesPersonals, 
+											nomesTasquesMeves,
 											nomesTasquesGrup, 
 											nomesAlertes, 
 											nomesErrors, 

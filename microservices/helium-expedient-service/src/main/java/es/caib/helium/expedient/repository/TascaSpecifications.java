@@ -155,8 +155,8 @@ public class TascaSpecifications {
 //    		spec = spec.and(mostrarAssignadesUsuari(usuariAssignat));
 //    	if (mostrarAssignadesGrup)
 //    		spec = spec.and(mostrarAssignadesGrup(usuariAssignat));
-//    	if (nomesPendents)
-//    		spec = spec.and(nomesPendents());
+    	if (nomesPendents)
+    		spec = spec.and(nomesPendents());
     	
     	return spec;	
     }
