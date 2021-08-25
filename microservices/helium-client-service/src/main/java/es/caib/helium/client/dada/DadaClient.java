@@ -55,9 +55,9 @@ public interface DadaClient {
 	
 	Dada getDadaByExpedientIdProcesAndCodi(Long expedientId, String procesIdId, String codi) throws Exception;
 	
-	Dada getDadaByProcesAndCodi(String procesIdId, String codi) throws Exception;
+	Dada getDadaByProcesAndCodi(String procesIdId, String codi);
 	
-	Long getDadaExpedientIdByProcesId(String procesIdId) throws Exception;
+	Long getDadaExpedientIdByProcesId(String procesIdId);
 	
 	void postDadesByExpedientId(Long expedientId, String procesIdId, List<Dada> dada);
 	

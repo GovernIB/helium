@@ -3,12 +3,38 @@
  */
 package es.caib.helium.logic.helper;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import es.caib.helium.client.engine.model.WProcessInstance;
+import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.client.engine.model.WToken;
 import es.caib.helium.client.expedient.expedient.ExpedientClientService;
 import es.caib.helium.client.expedient.expedient.enums.ExpedientEstatTipusEnum;
 import es.caib.helium.client.expedient.proces.ProcesClientService;
 import es.caib.helium.client.expedient.proces.model.ProcesDto;
+import es.caib.helium.client.expedient.tasca.TascaClientService;
 import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
@@ -59,28 +85,6 @@ import es.caib.helium.persist.repository.TerminiIniciatRepository;
 import es.caib.helium.persist.util.ThreadLocalInfo;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ExpedientEstat;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.acls.domain.BasePermission;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * Helper per a gestionar els expedients.
@@ -139,6 +143,8 @@ public class ExpedientHelper {
 	private ExpedientClientService expedientClientService;
 	@Resource
 	private ProcesClientService procesClientService;
+	@Resource
+	private TascaClientService tascaClientService;
 
 
 
@@ -1104,22 +1110,29 @@ public class ExpedientHelper {
 	}
 
 	public Expedient findExpedientByProcessInstanceId(String processInstanceId) {
-		Optional<Expedient> expedientOptional = null;
 		Expedient expedient = null;
-		// Obté la informació del procés del MS d'expedients i tasques
-		ProcesDto proces = procesClientService.getProcesV1(processInstanceId);
-		Long expId = proces != null ? proces.getExpedientId() : null;
-		if (expId != null) {
-			expedientOptional = expedientRepository.findById(expId);
-			expedient = expedientOptional.isPresent() ? expedientOptional.get() : null;
+		// Busca l'expedient per procés principial
+		expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
+		// Mira si és l'expedient iniciant del thread
+		if (expedient == null 
+				&&ThreadLocalInfo.getExpedient() != null 
+				&& ThreadLocalInfo.getExpedient().getProcessInstanceId().equals(processInstanceId)) {
+			expedient = ThreadLocalInfo.getExpedient();
+		} 
+		// Mira si està en el Map d'expedients que s'estan iniciant
+		if (expedient == null) {
+			expedient = this.expedientsIniciGet(processInstanceId);
+		}
+		// Com a darrera opció consulta informació del procés del MS d'expedients i tasques per obtenir l'id
+		if (expedient == null) {
+			ProcesDto proces = procesClientService.getProcesV1(processInstanceId);
+			if (proces != null && proces.getExpedientId() != null) {
+				Optional<Expedient> expedientOptional = expedientRepository.findById(proces.getExpedientId());
+				expedient = expedientOptional.orElse(null);
+			}
 		}
 		if (expedient == null) {
-			Expedient expedientIniciant = ThreadLocalInfo.getExpedient();
-			if (expedientIniciant != null && expedientIniciant.getProcessInstanceId().equals(processInstanceId)) {
-				expedient = expedientIniciant;
-			} else {
-				throw new NoTrobatException(Expedient.class, "PID:" + processInstanceId);
-			}
+			throw new NoTrobatException(Expedient.class, "PID:" + processInstanceId);
 		}
 		return expedient;
 	}
@@ -1279,7 +1292,6 @@ public class ExpedientHelper {
 	public List<InstanciaProcesDto> getArbreInstanciesProces(
 			String processInstanceId) {
 
-		// TODO DANIEL: crear una consulta al MS per a que retorni directament la llista
 		List<ProcesDto> processos = procesClientService.getLlistatProcessos(processInstanceId);
 //		String procesArrelId = procesClientService.getProcesV1(processInstanceId).getProcesArrelId();
 //		List<ProcesDto> processos = procesClientService.findProcessAmbFiltrePaginatV1(ConsultaProcesDades.builder()
@@ -1712,10 +1724,13 @@ public class ExpedientHelper {
 				variables);
 		expedient.setProcessInstanceId(processInstance.getId());
 		//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
+		
+		// Afegeix l'expedient iniciant al map static
+		this.expedientsIniciAdd(expedient);
 
 		Long infoRetroaccioId = null;
 		String arxiuUuid = null;
-
+		es.caib.helium.client.expedient.expedient.model.ExpedientDto expedientMs = null;
 		try {
 
 			// Verificar la ultima vegada que l'expedient va modificar el seu estat
@@ -1796,29 +1811,18 @@ public class ExpedientHelper {
 							null);
 				}
 			}
-//			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
-
-//			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
-			// Actualitza les variables del procés
-			workflowEngineApi.signalProcessInstance(expedient.getProcessInstanceId(), transitionName);
-//			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
-//			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
-			// Comprova si després de l'inici ja està en un node fi
-			this.verificarFinalitzacioExpedient(expedient);
-
 			// TODO: eliminar indexació
 			// Indexam l'expedient
 //			logger.debug("Indexant nou expedient (id=" + expedient.getProcessInstanceId() + ")");
 //			indexHelper.expedientIndexLuceneCreate(expedient.getProcessInstanceId());
 
 			// Crea l'expedient al MS
-			var expedientMs =
-					es.caib.helium.client.expedient.expedient.model.ExpedientDto.builder()
+			expedientMs = es.caib.helium.client.expedient.expedient.model.ExpedientDto.builder()
 						.id(expedient.getId())
 						.entornId(entornId)
 						.expedientTipusId(expedientTipusId)
 						.processInstanceId(expedient.getProcessInstanceId())
-						.numero(expedient.getNumero())
+						.numero(expedient.getNumero() != null ? expedient.getNumero() : expedient.getNumeroDefault())
 						.numeroDefault(expedient.getNumeroDefault())
 						.titol(expedient.getTitol())
 						.dataInici(expedient.getDataInici())
@@ -1830,20 +1834,18 @@ public class ExpedientHelper {
 						.alertesTotals(Long.valueOf(expedient.getAlertes().size()))
 						.alertesPendents(expedient.getAlertes().stream().filter(a -> true).count())
 						.ambErrors(expedient.isErrorsIntegracions() || expedient.getErrorDesc() != null)
+						.estatTipus(ExpedientEstatTipusEnum.INICIAT)
 						.build();
-			// Determina l'estat
-			if (expedient.getDataFi() != null) {
-				expedientMs.setEstatTipus(ExpedientEstatTipusEnum.FINALITZAT);
-			} else {
-				if (expedient.getEstat() != null) {
-					expedientMs.setEstatId(expedient.getEstat().getId());
-					expedientMs.setEstatTipus(ExpedientEstatTipusEnum.CUSTOM);
-				} else {
-					expedientMs.setEstatTipus(ExpedientEstatTipusEnum.INICIAT);
-				}
-			}
+			
+			// Crea la informació del procés i l'expedient al MS d'expedients i tasques
 			expedientClientService.createExpedientV1(expedientMs);
-//			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
+			
+			// Inicia el procés
+			workflowEngineApi.signalProcessInstance(expedient.getProcessInstanceId(), transitionName);
+
+			// Comprova si després de l'inici ja està en un node fi
+			this.verificarFinalitzacioExpedient(expedient);
+		
 		} catch(Exception e) {
 			// Rollback de la creació del procés al Motor de WF
 			workflowEngineApi.deleteProcessInstance(expedient.getProcessInstanceId());
@@ -1862,7 +1864,19 @@ public class ExpedientHelper {
 				} catch(Exception re) {
 					logger.error("Error esborrant l'expedient " + expedient.getIdentificador() + " amb uuid " + arxiuUuid + " :" + re.getMessage());
 				}
+			// Rollback de la creació de l'expedient al MS
+			if (expedientMs != null) {
+				try {
+					logger.info("Rollback de la creació de l'expedient al MS " + expedient.getIdentificador() + " amb id " + expedientMs.getId());
+					// Esborra l'expedient de l'arxiu
+					expedientClientService.deleteExpedientV1(expedientMs.getId());
+				} catch(Exception re) {
+					logger.error("Error esborrant l'expedient " + expedient.getIdentificador() + " amb id " + expedientMs.getId() + " :" + re.getMessage());
+				}
+			}
 			throw e;
+		} finally {
+			this.expedientsIniciDelete(expedient);
 		}
 
 //		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom());
@@ -1998,6 +2012,39 @@ public class ExpedientHelper {
 			throw new NoTrobatException(Expedient.class, expedientId);
 		Expedient expedient = optionalExpedient.get();
 		return expedient;
+	}
+
+
+	// Mètodes per operar amb el la llista d'expedients que estan iniciant-se
+	
+	/** Llistat amb els expedients que s'estan iniciant. Es diferencia del theadInfo perque 
+	 * podria ser que el motor consulti l'expedient des del micro serei del motor.
+	 */
+	private static List<Expedient> expedientsInici = new ArrayList<Expedient>();
+	
+	private void expedientsIniciDelete(Expedient expedient) {
+		synchronized (expedientsInici) {
+			expedientsInici.remove(expedient);
+		}
+	}
+	
+	private Expedient expedientsIniciGet(String processInstanceId) {
+		Expedient expedient = null;
+		synchronized (expedientsInici) {
+			for (Expedient e : expedientsInici) {
+				if (e.getProcessInstanceId() != null && e.getProcessInstanceId().equals(processInstanceId)) {
+					expedient = e;
+					break;
+				}
+			}
+		}
+		return expedient;
+	}
+
+	private void expedientsIniciAdd(Expedient expedient) {
+		synchronized (expedientsInici) {
+			expedientsInici.add(expedient);
+		}
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientHelper.class);

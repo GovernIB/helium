@@ -13,11 +13,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.caib.helium.client.expedient.tasca.model.ConsultaTascaDades;
 import es.caib.helium.client.expedient.tasca.model.TascaDto;
 import es.caib.helium.client.model.PagedList;
+import es.caib.helium.client.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -125,7 +125,7 @@ public class TascaClientServiceImpl implements TascaClientService {
 		}
 		tascaClient.patchTascaV1(
 				tascaId, 
-				new ObjectMapper().valueToTree(jpb.build()));
+				JsonUtil.toJsonNode(jpb));
 	}
 
 	@Override
@@ -136,7 +136,7 @@ public class TascaClientServiceImpl implements TascaClientService {
 		jpb.replace("cancelada", cancelada);
 		tascaClient.patchTascaV1(
 				tascaId, 
-				new ObjectMapper().valueToTree(jpb.build()));
+				JsonUtil.toJsonNode(jpb));
 	}
 
 	@Override
@@ -147,7 +147,7 @@ public class TascaClientServiceImpl implements TascaClientService {
 		jpb.replace("suspesa", suspesa);
 		tascaClient.patchTascaV1(
 				tascaId, 
-				new ObjectMapper().valueToTree(jpb.build()));
+				JsonUtil.toJsonNode(jpb));
 	}
 	
 	@Override
@@ -158,7 +158,7 @@ public class TascaClientServiceImpl implements TascaClientService {
 		jpb.replace("errorFinalitzacio", errorFinalitzacio);
 		tascaClient.patchTascaV1(
 				tascaId, 
-				new ObjectMapper().valueToTree(jpb.build()));
+				JsonUtil.toJsonNode(jpb));
 	}
 
 	@Override
@@ -172,7 +172,6 @@ public class TascaClientServiceImpl implements TascaClientService {
 		jpb.replace("errorFinalitzacio", JsonValue.NULL);
 		tascaClient.patchTascaV1(
 				tascaId, 
-				new ObjectMapper().valueToTree(jpb.build()));
+				JsonUtil.toJsonNode(jpb));
 	}
-
 }

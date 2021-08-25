@@ -1,12 +1,13 @@
 package org.jbpm.command;
 
-import net.conselldemallorca.helium.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-
 import org.jbpm.JbpmContext;
 import org.jbpm.graph.exe.ProcessInstance;
 import org.jbpm.taskmgmt.def.Task;
 import org.jbpm.taskmgmt.exe.SwimlaneInstance;
+
+import net.conselldemallorca.helium.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.api.dto.ProcesDto;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 
 /**
  * Graph command to start a new process and signal it immidiatly. The transition named in
@@ -39,6 +40,19 @@ public class StartProcessInstanceCommand extends NewProcessInstanceCommand imple
         processInstance.signal();
       else
         processInstance.signal(startTransitionName);*/
+      // MS dona d'alta el procés al MS d'expedients, processos i tasques
+      
+      
+      Jbpm3HeliumBridge.getInstanceService().crearProces(ProcesDto.builder()
+				.id(String.valueOf(processInstance.getId()))
+				.expedientId(null)
+				.dataInici(processInstance.getStart())
+				.dataFi(processInstance.getEnd())
+				.descripcio(processInstance.getProcessDefinition().getName())
+				.procesArrelId(String.valueOf(processInstance.getRootToken().getProcessInstance().getId()))
+				.procesPareId(null)
+				.processDefinitionId(String.valueOf(processInstance.getProcessDefinition().getId()))
+				.build());
     }
     return object;
   }

@@ -14,6 +14,7 @@ import org.springframework.data.domain.Persistable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
@@ -52,13 +53,11 @@ public class Tasca implements Persistable<String> {
 	private String id;
 	
 	@ManyToOne(optional=true, cascade={CascadeType.ALL})
-	@JoinColumn(name="expedient_id")
-	// FK HEL_TASCA_EXP_FK
+	@JoinColumn(name="expedient_id", foreignKey = @ForeignKey(name="HEL_TASCA_EXP_FK"))
 	private Expedient expedient;
 
 	@ManyToOne(optional=false, cascade={CascadeType.ALL})
-	@JoinColumn(name="proces_id")
-	// FK HEL_TASCA_EXP_FK
+	@JoinColumn(name="proces_id", foreignKey = @ForeignKey(name="HEL_TASCA_EXP_FK"))
 	private Proces proces;
 
 	@Size(max = 255)
