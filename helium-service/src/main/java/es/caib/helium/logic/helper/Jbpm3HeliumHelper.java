@@ -3,24 +3,6 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
-import org.hibernate.Hibernate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import es.caib.helium.client.engine.model.WProcessDefinition;
 import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.engine.model.WTaskInstance;
@@ -124,6 +106,22 @@ import es.caib.helium.persist.repository.ReassignacioRepository;
 import es.caib.helium.persist.repository.TascaRepository;
 import es.caib.helium.persist.repository.TerminiIniciatRepository;
 import es.caib.helium.persist.util.ThreadLocalInfo;
+import org.hibernate.Hibernate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 /**
  * Service que implementa la funcionalitat necessària per
  * a integrar Helium i jBPM.
@@ -911,7 +909,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void documentFirmaServidor(
 			String processInstanceId,
 			String documentCodi,
-			String motiu) throws ValidacioException {
+			String motiu) throws Exception {
 		
 		Long documentStoreId = documentHelper.findDocumentStorePerInstanciaProcesAndDocumentCodi(
 				processInstanceId, 
@@ -925,7 +923,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 
 	@Override
-	public void createDadesTasca(String taskId) {
+	public void createDadesTasca(String taskId) throws Exception {
 		tascaHelper.createDadesTasca(taskId);
 	}
 
@@ -1420,7 +1418,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String documentCodi,
 			Date data,
 			String arxiuNom,
-			byte[] arxiuContingut) {
+			byte[] arxiuContingut) throws Exception {
 		logger.debug("Guardant un document a dins l'expedient (" +
 				"processInstanceId=" + processInstanceId + ", " +
 				"documentCodi=" + documentCodi + ", " +
@@ -1504,7 +1502,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void documentExpedientEsborrar(
 			String taskInstanceId,
 			String processInstanceId,
-			String documentCodi) {
+			String documentCodi) throws Exception {
 		logger.debug("Esborrant un document de dins l'expedient (" +
 				"taskInstanceId=" + taskInstanceId + ", " +
 				"processInstanceId=" + processInstanceId + ", " +
@@ -2075,7 +2073,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public ExpedientDadaDto getDadaPerProcessInstance(
 			String processInstanceId,
-			String varCodi) {
+			String varCodi) throws Exception {
 		logger.debug("Obtenint la dada de l'instància de procés (processInstanceId=" + processInstanceId + ")");
 		DefinicioProces definicioProces = getDefinicioProcesDonatProcessInstanceId(
 				processInstanceId);
@@ -2117,7 +2115,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public TascaDadaDto getDadaPerTaskInstance(
 			String processInstanceId,
 			String taskInstanceId,
-			String varCodi) {
+			String varCodi) throws Exception {
 		logger.debug("Obtenint la dada de l'instància de tasca (taskInstanceId=" + taskInstanceId + ")");
 		DefinicioProces definicioProces = getDefinicioProcesDonatProcessInstanceId(
 				processInstanceId);

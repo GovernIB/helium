@@ -579,7 +579,7 @@ public class TascaServiceImpl implements TascaService {
 	public TascaDocumentDto findDocument(
 			String tascaId,
 			Long docId,
-			Long expedientTipusId) {
+			Long expedientTipusId) throws Exception {
 		logger.debug("Consultant document de la tasca (" +
 				"docId=" + docId + ")");
 		return documentHelper.findDocumentPerId(tascaId, docId, expedientTipusId);
@@ -588,7 +588,7 @@ public class TascaServiceImpl implements TascaService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<TascaDocumentDto> findDocuments(
-			String id) {
+			String id) throws Exception {
 		logger.debug("Consultant documents de la tasca (" +
 				"taskInstanceId=" + id + ")");
 		WTaskInstance task = tascaHelper.getTascaComprovacionsTramitacio(
@@ -645,7 +645,7 @@ public class TascaServiceImpl implements TascaService {
 	@Transactional(readOnly = true)
 	public ArxiuDto getArxiuPerDocumentCodi(
 			String tascaId,
-			String documentCodi) {
+			String documentCodi) throws Exception {
 		logger.debug("Obtenint contingut de l'arxiu per l'tasca (" +
 				"tascaId=" + tascaId + ", " +
 				"documentCodi=" + documentCodi + ")");
@@ -688,7 +688,7 @@ public class TascaServiceImpl implements TascaService {
 	@Transactional(readOnly = true)
 	public DocumentDto getDocumentPerDocumentCodi(
 			String tascaId,
-			String documentCodi) {
+			String documentCodi) throws Exception {
 		logger.debug("Obtenint contingut de l'arxiu per la tasca (" +
 				"tascaId=" + tascaId + ", " +
 				"documentCodi=" + documentCodi + ")");
@@ -727,7 +727,7 @@ public class TascaServiceImpl implements TascaService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<TascaDocumentDto> findDocumentsSignar(
-			String id) {
+			String id) throws Exception {
 		logger.debug("Consultant documents per signar de la tasca (" +
 				"taskInstanceId=" + id + ")");
 		WTaskInstance task = tascaHelper.getTascaComprovacionsTramitacio(
@@ -747,7 +747,7 @@ public class TascaServiceImpl implements TascaService {
 			String textFiltre,
 			Long registreCampId,
 			Integer registreIndex,
-			Map<String, Object> valorsFormulari) {
+			Map<String, Object> valorsFormulari) throws Exception {
 		logger.debug("Consultant llista de valors per camp selecció (" +
 				"tascaId=" + tascaId + ", " +
 				"processInstanceId=" + processInstanceId + ", " +
@@ -929,7 +929,7 @@ public class TascaServiceImpl implements TascaService {
 	public void esborrarDocument(
 			String taskInstanceId,
 			String documentCodi,
-			String user) {		
+			String user) throws Exception {
 		WTaskInstance task = tascaHelper.getTascaComprovacionsTramitacio(
 				taskInstanceId,
 				true,
@@ -1001,7 +1001,7 @@ public class TascaServiceImpl implements TascaService {
 			boolean ambFirma,
 			boolean firmaSeparada,
 			byte[] firmaContingut,
-			String user) {
+			String user) throws Exception {
 		logger.debug("Crear document a dins la tasca (" +
 				"entornId=" + entornId + ", " +
 				"taskInstanceId=" + taskInstanceId + ", " +
@@ -1072,7 +1072,7 @@ public class TascaServiceImpl implements TascaService {
 	@Transactional
 	public void guardar(
 			String taskId,
-			Map<String, Object> variables) {
+			Map<String, Object> variables) throws Exception {
 		logger.debug("Guardant les dades del formulari de la tasca (" +
 				"taskId=" + taskId + ", " +
 				"variables= "+variables+")");
@@ -1115,7 +1115,7 @@ public class TascaServiceImpl implements TascaService {
 	@Transactional
 	public void validar(
 			String tascaId,
-			Map<String, Object> variables) {
+			Map<String, Object> variables) throws Exception {
 		logger.debug("Validant el formulari de la tasca (" +
 				"tascaId=" + tascaId + ", " +
 				"variables= "+variables+")");
@@ -1829,7 +1829,7 @@ public class TascaServiceImpl implements TascaService {
 	@Override
 	public void guardarFormulariExtern(
 			String formulariId, 
-			Map<String, Object> variables) {
+			Map<String, Object> variables) throws Exception {
 
 		logger.debug("Guardant formulari extern (" +
 				"formulariId=" + formulariId + ", " +

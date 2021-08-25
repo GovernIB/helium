@@ -130,7 +130,7 @@ public class TascaHelper {
 	
 	private void setTascaCache(
 			WTaskInstance task,
-			Expedient expedient) {
+			Expedient expedient) throws Exception {
 		if (expedient == null)
 			expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
@@ -325,7 +325,7 @@ public class TascaHelper {
 
 	public String getTitolPerTasca(
 			WTaskInstance task,
-			Tasca tasca) {
+			Tasca tasca) throws Exception {
 		String titol = null;
 		if (tasca != null) {
 			Map<String, Object> textPerCamps = new HashMap<String, Object>();
@@ -379,7 +379,7 @@ public class TascaHelper {
 		return titol;
 	}
 
-	public void createDadesTasca(String taskId) {
+	public void createDadesTasca(String taskId) throws Exception {
 		WTaskInstance task = workflowEngineApi.getTaskById(taskId);
 		setTascaCache(task, null);
 	}
@@ -807,7 +807,7 @@ public class TascaHelper {
 	public void processarCampsAmbDominiCacheActivat(
 			WTaskInstance task,
 			Tasca tasca,
-			Map<String, Object> variables) {
+			Map<String, Object> variables) throws Exception {
 		Long expedientTipusId = expedientTipusHelper.findIdByProcessInstanceId(task.getProcessInstanceId());
 		List<CampTasca> campsTasca = campTascaRepository.findAmbTascaOrdenats(tasca.getId(), expedientTipusId);
 		for (CampTasca campTasca: campsTasca) {
