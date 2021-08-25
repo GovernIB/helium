@@ -9,6 +9,7 @@ import es.caib.helium.back.command.DefinicioProcesExportarCommand.Upload;
 import es.caib.helium.back.helper.ConversioTipusHelper;
 import es.caib.helium.back.helper.DatatablesHelper;
 import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
+import es.caib.helium.back.helper.MessageHelper;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.NodecoHelper;
 import es.caib.helium.back.helper.SessionHelper;
@@ -23,6 +24,7 @@ import es.caib.helium.logic.intf.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
+import es.caib.helium.logic.intf.exception.DeploymentException;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exportacio.DefinicioProcesExportacio;
 import es.caib.helium.logic.intf.exportacio.DefinicioProcesExportacioCommandDto;
@@ -48,12 +50,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * Controlador per al manteniment de les definicions de procés. Controla les pipelles del
@@ -564,7 +569,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         			conversioTipusHelper.convertir(
 							command, 
 							DefinicioProcesExportacioCommandDto.class),
-        			importacio);
+        			importacio).get(0);
         	
     		MissatgesHelper.success(
 					request, 
@@ -659,61 +664,70 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         	boolean error = false;
         	try {
         		if (ACCIO_JBPM.JBPM_DESPLEGAR.equals(command.getAccio())) {
-        			// Recupera la informació del contingut del fitxer
-        			DefinicioProcesExportacio exportacio = 
-        					dissenyService.getDefinicioProcesExportacioFromContingut(
-            					command.getFile().getOriginalFilename(),
-        						command.getFile().getBytes()
-        					);
-        			// Guarda la darrera per copiar dades
-        			DefinicioProcesDto darreraDefinicioProces = 
-        					definicioProcesService.findByEntornIdAndJbpmKey(
-        							entornActual.getId(), 
-        							exportacio.getDefinicioProcesDto().getJbpmKey());
-        			// Realitza la importació com a una nova versió
-        			exportacio.getDefinicioProcesDto().setEtiqueta(command.getEtiqueta());
-        			DefinicioProcesDto definicioProces = definicioProcesService.importar(
-            				command.getEntornId(), 
-            				command.getExpedientTipusId(), 
-            				command.getId(),
-            				null, 	// DefinicioProcesExportacioCommandDto
-            				exportacio);
-        			// Copia les dades de la darrera versió a la nova
-        			if (darreraDefinicioProces != null)
-        				definicioProcesService.copiarDefinicioProces(
-	        					darreraDefinicioProces.getId(),
-	        					definicioProces.getId());
-    	        	// Invoca al mètode per relacionar les darreres definicions de procés
-        			if (definicioProces.getExpedientTipus() != null)
-        				definicioProcesService.relacionarDarreresVersions(definicioProces.getExpedientTipus().getId());
-    	        	
-            		MissatgesHelper.success(request, getMessage( request, "definicio.proces.desplegar.form.success"));
-            		if (command.isActualitzarExpedientsActius()) {
-            				// Programació de la tasca d'actualització d'expedients actius
-		        			ExecucioMassivaDto dto = new ExecucioMassivaDto();
-		    				dto.setDataInici(new Date());
-		    				dto.setEnviarCorreu(false);
-		    				dto.setParam1(definicioProces.getJbpmKey());
-		    				dto.setParam2(execucioMassivaService.serialize(Integer.valueOf(definicioProces.getVersio())));
-		    				dto.setTipus(ExecucioMassivaTipusDto.ACTUALITZAR_VERSIO_DEFPROC);
-		    				dto.setProcInstIds(
-		    						expedientService.findProcesInstanceIdsAmbEntornAndProcessDefinitionName(
-							    						entornActual.getId(),
-							    						definicioProces.getJbpmKey()));
-		        			try {
-		        				execucioMassivaService.crearExecucioMassiva(dto);
-		        				MissatgesHelper.success(request, getMessage(request, "info.canvi.versio.massiu", new Object[] {dto.getProcInstIds().size()}));
-		        			} catch(Exception e) {
-		        				logger.error("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
-		        				MissatgesHelper.error(
-		        						request,
-		        						getMessage(
-		        								request,
-		        								"definicio.proces.desplegar.error.actualitzarExpedientActius",
-		        								new Object[] {e.getMessage()}));
-		        				error = true;
-		        			}
-            		}
+
+					// Camunda
+					if (command.getFile().getOriginalFilename().endsWith("war")) {
+
+						byte[] contingutDesplegament = command.getFile().getBytes();
+						validateDeploymentFile(contingutDesplegament);
+
+						DefinicioProcesExportacio exportacio = new DefinicioProcesExportacio();
+						exportacio.setNomDeploy(command.getFile().getOriginalFilename());
+						exportacio.setContingutDeploy(contingutDesplegament);
+
+						List<DefinicioProcesDto> definicionsProces = definicioProcesService.importar(
+								command.getEntornId(),
+								command.getExpedientTipusId(),
+								command.getId(),
+								null,
+								exportacio);
+
+						for (var definicioProces: definicionsProces) {
+							// Obtenim la anterior definició per copiar dades
+							DefinicioProcesDto darreraDefinicioProces =
+//									definicioProcesService.findPreviaByEntornIdAndJbpmKey(
+									definicioProcesService.findByEntornIdAndJbpmKey(
+											entornActual.getId(),
+											definicioProces.getJbpmKey());
+							// Copia les dades de la darrera versió a la nova
+							definicioProcesCopyDades(darreraDefinicioProces, definicioProces, false);
+						}
+						MissatgesHelper.success(request, getMessage(request, "definicio.proces.desplegar.form.success"));
+						if (command.isActualitzarExpedientsActius()) {
+							for (var definicioProces : definicionsProces) {
+								error = error || updateExpedientsActius(request, entornActual, definicioProces);
+							}
+						}
+
+					// JBPM
+					} else {
+						// Recupera la informació del contingut del fitxer
+						DefinicioProcesExportacio exportacio =
+								dissenyService.getDefinicioProcesExportacioFromContingut(
+										command.getFile().getOriginalFilename(),
+										command.getFile().getBytes()
+								);
+						// Guarda la darrera per copiar dades
+						DefinicioProcesDto darreraDefinicioProces =
+								definicioProcesService.findByEntornIdAndJbpmKey(
+										entornActual.getId(),
+										exportacio.getDefinicioProcesDto().getJbpmKey());
+						// Realitza la importació com a una nova versió
+						exportacio.getDefinicioProcesDto().setEtiqueta(command.getEtiqueta());
+						DefinicioProcesDto definicioProces = definicioProcesService.importar(
+								command.getEntornId(),
+								command.getExpedientTipusId(),
+								command.getId(),
+								null,    // DefinicioProcesExportacioCommandDto
+								exportacio).get(0);
+						// Copia les dades de la darrera versió a la nova
+						definicioProcesCopyDades(darreraDefinicioProces, definicioProces, true);
+
+						MissatgesHelper.success(request, getMessage(request, "definicio.proces.desplegar.form.success"));
+						if (command.isActualitzarExpedientsActius()) {
+							updateExpedientsActius(request, entornActual, definicioProces);
+						}
+					}
         		} else if (ACCIO_JBPM.JBPM_ACTUALITZAR.equals(command.getAccio())){
         			DefinicioProcesDto definicioProces = null;
         			try {
@@ -768,7 +782,76 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         		return modalUrlTancar(false);        		
         	}
         }
-	}		
+	}
+
+	private boolean updateExpedientsActius(HttpServletRequest request, EntornDto entornActual, DefinicioProcesDto definicioProces) {
+		boolean error = false;
+		// Programació de la tasca d'actualització d'expedients actius
+		ExecucioMassivaDto dto = new ExecucioMassivaDto();
+		dto.setDataInici(new Date());
+		dto.setEnviarCorreu(false);
+		dto.setParam1(definicioProces.getJbpmKey());
+		dto.setParam2(execucioMassivaService.serialize(Integer.valueOf(definicioProces.getVersio())));
+		dto.setTipus(ExecucioMassivaTipusDto.ACTUALITZAR_VERSIO_DEFPROC);
+		dto.setProcInstIds(
+				expedientService.findProcesInstanceIdsAmbEntornAndProcessDefinitionName(
+						entornActual.getId(),
+						definicioProces.getJbpmKey()));
+		try {
+			execucioMassivaService.crearExecucioMassiva(dto);
+			MissatgesHelper.success(request, getMessage(request, "info.canvi.versio.massiu", new Object[]{dto.getProcInstIds().size()}));
+		} catch (Exception e) {
+			logger.error("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"definicio.proces.desplegar.error.actualitzarExpedientActius",
+							new Object[]{e.getMessage()}));
+			error = true;
+		}
+		return error;
+	}
+
+	private void definicioProcesCopyDades(DefinicioProcesDto darreraDefinicioProces, DefinicioProcesDto definicioProces, boolean isJbpm) {
+		// Copia les dades de la darrera versió a la nova
+		if (darreraDefinicioProces != null)
+			definicioProcesService.copiarDefinicioProces(
+					darreraDefinicioProces.getId(),
+					definicioProces.getId());
+		// Invoca al mètode per relacionar les darreres definicions de procés
+		if (isJbpm && definicioProces.getExpedientTipus() != null)
+			definicioProcesService.relacionarDarreresVersions(definicioProces.getExpedientTipus().getId());
+	}
+
+	private void validateDeploymentFile(byte[] contingutDesplegament) throws Exception {
+		ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(contingutDesplegament));
+		// Llegim el fitxer, i comprovam qeu es correspon a un process, i conté alguna definició de procés
+		boolean isProcess = false;
+		boolean hasProcessDefinition = false;
+
+		ZipEntry zipEntry = null;
+		try {
+			while ((zipEntry = zis.getNextEntry()) != null) {
+				if (zipEntry.getName().endsWith("processes.xml")) {
+					String deploymentDescriptorFile = new String(zis.readAllBytes());
+					var processArchiveStartIndex = deploymentDescriptorFile.indexOf("<process-archive");
+					if (processArchiveStartIndex != -1) {
+						isProcess = true;
+					}
+				} else if (zipEntry.getName().endsWith("bpmn") || zipEntry.getName().endsWith("dmn")) {
+					hasProcessDefinition = true;
+				}
+			}
+
+			if (!isProcess || !hasProcessDefinition)
+				throw new DeploymentException(MessageHelper.getInstance().getMessage("exportar.validacio.definicio.deploy.error"));
+		} catch (IOException ex) {
+			throw new DeploymentException(MessageHelper.getInstance().getMessage("exportar.validacio.definicio.deploy.error"));
+//			throw new Exception("Fitxer de desplegament no vàlid", ex);
+		}
+	}
+
 	private void omplirModelFormulariDesplegament(
 			DefinicioProcesDesplegarCommand command,
 			Model model,

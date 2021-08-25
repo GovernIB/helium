@@ -135,6 +135,44 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		return dto;
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public DefinicioProcesDto findPreviaByEntornIdAndJbpmKey(
+			Long entornId,
+			String jbpmKey) {
+		logger.debug(
+				"Consultant versió previa de definicio proces amb entornId i jbpmKey (" +
+						"entornId=" + entornId + ", " +
+						"jbmpKey = " + jbpmKey + ")");
+
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true);
+
+		DefinicioProces definicioProces = null;
+		definicioProcesRepository.flush();
+		var definicionsProces = definicioProcesRepository.findByEntornIJbpmKey(entorn.getId(), jbpmKey);
+
+		if (definicionsProces != null && !definicionsProces.isEmpty() && definicionsProces.size() > 1) {
+			// Obtenim la penúltima definició de procés --> Estan ordenades descendentment, per tant és la segona
+			definicioProces = definicionsProces.get(1);
+		}
+		DefinicioProcesDto dto = null;
+		if (definicioProces != null) {
+			// Comprova l'accés
+			if (definicioProces.getExpedientTipus() != null)
+				expedientTipusHelper.getExpedientTipusComprovantPermisDissenyDelegat(
+						definicioProces.getExpedientTipus().getId());
+			else
+				entornHelper.getEntornComprovantPermisos(EntornActual.getEntornId(), true, true);
+
+			dto = conversioTipusServiceHelper.convertir(
+					definicioProces,
+					DefinicioProcesDto.class);
+		}
+		return dto;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -306,13 +344,13 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	 */
 	@Override
 	@Transactional
-	public DefinicioProcesDto importar(
+	public List<DefinicioProcesDto> importar(
 			Long entornId, 
 			Long expedientTipusId,
 			Long definicioProcesId,
 			DefinicioProcesExportacioCommandDto command, 
 			DefinicioProcesExportacio importacio) {
-		DefinicioProcesDto ret = null;
+		List<DefinicioProcesDto> ret = null;
 		logger.debug(
 				"Important una definicio de proces (" +
 				"entornId=" + entornId + ", " +
@@ -325,7 +363,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				entornId,
 				true);
 		
-		DefinicioProces importat = definicioProcesHelper.importar(
+		List<DefinicioProces> importat = definicioProcesHelper.importar(
 				entornId, 
 				expedientTipusId,
 				definicioProcesId,
@@ -334,7 +372,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				command != null ? command.isSobreEscriure() : true);
 		
 		if (importat != null)
-			ret = conversioTipusServiceHelper.convertir(importat, DefinicioProcesDto.class);
+			ret = conversioTipusServiceHelper.convertirList(importat, DefinicioProcesDto.class);
 		return ret;
 	}
 	

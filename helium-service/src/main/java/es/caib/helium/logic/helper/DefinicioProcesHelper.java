@@ -140,7 +140,7 @@ public class DefinicioProcesHelper {
 	 * @return
 	 */
 	@Transactional
-	public DefinicioProces importar(
+	public List<DefinicioProces> importar(
 			Long entornId, 
 			Long expedientTipusId, 
 			Long definicioProcesId,
@@ -159,394 +159,397 @@ public class DefinicioProcesHelper {
 		// si el command és null s'importa tot
 		boolean importAll = command == null;
 		boolean definicioProcesExisteix = definicioProcesId != null;
-		DefinicioProces definicio;
+		List<DefinicioProces> definicions = new ArrayList<>();
 		if ( ! definicioProcesExisteix) {
 			// Nova definició de procés
 			WDeployment dpd = workflowEngineApi.desplegar(
 					importacio.getNomDeploy(), 
 					importacio.getContingutDeploy());
 			if (dpd != null && dpd.getProcessDefinitions() != null && !dpd.getProcessDefinitions().isEmpty()) {
-				// En el cas de importació de definició de procés, només es desplega 1 definició de procés
-				WProcessDefinition wpd = dpd.getProcessDefinitions().get(0);
-				// Crea la nova definició de procés
-				definicio = new DefinicioProces(
-						wpd.getId(),
-						wpd.getKey(),
-						wpd.getVersion(),
-						entorn);
-				definicio.setExpedientTipus(expedientTipus);
-				if (expedientTipus != null)
-					expedientTipus.getDefinicionsProces().add(definicio);
-				definicio = definicioProcesRepository.saveAndFlush(definicio);
-				// Crea les tasques publicades
-				List<String> nomTasques = workflowEngineApi.getTaskNamesFromDeployedProcessDefinition(dpd, wpd.getId());
-				Set<String> nomRecursos = workflowEngineApi.getResourceNames(dpd.getId());
-				for (String nomTasca: nomTasques) {
-					Tasca tasca = new Tasca(
-							definicio,
-							nomTasca,
-							nomTasca,
-							TipusTasca.ESTAT);
-					String prefixRecursBo = "forms/" + nomTasca;
-					for (String resourceName: nomRecursos) {
-						if (resourceName.startsWith(prefixRecursBo)) {
-							tasca.setTipus(TipusTasca.FORM);
-							tasca.setRecursForm(nomTasca);
-							break;
+				// Crea les noves definicions de procés
+				for (WProcessDefinition wpd: dpd.getProcessDefinitions()) {
+					DefinicioProces definicio = new DefinicioProces(
+							wpd.getId(),
+							wpd.getKey(),
+							wpd.getVersion(),
+							entorn);
+					definicio.setExpedientTipus(expedientTipus);
+					if (expedientTipus != null)
+						expedientTipus.getDefinicionsProces().add(definicio);
+					definicio = definicioProcesRepository.saveAndFlush(definicio);
+					// Crea les tasques publicades
+					List<String> nomTasques = workflowEngineApi.getTaskNamesFromDeployedProcessDefinition(dpd, wpd.getId());
+					Set<String> nomRecursos = workflowEngineApi.getResourceNames(dpd.getId());
+					for (String nomTasca : nomTasques) {
+						Tasca tasca = new Tasca(
+								definicio,
+								nomTasca,
+								nomTasca,
+								TipusTasca.ESTAT);
+						String prefixRecursBo = "forms/" + nomTasca;
+						for (String resourceName : nomRecursos) {
+							if (resourceName.startsWith(prefixRecursBo)) {
+								tasca.setTipus(TipusTasca.FORM);
+								tasca.setRecursForm(nomTasca);
+								break;
+							}
 						}
+						tascaRepository.save(tasca);
+						definicio.getTasques().add(tasca);
 					}
-					tascaRepository.save(tasca);
-					definicio.getTasques().add(tasca);
-				}				
+					definicions.add(definicio);
+				}
 			} else
 				throw new DeploymentException(
 						messageServiceHelper.getMessage("exportar.validacio.definicio.deploy.error"));
 		} else {
-			definicio = definicioProcesRepository.findById(definicioProcesId).get();
+			definicions = List.of(definicioProcesRepository.findById(definicioProcesId).get());
 		}
 
 		// Copia la informació importada
 
-		// Agrupacions
-		Map<String, CampAgrupacio> agrupacions = new HashMap<String, CampAgrupacio>();
-		CampAgrupacio agrupacio;
-		if (importAll || command.getAgrupacions().size() > 0)
-			for(AgrupacioExportacio agrupacioExportat : importacio.getAgrupacions() )
-				if (importAll || command.getAgrupacions().contains(agrupacioExportat.getCodi())){
-					agrupacio = null;
-					if (definicioProcesExisteix) {
-						agrupacio = campAgrupacioRepository.findAmbDefinicioProcesICodi(definicio.getId(), agrupacioExportat.getCodi());
-					}
-					if (agrupacio == null || sobreEscriure) {
-						if (agrupacio == null) {
-							agrupacio = new CampAgrupacio(
-									definicio, 
-									agrupacioExportat.getCodi(), 
-									agrupacioExportat.getNom(),
-									agrupacioExportat.getOrdre());
-							definicio.getAgrupacions().add(agrupacio);
-							campAgrupacioRepository.save(agrupacio);
-						} else {
-							agrupacio.setNom(agrupacioExportat.getNom());
-							agrupacio.setOrdre(agrupacioExportat.getOrdre());
+		for (DefinicioProces definicio: definicions) {
+			// Agrupacions
+			Map<String, CampAgrupacio> agrupacions = new HashMap<String, CampAgrupacio>();
+			CampAgrupacio agrupacio;
+			if (importAll || command.getAgrupacions().size() > 0)
+				for (AgrupacioExportacio agrupacioExportat : importacio.getAgrupacions())
+					if (importAll || command.getAgrupacions().contains(agrupacioExportat.getCodi())) {
+						agrupacio = null;
+						if (definicioProcesExisteix) {
+							agrupacio = campAgrupacioRepository.findAmbDefinicioProcesICodi(definicio.getId(), agrupacioExportat.getCodi());
 						}
-						agrupacio.setDescripcio(agrupacioExportat.getDescripcio());
-					}
-					agrupacions.put(agrupacio.getCodi(), agrupacio);
-				}		
-		// Camps
-		Map<String, Camp> camps = new HashMap<String, Camp>();
-		Map<Camp, CampExportacio> registres = new HashMap<Camp, CampExportacio>();
-		Map<Camp, CampExportacio> campsTipusConsulta = new HashMap<Camp, CampExportacio>();
-		Camp camp;
-		if (importAll || command.getVariables().size() > 0) {
-			for(CampExportacio campExportat : importacio.getCamps() )
-				if (importAll || command.getVariables().contains(campExportat.getCodi())){
-					camp = null;
-					if (definicioProcesExisteix) {
-						camp = campRepository.findByDefinicioProcesAndCodi(definicio, campExportat.getCodi());
-					}
-					if (camp == null || sobreEscriure) {
-						if (camp == null) {
-							camp = new Camp(
-									definicio, 
-									campExportat.getCodi(),
-									TipusCamp.valueOf(campExportat.getTipus().toString()),
-									campExportat.getEtiqueta());
-							definicio.getCamps().add(camp);
-							camp = campRepository.saveAndFlush(camp);
-						} else {
-							camp.setTipus(TipusCamp.valueOf(campExportat.getTipus().toString()));
-							camp.setEtiqueta(campExportat.getEtiqueta());
+						if (agrupacio == null || sobreEscriure) {
+							if (agrupacio == null) {
+								agrupacio = new CampAgrupacio(
+										definicio,
+										agrupacioExportat.getCodi(),
+										agrupacioExportat.getNom(),
+										agrupacioExportat.getOrdre());
+								definicio.getAgrupacions().add(agrupacio);
+								campAgrupacioRepository.save(agrupacio);
+							} else {
+								agrupacio.setNom(agrupacioExportat.getNom());
+								agrupacio.setOrdre(agrupacioExportat.getOrdre());
+							}
+							agrupacio.setDescripcio(agrupacioExportat.getDescripcio());
 						}
-						camp.setIgnored(campExportat.isIgnored());
-						camp.setObservacions(campExportat.getObservacions());
-						camp.setDominiId(campExportat.getDominiId());
-						camp.setDominiParams(campExportat.getDominiParams());
-						camp.setDominiCampText(campExportat.getDominiCampText());
-						camp.setDominiCampValor(campExportat.getDominiCampValor());
-						camp.setDominiCacheText(campExportat.isDominiCacheText());
-						camp.setConsultaParams(campExportat.getConsultaParams());
-						camp.setConsultaCampText(campExportat.getConsultaCampText());
-						camp.setConsultaCampValor(campExportat.getConsultaCampValor());
-						camp.setMultiple(campExportat.isMultiple());
-						camp.setOcult(campExportat.isOcult());
-						camp.setDominiIntern(campExportat.isDominiIntern());
-						camp.setDefprocJbpmKey(campExportat.getDefprocJbpmKey());
-						camp.setJbpmAction(campExportat.getJbpmAction());
-						camp.setOrdre(campExportat.getOrdre());
-						
-						// Esborra les validacions existents
-						for (Validacio validacio : camp.getValidacions())
-							campValidacioRepository.delete(validacio);
-						camp.getValidacions().clear();
-						campValidacioRepository.flush();
-						// Afegeix les noves validacions
-						for (ValidacioExportacio validacioExportat : campExportat.getValidacions()) {
-							Validacio validacio = new Validacio(
-									camp, 
-									validacioExportat.getExpressio(), 
-									validacioExportat.getMissatge());
-							validacio.setNom(validacioExportat.getNom());
-							validacio.setOrdre(validacioExportat.getOrdre());
-							campValidacioRepository.save(validacio);
-							camp.getValidacions().add(validacio);
+						agrupacions.put(agrupacio.getCodi(), agrupacio);
+					}
+			// Camps
+			Map<String, Camp> camps = new HashMap<String, Camp>();
+			Map<Camp, CampExportacio> registres = new HashMap<Camp, CampExportacio>();
+			Map<Camp, CampExportacio> campsTipusConsulta = new HashMap<Camp, CampExportacio>();
+			Camp camp;
+			if (importAll || command.getVariables().size() > 0) {
+				for (CampExportacio campExportat : importacio.getCamps())
+					if (importAll || command.getVariables().contains(campExportat.getCodi())) {
+						camp = null;
+						if (definicioProcesExisteix) {
+							camp = campRepository.findByDefinicioProcesAndCodi(definicio, campExportat.getCodi());
 						}
-						// Agrupació del camp
-						if (campExportat.getAgrupacioCodi() != null && agrupacions.containsKey(campExportat.getAgrupacioCodi()))
-							camp.setAgrupacio(agrupacions.get(campExportat.getAgrupacioCodi()));
-						// Enumeració del camp
-						if (campExportat.getCodiEnumeracio() != null)
-							this.relacionarCampEnumeracio(camp, campExportat.getCodiEnumeracio(), campExportat.isDependenciaEntorn(), entorn, expedientTipus);
-						// DominiDto del camp
-						if (campExportat.getCodiDomini() != null)
-							this.relacionarCampDomini(camp, campExportat.getCodiDomini(), campExportat.isDependenciaEntorn(), entorn, expedientTipus);
-						// Guarda els camps de tipus consulta per processar-los després de les consultes
-						if (campExportat.getCodiConsulta() != null)
-							campsTipusConsulta.put(camp, campExportat);
-						// Guarda els registres per processar-los després de tots els camps
-						if (camp.getTipus() == TipusCamp.REGISTRE) {
-							registres.put(camp, campExportat);
-						}						
+						if (camp == null || sobreEscriure) {
+							if (camp == null) {
+								camp = new Camp(
+										definicio,
+										campExportat.getCodi(),
+										TipusCamp.valueOf(campExportat.getTipus().toString()),
+										campExportat.getEtiqueta());
+								definicio.getCamps().add(camp);
+								camp = campRepository.saveAndFlush(camp);
+							} else {
+								camp.setTipus(TipusCamp.valueOf(campExportat.getTipus().toString()));
+								camp.setEtiqueta(campExportat.getEtiqueta());
+							}
+							camp.setIgnored(campExportat.isIgnored());
+							camp.setObservacions(campExportat.getObservacions());
+							camp.setDominiId(campExportat.getDominiId());
+							camp.setDominiParams(campExportat.getDominiParams());
+							camp.setDominiCampText(campExportat.getDominiCampText());
+							camp.setDominiCampValor(campExportat.getDominiCampValor());
+							camp.setDominiCacheText(campExportat.isDominiCacheText());
+							camp.setConsultaParams(campExportat.getConsultaParams());
+							camp.setConsultaCampText(campExportat.getConsultaCampText());
+							camp.setConsultaCampValor(campExportat.getConsultaCampValor());
+							camp.setMultiple(campExportat.isMultiple());
+							camp.setOcult(campExportat.isOcult());
+							camp.setDominiIntern(campExportat.isDominiIntern());
+							camp.setDefprocJbpmKey(campExportat.getDefprocJbpmKey());
+							camp.setJbpmAction(campExportat.getJbpmAction());
+							camp.setOrdre(campExportat.getOrdre());
+
+							// Esborra les validacions existents
+							for (Validacio validacio : camp.getValidacions())
+								campValidacioRepository.delete(validacio);
+							camp.getValidacions().clear();
+							campValidacioRepository.flush();
+							// Afegeix les noves validacions
+							for (ValidacioExportacio validacioExportat : campExportat.getValidacions()) {
+								Validacio validacio = new Validacio(
+										camp,
+										validacioExportat.getExpressio(),
+										validacioExportat.getMissatge());
+								validacio.setNom(validacioExportat.getNom());
+								validacio.setOrdre(validacioExportat.getOrdre());
+								campValidacioRepository.save(validacio);
+								camp.getValidacions().add(validacio);
+							}
+							// Agrupació del camp
+							if (campExportat.getAgrupacioCodi() != null && agrupacions.containsKey(campExportat.getAgrupacioCodi()))
+								camp.setAgrupacio(agrupacions.get(campExportat.getAgrupacioCodi()));
+							// Enumeració del camp
+							if (campExportat.getCodiEnumeracio() != null)
+								this.relacionarCampEnumeracio(camp, campExportat.getCodiEnumeracio(), campExportat.isDependenciaEntorn(), entorn, expedientTipus);
+							// DominiDto del camp
+							if (campExportat.getCodiDomini() != null)
+								this.relacionarCampDomini(camp, campExportat.getCodiDomini(), campExportat.isDependenciaEntorn(), entorn, expedientTipus);
+							// Guarda els camps de tipus consulta per processar-los després de les consultes
+							if (campExportat.getCodiConsulta() != null)
+								campsTipusConsulta.put(camp, campExportat);
+							// Guarda els registres per processar-los després de tots els camps
+							if (camp.getTipus() == TipusCamp.REGISTRE) {
+								registres.put(camp, campExportat);
+							}
+						}
+						camps.put(camp.getCodi(), camp);
 					}
-					camps.put(camp.getCodi(), camp);
-				}		
-			// Tracta els registres
-			CampExportacio campExportat;
-			for (Camp registre : registres.keySet()) {
-				// Esborra la relació amb els membres existents
-				if (!registre.getRegistreMembres().isEmpty()) {
-					for (CampRegistre campRegistre : registre.getRegistreMembres()) {
-						campRegistre.getMembre().getRegistrePares().remove(campRegistre);
-						campRegistre.setMembre(null);
-						campRegistre.setRegistre(null);
-						campRegistreRepository.delete(campRegistre);
+				// Tracta els registres
+				CampExportacio campExportat;
+				for (Camp registre : registres.keySet()) {
+					// Esborra la relació amb els membres existents
+					if (!registre.getRegistreMembres().isEmpty()) {
+						for (CampRegistre campRegistre : registre.getRegistreMembres()) {
+							campRegistre.getMembre().getRegistrePares().remove(campRegistre);
+							campRegistre.setMembre(null);
+							campRegistre.setRegistre(null);
+							campRegistreRepository.delete(campRegistre);
+						}
+						registre.getRegistreMembres().clear();
+						campRegistreRepository.flush();
 					}
-					registre.getRegistreMembres().clear();
-					campRegistreRepository.flush();
-				}
-				// afegeix la informació dels registres
-				campExportat = registres.get(registre);
-				for (RegistreMembreExportacio registreMembre : campExportat.getRegistreMembres()) {
-					CampRegistre campRegistre = new CampRegistre(
-							camps.get(registre.getCodi()),
-							camps.get(registreMembre.getCodi()),
-							registreMembre.getOrdre());
-					campRegistre.setLlistar(registreMembre.isLlistar());
-					campRegistre.setObligatori(registreMembre.isObligatori());
-					registre.getRegistreMembres().add(campRegistre);
-					campRegistreRepository.save(campRegistre);
+					// afegeix la informació dels registres
+					campExportat = registres.get(registre);
+					for (RegistreMembreExportacio registreMembre : campExportat.getRegistreMembres()) {
+						CampRegistre campRegistre = new CampRegistre(
+								camps.get(registre.getCodi()),
+								camps.get(registreMembre.getCodi()),
+								registreMembre.getOrdre());
+						campRegistre.setLlistar(registreMembre.isLlistar());
+						campRegistre.setObligatori(registreMembre.isObligatori());
+						registre.getRegistreMembres().add(campRegistre);
+						campRegistreRepository.save(campRegistre);
+					}
 				}
 			}
-		}		
-		// Documents
-		Map<String, Document> documents = new HashMap<String, Document>();
-		Document document;
-		if (importAll || command.getDocuments().size() > 0)
-			for(DocumentExportacio documentExportat : importacio.getDocuments() )
-				if (importAll || command.getDocuments().contains(documentExportat.getCodi())){
-					document = null;
-					if (definicioProcesExisteix) {
-						document = documentRepository.findByDefinicioProcesAndCodi(definicio, documentExportat.getCodi());
-					}
-					if (document == null || sobreEscriure) {
-						if (document == null) {
-							document = new Document(
-									definicio, 
-									documentExportat.getCodi(), 
-									documentExportat.getNom());
-							definicio.getDocuments().add(document);
-							documentRepository.saveAndFlush(document);
-						} else {
-							document.setNom(documentExportat.getNom());
-						}
-						document.setDescripcio(documentExportat.getDescripcio());
-						document.setArxiuNom(documentExportat.getArxiuNom());
-						document.setArxiuContingut(documentExportat.getArxiuContingut());
-						document.setPlantilla(documentExportat.isPlantilla());
-						document.setNotificable(documentExportat.isNotificable());
-						document.setCustodiaCodi(documentExportat.getCustodiaCodi());
-						document.setContentType(documentExportat.getContentType());
-						document.setTipusDocPortasignatures(documentExportat.getTipusDocPortasignatures());
-						document.setAdjuntarAuto(documentExportat.isAdjuntarAuto());
-						if (documentExportat.getCodiCampData() != null)
-							document.setCampData(camps.get(documentExportat.getCodiCampData()));
-						document.setConvertirExtensio(documentExportat.getConvertirExtensio());
-						document.setExtensionsPermeses(documentExportat.getExtensionsPermeses());
-						document.setIgnored(documentExportat.isIgnored());
-						document.setNtiTipoDocumental(documentExportat.getNtiTipoDocumental());
-					}
-					documents.put(documentExportat.getCodi(), document);
-				}	
-		
-		// Terminis
-		Termini termini;
-		if (importAll || command.getTerminis().size() > 0)
-			for(TerminiExportacio terminiExportat : importacio.getTerminis() )
-				if (importAll || command.getTerminis().contains(terminiExportat.getCodi())){
-					termini = null;
-					if (definicioProcesExisteix) {
-						termini = terminiRepository.findByDefinicioProcesAndCodi(definicio, terminiExportat.getCodi());
-					}
-					if (termini == null || sobreEscriure) {
-						if (termini == null) {
-							termini = new Termini(
-									definicio,
-									terminiExportat.getCodi(),
-									terminiExportat.getNom(),
-									terminiExportat.getAnys(),
-									terminiExportat.getMesos(),
-									terminiExportat.getDies(),
-									terminiExportat.isLaborable());
-							definicio.getTerminis().add(termini);
-							terminiRepository.save(termini);
-						} else {
-							termini.setNom(terminiExportat.getNom());
-							termini.setNom(terminiExportat.getNom());
-							termini.setAnys(terminiExportat.getAnys());
-							termini.setMesos(terminiExportat.getMesos());
-							termini.setDies(terminiExportat.getDies());
-							termini.setLaborable(terminiExportat.isLaborable());
-						}
-						termini.setDuradaPredefinida(terminiExportat.isDuradaPredefinida());
-						termini.setDescripcio(terminiExportat.getDescripcio());
-						termini.setDiesPrevisAvis(terminiExportat.getDiesPrevisAvis());
-						termini.setAlertaPrevia(terminiExportat.isAlertaPrevia());
-						termini.setAlertaFinal(terminiExportat.isAlertaFinal());
-						termini.setAlertaCompletat(terminiExportat.isAlertaCompletat());
-						termini.setManual(terminiExportat.isManual());
-					}
-				}
-		
-		// Accions
-		Accio accio;
-		if (importAll || command.getAccions().size() > 0)
-			for(AccioExportacio accioExportat : importacio.getAccions() )
-				if (importAll || command.getAccions().contains(accioExportat.getCodi())){
-					accio = null;
-					if (definicioProcesExisteix) {
-						accio = accioRepository.findByDefinicioProcesIdAndCodi(definicio.getId(), accioExportat.getCodi());
-					}
-					if (accio == null || sobreEscriure) {
-						if (accio == null) {
-							accio = new Accio(
-									definicio, 
-									accioExportat.getCodi(), 
-									accioExportat.getNom(),
-									accioExportat.getJbpmAction());
-							definicio.getAccions().add(accio);
-							accioRepository.save(accio);
-						} else {
-							accio.setNom(accioExportat.getNom());
-							accio.setJbpmAction(accioExportat.getJbpmAction());
-						}
-						accio.setDescripcio(accioExportat.getDescripcio());
-						accio.setPublica(accioExportat.isPublica());
-						accio.setOculta(accioExportat.isOculta());
-						accio.setRols(accioExportat.getRols());
-					}
-				}		
-		
-		// Tasques
-		Tasca tasca;
-		if (importAll || command.getTasques().size() > 0)
-			for(TascaExportacio tascaExportat : importacio.getTasques() )
-				if (importAll || command.getTasques().contains(tascaExportat.getJbpmName())){
-					tasca = tascaRepository.findByJbpmNameAndDefinicioProces(tascaExportat.getJbpmName(), definicio);
-					if (tasca != null && (!definicioProcesExisteix || sobreEscriure)) {
-						tasca.setNom(tascaExportat.getNom());
-						tasca.setTipus(TipusTasca.valueOf(tascaExportat.getTipus().toString()));
-						tasca.setMissatgeInfo(tascaExportat.getMissatgeInfo());
-						tasca.setMissatgeWarn(tascaExportat.getMissatgeWarn());
-						tasca.setNomScript(tascaExportat.getNomScript());
-						tasca.setExpressioDelegacio(tascaExportat.getExpressioDelegacio());
-						tasca.setRecursForm(tascaExportat.getRecursForm());
-						tasca.setFormExtern(tascaExportat.getFormExtern());
-						tasca.setTramitacioMassiva(tascaExportat.isTramitacioMassiva());
-						tasca.setFinalitzacioSegonPla(tascaExportat.isFinalitzacioSegonPla());
-						tasca.setAmbRepro(tascaExportat.isAmbRepro());
-						tasca.setMostrarAgrupacions(tascaExportat.isMostrarAgrupacions());
-						tascaRepository.save(tasca);
-						
-						// Si la tasca ja existia llavors esborra els camps, documents i firmes
+			// Documents
+			Map<String, Document> documents = new HashMap<String, Document>();
+			Document document;
+			if (importAll || command.getDocuments().size() > 0)
+				for (DocumentExportacio documentExportat : importacio.getDocuments())
+					if (importAll || command.getDocuments().contains(documentExportat.getCodi())) {
+						document = null;
 						if (definicioProcesExisteix) {
-							for(CampTasca c : tasca.getCamps())
-								campTascaRepository.delete(c);
-							tasca.getCamps().clear();
-							documentTascaRepository.flush();
-							
-							for(DocumentTasca d : tasca.getDocuments())
-								documentTascaRepository.delete(d);
-							tasca.getDocuments().clear();
-							documentTascaRepository.flush();
-							
-							for(FirmaTasca f : tasca.getFirmes())
-								firmaTascaRepository.delete(f);
-							tasca.getFirmes().clear();
-							firmaTascaRepository.flush();
+							document = documentRepository.findByDefinicioProcesAndCodi(definicio, documentExportat.getCodi());
 						}
-						// Camps de la tasca
-						for (CampTascaExportacio campExportat : tascaExportat.getCamps()) {
-							CampTasca campTasca = new CampTasca();
-							campTasca.setOrder(campExportat.getOrder());	
-							campTasca.setAmpleCols(campExportat.getAmpleCols());
-							campTasca.setBuitCols(campExportat.getBuitCols());
-							campTasca.setReadFrom(campExportat.isReadFrom());
-							campTasca.setWriteTo(campExportat.isWriteTo());
-							campTasca.setRequired(campExportat.isRequired());
-							campTasca.setReadOnly(campExportat.isReadOnly());
-							campTasca.setTasca(tasca);
-							this.relacionarCampTasca(
-									campTasca, 
-									campExportat.getCampCodi(), 
-									campExportat.isTipusExpedient(),
-									expedientTipus, 
-									definicio);
-							tasca.getCamps().add(campTasca);	
-							campTascaRepository.save(campTasca);
+						if (document == null || sobreEscriure) {
+							if (document == null) {
+								document = new Document(
+										definicio,
+										documentExportat.getCodi(),
+										documentExportat.getNom());
+								definicio.getDocuments().add(document);
+								documentRepository.saveAndFlush(document);
+							} else {
+								document.setNom(documentExportat.getNom());
+							}
+							document.setDescripcio(documentExportat.getDescripcio());
+							document.setArxiuNom(documentExportat.getArxiuNom());
+							document.setArxiuContingut(documentExportat.getArxiuContingut());
+							document.setPlantilla(documentExportat.isPlantilla());
+							document.setNotificable(documentExportat.isNotificable());
+							document.setCustodiaCodi(documentExportat.getCustodiaCodi());
+							document.setContentType(documentExportat.getContentType());
+							document.setTipusDocPortasignatures(documentExportat.getTipusDocPortasignatures());
+							document.setAdjuntarAuto(documentExportat.isAdjuntarAuto());
+							if (documentExportat.getCodiCampData() != null)
+								document.setCampData(camps.get(documentExportat.getCodiCampData()));
+							document.setConvertirExtensio(documentExportat.getConvertirExtensio());
+							document.setExtensionsPermeses(documentExportat.getExtensionsPermeses());
+							document.setIgnored(documentExportat.isIgnored());
+							document.setNtiTipoDocumental(documentExportat.getNtiTipoDocumental());
 						}
-						// Documents de la tasca
-						for (DocumentTascaExportacio documentExportat : tascaExportat.getDocuments()) {
-							DocumentTasca documentTasca = new DocumentTasca();
-							documentTasca.setRequired(documentExportat.isRequired());
-							documentTasca.setReadOnly(documentExportat.isReadOnly());
-							documentTasca.setOrder(documentExportat.getOrder());
-							documentTasca.setTasca(tasca);
-							this.relacionarDocumentTasca(
-									documentTasca, 
-									documentExportat.getDocumentCodi(), 
-									documentExportat.isTipusExpedient(),
-									expedientTipus, 
-									definicio);
-							tasca.getDocuments().add(documentTasca);	
-							documentTascaRepository.save(documentTasca);
+						documents.put(documentExportat.getCodi(), document);
+					}
+
+			// Terminis
+			Termini termini;
+			if (importAll || command.getTerminis().size() > 0)
+				for (TerminiExportacio terminiExportat : importacio.getTerminis())
+					if (importAll || command.getTerminis().contains(terminiExportat.getCodi())) {
+						termini = null;
+						if (definicioProcesExisteix) {
+							termini = terminiRepository.findByDefinicioProcesAndCodi(definicio, terminiExportat.getCodi());
 						}
-						// Firmes de la tasca
-						for (FirmaTascaExportacio firmaExportat : tascaExportat.getFirmes()) {
-							FirmaTasca firmaTasca = new FirmaTasca();
-							firmaTasca.setRequired(firmaExportat.isRequired());
-							firmaTasca.setOrder(firmaExportat.getOrder());
-							this.relacionarFirmaTasca(
-									firmaTasca, 
-									firmaExportat.getDocumentCodi(), 
-									firmaExportat.isTipusExpedient(),
-									expedientTipus, 
-									definicio);
-							firmaTasca.setTasca(tasca);
-							tasca.getFirmes().add(firmaTasca);	
-							firmaTascaRepository.save(firmaTasca);
+						if (termini == null || sobreEscriure) {
+							if (termini == null) {
+								termini = new Termini(
+										definicio,
+										terminiExportat.getCodi(),
+										terminiExportat.getNom(),
+										terminiExportat.getAnys(),
+										terminiExportat.getMesos(),
+										terminiExportat.getDies(),
+										terminiExportat.isLaborable());
+								definicio.getTerminis().add(termini);
+								terminiRepository.save(termini);
+							} else {
+								termini.setNom(terminiExportat.getNom());
+								termini.setNom(terminiExportat.getNom());
+								termini.setAnys(terminiExportat.getAnys());
+								termini.setMesos(terminiExportat.getMesos());
+								termini.setDies(terminiExportat.getDies());
+								termini.setLaborable(terminiExportat.isLaborable());
+							}
+							termini.setDuradaPredefinida(terminiExportat.isDuradaPredefinida());
+							termini.setDescripcio(terminiExportat.getDescripcio());
+							termini.setDiesPrevisAvis(terminiExportat.getDiesPrevisAvis());
+							termini.setAlertaPrevia(terminiExportat.isAlertaPrevia());
+							termini.setAlertaFinal(terminiExportat.isAlertaFinal());
+							termini.setAlertaCompletat(terminiExportat.isAlertaCompletat());
+							termini.setManual(terminiExportat.isManual());
 						}
 					}
+
+			// Accions
+			Accio accio;
+			if (importAll || command.getAccions().size() > 0)
+				for (AccioExportacio accioExportat : importacio.getAccions())
+					if (importAll || command.getAccions().contains(accioExportat.getCodi())) {
+						accio = null;
+						if (definicioProcesExisteix) {
+							accio = accioRepository.findByDefinicioProcesIdAndCodi(definicio.getId(), accioExportat.getCodi());
+						}
+						if (accio == null || sobreEscriure) {
+							if (accio == null) {
+								accio = new Accio(
+										definicio,
+										accioExportat.getCodi(),
+										accioExportat.getNom(),
+										accioExportat.getJbpmAction());
+								definicio.getAccions().add(accio);
+								accioRepository.save(accio);
+							} else {
+								accio.setNom(accioExportat.getNom());
+								accio.setJbpmAction(accioExportat.getJbpmAction());
+							}
+							accio.setDescripcio(accioExportat.getDescripcio());
+							accio.setPublica(accioExportat.isPublica());
+							accio.setOculta(accioExportat.isOculta());
+							accio.setRols(accioExportat.getRols());
+						}
+					}
+
+			// Tasques
+			Tasca tasca;
+			if (importAll || command.getTasques().size() > 0)
+				for (TascaExportacio tascaExportat : importacio.getTasques())
+					if (importAll || command.getTasques().contains(tascaExportat.getJbpmName())) {
+						tasca = tascaRepository.findByJbpmNameAndDefinicioProces(tascaExportat.getJbpmName(), definicio);
+						if (tasca != null && (!definicioProcesExisteix || sobreEscriure)) {
+							tasca.setNom(tascaExportat.getNom());
+							tasca.setTipus(TipusTasca.valueOf(tascaExportat.getTipus().toString()));
+							tasca.setMissatgeInfo(tascaExportat.getMissatgeInfo());
+							tasca.setMissatgeWarn(tascaExportat.getMissatgeWarn());
+							tasca.setNomScript(tascaExportat.getNomScript());
+							tasca.setExpressioDelegacio(tascaExportat.getExpressioDelegacio());
+							tasca.setRecursForm(tascaExportat.getRecursForm());
+							tasca.setFormExtern(tascaExportat.getFormExtern());
+							tasca.setTramitacioMassiva(tascaExportat.isTramitacioMassiva());
+							tasca.setFinalitzacioSegonPla(tascaExportat.isFinalitzacioSegonPla());
+							tasca.setAmbRepro(tascaExportat.isAmbRepro());
+							tasca.setMostrarAgrupacions(tascaExportat.isMostrarAgrupacions());
+							tascaRepository.save(tasca);
+
+							// Si la tasca ja existia llavors esborra els camps, documents i firmes
+							if (definicioProcesExisteix) {
+								for (CampTasca c : tasca.getCamps())
+									campTascaRepository.delete(c);
+								tasca.getCamps().clear();
+								documentTascaRepository.flush();
+
+								for (DocumentTasca d : tasca.getDocuments())
+									documentTascaRepository.delete(d);
+								tasca.getDocuments().clear();
+								documentTascaRepository.flush();
+
+								for (FirmaTasca f : tasca.getFirmes())
+									firmaTascaRepository.delete(f);
+								tasca.getFirmes().clear();
+								firmaTascaRepository.flush();
+							}
+							// Camps de la tasca
+							for (CampTascaExportacio campExportat : tascaExportat.getCamps()) {
+								CampTasca campTasca = new CampTasca();
+								campTasca.setOrder(campExportat.getOrder());
+								campTasca.setAmpleCols(campExportat.getAmpleCols());
+								campTasca.setBuitCols(campExportat.getBuitCols());
+								campTasca.setReadFrom(campExportat.isReadFrom());
+								campTasca.setWriteTo(campExportat.isWriteTo());
+								campTasca.setRequired(campExportat.isRequired());
+								campTasca.setReadOnly(campExportat.isReadOnly());
+								campTasca.setTasca(tasca);
+								this.relacionarCampTasca(
+										campTasca,
+										campExportat.getCampCodi(),
+										campExportat.isTipusExpedient(),
+										expedientTipus,
+										definicio);
+								tasca.getCamps().add(campTasca);
+								campTascaRepository.save(campTasca);
+							}
+							// Documents de la tasca
+							for (DocumentTascaExportacio documentExportat : tascaExportat.getDocuments()) {
+								DocumentTasca documentTasca = new DocumentTasca();
+								documentTasca.setRequired(documentExportat.isRequired());
+								documentTasca.setReadOnly(documentExportat.isReadOnly());
+								documentTasca.setOrder(documentExportat.getOrder());
+								documentTasca.setTasca(tasca);
+								this.relacionarDocumentTasca(
+										documentTasca,
+										documentExportat.getDocumentCodi(),
+										documentExportat.isTipusExpedient(),
+										expedientTipus,
+										definicio);
+								tasca.getDocuments().add(documentTasca);
+								documentTascaRepository.save(documentTasca);
+							}
+							// Firmes de la tasca
+							for (FirmaTascaExportacio firmaExportat : tascaExportat.getFirmes()) {
+								FirmaTasca firmaTasca = new FirmaTasca();
+								firmaTasca.setRequired(firmaExportat.isRequired());
+								firmaTasca.setOrder(firmaExportat.getOrder());
+								this.relacionarFirmaTasca(
+										firmaTasca,
+										firmaExportat.getDocumentCodi(),
+										firmaExportat.isTipusExpedient(),
+										expedientTipus,
+										definicio);
+								firmaTasca.setTasca(tasca);
+								tasca.getFirmes().add(firmaTasca);
+								firmaTascaRepository.save(firmaTasca);
+							}
+						}
+					}
+			if (expedientTipus != null && definicio != null) {
+				// Si el tipus d'expedient no tenia cap definició de procés inicial llavors la marca com inicial
+				if (expedientTipus.getJbpmProcessDefinitionKey() == null) {
+					expedientTipus.setJbpmProcessDefinitionKey(definicio.getJbpmKey());
+					expedientTipusRepository.save(expedientTipus);
 				}
-		if (expedientTipus != null && definicio != null) {
-			// Si el tipus d'expedient no tenia cap definició de procés inicial llavors la marca com inicial
-			if (expedientTipus.getJbpmProcessDefinitionKey() == null) {
-				expedientTipus.setJbpmProcessDefinitionKey(definicio.getJbpmKey());
-				expedientTipusRepository.save(expedientTipus);
-			}			
-			expedientTipus.getDefinicionsProces().add(definicio);
-		}		
-		return definicio;
+				expedientTipus.getDefinicionsProces().add(definicio);
+			}
+		}
+		return definicions;
 	}
 
 	/** Troba el domini per codi dins del tius d'expedient o l'entorn i el relaciona amb el camp. Si 
@@ -1268,7 +1271,7 @@ public class DefinicioProcesHelper {
 		}
 		// De l'entorn
 		if ((versions == null || versions.isEmpty()))
-			versions = definicioProcesRepository.findByEntornIJbpmKey(entornId,
+			versions = definicioProcesRepository.findGlobalsByEntornIJbpmKey(entornId,
 																	jbpmKey);
 		return versions;
 	}

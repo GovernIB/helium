@@ -20,6 +20,7 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	private Long id;
 	private String codi;
 	private String nom;
+	private MotorTipusEnum motorTipus;
 	private String jbpmProcessDefinitionKey;
 	private boolean teNumero;
 	private boolean teTitol;
@@ -105,6 +106,12 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	}
 	public void setNom(String nom) {
 		this.nom = nom;
+	}
+	public MotorTipusEnum getMotorTipus() {
+		return motorTipus;
+	}
+	public void setMotorTipus(MotorTipusEnum motorTipus) {
+		this.motorTipus = motorTipus;
 	}
 	public String getJbpmProcessDefinitionKey() {
 		return jbpmProcessDefinitionKey;

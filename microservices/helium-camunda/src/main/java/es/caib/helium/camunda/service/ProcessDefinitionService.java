@@ -1,6 +1,6 @@
 package es.caib.helium.camunda.service;
 
-import es.caib.helium.camunda.model.WProcessDefinition;
+import es.caib.helium.client.engine.model.WProcessDefinition;
 
 import java.util.List;
 

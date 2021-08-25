@@ -3,6 +3,7 @@
  */
 package es.caib.helium.persist.entity;
 
+import es.caib.helium.logic.intf.dto.MotorTipusEnum;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.Sort;
@@ -167,6 +168,9 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	@Size(max = 16)
 	private String ntiSerieDocumental;
 	private boolean arxiuActiu;
+
+	@NotNull
+	private MotorTipusEnum motorTipus;
 	
 	public ExpedientTipus() {}
 	public ExpedientTipus(String codi, String nom, Entorn entorn) {
@@ -847,7 +851,16 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setRepros(List<Repro> repros) {
 		this.repros = repros;
 	}
-	
+
+	@Column(name="motor_tipus", length = 16)
+	@Enumerated(EnumType.STRING)
+	public MotorTipusEnum getMotorTipus() {
+		return motorTipus;
+	}
+	public void setMotorTipus(MotorTipusEnum motorTipus) {
+		this.motorTipus = motorTipus;
+	}
+
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}

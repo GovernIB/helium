@@ -97,6 +97,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		return beanResolver;
 	}
 
+//	@Bean
+//	public MultipartResolver multipartResolver() {
+//		CommonsMultipartResolver multipartResolver
+//				= new CommonsMultipartResolver();
+//		multipartResolver.setMaxUploadSize(5242880);
+//		return multipartResolver;
+//	}
+
 //	// Vistes
 //	@Bean("arxiuView")
 //	public View arxiuView() {

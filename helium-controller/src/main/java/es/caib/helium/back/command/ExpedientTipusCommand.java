@@ -4,8 +4,10 @@
 package es.caib.helium.back.command;
 
 import es.caib.helium.back.validator.ExpedientTipus;
+import es.caib.helium.logic.intf.dto.MotorTipusEnum;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,8 @@ public class ExpedientTipusCommand {
 	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String nom;
+	@NotNull
+	private MotorTipusEnum motorTipus;
 	private boolean ambInfoPropia;
 	private boolean heretable;
 	private Long expedientTipusPareId;
@@ -67,6 +71,12 @@ public class ExpedientTipusCommand {
 	}
 	public void setNom(String nom) {
 		this.nom = nom;
+	}
+	public MotorTipusEnum getMotorTipus() {
+		return motorTipus;
+	}
+	public void setMotorTipus(MotorTipusEnum motorTipus) {
+		this.motorTipus = motorTipus;
 	}
 	public boolean isAmbInfoPropia() {
 		return ambInfoPropia;

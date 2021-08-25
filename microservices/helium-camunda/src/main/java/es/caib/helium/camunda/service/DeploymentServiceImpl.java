@@ -2,11 +2,17 @@ package es.caib.helium.camunda.service;
 
 import es.caib.helium.camunda.mapper.DeploymentMapper;
 import es.caib.helium.camunda.model.Fitxer;
-import es.caib.helium.camunda.model.WDeployment;
 import es.caib.helium.camunda.model.modeler.InvalidRequestException;
 import es.caib.helium.camunda.model.modeler.ModelerDeploymentWithDefinitionsDto;
+import es.caib.helium.client.engine.model.WDeployment;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.Synchronized;
+import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
@@ -34,6 +40,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -43,17 +50,21 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @ConfigurationProperties(prefix = "es.caib.helium.camunda")
 public class DeploymentServiceImpl implements DeploymentService {
 
     private static final int DELETE_MAX_WAIT = 30000;
+    private static final String REGISTERED_DEPLOYMENTS_REG = "registered_deployments.reg";
+
     private static enum DeploymentStatus { DEPLOYED, FAILED, TIMEOUT, INTERRUPTED }
 
 
@@ -73,6 +84,7 @@ public class DeploymentServiceImpl implements DeploymentService {
             "processDefinitionTasksCache"},
             allEntries = true)
     @Transactional
+    @Synchronized
     public WDeployment desplegar(
             String deploymentName,
             String tenantId,    // EntornId
@@ -97,6 +109,7 @@ public class DeploymentServiceImpl implements DeploymentService {
                 // Modificam el fitxer META-INF/processes.xml per afegir l'entorn
                 byte[] contingutAmbEntorn = deploymentAddTenantId(fitxer, tenantId);
                 Path path = Paths.get(deploymentPath, nomArxiu);
+                Path registeredDeploymentsPath = Paths.get(deploymentPath, REGISTERED_DEPLOYMENTS_REG);
                 Files.write(path, contingutAmbEntorn);
 
                 ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -105,7 +118,9 @@ public class DeploymentServiceImpl implements DeploymentService {
                     DeploymentStatus deploymentStatus = fEstatDesplegament.get();
                     switch (deploymentStatus) {
                         case DEPLOYED:
-                            return deploymentMapper.toWDeployment(getLastDeployment());
+                            var lastDeployment = getLastDeployment();
+                            Files.write(registeredDeploymentsPath, (lastDeployment.getId() + ":" + nomArxiu + "\n").getBytes());
+                            return deploymentMapper.toWDeploymentWithDefinitions(lastDeployment);
                         case FAILED:
                             throw new ResponseStatusException(
                                     HttpStatus.BAD_REQUEST,
@@ -264,40 +279,92 @@ public class DeploymentServiceImpl implements DeploymentService {
 
     @Override
     @Transactional
-    public void esborrarDesplegament(String deploymentId) {
-        Deployment deployment = getDeployment(deploymentId);
-        boolean deploymentCanBeDeleted = true;
+    public void esborrarDesplegament(String id) {
 
-        List<ProcessDefinition> processDefinitions = repositoryService
-                .createProcessDefinitionQuery()
-                .deploymentId(deployment.getId()).list();
-        for (ProcessDefinition processDefinition : processDefinitions) {
-//            ProcessDefinition latestProcessDefiniton = repositoryService
-//                    .createProcessDefinitionQuery()
-//                    .processDefinitionKey(processDefinition.getKey())
-//                    .latestVersion().singleResult();
-//            boolean isLatest = latestProcessDefiniton.getId().equals(processDefinition.getId());
-            boolean hasRunningInstances = runtimeService
-                    .createProcessInstanceQuery()
-                    .processDefinitionId(processDefinition.getId()).count() > 0;
-            boolean hasHistoricInstances = historyService
-                    .createHistoricProcessInstanceQuery()
-                    .processDefinitionId(processDefinition.getId()).count() > 0;
-            if (hasRunningInstances || hasHistoricInstances) {
-                deploymentCanBeDeleted = false;
-                break;
+        // Potser que es vulgui esborrar un desploegament o una definicio de proces
+        var deploymentIdentifier = getDeploymentIdentifier(id);
+
+        // Eliminam un desplegament
+        if (deploymentIdentifier.isDeploymentIdentifier()) {
+            boolean deploymentCanBeDeleted = true;
+
+            List<ProcessDefinition> processDefinitions = repositoryService
+                    .createProcessDefinitionQuery()
+                    .deploymentId(deploymentIdentifier.getDeploymentId()).list();
+            for (ProcessDefinition processDefinition : processDefinitions) {
+                //            ProcessDefinition latestProcessDefiniton = repositoryService
+                //                    .createProcessDefinitionQuery()
+                //                    .processDefinitionKey(processDefinition.getKey())
+                //                    .latestVersion().singleResult();
+                //            boolean isLatest = latestProcessDefiniton.getId().equals(processDefinition.getId());
+                deploymentCanBeDeleted = processDefinitionCanBeDeleted(processDefinition.getId());
+                if (!deploymentCanBeDeleted)
+                    break;
+            }
+
+            if (deploymentCanBeDeleted) {
+                repositoryService.deleteDeployment(deploymentIdentifier.getDeploymentId());
+                removeDeployedFile(deploymentIdentifier.getDeploymentId());
+            }
+
+        // Eliminam una definició de proces?
+        } else {
+            if (processDefinitionCanBeDeleted(id)) {
+                repositoryService.deleteProcessDefinition(deploymentIdentifier.getProcessDefinitionId());
+
+                // Si el desplegament no té més definicions de procés, el podem borrar
+                List<ProcessDefinition> processDefinitions = repositoryService
+                        .createProcessDefinitionQuery()
+                        .deploymentId(deploymentIdentifier.getDeploymentId()).list();
+                if (processDefinitions == null || processDefinitions.isEmpty()) {
+                    repositoryService.deleteDeployment(deploymentIdentifier.getDeploymentId());
+                    removeDeployedFile(deploymentIdentifier.getDeploymentId());
+                }
             }
         }
+    }
 
-        if (deploymentCanBeDeleted) {
-            repositoryService.deleteDeployment(deployment.getId());
+    private void removeDeployedFile(String deploymentId) {
+        Path registeredDeploymentsPath = Paths.get(deploymentPath, REGISTERED_DEPLOYMENTS_REG);
+        try {
+            var filecontents = new AtomicReference<String>("");
+            var deploymentFilePath = new AtomicReference<String>("");
+            Files.lines(registeredDeploymentsPath).forEach(l -> {
+                if (l.startsWith(deploymentId)) {
+                    deploymentFilePath.set(l.split(":")[1]);
+                } else {
+                    filecontents.set(filecontents + l + "\n");
+                }
+            });
+            if (!deploymentFilePath.get().isBlank()) {
+                Path deployedFile = Path.of(deploymentPath, deploymentFilePath.get());
+                Files.deleteIfExists(deployedFile);
+            }
+            Files.write(registeredDeploymentsPath, filecontents.get().getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (Exception ex) {
+            log.error("Error al borrar desplegament físic");
         }
+    }
+
+    private boolean processDefinitionCanBeDeleted(String processDefinitionId) {
+        boolean processDefinitionCanBeDeleted = true;
+        boolean hasRunningInstances = runtimeService
+                .createProcessInstanceQuery()
+                .processDefinitionId(processDefinitionId).count() > 0;
+        boolean hasHistoricInstances = historyService
+                .createHistoricProcessInstanceQuery()
+                .processDefinitionId(processDefinitionId).count() > 0;
+        if (hasRunningInstances || hasHistoricInstances) {
+            processDefinitionCanBeDeleted = false;
+        }
+        return processDefinitionCanBeDeleted;
     }
 
     @Override
     @Transactional(readOnly = true)
     public Set<String> getResourceNames(String deploymentId) {
-        var resources = repositoryService.getDeploymentResourceNames(deploymentId);
+        var deploymentIdentifier = getDeploymentIdentifier(deploymentId);
+        var resources = repositoryService.getDeploymentResourceNames(deploymentIdentifier.getDeploymentId());
         if (resources == null || resources.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found. Desplegament: " + deploymentId);
         }
@@ -307,7 +374,8 @@ public class DeploymentServiceImpl implements DeploymentService {
     @Override
     @Transactional(readOnly = true)
     public byte[] getResourceBytes(String deploymentId, String resourceName) {
-        var resources = repositoryService.getDeploymentResources(deploymentId);
+        var deploymentIdentifier = getDeploymentIdentifier(deploymentId);
+        var resources = repositoryService.getDeploymentResources(deploymentIdentifier.getDeploymentId());
          Optional<Resource> oResource = Optional.empty();
         if (resources != null && !resources.isEmpty()) {
             oResource = resources.stream().filter(r -> r.getName().equals(resourceName)).findFirst();
@@ -348,6 +416,62 @@ public class DeploymentServiceImpl implements DeploymentService {
                 "No s'ha pogut obtenir l'estat del desplegament del fitxer " + deploymentFileName);
     }
 
+    private DeploymentIdentifier getDeploymentIdentifier(String id) {
+        String deploymentId = null;
+        String processDefinitionId = null;
+
+        var deployment = getOptionalDeployment(id);
+        if (deployment.isPresent()) {
+            deploymentId = deployment.get().getId();
+        } else {
+            ProcessDefinition processDefinition = repositoryService.getProcessDefinition(id);
+            if (processDefinition != null) {
+                deploymentId = processDefinition.getDeploymentId();
+                processDefinitionId = processDefinition.getId();
+            } else {
+                throw new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "No s'ha pogut obtenir el desplegament o definició de proés amb id " + id);
+            }
+        }
+        return DeploymentIdentifier.builder()
+                .deploymentId(deploymentId)
+                .processDefinitionId(processDefinitionId)
+                .build();
+    }
+
+//    @Override
+//    public WProcessDefinition parse(ZipInputStream zipInputStream) throws Exception {
+//        // Llegim el fitxer, i comprovam qeu es correspon a un process, i conté alguna definició de procés
+//        boolean isProcess = false;
+//        boolean hasProcessDefinition = false;
+//
+//        ZipEntry zipEntry = null;
+//        while((zipEntry = zipInputStream.getNextEntry()) != null) {
+//            if (zipEntry.getName().endsWith("processes.xml")) {
+//                String deploymentDescriptorFile = new String(zipInputStream.readAllBytes());
+//                var processArchiveStartIndex = deploymentDescriptorFile.indexOf("<process-archive");
+//                if (processArchiveStartIndex != -1) {
+//                    isProcess = true;
+//                }
+//            } else if (zipEntry.getName().endsWith("bpmn") || zipEntry.getName().endsWith("dmn")) {
+//                hasProcessDefinition = true;
+//            }
+//        }
+//        return null;
+//    }
+
+    private Optional<Deployment> getOptionalDeployment(String deploymentId) {
+        try {
+            return Optional.of(repositoryService.createDeploymentQuery()
+                    .deploymentId(deploymentId)
+                    .singleResult());
+        } catch (NullPointerException nex) {
+            return Optional.empty();
+        } catch (Exception ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error obtenint el desplegament amb id: " + deploymentId, ex);
+        }
+    }
 
     private Deployment getDeployment(String deploymentId) {
         Deployment deployment = null;
@@ -429,6 +553,22 @@ public class DeploymentServiceImpl implements DeploymentService {
             }
 
             return DeploymentStatus.TIMEOUT;
+        }
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class DeploymentIdentifier {
+        private String deploymentId;
+        private String processDefinitionId;
+
+        public boolean isProcessDefinitionIdentifier() {
+            return processDefinitionId != null && !processDefinitionId.isBlank();
+        }
+        public boolean isDeploymentIdentifier() {
+            return deploymentId != null && !deploymentId.isBlank() && processDefinitionId == null;
         }
     }
 }

@@ -2,7 +2,7 @@ package es.caib.helium.camunda.service;
 
 import es.caib.helium.camunda.helper.CacheHelper;
 import es.caib.helium.camunda.mapper.ProcessDefinitionMapper;
-import es.caib.helium.camunda.model.WProcessDefinition;
+import es.caib.helium.client.engine.model.WProcessDefinition;
 import lombok.RequiredArgsConstructor;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;

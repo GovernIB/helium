@@ -1,7 +1,7 @@
 package es.caib.helium.camunda.mapper;
 
-import es.caib.helium.camunda.model.ProcessDefinitionDto;
-import es.caib.helium.camunda.model.WProcessDefinition;
+import es.caib.helium.client.engine.model.ProcessDefinitionDto;
+import es.caib.helium.client.engine.model.WProcessDefinition;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.mapstruct.Mapper;
 import org.mapstruct.Named;

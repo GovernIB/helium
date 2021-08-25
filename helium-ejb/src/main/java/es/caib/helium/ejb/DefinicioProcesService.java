@@ -37,6 +37,14 @@ public class DefinicioProcesService extends AbstractService<es.caib.helium.logic
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DefinicioProcesDto findPreviaByEntornIdAndJbpmKey(
+			Long entornId,
+			String jbpmKey) {
+		return getDelegateService().findPreviaByEntornIdAndJbpmKey(entornId, jbpmKey);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<DefinicioProcesDto> findSubDefinicionsProces(Long definicioProcesId) {
 		return findSubDefinicionsProces(definicioProcesId);
 	}
@@ -75,7 +83,7 @@ public class DefinicioProcesService extends AbstractService<es.caib.helium.logic
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DefinicioProcesDto importar(
+	public List<DefinicioProcesDto> importar(
 			Long entornId, 
 			Long expedientTipusId,
 			Long definicioProcesId,

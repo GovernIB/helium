@@ -1,15 +1,14 @@
 package es.caib.helium.client.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -33,7 +32,7 @@ public class PagedList<T> extends PageImpl<T> {
                      @JsonProperty("sort") JsonNode sort,
                      @JsonProperty("first") boolean first,
                      @JsonProperty("numberOfElements") int numberOfElements) {
-        super(content, PageRequest.of(number, size), totalElements);
+        super(content, size == 0 ? Pageable.unpaged() : PageRequest.of(number, size), totalElements);
     }
 
     public PagedList(

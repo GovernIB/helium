@@ -3,33 +3,6 @@
  */
 package es.caib.helium.logic.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.security.acls.domain.BasePermission;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.DefinicioProcesHelper;
 import es.caib.helium.logic.helper.DominiHelper;
@@ -135,6 +108,31 @@ import es.caib.helium.persist.repository.MapeigSistraRepository;
 import es.caib.helium.persist.repository.ReassignacioRepository;
 import es.caib.helium.persist.repository.SequenciaAnyRepository;
 import es.caib.helium.persist.repository.TerminiRepository;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Implementació del servei per a gestionar tipus d'expedients.
@@ -232,6 +230,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setEntorn(entorn);
 		entity.setCodi(expedientTipus.getCodi());
 		entity.setNom(expedientTipus.getNom());
+		entity.setMotorTipus(expedientTipus.getMotorTipus());
 		entity.setAmbInfoPropia(expedientTipus.isAmbInfoPropia());
 		entity.setHeretable(expedientTipus.isHeretable());
 		if (expedientTipus.getExpedientTipusPareId() != null)
@@ -296,6 +295,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		ExpedientTipus entity = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipus.getId());
 				
 		entity.setNom(expedientTipus.getNom());
+		entity.setMotorTipus(expedientTipus.getMotorTipus());
 		entity.setAmbInfoPropia(expedientTipus.isAmbInfoPropia());
 		entity.setHeretable(expedientTipus.isHeretable());
 		if (expedientTipus.getExpedientTipusPareId() != null)
@@ -645,7 +645,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							agrupacio.getNom(),
 							agrupacio.getDescripcio(),
 							agrupacio.getOrdre()));
-		
+		// TODO: CAMUNDA
 		// Definicions de procés
 		if (command.getDefinicionsProces().size() > 0)
 			for (DefinicioProces definicio: tipus.getDefinicionsProces()) 
@@ -1344,7 +1344,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							definicioProcesId,
 							definicioExportat,
 							null,
-							command.isSobreEscriure());
+							command.isSobreEscriure()).get(0);
 					expedientTipus.addDefinicioProces(definicioProces);
 				}
 		}

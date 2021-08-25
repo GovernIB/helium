@@ -63,7 +63,7 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 	DefinicioProces findDarreraVersioAmbEntornIJbpmKey(
 		@Param("entornId") Long entornId,
 		@Param("jbpmKey") String jbpmKey);
-	
+
 	/** Troba la darrera versió de la definició de procés per codi jbpm per a un tipus d'expedient sense tenir en compte
 	 * l'herència.
 	 * @param expedientTipusId
@@ -173,6 +173,16 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			"where " +
 			"    dp.expedientTipus is null " +
 			"    and dp.entorn.id = :entornId " +
+			"	 and dp.jbpmKey = :jbpmKey " +
+			"order by dp.versio desc")
+	List<DefinicioProces> findGlobalsByEntornIJbpmKey(
+			@Param("entornId") Long entornId,
+			@Param("jbpmKey") String jbpmKey);
+
+	@Query(	"from " +
+			"    DefinicioProces dp " +
+			"where " +
+			"    dp.entorn.id = :entornId " +
 			"	 and dp.jbpmKey = :jbpmKey " +
 			"order by dp.versio desc")
 	List<DefinicioProces> findByEntornIJbpmKey(
