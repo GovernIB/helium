@@ -381,7 +381,7 @@ public class WorkflowBridgeService extends AbstractService<es.caib.helium.logic.
 	}
 
 	@Override
-    public ExpedientDadaDto getDadaPerProcessInstance(String processInstanceId, String codi) {
+    public ExpedientDadaDto getDadaPerProcessInstance(String processInstanceId, String codi) throws Exception {
         return getDelegateService().getDadaPerProcessInstance(processInstanceId, codi);
     }
 
@@ -395,7 +395,7 @@ public class WorkflowBridgeService extends AbstractService<es.caib.helium.logic.
 		return getDelegateService().findDocumentsPerTaskInstance(processInstanceId, processDefinitionId, taskName);
 	}
 
-	public String getDadaPerTaskInstance(String processInstanceId, String taskInstanceId, String varCodi) {
+	public String getDadaPerTaskInstance(String processInstanceId, String taskInstanceId, String varCodi) throws Exception {
 		return getDelegateService().getDadaPerTaskInstance(processInstanceId, taskInstanceId, varCodi);
 	}
 
@@ -405,7 +405,7 @@ public class WorkflowBridgeService extends AbstractService<es.caib.helium.logic.
 	}
 
 	public Long documentExpedientGuardar(String processInstanceId, String documentCodi, Date data, String arxiuNom,
-			byte[] arxiuContingut) {
+			byte[] arxiuContingut) throws Exception {
 		return getDelegateService().documentExpedientGuardar(processInstanceId, documentCodi, data, arxiuNom, arxiuContingut);
 	}
 

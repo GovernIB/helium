@@ -3,12 +3,6 @@
  */
 package es.caib.helium.ejb;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Stateless;
-
 import es.caib.helium.logic.intf.dto.ArxiuDetallDto;
 import es.caib.helium.logic.intf.dto.ArxiuDto;
 import es.caib.helium.logic.intf.dto.ArxiuFirmaDto;
@@ -25,6 +19,11 @@ import es.caib.helium.logic.intf.dto.PortasignaturesDto;
 import es.caib.helium.logic.intf.dto.RespostaValidacioSignaturaDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
+
+import javax.annotation.security.RolesAllowed;
+import javax.ejb.Stateless;
+import java.util.Date;
+import java.util.List;
 /**
  * EJB que implementa la interfície del servei ExpedientDocumentService.
  * 
@@ -144,7 +143,7 @@ public class ExpedientDocumentService extends AbstractService<es.caib.helium.log
 	public ExpedientDocumentDto findOneAmbInstanciaProces(
 			Long expedientId,
 			String processInstanceId,
-			String documentCodi) throws NoTrobatException, PermisDenegatException {
+			String documentCodi) throws Exception {
 		return getDelegateService().findOneAmbInstanciaProces(
 				expedientId,
 				processInstanceId,
@@ -312,7 +311,7 @@ public class ExpedientDocumentService extends AbstractService<es.caib.helium.log
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public Long guardarDocumentProces(Long expedientId, String processInstanceId, String documentCodi,
 			String adjuntTitol, Date documentData, String arxiuNom, byte[] arxiuContingut, boolean isAdjunt,
-			String user) {
+			String user) throws Exception {
 		return getDelegateService().guardarDocumentProces(expedientId, processInstanceId, documentCodi, adjuntTitol, documentData, arxiuNom, arxiuContingut, isAdjunt, user);
 	}
 

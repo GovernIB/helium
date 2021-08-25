@@ -216,7 +216,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long consultaId,
 			HttpSession session,
-			Model model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException  {
+			Model model) throws Exception {
 		Object filtreCommand = SessionHelper.getAttribute(
 				request,
 				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId);
@@ -254,7 +254,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 			HttpServletResponse response,
 			@PathVariable Long consultaId,
 			HttpSession session,
-			Model model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException  {
+			Model model) throws Exception {
 		
 		@SuppressWarnings("unchecked")
 		Map<String, Object> valors = (Map<String, Object>) session.getAttribute(SessionHelper.VARIABLE_SESSIO_COMMAND_VALUES+consultaId);

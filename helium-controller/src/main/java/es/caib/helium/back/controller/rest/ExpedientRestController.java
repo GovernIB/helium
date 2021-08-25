@@ -261,7 +261,7 @@ public class ExpedientRestController {
 	@GetMapping(value="/process/{processInstanceId}/dada/{codi}")
 	public ResponseEntity<ExpedientDadaDto> getExpedientAmbEntornITipusINumero(
 			@PathVariable("processInstanceId") String processInstanceId,
-			@PathVariable(value = "codi") String codi) {
+			@PathVariable(value = "codi") String codi) throws Exception {
 		return new ResponseEntity<>(
 				workflowBridgeService.getDadaPerProcessInstance(
 						processInstanceId,

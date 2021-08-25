@@ -46,7 +46,17 @@ import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * Controlador per a la pipella de dades de l'expedient.
@@ -390,8 +400,6 @@ public class ExpedientDadaController extends BaseExpedientController {
 						null,
 						null,
 						model));
-		if (varCodi == null)
-			return "v3/expedientDadaNova";
 		return "v3/expedientDadaNova";
 	}
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/new", method = RequestMethod.POST)
@@ -458,7 +466,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 						validatorHelper.isValidarObligatoris(),
 						validatorHelper.isValidarExpresions(),
 						procesId);
-				validator.validate(commandValidar, result);
+				// TODO descomentar validator i fer que funcioni
+				//validator.validate(commandValidar, result);
 //				validatorHelper.validate(commandValidar, result);
 				if (!result.hasErrors()) {
 					expedientDadaService.create(
@@ -577,29 +586,29 @@ public class ExpedientDadaController extends BaseExpedientController {
 		List<ExpedientDadaDto> dadesInstancia = expedientDadaService.findAmbInstanciaProces(
 				expedientId,
 				procesInstanceId);
-		if (dadesInstancia != null) {
-			Collections.sort(
-				dadesInstancia, 
-				new Comparator<ExpedientDadaDto>() {
-					public int compare(ExpedientDadaDto d1, ExpedientDadaDto d2) {
-						return d1.getVarCodi().compareToIgnoreCase(d2.getVarCodi());
-					}
-				}
-			);
-			int i = 0;
-			for(CampDto camp: camps) {
-				while (i < (dadesInstancia.size() - 1) && camp.getCodi().compareToIgnoreCase(dadesInstancia.get(i).getVarCodi()) > 0)
-					i++;
-				if (dadesInstancia.isEmpty() || !camp.getCodi().equals(dadesInstancia.get(i).getVarCodi())) {
-					campsNoUtilitzats.add(camp);
-				} else if (i < (dadesInstancia.size() - 1)){
-					i++;
-				}
-			}
-			return campsNoUtilitzats;
-		} else {
+		if (dadesInstancia == null) {
 			return camps;
 		}
+		Collections.sort(
+			dadesInstancia,
+			new Comparator<ExpedientDadaDto>() {
+				public int compare(ExpedientDadaDto d1, ExpedientDadaDto d2) {
+					return d1.getVarCodi().compareToIgnoreCase(d2.getVarCodi());
+				}
+			}
+		);
+		int i = 0;
+		for(CampDto camp: camps) {
+			while (i < (dadesInstancia.size() - 1) && camp.getCodi().compareToIgnoreCase(dadesInstancia.get(i).getVarCodi()) > 0)
+				i++;
+			if (dadesInstancia.isEmpty() || !camp.getCodi().equals(dadesInstancia.get(i).getVarCodi())) {
+				campsNoUtilitzats.add(camp);
+			} else if (i < (dadesInstancia.size() - 1)){
+				i++;
+			}
+		}
+		return campsNoUtilitzats;
+
 	}
 
 	/** Retorna les dades de la instància de procés agrupades per agrupació. S'ha de tenir en compte

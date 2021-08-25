@@ -397,8 +397,6 @@ public class ExpedientDadaController extends BaseExpedientController {
 						null,
 						null,
 						model));
-		if (varCodi == null)
-			return "v3/expedientDadaNova";
 		return "v3/expedientDadaNova";
 	}
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/new", method = RequestMethod.POST)

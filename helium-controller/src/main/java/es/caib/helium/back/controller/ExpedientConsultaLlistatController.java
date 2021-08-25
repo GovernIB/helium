@@ -180,7 +180,7 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 	public DatatablesPagina<ExpedientConsultaDissenyDto> datatable(
 			HttpServletRequest request,
 			@PathVariable Long consultaId,
-			Model model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+			Model model) throws Exception {
 
 		Object filtreCommand = SessionHelper.getAttribute(
 				request,

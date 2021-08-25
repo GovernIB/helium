@@ -190,7 +190,7 @@ public interface TascaService {
 	 *             Si no s'ha trobat la tasca amb l'id especificat.
 	 */
 	public List<TascaDocumentDto> findDocuments(
-			String id);
+			String id) throws Exception;
 
 	/**
 	 * Retorna la llista de possibles valors per a un camp de tipus
@@ -224,7 +224,7 @@ public interface TascaService {
 			String textFiltre,
 			Long registreCampId,
 			Integer registreIndex,
-			Map<String, Object> valorsFormulari) throws SistemaExternException, SistemaExternTimeoutException;
+			Map<String, Object> valorsFormulari) throws Exception;
 
 	/**
 	 * Agafa una tasca assignada a aquest usuari com a tasca de grup.
@@ -262,7 +262,7 @@ public interface TascaService {
 	 */
 	public void guardar(
 			String tascaId,
-			Map<String, Object> variables);
+			Map<String, Object> variables) throws Exception;
 
 	/**
 	 * Valida el formulari de la tasca.
@@ -275,7 +275,7 @@ public interface TascaService {
 	 */
 	public void validar(
 			String tascaId,
-			Map<String, Object> variables);
+			Map<String, Object> variables) throws Exception;
 
 	/**
 	 * Restaura (tornar enrere validació) el formulari de la tasca.
@@ -366,11 +366,11 @@ public interface TascaService {
 	 */
 	public ArxiuDto getArxiuPerDocumentCodi(
 			String tascaId,
-			String documentCodi);
+			String documentCodi) throws Exception;
 	
-	public DocumentDto getDocumentPerDocumentCodi(String tascaId, String documentCodi);
+	public DocumentDto getDocumentPerDocumentCodi(String tascaId, String documentCodi) throws Exception;
 	
-	public TascaDocumentDto findDocument(String tascaId, Long docId, Long expedientTipusId);
+	public TascaDocumentDto findDocument(String tascaId, Long docId, Long expedientTipusId) throws Exception;
 
 	public Long guardarDocumentTasca(
 			Long entornId, 
@@ -383,13 +383,13 @@ public interface TascaService {
 			boolean ambFirma,
 			boolean firmaSeparada,
 			byte[] firmaContingut,
-			String user);
+			String user) throws Exception;
 
-	public void esborrarDocument(String taskInstanceId, String documentCodi, String user);
+	public void esborrarDocument(String taskInstanceId, String documentCodi, String user) throws Exception;
 
 	public boolean signarDocumentTascaAmbToken(String tascaId, String token, byte[] signatura) throws Exception;
 
-	public List<TascaDocumentDto> findDocumentsSignar(String id);
+	public List<TascaDocumentDto> findDocumentsSignar(String id) throws Exception;
 
 	public boolean hasFormulari(String tascaId);
 
@@ -442,7 +442,7 @@ public interface TascaService {
 	 * @param formulariId Identificador del formulari extern.
 	 * @param valorsTasca Valors per les variables.
 	 */
-	public void guardarFormulariExtern(String formulariId, Map<String, Object> valorsTasca);
+	public void guardarFormulariExtern(String formulariId, Map<String, Object> valorsTasca) throws Exception;
 
 	/** Mètode per consultar si internament ha guardat les dades del formulari inicial. Ho guarda
 	 * en un Map intern.

@@ -123,7 +123,7 @@ public interface WorkflowBridgeService {
 
 	public ExpedientDadaDto getDadaPerProcessInstance(
 			String processInstanceId,
-			String codi);
+			String codi) throws Exception;
 
 
 	// TASQUES
@@ -148,7 +148,7 @@ public interface WorkflowBridgeService {
 	public String getDadaPerTaskInstance(
 			String processInstanceId,
 			String taskInstanceId,
-			String varCodi);
+			String varCodi) throws Exception;
 
 	public CampTascaDto getCampTascaPerInstanciaTasca(
 			String taskName,
@@ -199,7 +199,7 @@ public interface WorkflowBridgeService {
 			String documentCodi,
 			Date data,
 			String arxiuNom,
-			byte[] arxiuContingut);
+			byte[] arxiuContingut) throws Exception;
 
 	public Long documentExpedientAdjuntar(
 			String processInstanceId,

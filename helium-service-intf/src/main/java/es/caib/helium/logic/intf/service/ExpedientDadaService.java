@@ -3,12 +3,12 @@
  */
 package es.caib.helium.logic.intf.service;
 
-import java.util.List;
-
 import es.caib.helium.logic.intf.dto.CampAgrupacioDto;
 import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
+
+import java.util.List;
 
 
 /**
@@ -62,7 +62,7 @@ public interface ExpedientDadaService {
 			Long expedientId,
 			String processInstanceId,
 			String varCodi,
-			Object varValor) throws NoTrobatException, PermisDenegatException;
+			Object varValor) throws Exception;
 
 	/**
 	 * Esborra una variable de la instància de procés.
@@ -101,7 +101,7 @@ public interface ExpedientDadaService {
 	public ExpedientDadaDto findOnePerInstanciaProces(
 			Long expedientId,
 			String processInstanceId,
-			String varCodi) throws NoTrobatException, PermisDenegatException;
+			String varCodi) throws Exception;
 
 	/**
 	 * Retorna una variable de la instància de procés segons l'identificador del camp.

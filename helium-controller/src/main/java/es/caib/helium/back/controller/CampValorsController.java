@@ -46,7 +46,7 @@ public class CampValorsController extends BaseExpedientController {
 			@PathVariable(value = "tascaId") String tascaId,
 			@RequestParam(value = "q", required = false) String textFiltre,
 			@RequestParam(value = "valors", required = false) String valors,
-			ModelMap model) {
+			ModelMap model) throws Exception {
 		return tascaService.findValorsPerCampDesplegable(
 				tascaId,
 				processInstanceId,
@@ -144,7 +144,7 @@ public class CampValorsController extends BaseExpedientController {
 			@RequestParam(value = "valor") String textFiltre,
 			@RequestParam(value = "registreCampId", required = false) Long registreCampId,
 			@RequestParam(value = "registreIndex", required = false) Integer registreIndex,
-			ModelMap model) {
+			ModelMap model) throws Exception {
 		return tascaService.findValorsPerCampDesplegable(
 				tascaId,
 				null,
@@ -200,7 +200,7 @@ public class CampValorsController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable(value = "campId") Long campId,
 			@RequestParam(value = "valor") String textFiltre,
-			ModelMap model) {
+			ModelMap model) throws Exception {
 		return tascaService.findValorsPerCampDesplegable(
 				null,
 				null,
@@ -224,7 +224,7 @@ public class CampValorsController extends BaseExpedientController {
 			@RequestParam(value = "registreCampId", required = false) Long registreCampId,
 			@RequestParam(value = "registreIndex", required = false) Integer registreIndex,
 			@RequestParam(value = "valors", required = false) String valors,
-			ModelMap model) {
+			ModelMap model) throws Exception {
 		return tascaService.findValorsPerCampDesplegable(
 				tascaId,
 				processInstanceId,
@@ -247,7 +247,7 @@ public class CampValorsController extends BaseExpedientController {
 			@RequestParam(value = "registreCampId", required = false) Long registreCampId,
 			@RequestParam(value = "registreIndex", required = false) Integer registreIndex,
 			@RequestParam(value = "valors", required = false) String valors,
-			ModelMap model) {
+			ModelMap model) throws Exception {
 		return tascaService.findValorsPerCampDesplegable(
 				null,
 				processInstanceId,
@@ -270,7 +270,7 @@ public class CampValorsController extends BaseExpedientController {
 			@RequestParam(value = "registreCampId", required = false) Long registreCampId,
 			@RequestParam(value = "registreIndex", required = false) Integer registreIndex,
 			@RequestParam(value = "valors", required = false) String valors,
-			ModelMap model) {
+			ModelMap model) throws Exception {
 				
 		return tascaService.findValorsPerCampDesplegable(
 				tascaId,
@@ -291,7 +291,7 @@ public class CampValorsController extends BaseExpedientController {
 			@RequestParam(value = "valor") String valor,
 			@RequestParam(value = "q", required = false) String textFiltre,
 			@RequestParam(value = "valors", required = false) String valors,
-			ModelMap model) {
+			ModelMap model) throws Exception {
 		
 		return tascaService.findValorsPerCampDesplegable(
 				null,

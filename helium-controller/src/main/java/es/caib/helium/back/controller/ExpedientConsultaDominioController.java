@@ -42,7 +42,7 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 			@RequestParam(value = "campId", required = true) Long campId,
 			@RequestParam(value = "q", required = false) String textInicial,
 			@RequestParam(value = "valors", required = false) String valors,
-			ModelMap model) {
+			ModelMap model) throws Exception {
 		return tascaService.findValorsPerCampDesplegable(
 				taskId,
 				null,
@@ -73,7 +73,7 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 			@PathVariable(value = "taskId") String taskId,
 			@PathVariable(value = "campId") Long campId,
 			@PathVariable(value = "codi") String codi,
-			ModelMap model) {
+			ModelMap model) throws Exception {
 		List<SeleccioOpcioDto> opcions = tascaService.findValorsPerCampDesplegable(
 				taskId,
 				null,
@@ -97,7 +97,7 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 			@PathVariable (value = "taskId") String taskId,
 			@PathVariable (value = "campId") Long campId,
 			@PathVariable (value = "valor") String textInicial,
-			ModelMap model) {
+			ModelMap model) throws Exception {
 		return tascaService.findValorsPerCampDesplegable(
 				taskId,
 				null,
@@ -114,7 +114,7 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 	public SeleccioOpcioDto consultaCampInicial(
 			@PathVariable (value = "campId") Long campId,
 			@PathVariable (value = "codi") String codi,
-			ModelMap model) {
+			ModelMap model) throws Exception {
 		List<SeleccioOpcioDto> opcions = tascaService.findValorsPerCampDesplegable(
 				null,
 				null,
@@ -137,7 +137,7 @@ public class ExpedientConsultaDominioController extends BaseExpedientController 
 	public List<SeleccioOpcioDto> consultaCampValor(
 			@PathVariable (value = "campId") Long campId,
 			@PathVariable (value = "valor") String valor,
-			ModelMap model) {
+			ModelMap model) throws Exception {
 		return tascaService.findValorsPerCampDesplegable(
 				null,
 				null,

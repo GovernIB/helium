@@ -33,13 +33,20 @@ keycloak:
     principal-attribute: preferred_username
     use-resource-role-mappings: true
 
-logging:
-    level:
-      es.caib.helium: DEBUG
-#        org.springframework: TRACE
-#        com: TRACE
-          
+#logging:
+#    level:
+#        es.caib.helium: DEBUG
+##        org.springframework: TRACE
+##        com: TRACE
+#        es.caib.helium.client: DEBUG
+#        org.hibernate.SQL: DEBUG
+#        org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
+feign:
+    client:
+        config:
+            default:
+                loggerLevel: full
 # Propietats
 es:
     caib:

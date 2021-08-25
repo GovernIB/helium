@@ -38,7 +38,7 @@ public class ExpedientDadaService extends AbstractService<es.caib.helium.logic.i
 			Long expedientId,
 			String processInstanceId,
 			String varCodi,
-			Object varValor) {
+			Object varValor) throws Exception {
 		getDelegateService().update(
 				expedientId,
 				processInstanceId,
@@ -63,7 +63,7 @@ public class ExpedientDadaService extends AbstractService<es.caib.helium.logic.i
 	public ExpedientDadaDto findOnePerInstanciaProces(
 			Long expedientId,
 			String processInstanceId,
-			String varCodi) {
+			String varCodi) throws Exception {
 		return getDelegateService().findOnePerInstanciaProces(
 				expedientId,
 				processInstanceId,
