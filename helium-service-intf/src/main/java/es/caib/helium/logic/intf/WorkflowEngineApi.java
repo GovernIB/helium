@@ -270,7 +270,7 @@ public interface WorkflowEngineApi {
             boolean nomesTasquesPersonals,
             boolean nomesTasquesGrup);
 
-	public Long findExpedientIdByProcessInstanceId(String processInstanceId);
+	public Long findExpedientIdByProcessInstanceId(String processInstanceId) throws Exception;
 
 	// Tramitació
 	////////////////////////////////////////////////////////////////////////////////
@@ -354,7 +354,7 @@ public interface WorkflowEngineApi {
 	 */
 	public Object getProcessInstanceVariable(
             String processInstanceId,
-            String varName);
+            String varName) throws Exception;
 
 	
 	// Actualització de variables

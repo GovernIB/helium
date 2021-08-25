@@ -12,6 +12,8 @@ public interface TascaMapper extends BaseMapper<Tasca, TascaDto> {
 
     @Override
     @Mapping(source = "expedient.id", target = "expedientId")
+    @Mapping(source = "proces.id", target = "procesId")
+    @Mapping(source = "proces.processDefinitionId", target = "processDefinitionId")
     TascaDto entityToDto(Tasca tasca);
 
 }

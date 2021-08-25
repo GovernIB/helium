@@ -47,15 +47,17 @@ public class TascaLlistatDto extends ControlPermisosDto implements Comparable<Ta
 	private boolean mostrarAgrupacions;
 	private boolean agafada;
 
-	private String processInstanceId;
-	private String expedientTipusNom;
-	private Long definicioProcesId;
 
 	private Long expedientId;
 	private Long expedientTipusId;
 	private String expedientIdentificador;
 	private String expedientNumero;
 
+	private String processInstanceId;
+	private String expedientTipusNom;
+	private Long definicioProcesId;
+
+	
 	// Dades finalització den segon pla
 	private Date marcadaFinalitzar;
 	private Date iniciFinalitzacio;
@@ -63,6 +65,15 @@ public class TascaLlistatDto extends ControlPermisosDto implements Comparable<Ta
 
 	private PersonaDto responsable;
 	private List<PersonaDto> responsables;
+	
+	// Dades
+	private boolean tascaTramitacioMassiva;
+	public String getResponsableString() {
+		if ((responsables == null || responsables.isEmpty()) || agafada)
+			return responsable == null ? "" : responsable.toString();
+		return responsables.toString().replace("[", "").replace("]", "").replaceAll(", $", "");
+	}
+
 
 
 	@Override

@@ -81,7 +81,7 @@ public class ProcesController {
        		consultaProcesDades.getPageable(), 
        		consultaProcesDades.getSort());
        if (procesList.getTotalElements() == 0) {
-           return new ResponseEntity<>(procesList, HttpStatus.NO_CONTENT);
+           return new ResponseEntity<>(HttpStatus.NO_CONTENT);
        }
        return new ResponseEntity<>(procesList, HttpStatus.OK);
    }

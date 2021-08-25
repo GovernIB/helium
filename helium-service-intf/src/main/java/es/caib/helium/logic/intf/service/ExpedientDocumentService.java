@@ -208,7 +208,7 @@ public interface ExpedientDocumentService {
 	public ExpedientDocumentDto findOneAmbInstanciaProces(
 			Long expedientId,
 			String processInstanceId,
-			String documentCodi) throws NoTrobatException, PermisDenegatException;
+			String documentCodi) throws Exception;
 
 	/**
 	 * Retorna l'arxiu del document.
@@ -424,6 +424,6 @@ public interface ExpedientDocumentService {
 			String arxiuNom,
 			byte[] arxiuContingut,
 			boolean isAdjunt,
-			String user);
+			String user) throws Exception;
 
 }

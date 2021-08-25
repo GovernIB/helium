@@ -59,7 +59,7 @@ public class TascaRestController {
 	public ResponseEntity<String> getDadaPerTaskInstance(
 			@PathVariable("processInstanceId") String processInstanceId,
 			@RequestParam(value = "taskInstanceId") String taskInstanceId,
-			@PathVariable("varCodi") String varCodi) {
+			@PathVariable("varCodi") String varCodi) throws Exception {
 		return new ResponseEntity<>(
 				workflowBridgeService.getDadaPerTaskInstance(
 						processInstanceId,

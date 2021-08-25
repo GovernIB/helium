@@ -780,7 +780,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 	public List<SeleccioOpcioDto> valorsSeleccio(
 			HttpServletRequest request,
 			@PathVariable Long campId,
-			Model model) {
+			Model model) throws Exception {
 		return tascaService.findValorsPerCampDesplegable(
 				null,
 				null,
@@ -798,7 +798,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long campId,
 			@PathVariable String valor,
-			Model model) {
+			Model model) throws Exception {
 		return tascaService.findValorsPerCampDesplegable(
 				null,
 				null,

@@ -3,10 +3,6 @@
  */
 package es.caib.helium.logic.intf.service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import es.caib.helium.logic.intf.dto.AreaDto;
 import es.caib.helium.logic.intf.dto.ArxiuDto;
 import es.caib.helium.logic.intf.dto.CampTascaDto;
@@ -44,6 +40,10 @@ import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.exception.TramitacioException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
 import es.caib.helium.logic.intf.registre.RegistreAnotacio;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 /**
  * Servei per a enllaçar les llibreries jBPM 3 amb la funcionalitat
  * de Helium.
@@ -78,7 +78,7 @@ public interface Jbpm3HeliumService {
 	 * 
 	 * @param id
 	 */
-	public void createDadesTasca(String id);
+	public void createDadesTasca(String id) throws Exception;
 	
 	/**
 	 * Obté l'expedient donat l'entorn, el tipus d'expedient i el seu número.
@@ -408,7 +408,7 @@ public interface Jbpm3HeliumService {
 	public void documentFirmaServidor(
 			String processInstanceId,
 			String documentCodi,
-			String motiu) throws NoTrobatException, ValidacioException, TramitacioException;
+			String motiu) throws Exception;
 
 	/**
 	 * Obté el termini donada una instància de procés i el codi del termini.
@@ -696,7 +696,7 @@ public interface Jbpm3HeliumService {
 			String documentCodi,
 			Date data,
 			String arxiuNom,
-			byte[] arxiuContingut);
+			byte[] arxiuContingut) throws Exception;
 
 	/**
 	 * 
@@ -725,7 +725,7 @@ public interface Jbpm3HeliumService {
 	public void documentExpedientEsborrar(
 			String taskInstanceId,
 			String processInstanceId,
-			String documentCodi);
+			String documentCodi) throws Exception;
 
 	/**
 	 * 
@@ -1007,7 +1007,7 @@ public interface Jbpm3HeliumService {
 	 */
 	public ExpedientDadaDto getDadaPerProcessInstance(
 			String processInstanceId,
-			String varCodi);
+			String varCodi) throws Exception;
 	
 
 	/**
@@ -1020,7 +1020,7 @@ public interface Jbpm3HeliumService {
 	public TascaDadaDto getDadaPerTaskInstance(
 			String processInstanceId,
 			String taskInstanceId,
-			String varCodi);
+			String varCodi) throws Exception;
 
 	/**
 	 * Consulta els expedients amb el mateix tipus i número.

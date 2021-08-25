@@ -3,10 +3,12 @@ package es.caib.helium.client.expedient.tasca.model;
 import java.util.Collection;
 import java.util.Date;
 
+import javax.json.bind.annotation.JsonbDateFormat;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import es.caib.helium.client.model.PagedSortedRequest;
 import lombok.AllArgsConstructor;
@@ -35,9 +37,13 @@ public class ConsultaTascaDades extends PagedSortedRequest {
     private Long expedientId;
     private String expedientTitol;
     private String expedientNumero;
+	@DateTimeFormat(pattern="yyyy-MM-dd")
     private Date dataCreacioInici;
+	@DateTimeFormat(pattern="yyyy-MM-dd")
     private Date dataCreacioFi;
+	@DateTimeFormat(pattern="yyyy-MM-dd")
     private Date dataLimitInici;
+	@DateTimeFormat(pattern="yyyy-MM-dd")
     private Date dataLimitFi;
     boolean mostrarAssignadesUsuari;
     boolean mostrarAssignadesGrup;

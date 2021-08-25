@@ -633,7 +633,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable String processInstanceId,
 			@PathVariable String documentCodi,
-			Model model) {
+			Model model) throws Exception {
 		try {
 			ArxiuDto generat = expedientDocumentService.generarAmbPlantilla(
 					expedientId,

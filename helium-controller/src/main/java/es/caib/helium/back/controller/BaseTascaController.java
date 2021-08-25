@@ -54,7 +54,7 @@ public class BaseTascaController extends BaseController {
 			Model model,
 			String pipellaActiva,
 			Map<String, Object> valorsFormulariExtern
-			) {
+			) throws Exception {
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(tasca.getExpedientTipusId(), tasca.getJbpmName());
 		model.addAttribute("tasca", tasca);
@@ -141,7 +141,7 @@ public class BaseTascaController extends BaseController {
 			String tascaId,
 			Model model,
 			Object command,
-			String pipellaActiva) {
+			String pipellaActiva) throws Exception {
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(tasca.getExpedientTipusId(), tasca.getJbpmName());
 		model.addAttribute("tasca", tasca);

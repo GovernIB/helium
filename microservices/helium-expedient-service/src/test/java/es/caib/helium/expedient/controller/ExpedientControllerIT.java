@@ -119,8 +119,7 @@ class ExpedientControllerIT {
                 null, 
                 new ParameterizedTypeReference<PagedList<ExpedientDto>>() {});
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody().getTotalElements()).isEqualByComparingTo(0L);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 
     @Test

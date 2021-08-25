@@ -120,7 +120,7 @@ public class DocumentRestController {
 	@PostMapping(value="/{documentCodi}/update")
 	public ResponseEntity<Long> documentExpedientGuardar(
 			@PathVariable("documentCodi") String documentCodi,
-			@RequestBody DocumentGuardar documentGuardar) {
+			@RequestBody DocumentGuardar documentGuardar) throws Exception {
 		return new ResponseEntity<>(
 				workflowBridgeService.documentExpedientGuardar(
 						documentGuardar.getProcessInstanceId(),

@@ -116,7 +116,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 			HttpServletResponse response,
 			@PathVariable Long consultaId,
 			HttpSession session,
-			Model model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException  {
+			Model model) throws Exception {
 		Object filtreCommand = SessionHelper.getAttribute(
 				request,
 				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId);
@@ -172,7 +172,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 			BindingResult bindingResult,
 			@RequestParam(value = "accio", required = false) String accio,
 			HttpSession session,
-			Model model)  throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
+			Model model) throws Exception {
 
 		// Mira si l'usuari ja té una generació d'informe en curs
 		InformeInfo ret = informeHelper.getConsulta(session.getId());
@@ -210,7 +210,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 			HttpServletRequest request,
 			@PathVariable Long consultaId,
 			HttpSession session,
-			Model model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
+			Model model) throws Exception {
 		
 		// Mira si l'usuari ja té una generació d'informe en curs
 		InformeInfo ret = informeHelper.getConsulta(session.getId());
@@ -518,7 +518,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 			Long consultaId,
 			Model model,
 			HttpServletRequest request,
-			Map<String, Object> parametres) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
+			Map<String, Object> parametres) throws Exception {
 		
 		// Realitza la consulta de les dades
 		Object filtreCommand = SessionHelper.getAttribute(

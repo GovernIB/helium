@@ -717,7 +717,7 @@ public interface ExpedientService {
 			boolean nomesAlertes,
 			boolean nomesErrors,
 			MostrarAnulatsDto mostrarAnulats,
-			PaginacioParamsDto paginacioParams);
+			PaginacioParamsDto paginacioParams) throws Exception;
 
 	/**
 	 * Fa una consulta per tipus damunt un tipus d'expedient i retorna només els ids.
@@ -768,7 +768,7 @@ public interface ExpedientService {
 			boolean mostrarAnulats,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
-			Set<Long> ids);
+			Set<Long> ids) throws Exception;
 	
 	public List<Long> findIdsPerConsultaInforme(Long consultaId, Map<String, Object> valors, 
 			boolean nomesMeves,
@@ -803,7 +803,7 @@ public interface ExpedientService {
 			boolean mostrarAnulats,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
-			PaginacioParamsDto paginacioParams) throws NoTrobatException;
+			PaginacioParamsDto paginacioParams) throws Exception;
 
 	public String getNumeroExpedientActual(
 			Long entornId,

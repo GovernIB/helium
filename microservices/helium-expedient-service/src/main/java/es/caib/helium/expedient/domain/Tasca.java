@@ -58,11 +58,10 @@ public class Tasca implements Persistable<String> {
 	// FK HEL_TASCA_EXP_FK
 	private Expedient expedient;
 
-	/** Identificador de la tasca que es correspon amb l'identificador de la instància de la tasca */
-	@NotEmpty
-	@Size(max = 64)
-	@Column(name="procesId", nullable=false, length = 64)
-	private String procesId;
+	@ManyToOne(optional=false, cascade={CascadeType.ALL})
+	@JoinColumn(name="proces_id")
+	// FK HEL_TASCA_EXP_FK
+	private Proces proces;
 
 	@Size(max = 255)
 	@Column(name="nom", length=255, nullable=false)

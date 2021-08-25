@@ -170,7 +170,8 @@ public class DadaClientImpl implements DadaClient {
 	public Dada getDadaByProcesAndCodi(String procesId, String codi) throws Exception {
 		
 		log.debug(missatgeLog + " Get dada amb procesId: " + procesId + " i codi: " + codi);
-		return Objects.requireNonNull(dadaServiceFeignClient.getDadaByProcesAndCodi(procesId, codi).getBody());
+		//return Objects.requireNonNull(dadaServiceFeignClient.getDadaByProcesAndCodi(procesId, codi).getBody());
+		return dadaServiceFeignClient.getDadaByProcesAndCodi(procesId, codi).getBody();
 	}
 
 	@Override

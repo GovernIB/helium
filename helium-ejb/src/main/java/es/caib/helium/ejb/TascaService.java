@@ -129,7 +129,7 @@ public class TascaService extends AbstractService<es.caib.helium.logic.intf.serv
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<TascaDocumentDto> findDocuments(
-			String id) {
+			String id) throws Exception {
 		return getDelegateService().findDocuments(id);
 	}
 
@@ -143,7 +143,7 @@ public class TascaService extends AbstractService<es.caib.helium.logic.intf.serv
 			String textFiltre,
 			Long registreCampId,
 			Integer registreIndex,
-			Map<String, Object> valorsFormulari) {
+			Map<String, Object> valorsFormulari) throws Exception {
 		return getDelegateService().findValorsPerCampDesplegable(
 				id,
 				processInstanceId,
@@ -173,7 +173,7 @@ public class TascaService extends AbstractService<es.caib.helium.logic.intf.serv
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void guardar(
 			String taskId,
-			Map<String, Object> variables) {
+			Map<String, Object> variables) throws Exception {
 		getDelegateService().guardar(
 				taskId,
 				variables);
@@ -183,7 +183,7 @@ public class TascaService extends AbstractService<es.caib.helium.logic.intf.serv
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void validar(
 			String tascaId,
-			Map<String, Object> variables) {
+			Map<String, Object> variables) throws Exception {
 		getDelegateService().validar(
 				tascaId,
 				variables);
@@ -248,7 +248,7 @@ public class TascaService extends AbstractService<es.caib.helium.logic.intf.serv
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public TascaDocumentDto findDocument(String tascaId, Long docId, Long expedientTipusId) {
+	public TascaDocumentDto findDocument(String tascaId, Long docId, Long expedientTipusId) throws Exception {
 		return getDelegateService().findDocument(tascaId, docId, expedientTipusId);
 	}
 
@@ -265,7 +265,7 @@ public class TascaService extends AbstractService<es.caib.helium.logic.intf.serv
 			boolean ambFirma,
 			boolean firmaSeparada,
 			byte[] firmaContingut,
-			String user) {
+			String user) throws Exception {
 		return getDelegateService().guardarDocumentTasca(
 				entornId, 
 				taskInstanceId,
@@ -282,7 +282,7 @@ public class TascaService extends AbstractService<es.caib.helium.logic.intf.serv
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void esborrarDocument(String taskInstanceId, String documentCodi, String user) {
+	public void esborrarDocument(String taskInstanceId, String documentCodi, String user) throws Exception {
 		getDelegateService().esborrarDocument(taskInstanceId, documentCodi, user);
 	}
 
@@ -294,7 +294,7 @@ public class TascaService extends AbstractService<es.caib.helium.logic.intf.serv
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<TascaDocumentDto> findDocumentsSignar(String id) {
+	public List<TascaDocumentDto> findDocumentsSignar(String id) throws Exception {
 		return getDelegateService().findDocumentsSignar(id);
 	}
 
@@ -326,7 +326,7 @@ public class TascaService extends AbstractService<es.caib.helium.logic.intf.serv
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuDto getArxiuPerDocumentCodi(
 			String tascaId,
-			String documentCodi) {
+			String documentCodi) throws Exception {
 		return getDelegateService().getArxiuPerDocumentCodi(
 				tascaId,
 				documentCodi);
@@ -336,7 +336,7 @@ public class TascaService extends AbstractService<es.caib.helium.logic.intf.serv
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DocumentDto getDocumentPerDocumentCodi(
 			String tascaId, 
-			String documentCodi) {
+			String documentCodi) throws Exception {
 		return getDelegateService().getDocumentPerDocumentCodi(
 				tascaId, 
 				documentCodi);
@@ -422,7 +422,7 @@ public class TascaService extends AbstractService<es.caib.helium.logic.intf.serv
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void guardarFormulariExtern(String formulariId, Map<String, Object> valorsTasca) {
+	public void guardarFormulariExtern(String formulariId, Map<String, Object> valorsTasca) throws Exception {
 		getDelegateService().guardarFormulariExtern(formulariId, valorsTasca);
 	}
 

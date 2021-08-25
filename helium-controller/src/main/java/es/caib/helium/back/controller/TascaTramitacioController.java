@@ -202,7 +202,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			HttpServletRequest request,
 			@PathVariable String tascaId,
 			@PathVariable String pipellaActiva,
-			Model model) {
+			Model model) throws Exception {
 		SessionHelper.removeAttribute(request,VARIABLE_TRAMITACIO_MASSIVA);
 		model.addAttribute("bloquejarEdicioTasca", tascaService.isEnSegonPla(tascaId));
 		
@@ -460,7 +460,7 @@ public class TascaTramitacioController extends BaseTascaController {
 	public String document(
 			HttpServletRequest request,
 			@PathVariable String tascaId,
-			Model model) {
+			Model model) throws Exception {
 		model.addAttribute("bloquejarEdicioTasca", tascaService.isEnSegonPla(tascaId));
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioTascaPerPipelles(
@@ -527,7 +527,7 @@ public class TascaTramitacioController extends BaseTascaController {
 	public String signatura(
 			HttpServletRequest request,
 			@PathVariable String tascaId,
-			Model model) {
+			Model model) throws Exception {
 		model.addAttribute("bloquejarEdicioTasca", tascaService.isEnSegonPla(tascaId));
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioTascaPerPipelles(
@@ -722,7 +722,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			@RequestParam(value = "tipusFirma", required = false, defaultValue = "ADJUNT") DocumentTipusFirmaEnumDto tipusFirma,
 			@RequestParam(value = "firma", required = false) final CommonsMultipartFile firma,	
 			@RequestParam(value = "data", required = false) Date data,
-			Model model) {
+			Model model) throws Exception {
 		try {
 			byte[] contingutArxiu = IOUtils.toByteArray(arxiu.getInputStream());
 			String arxiuContentType = arxiu.getContentType();
@@ -797,7 +797,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable String tascaId,
 			@PathVariable String documentCodi,
 			@RequestParam(value = "data", required = false) Date data,
-			Model model) {
+			Model model) throws Exception {
 		try {
 			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 			if (!tasca.isValidada()) {
@@ -867,7 +867,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable String tascaId,
 			@PathVariable String documentCodi,	
 			@RequestParam(value = "data", required = false) Date data,
-			Model model) {
+			Model model) throws Exception {
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 		if (!tasca.isValidada()) {
 			MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
@@ -892,7 +892,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			@RequestParam(value="taskId", required = true) String taskId,
 			@RequestParam(value="token", required = true) String token,
 			@RequestParam(value="data", required = true) String[] data,
-			Model model) {
+			Model model) throws Exception {
 		boolean signat = false;
 		try {
 			StringBuffer aData = new StringBuffer();
