@@ -145,7 +145,7 @@ public class DocumentHelper {
 
 	public ExpedientDocumentDto findOnePerInstanciaProces(
 			String processInstanceId,
-			String documentCodi) {
+			String documentCodi) throws Exception {
 		ExpedientDocumentDto expedientDocumentDto = null;
 		Long documentStoreId = findDocumentStorePerInstanciaProcesAndDocumentCodi(
 				processInstanceId,
@@ -375,7 +375,7 @@ public class DocumentHelper {
 
 	public Long findDocumentStorePerInstanciaProcesAndDocumentCodi(
 			String processInstanceId,
-			String documentCodi) {
+			String documentCodi) throws Exception {
 			return getDocumentStoreIdDeVariableJbpm(
 					null,
 					processInstanceId,
@@ -429,7 +429,7 @@ public class DocumentHelper {
 		}
 	}
 		
-	public TascaDocumentDto findDocumentPerId(String tascaId, Long docId, Long expedientTipusId) {
+	public TascaDocumentDto findDocumentPerId(String tascaId, Long docId, Long expedientTipusId) throws Exception {
 		WTaskInstance task = tascaHelper.getTascaComprovacionsTramitacio(
 				tascaId,
 				true,
@@ -448,7 +448,7 @@ public class DocumentHelper {
 					documentTasca.getDocument(), documentTasca.isRequired(), documentTasca.isReadOnly());
 	}
 
-	public List<TascaDocumentDto> findDocumentsPerInstanciaTasca(WTaskInstance task) {
+	public List<TascaDocumentDto> findDocumentsPerInstanciaTasca(WTaskInstance task) throws Exception {
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
 				task.getProcessDefinitionId());
 		Expedient exp = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
@@ -506,7 +506,7 @@ public class DocumentHelper {
 				expedientTipusId) > 0;
 	}
 
-	public List<TascaDocumentDto> findDocumentsPerInstanciaTascaSignar(WTaskInstance task) {
+	public List<TascaDocumentDto> findDocumentsPerInstanciaTascaSignar(WTaskInstance task) throws Exception {
 		List<TascaDocumentDto> resposta = new ArrayList<TascaDocumentDto>();
 
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
@@ -562,7 +562,7 @@ public class DocumentHelper {
 
 	public DocumentStore getDocumentStore(
 			WTaskInstance task,
-			String documentCodi) {
+			String documentCodi) throws Exception {
 		DocumentStore documentStore = null;
 		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(String.valueOf(task.getTaskInstanceId()), task.getProcessInstanceId(), documentCodi);
 		if (documentStoreId != null) {
@@ -837,8 +837,7 @@ public class DocumentHelper {
 			NtiOrigenEnumDto ntiOrigen,
 			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
-			String ntiIdDocumentoOrigen) 
-	{
+			String ntiIdDocumentoOrigen) throws Exception {
 		// ALERTA! Crear/actualitzar no funciona amb adjunts
 		return crearActualitzarDocument(
 				taskInstanceId, 
@@ -871,7 +870,7 @@ public class DocumentHelper {
 			NtiOrigenEnumDto ntiOrigen,
 			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
-			String ntiIdDocumentoOrigen) {
+			String ntiIdDocumentoOrigen) throws Exception {
 		Long documentStoreId = getDocumentStoreIdDeVariableJbpm(
 				taskInstanceId,
 				processInstanceId,
@@ -924,7 +923,7 @@ public class DocumentHelper {
 	public void esborrarDocument(
 			String taskInstanceId,
 			String processInstanceId,
-			String documentCodi) {
+			String documentCodi) throws Exception {
 		Object varValor = null;
 		if (taskInstanceId != null) {
 			varValor = workflowEngineApi.getTaskInstanceVariable(
@@ -1818,7 +1817,7 @@ public class DocumentHelper {
 			WTaskInstance task,
 			Document document, 
 			boolean required, 
-			boolean readonly) {
+			boolean readonly) throws Exception {
 		TascaDocumentDto dto = new TascaDocumentDto();
 		String varCodi = getVarPerDocumentCodi(
 				document.getCodi(),
@@ -2046,7 +2045,7 @@ public class DocumentHelper {
 	private Long getDocumentStoreIdDeVariableJbpm(
 			String taskInstanceId,
 			String processInstanceId,
-			String documentCodi) {
+			String documentCodi) throws Exception {
 		Object value = null;
 		if (taskInstanceId != null) {
 			value = workflowEngineApi.getTaskInstanceVariable(

@@ -531,7 +531,7 @@ public class IndexHelper {
 	
 	private Map<String, Map<String, String>> getMapValorsDomini(
 			Map<String, Set<Camp>> mapCamps,
-			Map<String, Map<String, Object>> mapValors) {
+			Map<String, Map<String, Object>> mapValors) throws Exception {
 		Map<String, Map<String, String>> resposta = new HashMap<String, Map<String, String>>();
 		for (String clau: mapCamps.keySet()) {
 			Map<String, String> textDominis = new HashMap<String, String>();
@@ -583,7 +583,7 @@ public class IndexHelper {
 			Map<String, String> textDominis,
 			String processInstanceId,
 			Camp camp,
-			Object valor) {
+			Object valor) throws Exception {
 		if (!(valor instanceof String) || ((String)valor).length() > 0) {
 			if (camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST)) {
 				if (valor != null) {

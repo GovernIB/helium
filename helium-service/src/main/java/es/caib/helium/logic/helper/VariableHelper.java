@@ -3,20 +3,8 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
+import es.caib.helium.client.dada.DadaClient;
+import es.caib.helium.client.dada.model.Dada;
 import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.CampAgrupacioDto;
@@ -56,12 +44,26 @@ import es.caib.helium.persist.repository.CampTascaRepository;
 import es.caib.helium.persist.repository.DefinicioProcesRepository;
 import es.caib.helium.persist.repository.ExpedientRepository;
 import es.caib.helium.persist.repository.TascaRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Helper per a gestionar les variables dels expedients.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Slf4j
 @Component
 public class VariableHelper {
 	
@@ -98,7 +100,8 @@ public class VariableHelper {
 	private MessageServiceHelper messageServiceHelper;
 	@Resource
 	private GlobalProperties globalProperties;
-
+	@Resource
+	private DadaClient dadaClient;
 
 
 	public Object getVariableJbpmTascaValor(
@@ -119,7 +122,7 @@ public class VariableHelper {
 	}
 	public Object getVariableJbpmProcesValor(
 			String processInstanceId,
-			String varCodi) {
+			String varCodi) throws Exception {
 		Object valor = workflowEngineApi.getProcessInstanceVariable(processInstanceId, varCodi);
 		return valorVariableJbpmRevisat(valor);
 	}
@@ -160,115 +163,109 @@ public class VariableHelper {
 	public List<ExpedientDadaDto> findDadesPerInstanciaProces(
 			String processInstanceId,
 			boolean incloureVariablesBuides) {
+
 		String tipusExp = null;
-		Expedient exp = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		ExpedientTipus expedientTipus = exp.getTipus();
-		// TODO: Mètriques
+		var exp = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		var expedientTipus = exp.getTipus();
+		// TODO Mètriques
 //		if (MesuresTemporalsHelper.isActiu()) {
 //			tipusExp = (exp != null ? exp.getTipus().getNom() : null);
 //			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp);
 //			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "0");
 //		}
-		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
-				processInstanceId);
-		Map<String, Camp> campsIndexatsPerCodi = new HashMap<String, Camp>();
-		Set<Camp> camps;
+		var definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
+		Map<String, Camp> campsIndexatsPerCodi = new HashMap<>();
+		var camps = definicioProces.getCamps();
 		if (expedientTipus.isAmbInfoPropia()) {
 			if (expedientTipus.getExpedientTipusPare() != null) {
 				// Camps heretats
-				for (Camp camp: expedientTipus.getExpedientTipusPare().getCamps())
+				for (var camp: expedientTipus.getExpedientTipusPare().getCamps()) {
 					campsIndexatsPerCodi.put(camp.getCodi(), camp);
+				}
 			}
 			camps = expedientTipus.getCamps();
-		} else {
-			camps = definicioProces.getCamps();
 		}
-		
-		for (Camp camp: camps)
+		for (var camp: camps) {
 			campsIndexatsPerCodi.put(camp.getCodi(), camp);
+		}
 //		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "0");
 //		mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "1");
-		List<ExpedientDadaDto> resposta = new ArrayList<ExpedientDadaDto>();
-		Map<String, Object> varsInstanciaProces = workflowEngineApi.getProcessInstanceVariables(
-				processInstanceId);
+		List<ExpedientDadaDto> resposta = new ArrayList<>();
+
+		List<Dada> dades = null;
+		try {
+			dades = dadaClient.getDadesByProces(exp.getId(), processInstanceId);
+		} catch (Exception ex) {
+			log.error("Error al servei de dades", ex);  //TODO LLENÇAR EXCEPCIONS?
+		}
+		if (dades == null) {
+			return resposta;
+		}
+
 //		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "1");
-		Map<Integer, ConsultaDominiDto> consultesDomini = new HashMap<Integer, ConsultaDominiDto>();
-		if (varsInstanciaProces != null) {
+		Map<Integer, ConsultaDominiDto> consultesDomini = new HashMap<>();
+
 //			mesuresTemporalsHelper.mesuraIniciar("Expedient DADES v3", "expedient", tipusExp, null, "2");
-			filtrarVariablesUsIntern(varsInstanciaProces);
-			for (String var: varsInstanciaProces.keySet()) {
-				ExpedientDadaDto dto = null;
-				boolean varAmbContingut = varsInstanciaProces.get(var) != null;
-				Camp camp = campsIndexatsPerCodi.get(var);
-				if (varAmbContingut) {
-					dto = getDadaPerVariableJbpm(
-							camp,
-							var,
-							varsInstanciaProces.get(var),
-							null,
-							null,
-							processInstanceId,
-							false,
-							consultesDomini);
-					// Si és registre o múltiple comprova si té contingut. Pot haver error de simple a múltiple
-					try {
-						if (camp != null && (TipusCamp.REGISTRE.equals(camp.getTipus()) || camp.isMultiple())) {
-							Object[] registreValors = (Object[])varsInstanciaProces.get(var);
-							varAmbContingut = registreValors.length > 0;
-						}						
-					} catch(Exception e) {
-						dto.setError(messageServiceHelper.getMessage(
-								"variable.helper.error.recuperant.valor", 
-								new Object[] {camp.getTipus(), (camp.isMultiple() ? " múltiple" : "")}));
-					}
-				}
-				if (varAmbContingut) {
-					resposta.add(dto);
-				} else if (incloureVariablesBuides) {
-					dto = getDadaPerVariableJbpm(
-							camp,
-							var,
-							null,
-							null,
-							null,
-							processInstanceId,
-							false,
-							consultesDomini);
-					resposta.add(dto);
-				}
-			}
+		dades = filtrarVariablesUsIntern(dades);
+		for (var dada : dades) {
+			ExpedientDadaDto dto = null;
+			var camp = campsIndexatsPerCodi.get(dada.getCodi());
+		/*	if (incloureVariablesBuides) {
+				dto = getDadaPerVariableJbpm(
+						camp,
+						dada.getCodi(),
+						null,
+						null,
+						null,
+						processInstanceId,
+						false,
+						consultesDomini);
+			} else {*/
+				dto = getDadaPerVariableJbpm(
+						camp,
+						dada.getCodi(),
+						dada.getValors(),
+						null,
+						null,
+						processInstanceId,
+						false,
+						consultesDomini);
+		//	}
+			resposta.add(dto);
+		}
 //			mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp, null, "2");
-			this.consultaDominisAgrupats(consultesDomini);
+		if (consultesDomini != null && !consultesDomini.isEmpty()) {
+			this.consultaDominisAgrupats(consultesDomini); // TODO arrancar dominis
 		}
 //		mesuresTemporalsHelper.mesuraCalcular("Expedient DADES v3", "expedient", tipusExp);
 		return resposta;
 	}
 	public ExpedientDadaDto getDadaPerInstanciaProces(
 			String processInstanceId,
-			String variableCodi) {
+			String variableCodi) throws Exception {
 		return getDadaPerInstanciaProces(processInstanceId, variableCodi, false);
 	}
 	
 	public ExpedientDadaDto getDadaPerInstanciaProces(
 			String processInstanceId,
 			String variableCodi, 
-			boolean incloureVariablesBuides) {
+			boolean incloureVariablesBuides) throws Exception {
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 				processInstanceId);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		ExpedientTipus expedientTipus = expedient.getTipus();
 		
 		Camp camp;
-		if (expedientTipus.isAmbInfoPropia())
+		if (expedientTipus.isAmbInfoPropia()) {
 			camp = campRepository.findByExpedientTipusAndCodi(
 					expedientTipus.getId(),
 					variableCodi,
 					expedientTipus.getExpedientTipusPare() != null);
-		else
+		} else {
 			camp = campRepository.findByDefinicioProcesAndCodi(
 					definicioProces,
 					variableCodi);
-		
+		}
 		Object valor = workflowEngineApi.getProcessInstanceVariable(
 				processInstanceId,
 				variableCodi);
@@ -434,7 +431,7 @@ public class VariableHelper {
 
 	public TascaDadaDto findDadaPerInstanciaTasca(
 			WTaskInstance task,
-			String variableCodi) {
+			String variableCodi) throws Exception {
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(
 				task.getProcessDefinitionId());
 		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProces(
@@ -503,7 +500,7 @@ public class VariableHelper {
 			String taskInstanceId,
 			String processInstanceId,
 			Map<Integer, ConsultaDominiDto> consultesDominis,
-			Object dadaDto) {
+			Object dadaDto) throws Exception {
 		if (valor == null)
 			return null;
 		String valorFontExterna = null;
@@ -535,7 +532,7 @@ public class VariableHelper {
 			String taskInstanceId,
 			String processInstanceId, 
 			Map<Integer, ConsultaDominiDto> consultesDominis,
-			Object dadaDto) {
+			Object dadaDto) throws Exception {
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		TipusCamp tipus = camp.getTipus();
 		if (tipus.equals(TipusCamp.SELECCIO) || tipus.equals(TipusCamp.SUGGEST)) {
@@ -647,7 +644,7 @@ public class VariableHelper {
 			Camp camp,
 			Camp registreCamp,
 			Integer registreIndex,
-			Map<String, Object> valorsAddicionals) {
+			Map<String, Object> valorsAddicionals) throws Exception {
 		String dominiParams = camp.getDominiParams();
 		if (dominiParams == null || dominiParams.length() == 0)
 			return null;
@@ -897,7 +894,7 @@ public class VariableHelper {
 		return tascaDto;
 	}
 
-	public Object getDescripcioVariable(String taskId, String processInstanceId, String codi) {
+	public Object getDescripcioVariable(String taskId, String processInstanceId, String codi) throws Exception {
 		Object valor = null;
 		if (taskId != null)
 			valor = workflowEngineApi.getTaskInstanceVariable(taskId, Constants.PREFIX_VAR_DESCRIPCIO + codi);
@@ -1071,23 +1068,39 @@ public class VariableHelper {
 		return valor;
 	}
 
-	private void filtrarVariablesUsIntern(Map<String, Object> variables) {
-		if (variables != null) {
-			variables.remove(Constants.VAR_TASCA_VALIDADA);
-			variables.remove(Constants.VAR_TASCA_DELEGACIO);
-			List<String> codisEsborrar = new ArrayList<String>();
-			for (String codi: variables.keySet()) {
-				if (	codi.startsWith(Constants.PREFIX_DOCUMENT) ||
-						codi.startsWith(Constants.PREFIX_SIGNATURA) ||
-						codi.startsWith(Constants.PREFIX_ADJUNT) ||
-						codi.startsWith(Constants.PREFIX_VAR_DESCRIPCIO) ||
-						codi.startsWith(VariableHelper.PARAMS_RETROCEDIR_VARIABLE_PREFIX))
-					codisEsborrar.add(codi);
-			}
-			for (String codi: codisEsborrar)
-				variables.remove(codi);
-		}
+	private List<Dada> filtrarVariablesUsIntern(List<Dada> dades) {
+		return dades.stream()
+				.filter(dada -> !dada.getCodi().equals(Constants.VAR_TASCA_VALIDADA))
+				.filter(dada -> !dada.getCodi().equals(Constants.VAR_TASCA_DELEGACIO))
+				.filter(dada -> !dada.getCodi().startsWith(Constants.PREFIX_DOCUMENT))
+				.filter(dada -> !dada.getCodi().startsWith(Constants.PREFIX_SIGNATURA))
+				.filter(dada -> !dada.getCodi().startsWith(Constants.PREFIX_ADJUNT))
+				.filter(dada -> !dada.getCodi().startsWith(Constants.PREFIX_VAR_DESCRIPCIO))
+				.filter(dada -> !dada.getCodi().startsWith(VariableHelper.PARAMS_RETROCEDIR_VARIABLE_PREFIX))
+				.collect(Collectors.toList());
 	}
+
+	// TODO borrar mètode
+//	private void filtrarVariablesUsIntern(Map<String, Object> variables) {
+//		if (variables == null) {
+//			return;
+//		}
+//		variables.remove(Constants.VAR_TASCA_VALIDADA);
+//		variables.remove(Constants.VAR_TASCA_DELEGACIO);
+//		List<String> codisEsborrar = new ArrayList<>();
+//		for (String codi: variables.keySet()) {
+//			if (	codi.startsWith(Constants.PREFIX_DOCUMENT) ||
+//					codi.startsWith(Constants.PREFIX_SIGNATURA) ||
+//					codi.startsWith(Constants.PREFIX_ADJUNT) ||
+//					codi.startsWith(Constants.PREFIX_VAR_DESCRIPCIO) ||
+//					codi.startsWith(VariableHelper.PARAMS_RETROCEDIR_VARIABLE_PREFIX)) {
+//				codisEsborrar.add(codi);
+//			}
+//		}
+//		for (String codi: codisEsborrar) {
+//			variables.remove(codi);
+//		}
+//	}
 
 	private void getClassAsString(StringBuilder sb, Object o) {
 		if (o.getClass().isArray()) {
@@ -1109,7 +1122,7 @@ public class VariableHelper {
 			String processInstanceId,
 			Camp registreCamp,
 			Integer registreIndex,
-			String campCodi) {
+			String campCodi) throws Exception {
 		Object registreValor = null;
 		if (taskInstanceId != null)
 			registreValor = getVariableJbpmTascaValor(
@@ -1153,7 +1166,7 @@ public class VariableHelper {
 			String taskInstanceId,
 			String processInstanceId, 
 			Map<Integer, ConsultaDominiDto> consultesDominis,
-			Object dadaDto){
+			Object dadaDto) throws Exception {
 		if (valor == null)
 			return null;
 		

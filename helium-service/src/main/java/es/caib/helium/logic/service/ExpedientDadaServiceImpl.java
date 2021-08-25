@@ -3,6 +3,11 @@
  */
 package es.caib.helium.logic.service;
 
+import es.caib.helium.client.dada.DadaClient;
+import es.caib.helium.client.dada.enums.Tipus;
+import es.caib.helium.client.dada.model.Dada;
+import es.caib.helium.client.dada.model.Valor;
+import es.caib.helium.client.dada.model.ValorSimple;
 import es.caib.helium.client.engine.model.WProcessDefinition;
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.ExpedientHelper;
@@ -28,6 +33,7 @@ import es.caib.helium.persist.repository.CampAgrupacioRepository;
 import es.caib.helium.persist.repository.CampRepository;
 import es.caib.helium.persist.repository.DefinicioProcesRepository;
 import es.caib.helium.persist.repository.RegistreRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.model.Permission;
@@ -49,6 +55,7 @@ import java.util.Set;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Service
+@Slf4j
 public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 
 	@Resource
@@ -72,8 +79,8 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	private IndexHelper indexHelper;
 	@Resource
 	private ConversioTipusServiceHelper conversioTipusServiceHelper;
-
-
+	@Resource
+	private DadaClient dadaClient;
 
 	/**
 	 * {@inheritDoc}
@@ -107,8 +114,25 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				Registre.Accio.MODIFICAR);
 		registre.setMissatge("Crear variable '" + varCodi + "'");
-		if (varValor != null)
+		if (varValor != null) {
 			registre.setValorNou(varValor.toString());
+		}
+		var dades = new ArrayList<Dada>();
+		var dada = new Dada();
+		dada.setCodi(varCodi);
+		dada.setTipus(Tipus.String);
+		var valor = new ValorSimple();
+		valor.setValor(varValor.toString());
+		valor.setValorText(varValor.toString());
+		var valors = new ArrayList<Valor>();
+		valors.add(valor);
+		dada.setValor(valors);
+		dades.add(dada);
+		try {
+			dadaClient.postDadesByExpedientId(expedientId, processInstanceId, dades);
+		} catch (Exception ex) {
+			log.error("", ex);
+		}
 	}
 
 	/**
@@ -120,7 +144,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 			Long expedientId,
 			String processInstanceId,
 			String varCodi,
-			Object varValor) {
+			Object varValor) throws Exception {
 		
 		logger.debug("Modificant dada de la instància de procés (" +
 				"expedientId=" + expedientId + ", " +
@@ -229,7 +253,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	public ExpedientDadaDto findOnePerInstanciaProces(
 			Long expedientId,
 			String processInstanceId,
-			String varCodi) {
+			String varCodi) throws Exception {
 		logger.debug("Consultant dada de la instància de procés (" +
 				"expedientId=" + expedientId + ", " +
 				"processInstanceId=" + processInstanceId + ", " +

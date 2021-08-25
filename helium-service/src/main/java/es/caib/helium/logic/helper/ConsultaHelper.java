@@ -211,7 +211,7 @@ public class ConsultaHelper {
 	public void revisarDadesExpedientAmbValorsEnumeracionsODominis(
 			Map<String, DadaIndexadaDto> dadesExpedient,
 			List<Camp> campsInforme, 
-			Expedient expedient) {
+			Expedient expedient) throws Exception {
 		String dadaIndexadaClau = null;
 		Map<Integer, ConsultaDominiDto> consultesDomini = new HashMap<Integer, ConsultaDominiDto>();
 		for (Camp camp: campsInforme) {

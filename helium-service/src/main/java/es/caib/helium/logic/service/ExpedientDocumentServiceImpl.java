@@ -3,23 +3,6 @@
  */
 package es.caib.helium.logic.service;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.acls.domain.BasePermission;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
 import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.logic.helper.DocumentHelper;
 import es.caib.helium.logic.helper.ExpedientHelper;
@@ -75,6 +58,21 @@ import es.caib.helium.persist.repository.RegistreRepository;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.DocumentMetadades;
 import es.caib.plugins.arxiu.api.Firma;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Implementació dels mètodes del servei ExpedientDocumentService.
@@ -521,7 +519,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	public ExpedientDocumentDto findOneAmbInstanciaProces(
 			Long expedientId,
 			String processInstanceId,
-			String documentCodi) {
+			String documentCodi) throws Exception {
 		logger.debug("Consulta un document de la instància de procés (" +
 				"expedientId=" + expedientId + ", " +
 				"processInstanceId=" + processInstanceId + ", " +
@@ -1272,7 +1270,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			String arxiuNom, 
 			byte[] arxiuContingut, 
 			boolean isAdjunt,
-			String user) {
+			String user) throws Exception {
 
 		Long documentStoreId = null;
 		ExpedientDocumentDto document;

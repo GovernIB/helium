@@ -3,25 +3,6 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.Writer;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
 import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.integracio.plugins.unitat.UnitatOrganica;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
@@ -74,9 +55,27 @@ import freemarker.template.TemplateMethodModel;
 import freemarker.template.TemplateMethodModelEx;
 import freemarker.template.TemplateModel;
 import freemarker.template.TemplateModelException;
+import lombok.SneakyThrows;
 import net.sf.jooreports.templates.DocumentTemplate;
 import net.sf.jooreports.templates.DocumentTemplateException;
 import net.sf.jooreports.templates.DocumentTemplateFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.Writer;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Helper per a generar documents mitjançant plantilles fetes amb ODT
@@ -311,6 +310,7 @@ public class PlantillaHelper {
 		model.put(
 				"valor",
 				new TemplateMethodModel() {
+					@SneakyThrows
 					public TemplateModel exec(List args) throws TemplateModelException {
 						if (args.size() == 1) {
 							Object arg0 = args.get(0);
