@@ -3,11 +3,12 @@
  */
 package es.caib.helium.logic.intf.exportacio;
 
+import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
+import es.caib.helium.logic.intf.dto.MotorTipusEnum;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
 
 /**
  * DTO amb informació per exportar/importar una definició de procés
@@ -26,6 +27,7 @@ public class DefinicioProcesExportacio implements Serializable {
 	private List<AccioExportacio> accions = new ArrayList<AccioExportacio>();
 	private String nomDeploy;
 	private byte[] contingutDeploy;
+	private MotorTipusEnum motorTipus;
 
 	public DefinicioProcesDto getDefinicioProcesDto() {
 		return definicioProcesDto;
@@ -81,6 +83,13 @@ public class DefinicioProcesExportacio implements Serializable {
 	public void setContingutDeploy(byte[] contingutDeploy) {
 		this.contingutDeploy = contingutDeploy;
 	}
+	public MotorTipusEnum getMotorTipus() {
+		return motorTipus;
+	}
+	public void setMotorTipus(MotorTipusEnum motorTipus) {
+		this.motorTipus = motorTipus;
+	}
+
 	private static final long serialVersionUID = 1L;
 
 }

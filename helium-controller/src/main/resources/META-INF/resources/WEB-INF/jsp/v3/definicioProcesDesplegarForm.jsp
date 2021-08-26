@@ -33,30 +33,70 @@
 	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 	<script src="<c:url value="/js/webutil.datatable.js"/>"></script>
 	<script src="<c:url value="/js/webutil.modal.js"/>"></script>
+	<script type="text/javascript">
+		$(document).ready( function() {
+			actualitzaControls();
+			actualitzaControlsPerTipusMotor();
+			$('#accio').change(function() {
+				actualitzaControls();
+			})
+			$('#motorTipus').change(function() {
+				actualitzaControlsPerTipusMotor();
+			})
+			$('#expedientTipusId').change(function() {
+				actualitzaControlsPerTipusExp();
+			})
+			if ($('#expid').val()) {
+				$('#motorTipus').prop("disabled", true);
+				$('#expedientTipusId').prop("disabled", true);
+			}
+
+			$('#desplegar-form').submit(function () {
+				$('#motorTipus').prop("disabled", false);
+				$('#expedientTipusId').prop("disabled", false);
+				return true;
+			});
+		});
+
+		function actualitzaControls() {
+			$("#actualitzarExpedientsActius,#etiqueta").prop('disabled', $("#accio").val() != "JBPM_DESPLEGAR");
+		}
+		function actualitzaControlsPerTipusMotor() {
+			var accioGrup = $("#accio").closest(".form-group");
+			if ($("#motorTipus").val() != "JBPM") {
+				accioGrup.addClass("hidden");
+			} else {
+				accioGrup.removeClass("hidden");
+			}
+		}
+		function actualitzaControlsPerTipusExp() {
+			var expedientTipus = $("#expedientTipusId");
+			if (expedientTipus.val()) {
+				$.get('<c:url value="/v3/expedientTipus/motorTipus/"/>' + expedientTipus.val())
+						.done(function(data) {
+							$("#motorTipus").select2("val", data);
+							$("#motorTipus").trigger('change');
+							$('#motorTipus').prop("disabled", true);
+						});
+			} else {
+				$('#motorTipus').prop("disabled", false);
+			}
+		}
+	</script>
 </head>
 <body>		
 	<form:form id="desplegar-form" cssClass="form-horizontal" action="desplegar" enctype="multipart/form-data" method="post" modelAttribute="command" style="min-height: 500px;">
 
 		<div class="inlineLabels">
 		
-			<script type="text/javascript">
-				// <![CDATA[
-				$(document).ready( function() {
-					actualitzaControls();
-					$('#accio').change(function() {
-						actualitzaControls();
-					})
-				}); 	
-				
-				function actualitzaControls() {
-					$("#actualitzarExpedientsActius,#etiqueta").prop('disabled', $("#accio").val() != "JBPM_DESPLEGAR");
-				}
-				// ]]>
-			</script>			
+
 		</div>
 		
 		<input type="hidden" name="entornId" id="entornId" value="${command.entornId}" />
-		<input type="hidden" name="id" id="id" value="${command.id}" />		
+		<input type="hidden" name="id" id="id" value="${command.id}" />
+		<input type="hidden" name="expid" id="expid" value="${command.expedientTipusId}" />
+
+		<hel:inputSelect name="motorTipus" textKey="definicio.proces.desplegar.form.motor" optionItems="${motorsTipus}" optionValueAttribute="valor" optionTextAttribute="codi"/>
 		<div class="form-group">
 			<label class="control-label col-xs-4 obligatori" for="file"><spring:message code="definicio.proces.desplegar.form.file"/></label>
 			<div class="col-xs-8">

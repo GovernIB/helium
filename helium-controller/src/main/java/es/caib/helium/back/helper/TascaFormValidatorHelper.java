@@ -280,6 +280,7 @@ public class TascaFormValidatorHelper {
 //		ExpressionParser parser = new SpelExpressionParser();
 //		StandardEvaluationContext context = createEvaluationContext(command);
 //
+//		// TODO: Tractar registres i múltiples
 //		for (var tascaDada: tascaDadas) {
 //			if (tascaDada.getValidacions() != null && !tascaDada.getValidacions().isEmpty()) {
 //				for (var validacio: tascaDada.getValidacions()) {

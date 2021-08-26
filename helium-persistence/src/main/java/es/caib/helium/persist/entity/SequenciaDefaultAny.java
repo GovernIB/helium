@@ -6,8 +6,16 @@ package es.caib.helium.persist.entity;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.TableGenerator;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
@@ -23,9 +31,9 @@ public class SequenciaDefaultAny implements Serializable, GenericEntity<Long> {
 	private Long id;
 	@NotNull
 	private ExpedientTipus expedientTipus;
-	@NotBlank
+	@NotNull
 	private Integer any;
-	@NotBlank
+	@NotNull
 	private Long sequenciaDefault;
 
 

@@ -870,7 +870,7 @@ public class DissenyServiceImpl implements DissenyService {
 				"entornId=" + entornId + ", " +
 				"expedientTipusId=" + expedientTipusId + ")");
 
-		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+		var expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 		
 		List<String> noUtilitzades = workflowEngineApi.findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(expedientTipusId);
 		if (noUtilitzades != null && !noUtilitzades.isEmpty()) {

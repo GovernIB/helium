@@ -30,6 +30,7 @@ import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusEstadisticaDto;
 import es.caib.helium.logic.intf.dto.MapeigSistraDto;
 import es.caib.helium.logic.intf.dto.MapeigSistraDto.TipusMapeig;
+import es.caib.helium.logic.intf.dto.MotorTipusEnum;
 import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.dto.PermisDto;
@@ -645,17 +646,27 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							agrupacio.getNom(),
 							agrupacio.getDescripcio(),
 							agrupacio.getOrdre()));
-		// TODO: CAMUNDA
 		// Definicions de procés
-		if (command.getDefinicionsProces().size() > 0)
-			for (DefinicioProces definicio: tipus.getDefinicionsProces()) 
-				if (command.getDefinicionsProces().contains(definicio.getJbpmKey()) 
-						&& command.getDefinicionsVersions().get(definicio.getJbpmKey()).equals(definicio.getVersio()))							
-					exportacio.getDefinicions().add(
-								definicioProcesHelper.getExportacio(
-									definicio.getId(),
-									null /* no especifica el filtre per a la exportació. */)
-							);
+		if (command.getDefinicionsProces().size() > 0) {
+			var deploymentNames = new ArrayList<String>();
+			for (DefinicioProces definicio : tipus.getDefinicionsProces())
+				if (command.getDefinicionsProces().contains(definicio.getJbpmKey())
+						&& command.getDefinicionsVersions().get(definicio.getJbpmKey()).equals(definicio.getVersio())) {
+					DefinicioProcesExportacio definicioProcesExportacio = definicioProcesHelper.getExportacio(
+							tipus.getMotorTipus(),
+							definicio.getId(),
+							null /* no especifica el filtre per a la exportació. */);
+					// En Camunda nom posam els fitxers de deploy repetits
+					if (MotorTipusEnum.CAMUNDA.equals(tipus.getMotorTipus())) {
+						if (deploymentNames.contains(definicioProcesExportacio.getNomDeploy())) {
+							definicioProcesExportacio.setContingutDeploy(null);
+						} else {
+							deploymentNames.add(definicioProcesExportacio.getNomDeploy());
+						}
+					}
+					exportacio.getDefinicions().add(definicioProcesExportacio);
+				}
+		}
 		// Enumeracions
 		if (command.getEnumeracions().size() > 0) {
 			EnumeracioExportacio enumeracioExportacio;
@@ -1919,8 +1930,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							tipusPermesosIds,
 							filtre == null || "".equals(filtre),
 							filtre,
-							paginacioHelper.toSpringDataPageable(
-									paginacioParams))
+							paginacioHelper.toSpringDataPageable(paginacioParams))
 						// pàgina buida si no hi ha tipus permesos
 					:	new PageImpl<ExpedientTipus>(new ArrayList<ExpedientTipus>()),
 				ExpedientTipusDto.class);

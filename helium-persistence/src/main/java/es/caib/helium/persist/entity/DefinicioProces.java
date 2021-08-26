@@ -3,7 +3,27 @@
  */
 package es.caib.helium.persist.entity;
 
-import javax.persistence.*;
+import es.caib.helium.logic.intf.dto.MotorTipusEnum;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.ForeignKey;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
+import javax.persistence.Table;
+import javax.persistence.TableGenerator;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -54,14 +74,22 @@ public class DefinicioProces implements Serializable, GenericEntity<Long> {
 	private List<CampAgrupacio> agrupacions = new ArrayList<CampAgrupacio>();
 	private Set<Accio> accions = new HashSet<Accio>();
 
+	@NotNull
+	private MotorTipusEnum motorTipus;
 
 
 	public DefinicioProces() {}
-	public DefinicioProces(String jbpmId, String jbpmKey, int versio, Entorn entorn) {
+	public DefinicioProces(
+			String jbpmId,
+			String jbpmKey,
+			int versio,
+			Entorn entorn,
+			MotorTipusEnum motorTipus) {
 		this.jbpmId = jbpmId;
 		this.jbpmKey = jbpmKey;
 		this.versio = versio;
 		this.entorn = entorn;
+		this.motorTipus = motorTipus;
 	}
 
 	@Id
@@ -221,6 +249,15 @@ public class DefinicioProces implements Serializable, GenericEntity<Long> {
 	}
 	public void removeAccio(Accio accio) {
 		getAccions().remove(accio);
+	}
+
+	@Column(name="motor_tipus", length = 16)
+	@Enumerated(EnumType.STRING)
+	public MotorTipusEnum getMotorTipus() {
+		return motorTipus;
+	}
+	public void setMotorTipus(MotorTipusEnum motorTipus) {
+		this.motorTipus = motorTipus;
 	}
 
 	@Transient

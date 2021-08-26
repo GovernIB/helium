@@ -241,6 +241,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				filtre == null || "".equals(filtre), 
 				filtre != null? filtre : "", 
 				ambHerencia,
+				expedientTipus != null ? expedientTipus.getMotorTipus() : null,
 				paginacioHelper.toSpringDataPageable(
 						paginacioParams));
 		
@@ -334,6 +335,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		// Obté l'objecte d'exportació
 		DefinicioProcesExportacio definicioExortacio = 
 				definicioProcesHelper.getExportacio(
+						null,
 						definicioProcesId, 
 						command);
 		return definicioExortacio;

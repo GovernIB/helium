@@ -13,6 +13,7 @@ import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
@@ -36,7 +37,7 @@ public class FormulariExtern implements Serializable, GenericEntity<Long> {
 	@NotBlank
 	@Size(max = 1024)
 	private String url;
-	@NotBlank
+	@NotNull
 	private Date dataInici = new Date();
 	private Date dataRecepcioDades;
 	private Date dataDarreraPeticio;

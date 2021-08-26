@@ -5,6 +5,7 @@ package es.caib.helium.persist.entity;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
@@ -20,9 +21,9 @@ public class SequenciaAny implements Serializable, GenericEntity<Long> {
 	private Long id;
 	@NotNull
 	private ExpedientTipus expedientTipus;
-	@NotBlank
+	@NotNull
 	private Integer any;
-	@NotBlank
+	@NotNull
 	private Long sequencia;
 
 

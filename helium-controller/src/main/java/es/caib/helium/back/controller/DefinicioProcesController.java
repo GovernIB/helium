@@ -22,6 +22,7 @@ import es.caib.helium.logic.intf.dto.EntornDto;
 import es.caib.helium.logic.intf.dto.ExecucioMassivaDto;
 import es.caib.helium.logic.intf.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.dto.MotorTipusEnum;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.exception.DeploymentException;
@@ -629,14 +630,18 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			@RequestParam(required = false) Long expedientTipusId,
 			@RequestParam(required = false) Long definicioProcesId,
 			Model model) {
-		
+
 		DefinicioProcesDesplegarCommand command = new DefinicioProcesDesplegarCommand();
 		command.setAccio(ACCIO_JBPM.JBPM_DESPLEGAR);
 		command.setExpedientTipusId(expedientTipusId);
 		command.setId(definicioProcesId);
+		if (expedientTipusId != null) {
+			var expedientTipus = expedientTipusService.findAmbId(expedientTipusId);
+			command.setMotorTipus(expedientTipus.getMotorTipus());
+		}
 		this.omplirModelFormulariDesplegament(command, model, request);
 		return "v3/definicioProcesDesplegarForm";
-	}	
+	}
 	
 	/** Acció d'enviament del fitxer i les opcions sobre les dades de la definició de procés.
 	 * La validació es fa en el <i>DefinicioProcesImportarValidator</i>.
@@ -666,12 +671,14 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         		if (ACCIO_JBPM.JBPM_DESPLEGAR.equals(command.getAccio())) {
 
 					// Camunda
-					if (command.getFile().getOriginalFilename().endsWith("war")) {
+//					if (command.getFile().getOriginalFilename().endsWith("war")) {
+					if (MotorTipusEnum.CAMUNDA.equals(command.getMotorTipus())) {
 
 						byte[] contingutDesplegament = command.getFile().getBytes();
 						validateDeploymentFile(contingutDesplegament);
 
 						DefinicioProcesExportacio exportacio = new DefinicioProcesExportacio();
+						exportacio.setMotorTipus(command.getMotorTipus());
 						exportacio.setNomDeploy(command.getFile().getOriginalFilename());
 						exportacio.setContingutDeploy(contingutDesplegament);
 
@@ -707,6 +714,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 										command.getFile().getOriginalFilename(),
 										command.getFile().getBytes()
 								);
+						exportacio.setMotorTipus(command.getMotorTipus());
 						// Guarda la darrera per copiar dades
 						DefinicioProcesDto darreraDefinicioProces =
 								definicioProcesService.findByEntornIdAndJbpmKey(
@@ -889,7 +897,15 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 				ACCIO_JBPM.JBPM_ACTUALITZAR.toString(),
 				getMessage(request, "definicio.proces.desplegar.form.accio.actualitzar")));
 		model.addAttribute("accionsJbpm", accions);
+		model.addAttribute("motorsTipus", getMotors(request));
 		
+	}
+
+	private List<ParellaCodiValorDto> getMotors(HttpServletRequest request) {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "motor.tipus.enum.JBPM"), MotorTipusEnum.JBPM));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "motor.tipus.enum.CAMUNDA"), MotorTipusEnum.CAMUNDA));
+		return resposta;
 	}
 
 	@InitBinder

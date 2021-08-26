@@ -1282,7 +1282,16 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				expedientTipusId, 
 				definicionsSeleccionades,
 				model);
-	}	
+	}
+
+	@RequestMapping(value="/motorTipus/{expedientTipusId}", method = RequestMethod.GET)
+	@ResponseBody
+	MotorTipusEnum motorTipus(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId) {
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbId(expedientTipusId);
+		return expedientTipus.getMotorTipus();
+	}
 	
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {

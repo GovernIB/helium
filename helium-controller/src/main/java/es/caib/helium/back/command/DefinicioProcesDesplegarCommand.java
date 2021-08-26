@@ -4,7 +4,10 @@
 package es.caib.helium.back.command;
 
 import es.caib.helium.back.validator.DefinicioProcesDesplegar;
+import es.caib.helium.logic.intf.dto.MotorTipusEnum;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * Command pel desplegament d'un arxiu .par d'una definició de procés.
@@ -36,6 +39,9 @@ public class DefinicioProcesDesplegarCommand {
 	private MultipartFile file;
 	/** Indica si augmentar la versió o sobre escriure els handlers. */
 	private ACCIO_JBPM accio;
+
+	@NotNull
+	private MotorTipusEnum motorTipus;
 		
 	public Long getId() {
 		return id;
@@ -79,6 +85,13 @@ public class DefinicioProcesDesplegarCommand {
 	}
 	public void setAccio(ACCIO_JBPM accio) {
 		this.accio = accio;
+	}
+
+	public MotorTipusEnum getMotorTipus() {
+		return motorTipus;
+	}
+	public void setMotorTipus(MotorTipusEnum motorTipus) {
+		this.motorTipus = motorTipus;
 	}
 
 	public interface Desplegament {}

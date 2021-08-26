@@ -41,6 +41,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -106,6 +107,17 @@ public class DeploymentServiceImpl implements DeploymentService {
 
         } else if (nomArxiu.endsWith(".war")) {
             try {
+
+                String previousDeploymentId = null;
+
+                try {
+                    previousDeploymentId = repositoryService.createDeploymentQuery()
+                            .orderByDeploymentTime().desc()
+                            .listPage(0, 1).get(0).getId();
+                } catch (Exception ex) {
+                    log.error("No s'ha obtingut cap desplegament previ");
+                }
+
                 // Modificam el fitxer META-INF/processes.xml per afegir l'entorn
                 byte[] contingutAmbEntorn = deploymentAddTenantId(fitxer, tenantId);
                 Path path = Paths.get(deploymentPath, nomArxiu);
@@ -118,8 +130,11 @@ public class DeploymentServiceImpl implements DeploymentService {
                     DeploymentStatus deploymentStatus = fEstatDesplegament.get();
                     switch (deploymentStatus) {
                         case DEPLOYED:
-                            var lastDeployment = getLastDeployment();
-                            Files.write(registeredDeploymentsPath, (lastDeployment.getId() + ":" + nomArxiu + "\n").getBytes());
+                            var lastDeployment = getLastDeployment(previousDeploymentId);
+                            Files.write(
+                                    registeredDeploymentsPath, (
+                                    lastDeployment.getId() + ":" + nomArxiu + "\n").getBytes(),
+                                    StandardOpenOption.CREATE, StandardOpenOption.APPEND, StandardOpenOption.WRITE);
                             return deploymentMapper.toWDeploymentWithDefinitions(lastDeployment);
                         case FAILED:
                             throw new ResponseStatusException(
@@ -336,11 +351,14 @@ public class DeploymentServiceImpl implements DeploymentService {
                     filecontents.set(filecontents + l + "\n");
                 }
             });
-            if (!deploymentFilePath.get().isBlank()) {
+            if (!deploymentFilePath.get().isBlank() && !filecontents.get().contains(deploymentFilePath.get())) {
                 Path deployedFile = Path.of(deploymentPath, deploymentFilePath.get());
                 Files.deleteIfExists(deployedFile);
             }
-            Files.write(registeredDeploymentsPath, filecontents.get().getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+            Files.write(
+                    registeredDeploymentsPath,
+                    filecontents.get().getBytes(),
+                    StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE, StandardOpenOption.CREATE);
         } catch (Exception ex) {
             log.error("Error al borrar desplegament físic");
         }
@@ -364,7 +382,17 @@ public class DeploymentServiceImpl implements DeploymentService {
     @Transactional(readOnly = true)
     public Set<String> getResourceNames(String deploymentId) {
         var deploymentIdentifier = getDeploymentIdentifier(deploymentId);
-        var resources = repositoryService.getDeploymentResourceNames(deploymentIdentifier.getDeploymentId());
+        var resources = new ArrayList<String>();
+        if (deploymentIdentifier.isProcessDefinitionIdentifier()) {
+            resources.add(repositoryService.getProcessDefinition(deploymentId).getResourceName());
+        } else {
+            resources.addAll(repositoryService.getDeploymentResourceNames(deploymentIdentifier.getDeploymentId()));
+        }
+        var deploymentFileName = getDeploymentFileName(deploymentIdentifier.getDeploymentId());
+        if (deploymentFileName != null) {
+            resources.add(deploymentFileName);
+        }
+
         if (resources == null || resources.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found. Desplegament: " + deploymentId);
         }
@@ -375,6 +403,22 @@ public class DeploymentServiceImpl implements DeploymentService {
     @Transactional(readOnly = true)
     public byte[] getResourceBytes(String deploymentId, String resourceName) {
         var deploymentIdentifier = getDeploymentIdentifier(deploymentId);
+
+        // Deployment application file
+        if (resourceName.endsWith(".war")) {
+            var deploymentFileName = getDeploymentFileName(deploymentIdentifier.getDeploymentId());
+            if (deploymentFileName != null) {
+                Path path = Paths.get(deploymentPath, deploymentFileName);
+                try {
+                    return Files.readAllBytes(path);
+                } catch (IOException e) {
+                    log.error("No s'ha pogut llegir el fitxer de desplegament", e);
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found. Desplegament: " + deploymentId + "Recurs: " + resourceName);
+                }
+            }
+        }
+
+        // Deployment process file
         var resources = repositoryService.getDeploymentResources(deploymentIdentifier.getDeploymentId());
          Optional<Resource> oResource = Optional.empty();
         if (resources != null && !resources.isEmpty()) {
@@ -383,6 +427,21 @@ public class DeploymentServiceImpl implements DeploymentService {
         return oResource.orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found. Desplegament: " + deploymentId + "Recurs: " + resourceName)
         ).getBytes();
+    }
+
+    private String getDeploymentFileName(String deploymentId) {
+        Path registeredDeploymentsPath = Paths.get(deploymentPath, REGISTERED_DEPLOYMENTS_REG);
+        try {
+            var deploymentFilename = Files.lines(registeredDeploymentsPath)
+                    .filter(l -> l.startsWith(deploymentId))
+                    .findFirst();
+            if (deploymentFilename.isPresent()) {
+                return deploymentFilename.get().split(":")[1];
+            }
+        } catch (IOException ex) {
+            log.error("No s'ha pogut llegir el fitxer de registre de desplegaments");
+        }
+        return null;
     }
 
     @Override
@@ -487,19 +546,26 @@ public class DeploymentServiceImpl implements DeploymentService {
         return deployment;
     }
 
-    private Deployment getLastDeployment() {
-        try {
-            var deployment = repositoryService.createDeploymentQuery()
-                    .orderByDeploymentTime().desc()
-                    .listPage(0, 1).get(0);
-            if (deployment == null)
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No s'ha pogut obtenir l'últim desplegament");
-            return deployment;
-        } catch (Exception ex) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No s'ha pogut obtenir l'últim desplegament", ex);
-        }
+    private Deployment getLastDeployment(String previousDeploymentId) {
+        Deployment deployment = null;
+        int retries = 10;
+        do {
+            try {
+                deployment = repositoryService.createDeploymentQuery()
+                        .orderByDeploymentTime().desc()
+                        .listPage(0, 1).get(0);
+            } catch (Exception ex) {
+                retries--;
+                log.error("Error obtenint l'últim desplegament", ex);
+            }
+        } while (retries > 0 && (
+                deployment == null ||
+                deployment.getId().equals(previousDeploymentId) ||
+                (previousDeploymentId == null && deployment != null)));
+        if (deployment == null)
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No s'ha pogut obtenir l'últim desplegament");
+        return deployment;
     }
-
 
     public static class WaitForDeployment implements Callable<DeploymentStatus> {
 

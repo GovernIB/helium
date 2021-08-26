@@ -50,7 +50,9 @@
 						<dt><spring:message code="expedient.tipus.info.camp.codi"/></dt>
 						<dd>${expedientTipus.codi}</dd>
 						<dt><spring:message code="expedient.tipus.info.camp.titol"/></dt>
-						<dd>${expedientTipus.nom}</dd>				
+						<dd>${expedientTipus.nom}</dd>
+						<dt><spring:message code="expedient.tipus.info.camp.motor"/></dt>
+						<dd>${expedientTipus.motorTipus}</dd>
 						<dt><spring:message code="expedient.tipus.info.camp.ambInfoPropia"/></dt>
 						<dd>
 							<spring:message code="comu.${expedientTipus.ambInfoPropia}"></spring:message>

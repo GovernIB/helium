@@ -9,6 +9,7 @@ import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.CampTipusDto;
 import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
 import es.caib.helium.logic.intf.dto.DominiDto;
+import es.caib.helium.logic.intf.dto.MotorTipusEnum;
 import es.caib.helium.logic.intf.dto.TascaDto;
 import es.caib.helium.logic.intf.exception.DeploymentException;
 import es.caib.helium.logic.intf.exception.ExportException;
@@ -172,7 +173,8 @@ public class DefinicioProcesHelper {
 							wpd.getId(),
 							wpd.getKey(),
 							wpd.getVersion(),
-							entorn);
+							entorn,
+							importacio.getMotorTipus());
 					definicio.setExpedientTipus(expedientTipus);
 					if (expedientTipus != null)
 						expedientTipus.getDefinicionsProces().add(definicio);
@@ -773,6 +775,7 @@ public class DefinicioProcesHelper {
 	 */
 	@Transactional(readOnly = true)
 	public DefinicioProcesExportacio getExportacio(
+			MotorTipusEnum motorTipus,
 			Long definicioProcesId, 
 			DefinicioProcesExportacioCommandDto command) {
 		
@@ -782,38 +785,57 @@ public class DefinicioProcesHelper {
 		DefinicioProcesExportacio exportacio = new DefinicioProcesExportacio();
 		DefinicioProces definicio = 
 				definicioProcesRepository.findById(definicioProcesId).get();
+		exportacio.setMotorTipus(motorTipus != null ? motorTipus : definicio.getMotorTipus());
 		exportacio.setDefinicioProcesDto(
 				conversioTipusServiceHelper.convertir(
 						definicio, 
 						DefinicioProcesDto.class));
-		exportacio.setNomDeploy("export.par");
 		Set<String> resourceNames = workflowEngineApi.getResourceNames(definicio.getJbpmId());
-		if (resourceNames != null && resourceNames.size() > 0) {
-			try {
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				ZipOutputStream zos = new ZipOutputStream(baos);
-				byte[] data = new byte[1024];
-				for (String resource: resourceNames) {
-					byte[] bytes = workflowEngineApi.getResourceBytes(
-							definicio.getJbpmId(), 
-							resource);
-					if (bytes != null) {
-						InputStream is = new ByteArrayInputStream(bytes);
-						zos.putNextEntry(new ZipEntry(resource));
-						int count;
-						while ((count = is.read(data, 0, 1024)) != -1)
-							zos.write(data, 0, count);
-				        zos.closeEntry();
+
+		if (MotorTipusEnum.CAMUNDA.equals(exportacio.getMotorTipus())) {
+			exportacio.setNomDeploy("export.bpmn");
+			if (resourceNames != null && resourceNames.size() > 0) {
+				// Si conté un fitxer war, llavors només necessitem aquest fitxer.
+				// En cas contrari el desplegament s'ha realitzat amb un únic fitxer bmpn, cmn o dmmn
+				String deployName = resourceNames.stream()
+						.filter(r -> r.endsWith(".war"))
+						.findFirst()
+						.orElse(resourceNames.stream().findFirst().get());
+				byte[] bytes = workflowEngineApi.getResourceBytes(
+						definicio.getJbpmId(),
+						deployName);
+				exportacio.setNomDeploy(deployName);
+				exportacio.setContingutDeploy(bytes);
+			}
+		} else {
+			exportacio.setNomDeploy("export.par");
+			if (resourceNames != null && resourceNames.size() > 0) {
+				try {
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					ZipOutputStream zos = new ZipOutputStream(baos);
+					byte[] data = new byte[1024];
+					for (String resource : resourceNames) {
+						byte[] bytes = workflowEngineApi.getResourceBytes(
+								definicio.getJbpmId(),
+								resource);
+						if (bytes != null) {
+							InputStream is = new ByteArrayInputStream(bytes);
+							zos.putNextEntry(new ZipEntry(resource));
+							int count;
+							while ((count = is.read(data, 0, 1024)) != -1)
+								zos.write(data, 0, count);
+							zos.closeEntry();
+						}
 					}
+					zos.close();
+					exportacio.setContingutDeploy(baos.toByteArray());
+				} catch (Exception ex) {
+					String errMsg = messageServiceHelper.getMessage(
+							"error.dissenyService.generantContingut.definicioProces",
+							new Object[]{definicio.getJbpmKey() + " v." + definicio.getVersio()});
+					logger.error(errMsg, ex);
+					throw new ExportException(errMsg, ex);
 				}
-				zos.close();
-				exportacio.setContingutDeploy(baos.toByteArray());
-			} catch (Exception ex) {
-				String errMsg = messageServiceHelper.getMessage(
-						"error.dissenyService.generantContingut.definicioProces", 
-						new Object[] {definicio.getJbpmKey() + " v." + definicio.getVersio()});
-				logger.error(errMsg, ex);
-				throw new ExportException(errMsg, ex);
 			}
 		}
 		// Tasques

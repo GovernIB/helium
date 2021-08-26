@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -27,9 +28,9 @@ public class Reassignacio implements Serializable, GenericEntity<Long> {
 	private String usuariOrigen;
 	@NotBlank
 	private String usuariDesti;
-	@NotBlank
+	@NotNull
 	private Date dataInici;
-	@NotBlank
+	@NotNull
 	private Date dataFi;
 	private Date dataCancelacio;
 	private Long tipusExpedientId;
