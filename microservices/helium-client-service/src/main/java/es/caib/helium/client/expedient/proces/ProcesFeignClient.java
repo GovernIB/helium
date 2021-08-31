@@ -1,7 +1,9 @@
 package es.caib.helium.client.expedient.proces;
 
-import java.util.List;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import es.caib.helium.client.expedient.proces.model.ConsultaProcesDades;
+import es.caib.helium.client.expedient.proces.model.ProcesDto;
+import es.caib.helium.client.model.PagedList;
 import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,11 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
-import es.caib.helium.client.expedient.proces.model.ConsultaProcesDades;
-import es.caib.helium.client.expedient.proces.model.ProcesDto;
-import es.caib.helium.client.model.PagedList;
+import java.util.List;
 
 public interface ProcesFeignClient {
 
@@ -25,6 +23,8 @@ public interface ProcesFeignClient {
 	public ResponseEntity<PagedList<String>> findProcessIdsAmbFiltrePaginatV1(
 			@SpringQueryMap ConsultaProcesDades consultaProcesDades);
 
+//	@CircuitBreaker(name = DadaMsApiPath.NOM_SERVEI, fallbackMethod = "createProcesFallback")
+//	@Retry(name = DadaMsApiPath.NOM_SERVEI)
 	@RequestMapping(method = RequestMethod.POST, value = ProcesApiPath.CREATE_PROCES)
 	public ResponseEntity<Void> createProcesV1(@RequestBody ProcesDto procesDto);
 	
@@ -54,5 +54,8 @@ public interface ProcesFeignClient {
 	public ResponseEntity<Long> getExpedientId(
             @PathVariable("procesId") String procesId);
 
-	
+
+//	default ResponseEntity<Void> createProcesFallback(ProcesDto procesDto) {
+//		return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+//	}
 }

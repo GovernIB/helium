@@ -1688,7 +1688,12 @@ public class ExpedientHelper {
 
 //		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Actualitzar any i sequencia");
 
+			// Emmagatzema el nou expedient
+	//		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
+		expedient = expedientRepository.saveAndFlush(expedient);
+		//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
 		// Inicia l'instància de procés jBPM
+
 //		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
 
 		ThreadLocalInfo.setExpedient(expedient);
@@ -1706,19 +1711,12 @@ public class ExpedientHelper {
 				definicioProces.getJbpmId(),
 				variables);
 		expedient.setProcessInstanceId(processInstance.getId());
+		//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
 
 		Long infoRetroaccioId = null;
-		Long registreId = null;
-		Expedient expedientPerRetornar = null;
 		String arxiuUuid = null;
 
 		try {
-	//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
-
-			// Emmagatzema el nou expedient
-	//		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
-			expedientPerRetornar = expedientRepository.saveAndFlush(expedient);
-	//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
 
 			// Verificar la ultima vegada que l'expedient va modificar el seu estat
 	//		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
@@ -1729,35 +1727,35 @@ public class ExpedientHelper {
 					ExpedientRetroaccioEstat.IGNORAR);
 	//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir log");
 
-//		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Crear registre i convertir expedient");
-		// Registra l'inici de l'expedient
-		crearRegistreExpedient(
-				expedient.getId(),
-				usuari,
-				Registre.Accio.INICIAR);
-//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Crear registre i convertir expedient");
+	//		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Crear registre i convertir expedient");
+			// Registra l'inici de l'expedient
+			crearRegistreExpedient(
+					expedient.getId(),
+					usuari,
+					Registre.Accio.INICIAR);
+	//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Crear registre i convertir expedient");
 
-		// Crear expedient a l'Arxiu
-//		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Metadades NTI i creació a dins l'arxiu");
-		if (expedientTipus.isNtiActiu()) {
-			expedientPerRetornar.setNtiIdentificador(
-					generarNtiIdentificador(expedientPerRetornar));
-		}
-		if (expedientTipus.isArxiuActiu()) {
-			// Crea l'expedient a l'arxiu i actualitza l'identificador.
-			ContingutArxiu expedientCreat = pluginHelper.arxiuExpedientCrear(expedientPerRetornar);
-			arxiuUuid = expedientCreat.getIdentificador();
-			expedientPerRetornar.setArxiuUuid(
-					expedientCreat.getIdentificador());
-			// Consulta l'identificador NTI generat per l'arxiu i el modifica
-			// a dins l'expedient creat.
-			var expedientArxiu = pluginHelper.arxiuExpedientInfo(
-					expedientCreat.getIdentificador());
-			expedientPerRetornar.setNtiIdentificador(
-					expedientArxiu.getMetadades().getIdentificador());
-			expedientPerRetornar.setArxiuActiu(true);
-		}
-//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Metadades NTI i creació a dins l'arxiu");
+			// Crear expedient a l'Arxiu
+	//		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Metadades NTI i creació a dins l'arxiu");
+			if (expedientTipus.isNtiActiu()) {
+				expedient.setNtiIdentificador(
+						generarNtiIdentificador(expedient));
+			}
+			if (expedientTipus.isArxiuActiu()) {
+				// Crea l'expedient a l'arxiu i actualitza l'identificador.
+				ContingutArxiu expedientCreat = pluginHelper.arxiuExpedientCrear(expedient);
+				arxiuUuid = expedientCreat.getIdentificador();
+				expedient.setArxiuUuid(
+						expedientCreat.getIdentificador());
+				// Consulta l'identificador NTI generat per l'arxiu i el modifica
+				// a dins l'expedient creat.
+				var expedientArxiu = pluginHelper.arxiuExpedientInfo(
+						expedientCreat.getIdentificador());
+				expedient.setNtiIdentificador(
+						expedientArxiu.getMetadades().getIdentificador());
+				expedient.setArxiuActiu(true);
+			}
+	//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Metadades NTI i creació a dins l'arxiu");
 
 			// Afegim els documents
 	//			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
@@ -1806,10 +1804,13 @@ public class ExpedientHelper {
 //			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
 //			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
 			// Comprova si després de l'inici ja està en un node fi
-			this.verificarFinalitzacioExpedient(expedientPerRetornar);
+			this.verificarFinalitzacioExpedient(expedient);
+
+			// TODO: eliminar indexació
 			// Indexam l'expedient
-			logger.debug("Indexant nou expedient (id=" + expedient.getProcessInstanceId() + ")");
-			indexHelper.expedientIndexLuceneCreate(expedient.getProcessInstanceId());
+//			logger.debug("Indexant nou expedient (id=" + expedient.getProcessInstanceId() + ")");
+//			indexHelper.expedientIndexLuceneCreate(expedient.getProcessInstanceId());
+
 			// Crea l'expedient al MS
 			var expedientMs =
 					es.caib.helium.client.expedient.expedient.model.ExpedientDto.builder()
@@ -1848,7 +1849,9 @@ public class ExpedientHelper {
 			workflowEngineApi.deleteProcessInstance(expedient.getProcessInstanceId());
 
 			// Rollback de la informació de retroacció
-			workflowRetroaccioApi.eliminaInformacioRetroaccio(infoRetroaccioId);
+			if (infoRetroaccioId != null) {
+				workflowRetroaccioApi.eliminaInformacioRetroaccio(infoRetroaccioId);
+			}
 
 			// Rollback de la creació de l'expedient a l'arxiu
 			if (arxiuUuid != null)
@@ -1863,7 +1866,7 @@ public class ExpedientHelper {
 		}
 
 //		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom());
-		return expedientPerRetornar;
+		return expedient;
 	}
 
 	private PersonaDto comprovarUsuari(String usuari) {

@@ -3,8 +3,13 @@
  */
 package es.caib.helium.expedient.domain;
 
-import java.util.Date;
-import java.util.List;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.data.domain.Persistable;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -18,15 +23,8 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
-import org.springframework.data.domain.Persistable;
-
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Objecte tasca que representa la informació d'una tasca pel llistat de tasques actives. 
@@ -53,7 +51,7 @@ public class Tasca implements Persistable<String> {
 	@Column(name="id", nullable=false, length = 64)
 	private String id;
 	
-	@ManyToOne(optional=false, cascade={CascadeType.ALL})
+	@ManyToOne(optional=true, cascade={CascadeType.ALL})
 	@JoinColumn(name="expedient_id")
 	// FK HEL_TASCA_EXP_FK
 	private Expedient expedient;

@@ -1,12 +1,18 @@
 package es.caib.helium.expedient.service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.validation.ValidationException;
-
+import es.caib.helium.expedient.domain.Expedient;
+import es.caib.helium.expedient.domain.Proces;
+import es.caib.helium.expedient.mapper.ProcesMapper;
+import es.caib.helium.expedient.model.ProcesDto;
+import es.caib.helium.expedient.repository.ExpedientRepository;
+import es.caib.helium.expedient.repository.ProcesRepository;
+import es.caib.helium.expedient.repository.ProcesSpecifications;
+import es.caib.helium.expedient.repository.TascaRepository;
+import es.caib.helium.expedient.repository.TascaSpecifications;
+import es.caib.helium.ms.helper.ServiceHelper;
+import es.caib.helium.ms.model.PagedList;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -15,17 +21,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import es.caib.helium.expedient.domain.Expedient;
-import es.caib.helium.expedient.domain.Proces;
-import es.caib.helium.expedient.mapper.ProcesMapper;
-import es.caib.helium.expedient.model.ProcesDto;
-import es.caib.helium.expedient.repository.ExpedientRepository;
-import es.caib.helium.expedient.repository.ProcesRepository;
-import es.caib.helium.expedient.repository.ProcesSpecifications;
-import es.caib.helium.ms.helper.ServiceHelper;
-import es.caib.helium.ms.model.PagedList;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import javax.validation.ValidationException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,7 +35,8 @@ import lombok.extern.slf4j.Slf4j;
 public class ProcesServiceImpl implements ProcesService {
 
     private final ProcesRepository procesRepository;    
-    private final ExpedientRepository expedientRepository;    
+    private final ExpedientRepository expedientRepository;
+    private final TascaRepository tascaRepository;
     private final ProcesMapper procesMapper;
 
     @Override
@@ -71,7 +74,7 @@ public class ProcesServiceImpl implements ProcesService {
         	if (procesPareOptional.isPresent()) {
         		proces.setProcesPare(procesPareOptional.get());
         	} else {
-                throw new ValidationException("No s'ha trobat el proces arrel: " + procesDto.getProcesArrelId());
+                throw new ValidationException("No s'ha trobat el proces pare: " + procesDto.getProcesArrelId());
         	}
         }
         log.debug("[SRV] Validant proces");
@@ -112,7 +115,27 @@ public class ProcesServiceImpl implements ProcesService {
             String procesId) {
         log.debug("[SRV] Esborrant la proces (procesId=" + procesId +  ")");
         // TODO: Comprovar permisos sobre tipus d'expedient i entorn ??
-        procesRepository.delete(procesId);
+
+        Proces procesPare = getProcesById(procesId);
+
+        // Eliminam tasques i processos fills
+        List<Proces> processos = new ArrayList<>();
+        List<Proces> processosFills = List.of(procesPare);
+        do {
+            processos.addAll(processosFills);
+            var processosDescendents = new ArrayList<Proces>();
+            for (var procesFill: processosFills) {
+                processosDescendents.addAll(procesRepository.findAll(ProcesSpecifications.processPareIdLike(procesFill.getId())));
+            }
+            processosFills = processosDescendents;
+        } while (!processosFills.isEmpty());
+
+        var tasques = tascaRepository.findAll(TascaSpecifications.inProcesses(
+                processos.stream().map(p -> p.getId()).collect(Collectors.toList())));
+        if (tasques != null) {
+            tascaRepository.deleteAll(tasques);
+        }
+        procesRepository.deleteAll(processos);
     }
 
     @Override
@@ -175,9 +198,9 @@ public class ProcesServiceImpl implements ProcesService {
         if (proces.getProcessDefinitionId() == null || proces.getProcessDefinitionId().isEmpty()) {
             errors.put("processDefinitionId", "El camp no pot ser null");        	
         }
-        if (proces.getExpedient() == null) {
-            errors.put("expedient", "El camp no pot ser null");        	
-        }
+//        if (proces.getExpedient() == null) {
+//            errors.put("expedient", "El camp no pot ser null");
+//        }
         if (proces.getProcesArrel() == null) {
             errors.put("procesArrel", "El camp no pot ser null");
         }

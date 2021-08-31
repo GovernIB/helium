@@ -1,22 +1,29 @@
 package es.caib.helium.camunda.listener;
 
+import es.caib.helium.client.expedient.tasca.TascaClientService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.delegate.TaskListener;
+import org.springframework.stereotype.Component;
 
 @Slf4j
+@RequiredArgsConstructor
+@Component
 public class TaskAssignListener implements TaskListener {
 
-    private static TaskAssignListener instance = null;
+    private final TascaClientService tascaClientService;
 
-    protected TaskAssignListener() { }
-
-    public static TaskAssignListener getInstance() {
-        if(instance == null) {
-            instance = new TaskAssignListener();
-        }
-        return instance;
-    }
+//    protected TaskAssignListener() { }
+//
+//    private static TaskAssignListener instance = null;
+//
+//    public static TaskAssignListener getInstance() {
+//        if(instance == null) {
+//            instance = new TaskAssignListener();
+//        }
+//        return instance;
+//    }
     
     @Override
     public void notify(DelegateTask delegateTask) {

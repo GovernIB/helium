@@ -1,7 +1,7 @@
 package es.caib.helium.camunda.mapper;
 
-import es.caib.helium.camunda.model.TaskInstanceDto;
-import es.caib.helium.camunda.model.WTaskInstance;
+import es.caib.helium.client.engine.model.TaskInstanceDto;
+import es.caib.helium.client.engine.model.WTaskInstance;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.history.HistoricTaskInstance;
 import org.camunda.bpm.engine.task.IdentityLinkType;
@@ -41,13 +41,13 @@ public abstract class TaskInstanceMapper {
     @Mapping(source = "name", target = "taskName")
     @Mapping(source = "assignee", target = "actorId")
     @Mapping(source = "description", target = "titol")
-    @Mapping(source = "tenantId", target = "entornId")
+//    @Mapping(source = "tenantId", target = "entornId")
     abstract TaskInstanceDto toTaskInstance(Task task);
 
     @Mapping(source = "name", target = "taskName")
     @Mapping(source = "assignee", target = "actorId")
     @Mapping(source = "description", target = "titol")
-    @Mapping(source = "tenantId", target = "entornId")
+//    @Mapping(source = "tenantId", target = "entornId")
     @Mapping(source = "processDefinitionKey", target = "definicioProcesKey")
     abstract TaskInstanceDto toTaskInstance(HistoricTaskInstance historicTaskInstance);
 
@@ -55,14 +55,14 @@ public abstract class TaskInstanceMapper {
     @Mapping(source = "name", target = "taskName")
     @Mapping(source = "assignee", target = "actorId")
     @Mapping(source = "description", target = "titol")
-    @Mapping(source = "tenantId", target = "entornId")
+//    @Mapping(source = "tenantId", target = "entornId")
     abstract TaskInstanceDto toTaskInstanceWithDetails(Task task);
 
     @BeanMapping( qualifiedByName = "withDetails")
     @Mapping(source = "name", target = "taskName")
     @Mapping(source = "assignee", target = "actorId")
     @Mapping(source = "description", target = "titol")
-    @Mapping(source = "tenantId", target = "entornId")
+//    @Mapping(source = "tenantId", target = "entornId")
     @Mapping(source = "processDefinitionKey", target = "definicioProcesKey")
     abstract TaskInstanceDto toTaskInstanceWithDetails(HistoricTaskInstance historicTaskInstance);
 

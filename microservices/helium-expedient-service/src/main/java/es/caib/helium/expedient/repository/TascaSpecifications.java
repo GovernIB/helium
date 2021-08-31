@@ -1,14 +1,13 @@
 package es.caib.helium.expedient.repository;
 
-import java.util.Calendar;
-import java.util.Date;
-
-import javax.persistence.criteria.JoinType;
-
+import es.caib.helium.expedient.domain.Tasca;
 import org.apache.commons.lang.time.DateUtils;
 import org.springframework.data.jpa.domain.Specification;
 
-import es.caib.helium.expedient.domain.Tasca;
+import javax.persistence.criteria.JoinType;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /** Especificacions pel filtre en les consultes de tasques per poder filtrar.
  * 
@@ -160,4 +159,13 @@ public class TascaSpecifications {
     	
     	return spec;	
     }
+
+    /** Tasques de processos */
+	public static Specification<Tasca> inProcesses(List<String> procesIds) {
+		return (tasca, cq, cb) -> tasca.get("proces").get("id").in(procesIds);
+//		return (tasca, cq, cb) -> {
+//			final Path<Proces> proces = tasca.<Proces>get("proces");
+//			return proces.in(procesIds);
+//		}
+	}
 }

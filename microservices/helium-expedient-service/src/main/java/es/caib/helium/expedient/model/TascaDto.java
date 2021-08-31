@@ -1,15 +1,6 @@
 package es.caib.helium.expedient.model;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
-
-import org.springframework.validation.annotation.Validated;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import es.caib.helium.ms.model.DefaultOrder;
 import es.caib.helium.ms.model.DefaultSort;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,7 +9,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.springframework.validation.annotation.Validated;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Informació de la tasca amb les propietats necessàries pel llistat filtrat i paginat de
@@ -40,7 +36,7 @@ public class TascaDto {
 	private String id;
 	
 	@JsonProperty("expedientId")
-	@Schema(example = "1234", required = true, description = "Id de l'expedient de la tasca.")
+	@Schema(example = "1234", required = false, description = "Id de l'expedient de la tasca.")
 	private Long expedientId;
 
 	@JsonProperty("procesId")

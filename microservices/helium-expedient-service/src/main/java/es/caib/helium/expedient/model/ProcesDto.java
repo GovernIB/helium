@@ -36,7 +36,7 @@ public class ProcesDto {
 	private String id;
 	
 	@JsonProperty("expedientId")
-	@Schema(example = "1234", required = true, description = "Id de l'expedient del procés.")
+	@Schema(example = "1234", required = false, description = "Id de l'expedient del procés.")
 	private Long expedientId;
 	
 	@JsonProperty("processDefinitionId")

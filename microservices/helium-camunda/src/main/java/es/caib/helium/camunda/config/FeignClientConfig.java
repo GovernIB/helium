@@ -3,13 +3,12 @@ package es.caib.helium.camunda.config;
 import es.caib.helium.camunda.helper.KeycloakHelper;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class FeignClientConfig {
 
-    @Bean
+//    @Bean
     public FeignClientInterceptor oauth2AuthRequestInterceptor() {
         return new FeignClientInterceptor();
     }
