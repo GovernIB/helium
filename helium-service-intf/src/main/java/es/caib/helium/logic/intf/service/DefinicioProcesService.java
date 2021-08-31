@@ -41,6 +41,10 @@ public interface DefinicioProcesService {
 			Long entornId, 
 			String jbpmKey);
 
+	public DefinicioProcesDto findPreviaByEntornIdAndJbpmKey(
+			Long entornId,
+			String jbpmKey);
+
 	/**
 	 * Retorna la llista de sub definicions de processos per a la definició de procés especificada.
 	 * @param definicioProcesId
@@ -113,7 +117,7 @@ public interface DefinicioProcesService {
 	 * @param importacio Objecte desserialitzat amb la informació per a la importació.
 	 * @return Retorna l'expedient tipus creat o modificat.
 	 */
-	public DefinicioProcesDto importar(
+	public List<DefinicioProcesDto> importar(
 			Long entornId, 
 			Long expedientTipusId, 
 			Long definicioProcesId, 

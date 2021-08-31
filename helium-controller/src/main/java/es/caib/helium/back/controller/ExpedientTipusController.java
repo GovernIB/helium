@@ -176,7 +176,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		model.addAttribute("expedientTipusCommand", new ExpedientTipusCommand());
 		return "v3/expedientTipusForm";
 	}
-	
+
 	private void omplirModelExpedientTipusForm(
 			HttpServletRequest request,
 			Long expedientTipusId,
@@ -193,8 +193,17 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					}
 			model.addAttribute("expedientTipusPares", expedientsTipusPares);
 			model.addAttribute("potDissenyar", entornService.isDissenyadorEntorn(entornActual.getId()));
+			model.addAttribute("motorsTipus", getMotors(request));
 		}
 	}
+
+	private List<ParellaCodiValorDto> getMotors(HttpServletRequest request) {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "motor.tipus.enum.JBPM"), MotorTipusEnum.JBPM));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "motor.tipus.enum.CAMUNDA"), MotorTipusEnum.CAMUNDA));
+		return resposta;
+	}
+
 	@RequestMapping(value = "/new", method = RequestMethod.POST)
 	public String nouPost(
 			HttpServletRequest request,
@@ -1273,7 +1282,16 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				expedientTipusId, 
 				definicionsSeleccionades,
 				model);
-	}	
+	}
+
+	@RequestMapping(value="/motorTipus/{expedientTipusId}", method = RequestMethod.GET)
+	@ResponseBody
+	MotorTipusEnum motorTipus(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId) {
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbId(expedientTipusId);
+		return expedientTipus.getMotorTipus();
+	}
 	
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {

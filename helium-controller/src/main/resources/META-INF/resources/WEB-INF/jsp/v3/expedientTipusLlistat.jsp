@@ -40,6 +40,7 @@
 				<th data-col-name="id" data-visible="false"/>
 				<th data-col-name="codi" width="20%"><spring:message code="expedient.tipus.llistat.columna.codi"/></th>
 				<th data-col-name="nom"><spring:message code="expedient.tipus.llistat.columna.titol"/></th>
+				<th data-col-name="motorTipus" width="10%"><spring:message code="expedient.tipus.llistat.columna.motor"/></th>
 				<th data-col-name="permisCount" data-template="#cellPermisosTemplate" data-orderable="false" width="13%">
 					<script id="cellPermisosTemplate" type="text/x-jsrender">
 						{{if permisAdministration || ${potAdministrarEntorn} }}

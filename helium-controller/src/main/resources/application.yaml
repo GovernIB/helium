@@ -8,6 +8,8 @@ server:
     port: 8080
     servlet:
         context-path: /heliumback
+    tomcat:
+        max-swallow-size: -1
 spring:
     # Pàgines jsp a la carpeta src/main/webapp
     mvc:
@@ -16,6 +18,14 @@ spring:
             suffix: .jsp
     messages:
         basename: messages_helium
+#    jpa:
+#        properties:
+#            hibernate:
+#                format_sql: true
+    servlet:
+        multipart:
+            max-file-size: 10MB
+            max-request-size: 10MB
 
 security:
     basic:
@@ -33,24 +43,24 @@ keycloak:
     principal-attribute: preferred_username
     use-resource-role-mappings: true
 
-#logging:
-#    level:
-#        es.caib.helium: DEBUG
-##        org.springframework: TRACE
-##        com: TRACE
-#        es.caib.helium.client: DEBUG
+logging:
+    level:
+        es.caib.helium: DEBUG
+        es.caib.helium.client: DEBUG
+#        org.springframework: DEBUG
 #        org.hibernate.SQL: DEBUG
 #        org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
-feign:
-    client:
-        config:
-            default:
-                loggerLevel: full
+#feign:
+#    client:
+#        config:
+#            default:
+#                loggerLevel: full
+
 # Propietats
 es:
     caib:
         helium:
-            properties: /helium/configMs/helium.properties
+            properties: /home/siona/Feina/Conf/Helium/helium4/helium.properties
             system:
-                properties: /helium/configMs/helium_system.properties
+                properties: /home/siona/Feina/Conf/Helium/helium4/helium_system.properties

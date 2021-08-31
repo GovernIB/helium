@@ -6,6 +6,7 @@ package es.caib.helium.persist.repository;
 import java.util.List;
 import java.util.Optional;
 
+import es.caib.helium.logic.intf.dto.MotorTipusEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -63,7 +64,7 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 	DefinicioProces findDarreraVersioAmbEntornIJbpmKey(
 		@Param("entornId") Long entornId,
 		@Param("jbpmKey") String jbpmKey);
-	
+
 	/** Troba la darrera versió de la definició de procés per codi jbpm per a un tipus d'expedient sense tenir en compte
 	 * l'herència.
 	 * @param expedientTipusId
@@ -175,6 +176,16 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			"    and dp.entorn.id = :entornId " +
 			"	 and dp.jbpmKey = :jbpmKey " +
 			"order by dp.versio desc")
+	List<DefinicioProces> findGlobalsByEntornIJbpmKey(
+			@Param("entornId") Long entornId,
+			@Param("jbpmKey") String jbpmKey);
+
+	@Query(	"from " +
+			"    DefinicioProces dp " +
+			"where " +
+			"    dp.entorn.id = :entornId " +
+			"	 and dp.jbpmKey = :jbpmKey " +
+			"order by dp.versio desc")
 	List<DefinicioProces> findByEntornIJbpmKey(
 			@Param("entornId") Long entornId,
 			@Param("jbpmKey") String jbpmKey);
@@ -231,6 +242,7 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 	@Query(	"from DefinicioProces dp " +
 			"where " +
 			"   dp.entorn.id = :entornId " +
+			"	and (:esNullExpedientTipusId = true or dp.motorTipus = :motorTipus)" +
 			"	and (:esNullExpedientTipusId = true " +
 			"			or (dp.expedientTipus.id = :expedientTipusId) " + 
 						// Heretats
@@ -271,6 +283,7 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
 			@Param("ambHerencia") boolean ambHerencia,
+			@Param("motorTipus") MotorTipusEnum motorTipus,
 			Pageable pageable);	
 	
 	/** Consulta de les claus jbpmKeys de les definicions de procés per entorn 

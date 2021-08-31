@@ -35,6 +35,8 @@ public class DefinicioProcesDto extends HeretableDto implements Serializable {
 	private boolean hasStartTask;
 	private String startTaskName;
 
+	private MotorTipusEnum motorTipus;
+
 	public String getEtiqueta() {
 		return etiqueta;
 	}
@@ -202,5 +204,12 @@ public class DefinicioProcesDto extends HeretableDto implements Serializable {
 	}
 	public Long getVersioCount() {
 		return this.versioCount;
+	}
+
+	public MotorTipusEnum getMotorTipus() {
+		return motorTipus;
+	}
+	public void setMotorTipus(MotorTipusEnum motorTipus) {
+		this.motorTipus = motorTipus;
 	}
 }

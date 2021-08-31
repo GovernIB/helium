@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,7 +26,7 @@ public class PagedList<T> extends PageImpl<T> {
                      @JsonProperty("sort") JsonNode sort,
                      @JsonProperty("first") boolean first,
                      @JsonProperty("numberOfElements") int numberOfElements) {
-        super(content, PageRequest.of(number, size), totalElements);
+        super(content, size == 0 ? Pageable.unpaged() : PageRequest.of(number, size), totalElements);
     }
 
     public PagedList(
@@ -39,4 +40,7 @@ public class PagedList<T> extends PageImpl<T> {
         super(content);
     }
 
+    public PagedList() {
+        super(new ArrayList<>());
+    }
 }

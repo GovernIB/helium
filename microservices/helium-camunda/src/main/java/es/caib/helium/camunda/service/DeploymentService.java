@@ -1,8 +1,8 @@
 package es.caib.helium.camunda.service;
 
 import es.caib.helium.camunda.model.Fitxer;
-import es.caib.helium.camunda.model.WDeployment;
 import es.caib.helium.camunda.model.modeler.ModelerDeploymentWithDefinitionsDto;
+import es.caib.helium.client.engine.model.WDeployment;
 
 import javax.ws.rs.core.MultivaluedMap;
 import java.util.List;
@@ -113,4 +113,6 @@ public interface DeploymentService {
                     byte[]> handlers);
 
     String getDeploymentStatus(String deploymentFileName);
+
+//    public WProcessDefinition parse(ZipInputStream zipInputStream) throws Exception;
 }

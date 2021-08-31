@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.HttpClientErrorException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
@@ -64,7 +66,14 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 		Iterator<ExpedientTipusDto> it = tipus.iterator();
 		while (it.hasNext()) {
 			ExpedientTipusDto expedientTipus = it.next();
-			DefinicioProcesExpedientDto definicioProcesIniciExpedientDto = dissenyService.getDefinicioProcesByTipusExpedientById(expedientTipus.getId());
+			DefinicioProcesExpedientDto definicioProcesIniciExpedientDto = null;
+			try {
+				definicioProcesIniciExpedientDto = dissenyService.getDefinicioProcesByTipusExpedientById(expedientTipus.getId());
+			} catch (HttpClientErrorException ce) {
+				if (!HttpStatus.NOT_FOUND.equals(ce.getStatusCode())) {
+					throw ce;
+				}
+			}
 			if (definicioProcesIniciExpedientDto != null)
 				definicionsProces.put(expedientTipus.getId(), definicioProcesIniciExpedientDto);
 			else

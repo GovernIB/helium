@@ -34,7 +34,7 @@ public class ExpedientIniciDto {
 	private String identificador;
 	private String numeroIdentificador;
 
-	private long processInstanceId;
+	private String processInstanceId;
 	private String entornCodi;
 
 

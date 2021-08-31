@@ -108,6 +108,7 @@
 			</script>			
 			<hel:inputText required="true" name="codi" textKey="expedient.tipus.form.camp.codi" disabled="${! empty expedientTipusCommand.id}"/>
 			<hel:inputText required="true" name="nom" textKey="expedient.tipus.form.camp.titol" />
+			<hel:inputSelect name="motorTipus" textKey="expedient.tipus.form.camp.motor" optionItems="${motorsTipus}" optionValueAttribute="valor" optionTextAttribute="codi"/>
 			<hel:inputCheckbox name="ambInfoPropia" textKey="expedient.tipus.form.camp.ambInfoPropia" />
 			<p id="ambInfoPropiaNota" class="help-block"><spring:message code="expedient.tipus.form.camp.ambInfoPropia.nota"></spring:message></p>			
 			<hel:inputCheckbox name="heretable" textKey="expedient.tipus.form.camp.heretable" disabled="${! expedientTipusCommand.ambInfoPropia}" />

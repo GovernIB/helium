@@ -238,6 +238,7 @@ public class ConversioTipusServiceHelper {
 						ExpedientTipusDto target = new ExpedientTipusDto();
 						target.setAnyActual(source.getAnyActual());
 						target.setCodi(source.getCodi());
+						target.setMotorTipus(source.getMotorTipus());
 						target.setDemanaNumero(source.getDemanaNumero());
 						target.setDemanaTitol(source.getDemanaTitol());
 						target.setEntorn(convertir(source.getEntorn(), EntornDto.class));

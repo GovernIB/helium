@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,7 +37,9 @@ public class ProcessDefinitionClientImpl implements ProcessDefinitionClient {
 		
 		log.debug(missatgeLog + " get sub process definitions  amb processDefinitionId" + processDefinitionId);
 		var responseEntity = processDefinitionClient.getSubProcessDefinitions(processDefinitionId);
-		var resultat = Objects.requireNonNull(responseEntity.getBody());
+		var resultat = Objects.requireNonNullElse(
+				responseEntity.getBody(),
+				new ArrayList<WProcessDefinition>());
     	return resultat;
 	}
 

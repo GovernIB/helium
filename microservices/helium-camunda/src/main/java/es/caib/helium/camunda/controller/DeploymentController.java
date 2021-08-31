@@ -1,8 +1,9 @@
 package es.caib.helium.camunda.controller;
 
 import es.caib.helium.camunda.model.Fitxer;
-import es.caib.helium.camunda.model.WDeployment;
 import es.caib.helium.camunda.service.DeploymentService;
+import es.caib.helium.client.engine.model.DeploymentDto;
+import es.caib.helium.client.engine.model.WDeployment;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -159,7 +160,7 @@ public class DeploymentController {
             @PathVariable String deploymentId,
 //            @RequestPart(value = "handlers", required = false) List<MultipartFile> handlers,
             @RequestPart("deploymentFile") MultipartFile deploymentFile) throws Exception {
-        WDeployment desplegament = deploymentService.getDesplegament(deploymentId);
+        DeploymentDto desplegament = (DeploymentDto) deploymentService.getDesplegament(deploymentId);
         deploymentService.desplegar(
                 desplegament.getName(),
                 desplegament.getTenantId(),
@@ -173,7 +174,7 @@ public class DeploymentController {
 
 
     /**
-     * Elimina un desplegament concret
+     * Elimina un desplegament concret, o una instànncia de procés del desplegament
      *
      * @param deploymentId Identificador del desplegament a eliminar
      */
@@ -183,5 +184,11 @@ public class DeploymentController {
         return new ResponseEntity<>(new HttpHeaders(), HttpStatus.OK);
     }
 
+
+//    @PostMapping(value="/processDefinitions/parse")
+//    public ResponseEntity<WProcessDefinition> parse(
+//            @RequestPart("zipFile") MultipartFile zipFile) throws Exception {
+//        return new ResponseEntity(deploymentService.parse(new ZipInputStream(zipFile.getInputStream())), HttpStatus.OK);
+//    }
 
 }

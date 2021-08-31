@@ -43,6 +43,7 @@
 				<th data-col-name="dataCreacio" data-converter="datetime"><spring:message code="definicio.proces.llistat.columna.dataDarreraVersio"/></th>
 				<th data-col-name="versio" data-orderable="true"><spring:message code="definicio.proces.llistat.columna.versio"/></th>
 				<th data-col-name="expedientTipus.codi"><spring:message code="definicio.proces.llistat.columna.expedientTipus"/></th>
+				<th data-col-name="motorTipus"><spring:message code="definicio.proces.llistat.columna.motor"/></th>
 				<th data-col-name="jbpmKey" data-template="#cellAccionsTemplate" data-orderable="false" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
 						<div class="dropdown">

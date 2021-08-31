@@ -1,7 +1,7 @@
 package es.caib.helium.camunda.controller;
 
-import es.caib.helium.camunda.model.WProcessDefinition;
 import es.caib.helium.camunda.service.ProcessDefinitionService;
+import es.caib.helium.client.engine.model.WProcessDefinition;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
