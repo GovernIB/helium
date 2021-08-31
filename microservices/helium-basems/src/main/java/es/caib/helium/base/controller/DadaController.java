@@ -269,7 +269,7 @@ public class DadaController {
 			@PathVariable("expedientId") Long expedientId,
 			@PathVariable("procesId") String procesId,
 			@PathVariable("codi") String codi, 
-			@Valid @RequestBody Dada dada) {
+			@RequestBody Dada dada) {
 
 		dadaClient.putDadaByExpedientIdProcesIdAndCodi(expedientId, procesId, codi, dada);
 		return new ResponseEntity<>(HttpStatus.OK);

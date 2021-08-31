@@ -7,17 +7,21 @@ import lombok.Getter;
  */
 @Getter
 public enum Tipus {
-	
-	Long("Long"),
-	String("String"),
-	Date("Date"),
-	Float("Float"),
-	Termini("Termini"),
-	Preu("Preu"),
-	Integer("Integer"),
-	Boolean("Boolean"),
-	Registre("Registre");
-	
+
+	LONG("Long"),
+	STRING("String"),
+	DATE("Date"),
+	FLOAT("Float"),
+	TERMINI("Termini"),
+	PRICE("Preu"),
+	INTEGER("Integer"),
+	BOOLEAN("Boolean"),
+	TEXTAREA("TextArea"),
+	REGISTRE("Registre"),
+	SELECCIO("Seleccio"),
+	SUGGEST("Suggest"),
+	ACCIO("Accio");
+
 	private String valor; 
 	
 	private Tipus(String valor) {

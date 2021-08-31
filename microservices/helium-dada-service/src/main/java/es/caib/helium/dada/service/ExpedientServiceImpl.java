@@ -512,21 +512,37 @@ public class ExpedientServiceImpl implements ExpedientService {
 				if (d.isPresent()) {
 					// Evitar dades amb el codi repetit segons proces i codi
 					log.info("[ExpedientServiceImpl.crearDada] Expedient amb id " + expedientId + " procesId "
-							+ procesId + " ja té una dada amb codi " + dada.getCodi() + " - Acutalitzant la dada...");
-					putDadaByExpedientIdProcesIdAndCodi(expedientId, procesId, dada.getCodi(), dada);
-					putDades = true;
+							+ procesId + " ja té una dada amb codi " + dada.getCodi());
+//					putDadaByExpedientIdProcesIdAndCodi(expedientId, procesId, dada.getCodi(), dada);
+//					putDades = true;
 					continue;
 				}
 				dada.setExpedientId(expedientId);
 				dada.setProcesId(procesId);
+//				for (var foo = 0; foo < dada.getValor().size(); foo++) {
+//					var valor = dada.getValor().get(foo);
+//					if (dada.getTipus().equals(Tipus.Date)) {
+//						var valorMongo = new ValorDate();
+////						SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH);
+////
+////						String dateInString = "7-Jun-2013";
+////						Date date = formatter.parse(dateInString);
+//						valorMongo.setValor(new Date()); // TODO CONTINUAR --> PROVAR ORDENACIONS DE TIPUS DIFERENTS
+//						dada.getValor().set(foo, valorMongo);
+//
+//					} else if (dada.getTipus().equals(Tipus.Preu)) {
+//						var valorMongo = new ValorPreu();
+//						dada.getValor().set(foo, valorMongo);
+//					}
+//				}
 				dadesFoo.add(dada);
 			}
-			if (dadesFoo.isEmpty() && !putDades) {
+			if (dadesFoo.isEmpty() /*&& !putDades*/) {
 				return false;
 			}
 			var guardats = dadaRepository.saveAll(dadesFoo).size();
 			log.debug(guardats + "dades per l'expedient " + expedientId + " amb procesId " + procesId + " creades correctament");
-			return guardats > 0 || putDades;
+			return guardats > 0 /*|| putDades*/;
 		} catch (Exception ex) {
 			var error = "Error al crear les dades per l'expedient " + expedientId + " amb procesId " + procesId;
 			log.error(error, ex);
@@ -654,7 +670,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 		try {
 			var dadaOptional = dadaRepository.findByExpedientIdAndProcesIdAndCodi(expedientId, procesId, codi);
-			if (dadaOptional.isEmpty()) {
+			if (dadaOptional.isEmpty()) { // TODO REVISAR SI CAL TREURE AQUEST CODI, POT CREAR DADES EN CASOS QUE HAURIEN DE SER ERROR
 				List<Dada> dades = new ArrayList<>();
 				dada.setCodi(codi);
 				dades.add(dada);
@@ -662,8 +678,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			}
 			var dadaMongo = dadaOptional.get();
 			dadaMongo.setMultiple(dada.isMultiple());
-			dadaMongo.setTipus(dada.getTipus());
-			dadaMongo.setValor(dada.getValor());
+			dadaMongo.setTipus(dada.getTipus() != null ? dada.getTipus() : dadaMongo.getTipus());
 			dadaMongo.setValor(dada.getValor());
 			dadaRepository.save(dadaMongo);
 			log.debug("Dada actualitzada (put) per l'expedientId " 

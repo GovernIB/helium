@@ -146,28 +146,13 @@ public class ExpedientDadaController extends BaseExpedientController {
 			@PathVariable String varCodi,
 			Model model) {
 		try {
-			expedientDadaService.delete(
-					expedientId,
-					procesId,
-					URLDecoder.decode(varCodi, "UTF-8"));
-			MissatgesHelper.success(
-					request,
-					getMessage(
-							request,
-							"info.dada.proces.esborrada"));
+			expedientDadaService.delete(expedientId, procesId, URLDecoder.decode(varCodi, "UTF-8"));
+			MissatgesHelper.success(request, getMessage(request, "info.dada.proces.esborrada"));
 			return true;
 		} catch (PermisDenegatException ex) {
-			MissatgesHelper.error(
-					request,
-					getMessage(
-							request,
-							"expedient.info.permis.no"));
+			MissatgesHelper.error(request, getMessage(request, "expedient.info.permis.no"));
 		} catch (Exception ex) {
-			MissatgesHelper.error(
-					request,
-					getMessage(
-							request,
-							"expedient.dada.borrar.error"));
+			MissatgesHelper.error(request, getMessage(request, "expedient.dada.borrar.error"));
 			logger.error("S'ha produit un error al intentar eliminar la variable '" + varCodi + "' de l'expedient amb id '" + expedientId + "' (proces: " + procesId + ")", ex);
 		}
 		return false;
@@ -184,37 +169,36 @@ public class ExpedientDadaController extends BaseExpedientController {
 		// S'ha de inicialitzar el command abans de processar el RequestMapping
 		// del POSTs amb les modificacions al formulari de la tasca
 		if (procesId != null && !"".equals(procesId) && varCodi != null && !"".equals(varCodi)) {
-		try {
-//			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-//			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
-			List<TascaDadaDto> llistTasca = new ArrayList<TascaDadaDto>();
-			TascaDadaDto tascaDada = TascaFormHelper.getTascaDadaDtoFromExpedientDadaDto(
-					expedientDadaService.findOnePerInstanciaProces(
-							expedientId,
-							procesId,
-							varCodi));
-			if (tascaDada.getError() != null)
-				MissatgesHelper.error(request, tascaDada.getError());
-			llistTasca.add(tascaDada);
-			model.addAttribute("procesId", procesId);
-			model.addAttribute("varCodi", varCodi);
-			model.addAttribute("dada", tascaDada);
-			if (ple)
-				return TascaFormHelper.getCommandForCamps(
+			try {
+	//			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+	//			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+				List<TascaDadaDto> llistTasca = new ArrayList<TascaDadaDto>();
+				TascaDadaDto tascaDada = TascaFormHelper.getTascaDadaDtoFromExpedientDadaDto(
+						expedientDadaService.findOnePerInstanciaProces(
+								expedientId,
+								procesId,
+								varCodi));
+				if (tascaDada.getError() != null) {
+					MissatgesHelper.error(request, tascaDada.getError());
+				}
+				llistTasca.add(tascaDada);
+				model.addAttribute("procesId", procesId);
+				model.addAttribute("varCodi", varCodi);
+				model.addAttribute("dada", tascaDada);
+				return  ple ? TascaFormHelper.getCommandForCamps(
 						llistTasca,
 						null,
 						null, //campsAddicionals,
-						null); //campsAddicionalsClasses);
-			else 
-				return TascaFormHelper.getCommandBuitForCamps(
+						null) //campsAddicionalsClasses);
+						: TascaFormHelper.getCommandBuitForCamps(
 						llistTasca,
 						null, //campsAddicionals,
 						null); //campsAddicionalsClasses);
-		} catch (Exception ex) {
-			MissatgesHelper.error(request, ex.getMessage());
-			logger.error("No s'ha pogut obtenir la informació de la dada " + varCodi + ": "  + ex.getMessage(), ex);
-		} 
-	}
+			} catch (Exception ex) {
+				MissatgesHelper.error(request, ex.getMessage());
+				logger.error("No s'ha pogut obtenir la informació de la dada " + varCodi + ": "  + ex.getMessage(), ex);
+			}
+		}
 		return null;
 	}
 
@@ -277,7 +261,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 					validatorHelper.isValidarObligatoris(),
 					validatorHelper.isValidarExpresions(),
 					procesId);
-			validator.validate(commandValidar, result);
+		//	validator.validate(commandValidar, result);
 //			validatorHelper.validate(commandValidar, result);
 			if (result.hasErrors()) {
 				return "v3/expedientDadaModificar";
