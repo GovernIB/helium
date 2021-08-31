@@ -17,12 +17,13 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
-import org.springframework.data.mongodb.core.aggregation.ArrayOperators.Filter;
-import org.springframework.data.mongodb.core.aggregation.ArrayOperators.In;
+import org.springframework.data.mongodb.core.aggregation.AggregationOptions;
+import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.aggregation.SortOperation;
+import org.springframework.data.mongodb.core.query.Collation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,11 +57,12 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 	public List<Expedient> findByFiltres(Consulta consulta) {
 		
 		if (consulta == null) {
-			return new ArrayList<Expedient>();
+			return new ArrayList<>();
 		}
-		return mongoTemplate
-				.aggregate(Aggregation.newAggregation(prepararFiltres(consulta)), Expedient.class, Expedient.class)
-				.getMappedResults();
+		var collation = Collation.of("es").numericOrdering(true);
+		var options = AggregationOptions.builder().collation(collation).build();
+		var aggregation = Aggregation.newAggregation(prepararFiltres(consulta)).withOptions(options);
+		return mongoTemplate.aggregate(aggregation, Expedient.class, Expedient.class).getMappedResults();
 	}
 
 	/**
@@ -155,22 +157,24 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 		// L'ordre de les operacions afecta l'eficiencia de la cerca. Els més restrictius primer.
 		List<AggregationOperation> operations = new ArrayList<>();
 		if (consulta.getEntornId() != null && consulta.getExpedientTipusId() != null) {
-			operations.add(crearFiltreEntornIdTipusId(consulta.getEntornId(), consulta.getExpedientTipusId()));
-		}
-		var valors = consulta.getFiltreValors().values();
-		var filtreCapcaleraCreat = false;
-		List<FiltreValor> filtresValor = new ArrayList<>();
-		for (var filtre : valors) {
-			// Si hi han 2 filtres capçalera, només es queda el primer que li passa
-			if (filtre instanceof FiltreCapcalera && !filtreCapcaleraCreat) {
-				// $match filtresCapcalera
-				operations.add(crearFiltreCapcalera((FiltreCapcalera) filtre));
-				filtreCapcaleraCreat = true;
-			} else if (filtre instanceof FiltreValor) {
-				filtresValor.add((FiltreValor) filtre); // Es guarden per pasar a la pipeline després del $lookup
-			}
+		 	operations.add(crearFiltreEntornIdTipusId(consulta.getEntornId(), consulta.getExpedientTipusId()));
 		}
 
+		List<FiltreValor> filtresValor = new ArrayList<>();
+		if (consulta.getFiltreValors() != null) {
+			var valors = consulta.getFiltreValors().values();
+			var filtreCapcaleraCreat = false;
+			for (var filtre : valors) {
+				// Si hi han 2 filtres capçalera, només es queda el primer que li passa
+				if (filtre instanceof FiltreCapcalera && !filtreCapcaleraCreat) {
+					// $match filtresCapcalera
+					operations.add(crearFiltreCapcalera((FiltreCapcalera) filtre));
+					filtreCapcaleraCreat = true;
+				} else if (filtre instanceof FiltreValor) {
+					filtresValor.add((FiltreValor) filtre); // Es guarden per pasar a la pipeline després del $lookup
+				}
+			}
+		}
 		// $lookup
 		operations.add(Aggregation.lookup(Collections.DADA.getNom(), Capcalera.EXPEDIENT_ID.getCamp(),
 				Capcalera.EXPEDIENT_ID.getCamp(), Capcalera.DADES.getCamp()));
@@ -221,24 +225,27 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 				continue;
 			}
 
-			// La columna és tipus DadaValor es busca pel seu codi
+			// La columna és del tipus Dada. columna.getNom() ha de contenir el codi a buscar
 			codisDadaValor.add(columna.getNom());
 			if (columna.getOrdre() != null) {
 				columna.setNom(Dada.CODI.getCamp());
 				ordres.add(columna);
 			}
 		}
-		ProjectionOperation projection = Aggregation.project(Fields.fields(cols.toArray(new String[cols.size()])))
-				.and(Filter.filter("dades").as("dades")
-						.by(In.arrayOf(codisDadaValor).containsValue("$$dades." + Dada.CODI.getCamp())))
-				.as("dades");
+		ProjectionOperation projection = Aggregation.project(Fields.fields(cols.toArray(new String[cols.size()])));
+		if (!codisDadaValor.isEmpty()) { // Es filtraran les  dades en funcio del seu codi
+			projection.and(ArrayOperators.Filter.filter("dades").as("dades")
+					.by(ArrayOperators.In.arrayOf(codisDadaValor).containsValue("$$dades." + Dada.CODI.getCamp())))
+					.as("dades"); // TODO Falta repassar el codi per filtrar les columnes de les dades
+		}
+
 		operations.add(projection);
 		operations.add(crearSortOperation(ordres));
 	}
 
 	/**
 	 * Crea la $sort per la llista de columnes demanades
-	 * Actualment només ordena per els camps de capçalera. Falta completar el TO DO si s'escau
+	 * Actualment només ordena per els camps de capçalera. Falta completar el TODO
 	 * @param ordres llista de columnes i l'ordre que han de tenir 
 	 * @return Retorna la AggregationOperation Sort amb els ordres desitjats.
 	 */
@@ -252,18 +259,15 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 				continue;
 			}
 			if (ordre.getOrdre().getTipus().equals(Collections.EXPEDIENT)) {
-				orders.add(new Order(
-						ordre.getOrdre().getDireccio().equals(DireccioOrdre.ASC) ? Direction.ASC : Direction.DESC,
-						ordre.getNom()));
-			} else {
-				System.out.println("ORDE TIPUS DADA ---> " + ordre.getNom());
-				// TODO falta la part que no son camps de capçalera
-//			db.expedient.aggregate([
-//			                        {$sort: {"expedientId": -1, "_id": 1}},
-//			                        {$match: {entornId: 1}},
-//			                        {$match: {tipusId: 3}}
-//			                    ])
+				// TODO CONTINUAR BUSCANT COM ORDENAR LES DADES, TAMBE VEURE A HELIUM COM GUARDAR ELS DIFERENTS TIPUS I INTEGRAR-HO
+				var nom = ordre.getNom().equals(Capcalera.DADES.getCamp()) ? "$$dades." + Dada.VALOR.getCamp() : ordre.getNom();
+				orders.add(new Order(ordre.getOrdre().getDireccio().equals(DireccioOrdre.ASC) ? Direction.ASC : Direction.DESC, nom));
+				continue;
 			}
+
+//			System.out.println("ORDE TIPUS DADA ---> " + ordre.getNom());
+//			// TODO falta la part que no son camps de capçalera
+//			orders.add(new Order(ordre.getOrdre().getDireccio().equals(DireccioOrdre.ASC) ? Direction.ASC : Direction.DESC,"dades"));
 		}
 		orders.add(new Order(Direction.ASC, Capcalera.ID.getCamp()));
 		return Aggregation.sort(Sort.by(orders));

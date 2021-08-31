@@ -47,7 +47,7 @@ public class DadaRepositoryTest {
         	dada.setExpedientId(unLong);
 			dada.setMultiple(false);
 			dada.setProcesId(unLong + "");
-			dada.setTipus(Tipus.String);
+			dada.setTipus(Tipus.STRING);
         	if (foo == 1) {
         		dadaMock = dada;
         		codiMock = codi + foo;

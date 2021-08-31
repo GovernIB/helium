@@ -8,11 +8,14 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 /**
- * Classe utilitzada per serialitzar els elements l'atribut valor de {@link es.caib.helium.dada.domain.Dada}
+ * Classe utilitzada per serialitzar els elements l'atribut valor de {@link es.caib.helium.client.dada.model.Dada}
  */
 @JsonTypeInfo (use = JsonTypeInfo.Id.NAME, include = As.PROPERTY, property = "tipusValor")
-@JsonSubTypes ({@Type (value = ValorRegistre.class, name = "valorRegistre"), 
-	@Type (value = ValorSimple.class, name = "valorSimple")})
+@JsonSubTypes ({
+		@Type (value = ValorRegistre.class, name = "valorRegistre"),
+		@Type (value = ValorSimple.class, name = "valorSimple"),
+		@Type (value = ValorDate.class, name = "valorDate"),
+		@Type (value = ValorPreu.class, name = "valorPreu")})
 @Document
 public abstract class Valor {
 

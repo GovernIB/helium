@@ -86,7 +86,7 @@ public class DadaExpedientControllerTest {
 			dada.setExpedientId(unLong);
 			dada.setCodi(cod + foo);
 			dada.setProcesId(unLong + "");
-			dada.setTipus(Tipus.String);
+			dada.setTipus(Tipus.STRING);
 			if (foo == 0) {
 				dadaMock = dada;
 			}

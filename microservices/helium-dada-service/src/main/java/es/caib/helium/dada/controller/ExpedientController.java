@@ -337,7 +337,7 @@ public class ExpedientController {
 			@PathVariable("expedientId") Long expedientId,
 			@PathVariable("procesId") String procesId,
 			@PathVariable("codi") String codi, 
-			@Valid @RequestBody Dada dada) throws Exception {
+			@RequestBody Dada dada) throws Exception {
 
 		if (!expedientService.putDadaByExpedientIdProcesIdAndCodi(expedientId, procesId, codi, dada)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
