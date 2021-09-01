@@ -1,6 +1,6 @@
 package es.caib.helium.camunda.service;
 
-import es.caib.helium.camunda.model.WTaskInstance;
+import es.caib.helium.client.engine.model.WTaskInstance;
 
 import java.util.List;
 

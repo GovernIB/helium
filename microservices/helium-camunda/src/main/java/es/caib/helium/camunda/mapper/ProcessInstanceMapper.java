@@ -1,8 +1,8 @@
 package es.caib.helium.camunda.mapper;
 
-import es.caib.helium.camunda.model.ProcessInstanceDto;
-import es.caib.helium.camunda.model.WProcessInstance;
 import es.caib.helium.camunda.service.HeliumDataService;
+import es.caib.helium.client.engine.model.ProcessInstanceDto;
+import es.caib.helium.client.engine.model.WProcessInstance;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.mapstruct.Mapper;

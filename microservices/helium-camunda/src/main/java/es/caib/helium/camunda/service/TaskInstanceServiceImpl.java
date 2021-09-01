@@ -1,9 +1,9 @@
 package es.caib.helium.camunda.service;
 
 import es.caib.helium.camunda.mapper.TaskInstanceMapper;
-import es.caib.helium.camunda.model.WTaskInstance;
 import es.caib.helium.camunda.model.bridge.CampTascaDto;
 import es.caib.helium.camunda.model.bridge.CampTipusDto;
+import es.caib.helium.client.engine.model.WTaskInstance;
 import lombok.RequiredArgsConstructor;
 import org.camunda.bpm.engine.ActivityTypes;
 import org.camunda.bpm.engine.HistoryService;

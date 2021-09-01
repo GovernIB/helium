@@ -1,14 +1,12 @@
 package es.caib.helium.client.expedient.proces;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import com.fasterxml.jackson.databind.JsonNode;
-
 import es.caib.helium.client.expedient.proces.model.ConsultaProcesDades;
 import es.caib.helium.client.expedient.proces.model.ProcesDto;
 import es.caib.helium.client.model.PagedList;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public interface ProcesClientService {
@@ -34,3 +32,4 @@ public interface ProcesClientService {
 	/** Consulta únicament l'identificador de l'expedent per a una instància */
 	public Long getProcesExpedientId(String processInstanceId);
 }
+

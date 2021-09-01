@@ -1,23 +1,5 @@
 package es.caib.helium.expedient.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.validation.ValidationException;
-
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-
 import es.caib.helium.expedient.domain.Expedient;
 import es.caib.helium.expedient.domain.Proces;
 import es.caib.helium.expedient.domain.Responsable;
@@ -35,6 +17,22 @@ import es.caib.helium.ms.helper.ServiceHelper;
 import es.caib.helium.ms.model.PagedList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+import javax.validation.ValidationException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -71,19 +69,21 @@ public class TascaServiceImpl implements TascaService {
         if (tasca.getResponsables() != null) {
         	tasca.getResponsables().clear();
         }
-        
-        if (tascaDto.getExpedientId() != null) {
-        	Optional<Expedient> expedientOptional = expedientRepository.findById(tascaDto.getExpedientId());
-        	if (expedientOptional.isPresent()) {
-        		tasca.setExpedient(expedientOptional.get());
-        	}
-        }        
+
         if (tascaDto.getProcesId() != null) {
-        	Optional<Proces> procesOptional = procesRepository.findById(tascaDto.getProcesId());
-        	if (procesOptional.isPresent()) {
-        		tasca.setProces(procesOptional.get());
-        	}
-        }        
+            Optional<Proces> procesOptional = procesRepository.findById(tascaDto.getProcesId());
+            if (procesOptional.isPresent()) {
+                tasca.setProces(procesOptional.get());
+                tasca.setExpedient(procesOptional.get().getExpedient());
+            }
+        }
+
+        if (tasca.getExpedient() != null && tascaDto.getExpedientId() != null) {
+            Optional<Expedient> expedientOptional = expedientRepository.findById(tascaDto.getExpedientId());
+            if (expedientOptional.isPresent()) {
+                tasca.setExpedient(expedientOptional.get());
+            }
+        }
         log.debug("[SRV] Validant tasca");
         validateTasca(tasca);
                 
@@ -102,7 +102,9 @@ public class TascaServiceImpl implements TascaService {
             }           
         }
         tascaDto = tascaMapper.entityToDto(tasca);
-        tascaDto.setExpedientId(tasca.getExpedient().getId());
+        if (tasca.getExpedient() != null) {
+            tascaDto.setExpedientId(tasca.getExpedient().getId());
+        }
 		return tascaDto;
     }
 
@@ -259,9 +261,9 @@ public class TascaServiceImpl implements TascaService {
         if (tasca.getId() == null || tasca.getId().isEmpty()) {
             errors.put("id", "El camp no pot ser null");
         }
-        if (tasca.getExpedient() == null) {
-            errors.put("expedient", "El camp no pot ser null");        	
-        }
+//        if (tasca.getExpedient() == null) {
+//            errors.put("expedient", "El camp no pot ser null");
+//        }
         if (tasca.getProces() == null) {
             errors.put("proces", "El camp no pot ser null");
         }

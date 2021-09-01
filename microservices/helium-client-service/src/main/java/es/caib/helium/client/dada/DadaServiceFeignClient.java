@@ -18,14 +18,14 @@ import java.util.List;
 public interface DadaServiceFeignClient {
 
 	// Métodes de consulta
-	
+
 	@RequestMapping(method = RequestMethod.POST, value = DadaMsApiPath.CONSULTA_RESULTATS)
 	ResponseEntity<PagedList<Expedient>> consultaResultatsPaginats(
 			@RequestParam("entornId") Integer entornId,
 			@RequestParam("expedientTipusId") Integer expedientTipusId, 
 			@RequestParam("page") Integer page,
 			@RequestParam("size") Integer size, @RequestBody Consulta consulta);
-	
+
 	@RequestMapping(method = RequestMethod.POST, value = DadaMsApiPath.CONSULTA_RESULTATS_LLISTAT)
 	ResponseEntity<List<Expedient>> consultaResultatsLlistat(
 			@RequestParam("entornId") Integer entornId,
@@ -33,7 +33,9 @@ public interface DadaServiceFeignClient {
 			@RequestBody Consulta consulta);
 	
 //	// Gestió dades capçalera de l'expedient
-	
+
+//	@CircuitBreaker(name = DadaMsApiPath.NOM_SERVEI, fallbackMethod = "getExpedientFallback")
+//	@Retry(name = DadaMsApiPath.NOM_SERVEI, fallbackMethod = "getExpedientFallback")
 	@RequestMapping(method = RequestMethod.GET, value = DadaMsApiPath.GET_BY_EXPEDIENT_ID)
 	ResponseEntity<Expedient> getExpedient(@PathVariable("expedientId") Long expedientId);
 
@@ -91,7 +93,9 @@ public interface DadaServiceFeignClient {
 	ResponseEntity<Dada> getDadaByProcesAndCodi(
 			@PathVariable("procesId") String procesId,
 			@PathVariable("codi") String codi);
-	
+
+//	@CircuitBreaker(name = DadaMsApiPath.NOM_SERVEI, fallbackMethod = "getDadaExpedientIdByProcesIdFallback")
+//	@Retry(name = DadaMsApiPath.NOM_SERVEI, fallbackMethod = "getDadaExpedientIdByProcesIdFallback")
 	@RequestMapping(method = RequestMethod.GET, value = DadaMsApiPath.GET_EXPEDIENT_ID_BY_PROCES_ID)
 	ResponseEntity<Long> getDadaExpedientIdByProcesId(@PathVariable("procesId") String procesId);
 	
@@ -130,5 +134,16 @@ public interface DadaServiceFeignClient {
 			@PathVariable("expedientId") Long expedientId,
 			@PathVariable("procesId") String procesId,
 			@PathVariable("codi") String codi); 
-	
+
+
+
+//	// Resilience
+//
+//	default ResponseEntity<Expedient> getExpedientFallback(Long expedientId) {
+//		return new ResponseEntity<>(null, HttpStatus.OK);
+//	}
+//
+//	default ResponseEntity<Long> getDadaExpedientIdByProcesIdFallback(String procesId) {
+//		return new ResponseEntity<>(null, HttpStatus.OK);
+//	}
 }

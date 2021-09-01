@@ -1,11 +1,17 @@
 package es.caib.helium.expedient.service;
 
 import es.caib.helium.expedient.domain.Expedient;
+import es.caib.helium.expedient.domain.Proces;
+import es.caib.helium.expedient.domain.Tasca;
 import es.caib.helium.expedient.mapper.ExpedientMapper;
 import es.caib.helium.expedient.model.ExpedientDto;
 import es.caib.helium.expedient.model.ExpedientEstatTipusEnum;
 import es.caib.helium.expedient.repository.ExpedientRepository;
 import es.caib.helium.expedient.repository.ExpedientSpecifications;
+import es.caib.helium.expedient.repository.ProcesRepository;
+import es.caib.helium.expedient.repository.ProcesSpecifications;
+import es.caib.helium.expedient.repository.TascaRepository;
+import es.caib.helium.expedient.repository.TascaSpecifications;
 import es.caib.helium.ms.helper.ServiceHelper;
 import es.caib.helium.ms.model.PagedList;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +40,8 @@ import java.util.stream.Collectors;
 public class ExpedientServiceImpl implements ExpedientService {
 
     private final ExpedientRepository expedientRepository;
+    private final ProcesRepository procesRepository;
+    private final TascaRepository tascaRepository;
     private final ExpedientMapper expedientMapper;
 
     @Override
@@ -71,7 +79,24 @@ public class ExpedientServiceImpl implements ExpedientService {
         Expedient expedient = expedientMapper.dtoToEntity(expedientDto);
         log.debug("[SRV] Validant expedient");
         validateExpedient(expedient);
-        return expedientMapper.entityToDto(expedientRepository.save(expedient));
+        expedient = expedientRepository.save(expedient);
+
+        // Actualitzam tasques i processos amb l'expedientId
+        var processos = procesRepository.findAll(ProcesSpecifications.processArrelIdLike(expedient.getProcessInstanceId()));
+        if (processos != null) {
+            var procesIds = new ArrayList<String>();
+            for (Proces proces: processos) {
+                proces.setExpedient(expedient);
+                procesIds.add(proces.getId());
+            }
+            var tasques = tascaRepository.findAll(TascaSpecifications.inProcesses(procesIds));
+            if (tasques != null) {
+                for (Tasca tasca: tasques) {
+                    tasca.setExpedient(expedient);
+                }
+            }
+        }
+        return expedientMapper.entityToDto(expedient);
     }
 
     @Override
@@ -130,7 +155,18 @@ public class ExpedientServiceImpl implements ExpedientService {
 
         // TODO: Comprovar permisos sobre tipus d'expedient i entorn ??
         // TODO: Comprovar si el expedient està sent utilitzat en algun camp
-        getExpedientById(expedientId);
+        var expedient = getExpedientById(expedientId);
+
+        // Eliminam tasques i processos de l'expedient
+        var processos = procesRepository.findAll(ProcesSpecifications.processArrelIdLike(expedient.getProcessInstanceId()));
+        if (processos != null) {
+            var tasques = tascaRepository.findAll(TascaSpecifications.inProcesses(
+                    processos.stream().map(p -> p.getId()).collect(Collectors.toList())));
+            if (tasques != null) {
+                tascaRepository.deleteAll(tasques);
+            }
+            procesRepository.deleteAll(processos);
+        }
         expedientRepository.delete(expedientId);
     }
 

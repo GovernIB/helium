@@ -1,8 +1,8 @@
 package es.caib.helium.camunda.controller;
 
-import es.caib.helium.camunda.model.WProcessInstance;
 import es.caib.helium.camunda.service.ProcessInstanceService;
 import es.caib.helium.client.engine.model.ProcessStartData;
+import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.model.OptionalString;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

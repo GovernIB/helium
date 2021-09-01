@@ -1,6 +1,7 @@
 package es.caib.helium.camunda.config;
 
 import es.caib.helium.camunda.listener.HeliumHistoryEventHandler;
+import es.caib.helium.camunda.plugin.HeliumIdentityPlugin;
 import es.caib.helium.camunda.plugin.HeliumListenerPlugin;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.BpmPlatform;
@@ -45,6 +46,10 @@ public class CamundaContextConfig implements WebMvcConfigurer {
     private CamundaBpmProperties properties;
     @Autowired
     private ApplicationEventPublisher publisher;
+    @Autowired
+    private HeliumListenerPlugin heliumListenerPlugin;
+    @Autowired
+    private HeliumIdentityPlugin heliumIdentityPlugin;
 
 //    @Bean
 //    public DataSource dataSource() {
@@ -78,8 +83,11 @@ public class CamundaContextConfig implements WebMvcConfigurer {
         config.setJdbcBatchProcessing(false);
         config.setIdGenerator(new StrongUuidGenerator());
 
+        // Custom identity provider
+        config.getProcessEnginePlugins().add(heliumIdentityPlugin);
+
         // Capturar els events
-        config.getProcessEnginePlugins().add(new HeliumListenerPlugin());
+        config.getProcessEnginePlugins().add(heliumListenerPlugin);
         var compositeDbHistoryEventHandler = new CompositeDbHistoryEventHandler(new HeliumHistoryEventHandler());
         config.setHistoryEventHandler(compositeDbHistoryEventHandler);
         config.getProcessEnginePlugins().add(new EventPublisherPlugin(properties.getEventing(), publisher));
