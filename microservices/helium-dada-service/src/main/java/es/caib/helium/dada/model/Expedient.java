@@ -32,6 +32,8 @@ public class Expedient {
 	private Long tipusId;
 	@Size(max = 64) 
 	private String numero;
+	@Size(max = 64)
+	private String numeroDefault;
 	@Size(max = 255)
 	private String titol;
 	@NotNull

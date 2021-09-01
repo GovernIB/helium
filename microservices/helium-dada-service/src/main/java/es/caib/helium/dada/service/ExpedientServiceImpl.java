@@ -226,6 +226,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			exp.get().setEntornId(expedient.getEntornId());
 			exp.get().setTipusId(expedient.getTipusId());
 			exp.get().setNumero(expedient.getNumero());
+			exp.get().setNumeroDefault(expedient.getNumeroDefault());
 			exp.get().setTitol(expedient.getTitol());
 			exp.get().setProcesPrincipalId(expedient.getProcesPrincipalId());
 			exp.get().setEstatId(expedient.getEstatId());
@@ -260,6 +261,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				exp.get().setEntornId(expedient.getEntornId());
 				exp.get().setTipusId(expedient.getTipusId());
 				exp.get().setNumero(expedient.getNumero());
+				exp.get().setNumeroDefault(expedient.getNumeroDefault());
 				exp.get().setTitol(expedient.getTitol());
 				exp.get().setProcesPrincipalId(expedient.getProcesPrincipalId());
 				exp.get().setEstatId(expedient.getEstatId());
@@ -300,6 +302,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 			exp.setTipusId(expedient.getTipusId() != null ? expedient.getTipusId() : exp.getTipusId());
 			exp.setNumero(expedient.getNumero() != null && !expedient.getNumero().isEmpty() 
 					&& expedient.getNumero().length() <= ValorsValidacio.TITOL_MAX_LENGTH.getValor() ? expedient.getNumero() : exp.getNumero());
+			exp.setNumeroDefault(expedient.getNumeroDefault() != null && !expedient.getNumeroDefault().isEmpty()
+					&& expedient.getNumeroDefault().length() <= ValorsValidacio.TITOL_MAX_LENGTH.getValor() ? expedient.getNumeroDefault() : exp.getNumeroDefault());
 			exp.setTitol(expedient.getTitol() != null && !expedient.getTitol().isEmpty()
 					&& expedient.getTitol().length() <= ValorsValidacio.TITOL_MAX_LENGTH.getValor() ? expedient.getTitol() : exp.getTitol());
 			exp.setProcesPrincipalId(expedient.getProcesPrincipalId() != null ? expedient.getProcesPrincipalId()
