@@ -12,10 +12,18 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * de tramitació d'helium quan es creïn, esborrin o modifiquin expedients, tasques i usuaris assignats.
  *
  */
-@EnableFeignClients
-@SpringBootApplication(exclude = {
-		org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class,
-		org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration.class}
+@EnableFeignClients(
+		basePackages = {"es.caib.helium.client"}
+)
+@SpringBootApplication(
+		exclude = {
+				org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class,
+				org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration.class
+		},
+		scanBasePackages = {
+				"es.caib.helium.expedient",
+				"es.caib.helium.client"
+		}
 )
 public class HeliumExpedientServiceApplication {
 

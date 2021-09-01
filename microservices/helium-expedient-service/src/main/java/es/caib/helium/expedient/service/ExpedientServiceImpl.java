@@ -1,5 +1,6 @@
 package es.caib.helium.expedient.service;
 
+import es.caib.helium.client.dada.DadaClient;
 import es.caib.helium.expedient.domain.Expedient;
 import es.caib.helium.expedient.domain.Proces;
 import es.caib.helium.expedient.domain.Tasca;
@@ -42,6 +43,7 @@ public class ExpedientServiceImpl implements ExpedientService {
     private final ExpedientRepository expedientRepository;
     private final ProcesRepository procesRepository;
     private final TascaRepository tascaRepository;
+    private final DadaClient dadaClient;
     private final ExpedientMapper expedientMapper;
 
     @Override
@@ -96,6 +98,20 @@ public class ExpedientServiceImpl implements ExpedientService {
                 }
             }
         }
+
+        // Cridar a MS Dades x crear la capçalera de l'expedient
+        dadaClient.crearExpedient(es.caib.helium.client.dada.model.Expedient.builder()
+                .expedientId(expedientDto.getId())
+                .entornId(expedientDto.getEntornId())
+                .tipusId(expedientDto.getExpedientTipusId())
+                .numero(expedientDto.getNumero())
+                .numeroDefault(expedientDto.getNumeroDefault())
+                .titol(expedientDto.getTitol())
+                .procesPrincipalId(expedientDto.getProcessInstanceId())
+                .estatId(expedientDto.getEstatId() != null ? expedientDto.getEstatId().intValue() : 0)
+                .dataInici(expedientDto.getDataInici())
+                .dataFi(expedientDto.getDataFi())
+                .build());
         return expedientMapper.entityToDto(expedient);
     }
 
