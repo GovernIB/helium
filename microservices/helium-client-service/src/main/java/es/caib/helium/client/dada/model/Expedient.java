@@ -1,15 +1,17 @@
 package es.caib.helium.client.dada.model;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.List;
 
-@Getter
-@Setter
-@ToString
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Expedient {
 
 	private String id;
@@ -17,6 +19,7 @@ public class Expedient {
 	private Long entornId;
 	private Long tipusId;
 	private String numero;
+	private String numeroDefault;
 	private String titol;
 	private String procesPrincipalId;
 	private Integer estatId;
