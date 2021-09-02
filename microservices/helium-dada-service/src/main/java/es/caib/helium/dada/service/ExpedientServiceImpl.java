@@ -6,6 +6,8 @@ import es.caib.helium.dada.model.Consulta;
 import es.caib.helium.dada.model.Dada;
 import es.caib.helium.dada.model.Expedient;
 import es.caib.helium.dada.model.PagedList;
+import es.caib.helium.dada.model.ValorRegistre;
+import es.caib.helium.dada.model.ValorSimple;
 import es.caib.helium.dada.repository.DadaRepository;
 import es.caib.helium.dada.repository.ExpedientRepository;
 import lombok.RequiredArgsConstructor;
@@ -674,25 +676,75 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 		try {
 			var dadaOptional = dadaRepository.findByExpedientIdAndProcesIdAndCodi(expedientId, procesId, codi);
-			if (dadaOptional.isEmpty()) { // TODO REVISAR SI CAL TREURE AQUEST CODI, POT CREAR DADES EN CASOS QUE HAURIEN DE SER ERROR
-				List<Dada> dades = new ArrayList<>();
-				dada.setCodi(codi);
-				dades.add(dada);
- 				return createDades(expedientId, procesId, dades);
-			}
+//			if (dadaOptional.isEmpty()) { // TODO REVISAR SI CAL TREURE AQUEST CODI, POT CREAR DADES EN CASOS QUE HAURIEN DE SER ERROR
+//				List<Dada> dades = new ArrayList<>();
+//				dada.setCodi(codi);
+//				dades.add(dada);
+// 				return createDades(expedientId, procesId, dades);
+//			}
 			var dadaMongo = dadaOptional.get();
+			if (dada.getValor().size() != dadaMongo.getValor().size()) {
+				var error = "Error al actualitzar la dada del procesId " + procesId + " amb codi " + codi
+						+ " -> No coincideix la mida dels valors a actualitzar amb els guardats";
+				log.error(error);
+				throw new DadaException(error);
+			}
+			for (var foo = 0; foo < dadaMongo.getValor().size(); foo++) {
+				var valorAntic = dadaMongo.getValor().get(foo);
+				var valorNou = dada.getValor().get(foo);
+				if (valorAntic instanceof ValorSimple && valorNou instanceof ValorSimple) {
+					((ValorSimple) valorAntic).setValor(((ValorSimple)valorNou).getValor());
+				} else if (valorAntic instanceof ValorRegistre && valorNou instanceof ValorRegistre) {
+					var valorRegistreAntic = (ValorRegistre) valorAntic;
+					var valorRegistreNou = (ValorRegistre) valorNou;
+					actualitzarValorRegistre(valorRegistreAntic, valorRegistreNou);
+
+				} else { // TODO MS: COMPROVAR VALOR REGISTRE NO PETA AL FER UPDATE I ACTUALITZA BE
+					var error = "El Tipus de la dada " + foo + " no és l'esperat";
+					log.error(error);
+					throw new DadaException(error);
+				}
+			}
+
 			dadaMongo.setMultiple(dada.isMultiple());
 			dadaMongo.setTipus(dada.getTipus() != null ? dada.getTipus() : dadaMongo.getTipus());
-			dadaMongo.setValor(dada.getValor());
-			dadaRepository.save(dadaMongo);
-			log.debug("Dada actualitzada (put) per l'expedientId " 
-					+ expedientId + " amb procesId " + procesId + " i codi " + codi);
+			dadaRepository.updateDada(dadaMongo);
+			log.debug("Dada actualitzada (put) per l'expedientId " + expedientId + " amb procesId " + procesId + " i codi " + codi);
 			return true;
 		} catch (Exception ex) {
-			var error = "Error al actualitzar (put) la dada per l'expedient "
-					+ expedientId + " amb procesId " + procesId + " i codi " + codi;
+			var error = "Error al actualitzar (put) la dada per l'expedient " + expedientId + " amb procesId " + procesId + " i codi " + codi;
 			log.error(error, ex);
 			throw new DadaException(error, ex);
+		}
+	}
+
+	private void actualitzarValorRegistre(ValorRegistre valorAntic, ValorRegistre valorNou) throws DadaException {
+
+		if (valorAntic.getCamps().size() != valorNou.getCamps().size()) {
+			var error = "La mida dels camps no és la mateixa. Esperat "
+					+ valorAntic.getCamps().size() + " - Rebut : " + valorNou.getCamps().size();
+			log.error(error);
+			throw new DadaException(error);
+		}
+		for (var foo = 0; foo < valorAntic.getCamps().size(); foo++) {
+			var dadaAntiga = valorAntic.getCamps().get(foo);
+			var dadaNova = valorNou.getCamps().get(foo);
+			if (dadaAntiga.getValor().size() != dadaNova.getValor().size()) {
+				var error = "El nombre de valors no és el mateix. Esperat "
+						+ valorAntic.getCamps().size() + " - Rebut : " + valorNou.getCamps().size();
+				log.error(error);
+				throw new DadaException(error);
+			}
+			for (var bar = 0; bar < dadaAntiga.getValor().size(); bar++) {
+				var valorSimpleAntic = dadaAntiga.getValor().get(bar);
+				var valorSimpleNou = dadaNova.getValor().get(bar);
+				if (!(valorSimpleAntic instanceof ValorSimple) || !(valorSimpleNou instanceof ValorSimple)) {
+					var error = "El Tipus de la dada " + bar + " no és l'esperat";
+					log.error(error);
+					throw new DadaException(error);
+				}
+				((ValorSimple) valorSimpleAntic).setValor(((ValorSimple)valorSimpleNou).getValor());
+			}
 		}
 	}
 

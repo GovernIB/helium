@@ -110,7 +110,6 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				WorkflowRetroaccioApi.ExpedientRetroaccioTipus.PROCES_VARIABLE_CREAR,
 				varCodi);
 		var camp = optimitzarValorPerConsultesDominiGuardar(expedient.getTipus(), processInstanceId, varCodi, varValor);
-//		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 		Registre registre = crearRegistreInstanciaProces(
 				expedientId,
 				processInstanceId,
@@ -129,10 +128,10 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		}
 	}
 
-	private List<Dada> prepararDades(String varCodi, Object varValor, Camp camp) {
+	private List<Dada> prepararDades(String varCodi, Object varValor, Camp camp) throws Exception{
 
-		if (!ObjectUtils.containsConstant(Tipus.values(), camp.getTipus().name())) {
-			return new ArrayList<>(); // TODO PREGUNTAR SI LLENÇAR EXCEPCIO
+		if (camp == null || !ObjectUtils.containsConstant(Tipus.values(), camp.getTipus().name())) {
+			throw new Exception("Error preparant les dades camp " + camp);
 		}
 		var dades = new ArrayList<Dada>();
 		var dada = new Dada();
@@ -155,21 +154,20 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 			valor.setValor(valorString);
 			valor.setValorText(valorString);
 			valors.add(valor);
-		}
+		} // TODO MS: FALTA AFEGIR ELS VALORS DE REGISTRE
 		dada.setValor(valors);
 		dades.add(dada);
 		return dades;
 	}
 
 	private String getStringFromObject(Object o) {
-		// TODO CANVIAR EL TOO STRING PER EL QUE CORRESPONGUI
-
+		// TODO MS: CANVIAR EL TOO STRING PER EL QUE CORRESPONGUI
 		if (o == null) {
 			return "";
 		}
 
 		if (o instanceof Date) {
-			DateFormat dataFormat = new SimpleDateFormat("dd/MM/yyyy");
+			DateFormat dataFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss:SSS ");
 			Date today = Calendar.getInstance().getTime();
 			return dataFormat.format(today);
 		}
@@ -207,20 +205,6 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		valors.add(valor);
 		dada.setValor(valors);
 		dadaClient.putDadaByExpedientIdProcesIdAndCodi(expedientId, processInstanceId, varCodi, dada);
- //		workflowEngineApi.deleteProcessInstanceVariable(processInstanceId, varCodi);>
-		// Esborra la descripció per variables que mantenen el valor de la consulta
-//		Camp camp;
-//		InstanciaProcesDto instanciaProces = expedientHelper.getInstanciaProcesById(processInstanceId);
-//		DefinicioProces definicioProces = definicioProcesRepository.getById(instanciaProces.getDefinicioProces().getId());
-//		if (expedient.getTipus().isAmbInfoPropia()) {
-//			// obtenir el camp amb expedient tipus codi i codi de la variable
-//			camp = campRepository.findByExpedientTipusAndCodi(expedient.getTipus().getId(), varCodi, expedient.getTipus().getExpedientTipusPare() != null);
-//		}else {
-//			camp = campRepository.findByDefinicioProcesAndCodi(definicioProces, varCodi);
-//		}
-//		if (camp != null && camp.isDominiCacheText())
-//			workflowEngineApi.deleteProcessInstanceVariable(processInstanceId, Constants.PREFIX_VAR_DESCRIPCIO + varCodi);
-
 		workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 				processInstanceId,
 				WorkflowRetroaccioApi.ExpedientRetroaccioTipus.PROCES_VARIABLE_MODIFICAR,
@@ -230,7 +214,6 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				processInstanceId,
 				varCodi,
 				varValor);
-	//	indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 		Registre registre = crearRegistreInstanciaProces(
 				expedientId,
 				processInstanceId,
@@ -267,26 +250,6 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				varCodi);
 
 		dadaClient.deleteDadaByExpedientIdAndProcesIdAndCodi(expedientId, processInstanceId, varCodi);
-		//workflowEngineApi.deleteProcessInstanceVariable(processInstanceId, varCodi);
-		// Esborra la descripció per variables que mantenen el valor de la consulta
-//		Camp camp;
-//		InstanciaProcesDto instanciaProces = expedientHelper.getInstanciaProcesById(processInstanceId);
-//		DefinicioProces definicioProces = definicioProcesRepository.getById(instanciaProces.getDefinicioProces().getId());
-//		if (e.getTipus().isAmbInfoPropia()) {
-//			// obtenir el camp amb expedient tipus codi i codi de la variable
-//			camp = campRepository.findByExpedientTipusAndCodi(e.getTipus().getId(), varCodi, e.getTipus().getExpedientTipusPare() != null);
-//		}else {
-//			camp = campRepository.findByDefinicioProcesAndCodi(definicioProces, varCodi);
-//		}
-//		if (camp != null && camp.isDominiCacheText()) {
-//			workflowEngineApi.deleteProcessInstanceVariable(processInstanceId, Constants.PREFIX_VAR_DESCRIPCIO + varCodi);
-//		}
-//		if (e.getTipus().isAmbInfoPropia()) {
-//			indexHelper.expedientIndexLuceneDelete(processInstanceId, varCodi);
-//		} else {
-//			indexHelper.expedientIndexLuceneDelete(processInstanceId, definicioProces.getJbpmKey() + "." + varCodi);
-//		}
-//
 		Registre registre = crearRegistreInstanciaProces(
 				expedientId,
 				processInstanceId,

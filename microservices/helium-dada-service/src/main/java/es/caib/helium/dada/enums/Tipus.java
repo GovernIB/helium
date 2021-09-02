@@ -3,24 +3,24 @@ package es.caib.helium.dada.enums;
 import lombok.Getter;
 
 /**
- * Enum representant els diferentgs tipus que pot tenir una dada
+ * Enum representant els diferentS tipus que pot tenir una dada
  */
 @Getter
 public enum Tipus {
 
-	LONG("Long"),
-	STRING("String"),
-	DATE("Date"),
-	FLOAT("Float"),
-	TERMINI("Termini"),
-	PRICE("Preu"),
-	INTEGER("Integer"),
-	BOOLEAN("Boolean"),
-	TEXTAREA("TextArea"),
-	REGISTRE("Registre"),
-	SELECCIO("Seleccio"),
-	SUGGEST("Suggest"),
-	ACCIO("Accio");
+	LONG("LONG"),
+	STRING("STRING"),
+	DATE("DATE"),
+	FLOAT("FLOAT"),
+	TERMINI("TERMINI"),
+	PRICE("PRICE"),
+	INTEGER("INTEGER"),
+	BOOLEAN("BOOLEAN"),
+	TEXTAREA("TEXTAREA"),
+	REGISTRE("REGISTRE"),
+	SELECCIO("SELECCIO"),
+	SUGGEST("SUGGEST"),
+	ACCIO("ACCIO");
 
 	private String valor; 
 	

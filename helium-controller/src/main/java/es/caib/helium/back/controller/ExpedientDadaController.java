@@ -261,7 +261,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 					validatorHelper.isValidarObligatoris(),
 					validatorHelper.isValidarExpresions(),
 					procesId);
-		//	validator.validate(commandValidar, result);
+			// TODO MS: DESCOMENTAR I PROVAR
+		// 	validator.validate(commandValidar, result);
 //			validatorHelper.validate(commandValidar, result);
 			if (result.hasErrors()) {
 				return "v3/expedientDadaModificar";

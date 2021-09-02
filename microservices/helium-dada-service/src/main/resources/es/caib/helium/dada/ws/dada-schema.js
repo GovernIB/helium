@@ -65,7 +65,9 @@ db.createCollection("dada", {
 				"expedientId": { bsonType: "long"},
 				"procesId": { bsonType: "string"},
 				codi: { bsonType: "string", maxLength: 255 },
-				tipus: { enum: ["Long", "String", "Date", "Float", "Termini", "Preu", "Integer", "Boolean", "Registre"]},
+				tipus: { enum: ["LONG", "STRING", "DATE", "FLOAT",
+						"TERMINI", "PRICE", "INTEGER", "BOOLEAN", "TEXTAREA",
+						"REGISTRE", "SELECCIO", "SUGGEST", "ACCIO"]},
 				multiple: { bsonType: "bool" },
 				valor: {
 					bsonType: "array",
@@ -95,7 +97,9 @@ db.createCollection("dada", {
                                         properties: {
                                             "_class": { bsonType: "string" },
                                             codi: { bsonType: "string", maxLength: 255 },
-                                            tipus: { enum: ["Long", "String", "Date", "Float", "Termini", "Preu", "Integer", "Boolean", "Registre"], maxLength: 255 },
+                                            tipus: { enum: ["LONG", "STRING", "DATE", "FLOAT",
+													"TERMINI", "PRICE", "INTEGER", "BOOLEAN", "TEXTAREA",
+													"REGISTRE", "SELECCIO", "SUGGEST", "ACCIO"] },
                                             multiple: { bsonType: "bool" },
                                             valor: {
                                                 bsonType: "array", 
