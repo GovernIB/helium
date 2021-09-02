@@ -54,7 +54,6 @@ public class ExpedientDto {
 	@JsonProperty("numero")
 	@Schema(example = "123/2021", required = true, description = "Número de l'expedient")
 	@Size(max = 64)
-	@NotEmpty
 	private String numero;
 
 	@JsonProperty("numeroDefault")

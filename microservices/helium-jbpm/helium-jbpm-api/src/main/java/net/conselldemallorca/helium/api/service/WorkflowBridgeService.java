@@ -539,4 +539,9 @@ public interface WorkflowBridgeService {
 	public void expedientEliminaInformacioRetroaccio(String processInstanceId);
 	public void afegirInstanciaProcesPerVerificarFinalitzacio(String processInstanceId);
 
+	// PROCESSOS
+	////////////////////////////////////////////////////////////////////////////////
+	void crearProces(ProcesDto proces);
+
+	
 }

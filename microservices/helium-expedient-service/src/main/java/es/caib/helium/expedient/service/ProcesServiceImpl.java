@@ -198,9 +198,6 @@ public class ProcesServiceImpl implements ProcesService {
         if (proces.getProcessDefinitionId() == null || proces.getProcessDefinitionId().isEmpty()) {
             errors.put("processDefinitionId", "El camp no pot ser null");        	
         }
-//        if (proces.getExpedient() == null) {
-//            errors.put("expedient", "El camp no pot ser null");
-//        }
         if (proces.getProcesArrel() == null) {
             errors.put("procesArrel", "El camp no pot ser null");
         }

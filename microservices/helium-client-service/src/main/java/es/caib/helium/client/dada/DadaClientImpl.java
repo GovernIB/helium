@@ -167,7 +167,7 @@ public class DadaClientImpl implements DadaClient {
 	}
 
 	@Override
-	public Dada getDadaByProcesAndCodi(String procesId, String codi) throws Exception {
+	public Dada getDadaByProcesAndCodi(String procesId, String codi) {
 		
 		log.debug(missatgeLog + " Get dada amb procesId: " + procesId + " i codi: " + codi);
 		//return Objects.requireNonNull(dadaServiceFeignClient.getDadaByProcesAndCodi(procesId, codi).getBody());
@@ -175,11 +175,11 @@ public class DadaClientImpl implements DadaClient {
 	}
 
 	@Override
-	public Long getDadaExpedientIdByProcesId(String procesId) throws Exception {
+	public Long getDadaExpedientIdByProcesId(String procesId) {
 	
 		log.debug(missatgeLog + " Get expedientId de la dada amb procesId: " + procesId);
 		var response = dadaServiceFeignClient.getDadaExpedientIdByProcesId(procesId);
-		return Objects.requireNonNull(response.getBody());
+		return response.getBody();
 	}
 
 	@Override

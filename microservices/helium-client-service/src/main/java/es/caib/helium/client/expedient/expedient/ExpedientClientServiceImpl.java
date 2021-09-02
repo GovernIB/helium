@@ -12,12 +12,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.caib.helium.client.expedient.expedient.enums.ExpedientEstatTipusEnum;
 import es.caib.helium.client.expedient.expedient.model.ConsultaExpedientDades;
 import es.caib.helium.client.expedient.expedient.model.ExpedientDto;
 import es.caib.helium.client.model.PagedList;
+import es.caib.helium.client.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -127,7 +127,7 @@ public class ExpedientClientServiceImpl implements ExpedientClientService {
 		jpb.replace("dataTipus", ExpedientEstatTipusEnum.FINALITZAT.toString());
 		expedientClient.patchExpedientV1(
 				expedientId, 
-				new ObjectMapper().valueToTree(jpb.build()));
+				JsonUtil.toJsonNode(jpb));
 	}
 	
 	@Override
@@ -149,7 +149,7 @@ public class ExpedientClientServiceImpl implements ExpedientClientService {
 
 		expedientClient.patchExpedientV1(
 				expedientId, 
-				new ObjectMapper().valueToTree(jpb.build()));
+				JsonUtil.toJsonNode(jpb));
 	}
 	
 	@Override
@@ -186,7 +186,7 @@ public class ExpedientClientServiceImpl implements ExpedientClientService {
 
 		expedientClient.patchExpedientV1(
 				expedientId, 
-				new ObjectMapper().valueToTree(jpb.build()));
+				JsonUtil.toJsonNode(jpb));
 	}
 
 }

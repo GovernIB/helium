@@ -95,13 +95,25 @@
 			<artifactId>javax.ws.rs-api</artifactId>
 			<version>2.1.1</version>
 		</dependency>
-		
+
+		<!-- Per obtenir el JsonProvider pel patch -->		
 <!--        <dependency>-->
 <!--            <groupId>javax</groupId>-->
 <!--            <artifactId>javaee-api</artifactId>-->
 <!--            <version>8.0</version>-->
 <!--            <scope>provided</scope>-->
 <!--        </dependency>-->
+		<dependency>
+		    <groupId>org.glassfish</groupId>
+		    <artifactId>javax.json</artifactId>
+		    <version>1.1.4</version>
+		</dependency>
+
+		<!-- Pel patch del feign client -->		
+		<dependency>
+		     <groupId>io.github.openfeign</groupId>
+		     <artifactId>feign-httpclient</artifactId>
+		</dependency>
 
     </dependencies>
 

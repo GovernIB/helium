@@ -313,6 +313,8 @@ public class ExpedientServiceImpl implements ExpedientService {
         }
         if (expedient.getNumero() == null || expedient.getNumero().isBlank())
             errors.put("numero", "El camp no pot ser null");
+        if (expedient.getNumeroDefault() == null || expedient.getNumeroDefault().isBlank())
+            errors.put("numeroDefault", "El camp no pot ser null");
         if (expedient.getDataInici() == null ) {
             errors.put("dataInici", "El camp no pot ser null");
         }
