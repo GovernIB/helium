@@ -105,7 +105,7 @@ public class TaskUpdateListener implements TaskListener {
         // Responsables
         hasChanged |= PatchHelper.replaceArrayProperty(jpb, "responsables", originalUsuarisCandidats, usuarisCandidats);
         // GrupsAssignat
-        hasChanged |= PatchHelper.replaceArrayProperty(jpb, "grupsAssignat", originalGrupsCandidats, grupsCandidats);
+        hasChanged |= PatchHelper.replaceArrayProperty(jpb, "grups", originalGrupsCandidats, grupsCandidats);
         // Prioritat
         hasChanged |= PatchHelper.replaceIntegerProperty(jpb, "prioritat", tascaOriginal.getPriority(), delegateTask.getPriority());
 

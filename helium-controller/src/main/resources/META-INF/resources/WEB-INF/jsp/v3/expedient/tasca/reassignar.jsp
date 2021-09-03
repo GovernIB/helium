@@ -157,7 +157,7 @@
 				</c:choose>
 			</div>
 			<div id="dexpr">
-				<c:if test="${motorTipus == 'CAMUNDA'}">
+				<c:if test="${expedientTascaReassignarCommand.motorTipus == 'CAMUNDA'}">
 					<hel:inputSelect required="true" name="expressionLanguage" textKey="filtre.expressio.expressio.llenguatge" optionItems="${languages}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 				</c:if>
 				<hel:inputText required="true" name="expression" textKey="filtre.expressio.expressio" placeholderKey="filtre.expressio.expressio"/>

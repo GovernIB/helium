@@ -36,7 +36,7 @@ public class TascaDto {
 	private Date iniciFinalitzacio;
 	private Date dataCreacio;
 	private String usuariAssignat;
-	private List<String> grupsAssignat;
+	private List<String> grups;
 	private Integer prioritat;
 	private List<ResponsableDto> responsables;
 	

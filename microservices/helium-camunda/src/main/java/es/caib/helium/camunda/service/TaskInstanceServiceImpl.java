@@ -175,7 +175,8 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
 //            }
         } else if (expression.toLowerCase().startsWith("group(")) {
             removeCandidates(taskId);   // Eliminam la assignació actual
-            // TODO: 2. Afegir la opció de group(xxx)-->member(yyy) per a cercar el càrrec yyy dins el grup xxx
+            // TODO: Afegir la opció de group(xxx)-->member(yyy) per a cercar el càrrec yyy dins el grup xxx
+            // TODO: Validar grup existeix (plugin usuaris)
             if (expression.contains(",")) {
                 List.of(expression.substring(6, expression.length() - 1).split(",")).forEach(g -> taskService.addCandidateGroup(taskId, g));
             } else {
