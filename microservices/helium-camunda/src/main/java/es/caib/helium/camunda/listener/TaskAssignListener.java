@@ -1,11 +1,20 @@
 package es.caib.helium.camunda.listener;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import es.caib.helium.camunda.helper.EngineHelper;
 import es.caib.helium.client.expedient.tasca.TascaClientService;
+import es.caib.helium.client.expedient.tasca.model.ResponsableDto;
+import es.caib.helium.client.helper.PatchHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.delegate.TaskListener;
 import org.springframework.stereotype.Component;
+
+import javax.json.Json;
+import javax.json.JsonPatchBuilder;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -14,20 +23,50 @@ public class TaskAssignListener implements TaskListener {
 
     private final TascaClientService tascaClientService;
 
-//    protected TaskAssignListener() { }
-//
-//    private static TaskAssignListener instance = null;
-//
-//    public static TaskAssignListener getInstance() {
-//        if(instance == null) {
-//            instance = new TaskAssignListener();
-//        }
-//        return instance;
-//    }
-    
     @Override
     public void notify(DelegateTask delegateTask) {
         // Publicar al MS Expedients i Tasques
         log.info("Tasca " + delegateTask.getName() + "has been assigned to " + delegateTask.getAssignee());
+
+        var tascaOriginal = EngineHelper.getInstance().getHistoryService()
+                .createHistoricTaskInstanceQuery()
+                .taskId(delegateTask.getId())
+                .singleResult();
+        var originalCandidates = EngineHelper.getInstance().getTaskService().getIdentityLinksForTask(delegateTask.getId());
+
+        List<ResponsableDto> originalUsuarisCandidats =  originalCandidates.stream()
+                .filter(c -> c.getUserId() != null)
+                .map(c -> ResponsableDto.builder().usuariCodi(c.getUserId()).build())
+                .collect(Collectors.toList());
+        List<String> originalGrupsCandidats = originalCandidates.stream()
+                .filter(c -> c.getGroupId() != null)
+                .map(c -> c.getGroupId())
+                .collect(Collectors.toList());
+
+        List<ResponsableDto> usuarisCandidats =  delegateTask.getCandidates().stream()
+                .filter(c -> c.getUserId() != null)
+                .map(c -> ResponsableDto.builder().usuariCodi(c.getUserId()).build())
+                .collect(Collectors.toList());
+        List<String> grupsCandidats = delegateTask.getCandidates().stream()
+                .filter(c -> c.getGroupId() != null)
+                .map(c -> c.getGroupId())
+                .collect(Collectors.toList());
+
+        JsonPatchBuilder jpb = Json.createPatchBuilder();
+
+        // Agafada
+        if (tascaOriginal.getAssignee() == null && delegateTask.getAssignee() != null && delegateTask.getCandidates() != null && !delegateTask.getCandidates().isEmpty()) {
+            PatchHelper.replaceBooleanProperty(jpb, "agafada", true);
+        }
+        PatchHelper.replaceBooleanProperty(jpb, "assignada", tascaOriginal.getAssignee() != null, delegateTask.getAssignee() != null);
+        // UsuariAssignat
+        PatchHelper.replaceStringProperty(jpb, "usuariAssignat", tascaOriginal.getAssignee(), delegateTask.getAssignee());
+        // Responsables
+        PatchHelper.replaceArrayProperty(jpb, "responsables", originalUsuarisCandidats, usuarisCandidats);
+        // GrupsAssignat
+
+        tascaClientService.patchTascaV1(
+                delegateTask.getId(),
+                new ObjectMapper().valueToTree(jpb.build()));
     }
 }

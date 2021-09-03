@@ -5,9 +5,12 @@ package es.caib.helium.back.controller;
 
 import es.caib.helium.back.command.ExpedientTascaReassignarCommand;
 import es.caib.helium.back.helper.MissatgesHelper;
+import es.caib.helium.client.engine.model.ReassignTaskData.ScriptLanguage;
 import es.caib.helium.client.integracio.persones.model.Persona;
+import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.service.AplicacioService;
+import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.service.ExpedientTascaService;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -29,7 +32,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Controlador per la reassignació de tasques dels expedients
@@ -40,6 +45,8 @@ import java.util.List;
 @RequestMapping("/v3/expedient")
 public class ExpedientTasquesReassignarController extends BaseExpedientController {
 
+	@Autowired
+	private ExpedientService expedientService;
 	@Autowired
 	private ExpedientTascaService expedientTascaService;
 	@Autowired
@@ -53,8 +60,13 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 			@PathVariable Long expedientId,
 			@PathVariable String tascaId,
 			ModelMap model) {
+		var expedient = expedientService.findAmbId(expedientId);
 		ExpedientTascaReassignarCommand expedientTascaReassignarCommand = new ExpedientTascaReassignarCommand();
+		expedientTascaReassignarCommand.setMotorTipus(expedient.getTipus().getMotorTipus());
+		expedientTascaReassignarCommand.setExpressionLanguage(ScriptLanguage.JAVASCRIPT_SCRIPTING_LANGUAGE);
 		model.addAttribute(expedientTascaReassignarCommand);
+		model.addAttribute("tipusExpressio", "user");
+		model.addAttribute("languages", getLangauges());
 		return "v3/expedient/tasca/reassignar";
 	}
 	
@@ -73,6 +85,8 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 			new TascaReassignarValidator().setTipus(tipus).validate(expedientTascaReassignarCommand, result);
 	        if (result.hasErrors()) {
 				MissatgesHelper.error(request, result, getMessage(request, "error.validacio"));
+				model.addAttribute("languages", getLangauges());
+				model.addAttribute("tipusExpressio", tipus);
 	        	return "v3/expedient/tasca/reassignar";
 	        }
 			try {
@@ -80,7 +94,10 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 				if ("user".equals(tipus)) {
 					expression = "user(" + expedientTascaReassignarCommand.getUsuari() + ")";
 				} else if ("grup".equals(tipus)) {
-					expression = "group(" + expedientTascaReassignarCommand.getGrup() + ")";
+					var grups = Arrays.stream(expedientTascaReassignarCommand.getGrups())
+							.filter(g -> !g.isBlank())
+							.collect(Collectors.joining(","));
+					expression = "group(" + grups + ")";
 				}
 				expedientTascaService.reassignar(
 						expedientId,
@@ -91,6 +108,8 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 				String errMsg = getMessage(request, "expedient.tasca.accio.reassignar.errror", new Object[] {tascaId, ExceptionUtils.getRootCauseMessage(ex)} );
 				MissatgesHelper.error(request, errMsg);
 	        	logger.error(errMsg, ex);
+				model.addAttribute("languages", getLangauges());
+				model.addAttribute("tipusExpressio", tipus);
 	        	return "v3/expedient/tasca/reassignar";
 			}
 		}
@@ -136,7 +155,8 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 			if ("user".equals(tipus)) {
 				ValidationUtils.rejectIfEmpty(errors, "usuari", "not.blank");
 			} else if ("grup".equals(tipus)) {
-				ValidationUtils.rejectIfEmpty(errors, "grup", "not.blank");
+//				ValidationUtils.rejectIfEmpty(errors, "grups", "not.blank");
+				ValidationUtils.rejectIfEmpty(errors, "grups[0]", "not.blank");
 			} else if ("expr".equals(tipus)) {
 				ValidationUtils.rejectIfEmpty(errors, "expression", "not.blank");
 			}
@@ -148,5 +168,8 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 		
 	}
 
+	private List<ParellaCodiValorDto> getLangauges() {
+		return Arrays.stream(ScriptLanguage.values()).map(s -> new ParellaCodiValorDto(s.name(), s.language)).collect(Collectors.toList());
+	}
 	private static final Log logger = LogFactory.getLog(ExpedientTasquesReassignarController.class);
 }

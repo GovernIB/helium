@@ -3,9 +3,10 @@
  */
 package es.caib.helium.logic.helper;
 
-import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.engine.model.WTaskInstance;
+import es.caib.helium.client.expedient.tasca.TascaClientService;
 import es.caib.helium.client.expedient.tasca.model.ResponsableDto;
+import es.caib.helium.client.expedient.tasca.model.TascaDto;
 import es.caib.helium.logic.helper.TascaSegonPlaHelper.InfoSegonPla;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.DelegationInfo;
@@ -69,6 +70,8 @@ public class TascaHelper {
 	private CampTascaRepository campTascaRepository;
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
+	@Resource
+	private TascaClientService tascaClientService;
 	@Resource
 	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	@Resource
@@ -266,24 +269,33 @@ public class TascaHelper {
 		}
 	}
 
-	public WTaskInstance comprovarTascaPertanyExpedient(
+	public TascaDto comprovarTascaPertanyExpedient(
 			String taskId,
 			Expedient expedient) {
-		WTaskInstance task = workflowEngineApi.getTaskById(taskId);
+		var task = tascaClientService.getTascaV1(taskId);
+//		WTaskInstance task = workflowEngineApi.getTaskById(taskId);
 		if (task == null) {
 			logger.debug("No s'ha trobat la tasca (" +
 					"taskId=" + taskId + ")");
 			throw new NoTrobatException(WTaskInstance.class, taskId);
 		}
-		WProcessInstance rootProcessInstance = workflowEngineApi.getRootProcessInstance(
-				task.getProcessInstanceId());
-		if (!expedient.getProcessInstanceId().equals(rootProcessInstance.getId())) {
+//		WProcessInstance rootProcessInstance = workflowEngineApi.getRootProcessInstance(
+//				task.getProcessInstanceId());
+//		if (!expedient.getProcessInstanceId().equals(rootProcessInstance.getId())) {
+		if (!expedient.getId().equals(task.getExpedientId())) {
 			logger.debug("La tasca no pertany a l'expedient (" +
 					"id=" + taskId + ", " +
 					"expedientId=" + expedient.getId() + ")");
 			throw new NoTrobatException(WTaskInstance.class, taskId);
 		}
 		return task;
+	}
+
+	public WTaskInstance comprovarWTascaPertanyExpedient(
+			String taskId,
+			Expedient expedient) {
+		comprovarTascaPertanyExpedient(taskId, expedient);
+		return workflowEngineApi.getTaskById(taskId);
 	}
 
 	private List<String> getCampsExpressioTitol(String expressio) {
@@ -576,7 +588,8 @@ public class TascaHelper {
 			Expedient expedient,
 			boolean perTramitacio,
 			boolean ambPermisos) {
-		TascaLlistatDto dto = new TascaLlistatDto();		
+
+		TascaLlistatDto dto = new TascaLlistatDto();
 		dto.setId(tascaMs.getId());
 		dto.setTitol(tascaMs.getTitol());
 		dto.setJbpmName(tascaMs.getNom());
@@ -587,15 +600,18 @@ public class TascaHelper {
 					.map(r -> r.getUsuariCodi())
 					.collect(Collectors.toSet()));
 		dto.setCreateTime(tascaMs.getDataCreacio());
-		
+
+//		if (MotorTipusEnum.CAMUNDA.equals(motorTipus)) {
+//			dto.setStartTime(tascaMs.getDataCreacio());
+//		}
 		//dto.setStartTime(tascaMs.dataInici());
 		dto.setEndTime(tascaMs.getDataFi());
 		dto.setDueDate(tascaMs.getDataFins());
 		
 		dto.setPriority(tascaMs.getPrioritat());
-		
-		//-dto.setOpen(tascaMs.isOberta());
-		
+
+		dto.setOpen(!tascaMs.isCompletada() && !tascaMs.isCancelada());
+
 		dto.setCompleted(tascaMs.isCompletada());
 		dto.setCancelled(tascaMs.isCancelada());
 		dto.setSuspended(tascaMs.isSuspesa());
@@ -681,7 +697,7 @@ public class TascaHelper {
 //				dto.setDefinicioProcesId(definicioProces.getId());
 //			}
 		}
-		dto.setAgafada(tascaMs.isAfagada());
+		dto.setAgafada(tascaMs.isAgafada());
 		dto.setProcessInstanceId(tascaMs.getProcesId());
 		dto.setExpedientId(expedientNoNull.getId());
 		dto.setExpedientIdentificador(expedientNoNull.getIdentificador());

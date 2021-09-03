@@ -5,6 +5,7 @@ import es.caib.helium.camunda.mapper.ProcessInstanceMapper;
 import es.caib.helium.client.engine.model.WProcessInstance;
 import lombok.RequiredArgsConstructor;
 import org.camunda.bpm.engine.HistoryService;
+import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
@@ -32,6 +33,7 @@ public class ProcessInstanceServiceImpl implements ProcessInstanceService {
 //    private final ManagementService managementService;
     private final HistoryService historyService;
     private final RuntimeService runtimeService;
+    private final IdentityService identityService;
     private final CacheHelper cacheHelper;
     private final ProcessInstanceMapper processInstanceMapper;
 
@@ -184,7 +186,14 @@ public class ProcessInstanceServiceImpl implements ProcessInstanceService {
     @Override
     @Transactional
     public WProcessInstance startProcessInstanceById(String actorId, String processDefinitionId, Map<String, Object> variables) {
+        var processDefinition = cacheHelper.getDefinicioProces(processDefinitionId);
+        if (processDefinition.getTenantId() != null) {
+            identityService.setAuthentication(actorId, null, List.of(processDefinition.getTenantId()));
+        } else {
+            identityService.setAuthenticatedUserId(actorId);
+        }
         ProcessInstance processInstance = runtimeService.startProcessInstanceById(processDefinitionId, variables);
+        identityService.clearAuthentication();
 
         // TODO: Indicar a Helium quina és la tasca inicial (si n'hi ha), o indicar a Helium que té una tasca inicial
         // Passar-ho com a paràmetre, de manera que aquí la podrem assignar

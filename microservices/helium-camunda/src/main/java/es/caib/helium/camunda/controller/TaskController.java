@@ -197,10 +197,14 @@ public class TaskController {
     public ResponseEntity<WTaskInstance> reassignTaskInstance(
             @PathVariable("taskId") String taskId,
             @RequestBody ReassignTaskData reassignTask) {
+        String expressionLanguage = reassignTask.getExpressionLanguage() != null ?
+                reassignTask.getExpressionLanguage().language :
+                ReassignTaskData.ScriptLanguage.JAVASCRIPT_SCRIPTING_LANGUAGE.language;
         return new ResponseEntity<>(
                 taskInstanceService.reassignTaskInstance(
                         taskId,
-                        reassignTask.getExpression(),
+                        expressionLanguage,
+                        reassignTask.getExpression().trim(),
                         reassignTask.getEntornId()),
                 HttpStatus.OK);
     }

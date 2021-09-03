@@ -1,6 +1,7 @@
 package es.caib.helium.camunda.listener;
 
 import es.caib.helium.client.expedient.tasca.TascaClientService;
+import es.caib.helium.client.expedient.tasca.model.ResponsableDto;
 import es.caib.helium.client.expedient.tasca.model.TascaDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,42 +24,34 @@ public class TaskCreateListener implements TaskListener {
         // Publicar al MS Expedients i Tasques
         log.info("Tasca " + delegateTask.getName() + "has been created");
 
-        boolean tascaAssignada = delegateTask.getAssignee() == null || delegateTask.getAssignee().isBlank();
+        boolean tascaAssignada = delegateTask.getAssignee() != null && !delegateTask.getAssignee().isBlank();
         List<String> grupsCandidats = delegateTask.getCandidates()
                 .stream()
                 .filter(c -> c.getGroupId() != null)
                 .map(c -> c.getGroupId())
                 .collect(Collectors.toList());
-        List<String> usuarisCandidats =  delegateTask.getCandidates()
+        List<ResponsableDto> usuarisCandidats =  delegateTask.getCandidates()
                 .stream()
                 .filter(c -> c.getUserId() != null)
-                .map(c -> c.getGroupId())
+                .map(c -> ResponsableDto.builder().usuariCodi(c.getUserId()).build())
                 .collect(Collectors.toList());
 
         TascaDto tascaDto = TascaDto.builder()
                 .id(delegateTask.getId())
-//                .expedientId()
                 .procesId(delegateTask.getProcessInstanceId())
                 .nom(delegateTask.getName())
                 .titol(delegateTask.getDescription() != null ? delegateTask.getDescription() : delegateTask.getName())
-//                .afagada(tascaAssignada)
-                .afagada(false)
+                .agafada(false)
                 .cancelada(false)
                 .suspesa(false)
                 .completada(false)
                 .assignada(tascaAssignada)
-//                .marcadaFinalitzar()
-//                .errorFinalitzacio()
                 .dataFins(delegateTask.getDueDate())
-//                .dataFi(null)
-//                .iniciFinalitzacio()
                 .dataCreacio(delegateTask.getCreateTime())
                 .usuariAssignat(delegateTask.getAssignee())
-                // TODO: Grup assignat
-//                .grupAssignat()
+                .grupsAssignat(grupsCandidats)
                 .prioritat(delegateTask.getPriority())
-                // TODO: Responsables
-//                .responsables()
+                .responsables(usuarisCandidats)
                 .processDefinitionId(delegateTask.getProcessDefinitionId())
                 .build();
         tascaClientService.createTascaV1(tascaDto);

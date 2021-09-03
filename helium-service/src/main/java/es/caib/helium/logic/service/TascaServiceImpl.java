@@ -198,7 +198,7 @@ public class TascaServiceImpl implements TascaService {
 		Expedient expedient = expedientRepository.findById(expedientId)
 				.orElseThrow(() -> new NoTrobatException(Expedient.class, expedientId));
 		
-		WTaskInstance task = tascaHelper.comprovarTascaPertanyExpedient(
+		WTaskInstance task = tascaHelper.comprovarWTascaPertanyExpedient(
 				id,
 				expedient);
 		return tascaHelper.toExpedientTascaDto(

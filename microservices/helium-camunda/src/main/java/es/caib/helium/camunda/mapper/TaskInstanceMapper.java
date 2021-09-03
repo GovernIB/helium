@@ -40,13 +40,11 @@ public abstract class TaskInstanceMapper {
 
     @Mapping(source = "name", target = "taskName")
     @Mapping(source = "assignee", target = "actorId")
-    @Mapping(source = "description", target = "titol")
 //    @Mapping(source = "tenantId", target = "entornId")
     abstract TaskInstanceDto toTaskInstance(Task task);
 
     @Mapping(source = "name", target = "taskName")
     @Mapping(source = "assignee", target = "actorId")
-    @Mapping(source = "description", target = "titol")
 //    @Mapping(source = "tenantId", target = "entornId")
     @Mapping(source = "processDefinitionKey", target = "definicioProcesKey")
     abstract TaskInstanceDto toTaskInstance(HistoricTaskInstance historicTaskInstance);
@@ -54,50 +52,64 @@ public abstract class TaskInstanceMapper {
     @BeanMapping( qualifiedByName = "withDetails")
     @Mapping(source = "name", target = "taskName")
     @Mapping(source = "assignee", target = "actorId")
-    @Mapping(source = "description", target = "titol")
 //    @Mapping(source = "tenantId", target = "entornId")
     abstract TaskInstanceDto toTaskInstanceWithDetails(Task task);
 
     @BeanMapping( qualifiedByName = "withDetails")
     @Mapping(source = "name", target = "taskName")
     @Mapping(source = "assignee", target = "actorId")
-    @Mapping(source = "description", target = "titol")
 //    @Mapping(source = "tenantId", target = "entornId")
     @Mapping(source = "processDefinitionKey", target = "definicioProcesKey")
     abstract TaskInstanceDto toTaskInstanceWithDetails(HistoricTaskInstance historicTaskInstance);
 
     @AfterMapping
-    @Named("withDetails")
-    void addDetails(Task taskInstance, @MappingTarget TaskInstanceDto taskInstanceDto) {
-        setCandidates(taskInstanceDto, taskInstance.getId());
-        taskInstanceDto.setOpen(true);
-        taskInstanceDto.setCompleted(false);
-        taskInstanceDto.setCancelled(false);
-        taskInstanceDto.setAgafada(taskInstance.getAssignee() != null && !taskInstance.getAssignee().isBlank());
+    void addTitol(Task taskInstance, @MappingTarget TaskInstanceDto.TaskInstanceDtoBuilder taskInstanceDto) {
+        taskInstanceDto.titol(taskInstance.getDescription() != null ? taskInstance.getDescription() : taskInstance.getName());
+        taskInstanceDto.startTime(taskInstance.getCreateTime());
+    }
+
+    @AfterMapping
+    void addTitol(HistoricTaskInstance taskInstance, @MappingTarget TaskInstanceDto.TaskInstanceDtoBuilder taskInstanceDto) {
+        taskInstanceDto.titol(taskInstance.getDescription() != null ? taskInstance.getDescription() : taskInstance.getName());
+        taskInstanceDto.createTime(taskInstance.getStartTime());
     }
 
     @AfterMapping
     @Named("withDetails")
-    void addDetails(HistoricTaskInstance taskInstance, @MappingTarget TaskInstanceDto taskInstanceDto) {
+    void addDetails(Task taskInstance, @MappingTarget TaskInstanceDto.TaskInstanceDtoBuilder taskInstanceDto) {
         setCandidates(taskInstanceDto, taskInstance.getId());
-        taskInstanceDto.setOpen(taskInstance.getEndTime() == null);
-        taskInstanceDto.setCompleted(taskInstance.getEndTime() != null);
+        taskInstanceDto.open(true);
+        taskInstanceDto.completed(false);
+        taskInstanceDto.cancelled(false);
+        taskInstanceDto.agafada(taskInstance.getAssignee() != null && !taskInstance.getAssignee().isBlank());
+        taskInstanceDto.titol(taskInstance.getDescription() != null ? taskInstance.getDescription() : taskInstance.getName());
+        taskInstanceDto.startTime(taskInstance.getCreateTime());
+    }
+
+    @AfterMapping
+    @Named("withDetails")
+    void addDetails(HistoricTaskInstance taskInstance, @MappingTarget TaskInstanceDto.TaskInstanceDtoBuilder taskInstanceDto) {
+        setCandidates(taskInstanceDto, taskInstance.getId());
+        taskInstanceDto.open(taskInstance.getEndTime() == null);
+        taskInstanceDto.completed(taskInstance.getEndTime() != null);
         var task = taskService.createTaskQuery()
                 .taskId(taskInstance.getId())
                 .singleResult();
-        taskInstanceDto.setSuspended(task != null && task.isSuspended());
-        taskInstanceDto.setCancelled(CANCEL_REASON.equals(taskInstance.getDeleteReason()));
-        taskInstanceDto.setAgafada(taskInstance.getAssignee() != null && !taskInstance.getAssignee().isBlank());
+        taskInstanceDto.suspended(task != null && task.isSuspended());
+        taskInstanceDto.cancelled(CANCEL_REASON.equals(taskInstance.getDeleteReason()));
+        taskInstanceDto.agafada(taskInstance.getAssignee() != null && !taskInstance.getAssignee().isBlank());
+        taskInstanceDto.titol(taskInstance.getDescription() != null ? taskInstance.getDescription() : taskInstance.getName());
+        taskInstanceDto.createTime(taskInstance.getStartTime());
     }
 
-    private void setCandidates(TaskInstanceDto taskInstanceDto, String taskId) {
+    private void setCandidates(TaskInstanceDto.TaskInstanceDtoBuilder taskInstanceDto, String taskId) {
         var candidates = taskService.getIdentityLinksForTask(taskId)
                 .stream()
                 .filter(i -> i.getType().equals(IdentityLinkType.CANDIDATE))
                 .map(i -> i.getUserId())
                 .collect(Collectors.toSet());
         if (candidates != null && !candidates.isEmpty()) {
-            taskInstanceDto.setPooledActors(candidates);
+            taskInstanceDto.pooledActors(candidates);
         }
     }
 

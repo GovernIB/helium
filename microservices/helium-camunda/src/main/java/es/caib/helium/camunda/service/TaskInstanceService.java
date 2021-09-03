@@ -110,6 +110,7 @@ public interface TaskInstanceService {
      */
     public WTaskInstance reassignTaskInstance(
             String taskId,
+            String expressionLanguage,
             String expression,
             Long entornId);
 

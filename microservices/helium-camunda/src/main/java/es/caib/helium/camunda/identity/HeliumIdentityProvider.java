@@ -31,7 +31,7 @@ public class HeliumIdentityProvider implements ReadOnlyIdentityProvider {
 
     @Override
     public UserQuery createUserQuery(CommandContext commandContext) {
-        return null;
+        return new HeliumUserQuery();
     }
 
     @Override

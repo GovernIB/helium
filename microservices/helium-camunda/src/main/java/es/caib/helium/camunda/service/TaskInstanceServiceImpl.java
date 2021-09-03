@@ -11,6 +11,7 @@ import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.impl.persistence.entity.SuspensionState;
 import org.camunda.bpm.engine.impl.persistence.entity.TaskEntity;
+import org.camunda.bpm.engine.task.IdentityLinkType;
 import org.camunda.bpm.engine.task.Task;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -54,7 +55,7 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
                 .list();
         if (tasks != null) {
             wTaskInstances = tasks.stream()
-                    .map(taskInstanceMapper::toWTaskInstance)
+                    .map(taskInstanceMapper::toWTaskInstanceWithDetails)
                     .collect(Collectors.toList());
         }
         return wTaskInstances;
@@ -163,18 +164,59 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     }
 
     @Override
-    public WTaskInstance reassignTaskInstance(String taskId, String expression, Long entornId) {
-        // TODO: Necessitam fer codi per a les expressions d'assignació? o Camunda ja té alguna cosa
+    public WTaskInstance reassignTaskInstance(String taskId, String expressionLanguage, String expression, Long entornId) {
         var task = getTask(taskId);
-        String actorId = (String)actionService.evaluateExpression(
-                null,
-                task.getProcessInstanceId(),
-                "javascript",
-                expression,
-                null);
-        taskService.setAssignee(taskId, actorId);
-        task.setAssignee(actorId);
+        if (expression.toLowerCase().startsWith("user(")) {
+            removeCandidates(taskId);   // Eliminam la assignació actual
+//            if (expression.contains(",")) {
+//                List.of(expression.substring(5, expression.length() - 1).split(",")).forEach(g -> taskService.addCandidateUser(taskId, g));
+//            } else {
+            taskService.setAssignee(taskId, expression.substring(5, expression.length() - 1));
+//            }
+        } else if (expression.toLowerCase().startsWith("group(")) {
+            removeCandidates(taskId);   // Eliminam la assignació actual
+            // TODO: 2. Afegir la opció de group(xxx)-->member(yyy) per a cercar el càrrec yyy dins el grup xxx
+            if (expression.contains(",")) {
+                List.of(expression.substring(6, expression.length() - 1).split(",")).forEach(g -> taskService.addCandidateGroup(taskId, g));
+            } else {
+                taskService.addCandidateGroup(taskId, expression.substring(6, expression.length() - 1));
+            }
+        } else {
+            // TODO: Ara amb expressió només assignam usuaris.
+            //  Hauriem de comprovar si el codi indicat correspon a un usuari o un grup,
+            //  i si és un usuari, que efectivament existeix
+            var destinataris = actionService.evaluateExpression(
+                    null,
+                    task.getProcessInstanceId(),
+                    expressionLanguage,
+                    expression,
+                    null);
+            if (destinataris instanceof String) {
+                String usuari = (String) destinataris;
+                removeCandidates(taskId);
+                taskService.setAssignee(taskId, usuari);
+            } else if (destinataris instanceof String[]) {
+                var usuaris = List.of((String[]) destinataris);
+                removeCandidates(taskId);
+                usuaris.forEach(g -> taskService.addCandidateUser(taskId, g));
+            } else {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "L'expressió no retorna un codi d'usuari, o un array de codis d'usuaris");
+            }
+        }
         return taskInstanceMapper.toWTaskInstance(task);
+    }
+
+    private void removeCandidates(String taskId) {
+        taskService.setAssignee(taskId, null);
+        taskService.getIdentityLinksForTask(taskId).stream()
+                .filter(i -> IdentityLinkType.CANDIDATE.equals(i.getType()))
+                .forEach(c -> {
+                    if (c.getUserId() != null) {
+                        taskService.deleteCandidateUser(taskId, c.getUserId());
+                    } else {
+                        taskService.deleteCandidateGroup(taskId, c.getGroupId());
+                    }
+                });
     }
 
     @Override

@@ -1,12 +1,12 @@
 package es.caib.helium.client.expedient.tasca.model;
 
-import java.util.Date;
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * Informació de la tasca amb les propietats necessàries pel llistat filtrat i paginat de
@@ -24,7 +24,7 @@ public class TascaDto {
 	private String procesId;
 	private String nom;
 	private String titol;
-	private boolean afagada = false;
+	private boolean agafada = false;
 	private boolean cancelada = false;
 	private boolean suspesa = false;
 	private boolean completada = false;
@@ -36,7 +36,7 @@ public class TascaDto {
 	private Date iniciFinalitzacio;
 	private Date dataCreacio;
 	private String usuariAssignat;
-	private String grupAssignat;
+	private List<String> grupsAssignat;
 	private Integer prioritat;
 	private List<ResponsableDto> responsables;
 	

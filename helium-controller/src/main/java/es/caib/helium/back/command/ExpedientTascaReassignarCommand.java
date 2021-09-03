@@ -3,42 +3,26 @@
  */
 package es.caib.helium.back.command;
 
+import es.caib.helium.client.engine.model.ReassignTaskData.ScriptLanguage;
+import es.caib.helium.logic.intf.dto.MotorTipusEnum;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * Command per a la reassignació de tasques
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ExpedientTascaReassignarCommand {
 
 	private String usuari;
-	private String grup;
+	private String[] grups;
 	private String expression;
-	
+	private ScriptLanguage expressionLanguage;
+	private MotorTipusEnum motorTipus;
 
-	public ExpedientTascaReassignarCommand() {}
-
-	public String getExpression() {
-		return expression;
-	}
-	public void setExpression(String expression) {
-		this.expression = expression;
-	}
-
-	public String getUsuari() {
-		return usuari;
-	}
-
-	public void setUsuari(String usuari) {
-		this.usuari = usuari;
-	}
-
-	public String getGrup() {
-		return grup;
-	}
-
-	public void setGrup(String grup) {
-		this.grup = grup;
-	}
-	
-	
 }

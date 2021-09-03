@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.BpmPlatform;
 import org.camunda.bpm.ProcessEngineService;
 import org.camunda.bpm.engine.HistoryService;
+import org.camunda.bpm.engine.IdentityService;
 import org.camunda.bpm.engine.ManagementService;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.ProcessEngineConfiguration;
@@ -185,6 +186,14 @@ public class CamundaContextConfig implements WebMvcConfigurer {
         ManagementService managementService = processEngine.getManagementService();
         log.info(">>> CAMUNDA ENGINE: OK");
         return managementService;
+    }
+
+    @Bean
+    public IdentityService identityService(ProcessEngine processEngine) {
+        log.info(">>> CAMUNDA ENGINE: Instanciant IdentityService...");
+        IdentityService identityService = processEngine.getIdentityService();
+        log.info(">>> CAMUNDA ENGINE: OK");
+        return identityService;
     }
 
     @Bean

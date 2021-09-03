@@ -89,30 +89,6 @@ public class ProcessInstanceController {
                 HttpStatus.OK);
     }
 
-    // TODO: Tasca utilitzada per a consulta d'expedients
-    //       Això ha d'anar al MS d'expedients i tasques o al MS de dades!!
-//    @GetMapping(value="/root")
-//    @ResponseBody
-//    public ResponseEntity<List<String>> findRootProcessInstances(
-//            @RequestParam(value = "actorId") String actorId,
-//            @RequestParam(value = "processInstanceIds") List<String> processInstanceIds,
-//            @RequestParam(value = "nomesMeves") boolean nomesMeves,
-//            @RequestParam(value = "nomesTasquesPersonals") boolean nomesTasquesPersonals,
-//            @RequestParam(value = "nomesTasquesGrup") boolean nomesTasquesGrup) {
-//
-//        List<String> rootProcessInstances = processInstanceService.findRootProcessInstances(
-//                actorId,
-//                processInstanceIds,
-//                nomesMeves,
-//                nomesTasquesPersonals,
-//                nomesTasquesGrup);
-//        if (rootProcessInstances == null || rootProcessInstances.isEmpty()) {
-//            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//        }
-//
-//        return new ResponseEntity<>(rootProcessInstances, HttpStatus.OK);
-//    }
-
     @PostMapping(value="/start")
     public ResponseEntity<WProcessInstance> startProcessInstanceById(
             @RequestBody ProcessStartData processStartData) {

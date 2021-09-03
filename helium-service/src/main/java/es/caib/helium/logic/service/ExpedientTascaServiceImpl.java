@@ -3,19 +3,6 @@
  */
 package es.caib.helium.logic.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.client.expedient.tasca.TascaClientService;
 import es.caib.helium.logic.helper.ExpedientHelper;
@@ -31,6 +18,17 @@ import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persist.entity.Expedient;
 import es.caib.helium.persist.entity.Registre;
 import es.caib.helium.persist.repository.RegistreRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -115,11 +113,11 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 						ExtendedPermission.TASK_MANAGE,
 						ExtendedPermission.ADMINISTRATION});
 		if (!expedient.isAnulat()) {
-			WTaskInstance task = tascaHelper.comprovarTascaPertanyExpedient(
+			var task = tascaHelper.comprovarTascaPertanyExpedient(
 							tascaId,
 							expedient);
 			workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
-					task.getProcessInstanceId(),
+					task.getProcesId(),
 					WorkflowRetroaccioApi.ExpedientRetroaccioTipus.TASCA_CANCELAR,
 					null);
 			workflowEngineApi.cancelTaskInstance(tascaId);
@@ -149,11 +147,11 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 						ExtendedPermission.TASK_MANAGE,
 						ExtendedPermission.ADMINISTRATION});
 		if (!expedient.isAnulat()) {
-			WTaskInstance task = tascaHelper.comprovarTascaPertanyExpedient(
+			var task = tascaHelper.comprovarTascaPertanyExpedient(
 					tascaId,
 					expedient);
 			workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
-					task.getProcessInstanceId(),
+					task.getProcesId(),
 					WorkflowRetroaccioApi.ExpedientRetroaccioTipus.TASCA_SUSPENDRE,
 					null);
 			workflowEngineApi.suspendTaskInstance(tascaId);
@@ -183,11 +181,11 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 						ExtendedPermission.TASK_MANAGE,
 						ExtendedPermission.ADMINISTRATION});
 		if (!expedient.isAnulat()) {
-			WTaskInstance task = tascaHelper.comprovarTascaPertanyExpedient(
+			var task = tascaHelper.comprovarTascaPertanyExpedient(
 					tascaId,
 					expedient);
 			workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
-					task.getProcessInstanceId(),
+					task.getProcesId(),
 					WorkflowRetroaccioApi.ExpedientRetroaccioTipus.TASCA_CONTINUAR,
 					null);
 			workflowEngineApi.resumeTaskInstance(tascaId);
@@ -219,7 +217,7 @@ public class ExpedientTascaServiceImpl implements ExpedientTascaService {
 						ExtendedPermission.TASK_ASSIGN,
 						ExtendedPermission.REASSIGNMENT,
 						ExtendedPermission.ADMINISTRATION});
-		WTaskInstance task = tascaHelper.comprovarTascaPertanyExpedient(
+		WTaskInstance task = tascaHelper.comprovarWTascaPertanyExpedient(
 				tascaId,
 				expedient);
 		String previousActors = task.getStringActors(); //expedientLoggerHelper.getActorsPerReassignacioTasca(tascaId);

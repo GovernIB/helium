@@ -30,7 +30,7 @@
 		<style>
 			body {background-image: none; padding-top: 0px;}
 			.col-xs-4 {width: auto;padding-left: 0px;}
-			.col-xs-8 {width: 100%;padding-bottom: 100px;padding-left: 0px;padding-right: 0px;}
+			.col-xs-8 {width: 100%;padding-bottom: 20px; padding-left: 0px;padding-right: 0px;}
 			#opciones .label-titol {padding-bottom: 0px;} 
 	 		.control-group {width: 100%;display: inline-block;} 
 	 		.control-group-mid {width: 48%;} 
@@ -44,6 +44,12 @@
 			.obligatori {
 			    background-position: right 6px;
 			}
+			#duser {height: 200px;}
+			#dgrup {height: 200px;}
+			#dexpr {height: 200px;}
+			#dgrup input {margin-bottom: 10px;}
+			#badd {float: right; position: relative; top: -20px;}
+			#brem {float: right; position: relative; top: -20px;}
 		</style>
 	<script>
 			$(document).ready(function() {
@@ -75,7 +81,27 @@
 						$("#dexpr").show();
 					}
 				});
-				$('#tipusExpressio').trigger('change');	
+				$('#tipusExpressio').trigger('change');
+
+				$("#badd").click(function() {
+					let numGrups = $("#dgrup input").length;
+					if (numGrups == 1) {
+						$("#brem").show();
+					}
+					let newGroupImput = $('input[name="grups[0]"]').clone();
+					newGroupImput.attr('name', 'grups[' + numGrups + ']')
+					newGroupImput.insertAfter('input[name="grups[' + (numGrups - 1) + ']"]');
+					$('input[name="grups[' + numGrups + ']"]').val("");
+				});
+				$("#brem").click(function() {
+					let numGrups = $("#dgrup input").length;
+					if (numGrups > 1) {
+						$('input[name="grups[' + (numGrups - 1) + ']"]').remove();
+					}
+					if (numGrups == 2) {
+						$("#brem").hide();
+					}
+				});
 			});
 			
 			function confirmarReassignar(e) {
@@ -88,13 +114,14 @@
 </head>
 <body>
 	<form:form action="reassignar" method="post" modelAttribute="expedientTascaReassignarCommand" onsubmit="return confirmarReassignar(event)">
-		
+
+		<form:hidden id="motorTipus" path="motorTipus"/>
 		<div class="ctrlHolder">
 			<label for="tipusExpressio"><spring:message code='expedient.eines.reassignar.tipus'/></label>
 			<select id="tipusExpressio" name="tipusExpressio">
-				<option value="user"><spring:message code='filtre.expressio.usuari'/></option>
-				<option value="grup"><spring:message code='filtre.expressio.grup'/></option>
-				<option value="expr"><spring:message code='filtre.expressio.expressio'/></option>
+				<option value="user"<c:if test="${tipusExpressio == 'user'}"> selected="selected"</c:if>><spring:message code='filtre.expressio.usuari'/></option>
+				<option value="grup"<c:if test="${tipusExpressio == 'grup'}"> selected="selected"</c:if>><spring:message code='filtre.expressio.grup'/></option>
+				<option value="expr"<c:if test="${tipusExpressio == 'expr'}"> selected="selected"</c:if>><spring:message code='filtre.expressio.expressio'/></option>
 			</select>
 		</div>
 		
@@ -103,13 +130,40 @@
 				<hel:inputSuggest required="true" name="usuari" urlConsultaInicial="persona/suggestInici" urlConsultaLlistat="/heliumback/v3/expedient/persona/suggest" textKey="expedient.editar.responsable" placeholderKey="expedient.editar.responsable"/>
 			</div>
 			<div id="dgrup">
-				<hel:inputText required="true" name="grup" textKey="filtre.expressio.grup" placeholderKey="filtre.expressio.grup"/>
+				<c:choose>
+					<c:when test="${empty expedientTascaReassignarCommand.grups}">
+						<hel:inputText required="true" name="grups[0]" textKey="filtre.expressio.grup" placeholderKey="filtre.expressio.grup"/>
+						<c:if test="${expedientTascaReassignarCommand.motorTipus == 'CAMUNDA'}">
+							<button id="badd" type="button" class="btn btn-default" name="add"><span class="fa fa-plus"></span></button>
+							<button id="brem" style="display: none;" type="button" class="btn btn-default" name="add"><span class="fa fa-minus"></span></button>
+						</c:if>
+					</c:when>
+					<c:otherwise>
+						<c:forEach var="grup" items="${expedientTascaReassignarCommand.grups}" varStatus="index">
+							<c:choose>
+								<c:when test="${index.index == 0}">
+									<hel:inputText required="true" name="grups[${index.index}]" textKey="filtre.expressio.grup" placeholderKey="filtre.expressio.grup"/>
+								</c:when>
+								<c:otherwise>
+									<hel:inputText required="true" inline="true" name="grups[${index.index}]" textKey="filtre.expressio.grup" placeholderKey="filtre.expressio.grup"/>
+								</c:otherwise>
+							</c:choose>
+						</c:forEach>
+						<c:if test="${expedientTascaReassignarCommand.motorTipus == 'CAMUNDA'}">
+							<button id="badd" type="button" class="btn btn-default" name="add"><span class="fa fa-plus"></span></button>
+							<button id="brem" type="button" class="btn btn-default" name="add"><span class="fa fa-minus"></span></button>
+						</c:if>
+					</c:otherwise>
+				</c:choose>
 			</div>
 			<div id="dexpr">
+				<c:if test="${motorTipus == 'CAMUNDA'}">
+					<hel:inputSelect required="true" name="expressionLanguage" textKey="filtre.expressio.expressio.llenguatge" optionItems="${languages}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+				</c:if>
 				<hel:inputText required="true" name="expression" textKey="filtre.expressio.expressio" placeholderKey="filtre.expressio.expressio"/>
 			</div>
-		</div>				
-				
+		</div>
+
 		<div id="modal-botons">
 			<button type="button" class="modal-tancar btn btn-default" name="submit" value="cancel">
 				<spring:message code='comuns.cancelar' />
