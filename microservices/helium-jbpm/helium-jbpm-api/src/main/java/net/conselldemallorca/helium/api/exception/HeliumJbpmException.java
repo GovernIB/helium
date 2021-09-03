@@ -11,6 +11,10 @@ public class HeliumJbpmException extends Exception {
 		super(message);
 	}
 
+	public HeliumJbpmException(Exception e) {
+		super(e);
+	}
+
 	public HeliumJbpmException(int httpStatus, String message) {
 		super(message);
 		this.httpStatus = httpStatus;

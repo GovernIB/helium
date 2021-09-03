@@ -100,7 +100,7 @@ public class TascaRestController {
 	@PostMapping(value="/{taskId}/error")
 	public ResponseEntity<Void> setErrorTascaSegonPla(
 			@PathVariable("taskId") String taskId,
-			@RequestBody String error ) {
+			@RequestBody(required = false) String error ) {
 		workflowBridgeService.setErrorTascaSegonPla(taskId, error);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}

@@ -1217,6 +1217,10 @@ public class VariableHelper {
 	 */
 	public void consultaDominisAgrupats(Map<Integer, ConsultaDominiDto> consultesDomini) {
 		
+		if (consultesDomini == null || consultesDomini.isEmpty()) {
+			return;
+		}
+		
 		ConsultaDominiDto consultaDomini;
 		List<FilaResultat> resultat;
 		// Realitza la consulta múltiple

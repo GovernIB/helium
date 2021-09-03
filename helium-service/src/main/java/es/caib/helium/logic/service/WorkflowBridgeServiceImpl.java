@@ -1,5 +1,21 @@
 package es.caib.helium.logic.service;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+
 import es.caib.helium.logic.helper.AlertaHelper;
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.DefinicioProcesHelper;
@@ -87,20 +103,6 @@ import es.caib.helium.persist.repository.ReassignacioRepository;
 import es.caib.helium.persist.repository.TascaRepository;
 import es.caib.helium.persist.repository.TerminiIniciatRepository;
 import es.caib.helium.persist.util.ThreadLocalInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @Service
 public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
@@ -857,7 +859,12 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 definicioProces);
         if (tasca == null)
             throw new NoTrobatException(Tasca.class, taskName);
-        ExpedientTipus tipus = expedientTipusHelper.findAmbProcessInstanceId(processInstanceId);
+        ExpedientTipus tipus;
+        if (definicioProces.getExpedientTipus() == null ) {
+        	tipus = expedientTipusHelper.findAmbProcessInstanceId(processInstanceId);
+        } else {
+        	tipus = definicioProces.getExpedientTipus();
+        }
         if (tipus == null)
             throw new NoTrobatException(ExpedientTipus.class, taskName);
 
@@ -904,7 +911,12 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 definicioProces);
         if (tasca == null)
             throw new NoTrobatException(Tasca.class, taskName);
-        ExpedientTipus tipus = expedientTipusHelper.findAmbProcessInstanceId(processInstanceId);
+        ExpedientTipus tipus;
+        if (definicioProces.getExpedientTipus() == null ) {
+        	tipus = expedientTipusHelper.findAmbProcessInstanceId(processInstanceId);
+        } else {
+        	tipus = definicioProces.getExpedientTipus();
+        }
         if (tipus == null)
             throw new NoTrobatException(ExpedientTipus.class, taskName);
 

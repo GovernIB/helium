@@ -61,6 +61,6 @@ logging:
 es:
     caib:
         helium:
-            properties: /home/siona/Feina/Conf/Helium/helium4/helium.properties
+            properties: /helium/configMs/helium.properties
             system:
-                properties: /home/siona/Feina/Conf/Helium/helium4/helium_system.properties
+                properties: /helium/configMs/helium_system.properties

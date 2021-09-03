@@ -135,6 +135,7 @@
 <script type="text/javascript">
 	var codi = "${varCodi}";
 	var procesId = "${procesId}";
+	//var baseUrl = '<c:url value="/modal/v3/expedient/${expedientId}/proces/${procesId}/dada/"/>';
 	$(document).ready(function() {
 		$("#varCodi").select2({
 		    width: 'resolve',
@@ -153,12 +154,12 @@
 			iframe.height(height + 'px');
 		});
 		$("#varCodi").on("change", function(e) {
-			var ruta = document.URL; 
+			var ruta = document.URL;
 			$("#command").attr('action', ruta);
 			if (e.val == "") {
 				$("#nova").addClass("hide");
 				$("#valordada").addClass("hide");
-				$("#command").attr('action', ruta + "Buit");
+		//		$("#command").attr('action', ruta + "Buit");
 			} else  if (e.val == "String") {
 				$("#valordada").addClass("hide");
 				$("#nova").removeClass("hide");
@@ -166,9 +167,9 @@
 				$("#valordada").removeClass("hide");
 				$("#nova").addClass("hide");
 			}
-			if (e.val != "" && e.val != codi)
-				window.location.replace('<c:url value="/modal/v3/expedient/${expedientId}/proces/${procesId}/dada/"/>' + e.val + '/new');
-			codi = e.val;
+				if (e.val != "" && e.val != codi)
+					window.location.replace('<c:url value="/modal/v3/expedient/${expedientId}/proces/${procesId}/dada/"/>' + e.val + '/new');
+				codi = e.val;
 		});
 		if (codi != "") {
 			$("#varCodi").select2("val", "${varCodi}");
@@ -190,6 +191,7 @@
 					$("#selCamp_controls").append("<p id='selCamp_error' class='help-block'><span class='fa fa-exclamation-triangle'></span>&nbsp;<spring:message code='expedient.nova.data.camp.variable.buit'/></p>");
 				}
 			} else {
+				//("#command").attr('action', baseUrl + $("#varCodi").val() + codi != "" ? '/update' : '/new');
 				$("#command").submit();
 			}
 		});

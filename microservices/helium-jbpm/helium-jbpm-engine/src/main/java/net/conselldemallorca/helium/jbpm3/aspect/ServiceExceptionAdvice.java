@@ -1,13 +1,13 @@
 package net.conselldemallorca.helium.jbpm3.aspect;
 
-import lombok.extern.slf4j.Slf4j;
-import net.conselldemallorca.helium.api.exception.HeliumJbpmException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+
+import lombok.extern.slf4j.Slf4j;
+import net.conselldemallorca.helium.api.exception.HeliumJbpmException;
 
 @Slf4j
 @Aspect
@@ -20,9 +20,9 @@ public class ServiceExceptionAdvice {
     public Object swallowRuntimeException(ProceedingJoinPoint pjp) throws Throwable {
         try {
             return pjp.proceed();
-        } catch (RuntimeException exception) {
-            log.error("S'ha produït una excepció no controlada", exception);
-            throw new HeliumJbpmException(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage());
+        } catch (RuntimeException e) {
+            log.error("S'ha produït una excepció no controlada: " + e.getClass() + " :" + e.getMessage(), e);
+            throw new HeliumJbpmException(e);
         }
     }
 

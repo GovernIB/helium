@@ -1,5 +1,7 @@
 package es.caib.helium.dada.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import es.caib.helium.dada.model.Consulta;
 import es.caib.helium.dada.model.Dada;
 import es.caib.helium.dada.model.Expedient;
@@ -7,6 +9,8 @@ import es.caib.helium.dada.model.PagedList;
 import es.caib.helium.dada.model.ValidList;
 import es.caib.helium.dada.service.ExpedientService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.rest.webmvc.json.patch.JsonPatchPatchConverter;
+import org.springframework.data.rest.webmvc.json.patch.Patch;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -155,36 +159,39 @@ public class ExpedientController {
 		return new ResponseEntity<>(HttpStatus.CONFLICT);
 	}
 
+	// TODO MS: PROVAR EL PATCH
 	@PatchMapping(value = "{expedientId}")
 	public ResponseEntity<Void> patchExpedient(
-			@Valid @RequestBody Expedient expedient,
 			@PathVariable("expedientId") Long expedientId,
+			@RequestBody JsonNode expedientJson,
 			BindingResult errors) throws Exception {
 
 		if (errors.hasErrors()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
-
-		if (expedientService.patchExpedient(expedientId, expedient)) {
-			return new ResponseEntity<>(HttpStatus.OK);
-		}
-		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		var objectMapper = new ObjectMapper();
+		Patch patch = new JsonPatchPatchConverter(objectMapper).convert(expedientJson);
+		var expedient = expedientService.findByExpedientId(expedientId);
+		var patchedExpedient = patch.apply(expedient, Expedient.class);
+		expedientService.putExpedient(expedientId, patchedExpedient);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	@PatchMapping(value = "patch/expedients")
-	public ResponseEntity<Void> patchExpedients(
-			@Valid @RequestBody ValidList<Expedient> expedients,
-			BindingResult errors) throws Exception {
-
-		if (errors.hasErrors()) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		}
-
-		if (expedientService.patchExpedients(expedients)) {
-			return new ResponseEntity<>(HttpStatus.OK);
-		}
-		return new ResponseEntity<>(HttpStatus.CONFLICT);
-	}
+	// TODO MS: ADAPTAR PATCH A LLISTES. REALMENT ES NECESSARI?
+//	@PatchMapping(value = "patch/expedients")
+//	public ResponseEntity<Void> patchExpedients(
+//			@Valid @RequestBody ValidList<Expedient> expedients,
+//			BindingResult errors) throws Exception {
+//
+//		if (errors.hasErrors()) {
+//			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//		}
+//
+//		if (expedientService.patchExpedients(expedients)) {
+//			return new ResponseEntity<>(HttpStatus.OK);
+//		}
+//		return new ResponseEntity<>(HttpStatus.CONFLICT);
+//	}
 
 	// Gestió dades de l'expedient
 

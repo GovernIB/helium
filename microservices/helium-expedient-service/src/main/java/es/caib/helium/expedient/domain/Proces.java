@@ -15,6 +15,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
@@ -53,15 +54,16 @@ public class Proces implements Persistable<String> {
 	/** Expedient al qual pertany el proces */
 	@ManyToOne(optional=true, cascade={CascadeType.ALL})
 	@JoinColumn(name="expedient_id")
-	// FK HEL_TASCA_EXP_FK
 	private Expedient expedient;
 	
 	/** Procés arrel del procés. Pot ser ell mateix o tenir diferents nivells. */
 	@ManyToOne(optional = false, fetch=FetchType.LAZY)
+	@JoinColumn(name="proces_arrel_id", foreignKey = @ForeignKey(name="HEL_PROCES_ARREL_FK"))
 	private Proces procesArrel;
 
 	/** Procés pare del procés actual. Pot ser null si el procés actual és el procés arrel. */
 	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="proces_pare_id", foreignKey = @ForeignKey(name="HEL_PROCES_PARE_FK"))
 	private Proces procesPare;
 	
 	/** Identificador de la definició de procés del procés. Correspon al processDefinitionId donat pel motor

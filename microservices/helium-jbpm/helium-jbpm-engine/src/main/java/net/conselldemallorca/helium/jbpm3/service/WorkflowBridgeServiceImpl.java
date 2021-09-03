@@ -69,6 +69,8 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     VariablesHelper variablesHelper;
     @Autowired
     GenericsHelper genericsHelper;
+    @Autowired
+    ProcesHelper procesHelper;
 
     @Autowired
     CommandService commandService;
@@ -1167,5 +1169,13 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 //            return response;
 //        }
 //    }
+
+	// PROCESSOS
+	////////////////////////////////////////////////////////////////////////////////
+
+    @Override
+	public void crearProces(ProcesDto proces) {
+    	procesHelper.crear(proces);
+	}
 
 }
