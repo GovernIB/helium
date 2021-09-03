@@ -9,7 +9,8 @@
 
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <c:set var="titol"><spring:message code="expedient.tipus.campValidacio.llistat.titol" arguments="${camp.etiqueta}"/></c:set>
-<c:set var="baseUrl"><c:url value="/modal/v3/${basicUrl}/variable/${camp.id}/validacio"></c:url></c:set>
+<c:set var="modalBaseUrl"><c:url value="/modal/v3/${basicUrl}/variable/${camp.id}/validacio"></c:url></c:set>
+<c:set var="baseUrl"><c:url value="/v3/${basicUrl}/variable/${camp.id}/validacio"></c:url></c:set>
 
 <html>
 <head>
@@ -76,8 +77,8 @@
 							<div class="dropdown">
 								<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 								<ul class="dropdown-menu">
-									<li><a href="${baseUrl}/{{:id}}/update" class="validacioUpdate" data-validacioid="{{:id}}"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
-									<li><a href="${baseUrl}/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.campValidacio.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+									<li><a href="${modalBaseUrl}/{{:id}}/update" class="validacioUpdate" data-validacioid="{{:id}}"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+									<li><a href="${modalBaseUrl}/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.campValidacio.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 								</ul>
 							</div>
 						</c:if>
@@ -138,7 +139,7 @@
 		$('#btnCreate').show();
 		$('#btnUpdate').hide();
 		resetFormulari();
-		$('#validacio-form').attr('action','${baseUrl}/new');
+		$('#validacio-form').attr('action','${modalBaseUrl}/new');
 	}
 	
 	function mostraFormulariUpdate(id) {
@@ -146,7 +147,7 @@
 		$('#btnCreate').hide();
 		$('#btnUpdate').show();
 		resetFormulari();
-		$('#validacio-form').attr('action','${baseUrl}/'+id+'/update');
+		$('#validacio-form').attr('action','${modalBaseUrl}/'+id+'/update');
 		// Copia els valors
 		$("#inputValidacioId").val(id);
 		$("#expressio").val($("#campValidacio tr[id='row_"+id+"'] td:nth-child(1)").text());
