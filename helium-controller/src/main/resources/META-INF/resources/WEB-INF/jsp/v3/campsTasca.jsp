@@ -9,6 +9,8 @@
 <c:set var="campInline" value="${inline}"/>
 <c:set var="obligatorio"><c:if test="${dada.required}"> data-required="true"</c:if></c:set>
 	<c:set var="campErrors"><form:errors path="${campCodi}"/></c:set>
+	<c:if test="${!ampleLabel}"><c:set var="ampleLabel" value="20%"/></c:if>
+	<c:if test="${!ampleInput}"><c:set var="ampleInput" value="80%"/></c:if>
 	<div class="form-group <c:if test='${dada.campMultiple or isMultiple}'> multiple_camp</c:if><c:if test="${not empty campErrors}"> has-error</c:if><c:if test="${tasca.validada}"> validada</c:if><c:if test="${not empty tasca.tascaFormExternCodi}"> formext</c:if>">
 		<label for="${dada.varCodi}" class="control-label<c:choose><c:when test='${inline}'> sr-only</c:when><c:otherwise><c:if test="${dada.required}"> obligatori</c:if></c:otherwise></c:choose>" <c:if test='${not inline}'> style="width: ${ampleLabel}; float: left; padding-right: 11px;"</c:if>>${dada.campEtiqueta}</label>
 		<div class="controls<c:if test='${not inline}'> like-cols</c:if> <c:if test='${dada.campMultiple or isMultiple}'> multiple_camp</c:if> <c:if test="${!dada.required}"> no-obligatori</c:if>" <c:if test='${not inline}'> style="width: ${ampleInput};"</c:if>>
@@ -86,7 +88,9 @@
 									</c:forEach>
 								</select>
 							</c:when>
-							<c:otherwise><form:select disabled="${tasca.validada}" itemLabel="valor" itemValue="codi" items="${listTerminis}" path="${campCodi}[0]" id="${campCodi}_anys" cssClass="termini" /></c:otherwise>
+							<c:otherwise>
+								<form:select disabled="${tasca.validada}" itemLabel="valor" itemValue="codi" items="${listTerminis}" path="${campCodi}[0]" id="${campCodi}_anys" cssClass="termini" />
+							</c:otherwise>
 						</c:choose>
 					</div>
 					<div class="tercmig">

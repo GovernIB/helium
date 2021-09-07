@@ -402,7 +402,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 				result.rejectValue(
 						"varCodi",
 						"expedient.nova.data.camp.variable.buit");
-			} else if ("String".equals(varCodi)) { // Variable nova tipus String
+			} else if ("_string".equals(varCodi)) { // Variable nova tipus String
 				String codi = (String)PropertyUtils.getSimpleProperty(command, "codi");
 				String valor = (String)PropertyUtils.getSimpleProperty(command, "valor");
 				// Validam que el nom de la variable no comenci per majúscula seguida de minúscula

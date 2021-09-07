@@ -289,9 +289,16 @@ $(function() {
 			if (input.attr("name") != null) {
 				var nom = input.attr("name");
 				if (nom.indexOf("[") > -1) {
-					var nom_pre = nom.substr(0, nom.lastIndexOf("["));
-					var nom_post = nom.substr(nom.lastIndexOf("]") + 1);
-					var index = parseInt(nom.substr(nom.lastIndexOf("[") + 1, nom.lastIndexOf("]"))) + 1;
+					// Si és de la forma [x][y], s'ha de modificar x
+					let posIni = nom.lastIndexOf("[");
+					let posFi = nom.lastIndexOf("]");
+					if (nom.charAt(posIni - 1) == ']') {
+						posFi = posIni - 1;
+						posIni = nom.substr(0, posFi).lastIndexOf("[")
+					}
+					var nom_pre = nom.substr(0, posIni);
+					var nom_post = nom.substr(posFi + 1);
+					var index = parseInt(nom.substr(posIni + 1, posFi)) + 1;
 					input.attr({ 
 						"name" : nom_pre + "[" + index + "]" + nom_post
 					});

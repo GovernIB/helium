@@ -10,6 +10,7 @@
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <c:set var="titol"><spring:message code="expedient.tipus.campRegistre.llistat.titol" arguments="${camp.etiqueta}"/></c:set>
 <c:set var="baseUrl"><c:url value="/modal/v3/${basicUrl}/variable/${camp.id}/campRegistre"></c:url></c:set>
+<c:set var="baseNoModalUrl"><c:url value="/v3/${basicUrl}/variable/${camp.id}/campRegistre"></c:url></c:set>
 
 <html>
 <head>
@@ -65,7 +66,7 @@
 	<div style="height: 500px;">
 		<table	id="campRegistre"
 				data-toggle="datatable"
-				data-url="${baseUrl}/datatable"
+				data-url="${baseNoModalUrl}/datatable"
 				data-paging-enabled="false"
 				data-ordering="true"
 				data-default-order="7"
@@ -210,7 +211,7 @@
 	function canviarPosicioCampRegistre( id, pos) {
 	  	// Canvia la ordenació sempre amb ordre ascendent
 		$('#campRegistre').DataTable().order([7, 'asc']);
-		var getUrl = '<c:url value="${baseUrl}"/>/'+id+'/moure/'+pos;
+		var getUrl = '${baseUrl}/'+id+'/moure/'+pos;
 		$.ajax({
 			type: 'GET',
 			url: getUrl,
@@ -249,7 +250,7 @@
 	}
 	
 	function refrescarVariables(membreId) {
-		var getUrl = '<c:url value="${baseUrl}/select"/>';
+		var getUrl = '${baseUrl}/select';
 		$.ajax({
 			type: 'GET',
 			url: getUrl,

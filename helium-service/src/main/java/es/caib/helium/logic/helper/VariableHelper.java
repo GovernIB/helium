@@ -224,7 +224,7 @@ public class VariableHelper {
 				dto = getDadaPerVariableJbpm(
 						camp,
 						dada.getCodi(),
-						dada.getValors(),
+						dada.getValorsAsObject(),
 						null,
 						null,
 						processInstanceId,
@@ -285,9 +285,14 @@ public class VariableHelper {
 			// Si és registre o múltiple comprova si té contingut. Pot haver error de simple a múltiple
 			try {
 				if (camp != null && (TipusCamp.REGISTRE.equals(camp.getTipus()) || camp.isMultiple())) {
-					Object[] registreValors = (Object[])valor;
+					Object[] registreValors = null;
+					if (valor instanceof Dada) {
+						registreValors = (Object[])((Dada) valor).getValorsAsObject();
+					} else {
+						registreValors = (Object[]) valor;
+					}
 					varAmbContingut = registreValors.length > 0;
-				}						
+				}
 			} catch(Exception e) {
 				dto.setError(messageServiceHelper.getMessage(
 						"variable.helper.error.recuperant.valor", 

@@ -7,6 +7,7 @@ import es.caib.helium.client.dada.DadaClient;
 import es.caib.helium.client.dada.enums.Tipus;
 import es.caib.helium.client.dada.model.Dada;
 import es.caib.helium.client.dada.model.Valor;
+import es.caib.helium.client.dada.model.ValorRegistre;
 import es.caib.helium.client.dada.model.ValorSimple;
 import es.caib.helium.client.engine.model.WProcessDefinition;
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
@@ -24,6 +25,7 @@ import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persist.entity.Camp;
 import es.caib.helium.persist.entity.Camp.TipusCamp;
 import es.caib.helium.persist.entity.CampAgrupacio;
+import es.caib.helium.persist.entity.CampRegistre;
 import es.caib.helium.persist.entity.DefinicioProces;
 import es.caib.helium.persist.entity.Expedient;
 import es.caib.helium.persist.entity.ExpedientTipus;
@@ -85,6 +87,8 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	@Resource
 	private DadaClient dadaClient;
 
+	DateFormat dataFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss:SSS ");
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -128,49 +132,116 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		}
 	}
 
-	private List<Dada> prepararDades(String varCodi, Object varValor, Camp camp) throws Exception{
+	private Dada prepararDadesUpdate(String varCodi, Object varValor, Camp camp) throws Exception{
 
 		if (camp == null || !ObjectUtils.containsConstant(Tipus.values(), camp.getTipus().name())) {
 			throw new Exception("Error preparant les dades camp " + camp);
 		}
-		var dades = new ArrayList<Dada>();
+
+		// Nova variable de tipus String (camp == null)
+		var tipus = Tipus.valueOf(camp.getTipus().name());
+		var multiple = camp.isMultiple();
+
+		return getDada(varCodi, varValor, camp, tipus, multiple);
+	}
+
+	private Dada getDada(String varCodi, Object varValor, Camp camp, Tipus tipus, boolean multiple) {
 		var dada = new Dada();
 		dada.setCodi(varCodi);
-		dada.setTipus(Tipus.valueOf(camp.getTipus().name()));
-		dada.setMultiple(camp.isMultiple());
-		var valors = new ArrayList<Valor>();
-		if (camp.isMultiple()) {
-			var valorsObject = (Object[]) varValor;
-			for (var v : valorsObject) {
-				var valor = new ValorSimple();
-				var valorString = getStringFromObject(v);
-				valor.setValor(valorString);
-				valor.setValorText(valorString);
-				valors.add(valor);
-			}
+		dada.setTipus(tipus);
+		dada.setMultiple(multiple);
+
+		if (Tipus.REGISTRE.equals(tipus)) {
+			dada.setValor(getValorsRegistre(camp.getRegistreMembres(), varValor, multiple));
 		} else {
-			var valor = new ValorSimple();
-			var valorString = getStringFromObject(varValor);
-			valor.setValor(valorString);
-			valor.setValorText(valorString);
-			valors.add(valor);
-		} // TODO MS: FALTA AFEGIR ELS VALORS DE REGISTRE
-		dada.setValor(valors);
-		dades.add(dada);
+			dada.setValor(getValorDada(varValor, multiple));
+		}
+		return dada;
+	}
+
+	private List<Dada> prepararDades(String varCodi, Object varValor, Camp camp) throws Exception{
+
+		if (camp != null && !ObjectUtils.containsConstant(Tipus.values(), camp.getTipus().name())) {
+			throw new Exception("Error preparant les dades camp " + camp);
+		}
+
+		var dades = new ArrayList<Dada>();
+		// Nova variable de tipus String (camp == null)
+		var tipus = Tipus.STRING;
+		var multiple = false;
+
+		if (camp != null) {
+			tipus = Tipus.valueOf(camp.getTipus().name());
+			multiple = camp.isMultiple();
+		}
+
+		dades.add(getDada(varCodi, varValor, camp, tipus, multiple));
 		return dades;
 	}
 
+	private List<Valor> getValorsRegistre(
+			List<CampRegistre> registreMembres,
+			Object varValor,
+			boolean isMultiple) {
+		ArrayList<Valor> valors = new ArrayList<>();
+		if (isMultiple) {
+			var valorsObject = (Object[]) varValor;
+			for (var v : valorsObject) {
+				valors.add(getValorRegistre(registreMembres, v));
+			}
+		} else {
+			valors.add(getValorRegistre(registreMembres, varValor));
+		}
+		return valors;
+	}
+
+	private Valor getValorRegistre(List<CampRegistre> registreMembres, Object varValor) {
+		var valor = new ValorRegistre();
+		List<Dada> campsRegistre = new ArrayList<>();
+		var valorsObject = (Object[]) varValor;
+		for (int i = 0; i < registreMembres.size(); i++) {
+			var dadaRegistre = new Dada();
+			dadaRegistre.setCodi(registreMembres.get(i).getMembre().getCodi());
+			dadaRegistre.setTipus(Tipus.valueOf(registreMembres.get(i).getMembre().getTipus().name()));
+			dadaRegistre.setMultiple(false);
+			dadaRegistre.setValor(getValorDada(valorsObject[i], false));
+			campsRegistre.add(dadaRegistre);
+		}
+		valor.setCamps(campsRegistre);
+		return valor;
+	}
+
+	private ArrayList<Valor> getValorDada(Object varValor, boolean isMultiple) {
+		ArrayList<Valor> valors = new ArrayList<>();
+		if (isMultiple) {
+			var valorsObject = (Object[]) varValor;
+			for (var v : valorsObject) {
+				valors.add(getValorSimple(v));
+			}
+		} else {
+			valors.add(getValorSimple(varValor));
+		}
+		return valors;
+	}
+
+	private Valor getValorSimple(Object varValor) {
+		var valor = new ValorSimple();
+		var valorString = getStringFromObject(varValor);
+		valor.setValor(valorString);
+		valor.setValorText(valorString);
+		return valor;
+	}
+
 	private String getStringFromObject(Object o) {
-		// TODO MS: CANVIAR EL TOO STRING PER EL QUE CORRESPONGUI
 		if (o == null) {
 			return "";
 		}
 
 		if (o instanceof Date) {
-			DateFormat dataFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss:SSS ");
 			Date today = Calendar.getInstance().getTime();
 			return dataFormat.format(today);
 		}
+
 		return o.toString();
 	}
 
@@ -198,12 +269,15 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		Object valorVell = variableHelper.getVariableJbpmProcesValor(
 				processInstanceId,
 				varCodi);
-		var dada = new Dada();
-		var valors = new ArrayList<Valor>();
-		var valor = new ValorSimple();
-		valor.setValor(varValor.toString());
-		valors.add(valor);
-		dada.setValor(valors);
+
+		var camp = optimitzarValorPerConsultesDominiGuardar(expedient.getTipus(), processInstanceId, varCodi, varValor);
+		var dada = prepararDadesUpdate(varCodi, varValor, camp);
+//		var dada = new Dada();
+//		var valors = new ArrayList<Valor>();
+//		var valor = new ValorSimple();
+//		valor.setValor(varValor.toString());
+//		valors.add(valor);
+//		dada.setValor(valors);
 		dadaClient.putDadaByExpedientIdProcesIdAndCodi(expedientId, processInstanceId, varCodi, dada);
 		workflowRetroaccioApi.afegirInformacioRetroaccioPerProces(
 				processInstanceId,

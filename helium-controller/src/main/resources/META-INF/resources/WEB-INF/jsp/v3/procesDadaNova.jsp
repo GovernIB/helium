@@ -39,7 +39,7 @@
 			<form:select path="varCodi" cssClass="form-control" id="varCodi">
 				<option value=""></option>
 				<optgroup label="<spring:message code='expedient.nova.data.no.definida'/>">
-					<option value="String"><spring:message code="expedient.nova.data.string"/></option>
+					<option value="_string"><spring:message code="expedient.nova.data.string"/></option>
 				</optgroup>
 				<optgroup label="<spring:message code='expedient.nova.data.definida'/>">
 					<c:forEach var="opt" items="${camps}">
@@ -160,7 +160,7 @@
 				$("#nova").addClass("hide");
 				$("#valordada").addClass("hide");
 		//		$("#command").attr('action', ruta + "Buit");
-			} else  if (e.val == "String") {
+			} else  if (e.val == "_string") {
 				$("#valordada").addClass("hide");
 				$("#nova").removeClass("hide");
 			} else {
@@ -174,7 +174,7 @@
 		if (codi != "") {
 			$("#varCodi").select2("val", "${varCodi}");
 			$("#varCodi").click();
-			if ($("#varCodi").val() == "String") {
+			if ($("#varCodi").val() == "_string") {
 				$("#valordada").addClass("hide");
 				$("#nova").removeClass("hide");
 			} else {

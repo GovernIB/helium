@@ -1,9 +1,9 @@
 package es.caib.helium.dada.repository;
 
+import es.caib.helium.client.dada.enums.Collections;
+import es.caib.helium.client.dada.enums.DireccioOrdre;
 import es.caib.helium.dada.enums.Capcalera;
-import es.caib.helium.dada.enums.Collections;
 import es.caib.helium.dada.enums.Dada;
-import es.caib.helium.dada.enums.DireccioOrdre;
 import es.caib.helium.dada.exception.DadaException;
 import es.caib.helium.dada.model.Columna;
 import es.caib.helium.dada.model.Consulta;

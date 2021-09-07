@@ -15,9 +15,11 @@
 <c:choose>
   <c:when test="${expedientTipusId != null}">
   	<c:set var="baseUrl"><c:url value="/modal/v3/expedientTipus/${expedientTipusId}/enumeracio/${enumeracio.id}/valor"></c:url></c:set>
+  	<c:set var="baseNoModalUrl"><c:url value="/v3/expedientTipus/${expedientTipusId}/enumeracio/${enumeracio.id}/valor"></c:url></c:set>
   </c:when>
   <c:otherwise>
   	<c:set var="baseUrl"><c:url value="/modal/v3/enumeracio/${enumeracio.id}/valor"></c:url></c:set>
+  	<c:set var="baseNoModalUrl"><c:url value="/v3/enumeracio/${enumeracio.id}/valor"></c:url></c:set>
   </c:otherwise>
 </c:choose>
 
@@ -106,7 +108,7 @@
 	<div style="height: 390px;">
 		<table	id="campValidacio"
 				data-toggle="datatable"
-				data-url="${baseUrl}/datatable"
+				data-url="${baseNoModalUrl}/datatable"
 				data-paging-enabled="false"
 				data-ordering="true"
 				data-default-order="3"

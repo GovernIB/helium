@@ -4,6 +4,8 @@
 package es.caib.helium.back.helper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import es.caib.helium.client.dada.model.Dada;
+import es.caib.helium.client.engine.model.Termini;
 import es.caib.helium.logic.intf.dto.CampTipusDto;
 import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
@@ -13,6 +15,7 @@ import javassist.CtClass;
 import javassist.CtField;
 import javassist.CtNewMethod;
 import javassist.Modifier;
+import javassist.NotFoundException;
 import javassist.bytecode.AnnotationsAttribute;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.annotation.Annotation;
@@ -38,6 +41,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 
 /**
@@ -301,6 +305,9 @@ public class TascaFormHelper {
 				} else {
 					valor = camp.getVarValor();
 				}
+				if (valor instanceof Dada) {
+					valor = ((Dada) valor).getValorsAsObject();
+				}
 				if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
 					// Camps múltiples
 					if (isCampMultiple(camp, false)) {
@@ -309,12 +316,17 @@ public class TascaFormHelper {
 							if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
 								int mida = 1;
 								if (valor instanceof Object[]) {
+									var valorTerminis = (Object[])valor;
 									mida = ((Object[])valor).length;
 									String[][] terminis = new String[mida][3];
-									int i = 0;
-									for (String term: (String[])valor) {
-										terminis[i++] = crearTermini(term);
-									}
+									IntStream.range(0, valorTerminis.length).forEach(i -> {
+										var term = valorTerminis[i];
+										if (term instanceof Termini) {
+											terminis[i++] = crearTermini((Termini) term);
+										} else {
+											terminis[i++] = crearTermini(term);
+										}
+									});
 									valorMultiple = terminis;
 								} else {
 									String[] prevalor = ((String)valor).split("/");
@@ -716,8 +728,50 @@ public class TascaFormHelper {
 		String pkgName = "es.caib.helium.back";
 
 		ClassPool pool = ClassPool.getDefault();
-		CtClass cc = pool.makeClass("TaskCommand_" + UUID.randomUUID());
+		List<String> commandClassNames = new ArrayList<>();
 
+		var command = getCommandModelForCamps(
+				tascaDades,
+				campsAddicionalsClasses,
+				registres,
+				esConsultaPerTipus,
+				isPerValidar,
+				validarObligatoris,
+				validarExpresions,
+				processInstanceId,
+				commandClassNames);
+
+		commandClassNames.forEach(c -> {
+			try {
+				pool.get(c).detach();
+			} catch (NotFoundException e) {
+				e.printStackTrace();
+			}
+		});
+
+		return command;
+	}
+
+	private static Object getCommandModelForCamps(
+			List<TascaDadaDto> tascaDades,
+			Map<String, Class<?>> campsAddicionalsClasses,
+			Map<String, Object> registres,
+			boolean esConsultaPerTipus,
+			boolean isPerValidar,
+			boolean validarObligatoris,
+			boolean validarExpresions,
+			String processInstanceId,
+			List<String> commandClassNames) throws Exception {
+
+		logger.debug("Generant command per tasca");
+
+		// Empram javassist per generar el command de manera dinàmica
+		String pkgName = "es.caib.helium.back";
+
+		ClassPool pool = ClassPool.getDefault();
+		var commandClassName = "TaskCommand_" + UUID.randomUUID();
+		commandClassNames.add(commandClassName);
+		CtClass cc = pool.makeClass(commandClassName);
 
 		if (campsAddicionalsClasses != null) {
 			for (String codi: campsAddicionalsClasses.keySet()) {
@@ -756,7 +810,8 @@ public class TascaFormHelper {
 						isPerValidar,
 						validarObligatoris,
 						validarExpresions,
-						processInstanceId);
+						processInstanceId,
+						commandClassNames);
 				if (tascaDada.isCampMultiple()) {
 					// En cas de ser un registre múltiple el que cream és un array de Registre
 					propertyClass = Array.newInstance(registre.getClass(), 1).getClass();
@@ -898,10 +953,7 @@ public class TascaFormHelper {
 				);
 			}
 		}
-		var taskCommand = cc.toClass().getConstructor().newInstance();
-		cc.detach();
-
-		return taskCommand;
+		return cc.toClass().getConstructor().newInstance();
 	}
 
 	private static boolean validExpression(String expression) {
@@ -1087,6 +1139,14 @@ public class TascaFormHelper {
 		
 		String[] termini = new String[]{anys, mesos, dies}; 
 		
+		return termini;
+	}
+
+	private static String[] crearTermini(Termini valor) {
+		String[] termini = new String[]{
+				String.valueOf(valor.getAnys()),
+				String.valueOf(valor.getMesos()),
+				String.valueOf(valor.getDies())};
 		return termini;
 	}
 	

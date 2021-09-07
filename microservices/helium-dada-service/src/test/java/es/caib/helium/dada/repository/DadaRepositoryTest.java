@@ -1,6 +1,6 @@
 package es.caib.helium.dada.repository;
 
-import es.caib.helium.dada.enums.Tipus;
+import es.caib.helium.client.dada.enums.Tipus;
 import es.caib.helium.dada.model.Dada;
 import es.caib.helium.dada.model.Valor;
 import es.caib.helium.dada.model.ValorRegistre;
