@@ -28,7 +28,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Objecte responsable que representa la informació d'un responsable assignat a una tasca.
+ * Objecte grup que representa la informació d'un grup assignat a una tasca.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -38,16 +38,16 @@ import lombok.Setter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Entity
-@Table(	name="hel_responsable",
-		uniqueConstraints={@UniqueConstraint(name = "hel_resp_uk", columnNames = {"tasca_id", "usuari_codi"})},
+@Table(	name="hel_grup",
+		uniqueConstraints={@UniqueConstraint(name = "hel_grup_uk", columnNames = {"tasca_id", "grup_codi"})},
 		indexes = {
-			@Index(name = "hel_resp_tasca_i", columnList = "tasca_id")
+			@Index(name = "hel_grup_tasca_i", columnList = "tasca_id")
 		})
-@SequenceGenerator(name = "hel_responsable_gen", sequenceName = "hel_responsable_seq", allocationSize = 1)
-public class Responsable implements Persistable<Long> {
+@SequenceGenerator(name = "hel_grup_gen", sequenceName = "hel_grup_seq", allocationSize = 1)
+public class Grup implements Persistable<Long> {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hel_responsable_gen")
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hel_grup_gen")
 	private Long id;
 	
 	@ManyToOne(optional=false, cascade={CascadeType.ALL})
@@ -56,9 +56,9 @@ public class Responsable implements Persistable<Long> {
 	private Tasca tasca;
 	
 	@NotNull
-	@Column(name="usuari_codi", nullable=false)
+	@Column(name="grup_codi", nullable=false)
 	@Size(max = 255)
-	private String usuariCodi;
+	private String grupCodi;
 
 	@Override
 	public boolean isNew() {

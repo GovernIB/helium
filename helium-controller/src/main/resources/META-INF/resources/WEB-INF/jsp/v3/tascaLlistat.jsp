@@ -25,6 +25,8 @@
 	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
 	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
 	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
+	<script src="<c:url value="/js/moment.js"/>"></script>
+	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
 <script type="text/javascript">
 	var tascaIdPerAgafar;
 	$(document).ready(function() {
@@ -467,10 +469,14 @@
 										<i class="fa fa-exclamation-circle fa-lg error" title="<spring:message code="error.finalitzar.tasca"/>: {{:errorFinalitzacio}}"></i>
 									{{/if}}
 									{{if errorFinalitzacio == null && marcadaFinalitzar != null && iniciFinalitzacio == null}}
-										<i class="fa fa-clock-o fa-lg programada" title="<spring:message code="enum.tasca.etiqueta.marcada.finalitzar"/> {{:marcadaFinalitzarFormat}}"></i>
+										<i class="fa fa-clock-o fa-lg programada" title="<spring:message code="enum.tasca.etiqueta.marcada.finalitzar"/> 
+											{{moment(new Date(:marcadaFinalitzar)).format("DD/MM/YYYY HH:mm:ss")}}
+										</i>
 									{{/if}}
 									{{if errorFinalitzacio == null && marcadaFinalitzar != null && iniciFinalitzacio != null}}
-										<i class="fa fa-circle-o-notch fa-spin fa-lg executant" title="<spring:message code="enum.tasca.etiqueta.execucio"/> {{:iniciFinalitzacioFormat}}"></i>
+										<i class="fa fa-circle-o-notch fa-spin fa-lg executant" title="<spring:message code="enum.tasca.etiqueta.execucio"/> 
+											{{moment(new Date(:iniciFinalitzacio)).format("DD/MM/YYYY HH:mm:ss")}}
+										</i>
 									{{/if}}
 								</span>
 								</a>
@@ -537,8 +543,6 @@
 				<th data-rdt-property="marcadaFinalitzar" data-rdt-visible="false"></th>
 				<th data-rdt-property="iniciFinalitzacio" data-rdt-visible="false"></th>
 				<th data-rdt-property="errorFinalitzacio" data-rdt-visible="false"></th>
-				<th data-rdt-property="marcadaFinalitzarFormat" data-rdt-visible="false"></th>
-				<th data-rdt-property="iniciFinalitzacioFormat" data-rdt-visible="false"></th>
 			</tr>
 		</thead>
 	</table>

@@ -55,14 +55,14 @@ public class TascaClientServiceImpl implements TascaClientService {
 	@Override
 	public void createTascaV1(TascaDto tascaDto) {
 
-		log.debug(MISSATGE_LOG + " creant tasca " + tascaDto.getTitol() + " per l'expedient " + tascaDto.getExpedientId());
+		log.debug(MISSATGE_LOG + " creant tasca " + tascaDto.getTitol() + " pel procés " + tascaDto.getProcesId());
 		tascaClient.createTascaV1(tascaDto);
 	}
 
 	@Override
 	public void updateTascaV1(String tascaId, TascaDto tascaDto) {
 
-		log.debug(MISSATGE_LOG + " actualitzant tasca amb id " + tascaId + " per l'expedient " + tascaDto.getExpedientId());
+		log.debug(MISSATGE_LOG + " actualitzant tasca amb id " + tascaId + " pel procés " + tascaDto.getProcesId());
 		tascaClient.createTascaV1(tascaDto);
 	}
 

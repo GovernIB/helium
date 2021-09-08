@@ -58,10 +58,10 @@ public class ProcesServiceImpl implements ProcesService {
         	}
         }
         if (procesDto.getProcesArrelId() != null) {
-        	if (procesDto.getProcesArrelId().equals(procesDto.getId())) {
+        	if (procesDto.getProcesArrelId().equals(procesDto.getProcesId())) {
         		proces.setProcesArrel(proces);
         	} else {
-            	Optional<Proces> procesArrelOptional = procesRepository.findById(procesDto.getProcesArrelId());
+            	Optional<Proces> procesArrelOptional = procesRepository.findByProcesId(procesDto.getProcesArrelId());
             	if (procesArrelOptional.isPresent()) {
             		proces.setProcesArrel(procesArrelOptional.get());
             	} else {
@@ -70,7 +70,7 @@ public class ProcesServiceImpl implements ProcesService {
         	}
         }
         if (procesDto.getProcesPareId() != null) {
-        	Optional<Proces> procesPareOptional = procesRepository.findById(procesDto.getProcesPareId());
+        	Optional<Proces> procesPareOptional = procesRepository.findByProcesId(procesDto.getProcesPareId());
         	if (procesPareOptional.isPresent()) {
         		proces.setProcesPare(procesPareOptional.get());
         	} else {
@@ -125,7 +125,7 @@ public class ProcesServiceImpl implements ProcesService {
             processos.addAll(processosFills);
             var processosDescendents = new ArrayList<Proces>();
             for (var procesFill: processosFills) {
-                processosDescendents.addAll(procesRepository.findAll(ProcesSpecifications.processPareIdLike(procesFill.getId())));
+                processosDescendents.addAll(procesRepository.findAll(ProcesSpecifications.processPareIdLike(procesFill.getProcesId())));
             }
             processosFills = processosDescendents;
         } while (!processosFills.isEmpty());
@@ -179,9 +179,9 @@ public class ProcesServiceImpl implements ProcesService {
 
     private Proces getProcesById(String procesId) {
         log.debug("Obtenint proces per id: " + procesId);
-        Optional<Proces> procesOptional = procesRepository.findById(procesId);
+        Optional<Proces> procesOptional = procesRepository.findByProcesId(procesId);
         if (procesOptional.isPresent()) {
-            log.debug("Trobada proces amb id: " + procesId);
+            log.debug("Trobada proces amb proces id: " + procesId);
             return procesOptional.get();
         }        
         log.error("[SRV] No existeix cap proces amb id=" + procesId);
@@ -192,8 +192,8 @@ public class ProcesServiceImpl implements ProcesService {
     private void validateProces(Proces proces) throws ValidationException {
         Map<String, String> errors = new HashMap<>();
 
-        if (proces.getId() == null || proces.getId().isEmpty()) {
-            errors.put("id", "El camp no pot ser null");
+        if (proces.getProcesId() == null || proces.getProcesId().isEmpty()) {
+            errors.put("procesId", "El camp no pot ser null");
         }
         if (proces.getProcessDefinitionId() == null || proces.getProcessDefinitionId().isEmpty()) {
             errors.put("processDefinitionId", "El camp no pot ser null");        	

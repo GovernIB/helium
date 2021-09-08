@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import es.caib.helium.ms.model.DefaultOrder;
 import es.caib.helium.ms.model.DefaultSort;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,19 +31,19 @@ import java.util.List;
 public class TascaDto {
 
 	@JsonProperty("id")
+	@Schema(example = "1234", required = false, accessMode = AccessMode.READ_ONLY, description = "Identificador intern de la tasca al MS")
+	private Long id;
+
+	@JsonProperty("tascaId")
 	@Schema(example = "1234", required = true, description = "Id de la tasca a Helium.")
 	@Size(max = 64)
 	@NotEmpty
-	private String id;
+	private String tascaId;
 	
-	@JsonProperty("expedientId")
-	@Schema(example = "1234", required = false, description = "Id de l'expedient de la tasca.")
-	private Long expedientId;
-
 	@JsonProperty("procesId")
 	@Schema(example = "1234", required = true, description = "Id del procés al qual pertany la tasca.")
 	@Size(max = 64)
-	private String procesId;
+	private String procesId;	
 	
 	@JsonProperty("nom")
 	@Schema(example = "nom tasca", required = true, description = "Nom de la tasca en el flux")
@@ -110,23 +111,27 @@ public class TascaDto {
 	@Size(max = 255)
 	private String usuariAssignat;
 
-	@JsonProperty("grupAssignat")
-	@Schema(example = "role", required = false, description = "Codi del grup assignat a la tasca.")
-	@Size(max = 255)
-	private String grupAssignat;
-
 	@JsonProperty("prioritat")
 	@Schema(example = "3", required = false, description = "Prioritat assignada a la tasca.")
 	private Integer prioritat;
 	
 	@JsonProperty("responsables")
 	@Schema(example = "{'usuari1', 'usuari2'}", required = false, description = "Llista d'usuaris responsables.")
-	@Size(max = 255)
-	private List<ResponsableDto> responsables;
+	private List<String> responsables;
+
+	@JsonProperty("grups")
+	@Schema(example = "{'ROL1', 'ROL2'}", required = false, description = "Llista de grups assignats a la tasca.")
+	private List<String> grups;
 
 	@JsonProperty("processDefinitionId")
-	@Schema(example = "{'usuari1', 'usuari2'}", required = false, description = "Identificador de la definició de procés del procés relacionat a la tasca"
+	@Schema(example = "1234abcd", required = false, accessMode = AccessMode.READ_ONLY, description = "Identificador de la definició de procés del procés relacionat a la tasca"
 			+ "informat en les consultes de tasques. És un atribut de només lectura")
 	@Size(max = 255)
 	private String processDefinitionId;	
+
+	@JsonProperty("expedientId")
+	@Schema(example = "1234", required = false, accessMode = AccessMode.READ_ONLY, description = "Identificador de l'expedient de la definició de procés del procés relacionat a la tasca"
+			+ "informat en les consultes de tasques. És un atribut de només lectura i pot ser null si el procés s'ha creat i encara no s'ha associat l'expedient inicial.")
+	@Size(max = 255)
+	private Long expedientId;	
 }

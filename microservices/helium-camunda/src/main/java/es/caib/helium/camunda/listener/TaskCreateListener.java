@@ -36,7 +36,7 @@ public class TaskCreateListener implements TaskListener {
                 .collect(Collectors.toList());
 
         TascaDto tascaDto = TascaDto.builder()
-                .id(delegateTask.getId())
+                .tascaId(delegateTask.getId())
 //                .expedientId()
                 .procesId(delegateTask.getProcessInstanceId())
                 .nom(delegateTask.getName())
@@ -54,11 +54,9 @@ public class TaskCreateListener implements TaskListener {
 //                .iniciFinalitzacio()
                 .dataCreacio(delegateTask.getCreateTime())
                 .usuariAssignat(delegateTask.getAssignee())
-                // TODO: Grup assignat
-//                .grupAssignat()
+                .grups(grupsCandidats)
+                .responsables(usuarisCandidats)
                 .prioritat(delegateTask.getPriority())
-                // TODO: Responsables
-//                .responsables()
                 .processDefinitionId(delegateTask.getProcessDefinitionId())
                 .build();
         tascaClientService.createTascaV1(tascaDto);

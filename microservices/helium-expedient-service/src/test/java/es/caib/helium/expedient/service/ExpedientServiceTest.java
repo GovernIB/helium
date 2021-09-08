@@ -35,18 +35,30 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import es.caib.helium.client.dada.DadaClient;
 import es.caib.helium.expedient.ExpedientTestHelper;
 import es.caib.helium.expedient.domain.Expedient;
 import es.caib.helium.expedient.mapper.ExpedientMapper;
 import es.caib.helium.expedient.model.ExpedientDto;
 import es.caib.helium.expedient.model.ExpedientEstatTipusEnum;
 import es.caib.helium.expedient.repository.ExpedientRepository;
+import es.caib.helium.expedient.repository.ProcesRepository;
+import es.caib.helium.expedient.repository.TascaRepository;
 
 @ExtendWith(MockitoExtension.class)
 class ExpedientServiceTest {
 
     @Mock
     ExpedientRepository expedientRepository;
+
+    @Mock
+    TascaRepository tascaRepository;
+
+    @Mock
+    ProcesRepository procesRepository;
+
+    @Mock
+    DadaClient dadaClient;
 
     @Mock
     Environment environment;
@@ -74,6 +86,7 @@ class ExpedientServiceTest {
         // Given
         ExpedientDto expedientDto = mapper.entityToDto(expedient);
         given(expedientRepository.save(any(Expedient.class))).willReturn(expedient);
+        given(procesRepository.findAll(any(Specification.class))).willReturn(null);
 
         // When
         ExpedientDto creat = expedientService.createExpedient(expedientDto);
@@ -83,6 +96,8 @@ class ExpedientServiceTest {
         ExpedientTestHelper.comprovaExpedient(expedientDto, creat);
         then(expedientRepository).should(times(1)).save(any(Expedient.class));
         then(expedientRepository).shouldHaveNoMoreInteractions();
+        then(dadaClient).should(times(1)).crearExpedient(any(es.caib.helium.client.dada.model.Expedient.class));
+        then(dadaClient).shouldHaveNoMoreInteractions();
     }
 
     @ParameterizedTest(name = "{displayName} - [{index}] {arguments}")
@@ -285,6 +300,8 @@ class ExpedientServiceTest {
         then(expedientRepository).should().findById(anyLong());
         then(expedientRepository).should().delete(anyLong());
         then(expedientRepository).shouldHaveNoMoreInteractions();
+        then(dadaClient).should(times(1)).deleteExpedient(1L);
+        then(dadaClient).shouldHaveNoMoreInteractions();
     }
 
     @Test

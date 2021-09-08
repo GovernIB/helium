@@ -5,6 +5,7 @@ import com.sun.istack.NotNull;
 import es.caib.helium.ms.model.DefaultOrder;
 import es.caib.helium.ms.model.DefaultSort;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Schema.AccessMode;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,10 +31,20 @@ import java.util.Date;
 public class ProcesDto {
 
 	@JsonProperty("id")
+	@Schema(example = "1234", required = false, accessMode = AccessMode.READ_ONLY, description = "Identificador intern del procés al MS")
+	private Long id;
+
+	@JsonProperty("motor")
+	@Schema(example = "JBPM01", required = true, description = "Codi identificador del motor.")
+	@Size(max = 64)
+	@NotEmpty
+	private String motor;
+
+	@JsonProperty("procesId")
 	@Schema(example = "1234", required = true, description = "Id de la instància de procés.")
 	@Size(max = 64)
 	@NotEmpty
-	private String id;
+	private String procesId;
 	
 	@JsonProperty("expedientId")
 	@Schema(example = "1234", required = false, description = "Id de l'expedient del procés.")

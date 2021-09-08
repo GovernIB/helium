@@ -19,8 +19,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class TascaDto {
 
-	private String id;
-	private Long expedientId;
+	private Long id;
+	private String tascaId;
 	private String procesId;
 	private String nom;
 	private String titol;
@@ -36,10 +36,10 @@ public class TascaDto {
 	private Date iniciFinalitzacio;
 	private Date dataCreacio;
 	private String usuariAssignat;
-	private String grupAssignat;
 	private Integer prioritat;
-	private List<ResponsableDto> responsables;
-	
-	
-	private String processDefinitionId;	
+	private List<String> responsables;
+	private List<String> grups;
+		
+	private String processDefinitionId;
+	private Long expedientId;
 }

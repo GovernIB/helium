@@ -3,9 +3,26 @@
  */
 package es.caib.helium.logic.helper;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
 import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.engine.model.WTaskInstance;
-import es.caib.helium.client.expedient.tasca.model.ResponsableDto;
 import es.caib.helium.logic.helper.TascaSegonPlaHelper.InfoSegonPla;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.DelegationInfo;
@@ -30,22 +47,6 @@ import es.caib.helium.persist.entity.Tasca;
 import es.caib.helium.persist.repository.CampTascaRepository;
 import es.caib.helium.persist.repository.DefinicioProcesRepository;
 import es.caib.helium.persist.repository.TascaRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Helper per a gestionar les tasques dels expedients.
@@ -577,15 +578,12 @@ public class TascaHelper {
 			boolean perTramitacio,
 			boolean ambPermisos) {
 		TascaLlistatDto dto = new TascaLlistatDto();		
-		dto.setId(tascaMs.getId());
+		dto.setId(tascaMs.getTascaId());
 		dto.setTitol(tascaMs.getTitol());
 		dto.setJbpmName(tascaMs.getNom());
 		dto.setDescription(tascaMs.getTitol());
 		dto.setAssignee(tascaMs.getUsuariAssignat());
-		dto.setPooledActors( tascaMs.getResponsables()
-					.stream()
-					.map(r -> r.getUsuariCodi())
-					.collect(Collectors.toSet()));
+		dto.setPooledActors( tascaMs.getResponsables().stream().collect(Collectors.toSet()));
 		dto.setCreateTime(tascaMs.getDataCreacio());
 		
 		//dto.setStartTime(tascaMs.dataInici());
@@ -610,16 +608,16 @@ public class TascaHelper {
 			//dto.setTascaFinalitzacioSegonPla(tasca.isFinalitzacioSegonPla());
 			if (tasca.isFinalitzacioSegonPla() && 
 				tascaSegonPlaHelper.isTasquesSegonPlaLoaded() && 
-				tascaSegonPlaHelper.getTasquesSegonPla().containsKey(tascaMs.getId())) {
-					InfoSegonPla infoSegonPla = tascaSegonPlaHelper.getTasquesSegonPla().get(tascaMs.getId());
+				tascaSegonPlaHelper.getTasquesSegonPla().containsKey(tascaMs.getTascaId())) {
+					InfoSegonPla infoSegonPla = tascaSegonPlaHelper.getTasquesSegonPla().get(tascaMs.getTascaId());
 					dto.setMarcadaFinalitzar(infoSegonPla.getMarcadaFinalitzar());
 					dto.setIniciFinalitzacio(infoSegonPla.getIniciFinalitzacio());
 					dto.setErrorFinalitzacio(infoSegonPla.getError());
 			}
 		}
 		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded() && 
-				tascaSegonPlaHelper.getTasquesSegonPla().containsKey(tascaMs.getId())) {
-			InfoSegonPla infoSegonPla = tascaSegonPlaHelper.getTasquesSegonPla().get(tascaMs.getId());
+				tascaSegonPlaHelper.getTasquesSegonPla().containsKey(tascaMs.getTascaId())) {
+			InfoSegonPla infoSegonPla = tascaSegonPlaHelper.getTasquesSegonPla().get(tascaMs.getTascaId());
 			dto.setMarcadaFinalitzar(infoSegonPla.getMarcadaFinalitzar());
 			dto.setIniciFinalitzacio(infoSegonPla.getIniciFinalitzacio());
 			dto.setErrorFinalitzacio(infoSegonPla.getError());
@@ -699,10 +697,10 @@ public class TascaHelper {
 			}
 		} else if (tascaMs.getResponsables() != null && !tascaMs.getResponsables().isEmpty()) {
 			List<PersonaDto> responsables = new ArrayList<PersonaDto>();
-			for (ResponsableDto responsable: tascaMs.getResponsables()) {
-				PersonaDto persona = this.findPersonaOrDefault(responsable.getUsuariCodi());
+			for (String responsable: tascaMs.getResponsables()) {
+				PersonaDto persona = this.findPersonaOrDefault(responsable);
 				if (persona != null) {
-					if (auth.getName().equals(responsable.getUsuariCodi()))
+					if (auth.getName().equals(responsable))
 						dto.setAssignadaUsuariActual(true);
 					responsables.add(persona);
 				}

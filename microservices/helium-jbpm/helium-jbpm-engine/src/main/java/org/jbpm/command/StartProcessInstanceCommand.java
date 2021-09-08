@@ -44,7 +44,8 @@ public class StartProcessInstanceCommand extends NewProcessInstanceCommand imple
       
       
       Jbpm3HeliumBridge.getInstanceService().crearProces(ProcesDto.builder()
-				.id(String.valueOf(processInstance.getId()))
+    		  	.motor(Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("es.caib.helium.engine.codi"))
+				.procesId(String.valueOf(processInstance.getId()))
 				.expedientId(null)
 				.dataInici(processInstance.getStart())
 				.dataFi(processInstance.getEnd())

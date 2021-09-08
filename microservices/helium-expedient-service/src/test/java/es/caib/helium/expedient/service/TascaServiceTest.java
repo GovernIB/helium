@@ -87,8 +87,8 @@ class TascaServiceTest {
     @BeforeEach
     void setUp() {
         expedient = ExpedientTestHelper.generateExpedient(1, 1L, 1L, expedientId, "1", "1/2021", "Títol 1");
-        proces = ProcesTestHelper.generateProces(0, "1", expedient, "pd1", "descripcio", new Date());
-        tasca = TascaTestHelper.generateTasca(1, "1", expedient, proces, "nom 1", "títol 1");
+        proces = ProcesTestHelper.generateProces(0, "1", expedient, "JPBM01", "pd1", "descripcio", new Date());
+        tasca = TascaTestHelper.generateTasca(1, "1", proces, "nom 1", "títol 1");
     }
     
     @Test
@@ -97,15 +97,12 @@ class TascaServiceTest {
 
         // Given
         TascaDto tascaDto = mapper.entityToDto(tasca);
+        tascaDto.setProcesId(tasca.getProces().getProcesId());
         Responsable responsable = tasca.getResponsables().get(0);
         tasca.getResponsables().clear();
-        tascaDto.setExpedientId(expedient.getId());
 
-        given(expedientRepository.findById(tascaDto.getExpedientId())).willReturn(expedientOptional);
-        given(procesRepository.findById(tascaDto.getProcesId())).willReturn(procesOptional);
+        given(procesRepository.findByProcesId(tascaDto.getProcesId())).willReturn(procesOptional);
         given(tascaRepository.save(any(Tasca.class))).willReturn(tasca);
-        given(expedientOptional.isPresent()).willReturn(true);
-        given(expedientOptional.get()).willReturn(expedient);
         given(procesOptional.isPresent()).willReturn(true);
         given(procesOptional.get()).willReturn(proces);
         given(responsableRepository.save(any(Responsable.class))).willReturn(responsable);
@@ -117,12 +114,7 @@ class TascaServiceTest {
         assertThat(creat).isNotNull();
         TascaTestHelper.comprovaTasca(tascaDto, creat);
 
-        then(expedientRepository).should(times(1)).findById(tascaDto.getExpedientId());
-        then(expedientRepository).shouldHaveNoMoreInteractions();
-        then(expedientOptional).should(times(1)).isPresent();
-        then(expedientOptional).should(times(1)).get();
-        then(expedientOptional).shouldHaveNoMoreInteractions();
-        then(procesRepository).should(times(1)).findById(tascaDto.getProcesId());
+        then(procesRepository).should(times(1)).findByProcesId(tascaDto.getProcesId());
         then(procesRepository).shouldHaveNoMoreInteractions();
         then(procesOptional).should(times(1)).isPresent();
         then(procesOptional).should(times(1)).get();
@@ -138,7 +130,7 @@ class TascaServiceTest {
     @DisplayName("Crear tasca - Errors validació blank o negatiu")
     @CsvSource({
             // Descripcio, camp blank o -1
-    		"Tasca id -1, id",
+    		"Tasca tascaId -1, tascaId",
 	        "Tasca nom '', nom",
 	        "Tasca títol '', titol"
     })
@@ -150,11 +142,8 @@ class TascaServiceTest {
 
         // Given
         switch (campNull) {
-	        case "id":
-	            tasca.setId("");
-	            break;
-	        case "expedient":
-	            tasca.setExpedient(null);
+	        case "tascaId":
+	            tasca.setTascaId("");
 	            break;
 	        case "nom":
 	            tasca.setNom("");
@@ -182,8 +171,7 @@ class TascaServiceTest {
     @DisplayName("Crear tasca - Errors validació blank o negatiu")
     @CsvSource({
             // Descripcio, camp null
-    		"Tasca id null, id",
-	        "Expedient null, expedient",
+    		"Tasca tascaId null, tascaId",
 	        "Proces null, proces",
 	        "Tasca nom null, nom",
 	        "Tasca títol null, titol",
@@ -197,11 +185,8 @@ class TascaServiceTest {
 
         // Given
         switch (campNull) {
-	        case "id":
-	            tasca.setId(null);
-	            break;
-	        case "expedient":
-	            tasca.setExpedient(null);
+	        case "tascaId":
+	            tasca.setTascaId(null);
 	            break;
 	        case "proces":
 	            tasca.setProces(null);
@@ -233,9 +218,9 @@ class TascaServiceTest {
     @DisplayName("Modificar tasca")
     void whenUpdateTasca_thenReturnTasca() {
         // Given
-        Tasca tasca2 = TascaTestHelper.generateTasca(2, "2", expedient, proces, "nom 2", "títol 2");
+        Tasca tasca2 = TascaTestHelper.generateTasca(2, "2", proces, "nom 2", "títol 2");
         TascaDto tascaDto = mapper.entityToDto(tasca2);
-        given(tascaRepository.findById(any())).willReturn(Optional.of(tasca2));
+        given(tascaRepository.findByTascaId(any())).willReturn(Optional.of(tasca2));
         given(tascaRepository.save(any(Tasca.class))).will(
                 (InvocationOnMock invocation) -> invocation.getArgument(0, Tasca.class));
 
@@ -246,7 +231,7 @@ class TascaServiceTest {
         assertThat(response).isNotNull();
         tascaDto.setId(response.getId());
         TascaTestHelper.comprovaTasca(tascaDto, response);
-        then(tascaRepository).should().findById(any());
+        then(tascaRepository).should().findByTascaId(any());
         then(tascaRepository).should().save(any(Tasca.class));
         then(tascaRepository).shouldHaveNoMoreInteractions();
     }
@@ -255,7 +240,7 @@ class TascaServiceTest {
     @DisplayName("Modificar tasca - Errors validació")
     @CsvSource({
 	        // Descripcio, camp null o negatiu
-			"Tasca id '', id",
+			"Tasca tascaId '', tascaId",
 	        "Tasca nom blank, nom,",
 	        "Tasca títol blank, titol"
     })
@@ -266,10 +251,10 @@ class TascaServiceTest {
         System.out.println("Executant test: " + descripcio);
 
         // Given
-        given(tascaRepository.findById(any())).willReturn(Optional.of(tasca));
+        given(tascaRepository.findByTascaId(any())).willReturn(Optional.of(tasca));
         switch (campNull) {
-	        case "id":
-	            tasca.setId("");
+	        case "tascaId":
+	            tasca.setTascaId("");
 	            break;
 	        case "nom":
 	            tasca.setNom("");
@@ -294,8 +279,7 @@ class TascaServiceTest {
     @DisplayName("Modificar tasca - Errors validació")
     @CsvSource({
 	        // Descripcio, camp null o negatiu
-			"Tasca id null, id",
-	        "Expedient null, expedient",
+			"Tasca tascaId null, tascaId",
 			"Proces null, proces",
 	        "Tasca nom null, nom",
 	        "Tasca títol null, titol",
@@ -308,13 +292,10 @@ class TascaServiceTest {
         System.out.println("Executant test: " + descripcio);
 
         // Given
-        given(tascaRepository.findById(any())).willReturn(Optional.of(tasca));
+        given(tascaRepository.findByTascaId(any())).willReturn(Optional.of(tasca));
         switch (campNull) {
-	        case "id":
-	            tasca.setId(null);
-	            break;
-	        case "expedient":
-	            tasca.setExpedient(null);
+	        case "tascaId":
+	            tasca.setTascaId(null);
 	            break;
 	        case "proces":
 	            tasca.setProces(null);
@@ -346,13 +327,13 @@ class TascaServiceTest {
     @DisplayName("Eliminar tasca")
     void whenDeleteTasca() {
         // Given
-        given(tascaRepository.findById(any())).willReturn(Optional.of(tasca));
+        given(tascaRepository.findByTascaId(any())).willReturn(Optional.of(tasca));
 
         // When
         tascaService.delete("1");
 
         // Then
-        then(tascaRepository).should().findById(any());
+        then(tascaRepository).should().findByTascaId(any());
         then(tascaRepository).should().delete("1");
         then(tascaRepository).shouldHaveNoMoreInteractions();
     }
@@ -361,13 +342,13 @@ class TascaServiceTest {
     @DisplayName("Consulta tasca per id")
     void whenGetById_thenReturn() {
         // Given
-        given(tascaRepository.findById(any())).willReturn(Optional.of(tasca));
+        given(tascaRepository.findByTascaId(any())).willReturn(Optional.of(tasca));
 
         // When
         TascaDto dto = tascaService.getById("1");
 
         // Then
-        then(tascaRepository).should().findById(any());
+        then(tascaRepository).should().findByTascaId(any());
         then(tascaRepository).shouldHaveNoMoreInteractions();
         assertThat(dto).isNotNull();
         TascaTestHelper.comprovaTasca(dto, mapper.entityToDto(tasca));

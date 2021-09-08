@@ -3,29 +3,34 @@
  */
 package es.caib.helium.expedient.domain;
 
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import org.springframework.data.domain.Persistable;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.domain.Persistable;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ForeignKey;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Objecte tasca que representa la informació d'una tasca pel llistat de tasques actives. 
@@ -39,24 +44,22 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 @Entity
-@Table(	name="hel_tasca",
-		indexes = {
-			@Index(name = "hel_tasca_exp_i", columnList = "expedient_id")
-		})
-public class Tasca implements Persistable<String> {
+@Table(	name="hel_tasca")
+@SequenceGenerator(name = "hel_tasca_gen", sequenceName = "hel_tasca_seq", allocationSize = 1)
+public class Tasca implements Persistable<Long> {
+
+	/** Identificador intern auto generat. */
+	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hel_tasca_gen")
+	private Long id;
 
 	/** Identificador de la tasca que es correspon amb l'identificador de la instància de la tasca */
-	@Id
 	@NotEmpty
 	@Size(max = 64)
-	@Column(name="id", nullable=false, length = 64)
-	private String id;
+	@Column(name="tasca_id", nullable=false, length = 64)
+	private String tascaId;
 	
-	@ManyToOne(optional=true, cascade={CascadeType.ALL})
-	@JoinColumn(name="expedient_id", foreignKey = @ForeignKey(name="HEL_TASCA_EXP_FK"))
-	private Expedient expedient;
-
-	@ManyToOne(optional=false, cascade={CascadeType.ALL})
+	@ManyToOne(optional=false, cascade={CascadeType.ALL}, fetch = FetchType.LAZY)
 	@JoinColumn(name="proces_id", foreignKey = @ForeignKey(name="HEL_TASCA_EXP_FK"))
 	private Proces proces;
 
@@ -106,17 +109,16 @@ public class Tasca implements Persistable<String> {
 	@Column(name="usuari_assignat")
 	private String usuariAssignat;
 
-	@Size(max = 255)
-	@Column(name="grup_assignat")
-	private String grupAssignat;
-
 	@Builder.Default
 	@Column(name="prioritat")
 	private Integer prioritat = 3;
 	
-	@OneToMany(mappedBy="tasca", cascade={CascadeType.ALL})
+	@OneToMany(mappedBy="tasca", cascade={CascadeType.ALL}, fetch = FetchType.LAZY)
 	private List<Responsable> responsables;
-	
+
+	@OneToMany(mappedBy="tasca", cascade={CascadeType.ALL}, fetch = FetchType.LAZY)
+	private List<Grup> grups;
+
 	@Override
 	public boolean isNew() {
 		return id != null;
