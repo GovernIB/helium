@@ -1,11 +1,15 @@
 package es.caib.helium.integracio.domini.persones;
 
 import es.caib.helium.integracio.enums.persones.Sexe;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Persona {
 
 	private String codi;
@@ -16,10 +20,6 @@ public class Persona {
 	private String email;
 	private Sexe sexe;
 	private String contrasenya;
-	
-	public Persona() {
-		
-	}
 
 	public Persona(String codi, String nomSencer, String email, Sexe sexe) {
 		this.codi = codi;

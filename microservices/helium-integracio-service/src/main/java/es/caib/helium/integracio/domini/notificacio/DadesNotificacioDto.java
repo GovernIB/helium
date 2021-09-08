@@ -33,7 +33,7 @@ public class DadesNotificacioDto {
 	private EnviamentTipus enviamentTipus;
 	private ServeiTipusEnum serveiTipusEnum;
 	@NotNull @NotEmpty //Todo queda pendent validar els enviaments i subtipus
-	private List<DadesEnviamentDto> enviaments;
+	private List<Enviament> enviaments;
 	@NotNull @NotEmpty
 	private String procedimentCodi;
 	private Integer retard;

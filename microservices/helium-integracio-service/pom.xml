@@ -55,10 +55,6 @@
 			<artifactId>postgresql</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>org.springframework.ldap</groupId>
-			<artifactId>spring-ldap-core</artifactId>
-		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -69,6 +65,18 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
+
+		<!-- Plugin persones -->
+		<dependency>
+			<groupId>org.springframework.ldap</groupId>
+			<artifactId>spring-ldap-core</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.fundaciobit.pluginsib.userinformation</groupId>
+			<artifactId>pluginsib-userinformation-keycloak</artifactId>
+			<version>2.0.1</version>
 		</dependency>
 
 		<!-- Monitor integracions -->

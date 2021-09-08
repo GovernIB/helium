@@ -69,7 +69,7 @@ public class NotificacioServiceNotibImpl implements NotificacioService {
 		parametres.add(new Parametre("expedient", dto.getExpedientIdentificadorLimitat()));
 		parametres.add(new Parametre("documentArxiuNom", dto.getDocumentArxiuNom()));
 		parametres.add(new Parametre("titularsNif", preparaNifDestinataris(dto.getEnviaments())));
-		parametres.add(new Parametre("idioma", dto.getIdioma().name()));
+		parametres.add(new Parametre("idioma", dto.getIdioma() != null ? dto.getIdioma().name() : ""));
 
 		var descripcio = "Alta notificació per l'expedient " + dto.getExpedientId();
 		

@@ -5,7 +5,6 @@ import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
-import es.caib.distribucio.core.api.exception.SistemaExternException;
 import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreEntrada;
 import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreId;
 import es.caib.helium.integracio.domini.arxiu.Anotacio;
@@ -79,7 +78,7 @@ public class ArxiuServiceCaibImpl implements ArxiuService {
 					.parametres(parametres)
 					.tempsResposta(System.currentTimeMillis() - t0).build());
 			
-			log.debug("Detalls de l'expedient consutats correctament");
+			log.debug("Detalls de l'expedient consultats correctament");
 			return expedient;
 			
 		} catch(Exception ex) {
@@ -941,9 +940,10 @@ public class ArxiuServiceCaibImpl implements ArxiuService {
 			idWs.setClauAcces(anotacio.getDistribucioClauAcces());
 			idWs.setIndetificador(anotacio.getDistribucioId());
 			AnotacioRegistreEntrada anotacioRegistreEntrada;
-
-			anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
-			return backofficeUtils.crearExpedientAmbAnotacioRegistre(expedientArxiu, anotacioRegistreEntrada);
+			// TODO MS: FALTA CREAR EL BackofficeIntegracio (veure helium 3.2)
+			//  anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
+			//  return backofficeUtils.crearExpedientAmbAnotacioRegistre(expedientArxiu, anotacioRegistreEntrada);
+			return null;
 		} catch (Exception e) {
 			var errMsg = "Error reprocessant la informació de l'anotació de registre \""
 					+ anotacio.getIdentificador() + "\" de Distribució: " + e.getMessage();
@@ -951,5 +951,20 @@ public class ArxiuServiceCaibImpl implements ArxiuService {
 			throw new ArxiuException(errMsg, e);
 		}
 	}
+
+//	public AnotacioRegistreEntrada consulta(
+//			es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreId idWs)  throws ArxiuException{
+//		AnotacioRegistreEntrada anotacioRegistreEntrada = null;
+//
+//		String accioDescripcio = "Consulta de la informació de l'anotació de Distribució amb id de consulta \"" + (idWs != null ? idWs.getIndetificador() : "null") + "\"";
+//		log.info(accioDescripcio);
+//		try {
+//			anotacioRegistreEntrada = this.getBackofficeIntegracioServicePort().consulta(idWs);
+//		} catch (Exception ex) {
+//			String errorDescripcio = "No s'ha pogut consultar la informació d'una anotació de Distribució: " + ex.getMessage();
+//			throw new ArxiuException(errorDescripcio, ex);
+//		}
+//		return anotacioRegistreEntrada;
+//	}
 	
 }
