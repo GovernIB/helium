@@ -1,7 +1,14 @@
 package es.caib.helium.integracio.controller.notificacio;
 
-import javax.validation.Valid;
-
+import es.caib.helium.integracio.domini.notificacio.ConsultaEnviament;
+import es.caib.helium.integracio.domini.notificacio.ConsultaNotificacio;
+import es.caib.helium.integracio.domini.notificacio.DadesNotificacioDto;
+import es.caib.helium.integracio.domini.notificacio.RespostaConsultaEstatEnviament;
+import es.caib.helium.integracio.domini.notificacio.RespostaConsultaEstatNotificacio;
+import es.caib.helium.integracio.domini.notificacio.RespostaNotificacio;
+import es.caib.helium.integracio.service.notificacio.NotificacioService;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,15 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import es.caib.helium.integracio.domini.notificacio.ConsultaEnviament;
-import es.caib.helium.integracio.domini.notificacio.ConsultaNotificacio;
-import es.caib.helium.integracio.domini.notificacio.DadesNotificacioDto;
-import es.caib.helium.integracio.domini.notificacio.RespostaConsultaEstatEnviament;
-import es.caib.helium.integracio.domini.notificacio.RespostaConsultaEstatNotificacio;
-import es.caib.helium.integracio.domini.notificacio.RespostaNotificacio;
-import es.caib.helium.integracio.service.notificacio.NotificacioService;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import javax.validation.Valid;
 
 @Slf4j
 @RestController
@@ -39,7 +38,7 @@ public class NotificacioController {
 	@ExceptionHandler({ Exception.class })
 	public ResponseEntity<Void> handleException(Exception e) {
 		//return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
-		throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error no controlat: " + e.getMessage(), e);
+		throw 	new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error no controlat: " + e.getMessage(), e);
 	}
 	
 	@PostMapping(consumes = "application/json")
@@ -57,7 +56,7 @@ public class NotificacioController {
 	}
 
 	@GetMapping(value = "{identificador}/consulta", produces = "application/json")  
-	public ResponseEntity<RespostaConsultaEstatNotificacio> consultaNotificacio(
+	public ResponseEntity<RespostaConsultaEstatNotificacio> consultarNotificacio(
 			@Valid @PathVariable("identificador") String identificador, 
 			ConsultaNotificacio consulta) throws Exception {
  		
@@ -71,7 +70,7 @@ public class NotificacioController {
 	}
 
 	@GetMapping(value = "enviament/{referencia}", produces = "application/json")  
-	public ResponseEntity<RespostaConsultaEstatEnviament> consultaEnviament(
+	public ResponseEntity<RespostaConsultaEstatEnviament> consultarEnviament(
 			@Valid @PathVariable("referencia") String referencia, 
 			ConsultaEnviament consulta) throws Exception {
 		

@@ -1,24 +1,6 @@
 package es.caib.helium.integracio.service.persones;
 
-import static org.springframework.ldap.query.LdapQueryBuilder.query;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
-
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.env.Environment;
-import org.springframework.ldap.core.AttributesMapper;
-import org.springframework.ldap.core.LdapTemplate;
-import org.springframework.stereotype.Service;
-
 import com.netflix.servo.util.Strings;
-
 import es.caib.helium.integracio.domini.persones.Persona;
 import es.caib.helium.integracio.excepcions.persones.PersonaException;
 import es.caib.helium.integracio.service.monitor.MonitorIntegracionsService;
@@ -27,8 +9,22 @@ import es.caib.helium.jms.enums.EstatAccio;
 import es.caib.helium.jms.enums.TipusAccio;
 import es.caib.helium.jms.events.IntegracioEvent;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.Environment;
+import org.springframework.ldap.core.AttributesMapper;
+import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.stereotype.Service;
 
-// TODO PASSAR LES PROPIETATS AL CONFIG I QUE NOMÉS ES DAMNINI UNA VEGADA
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import static org.springframework.ldap.query.LdapQueryBuilder.query;
+
 @Service
 @Slf4j
 public class PersonaServiceLdapImpl implements PersonaService {
@@ -94,7 +90,7 @@ public class PersonaServiceLdapImpl implements PersonaService {
 		if (roleAtt == null || roleName == null) {
 			return roles;
 		}
-		// TODO falta entendre quina query s'ha de fer no hi han les propietats definides a helium.properties
+		// TODO MS: falta entendre quina query s'ha de fer no hi han les propietats definides a helium.properties
 //		ldapPersones.search(query().filter(filter), new AttributesMapper<String>() {
 //			@Override
 //			public String mapFromAttributes(Attributes attributes) throws NamingException {

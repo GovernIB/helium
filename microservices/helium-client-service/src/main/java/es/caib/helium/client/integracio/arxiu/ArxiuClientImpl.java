@@ -12,7 +12,7 @@ import java.util.Objects;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ArxiuClientServiceImpl implements ArxiuClientService {
+public class ArxiuClientImpl implements ArxiuClient {
 	
 	private final String missatgeLog = "Cridant Integracio Service - Arxiu - ";
 	

@@ -14,23 +14,25 @@ import javax.validation.Valid;
 
 
 public interface ArxiuFeignClient {
-	
+
+	String SERVEI = "-arxiu";
+
 	//TODO REVISAR ESTIGUI CORRECTE L'OBJECTE
 	@RequestMapping(method = RequestMethod.GET, value = ArxiuPath.GET_EXPEDIENT_BY_UUID)
-	public ResponseEntity<Expedient> getExpedientsByUuId(
+	ResponseEntity<Expedient> getExpedientsByUuId(
 			@PathVariable("uuId") String uuId, 
 			@RequestParam("entornId") Long entornId); 
 	
 	@RequestMapping(method = RequestMethod.POST, value = ArxiuPath.POST_EXPEDIENT)
-	public ResponseEntity<Void> postExpedient(@RequestBody ExpedientArxiu expedient, 
+	ResponseEntity<Void> postExpedient(@RequestBody ExpedientArxiu expedient,
 			@RequestParam("entornId") Long entornId);
 
 	@RequestMapping(method = RequestMethod.PUT, value = ArxiuPath.PUT_EXPEDIENT)
-	public ResponseEntity<Void> putExpedient(@RequestBody ExpedientArxiu expedient, 
+	ResponseEntity<Void> putExpedient(@RequestBody ExpedientArxiu expedient,
 			@RequestParam("entornId") Long entornId);
 
 	@RequestMapping(method = RequestMethod.DELETE, value = ArxiuPath.DELETE_EXPEDIENT)
-	public ResponseEntity<Void> deleteExpedient(
+	ResponseEntity<Void> deleteExpedient(
 			@PathVariable("uuId") String uuId,
 			@RequestParam("entornId") Long entornId);
 	

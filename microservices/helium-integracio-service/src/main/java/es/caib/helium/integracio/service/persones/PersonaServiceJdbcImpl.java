@@ -1,28 +1,7 @@
 package es.caib.helium.integracio.service.persones;
 
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.naming.InitialContext;
-import javax.sql.DataSource;
-
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.stereotype.Service;
-
 import com.netflix.servo.util.Strings;
-
 import es.caib.helium.integracio.domini.persones.Persona;
 import es.caib.helium.integracio.excepcions.persones.PersonaException;
 import es.caib.helium.integracio.service.monitor.MonitorIntegracionsService;
@@ -32,6 +11,24 @@ import es.caib.helium.jms.enums.EstatAccio;
 import es.caib.helium.jms.enums.TipusAccio;
 import es.caib.helium.jms.events.IntegracioEvent;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Service;
+
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -43,7 +40,7 @@ public class PersonaServiceJdbcImpl implements PersonaService {
 	private Environment env;
 	@Autowired
 	private MonitorIntegracionsService monitor;
-	
+
 	@Override
 	public List<Persona> getPersones(String textSearch, Long entornId) throws PersonaException {
 		
@@ -141,7 +138,7 @@ public class PersonaServiceJdbcImpl implements PersonaService {
 		var t0 = System.currentTimeMillis();
 		var descripcio = "Consulta de rols de l'usuari amb codi " + codi;
 		try {
-			var query = env.getProperty("es.caib.helium.integracio.persones.jdbc.filter.roles");
+			var query = env.getProperty("es.caib.helium.iwntegracio.persones.jdbc.filter.roles");
 			if (Strings.isNullOrEmpty(query)) {
 				return new ArrayList<>();
 			}
@@ -156,7 +153,7 @@ public class PersonaServiceJdbcImpl implements PersonaService {
 			var parameterSource = new MapSqlParameterSource(parametres) {
 				public boolean hasValue(String paramName) {
 					return true;
-				}
+				} // TODO MS: S'HAURIA DE FER COMPARACIO AMB NUULL O EMPTY?
 			};
 			
 			var rols = (List<String>) namedJdbcTemplate.query(
