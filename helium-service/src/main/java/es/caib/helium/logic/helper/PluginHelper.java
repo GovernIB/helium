@@ -3,34 +3,9 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateUtils;
-import org.fundaciobit.plugins.validatesignature.api.CertificateInfo;
-import org.fundaciobit.plugins.validatesignature.api.IValidateSignaturePlugin;
-import org.fundaciobit.plugins.validatesignature.api.SignatureDetailInfo;
-import org.fundaciobit.plugins.validatesignature.api.SignatureRequestedInformation;
-import org.fundaciobit.plugins.validatesignature.api.TimeStampInfo;
-import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureRequest;
-import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureResponse;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
+import es.caib.helium.client.integracio.arxiu.ArxiuClient;
 import es.caib.helium.client.integracio.arxiu.model.ExpedientArxiu;
+import es.caib.helium.client.integracio.notificacio.NotificacioClient;
 import es.caib.helium.client.integracio.notificacio.enums.NotificacioEstat;
 import es.caib.helium.client.integracio.notificacio.model.ConsultaEnviament;
 import es.caib.helium.client.integracio.notificacio.model.ConsultaNotificacio;
@@ -146,6 +121,31 @@ import es.caib.plugins.arxiu.api.FirmaPerfil;
 import es.caib.plugins.arxiu.api.FirmaTipus;
 import es.caib.plugins.arxiu.api.IArxiuPlugin;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
+import org.fundaciobit.plugins.validatesignature.api.CertificateInfo;
+import org.fundaciobit.plugins.validatesignature.api.IValidateSignaturePlugin;
+import org.fundaciobit.plugins.validatesignature.api.SignatureDetailInfo;
+import org.fundaciobit.plugins.validatesignature.api.SignatureRequestedInformation;
+import org.fundaciobit.plugins.validatesignature.api.TimeStampInfo;
+import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureRequest;
+import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureResponse;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Helper per a accedir a la funcionalitat dels plugins.
@@ -179,9 +179,10 @@ public class PluginHelper {
 	@Resource
 	private GlobalProperties globalProperties;
 
-	public IArxiuPlugin arxiuPlugin; // borrar
 	// TODO FALTEN ELS AUTOWIRES I FICAR-LOS COM A COMPONENT?
-	//private ArxiuPlugin arxiuPlugin;
+
+	public IArxiuPlugin arxiuPlugin; // borrar
+	private NotificacioPlugin notificacioPlugin;
 	private PersonesPlugin personesPlugin;
 	private TramitacioPlugin tramitacioPlugin;
 	private RegistrePlugin registrePlugin;
@@ -191,9 +192,13 @@ public class PluginHelper {
 	private CustodiaPlugin custodiaPlugin;
 	private SignaturaPlugin signaturaPlugin;
 	private FirmaPlugin firmaPlugin;
-	private NotificacioPlugin notificacioPlugin;
 	private IValidateSignaturePlugin validaSignaturaPlugin;
 	private UnitatsOrganiquesPlugin unitatsOrganitzativesPlugin;
+
+	@Resource
+	private NotificacioClient notificacioClient;
+	@Resource
+	private ArxiuClient arxiuClient;
 
 	public List<Persona> personaFindLikeNomSencer(String text) {
 		long t0 = System.currentTimeMillis();
@@ -2160,7 +2165,8 @@ public class PluginHelper {
 
 		log.debug("Consulta d'informació de l'expedient");
 		try {
-			return arxiuPlugin.expedientDetalls(arxiuUuid, EntornActual.getEntornId() + "");
+			var resposta = arxiuClient.getExpedientsByUuId(arxiuUuid, EntornActual.getEntornId());
+			return null;
 		} catch (Exception ex) {
 			var error = "No s'ha pogut consultar la informació de l'expedient: ";
 			log.error(error, ex);
@@ -2566,7 +2572,7 @@ public class PluginHelper {
 		consultaNotificacio.setIdentificador(notificacio.getEnviamentIdentificador());
 		consultaNotificacio.setEnviamentReferencia(notificacio.getEnviamentReferencia());
 		try {
-			var resposta = notificacioPlugin.consultarNotificacio(notificacio.getEnviamentIdentificador(), consultaNotificacio);
+			var resposta = notificacioClient.consultarNotificacio(notificacio.getEnviamentIdentificador(), consultaNotificacio);
 			// Revisa que no sigui una resposta amb error de consulta
 			if (resposta.getEstat() == null && resposta.isError()) {
 				throw new es.caib.helium.integracio.plugins.SistemaExternException("Resposta d'error en de la consulta de la notificació \"" + notificacio.getEnviamentIdentificador() + "\" al NOTIB: resposta.errorDescripcio= " + resposta.getErrorDescripcio());
@@ -2629,9 +2635,9 @@ public class PluginHelper {
 		consulta.setIdentificador(notificacio.getEnviamentIdentificador());
 		consulta.setEnviamentReferencia(notificacio.getEnviamentReferencia());
 		try {
-			var resposta = notificacioPlugin.consultarEnviament(notificacio.getEnviamentReferencia(), consulta);
+			var resposta =  notificacioClient.consultarEnviament(notificacio.getEnviamentReferencia(), consulta);
 			// Revisa que no sigui una resposta amb error de consulta
-			if (resposta.getEstat() == null && resposta.isError()) {
+			if (resposta == null || resposta.getEstat() == null && resposta.isError()) {
 				throw new es.caib.helium.integracio.plugins.SistemaExternException("Resposta d'error en de la consulta de l'enviament \"" + notificacio.getEnviamentReferencia() + "\" al NOTIB: resposta.errorDescripcio= " + resposta.getErrorDescripcio());
 			}
 			var gestioDocumentalId = certificacio != null ? certificacio.getId() : null;
@@ -2690,7 +2696,7 @@ public class PluginHelper {
 						resposta.getErrorDescripcio());
 
 		} catch (Exception ex) {
-			var error = "No s'ha pogut consultar l'estat de la notificació amb referència ";
+			var error = "No s'ha pogut consultar l'estat de la notificació amb referència " + notificacio.getEnviamentReferencia();
 			log.error(error, ex);
 			throw tractarExcepcioEnSistemaExtern(error, ex);
 		}
@@ -4105,27 +4111,6 @@ public class PluginHelper {
 			}
 		}
 		return arxiuPlugin;
-	}
-	private NotificacioPlugin getNotificacioPlugin() {
-		if (notificacioPlugin == null) {
-			String pluginClass = globalProperties.getProperty("app.notificacio.plugin.class");
-			if (pluginClass != null && pluginClass.length() > 0) {
-				try {
-					Class<?> clazz = Class.forName(pluginClass);
-					notificacioPlugin = (NotificacioPlugin)clazz.newInstance();
-				} catch (Exception ex) {
-					throw tractarExcepcioEnSistemaExtern(
-							"Error al crear la instància del plugin de NOTIFICACIÓ (" +
-							"pluginClass=" + pluginClass + ")",
-							ex);
-				}
-			} else {
-				throw tractarExcepcioEnSistemaExtern(
-						"No està configurada la classe per al plugin de NOTIFICACIÓ",
-						null);
-			}
-		}
-		return notificacioPlugin;
 	}
 	
 	private IValidateSignaturePlugin getValidaSignaturaPlugin() {		
