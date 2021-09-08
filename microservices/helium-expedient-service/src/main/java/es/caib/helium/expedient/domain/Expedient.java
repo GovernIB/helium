@@ -18,6 +18,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.OneToMany;
@@ -61,7 +62,6 @@ public class Expedient implements Persistable<Long> {
 	@NotNull
 	@Column(name="expedient_tipus_id", nullable=false)
 	private Long expedientTipusId;
-
 
 	@NotBlank
 	@NotEmpty
@@ -122,8 +122,8 @@ public class Expedient implements Persistable<Long> {
 	@Column(name="amb_errors")
 	private boolean ambErrors;
 
-	@OneToMany(mappedBy="expedient", cascade={CascadeType.ALL})
-	private List<Tasca> tasques;
+	@OneToMany(mappedBy="expedient", cascade={CascadeType.ALL}, fetch = FetchType.LAZY)
+	private List<Proces> processos;
 	
 	@Override
 	public boolean isNew() {

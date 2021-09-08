@@ -49,14 +49,14 @@ public class ProcesClientServiceImpl implements ProcesClientService {
 	@Override
 	public void createProcesV1(ProcesDto procesDto) {
 
-		log.debug(MISSATGE_LOG + " creant proces " + procesDto.getId() + " per l'expedient " + procesDto.getExpedientId());
+		log.debug(MISSATGE_LOG + " creant proces " + procesDto.getProcesId() + " per l'expedient " + procesDto.getExpedientId());
 		procesClient.createProcesV1(procesDto);
 	}
 
 	@Override
 	public void updateProcesV1(String procesId, ProcesDto procesDto) {
 
-		log.debug(MISSATGE_LOG + " update proces " + procesDto.getId() + " de l'expedient " + procesDto.getExpedientId());
+		log.debug(MISSATGE_LOG + " update proces " + procesDto.getProcesId() + " de l'expedient " + procesDto.getExpedientId());
 		procesClient.updateProcesV1(procesId, procesDto);
 	}
 

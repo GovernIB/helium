@@ -15,11 +15,11 @@ public class ProcesSpecifications {
 	}
 
 	public static Specification<Proces> processArrelIdLike(String procesArrelId) {
-        return (proces, cq, cb) -> cb.like(proces.get("procesArrel").get("id"), procesArrelId);
+        return (proces, cq, cb) -> cb.like(proces.get("procesArrel").get("procesId"), procesArrelId);
 	}
 
 	public static Specification<Proces> processPareIdLike(String procesPareId) {
-		return (proces, cq, cb) -> cb.like(proces.get("procesPare").get("id"), procesPareId);
+		return (proces, cq, cb) -> cb.like(proces.get("procesPare").get("procesId"), procesPareId);
 	}
 
 	public static Specification<Proces> procesList(

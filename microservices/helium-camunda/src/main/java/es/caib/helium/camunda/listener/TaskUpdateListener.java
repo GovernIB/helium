@@ -3,7 +3,6 @@ package es.caib.helium.camunda.listener;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import es.caib.helium.camunda.helper.EngineHelper;
 import es.caib.helium.client.expedient.tasca.TascaClientService;
-import es.caib.helium.client.expedient.tasca.model.ResponsableDto;
 import es.caib.helium.client.helper.PatchHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,18 +36,18 @@ public class TaskUpdateListener implements TaskListener {
                 .singleResult();
         var originalCandidates = EngineHelper.getInstance().getTaskService().getIdentityLinksForTask(delegateTask.getId());
 
-        List<ResponsableDto> originalUsuarisCandidats =  originalCandidates.stream()
+        List<String> originalUsuarisCandidats =  originalCandidates.stream()
                 .filter(c -> c.getUserId() != null)
-                .map(c -> ResponsableDto.builder().usuariCodi(c.getUserId()).build())
+                .map(c -> c.getUserId())
                 .collect(Collectors.toList());
         List<String> originalGrupsCandidats = originalCandidates.stream()
                 .filter(c -> c.getGroupId() != null)
                 .map(c -> c.getGroupId())
                 .collect(Collectors.toList());
 
-        List<ResponsableDto> usuarisCandidats =  delegateTask.getCandidates().stream()
+        List<String> usuarisCandidats =  delegateTask.getCandidates().stream()
                 .filter(c -> c.getUserId() != null)
-                .map(c -> ResponsableDto.builder().usuariCodi(c.getUserId()).build())
+                .map(c -> c.getUserId())
                 .collect(Collectors.toList());
         List<String> grupsCandidats = delegateTask.getCandidates().stream()
                 .filter(c -> c.getGroupId() != null)

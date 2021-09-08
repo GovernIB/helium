@@ -28,7 +28,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.caib.helium.client.engine.model.WProcessInstance;
-import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.client.engine.model.WToken;
 import es.caib.helium.client.expedient.expedient.ExpedientClientService;
 import es.caib.helium.client.expedient.expedient.enums.ExpedientEstatTipusEnum;
@@ -1321,7 +1320,7 @@ public class ExpedientHelper {
 
 	private InstanciaProcesDto procesMsToInstanciaProcesDto(ProcesDto procesMs) {
 		InstanciaProcesDto dto = new InstanciaProcesDto();
-		dto.setId(procesMs.getId());
+		dto.setId(procesMs.getProcesId());
 		dto.setInstanciaProcesPareId(procesMs.getProcesPareId());
 		if (procesMs.getDescripcio() != null && procesMs.getDescripcio().length() > 0) {
 			dto.setTitol(procesMs.getDescripcio());

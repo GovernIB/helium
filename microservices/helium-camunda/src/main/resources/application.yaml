@@ -13,6 +13,8 @@ es:
       helium-data-service-host: http://localhost:8083
       dada-service-user: user
       dada-service-password: pass
+      engine: 
+        codi: CAMUNDA01
 
 camunda:
   bpm:

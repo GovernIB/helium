@@ -1,15 +1,18 @@
 package es.caib.helium.camunda.listener;
 
+import java.util.Date;
+
+import org.camunda.bpm.engine.delegate.DelegateExecution;
+import org.camunda.bpm.engine.delegate.ExecutionListener;
+import org.camunda.bpm.engine.impl.persistence.entity.ExecutionEntity;
+import org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import es.caib.helium.client.expedient.proces.ProcesClientService;
 import es.caib.helium.client.expedient.proces.model.ProcesDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.camunda.bpm.engine.delegate.ExecutionListener;
-import org.camunda.bpm.engine.impl.persistence.entity.ExecutionEntity;
-import org.springframework.stereotype.Component;
-
-import java.util.Date;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -17,6 +20,9 @@ import java.util.Date;
 public class ProcessCreateListener implements ExecutionListener {
 
     private final ProcesClientService procesClientService;
+    
+    @Value("${es.caib.helium.engine.codi:CAMUNDA}")
+    private String motorCodi;
 
 //    private final RuntimeService runtimeService;
 //    private final HistoryService historyService;
@@ -38,7 +44,8 @@ public class ProcessCreateListener implements ExecutionListener {
 //        } catch (Exception e) {}
 
         ProcesDto procesDto = ProcesDto.builder()
-                .id(processInstance.getId())
+        		.motor(motorCodi)
+                .procesId(processInstance.getId())
                 .processDefinitionId(processInstance.getProcessDefinitionId())
                 .procesArrelId(processInstance.getRootProcessInstanceId())
                 .procesPareId(processInstance.getParentId())

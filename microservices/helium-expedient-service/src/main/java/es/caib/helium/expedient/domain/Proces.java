@@ -3,28 +3,36 @@
  */
 package es.caib.helium.expedient.domain;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.springframework.data.domain.Persistable;
+import java.util.Date;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.Date;
+
+import org.springframework.data.domain.Persistable;
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Objecte proces que representa la informació d'una instància de procés. Les instàncies de procecos
@@ -39,17 +47,29 @@ import java.util.Date;
 @Builder
 @Entity
 @Table(	name="hel_proces",
+		uniqueConstraints={@UniqueConstraint(name = "hel_proces_uk", columnNames = {"motor", "proces_id"})},
 		indexes = {
 			@Index(name = "hel_proces_exp_i", columnList = "expedient_id")
 		})
-public class Proces implements Persistable<String> {
+@SequenceGenerator(name = "hel_proces_gen", sequenceName = "hel_proces_seq", allocationSize = 1)
+public class Proces implements Persistable<Long> {
+
+	/** Identificador intern auto generat. */
+	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hel_proces_gen")
+	private Long id;
 
 	/** Identificador del proces dins del motor */
-	@Id
 	@NotEmpty
 	@Size(max = 64)
-	@Column(name="id", nullable=false, length = 64)
-	private String id;
+	@Column(name="motor", nullable=false, length = 64)
+	private String motor;
+
+	/** Identificador del proces dins del motor */
+	@NotEmpty
+	@Size(max = 64)
+	@Column(name="proces_id", nullable=false, length = 64)
+	private String procesId;
 	
 	/** Expedient al qual pertany el proces */
 	@ManyToOne(optional=true, cascade={CascadeType.ALL})
@@ -93,6 +113,9 @@ public class Proces implements Persistable<String> {
 	@Column(name="suspes", nullable = false)
 	private boolean suspes = false;
 	
+	@OneToMany(mappedBy="proces", cascade={CascadeType.ALL}, fetch = FetchType.LAZY)
+	private List<Tasca> tasques;
+
 	@Override
 	public boolean isNew() {
 		return id != null;

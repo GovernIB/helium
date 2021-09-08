@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import es.caib.helium.logic.intf.dto.ExpedientTascaDto.TascaPrioritatDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -75,6 +76,19 @@ public class TascaLlistatDto extends ControlPermisosDto implements Comparable<Ta
 	}
 
 
+	public TascaPrioritatDto getPrioritat() {
+		if (priority <= -2) {
+			return TascaPrioritatDto.MOLT_BAIXA;
+		} else if (priority == -1) {
+			return TascaPrioritatDto.BAIXA;
+		} else if (priority == 1) {
+			return TascaPrioritatDto.ALTA;
+		} else if (priority >= 2) {
+			return TascaPrioritatDto.MOLT_ALTA;
+		} else {
+			return TascaPrioritatDto.NORMAL;
+		}
+	}
 
 	@Override
 	public int compareTo(TascaLlistatDto aThat) {

@@ -27,10 +27,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import es.caib.helium.expedient.ExpedientTestHelper;
 import es.caib.helium.expedient.ProcesTestHelper;
 import es.caib.helium.expedient.TascaTestHelper;
-import es.caib.helium.expedient.model.ExpedientDto;
 import es.caib.helium.expedient.model.ProcesDto;
 import es.caib.helium.expedient.model.TascaDto;
 import es.caib.helium.expedient.repository.TascaRepository;
@@ -63,20 +61,17 @@ class TascaControllerIT {
 
     @BeforeEach
     void setUp() {
-    	// Expedients
-        ExpedientDto expedient1 = expedientService.createExpedient(ExpedientTestHelper.generateExpedientDto(1, 1L, 1L, 1L, "1", "1/2021", "Expedient 1"));
-        ExpedientDto expedient2 = expedientService.createExpedient(ExpedientTestHelper.generateExpedientDto(2, 1L, 1L, 2L, "2", "2/2021", "Expedient 2"));
         // Processos
         ProcesDto proces1 = procesService.createProces(ProcesTestHelper.generateProcesDto(0, "p1", 1L, "pd1", "desc1"));
         ProcesDto proces2 = procesService.createProces(ProcesTestHelper.generateProcesDto(0, "p2", 2L, "pd2", "desc1"));
     	// int index, Long entorn, Long tascaTipus, Long tascaId, 
     	// Long tascaProcessInstanceId, String tascaNumero,String tascaTitol
     	// Tasques
-        tascaService.createTasca(TascaTestHelper.generateTascaDto(0, "1", expedient1.getId(), proces1.getId(), "tasca1", "Tasca 1"));
-        tascaService.createTasca(TascaTestHelper.generateTascaDto(1, "2", expedient1.getId(), proces1.getId(), "tasca2", "Tasca 2"));
-        tascaService.createTasca(TascaTestHelper.generateTascaDto(2, "3", expedient1.getId(), proces1.getId(), "tasca3", "Tasca 3"));
-        tascaService.createTasca(TascaTestHelper.generateTascaDto(3, "4", expedient2.getId(), proces2.getId(), "tasca4", "Tasca 4"));
-        tascaService.createTasca(TascaTestHelper.generateTascaDto(4, "5", expedient2.getId(), proces2.getId(), "tasca5", "Tasca 5"));
+        tascaService.createTasca(TascaTestHelper.generateTascaDto(0, "1", proces1.getProcesId(), "tasca1", "Tasca 1"));
+        tascaService.createTasca(TascaTestHelper.generateTascaDto(1, "2", proces1.getProcesId(), "tasca2", "Tasca 2"));
+        tascaService.createTasca(TascaTestHelper.generateTascaDto(2, "3", proces1.getProcesId(), "tasca3", "Tasca 3"));
+        tascaService.createTasca(TascaTestHelper.generateTascaDto(3, "4", proces2.getProcesId(), "tasca4", "Tasca 4"));
+        tascaService.createTasca(TascaTestHelper.generateTascaDto(4, "5", proces2.getProcesId(), "tasca5", "Tasca 5"));
         
 //        List<String> responsables = new ArrayList<String>();
 //        for (long i = 1; i <= 5L; i++) {
@@ -149,7 +144,7 @@ class TascaControllerIT {
 
         String url = API_V1_TASCA;
         
-        TascaDto tascaIdExistent = TascaTestHelper.generateTascaDto(1, "1", 1L, "p1",  "tasca1", "Tasca 1");
+        TascaDto tascaIdExistent = TascaTestHelper.generateTascaDto(1, "1", "p1",  "tasca1", "Tasca 1");
 
         ResponseEntity<Void> response = 
         		restTemplate.exchange(
@@ -167,7 +162,7 @@ class TascaControllerIT {
 
         String url = API_V1_TASCA;
         
-        TascaDto tasca6 = TascaTestHelper.generateTascaDto(6, "6", 1L, "p1", "tasca6", "Tasca 6");
+        TascaDto tasca6 = TascaTestHelper.generateTascaDto(6, "6", "p1", "tasca6", "Tasca 6");
 
         ResponseEntity<Void> response = 
         		restTemplate.exchange(

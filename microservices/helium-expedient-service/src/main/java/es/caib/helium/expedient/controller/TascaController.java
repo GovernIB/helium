@@ -206,7 +206,7 @@ public class TascaController {
        if (tascaList.getTotalElements() == 0) {
            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
        }
-		List<String> tasquesIds = tascaList.getContent().stream().map(t -> t.getId()).collect(Collectors.toList());
+		List<String> tasquesIds = tascaList.getContent().stream().map(t -> t.getTascaId()).collect(Collectors.toList());
 		PagedList<String> tasquesIdsPagedList = new PagedList<String>(tasquesIds);
 		return new ResponseEntity<>(tasquesIdsPagedList, HttpStatus.OK);
    }
@@ -302,10 +302,7 @@ public class TascaController {
     	
         log.debug("[CTR] get responsables tasca: " + tascaId);
 
-        List<String> responsables = tascaService.getResponsables(tascaId)
-				.stream()
-				.map(e -> e.getUsuariCodi())
-				.collect(Collectors.toList());
+        List<String> responsables = tascaService.getResponsables(tascaId);
 
         return new ResponseEntity<List<String>>(responsables, HttpStatus.OK);
     }
@@ -333,4 +330,43 @@ public class TascaController {
     	
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+	
+	
+    /// Mètodes pels grups
+    
+    @GetMapping(value = "/{tascaId}/grups")
+    public ResponseEntity<List<String>> getGrupsV1(
+    		@PathVariable("tascaId") String tascaId) {
+    	
+        log.debug("[CTR] get grups tasca: " + tascaId);
+
+        List<String> grups = tascaService.getGrups(tascaId);
+
+        return new ResponseEntity<List<String>>(grups, HttpStatus.OK);
+    }
+    
+	@PostMapping(value = "/{tascaId}/grups", consumes = { "application/json" })
+	public ResponseEntity<Void> setGrupsV1(
+			@PathVariable("tascaId") String tascaId,
+			@RequestBody List<String> grups) {
+
+		log.debug("[CTR] set grups tasca: " + tascaId + "\n" + 
+					"grups: " + grups);
+
+        tascaService.setGrups(tascaId, grups);
+
+		return new ResponseEntity<>(HttpStatus.OK);
+    }
+    
+	@DeleteMapping(value = "/{tascaId}/grups")
+    public ResponseEntity<Void> deleteGrupsV1(
+    		@PathVariable("tascaId") String tascaId) {
+		
+        log.debug("[CTR] delete grups tasca: " + tascaId);
+        
+        tascaService.deleteGrups(tascaId);
+    	
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
 }

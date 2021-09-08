@@ -19,8 +19,8 @@ public class ProcesTestHelper {
     @DisplayName("Prova de generar processos iguals")
 	public void generateProcesTest() {
 		Date dataInici = new Date();
-		Proces proces1 = ProcesTestHelper.generateProces(0, "1", null, "dp1", "descripcio1", dataInici);
-		Proces proces2 = ProcesTestHelper.generateProces(0, "1", null, "dp1", "descripcio1", dataInici);
+		Proces proces1 = ProcesTestHelper.generateProces(0, "1", null, "JPBM01", "dp1", "descripcio1", dataInici);
+		Proces proces2 = ProcesTestHelper.generateProces(0, "1", null, "JPBM01", "dp1", "descripcio1", dataInici);
 		ProcesTestHelper.comprovaProces(proces1, proces2);
 		assertNotEquals(proces1, proces2);
 		assertNotEquals(proces1.hashCode(), proces2.hashCode());
@@ -40,13 +40,15 @@ public class ProcesTestHelper {
             int index,
             String procesId,
             Expedient expedient,
+            String motor,
             String processDefinitionId,
             String descripcio,
             Date dataInici
     ) {
         Proces proces = Proces.builder()
-        		.id(procesId)
+        		.procesId(procesId)
         		.expedient(expedient)
+        		.motor(motor)
         		.processDefinitionId(processDefinitionId)
         		.descripcio(descripcio)
         		
@@ -64,14 +66,14 @@ public class ProcesTestHelper {
             String processDefinitionId,
             String descripcio) {
         ProcesDto proces = ProcesDto.builder()
-        		.id(procesId)
+        		.procesId(procesId)
         		.expedientId(expedientId)
         		.processDefinitionId(processDefinitionId)
         		.descripcio(descripcio)
         		
         		.dataInici(new Date())
         		.build();
-        proces.setProcesArrelId(proces.getId());
+        proces.setProcesArrelId(proces.getProcesId());
         
     	return proces;
     }

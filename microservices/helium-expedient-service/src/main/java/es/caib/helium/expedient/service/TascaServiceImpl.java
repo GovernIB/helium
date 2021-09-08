@@ -1,31 +1,5 @@
 package es.caib.helium.expedient.service;
 
-import es.caib.helium.expedient.domain.Expedient;
-import es.caib.helium.expedient.domain.Proces;
-import es.caib.helium.expedient.domain.Responsable;
-import es.caib.helium.expedient.domain.Tasca;
-import es.caib.helium.expedient.mapper.ResponsableMapper;
-import es.caib.helium.expedient.mapper.TascaMapper;
-import es.caib.helium.expedient.model.ResponsableDto;
-import es.caib.helium.expedient.model.TascaDto;
-import es.caib.helium.expedient.repository.ExpedientRepository;
-import es.caib.helium.expedient.repository.ProcesRepository;
-import es.caib.helium.expedient.repository.ResponsableRepository;
-import es.caib.helium.expedient.repository.TascaRepository;
-import es.caib.helium.expedient.repository.TascaSpecifications;
-import es.caib.helium.ms.helper.ServiceHelper;
-import es.caib.helium.ms.model.PagedList;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-
-import javax.validation.ValidationException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -34,6 +8,32 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.validation.ValidationException;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+import es.caib.helium.expedient.domain.Grup;
+import es.caib.helium.expedient.domain.Proces;
+import es.caib.helium.expedient.domain.Responsable;
+import es.caib.helium.expedient.domain.Tasca;
+import es.caib.helium.expedient.mapper.TascaMapper;
+import es.caib.helium.expedient.model.TascaDto;
+import es.caib.helium.expedient.repository.GrupRepository;
+import es.caib.helium.expedient.repository.ProcesRepository;
+import es.caib.helium.expedient.repository.ResponsableRepository;
+import es.caib.helium.expedient.repository.TascaRepository;
+import es.caib.helium.expedient.repository.TascaSpecifications;
+import es.caib.helium.ms.helper.ServiceHelper;
+import es.caib.helium.ms.model.PagedList;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -41,11 +41,10 @@ public class TascaServiceImpl implements TascaService {
 
     private final TascaRepository tascaRepository;
     private final ResponsableRepository responsableRepository;
-    private final ExpedientRepository expedientRepository;
+    private final GrupRepository grupRepository;
     private final ProcesRepository procesRepository;
     
     private final TascaMapper tascaMapper;
-    private final ResponsableMapper responsableMapper;
 
     @Override
     @Transactional
@@ -57,11 +56,17 @@ public class TascaServiceImpl implements TascaService {
 
         log.debug("[SRV] Creant nou tasca (tasca=" + tascaDto + ")");
         
-        // Guarda la llista de responsables
+        // Guarda la llista de responsables i grups
         List<String> responsables = new ArrayList<String>();
         if (tascaDto.getResponsables() != null) {
-            for(ResponsableDto responsable : tascaDto.getResponsables()) {
-            	responsables.add(responsable.getUsuariCodi());
+            for(String responsable : tascaDto.getResponsables()) {
+            	responsables.add(responsable);
+            }
+        }
+        List<String> grups = new ArrayList<String>();
+        if (tascaDto.getGrups() != null) {
+            for(String grup : tascaDto.getGrups()) {
+            	grups.add(grup);
             }
         }
         
@@ -69,21 +74,17 @@ public class TascaServiceImpl implements TascaService {
         if (tasca.getResponsables() != null) {
         	tasca.getResponsables().clear();
         }
+        if (tasca.getGrups() != null) {
+        	tasca.getGrups().clear();
+        }
 
         if (tascaDto.getProcesId() != null) {
-            Optional<Proces> procesOptional = procesRepository.findById(tascaDto.getProcesId());
+            Optional<Proces> procesOptional = procesRepository.findByProcesId(tascaDto.getProcesId());
             if (procesOptional.isPresent()) {
                 tasca.setProces(procesOptional.get());
-                tasca.setExpedient(procesOptional.get().getExpedient());
             }
         }
 
-        if (tasca.getExpedient() != null && tascaDto.getExpedientId() != null) {
-            Optional<Expedient> expedientOptional = expedientRepository.findById(tascaDto.getExpedientId());
-            if (expedientOptional.isPresent()) {
-                tasca.setExpedient(expedientOptional.get());
-            }
-        }
         log.debug("[SRV] Validant tasca");
         validateTasca(tasca);
                 
@@ -101,10 +102,20 @@ public class TascaServiceImpl implements TascaService {
             	tasca.getResponsables().add(responsable);
             }           
         }
-        tascaDto = tascaMapper.entityToDto(tasca);
-        if (tasca.getExpedient() != null) {
-            tascaDto.setExpedientId(tasca.getExpedient().getId());
+        // Crea els grups
+        if (grups.size() > 0) {
+        	Grup grup;
+            for (String grupCodi : grups ) {
+            	grup = Grup.builder()
+            			.grupCodi(grupCodi)
+            			.tasca(tasca)
+            			.build();
+            	grup = grupRepository.save(grup);
+            	tasca.getGrups().add(grup);
+            }           
         }
+        tascaDto = tascaMapper.entityToDto(tasca);
+
 		return tascaDto;
     }
 
@@ -137,7 +148,6 @@ public class TascaServiceImpl implements TascaService {
         tasca.setIniciFinalitzacio( tascaDto.getIniciFinalitzacio() );
         tasca.setDataCreacio( tascaDto.getDataCreacio() );
         tasca.setUsuariAssignat( tascaDto.getUsuariAssignat() );
-        tasca.setGrupAssignat( tascaDto.getGrupAssignat() );
 
         log.debug("[SRV] Validant tasca");
         validateTasca(tasca);
@@ -243,7 +253,7 @@ public class TascaServiceImpl implements TascaService {
 
     private Tasca getTascaById(String tascaId) {
         log.debug("Obtenint tasca per id: " + tascaId);
-        Optional<Tasca> tascaOptional = tascaRepository.findById(tascaId);
+        Optional<Tasca> tascaOptional = tascaRepository.findByTascaId(tascaId);
 
         if (tascaOptional.isPresent()) {
             log.debug("Trobada tasca amb id: " + tascaId);
@@ -258,8 +268,8 @@ public class TascaServiceImpl implements TascaService {
     private void validateTasca(Tasca tasca) throws ValidationException {
         Map<String, String> errors = new HashMap<>();
 
-        if (tasca.getId() == null || tasca.getId().isEmpty()) {
-            errors.put("id", "El camp no pot ser null");
+        if (tasca.getTascaId() == null || tasca.getTascaId().isEmpty()) {
+            errors.put("tascaId", "El camp no pot ser null");
         }
 //        if (tasca.getExpedient() == null) {
 //            errors.put("expedient", "El camp no pot ser null");
@@ -290,22 +300,20 @@ public class TascaServiceImpl implements TascaService {
 
     @Override
     @Transactional(readOnly = true)
-	public List<ResponsableDto> getResponsables(String tascaId) {
+	public List<String> getResponsables(String tascaId) {
     	Tasca tasca = getTascaById(tascaId);
     	//List<Responsable> responsables = responsableRepository.findByTascaId(tascaId);
 		return tasca.getResponsables()
 				.stream()
-				.map(e -> responsableMapper.entityToDto(e))
+				.map(e -> e.getUsuariCodi())
 				.collect(Collectors.toList());
 	}
 
     @Override
     @Transactional
-	public List<ResponsableDto> setResponsables(String tascaId, List<String> responsables) {
-    	List<ResponsableDto> responsablesDto = null;
+	public void setResponsables(String tascaId, List<String> responsables) {
     	deleteResponsables(tascaId);
     	if (responsables != null && responsables.size() > 0) {
-    		responsablesDto = new ArrayList<ResponsableDto>();
     		Tasca tasca = getTascaById(tascaId);
     		Responsable responsable;
     		for (String usuariCodi : responsables) {
@@ -315,10 +323,8 @@ public class TascaServiceImpl implements TascaService {
     					.build();
     			tasca.getResponsables().add(responsable);
     			responsableRepository.save(responsable);
-    			responsablesDto.add(responsableMapper.entityToDto(responsable));
     		}
     	}
-    	return responsablesDto;
 	}
 
     @Override
@@ -333,5 +339,44 @@ public class TascaServiceImpl implements TascaService {
         	tasca.getResponsables().clear();
         }
 	}
+
+	@Override
+	public List<String> getGrups(String tascaId) {
+    	Tasca tasca = getTascaById(tascaId);
+		return tasca.getGrups()
+				.stream()
+				.map(e -> e.getGrupCodi())
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public void setGrups(String tascaId, List<String> grups) {
+    	deleteGrups(tascaId);
+    	if (grups != null && grups.size() > 0) {
+    		Tasca tasca = getTascaById(tascaId);
+    		Grup grup;
+    		for (String grupCodi : grups) {
+    			grup = Grup.builder()
+    					.grupCodi(grupCodi)
+    					.tasca(tasca)
+    					.build();
+    			tasca.getGrups().add(grup);
+    			grupRepository.save(grup);
+    		}
+    	}
+	}
+
+	@Override
+	public void deleteGrups(String tascaId) {
+    	Tasca tasca = getTascaById(tascaId);
+        if (tasca.getGrups().size() > 0) {
+        	for (Grup grup : tasca.getGrups()) {
+            	grupRepository.delete(grup.getId());
+        	}
+        	tasca.getGrups().clear();
+        }
+	}
+
+
 
 }

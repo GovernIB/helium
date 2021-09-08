@@ -1,12 +1,12 @@
 package es.caib.helium.client.expedient.tasca.model;
 
+import java.util.Date;
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * Informació de la tasca amb les propietats necessàries pel llistat filtrat i paginat de
@@ -19,8 +19,8 @@ import java.util.List;
 @AllArgsConstructor
 public class TascaDto {
 
-	private String id;
-	private Long expedientId;
+	private Long id;
+	private String tascaId;
 	private String procesId;
 	private String nom;
 	private String titol;
@@ -36,10 +36,10 @@ public class TascaDto {
 	private Date iniciFinalitzacio;
 	private Date dataCreacio;
 	private String usuariAssignat;
-	private List<String> grups;
 	private Integer prioritat;
-	private List<ResponsableDto> responsables;
-	
-	
-	private String processDefinitionId;	
+	private List<String> responsables;
+	private List<String> grups;
+		
+	private String processDefinitionId;
+	private Long expedientId;
 }

@@ -37,8 +37,8 @@ class TascaRepositoryIT {
         expedient = entityManager.persistAndFlush(
         		ExpedientTestHelper.generateExpedient(1, 1L, 1L, 1L, "1", "1/2021", "Títol 1"));
         proces = entityManager.persistAndFlush(
-        		ProcesTestHelper.generateProces(0, "1", expedient, "dp1", "descripcio1", new Date()));
-        tasca = TascaTestHelper.generateTasca(1, "1", expedient, proces, "nom 1", "títol 1");
+        		ProcesTestHelper.generateProces(0, "1", expedient, "JPBM01", "dp1", "descripcio1", new Date()));
+        tasca = TascaTestHelper.generateTasca(1, "1", proces, "nom 1", "títol 1");
     }
 
 
@@ -50,8 +50,8 @@ class TascaRepositoryIT {
 
         Tasca creat = entityManager.persistAndFlush(tasca);
 
-        Optional<Tasca> trobat = tascaRepository.findById(
-                creat.getId());
+        Optional<Tasca> trobat = tascaRepository.findByTascaId(
+                creat.getTascaId());
 
         assertTrue(trobat.isPresent());
         TascaTestHelper.comprovaTasca(tasca, trobat.get());

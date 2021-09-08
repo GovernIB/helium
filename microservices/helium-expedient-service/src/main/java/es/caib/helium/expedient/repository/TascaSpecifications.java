@@ -15,11 +15,11 @@ import java.util.List;
 public class TascaSpecifications {
 
     public static Specification<Tasca> belongsToEntorn(Long entornId) {
-        return (tasca, cq, cb) -> cb.equal(tasca.<Long> get("expedient").get("entornId"), entornId);
+        return (tasca, cq, cb) -> cb.equal(tasca.<Long> get("proces").get("expedient").get("entornId"), entornId);
     }
     
     public static Specification<Tasca> belongsToExpedientTipus(Long expedientTipusId) {
-        return (tasca, cq, cb) -> cb.equal(tasca.<Long> get("expedient").get("expedientTipusId"), expedientTipusId);
+        return (tasca, cq, cb) -> cb.equal(tasca.<Long> get("proces").get("expedient").get("expedientTipusId"), expedientTipusId);
     }
     
 	public static Specification<Tasca> usuariAssignatIs(String usuariAssignat) {
@@ -35,17 +35,17 @@ public class TascaSpecifications {
 	}
 
     public static Specification<Tasca> belongsToExpedient(Long expedientId) {
-        return (tasca, cq, cb) -> cb.equal(tasca.<Long> get("expedient").get("id"), expedientId);
+        return (tasca, cq, cb) -> cb.equal(tasca.<Long> get("proces").get("expedient").get("id"), expedientId);
     }
 
     
     public static Specification<Tasca> expedientTitolLike(String expedientTitol) {
         
-    	return (tasca, cq, cb) -> cb.like(cb.lower(tasca.<Long> get("expedient").get("titol")), "%" + expedientTitol.toLowerCase() + "%" );
+    	return (tasca, cq, cb) -> cb.like(cb.lower(tasca.<Long> get("proces").get("expedient").get("titol")), "%" + expedientTitol.toLowerCase() + "%" );
     }
 
     public static Specification<Tasca> expedientNumeroLike(String expedientNumero) {
-    	return (tasca, cq, cb) -> cb.like(cb.lower(tasca.<Long> get("expedient").get("numero")), "%" + expedientNumero.toLowerCase() + "%" );
+    	return (tasca, cq, cb) -> cb.like(cb.lower(tasca.<Long> get("proces").get("expedient").get("numero")), "%" + expedientNumero.toLowerCase() + "%" );
     }
 
     public static Specification<Tasca> dataCreacio(Date dataCreacioInici, Date dataCreacioFi) {
@@ -161,11 +161,7 @@ public class TascaSpecifications {
     }
 
     /** Tasques de processos */
-	public static Specification<Tasca> inProcesses(List<String> procesIds) {
+	public static Specification<Tasca> inProcesses(List<Long> procesIds) {
 		return (tasca, cq, cb) -> tasca.get("proces").get("id").in(procesIds);
-//		return (tasca, cq, cb) -> {
-//			final Path<Proces> proces = tasca.<Proces>get("proces");
-//			return proces.in(procesIds);
-//		}
 	}
 }
