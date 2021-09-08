@@ -15,11 +15,11 @@ import java.util.Objects;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class NotificacioClientServiceImpl implements NotificacioClientService {
+public class NotificacioClientImpl implements NotificacioClient {
 	
 	private final String missatgeLog = "Cridant Integracio Service - Notificacio - ";
 	
-	private NotificacioFeignClient notificacioClient;
+	private final NotificacioFeignClient notificacioClient;
 
 	@Override
 	public RespostaEnviar altaNotificacio(DadesNotificacioDto dto) {
@@ -31,19 +31,19 @@ public class NotificacioClientServiceImpl implements NotificacioClientService {
 	}
 
 	@Override
-	public RespostaConsultaEstatNotificacio consultaNotificacio(String identificador, ConsultaNotificacio consulta) {
+	public RespostaConsultaEstatNotificacio consultarNotificacio(String identificador, ConsultaNotificacio consulta) {
 	
 		log.debug(missatgeLog + " consulta notificacio amb identificador " + identificador + " per l'entorn " + consulta.getEntornId());
-		var responseEntity = notificacioClient.consultaNotificacio(identificador, consulta);
+		var responseEntity = notificacioClient.consultarNotificacio(identificador, consulta);
 		var resultat = Objects.requireNonNull(responseEntity.getBody());
     	return resultat;
 	}
 
 	@Override
-	public RespostaConsultaEstatEnviament consultaEnviament(String referencia, ConsultaEnviament consulta) {
+	public RespostaConsultaEstatEnviament consultarEnviament(String referencia, ConsultaEnviament consulta) {
 		
 		log.debug(missatgeLog + " consulta enviament referencia " + referencia+ " per l'entorn " + consulta.getEntornId());
-		var responseEntity = notificacioClient.consultaEnviament(referencia, consulta);
+		var responseEntity = notificacioClient.consultarEnviament(referencia, consulta);
 		var resultat = Objects.requireNonNull(responseEntity.getBody());
     	return resultat;
 	}
