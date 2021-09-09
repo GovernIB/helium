@@ -18,8 +18,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProcesDto {
 
-	private String id;
+	private Long id;
+	private String procesId;
 	private Long expedientId;
+	private String motor;
 	private String processDefinitionId;
 	private String procesArrelId;
 	private String procesPareId;

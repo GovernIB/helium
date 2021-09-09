@@ -12,7 +12,7 @@ public interface ProcesMapper extends BaseMapper<Proces, ProcesDto> {
 
     @Override
     @Mapping(source = "expedient.id", target = "expedientId")
-    @Mapping(source = "procesArrel.id", target = "procesArrelId")
-    @Mapping(source = "procesPare.id", target = "procesPareId")
+    @Mapping(source = "procesArrel.procesId", target = "procesArrelId")
+    @Mapping(source = "procesPare.procesId", target = "procesPareId")
     ProcesDto entityToDto(Proces proces);
 }

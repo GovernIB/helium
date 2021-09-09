@@ -9,11 +9,11 @@ import es.caib.helium.client.integracio.notificacio.model.RespostaEnviar;
 import org.springframework.stereotype.Service;
 
 @Service
-public interface NotificacioClientService {
+public interface NotificacioClient {
 
 	RespostaEnviar altaNotificacio(DadesNotificacioDto dto);
 	
-	RespostaConsultaEstatNotificacio consultaNotificacio(String identificador, ConsultaNotificacio consulta);
+	RespostaConsultaEstatNotificacio consultarNotificacio(String identificador, ConsultaNotificacio consulta);
 	
-	RespostaConsultaEstatEnviament consultaEnviament(String referencia, ConsultaEnviament consulta);
+	RespostaConsultaEstatEnviament consultarEnviament(String referencia, ConsultaEnviament consulta);
 }

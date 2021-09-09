@@ -5,13 +5,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import es.caib.helium.expedient.domain.Responsable;
+import es.caib.helium.expedient.domain.Grup;
 import es.caib.helium.ms.repository.BaseRepository;
 
 @Repository
-public interface ResponsableRepository extends BaseRepository<Responsable, Long>  {
+public interface GrupRepository extends BaseRepository<Grup, Long>  {
 
     @Modifying
-    @Query("delete from Responsable where id = :id")
+    @Query("delete from Grup where id = :id")
     void delete(@Param("id") Long id);
 }

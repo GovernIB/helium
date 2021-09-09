@@ -1,7 +1,6 @@
 package es.caib.helium.camunda.listener;
 
 import es.caib.helium.client.expedient.tasca.TascaClientService;
-import es.caib.helium.client.expedient.tasca.model.ResponsableDto;
 import es.caib.helium.client.expedient.tasca.model.TascaDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,14 +29,14 @@ public class TaskCreateListener implements TaskListener {
                 .filter(c -> c.getGroupId() != null)
                 .map(c -> c.getGroupId())
                 .collect(Collectors.toList());
-        List<ResponsableDto> usuarisCandidats =  delegateTask.getCandidates()
+        List<String> usuarisCandidats =  delegateTask.getCandidates()
                 .stream()
                 .filter(c -> c.getUserId() != null)
-                .map(c -> ResponsableDto.builder().usuariCodi(c.getUserId()).build())
+                .map(c -> c.getGroupId())
                 .collect(Collectors.toList());
 
         TascaDto tascaDto = TascaDto.builder()
-                .id(delegateTask.getId())
+                .tascaId(delegateTask.getId())
                 .procesId(delegateTask.getProcessInstanceId())
                 .nom(delegateTask.getName())
                 .titol(delegateTask.getDescription() != null ? delegateTask.getDescription() : delegateTask.getName())
@@ -49,9 +48,9 @@ public class TaskCreateListener implements TaskListener {
                 .dataFins(delegateTask.getDueDate())
                 .dataCreacio(delegateTask.getCreateTime())
                 .usuariAssignat(delegateTask.getAssignee())
-                .grupsAssignat(grupsCandidats)
-                .prioritat(delegateTask.getPriority())
+                .grups(grupsCandidats)
                 .responsables(usuarisCandidats)
+                .prioritat(delegateTask.getPriority())
                 .processDefinitionId(delegateTask.getProcessDefinitionId())
                 .build();
         tascaClientService.createTascaV1(tascaDto);

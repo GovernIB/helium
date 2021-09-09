@@ -6,7 +6,7 @@ import es.caib.helium.client.integracio.arxiu.model.ExpedientArxiu;
 import org.springframework.stereotype.Service;
 
 @Service
-public interface ArxiuClientService {
+public interface ArxiuClient {
 
 	Expedient getExpedientsByUuId(String uuId, Long entornId);
 	

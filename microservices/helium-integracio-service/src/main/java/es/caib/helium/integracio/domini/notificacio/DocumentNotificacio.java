@@ -267,7 +267,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 		
 		//Titular
 		var titular = enviament.getTitular();
-		titularNif = titular.getDni();
+		titularNif = titular.getNif();
 		titularNom = titular.getNom();
 		titularLlinatge1 = titular.getLlinatge1();
 		titularLlinatge2 = titular.getLlinatge2();
@@ -279,7 +279,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 		if (destinataris != null && !destinataris.isEmpty()) {
 			//TODO Només un destinatari. Helium 3.2
 			var destinatari = destinataris.get(0);
-			destinatariNif = destinatari.getDni();
+			destinatariNif = destinatari.getNif();
 			destinatariNom = destinatari.getNom();
 			destinatariLlinatge1 = destinatari.getLlinatge1();
 			destinatariLlinatge2 = destinatari.getLlinatge2();

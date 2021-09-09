@@ -111,7 +111,7 @@ public class ProcesController {
     		  consultaProcesDades.getPageable(), 
     		  consultaProcesDades.getSort());
 
-		List<String> processosIds = tascaList.getContent().stream().map(t -> t.getId()).collect(Collectors.toList());
+		List<String> processosIds = tascaList.getContent().stream().map(t -> t.getProcesId()).collect(Collectors.toList());
 		PagedList<String> processosIdsPagedList = new PagedList<String>(processosIds);
 		return new ResponseEntity<>(processosIdsPagedList, HttpStatus.OK);
   }

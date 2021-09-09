@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import es.caib.helium.expedient.model.ResponsableDto;
 import es.caib.helium.expedient.model.TascaDto;
 import es.caib.helium.ms.model.PagedList;
 
@@ -47,13 +46,24 @@ public interface TascaService {
             final Pageable pageable,
             final Sort sort);
 
-	List<ResponsableDto> getResponsables(
+	List<String> getResponsables(
 			String tascaId);
 
-	List<ResponsableDto> setResponsables(
+	void setResponsables(
 			String tascaId, 
 			List<String> responsables);
 
 	void deleteResponsables(
 			String tascaId);
+	
+	List<String> getGrups(
+			String tascaId);
+
+	void setGrups(
+			String tascaId, 
+			List<String> responsables);
+
+	void deleteGrups(
+			String tascaId);
+	
 }

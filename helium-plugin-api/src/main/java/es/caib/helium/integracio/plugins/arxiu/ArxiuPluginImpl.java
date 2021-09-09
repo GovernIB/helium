@@ -1,6 +1,6 @@
 package es.caib.helium.integracio.plugins.arxiu;
 
-import es.caib.helium.client.integracio.arxiu.ArxiuClientService;
+import es.caib.helium.client.integracio.arxiu.ArxiuClient;
 import es.caib.helium.client.integracio.arxiu.model.ExpedientArxiu;
 import es.caib.helium.client.integracio.arxiu.model.Expedient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class ArxiuPluginImpl implements ArxiuPlugin {
 
     @Autowired
-    private ArxiuClientService arxiuClientService;
+    private ArxiuClient arxiuClientService;
 
     @Override
     public Expedient expedientDetalls(String uuId, Long entornId) {

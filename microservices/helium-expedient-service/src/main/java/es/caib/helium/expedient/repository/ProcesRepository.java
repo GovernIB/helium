@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProcesRepository extends BaseRepository<Proces, String>  {
@@ -19,5 +20,8 @@ public interface ProcesRepository extends BaseRepository<Proces, String>  {
     @Modifying
     @Query("delete from Proces p where p in :processos")
     void deleteAll(@Param("processos") List<Proces> processos);
+
+    /** Cerca per identificador del procés */
+	Optional<Proces> findByProcesId(String procesId);
 
 }
