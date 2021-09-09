@@ -86,7 +86,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	@Resource
 	private DadaClient dadaClient;
 
-	DateFormat dataFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss:SSS ");
+	DateFormat dataFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss:SSS ");
 
 	/**
 	 * {@inheritDoc}
@@ -187,19 +187,21 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 			List<CampRegistre> registreMembres,
 			Object varValor,
 			boolean isMultiple) {
+
 		ArrayList<Valor> valors = new ArrayList<>();
-		if (isMultiple) {
-			var valorsObject = (Object[]) varValor;
-			for (var v : valorsObject) {
-				valors.add(getValorRegistre(registreMembres, v));
-			}
-		} else {
+		if (!isMultiple) {
 			valors.add(getValorRegistre(registreMembres, varValor));
+			return valors;
+		}
+		var valorsObject = (Object[]) varValor;
+		for (var v : valorsObject) {
+			valors.add(getValorRegistre(registreMembres, v));
 		}
 		return valors;
 	}
 
 	private Valor getValorRegistre(List<CampRegistre> registreMembres, Object varValor) {
+
 		var valor = new ValorRegistre();
 		List<Dada> campsRegistre = new ArrayList<>();
 		var valorsObject = (Object[]) varValor;
@@ -216,14 +218,15 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	}
 
 	private ArrayList<Valor> getValorDada(Object varValor, boolean isMultiple) {
+
 		ArrayList<Valor> valors = new ArrayList<>();
-		if (isMultiple) {
-			var valorsObject = (Object[]) varValor;
-			for (var v : valorsObject) {
-				valors.add(getValorSimple(v));
-			}
-		} else {
+		if (!isMultiple) {
 			valors.add(getValorSimple(varValor));
+			return valors;
+		}
+		var valorsObject = (Object[]) varValor;
+		for (var v : valorsObject) {
+			valors.add(getValorSimple(v));
 		}
 		return valors;
 	}
@@ -240,7 +243,6 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		if (o == null) {
 			return "";
 		}
-
 		if (o instanceof Date) {
 //			Date today = Calendar.getInstance().getTime();
 			return dataFormat.format((Date) o);

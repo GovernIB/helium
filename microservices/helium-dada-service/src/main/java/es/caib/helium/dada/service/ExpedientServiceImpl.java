@@ -12,6 +12,7 @@ import es.caib.helium.dada.repository.DadaRepository;
 import es.caib.helium.dada.repository.ExpedientRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.common.Strings;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -519,36 +520,18 @@ public class ExpedientServiceImpl implements ExpedientService {
 					// Evitar dades amb el codi repetit segons proces i codi
 					log.info("[ExpedientServiceImpl.crearDada] Expedient amb id " + expedientId + " procesId "
 							+ procesId + " ja té una dada amb codi " + dada.getCodi());
-//					putDadaByExpedientIdProcesIdAndCodi(expedientId, procesId, dada.getCodi(), dada);
-//					putDades = true;
 					continue;
 				}
 				dada.setExpedientId(expedientId);
 				dada.setProcesId(procesId);
-//				for (var foo = 0; foo < dada.getValor().size(); foo++) {
-//					var valor = dada.getValor().get(foo);
-//					if (dada.getTipus().equals(Tipus.Date)) {
-//						var valorMongo = new ValorDate();
-////						SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH);
-////
-////						String dateInString = "7-Jun-2013";
-////						Date date = formatter.parse(dateInString);
-//						valorMongo.setValor(new Date()); // TODO CONTINUAR --> PROVAR ORDENACIONS DE TIPUS DIFERENTS
-//						dada.getValor().set(foo, valorMongo);
-//
-//					} else if (dada.getTipus().equals(Tipus.Preu)) {
-//						var valorMongo = new ValorPreu();
-//						dada.getValor().set(foo, valorMongo);
-//					}
-//				}
 				dadesFoo.add(dada);
 			}
-			if (dadesFoo.isEmpty() /*&& !putDades*/) {
+			if (dadesFoo.isEmpty()) {
 				return false;
 			}
 			var guardats = dadaRepository.saveAll(dadesFoo).size();
 			log.debug(guardats + "dades per l'expedient " + expedientId + " amb procesId " + procesId + " creades correctament");
-			return guardats > 0 /*|| putDades*/;
+			return guardats > 0;
 		} catch (Exception ex) {
 			var error = "Error al crear les dades per l'expedient " + expedientId + " amb procesId " + procesId;
 			log.error(error, ex);
@@ -569,11 +552,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 		try {
 			var dadaOptional = dadaRepository.findByExpedientIdAndCodi(expedientId, codi);
 			if (dadaOptional.isEmpty()) {
-//				List<Dada> dades = new ArrayList<>();
-//				dada.setCodi(codi);
-//				dades.add(dada);
-//				return createDades(expedientId,dada.getProcesId(), dades);
-				// No te sentit fer el create ja que no hi ha proces id.
 				return false;
 			}
 
@@ -634,7 +612,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					.collect(Collectors.toList()); // Eliminar repetits
 			var dadesMongo = new ArrayList<Dada>();
 			for (var dada : dadesDistinct) {
-				if (dada.getCodi() == null || dada.getCodi().isEmpty()) {
+				if (Strings.isNullOrEmpty(dada.getCodi())) {
 					continue;
 				}
 				var dadaMongo = dadaRepository.findByExpedientIdAndProcesIdAndCodi(expedientId, procesId, dada.getCodi());
@@ -683,28 +661,29 @@ public class ExpedientServiceImpl implements ExpedientService {
 // 				return createDades(expedientId, procesId, dades);
 //			}
 			var dadaMongo = dadaOptional.get();
-			if (dada.getValor().size() != dadaMongo.getValor().size()) {
-				var error = "Error al actualitzar la dada del procesId " + procesId + " amb codi " + codi
-						+ " -> No coincideix la mida dels valors a actualitzar amb els guardats";
-				log.error(error);
-				throw new DadaException(error);
-			}
-			for (var foo = 0; foo < dadaMongo.getValor().size(); foo++) {
-				var valorAntic = dadaMongo.getValor().get(foo);
-				var valorNou = dada.getValor().get(foo);
-				if (valorAntic instanceof ValorSimple && valorNou instanceof ValorSimple) {
-					((ValorSimple) valorAntic).setValor(((ValorSimple)valorNou).getValor());
-				} else if (valorAntic instanceof ValorRegistre && valorNou instanceof ValorRegistre) {
-					var valorRegistreAntic = (ValorRegistre) valorAntic;
-					var valorRegistreNou = (ValorRegistre) valorNou;
-					actualitzarValorRegistre(valorRegistreAntic, valorRegistreNou);
-
-				} else { // TODO MS: COMPROVAR VALOR REGISTRE NO PETA AL FER UPDATE I ACTUALITZA BE
-					var error = "El Tipus de la dada " + foo + " no és l'esperat";
-					log.error(error);
-					throw new DadaException(error);
-				}
-			}
+			dadaMongo.setValor(dada.getValor());
+//			if (dada.getValor().size() != dadaMongo.getValor().size()) {
+//				var error = "Error al actualitzar la dada del procesId " + procesId + " amb codi " + codi
+//						+ " -> No coincideix la mida dels valors a actualitzar amb els guardats";
+//				log.error(error);
+//				throw new DadaException(error);
+//			}
+//			for (var foo = 0; foo < dadaMongo.getValor().size(); foo++) {
+//				var valorAntic = dadaMongo.getValor().get(foo);
+//				var valorNou = dada.getValor().get(foo);
+//				if (valorAntic instanceof ValorSimple && valorNou instanceof ValorSimple) {
+//					((ValorSimple) valorAntic).setValor(((ValorSimple)valorNou).getValor());
+//				} else if (valorAntic instanceof ValorRegistre && valorNou instanceof ValorRegistre) {
+//					var valorRegistreAntic = (ValorRegistre) valorAntic;
+//					var valorRegistreNou = (ValorRegistre) valorNou;
+//					actualitzarValorRegistre(valorRegistreAntic, valorRegistreNou);
+//
+//				} else { // TODO MS: COMPROVAR VALOR REGISTRE NO PETA AL FER UPDATE I ACTUALITZA BE
+//					var error = "El Tipus de la dada " + foo + " no és l'esperat";
+//					log.error(error);
+//					throw new DadaException(error);
+//				}
+//			}
 
 			dadaMongo.setMultiple(dada.isMultiple());
 			dadaMongo.setTipus(dada.getTipus() != null ? dada.getTipus() : dadaMongo.getTipus());

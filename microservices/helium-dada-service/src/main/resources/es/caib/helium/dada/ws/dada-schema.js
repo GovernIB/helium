@@ -78,8 +78,8 @@ db.createCollection("dada", {
 							additionalProperties: false,
 							properties: {
 								"_class": { bsonType: "string" },
-								valor: { bsonType: "string", maxLength: 255 },
-								valorText: { bsonType: "string", maxLength: 255 }
+								valor: { bsonType: ["null", "string"], maxLength: 255 },
+								valorText: { bsonType: ["null", "string"], maxLength: 255 }
 							}
 						},
 						{
@@ -109,8 +109,8 @@ db.createCollection("dada", {
                                                     additionalProperties: false,
                                                     properties: {
                                                         "_class": { bsonType: "string" },
-                                                        valor: { bsonType: "string", maxLength: 255},
-                                                        valorText: { bsonType: "string", maxLength: 255}
+                                                        valor: { bsonType: ["null", "string"], maxLength: 255},
+                                                        valorText: { bsonType: ["null", "string"], maxLength: 255}
                                                     }
                                                 }
                                             }
