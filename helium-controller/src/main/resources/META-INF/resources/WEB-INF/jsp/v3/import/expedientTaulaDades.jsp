@@ -37,8 +37,17 @@
 			</c:when>
 			<c:otherwise>
 				<c:if test="${not empty dada.varValor}">
-					<%-- ${dada.varValorClass} --%>
-					<strong>${dada.textMultiple}</strong>
+<%--					<strong>${dada.textMultiple}</strong>--%>
+					<c:choose>
+						<c:when test="${dada.campMultiple}">
+							<table class="table table-bordered table-condensed marTop6">
+							<c:forEach var="element" items="${dada.multipleDades}">
+								<tr><td><strong>${element.text}</strong></td></tr>
+							</c:forEach>
+							</table>
+						</c:when>
+						<c:otherwise><span class="p_dades"><strong>${dada.textMultiple}</strong></span></c:otherwise>
+					</c:choose>
 				</c:if>
 				<c:if test="${not empty dada.error}">
 					<p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<span>${dada.error}</span></p>

@@ -304,6 +304,30 @@ public class TascaDadaDto {
 		}
 	}
 
+//	public  Class<?> getMultipleJavaClass() {
+//		if (CampTipusDto.STRING.equals(campTipus)) {
+//			return String[].class;
+//		} else if (CampTipusDto.INTEGER.equals(campTipus)) {
+//			return Long[].class;
+//		} else if (CampTipusDto.FLOAT.equals(campTipus)) {
+//			return Double[].class;
+//		} else if (CampTipusDto.BOOLEAN.equals(campTipus)) {
+//			return Boolean[].class;
+//		} else if (CampTipusDto.TEXTAREA.equals(campTipus)) {
+//			return String[].class;
+//		} else if (CampTipusDto.DATE.equals(campTipus)) {
+//			return Date[].class;
+//		} else if (CampTipusDto.PRICE.equals(campTipus)) {
+//			return BigDecimal[].class;
+//		} else if (CampTipusDto.TERMINI.equals(campTipus)) {
+//			return String[][].class;
+//		} else if (CampTipusDto.REGISTRE.equals(campTipus)) {
+//			return Object[][].class;
+//		} else {
+//			return String[].class;
+//		}
+//	}
+
 	public boolean isFontExterna() {
 		return CampTipusDto.SELECCIO.equals(campTipus) || CampTipusDto.SUGGEST.equals(campTipus);
 	}

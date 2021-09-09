@@ -10,7 +10,6 @@
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <c:set var="titol"><spring:message code="expedient.tipus.campRegistre.llistat.titol" arguments="${camp.etiqueta}"/></c:set>
 <c:set var="baseUrl"><c:url value="/modal/v3/${basicUrl}/variable/${camp.id}/campRegistre"></c:url></c:set>
-<c:set var="baseNoModalUrl"><c:url value="/v3/${basicUrl}/variable/${camp.id}/campRegistre"></c:url></c:set>
 
 <html>
 <head>
@@ -66,7 +65,7 @@
 	<div style="height: 500px;">
 		<table	id="campRegistre"
 				data-toggle="datatable"
-				data-url="${baseNoModalUrl}/datatable"
+				data-url="${baseUrl}/datatable"
 				data-paging-enabled="false"
 				data-ordering="true"
 				data-default-order="7"

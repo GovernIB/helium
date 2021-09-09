@@ -134,21 +134,27 @@ div.tab-content {
 	float: left;
 		width: calc(100% - 65px) !important;
 }
+.termgrup input.term-multiple, .termgrup select.term-multiple{
+	width: 100% !important;
+}
+.termgrup + .btn_eliminar {
+	margin-top: 7px;
+}
 .tercpre {
 	float: left;
-	width: 32%;
+	width: 33%;
 		padding-left: 0px !important;
 		padding-right: 8px !important;
 }
 .tercmig {
 	float: left;
-	width: 32%;
+	width: 33%;
 		padding-left: 4px !important; 
 		padding-right: 4px !important; 
 }
 .tercpost {
 	float: left;
-	width: 36%;
+	width: 34%;
 	padding-left: 8px !important; 
 		padding-right: 0px !important; 
 }
@@ -159,6 +165,7 @@ div.tab-content {
 	margin-right: 5px;
 	font-weight: normal !important;
 }
+
 .multiple_camp .btn_eliminar {
 	float: left;
 	margin-left: 4px;

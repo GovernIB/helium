@@ -6,7 +6,9 @@ package es.caib.helium.logic.helper;
 import es.caib.helium.logic.intf.dto.IntervalEventDto;
 import es.caib.helium.logic.intf.dto.MesuraTemporalDto;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
+import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.stat.QueryStatistics;
 import org.hibernate.stat.Statistics;
 import org.springframework.stereotype.Component;
@@ -128,6 +130,37 @@ public class HibernateHelper {
 
 	public boolean isStatisticActive() {
 		return sessionFactory.getStatistics().isStatisticsEnabled();
+	}
+
+	public static <T> T unproxy(T entity) {
+		if (entity == null) {
+			throw new
+					NullPointerException("Entity passed for initialization is null");
+		}
+
+		Hibernate.initialize(entity);
+		if (entity instanceof HibernateProxy) {
+			entity = (T) ((HibernateProxy) entity).getHibernateLazyInitializer()
+					.getImplementation();
+		}
+		return entity;
+	}
+
+	public static <T> List<T> unproxyList(List<T> list) {
+		if (list == null) {
+			throw new
+					NullPointerException("List passed for initialization is null");
+		}
+		List<T> initializedList = new ArrayList<>();
+		list.forEach(e -> {
+			Hibernate.initialize(e);
+			if (e instanceof HibernateProxy) {
+				e = (T) ((HibernateProxy) e).getHibernateLazyInitializer()
+						.getImplementation();
+			}
+			initializedList.add(e);
+		});
+		return initializedList;
 	}
 
 }

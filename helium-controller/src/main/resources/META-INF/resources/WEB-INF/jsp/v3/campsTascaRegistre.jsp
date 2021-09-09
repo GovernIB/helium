@@ -62,6 +62,8 @@
 							<td>
 								<c:set var="inline" value="${true}"/>
 								<c:set var="dada" value="${membre}"/>
+								<%-- Posam el valor de multiple a false, ja que no podem tenir camp múltiples a registres --%>
+								<c:set target="${dada}" property="campMultiple" value="${false}"/>
 								<c:set var="campCodi" value="${dadaActual.varCodi}[${i-1}].${membre.varCodi}"/>
 								<%@ include file="campsTasca.jsp" %>
 								<c:set var="campCodi" value=""/>

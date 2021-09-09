@@ -49,8 +49,8 @@
 
 <script>
 /*<![CDATA[*/
-var procesId =<c:out value="${procesId}"/>
-var contadorTotals =<c:out value="${contadorTotals}"/>
+var procesId = '<c:out value="${procesId}"/>';
+var contadorTotals = '<c:out value="${contadorTotals}"/>';
 if(contadorTotals > 0){
 	$("#" + procesId + "-titol > span.badge.general").html(contadorTotals);
 }else{

@@ -11,6 +11,7 @@
 	<c:set var="campErrors"><form:errors path="${campCodi}"/></c:set>
 	<c:if test="${!ampleLabel}"><c:set var="ampleLabel" value="20%"/></c:if>
 	<c:if test="${!ampleInput}"><c:set var="ampleInput" value="80%"/></c:if>
+<%--	<c:if test="${empty campNom}"><c:set var="campNom" value="${campCodi}"/></c:if>--%>
 	<div class="form-group <c:if test='${dada.campMultiple or isMultiple}'> multiple_camp</c:if><c:if test="${not empty campErrors}"> has-error</c:if><c:if test="${tasca.validada}"> validada</c:if><c:if test="${not empty tasca.tascaFormExternCodi}"> formext</c:if>">
 		<label for="${dada.varCodi}" class="control-label<c:choose><c:when test='${inline}'> sr-only</c:when><c:otherwise><c:if test="${dada.required}"> obligatori</c:if></c:otherwise></c:choose>" <c:if test='${not inline}'> style="width: ${ampleLabel}; float: left; padding-right: 11px;"</c:if>>${dada.campEtiqueta}</label>
 		<div class="controls<c:if test='${not inline}'> like-cols</c:if> <c:if test='${dada.campMultiple or isMultiple}'> multiple_camp</c:if> <c:if test="${!dada.required}"> no-obligatori</c:if>" <c:if test='${not inline}'> style="width: ${ampleInput};"</c:if>>
@@ -49,22 +50,22 @@
 					<c:choose>
 						<c:when test='${dada.campMultiple or isMultiple}'>
 							<c:choose>
-								<c:when test='${command[campNom]["class"].name == "java.util.Date"}' >
-								<fmt:formatDate value="${command[campNom]}" var="formattedDate" type="date" pattern="dd/MM/yyyy" />
+								<c:when test='${command[campNom][campIndex]["class"].name == "java.util.Date"}' >
+									<fmt:formatDate value="${command[campNom][campIndex]}" var="formattedDate" type="date" pattern="dd/MM/yyyy" />
 								</c:when>
-								<c:otherwise><c:set var="formattedDate" value="${command[campNom][campIndex] + 'f'}"/></c:otherwise>
+								<c:otherwise><c:set var="formattedDate" value="${command[campNom][campIndex]}"/></c:otherwise>
 							</c:choose>
 							<input type="text" id="${campCodi}" name="${campNom}" class="form-control date" placeholder="dd/mm/aaaa" data-required="${dada.required}" value="${formattedDate}"/>
 							</c:when>
 						<c:otherwise>
 						<c:choose>
 								<c:when test='${command[campNom]["class"].name == "java.util.Date"}' >
-								<fmt:formatDate value="${command[campNom]}" var="formattedDate" type="date" pattern="dd/MM/yyyy" />
-								<input type="text" id="${campCodi}" name="${campNom}" class="form-control date" placeholder="dd/mm/aaaa" data-required="${dada.required}" value="${formattedDate}"/>
+									<fmt:formatDate value="${command[campNom]}" var="formattedDate" type="date" pattern="dd/MM/yyyy" />
+									<input type="text" id="${campCodi}" name="${campNom}" class="form-control date" placeholder="dd/mm/aaaa" data-required="${dada.required}" value="${formattedDate}"/>
 								</c:when>
 								<c:otherwise>
-								<c:set var="formattedDate" value="${command[campNom][campIndex]}"/>
-								<form:input path="${campCodi}" id="${campCodi}" cssClass="date form-control" placeholder="dd/mm/aaaa" data-required="${dada.required}"/>
+									<c:set var="formattedDate" value="${command[campNom][campIndex]}"/>
+									<form:input path="${campCodi}" id="${campCodi}" cssClass="date form-control" placeholder="dd/mm/aaaa" data-required="${dada.required}"/>
 								</c:otherwise>
 							</c:choose>
 						</c:otherwise>
@@ -79,10 +80,10 @@
 				<c:if test='${dada.campMultiple or isMultiple}'><input type="hidden" id="${campCodi}" name="${campNom}"/></c:if>
 				<div class="form-group termgrup">
 					<div class="tercpre">
-						<label class="control-label label-term" for="${campCodi}_anys"><spring:message code="common.camptasca.anys"/></label>
+						<label class="control-label label-term<c:if test='${dada.campMultiple or isMultiple}'> term-multiple</c:if>" for="${campCodi}_anys"><spring:message code="common.camptasca.anys"/></label>
 						<c:choose>
 							<c:when test='${dada.campMultiple or isMultiple}'>
-								<select id="${tercodi}_anys" name="${tercodi}[0]" class="termini">
+								<select id="${tercodi}_anys" name="${tercodi}[0]" class="termini term-multiple">
 									<c:forEach var="opt" items="${listTerminis}">
 										<option value="${opt.codi}" <c:if test="${opt.codi == command[campNom][campIndex][0]}"> selected</c:if>>${opt.valor}</option>
 									</c:forEach>
@@ -94,10 +95,10 @@
 						</c:choose>
 					</div>
 					<div class="tercmig">
-	 					<label class="control-label label-term" for="${campCodi}_mesos"><spring:message code="common.camptasca.mesos"/></label>
+	 					<label class="control-label label-term<c:if test='${dada.campMultiple or isMultiple}'> term-multiple</c:if>" for="${campCodi}_mesos"><spring:message code="common.camptasca.mesos"/></label>
  						<c:choose>
 							<c:when test='${dada.campMultiple or isMultiple}'>
-								<select id="${tercodi}_mesos" name="${tercodi}[1]" class="termini">
+								<select id="${tercodi}_mesos" name="${tercodi}[1]" class="termini term-multiple">
 									<c:forEach var="opt" items="${listTerminis}">
 										<option value="${opt.codi}" <c:if test="${opt.codi == command[campNom][campIndex][1]}"> selected</c:if>>${opt.valor}</option>
 									</c:forEach>
@@ -107,10 +108,10 @@
 						</c:choose>
 	 				</div>
 	 				<div class="tercpost">
-	 					<label class="control-label label-term" for="${campCodi}_dies"><spring:message code="common.camptasca.dies"/></label>
+	 					<label class="control-label label-term<c:if test='${dada.campMultiple or isMultiple}'> term-multiple</c:if>" for="${campCodi}_dies"><spring:message code="common.camptasca.dies"/></label>
 	 					<c:set var="placeholderDies"><spring:message code='common.camptasca.dies'/></c:set>
  						<c:choose>
-							<c:when test='${dada.campMultiple or isMultiple}'><input type="text" id="${tercodi}_dies" name="${tercodi}[2]" class="form-control" data-required="${dada.required}" value="${command[campNom][campIndex][2]}" placeholder="${placeholderDies}"/></c:when>
+							<c:when test='${dada.campMultiple or isMultiple}'><input type="text" id="${tercodi}_dies" name="${tercodi}[2]" class="form-control term-multiple" data-required="${dada.required}" value="${command[campNom][campIndex][2]}" placeholder="${placeholderDies}"/></c:when>
 							<c:otherwise><form:input path="${campCodi}[2]" id="${campCodi}_dies" cssClass="form-control" placeholder="${placeholderDies}" data-required="${dada.required}"/></c:otherwise>
 						</c:choose>
 	 				</div>

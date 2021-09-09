@@ -3,23 +3,10 @@
  */
 package es.caib.helium.logic.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.ExpedientTipusHelper;
 import es.caib.helium.logic.helper.HerenciaHelper;
+import es.caib.helium.logic.helper.HibernateHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.intf.dto.CampAgrupacioDto;
 import es.caib.helium.logic.intf.dto.CampDto;
@@ -52,6 +39,18 @@ import es.caib.helium.persist.repository.ConsultaRepository;
 import es.caib.helium.persist.repository.DefinicioProcesRepository;
 import es.caib.helium.persist.repository.EnumeracioRepository;
 import es.caib.helium.persist.repository.ExpedientTipusRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Implementació del servei per a gestionar camps dels tipus d'expedients o
@@ -720,12 +719,14 @@ public class CampServiceImpl implements CampService {
 	public void registreDelete(Long campRegistreId) throws NoTrobatException, PermisDenegatException {
 		logger.debug("Esborrant la campRegistre del tipus d'expedient (" + "campRegistreId=" + campRegistreId + ")");
 
-		CampRegistre campRegistre = campRegistreRepository.getById(campRegistreId);
-		campRegistre.getRegistre().getRegistreMembres().remove(campRegistre);
-		campRegistreRepository.delete(campRegistre);
+		CampRegistre campRegistre = HibernateHelper.unproxy(campRegistreRepository.getById(campRegistreId));
+		var registre = campRegistre.getRegistre();
+		HibernateHelper.unproxyList(registre.getRegistreMembres());
+		registre.getRegistreMembres().remove(campRegistre);
+		campRegistreRepository.deleteById(campRegistre.getId());
 		campRegistreRepository.flush();
 
-		reordenarCampsRegistre(campRegistre.getRegistre().getId());
+		reordenarCampsRegistre(registre.getId());
 	}
 
 	/**
@@ -752,10 +753,10 @@ public class CampServiceImpl implements CampService {
 	@Transactional
 	public boolean registreMourePosicio(Long id, int posicio) {
 		boolean ret = false;
-		CampRegistre campRegistre = campRegistreRepository.getById(id);
+		CampRegistre campRegistre = HibernateHelper.unproxy(campRegistreRepository.getById(id));
 		if (campRegistre != null) {
-			List<CampRegistre> campsRegistre = campRegistreRepository
-					.findAmbCampOrdenats(campRegistre.getRegistre().getId());
+			List<CampRegistre> campsRegistre = HibernateHelper.unproxyList(campRegistreRepository
+					.findAmbCampOrdenats(campRegistre.getRegistre().getId()));
 			int index = campsRegistre.indexOf(campRegistre);
 			if (posicio != index) {
 				campRegistre = campsRegistre.get(index);

@@ -47,7 +47,6 @@ import javax.annotation.Resource;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -134,13 +133,18 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 
 	private Dada prepararDadesUpdate(String varCodi, Object varValor, Camp camp) throws Exception{
 
-		if (camp == null || !ObjectUtils.containsConstant(Tipus.values(), camp.getTipus().name())) {
+		if (camp != null && !ObjectUtils.containsConstant(Tipus.values(), camp.getTipus().name())) {
 			throw new Exception("Error preparant les dades camp " + camp);
 		}
 
 		// Nova variable de tipus String (camp == null)
-		var tipus = Tipus.valueOf(camp.getTipus().name());
-		var multiple = camp.isMultiple();
+		var tipus = Tipus.STRING;
+		var multiple = false;
+
+		if (camp != null) {
+			tipus = Tipus.valueOf(camp.getTipus().name());
+			multiple = camp.isMultiple();
+		}
 
 		return getDada(varCodi, varValor, camp, tipus, multiple);
 	}
@@ -238,8 +242,8 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		}
 
 		if (o instanceof Date) {
-			Date today = Calendar.getInstance().getTime();
-			return dataFormat.format(today);
+//			Date today = Calendar.getInstance().getTime();
+			return dataFormat.format((Date) o);
 		}
 
 		return o.toString();

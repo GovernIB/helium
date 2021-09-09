@@ -26,8 +26,9 @@
 	.icon {background: none repeat scroll 0 0 rgba(0, 0, 0, 0);}
 	.fa-stack-2x {font-size: 1.7em;margin-top: 2px;}
 	.fa.fa-certificate.fa-stack-1x { margin-top: -1px;}
-	#contingut-dades .campOcult {background-color: lightgray;color: white;}
-	#contingut-dades .var_dades {float: left;width:calc(100% - 15px);}
+	#contingut-dades .campOcult {background-color: lightgray; color: #aaa;}
+	#contingut-dades .campOcult span.fa {background-color: lightgray; color: white;}
+	#contingut-dades .var_dades {float: left;width:calc(100% - 20px);}
 	#contingut-dades .var_dades label {font-style: italic; font-weigth: normal; color: #999; font-size: small;}
 	#contingut-dades .campOcult label {color: #FFF; }
 	#contingut-dades .var_botons {float: right;color: #428bca;}
@@ -41,6 +42,13 @@
  	#grup-default-dades label.obligatori {background-position: right 7px;padding-right: 15px;}
  	.taula_registre {color: #666666 !important;}
 	.taula_registre thead label {color: #666666 !important; }
+
+	/*.t_dades {background-color: #f5f5f5;}*/
+	.t_dades { border: 1px solid white; border-collapse: separate; border-spacing: 5px; }
+	.t_dades > tbody > tr > td { background-color: #f5f5f5; }
+	.p_dades { min-width: 100%; background-color: #fff; display: inline-block; padding: 5px; border: 1px solid #ddd; }
+	.cos-agrupacio { border: 1px solid #ddd; }
+	.td_trans { background-color: transparent !important; border: #fff !important; }
 </style>
 
 <c:set var="grupId" value="grup-default"/>
@@ -86,8 +94,8 @@
 	<c:if test="${not paramMostrarCapsalera}">
 		<span class="badge-nombre" data-nombre="${nombre}"></span>
 	</c:if>
-	<div id="${grupId}-dades" class="clear collapse panel-body-grup<c:if test="${paramDesplegat}"> in</c:if>">
-		<table class="table table-bordered">
+	<div id="${grupId}-dades" class="clear collapse panel-body-grup<c:if test="${paramDesplegat}"> in</c:if><c:if test="${paramMostrarCapsalera}"> cos-agrupacio</c:if>">
+		<table class="table table-bordered t_dades">
 			<colgroup>
 				<c:forEach begin="0" end="${paramNumColumnes - 1}">
 					<col width="${100 / paramNumColumnes}%"/>
@@ -111,8 +119,11 @@
 						</c:when>
 					</c:choose>
 					<c:if test="${condicioValor}">
-						
-						<c:if test="${fn:endsWith(dada['class'].name, 'DadaDto') and dada.campTipus == 'TEXTAREA' and posicioActual != '0'}">
+						<c:set var="dadaTipusTextArea" value="${false}"/>
+						<c:if test="${fn:endsWith(dada['class'].name, 'DadaDto')}">
+							<c:set var="dadaTipusTextArea" value="${dada.campTipus == 'TEXTAREA'}"/>
+						</c:if>
+						<c:if test="${dadaTipusTextArea and posicioActual != '0'}">
 							</tr>
 							<c:set var="posicioActual" value="0"/>
 						</c:if>
@@ -123,7 +134,7 @@
 							<c:set var="dadaTipusRegistre" value="${dada.campTipusRegistre}"/>
 						</c:if>
 						<c:if test="${dadaTipusRegistre}">
-							<c:if test="${posicioActual > 0}"><td colspan="${paramNumColumnes - posicioActual}">&nbsp;</td></tr><tr></c:if>
+							<c:if test="${posicioActual > 0}"><td class="td_trans" colspan="${paramNumColumnes - posicioActual}">&nbsp;</td></tr><tr></c:if>
 							<c:set var="posicioOffset" value="${posicioOffset + (paramNumColumnes - posicioActual) - 1}"/>
 							<c:set var="posicioActual" value="${0}"/>
 						</c:if>
@@ -154,8 +165,8 @@
 							</c:when>
 							<c:otherwise>[Tipus desconegut]</c:otherwise>
 						</c:choose>
-						<c:if test="${(index == paramCount - 1) and posicioActual != (paramNumColumnes - 1) and not dadaTipusRegistre}"><td colspan="${paramNumColumnes - posicioActual - 1}">&nbsp;</td></c:if>
-						<c:if test="${(index == paramCount - 1) or dadaTipusRegistre or (index != 0 and posicioActual == (paramNumColumnes - 1)) or (fn:endsWith(dada['class'].name, 'DadaDto') and dada.campTipus == 'TEXTAREA')}"></tr></c:if>
+						<c:if test="${(index == paramCount - 1) and posicioActual != (paramNumColumnes - 1) and not dadaTipusRegistre and not dadaTipusTextArea}"><td class="td_trans" colspan="${paramNumColumnes - posicioActual - 1}">&nbsp;</td></c:if>
+						<c:if test="${(index == paramCount - 1) or dadaTipusRegistre or (index != 0 and posicioActual == (paramNumColumnes - 1)) or dadaTipusTextArea}"></tr></c:if>
 						<c:set var="index" value="${index + 1}"/>
 					</c:if>
 				</c:forEach>

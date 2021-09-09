@@ -336,7 +336,11 @@ public class TascaFormHelper {
 								valorMultiple = Array.newInstance(camp.getJavaClass(), 1);
 								((Object[])valorMultiple)[0] = valor;
 							} else {
-								valorMultiple = valor;
+								valorMultiple = Array.newInstance(camp.getJavaClass(), ((Object[]) valor).length);
+								for (int i = 0; i < ((Object[]) valor).length; i++) {
+									((Object[])valorMultiple)[i] = ((Object[]) valor)[i];
+								}
+//								valorMultiple = valor;
 							}
 							setSimpleProperty(
 									command,
@@ -359,7 +363,11 @@ public class TascaFormHelper {
 					} else {
 						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)){
 							if (valor != null) {
-								valor = crearTermini(valor);
+								if (valor instanceof Termini) {
+									valor = crearTermini((Termini) valor);
+								} else {
+									valor = crearTermini(valor);
+								}
 							} else {
 								valor = new String[3];
 							}
@@ -396,12 +404,18 @@ public class TascaFormHelper {
 							int i = 0; // Elements del registre
 							for (TascaDadaDto campRegistre : camp.getMultipleDades().get(0).getRegistreDades()) {
 								Method metodeSet = registre.getClass().getMethod(
-										"set" + campRegistre.getVarCodi().substring(0, 1).toUpperCase() + campRegistre.getVarCodi().substring(1), 
+										"set" + campRegistre.getVarCodi().substring(0, 1).toUpperCase() + campRegistre.getVarCodi().substring(1),
 										campRegistre.getJavaClass());
+//										(campRegistre.isCampMultiple() ? campRegistre.getMultipleJavaClass() : campRegistre.getJavaClass()));
 								int l = 0; // linies
 								for (Object linia: linies){
 									Object[] valin = (Object[])((Object[])valor)[l++];
-									Object valent = (valin != null && valin.length > i) ? valin[i] : null; 
+									Object valent = (valin != null && valin.length > i) ? valin[i] : null;
+//									if (campRegistre.isCampMultiple() && !(valent instanceof Object[])) {
+//										var valorArray = Array.newInstance(campRegistre.getJavaClass(), 1);
+//										((Object[])valorArray)[0] = valent;
+//										valent =  valorArray;
+//									}
 									metodeSet.invoke(linia, valent);
 								}
 								i++;
@@ -739,7 +753,8 @@ public class TascaFormHelper {
 				validarObligatoris,
 				validarExpresions,
 				processInstanceId,
-				commandClassNames);
+				commandClassNames,
+				false);
 
 		commandClassNames.forEach(c -> {
 			try {
@@ -761,7 +776,8 @@ public class TascaFormHelper {
 			boolean validarObligatoris,
 			boolean validarExpresions,
 			String processInstanceId,
-			List<String> commandClassNames) throws Exception {
+			List<String> commandClassNames,
+			boolean isRegistre) throws Exception {
 
 		logger.debug("Generant command per tasca");
 
@@ -787,7 +803,7 @@ public class TascaFormHelper {
 			Class<?> propertyClass;
 			if (!tascaDada.getCampTipus().equals(CampTipusDto.REGISTRE)) {
 				if (tascaDada.getCampTipus() != null) {
-					if (isCampMultiple(tascaDada, esConsultaPerTipus)) {
+					if (isCampMultiple(tascaDada, esConsultaPerTipus) && !isRegistre) {
 						propertyClass = Array.newInstance(tascaDada.getJavaClass(), 1).getClass();
 					} else {
 						propertyClass = tascaDada.getJavaClass();
@@ -811,7 +827,8 @@ public class TascaFormHelper {
 						validarObligatoris,
 						validarExpresions,
 						processInstanceId,
-						commandClassNames);
+						commandClassNames,
+						true);
 				if (tascaDada.isCampMultiple()) {
 					// En cas de ser un registre múltiple el que cream és un array de Registre
 					propertyClass = Array.newInstance(registre.getClass(), 1).getClass();
@@ -1001,13 +1018,18 @@ public class TascaFormHelper {
 							} else {
 								oValor = PropertyUtils.getProperty(registre, campRegistre.getVarCodi());
 							}
-							if (oValor instanceof String[])
-								if (((String[])oValor).length < 3) {
-									oValor = null;
+							if (oValor instanceof Object[]) {
+								if (CampTipusDto.TERMINI.equals(campRegistre.getCampTipus()) && oValor instanceof String[]) {
+									if (((String[]) oValor).length < 3) {
+										oValor = null;
+									} else {
+										String[] pre_oValor = (String[]) oValor;
+										oValor = obtenirValorTermini(pre_oValor);
+									}
 								} else {
-									String[] pre_oValor = (String[])oValor; 
-									oValor = obtenirValorTermini(pre_oValor);
+									oValor = ((Object[]) oValor)[0];
 								}
+							}
 							if (!esIniciExpedient || (oValor != null && !(oValor instanceof Boolean && !(Boolean) oValor)))
 								varIncloure = true;
 							oValor = compatibilitat26(campRegistre, oValor);
@@ -1030,12 +1052,16 @@ public class TascaFormHelper {
 					if (camp.isReadOnly()) {
 						oValor = campRegistre.getVarValor();
 					}
-					if (oValor instanceof String[]) {
-						if (((String[])oValor).length < 3) {
-							oValor = null;
+					if (oValor instanceof Object[]) {
+						if (CampTipusDto.TERMINI.equals(campRegistre.getCampTipus()) && oValor instanceof String[]) {
+							if (((String[]) oValor).length < 3) {
+								oValor = null;
+							} else {
+								String[] pre_oValor = (String[]) oValor;
+								oValor = obtenirValorTermini(pre_oValor);
+							}
 						} else {
-							String[] pre_oValor = (String[])oValor; 
-							oValor = obtenirValorTermini(pre_oValor);
+							oValor = ((Object[]) oValor)[0];
 						}
 					}
 					if (!esIniciExpedient || (oValor != null && !(oValor instanceof Boolean && !(Boolean) oValor)))

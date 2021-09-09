@@ -946,7 +946,12 @@ public class VariableHelper {
 				if (!camp.isMultiple() || forsarSimple) {
 					if (TipusCamp.REGISTRE.equals(camp.getTipus())) {
 						List<ExpedientDadaDto> registreDades = new ArrayList<ExpedientDadaDto>();
-						Object[] valorsRegistres = (Object[])varValor;
+						Object[] valorsRegistres;
+						if (varValor instanceof Dada) {
+							valorsRegistres = (Object[]) ((Dada) varValor).getValorsAsObject();
+						} else {
+							valorsRegistres = (Object[]) varValor;
+						}
 						// Construeix el map per als valors addicionals dels parámetres del domini
 						Map<String, Object> valorsAddicionalsConsulta = new HashMap<String, Object>();
 						if (valorsRegistres != null)
@@ -973,6 +978,9 @@ public class VariableHelper {
 									processInstanceId,
 									false, 
 									consultesDomini);
+							if (dtoRegistre.getText() == null && dtoRegistre.getMultipleDades() != null && dtoRegistre.getMultipleDades().size() == 1) {
+								dtoRegistre.setText(dtoRegistre.getMultipleDades().get(0).getText());
+							}
 							dtoRegistre.setRequired(campRegistre.isObligatori());
 							dtoRegistre.setOrdre(campRegistre.getOrdre());
 							dtoRegistre.setLlistar(campRegistre.isLlistar());

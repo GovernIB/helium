@@ -140,13 +140,22 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		excludePatterns.add("/webjars/**");
 		excludePatterns.add("/**/datatable/**");
 		excludePatterns.add("/**/selection/**");
-		
+
+		List<String> excludePatternsModal = new ArrayList<String>();
+		excludePatterns.add("/js/**");
+		excludePatterns.add("/css/**");
+		excludePatterns.add("/fonts/**");
+		excludePatterns.add("/img/**");
+		excludePatterns.add("/extensions/**");
+		excludePatterns.add("/webjars/**");
+		excludePatterns.add("/**/selection/**");
+
 		registry.addInterceptor(personaInterceptor).excludePathPatterns(excludePatterns);
 		registry.addInterceptor(entornInterceptor).excludePathPatterns(excludePatterns);
 		registry.addInterceptor(globalPropertiesInterceptor).excludePathPatterns(excludePatterns);
 		registry.addInterceptor(versioInterceptor).excludePathPatterns(excludePatterns);
 		registry.addInterceptor(nodecoInterceptor).excludePathPatterns(excludePatterns);
-		registry.addInterceptor(modalInterceptor).excludePathPatterns(excludePatterns);
+		registry.addInterceptor(modalInterceptor).excludePathPatterns(excludePatternsModal);
 		registry.addInterceptor(ajaxInterceptor).excludePathPatterns(excludePatterns);
 		registry.addInterceptor(idiomaInterceptor).excludePathPatterns(excludePatterns);
 	}
