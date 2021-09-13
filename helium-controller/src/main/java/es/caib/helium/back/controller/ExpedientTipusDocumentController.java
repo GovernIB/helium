@@ -12,13 +12,13 @@ import es.caib.helium.back.helper.NodecoHelper;
 import es.caib.helium.back.helper.NtiHelper;
 import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.back.view.ArxiuView;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.dto.ArxiuDto;
 import es.caib.helium.logic.intf.dto.CampDto;
 import es.caib.helium.logic.intf.dto.DocumentDto;
 import es.caib.helium.logic.intf.dto.EntornDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -244,9 +244,9 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			Long expedientTipusId,
 			Model model) {
 		List<CampDto> camps = campService.findTipusData(expedientTipusId, null);
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
 		for (CampDto camp: camps) {
-			resposta.add(new ParellaCodiValorDto(camp.getId().toString(), (camp.getCodi() + "/" + camp.getEtiqueta())));
+			resposta.add(new ParellaCodiValor(camp.getId().toString(), (camp.getCodi() + "/" + camp.getEtiqueta())));
 		}
 		model.addAttribute("camps", resposta);
 		ntiHelper.omplirOrigen(model);

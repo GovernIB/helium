@@ -15,6 +15,7 @@ import es.caib.helium.back.passarelafirma.PassarelaFirmaConfig;
 import es.caib.helium.back.passarelafirma.PassarelaFirmaHelper;
 import es.caib.helium.back.view.ArxiuView;
 import es.caib.helium.client.expedient.tasca.TascaClientService;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.dto.ArxiuDto;
 import es.caib.helium.logic.intf.dto.CampAgrupacioDto;
 import es.caib.helium.logic.intf.dto.DocumentDto;
@@ -26,7 +27,6 @@ import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
 import es.caib.helium.logic.intf.dto.FirmaTascaDto;
 import es.caib.helium.logic.intf.dto.FormulariExternDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.dto.ReproDto;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
@@ -1100,9 +1100,9 @@ public class TascaTramitacioController extends BaseTascaController {
 				logger.error("No s'han pogut extreure els parametres del recurs", ex);
 			}
 		}
-		List<ParellaCodiValorDto> listTerminis = new ArrayList<ParellaCodiValorDto>();
+		List<ParellaCodiValor> listTerminis = new ArrayList<ParellaCodiValor>();
 		for (int i = 0; i <= 12 ; i++)		
-			listTerminis.add(new ParellaCodiValorDto(String.valueOf(i), i));
+			listTerminis.add(new ParellaCodiValor(String.valueOf(i), i));
 		model.addAttribute("listTerminis", listTerminis);
 		
 		Object tascaFormCommand = SessionHelper.getAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId);

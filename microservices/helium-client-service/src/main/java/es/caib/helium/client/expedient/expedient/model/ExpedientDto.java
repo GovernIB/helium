@@ -2,7 +2,6 @@ package es.caib.helium.client.expedient.expedient.model;
 
 import java.util.Date;
 
-import es.caib.helium.client.domini.consultaTest.model.ParellaCodiValor;
 import es.caib.helium.client.expedient.expedient.enums.ExpedientEstatTipusEnum;
 import lombok.Builder;
 import lombok.Data;

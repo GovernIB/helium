@@ -13,6 +13,7 @@ import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.NodecoHelper;
 import es.caib.helium.back.helper.SessionHelper;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.dto.CampAgrupacioDto;
 import es.caib.helium.logic.intf.dto.CampDto;
 import es.caib.helium.logic.intf.dto.CampRegistreDto;
@@ -20,7 +21,6 @@ import es.caib.helium.logic.intf.dto.CampTipusDto;
 import es.caib.helium.logic.intf.dto.EntornDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.dto.ValidacioDto;
 import es.caib.helium.logic.intf.service.ValidacioService;
 import org.apache.commons.logging.Log;
@@ -116,6 +116,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 		CampCommand command = new CampCommand();
 		command.setAgrupacioId(agrupacioId);
 		command.setExpedientTipusId(expedientTipusId);
+		command.setDominiCacheText(true);
 		model.addAttribute("campCommand", command);
 		this.omplirModelVariableForm(
 				request, 
@@ -301,7 +302,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 	/** Mètode per obtenir les agrupacions per al select. */
 	@RequestMapping(value = "/{expedientTipusId}/agrupacio/select", method = RequestMethod.GET)
 	@ResponseBody
-	public List<ParellaCodiValorDto> agrupacionsSelect(
+	public List<ParellaCodiValor> agrupacionsSelect(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			Model model) {
@@ -645,9 +646,9 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			Model model) {
 		
 		// TipusCamp
-		List<ParellaCodiValorDto> tipusCamp = new ArrayList<ParellaCodiValorDto>();
+		List<ParellaCodiValor> tipusCamp = new ArrayList<ParellaCodiValor>();
 		for (CampTipusDto campTipus : CampTipusDto.values()) {
-			tipusCamp.add(new ParellaCodiValorDto(campTipus.toString(), campTipus));
+			tipusCamp.add(new ParellaCodiValor(campTipus.toString(), campTipus));
 		}
 		model.addAttribute("tipusCamp",tipusCamp);
 		
@@ -694,7 +695,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 		command.setObligatori(true);
 		command.setLlistar(true);
 		model.addAttribute("expedientTipusCampRegistreCommand", command);
-		model.addAttribute("variables", new ArrayList<ParellaCodiValorDto>());		
+		model.addAttribute("variables", new ArrayList<ParellaCodiValor>());		
 
 		return "v3/expedientTipusCampRegistre";
 	}	
@@ -833,7 +834,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 	/** Mètode per obtenir les possibles variables per al select a l'edició d'un registre via ajax. */
 	@RequestMapping(value = "/{expedientTipusId}/variable/{campId}/campRegistre/select", method = RequestMethod.GET)
 	@ResponseBody
-	public List<ParellaCodiValorDto> campRegistreSelect(
+	public List<ParellaCodiValor> campRegistreSelect(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long campId,
@@ -861,11 +862,11 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 	 * @param registreId
 	 * @return
 	 */
-	private List<ParellaCodiValorDto> obtenirParellesCampRegistre(
+	private List<ParellaCodiValor> obtenirParellesCampRegistre(
 			Long expedientTipusId,
 			Long registreId,
 			Long membreId) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
 		// Obté totes les variables del tipus d'expedient
 		List<CampDto> variables = campService.findAllOrdenatsPerCodi(expedientTipusId, null);
 		// Consulta els camps del registre
@@ -887,7 +888,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			}
 		}		
 		for (CampDto variable : variables) {
-			resposta.add(new ParellaCodiValorDto(
+			resposta.add(new ParellaCodiValor(
 					variable.getId().toString(), 
 					variable.getCodi() + " / " + variable.getEtiqueta()));
 		}

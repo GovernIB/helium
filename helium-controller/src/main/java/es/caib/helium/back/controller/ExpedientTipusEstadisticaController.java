@@ -3,13 +3,13 @@ package es.caib.helium.back.controller;
 import es.caib.helium.back.command.ExpedientTipusEstadisticaCommand;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.SessionHelper;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.dto.EntornDto;
 import es.caib.helium.logic.intf.dto.EstatDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto.EstatTipusDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusEstadisticaDto;
 import es.caib.helium.logic.intf.dto.MostrarAnulatsDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import org.apache.commons.lang3.StringUtils;
@@ -128,21 +128,21 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 	 * @param expedientTipusId
 	 * @return
 	 */
-	private List<ParellaCodiValorDto> getEstatsModel(HttpServletRequest request, Long expedientTipusId) {
-		List<ParellaCodiValorDto> estats = new ArrayList<ParellaCodiValorDto>();
+	private List<ParellaCodiValor> getEstatsModel(HttpServletRequest request, Long expedientTipusId) {
+		List<ParellaCodiValor> estats = new ArrayList<ParellaCodiValor>();
 		// INICIAT
-		estats.add(new ParellaCodiValorDto(EstatTipusDto.INICIAT.toString(), getMessage(
+		estats.add(new ParellaCodiValor(EstatTipusDto.INICIAT.toString(), getMessage(
 								request,
 								"expedient.consulta.iniciat")));
 		if (expedientTipusId != null 
 				&& expedientTipusId > 0) {		
 			// Estats tipus d'expedient
 			for(EstatDto e : expedientTipusService.estatFindAll(expedientTipusId, true)){
-				estats.add(new ParellaCodiValorDto(String.valueOf(e.getId()), e.getNom()));
+				estats.add(new ParellaCodiValor(String.valueOf(e.getId()), e.getNom()));
 			}
 		}
 		// FINALITZAT
-		estats.add(new ParellaCodiValorDto(EstatTipusDto.FINALITZAT.toString(), getMessage(
+		estats.add(new ParellaCodiValor(EstatTipusDto.FINALITZAT.toString(), getMessage(
 				request,
 				"expedient.consulta.finalitzat")));
 		return estats;
@@ -156,7 +156,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 	 */
 	@RequestMapping(value = "/estatsPerTipus/{expedientTipusId}", method = RequestMethod.GET)
 	@ResponseBody
-	public List<ParellaCodiValorDto> estatsPerExpedientTipus(
+	public List<ParellaCodiValor> estatsPerExpedientTipus(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId) {
 		return this.getEstatsModel(request, expedientTipusId);
@@ -456,20 +456,20 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 	}
 				
 	@ModelAttribute("anulats")
-	public List<ParellaCodiValorDto> populateAnulats(HttpServletRequest request) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.no"), MostrarAnulatsDto.NO));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.si"), MostrarAnulatsDto.SI));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.si.only"), MostrarAnulatsDto.NOMES_ANULATS));
+	public List<ParellaCodiValor> populateAnulats(HttpServletRequest request) {
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
+		resposta.add(new ParellaCodiValor(getMessage(request, "enum.no"), MostrarAnulatsDto.NO));
+		resposta.add(new ParellaCodiValor(getMessage(request, "enum.si"), MostrarAnulatsDto.SI));
+		resposta.add(new ParellaCodiValor(getMessage(request, "enum.si.only"), MostrarAnulatsDto.NOMES_ANULATS));
 		return resposta;
 	}
 	
 	@ModelAttribute("aturats")
-	public List<ParellaCodiValorDto> populateAturats(HttpServletRequest request) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.no"), false));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.si"), true));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "comu.totes"), null));
+	public List<ParellaCodiValor> populateAturats(HttpServletRequest request) {
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
+		resposta.add(new ParellaCodiValor(getMessage(request, "enum.no"), false));
+		resposta.add(new ParellaCodiValor(getMessage(request, "enum.si"), true));
+		resposta.add(new ParellaCodiValor(getMessage(request, "comu.totes"), null));
 		return resposta;
 	}
 }

@@ -8,9 +8,9 @@ import es.caib.helium.back.command.ExpedientTerminiModificarCommand.TerminiModif
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.NodecoHelper;
 import es.caib.helium.back.helper.ObjectTypeEditorHelper;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.dto.TerminiDto;
 import es.caib.helium.logic.intf.dto.TerminiIniciatDto;
 import es.caib.helium.logic.intf.service.ExpedientService;
@@ -314,18 +314,18 @@ public class ExpedientTerminiController extends BaseExpedientController {
 				new ObjectTypeEditorHelper());
 	}
 
-	public List<ParellaCodiValorDto> getTipus(HttpServletRequest request) {
-		List<ParellaCodiValorDto> tipus = new ArrayList<ParellaCodiValorDto>();
-		tipus.add(new ParellaCodiValorDto(getMessage(request, "termini.durada"),TerminiModificacioTipus.DURADA));
-		tipus.add(new ParellaCodiValorDto(getMessage(request, "termini.data_fi"),TerminiModificacioTipus.DATA_FI));
-		tipus.add(new ParellaCodiValorDto(getMessage(request, "termini.data_ini"),TerminiModificacioTipus.DATA_INICI));
+	public List<ParellaCodiValor> getTipus(HttpServletRequest request) {
+		List<ParellaCodiValor> tipus = new ArrayList<ParellaCodiValor>();
+		tipus.add(new ParellaCodiValor(getMessage(request, "termini.durada"),TerminiModificacioTipus.DURADA));
+		tipus.add(new ParellaCodiValor(getMessage(request, "termini.data_fi"),TerminiModificacioTipus.DATA_FI));
+		tipus.add(new ParellaCodiValor(getMessage(request, "termini.data_ini"),TerminiModificacioTipus.DATA_INICI));
 		return tipus;
 	}
 
-	private List<ParellaCodiValorDto> valors12() {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+	private List<ParellaCodiValor> valors12() {
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
 		for (int i=0; i <= 12 ; i++)		
-			resposta.add(new ParellaCodiValorDto(String.valueOf(i), i));
+			resposta.add(new ParellaCodiValor(String.valueOf(i), i));
 		return resposta;
 	}
 

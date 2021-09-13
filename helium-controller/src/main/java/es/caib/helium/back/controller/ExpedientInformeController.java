@@ -11,13 +11,13 @@ import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.back.helper.SessionHelper.SessionManager;
 import es.caib.helium.back.helper.TascaFormHelper;
 import es.caib.helium.back.view.JasperReportsView;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.dto.ConsultaDto;
 import es.caib.helium.logic.intf.dto.DadaIndexadaDto;
 import es.caib.helium.logic.intf.dto.EstatDto;
 import es.caib.helium.logic.intf.dto.ExpedientConsultaDissenyDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.dto.PaginaDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
 import es.caib.helium.logic.intf.report.FieldValue;
 import es.caib.helium.logic.intf.service.ExpedientService;
@@ -720,18 +720,18 @@ public class ExpedientInformeController extends BaseExpedientController {
 	}
 
 	@ModelAttribute("valorsBoolea")
-	public List<ParellaCodiValorDto> valorsBoolea(HttpServletRequest request) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto("true", getMessage(request, "comuns.si")));
-		resposta.add(new ParellaCodiValorDto("false", getMessage(request, "comuns.no")));
+	public List<ParellaCodiValor> valorsBoolea(HttpServletRequest request) {
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
+		resposta.add(new ParellaCodiValor("true", getMessage(request, "comuns.si")));
+		resposta.add(new ParellaCodiValor("false", getMessage(request, "comuns.no")));
 		return resposta;
 	}
 
 	@ModelAttribute("listTerminis")
-	public List<ParellaCodiValorDto> valors12(HttpServletRequest request) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+	public List<ParellaCodiValor> valors12(HttpServletRequest request) {
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
 		for (int i=0; i <= 12 ; i++)		
-			resposta.add(new ParellaCodiValorDto(String.valueOf(i), i));
+			resposta.add(new ParellaCodiValor(String.valueOf(i), i));
 		return resposta;
 	}
 	

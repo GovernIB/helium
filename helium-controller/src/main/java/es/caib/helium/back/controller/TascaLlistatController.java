@@ -1,19 +1,27 @@
 package es.caib.helium.back.controller;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-
+import es.caib.helium.back.command.TascaConsultaCommand;
+import es.caib.helium.back.datatables.DatatablesPagina;
+import es.caib.helium.back.helper.MissatgesHelper;
+import es.caib.helium.back.helper.ObjectTypeEditorHelper;
+import es.caib.helium.back.helper.PaginacioHelper;
+import es.caib.helium.back.helper.SessionHelper;
+import es.caib.helium.back.helper.SessionHelper.SessionManager;
+import es.caib.helium.client.model.ParellaCodiValor;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.dto.TascaCompleteDto;
+import es.caib.helium.logic.intf.dto.TascaLlistatDto;
+import es.caib.helium.logic.intf.service.AdminService;
+import es.caib.helium.logic.intf.service.DissenyService;
+import es.caib.helium.logic.intf.service.EntornService;
+import es.caib.helium.logic.intf.service.ExpedientService;
+import es.caib.helium.logic.intf.service.ExpedientTipusService;
+import es.caib.helium.logic.intf.service.TascaService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,28 +41,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import es.caib.helium.back.command.TascaConsultaCommand;
-import es.caib.helium.back.datatables.DatatablesPagina;
-import es.caib.helium.back.helper.MissatgesHelper;
-import es.caib.helium.back.helper.ObjectTypeEditorHelper;
-import es.caib.helium.back.helper.PaginacioHelper;
-import es.caib.helium.back.helper.SessionHelper;
-import es.caib.helium.back.helper.SessionHelper.SessionManager;
-import es.caib.helium.logic.intf.dto.EntornDto;
-import es.caib.helium.logic.intf.dto.ExpedientDto;
-import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
-import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
-import es.caib.helium.logic.intf.dto.PaginaDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
-import es.caib.helium.logic.intf.dto.PersonaDto;
-import es.caib.helium.logic.intf.dto.TascaCompleteDto;
-import es.caib.helium.logic.intf.dto.TascaLlistatDto;
-import es.caib.helium.logic.intf.service.AdminService;
-import es.caib.helium.logic.intf.service.DissenyService;
-import es.caib.helium.logic.intf.service.EntornService;
-import es.caib.helium.logic.intf.service.ExpedientService;
-import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import es.caib.helium.logic.intf.service.TascaService;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Controlador per al llistat de tasques.
@@ -104,13 +102,13 @@ public class TascaLlistatController extends BaseController {
 	}
 
 	@ModelAttribute("prioritats")
-	public List<ParellaCodiValorDto> populateEstats(HttpServletRequest request) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "txt.m_alta"), 2));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "txt.alta"), 1));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "txt.normal"), 0));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "txt.baixa"), -1));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "txt.m_baixa"), -2));
+	public List<ParellaCodiValor> populateEstats(HttpServletRequest request) {
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
+		resposta.add(new ParellaCodiValor(getMessage(request, "txt.m_alta"), 2));
+		resposta.add(new ParellaCodiValor(getMessage(request, "txt.alta"), 1));
+		resposta.add(new ParellaCodiValor(getMessage(request, "txt.normal"), 0));
+		resposta.add(new ParellaCodiValor(getMessage(request, "txt.baixa"), -1));
+		resposta.add(new ParellaCodiValor(getMessage(request, "txt.m_baixa"), -2));
 		return resposta;
 	}
 
@@ -229,7 +227,7 @@ public class TascaLlistatController extends BaseController {
 
 	@RequestMapping(value = "/tasques/{entornId}/{expedientTipusId}", method = RequestMethod.GET)
 	@ResponseBody
-	public List<ParellaCodiValorDto> definicioProcesByTipusExpedient(
+	public List<ParellaCodiValor> definicioProcesByTipusExpedient(
 			@PathVariable Long entornId,
 			@PathVariable Long expedientTipusId,
 			Model model) {

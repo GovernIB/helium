@@ -6,6 +6,7 @@ package es.caib.helium.logic.helper;
 import es.caib.helium.client.engine.model.WProcessDefinition;
 import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.engine.model.WTaskInstance;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.integracio.plugins.registre.DadesAssumpte;
 import es.caib.helium.integracio.plugins.registre.DadesExpedient;
 import es.caib.helium.integracio.plugins.registre.DadesInteressat;
@@ -62,7 +63,6 @@ import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
 import es.caib.helium.logic.intf.extern.domini.FilaResultat;
-import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
 import es.caib.helium.logic.intf.registre.RegistreAnotacio;
 import es.caib.helium.logic.intf.service.Jbpm3HeliumService;
 import es.caib.helium.logic.intf.util.GlobalProperties;
@@ -1952,7 +1952,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			ZonaperExpedientDto dadesExpedient) {
 		
 			String identificador = expedient.getNumeroDefault();
-			String clau = new Long(System.currentTimeMillis()).toString();
+			String clau = Long.toString(System.currentTimeMillis());
 			dadesExpedient.setExpedientIdentificador(identificador);
 			dadesExpedient.setExpedientClau(clau);
 			pluginHelper.tramitacioZonaperExpedientCrear(expedient, dadesExpedient);
@@ -2065,7 +2065,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"nodeName=" + nodeName + ", " +
 				"cancelarTasques=" + cancelarTasques + ")");
 		expedientHelper.tokenRetrocedir(
-				new Long(tokenId).toString(),
+				Long.toString(tokenId),
 				nodeName,
 				cancelarTasques);
 	}

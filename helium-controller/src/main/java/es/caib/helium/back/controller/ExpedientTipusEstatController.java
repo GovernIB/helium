@@ -12,12 +12,12 @@ import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.NodecoHelper;
 import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.back.validator.CodiValidator;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.dto.EntornDto;
 import es.caib.helium.logic.intf.dto.EstatDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDireccioDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,10 +55,10 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 	private ConversioTipusHelper conversioTipusHelper;
 	
 	@ModelAttribute("listEstats")
-	public List<ParellaCodiValorDto> populateValorEstats() {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+	public List<ParellaCodiValor> populateValorEstats() {
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
 		for (int i = 0; i <= 12; i++) {
-			resposta.add(new ParellaCodiValorDto(Integer.toString(i), i));
+			resposta.add(new ParellaCodiValor(Integer.toString(i), i));
 		}
 		return resposta;
 	}

@@ -2,13 +2,13 @@ package es.caib.helium.back.controller;
 
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.ObjectTypeEditorHelper;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.dto.CampAgrupacioDto;
 import es.caib.helium.logic.intf.dto.CampDto;
 import es.caib.helium.logic.intf.dto.CampTascaDto;
 import es.caib.helium.logic.intf.dto.ConsultaDto;
 import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.dto.TascaDto;
 import es.caib.helium.logic.intf.service.CampService;
 import org.apache.commons.logging.Log;
@@ -162,17 +162,17 @@ public class BaseVariableController extends BaseDissenyController {
 	 * 				Indica si incloure els resultats de les possibles agrupacions heretades pel tipus d'expedient.
 	 * @return
 	 */
-	protected List<ParellaCodiValorDto> obtenirParellesAgrupacions(
+	protected List<ParellaCodiValor> obtenirParellesAgrupacions(
 			HttpServletRequest request, 
 			Long expedientTipusId,
 			Long definicioProcesId,
 			boolean herencia) {
 		List<CampAgrupacioDto> agrupacions = campService.agrupacioFindAll(expedientTipusId, definicioProcesId, herencia);
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto(AGRUPACIO_TOTES.toString(), "[ " + getMessage(request, "expedient.tipus.camp.llistat.agrupacio.opcio.totes") + " ]"));
-		resposta.add(new ParellaCodiValorDto(AGRUPACIO_SENSE.toString(), "[ " + getMessage(request, "expedient.tipus.camp.llistat.agrupacio.opcio.sense") + " ]"));
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
+		resposta.add(new ParellaCodiValor(AGRUPACIO_TOTES.toString(), "[ " + getMessage(request, "expedient.tipus.camp.llistat.agrupacio.opcio.totes") + " ]"));
+		resposta.add(new ParellaCodiValor(AGRUPACIO_SENSE.toString(), "[ " + getMessage(request, "expedient.tipus.camp.llistat.agrupacio.opcio.sense") + " ]"));
 		for (CampAgrupacioDto agrupacio : agrupacions) {
-			resposta.add(new ParellaCodiValorDto(agrupacio.getId().toString(), agrupacio.getNom()));
+			resposta.add(new ParellaCodiValor(agrupacio.getId().toString(), agrupacio.getNom()));
 		}
 		return resposta;
 	}

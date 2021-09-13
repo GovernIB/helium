@@ -9,7 +9,16 @@ import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.NodecoHelper;
 import es.caib.helium.back.helper.SessionHelper;
-import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.client.model.ParellaCodiValor;
+import es.caib.helium.logic.intf.dto.CampDto;
+import es.caib.helium.logic.intf.dto.CampTascaDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.DocumentTascaDto;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.FirmaTascaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.TascaDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import org.springframework.stereotype.Controller;
@@ -282,7 +291,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 	/** Mètode per obtenir les possibles variables per al select a l'edició d'un registre via ajax. */
 	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/variable/select", method = RequestMethod.GET)
 	@ResponseBody
-	public List<ParellaCodiValorDto> variablesSelect(
+	public List<ParellaCodiValor> variablesSelect(
 			HttpServletRequest request,
 			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
@@ -483,7 +492,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 	/** Mètode per obtenir les possibles documents per al select a l'edició d'un registre via ajax. */
 	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/document/select", method = RequestMethod.GET)
 	@ResponseBody
-	public List<ParellaCodiValorDto> documentsSelect(
+	public List<ParellaCodiValor> documentsSelect(
 			HttpServletRequest request,
 			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,
@@ -680,7 +689,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 	/** Mètode per obtenir els possibles firmes per al select a l'edició d'un registre via ajax. */
 	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/firma/select", method = RequestMethod.GET)
 	@ResponseBody
-	public List<ParellaCodiValorDto> firmesSelect(
+	public List<ParellaCodiValor> firmesSelect(
 			HttpServletRequest request,
 			@PathVariable String jbpmKey,
 			@PathVariable Long definicioProcesId,

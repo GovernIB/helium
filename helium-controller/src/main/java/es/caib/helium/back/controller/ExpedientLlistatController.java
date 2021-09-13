@@ -1,18 +1,21 @@
 package es.caib.helium.back.controller;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-
+import es.caib.helium.back.command.ExpedientConsultaCommand;
+import es.caib.helium.back.datatables.DatatablesPagina;
+import es.caib.helium.back.helper.MissatgesHelper;
+import es.caib.helium.back.helper.PaginacioHelper;
+import es.caib.helium.back.helper.SessionHelper;
+import es.caib.helium.back.helper.SessionHelper.SessionManager;
+import es.caib.helium.client.model.ParellaCodiValor;
+import es.caib.helium.logic.intf.dto.ConsultaDto;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.EstatDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.dto.MostrarAnulatsDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.service.ExpedientService;
+import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,22 +33,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import es.caib.helium.back.command.ExpedientConsultaCommand;
-import es.caib.helium.back.datatables.DatatablesPagina;
-import es.caib.helium.back.helper.MissatgesHelper;
-import es.caib.helium.back.helper.PaginacioHelper;
-import es.caib.helium.back.helper.SessionHelper;
-import es.caib.helium.back.helper.SessionHelper.SessionManager;
-import es.caib.helium.logic.intf.dto.ConsultaDto;
-import es.caib.helium.logic.intf.dto.EntornDto;
-import es.caib.helium.logic.intf.dto.EstatDto;
-import es.caib.helium.logic.intf.dto.ExpedientDto;
-import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
-import es.caib.helium.logic.intf.dto.MostrarAnulatsDto;
-import es.caib.helium.logic.intf.dto.PaginaDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
-import es.caib.helium.logic.intf.service.ExpedientService;
-import es.caib.helium.logic.intf.service.ExpedientTipusService;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Controlador per al llistat d'expedients.
@@ -223,11 +221,11 @@ public class ExpedientLlistatController extends BaseExpedientController {
 	}
 
 	@ModelAttribute("anulats")
-	public List<ParellaCodiValorDto> populateAnulats(HttpServletRequest request) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.no"), MostrarAnulatsDto.NO));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.si"), MostrarAnulatsDto.SI));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "enum.si.only"), MostrarAnulatsDto.NOMES_ANULATS));
+	public List<ParellaCodiValor> populateAnulats(HttpServletRequest request) {
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
+		resposta.add(new ParellaCodiValor(getMessage(request, "enum.no"), MostrarAnulatsDto.NO));
+		resposta.add(new ParellaCodiValor(getMessage(request, "enum.si"), MostrarAnulatsDto.SI));
+		resposta.add(new ParellaCodiValor(getMessage(request, "enum.si.only"), MostrarAnulatsDto.NOMES_ANULATS));
 		return resposta;
 	}
 	

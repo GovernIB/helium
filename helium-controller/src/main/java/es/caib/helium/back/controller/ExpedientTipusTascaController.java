@@ -9,9 +9,20 @@ import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.NodecoHelper;
 import es.caib.helium.back.helper.SessionHelper;
-import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.client.model.ParellaCodiValor;
+import es.caib.helium.logic.intf.dto.CampDto;
+import es.caib.helium.logic.intf.dto.CampTascaDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesExpedientDto;
 import es.caib.helium.logic.intf.dto.DefinicioProcesExpedientDto.IdAmbEtiqueta;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.DocumentTascaDto;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.dto.FirmaTascaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDireccioDto;
+import es.caib.helium.logic.intf.dto.TascaDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import org.springframework.stereotype.Controller;
@@ -64,21 +75,21 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 	/** Mètode per obtenir les possibles versions per al select de definicions de procés via ajax. */
 	@RequestMapping(value = "/{expedientTipusId}/definicio/{definicioId}/versions/select", method = RequestMethod.GET)
 	@ResponseBody
-	public List<ParellaCodiValorDto> definicioVersioSelect(
+	public List<ParellaCodiValor> definicioVersioSelect(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long definicioId,
 			Model model) {
 
 		// Select de les versions
-		List<ParellaCodiValorDto> versions = new ArrayList<ParellaCodiValorDto>();
+		List<ParellaCodiValor> versions = new ArrayList<ParellaCodiValor>();
 		if (definicioId != null) {
 			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 			DefinicioProcesExpedientDto d = dissenyService.getDefinicioProcesByEntorIdAndProcesId(
 					entornActual.getId(), 
 					definicioId);
 			for (IdAmbEtiqueta i : d.getListIdAmbEtiqueta()) {
-				versions.add(new ParellaCodiValorDto(i.getId().toString(), i.getEtiqueta()));
+				versions.add(new ParellaCodiValor(i.getId().toString(), i.getEtiqueta()));
 			}
 		}		
 		return versions;
@@ -144,9 +155,9 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 							null,
 							paginacioParams).getContingut();
 			// Construeix les possibles opcions per la selecció de la definició de procés
-			List<ParellaCodiValorDto> opcionsDefinicions = new ArrayList<ParellaCodiValorDto>();
+			List<ParellaCodiValor> opcionsDefinicions = new ArrayList<ParellaCodiValor>();
 			for (DefinicioProcesDto definicio : definicions) {
-				opcionsDefinicions.add(new ParellaCodiValorDto(definicio.getId().toString(), definicio.getJbpmKey()));
+				opcionsDefinicions.add(new ParellaCodiValor(definicio.getId().toString(), definicio.getJbpmKey()));
 				// Si és la inicial es passa el seu id a la vista per a que la carregui
 				if (definicio.getJbpmKey().equals(expedientTipus.getJbpmProcessDefinitionKey()))
 					model.addAttribute("definicioInical", definicio.getId());
@@ -155,7 +166,7 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 			model.addAttribute("definicions", opcionsDefinicions);
 			
 			// Afegeix una llista de versions de definicions de procés buïda
-			model.addAttribute("versions", new ArrayList<ParellaCodiValorDto>());
+			model.addAttribute("versions", new ArrayList<ParellaCodiValor>());
 			
 			// Guarda els identificadors de les definicions heretades i sobreescrites
 			List<Long> definicionsHeretadesIds = new ArrayList<Long>();
@@ -349,7 +360,7 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 	 * @param expedientTipusId
 	 * @param id
 	 * @param posicio
-	 * @param model
+	 * @param tascaId
 	 * @return
 	 */
 	@RequestMapping(value = "/{expedientTipusId}/tasca/{tascaId}/variable/{id}/moure/{posicio}")
@@ -403,7 +414,7 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 	/** Mètode per obtenir les possibles variables per al select a l'edició d'un registre via ajax. */
 	@RequestMapping(value = "/{expedientTipusId}/tasca/{tascaId}/variable/select", method = RequestMethod.GET)
 	@ResponseBody
-	public List<ParellaCodiValorDto> variablesSelect(
+	public List<ParellaCodiValor> variablesSelect(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long tascaId,
@@ -566,10 +577,10 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 	/**
 	 * Mètode Ajax per moure una validació d'una tasca de posició dins la seva agrupació.
 	 * @param request
-	 * @param definicioProcesId
+	 * @param expedientTipusId
 	 * @param id
 	 * @param posicio
-	 * @param model
+	 * @param tascaId
 	 * @return
 	 */
 	@RequestMapping(value = "/{expedientTipusId}/tasca/{tascaId}/document/{id}/moure/{posicio}")
@@ -623,7 +634,7 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 	/** Mètode per obtenir les possibles documents per al select a l'edició d'un registre via ajax. */
 	@RequestMapping(value = "/{expedientTipusId}/tasca/{tascaId}/document/select", method = RequestMethod.GET)
 	@ResponseBody
-	public List<ParellaCodiValorDto> documentsSelect(
+	public List<ParellaCodiValor> documentsSelect(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long tascaId,
@@ -781,10 +792,10 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 	/**
 	 * Mètode Ajax per moure una validació d'una tasca de posició dins la seva agrupació.
 	 * @param request
-	 * @param definicioProcesId
+	 * @param expedientTipusId
 	 * @param id
 	 * @param posicio
-	 * @param model
+	 * @param tascaId
 	 * @return
 	 */
 	@RequestMapping(value = "/{expedientTipusId}/tasca/{tascaId}/firma/{id}/moure/{posicio}")
@@ -838,7 +849,7 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 	/** Mètode per obtenir els possibles firmes per al select a l'edició d'un registre via ajax. */
 	@RequestMapping(value = "/{expedientTipusId}/tasca/{tascaId}/firma/select", method = RequestMethod.GET)
 	@ResponseBody
-	public List<ParellaCodiValorDto> firmesSelect(
+	public List<ParellaCodiValor> firmesSelect(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long tascaId,

@@ -293,8 +293,11 @@ public class EnumeracioController extends BaseDissenyController {
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.enumeracio.valors.controller.modificat"));				
-			
+							"expedient.tipus.enumeracio.valors.controller.modificat"));
+
+			ompleDadesModel(request, enumeracioId, model, false);
+			model.addAttribute("expedientTipusEnumeracioValorCommand", command);
+			model.addAttribute("mostraUpdate", true);
 			return "v3/expedientTipusEnumeracioValors";
 		}
 	}

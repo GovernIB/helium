@@ -3,6 +3,8 @@
  */
 package es.caib.helium.logic.intf.extern.domini;
 
+import es.caib.helium.client.model.ParellaCodiValor;
+
 import javax.jws.WebService;
 import java.util.List;
 

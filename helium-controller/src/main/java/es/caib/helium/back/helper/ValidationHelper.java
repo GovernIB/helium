@@ -12,6 +12,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import static es.caib.helium.back.helper.TascaFormValidatorHelper.STRING_MAX_LENGTH;
@@ -129,7 +130,11 @@ public class ValidationHelper {
             if (valor != null) {
                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
                 sdf.setLenient(false);
-                sdf.parse((String) valor);
+                if (valor instanceof String) {
+                    sdf.parse((String) valor);
+                } else if (!(valor instanceof Date)) {
+                    return false;
+                }
             }
         } catch (ParseException ex) {
             return false;

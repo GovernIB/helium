@@ -1,5 +1,6 @@
 package es.caib.helium.logic.intf.extern.formulari;
 
+import es.caib.helium.client.model.ParellaCodiValor;
 import lombok.Data;
 
 import java.util.List;

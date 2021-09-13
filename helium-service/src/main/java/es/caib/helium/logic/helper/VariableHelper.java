@@ -6,6 +6,7 @@ package es.caib.helium.logic.helper;
 import es.caib.helium.client.dada.DadaClient;
 import es.caib.helium.client.dada.model.Dada;
 import es.caib.helium.client.engine.model.WTaskInstance;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.CampAgrupacioDto;
 import es.caib.helium.logic.intf.dto.CampTascaDto;
@@ -16,12 +17,10 @@ import es.caib.helium.logic.intf.dto.DominiDto;
 import es.caib.helium.logic.intf.dto.DominiDto.TipusDomini;
 import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
 import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
 import es.caib.helium.logic.intf.dto.ValidacioDto;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.extern.domini.FilaResultat;
-import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.util.Constants;
 import es.caib.helium.logic.intf.util.GlobalProperties;
@@ -511,7 +510,7 @@ public class VariableHelper {
 		String valorFontExterna = null;
 		if (TipusCamp.SELECCIO.equals(camp.getTipus()) || TipusCamp.SUGGEST.equals(camp.getTipus())) {
 			
-			ParellaCodiValorDto parella = getTextPerCampAmbValor(
+			ParellaCodiValor parella = getTextPerCampAmbValor(
 					camp,
 					valor,
 					valorsAddicionals,
@@ -528,7 +527,7 @@ public class VariableHelper {
 				valorFontExterna);
 	}
 
-	public List<ParellaCodiValorDto> getPossiblesValorsCamp(
+	public List<ParellaCodiValor> getPossiblesValorsCamp(
 			Camp camp,
 			Camp registreCamp,
 			Integer registreIndex,
@@ -538,7 +537,7 @@ public class VariableHelper {
 			String processInstanceId, 
 			Map<Integer, ConsultaDominiDto> consultesDominis,
 			Object dadaDto) throws Exception {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
 		TipusCamp tipus = camp.getTipus();
 		if (tipus.equals(TipusCamp.SELECCIO) || tipus.equals(TipusCamp.SUGGEST)) {
 			if (camp.getDominiIntern() || camp.getDomini() != null ) {
@@ -576,7 +575,7 @@ public class VariableHelper {
 					String columnaCodi = camp.getDominiCampValor();
 					String columnaValor = camp.getDominiCampText();
 					
-					List<ParellaCodiValorDto> resultat = this.findParellaCodiValor(
+					List<ParellaCodiValor> resultat = this.findParellaCodiValor(
 							camp.getTipus() != null ? CampTipusDto.valueOf(camp.getTipus().toString()) : null,
 							domini.getTipus(),
 							resultatConsultaDomini,
@@ -619,7 +618,7 @@ public class VariableHelper {
 						valorBo = valor.toString().replaceAll("\\p{Cntrl}", "").trim();
 					
 					if (valorBo == null || valorBo.equalsIgnoreCase(codiBo)) {
-						resposta.add(new ParellaCodiValorDto(
+						resposta.add(new ParellaCodiValor(
 								enumValor.getCodi(),
 								enumValor.getNom()));
 						if (valor != null) {
@@ -1001,7 +1000,10 @@ public class VariableHelper {
 											dto));
 							if (dto.getText() == null || dto.getText().isEmpty()) {
 								dto.setText("");
-							}							
+							}
+							if (dto.getVarValor() instanceof ParellaCodiValor) {
+								dto.setVarValor(((ParellaCodiValor) dto.getVarValor()).getCodi());
+							}
 						} catch (SistemaExternException ex) {
 							dto.setText("");
 							logger.error("Error al obtenir text per la dada de l'expedient (processInstanceId=" + processInstanceId + ", variable=" + camp.getCodi() + ")", ex);
@@ -1172,7 +1174,7 @@ public class VariableHelper {
 		return null;
 	}
 
-	private ParellaCodiValorDto getTextPerCampAmbValor(
+	private ParellaCodiValor getTextPerCampAmbValor(
 			Camp camp,
 			Object valor,
 			Map<String, Object> valorsAddicionals,
@@ -1182,27 +1184,32 @@ public class VariableHelper {
 			Object dadaDto) throws Exception {
 		if (valor == null)
 			return null;
-		
+
 		//mirem si hi ha una variable amb la texte, utilitzant el prefix PREFIX_VAR_DESCRIPCIO
-		if (camp.isDominiCacheText()) {
-			Object descVariable = getDescripcioVariable(taskInstanceId, processInstanceId, camp.getCodi());
-			if (descVariable != null) {
-				return new ParellaCodiValorDto(
-						(String)valor,
-						(String)descVariable);
+		if (valor instanceof ParellaCodiValor)
+			if (camp.isDominiCacheText()) {
+				return (ParellaCodiValor) valor;
+
+//			Object descVariable = getDescripcioVariable(taskInstanceId, processInstanceId, camp.getCodi());
+//			if (descVariable != null) {
+//				return new ParellaCodiValor(
+//						(String)valor,
+//						(String)descVariable);
+//			}
+			} else {
+				valor = ((ParellaCodiValor) valor).getCodi();
 			}
-		}
 		//////////
 		
 		//TODO pensar què fer amb DominiCodiDescripcio
 //		if (valor instanceof DominiCodiDescripcio) {
-//			return new ParellaCodiValorDto(
+//			return new ParellaCodiValor(
 //					((DominiCodiDescripcio)valor).getCodi(),
 //					((DominiCodiDescripcio)valor).getDescripcio());
 //		}
 		
-		ParellaCodiValorDto resultat = null;
-		List<ParellaCodiValorDto> lista = getPossiblesValorsCamp(
+		ParellaCodiValor resultat = null;
+		List<ParellaCodiValor> lista = getPossiblesValorsCamp(
 				camp,
 				null,
 				null,
@@ -1214,7 +1221,7 @@ public class VariableHelper {
 				dadaDto);
 		if (!lista.isEmpty()) {
 			// Cerca el valor resultant
-			for (ParellaCodiValorDto parellaCodiValor : lista){
+			for (ParellaCodiValor parellaCodiValor : lista){
 				if (parellaCodiValor.getCodi().equals(valor.toString()))
 					resultat = parellaCodiValor;
 			}
@@ -1246,7 +1253,7 @@ public class VariableHelper {
 			// Processa els resultats
 			String text = null;
 			if (resultat != null && resultat.size() > 0) {
-				List<ParellaCodiValorDto> parellesCodiValor =
+				List<ParellaCodiValor> parellesCodiValor =
 						this.findParellaCodiValor(
 							consultaDomini.getCampTipus(), 
 							consultaDomini.getDominiTipus(), 
@@ -1285,14 +1292,14 @@ public class VariableHelper {
 	 * @param valor
 	 * @return
 	 */
-	public List<ParellaCodiValorDto> findParellaCodiValor(
+	public List<ParellaCodiValor> findParellaCodiValor(
 			CampTipusDto campTipus,
 			TipusDomini dominiTipus, 
 			List<FilaResultat> resultatConsultaDomini, 
 			String columnaCodi,
 			String columnaValor, 
 			Object valor) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
 		if (resultatConsultaDomini != null) {
 			Iterator<FilaResultat> it = resultatConsultaDomini.iterator();
 			while (it.hasNext()) {
@@ -1310,7 +1317,7 @@ public class VariableHelper {
 						for (ParellaCodiValor parellaValor: fr.getColumnes()) {
 							matches = (ignoreCase) ? parellaValor.getCodi().equalsIgnoreCase(columnaValor) : parellaValor.getCodi().equals(columnaValor);
 							if (matches) {
-								resposta.add(new ParellaCodiValorDto(
+								resposta.add(new ParellaCodiValor(
 										parellaCodi.getValor().toString(),
 										parellaValor.getValor()));
 								if (valor != null) {

@@ -23,6 +23,7 @@
  */
 package es.caib.helium.back.validator;
 
+import es.caib.helium.back.helper.ValidationHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
@@ -72,8 +73,9 @@ public class SpELAssertValidator implements ConstraintValidator<SpELAssert, Obje
             applyIfExpression = parser.parseExpression(constraint.applyIf());
         }
         for (Class<?> clazz : constraint.helpers()) {
-            functions = extractStaticMethods(clazz);
+            functions.addAll(extractStaticMethods(clazz));
         }
+        functions.addAll(extractStaticMethods(ValidationHelper.class));
     }
 
     public boolean isValid(Object object, ConstraintValidatorContext context) {

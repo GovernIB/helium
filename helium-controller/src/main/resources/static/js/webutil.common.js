@@ -131,6 +131,15 @@ function webutilDisableInputs(formulari) {
 	$('input[type=checkbox]', formulari).attr('disabled', 'disabled');
 }
 
+function updateSelectText(element) {
+	let camp = $(element);
+	if (camp.val()) {
+		let text = camp.select2("data").text;
+		camp.next().val(text);
+	} else {
+		camp.next().val("");
+	}
+}
 
 $(document).ajaxError(function(event, jqxhr, ajaxSettings, thrownError) {
 	var message = "Error AJAX: [" + jqxhr.status + "] " + thrownError;

@@ -11,8 +11,16 @@ import es.caib.helium.back.helper.MessageHelper;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.back.view.ArxiuView;
-import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.client.model.ParellaCodiValor;
+import es.caib.helium.logic.intf.dto.AnotacioAccioEnumDto;
+import es.caib.helium.logic.intf.dto.AnotacioDto;
+import es.caib.helium.logic.intf.dto.AnotacioEstatEnumDto;
+import es.caib.helium.logic.intf.dto.AnotacioFiltreDto;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.ArxiuFirmaDto;
+import es.caib.helium.logic.intf.dto.EntornDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.EntornService;
@@ -529,9 +537,9 @@ public class AnotacioController extends BaseExpedientController {
 
 	/** Posa els valors de l'enumeració estats en el model */
 	private void modelEstats(Model model) {
-		List<ParellaCodiValorDto> opcions = new ArrayList<ParellaCodiValorDto>();
+		List<ParellaCodiValor> opcions = new ArrayList<ParellaCodiValor>();
 		for(AnotacioEstatEnumDto estat : AnotacioEstatEnumDto.values())
-			opcions.add(new ParellaCodiValorDto(
+			opcions.add(new ParellaCodiValor(
 					estat.name(),
 					MessageHelper.getInstance().getMessage("enum.anotacio.estat." + estat.name())));
 
@@ -553,12 +561,12 @@ public class AnotacioController extends BaseExpedientController {
 	/** Posa els expedients tipus al model als quals l'usuari té permís per consultar a l'entorn i estan configurats amb integració amb Distribucio
 	 * @param entornActual */
 	private void modelExpedientsTipus(EntornDto entornActual, Model model) {
-		List<ParellaCodiValorDto> opcions = new ArrayList<ParellaCodiValorDto>();
+		List<ParellaCodiValor> opcions = new ArrayList<ParellaCodiValor>();
 		
 		if (entornActual != null) {
 			for(ExpedientTipusDto expedientTipus : expedientTipusService.findAmbEntornPermisAnotacio(entornActual.getId()))
 				if (expedientTipus.isDistribucioActiu())
-					opcions.add(new ParellaCodiValorDto(
+					opcions.add(new ParellaCodiValor(
 							expedientTipus.getId().toString(),
 							String.format("%s - %s", expedientTipus.getCodi(), expedientTipus.getNom())));		
 		}

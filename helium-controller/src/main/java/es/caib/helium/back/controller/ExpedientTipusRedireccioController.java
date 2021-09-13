@@ -10,10 +10,10 @@ import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.NodecoHelper;
 import es.caib.helium.back.helper.SessionHelper;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.dto.EntornDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.dto.ReassignacioDto;
 import org.apache.commons.logging.Log;
@@ -188,11 +188,11 @@ public class ExpedientTipusRedireccioController extends BaseExpedientTipusContro
 			Long expedientTipusId,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
 
 		try {
 			for (PersonaDto p : expedientTipusService.personaFindAll(entornActual.getId(), expedientTipusId)) {
-				resposta.add(new ParellaCodiValorDto(p.getCodi(), p.getNomSencer()));
+				resposta.add(new ParellaCodiValor(p.getCodi(), p.getNomSencer()));
 			}
 		} catch (Exception e) {
     		MissatgesHelper.error(
