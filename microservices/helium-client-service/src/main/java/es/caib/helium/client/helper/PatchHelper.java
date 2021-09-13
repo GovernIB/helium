@@ -1,5 +1,6 @@
 package es.caib.helium.client.helper;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 
@@ -17,9 +18,9 @@ public class PatchHelper {
             String propertyName,
             String finalValue) {
         if (finalValue == null) {
-            jpb.replace(propertyName, JsonValue.NULL);
+            jpb.replace("/" + propertyName, JsonValue.NULL);
         } else {
-            jpb.replace(propertyName, finalValue);
+            jpb.replace("/" + propertyName, finalValue);
         }
         return true;
     }
@@ -30,9 +31,9 @@ public class PatchHelper {
             String finalValue) {
         if (!Objects.equals(originalValue, finalValue)) {
             if (finalValue == null) {
-                jpb.replace(propertyName, JsonValue.NULL);
+                jpb.replace("/" + propertyName, JsonValue.NULL);
             } else {
-                jpb.replace(propertyName, finalValue);
+                jpb.replace("/" + propertyName, finalValue);
             }
             return true;
         }
@@ -44,9 +45,9 @@ public class PatchHelper {
             String propertyName,
             Integer finalValue) {
         if (finalValue == null) {
-            jpb.replace(propertyName, JsonValue.NULL);
+            jpb.replace("/" + propertyName, JsonValue.NULL);
         } else {
-            jpb.replace(propertyName, finalValue);
+            jpb.replace("/" + propertyName, finalValue);
         }
         return true;
     }
@@ -57,9 +58,9 @@ public class PatchHelper {
             Integer finalValue) {
         if (!Objects.equals(originalValue, finalValue)) {
             if (finalValue == null) {
-                jpb.replace(propertyName, JsonValue.NULL);
+                jpb.replace("/" + propertyName, JsonValue.NULL);
             } else {
-                jpb.replace(propertyName, finalValue);
+                jpb.replace("/" + propertyName, finalValue);
             }
             return true;
         }
@@ -71,9 +72,9 @@ public class PatchHelper {
             String propertyName,
             Long finalValue) {
         if (finalValue == null) {
-            jpb.replace(propertyName, JsonValue.NULL);
+            jpb.replace("/" + propertyName, JsonValue.NULL);
         } else {
-            jpb.replace(propertyName, finalValue.toString());
+            jpb.replace("/" + propertyName, finalValue.toString());
         }
         return true;
     }
@@ -84,9 +85,9 @@ public class PatchHelper {
             Long finalValue) {
         if (!Objects.equals(originalValue, finalValue)) {
             if (finalValue == null) {
-                jpb.replace(propertyName, JsonValue.NULL);
+                jpb.replace("/" + propertyName, JsonValue.NULL);
             } else {
-                jpb.replace(propertyName, finalValue.toString());
+                jpb.replace("/" + propertyName, finalValue.toString());
             }
             return true;
         }
@@ -98,10 +99,10 @@ public class PatchHelper {
             String propertyName,
             Date finalValue) {
         if (finalValue == null) {
-            jpb.replace(propertyName, JsonValue.NULL);
+            jpb.replace("/" + propertyName, JsonValue.NULL);
         } else {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-            jpb.replace(propertyName, sdf.format(finalValue));
+            jpb.replace("/" + propertyName, sdf.format(finalValue));
         }
         return true;
     }
@@ -112,10 +113,10 @@ public class PatchHelper {
             Date finalValue) {
         if (!Objects.equals(originalValue, finalValue)) {
             if (finalValue == null) {
-                jpb.replace(propertyName, JsonValue.NULL);
+                jpb.replace("/" + propertyName, JsonValue.NULL);
             } else {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-                jpb.replace(propertyName, sdf.format(finalValue));
+                jpb.replace("/" + propertyName, sdf.format(finalValue));
             }
             return true;
         }
@@ -127,9 +128,9 @@ public class PatchHelper {
             String propertyName,
             Boolean finalValue) {
         if (finalValue == null) {
-            jpb.replace(propertyName, JsonValue.NULL);
+            jpb.replace("/" + propertyName, JsonValue.NULL);
         } else {
-            jpb.replace(propertyName, finalValue);
+            jpb.replace("/" + propertyName, finalValue);
         }
         return true;
     }
@@ -140,9 +141,9 @@ public class PatchHelper {
             Boolean finalValue) {
         if (!Objects.equals(originalValue, finalValue)) {
             if (finalValue == null) {
-                jpb.replace(propertyName, JsonValue.NULL);
+                jpb.replace("/" + propertyName, JsonValue.NULL);
             } else {
-                jpb.replace(propertyName, finalValue);
+                jpb.replace("/" + propertyName, finalValue);
             }
             return true;
         }
@@ -155,11 +156,11 @@ public class PatchHelper {
             String propertyName,
             List finalValue) {
         if (finalValue == null) {
-            jpb.replace(propertyName, JsonValue.NULL);
+            jpb.replace("/" + propertyName, JsonValue.NULL);
         } else {
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonArray = objectMapper.writeValueAsString(finalValue);
-            jpb.replace(propertyName, jsonArray);
+            jpb.replace("/" + propertyName, jsonArray);
         }
         return true;
     }
@@ -171,15 +172,31 @@ public class PatchHelper {
             List finalValue) {
         if (!Objects.equals(originalValue, finalValue)) {
             if (finalValue == null) {
-                jpb.replace(propertyName, JsonValue.NULL);
+                jpb.replace("/" + propertyName, JsonValue.NULL);
             } else {
                 ObjectMapper objectMapper = new ObjectMapper();
                 String jsonArray = objectMapper.writeValueAsString(finalValue);
-                jpb.replace(propertyName, jsonArray);
+                jpb.replace("/" + propertyName, jsonArray);
             }
             return true;
         }
         return false;
     }
+
+	/** Transforma un objecte de tipus JsonPatshBuilder a un objecte JsonNode per
+	 * poder enviar-lo com a paràmetre en les crides patch. 
+	 * 
+	 * @param jpb
+	 * @return
+	 */
+	public static JsonNode toJsonNode(JsonPatchBuilder jpb) {
+		JsonNode patchJson = null;
+		try {
+			patchJson = new ObjectMapper().readTree(jpb.build().toString());
+		} catch(Exception e) {
+			throw new RuntimeException(e);
+		}
+		return patchJson;
+	}
 
 }

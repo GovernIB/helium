@@ -23,4 +23,10 @@ public class TascaApiPath {
 	public static final String SET_RESPONSABLES = API_PATH + "/{tascaId}/responsables";
 	
 	public static final String DELETE_RESPONSABLES = API_PATH + "/{tascaId}/responsables";
+
+	public static final String GET_GRUPS = API_PATH + "/{tascaId}/grups";
+
+	public static final String SET_GRUPS = API_PATH + "/{tascaId}/grups";
+	
+	public static final String DELETE_GRUPS = API_PATH + "/{tascaId}/grups";
 }

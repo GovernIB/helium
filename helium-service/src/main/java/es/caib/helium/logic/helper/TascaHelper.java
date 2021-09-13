@@ -597,6 +597,7 @@ public class TascaHelper {
 		dto.setDescription(tascaMs.getTitol());
 		dto.setAssignee(tascaMs.getUsuariAssignat());
 		dto.setPooledActors( tascaMs.getResponsables().stream().collect(Collectors.toSet()));
+		dto.setGrups( tascaMs.getGrups().stream().collect(Collectors.toSet()));
 		dto.setCreateTime(tascaMs.getDataCreacio());
 
 //		if (MotorTipusEnum.CAMUNDA.equals(motorTipus)) {

@@ -28,7 +28,7 @@ public class TaskApiPath {
 
 	public static final String REASSING_TASK_INSTANCE_USER = API_PATH + "/{taskInstanceId}/reassign/user";
 
-	public static final String REASSING_TASK_INSTANCE_GROUP = API_PATH + "/{taskInstanceId}/reassign/gruop";
+	public static final String REASSING_TASK_INSTANCE_GROUP = API_PATH + "/{taskInstanceId}/reassign/group";
 	
 	public static final String UPDATE_TASK_INSTANCE_INFO_CACHE = API_PATH + "/{taskId}";
 

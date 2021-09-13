@@ -363,6 +363,27 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 processDefinitionId,
                 taskName);
     }
+    
+    @Override
+    public void tascaCrear(TascaDto tasca) {
+    	tasquesHelper.crear(tasca);
+    }
+    
+	@Override
+	public void tascaFinalitzar(long tascaId, Date end) {
+    	tasquesHelper.finalitzar(tascaId, end);
+	}
+
+	@Override
+	public void tascaAssignar(long tascaId, String actorId, List<String> usuaris,
+			List<String> grups) {
+    	tasquesHelper.assignar(
+    			tascaId, 
+    			actorId,
+    			usuaris,
+    			grups);
+	}
+
 
     @Override
     public String getDadaPerTaskInstance(String processInstanceId, String taskInstanceId, String varCodi) {
@@ -384,13 +405,6 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
                 processDefinitionId,
                 processInstanceId,
                 name);
-    }
-
-
-    // TODO: LOCAL --> updateTaskInstanceInfoCache o eliminar????
-    @Override
-    public void createDadesTasca(Long taskId) {
-
     }
 
     // DOCUMENTS
@@ -1174,8 +1188,13 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 	////////////////////////////////////////////////////////////////////////////////
 
     @Override
-	public void crearProces(ProcesDto proces) {
+	public void procesCrear(ProcesDto proces) {
     	procesHelper.crear(proces);
+	}
+
+    @Override
+	public void procesFinalitzar(Long processInstanceId, Date end) {
+    	procesHelper.finalitzar(processInstanceId, end);
 	}
 
 }
