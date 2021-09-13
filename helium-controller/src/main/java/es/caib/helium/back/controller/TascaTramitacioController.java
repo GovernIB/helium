@@ -257,7 +257,8 @@ public class TascaTramitacioController extends BaseTascaController {
 		//afegirVariablesInstanciaProces(tascaDades, tascaId);
 		TascaFormValidatorHelper validatorHelper = new TascaFormValidatorHelper(
 				tascaService,
-				tascaDades);
+				tascaDades,
+				processInstanceId);
 		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(
 				tascaDades,
 				command,
@@ -306,7 +307,8 @@ public class TascaTramitacioController extends BaseTascaController {
 		//afegirVariablesInstanciaProces(tascaDades, tascaId);
 		TascaFormValidatorHelper validatorHelper = new TascaFormValidatorHelper(
 				tascaService,
-				tascaDades);
+				tascaDades,
+				processInstanceId);
 		//validator.setTasca(tascaDades);
 		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(
 				tascaDades,
@@ -414,7 +416,8 @@ public class TascaTramitacioController extends BaseTascaController {
 		//afegirVariablesInstanciaProces(tascaDades, tascaId);
 		TascaFormValidatorHelper validatorHelper = new TascaFormValidatorHelper(
 				tascaService,
-				tascaDades);
+				tascaDades,
+				processInstanceId);
 		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(
 				tascaDades,
 				command,
@@ -1148,8 +1151,8 @@ public class TascaTramitacioController extends BaseTascaController {
 			BindingResult result, 
 			HttpServletRequest request,
 			String tascaId) {
-		validator.validate(command, result);
-//		validatorHelper.validate(command, result);
+//		validator.validate(command, result);
+		validatorHelper.validate(command, result);
 		if (result.hasErrors() || !accioGuardarForm(request, tascaId, variables)) {
 			MissatgesHelper.error(request, getMessage(request, "error.guardar.dades"));
 			return false;
@@ -1176,8 +1179,8 @@ public class TascaTramitacioController extends BaseTascaController {
 				validatorHelper.isValidarObligatoris(),
 				validatorHelper.isValidarExpresions(),
 				processInstanceId);
-		validator.validate(commandValidar, result);
-//		validatorHelper.validate(commandValidar, result);
+//		validator.validate(commandValidar, result);
+		validatorHelper.validate(commandValidar, result);
 		if (result.hasErrors()) {
 			MissatgesHelper.error(request, getMessage(request, "error.validacio"));
 			return false;

@@ -9,9 +9,10 @@
 <c:set var="dadaActual" value="${dada}"/>
 <c:set var="isRegistre" value="${true}"/>
 <c:set var="campErrorsReg"><form:errors path="${dadaActual.varCodi}"/></c:set>
+<c:if test="${empty ampleInput}"><c:set var="ampleInput" value="100%"></c:set></c:if>
 <div class="form-group registre<c:if test="${not empty campErrorsReg}"> has-error</c:if>">
-	<label for="${dadaActual.varCodi}" class="control-label<c:if test="${dada.required}"> obligatori</c:if>" style="width: ${ampleLabel}; float: left; padding-right: 11px;">${dadaActual.campEtiqueta}</label>
-	<div class="controls registre like-cols" style="width: ${ampleInput};">	
+	<div class="row"></div><label for="${dadaActual.varCodi}" class="control-label<c:if test="${dada.required}"> obligatori</c:if>" style="width: ${ampleLabel}; float: left; padding-right: 11px;">${dadaActual.campEtiqueta}</label></div>
+	<div class="controls registre like-cols row" style="width: ${ampleInput};">
 		<c:set var="nomReg" value="command.${dadaActual.varCodi}" />
 		<%-- Primer registre, que utilitzam per a definir la capçalera de la taula --%>
 		<c:choose>

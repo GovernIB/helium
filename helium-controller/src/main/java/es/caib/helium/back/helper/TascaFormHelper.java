@@ -3,14 +3,12 @@
  */
 package es.caib.helium.back.helper;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import es.caib.helium.client.dada.model.Dada;
 import es.caib.helium.client.engine.model.Termini;
 import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.dto.CampTipusDto;
 import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
-import es.caib.helium.logic.intf.dto.ValidacioDto;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtField;
@@ -40,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 
@@ -951,152 +948,152 @@ public class TascaFormHelper {
 			}
 		}
 
-		if (isPerValidar) {
-			ObjectMapper objectMapper = new ObjectMapper();
-			List<AnnotationData> classAnnotations = new ArrayList<>();
-			for (TascaDadaDto camp : tascaDades) {
-				List<AnnotationData> fieldAnnotations = new ArrayList<>();
-
-				// Obligatoris
-				if (validarObligatoris && (camp.isRequired() || camp.getCampTipus().equals(CampTipusDto.REGISTRE))) {
-					if (camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
-						List<TascaDadaDto> registreDades = camp.isCampMultiple() ? camp.getMultipleDades().get(0).getRegistreDades() : camp.getRegistreDades();
-						if (camp.isRequired() || registreAmbCampsRequired(registreDades)) {
-							if (camp.isReadOnly()) {
-								fieldAnnotations.add(AnnotationData.builder()
-										.annotationName("javax.validation.constraints.NotNull")
-										.members(Map.of("message", MessageHelper.getInstance().getMessage("not.blank")))
-										.build());
-							}
-						} else {
-							List<ValidationHelper.CampRegistreRequired> campsRequired = registreDades
-									.stream()
-									.map(r -> ValidationHelper.CampRegistreRequired.builder()
-											.varCodi(r.getVarCodi())
-											.required(r.isRequired())
-											.multiple(r.isCampMultiple())
-											.build()
-									).collect(Collectors.toList());
-							String strCcampsRequired = objectMapper.writeValueAsString(campsRequired);
-							fieldAnnotations.add(AnnotationData.builder()
-									.annotationName("es.caib.helium.back.validator.SpELAssert")
-									.members(Map.of(
-											"value", "#registreNotEmpty(#this, " + strCcampsRequired + ", " + camp.isCampMultiple() + ", " + camp.isRequired() + ")",
-											"message", MessageHelper.getInstance().getMessage("registre.not.blank")))
-									.build());
-						}
-					// Camp simple - NO Registre
-					} else if (!camp.isCampMultiple()) {
-						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
-							fieldAnnotations.add(AnnotationData.builder()
-									.annotationName("es.caib.helium.back.validator.SpELAssert")
-									.members(Map.of(
-											"value", "#terminiNotEmpty(#this)",
-											"message", MessageHelper.getInstance().getMessage("not.blank")))
-									.build());
-						} else {
-							fieldAnnotations.add(AnnotationData.builder()
-									.annotationName("javax.validation.constraints.NotEmpty")
-									.members(Map.of("message", MessageHelper.getInstance().getMessage("not.blank")))
-									.build());
-						}
-					// Camp Múltiple - NO Registre
-					} else {
-						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
-							fieldAnnotations.add(AnnotationData.builder()
-									.annotationName("es.caib.helium.back.validator.SpELAssert")
-									.members(Map.of(
-											"value", "#listTerminisNotEmpty(#this)",
-											"message", MessageHelper.getInstance().getMessage("members.not.blank")))
-									.build());
-						} else {
-							fieldAnnotations.add(AnnotationData.builder()
-									.annotationName("es.caib.helium.back.validator.SpELAssert")
-									.members(Map.of(
-											"value", "#listMembersNotEmpty(#this)",
-											"message", MessageHelper.getInstance().getMessage("members.not.blank")))
-									.build());
-						}
-					}
-				}
-
-				// comprovaCamp
-				if (camp.getCampTipus().equals(CampTipusDto.STRING)) {
-					if (camp.isCampMultiple()) {
-						fieldAnnotations.add(AnnotationData.builder()
-								.annotationName("es.caib.helium.back.validator.SpELAssert")
-								.members(Map.of(
-										"value", "#listStringLengthValid(#this)",
-										"message", MessageHelper.getInstance().getMessage("members.max.length")))
-								.build());
-					} else {
-						fieldAnnotations.add(AnnotationData.builder()
-								.annotationName("es.caib.helium.back.validator.SpELAssert")
-								.members(Map.of(
-										"value", "#stringLengthValid(#this)",
-										"message", MessageHelper.getInstance().getMessage("max.length")))
-								.build());
-					}
-				} else if (camp.getCampTipus().equals(CampTipusDto.DATE) && camp.getText() != null && !camp.getText().isEmpty()) {
-					fieldAnnotations.add(AnnotationData.builder()
-							.annotationName("es.caib.helium.back.validator.SpELAssert")
-							.members(Map.of(
-									"value", "#dataValida(#this)",
-									"message", MessageHelper.getInstance().getMessage("error.camp.dada.valida")))
-							.build());
-				}
-
-				if (!fieldAnnotations.isEmpty()) {
-					addFieldAnnotations(
-							cc,
-							camp.getVarCodi(),
-							fieldAnnotations);
-				}
-
-				// expressions
-				if (validarExpresions) {
-					var validacions = camp.getValidacions();
-					for (ValidacioDto validacio: validacions) {
-						if (processInstanceId != null || validExpression(validacio.getExpressio())) {
-							String expression = transformExpression(processInstanceId, validacio.getExpressio());
-							classAnnotations.add(AnnotationData.builder()
-									.annotationName("es.caib.helium.back.validator.SpELAssert")
-									.members(Map.of(
-											"value", expression,
-											"message", camp.getCampEtiqueta() + ": " + validacio.getMissatge()))
-									.build());
-						}
-					}
-				}
-			}
-
-			if (!classAnnotations.isEmpty()) {
-				addClassAnnotations(
-						cc,
-						classAnnotations
-				);
-			}
-		}
+//		if (isPerValidar) {
+//			ObjectMapper objectMapper = new ObjectMapper();
+//			List<AnnotationData> classAnnotations = new ArrayList<>();
+//			for (TascaDadaDto camp : tascaDades) {
+//				List<AnnotationData> fieldAnnotations = new ArrayList<>();
+//
+//				// Obligatoris
+//				if (validarObligatoris && (camp.isRequired() || camp.getCampTipus().equals(CampTipusDto.REGISTRE))) {
+//					if (camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
+//						List<TascaDadaDto> registreDades = camp.isCampMultiple() ? camp.getMultipleDades().get(0).getRegistreDades() : camp.getRegistreDades();
+//						if (camp.isRequired() || registreAmbCampsRequired(registreDades)) {
+//							if (camp.isReadOnly()) {
+//								fieldAnnotations.add(AnnotationData.builder()
+//										.annotationName("javax.validation.constraints.NotNull")
+//										.members(Map.of("message", MessageHelper.getInstance().getMessage("not.blank")))
+//										.build());
+//							}
+//						} else {
+//							List<ValidationHelper.CampRegistreRequired> campsRequired = registreDades
+//									.stream()
+//									.map(r -> ValidationHelper.CampRegistreRequired.builder()
+//											.varCodi(r.getVarCodi())
+//											.required(r.isRequired())
+//											.multiple(r.isCampMultiple())
+//											.build()
+//									).collect(Collectors.toList());
+//							String strCcampsRequired = objectMapper.writeValueAsString(campsRequired);
+//							fieldAnnotations.add(AnnotationData.builder()
+//									.annotationName("es.caib.helium.back.validator.SpELAssert")
+//									.members(Map.of(
+//											"value", "#registreNotEmpty(#this, " + strCcampsRequired + ", " + camp.isCampMultiple() + ", " + camp.isRequired() + ")",
+//											"message", MessageHelper.getInstance().getMessage("registre.not.blank")))
+//									.build());
+//						}
+//					// Camp simple - NO Registre
+//					} else if (!camp.isCampMultiple()) {
+//						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
+//							fieldAnnotations.add(AnnotationData.builder()
+//									.annotationName("es.caib.helium.back.validator.SpELAssert")
+//									.members(Map.of(
+//											"value", "#terminiNotEmpty(#this)",
+//											"message", MessageHelper.getInstance().getMessage("not.blank")))
+//									.build());
+//						} else {
+//							fieldAnnotations.add(AnnotationData.builder()
+//									.annotationName("javax.validation.constraints.NotEmpty")
+//									.members(Map.of("message", MessageHelper.getInstance().getMessage("not.blank")))
+//									.build());
+//						}
+//					// Camp Múltiple - NO Registre
+//					} else {
+//						if (camp.getCampTipus().equals(CampTipusDto.TERMINI)) {
+//							fieldAnnotations.add(AnnotationData.builder()
+//									.annotationName("es.caib.helium.back.validator.SpELAssert")
+//									.members(Map.of(
+//											"value", "#listTerminisNotEmpty(#this)",
+//											"message", MessageHelper.getInstance().getMessage("members.not.blank")))
+//									.build());
+//						} else {
+//							fieldAnnotations.add(AnnotationData.builder()
+//									.annotationName("es.caib.helium.back.validator.SpELAssert")
+//									.members(Map.of(
+//											"value", "#listMembersNotEmpty(#this)",
+//											"message", MessageHelper.getInstance().getMessage("members.not.blank")))
+//									.build());
+//						}
+//					}
+//				}
+//
+//				// comprovaCamp
+//				if (camp.getCampTipus().equals(CampTipusDto.STRING)) {
+//					if (camp.isCampMultiple()) {
+//						fieldAnnotations.add(AnnotationData.builder()
+//								.annotationName("es.caib.helium.back.validator.SpELAssert")
+//								.members(Map.of(
+//										"value", "#listStringLengthValid(#this)",
+//										"message", MessageHelper.getInstance().getMessage("members.max.length")))
+//								.build());
+//					} else {
+//						fieldAnnotations.add(AnnotationData.builder()
+//								.annotationName("es.caib.helium.back.validator.SpELAssert")
+//								.members(Map.of(
+//										"value", "#stringLengthValid(#this)",
+//										"message", MessageHelper.getInstance().getMessage("max.length")))
+//								.build());
+//					}
+//				} else if (camp.getCampTipus().equals(CampTipusDto.DATE) && camp.getText() != null && !camp.getText().isEmpty()) {
+//					fieldAnnotations.add(AnnotationData.builder()
+//							.annotationName("es.caib.helium.back.validator.SpELAssert")
+//							.members(Map.of(
+//									"value", "#dataValida(#this)",
+//									"message", MessageHelper.getInstance().getMessage("error.camp.dada.valida")))
+//							.build());
+//				}
+//
+//				if (!fieldAnnotations.isEmpty()) {
+//					addFieldAnnotations(
+//							cc,
+//							camp.getVarCodi(),
+//							fieldAnnotations);
+//				}
+//
+//				// expressions
+//				if (validarExpresions) {
+//					var validacions = camp.getValidacions();
+//					for (ValidacioDto validacio: validacions) {
+//						if (processInstanceId != null || validExpression(validacio.getExpressio())) {
+//							String expression = transformExpression(processInstanceId, validacio.getExpressio());
+//							classAnnotations.add(AnnotationData.builder()
+//									.annotationName("es.caib.helium.back.validator.SpELAssert")
+//									.members(Map.of(
+//											"value", expression,
+//											"message", camp.getCampEtiqueta() + ": " + validacio.getMissatge()))
+//									.build());
+//						}
+//					}
+//				}
+//			}
+//
+//			if (!classAnnotations.isEmpty()) {
+//				addClassAnnotations(
+//						cc,
+//						classAnnotations
+//				);
+//			}
+//		}
 		return cc.toClass().getConstructor().newInstance();
 	}
 
-	private static boolean validExpression(String expression) {
-		return !expression.contains("#valor(");
-	}
-
-	private static String transformExpression(String processInstanceId, String expression) {
-		expression = expression.replace("#valor(", "@expedientDadaService.findOnePerInstanciaProces(null, " + processInstanceId + ", ");
-		return expression;
-	}
-
-	private static boolean registreAmbCampsRequired(List<TascaDadaDto> registreDades) {
-		for (TascaDadaDto campRegistre : registreDades) {
-			if (campRegistre.isRequired()) {
-				return true;
-			}
-		}
-		return false;
-	}
+//	private static boolean validExpression(String expression) {
+//		return !expression.contains("#valor(");
+//	}
+//
+//	private static String transformExpression(String processInstanceId, String expression) {
+//		expression = expression.replace("#valor(", "@expedientDadaService.findOnePerInstanciaProces(null, " + processInstanceId + ", ");
+//		return expression;
+//	}
+//
+//	private static boolean registreAmbCampsRequired(List<TascaDadaDto> registreDades) {
+//		for (TascaDadaDto campRegistre : registreDades) {
+//			if (campRegistre.isRequired()) {
+//				return true;
+//			}
+//		}
+//		return false;
+//	}
 
 	private static Object getArrayFromRegistre(
 			TascaDadaDto camp,

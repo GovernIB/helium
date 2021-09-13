@@ -291,7 +291,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 			Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDades, command, false);
 			TascaFormValidatorHelper validatorHelper = new TascaFormValidatorHelper(
 					expedientService,
-					tascaDades);
+					tascaDades,
+					procesId);
 //			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 //			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
 			validatorHelper.setValidarExpresions(false);
@@ -306,8 +307,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 					validatorHelper.isValidarExpresions(),
 					procesId);
 			// TODO MS: DESCOMENTAR I PROVAR
-		 	validator.validate(commandValidar, result);
-//			validatorHelper.validate(commandValidar, result);
+//		 	validator.validate(commandValidar, result);
+			validatorHelper.validate(commandValidar, result);
 			if (result.hasErrors()) {
 				return "v3/expedientDadaModificar";
 			}
@@ -484,7 +485,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 //				Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
 				TascaFormValidatorHelper validatorHelper = new TascaFormValidatorHelper(
 						expedientService,
-						tascaDades);
+						tascaDades,
+						procesId);
 				validatorHelper.setValidarExpresions(false);
 				validatorHelper.setValidarObligatoris(true);
 				Object commandValidar = TascaFormHelper.getCommandForCamps(
@@ -497,8 +499,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 						validatorHelper.isValidarExpresions(),
 						procesId);
 				// TODO descomentar validator i fer que funcioni
-				validator.validate(commandValidar, result);
-//				validatorHelper.validate(commandValidar, result);
+//				validator.validate(commandValidar, result);
+				validatorHelper.validate(commandValidar, result);
 				if (!result.hasErrors()) {
 					expedientDadaService.create(
 							expedientId,

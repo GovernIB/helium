@@ -579,14 +579,15 @@ public class MassivaExpedientController extends BaseExpedientController {
 						false);
 				TascaFormValidatorHelper validatorHelper = new TascaFormValidatorHelper(
 						expedientService,
-						tascaDades);
+						tascaDades,
+						processInstanceId);
 				Object commandPerValidacio = TascaFormHelper.getCommandForCampsExpedient(
 						expedientDades,
 						variables,
 						expedient.getProcessInstanceId());
 
-				validator.validate(commandPerValidacio, result);
-//				validatorHelper.validate(commandPerValidacio, result);
+//				validator.validate(commandPerValidacio, result);
+				validatorHelper.validate(commandPerValidacio, result);
 				if (result.hasErrors()) {
 					model.addAttribute("modificarVariablesCommand", command);
 					return "v3/massivaInfoModificarVariables";

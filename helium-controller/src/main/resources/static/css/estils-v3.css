@@ -310,3 +310,14 @@ span.herencia {
 .inputCheckbox:hover .checkbox_hiddenInfo {
   visibility: visible;
 }
+
+@media (min-width: 1200px) {
+	.modal-lg {
+		width: 1100px;
+	}
+}
+@media (min-width: 1600px) {
+	.modal-lg {
+		width: 1500px;
+	}
+}

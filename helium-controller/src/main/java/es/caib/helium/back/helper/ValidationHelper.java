@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.PropertyUtils;
 
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -19,6 +20,24 @@ import static es.caib.helium.back.helper.TascaFormValidatorHelper.STRING_MAX_LEN
 
 @Slf4j
 public class ValidationHelper {
+
+    public static double suma(Object valors) {
+        var suma = 0.0;
+        if (valors == null) {
+            return suma;
+        }
+        for (int i = 0; i < Array.getLength(valors); i++) {
+            Object valor = Array.get(valors, i);
+            if (valor != null && (
+                    valor instanceof Integer ||
+                    valor instanceof Long ||
+                    valor instanceof Double ||
+                    valor instanceof BigDecimal)) {
+                suma += Double.valueOf(valor.toString());
+            }
+        }
+        return suma;
+    }
 
     public static boolean listMembersNotEmpty(Object valors) {
         if (valors == null) {
