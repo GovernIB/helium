@@ -23,11 +23,10 @@ package org.jbpm.identity.assignment;
 
 import java.util.Set;
 
-
-import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmContext;
+import org.jbpm.graph.def.Event;
 import org.jbpm.graph.exe.ExecutionContext;
 import org.jbpm.graph.exe.Token;
 import org.jbpm.identity.Entity;
@@ -38,6 +37,9 @@ import org.jbpm.identity.hibernate.IdentitySession;
 import org.jbpm.taskmgmt.def.AssignmentHandler;
 import org.jbpm.taskmgmt.exe.Assignable;
 import org.jbpm.taskmgmt.exe.SwimlaneInstance;
+import org.jbpm.taskmgmt.exe.TaskInstance;
+
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 
 /**
  * implements an expression language for assigning actors to tasks based 
@@ -105,6 +107,9 @@ public class ExpressionAssignmentHandler implements AssignmentHandler {
     	for (Membership m: (Set<Membership>)g.getMemberships())
     		actorIds[i++] = m.getUser().getName();
         assignable.setPooledActors(actorIds);
+        // Llença l'event de reassignació
+        if (assignable instanceof TaskInstance)
+        	((TaskInstance) assignable).getTask().fireEvent(Event.EVENTTYPE_TASK_ASSIGN, executionContext);
       }
     } catch (RuntimeException e) {
       throw new ExpressionAssignmentException("couldn't resolve assignment expression '"+getExpression()+"'", e);

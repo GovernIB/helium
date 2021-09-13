@@ -6,14 +6,6 @@ package org.jbpm.identity.assignment;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.conselldemallorca.helium.api.dto.AreaDto;
-import net.conselldemallorca.helium.api.dto.AreaMembreDto;
-import net.conselldemallorca.helium.api.dto.CarrecDto;
-import net.conselldemallorca.helium.api.dto.EntornDto;
-import net.conselldemallorca.helium.api.dto.PersonaDto;
-import net.conselldemallorca.helium.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.graph.exe.ExecutionContext;
@@ -21,6 +13,14 @@ import org.jbpm.graph.exe.Token;
 import org.jbpm.taskmgmt.def.AssignmentHandler;
 import org.jbpm.taskmgmt.exe.Assignable;
 import org.jbpm.taskmgmt.exe.SwimlaneInstance;
+
+import net.conselldemallorca.helium.api.dto.AreaDto;
+import net.conselldemallorca.helium.api.dto.AreaMembreDto;
+import net.conselldemallorca.helium.api.dto.CarrecDto;
+import net.conselldemallorca.helium.api.dto.EntornDto;
+import net.conselldemallorca.helium.api.dto.PersonaDto;
+import net.conselldemallorca.helium.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 
 /**
  * Implementa el següent llenguatge i resol expressions per assignar
@@ -59,7 +59,6 @@ public class HeliumExpressionAssignmentHandler implements AssignmentHandler {
 		logger.debug("Expresió a analitzar: '" + expressio + "'");
 		String processInstanceId = new Long(executionContext.getProcessInstance().getId()).toString();
 		if (entornId == null) {
-//			EntornDto entorn = Jbpm3HeliumBridge.getInstanceService().getEntornAmbProcessInstanceId(processInstanceId);
 			EntornDto entorn = Jbpm3HeliumBridge.getInstanceService().getEntornActual();
 			if (entorn == null)
 				throw new RuntimeException("No s'ha trobat l'entorn per la instància de procés " + processInstanceId);

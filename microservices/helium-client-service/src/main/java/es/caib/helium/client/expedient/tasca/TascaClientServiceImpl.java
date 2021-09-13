@@ -1,13 +1,11 @@
 package es.caib.helium.client.expedient.tasca;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
 import javax.json.Json;
 import javax.json.JsonPatchBuilder;
-import javax.json.JsonValue;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -16,8 +14,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import es.caib.helium.client.expedient.tasca.model.ConsultaTascaDades;
 import es.caib.helium.client.expedient.tasca.model.TascaDto;
+import es.caib.helium.client.helper.PatchHelper;
 import es.caib.helium.client.model.PagedList;
-import es.caib.helium.client.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -101,15 +99,39 @@ public class TascaClientServiceImpl implements TascaClientService {
 	@Override
 	public void setResponsablesV1(String tascaId, List<String> responsables) {
 		
-		log.debug(MISSATGE_LOG + " esborrant tasca amb id " + tascaId);
-		tascaClient.deleteTascaV1(tascaId);
+		log.debug(MISSATGE_LOG + " fixant responsables de la tasca amb id " + tascaId);
+		tascaClient.setResponsablesV1(tascaId, responsables);
 	}
 
 	@Override
 	public void deleteResponsablesV1(String tascaId) {
 		
-		log.debug(MISSATGE_LOG + " esborrant tasca amb id " + tascaId);
-		tascaClient.deleteTascaV1(tascaId);
+		log.debug(MISSATGE_LOG + " esborrant resposables de la tasca amb id " + tascaId);
+		tascaClient.deleteResponsablesV1(tascaId);
+	}
+	
+
+	@Override
+	public List<String> getGrupsV1(String tascaId) {
+		
+		log.debug(MISSATGE_LOG + " obtinguent grups de la tasca amb id " + tascaId);
+		var responseEntity = tascaClient.getGrupsV1(tascaId);
+		var resultat = Objects.requireNonNull(responseEntity.getBody());
+    	return resultat;
+	}
+
+	@Override
+	public void setGrupsV1(String tascaId, List<String> grups) {
+		
+		log.debug(MISSATGE_LOG + " establint grups assignats a tasca amb id " + tascaId);
+		tascaClient.setGrupsV1(tascaId, grups);
+	}
+
+	@Override
+	public void deleteGrupsV1(String tascaId) {
+		
+		log.debug(MISSATGE_LOG + " esborrant grups assignats a la tasca amb id " + tascaId);
+		tascaClient.deleteGrupsV1(tascaId);
 	}
 	
 	@Override
@@ -118,14 +140,10 @@ public class TascaClientServiceImpl implements TascaClientService {
 		log.debug(MISSATGE_LOG + " update usuari tasca " + tascaId + ": " + usuariAssignat);
 		
 		JsonPatchBuilder jpb = Json.createPatchBuilder();
-		if (usuariAssignat != null) {
-			jpb.replace("usuariAssignat", usuariAssignat);
-		} else {
-			jpb.replace("usuariAssignat", JsonValue.NULL);
-		}
+		PatchHelper.replaceStringProperty(jpb, "usuariAssignat", usuariAssignat);
 		tascaClient.patchTascaV1(
 				tascaId, 
-				JsonUtil.toJsonNode(jpb));
+				PatchHelper.toJsonNode(jpb));
 	}
 
 	@Override
@@ -133,10 +151,10 @@ public class TascaClientServiceImpl implements TascaClientService {
 		log.debug(MISSATGE_LOG + " update cancel·lada tasca " + tascaId + ": " + cancelada);
 		
 		JsonPatchBuilder jpb = Json.createPatchBuilder();
-		jpb.replace("cancelada", cancelada);
+		PatchHelper.replaceBooleanProperty(jpb, "cancelada", cancelada);
 		tascaClient.patchTascaV1(
 				tascaId, 
-				JsonUtil.toJsonNode(jpb));
+				PatchHelper.toJsonNode(jpb));
 	}
 
 	@Override
@@ -144,10 +162,10 @@ public class TascaClientServiceImpl implements TascaClientService {
 		log.debug(MISSATGE_LOG + " update suspesa tasca " + tascaId + ": " + suspesa);
 		
 		JsonPatchBuilder jpb = Json.createPatchBuilder();
-		jpb.replace("suspesa", suspesa);
+		PatchHelper.replaceBooleanProperty(jpb, "suspesa", suspesa);
 		tascaClient.patchTascaV1(
 				tascaId, 
-				JsonUtil.toJsonNode(jpb));
+				PatchHelper.toJsonNode(jpb));
 	}
 	
 	@Override
@@ -155,10 +173,10 @@ public class TascaClientServiceImpl implements TascaClientService {
 		log.debug(MISSATGE_LOG + " update error finalitzacio " + tascaId + ": " + errorFinalitzacio);
 		
 		JsonPatchBuilder jpb = Json.createPatchBuilder();
-		jpb.replace("errorFinalitzacio", errorFinalitzacio);
+		PatchHelper.replaceStringProperty(jpb, "errorFinalitzacio", errorFinalitzacio);
 		tascaClient.patchTascaV1(
 				tascaId, 
-				JsonUtil.toJsonNode(jpb));
+				PatchHelper.toJsonNode(jpb));
 	}
 
 	@Override
@@ -166,12 +184,11 @@ public class TascaClientServiceImpl implements TascaClientService {
 		log.debug(MISSATGE_LOG + " marcar finalitzar " + tascaId + ": " + marcadaFinalitzar);
 		
 		JsonPatchBuilder jpb = Json.createPatchBuilder();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-		jpb.replace("marcadaFinalitzar", sdf.format(marcadaFinalitzar));
-		jpb.replace("iniciFinalitzacio", JsonValue.NULL);
-		jpb.replace("errorFinalitzacio", JsonValue.NULL);
+		PatchHelper.replaceDateProperty(jpb, "marcadaFinalitzar", marcadaFinalitzar);
+		PatchHelper.replaceDateProperty(jpb, "iniciFinalitzacio", null);
+		PatchHelper.replaceStringProperty(jpb, "errorFinalitzacio", null);
 		tascaClient.patchTascaV1(
 				tascaId, 
-				JsonUtil.toJsonNode(jpb));
+				PatchHelper.toJsonNode(jpb));
 	}
 }

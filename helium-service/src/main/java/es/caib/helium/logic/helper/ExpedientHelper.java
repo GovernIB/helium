@@ -718,27 +718,28 @@ public class ExpedientHelper {
 //				"Reprendre",
 //				"expedient",
 //				expedient.getTipus().getNom());
+
+		// 1 crida motor retroacció
 		workflowRetroaccioApi.afegirInformacioRetroaccioPerExpedient(
 				expedient.getId(),
 				ExpedientRetroaccioTipus.EXPEDIENT_REPRENDRE,
 				null,
 				ExpedientRetroaccioEstat.IGNORAR);
+		// 2 crida al client ms processos
 		List<WProcessInstance> processInstancesTree = workflowEngineApi.getProcessInstanceTree(
 				expedient.getProcessInstanceId());
 		String[] ids = new String[processInstancesTree.size()];
 		int i = 0;
 		for (WProcessInstance pi: processInstancesTree)
 			ids[i++] = pi.getId();
+		// 3 crida motor resume procés
 		workflowEngineApi.resumeProcessInstances(ids);
 		expedient.setInfoAturat(null);
+		// 4 crida ms expedients per modifica informació
 		expedientClientService.reprendre(expedient.getId());
 		expedientRegistreHelper.crearRegistreReprendreExpedient(
 				expedient.getId(),
 				(usuari != null) ? usuari : SecurityContextHolder.getContext().getAuthentication().getName());
-//		mesuresTemporalsHelper.mesuraCalcular(
-//				"Reprendre",
-//				"expedient",
-//				expedient.getTipus().getNom());
 	}
 
 	@Transactional

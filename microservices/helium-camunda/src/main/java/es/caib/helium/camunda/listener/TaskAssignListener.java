@@ -69,6 +69,6 @@ public class TaskAssignListener implements TaskListener {
 
         tascaClientService.patchTascaV1(
                 delegateTask.getId(),
-                new ObjectMapper().valueToTree(jpb.build()));
+                PatchHelper.toJsonNode(jpb));
     }
 }
