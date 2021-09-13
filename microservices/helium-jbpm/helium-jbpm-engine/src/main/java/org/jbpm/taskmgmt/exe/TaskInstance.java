@@ -183,7 +183,6 @@ public class TaskInstance extends VariableContainer implements Identifiable,
 			executionContext.setTaskInstance(this);
 			executionContext.setTask(task);
 			task.fireEvent(Event.EVENTTYPE_TASK_CREATE, executionContext);
-			Jbpm3HeliumBridge.getInstanceService().createDadesTasca(id);
 		}
 
 		// WARNING: The events create and assign are fired in the right order,
@@ -309,7 +308,7 @@ public class TaskInstance extends VariableContainer implements Identifiable,
 		this.previousActorId = this.actorId;
 		this.actorId = actorId;
 		String actor = actorId;
-		if (!ignorarReassignacio) {
+		if (!ignorarReassignacio && actorId != null) {
 			String processInstanceId = null;
 			if (this.getContextInstance() != null && this.getContextInstance().getProcessInstance() != null)
 				processInstanceId = String.valueOf(this.getContextInstance().getProcessInstance().getId());
@@ -348,6 +347,11 @@ public class TaskInstance extends VariableContainer implements Identifiable,
 	/** takes a set of String's as the actorIds */
 	public void setPooledActors(String[] actorIds) {
 		this.pooledActors = PooledActor.createPool(actorIds, null, this);
+		if ((task != null) && (token != null)) {
+			ExecutionContext executionContext = new ExecutionContext(token);
+			executionContext.setTask(task);
+			executionContext.setTaskInstance(this);
+		}
 	}
 
 	/**

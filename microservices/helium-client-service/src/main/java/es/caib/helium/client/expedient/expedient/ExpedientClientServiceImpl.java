@@ -12,12 +12,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.caib.helium.client.expedient.expedient.enums.ExpedientEstatTipusEnum;
 import es.caib.helium.client.expedient.expedient.model.ConsultaExpedientDades;
 import es.caib.helium.client.expedient.expedient.model.ExpedientDto;
+import es.caib.helium.client.helper.PatchHelper;
 import es.caib.helium.client.model.PagedList;
-import es.caib.helium.client.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -120,14 +121,13 @@ public class ExpedientClientServiceImpl implements ExpedientClientService {
 	public void finalitzar(long expedientId, Date dataFinalitzacio) {
 		log.debug(MISSATGE_LOG + " finalitzar expedient amb id " + expedientId);
 		
-		// Posa data fi a null i actualitza estat
+		// Informa la data fi i actualitza estat
 		JsonPatchBuilder jpb = Json.createPatchBuilder();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-		jpb.replace("dataFi", sdf.format(dataFinalitzacio));
-		jpb.replace("dataTipus", ExpedientEstatTipusEnum.FINALITZAT.toString());
+        PatchHelper.replaceDateProperty(jpb, "dataFi", dataFinalitzacio);
+        PatchHelper.replaceStringProperty(jpb, "dataTipus", ExpedientEstatTipusEnum.FINALITZAT.toString());
 		expedientClient.patchExpedientV1(
 				expedientId, 
-				JsonUtil.toJsonNode(jpb));
+				PatchHelper.toJsonNode(jpb));
 	}
 	
 	@Override
@@ -137,19 +137,21 @@ public class ExpedientClientServiceImpl implements ExpedientClientService {
 		// Posa data fi a null i actualitza estat
 		JsonPatchBuilder jpb = Json.createPatchBuilder();
 		ExpedientEstatTipusEnum estatTipus = ExpedientEstatTipusEnum.INICIAT;
-		jpb.replace("dataFi", JsonValue.NULL);
+        PatchHelper.replaceDateProperty(jpb, "dataFi", null);
+        PatchHelper.replaceStringProperty(jpb, "dataTipus", ExpedientEstatTipusEnum.FINALITZAT.toString());
+
+        
 		if (estatId == null) {
-			jpb.replace("estatId", JsonValue.NULL);		
+	        PatchHelper.replaceIntegerProperty(jpb, "estatId", null);
 			estatTipus = ExpedientEstatTipusEnum.INICIAT;
 		} else {
-			jpb.replace("estatId", estatId.intValue());
+	        PatchHelper.replaceIntegerProperty(jpb, "estatId",  estatId.intValue());
 			estatTipus = ExpedientEstatTipusEnum.CUSTOM;			
 		}
-		jpb.replace("estatTipus", estatTipus.toString());
-
+        PatchHelper.replaceStringProperty(jpb, "estatTipus",  estatTipus.toString());
 		expedientClient.patchExpedientV1(
 				expedientId, 
-				JsonUtil.toJsonNode(jpb));
+				PatchHelper.toJsonNode(jpb));
 	}
 	
 	@Override
@@ -167,26 +169,26 @@ public class ExpedientClientServiceImpl implements ExpedientClientService {
 		//Actualitzem la informació al MS d'expedients i tasques
 		JsonPatchBuilder jpb = Json.createPatchBuilder();
 		if (teNumero != null & teNumero) {
-			jpb.replace("numero", numero);
+			PatchHelper.replaceStringProperty(jpb, "numero", numero);
 		}
 		if (demanaTitol != null & demanaTitol) {
-			jpb.replace("titol", titol);
+			PatchHelper.replaceStringProperty(jpb, "titol", titol);
 		}
 		ExpedientEstatTipusEnum estatTipus = ExpedientEstatTipusEnum.INICIAT;
 		if (dataFi != null) {
 			estatTipus = ExpedientEstatTipusEnum.FINALITZAT;
 		}
 		if (estatId != null) {
-			jpb.replace("estatId", estatId.intValue());
+			PatchHelper.replaceIntegerProperty(jpb, "estatId", estatId.intValue());
 			estatTipus = ExpedientEstatTipusEnum.CUSTOM;
 		} else {
-			jpb.replace("estatId", JsonValue.NULL);
+			PatchHelper.replaceIntegerProperty(jpb, "estatId", null);
 		}
-		jpb.replace("estatTipus", estatTipus.toString());
+		PatchHelper.replaceStringProperty(jpb, "estatTipus", estatTipus.toString());
 
 		expedientClient.patchExpedientV1(
 				expedientId, 
-				JsonUtil.toJsonNode(jpb));
+				PatchHelper.toJsonNode(jpb));
 	}
 
 }

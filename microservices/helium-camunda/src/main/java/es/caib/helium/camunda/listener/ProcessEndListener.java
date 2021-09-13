@@ -1,18 +1,21 @@
 package es.caib.helium.camunda.listener;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import es.caib.helium.client.expedient.proces.ProcesClientService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Date;
+
+import javax.json.Json;
+import javax.json.JsonPatchBuilder;
+
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.camunda.bpm.engine.impl.persistence.entity.ExecutionEntity;
 import org.springframework.stereotype.Component;
 
-import javax.json.Json;
-import javax.json.JsonPatchBuilder;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import es.caib.helium.client.expedient.proces.ProcesClientService;
+import es.caib.helium.client.helper.PatchHelper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -32,11 +35,9 @@ public class ProcessEndListener implements ExecutionListener {
 //                .singleResult();
 
         JsonPatchBuilder jpb = Json.createPatchBuilder();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-//        jpb.replace("dataFi", sdf.format(processInstance.getEndTime()));
-        jpb.replace("dataFi", sdf.format(new Date()));
+        PatchHelper.replaceDateProperty(jpb, "dataFi", new Date());
         procesClientService.patchProcesV1(
                 processInstance.getId(),
-                new ObjectMapper().valueToTree(jpb.build()));
+                PatchHelper.toJsonNode(jpb));
     }
 }

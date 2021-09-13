@@ -33,6 +33,7 @@ public class TascaLlistatDto extends ControlPermisosDto implements Comparable<Ta
 	private String description;
 	private String assignee;
 	private Set<String> pooledActors;
+	private Set<String> grups;
 	private Date createTime;
 	private Date startTime;
 	private Date endTime;

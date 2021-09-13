@@ -132,6 +132,5 @@ public class TascaDto {
 	@JsonProperty("expedientId")
 	@Schema(example = "1234", required = false, accessMode = AccessMode.READ_ONLY, description = "Identificador de l'expedient de la definició de procés del procés relacionat a la tasca"
 			+ "informat en les consultes de tasques. És un atribut de només lectura i pot ser null si el procés s'ha creat i encara no s'ha associat l'expedient inicial.")
-	@Size(max = 255)
 	private Long expedientId;	
 }

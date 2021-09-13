@@ -111,7 +111,7 @@ public class TaskUpdateListener implements TaskListener {
         if (hasChanged) {
             tascaClientService.patchTascaV1(
                     delegateTask.getId(),
-                    new ObjectMapper().valueToTree(jpb.build()));
+                    PatchHelper.toJsonNode(jpb));
         }
     }
 

@@ -41,19 +41,6 @@ public class StartProcessInstanceCommand extends NewProcessInstanceCommand imple
       else
         processInstance.signal(startTransitionName);*/
       // MS dona d'alta el procés al MS d'expedients, processos i tasques
-      
-      
-      Jbpm3HeliumBridge.getInstanceService().crearProces(ProcesDto.builder()
-    		  	.motor(Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("es.caib.helium.engine.codi"))
-				.procesId(String.valueOf(processInstance.getId()))
-				.expedientId(null)
-				.dataInici(processInstance.getStart())
-				.dataFi(processInstance.getEnd())
-				.descripcio(processInstance.getProcessDefinition().getName())
-				.procesArrelId(String.valueOf(processInstance.getRootToken().getProcessInstance().getId()))
-				.procesPareId(null)
-				.processDefinitionId(String.valueOf(processInstance.getProcessDefinition().getId()))
-				.build());
     }
     return object;
   }

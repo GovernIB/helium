@@ -65,4 +65,18 @@ public interface TascaFeignClient {
 	@RequestMapping(method = RequestMethod.DELETE, value = TascaApiPath.DELETE_RESPONSABLES)
 	public ResponseEntity<Void> deleteResponsablesV1(
     		@PathVariable("tascaId") String tascaId);
+
+	@RequestMapping(method = RequestMethod.GET, value = TascaApiPath.GET_GRUPS)
+	public ResponseEntity<List<String>> getGrupsV1(
+    		@PathVariable("tascaId") String tascaId);
+	
+	
+	@RequestMapping(method = RequestMethod.POST, value = TascaApiPath.SET_GRUPS)
+	public ResponseEntity<Void> setGrupsV1(
+			@PathVariable("tascaId") String tascaId,
+			@RequestParam(name = "grups", required = false) List<String> grups);
+
+	@RequestMapping(method = RequestMethod.DELETE, value = TascaApiPath.DELETE_GRUPS)
+	public ResponseEntity<Void> deleteGrupsV1(
+    		@PathVariable("tascaId") String tascaId);
 }

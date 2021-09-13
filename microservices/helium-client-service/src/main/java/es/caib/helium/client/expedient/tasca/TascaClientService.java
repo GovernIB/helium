@@ -30,14 +30,19 @@ public interface TascaClientService {
 	
 	public TascaDto getTascaV1(String tascaId); 
 	
+	public void setUsuariAssignat(String tascaId, String codiUsuari);
+
 	public List<String> getResponsablesV1(String tascaId);
 	
 	public void setResponsablesV1(String tascaId, List<String> responsables);
 
 	public void deleteResponsablesV1(String tascaId);
 	
+	public List<String> getGrupsV1(String tascaId);
 	
-	public void setUsuariAssignat(String tascaId, String codiUsuari);
+	public void setGrupsV1(String tascaId, List<String> grups);
+
+	public void deleteGrupsV1(String tascaId);
 
 	public void setCancelada(String tascaId, boolean cancelada);
 

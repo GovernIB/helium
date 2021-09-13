@@ -543,7 +543,7 @@ public class WorkflowEngineController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @RequestMapping(value="/taskInstances/{taskInstanceId}/reassign/gruop", method = RequestMethod.POST)
+    @RequestMapping(value="/taskInstances/{taskInstanceId}/reassign/group", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Void> setTaskInstancePooledActors(
             @PathVariable("taskInstanceId") String taskInstanceId,
