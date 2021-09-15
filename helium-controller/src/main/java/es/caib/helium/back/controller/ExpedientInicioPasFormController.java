@@ -175,7 +175,8 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 		List<TascaDadaDto> tascaDades = tascaService.findDadesPerTascaDto(expedientTipusId, tasca);
 		TascaFormValidatorHelper validatorHelper = new TascaFormValidatorHelper(
 				tascaService,
-				tascaDades);
+				tascaDades,
+				null);
 		Map<String, Object> valors = TascaFormHelper.getValorsFromCommand(
 				tascaDades,
 				command,
@@ -194,8 +195,8 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 				validatorHelper.isValidarObligatoris(),
 				validatorHelper.isValidarExpresions(),
 				null);
-		validator.validate(commandValidar, result);
-//		validatorHelper.validate(commandValidar, result);
+//		validator.validate(commandValidar, result);
+		validatorHelper.validate(commandValidar, result);
 		DefinicioProcesDto definicioProces = null;
 		if (definicioProcesId != null) {
 			definicioProces = dissenyService.getById(definicioProcesId);

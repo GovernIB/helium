@@ -1,16 +1,17 @@
 package net.conselldemallorca.helium.jbpm3.helper;
 
-import net.conselldemallorca.helium.api.dto.CampTascaDto;
-import net.conselldemallorca.helium.api.dto.DocumentTascaDto;
-import net.conselldemallorca.helium.api.dto.TascaDadaDto;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import net.conselldemallorca.helium.api.dto.CampTascaDto;
+import net.conselldemallorca.helium.api.dto.DocumentTascaDto;
+import net.conselldemallorca.helium.api.dto.TascaDto;
 
 @Component
 public class TasquesHelper {
@@ -101,8 +102,30 @@ public class TasquesHelper {
                 taskId);
     }
 
+	public void crear(TascaDto tasca) {
+        restTemplate.postForLocation(getTasquesBridgeAddress(), tasca);
+	}
+
+	public void finalitzar(long tascaId, Date end) {
+        restTemplate.postForLocation(
+        		getTasquesBridgeAddress() + "/" + tascaId + "/finalitzar", 
+        		end);
+	}
+
+	public void assignar(long tascaId, String actorId, List<String> usuaris, List<String> grups) {
+		TascaDto tascaDto = TascaDto.builder()
+				.tascaId(String.valueOf(tascaId))
+				.usuariAssignat(actorId)
+				.responsables(usuaris)
+				.grups(grups)
+				.build();
+		restTemplate.postForLocation(
+				getTasquesBridgeAddress() + "/" + tascaId + "/assignar", 
+				tascaDto);
+	}
+
+	
     private String getTasquesBridgeAddress() {
         return RestClientHelper.getBridgeAddress() + "/tasques";
     }
-
 }

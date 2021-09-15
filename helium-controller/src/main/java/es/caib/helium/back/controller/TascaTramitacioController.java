@@ -15,6 +15,7 @@ import es.caib.helium.back.passarelafirma.PassarelaFirmaConfig;
 import es.caib.helium.back.passarelafirma.PassarelaFirmaHelper;
 import es.caib.helium.back.view.ArxiuView;
 import es.caib.helium.client.expedient.tasca.TascaClientService;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.dto.ArxiuDto;
 import es.caib.helium.logic.intf.dto.CampAgrupacioDto;
 import es.caib.helium.logic.intf.dto.DocumentDto;
@@ -26,7 +27,6 @@ import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
 import es.caib.helium.logic.intf.dto.FirmaTascaDto;
 import es.caib.helium.logic.intf.dto.FormulariExternDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.dto.ReproDto;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
@@ -257,7 +257,8 @@ public class TascaTramitacioController extends BaseTascaController {
 		//afegirVariablesInstanciaProces(tascaDades, tascaId);
 		TascaFormValidatorHelper validatorHelper = new TascaFormValidatorHelper(
 				tascaService,
-				tascaDades);
+				tascaDades,
+				processInstanceId);
 		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(
 				tascaDades,
 				command,
@@ -306,7 +307,8 @@ public class TascaTramitacioController extends BaseTascaController {
 		//afegirVariablesInstanciaProces(tascaDades, tascaId);
 		TascaFormValidatorHelper validatorHelper = new TascaFormValidatorHelper(
 				tascaService,
-				tascaDades);
+				tascaDades,
+				processInstanceId);
 		//validator.setTasca(tascaDades);
 		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(
 				tascaDades,
@@ -414,7 +416,8 @@ public class TascaTramitacioController extends BaseTascaController {
 		//afegirVariablesInstanciaProces(tascaDades, tascaId);
 		TascaFormValidatorHelper validatorHelper = new TascaFormValidatorHelper(
 				tascaService,
-				tascaDades);
+				tascaDades,
+				processInstanceId);
 		Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(
 				tascaDades,
 				command,
@@ -1100,9 +1103,9 @@ public class TascaTramitacioController extends BaseTascaController {
 				logger.error("No s'han pogut extreure els parametres del recurs", ex);
 			}
 		}
-		List<ParellaCodiValorDto> listTerminis = new ArrayList<ParellaCodiValorDto>();
+		List<ParellaCodiValor> listTerminis = new ArrayList<ParellaCodiValor>();
 		for (int i = 0; i <= 12 ; i++)		
-			listTerminis.add(new ParellaCodiValorDto(String.valueOf(i), i));
+			listTerminis.add(new ParellaCodiValor(String.valueOf(i), i));
 		model.addAttribute("listTerminis", listTerminis);
 		
 		Object tascaFormCommand = SessionHelper.getAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId);
@@ -1148,8 +1151,8 @@ public class TascaTramitacioController extends BaseTascaController {
 			BindingResult result, 
 			HttpServletRequest request,
 			String tascaId) {
-		validator.validate(command, result);
-//		validatorHelper.validate(command, result);
+//		validator.validate(command, result);
+		validatorHelper.validate(command, result);
 		if (result.hasErrors() || !accioGuardarForm(request, tascaId, variables)) {
 			MissatgesHelper.error(request, getMessage(request, "error.guardar.dades"));
 			return false;
@@ -1176,8 +1179,8 @@ public class TascaTramitacioController extends BaseTascaController {
 				validatorHelper.isValidarObligatoris(),
 				validatorHelper.isValidarExpresions(),
 				processInstanceId);
-		validator.validate(commandValidar, result);
-//		validatorHelper.validate(commandValidar, result);
+//		validator.validate(commandValidar, result);
+		validatorHelper.validate(commandValidar, result);
 		if (result.hasErrors()) {
 			MissatgesHelper.error(request, getMessage(request, "error.validacio"));
 			return false;

@@ -3,9 +3,9 @@
  */
 package es.caib.helium.logic.helper;
 
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.dto.FormulariExternDto;
 import es.caib.helium.logic.intf.extern.formulari.IniciFormulari;
-import es.caib.helium.logic.intf.extern.formulari.ParellaCodiValor;
 import es.caib.helium.logic.intf.extern.formulari.RespostaIniciFormulari;
 import es.caib.helium.logic.intf.util.Constants;
 import es.caib.helium.logic.intf.util.GlobalProperties;

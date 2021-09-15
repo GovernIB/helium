@@ -307,10 +307,10 @@ public class TascaController {
         return new ResponseEntity<List<String>>(responsables, HttpStatus.OK);
     }
     
-	@PostMapping(value = "/{tascaId}/responsables", consumes = { "application/json" })
+	@PostMapping(value = "/{tascaId}/responsables")
 	public ResponseEntity<Void> setResponsablesV1(
 			@PathVariable("tascaId") String tascaId,
-			@RequestBody List<String> responsables) {
+			@RequestBody(required = false) List<String> responsables) {
 
 		log.debug("[CTR] set responsables tasca: " + tascaId + "\n" + 
 					"responsables: " + responsables);
@@ -345,10 +345,10 @@ public class TascaController {
         return new ResponseEntity<List<String>>(grups, HttpStatus.OK);
     }
     
-	@PostMapping(value = "/{tascaId}/grups", consumes = { "application/json" })
+	@PostMapping(value = "/{tascaId}/grups")
 	public ResponseEntity<Void> setGrupsV1(
 			@PathVariable("tascaId") String tascaId,
-			@RequestBody List<String> grups) {
+			@RequestBody(required = false) List<String> grups) {
 
 		log.debug("[CTR] set grups tasca: " + tascaId + "\n" + 
 					"grups: " + grups);

@@ -14,6 +14,7 @@ import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.NodecoHelper;
 import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.back.view.ArxiuView;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.dto.ConsultaDto;
 import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
 import es.caib.helium.logic.intf.dto.DefinicioProcesExpedientDto;
@@ -24,7 +25,6 @@ import es.caib.helium.logic.intf.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
 import es.caib.helium.logic.intf.dto.MotorTipusEnum;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.exception.DeploymentException;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exportacio.DefinicioProcesExportacio;
@@ -458,9 +458,9 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			DefinicioProcesExpedientDto d = dissenyService.getDefinicioProcesByEntorIdAndProcesId(
 					entornId,
 					definicioProces.getId());
-			List<ParellaCodiValorDto> versions = new ArrayList<ParellaCodiValorDto>();
+			List<ParellaCodiValor> versions = new ArrayList<ParellaCodiValor>();
 			for (IdAmbEtiqueta i : d.getListIdAmbEtiqueta()) {
-				versions.add(new ParellaCodiValorDto(i.getId().toString(), i.getEtiqueta()));
+				versions.add(new ParellaCodiValor(i.getId().toString(), i.getEtiqueta()));
 			}
 			model.addAttribute("versions", versions);
 		}
@@ -889,11 +889,11 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		}
 		
 		// Select de les accions jbpm
-		List<ParellaCodiValorDto> accions = new ArrayList<ParellaCodiValorDto>();
-		accions.add(new ParellaCodiValorDto(
+		List<ParellaCodiValor> accions = new ArrayList<ParellaCodiValor>();
+		accions.add(new ParellaCodiValor(
 				ACCIO_JBPM.JBPM_DESPLEGAR.toString(),
 				getMessage(request, "definicio.proces.desplegar.form.accio.desplegar")));
-		accions.add(new ParellaCodiValorDto(
+		accions.add(new ParellaCodiValor(
 				ACCIO_JBPM.JBPM_ACTUALITZAR.toString(),
 				getMessage(request, "definicio.proces.desplegar.form.accio.actualitzar")));
 		model.addAttribute("accionsJbpm", accions);
@@ -901,10 +901,10 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		
 	}
 
-	private List<ParellaCodiValorDto> getMotors(HttpServletRequest request) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "motor.tipus.enum.JBPM"), MotorTipusEnum.JBPM));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "motor.tipus.enum.CAMUNDA"), MotorTipusEnum.CAMUNDA));
+	private List<ParellaCodiValor> getMotors(HttpServletRequest request) {
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
+		resposta.add(new ParellaCodiValor(getMessage(request, "motor.tipus.enum.JBPM"), MotorTipusEnum.JBPM));
+		resposta.add(new ParellaCodiValor(getMessage(request, "motor.tipus.enum.CAMUNDA"), MotorTipusEnum.CAMUNDA));
 		return resposta;
 	}
 

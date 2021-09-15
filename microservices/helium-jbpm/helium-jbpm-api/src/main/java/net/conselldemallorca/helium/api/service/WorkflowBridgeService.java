@@ -143,10 +143,21 @@ public interface WorkflowBridgeService {
 			String processDefinitionId,
 			String taskName
 	);
+	
+	void tascaCrear(TascaDto tascaDto);
+
+	void tascaFinalitzar(
+			long tascaId, 
+			Date end);
+
+	void tascaAssignar(
+			long tascaId, 
+			String actorId, 
+			List<String> usuarisCandidats, 
+			List<String> grupsCandidats);
+
 
 	// Dades
-
-	public void createDadesTasca(Long taskId);
 
 	public String getDadaPerTaskInstance(
 			String processInstanceId,
@@ -541,7 +552,10 @@ public interface WorkflowBridgeService {
 
 	// PROCESSOS
 	////////////////////////////////////////////////////////////////////////////////
-	void crearProces(ProcesDto proces);
+	void procesCrear(ProcesDto proces);
+	void procesFinalitzar(Long processInstanceId, Date end);
+
+
 
 	
 }

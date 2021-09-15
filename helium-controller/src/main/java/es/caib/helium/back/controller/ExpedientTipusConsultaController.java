@@ -13,6 +13,7 @@ import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.NodecoHelper;
 import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.back.view.ArxiuView;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.dto.CampDto;
 import es.caib.helium.logic.intf.dto.ConsultaCampDto;
 import es.caib.helium.logic.intf.dto.ConsultaCampDto.TipusConsultaCamp;
@@ -21,7 +22,6 @@ import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
 import es.caib.helium.logic.intf.dto.EntornDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.service.AplicacioService;
@@ -514,7 +514,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 	/** Mètode per obtenir les possibles variables per al select a l'edició d'un registre via ajax. */
 	@RequestMapping(value = "/{expedientTipusId}/consulta/{consultaId}/var/select", method = RequestMethod.GET)
 	@ResponseBody
-	public List<ParellaCodiValorDto> variablesSelect(
+	public List<ParellaCodiValor> variablesSelect(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long consultaId,
@@ -532,28 +532,28 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 	 * @param tipus
 	 * @return
 	 */
-	private List<ParellaCodiValorDto> obtenirParellesVariables(
+	private List<ParellaCodiValor> obtenirParellesVariables(
 			HttpServletRequest request,
 			Long expedientTipusId,
 			Long consultaId,
 			Long origen,
 			TipusConsultaCamp tipus) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
 		if (origen == ExpedientTipusConsultaVarCommand.ORIGEN_EXPEDIENT) {
 			// Variables del tipus d'expedient
-			resposta.add(new ParellaCodiValorDto(
+			resposta.add(new ParellaCodiValor(
 					Constants.EXPEDIENT_CAMP_ID,
 					getMessage(request, "etiqueta.exp.id")));
-			resposta.add(new ParellaCodiValorDto(
+			resposta.add(new ParellaCodiValor(
 					Constants.EXPEDIENT_CAMP_NUMERO,
 					getMessage(request, "etiqueta.exp.numero")));
-			resposta.add(new ParellaCodiValorDto(
+			resposta.add(new ParellaCodiValor(
 					Constants.EXPEDIENT_CAMP_TITOL,
 					getMessage(request, "etiqueta.exp.titol")));
-			resposta.add(new ParellaCodiValorDto(
+			resposta.add(new ParellaCodiValor(
 					Constants.EXPEDIENT_CAMP_DATA_INICI,
 					getMessage(request, "etiqueta.exp.data_ini")));
-			resposta.add(new ParellaCodiValorDto(
+			resposta.add(new ParellaCodiValor(
 					Constants.EXPEDIENT_CAMP_ESTAT,
 					getMessage(request, "etiqueta.exp.estat")));
 			
@@ -562,14 +562,14 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			
 			if (isGeorefActiu)
 				if (isGeorefAmbReferencia)
-					resposta.add(new ParellaCodiValorDto(
+					resposta.add(new ParellaCodiValor(
 							Constants.EXPEDIENT_CAMP_GEOREF,
 							getMessage(request, "comuns.georeferencia.codi")));
 				else {
-					resposta.add(new ParellaCodiValorDto(
+					resposta.add(new ParellaCodiValor(
 							Constants.EXPEDIENT_CAMP_GEOX,
 							getMessage(request, "comuns.georeferencia.coordenadaX")));
-					resposta.add(new ParellaCodiValorDto(
+					resposta.add(new ParellaCodiValor(
 							Constants.EXPEDIENT_CAMP_GEOY,
 							getMessage(request, "comuns.georeferencia.coordenadaY")));
 				}
@@ -579,7 +579,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			List<CampDto> variables = campService.findAllOrdenatsPerCodi(expedientTipusId, null);
 			// Crea les parelles de codi i valor
 			for (CampDto variable : variables) {
-				resposta.add(new ParellaCodiValorDto(
+				resposta.add(new ParellaCodiValor(
 						variable.getCodi(), 
 						variable.getCodi() + " / " + variable.getEtiqueta()));
 			}
@@ -589,7 +589,7 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			List<CampDto> variables = campService.findAllOrdenatsPerCodi(null, origen);
 			// Crea les parelles de codi i valor
 			for (CampDto variable : variables) {
-				resposta.add(new ParellaCodiValorDto(
+				resposta.add(new ParellaCodiValor(
 						variable.getCodi(), 
 						variable.getCodi() + " / " + variable.getEtiqueta()));
 			}
@@ -602,9 +602,9 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 			campsExistents.add(consultaCamp.getCampCodi());
 		// Lleva les variables que coincideixin amb algun codi ja utilitzat. Si es volen utilitzar variables amb
 		// el mateix codi i de diferent origen s'haurà de modificar
-		Iterator<ParellaCodiValorDto> it = resposta.iterator();
+		Iterator<ParellaCodiValor> it = resposta.iterator();
 		while (it.hasNext()) {
-			ParellaCodiValorDto parellaCodiValor = it.next();
+			ParellaCodiValor parellaCodiValor = it.next();
 			if (campsExistents.contains(parellaCodiValor.getCodi())) 
 				it.remove();
 		}

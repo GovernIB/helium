@@ -83,7 +83,7 @@ public class GenericRestController {
 	}
 
 	@GetMapping(value="/reassignacio/{usuariCodi}")
-	public ResponseEntity<ReassignacioDto> get(
+	public ResponseEntity<ReassignacioDto> getReassignacio(
 			HttpServletRequest request,
 			@PathVariable(value = "usuariCodi") String usuariCodi,
 			@RequestParam(value = "processInstanceId", required = true) String processInstanceId) {

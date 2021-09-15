@@ -3,6 +3,8 @@
  */
 package es.caib.helium.logic.intf.extern.formulari;
 
+import es.caib.helium.client.model.ParellaCodiValor;
+
 import javax.jws.WebService;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.List;

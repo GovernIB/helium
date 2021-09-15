@@ -1,12 +1,12 @@
 package es.caib.helium.back.controller;
 
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.dto.CampDto;
 import es.caib.helium.logic.intf.dto.CampTascaDto;
 import es.caib.helium.logic.intf.dto.CampTipusDto;
 import es.caib.helium.logic.intf.dto.DocumentDto;
 import es.caib.helium.logic.intf.dto.DocumentTascaDto;
 import es.caib.helium.logic.intf.dto.FirmaTascaDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.dto.TascaDto;
 import es.caib.helium.logic.intf.service.DocumentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,12 +33,12 @@ public class BaseTascaDissenyController extends BaseDissenyController {
 	 * @param tascaId
 	 * @return
 	 */
-	protected List<ParellaCodiValorDto> obtenirParellesVariables(
+	protected List<ParellaCodiValor> obtenirParellesVariables(
 			Long expedientTipusId,
 			Long definicioProcesId,
 			List<CampDto> variables,
 			Long tascaId) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
 		// Tasca els camps de la tasca segons el tipus
 		List<CampTascaDto> camps = definicioProcesService.tascaCampFindAll(expedientTipusId, tascaId);
 		// Lleva les variables que ja pertanyin a algun camp
@@ -66,7 +66,7 @@ public class BaseTascaDissenyController extends BaseDissenyController {
 		}
 		// Crea les parelles de codi i valor
 		for (CampDto variable : variables) {
-			resposta.add(new ParellaCodiValorDto(
+			resposta.add(new ParellaCodiValor(
 					variable.getId().toString(), 
 					variable.getCodi() + " / " + variable.getEtiqueta()));
 		}			
@@ -81,11 +81,11 @@ public class BaseTascaDissenyController extends BaseDissenyController {
 	 * @param tascaId
 	 * @return
 	 */
-	protected List<ParellaCodiValorDto> documentObtenirParellesDocuments(
+	protected List<ParellaCodiValor> documentObtenirParellesDocuments(
 			Long expedientTipusId,
 			List<DocumentDto> documents, 
 			Long tascaId) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
 		// Documents de la tasca existents
 		List<DocumentTascaDto> documentsTasca = definicioProcesService.tascaDocumentFindAll(expedientTipusId, tascaId);
 		// Lleva les documents que ja pertanyin a algun document
@@ -101,7 +101,7 @@ public class BaseTascaDissenyController extends BaseDissenyController {
 		}
 		// Crea les parelles de codi i valor
 		for (DocumentDto document : documents) {
-			resposta.add(new ParellaCodiValorDto(
+			resposta.add(new ParellaCodiValor(
 					document.getId().toString(), 
 					document.getCodi() + " / " + document.getNom()));
 		}			
@@ -116,11 +116,11 @@ public class BaseTascaDissenyController extends BaseDissenyController {
 	 * @param tascaId
 	 * @return
 	 */
-	protected List<ParellaCodiValorDto> firmaObtenirParellesDocuments(
+	protected List<ParellaCodiValor> firmaObtenirParellesDocuments(
 			Long expedientTipusId,
 			List<DocumentDto> documents,
 			Long tascaId) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
 		// Documents de la tasca existents
 		List<FirmaTascaDto> firmesTasca = definicioProcesService.tascaFirmaFindAll(expedientTipusId, tascaId);
 		// Lleva les firmes que ja pertanyin a algun firma
@@ -136,7 +136,7 @@ public class BaseTascaDissenyController extends BaseDissenyController {
 		}
 		// Crea les parelles de codi i valor
 		for (DocumentDto firma : documents) {
-			resposta.add(new ParellaCodiValorDto(
+			resposta.add(new ParellaCodiValor(
 					firma.getId().toString(), 
 					firma.getCodi() + " / " + firma.getNom()));
 		}			

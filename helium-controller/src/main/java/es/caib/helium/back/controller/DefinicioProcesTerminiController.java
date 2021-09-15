@@ -10,10 +10,10 @@ import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.NodecoHelper;
 import es.caib.helium.back.helper.SessionHelper;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
 import es.caib.helium.logic.intf.dto.EntornDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.dto.TerminiDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -43,10 +43,10 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
 	private ConversioTipusHelper conversioTipusHelper;
 	
 	@ModelAttribute("listTerminis")
-	public List<ParellaCodiValorDto> populateValorTerminis() {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+	public List<ParellaCodiValor> populateValorTerminis() {
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
 		for (int i = 0; i <= 12; i++) {
-			resposta.add(new ParellaCodiValorDto(Integer.toString(i), i));
+			resposta.add(new ParellaCodiValor(Integer.toString(i), i));
 		}
 		return resposta;
 	}

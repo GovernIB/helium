@@ -10,9 +10,20 @@ import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.NodecoHelper;
 import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.back.helper.SessionHelper.SessionManager;
-import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.client.model.ParellaCodiValor;
+import es.caib.helium.logic.intf.dto.ConsultaDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesExpedientDto;
 import es.caib.helium.logic.intf.dto.DefinicioProcesExpedientDto.IdAmbEtiqueta;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.ExecucioMassivaDto;
 import es.caib.helium.logic.intf.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.dto.MotorTipusEnum;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.PermisDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.dto.SequenciaAnyDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exportacio.DefinicioProcesExportacio;
 import es.caib.helium.logic.intf.exportacio.ExpedientTipusExportacio;
@@ -197,10 +208,10 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		}
 	}
 
-	private List<ParellaCodiValorDto> getMotors(HttpServletRequest request) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "motor.tipus.enum.JBPM"), MotorTipusEnum.JBPM));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "motor.tipus.enum.CAMUNDA"), MotorTipusEnum.CAMUNDA));
+	private List<ParellaCodiValor> getMotors(HttpServletRequest request) {
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
+		resposta.add(new ParellaCodiValor(getMessage(request, "motor.tipus.enum.JBPM"), MotorTipusEnum.JBPM));
+		resposta.add(new ParellaCodiValor(getMessage(request, "motor.tipus.enum.CAMUNDA"), MotorTipusEnum.CAMUNDA));
 		return resposta;
 	}
 
@@ -412,7 +423,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		model.addAttribute("variables", campService.findAllOrdenatsPerCodi(expedientTipusId, null));
 		model.addAttribute("agrupacions", campService.agrupacioFindAll(expedientTipusId, null, false));
 		
-		// Map<definicioCodi, List<ParellaCodiValorDto>> map amb les versions agrupades per codi jbpm
+		// Map<definicioCodi, List<ParellaCodiValor>> map amb les versions agrupades per codi jbpm
 		Map<String, List<Integer>> versionsMap = new HashMap<String, List<Integer>>();
 		// Map<definicioCodi, darrera versió> map amb les darreres versions per codi jbpm
 		Map<String, Integer> darreresVersionsMap = new HashMap<String, Integer>();

@@ -8,6 +8,7 @@ import es.caib.helium.client.expedient.proces.ProcesClientService;
 import es.caib.helium.client.expedient.tasca.TascaClientService;
 import es.caib.helium.client.expedient.tasca.model.ConsultaTascaDades;
 import es.caib.helium.client.model.PagedList;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.DocumentHelper;
 import es.caib.helium.logic.helper.EntornHelper;
@@ -35,7 +36,6 @@ import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
 import es.caib.helium.logic.intf.dto.FormulariExternDto;
 import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.dto.SeleccioOpcioDto;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
 import es.caib.helium.logic.intf.dto.TascaDocumentDto;
@@ -798,7 +798,7 @@ public class TascaServiceImpl implements TascaService {
 		}
 		// Consulta els valors possibles
 		if (camp.getDomini() != null || camp.getDominiIntern()) {
-			List<ParellaCodiValorDto> parellaCodiValorDto = variableHelper.getPossiblesValorsCamp(
+			List<ParellaCodiValor> parellaCodiValor = variableHelper.getPossiblesValorsCamp(
 						camp,
 						registreCamp,
 						registreIndex,
@@ -808,7 +808,7 @@ public class TascaServiceImpl implements TascaService {
 						pidCalculat,
 						null,
 						null);
-			for (ParellaCodiValorDto parella: parellaCodiValorDto) {
+			for (ParellaCodiValor parella: parellaCodiValor) {
 				boolean afegir = 
 						(codiFiltre == null && textFiltre == null) ||
 						(codiFiltre != null && parella.getCodi().equals(codiFiltre)) ||

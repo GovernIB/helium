@@ -15,9 +15,20 @@ import es.caib.helium.back.helper.SessionHelper;
 import es.caib.helium.back.helper.SessionHelper.SessionManager;
 import es.caib.helium.back.helper.TascaFormHelper;
 import es.caib.helium.back.helper.TascaFormValidatorHelper;
-import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.client.model.ParellaCodiValor;
+import es.caib.helium.logic.intf.dto.CampDto;
+import es.caib.helium.logic.intf.dto.CampTipusDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesExpedientDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.DocumentTipusFirmaEnumDto;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.ExecucioMassivaDto;
 import es.caib.helium.logic.intf.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
+import es.caib.helium.logic.intf.dto.SeleccioOpcioDto;
+import es.caib.helium.logic.intf.dto.TascaDadaDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.service.DocumentService;
 import es.caib.helium.logic.intf.service.ExecucioMassivaService;
@@ -568,14 +579,15 @@ public class MassivaExpedientController extends BaseExpedientController {
 						false);
 				TascaFormValidatorHelper validatorHelper = new TascaFormValidatorHelper(
 						expedientService,
-						tascaDades);
+						tascaDades,
+						processInstanceId);
 				Object commandPerValidacio = TascaFormHelper.getCommandForCampsExpedient(
 						expedientDades,
 						variables,
 						expedient.getProcessInstanceId());
 
-				validator.validate(commandPerValidacio, result);
-//				validatorHelper.validate(commandPerValidacio, result);
+//				validator.validate(commandPerValidacio, result);
+				validatorHelper.validate(commandPerValidacio, result);
 				if (result.hasErrors()) {
 					model.addAttribute("modificarVariablesCommand", command);
 					return "v3/massivaInfoModificarVariables";
@@ -811,10 +823,10 @@ public class MassivaExpedientController extends BaseExpedientController {
 	}
 
 	@ModelAttribute("listTerminis")
-	public List<ParellaCodiValorDto> valors12(HttpServletRequest request) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+	public List<ParellaCodiValor> valors12(HttpServletRequest request) {
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
 		for (int i=0; i <= 12 ; i++)		
-			resposta.add(new ParellaCodiValorDto(String.valueOf(i), i));
+			resposta.add(new ParellaCodiValor(String.valueOf(i), i));
 		return resposta;
 	}
 

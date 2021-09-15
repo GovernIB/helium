@@ -3,12 +3,12 @@ package es.caib.helium.back.controller;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.ObjectTypeEditorHelper;
 import es.caib.helium.back.helper.SessionHelper;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
 import es.caib.helium.logic.intf.dto.DefinicioProcesExpedientDto;
 import es.caib.helium.logic.intf.dto.DefinicioProcesExpedientDto.IdAmbEtiqueta;
 import es.caib.helium.logic.intf.dto.EntornDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.service.DefinicioProcesService;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
@@ -110,9 +110,9 @@ public class BaseDissenyController extends BaseController {
 				DefinicioProcesExpedientDto d = dissenyService.getDefinicioProcesByEntorIdAndProcesId(
 						entornActual.getId(), 
 						definicioProces.getId());
-				List<ParellaCodiValorDto> versions = new ArrayList<ParellaCodiValorDto>();
+				List<ParellaCodiValor> versions = new ArrayList<ParellaCodiValor>();
 				for (IdAmbEtiqueta i : d.getListIdAmbEtiqueta()) {
-					versions.add(new ParellaCodiValorDto(i.getId().toString(), i.getEtiqueta()));
+					versions.add(new ParellaCodiValor(i.getId().toString(), i.getEtiqueta()));
 				}
 				model.addAttribute("versions", versions);
 			}

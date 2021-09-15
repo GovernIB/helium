@@ -5,6 +5,7 @@ package es.caib.helium.client.dada.model;
 
 import es.caib.helium.client.dada.enums.Tipus;
 import es.caib.helium.client.engine.model.Termini;
+import es.caib.helium.client.model.ParellaCodiValor;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -51,6 +52,12 @@ public class Dada {
 	private Object getObjectValue(
 		Valor valor) {
 		if (valor instanceof ValorSimple) {
+			if (Tipus.SELECCIO.equals(tipus) || Tipus.SUGGEST.equals(tipus)) {
+				return ParellaCodiValor.builder()
+						.codi(((ValorSimple) valor).getValor())
+						.valor(((ValorSimple) valor).getValorText())
+						.build();
+			}
 			return getValue(((ValorSimple) valor).getValor());
 		} else {
 			List<Object> objList = new ArrayList<>();
@@ -74,7 +81,8 @@ public class Dada {
 			} else if (tipus.equals(Tipus.PRICE)) {
 				obj = new BigDecimal(text);
 			} else if (tipus.equals(Tipus.DATE)) {
-				obj = new SimpleDateFormat("dd/MM/yyyy").parse(text);
+				obj = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss:SSS ").parse(text);
+//				obj = new SimpleDateFormat("dd/MM/yyyy").parse(text);
 			} else if (tipus.equals(Tipus.BOOLEAN)) {
 				obj = getBooleanValue(text.toUpperCase());
 			} else if (tipus.equals(Tipus.SELECCIO)) {

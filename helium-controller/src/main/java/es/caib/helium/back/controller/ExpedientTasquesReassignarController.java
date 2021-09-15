@@ -7,7 +7,7 @@ import es.caib.helium.back.command.ExpedientTascaReassignarCommand;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.client.engine.model.ReassignTaskData.ScriptLanguage;
 import es.caib.helium.client.integracio.persones.model.Persona;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.service.AplicacioService;
 import es.caib.helium.logic.intf.service.ExpedientService;
@@ -168,8 +168,8 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 		
 	}
 
-	private List<ParellaCodiValorDto> getLangauges() {
-		return Arrays.stream(ScriptLanguage.values()).map(s -> new ParellaCodiValorDto(s.name(), s.language)).collect(Collectors.toList());
+	private List<ParellaCodiValor> getLangauges() {
+		return Arrays.stream(ScriptLanguage.values()).map(s -> new ParellaCodiValor(s.name(), s.language)).collect(Collectors.toList());
 	}
 	private static final Log logger = LogFactory.getLog(ExpedientTasquesReassignarController.class);
 }

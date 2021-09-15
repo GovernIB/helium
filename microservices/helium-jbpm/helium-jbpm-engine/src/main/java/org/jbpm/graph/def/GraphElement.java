@@ -35,6 +35,7 @@ import org.jbpm.JbpmContext;
 import org.jbpm.JbpmException;
 import org.jbpm.graph.action.Script;
 import org.jbpm.graph.exe.ExecutionContext;
+import org.jbpm.graph.exe.ProcessInstance;
 import org.jbpm.graph.exe.RuntimeAction;
 import org.jbpm.graph.exe.Token;
 import org.jbpm.graph.log.ActionLog;
@@ -47,7 +48,13 @@ import org.jbpm.scheduler.def.CreateTimerAction;
 import org.jbpm.signal.EventService;
 import org.jbpm.svc.Service;
 import org.jbpm.svc.Services;
+import org.jbpm.taskmgmt.exe.PooledActor;
+import org.jbpm.taskmgmt.exe.TaskInstance;
 import org.jbpm.util.EqualsUtil;
+
+import net.conselldemallorca.helium.api.dto.ProcesDto;
+import net.conselldemallorca.helium.api.dto.TascaDto;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 
 
 @SuppressWarnings({"unchecked", "rawtypes"})
@@ -197,11 +204,120 @@ public abstract class GraphElement implements Identifiable, Serializable {
           }
         }
       }
+      
+      // Determina si informar de l'event al MS d'expedients, processos i tasques
+      this.msEvent(eventType, executionContext);
 
       fireAndPropagateEvent(eventType, executionContext);
     } finally {
       executionContext.setEventSource(null);
     }
+  }
+
+  /** Mira el tipus d'event i informa al MS d'exedients, processos i tasques
+   * 
+   * @param eventType
+   * @param executionContext
+   */
+  private void msEvent(String eventType, ExecutionContext executionContext) {
+	  
+	  if (Event.EVENTTYPE_PROCESS_START.equals(eventType)
+			  || Event.EVENTTYPE_SUBPROCESS_CREATED.equals(eventType)) {
+
+		  // Creació nou procés i subprocessos
+		  ProcessInstance proces;
+		  if (Event.EVENTTYPE_PROCESS_START.equals(eventType)) {
+			  proces = executionContext.getProcessInstance();
+		  } else {
+			  proces = executionContext.getSubProcessInstance();
+		  }
+		  String procesPareId = null;
+		  if (proces.getSuperProcessToken() != null) {
+			  procesPareId = String.valueOf(proces.getSuperProcessToken().getProcessInstance().getId());
+		  }
+		  String procesArrelId;
+		  ProcessInstance procesArrel = proces;
+		  do {
+			  procesArrelId = String.valueOf(proces.getId());
+			  procesArrel = proces.getSuperProcessToken() != null?
+					  			proces.getSuperProcessToken().getProcessInstance()
+					  			: null;
+		  } while(procesArrel != null);
+		  ProcesDto procesDto = ProcesDto.builder()
+	    		  	.motor(Jbpm3HeliumBridge.getInstanceService().getHeliumProperty("es.caib.helium.engine.codi"))
+					.procesId(String.valueOf(proces.getId()))
+					.expedientId(null)
+					.dataInici(proces.getStart())
+					.dataFi(proces.getEnd())
+					.descripcio(proces.getProcessDefinition().getName())
+					.procesArrelId(procesArrelId)
+					.procesPareId(procesPareId)
+					.processDefinitionId(String.valueOf(proces.getProcessDefinition().getId()))
+					.build();
+		  
+	      Jbpm3HeliumBridge.getInstanceService().procesCrear(procesDto);
+	  } else if (Event.EVENTTYPE_PROCESS_END.equals(eventType) 
+			  		|| Event.EVENTTYPE_SUBPROCESS_END.equals(eventType)) {
+		  // Actualitació de la data de finalització d'un procés
+		  ProcessInstance processInstance;
+		  if (Event.EVENTTYPE_PROCESS_END.equals(eventType)) {
+			  processInstance = executionContext.getProcessInstance();
+		  } else {
+			  processInstance = executionContext.getSubProcessInstance();
+		  }
+	      Jbpm3HeliumBridge.getInstanceService().procesFinalitzar(processInstance.getId(), processInstance.getEnd());
+	  } else if (Event.EVENTTYPE_TASK_CREATE.equals(eventType)) {
+		  // Creació d'una tasca
+		  TaskInstance tasca = executionContext.getTaskInstance();
+		  
+	        boolean tascaAssignada = tasca.getActorId() != null 
+	        							&& !tasca.getActorId().isEmpty();
+	        List<String> usuarisCandidats = new ArrayList<String>();
+	        if (tasca.getPooledActors() != null) {
+	        	for (PooledActor pa : tasca.getPooledActors()) {
+	        		usuarisCandidats.add(pa.getActorId()); 
+	        	}
+	        }
+	        TascaDto tascaDto = TascaDto.builder()
+	                .tascaId(String.valueOf(tasca.getId()))
+	                .procesId(String.valueOf(tasca.getProcessInstance().getId()))
+	                .nom(tasca.getName())
+	                .titol(tasca.getDescription() != null ? tasca.getDescription() : tasca.getName())
+	                .agafada(false)
+	                .cancelada(false)
+	                .suspesa(false)
+	                .completada(false)
+	                .assignada(tascaAssignada)
+	                .dataFins(tasca.getDueDate())
+	                .dataCreacio(tasca.getCreate())
+	                .usuariAssignat(tasca.getActorId())
+//	                .grups(grupsCandidats)
+	                .responsables(usuarisCandidats)
+	                .prioritat(tasca.getPriority())
+	                .processDefinitionId(String.valueOf(tasca.getProcessInstance().getProcessDefinition().getId()))
+	                .build();
+		  
+	      Jbpm3HeliumBridge.getInstanceService().tascaCrear(tascaDto);
+	  } else if (Event.EVENTTYPE_TASK_END.equals(eventType)) {
+		  TaskInstance tasca = executionContext.getTaskInstance();
+	      Jbpm3HeliumBridge.getInstanceService().tascaFinalitzar(
+	    		  tasca.getId(),
+	    		  tasca.getEnd());
+	  } else if (Event.EVENTTYPE_TASK_ASSIGN.equals(eventType)) {
+		  TaskInstance tasca = executionContext.getTaskInstance();
+	      List<String> usuarisCandidats = new ArrayList<String>();
+	      if (tasca.getPooledActors() != null) {
+	    	  for (PooledActor pa : tasca.getPooledActors()) {
+	    		  usuarisCandidats.add(pa.getActorId()); 
+	    	  }
+	      }		  
+	      List<String> grupsCandidats = new ArrayList<String>();
+	      Jbpm3HeliumBridge.getInstanceService().tascaAssignar(
+	    		  tasca.getId(),
+	    		  tasca.getActorId(),
+	    		  usuarisCandidats,
+	    		  grupsCandidats);
+	  }
   }
 
   public void fireAndPropagateEvent(String eventType, ExecutionContext executionContext) {

@@ -16,6 +16,8 @@ import net.conselldemallorca.helium.api.exception.HeliumJbpmException;
 public class ServiceExceptionAdvice {
 
     @Around("within(net.conselldemallorca.helium.jbpm3.service.*) || " +
+    		"within(net.conselldemallorca.helium.api.service.*) || " +
+    		"within(net.conselldemallorca.helium.jbpm3.service.ejb.*) || " +
             "execution(* net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper.*(..))")
     public Object swallowRuntimeException(ProceedingJoinPoint pjp) throws Throwable {
         try {

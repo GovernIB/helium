@@ -9,10 +9,22 @@ import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.NodecoHelper;
 import es.caib.helium.back.helper.NtiHelper;
 import es.caib.helium.back.view.ArxiuView;
-import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.client.model.ParellaCodiValor;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.ArxiuFirmaDto;
 import es.caib.helium.logic.intf.dto.DadesEnviamentDto.EntregaPostalTipus;
 import es.caib.helium.logic.intf.dto.DadesEnviamentDto.EntregaPostalViaTipus;
+import es.caib.helium.logic.intf.dto.DadesNotificacioDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.DocumentTipusFirmaEnumDto;
+import es.caib.helium.logic.intf.dto.EnviamentTipusEnumDto;
+import es.caib.helium.logic.intf.dto.ExpedientDocumentDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.IdiomaEnumDto;
+import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
+import es.caib.helium.logic.intf.dto.InteressatDto;
+import es.caib.helium.logic.intf.dto.PortasignaturesDto;
+import es.caib.helium.logic.intf.dto.ServeiTipusEnumDto;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.service.DocumentService;
 import es.caib.helium.logic.intf.service.ExpedientDocumentService;
@@ -45,7 +57,17 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Controlador per a la pàgina de documents de l'expedient.
@@ -446,42 +468,42 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		model.addAttribute("expedientId", expedientId);
 		
 		// entregaPostalViaTipusEstats
-		List<ParellaCodiValorDto> opcions = new ArrayList<ParellaCodiValorDto>();
+		List<ParellaCodiValor> opcions = new ArrayList<ParellaCodiValor>();
 		for(EntregaPostalViaTipus entregaPostalViaTipus : EntregaPostalViaTipus.values())
-			opcions.add(new ParellaCodiValorDto(
+			opcions.add(new ParellaCodiValor(
 					entregaPostalViaTipus.name(),
 					MessageHelper.getInstance().getMessage("notifica.entregaPostal.via.tipus.enum." + entregaPostalViaTipus.name())));
 
 		model.addAttribute("entregaPostalViaTipusEstats", opcions);
 
 		// entregaPostalTipusEstats
-		opcions = new ArrayList<ParellaCodiValorDto>();
+		opcions = new ArrayList<ParellaCodiValor>();
 		for(EntregaPostalTipus entregaPostalTipus : EntregaPostalTipus.values())
-			opcions.add(new ParellaCodiValorDto(
+			opcions.add(new ParellaCodiValor(
 					entregaPostalTipus.name(),
 					MessageHelper.getInstance().getMessage("notifica.entregaPostal.enum." + entregaPostalTipus.name())));		
 		model.addAttribute("entregaPostalTipusEstats", opcions);
 
 		// serveiTipusEstats
-		opcions = new ArrayList<ParellaCodiValorDto>();
+		opcions = new ArrayList<ParellaCodiValor>();
 		for(ServeiTipusEnumDto serveiTipus : ServeiTipusEnumDto.values())
-			opcions.add(new ParellaCodiValorDto(
+			opcions.add(new ParellaCodiValor(
 					serveiTipus.name(),
 					MessageHelper.getInstance().getMessage("notifica.servei.tipus.enum." + serveiTipus.name())));		
 		model.addAttribute("serveiTipusEstats", opcions);
 		
 		// enviamentTipusEstats
-		opcions = new ArrayList<ParellaCodiValorDto>();
+		opcions = new ArrayList<ParellaCodiValor>();
 		for(EnviamentTipusEnumDto enviamentTipus : EnviamentTipusEnumDto.values())
-			opcions.add(new ParellaCodiValorDto(
+			opcions.add(new ParellaCodiValor(
 					enviamentTipus.name(),
 					MessageHelper.getInstance().getMessage("notifica.enviament.tipus.enum." + enviamentTipus.name())));		
 		model.addAttribute("enviamentTipusEstats", opcions);
 
 		// idiomes
-		opcions = new ArrayList<ParellaCodiValorDto>();
+		opcions = new ArrayList<ParellaCodiValor>();
 		for(IdiomaEnumDto idioma : IdiomaEnumDto.values())
-			opcions.add(new ParellaCodiValorDto(
+			opcions.add(new ParellaCodiValor(
 					idioma.name(),
 					MessageHelper.getInstance().getMessage("enum.idioma." + idioma.name())));		
 		model.addAttribute("idiomes", opcions);

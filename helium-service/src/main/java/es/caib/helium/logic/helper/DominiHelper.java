@@ -4,6 +4,7 @@
 package es.caib.helium.logic.helper;
 
 import es.caib.helium.client.engine.model.WTaskInstance;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.integracio.plugins.unitat.UnitatOrganica;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.dto.DominiDto;
@@ -14,7 +15,6 @@ import es.caib.helium.logic.intf.dto.TascaDadaDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.extern.domini.FilaResultat;
-import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
 import es.caib.helium.logic.intf.util.GlobalProperties;
 import es.caib.helium.logic.ms.DominiMs;
 import es.caib.helium.persist.entity.Area;

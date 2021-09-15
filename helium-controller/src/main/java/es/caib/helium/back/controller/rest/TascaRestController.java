@@ -1,9 +1,11 @@
 package es.caib.helium.back.controller.rest;
 
-import es.caib.helium.logic.intf.dto.CampTascaDto;
-import es.caib.helium.logic.intf.dto.DocumentTascaDto;
-import es.caib.helium.logic.intf.service.WorkflowBridgeService;
-import lombok.RequiredArgsConstructor;
+import java.util.Date;
+import java.util.List;
+
+import javax.json.Json;
+import javax.json.JsonPatchBuilder;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
@@ -16,7 +18,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import es.caib.helium.client.expedient.tasca.TascaClientService;
+import es.caib.helium.client.expedient.tasca.model.TascaDto;
+import es.caib.helium.client.helper.PatchHelper;
+import es.caib.helium.logic.intf.dto.CampTascaDto;
+import es.caib.helium.logic.intf.dto.DocumentTascaDto;
+import es.caib.helium.logic.intf.service.WorkflowBridgeService;
+import lombok.RequiredArgsConstructor;
 
 /**
  * API REST de terminis.
@@ -28,6 +38,9 @@ import java.util.List;
 public class TascaRestController {
 	
 	private final WorkflowBridgeService workflowBridgeService;
+	
+	private final TascaClientService tascaClientService;
+
 
 	@GetMapping(value="/{processInstanceId}/task/{taskName}/camps")
 	public ResponseEntity<List<CampTascaDto>> findCampsPerTaskInstance(
@@ -104,6 +117,49 @@ public class TascaRestController {
 		workflowBridgeService.setErrorTascaSegonPla(taskId, error);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
+	
+	@PostMapping
+	public ResponseEntity<Void> crear(@RequestBody TascaDto tasca) {
+		tascaClientService.createTascaV1(tasca);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 
+	@PostMapping("{tascaId}/finalitzar")
+	public ResponseEntity<Void> finalitzar(
+			@PathVariable("tascaId") String tascaId,
+			@RequestBody Date end) {
+
+		// Informa la data de fi
+        JsonPatchBuilder jpb = Json.createPatchBuilder();
+        PatchHelper.replaceDateProperty(jpb, "dataFi", end);
+		tascaClientService.patchTascaV1(
+				tascaId,
+				PatchHelper.toJsonNode(jpb));
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	
+	@PostMapping("{tascaId}/assignar")
+	public ResponseEntity<Void> assignar(
+			@PathVariable("tascaId") String tascaId,
+			@RequestBody TascaDto tasca) {
+
+		// Informa l'usuari assignat
+		try {
+	        JsonPatchBuilder jpb = Json.createPatchBuilder();
+	        PatchHelper.replaceStringProperty(jpb, "usuariAssignat", tasca.getUsuariAssignat());
+			tascaClientService.patchTascaV1(
+					tascaId,
+					PatchHelper.toJsonNode(jpb));
+//			tascaClientService.setResponsablesV1(tascaId, tasca.getResponsables());
+//			tascaClientService.setGrupsV1(tascaId, tasca.getGrups());
+		} catch(Exception e) {
+			System.err.println("Error assignant: " + e.getMessage());
+			e.printStackTrace();
+		}
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	
 	private static final Log logger = LogFactory.getLog(TascaRestController.class);
 }

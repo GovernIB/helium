@@ -8,12 +8,13 @@ import es.caib.helium.back.helper.NodecoHelper;
 import es.caib.helium.back.helper.ObjectTypeEditorHelper;
 import es.caib.helium.back.helper.TascaFormHelper;
 import es.caib.helium.back.helper.TascaFormValidatorHelper;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.dto.CampAgrupacioDto;
 import es.caib.helium.logic.intf.dto.CampDto;
+import es.caib.helium.logic.intf.dto.CampTipusDto;
 import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.service.ExpedientDadaService;
@@ -53,6 +54,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -125,7 +127,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		model.addAttribute("expedient", expedient);
 		ambOcults = (ambOcults == null || !expedient.isPermisAdministration()) ? false : ambOcults;
 		model.addAttribute("ambOcults", ambOcults);
-		Map<CampAgrupacioDto, List<ExpedientDadaDto>> dades = getDadesInstanciaProces(expedientId,procesId,ambOcults);
+		Map<CampAgrupacioDto, List<ExpedientDadaDto>> dades = ordenaPerOmplirBuids(getDadesInstanciaProces(expedientId,procesId,ambOcults));
 		model.addAttribute("dades",dades);
 		int contadorTotals = 0;
 		if(dades != null)
@@ -135,6 +137,48 @@ public class ExpedientDadaController extends BaseExpedientController {
 		model.addAttribute("contadorTotals", contadorTotals);
 		model.addAttribute("procesId",procesId);
 		return "v3/procesDades";
+	}
+
+	private Map<CampAgrupacioDto, List<ExpedientDadaDto>> ordenaPerOmplirBuids(Map<CampAgrupacioDto, List<ExpedientDadaDto>> dades) {
+		if(dades == null || dades.isEmpty()) {
+			return dades;
+		}
+
+		Map<CampAgrupacioDto, List<ExpedientDadaDto>> dadesOrdenades = new HashMap<>();
+		List<ExpedientDadaDto> dadesPendentsColocar = new LinkedList<>();
+
+		final int ampleFila = 3;
+		for (var agrupacio: dades.entrySet()) {
+			int posicioFila = 0;
+			List<ExpedientDadaDto> dadesAgrupacioOrdenades = new LinkedList<>();
+			if (agrupacio.getValue() != null) {
+				for (var dada : agrupacio.getValue()) {
+					if (posicioFila == 0) {
+						if (!dadesPendentsColocar.isEmpty()) {
+							dadesAgrupacioOrdenades.addAll(dadesPendentsColocar);
+							dadesPendentsColocar.clear();
+						}
+					}
+					if (CampTipusDto.TEXTAREA.equals(dada.getCampTipus()) ||
+							CampTipusDto.REGISTRE.equals(dada.getCampTipus())) {
+						if (posicioFila > 0) {
+							dadesPendentsColocar.add(dada);
+						} else {
+							dadesAgrupacioOrdenades.add(dada);
+						}
+					} else {
+						dadesAgrupacioOrdenades.add(dada);
+						posicioFila = ++posicioFila % ampleFila;
+					}
+				}
+				if (!dadesPendentsColocar.isEmpty()) {
+					dadesAgrupacioOrdenades.addAll(dadesPendentsColocar);
+					dadesPendentsColocar.clear();
+				}
+			}
+			dadesOrdenades.put(agrupacio.getKey(), dadesAgrupacioOrdenades);
+		}
+		return dadesOrdenades;
 	}
 
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/delete", method = RequestMethod.GET)
@@ -247,7 +291,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 			Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDades, command, false);
 			TascaFormValidatorHelper validatorHelper = new TascaFormValidatorHelper(
 					expedientService,
-					tascaDades);
+					tascaDades,
+					procesId);
 //			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 //			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
 			validatorHelper.setValidarExpresions(false);
@@ -262,8 +307,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 					validatorHelper.isValidarExpresions(),
 					procesId);
 			// TODO MS: DESCOMENTAR I PROVAR
-		// 	validator.validate(commandValidar, result);
-//			validatorHelper.validate(commandValidar, result);
+//		 	validator.validate(commandValidar, result);
+			validatorHelper.validate(commandValidar, result);
 			if (result.hasErrors()) {
 				return "v3/expedientDadaModificar";
 			}
@@ -303,10 +348,10 @@ public class ExpedientDadaController extends BaseExpedientController {
 	}		
 
 	@ModelAttribute("listTerminis")
-	public List<ParellaCodiValorDto> valors12(HttpServletRequest request) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+	public List<ParellaCodiValor> valors12(HttpServletRequest request) {
+		List<ParellaCodiValor> resposta = new ArrayList<>();
 		for (int i=0; i <= 12 ; i++)		
-			resposta.add(new ParellaCodiValorDto(String.valueOf(i), i));
+			resposta.add(new ParellaCodiValor(String.valueOf(i), i));
 		return resposta;
 	}
 
@@ -435,11 +480,13 @@ public class ExpedientDadaController extends BaseExpedientController {
 								varCodi));
 				tascaDades.add(tascaDada);
 				Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDades, command, false);
+
 //				Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 //				Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
 				TascaFormValidatorHelper validatorHelper = new TascaFormValidatorHelper(
 						expedientService,
-						tascaDades);
+						tascaDades,
+						procesId);
 				validatorHelper.setValidarExpresions(false);
 				validatorHelper.setValidarObligatoris(true);
 				Object commandValidar = TascaFormHelper.getCommandForCamps(
@@ -452,8 +499,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 						validatorHelper.isValidarExpresions(),
 						procesId);
 				// TODO descomentar validator i fer que funcioni
-				//validator.validate(commandValidar, result);
-//				validatorHelper.validate(commandValidar, result);
+//				validator.validate(commandValidar, result);
+				validatorHelper.validate(commandValidar, result);
 				if (!result.hasErrors()) {
 					expedientDadaService.create(
 							expedientId,
@@ -539,10 +586,10 @@ public class ExpedientDadaController extends BaseExpedientController {
 			Map<CampAgrupacioDto, List<ExpedientDadaDto>> dadesInstancia = null;
 			int contadorTotals = 0;
 			if (instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
-				dadesInstancia = getDadesInstanciaProces(
+				dadesInstancia = ordenaPerOmplirBuids(getDadesInstanciaProces(
 						expedientId,
 						instanciaProces.getId(),
-						ambOcults);
+						ambOcults));
 				if (dadesInstancia != null)
 					for(List<ExpedientDadaDto> list: dadesInstancia.values()){
 						contadorTotals += list.size();

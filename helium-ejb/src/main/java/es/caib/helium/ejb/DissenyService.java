@@ -3,12 +3,24 @@
  */
 package es.caib.helium.ejb;
 
-import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.client.model.ParellaCodiValor;
+import es.caib.helium.logic.intf.dto.AreaDto;
+import es.caib.helium.logic.intf.dto.CampDto;
+import es.caib.helium.logic.intf.dto.ConsultaCampDto;
+import es.caib.helium.logic.intf.dto.ConsultaDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesExpedientDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesVersioDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.DominiDto;
+import es.caib.helium.logic.intf.dto.EntornDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exportacio.DefinicioProcesExportacio;
 import es.caib.helium.logic.intf.extern.domini.FilaResultat;
-import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
@@ -172,7 +184,7 @@ public class DissenyService extends AbstractService<es.caib.helium.logic.intf.se
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ParellaCodiValorDto> findTasquesAmbEntornIExpedientTipusPerSeleccio(
+	public List<ParellaCodiValor> findTasquesAmbEntornIExpedientTipusPerSeleccio(
 			Long entornId,
 			Long expedientTipusId) {
 		return getDelegateService().findTasquesAmbEntornIExpedientTipusPerSeleccio(

@@ -5,9 +5,9 @@ package es.caib.helium.back.controller;
 
 import es.caib.helium.back.command.AnotacioAcceptarCommand;
 import es.caib.helium.back.helper.MissatgesHelper;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.dto.AnotacioDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto.IniciadorTipusDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.dto.expedient.ExpedientIniciDto;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.TascaService;
@@ -100,11 +100,11 @@ public class BaseExpedientIniciController extends BaseExpedientController {
 	}
 	
 	/** Obté per a la select els anys seleccionables */
-	public static List<ParellaCodiValorDto> getAnysSeleccionables() {
-		List<ParellaCodiValorDto> anys = new ArrayList<ParellaCodiValorDto>();
+	public static List<ParellaCodiValor> getAnysSeleccionables() {
+		List<ParellaCodiValor> anys = new ArrayList<ParellaCodiValor>();
 		int anyActual = Calendar.getInstance().get(Calendar.YEAR);
 		for (int i = 0; i < 10; i++) {
-			anys.add(new ParellaCodiValorDto(String.valueOf(anyActual - i), anyActual - i));
+			anys.add(new ParellaCodiValor(String.valueOf(anyActual - i), anyActual - i));
 		}
 		return anys;
 	}

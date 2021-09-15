@@ -1,14 +1,19 @@
 package es.caib.helium.back.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-
+import es.caib.helium.back.command.PersonaUsuariCommand;
+import es.caib.helium.back.helper.MissatgesHelper;
+import es.caib.helium.back.helper.SessionHelper;
+import es.caib.helium.client.model.ParellaCodiValor;
+import es.caib.helium.logic.intf.dto.ConsultaDto;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.dto.PersonaDto.Sexe;
+import es.caib.helium.logic.intf.dto.UsuariPreferenciesDto;
+import es.caib.helium.logic.intf.service.AdminService;
+import es.caib.helium.logic.intf.service.AplicacioService;
+import es.caib.helium.logic.intf.service.DissenyService;
+import es.caib.helium.logic.intf.service.EntornService;
 import org.keycloak.KeycloakPrincipal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,20 +31,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import es.caib.helium.back.command.PersonaUsuariCommand;
-import es.caib.helium.back.helper.MissatgesHelper;
-import es.caib.helium.back.helper.SessionHelper;
-import es.caib.helium.logic.intf.dto.ConsultaDto;
-import es.caib.helium.logic.intf.dto.EntornDto;
-import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
-import es.caib.helium.logic.intf.dto.PersonaDto;
-import es.caib.helium.logic.intf.dto.PersonaDto.Sexe;
-import es.caib.helium.logic.intf.dto.UsuariPreferenciesDto;
-import es.caib.helium.logic.intf.service.AdminService;
-import es.caib.helium.logic.intf.service.AplicacioService;
-import es.caib.helium.logic.intf.service.DissenyService;
-import es.caib.helium.logic.intf.service.EntornService;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Controlador per la gestió d'perfils
@@ -141,36 +139,36 @@ public class PerfilesController extends BaseController {
 	}
 
 	@ModelAttribute("numElementsPagina")
-	public List<ParellaCodiValorDto> numElementsPagina(HttpServletRequest request) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto("10", "10"));
-		resposta.add(new ParellaCodiValorDto("50", "50"));
-		resposta.add(new ParellaCodiValorDto("100", "100"));
+	public List<ParellaCodiValor> numElementsPagina(HttpServletRequest request) {
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
+		resposta.add(new ParellaCodiValor("10", "10"));
+		resposta.add(new ParellaCodiValor("50", "50"));
+		resposta.add(new ParellaCodiValor("100", "100"));
 		return resposta;
 	}
 
 	@ModelAttribute("cabeceras")
-	public List<ParellaCodiValorDto> cabeceras(HttpServletRequest request) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto("0", getMessage(request, "perfil.usuari.completa")));
-		resposta.add(new ParellaCodiValorDto("1", getMessage(request, "perfil.usuari.reducida")));
+	public List<ParellaCodiValor> cabeceras(HttpServletRequest request) {
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
+		resposta.add(new ParellaCodiValor("0", getMessage(request, "perfil.usuari.completa")));
+		resposta.add(new ParellaCodiValor("1", getMessage(request, "perfil.usuari.reducida")));
 		return resposta;
 	}
 
 	@ModelAttribute("pantallas")
-	public List<ParellaCodiValorDto> paginas(HttpServletRequest request) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto("0", getMessage(request, "perfil.usuari.expedients")));
-		resposta.add(new ParellaCodiValorDto("1", getMessage(request, "perfil.usuari.tasques")));
-		resposta.add(new ParellaCodiValorDto("2", getMessage(request, "perfil.usuari.informes")));
+	public List<ParellaCodiValor> paginas(HttpServletRequest request) {
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
+		resposta.add(new ParellaCodiValor("0", getMessage(request, "perfil.usuari.expedients")));
+		resposta.add(new ParellaCodiValor("1", getMessage(request, "perfil.usuari.tasques")));
+		resposta.add(new ParellaCodiValor("2", getMessage(request, "perfil.usuari.informes")));
 		return resposta;
 	}
 
 	@ModelAttribute("sexes")
-	public List<ParellaCodiValorDto> sexes(HttpServletRequest request) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto("0", getMessage(request, "txt.dona")));
-		resposta.add(new ParellaCodiValorDto("1", getMessage(request, "txt.home")));
+	public List<ParellaCodiValor> sexes(HttpServletRequest request) {
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
+		resposta.add(new ParellaCodiValor("0", getMessage(request, "txt.dona")));
+		resposta.add(new ParellaCodiValor("1", getMessage(request, "txt.home")));
 		return resposta;
 	}
 	

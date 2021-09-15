@@ -119,24 +119,25 @@
 						</c:when>
 					</c:choose>
 					<c:if test="${condicioValor}">
+
+						<c:if test="${posicioActual == 0}"><tr></c:if>
+
 						<c:set var="dadaTipusTextArea" value="${false}"/>
 						<c:if test="${fn:endsWith(dada['class'].name, 'DadaDto')}">
 							<c:set var="dadaTipusTextArea" value="${dada.campTipus == 'TEXTAREA'}"/>
 						</c:if>
-						<c:if test="${dadaTipusTextArea and posicioActual != '0'}">
-							</tr>
-							<c:set var="posicioActual" value="0"/>
+						<c:if test="${dadaTipusTextArea}">
+							<c:if test="${posicioActual > 0}"><td class="td_trans" colspan="${paramNumColumnes - posicioActual}">&nbsp;</td></tr><tr></c:if>
+							<c:set var="posicioOffset" value="${paramNumColumnes - ((index + 1 + posicioOffset) % paramNumColumnes)}"/>
 						</c:if>
-					
-						<c:if test="${posicioActual == 0}"><tr></c:if>
+
 						<c:set var="dadaTipusRegistre" value="${false}"/>
 						<c:if test="${fn:endsWith(dada['class'].name, 'DadaDto')}">
 							<c:set var="dadaTipusRegistre" value="${dada.campTipusRegistre}"/>
 						</c:if>
 						<c:if test="${dadaTipusRegistre}">
 							<c:if test="${posicioActual > 0}"><td class="td_trans" colspan="${paramNumColumnes - posicioActual}">&nbsp;</td></tr><tr></c:if>
-							<c:set var="posicioOffset" value="${posicioOffset + (paramNumColumnes - posicioActual) - 1}"/>
-							<c:set var="posicioActual" value="${0}"/>
+							<c:set var="posicioOffset" value="${paramNumColumnes - ((index + 1 + posicioOffset) % paramNumColumnes)}"/>
 						</c:if>
 						<c:choose>
 							<c:when test="${fn:endsWith(dada['class'].name, 'DadaDto')}">
@@ -166,7 +167,7 @@
 							<c:otherwise>[Tipus desconegut]</c:otherwise>
 						</c:choose>
 						<c:if test="${(index == paramCount - 1) and posicioActual != (paramNumColumnes - 1) and not dadaTipusRegistre and not dadaTipusTextArea}"><td class="td_trans" colspan="${paramNumColumnes - posicioActual - 1}">&nbsp;</td></c:if>
-						<c:if test="${(index == paramCount - 1) or dadaTipusRegistre or (index != 0 and posicioActual == (paramNumColumnes - 1)) or dadaTipusTextArea}"></tr></c:if>
+						<c:if test="${(index == paramCount - 1) or dadaTipusRegistre or dadaTipusTextArea or (index != 0 and posicioActual == (paramNumColumnes - 1))}"></tr></c:if>
 						<c:set var="index" value="${index + 1}"/>
 					</c:if>
 				</c:forEach>

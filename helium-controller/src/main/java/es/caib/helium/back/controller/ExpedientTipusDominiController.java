@@ -10,6 +10,7 @@ import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.NodecoHelper;
 import es.caib.helium.back.helper.SessionHelper;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.dto.DominiDto;
 import es.caib.helium.logic.intf.dto.DominiDto.OrigenCredencials;
 import es.caib.helium.logic.intf.dto.DominiDto.TipusAuthDomini;
@@ -17,7 +18,6 @@ import es.caib.helium.logic.intf.dto.DominiDto.TipusDomini;
 import es.caib.helium.logic.intf.dto.EntornDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.service.DominiService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -61,29 +61,29 @@ public class ExpedientTipusDominiController extends BaseExpedientTipusController
 	private ConversioTipusHelper conversioTipusHelper;
 	
 	@ModelAttribute("tipusDominis")
-	public List<ParellaCodiValorDto> populateTipusDominis() {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+	public List<ParellaCodiValor> populateTipusDominis() {
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
 		for (TipusDomini tipus: TipusDomini.values()) {
-			resposta.add(new ParellaCodiValorDto(tipus.name(), "expedient.tipus.domini.tipus." + tipus.name()));
+			resposta.add(new ParellaCodiValor(tipus.name(), "expedient.tipus.domini.tipus." + tipus.name()));
 		}
 		
 		return resposta;
 	}
 	
 	@ModelAttribute("tipusAutenticacio")
-	public List<ParellaCodiValorDto> populateTipusAutenticacio() {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+	public List<ParellaCodiValor> populateTipusAutenticacio() {
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
 		for (TipusAuthDomini tipus: TipusAuthDomini.values()) {
-			resposta.add(new ParellaCodiValorDto(tipus.name(), "expedient.tipus.domini.tipus.auth." + tipus.name()));
+			resposta.add(new ParellaCodiValor(tipus.name(), "expedient.tipus.domini.tipus.auth." + tipus.name()));
 		}
 		return resposta;
 	}
 	
 	@ModelAttribute("credencialsOrigen")
-	public List<ParellaCodiValorDto> populateOrigenCredencials() {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+	public List<ParellaCodiValor> populateOrigenCredencials() {
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
 		for (OrigenCredencials tipus: OrigenCredencials.values()) {
-			resposta.add(new ParellaCodiValorDto(tipus.name(), "expedient.tipus.domini.origen." + tipus.name()));
+			resposta.add(new ParellaCodiValor(tipus.name(), "expedient.tipus.domini.origen." + tipus.name()));
 		}
 		return resposta;
 	}

@@ -9,13 +9,13 @@ import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.NodecoHelper;
 import es.caib.helium.back.helper.SessionHelper;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
 import es.caib.helium.logic.intf.dto.DefinicioProcesExpedientDto;
 import es.caib.helium.logic.intf.dto.DefinicioProcesExpedientDto.IdAmbEtiqueta;
 import es.caib.helium.logic.intf.dto.EntornDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.exception.ExportException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -180,12 +180,12 @@ public class ExpedientTipusDefinicioProcesController extends BaseExpedientTipusC
         }
 	}		
 	
-	private List<ParellaCodiValorDto> obtenirParellesVersions(Long entornId, Long definicioProcesId) {
+	private List<ParellaCodiValor> obtenirParellesVersions(Long entornId, Long definicioProcesId) {
 		
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
 		DefinicioProcesExpedientDto definicioProcesIniciExpedientDto = dissenyService.getDefinicioProcesByEntorIdAndProcesId(entornId, definicioProcesId);
 		for (IdAmbEtiqueta idAmbEtiqueta: definicioProcesIniciExpedientDto.getListIdAmbEtiqueta()) {
-			resposta.add(new ParellaCodiValorDto(idAmbEtiqueta.getId().toString(), idAmbEtiqueta.getEtiqueta()));
+			resposta.add(new ParellaCodiValor(idAmbEtiqueta.getId().toString(), idAmbEtiqueta.getEtiqueta()));
 		}
 		return resposta;
 	}

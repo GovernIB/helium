@@ -3,6 +3,7 @@
  */
 package es.caib.helium.logic.service;
 
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.DefinicioProcesHelper;
 import es.caib.helium.logic.helper.DominiHelper;
@@ -62,7 +63,6 @@ import es.caib.helium.logic.intf.exportacio.TascaExportacio;
 import es.caib.helium.logic.intf.exportacio.TerminiExportacio;
 import es.caib.helium.logic.intf.exportacio.ValidacioExportacio;
 import es.caib.helium.logic.intf.extern.domini.FilaResultat;
-import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
 import es.caib.helium.logic.intf.service.ExpedientTipusService;
 import es.caib.helium.logic.intf.util.Constants;
 import es.caib.helium.logic.ms.DominiMs;

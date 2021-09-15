@@ -10,6 +10,7 @@ import es.caib.helium.client.dada.model.Valor;
 import es.caib.helium.client.dada.model.ValorRegistre;
 import es.caib.helium.client.dada.model.ValorSimple;
 import es.caib.helium.client.engine.model.WProcessDefinition;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.logic.helper.HerenciaHelper;
@@ -19,6 +20,7 @@ import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
 import es.caib.helium.logic.intf.dto.CampAgrupacioDto;
 import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
+import es.caib.helium.logic.intf.dto.Termini;
 import es.caib.helium.logic.intf.service.ExpedientDadaService;
 import es.caib.helium.logic.intf.util.Constants;
 import es.caib.helium.logic.security.ExtendedPermission;
@@ -87,6 +89,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	private DadaClient dadaClient;
 
 	DateFormat dataFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss:SSS ");
+	DateFormat dataFormatLectura = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
 
 	/**
 	 * {@inheritDoc}
@@ -129,126 +132,6 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		} catch (Exception ex) {
 			log.error("", ex);
 		}
-	}
-
-	private Dada prepararDadesUpdate(String varCodi, Object varValor, Camp camp) throws Exception{
-
-		if (camp != null && !ObjectUtils.containsConstant(Tipus.values(), camp.getTipus().name())) {
-			throw new Exception("Error preparant les dades camp " + camp);
-		}
-
-		// Nova variable de tipus String (camp == null)
-		var tipus = Tipus.STRING;
-		var multiple = false;
-
-		if (camp != null) {
-			tipus = Tipus.valueOf(camp.getTipus().name());
-			multiple = camp.isMultiple();
-		}
-
-		return getDada(varCodi, varValor, camp, tipus, multiple);
-	}
-
-	private Dada getDada(String varCodi, Object varValor, Camp camp, Tipus tipus, boolean multiple) {
-		var dada = new Dada();
-		dada.setCodi(varCodi);
-		dada.setTipus(tipus);
-		dada.setMultiple(multiple);
-
-		if (Tipus.REGISTRE.equals(tipus)) {
-			dada.setValor(getValorsRegistre(camp.getRegistreMembres(), varValor, multiple));
-		} else {
-			dada.setValor(getValorDada(varValor, multiple));
-		}
-		return dada;
-	}
-
-	private List<Dada> prepararDades(String varCodi, Object varValor, Camp camp) throws Exception{
-
-		if (camp != null && !ObjectUtils.containsConstant(Tipus.values(), camp.getTipus().name())) {
-			throw new Exception("Error preparant les dades camp " + camp);
-		}
-
-		var dades = new ArrayList<Dada>();
-		// Nova variable de tipus String (camp == null)
-		var tipus = Tipus.STRING;
-		var multiple = false;
-
-		if (camp != null) {
-			tipus = Tipus.valueOf(camp.getTipus().name());
-			multiple = camp.isMultiple();
-		}
-
-		dades.add(getDada(varCodi, varValor, camp, tipus, multiple));
-		return dades;
-	}
-
-	private List<Valor> getValorsRegistre(
-			List<CampRegistre> registreMembres,
-			Object varValor,
-			boolean isMultiple) {
-
-		ArrayList<Valor> valors = new ArrayList<>();
-		if (!isMultiple) {
-			valors.add(getValorRegistre(registreMembres, varValor));
-			return valors;
-		}
-		var valorsObject = (Object[]) varValor;
-		for (var v : valorsObject) {
-			valors.add(getValorRegistre(registreMembres, v));
-		}
-		return valors;
-	}
-
-	private Valor getValorRegistre(List<CampRegistre> registreMembres, Object varValor) {
-
-		var valor = new ValorRegistre();
-		List<Dada> campsRegistre = new ArrayList<>();
-		var valorsObject = (Object[]) varValor;
-		for (int i = 0; i < registreMembres.size(); i++) {
-			var dadaRegistre = new Dada();
-			dadaRegistre.setCodi(registreMembres.get(i).getMembre().getCodi());
-			dadaRegistre.setTipus(Tipus.valueOf(registreMembres.get(i).getMembre().getTipus().name()));
-			dadaRegistre.setMultiple(false);
-			dadaRegistre.setValor(getValorDada(valorsObject[i], false));
-			campsRegistre.add(dadaRegistre);
-		}
-		valor.setCamps(campsRegistre);
-		return valor;
-	}
-
-	private ArrayList<Valor> getValorDada(Object varValor, boolean isMultiple) {
-
-		ArrayList<Valor> valors = new ArrayList<>();
-		if (!isMultiple) {
-			valors.add(getValorSimple(varValor));
-			return valors;
-		}
-		var valorsObject = (Object[]) varValor;
-		for (var v : valorsObject) {
-			valors.add(getValorSimple(v));
-		}
-		return valors;
-	}
-
-	private Valor getValorSimple(Object varValor) {
-		var valor = new ValorSimple();
-		var valorString = getStringFromObject(varValor);
-		valor.setValor(valorString);
-		valor.setValorText(valorString);
-		return valor;
-	}
-
-	private String getStringFromObject(Object o) {
-		if (o == null) {
-			return "";
-		}
-		if (o instanceof Date) {
-//			Date today = Calendar.getInstance().getTime();
-			return dataFormat.format((Date) o);
-		}
-
-		return o.toString();
 	}
 
 	/**
@@ -467,6 +350,150 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	}
 
 	/*********************/
+
+	private List<Dada> prepararDades(String varCodi, Object varValor, Camp camp) throws Exception{
+
+		if (camp != null && !ObjectUtils.containsConstant(Tipus.values(), camp.getTipus().name())) {
+			throw new Exception("Error preparant les dades camp " + camp);
+		}
+
+		var dades = new ArrayList<Dada>();
+		// Nova variable de tipus String (camp == null)
+		var tipus = Tipus.STRING;
+		var multiple = false;
+
+		if (camp != null) {
+			tipus = Tipus.valueOf(camp.getTipus().name());
+			multiple = camp.isMultiple();
+		}
+
+		dades.add(getDada(varCodi, varValor, camp, tipus, multiple));
+		return dades;
+	}
+
+	private Dada prepararDadesUpdate(String varCodi, Object varValor, Camp camp) throws Exception{
+
+		if (camp != null && !ObjectUtils.containsConstant(Tipus.values(), camp.getTipus().name())) {
+			throw new Exception("Error preparant les dades camp " + camp);
+		}
+
+		// Nova variable de tipus String (camp == null)
+		var tipus = Tipus.STRING;
+		var multiple = false;
+
+		if (camp != null) {
+			tipus = Tipus.valueOf(camp.getTipus().name());
+			multiple = camp.isMultiple();
+		}
+
+		return getDada(varCodi, varValor, camp, tipus, multiple);
+	}
+
+	private Dada getDada(String varCodi, Object varValor, Camp camp, Tipus tipus, boolean multiple) {
+		var dada = new Dada();
+		dada.setCodi(varCodi);
+		dada.setTipus(tipus);
+		dada.setMultiple(multiple);
+
+		if (Tipus.REGISTRE.equals(tipus)) {
+			dada.setValor(getValorsRegistre(camp.getRegistreMembres(), varValor, multiple));
+		} else {
+			dada.setValor(getValorDada(varValor, multiple, tipus));
+		}
+		return dada;
+	}
+
+	private List<Valor> getValorsRegistre(
+			List<CampRegistre> registreMembres,
+			Object varValor,
+			boolean isMultiple) {
+
+		ArrayList<Valor> valors = new ArrayList<>();
+		if (!isMultiple) {
+			valors.add(getValorRegistre(registreMembres, varValor));
+			return valors;
+		}
+		var valorsObject = (Object[]) varValor;
+		for (var v : valorsObject) {
+			valors.add(getValorRegistre(registreMembres, v));
+		}
+		return valors;
+	}
+
+	private Valor getValorRegistre(List<CampRegistre> registreMembres, Object varValor) {
+
+		var valor = new ValorRegistre();
+		List<Dada> campsRegistre = new ArrayList<>();
+		var valorsObject = (Object[]) varValor;
+		for (int i = 0; i < registreMembres.size(); i++) {
+			var dadaRegistre = new Dada();
+			dadaRegistre.setCodi(registreMembres.get(i).getMembre().getCodi());
+			dadaRegistre.setTipus(Tipus.valueOf(registreMembres.get(i).getMembre().getTipus().name()));
+			dadaRegistre.setMultiple(false);
+			dadaRegistre.setValor(getValorDada(valorsObject[i], false, dadaRegistre.getTipus()));
+			campsRegistre.add(dadaRegistre);
+		}
+		valor.setCamps(campsRegistre);
+		return valor;
+	}
+
+	private ArrayList<Valor> getValorDada(Object varValor, boolean isMultiple, Tipus tipus) {
+
+		ArrayList<Valor> valors = new ArrayList<>();
+		if (!isMultiple) {
+			valors.add(getValorSimple(varValor, tipus));
+			return valors;
+		}
+		var valorsObject = (Object[]) varValor;
+		for (var v : valorsObject) {
+			valors.add(getValorSimple(v, tipus));
+		}
+		return valors;
+	}
+
+	private Valor getValorSimple(Object varValor, Tipus tipus) {
+		var valor = new ValorSimple();
+		valor.setValor(getStringFromObject(varValor));
+		valor.setValorText(getStringFormatFromObject(varValor, tipus));
+		return valor;
+	}
+
+	private String getStringFromObject(Object o) {
+		if (o == null) {
+			return "";
+		}
+		if (o instanceof Date) {
+			return dataFormat.format((Date) o);
+		}
+		if (o instanceof ParellaCodiValor) {
+			return ((ParellaCodiValor)o).getCodi();
+		}
+
+		return o.toString();
+	}
+
+	private String getStringFormatFromObject(Object o, Tipus tipus) {
+		if (o == null) {
+			return "";
+		}
+		switch (tipus) {
+			case BOOLEAN:
+				return (Boolean) o ? "Si" : "No";
+			case DATE:
+				return dataFormatLectura.format((Date) o);
+			case TERMINI:
+				Termini t = Termini.valueFromString((String)o);
+				return t.toString();
+			case SELECCIO:
+			case SUGGEST:
+				if (o instanceof ParellaCodiValor) {
+					return ((ParellaCodiValor) o).getValor().toString();
+				}
+			default:
+				return o.toString();
+		}
+
+	}
 
 	private Camp optimitzarValorPerConsultesDominiGuardar(
 			ExpedientTipus expedientTipus, 

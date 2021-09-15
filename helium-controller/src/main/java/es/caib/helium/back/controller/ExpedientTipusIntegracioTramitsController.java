@@ -12,6 +12,7 @@ import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
 import es.caib.helium.back.helper.MissatgesHelper;
 import es.caib.helium.back.helper.NodecoHelper;
 import es.caib.helium.back.helper.SessionHelper;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.dto.CampDto;
 import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
 import es.caib.helium.logic.intf.dto.DocumentDto;
@@ -19,7 +20,6 @@ import es.caib.helium.logic.intf.dto.EntornDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
 import es.caib.helium.logic.intf.dto.MapeigSistraDto.TipusMapeig;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -322,11 +322,11 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 	 * @param tipus
 	 * @return
 	 */
-	private List<ParellaCodiValorDto> obtenirParellesVariables(
+	private List<ParellaCodiValor> obtenirParellesVariables(
 			Long entornId,
 			Long expedientTipusId,
 			TipusMapeig tipus) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		List<ParellaCodiValor> resposta = new ArrayList<ParellaCodiValor>();
 		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
 				entornId, 
 				expedientTipusId);
@@ -349,7 +349,7 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 			}
 			// Crea les parelles de codi i valor
 			for (CampDto variable : variables) {
-				resposta.add(new ParellaCodiValorDto(
+				resposta.add(new ParellaCodiValor(
 						variable.getCodi() + " / " + variable.getEtiqueta(),
 						variable.getCodi()));
 			}
@@ -368,7 +368,7 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 			}
 			// Crea les parelles de codi i valor
 			for (DocumentDto document : documents) {
-				resposta.add(new ParellaCodiValorDto(
+				resposta.add(new ParellaCodiValor(
 						document.getCodi() + " / " + document.getNom(),
 						document.getCodi()));
 			}			

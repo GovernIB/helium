@@ -5,6 +5,7 @@ package es.caib.helium.logic.service;
 
 import es.caib.helium.client.engine.model.WProcessDefinition;
 import es.caib.helium.client.engine.model.WProcessInstance;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.DefinicioProcesHelper;
 import es.caib.helium.logic.helper.DominiHelper;
@@ -31,14 +32,12 @@ import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
 import es.caib.helium.logic.intf.dto.PaginaDto;
 import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
-import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 import es.caib.helium.logic.intf.dto.PermisDto;
 import es.caib.helium.logic.intf.exception.DeploymentException;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.exportacio.DefinicioProcesExportacio;
 import es.caib.helium.logic.intf.extern.domini.FilaResultat;
-import es.caib.helium.logic.intf.extern.domini.ParellaCodiValor;
 import es.caib.helium.logic.intf.service.DissenyService;
 import es.caib.helium.logic.ms.DominiMs;
 import es.caib.helium.logic.security.ExtendedPermission;
@@ -586,7 +585,7 @@ public class DissenyServiceImpl implements DissenyService {
 
 	@Transactional(readOnly=true)
 	@Override
-	public List<ParellaCodiValorDto> findTasquesAmbEntornIExpedientTipusPerSeleccio(
+	public List<ParellaCodiValor> findTasquesAmbEntornIExpedientTipusPerSeleccio(
 			Long entornId,
 			Long expedientTipusId) {
 		// Identificadors de les darreres versions de definicio de procés per a un tipus d'expedient
@@ -615,14 +614,14 @@ public class DissenyServiceImpl implements DissenyService {
 			tasques.addAll(
 					tascaRepository.findIdNomByDefinicioProcesIdsOrderByNomAsc(ids));
 		}
-		List<ParellaCodiValorDto> lista = new ArrayList<ParellaCodiValorDto>();
+		List<ParellaCodiValor> lista = new ArrayList<ParellaCodiValor>();
 		for (Object[] tasca: tasques) {
-			lista.add(new ParellaCodiValorDto(tasca[0].toString(), tasca[1]));
+			lista.add(new ParellaCodiValor(tasca[0].toString(), tasca[1]));
 		}
 		Collections.sort(
 				lista, 
-				new Comparator<ParellaCodiValorDto>() {
-					public int compare(ParellaCodiValorDto p1, ParellaCodiValorDto p2) {
+				new Comparator<ParellaCodiValor>() {
+					public int compare(ParellaCodiValor p1, ParellaCodiValor p2) {
 						if (p1 != null && p2 == null)
 							return -1;
 						if (p1 == null && p2 == null)

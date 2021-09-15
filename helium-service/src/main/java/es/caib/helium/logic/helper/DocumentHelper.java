@@ -713,7 +713,7 @@ public class DocumentHelper {
 			String ntiIdDocumentoOrigen) {
 		String documentCodiPerCreacio = documentCodi;
 		if (documentCodiPerCreacio == null && isAdjunt) {
-			documentCodiPerCreacio = new Long(new Date().getTime()).toString();
+			documentCodiPerCreacio = Long.toString(new Date().getTime());
 		}
 		DocumentStore documentStore = new DocumentStore(
 				pluginHelper.gestioDocumentalIsPluginActiu() ? DocumentFont.ALFRESCO : DocumentFont.INTERNA,
