@@ -3,27 +3,6 @@
  */
 package es.caib.helium.logic.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.security.acls.domain.BasePermission;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultatAnnex;
@@ -77,6 +56,25 @@ import es.caib.helium.persist.repository.ExpedientRepository;
 import es.caib.helium.persist.repository.ExpedientTipusRepository;
 import es.caib.helium.persist.repository.InteressatRepository;
 import es.caib.plugins.arxiu.api.Document;
+import org.apache.commons.lang3.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implementació del servei per a gestionar anotacions de distribució.
@@ -715,8 +713,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		if (expedient.isArxiuActiu()) {
 			// Utilitza la llibreria d'utilitats de Distribució per incorporar la informació
 			// de l'anotació directament a l'expedient dins l'Arxiu
-			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper
-					.arxiuExpedientInfo(expedient.getArxiuUuid());
+			var expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
 			BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
 			// Posarà els annexos en la carpeta de l'anotació
 			backofficeUtils.setCarpeta(anotacio.getIdentificador());

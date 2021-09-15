@@ -117,8 +117,6 @@ import es.caib.helium.persist.repository.PortasignaturesRepository;
 import es.caib.helium.persist.repository.RegistreRepository;
 import es.caib.helium.persist.repository.TerminiIniciatRepository;
 import es.caib.helium.persist.util.ThreadLocalInfo;
-import es.caib.plugins.arxiu.api.ContingutArxiu;
-import es.caib.plugins.arxiu.api.ExpedientMetadades;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -2523,14 +2521,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false);
 		ArxiuDetallDto arxiuDetall = null;
-		if (expedient.isArxiuActiu() 
-				&& expedient.getArxiuUuid() != null) {
+		if (expedient.isArxiuActiu() && expedient.getArxiuUuid() != null) {
 			arxiuDetall = new ArxiuDetallDto();
-			es.caib.plugins.arxiu.api.Expedient arxiuExpedient = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
-			List<ContingutArxiu> continguts = arxiuExpedient.getContinguts();
+			var arxiuExpedient = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
+			var continguts = arxiuExpedient.getContinguts();
 			arxiuDetall.setIdentificador(arxiuExpedient.getIdentificador());
 			arxiuDetall.setNom(arxiuExpedient.getNom());
-			ExpedientMetadades metadades = arxiuExpedient.getMetadades();
+			var metadades = arxiuExpedient.getMetadades();
 			if (metadades != null) {
 				arxiuDetall.setEniVersio(metadades.getVersioNti());
 				arxiuDetall.setEniIdentificador(metadades.getIdentificador());
@@ -2556,8 +2553,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 			}
 			if (continguts != null) {
 				List<ArxiuContingutDto> detallFills = new ArrayList<ArxiuContingutDto>();
-				for (ContingutArxiu cont: continguts) {
-					ArxiuContingutDto detallFill = new ArxiuContingutDto();
+				for (var cont: continguts) {
+					var detallFill = new ArxiuContingutDto();
 					detallFill.setIdentificador(
 							cont.getIdentificador());
 					detallFill.setNom(
@@ -3029,7 +3026,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					|| expedient.getNtiSerieDocumental() == null)) {
 			// Consulta la informació de l'expedient i actualitza l'expedient
 			expedient.setNtiVersion(ExpedientHelper.VERSIO_NTI);
-			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
+			var expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
 			expedient.setNtiIdentificador(
 					expedientArxiu.getMetadades().getIdentificador());
 			expedient.setNtiVersion(expedientArxiu.getMetadades().getVersioNti());

@@ -10,6 +10,7 @@ import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreId;
 import es.caib.helium.integracio.domini.arxiu.Anotacio;
 import es.caib.helium.integracio.domini.arxiu.Arxiu;
 import es.caib.helium.integracio.domini.arxiu.ArxiuFirma;
+import es.caib.helium.integracio.domini.arxiu.ConsultaDocument;
 import es.caib.helium.integracio.domini.arxiu.DocumentArxiu;
 import es.caib.helium.integracio.domini.arxiu.ExpedientArxiu;
 import es.caib.helium.integracio.enums.arxiu.NtiEstadoElaboracionEnum;
@@ -22,6 +23,7 @@ import es.caib.helium.jms.enums.CodiIntegracio;
 import es.caib.helium.jms.enums.EstatAccio;
 import es.caib.helium.jms.enums.TipusAccio;
 import es.caib.helium.jms.events.IntegracioEvent;
+import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ContingutOrigen;
 import es.caib.plugins.arxiu.api.Document;
 import es.caib.plugins.arxiu.api.DocumentContingut;
@@ -328,21 +330,21 @@ public class ArxiuServiceCaibImpl implements ArxiuService {
 	}
 
 	@Override
-	public Document getDocument(String uuId, String versio, boolean ambContingut, boolean isSignat, Long entornId) throws ArxiuException {
+	public Document getDocument(String uuId, ConsultaDocument consulta) throws ArxiuException {
 		
 		List<Parametre> parametres = new ArrayList<>();
 		parametres.add(new Parametre("uuId", uuId));
-		parametres.add(new Parametre("versio", versio));
-		parametres.add(new Parametre("ambContingut", String.valueOf(ambContingut)));
-		parametres.add(new Parametre("isSignat", String.valueOf(isSignat)));
+		parametres.add(new Parametre("versio", consulta.getVersio()));
+		parametres.add(new Parametre("ambContingut", String.valueOf(consulta.isAmbContingut())));
+		parametres.add(new Parametre("isSignat", String.valueOf(consulta.isSignat())));
 		var t0 = System.currentTimeMillis();
 		var descripcio = "Obtenir document de l'arxiu";
 		try {
-			var document = api.documentDetalls(uuId, versio, ambContingut);
-			if (!ambContingut) {
+			var document = api.documentDetalls(uuId, consulta.getVersio(), consulta.isAmbContingut());
+			if (!consulta.isAmbContingut()) {
 				monitor.enviarEvent(IntegracioEvent.builder()
 						.codi(CodiIntegracio.ARXIU)
-						.entornId(entornId)
+						.entornId(consulta.getEntornId())
 						.descripcio(descripcio)
 						.data(new Date())
 						.tipus(TipusAccio.ENVIAMENT)
@@ -355,7 +357,7 @@ public class ArxiuServiceCaibImpl implements ArxiuService {
 			}
 			
 			boolean isFirmaPades = false;
-			if (isSignat && document.getFirmes() != null) {
+			if (consulta.isSignat() && document.getFirmes() != null) {
 				for (Firma firma: document.getFirmes()) {
 					if (FirmaTipus.PADES.equals(firma.getTipus())) {
 						isFirmaPades = true;
@@ -376,7 +378,7 @@ public class ArxiuServiceCaibImpl implements ArxiuService {
 			
 			monitor.enviarEvent(IntegracioEvent.builder()
 					.codi(CodiIntegracio.ARXIU)
-					.entornId(entornId)
+					.entornId(consulta.getEntornId())
 					.descripcio(descripcio)
 					.data(new Date())
 					.tipus(TipusAccio.ENVIAMENT)
@@ -391,7 +393,7 @@ public class ArxiuServiceCaibImpl implements ArxiuService {
 			var error = "Error obtenint el document de l'arxiu";
 			log.error(error, ex);
 			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.ARXIU) 
-					.entornId(entornId) 
+					.entornId(consulta.getEntornId())
 					.descripcio(descripcio)
 					.tipus(TipusAccio.ENVIAMENT)
 					.estat(EstatAccio.ERROR)
@@ -445,7 +447,7 @@ public class ArxiuServiceCaibImpl implements ArxiuService {
 	}
 
 	@Override
-	public boolean crearDocument(DocumentArxiu document, Long entornId) throws ArxiuException {
+	public ContingutArxiu crearDocument(DocumentArxiu document, Long entornId) throws ArxiuException {
 
 		List<Parametre> parametres = new ArrayList<>();
 		parametres.add(new Parametre("identificador", document.getIdentificador()));
@@ -472,8 +474,9 @@ public class ArxiuServiceCaibImpl implements ArxiuService {
 					document.getNtiIdDocumentOrigen(),
 					getExtensioPerArxiu(document.getArxiu()),
 					document.getFirmes() != null ? DocumentEstat.DEFINITIU : DocumentEstat.ESBORRANY);
-			var arxiu = api.documentCrear(arxiuDoc, document.getUuid()) != null;
-			
+			var arxiu = api.documentCrear(arxiuDoc, document.getUuid());
+			parametres.add(new Parametre("resposta", String.valueOf(arxiu != null)));
+			parametres.add(new Parametre("respostaIdentificador", (arxiu != null ? arxiu.getIdentificador() : "-")));
 			monitor.enviarEvent(IntegracioEvent.builder()
 					.codi(CodiIntegracio.ARXIU)
 					.entornId(entornId)
@@ -504,7 +507,7 @@ public class ArxiuServiceCaibImpl implements ArxiuService {
 	}
 
 	@Override
-	public boolean modificarDocument(DocumentArxiu document, Long entornId) throws ArxiuException {
+		public ContingutArxiu modificarDocument(DocumentArxiu document, Long entornId) throws ArxiuException {
 		
 		List<Parametre> parametres = new ArrayList<>();
 		parametres.add(new Parametre("identificador", document.getIdentificador()));
@@ -516,7 +519,7 @@ public class ArxiuServiceCaibImpl implements ArxiuService {
 		try {
 			String nomAmbExtensio = document.getNom() + "." + document.getArxiu().getExtensio();
 			var arxiuDoc = toArxiuDocument(
-					null, 
+					document.getIdentificador(),
 					nomAmbExtensio,
 					document.getArxiu(),
 					document.isDocumentAmbFirma(),
@@ -530,7 +533,7 @@ public class ArxiuServiceCaibImpl implements ArxiuService {
 					document.getNtiTipusDocumental(),
 					document.getNtiIdDocumentOrigen(),
 					getExtensioPerArxiu(document.getArxiu()),
-					document.getEstat() );
+					document.getEstat());
 			var doc = api.documentModificar(arxiuDoc);
 			
 			monitor.enviarEvent(IntegracioEvent.builder()
@@ -544,7 +547,7 @@ public class ArxiuServiceCaibImpl implements ArxiuService {
 					.tempsResposta(System.currentTimeMillis() - t0).build());
 			
 			log.debug("Document modificat correctament");
-			return doc != null;
+			return doc;
 			
 		} catch (Exception ex) {
 			var error = "Error modificant el document";
