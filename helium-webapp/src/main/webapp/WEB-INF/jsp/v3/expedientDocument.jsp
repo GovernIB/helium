@@ -45,6 +45,38 @@ div.proces:hover {
 	</a>
 </div>
 
+<div class="pull-left" style="padding: 5px; width: 70px;">	
+	<!-- Botó d'ordenació -->
+	<div id="sortDocuments" class="btn-group btn-group-justified" data-sort="default" title="<spring:message code="expedient.document.ordenar.default"/>">
+	  <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#">
+	  	<span id="sortDocumentsMainIcon">
+	  		<i class="fa fa-sort-amount-asc"></i>
+	  	</span>
+	    <span class="fa fa-caret-down"></span>
+	  </a>
+	  <ul class="dropdown-menu">
+	    <li><a class="documentsSortOption" data-sort="default"><i class="fa fa-sort-amount-asc documentsSortIcon"></i> <spring:message code="expedient.document.ordenar.default"/></a></li>
+	    <li><a class="documentsSortOption" data-sort="titol"><i class="fa fa-sort-alpha-asc documentsSortIcon"></i> <spring:message code="expedient.document.ordenar.titol"/></a></li>
+	    <li><a class="documentsSortOption" data-sort="data"><i class="documentsSortIcon"><span class="fa fa-sort-amount-asc fa-fw"></span><span class="fa fa-clock-o"></span></i> <spring:message code="expedient.document.ordenar.data"/></a></li>
+	  </ul>
+	</div>
+</div>
+
+<div class="pull-left" style="padding: 5px">
+	<table border="0">
+		<tr>
+			<td>
+				<span class="fa fa-search" style="position: absolute;float: left;padding-left: 10px;padding-top: 10px;"></span>
+				<input id="searchDocuments" class="form-control" placeholder="<spring:message code="expedient.document.filtrar"/>" autocomplete="off" spellcheck="false" autocorrect="off" tabindex="1"
+					style="padding-left: 35px;">
+		</td>
+			<td>
+				<span id="searchTotal" style="padding-left: 20px; font-weight: bold;"></span>
+			</td>
+		</tr>
+	</table>
+</div>
+
 <c:import url="procesDocuments.jsp"/>
 <script type="text/javascript">
 // <![CDATA[			
@@ -66,12 +98,28 @@ $(document).ready(function() {
 		$('#psigna_' + docId).modal();
 	});
 	
+	$('#searchDocuments').on('input', function(){
+		searchDocuments($('#searchDocuments').val());
+	});
+	
+	$('.documentsSortOption').click(function() {
+		$('#sortDocumentsMainIcon').empty().append($('.documentsSortIcon', this).clone());
+		sort = $(this).data('sort');
+		$('#sortDocuments').data('sort', sort);
+		sortDocuments(sort);
+	});
+	
 });
 function recargarPanel (processInstanceId, correcte) {
 	if (correcte) {
-		var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/proces/"/>' + processInstanceId + '/document';
+		var sort = $('#sortDocuments').data('sort');
+		var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/proces/"/>' + processInstanceId + '/document?sort=' + sort;
 		var panell = $("#dataTable_documents_"+processInstanceId);
-		panell.load(url);
+		panell.load(url, function() {
+			// Després de recarregar filtra si hi ha text per filtrar
+			if ($('#searchDocuments').val() != '')
+				$('#searchDocuments').trigger('input');
+		});
 	}
 }
 
@@ -83,6 +131,64 @@ function esborrarSignatura(documentStoreId, correcte) {
 
 function reprocessar(documentId) {
 	$('#form_psigna_' + documentId).submit();
+}
+
+function searchDocuments(text) {
+	total = 0;
+	totalProces = 0;
+	fadeoutMs = 300;
+	$('.procesDocument').each(function() {
+		$proces = $(this);
+		totalProces = 0;
+		processInstanceId = $proces.data('processinstanceid');
+		$taula = $('#panel_document_'+processInstanceId);
+		$('.taulaFila', $taula).each(function() {
+			totalFila = 0;
+			$fila = $(this);
+			$('.tableDocuments', $fila).each(function(){
+				$document = $(this);
+				if (text == ""
+						|| $('.nom_document', this).text().toLowerCase().includes(text.toLowerCase())) 
+				{
+					hideFila = false;
+					$document.show();
+					total++;
+					totalFila ++;
+					totalProces ++;
+				} else {
+					// amaga la cel·la
+					$document.hide(fadeoutMs);
+				}
+			});
+			if (totalFila == 0) {
+				$fila.hide(fadeoutMs);
+			} else {
+				$fila.show();
+				hideProcess = false;
+			}
+		});
+		if (totalProces == 0) {
+			$taula.hide(fadeoutMs);
+		} else {
+			$taula.show();
+		}
+		if (text != '') {
+			$('#searchTotal').text(total + ' <spring:message code="expedient.document.filtrar.trobats"/>');
+		} else {
+			$('#searchTotal').text('');
+		}
+	});
+}
+
+function sortDocuments(sort) {
+	$('.procesDocument').each(function() {
+		$proces = $(this);
+		totalProces = 0;
+		processInstanceId = $proces.data('processinstanceid');
+		if ($('#panel_document_'+processInstanceId).find('table').length) {
+			recargarPanel($(this).data('processinstanceid'), true);
+		}
+	});
 }
 //]]>
 </script>

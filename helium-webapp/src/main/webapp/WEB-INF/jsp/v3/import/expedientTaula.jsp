@@ -117,13 +117,13 @@
 							<c:set var="posicioActual" value="0"/>
 						</c:if>
 					
-						<c:if test="${posicioActual == 0}"><tr></c:if>
+						<c:if test="${posicioActual == 0}"><tr class="taulaFila"></c:if>
 						<c:set var="dadaTipusRegistre" value="${false}"/>
 						<c:if test="${fn:endsWith(dada['class'].name, 'DadaDto')}">
 							<c:set var="dadaTipusRegistre" value="${dada.campTipusRegistre}"/>
 						</c:if>
 						<c:if test="${dadaTipusRegistre}">
-							<c:if test="${posicioActual > 0}"><td colspan="${paramNumColumnes - posicioActual}">&nbsp;</td></tr><tr></c:if>
+							<c:if test="${posicioActual > 0}"><td colspan="${paramNumColumnes - posicioActual}">&nbsp;</td></tr><tr class="taulaFila"></c:if>
 							<c:set var="posicioOffset" value="${posicioOffset + (paramNumColumnes - posicioActual) - 1}"/>
 							<c:set var="posicioActual" value="${0}"/>
 						</c:if>
