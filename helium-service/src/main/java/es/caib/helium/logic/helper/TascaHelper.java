@@ -3,24 +3,6 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
 import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.client.expedient.tasca.TascaClientService;
 import es.caib.helium.client.expedient.tasca.model.TascaDto;
@@ -48,6 +30,22 @@ import es.caib.helium.persist.entity.Tasca;
 import es.caib.helium.persist.repository.CampTascaRepository;
 import es.caib.helium.persist.repository.DefinicioProcesRepository;
 import es.caib.helium.persist.repository.TascaRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Helper per a gestionar les tasques dels expedients.
@@ -703,12 +701,9 @@ public class TascaHelper {
 		dto.setExpedientNumero(expedientNoNull.getNumero());
 		dto.setExpedientTipusNom(expedientNoNull.getTipus().getNom());
 		dto.setExpedientTipusId(expedientNoNull.getTipus().getId());
-		if (tascaMs.getUsuariAssignat() != null) {
-			dto.setResponsable(
-					pluginHelper.personaFindAmbCodi(tascaMs.getUsuariAssignat()));
-		}
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (tascaMs.getUsuariAssignat() != null) {
+			dto.setResponsable(this.findPersonaOrDefault(tascaMs.getUsuariAssignat()));
 			if (auth != null) {
 				dto.setAssignadaUsuariActual(tascaMs.getUsuariAssignat().equals(auth.getName()));
 			}

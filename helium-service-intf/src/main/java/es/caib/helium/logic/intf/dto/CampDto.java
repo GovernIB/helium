@@ -3,6 +3,11 @@
  */
 package es.caib.helium.logic.intf.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -14,6 +19,10 @@ import java.util.Date;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
 public class CampDto extends HeretableDto implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -66,49 +75,6 @@ public class CampDto extends HeretableDto implements Serializable {
 	/** Per mostrar el número de membres de les variables de tipus registre la taula de variables. */
 	private int campRegistreCount = 0;
 	
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
-	public String getCodi() {
-		return codi;
-	}
-	public void setCodi(String codi) {
-		this.codi = codi;
-	}
-	public CampTipusDto getTipus() {
-		return tipus;
-	}
-	public void setTipus(CampTipusDto tipus) {
-		this.tipus = tipus;
-	}
-	public String getEtiqueta() {
-		return etiqueta;
-	}
-	public void setEtiqueta(String etiqueta) {
-		this.etiqueta = etiqueta;
-	}
-	public String getObservacions() {
-		return observacions;
-	}
-	public void setObservacions(String observacions) {
-		this.observacions = observacions;
-	}
-	public DefinicioProcesDto getDefinicioProces() {
-		return definicioProces;
-	}
-	public void setDefinicioProces(DefinicioProcesDto definicioProces) {
-		this.definicioProces = definicioProces;
-	}
-
-	public ExpedientTipusDto getExpedientTipus() {
-		return expedientTipus;
-	}
-	public void setExpedientTipus(ExpedientTipusDto expedientTipus) {
-		this.expedientTipus = expedientTipus;
-	}
 	@SuppressWarnings("rawtypes")
 	public Class getJavaClass() {
 		if (CampTipusDto.STRING.equals(tipus)) {
@@ -205,131 +171,5 @@ public class CampDto extends HeretableDto implements Serializable {
 		} catch (Exception ex) {
 			return text;
 		}
-	}
-	public CampAgrupacioDto getAgrupacio() {
-		return agrupacio;
-	}
-	public void setAgrupacio(CampAgrupacioDto agrupacio) {
-		this.agrupacio = agrupacio;
-	}
-	public boolean isMultiple() {
-		return multiple;
-	}
-	public void setMultiple(boolean multiple) {
-		this.multiple = multiple;
-	}
-	public boolean isOcult() {
-		return ocult;
-	}
-	public void setOcult(boolean ocult) {
-		this.ocult = ocult;
-	}
-	public boolean isIgnored() {
-		return ignored;
-	}
-	public void setIgnored(boolean ignored) {
-		this.ignored = ignored;
-	}
-	public EnumeracioDto getEnumeracio() {
-		return enumeracio;
-	}
-	public void setEnumeracio(EnumeracioDto enumeracio) {
-		this.enumeracio = enumeracio;
-	}
-	public DominiDto getDomini() {
-		return domini;
-	}
-	public void setDomini(DominiDto domini) {
-		this.domini = domini;
-	}
-	public ConsultaDto getConsulta() {
-		return consulta;
-	}
-	public void setConsulta(ConsultaDto consulta) {
-		this.consulta = consulta;
-	}
-	public boolean isDominiIntern() {
-		return dominiIntern;
-	}
-	public void setDominiIntern(boolean dominiIntern) {
-		this.dominiIntern = dominiIntern;
-	}
-	public String getDominiIdentificador() {
-		return dominiIdentificador;
-	}
-	public void setDominiIdentificador(String dominiIdentificador) {
-		this.dominiIdentificador = dominiIdentificador;
-	}
-	public String getDominiParams() {
-		return dominiParams;
-	}
-	public void setDominiParams(String dominiParams) {
-		this.dominiParams = dominiParams;
-	}
-	public String getDominiCampValor() {
-		return dominiCampValor;
-	}
-	public void setDominiCampValor(String dominiCampValor) {
-		this.dominiCampValor = dominiCampValor;
-	}
-	public String getDominiCampText() {
-		return dominiCampText;
-	}
-	public void setDominiCampText(String dominiCampText) {
-		this.dominiCampText = dominiCampText;
-	}
-	public String getConsultaParams() {
-		return consultaParams;
-	}
-	public void setConsultaParams(String consultaParams) {
-		this.consultaParams = consultaParams;
-	}
-	public String getConsultaCampText() {
-		return consultaCampText;
-	}
-	public void setConsultaCampText(String consultaCampText) {
-		this.consultaCampText = consultaCampText;
-	}
-	public String getConsultaCampValor() {
-		return consultaCampValor;
-	}
-	public void setConsultaCampValor(String consultaCampValor) {
-		this.consultaCampValor = consultaCampValor;
-	}
-	public String getJbpmAction() {
-		return jbpmAction;
-	}
-	public void setJbpmAction(String jbpmAction) {
-		this.jbpmAction = jbpmAction;
-	}
-	public String getDefprocJbpmKey() {
-		return defprocJbpmKey;
-	}
-	public void setDefprocJbpmKey(String defprocJbpmKey) {
-		this.defprocJbpmKey = defprocJbpmKey;
-	}
-	public boolean isDominiCacheText() {
-		return dominiCacheText;
-	}
-	public void setDominiCacheText(boolean dominiCacheText) {
-		this.dominiCacheText = dominiCacheText;
-	}
-	public int getValidacioCount() {
-		return validacioCount;
-	}
-	public void setValidacioCount(int validacioCount) {
-		this.validacioCount = validacioCount;
-	}
-	public int getCampRegistreCount() {
-		return campRegistreCount;
-	}
-	public void setCampRegistreCount(int campRegistreCount) {
-		this.campRegistreCount = campRegistreCount;
-	}
-	public Integer getOrdre() {
-		return ordre;
-	}
-	public void setOrdre(Integer ordre) {
-		this.ordre = ordre;
 	}
 }

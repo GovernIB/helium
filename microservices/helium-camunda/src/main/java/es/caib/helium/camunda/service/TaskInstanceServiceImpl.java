@@ -4,6 +4,7 @@ import es.caib.helium.camunda.mapper.TaskInstanceMapper;
 import es.caib.helium.camunda.model.bridge.CampTascaDto;
 import es.caib.helium.camunda.model.bridge.CampTipusDto;
 import es.caib.helium.client.engine.model.WTaskInstance;
+import es.caib.helium.client.expedient.tasca.TascaClientService;
 import lombok.RequiredArgsConstructor;
 import org.camunda.bpm.engine.ActivityTypes;
 import org.camunda.bpm.engine.HistoryService;
@@ -35,6 +36,7 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     private final TaskInstanceMapper taskInstanceMapper;
     private final ActionService actionService;
     private final WorkflowBridgeService workflowBridgeService;
+    private final TascaClientService tascaClientService;
 
     @Override
     public WTaskInstance getTaskById(String taskId) {
@@ -79,8 +81,8 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
 
     @Override
     public void takeTaskInstance(String taskId, String actorId) {
-//        taskService.claim(taskId, actorId);
-        taskService.setAssignee(taskId, actorId);
+        taskService.claim(taskId, actorId);
+//        taskService.setAssignee(taskId, actorId);
     }
 
     @Override
@@ -178,9 +180,13 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
             // TODO: Afegir la opció de group(xxx)-->member(yyy) per a cercar el càrrec yyy dins el grup xxx
             // TODO: Validar grup existeix (plugin usuaris)
             if (expression.contains(",")) {
-                List.of(expression.substring(6, expression.length() - 1).split(",")).forEach(g -> taskService.addCandidateGroup(taskId, g));
+                var grups = List.of(expression.substring(6, expression.length() - 1).split(","));
+                grups.forEach(g -> taskService.addCandidateGroup(taskId, g));
+//                tascaClientService.setGrupsV1(taskId, grups);
             } else {
-                taskService.addCandidateGroup(taskId, expression.substring(6, expression.length() - 1));
+                var grup = expression.substring(6, expression.length() - 1);
+                taskService.addCandidateGroup(taskId, grup);
+//                tascaClientService.setGrupsV1(taskId, List.of(grup));
             }
         } else {
             // TODO: Ara amb expressió només assignam usuaris.
@@ -200,6 +206,7 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
                 var usuaris = List.of((String[]) destinataris);
                 removeCandidates(taskId);
                 usuaris.forEach(g -> taskService.addCandidateUser(taskId, g));
+//                tascaClientService.setResponsablesV1(taskId, usuaris);
             } else {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "L'expressió no retorna un codi d'usuari, o un array de codis d'usuaris");
             }
@@ -218,13 +225,14 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
                         taskService.deleteCandidateGroup(taskId, c.getGroupId());
                     }
                 });
+//        tascaClientService.deleteResponsablesV1(taskId);
     }
 
     @Override
     public void setTaskInstanceActorId(String taskId, String actorId) {
         var task = getTask(taskId);
         taskService.setAssignee(taskId, actorId);
-        task.setAssignee(actorId);
+//        task.setAssignee(actorId);
     }
 
     @Override

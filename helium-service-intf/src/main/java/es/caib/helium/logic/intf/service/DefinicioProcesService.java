@@ -211,6 +211,10 @@ public interface DefinicioProcesService {
 	public CampTascaDto tascaCampCreate(
 			Long tascaId,
 			CampTascaDto tascaCamp) throws PermisDenegatException;
+
+	public List<CampTascaDto> tascaCampsCreate(
+			Long tascaId,
+			List<CampTascaDto> tasquesCamp) throws PermisDenegatException;
 	
 	/**
 	 * Modificació d'un camp de tasca existent.

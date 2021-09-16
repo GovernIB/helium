@@ -51,6 +51,8 @@ public interface AplicacioService {
 	 */
 	public List<Persona> findPersonaLikeNomSencer(String text) throws SistemaExternException;
 
+	public List<PersonaDto> findPersonesAmbGrup(String grup) throws SistemaExternException;
+
 	public List<PersonaDto> findPersonaAll() throws SistemaExternException;
 
 

@@ -1,23 +1,5 @@
 package es.caib.helium.expedient.service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.validation.ValidationException;
-
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-
 import es.caib.helium.expedient.domain.Grup;
 import es.caib.helium.expedient.domain.Proces;
 import es.caib.helium.expedient.domain.Responsable;
@@ -33,6 +15,22 @@ import es.caib.helium.ms.helper.ServiceHelper;
 import es.caib.helium.ms.model.PagedList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+import javax.validation.ValidationException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -136,7 +134,7 @@ public class TascaServiceImpl implements TascaService {
         
         tasca.setNom( tascaDto.getNom() );
         tasca.setTitol( tascaDto.getTitol() );
-        tasca.setAfagada( tascaDto.isAfagada() );
+        tasca.setAgafada( tascaDto.isAgafada() );
         tasca.setCancelada( tascaDto.isCancelada() );
         tasca.setSuspesa( tascaDto.isSuspesa() );
         tasca.setCompletada( tascaDto.isCompletada() );
@@ -341,6 +339,7 @@ public class TascaServiceImpl implements TascaService {
 	}
 
 	@Override
+    @Transactional(readOnly = true)
 	public List<String> getGrups(String tascaId) {
     	Tasca tasca = getTascaById(tascaId);
 		return tasca.getGrups()
@@ -350,6 +349,7 @@ public class TascaServiceImpl implements TascaService {
 	}
 
 	@Override
+    @Transactional
 	public void setGrups(String tascaId, List<String> grups) {
     	deleteGrups(tascaId);
     	if (grups != null && grups.size() > 0) {
@@ -367,6 +367,7 @@ public class TascaServiceImpl implements TascaService {
 	}
 
 	@Override
+    @Transactional
 	public void deleteGrups(String tascaId) {
     	Tasca tasca = getTascaById(tascaId);
         if (tasca.getGrups().size() > 0) {

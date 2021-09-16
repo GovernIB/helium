@@ -120,14 +120,14 @@
 					</c:choose>
 					<c:if test="${condicioValor}">
 
-						<c:if test="${posicioActual == 0}"><tr></c:if>
+						<c:if test="${posicioActual == 0}"><tr class="taulaFila"></c:if>
 
 						<c:set var="dadaTipusTextArea" value="${false}"/>
 						<c:if test="${fn:endsWith(dada['class'].name, 'DadaDto')}">
 							<c:set var="dadaTipusTextArea" value="${dada.campTipus == 'TEXTAREA'}"/>
 						</c:if>
 						<c:if test="${dadaTipusTextArea}">
-							<c:if test="${posicioActual > 0}"><td class="td_trans" colspan="${paramNumColumnes - posicioActual}">&nbsp;</td></tr><tr></c:if>
+							<c:if test="${posicioActual > 0}"><td class="td_trans" colspan="${paramNumColumnes - posicioActual}">&nbsp;</td></tr><tr class="taulaFila"></c:if>							
 							<c:set var="posicioOffset" value="${paramNumColumnes - ((index + 1 + posicioOffset) % paramNumColumnes)}"/>
 						</c:if>
 
@@ -136,7 +136,7 @@
 							<c:set var="dadaTipusRegistre" value="${dada.campTipusRegistre}"/>
 						</c:if>
 						<c:if test="${dadaTipusRegistre}">
-							<c:if test="${posicioActual > 0}"><td class="td_trans" colspan="${paramNumColumnes - posicioActual}">&nbsp;</td></tr><tr></c:if>
+							<c:if test="${posicioActual > 0}"><td class="td_trans" colspan="${paramNumColumnes - posicioActual}">&nbsp;</td></tr><tr class="taulaFila"></c:if>
 							<c:set var="posicioOffset" value="${paramNumColumnes - ((index + 1 + posicioOffset) % paramNumColumnes)}"/>
 						</c:if>
 						<c:choose>

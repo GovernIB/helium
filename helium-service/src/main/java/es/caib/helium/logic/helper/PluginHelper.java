@@ -273,6 +273,12 @@ public class PluginHelper {
 		}
 	}
 
+	public List<PersonaDto> personesAmbGrup(String grup) {
+		return conversioTipusServiceHelper.convertirList(
+				getPersonesPlugin().findPersonesAmbGrup(grup),
+				PersonaDto.class);
+	}
+
 	public List<String> personaFindRolsAmbCodi(String codi) throws Exception {
 		return getPersonesPlugin().findRolsAmbCodi(codi, EntornActual.getEntornId());
 	}
@@ -4185,4 +4191,5 @@ public class PluginHelper {
 		}	
 		return dtos;
 	}
+
 }

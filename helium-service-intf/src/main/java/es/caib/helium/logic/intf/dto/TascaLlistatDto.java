@@ -3,16 +3,17 @@
  */
 package es.caib.helium.logic.intf.dto;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
 import es.caib.helium.logic.intf.dto.ExpedientTascaDto.TascaPrioritatDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  *  Dto pel llistat paginat de tasques.
@@ -73,7 +74,13 @@ public class TascaLlistatDto extends ControlPermisosDto implements Comparable<Ta
 	public String getResponsableString() {
 		if ((responsables == null || responsables.isEmpty()) || agafada)
 			return responsable == null ? "" : responsable.toString();
-		return responsables.toString().replace("[", "").replace("]", "").replaceAll(", $", "");
+		return responsables.stream().map(r -> r.getNomSencer()).collect(Collectors.joining(", "));
+//		return responsables.toString().replace("[", "").replace("]", "").replaceAll(", $", "");
+	}
+	public String getGrupString() {
+		if (agafada)
+			return "";
+		return grups.stream().collect(Collectors.joining(", "));
 	}
 
 
