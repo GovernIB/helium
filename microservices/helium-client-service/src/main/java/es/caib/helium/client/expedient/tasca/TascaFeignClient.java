@@ -1,22 +1,18 @@
 package es.caib.helium.client.expedient.tasca;
 
-import java.util.List;
-
-import javax.validation.Valid;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import es.caib.helium.client.expedient.tasca.model.ConsultaTascaDades;
+import es.caib.helium.client.expedient.tasca.model.TascaDto;
+import es.caib.helium.client.model.PagedList;
 import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
-import es.caib.helium.client.expedient.tasca.model.ConsultaTascaDades;
-import es.caib.helium.client.expedient.tasca.model.TascaDto;
-import es.caib.helium.client.model.PagedList;
+import javax.validation.Valid;
+import java.util.List;
 
 public interface TascaFeignClient {
 
@@ -60,7 +56,7 @@ public interface TascaFeignClient {
 	@RequestMapping(method = RequestMethod.POST, value = TascaApiPath.SET_RESPONSABLES)
 	public ResponseEntity<Void> setResponsablesV1(
 			@PathVariable("tascaId") String tascaId,
-			@RequestParam(name = "responsables", required = false) List<String> responsables);
+			@RequestBody(required = false) List<String> responsables);
 
 	@RequestMapping(method = RequestMethod.DELETE, value = TascaApiPath.DELETE_RESPONSABLES)
 	public ResponseEntity<Void> deleteResponsablesV1(
@@ -74,7 +70,7 @@ public interface TascaFeignClient {
 	@RequestMapping(method = RequestMethod.POST, value = TascaApiPath.SET_GRUPS)
 	public ResponseEntity<Void> setGrupsV1(
 			@PathVariable("tascaId") String tascaId,
-			@RequestParam(name = "grups", required = false) List<String> grups);
+			@RequestBody(required = false) List<String> grups);
 
 	@RequestMapping(method = RequestMethod.DELETE, value = TascaApiPath.DELETE_GRUPS)
 	public ResponseEntity<Void> deleteGrupsV1(

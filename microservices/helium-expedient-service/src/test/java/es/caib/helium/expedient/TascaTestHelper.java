@@ -1,21 +1,20 @@
 package es.caib.helium.expedient;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-
-import java.util.ArrayList;
-import java.util.Date;
-
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
 import es.caib.helium.expedient.domain.Grup;
 import es.caib.helium.expedient.domain.Proces;
 import es.caib.helium.expedient.domain.Responsable;
 import es.caib.helium.expedient.domain.Tasca;
 import es.caib.helium.expedient.model.TascaDto;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.Date;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class TascaTestHelper {
 	
@@ -54,7 +53,7 @@ public class TascaTestHelper {
         		.dataCreacio(new Date())
         		.responsables(new ArrayList<Responsable>())
         		
-        		.afagada(false)
+        		.agafada(false)
         		.assignada(false)
         		.cancelada(false)
         		.completada(false)
@@ -97,7 +96,7 @@ public class TascaTestHelper {
         		.dataCreacio(new Date())
         		.responsables(new ArrayList<String>())
         		
-        		.afagada(false)
+        		.agafada(false)
         		.assignada(false)
         		.cancelada(false)
         		.completada(false)
@@ -125,7 +124,7 @@ public class TascaTestHelper {
                 () -> assertEquals(tasca.getProces(), trobat.getProces(), "Proces incorrecte"),
                 () -> assertEquals(tasca.getNom(), trobat.getNom(), "Nom incorrecte"),
                 () -> assertEquals(tasca.getTitol(), trobat.getTitol(), "Titol incorrecte"),
-                () -> assertEquals(tasca.isAfagada(), trobat.isAfagada(), "Agafada incorrecte"),
+                () -> assertEquals(tasca.isAgafada(), trobat.isAgafada(), "Agafada incorrecte"),
                 () -> assertEquals(tasca.isAssignada(), trobat.isAssignada(), "Assignada incorrecte"),
                 () -> assertEquals(tasca.isCancelada(), trobat.isCancelada(), "Cancel·lada incorrecte"),
                 () -> assertEquals(tasca.isSuspesa(), trobat.isSuspesa(), "Suspesa incorrecte"),
@@ -164,7 +163,7 @@ public class TascaTestHelper {
                 () -> assertEquals(tasca.getProcesId(), trobat.getProcesId(), "Proces incorrecte"),
                 () -> assertEquals(tasca.getNom(), trobat.getNom(), "Nom incorrecte"),
                 () -> assertEquals(tasca.getTitol(), trobat.getTitol(), "Titol incorrecte"),
-                () -> assertEquals(tasca.isAfagada(), trobat.isAfagada(), "Agafada incorrecte"),
+                () -> assertEquals(tasca.isAgafada(), trobat.isAgafada(), "Agafada incorrecte"),
                 () -> assertEquals(tasca.isAssignada(), trobat.isAssignada(), "Assignada incorrecte"),
                 () -> assertEquals(tasca.isCancelada(), trobat.isCancelada(), "Cancel·lada incorrecte"),
                 () -> assertEquals(tasca.isSuspesa(), trobat.isSuspesa(), "Suspesa incorrecte"),

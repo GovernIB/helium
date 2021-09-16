@@ -641,8 +641,18 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 		return conversioTipusServiceHelper.convertir(
 				tascaRepository.save(entity),
 				TascaDto.class);
-	}		
-	
+	}
+
+	@Override
+	@Transactional
+	public List<CampTascaDto> tascaCampsCreate(
+			Long tascaId,
+			List<CampTascaDto> tasquesCamp) throws PermisDenegatException {
+		List<CampTascaDto> campTascaDtos = new ArrayList<>();
+		tasquesCamp.forEach(tc -> campTascaDtos.add(tascaCampCreate(tascaId, tc)));
+		return campTascaDtos;
+	}
+
 	@Override
 	@Transactional
 	public CampTascaDto tascaCampCreate(
@@ -688,7 +698,7 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"Esborrant la tascaCamp de la definició de procés (" +
 				"tascaCampId=" + tascaCampId +  ")");
 		
-		CampTasca tascaCamp = campTascaRepository.getById(tascaCampId);
+		CampTasca tascaCamp = campTascaRepository.findById(tascaCampId).get();
 		Long expedientTipusId = tascaCamp.getExpedientTipus() != null? tascaCamp.getExpedientTipus().getId() : null;
 		tascaCamp.getTasca().removeCamp(tascaCamp);
 		campTascaRepository.delete(tascaCamp);	

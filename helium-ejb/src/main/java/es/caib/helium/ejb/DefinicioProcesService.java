@@ -137,6 +137,12 @@ public class DefinicioProcesService extends AbstractService<es.caib.helium.logic
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<CampTascaDto> tascaCampsCreate(Long tascaId, List<CampTascaDto> tasquesCamp) throws PermisDenegatException {
+		return getDelegateService().tascaCampsCreate(tascaId, tasquesCamp);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public CampTascaDto tascaCampUpdate(CampTascaDto tascaCamp) throws NoTrobatException, PermisDenegatException {
 		return getDelegateService().tascaCampUpdate(tascaCamp);
 	}

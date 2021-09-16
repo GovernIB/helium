@@ -3,6 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+
 <c:set var="modalPrefix" value=""/>
 <c:if test="${retrocedirModalPath}">
 	<c:set var="modalPrefix" value="../../"/>
@@ -76,7 +77,21 @@
 										</c:if>
 									</div>
 								</td>
-								<td class="columna-info-tasca">${tasca.responsableString}</td>
+								<td class="columna-info-tasca">
+									<c:if test="${not empty tasca.responsable || not empty tasca.responsables}">
+										<p>
+											<span class="fa fa-user" title="<spring:message code="tasca.llistat.etiqueta.usuaris"/>"></span>
+											<c:choose>
+												<c:when test="${not empty tasca.responsable}"><span class="label label-default assignment">${tasca.responsable.nomSencer}</span></c:when>
+												<c:otherwise><c:forEach var="usuari" items="${tasca.responsables}"><span class="label label-default assignment">${usuari.nomSencer}</span></c:forEach></c:otherwise>
+											</c:choose>
+										</p>
+									</c:if>
+									<c:if test="${not tasca.agafada && not empty tasca.grups}">
+										<span class="fa fa-users" title="<spring:message code="tasca.llistat.etiqueta.grups"/>"></span>
+										<c:forEach var="grup" items="${tasca.grups}"><span class="label label-default assignment agrup" data-grup="${grup}">${grup}</span></c:forEach>
+									</c:if>
+								</td>
 								<td class="columna-info-tasca"><fmt:formatDate value="${tasca.createTime}" pattern="dd/MM/yyyy HH:mm"/></td>
 								<td class="columna-info-tasca"><fmt:formatDate value="${tasca.dueDate}" pattern="dd/MM/yyyy"/></td>
 								<c:if test="${not expedient.aturat}">
@@ -150,6 +165,33 @@
 			refrescarAlertes: false,
 			refrescarTaula: false	
 		});
+		$('.agrup').popover({
+			html: true,
+			trigger: 'manual',
+			content: function() {
+				if (this.cache) return this.cache;
+
+				let strPersones = $.ajax({
+					url: '/heliumback/v3/expedient/grup/' + $(this).data('grup') + "/persones",
+					dataType: 'json',
+					async: false
+				}).responseText;
+
+				if (strPersones.startsWith("Grup"))
+					return this.cache = strPersones;
+
+				let contingut = ""; //"<ul>";
+				let jsonPersones = JSON.parse(strPersones);
+				for (var i = 0; i < jsonPersones.length; i++) {
+					contingut += "<span class='fa fa-user'/> " + jsonPersones[i]["nom"] + "<br/>";
+				}
+				//contingut += "</ul>";
+
+				return this.cache = contingut;
+			}
+		}).click(function (e) {
+			$(this).popover('toggle');
+		})
 	});
 </script>
 </c:when>

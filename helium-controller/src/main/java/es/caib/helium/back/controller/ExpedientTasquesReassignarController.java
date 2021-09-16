@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -142,6 +143,20 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 			return "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"}";
 		}
 		return null;
+	}
+
+	@RequestMapping(value = "/grup/{grup}/persones", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
+	@ResponseBody
+	public String grupPersones(
+			@PathVariable String grup,
+			HttpServletResponse response) {
+		var persones = aplicacioService.findPersonesAmbGrup(grup);
+		if (persones != null && !persones.isEmpty()) {
+			var personesList = "[" + persones.stream().map(p -> "{\"nom\":\"" + p.getNomSencer() + "\"}").collect(Collectors.joining(",")) + "]";
+			return personesList;
+		} else {
+			return "Grup sense usuaris";
+		}
 	}
 	
 	private class TascaReassignarValidator implements Validator {

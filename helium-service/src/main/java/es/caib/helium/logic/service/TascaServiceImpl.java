@@ -904,7 +904,7 @@ public class TascaServiceImpl implements TascaService {
 				WorkflowRetroaccioApi.ExpedientRetroaccioTipus.TASCA_REASSIGNAR,
 				previousActors);
 		workflowEngineApi.releaseTaskInstance(id);
-		indexHelper.expedientIndexLuceneUpdate(task.getProcessInstanceId());
+//		indexHelper.expedientIndexLuceneUpdate(task.getProcessInstanceId());
 		task = workflowEngineApi.getTaskById(id);
 		String currentActors = task.getStringActors();
 		workflowRetroaccioApi.actualitzaParametresAccioInformacioRetroaccio(

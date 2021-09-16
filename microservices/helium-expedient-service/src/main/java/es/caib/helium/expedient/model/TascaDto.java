@@ -34,6 +34,11 @@ public class TascaDto {
 	@Schema(example = "1234", required = false, accessMode = AccessMode.READ_ONLY, description = "Identificador intern de la tasca al MS")
 	private Long id;
 
+	@JsonProperty("expedientId")
+	@Schema(example = "1234", required = false, accessMode = AccessMode.READ_ONLY, description = "Identificador de l'expedient de la definició de procés del procés relacionat a la tasca"
+			+ "informat en les consultes de tasques. És un atribut de només lectura i pot ser null si el procés s'ha creat i encara no s'ha associat l'expedient inicial.")
+	private Long expedientId;
+
 	@JsonProperty("tascaId")
 	@Schema(example = "1234", required = true, description = "Id de la tasca a Helium.")
 	@Size(max = 64)
@@ -57,10 +62,10 @@ public class TascaDto {
 	@NotEmpty
 	private String titol;
 	
-	@JsonProperty("afagada")
+	@JsonProperty("agafada")
 	@Schema(example = "true", required = false, description = "Indica si la tasca està agafada.")
 	@Builder.Default
-	private boolean afagada = false;
+	private boolean agafada = false;
 
 	@JsonProperty("cancelada")
 	@Schema(example = "true", required = false, description = "Indica si la tasca està cancel·lada.")
@@ -127,10 +132,6 @@ public class TascaDto {
 	@Schema(example = "1234abcd", required = false, accessMode = AccessMode.READ_ONLY, description = "Identificador de la definició de procés del procés relacionat a la tasca"
 			+ "informat en les consultes de tasques. És un atribut de només lectura")
 	@Size(max = 255)
-	private String processDefinitionId;	
+	private String processDefinitionId;
 
-	@JsonProperty("expedientId")
-	@Schema(example = "1234", required = false, accessMode = AccessMode.READ_ONLY, description = "Identificador de l'expedient de la definició de procés del procés relacionat a la tasca"
-			+ "informat en les consultes de tasques. És un atribut de només lectura i pot ser null si el procés s'ha creat i encara no s'ha associat l'expedient inicial.")
-	private Long expedientId;	
 }

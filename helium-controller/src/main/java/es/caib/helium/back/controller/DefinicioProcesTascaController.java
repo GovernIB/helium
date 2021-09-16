@@ -199,9 +199,7 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
     		return "v3/definicioProcesTascaVariable";
         } else {
         	// Verificar permisos
-    		definicioProcesService.tascaCampCreate(
-    				id,
-    				DefinicioProcesTascaVariableCommand.asCampTascaDto(command));    		
+			definicioProcesService.tascaCampsCreate(id, DefinicioProcesTascaVariableCommand.asCampTascaDto(command));
 			MissatgesHelper.success(
 					request,
 					getMessage(

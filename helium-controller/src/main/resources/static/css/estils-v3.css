@@ -311,6 +311,18 @@ span.herencia {
   visibility: visible;
 }
 
+.label.assignment {
+	margin-right: 2px;
+	top: -1px;
+	position: relative;
+	padding: 4px 6px 2px 6px;
+	background-color: transparent;
+	color: #666;
+	border: 1px solid #ccc;
+}
+.label.assignment.agrup {
+	cursor: pointer;
+}
 @media (min-width: 1200px) {
 	.modal-lg {
 		width: 1100px;

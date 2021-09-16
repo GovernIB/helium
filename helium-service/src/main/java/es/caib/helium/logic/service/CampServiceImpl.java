@@ -6,7 +6,6 @@ package es.caib.helium.logic.service;
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.ExpedientTipusHelper;
 import es.caib.helium.logic.helper.HerenciaHelper;
-import es.caib.helium.logic.helper.HibernateHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.intf.dto.CampAgrupacioDto;
 import es.caib.helium.logic.intf.dto.CampDto;
@@ -719,9 +718,8 @@ public class CampServiceImpl implements CampService {
 	public void registreDelete(Long campRegistreId) throws NoTrobatException, PermisDenegatException {
 		logger.debug("Esborrant la campRegistre del tipus d'expedient (" + "campRegistreId=" + campRegistreId + ")");
 
-		CampRegistre campRegistre = HibernateHelper.unproxy(campRegistreRepository.getById(campRegistreId));
+		CampRegistre campRegistre = campRegistreRepository.findById(campRegistreId).get();
 		var registre = campRegistre.getRegistre();
-		HibernateHelper.unproxyList(registre.getRegistreMembres());
 		registre.getRegistreMembres().remove(campRegistre);
 		campRegistreRepository.deleteById(campRegistre.getId());
 		campRegistreRepository.flush();
@@ -753,10 +751,10 @@ public class CampServiceImpl implements CampService {
 	@Transactional
 	public boolean registreMourePosicio(Long id, int posicio) {
 		boolean ret = false;
-		CampRegistre campRegistre = HibernateHelper.unproxy(campRegistreRepository.getById(id));
+		CampRegistre campRegistre = campRegistreRepository.findById(id).get();
 		if (campRegistre != null) {
-			List<CampRegistre> campsRegistre = HibernateHelper.unproxyList(campRegistreRepository
-					.findAmbCampOrdenats(campRegistre.getRegistre().getId()));
+			List<CampRegistre> campsRegistre = campRegistreRepository
+					.findAmbCampOrdenats(campRegistre.getRegistre().getId());
 			int index = campsRegistre.indexOf(campRegistre);
 			if (posicio != index) {
 				campRegistre = campsRegistre.get(index);

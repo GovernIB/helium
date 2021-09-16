@@ -51,7 +51,13 @@ public class AplicacioService extends AbstractService<es.caib.helium.logic.intf.
 		return getDelegateService().findPersonaLikeNomSencer(text);
 	}
 
-    @Override
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<PersonaDto> findPersonesAmbGrup(String grup) throws SistemaExternException {
+		return getDelegateService().findPersonesAmbGrup(grup);
+	}
+
+	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
     public List<PersonaDto> findPersonaAll() throws SistemaExternException {
         return getDelegateService().findPersonaAll();
