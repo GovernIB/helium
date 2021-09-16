@@ -92,7 +92,12 @@ public class AplicacioServiceImpl implements AplicacioService {
 		return pluginHelper.personaFindLikeNomSencer(text);
 	}
 
-    @Override
+	@Override
+	public List<PersonaDto> findPersonesAmbGrup(String grup) throws SistemaExternException {
+		return null; //TODO MS: AL FER PULL ESTAVA PER IMPLEMENTAR
+	}
+
+	@Override
     public List<PersonaDto> findPersonaAll() throws SistemaExternException {
         return pluginHelper.personaFindAll();
     }

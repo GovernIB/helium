@@ -193,7 +193,7 @@ public class VariableHelper {
 
 		List<Dada> dades = null;
 		try {
-			dades = dadaClient.getDadesByProces(exp.getId(), processInstanceId);
+			dades = dadaClient.getDadesByExpedientIdProcesId(exp.getId(), processInstanceId);
 		} catch (Exception ex) {
 			log.error("Error al servei de dades", ex);  //TODO LLENÇAR EXCEPCIONS?
 		}
