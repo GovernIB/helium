@@ -451,8 +451,8 @@ public class IndexHelper {
 //		expedientRepository.setReindexarErrorData(expedient.getId(), !success, null);
 	}
 
-	private Map<String, Object> getVariablesJbpmProcesValor(
-			String processInstanceId) {
+	private Map<String, Object> getVariablesJbpmProcesValor(String processInstanceId) {
+
 		Map<String, Object> valors = workflowEngineApi.getProcessInstanceVariables(processInstanceId);
 		Map<String, Object> valorsRevisats = new HashMap<String, Object>();
 		if (valors != null) {

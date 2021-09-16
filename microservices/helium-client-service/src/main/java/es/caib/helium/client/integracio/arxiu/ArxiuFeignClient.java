@@ -51,7 +51,7 @@ public interface ArxiuFeignClient {
 	@RequestMapping(method = RequestMethod.GET, value = ArxiuPath.GET_DOCUMENT)
 	ResponseEntity<Document> getDocument(
 			@PathVariable("uuId") String uuId,
-			@SpringQueryMap @RequestParam("consulta") ConsultaDocument consulta);
+			@SpringQueryMap ConsultaDocument consulta);
 
 	@RequestMapping(method = RequestMethod.POST, value = ArxiuPath.POST_DOCUMENT)
 	ResponseEntity<ContingutArxiu> postDocument(

@@ -59,14 +59,14 @@ public class DadaController {
     }
     
     @PostMapping(value = "expedient/crear/dades/capcalera")
-    public ResponseEntity<Void> crearExpedientDadesCapcalera(@Valid @RequestBody Expedient expedient) {
+    public ResponseEntity<Void> crearExpedientDadesCapcalera(@Valid @RequestBody Expedient expedient) throws Exception {
     	
     	dadaClient.crearExpedient(expedient);
     	return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping(value = "expedients/crear/dades/capcalera")
-    public ResponseEntity<Void> crearExpedientsDadesCapcalera(@Valid @RequestBody List<Expedient> expedients) {
+    public ResponseEntity<Void> crearExpedientsDadesCapcalera(@Valid @RequestBody List<Expedient> expedients) throws Exception {
     	
     	dadaClient.crearExpedients(expedients);
     	return new ResponseEntity<>(HttpStatus.OK);
@@ -74,14 +74,14 @@ public class DadaController {
     
     
     @DeleteMapping(value = "{expedientId}")
-	public ResponseEntity<Void> deleteExpedient(@PathVariable("expedientId") Long expedientId) {
+	public ResponseEntity<Void> deleteExpedient(@PathVariable("expedientId") Long expedientId) throws Exception {
     	
     	dadaClient.deleteExpedient(expedientId);
     	return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@DeleteMapping(value = "borrar/expedients")
-	public ResponseEntity<Void> deleteExpedients(@RequestParam("expedients") List<Long> expedients)  {
+	public ResponseEntity<Void> deleteExpedients(@RequestParam("expedients") List<Long> expedients) throws Exception {
 
 		dadaClient.deleteExpedients(expedients);
 		return new ResponseEntity<>(HttpStatus.OK);
@@ -90,14 +90,14 @@ public class DadaController {
 	@PutMapping(value = "{expedientId}")
 	public ResponseEntity<Void> putExpedient(
 			@Valid @RequestBody Expedient expedient,
-			@PathVariable("expedientId") Long expedientId) {
+			@PathVariable("expedientId") Long expedientId) throws Exception {
 
 		dadaClient.putExpedient(expedient, expedientId);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@PutMapping(value = "put/expedients")
-	public ResponseEntity<Void> putExpedients(@Valid @RequestBody List<Expedient> expedients) {
+	public ResponseEntity<Void> putExpedients(@Valid @RequestBody List<Expedient> expedients) throws Exception {
 
 		dadaClient.putExpedients(expedients);
 		return new ResponseEntity<>(HttpStatus.OK);
@@ -106,21 +106,19 @@ public class DadaController {
 	@PatchMapping(value = "{expedientId}")
 	public ResponseEntity<Void> patchExpedient(
 			@Valid @RequestBody Expedient expedient,
-			@PathVariable("expedientId") Long expedientId) {
+			@PathVariable("expedientId") Long expedientId) throws Exception {
 
 		dadaClient.patchExpedient(expedient, expedientId);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@PatchMapping(value = "patch/expedients")
-	public ResponseEntity<Void> patchExpedients(@Valid @RequestBody ValidList<Expedient> expedients) {
+	public ResponseEntity<Void> patchExpedients(@Valid @RequestBody ValidList<Expedient> expedients) throws Exception {
 
 		dadaClient.patchExpedients(expedients);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	
-	
 	// Gestió dades de l'expedient
 	
     
@@ -162,7 +160,7 @@ public class DadaController {
 			@PathVariable("expedientId") Long expedientId,
 			@PathVariable("procesId") String procesId) throws Exception {
 
-		var dades = dadaClient.getDadesByProces(expedientId, procesId);
+		var dades = dadaClient.getDadesByExpedientIdProcesId(expedientId, procesId);
 		if (!dades.isEmpty()) {
 			return new ResponseEntity<>(dades, HttpStatus.OK);
 		}
@@ -220,7 +218,7 @@ public class DadaController {
 	public ResponseEntity<Void> postDadesByExpedientId(
 			@PathVariable("expedientId") Long expedientId,
 			@QueryParam("procesId") String procesId,
-			@Valid @RequestBody List<Dada> dades, BindingResult errors) {
+			@Valid @RequestBody List<Dada> dades, BindingResult errors) throws Exception {
 
 		if (errors.hasErrors()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -236,7 +234,7 @@ public class DadaController {
 	public ResponseEntity<Void> putDadaByExpedientIdAndCodi(
 			@PathVariable("expedientId") Long expedientId,
 			@PathVariable("codi") String codi,
-			@Valid @RequestBody Dada dada) {
+			@Valid @RequestBody Dada dada) throws Exception {
 
 		dadaClient.putDadaByExpedientIdAndCodi(expedientId, codi, dada);
 		return new ResponseEntity<>(HttpStatus.OK);
@@ -245,7 +243,7 @@ public class DadaController {
 	@DeleteMapping(value = "{expedientId}/dades/{codi}")
 	public ResponseEntity<Void> deleteDadaByExpedientIdAndCodi(
 			@PathVariable("expedientId") Long expedientId,
-			@PathVariable("codi") String codi) {
+			@PathVariable("codi") String codi) throws Exception {
 
 		dadaClient.deleteDadaByExpedientIdAndCodi(expedientId, codi);
 		return new ResponseEntity<>(HttpStatus.OK);
@@ -255,7 +253,7 @@ public class DadaController {
 	public ResponseEntity<Void> postDadaByExpedientIdProcesId(
 			@PathVariable("expedientId") Long expedientId,
 			@PathVariable("procesId") String procesId,
-			@Valid @RequestBody List<Dada> dades) {
+			@Valid @RequestBody List<Dada> dades) throws Exception {
 
 		if (dades.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -269,7 +267,7 @@ public class DadaController {
 			@PathVariable("expedientId") Long expedientId,
 			@PathVariable("procesId") String procesId,
 			@PathVariable("codi") String codi, 
-			@RequestBody Dada dada) {
+			@RequestBody Dada dada) throws Exception {
 
 		dadaClient.putDadaByExpedientIdProcesIdAndCodi(expedientId, procesId, codi, dada);
 		return new ResponseEntity<>(HttpStatus.OK);
@@ -279,7 +277,7 @@ public class DadaController {
 	public ResponseEntity<Void> deleteDadaByExpedientIdAndProcesIdAndCodi(
 			@PathVariable("expedientId") Long expedientId,
 			@PathVariable("procesId") String procesId,
-			@PathVariable("codi") String codi) {
+			@PathVariable("codi") String codi) throws Exception {
 
 		dadaClient.deleteDadaByExpedientIdAndProcesIdAndCodi(expedientId, procesId, codi);
 		return new ResponseEntity<>(HttpStatus.OK);

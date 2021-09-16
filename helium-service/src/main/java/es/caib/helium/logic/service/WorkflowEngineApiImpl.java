@@ -235,7 +235,7 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
     // TODO: Per consultar dades no necessitam l'expedientId
     @Override
     public Map<String, Object> getProcessInstanceVariables(String processInstanceId) {
-//        return dadaClient.getDadesByProces(expedientId, processInstanceId);
+        return dadaClient.getDadesByProcessInstanceId(processInstanceId);
         return null;
     }
 

@@ -300,14 +300,13 @@ public class DocumentHelper {
 		return resposta;
 	}
 
-	public List<ExpedientDocumentDto> findDocumentsPerInstanciaProces(
-			String processInstanceId) {
-		List<ExpedientDocumentDto> resposta = new ArrayList<ExpedientDocumentDto>();
+	public List<ExpedientDocumentDto> findDocumentsPerInstanciaProces(String processInstanceId) {
+
+		var resposta = new ArrayList<ExpedientDocumentDto>();
 		// Consulta els documents de la definició de procés
-		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
-				processInstanceId);
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		ExpedientTipus expedientTipus = expedient.getTipus();
+		var definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
+		var expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		var expedientTipus = expedient.getTipus();
 		List<Document> documents;
 		if (expedientTipus.isAmbInfoPropia()) {
 			if (expedientTipus.getExpedientTipusPare() == null)
@@ -318,58 +317,65 @@ public class DocumentHelper {
 			documents = documentRepository.findByDefinicioProcesId(definicioProces.getId());
 		}
 		// Consulta els annexos de les anotacions de registre i les guarda en un Map<Long documentStoreId, Anotacio>
-		Map<Long, AnotacioAnnex> mapAnotacions = new HashMap<Long, AnotacioAnnex>();
-		for (AnotacioAnnex annex : anotacioAnnexRepository.findByAnotacioExpedientId(expedient.getId()))
+		Map<Long, AnotacioAnnex> mapAnotacions = new HashMap<>();
+		for (AnotacioAnnex annex : anotacioAnnexRepository.findByAnotacioExpedientId(expedient.getId())) {
 			mapAnotacions.put(annex.getDocumentStoreId(), annex);
+		}
 		// Consulta els documents de l'instància de procés
-		Map<String, Object> varsInstanciaProces = workflowEngineApi.getProcessInstanceVariables(processInstanceId);
-		if (varsInstanciaProces != null) {
-			filtrarVariablesAmbDocuments(varsInstanciaProces);
-			for (String var: varsInstanciaProces.keySet()) {
-				Long documentStoreId = (Long)varsInstanciaProces.get(var);
-				if (documentStoreId != null) {
-					if (var.startsWith(Constants.PREFIX_DOCUMENT)) {
-						// Afegeix el document
-						String documentCodi = getDocumentCodiDeVariableJbpm(var);
-						Document document = null;
-						for (Document doc: documents) {
-							if (doc.getCodi().equals(documentCodi)) {
-								document = doc;
-								break;
-							}
-						}
-						if (document != null) {
-							ExpedientDocumentDto ed = crearDtoPerDocumentExpedient(
-									document,
-									documentStoreId);
-							List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
-							ed.setNotificat(!enviaments.isEmpty());
-							ed.setAnotacioId(null); // De moment només arriben per anotació els annexos
-							resposta.add(ed);
-						} else {
-							ExpedientDocumentDto dto = new ExpedientDocumentDto();
-							dto.setId(documentStoreId);
-							dto.setProcessInstanceId(processInstanceId);
-							dto.setError("No s'ha trobat el document de la definició de procés (" +
-										"documentCodi=" + documentCodi + ")");
-							resposta.add(dto);
-						}
-					} else if (var.startsWith(Constants.PREFIX_ADJUNT)) {
-						// Afegeix l'adjunt
-						ExpedientDocumentDto ed = crearDtoPerAdjuntExpedient(
-								getAdjuntIdDeVariableJbpm(var),
-								documentStoreId);
-						ed.setNotificat(false); // De moment els annexos no es notifiquen
-						AnotacioAnnex annex = mapAnotacions.get(ed.getId());
-						if (annex != null) {
-							ed.setAnotacioId(annex.getAnotacio().getId());
-							ed.setAnotacioIdentificador(annex.getAnotacio().getIdentificador());
-						}
-						resposta.add(ed);
+		var varsInstanciaProces = workflowEngineApi.getProcessInstanceVariables(processInstanceId);
+		if (varsInstanciaProces == null) {
+			return resposta;
+		}
+		//TODO_XXX: CONSULTAR els documents al MS de dades
+
+		filtrarVariablesAmbDocuments(varsInstanciaProces);
+		for (var variable : varsInstanciaProces.keySet()) {
+			//TODO_XXX:  aquest és el valor que necessites per completar la info, ja està fet
+			Long documentStoreId = (Long)varsInstanciaProces.get(variable);
+			if (documentStoreId == null) {
+				continue;
+			}
+			//TODO_XXX:  en comptes de mirar el prefix mira el tipus de document ADJUNT/DOCUMENT
+			// if (document.tipus.equals(DOCUMENT)
+			if (variable.startsWith(Constants.PREFIX_DOCUMENT)) {
+				//TODO_XXX: aquí es tracten els documents de tipus DOCUMENT
+				// Afegeix el document
+				//TODO_XXX: EN COMPTES d'aquest mètode ja guardes el "codi· al M
+				String documentCodi = getDocumentCodiDeVariableJbpm(variable);
+				Document document = null;
+				for (Document doc: documents) {
+					if (doc.getCodi().equals(documentCodi)) {
+						document = doc;
+						break;
 					}
 				}
+				if (document != null) {
+					ExpedientDocumentDto ed = crearDtoPerDocumentExpedient(document, documentStoreId);
+					List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
+					ed.setNotificat(!enviaments.isEmpty());
+					ed.setAnotacioId(null); // De moment només arriben per anotació els annexos
+					resposta.add(ed);
+				} else {
+					ExpedientDocumentDto dto = new ExpedientDocumentDto();
+					dto.setId(documentStoreId);
+					dto.setProcessInstanceId(processInstanceId);
+					dto.setError("No s'ha trobat el document de la definició de procés (" + "documentCodi=" + documentCodi + ")");
+					resposta.add(dto);
+				}
+			} else if (variable.startsWith(Constants.PREFIX_ADJUNT)) {
+				//TODO_XXX: if (document.tipus.equals(ADJUNT)
+				// Afegeix l'adjunt
+				ExpedientDocumentDto ed = crearDtoPerAdjuntExpedient(getAdjuntIdDeVariableJbpm(variable), documentStoreId);
+				ed.setNotificat(false); // De moment els annexos no es notifiquen
+				AnotacioAnnex annex = mapAnotacions.get(ed.getId());
+				if (annex != null) {
+					ed.setAnotacioId(annex.getAnotacio().getId());
+					ed.setAnotacioIdentificador(annex.getAnotacio().getIdentificador());
+				}
+				resposta.add(ed);
 			}
 		}
+
 		return resposta;
 	}
 
@@ -2260,6 +2266,7 @@ public class DocumentHelper {
 			}
 		}
 		// Guarda la referència al nou document a dins el jBPM
+		// TODO MS: client.guardarDocument()
 		if (taskInstanceId != null) {
 			workflowEngineApi.setTaskInstanceVariable(
 					taskInstanceId,

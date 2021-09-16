@@ -2402,7 +2402,8 @@ public class PluginHelper {
 			var consulta = new ConsultaDocument();
 			consulta.setVersio(versio);
 			consulta.setAmbContingut(ambContingut);
-			consulta.isSignat();
+			consulta.setSignat(isSignat);
+			consulta.setEntornId(EntornActual.getEntornId());
 			var documentDetalls = arxiuClient.getDocument(arxiuUuid, consulta);
 			if (ambContingut) {
 				boolean isFirmaPades = false;

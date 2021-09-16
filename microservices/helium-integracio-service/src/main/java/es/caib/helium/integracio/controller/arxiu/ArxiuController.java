@@ -144,7 +144,7 @@ public class ArxiuController {
 	@GetMapping(value = "documents/{uuId}", produces = "application/json")
 	public ResponseEntity<Document> getDocument(
 			@PathVariable("uuId") String uuId,
-			@RequestParam("consulta") ConsultaDocument consulta) throws Exception {
+			ConsultaDocument consulta) throws Exception {
 
 		log.info(("Obtenint document"));
 		if (Strings.isNullOrEmpty(uuId)) {

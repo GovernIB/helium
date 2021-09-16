@@ -65,14 +65,14 @@ public class DadaClientImpl implements DadaClient {
 	}
 
 	@Override
-	public void crearExpedient(Expedient expedient) {
+	public void crearExpedient(Expedient expedient) throws Exception {
 
 		log.debug(missatgeLog + " creant expedient: " + expedient.toString());
 		dadaServiceFeignClient.createExpedient(expedient);
 	}
 	
 	@Override
-    public void crearExpedients(List<Expedient> expedients) {
+    public void crearExpedients(List<Expedient> expedients) throws Exception {
 
 		log.debug(missatgeLog + " creant expedients: " + expedients.toString());
 		var valid = new ValidList<Expedient>();
@@ -82,28 +82,28 @@ public class DadaClientImpl implements DadaClient {
 	
 
 	@Override
-	public void deleteExpedient(Long expedientId) {
+	public void deleteExpedient(Long expedientId) throws Exception {
 
 		log.debug(missatgeLog + " esborrant expedient: " + expedientId);
 		dadaServiceFeignClient.deleteExpedient(expedientId);
 	}
 
 	@Override
-	public void deleteExpedients(List<Long> expedients) {
+	public void deleteExpedients(List<Long> expedients) throws Exception {
 		
 		log.debug(missatgeLog + " esborrant expedients: " + expedients.toString());
 		dadaServiceFeignClient.deleteExpedients(expedients);
 	}
 
 	@Override
-	public void putExpedient(Expedient expedient, Long expedientId) {
+	public void putExpedient(Expedient expedient, Long expedientId) throws Exception {
 		
 		log.debug(missatgeLog + " put expedient: " + expedientId + " " + expedient.toString());
 		dadaServiceFeignClient.putExpedient(expedient, expedientId);
 	}
 
 	@Override
-	public void putExpedients(List<Expedient> expedients) {
+	public void putExpedients(List<Expedient> expedients) throws Exception {
 		
 		var valid = new ValidList<Expedient>();
 		valid.setList(expedients);
@@ -112,14 +112,14 @@ public class DadaClientImpl implements DadaClient {
 	}
 
 	@Override
-	public void patchExpedient(Expedient expedient, Long expedientId) {
+	public void patchExpedient(Expedient expedient, Long expedientId) throws Exception {
 
 		log.debug(missatgeLog + " patch expedient: " + expedientId + " " + expedient.toString());
 		dadaServiceFeignClient.patchExpedient(expedient, expedientId);
 	}
 
 	@Override
-	public void patchExpedients(List<Expedient> expedients) {
+	public void patchExpedients(List<Expedient> expedients) throws Exception {
 
 		var valid = new ValidList<Expedient>();
 		valid.setList(expedients);
@@ -130,7 +130,7 @@ public class DadaClientImpl implements DadaClient {
 	// Dades de l'expedient
 
 	@Override
-	public List<Dada> getDades(Long expedientId) throws Exception{
+	public List<Dada> getDades(Long expedientId) throws Exception {
 
 		log.debug(missatgeLog + " Get dades per l'expedient: " + expedientId);
 		var response = dadaServiceFeignClient.getDades(expedientId);
@@ -149,10 +149,10 @@ public class DadaClientImpl implements DadaClient {
 	}
 
 	@Override
-	public List<Dada> getDadesByProces(Long expedientId, String procesId) throws Exception {
+	public List<Dada> getDadesByExpedientIdProcesId(Long expedientId, String procesId) throws Exception {
 
 		log.debug(missatgeLog + " Get dades per l'expedient: " + expedientId + " amb procesId: " + procesId);
-		var response = dadaServiceFeignClient.getDadesByProces(expedientId, procesId);
+		var response = dadaServiceFeignClient.getDadesByExpedientIdProcesId(expedientId, procesId);
 		if (response.getStatusCode().equals(HttpStatus.NO_CONTENT)) {
 			return new ArrayList<>();
 		}
@@ -167,7 +167,7 @@ public class DadaClientImpl implements DadaClient {
 	}
 
 	@Override
-	public Dada getDadaByProcesAndCodi(String procesId, String codi) {
+	public Dada getDadaByProcesAndCodi(String procesId, String codi) throws Exception {
 		
 		log.debug(missatgeLog + " Get dada amb procesId: " + procesId + " i codi: " + codi);
 		//return Objects.requireNonNull(dadaServiceFeignClient.getDadaByProcesAndCodi(procesId, codi).getBody());
@@ -175,7 +175,7 @@ public class DadaClientImpl implements DadaClient {
 	}
 
 	@Override
-	public Long getDadaExpedientIdByProcesId(String procesId) {
+	public Long getDadaExpedientIdByProcesId(String procesId) throws Exception {
 	
 		log.debug(missatgeLog + " Get expedientId de la dada amb procesId: " + procesId);
 		var response = dadaServiceFeignClient.getDadaExpedientIdByProcesId(procesId);
@@ -183,7 +183,7 @@ public class DadaClientImpl implements DadaClient {
 	}
 
 	@Override
-	public void postDadesByExpedientId(Long expedientId, String procesId, List<Dada> dada) {
+	public void postDadesByExpedientId(Long expedientId, String procesId, List<Dada> dada) throws Exception {
 		
 		log.debug(missatgeLog + " Post dades per l'expedient " + expedientId);
 		var valid = new ValidList<Dada>();
@@ -192,21 +192,21 @@ public class DadaClientImpl implements DadaClient {
 	}
 
 	@Override
-	public void putDadaByExpedientIdAndCodi(Long expedientId, String codi, Dada dada) {
+	public void putDadaByExpedientIdAndCodi(Long expedientId, String codi, Dada dada) throws Exception {
 		
 		log.debug(missatgeLog + " Put dada per l'expedient " + expedientId + " amb codi: " + codi);
 		dadaServiceFeignClient.putDadaByExpedientIdAndCodi(expedientId, codi, dada);
 	}
 
 	@Override
-	public void deleteDadaByExpedientIdAndCodi(Long expedientId, String codi) {
+	public void deleteDadaByExpedientIdAndCodi(Long expedientId, String codi) throws Exception {
 
 		log.debug(missatgeLog + " Delete dades per l'expedient " + expedientId + " amb codi: " + codi);
 		dadaServiceFeignClient.deleteDadaByExpedientIdAndCodi(expedientId, codi);
 	}
 
 	@Override
-	public void postDadesByExpedientIdProcesId(Long expedientId, String procesId, List<Dada> dades) {
+	public void postDadesByExpedientIdProcesId(Long expedientId, String procesId, List<Dada> dades) throws Exception {
 
 		log.debug(missatgeLog + " Post dades per l'expedient " + expedientId);
 		var valid = new ValidList<Dada>();
@@ -215,16 +215,51 @@ public class DadaClientImpl implements DadaClient {
 	}
 
 	@Override
-	public void putDadaByExpedientIdProcesIdAndCodi(Long expedientId, String procesId, String codi, Dada dada) {
+	public void putDadaByExpedientIdProcesIdAndCodi(Long expedientId, String procesId, String codi, Dada dada) throws Exception {
 
 		log.debug(missatgeLog + " Put dada per l'expedient " + expedientId + " amb procesId: " + procesId + " i codi: " + codi);
 		dadaServiceFeignClient.putDadaByExpedientIdProcesIdAndCodi(expedientId, procesId, codi, dada);
 	}
 
 	@Override
-	public void deleteDadaByExpedientIdAndProcesIdAndCodi(Long expedientId, String procesId, String codi) {
+	public void deleteDadaByExpedientIdAndProcesIdAndCodi(Long expedientId, String procesId, String codi) throws Exception {
 		
 		log.debug(missatgeLog + " Delete dada per l'expedient " + expedientId + " amb procesId: " + procesId + " i codi: " + codi);
 		dadaServiceFeignClient.deleteDadaByExpedientIdAndProcesIdAndCodi(expedientId, procesId, codi);
+	}
+
+	@Override
+	public List<Dada> getDadesByProcessInstanceId(String procesId) throws Exception {
+
+		log.debug(missatgeLog + "Get dada pers procesId: " + procesId);
+		return dadaServiceFeignClient.getDadesByProcessInstanceId(procesId).getBody();
+	}
+
+	@Override
+	public Boolean postDadaByProcesId(String procesId, List<Dada> dades) throws Exception {
+
+		log.debug(missatgeLog + "Get dada per procesId: " + procesId + " dades: " + dades);
+		return dadaServiceFeignClient.postDadaByProcesId(procesId, dades).getBody();
+	}
+
+	@Override
+	public void deleteDadaByProcessInstanceIdAndCodi(String procesId, String codi) throws Exception {
+
+		log.debug(missatgeLog + " Delete dada per procesId: " + procesId + " codi: " + codi);
+		dadaServiceFeignClient.deleteDadaByProcessInstanceIdAndCodi(procesId, codi);
+	}
+
+	@Override
+	public List<Expedient> findRootProcessInstances(List<String> procesIds) throws Exception {
+
+		log.debug(missatgeLog + " Get root proces instances by procesIds: " + procesIds);
+		return dadaServiceFeignClient.findRootProcessInstances(procesIds).getBody();
+	}
+
+	@Override
+	public Expedient findRootProcessInstances(String procesId) throws Exception {
+
+		log.debug(missatgeLog + " Get root proces instances by procesId: " + procesId);
+		return dadaServiceFeignClient.findRootProcessInstances(procesId).getBody();
 	}
 }
