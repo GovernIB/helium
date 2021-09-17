@@ -28,10 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import net.conselldemallorca.helium.api.dto.ReassignacioDto;
-import net.conselldemallorca.helium.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmException;
@@ -39,6 +35,7 @@ import org.jbpm.context.exe.ContextInstance;
 import org.jbpm.context.exe.VariableContainer;
 import org.jbpm.context.exe.VariableInstance;
 import org.jbpm.graph.def.Event;
+import org.jbpm.graph.def.EventsConst;
 import org.jbpm.graph.def.Identifiable;
 import org.jbpm.graph.def.Node;
 import org.jbpm.graph.def.Transition;
@@ -54,6 +51,10 @@ import org.jbpm.taskmgmt.log.TaskAssignLog;
 import org.jbpm.taskmgmt.log.TaskEndLog;
 import org.jbpm.util.Clock;
 import org.jbpm.util.EqualsUtil;
+
+import net.conselldemallorca.helium.api.dto.ReassignacioDto;
+import net.conselldemallorca.helium.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 
 /**
  * is one task instance that can be assigned to an actor (read: put in someones
@@ -87,6 +88,8 @@ public class TaskInstance extends VariableContainer implements Identifiable,
 	protected TaskMgmtInstance taskMgmtInstance = null;
 	protected ProcessInstance processInstance = null;
 	protected Set<PooledActor> pooledActors = null;
+	/** En l'assignació de grups */
+	protected List<String> grups;
 	protected List comments = null;
 
 	protected String previousActorId = null; // not persisted. just extra
@@ -275,6 +278,23 @@ public class TaskInstance extends VariableContainer implements Identifiable,
 		}
 		return pooledActors;
 	}
+	
+	public void setGrups(List<String> grups) {
+		this.grups = grups;
+		if ((task != null) && (token != null)) {
+			ExecutionContext executionContext = new ExecutionContext(token);
+			executionContext.setTask(task);
+			executionContext.setTaskInstance(this);
+			task.fireEvent(EventsConst.EVENTTYPE_TASK_GRUPS_ASSIGN, executionContext);
+		}
+	}
+
+	public List<String> getGrups() {
+		if (this.grups == null) {
+			this.grups =  new ArrayList<String>();
+		}
+		return this.grups;
+	}
 
 	/**
 	 * (re)assign this task to the given actor. If this task is related to a
@@ -351,6 +371,7 @@ public class TaskInstance extends VariableContainer implements Identifiable,
 			ExecutionContext executionContext = new ExecutionContext(token);
 			executionContext.setTask(task);
 			executionContext.setTaskInstance(this);
+			task.fireEvent(EventsConst.EVENTTYPE_TASK_USUARIS_ASSIGN, executionContext);
 		}
 	}
 

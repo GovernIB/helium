@@ -18,8 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import es.caib.helium.client.expedient.tasca.TascaClientService;
 import es.caib.helium.client.expedient.tasca.model.TascaDto;
 import es.caib.helium.client.helper.PatchHelper;
@@ -138,28 +136,38 @@ public class TascaRestController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	
+	/** Assignació de l'usuari a la tasca */
 	@PostMapping("{tascaId}/assignar")
 	public ResponseEntity<Void> assignar(
 			@PathVariable("tascaId") String tascaId,
-			@RequestBody TascaDto tasca) {
+			@RequestBody(required = false) String usuariAssignat) {
 
-		// Informa l'usuari assignat
-		try {
-	        JsonPatchBuilder jpb = Json.createPatchBuilder();
-	        PatchHelper.replaceStringProperty(jpb, "usuariAssignat", tasca.getUsuariAssignat());
-			tascaClientService.patchTascaV1(
-					tascaId,
-					PatchHelper.toJsonNode(jpb));
-//			tascaClientService.setResponsablesV1(tascaId, tasca.getResponsables());
-//			tascaClientService.setGrupsV1(tascaId, tasca.getGrups());
-		} catch(Exception e) {
-			System.err.println("Error assignant: " + e.getMessage());
-			e.printStackTrace();
-		}
+        JsonPatchBuilder jpb = Json.createPatchBuilder();
+        PatchHelper.replaceStringProperty(jpb, "usuariAssignat", usuariAssignat);
+		tascaClientService.patchTascaV1(
+				tascaId,
+				PatchHelper.toJsonNode(jpb));
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	
+
+	@PostMapping("{tascaId}/assignarUsuaris")
+	public ResponseEntity<Void> assignarUsuaris(
+			@PathVariable("tascaId") String tascaId,
+			@RequestBody(required = false) List<String> usuaris) {
+
+		tascaClientService.setResponsablesV1(tascaId, usuaris);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@PostMapping("{tascaId}/assignarGrups")
+	public ResponseEntity<Void> assignarGrups(
+			@PathVariable("tascaId") String tascaId,
+			@RequestBody(required = false) List<String> grups) {
+
+		tascaClientService.setGrupsV1(tascaId, grups);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
 	private static final Log logger = LogFactory.getLog(TascaRestController.class);
 }
