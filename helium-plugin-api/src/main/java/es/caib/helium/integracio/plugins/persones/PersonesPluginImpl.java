@@ -25,6 +25,8 @@ public class PersonesPluginImpl implements PersonesPlugin {
 
     @Override
     public Persona findAmbCodi(String codi, Long entornId) throws PersonesPluginException {
+        if ("heluser".equals(codi))
+            return this.getHeluser();
         return this.getHeladmin();
     }
 

@@ -92,6 +92,12 @@ public class AplicacioServiceImpl implements AplicacioService {
 		return pluginHelper.personaFindLikeNomSencer(text);
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public List<PersonaDto> findPersonesAmbGrup(String grup) throws SistemaExternException {
+		return pluginHelper.personesAmbGrup(grup);
+	}
+
     @Override
     public List<PersonaDto> findPersonaAll() throws SistemaExternException {
         return pluginHelper.personaFindAll();

@@ -103,13 +103,21 @@ public abstract class TaskInstanceMapper {
     }
 
     private void setCandidates(TaskInstanceDto.TaskInstanceDtoBuilder taskInstanceDto, String taskId) {
-        var candidates = taskService.getIdentityLinksForTask(taskId)
-                .stream()
-                .filter(i -> i.getType().equals(IdentityLinkType.CANDIDATE))
+        var candidates = taskService.getIdentityLinksForTask(taskId);
+        var pooledActors = candidates.stream()
+                .filter(i -> i.getType().equals(IdentityLinkType.CANDIDATE) && i.getUserId() != null)
                 .map(i -> i.getUserId())
                 .collect(Collectors.toSet());
-        if (candidates != null && !candidates.isEmpty()) {
-            taskInstanceDto.pooledActors(candidates);
+        if (pooledActors != null && !pooledActors.isEmpty()) {
+            taskInstanceDto.pooledActors(pooledActors);
+        }
+        // TODO: Grups
+        var grups = candidates.stream()
+                .filter(i -> i.getType().equals(IdentityLinkType.CANDIDATE) && i.getGroupId() != null)
+                .map(i -> i.getGroupId())
+                .collect(Collectors.toSet());
+        if (grups != null && !grups.isEmpty()) {
+            taskInstanceDto.rols(grups.stream().collect(Collectors.joining(",")));
         }
     }
 

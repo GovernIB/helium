@@ -202,6 +202,34 @@ $(document).ready(function() {
 //		else if (cols < 3)
 //			$(this).append("<td colspan='" + (3 - cols) + "'></td>");
 	});
+	$('.agrup').popover({
+		html: true,
+		trigger: 'manual',
+		content: function() {
+			if (this.cache) return this.cache;
+
+			let strPersones = $.ajax({
+				url: '/heliumback/v3/expedient/grup/' + $(this).data('grup') + "/persones",
+				dataType: 'json',
+				async: false
+			}).responseText;
+
+			if (strPersones.startsWith("Grup"))
+				return this.cache = strPersones;
+
+			let contingut = ""; //"<ul>";
+			let jsonPersones = JSON.parse(strPersones);
+			for (var i = 0; i < jsonPersones.length; i++) {
+				contingut += "<span class='fa fa-user'/> " + jsonPersones[i]["nom"] + "<br/>";
+			}
+			//contingut += "</ul>";
+
+			return this.cache = contingut;
+		}
+	}).click(function (e) {
+		$(this).popover('toggle');
+	})
+
 });
 
 var desplegats;

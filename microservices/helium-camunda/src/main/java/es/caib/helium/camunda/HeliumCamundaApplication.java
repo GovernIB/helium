@@ -8,7 +8,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
-@EnableFeignClients(basePackages = {"es.caib.helium.client"})
+@EnableFeignClients(basePackages = {"es.caib.helium.client", "es.caib.helium.camunda.service.bridge"})
 @EnableConfigurationProperties(CamundaBpmProperties.class)
 //@EnableCamundaEventBus
 @SpringBootApplication(

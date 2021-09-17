@@ -106,7 +106,7 @@
 															<li><a href="${modalPrefix}../v3/tasca/${tasca.id}/massiva"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></a></li>
 														</c:if>
 													</c:if>
-													<c:if test="${tasca.open and not tasca.suspended and not tasca.agafada and not empty tasca.responsables and tasca.assignadaUsuariActual}">
+													<c:if test="${tasca.open and not tasca.suspended and not tasca.agafada and (not empty tasca.responsables or not empty tasca.grups) and tasca.assignadaUsuariActual}">
 														<li><a data-rdt-link-ajax=true data-rdt-link-callback="refrescarPanell(${expedient.id},${tasca.id},true);" href="<c:url value="${modalPrefix}../v3/expedient/${expedient.id}/tasca/${tasca.id}/agafar"/>" class="icon tasca-accio-agafar" data-tasca-id="${tasca.id}"><span class="fa fa-chain"></span>&nbsp;<spring:message code="tasca.llistat.accio.agafar"/></a></li>
 													</c:if>
 													<c:if test="${tasca.open and not tasca.suspended and tasca.agafada and (tasca.assignadaUsuariActual or expedient.permisReassignment)}">
