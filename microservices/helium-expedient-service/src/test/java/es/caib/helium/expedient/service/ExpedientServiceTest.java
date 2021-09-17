@@ -1,20 +1,14 @@
 package es.caib.helium.expedient.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import javax.validation.ValidationException;
-
+import es.caib.helium.client.dada.DadaClient;
+import es.caib.helium.expedient.ExpedientTestHelper;
+import es.caib.helium.expedient.domain.Expedient;
+import es.caib.helium.expedient.mapper.ExpedientMapper;
+import es.caib.helium.expedient.model.ExpedientDto;
+import es.caib.helium.expedient.model.ExpedientEstatTipusEnum;
+import es.caib.helium.expedient.repository.ExpedientRepository;
+import es.caib.helium.expedient.repository.ProcesRepository;
+import es.caib.helium.expedient.repository.TascaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,15 +29,19 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import es.caib.helium.client.dada.DadaClient;
-import es.caib.helium.expedient.ExpedientTestHelper;
-import es.caib.helium.expedient.domain.Expedient;
-import es.caib.helium.expedient.mapper.ExpedientMapper;
-import es.caib.helium.expedient.model.ExpedientDto;
-import es.caib.helium.expedient.model.ExpedientEstatTipusEnum;
-import es.caib.helium.expedient.repository.ExpedientRepository;
-import es.caib.helium.expedient.repository.ProcesRepository;
-import es.caib.helium.expedient.repository.TascaRepository;
+import javax.validation.ValidationException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 class ExpedientServiceTest {
@@ -81,7 +79,7 @@ class ExpedientServiceTest {
 
     @Test
     @DisplayName("Crear expedient")
-    void whenCreateExpedient_thenReturnExpedient() {
+    void whenCreateExpedient_thenReturnExpedient() throws Exception {
 
         // Given
         ExpedientDto expedientDto = mapper.entityToDto(expedient);
@@ -289,7 +287,7 @@ class ExpedientServiceTest {
 
     @Test
     @DisplayName("Eliminar expedient")
-    void whenDeleteExpedient() {
+    void whenDeleteExpedient() throws Exception {
         // Given
         given(expedientRepository.findById(anyLong())).willReturn(Optional.of(expedient));
 

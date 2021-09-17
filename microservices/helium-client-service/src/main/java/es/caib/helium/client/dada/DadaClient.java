@@ -39,7 +39,7 @@ public interface DadaClient {
 	
 	void putExpedient(Expedient expedient, Long expedientId);
 	
-	void putExpedients(List<Expedient> expedients); 
+	void putExpedients(List<Expedient> expedients);
 	
 	void patchExpedient(Expedient expedient, Long expedientId);
 	
@@ -51,7 +51,7 @@ public interface DadaClient {
 	
 	Dada getDadaByCodi(Long expedientId, String codi) throws Exception;
 	
-	List<Dada> getDadesByProces(Long expedientId, String procesIdId) throws Exception;
+	List<Dada> getDadesByExpedientIdProcesId(Long expedientId, String procesIdId) throws Exception;
 	
 	Dada getDadaByExpedientIdProcesAndCodi(Long expedientId, String procesIdId, String codi) throws Exception;
 	
@@ -70,4 +70,14 @@ public interface DadaClient {
 	void putDadaByExpedientIdProcesIdAndCodi(Long expedientId, String procesIdId, String codi, Dada dada);
 	
 	void deleteDadaByExpedientIdAndProcesIdAndCodi(Long expedientId, String procesIdId, String codi);
+
+	List<Dada> getDadesByProcessInstanceId(String procesId) throws Exception;
+
+	Boolean postDadaByProcesId(String procesId, List<Dada> dades) throws Exception;
+
+	void deleteDadaByProcessInstanceIdAndCodi(String procesId, String codi) throws Exception;
+
+	List<Expedient> findRootProcessInstances(List<String> procesIds) throws Exception;
+
+	Expedient findRootProcessInstances(String procesId) throws Exception;
 }

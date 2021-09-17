@@ -57,7 +57,16 @@ public class DadaMsApiPath {
 	public static final String PUT_DADA_BY_EXPEDIENT_ID_AND_PROCES_ID_AND_CODI = DADA_PATH + "{expedientId}/proces/{procesId}/dades/{codi}";
 
 	public static final String DELETE_DADA_BY_EXPEDIENT_ID_AND_PROCES_ID_AND_CODI = DADA_PATH + "{expedientId}/proces/{procesId}/dades/{codi}";
-	
+
+	public static final String GET_DADES_BY_PROCES_INSTANCE_ID = DADA_PATH + "proces/{procesId}/dades";
+
+	public static final String POST_DADA_BY_PROCES_ID = DADA_PATH + "proces/{procesId}/dades";
+
+	public static final String DELETE_DADA_BY_PROCESS_INSTANCE_ID_AND_CODI = DADA_PATH + "proces/{procesId}/dades/{codi}";
+
+	public static final String FIND_ROOT_PROCESS_INSTANCES = DADA_PATH + "find/root/process/instances";
+
+	public static final String FIND_ROOT_PROCESS_INSTANCE = DADA_PATH + "find/root/process/instance";
 }
 
 

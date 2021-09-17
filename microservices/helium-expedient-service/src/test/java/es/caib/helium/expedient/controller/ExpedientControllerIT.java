@@ -1,10 +1,12 @@
 package es.caib.helium.expedient.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.HashMap;
-import java.util.Map;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import es.caib.helium.expedient.ExpedientTestHelper;
+import es.caib.helium.expedient.model.ExpedientDto;
+import es.caib.helium.expedient.repository.ExpedientRepository;
+import es.caib.helium.expedient.service.ExpedientService;
+import es.caib.helium.ms.model.PagedList;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,14 +23,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.Map;
 
-import es.caib.helium.expedient.ExpedientTestHelper;
-import es.caib.helium.expedient.model.ExpedientDto;
-import es.caib.helium.expedient.repository.ExpedientRepository;
-import es.caib.helium.expedient.service.ExpedientService;
-import es.caib.helium.ms.model.PagedList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(locations = "classpath:application-test.properties")
@@ -49,7 +47,7 @@ class ExpedientControllerIT {
 
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
     	// int index, Long entorn, Long expedientTipus, Long expedientId, 
     	// Long expedientProcessInstanceId, String expedientNumero,String expedientTitol
         expedientService.createExpedient(ExpedientTestHelper.generateExpedientDto(1, 1L, 1L, 1L, "1", "1/2021", "Expedient 1"));

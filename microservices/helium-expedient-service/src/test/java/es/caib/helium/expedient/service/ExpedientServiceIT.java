@@ -1,9 +1,13 @@
 package es.caib.helium.expedient.service;
 
-import static com.github.jenspiegsa.wiremockextension.ManagedWireMockServer.with;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.assertj.core.api.Assertions.assertThat;
-
+import com.github.jenspiegsa.wiremockextension.Managed;
+import com.github.jenspiegsa.wiremockextension.WireMockExtension;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import es.caib.helium.expedient.ExpedientTestHelper;
+import es.caib.helium.expedient.domain.Expedient;
+import es.caib.helium.expedient.mapper.ExpedientMapper;
+import es.caib.helium.expedient.model.ExpedientDto;
+import es.caib.helium.expedient.repository.ExpedientRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,15 +19,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
-import com.github.jenspiegsa.wiremockextension.Managed;
-import com.github.jenspiegsa.wiremockextension.WireMockExtension;
-import com.github.tomakehurst.wiremock.WireMockServer;
-
-import es.caib.helium.expedient.ExpedientTestHelper;
-import es.caib.helium.expedient.domain.Expedient;
-import es.caib.helium.expedient.mapper.ExpedientMapper;
-import es.caib.helium.expedient.model.ExpedientDto;
-import es.caib.helium.expedient.repository.ExpedientRepository;
+import static com.github.jenspiegsa.wiremockextension.ManagedWireMockServer.with;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("test")
 @ExtendWith({WireMockExtension.class})
@@ -55,7 +53,7 @@ class ExpedientServiceIT {
     private static ExpedientDto dto5;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
 
         // Expedients de test:
         // Index, EntornId, ExpedientTipusId, ExpedientId, ProcessInstanceId, Numero, Titol
@@ -80,7 +78,7 @@ class ExpedientServiceIT {
     
     @Test
     @DisplayName("Crear expedient")
-    void whenCreateExpedient_thenReturn() {
+    void whenCreateExpedient_thenReturn() throws Exception {
 
         // Given
         Expedient expedient = ExpedientTestHelper.generateExpedient(1, 1L, 1L, 2000L, "2000", "2000/2021", "Títol 2000");

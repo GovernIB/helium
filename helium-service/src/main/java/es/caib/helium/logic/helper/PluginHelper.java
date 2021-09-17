@@ -3,7 +3,15 @@
  */
 package es.caib.helium.logic.helper;
 
+import com.google.gson.Gson;
 import es.caib.helium.client.integracio.arxiu.ArxiuClient;
+import es.caib.helium.client.integracio.arxiu.enums.NtiEstadoElaboracionEnum;
+import es.caib.helium.client.integracio.arxiu.enums.NtiOrigenEnum;
+import es.caib.helium.client.integracio.arxiu.enums.NtiTipoDocumentalEnum;
+import es.caib.helium.client.integracio.arxiu.model.Arxiu;
+import es.caib.helium.client.integracio.arxiu.model.ArxiuFirma;
+import es.caib.helium.client.integracio.arxiu.model.ConsultaDocument;
+import es.caib.helium.client.integracio.arxiu.model.DocumentArxiu;
 import es.caib.helium.client.integracio.arxiu.model.ExpedientArxiu;
 import es.caib.helium.client.integracio.notificacio.NotificacioClient;
 import es.caib.helium.client.integracio.notificacio.enums.NotificacioEstat;
@@ -2166,20 +2174,23 @@ public class PluginHelper {
 		}
 	}
 
-	//public es.caib.helium.client.integracio.arxiu.model.Expedient arxiuExpedientInfo(String arxiuUuid) {
 	public es.caib.plugins.arxiu.api.Expedient arxiuExpedientInfo(String arxiuUuid) {
 
 		log.debug("Consulta d'informació de l'expedient");
 		try {
 			var resposta = arxiuClient.getExpedientsByUuId(arxiuUuid, EntornActual.getEntornId());
-			return null;
+			var expedient = new es.caib.plugins.arxiu.api.Expedient();
+			var gson = new Gson();
+			var json = gson.toJson(resposta);
+			expedient = gson.fromJson(json, es.caib.plugins.arxiu.api.Expedient.class);
+			return expedient;
 		} catch (Exception ex) {
 			var error = "No s'ha pogut consultar la informació de l'expedient: ";
 			log.error(error, ex);
 			throw tractarExcepcioEnSistemaExtern(error, ex);
 		}
 	}
-	
+
 	public boolean arxiuExisteixExpedient(String arxiuUuid) {
 		try {
 			return arxiuPlugin.expedientDetalls(arxiuUuid, EntornActual.getEntornId() + "") != null;
@@ -2211,99 +2222,46 @@ public class PluginHelper {
 			boolean ambFirma,
 			boolean firmaSeparada,
 			List<ArxiuFirmaDto> firmes) {
-		String accioDescripcio;
-		if (documentStore.getArxiuUuid() == null) {
-			accioDescripcio = "Creació de document";
-		} else {
-			accioDescripcio = "Modificació de document";
-		}
-		List<IntegracioParametreDto> parametres = new ArrayList<IntegracioParametreDto>();
-		parametres.add(
-				new IntegracioParametreDto(
-						"expedient",
-						expedient.getIdentificador()));
-		parametres.add(
-				new IntegracioParametreDto(
-						"documentNom",
-						documentNom));
-		parametres.add(
-				new IntegracioParametreDto(
-						"arxiuNom",
-						arxiu.getNom()));
-		parametres.add(
-				new IntegracioParametreDto(
-						"arxiuTamany",
-						arxiu.getTamany()));
-		long t0 = System.currentTimeMillis();
+
+		log.debug(documentStore.getArxiuUuid() == null ? "Creació de document" : "Modificació de document");
 		try {
-			String nomAmbExtensio = documentNom + "." + arxiu.getExtensio();
 			ContingutArxiu documentPerRetornar;
+			var arxiuEnviar = new Arxiu();
+			arxiuEnviar.setContingut(arxiu.getContingut());
+			arxiuEnviar.setNom(arxiu.getNom());
+			arxiuEnviar.setTipusMime(arxiu.getTipusMime());
+			var gson = new Gson();
+			var document = new DocumentArxiu();
+			document.setIdentificador(documentStore.getArxiuUuid());
+			document.setNom(documentNom);
+			document.setExtensio(es.caib.helium.client.integracio.arxiu.enums.DocumentExtensio.valueOf(arxiu.getExtensio().toUpperCase()));
+			document.setArxiu(arxiuEnviar);
+			document.setDocumentAmbFirma(ambFirma);
+			document.setFirmaSeparada(firmaSeparada);
+			document.setFirmes(firmes != null ? Arrays.asList(gson.fromJson(gson.toJson(firmes), ArxiuFirma[].class)) : null);
+			document.setNtiIdentificador(null); //al crear i modificar ho posa null sempre a Helium 3.2
+			document.setNtiOrigen(documentStore.getNtiOrigen() != null ? NtiOrigenEnum.valueOf(documentStore.getNtiOrigen().name()) : NtiOrigenEnum.ADMINISTRACIO);
+			document.setNtiOrgans(Arrays.asList(obtenirNtiOrgano(expedient)));
+			document.setNtiDataCaptura(documentStore.getDataCreacio());
+			document.setNtiEstatElaboracio(NtiEstadoElaboracionEnum.valueOf(obtenirNtiEstadoElaboracion(documentStore).name()));
+			document.setNtiTipusDocumental(NtiTipoDocumentalEnum.valueOf(obtenirNtiTipoDocumental(documentStore).name()));
+			document.setNtiIdDocumentOrigen(documentStore.getNtiIdDocumentoOrigen());
+			document.setEstat(es.caib.helium.client.integracio.arxiu.enums.DocumentEstat.valueOf((document.getFirmes() != null ? DocumentEstat.DEFINITIU.name() : DocumentEstat.ESBORRANY.name())));
+			es.caib.helium.client.integracio.arxiu.model.ContingutArxiu docRetorn = null;
 			if (documentStore.getArxiuUuid() == null) {
-				documentPerRetornar = getArxiuPlugin().documentCrear(
-						toArxiuDocument(
-								null,
-								nomAmbExtensio,
-								arxiu,
-								ambFirma,
-								firmaSeparada,
-								firmes,
-								null,
-								obtenirNtiOrigen(documentStore),
-								Arrays.asList(obtenirNtiOrgano(expedient)),
-								documentStore.getDataCreacio(),
-								obtenirNtiEstadoElaboracion(documentStore),
-								obtenirNtiTipoDocumental(documentStore),
-								documentStore.getNtiIdDocumentoOrigen(),
-								getExtensioPerArxiu(arxiu),
-								(firmes != null ? DocumentEstat.DEFINITIU : DocumentEstat.ESBORRANY)),
-						expedient.getArxiuUuid());
+				document.setUuid(expedient.getArxiuUuid());
+				docRetorn = arxiuClient.postDocument(document, EntornActual.getEntornId());
 			} else {
-				documentPerRetornar = getArxiuPlugin().documentModificar(
-						toArxiuDocument(
-								documentStore.getArxiuUuid(),
-								nomAmbExtensio,
-								arxiu,
-								ambFirma,
-								firmaSeparada,
-								firmes,
-								null,
-								obtenirNtiOrigen(documentStore),
-								Arrays.asList(obtenirNtiOrgano(expedient)),
-								documentStore.getDataCreacio(),
-								obtenirNtiEstadoElaboracion(documentStore),
-								obtenirNtiTipoDocumental(documentStore),
-								documentStore.getNtiIdDocumentoOrigen(),
-								getExtensioPerArxiu(arxiu),
-								(firmes != null ? DocumentEstat.DEFINITIU : DocumentEstat.ESBORRANY)));
+				docRetorn = arxiuClient.putDocument(document, EntornActual.getEntornId());
 			}
-			// Paràmetres de resposta
-			parametres.add(
-					new IntegracioParametreDto(
-							"resposta",
-							documentPerRetornar != null));
-			new IntegracioParametreDto(
-					"respostaIdentificador",
-					(documentPerRetornar != null ? documentPerRetornar.getIdentificador() : "-"));
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_ARXIU,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
+			documentPerRetornar = docRetorn != null ? gson.fromJson(gson.toJson(docRetorn), ContingutArxiu.class) : null;
 			if (documentPerRetornar != null &&  documentPerRetornar.getIdentificador() == null) {
 				log.warn("L'identificador retornat per l'Arxiu pel document \"" + documentNom + "\" de l'expedient \"" + expedient.getIdentificador() + "\" és null.");
 			}
 			return documentPerRetornar;
 		} catch (Exception ex) {
 			String errorDescripcio = "No s'ha pogut actualitzar la informació del document: " + ex.getMessage();
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_ARXIU,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
+			log.error(errorDescripcio, ex);
 			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
 		}
 	}
@@ -2444,68 +2402,39 @@ public class PluginHelper {
 		}
 	}
 
-	public es.caib.plugins.arxiu.api.Document arxiuDocumentInfo(
-			String arxiuUuid,
-			String versio,
-			boolean ambContingut,
-			boolean isSignat) {
-		String accioDescripcio = "Consulta d'un document";
-		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
-				new IntegracioParametreDto(
-						"arxiuUuid",
-						arxiuUuid),
-				new IntegracioParametreDto(
-						"versio",
-						versio),
-				new IntegracioParametreDto(
-						"ambContingut",
-						ambContingut)
-		};
-		long t0 = System.currentTimeMillis();
+	public es.caib.plugins.arxiu.api.Document arxiuDocumentInfo(String arxiuUuid, String versio, boolean ambContingut, boolean isSignat) {
+
 		try {
-			es.caib.plugins.arxiu.api.Document documentDetalls = getArxiuPlugin().documentDetalls(
-					arxiuUuid,
-					versio,
-					ambContingut);
+			var consulta = new ConsultaDocument();
+			consulta.setVersio(versio);
+			consulta.setAmbContingut(ambContingut);
+			consulta.setSignat(isSignat);
+			consulta.setEntornId(EntornActual.getEntornId());
+			var documentDetalls = arxiuClient.getDocument(arxiuUuid, consulta);
 			if (ambContingut) {
 				boolean isFirmaPades = false;
 				if (isSignat && documentDetalls.getFirmes() != null) {
-					for (Firma firma: documentDetalls.getFirmes()) {
-						if (FirmaTipus.PADES.equals(firma.getTipus())) {
+					for (var firma : documentDetalls.getFirmes()) {
+						if (FirmaTipus.PADES.equals(FirmaTipus.valueOf(firma.getTipus().name()))) {
 							isFirmaPades = true;
 							break;
 						}
 					}
 				}
 				if (isFirmaPades) {
-					DocumentContingut documentContingut = getArxiuPlugin().documentImprimible(
-							arxiuUuid);
+					var documentContingut = getArxiuPlugin().documentImprimible(arxiuUuid);
 					if (documentContingut != null && documentContingut.getContingut() != null) {
-						documentDetalls.getContingut().setContingut(
-								documentContingut.getContingut());
-						documentDetalls.getContingut().setTamany(
-								documentContingut.getContingut().length);
+						documentDetalls.getContingut().setContingut(documentContingut.getContingut());
+						documentDetalls.getContingut().setTamany(documentContingut.getContingut().length);
 						documentDetalls.getContingut().setTipusMime("application/pdf");
 					}
 				}
 			}
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_ARXIU,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					parametres);
-			return documentDetalls;
+			var gson = new Gson();
+			return gson.fromJson(gson.toJson(documentDetalls), es.caib.plugins.arxiu.api.Document.class);
 		} catch (Exception ex) {
 			String errorDescripcio = "No s'ha pogut consultar la informació del document: " + ex.getMessage();
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_ARXIU,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					parametres);
+			log.error(errorDescripcio, ex);
 			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
 		}
 	}

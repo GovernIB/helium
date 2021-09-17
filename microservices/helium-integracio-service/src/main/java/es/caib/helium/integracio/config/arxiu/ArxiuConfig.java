@@ -1,7 +1,9 @@
 package es.caib.helium.integracio.config.arxiu;
 
-import java.util.Properties;
-
+import es.caib.helium.integracio.excepcions.ServeisExternsException;
+import es.caib.helium.integracio.service.arxiu.ArxiuService;
+import es.caib.helium.integracio.service.arxiu.ArxiuServiceCaibImpl;
+import es.caib.plugins.arxiu.api.IArxiuPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -9,10 +11,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
-import es.caib.helium.integracio.excepcions.ServeisExternsException;
-import es.caib.helium.integracio.service.arxiu.ArxiuService;
-import es.caib.helium.integracio.service.arxiu.ArxiuServiceCaibImpl;
-import es.caib.plugins.arxiu.api.IArxiuPlugin;
+import java.util.Properties;
 
 @Configuration
 @ConfigurationProperties(prefix = "es.caib.helium.integracio")
@@ -39,14 +38,14 @@ public class ArxiuConfig {
 	}
 	
 	private IArxiuPlugin crearIArxiuPluginApi() throws ServeisExternsException {
-		
+
 		String pluginClass = env.getRequiredProperty("es.caib.helium.integracio.arxiu.plugin.class");
 		try {
 			var properties = new Properties();
-			properties.put("es.caib.helium.integracio.arxiu.caib.base.url", env.getRequiredProperty("es.caib.helium.integracio.arxiu.caib.base.url"));
-			properties.put("es.caib.helium.integracio.arxiu.caib.aplicacio.codi", env.getRequiredProperty("es.caib.helium.integracio.arxiu.caib.aplicacio.codi"));
-			properties.put("es.caib.helium.integracio.arxiu.caib.usuari", env.getRequiredProperty("es.caib.helium.integracio.arxiu.caib.usuari"));
-			properties.put("es.caib.helium.integracio.arxiu.caib.contrasenya", env.getRequiredProperty("es.caib.helium.integracio.arxiu.caib.contrasenya"));
+			properties.put("es.caib.helium.integracio.arxiu.plugin.arxiu.caib.base.url", env.getRequiredProperty("es.caib.helium.integracio.arxiu.caib.base.url"));
+			properties.put("es.caib.helium.integracio.arxiu.plugin.arxiu.caib.aplicacio.codi", env.getRequiredProperty("es.caib.helium.integracio.arxiu.caib.aplicacio.codi"));
+			properties.put("es.caib.helium.integracio.arxiu.plugin.arxiu.caib.usuari", env.getRequiredProperty("es.caib.helium.integracio.arxiu.caib.usuari"));
+			properties.put("es.caib.helium.integracio.arxiu.plugin.arxiu.caib.contrasenya", env.getRequiredProperty("es.caib.helium.integracio.arxiu.caib.contrasenya"));
 
 			Class<?> clazz = Class.forName(pluginClass);
 			return (IArxiuPlugin)clazz.getDeclaredConstructor(String.class, Properties.class)

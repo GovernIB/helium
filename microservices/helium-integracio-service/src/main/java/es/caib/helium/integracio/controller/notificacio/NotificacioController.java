@@ -38,7 +38,7 @@ public class NotificacioController {
 	@ExceptionHandler({ Exception.class })
 	public ResponseEntity<Void> handleException(Exception e) {
 		//return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
-		throw 	new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error no controlat: " + e.getMessage(), e);
+		throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error no controlat: " + e.getMessage(), e);
 	}
 	
 	@PostMapping(consumes = "application/json")

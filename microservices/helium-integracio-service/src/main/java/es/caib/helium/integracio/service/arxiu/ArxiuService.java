@@ -3,9 +3,11 @@ package es.caib.helium.integracio.service.arxiu;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
 import es.caib.helium.integracio.domini.arxiu.Anotacio;
+import es.caib.helium.integracio.domini.arxiu.ConsultaDocument;
 import es.caib.helium.integracio.domini.arxiu.DocumentArxiu;
 import es.caib.helium.integracio.domini.arxiu.ExpedientArxiu;
 import es.caib.helium.integracio.excepcions.arxiu.ArxiuException;
+import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.Document;
 import es.caib.plugins.arxiu.api.Expedient;
 import org.springframework.stereotype.Service;
@@ -20,9 +22,9 @@ public interface ArxiuService {
 	boolean obrirExpedient(String uuId, Long entornId) throws ArxiuException;
 	boolean tancarExpedient(String uuId, Long entornId) throws ArxiuException;
 	
-	Document getDocument(String uuId, String versio, boolean ambContingut, boolean isSignat, Long entornId) throws ArxiuException;
-	boolean crearDocument(DocumentArxiu document, Long entornId) throws ArxiuException;
-	boolean modificarDocument(DocumentArxiu document, Long entornId) throws ArxiuException;
+	Document getDocument(String uuId, ConsultaDocument consulta) throws ArxiuException;
+	ContingutArxiu crearDocument(DocumentArxiu document, Long entornId) throws ArxiuException;
+	ContingutArxiu modificarDocument(DocumentArxiu document, Long entornId) throws ArxiuException;
 	boolean deleteDocument(String uuId, Long entornId) throws ArxiuException;
 
 	ArxiuResultat crearExpedientAmbAnotacioRegistre(

@@ -457,31 +457,15 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public List<ExpedientDocumentDto> findAmbInstanciaProces(
-			Long expedientId,
-			String processInstanceId) {
-		logger.debug("Consulta els documents de la instància de procés (" +
-				"expedientId=" + expedientId + ", " +
-				"processInstanceId=" + processInstanceId + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				true,
-				false,
-				false,
-				false);
-		expedientHelper.comprovarInstanciaProces(
-				expedient,
-				processInstanceId);
+	public List<ExpedientDocumentDto> findAmbInstanciaProces(Long expedientId, String processInstanceId) {
+		logger.debug("Consulta els documents de la instància de procés (" + "expedientId=" + expedientId + ", " + "processInstanceId=" + processInstanceId + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(expedientId, true, false, false, false);
+		expedientHelper.comprovarInstanciaProces(expedient, processInstanceId);
 		if (processInstanceId == null) {
-			return documentHelper.findDocumentsPerInstanciaProces(
-					expedient.getProcessInstanceId());
-		} else {
-			expedientHelper.comprovarInstanciaProces(
-					expedient,
-					processInstanceId);
-			return documentHelper.findDocumentsPerInstanciaProces(
-					processInstanceId);
+			return documentHelper.findDocumentsPerInstanciaProces(expedient.getProcessInstanceId());
 		}
+		expedientHelper.comprovarInstanciaProces(expedient, processInstanceId);
+		return documentHelper.findDocumentsPerInstanciaProces(processInstanceId);
 	}
 
 	/**

@@ -229,7 +229,7 @@ public class ExpedientController {
 	}
 
 	@GetMapping(value = "{expedientId}/proces/{procesId}/dades")
-	public ResponseEntity<List<Dada>> getDadesByProces(
+	public ResponseEntity<List<Dada>> getDadesByExpedientIdProcesId(
 			@PathVariable("expedientId") Long expedientId,
 			@PathVariable("procesId") String procesId) throws Exception {
 
