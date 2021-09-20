@@ -3,7 +3,7 @@
  */
 package es.caib.helium.back.helper;
 
-import es.caib.helium.client.dada.model.Dada;
+import es.caib.helium.client.dada.dades.model.Dada;
 import es.caib.helium.client.engine.model.Termini;
 import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.dto.CampTipusDto;

@@ -1,6 +1,6 @@
 package es.caib.helium.expedient.service;
 
-import es.caib.helium.client.dada.DadaClient;
+import es.caib.helium.client.dada.dades.DadaClient;
 import es.caib.helium.expedient.domain.Expedient;
 import es.caib.helium.expedient.domain.Proces;
 import es.caib.helium.expedient.mapper.ExpedientMapper;
@@ -93,7 +93,7 @@ public class ExpedientServiceImpl implements ExpedientService {
         }
 
         // Cridar a MS Dades x crear la capçalera de l'expedient
-        dadaClient.crearExpedient(es.caib.helium.client.dada.model.Expedient.builder()
+        dadaClient.crearExpedient(es.caib.helium.client.dada.dades.model.Expedient.builder()
                 .expedientId(expedientDto.getId())
                 .entornId(expedientDto.getEntornId())
                 .tipusId(expedientDto.getExpedientTipusId())

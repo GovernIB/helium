@@ -1,10 +1,10 @@
 package es.caib.helium.base.controller;
 
-import es.caib.helium.client.dada.DadaClient;
-import es.caib.helium.client.dada.model.Consulta;
-import es.caib.helium.client.dada.model.Dada;
-import es.caib.helium.client.dada.model.Expedient;
-import es.caib.helium.client.dada.model.ValidList;
+import es.caib.helium.client.dada.dades.DadaClient;
+import es.caib.helium.client.dada.dades.model.Consulta;
+import es.caib.helium.client.dada.dades.model.Dada;
+import es.caib.helium.client.dada.dades.model.Expedient;
+import es.caib.helium.client.dada.dades.model.ValidList;
 import es.caib.helium.client.model.PagedList;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

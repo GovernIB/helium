@@ -10,8 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
-
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -25,27 +23,21 @@ public class NotificacioClientImpl implements NotificacioClient {
 	public RespostaEnviar altaNotificacio(DadesNotificacioDto dto) {
 		
 		log.debug(missatgeLog + " alta notificacio" + dto.getConcepte() + " per l'entorn " + dto.getEntornId());
-		var responseEntity = notificacioClient.altaNotificacio(dto);
-	 	var resultat = Objects.requireNonNull(responseEntity.getBody());
-    	return resultat;
+		return notificacioClient.altaNotificacio(dto).getBody();
 	}
 
 	@Override
 	public RespostaConsultaEstatNotificacio consultarNotificacio(String identificador, ConsultaNotificacio consulta) {
 	
 		log.debug(missatgeLog + " consulta notificacio amb identificador " + identificador + " per l'entorn " + consulta.getEntornId());
-		var responseEntity = notificacioClient.consultarNotificacio(identificador, consulta);
-		var resultat = Objects.requireNonNull(responseEntity.getBody());
-    	return resultat;
+		return notificacioClient.consultarNotificacio(identificador, consulta).getBody();
 	}
 
 	@Override
 	public RespostaConsultaEstatEnviament consultarEnviament(String referencia, ConsultaEnviament consulta) {
 		
 		log.debug(missatgeLog + " consulta enviament referencia " + referencia+ " per l'entorn " + consulta.getEntornId());
-		var responseEntity = notificacioClient.consultarEnviament(referencia, consulta);
-		var resultat = Objects.requireNonNull(responseEntity.getBody());
-    	return resultat;
+		return notificacioClient.consultarEnviament(referencia, consulta).getBody();
 	}
 
 }

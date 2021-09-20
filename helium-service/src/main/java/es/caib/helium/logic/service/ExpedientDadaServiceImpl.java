@@ -3,12 +3,12 @@
  */
 package es.caib.helium.logic.service;
 
-import es.caib.helium.client.dada.DadaClient;
-import es.caib.helium.client.dada.enums.Tipus;
-import es.caib.helium.client.dada.model.Dada;
-import es.caib.helium.client.dada.model.Valor;
-import es.caib.helium.client.dada.model.ValorRegistre;
-import es.caib.helium.client.dada.model.ValorSimple;
+import es.caib.helium.client.dada.dades.DadaClient;
+import es.caib.helium.client.dada.dades.enums.Tipus;
+import es.caib.helium.client.dada.dades.model.Dada;
+import es.caib.helium.client.dada.dades.model.Valor;
+import es.caib.helium.client.dada.dades.model.ValorRegistre;
+import es.caib.helium.client.dada.dades.model.ValorSimple;
 import es.caib.helium.client.engine.model.WProcessDefinition;
 import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;

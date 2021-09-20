@@ -246,7 +246,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				documentCodi = command.getDocumentCodi();
 			}
 			try {
-				expedientDocumentService.create(
+					expedientDocumentService.create(
 						expedientId,
 						processInstanceId,
 						documentCodi, // null en el cas dels adjunts

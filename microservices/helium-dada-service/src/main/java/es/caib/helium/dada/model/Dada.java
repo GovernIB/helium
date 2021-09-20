@@ -3,7 +3,7 @@
  */
 package es.caib.helium.dada.model;
 
-import es.caib.helium.client.dada.enums.Tipus;
+import es.caib.helium.client.dada.dades.enums.Tipus;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

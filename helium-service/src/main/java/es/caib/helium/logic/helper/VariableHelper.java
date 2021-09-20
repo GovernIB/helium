@@ -3,8 +3,8 @@
  */
 package es.caib.helium.logic.helper;
 
-import es.caib.helium.client.dada.DadaClient;
-import es.caib.helium.client.dada.model.Dada;
+import es.caib.helium.client.dada.dades.DadaClient;
+import es.caib.helium.client.dada.dades.model.Dada;
 import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.intf.WorkflowEngineApi;

@@ -10,8 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
-
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -25,9 +23,7 @@ public class ArxiuClientImpl implements ArxiuClient {
 	public Expedient getExpedientsByUuId(String uuId, Long entornId) {
 		
 		log.debug(missatgeLog + " Obtenint expedient segons uuId:" + uuId + " per l'entorn " + entornId);
-		var responseEntity = arxiuClient.getExpedientByUuId(uuId, entornId);
-	 	var resultat = Objects.requireNonNull(responseEntity.getBody()); // TODO VEURE SI TREURE PERQUE SI TORNA NULL PETARA
-    	return resultat;
+		return arxiuClient.getExpedientByUuId(uuId, entornId).getBody();
 	}
 
 	@Override
@@ -74,7 +70,7 @@ public class ArxiuClientImpl implements ArxiuClient {
 				+ " ambContingut " + consulta.isAmbContingut()
 				+ " isSignat " + consulta.isSignat());
 		var response = arxiuClient.getDocument(uuId, consulta);
-		return response != null ? response.getBody() : null; // TODO VEURE SI POSAR EL Objects.requireNonNull
+		return response != null ? response.getBody() : null;
 	}
 
 	@Override
@@ -82,7 +78,7 @@ public class ArxiuClientImpl implements ArxiuClient {
 
 		log.debug(missatgeLog + " guardant document per l'entorn " + entornId + "-  Document: " + document.toString());
 		var response = arxiuClient.postDocument(document, entornId);
-		return response != null ? response.getBody() : null; // TODO VEURE SI POSAR EL Objects.requireNonNull
+		return response != null ? response.getBody() : null;
 	}
 
 	@Override
@@ -90,7 +86,7 @@ public class ArxiuClientImpl implements ArxiuClient {
 		
 		log.debug(missatgeLog + " modificant document per l'entorn " + entornId + "-  Document: " + document.toString());
 		var response = arxiuClient.putDocument(document, entornId);
-		return response != null ? response.getBody() : null; // TODO VEURE SI POSAR EL Objects.requireNonNull
+		return response != null ? response.getBody() : null;
 	}
 
 	@Override
@@ -99,5 +95,4 @@ public class ArxiuClientImpl implements ArxiuClient {
 		log.debug(missatgeLog + " esborrant document amb uuId " + uuId + " per l'entorn " + entornId);
 		arxiuClient.deleteDocument(uuId, entornId);
 	}
-
 }

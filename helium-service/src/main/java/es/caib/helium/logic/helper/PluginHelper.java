@@ -2439,8 +2439,7 @@ public class PluginHelper {
 		}
 	}
 
-	public void arxiuDocumentEsborrar(
-			String arxiuUuid) {
+	public void arxiuDocumentEsborrar(String arxiuUuid) {
 		String accioDescripcio = "Consulta d'un document";
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 				new IntegracioParametreDto(

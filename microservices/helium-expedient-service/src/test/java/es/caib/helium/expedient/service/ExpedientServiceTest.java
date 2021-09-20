@@ -1,6 +1,6 @@
 package es.caib.helium.expedient.service;
 
-import es.caib.helium.client.dada.DadaClient;
+import es.caib.helium.client.dada.dades.DadaClient;
 import es.caib.helium.expedient.ExpedientTestHelper;
 import es.caib.helium.expedient.domain.Expedient;
 import es.caib.helium.expedient.mapper.ExpedientMapper;
@@ -94,7 +94,7 @@ class ExpedientServiceTest {
         ExpedientTestHelper.comprovaExpedient(expedientDto, creat);
         then(expedientRepository).should(times(1)).save(any(Expedient.class));
         then(expedientRepository).shouldHaveNoMoreInteractions();
-        then(dadaClient).should(times(1)).crearExpedient(any(es.caib.helium.client.dada.model.Expedient.class));
+        then(dadaClient).should(times(1)).crearExpedient(any(es.caib.helium.client.dada.dades.model.Expedient.class));
         then(dadaClient).shouldHaveNoMoreInteractions();
     }
 
