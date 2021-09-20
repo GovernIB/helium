@@ -57,7 +57,6 @@ public class TaskUpdateListener implements TaskListener {
         log.info("Tasca " + delegateTask.getName() + " has been updated");
 
         TaskEntity task = (TaskEntity) delegateTask;
-
         JsonPatchBuilder jpb = Json.createPatchBuilder();
 
         // Representants i grups

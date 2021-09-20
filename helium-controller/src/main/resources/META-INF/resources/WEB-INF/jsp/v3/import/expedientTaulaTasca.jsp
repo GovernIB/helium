@@ -66,7 +66,21 @@
 				</a>
 			</c:if>
 		</td>
-		<td>${tasca.responsableString}</td>
+		<td>
+			<c:if test="${not empty tasca.responsable || not empty tasca.responsables}">
+				<p>
+					<span class="fa fa-user" title="<spring:message code="tasca.llistat.etiqueta.usuaris"/>"></span>
+					<c:choose>
+						<c:when test="${not empty tasca.responsable}"><span class="label label-default assignment">${tasca.responsable.nomSencer}</span></c:when>
+						<c:otherwise><c:forEach var="usuari" items="${tasca.responsables}"><span class="label label-default assignment">${usuari.nomSencer}</span></c:forEach></c:otherwise>
+					</c:choose>
+				</p>
+			</c:if>
+			<c:if test="${not tasca.agafada && not empty tasca.grups}">
+				<span class="fa fa-users" title="<spring:message code="tasca.llistat.etiqueta.grups"/>"></span>
+				<c:forEach var="grup" items="${tasca.grups}"><span class="label label-default assignment agrup" data-grup="${grup}">${grup}</span></c:forEach>
+			</c:if>
+		</td>
 		<td><fmt:formatDate value="${tasca.createTime}" pattern="dd/MM/yyyy HH:mm"/></td>
 		<td><fmt:formatDate value="${tasca.dueDate}" pattern="dd/MM/yyyy"/></td>		 
 		<td>
@@ -79,7 +93,7 @@
 							<li><a href="../../v3/tasca/${tasca.id}/massiva"><span class="fa fa-files-o"></span> <spring:message code="tasca.llistat.accio.tramitar_massivament"/></a></li>
 						</c:if>
 					</c:if>
-					<c:if test="${tasca.open and not tasca.suspended and not tasca.agafada and not empty tasca.responsables and tasca.assignadaUsuariActual}">
+					<c:if test="${tasca.open and not tasca.suspended and not tasca.agafada and (not empty tasca.responsables or not empty tasca.grups) and tasca.assignadaUsuariActual}">
 						<li><a data-rdt-link-callback="agafar(${procesId},${tasca.id});" data-rdt-link-ajax=true class="icon" href="<c:url value="../../v3/expedient/${expedient.id}/tasca/${tasca.id}/agafar"/>"><span class="fa fa-chain"></span>&nbsp;<spring:message code="tasca.llistat.accio.agafar"/></a></li>
 					</c:if>
 					<c:if test="${tasca.open and not tasca.suspended and tasca.agafada and (tasca.assignadaUsuariActual or expedient.permisReassignment)}">
@@ -162,13 +176,22 @@
 			<td>${tasca.titol}</td>
 			<td>
 				<c:choose>
-					<c:when test="${not empty tasca.responsable}">${tasca.responsable.nomSencer}</c:when>
+					<c:when test="${not empty tasca.responsable}">
+						<span class="fa fa-user" title="<spring:message code="tasca.llistat.etiqueta.usuaris"/>"></span>
+						<span class="label label-default assignment">${tasca.responsable.nomSencer}</span>
+					</c:when>
 					<c:when test="${not empty tasca.responsables}">
 						<c:forEach var="responsable" items="${tasca.responsables}" varStatus="status">
-							${responsable.nomSencer}<c:if test="${not status.last}">, </c:if>
+							<span class="label label-default assignment">${responsable.nomSencer}</span>
+<%--							${responsable.nomSencer}<c:if test="${not status.last}">, </c:if>--%>
 						</c:forEach>
 					</c:when>
-					<c:otherwise></c:otherwise>
+					<c:otherwise>
+						<c:if test="${not empty tasca.grups}">
+							<span class="fa fa-users" title="<spring:message code="tasca.llistat.etiqueta.grups"/>"></span>
+							<c:forEach var="grup" items="${tasca.grups}"><span class="label label-default assignment agrup" data-grup="${grup}">${grup}</span></c:forEach>
+						</c:if>
+					</c:otherwise>
 				</c:choose>
 			</td>
 			<td><fmt:formatDate value="${tasca.createTime}" pattern="dd/MM/yyyy HH:mm"/></td>

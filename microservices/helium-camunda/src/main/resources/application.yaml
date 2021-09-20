@@ -10,6 +10,7 @@ spring:
 es:
   caib:
     helium:
+      url: http://localhost:8080/heliumback
       helium-data-service-host: http://localhost:8083
       dada-service-user: user
       dada-service-password: pass
@@ -22,6 +23,12 @@ camunda:
       execution: true
       history: true
       task: true
+
+feign:
+  client:
+    config:
+      default:
+        loggerLevel: full
 
 logging:
   level:

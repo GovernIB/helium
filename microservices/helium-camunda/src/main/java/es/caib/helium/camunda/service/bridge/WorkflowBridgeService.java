@@ -1,7 +1,8 @@
-package es.caib.helium.camunda.service;
+package es.caib.helium.camunda.service.bridge;
 
 import es.caib.helium.camunda.model.bridge.CampTascaDto;
 import es.caib.helium.camunda.model.bridge.DocumentTascaDto;
+import es.caib.helium.camunda.model.bridge.ReassignacioDto;
 
 import java.util.List;
 
@@ -357,10 +358,10 @@ public interface WorkflowBridgeService {
 //	public ExpedientDto getExpedientIniciant();
 //
 //	public List<FestiuDto> findFestiusAll();
-//
-//	public ReassignacioDto findReassignacioActivaPerUsuariOrigen(
-//			String processInstanceId,
-//			String usuariCodi);
+
+	public ReassignacioDto findReassignacioActivaPerUsuariOrigen(
+			String processInstanceId,
+			String usuariCodi);
 
 	// REGISTRE (MS Integració)
 	////////////////////////////////////////////////////////////////////////////////

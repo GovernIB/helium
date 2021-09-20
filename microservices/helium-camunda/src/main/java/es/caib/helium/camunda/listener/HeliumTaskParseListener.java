@@ -33,7 +33,7 @@ public class HeliumTaskParseListener extends AbstractBpmnParseListener {
             UserTaskActivityBehavior userTaskActivityBehavior = (UserTaskActivityBehavior) activityBehavior;
             var taskDefinition = userTaskActivityBehavior.getTaskDefinition();
             taskDefinition.addTaskListener(TaskListener.EVENTNAME_CREATE, taskCreateListener);
-//            taskDefinition.addTaskListener(TaskListener.EVENTNAME_ASSIGNMENT, taskAssignListener);
+            taskDefinition.addTaskListener(TaskListener.EVENTNAME_ASSIGNMENT, taskAssignListener);
             taskDefinition.addTaskListener(TaskListener.EVENTNAME_UPDATE, taskUpdateListener);
             taskDefinition.addTaskListener(TaskListener.EVENTNAME_COMPLETE, taskCompleteListener);
             taskDefinition.addTaskListener(TaskListener.EVENTNAME_TIMEOUT, taskTimeoutListener);

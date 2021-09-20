@@ -1,7 +1,8 @@
-package es.caib.helium.camunda.service;
+package es.caib.helium.camunda.service.bridge;
 
 import es.caib.helium.camunda.model.bridge.CampTascaDto;
 import es.caib.helium.camunda.model.bridge.DocumentTascaDto;
+import es.caib.helium.camunda.model.bridge.ReassignacioDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,7 @@ import java.util.List;
 @Transactional
 public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 
-    private BridgeFeignClient bridgeClient;
+    private final BridgeFeignClient bridgeClient;
 
 //    @Autowired
 //    ExpedientsHelper expedientsHelper;
@@ -752,12 +753,16 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 //    public List<FestiuDto> findFestiusAll() {
 //        return genericsHelper.getFestius();
 //    }
-//
-//    @Override
-//    public ReassignacioDto findReassignacioActivaPerUsuariOrigen(String processInstanceId, String usuariCodi) {
-//        return genericsHelper.findReassignacioActivaPerUsuariOrigen(processInstanceId, usuariCodi);
-//    }
-//
+
+    @Override
+    public ReassignacioDto findReassignacioActivaPerUsuariOrigen(String processInstanceId, String usuariCodi) {
+        var response = bridgeClient.getReassignacio(usuariCodi, processInstanceId);
+        if (response != null) {
+            return response.getBody();
+        }
+        return null;
+    }
+
 //    // TODO:
 //    // REGISTRE (MS Integració)
 //    ////////////////////////////////////////////////////////////////////////////////

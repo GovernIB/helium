@@ -7,6 +7,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.text.ParseException;
@@ -35,58 +36,61 @@ public class GenericRsqlSpecification<T> implements Specification<T> {
 	@Override
 	public Predicate toPredicate(final Root<T> root, final CriteriaQuery<?> query, final CriteriaBuilder builder) {
 
-		List<Object> args = castArguments(root);
+		final Path<?> path = buildPathFromProperty(root, property);
+		final Class<?> type = path.getJavaType();
+
+		List<Object> args = castArguments(type);
 		final Object argument = args.get(0);
 
 		switch (RsqlSearchOperation.getSimpleOperator(operator)) {
 		case EQUAL:
 			if (argument instanceof String) {
-				return builder.like(root.get(property), argument.toString().replace('*', '%'));
+				return builder.like((Path<String>)path, argument.toString().replace('*', '%'));
 			} else if (argument == null) {
-				return builder.isNull(root.get(property));
+				return builder.isNull(path);
 			} else {
-				return builder.equal(root.get(property), argument);
+				return builder.equal(path, argument);
 			}
 		case NOT_EQUAL:
 			if (argument instanceof String) {
-				return builder.notLike(root.get(property), argument.toString().replace('*', '%'));
+				return builder.notLike((Path<String>)path, argument.toString().replace('*', '%'));
 			} else if (argument == null) {
-				return builder.isNotNull(root.get(property));
+				return builder.isNotNull(path);
 			} else {
-				return builder.notEqual(root.get(property), argument);
+				return builder.notEqual(path, argument);
 			}
 		case GREATER_THAN:
-			return builder.greaterThan(root.get(property), argument.toString());
+			return builder.greaterThan((Path<Comparable>)path, (Comparable)argument);
 		case GREATER_THAN_OR_EQUAL:
-			return builder.greaterThanOrEqualTo(root.get(property), argument.toString());
+			return builder.greaterThanOrEqualTo((Path<Comparable>)path, (Comparable)argument);
 		case LESS_THAN:
-			return builder.lessThan(root.get(property), argument.toString());
+			return builder.lessThan((Path<Comparable>)path, (Comparable)argument);
 		case LESS_THAN_OR_EQUAL:
-			return builder.lessThanOrEqualTo(root.get(property), argument.toString());
+			return builder.lessThanOrEqualTo((Path<Comparable>)path, (Comparable)argument);
 		case IN:
-			return root.get(property).in(args);
+			return path.in(args);
 		case NOT_IN:
-			return builder.not(root.get(property).in(args));
+			return builder.not(path.in(args));
 		case EQUAL_IGNORE_CASE:
 			if (argument instanceof String) {
-				return builder.like(builder.lower(root.get(property)), argument.toString().toLowerCase().replace('*', '%'));
+				return builder.like(builder.lower((Path<String>)path), argument.toString().toLowerCase().replace('*', '%'));
 			} else if (argument == null) {
-				return builder.isNull(root.get(property));
+				return builder.isNull(path);
 			} else {
-				return builder.equal(root.get(property), argument);
+				return builder.equal(path, argument);
 			}
 		case NOT_EQUAL_IGNORE_CASE:
 			if (argument instanceof String) {
-				return builder.notLike(builder.lower(root.get(property)), argument.toString().toLowerCase().replace('*', '%'));
+				return builder.notLike(builder.lower((Path<String>)path), argument.toString().toLowerCase().replace('*', '%'));
 			} else if (argument == null) {
-				return builder.isNotNull(root.get(property));
+				return builder.isNotNull(path);
 			} else {
-				return builder.notEqual(root.get(property), argument);
+				return builder.notEqual(path, argument);
 			}
 		case IS_NULL:
-			return builder.isNull(root.get(property));
+			return builder.isNull(path);
 		case IS_NOT_NULL:
-			return builder.isNotNull(root.get(property));
+			return builder.isNotNull(path);
 		default:
 			break;
 		}
@@ -94,9 +98,9 @@ public class GenericRsqlSpecification<T> implements Specification<T> {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private List<Object> castArguments(final Root<T> root) {
+	private List<Object> castArguments(final Class<?> type) {
 
-		Class<?> type = root.get(property).getJavaType();
+//		Class<?> type = root.get(property).getJavaType();
 
 		return arguments.stream().map(argument -> {
 			if (type.equals(Integer.class) || type.equals(int.class)) {
@@ -125,6 +129,25 @@ public class GenericRsqlSpecification<T> implements Specification<T> {
 				return argument;
 			}
 		}).collect(Collectors.toList());
+	}
+
+	private Path<?> buildPathFromProperty(
+			Root<T> root,
+			String property) {
+		Path<?> path;
+		if (property.contains(".")) {
+			String[] pathElements = property.split("\\.");
+			path = root;
+			for (int i = 0; i < pathElements.length; i++) {
+				String pathElement = pathElements[i];
+				if (!pathElement.trim().isEmpty()) {
+					path = path.get(pathElement);
+				}
+			}
+		} else {
+			path = root.get(property);
+		}
+		return path;
 	}
 
 }

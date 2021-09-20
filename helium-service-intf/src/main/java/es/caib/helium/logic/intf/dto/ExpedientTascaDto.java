@@ -96,6 +96,7 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 
 	private PersonaDto responsable;
 	private List<PersonaDto> responsables;
+	private Set<String> grups;
 
 	private boolean assignadaUsuariActual;
 	private boolean ambRepro;
@@ -418,7 +419,13 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 	public void setResponsables(List<PersonaDto> responsables) {
 		this.responsables = responsables;
 	}
-	
+	public Set<String> getGrups() {
+		return grups;
+	}
+	public void setGrups(Set<String> grups) {
+		this.grups = grups;
+	}
+
 	public Set<String> getResponsablesString() {
 		Set<String> responsablesString = new HashSet<String>();
 		if (this.getResponsables() != null)

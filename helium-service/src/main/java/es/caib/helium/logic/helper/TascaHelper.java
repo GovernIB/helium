@@ -5,6 +5,7 @@ package es.caib.helium.logic.helper;
 
 import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.client.expedient.tasca.TascaClientService;
+import es.caib.helium.client.expedient.tasca.model.ConsultaTascaDades;
 import es.caib.helium.client.expedient.tasca.model.TascaDto;
 import es.caib.helium.logic.helper.TascaSegonPlaHelper.InfoSegonPla;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
@@ -18,6 +19,7 @@ import es.caib.helium.logic.intf.dto.TascaLlistatDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.TascaNoDisponibleException;
 import es.caib.helium.logic.intf.util.Constants;
+import es.caib.helium.logic.util.EntornActual;
 import es.caib.helium.persist.entity.Camp;
 import es.caib.helium.persist.entity.Camp.TipusCamp;
 import es.caib.helium.persist.entity.CampTasca;
@@ -423,8 +425,16 @@ public class TascaHelper {
 			boolean notCompleted,
 			boolean mostrarDeOtrosUsuarios) {
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
-		List<WTaskInstance> tasks = workflowEngineApi.findTaskInstancesByProcessInstanceId(processInstanceId);
-		for (WTaskInstance task: tasks) {
+		List<TascaDto> tasquesMs = tascaClientService.findTasquesAmbFiltrePaginatV1(ConsultaTascaDades.builder()
+						.entornId(EntornActual.getEntornId())
+						.expedientId(expedient.getId())
+						.nomesPendents(false)
+						.filtre("proces.procesId==" + processInstanceId)
+						.build())
+				.getContent();
+//		List<WTaskInstance> tasks = workflowEngineApi.findTaskInstancesByProcessInstanceId(processInstanceId);
+//		for (WTaskInstance task: tasks) {
+		for (TascaDto task: tasquesMs) {
 			ExpedientTascaDto tasca = toExpedientTascaDto(
 					task,
 					expedient,
@@ -549,29 +559,190 @@ public class TascaHelper {
 			dto.setResponsable(
 					pluginHelper.personaFindAmbCodi(task.getActorId()));
 		}
+		dto.setAssignadaUsuariActual(false);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (task.getActorId() != null) {
 			if (auth != null) {
 				dto.setAssignadaUsuariActual(task.getActorId().equals(auth.getName()));
 			}
-		} else if (task.getPooledActors() != null && !task.getPooledActors().isEmpty()) {
-			List<PersonaDto> responsables = new ArrayList<PersonaDto>();
-			for (String pooledActor: task.getPooledActors()) {
-				PersonaDto persona = this.findPersonaOrDefault(pooledActor);
-				if (persona != null) {
-					if (auth.getName().equals(pooledActor))
+		} else {
+			if (task.getPooledActors() != null && !task.getPooledActors().isEmpty()) {
+				List<PersonaDto> responsables = new ArrayList<PersonaDto>();
+				for (String pooledActor: task.getPooledActors()) {
+					PersonaDto persona = this.findPersonaOrDefault(pooledActor);
+					if (persona != null) {
+						if (auth.getName().equals(pooledActor))
+							dto.setAssignadaUsuariActual(true);
+						responsables.add(persona);
+					}
+				}
+				Collections.sort(
+						responsables,
+						new Comparator<PersonaDto>() {
+							public int compare(PersonaDto p1, PersonaDto p2) {
+								return p1.getNom().compareToIgnoreCase(p2.getNom());
+							}
+						});
+				dto.setResponsables(responsables);
+			}
+			// TODO:
+//			if (!dto.isAssignadaUsuariActual() && tascaMs.getGrups() != null && !tascaMs.getGrups().isEmpty()) {
+//				for (var grup: tascaMs.getGrups()) {
+//					if (pluginHelper.personesAmbGrup(grup).stream()
+//							.map(p -> p.getCodi())
+//							.collect(Collectors.toList())
+//							.contains(auth.getName())) {
+//						dto.setAssignadaUsuariActual(true);
+//						break;
+//					}
+//				}
+//			}
+		}
+		if (ambPermisos) {
+			permisosHelper.omplirControlPermisosSegonsUsuariActual(
+					expedientNoNull.getTipus().getId(),
+					dto,
+					ExpedientTipus.class);
+		}
+		return dto;
+	}
+
+	public ExpedientTascaDto toExpedientTascaDto(
+			es.caib.helium.client.expedient.tasca.model.TascaDto tascaMs,
+			Expedient expedient,
+			boolean perTramitacio,
+			boolean ambPermisos) {
+		ExpedientTascaDto dto = new ExpedientTascaDto();
+//		DefinicioProces defp = definicioProcesRepository.findByJbpmId(tascaMs.getProcessDefinitionId());
+		Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(tascaMs.getNom(), tascaMs.getProcessDefinitionId());
+		if (tasca != null) {
+			dto.setAmbRepro(tasca.isAmbRepro());
+			dto.setMostrarAgrupacions(tasca.isMostrarAgrupacions());
+		}
+
+		dto.setId(tascaMs.getTascaId());
+		dto.setTitol(tascaMs.getTitol());
+		dto.setJbpmName(tascaMs.getNom());
+		dto.setDescription(tascaMs.getTitol());
+		dto.setAssignee(tascaMs.getUsuariAssignat());
+		dto.setPooledActors( tascaMs.getResponsables().stream().collect(Collectors.toSet()));
+		dto.setGrups( tascaMs.getGrups().stream().collect(Collectors.toSet()));
+		dto.setCreateTime(tascaMs.getDataCreacio());
+//		dto.setStartTime(task.getStartTime());
+		dto.setEndTime(tascaMs.getDataFi());
+		dto.setDueDate(tascaMs.getDataFins());
+		dto.setPriority(tascaMs.getPrioritat());
+		dto.setOpen(!tascaMs.isCompletada() && !tascaMs.isCancelada());
+		dto.setCompleted(tascaMs.isCompletada());
+		dto.setCancelled(tascaMs.isCancelada());
+		dto.setSuspended(tascaMs.isSuspesa());
+		// TODO: obtenir informació de tramitació massiva
+//		dto.setTascaTramitacioMassiva(task.getTramitacioMassiva());
+//		Tasca tasca = findTascaByWTaskInstance(task);
+
+		if (tasca != null) {
+			dto.setTascaFinalitzacioSegonPla(tasca.isFinalitzacioSegonPla());
+			if (tasca.isFinalitzacioSegonPla() &&
+					tascaSegonPlaHelper.isTasquesSegonPlaLoaded() &&
+					tascaSegonPlaHelper.getTasquesSegonPla().containsKey(tascaMs.getTascaId())) {
+				InfoSegonPla infoSegonPla = tascaSegonPlaHelper.getTasquesSegonPla().get(tascaMs.getTascaId());
+				dto.setMarcadaFinalitzar(infoSegonPla.getMarcadaFinalitzar());
+				dto.setIniciFinalitzacio(infoSegonPla.getIniciFinalitzacio());
+				dto.setErrorFinalitzacio(infoSegonPla.getError());
+			}
+		}
+		Expedient expedientNoNull = expedient;
+		if (expedientNoNull == null) {
+			expedientNoNull = expedientHelper.findById(tascaMs.getExpedientId());
+		}
+		if (perTramitacio) {
+			// TODO: Opcional outcomes?
+//			dto.setOutcomes(workflowEngineApi.findTaskInstanceOutcomes(task.getId()));
+			// Opcional dades tasca?
+
+			dto.setTascaId(tasca.getId());
+			dto.setTascaNom(tasca.getNom());
+			dto.setTascaTipus(
+					conversioTipusServiceHelper.convertir(
+							tasca.getTipus(),
+							ExpedientTascaDto.TascaTipusDto.class));
+			dto.setTascaMissatgeInfo(tasca.getMissatgeInfo());
+			dto.setTascaMissatgeWarn(tasca.getMissatgeWarn());
+			dto.setTascaRecursForm(tasca.getRecursForm());
+			dto.setTascaFormExternCodi(tasca.getFormExtern());
+			dto.setTascaDelegable(tasca.getExpressioDelegacio() != null);
+			// Opcional estat tramitació tasca?
+//			dto.setValidada(isTascaValidada(task));
+//			dto.setDocumentsComplet(isDocumentsComplet(task));
+//			dto.setSignaturesComplet(isSignaturesComplet(task));
+			// Opcional informació delegacio?
+//			DelegationInfo delegationInfo = getDelegationInfo(task);
+//			if (delegationInfo != null) {
+//				boolean original = task.getId().equals(delegationInfo.getSourceTaskId());
+//				dto.setDelegada(true);
+//				dto.setDelegacioOriginal(original);
+//				dto.setDelegacioData(delegationInfo.getStart());
+//				dto.setDelegacioComentari(delegationInfo.getComment());
+//				dto.setDelegacioSupervisada(delegationInfo.isSupervised());
+//				WTaskInstance tascaDelegacio = null;
+//				if (original) {
+//					tascaDelegacio = workflowEngineApi.getTaskById(delegationInfo.getTargetTaskId());
+//				} else {
+//					tascaDelegacio = workflowEngineApi.getTaskById(delegationInfo.getSourceTaskId());
+//				}
+//				dto.setDelegacioPersona(
+//						pluginHelper.personaFindAmbCodi(tascaDelegacio.getActorId()));
+//			}
+//			DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(tascaMs.getProcessDefinitionId());
+//			if (definicioProces != null) {
+//				dto.setDefinicioProcesId(definicioProces.getId());
+//			}
+		}
+		dto.setAgafada(tascaMs.isAgafada());
+		dto.setProcessInstanceId(tascaMs.getProcesId());
+		dto.setExpedientId(expedientNoNull.getId());
+		dto.setExpedientIdentificador(expedientNoNull.getIdentificador());
+		dto.setExpedientNumero(expedientNoNull.getNumero());
+		dto.setExpedientTipusNom(expedientNoNull.getTipus().getNom());
+		dto.setExpedientTipusId(expedientNoNull.getTipus().getId());
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		dto.setAssignadaUsuariActual(false);
+		if (tascaMs.getUsuariAssignat() != null) {
+			dto.setResponsable(this.findPersonaOrDefault(tascaMs.getUsuariAssignat()));
+			if (auth != null) {
+				dto.setAssignadaUsuariActual(tascaMs.getUsuariAssignat().equals(auth.getName()));
+			}
+		} else {
+			if (tascaMs.getResponsables() != null && !tascaMs.getResponsables().isEmpty()) {
+				List<PersonaDto> responsables = new ArrayList<PersonaDto>();
+				for (String pooledActor: tascaMs.getResponsables()) {
+					PersonaDto persona = this.findPersonaOrDefault(pooledActor);
+					if (persona != null) {
+						if (auth.getName().equals(pooledActor))
+							dto.setAssignadaUsuariActual(true);
+						responsables.add(persona);
+					}
+				}
+				Collections.sort(
+						responsables,
+						new Comparator<PersonaDto>() {
+							public int compare(PersonaDto p1, PersonaDto p2) {
+								return p1.getNom().compareToIgnoreCase(p2.getNom());
+							}
+						});
+				dto.setResponsables(responsables);
+			}
+			if (!dto.isAssignadaUsuariActual() && tascaMs.getGrups() != null && !tascaMs.getGrups().isEmpty()) {
+				for (var grup: tascaMs.getGrups()) {
+					if (pluginHelper.personesAmbGrup(grup).stream()
+							.map(p -> p.getCodi())
+							.collect(Collectors.toList())
+							.contains(auth.getName())) {
 						dto.setAssignadaUsuariActual(true);
-					responsables.add(persona);
+						break;
+					}
 				}
 			}
-			Collections.sort(
-					responsables, 
-					new Comparator<PersonaDto>() {
-						public int compare(PersonaDto p1, PersonaDto p2) {
-							return p1.getNom().compareToIgnoreCase(p2.getNom());
-						}
-					});
-			dto.setResponsables(responsables);
 		}
 		if (ambPermisos) {
 			permisosHelper.omplirControlPermisosSegonsUsuariActual(
@@ -701,30 +872,44 @@ public class TascaHelper {
 		dto.setExpedientNumero(expedientNoNull.getNumero());
 		dto.setExpedientTipusNom(expedientNoNull.getTipus().getNom());
 		dto.setExpedientTipusId(expedientNoNull.getTipus().getId());
+		dto.setAssignadaUsuariActual(false);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (tascaMs.getUsuariAssignat() != null) {
 			dto.setResponsable(this.findPersonaOrDefault(tascaMs.getUsuariAssignat()));
 			if (auth != null) {
 				dto.setAssignadaUsuariActual(tascaMs.getUsuariAssignat().equals(auth.getName()));
 			}
-		} else if (tascaMs.getResponsables() != null && !tascaMs.getResponsables().isEmpty()) {
-			List<PersonaDto> responsables = new ArrayList<PersonaDto>();
-			for (String responsable: tascaMs.getResponsables()) {
-				PersonaDto persona = this.findPersonaOrDefault(responsable);
-				if (persona != null) {
-					if (auth.getName().equals(responsable))
+		} else {
+			if (tascaMs.getResponsables() != null && !tascaMs.getResponsables().isEmpty()) {
+				List<PersonaDto> responsables = new ArrayList<PersonaDto>();
+				for (String responsable: tascaMs.getResponsables()) {
+					PersonaDto persona = this.findPersonaOrDefault(responsable);
+					if (persona != null) {
+						if (auth.getName().equals(responsable))
+							dto.setAssignadaUsuariActual(true);
+						responsables.add(persona);
+					}
+				}
+				Collections.sort(
+						responsables,
+						new Comparator<PersonaDto>() {
+							public int compare(PersonaDto p1, PersonaDto p2) {
+								return p1.getNom().compareToIgnoreCase(p2.getNom());
+							}
+						});
+				dto.setResponsables(responsables);
+			}
+			if (!dto.isAssignadaUsuariActual() && tascaMs.getGrups() != null && !tascaMs.getGrups().isEmpty()) {
+				for (var grup: tascaMs.getGrups()) {
+					if (pluginHelper.personesAmbGrup(grup).stream()
+							.map(p -> p.getCodi())
+							.collect(Collectors.toList())
+							.contains(auth.getName())) {
 						dto.setAssignadaUsuariActual(true);
-					responsables.add(persona);
+						break;
+					}
 				}
 			}
-			Collections.sort(
-					responsables, 
-					new Comparator<PersonaDto>() {
-						public int compare(PersonaDto p1, PersonaDto p2) {
-							return p1.getNom().compareToIgnoreCase(p2.getNom());
-						}
-					});
-			dto.setResponsables(responsables);
 		}
 		if (ambPermisos) {
 			permisosHelper.omplirControlPermisosSegonsUsuariActual(

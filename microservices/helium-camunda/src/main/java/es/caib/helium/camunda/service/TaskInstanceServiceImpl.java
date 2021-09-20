@@ -3,6 +3,7 @@ package es.caib.helium.camunda.service;
 import es.caib.helium.camunda.mapper.TaskInstanceMapper;
 import es.caib.helium.camunda.model.bridge.CampTascaDto;
 import es.caib.helium.camunda.model.bridge.CampTipusDto;
+import es.caib.helium.camunda.service.bridge.WorkflowBridgeService;
 import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.client.expedient.tasca.TascaClientService;
 import lombok.RequiredArgsConstructor;

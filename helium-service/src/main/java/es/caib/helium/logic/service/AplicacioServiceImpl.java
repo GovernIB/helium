@@ -93,11 +93,13 @@ public class AplicacioServiceImpl implements AplicacioService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<PersonaDto> findPersonesAmbGrup(String grup) throws SistemaExternException {
-		return null; //TODO MS: AL FER PULL ESTAVA PER IMPLEMENTAR
+		//TODO MS: AL FER PULL ESTAVA PER IMPLEMENTAR
+		return pluginHelper.personesAmbGrup(grup);
 	}
 
-	@Override
+    @Override
     public List<PersonaDto> findPersonaAll() throws SistemaExternException {
         return pluginHelper.personaFindAll();
     }
