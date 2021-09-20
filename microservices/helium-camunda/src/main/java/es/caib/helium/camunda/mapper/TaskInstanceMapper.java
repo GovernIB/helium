@@ -111,14 +111,11 @@ public abstract class TaskInstanceMapper {
         if (pooledActors != null && !pooledActors.isEmpty()) {
             taskInstanceDto.pooledActors(pooledActors);
         }
-        // TODO: Grups
-        var grups = candidates.stream()
+        // Grups
+        taskInstanceDto.grups(candidates.stream()
                 .filter(i -> i.getType().equals(IdentityLinkType.CANDIDATE) && i.getGroupId() != null)
                 .map(i -> i.getGroupId())
-                .collect(Collectors.toSet());
-        if (grups != null && !grups.isEmpty()) {
-            taskInstanceDto.rols(grups.stream().collect(Collectors.joining(",")));
-        }
+                .collect(Collectors.toSet()));
     }
 
 }

@@ -35,6 +35,7 @@ public class TaskInstanceDto implements WTaskInstance {
     boolean agafada;
     String selectedOutcome;
     String rols;
+    Set<String> grups;
 
     // Cache
     String titol;

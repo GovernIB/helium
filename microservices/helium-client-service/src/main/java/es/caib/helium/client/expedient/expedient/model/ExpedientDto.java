@@ -1,10 +1,12 @@
 package es.caib.helium.client.expedient.expedient.model;
 
-import java.util.Date;
-
 import es.caib.helium.client.expedient.expedient.enums.ExpedientEstatTipusEnum;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.Date;
 
 /**
  * Informació de l'expedient amb les propietats necessàries pel llistat filtrat i paginat
@@ -12,6 +14,8 @@ import lombok.Data;
  * 
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class ExpedientDto {
 

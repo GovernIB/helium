@@ -34,6 +34,7 @@ public interface WTaskInstance {
 	public boolean isAgafada();
 	public String getSelectedOutcome();
 	public String getRols();
+	public Set<String> getGrups();
 
 	// Cache
 	public String getTitol();

@@ -1,6 +1,7 @@
 package es.caib.helium.camunda.service;
 
 import es.caib.helium.camunda.helper.CacheHelper;
+import es.caib.helium.camunda.helper.ThreadLocalInfo;
 import es.caib.helium.camunda.mapper.ProcessInstanceMapper;
 import es.caib.helium.client.engine.model.WProcessInstance;
 import lombok.RequiredArgsConstructor;
@@ -186,6 +187,7 @@ public class ProcessInstanceServiceImpl implements ProcessInstanceService {
     @Override
     @Transactional
     public WProcessInstance startProcessInstanceById(String actorId, String processDefinitionId, Map<String, Object> variables) {
+        ThreadLocalInfo.setStartExpedient(true);
         var processDefinition = cacheHelper.getDefinicioProces(processDefinitionId);
         if (processDefinition.getTenantId() != null) {
             identityService.setAuthentication(actorId, null, List.of(processDefinition.getTenantId()));

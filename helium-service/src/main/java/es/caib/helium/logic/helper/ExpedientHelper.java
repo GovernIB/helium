@@ -3,30 +3,6 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.acls.domain.BasePermission;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.engine.model.WToken;
 import es.caib.helium.client.expedient.expedient.ExpedientClientService;
@@ -34,6 +10,8 @@ import es.caib.helium.client.expedient.expedient.enums.ExpedientEstatTipusEnum;
 import es.caib.helium.client.expedient.proces.ProcesClientService;
 import es.caib.helium.client.expedient.proces.model.ProcesDto;
 import es.caib.helium.client.expedient.tasca.TascaClientService;
+import es.caib.helium.client.expedient.tasca.model.ConsultaTascaDades;
+import es.caib.helium.client.expedient.tasca.model.TascaDto;
 import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
@@ -49,6 +27,7 @@ import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto.IniciadorTipusDto;
 import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
 import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
+import es.caib.helium.logic.intf.dto.MotorTipusEnum;
 import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.dto.expedient.ExpedientInfoDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
@@ -79,11 +58,34 @@ import es.caib.helium.persist.repository.DocumentStoreRepository;
 import es.caib.helium.persist.repository.EstatRepository;
 import es.caib.helium.persist.repository.ExpedientRepository;
 import es.caib.helium.persist.repository.ExpedientTipusRepository;
+import es.caib.helium.persist.repository.ReassignacioRepository;
 import es.caib.helium.persist.repository.RegistreRepository;
 import es.caib.helium.persist.repository.TerminiIniciatRepository;
 import es.caib.helium.persist.util.ThreadLocalInfo;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ExpedientEstat;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Helper per a gestionar els expedients.
@@ -109,6 +111,8 @@ public class ExpedientHelper {
 	private RegistreRepository registreRepository;
 	@Resource
 	private DocumentStoreRepository documentStoreRepository;
+	@Resource
+	private ReassignacioRepository reassignacioRepository;
 
 	@Resource
 	private ExpedientHelper expedientHelper;
@@ -1723,10 +1727,14 @@ public class ExpedientHelper {
 				definicioProces.getJbpmId(),
 				variables);
 		expedient.setProcessInstanceId(processInstance.getId());
+
 		//		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar instancia de proces");
-		
+
 		// Afegeix l'expedient iniciant al map static
 		this.expedientsIniciAdd(expedient);
+
+		if (MotorTipusEnum.CAMUNDA.equals(definicioProces.getMotorTipus()))
+			reassignarTasques(expedient);
 
 		Long infoRetroaccioId = null;
 		String arxiuUuid = null;
@@ -1881,6 +1889,68 @@ public class ExpedientHelper {
 
 //		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom());
 		return expedient;
+	}
+
+	private void reassignarTasques(Expedient expedient) {
+		try {
+			var tasques = tascaClientService.findTasquesAmbFiltrePaginatV1(ConsultaTascaDades.builder()
+					.nomesPendents(true)
+					.expedientId(expedient.getId())
+					//.filtre("proces.procesId==" + expedient.getProcessInstanceId())
+					.build());
+			if (tasques != null && tasques.getContent() != null && tasques.hasContent()) {
+				tasques.getContent().forEach(t -> reassignarTascaIfNeeded(expedient, t));
+			}
+		} catch (Exception ex) {
+			logger.error("No s'han pogut obtenir les tasques le l'expedient iniciant: " + expedient.getId(), ex);
+		}
+	}
+
+	private void reassignarTascaIfNeeded(Expedient expedient, TascaDto tasca) {
+		try {
+			if (tasca.getUsuariAssignat() != null) {
+				Date ara = new Date();
+				var reassignacio = reassignacioRepository.findByUsuariAndTipusExpedientId(
+						tasca.getUsuariAssignat(),
+						expedient.getTipus().getId(),
+						ara,
+						ara);
+				// Si no es troba cerca una redirecció global
+				if (reassignacio == null) {
+					reassignacio = reassignacioRepository.findByUsuari(
+							tasca.getUsuariAssignat(),
+							ara,
+							ara);
+				}
+				if (reassignacio != null) {
+
+					var informacioRetroaccioId = workflowRetroaccioApi.afegirInformacioRetroaccioPerTasca(
+							tasca.getTascaId(),
+							WorkflowRetroaccioApi.ExpedientRetroaccioTipus.TASCA_REASSIGNAR,
+							null);
+					var expressio = "user(" + reassignacio.getUsuariDesti() + ")";
+					workflowEngineApi.reassignTaskInstance(
+							tasca.getTascaId(),
+							expressio,
+							expedient.getEntorn().getId());
+					workflowRetroaccioApi.actualitzaParametresAccioInformacioRetroaccio(
+							informacioRetroaccioId,
+							reassignacio.getUsuariOrigen() + "::" + reassignacio.getUsuariDesti());
+					String usuari = SecurityContextHolder.getContext().getAuthentication().getName();
+					Registre registre = new Registre(
+							new Date(),
+							expedient.getId(),
+							usuari,
+							Registre.Accio.MODIFICAR,
+							Registre.Entitat.TASCA,
+							tasca.getTascaId());
+					registre.setMissatge("Reassignació de la tasca amb l'expressió \"" + expressio + "\"");
+					registreRepository.save(registre);
+				}
+			}
+		} catch (Exception ex) {
+			logger.error("No s'ha pogut reassignar la tasca: " + tasca.getTascaId(), ex);
+		}
 	}
 
 	private PersonaDto comprovarUsuari(String usuari) {

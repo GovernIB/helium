@@ -1,4 +1,4 @@
-package es.caib.helium.domini.config;
+package es.caib.helium.back.config;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;

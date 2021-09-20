@@ -1,6 +1,6 @@
-package es.caib.helium.camunda.config;
+package es.caib.helium.integracio.config;
 
-import es.caib.helium.camunda.helper.KeycloakHelper;
+import es.caib.helium.integracio.helper.KeycloakHelper;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import org.springframework.context.annotation.Bean;

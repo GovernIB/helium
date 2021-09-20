@@ -1,5 +1,10 @@
 package es.caib.helium.logic.config;
 
+import es.caib.helium.logic.intf.keycloak.KeycloakHelper;
+import feign.RequestInterceptor;
+import feign.RequestTemplate;
+import feign.codec.Encoder;
+import feign.form.spring.SpringFormEncoder;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
@@ -9,33 +14,30 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
-import feign.codec.Encoder;
-import feign.form.spring.SpringFormEncoder;
-
 @Configuration
 @EnableFeignClients(basePackages = "es.caib.helium.client")
 public class FeignClientConfig {
 
-//
-//    @Bean
-//    public FeignClientInterceptor oauth2AuthRequestInterceptor() {
-//        return new FeignClientInterceptor();
-//    }
-//
-//    public class FeignClientInterceptor implements RequestInterceptor {
-//
-//        private static final String AUTHORIZATION_HEADER="Authorization";
-//        private static final String TOKEN_TYPE = "Bearer";
-//
-//        @Override
-//        public void apply(RequestTemplate requestTemplate) {
-//            String token = KeycloakHelper.getTokenString();
-//
-//            if (token != null && !token.isEmpty()) {
-//                requestTemplate.header(AUTHORIZATION_HEADER, String.format("%s %s", TOKEN_TYPE, token));
-//            }
-//        }
-//    }
+
+    @Bean
+    public FeignClientInterceptor oauth2AuthRequestInterceptor() {
+        return new FeignClientInterceptor();
+    }
+
+    public class FeignClientInterceptor implements RequestInterceptor {
+
+        private static final String AUTHORIZATION_HEADER="Authorization";
+        private static final String TOKEN_TYPE = "Bearer";
+
+        @Override
+        public void apply(RequestTemplate requestTemplate) {
+            String token = KeycloakHelper.getTokenString();
+
+            if (token != null && !token.isEmpty()) {
+                requestTemplate.header(AUTHORIZATION_HEADER, String.format("%s %s", TOKEN_TYPE, token));
+            }
+        }
+    }
 
     @Bean
     public Encoder multipartFormEncoder() {

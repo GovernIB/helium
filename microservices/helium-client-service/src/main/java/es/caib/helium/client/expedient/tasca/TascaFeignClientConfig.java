@@ -1,9 +1,11 @@
 package es.caib.helium.client.expedient.tasca;
 
-import org.springframework.context.annotation.Configuration;
-
-@Configuration
 public class TascaFeignClientConfig {
+
+//    @Override
+//    public void registerFormatters(FormatterRegistry registry) {
+//        registry.addFormatter(new DateFeignFormatter());
+//    }
 
 //  @Bean
 //  public BasicAuthRequestInterceptor basicAuthRequestInterceptor(
@@ -11,4 +13,5 @@ public class TascaFeignClientConfig {
 //          @Value("${es.caib.helium.dada-service-password}")String dadaPassword) {
 //      return new BasicAuthRequestInterceptor(dadaUser, dadaPassword);
 //  }
+
 }

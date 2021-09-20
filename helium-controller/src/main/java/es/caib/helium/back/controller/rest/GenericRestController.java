@@ -86,7 +86,7 @@ public class GenericRestController {
 	public ResponseEntity<ReassignacioDto> getReassignacio(
 			HttpServletRequest request,
 			@PathVariable(value = "usuariCodi") String usuariCodi,
-			@RequestParam(value = "processInstanceId", required = true) String processInstanceId) {
+			@RequestParam(value = "processInstanceId") String processInstanceId) {
 
 		return new ResponseEntity<>(
 				workflowBridgeService.findReassignacioActivaPerUsuariOrigen(

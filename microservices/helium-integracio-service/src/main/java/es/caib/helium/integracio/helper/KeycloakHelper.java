@@ -1,4 +1,4 @@
-package es.caib.helium.camunda.helper;
+package es.caib.helium.integracio.helper;
 
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.representations.AccessToken;

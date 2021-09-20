@@ -1,6 +1,7 @@
 package es.caib.helium.camunda.listener;
 
 import es.caib.helium.camunda.helper.EngineHelper;
+import es.caib.helium.camunda.helper.ThreadLocalInfo;
 import es.caib.helium.camunda.service.bridge.WorkflowBridgeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,11 +33,14 @@ public class TaskAssignListener implements TaskListener {
                 var currentActorId = task.getPropertyChanges().get("assignee").getNewValueString();
 
                 if (currentActorId != null && !currentActorId.isBlank()) {
-                    var reassignacio = workflowBridgeService.findReassignacioActivaPerUsuariOrigen(
-                            delegateTask.getProcessInstanceId(),
-                            currentActorId);
-                    if (reassignacio != null) {
-                        EngineHelper.getInstance().getTaskService().setAssignee(task.getId(), reassignacio.getUsuariDesti());
+                    // Si s'està iniciant l'expedient no es fa reassignació
+                    if (ThreadLocalInfo.getStartExpedient() == null || !ThreadLocalInfo.getStartExpedient()) {
+                        var reassignacio = workflowBridgeService.findReassignacioActivaPerUsuariOrigen(
+                                delegateTask.getProcessInstanceId(),
+                                currentActorId);
+                        if (reassignacio != null) {
+                            EngineHelper.getInstance().getTaskService().setAssignee(task.getId(), reassignacio.getUsuariDesti());
+                        }
                     }
                 }
             }

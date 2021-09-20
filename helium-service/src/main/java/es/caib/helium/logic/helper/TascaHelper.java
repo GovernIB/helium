@@ -18,6 +18,7 @@ import es.caib.helium.logic.intf.dto.TascaDadaDto;
 import es.caib.helium.logic.intf.dto.TascaLlistatDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.TascaNoDisponibleException;
+import es.caib.helium.logic.intf.keycloak.KeycloakHelper;
 import es.caib.helium.logic.intf.util.Constants;
 import es.caib.helium.logic.util.EntornActual;
 import es.caib.helium.persist.entity.Camp;
@@ -585,18 +586,10 @@ public class TascaHelper {
 						});
 				dto.setResponsables(responsables);
 			}
-			// TODO:
-//			if (!dto.isAssignadaUsuariActual() && tascaMs.getGrups() != null && !tascaMs.getGrups().isEmpty()) {
-//				for (var grup: tascaMs.getGrups()) {
-//					if (pluginHelper.personesAmbGrup(grup).stream()
-//							.map(p -> p.getCodi())
-//							.collect(Collectors.toList())
-//							.contains(auth.getName())) {
-//						dto.setAssignadaUsuariActual(true);
-//						break;
-//					}
-//				}
-//			}
+			if (!dto.isAssignadaUsuariActual() && task.getGrups() != null && !task.getGrups().isEmpty()) {
+				var grupsUsuariActual = KeycloakHelper.getCurrentUserRols();
+				dto.setAssignadaUsuariActual(task.getGrups().stream().anyMatch(grupsUsuariActual::contains));
+			}
 		}
 		if (ambPermisos) {
 			permisosHelper.omplirControlPermisosSegonsUsuariActual(
@@ -733,15 +726,17 @@ public class TascaHelper {
 				dto.setResponsables(responsables);
 			}
 			if (!dto.isAssignadaUsuariActual() && tascaMs.getGrups() != null && !tascaMs.getGrups().isEmpty()) {
-				for (var grup: tascaMs.getGrups()) {
-					if (pluginHelper.personesAmbGrup(grup).stream()
-							.map(p -> p.getCodi())
-							.collect(Collectors.toList())
-							.contains(auth.getName())) {
-						dto.setAssignadaUsuariActual(true);
-						break;
-					}
-				}
+				var grupsUsuariActual = KeycloakHelper.getCurrentUserRols();
+				dto.setAssignadaUsuariActual(tascaMs.getGrups().stream().anyMatch(grupsUsuariActual::contains));
+//				for (var grup: tascaMs.getGrups()) {
+//					if (pluginHelper.personesAmbGrup(grup).stream()
+//							.map(p -> p.getCodi())
+//							.collect(Collectors.toList())
+//							.contains(auth.getName())) {
+//						dto.setAssignadaUsuariActual(true);
+//						break;
+//					}
+//				}
 			}
 		}
 		if (ambPermisos) {
@@ -900,15 +895,17 @@ public class TascaHelper {
 				dto.setResponsables(responsables);
 			}
 			if (!dto.isAssignadaUsuariActual() && tascaMs.getGrups() != null && !tascaMs.getGrups().isEmpty()) {
-				for (var grup: tascaMs.getGrups()) {
-					if (pluginHelper.personesAmbGrup(grup).stream()
-							.map(p -> p.getCodi())
-							.collect(Collectors.toList())
-							.contains(auth.getName())) {
-						dto.setAssignadaUsuariActual(true);
-						break;
-					}
-				}
+				var grupsUsuariActual = KeycloakHelper.getCurrentUserRols();
+				dto.setAssignadaUsuariActual(tascaMs.getGrups().stream().anyMatch(grupsUsuariActual::contains));
+//				for (var grup: tascaMs.getGrups()) {
+//					if (pluginHelper.personesAmbGrup(grup).stream()
+//							.map(p -> p.getCodi())
+//							.collect(Collectors.toList())
+//							.contains(auth.getName())) {
+//						dto.setAssignadaUsuariActual(true);
+//						break;
+//					}
+//				}
 			}
 		}
 		if (ambPermisos) {

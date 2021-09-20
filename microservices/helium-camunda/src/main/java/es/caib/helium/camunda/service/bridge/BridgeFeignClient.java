@@ -37,5 +37,5 @@ public interface BridgeFeignClient {
     @RequestMapping(method = RequestMethod.GET, value=GENERIC_API + "/reassignacio/{usuariCodi}")
     public ResponseEntity<ReassignacioDto> getReassignacio(
             @PathVariable(value = "usuariCodi") String usuariCodi,
-            @RequestParam(value = "processInstanceId", required = true) String processInstanceId);
+            @RequestParam(value = "processInstanceId") String processInstanceId);
 }

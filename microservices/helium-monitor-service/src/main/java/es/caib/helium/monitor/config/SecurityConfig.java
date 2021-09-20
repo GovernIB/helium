@@ -1,4 +1,4 @@
-package es.caib.helium.dada.config;
+package es.caib.helium.monitor.config;
 
 import org.keycloak.adapters.KeycloakConfigResolver;
 import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
@@ -25,8 +25,8 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         super.configure(http);
         http.authorizeRequests()
-                .antMatchers("/importacio/expedients/**").permitAll()
-                .antMatchers("/api/v1/dades/expedients/**").hasAnyRole("HEL_USER", "HEL_ADMIN")
+//                .antMatchers("/importacio/expedients/**").permitAll()
+                .antMatchers("/api/v1/monitor/**").hasAnyRole("HEL_USER", "HEL_ADMIN")
                 .anyRequest()
                 .authenticated();
         http.csrf().disable();

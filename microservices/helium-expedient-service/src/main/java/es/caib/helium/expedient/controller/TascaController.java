@@ -1,11 +1,14 @@
 package es.caib.helium.expedient.controller;
 
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.validation.Valid;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import es.caib.helium.client.expedient.tasca.model.ConsultaTascaDades;
+import es.caib.helium.expedient.model.TascaDto;
+import es.caib.helium.expedient.service.TascaService;
+import es.caib.helium.ms.controller.ControllerHelper;
+import es.caib.helium.ms.model.PagedList;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.rest.webmvc.json.patch.JsonPatchPatchConverter;
 import org.springframework.data.rest.webmvc.json.patch.Patch;
@@ -25,16 +28,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import es.caib.helium.client.expedient.tasca.model.ConsultaTascaDades;
-import es.caib.helium.expedient.model.TascaDto;
-import es.caib.helium.expedient.service.TascaService;
-import es.caib.helium.ms.controller.ControllerHelper;
-import es.caib.helium.ms.model.PagedList;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import javax.validation.Valid;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Controlador que defineix la API REST de tasques per la consulta paginada i els

@@ -47,6 +47,7 @@ import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.exception.TramitacioException;
 import es.caib.helium.logic.intf.exception.TramitacioHandlerException;
 import es.caib.helium.logic.intf.exception.ValidacioException;
+import es.caib.helium.logic.intf.keycloak.KeycloakHelper;
 import es.caib.helium.logic.intf.service.TascaService;
 import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persist.entity.Alerta;
@@ -850,29 +851,36 @@ public class TascaServiceImpl implements TascaService {
 				true);
 		//	Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
 		
-		// TODO contemplar el cas que no faci falta que l'usuari
-		// estigui als pooledActors
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		Set<String> pooledActors = task.getPooledActors();
-		if (!pooledActors.contains(auth.getName())) {
+		Set<String> grupsTasca = task.getGrups();
+		Set<String> grupsUsuariActual = KeycloakHelper.getCurrentUserRols();
+
+		boolean userInPooledActors = pooledActors.contains(auth.getName());
+		boolean userInGrups = false;
+		if (grupsTasca != null && grupsUsuariActual != null) {
+			userInGrups = grupsTasca.stream().anyMatch(grupsUsuariActual::contains);
+		}
+		if (!userInPooledActors && !userInGrups) {
 			logger.debug("L'usuari no s'ha trobat com a pooledActor de la tasca (" +
 					"taskInstanceId=" + taskInstanceId + ", " +
 					"personaCodi=" + auth.getName() + ")");
 			throw new NoTrobatException(WTaskInstance.class, taskInstanceId);
 		}
+		// TODO MS: Afegir grups a retroacció
 		String previousActors = task.getStringActors();
 		Long informacioRetroaccioId = workflowRetroaccioApi.afegirInformacioRetroaccioPerTasca(
 				taskInstanceId,
 				WorkflowRetroaccioApi.ExpedientRetroaccioTipus.TASCA_REASSIGNAR,
 				previousActors);
 		workflowEngineApi.takeTaskInstance(taskInstanceId, auth.getName());
-		indexHelper.expedientIndexLuceneUpdate(task.getProcessInstanceId());
+//		indexHelper.expedientIndexLuceneUpdate(task.getProcessInstanceId());
 		task = workflowEngineApi.getTaskById(taskInstanceId);
 		String currentActors = task.getStringActors();
 		workflowRetroaccioApi.actualitzaParametresAccioInformacioRetroaccio(
 				informacioRetroaccioId,
 				previousActors + "::" + currentActors);
-		tascaClientService.setUsuariAssignat(taskInstanceId, auth.getName());
+//		tascaClientService.setUsuariAssignat(taskInstanceId, auth.getName());
 		ExpedientTascaDto tasca = tascaHelper.toExpedientTascaDto(
 				task,
 				null,

@@ -89,5 +89,11 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>org.keycloak</groupId>
+			<artifactId>keycloak-spring-boot-starter</artifactId>
+			<version>${keycloak.version}</version>
+		</dependency>
+
 	</dependencies>
 </project>

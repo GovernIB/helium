@@ -65,9 +65,25 @@ camunda:
       execution: true
       history: true
       task: true
+
+keycloak:
+  realm: GOIB
+  auth-server-url: http://docker.limit.es:21234/auth
+  resource: goib-default
+  public-client: true
+  principal-attribute: preferred_username
+  use-resource-role-mappings: true
+  bearer-only: true
+
 es:
   caib:
     helium:
       camunda:
         deployment:
           path: /home/siona/Feina/Server/camunda-bpm-wildfly-7.15.0/server/wildfly-22.0.1.Final/standalone/deployments
+
+feign:
+  client:
+    config:
+      default:
+        loggerLevel: full
