@@ -343,7 +343,7 @@ public class DocumentHelper {
 				// Afegeix el document
 				//TODO_XXX: EN COMPTES d'aquest mètode ja guardes el "codi· al M
 				var documentCodi = getDocumentCodiDeVariableJbpm(docMs.getCodi());
-				var document = null;
+				Document document = null;
 				for (var doc: documents) {
 					if (doc.getCodi().equals(documentCodi)) {
 						document = doc;
@@ -375,6 +375,7 @@ public class DocumentHelper {
 				resposta.add(ed);
 			}
 		}
+
 		return resposta;
 	}
 
