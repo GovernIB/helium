@@ -200,7 +200,7 @@ public class ExpedientController {
 			@PathVariable("expedientId") Long expedientId) throws Exception {
 
 		var dades = expedientService.getDades(expedientId);
-		if (!dades.isEmpty()) {
+		if (dades != null && !dades.isEmpty()) {
 			return new ResponseEntity<>(dades, HttpStatus.OK);
 		}
 
@@ -234,7 +234,7 @@ public class ExpedientController {
 			@PathVariable("procesId") String procesId) throws Exception {
 
 		var dades = expedientService.getDadesByExpedientIdAndProcesId(expedientId, procesId);
-		if (!dades.isEmpty()) {
+		if (dades != null && !dades.isEmpty()) {
 			return new ResponseEntity<>(dades, HttpStatus.OK);
 		}
 
@@ -332,7 +332,7 @@ public class ExpedientController {
 			@PathVariable("procesId") String procesId,
 			@Valid @RequestBody ValidList<Dada> dades) throws Exception {
 
-		if (dades.isEmpty()) {
+		if (dades == null || dades.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		expedientService.postDadesByExpedientIdProcesId(expedientId, procesId, dades);
@@ -370,7 +370,7 @@ public class ExpedientController {
 
 		var consulta = new Consulta();
 		var dades = expedientService.getDadesByProcesId(procesId);
-		if (dades.isEmpty()) {
+		if (dades == null || dades.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 		return new ResponseEntity<>(dades, HttpStatus.OK);
@@ -381,7 +381,7 @@ public class ExpedientController {
 			@PathVariable("procesId") String procesId,
 			@Valid @RequestBody List<Dada> dades) throws Exception {
 
-		if (dades.isEmpty()) {
+		if (dades == null || dades.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		var created = expedientService.createDades(procesId, dades);
@@ -407,7 +407,7 @@ public class ExpedientController {
 	public ResponseEntity<List<Expedient>> findRootProcessInstances(@RequestParam("procesIds") List<String> procesIds) throws Exception {
 
 		var rootProcesIds = expedientService.findRootProcessInstance(procesIds);
-		if (rootProcesIds.isEmpty()) {
+		if (rootProcesIds == null || rootProcesIds.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 		return new ResponseEntity<>(rootProcesIds, HttpStatus.OK);

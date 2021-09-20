@@ -458,6 +458,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<ExpedientDocumentDto> findAmbInstanciaProces(Long expedientId, String processInstanceId) {
+
 		logger.debug("Consulta els documents de la instància de procés (" + "expedientId=" + expedientId + ", " + "processInstanceId=" + processInstanceId + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(expedientId, true, false, false, false);
 		expedientHelper.comprovarInstanciaProces(expedient, processInstanceId);

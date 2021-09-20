@@ -1,4 +1,4 @@
-package es.caib.helium.client.dada.config;
+package es.caib.helium.client.dada.dades.config;
 
 import org.springframework.context.annotation.Configuration;
 

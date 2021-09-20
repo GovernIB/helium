@@ -88,7 +88,7 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	private String ntiCsv;
 	@Size(max = 256)
 	private String ntiDefinicionGenCsv;
-	@Size(max = 32)
+	@Size(max = 36)
 	private String arxiuUuid;
 
 	public DocumentStore() {}

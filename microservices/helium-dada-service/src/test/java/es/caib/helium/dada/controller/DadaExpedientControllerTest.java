@@ -1,7 +1,7 @@
 package es.caib.helium.dada.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import es.caib.helium.client.dada.enums.Tipus;
+import es.caib.helium.client.dada.dades.enums.Tipus;
 import es.caib.helium.dada.model.Dada;
 import es.caib.helium.dada.model.Expedient;
 import es.caib.helium.dada.service.ExpedientService;

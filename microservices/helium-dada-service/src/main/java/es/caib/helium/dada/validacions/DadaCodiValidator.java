@@ -5,7 +5,7 @@ import javax.validation.ConstraintValidatorContext;
 
 import com.netflix.servo.util.Strings;
 
-import es.caib.helium.client.dada.model.Dada;
+import es.caib.helium.client.dada.dades.model.Dada;
 
 public class DadaCodiValidator implements ConstraintValidator<DadaValidacio, Dada> {
 

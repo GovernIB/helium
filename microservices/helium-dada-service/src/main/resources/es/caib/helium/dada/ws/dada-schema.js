@@ -74,12 +74,12 @@ db.createCollection("dada", {
 					items: {bsonType: "object", anyOf: [
 						{
 							bsonType: "object",
-							required: ["valor", "valorText"],
+							/*required: ["valor", "valorText"],*/
 							additionalProperties: false,
 							properties: {
 								"_class": { bsonType: "string" },
-								valor: { bsonType: ["null", "string"], maxLength: 255 },
-								valorText: { bsonType: ["null", "string"], maxLength: 255 }
+								valor: { bsonType: "string", maxLength: 255 },
+								valorText: { bsonType: "string", maxLength: 255 }
 							}
 						},
 						{
@@ -105,12 +105,12 @@ db.createCollection("dada", {
                                                 bsonType: "array", 
                                                 items: {
                                                     bsonType: "object",
-                                                    required: ["valor", "valorText"],
+                                                   /* required: ["valor", "valorText"],*/
                                                     additionalProperties: false,
                                                     properties: {
                                                         "_class": { bsonType: "string" },
-                                                        valor: { bsonType: ["null", "string"], maxLength: 255},
-                                                        valorText: { bsonType: ["null", "string"], maxLength: 255}
+                                                        valor: { bsonType: "string", maxLength: 255},
+                                                        valorText: { bsonType: "string", maxLength: 255}
                                                     }
                                                 }
                                             }
@@ -122,6 +122,27 @@ db.createCollection("dada", {
                     }
 				},
 			},
+		}
+	},
+	validationLevel: "strict",
+	validationAction: "error"
+})
+
+db.createCollection("document", {
+	validator: {
+		$jsonSchema: {
+			bsonType: "object",
+			required: ["procesId", "tascaId", "documentStoreId", "tipus", "codi"],
+			additionalProperties: false,
+			properties: {
+				"_id": { bsonType: "objectId" },
+				"_class": { bsonType: "string" },
+				procesId: { bsonType: "string", maxLength: 255},
+				tascaId: { bsonType: ["null", "string"], maxLength: 255},
+				documentStoreId: {bsonType: "long"},
+				tipus: { enum:["DOCUMENT", "ADJUNT"] },
+				codi: {  bsonType: "string", maxLength: 255}
+			}
 		}
 	},
 	validationLevel: "strict",

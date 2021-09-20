@@ -1,6 +1,6 @@
 package es.caib.helium.logic.service;
 
-import es.caib.helium.client.dada.DadaClient;
+import es.caib.helium.client.dada.dades.DadaClient;
 import es.caib.helium.client.engine.action.ActionClient;
 import es.caib.helium.client.engine.areaCarrec.AreaCarrecClient;
 import es.caib.helium.client.engine.deployment.DeploymentClient;
