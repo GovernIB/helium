@@ -128,4 +128,16 @@ public class UsuariActualHelper {
 		return isAdministrador;
 	}
 
+	public List<String> getRols() {
+		List<String> rols = new ArrayList<String>();
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();		
+		if (auth.getAuthorities() != null) {
+			for (GrantedAuthority grantedAuthority: auth.getAuthorities()) {
+				rols.add(grantedAuthority.getAuthority());
+			}
+		}
+		return rols;
+	}
+
+
 }

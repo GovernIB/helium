@@ -28,4 +28,5 @@ public class ExpedientApiPath {
 
 	public static final String DESANULAR_EXPEDIENT = API_PATH + "/{expedientId}/desanular";
 
+	public static final String GET_PARTICIPANTS = API_PATH + "/{expedientId}/participants";
 }

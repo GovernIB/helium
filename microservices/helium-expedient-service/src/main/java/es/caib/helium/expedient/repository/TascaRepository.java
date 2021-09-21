@@ -28,4 +28,10 @@ public interface TascaRepository extends BaseRepository<Tasca, String>  {
      */
     Optional<Tasca> findByTascaId(String tascaId);
 
+    @Query("select distinct t.usuariAssignat " +
+    "from Tasca t " +
+    "where t.proces.expedient.id = :expedientId " +
+    "      and t.usuariAssignat is not null ")
+	List<String> findParticipantsByExpedientId(@Param("expedientId") Long expedientId);
+
 }

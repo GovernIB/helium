@@ -30,6 +30,7 @@ public interface TascaService {
     		Long entornId,
             Long expedientTipusId,
 			String usuariAssignat,
+			List<String> grups,
 			String nom,
 			String titol,
 			Long expedientId,

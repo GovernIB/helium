@@ -375,15 +375,25 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 	}
 
 	@Override
-	public void tascaAssignar(long tascaId, String actorId, List<String> usuaris,
-			List<String> grups) {
+	public void tascaAssignar(long tascaId, String actorId) {
     	tasquesHelper.assignar(
     			tascaId, 
-    			actorId,
-    			usuaris,
-    			grups);
+    			actorId);
 	}
 
+	@Override
+	public void tascaAssignarUsuaris(long tascaId, List<String> usuaris) {
+    	tasquesHelper.assignarUsuaris(
+    			tascaId, 
+    			usuaris);
+	}
+
+	@Override
+	public void tascaAssignarGrups(long tascaId, List<String> grups) {
+    	tasquesHelper.assignarGrups(
+    			tascaId,
+    			grups);
+	}
 
     @Override
     public String getDadaPerTaskInstance(String processInstanceId, String taskInstanceId, String varCodi) {

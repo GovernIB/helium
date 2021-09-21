@@ -3,9 +3,44 @@
  */
 package es.caib.helium.logic.service;
 
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.client.expedient.expedient.ExpedientClientService;
+import es.caib.helium.client.expedient.expedient.enums.ExpedientEstatTipusEnum;
+import es.caib.helium.client.expedient.expedient.model.ConsultaExpedientDades;
 import es.caib.helium.client.expedient.proces.ProcesClientService;
 import es.caib.helium.client.expedient.proces.model.ConsultaProcesDades;
 import es.caib.helium.client.expedient.tasca.TascaClientService;
@@ -23,11 +58,13 @@ import es.caib.helium.logic.helper.ExpedientTipusHelper;
 import es.caib.helium.logic.helper.HerenciaHelper;
 import es.caib.helium.logic.helper.IndexHelper;
 import es.caib.helium.logic.helper.MessageServiceHelper;
+import es.caib.helium.logic.helper.MsHelper;
 import es.caib.helium.logic.helper.NotificacioHelper;
 import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.helper.PermisosHelper;
 import es.caib.helium.logic.helper.PluginHelper;
 import es.caib.helium.logic.helper.TascaHelper;
+import es.caib.helium.logic.helper.UsuariActualHelper;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi.ExpedientRetroaccioTipus;
@@ -43,6 +80,8 @@ import es.caib.helium.logic.intf.dto.DadesDocumentDto;
 import es.caib.helium.logic.intf.dto.DadesNotificacioDto;
 import es.caib.helium.logic.intf.dto.DefinicioProcesExpedientDto;
 import es.caib.helium.logic.intf.dto.DocumentNotificacioDto;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.EstatDto;
 import es.caib.helium.logic.intf.dto.ExpedientConsultaDissenyDto;
 import es.caib.helium.logic.intf.dto.ExpedientDocumentDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
@@ -63,7 +102,6 @@ import es.caib.helium.logic.intf.dto.PaginacioParamsDto.OrdreDto;
 import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.dto.RespostaValidacioSignaturaDto;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
-import es.caib.helium.logic.intf.dto.TascaLlistatDto;
 import es.caib.helium.logic.intf.dto.expedient.ExpedientIniciDto;
 import es.caib.helium.logic.intf.exception.ExecucioHandlerException;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
@@ -75,7 +113,6 @@ import es.caib.helium.logic.intf.exception.ValidacioException;
 import es.caib.helium.logic.intf.service.AnotacioService;
 import es.caib.helium.logic.intf.service.ExpedientService;
 import es.caib.helium.logic.intf.util.Constants;
-import es.caib.helium.logic.ms.ExpedientMs;
 import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.logic.util.EntornActual;
 import es.caib.helium.persist.entity.Accio;
@@ -108,6 +145,7 @@ import es.caib.helium.persist.repository.ConsultaRepository;
 import es.caib.helium.persist.repository.DefinicioProcesRepository;
 import es.caib.helium.persist.repository.DocumentNotificacioRepository;
 import es.caib.helium.persist.repository.DocumentStoreRepository;
+import es.caib.helium.persist.repository.EntornRepository;
 import es.caib.helium.persist.repository.EstatRepository;
 import es.caib.helium.persist.repository.ExecucioMassivaExpedientRepository;
 import es.caib.helium.persist.repository.ExpedientRepository;
@@ -117,36 +155,6 @@ import es.caib.helium.persist.repository.PortasignaturesRepository;
 import es.caib.helium.persist.repository.RegistreRepository;
 import es.caib.helium.persist.repository.TerminiIniciatRepository;
 import es.caib.helium.persist.util.ThreadLocalInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 /**
  * Implementació dels mètodes del servei ExpedientService.
@@ -158,6 +166,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 	@Resource
 	private ExpedientRepository expedientRepository;
+	@Resource
+	private EntornRepository entornRepository;
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
 	@Resource
@@ -233,13 +243,15 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private AnotacioService anotacioService;
 
 	@Resource
-	private ExpedientMs expedientMs;
-	@Resource
 	private ExpedientClientService expedientClientService;
 	@Resource
 	private TascaClientService tascaClientService;
 	@Resource
 	private ProcesClientService procesClientService;
+	@Resource
+	private UsuariActualHelper usuariActualHelper;
+	@Autowired
+	private MsHelper msHelper;
 
 	/**
 	 * {@inheritDoc}
@@ -567,7 +579,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 			execucioMassivaExpedientRepository.delete(eme);
 		}
 		expedientRepository.delete(expedient);
-		// TODO: MS de dades i MS expedients --> Borrar expedient
 		expedientClientService.deleteExpedientV1(expedient.getId());
 //		luceneHelper.deleteExpedient(expedient);
 		if (expedient.getArxiuUuid() != null && pluginHelper.arxiuExisteixExpedient(expedient.getArxiuUuid())) {			
@@ -730,33 +741,47 @@ public class ExpedientServiceImpl implements ExpedientService {
 		
 		// Obté la llista de tipus d'expedient permesos
 		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
+		
+		ConsultaExpedientDades consultaExpedientDades = ConsultaExpedientDades.builder()
+				.entornId(entornId)
+				.actorId(usuariActualHelper.getUsuariActual())
+				.grups(usuariActualHelper.getRols())
+				.tipusIdPermesos(tipusPermesosIds)
+				.titol(titol)
+				.numero(numero)
+				.tipusId(expedientTipusId)
+				.dataCreacioInici(dataInici1)
+				.dataCreacioFi(dataInici2)
+				.dataFiInici(dataFi1)
+				.dataFiFi(dataFi2)
+				.estatId(estatId)
+				.geoPosX(geoPosX)
+				.geoPosY(geoPosY)
+				.geoReferencia(geoReferencia)
+				.nomesIniciats(EstatTipusDto.INICIAT.equals(estatTipus))
+				.nomesFinalitzats(EstatTipusDto.FINALITZAT.equals(estatTipus))
+				.mostrarAnulats(MostrarAnulatsDto.SI.equals(mostrarAnulats))
+				.mostrarNomesAnulats(MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats))
+				.nomesAlertes(nomesAlertes)
+				.nomesErrors(nomesErrors)
+				.nomesTasquesPersonals(nomesTasquesPersonals)
+				.nomesTasquesGrup(nomesTasquesGrup)
+				.nomesTasquesMeves(true) // TODO Si no te permis SUPERVISION nomesTasquesMeves = false
+				.nomesCount(false)
+				.page(paginacioParams.getPaginaNum())
+				.size(paginacioParams.getPaginaTamany())
+				.sort(msHelper.getSortList(paginacioParams))
+				.build();
+
 		// Executa la consulta amb paginació
-		PaginaDto<ExpedientDto> expedients = expedientMs.expedientFindByFiltre(
-				entornId,
-				auth.getName(),
-				tipusPermesosIds,
-				titol,
-				numero,
-				expedientTipusId,
-				dataInici1,
-				dataInici2,
-				dataFi1,
-				dataFi2,
-				estatId,
-				geoPosX,
-				geoPosY,
-				geoReferencia,
-				EstatTipusDto.INICIAT.equals(estatTipus),
-				EstatTipusDto.FINALITZAT.equals(estatTipus),
-				MostrarAnulatsDto.SI.equals(mostrarAnulats),
-				MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
-				nomesAlertes,
-				nomesErrors,
-				nomesTasquesPersonals,
-				nomesTasquesGrup,
-				true, // nomesTasquesMeves, // TODO Si no te permis SUPERVISION nomesTasquesMeves = false
-				paginacioParams,
-				false);
+		PagedList<es.caib.helium.client.expedient.expedient.model.ExpedientDto> page  = 
+				this.expedientClientService.findExpedientsAmbFiltrePaginatV1(consultaExpedientDades);
+		
+		PaginaDto<ExpedientDto> expedients = paginacioHelper.toPaginaDto(
+				page, 
+				ExpedientDto.class);
+		
+		this.completaDto(page.getContent(), expedients.getContingut());
 
 		if (expedients.getContingut().size() > 0) {
 			expedientHelper.omplirPermisosExpedients(expedients.getContingut());
@@ -766,6 +791,60 @@ public class ExpedientServiceImpl implements ExpedientService {
 				expedients.getContingut(),
 				expedients.getTotal(),
 				paginacioParams);
+	}
+	
+	/** Consulta els dto's dels entorns i tipus d'expedients i els informa al llistat de sortida.
+	 * 
+	 * @param content
+	 * @param contingut
+	 */
+	private void completaDto(
+			List<es.caib.helium.client.expedient.expedient.model.ExpedientDto> expedientsMs,
+			List<ExpedientDto> expedientsDtos) {
+		
+		EntornDto entorn;
+		Map<Long, EntornDto> entorns = new HashMap<Long, EntornDto>();
+		ExpedientTipusDto expedientTipus;
+		Map<Long, ExpedientTipusDto> expedientsTipus = new HashMap<Long, ExpedientTipusDto>();
+		EstatDto estat;
+		Map<Long, EstatDto> estats = new HashMap<Long, EstatDto>();
+		es.caib.helium.client.expedient.expedient.model.ExpedientDto expedientMs;
+		ExpedientDto expedientDto;
+		for (int i = 0; i < expedientsMs.size(); i++) {
+			expedientMs = expedientsMs.get(i);
+			expedientDto = expedientsDtos.get(i);
+			// expedient tipus
+			if (expedientsTipus.containsKey(expedientMs.getExpedientTipusId())) {
+				expedientTipus = expedientsTipus.get(expedientMs.getExpedientTipusId());
+			} else {
+				expedientTipus = conversioTipusServiceHelper.convertir(
+						expedientTipusRepository.findById(expedientMs.getExpedientTipusId()).get(),
+						ExpedientTipusDto.class);
+				expedientsTipus.put(expedientMs.getExpedientTipusId(), expedientTipus);
+			}
+			expedientDto.setTipus(expedientTipus);
+			// entorn
+			if (entorns.containsKey(expedientMs.getEntornId())) {
+				entorn = entorns.get(expedientMs.getEntornId());
+			} else {
+				entorn = conversioTipusServiceHelper.convertir(
+						entornRepository.findById(expedientMs.getEntornId()).get(),
+						EntornDto.class);
+				entorns.put(expedientMs.getEntornId(), entorn);
+			}
+			expedientDto.setEntorn(entorn);
+			// estat
+			if (ExpedientEstatTipusEnum.CUSTOM.equals(expedientMs.getEstatTipus()) ) {
+				if (estats.containsKey(expedientMs.getEstatId())) {
+					estat = estats.get(expedientMs.getEstatId());
+				} else {
+					estat = expedientTipusHelper.estatFindAmbId(expedientMs.getExpedientTipusId(), expedientMs.getEstatId());
+					estats.put(expedientMs.getEstatId(), estat);
+				}
+				expedientDto.setEstat(estat);
+			}
+			expedientDto.setEstatTipus(EstatTipusDto.valueOf(expedientMs.getEstatTipus().toString()));
+		}
 	}
 
 	/** Ajusta el dia per a que estigui tot inclòs. Ajusta l'hora i els minuts fins al final del dia. */
@@ -878,32 +957,37 @@ public class ExpedientServiceImpl implements ExpedientService {
 		// Obté la llista de tipus d'expedient permesos
 		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
 		// Executa la consulta amb paginació
-		PaginaDto<Long> expedientsIds = expedientMs.expedientFindIdsByFiltre(
-				entornId,
-				auth.getName(),
-				tipusPermesosIds,
-				titol,
-				numero,
-				expedientTipusId,
-				dataInici1,
-				dataInici2,
-				dataFi1,
-				dataFi2,
-				estatId,
-				geoPosX,
-				geoPosY,
-				geoReferencia,
-				EstatTipusDto.INICIAT.equals(estatTipus),
-				EstatTipusDto.FINALITZAT.equals(estatTipus),
-				MostrarAnulatsDto.SI.equals(mostrarAnulats),
-				MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
-				nomesAlertes,
-				nomesErrors,
-				nomesTasquesPersonals,
-				nomesTasquesGrup,
-				true, // nomesTasquesMeves, // TODO Si no te permis SUPERVISION nomesTasquesMeves = false
-				new PaginacioParamsDto(),
-				false);
+		ConsultaExpedientDades consultaExpedientDades = ConsultaExpedientDades.builder()
+				.entornId(entornId)
+				.actorId(usuariActualHelper.getUsuariActual())
+				.grups(usuariActualHelper.getRols())
+				.tipusIdPermesos(tipusPermesosIds)
+				.titol(titol)
+				.numero(numero)
+				.tipusId(expedientTipusId)
+				.dataCreacioInici(dataInici1)
+				.dataCreacioFi(dataInici2)
+				.dataFiInici(dataFi1)
+				.dataFiFi(dataFi2)
+				.estatId(estatId)
+				.geoPosX(geoPosX)
+				.geoPosY(geoPosY)
+				.geoReferencia(geoReferencia)
+				.nomesIniciats(EstatTipusDto.INICIAT.equals(estatTipus))
+				.nomesFinalitzats(EstatTipusDto.FINALITZAT.equals(estatTipus))
+				.mostrarAnulats(MostrarAnulatsDto.SI.equals(mostrarAnulats))
+				.mostrarNomesAnulats(MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats))
+				.nomesAlertes(nomesAlertes)
+				.nomesErrors(nomesErrors)
+				.nomesTasquesPersonals(nomesTasquesPersonals)
+				.nomesTasquesGrup(nomesTasquesGrup)
+				.nomesTasquesMeves(true) // TODO Si no te permis SUPERVISION nomesTasquesMeves = false
+				.nomesCount(true)
+				.build();
+
+		PaginaDto<Long> expedientsIds = paginacioHelper.toPaginaDto(
+				this.expedientClientService.findExpedientsIdsAmbFiltrePaginatV1(consultaExpedientDades),
+				Long.class);
 		return expedientsIds.getContingut();
 	}
 	/**
@@ -1002,30 +1086,24 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public List<PersonaDto> findParticipants(Long id) {
 		logger.debug("Consulta de participants per a l'expedient (" +
 				"id=" + id + ")");
-		//TODO DANIEL: crear un mètode al ms d'expedients i tasques per obtenir usuaris participants
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+		
+		expedientHelper.getExpedientComprovantPermisos(
 				id,
 				true,
 				false,
 				false,
 				false);
-		
-		List<ExpedientTascaDto> tasques = tascaHelper.findTasquesPerExpedientPerInstanciaProces(
-				expedient,
-				expedient.getProcessInstanceId(),
-				true, // completades
-				true, // no completades
-				true);
-		
-		Set<String> codisPersona = new HashSet<String>();
-		List<PersonaDto> resposta = new ArrayList<PersonaDto>();
-		for (ExpedientTascaDto tasca: tasques) {
-			if (tasca.getAssignee() != null && !codisPersona.contains(tasca.getAssignee())) {
-				resposta.add(tasca.getResponsable());
-				codisPersona.add(tasca.getAssignee());
+
+		// Consulta la llista de participants
+		List<String> participants = expedientClientService.getParticipantsV1(id);
+		// Resol la informació de les persones
+		Map<String, PersonaDto> persones = new HashMap<>();
+		for (String participant : participants) {
+			if (!persones.containsKey(participant)) {
+				persones.put(participant, tascaHelper.findPersonaOrDefault(participant));
 			}
 		}
-		return resposta;
+		return new ArrayList<>(persones.values());
 	}
 
 	/**
@@ -1034,7 +1112,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Override
 	// No pot ser readOnly per mor de la cache de les tasques
 	@Transactional
-	public List<TascaLlistatDto> findTasquesPendents(
+	public List<ExpedientTascaDto> findTasquesPendents(
 			Long expedientId,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup) {
@@ -1060,7 +1138,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 						ExtendedPermission.ADMINISTRATION},
 					auth);
 
-		List<TascaLlistatDto> resposta = new ArrayList<TascaLlistatDto>();
+		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
 		List<TascaDto> tasquesMs = tascaClientService.findTasquesAmbFiltrePaginatV1(ConsultaTascaDades.builder()
 				.entornId(EntornActual.getEntornId())
 				.expedientId(expedient.getId())
@@ -1069,7 +1147,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				.getContent();
 		for (TascaDto tascaMs : tasquesMs) {
 			if (tasquesAltresUsuaris || auth.getName().equals(tascaMs.getUsuariAssignat())) {
-				TascaLlistatDto tasca = tascaHelper.toTascaLlistatDto(
+				ExpedientTascaDto tasca = tascaHelper.toExpedientTascaDto(
 						tascaMs,
 						expedient,
 						true,
@@ -2247,7 +2325,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return null;
 	}
 
-	// TODO: Passar a MS Dades
 	/**
 	 * {@inheritDoc}
 	 */
@@ -2304,34 +2381,24 @@ public class ExpedientServiceImpl implements ExpedientService {
 			expedientIdsPermesos = new ArrayList<Long>(expedientIdsSeleccio);
 		} else {
 			List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			PaginaDto<Long> expedientsIds = expedientMs.expedientFindIdsByFiltre(
-					entorn.getId(),
-					auth.getName(),
-					tipusPermesosIds,
-					null,
-					null,
-					expedientTipus.getId(),
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					false,
-					false,
-					MostrarAnulatsDto.SI.equals(mostrarAnulats),
-					MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
-					nomesAlertes,
-					nomesErrors,
-					nomesTasquesPersonals,
-					nomesTasquesGrup,
-					nomesMeves,
-					new PaginacioParamsDto(),
-					false);
-			expedientIdsPermesos = expedientsIds.getContingut();
+			ConsultaExpedientDades consultaExpedientDades = ConsultaExpedientDades.builder()
+					.entornId(entorn.getId())
+					.actorId(usuariActualHelper.getUsuariActual())
+					.grups(usuariActualHelper.getRols())
+					.tipusIdPermesos(tipusPermesosIds)
+					.tipusId(expedientTipus.getId())
+					.nomesIniciats(false)
+					.nomesFinalitzats(false)
+					.mostrarAnulats(MostrarAnulatsDto.SI.equals(mostrarAnulats))
+					.mostrarNomesAnulats(MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats))
+					.nomesAlertes(nomesAlertes)
+					.nomesErrors(nomesErrors)
+					.nomesTasquesPersonals(nomesTasquesPersonals)
+					.nomesTasquesGrup(nomesTasquesGrup)
+					.nomesTasquesMeves(nomesMeves)
+					.build();
+			expedientIdsPermesos = 
+					expedientClientService.findExpedientsIdsAmbFiltrePaginatV1(consultaExpedientDades).getContent();
 		}
 		// Obte la llista d'expedients de lucene passant els expedients permesos
 		// com a paràmetres
@@ -2406,7 +2473,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 				paginacioParams);
 	}
 
-	// TODO: Passar a MS Dades
 	/**
 	 * {@inheritDoc}
 	 */
@@ -2446,33 +2512,26 @@ public class ExpedientServiceImpl implements ExpedientService {
 					consulta.getExpedientTipus().getId());
 		// Obte la llista d'expedients permesos segons els filtres
 		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		PaginaDto<Long> expedientsIds = expedientMs.expedientFindIdsByFiltre(
-				entorn.getId(),
-				auth.getName(),
-				tipusPermesosIds,
-				null,
-				null,
-				expedientTipus.getId(),
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				false,
-				false,
-				MostrarAnulatsDto.SI.equals(mostrarAnulats),
-				MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats),
-				nomesAlertes,
-				nomesErrors,
-				nomesTasquesPersonals,
-				nomesTasquesGrup,
-				nomesMeves,
-				new PaginacioParamsDto(),
-				false);
+		ConsultaExpedientDades consultaExpedientDades = ConsultaExpedientDades.builder()
+				.entornId(entorn.getId())
+				.actorId(usuariActualHelper.getUsuariActual())
+				.grups(usuariActualHelper.getRols())
+				.tipusIdPermesos(tipusPermesosIds)
+				.tipusId(expedientTipus.getId())
+				.nomesIniciats(false)
+				.nomesFinalitzats(false)
+				.mostrarAnulats(MostrarAnulatsDto.SI.equals(mostrarAnulats))
+				.mostrarNomesAnulats(MostrarAnulatsDto.NOMES_ANULATS.equals(mostrarAnulats))
+				.nomesAlertes(nomesAlertes)
+				.nomesErrors(nomesErrors)
+				.nomesTasquesPersonals(nomesTasquesPersonals)
+				.nomesTasquesGrup(nomesTasquesGrup)
+				.nomesTasquesMeves(nomesMeves)
+				.build();
+		PaginaDto<Long> expedientsIds = paginacioHelper.toPaginaDto(
+				expedientClientService.findExpedientsIdsAmbFiltrePaginatV1(consultaExpedientDades),
+				Long.class);
+
 		// Obte la llista d'ids de lucene passant els expedients permesos
 		// com a paràmetres
 		List<Camp> filtreCamps = consultaHelper.toListCamp(
