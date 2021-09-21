@@ -34,6 +34,9 @@ public class PersonaUsuariCommand {
 	
 	private boolean hombre;
 
+	/** Camp informatiu pels rols */
+	private String[] rols;
+
 	public String getNom() {
 		return nom;
 	}
@@ -117,5 +120,11 @@ public class PersonaUsuariCommand {
 	}
 	public void setExpedientTipusDefecteId(Long expedientTipusDefecteId) {
 		this.expedientTipusDefecteId = expedientTipusDefecteId;
+	}
+	public String[] getRols() {
+		return rols;
+	}
+	public void setRols(String[] rols) {
+		this.rols = rols;
 	}
 }

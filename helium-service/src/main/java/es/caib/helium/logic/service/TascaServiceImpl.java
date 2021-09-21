@@ -3,6 +3,33 @@
  */
 package es.caib.helium.logic.service;
 
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.client.expedient.proces.ProcesClientService;
 import es.caib.helium.client.expedient.tasca.TascaClientService;
@@ -23,9 +50,11 @@ import es.caib.helium.logic.helper.PaginacioHelper;
 import es.caib.helium.logic.helper.PaginacioHelper.Converter;
 import es.caib.helium.logic.helper.PermisosHelper;
 import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
+import es.caib.helium.logic.helper.PluginHelper;
 import es.caib.helium.logic.helper.TascaHelper;
 import es.caib.helium.logic.helper.TascaSegonPlaHelper;
 import es.caib.helium.logic.helper.TascaSegonPlaHelper.InfoSegonPla;
+import es.caib.helium.logic.helper.UsuariActualHelper;
 import es.caib.helium.logic.helper.VariableHelper;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
@@ -40,7 +69,6 @@ import es.caib.helium.logic.intf.dto.SeleccioOpcioDto;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
 import es.caib.helium.logic.intf.dto.TascaDocumentDto;
 import es.caib.helium.logic.intf.dto.TascaDto;
-import es.caib.helium.logic.intf.dto.TascaLlistatDto;
 import es.caib.helium.logic.intf.exception.ExecucioHandlerException;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
@@ -79,31 +107,6 @@ import es.caib.helium.persist.repository.RegistreRepository;
 import es.caib.helium.persist.repository.TascaRepository;
 import es.caib.helium.persist.repository.TerminiIniciatRepository;
 import es.caib.helium.persist.util.ThreadLocalInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Servei per gestionar terminis.
@@ -186,6 +189,11 @@ public class TascaServiceImpl implements TascaService {
 
 	@Autowired
 	private MsHelper msHelper;
+	
+	@Autowired
+	private UsuariActualHelper usuariActualHelper;
+	@Autowired
+	private PluginHelper pluginHelper;
 
 
 	@Override
@@ -233,6 +241,7 @@ public class TascaServiceImpl implements TascaService {
 			String titol,
 			String tasca,
 			String responsable,
+			List<String> grups,
 			String expedient,
 			Date dataCreacioInici,
 			Date dataCreacioFi,
@@ -246,6 +255,7 @@ public class TascaServiceImpl implements TascaService {
 				"entornId=" + entornId + ", " +
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"responsable=" + responsable + ", " +
+				"grups=" + grups + ", " +
 				"titol=" + titol + ", " +
 				"tasca=" + tasca + ", " +
 				"dataCreacioInici=" + dataCreacioInici + ", " +
@@ -337,7 +347,8 @@ public class TascaServiceImpl implements TascaService {
 			ConsultaTascaDades consultaTascaDades = ConsultaTascaDades.builder()
 					.entornId(entornId)
 					.expedientTipusId(expedientTipusId)
-					.usuariAssignat(responsable)
+					.responsable(responsable)
+					.grups(grups)
 					.nom(tasca)
 					.titol(titol)
 					.expedientId(expedientTipusId)
@@ -364,7 +375,7 @@ public class TascaServiceImpl implements TascaService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public PaginaDto<TascaLlistatDto> findPerFiltrePaginat(
+	public PaginaDto<ExpedientTascaDto> findPerFiltrePaginat(
 			Long entornId,
 			String tramitacioMassivaTascaId,
 			Long expedientTipusId,
@@ -438,6 +449,9 @@ public class TascaServiceImpl implements TascaService {
 //			final Timer.Context contextTimerConsultaEntorn = timerConsultaEntorn.time();
 			PagedList<es.caib.helium.client.expedient.tasca.model.TascaDto> page;
 			try {
+				boolean mostrarAssignadesUsuari = (nomesTasquesPersonals && !nomesTasquesGrup) || (!nomesTasquesPersonals && !nomesTasquesGrup);
+				boolean mostrarAssignadesGrup = (nomesTasquesGrup && !nomesTasquesPersonals) || (!nomesTasquesPersonals && !nomesTasquesGrup);
+
 				// Comprova l'accés al tipus d'expedient
 				if (expedientTipusId != null) {
 					expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
@@ -445,8 +459,17 @@ public class TascaServiceImpl implements TascaService {
 				}
 				// Si no hi ha tipexp seleccionat o no es te permis SUPERVISION
 				// a damunt el tipexp es filtra per l'usuari actual.
+				List<String> rols = new ArrayList<String>();
 				if (nomesTasquesMeves || expedientTipusId == null || !expedientTipusHelper.comprovarPermisSupervisio(expedientTipusId)) {
 					responsable = SecurityContextHolder.getContext().getAuthentication().getName();
+					rols = usuariActualHelper.getRols();
+				} else if (mostrarAssignadesGrup) {
+					// Obté els rols de l'usuari responsable
+					try {
+						rols = pluginHelper.personaFindRolsAmbCodi(responsable);
+					} catch (Exception e) {
+						logger.error("Error consultant la llista de rols per l'usuari " + responsable, e);
+					}
 				}
 				if (tramitacioMassivaTascaId != null) {
 					WTaskInstance task = tascaHelper.getTascaComprovacionsTramitacio(
@@ -469,14 +492,13 @@ public class TascaServiceImpl implements TascaService {
 					cal.add(Calendar.DATE, 1);
 					dataLimitFi.setTime(cal.getTime().getTime());
 				}
-				boolean mostrarAssignadesUsuari = (nomesTasquesPersonals && !nomesTasquesGrup) || (!nomesTasquesPersonals && !nomesTasquesGrup);
-				boolean mostrarAssignadesGrup = (nomesTasquesGrup && !nomesTasquesPersonals) || (!nomesTasquesPersonals && !nomesTasquesGrup);
 
 
 				ConsultaTascaDades consultaTascaDades = ConsultaTascaDades.builder()
 						.entornId(entornId)
 						.expedientTipusId(expedientTipusId)
-						.usuariAssignat(responsable)
+						.responsable(responsable)
+						.grups(rols)
 						.nom(tasca)
 						.titol(titol)
 						.expedientTitol(expedient)
@@ -518,9 +540,9 @@ public class TascaServiceImpl implements TascaService {
 						page.getContent(),
 						page.getTotalElements(),
 						paginacioParams,
-						new Converter<es.caib.helium.client.expedient.tasca.model.TascaDto, TascaLlistatDto>() {
-							public TascaLlistatDto convert(es.caib.helium.client.expedient.tasca.model.TascaDto tascaMs) {
-								return tascaHelper.toTascaLlistatDto(
+						new Converter<es.caib.helium.client.expedient.tasca.model.TascaDto, ExpedientTascaDto>() {
+							public ExpedientTascaDto convert(es.caib.helium.client.expedient.tasca.model.TascaDto tascaMs) {
+								return tascaHelper.toExpedientTascaDto(
 										tascaMs,
 										null,
 										false,
@@ -1409,7 +1431,7 @@ public class TascaServiceImpl implements TascaService {
 //			workflowEngineApi.completeTaskInstance(task, outcome);
 			checkCompletarTasca(tascaId);
 			// Accions per a una tasca delegada
-			DelegationInfo delegationInfo = tascaHelper.getDelegationInfo(task);
+			DelegationInfo delegationInfo = tascaHelper.getDelegationInfo(tascaId);
 			if (delegationInfo != null) {
 				if (!tascaId.equals(delegationInfo.getSourceTaskId())) {
 					// Copia les variables de la tasca delegada a la original

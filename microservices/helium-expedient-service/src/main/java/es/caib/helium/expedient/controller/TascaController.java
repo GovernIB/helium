@@ -76,7 +76,8 @@ public class TascaController {
     	
       Long entornId = consultaTascaDades.getEntornId();
       Long expedientTipusId = consultaTascaDades.getExpedientTipusId();
-      String usuariAssignat = consultaTascaDades.getUsuariAssignat();
+      String responsable = consultaTascaDades.getResponsable();
+      List<String> grups = consultaTascaDades.getGrups();
       String nom = consultaTascaDades.getNom();
       String titol = consultaTascaDades.getTitol();
       Long expedientId = consultaTascaDades.getExpedientId();
@@ -94,7 +95,8 @@ public class TascaController {
     	log.debug("[CTR] llistant tasques: \n" +
                 "entornId: " + entornId +
                 ", expedientTipusId: " + expedientTipusId +
-                ", usuariAssignat: " + usuariAssignat +
+                ", responsable: " + responsable +
+                ", grups: " + grups +
                 ", nom: " + nom +
                 ", titol: " + titol +
                 ", expedientId: " + expedientId +
@@ -112,7 +114,8 @@ public class TascaController {
         PagedList<TascaDto> tascaList = tascaService.listTasques(
         		entornId, 
         		expedientTipusId,
-        		usuariAssignat, 
+        		responsable, 
+        		grups,
         		nom, 
         		titol, 
         		expedientId, 
@@ -150,7 +153,8 @@ public class TascaController {
    	
      Long entornId = consultaTascaDades.getEntornId();
      Long expedientTipusId = consultaTascaDades.getExpedientTipusId();
-     String usuariAssignat = consultaTascaDades.getUsuariAssignat();
+     String responsable = consultaTascaDades.getResponsable();
+     List<String> grups = consultaTascaDades.getGrups();
      String nom = consultaTascaDades.getNom();
      String titol = consultaTascaDades.getTitol();
      Long expedientId = consultaTascaDades.getExpedientId();
@@ -168,7 +172,8 @@ public class TascaController {
    	log.debug("[CTR] llistant identificadors de tasques: \n" +
                "entornId: " + entornId +
                ", expedientTipusId: " + expedientTipusId +
-               ", usuariAssignat: " + usuariAssignat +
+               ", responsable: " + responsable +
+               ", grups: " + grups +
                ", nom: " + nom +
                ", titol: " + titol +
                ", expedientId: " + expedientId +
@@ -187,7 +192,8 @@ public class TascaController {
        PagedList<TascaDto> tascaList = tascaService.listTasques(
        		entornId, 
        		expedientTipusId,
-       		usuariAssignat, 
+       		responsable,
+       		grups,
        		nom, 
        		titol, 
        		expedientId, 

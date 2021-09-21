@@ -2,8 +2,8 @@ package es.caib.helium.client.expedient.expedient.model;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
-import javax.json.bind.annotation.JsonbDateFormat;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -30,6 +30,7 @@ public class ConsultaExpedientDades extends PagedSortedRequest {
     private Long entornId;
     private String filtreRsql;
     private String actorId;
+    private List<String> grups;
     private Collection<Long> tipusIdPermesos;
     private String titol;
     private String numero;

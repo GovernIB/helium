@@ -189,6 +189,7 @@ public class ExpedientServiceImpl implements ExpedientService {
     @Transactional(readOnly = true)
     public PagedList<ExpedientDto> listExpedients(
     		String usuariCodi,
+    		List<String> grups,
     		Long entornId,
             Long expedientTipusId,
             Collection<Long> tipusIdPermesos,
@@ -214,6 +215,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 
         log.debug("[SRV] Obtenint llistat de expedients. \n" +
                 "usuariCodi: " + usuariCodi +
+                "grups: " + grups +
                 "entornId: " + entornId + "\n" +
                 "expedientTipusId: " + expedientTipusId + "\n" +
                 "tipusIdPermesos: " + tipusIdPermesos + "\n" +
@@ -237,6 +239,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 
         Specification<Expedient> spec = ExpedientSpecifications.expedientsList(
         									usuariCodi,
+        									grups,
 											entornId,
 											expedientTipusId,
 											tipusIdPermesos,
@@ -323,5 +326,10 @@ public class ExpedientServiceImpl implements ExpedientService {
                 .map(e -> e.getKey() + "=" + e.getValue())
                 .collect(Collectors.joining(", ", "{ ", " }"));
     }
+
+	@Override
+	public List<String> getParticipants(Long expedientId) {
+		return tascaRepository.findParticipantsByExpedientId(expedientId);
+	}
 
 }

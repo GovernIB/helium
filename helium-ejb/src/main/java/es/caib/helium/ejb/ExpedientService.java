@@ -3,6 +3,14 @@
  */
 package es.caib.helium.ejb;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.security.RolesAllowed;
+import javax.ejb.Stateless;
+
 import es.caib.helium.logic.intf.dto.AccioDto;
 import es.caib.helium.logic.intf.dto.AlertaDto;
 import es.caib.helium.logic.intf.dto.ArxiuDetallDto;
@@ -25,17 +33,9 @@ import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
 import es.caib.helium.logic.intf.dto.PersonaDto;
 import es.caib.helium.logic.intf.dto.RespostaValidacioSignaturaDto;
 import es.caib.helium.logic.intf.dto.TascaDadaDto;
-import es.caib.helium.logic.intf.dto.TascaLlistatDto;
 import es.caib.helium.logic.intf.dto.expedient.ExpedientIniciDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
-
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Stateless;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * EJB que implementa la interfície del servei ExpedientService.
@@ -278,7 +278,7 @@ public class ExpedientService extends AbstractService<es.caib.helium.logic.intf.
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<TascaLlistatDto> findTasquesPendents(
+	public List<ExpedientTascaDto> findTasquesPendents(
 			Long expedientId,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup) {

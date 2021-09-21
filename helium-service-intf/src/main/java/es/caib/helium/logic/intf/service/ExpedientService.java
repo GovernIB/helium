@@ -3,21 +3,40 @@
  */
 package es.caib.helium.logic.intf.service;
 
-import es.caib.helium.logic.intf.dto.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.springframework.security.acls.model.NotFoundException;
+
+import es.caib.helium.logic.intf.dto.AccioDto;
+import es.caib.helium.logic.intf.dto.AlertaDto;
+import es.caib.helium.logic.intf.dto.ArxiuDetallDto;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.CampDto;
+import es.caib.helium.logic.intf.dto.DadaIndexadaDto;
+import es.caib.helium.logic.intf.dto.DadesDocumentDto;
+import es.caib.helium.logic.intf.dto.DadesNotificacioDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesExpedientDto;
+import es.caib.helium.logic.intf.dto.ExpedientConsultaDissenyDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto.EstatTipusDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto.IniciadorTipusDto;
+import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
+import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
+import es.caib.helium.logic.intf.dto.MostrarAnulatsDto;
+import es.caib.helium.logic.intf.dto.NotificacioDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.dto.RespostaValidacioSignaturaDto;
+import es.caib.helium.logic.intf.dto.TascaDadaDto;
 import es.caib.helium.logic.intf.dto.expedient.ExpedientIniciDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.intf.exception.SistemaExternException;
 import es.caib.helium.logic.intf.exception.TramitacioException;
-import org.springframework.security.acls.model.NotFoundException;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -375,7 +394,7 @@ public interface ExpedientService {
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
 	 */
-	public List<TascaLlistatDto> findTasquesPendents(
+	public List<ExpedientTascaDto> findTasquesPendents(
 			Long id,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup) throws NoTrobatException;

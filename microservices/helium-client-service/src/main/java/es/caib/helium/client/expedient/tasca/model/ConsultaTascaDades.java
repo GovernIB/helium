@@ -1,17 +1,15 @@
 package es.caib.helium.client.expedient.tasca.model;
 
-import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
-import javax.json.bind.annotation.JsonbDateFormat;
 import javax.validation.constraints.NotNull;
 
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import es.caib.helium.client.model.PagedSortedRequest;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -31,7 +29,8 @@ public class ConsultaTascaDades extends PagedSortedRequest {
     @NotNull
     private Long entornId;
     private Long expedientTipusId;
-    private String usuariAssignat;
+    private String responsable;
+    private List<String> grups;
     private String nom;
     private String titol;
     private Long expedientId;
@@ -45,8 +44,10 @@ public class ConsultaTascaDades extends PagedSortedRequest {
     private Date dataLimitInici;
 	@DateTimeFormat(pattern="yyyy-MM-dd")
     private Date dataLimitFi;
-    boolean mostrarAssignadesUsuari;
-    boolean mostrarAssignadesGrup;
+	@Builder.Default
+    boolean mostrarAssignadesUsuari = true;
+	@Builder.Default
+    boolean mostrarAssignadesGrup = true;
     boolean nomesPendents;
     private String filtre;
 }

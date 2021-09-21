@@ -3,6 +3,7 @@ package es.caib.helium.expedient.repository;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.criteria.JoinType;
 
@@ -168,6 +169,7 @@ public class ExpedientSpecifications {
     
     public static Specification<Expedient> expedientsList(
             String usuariCodi,
+            List<String> grups,
             Long entornId,
             Long expedientTipusId, 
             Collection<Long> tipusIdPermesos, 

@@ -1,6 +1,7 @@
 package es.caib.helium.client.expedient.expedient;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -51,4 +52,5 @@ public interface ExpedientClientService {
 			Date dataFi, 
 			Long estatId);
 
+	public List<String> getParticipantsV1(Long expedientId);
 }

@@ -144,7 +144,7 @@
 					</div>
 					<div class="pull-right">
 						<input <c:if test="${esReadOnly}">disabled="disabled"</c:if> class="btn btn-primary" type="submit" id="guardar" name="accio" value="Modificar" />
-					</div>				
+					</div>
 				</form:form>			
 			</div>
 		</div>
@@ -201,6 +201,9 @@
 							<p class="help-block">
 								<span class="label label-info"><spring:message code="perfil.usuari.nota"/></span> <spring:message code="perfil.usuari.nota.consulta"/>
 							</p>
+						</div>
+						<div class="control-group">
+							<hel:inputSelect name="rols" textKey="perfil.usuari.rols" optionItems="${rols}" disabled="true"/>
 						</div>
 					</div>
 				</div>
