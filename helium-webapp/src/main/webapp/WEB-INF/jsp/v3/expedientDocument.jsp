@@ -145,7 +145,7 @@ function searchDocuments(text) {
 		$('.taulaFila', $taula).each(function() {
 			totalFila = 0;
 			$fila = $(this);
-			$('.tableDocuments', $fila).each(function(){
+			$('.cellDocument', $fila).each(function(){
 				$document = $(this);
 				if (text == ""
 						|| $('.nom_document', this).text().toLowerCase().includes(text.toLowerCase())) 
