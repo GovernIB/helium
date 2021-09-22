@@ -10,4 +10,7 @@ public interface DocumentService {
 
     boolean guardarDocument(Document doc) throws Exception;
 
+    boolean updateDocument(Document doc) throws Exception;
+
+    boolean deleteDocument(String procesId, String codi) throws Exception;
 }

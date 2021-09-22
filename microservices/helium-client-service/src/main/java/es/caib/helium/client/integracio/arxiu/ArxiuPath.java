@@ -24,5 +24,5 @@ public class ArxiuPath extends IntegracioMsApiPath {
 
 	public static final String PUT_DOCUMENT = API_PATH + "documents";
 
-	public static final String DELETE_DOCUMENT = API_PATH + "document/{uuId}";
+	public static final String DELETE_DOCUMENT = API_PATH + "documents/{uuId}";
 }

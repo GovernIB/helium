@@ -926,99 +926,86 @@ public class DocumentHelper {
 		}
 	}
 
-	public void esborrarDocument(
-			String taskInstanceId,
-			String processInstanceId,
-			String documentCodi) throws Exception {
+	public void esborrarDocument(String taskInstanceId, String processInstanceId, String documentCodi) throws Exception {
+
 		Object varValor = null;
 		if (taskInstanceId != null) {
-			varValor = workflowEngineApi.getTaskInstanceVariable(
-					taskInstanceId,
-					getVarPerDocumentCodi(documentCodi, false));
+			varValor = workflowEngineApi.getTaskInstanceVariable(taskInstanceId, getVarPerDocumentCodi(documentCodi, false));
 		} else if (processInstanceId != null) {
-			varValor = workflowEngineApi.getProcessInstanceVariable(
-					processInstanceId,
-					getVarPerDocumentCodi(documentCodi, false));
+			varValor = workflowEngineApi.getProcessInstanceVariable(processInstanceId, getVarPerDocumentCodi(documentCodi, false));
 		}
 		if (varValor != null && varValor instanceof Long) {
-			esborrarDocument(
-					taskInstanceId,
-					processInstanceId,
-					(Long)varValor);
+			esborrarDocument(taskInstanceId, processInstanceId, (Long)varValor);
 		}
 	}
 
-	public void esborrarDocument(
-			String taskInstanceId,
-			String processInstanceId,
-			Long documentStoreId) {
-		DocumentStore documentStore = esborrarDocumentExtern(processInstanceId, documentStoreId);
+	public void esborrarDocument(String taskInstanceId, String processInstanceId, Long documentStoreId) {
+
+		var documentStore = esborrarDocumentExtern(processInstanceId, documentStoreId);
 		if (taskInstanceId != null) {
-			workflowEngineApi.deleteTaskInstanceVariable(
-					taskInstanceId,
-					documentStore.getJbpmVariable());
-			String documentCodi = getDocumentCodiPerVariableJbpm(
-					documentStore.getJbpmVariable());
-			workflowEngineApi.deleteTaskInstanceVariable(
-					taskInstanceId,
-					Constants.PREFIX_SIGNATURA + documentCodi);
+			workflowEngineApi.deleteTaskInstanceVariable(taskInstanceId, documentStore.getJbpmVariable());
+			String documentCodi = getDocumentCodiPerVariableJbpm(documentStore.getJbpmVariable());
+			workflowEngineApi.deleteTaskInstanceVariable(taskInstanceId, Constants.PREFIX_SIGNATURA + documentCodi);
 		}
 		if (processInstanceId != null) {
-			workflowEngineApi.deleteProcessInstanceVariable(
-					processInstanceId,
-					documentStore.getJbpmVariable());
+			workflowEngineApi.deleteProcessInstanceVariable(processInstanceId, documentStore.getJbpmVariable());
+			try {
+				documentClient.deleteDocument(processInstanceId, documentStore.getJbpmVariable());
+			} catch (Exception ex) {
+				log.error("Error al cridar el servei de dades ", ex);
+			}
 		}
 	}
 
 	public DocumentStore esborrarDocumentExtern(String processInstanceId, Long documentStoreId) {
+
 		DocumentStore documentStore = documentStoreRepository.findById(documentStoreId).orElse(null);
-		if (documentStore != null) {
-			boolean esborrarDocument = true;
-			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-			List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
-			if (enviaments != null && enviaments.size() > 0)
-				// si té enviaments no s'esborra el document per a que es pugui consultar des de l'anotació.
-				esborrarDocument = false;
-			if (expedient.isArxiuActiu()) {
-				if (documentStore.isSignat()) {
-					throw new ValidacioException("No es pot esborrar un document firmat");
-				} else {
-					if (esborrarDocument)
-						pluginHelper.arxiuDocumentEsborrar(documentStore.getArxiuUuid());
+		if (documentStore == null) {
+			return null;
+		}
+		boolean esborrarDocument = true;
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
+		if (enviaments != null && enviaments.size() > 0) {
+			// si té enviaments no s'esborra el document per a que es pugui consultar des de l'anotació.
+			esborrarDocument = false;
+		}
+		if (expedient.isArxiuActiu()) {
+			if (documentStore.isSignat()) {
+				throw new ValidacioException("No es pot esborrar un document firmat");
+			}
+			if (esborrarDocument) {
+				pluginHelper.arxiuDocumentEsborrar(documentStore.getArxiuUuid());
+			}
+
+		} else {
+			if (documentStore.isSignat()) {
+				if (pluginHelper.custodiaIsPluginActiu()) {
+					pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia(), expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
 				}
-			} else {
-				if (documentStore.isSignat()) {
-					if (pluginHelper.custodiaIsPluginActiu()) {
-						pluginHelper.custodiaEsborrarSignatures(
-								documentStore.getReferenciaCustodia(),
-								expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
-					}
-				}
-				if (esborrarDocument && documentStore.getFont().equals(DocumentFont.ALFRESCO)) {
-					pluginHelper.gestioDocumentalDeleteDocument(
-							documentStore.getReferenciaFont(),
-							expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
-				}
-				if (processInstanceId != null) {
-					List<TipusEstat> estats = new ArrayList<TipusEstat>();
-					estats.add(TipusEstat.PENDENT);
-					estats.add(TipusEstat.SIGNAT);
-					estats.add(TipusEstat.REBUTJAT);
-					estats.add(TipusEstat.ERROR);
-					List<Portasignatures> psignaPendents = portasignaturesRepository.findByProcessInstanceIdAndEstatNotIn(
-							processInstanceId,
-							estats);
-					for (Portasignatures psigna: psignaPendents) {
-						if (psigna.getDocumentStoreId().longValue() == documentStore.getId().longValue()) {
-							psigna.setEstat(TipusEstat.ESBORRAT);
-							portasignaturesRepository.save(psigna);
-						}
+			}
+			if (esborrarDocument && documentStore.getFont().equals(DocumentFont.ALFRESCO)) {
+				pluginHelper.gestioDocumentalDeleteDocument(documentStore.getReferenciaFont(), expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
+			}
+			if (processInstanceId != null) {
+				List<TipusEstat> estats = new ArrayList<TipusEstat>();
+				estats.add(TipusEstat.PENDENT);
+				estats.add(TipusEstat.SIGNAT);
+				estats.add(TipusEstat.REBUTJAT);
+				estats.add(TipusEstat.ERROR);
+				List<Portasignatures> psignaPendents = portasignaturesRepository.findByProcessInstanceIdAndEstatNotIn(processInstanceId, estats);
+				for (Portasignatures psigna: psignaPendents) {
+					if (psigna.getDocumentStoreId().longValue() == documentStore.getId().longValue()) {
+						psigna.setEstat(TipusEstat.ESBORRAT);
+						portasignaturesRepository.save(psigna);
 					}
 				}
 			}
-			if (esborrarDocument)
-				documentStoreRepository.deleteById(documentStoreId);
 		}
+		if (esborrarDocument) {
+			documentStoreRepository.deleteById(documentStoreId);
+		}
+
 		return documentStore;
 	}
 
@@ -1048,10 +1035,10 @@ public class DocumentHelper {
 	}
 
 	public String getVarPerDocumentCodi(String documentCodi, boolean isAdjunt) {
-		if (isAdjunt)
+		if (isAdjunt) {
 			return Constants.PREFIX_ADJUNT + documentCodi;
-		else
-			return Constants.PREFIX_DOCUMENT + documentCodi;
+		}
+		return Constants.PREFIX_DOCUMENT + documentCodi;
 	}
 	public static String getDocumentCodiPerVariableJbpm(String var) {
 		if (var.startsWith(Constants.PREFIX_DOCUMENT)) {
@@ -2277,17 +2264,12 @@ public class DocumentHelper {
 		} catch(Exception ex) {
 			log.error("Error al guardar el document ", ex);
 		}
-		if (taskInstanceId != null) {
-			workflowEngineApi.setTaskInstanceVariable(
-					taskInstanceId,
-					documentStore.getJbpmVariable(),
-					documentStore.getId());
-		} else {
-			workflowEngineApi.setProcessInstanceVariable(
-					processInstanceId,
-					documentStore.getJbpmVariable(),
-					documentStore.getId());
-		}
+//		if (taskInstanceId != null) { //TODO MS: EN PRINCIPI ES POT ESBORRAR
+//			workflowEngineApi.setTaskInstanceVariable(
+//					taskInstanceId,
+//					documentStore.getJbpmVariable(),
+//					documentStore.getId());
+//		}
 	}
 	
 	/** Valida les firmes amb el plugin de validació de firmes */

@@ -10,4 +10,6 @@ public interface DocumentClient {
     List<Document> getDocumentsByProcesId(String procesId) throws Exception;
 
     boolean guardarDocument(Document doc) throws Exception;
+
+    void deleteDocument(String procesId, String codi) throws Exception;
 }

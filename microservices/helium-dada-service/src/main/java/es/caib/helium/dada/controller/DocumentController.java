@@ -6,10 +6,12 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,9 +46,7 @@ public class DocumentController {
     }
 
     @PostMapping(consumes = "application/json")
-    public ResponseEntity<Boolean> guardarDocument(
-            @Valid @RequestBody Document document,
-            BindingResult errors) throws Exception {
+    public ResponseEntity<Boolean> guardarDocument(@Valid @RequestBody Document document, BindingResult errors) throws Exception {
 
         if (errors.hasErrors()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -57,6 +57,31 @@ public class DocumentController {
             return new ResponseEntity<>(created, HttpStatus.OK);
         }
         return new ResponseEntity<>(created, HttpStatus.CONFLICT);
+    }
+
+    @PutMapping(value = "{procesId}")
+    public ResponseEntity<Void> putDocument(@Valid @RequestBody Document document, BindingResult errors) throws Exception {
+
+        if (errors.hasErrors()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        var updated = documentService.updateDocument(document);
+        if (updated) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.CONFLICT);
+    }
+
+    @DeleteMapping(value = "{procesId}/codi/{codi}")
+    public ResponseEntity<Void> deleteDocument(
+            @PathVariable("procesId") String procesId,
+            @PathVariable("codi") String codi) throws Exception {
+
+        if (!documentService.deleteDocument(procesId, codi)) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
 

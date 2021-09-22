@@ -9,4 +9,6 @@ public class DocumentMsApiPath {
     public static final String GET_DOCUMENTS_BY_PROCES_ID = DOCUMENT_PATH + "{procesId}";
 
     public static final String GUARDAR_DOCUMENT = DOCUMENT_PATH + "";
+
+    public static final String DELETE_DOCUMENT = DOCUMENT_PATH + "{procesId}/codi/{codi}";
 }
