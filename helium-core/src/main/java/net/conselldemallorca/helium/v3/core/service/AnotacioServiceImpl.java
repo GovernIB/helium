@@ -376,10 +376,13 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			resultat = new ArxiuResultat();
 		}
 		
-		// Associa tots els annexos de l'anotació com annexos de l'expedient
-		for ( AnotacioAnnex annex : anotacio.getAnnexos() ) {			
-			// Incorpora cada annex de forma separada per evitar excepcions i continuar amb els altres
-			this.incorporarAnnex(expedient, anotacio, annex, resultat);						
+		// Si no s'integra amb Sistra2
+		if (!expedientTipus.isDistribucioSistra()) {
+			// Associa tots els annexos de l'anotació com annexos de l'expedient
+			for ( AnotacioAnnex annex : anotacio.getAnnexos() ) {			
+				// Incorpora cada annex de forma separada per evitar excepcions i continuar amb els altres
+				this.incorporarAnnex(expedient, anotacio, annex, resultat);						
+			}
 		}
 		
 		if (associarInteressats) {
