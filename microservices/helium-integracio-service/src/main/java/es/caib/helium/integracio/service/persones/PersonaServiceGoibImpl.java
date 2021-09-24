@@ -32,19 +32,21 @@ public class PersonaServiceGoibImpl implements PersonaService {
 
     @Override
     public List<Persona> getPersones(String textSearch, Long entornId) throws PersonaException {
-
         // TODO MS: PENDENDT DE IMPLEMENTACIO
         try {
+            var foo = goibPersones.getRolesByUsername(textSearch);
             var users = goibPersones.getAllUsernames();
+            var persones = new ArrayList<Persona>();
             for (var user : users) {
-                log.info("User ---------------> " + user);
+                persones.add(buildPersona(goibPersones.getUserInfoByUserName(user)));
             }
+            return persones;
+
         } catch (Exception ex) {
             var error = "No s'ha pogut trobar cap usuari amb el filtre " + textSearch + " entornId " + entornId ;
             log.error(error);
             throw new PersonaException(error, ex);
         }
-        return new ArrayList<>();
     }
 
     @Override
@@ -56,14 +58,7 @@ public class PersonaServiceGoibImpl implements PersonaService {
         var t0 = System.currentTimeMillis();
         try {
             var userInfo = goibPersones.getUserInfoByUserName(codi);
-            // TODO MS: FALTA DNI
-            // TODO MS: EL PLUGIN CONTEMPLA SEXE UKNOWN I HELIUM NO. QUE ASSIGNAR A UKNOWN?
-            var persona = Persona.builder()
-                    .codi(userInfo.getUsername()).nom(userInfo.getName())
-                    .llinatge1(userInfo.getSurname1()).llinatge2(userInfo.getSurname2())
-                    .email(userInfo.getEmail())
-                    .sexe(userInfo.getGender() != null ? userInfo.getGender().equals(UserInfo.Gender.MALE) ? Sexe.SEXE_HOME : Sexe.SEXE_DONA : null)
-                    .contrasenya(userInfo.getPassword()).build();
+           var persona = buildPersona(userInfo);
 
             monitor.enviarEvent(IntegracioEvent.builder()
                     .codi(CodiIntegracio.PERSONA)
@@ -102,7 +97,6 @@ public class PersonaServiceGoibImpl implements PersonaService {
         var t0 = System.currentTimeMillis();
         var descripcio = "Consulta de rols de l'usuari amb codi " + codi;
         try {
-
             var rols = Arrays.asList(goibPersones.getRolesByUsername(codi).getRoles());
             monitor.enviarEvent(IntegracioEvent.builder()
                     .codi(CodiIntegracio.PERSONA)
@@ -115,9 +109,8 @@ public class PersonaServiceGoibImpl implements PersonaService {
                     .tempsResposta(System.currentTimeMillis() - t0).build());
             log.debug("Consulta dels rols de les persones ok pel codi " + codi);
             return rols;
-
         } catch (Exception ex) {
-            var error = "Consulta de rols de les persones amb error pel codi " + codi;
+            var error = "Consulta erronia dels rols de les persones amb codi " + codi;
             log.error(error, ex);
             monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.PERSONA)
                     .entornId(entornId)
@@ -131,5 +124,90 @@ public class PersonaServiceGoibImpl implements PersonaService {
                     .excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
             throw new PersonaException(error, ex);
         }
+    }
+
+    @Override
+    public List<String> getPersonesCodiByRol(String rol, Long entornId) throws PersonaException {
+
+        List<Parametre> params = new ArrayList<>();
+        params.add(new Parametre("grup", rol));
+        var t0 = System.currentTimeMillis();
+        var descripcio = "Consulta de rols de l'usuari amb codi " + rol;
+        try {
+            var persones = new ArrayList<String>();
+            var usuaris = goibPersones.getUsernamesByRol(rol);
+            // cridar a helium i que 
+            for (var usuari : usuaris) {
+
+                var userInfo = goibPersones.getUserInfoByUserName(usuari);
+                persones.add(userInfo.getFullName());
+            }
+            monitor.enviarEvent(IntegracioEvent.builder()
+                    .codi(CodiIntegracio.PERSONA)
+                    .entornId(entornId)
+                    .descripcio(descripcio)
+                    .data(new Date())
+                    .tipus(TipusAccio.ENVIAMENT)
+                    .estat(EstatAccio.OK)
+                    .parametres(params)
+                    .tempsResposta(System.currentTimeMillis() - t0).build());
+            log.debug("Consulta de persones amb grup " + rol);
+            return Arrays.asList(usuaris); //TODO MS:
+        } catch (Exception ex) {
+            var error = "Consulta erronia de les persones amb grup " + rol;
+            log.error(error, ex);
+            monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.PERSONA)
+                    .entornId(entornId)
+                    .descripcio(descripcio)
+                    .tipus(TipusAccio.ENVIAMENT)
+                    .estat(EstatAccio.ERROR)
+                    .parametres(params)
+                    .tempsResposta(System.currentTimeMillis() - t0)
+                    .errorDescripcio(error)
+                    .excepcioMessage(ex.getMessage())
+                    .excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
+            throw new PersonaException(error, ex);
+        }
+    }
+
+    @Override
+    public List<Persona> getPersonesByCodi(List<String> codis, Long entornId) throws PersonaException {
+
+        List<Parametre> params = new ArrayList<>();
+        params.add(new Parametre("codis", codis.toString()));
+        var t0 = System.currentTimeMillis();
+        var descripcio = "Consulta de persones per codis " + codis;
+        try {
+            var persones = new ArrayList<Persona>();
+            for (var codi : codis) {
+                persones.add(buildPersona(goibPersones.getUserInfoByUserName(codi)));
+            }
+            return persones;
+        } catch (Exception ex) {
+            var error = "Consulta erronia de la info de les persones amb codis " + codis;
+            log.error(error, ex);
+            monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.PERSONA)
+                    .entornId(entornId)
+                    .descripcio(descripcio)
+                    .tipus(TipusAccio.ENVIAMENT)
+                    .estat(EstatAccio.ERROR)
+                    .parametres(params)
+                    .tempsResposta(System.currentTimeMillis() - t0)
+                    .errorDescripcio(error)
+                    .excepcioMessage(ex.getMessage())
+                    .excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
+            throw new PersonaException(error, ex);
+        }
+    }
+
+    private Persona buildPersona(UserInfo userInfo) {
+        // TODO MS: EL DNI NO VE DINS UserInfo
+        // TODO MS: EL PLUGIN CONTEMPLA SEXE UKNOWN I HELIUM NO. QUE ASSIGNAR A UKNOWN?
+        return Persona.builder()
+                .codi(userInfo.getUsername()).nom(userInfo.getName())
+                .llinatge1(userInfo.getSurname1()).llinatge2(userInfo.getSurname2())
+                .email(userInfo.getEmail())
+                .sexe(userInfo.getGender() != null ? userInfo.getGender().equals(UserInfo.Gender.MALE) ? Sexe.SEXE_HOME : Sexe.SEXE_DONA : null)
+                .contrasenya(userInfo.getPassword()).build();
     }
 }

@@ -12,7 +12,7 @@ public class MonitorIntegracionsServiceImpl implements MonitorIntegracionsServic
 
 	@Autowired
 	private CuaSender cuaSender;
-	private String url;
+	private String url; // TODO MS: EMPLENAR AMB LA URL DEL MS-MONITOR
 	
 	@Override
 	public boolean enviarEvent(IntegracioEvent event) {

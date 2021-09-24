@@ -1,6 +1,6 @@
 package es.caib.helium.integracio.plugins.persones;
 
-import es.caib.helium.client.integracio.persones.PersonaClientService;
+import es.caib.helium.client.integracio.persones.PersonaClient;
 import es.caib.helium.client.integracio.persones.enums.Sexe;
 import es.caib.helium.client.integracio.persones.model.Persona;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class PersonesPluginImpl implements PersonesPlugin {
 
     @Autowired
-    private PersonaClientService personaClientService;
+    private PersonaClient personaClient;
 
     @Override
     public List<Persona> findLikeNomSencer(String text, Long entornId) throws PersonesPluginException {

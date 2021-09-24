@@ -2,6 +2,7 @@ package es.caib.helium.integracio.config.persones;
 
 import es.caib.helium.integracio.excepcions.ServeisExternsException;
 import es.caib.helium.integracio.service.persones.PersonaService;
+import es.caib.helium.integracio.service.persones.PersonaServiceLdapImpl;
 import org.fundaciobit.pluginsib.userinformation.keycloak.KeyCloakUserInformationPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -48,6 +49,10 @@ public class PersonesConfig {
 		String pluginClass = env.getRequiredProperty("es.caib.helium.integracio.persones.class");
 		try {
 			var personaService = (PersonaService) Class.forName(pluginClass).getConstructor().newInstance();
+			if (personaService instanceof PersonaServiceLdapImpl) {
+				((PersonaServiceLdapImpl) personaService).setUserFilter(env.getRequiredProperty("es.caib.helium.integracio.persones.plugin.ldap.search.filter.user"));
+				((PersonaServiceLdapImpl) personaService).setLikeFilter(env.getRequiredProperty("es.caib.helium.integracio.persones.plugin.ldap.search.filter.like"));
+			}
 			return personaService;
 		} catch (Exception ex) {
 			throw new ServeisExternsException("Error al crear la instància del plugin de persones (" + "pluginClass=" + pluginClass + ")");

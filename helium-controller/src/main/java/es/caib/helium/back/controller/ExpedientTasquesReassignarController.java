@@ -147,16 +147,14 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 
 	@RequestMapping(value = "/grup/{grup}/persones", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
 	@ResponseBody
-	public String grupPersones(
-			@PathVariable String grup,
-			HttpServletResponse response) {
+	public String grupPersones(@PathVariable String grup, HttpServletResponse response) {
+
 		var persones = aplicacioService.findPersonesAmbGrup(grup);
-		if (persones != null && !persones.isEmpty()) {
-			var personesList = "[" + persones.stream().map(p -> "{\"nom\":\"" + p.getNomSencer() + "\"}").collect(Collectors.joining(",")) + "]";
-			return personesList;
-		} else {
+		if (persones == null || persones.isEmpty()) {
 			return "Grup sense usuaris";
 		}
+		var personesList = "[" + persones.stream().map(p -> "{\"nom\":\"" + p.getNomSencer() + "\"}").collect(Collectors.joining(",")) + "]";
+		return personesList;
 	}
 	
 	private class TascaReassignarValidator implements Validator {

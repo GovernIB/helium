@@ -17,6 +17,7 @@ import es.caib.helium.client.integracio.notificacio.NotificacioClient;
 import es.caib.helium.client.integracio.notificacio.enums.NotificacioEstat;
 import es.caib.helium.client.integracio.notificacio.model.ConsultaEnviament;
 import es.caib.helium.client.integracio.notificacio.model.ConsultaNotificacio;
+import es.caib.helium.client.integracio.persones.PersonaClient;
 import es.caib.helium.client.integracio.persones.model.Persona;
 import es.caib.helium.client.model.RespostaValidacioSignatura;
 import es.caib.helium.integracio.plugins.custodia.CustodiaPlugin;
@@ -112,6 +113,7 @@ import es.caib.helium.persist.entity.Portasignatures.Transicio;
 import es.caib.helium.persist.repository.DocumentStoreRepository;
 import es.caib.helium.persist.repository.ExpedientRepository;
 import es.caib.helium.persist.repository.PortasignaturesRepository;
+import es.caib.helium.persist.repository.UsuariRepository;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ContingutOrigen;
 import es.caib.plugins.arxiu.api.DocumentContingut;
@@ -153,6 +155,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * Helper per a accedir a la funcionalitat dels plugins.
@@ -164,7 +167,9 @@ import java.util.Properties;
 public class PluginHelper {
 
 	private static final String CACHE_PERSONA_ID = "personaPluginCache";
-	
+
+	@Resource
+	private UsuariRepository usuariRepository;
 	@Resource
 	private PortasignaturesRepository portasignaturesRepository;
 	@Resource
@@ -205,6 +210,8 @@ public class PluginHelper {
 	private NotificacioClient notificacioClient;
 	@Resource
 	private ArxiuClient arxiuClient;
+	@Resource
+	private PersonaClient personaClient;
 
 	public List<Persona> personaFindLikeNomSencer(String text) {
 		long t0 = System.currentTimeMillis();
@@ -272,9 +279,23 @@ public class PluginHelper {
 	}
 
 	public List<PersonaDto> personesAmbGrup(String grup) {
-		return conversioTipusServiceHelper.convertirList(
-				getPersonesPlugin().findPersonesAmbGrup(grup),
-				PersonaDto.class);
+//		return conversioTipusServiceHelper.convertirList(
+//				getPersonesPlugin().findPersonesAmbGrup(grup),
+//				PersonaDto.class);
+		try {
+			var codis = personaClient.getPersonesCodiByRol(grup, EntornActual.getEntornId());
+			// buscar codis a la bdd
+			var usuaris = usuariRepository.findAllByCodi(codis);
+			// nomes demanar la info completa dels codis que no estan a la taula hel_user;
+			var usuarisSet = usuaris.stream().collect(Collectors.toSet());
+			var codisFiltrats = codis.stream().filter(codi -> !usuarisSet.contains(codi)).collect(Collectors.toList());
+			var persones = personaClient.getPersonesByCodi(codisFiltrats, EntornActual.getEntornId());
+			return conversioTipusServiceHelper.convertirList(persones, PersonaDto.class);
+
+		} catch (Exception ex) {
+			log.error("Error obtinguent les persones del grup " + grup, ex);
+			return new ArrayList<>();
+		}
 	}
 
 	public List<String> personaFindRolsAmbCodi(String codi) throws Exception {

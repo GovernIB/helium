@@ -12,4 +12,6 @@ public interface PersonaService {
 	List<Persona> getPersones(String textSearch, Long entornId) throws PersonaException;
 	Persona getPersonaByCodi(String codi, Long entornId) throws PersonaException;
 	List<String> getPersonaRolsByCodi(String codi, Long entornId) throws PersonaException;
+	List<String> getPersonesCodiByRol(String grup, Long entornId) throws PersonaException;
+	List<Persona> getPersonesByCodi(List<String> codis, Long entornId) throws PersonaException;
 }
