@@ -649,16 +649,33 @@ public class DistribucioHelper {
 				// Multiple
 				Object[] valorsHelium = new Object[campo.getValores().size()];
 				for (int i = 0; i < campo.getValores().size(); i++) {
-					valorsHelium[i] = valorPerHeliumSimple(campo.getValores().get(i).getValue(), camp);
+					valorsHelium[i] = valorPerHeliumSimple(getValorSistra(campo, i), camp);
 				}
 				valorHelium = valorsHelium;
 			} else {
 				// Simple
-				String valorSistra = campo.getValores().size() > 0 ? campo.getValores().get(0).getValue() : null;
-				valorHelium = valorPerHeliumSimple(valorSistra, camp);
+				valorHelium = valorPerHeliumSimple(getValorSistra(campo, 0), camp);
+
 			}
 		}
 		return valorHelium;
+	}
+	
+	// Llegeix el valor depenent de l'índex i de si el camp és simple o compost.
+	private String getValorSistra(Campo campo, int index) {
+		String valor = null;
+		if (campo != null 
+				&& campo.getValores().size() > 0
+				&& index < campo.getValores().size()) {
+			if ("compuesto".equals(campo.getTipo())) {
+				// Valor a l'atribut "codigo", per exemple: <CAMPO id="id" tipo="compuesto"><VALOR codigo="C1">C1 - Text</VALOR></CAMPO>
+				valor = campo.getValores().get(index).getCodigo();
+			} else {
+				// Valor de tipus "simple", per exemple <CAMPO id="id" tipo="simple"><VALOR>Text</VALOR></CAMPO>
+				valor = campo.getValores().get(index).getValue();
+			}
+		}
+		return valor;
 	}
 	
 	private Object valorPerHeliumSimple(String valor, Camp camp) {
