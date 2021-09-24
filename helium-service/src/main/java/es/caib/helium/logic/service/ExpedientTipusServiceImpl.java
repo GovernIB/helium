@@ -2416,22 +2416,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"Consultant el l'estat amb id (" +
 				"expedientTipusId=" + expedientTipusId + "," +		
 				"estatId=" + estatId +  ")");
-		ExpedientTipus tipus = expedientTipusRepository.getById(expedientTipusId);
-		Estat estat = estatRepository.getById(estatId);
-		if (estat == null) {
-			throw new NoTrobatException(Estat.class, estatId);
-		}
-		EstatDto dto = conversioTipusServiceHelper.convertir(
-				estat, 
-				EstatDto.class);
-		// Herencia
-		if (tipus.getExpedientTipusPare() != null) {
-			if (tipus.getExpedientTipusPare().getId().equals(estat.getExpedientTipus().getId()))
-				dto.setHeretat(true);
-			else
-				dto.setSobreescriu(estatRepository.findByExpedientTipusIdAndCodi(tipus.getExpedientTipusPare().getId(), estat.getCodi()) != null);					
-		}
-		return dto;
+		return expedientTipusHelper.estatFindAmbId(expedientTipusId, estatId);
 	}
 	
 	@Override

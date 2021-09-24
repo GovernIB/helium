@@ -11,7 +11,7 @@
 <td id="cela-${expedientId}-${document.id}">									
 	<c:choose>
 		<c:when test="${not empty document.error}">
-			<table id="document_${document.id}" class="table-condensed marTop6 tableDocuments">
+			<table id="document_${document.id}" class="table-condensed marTop6 tableDocuments cellDocument">
 				<thead>
 					<tr>
 						<td class="left">
@@ -34,7 +34,7 @@
 			</table>
 		</c:when>
 		<c:otherwise>
-			<table id="document_${document.id}" class="table-condensed marTop6 tableDocuments">
+			<table id="document_${document.id}" class="table-condensed marTop6 tableDocuments cellDocument">
 				<thead>
 					<tr>
 						<td class="left">

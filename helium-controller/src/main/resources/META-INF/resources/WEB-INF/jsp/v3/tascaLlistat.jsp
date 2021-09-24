@@ -485,7 +485,33 @@
 					</script>
 				</th>
 				<th data-rdt-property="expedientIdentificador" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.expedient"/></th>
-				<th data-rdt-property="responsableString" data-rdt-visible="true"><spring:message code="expedient.tasca.columna.asignada_a"/></th>
+				<th data-rdt-property="responsable" data-rdt-template="cellResponsableTemplate" data-rdt-context="true" data-rdt-nowrap="true" width="200px">
+					<spring:message code="expedient.tasca.columna.asignada_a"/>
+					<script id="cellResponsableTemplate" type="text/x-jsrender">
+						{{if responsable || responsables}}
+							<p>
+								<span class="fa fa-user" title="<spring:message code='tasca.llistat.etiqueta.usuaris'/>"></span>
+								{{if responsable}}
+									<span class="label label-default assignment">
+										{{:responsable.nomSencer}}
+									</span>
+								{{else}}
+									{{for responsables}} 
+										<span class="label label-default assignment">{{:nomSencer}}</span>
+									{{/for}}
+								{{/if}}
+							</p>
+						{{/if}}
+						{{if !agafada && grups.length > 0}}
+							<span class="fa fa-users" title="<spring:message code="tasca.llistat.etiqueta.grups"/>"></span>
+							{{for grups}}
+								<span class="label label-default assignment agrup" data-grup="{{>#data}}">{{>#data}}</span>
+							{{/for}}
+						{{/if}}
+
+
+					</script>
+				</th>
 				<th data-rdt-property="expedientTipusNom" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.tipexp"/></th>
 				<th data-rdt-property="createTime" data-rdt-type="datetime" data-rdt-sorting="desc" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.creada"/></th>
 				<th data-rdt-property="dueDate" data-rdt-type="date" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.limit"/></th>
@@ -535,7 +561,9 @@
 				<th data-rdt-property="open" data-rdt-visible="false"></th>
 				<th data-rdt-property="completed" data-rdt-visible="false"></th>				
 				<th data-rdt-property="expedientId" data-rdt-visible="false"></th>
+				<th data-rdt-property="responsable" data-rdt-visible="false"></th>
 				<th data-rdt-property="responsables" data-rdt-visible="false"></th>
+				<th data-rdt-property="grups" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisRead" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisTaskManagement" data-rdt-visible="false"></th>
 				<th data-rdt-property="permisTaskSupervision" data-rdt-visible="false"></th>

@@ -2348,6 +2348,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				rols = pluginHelper.personaFindRolsAmbCodi(codi);
 		} catch (Exception ex) {
 			// En cas que hi hagi una excepció,retornarem la llista buida 
+			logger.error("Error consultant els ros per l'usuari " + codi, ex);
 		}
 		return rols;
 	}

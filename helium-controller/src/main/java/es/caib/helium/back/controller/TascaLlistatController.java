@@ -1,27 +1,19 @@
 package es.caib.helium.back.controller;
 
-import es.caib.helium.back.command.TascaConsultaCommand;
-import es.caib.helium.back.datatables.DatatablesPagina;
-import es.caib.helium.back.helper.MissatgesHelper;
-import es.caib.helium.back.helper.ObjectTypeEditorHelper;
-import es.caib.helium.back.helper.PaginacioHelper;
-import es.caib.helium.back.helper.SessionHelper;
-import es.caib.helium.back.helper.SessionHelper.SessionManager;
-import es.caib.helium.client.model.ParellaCodiValor;
-import es.caib.helium.logic.intf.dto.EntornDto;
-import es.caib.helium.logic.intf.dto.ExpedientDto;
-import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
-import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
-import es.caib.helium.logic.intf.dto.PaginaDto;
-import es.caib.helium.logic.intf.dto.PersonaDto;
-import es.caib.helium.logic.intf.dto.TascaCompleteDto;
-import es.caib.helium.logic.intf.dto.TascaLlistatDto;
-import es.caib.helium.logic.intf.service.AdminService;
-import es.caib.helium.logic.intf.service.DissenyService;
-import es.caib.helium.logic.intf.service.EntornService;
-import es.caib.helium.logic.intf.service.ExpedientService;
-import es.caib.helium.logic.intf.service.ExpedientTipusService;
-import es.caib.helium.logic.intf.service.TascaService;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,18 +33,28 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import es.caib.helium.back.command.TascaConsultaCommand;
+import es.caib.helium.back.datatables.DatatablesPagina;
+import es.caib.helium.back.helper.MissatgesHelper;
+import es.caib.helium.back.helper.ObjectTypeEditorHelper;
+import es.caib.helium.back.helper.PaginacioHelper;
+import es.caib.helium.back.helper.SessionHelper;
+import es.caib.helium.back.helper.SessionHelper.SessionManager;
+import es.caib.helium.back.helper.UsuariHelper;
+import es.caib.helium.client.model.ParellaCodiValor;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.ExpedientTascaDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.dto.PaginaDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.dto.TascaCompleteDto;
+import es.caib.helium.logic.intf.service.AdminService;
+import es.caib.helium.logic.intf.service.DissenyService;
+import es.caib.helium.logic.intf.service.EntornService;
+import es.caib.helium.logic.intf.service.ExpedientService;
+import es.caib.helium.logic.intf.service.ExpedientTipusService;
+import es.caib.helium.logic.intf.service.TascaService;
 
 /**
  * Controlador per al llistat de tasques.
@@ -75,6 +77,9 @@ public class TascaLlistatController extends BaseController {
 	private ExpedientTipusService expedientTipusService;
 	@Autowired
 	private EntornService entornService;
+	@Autowired
+	private UsuariHelper usuariActualHelper;
+
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String get(
@@ -172,13 +177,13 @@ public class TascaLlistatController extends BaseController {
 
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
 	@ResponseBody
-	public DatatablesPagina<TascaLlistatDto> datatable(
+	public DatatablesPagina<ExpedientTascaDto> datatable(
 			HttpServletRequest request,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		TascaConsultaCommand filtreCommand = getFiltreCommand(request);
 		SessionHelper.getSessionManager(request).setFiltreConsultaTasca(filtreCommand);
-		DatatablesPagina<TascaLlistatDto> result = null;
+		DatatablesPagina<ExpedientTascaDto> result = null;
 		try {
 			Map<String, String[]> mapeigOrdenacions = new HashMap<String, String[]>();
 			mapeigOrdenacions.put("createTime", new String[] {"dataCreacio"});
@@ -210,7 +215,7 @@ public class TascaLlistatController extends BaseController {
 			}
 			result = PaginacioHelper.getPaginaPerDatatables(
 					request,
-					new PaginaDto<TascaLlistatDto>());
+					new PaginaDto<ExpedientTascaDto>());
 		}
 		return result;
 	}
@@ -247,6 +252,7 @@ public class TascaLlistatController extends BaseController {
 			filtreCommand.getTitol(),
 			filtreCommand.getTasca(),
 			filtreCommand.getResponsable(),
+			usuariActualHelper.getRols(),
 			filtreCommand.getExpedient(),
 			filtreCommand.getDataCreacioInicial(),
 			filtreCommand.getDataCreacioFinal(),

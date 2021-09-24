@@ -1,18 +1,17 @@
 package es.caib.helium.client.expedient.expedient;
 
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 import javax.json.Json;
 import javax.json.JsonPatchBuilder;
-import javax.json.JsonValue;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.caib.helium.client.expedient.expedient.enums.ExpedientEstatTipusEnum;
 import es.caib.helium.client.expedient.expedient.model.ConsultaExpedientDades;
@@ -190,5 +189,17 @@ public class ExpedientClientServiceImpl implements ExpedientClientService {
 				expedientId, 
 				PatchHelper.toJsonNode(jpb));
 	}
+
+	@Override
+	public List<String> getParticipantsV1(Long expedientId) {
+		
+		log.debug(MISSATGE_LOG + " obtinguent participants de l'expedient amb id " + expedientId);
+		var responseEntity = expedientClient.getParticipantsV1(expedientId);
+		var resultat = responseEntity.getBody();
+		if (HttpStatus.NO_CONTENT.equals(responseEntity.getStatusCode())) {			
+			return new ArrayList<String>();
+		}
+		return resultat;
+}
 
 }

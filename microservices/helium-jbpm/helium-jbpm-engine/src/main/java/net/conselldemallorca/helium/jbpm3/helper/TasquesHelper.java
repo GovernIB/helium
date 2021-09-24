@@ -112,18 +112,23 @@ public class TasquesHelper {
         		end);
 	}
 
-	public void assignar(long tascaId, String actorId, List<String> usuaris, List<String> grups) {
-		TascaDto tascaDto = TascaDto.builder()
-				.tascaId(String.valueOf(tascaId))
-				.usuariAssignat(actorId)
-				.responsables(usuaris)
-				.grups(grups)
-				.build();
+	public void assignar(long tascaId, String actorId) {
 		restTemplate.postForLocation(
 				getTasquesBridgeAddress() + "/" + tascaId + "/assignar", 
-				tascaDto);
+				actorId);
 	}
 
+	public void assignarUsuaris(long tascaId, List<String> usuaris) {
+		restTemplate.postForLocation(
+				getTasquesBridgeAddress() + "/" + tascaId + "/assignarUsuaris", 
+				usuaris);
+	}
+
+	public void assignarGrups(long tascaId, List<String> grups) {
+		restTemplate.postForLocation(
+				getTasquesBridgeAddress() + "/" + tascaId + "/assignarGrups", 
+				grups);
+	}
 	
     private String getTasquesBridgeAddress() {
         return RestClientHelper.getBridgeAddress() + "/tasques";

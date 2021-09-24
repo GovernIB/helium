@@ -71,6 +71,7 @@ public class ExpedientController {
 	   Long entornId = consultaExpedientDades.getEntornId();
        String filtreRsql = consultaExpedientDades.getFiltreRsql();
        String usuariCodi = consultaExpedientDades.getActorId();
+       List<String> grups = consultaExpedientDades.getGrups();
        Long expedientTipusId = consultaExpedientDades.getTipusId();
        Collection<Long> tipusIdPermesos = consultaExpedientDades.getTipusIdPermesos();
        String titol = consultaExpedientDades.getTitol();
@@ -92,6 +93,7 @@ public class ExpedientController {
        
        log.debug("[CTR] llistant expedients: \n" +
     		   "usuariCodi: " + usuariCodi +
+               ", grups: " + grups +
                ", entornId: " + entornId +
                ", expedientTipusId: " + expedientTipusId +
                ", tipusIdPermesos: " + tipusIdPermesos +
@@ -118,6 +120,7 @@ public class ExpedientController {
 
        PagedList<ExpedientDto> expedientList = expedientService.listExpedients(
     		   usuariCodi,
+    		   grups,
     		   entornId,
     		   expedientTipusId, 
     		   tipusIdPermesos,
@@ -164,6 +167,7 @@ public class ExpedientController {
 		Long entornId = consultaExpedientDades.getEntornId();
 		String filtreRsql = consultaExpedientDades.getFiltreRsql();
 		String usuariCodi = consultaExpedientDades.getActorId();
+	    List<String> grups = consultaExpedientDades.getGrups();
 		Long expedientTipusId = consultaExpedientDades.getTipusId();
 	    Collection<Long> tipusIdPermesos = consultaExpedientDades.getTipusIdPermesos();
 		String titol = consultaExpedientDades.getTitol();
@@ -185,6 +189,7 @@ public class ExpedientController {
       
       log.debug("[CTR] llistant identificadors d' expedients: \n" +
    		   "usuariCodi: " + usuariCodi +
+              ", grups: " + grups +
               ", entornId: " + entornId +
               ", expedientTipusId: " + expedientTipusId +
               ", tipusIdPermesos: " + tipusIdPermesos +
@@ -212,6 +217,7 @@ public class ExpedientController {
       //TODO: pensar en una consulta al servei que retorni identificadors
       PagedList<ExpedientDto> expedientList = expedientService.listExpedients(
    		   usuariCodi,
+   		   grups,
    		   entornId,
    		   expedientTipusId, 
    		   tipusIdPermesos,
@@ -429,6 +435,17 @@ public class ExpedientController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errMsg);
         }
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+    
+    @GetMapping(value = "/{expedientId}/participants")
+    public ResponseEntity<List<String>> getParticipantsV1(
+    		@PathVariable("expedientId") Long expedientId) {
+    	
+        log.debug("[CTR] get participants expedient: " + expedientId);
+
+        List<String> participants = expedientService.getParticipants(expedientId);
+
+        return new ResponseEntity<List<String>>(participants, HttpStatus.OK);
     }
 
 }

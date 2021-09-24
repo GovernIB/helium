@@ -152,9 +152,15 @@ public interface WorkflowBridgeService {
 
 	void tascaAssignar(
 			long tascaId, 
-			String actorId, 
-			List<String> usuarisCandidats, 
-			List<String> grupsCandidats);
+			String actorId);
+
+	void tascaAssignarUsuaris(
+			long tascaId,
+			List<String> usuaris);
+
+	void tascaAssignarGrups(
+			long tascaId,
+			List<String> grups);
 
 
 	// Dades
