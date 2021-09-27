@@ -1,16 +1,16 @@
 package es.caib.helium.logic.intf;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import es.caib.helium.client.engine.model.WDeployment;
 import es.caib.helium.client.engine.model.WProcessDefinition;
 import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.client.engine.model.WToken;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Interfície comú dels motors de workflow amb els mètodes necessaris per desplegar, consultar,
@@ -435,7 +435,7 @@ public interface WorkflowEngineApi {
 	 * @param taskId
 	 * @param actorId
 	 */
-	public void takeTaskInstance(
+	public WTaskInstance takeTaskInstance(
             String taskId,
             String actorId);
 	
@@ -444,7 +444,7 @@ public interface WorkflowEngineApi {
 	 * 
 	 * @param taskId
 	 */
-	public void releaseTaskInstance(String taskId);
+	public WTaskInstance releaseTaskInstance(String taskId);
 	
 	/**
 	 * Inicia la tramitació d'una tasca

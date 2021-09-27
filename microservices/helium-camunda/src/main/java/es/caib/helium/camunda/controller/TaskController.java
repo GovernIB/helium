@@ -139,18 +139,20 @@ public class TaskController {
 //    }
 
     @PostMapping(value="/{taskId}/take/{actorId}")
-    public ResponseEntity<Void> takeTaskInstance(
+    public ResponseEntity<WTaskInstance> takeTaskInstance(
             @PathVariable("taskId") String taskId,
             @PathVariable("actorId") String actorId) {
-        taskInstanceService.takeTaskInstance(taskId, actorId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<WTaskInstance>(
+                taskInstanceService.takeTaskInstance(taskId, actorId),
+                HttpStatus.OK);
     }
 
     @PostMapping(value="/{taskId}/release")
-    public ResponseEntity<Void> releaseTaskInstance(
+    public ResponseEntity<WTaskInstance> releaseTaskInstance(
             @PathVariable("taskId") String taskId) {
-        taskInstanceService.releaseTaskInstance(taskId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<WTaskInstance>(
+                taskInstanceService.releaseTaskInstance(taskId),
+                HttpStatus.OK);
     }
 
     @PostMapping(value="/{taskId}/start")

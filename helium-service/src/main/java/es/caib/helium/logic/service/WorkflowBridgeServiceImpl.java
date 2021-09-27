@@ -1,5 +1,9 @@
 package es.caib.helium.logic.service;
 
+import es.caib.helium.client.engine.model.CampRegistreRest;
+import es.caib.helium.client.engine.model.CampRest;
+import es.caib.helium.client.engine.model.CampTascaRest;
+import es.caib.helium.client.engine.model.CampTipus;
 import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.helper.AlertaHelper;
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
@@ -20,7 +24,6 @@ import es.caib.helium.logic.intf.WorkflowRetroaccioApi;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi.ExpedientRetroaccioEstat;
 import es.caib.helium.logic.intf.WorkflowRetroaccioApi.ExpedientRetroaccioTipus;
 import es.caib.helium.logic.intf.dto.ArxiuDto;
-import es.caib.helium.logic.intf.dto.CampDto;
 import es.caib.helium.logic.intf.dto.CampTascaDto;
 import es.caib.helium.logic.intf.dto.CampTipusDto;
 import es.caib.helium.logic.intf.dto.CampTipusIgnored;
@@ -844,7 +847,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     }
 
     @Override
-    public List<CampTascaDto> findCampsPerTaskInstance(
+    public List<CampTascaRest> findCampsPerTaskInstance(
             String processInstanceId,
             String processDefinitionId,
             String taskName) {
@@ -866,30 +869,48 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         if (tipus == null)
             throw new NoTrobatException(ExpedientTipus.class, taskName);
 
-        List<CampTascaDto> campsTascaDto = new ArrayList<CampTascaDto>();
+        List<CampTascaRest> campsTascaRest = new ArrayList<>();
         List<CampTasca> campsTasca = campTascaRepository.findAmbTascaIdOrdenats(tasca.getId(), tipus.getId());
         if (campsTasca != null) {
           for (CampTasca campTasca: campsTasca) {
-              CampDto campDto = new CampDto();
+              CampRest.CampRestBuilder campRestBuilder = CampRest.builder();
               if (campTasca.getCamp() != null) {
-                  campDto.setCodi(campTasca.getCamp().getCodi());
-                  campDto.setTipus(
-                          CampTipusDto.valueOf(
+                  campRestBuilder.codi(campTasca.getCamp().getCodi());
+                  campRestBuilder.multiple(campTasca.getCamp().isMultiple());
+                  campRestBuilder.tipus(
+                          CampTipus.valueOf(
                                   campTasca.getCamp().getTipus().toString()));
+                  // Registre
+                  if (campTasca.getCamp().getRegistreMembres() != null) {
+                      List<CampRegistreRest> campsRegistresRest = new ArrayList<>();
+                      campTasca.getCamp().getRegistreMembres()
+                              .forEach(r -> campsRegistresRest.add(
+                                      CampRegistreRest.builder()
+                                              .id(r.getId())
+                                              .obligatori(r.isObligatori())
+                                              .membre(CampRest.builder()
+                                                      .codi(r.getMembre().getCodi())
+                                                      .tipus(CampTipus.valueOf(
+                                                              r.getMembre().getTipus().toString()))
+                                                      .build())
+                                              .build()));
+                      campRestBuilder.registreMembres(campsRegistresRest);
+                  }
               }
-              campsTascaDto.add(new CampTascaDto(
-                      campDto,
-                      campTasca.isReadFrom(),
-                      campTasca.isWriteTo(),
-                      campTasca.isRequired(),
-                      campTasca.isReadOnly(),
-                      campTasca.getOrder(),
-                      campTasca.getAmpleCols(),
-                      campTasca.getBuitCols()
-              ));
+              campsTascaRest.add(
+                      CampTascaRest.builder()
+                              .camp(campRestBuilder.build())
+                              .readFrom(campTasca.isReadFrom())
+                              .writeTo(campTasca.isWriteTo())
+                              .required(campTasca.isRequired())
+                              .readOnly(campTasca.isReadOnly())
+                              .order(campTasca.getOrder())
+                              .ampleCols(campTasca.getAmpleCols())
+                              .buitCols(campTasca.getBuitCols())
+                              .build());
           }
         }
-        return campsTascaDto;
+        return campsTascaRest;
 //        return conversioTipusHelper.convertirList(
 //                campTascaRepository.findAmbTascaIdOrdenats(tasca.getId(), tipus.getId()),
 //                CampTascaDto.class);

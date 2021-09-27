@@ -1,18 +1,16 @@
 package es.caib.helium.camunda.listener;
 
-import java.util.Date;
-
-import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.camunda.bpm.engine.delegate.ExecutionListener;
-import org.camunda.bpm.engine.impl.persistence.entity.ExecutionEntity;
-import org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import es.caib.helium.client.expedient.proces.ProcesClientService;
 import es.caib.helium.client.expedient.proces.model.ProcesDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.camunda.bpm.engine.delegate.DelegateExecution;
+import org.camunda.bpm.engine.delegate.ExecutionListener;
+import org.camunda.bpm.engine.impl.persistence.entity.ExecutionEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.util.Date;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -29,7 +27,7 @@ public class ProcessCreateListener implements ExecutionListener {
 
     @Override
     public void notify(DelegateExecution delegateExecution) {
-        log.info("Process " + delegateExecution.getProcessInstanceId() + "has been created");
+        log.info("Process " + delegateExecution.getProcessInstanceId() + " has been created");
 
 //        var processInstanceId =  delegateExecution.getProcessInstanceId();
         var processInstance = (ExecutionEntity)delegateExecution.getProcessInstance();

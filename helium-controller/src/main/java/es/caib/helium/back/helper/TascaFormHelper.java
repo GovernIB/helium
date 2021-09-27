@@ -32,6 +32,7 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -442,6 +443,11 @@ public class TascaFormHelper {
 											camp.getVarCodi() + "__value__",
 											parellaCodiValor.getValor());
 								}
+							} else if (camp.getText() != null && !camp.getText().isBlank()) {
+								setSimpleProperty(
+										command,
+										camp.getVarCodi() + "__value__",
+										camp.getText());
 							}
 						} else if (camp.getCampTipus().equals(CampTipusDto.STRING) && valor == null) {
 							valor = "";
@@ -471,7 +477,7 @@ public class TascaFormHelper {
 							int mida = ((Object[])valor).length;
 							Object[] linies = (Object[])Array.newInstance(registre.getClass(), mida);
 							for (int l = 0; l < mida; l++){
-								linies[l] = registre.getClass().newInstance();
+								linies[l] = registre.getClass().getConstructor().newInstance();
 							}
 							int i = 0; // Elements del registre
 							for (TascaDadaDto campRegistre : camp.getMultipleDades().get(0).getRegistreDades()) {
@@ -482,7 +488,7 @@ public class TascaFormHelper {
 								int l = 0; // linies
 								for (Object linia: linies){
 									Object[] valin = (Object[])((Object[])valor)[l++];
-									Object valent = (valin != null && valin.length > i) ? valin[i] : null;
+									Object valent = (valin != null && valin.length > i) ? typeTransform(valin[i], campRegistre.getJavaClass()) : null;
 //									if (campRegistre.isCampMultiple() && !(valent instanceof Object[])) {
 //										var valorArray = Array.newInstance(campRegistre.getJavaClass(), 1);
 //										((Object[])valorArray)[0] = valent;
@@ -512,7 +518,7 @@ public class TascaFormHelper {
 										campRegistre.getJavaClass());
 								Object valorReg = null;
 								if (((Object[])valor).length > i)
-									valorReg = ((Object[])valor)[i++];
+									valorReg = typeTransform(((Object[])valor)[i++], campRegistre.getJavaClass());
 								if (valorReg instanceof ParellaCodiValor) {
 									var parellaCodiValor = (ParellaCodiValor) valorReg;
 									valorReg = parellaCodiValor.getCodi();
@@ -556,8 +562,34 @@ public class TascaFormHelper {
 				}
 			}
 		}
-		
+
 		return command;
+	}
+
+	private static Object typeTransform(Object o, Class<?> javaClass) {
+		if ("Long".equals(javaClass.getSimpleName())) {
+			if (o instanceof Integer) {
+				return ((Integer) o).longValue();
+			} else if (o instanceof String) {
+				return Long.parseLong(o.toString());
+			}
+			return o;
+		}
+		if ("Integer".equals(javaClass.getSimpleName())) {
+			if (o instanceof Long) {
+				return ((Long) o).intValue();
+			} else if (o instanceof String) {
+				return Integer.parseInt(o.toString());
+			}
+			return o;
+		}
+		if ("Date".equals(javaClass.getSimpleName())) {
+			if (o instanceof Long) {
+				return new Date((Long) o);
+			}
+			return o;
+		}
+		return o;
 	}
 
 	// ExpedientConsultaInformeController --> NO validar
@@ -687,7 +719,7 @@ public class TascaFormHelper {
 			Object command,
 			List<TascaDadaDto> tascaDadas,
 			boolean esConsultaPerTipus) {
-		Map<String, Object> registres = new HashMap<String, Object>();
+//		Map<String, Object> registres = new HashMap<String, Object>();
 		// Inicialitza els camps del command amb valors buits
 		for (TascaDadaDto camp: tascaDadas) {
 			if (!camp.getCampTipus().equals(CampTipusDto.REGISTRE)) {
@@ -713,15 +745,29 @@ public class TascaFormHelper {
 				Object valorRegistre = null;
 				try {
 					// En al cas de que el camp a emplenar els valor sigui tipus registre, calcularem el seu contingut a valorRegistre:
-					Object registre = registres.get(camp.getVarCodi());
+//					Object registre = registres.get(camp.getVarCodi());
 					if (camp.isCampMultiple()) {
 						Object valor = PropertyUtils.getSimpleProperty(
 								command,
 								camp.getVarCodi());
-						if (valor == null) {
-							valorRegistre = Array.newInstance(registre.getClass(), camp.isRequired() ? 1 : 0);
-							if (camp.isRequired())
-								((Object[])valorRegistre)[0] = registre;
+
+						var isEmptyArray = valor == null;
+						if (!isEmptyArray) {
+							isEmptyArray = !(valor instanceof Object[]);
+							if (!isEmptyArray) {
+								isEmptyArray = ((Object[]) valor).length == 0;
+							}
+						}
+
+//						if (valor == null || !(valor instanceof Object[])) {
+						if (isEmptyArray) {
+							Class<?> registreClass = command.getClass().getDeclaredField(camp.getVarCodi()).getType().getComponentType();
+							valorRegistre = Array.newInstance(
+									registreClass,
+									1);
+//									camp.isRequired() ? 1 : 0);
+//							if (camp.isRequired())
+							((Object[])valorRegistre)[0] = registreClass.getConstructor().newInstance(); //registre;
 							setSimpleProperty(
 									command, 
 									camp.getVarCodi(),

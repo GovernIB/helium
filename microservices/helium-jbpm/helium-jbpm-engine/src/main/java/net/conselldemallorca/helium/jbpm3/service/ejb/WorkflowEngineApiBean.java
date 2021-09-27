@@ -205,13 +205,13 @@ public class WorkflowEngineApiBean implements WorkflowEngineApi {
     }
 
     @Override
-    public void takeTaskInstance(String taskId, String actorId) {
-        delegate.takeTaskInstance(taskId, actorId);
+    public WTaskInstance takeTaskInstance(String taskId, String actorId) {
+        return delegate.takeTaskInstance(taskId, actorId);
     }
 
     @Override
-    public void releaseTaskInstance(String taskId) {
-        delegate.releaseTaskInstance(taskId);
+    public WTaskInstance releaseTaskInstance(String taskId) {
+        return delegate.releaseTaskInstance(taskId);
     }
 
     @Override

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package es.caib.helium.camunda.model.bridge;
+package es.caib.helium.client.engine.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +19,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ReassignacioDto {
+public class Reassignacio {
 
 	private Long id;
 	private String usuariOrigen;

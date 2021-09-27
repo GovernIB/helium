@@ -1,7 +1,23 @@
 package es.caib.helium.ejb;
 
-import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.client.engine.model.CampTascaRest;
+import es.caib.helium.logic.intf.dto.ArxiuDto;
+import es.caib.helium.logic.intf.dto.CampTascaDto;
+import es.caib.helium.logic.intf.dto.CampTipusIgnored;
+import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
+import es.caib.helium.logic.intf.dto.DocumentDissenyDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.DocumentTascaDto;
+import es.caib.helium.logic.intf.dto.DominiRespostaFilaDto;
+import es.caib.helium.logic.intf.dto.EnumeracioValorDto;
+import es.caib.helium.logic.intf.dto.EstatDto;
+import es.caib.helium.logic.intf.dto.ExpedientDadaDto;
 import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.FestiuDto;
+import es.caib.helium.logic.intf.dto.InteressatDto;
+import es.caib.helium.logic.intf.dto.ReassignacioDto;
+import es.caib.helium.logic.intf.dto.TerminiDto;
+import es.caib.helium.logic.intf.dto.TerminiIniciatDto;
 import es.caib.helium.logic.intf.dto.expedient.ExpedientInfoDto;
 
 import javax.ejb.Stateless;
@@ -385,8 +401,8 @@ public class WorkflowBridgeService extends AbstractService<es.caib.helium.logic.
         return getDelegateService().getDadaPerProcessInstance(processInstanceId, codi);
     }
 
-    public List<CampTascaDto> findCampsPerTaskInstance(String processInstanceId, String processDefinitionId,
-			String taskName) {
+    public List<CampTascaRest> findCampsPerTaskInstance(String processInstanceId, String processDefinitionId,
+														String taskName) {
 		return getDelegateService().findCampsPerTaskInstance(processInstanceId, processDefinitionId, taskName);
 	}
 

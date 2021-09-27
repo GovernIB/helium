@@ -1,11 +1,13 @@
 package es.caib.helium.back.controller.rest;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.json.Json;
-import javax.json.JsonPatchBuilder;
-
+import es.caib.helium.client.engine.model.CampTascaRest;
+import es.caib.helium.client.expedient.tasca.TascaClientService;
+import es.caib.helium.client.expedient.tasca.model.TascaDto;
+import es.caib.helium.client.helper.PatchHelper;
+import es.caib.helium.logic.intf.dto.CampTascaDto;
+import es.caib.helium.logic.intf.dto.DocumentTascaDto;
+import es.caib.helium.logic.intf.service.WorkflowBridgeService;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpStatus;
@@ -18,15 +20,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import es.caib.helium.client.expedient.tasca.TascaClientService;
-import es.caib.helium.client.expedient.tasca.model.TascaDto;
-import es.caib.helium.client.helper.PatchHelper;
-import es.caib.helium.logic.intf.dto.CampTascaDto;
-import es.caib.helium.logic.intf.dto.DocumentTascaDto;
-import es.caib.helium.logic.intf.service.WorkflowBridgeService;
-import lombok.RequiredArgsConstructor;
+import javax.json.Json;
+import javax.json.JsonPatchBuilder;
+import java.util.Date;
+import java.util.List;
 
 /**
  * API REST de terminis.
@@ -43,7 +40,7 @@ public class TascaRestController {
 
 
 	@GetMapping(value="/{processInstanceId}/task/{taskName}/camps")
-	public ResponseEntity<List<CampTascaDto>> findCampsPerTaskInstance(
+	public ResponseEntity<List<CampTascaRest>> findCampsPerTaskInstance(
 			@PathVariable("processInstanceId") String processInstanceId,
 			@RequestParam(value = "processDefinitionId") String processDefinitionId,
 			@PathVariable("taskName") String taskName) {

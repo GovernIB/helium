@@ -759,10 +759,10 @@ public class TascaServiceImpl implements TascaService {
 				"registreIndex=" + registreIndex + ", " +
 				"valorsFormulari=...)");
 		List<SeleccioOpcioDto> resposta = new ArrayList<SeleccioOpcioDto>();
-		Camp camp = campRepository.getById(campId);
+		Camp camp = campRepository.findById(campId).get();
 		Camp registreCamp = null;
 		if (registreCampId != null) {
-			registreCamp = campRepository.getById(registreCampId);
+			registreCamp = campRepository.findById(registreCampId).get();
 		}
 		String pidCalculat = processInstanceId;
 		if (processInstanceId == null && tascaId != null) {
@@ -856,8 +856,11 @@ public class TascaServiceImpl implements TascaService {
 		Set<String> grupsTasca = task.getGrups();
 		Set<String> grupsUsuariActual = KeycloakHelper.getCurrentUserRols();
 
-		boolean userInPooledActors = pooledActors.contains(auth.getName());
+		boolean userInPooledActors = false;
 		boolean userInGrups = false;
+		if (pooledActors != null) {
+			pooledActors.contains(auth.getName());
+		}
 		if (grupsTasca != null && grupsUsuariActual != null) {
 			userInGrups = grupsTasca.stream().anyMatch(grupsUsuariActual::contains);
 		}
@@ -873,9 +876,9 @@ public class TascaServiceImpl implements TascaService {
 				taskInstanceId,
 				WorkflowRetroaccioApi.ExpedientRetroaccioTipus.TASCA_REASSIGNAR,
 				previousActors);
-		workflowEngineApi.takeTaskInstance(taskInstanceId, auth.getName());
+		task = workflowEngineApi.takeTaskInstance(taskInstanceId, auth.getName());
 //		indexHelper.expedientIndexLuceneUpdate(task.getProcessInstanceId());
-		task = workflowEngineApi.getTaskById(taskInstanceId);
+//		task = workflowEngineApi.getTaskById(taskInstanceId);
 		String currentActors = task.getStringActors();
 		workflowRetroaccioApi.actualitzaParametresAccioInformacioRetroaccio(
 				informacioRetroaccioId,
@@ -911,9 +914,9 @@ public class TascaServiceImpl implements TascaService {
 				id,
 				WorkflowRetroaccioApi.ExpedientRetroaccioTipus.TASCA_REASSIGNAR,
 				previousActors);
-		workflowEngineApi.releaseTaskInstance(id);
+		task = workflowEngineApi.releaseTaskInstance(id);
 //		indexHelper.expedientIndexLuceneUpdate(task.getProcessInstanceId());
-		task = workflowEngineApi.getTaskById(id);
+//		task = workflowEngineApi.getTaskById(id);
 		String currentActors = task.getStringActors();
 		workflowRetroaccioApi.actualitzaParametresAccioInformacioRetroaccio(
 				informacioRetroaccioId,
@@ -1346,11 +1349,10 @@ public class TascaServiceImpl implements TascaService {
 	 * Si tenim carregades les tasques en segon pla
 	 * s'elimina aquesta tasca del Map en momòria
 	 */
-	private void checkCompletarTasca(String id) {
+	private void checkCompletarTasca(String taskInstanceId) {
 		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
-//			Long taskId = Long.parseLong(taskInstanceId);
 //			TascaSegonPlaHelper.eliminarTasca(taskId);
-			tascaSegonPlaHelper.completarTasca(id);
+			tascaSegonPlaHelper.completarTasca(taskInstanceId);
 		}
 	}
 
@@ -1436,7 +1438,7 @@ public class TascaServiceImpl implements TascaService {
 			}
 			actualitzarTerminisIAlertes(tascaId, expedient);
 			expedientHelper.verificarFinalitzacioExpedient(expedient);
-			indexHelper.expedientIndexLuceneUpdate(expedient.getProcessInstanceId());
+//			indexHelper.expedientIndexLuceneUpdate(expedient.getProcessInstanceId());
 			Tasca tasca = tascaRepository.findByJbpmNameAndDefinicioProcesJbpmId(
 					task.getTaskName(),
 					task.getProcessDefinitionId());
@@ -1713,9 +1715,8 @@ public class TascaServiceImpl implements TascaService {
 	@Override
 	public boolean isEnSegonPla(String tascaSegonPlaId){
 		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
-			Long taskId = Long.parseLong(tascaSegonPlaId);
-			if (tascaSegonPlaHelper.getTasquesSegonPla().containsKey(taskId)) {
-				InfoSegonPla infoSegonPla = tascaSegonPlaHelper.getTasquesSegonPla().get(taskId);
+			if (tascaSegonPlaHelper.getTasquesSegonPla().containsKey(tascaSegonPlaId)) {
+				InfoSegonPla infoSegonPla = tascaSegonPlaHelper.getTasquesSegonPla().get(tascaSegonPlaId);
 				if (!infoSegonPla.isCompletada() && 
 					infoSegonPla.getError() == null && 
 					(infoSegonPla.getMarcadaFinalitzar() !=null || infoSegonPla.getIniciFinalitzacio() != null)) {
@@ -1735,9 +1736,8 @@ public class TascaServiceImpl implements TascaService {
 	public List<String[]> getMissatgesExecucioSegonPla(String tascaSegonPlaId) {
 		List<String[]> result = new ArrayList<String[]>();
 		if (tascaSegonPlaHelper.isTasquesSegonPlaLoaded()) {
-			Long taskId = Long.parseLong(tascaSegonPlaId);
-			if (tascaSegonPlaHelper.getTasquesSegonPla().containsKey(taskId)) {
-				InfoSegonPla infoSegonPla = tascaSegonPlaHelper.getTasquesSegonPla().get(taskId);
+			if (tascaSegonPlaHelper.getTasquesSegonPla().containsKey(tascaSegonPlaId)) {
+				InfoSegonPla infoSegonPla = tascaSegonPlaHelper.getTasquesSegonPla().get(tascaSegonPlaId);
 				result = infoSegonPla.getMessages();
 			}
 		}

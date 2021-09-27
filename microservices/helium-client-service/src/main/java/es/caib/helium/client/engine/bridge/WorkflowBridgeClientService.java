@@ -1,8 +1,8 @@
-package es.caib.helium.camunda.service.bridge;
+package es.caib.helium.client.engine.bridge;
 
-import es.caib.helium.camunda.model.bridge.CampTascaDto;
-import es.caib.helium.camunda.model.bridge.DocumentTascaDto;
-import es.caib.helium.camunda.model.bridge.ReassignacioDto;
+import es.caib.helium.client.engine.model.CampTascaRest;
+import es.caib.helium.client.engine.model.DocumentTasca;
+import es.caib.helium.client.engine.model.Reassignacio;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ import java.util.List;
  * @author Limit Tecnologies <limit@limit.es>
  *
  */
-public interface WorkflowBridgeService {
+public interface WorkflowBridgeClientService {
 
 	// EXPEDIENTS
 	////////////////////////////////////////////////////////////////////////////////
@@ -132,12 +132,12 @@ public interface WorkflowBridgeService {
 //
 //	public void setErrorTascaSegonPla(Long taskId, Exception ex);
 
-	public List<CampTascaDto> findCampsPerTaskInstance(
+	public List<CampTascaRest> findCampsPerTaskInstance(
 			String processInstanceId,
 			String processDefinitionId,
 			String taskName);
 
-	public List<DocumentTascaDto> findDocumentsPerTaskInstance(
+	public List<DocumentTasca> findDocumentsPerTaskInstance(
 			String processInstanceId,
 			String processDefinitionId,
 			String taskName
@@ -359,7 +359,7 @@ public interface WorkflowBridgeService {
 //
 //	public List<FestiuDto> findFestiusAll();
 
-	public ReassignacioDto findReassignacioActivaPerUsuariOrigen(
+	public Reassignacio findReassignacioActivaPerUsuariOrigen(
 			String processInstanceId,
 			String usuariCodi);
 

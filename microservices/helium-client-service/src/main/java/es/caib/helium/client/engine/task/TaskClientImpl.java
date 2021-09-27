@@ -47,17 +47,21 @@ public class TaskClientImpl implements TaskClient {
 	}
 
 	@Override
-	public void takeTaskInstance(String taskId, String actorId) {
+	public WTaskInstance takeTaskInstance(String taskId, String actorId) {
 
 		log.debug(missatgeLog + " take task instance amb id  " + taskId + " amb actorId " + actorId);
-		taskClient.takeTaskInstance(taskId, actorId);
+		var responseEntity = taskClient.takeTaskInstance(taskId, actorId);
+		var resultat = Objects.requireNonNull(responseEntity.getBody());
+		return resultat;
 	}
 
 	@Override
-	public void releaseTaskInstance(String taskId) {
+	public WTaskInstance releaseTaskInstance(String taskId) {
 
 		log.debug(missatgeLog + " release task instance amb id  " + taskId);
-		taskClient.releaseTaskInstance(taskId);
+		var responseEntity = taskClient.releaseTaskInstance(taskId);
+		var resultat = Objects.requireNonNull(responseEntity.getBody());
+		return resultat;
 	}
 
 	@Override

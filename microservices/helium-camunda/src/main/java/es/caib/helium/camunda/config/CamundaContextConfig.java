@@ -3,6 +3,7 @@ package es.caib.helium.camunda.config;
 import es.caib.helium.camunda.listener.HeliumHistoryEventHandler;
 import es.caib.helium.camunda.plugin.HeliumIdentityPlugin;
 import es.caib.helium.camunda.plugin.HeliumListenerPlugin;
+import es.caib.helium.camunda.util.HeliumClassLoader;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.BpmPlatform;
 import org.camunda.bpm.ProcessEngineService;
@@ -93,6 +94,8 @@ public class CamundaContextConfig implements WebMvcConfigurer {
         config.setHistoryEventHandler(compositeDbHistoryEventHandler);
         config.getProcessEnginePlugins().add(new EventPublisherPlugin(properties.getEventing(), publisher));
 
+        config.setClassLoader(new HeliumClassLoader());
+        
         config.setDatabaseSchemaUpdate("true");
         config.setHistory(ProcessEngineConfiguration.HISTORY_FULL);
         config.setJobExecutorActivate(true);

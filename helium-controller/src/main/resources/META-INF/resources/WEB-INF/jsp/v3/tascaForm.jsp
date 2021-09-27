@@ -41,6 +41,9 @@
 		    right: 5px;
 		    padding: 0px 5px;
 		}
+        .checkboxmul {
+            width: 27px !important;
+        }
 	</style>
 
 <c:choose>
@@ -161,7 +164,6 @@
                                             </div>
                                         </c:forEach>
                                         <c:if test="${empty dada.multipleDades}">
-                                            Buit!!
                                             <c:set var="inline" value="${true}" />
                                             <c:set var="campCodi" value="${dada.varCodi}[0]" />
                                             <c:set var="campNom" value="${dada.varCodi}" />

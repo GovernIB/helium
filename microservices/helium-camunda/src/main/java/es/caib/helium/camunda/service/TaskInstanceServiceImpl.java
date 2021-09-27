@@ -1,12 +1,14 @@
 package es.caib.helium.camunda.service;
 
+import es.caib.helium.camunda.helper.ThreadLocalInfo;
 import es.caib.helium.camunda.mapper.TaskInstanceMapper;
-import es.caib.helium.camunda.model.bridge.CampTascaDto;
-import es.caib.helium.camunda.model.bridge.CampTipusDto;
-import es.caib.helium.camunda.service.bridge.WorkflowBridgeService;
+import es.caib.helium.client.engine.bridge.WorkflowBridgeClientService;
+import es.caib.helium.client.engine.model.CampTascaRest;
+import es.caib.helium.client.engine.model.CampTipus;
 import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.client.expedient.tasca.TascaClientService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.ActivityTypes;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RuntimeService;
@@ -25,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TaskInstanceServiceImpl implements TaskInstanceService {
@@ -36,7 +39,7 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     private final RuntimeService runtimeService;
     private final TaskInstanceMapper taskInstanceMapper;
     private final ActionService actionService;
-    private final WorkflowBridgeService workflowBridgeService;
+    private final WorkflowBridgeClientService workflowBridgeClientService;
     private final TascaClientService tascaClientService;
 
     @Override
@@ -81,14 +84,17 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     }
 
     @Override
-    public void takeTaskInstance(String taskId, String actorId) {
+    public WTaskInstance takeTaskInstance(String taskId, String actorId) {
         taskService.claim(taskId, actorId);
+        return taskInstanceMapper.toWTaskInstance(getTask(taskId));
 //        taskService.setAssignee(taskId, actorId);
     }
 
     @Override
-    public void releaseTaskInstance(String taskId) {
+    public WTaskInstance releaseTaskInstance(String taskId) {
+        ThreadLocalInfo.setReleaseTaskThreadLocal(true);
         taskService.claim(taskId, null);
+        return taskInstanceMapper.toWTaskInstance(getTask(taskId));
     }
 
     @Override
@@ -102,16 +108,18 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
         // TODO: No es pot indicar una transició de sortida
         var task = getTask(taskId);
 //        taskService.complete(taskId, runtimeService.getVariables(task.getExecutionId()));
-        List<CampTascaDto> campsTasca = new ArrayList<>();
+        List<CampTascaRest> campsTasca = new ArrayList<>();
         try {
-            campsTasca = workflowBridgeService.findCampsPerTaskInstance(
+            campsTasca = workflowBridgeClientService.findCampsPerTaskInstance(
                     task.getProcessInstanceId(),
                     task.getProcessDefinitionId(),
                     task.getName());
-        } catch (Exception ex) {}
+        } catch (Exception ex) {
+            log.error("No ha estat possible obtenir els camps de la tasca.", ex);
+        }
 
         var variableNames = campsTasca.stream()
-                .filter(c -> c.isWriteTo() && !CampTipusDto.ACCIO.equals(c.getCamp().getTipus()))
+                .filter(c -> c.isWriteTo() && !CampTipus.ACCIO.equals(c.getCamp().getTipus()))
                 .map(c -> c.getCamp().getCodi())
                 .collect(Collectors.toList());
         if (variableNames != null && !variableNames.isEmpty()) {
@@ -216,6 +224,7 @@ public class TaskInstanceServiceImpl implements TaskInstanceService {
     }
 
     private void removeCandidates(String taskId) {
+        ThreadLocalInfo.setReleaseTaskThreadLocal(true);
         taskService.setAssignee(taskId, null);
         taskService.getIdentityLinksForTask(taskId).stream()
                 .filter(i -> IdentityLinkType.CANDIDATE.equals(i.getType()))

@@ -1,14 +1,14 @@
 /**
  * 
  */
-package es.caib.helium.camunda.model.bridge;
+package es.caib.helium.client.engine.model;
 
 /**
  * DTO amb informació d'un camp de la definició de procés.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public enum CampTipusDto {
+public enum CampTipus {
 	STRING,
 	INTEGER,
 	FLOAT,

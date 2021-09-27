@@ -43,7 +43,7 @@ public interface TaskInstanceService {
      * @param taskId
      * @param actorId
      */
-    public void takeTaskInstance(
+    public WTaskInstance takeTaskInstance(
             String taskId,
             String actorId);
 
@@ -52,7 +52,7 @@ public interface TaskInstanceService {
      *
      * @param taskId
      */
-    public void releaseTaskInstance(String taskId);
+    public WTaskInstance releaseTaskInstance(String taskId);
 
     /**
      * Inicia la tramitació d'una tasca

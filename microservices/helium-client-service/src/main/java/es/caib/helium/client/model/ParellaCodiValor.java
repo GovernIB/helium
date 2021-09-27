@@ -6,12 +6,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 
+import java.io.Serializable;
+
 @Validated
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ParellaCodiValor {
+public class ParellaCodiValor implements Serializable {
 
   private String codi = null;
   private Object valor = null;

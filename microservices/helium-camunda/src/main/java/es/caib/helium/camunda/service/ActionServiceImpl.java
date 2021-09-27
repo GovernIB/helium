@@ -217,14 +217,16 @@ public class ActionServiceImpl implements ActionService {
         // Enviar missatge per a que s'executi una ServiceTask o ScriptTask
         var subscription = runtimeService.createEventSubscriptionQuery()
 //                .processInstanceId(processInstanceId)
-                .activityId(taskInstanceId)
+//                .activityId(taskInstanceId)
                 .eventType("message")
                 .eventName(actionName)
                 .singleResult();
 
         var processVariables = new HashMap<String, Object>();
         processVariables.put("taskId", taskInstanceId);
-        runtimeService.messageEventReceived(subscription.getEventName(), subscription.getExecutionId(), null);
+        runtimeService.messageEventReceived(subscription.getEventName(), subscription.getExecutionId(), processVariables);
+
+
     }
 
     @Override

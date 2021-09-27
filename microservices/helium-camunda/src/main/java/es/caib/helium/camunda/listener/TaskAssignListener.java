@@ -2,7 +2,7 @@ package es.caib.helium.camunda.listener;
 
 import es.caib.helium.camunda.helper.EngineHelper;
 import es.caib.helium.camunda.helper.ThreadLocalInfo;
-import es.caib.helium.camunda.service.bridge.WorkflowBridgeService;
+import es.caib.helium.client.engine.bridge.WorkflowBridgeClientService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateTask;
@@ -15,8 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class TaskAssignListener implements TaskListener {
 
-//    private final TascaClientService tascaClientService;
-    private final WorkflowBridgeService workflowBridgeService;
+    private final WorkflowBridgeClientService workflowBridgeClientService;
 
     @Override
     public void notify(DelegateTask delegateTask) {
@@ -35,7 +34,7 @@ public class TaskAssignListener implements TaskListener {
                 if (currentActorId != null && !currentActorId.isBlank()) {
                     // Si s'està iniciant l'expedient no es fa reassignació
                     if (ThreadLocalInfo.getStartExpedient() == null || !ThreadLocalInfo.getStartExpedient()) {
-                        var reassignacio = workflowBridgeService.findReassignacioActivaPerUsuariOrigen(
+                        var reassignacio = workflowBridgeClientService.findReassignacioActivaPerUsuariOrigen(
                                 delegateTask.getProcessInstanceId(),
                                 currentActorId);
                         if (reassignacio != null) {

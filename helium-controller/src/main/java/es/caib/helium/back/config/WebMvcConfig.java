@@ -6,6 +6,7 @@ package es.caib.helium.back.config;
 import com.opensymphony.sitemesh.webapp.SiteMeshFilter;
 import es.caib.helium.back.interceptor.AjaxInterceptor;
 import es.caib.helium.back.interceptor.EntornInterceptor;
+import es.caib.helium.back.interceptor.EntornRestInterceptor;
 import es.caib.helium.back.interceptor.GlobalPropertiesInterceptor;
 import es.caib.helium.back.interceptor.IdiomaInterceptor;
 import es.caib.helium.back.interceptor.ModalInterceptor;
@@ -56,6 +57,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
 	@Autowired
 	private AjaxInterceptor ajaxInterceptor;
+	@Autowired
+	private EntornRestInterceptor entornRestInterceptor;
 	@Autowired
 	private EntornInterceptor entornInterceptor;
 	@Autowired
@@ -151,6 +154,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 		excludePatterns.add("/**/selection/**");
 
 		registry.addInterceptor(personaInterceptor).excludePathPatterns(excludePatterns);
+		registry.addInterceptor(entornRestInterceptor).excludePathPatterns(excludePatternsModal);
 		registry.addInterceptor(entornInterceptor).excludePathPatterns(excludePatterns);
 		registry.addInterceptor(globalPropertiesInterceptor).excludePathPatterns(excludePatterns);
 		registry.addInterceptor(versioInterceptor).excludePathPatterns(excludePatterns);

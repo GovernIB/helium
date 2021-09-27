@@ -1,22 +1,20 @@
-package es.caib.helium.camunda.service.bridge;
+package es.caib.helium.client.engine.bridge;
 
-import es.caib.helium.camunda.model.bridge.CampTascaDto;
-import es.caib.helium.camunda.model.bridge.DocumentTascaDto;
-import es.caib.helium.camunda.model.bridge.ReassignacioDto;
+import es.caib.helium.client.engine.model.CampTascaRest;
+import es.caib.helium.client.engine.model.DocumentTasca;
+import es.caib.helium.client.engine.model.Reassignacio;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional
-public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
+public class WorkflowBridgeClientServiceImpl implements WorkflowBridgeClientService {
 
-    private final BridgeFeignClient bridgeClient;
+    private final WorkflowBridgeFeignClient workflowBridgeFeignClient;
 
 //    @Autowired
 //    ExpedientsHelper expedientsHelper;
@@ -314,25 +312,27 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 //    }
 
     @Override
-    public List<CampTascaDto> findCampsPerTaskInstance(
+    public List<CampTascaRest> findCampsPerTaskInstance(
             String processInstanceId,
             String processDefinitionId,
             String taskName) {
-        return bridgeClient.findCampsPerTaskInstance(
+        var responseEntity = workflowBridgeFeignClient.findCampsPerTaskInstance(
                 processInstanceId,
                 processDefinitionId,
-                taskName).getBody();
+                taskName);
+        return responseEntity.getBody();
     }
 
     @Override
-    public List<DocumentTascaDto> findDocumentsPerTaskInstance(
+    public List<DocumentTasca> findDocumentsPerTaskInstance(
             String processInstanceId,
             String processDefinitionId,
             String taskName) {
-        return bridgeClient.findDocumentsPerTaskInstance(
+        var responseEntity = workflowBridgeFeignClient.findDocumentsPerTaskInstance(
                 processInstanceId,
                 processDefinitionId,
-                taskName).getBody();
+                taskName);
+        return responseEntity.getBody();
     }
 
 //    @Override
@@ -755,10 +755,10 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
 //    }
 
     @Override
-    public ReassignacioDto findReassignacioActivaPerUsuariOrigen(String processInstanceId, String usuariCodi) {
-        var response = bridgeClient.getReassignacio(usuariCodi, processInstanceId);
-        if (response != null) {
-            return response.getBody();
+    public Reassignacio findReassignacioActivaPerUsuariOrigen(String processInstanceId, String usuariCodi) {
+        var responseEntity = workflowBridgeFeignClient.getReassignacio(usuariCodi, processInstanceId);
+        if (responseEntity != null) {
+            return responseEntity.getBody();
         }
         return null;
     }

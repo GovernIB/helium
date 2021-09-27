@@ -469,19 +469,17 @@ public class WorkflowEngineController {
 
     @RequestMapping(value="/taskInstances/{taskId}/take/{actorId}", method = RequestMethod.POST)
 	@ResponseBody
-    public ResponseEntity<Void> takeTaskInstance(
+    public ResponseEntity<WTaskInstance> takeTaskInstance(
             @PathVariable("taskId") String taskId,
             @PathVariable("actorId") String actorId) {
-        workflowEngineApi.takeTaskInstance(taskId, actorId);
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity(workflowEngineApi.takeTaskInstance(taskId, actorId), HttpStatus.OK);
     }
 
     @RequestMapping(value="/taskInstances/{taskId}/release", method = RequestMethod.POST)
 	@ResponseBody
-    public ResponseEntity<Void> releaseTaskInstance(
+    public ResponseEntity<WTaskInstance> releaseTaskInstance(
             @PathVariable("taskId") String taskId) {
-        workflowEngineApi.releaseTaskInstance(taskId);
-        return new ResponseEntity(HttpStatus.OK);
+        return new ResponseEntity(workflowEngineApi.releaseTaskInstance(taskId), HttpStatus.OK);
     }
 
     @RequestMapping(value="/taskInstances/{taskId}/start", method = RequestMethod.POST)
@@ -584,6 +582,9 @@ public class WorkflowEngineController {
     public ResponseEntity<List<VariableRest>> getTaskInstanceVariables(
             @PathVariable("taskId") String taskId) {
         Map<String, Object> variables = workflowEngineApi.getTaskInstanceVariables(taskId);
+        if (variables == null) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
         return new ResponseEntity(objectMapToVariableRestConvert(variables), HttpStatus.OK);
     }
 
@@ -592,8 +593,12 @@ public class WorkflowEngineController {
     public ResponseEntity<VariableRest> getTaskInstanceVariable(
             @PathVariable("taskId") String taskId,
             @PathVariable("varName") String varName) {
+        Object variable = workflowEngineApi.getTaskInstanceVariable(taskId, varName);
+        if (variable == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity(
-                objectToVariable(varName, workflowEngineApi.getTaskInstanceVariable(taskId, varName)),
+                objectToVariable(varName, variable),
                 HttpStatus.OK);
     }
 

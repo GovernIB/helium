@@ -224,35 +224,35 @@ public class DadaClientImpl implements DadaClient {
 	}
 
 	@Override
-	public List<Dada> getDadesByProcessInstanceId(String procesId) throws Exception {
+	public List<Dada> getDadesByProcessInstanceId(String procesId) {
 
 		log.debug(missatgeLog + "Get dada pers procesId: " + procesId);
 		return dadaServiceFeignClient.getDadesByProcessInstanceId(procesId).getBody();
 	}
 
 	@Override
-	public Boolean postDadaByProcesId(String procesId, List<Dada> dades) throws Exception {
+	public Boolean postDadaByProcesId(String procesId, List<Dada> dades) {
 
 		log.debug(missatgeLog + "Get dada per procesId: " + procesId + " dades: " + dades);
 		return dadaServiceFeignClient.postDadaByProcesId(procesId, dades).getBody();
 	}
 
 	@Override
-	public void deleteDadaByProcessInstanceIdAndCodi(String procesId, String codi) throws Exception {
+	public void deleteDadaByProcessInstanceIdAndCodi(String procesId, String codi) {
 
 		log.debug(missatgeLog + " Delete dada per procesId: " + procesId + " codi: " + codi);
 		dadaServiceFeignClient.deleteDadaByProcessInstanceIdAndCodi(procesId, codi);
 	}
 
 	@Override
-	public List<Expedient> findRootProcessInstances(List<String> procesIds) throws Exception {
+	public List<Expedient> findRootProcessInstances(List<String> procesIds) {
 
 		log.debug(missatgeLog + " Get root proces instances by procesIds: " + procesIds);
 		return dadaServiceFeignClient.findRootProcessInstances(procesIds).getBody();
 	}
 
 	@Override
-	public Expedient findRootProcessInstances(String procesId) throws Exception {
+	public Expedient findRootProcessInstances(String procesId) {
 
 		log.debug(missatgeLog + " Get root proces instances by procesId: " + procesId);
 		return dadaServiceFeignClient.findRootProcessInstances(procesId).getBody();

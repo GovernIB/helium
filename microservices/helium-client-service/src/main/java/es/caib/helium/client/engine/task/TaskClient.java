@@ -16,9 +16,9 @@ public interface TaskClient {
 	
 	public String getTaskInstanceIdByExecutionTokenId(String executionTokenId);
 	
-	public void takeTaskInstance(String taskId, String actorId);
+	public WTaskInstance takeTaskInstance(String taskId, String actorId);
 	
-	public void releaseTaskInstance(String taskId);
+	public WTaskInstance releaseTaskInstance(String taskId);
 	
 	public WTaskInstance startTaskInstance(String taskId);
 	

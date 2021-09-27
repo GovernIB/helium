@@ -71,13 +71,13 @@ public interface DadaClient {
 	
 	void deleteDadaByExpedientIdAndProcesIdAndCodi(Long expedientId, String procesIdId, String codi);
 
-	List<Dada> getDadesByProcessInstanceId(String procesId) throws Exception;
+	List<Dada> getDadesByProcessInstanceId(String procesId);
 
-	Boolean postDadaByProcesId(String procesId, List<Dada> dades) throws Exception;
+	Boolean postDadaByProcesId(String procesId, List<Dada> dades);
 
-	void deleteDadaByProcessInstanceIdAndCodi(String procesId, String codi) throws Exception;
+	void deleteDadaByProcessInstanceIdAndCodi(String procesId, String codi);
 
-	List<Expedient> findRootProcessInstances(List<String> procesIds) throws Exception;
+	List<Expedient> findRootProcessInstances(List<String> procesIds);
 
-	Expedient findRootProcessInstances(String procesId) throws Exception;
+	Expedient findRootProcessInstances(String procesId);
 }

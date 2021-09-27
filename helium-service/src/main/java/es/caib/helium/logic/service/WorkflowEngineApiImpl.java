@@ -275,13 +275,13 @@ public class WorkflowEngineApiImpl implements WorkflowEngineApi {
     }
     
     @Override
-    public void takeTaskInstance(String taskId, String actorId) {
-        taskClient.takeTaskInstance(taskId, actorId);
+    public WTaskInstance takeTaskInstance(String taskId, String actorId) {
+        return taskClient.takeTaskInstance(taskId, actorId);
     }
 
     @Override
-    public void releaseTaskInstance(String taskId) {
-        taskClient.releaseTaskInstance(taskId);
+    public WTaskInstance releaseTaskInstance(String taskId) {
+        return taskClient.releaseTaskInstance(taskId);
     }
 
     @Override

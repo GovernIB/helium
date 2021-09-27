@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.annotation.PostConstruct;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
@@ -42,6 +43,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -63,9 +65,11 @@ import java.util.zip.ZipOutputStream;
 @ConfigurationProperties(prefix = "es.caib.helium.camunda")
 public class DeploymentServiceImpl implements DeploymentService {
 
+    public static final String LOADABLE_DIR = "loadable";
+    public static String DEPLOYMENT_PATH;
+
     private static final int DELETE_MAX_WAIT = 30000;
     private static final String REGISTERED_DEPLOYMENTS_REG = "registered_deployments.reg";
-
     private static enum DeploymentStatus { DEPLOYED, FAILED, TIMEOUT, INTERRUPTED }
 
 
@@ -77,6 +81,12 @@ public class DeploymentServiceImpl implements DeploymentService {
     @Setter
     @Value("${es.caib.helium.camunda.deployment.path}")
     private String deploymentPath;
+
+    @PostConstruct
+    private void postConstruct() {
+        DEPLOYMENT_PATH = this.deploymentPath;
+    }
+
 
     @Override
     @CacheEvict(value = {
@@ -214,14 +224,35 @@ public class DeploymentServiceImpl implements DeploymentService {
 
         ZipEntry zipEntry = null;
         while((zipEntry = zis.getNextEntry()) != null) {
-            if (!zipEntry.getName().endsWith("processes.xml")) {
+            String fileName = zipEntry.getName();
+            if (!fileName.endsWith("processes.xml")) {
                 zos.putNextEntry(zipEntry);
-                int len;
-                while((len = zis.read(buffer)) > 0) {
-                    zos.write(buffer, 0, len);
+
+                var fileContent = zis.readAllBytes();
+                zos.write(fileContent, 0, fileContent.length);
+//                int len;
+//                while((len = zis.read(buffer)) > 0) {
+//                    zos.write(buffer, 0, len);
+//                }
+
+                // Guardam a els .class a la carpeta loadables per poderlos obtenir amb un customClassLoader
+                if (fileName.endsWith("class")) {
+                    String[] rutes = fileName.split("/");
+                    if (rutes.length > 2 && "WEB-INF".equals(rutes[0])) {
+                        rutes = Arrays.copyOfRange(rutes, 2, rutes.length);
+                    }
+                    Path loadablePath = Paths.get(deploymentPath, LOADABLE_DIR);
+                    Path path = Paths.get(loadablePath.toString(), rutes);
+                    Path directoryPath = path.getParent();
+                    if (!Files.exists(directoryPath))
+                        Files.createDirectories(directoryPath);
+                    Files.write(
+                            path,
+                            fileContent,
+                            StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
                 }
             } else {
-                zos.putNextEntry(new ZipEntry(zipEntry.getName()));
+                zos.putNextEntry(new ZipEntry(fileName));
 
 //                InputStream is = zipFile.getInputStream(entryIn);
                 byte[] deploymentDescriptorBytes = getModifiedDeploymentDescriptor(zis.readAllBytes(), tenantId);

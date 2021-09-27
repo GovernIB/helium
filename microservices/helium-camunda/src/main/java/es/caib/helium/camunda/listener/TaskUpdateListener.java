@@ -1,6 +1,7 @@
 package es.caib.helium.camunda.listener;
 
 import es.caib.helium.camunda.helper.EngineHelper;
+import es.caib.helium.camunda.helper.ThreadLocalInfo;
 import es.caib.helium.client.expedient.tasca.TascaClientService;
 import es.caib.helium.client.helper.PatchHelper;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +15,8 @@ import javax.json.Json;
 import javax.json.JsonPatchBuilder;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -60,8 +61,8 @@ public class TaskUpdateListener implements TaskListener {
         JsonPatchBuilder jpb = Json.createPatchBuilder();
 
         // Representants i grups
-        List<String> originalUsuarisCandidats = new ArrayList<>();
-        List<String> originalGrupsCandidats = new ArrayList<>();
+        Set<String> originalUsuarisCandidats = new HashSet<>();
+        Set<String> originalGrupsCandidats = new HashSet<>();
         var historicCandidats = EngineHelper.getInstance().getHistoryService().createHistoricIdentityLinkLogQuery()
                 .taskId(task.getId())
                 .orderByTime().asc()
@@ -84,27 +85,27 @@ public class TaskUpdateListener implements TaskListener {
                         originalGrupsCandidats.remove(c.getGroupId());
                 });
 
-        List<String> usuarisCandidats =  delegateTask.getCandidates().stream()
+        Set<String> usuarisCandidats =  delegateTask.getCandidates().stream()
                 .filter(c -> c.getUserId() != null)
                 .map(c -> c.getUserId())
-                .collect(Collectors.toList());
-        List<String> grupsCandidats = delegateTask.getCandidates().stream()
+                .collect(Collectors.toSet());
+        Set<String> grupsCandidats = delegateTask.getCandidates().stream()
                 .filter(c -> c.getGroupId() != null)
                 .map(c -> c.getGroupId())
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
-        if (!Objects.equals(originalUsuarisCandidats, usuarisCandidats)) {
+        if (!originalUsuarisCandidats.equals(usuarisCandidats) && (!usuarisCandidats.isEmpty() || ThreadLocalInfo.getReleaseTaskThreadLocal())) {
             if (usuarisCandidats.isEmpty()) {
                 tascaClientService.deleteResponsablesV1(task.getId());
             } else {
-                tascaClientService.setResponsablesV1(task.getId(), usuarisCandidats);
+                tascaClientService.setResponsablesV1(task.getId(), new ArrayList<>(usuarisCandidats));
             }
         }
-        if (!Objects.equals(originalGrupsCandidats, grupsCandidats)) {
+        if (!originalGrupsCandidats.equals(grupsCandidats)) {
             if (grupsCandidats.isEmpty()) {
                 tascaClientService.deleteGrupsV1(task.getId());
             } else {
-                tascaClientService.setGrupsV1(task.getId(), grupsCandidats);
+                tascaClientService.setGrupsV1(task.getId(), new ArrayList<>(grupsCandidats));
             }
         }
 
@@ -135,6 +136,8 @@ public class TaskUpdateListener implements TaskListener {
                         PatchHelper.replaceBooleanProperty(jpb, "assignada", propietatCanviada.getNewValueString() != null ? true : false);
                         if (propietatCanviada.getOrgValueString() == null && propietatCanviada.getNewValueString() != null && (!usuarisCandidats.isEmpty() || !grupsCandidats.isEmpty())) {
                             PatchHelper.replaceBooleanProperty(jpb, "agafada", true);
+                        } else if (propietatCanviada.getNewValueString() == null) {
+                            PatchHelper.replaceBooleanProperty(jpb, "agafada", false);
                         }
                         break;
                     case "owner":

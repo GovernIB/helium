@@ -774,27 +774,31 @@ public class JbpmHelper implements WorkflowEngineApi {
 	////////////////////////////////////////////////////////////////////////////////
 
 	@Override
-	public void takeTaskInstance(String taskId, String actorId) {
+	public WTaskInstance takeTaskInstance(String taskId, String actorId) {
 		//adminService.mesuraIniciar("jBPM takeTaskInstance", "jbpmDao");
+		WTaskInstance resposta = null;
 		final long id = Long.parseLong(taskId);
 		TakeTaskInstanceCommand command = new TakeTaskInstanceCommand(id, actorId);
-		commandHelper.executeCommandWithAutoSave(
+		resposta = new JbpmTask((TaskInstance)commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
-				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA));
 		//adminService.mesuraCalcular("jBPM takeTaskInstance", "jbpmDao");
+		return resposta;
 	}
 
 	@Override
-	public void releaseTaskInstance(String taskId) {
+	public WTaskInstance releaseTaskInstance(String taskId) {
 		//adminService.mesuraIniciar("jBPM releaseTaskInstance", "jbpmDao");
+		WTaskInstance resposta = null;
 		final long id = Long.parseLong(taskId);
 		ReleaseTaskInstanceCommand command = new ReleaseTaskInstanceCommand(id);
-		commandHelper.executeCommandWithAutoSave(
+		resposta = new JbpmTask((TaskInstance)commandHelper.executeCommandWithAutoSave(
 				command,
 				id,
-				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA));
 		//adminService.mesuraCalcular("jBPM releaseTaskInstance", "jbpmDao");
+		return resposta;
 	}
 
 	@Override

@@ -14,12 +14,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class HeliumExecutionParseListener extends AbstractBpmnParseListener {
 
-    private final TaskCreateListener taskCreateListener;
-    private final TaskAssignListener taskAssignListener;
-    private final TaskUpdateListener taskUpdateListener;
-    private final TaskCompleteListener taskCompleteListener;
-    private final TaskTimeoutListener taskTimeoutListener;
-    private final TaskDeleteListener taskDeleteListener;
+//    private final TaskCreateListener taskCreateListener;
+//    private final TaskAssignListener taskAssignListener;
+//    private final TaskUpdateListener taskUpdateListener;
+//    private final TaskCompleteListener taskCompleteListener;
+//    private final TaskTimeoutListener taskTimeoutListener;
+//    private final TaskDeleteListener taskDeleteListener;
 
     private final ProcessCreateListener processCreateListener;
     private final ProcessEndListener processEndListener;
@@ -30,8 +30,8 @@ public class HeliumExecutionParseListener extends AbstractBpmnParseListener {
     }
 
     @Override
-    public void parseEndEvent(Element endEventElement, ScopeImpl scope, ActivityImpl endEventactivity) {
-        endEventactivity.addListener(ExecutionListener.EVENTNAME_END, processEndListener);
+    public void parseEndEvent(Element endEventElement, ScopeImpl scope, ActivityImpl endEventActivity) {
+        endEventActivity.addListener(ExecutionListener.EVENTNAME_END, processEndListener);
     }
 
 }

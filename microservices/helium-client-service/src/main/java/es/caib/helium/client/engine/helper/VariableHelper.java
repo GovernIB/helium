@@ -1,10 +1,12 @@
 package es.caib.helium.client.engine.helper;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import es.caib.helium.client.engine.model.Registre;
 import es.caib.helium.client.engine.model.Termini;
 import es.caib.helium.client.engine.model.TipusVar;
 import es.caib.helium.client.engine.model.VariableRest;
+import es.caib.helium.client.model.ParellaCodiValor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
@@ -15,6 +17,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -56,6 +59,8 @@ public class VariableHelper {
     }
 
     public static Object variableToObject(VariableRest variable) {
+        if (variable == null)
+            return null;
         return stringToValor(
                 variable.getTipus(),
                 variable.getClassName(),
@@ -105,8 +110,7 @@ public class VariableHelper {
                     return Termini.valueFromString(valor);
                 case REGISTRE:
                 case OBJECT:
-                    ObjectMapper mapper = new ObjectMapper();
-                    return mapper.readValue(valor, Class.forName(className));
+                    return readValor(className, valor);
                 default:
                     return valor;
             }
@@ -116,6 +120,42 @@ public class VariableHelper {
         }
     }
 
+    private static Object readValor(String className, String valor) throws JsonProcessingException, ClassNotFoundException {
+        ObjectMapper mapper = new ObjectMapper();
+        var result = mapper.readValue(valor, Class.forName(className));
+        if (result instanceof Object[]) {
+            var registre = (Object[]) result;
+            int i = 0;
+            for (var fila: registre) {
+                if (fila instanceof Object[]) {
+                    var columnes = (Object[]) fila;
+                    int j = 0;
+                    for(var col: columnes) {
+                        columnes[j++] = getParellaCodiValor(col);
+                    }
+                } else {
+                    registre[i] = getParellaCodiValor(fila);;
+                }
+                i++;
+            }
+        }
+        return result;
+    }
+
+    private static Object getParellaCodiValor(Object element) {
+        ParellaCodiValor pcv = null;
+        if (element instanceof LinkedHashMap) {
+            var l = (LinkedHashMap) element;
+            if (l.size() == 2 && l.containsKey("codi") && l.containsKey("valor")) {
+                return ParellaCodiValor.builder()
+                        .codi(l.get("codi").toString())
+                        .valor(l.get("valor"))
+                        .build();
+            }
+        }
+        return element;
+    }
+
     public static String valorToString(Object valor, TipusVar tipus) {
         try {
             switch (tipus) {
@@ -123,13 +163,13 @@ public class VariableHelper {
                 case LONG:
                 case FLOAT:
                 case BOOLEAN:
+                case PREU:
+                case STRING:
                     return String.valueOf(valor);
                 case DATE:
                     return DATE_FORMAT.format((Date)valor);
                 case TERMINI:
                     return Termini.valueFromTermini((Termini)valor);
-                case PREU:
-                    return valor.toString();
                 case REGISTRE:
                     // TODO: Variables tipus REGISTRE!!!
                 case OBJECT:

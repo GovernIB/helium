@@ -95,7 +95,6 @@ public class AplicacioServiceImpl implements AplicacioService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<PersonaDto> findPersonesAmbGrup(String grup) throws SistemaExternException {
-		//TODO MS: AL FER PULL ESTAVA PER IMPLEMENTAR
 		return pluginHelper.personesAmbGrup(grup);
 	}
 

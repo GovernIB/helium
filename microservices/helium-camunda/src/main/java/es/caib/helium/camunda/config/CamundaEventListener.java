@@ -1,10 +1,13 @@
 package es.caib.helium.camunda.config;
 
+import es.caib.helium.camunda.listener.events.TaskCompletEvent;
+import es.caib.helium.client.dada.dades.DadaClient;
+import es.caib.helium.client.expedient.tasca.TascaClientService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.engine.delegate.DelegateVariableInstance;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -13,9 +16,34 @@ public class CamundaEventListener {
 
 ////    private final RuntimeService runtimeService;
 //    private final HistoryService historyService;
-////    private final DadaClient dadaClient;
 //    private final ProcesClientService procesClientService;
-//    private final TascaClientService tascaClientService;
+
+    private final TascaClientService tascaClientService;
+    private final DadaClient dadaClient;
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleTaskCompleteEvent(TaskCompletEvent event) {
+
+        if (event.getDades() != null && !event.getDades().isEmpty()) {
+            dadaClient.postDadaByProcesId(event.getProcesId(), event.getDades());
+        }
+        tascaClientService.patchTascaV1(event.getTaskId(), event.getTaskPatch());
+
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
+    public void handleTaskCompleteRollbackEvent(TaskCompletEvent event) {
+
+        log.error("S'ha produït un error al completar la tasca {}", event.getTaskId());
+
+    }
+
+//    // ExecutionListener.EVENTNAME_START;
+//    @EventListener(condition = "#event.eventName=='start'")
+//    public void onActivityStartEvent(ExecutionEvent event) {
+//        log.info("handle execution event {} with event id {}", event.getEventName(), event.getId());
+//    }
+
 
 //    @EventListener
 //    public void onExecutionEvent(DelegateExecution delegateExecution) {
@@ -47,13 +75,7 @@ public class CamundaEventListener {
 //        }
 //
 //    }
-
-    @EventListener
-    public void onVariableEvent(DelegateVariableInstance variableDelegate) {
-        log.info("VariableEvent listener. \n Current ActivityId: {} VarialbeId: {} VariableName: {} \n >>> Event Name: {}  \n",
-                variableDelegate.getActivityInstanceId(), variableDelegate.getId(), variableDelegate.getName(), variableDelegate.getEventName());
-    }
-
+//
 //    @EventListener
 //    public void onHistoryEvent(HistoryEvent historyEvent) {
 //        // handle history event
@@ -71,7 +93,6 @@ public class CamundaEventListener {
 ////                    rootProcessInstanceId = superProcessInstance.getId();
 ////                }
 ////            } while (superProcessInstance != null);
-////            // TODO: Afegir mètode per crear nova instància de procés al MS DADES
 ////            // dadaClient.createProcess(historyEvent.getProcessInstanceId(), rootProcessInstanceId);
 ////
 ////            // 2. Activar listener per variables
@@ -234,4 +255,13 @@ public class CamundaEventListener {
 //        tascaClientService.createTascaV1(tascaDto);
 //    }
 
+//    @EventListener(condition = "#event.eventName=='take'")
+//    public void onTaskTakeEvent(ExecutionEvent event) {
+//        log.info("handle task event {} for task id {}", event.getEventName(), event.getId());
+//    }
+//
+//    @EventListener(condition = "#event.eventType==HistoryEvent.TASK_EVENT_TYPE_COMPLETE")
+//    public void onTaskTakeEvent(HistoryEvent event) {
+//        log.info("handle task event {} for task id {}", event.getId());
+//    }
 }

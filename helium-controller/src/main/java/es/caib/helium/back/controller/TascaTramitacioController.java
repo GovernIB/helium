@@ -1121,10 +1121,10 @@ public class TascaTramitacioController extends BaseTascaController {
 			SessionHelper.removeAttribute(request,VARIABLE_COMMAND_BINDING_RESULT_TRAMITACIO+tascaId);
 			model.addAttribute("org.springframework.validation.BindingResult.command", bindingResult);
 		}
-		TascaFormHelper.ompleMultiplesBuits(
-				tascaFormCommand,
-				dades, 
-				false);
+//		TascaFormHelper.ompleMultiplesBuits(
+//				tascaFormCommand,
+//				dades,
+//				false);
 		model.addAttribute("command", tascaFormCommand);
 		model.addAttribute("isModal", ModalHelper.isModal(request));
 	}

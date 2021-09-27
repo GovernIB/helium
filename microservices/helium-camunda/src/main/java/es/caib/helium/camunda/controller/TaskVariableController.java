@@ -45,9 +45,11 @@ public class TaskVariableController {
     public ResponseEntity<VariableRest> getTaskInstanceVariable(
             @PathVariable("taskId") String taskId,
             @PathVariable("varName") String varName) {
-        return new ResponseEntity<>(
-                taskVariableService.getTaskInstanceVariable(taskId, varName),
-                HttpStatus.OK);
+        var variable = taskVariableService.getTaskInstanceVariable(taskId, varName);
+        if (variable == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(variable, HttpStatus.OK);
     }
 
     @PostMapping(value="/{taskId}/taskInstanceVariables/{varName}")

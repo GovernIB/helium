@@ -58,13 +58,13 @@
 							<input type="text" id="${campCodi}" name="${campNom}" class="form-control date" placeholder="dd/mm/aaaa" data-required="${dada.required}" value="${formattedDate}"/>
 							</c:when>
 						<c:otherwise>
-						<c:choose>
-								<c:when test='${command[campNom]["class"].name == "java.util.Date"}' >
+							<c:choose>
+								<c:when test='${command[campNom].getClass().name == "java.util.Date"}' >
 									<fmt:formatDate value="${command[campNom]}" var="formattedDate" type="date" pattern="dd/MM/yyyy" />
 									<input type="text" id="${campCodi}" name="${campNom}" class="form-control date" placeholder="dd/mm/aaaa" data-required="${dada.required}" value="${formattedDate}"/>
 								</c:when>
 								<c:otherwise>
-									<c:set var="formattedDate" value="${command[campNom][campIndex]}"/>
+<%--									<c:set var="formattedDate" value="${command[campNom][campIndex]}"/>--%>
 									<form:input path="${campCodi}" id="${campCodi}" cssClass="date form-control" placeholder="dd/mm/aaaa" data-required="${dada.required}"/>
 								</c:otherwise>
 							</c:choose>
@@ -126,6 +126,7 @@
 							<input type="hidden" id="${campCodi}" name="${campNom}" value="${command[campNom][campIndex]}"/>
 							<input type="checkbox" class="checkbox checkboxmul" data-required="${dada.required}" <c:if test="${command[campNom][campIndex]}">checked</c:if>/>
 						</div>
+						<div class="bool-space"></div>
 					</c:when>
 					<c:otherwise><form:checkbox path="${campCodi}" id="${campCodi}" data-required="${dada.required}" style="max-width: 27px;" cssClass="checkbox"/></c:otherwise>
 				</c:choose>

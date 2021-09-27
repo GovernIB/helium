@@ -10,6 +10,7 @@ import org.camunda.bpm.engine.identity.UserQuery;
 import org.camunda.bpm.engine.impl.context.Context;
 import org.camunda.bpm.engine.impl.identity.ReadOnlyIdentityProvider;
 import org.camunda.bpm.engine.impl.interceptor.CommandContext;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -23,6 +23,7 @@ public interface WTaskInstance {
 	public boolean isSuspended();
 	public boolean isCancelled();
 	public Set<String> getPooledActors();
+	public Set<String> getGrups();
 	public boolean isAgafada();
 	public String getSelectedOutcome();
 	public String getRols();

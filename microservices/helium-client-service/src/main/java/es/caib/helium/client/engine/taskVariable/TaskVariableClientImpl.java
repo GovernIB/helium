@@ -1,14 +1,15 @@
 package es.caib.helium.client.engine.taskVariable;
 
-import java.util.List;
-import java.util.Objects;
-
-import org.springframework.stereotype.Service;
-
 import es.caib.helium.client.engine.model.UpdateVariablesData;
 import es.caib.helium.client.engine.model.VariableRest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -23,18 +24,38 @@ public class TaskVariableClientImpl implements TaskVariableClient {
 	public List<VariableRest> getTaskInstanceVariables(String taskId) {
 		
 		log.debug(missatgeLog + " get task instance variables amb taskId " + taskId);
-		var responseEntity = taskVariableClient.getTaskInstanceVariables(taskId);
-		var resultat = Objects.requireNonNull(responseEntity.getBody());
-    	return resultat;
+		try {
+			var responseEntity = taskVariableClient.getTaskInstanceVariables(taskId);
+			if (HttpStatus.NO_CONTENT.equals(responseEntity.getStatusCode())) {
+				return new ArrayList<>();
+			} else {
+				return responseEntity.getBody();
+			}
+		} catch (HttpClientErrorException ex) {
+			if (HttpStatus.NO_CONTENT.equals(ex.getStatusCode())) {
+				return new ArrayList<>();
+			}
+			throw ex;
+		}
 	}
 
 	@Override
 	public VariableRest getTaskInstanceVariable(String taskId, String varName) {
 		
 		log.debug(missatgeLog + " get task instance variables amb taskId " + taskId + " varName " + varName);
-		var responseEntity = taskVariableClient.getTaskInstanceVariable(taskId, varName);
-		var resultat = Objects.requireNonNull(responseEntity.getBody());
-    	return resultat;
+		try {
+			var responseEntity = taskVariableClient.getTaskInstanceVariable(taskId, varName);
+			if (HttpStatus.NOT_FOUND.equals(responseEntity.getStatusCode())) {
+				return null;
+			} else {
+				return responseEntity.getBody();
+			}
+		} catch (HttpClientErrorException ex) {
+			if (HttpStatus.NOT_FOUND.equals(ex.getStatusCode())) {
+				return null;
+			}
+			throw ex;
+		}
 	}
 
 	@Override

@@ -27,12 +27,12 @@ public interface TaskFeignClient {
             @PathVariable("executionTokenId") String executionTokenId);
 	
 	@RequestMapping(method = RequestMethod.POST, value = TaskApiPath.TAKE_TASK_INSTANCE)
-	public ResponseEntity<Void> takeTaskInstance(
+	public ResponseEntity<WTaskInstance> takeTaskInstance(
             @PathVariable("taskId") String taskId,
             @PathVariable("actorId") String actorId);
 	
 	@RequestMapping(method = RequestMethod.POST, value = TaskApiPath.RELEASE_TASK_INSTANCE)
-	public ResponseEntity<Void> releaseTaskInstance(
+	public ResponseEntity<WTaskInstance> releaseTaskInstance(
             @PathVariable("taskId") String taskId);
 	
 	@RequestMapping(method = RequestMethod.POST, value = TaskApiPath.START_TASK_INSTANCE)
