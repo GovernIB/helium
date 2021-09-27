@@ -58,8 +58,10 @@ public interface DadaClient {
 	Dada getDadaByProcesAndCodi(String procesIdId, String codi);
 	
 	Long getDadaExpedientIdByProcesId(String procesIdId);
-	
-	void postDadesByExpedientId(Long expedientId, String procesIdId, List<Dada> dada);
+
+	void upsertDades(Long expedientId, String procesId, List<Dada> dades);
+
+	void postDadesByExpedientId(Long expedientId, String procesIdId, List<Dada> dades);
 	
 	void putDadaByExpedientIdAndCodi(Long expedientId, String codi, Dada dada);
 	

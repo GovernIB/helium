@@ -10,6 +10,8 @@ import java.util.List;
 
 public interface ExpedientService {
 
+	// Capçalera expedient
+
 	PagedList<Expedient> consultaResultats(Consulta consulta) throws DadaException;
 
 	List<Expedient> consultaResultatsLlistat(Consulta consulta) throws DadaException;
@@ -32,6 +34,9 @@ public interface ExpedientService {
 
 	boolean patchExpedients(List<Expedient> expedients) throws DadaException;
 
+
+	// Dades expedient
+
 	List<Dada> getDades(Long expedientId) throws DadaException;
 
 	Dada getDadaByCodi(Long expedientId, String codi) throws DadaException;
@@ -43,6 +48,8 @@ public interface ExpedientService {
 	Dada getDadaByProcesAndCodi(String procesId, String codi) throws DadaException;
 	
 	Long getDadaExpedientIdByProcesId(String procesId) throws DadaException;
+
+	boolean upsertDades(Long expedientId, String procesId, List<Dada> dades) throws DadaException;
 
 	boolean createDades(Long expedientId, String procesId, List<Dada> dada) throws DadaException;
 
