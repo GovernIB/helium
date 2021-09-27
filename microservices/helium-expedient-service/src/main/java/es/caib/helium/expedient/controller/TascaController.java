@@ -74,6 +74,7 @@ public class TascaController {
       Long entornId = consultaTascaDades.getEntornId();
       Long expedientTipusId = consultaTascaDades.getExpedientTipusId();
       String usuariAssignat = consultaTascaDades.getUsuariAssignat();
+      List<String> grups = consultaTascaDades.getGrups();
       String nom = consultaTascaDades.getNom();
       String titol = consultaTascaDades.getTitol();
       Long expedientId = consultaTascaDades.getExpedientId();
@@ -92,6 +93,7 @@ public class TascaController {
                 "entornId: " + entornId +
                 ", expedientTipusId: " + expedientTipusId +
                 ", usuariAssignat: " + usuariAssignat +
+                ", grups: " + grups +
                 ", nom: " + nom +
                 ", titol: " + titol +
                 ", expedientId: " + expedientId +
@@ -110,6 +112,7 @@ public class TascaController {
         		entornId, 
         		expedientTipusId,
         		usuariAssignat, 
+        		grups,
         		nom, 
         		titol, 
         		expedientId, 
@@ -148,6 +151,7 @@ public class TascaController {
      Long entornId = consultaTascaDades.getEntornId();
      Long expedientTipusId = consultaTascaDades.getExpedientTipusId();
      String usuariAssignat = consultaTascaDades.getUsuariAssignat();
+     List<String> grups = consultaTascaDades.getGrups();
      String nom = consultaTascaDades.getNom();
      String titol = consultaTascaDades.getTitol();
      Long expedientId = consultaTascaDades.getExpedientId();
@@ -166,6 +170,7 @@ public class TascaController {
                "entornId: " + entornId +
                ", expedientTipusId: " + expedientTipusId +
                ", usuariAssignat: " + usuariAssignat +
+               ", grups: " + grups +
                ", nom: " + nom +
                ", titol: " + titol +
                ", expedientId: " + expedientId +
@@ -184,7 +189,8 @@ public class TascaController {
        PagedList<TascaDto> tascaList = tascaService.listTasques(
        		entornId, 
        		expedientTipusId,
-       		usuariAssignat, 
+       		usuariAssignat,
+       		grups,
        		nom, 
        		titol, 
        		expedientId, 

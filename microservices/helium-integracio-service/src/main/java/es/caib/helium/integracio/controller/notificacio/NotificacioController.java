@@ -5,7 +5,7 @@ import es.caib.helium.integracio.domini.notificacio.ConsultaNotificacio;
 import es.caib.helium.integracio.domini.notificacio.DadesNotificacioDto;
 import es.caib.helium.integracio.domini.notificacio.RespostaConsultaEstatEnviament;
 import es.caib.helium.integracio.domini.notificacio.RespostaConsultaEstatNotificacio;
-import es.caib.helium.integracio.domini.notificacio.RespostaNotificacio;
+import es.caib.helium.integracio.domini.notificacio.RespostaEnviar;
 import es.caib.helium.integracio.service.notificacio.NotificacioService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,17 +42,17 @@ public class NotificacioController {
 	}
 	
 	@PostMapping(consumes = "application/json")
-	public ResponseEntity<RespostaNotificacio> altaNotificacio(
+	public ResponseEntity<RespostaEnviar> altaNotificacio(
 			@Valid @RequestBody DadesNotificacioDto dto, 
 			BindingResult error) throws Exception {
 		
 		log.info("Donant d'alta la notifiacio " + dto.toString());
 		if (error.hasErrors()) {
-			return new ResponseEntity<RespostaNotificacio>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		
 		var resposta = notificacioService.altaNotificacio(dto);
-		return new ResponseEntity<RespostaNotificacio>(resposta, HttpStatus.OK);
+		return new ResponseEntity<>(resposta, HttpStatus.OK);
 	}
 
 	@GetMapping(value = "{identificador}/consulta", produces = "application/json")  

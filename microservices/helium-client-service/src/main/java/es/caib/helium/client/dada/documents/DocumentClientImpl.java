@@ -33,4 +33,11 @@ public class DocumentClientImpl implements DocumentClient {
         var response = documentFeignClient.guardarDocument(doc);
         return response != null ? response.getBody() : false;
     }
+
+    @Override
+    public void deleteDocument(String procesId, String codi) throws Exception {
+
+        log.debug(missatgeLog + " esborrant document amb procesId " + procesId + " codi " + codi);
+        documentFeignClient.deleteDocument(procesId, codi);
+    }
 }

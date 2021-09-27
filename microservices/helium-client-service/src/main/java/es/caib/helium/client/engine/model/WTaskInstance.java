@@ -12,7 +12,6 @@ public interface WTaskInstance {
 	public Long getTaskInstanceId();
 	public String getProcessInstanceId();
 	public String getProcessDefinitionId();
-//	public Long getExpedientId();
 	public String getTaskName();
 	public String getDescription();
 	public String getActorId();

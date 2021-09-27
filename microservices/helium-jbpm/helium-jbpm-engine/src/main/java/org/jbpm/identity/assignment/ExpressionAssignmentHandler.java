@@ -21,12 +21,13 @@
  */
 package org.jbpm.identity.assignment;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jbpm.JbpmContext;
-import org.jbpm.graph.def.Event;
 import org.jbpm.graph.exe.ExecutionContext;
 import org.jbpm.graph.exe.Token;
 import org.jbpm.identity.Entity;
@@ -39,6 +40,7 @@ import org.jbpm.taskmgmt.exe.Assignable;
 import org.jbpm.taskmgmt.exe.SwimlaneInstance;
 import org.jbpm.taskmgmt.exe.TaskInstance;
 
+import net.conselldemallorca.helium.jbpm3.command.ReassignTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 
 /**
@@ -107,9 +109,18 @@ public class ExpressionAssignmentHandler implements AssignmentHandler {
     	for (Membership m: (Set<Membership>)g.getMemberships())
     		actorIds[i++] = m.getUser().getName();
         assignable.setPooledActors(actorIds);
-        // Llença l'event de reassignació
-        if (assignable instanceof TaskInstance)
-        	((TaskInstance) assignable).getTask().fireEvent(Event.EVENTTYPE_TASK_ASSIGN, executionContext);
+        if (assignable instanceof TaskInstance
+        		|| assignable instanceof ReassignTaskInstanceCommand.ProxyAssignable) {
+        	TaskInstance tasca;
+        	if (assignable instanceof TaskInstance) {
+        		tasca = (TaskInstance) assignable;
+        	} else {
+        		tasca = ((ReassignTaskInstanceCommand.ProxyAssignable) assignable).getTaskInstance();
+        	}        		
+        	List<String> grups = new ArrayList<String>();
+        	grups.add(g.getName());
+        	tasca.setGrups(grups);
+        }
       }
     } catch (RuntimeException e) {
       throw new ExpressionAssignmentException("couldn't resolve assignment expression '"+getExpression()+"'", e);

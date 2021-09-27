@@ -20,14 +20,17 @@ import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.client.expedient.proces.ProcesClientService;
 import es.caib.helium.logic.helper.PermisosHelper.ObjectIdentifierExtractor;
 import es.caib.helium.logic.intf.WorkflowEngineApi;
+import es.caib.helium.logic.intf.dto.EstatDto;
 import es.caib.helium.logic.intf.dto.PermisDto;
 import es.caib.helium.logic.intf.dto.PrincipalTipusEnumDto;
 import es.caib.helium.logic.intf.exception.NoTrobatException;
 import es.caib.helium.logic.intf.exception.PermisDenegatException;
 import es.caib.helium.logic.security.ExtendedPermission;
 import es.caib.helium.persist.entity.Entorn;
+import es.caib.helium.persist.entity.Estat;
 import es.caib.helium.persist.entity.Expedient;
 import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.repository.EstatRepository;
 import es.caib.helium.persist.repository.ExpedientRepository;
 import es.caib.helium.persist.repository.ExpedientTipusRepository;
 
@@ -43,6 +46,8 @@ public class ExpedientTipusHelper {
 	private ExpedientTipusRepository expedientTipusRepository;
 	@Resource
 	private ExpedientRepository expedientRepository;
+	@Resource
+	private EstatRepository estatRepository;
 
 	@Resource
 	private WorkflowEngineApi workflowEngineApi;
@@ -50,6 +55,8 @@ public class ExpedientTipusHelper {
 	private PermisosHelper permisosHelper;
 	@Resource
 	private ProcesClientService procesClientService;
+	@Resource
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 	
 
 	/** Consulta el tipus d'expedient comprovant el permís de lectura. */
@@ -362,6 +369,25 @@ public class ExpedientTipusHelper {
 		for (ExpedientTipus expedientTipus: llistat) {
 			Hibernate.initialize(expedientTipus.getDefinicionsProces());
 		}
+	}
+
+	public EstatDto estatFindAmbId(Long expedientTipusId, Long estatId) {
+		ExpedientTipus tipus = expedientTipusRepository.getById(expedientTipusId);
+		Estat estat = estatRepository.getById(estatId);
+		if (estat == null) {
+			throw new NoTrobatException(Estat.class, estatId);
+		}
+		EstatDto dto = conversioTipusServiceHelper.convertir(
+				estat, 
+				EstatDto.class);
+		// Herencia
+		if (tipus.getExpedientTipusPare() != null) {
+			if (tipus.getExpedientTipusPare().getId().equals(estat.getExpedientTipus().getId()))
+				dto.setHeretat(true);
+			else
+				dto.setSobreescriu(estatRepository.findByExpedientTipusIdAndCodi(tipus.getExpedientTipusPare().getId(), estat.getCodi()) != null);					
+		}
+		return dto;
 	}
 
 }

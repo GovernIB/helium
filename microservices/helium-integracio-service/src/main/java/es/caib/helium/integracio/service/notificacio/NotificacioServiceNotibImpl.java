@@ -10,7 +10,6 @@ import es.caib.helium.integracio.domini.notificacio.PersonaNotib;
 import es.caib.helium.integracio.domini.notificacio.RespostaConsultaEstatEnviament;
 import es.caib.helium.integracio.domini.notificacio.RespostaConsultaEstatNotificacio;
 import es.caib.helium.integracio.domini.notificacio.RespostaEnviar;
-import es.caib.helium.integracio.domini.notificacio.RespostaNotificacio;
 import es.caib.helium.integracio.enums.notificacio.EnviamentEstat;
 import es.caib.helium.integracio.enums.notificacio.NotificacioEstat;
 import es.caib.helium.integracio.excepcions.notificacio.NotificacioException;
@@ -60,9 +59,9 @@ public class NotificacioServiceNotibImpl implements NotificacioService {
 	private MonitorIntegracionsService monitor;
 
 	@Override
-	public RespostaNotificacio altaNotificacio(DadesNotificacioDto dto) {
+	public RespostaEnviar altaNotificacio(DadesNotificacioDto dto) {
 
-		RespostaNotificacio resposta = null;
+		RespostaEnviar resposta = null;
 		long t0 = System.currentTimeMillis();
 		List<Parametre> parametres = new ArrayList<>();
 		parametres.add(new Parametre("expedient.id", dto.getExpedientId() + ""));
@@ -76,12 +75,12 @@ public class NotificacioServiceNotibImpl implements NotificacioService {
 		try {
 			var respostaNotib = crearNotificacio(new Notificacio(dto));
 
-			resposta = new RespostaNotificacio();
+			resposta = new RespostaEnviar();
 
 			resposta.setError(respostaNotib.isError());
 			resposta.setErrorDescripcio(respostaNotib.getErrorDescripcio());
-			resposta.setEnviamentIdentificador(respostaNotib.getIdentificador());
-			resposta.setEnviatData(new Date());
+			resposta.setIdentificador(respostaNotib.getIdentificador());
+//			resposta.setEnviatData(new Date());
 			try {
 				resposta.setEstat(NotificacioEstat.valueOf(respostaNotib.getEstat().name()));
 			} catch (Exception e) {
@@ -90,7 +89,7 @@ public class NotificacioServiceNotibImpl implements NotificacioService {
 						"No s'ha pogut reconèixer l'estat \"" + respostaNotib.getEstat() + "\" de la resposta");
 			}
 //			 Guarda la refererència de l'enviament
-			resposta.setEnviamentReferencia(respostaNotib.getReferencies().get(0).getReferencia());
+			resposta.setReferencies(respostaNotib.getReferencies());
 			// TODO: Posar les referències per cada interessat. Pendent desde Helium 3.2
 //			for (EnviamentReferencia enviamentReferencia : respostaEnviar.getReferencies()) {
 //				for (DocumentEnviamentInteressatEntity documentEnviamentInteressatEntity : notificacioEntity.getDocumentEnviamentInteressats()) {
@@ -113,7 +112,7 @@ public class NotificacioServiceNotibImpl implements NotificacioService {
 		} catch (Exception ex) {
 			var error = "Error al donar d'alta la notificacio ";
 			log.error(error, ex);
-			resposta = new RespostaNotificacio();
+			resposta = new RespostaEnviar();
 			resposta.setError(true);
 			resposta.setErrorDescripcio(error);
 			monitor.enviarEvent(IntegracioEvent.builder().codi(CodiIntegracio.NOTIB) 

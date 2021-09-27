@@ -1,5 +1,7 @@
 package es.caib.helium.client.expedient.expedient;
 
+import java.util.List;
+
 import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -62,4 +64,9 @@ public interface ExpedientFeignClient {
 	@RequestMapping(method = RequestMethod.POST, value = ExpedientApiPath.DESANULAR_EXPEDIENT)
 	public void desanular(
 			 @PathVariable("expedientId") Long expedientId);
+
+	@RequestMapping(method = RequestMethod.GET, value = ExpedientApiPath.GET_PARTICIPANTS)
+	public ResponseEntity<List<String>> getParticipantsV1(
+    		@PathVariable("expedientId") Long expedientId);
+
 }

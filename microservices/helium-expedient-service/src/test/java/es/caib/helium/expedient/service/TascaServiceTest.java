@@ -375,7 +375,7 @@ class TascaServiceTest {
         given(tascaRepository.findAll(any(Specification.class), any(Sort.class))).willReturn(tasques);
 
         // When
-		Page<TascaDto> page = tascaService.listTasques(null, null, null, null, null, null, null, null, null, null, null,
+		Page<TascaDto> page = tascaService.listTasques(null, null, null, null, null, null, null, null, null, null, null, null,
 				null, false, false, false, null, Pageable.unpaged(), null);
 
         // Then
@@ -393,7 +393,7 @@ class TascaServiceTest {
         given(tascaRepository.findAll(any(Specification.class), any(Sort.class))).willReturn(tasques);
 
         // When
-		Page<TascaDto> page = tascaService.listTasques(null, null, null, null, null, null, null, null, null, null, null,
+		Page<TascaDto> page = tascaService.listTasques(null, null, null, null, null, null, null, null, null, null, null, null,
 				null, false, false, false, null, Pageable.unpaged(), null);
 
         // Then

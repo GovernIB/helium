@@ -96,6 +96,7 @@ public interface TascaService {
 			String titol,
 			String tasca,
 			String responsable,
+			List<String> grups,
 			String expedient,
 			Date dataCreacioInici,
 			Date dataCreacioFi,
@@ -149,7 +150,7 @@ public interface TascaService {
 	 *             Si no es tenen permisos per a accedir als elements
 	 *             especificats mitjançant el seu id (entorn, tipus, estat).
 	 */
-	public PaginaDto<TascaLlistatDto> findPerFiltrePaginat(
+	public PaginaDto<ExpedientTascaDto> findPerFiltrePaginat(
 			Long entornId,
 			String tramitacioMassivaTascaId,
 			Long expedientTipusId,

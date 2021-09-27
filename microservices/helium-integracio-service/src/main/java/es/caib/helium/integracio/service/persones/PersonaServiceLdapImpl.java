@@ -8,6 +8,7 @@ import es.caib.helium.jms.enums.CodiIntegracio;
 import es.caib.helium.jms.enums.EstatAccio;
 import es.caib.helium.jms.enums.TipusAccio;
 import es.caib.helium.jms.events.IntegracioEvent;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,17 +35,20 @@ public class PersonaServiceLdapImpl implements PersonaService {
 	private LdapTemplate ldapPersones;
 
 	@Autowired
-	private Environment env;
+	private Environment env; //TODO MS: ACAVAR DE MOURE LES CRIDES A env AL CONFIG I TENIR-HO COM ATRIBUTS
 	
 	@Autowired
 	private MonitorIntegracionsService monitor;
+	@Setter
+	private String userFilter;
+	@Setter
+	private String likeFilter;
 
 	@Override
 	public Persona getPersonaByCodi(String codi, Long entornId) throws PersonaException {
 
 		var t0 = System.currentTimeMillis();
 		var descripcio = "Consulta usuaris amb codi " + codi;
-		var userFilter = env.getRequiredProperty("es.caib.helium.integracio.persones.plugin.ldap.search.filter.user");
 		List<Persona> persones = getPersonesLdap(userFilter.replace("###", codi), entornId, descripcio);
 		if (persones.size() > 1) {
 			var error = "Hi han " + persones.size() + " persones amb el mateix codi";
@@ -63,7 +67,6 @@ public class PersonaServiceLdapImpl implements PersonaService {
 
 	public List<Persona> getPersones(String textSearch, Long entornId) throws PersonaException {
 
-		var likeFilter = env.getRequiredProperty("es.caib.helium.integracio.persones.plugin.ldap.search.filter.like");
 		var persones =  getPersonesLdap(likeFilter.replace("###", textSearch), entornId, "Consulta d'usuaris amb like " + textSearch);
 		log.info("Consulta ok d'usuaris amb like" + textSearch);
 		return persones;
@@ -71,7 +74,6 @@ public class PersonaServiceLdapImpl implements PersonaService {
 
 	public List<Persona> findAll(Long entornId) throws PersonaException {
 
-		var likeFilter = env.getRequiredProperty("es.caib.helium.integracio.persones.plugin.ldap.search.filter.like");
 		var persones = getPersonesLdap(likeFilter.replace("###", "*"), entornId, "Consulta tots els usuaris");
 		log.info("Consulta ok de tots els usuaris");
 		return persones;
@@ -81,9 +83,7 @@ public class PersonaServiceLdapImpl implements PersonaService {
 	public List<String> getPersonaRolsByCodi(String codi, Long entornId) throws PersonaException {
 
 		List<String> roles = new ArrayList<String>();
-		var userFilter = env.getProperty("es.caib.helium.integracio.persones.plugin.ldap.search.filter.user");
 		var filter = new String(userFilter).replace("###", codi);
-
 		var roleAtt = env.getProperty("es.caib.helium.integracio.persones.plugin.ldap.attribute.role");
 		var roleName = env.getProperty("es.caib.helium.integracio.persones.plugin.ldap.attribute.name");
 
@@ -110,6 +110,16 @@ public class PersonaServiceLdapImpl implements PersonaService {
 //			}
 //		});
 		return roles;
+	}
+
+	@Override
+	public List<String> getPersonesCodiByRol(String grup, Long entornId) throws PersonaException {
+		return new ArrayList<>(); //TODO MS: Pendent de implementar
+	}
+
+	@Override
+	public List<Persona> getPersonesByCodi(List<String> codis, Long entornId) throws PersonaException {
+		return new ArrayList<>(); //TODO MS: Pendent de implementar
 	}
 
 	private List<Persona> getPersonesLdap(String filter, Long entornId, String descripcio) throws PersonaException {

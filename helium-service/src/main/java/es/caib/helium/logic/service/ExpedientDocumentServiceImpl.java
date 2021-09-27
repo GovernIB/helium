@@ -119,7 +119,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private NotificacioHelper notificacioHelper;
 
 
-
 	@Override
 	@Transactional
 	public Long create(

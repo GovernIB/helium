@@ -183,7 +183,8 @@ public class TascaServiceImpl implements TascaService {
     public PagedList<TascaDto> listTasques(
     		Long entornId,
             Long expedientTipusId,
-			String usuariAssignat,
+			String responsable,
+			List<String> grups,
 			String nom,
 			String titol,
 			Long expedientId,
@@ -203,7 +204,8 @@ public class TascaServiceImpl implements TascaService {
         log.debug("[SRV] Obtenint llistat de tasques. \n" +
                 "entornId: " + entornId +
                 "expedientTipusId: " + expedientTipusId + "\n" +
-                "usuariAssignat: " + usuariAssignat + "\n" +
+                "responsable: " + responsable + "\n" +
+                "grups: " + grups + "\n" +
                 "nom: " + nom + "\n" +
                 "titol: " + titol + "\n" +
                 "expedientId: " + expedientId + "\n" +
@@ -222,7 +224,8 @@ public class TascaServiceImpl implements TascaService {
         Specification<Tasca> spec = TascaSpecifications.tasquesList(
         		entornId, 
         		expedientTipusId,
-        		usuariAssignat, 
+        		responsable, 
+        		grups,
         		nom, 
         		titol, 
         		expedientId, 

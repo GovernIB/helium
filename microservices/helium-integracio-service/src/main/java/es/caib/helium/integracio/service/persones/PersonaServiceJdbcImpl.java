@@ -193,4 +193,14 @@ public class PersonaServiceJdbcImpl implements PersonaService {
 			throw new PersonaException(error, ex);
 		}
 	}
+
+	@Override
+	public List<String> getPersonesCodiByRol(String grup, Long entornId) throws PersonaException {
+		return new ArrayList<>(); // TODO MS: Pendent de impelementar
+	}
+
+	@Override
+	public List<Persona> getPersonesByCodi(List<String> codis, Long entornId) throws PersonaException {
+		return new ArrayList<>(); // TODO MS: Pendent de implementar
+	}
 }

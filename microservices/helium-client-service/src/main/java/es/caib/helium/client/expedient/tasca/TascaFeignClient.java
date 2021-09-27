@@ -1,9 +1,9 @@
 package es.caib.helium.client.expedient.tasca;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import es.caib.helium.client.expedient.tasca.model.ConsultaTascaDades;
-import es.caib.helium.client.expedient.tasca.model.TascaDto;
-import es.caib.helium.client.model.PagedList;
+import java.util.List;
+
+import javax.validation.Valid;
+
 import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,8 +11,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import javax.validation.Valid;
-import java.util.List;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import es.caib.helium.client.expedient.tasca.model.ConsultaTascaDades;
+import es.caib.helium.client.expedient.tasca.model.TascaDto;
+import es.caib.helium.client.model.PagedList;
 
 public interface TascaFeignClient {
 

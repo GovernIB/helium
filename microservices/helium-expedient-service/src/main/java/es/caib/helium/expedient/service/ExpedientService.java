@@ -1,19 +1,15 @@
 package es.caib.helium.expedient.service;
 
-import es.caib.helium.expedient.domain.Expedient;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import es.caib.helium.expedient.domain.Expedient;
 import es.caib.helium.expedient.model.ExpedientDto;
 import es.caib.helium.ms.model.PagedList;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-
-import java.util.Date;
-import java.util.List;
 
 /** Servei per a la consulta i manteniment de la informació a nivell d'expedients
  * 
@@ -37,6 +33,7 @@ public interface ExpedientService {
 
     PagedList<ExpedientDto> listExpedients(
     		String usuariCodi,
+    		List<String> grups,
     		Long entornId,
             Long expedientTipusId,
             Collection<Long> tipusIdPermesos,
@@ -59,4 +56,11 @@ public interface ExpedientService {
             String filtreRsql,
             final Pageable pageable,
             final Sort sort);
+
+    /** Consulta els diferents usuaris assignats a les tasques d'un expedient
+     * 
+     * @param expedientId
+     * @return
+     */
+	List<String> getParticipants(Long expedientId);
 }

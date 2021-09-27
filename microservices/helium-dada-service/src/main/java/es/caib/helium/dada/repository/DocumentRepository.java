@@ -12,5 +12,7 @@ public interface DocumentRepository extends MongoRepository<Document, String> {
 
     Optional<List<Document>> findByProcesId(String procesId);
 
-    Optional<List<Document>> findByProcesIdAndCodi(String procesId, String codi);
+    Optional<Document> findByProcesIdAndCodi(String procesId, String codi);
+
+    Long deleteByProcesIdAndCodi(String procesId, String codi);
 }

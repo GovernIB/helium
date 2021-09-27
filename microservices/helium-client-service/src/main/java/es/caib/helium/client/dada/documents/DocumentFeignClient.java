@@ -17,4 +17,7 @@ public interface DocumentFeignClient {
 
     @RequestMapping(method = RequestMethod.POST, value = DocumentMsApiPath.GUARDAR_DOCUMENT)
     ResponseEntity<Boolean> guardarDocument(@RequestBody Document doc);
-}
+
+    @RequestMapping(method = RequestMethod.DELETE, value = DocumentMsApiPath.DELETE_DOCUMENT)
+    ResponseEntity<Void> deleteDocument(@PathVariable("procesId") String procesId, @PathVariable("codi") String codi);
+ }

@@ -1,13 +1,19 @@
 package es.caib.helium.expedient.repository;
 
-import es.caib.helium.expedient.domain.Tasca;
-import org.apache.commons.lang.time.DateUtils;
-import org.springframework.data.jpa.domain.Specification;
-
-import javax.persistence.criteria.JoinType;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+
+import org.apache.commons.lang.time.DateUtils;
+import org.springframework.data.jpa.domain.Specification;
+
+import es.caib.helium.expedient.domain.Tasca;
 
 /** Especificacions pel filtre en les consultes de tasques per poder filtrar.
  * 
@@ -22,8 +28,27 @@ public class TascaSpecifications {
         return (tasca, cq, cb) -> cb.equal(tasca.<Long> get("proces").get("expedient").get("expedientTipusId"), expedientTipusId);
     }
     
-	public static Specification<Tasca> usuariAssignatIs(String usuariAssignat) {
-        return (tasca, cq, cb) -> cb.equal(tasca.get("usuariAssignat"), usuariAssignat);
+    /** L'usuari responsable està directament assignat, o existeix en la llista de responsables o 
+     * algun del seus rols està a la llista de grups.
+     */
+	public static Specification<Tasca> responsableIs(String responsable, List<String> grups) {
+		
+		return (tasca, cq, cb) -> {
+			// Subquery per responsables
+            Subquery<Tasca> sq = cq.subquery(Tasca.class);
+            Root<Tasca> sqTasca = sq.from(Tasca.class);
+            sq.select(sqTasca.get("id"));
+            List<Predicate> orPredicates = new ArrayList<Predicate>();
+            if (responsable != null) {
+            	orPredicates.add(cb.equal(sqTasca.get("usuariAssignat"), responsable));
+            	orPredicates.add(cb.equal(sqTasca.join("responsables", JoinType.LEFT).get("usuariCodi"), responsable));
+            }
+            if (grups != null && !grups.isEmpty()) {
+            	orPredicates.add(sqTasca.join("grups", JoinType.LEFT).get("grupCodi").in(grups));
+            }
+            sq.where(cb.or(orPredicates.toArray(Predicate[]::new)));
+			return cb.and(tasca.get("id").in(sq));			
+		};	
 	}
 
 	public static Specification<Tasca> nomLike(String nom) {
@@ -86,21 +111,15 @@ public class TascaSpecifications {
     	return specs;
     }
 
-	public static Specification<Tasca> mostrarAssignadesUsuari(String usuariAssignat) {
-		return (tasca, cq, cb) -> cb.equal(tasca.get("usuariAssignat"), usuariAssignat);
+	public static Specification<Tasca> noMostrarAssignadesUsuari() {
+		return (tasca, cq, cb) -> cb.isNull(tasca.get("usuariAssignat"));
 	}
 
-	/** Busca l'usuari assignat com a un dels responsables */
-	public static Specification<Tasca> mostrarAssignadesGrup(String usuariCodi) {
-    	if (usuariCodi != null && !usuariCodi.isBlank()) {
-	        return (tasca, qb, cb) -> {
-	        	return cb.equal(tasca.join("responsables", JoinType.LEFT).get("usuariCodi"), usuariCodi);
-	        };
-    	} else {
-	        return (tasca, qb, cb) -> {
-	        	return tasca.join("responsables", JoinType.LEFT).isNotNull();
-	        };
-    	}
+	/** Filtra les tasques assignades a diferents usuaris o a diferents grups */
+	public static Specification<Tasca> noMostrarAssignadesGrup() {
+	    return (tasca, qb, cb) -> cb.and(
+	    	    	tasca.join("responsables", JoinType.LEFT).isNull(),
+	    	    	tasca.join("grups", JoinType.LEFT).isNull());
 	}
 
 	/** Tasques no suspeses i obertes */
@@ -114,7 +133,8 @@ public class TascaSpecifications {
 	public static Specification<Tasca> tasquesList(
 			Long entornId, 
 			Long expedientTipusId, 
-			String usuariAssignat,
+			String responsable,
+			List<String> grups,
 			String nom, 
 			String titol, 
 			Long expedientId, 
@@ -134,8 +154,6 @@ public class TascaSpecifications {
     		spec = spec.and(belongsToExpedientTipus(expedientTipusId));
     	if (titol != null) 
     		spec = spec.and(titolLike(titol));
-//    	if (usuariAssignat != null) 
-//    		spec = spec.and(usuariAssignatIs(usuariAssignat));
     	if (nom != null) 
     		spec = spec.and(nomLike(nom));
     	if (titol != null) 
@@ -150,10 +168,12 @@ public class TascaSpecifications {
     		spec = spec.and(dataCreacio(dataCreacioInici, dataCreacioFi));
     	if (dataLimitInici != null || dataLimitFi != null)
     		spec = spec.and(dataCreacio(dataLimitInici, dataLimitFi));
-//    	if (mostrarAssignadesUsuari)
-//    		spec = spec.and(mostrarAssignadesUsuari(usuariAssignat));
-//    	if (mostrarAssignadesGrup)
-//    		spec = spec.and(mostrarAssignadesGrup(usuariAssignat));
+    	if (responsable != null || (grups != null && !grups.isEmpty())) 
+    		spec = spec.and(responsableIs(responsable, grups));
+    	if (!mostrarAssignadesUsuari)
+    		spec = spec.and(noMostrarAssignadesUsuari());
+    	if (!mostrarAssignadesGrup)
+    		spec = spec.and(noMostrarAssignadesGrup());
     	if (nomesPendents)
     		spec = spec.and(nomesPendents());
     	

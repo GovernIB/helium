@@ -305,18 +305,29 @@ public abstract class GraphElement implements Identifiable, Serializable {
 	    		  tasca.getEnd());
 	  } else if (Event.EVENTTYPE_TASK_ASSIGN.equals(eventType)) {
 		  TaskInstance tasca = executionContext.getTaskInstance();
+	      Jbpm3HeliumBridge.getInstanceService().tascaAssignar(
+	    		  tasca.getId(),
+	    		  tasca.getActorId());
+	  } else if (EventsConst.EVENTTYPE_TASK_USUARIS_ASSIGN.equals(eventType)) {
+		  TaskInstance tasca = executionContext.getTaskInstance();
 	      List<String> usuarisCandidats = new ArrayList<String>();
 	      if (tasca.getPooledActors() != null) {
 	    	  for (PooledActor pa : tasca.getPooledActors()) {
 	    		  usuarisCandidats.add(pa.getActorId()); 
 	    	  }
 	      }		  
-	      List<String> grupsCandidats = new ArrayList<String>();
-	      Jbpm3HeliumBridge.getInstanceService().tascaAssignar(
+	      Jbpm3HeliumBridge.getInstanceService().tascaAssignarUsuaris(
 	    		  tasca.getId(),
-	    		  tasca.getActorId(),
-	    		  usuarisCandidats,
-	    		  grupsCandidats);
+	    		  usuarisCandidats);
+	  } else if (EventsConst.EVENTTYPE_TASK_GRUPS_ASSIGN.equals(eventType)) {
+		  TaskInstance tasca = executionContext.getTaskInstance();
+	      List<String> grups = new ArrayList<String>();
+    	  for (String grup : tasca.getGrups()) {
+    		  grups.add(grup); 
+    	  }
+	      Jbpm3HeliumBridge.getInstanceService().tascaAssignarGrups(
+	    		  tasca.getId(), 
+	    		  grups);
 	  }
   }
 

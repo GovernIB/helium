@@ -83,7 +83,7 @@ public class ReassignTaskInstanceCommand extends AbstractBaseCommand {
 	}
 
 	@SuppressWarnings("serial")
-	private class ProxyAssignable implements Assignable {
+	public class ProxyAssignable implements Assignable {
 		private TaskInstance taskInstance;
 		public ProxyAssignable(TaskInstance taskInstance) {
 			taskInstance.setActorId(null, false);
@@ -97,6 +97,9 @@ public class ReassignTaskInstanceCommand extends AbstractBaseCommand {
 		}
 		public void setPooledActors(String[] pooledActors) {
 			taskInstance.setPooledActors(pooledActors);
+		}
+		public TaskInstance getTaskInstance() {
+			return taskInstance;
 		}
 	}
 

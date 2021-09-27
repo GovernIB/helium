@@ -46,8 +46,12 @@ public class TascaClientServiceImpl implements TascaClientService {
 		
 		log.debug(MISSATGE_LOG + " llista paginada d'expedients segons el filtre = " +  consultaTascaDades);
 		var responseEntity = tascaClient.findTasquesIdsAmbFiltrePaginatV1(consultaTascaDades);
-		var resultat = Objects.requireNonNull(responseEntity.getBody());
-    	return resultat;
+		if (HttpStatus.NO_CONTENT.equals(responseEntity.getStatusCode())) {
+			PagedList<String> pagedList = PagedList.emptyPage();
+			return pagedList;
+		}
+		var resultat = responseEntity.getBody();
+		return resultat;
 	}
 	
 	@Override
