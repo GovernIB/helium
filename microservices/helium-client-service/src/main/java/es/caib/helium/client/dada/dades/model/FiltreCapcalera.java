@@ -1,12 +1,11 @@
 package es.caib.helium.client.dada.dades.model;
 
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.Date;
 
 
 /** 
@@ -15,9 +14,11 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-@JsonTypeName("filtreCapcalera")
+@JsonTypeName(FiltreCapcalera.JSON_TYPE_NAME)
 public class FiltreCapcalera extends Filtre {
-	
+
+	public static final String JSON_TYPE_NAME = "filtreCapcalera";
+
 	private Long expedientId;
 	private String numero;
 	private String titol;
