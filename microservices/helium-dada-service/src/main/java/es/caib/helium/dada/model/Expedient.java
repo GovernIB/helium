@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Representació de la col·leccio {@link es.caib.helium.dada.enums.Collections#EXPEDIENT}
+ * Representació de la col·leccio {@link es.caib.helium.dada.enums.Capcalera}
  * S'utilitza tant com a model per Mongo com per Dto.
  */
 @Getter
@@ -30,14 +30,15 @@ public class Expedient {
 	private Long entornId;
 	@NotNull
 	private Long tipusId;
-	@Size(max = 64) 
-	private String numero;
 	@Size(max = 64)
+	private String numero;
+	@NotNull @Size(max = 64)
 	private String numeroDefault;
 	@Size(max = 255)
 	private String titol;
 	@NotNull
 	private String procesPrincipalId;
+	@NotNull
 	private Integer estatId;
 	@NotNull
 	private Date dataInici;

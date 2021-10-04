@@ -54,15 +54,11 @@ public class ConsultaHelper {
 	 * Mètodes per a obtenir els camps de les consultes per tipus
 	 */
 	public List<TascaDadaDto> findCampsPerCampsConsulta(Consulta consulta, TipusConsultaCamp tipus) {
+
 		List<TascaDadaDto> resposta = new ArrayList<TascaDadaDto>();
-		List<ConsultaCamp> camps = null;
-		
-		if (tipus != null)
-			camps = consultaCampRepository.findCampsConsulta(consulta.getId(), tipus);
-		else
-			camps = new ArrayList<ConsultaCamp>(consulta.getCamps());
-		Map<Integer, ConsultaDominiDto> consultesDominis = new HashMap<Integer, ConsultaDominiDto>();
-		for (ConsultaCamp camp: camps) {
+		List<ConsultaCamp> camps = tipus != null ? consultaCampRepository.findCampsConsulta(consulta.getId(), tipus) : new ArrayList<>(consulta.getCamps());
+		var consultesDominis = new HashMap<Integer, ConsultaDominiDto>();
+		for (var camp: camps) {
 			TascaDadaDto tascaDadaDto = null;
 			DefinicioProces definicioProces = null;
 			Camp campRes = null;
@@ -267,8 +263,12 @@ public class ConsultaHelper {
 	public List<Camp> toListCamp(List<TascaDadaDto> listTascaDadaDto) {
 		List<Camp> listCamp = new ArrayList<Camp>();
 		for (TascaDadaDto tascaDadaDto : listTascaDadaDto) {
-			Optional<Camp> optionalCamp = campRepository.findById(tascaDadaDto.getCampId());
-			Camp camp = optionalCamp.isPresent() ? optionalCamp.get() : null;
+
+			Camp camp = null;
+			if (tascaDadaDto.getCampId() != null) {
+				Optional<Camp> optionalCamp = campRepository.findById(tascaDadaDto.getCampId());
+				camp = optionalCamp.isPresent() ? optionalCamp.get() : null;
+			}
 			if (camp == null) {
 				camp = new Camp(
 						tascaDadaDto.getVarCodi(),

@@ -34,7 +34,6 @@ public class PersonaServiceGoibImpl implements PersonaService {
     public List<Persona> getPersones(String textSearch, Long entornId) throws PersonaException {
         // TODO MS: PENDENDT DE IMPLEMENTACIO
         try {
-            var foo = goibPersones.getRolesByUsername(textSearch);
             var users = goibPersones.getAllUsernames();
             var persones = new ArrayList<Persona>();
             for (var user : users) {

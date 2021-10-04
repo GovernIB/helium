@@ -178,11 +178,20 @@ public class DadaClientImpl implements DadaClient {
 	}
 
 	@Override
-	public void postDadesByExpedientId(Long expedientId, String procesId, List<Dada> dada) {
+	public void upsertDades(Long expedientId, String procesId, List<Dada> dades) {
+
+		log.debug(missatgeLog + " Upsert dades per l'expedient " + expedientId);
+		var valid = new ValidList<Dada>();
+		valid.setList(dades);
+		dadaServiceFeignClient.upsertDades(expedientId, procesId, valid);
+	}
+
+	@Override
+	public void postDadesByExpedientId(Long expedientId, String procesId, List<Dada> dades) {
 		
 		log.debug(missatgeLog + " Post dades per l'expedient " + expedientId);
 		var valid = new ValidList<Dada>();
-		valid.setList(dada);
+		valid.setList(dades);
 		dadaServiceFeignClient.postDadesByExpedientId(expedientId, procesId, valid);
 	}
 

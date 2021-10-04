@@ -99,6 +99,12 @@ public interface DadaFeignClient {
 	@RequestMapping(method = RequestMethod.GET, value = DadaMsApiPath.GET_EXPEDIENT_ID_BY_PROCES_ID)
 	ResponseEntity<Long> getDadaExpedientIdByProcesId(@PathVariable("procesId") String procesId);
 
+	@RequestMapping(method = RequestMethod.POST, value = DadaMsApiPath.UPSERT_DADES)
+	ResponseEntity<Void> upsertDades(
+			@PathVariable("expedientId") Long expedientId,
+			@RequestParam("procesId") String procesId,
+			@Valid @RequestBody ValidList<Dada> dada);
+
 	@RequestMapping(method = RequestMethod.POST, value = DadaMsApiPath.POST_DADES_BY_EXPEDIENT_ID)
 	ResponseEntity<Void> postDadesByExpedientId(
 			@PathVariable("expedientId") Long expedientId,

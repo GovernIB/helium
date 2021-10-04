@@ -500,6 +500,39 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 
+	@Override
+	public boolean upsertDades(Long expedientId, String procesId, List<Dada> dades) throws DadaException {
+
+		try {
+			List<Dada> dadesFoo = new ArrayList<>();
+			for (var dada : dades) {
+				var dadaOptional = dadaRepository.findByExpedientIdAndProcesIdAndCodi(expedientId, procesId, dada.getCodi());
+				if (dadaOptional.isPresent()) {
+				// Si existeix es fa update
+					var d = dadaOptional.get();
+					d.setTipus(dada.getTipus());
+					d.setMultiple(dada.isMultiple());
+					d.setValor(dada.getValor());
+					dadesFoo.add(d);
+					continue;
+				}
+				dada.setExpedientId(expedientId);
+				dada.setProcesId(procesId);
+				dadesFoo.add(dada);
+			}
+			if (dadesFoo.isEmpty()) {
+				return false;
+			}
+			var guardats = dadaRepository.saveAll(dadesFoo).size();
+			log.debug(guardats + "dades per l'expedient " + expedientId + " amb procesId " + procesId + " creades correctament");
+			return guardats > 0;
+		} catch (Exception ex) {
+			var error = "Error al upsert de dades per l'expedient " + expedientId + " amb procesId " + procesId;
+			log.error(error, ex);
+			throw new DadaException(error, ex);
+		}
+	}
+
 	/*
 	 * Crea les dades per un expediente i un procés.
 	 * Si ja existeix una dada amb expedientId, procesId i codi, la dada no es guardarà
@@ -513,7 +546,6 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 		try {
 			List<Dada> dadesFoo = new ArrayList<>();
-			var putDades = false;
 			for (var dada : dades) {
 				var d = dadaRepository.findByExpedientIdAndProcesIdAndCodi(expedientId, procesId, dada.getCodi());
 				if (d.isPresent()) {

@@ -181,22 +181,6 @@ public class ExpedientController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	// TODO MS: ADAPTAR PATCH A LLISTES. REALMENT ES NECESSARI?
-//	@PatchMapping(value = "patch/expedients")
-//	public ResponseEntity<Void> patchExpedients(
-//			@Valid @RequestBody ValidList<Expedient> expedients,
-//			BindingResult errors) throws Exception {
-//
-//		if (errors.hasErrors()) {
-//			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//		}
-//
-//		if (expedientService.patchExpedients(expedients)) {
-//			return new ResponseEntity<>(HttpStatus.OK);
-//		}
-//		return new ResponseEntity<>(HttpStatus.CONFLICT);
-//	}
-
 	// Gestió dades de l'expedient
 
 	@GetMapping(value = "{expedientId}/dades")
@@ -289,6 +273,22 @@ public class ExpedientController {
 		}
 		
 		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+	}
+
+	@PostMapping(value = "{expedientId}/dades/upsert", consumes = "application/json")
+	public ResponseEntity<Void> upsertDades(
+			@PathVariable("expedientId") Long expedientId,
+			@RequestParam("procesId") String procesId,
+			@Valid @RequestBody ValidList<Dada> dades, BindingResult errors) throws Exception {
+
+		if (errors.hasErrors()) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+
+		if (expedientService.upsertDades(expedientId, procesId, dades)) {
+			return new ResponseEntity<>(HttpStatus.CREATED);
+		}
+		return new ResponseEntity<>(HttpStatus.CONFLICT);
 	}
 
 	@PostMapping(value = "{expedientId}/dades", consumes = "application/json")

@@ -107,50 +107,22 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 			Model model) throws Exception {
 		ConsultaDto consulta;
 		try {
-			consulta = dissenyService.findConsulteById(consultaId);			
+				consulta = dissenyService.findConsulteById(consultaId);
 		} catch (Exception e) {
 			MissatgesHelper.error(request, "Error accedint a la consulta amb id " + consultaId + ": " + e.getMessage() + ". Si és la consulta per defecte revisi el seu perfil.");
 			return "redirect:/v3/expedient";
 		}
 		
-		model.addAttribute(
-				"consulta",
-				consulta);
-		model.addAttribute(
-				"campsFiltre",
-				expedientService.findConsultaFiltre(consultaId));	
-		model.addAttribute(
-				"campsInforme",
-				expedientService.findConsultaInforme(consultaId));
-		model.addAttribute(
-				"campsInformeParams",
-				expedientService.findConsultaInformeParams(consultaId));
-		List<EstatDto> estats = expedientTipusService.estatFindAll(
-				consulta.getExpedientTipus().getId(),
-				true);
-		estats.add(
-				0,
-				new EstatDto(
-						0L,
-						"0",
-						getMessage(
-								request,
-								"expedient.consulta.iniciat")));
-		estats.add(
-				new EstatDto(
-						-1L,
-						"-1",
-						getMessage(
-								request,
-								"expedient.consulta.finalitzat")));
-		model.addAttribute(
-				"estats",
-				estats);
+		model.addAttribute("consulta", consulta);
+		model.addAttribute("campsFiltre", expedientService.findConsultaFiltre(consultaId));
+		model.addAttribute("campsInforme", expedientService.findConsultaInforme(consultaId));
+		model.addAttribute("campsInformeParams", expedientService.findConsultaInformeParams(consultaId));
+		List<EstatDto> estats = expedientTipusService.estatFindAll(consulta.getExpedientTipus().getId(), true);
+		estats.add(0, new EstatDto(0L, "0", getMessage(request, "expedient.consulta.iniciat")));
+		estats.add(new EstatDto(-1L, "-1", getMessage(request, "expedient.consulta.finalitzat")));
+		model.addAttribute("estats", estats);
 		Object filtreCommand = getFiltreCommand(request, consultaId);
-		SessionHelper.setAttribute(
-				request,
-				SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId,
-				filtreCommand);
+		SessionHelper.setAttribute(request, SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId, filtreCommand);
 		model.addAttribute("expedientConsultaCommand", filtreCommand);
 		
 		return "v3/expedientConsultaLlistat";

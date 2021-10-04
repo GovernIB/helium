@@ -19,7 +19,7 @@ public enum Dada {
 	
 	private String camp;
 	
-	private Dada(String camp) {
+	Dada(String camp) {
 		this.camp = camp;
 	}
 }

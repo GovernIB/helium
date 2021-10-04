@@ -240,7 +240,8 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 		}
 
 		operations.add(projection);
-		operations.add(crearSortOperation(ordres));
+		// TODO MS: ARRECLAR EL SORT QUE SEMBLA FALLA!!
+	//	operations.add(crearSortOperation(ordres));
 	}
 
 	/**
@@ -298,10 +299,10 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 			criteria.and(Capcalera.EXPEDIENT_ID.getCamp()).is(filtreCapcalera.getExpedientId());
 		}
 		if (filtreCapcalera.getNumero() != null) {
-			criteria.and(Capcalera.NUMERO.getCamp()).is(filtreCapcalera.getNumero());
+			criteria.and(Capcalera.NUMERO.getCamp()).regex(filtreCapcalera.getNumero());
 		}
 		if (filtreCapcalera.getTitol() != null) {
-			criteria.and(Capcalera.TITOL.getCamp()).is(filtreCapcalera.getTitol());
+			criteria.and(Capcalera.TITOL.getCamp()).regex(filtreCapcalera.getTitol());
 		}
 		if (filtreCapcalera.getProcesPrincipalId() != null) {
 			criteria.and(Capcalera.PROCES_PRINCIPAL_ID.getCamp()).is(filtreCapcalera.getProcesPrincipalId());
@@ -319,7 +320,7 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 	}
 
 	/**
-	 * Crea la part del $match segons els filtresValor que servirà per filtrà els resultats del $lookup previ.
+	 * Crea la part del $match segons els filtresValor que servirà per filtrar els resultats del $lookup previ.
 	 * 
 	 * per exemple:
 	 *  {$match: { "dades": {$elemMatch: {codi: "codi1", tipus: "Boolean", valor: {$elemMatch: {valor: "prova3"}}}}}}])
@@ -334,7 +335,7 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 			filtres.add(crearFiltreValor(filtre));
 		}
 		var criteria = new Criteria();
-		criteria.orOperator(filtres.toArray(new Criteria[filtres.size()]));
+		criteria.orOperator(filtres.toArray(new Criteria[filtres.size()])); // TODO MS: PER HELIUM TE PINTA QUE HA DE SER UNA AND
 		return Aggregation.match(criteria);
 	}
 
@@ -354,14 +355,16 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 			filtreCriteria.and(Dada.TIPUS.getCamp()).is(filtreValor.getTipus());
 		}
 		if (filtreValor.getValor() != null && !filtreValor.getValor().isEmpty()) {
-			var criteria = new Criteria();
 			var valors = filtreValor.getValor();
 			List<Criteria> criterias = new ArrayList<>();
 			for (var valor : valors) {
-				criteria.and(Dada.VALOR.getCamp()).is(valor.getValor());
+				var criteria = new Criteria();
+				criteria.and(Dada.VALOR.getCamp()).regex(valor.getValor());
 				criterias.add(criteria);
 			}
-			filtreCriteria.and(Dada.VALOR.getCamp()).orOperator(criterias.toArray(new Criteria[criterias.size()]));
+			var orValors = new Criteria();
+			orValors.orOperator(criterias.toArray(new Criteria[criterias.size()]));
+			filtreCriteria.and(Dada.VALOR.getCamp()).elemMatch(orValors);
 		}
 		var criteria = new Criteria();
 		criteria.and(Capcalera.DADES.getCamp()).elemMatch(filtreCriteria);

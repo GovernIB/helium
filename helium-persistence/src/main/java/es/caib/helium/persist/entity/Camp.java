@@ -394,27 +394,30 @@ public class Camp implements Serializable, GenericEntity<Long> {
 	}
 
 	@Transient
+	public boolean esCampCapcalera() {
+		return codi.startsWith(Constants.EXPEDIENT_PREFIX);
+	}
+
+	@Transient
 	public String getCodiEtiqueta() {
-		if (codi.startsWith(Constants.EXPEDIENT_PREFIX))
+		if (codi.startsWith(Constants.EXPEDIENT_PREFIX)) {
 			return etiqueta;
-		else
-			return codi + "/" + etiqueta;
+		}
+		return codi + "/" + etiqueta;
 	}
 
 	@Transient
 	public String getCodiPerInforme() {
-		if (codi.startsWith(Constants.EXPEDIENT_PREFIX))
+		if (codi.startsWith(Constants.EXPEDIENT_PREFIX)) {
 			return codi.replace('$', '%');
-		else {
-			if(definicioProces != null) {
-				try {
-					return definicioProces.getJbpmKey() + "/" + codi;
-				} catch (Exception ex) {
-					return null;
-				}
-			}else {
-				return expedientTipus.getJbpmProcessDefinitionKey() + "/" + codi;
-			}
+		}
+		if(definicioProces == null) {
+			return expedientTipus.getJbpmProcessDefinitionKey() + "/" + codi;
+		}
+		try {
+			return definicioProces.getJbpmKey() + "/" + codi;
+		} catch (Exception ex) {
+			return null;
 		}
 	}
 
