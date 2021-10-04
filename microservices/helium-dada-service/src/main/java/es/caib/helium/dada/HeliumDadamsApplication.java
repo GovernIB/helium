@@ -6,10 +6,9 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @EnableFeignClients
 @SpringBootApplication(
-//        exclude = {
-//                org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class,
-//                org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration.class,
-//                org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration.class, MongoDataAutoConfiguration.class
+//        scanBasePackages = {
+//                "es.caib.helium.dada",
+//                "es.caib.helium.transaction"
 //        }
 )
 public class HeliumDadamsApplication {
@@ -18,4 +17,9 @@ public class HeliumDadamsApplication {
         SpringApplication.run(HeliumDadamsApplication.class, args);
     }
 
+
+//    @Bean
+//    public RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
+//        return restTemplateBuilder.build();
+//    }
 }

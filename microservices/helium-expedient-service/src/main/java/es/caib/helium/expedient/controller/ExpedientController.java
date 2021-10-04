@@ -1,12 +1,14 @@
 package es.caib.helium.expedient.controller;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.validation.Valid;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import es.caib.helium.client.expedient.expedient.model.ConsultaExpedientDades;
+import es.caib.helium.expedient.model.ExpedientDto;
+import es.caib.helium.expedient.service.ExpedientService;
+import es.caib.helium.ms.controller.ControllerHelper;
+import es.caib.helium.ms.model.PagedList;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.rest.webmvc.json.patch.JsonPatchPatchConverter;
 import org.springframework.data.rest.webmvc.json.patch.Patch;
@@ -26,16 +28,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.validation.Valid;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import es.caib.helium.client.expedient.expedient.model.ConsultaExpedientDades;
-import es.caib.helium.expedient.model.ExpedientDto;
-import es.caib.helium.expedient.service.ExpedientService;
-import es.caib.helium.ms.controller.ControllerHelper;
-import es.caib.helium.ms.model.PagedList;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Controlador que defineix la API REST d'expedients per la consulta paginada i els
@@ -54,6 +52,8 @@ public class ExpedientController {
     private final ExpedientService expedientService;
     private final ObjectMapper objectMapper;
     private final SmartValidator smartValidator;
+
+//    private final TransactionHelper transactionHelper;
 
     /**
      * Consulta amb paràmetres corresponent al llistat d'expedients.
@@ -447,5 +447,21 @@ public class ExpedientController {
 
         return new ResponseEntity<List<String>>(participants, HttpStatus.OK);
     }
+
+
+//    // PROVES DE TRANSACCIONALITAT
+//
+//    @PostMapping("/transaccio")
+//    @Transactional
+//    @StartDistributedTransaction(timeout = 2)
+//    public ResponseEntity<String> postTransaccioDistribuida() throws InterruptedException {
+////        transactionHelper.startDistributedTransaction();
+//
+//        var res1 = expedientService.metodeTransaccional1();
+//        var res2 = expedientService.metodeTransaccional2();
+//        expedientService.metodeTransaccional3();
+//
+//        return new ResponseEntity<>("FI", HttpStatus.OK);
+//    }
 
 }

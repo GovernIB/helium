@@ -12,7 +12,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.5.2</version>
+		<version>2.5.5</version>
 		<relativePath />
 	</parent>
 	
@@ -21,7 +21,8 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 				
 		<helium.version>4.0.0</helium.version>
-		<spring-boot.version>2.5.2</spring-boot.version>
+		<spring-boot.version>2.5.5</spring-boot.version>
+		<spring-statemachine.version>3.0.1</spring-statemachine.version>
 		<liquibase.version>4.4.0</liquibase.version>
 		<orika.starter.version>1.8.0</orika.starter.version>
 <!--		<reflections.version>0.9.11</reflections.version>-->

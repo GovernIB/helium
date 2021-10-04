@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: helium-transaction-server
+  artemis:
+    user: artemis
+    password: simetraehcapa
+    embedded:
+      topics: trx-events
+  jms:
+    pub-sub-domain: true
+  cloud:
+    discovery:
+      enabled: false
+server:
+  port: 8093
+

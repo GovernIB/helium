@@ -24,6 +24,7 @@ public class CamundaEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleTaskCompleteEvent(TaskCompletEvent event) {
 
+        // TODO: controlar si un dels 2 dóna error --> enviar via jms?
         if (event.getDades() != null && !event.getDades().isEmpty()) {
             dadaClient.postDadaByProcesId(event.getProcesId(), event.getDades());
         }

@@ -1,0 +1,8 @@
+spring:
+  artemis:
+    user: artemis
+    password: simetraehcapa
+    embedded:
+      topics: trx-events
+  jms:
+    pub-sub-domain: true

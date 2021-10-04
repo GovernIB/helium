@@ -832,4 +832,23 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 		return createDades(capcalera.get().getExpedientId(), procesId, dades);
 	}
+
+
+//	// PROVES TRANSACCIONALITAT
+//
+//	@Override
+//	@Async
+//	@Transactional
+//	@DistributedTransaction
+//	public Integer mt1() {
+//		return 1;
+//	}
+//
+//	@Override
+//	@Async
+//	@Transactional
+//	@DistributedTransaction
+//	public Integer mt2() {
+//		return 2;
+//	}
 }

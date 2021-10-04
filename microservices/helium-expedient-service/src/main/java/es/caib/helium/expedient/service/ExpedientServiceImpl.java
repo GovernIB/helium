@@ -332,4 +332,30 @@ public class ExpedientServiceImpl implements ExpedientService {
 		return tascaRepository.findParticipantsByExpedientId(expedientId);
 	}
 
+
+//	// PROVES TRANSACCIONALITAT
+//
+//    @Override
+//    public Integer metodeTransaccional1() {
+//        log.info("MT1: Inici");
+//        var result = dadaClient.postMT1();
+//        log.info("MT1: Fi");
+//        return result;
+//    }
+//
+//    @Override
+//    public Integer metodeTransaccional2() {
+//        log.info("MT2: Inici");
+//        var result = dadaClient.postMT2();
+//        log.info("MT2: Fi");
+//        return result;
+//    }
+//
+//    @Override
+//    public Void metodeTransaccional3() throws InterruptedException {
+//        log.info("MT3: Inici");
+//        Thread.sleep(500);
+//        log.info("MT3: Fi");
+//        return null;
+//    }
 }

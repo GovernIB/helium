@@ -257,4 +257,18 @@ public class DadaClientImpl implements DadaClient {
 		log.debug(missatgeLog + " Get root proces instances by procesId: " + procesId);
 		return dadaServiceFeignClient.findRootProcessInstances(procesId).getBody();
 	}
+
+
+
+
+//	// PROVES TRANSACCIONALITAT
+//	@Override
+//	public Integer postMT1() {
+//		return dadaServiceFeignClient.postMT1().getBody();
+//	}
+//
+//	@Override
+//	public Integer postMT2() {
+//		return dadaServiceFeignClient.postMT2().getBody();
+//	}
 }
