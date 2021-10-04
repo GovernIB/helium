@@ -2,9 +2,9 @@ package net.conselldemallorca.helium.jbpm3.integracio;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.api.service.WorkflowBridgeService;
-
 import org.springframework.beans.factory.annotation.Autowired;
+
+import net.conselldemallorca.helium.api.service.WorkflowBridgeService;
 
 /**
  * Classe que fa de pont entre jBPM i Helium.
@@ -23,7 +23,7 @@ public class Jbpm3HeliumBridge {
 
 	private static Jbpm3HeliumBridge INSTANCE = new Jbpm3HeliumBridge();
 
-	private Jbpm3HeliumBridge() {}
+	public Jbpm3HeliumBridge() {}
 
 	public static Jbpm3HeliumBridge getInstance() {
 		return INSTANCE;

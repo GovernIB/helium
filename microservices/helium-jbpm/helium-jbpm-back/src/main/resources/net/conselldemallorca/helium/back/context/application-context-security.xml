@@ -59,5 +59,6 @@
 
 	<bean class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler"/>
 	<bean class="net.conselldemallorca.helium.back.security.DefaultRolesPrefixPostProcessor"/>
+	
 
 </beans>

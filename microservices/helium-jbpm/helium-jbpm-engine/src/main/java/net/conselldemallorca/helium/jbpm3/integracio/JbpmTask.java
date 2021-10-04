@@ -49,6 +49,7 @@ public class JbpmTask implements WTaskInstance {
 	private boolean suspended;
 	private boolean cancelled;
 	private Set<String> pooledActors;
+	public Set<String> grups;
 	private boolean agafada;
 	private String selectedOutcome;
 	private String rols;
@@ -282,6 +283,7 @@ public class JbpmTask implements WTaskInstance {
 		else
 			return getTaskName();
 	}
+
 
 //	@Override
 //	public void setTitol(TaskInstance taskInstance, String titol) {

@@ -1,11 +1,13 @@
 package net.conselldemallorca.helium.api.dto;
 
+import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.io.Serializable;
 
 
 /**
@@ -17,6 +19,7 @@ import java.io.Serializable;
 @Getter @Setter
 @NoArgsConstructor
 @EqualsAndHashCode(of = {"camp"})
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CampTascaDto extends HeretableDto implements Serializable {
 
 	private Long id;
