@@ -48,7 +48,6 @@ public class DetalleAviso implements Comparable<DetalleAviso> {
 		this.confirmadoEnvio = confirmadoEnvio;
 	}
 	
-	@Override
 	public int compareTo(DetalleAviso o) {
 		if (getFechaEnvio() == null || o.getFechaEnvio() == null)
 			return 0;

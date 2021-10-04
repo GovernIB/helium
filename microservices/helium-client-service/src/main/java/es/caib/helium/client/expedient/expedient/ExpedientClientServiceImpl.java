@@ -173,6 +173,7 @@ public class ExpedientClientServiceImpl implements ExpedientClientService {
 		if (demanaTitol != null & demanaTitol) {
 			PatchHelper.replaceStringProperty(jpb, "titol", titol);
 		}
+		PatchHelper.replaceDateProperty(jpb, "dataInici", dataInici);
 		ExpedientEstatTipusEnum estatTipus = ExpedientEstatTipusEnum.INICIAT;
 		if (dataFi != null) {
 			estatTipus = ExpedientEstatTipusEnum.FINALITZAT;

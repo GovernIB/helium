@@ -3,14 +3,16 @@
  */
 package net.conselldemallorca.helium.api.dto;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Objecte de domini que representa un camp de la definició de procés.
@@ -18,6 +20,7 @@ import java.util.Date;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Getter @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CampDto extends HeretableDto implements Serializable {
 
 	private static final long serialVersionUID = 1L;
