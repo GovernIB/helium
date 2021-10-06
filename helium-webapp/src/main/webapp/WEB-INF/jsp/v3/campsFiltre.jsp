@@ -120,19 +120,19 @@
 					<div class="col-xs-4 tercpre">
 						<label class="control-label col-xs-4" for="${campPath}_anys"><spring:message code="common.camptasca.anys"/></label>
 						<div class="col-xs-8">
-							<form:select  itemLabel="valor" itemValue="codi" items="${listTerminis}" path="${campPath}.anys" id="${campPath}_anys" cssClass="termini" />
+							<form:select  itemLabel="valor" itemValue="codi" items="${listTerminis}" path="${campPath}.[0]" id="${campPath}_anys" cssClass="termini" />
 						</div>
 					</div>
 					<div class="col-xs-4 tercmig">
 	 					<label class="control-label col-xs-4" for="${campPath}_mesos"><spring:message code="common.camptasca.mesos"/></label>
 	 					<div class="col-xs-8">
-	 						<form:select  itemLabel="valor" itemValue="codi" items="${listTerminis}" path="${campPath}.mesos" id="${campPath}_mesos" cssClass="termini" />
+	 						<form:select  itemLabel="valor" itemValue="codi" items="${listTerminis}" path="${campPath}.[1]" id="${campPath}_mesos" cssClass="termini" />
 	 					</div>
 	 				</div>
 	 				<div class="col-xs-4 tercpost">
 	 					<label class="control-label col-xs-4" for="${campPath}_dies"><spring:message code="common.camptasca.dies"/></label>
 	 					<div class="col-xs-8">
-	 						<hel:inputText inline="true" name="${campPath}.dies" textKey="common.camptasca.dies" placeholderKey="common.camptasca.dies"/>
+	 						<hel:inputText inline="true" name="${campPath}.[2]" textKey="common.camptasca.dies" placeholderKey="common.camptasca.dies"/>
 	 					</div>
 	 				</div>
  				<script type="text/javascript">
