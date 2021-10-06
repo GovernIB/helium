@@ -1,6 +1,16 @@
 package es.caib.helium.expedient.model;
 
+import java.util.Date;
+import java.util.List;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
+
+import org.springframework.validation.annotation.Validated;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import es.caib.helium.ms.model.DefaultOrder;
 import es.caib.helium.ms.model.DefaultSort;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -10,12 +20,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.validation.annotation.Validated;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Informació de la tasca amb les propietats necessàries pel llistat filtrat i paginat de
