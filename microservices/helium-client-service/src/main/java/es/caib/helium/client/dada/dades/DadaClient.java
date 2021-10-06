@@ -82,4 +82,8 @@ public interface DadaClient {
 	List<Expedient> findRootProcessInstances(List<String> procesIds);
 
 	Expedient findRootProcessInstances(String procesId);
+
+//	// PROVES TRANSACCIONALITAT
+//	Integer postMT1();
+//	Integer postMT2();
 }

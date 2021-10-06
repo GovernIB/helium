@@ -16,13 +16,10 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 		basePackages = {"es.caib.helium.client"}
 )
 @SpringBootApplication(
-//		exclude = {
-//				org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class,
-//				org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration.class
-//		},
 		scanBasePackages = {
 				"es.caib.helium.expedient",
 				"es.caib.helium.client"
+//				"es.caib.helium.transaction"
 		}
 )
 public class HeliumExpedientServiceApplication {
@@ -32,4 +29,8 @@ public class HeliumExpedientServiceApplication {
 		System.setProperty("oracle.jdbc.timezoneAsRegion", "false");		
 	}
 
+//	@Bean
+//	public RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
+//		return restTemplateBuilder.build();
+//	}
 }

@@ -72,4 +72,7 @@ public interface ExpedientService {
 	boolean createDades(String procesId, List<Dada> dada) throws DadaException;
 
 	boolean deleteDadaByProcesIdAndCodi(String procesId, String codi) throws DadaException;
+
+//    Integer mt1();
+//	Integer mt2();
 }

@@ -1,15 +1,14 @@
 package es.caib.helium.expedient.service;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-
 import es.caib.helium.expedient.domain.Expedient;
 import es.caib.helium.expedient.model.ExpedientDto;
 import es.caib.helium.ms.model.PagedList;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 /** Servei per a la consulta i manteniment de la informació a nivell d'expedients
  * 
@@ -63,4 +62,10 @@ public interface ExpedientService {
      * @return
      */
 	List<String> getParticipants(Long expedientId);
+
+
+//	// PROVES TRANSACCIONALITAT
+//    Integer metodeTransaccional1();
+//    Integer metodeTransaccional2();
+//    Void metodeTransaccional3() throws InterruptedException;
 }

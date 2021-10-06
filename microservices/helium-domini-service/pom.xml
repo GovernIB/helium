@@ -16,6 +16,7 @@
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+        <hazelcast.version>4.2.2</hazelcast.version>
         <rsql.version>2.1.0</rsql.version>
     </properties>
 
@@ -58,11 +59,12 @@
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
+            <version>${hazelcast.version}</version>
         </dependency>
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
-            <version>4.0.3</version>
+            <version>${hazelcast.version}</version>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>

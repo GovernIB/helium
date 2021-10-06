@@ -17,7 +17,7 @@
     <properties>
         <logstash.logback.version>6.6</logstash.logback.version>
         <spring.cloud.zipkin.version>3.0.0-M3</spring.cloud.zipkin.version>
-        <springdoc.version>1.5.2</springdoc.version>
+        <springdoc.version>1.5.10</springdoc.version>
     </properties>
 
     <dependencies>

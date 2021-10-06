@@ -9,6 +9,7 @@ import es.caib.helium.dada.model.PagedList;
 import es.caib.helium.dada.model.ValidList;
 import es.caib.helium.dada.service.ExpedientService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.rest.webmvc.json.patch.JsonPatchPatchConverter;
 import org.springframework.data.rest.webmvc.json.patch.Patch;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.List;
 
+@Slf4j
 @RestController
 @AllArgsConstructor
 @RequestMapping(ExpedientController.API_PATH)
@@ -37,6 +39,8 @@ public class ExpedientController {
 	public static final String API_PATH = "/api/v1/dades/expedients";
 
 	private final ExpedientService expedientService;
+
+//	private final TransactionHelper transactionHelper;
 	
 	@ExceptionHandler({ Exception.class })
 	public ResponseEntity<Void> handleException(Exception e) {
@@ -422,4 +426,33 @@ public class ExpedientController {
 		}
 		return new ResponseEntity<>(rootProcesId, HttpStatus.OK);
 	}
+
+
+
+//	// PROVES TRANSACCIONALITAT
+//	@PostMapping("/mt1")
+//	public ResponseEntity<Integer> postMT1() {
+//		log.info("MT1: Inici");
+//
+//		var result = transactionHelper.executeInDistributedTransaction(expedientService.mt1());
+//
+////		expedientService.mt1();
+////		var result = transactionHelper.<Integer>getDistributedTransactionResult();
+//
+//		log.info("MT1: Fi [{}]", result);
+//		return new ResponseEntity<>(result, HttpStatus.OK);
+//	}
+//
+//	@PostMapping("/mt2")
+//	public ResponseEntity<Integer> postMT2() {
+//		log.info("MT2: Inici");
+//
+//		var result = transactionHelper.executeInDistributedTransaction(expedientService.mt2());
+//
+////		expedientService.mt2();
+////		var result = transactionHelper.<Integer>getDistributedTransactionResult();
+//
+//		log.info("MT2: Fi [{}]", result);
+//		return new ResponseEntity<>(result, HttpStatus.OK);
+//	}
 }
