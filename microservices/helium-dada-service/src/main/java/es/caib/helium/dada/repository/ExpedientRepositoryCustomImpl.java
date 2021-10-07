@@ -2,6 +2,8 @@ package es.caib.helium.dada.repository;
 
 import es.caib.helium.client.dada.dades.enums.Collections;
 import es.caib.helium.client.dada.dades.enums.DireccioOrdre;
+import es.caib.helium.client.dada.dades.enums.Tipus;
+import es.caib.helium.client.dada.dades.enums.TipusFiltre;
 import es.caib.helium.dada.enums.Capcalera;
 import es.caib.helium.dada.enums.Dada;
 import es.caib.helium.dada.exception.DadaException;
@@ -181,7 +183,10 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 
 		// $match filtresValor
 		if (filtresValor.size() > 0) {
-			operations.add(crearFiltresValor(filtresValor));
+			var matchOperation = crearFiltresValor(filtresValor);
+			if (matchOperation != null) {
+				operations.add(matchOperation);
+			}
 		}
 
 		// $project $sort
@@ -311,9 +316,9 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 			criteria.and(Capcalera.ESTAT_ID.getCamp()).is(filtreCapcalera.getEstatId());
 		}
 
-		prepararData(filtreCapcalera.getDataIniciInicial(), filtreCapcalera.getDataIniciFinal(), criteria,
+		prepararCriteriaDataCapcalera(filtreCapcalera.getDataIniciInicial(), filtreCapcalera.getDataIniciFinal(), criteria,
 				Capcalera.DATA_INICI.getCamp());
-		prepararData(filtreCapcalera.getDataFiInicial(), filtreCapcalera.getDataFiFinal(), criteria,
+		prepararCriteriaDataCapcalera(filtreCapcalera.getDataFiInicial(), filtreCapcalera.getDataFiFinal(), criteria,
 				Capcalera.DATA_FI.getCamp());
 
 		return Aggregation.match(criteria);
@@ -332,10 +337,16 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 
 		List<Criteria> filtres = new ArrayList<>();
 		for (var filtre : filtresValor) {
-			filtres.add(crearFiltreValor(filtre));
+			var filtreValor = crearFiltreValor(filtre);
+			if (filtreValor != null) {
+				filtres.add(filtreValor);
+			}
+		}
+		if (filtres.isEmpty()) {
+			return null;
 		}
 		var criteria = new Criteria();
-		criteria.orOperator(filtres.toArray(new Criteria[filtres.size()])); // TODO MS: PER HELIUM TE PINTA QUE HA DE SER UNA AND
+		criteria.andOperator(filtres.toArray(new Criteria[filtres.size()]));
 		return Aggregation.match(criteria);
 	}
 
@@ -343,7 +354,7 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 	/**
 	 * Prepara el criteri a filtrar contingut en filtreValor.
 	 * @param filtreValor conté els valors pels quals es filtrarà. No pot ser null
-	 * @return Retorna el Criteria amb el que es farà el filtre.
+	 * @return Retorna el Criteria amb el que es farà el filtre. Null si no hi han valors a filtrar.
 	 */
 	private Criteria crearFiltreValor(FiltreValor filtreValor) {
 
@@ -355,12 +366,9 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 			filtreCriteria.and(Dada.TIPUS.getCamp()).is(filtreValor.getTipus());
 		}
 		if (filtreValor.getValor() != null && !filtreValor.getValor().isEmpty()) {
-			var valors = filtreValor.getValor();
-			List<Criteria> criterias = new ArrayList<>();
-			for (var valor : valors) {
-				var criteria = new Criteria();
-				criteria.and(Dada.VALOR.getCamp()).regex(valor.getValor());
-				criterias.add(criteria);
+			var criterias = crearCriteriaPerFiltre(filtreValor);
+			if (criterias == null || criterias.isEmpty()) {
+				return null;
 			}
 			var orValors = new Criteria();
 			orValors.orOperator(criterias.toArray(new Criteria[criterias.size()]));
@@ -371,6 +379,61 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 		return criteria;
 	}
 
+	private List<Criteria> crearCriteriaPerFiltre(FiltreValor filtreValor) {
+
+		var valors = filtreValor.getValor();
+		List<Criteria> criterias = new ArrayList<>();
+		if (valors == null || valors.isEmpty()) {
+			return criterias;
+		}
+		//TODO MS: !!! ATENCIO PER LES DATE S'HA DE VEURE EL CAS DEL DIA ACTUAL !!!!
+		//Si el filtre es un rang i es del tipus interval
+		if (filtreValor.getTipusFiltre() != null
+			&& filtreValor.getTipusFiltre().equals(TipusFiltre.RANG)
+			&& isCampInterval(filtreValor)
+			&& valors.size() == 2 ) {
+
+			var min = valors.get(0).getValor();
+			var max = valors.get(1).getValor();
+			if (min == null && max == null) {
+				return criterias; //Si no hi ha valors cal fer res
+			}
+			var criteria = new Criteria();
+			prepararCriteriaInterval(min, max, criteria, Dada.VALOR.getCamp());
+			criterias.add(criteria);
+			return criterias;
+		}
+		//Si no es interval afegeix regex per cada element (normalment sera un i prou)
+		for (var valor : valors) { //TODO MS: Comprovar quins casos es necessita realment el for, si es necessita.
+			var criteria = new Criteria();
+			criteria.and(Dada.VALOR.getCamp()).regex(valor.getValor() != null ? valor.getValor() : "");
+			criterias.add(criteria);
+		}
+		return criterias;
+	}
+
+	private boolean isCampInterval(FiltreValor filtreValor) {
+
+		return filtreValor.getTipus().equals(Tipus.DATE) || filtreValor.getTipus().equals(Tipus.PRICE)
+				|| filtreValor.getTipus().equals(Tipus.INTEGER) || filtreValor.getTipus().equals(Tipus.FLOAT);
+	}
+
+	private void prepararCriteriaInterval(String min, String max, Criteria criteria, String nomCamp) {
+
+		if (min != null && max != null) {
+			criteria.and(nomCamp).gte(min).lte(max);
+		}
+
+		if (min != null && max == null) {
+			criteria.and(nomCamp).gte(max);
+		}
+
+		if (min == null && max != null) {
+			criteria.and(nomCamp).lte(max);
+		}
+	}
+
+
 	/**
 	 * Emplena el Criteria per filtrar per dates segons rang 
 	 * @param rangInicial Data inicial
@@ -378,7 +441,7 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 	 * @param criteria Criteria a emplenar
 	 * @param nomCamp Nom del camp del document que conté la data
 	 */
-	private void prepararData(Date rangInicial, Date rangFinal, Criteria criteria, String nomCamp) {
+	private void prepararCriteriaDataCapcalera(Date rangInicial, Date rangFinal, Criteria criteria, String nomCamp) {
 
 		if (criteria == null || nomCamp == null || nomCamp.isEmpty()) {
 			return;

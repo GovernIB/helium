@@ -18,6 +18,19 @@ public class ValorSimple extends Valor {
 	private String valor;
 	private String valorText;
 
+	public ValorSimple() {
+
+	}
+
+	public ValorSimple(String valor) {
+		this.valor = valor;
+	}
+
+	public ValorSimple(String valor, String valorText) {
+		this.valor = valor;
+		this.valorText = valorText;
+	}
+
 	@Override
 	public boolean equals(Object valorSimple) {
 		

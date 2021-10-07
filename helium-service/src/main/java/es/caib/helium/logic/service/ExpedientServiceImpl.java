@@ -3,39 +3,13 @@
  */
 package es.caib.helium.logic.service;
 
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import es.caib.helium.client.dada.dades.DadaClient;
+import es.caib.helium.client.dada.dades.enums.Tipus;
+import es.caib.helium.client.dada.dades.enums.TipusFiltre;
+import es.caib.helium.client.dada.dades.model.Filtre;
+import es.caib.helium.client.dada.dades.model.FiltreCapcalera;
+import es.caib.helium.client.dada.dades.model.FiltreValor;
+import es.caib.helium.client.dada.dades.model.ValorSimple;
 import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.client.expedient.expedient.ExpedientClientService;
@@ -47,6 +21,7 @@ import es.caib.helium.client.expedient.tasca.TascaClientService;
 import es.caib.helium.client.expedient.tasca.model.ConsultaTascaDades;
 import es.caib.helium.client.expedient.tasca.model.TascaDto;
 import es.caib.helium.client.model.PagedList;
+import es.caib.helium.client.model.ParellaCodiValor;
 import es.caib.helium.logic.helper.ConsultaHelper;
 import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.DistribucioHelper;
@@ -155,12 +130,46 @@ import es.caib.helium.persist.repository.PortasignaturesRepository;
 import es.caib.helium.persist.repository.RegistreRepository;
 import es.caib.helium.persist.repository.TerminiIniciatRepository;
 import es.caib.helium.persist.util.ThreadLocalInfo;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Implementació dels mètodes del servei ExpedientService.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Slf4j
 @Service
 public class ExpedientServiceImpl implements ExpedientService {
 
@@ -242,6 +251,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	@Resource
 	private AnotacioService anotacioService;
 
+	@Resource
+	private DadaClient dadaClient;
 	@Resource
 	private ExpedientClientService expedientClientService;
 	@Resource
@@ -2057,17 +2068,14 @@ public class ExpedientServiceImpl implements ExpedientService {
 	public List<TascaDadaDto> findConsultaFiltre(Long consultaId) {
 		Consulta consulta = consultaRepository.getById(consultaId);
 		
-		List<TascaDadaDto> listTascaDada = consultaHelper.findCampsPerCampsConsulta(
-				consulta,
-				TipusConsultaCamp.FILTRE);
+		List<TascaDadaDto> listTascaDada = consultaHelper.findCampsPerCampsConsulta(consulta, TipusConsultaCamp.FILTRE);
 		
 		// Quitamos las variables predefinidas de los filtros con amplitud 0
 		Iterator<TascaDadaDto> itListTascaDada = listTascaDada.iterator();
 		TascaDadaDto tascaDada;
 		while(itListTascaDada.hasNext()) {
 			tascaDada = itListTascaDada.next();
-			if (consulta.getMapValorsPredefinits().containsKey(tascaDada.getVarCodi())
-					&& tascaDada.getAmpleCols() == 0) {
+			if (consulta.getMapValorsPredefinits().containsKey(tascaDada.getVarCodi()) && tascaDada.getAmpleCols() == 0) {
 				itListTascaDada.remove();
 			}
 		}
@@ -2369,14 +2377,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 			throw new NoTrobatException(Consulta.class,consultaId);
 		}
 		// Comprova l'accés a l'entorn
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(
-				consulta.getEntorn().getId(),
-				true);
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(consulta.getEntorn().getId(), true);
 		// Comprova l'accés al tipus d'expedient
-		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
-					consulta.getExpedientTipus().getId());
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisLectura(consulta.getExpedientTipus().getId());
 		// Obte la llista d'expedients permesos
-		List<Long> expedientIdsPermesos;
+		List<Long> expedientIdsPermesos; // TODO MS: AQUEST IF/ELSE ES PODRIA BORRAR?
 		if (expedientIdsSeleccio != null && !expedientIdsSeleccio.isEmpty()) {
 			expedientIdsPermesos = new ArrayList<Long>(expedientIdsSeleccio);
 		} else {
@@ -2397,80 +2402,232 @@ public class ExpedientServiceImpl implements ExpedientService {
 					.nomesTasquesGrup(nomesTasquesGrup)
 					.nomesTasquesMeves(nomesMeves)
 					.build();
-			expedientIdsPermesos = 
-					expedientClientService.findExpedientsIdsAmbFiltrePaginatV1(consultaExpedientDades).getContent();
+			expedientIdsPermesos = expedientClientService.findExpedientsIdsAmbFiltrePaginatV1(consultaExpedientDades).getContent();
 		}
-		// Obte la llista d'expedients de lucene passant els expedients permesos
-		// com a paràmetres
-		List<Camp> filtreCamps = consultaHelper.toListCamp(
-				consultaHelper.findCampsPerCampsConsulta(
-				consulta,
-				TipusConsultaCamp.FILTRE));
+		// Obte la llista de camps del filtre i per l'informe
+		List<Camp> filtreCamps = consultaHelper.toListCamp(consultaHelper.findCampsPerCampsConsulta(consulta, TipusConsultaCamp.FILTRE));
 		afegirValorsPredefinits(consulta, filtreValors, filtreCamps);
-		List<Camp> informeCamps = consultaHelper.toListCamp(
-				consultaHelper.findCampsPerCampsConsulta(
-						consulta,
-						TipusConsultaCamp.INFORME));
+		List<Camp> informeCamps = consultaHelper.toListCamp(consultaHelper.findCampsPerCampsConsulta(consulta, TipusConsultaCamp.INFORME));
 
-		Object[] respostaLucene = null;
-		
-//		boolean ctxLuceneStoped = false;
-//		try {
-//			contextConsultaLuceneTotal = timerConsultaLuceneTotal.time();
+		var consultaMs = crearConsultaMsDades(filtreValors, filtreCamps);
+		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<>();
+		List<es.caib.helium.client.dada.dades.model.Expedient> respostaMs = new ArrayList<>();
+		try {
+			respostaMs = dadaClient.consultaResultatsLlistat(entorn.getId().intValue(), expedientTipus.getId().intValue(),consultaMs);
+		} catch (Exception ex) {
+			log.error("Error al fer la consulta al microservei", ex);
+			return paginacioHelper.toPaginaDto(resposta, resposta.size(), paginacioParams);
+		}
 
-		respostaLucene = null;
-//			respostaLucene = luceneHelper.findPaginatAmbDadesV3(
-//					entorn,
-//					expedientTipus,
-//					expedientIdsPermesos,
-//					filtreCamps,
-//					filtreValors,
-//					informeCamps,
-//					paginacioParams);
-			
-//			contextConsultaLuceneTotal.stop();
-//			ctxLuceneStoped = true;
-//			contextConsultaMongoTotal = timerConsultaMongoTotal.time();
-//			
-//			mongoDBHelper.findPaginatAmbDadesV3(
-//					expedientIdsPermesos, 
-//					filtreCamps, 
-//					filtreValors, 
-//					informeCamps, 
-//					paginacioParams);
-//		} finally {
-//			if (!ctxLuceneStoped) {
-//				contextConsultaLuceneTotal.stop();
-//			}
-//			contextConsultaMongoTotal.stop();
-//		}
-		
-		@SuppressWarnings("unchecked")
-		List<Map<String, DadaIndexadaDto>> dadesExpedients = (List<Map<String, DadaIndexadaDto>>)respostaLucene[0];
-		Long count = (Long)respostaLucene[1];
-		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
-		for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
-			DadaIndexadaDto dadaExpedientId = null;
-//			DadaIndexadaDto dadaExpedientId = dadesExpedient.get(LuceneHelper.CLAU_EXPEDIENT_ID);
+		for (var expedientMs : respostaMs) {
+
+			var dadesExpedient = crearMapFila(informeCamps, expedientMs);
 			ExpedientConsultaDissenyDto fila = new ExpedientConsultaDissenyDto();
-			Expedient expedient = expedientRepository.getById(Long.parseLong(dadaExpedientId.getValorIndex()));
+			Expedient expedient = expedientRepository.getById(expedientMs.getExpedientId());
 			if (expedient != null) {
 				ExpedientDto expedientDto = expedientHelper.toExpedientDto(expedient);
 				expedientHelper.omplirPermisosExpedient(expedientDto);
 				fila.setExpedient(expedientDto);
-				consultaHelper.revisarDadesExpedientAmbValorsEnumeracionsODominis(
-						dadesExpedient,
-						informeCamps,
-						expedient);
+				consultaHelper.revisarDadesExpedientAmbValorsEnumeracionsODominis(dadesExpedient, informeCamps, expedient);
 				fila.setDadesExpedient(dadesExpedient);
 				resposta.add(fila);
 			}
-//			dadesExpedient.remove(LuceneHelper.CLAU_EXPEDIENT_ID);
 		}
-		return paginacioHelper.toPaginaDto(
-				resposta,
-				count.intValue(),
-				paginacioParams);
+		return paginacioHelper.toPaginaDto(resposta, resposta.size(), paginacioParams);
+	}
+
+	private Map<String, DadaIndexadaDto> crearMapFila(List<Camp> informeCamps, es.caib.helium.client.dada.dades.model.Expedient expedientMs) {
+
+		var dadesExpedient = new HashMap<String, DadaIndexadaDto>();
+
+		for (var informeCamp : informeCamps) {
+			var dadaIndexada = new DadaIndexadaDto(informeCamp.getCodi(), informeCamp.getEtiqueta());
+			if (informeCamp.esCampCapcalera()) {
+				switch (informeCamp.getCodi()) {
+					case Constants.EXPEDIENT_CAMP_ID:
+						dadaIndexada.setValorMostrar(expedientMs.getExpedientId() + "");
+						dadaIndexada.setValor(expedientMs.getExpedientId() + "");
+						break;
+					case Constants.EXPEDIENT_CAMP_TIPUS:
+						dadaIndexada.setValorMostrar(expedientMs.getTipusId() + "");
+						dadaIndexada.setValor(expedientMs.getTipusId() + "");
+						break;
+					case Constants.EXPEDIENT_CAMP_NUMERO:
+						dadaIndexada.setValorMostrar(expedientMs.getNumero());
+						dadaIndexada.setValor(expedientMs.getNumero());
+						break;
+					case Constants.EXPEDIENT_CAMP_TITOL:
+						dadaIndexada.setValorMostrar(expedientMs.getTitol());
+						dadaIndexada.setValor(expedientMs.getTitol());
+						break;
+					case Constants.EXPEDIENT_CAMP_ESTAT:
+						dadaIndexada.setValorMostrar(expedientMs.getEstatId() + "");
+						dadaIndexada.setValor(expedientMs.getEstatId() + "");
+						break;
+					case Constants.EXPEDIENT_CAMP_DATA_INICI:
+						dadaIndexada.setValor(expedientMs.getDataInici().toString());
+						break;
+					default:
+						break;
+				}
+				dadesExpedient.put(informeCamp.getCodi(), dadaIndexada);
+				continue;
+			}
+
+			// Si es una dada
+			var dades = expedientMs.getDades();
+			for (var dada : dades) {
+				if (!informeCamp.getCodi().equals(dada.getCodi())) {
+					continue;
+				}
+				if (dada.isMultiple()) {
+					dadaIndexada.setMultiple(true);
+					var valors = new ArrayList<>();
+					var	valorMostrar = new ArrayList<String>();
+					for (var valor : dada.getValor()) {
+						var foo = (ValorSimple) valor;
+						valors.add(foo.getValor());
+						valorMostrar.add((foo.getValorText()));
+					}
+					dadaIndexada.setValorMostrarMultiple(valorMostrar);
+					dadaIndexada.setValorMultiple(valors);
+				} else {
+					var valor = (ValorSimple)dada.getValor().get(0);
+					dadaIndexada.setValor(valor.getValor());
+					dadaIndexada.setValorMostrar(valor.getValorText());
+				}
+
+				if (informeCamp.getTipus().equals(Camp.TipusCamp.SELECCIO) || informeCamp.getTipus().equals(Camp.TipusCamp.SUGGEST)) {
+					dadaIndexada.setOrdenarPerValorMostrar(true); //TODO MS: S'HA BUSCAT ON ES POSAVA A TRUE I AFEGIT LA CONDICIO AQUÍ, COMPROVAR SIGUI CORRECTE
+				}
+				dadesExpedient.put(informeCamp.getCodi(), dadaIndexada);
+				break;
+			}
+		}
+		return dadesExpedient;
+	}
+
+	private es.caib.helium.client.dada.dades.model.Consulta crearConsultaMsDades(Map<String, Object> filtreValors, List<Camp> filtreCamps) {
+
+		var consultaMs = new es.caib.helium.client.dada.dades.model.Consulta();
+		var keys = filtreValors.keySet();
+		var filtreCapcelera = new FiltreCapcalera();
+		var filtres = new HashMap<String, Filtre>();
+		for (var key : keys) {
+			var filtreValor = filtreValors.get(key);
+			if (filtreValor == null) {
+				continue;
+			}
+			if (key.equals(Constants.EXPEDIENT_CAMP_NUMERO)) {
+				filtreCapcelera.setNumero((String) filtreValor);
+			} else if (key.equals(Constants.EXPEDIENT_CAMP_ID)) {
+				filtreCapcelera.setExpedientId(Long.parseLong((String)filtreValor));
+			} else if (key.equals(Constants.EXPEDIENT_CAMP_TITOL)) {
+				filtreCapcelera.setTitol((String) filtreValor);
+			} else if (key.equals(Constants.EXPEDIENT_CAMP_DATA_INICI)) {
+				var dates = (Date[]) filtreValor;
+				if (dates.length != 2) {
+					log.error("Filtre valor tipus date, mida incorrecta");
+					continue;
+				}
+				filtreCapcelera.setDataIniciInicial(dates[0]);
+				filtreCapcelera.setDataIniciFinal(dates[1]);
+			} else if (key.equals(Constants.EXPEDIENT_CAMP_ESTAT)) {
+				var estat = (ParellaCodiValor) filtreValor;
+				// TODO MS: no hauria de d'arribar "uno"...
+				filtreCapcelera.setEstatId(Integer.parseInt(estat.getCodi().equals("uno") ? "1" : estat.getCodi()));
+			} else { // Filtre per dades que no son de capçalera
+				crearFiltreValor(key, filtreCamps, filtreValor, filtres);
+			}
+		}
+
+		filtres.put(FiltreCapcalera.JSON_TYPE_NAME, filtreCapcelera);
+		consultaMs.setFiltreValors(filtres);
+		//TODO MS: RETORNAR NOMES COLUMNES NECESSARIES
+		return consultaMs;
+	}
+
+	private void crearFiltreValor(String key, List<Camp> filtreCamps, Object filtreValor, Map<String, Filtre> filtres) {
+
+		var filtreValorMs = new FiltreValor();
+		filtreValorMs.setCodi(key);
+		filtreValorMs.setTipusFiltre(TipusFiltre.SIMPLE);
+		var valorsSimples = new ArrayList<ValorSimple>();
+		for(var camp : filtreCamps) {
+			if (!key.equals(camp.getCodi())) {
+				continue;
+			}
+			if (camp.getTipus().equals(Camp.TipusCamp.DATE)) {
+				var data = (Date[])filtreValor;
+				if (data.length != 2 || (data[0] == null && data[1] == null)){
+					continue;
+				}
+				var dataI = data[0] != null ? data[0].toString() : null;
+				var dataF = data[1] != null ? data[1].toString() : null;
+				filtreValorMs.setTipus(Tipus.DATE);
+				filtreValorMs.setTipusFiltre(TipusFiltre.RANG);
+				valorsSimples.add(new ValorSimple(dataI));
+				valorsSimples.add(new ValorSimple(dataF));
+			} else if (camp.getTipus().equals(Camp.TipusCamp.INTEGER)) {
+				var enters = (Long[])filtreValor;
+				if (enters.length != 2 || (enters[0] == null && enters[1] == null)) {
+					continue;
+				}
+				filtreValorMs.setTipus(Tipus.INTEGER);
+				filtreValorMs.setTipusFiltre(TipusFiltre.RANG);
+				valorsSimples.add(new ValorSimple(enters[0] + ""));
+				valorsSimples.add(new ValorSimple(enters[1] + ""));
+
+			} else if (camp.getTipus().equals(Camp.TipusCamp.FLOAT)) {
+				var decimals = (Double[])filtreValor;
+				if (decimals.length != 2 || (decimals[0] == null && decimals[1] == null)) {
+					continue;
+				}
+				filtreValorMs.setTipus(Tipus.FLOAT);
+				filtreValorMs.setTipusFiltre(TipusFiltre.RANG);
+				valorsSimples.add(new ValorSimple(decimals[0] + ""));
+				valorsSimples.add(new ValorSimple(decimals[1] + ""));
+			} else if (camp.getTipus().equals(Camp.TipusCamp.PRICE)) {
+				var preus = (BigDecimal[])filtreValor;
+				if (preus.length != 2 || (preus[0] == null && preus[1] == null)) {
+					continue;
+				}
+				filtreValorMs.setTipus(Tipus.PRICE);
+				filtreValorMs.setTipusFiltre(TipusFiltre.RANG);
+				valorsSimples.add(new ValorSimple(preus[0] + ""));
+				valorsSimples.add(new ValorSimple(preus[1] + ""));
+			} else if (camp.getTipus().equals(Camp.TipusCamp.BOOLEAN)) {
+				valorsSimples.add(new ValorSimple(filtreValor.toString()));
+				filtreValorMs.setTipus(Tipus.BOOLEAN);
+			} else if (camp.getTipus().equals(Camp.TipusCamp.SUGGEST)) {
+				filtreValorMs.setTipus(Tipus.SUGGEST);
+			}  else if (camp.getTipus().equals(Camp.TipusCamp.SELECCIO)) {
+				var seleccio = (ParellaCodiValor)filtreValor;
+				filtreValorMs.setTipus(Tipus.SELECCIO);
+				valorsSimples.add(new ValorSimple(seleccio.getCodi()));
+			}  else if (camp.getTipus().equals(Camp.TipusCamp.REGISTRE)) {
+				filtreValorMs.setTipus(Tipus.REGISTRE);
+				continue; // TODO MS: tambe peta a helium3.2
+			}  else if (camp.getTipus().equals(Camp.TipusCamp.ACCIO)) {
+				continue; // No te sentit filtrar per accions.
+			} else if (camp.getTipus().equals(Camp.TipusCamp.TEXTAREA)) {
+				filtreValorMs.setTipus(Tipus.TEXTAREA);
+				valorsSimples.add(new ValorSimple((String)filtreValor));
+			} else if (camp.getTipus().equals(Camp.TipusCamp.TERMINI)) {
+				var termini = (String) filtreValor;
+				if (termini == null || termini.equals("0/0/0")) {
+					continue;
+				}
+				filtreValorMs.setTipus(Tipus.TERMINI);
+				valorsSimples.add(new ValorSimple((String)filtreValor));
+			} else {
+				filtreValorMs.setTipus(Tipus.STRING);
+				valorsSimples.add(new ValorSimple((String)filtreValor));
+			}
+			// TODO MS: EL VALOR A MOSTRAR NO ES EL MATEIX QUE VALOR A FILTRAR
+			filtreValorMs.setValor(valorsSimples);
+			filtres.put(FiltreValor.JSON_TYPE_NAME + "_" + key, filtreValorMs);
+		}
 	}
 
 	/**
