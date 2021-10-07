@@ -168,7 +168,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			expedientTascaService.cancelar(expedientId, tascaId);
 			MissatgesHelper.success(request, getMessage(request, "info.tasca.cancelar", new Object[] {String.valueOf(tascaId)}));
 		} catch (Exception ex) {
-			String errMsg = getMessage(request, "error.cancelar.tasca", new Object[] {String.valueOf(tascaId), ExceptionUtils.getRootCause(ex).getMessage()} );
+			String errMsg = getMessage(request, "error.cancelar.tasca", new Object[] {String.valueOf(tascaId),  ExceptionUtils.getRootCauseMessage(ex)} );
 			MissatgesHelper.error(request, errMsg);
         	logger.error(errMsg, ex);
 		}
@@ -185,7 +185,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			expedientTascaService.suspendre(expedientId, tascaId);
 			MissatgesHelper.success(request, getMessage(request, "info.tasca.suspendre"));
 		} catch (Exception ex) {
-			String errMsg = getMessage(request, "error.suspendre.tasca", new Object[] {String.valueOf(tascaId), ExceptionUtils.getRootCause(ex).getMessage()} );
+			String errMsg = getMessage(request, "error.suspendre.tasca", new Object[] {String.valueOf(tascaId),  ExceptionUtils.getRootCauseMessage(ex)} );
 			MissatgesHelper.error(request, errMsg);
         	logger.error(errMsg, ex);        	
 		}
@@ -202,7 +202,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			expedientTascaService.reprendre(expedientId, tascaId);
 			MissatgesHelper.success(request, getMessage(request, "info.tasca.reprendre"));
 		} catch (Exception ex) {
-			String errMsg = getMessage(request, "error.reprendre.tasca", new Object[] {String.valueOf(tascaId), ExceptionUtils.getRootCause(ex).getMessage()} );
+			String errMsg = getMessage(request, "error.reprendre.tasca", new Object[] {String.valueOf(tascaId),  ExceptionUtils.getRootCauseMessage(ex)} );
 			MissatgesHelper.error(request, errMsg);
         	logger.error(errMsg, ex);
 		}
@@ -222,7 +222,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			resultado = true;
 			MissatgesHelper.success(request, getMessage(request, "info.tasca.disponible.personals"));
 		} catch (Exception ex) {
-			String errMsg = getMessage(request, "error.agafar.tasca", new Object[] {String.valueOf(tascaId), ExceptionUtils.getRootCause(ex).getMessage()} );
+			String errMsg = getMessage(request, "error.agafar.tasca", new Object[] {String.valueOf(tascaId),  ExceptionUtils.getRootCauseMessage(ex)} );
 			MissatgesHelper.error(request, errMsg);
         	logger.error(errMsg, ex);
 		}
@@ -242,7 +242,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			resultado = true;
 			MissatgesHelper.success(request, getMessage(request, "info.tasca.alliberada"));
 		} catch (Exception ex) {
-			String errMsg = getMessage(request, "error.alliberar.tasca", new Object[] {String.valueOf(tascaId), ExceptionUtils.getRootCause(ex).getMessage()} );
+			String errMsg = getMessage(request, "error.alliberar.tasca", new Object[] {String.valueOf(tascaId), ExceptionUtils.getRootCauseMessage(ex)} );
 			MissatgesHelper.error(request, errMsg);
         	logger.error(errMsg, ex);
 		}

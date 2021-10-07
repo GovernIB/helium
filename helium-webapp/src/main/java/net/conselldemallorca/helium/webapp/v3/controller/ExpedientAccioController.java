@@ -96,7 +96,7 @@ public class ExpedientAccioController extends BaseExpedientController {
 					procesId,
 					accioId);
 			nomAccio = accio.getNom();
-			Throwable t = ExceptionUtils.getRootCause(ex);
+			Throwable t = ExceptionUtils.getRootCause(ex) != null? ExceptionUtils.getCause(ex) : ex ;
 			MissatgesHelper.error(
 	    			request,
 	    			getMessage(request, "error.executar.accio") + " " + nomAccio + ": " + t.getClass().getSimpleName() + ": "+ t.getMessage());
