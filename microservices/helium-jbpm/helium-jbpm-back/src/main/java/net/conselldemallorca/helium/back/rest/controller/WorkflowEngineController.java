@@ -1,6 +1,7 @@
 package net.conselldemallorca.helium.back.rest.controller;
 
 import net.conselldemallorca.helium.api.dto.OptionalString;
+import net.conselldemallorca.helium.api.exception.HeliumJbpmException;
 import net.conselldemallorca.helium.back.rest.model.ExpressionData;
 import net.conselldemallorca.helium.back.rest.model.InfoCacheData;
 import net.conselldemallorca.helium.back.rest.model.ProcessStartData;
@@ -76,7 +77,7 @@ public class WorkflowEngineController {
     public ResponseEntity<WDeployment> desplegar(
             @RequestPart(value = "deploymentName", required = false) String deploymentName,
             @RequestPart(value = "tenantId", required = false) String tenantId,
-            @RequestPart("deploymentFile") MultipartFile deploymentFile) throws IOException {
+            @RequestPart("deploymentFile") MultipartFile deploymentFile) throws HeliumJbpmException, IOException {
         String fileName = deploymentFile.getOriginalFilename();
         byte[] contingut = deploymentFile.getBytes();
         return new ResponseEntity(
@@ -90,20 +91,20 @@ public class WorkflowEngineController {
 
     @RequestMapping(value="/desplegaments/{deploymentId}", method = RequestMethod.GET)
 	@ResponseBody
-    public ResponseEntity<WDeployment> getDesplegament(@PathVariable("deploymentId") String deploymentId) {
+    public ResponseEntity<WDeployment> getDesplegament(@PathVariable("deploymentId") String deploymentId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.getDesplegament(deploymentId), HttpStatus.OK);
     }
 
     @RequestMapping(value="/desplegaments/{deploymentId}", method = RequestMethod.DELETE)
 	@ResponseBody
-    public ResponseEntity<Void> esborrarDesplegament(@PathVariable("deploymentId") String deploymentId) {
+    public ResponseEntity<Void> esborrarDesplegament(@PathVariable("deploymentId") String deploymentId) throws HeliumJbpmException {
         workflowEngineApi.esborrarDesplegament(deploymentId);
         return new ResponseEntity(HttpStatus.OK);
     }
 
     @RequestMapping(value="/desplegaments/{deploymentId}/resourceNames", method = RequestMethod.GET)
 	@ResponseBody
-    public ResponseEntity<Set<String>> getResourceNames(@PathVariable("deploymentId") String deploymentId) {
+    public ResponseEntity<Set<String>> getResourceNames(@PathVariable("deploymentId") String deploymentId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.getResourceNames(deploymentId), HttpStatus.OK);
     }
 
@@ -113,7 +114,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<byte[]> getResourceBytes(
             @PathVariable("deploymentId") String deploymentId,
-            @PathVariable("resourceName") String resourceName) {
+            @PathVariable("resourceName") String resourceName) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.getResourceBytes(deploymentId, resourceName), HttpStatus.OK);
     }
 
@@ -124,7 +125,7 @@ public class WorkflowEngineController {
     public ResponseEntity<Void> updateDeploymentActions(
             @PathVariable("deploymentId") String deploymentId,
 //            @RequestPart("handlers") List<MultipartFile> handlers,
-            @RequestPart(value = "deploymentFile", required = false) MultipartFile deploymentFile) throws Exception {
+            @RequestPart(value = "deploymentFile", required = false) MultipartFile deploymentFile) throws HeliumJbpmException, Exception {
 
 //        Map<String, byte[]> handlerBytes = new HashMap<String, byte[]>();
 //        if (handlers != null && !handlers.isEmpty()) {
@@ -141,7 +142,7 @@ public class WorkflowEngineController {
     @ResponseBody
     public ResponseEntity<Void> propagateDeploymentActions(
             @PathVariable("deploymentOrigenId") String deploymentOrigenId,
-            @PathVariable("deploymentDestiId") String deploymentDestiId) {
+            @PathVariable("deploymentDestiId") String deploymentDestiId) throws HeliumJbpmException {
 
         workflowEngineApi.propagateDeploymentActions(
                 deploymentOrigenId,
@@ -156,7 +157,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<WProcessDefinition> getProcessDefinition(
 //            @RequestParam(value = "deploymentId", required = false) String deploymentId,
-            @PathVariable("processDefinitionId") String processDefinitionId) {
+            @PathVariable("processDefinitionId") String processDefinitionId) throws HeliumJbpmException {
         WProcessDefinition wProcessDefinition = workflowEngineApi.getProcessDefinition(processDefinitionId);
         return new ResponseEntity(wProcessDefinition, HttpStatus.OK);
     }
@@ -165,7 +166,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<List<WProcessDefinition>> getSubProcessDefinitions(
 //            @RequestParam("deploymentId") String deploymentId,
-            @PathVariable("processDefinitionId") String processDefinitionId) {
+            @PathVariable("processDefinitionId") String processDefinitionId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.getSubProcessDefinitions(processDefinitionId), HttpStatus.OK);
     }
 
@@ -173,7 +174,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<List<String>> getTaskNamesFromDeployedProcessDefinition(
             @RequestParam("deploymentId") String deploymentId,
-            @PathVariable("processDefinitionId") String processDefinitionId) {
+            @PathVariable("processDefinitionId") String processDefinitionId) throws HeliumJbpmException {
 //        WDeployment dpd = workflowEngineApi.getDesplegament(deploymentId);
         return new ResponseEntity(workflowEngineApi.getTaskNamesFromDeployedProcessDefinition(deploymentId, processDefinitionId), HttpStatus.OK);
     }
@@ -181,14 +182,14 @@ public class WorkflowEngineController {
     @RequestMapping(value="/processDefinitions/{processDefinitionId}/startTaskName", method = RequestMethod.GET)
 	@ResponseBody
     public ResponseEntity<String> getStartTaskName(
-            @PathVariable("processDefinitionId") String processDefinitionId) {
+            @PathVariable("processDefinitionId") String processDefinitionId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.getStartTaskName(processDefinitionId), HttpStatus.OK);
     }
 
     @RequestMapping(value="/processDefinitions/byProcessInstance/{processInstanceId}", method = RequestMethod.GET)
 	@ResponseBody
     public ResponseEntity<WProcessDefinition> findProcessDefinitionWithProcessInstanceId(
-            @PathVariable("processInstanceId") String processInstanceId) {
+            @PathVariable("processInstanceId") String processInstanceId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.findProcessDefinitionWithProcessInstanceId(processInstanceId), HttpStatus.OK);
     }
 
@@ -196,7 +197,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<Void> updateSubprocessDefinition(
             @RequestParam("processDefinitionId1") String processDefinitionId1,
-            @RequestParam("processDefinitionId2") String processDefinitionId2) {
+            @RequestParam("processDefinitionId2") String processDefinitionId2) throws HeliumJbpmException {
 
         WProcessDefinition pd1 = workflowEngineApi.getProcessDefinition(processDefinitionId1);
         WProcessDefinition pd2 = workflowEngineApi.getProcessDefinition(processDefinitionId2);
@@ -216,7 +217,7 @@ public class WorkflowEngineController {
     @RequestMapping(value="/processInstances/byProcessDefinition/{processDefinitionId}", method = RequestMethod.GET)
 	@ResponseBody
     public ResponseEntity<List<WProcessInstance>> findProcessInstancesWithProcessDefinitionId(
-            @PathVariable("processDefinitionId") String processDefinitionId) {
+            @PathVariable("processDefinitionId") String processDefinitionId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.findProcessInstancesWithProcessDefinitionId(processDefinitionId), HttpStatus.OK);
     }
 
@@ -224,7 +225,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<List<WProcessInstance>> findProcessInstancesWithProcessDefinitionNameAndEntorn(
             @PathVariable("processName") String processName,
-            @RequestParam(value = "entornId", required = false) String entornId) {
+            @RequestParam(value = "entornId", required = false) String entornId) throws HeliumJbpmException {
         if (entornId != null) {
             return new ResponseEntity(workflowEngineApi.findProcessInstancesWithProcessDefinitionNameAndEntorn(processName, entornId), HttpStatus.OK);
         } else {
@@ -235,21 +236,21 @@ public class WorkflowEngineController {
     @RequestMapping(value="/processInstances/{rootProcessInstanceId}/tree", method = RequestMethod.GET)
 	@ResponseBody
     public ResponseEntity<List<WProcessInstance>> getProcessInstanceTree(
-            @PathVariable("rootProcessInstanceId") String rootProcessInstanceId) {
+            @PathVariable("rootProcessInstanceId") String rootProcessInstanceId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.getProcessInstanceTree(rootProcessInstanceId), HttpStatus.OK);
     }
 
     @RequestMapping(value="/processInstances/{processInstanceId}", method = RequestMethod.GET)
 	@ResponseBody
     public ResponseEntity<WProcessInstance> getProcessInstance(
-            @PathVariable("processInstanceId") String processInstanceId) {
+            @PathVariable("processInstanceId") String processInstanceId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.getProcessInstance(processInstanceId), HttpStatus.OK);
     }
 
     @RequestMapping(value="/processInstances/{processInstanceId}/root", method = RequestMethod.GET)
 	@ResponseBody
     public ResponseEntity<WProcessInstance> getRootProcessInstance(
-            @PathVariable("processInstanceId") String processInstanceId) {
+            @PathVariable("processInstanceId") String processInstanceId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.getRootProcessInstance(processInstanceId), HttpStatus.OK);
     }
 
@@ -274,7 +275,7 @@ public class WorkflowEngineController {
     @RequestMapping(value="/processInstances/start", method = RequestMethod.POST)
 	@ResponseBody
     public ResponseEntity<WProcessInstance> startProcessInstanceById(
-            @RequestBody ProcessStartData processStartData) {
+            @RequestBody ProcessStartData processStartData) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.startProcessInstanceById(
                 processStartData.getActorId(),
                 processStartData.getProcessDefinitionId(),
@@ -285,7 +286,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<Void> signalProcessInstance(
             @PathVariable("processInstanceId") String processInstanceId,
-            @RequestBody OptionalString transitionName) {
+            @RequestBody OptionalString transitionName) throws HeliumJbpmException {
         workflowEngineApi.signalProcessInstance(processInstanceId, transitionName != null ? transitionName.getValue() : null);
         return new ResponseEntity(HttpStatus.OK);
     }
@@ -293,7 +294,7 @@ public class WorkflowEngineController {
     @RequestMapping(value="/processInstances/{processInstanceId}", method = RequestMethod.DELETE)
 	@ResponseBody
     public ResponseEntity<Void> deleteProcessInstance(
-            @PathVariable("processInstanceId") String processInstanceId) {
+            @PathVariable("processInstanceId") String processInstanceId) throws HeliumJbpmException {
         workflowEngineApi.deleteProcessInstance(processInstanceId);
         return new ResponseEntity(HttpStatus.OK);
     }
@@ -301,7 +302,7 @@ public class WorkflowEngineController {
     @RequestMapping(value="/processInstances/suspend", method = RequestMethod.POST)
 	@ResponseBody
     public ResponseEntity<Void> suspendProcessInstances(
-            @RequestBody String[] processInstanceIds) {
+            @RequestBody String[] processInstanceIds) throws HeliumJbpmException {
         workflowEngineApi.suspendProcessInstances(processInstanceIds);
         return new ResponseEntity(HttpStatus.OK);
     }
@@ -309,7 +310,7 @@ public class WorkflowEngineController {
     @RequestMapping(value="/processInstances/resume", method = RequestMethod.POST)
 	@ResponseBody
     public ResponseEntity<Void> resumeProcessInstances(
-            @RequestBody String[] processInstanceIds) {
+            @RequestBody String[] processInstanceIds) throws HeliumJbpmException {
         workflowEngineApi.resumeProcessInstances(processInstanceIds);
         return new ResponseEntity(HttpStatus.OK);
     }
@@ -318,7 +319,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<Void> changeProcessInstanceVersion(
             @PathVariable("processInstanceId") String processInstanceId,
-            @RequestBody Integer newVersion) {
+            @RequestBody Integer newVersion) throws HeliumJbpmException {
         workflowEngineApi.changeProcessInstanceVersion(processInstanceId, newVersion);
         return new ResponseEntity(HttpStatus.OK);
     }
@@ -374,21 +375,21 @@ public class WorkflowEngineController {
     @RequestMapping(value="/taskInstances/{taskId}", method = RequestMethod.GET)
 	@ResponseBody
     public ResponseEntity<WTaskInstance> getTaskById(
-            @PathVariable("taskId") String taskId) {
+            @PathVariable("taskId") String taskId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.getTaskById(taskId), HttpStatus.OK);
     }
 
     @RequestMapping(value="/taskInstances/byProcessInstance/{processInstanceId}", method = RequestMethod.GET)
 	@ResponseBody
     public ResponseEntity<List<WTaskInstance>> findTaskInstancesByProcessInstanceId(
-            @PathVariable("processInstanceId") String processInstanceId) {
+            @PathVariable("processInstanceId") String processInstanceId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.findTaskInstancesByProcessInstanceId(processInstanceId), HttpStatus.OK);
     }
 
     @RequestMapping(value="/taskInstances/byExecution/{executionTokenId}/id", method = RequestMethod.GET)
 	@ResponseBody
     public ResponseEntity<String> getTaskInstanceIdByExecutionTokenId(
-            @PathVariable("executionTokenId") String executionTokenId) {
+            @PathVariable("executionTokenId") String executionTokenId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.getTaskInstanceIdByExecutionTokenId(executionTokenId), HttpStatus.OK);
     }
 
@@ -471,21 +472,21 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<WTaskInstance> takeTaskInstance(
             @PathVariable("taskId") String taskId,
-            @PathVariable("actorId") String actorId) {
+            @PathVariable("actorId") String actorId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.takeTaskInstance(taskId, actorId), HttpStatus.OK);
     }
 
     @RequestMapping(value="/taskInstances/{taskId}/release", method = RequestMethod.POST)
 	@ResponseBody
     public ResponseEntity<WTaskInstance> releaseTaskInstance(
-            @PathVariable("taskId") String taskId) {
+            @PathVariable("taskId") String taskId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.releaseTaskInstance(taskId), HttpStatus.OK);
     }
 
     @RequestMapping(value="/taskInstances/{taskId}/start", method = RequestMethod.POST)
 	@ResponseBody
     public ResponseEntity<WTaskInstance> startTaskInstance(
-            @PathVariable("taskId") String taskId) {
+            @PathVariable("taskId") String taskId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.startTaskInstance(taskId), HttpStatus.OK);
     }
 
@@ -493,7 +494,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<Void> endTaskInstance(
             @PathVariable("taskId") String taskId,
-            @RequestParam(value = "outcome", required = false) String outcome) {
+            @RequestParam(value = "outcome", required = false) String outcome) throws HeliumJbpmException {
         workflowEngineApi.endTaskInstance(taskId, outcome);
         return new ResponseEntity(HttpStatus.OK);
     }
@@ -501,21 +502,21 @@ public class WorkflowEngineController {
     @RequestMapping(value="/taskInstances/{taskId}/cancel", method = RequestMethod.POST)
 	@ResponseBody
     public ResponseEntity<WTaskInstance> cancelTaskInstance(
-            @PathVariable("taskId") String taskId) {
+            @PathVariable("taskId") String taskId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.cancelTaskInstance(taskId), HttpStatus.OK);
     }
 
     @RequestMapping(value="/taskInstances/{taskId}/suspend", method = RequestMethod.POST)
 	@ResponseBody
     public ResponseEntity<WTaskInstance> suspendTaskInstance(
-            @PathVariable("taskId") String taskId) {
+            @PathVariable("taskId") String taskId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.suspendTaskInstance(taskId), HttpStatus.OK);
     }
 
     @RequestMapping(value="/taskInstances/{taskId}/resume", method = RequestMethod.POST)
 	@ResponseBody
     public ResponseEntity<WTaskInstance> resumeTaskInstance(
-            @PathVariable("taskId") String taskId) {
+            @PathVariable("taskId") String taskId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.resumeTaskInstance(taskId), HttpStatus.OK);
     }
 
@@ -523,7 +524,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<WTaskInstance> reassignTaskInstance(
             @PathVariable("taskId") String taskId,
-            @RequestBody ReassignTaskData reassignTask) {
+            @RequestBody ReassignTaskData reassignTask) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.reassignTaskInstance(
                 taskId,
                 reassignTask.getExpression(),
@@ -534,7 +535,7 @@ public class WorkflowEngineController {
     @ResponseBody
     public ResponseEntity<Void> setTaskInstanceActorId(
             @PathVariable("taskInstanceId") String taskInstanceId,
-            @RequestBody String actorId) {
+            @RequestBody String actorId) throws HeliumJbpmException {
         workflowEngineApi.setTaskInstanceActorId(
                 taskInstanceId,
                 actorId);
@@ -545,7 +546,7 @@ public class WorkflowEngineController {
     @ResponseBody
     public ResponseEntity<Void> setTaskInstancePooledActors(
             @PathVariable("taskInstanceId") String taskInstanceId,
-            @RequestBody String[] pooledActors) {
+            @RequestBody String[] pooledActors) throws HeliumJbpmException {
         workflowEngineApi.setTaskInstancePooledActors(taskInstanceId, pooledActors);
         return new ResponseEntity(HttpStatus.OK);
     }
@@ -554,7 +555,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<Void> updateTaskInstanceInfoCache(
             @PathVariable("taskId") String taskId,
-            @RequestBody InfoCacheData info) {
+            @RequestBody InfoCacheData info) throws HeliumJbpmException {
         workflowEngineApi.updateTaskInstanceInfoCache(taskId, info.getTitol(), info.getInfo());
         return new ResponseEntity(HttpStatus.OK);
     }
@@ -563,14 +564,14 @@ public class WorkflowEngineController {
     @ResponseBody
     public ResponseEntity<List<String>> findStartTaskOutcomes(
             @PathVariable("processDefinitionId") String processDefinitionId,
-            @PathVariable("taskName") String taskName) {
+            @PathVariable("taskName") String taskName) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.findStartTaskOutcomes(processDefinitionId, taskName), HttpStatus.OK);
     }
 
     @RequestMapping(value="/taskInstances/{taskInstanceId}/leavingTransitions", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<String>> findTaskInstanceOutcomes(
-            @PathVariable("taskInstanceId") String taskInstanceId) {
+            @PathVariable("taskInstanceId") String taskInstanceId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.findTaskInstanceOutcomes(taskInstanceId), HttpStatus.OK);
     }
 
@@ -580,7 +581,7 @@ public class WorkflowEngineController {
     @RequestMapping(value="/taskInstances/{taskId}/taskInstanceVariables", method = RequestMethod.GET)
 	@ResponseBody
     public ResponseEntity<List<VariableRest>> getTaskInstanceVariables(
-            @PathVariable("taskId") String taskId) {
+            @PathVariable("taskId") String taskId) throws HeliumJbpmException {
         Map<String, Object> variables = workflowEngineApi.getTaskInstanceVariables(taskId);
         if (variables == null) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -592,7 +593,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<VariableRest> getTaskInstanceVariable(
             @PathVariable("taskId") String taskId,
-            @PathVariable("varName") String varName) {
+            @PathVariable("varName") String varName) throws HeliumJbpmException {
         Object variable = workflowEngineApi.getTaskInstanceVariable(taskId, varName);
         if (variable == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -607,7 +608,7 @@ public class WorkflowEngineController {
     public ResponseEntity<Void> setTaskInstanceVariable(
             @PathVariable("taskId") String taskId,
             @PathVariable("varName") String varName,
-            @RequestBody VariableRest variable) {
+            @RequestBody VariableRest variable) throws HeliumJbpmException {
         workflowEngineApi.setTaskInstanceVariable(
                 taskId,
                 varName,
@@ -619,7 +620,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<Void> setTaskInstanceVariables(
             @PathVariable("taskId") String taskId,
-            @RequestBody UpdateVariablesData variables) {
+            @RequestBody UpdateVariablesData variables) throws HeliumJbpmException {
         workflowEngineApi.setTaskInstanceVariables(
                 taskId,
                 variableRestToObjectMapConvert(variables.getVariables()),
@@ -631,7 +632,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<Void> deleteTaskInstanceVariable(
             @PathVariable("taskId") String taskId,
-            @PathVariable("varName") String varName) {
+            @PathVariable("varName") String varName) throws HeliumJbpmException {
         workflowEngineApi.deleteTaskInstanceVariable(taskId, varName);
         return new ResponseEntity(HttpStatus.OK);
     }
@@ -643,21 +644,21 @@ public class WorkflowEngineController {
     @RequestMapping(value="/executions/{tokenId}", method = RequestMethod.GET)
 	@ResponseBody
     public ResponseEntity<WToken> getTokenById(
-            @PathVariable("tokenId") String tokenId) {
+            @PathVariable("tokenId") String tokenId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.getTokenById(tokenId), HttpStatus.OK);
     }
 
     @RequestMapping(value="/processInstances/{processInstanceId}/executions/active", method = RequestMethod.GET)
 	@ResponseBody
     public ResponseEntity<Map<String, WToken>> getActiveTokens(
-            @PathVariable("processInstanceId") String processInstanceId) {
+            @PathVariable("processInstanceId") String processInstanceId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.getActiveTokens(processInstanceId), HttpStatus.OK);
     }
 
     @RequestMapping(value="/processInstances/{processInstanceId}/executions", method = RequestMethod.GET)
 	@ResponseBody
     public ResponseEntity<Map<String, WToken>> getAllTokens(
-            @PathVariable("processInstanceId") String processInstanceId) {
+            @PathVariable("processInstanceId") String processInstanceId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.getAllTokens(processInstanceId), HttpStatus.OK);
     }
 
@@ -665,7 +666,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<Void> tokenRedirect(
             @PathVariable("tokenId") String tokenId,
-            @RequestBody RedirectTokenData redirectToken) {
+            @RequestBody RedirectTokenData redirectToken) throws HeliumJbpmException {
         workflowEngineApi.tokenRedirect(tokenId,
                 redirectToken.getNodeName(),
                 redirectToken.isCancelTasks(),
@@ -678,7 +679,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<Boolean> tokenActivar(
             @PathVariable("tokenId") String tokenId,
-            @PathVariable("activar") boolean activar) {
+            @PathVariable("activar") boolean activar) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.tokenActivar(tokenId, activar), HttpStatus.OK);
     }
 
@@ -686,7 +687,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<Void> signalToken(
             @PathVariable("tokenId") String tokenId,
-            @RequestBody String transitionName) {
+            @RequestBody String transitionName) throws HeliumJbpmException {
         workflowEngineApi.signalToken(tokenId, transitionName);
         return new ResponseEntity(HttpStatus.OK);
     }
@@ -699,7 +700,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<List<VariableRest>> evaluateScript(
             @PathVariable("processInstanceId") String processInstanceId,
-            @RequestBody ScriptData scriptData) {
+            @RequestBody ScriptData scriptData) throws HeliumJbpmException {
         return new ResponseEntity(objectMapToVariableRestConvert(
                 workflowEngineApi.evaluateScript(
                         processInstanceId,
@@ -711,7 +712,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<Object> evaluateExpression(
             @PathVariable("processInstanceId") String processInstanceId,
-            @RequestBody ExpressionData expressionData) {
+            @RequestBody ExpressionData expressionData) throws HeliumJbpmException {
         return new ResponseEntity(
                 workflowEngineApi.evaluateExpression(
                         expressionData.getTaskInstanceInstanceId(),
@@ -739,7 +740,7 @@ public class WorkflowEngineController {
     @RequestMapping(value="/processDefinitions/{jbpmId}/actions", method = RequestMethod.GET)
 	@ResponseBody
     public ResponseEntity<List<String>> listActions(
-            @PathVariable("jbpmId") String jbpmId) {
+            @PathVariable("jbpmId") String jbpmId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.listActions(jbpmId), HttpStatus.OK);
     }
 
@@ -748,7 +749,7 @@ public class WorkflowEngineController {
     public ResponseEntity<Void> executeActionInstanciaProces(
             @PathVariable("processInstanceId") String processInstanceId,
             @PathVariable("actionName") String actionName,
-            @RequestParam(value = "processDefinitionPareId", required = false) String processDefinitionPareId) {
+            @RequestParam(value = "processDefinitionPareId", required = false) String processDefinitionPareId) throws HeliumJbpmException {
         workflowEngineApi.executeActionInstanciaProces(
                 processInstanceId,
                 actionName,
@@ -761,7 +762,7 @@ public class WorkflowEngineController {
     public ResponseEntity<Void> executeActionInstanciaTasca(
             @PathVariable("taskInstanceId") String taskInstanceId,
             @PathVariable("actionName") String actionName,
-            @RequestParam(value = "processDefinitionPareId", required = false) String processDefinitionPareId) {
+            @RequestParam(value = "processDefinitionPareId", required = false) String processDefinitionPareId) throws HeliumJbpmException {
         workflowEngineApi.executeActionInstanciaTasca(
                 taskInstanceId,
                 actionName,
@@ -777,7 +778,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<Void> suspendTimer(
             @PathVariable("timerId") String timerId,
-            @RequestBody Date dueDate) {
+            @RequestBody Date dueDate) throws HeliumJbpmException {
         workflowEngineApi.suspendTimer(timerId, dueDate);
         return new ResponseEntity(HttpStatus.OK);
     }
@@ -786,7 +787,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<Void> resumeTimer(
             @PathVariable("timerId") String timerId,
-            @RequestBody Date dueDate) {
+            @RequestBody Date dueDate) throws HeliumJbpmException {
         workflowEngineApi.resumeTimer(timerId, dueDate);
         return new ResponseEntity(HttpStatus.OK);
     }
@@ -797,14 +798,14 @@ public class WorkflowEngineController {
     @RequestMapping(value = "/arees/byFiltre/{filtre}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<String>> findAreesByFiltre(
-            @PathVariable("filtre") String filtre) {
+            @PathVariable("filtre") String filtre) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.findAreesByFiltre(filtre), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/arees/{personaCodi}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<String>> findAreesByPersona(
-            @PathVariable("personaCodi") String personaCodi) {
+            @PathVariable("personaCodi") String personaCodi) throws HeliumJbpmException {
         return new ResponseEntity(
                 workflowEngineApi.findAreesByPersona(personaCodi),
                 HttpStatus.OK);
@@ -813,7 +814,7 @@ public class WorkflowEngineController {
     @RequestMapping(value = "/rols/{personaCodi}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<String>> findRolsByPersona(
-            @PathVariable("personaCodi") String personaCodi) {
+            @PathVariable("personaCodi") String personaCodi) throws HeliumJbpmException {
         return new ResponseEntity(
                 workflowEngineApi.findRolsByPersona(personaCodi),
                 HttpStatus.OK);
@@ -822,7 +823,7 @@ public class WorkflowEngineController {
     @RequestMapping(value = "/carrecs/byFiltre/{filtre}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<String[]>> findCarrecsByFiltre(
-            @PathVariable("filtre") String filtre) {
+            @PathVariable("filtre") String filtre) throws HeliumJbpmException {
         return new ResponseEntity(
                 workflowEngineApi.findCarrecsByFiltre(filtre),
                 HttpStatus.OK);
@@ -831,7 +832,7 @@ public class WorkflowEngineController {
     @ResponseBody
     public ResponseEntity<List<String>> findPersonesByGrupAndCarrec(
             @PathVariable("grupCodi") String grupCodi,
-            @PathVariable("carrecCodi") String carrecCodi) {
+            @PathVariable("carrecCodi") String carrecCodi) throws HeliumJbpmException {
         return new ResponseEntity(
                 workflowEngineApi.findPersonesByGrupAndCarrec(grupCodi, carrecCodi),
                 HttpStatus.OK);
@@ -840,7 +841,7 @@ public class WorkflowEngineController {
     @ResponseBody
     public ResponseEntity<List<String>> findCarrecsByPersonaAndGrup(
             @PathVariable("personaCodi") String personaCodi,
-            @PathVariable("grupCodi") String grupCodi) {
+            @PathVariable("grupCodi") String grupCodi) throws HeliumJbpmException {
         return new ResponseEntity(
                 workflowEngineApi.findCarrecsByPersonaAndGrup(personaCodi, grupCodi),
                 HttpStatus.OK);
@@ -848,7 +849,7 @@ public class WorkflowEngineController {
     @RequestMapping(value = "/persones/byCarrec/{carrecCodi}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<String>> findPersonesByCarrec(
-            @PathVariable("carrecCodi") String carrecCodi) {
+            @PathVariable("carrecCodi") String carrecCodi) throws HeliumJbpmException {
         return new ResponseEntity(
                 workflowEngineApi.findPersonesByCarrec(carrecCodi),
                 HttpStatus.OK);
@@ -856,7 +857,7 @@ public class WorkflowEngineController {
     @RequestMapping(value = "/persones/byGrup/{grupCodi}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<List<String>> findPersonesByGrup(
-            @PathVariable("grupCodi") String grupCodi) {
+            @PathVariable("grupCodi") String grupCodi) throws HeliumJbpmException {
         return new ResponseEntity(
                 workflowEngineApi.findPersonesByGrup(grupCodi),
                 HttpStatus.OK);
@@ -872,14 +873,14 @@ public class WorkflowEngineController {
     @RequestMapping(value="/executions/{tokenId}/arrivingNodes", method = RequestMethod.GET)
 	@ResponseBody
     public ResponseEntity<List<String>> findArrivingNodeNames(
-            @PathVariable("tokenId") String tokenId) {
+            @PathVariable("tokenId") String tokenId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.findArrivingNodeNames(tokenId), HttpStatus.OK);
     }
 
     @RequestMapping(value="/expedients/byProcessInstance/{processInstanceId}", method = RequestMethod.GET)
 	@ResponseBody
     public ResponseEntity<ExpedientDto> expedientFindByProcessInstanceId(
-            @PathVariable("processInstanceId") String processInstanceId) {
+            @PathVariable("processInstanceId") String processInstanceId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.expedientFindByProcessInstanceId(processInstanceId), HttpStatus.OK);
     }
 
@@ -910,7 +911,7 @@ public class WorkflowEngineController {
             @RequestParam(value = "nomesTasquesGrup", required = false) boolean nomesTasquesGrup,
             @RequestParam(value = "nomesTasquesMeves", required = false) boolean nomesTasquesMeves,
             @RequestParam(value = "paginacioParams") PaginacioParamsDto paginacioParams,
-            @RequestParam(value = "nomesCount", required = false) boolean nomesCount) {
+            @RequestParam(value = "nomesCount", required = false) boolean nomesCount) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.expedientFindByFiltre(
                 entornId,
                 actorId,
@@ -942,7 +943,7 @@ public class WorkflowEngineController {
     @RequestMapping(value="/processInstances/{processInstanceId}/desfinalitzar", method = RequestMethod.POST)
 	@ResponseBody
     public ResponseEntity<Void> desfinalitzarExpedient(
-            @PathVariable("processInstanceId") String processInstanceId) {
+            @PathVariable("processInstanceId") String processInstanceId) throws HeliumJbpmException {
         workflowEngineApi.desfinalitzarExpedient(processInstanceId);
         return new ResponseEntity(HttpStatus.OK);
     }
@@ -950,7 +951,7 @@ public class WorkflowEngineController {
     @RequestMapping(value="/processInstances/finalitzar", method = RequestMethod.POST)
 	@ResponseBody
     public ResponseEntity<Void> finalitzarExpedient(
-            @RequestBody ProcessEnd processEnd) {
+            @RequestBody ProcessEnd processEnd) throws HeliumJbpmException {
         workflowEngineApi.finalitzarExpedient(
                 processEnd.getProcessInstanceIds(),
                 processEnd.getDataFinalitzacio());
@@ -961,7 +962,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<Void> marcarFinalitzar(
             @PathVariable("taskId") String taskId,
-            MarcarFinalitzar marcarFinalitzar) {
+            MarcarFinalitzar marcarFinalitzar) throws HeliumJbpmException {
         workflowEngineApi.marcarFinalitzar(
                 taskId,
                 marcarFinalitzar.getMarcadaFinalitzar(),
@@ -974,7 +975,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<Void> marcarIniciFinalitzacioSegonPla(
             @PathVariable("taskId") String taskId,
-            @RequestBody Date iniciFinalitzacio) {
+            @RequestBody Date iniciFinalitzacio) throws HeliumJbpmException {
         workflowEngineApi.marcarIniciFinalitzacioSegonPla(taskId, iniciFinalitzacio);
         return new ResponseEntity(HttpStatus.OK);
     }
@@ -983,14 +984,14 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<Void> guardarErrorFinalitzacio(
             @PathVariable("taskId") String taskId,
-            @RequestBody String errorFinalitzacio) {
+            @RequestBody String errorFinalitzacio) throws HeliumJbpmException {
         workflowEngineApi.guardarErrorFinalitzacio(taskId, errorFinalitzacio);
         return new ResponseEntity(HttpStatus.OK);
     }
 
     @RequestMapping(value="/taskInstances/bySegonPlaPendents", method = RequestMethod.GET)
 	@ResponseBody
-    public ResponseEntity<List<TascaSegonPla>> getTasquesSegonPlaPendents() {
+    public ResponseEntity<List<TascaSegonPla>> getTasquesSegonPlaPendents() throws HeliumJbpmException {
         List<Object[]> tasques = workflowEngineApi.getTasquesSegonPlaPendents();
         List<TascaSegonPla> tasquesSegonPla = new ArrayList<TascaSegonPla>();
         if (tasques != null) {
@@ -1008,14 +1009,14 @@ public class WorkflowEngineController {
     @RequestMapping(value="/processDefinitions/byEntorn/{entornId}/noUtilitzades", method = RequestMethod.GET)
 	@ResponseBody
     public ResponseEntity<List<String>> findDefinicionsProcesIdNoUtilitzadesByEntorn(
-            @PathVariable("entornId") Long entornId) {
+            @PathVariable("entornId") Long entornId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.findDefinicionsProcesIdNoUtilitzadesByEntorn(entornId), HttpStatus.OK);
     }
 
     @RequestMapping(value="/processDefinitions/byExpedientTipus/{expedientTipusId}/noUtilitzades", method = RequestMethod.GET)
 	@ResponseBody
     public ResponseEntity<List<String>> findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(
-            @PathVariable("expedientTipusId") Long expedientTipusId) {
+            @PathVariable("expedientTipusId") Long expedientTipusId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(expedientTipusId), HttpStatus.OK);
     }
 
@@ -1023,7 +1024,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<List<ExpedientDto>> findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
             @PathVariable("expedientTipusId") Long expedientTipusId,
-            @PathVariable("processDefinitionId") Long processDefinitionId) {
+            @PathVariable("processDefinitionId") Long processDefinitionId) throws HeliumJbpmException {
         return new ResponseEntity(workflowEngineApi.findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(expedientTipusId, processDefinitionId), HttpStatus.OK);
     }
 
@@ -1031,7 +1032,7 @@ public class WorkflowEngineController {
 	@ResponseBody
     public ResponseEntity<Void> retrocedirAccio(
             @PathVariable("processInstanceId") String processInstanceId,
-            @RequestBody RetrocedirAccio retrocedirAccio) {
+            @RequestBody RetrocedirAccio retrocedirAccio) throws HeliumJbpmException {
         workflowEngineApi.retrocedirAccio(
                 processInstanceId,
                 retrocedirAccio.getActionName(),
@@ -1043,7 +1044,7 @@ public class WorkflowEngineController {
     @RequestMapping(value="/processDefinitions/parse", method = RequestMethod.POST)
 	@ResponseBody
     public ResponseEntity<WProcessDefinition> parse(
-            @RequestPart("zipFile") MultipartFile zipFile) throws Exception {
+            @RequestPart("zipFile") MultipartFile zipFile)  throws HeliumJbpmException, Exception {
         return new ResponseEntity(workflowEngineApi.parse(new ZipInputStream(zipFile.getInputStream())), HttpStatus.OK);
     }
 

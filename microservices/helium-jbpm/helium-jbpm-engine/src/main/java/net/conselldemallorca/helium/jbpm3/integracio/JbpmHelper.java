@@ -89,7 +89,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	public WDeployment desplegar(
 			String nomArxiu,
-			byte[] contingut) {
+			byte[] contingut) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM desplegar", "jbpmDao");
 		JbpmDeployment resposta = null;
 		DeployProcessCommand command;
@@ -124,14 +124,14 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@Override
-	public WDeployment getDesplegament(String processDefinitionId) {
+	public WDeployment getDesplegament(String processDefinitionId) throws HeliumJbpmException {
 		ProcessDefinition processDefinition = getDefinicioProces(processDefinitionId);
 		if (processDefinition != null)
 			return new JbpmDeployment(processDefinition);
 		return null;
 	}
 
-	public void esborrarDesplegament(String jbpmId) {
+	public void esborrarDesplegament(String jbpmId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM esborrarDesplegament", "jbpmDao");
 		DeleteProcessDefinitionCommand command = new DeleteProcessDefinitionCommand();
 		command.setId(Long.parseLong(jbpmId));
@@ -140,7 +140,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Set<String> getResourceNames(String jbpmId) {
+	public Set<String> getResourceNames(String jbpmId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM getResourceNames", "jbpmDao");
 		Set<String> resources = null;
 		final long pdid = Long.parseLong(jbpmId);
@@ -160,7 +160,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 
-	public byte[] getResourceBytes(String jbpmId, String resourceName) {
+	public byte[] getResourceBytes(String jbpmId, String resourceName) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM getResourceBytes", "jbpmDao");
 		final long pdid = Long.parseLong(jbpmId);
 		GetProcessDefinitionByIdCommand command = new GetProcessDefinitionByIdCommand(pdid);
@@ -178,7 +178,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	@Override
 	public void updateDeploymentActions (
 			Long jbpmId,
-			byte[] deploymentContent) throws Exception {
+			byte[] deploymentContent) throws HeliumJbpmException, Exception {
 		ProcessDefinition processDefinition = null;
 		try {
 			processDefinition = ProcessDefinition.parseParZipInputStream(
@@ -202,7 +202,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@Override
-	public void propagateDeploymentActions(String deploymentOrigenId, String deploymentDestiId) {
+	public void propagateDeploymentActions(String deploymentOrigenId, String deploymentDestiId) throws HeliumJbpmException {
 
 		ProcessDefinition processDefinitionOrigen = getDefinicioProces(deploymentOrigenId);
 		ProcessDefinition processDefinitionDesti = getDefinicioProces(deploymentDestiId);
@@ -225,7 +225,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	// Consulta de Definicions de Procés
 	////////////////////////////////////////////////////////////////////////////////
 
-	public WProcessDefinition getProcessDefinition(String processDefinitionId) {
+	public WProcessDefinition getProcessDefinition(String processDefinitionId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM getProcessDefinition", "jbpmDao");
 		ProcessDefinition processDefinition = getDefinicioProces(processDefinitionId);
 		if (processDefinition != null)
@@ -235,7 +235,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<WProcessDefinition> getSubProcessDefinitions(String processDefinitionId) {
+	public List<WProcessDefinition> getSubProcessDefinitions(String processDefinitionId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM getSubProcessDefinitions", "jbpmDao");
 		List<WProcessDefinition> resposta = new ArrayList<WProcessDefinition>();
 		final long pdid = Long.parseLong(processDefinitionId);
@@ -249,7 +249,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 
 	@SuppressWarnings("unchecked")
-	public List<String> getTaskNamesFromDeployedProcessDefinition(String deploymentId, String processDefinitionId) {
+	public List<String> getTaskNamesFromDeployedProcessDefinition(String deploymentId, String processDefinitionId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM getTaskNamesFromDeployedProcessDefinition", "jbpmDao");
 		ProcessDefinition pd = getDefinicioProces(processDefinitionId);
 		List<String> taskNames = new ArrayList<String>();
@@ -267,7 +267,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		return taskNames;
 	}
 
-	public String getStartTaskName(String jbpmId) {
+	public String getStartTaskName(String jbpmId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM getStartTaskName", "jbpmDao");
 		String resposta = null;
 		final long pdid = Long.parseLong(jbpmId);
@@ -284,7 +284,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	// Definicions de procés
 
-	public JbpmProcessDefinition findProcessDefinitionWithProcessInstanceId(String processInstanceId) {
+	public JbpmProcessDefinition findProcessDefinitionWithProcessInstanceId(String processInstanceId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM findProcessDefinitionWithProcessInstanceId", "jbpmDao");
 		JbpmProcessDefinition resultat = null;
 		final long id = Long.parseLong(processInstanceId);
@@ -304,7 +304,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	 * @param pd2
 	 */
 	@Override
-	public void updateSubprocessDefinition(String pd1, String pd2) {
+	public void updateSubprocessDefinition(String pd1, String pd2) throws HeliumJbpmException {
 
 		GetProcessDefinitionByIdCommand command1 = new GetProcessDefinitionByIdCommand(Long.parseLong(pd1));
 		ProcessDefinition processDefinition1 = (ProcessDefinition)commandService.execute(command1);
@@ -329,7 +329,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionId(String processDefinitionId) {
+	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionId(String processDefinitionId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM findProcessInstancesWithProcessDefinitionId", "jbpmDao");
 		List<WProcessInstance> resultat = new ArrayList<WProcessInstance>();
 		final long id = Long.parseLong(processDefinitionId);
@@ -344,7 +344,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionName(String processName) {
+	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionName(String processName) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM findProcessInstancesWithProcessDefinitionName", "jbpmDao");
 		List<WProcessInstance> resultat = new ArrayList<WProcessInstance>();
 		GetProcessInstancesCommand command = new GetProcessInstancesCommand();
@@ -358,7 +358,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(String processName, String entornId) {
+	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(String processName, String entornId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM findProcessInstancesWithProcessDefinitionNameAndEntorn", "jbpmDao");
 		List<WProcessInstance> resultat = new ArrayList<WProcessInstance>();
 		GetProcessInstancesEntornCommand command = new GetProcessInstancesEntornCommand();
@@ -373,7 +373,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	@SuppressWarnings("unchecked")
 	public List<WProcessInstance> getProcessInstanceTree(
-			String rootProcessInstanceId) {
+			String rootProcessInstanceId) throws HeliumJbpmException {
 
 		//adminService.mesuraIniciar("jBPM getProcessInstanceTree", "jbpmDao");
 		List<WProcessInstance> resposta = new ArrayList<WProcessInstance>();
@@ -387,7 +387,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@Override
-	public WProcessInstance getProcessInstance(String processInstanceId) {
+	public WProcessInstance getProcessInstance(String processInstanceId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM getProcessInstance", "jbpmDao");
 		WProcessInstance resposta = null;
 		final long piid = Long.parseLong(processInstanceId);
@@ -399,7 +399,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	@Override
 	public WProcessInstance getRootProcessInstance(
-			String processInstanceId) {
+			String processInstanceId) throws HeliumJbpmException {
 		GetProcessInstanceCommand command = new GetProcessInstanceCommand(
 				Long.parseLong(processInstanceId));
 		ProcessInstance processInstance = (ProcessInstance)commandService.execute(command);
@@ -433,7 +433,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 												  List<String> processInstanceIds,
 												  boolean nomesMeves,
 												  boolean nomesTasquesPersonals,
-												  boolean nomesTasquesGrup) {
+												  boolean nomesTasquesGrup) throws HeliumJbpmException {
 
 		boolean nomesAmbPendents = true; // Mostrar sólo las pendientes
 		boolean personals = nomesTasquesPersonals && !nomesTasquesGrup;
@@ -471,7 +471,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	public WProcessInstance startProcessInstanceById(
 			String actorId,
 			String processDefinitionId,
-			Map<String, Object> variables) {
+			Map<String, Object> variables) throws HeliumJbpmException {
 //			boolean ambRetroaccio) {
 		//adminService.mesuraIniciar("jBPM startProcessInstanceById", "jbpmDao");
 		StartProcessInstanceCommand command = new StartProcessInstanceCommand(); //ambRetroaccio);
@@ -488,7 +488,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	@Override
 	public void signalProcessInstance(
 			String processInstanceId,
-			String transitionName) {
+			String transitionName) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM signalProcessInstance", "jbpmDao");
 		final long id = Long.parseLong(processInstanceId);
 		SignalProcessInstanceCommand command = new SignalProcessInstanceCommand(id);
@@ -503,7 +503,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	@Override
 	public void deleteProcessInstance(
-			String processInstanceId) {
+			String processInstanceId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM deleteProcessInstance", "jbpmDao");
 		final long id = Long.parseLong(processInstanceId);
 		DeleteProcessInstanceCommand command = new DeleteProcessInstanceCommand(id);
@@ -518,7 +518,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	@Override
 	public void suspendProcessInstances(
-			String[] processInstanceIds) {
+			String[] processInstanceIds) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM suspendProcessInstances", "jbpmDao");
 		long[] ids = new long[processInstanceIds.length];
 		for (int i = 0; i < processInstanceIds.length; i++)
@@ -533,7 +533,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	@Override
 	public void resumeProcessInstances(
-			String[] processInstanceIds) {
+			String[] processInstanceIds) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM resumeProcessInstances", "jbpmDao");
 		long[] ids = new long[processInstanceIds.length];
 		for (int i = 0; i < processInstanceIds.length; i++)
@@ -549,7 +549,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	@Override
 	public void changeProcessInstanceVersion(
 			String processInstanceId,
-			int newVersion) {
+			int newVersion) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM changeProcessInstanceVersion", "jbpmDao");
 		final long id = Long.parseLong(processInstanceId);
 		ChangeProcessInstanceVersionCommand command = new ChangeProcessInstanceVersionCommand(
@@ -572,7 +572,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public Map<String, Object> getProcessInstanceVariables(String processInstanceId) {
+	public Map<String, Object> getProcessInstanceVariables(String processInstanceId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM getProcessInstanceVariables", "jbpmDao");
 		Map<String, Object> resultat = null;
 		final long id = Long.parseLong(processInstanceId);
@@ -585,7 +585,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@Override
-	public Object getProcessInstanceVariable(String processInstanceId, String varName) {
+	public Object getProcessInstanceVariable(String processInstanceId, String varName) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM getProcessInstanceVariable", "jbpmDao");
 		Object resultat = null;
 		final long id = Long.parseLong(processInstanceId);
@@ -604,7 +604,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	public void setProcessInstanceVariable(
 			String processInstanceId,
 			String varName,
-			Object value) {
+			Object value) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM setProcessInstanceVariable", "jbpmDao");
 		final long id = Long.parseLong(processInstanceId);
 		Map<String, Object> vars = new HashMap<String, Object>();
@@ -618,7 +618,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@Override
-	public void deleteProcessInstanceVariable(String processInstanceId, String varName) {
+	public void deleteProcessInstanceVariable(String processInstanceId, String varName) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM deleteProcessInstanceVariable", "jbpmDao");
 		//setProcessInstanceVariable(processInstanceId, varName, null);
 		final long id = Long.parseLong(processInstanceId);
@@ -636,7 +636,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	////////////////////////////////////////////////////////////////////////////////
 
 	@Override
-	public WTaskInstance getTaskById(String taskId) {
+	public WTaskInstance getTaskById(String taskId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM getTaskById", "jbpmDao");
 		WTaskInstance resposta = null;
 		final long id = Long.parseLong(taskId);
@@ -649,7 +649,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@Override
-	public List<WTaskInstance> findTaskInstancesByProcessInstanceId(String processInstanceId) {
+	public List<WTaskInstance> findTaskInstancesByProcessInstanceId(String processInstanceId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM findTaskInstancesForProcessInstance", "jbpmDao");
 		List<WTaskInstance> resultat = new ArrayList<WTaskInstance>();
 		final long id = Long.parseLong(processInstanceId);
@@ -663,7 +663,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@Override
-	public String getTaskInstanceIdByExecutionTokenId(String tokenId) {
+	public String getTaskInstanceIdByExecutionTokenId(String tokenId) throws HeliumJbpmException {
 		FindTaskInstanceIdForTokenIdCommand command = new FindTaskInstanceIdForTokenIdCommand(Long.parseLong(tokenId));
 		return commandService.execute(command).toString();
 	}
@@ -688,7 +688,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 			boolean mostrarAssignadesGrup,
 			boolean nomesPendents,
 			PaginacioParamsDto paginacioParams,
-			boolean nomesCount) {
+			boolean nomesCount) throws HeliumJbpmException {
 		String ordre = null;
 		boolean asc = true;
 		if (paginacioParams.getOrdres() != null && !paginacioParams.getOrdres().isEmpty()) {
@@ -745,7 +745,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 			PaginacioParamsDto paginacioParams,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
-			boolean nomesAmbPendents) {
+			boolean nomesAmbPendents) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM findListTasks", "jbpmDao");
 		GetRootProcessInstancesForActiveTasksCommand command = new GetRootProcessInstancesForActiveTasksCommand(
 				responsable,
@@ -774,7 +774,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	////////////////////////////////////////////////////////////////////////////////
 
 	@Override
-	public WTaskInstance takeTaskInstance(String taskId, String actorId) {
+	public WTaskInstance takeTaskInstance(String taskId, String actorId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM takeTaskInstance", "jbpmDao");
 		WTaskInstance resposta = null;
 		final long id = Long.parseLong(taskId);
@@ -788,7 +788,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@Override
-	public WTaskInstance releaseTaskInstance(String taskId) {
+	public WTaskInstance releaseTaskInstance(String taskId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM releaseTaskInstance", "jbpmDao");
 		WTaskInstance resposta = null;
 		final long id = Long.parseLong(taskId);
@@ -802,7 +802,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@Override
-	public WTaskInstance startTaskInstance(String taskId) {
+	public WTaskInstance startTaskInstance(String taskId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM startTaskInstance", "jbpmDao");
 		WTaskInstance resposta = null;
 		final long id = Long.parseLong(taskId);
@@ -816,7 +816,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@Override
-	public void endTaskInstance(String taskId, String outcome) {
+	public void endTaskInstance(String taskId, String outcome) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM endTaskInstance", "jbpmDao");
 		final long id = Long.parseLong(taskId);
 		TaskInstanceEndCommand command = new TaskInstanceEndCommand(id, outcome);
@@ -861,7 +861,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 //	}
 
 	@Override
-	public WTaskInstance cancelTaskInstance(String taskId) {
+	public WTaskInstance cancelTaskInstance(String taskId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM cancelTaskInstance", "jbpmDao");
 		WTaskInstance resposta = null;
 		final long id = Long.parseLong(taskId);
@@ -875,7 +875,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@Override
-	public WTaskInstance suspendTaskInstance(String taskId) {
+	public WTaskInstance suspendTaskInstance(String taskId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM suspendTaskInstance", "jbpmDao");
 		WTaskInstance resposta = null;
 		final long id = Long.parseLong(taskId);
@@ -889,7 +889,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@Override
-	public WTaskInstance resumeTaskInstance(String taskId) {
+	public WTaskInstance resumeTaskInstance(String taskId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM resumeTaskInstance", "jbpmDao");
 		WTaskInstance resposta = null;
 		final long id = Long.parseLong(taskId);
@@ -911,7 +911,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 //	}
 
 	@Override
-	public WTaskInstance reassignTaskInstance(String taskId, String expression, Long entornId) {
+	public WTaskInstance reassignTaskInstance(String taskId, String expression, Long entornId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM reassignTaskInstance entorn", "jbpmDao");
 		WTaskInstance resposta = null;
 		final long id = Long.parseLong(taskId);
@@ -927,7 +927,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@Override
-	public void setTaskInstanceActorId(String taskInstanceId, String actorId) {
+	public void setTaskInstanceActorId(String taskInstanceId, String actorId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM setTaskInstanceActorId", "jbpmDao");
 		final long id = Long.parseLong(taskInstanceId);
 		ReassignTaskInstanceCommand command = new ReassignTaskInstanceCommand(id);
@@ -940,7 +940,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@Override
-	public void setTaskInstancePooledActors(String taskInstanceId, String[] pooledActors) {
+	public void setTaskInstancePooledActors(String taskInstanceId, String[] pooledActors) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM setTaskInstancePooledActors", "jbpmDao");
 		final long id = Long.parseLong(taskInstanceId);
 		ReassignTaskInstanceCommand command = new ReassignTaskInstanceCommand(id);
@@ -958,7 +958,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	public void updateTaskInstanceInfoCache(
 			String taskId,
 			String titol,
-			String description) {
+			String description) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM describeTaskInstance", "jbpmDao");
 		final long id = Long.parseLong(taskId);
 		DescribeTaskInstanceCommand command = new DescribeTaskInstanceCommand(
@@ -978,7 +978,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public Map<String, Object> getTaskInstanceVariables(String taskId) {
+	public Map<String, Object> getTaskInstanceVariables(String taskId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM getTaskInstanceVariables", "jbpmDao");
 		Map<String, Object> resultat = null;
 		final long id = Long.parseLong(taskId);
@@ -990,7 +990,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@Override
-	public Object getTaskInstanceVariable(String taskId, String varName) {
+	public Object getTaskInstanceVariable(String taskId, String varName) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM getTaskInstanceVariable", "jbpmDao");
 		Object resultat = null;
 		final long id = Long.parseLong(taskId);
@@ -1002,7 +1002,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@Override
-	public void setTaskInstanceVariable(String taskId, String codi, Object valor) {
+	public void setTaskInstanceVariable(String taskId, String codi, Object valor) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM setTaskInstanceVariable", "jbpmDao");
 		Map<String, Object> vars = new HashMap<String, Object>();
 		vars.put(codi, valor);
@@ -1014,7 +1014,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	public void setTaskInstanceVariables(
 			String taskId,
 			Map<String, Object> variables,
-			boolean deleteFirst) {
+			boolean deleteFirst) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM setTaskInstanceVariables", "jbpmDao");
 		final long id = Long.parseLong(taskId);
 		SaveTaskInstanceVariablesCommand command = new SaveTaskInstanceVariablesCommand(
@@ -1030,7 +1030,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@Override
-	public void deleteTaskInstanceVariable(String taskId, String varName) {
+	public void deleteTaskInstanceVariable(String taskId, String varName) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM deleteTaskInstanceVariable", "jbpmDao");
 		//setTaskInstanceVariable(taskId, varName, null);
 		final long id = Long.parseLong(taskId);
@@ -1050,7 +1050,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	////////////////////////////////////////////////////////////////////////////////
 
 	@Override
-	public WToken getTokenById(String tokenId) {
+	public WToken getTokenById(String tokenId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM getTokenById", "jbpmDao");
 		final long id = Long.parseLong(tokenId);
 		GetTokenByIdCommand command = new GetTokenByIdCommand(id);
@@ -1060,7 +1060,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@Override
-	public Map<String, WToken> getActiveTokens(String processInstanceId) {
+	public Map<String, WToken> getActiveTokens(String processInstanceId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM getActiveTokens", "jbpmDao");
 		Map<String, WToken> resposta = new HashMap<String, WToken>();
 		final long id = Long.parseLong(processInstanceId);
@@ -1077,7 +1077,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		return resposta;
 	}
 
-	private  Map<String, Token> getActiveTokens(Token token){
+	private  Map<String, Token> getActiveTokens(Token token) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM getActiveTokens", "jbpmDao");
 		Map<String, Token> activeTokens = new HashMap<String, Token>();
 		if (token.hasActiveChildren()) {
@@ -1092,7 +1092,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		return activeTokens;
 	}
 
-	public Map<String, WToken> getAllTokens(String processInstanceId) {
+	public Map<String, WToken> getAllTokens(String processInstanceId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM getAllTokens", "jbpmDao");
 		Map<String, WToken> resposta = new HashMap<String, WToken>();
 		final long id = Long.parseLong(processInstanceId);
@@ -1106,7 +1106,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		return resposta;
 	}
 
-	private void getTokenAndChildren(Token root, Map<String,WToken> resposta){
+	private void getTokenAndChildren(Token root, Map<String,WToken> resposta) throws HeliumJbpmException {
 		Map<String, Token> childTokens = root.getChildren();
 		for (String tokenName: childTokens.keySet()) {
 			JbpmToken child = new JbpmToken(childTokens.get(tokenName));
@@ -1124,7 +1124,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 			String nodeName,
 			boolean cancelTasks,
 			boolean enterNodeIfTask,
-			boolean executeNode) {
+			boolean executeNode) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM tokenRedirect", "jbpmDao");
 		TokenRedirectCommand command = new TokenRedirectCommand(Long.parseLong(tokenId), nodeName);
 		command.setCancelTasks(cancelTasks);
@@ -1138,7 +1138,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@Override
-	public boolean tokenActivar(String tokenId, boolean activar) {
+	public boolean tokenActivar(String tokenId, boolean activar) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM tokenActivar", "jbpmDao");
 		try {
 			TokenActivarCommand command = new TokenActivarCommand(Long.parseLong(tokenId), activar);
@@ -1157,7 +1157,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	@Override
 	public void signalToken(
 			String tokenId,
-			String transitionName) {
+			String transitionName) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM signalToken", "jbpmDao");
 		SignalCommand command = new SignalCommand(Long.parseLong(tokenId), transitionName);
 		commandHelper.executeCommandWithAutoSave(
@@ -1175,7 +1175,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	public Map<String, Object> evaluateScript(
 			String processInstanceId,
 			String script,
-			Set<String> outputNames) {
+			Set<String> outputNames) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM evaluateScript", "jbpmDao");
 		Map<String,Object> resultat = null;
 		final long id = Long.parseLong(processInstanceId);
@@ -1198,7 +1198,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 			String taskInstanceInstanceId,
 			String processInstanceId,
 			String expression,
-			Map<String, Object> valors) {
+			Map<String, Object> valors) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM evaluateExpression", "jbpmDao");
 		final long id = Long.parseLong(processInstanceId);
 		EvaluateExpressionCommand command = new EvaluateExpressionCommand(
@@ -1221,7 +1221,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	public Object evaluateExpression(
 			String expression,
 			Class expectedClass,
-			final Map<String, Object> context) {
+			final Map<String, Object> context) throws HeliumJbpmException {
 
 		ExpressionEvaluator evaluator = new ExpressionEvaluatorImpl();
 		Object resultat = evaluator.evaluate(
@@ -1240,7 +1240,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<String> listActions(String jbpmId) {
+	public List<String> listActions(String jbpmId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM listActions", "jbpmDao");
 		final long id = Long.parseLong(jbpmId);
 		List<String> llista = (List<String>)commandService.execute(
@@ -1253,7 +1253,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	public void executeActionInstanciaProces(
 			String processInstanceId,
 			String actionName,
-			String processDefinitionPareId) {
+			String processDefinitionPareId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM executeActionInstanciaProces", "jbpmDao");
 		final long id = Long.parseLong(processInstanceId);
 		ExecuteActionCommand command = new ExecuteActionCommand(
@@ -1271,7 +1271,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	public void executeActionInstanciaTasca(
 			String taskInstanceId,
 			String actionName,
-			String processDefinitionPareId) {
+			String processDefinitionPareId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM executeActionInstanciaTasca", "jbpmDao");
 		final long id = Long.parseLong(taskInstanceId);
 		ExecuteActionCommand command = new ExecuteActionCommand(
@@ -1304,7 +1304,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	@Override
 	public void suspendTimer(
 			String timerId,
-			Date dueDate) {
+			Date dueDate) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM suspendTimer", "jbpmDao");
 		SuspendProcessInstanceTimerCommand command = new SuspendProcessInstanceTimerCommand(Long.parseLong(timerId));
 		command.setDueDate(dueDate);
@@ -1315,7 +1315,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	@Override
 	public void resumeTimer(
 			String timerId,
-			Date dueDate) {
+			Date dueDate) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM resumeTimer", "jbpmDao");
 		ResumeProcessInstanceTimerCommand command = new ResumeProcessInstanceTimerCommand(Long.parseLong(timerId));
 		command.setDueDate(dueDate);
@@ -1325,27 +1325,27 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	// AREES I CARRECS
 	////////////////////////////////////////////////////////////////////////////////
-	public List<String> findAreesByFiltre(String filtre) {
+	public List<String> findAreesByFiltre(String filtre) throws HeliumJbpmException {
 		FindGrupCommand command = new FindGrupCommand(filtre);
 		return (List<String>) commandService.execute(command);
 	}
 
-	public List<String> findAreesByPersona(String personaCodi) {
+	public List<String> findAreesByPersona(String personaCodi) throws HeliumJbpmException {
 		FindAreesCommand command = new FindAreesCommand(personaCodi);
 		return (List<String>) commandService.execute(command);
 	}
 
-	public List<String> findRolsByPersona(String personaCodi) {
+	public List<String> findRolsByPersona(String personaCodi) throws HeliumJbpmException {
 		FindAreesCommand command = new FindAreesCommand(personaCodi, true);
 		return (List<String>) commandService.execute(command);
 	}
 
-	public List<String[]> findCarrecsByFiltre(String filtre) {
+	public List<String[]> findCarrecsByFiltre(String filtre) throws HeliumJbpmException {
 		FindCarrecCommand command = new FindCarrecCommand(FindCarrecCommand.TipusConsulta.FILTRE, filtre);
 		return (List<String[]>) commandService.execute(command);
 	}
 
-	public List<String> findPersonesByGrupAndCarrec(String grupCodi, String carrecCodi) {
+	public List<String> findPersonesByGrupAndCarrec(String grupCodi, String carrecCodi) throws HeliumJbpmException {
 		FindCarrecCommand command = new FindCarrecCommand(
 				FindCarrecCommand.TipusConsulta.PERSONA_AMB_CARREC_I_GRUP,
 				null,
@@ -1354,7 +1354,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		return (List<String>) commandService.execute(command);
 	}
 
-	public List<String> findCarrecsByPersonaAndGrup(String personaCodi, String grupCodi) {
+	public List<String> findCarrecsByPersonaAndGrup(String personaCodi, String grupCodi) throws HeliumJbpmException {
 		FindCarrecCommand command = new FindCarrecCommand(
 				FindCarrecCommand.TipusConsulta.CARREC_PER_PERSONA_I_GRUP,
 				personaCodi,
@@ -1363,7 +1363,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		return (List<String>) commandService.execute(command);
 	}
 
-	public List<String> findPersonesByCarrec(String carrecCodi) {
+	public List<String> findPersonesByCarrec(String carrecCodi) throws HeliumJbpmException {
 		FindCarrecCommand command = new FindCarrecCommand(
 				FindCarrecCommand.TipusConsulta.PERSONA_AMB_CARREC,
 				null,
@@ -1372,7 +1372,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		return (List<String>) commandService.execute(command);
 	}
 
-	public List<String> findPersonesByGrup(String grupCodi) {
+	public List<String> findPersonesByGrup(String grupCodi) throws HeliumJbpmException {
 		FindCarrecCommand command = new FindCarrecCommand(
 				FindCarrecCommand.TipusConsulta.PERSONA_AMB_GRUP,
 				null,
@@ -1385,7 +1385,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	// TRANSITIONS
 	////////////////////////////////////////////////////////////////////////////////
 
-	public List<String> findStartTaskOutcomes(String jbpmId, String taskName) {
+	public List<String> findStartTaskOutcomes(String jbpmId, String taskName) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM findStartTaskOutcomes", "jbpmDao");
 		List<String> resultat = new ArrayList<String>();
 		final long pdid = Long.parseLong(jbpmId);
@@ -1401,7 +1401,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 
-	public List<String> findTaskInstanceOutcomes(String taskInstanceId) {
+	public List<String> findTaskInstanceOutcomes(String taskInstanceId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM findTaskInstanceOutcomes", "jbpmDao");
 		List<String> resultat = new ArrayList<String>();
 		final long id = Long.parseLong(taskInstanceId);
@@ -1420,7 +1420,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<String> findArrivingNodeNames(String tokenId) {
+	public List<String> findArrivingNodeNames(String tokenId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM findArrivingNodeNames", "jbpmDao");
 		final long id = Long.parseLong(tokenId);
 		FindArrivingNodeNamesCommand command = new FindArrivingNodeNamesCommand(id);
@@ -1436,7 +1436,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	// Expedients
 
 	public ExpedientDto expedientFindByProcessInstanceId(
-			String processInstanceId) {
+			String processInstanceId) throws HeliumJbpmException {
 		GetProcessInstanceCommand command = new GetProcessInstanceCommand(
 				Long.parseLong(processInstanceId));
 		ProcessInstance processInstance = (ProcessInstance)commandService.execute(command);
@@ -1476,7 +1476,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 			boolean nomesTasquesGrup,
 			boolean nomesTasquesMeves,
 			PaginacioParamsDto paginacioParams,
-			boolean nomesCount) {
+			boolean nomesCount) throws HeliumJbpmException {
 		String ordre = null;
 		boolean asc = true;
 		if (paginacioParams.getOrdres() != null && !paginacioParams.getOrdres().isEmpty()) {
@@ -1526,7 +1526,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		return (ResultatConsultaPaginada<Long>)commandService.execute(command);
 	}
 
-	public void finalitzarExpedient(String[] processInstanceIds, Date dataFinalitzacio){
+	public void finalitzarExpedient(String[] processInstanceIds, Date dataFinalitzacio) throws HeliumJbpmException {
 		long[] ids = new long[processInstanceIds.length];
 		for (int i = 0; i < processInstanceIds.length; i++)
 			ids[i] = Long.parseLong(processInstanceIds[i]);
@@ -1537,7 +1537,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
 	}
 
-	public void desfinalitzarExpedient(String processInstanceId){
+	public void desfinalitzarExpedient(String processInstanceId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM reprendreExpedient", "jbpmDao");
 
 		// Recuperamos el token EndState más reciente
@@ -1589,7 +1589,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	//Marcar tasca pendent de finalitzar en segón pla
 	@Override
-	public void marcarFinalitzar(String taskId, Date marcadaFinalitzar, String outcome, String rols) {
+	public void marcarFinalitzar(String taskId, Date marcadaFinalitzar, String outcome, String rols) throws HeliumJbpmException {
 		final long id = Long.parseLong(taskId);
 		MarcarFinalitzarCommand command = new MarcarFinalitzarCommand(id, marcadaFinalitzar, outcome, rols);
 		commandService.execute(command);
@@ -1597,7 +1597,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	//Marcar tasca marcada en segon pla com "en execució"
 	@Override
-	public void marcarIniciFinalitzacioSegonPla(String taskId, Date iniciFinalitzacio) {
+	public void marcarIniciFinalitzacioSegonPla(String taskId, Date iniciFinalitzacio) throws HeliumJbpmException {
 		final long id = Long.parseLong(taskId);
 		MarcarIniciFinalitzacioSegonPlaCommand command = new MarcarIniciFinalitzacioSegonPlaCommand(id, iniciFinalitzacio);
 		commandService.execute(command);
@@ -1605,7 +1605,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	//Guardar l'error de finalitzacio a BBDD
 	@Override
-	public void guardarErrorFinalitzacio(String taskId, String errorFinalitzacio) {
+	public void guardarErrorFinalitzacio(String taskId, String errorFinalitzacio) throws HeliumJbpmException {
 		final long id = Long.parseLong(taskId);
 		String errorTractat;
 		if (errorFinalitzacio.length() > 1000)
@@ -1618,7 +1618,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<Object[]> getTasquesSegonPlaPendents() {
+	public List<Object[]> getTasquesSegonPlaPendents() throws HeliumJbpmException {
 		GetTasquesSegonPlaPendentsIdsCommand command = new GetTasquesSegonPlaPendentsIdsCommand();
 		return (List<Object[]>)commandService.execute(command);
 	}
@@ -1628,7 +1628,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<String> findDefinicionsProcesIdNoUtilitzadesByEntorn(Long entornId) {
+	public List<String> findDefinicionsProcesIdNoUtilitzadesByEntorn(Long entornId) throws HeliumJbpmException {
 		List<String> resultat = new ArrayList<String>();
 
 		GetProcesDefinitionEntornNotUsedListCommand command = new GetProcesDefinitionEntornNotUsedListCommand(entornId);
@@ -1640,7 +1640,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public List<String> findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(Long expedientTipusId) {
+	public List<String> findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(Long expedientTipusId) throws HeliumJbpmException {
 		List<String> resultat = new ArrayList<String>();
 
 		GetProcesDefinitionNotUsedListCommand command = new GetProcesDefinitionNotUsedListCommand(expedientTipusId);
@@ -1654,7 +1654,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	@SuppressWarnings("unchecked")
 	public List<ExpedientDto> findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
 			Long expedientTipusId,
-			Long processDefinitionId) {
+			Long processDefinitionId) throws HeliumJbpmException {
 		GetExpedientsAfectatsListCommand command = new GetExpedientsAfectatsListCommand(expedientTipusId, processDefinitionId);
 		List<ProcessInstanceExpedient> processInstanceExpedients = (List<ProcessInstanceExpedient>)commandService.execute(command);
 
@@ -1671,7 +1671,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 			String processInstanceId,
 			String actionName,
 			List<String> params,
-			String processDefinitionPareId) {
+			String processDefinitionPareId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM retrocedirAccio", "jbpmDao");
 		final long id = Long.parseLong(processInstanceId);
 		ExecuteActionCommand command = new ExecuteActionCommand(
@@ -1688,7 +1688,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 	@Override
-	public WProcessDefinition parse(ZipInputStream zipInputStream) throws Exception {
+	public WProcessDefinition parse(ZipInputStream zipInputStream) throws HeliumJbpmException, Exception {
 		ProcessDefinition processDefinition = ProcessDefinition.parseParZipInputStream(zipInputStream);
 		return new JbpmProcessDefinition(processDefinition);
 	}
@@ -1769,7 +1769,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Map<Token, List<ProcessLog>> getProcessInstanceLogs(String processInstanceId) {
+	public Map<Token, List<ProcessLog>> getProcessInstanceLogs(String processInstanceId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM getProcessInstanceLogs", "jbpmDao");
 		final long id = Long.parseLong(processInstanceId);
 		FindProcessInstanceLogsCommand command = new FindProcessInstanceLogsCommand(id);
@@ -1779,7 +1779,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 
-	public long addProcessInstanceMessageLog(String processInstanceId, String message) {
+	public long addProcessInstanceMessageLog(String processInstanceId, String message) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM addProcessInstanceMessageLog", "jbpmDao");
 		final long id = Long.parseLong(processInstanceId);
 		AddProcessInstanceMessageLogCommand command = new AddProcessInstanceMessageLogCommand(id, message);
@@ -1789,7 +1789,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 
-	public long addTaskInstanceMessageLog(String taskInstanceId, String message) {
+	public long addTaskInstanceMessageLog(String taskInstanceId, String message) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM addTaskInstanceMessageLog", "jbpmDao");
 		final long id = Long.parseLong(taskInstanceId);
 		AddTaskInstanceMessageLogCommand command = new AddTaskInstanceMessageLogCommand(id, message);
@@ -1799,7 +1799,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 
-	public Long getVariableIdFromVariableLog(long variableLogId) {
+	public Long getVariableIdFromVariableLog(long variableLogId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM getVariableIdFromVariableLog", "jbpmDao");
 		GetVariableIdFromVariableLogCommand command = new GetVariableIdFromVariableLogCommand(variableLogId);
 		Long resultat = (Long)commandService.execute(command);
@@ -1808,7 +1808,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 
-	public Long getTaskIdFromVariableLog(long variableLogId) {
+	public Long getTaskIdFromVariableLog(long variableLogId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM getTaskIdFromVariableLog", "jbpmDao");
 		GetTaskIdFromVariableLogCommand command = new GetTaskIdFromVariableLogCommand(variableLogId);
 		Long resultat = (Long)commandService.execute(command);
@@ -1817,7 +1817,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 
-	public void cancelProcessInstance(long id) {
+	public void cancelProcessInstance(long id) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM cancelProcessInstance", "jbpmDao");
 		CancelProcessInstanceCommand command = new CancelProcessInstanceCommand(id);
 		commandHelper.executeCommandWithAutoSave(
@@ -1828,7 +1828,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 
-	public void revertProcessInstanceEnd(long id) {
+	public void revertProcessInstanceEnd(long id) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM revertProcessInstanceEnd", "jbpmDao");
 		RevertProcessInstanceEndCommand command = new RevertProcessInstanceEndCommand(id);
 		commandHelper.executeCommandWithAutoSave(
@@ -1839,7 +1839,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 
-	public void cancelToken(long id) {
+	public void cancelToken(long id) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM cancelToken", "jbpmDao");
 		CancelTokenCommand command = new CancelTokenCommand(id);
 		commandHelper.executeCommandWithAutoSave(
@@ -1850,7 +1850,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 
-	public void revertTokenEnd(long id) {
+	public void revertTokenEnd(long id) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM revertTokenEnd", "jbpmDao");
 		JbpmToken jtoken = (JbpmToken) getTokenById(String.valueOf(id));
 		RevertTokenEndCommand command = new RevertTokenEndCommand(jtoken);
@@ -1864,7 +1864,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 
-	public WTaskInstance findEquivalentTaskInstance(long tokenId, long taskInstanceId) {
+	public WTaskInstance findEquivalentTaskInstance(long tokenId, long taskInstanceId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM findEquivalentTaskInstance", "jbpmDao");
 		GetTaskInstanceCommand commandGetTask = new GetTaskInstanceCommand(taskInstanceId);
 		TaskInstance ti = (TaskInstance)commandService.execute(commandGetTask);
@@ -1884,7 +1884,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 
-	public boolean isProcessStateNodeJoinOrFork(long processInstanceId, String nodeName) {
+	public boolean isProcessStateNodeJoinOrFork(long processInstanceId, String nodeName) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM isProcessStateNodeJoinOrFork", "jbpmDao");
 		GetProcessInstanceCommand command = new GetProcessInstanceCommand(processInstanceId);
 		ProcessInstance pi = (ProcessInstance)commandService.execute(command);
@@ -1897,7 +1897,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 
-	public boolean isJoinNode(long processInstanceId, String nodeName) {
+	public boolean isJoinNode(long processInstanceId, String nodeName) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM isJoinNode", "jbpmDao");
 		GetProcessInstanceCommand command = new GetProcessInstanceCommand(processInstanceId);
 		ProcessInstance pi = (ProcessInstance)commandService.execute(command);
@@ -1914,7 +1914,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 
-	public ProcessLog getProcessLogById(Long id){
+	public ProcessLog getProcessLogById(Long id) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM getProcessLogById", "jbpmDao");
 		GetProcessLogByIdCommand command = new GetProcessLogByIdCommand(id.longValue());
 		ProcessLog log = (ProcessLog)commandService.execute(command);
@@ -1923,7 +1923,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	}
 
 
-	public Node getNodeByName(long processInstanceId, String nodeName) {
+	public Node getNodeByName(long processInstanceId, String nodeName) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM getNodeByName", "jbpmDao");
 		GetProcessInstanceCommand command = new GetProcessInstanceCommand(processInstanceId);
 		ProcessInstance pi = (ProcessInstance)commandService.execute(command);
@@ -1932,14 +1932,14 @@ public class JbpmHelper implements WorkflowEngineApi {
 		return node;
 	}
 
-	public Action getActionById(long nodeId) {
+	public Action getActionById(long nodeId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM getNodeByName", "jbpmDao");
 		GetActionByIdCommand command = new GetActionByIdCommand(nodeId);
 		Action action = (Action)commandService.execute(command);
 		return action;
 	}
 
-	public boolean hasStartBetweenLogs(long begin, long end, long taskInstanceId) {
+	public boolean hasStartBetweenLogs(long begin, long end, long taskInstanceId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM hasStartBetweenLogs", "jbpmDao");
 		HasStartBetweenLogsCommand command = new HasStartBetweenLogsCommand(begin, end, taskInstanceId);
 		Boolean hasStart = (Boolean)commandService.execute(command);
@@ -1961,15 +1961,18 @@ public class JbpmHelper implements WorkflowEngineApi {
 //		return resultat;
 //	}
 
-	private ProcessDefinition getDefinicioProces(String processDefinitionId) {
-		final long pdid = Long.parseLong(processDefinitionId);
-		GetProcessDefinitionByIdCommand command = new GetProcessDefinitionByIdCommand(pdid);
-		ProcessDefinition processDefinition = (ProcessDefinition)commandService.execute(command);
-		return processDefinition;
+	private ProcessDefinition getDefinicioProces(String processDefinitionId) throws HeliumJbpmException {
+		if (isNumeric(processDefinitionId)) {
+			final long pdid = Long.parseLong(processDefinitionId);
+			GetProcessDefinitionByIdCommand command = new GetProcessDefinitionByIdCommand(pdid);
+			ProcessDefinition processDefinition = (ProcessDefinition) commandService.execute(command);
+			return processDefinition;
+		}
+		return null;
 	}
 
 	@SuppressWarnings("unchecked")
-	public void deleteProcessInstanceTreeLogs(String rootProcessInstanceId) {
+	public void deleteProcessInstanceTreeLogs(String rootProcessInstanceId) throws HeliumJbpmException {
 		//adminService.mesuraIniciar("jBPM deleteProcessInstanceTreeLogs", "jbpmDao");
 		final long id = Long.parseLong(rootProcessInstanceId);
 		GetProcessInstancesTreeCommand command = new GetProcessInstancesTreeCommand(id);
@@ -1980,7 +1983,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 		//adminService.mesuraCalcular("jBPM deleteProcessInstanceTreeLogs", "jbpmDao");
 	}
 	
-	public void retryJob(Long jobId) {
+	public void retryJob(Long jobId) throws HeliumJbpmException {
 		RetryJobCommand command = new RetryJobCommand(jobId);
 		commandService.execute(command);
 	}
@@ -1990,7 +1993,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	 * @param pie
 	 * @return
 	 */
-	private ExpedientDto processInstanceExpedientToDto(ProcessInstanceExpedient pie) {
+	private ExpedientDto processInstanceExpedientToDto(ProcessInstanceExpedient pie) throws HeliumJbpmException {
 		ExpedientDto exp = new ExpedientDto();
 		exp.setId(pie.getId());
 		exp.setTitol(pie.getTitol());
@@ -2007,7 +2010,7 @@ public class JbpmHelper implements WorkflowEngineApi {
 	 * @param piet
 	 * @return
 	 */
-	private ExpedientTipusDto processInstanceExpedientTipusToDto(ProcessInstanceExpedientTipus piet) {
+	private ExpedientTipusDto processInstanceExpedientTipusToDto(ProcessInstanceExpedientTipus piet) throws HeliumJbpmException {
 		ExpedientTipusDto tipus = null;
 		if (piet != null) {
 			tipus = new ExpedientTipusDto();
@@ -2018,5 +2021,18 @@ public class JbpmHelper implements WorkflowEngineApi {
 			tipus.setTeNumero(piet.isTeNumero());
 		}
 		return tipus;
+	}
+
+
+	private static boolean isNumeric(String strNum) {
+		if (strNum == null) {
+			return false;
+		}
+		try {
+			Long l = Long.parseLong(strNum);
+		} catch (NumberFormatException nfe) {
+			return false;
+		}
+		return true;
 	}
 }

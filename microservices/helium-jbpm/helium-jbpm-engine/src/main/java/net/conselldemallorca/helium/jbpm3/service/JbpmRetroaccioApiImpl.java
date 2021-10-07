@@ -8,6 +8,7 @@ import net.conselldemallorca.helium.api.dto.ExpedientLogDto;
 import net.conselldemallorca.helium.api.dto.InformacioRetroaccioDto;
 import net.conselldemallorca.helium.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.api.dto.LogObjectDto;
+import net.conselldemallorca.helium.api.exception.HeliumJbpmException;
 import net.conselldemallorca.helium.api.service.JbpmRetroaccioApi;
 import net.conselldemallorca.helium.api.service.WProcessInstance;
 import net.conselldemallorca.helium.api.service.WTaskInstance;
@@ -136,7 +137,7 @@ public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
 //		return sortedEntries;
 //	}
 
-    public void deleteProcessInstanceTreeLogs(String rootProcessInstanceId) {
+    public void deleteProcessInstanceTreeLogs(String rootProcessInstanceId) throws HeliumJbpmException {
         final long id = Long.parseLong(rootProcessInstanceId);
         GetProcessInstancesTreeCommand command = new GetProcessInstancesTreeCommand(id);
         for (ProcessInstance pd: (List<ProcessInstance>)commandService.execute(command)) {
@@ -147,7 +148,7 @@ public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
 
     public Long addProcessInstanceMessageLog(
             String processInstanceId,
-            String message) {
+            String message) throws HeliumJbpmException {
         final long id = Long.parseLong(processInstanceId);
         AddProcessInstanceMessageLogCommand command = new AddProcessInstanceMessageLogCommand(id, message);
         long resultat = ((Long)commandService.execute(command)).longValue();
@@ -156,7 +157,7 @@ public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
 
     public Long addTaskInstanceMessageLog(
             String taskInstanceId,
-            String message) {
+            String message) throws HeliumJbpmException {
         final long id = Long.parseLong(taskInstanceId);
         AddTaskInstanceMessageLogCommand command = new AddTaskInstanceMessageLogCommand(id, message);
         long resultat = ((Long)commandService.execute(command)).longValue();
@@ -167,7 +168,7 @@ public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
             ExpedientLogDto expedientLog,
             List<ExpedientLogDto> expedientLogs,
             boolean retrocedirPerTasques,
-            Long iniciadorId) {
+            Long iniciadorId) throws HeliumJbpmException {
         boolean debugRetroces = true;
 
         WTaskInstance jtask = workflowEngineApi.getTaskById(expedientLog.getTargetId());
@@ -823,7 +824,7 @@ public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
         return new JbpmToken(pl.getToken());
     }
 
-    private List<ProcessLog> getLogsJbpmPerRetrocedir(List<ExpedientLogDto> expedientLogs) {
+    private List<ProcessLog> getLogsJbpmPerRetrocedir(List<ExpedientLogDto> expedientLogs) throws HeliumJbpmException {
         List<ProcessLog> logsJbpm = new ArrayList<ProcessLog>();
 
         // Utilitzam un set per a evitar repetits
@@ -846,7 +847,7 @@ public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
         return logsJbpm;
     }
 
-    private List<ProcessLog> getLogsJbpmPerExpedientLog(ExpedientLogDto expedientLog) {
+    private List<ProcessLog> getLogsJbpmPerExpedientLog(ExpedientLogDto expedientLog) throws HeliumJbpmException {
         List<ProcessLog> logsJbpm = new ArrayList<ProcessLog>();
         List<ProcessLog> logsJbpmAfegir = new ArrayList<ProcessLog>();
         if (expedientLog.getJbpmLogId() != null && expedientLog.getEstat().equals(ExpedientRetroaccioEstat.NORMAL)) {
@@ -916,7 +917,7 @@ public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
         }
     }
 
-    private List<ProcessLog> getJbpmLogsPerInstanciaProces(Long processInstanceId, boolean asc) {
+    private List<ProcessLog> getJbpmLogsPerInstanciaProces(Long processInstanceId, boolean asc) throws HeliumJbpmException {
 
         List<ProcessLog> logsJbpm = new ArrayList<ProcessLog>();
 
@@ -1274,7 +1275,7 @@ public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
 
     private void consultarParametresRetroaccio(
             Map<String, String> paramsAccio,
-            Collection<LogObjectDto> logObjectDtos) {
+            Collection<LogObjectDto> logObjectDtos) throws HeliumJbpmException {
 
         Set<String> processInstancesConsultats = new HashSet<String>();
         Map<String, Object> variables;
@@ -1303,7 +1304,7 @@ public class JbpmRetroaccioApiImpl implements JbpmRetroaccioApi {
         }
     }
 
-    private Node getForkNode(long processInstanceId, Node joinNode) {
+    private Node getForkNode(long processInstanceId, Node joinNode) throws HeliumJbpmException {
         List<ProcessLog> logsJbpm = getJbpmLogsPerInstanciaProces(processInstanceId, false);
         if (logsJbpm != null && logsJbpm.size() > 0) {
             boolean trobat = false;

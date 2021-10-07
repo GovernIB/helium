@@ -11,7 +11,7 @@ public class HeliumJbpmException extends Exception {
 		super(message);
 	}
 
-	public HeliumJbpmException(Exception e) {
+	public HeliumJbpmException(Throwable e) {
 		super(e);
 	}
 

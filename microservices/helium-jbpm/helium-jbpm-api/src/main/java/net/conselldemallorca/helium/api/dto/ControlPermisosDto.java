@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,6 +15,7 @@ import java.io.Serializable;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Getter @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class ControlPermisosDto implements Serializable {
 
 	protected boolean permisRead; // 1

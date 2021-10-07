@@ -36,17 +36,17 @@ services:
     networks:
       - database-mongo
 
-  mongo-config:
-    image: mongo
-    networks:
-      - database-mongo
-    depends_on:
-      - mongo1
-      - mongo2
-      - mongo3
-    volumes:
-      - ./scripts:/scripts
-    entrypoint: ['/scripts/mongo-setup.sh']
+  #mongo-config:
+  #  image: mongo
+  #  networks:
+  #    - database-mongo
+  #  depends_on:
+  #    - mongo1
+  #    - mongo2
+  #    - mongo3
+  #  volumes:
+  #    - ./scripts:/scripts
+  #  entrypoint: ['/scripts/mongo-setup.sh']
 
   jms:
     image: vromero/activemq-artemis

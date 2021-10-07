@@ -4,7 +4,9 @@ import es.caib.helium.client.engine.model.WProcessDefinition;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -27,20 +29,40 @@ public class ProcessDefinitionClientImpl implements ProcessDefinitionClient {
 	public WProcessDefinition getProcessDefinition(String processDefinitionId) {
 		
 		log.debug(missatgeLog + " get process definition " + processDefinitionId);
-		var responseEntity = processDefinitionClient.getProcessDefinition(processDefinitionId);
-		var resultat = Objects.requireNonNull(responseEntity.getBody());
-    	return resultat;
+		try {
+			var responseEntity = processDefinitionClient.getProcessDefinition(processDefinitionId);
+			if (HttpStatus.NOT_FOUND.equals(responseEntity.getStatusCode())) {
+				return null;
+			} else {
+				return responseEntity.getBody();
+			}
+		} catch (HttpClientErrorException ex) {
+			if (HttpStatus.NOT_FOUND.equals(ex.getStatusCode())) {
+				return null;
+			}
+			throw ex;
+		}
 	}
 
 	@Override
 	public List<WProcessDefinition> getSubProcessDefinitions(String processDefinitionId) {
 		
 		log.debug(missatgeLog + " get sub process definitions  amb processDefinitionId" + processDefinitionId);
-		var responseEntity = processDefinitionClient.getSubProcessDefinitions(processDefinitionId);
-		var resultat = Objects.requireNonNullElse(
-				responseEntity.getBody(),
-				new ArrayList<WProcessDefinition>());
-    	return resultat;
+		try {
+			var responseEntity = processDefinitionClient.getSubProcessDefinitions(processDefinitionId);
+			if (HttpStatus.NOT_FOUND.equals(responseEntity.getStatusCode())) {
+				return new ArrayList<WProcessDefinition>();
+			} else {
+				return Objects.requireNonNullElse(
+						responseEntity.getBody(),
+						new ArrayList<WProcessDefinition>());
+			}
+		} catch (HttpClientErrorException ex) {
+			if (HttpStatus.NOT_FOUND.equals(ex.getStatusCode())) {
+				return new ArrayList<WProcessDefinition>();
+			}
+			throw ex;
+		}
 	}
 
 	@Override

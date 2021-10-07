@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,7 @@ import java.io.Serializable;
 @Getter @Setter
 @NoArgsConstructor
 @EqualsAndHashCode(of = {"codi"})
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PersonaDto implements Serializable {
 
 	public enum Sexe {

@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.Date;
 
 /**
@@ -10,6 +12,7 @@ import java.util.Date;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ExpedientInfoDto {
 
 	public enum IniciadorTipus {

@@ -3,10 +3,43 @@
  */
 package es.caib.helium.logic.helper;
 
-import es.caib.helium.logic.intf.dto.*;
+import es.caib.helium.client.engine.model.CampRegistreRest;
+import es.caib.helium.client.engine.model.CampRest;
+import es.caib.helium.client.engine.model.CampTipus;
+import es.caib.helium.logic.intf.dto.CampAgrupacioDto;
+import es.caib.helium.logic.intf.dto.CampDto;
+import es.caib.helium.logic.intf.dto.CampRegistreDto;
+import es.caib.helium.logic.intf.dto.CampTascaDto;
+import es.caib.helium.logic.intf.dto.CampTipusDto;
+import es.caib.helium.logic.intf.dto.ConsultaCampDto;
+import es.caib.helium.logic.intf.dto.ConsultaDto;
+import es.caib.helium.logic.intf.dto.DocumentDto;
+import es.caib.helium.logic.intf.dto.DocumentTascaDto;
+import es.caib.helium.logic.intf.dto.DominiDto;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.EnumeracioDto;
+import es.caib.helium.logic.intf.dto.EstatDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.dto.FirmaTascaDto;
+import es.caib.helium.logic.intf.dto.PersonaDto;
+import es.caib.helium.logic.intf.dto.SequenciaAnyDto;
+import es.caib.helium.logic.intf.dto.SequenciaDefaultAnyDto;
 import es.caib.helium.logic.intf.integracio.notificacio.InteressatTipusEnum;
 import es.caib.helium.logic.intf.integracio.notificacio.Persona;
-import es.caib.helium.persist.entity.*;
+import es.caib.helium.persist.entity.Camp;
+import es.caib.helium.persist.entity.CampRegistre;
+import es.caib.helium.persist.entity.CampTasca;
+import es.caib.helium.persist.entity.Consulta;
+import es.caib.helium.persist.entity.ConsultaCamp;
+import es.caib.helium.persist.entity.Document;
+import es.caib.helium.persist.entity.DocumentTasca;
+import es.caib.helium.persist.entity.Entorn;
+import es.caib.helium.persist.entity.Enumeracio;
+import es.caib.helium.persist.entity.Estat;
+import es.caib.helium.persist.entity.ExpedientTipus;
+import es.caib.helium.persist.entity.FirmaTasca;
+import es.caib.helium.persist.entity.SequenciaAny;
+import es.caib.helium.persist.entity.SequenciaDefaultAny;
 import ma.glasnost.orika.CustomConverter;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
@@ -25,6 +58,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * Helper per a convertir entre diferents formats de documents.
@@ -491,7 +525,39 @@ public class ConversioTipusServiceHelper {
 						target.setEmail(source.getEmail());
 						return target;
 					}
-		});			
+		});
+		mapperFactory.getConverterFactory().registerConverter(
+				new CustomConverter<Camp, CampRest>() {
+					@Override
+					public CampRest convert(Camp source, Type<? extends CampRest> destinationType, MappingContext mappingContext) {
+						return CampRest.builder()
+								.id(source.getId())
+								.codi(source.getCodi())
+								.tipus(CampTipus.valueOf(source.getTipus().name()))
+								.multiple(source.isMultiple())
+								.ocult(source.isOcult())
+								.ignored(source.isIgnored())
+								.registreMembres(source.getRegistreMembres()
+										.stream()
+										.map(cr -> CampRegistreRest.builder()
+												.id(cr.getId())
+												.obligatori(cr.isObligatori())
+												.membre(CampRest.builder()
+														.id(cr.getMembre().getId())
+														.codi(cr.getMembre().getCodi())
+														.tipus(CampTipus.valueOf(cr.getMembre().getTipus().name()))
+														.multiple(cr.getMembre().isMultiple())
+														.ocult(cr.getMembre().isOcult())
+														.ignored(cr.getMembre().isIgnored())
+														.build())
+												.build())
+										.collect(Collectors.toList()))
+								.build();
+					}
+				}
+		);
+//		mapperFactory.classMap(Camp.class, CampRest.class).byDefault().register();
+//		mapperFactory.classMap(CampRegistre.class, CampRegistreRest.class).byDefault().register();
 	}
 
 	public <T> T convertir(Object source, Class<T> targetType) {

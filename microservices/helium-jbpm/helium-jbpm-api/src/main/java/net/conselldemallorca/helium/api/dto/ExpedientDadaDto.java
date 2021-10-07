@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,6 +20,7 @@ import java.util.List;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Getter @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ExpedientDadaDto {
 
 	private String varCodi;

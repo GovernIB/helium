@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -22,6 +23,7 @@ import java.util.Set;
  */
 @Getter @Setter
 @ToString
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<ExpedientTascaDto> {
 
 	public enum TascaTipusDto {

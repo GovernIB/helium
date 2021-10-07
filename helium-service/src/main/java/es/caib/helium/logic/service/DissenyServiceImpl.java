@@ -233,6 +233,8 @@ public class DissenyServiceImpl implements DissenyService {
 															expedientTipus.getJbpmProcessDefinitionKey());
 			if (definicioProces != null) {
 				WProcessDefinition jb = workflowEngineApi.getProcessDefinition(definicioProces.getJbpmId());
+				if (jb == null)
+					return null;
 				return getDefinicioProcesByEntornIdAmbJbpmId(
 						definicioProces.getEntorn().getId(), 
 						jb.getKey(), 
@@ -295,6 +297,8 @@ public class DissenyServiceImpl implements DissenyService {
 
 		if (definicioProces != null) {
 			WProcessDefinition jb = workflowEngineApi.getProcessDefinition(definicioProces.getJbpmId());
+			if (jb == null)
+				return null;
 			dto.setId(definicioProces.getId());
 			dto.setJbpmId(definicioProces.getJbpmId());
 			dto.setJbpmKey(definicioProces.getJbpmKey());

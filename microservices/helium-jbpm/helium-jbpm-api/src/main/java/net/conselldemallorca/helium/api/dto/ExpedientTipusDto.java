@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.api.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +22,7 @@ import java.util.TreeMap;
  */
 @Getter @Setter
 @EqualsAndHashCode(of = {"codi"})
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ExpedientTipusDto extends ControlPermisosDto implements Serializable {
 	
 	private Long id;

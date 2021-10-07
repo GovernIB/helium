@@ -4,6 +4,7 @@ import net.conselldemallorca.helium.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.api.dto.LlistatIds;
 import net.conselldemallorca.helium.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.api.dto.ResultatConsultaPaginada;
+import net.conselldemallorca.helium.api.exception.HeliumJbpmException;
 
 import java.util.Collection;
 import java.util.Date;
@@ -64,7 +65,7 @@ public interface WorkflowEngineApi {
 	 */
 	public WDeployment desplegar(
             String nomArxiu,
-            byte[] contingut);
+            byte[] contingut) throws HeliumJbpmException;
 	
 	// Afegim el següent mètode per a compatibilitat amb Activiti, on un desplegament pot 
 	// incloure diverses definicions de procés. 
@@ -74,14 +75,14 @@ public interface WorkflowEngineApi {
 	 * @param deploymentId
 	 * @return
 	 */
-	public WDeployment getDesplegament(String deploymentId);
+	public WDeployment getDesplegament(String deploymentId) throws HeliumJbpmException;
 	
 	/**
 	 * Elimina un desplegament concret
 	 * 
 	 * @param deploymentId
 	 */
-	public void esborrarDesplegament(String deploymentId);
+	public void esborrarDesplegament(String deploymentId) throws HeliumJbpmException;
 	
 	
 	/**
@@ -90,7 +91,7 @@ public interface WorkflowEngineApi {
 	 * @param deploymentId
 	 * @return
 	 */
-	public Set<String> getResourceNames(String deploymentId);
+	public Set<String> getResourceNames(String deploymentId) throws HeliumJbpmException;
 	
 	/**
 	 * Obté el contingut d'un recurs d'un desplegament concret. El recurs s'identifica amb el nom
@@ -101,7 +102,7 @@ public interface WorkflowEngineApi {
 	 */
 	public byte[] getResourceBytes(
             String deploymentId,
-            String resourceName);
+            String resourceName) throws HeliumJbpmException;
 	
 	/**
 	 * Actualitza els recursos de tipus acció, sense canviar la versió d'un desplagament
@@ -111,7 +112,7 @@ public interface WorkflowEngineApi {
 	 */
 	public void updateDeploymentActions(
             Long deploymentId,
-			byte[] deploymentContent) throws Exception;
+			byte[] deploymentContent) throws HeliumJbpmException, Exception;
 
 	/**
 	 * Actualitza els recursos de tipus acció, sense canviar la versió d'un desplagament
@@ -121,7 +122,7 @@ public interface WorkflowEngineApi {
 	 */
 	public void propagateDeploymentActions(
 			String deploymentOrigenId,
-			String deploymentDestiId);
+			String deploymentDestiId) throws HeliumJbpmException;
 	
 	// Consulta de Definicions de Procés
 	////////////////////////////////////////////////////////////////////////////////
@@ -140,7 +141,7 @@ public interface WorkflowEngineApi {
 	 */
 	public WProcessDefinition getProcessDefinition(
 //            String deploymentId,
-            String processDefinitionId);
+            String processDefinitionId) throws HeliumJbpmException;
 	
 	/**
 	 * Obté les definicions de procés dels subprocessos donat el codi de desplegament i de la definició de procés pare
@@ -150,7 +151,7 @@ public interface WorkflowEngineApi {
 	 */
 	public List<WProcessDefinition> getSubProcessDefinitions(
 //            String deploymentId,
-            String processDefinitionId);
+            String processDefinitionId) throws HeliumJbpmException;
 	
 	/**
 	 * Obté els noms de les tasques d'una definició de procés donat el desplegament i el codi de definició de procés
@@ -161,7 +162,7 @@ public interface WorkflowEngineApi {
 	 */
 	public List<String> getTaskNamesFromDeployedProcessDefinition(
             String deploymentId,
-            String processDefinitionId);
+            String processDefinitionId) throws HeliumJbpmException;
 	
 	/**
 	 * Obté el nom de la tasca inicial d'una definició de procés
@@ -169,16 +170,16 @@ public interface WorkflowEngineApi {
 	 * @param processDefinitionId
 	 * @return
 	 */
-	public String getStartTaskName(String processDefinitionId);
+	public String getStartTaskName(String processDefinitionId) throws HeliumJbpmException;
 	
 	/**
 	 * Obté la definició de procés d'una instància de procés
 	 * @param processInstanceId
 	 * @return
 	 */
-	public WProcessDefinition findProcessDefinitionWithProcessInstanceId(String processInstanceId);
+	public WProcessDefinition findProcessDefinitionWithProcessInstanceId(String processInstanceId) throws HeliumJbpmException;
 
-	public void updateSubprocessDefinition(String pd1, String pd2);
+	public void updateSubprocessDefinition(String pd1, String pd2) throws HeliumJbpmException;
 	
 	// DEFINICIÓ DE TASQUES
 	////////////////////////////////////////////////////////////////////////////////
@@ -208,7 +209,7 @@ public interface WorkflowEngineApi {
 	 * @param processDefinitionId
 	 * @return
 	 */
-	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionId(String processDefinitionId);
+	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionId(String processDefinitionId) throws HeliumJbpmException;
 	
 	/**
 	 * Obté totes les instàncies de procés d'una definició de procés, donat el seu nom
@@ -216,7 +217,7 @@ public interface WorkflowEngineApi {
 	 * @param processName
 	 * @return
 	 */
-	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionName(String processName);
+	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionName(String processName) throws HeliumJbpmException;
 	
 	/**
 	 * Obté totes les instàncies de procés d'una definició de procés, donat el seu nom i l'entorn Helium
@@ -228,7 +229,7 @@ public interface WorkflowEngineApi {
 	// Com a entornId podem utilitzar el tenantId de la instància de procés, o la categoria de la definició de procés
 	public List<WProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(
             String processName,
-			String entornId);
+			String entornId) throws HeliumJbpmException;
 
 	/**
 	 * Obté les instàncies de procés del procés principal, i dels subprocessos donat l'identificador del procés principal
@@ -236,7 +237,7 @@ public interface WorkflowEngineApi {
 	 * @param rootProcessInstanceId
 	 * @return
 	 */
-	public List<WProcessInstance> getProcessInstanceTree(String rootProcessInstanceId);
+	public List<WProcessInstance> getProcessInstanceTree(String rootProcessInstanceId) throws HeliumJbpmException;
 	
 	/**
 	 * Obté la instància de procés donat el seu codi
@@ -244,7 +245,7 @@ public interface WorkflowEngineApi {
 	 * @param processInstanceId
 	 * @return
 	 */
-	public WProcessInstance getProcessInstance(String processInstanceId);
+	public WProcessInstance getProcessInstance(String processInstanceId) throws HeliumJbpmException;
 	
 	/**
 	 * Obté la instància de procés principal donat el codi de la instància de procés principal, o d'un dels seus subprocessos
@@ -252,7 +253,7 @@ public interface WorkflowEngineApi {
 	 * @param processInstanceId
 	 * @return
 	 */
-	public WProcessInstance getRootProcessInstance(String processInstanceId);
+	public WProcessInstance getRootProcessInstance(String processInstanceId) throws HeliumJbpmException;
 	
 	/**
 	 * Obté les instàncies de procés principals filtrades
@@ -269,7 +270,7 @@ public interface WorkflowEngineApi {
             List<String> processInstanceIds,
             boolean nomesMeves,
             boolean nomesTasquesPersonals,
-            boolean nomesTasquesGrup);
+            boolean nomesTasquesGrup) throws HeliumJbpmException;
 	
 	// Tramitació
 	////////////////////////////////////////////////////////////////////////////////
@@ -285,7 +286,7 @@ public interface WorkflowEngineApi {
 	public WProcessInstance startProcessInstanceById(
             String actorId,
             String processDefinitionId,
-            Map<String, Object> variables);
+            Map<String, Object> variables) throws HeliumJbpmException;
 	
 	/**
 	 * Envia un disparador extern a una instància de procés
@@ -295,28 +296,28 @@ public interface WorkflowEngineApi {
 	 */
 	public void signalProcessInstance(
             String processInstanceId,
-            String transitionName);
+            String transitionName) throws HeliumJbpmException;
 	
 	/**
 	 * Elimina una instància de procés existent
 	 * 
 	 * @param processInstanceId
 	 */
-	public void deleteProcessInstance(String processInstanceId);
+	public void deleteProcessInstance(String processInstanceId) throws HeliumJbpmException;
 	
 	/**
 	 * Suspen les instàncies de procés indicades
 	 * 
 	 * @param processInstanceIds
 	 */
-	public void suspendProcessInstances(String[] processInstanceIds);
+	public void suspendProcessInstances(String[] processInstanceIds) throws HeliumJbpmException;
 	
 	/**
 	 * Activa les instàncies de procés indicades
 	 * 
 	 * @param processInstanceIds
 	 */
-	public void resumeProcessInstances(String[] processInstanceIds);
+	public void resumeProcessInstances(String[] processInstanceIds) throws HeliumJbpmException;
 	
 	/**
 	 * Canvia la versió de la instància de procés indicada
@@ -326,7 +327,7 @@ public interface WorkflowEngineApi {
 	 */
 	public void changeProcessInstanceVersion(
             String processInstanceId,
-            int newVersion);
+            int newVersion) throws HeliumJbpmException;
 	
 	
 	// VARIABLES DE PROCÉS
@@ -342,7 +343,7 @@ public interface WorkflowEngineApi {
 	 * @param processInstanceId
 	 * @return
 	 */
-	public Map<String, Object> getProcessInstanceVariables(String processInstanceId);
+	public Map<String, Object> getProcessInstanceVariables(String processInstanceId) throws HeliumJbpmException;
 	
 	/**
 	 * Obté una variable d'una instància de procés concreta
@@ -353,7 +354,7 @@ public interface WorkflowEngineApi {
 	 */
 	public Object getProcessInstanceVariable(
             String processInstanceId,
-            String varName);
+            String varName) throws HeliumJbpmException;
 
 	
 	// Actualització de variables
@@ -369,7 +370,7 @@ public interface WorkflowEngineApi {
 	public void setProcessInstanceVariable(
             String processInstanceId,
             String varName,
-            Object value);
+            Object value) throws HeliumJbpmException;
 	
 	/**
 	 * Elimina una variable d'una instància de procés
@@ -379,7 +380,7 @@ public interface WorkflowEngineApi {
 	 */
 	public void deleteProcessInstanceVariable(
             String processInstanceId,
-            String varName);
+            String varName) throws HeliumJbpmException;
 
 	
 	// INSTÀNCIA DE TASQUES
@@ -407,7 +408,7 @@ public interface WorkflowEngineApi {
 	 * @param taskId
 	 * @return
 	 */
-	public WTaskInstance getTaskById(String taskId); // Instancia de tasca
+	public WTaskInstance getTaskById(String taskId) throws HeliumJbpmException; // Instancia de tasca
 	
 	/**
 	 * Obté la llista de instàncies de tasca d'una instància de procés
@@ -415,7 +416,7 @@ public interface WorkflowEngineApi {
 	 * @param processInstanceId
 	 * @return
 	 */
-	public List<WTaskInstance> findTaskInstancesByProcessInstanceId(String processInstanceId);
+	public List<WTaskInstance> findTaskInstancesByProcessInstanceId(String processInstanceId) throws HeliumJbpmException;
 	
 	/**
 	 * Obté l'identificador de la instància de tasca activa donat el seu token d'execució
@@ -423,7 +424,7 @@ public interface WorkflowEngineApi {
 	 * @param executionTokenId
 	 * @return
 	 */
-	public String getTaskInstanceIdByExecutionTokenId(String executionTokenId);
+	public String getTaskInstanceIdByExecutionTokenId(String executionTokenId) throws HeliumJbpmException;
 	
 	/**
 	 * Obté un llistat paginat de instàncies de tasques donat un filtre concret 
@@ -466,7 +467,7 @@ public interface WorkflowEngineApi {
             boolean mostrarAssignadesGrup,
             boolean nomesPendents,
             PaginacioParamsDto paginacioParams,
-            boolean nomesCount);
+            boolean nomesCount) throws HeliumJbpmException;
 
 	/**
 	 * Obté un llistat d'identificadors de instàncies de tasques donat un filtre concret
@@ -499,7 +500,7 @@ public interface WorkflowEngineApi {
             PaginacioParamsDto paginacioParams,
             boolean nomesTasquesPersonals,
             boolean nomesTasquesGrup,
-            boolean nomesAmbPendents);
+            boolean nomesAmbPendents) throws HeliumJbpmException;
 	
 	
 	// Tramitació de tasques
@@ -513,14 +514,14 @@ public interface WorkflowEngineApi {
 	 */
 	public WTaskInstance takeTaskInstance(
             String taskId,
-            String actorId);
+            String actorId) throws HeliumJbpmException;
 	
 	/**
 	 * Allibera una tasca per a que pugui ser tramitada per altres usuaris
 	 * 
 	 * @param taskId
 	 */
-	public WTaskInstance releaseTaskInstance(String taskId);
+	public WTaskInstance releaseTaskInstance(String taskId) throws HeliumJbpmException;
 	
 	/**
 	 * Inicia la tramitació d'una tasca
@@ -528,7 +529,7 @@ public interface WorkflowEngineApi {
 	 * @param taskId
 	 * @return
 	 */
-	public WTaskInstance startTaskInstance(String taskId);
+	public WTaskInstance startTaskInstance(String taskId) throws HeliumJbpmException;
 
 	/**
 	 * Completa la tramitació d'una tasca
@@ -537,10 +538,10 @@ public interface WorkflowEngineApi {
 	 * @param outcome
 	 * @return
 	 */
-	public void endTaskInstance(String taskId, String outcome);
+	public void endTaskInstance(String taskId, String outcome) throws HeliumJbpmException;
 //	public ResultatCompleteTask completeTaskInstance(
 //            WTaskInstance task,
-//            String outcome);
+//            String outcome) throws HeliumJbpmException;
 
 	/**
 	 * Cancel·la una tasca i continua amb l'execució de la instància de procés
@@ -548,7 +549,7 @@ public interface WorkflowEngineApi {
 	 * @param taskId
 	 * @return
 	 */
-	public WTaskInstance cancelTaskInstance(String taskId);
+	public WTaskInstance cancelTaskInstance(String taskId) throws HeliumJbpmException;
 	
 	/**
 	 * Suspén una tasca
@@ -556,7 +557,7 @@ public interface WorkflowEngineApi {
 	 * @param taskId
 	 * @return
 	 */
-	public WTaskInstance suspendTaskInstance(String taskId);
+	public WTaskInstance suspendTaskInstance(String taskId) throws HeliumJbpmException;
 	
 	/**
 	 * Activa una tasca suspesa
@@ -564,7 +565,7 @@ public interface WorkflowEngineApi {
 	 * @param taskId
 	 * @return
 	 */
-	public WTaskInstance resumeTaskInstance(String taskId);
+	public WTaskInstance resumeTaskInstance(String taskId) throws HeliumJbpmException;
 	
 	// Reassignació / Delegació
 	
@@ -579,7 +580,7 @@ public interface WorkflowEngineApi {
 	public WTaskInstance reassignTaskInstance(
             String taskId,
             String expression,
-            Long entornId);
+            Long entornId) throws HeliumJbpmException;
 	
 //	/**
 //	 * Delega una tasca a un altre usuari
@@ -593,7 +594,7 @@ public interface WorkflowEngineApi {
 //            WTaskInstance task,
 //            String actorId,
 //            String comentari,
-//            boolean supervisada);
+//            boolean supervisada) throws HeliumJbpmException;
 //
 //	/**
 //	 * Obté la informació d'una delegació realitzada
@@ -604,13 +605,13 @@ public interface WorkflowEngineApi {
 //	 */
 //	public DelegationInfo getDelegationTaskInstanceInfo(
 //            String taskId,
-//            boolean includeActors);
+//            boolean includeActors) throws HeliumJbpmException;
 //
 //	/**
 //	 * Cancel·la una delegació realitzada, i retorna la tasca a l'usuari original
 //	 * @param task
 //	 */
-//	public void cancelDelegationTaskInstance(WTaskInstance task);
+//	public void cancelDelegationTaskInstance(WTaskInstance task) throws HeliumJbpmException;
 	
 	// Caché
 	
@@ -624,7 +625,7 @@ public interface WorkflowEngineApi {
 	public void updateTaskInstanceInfoCache(
             String taskId,
             String titol,
-            String infoCache);
+            String infoCache) throws HeliumJbpmException;
 	
 	// VARIABLES DE TASQUES
 	////////////////////////////////////////////////////////////////////////////////
@@ -634,7 +635,7 @@ public interface WorkflowEngineApi {
 	 * @param taskId
 	 * @return Retorna un Map de codi i valor de les variables de la instància de procés.
 	 */
-	public Map<String, Object> getTaskInstanceVariables(String taskId);
+	public Map<String, Object> getTaskInstanceVariables(String taskId) throws HeliumJbpmException;
 	
 	/** 
 	 * Obé el valor d'una variable d'una instàcia de procés.
@@ -642,7 +643,7 @@ public interface WorkflowEngineApi {
 	 * @param varName
 	 * @return
 	 */
-	public Object getTaskInstanceVariable(String taskId, String varName);
+	public Object getTaskInstanceVariable(String taskId, String varName) throws HeliumJbpmException;
 	
 	/** 
 	 * Fixa el valor de la variable de la instància de procés.
@@ -650,7 +651,7 @@ public interface WorkflowEngineApi {
 	 * @param varName
 	 * @param valor
 	 */
-	public void setTaskInstanceVariable(String taskId, String varName, Object valor);
+	public void setTaskInstanceVariable(String taskId, String varName, Object valor) throws HeliumJbpmException;
 	
 	/**
 	 * Fixa el valor de vàries variables a la vegada de la instància de la tasca. 
@@ -659,14 +660,14 @@ public interface WorkflowEngineApi {
 	 * @param variables
 	 * @param deleteFirst
 	 */
-	public void setTaskInstanceVariables(String taskId, Map<String, Object> variables, boolean deleteFirst);
+	public void setTaskInstanceVariables(String taskId, Map<String, Object> variables, boolean deleteFirst) throws HeliumJbpmException;
 	
 	/** Esborra una variable de la instància de la tasca
 	 * 
 	 * @param taskId
 	 * @param varName
 	 */
-	public void deleteTaskInstanceVariable(String taskId, String varName);
+	public void deleteTaskInstanceVariable(String taskId, String varName) throws HeliumJbpmException;
 	
 	//TODO: Comprovar si s'ha d'implementr el mètode per finalitzar expedients demanat en la versió 3.2.45 
 	// finalitzarExpedient(, boolean cancel·larTasquesActives)
@@ -679,21 +680,21 @@ public interface WorkflowEngineApi {
 	 * @param tokenId
 	 * @return
 	 */
-	public WToken getTokenById(String tokenId);
+	public WToken getTokenById(String tokenId) throws HeliumJbpmException;
 	
 	/** Consulta la llista de tokens actius per una instància de procés.
 	 * 
 	 * @param processInstanceId
 	 * @return
 	 */
-	public Map<String, WToken> getActiveTokens(String processInstanceId);
+	public Map<String, WToken> getActiveTokens(String processInstanceId) throws HeliumJbpmException;
 	
 	/** Retorna una llista de tots els tokens d'una instància de procés.
 	 * 
 	 * @param processInstanceId
 	 * @return
 	 */
-	public Map<String, WToken> getAllTokens(String processInstanceId);
+	public Map<String, WToken> getAllTokens(String processInstanceId) throws HeliumJbpmException;
 	
 	/** Mètode per redirigir la execució cap a un altre token
 	 * 
@@ -703,7 +704,7 @@ public interface WorkflowEngineApi {
 	 * @param enterNodeIfTask
 	 * @param executeNode
 	 */
-	public void tokenRedirect(String tokenId, String nodeName, boolean cancelTasks, boolean enterNodeIfTask, boolean executeNode);
+	public void tokenRedirect(String tokenId, String nodeName, boolean cancelTasks, boolean enterNodeIfTask, boolean executeNode) throws HeliumJbpmException;
 	
 	/** Mètode per activar o desactivar un token.
 	 * 
@@ -711,56 +712,56 @@ public interface WorkflowEngineApi {
 	 * @param activar
 	 * @return
 	 */
-	public boolean tokenActivar(String tokenId, boolean activar);
+	public boolean tokenActivar(String tokenId, boolean activar) throws HeliumJbpmException;
 	
 	/** Mètode per enviar un senyal a un token per a que avanci per una transició.
 	 * 
 	 * @param tokenId
 	 * @param transitionName
 	 */
-	public void signalToken(String tokenId, String transitionName);
+	public void signalToken(String tokenId, String transitionName) throws HeliumJbpmException;
 	
 	// ACCIONS
 	////////////////////////////////////////////////////////////////////////////////
 	public Map<String, Object> evaluateScript(
             String processInstanceId,
             String script,
-            Set<String> outputNames);
+            Set<String> outputNames) throws HeliumJbpmException;
 	public Object evaluateExpression(
             String taskInstanceInstanceId,
             String processInstanceId,
             String expression,
-            Map<String, Object> valors);
+            Map<String, Object> valors) throws HeliumJbpmException;
 	
-	public List<String> listActions(String jbpmId);
+	public List<String> listActions(String jbpmId) throws HeliumJbpmException;
 	public void executeActionInstanciaProces(
             String processInstanceId,
             String actionName,
-            String processDefinitionPareId);
+            String processDefinitionPareId) throws HeliumJbpmException;
 	public void executeActionInstanciaTasca(
             String taskInstanceId,
             String actionName,
-            String processDefinitionPareId);
+            String processDefinitionPareId) throws HeliumJbpmException;
 
 
 	// TIMERS
 	////////////////////////////////////////////////////////////////////////////////
-	//public List<Timer> findTimersWithProcessInstanceId(String processInstanceId);
+	//public List<Timer> findTimersWithProcessInstanceId(String processInstanceId) throws HeliumJbpmException;
 
-	public void suspendTimer(String timerId, Date dueDate);
-	public void resumeTimer(String timerId, Date dueDate);
+	public void suspendTimer(String timerId, Date dueDate) throws HeliumJbpmException;
+	public void resumeTimer(String timerId, Date dueDate) throws HeliumJbpmException;
 
 
 	// AREES I CARRECS
 	////////////////////////////////////////////////////////////////////////////////
-	public List<String> findAreesByFiltre(String filtre);
-	public List<String> findAreesByPersona(String personaCodi);
-	public List<String> findRolsByPersona(String persona);
-	public List<String[]> findCarrecsByFiltre(String filtre);
-	public List<String> findPersonesByGrupAndCarrec(String areaCodi, String carrecCodi);
-	public List<String> findCarrecsByPersonaAndGrup(String codiPersona, String codiArea);
-	public List<String> findPersonesByCarrec(String codi);
-	public List<String> findPersonesByGrup(String rol);
+	public List<String> findAreesByFiltre(String filtre) throws HeliumJbpmException;
+	public List<String> findAreesByPersona(String personaCodi) throws HeliumJbpmException;
+	public List<String> findRolsByPersona(String persona) throws HeliumJbpmException;
+	public List<String[]> findCarrecsByFiltre(String filtre) throws HeliumJbpmException;
+	public List<String> findPersonesByGrupAndCarrec(String areaCodi, String carrecCodi) throws HeliumJbpmException;
+	public List<String> findCarrecsByPersonaAndGrup(String codiPersona, String codiArea) throws HeliumJbpmException;
+	public List<String> findPersonesByCarrec(String codi) throws HeliumJbpmException;
+	public List<String> findPersonesByGrup(String rol) throws HeliumJbpmException;
 
 	// A ELIMINAR
 	////////////////////////////////////////////////////////////////////////////////
@@ -770,13 +771,13 @@ public interface WorkflowEngineApi {
 	////////////////////////////////////////////////////////////////////////////////
 	// Transicions (Sequence flow)
 
-	public List<String> findStartTaskOutcomes(String jbpmId, String taskName);
-	public List<String> findTaskInstanceOutcomes(String taskInstanceId);
-	public List<String> findArrivingNodeNames(String tokenId); // Retrocedir??
+	public List<String> findStartTaskOutcomes(String jbpmId, String taskName) throws HeliumJbpmException;
+	public List<String> findTaskInstanceOutcomes(String taskInstanceId) throws HeliumJbpmException;
+	public List<String> findArrivingNodeNames(String tokenId) throws HeliumJbpmException; // Retrocedir??
 
 	// Expedients
 
-	public ExpedientDto expedientFindByProcessInstanceId(String processInstanceId);
+	public ExpedientDto expedientFindByProcessInstanceId(String processInstanceId) throws HeliumJbpmException;
 	public ResultatConsultaPaginada<Long> expedientFindByFiltre(
             Long entornId,
             String actorId,
@@ -802,7 +803,7 @@ public interface WorkflowEngineApi {
             boolean nomesTasquesGrup,
             boolean nomesTasquesMeves,
             PaginacioParamsDto paginacioParams,
-            boolean nomesCount);
+            boolean nomesCount) throws HeliumJbpmException;
 			/*
 			| V3
 			|- ExpedientServiceImpl
@@ -812,24 +813,24 @@ public interface WorkflowEngineApi {
 			|		- findIdsAmbFiltre
 			*/
 
-	public void desfinalitzarExpedient(String processInstanceId);
+	public void desfinalitzarExpedient(String processInstanceId) throws HeliumJbpmException;
 	/** Mètode per finalitzar l'expedient. */
-	public void finalitzarExpedient(String[] processInstanceIds, Date dataFinalitzacio);
+	public void finalitzarExpedient(String[] processInstanceIds, Date dataFinalitzacio) throws HeliumJbpmException;
 
 
 	// Tasques en segón pla
 
-	public void marcarFinalitzar(String taskId, Date marcadaFinalitzar, String outcome, String rols);
-	public void marcarIniciFinalitzacioSegonPla(String taskId, Date iniciFinalitzacio);
-	public void guardarErrorFinalitzacio(String taskId, String errorFinalitzacio);
-	public List<Object[]> getTasquesSegonPlaPendents();
+	public void marcarFinalitzar(String taskId, Date marcadaFinalitzar, String outcome, String rols) throws HeliumJbpmException;
+	public void marcarIniciFinalitzacioSegonPla(String taskId, Date iniciFinalitzacio) throws HeliumJbpmException;
+	public void guardarErrorFinalitzacio(String taskId, String errorFinalitzacio) throws HeliumJbpmException;
+	public List<Object[]> getTasquesSegonPlaPendents() throws HeliumJbpmException;
 
 	// Eliminació de definicions de procés
-	public List<String> findDefinicionsProcesIdNoUtilitzadesByEntorn(Long entornId);
-	public List<String> findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(Long expedientTipusId);
+	public List<String> findDefinicionsProcesIdNoUtilitzadesByEntorn(Long entornId) throws HeliumJbpmException;
+	public List<String> findDefinicionsProcesIdNoUtilitzadesByExpedientTipusId(Long expedientTipusId) throws HeliumJbpmException;
 	public List<ExpedientDto> findExpedientsAfectatsPerDefinicionsProcesNoUtilitzada(
             Long expedientTipusId,
-            Long processDefinitionId);
+            Long processDefinitionId) throws HeliumJbpmException;
 
 	// Avaluació d'expressions
 	/** Avalua una expressió amb uns valors de variables en el contexte.
@@ -843,14 +844,14 @@ public interface WorkflowEngineApi {
 	public Object evaluateExpression(
             String expression,
             Class expectedClass,
-            Map<String, Object> context);
+            Map<String, Object> context) throws HeliumJbpmException;
 
 
 	// Retroacció
 	public void retrocedirAccio(String processInstanceId,
                                 String actionName,
                                 List<String> params,
-                                String processDefinitionPareId);
+                                String processDefinitionPareId) throws HeliumJbpmException;
 //	public Map<Token, List<ProcessLog>> getProcessInstanceLogs(String processInstanceId);
 //	public long addProcessInstanceMessageLog(String processInstanceId, String message);
 //	public long addTaskInstanceMessageLog(String taskInstanceId, String message);
@@ -868,8 +869,8 @@ public interface WorkflowEngineApi {
 //	public boolean hasStartBetweenLogs(long begin, long end, long taskInstanceId);
 //	public void deleteProcessInstanceTreeLogs(String rootProcessInstanceId);
 
-	public void setTaskInstanceActorId(String taskInstanceId, String actorId);
-	public void setTaskInstancePooledActors(String taskInstanceId, String[] pooledActors);
+	public void setTaskInstanceActorId(String taskInstanceId, String actorId) throws HeliumJbpmException;
+	public void setTaskInstancePooledActors(String taskInstanceId, String[] pooledActors) throws HeliumJbpmException;
 
 	/** Mètode per obtenir una definició de procés a partir del contingut comprimit del mateix.
 	 * 
@@ -877,6 +878,6 @@ public interface WorkflowEngineApi {
 	 * @return
 	 * @throws Exception
 	 */
-	public WProcessDefinition parse(ZipInputStream zipInputStream) throws Exception;
+	public WProcessDefinition parse(ZipInputStream zipInputStream) throws Exception, HeliumJbpmException;
 
 }

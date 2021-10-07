@@ -2,6 +2,7 @@ package net.conselldemallorca.helium.api.service;
 
 import net.conselldemallorca.helium.api.dto.*;
 import net.conselldemallorca.helium.api.dto.registre.RegistreAnotacio;
+import net.conselldemallorca.helium.api.exception.HeliumJbpmException;
 
 import java.util.Date;
 import java.util.List;
@@ -48,10 +49,10 @@ public interface WorkflowBridgeService {
 
 	public void expedientAturar(
             String processInstanceId,
-            String motiu);
+            String motiu) throws HeliumJbpmException;
 
 	public void expedientReprendre(
-            String processInstanceId);
+            String processInstanceId) throws HeliumJbpmException;
 
 	public void expedientModificarEstat(
             String processInstanceId,
@@ -103,9 +104,9 @@ public interface WorkflowBridgeService {
 			String processInstanceId,
 			String responsableCodi);
 
-	public void finalitzarExpedient(String processInstanceId);
+	public void finalitzarExpedient(String processInstanceId) throws HeliumJbpmException;
 
-	public void desfinalitzarExpedient(String processInstanceId);
+	public void desfinalitzarExpedient(String processInstanceId) throws HeliumJbpmException;
 
 	public void updateExpedientError(
 			Long jobId,
@@ -245,7 +246,7 @@ public interface WorkflowBridgeService {
 	public void documentExpedientEsborrar(
             String taskInstanceId,
             String processInstanceId,
-            String documentCodi);
+            String documentCodi) throws HeliumJbpmException;
 
 	// TERMINIS
 	////////////////////////////////////////////////////////////////////////////////
@@ -553,7 +554,7 @@ public interface WorkflowBridgeService {
 			String nodeName,
 			boolean cancelarTasques);
 	public boolean tokenActivar(long tokenId, boolean activar);
-	public void expedientEliminaInformacioRetroaccio(String processInstanceId);
+	public void expedientEliminaInformacioRetroaccio(String processInstanceId) throws HeliumJbpmException;
 	public void afegirInstanciaProcesPerVerificarFinalitzacio(String processInstanceId);
 
 	// PROCESSOS

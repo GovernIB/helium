@@ -2,6 +2,7 @@ package net.conselldemallorca.helium.jbpm3.service;
 
 import net.conselldemallorca.helium.api.dto.*;
 import net.conselldemallorca.helium.api.dto.registre.RegistreAnotacio;
+import net.conselldemallorca.helium.api.exception.HeliumJbpmException;
 import net.conselldemallorca.helium.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.api.service.WProcessInstance;
 import net.conselldemallorca.helium.api.service.WorkflowBridgeService;
@@ -71,6 +72,8 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     GenericsHelper genericsHelper;
     @Autowired
     ProcesHelper procesHelper;
+    @Autowired
+    DadesHelper dadesHelper;
 
     @Autowired
     CommandService commandService;
@@ -167,14 +170,14 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     @Override
     public void expedientAturar(
             String processInstanceId,
-            String motiu) {
+            String motiu) throws HeliumJbpmException {
 
         workflowEngineApi.suspendProcessInstances(getExpedientProcessInstances(processInstanceId));
         expedientsHelper.expedientAturar(processInstanceId, motiu);
     }
 
     @Override
-    public void expedientReprendre(String processInstanceId) {
+    public void expedientReprendre(String processInstanceId) throws HeliumJbpmException {
 
         workflowEngineApi.resumeProcessInstances(getExpedientProcessInstances(processInstanceId));
         expedientsHelper.expedientReprendre(processInstanceId);
@@ -273,7 +276,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     }
 
     @Override
-    public void finalitzarExpedient(String processInstanceId) {
+    public void finalitzarExpedient(String processInstanceId) throws HeliumJbpmException {
 
         Date dataFinalitzacio = new Date();
         workflowEngineApi.finalitzarExpedient(
@@ -283,7 +286,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     }
 
     @Override
-    public void desfinalitzarExpedient(String processInstanceId) {
+    public void desfinalitzarExpedient(String processInstanceId) throws HeliumJbpmException {
         workflowEngineApi.desfinalitzarExpedient(processInstanceId);
         expedientsHelper.desfinalitzarExpedient(processInstanceId);
     }
@@ -559,7 +562,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     public void documentExpedientEsborrar(
             String taskInstanceId,
             String processInstanceId,
-            String documentCodi) {
+            String documentCodi) throws HeliumJbpmException {
 
         Object varValor = null;
         String varCodi = JbpmVars.PREFIX_DOCUMENT + documentCodi;
@@ -1100,7 +1103,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     }
 
     @Override
-    public void expedientEliminaInformacioRetroaccio(String processInstanceId) {
+    public void expedientEliminaInformacioRetroaccio(String processInstanceId) throws HeliumJbpmException {
         WProcessInstance pi = workflowEngineApi.getRootProcessInstance(processInstanceId);
         GetProcessInstancesTreeCommand command = new GetProcessInstancesTreeCommand(new Long(pi.getId()));
         for (ProcessInstance pd: (List<ProcessInstance>)commandService.execute(command)) {
@@ -1137,7 +1140,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
         return mapaVariablesString;
     }
 
-    private String[] getExpedientProcessInstances(String processInstanceId) {
+    private String[] getExpedientProcessInstances(String processInstanceId) throws HeliumJbpmException {
         List<WProcessInstance> processInstancesTree = workflowEngineApi.getProcessInstanceTree(
                 workflowEngineApi.getRootProcessInstance(processInstanceId).getId());
         String[] ids = new String[processInstancesTree.size()];

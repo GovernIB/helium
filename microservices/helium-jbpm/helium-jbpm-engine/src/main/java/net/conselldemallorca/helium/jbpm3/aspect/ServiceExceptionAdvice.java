@@ -20,12 +20,16 @@ public class ServiceExceptionAdvice {
     		"within(net.conselldemallorca.helium.jbpm3.helper.*) || " +
     		"execution(* net.conselldemallorca.helium.jbpm3.helper.TasquesHelper.*(..)) || " + 
             "execution(* net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper.*(..))")
-    public Object swallowRuntimeException(ProceedingJoinPoint pjp) throws Throwable {
+    public Object swallowRuntimeException(ProceedingJoinPoint pjp) throws HeliumJbpmException {
         try {
             return pjp.proceed();
-        } catch (RuntimeException e) {
-            log.error("S'ha produït una excepció no controlada: " + e.getClass() + " :" + e.getMessage(), e);
-            throw new HeliumJbpmException(e);
+        } catch (Throwable t) {
+//            if (t instanceof RuntimeException || t instanceof Error) {
+                log.error("S'ha produït una excepció no controlada: " + t.getClass() + " :" + t.getMessage(), t);
+                throw new HeliumJbpmException(t);
+//            } else {
+//                throw t;
+//            }
         }
     }
 

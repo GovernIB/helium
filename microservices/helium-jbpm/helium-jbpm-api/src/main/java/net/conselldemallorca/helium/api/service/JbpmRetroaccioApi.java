@@ -1,6 +1,7 @@
 package net.conselldemallorca.helium.api.service;
 
 import net.conselldemallorca.helium.api.dto.ExpedientLogDto;
+import net.conselldemallorca.helium.api.exception.HeliumJbpmException;
 
 import java.util.List;
 
@@ -10,20 +11,20 @@ import java.util.List;
  */
 public interface JbpmRetroaccioApi {
 
-	public void deleteProcessInstanceTreeLogs(String processInstanceId);
+	public void deleteProcessInstanceTreeLogs(String processInstanceId) throws HeliumJbpmException;
 
 	public Long addProcessInstanceMessageLog(
 			String processInstanceId,
-			String message);
+			String message) throws HeliumJbpmException;
 
 	public Long addTaskInstanceMessageLog(
 			String taskInstanceId,
-			String message);
+			String message) throws HeliumJbpmException;
 
 	public void retrocedirFinsLog(
 			ExpedientLogDto expedientLog,
 			List<ExpedientLogDto> expedientLogs,
 			boolean retrocedirPerTasques,
-			Long iniciadorId);
+			Long iniciadorId) throws HeliumJbpmException;
 
 	}
