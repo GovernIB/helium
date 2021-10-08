@@ -589,7 +589,7 @@ public class WorkflowEngineController {
         return new ResponseEntity(objectMapToVariableRestConvert(variables), HttpStatus.OK);
     }
 
-    @RequestMapping(value="/taskInstances/{taskId}/taskInstanceVariables/{varName}", method = RequestMethod.GET)
+    @RequestMapping(value="/taskInstances/{taskId}/taskInstanceVariables/{varName:.+}", method = RequestMethod.GET)
 	@ResponseBody
     public ResponseEntity<VariableRest> getTaskInstanceVariable(
             @PathVariable("taskId") String taskId,
@@ -603,7 +603,7 @@ public class WorkflowEngineController {
                 HttpStatus.OK);
     }
 
-    @RequestMapping(value="/taskInstances/{taskId}/taskInstanceVariables/{varName}", method = RequestMethod.POST)
+    @RequestMapping(value="/taskInstances/{taskId}/taskInstanceVariables/{varName:.+}", method = RequestMethod.POST)
 	@ResponseBody
     public ResponseEntity<Void> setTaskInstanceVariable(
             @PathVariable("taskId") String taskId,
@@ -628,7 +628,7 @@ public class WorkflowEngineController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @RequestMapping(value="/taskInstances/{taskId}/taskInstanceVariables/{varName}", method = RequestMethod.DELETE)
+    @RequestMapping(value="/taskInstances/{taskId}/taskInstanceVariables/{varName:.+}", method = RequestMethod.DELETE)
 	@ResponseBody
     public ResponseEntity<Void> deleteTaskInstanceVariable(
             @PathVariable("taskId") String taskId,

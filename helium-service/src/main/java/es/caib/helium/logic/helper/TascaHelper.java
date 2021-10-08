@@ -3,24 +3,6 @@
  */
 package es.caib.helium.logic.helper;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-
 import es.caib.helium.client.engine.model.WTaskInstance;
 import es.caib.helium.client.expedient.tasca.TascaClientService;
 import es.caib.helium.client.expedient.tasca.model.ConsultaTascaDades;
@@ -50,6 +32,24 @@ import es.caib.helium.persist.entity.Tasca;
 import es.caib.helium.persist.repository.CampTascaRepository;
 import es.caib.helium.persist.repository.DefinicioProcesRepository;
 import es.caib.helium.persist.repository.TascaRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Helper per a gestionar les tasques dels expedients.
@@ -86,6 +86,7 @@ public class TascaHelper {
 	@Resource
 	private MessageServiceHelper messageServiceHelper;
 
+	private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
 	public WTaskInstance getTascaComprovacionsTramitacio(
 			String id,
@@ -778,9 +779,7 @@ public class TascaHelper {
 		Object valor = workflowEngineApi.getTaskInstanceVariable(
 				((WTaskInstance)task).getId(),
 				Constants.VAR_TASCA_VALIDADA);
-		if (valor == null || !(valor instanceof Date))
-			return false;
-		return true;
+		return isValorTipusDate(valor);
 	}
 	public boolean isDocumentsComplet(Object task) {
 		boolean ok = true;
@@ -877,6 +876,19 @@ public class TascaHelper {
 		workflowEngineApi.deleteTaskInstanceVariable(
 				task.getId(),
 				Constants.VAR_TASCA_DELEGACIO);
+	}
+
+	private boolean isValorTipusDate(Object valor) {
+		if (valor != null) {
+			if (valor instanceof String) {
+				try {
+					valor = sdf.parse((String) valor);
+				} catch (ParseException e) {}
+			}
+			if ((valor instanceof Date))
+				return true;
+		}
+		return false;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(TascaHelper.class);
