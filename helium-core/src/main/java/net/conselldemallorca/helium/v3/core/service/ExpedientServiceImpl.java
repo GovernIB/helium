@@ -1028,21 +1028,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 				false,
 				false);
 		
-		List<ExpedientTascaDto> tasques = tascaHelper.findTasquesPerExpedientPerInstanciaProces(
-				expedient,
-				expedient.getProcessInstanceId(),
-				true, // completades
-				true, // no completades
-				true);
+		List<PersonaDto> resposta = tascaHelper.findParticipants(expedient);
 		
-		Set<String> codisPersona = new HashSet<String>();
-		List<PersonaDto> resposta = new ArrayList<PersonaDto>();
-		for (ExpedientTascaDto tasca: tasques) {
-			if (tasca.getAssignee() != null && !codisPersona.contains(tasca.getAssignee())) {
-				resposta.add(tasca.getResponsable());
-				codisPersona.add(tasca.getAssignee());
-			}
-		}
 		return resposta;
 	}
 

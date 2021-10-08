@@ -79,6 +79,17 @@ public class TramitacioExterna extends BaseTest {
 		if (processInstanceId == null)
 			fail("No hi ha cap valor de processInstanceId");
 		
+		// Consulta la informació de l'expedient
+		try {
+			ExpedientInfo info = ws.getExpedientInfo(
+					propietats.getEntornTestCodi(), 
+					propietats.getUsuariTestCodi(), 
+					processInstanceId);
+			assertNotNull("La informació de l'expedient és nul·la", info);
+		} catch(Exception e) {
+			fail("Error consultant la informació de l'expedient: " + e.getMessage());
+		}
+		
 		// Valida via WS que s'ha creat amb el valor que toca
 		List<CampProces> variables = null;
 		try {
@@ -91,6 +102,25 @@ public class TramitacioExterna extends BaseTest {
 			fail("Error consultant les variables: " + e.getMessage());
 		}
 		assertNotNull("No s'han pogut consultar les variables de l'expedient", variables);
+		
+		// Fixa una variable tipus registre
+		try {
+			Object[][] registre = new Object[][]{
+				new Object[] {1, 2, 3},
+				new Object[] {"a", "b", "c"},
+				new Object[] {1f, 2f, 3f}
+			};
+			ws.setVariableProces(
+					propietats.getEntornTestCodi(), 
+					propietats.getUsuariTestCodi(), 
+					processInstanceId, 
+					"registre", 
+					registre);
+		} catch (TramitacioException e) {
+			e.printStackTrace();
+			fail("Error fixant variable tipus registre: " + e.getMessage());
+		}
+		
 		boolean validat = false;
 		for (CampProces var : variables)
 			validat = validat || ("tipus_test".equals(var.getCodi()) && "variables".equals(var.getValor()));

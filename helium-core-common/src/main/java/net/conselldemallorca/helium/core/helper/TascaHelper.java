@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -741,6 +742,26 @@ public class TascaHelper {
 				JbpmVars.VAR_TASCA_DELEGACIO);
 	}
 
+	/** Mètode per trobar i retornar els diferents usuaris assignats a les tasques obertes o tancades d'un expedient.
+	 * 
+	 * @param expedient
+	 * @return
+	 */
+	public List<PersonaDto> findParticipants(Expedient expedient) {
+		List<PersonaDto> participants = new ArrayList<PersonaDto>();
+
+		List<JbpmTask> tasks = jbpmHelper.findTaskInstancesForProcessInstance(expedient.getProcessInstanceId());
+		Set<String> codis = new HashSet<String>();
+		for (JbpmTask task: tasks) {
+			if (task.getAssignee() != null && ! codis.contains(task.getAssignee())) {
+				codis.add(task.getAssignee());
+				participants.add(this.findPersonaOrDefault(task.getAssignee()));
+			}
+		}
+		return participants;
+	}
+
+	
 	private static final Logger logger = LoggerFactory.getLogger(TascaHelper.class);
 
 }
