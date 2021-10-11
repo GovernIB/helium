@@ -1,6 +1,6 @@
 package es.caib.helium.dada.repository;
 
-import es.caib.helium.client.dada.dades.enums.Collections;
+import es.caib.helium.client.dada.dades.enums.ColleccionsMongo;
 import es.caib.helium.client.dada.dades.enums.DireccioOrdre;
 import es.caib.helium.client.dada.dades.enums.Tipus;
 import es.caib.helium.client.dada.dades.enums.TipusFiltre;
@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.AddFieldsOperation;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOptions;
@@ -25,6 +26,7 @@ import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.aggregation.SortOperation;
+import org.springframework.data.mongodb.core.aggregation.UnsetOperation;
 import org.springframework.data.mongodb.core.query.Collation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -95,11 +97,11 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 		var criteria = new Criteria();
 		criteria.and(Capcalera.EXPEDIENT_ID.getCamp()).in(expedients);
 		query.addCriteria(criteria);
-		var nEsborrats = mongoTemplate.remove(query, Expedient.class, Collections.EXPEDIENT.getNom());
+		var nEsborrats = mongoTemplate.remove(query, Expedient.class, ColleccionsMongo.EXPEDIENT.getNom());
 		if (nEsborrats == null || nEsborrats.getDeletedCount() != expedients.size()) {
 			throw new DadaException("No s'han pogut esborrar tots els expedients " + expedients.toString());
 		}
-		mongoTemplate.remove(query, Dada.class, Collections.DADA.getNom());
+		mongoTemplate.remove(query, Dada.class, ColleccionsMongo.DADA.getNom());
 		return nEsborrats.getDeletedCount();
 	}
 
@@ -178,7 +180,7 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 			}
 		}
 		// $lookup
-		operations.add(Aggregation.lookup(Collections.DADA.getNom(), Capcalera.EXPEDIENT_ID.getCamp(),
+		operations.add(Aggregation.lookup(ColleccionsMongo.DADA.getNom(), Capcalera.EXPEDIENT_ID.getCamp(),
 				Capcalera.EXPEDIENT_ID.getCamp(), Capcalera.DADES.getCamp()));
 
 		// $match filtresValor
@@ -191,7 +193,6 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 
 		// $project $sort
 		if (consulta.getColumnes() != null && consulta.getColumnes().size() > 0) {
-			//TODO FALTA AFEGIR LES COLUMNES PER DEFECTE 
 			//Per defecte es retornaran l'identificador de l'expedient, el número, el títol, la data d'alta i l'estat.
 			prepararColumnes(consulta.getColumnes(), operations);
 		}
@@ -214,10 +215,11 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 	 */
 	private void prepararColumnes(List<Columna> columnes, List<AggregationOperation> operations) {
 
-		List<String> cols = new ArrayList<>();
-		List<Columna> ordres = new ArrayList<>();
-		List<String> codisDadaValor = new ArrayList<>();
+		var cols = new ArrayList<String>();
+		var ordres = new ArrayList<Columna>();
+		var codisDadaValor = new ArrayList<String>();
 		cols.add(Capcalera.ID.getCamp());
+		var hiHaOrdenacioDeDades = false;
 		for (var columna : columnes) {
 			// Columna de capçalera
 			if (ObjectUtils.containsConstant(Capcalera.values(), columna.getNom())) {
@@ -229,54 +231,69 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 				}
 				continue;
 			}
-
 			// La columna és del tipus Dada. columna.getNom() ha de contenir el codi a buscar
 			codisDadaValor.add(columna.getNom());
 			if (columna.getOrdre() != null) {
 				columna.setNom(Dada.CODI.getCamp());
 				ordres.add(columna);
+				hiHaOrdenacioDeDades = ColleccionsMongo.DADA.equals(columna.getOrdre().getTipus());
 			}
 		}
-		ProjectionOperation projection = Aggregation.project(Fields.fields(cols.toArray(new String[cols.size()])));
-		if (!codisDadaValor.isEmpty()) { // Es filtraran les  dades en funcio del seu codi
-			projection.and(ArrayOperators.Filter.filter("dades").as("dades")
-					.by(ArrayOperators.In.arrayOf(codisDadaValor).containsValue("$$dades." + Dada.CODI.getCamp())))
-					.as("dades"); // TODO Falta repassar el codi per filtrar les columnes de les dades
+		if (!codisDadaValor.isEmpty()) {
+			cols.add(Capcalera.DADES.getCamp());
 		}
+		var projection = Aggregation.project(Fields.fields(cols.toArray(new String[cols.size()])));
+		ProjectionOperation projectionDades = null;
+		if (!codisDadaValor.isEmpty()) { // Es filtraran les dades en funcio del seu codi
+			projectionDades = projection.and(ArrayOperators.Filter.filter("$" + Capcalera.DADES.getCamp()).as(Capcalera.DADES.getCamp())
+			.by(ArrayOperators.In.arrayOf(codisDadaValor).containsValue("$$" + Capcalera.DADES.getCamp() + "." + Dada.CODI.getCamp()))).as(Capcalera.DADES.getCamp());
+		}
+		operations.add(projectionDades != null ? projectionDades : projection);
 
-		operations.add(projection);
-		// TODO MS: ARRECLAR EL SORT QUE SEMBLA FALLA!!
-	//	operations.add(crearSortOperation(ordres));
+		if (ordres.isEmpty()) {
+			return;
+		}
+		if (hiHaOrdenacioDeDades) {
+			// Afegir $addFields per ordenar pels valors de les dades
+			operations.add(AddFieldsOperation.addField("ordre").withValue("$dades.valor.valor").build());
+		}
+		// TODO MS: ACAVAR D'IMPLEMENTAR I PROVAR EL SORT AMB ELS DIFERENTS TIPUS DE DADES. CAS DE VARIABLES MULTIPLES I ALGUN POSSIBLE CAS NO CONTEMPLAT.
+		// TODO MS: EL ADD FIELDS NO FUNCIONARÀ BÉ SI HI HA MÉS D'UNA VARIABLE TIPUS DADA A FILTRAR,
+		operations.add(crearSortOperation(ordres));
+		if (hiHaOrdenacioDeDades) {
+			// Treure el camp afegit amb $addFields per ordenar per els valors de les dades.
+			operations.add(UnsetOperation.unset("ordre"));
+		}
 	}
 
 	/**
 	 * Crea la $sort per la llista de columnes demanades
 	 * Actualment només ordena per els camps de capçalera. Falta completar el TODO
-	 * @param ordres llista de columnes i l'ordre que han de tenir 
+	 * @param columnes llista de columnes amb l'ordre que han de tenir
 	 * @return Retorna la AggregationOperation Sort amb els ordres desitjats.
 	 */
-	private SortOperation crearSortOperation(List<Columna> ordres) {
+	private SortOperation crearSortOperation(List<Columna> columnes) {
 
-		ordres.sort((foo, bar) -> Integer.compare(foo.getOrdre().getOrdre(), bar.getOrdre().getOrdre()));
-		List<Order> orders = new ArrayList<>();
-		for (var ordre : ordres) {
-			if (ordre.getNom() == null || ordre.getNom().isEmpty() || ordre.getNom().equals("_id")
-					|| ordre.getNom().equals("id")) {
+		columnes.sort((foo, bar) -> Integer.compare(foo.getOrdre().getOrdre(), bar.getOrdre().getOrdre()));
+		List<Order> ordres = new ArrayList<>();
+		for (var columna : columnes) {
+			if (columna.getNom() == null || columna.getNom().isEmpty() || columna.getNom().equals("_id")
+					|| columna.getNom().equals("id")) {
 				continue;
 			}
-			if (ordre.getOrdre().getTipus().equals(Collections.EXPEDIENT)) {
-				// TODO CONTINUAR BUSCANT COM ORDENAR LES DADES, TAMBE VEURE A HELIUM COM GUARDAR ELS DIFERENTS TIPUS I INTEGRAR-HO
-				var nom = ordre.getNom().equals(Capcalera.DADES.getCamp()) ? "$$dades." + Dada.VALOR.getCamp() : ordre.getNom();
-				orders.add(new Order(ordre.getOrdre().getDireccio().equals(DireccioOrdre.ASC) ? Direction.ASC : Direction.DESC, nom));
+			if (columna.getOrdre().getTipus().equals(ColleccionsMongo.EXPEDIENT)) {
+				var nom = columna.getNom().equals(Capcalera.DADES.getCamp()) ? "$$dades." + Dada.VALOR.getCamp() : columna.getNom();
+				ordres.add(new Order(DireccioOrdre.ASC.equals(columna.getOrdre().getDireccio()) ? Direction.ASC : Direction.DESC, nom));
 				continue;
 			}
 
-//			System.out.println("ORDE TIPUS DADA ---> " + ordre.getNom());
-//			// TODO falta la part que no son camps de capçalera
-//			orders.add(new Order(ordre.getOrdre().getDireccio().equals(DireccioOrdre.ASC) ? Direction.ASC : Direction.DESC,"dades"));
+			// TODO falta la part que no son camps de capçalera
+			ordres.add(new Order(DireccioOrdre.ASC.equals(columna.getOrdre().getDireccio()) ? Direction.ASC : Direction.DESC,"ordre"));
 		}
-		orders.add(new Order(Direction.ASC, Capcalera.ID.getCamp()));
-		return Aggregation.sort(Sort.by(orders));
+		if (ordres.isEmpty()) { // Si no hi ha ordenacions, ordena per expedientId
+			ordres.add(new Order(Direction.DESC, Capcalera.EXPEDIENT_ID.getCamp()));
+		}
+		return Aggregation.sort(Sort.by(ordres));
 	}
 
 	/**
@@ -396,9 +413,12 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 			var min = valors.get(0).getValor();
 			var max = valors.get(1).getValor();
 			if (min == null && max == null) {
-				return criterias; //Si no hi ha valors cal fer res
+				return criterias; //Si no hi ha valors no cal fer res
 			}
 			var criteria = new Criteria();
+			if (filtreValor.getTipus().equals(Tipus.DATE)) {
+				max += " 24:59:59";
+			}
 			prepararCriteriaInterval(min, max, criteria, Dada.VALOR.getCamp());
 			criterias.add(criteria);
 			return criterias;
@@ -425,7 +445,7 @@ public class ExpedientRepositoryCustomImpl implements ExpedientRepositoryCustom 
 		}
 
 		if (min != null && max == null) {
-			criteria.and(nomCamp).gte(max);
+			criteria.and(nomCamp).gte(min);
 		}
 
 		if (min == null && max != null) {

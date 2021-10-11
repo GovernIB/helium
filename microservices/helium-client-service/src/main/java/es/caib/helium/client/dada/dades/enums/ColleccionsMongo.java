@@ -7,14 +7,17 @@ import lombok.Getter;
  * Si s'afegeixen col·leccions a MongoDB afegir-les aquí també.
  */
 @Getter
-public enum Collections {
+public enum ColleccionsMongo {
 
 	EXPEDIENT("expedient"),
-	DADA("dada");
+	DADA("dada"),
+	DOCUMENT("document");
 	
 	private String nom;
+
 	
-	private Collections(String nom) {
+	ColleccionsMongo(String nom) {
 		this.nom = nom;
 	}
+
 }

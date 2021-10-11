@@ -29,8 +29,6 @@ import javax.annotation.Resource;
 import javax.servlet.jsp.jstl.core.LoopTagStatus;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -273,21 +271,22 @@ public class TascaFormValidatorHelper {
 				} catch (NoSuchMethodException ex) {
 					logger.error("No s'ha pogut trobar la propietat '" + camp.getVarCodi() + "' con campId " + camp.getCampId());
 				}
-			} else if (camp.getCampTipus().equals(CampTipusDto.DATE) && camp.getText() != null && !camp.getText().isEmpty()) {
-				try {
-					PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
-					String valor = camp.getText();
-					if (valor != null) {
-						SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-						sdf.setLenient(false);
-						sdf.parse(valor);
-					}
-				} catch (NoSuchMethodException ex) {
-					logger.error("No s'ha pogut trobar la propietat '" + camp.getVarCodi() + "' con campId " + camp.getCampId());
-				} catch (ParseException ex) {
-					errors.rejectValue(camp.getVarCodi(), "error.camp.dada.valida");
-				}
 			}
+//			else if (camp.getCampTipus().equals(CampTipusDto.DATE) && camp.getText() != null && !camp.getText().isEmpty()) {
+//				try {
+//					var valor = PropertyUtils.getSimpleProperty(command, camp.getVarCodi());
+//					//String valor = camp.getText();
+//					if (valor != null) {
+//						SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+//						sdf.setLenient(false);
+//						sdf.parse(valor);
+//					}
+//				} catch (NoSuchMethodException ex) {
+//					logger.error("No s'ha pogut trobar la propietat '" + camp.getVarCodi() + "' con campId " + camp.getCampId());
+//				} catch (ParseException ex) {
+//					errors.rejectValue(camp.getVarCodi(), "error.camp.dada.valida");
+//				}
+//			}
 		}
 	}
 

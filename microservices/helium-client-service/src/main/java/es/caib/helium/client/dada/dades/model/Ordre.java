@@ -1,13 +1,13 @@
 package es.caib.helium.client.dada.dades.model;
 
-import es.caib.helium.client.dada.dades.enums.Collections;
+import es.caib.helium.client.dada.dades.enums.ColleccionsMongo;
 import es.caib.helium.client.dada.dades.enums.DireccioOrdre;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 /**
- * Classe que representa l'ordre en les {@link es.caib.helium.dada.model.Consulta}
+ * Classe que representa l'ordre en les {@link es.caib.helium.client.dada.dades.model.Consulta}
  */
 @Getter
 @Setter
@@ -16,5 +16,5 @@ public class Ordre {
 	
 	private int ordre;
 	private DireccioOrdre direccio;
-	private Collections tipus;
+	private ColleccionsMongo tipus;
 }

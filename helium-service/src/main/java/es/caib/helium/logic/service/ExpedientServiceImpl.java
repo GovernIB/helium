@@ -4,11 +4,16 @@
 package es.caib.helium.logic.service;
 
 import es.caib.helium.client.dada.dades.DadaClient;
+import es.caib.helium.client.dada.dades.enums.Capcalera;
+import es.caib.helium.client.dada.dades.enums.ColleccionsMongo;
+import es.caib.helium.client.dada.dades.enums.DireccioOrdre;
 import es.caib.helium.client.dada.dades.enums.Tipus;
 import es.caib.helium.client.dada.dades.enums.TipusFiltre;
+import es.caib.helium.client.dada.dades.model.Columna;
 import es.caib.helium.client.dada.dades.model.Filtre;
 import es.caib.helium.client.dada.dades.model.FiltreCapcalera;
 import es.caib.helium.client.dada.dades.model.FiltreValor;
+import es.caib.helium.client.dada.dades.model.Ordre;
 import es.caib.helium.client.dada.dades.model.ValorSimple;
 import es.caib.helium.client.engine.model.WProcessInstance;
 import es.caib.helium.client.engine.model.WTaskInstance;
@@ -149,6 +154,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -2410,6 +2416,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 		List<Camp> informeCamps = consultaHelper.toListCamp(consultaHelper.findCampsPerCampsConsulta(consulta, TipusConsultaCamp.INFORME));
 
 		var consultaMs = crearConsultaMsDades(filtreValors, filtreCamps);
+		crearColumnesPerConsultaMs(informeCamps, consultaMs, paginacioParams);
 		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<>();
 		List<es.caib.helium.client.dada.dades.model.Expedient> respostaMs = new ArrayList<>();
 		try {
@@ -2423,6 +2430,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 			var dadesExpedient = crearMapFila(informeCamps, expedientMs);
 			ExpedientConsultaDissenyDto fila = new ExpedientConsultaDissenyDto();
+			if (expedientMs.getExpedientId() == null) {
+				log.error("expedientId es null en la resposta del microservei de dades " + expedientMs.toString());
+				continue;
+			}
 			Expedient expedient = expedientRepository.getById(expedientMs.getExpedientId());
 			if (expedient != null) {
 				ExpedientDto expedientDto = expedientHelper.toExpedientDto(expedient);
@@ -2476,6 +2487,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 			// Si es una dada
 			var dades = expedientMs.getDades();
+			if (dades == null) {
+				return dadesExpedient;
+			}
 			for (var dada : dades) {
 				if (!informeCamp.getCodi().equals(dada.getCodi())) {
 					continue;
@@ -2543,8 +2557,45 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 		filtres.put(FiltreCapcalera.JSON_TYPE_NAME, filtreCapcelera);
 		consultaMs.setFiltreValors(filtres);
-		//TODO MS: RETORNAR NOMES COLUMNES NECESSARIES
 		return consultaMs;
+	}
+
+	private void crearColumnesPerConsultaMs(
+			List<Camp> campsInforme,
+			es.caib.helium.client.dada.dades.model.Consulta consulta,
+			PaginacioParamsDto paginacioParams) {
+
+		var columnes = new ArrayList<Columna>();
+		for (var camp : campsInforme) {
+			var columna = new Columna();
+			columna.setNom(camp.getCodi());
+			var capcalera = false;
+			if (camp.getCodi().startsWith(Constants.EXPEDIENT_PREFIX)) {
+				var codi = camp.getCodi().substring(Constants.EXPEDIENT_PREFIX.length());
+				codi = codi.equals("id") ? Capcalera.EXPEDIENT_ID.getCamp() : codi;
+				var campCampcalera = Capcalera.getByNom(codi);
+				columna.setNom(campCampcalera.name());
+				capcalera = true;
+			}
+
+			for (var ordre : paginacioParams.getOrdres()) {
+				if (camp.getCodi().equals(ordre.getCamp())) {
+					var o = new Ordre();
+					o.setOrdre(camp.getOrdre()); // TODO MS: COMPROVAR QUE REALMENT SIGUI AQUETS L'ORDRE D'ORDENACIO
+					o.setTipus(capcalera ? ColleccionsMongo.EXPEDIENT : ColleccionsMongo.DADA);
+					o.setDireccio(OrdreDireccioDto.DESCENDENT.equals(ordre.getDireccio()) ? DireccioOrdre.DESC : DireccioOrdre.ASC);
+					columna.setOrdre(o);
+				}
+			}
+//			if (camp.getOrdre() != null ) {
+//				var ordre = new Ordre();
+//				ordre.setOrdre(camp.getOrdre());
+//				// TODO MS: FALTA ASSIGNAR LA DIRECCIO DE LA ORDENACIO
+//				columna.setOrdre(ordre);
+//			}
+			columnes.add(columna);
+		}
+		consulta.setColumnes(columnes);
 	}
 
 	private void crearFiltreValor(String key, List<Camp> filtreCamps, Object filtreValor, Map<String, Filtre> filtres) {
@@ -2562,8 +2613,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 				if (data.length != 2 || (data[0] == null && data[1] == null)){
 					continue;
 				}
-				var dataI = data[0] != null ? data[0].toString() : null;
-				var dataF = data[1] != null ? data[1].toString() : null;
+				var sdf = new SimpleDateFormat("dd/MM/yyyy");
+				var dataI = data[0] != null ?  sdf.format(data[0]) : null;
+				var dataF = data[1] != null ? sdf.format(data[1]) : null;
 				filtreValorMs.setTipus(Tipus.DATE);
 				filtreValorMs.setTipusFiltre(TipusFiltre.RANG);
 				valorsSimples.add(new ValorSimple(dataI));
@@ -2573,6 +2625,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				if (enters.length != 2 || (enters[0] == null && enters[1] == null)) {
 					continue;
 				}
+
 				filtreValorMs.setTipus(Tipus.INTEGER);
 				filtreValorMs.setTipusFiltre(TipusFiltre.RANG);
 				valorsSimples.add(new ValorSimple(enters[0] + ""));

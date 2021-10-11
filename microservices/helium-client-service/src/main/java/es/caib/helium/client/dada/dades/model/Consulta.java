@@ -1,13 +1,12 @@
 package es.caib.helium.client.dada.dades.model;
 
-import java.util.List;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Classe utilitzada per gestionar les consultes complexes a la BDD
@@ -28,4 +27,6 @@ public class Consulta {
 	
 	private Map<String,Filtre> filtreValors;
 	private List<Columna> columnes;
+
+
 }

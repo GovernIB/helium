@@ -1,6 +1,6 @@
 package es.caib.helium.dada.model;
 
-import es.caib.helium.client.dada.dades.enums.Collections;
+import es.caib.helium.client.dada.dades.enums.ColleccionsMongo;
 import es.caib.helium.client.dada.dades.enums.DireccioOrdre;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,5 +16,5 @@ public class Ordre {
 	
 	private int ordre;
 	private DireccioOrdre direccio;
-	private Collections tipus;
+	private ColleccionsMongo tipus;
 }

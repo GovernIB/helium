@@ -1,7 +1,9 @@
-package es.caib.helium.dada.enums;
+package es.caib.helium.client.dada.dades.enums;
 
-import es.caib.helium.client.dada.dades.enums.ColleccionsMongo;
 import lombok.Getter;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Enum representant els camps de la col·lecció {@link ColleccionsMongo#EXPEDIENT} a MongoDB
@@ -24,8 +26,25 @@ public enum Capcalera {
 	DADES("dades");
 	
 	private String camp;
+
+	// Map per trovar la Capcalera a partir del valor String
+	private static final Map<String, Capcalera> lookup = new HashMap<>();
+	static {
+		for (var col : Capcalera.values()) {
+			lookup.put(col.getCamp(), col);
+		}
+	}
 	
-	private Capcalera(String camp) {
+	Capcalera(String camp) {
 		this.camp = camp;
+	}
+
+
+	public static Capcalera getByNom(String nom) {
+		try {
+			return lookup.get(nom);
+		} catch (Exception ex) {
+			return null;
+		}
 	}
 }

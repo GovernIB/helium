@@ -1,6 +1,6 @@
 package es.caib.helium.dada.repository;
 
-import es.caib.helium.client.dada.dades.enums.Collections;
+import es.caib.helium.client.dada.dades.enums.ColleccionsMongo;
 import es.caib.helium.client.dada.dades.enums.DireccioOrdre;
 import es.caib.helium.client.dada.dades.enums.Tipus;
 import es.caib.helium.dada.model.Columna;
@@ -132,7 +132,7 @@ public class ExpedientRepositoryCustomTest {
 		var ordre = new Ordre();
 		ordre.setDireccio(DireccioOrdre.ASC);
 		ordre.setOrdre(1);
-		ordre.setTipus(Collections.DADA);
+		ordre.setTipus(ColleccionsMongo.DADA);
 		columnes.add(columna);
 
 		consultaMock.setColumnes(columnes);
