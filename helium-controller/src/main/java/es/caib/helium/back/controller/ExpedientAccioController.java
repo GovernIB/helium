@@ -1,11 +1,11 @@
 package es.caib.helium.back.controller;
 
-import es.caib.helium.back.helper.MissatgesHelper;
-import es.caib.helium.logic.intf.dto.AccioDto;
-import es.caib.helium.logic.intf.dto.ExpedientDto;
-import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
-import es.caib.helium.logic.intf.exception.PermisDenegatException;
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
@@ -14,10 +14,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import es.caib.helium.back.helper.MissatgesHelper;
+import es.caib.helium.logic.intf.dto.AccioDto;
+import es.caib.helium.logic.intf.dto.ExpedientDto;
+import es.caib.helium.logic.intf.dto.InstanciaProcesDto;
+import es.caib.helium.logic.intf.exception.PermisDenegatException;
 
 /**
  * Controlador per a la pàgina d'accions de l'expedient.
@@ -94,7 +95,7 @@ public class ExpedientAccioController extends BaseExpedientController {
 					procesId,
 					accioId);
 			nomAccio = accio.getNom();
-			Throwable t = ExceptionUtils.getRootCause(ex);
+			Throwable t = ex.getCause() != null? ex.getCause() : ex;
 			MissatgesHelper.error(
 	    			request,
 	    			getMessage(request, "error.executar.accio") + " " + nomAccio + ": " + t.getClass().getSimpleName() + ": "+ t.getMessage());

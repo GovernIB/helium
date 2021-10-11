@@ -38,43 +38,43 @@ div.proces:hover {
 </style>
 
 <c:set var="potAfegir">${expedient.permisDocManagement && (empty expedient.dataFi || !expedient.arxiuActiu)}</c:set>
-<div class="${potAfegir ? 'pull-left' : '' }" style="padding: 5px;">
-	<a id="descarregarZip"
-		href="<c:url value="/v3/expedient/${expedient.id}/document/descarregarZip"/>" class="btn btn-default" title="<spring:message code="expedient.document.descarregar.zip"/>">
-		<span class="fa fa-download"></span> <spring:message code="comu.boto.descarregar"></spring:message>
-	</a>
-</div>
-
-<div class="pull-left" style="padding: 5px; width: 70px;">	
-	<!-- Botó d'ordenació -->
-	<div id="sortDocuments" class="btn-group btn-group-justified" data-sort="default" title="<spring:message code="expedient.document.ordenar.default"/>">
-	  <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#">
-	  	<span id="sortDocumentsMainIcon">
-	  		<i class="fa fa-sort-amount-asc"></i>
-	  	</span>
-	    <span class="fa fa-caret-down"></span>
-	  </a>
-	  <ul class="dropdown-menu">
-	    <li><a class="documentsSortOption" data-sort="default"><i class="fa fa-sort-amount-asc documentsSortIcon"></i> <spring:message code="expedient.document.ordenar.default"/></a></li>
-	    <li><a class="documentsSortOption" data-sort="titol"><i class="fa fa-sort-alpha-asc documentsSortIcon"></i> <spring:message code="expedient.document.ordenar.titol"/></a></li>
-	    <li><a class="documentsSortOption" data-sort="data"><i class="documentsSortIcon"><span class="fa fa-sort-amount-asc fa-fw"></span><span class="fa fa-clock-o"></span></i> <spring:message code="expedient.document.ordenar.data"/></a></li>
-	  </ul>
+<div class="${potAfegir ? 'pull-left' : '' }" style="padding: 5px; height: 50px;">
+	<div class="pull-left">
+		<a id="descarregarZip"
+			href="<c:url value="/v3/expedient/${expedient.id}/document/descarregarZip"/>" class="btn btn-default" title="<spring:message code="expedient.document.descarregar.zip"/>">
+			<span class="fa fa-download"></span> <spring:message code="comu.boto.descarregar"></spring:message>
+		</a>
 	</div>
-</div>
-
-<div class="pull-left" style="padding: 5px">
-	<table border="0">
-		<tr>
-			<td>
-				<span class="fa fa-search" style="position: absolute;float: left;padding-left: 10px;padding-top: 10px;"></span>
-				<input id="searchDocuments" class="form-control" placeholder="<spring:message code="expedient.document.filtrar"/>" autocomplete="off" spellcheck="false" autocorrect="off" tabindex="1"
-					style="padding-left: 35px;">
-		</td>
-			<td>
-				<span id="searchTotal" style="padding-left: 20px; font-weight: bold;"></span>
+	<div class="pull-left" style="padding-left: 5px; width: 70px;">	
+		<!-- Botó d'ordenació -->
+		<div id="sortDocuments" class="btn-group btn-group-justified" data-sort="default" title="<spring:message code="expedient.document.ordenar.default"/>">
+		  <a class="btn btn-default dropdown-toggle" data-toggle="dropdown" href="#">
+		  	<span id="sortDocumentsMainIcon">
+		  		<i class="fa fa-sort-amount-asc"></i>
+		  	</span>
+		    <span class="fa fa-caret-down"></span>
+		  </a>
+		  <ul class="dropdown-menu">
+		    <li><a class="documentsSortOption" data-sort="default"><i class="fa fa-sort-amount-asc documentsSortIcon"></i> <spring:message code="expedient.document.ordenar.default"/></a></li>
+		    <li><a class="documentsSortOption" data-sort="titol"><i class="fa fa-sort-alpha-asc documentsSortIcon"></i> <spring:message code="expedient.document.ordenar.titol"/></a></li>
+		    <li><a class="documentsSortOption" data-sort="data"><i class="documentsSortIcon"><span class="fa fa-sort-amount-asc fa-fw"></span><span class="fa fa-clock-o"></span></i> <spring:message code="expedient.document.ordenar.data"/></a></li>
+		  </ul>
+		</div>
+	</div>
+	<div class="pull-left" style="padding-left: 5px">
+		<table border="0">
+			<tr>
+				<td>
+					<span class="fa fa-search" style="position: absolute;float: left;padding-left: 10px;padding-top: 10px;"></span>
+					<input id="searchDocuments" class="form-control" placeholder="<spring:message code="expedient.document.filtrar"/>" autocomplete="off" spellcheck="false" autocorrect="off" tabindex="1"
+						style="padding-left: 35px;">
 			</td>
-		</tr>
-	</table>
+				<td>
+					<span id="searchTotal" style="padding-left: 20px; font-weight: bold;"></span>
+				</td>
+			</tr>
+		</table>
+	</div>
 </div>
 
 <c:import url="procesDocuments.jsp"/>

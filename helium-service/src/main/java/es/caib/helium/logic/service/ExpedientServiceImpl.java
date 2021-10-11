@@ -330,6 +330,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 						adjunts = new ArrayList<DadesDocumentDto>();
 					adjunts.addAll(distribucioHelper.getDocumentsAdjunts(expedientTipus, anotacio));
 				}
+				registreNumero = anotacio.getIdentificador();
+				registreData = anotacio.getData();
 			}
 			
 			// Es crida la creació a través del helper per evitar errors de concurrència de creació de dos expedients

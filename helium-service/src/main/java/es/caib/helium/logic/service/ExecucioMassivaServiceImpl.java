@@ -1480,8 +1480,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 							new Object[] { definicioProces.getIdPerMostrar(), "" }) + ": " + msg);
 					
 				} else { 
+					Throwable t = ExceptionUtils.getRootCause(ex) != null? ExceptionUtils.getCause(ex) : ex ;					
 					throw new Exception(messageServiceHelper.getMessage("error.proces.peticio") + ": "
-							+ ExceptionUtils.getRootCauseMessage(ex), ExceptionUtils.getRootCause(ex));
+							+ ExceptionUtils.getRootCauseMessage(ex), t);
 				}
 			}
 		}
