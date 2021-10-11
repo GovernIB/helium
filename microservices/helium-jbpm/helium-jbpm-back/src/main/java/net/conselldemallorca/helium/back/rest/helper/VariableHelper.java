@@ -125,13 +125,13 @@ public class VariableHelper {
                 case LONG:
                 case FLOAT:
                 case BOOLEAN:
+                case PREU:
+                case STRING:
                     return String.valueOf(valor);
                 case DATE:
                     return DATE_FORMAT.format((Date)valor);
                 case TERMINI:
                     return Termini.valueFromTermini((Termini)valor);
-                case PREU:
-                    return valor.toString();
                 case REGISTRE:
                     // TODO: Variables tipus REGISTRE!!!
                 case OBJECT:

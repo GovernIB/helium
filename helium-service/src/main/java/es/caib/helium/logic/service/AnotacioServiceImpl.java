@@ -150,7 +150,9 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			// d'anotacions
 			if (!usuariActualHelper.isAdministrador()) {
 				expedientTipusIdsPermesos = expedientTipusHelper.findIdsAmbPermisos(entornHelper.getEntorn(entornId),
-						new Permission[] { ExtendedPermission.RELATE });
+						new Permission[] { 
+								ExtendedPermission.RELATE,
+								ExtendedPermission.ADMINISTRATION });
 				if (expedientTipusIdsPermesos.isEmpty())
 					expedientTipusIdsPermesos.add(0L);
 			}
@@ -567,14 +569,17 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	private void comprovaPermisLectura(Anotacio anotacio) {
 
 		boolean isUsuariAdministrador = usuariActualHelper.isAdministrador();
-		boolean potReassignar = false;
+		boolean potRealacionar = false;
 		boolean potLlegir = false;
 		// Si no és administrador d'Helium
 		if (!isUsuariAdministrador) {
 			if (anotacio.getExpedientTipus() != null) {
 				// Comprova si té el permís de reassignar sobre el tipus d'expedient
-				potReassignar = expedientTipusHelper.comprovarPermisos(anotacio.getExpedientTipus(), null,
-						new Permission[] { ExtendedPermission.RELATE });
+				potRealacionar = expedientTipusHelper.comprovarPermisos(anotacio.getExpedientTipus(), null,
+						new Permission[] { 
+								ExtendedPermission.RELATE,
+								ExtendedPermission.ADMINISTRATION
+						});
 				if (AnotacioEstatEnumDto.PROCESSADA.equals(anotacio.getEstat())) {
 					// Comprova si té permís de lectura
 					potLlegir = true;
@@ -582,9 +587,13 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			}
 		}
 		// Si no és administrador, ni pot reassignar ni llegir llença excepció
-		if (!isUsuariAdministrador && !potReassignar && !potLlegir) {
+		if (!isUsuariAdministrador && !potRealacionar && !potLlegir) {
 			throw new PermisDenegatException(anotacio.getId(), Anotacio.class,
-					new Permission[] { BasePermission.READ, ExtendedPermission.RELATE });
+					new Permission[] { 
+							BasePermission.READ, 
+							ExtendedPermission.RELATE,
+							ExtendedPermission.ADMINISTRATION
+					});
 		}
 	}
 

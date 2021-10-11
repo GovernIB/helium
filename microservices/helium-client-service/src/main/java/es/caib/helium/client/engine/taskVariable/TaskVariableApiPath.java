@@ -6,11 +6,11 @@ public class TaskVariableApiPath {
 	
 	public static final String GET_TASK_INSTANCE_VARIABLES = API_PATH + "/{taskId}/taskInstanceVariables";
 
-	public static final String GET_TASK_INSTANCE_VARIABLE = API_PATH + "/{taskId}/taskInstanceVariables/{varName}";
+	public static final String GET_TASK_INSTANCE_VARIABLE = API_PATH + "/{taskId}/taskInstanceVariables/{varName:.+}";
 	
 	public static final String SET_TASK_INSTANCE_VARIABLE = API_PATH + "/{taskId}/taskInstanceVariables/{varName}";
 
 	public static final String SET_TASK_INSTANCE_VARIABLES = API_PATH + "/{taskId}/taskInstanceVariables";
 
-	public static final String DELETE_TASK_INSTANCE_VARIABLE = API_PATH + "/{taskId}/taskInstanceVariables/{varName}";	
+	public static final String DELETE_TASK_INSTANCE_VARIABLE = API_PATH + "/{taskId}/taskInstanceVariables/{varName:.+}";
 }

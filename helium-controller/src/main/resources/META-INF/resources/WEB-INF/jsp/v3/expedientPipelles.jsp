@@ -325,8 +325,27 @@ dd.subproc {
 					</c:if>
 					<dt><spring:message code="expedient.info.camp.tipus"/></dt>
 					<dd>${expedient.tipus.nom}</dd>
+					<c:if test="${not empty expedient.registreNumero}">
+						<dt><spring:message code='expedient.info.camp.registre.numero' /></dt>
+						<dd>${expedient.registreNumero}</dd></c:if>
+					<c:if test="${not empty expedient.registreData}">
+						<dt><spring:message code='expedient.info.camp.registre.data' /></dt>
+						<dd><fmt:formatDate value="${expedient.registreData}" pattern="dd/MM/yyyy"/></dd>
+					</c:if>
 					<dt><spring:message code="expedient.info.camp.data.inici"/></dt>
 					<dd><fmt:formatDate value="${expedient.dataInici}" pattern="dd/MM/yyyy HH:mm"/></dd>
+					<c:choose>
+						<c:when test="${expedient.iniciadorTipus == 'SISTRA'}">
+							<dt><spring:message code='expedient.info.camp.tramit.origen' /></dt>
+							<dd>${expedient.bantelEntradaNum}</dd>
+						</c:when>
+						<c:otherwise>
+							<c:if test="${not empty expedient.iniciadorPersona}">
+								<dt><spring:message code='expedient.info.iniciat.per' /></dt>
+								<dd>${expedient.iniciadorPersona.nomSencer}</dd>
+							</c:if>
+						</c:otherwise>
+					</c:choose>
 					<block id="expedientDataFi" style="${not empty expedient.dataFi ? 'display:block' : 'display:none'}">
 						<dt><spring:message code="expedient.info.camp.data.fi"/></dt>
 						<dd><fmt:formatDate value="${expedient.dataFi}" pattern="dd/MM/yyyy HH:mm"/></dd>
@@ -359,6 +378,10 @@ dd.subproc {
 						    </a>
 						</span>
 					</dd>
+					<c:if test="${not empty expedient.responsablePersona}">
+						<dt><spring:message code='expedient.info.camp.responsable' /></dt>
+						<dd>${expedient.responsablePersona.nomSencer}</dd>
+					</c:if>					
 					<dt><spring:message code="expedient.info.camp.defproc"/></dt>
 					<dd class="proces">	
 						<span class="fa fa-picture-o" onclick="$('#imgDefinicioProcesJbpm').toggle();" style="display: none !important; cursor: pointer"></span>
