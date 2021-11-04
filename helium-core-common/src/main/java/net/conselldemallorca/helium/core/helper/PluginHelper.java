@@ -60,6 +60,7 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPluginException;
 import net.conselldemallorca.helium.integracio.plugins.firma.FirmaPlugin;
+import net.conselldemallorca.helium.integracio.plugins.firma.FirmaResposta;
 import net.conselldemallorca.helium.integracio.plugins.gesdoc.GestioDocumentalPlugin;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.Notificacio;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.NotificacioPlugin;
@@ -2050,13 +2051,14 @@ public class PluginHelper {
 		}
 	}
 
-	public byte[] firmaServidor(
+	public FirmaResposta firmaServidor(
 			Expedient expedient,
 			DocumentStore documentStore,
 			ArxiuDto arxiu,
 			net.conselldemallorca.helium.integracio.plugins.firma.FirmaTipus firmaTipus,
 			String motiu) {
 		String accioDescripcio = "Firma en servidor de document";
+		String tipusDocumentalNti = documentStore.getNtiTipoDocumental() != null? documentStore.getNtiTipoDocumental().getValorNti() : "";
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 				new IntegracioParametreDto(
 						"expedientIdentificador",
@@ -2074,6 +2076,9 @@ public class PluginHelper {
 						"expedientTipusNom",
 						expedient.getTipus().getNom()),
 				new IntegracioParametreDto(
+						"documentId",
+						documentStore.getId().toString()),
+				new IntegracioParametreDto(
 						"documentCodi",
 						documentStore.getCodiDocument()),
 				new IntegracioParametreDto(
@@ -2081,23 +2086,31 @@ public class PluginHelper {
 						arxiu.getNom()),
 				new IntegracioParametreDto(
 						"arxiuTamany",
-						arxiu.getTamany())
+						arxiu.getTamany()),
+				new IntegracioParametreDto(
+						"arxiuTipusMime",
+						arxiu.getTipusMime()),
+				new IntegracioParametreDto(
+						"tipusDocumental",
+						tipusDocumentalNti)
 		};
 		long t0 = System.currentTimeMillis();
 		try {
-			byte[] firma = getFirmaPlugin().firmar(
-					firmaTipus,
-					motiu,
+
+			FirmaResposta firmaResposta = getFirmaPlugin().firmar(
+					documentStore.getId().toString(),
 					arxiu.getNom(),
-					arxiu.getContingut());
-//					RegistreAnnexNtiTipusDocumentEnum.valueOf(documentStore.getNtiTipoDocumental().name()).getValor());
+					motiu,
+					arxiu.getContingut(),
+					arxiu.getTipusMime(),
+					tipusDocumentalNti);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_FIRMA_SERV,
 					accioDescripcio,
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
 					parametres);
-			return firma;
+			return firmaResposta;
 		} catch (Exception ex) {
 			String errorDescripcio = "No s'han pogut firmar el document: " + ex.getMessage();
 			monitorIntegracioHelper.addAccioError(

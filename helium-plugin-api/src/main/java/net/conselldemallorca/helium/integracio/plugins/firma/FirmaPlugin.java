@@ -12,10 +12,12 @@ import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
  */
 public interface FirmaPlugin {
 
-	public byte[] firmar(
-			FirmaTipus firmaTipus,
+	public FirmaResposta firmar(
+			String id,
+			String nom,
 			String motiu,
-			String arxiuNom,
-			byte[] arxiuContingut) throws SistemaExternException;
+			byte[] contingut, 
+			String mime,
+			String tipusDocumental) throws SistemaExternException;
 
 }

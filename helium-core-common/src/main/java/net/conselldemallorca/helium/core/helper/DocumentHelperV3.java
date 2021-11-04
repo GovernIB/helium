@@ -47,6 +47,7 @@ import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
 import net.conselldemallorca.helium.core.util.PdfUtils;
+import net.conselldemallorca.helium.integracio.plugins.firma.FirmaResposta;
 import net.conselldemallorca.helium.integracio.plugins.signatura.RespostaValidacioSignatura;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
@@ -1504,7 +1505,8 @@ public class DocumentHelperV3 {
 			// Transforma l'arxiu a PDF
 			arxiuPerFirmar = this.converteixPdf(arxiuPerFirmar);							
 		}
-		byte[] firma = pluginHelper.firmaServidor(
+		
+		FirmaResposta firma = pluginHelper.firmaServidor(
 				expedient,
 				documentStore,
 				arxiuPerFirmar,
@@ -1514,7 +1516,7 @@ public class DocumentHelperV3 {
 		guardarDocumentFirmat(
 				processInstanceId,
 				documentStoreId,
-				firma,
+				firma.getContingut(),
 				true,
 				permetreSignar);
 	}
@@ -1641,7 +1643,7 @@ public class DocumentHelperV3 {
 			documentArxiu = pluginHelper.arxiuDocumentInfo(
 					documentStore.getArxiuUuid(),
 					null,
-					false,
+					true,
 					true);
 			documentStore.setNtiIdentificador(documentArxiu.getMetadades().getIdentificador());
 			actualitzarNtiFirma(documentStore, documentArxiu);

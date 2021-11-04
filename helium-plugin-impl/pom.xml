@@ -116,7 +116,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<dependency>
+ 		<dependency>
 			<groupId>es.caib.portafib</groupId>
 			<artifactId>portafib-ws-api</artifactId>
 			<version>1.1</version>
@@ -224,15 +224,16 @@
 		<!-- /Dependències REGWEB3 -->
 		<!-- Dependències Firma servidor -->
 		<dependency>
-			<groupId>org.fundaciobit.plugins</groupId>
-			<artifactId>plugin-signatureserver-api</artifactId>
-			<version>2.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.fundaciobit.plugins</groupId>
-			<artifactId>plugin-signatureserver-portafib</artifactId>
-			<version>2.0.0</version>
-		</dependency>
+			<artifactId>apifirmasimple-jersey</artifactId>
+			<groupId>org.fundaciobit.apisib.apifirmasimple</groupId>
+			<version>1.0.3</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>jersey-client</artifactId>
+					<groupId>com.sun.jersey</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>		
 		<!-- /Dependències Firma servidor -->
 		<dependency>
 			<groupId>${project.groupId}</groupId>
@@ -249,7 +250,13 @@
 			<groupId>es.caib.notib</groupId>
 			<artifactId>notib-client</artifactId>
 			<version>1.1.10</version>
-		</dependency>
+			<exclusions>
+				<exclusion>
+					<artifactId>jersey-client</artifactId>
+					<groupId>com.sun.jersey</groupId>
+				</exclusion>
+			</exclusions>
+        </dependency>
 		
 	</dependencies>
 	<build>
