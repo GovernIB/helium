@@ -15,6 +15,8 @@ import org.apache.commons.logging.LogFactory;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.springframework.stereotype.Component;
 
+import es.caib.plugins.arxiu.api.FirmaPerfil;
+import es.caib.plugins.arxiu.api.FirmaTipus;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
@@ -488,12 +490,17 @@ public class DocumentHelper {
 	public void guardarDocumentFirmat(
 			DocumentStore documentStore,
 			byte[] signatura) throws Exception {
+		
+		// Guarda la firma asociada al document, es dona per fet que és un PDF
 		documentHelperV3.guardarDocumentFirmat(
 				documentStore.getProcessInstanceId(),
 				documentStore.getId(),
-				signatura,
-				true,
-				true);
+				"document_firmat.pdf",
+				"application/pdf",
+				FirmaTipus.PADES.name(),
+				"TF06",
+				FirmaPerfil.EPES.name(),
+				signatura);
 	}
 
 	private Long getDocumentStoreIdDeVariableJbpm(

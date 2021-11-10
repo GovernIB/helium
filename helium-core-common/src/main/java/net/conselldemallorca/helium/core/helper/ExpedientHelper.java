@@ -949,10 +949,8 @@ public class ExpedientHelper {
 		for (DocumentStore documentStore: documentsPerSignar) {
 				documentHelper.firmaServidor(
 						documentStore.getProcessInstanceId(),
-						//expedient.getProcessInstanceId(), 
 						documentStore.getId(), 
-						messageHelper.getMessage("document.controller.firma.servidor.default.message"),
-						true);
+						messageHelper.getMessage("document.controller.firma.servidor.default.message"));
 		}
 	}
 	

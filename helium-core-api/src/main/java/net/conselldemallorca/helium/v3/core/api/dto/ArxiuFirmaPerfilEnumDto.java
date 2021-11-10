@@ -17,5 +17,12 @@ public enum ArxiuFirmaPerfilEnumDto {
 	C,
 	X,
 	XL,
-	A;	
+	A,
+	BASIC,
+	BASELINE_B_LEVEL,
+	BASELINE_T_LEVEL,
+	BASELINE_LT_LEVEL,
+	BASELINE_LTA_LEVEL,
+	BASELINE_T,
+	LTA
 }

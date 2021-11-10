@@ -915,8 +915,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		documentHelper.firmaServidor(
 				processInstanceId,
 				documentStoreId,
-				motiu,
-				true);
+				motiu);
 	}
 
 	@Override

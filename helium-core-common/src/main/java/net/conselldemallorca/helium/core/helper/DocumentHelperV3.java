@@ -10,12 +10,15 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tika.Tika;
@@ -26,6 +29,7 @@ import org.springframework.stereotype.Component;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.DocumentEstat;
 import es.caib.plugins.arxiu.api.Firma;
+import es.caib.plugins.arxiu.api.FirmaPerfil;
 import es.caib.plugins.arxiu.api.FirmaTipus;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
@@ -633,13 +637,17 @@ public class DocumentHelperV3 {
 					false, // Per notificar
 					(documentStore.getArxiuUuid() == null));
 			
-			// Guarda la firma asociada al documetn
-			this.guardarDocumentFirmat(
+			// Guarda la firma asociada al document, es dona per fet que és un PDF
+			guardarDocumentFirmat(
 					documentStore.getProcessInstanceId(),
 					documentStore.getId(),
-					signatura,
-					true,
-					true);
+					"document_firmat.pdf",
+					"application/pdf",
+					FirmaTipus.PADES.name(),
+					"TF06",
+					FirmaPerfil.EPES.name(),
+					signatura);
+
 
 			// Guarda el valor en una variable jbpm
 			JbpmTask task = tascaHelper.getTascaComprovacionsTramitacio(
@@ -1492,8 +1500,7 @@ public class DocumentHelperV3 {
 	public void firmaServidor(
 			String processInstanceId,
 			Long documentStoreId,
-			String motiu,
-			boolean permetreSignar) {
+			String motiu) {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		ArxiuDto arxiuPerFirmar = getArxiuPerDocumentStoreId(
@@ -1513,12 +1520,66 @@ public class DocumentHelperV3 {
 				net.conselldemallorca.helium.integracio.plugins.firma.FirmaTipus.PADES,
 				(motiu != null) ? motiu : "Firma en servidor HELIUM");
 
+		if (StringUtils.isEmpty(firma.getTipusFirmaEni()) 
+				|| StringUtils.isEmpty(firma.getTipusFirmaEni())) {
+			logger.warn("El tipus o perfil de firma s'ha retornat buit i això pot provocar error guardant a l'Arxiu [tipus: " + 
+					firma.getTipusFirmaEni() + ", perfil: " + firma.getPerfilFirmaEni() + "]");
+			if ("cades".equals(StringUtils.lowerCase(firma.getTipusFirma()))) {
+				logger.warn("Fixant el tipus de firma a TF04 i perfil BES");
+				if (StringUtils.isEmpty(firma.getTipusFirmaEni()))
+					firma.setTipusFirmaEni("TF04");
+				if (StringUtils.isEmpty(firma.getPerfilFirmaEni()))
+					firma.setPerfilFirmaEni("BES");
+			} else if ("pades".equals(StringUtils.lowerCase(firma.getTipusFirma()))) {
+				logger.warn("Fixant el tipus de firma a TF06 i perfil BES");
+				if (StringUtils.isEmpty(firma.getTipusFirmaEni()))
+					firma.setTipusFirmaEni("TF06");
+				if (StringUtils.isEmpty(firma.getPerfilFirmaEni()))
+					firma.setPerfilFirmaEni("BES");
+			}
+		}
+		
+		String perfil = mapToPerfilFirmaArxiu(firma.getPerfilFirmaEni());
+		
 		guardarDocumentFirmat(
 				processInstanceId,
 				documentStoreId,
-				firma.getContingut(),
-				true,
-				permetreSignar);
+				firma.getNom(),
+				firma.getMime(),
+				firma.getTipusFirma(),
+				firma.getTipusFirmaEni(),
+				perfil,
+				firma.getContingut());
+	}
+
+	
+	/** Map amb el mapeig dels perfils de firma cap als tipus admesos per l'Arxiu. */
+	private static Map<String, String> mapPerfilsFirma = new HashMap<String, String>();
+	static {
+		mapPerfilsFirma.put("AdES-BES", "BES");
+		mapPerfilsFirma.put("AdES-EPES", "EPES");
+		mapPerfilsFirma.put("AdES-T", "T");
+		mapPerfilsFirma.put("AdES-C", "C");
+		mapPerfilsFirma.put("AdES-X", "X");
+		mapPerfilsFirma.put("AdES-X1", "X");
+		mapPerfilsFirma.put("AdES-X2", "X");
+		mapPerfilsFirma.put("AdES-XL", "XL");
+		mapPerfilsFirma.put("AdES-XL1", "XL");
+		mapPerfilsFirma.put("AdES-XL2", "XL");
+		mapPerfilsFirma.put("AdES-A", "A");
+		mapPerfilsFirma.put("PAdES-LTV", "LTV");
+		mapPerfilsFirma.put("PAdES-Basic", "BES");
+	}
+
+	/** Mapega el perfil retornat pel plugin de firma al perfil acceptat per l'Arxiu
+	 * 
+	 * @param perfilFirmaEni
+	 * @return
+	 */
+	private String mapToPerfilFirmaArxiu(String perfil) {
+		if (mapPerfilsFirma.containsKey(perfil))
+			perfil = mapPerfilsFirma.get(perfil);
+		return perfil;
 	}
 
 	/** Mètode per convertir un arxiu a pdf 
@@ -1560,9 +1621,12 @@ public class DocumentHelperV3 {
 	public void guardarDocumentFirmat(
 			String processInstanceId,
 			Long documentStoreId,
-			byte[] signatura,
-			boolean isPades,
-			boolean permetreSignar) {
+			String arxiuNom,
+			String arxiuMime, 
+			String tipusFirma, 
+			String tipusFirmaEni, 
+			String perfilFirmaEni, 
+			byte[] signatura) {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		
@@ -1584,70 +1648,63 @@ public class DocumentHelperV3 {
 		}
 		
 		if (expedient.isArxiuActiu()) {
-			documentDescripcio = inArxiu( documentDescripcio, 
-					"pdf",
-					processInstanceId);
+			documentDescripcio = inArxiu(processInstanceId, documentStore.getArxiuUuid(), documentDescripcio);
 		}
 		
 		if (documentStore.getArxiuUuid() != null) {
+			// Guardar firma a l'Arxiu
 			
 			ArxiuDto arxiuFirmat = new ArxiuDto();
 			es.caib.plugins.arxiu.api.Document documentArxiu;
+						
+			// Consulta l'arxiu per si ja està definitiu no intentar guardar sobre el mateix
+			documentArxiu = pluginHelper.arxiuDocumentInfo(
+					documentStore.getArxiuUuid(), 
+					null, 
+					false, 
+					true);
 			
-			if (isPades) {
-				// PAdES
-				
-				// Consulta l'arxiu per si ja està definitiu no intentar guardar sobre el mateix
-				documentArxiu = pluginHelper.arxiuDocumentInfo(
-						documentStore.getArxiuUuid(), 
-						null, 
-						false, 
-						true);
-				if (documentArxiu != null 
-						&& DocumentEstat.DEFINITIU.equals(documentArxiu.getEstat())) 
-				{
-					// El document ja està firmat a l'Arxiu, es guarda amb un altre uuid
-					documentStore.setArxiuUuid(null);
-					ContingutArxiu documentCreat = pluginHelper.arxiuDocumentCrearActualitzar(
-							expedient, 
-							documentDescripcio, 
-							documentStore, 
-							new ArxiuDto(documentArxiu.getNom(), signatura, "application/pdf"));
-					documentStore.setArxiuUuid(documentCreat.getIdentificador());
+			if (documentArxiu != null && DocumentEstat.DEFINITIU.equals(documentArxiu.getEstat())) 
+			{
+				// El document ja està firmat a l'Arxiu, es guarda amb un altre uuid
+				documentStore.setArxiuUuid(null);
+				ContingutArxiu documentCreat = pluginHelper.arxiuDocumentCrearActualitzar(
+						expedient, 
+						documentDescripcio, 
+						documentStore, 
+						new ArxiuDto(
+								documentArxiu.getNom(), 
+								signatura, 
+								arxiuMime));
+				documentStore.setArxiuUuid(documentCreat.getIdentificador());
 
-				} else {
-					// S'actualitza el document existent
-					String arxiuNom = inArxiu("firma_portafirmes", FilenameUtils.getExtension("firma_portafirmes.pdf"), processInstanceId);
-					arxiuFirmat.setNom(arxiuNom);
-					arxiuFirmat.setTipusMime("application/pdf");
-					arxiuFirmat.setContingut(signatura);
-					pluginHelper.arxiuDocumentGuardarPdfFirmat(
-							expedient,
-							documentStore,
-							documentDescripcio,
-							arxiuFirmat);
-				}				
 			} else {
-				// CAdES
-				String firmaNom = inArxiu("firma_portafirmes.csig", FilenameUtils.getExtension("firma_portafirmes.csig"), processInstanceId);
-				arxiuFirmat.setNom(firmaNom);
-				arxiuFirmat.setTipusMime("application/octet-stream");
+				// S'actualitza el document existent
+				arxiuFirmat.setNom(arxiuNom);
+				arxiuFirmat.setTipusMime(arxiuMime);
 				arxiuFirmat.setContingut(signatura);
-				pluginHelper.arxiuDocumentGuardarFirmaCadesDetached(
+				pluginHelper.arxiuDocumentGuardarDocumentFirmat(
 						expedient,
 						documentStore,
 						documentDescripcio,
-						arxiuFirmat);
+						arxiuFirmat,
+						tipusFirma, 
+						tipusFirmaEni, 
+						perfilFirmaEni);
 			}
 			// Actualitza la informació al document store
 			documentArxiu = pluginHelper.arxiuDocumentInfo(
 					documentStore.getArxiuUuid(),
 					null,
-					true,
+					false,
 					true);
 			documentStore.setNtiIdentificador(documentArxiu.getMetadades().getIdentificador());
 			actualitzarNtiFirma(documentStore, documentArxiu);
-		} else {
+		} 
+		else 
+		{
+			// Guardar firma a custòdia
+			
 			if (expedient.isNtiActiu()) {
 				actualitzarNtiFirma(documentStore, null);
 			}
@@ -1680,7 +1737,8 @@ public class DocumentHelperV3 {
 			}
 			documentStore.setReferenciaCustodia(referenciaCustodia);
 		}
-		documentStore.setSignat(permetreSignar);
+		
+		documentStore.setSignat(true);
 		crearRegistreSignarDocument(
 				expedient.getId(),
 				documentStore.getProcessInstanceId(),
@@ -2173,7 +2231,7 @@ public class DocumentHelperV3 {
 						arxiuContingut,
 						arxiuContentType);
 				// Canvia la descripció per no coincidir amb cap document amb el mateix nom a l'Arxiu
-				documentDescripcio = inArxiu(documentDescripcio ,FilenameUtils.getExtension(arxiuNom), processInstanceId);
+				documentDescripcio = inArxiu(processInstanceId, documentStore.getArxiuUuid(), documentDescripcio);
 				
 				ContingutArxiu contingutArxiu = pluginHelper.arxiuDocumentCrearActualitzar(
 						expedient,
@@ -2462,33 +2520,30 @@ public class DocumentHelperV3 {
 		return registreRepository.save(registre);
 	}
 	
-	private String inArxiu(String arxiuNom, String extensio, String processInstanceId){
+	/** Comprova si ja existeix a l'expedient un document amb el mateix nom i diferent UUID. */
+	private String inArxiu(String processInstanceId, String arxiuUuid, String documentNom){
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		if(expedient.isArxiuActiu()) {
 			List<ContingutArxiu> continguts = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid()).getContinguts();
 			int ocurrences = 0;
 			if(continguts != null) {
-				List<String> noms = new ArrayList<String>();
+				Set<String> noms = new HashSet<String>();
 				for(ContingutArxiu contingut : continguts) {
-					noms.add(contingut.getNom());
-				}
-				String nName = new String(arxiuNom);
-				//Si no troba el fitxer amb extensió el cerca sense
-				if (noms.indexOf(nName + "." + extensio) == -1) {
-					while(noms.indexOf(nName) >= 0) {
-						ocurrences ++;
-						nName = arxiuNom + " (" + ocurrences + ")";
-					}
-				} else {
-					while(noms.indexOf(nName + "." + extensio) >= 0) {
-						ocurrences ++;
-						nName = arxiuNom + " (" + ocurrences + ")";
+					if (!contingut.getIdentificador().equals(arxiuUuid)) {
+						noms.add(contingut.getNom());
 					}
 				}
-				return nName;
+				String nouDocumentNom = new String(documentNom);
+				if (noms.contains(nouDocumentNom)) {
+					while(noms.contains(nouDocumentNom)) {
+						ocurrences ++;
+						nouDocumentNom = documentNom + " (" + ocurrences + ")";
+					}
+				}
+				return nouDocumentNom;
 			}
 		}
-		return arxiuNom;
+		return documentNom;
 	}
 
 	private static final Log logger = LogFactory.getLog(DocumentHelperV3.class);

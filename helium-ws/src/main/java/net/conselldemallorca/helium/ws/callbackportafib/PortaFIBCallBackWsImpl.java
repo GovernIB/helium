@@ -87,7 +87,7 @@ public class PortaFIBCallBackWsImpl implements PortaFIBCallBackWs {
 					IntegracioAccioTipusEnumDto.RECEPCIO,
 					System.currentTimeMillis() - t0,
 					errorDescripcio,
-					(IntegracioParametreDto[]) parametres.toArray());
+					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
 			throw new CallBackException(errorDescripcio, new CallBackFault());
 		}
 		
