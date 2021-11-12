@@ -3,9 +3,10 @@ package es.caib.helium.client.integracio.firma;
 import org.springframework.stereotype.Service;
 
 import es.caib.helium.client.integracio.firma.model.FirmaPost;
+import es.caib.helium.client.integracio.firma.model.FirmaResposta;
 
 @Service
 public interface FirmaClientService {
 
-	byte[] firmar(FirmaPost firma, Long entornId);
+	FirmaResposta firmar(FirmaPost firma, Long entornId);
 }

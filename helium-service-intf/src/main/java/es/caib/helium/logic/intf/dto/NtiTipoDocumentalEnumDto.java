@@ -3,6 +3,8 @@
  */
 package es.caib.helium.logic.intf.dto;
 
+import es.caib.helium.logic.intf.registre.RegistreAnnexNtiTipusDocumentEnum;
+
 /**
  * Possibles tipus de document segons NTI.
  * 
@@ -52,4 +54,9 @@ public enum NtiTipoDocumentalEnumDto {
 	FACTURA,
 	ALTRES_INCAUTATS,
 	ALTRES;
+
+	/** Retorna el codi NTI pel tipus de document. */
+	public String getValorNti() {
+		return RegistreAnnexNtiTipusDocumentEnum.valueOf(this.name()).getValor();
+	}
 }

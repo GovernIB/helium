@@ -31,6 +31,9 @@ import es.caib.helium.persist.repository.DocumentStoreRepository;
 import es.caib.helium.persist.repository.ExpedientRepository;
 import es.caib.helium.persist.repository.PortasignaturesRepository;
 import es.caib.helium.persist.util.ThreadLocalInfo;
+import es.caib.plugins.arxiu.api.FirmaPerfil;
+import es.caib.plugins.arxiu.api.FirmaTipus;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -272,10 +275,17 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 		DocumentDto document = documentHelper.getDocumentSenseContingut(documentStoreId);
 		if (document != null) {
 			List<byte[]> signatures = pluginHelper.obtenirSignaturesDocument(psignaId);
-			if (signatures != null && signatures.size() == 1) {				
+			if (signatures != null && signatures.size() == 1) {								
 				documentHelper.guardarDocumentFirmat(
-						documentStore,
+						documentStore.getProcessInstanceId(),
+						documentStore.getId(),
+						"document_firmat.pdf",
+						"application/pdf",
+						FirmaTipus.PADES.name(),
+						"TF06",
+						FirmaPerfil.EPES.name(),
 						signatures.get(0));
+
 			} else {
 				if (signatures == null) {
 					throw new Exception(messageServiceHelper.getMessage("error.pluginService.capSignatura"));

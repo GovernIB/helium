@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import es.caib.helium.integracio.domini.firma.FirmaPost;
+import es.caib.helium.integracio.service.firma.FirmaResposta;
 import es.caib.helium.integracio.service.firma.FirmaService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,21 +37,21 @@ public class FirmaController {
 	}
 
 	@PostMapping(consumes = "application/json")
-	public ResponseEntity<byte[]> firmar(
+	public ResponseEntity<FirmaResposta> firmar(
 			@Valid @RequestBody FirmaPost firma, 
 			@RequestParam("entornId") Long entornId, 
 			BindingResult error) throws Exception {
 
 		log.info("Firmant el document " + firma.toString());
 		if (error.hasErrors()) {
-			return new ResponseEntity<byte[]>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<FirmaResposta>(HttpStatus.BAD_REQUEST);
 		}
 
-		var firmaContingut = firmaService.firmar(firma, entornId);
-		if (firmaContingut == null || firmaContingut.length == 0) {
-			return new ResponseEntity<byte[]>(HttpStatus.NO_CONTENT);
+		FirmaResposta firmaResposta = firmaService.firmar(firma, entornId);
+		if (firmaResposta == null || firmaResposta.getContingut() == null) {
+			return new ResponseEntity<FirmaResposta>(HttpStatus.NO_CONTENT);
 		}
-		return new ResponseEntity<byte[]>(firmaContingut, HttpStatus.OK);
+		return new ResponseEntity<FirmaResposta>(firmaResposta, HttpStatus.OK);
 	}
 
 }

@@ -1,7 +1,28 @@
 package es.caib.helium.integracio.service.firma;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.fundaciobit.apisib.apifirmasimple.v1.ApiFirmaEnServidorSimple;
+import org.fundaciobit.apisib.apifirmasimple.v1.beans.FirmaSimpleAvailableProfile;
+import org.fundaciobit.apisib.apifirmasimple.v1.beans.FirmaSimpleCommonInfo;
+import org.fundaciobit.apisib.apifirmasimple.v1.beans.FirmaSimpleFile;
+import org.fundaciobit.apisib.apifirmasimple.v1.beans.FirmaSimpleFileInfoSignature;
+import org.fundaciobit.apisib.apifirmasimple.v1.beans.FirmaSimpleSignDocumentRequest;
+import org.fundaciobit.apisib.apifirmasimple.v1.beans.FirmaSimpleSignatureResult;
+import org.fundaciobit.apisib.apifirmasimple.v1.beans.FirmaSimpleSignedFileInfo;
+import org.fundaciobit.apisib.apifirmasimple.v1.beans.FirmaSimpleStatus;
+import org.fundaciobit.apisib.apifirmasimple.v1.jersey.ApiFirmaEnServidorSimpleJersey;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Service;
+
+import es.caib.distribucio.core.api.exception.SistemaExternException;
 import es.caib.helium.integracio.domini.firma.FirmaPost;
-import es.caib.helium.integracio.enums.firma.FirmaTipus;
 import es.caib.helium.integracio.excepcions.firma.FirmaException;
 import es.caib.helium.integracio.service.monitor.MonitorIntegracionsService;
 import es.caib.helium.jms.domini.Parametre;
@@ -11,40 +32,19 @@ import es.caib.helium.jms.enums.TipusAccio;
 import es.caib.helium.jms.events.IntegracioEvent;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.fundaciobit.plugins.signature.api.CommonInfoSignature;
-import org.fundaciobit.plugins.signature.api.FileInfoSignature;
-import org.fundaciobit.plugins.signature.api.IRubricGenerator;
-import org.fundaciobit.plugins.signature.api.ITimeStampGenerator;
-import org.fundaciobit.plugins.signature.api.PdfRubricRectangle;
-import org.fundaciobit.plugins.signature.api.PdfVisibleSignature;
-import org.fundaciobit.plugins.signature.api.PolicyInfoSignature;
-import org.fundaciobit.plugins.signature.api.SecureVerificationCodeStampInfo;
-import org.fundaciobit.plugins.signature.api.SignaturesSet;
-import org.fundaciobit.plugins.signature.api.SignaturesTableHeader;
-import org.fundaciobit.plugins.signature.api.StatusSignature;
-import org.fundaciobit.plugins.signature.api.StatusSignaturesSet;
-import org.fundaciobit.plugins.signatureserver.api.ISignatureServerPlugin;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 @Service
 @Slf4j
 public class FirmaServicePortaFibImpl implements FirmaService {
 	
+	private static final String PROPERTIES_BASE = "app.plugin.firma.portafib.";
+
+	@Autowired
+	private Environment env;
+
 	@Setter
-	private ISignatureServerPlugin plugin;
+	private ApiFirmaEnServidorSimpleJersey plugin;
 	@Setter
 	private String username;
 	@Setter
@@ -55,7 +55,7 @@ public class FirmaServicePortaFibImpl implements FirmaService {
 	protected MonitorIntegracionsService monitor;
 	
 	@Override
-	public byte[] firmar(FirmaPost firma, Long entornId) throws FirmaException {
+	public FirmaResposta firmar(FirmaPost firma, Long entornId) throws FirmaException {
 		
 		List<Parametre> parametres = new ArrayList<>();
 		parametres.add(new Parametre("expedientIdentificador", firma.getExpedientIdentificador()));
@@ -64,45 +64,41 @@ public class FirmaServicePortaFibImpl implements FirmaService {
 		parametres.add(new Parametre("expedientTipusCodi", firma.getExpedientTipusCodi()));
 		parametres.add(new Parametre("expedientTipusNom", firma.getExpedientTipusNom()));
 		parametres.add(new Parametre("documentCodi", firma.getCodiDocument()));
-		parametres.add(new Parametre("arxiuNom", firma.getArxiuNom()));
+		parametres.add(new Parametre("firmaId", firma.getId()));
+		parametres.add(new Parametre("arxiuNom", firma.getNom()));
 		parametres.add(new Parametre("arxiuTamany", firma.getTamany() + ""));
 
 		var t0 = System.currentTimeMillis();
-		var descripcio = "Firmant el fitxer " + firma.getArxiuNom();
-		File sourceFile = null;
-		File destFile = null;
-		byte[] firmaContingut = null;
+		var descripcio = "Firmant el fitxer " + firma.getNom();
+
+		FirmaResposta resposta = new FirmaResposta();
+		
+		FirmaSimpleFile fileToSign = new FirmaSimpleFile(firma.getNom(), firma.getMime(), firma.getContingut());
+
+		FirmaSimpleSignatureResult result;
 		try {
 			
-			sourceFile = getArxiuTemporal(firma.getArxiuContingut());
-			String source = sourceFile.getAbsolutePath();
-			String dest = null;
-			IRubricGenerator rubricGenerator = null;
-			String signType;
-			int signMode;
-			if (FirmaTipus.PADES.equals(firma.getFirmaTipus())) {
-				dest = source + "_PADES.pdf";
-				signType = FileInfoSignature.SIGN_TYPE_PADES; // PADES
-				signMode = FileInfoSignature.SIGN_MODE_IMPLICIT; // IMPLICIT
-			} else {
-				dest = source + "_cades_detached.csig";
-				signType = FileInfoSignature.SIGN_TYPE_CADES; // CAdES
-				signMode = FileInfoSignature.SIGN_MODE_EXPLICIT; // Detached
-			}
-			boolean userRequiresTimeStamp = false;
-			signFile(
-					source, 
-					dest, 
-					signType,
-					signMode, 
+//			getAvailableProfiles(api);
+			String perfil = getPropertyApiPerfil();
+			result = internalSignDocument(
+					firma.getId(),
+					plugin,
+					perfil,
+					fileToSign,
 					firma.getMotiu(),
-					userRequiresTimeStamp, 
-					rubricGenerator,
-					plugin);
-			// Llegeix la firma del fitxer de destí
-			destFile = new File(dest);
-			firmaContingut = FileUtils.readFileToByteArray(destFile);
+					firma.getTipusDocumental());
 			
+			resposta.setContingut(result.getSignedFile().getData());
+			if (result.getSignedFile() != null) {
+				resposta.setNom(result.getSignedFile().getNom());
+				resposta.setMime(result.getSignedFile().getMime());
+			}
+			if (result.getSignedFileInfo() != null) {
+				resposta.setTipusFirma(result.getSignedFileInfo().getSignType());
+				resposta.setTipusFirmaEni(result.getSignedFileInfo().getEniTipoFirma());
+				resposta.setPerfilFirmaEni(result.getSignedFileInfo().getEniPerfilFirma());
+			}
+
 			monitor.enviarEvent(IntegracioEvent.builder()
 					.codi(CodiIntegracio.FIRMA_SERV)
 					.entornId(entornId)
@@ -114,10 +110,9 @@ public class FirmaServicePortaFibImpl implements FirmaService {
 					.tempsResposta(System.currentTimeMillis() - t0).build());
 			
 			log.debug("Fitxer firmat correctament");
-			return firmaContingut;
 			
+			return resposta;
 		} catch (Exception ex) {
-		
 			var error = "Error firmant l'arxiu";
 			log.error(error, ex);
 			
@@ -133,128 +128,119 @@ public class FirmaServicePortaFibImpl implements FirmaService {
 					.excepcioStacktrace(ExceptionUtils.getStackTrace(ex)).build());
 			
 			throw new FirmaException(error, ex);
-			
-		} finally {
-			// Esborra els arxius temporals
-			if (sourceFile != null && sourceFile.exists()) {
-				sourceFile.delete();
-			}
-			if (destFile != null && destFile.exists()) {
-				destFile.delete();
-			}
 		}
 	}
 	
-	private void signFile(
-			String sourcePath, 
-			String destPath, 
-			String signType, 
-			int signMode,
-			String reason,
-			boolean userRequiresTimeStamp, 
-			IRubricGenerator rubricGenerator, 
-			ISignatureServerPlugin plugin) throws Exception, FileNotFoundException, IOException {
-		// Informació comú per a totes les signatures
-		String languageUI = "ca";
-		String filtreCertificats = "";
-		String administrationID = null; // No te sentit en API Firma En Servidor
-		PolicyInfoSignature policyInfoSignature = null;
-		CommonInfoSignature commonInfoSignature = new CommonInfoSignature(
-				languageUI, 
-				filtreCertificats, 
-				username,
-				administrationID, 
-				policyInfoSignature);
-		String signID = "999";
-		File source = new File(sourcePath);
-		String fileName = source.getName();
+	protected FirmaSimpleSignatureResult internalSignDocument(
+			String id, 
+			ApiFirmaEnServidorSimple api,
+			final String perfil,
+			FirmaSimpleFile fileToSign,
+			String motiu,
+			String tipusDocumental) throws Exception, FileNotFoundException, IOException {
+		String signID = id;
+		String name = fileToSign.getNom();
+		String reason = motiu;
+		String location = getLocationProperty();
+
 		int signNumber = 1;
 		String languageSign = "ca";
-		String signAlgorithm = FileInfoSignature.SIGN_ALGORITHM_SHA1;
-		int signaturesTableLocation = FileInfoSignature.SIGNATURESTABLELOCATION_WITHOUT;
-		PdfVisibleSignature pdfInfoSignature = null;
-		if (FileInfoSignature.SIGN_TYPE_PADES.equals(signType) && rubricGenerator != null) {
-			signaturesTableLocation = FileInfoSignature.SIGNATURESTABLELOCATION_LASTPAGE;
-			PdfRubricRectangle pdfRubricRectangle = new PdfRubricRectangle(106, 650, 555, 710);
-			pdfInfoSignature = new PdfVisibleSignature(pdfRubricRectangle, rubricGenerator);
+		Long tipusDocumentalID = tipusDocumental != null ? Long.valueOf(tipusDocumental.substring(2)) : null;
+
+		FirmaSimpleFileInfoSignature fileInfoSignature = new FirmaSimpleFileInfoSignature(
+				fileToSign,
+				signID,
+				name,
+				reason,
+				location,
+				signNumber,
+				languageSign,
+				tipusDocumentalID);
+
+		String languageUI = "ca";
+		String username = this.getPropertyUsername();
+		String administrationID = null;
+		String signerEmail = this.getSignerEmailProperty();
+
+		FirmaSimpleCommonInfo commonInfo;
+		commonInfo = new FirmaSimpleCommonInfo(perfil, languageUI, username, administrationID, signerEmail);
+
+		log.debug("languageUI = |" + languageUI + "|");
+
+		FirmaSimpleSignDocumentRequest signature;
+		signature = new FirmaSimpleSignDocumentRequest(commonInfo, fileInfoSignature);
+
+		FirmaSimpleSignatureResult fullResults = api.signDocument(signature);
+
+		FirmaSimpleStatus transactionStatus = fullResults.getStatus();
+
+		int status = transactionStatus.getStatus();
+
+		switch (status) {
+
+		case FirmaSimpleStatus.STATUS_INITIALIZING: // = 0;
+			throw new SistemaExternException("API de firma simple ha tornat status erroni: Initializing ...Unknown Error (???)");
+
+		case FirmaSimpleStatus.STATUS_IN_PROGRESS: // = 1;
+			throw new SistemaExternException("API de firma simple ha tornat status erroni: In PROGRESS ...Unknown Error (???)");
+
+		case FirmaSimpleStatus.STATUS_FINAL_ERROR: // = -1;
+			throw new SistemaExternException("Error durant la realització de les firmes: " + transactionStatus.getErrorMessage() +"\r\n" +transactionStatus.getErrorStackTrace());
+
+		case FirmaSimpleStatus.STATUS_CANCELLED: // = -2;
+			throw new SistemaExternException("S'ha cancel·lat el procés de firmat.");
+
+		case FirmaSimpleStatus.STATUS_FINAL_OK: // = 2;
+		{
+			log.debug(" ===== RESULTAT  =========");
+			log.debug(" ---- Signature [ " + fullResults.getSignID() + " ]");
+			log.debug(FirmaSimpleSignedFileInfo.toString(fullResults.getSignedFileInfo()));
+
+			return fullResults;
 		}
-		final ITimeStampGenerator timeStampGenerator = null;
-		final SignaturesTableHeader signaturesTableHeader = null;
-		final SecureVerificationCodeStampInfo csvStampInfo = null;
-		FileInfoSignature fileInfo = new FileInfoSignature(
-				signID, 
-				source, 
-				FileInfoSignature.PDF_MIME_TYPE, 
-				fileName,
-				reason, 
-				location, 
-				email, 
-				signNumber, 
-				languageSign, 
-				signType, 
-				signAlgorithm, 
-				signMode,
-				signaturesTableLocation, 
-				signaturesTableHeader, 
-				pdfInfoSignature, 
-				csvStampInfo, 
-				userRequiresTimeStamp,
-				timeStampGenerator);
-		final String signaturesSetID = String.valueOf(System.currentTimeMillis());
-		SignaturesSet signaturesSet = new SignaturesSet(
-				signaturesSetID + "_" + new Long(System.currentTimeMillis()).toString(), 
-				commonInfoSignature,
-				new FileInfoSignature[] { fileInfo });
-		String timestampUrlBase = null;
-		signaturesSet = plugin.signDocuments(signaturesSet, timestampUrlBase);
-		StatusSignaturesSet sss = signaturesSet.getStatusSignaturesSet();
-		String errMsg;
-		if (sss.getStatus() != StatusSignaturesSet.STATUS_FINAL_OK) {
-			// Error General
-			errMsg = "Resultat de la signatura erroni: " + sss.getStatus() + " " + sss.getErrorMsg();
-			if (sss.getErrorException() != null) {
-				Logger.getLogger(FirmaServicePortaFibImpl.class.getName()).log(Level.SEVERE, errMsg, sss.getErrorException());
-				throw new FirmaException(errMsg, sss.getErrorException());
-			} else {
-				Logger.getLogger(FirmaServicePortaFibImpl.class.getName()).log(Level.SEVERE, errMsg);
-				throw new FirmaException(errMsg);				
-			}
-		} else {
-			FileInfoSignature fis = signaturesSet.getFileInfoSignatureArray()[0];
-			StatusSignature status = fis.getStatusSignature();
-			if (status.getStatus() != StatusSignaturesSet.STATUS_FINAL_OK) {
-				// Error a la firma 1
-				errMsg = "Error Firma 1: " + status.getStatus() + " " + status.getErrorMsg();
-				if (sss.getErrorException() != null) {
-					Logger.getLogger(FirmaServicePortaFibImpl.class.getName()).log(Level.SEVERE, errMsg, sss.getErrorException());
-					throw new FirmaException(errMsg, sss.getErrorException());
-				} else {
-					Logger.getLogger(FirmaServicePortaFibImpl.class.getName()).log(Level.SEVERE, errMsg);
-					throw new FirmaException(errMsg);				
-				}
-			} else {
-				// Document firmat correctament
-				File dest = new File(destPath);
-				status.getSignedData().renameTo(dest);
-				Logger.getLogger(FirmaServicePortaFibImpl.class.getName()).log(Level.FINER, "Guardada Firma a " + dest.getAbsolutePath());
-				Logger.getLogger(FirmaServicePortaFibImpl.class.getName()).log(Level.FINER, "Tamany " + dest);
-			}
+		default:
+			throw new SistemaExternException("Status de firma desconegut");
 		}
-	}
-	
-	private static final String autofirmaBasePath;
-	static {
-		String tempDir = System.getProperty("java.io.tmpdir");
-		final File base = new File(tempDir, "HELIUM_FIRMA_TMP");
-		base.mkdirs();
-		autofirmaBasePath = base.getAbsolutePath();
 	}
 
-	private File getArxiuTemporal(
-			byte[] contingut) throws IOException {
-		File fitxerTmp = new File(autofirmaBasePath, new Long(System.currentTimeMillis()).toString());
-        fitxerTmp.getParentFile().mkdirs();
-        FileUtils.writeByteArrayToFile(fitxerTmp, contingut);
-        return fitxerTmp;
+	 public void getAvailableProfiles(ApiFirmaEnServidorSimple api) throws Exception {
+
+		    final String languagesUI[] = new String[] { "ca", "es" };
+
+		    for (String languageUI : languagesUI) {
+		      log.debug(" ==== LanguageUI : " + languageUI + " ===========");
+
+		      List<FirmaSimpleAvailableProfile> listProfiles = api.getAvailableProfiles(languageUI);
+		      if (listProfiles.size() == 0) {
+		        log.debug("NO HI HA PERFILS PER AQUEST USUARI APLICACIÓ");
+		      } else {
+		        for (FirmaSimpleAvailableProfile ap : listProfiles) {
+		          log.debug("  + " + ap.getName() + ":");
+		          log.debug("      * Codi: " + ap.getCode());
+		          log.debug("      * Desc: " + ap.getDescription());
+		        }
+		      }
+		    }
+	 }
+	 
+	private String getPropertyUsername() {
+		return env.getProperty(
+				PROPERTIES_BASE + "username");
 	}
+	 
+	private String getLocationProperty() {
+		return env.getProperty(
+				PROPERTIES_BASE + "location", "Palma");
+	}
+
+	private String getSignerEmailProperty() {
+		return env.getProperty(
+				PROPERTIES_BASE + "signer.email", "suport@caib.es");
+	}
+	 	
+	private String getPropertyApiPerfil() {
+		return env.getProperty(
+				"app.plugin.firma.portafib.plugins.signatureserver.portafib.api_passarela_perfil");
+	}
+
 }

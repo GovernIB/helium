@@ -7,5 +7,5 @@ import org.springframework.stereotype.Service;
 @Service
 public interface FirmaService {
 
-    byte[] firmar(FirmaPost firma, Long entornId) throws FirmaException;
+	FirmaResposta firmar(FirmaPost firma, Long entornId) throws FirmaException;
 }

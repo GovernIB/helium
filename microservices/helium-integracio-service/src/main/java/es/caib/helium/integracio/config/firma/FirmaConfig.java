@@ -1,9 +1,8 @@
 package es.caib.helium.integracio.config.firma;
 
-import es.caib.helium.integracio.excepcions.ServeisExternsException;
-import es.caib.helium.integracio.service.firma.FirmaService;
-import es.caib.helium.integracio.service.firma.FirmaServicePortaFibImpl;
-import org.fundaciobit.plugins.signatureserver.portafib.PortaFIBSignatureServerPlugin;
+import java.util.Properties;
+
+import org.fundaciobit.apisib.apifirmasimple.v1.jersey.ApiFirmaEnServidorSimpleJersey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -11,7 +10,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
-import java.util.Properties;
+import es.caib.helium.integracio.excepcions.ServeisExternsException;
+import es.caib.helium.integracio.service.firma.FirmaService;
+import es.caib.helium.integracio.service.firma.FirmaServicePortaFibImpl;
 
 @Configuration
 @ConfigurationProperties(prefix = "es.caib.helium.integracio")
@@ -55,6 +56,26 @@ public class FirmaConfig {
 		servei.setUsername(env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.username"));
 		servei.setLocation(env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.location"));
 		servei.setEmail(env.getRequiredProperty("es.caib.helium.integracio.firma.portafib.signer.email"));
-		servei.setPlugin(new PortaFIBSignatureServerPlugin(PROPERTIES_BASE, p));
+		servei.setPlugin(new ApiFirmaEnServidorSimpleJersey(
+				getPropertyApiEndpoint(), 
+				getPropertyApiUsername(),
+				getPropertyApiPassword()));
+		
 	}
+	
+	private String getPropertyApiEndpoint() {
+		return env.getProperty(
+				"app.plugin.firma.portafib.plugins.signatureserver.portafib.api_passarela_url");
+	}
+	
+	private String getPropertyApiUsername() {
+		return env.getProperty(
+				"app.plugin.firma.portafib.plugins.signatureserver.portafib.api_passarela_username");
+	}
+	
+	private String getPropertyApiPassword() {
+		return env.getProperty(
+				"app.plugin.firma.portafib.plugins.signatureserver.portafib.api_passarela_password");
+	}
+
 }

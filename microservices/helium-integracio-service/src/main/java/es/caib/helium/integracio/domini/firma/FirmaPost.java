@@ -1,23 +1,27 @@
 package es.caib.helium.integracio.domini.firma;
 
-import es.caib.helium.integracio.enums.firma.FirmaTipus;
-import lombok.Data;
-
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
+import lombok.Data;
+
 @Data
 public class FirmaPost {
-	
-	@NotNull
-	private FirmaTipus firmaTipus;
+
+	@NotNull @NotEmpty
+	private String id;
+	@NotNull @NotEmpty
+	private String nom;
 	@NotNull @NotEmpty
 	private String motiu;
+	@NotNull
+	private byte[] contingut;
 	@NotNull @NotEmpty
-	private String arxiuNom;
+	private String mime;
 	@NotNull @NotEmpty
-	private byte[] arxiuContingut;
+	private String tipusDocumental;
 
+	
 	// Parametres Monitor Integracions
 	private Long tamany;
 	private Long entornId;

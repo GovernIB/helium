@@ -9,11 +9,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import es.caib.helium.client.integracio.firma.model.FirmaPost;
+import es.caib.helium.client.integracio.firma.model.FirmaResposta;
 
 public interface FirmaFeignClient {
 	
 	@RequestMapping(method = RequestMethod.POST, value = FirmaPath.FIRMAR)
-	public ResponseEntity<byte[]> firmar(
+	public ResponseEntity<FirmaResposta> firmar(
 			@Valid @RequestBody FirmaPost firma, 
 			@RequestParam("entornId") Long entornId);
 }

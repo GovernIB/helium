@@ -3,7 +3,37 @@
  */
 package es.caib.helium.logic.helper;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.stream.Collectors;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
+import org.fundaciobit.plugins.validatesignature.api.CertificateInfo;
+import org.fundaciobit.plugins.validatesignature.api.IValidateSignaturePlugin;
+import org.fundaciobit.plugins.validatesignature.api.SignatureDetailInfo;
+import org.fundaciobit.plugins.validatesignature.api.SignatureRequestedInformation;
+import org.fundaciobit.plugins.validatesignature.api.TimeStampInfo;
+import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureRequest;
+import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureResponse;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
 import com.google.gson.Gson;
+
 import es.caib.helium.client.integracio.arxiu.ArxiuClient;
 import es.caib.helium.client.integracio.arxiu.enums.NtiEstadoElaboracionEnum;
 import es.caib.helium.client.integracio.arxiu.enums.NtiOrigenEnum;
@@ -13,6 +43,7 @@ import es.caib.helium.client.integracio.arxiu.model.ArxiuFirma;
 import es.caib.helium.client.integracio.arxiu.model.ConsultaDocument;
 import es.caib.helium.client.integracio.arxiu.model.DocumentArxiu;
 import es.caib.helium.client.integracio.arxiu.model.ExpedientArxiu;
+import es.caib.helium.client.integracio.firma.model.FirmaResposta;
 import es.caib.helium.client.integracio.notificacio.NotificacioClient;
 import es.caib.helium.client.integracio.notificacio.enums.NotificacioEstat;
 import es.caib.helium.client.integracio.notificacio.model.ConsultaEnviament;
@@ -130,32 +161,6 @@ import es.caib.plugins.arxiu.api.FirmaPerfil;
 import es.caib.plugins.arxiu.api.FirmaTipus;
 import es.caib.plugins.arxiu.api.IArxiuPlugin;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateUtils;
-import org.fundaciobit.plugins.validatesignature.api.CertificateInfo;
-import org.fundaciobit.plugins.validatesignature.api.IValidateSignaturePlugin;
-import org.fundaciobit.plugins.validatesignature.api.SignatureDetailInfo;
-import org.fundaciobit.plugins.validatesignature.api.SignatureRequestedInformation;
-import org.fundaciobit.plugins.validatesignature.api.TimeStampInfo;
-import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureRequest;
-import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureResponse;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
-import javax.annotation.Resource;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.stream.Collectors;
 
 /**
  * Helper per a accedir a la funcionalitat dels plugins.
@@ -1959,18 +1964,21 @@ public class PluginHelper {
 		}
 	}
 
-	public byte[] firmaServidor(
+	public FirmaResposta firmaServidor(
 			Expedient expedient,
 			DocumentStore documentStore,
 			ArxiuDto arxiu,
 			es.caib.helium.client.integracio.firma.enums.FirmaTipus firmaTipus,
 			String motiu) {
 		try {
+			String tipusDocumentalNti = documentStore.getNtiTipoDocumental() != null? documentStore.getNtiTipoDocumental().getValorNti() : "";
 			return firmaPlugin.firmar(
-					firmaTipus,
-					motiu,
+					documentStore.getId().toString(),
 					arxiu.getNom(),
+					motiu,
 					arxiu.getContingut(),
+					arxiu.getTipusMime(),
+					tipusDocumentalNti,
 					arxiu.getTamany(),
 					EntornActual.getEntornId(),
 					expedient.getIdentificador(),
@@ -2317,11 +2325,12 @@ public class PluginHelper {
 			ContingutArxiu documentPerRetornar = getArxiuPlugin().documentModificar(
 					toArxiuDocument(
 							documentStore.getArxiuUuid(),
-							documentNom + ".pdf",
+							documentNom,
 							null,
 							firmaPdf,
-							FirmaTipus.PADES,
-							FirmaPerfil.EPES,
+							FirmaTipus.PADES.name(),
+							"TF06",
+							FirmaPerfil.EPES.name(),
 							null,
 							obtenirNtiOrigen(documentStore),
 							Arrays.asList(obtenirNtiOrgano(expedient)),
@@ -2352,33 +2361,25 @@ public class PluginHelper {
 		}
 	}
 
-	public ContingutArxiu arxiuDocumentGuardarFirmaCadesDetached(
+	public ContingutArxiu arxiuDocumentGuardarDocumentFirmat(
 			Expedient expedient,
 			DocumentStore documentStore,
 			String documentNom,
-			ArxiuDto firmaCades) {
-		String accioDescripcio = "Guardar firma CAdES pel document";
+			ArxiuDto firma, 
+			String tipusFirma, 
+			String tipusFirmaEni, 
+			String perfilFirmaEni) {
+		
+		String accioDescripcio = "Guardar firma per document";
 		List<IntegracioParametreDto> parametres = new ArrayList<IntegracioParametreDto>();
-		parametres.add(
-				new IntegracioParametreDto(
-						"id",
-						documentStore.getId().toString()));
-		parametres.add(
-				new IntegracioParametreDto(
-						"documentNom",
-						documentNom));
-		parametres.add(
-				new IntegracioParametreDto(
-						"firmaCadesFitxerNom",
-						firmaCades.getNom()));
-		parametres.add(
-				new IntegracioParametreDto(
-						"firmaCadesFitxerTipusMime",
-						firmaCades.getTipusMime()));
-		parametres.add(
-				new IntegracioParametreDto(
-						"firmaCadesFitxerTamany",
-						new Long(firmaCades.getTamany()).toString()));
+		parametres.add( new IntegracioParametreDto("id", documentStore.getId().toString()));
+		parametres.add( new IntegracioParametreDto("documentNom", documentNom));
+		parametres.add( new IntegracioParametreDto("firmaFitxerNom", firma.getNom()));
+		parametres.add( new IntegracioParametreDto( "firmaFitxerTipusMime", firma.getTipusMime()));
+		parametres.add( new IntegracioParametreDto( "tipusFirma", tipusFirma));
+		parametres.add( new IntegracioParametreDto( "tipusFirmaEni", tipusFirmaEni));
+		parametres.add( new IntegracioParametreDto( "perfilFirma", perfilFirmaEni));
+		parametres.add( new IntegracioParametreDto( "firmaFitxerTamany", new Long(firma.getTamany()).toString()));
 		long t0 = System.currentTimeMillis();
 		try {
 			ArxiuDto arxiu = new ArxiuDto();
@@ -2386,19 +2387,20 @@ public class PluginHelper {
 			ContingutArxiu documentPerRetornar = getArxiuPlugin().documentModificar(
 					toArxiuDocument(
 							documentStore.getArxiuUuid(),
-							documentNom + "." + arxiu.getExtensio(),
+							documentNom,
 							null,
-							firmaCades,
-							FirmaTipus.CADES_DET,
-							FirmaPerfil.BES,
-							null,
+							firma,
+							tipusFirma, 
+							tipusFirmaEni,
+							perfilFirmaEni,
+							documentStore.getNtiIdentificador(),
 							obtenirNtiOrigen(documentStore),
 							Arrays.asList(obtenirNtiOrgano(expedient)),
 							documentStore.getDataCreacio(),
 							obtenirNtiEstadoElaboracion(documentStore),
 							obtenirNtiTipoDocumental(documentStore),
 							documentStore.getNtiIdDocumentoOrigen(),
-							getExtensioPerArxiu(arxiu),
+							getExtensioPerArxiu(arxiu.getExtensio()),
 							DocumentEstat.DEFINITIU));
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_ARXIU,
@@ -2408,7 +2410,7 @@ public class PluginHelper {
 					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
 			return documentPerRetornar;
 		} catch (Exception ex) {
-			String errorDescripcio = "No s'ha pogut guardar la firma CAdES pel document: " + ex.getMessage();
+			String errorDescripcio = "No s'ha pogut guardar la firma pel document: " + ex.getMessage();
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_ARXIU,
 					accioDescripcio,
@@ -3199,8 +3201,9 @@ public class PluginHelper {
 			String nom,
 			ArxiuDto fitxer,
 			ArxiuDto firma,
-			FirmaTipus firmaTipus,
-			FirmaPerfil firmaPerfil,
+			String firmaTipus,
+			String firmaTipusEni, 
+			String firmaPerfil,
 			String ntiIdentificador,
 			NtiOrigenEnumDto ntiOrigen,
 			List<String> ntiOrgans,
@@ -3211,22 +3214,27 @@ public class PluginHelper {
 			DocumentExtensio extensio,
 			DocumentEstat estat) {
 		List<ArxiuFirmaDto> firmes = null;
+		boolean documentAmbFirma = false;
+		boolean firmaSeparada = false;
 		if (firma!= null) {
 			ArxiuFirmaDto arxiuFirma = new ArxiuFirmaDto();
 			arxiuFirma.setAutofirma(false);
 			arxiuFirma.setContingut(firma.getContingut());
 			arxiuFirma.setFitxerNom(firma.getNom());
 			arxiuFirma.setTipusMime(firma.getTipusMime());
-			arxiuFirma.setTipus(NtiTipoFirmaEnumDto.valueOf(firmaTipus.name()));
-			arxiuFirma.setPerfil(ArxiuFirmaPerfilEnumDto.valueOf(firmaPerfil.name()));
+			arxiuFirma.setTipus(this.firmaTipusEniToArxiu(firmaTipusEni));
+			arxiuFirma.setPerfil(ArxiuFirmaPerfilEnumDto.valueOf(firmaPerfil));
 			firmes = Arrays.asList(arxiuFirma);
+			documentAmbFirma = true;
+			firmaSeparada =  !TIPUS_FIRMES_ATTACHED.contains(arxiuFirma.getTipus());
+			extensio = getExtensioPerArxiu(FilenameUtils.getExtension(arxiuFirma.getFitxerNom()));
 		}
 		return toArxiuDocument(
 				identificador,
 				nom,
 				fitxer,
-				firma != null,
-				firmaTipus != null && !TIPUS_FIRMES_ATTACHED.contains(firmaTipus),
+				documentAmbFirma,
+				firmaSeparada,
 				firmes, // firmes
 				ntiIdentificador,
 				ntiOrigen,
@@ -3237,8 +3245,33 @@ public class PluginHelper {
 				ntiIdDocumentOrigen,
 				extensio,
 				estat);
+
 	}
 	
+	private NtiTipoFirmaEnumDto firmaTipusEniToArxiu(String firmaTipusEni) {
+		NtiTipoFirmaEnumDto firmaTipusArxiu = null;
+		if ("TF01".equalsIgnoreCase(firmaTipusEni)) {
+			firmaTipusArxiu = NtiTipoFirmaEnumDto.CSV;
+		} else if ("TF02".equalsIgnoreCase(firmaTipusEni)) {
+			firmaTipusArxiu = NtiTipoFirmaEnumDto.XADES_DET;
+		} else if ("TF03".equalsIgnoreCase(firmaTipusEni)) {
+			firmaTipusArxiu = NtiTipoFirmaEnumDto.XADES_ENV;
+		} else if ("TF04".equalsIgnoreCase(firmaTipusEni)) {
+			firmaTipusArxiu = NtiTipoFirmaEnumDto.CADES_DET;
+		} else if ("TF05".equalsIgnoreCase(firmaTipusEni)) {
+			firmaTipusArxiu = NtiTipoFirmaEnumDto.CADES_ATT;
+		} else if ("TF06".equalsIgnoreCase(firmaTipusEni)) {
+			firmaTipusArxiu = NtiTipoFirmaEnumDto.PADES;
+		} else if ("TF07".equalsIgnoreCase(firmaTipusEni)) {
+			firmaTipusArxiu = NtiTipoFirmaEnumDto.SMIME;
+		} else if ("TF08".equalsIgnoreCase(firmaTipusEni)) {
+			firmaTipusArxiu = NtiTipoFirmaEnumDto.ODT;
+		} else if ("TF09".equalsIgnoreCase(firmaTipusEni)) {
+			firmaTipusArxiu = NtiTipoFirmaEnumDto.OOXML;
+		}		
+		return firmaTipusArxiu;
+	}
+
 	/**  Mètode per obtenir un objecte Document per crear o actualitzar a l'arxiu. Aquest mètode rep la llista de firmes. */
 	private es.caib.plugins.arxiu.api.Document toArxiuDocument(
 			String identificador,
@@ -3750,8 +3783,7 @@ public class PluginHelper {
 				"annexos=" + ((anotacio.getAnnexos() != null) ? anotacio.getAnnexos().size() : 0);
 	}
 
-	private DocumentExtensio getExtensioPerArxiu(ArxiuDto arxiu) {
-		String fitxerExtensio = arxiu.getExtensio();
+	private DocumentExtensio getExtensioPerArxiu(String fitxerExtensio) {
 		String extensioAmbPunt = (fitxerExtensio.startsWith(".")) ? fitxerExtensio.toLowerCase() : "." + fitxerExtensio.toLowerCase();
 		return DocumentExtensio.toEnum(extensioAmbPunt);
 	}
@@ -4189,5 +4221,6 @@ public class PluginHelper {
 		}	
 		return dtos;
 	}
+
 
 }

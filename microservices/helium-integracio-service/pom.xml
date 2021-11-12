@@ -71,10 +71,17 @@
 			<artifactId>spring-ldap-core</artifactId>
 		</dependency>
 
+		<!--  Firma en servidor -->
 		<dependency>
-			<groupId>org.fundaciobit.pluginsib.userinformation</groupId>
-			<artifactId>pluginsib-userinformation-keycloak</artifactId>
-			<version>2.0.1</version>
+			<artifactId>apifirmasimple-jersey</artifactId>
+			<groupId>org.fundaciobit.apisib.apifirmasimple</groupId>
+			<version>1.0.3</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>jersey-client</artifactId>
+					<groupId>com.sun.jersey</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!-- Monitor integracions -->
@@ -89,6 +96,12 @@
 			<groupId>es.caib.notib</groupId>
 			<artifactId>notib-client</artifactId>
 			<version>1.1.10</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>jersey-client</artifactId>
+					<groupId>com.sun.jersey</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<artifactId>dir3caib-ws-api</artifactId>
@@ -129,11 +142,6 @@
 		<dependency>
 			<groupId>org.fundaciobit.plugins</groupId>
 			<artifactId>plugin-signatureserver-api</artifactId>
-			<version>2.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.fundaciobit.plugins</groupId>
-			<artifactId>plugin-signatureserver-portafib</artifactId>
 			<version>2.0.0</version>
 		</dependency>
 		<dependency>

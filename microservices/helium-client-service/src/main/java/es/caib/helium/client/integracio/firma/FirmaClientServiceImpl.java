@@ -5,6 +5,7 @@ import java.util.Objects;
 import org.springframework.stereotype.Service;
 
 import es.caib.helium.client.integracio.firma.model.FirmaPost;
+import es.caib.helium.client.integracio.firma.model.FirmaResposta;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,11 +19,11 @@ public class FirmaClientServiceImpl implements FirmaClientService {
 	private FirmaFeignClient firmaClient;
 	
 	@Override
-	public byte[] firmar(FirmaPost firma, Long entornId) {
+	public FirmaResposta firmar(FirmaPost firma, Long entornId) {
 		
-		log.debug(missatgeLog + " firmant l'arxiu " + firma.getArxiuNom() + " per l'entorn " + entornId);
+		log.debug(missatgeLog + " firmant l'arxiu " + firma.getNom() + " per l'entorn " + entornId);
 		var responseEntity = firmaClient.firmar(firma, entornId);
-	 	var resultat = Objects.requireNonNull(responseEntity.getBody());
+	 	FirmaResposta resultat = Objects.requireNonNull(responseEntity.getBody());
     	return resultat;
 	}
 
