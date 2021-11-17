@@ -29,6 +29,8 @@ public class ArxiuDetallDto extends ArxiuContingutDto {
 	private String eniExtensio;
 	private String eniDocumentOrigenId;
 	private String serieDocumental;
+	private String eniCsv;
+	private String eniCsvDef;
 
 	private Map<String, Object> metadadesAddicionals;
 
@@ -127,6 +129,18 @@ public class ArxiuDetallDto extends ArxiuContingutDto {
 	}
 	public void setSerieDocumental(String serieDocumental) {
 		this.serieDocumental = serieDocumental;
+	}
+	public String getEniCsv() {
+		return eniCsv;
+	}
+	public void setEniCsv(String eniCsv) {
+		this.eniCsv = eniCsv;
+	}
+	public String getEniCsvDef() {
+		return eniCsvDef;
+	}
+	public void setEniCsvDef(String eniCsvDef) {
+		this.eniCsvDef = eniCsvDef;
 	}
 	public Map<String, Object> getMetadadesAddicionals() {
 		return metadadesAddicionals;

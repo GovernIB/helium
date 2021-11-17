@@ -31,6 +31,7 @@ public class TascaDocumentDto {
 	
 	private Long signaturaPortasignaturesId;
 	private String signaturaUrlVerificacio;
+	private String ntiCsv;
 	private String tokenSignatura;
 
 	private boolean registrat = false;
@@ -50,7 +51,7 @@ public class TascaDocumentDto {
 	private String error;
 	
 	private String urlVerificacioCustodia;
-	
+		
 	private String extensionsPermeses;
 
 	public TascaDocumentDto() {
@@ -141,6 +142,12 @@ public class TascaDocumentDto {
 	}
 	public void setSignaturaUrlVerificacio(String signaturaUrlVerificacio) {
 		this.signaturaUrlVerificacio = signaturaUrlVerificacio;
+	}
+	public String getNtiCsv() {
+		return ntiCsv;
+	}
+	public void setNtiCsv(String eniCsv) {
+		this.ntiCsv = eniCsv;
 	}
 	public boolean isRegistrat() {
 		return registrat;
