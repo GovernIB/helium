@@ -108,9 +108,21 @@
 															</c:if>
 														</c:when>
 														<c:otherwise>
-															<a class="icon signature" href="${document.signaturaUrlVerificacio}" target="_blank">
-																<span class="fa fa-2x fa-certificate" title="<spring:message code="expedient.document.signat"/>"></span>
-															</a>
+															<!--  Document signat a l'Arxiu -->
+															<c:choose>
+																<c:when test="${document.ntiCsv != null}">
+																	<!--  Url del ConCSV -->
+																	<a class="icon signature" href="${document.signaturaUrlVerificacio}" target="_blank">
+																		<span class="fa fa-2x fa-certificate" title="<spring:message code="expedient.document.signat"/>"></span>
+																	</a>
+																</c:when>
+																<c:otherwise>
+																	<!-- S'ha de consultar el CSV -->																	
+																	<a class="icon signature" href="<c:url value="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/signatura/verificarCsv"></c:url>" target="_blank">
+																		<span class="fa fa-2x fa-certificate" title="<spring:message code="expedient.document.signat"/>"></span>
+																	</a>
+																</c:otherwise>
+															</c:choose>
 														</c:otherwise>
 													</c:choose>
 												</c:if>

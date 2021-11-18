@@ -725,6 +725,37 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			throw new ServletException(ex);
 	    }
 	}
+	
+	/** Mètode per redireccionar cal a la pàgina de verificació del CSV. Pot ser que el document no el tingui
+	 * ben informat i s'hagi de consultar a l'Arxiu. Si no es pot consultar s'ha de retornar un error.
+	 */
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/signatura/verificarCsv", method = RequestMethod.GET)
+	public String verificarCsv(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId,
+			@RequestParam(value = "csv", required = false) final String csv,
+			ModelMap model) throws ServletException {
+		String ret = "redirect:/v3/expedient/";
+		try {
+			// La pròpia consulta actualtiza el CSV al documnet
+			expedientDocumentService.getArxiuDetall(
+					expedientId,
+					processInstanceId,
+					documentStoreId);
+			ExpedientDocumentDto expedientDocument = expedientDocumentService.findOneAmbInstanciaProces(
+						expedientId,
+						processInstanceId,
+						documentStoreId);
+			 ret = "redirect:" + expedientDocument.getSignaturaUrlVerificacio();
+		} catch(Exception ex) {
+			String errMsg = getMessage(request, "expedient.document.verificar.csv.error", new Object[] {ex.getClass(), ex.getMessage()});
+			logger.error(errMsg, ex);
+			MissatgesHelper.error(request, errMsg);
+	    }
+		return ret;
+	}
 
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/signatura/esborrar", method = RequestMethod.GET)
 	@ResponseBody

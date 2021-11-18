@@ -1479,9 +1479,13 @@ public class DocumentHelper {
 		}
 		if (arxiuCsv != null) {
 			documentStore.setNtiCsv(arxiuCsv);
+		} else if (arxiuDocument.getMetadades() != null && arxiuDocument.getMetadades().getCsv() != null) {
+			documentStore.setNtiCsv(arxiuDocument.getMetadades().getCsv());
 		}
 		if (arxiuCsvRegulacio != null) {
 			documentStore.setNtiDefinicionGenCsv(arxiuCsvRegulacio);
+		} else if (arxiuDocument.getMetadades() != null && arxiuDocument.getMetadades().getCsvDef() != null) {
+			documentStore.setNtiDefinicionGenCsv(arxiuDocument.getMetadades().getCsvDef());
 		}
 	}
 
@@ -1900,6 +1904,7 @@ public class DocumentHelper {
 								getPropertyArxiuVerificacioBaseUrl() + documentStore.getNtiCsv());
 					}
 				}
+				dto.setNtiCsv(documentStore.getNtiCsv());
 				try {
 					dto.setTokenSignatura(getDocumentTokenUtils().xifrarToken(documentStoreId.toString()));
 				} catch (Exception ex) {

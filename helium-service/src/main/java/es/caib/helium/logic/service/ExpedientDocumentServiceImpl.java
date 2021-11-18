@@ -965,6 +965,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				arxiuDetall.setEniVersio(metadades.getVersioNti());
 				arxiuDetall.setEniIdentificador(metadades.getIdentificador());
 				arxiuDetall.setEniDataCaptura(metadades.getDataCaptura());
+				arxiuDetall.setEniCsv(metadades.getCsv());
+				arxiuDetall.setEniCsvDef(metadades.getCsvDef());
 				if (metadades.getOrigen() != null) {
 					switch (metadades.getOrigen()) {
 					case CIUTADA:
