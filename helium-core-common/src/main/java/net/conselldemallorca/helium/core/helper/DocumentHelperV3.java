@@ -1465,6 +1465,12 @@ public class DocumentHelperV3 {
 					}
 				}
 			}
+			if (arxiuCsv == null && arxiuDocument.getMetadades() != null) {
+				arxiuCsv = arxiuDocument.getMetadades().getCsv();
+			}
+			if (arxiuCsvRegulacio == null && arxiuDocument.getMetadades() != null) {
+				arxiuCsvRegulacio = arxiuDocument.getMetadades().getCsvDef();
+			}
 		} else {
 			arxiuTipoFirma = NtiTipoFirmaEnumDto.PADES;
 			String urlCustodia = pluginHelper.custodiaObtenirUrlComprovacioSignatura(
@@ -1482,13 +1488,9 @@ public class DocumentHelperV3 {
 		}
 		if (arxiuCsv != null) {
 			documentStore.setNtiCsv(arxiuCsv);
-		} else if (arxiuDocument.getMetadades() != null && arxiuDocument.getMetadades().getCsv() != null) {
-			documentStore.setNtiCsv(arxiuDocument.getMetadades().getCsv());
 		}
 		if (arxiuCsvRegulacio != null) {
 			documentStore.setNtiDefinicionGenCsv(arxiuCsvRegulacio);
-		} else if (arxiuDocument.getMetadades() != null && arxiuDocument.getMetadades().getCsvDef() != null) {
-			documentStore.setNtiDefinicionGenCsv(arxiuDocument.getMetadades().getCsvDef());
 		}
 	}
 
