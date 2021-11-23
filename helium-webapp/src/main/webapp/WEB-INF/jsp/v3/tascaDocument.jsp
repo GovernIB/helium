@@ -84,7 +84,16 @@
 							<a class="icon signature" href="${document.urlVerificacioCustodia}" target="_blank"><span class="fa fa-certificate" title="<spring:message code="expedient.document.signat"/>"></span></a>
 						</c:if>								
 						<c:if test="${not empty document.signaturaUrlVerificacio}">
-							<a class="icon signature" href="${document.signaturaUrlVerificacio}" target="_blank"><span class="fa fa-certificate" title="<spring:message code="expedient.document.signat"/>"></span></a>
+							<c:choose>
+								<c:when test="${document.ntiCsv != null}">
+									<!--  Url del ConCSV per l'Arxiu -->
+									<a class="icon signature" href="${document.signaturaUrlVerificacio}" target="_blank"><span class="fa fa-certificate" title="<spring:message code="expedient.document.signat"/>"></span></a>
+								</c:when>
+								<c:otherwise>
+									<!-- S'ha de consultar el CSV -->
+									<a class="icon signature" href="<c:url value='/v3/expedient/${tasca.expedientId}/proces/${tasca.processInstanceId}/document/${document.documentStoreId}/signatura/verificarCsv'/>" target="_blank"><span class="fa fa-certificate" title="<spring:message code="expedient.document.signat"/>"></span></a>
+								</c:otherwise>
+							</c:choose>
 						</c:if>
 					</c:if>
 					<c:if test="${document.registrat}">

@@ -1474,6 +1474,12 @@ public class DocumentHelperV3 {
 					}
 				}
 			}
+			if (arxiuCsv == null && arxiuDocument.getMetadades() != null) {
+				arxiuCsv = arxiuDocument.getMetadades().getCsv();
+			}
+			if (arxiuCsvRegulacio == null && arxiuDocument.getMetadades() != null) {
+				arxiuCsvRegulacio = arxiuDocument.getMetadades().getCsvDef();
+			}
 		} else {
 			arxiuTipoFirma = NtiTipoFirmaEnumDto.PADES;
 			String urlCustodia = pluginHelper.custodiaObtenirUrlComprovacioSignatura(
@@ -1913,6 +1919,7 @@ public class DocumentHelperV3 {
 								getPropertyArxiuVerificacioBaseUrl() + documentStore.getNtiCsv());
 					}
 				}
+				dto.setNtiCsv(documentStore.getNtiCsv());
 				try {
 					dto.setTokenSignatura(getDocumentTokenUtils().xifrarToken(documentStoreId.toString()));
 				} catch (Exception ex) {

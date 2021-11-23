@@ -284,6 +284,14 @@
 									<td>${arxiuDetall.eniDocumentOrigenId}</td>
 								</tr>
 							</c:if>
+							<tr>
+								<td><strong><spring:message code="expedient.metadades.nti.camp.eni.firma.csv"/></strong></td>
+								<td>${arxiuDetall.eniCsv}</td>
+							</tr>
+							<tr>
+								<td><strong><spring:message code="expedient.metadades.nti.camp.eni.firma.csvdef"/></strong></td>
+								<td>${arxiuDetall.eniCsvDef}</td>
+							</tr>
 						</tbody>
 						</table>
 					</div>
