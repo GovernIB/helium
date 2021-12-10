@@ -25,13 +25,13 @@ import org.junit.Test;
  */
 public class FirmaPluginPortafibTest {
 
-	private static final String USERNAME = "dgdt-pre";
+	private static final String USERNAME = "afirmades-firma"; // DEV: afirmades-firma, PRE: dgdt-pre
 	private static final String API_ENDPOINT_ADDRESS = "https://dev.caib.es/portafib/common/rest/apifirmaenservidorsimple/v1/";
 	private static final String API_USERNAME = "$helium_portafib";
 	private static final String API_PASSWORD = "helium_portafib";
 	//	private static final String API_USERNAME = "$distribucio_portafib";
 	//	private static final String API_PASSWORD = "distribucio_portafib";
-	private static final String API_PERFIL = "";
+	private static final String API_PERFIL = null;
 	
 
 	private FirmaPluginPortafib plugin;
@@ -65,11 +65,12 @@ public class FirmaPluginPortafibTest {
 	@Before
 	public void setUp() throws Exception {
 		//GlobalProperties.getProperties().setLlegirSystem(false);
-		//System.setProperty( "app.plugin.firma.portafib.username", USERNAME);
+		System.setProperty( "app.plugin.firma.portafib.username", USERNAME);
 		System.setProperty( "app.plugin.firma.portafib.plugins.signatureserver.portafib.api_passarela_url", API_ENDPOINT_ADDRESS);
 		System.setProperty( "app.plugin.firma.portafib.plugins.signatureserver.portafib.api_passarela_username", API_USERNAME);
 		System.setProperty( "app.plugin.firma.portafib.plugins.signatureserver.portafib.api_passarela_password", API_PASSWORD);
-		System.setProperty( "app.plugin.firma.portafib.plugins.signatureserver.portafib.api_passarela_perfil", API_PERFIL);
+		if (API_PERFIL != null && !API_PERFIL.isEmpty())
+			System.setProperty( "app.plugin.firma.portafib.plugins.signatureserver.portafib.api_passarela_perfil", API_PERFIL);
 		plugin = new FirmaPluginPortafib();
 	}
 
