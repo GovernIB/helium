@@ -87,7 +87,9 @@ public class ExpedientLuceneController extends BaseExpedientController {
 			Map<String, ExpedientDadaDto> dadesExpedient = new HashMap<String, ExpedientDadaDto>();
 			for(ExpedientDadaDto dadaExpedient : expedientDadaService.findAmbInstanciaProces(	expedient.getId(),
 																								expedient.getProcessInstanceId())) {
-				dadesExpedient.put(dadaExpedient.getVarCodi(), dadaExpedient);
+				if (!dadaExpedient.isCampTipusRegistre()) {
+					dadesExpedient.put(dadaExpedient.getVarCodi(), dadaExpedient);
+				}
 			}
 
 			// Map<codi, CampDto> amb tots els camps definits pel tipus d'expedient
