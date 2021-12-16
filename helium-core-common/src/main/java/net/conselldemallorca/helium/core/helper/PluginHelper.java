@@ -1700,15 +1700,15 @@ public class PluginHelper {
 	}
 
 	public String custodiaAfegirSignatura(
-			Long documentId,
+			String referenciaCustodia,
 			String gesdocId,
 			String nomArxiuSignat,
 			String codiTipusCustodia,
 			byte[] signatura) {
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 				new IntegracioParametreDto(
-						"documentId",
-						documentId),
+						"referenciaCustodia",
+						referenciaCustodia),
 				new IntegracioParametreDto(
 						"gesdocId",
 						gesdocId),
@@ -1722,7 +1722,7 @@ public class PluginHelper {
 		long t0 = System.currentTimeMillis();
 		try {
 			String custodiaId = getCustodiaPlugin().addSignature(
-					documentId.toString(),
+					referenciaCustodia,
 					gesdocId,
 					nomArxiuSignat,
 					codiTipusCustodia,
@@ -1736,7 +1736,7 @@ public class PluginHelper {
 			return custodiaId;
 		} catch (CustodiaPluginException ex) {
 			String errorDescripcio = "No s'ha pogut afegir la signatura a la custòdia (" +
-					"documentId=" + documentId + ", " +
+					"referenciaCustodia=" + referenciaCustodia + ", " +
 					"gesdocId=" + gesdocId + ", " +
 					"nomArxiuSignat=" + nomArxiuSignat + ", " +
 					"codiTipusCustodia=" + codiTipusCustodia + ")";
@@ -1767,22 +1767,22 @@ public class PluginHelper {
 	}
 
 	public List<RespostaValidacioSignatura> custodiaDadesValidacioSignatura(
-			String documentId) {
+			String referenciaCustodia) {
 		long t0 = System.currentTimeMillis();
 		try {
 			List<RespostaValidacioSignatura> validacions = getCustodiaPlugin().dadesValidacioSignatura(
-					documentId);
+					referenciaCustodia);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"Obtenció de dades de validació de signatura",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
 					new IntegracioParametreDto(
-							"documentId",
-							documentId));
+							"referenciaCustodia",
+							referenciaCustodia));
 			return validacions;
 		} catch (CustodiaPluginException ex) {
-			String errorDescripcio = "No s'han pogut obtenir les dades de les signatures de la custòdia (documentId=" + documentId + ")";
+			String errorDescripcio = "No s'han pogut obtenir les dades de les signatures de la custòdia (referenciaCustodia=" + referenciaCustodia + ")";
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"Obtenció de dades de validació de signatura",
@@ -1791,8 +1791,8 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					new IntegracioParametreDto(
-							"documentId",
-							documentId));
+							"referenciaCustodia",
+							referenciaCustodia));
 			logger.error(
 					errorDescripcio,
 					ex);
@@ -1812,21 +1812,21 @@ public class PluginHelper {
 	}
 
 	public List<byte[]> custodiaObtenirSignatures(
-			String documentId) {
+			String referenciaCustodia) {
 		long t0 = System.currentTimeMillis();
 		try {
-			List<byte[]> signatures = getCustodiaPlugin().getSignatures(documentId);
+			List<byte[]> signatures = getCustodiaPlugin().getSignatures(referenciaCustodia);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"Obtenció de signatures",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
 					new IntegracioParametreDto(
-							"documentId",
-							documentId));
+							"referenciaCustodia",
+							referenciaCustodia));
 			return signatures;
 		} catch (CustodiaPluginException ex) {
-			String errorDescripcio = "No s'han pogut obtenirles signatures de la custòdia (documentId=" + documentId + ")";
+			String errorDescripcio = "No s'han pogut obtenirles signatures de la custòdia (referenciaCustodia=" + referenciaCustodia + ")";
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"Obtenció de signatures",
@@ -1835,8 +1835,8 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					new IntegracioParametreDto(
-							"documentId",
-							documentId));
+							"referenciaCustodia",
+							referenciaCustodia));
 			logger.error(
 					errorDescripcio,
 					ex);
@@ -1856,21 +1856,21 @@ public class PluginHelper {
 	}
 
 	public byte[] custodiaObtenirSignaturesAmbArxiu(
-			String documentId) {
+			String referenciaCustodia) {
 		long t0 = System.currentTimeMillis();
 		try {
-			byte[] signaturesAmbArxiu = getCustodiaPlugin().getSignaturesAmbArxiu(documentId);
+			byte[] signaturesAmbArxiu = getCustodiaPlugin().getSignaturesAmbArxiu(referenciaCustodia);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"Obtenció de signatures amb arxiu",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
 					new IntegracioParametreDto(
-							"documentId",
-							documentId));
+							"referenciaCustodia",
+							referenciaCustodia));
 			return signaturesAmbArxiu;
 		} catch (CustodiaPluginException ex) {
-			String errorDescripcio = "No s'han pogut obtenirles signatures amb arxiu de la custòdia (documentId=" + documentId + ")";
+			String errorDescripcio = "No s'han pogut obtenirles signatures amb arxiu de la custòdia (referenciaCustodia=" + referenciaCustodia + ")";
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"Obtenció de signatures amb arxiu",
@@ -1879,8 +1879,8 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					new IntegracioParametreDto(
-							"documentId",
-							documentId));
+							"referenciaCustodia",
+							referenciaCustodia));
 			logger.error(
 					errorDescripcio,
 					ex);
@@ -1900,21 +1900,21 @@ public class PluginHelper {
 	}
 
 	public void custodiaEsborrarSignatures(
-			String documentId,
+			String referenciaCustodia,
 			Expedient expedient) {
 		long t0 = System.currentTimeMillis();
 		try {
-			getCustodiaPlugin().deleteSignatures(documentId);
+			getCustodiaPlugin().deleteSignatures(referenciaCustodia);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"Esborrar documents custodiats",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
 					new IntegracioParametreDto(
-							"documentId",
-							documentId));
+							"referenciaCustodia",
+							referenciaCustodia));
 		} catch (CustodiaPluginException ex) {
-			String errorDescripcio = "No s'ha pogut esborrar el document de la custòdia (documentId=" + documentId + ")";
+			String errorDescripcio = "No s'ha pogut esborrar el document de la custòdia (referenciaCustodia=" + referenciaCustodia + ")";
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"Esborrar documents custodiats",
@@ -1923,8 +1923,8 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					new IntegracioParametreDto(
-							"documentId",
-							documentId));
+							"referenciaCustodia",
+							referenciaCustodia));
 			logger.error(errorDescripcio,ex);
 			throw SistemaExternException.tractarSistemaExternException(
 					expedient.getEntorn().getId(),
@@ -1942,21 +1942,21 @@ public class PluginHelper {
 	}
 
 	public String custodiaObtenirUrlComprovacioSignatura(
-			String documentId) {
+			String referenciaCustodia) {
 		long t0 = System.currentTimeMillis();
 		try {
-			String url = getCustodiaPlugin().getUrlComprovacioSignatura(documentId);
+			String url = getCustodiaPlugin().getUrlComprovacioSignatura(referenciaCustodia);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"Obtenir URL de comprovació de signatura",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
 					new IntegracioParametreDto(
-							"documentId",
-							documentId));
+							"referenciaCustodia",
+							referenciaCustodia));
 			return url;
 		} catch (CustodiaPluginException ex) {
-			String errorDescripcio = "No s'ha pogut obtenir url de comprovació de la custòdia (documentId=" + documentId + ")";
+			String errorDescripcio = "No s'ha pogut obtenir url de comprovació de la custòdia (referenciaCustodia=" + referenciaCustodia + ")";
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"Obtenir URL de comprovació de signatura",
@@ -1965,10 +1965,10 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					new IntegracioParametreDto(
-							"documentId",
-							documentId));
+							"referenciaCustodia",
+							referenciaCustodia));
 			logger.error(
-					documentId,
+					referenciaCustodia,
 					ex);
 			throw SistemaExternException.tractarSistemaExternException(
 					null,

@@ -287,10 +287,10 @@ public class DocumentHelper {
 				String nomArxiu = getNomArxiuAmbExtensio(
 						dto.getArxiuNom(),
 						getExtensioArxiuSignat());
-				String referenciaCustodia = null;
+				String referenciaCustodia = documentStore.getId() + "_" + new Date().getTime();
 				if (pluginHelper.custodiaIsValidacioImplicita()) {
 					referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
-							documentStore.getId(),
+							referenciaCustodia,
 							documentStore.getReferenciaFont(),
 							nomArxiu,
 							dto.getCustodiaCodi(),
@@ -303,7 +303,7 @@ public class DocumentHelper {
 							false);
 					if (resposta.isEstatOk()) {
 						referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
-								documentStore.getId(),
+								referenciaCustodia,
 								documentStore.getReferenciaFont(),
 								nomArxiu,
 								dto.getCustodiaCodi(),
@@ -583,7 +583,7 @@ public class DocumentHelper {
 				if (document.isSignat()) {
 					dto.setUrlVerificacioCustodia(
 							pluginHelper.custodiaObtenirUrlComprovacioSignatura(
-									documentStoreId.toString()));
+									document.getReferenciaCustodia()));
 				}
 				String codiDocument;
 				if (document.isAdjunt()) {
@@ -681,7 +681,7 @@ public class DocumentHelper {
 									arxiuOrigenNom,
 									arxiuOrigenContingut,
 									(ambSegellSignatura) ? !document.isSignat() : false,
-									(ambSegellSignatura) ? getUrlComprovacioSignatura(documentStoreId, dto.getTokenSignatura()): null,
+									(ambSegellSignatura) ? getUrlComprovacioSignatura(document.getReferenciaCustodia(), dto.getTokenSignatura()): null,
 									document.isRegistrat(),
 									numeroRegistre,
 									dataRegistre,
@@ -768,9 +768,9 @@ public class DocumentHelper {
 							document.getReferenciaFont());
 	}
 
-	private String getUrlComprovacioSignatura(Long documentStoreId, String token) {
+	private String getUrlComprovacioSignatura(String referenciaCustodia, String token) {
 		String urlCustodia = pluginHelper.custodiaObtenirUrlComprovacioSignatura(
-				documentStoreId.toString());
+				referenciaCustodia);
 		if (urlCustodia != null) {
 			return urlCustodia;
 		} else {
