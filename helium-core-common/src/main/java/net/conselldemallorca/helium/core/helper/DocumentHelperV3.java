@@ -2348,9 +2348,6 @@ public class DocumentHelperV3 {
 			}
 			if (ambFirma) {
 				// Guarda la firma a custòdia
-				if (expedient.isNtiActiu()) {
-					actualitzarNtiFirma(documentStore, null);
-				}
 				if (documentStore.getReferenciaCustodia() != null) {
 					this.programarCustodiaEsborrarSignatures(documentStore.getReferenciaCustodia(), expedient);
 				}
@@ -2370,6 +2367,9 @@ public class DocumentHelperV3 {
 					} else {
 						throw new RuntimeException(ex);
 					}
+				}
+				if (expedient.isNtiActiu()) {
+					actualitzarNtiFirma(documentStore, null);
 				}
 				documentStore.setReferenciaCustodia(referenciaCustodia);
 				documentStore.setSignat(true);
