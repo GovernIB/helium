@@ -1850,7 +1850,7 @@ public class PluginHelper {
 	}
 	
 	public String custodiaAfegirSignatura(
-			Long documentId,
+			String referenciaCustodia,
 			String gesdocId,
 			String nomArxiuSignat,
 			String codiTipusCustodia,
@@ -1858,7 +1858,7 @@ public class PluginHelper {
 
 		try {
 			String custodiaId = custodiaPlugin.addSignature(
-					documentId.toString(),
+					referenciaCustodia,
 					gesdocId,
 					nomArxiuSignat,
 					codiTipusCustodia,
@@ -1867,7 +1867,7 @@ public class PluginHelper {
 			return custodiaId;
 		} catch (CustodiaPluginException ex) {
 			var error = "No s'ha pogut afegir la signatura a la custòdia (" +
-					"documentId=" + documentId + ", " +
+					"referenciaCustodia=" + referenciaCustodia + ", " +
 					"gesdocId=" + gesdocId + ", " +
 					"nomArxiuSignat=" + nomArxiuSignat + ", " +
 					"codiTipusCustodia=" + codiTipusCustodia + ")";
@@ -1876,22 +1876,22 @@ public class PluginHelper {
 		}
 	}
 
-	public List<RespostaValidacioSignatura> custodiaDadesValidacioSignatura(String documentId) {
+	public List<RespostaValidacioSignatura> custodiaDadesValidacioSignatura(String referenciaCustodia) {
 		try {
-			return custodiaPlugin.dadesValidacioSignatura(documentId, EntornActual.getEntornId());
+			return custodiaPlugin.dadesValidacioSignatura(referenciaCustodia, EntornActual.getEntornId());
 		} catch (CustodiaPluginException ex) {
-			var error = "No s'han pogut obtenir les dades de les signatures de la custòdia (documentId=" + documentId + ")";
+			var error = "No s'han pogut obtenir les dades de les signatures de la custòdia (referenciaCustodia=" + referenciaCustodia + ")";
 			log.error(error, ex);
 			throw new SistemaExternException("(CUSTÒDIA. Dades validació signatura: " + error + ")", ex);
 		}
 	}
 
-	public List<byte[]> custodiaObtenirSignatures(String documentId) {
+	public List<byte[]> custodiaObtenirSignatures(String referenciaCustodia) {
 		try {
-			var signatures = custodiaPlugin.getSignatures(documentId, EntornActual.getEntornId());
+			var signatures = custodiaPlugin.getSignatures(referenciaCustodia, EntornActual.getEntornId());
 			return signatures;
 		} catch (CustodiaPluginException ex) {
-			var error = "No s'han pogut obtenirles signatures de la custòdia (documentId=" + documentId + ")";
+			var error = "No s'han pogut obtenirles signatures de la custòdia (documereferenciaCustodiantId=" + referenciaCustodia + ")";
 			log.error(error, ex);
 			throw new SistemaExternException("(CUSTÒDIA. Obtenir signatures: " + error + ")", ex);
 		}
@@ -1907,11 +1907,11 @@ public class PluginHelper {
 		}
 	}
 
-	public void custodiaEsborrarSignatures(String documentId, Expedient expedient) {
+	public void custodiaEsborrarSignatures(String referenciaCustodia, Expedient expedient) {
 		try {
-			custodiaPlugin.deleteSignatures(documentId, EntornActual.getEntornId());
+			custodiaPlugin.deleteSignatures(referenciaCustodia, EntornActual.getEntornId());
 		} catch (CustodiaPluginException ex) {
-			var error = "No s'ha pogut esborrar el document de la custòdia (documentId=" + documentId + ")";
+			var error = "No s'ha pogut esborrar el document de la custòdia (referenciaCustodia=" + referenciaCustodia + ")";
 			log.error(error, ex);
 			throw SistemaExternException.tractarSistemaExternException(
 					expedient.getEntorn().getId(),
@@ -1928,12 +1928,12 @@ public class PluginHelper {
 		}
 	}
 
-	public String custodiaObtenirUrlComprovacioSignatura(String documentId) {
+	public String custodiaObtenirUrlComprovacioSignatura(String referenciaCustodia) {
 		try {
-			return custodiaPlugin.getUrlComprovacioSignatura(documentId, EntornActual.getEntornId());
+			return custodiaPlugin.getUrlComprovacioSignatura(referenciaCustodia, EntornActual.getEntornId());
 		} catch (CustodiaPluginException ex) {
-			var error = "No s'ha pogut obtenir url de comprovació de la custòdia (documentId=" + documentId + ")";
-			log.error(documentId, ex);
+			var error = "No s'ha pogut obtenir url de comprovació de la custòdia (referenciaCustodia=" + referenciaCustodia + ")";
+			log.error(referenciaCustodia, ex);
 			throw new SistemaExternException("(CUSTÒDIA. Obtenir URL comprovació: " + error + ")", ex);
 		}
 	}
