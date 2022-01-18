@@ -41,6 +41,8 @@ public class DocumentInfo implements Serializable{
 	private String validesa;
 	private String observacions;
 
+	private String csv;
+	private String urlVerificacioSignatures;
 
 	public Long getId() {
 		return id;
@@ -167,6 +169,18 @@ public class DocumentInfo implements Serializable{
 	}
 	public void setObservacions(String observacions) {
 		this.observacions = observacions;
+	}
+	public String getCsv() {
+		return csv;
+	}
+	public void setCsv(String csv) {
+		this.csv = csv;
+	}
+	public String getUrlVerificacioSignatures() {
+		return urlVerificacioSignatures;
+	}
+	public void setUrlVerificacioSignatures(String urlVerificacioSignatures) {
+		this.urlVerificacioSignatures = urlVerificacioSignatures;
 	}
 
 }
