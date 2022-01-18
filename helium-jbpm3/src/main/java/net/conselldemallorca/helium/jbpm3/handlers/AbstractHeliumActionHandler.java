@@ -104,6 +104,10 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 			resposta.setDataCreacio(document.getDataCreacio());
 			resposta.setDataDocument(document.getDataDocument());
 			resposta.setSignat(document.isSignat());
+			if (document.isSignat()) {
+				resposta.setCsv(document.getArxiuCsv());
+				resposta.setUrlVerificacioSignatures(document.getSignaturaUrlVerificacio());
+			}
 			if (document.isRegistrat()) {
 				resposta.setRegistrat(true);
 				resposta.setRegistreNumero(document.getRegistreNumero());
