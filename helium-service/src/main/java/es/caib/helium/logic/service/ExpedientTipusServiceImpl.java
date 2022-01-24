@@ -1495,7 +1495,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
 				true);
-		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntorn(entorn);
+		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntornOrderByNomAsc(entorn);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		permisosHelper.filterGrantedAny(
 				tipuss,
@@ -1547,7 +1547,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
 				true);
-		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntorn(entorn);
+		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntornOrderByNomAsc(entorn);
 		if (!entornHelper.potDissenyarEntorn(entornId)) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			permisosHelper.filterGrantedAny(
@@ -1584,7 +1584,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
 				true);
-		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntorn(entorn);
+		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntornOrderByNomAsc(entorn);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (!UsuariActualHelper.isAdministrador(auth)) {
 			permisosHelper.filterGrantedAny(
@@ -1619,7 +1619,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
 				true);
-		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntorn(entorn);
+		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntornOrderByNomAsc(entorn);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (!UsuariActualHelper.isAdministrador(auth)) {
 			permisosHelper.filterGrantedAny(
@@ -1828,7 +1828,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
 				true);
-		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntorn(entorn);
+		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntornOrderByNomAsc(entorn);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		permisosHelper.filterGrantedAny(
 				tipuss,
@@ -1861,7 +1861,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
 				true);
-		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntorn(entorn);
+		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntornOrderByNomAsc(entorn);
 		return conversioTipusServiceHelper.convertirList(
 				tipuss,
 				ExpedientTipusDto.class);
