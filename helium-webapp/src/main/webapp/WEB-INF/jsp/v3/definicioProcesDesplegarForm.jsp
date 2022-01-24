@@ -70,7 +70,7 @@
 			</div>
 		</div>
 		<hel:inputSelect emptyOption="false" name="accio" textKey="definicio.proces.desplegar.form.accio" optionItems="${accionsJbpm}" optionValueAttribute="codi" optionTextAttribute="valor"/>
-		<hel:inputSelect emptyOption="${potDissenyarEntorn}" name="expedientTipusId" textKey="definicio.proces.desplegar.form.tipusExpedient" placeholderKey="definicio.proces.desplegar.form.tipusExpedient.placeholder" optionItems="${expedientsTipus}" optionValueAttribute="id" optionTextAttribute="codi"/>
+		<hel:inputSelect emptyOption="${potDissenyarEntorn}" name="expedientTipusId" textKey="definicio.proces.desplegar.form.tipusExpedient" placeholderKey="definicio.proces.desplegar.form.tipusExpedient.placeholder" optionItems="${expedientsTipus}" optionValueAttribute="id" optionTextAttribute="nom"/>
 		<hel:inputText name="etiqueta" textKey="definicio.proces.desplegar.form.etiqueta" />
 		<hel:inputCheckbox name="actualitzarExpedientsActius" textKey="definicio.proces.desplegar.form.actualitzarExpedientsActius" />
 		
