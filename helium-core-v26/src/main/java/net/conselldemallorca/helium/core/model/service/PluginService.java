@@ -405,14 +405,13 @@ public class PluginService {
 						portasignatures.setEstat(TipusEstat.PROCESSAT);
 						
 						// Guarda el document
-						if (documentStore.getReferenciaCustodia() == null) {
-							if (portasignatures.getDataCustodiaIntent() == null)
-								portasignatures.setDataCustodiaIntent(new Date());
-							afegirDocumentCustodia(
-									portasignatures.getDocumentId(),
-									documentStore);
-							portasignatures.setDataCustodiaOk(new Date());
-						}						
+						if (portasignatures.getDataCustodiaIntent() == null) {
+							portasignatures.setDataCustodiaIntent(new Date());
+						}
+						afegirDocumentCustodia(
+								portasignatures.getDocumentId(),
+								documentStore);
+						portasignatures.setDataCustodiaOk(new Date());
 						// Avança el flux
 						jbpmDao.signalToken(
 								tokenId.longValue(),
