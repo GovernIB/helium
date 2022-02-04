@@ -70,7 +70,9 @@ public class IncidentThrowsAdviceHelper {
 
 		Signature signature = joinPoint.getSignature();
 		if (!getDadesAdvice().getIdsPortasignatures().isEmpty()) {
-			Jbpm3HeliumBridge.getInstanceService().portasignaturesEliminar(getDadesAdvice().getIdsPortasignatures());
+			for (Integer documentId : getDadesAdvice().getIdsPortasignatures()) {
+				Jbpm3HeliumBridge.getInstanceService().portasignaturesEliminar(documentId);
+			}
 		}
 		clearDadesAdvice(signature);
 	}

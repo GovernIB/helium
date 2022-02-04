@@ -145,12 +145,12 @@ public class PortasignaturesPluginPortafib implements PortasignaturesPlugin {
 	}
 
 	public void deleteDocuments (
-			List<Integer> documents) throws PortasignaturesPluginException {
-		if (documents == null || documents.size() != 1) {
+			Integer document) throws PortasignaturesPluginException {
+		if (document == null) {
 			throw new PortasignaturesPluginException(
 					"S'ha d'especificar un únic document a esborrar");
 		}
-		Long portafirmesId = new Long(documents.get(0)).longValue();
+		Long portafirmesId = new Long(document).longValue();
 		try {
 			getPeticioDeFirmaWs().deletePeticioDeFirma(portafirmesId);
 		} catch (Exception ex) {

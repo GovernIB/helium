@@ -215,8 +215,8 @@ public class PluginService {
 	}
 
 	public void deletePortasignatures(
-			List<Integer> documentsId) throws PluginException {
-		pluginPortasignaturesDao.deleteDocuments(documentsId);
+			Integer documentId) throws PluginException {
+		pluginPortasignaturesDao.deleteDocument(documentId);
 	}
 			
 	public boolean processarDocumentCallbackPortasignatures(

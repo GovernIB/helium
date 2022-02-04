@@ -103,13 +103,11 @@ public class PortasignaturesPluginMock implements PortasignaturesPlugin {
 	}
 	
 	public void deleteDocuments (
-			List<Integer> documents) throws PortasignaturesPluginException {
-		for (Integer documentId : documents) {
-			String filePath = tempDir + File.separator + documentId.toString();
-			File file = new File(filePath);
-			if (file.exists())
-				file.delete();
-		}
+			Integer document) throws PortasignaturesPluginException {
+		String filePath = tempDir + File.separator + document.toString();
+		File file = new File(filePath);
+		if (file.exists())
+			file.delete();
 	}
 
 }

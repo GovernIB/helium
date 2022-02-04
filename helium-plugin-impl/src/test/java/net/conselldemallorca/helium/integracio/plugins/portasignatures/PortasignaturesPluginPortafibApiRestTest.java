@@ -15,17 +15,17 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * Test de la implementació de l'API de l'arxiu que utilitza
- * l'API REST de l'arxiu de la CAIB.
+ * Test de la implementació del plugin d'enviament al Portasignatures per API REST 
+ * simple.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class PortasignaturesPluginPortafibTest {
+public class PortasignaturesPluginPortafibApiRestTest {
 
 	private static final String BASE_URL = "https://dev.caib.es/portafib";
-	private static final String USERNAME = "$helium_portafibpass";
-	private static final String PASSWORD = "helium_portafibpass";
-	private static final String DESTINATARI = "43631077P";
+	private static final String USERNAME = "$helium_portafib";
+	private static final String PASSWORD = "helium_portafib";
+	private static final String DESTINATARI = "e43631077p";
 	private static final int DOC_TIPUS = 11;
 	private static final String DOCUMENT_TITOL_PREFIX = "Test enviament HELIUM ";
 
@@ -43,13 +43,13 @@ public class PortasignaturesPluginPortafibTest {
 				"app.portasignatures.plugin.portafib.password",
 				PASSWORD);
 		System.setProperty(
-				"app.portasignatures.plugin.portafib.log.actiu",
-				"true");
-		portasignaturesPlugin = new PortasignaturesPluginPortafib();
+				"app.portasignatures.plugin.portafib.perfil",
+				"");
+		portasignaturesPlugin = new PortasignaturesPluginPortafibApiRest();
 	}
 
 	@Test
-	public void enviarICancelar() throws PortasignaturesPluginException, IOException {
+	public void enviarDocument() throws PortasignaturesPluginException, IOException {
 		DocumentPortasignatures document = new DocumentPortasignatures();
 		document.setTitol(
 				DOCUMENT_TITOL_PREFIX + System.currentTimeMillis());

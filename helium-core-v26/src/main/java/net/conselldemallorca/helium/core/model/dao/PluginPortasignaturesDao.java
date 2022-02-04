@@ -73,10 +73,10 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 		}
 	}
 	
-	public void deleteDocuments(
-			List<Integer> documentIds) throws PluginException {
+	public void deleteDocument(
+			Integer documentId) throws PluginException {
 		try {
-			getPortasignaturesPlugin().deleteDocuments(documentIds);
+			getPortasignaturesPlugin().deleteDocuments(documentId);
 		} catch (PortasignaturesPluginException ex) {
 			logger.error("Error al eliminar el document al portasignatures", ex);
 			throw new PluginException("Error al eliminar el document al portasignatures", ex);

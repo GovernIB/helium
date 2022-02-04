@@ -44,7 +44,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.util.PdfUtils;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
@@ -675,7 +674,11 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return response;
 	}
 
-	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentCodi}/generar")
+	/** Aquest mètode genera el document i si està configurat com a tal l'incorpora al procés. En el cas
+	 * que el document ja estigui generat primer l'esborra i després el torna a adjuntar. Si està firmat
+	 * llavors no el substituirà.
+	 */
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentCodi}/generar", method = RequestMethod.GET)
 	public String generar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,

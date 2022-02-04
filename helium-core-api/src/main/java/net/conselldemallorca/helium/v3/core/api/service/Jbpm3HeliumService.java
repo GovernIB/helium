@@ -912,10 +912,10 @@ public interface Jbpm3HeliumService {
 	
 	/**
 	 * 
-	 * @param documentsId
+	 * @param documentId
 	 */
 	public void portasignaturesEliminar(
-			List<Integer> documentsId) throws SistemaExternException;
+			Integer documentId) throws SistemaExternException;
 
 	/**
 	 * 

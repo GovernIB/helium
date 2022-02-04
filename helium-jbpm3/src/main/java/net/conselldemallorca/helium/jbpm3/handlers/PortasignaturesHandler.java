@@ -227,9 +227,7 @@ public class PortasignaturesHandler extends BasicActionHandler implements AccioE
 		try {
 			if (parametres != null && parametres.size() > 0 ) {
 				documentId = Integer.valueOf(parametres.get(0));
-				List<Integer> documentsIds = new ArrayList<Integer>();
-				documentsIds.add(documentId);
-				Jbpm3HeliumBridge.getInstanceService().portasignaturesEliminar(documentsIds);
+				Jbpm3HeliumBridge.getInstanceService().portasignaturesEliminar(documentId);
 				System.out.println("PortasignaturesHandler: Retrocedida la petició de firma al portafirmes " + documentId+ " correctament");
 			}
 		} catch (Exception e) {

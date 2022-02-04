@@ -44,11 +44,11 @@ public interface PortasignaturesPlugin {
 	public List<byte[]> obtenirSignaturesDocument(Integer documentId) throws PortasignaturesPluginException;
 
 	/**
-	 * Elimina documents del portasignatures
+	 * Elimina el document del portasignatures
 	 * 
-	 * @param documents
+	 * @param document Referència a la petició al portasignatures.
 	 * 
 	 * @throws PortasignaturesPluginException
 	 */
-	public void deleteDocuments (List<Integer> documents) throws PortasignaturesPluginException;
+	public void deleteDocuments (Integer document) throws PortasignaturesPluginException;
 }

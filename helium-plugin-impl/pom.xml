@@ -121,6 +121,19 @@
 			<artifactId>portafib-ws-api</artifactId>
 			<version>1.1</version>
 		</dependency>
+		
+		<!-- Portafirmes API REST -->
+		<dependency>
+			<artifactId>apifirmaasyncsimple-api</artifactId>
+			<groupId>org.fundaciobit.apisib.apifirmaasyncsimple</groupId>
+			<version>2.0</version>
+		</dependency>
+		<dependency>
+	      <artifactId>apifirmaasyncsimple-jersey</artifactId>
+	      <groupId>org.fundaciobit.apisib.apifirmaasyncsimple</groupId>
+	      <version>2.0.1</version>
+	    </dependency>
+		
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-core</artifactId>

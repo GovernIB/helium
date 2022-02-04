@@ -3,9 +3,6 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,9 +59,7 @@ public class PortasignaturesHelper {
 			if ( TransactionSynchronization.STATUS_ROLLED_BACK == status) {
 				try {					
 					// Rollback. Cancel·lar la petició que s'acaba de fer al portafirmes.
-					List<Integer> documentsIds = new ArrayList<Integer>();
-					documentsIds.add(documentId);
-					pluginHelper.portasignaturesCancelar(documentsIds);
+					pluginHelper.portasignaturesCancelar(documentId);
 					logger.debug("PortasignaturesHelper: Rollback de la petició de firma al portafirmes " + documentId + " realitzada correctament");
 				} catch (Exception e) {
 					logger.error("PortasignaturesHelper: Error en el rollback de firma al portafirmes " + documentId + ": " + e.getMessage(), e);
