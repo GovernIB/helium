@@ -62,6 +62,7 @@ dadesNti['${d.codi}'] = new Object();
 dadesNti['${d.codi}'].ntiOrigen = '${d.ntiOrigen}';
 dadesNti['${d.codi}'].ntiEstadoElaboracion = '${d.ntiEstadoElaboracion}';
 dadesNti['${d.codi}'].ntiTipoDocumental = '${d.ntiTipoDocumental}';
+dadesNti['${d.codi}'].plantilla = ${d.plantilla};
 </c:forEach>
 
 
@@ -82,16 +83,28 @@ $(document).ready( function() {
 		}
 	}).click();
 	// Carrega dades nti per defecte
-	$('#documentCodi').change(function() {
-		var documentCodi = $(this).val();
-		if (dadesNti[documentCodi]) {
-			$('#ntiOrigen').val(dadesNti[documentCodi].ntiOrigen).change();
-			$('#ntiEstadoElaboracion').val(dadesNti[documentCodi].ntiEstadoElaboracion).change();
-			$('#ntiTipoDocumental').val(dadesNti[documentCodi].ntiTipoDocumental).change();
-		} else {
-			$('#ntiOrigen,#ntiEstadoElaboracion,ntiTipoDocumental').val('').change();			
-		}
-	});
+	$('#documentCodi')
+		.select2({language: "${idioma}"})
+		.change(function() {
+			var documentCodi = $(this).val();
+			$('#generarPlantillaDiv').hide();
+			if (dadesNti[documentCodi]) {
+				$('#ntiOrigen').val(dadesNti[documentCodi].ntiOrigen).change();
+				$('#ntiEstadoElaboracion').val(dadesNti[documentCodi].ntiEstadoElaboracion).change();
+				$('#ntiTipoDocumental').val(dadesNti[documentCodi].ntiTipoDocumental).change();
+				if (dadesNti[documentCodi].plantilla) {
+					// Per documents tipus plantlilla mostra un enllaç a la generació de documents
+					var href = '<c:url value="/modal/v3/expedient/${expedientId}/proces/${document != null? document.processInstanceId : processInstanceId}/document/{documentCodi}/generar"/>';
+					href = href.replace("{documentCodi}", $('#documentCodi').val());
+					console.log(href);
+					$('#generarPlantillaBtn').attr('href', href);
+					$('#generarPlantillaDiv').show();
+				}
+			} else {
+				$('#ntiOrigen,#ntiEstadoElaboracion,ntiTipoDocumental').val('').change();			
+			}
+		})
+		.change();
 	
 	// Errors en les pipelles
 	$('.tab-pane').each(function() {
@@ -138,7 +151,7 @@ function mostrarAmagarFile() {
 </head>
 <body>
 	<c:url value="/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/descarregar" var="downloadUrl"/>
-	<form:form cssClass="form-horizontal form-tasca" action="${formAction}" enctype="multipart/form-data" method="post" modelAttribute="documentExpedientCommand">
+	<form:form cssClass="form-horizontal form-tasca" action="${formAction}" enctype="multipart/form-data" method="post" commandName="documentExpedientCommand">
 		<div class="inlineLabels">
 			<form:hidden path="docId"/>
 			<form:hidden path="expedientId"/>
@@ -169,7 +182,7 @@ function mostrarAmagarFile() {
 			<h4 class="titol-missatge">
 				<label><c:choose><c:when test="${document.adjunt}">${document.adjuntTitol}</c:when><c:otherwise>${document.documentNom}</c:otherwise></c:choose></label>
 	 			<c:if test="${document.plantilla}"> 
-	 				<a title="<spring:message code='expedient.massiva.tasca.doc.generar' />" href="<c:url value="/modal/v3/expedient/${expedientId}/document/${document.processInstanceId}/${document.documentCodi}/generar"/>">
+	 				<a title="<spring:message code='expedient.massiva.tasca.doc.generar' />" href="<c:url value="/modal/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.documentCodi}/generar"/>">
 	 					<i class="fa fa-file-text-o"></i>
 	 				</a>
 	 			</c:if> 
@@ -195,10 +208,23 @@ function mostrarAmagarFile() {
 
 			<div class="tab-content">
 				<div id="dades-generals" class="tab-pane in active">	
-					<div id="titolArxiu">
+					<div id="titolArxiu" style="display: ${document.adjunt ? "inline" : "none"}">
 						<hel:inputText required="true" name="nom" textKey="expedient.document.titol" placeholderKey="expedient.document.titol"/>
 					</div>
 					<hel:inputDate required="true" name="data" textKey="expedient.document.data" placeholder="dd/mm/aaaa"/>
+
+					<div id="generarPlantillaDiv" class="form-group" style="display: none"};">
+						<label class="col-xs-4">&nbsp;</label>
+						<div class="col-xs-8">
+							<a 	id="generarPlantillaBtn"
+								class="btn btn-default" 
+								title="<spring:message code='expedient.massiva.tasca.doc.generar'/>" 
+								href="<c:url value="/modal/v3/expedient/${expedientId}/proces/${document.processInstanceId}/${documentCodi}/generar"/>">
+			 					<i class="fa fa-file-text-o fa-sm"></i>
+			 				</a>
+						</div>
+					</div>
+
 					<c:set var="campErrors"><form:errors path="arxiu"/></c:set>
 					<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
 						<label class="control-label col-xs-4 obligatori" for="arxiu"><spring:message code="expedient.document.arxiu"/></label>

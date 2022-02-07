@@ -1790,37 +1790,25 @@ public class PluginHelper {
 
 
 	public void portasignaturesCancelar(
-			List<Integer> documentIds) {
-		StringBuilder ids = new StringBuilder();
-		boolean first = true;
-		for (Integer documentId: documentIds) {
-			if (first)
-				first = false;
-			else
-				ids.append(", ");
-			ids.append(documentId.toString());
-		}
+			Integer documentId) {
 		long t0 = System.currentTimeMillis();
 		try {
-			getPortasignaturesPlugin().deleteDocuments(
-					documentIds);
+			getPortasignaturesPlugin().deleteDocuments(documentId);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_PFIRMA,
 					"Cancel·lació d'enviaments de documents",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
 					new IntegracioParametreDto(
-							"documentIds",
-							ids.toString()));
-			for (Integer documentId: documentIds) {
-				Portasignatures portasignatures = portasignaturesRepository.findByDocumentId(documentId);
-				if (portasignatures != null) {
-					portasignatures.setEstat(TipusEstat.CANCELAT);
-				}
+							"documentId",
+							documentId));
+			Portasignatures portasignatures = portasignaturesRepository.findByDocumentId(documentId);
+			if (portasignatures != null) {
+				portasignatures.setEstat(TipusEstat.CANCELAT);
 			}
 		} catch (PortasignaturesPluginException ex) {
 			String errorDescripcio = "No s'han pogut cancel·lar els enviaments al portafirmes (" +
-					"ids=" + ids.toString() + ")";
+					"id=" + documentId + ")";
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_PFIRMA,
 					"Cancel·lació d'enviaments de documents",
@@ -1829,8 +1817,8 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					new IntegracioParametreDto(
-							"documentIds",
-							ids.toString()));
+							"documentId",
+							documentId));
 			log.error(
 					errorDescripcio,
 					ex);

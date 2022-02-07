@@ -496,7 +496,7 @@ public interface WorkflowBridgeService {
 			String transicioOK,
 			String transicioKO);
 
-	public void portasignaturesEliminar(List<Integer> documentIds);
+	public void portasignaturesEliminar(Integer documentId);
 
 	// DEFINICIO PROCES
 	////////////////////////////////////////////////////////////////////////////////

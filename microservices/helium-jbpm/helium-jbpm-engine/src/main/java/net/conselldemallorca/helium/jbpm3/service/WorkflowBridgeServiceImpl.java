@@ -956,7 +956,7 @@ public class WorkflowBridgeServiceImpl implements WorkflowBridgeService {
     }
 
     @Override
-    public void portasignaturesEliminar(List<Integer> documentIds) {
+    public void portasignaturesEliminar(Integer documentId) {
 
     }
 

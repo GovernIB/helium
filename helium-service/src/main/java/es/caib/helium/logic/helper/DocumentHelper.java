@@ -1838,6 +1838,7 @@ public class DocumentHelper {
 		dto.setDocumentCodi(document.getCodi());
 		dto.setDocumentNom(document.getNom());
 		dto.setNotificable(document.isNotificable());
+		dto.setPlantilla(document.isPlantilla());
 		dto.setSignat(documentStore.isSignat());
 		if (documentStore.isSignat()) {
 			if (documentStore.getArxiuUuid() == null) {

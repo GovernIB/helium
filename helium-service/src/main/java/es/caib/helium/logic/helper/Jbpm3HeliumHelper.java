@@ -1941,8 +1941,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 
 	@Override
 	public void portasignaturesEliminar(
-			List<Integer> documentIds) {
-		pluginHelper.portasignaturesCancelar(documentIds);
+			Integer documentId) {
+		pluginHelper.portasignaturesCancelar(documentId);
 	}
 
 	@Override

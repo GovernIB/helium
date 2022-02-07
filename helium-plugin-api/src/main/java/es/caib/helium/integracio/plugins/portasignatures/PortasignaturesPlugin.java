@@ -50,5 +50,5 @@ public interface PortasignaturesPlugin {
 	 * 
 	 * @throws PortasignaturesPluginException
 	 */
-	public void deleteDocuments (List<Integer> documents) throws PortasignaturesPluginException;
+	public void deleteDocuments (Integer document) throws PortasignaturesPluginException;
 }
