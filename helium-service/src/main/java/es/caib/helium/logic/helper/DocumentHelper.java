@@ -1289,6 +1289,9 @@ public class DocumentHelper {
 									if (documentStore.getRegistreData() != null)
 										dataRegistre = df.format(documentStore.getRegistreData());
 									String numeroRegistre = documentStore.getRegistreNumero();
+									if (ambSegellSignatura && !documentStore.isSignat() && documentStore.getReferenciaCustodia() == null) {
+										documentStore.setReferenciaCustodia(documentStore.getId() + "_" + new Date().getTime());
+									}
 									// S'invoca la estampació per convertir a PDF sense estampa.
 									getPdfUtils().estampar(
 											arxiuOrigenNom,
@@ -1757,13 +1760,17 @@ public class DocumentHelper {
 		{
 			// Guardar firma a custòdia
 			
-			if (documentStore.getReferenciaCustodia() != null) {
+			// Si el document estava signat programa l'esborrat de la referència anterior en cas de commit
+			if (documentStore.getReferenciaCustodia() != null && documentStore.isSignat()) {
 				this.programarCustodiaEsborrarSignatures(
 						documentStore.getReferenciaCustodia(),
 						expedient);
 			}
 			// Nova referència de custòdia
-			String referenciaCustodia = documentStore.getId() + "_" + new Date().getTime();
+			String referenciaCustodia = documentStore.getReferenciaCustodia();
+			if (referenciaCustodia == null) {
+				referenciaCustodia = documentStore.getId() + "_" + new Date().getTime();
+			}
 			try {
 				referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
 						referenciaCustodia, // custodiaId
