@@ -182,6 +182,33 @@
             <groupId>jakarta.json</groupId>
             <artifactId>jakarta.json-api</artifactId>
         </dependency>
+        
+        <!-- Callback PortaFIB REST -->
+	    <dependency>  
+	      <artifactId>portafib-callback-beans</artifactId>
+	      <groupId>es.caib.portafib</groupId>
+	      <version>1.1</version>
+	    </dependency>
+	    <dependency>
+	      <groupId>com.sun.jersey</groupId>
+	      <artifactId>jersey-server</artifactId>
+	      <version>1.8</version>
+	    </dependency>
+		<dependency>
+		  <groupId>com.sun.jersey</groupId>
+		  <artifactId>jersey-json</artifactId>
+		  <version>1.8</version>
+		  <exclusions>
+		    <exclusion>
+		      <groupId>stax</groupId>
+		      <artifactId>stax-api</artifactId>
+		    </exclusion>
+		    <exclusion>  
+		      <groupId>com.sun.xml.bind</groupId>
+		      <artifactId>jaxb-impl</artifactId>
+		    </exclusion>
+		  </exclusions>
+		</dependency>
     </dependencies>
 	<dependencyManagement>
 		<dependencies>

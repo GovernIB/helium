@@ -245,6 +245,18 @@ public interface ExpedientDocumentService {
 			Long expedientId,
 			String processInstanceId) throws NoTrobatException, PermisDenegatException;
 
+	public Object findPortasignaturesInfo(
+			Long expedientId, 
+			String processInstanceId, 
+			Long documentStoreId) throws NoTrobatException;
+
+	/** Mètode per consultar la informació del portasignatures pel documentId.
+	 * 
+	 * @param documentId
+	 * @return
+	 */
+	public PortasignaturesDto getPortasignaturesByDocumentId(Integer documentId);
+
 	/**
 	 * Genera l'arxiu d'un document a partir de la seva plantilla.
 	 * 
@@ -326,8 +338,6 @@ public interface ExpedientDocumentService {
 			String arxiuNom) throws NoTrobatException, PermisDenegatException;
 
 	public List<RespostaValidacioSignaturaDto> verificarSignatura(Long documentStoreId);
-
-	public Object findPortasignaturesInfo(Long expedientId, String processInstanceId, Long documentStoreId) throws NoTrobatException;
 
 	public ArxiuDto findArxiuAmbTokenPerMostrar(String token) throws NoTrobatException;
 

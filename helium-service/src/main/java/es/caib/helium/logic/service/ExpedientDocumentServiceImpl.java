@@ -3,7 +3,25 @@
  */
 package es.caib.helium.logic.service;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
 import es.caib.helium.client.engine.model.WTaskInstance;
+import es.caib.helium.logic.helper.ConversioTipusServiceHelper;
 import es.caib.helium.logic.helper.DocumentHelper;
 import es.caib.helium.logic.helper.ExpedientHelper;
 import es.caib.helium.logic.helper.ExpedientRegistreHelper;
@@ -58,21 +76,6 @@ import es.caib.helium.persist.repository.RegistreRepository;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.DocumentMetadades;
 import es.caib.plugins.arxiu.api.Firma;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.acls.domain.BasePermission;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
-import javax.annotation.Resource;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Implementació dels mètodes del servei ExpedientDocumentService.
@@ -117,6 +120,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private DocumentHelper documentHelperV3;
 	@Resource
 	private NotificacioHelper notificacioHelper;
+	@Resource
+	private ConversioTipusServiceHelper conversioTipusServiceHelper;
 
 
 	@Override
@@ -847,6 +852,17 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			resposta.put("pendent", false);
 		}
 		return resposta;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public PortasignaturesDto getPortasignaturesByDocumentId(Integer documentId) {
+		Portasignatures portasignatures = null;
+		if (documentId != null) {
+			portasignatures = portasignaturesRepository.findByDocumentId(documentId);
+		}
+		return conversioTipusServiceHelper.convertir(portasignatures, PortasignaturesDto.class);
+
 	}
 
 	@Override

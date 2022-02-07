@@ -235,6 +235,12 @@ public class ExpedientDocumentService extends AbstractService<es.caib.helium.log
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PortasignaturesDto getPortasignaturesByDocumentId(Integer documentId) {
+		return getDelegateService().getPortasignaturesByDocumentId(documentId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuDto findArxiuAmbTokenPerMostrar(
 			String token) throws NoTrobatException {
 		return getDelegateService().findArxiuAmbTokenPerMostrar(token);

@@ -9,7 +9,6 @@ import java.util.List;
 
 import javax.jws.WebService;
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,8 +22,6 @@ import es.caib.portafib.ws.callback.api.v1.CallBackException;
 import es.caib.portafib.ws.callback.api.v1.CallBackFault;
 import es.caib.portafib.ws.callback.api.v1.PortaFIBCallBackWs;
 import es.caib.portafib.ws.callback.api.v1.PortaFIBEvent;
-import net.conselldemallorca.helium.ws.callback.MCGDwsImpl;
-
 /**
  * Implementació dels mètodes per al servei de callback del portafirmes.
  * 
@@ -65,19 +62,20 @@ public class PortaFIBCallBackWsImpl implements PortaFIBCallBackWs {
 		parametres.add(new IntegracioParametreDto("documentId", new Long(documentId).toString()));
 		parametres.add(new IntegracioParametreDto("estat", new Integer(estat).toString()));
 		// Transforma el codi d'estat
+		es.caib.helium.logic.intf.dto.PortasiganturesDto.TipusEstat tipusEstat;
 		switch (estat) {
 		case 0:
 		case 50:
-			estat = MCGDwsImpl.DOCUMENT_PENDENT;
+			tipusEstat = TipusEstat.PENDENT;
 			break;
 		case 60:
-			estat = MCGDwsImpl.DOCUMENT_SIGNAT;
+			tipusEstat = TipusEstat.SIGNAT;
 			break;
 		case 70:
-			estat = MCGDwsImpl.DOCUMENT_REBUTJAT;
+			tipusEstat = TipusEstat.REBUTJAT;
 			break;
 		case 80:
-			estat = MCGDwsImpl.DOCUMENT_BLOQUEJAT;
+			tipusEstat = TipusEstat.BLOQUEJAT;
 			break;
 		default:
 			String errorDescripcio = "No es reconeix el codi d'estat (" + estat + ")";
@@ -98,18 +96,18 @@ public class PortaFIBCallBackWsImpl implements PortaFIBCallBackWs {
 			boolean processamentOk = false;
 			String accio = null;
 			try {
-				switch (estat) {
-					case MCGDwsImpl.DOCUMENT_BLOQUEJAT:
+				switch (tipusEstat) {
+					case BLOQUEJAT:
 						resposta = 1D;
 						accio = "Bloquejat";
 						processamentOk = true;
 						break;
-					case MCGDwsImpl.DOCUMENT_PENDENT:
+					case PENDENT:
 						resposta = 1D;
 						accio = "Pendent";
 						processamentOk = true;
 						break;
-					case MCGDwsImpl.DOCUMENT_SIGNAT:
+					case SIGNAT:
 						accio = "Signat";
 						processamentOk = portasignaturesService.processarDocumentCallback(
 								documentId.intValue(),
@@ -117,7 +115,7 @@ public class PortaFIBCallBackWsImpl implements PortaFIBCallBackWs {
 								null);
 						resposta = (processamentOk) ? 1D : -1D;
 						break;
-					case MCGDwsImpl.DOCUMENT_REBUTJAT:
+					case REBUTJAT:
 						accio = "Rebutjat";
 						String motiu = null;
 						if (event.getSigningRequest() != null )

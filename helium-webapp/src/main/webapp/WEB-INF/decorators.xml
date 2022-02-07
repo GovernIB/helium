@@ -18,6 +18,7 @@
 		<pattern>/nodeco/*</pattern>
 		<pattern>/v3/metrics*</pattern>
 		<pattern>/rest/notib*</pattern>
+		<pattern>/rest/portafib/callback*</pattern>
 	</excludes>
 	<decorator name="v3" page="v3.jsp">
 		<pattern>/v3/*</pattern>
