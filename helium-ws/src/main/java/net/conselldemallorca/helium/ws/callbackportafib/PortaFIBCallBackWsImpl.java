@@ -21,14 +21,17 @@ import es.caib.portafib.ws.callback.api.v1.PortaFIBEvent;
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 import net.conselldemallorca.helium.core.helper.PortasignaturesHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
+import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.model.service.ServiceProxy;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
-import net.conselldemallorca.helium.ws.callback.MCGDwsImpl;
 
 /**
- * Implementació dels mètodes per al servei de callback del portafirmes.
+ * Implementació dels mètodes per al servei de callback del portafirmes per WS SOAP 1.0.
+ * També és possible rebre els callbacks per API REST al PortaFIBCallback.
+ * 
+ * @see net.conselldemallorca.helium.webapp.v3.rest.PortaFIBCallback
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -65,19 +68,20 @@ public class PortaFIBCallBackWsImpl implements PortaFIBCallBackWs {
 		parametres.add(new IntegracioParametreDto("documentId", new Long(documentId).toString()));
 		parametres.add(new IntegracioParametreDto("estat", new Integer(estat).toString()));
 		// Transforma el codi d'estat
+		TipusEstat tipusEstat;
 		switch (estat) {
 		case 0:
 		case 50:
-			estat = MCGDwsImpl.DOCUMENT_PENDENT;
+			tipusEstat = TipusEstat.PENDENT;
 			break;
 		case 60:
-			estat = MCGDwsImpl.DOCUMENT_SIGNAT;
+			tipusEstat = TipusEstat.SIGNAT;
 			break;
 		case 70:
-			estat = MCGDwsImpl.DOCUMENT_REBUTJAT;
+			tipusEstat = TipusEstat.REBUTJAT;
 			break;
 		case 80:
-			estat = MCGDwsImpl.DOCUMENT_BLOQUEJAT;
+			tipusEstat = TipusEstat.BLOQUEJAT;
 			break;
 		default:
 			String errorDescripcio = "No es reconeix el codi d'estat (" + estat + ")";
@@ -90,27 +94,27 @@ public class PortaFIBCallBackWsImpl implements PortaFIBCallBackWs {
 					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
 			throw new CallBackException(errorDescripcio, new CallBackFault());
 		}
-		
+
 		// Comprova si existeix la petició
 		Portasignatures portasignatures = portasignaturesHelper.getByDocumentId(documentId.intValue());
 		if (portasignatures != null) {
 			Double resposta = -1D;
 			boolean processamentOk = false;
 			String accio = null;
-			try {
+		try {
 				PluginService pluginService = ServiceProxy.getInstance().getPluginService();
-				switch (estat) {
-					case MCGDwsImpl.DOCUMENT_BLOQUEJAT:
+				switch (tipusEstat) {
+					case BLOQUEJAT:
 						resposta = 1D;
 						accio = "Bloquejat";
 						processamentOk = true;
 						break;
-					case MCGDwsImpl.DOCUMENT_PENDENT:
+					case PENDENT:
 						resposta = 1D;
 						accio = "Pendent";
 						processamentOk = true;
 						break;
-					case MCGDwsImpl.DOCUMENT_SIGNAT:
+					case SIGNAT:
 						accio = "Signat";
 						processamentOk = pluginService.processarDocumentCallbackPortasignatures(
 								documentId.intValue(),
@@ -118,7 +122,7 @@ public class PortaFIBCallBackWsImpl implements PortaFIBCallBackWs {
 								null);
 						resposta = (processamentOk) ? 1D : -1D;
 						break;
-					case MCGDwsImpl.DOCUMENT_REBUTJAT:
+					case REBUTJAT:
 						accio = "Rebutjat";
 						String motiu = null;
 						if (event.getSigningRequest() != null )
@@ -141,13 +145,13 @@ public class PortaFIBCallBackWsImpl implements PortaFIBCallBackWs {
 				parametres.add(new IntegracioParametreDto("processamentOk", processamentOk));
 				monitorIntegracioHelper.addAccioError(
 						MonitorIntegracioHelper.INTCODI_PFIRMA,
-						accioDescripcio,
+					accioDescripcio,
 						IntegracioAccioTipusEnumDto.RECEPCIO,
 						System.currentTimeMillis() - t0,
 						errorDescripcio,
 						Arrays.copyOf(parametres.toArray(), parametres.size(), IntegracioParametreDto[].class));
-				throw new CallBackException(errorDescripcio, new CallBackFault());
-			}
+			throw new CallBackException(errorDescripcio, new CallBackFault());
+		}
 		} else {
 			// Avís als logs en comtpes de retorna error #1413
 			String warnMsg = "Petició amb id " + documentId + " no trobada a Helium.";

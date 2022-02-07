@@ -15,12 +15,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * Test de la implementació del plugin d'enviament al Portasignatures per API REST 
- * simple.
+ * Test de la implementació del plugin d'enviament al Portasignatures per l'API REST simple del 
+ * PortaFIB.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class PortasignaturesPluginPortafibApiRestTest {
+public class PortasignaturesPluginPortafibSimpleTest {
 
 	private static final String BASE_URL = "https://dev.caib.es/portafib";
 	private static final String USERNAME = "$helium_portafib";
@@ -45,7 +45,7 @@ public class PortasignaturesPluginPortafibApiRestTest {
 		System.setProperty(
 				"app.portasignatures.plugin.portafib.perfil",
 				"");
-		portasignaturesPlugin = new PortasignaturesPluginPortafibApiRest();
+		portasignaturesPlugin = new PortasignaturesPluginPortafibSimple();
 	}
 
 	@Test

@@ -243,6 +243,13 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			throws NoTrobatException {
 		return delegate.findPortasignaturesInfo(expedientId, processInstanceId, documentStoreId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PortasignaturesDto getPortasignaturesByDocumentId(Integer documentId) {
+		return delegate.getPortasignaturesByDocumentId(documentId);
+	}
+
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})

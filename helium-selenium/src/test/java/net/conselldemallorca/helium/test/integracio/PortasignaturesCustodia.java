@@ -6,9 +6,6 @@ import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URL;
-import java.util.Calendar;
-import java.util.Date;
 
 import javax.imageio.ImageIO;
 
@@ -27,16 +24,10 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.sikuli.script.Pattern;
 import org.sikuli.script.Screen;
 
-import es.indra.www.portafirmasmcgdws.mcgdws.Application;
-import es.indra.www.portafirmasmcgdws.mcgdws.Attributes;
-import es.indra.www.portafirmasmcgdws.mcgdws.AttributesState;
-import es.indra.www.portafirmasmcgdws.mcgdws.CallbackRequest;
-import es.indra.www.portafirmasmcgdws.mcgdws.Document;
-import es.indra.www.portafirmasmcgdws.mcgdws.MCGDws;
-import es.indra.www.portafirmasmcgdws.mcgdws.MCGDwsService;
-import es.indra.www.portafirmasmcgdws.mcgdws.MCGDwsServiceLocator;
-import es.indra.www.portafirmasmcgdws.mcgdws.Rejection;
-import es.indra.www.portafirmasmcgdws.mcgdws.Signer;
+import es.caib.portafib.ws.callback.api.v1.PortaFIBCallBackWs;
+import es.caib.portafib.ws.callback.api.v1.PortaFIBEvent;
+import es.caib.portafib.ws.callback.api.v1.SigningRequest;
+import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
 import net.conselldemallorca.helium.test.BaseExpedientTest;
 import net.consellemallorca.helium.util.ScreenShotOnFailure;
 
@@ -235,26 +226,26 @@ public class PortasignaturesCustodia extends BaseExpedientTest {
 			// Inicia la crida callback del portasignatures
 			
 			// Inicialitza l'objecte de paràmetre
-			CallbackRequest callbackRequest = new CallbackRequest();
-			Application app = new Application();
-			Document document = new Document();
-			document.setId(Integer.valueOf(psignaDocumentId)); // Id del document llegit anteriorment
-			Attributes attributes = new Attributes();
-			attributes.setTitle("Titol no buit");
-			attributes.setState(AttributesState.value3);
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(new Date());
-			attributes.setDateLastUpdate(cal);
-			attributes.setExternalData("external data");
-			attributes.setSignAnnexes(false);
-			document.setAttributes(attributes);
-			app.setDocument(document);
-			callbackRequest.setApplication(app);
+			PortaFIBEvent event = new PortaFIBEvent();
+			SigningRequest signingRequest = new SigningRequest();
+			signingRequest.setID(Long.valueOf(psignaDocumentId));
+			signingRequest.setState(3);
+			event.setSigningRequest(signingRequest);
+			event.setEventTypeID(60);
+
 			// Crida al WS callback del portasignatures
 			String urlEndPoint =  propietats.getProperty("app.portasignatures.plugin.url.callback");
-			MCGDwsService service = new MCGDwsServiceLocator();
-			MCGDws ws = service.getMCGDWS(new URL(urlEndPoint));
-			ws.callback(callbackRequest);
+			PortaFIBCallBackWs ws = (PortaFIBCallBackWs) WsClientUtils.getWsClientProxy(
+					PortaFIBCallBackWs.class,
+					urlEndPoint,
+					null,
+					null,
+					"NONE",
+					false,
+					true,
+					true,
+					null);
+			ws.event(event);
 		} else {
 			// Entorn de test
 			
@@ -403,36 +394,30 @@ public class PortasignaturesCustodia extends BaseExpedientTest {
 		
 		// Inicia la crida callback del portasignatures
 		
+		// Inicia la crida callback del portasignatures
+		
 		// Inicialitza l'objecte de paràmetre
-		CallbackRequest callbackRequest = new CallbackRequest();
-		Application app = new Application();
-		Document document = new Document();
-		document.setId(Integer.valueOf(psignaDocumentId)); // Id del document llegit anteriorment
-		Attributes attributes = new Attributes();
-		attributes.setTitle("Titol no buit");
-		attributes.setState(AttributesState.value4); // Rebutjat
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(new Date());
-		attributes.setDateLastUpdate(cal);
-		attributes.setExternalData("external data");
-		attributes.setSignAnnexes(false);
-		document.setAttributes(attributes);
-		// Completa amb les dades se la signatura
-		Signer signer = new Signer();
-		signer.setId("123");
-		signer.setDate(cal);
-		Rejection rejection = new Rejection();
-		rejection.setCode(123);
-		rejection.setDescription("Motiu rebuig prova ");
-		signer.setRejection(rejection);
-		document.setSigner(signer);
-		app.setDocument(document);
-		callbackRequest.setApplication(app);
+		PortaFIBEvent event = new PortaFIBEvent();
+		SigningRequest signingRequest = new SigningRequest();
+		signingRequest.setID(Long.valueOf(psignaDocumentId));
+		signingRequest.setState(3);
+		signingRequest.setRejectionReason("Prova rebuig");
+		event.setSigningRequest(signingRequest);
+		event.setEventTypeID(70);
+
 		// Crida al WS callback del portasignatures
 		String urlEndPoint =  propietats.getProperty("app.portasignatures.plugin.url.callback");
-		MCGDwsService service = new MCGDwsServiceLocator();
-		MCGDws ws = service.getMCGDWS(new URL(urlEndPoint));
-		ws.callback(callbackRequest);
+		PortaFIBCallBackWs ws = (PortaFIBCallBackWs) WsClientUtils.getWsClientProxy(
+				PortaFIBCallBackWs.class,
+				urlEndPoint,
+				null,
+				null,
+				"NONE",
+				false,
+				true,
+				true,
+				null);
+		ws.event(event);
 	}
 	
 	/** Test per navegar novament a la pestanya de documents de l'expedient i comprovar l'estat

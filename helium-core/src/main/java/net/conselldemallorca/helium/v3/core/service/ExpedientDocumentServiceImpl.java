@@ -126,8 +126,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	@Resource
 	private NotificacioHelper notificacioHelper;
 
-
-
 	@Override
 	@Transactional
 	public void create(
@@ -867,6 +865,18 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		return resposta;
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public PortasignaturesDto getPortasignaturesByDocumentId(Integer documentId) {
+		Portasignatures portasignatures = null;
+		if (documentId != null) {
+			portasignatures = portasignaturesRepository.findByDocumentId(documentId);
+		}
+		return conversioTipusHelper.convertir(portasignatures, PortasignaturesDto.class);
+
+	}
+
+	
 	@Override
 	@Transactional(readOnly = true)
 	public ArxiuDto findArxiuAmbTokenPerMostrar(String token) {

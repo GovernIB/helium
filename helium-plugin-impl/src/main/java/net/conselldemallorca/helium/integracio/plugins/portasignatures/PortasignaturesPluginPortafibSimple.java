@@ -23,18 +23,14 @@ import es.caib.portafib.ws.api.v1.WsI18NException;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 
 /**
- * Implementació del plugin de portasignatures per la CAIB per API REST.
+ * Implementació del plugin de portasignatures per l'API REST Simple del PortaFIB.
  * Data: 31/01/2022
  * Després de la implementació per passarela WS SOAP es crea el plugin
  * per a les peticions per API REST i callback per API REST.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-
-//TODO:
-//TODO 1 Substituir la implementació PortasignaturesPluginPortafib per aquesta i canviar el nom a l'antiga per PortasignaturesPluginPortafibWsSoap 
-//TODO 3 provar
-public class PortasignaturesPluginPortafibApiRest implements PortasignaturesPlugin {
+public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugin {
 
 	@Override
 	public Integer uploadDocument(

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.conselldemallorca.helium.webapp.v3.controller;
+package net.conselldemallorca.helium.webapp.v3.rest;
 
 import java.util.ArrayList;
 import java.util.List;

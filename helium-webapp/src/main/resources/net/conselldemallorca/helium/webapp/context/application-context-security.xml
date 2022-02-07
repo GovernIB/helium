@@ -30,6 +30,9 @@
 		<sec:intercept-url pattern="/rest/notib" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		<sec:intercept-url pattern="/rest/notib/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		<sec:intercept-url pattern="/rest/notib/notificaCanvi" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<sec:intercept-url pattern="/rest/portafib/callback" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<sec:intercept-url pattern="/rest/portafib/callback/**" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
+		<sec:intercept-url pattern="/rest/portafib/callback/event" access="IS_AUTHENTICATED_ANONYMOUSLY"/>
 		<!-- Selenium-integraciones.begin -->
 		<sec:intercept-url pattern="/ws/CustodiaDocumentos" access="IS_AUTHENTICATED_ANONYMOUSLY" />
 		<sec:intercept-url pattern="/ws/IniciFormulari" access="IS_AUTHENTICATED_ANONYMOUSLY" />
