@@ -35,7 +35,7 @@ public class DocumentExpedientValidator implements ConstraintValidator<DocumentE
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(command.getExpedientId());
 		boolean ntiActiu = expedient.isNtiActiu();
 		
-		if (command.isValidarArxius()) {
+		if (command.isValidarArxius() && !command.isGenerarPlantilla()) {
 			if (command.getArxiu() == null || command.getArxiu().isEmpty()) {
 				context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage("not.blank"))
 						.addNode("arxiu")

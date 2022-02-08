@@ -236,18 +236,38 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		command.setNtiActiu(expedient.isNtiActiu());
 		if (!bindingResult.hasErrors()) {
-			byte[] arxiuContingut = command.getArxiu().getBytes();
-			String arxiuContentType = command.getArxiu().getContentType();
-			byte[] firmaContingut = null;
-			if (command.getFirma() != null && command.getFirma().getSize() > 0) {
-				firmaContingut = command.getFirma().getBytes();
-			}
-			String arxiuNom = command.getArxiu().getOriginalFilename();
 			String documentCodi = null;
 			if (!DocumentExpedientCommand.ADJUNTAR_ARXIU_CODI.equalsIgnoreCase(command.getDocumentCodi())) {
 				documentCodi = command.getDocumentCodi();
 			}
-			try {
+			String arxiuNom = "";
+			byte[] arxiuContingut = null;
+			String arxiuContentType = "";
+			byte[] firmaContingut = null;
+			if (command.isGenerarPlantilla()) {
+				try {
+					ArxiuDto generat = expedientDocumentService.generarAmbPlantilla(
+							expedientId,
+							processInstanceId,
+							documentCodi);
+					arxiuNom = generat.getNom();
+					arxiuContingut = generat.getContingut();
+					arxiuContentType = generat.getTipusMime();
+				} catch (Exception ex) {
+					MissatgesHelper.error(request, getMessage(request, "error.generar.document.info", new Object[] {ex.getMessage()}));
+					logger.error("Error generant el document: " + documentCodi, ex);
+				}
+			} else {
+				arxiuContingut = command.getArxiu().getBytes();
+				arxiuContentType = command.getArxiu().getContentType();
+				if (command.getFirma() != null && command.getFirma().getSize() > 0) {
+					firmaContingut = command.getFirma().getBytes();
+				}
+				arxiuNom = command.getArxiu().getOriginalFilename();
+			}
+
+			if (arxiuContingut != null) {
+				try {
 					expedientDocumentService.create(
 						expedientId,
 						processInstanceId,
@@ -265,12 +285,13 @@ public class ExpedientDocumentController extends BaseExpedientController {
 						command.getNtiTipoDocumental(),
 						command.getNtiIdOrigen());
 				
-				MissatgesHelper.success(request, getMessage(request, "info.document.guardat") );
-				return modalUrlTancar(false);
-			} catch(Exception e) {
-				String errMsg = getMessage(request, "info.document.guardat.error", new Object[] {e.getMessage()});
-				logger.error(errMsg, e);
-				MissatgesHelper.error(request, errMsg);
+					MissatgesHelper.success(request, getMessage(request, "info.document.guardat") );
+					return modalUrlTancar(false);
+				} catch(Exception e) {
+					String errMsg = getMessage(request, "info.document.guardat.error", new Object[] {e.getMessage()});
+					logger.error(errMsg, e);
+					MissatgesHelper.error(request, errMsg);
+				}				
 			}
 		}
     	model.addAttribute("documentsNoUtilitzats", getDocumentsNoUtilitzats(expedientId, processInstanceId));
@@ -341,44 +362,66 @@ public class ExpedientDocumentController extends BaseExpedientController {
     			processInstanceId,
     			documentStoreId);
 		if (!result.hasErrors()) {
-			try {
-				byte[] arxiuContingut = command.getArxiu().getBytes();
-				String arxiuNom = command.getArxiu().getOriginalFilename();
-				String arxiuContentType = command.getArxiu().getContentType();
-				if(arxiuContingut == null || arxiuContingut.length == 0) {
-					ArxiuDto arxiu = expedientDocumentService.arxiuFindAmbDocument(expedientId, processInstanceId, documentStoreId);
-					arxiuContingut = arxiu.getContingut();
-					arxiuNom = arxiu.getNom();
+			String arxiuNom = "";
+			byte[] arxiuContingut = null;
+			String arxiuContentType = "";
+			byte[] firmaContingut = null;
+			if (command.isGenerarPlantilla()) {
+				try {
+					ArxiuDto generat = expedientDocumentService.generarAmbPlantilla(
+							expedientId,
+							processInstanceId,
+							document.getDocumentCodi());
+					arxiuNom = generat.getNom();
+					arxiuContingut = generat.getContingut();
+					arxiuContentType = generat.getTipusMime();
+				} catch (Exception ex) {
+					MissatgesHelper.error(request, getMessage(request, "error.generar.document.info", new Object[] {ex.getMessage()}));
+					logger.error("Error generant el document: " + document.getDocumentCodi(), ex);
+				} 				
+			} else {
+					arxiuContingut = command.getArxiu().getBytes();
+					arxiuNom = command.getArxiu().getOriginalFilename();
+					arxiuContentType = command.getArxiu().getContentType();
+					if(arxiuContingut == null || arxiuContingut.length == 0) {
+						ArxiuDto arxiu = expedientDocumentService.arxiuFindAmbDocument(expedientId, processInstanceId, documentStoreId);
+						arxiuContingut = arxiu.getContingut();
+						arxiuNom = arxiu.getNom();
+					}
+					firmaContingut = null;
+					if (command.getFirma() != null && command.getFirma().getSize() > 0) {
+						firmaContingut = command.getFirma().getBytes();
+					}
 				}
-				byte[] firmaContingut = null;
-				if (command.getFirma() != null && command.getFirma().getSize() > 0) {
-					firmaContingut = command.getFirma().getBytes();
+
+			if (arxiuContingut != null) {
+				try {
+					expedientDocumentService.update(
+							expedientId,
+							processInstanceId,
+							documentStoreId,
+							command.getData(),
+							document.isAdjunt() ? // Títol en el cas dels adjunts 
+									command.getNom() 
+									: null, 
+							arxiuNom,
+							(arxiuContingut.length != 0) ? arxiuContingut : null,
+							arxiuContentType,
+							command.isAmbFirma(),
+							DocumentTipusFirmaEnumDto.SEPARAT.equals(command.getTipusFirma()),
+							firmaContingut,
+							command.getNtiOrigen(),
+							command.getNtiEstadoElaboracion(),
+							command.getNtiTipoDocumental(),
+							command.getNtiIdOrigen());
+					
+					MissatgesHelper.success(request, getMessage(request, "info.document.guardat"));
+					return modalUrlTancar(false);				
+				} catch(Exception e) {
+					String errMsg = getMessage(request, "info.document.guardat.error", new Object[] {e.getMessage()});
+					logger.error(errMsg, e);
+					MissatgesHelper.error(request, errMsg);				
 				}
-				expedientDocumentService.update(
-						expedientId,
-						processInstanceId,
-						documentStoreId,
-						command.getData(),
-						document.isAdjunt() ? // Títol en el cas dels adjunts 
-								command.getNom() 
-								: null, 
-						arxiuNom,
-						(arxiuContingut.length != 0) ? arxiuContingut : null,
-						arxiuContentType,
-						command.isAmbFirma(),
-						DocumentTipusFirmaEnumDto.SEPARAT.equals(command.getTipusFirma()),
-						firmaContingut,
-						command.getNtiOrigen(),
-						command.getNtiEstadoElaboracion(),
-						command.getNtiTipoDocumental(),
-						command.getNtiIdOrigen());
-				
-				MissatgesHelper.success(request, getMessage(request, "info.document.guardat"));
-				return modalUrlTancar(false);				
-			} catch(Exception e) {
-				String errMsg = getMessage(request, "info.document.guardat.error", new Object[] {e.getMessage()});
-				logger.error(errMsg, e);
-				MissatgesHelper.error(request, errMsg);				
 			}
 		}
 		// Retorna al formulari per mostrar errors
@@ -670,9 +713,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return response;
 	}
 
-	/** Aquest mètode genera el document i si està configurat com a tal l'incorpora al procés. En el cas
-	 * que el document ja estigui generat primer l'esborra i després el torna a adjuntar. Si està firmat
-	 * llavors no el substituirà.
+	/** Aquest mètode genera el document a partir de la plantilla i el descarrega.
 	 */
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentCodi}/generar", method = RequestMethod.GET)
 	public String generar(
@@ -689,13 +730,17 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, generat.getNom());
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, generat.getContingut());
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.generar.document"));
+			MissatgesHelper.error(request, getMessage(request, "error.generar.document.info", new Object[] {ex.getMessage()}));
 			logger.error("Error generant el document: " + documentCodi, ex);
 			ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
 					expedientId,
 					processInstanceId,
 					documentCodi);
-			return "redirect:/modal/v3/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + document.getId() + "/modificar";
+			if (document != null) {
+				return "redirect:/modal/v3/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + document.getId() + "/update";
+			} else {
+				return "redirect:/modal/v3/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/new";
+			}
 		} 
 		return "arxiuView";
 	}
