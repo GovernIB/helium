@@ -80,8 +80,6 @@
 		 			</c:if>
 		 			
 		 			<c:if test="${not empty document.tokenSignatura and document.signat}">
-		 				
-		 				tascaDocument
 		 				<c:choose>
 							<c:when test="${not empty document.urlVerificacioCustodia}">
 								<a class="icon signature" href="${document.urlVerificacioCustodia}" target="_blank"><span class="fa fa-certificate" title="<spring:message code="expedient.document.signat"/>"></span></a>

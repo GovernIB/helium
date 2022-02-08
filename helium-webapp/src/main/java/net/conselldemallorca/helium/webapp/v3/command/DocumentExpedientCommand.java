@@ -42,6 +42,7 @@ public class DocumentExpedientCommand {
 	private NtiTipoDocumentalEnumDto ntiTipoDocumental;
 	private String ntiIdOrigen;
 	private String arxiuNom;
+	private boolean generarPlantilla = false;
 	private MultipartFile arxiu;
 	private boolean ntiActiu;
 	private boolean ambFirma = false;
@@ -123,6 +124,14 @@ public class DocumentExpedientCommand {
 	}
 	public void setArxiuNom(String arxiuNom) {
 		this.arxiuNom = arxiuNom;
+	}
+
+	public boolean isGenerarPlantilla() {
+		return generarPlantilla;
+	}
+
+	public void setGenerarPlantilla(boolean generarPlantilla) {
+		this.generarPlantilla = generarPlantilla;
 	}
 
 	public boolean isNtiActiu() {

@@ -67,6 +67,7 @@ dadesNti['${d.codi}'].plantilla = ${d.plantilla};
 
 
 $(document).ready( function() {
+	
 	$('#arxiuNom').on('click', function() {
 		$('input[name=arxiu]').click();
 	});
@@ -82,12 +83,28 @@ $(document).ready( function() {
 			$('#pipella-general a').click();
 		}
 	}).click();
+	
+	$('label[for=generarPlantilla]').append($('#generarPlantillaBtn'))
+	$('#generarPlantilla').change(function() {
+		if ($(this).prop('checked') == true) {
+			$('#arxiuNom').attr('disabled', 'disabled');
+			$('#ambFirma').attr('disabled', 'disabled');
+			$('#firmaNom').attr('disabled', 'disabled');
+		} else {
+			$('#arxiuNom').removeAttr('disabled');
+			$('#ambFirma').removeAttr('disabled');
+			$('#firmaNom').removeAttr('disabled');
+		}
+	}).change();
+
 	// Carrega dades nti per defecte
 	$('#documentCodi')
 		.select2({language: "${idioma}"})
 		.change(function() {
 			var documentCodi = $(this).val();
-			$('#generarPlantillaDiv').hide();
+			$('#generarPlantilla').closest('.form-group').hide();
+			$('#generarPlantilla').prop('checked', false).change();
+			
 			if (dadesNti[documentCodi]) {
 				$('#ntiOrigen').val(dadesNti[documentCodi].ntiOrigen).change();
 				$('#ntiEstadoElaboracion').val(dadesNti[documentCodi].ntiEstadoElaboracion).change();
@@ -98,7 +115,7 @@ $(document).ready( function() {
 					href = href.replace("{documentCodi}", $('#documentCodi').val());
 					console.log(href);
 					$('#generarPlantillaBtn').attr('href', href);
-					$('#generarPlantillaDiv').show();
+					$('#generarPlantilla').closest('.form-group').show();
 				}
 			} else {
 				$('#ntiOrigen,#ntiEstadoElaboracion,ntiTipoDocumental').val('').change();			
@@ -181,17 +198,9 @@ function mostrarAmagarFile() {
 	<c:otherwise>
 			<h4 class="titol-missatge">
 				<label><c:choose><c:when test="${document.adjunt}">${document.adjuntTitol}</c:when><c:otherwise>${document.documentNom}</c:otherwise></c:choose></label>
-	 			<c:if test="${document.plantilla}"> 
-	 				<a title="<spring:message code='expedient.massiva.tasca.doc.generar' />" href="<c:url value="/modal/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.documentCodi}/generar"/>">
-	 					<i class="fa fa-file-text-o"></i>
-	 				</a>
-	 			</c:if> 
  				<c:if test="${empty document.signaturaPortasignaturesId && not document.signat}">
 					<a title="<spring:message code='comuns.descarregar' />" id="downloadUrl" href="${downloadUrl}">
 						<i class="fa fa-download"></i>
-					</a>
-					<a title="<spring:message code="expedient.massiva.tasca.doc.borrar"/>" id="removeUrl" name="removeUrl" href="#" onclick="return mostrarAmagarFile()">
-						<i class="fa fa-times"></i>
 					</a>
 				</c:if>
 			</h4>
@@ -213,16 +222,16 @@ function mostrarAmagarFile() {
 					</div>
 					<hel:inputDate required="true" name="data" textKey="expedient.document.data" placeholder="dd/mm/aaaa"/>
 
-					<div id="generarPlantillaDiv" class="form-group" style="display: none"};">
-						<label class="col-xs-4">&nbsp;</label>
-						<div class="col-xs-8">
-							<a 	id="generarPlantillaBtn"
-								class="btn btn-default" 
-								title="<spring:message code='expedient.massiva.tasca.doc.generar'/>" 
-								href="<c:url value="/modal/v3/expedient/${expedientId}/proces/${document.processInstanceId}/${documentCodi}/generar"/>">
-			 					<i class="fa fa-file-text-o fa-sm"></i>
-			 				</a>
-						</div>
+					
+					<hel:inputCheckbox name="generarPlantilla" textKey="expedient.document.form.camp.generar.amb.plantilla"></hel:inputCheckbox>
+					<div style="display: none;">
+						<a 	id="generarPlantillaBtn"
+							class="icon"
+							style="font-weight: bold;" 
+							title="<spring:message code='expedient.massiva.tasca.doc.generar'/>" 
+							href="<c:url value="/modal/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.documentCodi}/generar"/>">
+		 					<i class="fa fa-file-text-o fa-sm"></i>
+		 				</a>
 					</div>
 
 					<c:set var="campErrors"><form:errors path="arxiu"/></c:set>
