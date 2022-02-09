@@ -221,16 +221,18 @@ function mostrarAmagarFile() {
 					</div>
 					<hel:inputDate required="true" name="data" textKey="expedient.document.data" placeholder="dd/mm/aaaa"/>
 
-					<hel:inputCheckbox name="generarPlantilla" textKey="expedient.document.form.camp.generar.amb.plantilla"></hel:inputCheckbox>
-					<div style="display: none;">
-						<a 	id="generarPlantillaBtn"
-							class="icon"
-							style="font-weight: bold;" 
-							title="<spring:message code='expedient.massiva.tasca.doc.generar'/>" 
-							href="<c:url value="/modal/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.documentCodi}/generar"/>">
-		 					<i class="fa fa-file-text-o fa-sm"></i>
-		 				</a>
-					</div>
+					<c:if test="${empty document || document.plantilla}">
+						<hel:inputCheckbox name="generarPlantilla" textKey="expedient.document.form.camp.generar.amb.plantilla"></hel:inputCheckbox>
+						<div style="display: none;">
+							<a 	id="generarPlantillaBtn"
+								class="icon"
+								style="font-weight: bold;" 
+								title="<spring:message code='expedient.massiva.tasca.doc.generar'/>" 
+								href="<c:url value="/modal/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.documentCodi}/generar"/>">
+			 					<i class="fa fa-file-text-o fa-sm"></i>
+			 				</a>
+						</div>
+					</c:if>
 
 					<c:set var="campErrors"><form:errors path="arxiu"/></c:set>
 					<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
