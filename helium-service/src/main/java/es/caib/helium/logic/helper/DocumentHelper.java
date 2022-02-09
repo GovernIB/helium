@@ -1728,7 +1728,7 @@ public class DocumentHelper {
 						documentDescripcio, 
 						documentStore, 
 						new ArxiuDto(
-								documentArxiu.getNom(), 
+								arxiuNom, 
 								signatura, 
 								arxiuMime));
 				documentStore.setArxiuUuid(documentCreat.getIdentificador());
