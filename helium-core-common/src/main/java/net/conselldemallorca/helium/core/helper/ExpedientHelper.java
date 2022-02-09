@@ -114,8 +114,6 @@ public class ExpedientHelper {
 	private DocumentStoreRepository documentStoreRepository;
 
 	@Resource
-	private ExpedientHelper expedientHelper;
-	@Resource
 	private EntornHelper entornHelper;
 	@Resource(name = "permisosHelperV3")
 	private PermisosHelper permisosHelper;
@@ -666,7 +664,7 @@ public class ExpedientHelper {
 	@Transactional
 	public void finalitzar(long expedientId) {
 		
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+		Expedient expedient = getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
 						ExtendedPermission.WRITE,
@@ -694,7 +692,7 @@ public class ExpedientHelper {
 
 		//tancam l'expedient de l'arxiu si escau
 		if (expedient.isArxiuActiu() && expedient.getArxiuUuid() != null) {
-			this.tancarExpedientArxiu(expedient);
+			tancarExpedientArxiu(expedient);
 		}		
 		crearRegistreExpedient(
 				expedient.getId(),
@@ -709,14 +707,21 @@ public class ExpedientHelper {
 	 * 			Expedient amb la propietat isArxiuActiu a true.
 	 */
 	private void tancarExpedientArxiu(Expedient expedient) {
-		List<ContingutArxiu> continguts = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid()).getContinguts();
+		es.caib.plugins.arxiu.api.Expedient arxiuExpedient = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
+		if (!ExpedientEstat.OBERT.equals(arxiuExpedient.getMetadades().getEstat())) {
+			logger.debug("L'expedient " + expedient.getIdentificador() + " amb UUID " + expedient.getArxiuUuid() + 
+						" no està obert a l'Arxiu, té l'estat " + arxiuExpedient.getMetadades().getEstat());
+			revisarFirmaDocumentsExpedient(expedient);
+			return;
+		}
+		List<ContingutArxiu> continguts = arxiuExpedient.getContinguts();
 		if(continguts == null || continguts.isEmpty()) {
 			// S'eborra l'expedient del arxiu si no te cap document.
 			pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());
 			expedient.setArxiuUuid(null);
 		}else {
 			//firmem els documents que no estan firmats
-			expedientHelper.firmarDocumentsPerArxiuFiExpedient(expedient);	
+			firmarDocumentsPerArxiuFiExpedient(expedient);	
 			
 			// Tanca l'expedient a l'arxiu.
 			ExpedientMetadades metadades = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid()).getMetadades();
@@ -761,7 +766,7 @@ public class ExpedientHelper {
 	            pluginHelper.arxiuExpedientReobrir(expedient.getArxiuUuid());
 	        } else {
 	            // Migra l'expedient a l'arxiu
-	            expedientHelper.migrarArxiu(expedient);
+	        	migrarArxiu(expedient);
 	        }
         }
 	}
@@ -897,21 +902,53 @@ public class ExpedientHelper {
 		expedient.setNtiActiu(true);
 
 		if (expedient.getDataFi() != null) {
-			this.tancarExpedientArxiu(expedient);
+			tancarExpedientArxiu(expedient);
 		}
 	}
 	
+
+	/** Mètode per revisar els expedients que ja estan firmats a l'Arxiu i actualitzar la
+	 * informació dels documents a Helium. Aquest mètode s'invoca quan es detecta que l'expedient
+	 * està tancat a l'Arxiu i per tant no es pot modificar.
+	 * @param expedient
+	 * @param continguts
+	 */
+	@Transactional
+	private void revisarFirmaDocumentsExpedient(
+			Expedient expedient) {
+		
+		List<InstanciaProcesDto> arbreProcesInstance = getArbreInstanciesProces(expedient.getProcessInstanceId());
+		
+		// Revisa la firma a tots els documents
+		for(InstanciaProcesDto procesInstance :arbreProcesInstance) {
+			for (DocumentStore documentStore : 
+				documentStoreRepository.findByProcessInstanceId(procesInstance.getId())) 
+			{
+				if (!documentStore.isSignat()) {
+					es.caib.plugins.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
+							documentStore.getArxiuUuid(),
+							null,
+							false,
+							true);
+					documentHelper.actualitzarNtiFirma(documentStore, arxiuDocument);
+					documentStore.setSignat(
+							arxiuDocument.getFirmes() != null 
+							&& arxiuDocument.getFirmes().size() > 0);
+				}
+			}	
+		}
+	}
+
 	/** Mètode per firmar els documents de l'expedient sense firma. Primer fa una validació
 	 * de que es pugui firmar.
 	 * 
 	 * @param expedient
 	 */
 	@Transactional
-	public void firmarDocumentsPerArxiuFiExpedient(Expedient expedient) {
+	private void firmarDocumentsPerArxiuFiExpedient(Expedient expedient) {
 
-		//List<DocumentStore> documents = documentStoreRepository.findByProcessInstanceId(expedient.getProcessInstanceId());
 		List<DocumentStore> documents = new ArrayList<DocumentStore>();
-		List<InstanciaProcesDto> arbreProcesInstance = expedientHelper.getArbreInstanciesProces(expedient.getProcessInstanceId());
+		List<InstanciaProcesDto> arbreProcesInstance = getArbreInstanciesProces(expedient.getProcessInstanceId());
 		
 		// Genera llista de tots els documents del expedient
 		for(InstanciaProcesDto procesInstance :arbreProcesInstance) {
@@ -1137,7 +1174,7 @@ public class ExpedientHelper {
 				expedients);
 	}
 	public void trobarAlertesExpedient(Expedient expedient, ExpedientDto dto) {
-		/*Expedient expedient = this.getExpedientComprovantPermisos(
+		/*Expedient expedient = getExpedientComprovantPermisos(
 				dto.getId(),
 				true,
 				false,
@@ -1380,7 +1417,7 @@ public class ExpedientHelper {
 				
 				//tancam l'expedient de l'arxiu si escau
 				if (expedient.isArxiuActiu()) {
-					this.tancarExpedientArxiu(expedient);
+					tancarExpedientArxiu(expedient);
 				}
 			}
 			// Finalitzar terminis actius
@@ -1566,7 +1603,7 @@ public class ExpedientHelper {
 		}
 		// Verifica si pot estar repetit per tipus d'expedient
 		if (expedientTipus.getTeTitol() && expedientTipus.getDemanaTitol()) {
-			List<Expedient> expedientMateixTitol = this.findByEntornIdAndTipusAndTitol(entornId, expedientTipusId, expedient.getTitol());
+			List<Expedient> expedientMateixTitol = findByEntornIdAndTipusAndTitol(entornId, expedientTipusId, expedient.getTitol());
 			if (expedientMateixTitol.size() > 0)
 				throw new ValidacioException(
 						messageHelper.getMessage(
@@ -1691,7 +1728,7 @@ public class ExpedientHelper {
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
 			// Comprova si després de l'inici ja està en un node fi
-			this.verificarFinalitzacioExpedient(expedientPerRetornar);
+			verificarFinalitzacioExpedient(expedientPerRetornar);
 			// Indexam l'expedient
 			logger.debug("Indexant nou expedient (id=" + expedient.getProcessInstanceId() + ")");
 			indexHelper.expedientIndexLuceneCreate(expedient.getProcessInstanceId());
@@ -1733,7 +1770,7 @@ public class ExpedientHelper {
 		if (any == null) 
 			any = Calendar.getInstance().get(Calendar.YEAR);
 		do {
-			numero = this.getNumeroExpedientDefaultActual(
+			numero = getNumeroExpedientDefaultActual(
 					expedientTipus,
 					any.intValue(),
 					increment);
@@ -1756,7 +1793,7 @@ public class ExpedientHelper {
 			Integer any) {
 		Entorn entorn = entornHelper.getEntorn(entornId);
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
-		return this.getNumeroExpedientActualAux(
+		return getNumeroExpedientActualAux(
 				entorn,
 				expedientTipus,
 				any);
@@ -1773,7 +1810,7 @@ public class ExpedientHelper {
 		if (any == null) 
 			any = Calendar.getInstance().get(Calendar.YEAR);
 		do {
-			numero = this.getNumeroExpedientActual(
+			numero = getNumeroExpedientActual(
 					expedientTipus,
 					any.intValue(),
 					increment);

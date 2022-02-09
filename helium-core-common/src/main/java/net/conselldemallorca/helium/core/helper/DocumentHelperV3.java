@@ -1743,7 +1743,7 @@ public class DocumentHelperV3 {
 						documentDescripcio, 
 						documentStore, 
 						new ArxiuDto(
-								documentArxiu.getNom(), 
+								arxiuNom, 
 								signatura, 
 								arxiuMime));
 				documentStore.setArxiuUuid(documentCreat.getIdentificador());
