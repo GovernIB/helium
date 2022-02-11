@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.view.RedirectView;
 
+import net.conselldemallorca.helium.integracio.plugins.firmaweb.FirmaWebPluginPortafibRest;
 import net.conselldemallorca.helium.webapp.v3.controller.BaseController;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
@@ -42,13 +43,13 @@ public class PassarelaFirmaController extends BaseController {
 			@PathVariable("signaturesSetId") String signaturesSetId,
 			Model model) throws Exception {
 		try {
-			List<PassarelaFirmaPlugin> pluginsFiltered = passarelaFirmaHelper.getAllPlugins(
+			List<FirmaWebPluginPortafibRest> pluginsFiltered = passarelaFirmaHelper.getAllPlugins(
 				request,
 				signaturesSetId);
 			// Si només hi ha un mòdul de firma llavors anar a firmar directament
 			if (stepSelectionWhenOnlyOnePlugin) {
 				if (pluginsFiltered.size() == 1) {
-					PassarelaFirmaPlugin modul = pluginsFiltered.get(0);
+					FirmaWebPluginPortafibRest modul = pluginsFiltered.get(0);
 					long pluginID = modul.getPluginId();
 					return "redirect:" +
 							PassarelaFirmaHelper.CONTEXTWEB + "/showsignaturemodule/" +
@@ -128,12 +129,12 @@ public class PassarelaFirmaController extends BaseController {
 		// Fi
 		
 		
-		passarelaFirmaHelper.requestPlugin(
+		/*passarelaFirmaHelper.requestPlugin(
 				request,
 				response,
 				signaturesSetId,
 				signatureIndex,
-				query);
+				query);*/
 	}
 
 	@RequestMapping(value = "/final/{signaturesSetId}")

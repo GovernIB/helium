@@ -49,6 +49,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
+
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
@@ -126,7 +127,6 @@ public class TascaTramitacioController extends BaseTascaController {
 	private ReproService reproService;
 	@Resource(name="documentHelperV3")
 	private DocumentHelperV3 documentHelper;
-	
 	@ModelAttribute("command")
 	public Object modelAttributeCommand(
 			HttpServletRequest request,
@@ -479,6 +479,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			resposta.append(getMessage(request, "tasca.tramitacio.documents.no.complet") + ".\n");
 		}
 		if (!tascaService.isSignaturesComplet(tascaId)) {
+			
 			resposta.append(getMessage(request, "tasca.tramitacio.firmes.no.complet") + ".");
 		}
 		return resposta.toString();
@@ -514,9 +515,10 @@ public class TascaTramitacioController extends BaseTascaController {
 		model.addAttribute("signatures", tascaService.findDocumentsSignar(tascaId));
 		model.addAttribute("passarelaFirmaEnviarCommand", new PassarelaFirmaEnviarCommand());
 		model.addAttribute("numPluginsPassarela", passarelaFirmaHelper.getNumberPossiblePlugins());
+		model.addAttribute("numPluginsPassarela", 1);
 		return "v3/tascaSignatura";
 	}
-
+/*mgonzalez: aquí fa el get*/
 	@RequestMapping(value = "/{tascaId}/document/{documentId}/firmaPassarela", method = RequestMethod.GET)
 	public String firmaPassarelaGet(
 			HttpServletRequest request,
@@ -539,6 +541,8 @@ public class TascaTramitacioController extends BaseTascaController {
 	        		documentDto.getTokenSignatura()); 
 			PersonaDto usuariActual = aplicacioService.findPersonaActual();
 			String modalStr = (ModalHelper.isModal(request)) ? "/modal" : "";
+			
+			//TODO MARTA. Modifica el passarelaFirmaHelper.iniciarProcesDeFirma per a que simplement cridi el teu plugin i retorni la url.
 			
 			String procesFirmaUrl = passarelaFirmaHelper.iniciarProcesDeFirma(
 					request,
@@ -652,9 +656,9 @@ public class TascaTramitacioController extends BaseTascaController {
 							request, 
 							"document.controller.firma.passarela.final.desconegut"));
 		}
-		passarelaFirmaHelper.closeSignaturesSet(
+		/*passarelaFirmaHelper.closeSignaturesSet(
 				request,
-				signaturesSet);
+				signaturesSet);*/
 		return "v3/passarelaFirma/passarelaFiFirma";
 	}
 
@@ -684,7 +688,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			throw new ServletException(ex);
 	    }
 	}
-
+/*mgonzalez: request mapping aqui*/
 	@RequestMapping(value = "/{tascaId}/document/{documentId}/adjuntar", method = RequestMethod.POST)
 	public String documentAdjuntar(
 			HttpServletRequest request,

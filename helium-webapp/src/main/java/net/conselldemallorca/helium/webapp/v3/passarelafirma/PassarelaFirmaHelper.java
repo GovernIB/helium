@@ -17,6 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
+import org.fundaciobit.apisib.apifirmasimple.v1.beans.FirmaSimpleFileInfoSignature;
+import org.fundaciobit.apisib.apifirmasimple.v1.jersey.ApiFirmaWebSimpleJersey;
 import org.fundaciobit.plugins.signature.api.CommonInfoSignature;
 import org.fundaciobit.plugins.signature.api.FileInfoSignature;
 import org.fundaciobit.plugins.signature.api.ITimeStampGenerator;
@@ -36,6 +38,9 @@ import com.artofsolving.jodconverter.DocumentFormat;
 import com.artofsolving.jodconverter.DocumentFormatRegistry;
 
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
+import net.conselldemallorca.helium.integracio.plugins.firma.FirmaPluginPortafib;
+import net.conselldemallorca.helium.integracio.plugins.firmaweb.FirmaWebPluginPortafibRest;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 
 /**
@@ -64,6 +69,12 @@ public class PassarelaFirmaHelper {
 			String idiomaCodi,
 			String urlFinalHelium,
 			boolean navegadorSuportaJava) throws IOException {
+		
+		
+		// TODO MARTA:
+		// crida al teu plugin i retorna la url de redirecció i ja està.
+		
+		
 		long signaturaId = generateUniqueSignaturesSetId();
 		String signaturesSetId = new Long(signaturaId).toString();
 		Calendar caducitat = Calendar.getInstance();
@@ -84,57 +95,100 @@ public class PassarelaFirmaHelper {
 		FileUtils.writeByteArrayToFile(
 				filePerFirmar,
 				fitxerPerFirmar.getContingut());
-		FileInfoSignature fis = getFileInfoSignature(
-				signaturesSetId,
-				filePerFirmar, // File amb el fitxer a firmar
-				//fitxerPerFirmar.getContentType(), // Tipus mime del fitxer a firmar
-				getArxiuMimeType(fitxerPerFirmar.getNom()),
-				fitxerPerFirmar.getNom(), // Nom del fitxer a firmar
-				0, // posició taula firmes: 0, 1, -1 (sense, primera pag., darrera pag.)
-				null, // SignaturesTableHeader 
-				motiu,
-				llocFirma,
-				emailFirmant,
-				1, // Nombre de firmes (nomes en suporta una)
-				idiomaCodi,
-				FileInfoSignature.SIGN_TYPE_PADES,
-				FileInfoSignature.SIGN_ALGORITHM_SHA1,
-				FileInfoSignature.SIGN_MODE_IMPLICIT,
-				false, // userRequiresTimeStamp,
-				null, // timeStampGenerator,
-				null); // svcsi
-		PassarelaFirmaConfig signaturesSet = new PassarelaFirmaConfig(
-				signaturesSetId,
-				caducitat.getTime(),
-				commonInfoSignature,
-				new FileInfoSignature[] {fis},
-				urlFinal,
-				urlFinalHelium, 
-				documentId);
-		startSignatureProcess(signaturesSet);
-		return CONTEXTWEB + "/selectsignmodule/" + signaturesSetId;
+		// TODO Marta: aquesta classe és de l'antic plugin, posar el nou
+		
+//		FirmaWebPluginPortafibRest pluginApiRest = new FirmaWebPluginPortafibRest(
+//				this.plugins.get[0].getPluginId(),
+//				String nom,
+//				String descripcioCurta,
+//				String classe,
+//				Properties properties);
+//		
+		//FirmaWebPluginPortafibRest pluginApiRest = new FirmaWebPluginPortafibRest();
+		try {
+			//martag: FALTA mirar Si el plugin és a la cache instanciar aquest plugin, si no afegir-ho a cache
+			FirmaWebPluginPortafibRest pluginApiRest= this.plugins.get(0);
+			String urlFinal;
+			urlFinal= pluginApiRest.firmar(signaturesSetId, idiomaCodi, motiu, null, filtreCertificats, documentId);
+		} catch (SistemaExternException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//Marta: RETORNO NULL de moment
+		return null;
+		
+		// FirmaSimpleFileInfoSignature
+		/*   FirmaSimpleFileInfoSignature fileInfoSignature = new FirmaSimpleFileInfoSignature(
+        fileToSign, 
+        signID, 
+        name, 
+        reason, 
+        location, 
+        signerEmail, 
+        signNumber, 
+        languageSign);*/
+		
+//		FirmaSimpleFileInfoSignature fisMeu = new FirmaSimpleFileInfoSignature();
+//
+//		FileInfoSignature fis = getFileInfoSignature(
+//				signaturesSetId,
+//				filePerFirmar, // File amb el fitxer a firmar
+//				//fitxerPerFirmar.getContentType(), // Tipus mime del fitxer a firmar
+//				getArxiuMimeType(fitxerPerFirmar.getNom()),
+//				fitxerPerFirmar.getNom(), // Nom del fitxer a firmar
+//				0, // posició taula firmes: 0, 1, -1 (sense, primera pag., darrera pag.)
+//				null, // SignaturesTableHeader 
+//				motiu,
+//				llocFirma,
+//				emailFirmant,
+//				1, // Nombre de firmes (nomes en suporta una)
+//				idiomaCodi,
+//				FileInfoSignature.SIGN_TYPE_PADES,
+//				FileInfoSignature.SIGN_ALGORITHM_SHA1,
+//				FileInfoSignature.SIGN_MODE_IMPLICIT,
+//				false, // userRequiresTimeStamp,
+//				null, // timeStampGenerator,
+//				null); // svcsi
+//		PassarelaFirmaConfig signaturesSet = new PassarelaFirmaConfig(
+//				signaturesSetId,
+//				caducitat.getTime(),
+//				commonInfoSignature,
+//				new FileInfoSignature[] {fis},
+//				urlFinal,
+//				urlFinalHelium, 
+//				documentId);
+//		FirmaPluginPortafibApiRest pluginApiRest = new FirmaPluginPortafibApiRest();
+//		try {
+//			
+//			pluginApiRest.firmar(signaturesSetId, idiomaCodi, motiu, null, filtreCertificats, documentId);
+//		} catch (SistemaExternException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		//startSignatureProcess(signaturesSet);
+//		return CONTEXTWEB + "/selectsignmodule/" + signaturesSetId;
 	}
 
 	public Integer getNumberPossiblePlugins() {
-		List<PassarelaFirmaPlugin> plugins = getAllPluginsFromProperties();
+		List<FirmaWebPluginPortafibRest> plugins = getAllPluginsFromProperties();
 		if (plugins == null) 
 			return 0;
 		else
 			return plugins.size();
 	}
 	
-	public List<PassarelaFirmaPlugin> getAllPlugins(
+	public List<FirmaWebPluginPortafibRest> getAllPlugins(
 			HttpServletRequest request,
 			String signaturesSetId) throws Exception {
 		PassarelaFirmaConfig signaturesSet = getSignaturesSet(request, signaturesSetId);
-		List<PassarelaFirmaPlugin> plugins = getAllPluginsFromProperties();
+		List<FirmaWebPluginPortafibRest> plugins = getAllPluginsFromProperties();
 		if (plugins == null || plugins.size() == 0) {
 			String msg = "S'ha produit un error llegint els plugins o no se n'han definit.";
 			throw new Exception(msg);
 		}
-		List<PassarelaFirmaPlugin> pluginsFiltered = new ArrayList<PassarelaFirmaPlugin>();
+		List<FirmaWebPluginPortafibRest> pluginsFiltered = new ArrayList<FirmaWebPluginPortafibRest>();
 		ISignatureWebPlugin signaturePlugin;
-		for (PassarelaFirmaPlugin pluginDeFirma: plugins) {
+		for (FirmaWebPluginPortafibRest pluginDeFirma: plugins) {
 			// 1.- Es pot instanciar el plugin ?
 			signaturePlugin = getInstanceByPluginId(pluginDeFirma.getPluginId());
 			if (signaturePlugin == null) {
@@ -168,14 +222,21 @@ public class PassarelaFirmaHelper {
 		PassarelaFirmaConfig signaturesSet = getSignaturesSet(request, signaturesSetId);
 		Long pluginId = signaturesSet.getPluginId();
 		// El plugin existeix?
-		ISignatureWebPlugin signaturePlugin;
+		//TODO MARTA: aquest és el plugin SOAP WEB que has de canviar.
+		//FirmaWebPluginPortafibRest signaturePlugin = getInstanceByPluginId(pluginId);
+		
+		//ApiFirmaWebSimpleJersey api = ApiFirmaWebSimpleJersey(String endPointBase, String username, String password)
+		
+				ISignatureWebPlugin signaturePlugin;
 		signaturePlugin = getInstanceByPluginId(pluginId);
+		
 		if (signaturePlugin == null) {
 			String msg = "plugin.signatureweb.noexist: " + String.valueOf(pluginId);
 			throw new Exception(msg);
 		}
 		String urlToPluginWebPage;
-		urlToPluginWebPage = signaturePlugin.signDocuments(
+		//TODO MARTA: aquí en comptes de signDocuemnts crida a startTransaction
+		/*urlToPluginWebPage = signaturePlugin.firmar(
 				request,
 				getRequestPluginBasePath(
 						getAbsoluteControllerBase(
@@ -190,7 +251,8 @@ public class PassarelaFirmaHelper {
 						signaturesSetId,
 						-1),
 				signaturesSet);
-		return urlToPluginWebPage;
+		return urlToPluginWebPage;*/
+		return null;
 	}
 
 	public void requestPlugin(
@@ -301,6 +363,7 @@ public class PassarelaFirmaHelper {
 		Long pluginId = pss.getPluginId();
 		final String signaturesSetId = pss.getSignaturesSetID();
 		if (pluginId != null) {
+			//TODO: posar aquí el teu plugin API REST 
 			ISignatureWebPlugin signaturePlugin = null;
 			try {
 				signaturePlugin = getInstanceByPluginId(pluginId);
@@ -426,12 +489,12 @@ public class PassarelaFirmaHelper {
 		return fis;
 	}
 
-	private List<PassarelaFirmaPlugin> plugins;
+	private List<FirmaWebPluginPortafibRest> plugins;
 	private static final String PROPERTIES_BASE = "app.plugin.passarelafirma.";
-	private List<PassarelaFirmaPlugin> getAllPluginsFromProperties() {
+	private List<FirmaWebPluginPortafibRest> getAllPluginsFromProperties() {
 		if (plugins == null) {
 			log.info("Carregant plugins de passarel.la de firma...");
-			plugins = new ArrayList<PassarelaFirmaPlugin>();
+			plugins = new ArrayList<FirmaWebPluginPortafibRest>();
 			String idsStr = GlobalProperties.getInstance().getProperty(PROPERTIES_BASE + "ids");
 			log.info("Identificadors de plugins: " + idsStr);
 			if (idsStr != null && !idsStr.isEmpty()) {
@@ -461,8 +524,7 @@ public class PassarelaFirmaHelper {
 						log.info("classe: " + classe);
 						log.info("properties: " + pluginPropertiesProcessat);
 						plugins.add(
-								new PassarelaFirmaPlugin(
-										new Long(id),
+								new FirmaWebPluginPortafibRest(
 										nom,
 										descripcioCurta,
 										classe,
@@ -473,24 +535,24 @@ public class PassarelaFirmaHelper {
 					}
 				}
 			}
-		}
+		}//mgonzalez: Només em retorna un plugin (corregir!)
 		return plugins;
 	}
 
 	private Map<Long, ISignatureWebPlugin> instancesCache = new HashMap<Long, ISignatureWebPlugin>();
-	private Map<Long, PassarelaFirmaPlugin> pluginsCache = new HashMap<Long, PassarelaFirmaPlugin>();
+	private Map<Long, FirmaWebPluginPortafibRest> pluginsCache = new HashMap<Long, FirmaWebPluginPortafibRest>();
 	private ISignatureWebPlugin getInstanceByPluginId(
 			long pluginId) throws Exception {
 		ISignatureWebPlugin instance = instancesCache.get(pluginId);
 		if (instance == null) {
-			PassarelaFirmaPlugin plugin = getPluginFromCache(pluginId);
+			FirmaWebPluginPortafibRest plugin = getPluginFromCache(pluginId);
 			if (plugin == null) {
 				plugin = getPluginById(pluginId);
 				if (plugin == null) {
 					return null;
 				}
 				addPluginToCache(pluginId, plugin);
-			}
+			}//mgonzalez: aquí instancia el nom de la classe que li he passat al properties
 			instance = (ISignatureWebPlugin)PluginsManager.instancePluginByClassName(plugin.getClasse(),
 					PROPERTIES_BASE,
 					plugin.getProperties());
@@ -503,19 +565,19 @@ public class PassarelaFirmaHelper {
 	}
 	private void addPluginToCache(
 			Long pluginId,
-			PassarelaFirmaPlugin pluginInstance) {
+			FirmaWebPluginPortafibRest pluginInstance) {
 		synchronized (pluginsCache) {
 			pluginsCache.put(pluginId, pluginInstance);
 		}
 	}
-	private PassarelaFirmaPlugin getPluginFromCache(
+	private FirmaWebPluginPortafibRest getPluginFromCache(
 			Long pluginId) {
 		synchronized (pluginsCache) {
 			return pluginsCache.get(pluginId);
 		}
 	}
-	private PassarelaFirmaPlugin getPluginById(long pluginId) {
-		for (PassarelaFirmaPlugin plugin: getAllPluginsFromProperties()) {
+	private FirmaWebPluginPortafibRest getPluginById(long pluginId) {
+		for (FirmaWebPluginPortafibRest plugin: getAllPluginsFromProperties()) {
 			if (plugin.getPluginId() == pluginId) {
 				return plugin;
 			}
