@@ -45,7 +45,7 @@
 			<hel:inputText required="true" name="nom" textKey="expedient.tipus.accio.form.accio.nom" />
 			<c:if test="${not empty expedientTipusAccioCommand.expedientTipusId}">
 				<hel:inputSelect required="true" name="defprocJbpmKey" textKey="expedient.tipus.accio.form.accio.defprocJbpmKey" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.defprocJbpmKey.placeholder" optionItems="${definicionsProces}" />
-				<hel:inputText required="true" name="jbpmAction" textKey="expedient.tipus.accio.form.accio.jbpmAction" />
+				<hel:inputSelect required="true" name="jbpmAction" textKey="expedient.tipus.accio.form.accio.jbpmAction" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.jbpmAction" optionItems="${accions}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 			</c:if>
 			<c:if test="${not empty expedientTipusAccioCommand.definicioProcesId}">
 				<input type="hidden" name="defprocJbpmKey" value="${expedientTipusAccioCommand.defprocJbpmKey}" />
@@ -81,7 +81,41 @@
    			//<c:if test="${heretat}">
 			webutilDisableInputs($('#expedientTipusAccioCommand'));
 			//</c:if>
+			
+			// Canvi en la selecció de la definicion
+			$('#defprocJbpmKey').change(function() {
+				refrescaAccions();
+			});
 		});
+
+		function refrescaAccions() {
+			var definicioProcesId = $("#defprocJbpmKey").val();
+			var jbpmActionActual = $('#jbpmAction').val();
+			if (definicioProcesId != "") {
+				var getUrl = '<c:url value="/v3/expedientTipus/${expedientTipusAccioCommand.expedientTipusId}/definicio/"/>' + definicioProcesId + '/accions/select';
+				$.ajax({
+					type: 'GET',
+					url: getUrl,
+					data: {jbpmActionActual: jbpmActionActual},
+					async: true,
+					success: function(data) {
+						$("#jbpmAction option").each(function(){
+						    $(this).remove();
+						});
+						$("#jbpmAction").append($("<option/>"));
+						for (i = 0; i < data.length; i++) {
+							$("#jbpmAction").append($("<option/>", {value: data[i].codi, text: data[i].valor}));
+						}
+						$("#jbpmAction").val(definicioProcesId).change();
+					},
+					error: function(e) {
+						console.log("Error obtenint les accions de les definicions de procés per l' id " + definicioProcesId + ": " + e);
+					}
+				});
+			} else {
+				$('#jbpmAction').val('').change();
+			}
+		}
 		// ]]>
 	</script>			
 

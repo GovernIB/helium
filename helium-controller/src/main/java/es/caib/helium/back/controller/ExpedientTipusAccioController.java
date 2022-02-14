@@ -3,17 +3,11 @@
  */
 package es.caib.helium.back.controller;
 
-import es.caib.helium.back.command.ExpedientTipusAccioCommand;
-import es.caib.helium.back.helper.ConversioTipusHelper;
-import es.caib.helium.back.helper.DatatablesHelper;
-import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
-import es.caib.helium.back.helper.MissatgesHelper;
-import es.caib.helium.back.helper.NodecoHelper;
-import es.caib.helium.back.helper.SessionHelper;
-import es.caib.helium.logic.intf.dto.AccioDto;
-import es.caib.helium.logic.intf.dto.EntornDto;
-import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
-import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +18,22 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpServletRequest;
+import es.caib.helium.back.command.ExpedientTipusAccioCommand;
+import es.caib.helium.back.helper.ConversioTipusHelper;
+import es.caib.helium.back.helper.DatatablesHelper;
+import es.caib.helium.back.helper.DatatablesHelper.DatatablesResponse;
+import es.caib.helium.back.helper.MissatgesHelper;
+import es.caib.helium.back.helper.NodecoHelper;
+import es.caib.helium.back.helper.SessionHelper;
+import es.caib.helium.logic.intf.dto.AccioDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
+import es.caib.helium.logic.intf.dto.EntornDto;
+import es.caib.helium.logic.intf.dto.ExpedientTipusDto;
+import es.caib.helium.logic.intf.dto.PaginacioParamsDto;
+import es.caib.helium.logic.intf.dto.ParellaCodiValorDto;
 
 /**
  * Controlador per a la pipella d'accions del tipus d'expedient.
@@ -93,6 +100,8 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 				request,
 				entornActual.getId(),
 				expedientTipusId,
+				null,
+				null,
 				model);
 		return "v3/expedientTipusAccioForm";
 	}
@@ -110,6 +119,8 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
     				request,
     				entornActual.getId(),
     				expedientTipusId,
+    				command.getDefprocJbpmKey(),
+    				command.getJbpmAction(),
     				model);
         	return "v3/expedientTipusAccioForm";
         } else {
@@ -144,6 +155,8 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 				request,
 				entornActual.getId(),
 				expedientTipusId,
+				dto.getDefprocJbpmKey(),
+				dto.getJbpmAction(),
 				model);
 		model.addAttribute("heretat", dto.isHeretat());
 
@@ -163,6 +176,8 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
     				request,
     				entornActual.getId(),
     				expedientTipusId,
+    				command.getDefprocJbpmKey(),
+    				command.getJbpmAction(),
     				model);
     		model.addAttribute("heretat", accioService.findAmbId(
     				expedientTipusId, 
@@ -184,6 +199,8 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 			HttpServletRequest request, 
 			Long entornId, 
 			Long expedientTipusId, 
+			String definicioProcesCodi, 
+			String jbpmAction,
 			Model model) {
 		model.addAttribute("definicionsProces", 
 				expedientTipusService.definicioProcesFindJbjmKey(
@@ -191,6 +208,8 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 						expedientTipusId, 
 						false,
 						true));
+		model.addAttribute("accions", 
+				this.getAccions(expedientTipusId, definicioProcesCodi, jbpmAction));
 	}
 
 	
@@ -222,5 +241,49 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 		}
 	}
 		
+	/** Mètode per obtenir les possibles versions per al select de definicions de procés via ajax. */
+	@RequestMapping(value = "/{expedientTipusId}/definicio/{definicioCodi}/accions/select", method = RequestMethod.GET)
+	@ResponseBody
+	public List<ParellaCodiValorDto> definicioAccioSelect(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable String definicioCodi,
+			@RequestParam(value="jbpmActionActual", required=false) String jbpmActionActual,
+			Model model) {
+
+		// Select d'accions
+		return this.getAccions(expedientTipusId, definicioCodi, jbpmActionActual);
+	}
+		
+	/** Consulta la llista d'accions per la darrera versió de la definició de procés per codi del
+	 * tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 * @param definicioCodi
+	 * @param jbpmActionActual 
+	 * @return
+	 */
+	private List<ParellaCodiValorDto> getAccions(Long expedientTipusId, String definicioCodi, String jbpmAction) {
+
+		List<ParellaCodiValorDto> ret = new ArrayList<ParellaCodiValorDto>();
+		List<String> accions = new ArrayList<String>();
+		if(expedientTipusId != null && definicioCodi != null) {
+			// Darrera versió de la definició de procés
+			DefinicioProcesDto definicioProces = dissenyService.findDarreraVersioForExpedientTipusIDefProcCodi(expedientTipusId, definicioCodi);
+			accions = dissenyService.findAccionsJbpmOrdenades(definicioProces.getId());
+		}
+		for (String accio : accions) {
+			ret.add(new ParellaCodiValorDto(accio, accio));
+		}
+		if (jbpmAction != null 
+				&& !jbpmAction.isEmpty()
+				&&	!accions.contains(jbpmAction)) {
+			ret.add(0, new ParellaCodiValorDto(
+					jbpmAction,
+					jbpmAction + " (no existeix en la darrera versió de la definició de procés '" + definicioCodi + "')"));
+		}
+		return ret;
+	}
+
 	private static final Log logger = LogFactory.getLog(ExpedientTipusAccioController.class);
 }

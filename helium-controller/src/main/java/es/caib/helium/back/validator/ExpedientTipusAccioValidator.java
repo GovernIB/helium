@@ -1,13 +1,18 @@
 package es.caib.helium.back.validator;
 
-import es.caib.helium.back.command.ExpedientTipusAccioCommand;
-import es.caib.helium.back.helper.MessageHelper;
-import es.caib.helium.logic.intf.dto.AccioDto;
-import es.caib.helium.logic.intf.service.AccioService;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import es.caib.helium.back.command.ExpedientTipusAccioCommand;
+import es.caib.helium.back.helper.MessageHelper;
+import es.caib.helium.logic.intf.dto.AccioDto;
+import es.caib.helium.logic.intf.dto.DefinicioProcesDto;
+import es.caib.helium.logic.intf.service.AccioService;
+import es.caib.helium.logic.intf.service.DissenyService;
 
 /**
  * Validador per al manteniment d'accios del tipus d'expedient:
@@ -19,6 +24,8 @@ public class ExpedientTipusAccioValidator implements ConstraintValidator<Expedie
 	private String codiMissatge;
 	@Autowired
 	private AccioService accioService;
+	@Autowired
+	private DissenyService dissenyService;
 
 	@Override
 	public void initialize(ExpedientTipusAccio anotacio) {
@@ -38,6 +45,22 @@ public class ExpedientTipusAccioValidator implements ConstraintValidator<Expedie
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".codi.repetit", null))
 						.addNode("codi")
+						.addConstraintViolation();	
+				valid = false;
+			}
+		}
+		// Si hi ha expedient tipus informat comprova que la acció pertany a la darrera
+		// versió
+		if (accio.getExpedientTipusId() != null && accio.getDefprocJbpmKey() != null && accio.getJbpmAction() != null ) {
+			// Darrera versió de la definició de procés
+			DefinicioProcesDto definicioProces = dissenyService.findDarreraVersioForExpedientTipusIDefProcCodi(
+																accio.getExpedientTipusId(),
+																accio.getDefprocJbpmKey());
+			List<String> accions = dissenyService.findAccionsJbpmOrdenades(definicioProces.getId());
+			if (!accions.contains(accio.getJbpmAction())) {
+				context.buildConstraintViolationWithTemplate(
+						MessageHelper.getInstance().getMessage(this.codiMissatge + ".accio.no.existeix", null))
+						.addNode("jbpmAction")
 						.addConstraintViolation();	
 				valid = false;
 			}

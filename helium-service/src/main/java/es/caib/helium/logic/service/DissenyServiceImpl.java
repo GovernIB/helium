@@ -385,6 +385,21 @@ public class DissenyServiceImpl implements DissenyService {
 		return null;
 	}
 	
+	@Transactional(readOnly=true)
+	@Override
+	public DefinicioProcesDto findDarreraVersioForExpedientTipusIDefProcCodi(Long expedientTipusId, String defProcCodi)
+			throws NoTrobatException {
+
+		ExpedientTipus expedientTipus = expedientTipusRepository.getById(expedientTipusId);
+		DefinicioProces definicioProces = definicioProcesHelper.findDarreraVersioDefinicioProces(
+				expedientTipus, 
+				defProcCodi);
+		if (definicioProces == null) {
+			throw new NoTrobatException(DefinicioProces.class, defProcCodi);
+		}
+		return conversioTipusServiceHelper.convertir(definicioProces, DefinicioProcesDto.class);
+	}
+	
 	private boolean hasStartTask(DefinicioProces definicioProces, Map<Long, Boolean> hasStartTask, Long expedientTipusId) {
 		Long definicioProcesId = definicioProces.getId();
 		Boolean result = hasStartTask.get(definicioProcesId);

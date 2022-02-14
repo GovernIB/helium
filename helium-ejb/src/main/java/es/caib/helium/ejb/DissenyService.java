@@ -155,6 +155,14 @@ public class DissenyService extends AbstractService<es.caib.helium.logic.intf.se
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DefinicioProcesDto findDarreraVersioForExpedientTipusIDefProcCodi(Long expedientTipusId, String defProcCodi)
+			throws NoTrobatException {
+		return getDelegateService().findDarreraVersioForExpedientTipusIDefProcCodi(expedientTipusId, defProcCodi);
+	}
+
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesExpedientDto getDefinicioProcesByTipusExpedientById(Long expedientTipusId) {
 		return getDelegateService().getDefinicioProcesByTipusExpedientById(expedientTipusId);
 	}
