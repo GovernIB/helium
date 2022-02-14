@@ -167,6 +167,14 @@ public class DissenyServiceBean implements DissenyService {
 	public DefinicioProcesExpedientDto getDefinicioProcesByEntorIdAndProcesId(Long entornId, Long procesId) {
 		return delegate.getDefinicioProcesByEntorIdAndProcesId(entornId, procesId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DefinicioProcesDto findDarreraVersioForExpedientTipusIDefProcCodi(Long expedientTipusId, String defProcCodi)
+			throws NoTrobatException {
+		return delegate.findDarreraVersioForExpedientTipusIDefProcCodi(expedientTipusId, defProcCodi);
+	}
+
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -349,5 +357,4 @@ public class DissenyServiceBean implements DissenyService {
 	public List<FilaResultat> consultaDomini(Long id, String codiDomini, Map<String, Object> parametres) {
 		return delegate.consultaDomini(id, codiDomini, parametres);
 	}
-
 }

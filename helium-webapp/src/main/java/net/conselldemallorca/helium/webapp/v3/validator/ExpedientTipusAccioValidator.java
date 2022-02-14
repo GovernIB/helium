@@ -1,12 +1,16 @@
 package net.conselldemallorca.helium.webapp.v3.validator;
 
+import java.util.List;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.service.AccioService;
+import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusAccioCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 
@@ -20,6 +24,8 @@ public class ExpedientTipusAccioValidator implements ConstraintValidator<Expedie
 	private String codiMissatge;
 	@Autowired
 	private AccioService accioService;
+	@Autowired
+	private DissenyService dissenyService;
 
 	@Override
 	public void initialize(ExpedientTipusAccio anotacio) {
@@ -39,6 +45,22 @@ public class ExpedientTipusAccioValidator implements ConstraintValidator<Expedie
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage(this.codiMissatge + ".codi.repetit", null))
 						.addNode("codi")
+						.addConstraintViolation();	
+				valid = false;
+			}
+		}
+		// Si hi ha expedient tipus informat comprova que la acció pertany a la darrera
+		// versió
+		if (accio.getExpedientTipusId() != null && accio.getDefprocJbpmKey() != null && accio.getJbpmAction() != null ) {
+			// Darrera versió de la definició de procés
+			DefinicioProcesDto definicioProces = dissenyService.findDarreraVersioForExpedientTipusIDefProcCodi(
+																accio.getExpedientTipusId(),
+																accio.getDefprocJbpmKey());
+			List<String> accions = dissenyService.findAccionsJbpmOrdenades(definicioProces.getId());
+			if (!accions.contains(accio.getJbpmAction())) {
+				context.buildConstraintViolationWithTemplate(
+						MessageHelper.getInstance().getMessage(this.codiMissatge + ".accio.no.existeix", null))
+						.addNode("jbpmAction")
 						.addConstraintViolation();	
 				valid = false;
 			}
