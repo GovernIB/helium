@@ -29,10 +29,12 @@ public class ExpedientConsultaCommand {
 	private Date dataIniciFinal;
 	private Date dataFiInicial;
 	private Date dataFiFinal;
+	
 	private Double geoPosX;
 	private Double geoPosY;
 	private String geoReferencia;
-
+	//TODO2: Afegir el nou camp en el filtre en comptes de la geoposició
+	
 	private boolean filtreDesplegat = false;
 	private boolean tramitacioMassivaActivada = false;
 	private boolean consultaRealitzada = false;

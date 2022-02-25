@@ -758,6 +758,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				geoPosX,
 				geoPosY,
 				geoReferencia,
+				//TODO3: afegir el nou camp en la capa service
 				EstatTipusDto.INICIAT.equals(estatTipus),
 				EstatTipusDto.FINALITZAT.equals(estatTipus),
 				MostrarAnulatsDto.SI.equals(mostrarAnulats),

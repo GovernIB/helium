@@ -93,8 +93,10 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	@MaxLength(64)
 	private String geoReferencia;
 
+	//TODO4: comprovar que s'informa bé com pels tràmits de sistra 1. Bucar per títol BTE
 	@MaxLength(64)
 	private String registreNumero;
+	
 	private Date registreData;
 	private Long unitatAdministrativa;
 	private String idioma;

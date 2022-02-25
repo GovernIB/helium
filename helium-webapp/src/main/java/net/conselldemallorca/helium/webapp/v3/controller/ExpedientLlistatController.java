@@ -116,6 +116,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 							filtreCommand.getDataFiFinal(),
 							filtreCommand.getEstatTipus(),
 							filtreCommand.getEstatId(),
+							////TODO2: Afegir el nou camp en el filtre en comptes de la geoposició
 							filtreCommand.getGeoPosX(),
 							filtreCommand.getGeoPosY(),
 							filtreCommand.getGeoReferencia(),

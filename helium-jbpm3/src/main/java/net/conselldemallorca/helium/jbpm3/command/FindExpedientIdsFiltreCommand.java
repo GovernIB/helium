@@ -41,6 +41,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 	private Double geoPosX;
 	private Double geoPosY;
 	private String geoReferencia;
+	//TODO3: afegir el nou camp en la capa service per número de registre
 	private boolean mostrarAnulats;
 	private boolean mostrarNomesAnulats;
 	private boolean nomesAlertes;

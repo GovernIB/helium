@@ -408,6 +408,7 @@ function refrescaEstatSegonPla() {
 				</div>
 			</div>
 			<div class="col-md-2">
+				<!-- //TODO2: Afegir el nou camp en el filtre en comptes de la geoposició -->
 				<c:if test="${globalProperties['app.georef.actiu']}">
 					<label><spring:message code="expedient.llistat.filtre.camp.geopos"/></label>
 					<c:choose>
