@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.integracio.plugins.firmaweb;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -26,14 +28,11 @@ import org.fundaciobit.apisib.apifirmasimple.v1.beans.FirmaSimpleSignatureStatus
 import org.fundaciobit.apisib.apifirmasimple.v1.beans.FirmaSimpleSignedFileInfo;
 import org.fundaciobit.apisib.apifirmasimple.v1.beans.FirmaSimpleStartTransactionRequest;
 import org.fundaciobit.apisib.apifirmasimple.v1.beans.FirmaSimpleStatus;
-import org.fundaciobit.apisib.apifirmasimple.v1.jersey.ApiFirmaEnServidorSimpleJersey;
 import org.fundaciobit.apisib.apifirmasimple.v1.jersey.ApiFirmaWebSimpleJersey;
+import org.fundaciobit.apisib.core.exceptions.AbstractApisIBException;
 
-import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
-import net.conselldemallorca.helium.integracio.plugins.firma.FirmaPlugin;
-import net.conselldemallorca.helium.integracio.plugins.firma.FirmaPluginPortafib;
-import net.conselldemallorca.helium.integracio.plugins.firma.FirmaResposta;
+
 
 /**
  * Implementació del plugin de signatura emprant el Servidor de l'API REST.
@@ -50,6 +49,7 @@ public class FirmaWebPluginPortafibRest {
 	private String descripcioCurta;
 	private String classe;
 	private Properties properties;
+	private ApiFirmaWebSimple api;
 
 	public FirmaWebPluginPortafibRest() {
 		
@@ -59,11 +59,17 @@ public class FirmaWebPluginPortafibRest {
 			String nom,
 			String descripcioCurta,
 			String classe,
-			Properties properties) {
+			Properties properties,
+			long pluginId) {
 		this.nom = nom;
 		this.descripcioCurta = descripcioCurta;
 		this.classe = classe;
 		this.properties = properties;
+		this.setPluginId(pluginId);
+		this.api = new ApiFirmaWebSimpleJersey(
+				getPropertyApiEndpoint(),
+				getPropertyApiUsername(), 
+				getPropertyApiPassword());
 
 	}
 
@@ -74,54 +80,42 @@ public class FirmaWebPluginPortafibRest {
 			String motiu, 
 			byte[] contingut, 
 			String mime,
-			String tipusDocumental) throws SistemaExternException {
-		
-		FirmaSimpleGetTransactionStatusResponse resposta = new FirmaSimpleGetTransactionStatusResponse();
-		/*mgonzalez*/
-		/*ApiFirmaWebSimple api = new ApiFirmaWebSimpleJersey(
-				getPropertyApiEndpoint(),
-				getPropertyApiUsername(), 
-				getPropertyApiPassword());*/
-		//Només per test
-		ApiFirmaWebSimple api = new ApiFirmaWebSimpleJersey(
-				/*"https://proves.caib.es/portafib/common/rest/apifirmawebsimple/v1/"*/
-				"https://dev.caib.es/portafib/common/rest/apifirmawebsimple/v1/",
-				"$helium_portafibpass", 
-				"helium_portafibpass");
-		
+			String tipusDocumental,
+			String contextweb,
+			String userId) throws SistemaExternException {
+	
 		FirmaSimpleFile fileToSign = new FirmaSimpleFile(nom, mime, contingut);
 
-		FirmaSimpleSignatureResult result;
 		try {
-			
-//			getAvailableProfiles(api);
-			FirmaSimpleAvailableProfile profile = new FirmaSimpleAvailableProfile();
-			profile.setCode("PROFILE_WEB");
-			profile.setDescription("PROFILE_WEB");
-			profile.setName("PROFILE_WEB");
-		//String perfil = getPropertyApiPerfil();
-		internalSignDocument(
+
+			String returnURL;
+			returnURL = internalSignDocument(
 					id,
-					api,
+					this.api,
 					null,
 					fileToSign,
 					motiu,
-					tipusDocumental);
-			//CUIDADO RETORNO NULL de moment
-			return null;
+					tipusDocumental,
+					contextweb,
+					userId);
+			
+			return returnURL;
+			
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
 	}
 	
-	//protected FirmaSimpleSignatureResult internalSignDocument(
-	protected void internalSignDocument(
+	protected String internalSignDocument(
 			String id, 
 			ApiFirmaWebSimple api,
 			FirmaSimpleAvailableProfile profile,
 			FirmaSimpleFile fileToSign,
 			String motiu,
-			String tipusDocumental) throws Exception, FileNotFoundException, IOException {
+			String tipusDocumental,
+			String urlFinalHelium,
+			String userId) throws Exception, FileNotFoundException, IOException {
 		String signID = id;
 		String name = fileToSign.getNom();
 		String reason = motiu;
@@ -143,17 +137,15 @@ public class FirmaWebPluginPortafibRest {
 
 		String languageUI = "ca";
 		String username = this.getPropertyApiUsername();
-		String administrationID = "12345678C";//Marta: falta provar amb un adminid real!
 		String signerEmail = this.getSignerEmailProperty();
 		
 		FirmaSimpleCommonInfo commonInfo;
-	    commonInfo = new FirmaSimpleCommonInfo(/*profile.getCode()*/null, languageUI, /*username*/"$helium_portafib", administrationID,/*email*/ signerEmail);
+	    commonInfo = new FirmaSimpleCommonInfo(/*profile.getCode()*/null, languageUI, username, userId, signerEmail);
 	    
 	    // Enviam la part comu de la transacció
 	    String transactionID = api.getTransactionID(commonInfo);
-
 	    System.out.println("TransactionID = |" + transactionID + "|");
-	    
+
 	    // Aquí podem afegir més documents a firmar
 	    FirmaSimpleFileInfoSignature[] filesToSign;
 	    filesToSign = new FirmaSimpleFileInfoSignature[] { fileInfoSignature };
@@ -164,31 +156,29 @@ public class FirmaWebPluginPortafibRest {
 	        newDocument = new FirmaSimpleAddFileToSignRequest(transactionID, filesToSign[i]);
 	        api.addFileToSign(newDocument);  
 	      }
-		
-		FirmaSimpleSignDocumentRequest signature;
-	    signature = new FirmaSimpleSignDocumentRequest(commonInfo, fileInfoSignature);
+  
+		 // Aquí especificam la URL de retorn un cop finalitzada la transacció
 
-	   
-	 // Aquí especificam la URL de retorn un cop finalitzada la transacció
-	    int port = 1989;
-	    final String returnUrl = "http://localhost:" + port + "/returnurl/" + transactionID;
 	    final String view = FirmaSimpleStartTransactionRequest.VIEW_FULLSCREEN;
-
 	    FirmaSimpleStartTransactionRequest startTransactionInfo;
 	    startTransactionInfo = new FirmaSimpleStartTransactionRequest(transactionID,
-	         returnUrl, view);
+	    		urlFinalHelium, view);
 
-	    String redirectUrl = api.startTransaction(startTransactionInfo);
+	    String redirectUrl = api.startTransaction(startTransactionInfo); 
 
 	    System.out.println("Redirigir la pàgina web del navegador del client a " + redirectUrl);
-	    
-	    
+		
+	return redirectUrl;
+
+	}
+	
+	public FirmaSimpleFile getResponse(String transactionID, byte[] data) throws FileNotFoundException, IOException, Exception {
 		FirmaSimpleGetTransactionStatusResponse fullTransactionStatus;
 		fullTransactionStatus = api.getTransactionStatus(transactionID);
-
+		FirmaSimpleFile fsf = new FirmaSimpleFile();
 		FirmaSimpleStatus transactionStatus = fullTransactionStatus.getTransactionStatus();
 		int status = transactionStatus.getStatus();
-		switch (status) {
+				switch (status) {
 
 		case FirmaSimpleStatus.STATUS_INITIALIZING: // = 0;
 			throw new Exception("S'ha rebut un estat inconsistent del proces de firma"
@@ -206,36 +196,28 @@ public class FirmaWebPluginPortafibRest {
 			if (desc != null) {
 				System.err.println(desc);
 			}
-			return;
+			break;
 
 		case FirmaSimpleStatus.STATUS_CANCELLED: // = -2;
 			System.err.println("Durant el proces de firmes, l'usuari ha cancelat la transacció.");
-			return;
-
-		case FirmaSimpleStatus.STATUS_FINAL_OK: // = 2;
-			processStatusFileOfSign(api, transactionID, fullTransactionStatus);
 			break;
 
-		} // Final Switch Firma
-	    
-		
-	}
-	//FALTA TANCAR LA TRANSACCIÓ
-	/*try {
-		   ...
-		} finally {
-		  if (api != null && transactionID != null) {
-		    try {
-		      api.closeTransaction(transactionID);
-		    } catch (Throwable th) {
-		      th.printStackTrace();
-		    }
-		  }
-		}*/
+		case FirmaSimpleStatus.STATUS_FINAL_OK: // = 2;
+			fsf = processStatusFileOfSign(api, transactionID, fullTransactionStatus, data);
+			return fsf;
 
-	 
-	
-	protected static void processStatusFileOfSign(ApiFirmaWebSimple api, String transactionID, FirmaSimpleGetTransactionStatusResponse fullTransactionStatus) throws Exception, FileNotFoundException, IOException {
+
+		}
+		return null;
+	    
+	}
+
+	protected static FirmaSimpleFile  processStatusFileOfSign(
+			ApiFirmaWebSimple api, 
+			String transactionID, 
+			FirmaSimpleGetTransactionStatusResponse fullTransactionStatus,
+			byte[] data) 
+					throws Exception, FileNotFoundException, IOException {
 
 		  List<FirmaSimpleSignatureStatus> ssl;
 		  ssl = fullTransactionStatus.getSignaturesStatusList();
@@ -272,23 +254,24 @@ public class FirmaWebPluginPortafibRest {
 
 		      case FirmaSimpleStatus.STATUS_FINAL_OK: // = 2;
 		        FirmaSimpleSignatureResult fssr;
-		        fssr = api.getSignatureResult(
-		                     new FirmaSimpleGetSignatureResultRequest(transactionID, signID));
+		        fssr = api.getSignatureResult(new FirmaSimpleGetSignatureResultRequest(transactionID, signID));
 		        FirmaSimpleFile fsf = fssr.getSignedFile();
 		        final String outFile = signID + "_" + fsf.getNom();
-
+		        
 		        FileOutputStream fos = new FileOutputStream(outFile);
 		        fos.write(fsf.getData());
 		        fos.flush();
-
+		        data=fsf.getData();//marta no se si cal??
+		        fssr.setSignedFile(fsf);
+		        
 		        System.out.println("  RESULT: Fitxer signat guardat en '" + outFile + "'");
 		        System.gc();
 		        System.out.println( 
 		                FirmaSimpleSignedFileInfo.toString(fssr.getSignedFileInfo()));
-
-		      break;
+		        return fsf;
 		    }
-		  } // Final for de fitxers firmats
+		  }
+		  return null;
 		}
 	
 	
@@ -382,6 +365,12 @@ public class FirmaWebPluginPortafibRest {
 		this.pluginId = pluginId;
 	}
 	
+	public ApiFirmaWebSimple getApi() {
+		return api;
+	}
 
+	public void setApi(ApiFirmaWebSimple api) {
+		this.api = api;
+	}
 	
 }

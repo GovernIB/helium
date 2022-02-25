@@ -1,5 +1,6 @@
 package net.conselldemallorca.helium.webapp.v3.passarelafirma;
 
+import java.io.FileInputStream;
 import java.util.Date;
 
 import org.fundaciobit.plugins.signature.api.CommonInfoSignature;
@@ -17,6 +18,8 @@ public class PassarelaFirmaConfig extends SignaturesSetWeb {
 	protected Long pluginId = null;
 	protected final String urlFinalHelium;
 	protected String documentId;
+	private String transactionId;
+	private byte[] signedData;
 
 	public PassarelaFirmaConfig(
 			String signaturesSetId,
@@ -47,5 +50,22 @@ public class PassarelaFirmaConfig extends SignaturesSetWeb {
 	public String getDocumentId() {
 		return documentId;
 	}
+
+	public String getTransactionId() {
+		return transactionId;
+	}
+
+	public void setTransactionId(String transactionId) {
+		this.transactionId = transactionId;
+	}
+
+	public byte[] getSignedData() {
+		return signedData;
+	}
+
+	public void setSignedData(byte[] signedData) {
+		this.signedData = signedData;
+	}
+
 
 }

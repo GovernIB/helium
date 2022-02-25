@@ -1,6 +1,6 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
-import java.io.FileInputStream;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -24,6 +24,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+
 import org.fundaciobit.plugins.signature.api.FileInfoSignature;
 import org.fundaciobit.plugins.signature.api.StatusSignature;
 import org.fundaciobit.plugins.signature.api.StatusSignaturesSet;
@@ -515,7 +516,6 @@ public class TascaTramitacioController extends BaseTascaController {
 		model.addAttribute("signatures", tascaService.findDocumentsSignar(tascaId));
 		model.addAttribute("passarelaFirmaEnviarCommand", new PassarelaFirmaEnviarCommand());
 		model.addAttribute("numPluginsPassarela", passarelaFirmaHelper.getNumberPossiblePlugins());
-		model.addAttribute("numPluginsPassarela", 1);
 		return "v3/tascaSignatura";
 	}
 /*mgonzalez: aquí fa el get*/
@@ -541,8 +541,6 @@ public class TascaTramitacioController extends BaseTascaController {
 	        		documentDto.getTokenSignatura()); 
 			PersonaDto usuariActual = aplicacioService.findPersonaActual();
 			String modalStr = (ModalHelper.isModal(request)) ? "/modal" : "";
-			
-			//TODO MARTA. Modifica el passarelaFirmaHelper.iniciarProcesDeFirma per a que simplement cridi el teu plugin i retorni la url.
 			
 			String procesFirmaUrl = passarelaFirmaHelper.iniciarProcesDeFirma(
 					request,
@@ -576,17 +574,21 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable String documentCodi,
 			@RequestParam("signaturesSetId") String signaturesSetId,
 			Model model) throws Exception {
+		DocumentDto document = tascaService.getDocumentPerDocumentCodi(
+				tascaId, 
+				documentCodi);
 		PassarelaFirmaConfig signaturesSet = passarelaFirmaHelper.finalitzarProcesDeFirma(
 				request,
 				signaturesSetId);
 		StatusSignaturesSet status = signaturesSet.getStatusSignaturesSet();
+		//status.setStatus(StatusSignaturesSet.STATUS_FINAL_OK);//MARTA esborrar!
 		switch (status.getStatus()) {
-		case StatusSignaturesSet.STATUS_FINAL_OK:
+		case StatusSignaturesSet.STATUS_FINAL_OK://MARTA AQUI 
 			FileInfoSignature firmaInfo = signaturesSet.getFileInfoSignatureArray()[0];
 			StatusSignature firmaStatus = firmaInfo.getStatusSignature();
-									
+			//firmaStatus.setSignedData(new File());
 			if (firmaStatus.getStatus() == StatusSignature.STATUS_FINAL_OK) {
-				if (firmaStatus.getSignedData() == null || !firmaStatus.getSignedData().exists()) {
+				if (/*firmaStatus.getSignedData() == null || */signaturesSet.getSignedData()==null) {
 					firmaStatus.setStatus(StatusSignature.STATUS_FINAL_ERROR);
 					String msg = "L'estat indica que ha finalitzat correctament però el fitxer firmat o no s'ha definit o no existeix";
 					firmaStatus.setErrorMsg(msg);
@@ -597,14 +599,11 @@ public class TascaTramitacioController extends BaseTascaController {
 									"document.controller.firma.passarela.final.ok.nofile"));
 				} else {
 					try {
-						FileInputStream fis = new FileInputStream(firmaStatus.getSignedData());
-						DocumentDto document = tascaService.getDocumentPerDocumentCodi(
-								tascaId, 
-								documentCodi);
+	
 						tascaService.signarDocumentTascaAmbToken(
 								tascaId, 
 								document.getTokenSignatura(), 
-								IOUtils.toByteArray(fis));
+								signaturesSet.getSignedData());
 						
 						MissatgesHelper.success(
 								request,
@@ -656,9 +655,9 @@ public class TascaTramitacioController extends BaseTascaController {
 							request, 
 							"document.controller.firma.passarela.final.desconegut"));
 		}
-		/*passarelaFirmaHelper.closeSignaturesSet(
+		passarelaFirmaHelper.closeSignaturesSet(
 				request,
-				signaturesSet);*/
+				signaturesSet);
 		return "v3/passarelaFirma/passarelaFiFirma";
 	}
 
@@ -688,7 +687,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			throw new ServletException(ex);
 	    }
 	}
-/*mgonzalez: request mapping aqui*/
+
 	@RequestMapping(value = "/{tascaId}/document/{documentId}/adjuntar", method = RequestMethod.POST)
 	public String documentAdjuntar(
 			HttpServletRequest request,

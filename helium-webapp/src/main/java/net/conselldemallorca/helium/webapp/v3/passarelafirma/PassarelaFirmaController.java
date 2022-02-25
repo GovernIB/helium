@@ -92,10 +92,12 @@ public class PassarelaFirmaController extends BaseController {
 				signaturesSetID);
 		pfss.setPluginId(pluginId);
 		String urlToPluginWebPage;
+		
 		try {
 			urlToPluginWebPage = passarelaFirmaHelper.signDocuments(
 					request,
-					signaturesSetID);
+					signaturesSetID,
+					pfss.getUrlFinal());
 		} catch (Throwable e) {
 			log.error(e.getMessage());
 			urlToPluginWebPage = ESQUEMA_PREFIX + PassarelaFirmaHelper.CONTEXTWEB + "/selectsignmodule/" + signaturesSetID;
@@ -108,7 +110,7 @@ public class PassarelaFirmaController extends BaseController {
 
 	private static final String REQUEST_PLUGIN_MAPPING = "/requestPlugin/{signaturesSetId}/{signatureIndex}/**";
 	@RequestMapping(value = REQUEST_PLUGIN_MAPPING)
-	public void requestPlugin(
+	public String requestPlugin(
 			HttpServletRequest request,
 			HttpServletResponse response,
 			@PathVariable String signaturesSetId,
@@ -120,33 +122,33 @@ public class PassarelaFirmaController extends BaseController {
 				StringUtils.countMatches(
 						PassarelaFirmaHelper.CONTEXTWEB + REQUEST_PLUGIN_MAPPING,
 						"/"));
-		String query = servletPath.substring(indexBarra + 1);
+		String query = servletPath.substring(indexBarra + 1);		
 		
-		// TODO: BORRAR - Codi per proves!!
-//		if (query.equalsIgnoreCase("isfinished")) {
-//			query = "discover";
-//		}
-		// Fi
-		
-		
-		/*passarelaFirmaHelper.requestPlugin(
+		return passarelaFirmaHelper.requestPlugin(
 				request,
 				response,
 				signaturesSetId,
 				signatureIndex,
-				query);*/
+				query);
 	}
 
-	@RequestMapping(value = "/final/{signaturesSetId}")
-	public String finalProcesDeFirma(
-			HttpServletRequest request,
-			HttpServletResponse response,
-			@PathVariable("signaturesSetId") String signaturesSetId) throws Exception {
-		PassarelaFirmaConfig pss = passarelaFirmaHelper.finalitzarProcesDeFirma(
-				request,
-				signaturesSetId);
-		return "redirect:" + pss.getUrlFinalHelium() + "?signaturesSetId=" + signaturesSetId;
-	}
+	//@RequestMapping(value = "/final/{signaturesSetId}")
+	//@RequestMapping(value = "/final")
+	//@RequestMapping(value = "/{tascaId}/document/{documentCodi}/firmaPassarelaFinal/{signaturesSetId}")
+//	@RequestMapping(value = "/firmaPassarelaFinal/{signaturesSetId}/**")
+//	public String finalProcesDeFirma(
+//			HttpServletRequest request,
+//			HttpServletResponse response,
+//			@PathVariable("signaturesSetId") String signaturesSetId)
+//			//@PathVariable("transactionId") String transactionId) 
+//			throws Exception {
+//		PassarelaFirmaConfig pss = passarelaFirmaHelper.finalitzarProcesDeFirma(
+//				request,
+//				signaturesSetId);
+//				//transactionId);
+//				//pss.getTransactionId());
+//		return "redirect:" + pss.getUrlFinalHelium() + "?signaturesSetId=" + signaturesSetId;
+//	}
 
 
 
