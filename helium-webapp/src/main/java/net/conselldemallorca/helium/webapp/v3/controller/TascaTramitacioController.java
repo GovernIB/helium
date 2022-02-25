@@ -1,6 +1,6 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
-import java.io.FileInputStream;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -24,6 +24,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+
 import org.fundaciobit.plugins.signature.api.FileInfoSignature;
 import org.fundaciobit.plugins.signature.api.StatusSignature;
 import org.fundaciobit.plugins.signature.api.StatusSignaturesSet;
@@ -48,6 +49,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
+
 
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.util.PdfUtils;
@@ -126,7 +128,6 @@ public class TascaTramitacioController extends BaseTascaController {
 	private ReproService reproService;
 	@Resource(name="documentHelperV3")
 	private DocumentHelperV3 documentHelper;
-	
 	@ModelAttribute("command")
 	public Object modelAttributeCommand(
 			HttpServletRequest request,
@@ -479,6 +480,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			resposta.append(getMessage(request, "tasca.tramitacio.documents.no.complet") + ".\n");
 		}
 		if (!tascaService.isSignaturesComplet(tascaId)) {
+			
 			resposta.append(getMessage(request, "tasca.tramitacio.firmes.no.complet") + ".");
 		}
 		return resposta.toString();
@@ -516,7 +518,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		model.addAttribute("numPluginsPassarela", passarelaFirmaHelper.getNumberPossiblePlugins());
 		return "v3/tascaSignatura";
 	}
-
+/*mgonzalez: aquí fa el get*/
 	@RequestMapping(value = "/{tascaId}/document/{documentId}/firmaPassarela", method = RequestMethod.GET)
 	public String firmaPassarelaGet(
 			HttpServletRequest request,
@@ -572,17 +574,21 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable String documentCodi,
 			@RequestParam("signaturesSetId") String signaturesSetId,
 			Model model) throws Exception {
+		DocumentDto document = tascaService.getDocumentPerDocumentCodi(
+				tascaId, 
+				documentCodi);
 		PassarelaFirmaConfig signaturesSet = passarelaFirmaHelper.finalitzarProcesDeFirma(
 				request,
 				signaturesSetId);
 		StatusSignaturesSet status = signaturesSet.getStatusSignaturesSet();
+		//status.setStatus(StatusSignaturesSet.STATUS_FINAL_OK);//MARTA esborrar!
 		switch (status.getStatus()) {
-		case StatusSignaturesSet.STATUS_FINAL_OK:
+		case StatusSignaturesSet.STATUS_FINAL_OK://MARTA AQUI 
 			FileInfoSignature firmaInfo = signaturesSet.getFileInfoSignatureArray()[0];
 			StatusSignature firmaStatus = firmaInfo.getStatusSignature();
-									
+			//firmaStatus.setSignedData(new File());
 			if (firmaStatus.getStatus() == StatusSignature.STATUS_FINAL_OK) {
-				if (firmaStatus.getSignedData() == null || !firmaStatus.getSignedData().exists()) {
+				if (/*firmaStatus.getSignedData() == null || */signaturesSet.getSignedData()==null) {
 					firmaStatus.setStatus(StatusSignature.STATUS_FINAL_ERROR);
 					String msg = "L'estat indica que ha finalitzat correctament però el fitxer firmat o no s'ha definit o no existeix";
 					firmaStatus.setErrorMsg(msg);
@@ -593,14 +599,11 @@ public class TascaTramitacioController extends BaseTascaController {
 									"document.controller.firma.passarela.final.ok.nofile"));
 				} else {
 					try {
-						FileInputStream fis = new FileInputStream(firmaStatus.getSignedData());
-						DocumentDto document = tascaService.getDocumentPerDocumentCodi(
-								tascaId, 
-								documentCodi);
+	
 						tascaService.signarDocumentTascaAmbToken(
 								tascaId, 
 								document.getTokenSignatura(), 
-								IOUtils.toByteArray(fis));
+								signaturesSet.getSignedData());
 						
 						MissatgesHelper.success(
 								request,

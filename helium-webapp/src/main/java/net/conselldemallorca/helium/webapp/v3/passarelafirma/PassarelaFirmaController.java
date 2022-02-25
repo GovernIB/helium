@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.view.RedirectView;
 
+import net.conselldemallorca.helium.integracio.plugins.firmaweb.FirmaWebPluginPortafibRest;
 import net.conselldemallorca.helium.webapp.v3.controller.BaseController;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
@@ -42,13 +43,13 @@ public class PassarelaFirmaController extends BaseController {
 			@PathVariable("signaturesSetId") String signaturesSetId,
 			Model model) throws Exception {
 		try {
-			List<PassarelaFirmaPlugin> pluginsFiltered = passarelaFirmaHelper.getAllPlugins(
+			List<FirmaWebPluginPortafibRest> pluginsFiltered = passarelaFirmaHelper.getAllPlugins(
 				request,
 				signaturesSetId);
 			// Si només hi ha un mòdul de firma llavors anar a firmar directament
 			if (stepSelectionWhenOnlyOnePlugin) {
 				if (pluginsFiltered.size() == 1) {
-					PassarelaFirmaPlugin modul = pluginsFiltered.get(0);
+					FirmaWebPluginPortafibRest modul = pluginsFiltered.get(0);
 					long pluginID = modul.getPluginId();
 					return "redirect:" +
 							PassarelaFirmaHelper.CONTEXTWEB + "/showsignaturemodule/" +
@@ -91,10 +92,12 @@ public class PassarelaFirmaController extends BaseController {
 				signaturesSetID);
 		pfss.setPluginId(pluginId);
 		String urlToPluginWebPage;
+		
 		try {
 			urlToPluginWebPage = passarelaFirmaHelper.signDocuments(
 					request,
-					signaturesSetID);
+					signaturesSetID,
+					pfss.getUrlFinal());
 		} catch (Throwable e) {
 			log.error(e.getMessage());
 			urlToPluginWebPage = ESQUEMA_PREFIX + PassarelaFirmaHelper.CONTEXTWEB + "/selectsignmodule/" + signaturesSetID;
@@ -107,7 +110,7 @@ public class PassarelaFirmaController extends BaseController {
 
 	private static final String REQUEST_PLUGIN_MAPPING = "/requestPlugin/{signaturesSetId}/{signatureIndex}/**";
 	@RequestMapping(value = REQUEST_PLUGIN_MAPPING)
-	public void requestPlugin(
+	public String requestPlugin(
 			HttpServletRequest request,
 			HttpServletResponse response,
 			@PathVariable String signaturesSetId,
@@ -119,16 +122,9 @@ public class PassarelaFirmaController extends BaseController {
 				StringUtils.countMatches(
 						PassarelaFirmaHelper.CONTEXTWEB + REQUEST_PLUGIN_MAPPING,
 						"/"));
-		String query = servletPath.substring(indexBarra + 1);
+		String query = servletPath.substring(indexBarra + 1);		
 		
-		// TODO: BORRAR - Codi per proves!!
-//		if (query.equalsIgnoreCase("isfinished")) {
-//			query = "discover";
-//		}
-		// Fi
-		
-		
-		passarelaFirmaHelper.requestPlugin(
+		return passarelaFirmaHelper.requestPlugin(
 				request,
 				response,
 				signaturesSetId,
@@ -136,16 +132,23 @@ public class PassarelaFirmaController extends BaseController {
 				query);
 	}
 
-	@RequestMapping(value = "/final/{signaturesSetId}")
-	public String finalProcesDeFirma(
-			HttpServletRequest request,
-			HttpServletResponse response,
-			@PathVariable("signaturesSetId") String signaturesSetId) throws Exception {
-		PassarelaFirmaConfig pss = passarelaFirmaHelper.finalitzarProcesDeFirma(
-				request,
-				signaturesSetId);
-		return "redirect:" + pss.getUrlFinalHelium() + "?signaturesSetId=" + signaturesSetId;
-	}
+	//@RequestMapping(value = "/final/{signaturesSetId}")
+	//@RequestMapping(value = "/final")
+	//@RequestMapping(value = "/{tascaId}/document/{documentCodi}/firmaPassarelaFinal/{signaturesSetId}")
+//	@RequestMapping(value = "/firmaPassarelaFinal/{signaturesSetId}/**")
+//	public String finalProcesDeFirma(
+//			HttpServletRequest request,
+//			HttpServletResponse response,
+//			@PathVariable("signaturesSetId") String signaturesSetId)
+//			//@PathVariable("transactionId") String transactionId) 
+//			throws Exception {
+//		PassarelaFirmaConfig pss = passarelaFirmaHelper.finalitzarProcesDeFirma(
+//				request,
+//				signaturesSetId);
+//				//transactionId);
+//				//pss.getTransactionId());
+//		return "redirect:" + pss.getUrlFinalHelium() + "?signaturesSetId=" + signaturesSetId;
+//	}
 
 
 
