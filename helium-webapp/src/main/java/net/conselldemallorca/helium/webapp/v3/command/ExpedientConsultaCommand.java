@@ -33,7 +33,9 @@ public class ExpedientConsultaCommand {
 	private Double geoPosX;
 	private Double geoPosY;
 	private String geoReferencia;
+	
 	//TODO2: Afegir el nou camp en el filtre en comptes de la geoposició
+	private String registreNumero;
 	
 	private boolean filtreDesplegat = false;
 	private boolean tramitacioMassivaActivada = false;
@@ -208,4 +210,15 @@ public class ExpedientConsultaCommand {
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
 	}
+
+	public String getRegistreNumero() {
+		return registreNumero;
+	}
+
+	public void setRegistreNumero(String registreNumero) {
+		this.registreNumero = registreNumero;
+	}
+
+	
+	
 }

@@ -686,6 +686,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
+			String registreNumero,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
 			boolean nomesAlertes,
@@ -707,6 +708,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"geoPosX=" + geoPosX + ", " +
 				"geoPosY=" + geoPosY + ", " +
 				"geoReferencia=" + geoReferencia + ", " +
+				"registreNumero=" + registreNumero + ", "+
 				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
 				"nomesTasquesGrup=" + nomesTasquesGrup + ", " +
 				"nomesAlertes=" + nomesAlertes + ", " +
@@ -759,6 +761,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				geoPosY,
 				geoReferencia,
 				//TODO3: afegir el nou camp en la capa service
+				registreNumero,
 				EstatTipusDto.INICIAT.equals(estatTipus),
 				EstatTipusDto.FINALITZAT.equals(estatTipus),
 				MostrarAnulatsDto.SI.equals(mostrarAnulats),
@@ -846,6 +849,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
+			String registreNumero,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
 			boolean nomesAlertes,
@@ -866,6 +870,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				"geoPosX=" + geoPosX + ", " +
 				"geoPosY=" + geoPosY + ", " +
 				"geoReferencia=" + geoReferencia + ", " +
+				"registreNumero=" + registreNumero + ", "+
 				"nomesAlertes=" + nomesAlertes + ", " +
 				"nomesErrors=" + nomesErrors + ", " +
 				"mostrarAnulats=" + mostrarAnulats + 
@@ -915,6 +920,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				geoPosX,
 				geoPosY,
 				geoReferencia,
+				registreNumero,
 				EstatTipusDto.INICIAT.equals(estatTipus),
 				EstatTipusDto.FINALITZAT.equals(estatTipus),
 				MostrarAnulatsDto.SI.equals(mostrarAnulats),
@@ -2286,6 +2292,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					null,
 					null,
 					null,
+					null,
 					false,
 					false,
 					MostrarAnulatsDto.SI.equals(mostrarAnulats),
@@ -2417,6 +2424,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				null,
 				null,
 				expedientTipus.getId(),
+				null,
 				null,
 				null,
 				null,

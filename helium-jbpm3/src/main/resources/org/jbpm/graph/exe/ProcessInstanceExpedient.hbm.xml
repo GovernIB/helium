@@ -2,7 +2,6 @@
 <!DOCTYPE hibernate-mapping PUBLIC
       "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
           "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-
 <hibernate-mapping auto-import="false" default-access="field">
 	<class name="org.jbpm.graph.exe.ProcessInstanceExpedient" table="HEL_EXPEDIENT">
 		<id name="id" column="ID"></id>
@@ -15,6 +14,7 @@
 		<property name="geoPosX" column="GEO_POSX" />
 		<property name="geoPosY" column="GEO_POSY" />
 		<property name="geoReferencia" column="GEO_REFERENCIA" />
+		<property name="registreNumero" column="REGISTRE_NUM" />
 		<property name="anulat" column="ANULAT" />
 		<property name="errorDesc" column="ERROR_DESC" />
 		<property name="errorsIntegs" column="ERRORS_INTEGS" />

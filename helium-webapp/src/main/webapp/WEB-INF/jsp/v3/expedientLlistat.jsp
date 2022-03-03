@@ -408,7 +408,16 @@ function refrescaEstatSegonPla() {
 				</div>
 			</div>
 			<div class="col-md-2">
-				<!-- //TODO2: Afegir el nou camp en el filtre en comptes de la geoposició -->
+				<label><spring:message code="expedient.llistat.filtre.camp.registreNumero"/></label>
+				<div class="row">
+					<div class="col-md-12">
+						<hel:inputText name="registreNumero"
+							textKey="expedient.llistat.filtre.camp.registreNumero"
+							placeholderKey="expedient.llistat.filtre.camp.registreNumero" inline = "true"/>
+					</div>
+				</div>
+			</div>
+			<!-- 
 				<c:if test="${globalProperties['app.georef.actiu']}">
 					<label><spring:message code="expedient.llistat.filtre.camp.geopos"/></label>
 					<c:choose>
@@ -426,8 +435,7 @@ function refrescaEstatSegonPla() {
 							</div>
 						</c:otherwise>
 					</c:choose>
-				</c:if>
-			</div>	
+				</c:if> -->
 			<div class="col-md-2">
 				<label><spring:message code="expedient.llistat.filtre.camp.anulats"/></label>
 				<div class="row">

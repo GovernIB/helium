@@ -260,6 +260,8 @@ public interface ExpedientService {
 	 *            Posició Y de la georeferència.
 	 * @param geoReferencia
 	 *            Codi de la georeferència.
+	 * @param registreNumero
+	 * 			  Número de registre
 	 * @param nomesTasquesPersonals
 	 *            Indica que el resultat només ha d'incloure expedients amb tasques personals pendents.
 	 * @param nomesTasquesGrup
@@ -295,6 +297,7 @@ public interface ExpedientService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
+			String registreNumero,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
 			boolean nomesAlertes,
@@ -331,6 +334,8 @@ public interface ExpedientService {
 	 *            Posició Y de la georeferència.
 	 * @param geoReferencia
 	 *            Codi de la georeferència.
+	 *@param registreNumero
+	 *            Número de Registre
 	 * @param nomesTasquesPersonals
 	 *            Indica que el resultat només ha d'incloure expedients amb tasques personals pendents.
 	 * @param nomesTasquesGrup
@@ -364,6 +369,7 @@ public interface ExpedientService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
+			String registreNumero,
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
 			boolean nomesAlertes,
