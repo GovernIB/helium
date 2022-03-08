@@ -39,10 +39,8 @@ import com.artofsolving.jodconverter.DocumentFormat;
 import com.artofsolving.jodconverter.DocumentFormatRegistry;
 
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
 import net.conselldemallorca.helium.integracio.plugins.firmaweb.FirmaWebPluginPortafibRest;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 
 /**
  * Classes s'ajuda per a les accions de la passarel·la de firma.
@@ -75,7 +73,6 @@ public class PassarelaFirmaHelper {
 		Calendar caducitat = Calendar.getInstance();
 		caducitat.add(Calendar.MINUTE, 40);
 		CommonInfoSignature commonInfoSignature;
-		final String urlFinal = getRelativeControllerBase(request, CONTEXTWEB) + "/final/" + signaturesSetId;
 		// TODO Veure manual de MiniApplet
 		String filtreCertificats = GlobalProperties.getInstance().getProperty("app.signatura.certificats.filtre", "filters.1=nonexpired:");
 		// TODO Definir politica de Firma (opcional)
@@ -190,6 +187,7 @@ public class PassarelaFirmaHelper {
 					//urlFinalTascaDocument);
 		String transactionID = urlToPluginWebPage.split("/start/")[1];
 		firmaconfig.setTransactionId(transactionID);
+		//firmaconfig.setFirmaSimpleStatus(FirmeSimpleStatus.);
 		return urlToPluginWebPage;
 	}
 
@@ -234,24 +232,36 @@ public class PassarelaFirmaHelper {
 	
 		if (pss!=null) {
 			StatusSignaturesSet sss = pss.getStatusSignaturesSet();
+			pss.setFirmaSimpleStatus(new FirmaSimpleStatus());
 			FileInfoSignature firmaInfo = pss.getFileInfoSignatureArray()[0];
 			StatusSignature firmaStatus = firmaInfo.getStatusSignature();
-			FirmaWebPluginPortafibRest plugin =this.plugins.get(0);
+			
+			FirmaWebPluginPortafibRest plugin = this.plugins.get(0);//MARTA: veure que no hi hagi error de concurrència!!
+			
 			String transactionID = pss.getTransactionId();
-			FirmaSimpleFile fsf = plugin.getResponse(pss.getTransactionId(), pss.getSignedData());
-//			if(response.getTransactionStatus().getStatus() == FirmaSimpleStatus.STATUS_FINAL_OK) {
-			if(fsf!=null) {
-			    try {
-			    //Tanca la transacció
-			      plugin.getApi().closeTransaction(transactionID);
-			      pss.setSignedData(fsf.getData());//Marta: AQUI fa el set!
-			      firmaStatus.setStatus(FirmaSimpleStatus.STATUS_FINAL_OK);
-			      sss.setStatus(StatusSignaturesSet.STATUS_FINAL_OK);
-			    } catch (Throwable th) {
-			      th.printStackTrace();
-			    }
+			FirmaSimpleStatus firmaSimpleStatus = new FirmaSimpleStatus();
+			FirmaSimpleFile fsf = new FirmaSimpleFile();
+					
+			Map<FirmaSimpleFile, FirmaSimpleStatus> mapFirmaStatus =plugin.getResponse(pss.getTransactionId(), pss.getSignedData(), firmaSimpleStatus);
+
+			if (!mapFirmaStatus.isEmpty()) {
+				for (Map.Entry<FirmaSimpleFile, FirmaSimpleStatus> map : mapFirmaStatus.entrySet()) {
+				    
+				    try {
+						  fsf = map.getKey(); 
+					      plugin.getApi().closeTransaction(transactionID);
+					      pss.setSignedData(fsf.getData());
+					      pss.setFirmaSimpleStatus(map.getValue());
+					      firmaStatus.setStatus(pss.getFirmaSimpleStatus().getStatus());
+					      sss.setStatus(pss.getFirmaSimpleStatus().getStatus());
+
+					    } catch (Throwable th) {
+					      th.printStackTrace();
+					    }
+				}
+			   
 			return pss;
-		}
+			}
 		}
 		else {
 			String msg = "moduldefirma.caducat: " + signaturesSetId;
@@ -308,7 +318,7 @@ public class PassarelaFirmaHelper {
 			if (signaturePlugin == null) {
 				log.error("plugin.signatureweb.noexist: " + String.valueOf(pluginId));
 			}
-			try {//TODO: aqui falta fer el close del nou plugin FirmaWebPluginPortafibRest
+			try {
 				//signaturePlugin.closeSignaturesSet(request, signaturesSetId);
 			} catch (Exception e) {
 				log.error("Error borrant dades d'un SignaturesSet " + signaturesSetId + ": " + e.getMessage(), e);

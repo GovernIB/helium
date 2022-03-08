@@ -518,7 +518,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		model.addAttribute("numPluginsPassarela", passarelaFirmaHelper.getNumberPossiblePlugins());
 		return "v3/tascaSignatura";
 	}
-/*mgonzalez: aquí fa el get*/
+
 	@RequestMapping(value = "/{tascaId}/document/{documentId}/firmaPassarela", method = RequestMethod.GET)
 	public String firmaPassarelaGet(
 			HttpServletRequest request,
@@ -581,14 +581,19 @@ public class TascaTramitacioController extends BaseTascaController {
 				request,
 				signaturesSetId);
 		StatusSignaturesSet status = signaturesSet.getStatusSignaturesSet();
-		//status.setStatus(StatusSignaturesSet.STATUS_FINAL_OK);//MARTA esborrar!
+		FileInfoSignature firmaInfo = new FileInfoSignature();
+		StatusSignature firmaStatus = new StatusSignature();
+		if (signaturesSet!=null) {
+			firmaInfo = signaturesSet.getFileInfoSignatureArray()[0];
+			firmaStatus = firmaInfo.getStatusSignature();
+			if(firmaStatus.getStatus()==-1) {
+				status.setErrorMsg(signaturesSet.getFirmaSimpleStatus().getErrorMessage());
+			}
+		}
 		switch (status.getStatus()) {
-		case StatusSignaturesSet.STATUS_FINAL_OK://MARTA AQUI 
-			FileInfoSignature firmaInfo = signaturesSet.getFileInfoSignatureArray()[0];
-			StatusSignature firmaStatus = firmaInfo.getStatusSignature();
-			//firmaStatus.setSignedData(new File());
+		case StatusSignaturesSet.STATUS_FINAL_OK:
 			if (firmaStatus.getStatus() == StatusSignature.STATUS_FINAL_OK) {
-				if (/*firmaStatus.getSignedData() == null || */signaturesSet.getSignedData()==null) {
+				if (signaturesSet.getSignedData()==null) {
 					firmaStatus.setStatus(StatusSignature.STATUS_FINAL_ERROR);
 					String msg = "L'estat indica que ha finalitzat correctament però el fitxer firmat o no s'ha definit o no existeix";
 					firmaStatus.setErrorMsg(msg);
@@ -642,6 +647,8 @@ public class TascaTramitacioController extends BaseTascaController {
 							}));
 			break;
 		case StatusSignaturesSet.STATUS_CANCELLED:
+			String msg = "La firma del document ha estat cancel.lada";
+			firmaStatus.setErrorMsg(msg);
 			MissatgesHelper.warning(
 					request,
 					getMessage(
