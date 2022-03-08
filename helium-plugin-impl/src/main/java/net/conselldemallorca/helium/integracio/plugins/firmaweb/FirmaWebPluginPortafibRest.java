@@ -3,12 +3,12 @@
  */
 package net.conselldemallorca.helium.integracio.plugins.firmaweb;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
@@ -22,14 +22,12 @@ import org.fundaciobit.apisib.apifirmasimple.v1.beans.FirmaSimpleFile;
 import org.fundaciobit.apisib.apifirmasimple.v1.beans.FirmaSimpleFileInfoSignature;
 import org.fundaciobit.apisib.apifirmasimple.v1.beans.FirmaSimpleGetSignatureResultRequest;
 import org.fundaciobit.apisib.apifirmasimple.v1.beans.FirmaSimpleGetTransactionStatusResponse;
-import org.fundaciobit.apisib.apifirmasimple.v1.beans.FirmaSimpleSignDocumentRequest;
 import org.fundaciobit.apisib.apifirmasimple.v1.beans.FirmaSimpleSignatureResult;
 import org.fundaciobit.apisib.apifirmasimple.v1.beans.FirmaSimpleSignatureStatus;
 import org.fundaciobit.apisib.apifirmasimple.v1.beans.FirmaSimpleSignedFileInfo;
 import org.fundaciobit.apisib.apifirmasimple.v1.beans.FirmaSimpleStartTransactionRequest;
 import org.fundaciobit.apisib.apifirmasimple.v1.beans.FirmaSimpleStatus;
 import org.fundaciobit.apisib.apifirmasimple.v1.jersey.ApiFirmaWebSimpleJersey;
-import org.fundaciobit.apisib.core.exceptions.AbstractApisIBException;
 
 import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
 
@@ -172,13 +170,20 @@ public class FirmaWebPluginPortafibRest {
 
 	}
 	
-	public FirmaSimpleFile getResponse(String transactionID, byte[] data) throws FileNotFoundException, IOException, Exception {
+	public Map<FirmaSimpleFile, FirmaSimpleStatus> getResponse(String transactionID, byte[] data, FirmaSimpleStatus firmaSimpleStatus)
+			throws FileNotFoundException, IOException, Exception {
+		Map<FirmaSimpleFile, FirmaSimpleStatus> map = new HashMap<FirmaSimpleFile, FirmaSimpleStatus>();
 		FirmaSimpleGetTransactionStatusResponse fullTransactionStatus;
 		fullTransactionStatus = api.getTransactionStatus(transactionID);
 		FirmaSimpleFile fsf = new FirmaSimpleFile();
 		FirmaSimpleStatus transactionStatus = fullTransactionStatus.getTransactionStatus();
-		int status = transactionStatus.getStatus();
-				switch (status) {
+		int status = -1;
+		if (transactionStatus != null) {
+			status = transactionStatus.getStatus();
+			firmaSimpleStatus = transactionStatus;
+		}
+
+		switch (status) {
 
 		case FirmaSimpleStatus.STATUS_INITIALIZING: // = 0;
 			throw new Exception("S'ha rebut un estat inconsistent del proces de firma"
@@ -196,105 +201,111 @@ public class FirmaWebPluginPortafibRest {
 			if (desc != null) {
 				System.err.println(desc);
 			}
+
 			break;
 
 		case FirmaSimpleStatus.STATUS_CANCELLED: // = -2;
 			System.err.println("Durant el proces de firmes, l'usuari ha cancelat la transacció.");
+			fsf = processStatusFileOfSign(api, transactionID, fullTransactionStatus, data);
+			
 			break;
 
 		case FirmaSimpleStatus.STATUS_FINAL_OK: // = 2;
 			fsf = processStatusFileOfSign(api, transactionID, fullTransactionStatus, data);
-			return fsf;
-
-
+			
+			break;
 		}
-		return null;
-	    
+		
+		transactionStatus = fullTransactionStatus.getTransactionStatus();
+		map.put(fsf, transactionStatus);
+		return map;    
 	}
 
-	protected static FirmaSimpleFile  processStatusFileOfSign(
-			ApiFirmaWebSimple api, 
-			String transactionID, 
-			FirmaSimpleGetTransactionStatusResponse fullTransactionStatus,
-			byte[] data) 
-					throws Exception, FileNotFoundException, IOException {
+	protected static FirmaSimpleFile processStatusFileOfSign(ApiFirmaWebSimple api, String transactionID,
+			FirmaSimpleGetTransactionStatusResponse fullTransactionStatus, byte[] data)
+			throws Exception, FileNotFoundException, IOException {
 
-		  List<FirmaSimpleSignatureStatus> ssl;
-		  ssl = fullTransactionStatus.getSignaturesStatusList();
+		List<FirmaSimpleSignatureStatus> ssl;
+		ssl = fullTransactionStatus.getSignaturesStatusList();
 
-		  System.out.println(" ===== RESULTATS [" + ssl.size() + "] =========");
+		System.out.println(" ===== RESULTATS [" + ssl.size() + "] =========");
+		FirmaSimpleSignatureResult fssr = new FirmaSimpleSignatureResult();
+		FirmaSimpleFile fsf = new FirmaSimpleFile();
 
-		  for (FirmaSimpleSignatureStatus signatureStatus : ssl) {
+		for (FirmaSimpleSignatureStatus signatureStatus : ssl) {
 
-		    final String signID = signatureStatus.getSignID();
-		    System.out.println(" ---- Signature [ " + signID + " ]");
-		    FirmaSimpleStatus fss = signatureStatus.getStatus();
-		    int statusSign = fss.getStatus();
-		    switch (statusSign) {
+			final String signID = signatureStatus.getSignID();
+			System.out.println(" ---- Signature [ " + signID + " ]");
+			FirmaSimpleStatus fss = signatureStatus.getStatus();
+	
+			int statusSign =  (fss.getStatus() != fullTransactionStatus.getTransactionStatus().getStatus()) && fss.getStatus() != -1 ? fullTransactionStatus.getTransactionStatus().getStatus() : fss.getStatus(); 
+			switch (statusSign) {
 
-		      case FirmaSimpleStatus.STATUS_INITIALIZING: // = 0;
-		        System.err.println("  STATUS = " + statusSign + " (STATUS_INITIALIZING)");
-		        System.err.println("  ESULT: Incoherent Status");
-		      break;
+			case FirmaSimpleStatus.STATUS_INITIALIZING: // = 0;
+				System.err.println("  STATUS = " + statusSign + " (STATUS_INITIALIZING)");
+				System.err.println("  ESULT: Incoherent Status");
+				fullTransactionStatus.setTransactionStatus(fss);
+				break;
 
-		      case FirmaSimpleStatus.STATUS_IN_PROGRESS: // = 1;
-		        System.err.println("  STATUS = " + statusSign + " (STATUS_IN_PROGRESS)");
-		        System.err.println("  RESULT: Incoherent Status");
-		      break;
+			case FirmaSimpleStatus.STATUS_IN_PROGRESS: // = 1;
+				System.err.println("  STATUS = " + statusSign + " (STATUS_IN_PROGRESS)");
+				System.err.println("  RESULT: Incoherent Status");
+				fullTransactionStatus.setTransactionStatus(fss);
+				break;
 
-		      case FirmaSimpleStatus.STATUS_FINAL_ERROR: // = -1;
-		        System.err.println("  STATUS = " + statusSign + " (STATUS_ERROR)");
-		        System.err.println("  RESULT: Error en la firma: " + fss.getErrorMessage());
-		      break;
+			case FirmaSimpleStatus.STATUS_FINAL_ERROR: // = -1;
+				System.err.println("  STATUS = " + statusSign + " (STATUS_ERROR)");
+				System.err.println("  RESULT: Error en la firma: " + fss.getErrorMessage());
+				fullTransactionStatus.setTransactionStatus(fss);
+				break;
 
-		      case FirmaSimpleStatus.STATUS_CANCELLED: // = -2;
-		        System.err.println("  STATUS = " + statusSign + " (STATUS_CANCELLED)");
-		        System.err.println("  RESULT: L'usuari ha cancel.lat la firma.");
-		      break;
+			case FirmaSimpleStatus.STATUS_CANCELLED: // = -2;
+				System.err.println("  STATUS = " + statusSign + " (STATUS_CANCELLED)");
+				System.err.println("  RESULT: L'usuari ha cancel.lat la firma.");
+				break;
 
-		      case FirmaSimpleStatus.STATUS_FINAL_OK: // = 2;
-		        FirmaSimpleSignatureResult fssr;
-		        fssr = api.getSignatureResult(new FirmaSimpleGetSignatureResultRequest(transactionID, signID));
-		        FirmaSimpleFile fsf = fssr.getSignedFile();
-		        final String outFile = signID + "_" + fsf.getNom();
-		        
-		        FileOutputStream fos = new FileOutputStream(outFile);
-		        fos.write(fsf.getData());
-		        fos.flush();
-		        data=fsf.getData();//marta no se si cal??
-		        fssr.setSignedFile(fsf);
-		        
-		        System.out.println("  RESULT: Fitxer signat guardat en '" + outFile + "'");
-		        System.gc();
-		        System.out.println( 
-		                FirmaSimpleSignedFileInfo.toString(fssr.getSignedFileInfo()));
-		        return fsf;
-		    }
-		  }
-		  return null;
+			case FirmaSimpleStatus.STATUS_FINAL_OK: // = 2;
+				fssr = api.getSignatureResult(new FirmaSimpleGetSignatureResultRequest(transactionID, signID));
+				if (fssr.getSignedFile() != null) {
+					fsf = fssr.getSignedFile();
+					final String outFile = signID + "_" + fsf.getNom();
+
+					FileOutputStream fos = new FileOutputStream(outFile);
+					fos.write(fsf.getData());
+					fos.flush();
+					data = fsf.getData();
+					fssr.setSignedFile(fsf);
+					fos.close();
+					System.out.println("  RESULT: Fitxer signat guardat en '" + outFile + "'");
+					System.gc();
+					System.out.println(FirmaSimpleSignedFileInfo.toString(fssr.getSignedFileInfo()));
+				}
+				break;
+			}
 		}
-	
-	
-	
+
+		return fsf;
+	}
+
 	public void getAvailableProfiles(ApiFirmaEnServidorSimple api) throws Exception {
 
-		    final String languagesUI[] = new String[] { "ca", "es" };
+		final String languagesUI[] = new String[] { "ca", "es" };
 
-		    for (String languageUI : languagesUI) {
-		      logger.debug(" ==== LanguageUI : " + languageUI + " ===========");
+		for (String languageUI : languagesUI) {
+			logger.debug(" ==== LanguageUI : " + languageUI + " ===========");
 
-		      List<FirmaSimpleAvailableProfile> listProfiles = api.getAvailableProfiles(languageUI);
-		      if (listProfiles.size() == 0) {
-		        logger.debug("NO HI HA PERFILS PER AQUEST USUARI APLICACIÓ");
-		      } else {
-		        for (FirmaSimpleAvailableProfile ap : listProfiles) {
-		          logger.debug("  + " + ap.getName() + ":");
-		          logger.debug("      * Codi: " + ap.getCode());
-		          logger.debug("      * Desc: " + ap.getDescription());
-		        }
-		      }
-		    }
-	 }
+			List<FirmaSimpleAvailableProfile> listProfiles = api.getAvailableProfiles(languageUI);
+			if (listProfiles.size() == 0) {
+				logger.debug("NO HI HA PERFILS PER AQUEST USUARI APLICACIÓ");
+			} else {
+				for (FirmaSimpleAvailableProfile ap : listProfiles) {
+					logger.debug("  + " + ap.getName() + ":");
+					logger.debug("      * Codi: " + ap.getCode());
+					logger.debug("      * Desc: " + ap.getDescription());
+				}
+			}
+		}
+	}
 	 
 	 
 	private String getLocationProperty() {
