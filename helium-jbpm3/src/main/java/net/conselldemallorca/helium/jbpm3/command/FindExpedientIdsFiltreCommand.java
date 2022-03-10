@@ -42,6 +42,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 	private Double geoPosY;
 	private String geoReferencia;
 	//TODO3: afegir el nou camp en la capa service per número de registre
+	private String registreNumero;
 	private boolean mostrarAnulats;
 	private boolean mostrarNomesAnulats;
 	private boolean nomesAlertes;
@@ -70,6 +71,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
+			String registreNumero,
 			boolean nomesIniciats,
 			boolean nomesFinalitzats,
 			boolean mostrarAnulats,
@@ -96,6 +98,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		this.dataFiInici = dataFiInici;
 		this.dataFiFi = dataFiFi;
 		this.estatId = estatId;
+		this.registreNumero = registreNumero;
 		this.geoPosX = geoPosX;
 		this.geoPosY = geoPosY;
 		this.geoReferencia = geoReferencia;
@@ -165,6 +168,9 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		}
 		if (geoReferencia != null) {
 			expedientQuerySb.append("and pie.geoReferencia = :geoReferencia ");
+		}
+		if (registreNumero != null) {
+			expedientQuerySb.append("and pie.registreNumero = :registreNumero ");
 		}
 		if (nomesIniciats) {
 			expedientQuerySb.append("and pie.dataFi is null and pie.estatId is null ");
@@ -241,6 +247,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 				geoPosX,
 				geoPosY,
 				geoReferencia,
+				registreNumero,//MARTA mirar a la bbdd nom real
 				mostrarAnulats,
 				mostrarNomesAnulats,
 				nomesAlertes,
@@ -324,6 +331,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 					geoPosX,
 					geoPosY,
 					geoReferencia,
+					registreNumero,
 					mostrarAnulats,
 					mostrarNomesAnulats,
 					nomesAlertes,
@@ -367,6 +375,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia,
+			String registreNumero,
 			boolean mostrarAnulats,
 			boolean mostrarNomesAnulats,
 			boolean nomesAlertes,
@@ -412,6 +421,9 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		}
 		if (geoReferencia != null) {
 			query.setParameter("geoReferencia", geoReferencia);
+		}
+		if (registreNumero != null) {
+			query.setParameter("registreNumero", registreNumero);
 		}
 		query.setParameter("mostrarAnulats", mostrarAnulats);
 		query.setParameter("mostrarNomesAnulats", mostrarNomesAnulats);

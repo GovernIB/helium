@@ -32,6 +32,7 @@ public class ProcessInstanceExpedient implements Identifiable, Serializable {
 	private Double geoPosX;
 	private Double geoPosY;
 	private String geoReferencia;
+	private String registreNumero;
 	private boolean anulat;
 	private String errorDesc;
 	private boolean errorsIntegs;
@@ -149,7 +150,13 @@ public class ProcessInstanceExpedient implements Identifiable, Serializable {
 	public void setAmbRetroaccio(boolean ambRetroaccio) {
 		this.ambRetroaccio = ambRetroaccio;
 	}
-
+	
+	public String getRegistreNumero() {
+		return registreNumero;
+	}
+	public void setRegistreNumero(String registreNumero) {
+		this.registreNumero = registreNumero;
+	}
 	@Transient
 	public String getNumeroIdentificador() {
 		if (tipus.isTeNumero())
