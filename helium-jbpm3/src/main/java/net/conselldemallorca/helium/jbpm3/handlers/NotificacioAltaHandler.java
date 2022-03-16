@@ -296,6 +296,7 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 				dadesNotificacio.setDocumentId(document.getId());
 				dadesNotificacio.setDocumentArxiuNom(document.getArxiuNom());
 				dadesNotificacio.setDocumentArxiuContingut(document.getArxiuContingut());
+				dadesNotificacio.setDocumentArxiuUuid(document.getArxiuUuid());
 			} else {
 				throw new JbpmException("No existia ningún documento con documentCodi: " + varDocument + ".");
 			}

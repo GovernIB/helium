@@ -26,6 +26,7 @@ public class DadesNotificacio {
 	private String documentArxiuNom;
 	private byte[] documentArxiuContingut;
 	private String emisorDir3Codi;
+	private String documentArxiuUuid;
 	private Date enviamentDataProgramada;
 	public enum EnviamentTipus {
 		NOTIFICACIO,
@@ -135,6 +136,12 @@ public class DadesNotificacio {
 	}
 	public void setIdioma(Idioma idioma) {
 		this.idioma = idioma;
+	}
+	public String getDocumentArxiuUuid() {
+		return documentArxiuUuid;
+	}
+	public void setDocumentArxiuUuid(String documentArxiuUuid) {
+		this.documentArxiuUuid = documentArxiuUuid;
 	}
 
 }

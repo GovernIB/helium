@@ -236,7 +236,7 @@ public class PassarelaFirmaHelper {
 			FileInfoSignature firmaInfo = pss.getFileInfoSignatureArray()[0];
 			StatusSignature firmaStatus = firmaInfo.getStatusSignature();
 			
-			FirmaWebPluginPortafibRest plugin = this.plugins.get(0);//MARTA: veure que no hi hagi error de concurrència!!
+			FirmaWebPluginPortafibRest plugin = this.plugins.get(0);
 			
 			String transactionID = pss.getTransactionId();
 			FirmaSimpleStatus firmaSimpleStatus = new FirmaSimpleStatus();
@@ -498,15 +498,12 @@ public class PassarelaFirmaHelper {
 				}
 				addPluginToCache(pluginId, plugin);
 			}
-			instance = new FirmaWebPluginPortafibRest(//MARTA mirar aqui!
+			instance = new FirmaWebPluginPortafibRest(
 					"nom",
 					"descripcioCurta",
 					"classe",
 					plugin.getProperties(),
 					pluginId);
-			if (instance == null) {
-				throw new Exception("plugin.donotinstantiate: " + plugin.getNom() + " (" + plugin.getClasse() + ")");
-			}
 			instancesCache.put(pluginId, instance);
 		}
 		return instance;

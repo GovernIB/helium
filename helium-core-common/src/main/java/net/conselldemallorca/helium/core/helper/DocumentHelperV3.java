@@ -1256,14 +1256,14 @@ public class DocumentHelperV3 {
 					es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
 							documentStore.getArxiuUuid(),
 							null,
-							ambContingut,
+							ambContingut && !perNotificar,
 							documentStore.isSignat());
 					String arxiuNom = documentStore.getArxiuNom();
-					// String arxiuNom = documentArxiu.getContingut().getArxiuNom();
+					
 					byte[] arxiuContingut = null;
-					if (ambContingut)
+					if (ambContingut && documentArxiu.getContingut()!= null)
 						arxiuContingut = documentArxiu.getContingut().getContingut();
-					// String arxiuTipusMime = documentArxiu.getContingut().getTipusMime();
+					
 					if (ambContingutOriginal) {
 						dto.setArxiuNom(arxiuNom);
 						dto.setArxiuContingut(arxiuContingut);
@@ -1476,7 +1476,7 @@ public class DocumentHelperV3 {
 						dto.setContentType("application/pdf");
 						//TODO: no posar a null i deixar el contingut com a null quan estigui a l'arxiu i regweb no falli
 					}
-					dto.setArxiuUuid(null);
+					dto.setArxiuUuid(dto.getArxiuUuid());
 				}
 				if (documentStore.isRegistrat()) {
 					dto.setRegistreData(documentStore.getRegistreData());
