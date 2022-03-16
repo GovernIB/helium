@@ -247,7 +247,6 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<!--mgonzalez-->
 		<dependency>
 			<artifactId>apifirmasimple-api</artifactId>
 			<groupId>org.fundaciobit.apisib.apifirmasimple</groupId>
@@ -270,7 +269,6 @@
 			<groupId>org.fundaciobit.apisib.apifirmasimple</groupId>
 			<version>1.0</version>
 		</dependency>
-		<!--END mgonzalez-->
 		<!-- /Dependències Firma servidor -->
 		<dependency>
 			<groupId>${project.groupId}</groupId>
@@ -286,7 +284,7 @@
         <dependency>
 			<groupId>es.caib.notib</groupId>
 			<artifactId>notib-client</artifactId>
-			<version>1.1.10</version>
+			<version>1.1.8</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>jersey-client</artifactId>
@@ -294,6 +292,11 @@
 				</exclusion>
 			</exclusions>
         </dependency>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-client</artifactId>
+			<version>1.19.4</version>
+		</dependency>
 		
 	</dependencies>
 	<build>

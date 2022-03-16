@@ -284,6 +284,7 @@ public class ConversioTipusHelper {
 		notificacio.setCaducitat(dadesNotificacio.getCaducitat());
 		notificacio.setDocumentArxiuNom(dadesNotificacio.getDocumentArxiuNom());
 		notificacio.setDocumentArxiuContingut(dadesNotificacio.getDocumentArxiuContingut());
+		notificacio.setDocumentArxiuUuid(dadesNotificacio.getDocumentArxiuUuid());
 		notificacio.setDocumentId(dadesNotificacio.getDocumentId());
 		notificacio.setProcedimentCodi(dadesNotificacio.getProcedimentCodi());
 		if (dadesNotificacio.getIdioma() != null)

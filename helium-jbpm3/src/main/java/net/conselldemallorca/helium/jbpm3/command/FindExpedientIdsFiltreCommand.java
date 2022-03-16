@@ -247,7 +247,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 				geoPosX,
 				geoPosY,
 				geoReferencia,
-				registreNumero,//MARTA mirar a la bbdd nom real
+				registreNumero,
 				mostrarAnulats,
 				mostrarNomesAnulats,
 				nomesAlertes,

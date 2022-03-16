@@ -86,5 +86,6 @@ public interface ExecucioMassivaService {
 	 */
 	public String[][] getResultatAltaMassiva(Long execucioMassivaId);
 
-
+	/** Mètode per descarregar l'arxiu CSV amb el resultat de l'execució massiva.*/
+	public byte[] getCsvOriginalContent(Long execucioMassivaId);
 }

@@ -21,7 +21,6 @@
 			<artifactId>jackson-databind</artifactId>
 			<version>${jackson.version}</version>
 		</dependency>
-		<!--mgonzalez-->
 		<dependency>
 			<artifactId>apifirmasimple-api</artifactId>
 			<groupId>org.fundaciobit.apisib.apifirmasimple</groupId>
@@ -44,7 +43,6 @@
 			<groupId>org.fundaciobit.apisib.apifirmasimple</groupId>
 			<version>1.0</version>
 		</dependency>
-		<!--END mgonzalez-->
 	</dependencies>
 	<build>
 		<plugins>
