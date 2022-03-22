@@ -122,4 +122,10 @@ public class ExecucioMassivaServiceBean implements ExecucioMassivaService {
 	public String[][] getResultatAltaMassiva(Long execucioMassivaId) {
 		return delegate.getResultatAltaMassiva(execucioMassivaId);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public byte[] getCsvOriginalContent(Long execucioMassivaId) {
+		return delegate.getCsvOriginalContent(execucioMassivaId);
+	}
 }

@@ -1,6 +1,7 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -19,8 +20,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.core.util.CsvHelper;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
-import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.AjaxHelper.AjaxResponse;
 
 /**
@@ -30,10 +33,83 @@ import net.conselldemallorca.helium.webapp.v3.helper.AjaxHelper.AjaxResponse;
  */
 @Controller
 @RequestMapping("/v3/execucionsMassives")
-public class ExecucionsMassivesController extends BaseController {
+public class ExecucionsMassivesController extends BaseExpedientController {
 
 	@Autowired
 	private ExecucioMassivaService execucioMassivaService;
+	
+	/** Mètode per descarregar l'arxiu CSV amb el resultat de l'execució massiva.
+	 * 
+	 * @param request
+	 * @param response
+	 * @param execucioMassivaId
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "getCsvResultat/{execucioMassivaId}", method = RequestMethod.GET)
+	@ResponseBody
+	public void getCsvResultat(HttpServletRequest request, 
+			HttpServletResponse response, 
+			@PathVariable Long execucioMassivaId)
+			throws Exception {
+		try {
+    		ExecucioMassivaDto execucioMassiva = execucioMassivaService.findAmbId(execucioMassivaId);
+    		String[][] informacioCsv = execucioMassivaService.getResultatAltaMassiva(execucioMassivaId);
+    		CsvHelper csvHelper = new CsvHelper();
+    		byte[] contingutCsv = csvHelper.toCsv(informacioCsv);
+    		this.writeFileToResponse("Resultats_" + execucioMassivaId  + "_" + new SimpleDateFormat("yyyy.MM.dd_HHmmss").format(execucioMassiva.getDataInici()) + ".csv", contingutCsv, response);
+    		MissatgesHelper.success(
+					request, 
+					getMessage(
+							request, 
+							"expedient.alta.massiva.csvoriginal.success"));        			
+
+    	} catch(Exception e) {
+    		String errMsg = getMessage(
+					request, 
+					"expedient.alta.massiva.csvoriginal.error",
+					new Object[]{e.getClass() + " " + e.getMessage()});
+    		logger.error(errMsg, e);
+    		MissatgesHelper.error(
+    				request,
+    				errMsg);
+    		throw(e);
+    	}        
+	}
+	
+	/** Mètode per descarregar l'arxiu CSV original
+	 * 
+	 * @param request
+	 * @param response
+	 * @param execucioMassivaId
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/getCsvOriginalContent/{execucioMassivaId}", method = RequestMethod.GET)
+	@ResponseBody
+	public void getCsvOriginalContent (
+			HttpServletRequest request,
+			HttpServletResponse response,
+			@PathVariable Long execucioMassivaId) throws Exception {
+
+    	try { 
+    		ExecucioMassivaDto execucioMassiva = execucioMassivaService.findAmbId(execucioMassivaId);
+    		byte[] contentCsv = execucioMassivaService.getCsvOriginalContent(execucioMassivaId);
+    		this.writeFileToResponse("CSV_original_" + execucioMassivaId + "_" + new SimpleDateFormat("yyyy.MM.dd_HHmmss").format(execucioMassiva.getDataInici()) + ".csv", contentCsv, response);
+    	    
+    	    MissatgesHelper.success(
+					request, 
+					getMessage(
+							request, 
+							"expedient.alta.massiva.exemple.success"));
+    	} catch(Exception e) {
+    		MissatgesHelper.error(
+    				request,
+    				getMessage(
+    						request, 
+    						"expedient.alta.massiva.exemple.error",
+    						new Object[]{e.getLocalizedMessage()}));
+    	}        
+	}
+	
 
 	@RequestMapping(value = "/{nivell}", method = RequestMethod.GET)
 	public String get(HttpServletRequest request, @PathVariable String nivell, Model model) {

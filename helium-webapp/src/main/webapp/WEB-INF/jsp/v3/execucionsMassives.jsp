@@ -483,6 +483,18 @@
 							
 							var exps =  execucio.total;
 							if (exps > 0) {
+							if(execucio.tipus=="ALTA_MASSIVA"){
+									content += 
+									'<div id="downloadCSV_' + execucio.id + '" class="panel panel-default">'+
+										'<a id="downloadCSVa_' + execucio.id + '" href="<c:url value="/v3/execucionsMassives/getCsvOriginalContent/'+execucio.id +'"/>" class="badge" title="<spring:message code="expedient.document.descarregar"/>">'+
+											'<span class="fa fa-download"></span> <spring:message code="expedient.consulta.recuperarCSV"></spring:message>'+
+										'</a>' +
+										'<a id="downloadResultat_' + execucio.id + '" href="<c:url value="/v3/execucionsMassives/getCsvResultat/'+execucio.id +'"/>" class="badge" title="<spring:message code="expedient.document.descarregar"/>">'+
+											'<span class="fa fa-download"></span> <spring:message code="expedient.consulta.recuperarResultatCSV"></spring:message>'+
+										'</a>' +
+									'</div>'  ;
+									
+								}
 								if (execucio.tipus == 'ELIMINAR_VERSIO_DEFPROC') {
 									content += 
 										'<table class="table table-striped table-bordered dataTable" id="massexpt_' + execucio.id + '">' +
@@ -496,6 +508,7 @@
 										'<tbody>';
 								} else {
 									content += 
+				
 										'<table class="table table-striped table-bordered dataTable" id="massexpt_' + execucio.id + '">' +
 											'<thead>' +
 												'<tr>' +
@@ -506,6 +519,7 @@
 											'</thead>' +
 										'<tbody>';
 								}
+								
 								content += '</tbody></table>';
 							}
 							content += '</div>';

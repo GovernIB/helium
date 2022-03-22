@@ -700,6 +700,13 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		String ojson = JSONValue.toJSONString(mjson);
 		return ojson;
 	}
+	
+	@Transactional(readOnly = true)
+	@Override
+	public byte[] getCsvOriginalContent(Long execucioMassivaId) {
+		ExecucioMassivaDto execucioMassiva = this.findAmbId(execucioMassivaId);
+		return  execucioMassiva.getParam2();
+	}
 
 	@Transactional(readOnly = true)
 	private DefinicioProces getDefinicioProces(ExecucioMassiva exe) {
