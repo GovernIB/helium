@@ -2313,6 +2313,9 @@ public class ExpedientServiceImpl implements ExpedientService {
 				consulta,
 				TipusConsultaCamp.FILTRE));
 		afegirValorsPredefinits(consulta, filtreValors, filtreCamps);
+		
+		expedientIdsPermesos = this.filtrarExpedientsIdsIniciFi(expedientIdsPermesos, filtreCamps , filtreValors);
+		
 		List<Camp> informeCamps = consultaHelper.toListCamp(
 				consultaHelper.findCampsPerCampsConsulta(
 						consulta,
@@ -2375,6 +2378,42 @@ public class ExpedientServiceImpl implements ExpedientService {
 				resposta,
 				count.intValue(),
 				paginacioParams);
+	}
+	
+	private List<Long> filtrarExpedientsIdsIniciFi(List<Long> expedientsIdsPermesos, List<Camp> filtreCamps,
+			Map<String, Object> filtreValors) {
+		List<Long> ids = new ArrayList<Long>();
+		ids.addAll(expedientsIdsPermesos);
+		if (!filtreValors.isEmpty() && filtreValors.get("expedient$id") != null) {
+			for (String clau : filtreValors.keySet()) {
+				if (clau.equals("expedient$id")) {
+					Object valorFiltre = filtreValors.get(clau);
+					if (valorFiltre != null) {
+						Long idInicial = ((String[]) valorFiltre)[0] != null ?  Long.parseLong(((String[]) valorFiltre)[0]) : null;
+						Long idFinal = ((String[]) valorFiltre)[1] != null ? Long.parseLong(((String[]) valorFiltre)[1]) : null;
+						if(idInicial!=null || idFinal!=null) {
+							ids.clear();
+							for (Long id : expedientsIdsPermesos) {
+								if(idFinal!=null && idInicial!=null && idFinal.equals(idInicial) && idInicial.equals(id)) {
+									ids.add(id);
+									break;
+								} else if (idFinal!=null && idInicial!=null && id >= idInicial && id <= idFinal ) {
+									ids.add(id);
+								} else if (idFinal==null && id >= idInicial ) {
+									ids.add(id);
+								} else if(idInicial==null && id <= idFinal ) {
+									ids.add(id);
+								}
+							}
+						}
+					}
+					break;
+				} 
+			}
+			return ids ;
+		} else {
+			return expedientsIdsPermesos;
+		}
 	}
 
 	/**

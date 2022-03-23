@@ -27,6 +27,7 @@ import org.springmodules.validation.bean.conf.loader.SimpleBeanValidationConfigu
 import org.springmodules.validation.bean.rule.ExpressionValidationRule;
 import org.springmodules.validation.util.cel.valang.ValangConditionExpressionParser;
 
+import net.conselldemallorca.helium.core.common.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
@@ -823,6 +824,7 @@ public class TascaFormHelper {
 			ambArray = camp.isCampMultiple();
 		} else {
 			ambArray = 	camp.getCampTipus().equals(CampTipusDto.DATE) ||
+						(camp.getCampTipus().equals(CampTipusDto.STRING) && camp.getVarCodi()!=null && camp.getVarCodi().equals(ExpedientCamps.EXPEDIENT_CAMP_ID))||
 						camp.getCampTipus().equals(CampTipusDto.INTEGER) ||
 						camp.getCampTipus().equals(CampTipusDto.FLOAT) ||
 						camp.getCampTipus().equals(CampTipusDto.PRICE);

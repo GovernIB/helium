@@ -40,6 +40,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
@@ -383,4 +384,60 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 		}
 		return valorsPerService;
 	}
+	
+	/**
+	 * Mètode pel suggest d'expedients inicial
+	 * 
+	 * @param text
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/{consultaId}/suggest/expedient/inici/{expedientId}", method = RequestMethod.GET, produces = {
+			"application/json; charset=UTF-8" })
+	@ResponseBody
+	public Map<String, String> suggestExpedientInici(@PathVariable String expedientId, Model model) {
+		Map<String, String> resultat = null;
+		ExpedientDto expedient = null;
+		if (expedientId != null) {
+			expedient = expedientService.findAmbId(Long.valueOf(expedientId));
+			if (expedient != null) {
+				resultat = new HashMap<String, String>();
+				resultat.put("codi", String.valueOf(expedient.getId()));
+				resultat.put("nom", expedient.getIdentificadorLimitat());
+			}
+		}
+		return resultat;
+	}
+
+	
+	/**
+	 * Mètode per cercar un expedient per número o títol per a un control de tipus
+	 * suggest
+	 * 
+	 * @param text  Tetxt per filtrar.
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/{consultaId}/suggest/expedient/llista/{expedientTipusId}/{text}", method = RequestMethod.GET, produces = {
+			"application/json; charset=UTF-8" })
+	@ResponseBody
+	public List<Map<String, String>> suggestExpedientLlista(
+			@PathVariable Long expedientTipusId,
+			@PathVariable String text, 
+			Model model) {
+		List<Map<String, String>> resultat = new ArrayList<Map<String, String>>();
+		Map<String, String> item;
+		List<ExpedientDto> llista = new ArrayList<ExpedientDto>();
+		if (expedientTipusId != null) {
+			llista = expedientService.findPerSuggest(expedientTipusId, text);
+		}
+		for (ExpedientDto expedientDto : llista) {
+			item = new HashMap<String, String>();
+			item.put("codi", String.valueOf(expedientDto.getId()));
+			item.put("nom", expedientDto.getIdentificadorLimitat());
+			resultat.add(item);
+		}
+		return resultat;
+	}
+		
 }
