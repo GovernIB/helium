@@ -228,6 +228,7 @@
 					</c:if>
 					<c:if test="${potDissenyarExpedientTipusDelegat}">
 						<li id="pipella-enumeracions"><a href="#contingut-enumeracions" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.enumeracions"/></a></li>
+						<li id="pipella-consultes"><a href="#contingut-consultes" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.consultes"/></a></li>
 					</c:if>
 					<c:if test="${potDissenyarExpedientTipusAdmin}">
 						<li id="pipella-dominis"><a href="#contingut-dominis" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.dominis"/></a></li>
