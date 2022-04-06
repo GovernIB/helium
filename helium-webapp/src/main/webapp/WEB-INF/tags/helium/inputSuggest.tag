@@ -52,7 +52,8 @@
 </c:choose>
 <script>
 $(document).ready(function() {
-	$("#${campId}").select2({
+	
+	$("[id='${campId}']").select2({
 	    minimumInputLength: 3,
 	    width: '100%',
 	    placeholder: '${placeholderText}',

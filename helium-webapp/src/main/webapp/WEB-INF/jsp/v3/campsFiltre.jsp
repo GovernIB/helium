@@ -11,20 +11,53 @@
 <div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>" style="margin-left: 0px !important;">
 
  	<c:if test="${campActual.campTipus != 'DATE'}">
-		<label 	for="${campPath}" class="control-label top-label"
-				style="width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"
-				title="${campActual.campEtiqueta}">
-			${campActual.campEtiqueta}
-		</label>
+	 	<c:if test="${campActual.varCodi != 'expedient$id'}">
+			<label 	for="${campPath}" class="control-label top-label"
+					style="width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"
+					title="${campActual.campEtiqueta}">
+				${campActual.campEtiqueta}
+			</label>
+		</c:if>
+		<c:if test="${campActual.varCodi == 'expedient$id'}">
+			<label 	for="${campPath}[0]" class="control-label top-label"
+						style="width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"
+						title="${campActual.campEtiqueta}">
+						${campActual.campEtiqueta}
+			</label>
+		</c:if>
 	</c:if>
 
 	<div class="controls consulta-tipus-controls">
 		<c:choose>
 			<c:when test="${campActual.campTipus == 'STRING'}">
-					<label class="control-label col-xs-4 hide" for="${campPath}[0]"><spring:message code="common.campfiltre.entre"/></label>
-					<div class="col-xs-13">
-						<form:input path="${campPath}" cssClass="form-control" id="${campPath}" data-required="false" />
-					</div>
+				
+					<c:if test="${campActual.varCodi != 'expedient$id'}">
+						<label class="control-label col-xs-4 hide" for="${campPath}[0]"><spring:message code="common.campfiltre.entre"/></label>
+						<div class="col-xs-13">
+							<form:input path="${campPath}" cssClass="form-control" id="${campPath}" data-required="false" />
+						</div>
+					</c:if>
+					
+				<c:if test="${campActual.varCodi == 'expedient$id'}">
+						<c:set var="urlConsultaInicial" value="/helium/v3/expedient/consulta/${consulta.id}/suggest/expedient/inici"/>
+						<c:set var="urlConsultaLlistat" value="/helium/v3/expedient/consulta/${consulta.id}/suggest/expedient/llista/${consulta.expedientTipus.id}"/>
+						<div class="col-md-5 p-0">
+								<hel:inputSuggest inline="true" 
+									name="${campPath}[0]" 
+									urlConsultaInicial="${urlConsultaInicial}" 
+									urlConsultaLlistat="${urlConsultaLlistat}" 
+									placeholder="Des de" 
+									text="Des de"/>
+						</div>
+						<div class="col-md-5 p-0">
+								<hel:inputSuggest inline="true" 
+									name="${campPath}[1]" 
+									urlConsultaInicial="${urlConsultaInicial}" 
+									urlConsultaLlistat="${urlConsultaLlistat}" 
+									placeholder="Fins a" 
+									text="Fins a"/>
+						</div>			
+				</c:if>				
 			</c:when>
 			<c:when test="${campActual.campTipus == 'TEXTAREA'}">
 					<label class="control-label col-xs-4 hide" for="${campPath}[0]"><spring:message code="common.campfiltre.entre"/></label>
