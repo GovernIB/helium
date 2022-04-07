@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -36,6 +37,7 @@ import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreEntrada;
 import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreId;
 import es.caib.distribucio.ws.backofficeintegracio.Estat;
 import es.caib.plugins.arxiu.api.Document;
+import net.conselldemallorca.helium.core.helper.AlertaHelper;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
@@ -49,6 +51,8 @@ import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
+import net.conselldemallorca.helium.core.model.hibernate.Alerta;
+import net.conselldemallorca.helium.core.model.hibernate.Alerta.AlertaPrioritat;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioInteressat;
@@ -127,7 +131,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	private PluginHelper pluginHelper;
 	@Resource
 	private ExpedientLoggerHelper expedientLoggerHelper;
-	
+	@Resource
+	private AlertaHelper alertaHelper;
 	/**
 	 * {@inheritDoc}
 	 */
@@ -358,32 +363,62 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			backofficeUtils.setCarpeta(anotacio.getIdentificador());
 			// S'enregistraran els events al monitor d'integració
 			backofficeUtils.setArxiuPluginListener(this);
-			// Prepara la consulta a Distribució
-			es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreId idWs = new AnotacioRegistreId();
-			idWs.setClauAcces(anotacio.getDistribucioClauAcces());
-			idWs.setIndetificador(anotacio.getDistribucioId());
+			// Consulta la informació de l'anotació 
+			AnotacioRegistreEntrada anotacioRegistreEntrada = null;
 			try {
-				AnotacioRegistreEntrada anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
-				resultat = backofficeUtils.crearExpedientAmbAnotacioRegistre(expedientArxiu, anotacioRegistreEntrada);
-				if (resultat.getErrorCodi() != 0)
-					throw new Exception("Error creant l'expedient amb la llibreria d'utilitats de Distribucio: " + resultat.getErrorCodi() + " " + resultat.getErrorMessage());
+				es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreId idWs = new AnotacioRegistreId();
+				idWs.setClauAcces(anotacio.getDistribucioClauAcces());
+				idWs.setIndetificador(anotacio.getDistribucioId());
+				anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
 				
 			} catch(Exception e) {
-				String errMsg = "Error consultant l'anotació de registre \"" + anotacio.getIdentificador() + "\" de Distribució:_" + e.getMessage();
+				// Error no controlat consultant la informació de l'expedient, es posa una alerta
+				String errMsg = "Error consultant la informació de l'anotació " + 
+						anotacio.getIdentificador() + " a l'hora d'incorporar la anotació a l'expedient, és necessari reintentar el processament dels annexos.";
 				logger.error(errMsg, e);
-				throw new SistemaExternException(errMsg, e);
+				Alerta alerta = alertaHelper.crearAlerta(
+						expedient.getEntorn(), 
+						expedient, 
+						new Date(), 
+						null, 
+						errMsg);
+				alerta.setPrioritat(AlertaPrioritat.ALTA);
+				resultat = new ArxiuResultat();
+				for (AnotacioAnnex annex : anotacio.getAnnexos()) {
+					annex.setEstat(AnotacioAnnexEstatEnumDto.PENDENT);
+					annex.setError(errMsg);
+				}
+			}
+			// Processa la informació amb la llibreria d'utilitats per moure els annexos
+			if (anotacioRegistreEntrada != null) {
+				resultat = backofficeUtils.crearExpedientAmbAnotacioRegistre(expedientArxiu, anotacioRegistreEntrada);
+				if (resultat.getErrorCodi() != 0) {
+					// Error en el processament
+					String errMsg = "S'han produit errors processant l'anotació de Distribucio \"" + anotacio.getIdentificador() + "\" amb la llibreria de distribucio-backoffice-utils: " + resultat.getErrorCodi() + " " + resultat.getErrorMessage();
+					logger.error(errMsg, resultat.getException());
+					Alerta alerta = alertaHelper.crearAlerta(
+							expedient.getEntorn(), 
+							expedient, 
+							new Date(), 
+							null, 
+							errMsg + ". Es necessari reintentar el processament.");
+					alerta.setPrioritat(AlertaPrioritat.ALTA);
+				}
 			}
 		} else {
 			resultat = new ArxiuResultat();
 		}
 		
 		// Si no s'integra amb Sistra2
-		if (!expedientTipus.isDistribucioSistra()) {
-			// Associa tots els annexos de l'anotació com annexos de l'expedient
-			for ( AnotacioAnnex annex : anotacio.getAnnexos() ) {			
-				// Incorpora cada annex de forma separada per evitar excepcions i continuar amb els altres
-				this.incorporarAnnex(expedient, anotacio, annex, resultat);						
-			}
+		for ( AnotacioAnnex annex : anotacio.getAnnexos() ) {			
+			// Incorpora cada annex de forma separada per evitar excepcions i continuar amb els altres
+			// Si no s'integra amb Sistra crea un document per annex incorportat correctament
+			this.incorporarAnnex(
+					expedientTipus.isDistribucioSistra(),
+					expedient, 
+					anotacio, 
+					annex, 
+					resultat);
 		}
 		
 		if (associarInteressats) {
@@ -462,15 +497,18 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				AnotacioDto.class);
 	}
 	
-	/**
+	/** Incorpora l'annex a l'expedient segons el resultat. Si s'ha pogut moure
+	 * llavors crea un nou document si no està mapejat com a Sistra.
+	 * 
 	 * {@inheritDoc}
+	 * @param isSistra Si l'expedient no és sistra llavors crearà un annex per cada annex mogut.
 	 * @param anotacio 
 	 * @param expedient 
 	 * @param annex 
 	 * @param resultat 
 	 */
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void incorporarAnnex(Expedient expedient, Anotacio anotacio, AnotacioAnnex annex, ArxiuResultat resultat) {
+	public void incorporarAnnex(boolean isSistra, Expedient expedient, Anotacio anotacio, AnotacioAnnex annex, ArxiuResultat resultat) {
 		
 		ArxiuResultatAnnex resultatAnnex = null;
 		// El títol contindrà el número de l'anotació
@@ -509,7 +547,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				// Posa el resultat per evitar error
 				resultatAnnex.setAccio(AnnexAccio.MOGUT);
 			}
-			if (AnotacioAnnexEstatEnumDto.MOGUT.equals(annex.getEstat())) {
+			if (	!isSistra 
+					&& AnotacioAnnexEstatEnumDto.MOGUT.equals(annex.getEstat())) {
 				// Crea un document a Helium 
 				Long documentStoreId = documentHelper.crearDocument(
 						null, 
@@ -795,6 +834,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		if (anotacio.getExpedient() == null)
 			throw new Exception("No es pot processar l'annex perquè l'anotació no té cap expedient associat.");
 		Expedient expedient = anotacio.getExpedient();
+		ExpedientTipus expedientTipus = expedient.getTipus();
 		AnotacioAnnex annex = null;
 		for(AnotacioAnnex a : anotacio.getAnnexos()){
 			if (a.getId().equals(annexId)) {
@@ -824,6 +864,13 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			AnotacioRegistreEntrada anotacioRegistreEntrada;
 			try {
 				anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
+				// Modifica el resultat per deixar només l'annex amb mateix uuid
+				ListIterator<Annex> iAnnexos = anotacioRegistreEntrada.getAnnexos().listIterator();
+				while (iAnnexos.hasNext()) {
+					if (!iAnnexos.next().getUuid().equals(annex.getUuid())) {
+						iAnnexos.remove();
+					}
+				}
 				resultat = backofficeUtils.crearExpedientAmbAnotacioRegistre(expedientArxiu, anotacioRegistreEntrada);
 			} catch(Exception e) {
 				String errMsg = "Error reprocessant la informació de l'anotació de registre \"" + anotacio.getIdentificador() + "\" de Distribució: " + e.getMessage();
@@ -831,7 +878,13 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				throw new SistemaExternException(errMsg, e);
 			}
 		}
-		this.incorporarAnnex(anotacio.getExpedient(), anotacio, annex, resultat);
+		// Incorpora l'annex a l'expedient
+		this.incorporarAnnex(
+				expedientTipus.isDistribucioSistra(), 
+				anotacio.getExpedient(), 
+				anotacio, 
+				annex, 
+				resultat);
 
 		logger.debug(
 				"Reintent de processament de l'annex (" +
