@@ -68,6 +68,9 @@ public abstract class BaseBackoffice {
 
 	private DissenyService dissenyService;
 
+	public BaseBackoffice() {
+		
+	}
 
 	/** Comprova ja existeix l'expedient a partir del tràmit. Consulta per codi
 	 * @param numero 
@@ -409,7 +412,7 @@ public abstract class BaseBackoffice {
 		}
 		return resposta;
 	}
-	private Object valorVariableHelium(Object val, Camp camp) throws Exception {
+	protected Object valorVariableHelium(Object val, Camp camp) throws Exception {
 		if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
 			if (val instanceof Object[]) {
 				Object[] dadesSistra = (Object[])val;
@@ -452,11 +455,26 @@ public abstract class BaseBackoffice {
 				}
 				return resposta;
 			} else {
-				return valorPerHeliumSimple((String)val, camp);
+				if (val instanceof String) {					
+					return valorPerHeliumSimple((String) val, camp);
+				} else if (val instanceof Object[]) {
+					Object[] dadesSistra = (Object[])val;
+					if (dadesSistra.length == 0 ) {
+						return null;
+					} else if (dadesSistra.length == 1) {
+						return valorPerHeliumSimple(dadesSistra[0].toString(), camp);
+					} else {
+						logger.error("No s'ha pogut mapejar el camp " + camp.getCodi() + ": s'espera un valor simple i s'ha obtingut " + val + " amb "  + dadesSistra.length + " valors.");
+						return null;
+					}
+				}
+				return null;
 			}
 		}
 	}
-	private Object valorPerHeliumSimple(String valor, Camp camp) {
+	protected Object valorPerHeliumSimple(String valor, Camp camp) {
+		if (valor == null)
+			return null;
 		try {
 			if (camp == null) {
 			} else if (camp.getTipus().equals(TipusCamp.DATE)) {
@@ -511,6 +529,6 @@ public abstract class BaseBackoffice {
 		}
 		return documents;
 	}
-	private static final Log logger = LogFactory.getLog(BaseBackoffice.class);
+	protected static final Log logger = LogFactory.getLog(BaseBackoffice.class);
 
 }
