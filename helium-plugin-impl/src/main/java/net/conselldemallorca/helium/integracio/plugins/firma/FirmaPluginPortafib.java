@@ -95,7 +95,7 @@ public class FirmaPluginPortafib implements FirmaPlugin {
 
 		int signNumber = 1;
 		String languageSign = "ca";
-		Long tipusDocumentalID = tipusDocumental != null ? Long.valueOf(tipusDocumental.substring(2)) : null;
+		Long tipusDocumentalID = tipusDocumental != null && !"".equals(tipusDocumental) ? Long.valueOf(tipusDocumental.substring(2)) : null;
 
 		FirmaSimpleFileInfoSignature fileInfoSignature = new FirmaSimpleFileInfoSignature(
 				fileToSign,
