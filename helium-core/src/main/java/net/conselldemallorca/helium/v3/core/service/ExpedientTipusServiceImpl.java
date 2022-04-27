@@ -1762,6 +1762,24 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				expedientTipusRepository.findByEntornAndCodi(entorn, codi),
 				ExpedientTipusDto.class);
 	}
+	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ExpedientTipusDto findAmbCodi(
+			Long entornId, 
+			String codi) throws NoTrobatException {
+		logger.debug(
+				"Consultant tipus d'expedient amb codi (" +
+				"entornId=" + entornId + ", " +
+				"codi = " + codi + ")");
+		Entorn entorn = entornHelper.getEntorn( entornId);
+		return conversioTipusHelper.convertir(
+				expedientTipusRepository.findByEntornAndCodi(entorn, codi),
+				ExpedientTipusDto.class);
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -3720,4 +3738,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
+
+
 }
