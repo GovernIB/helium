@@ -9,7 +9,8 @@ import java.util.List;
 import javax.jws.WebService;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
-import net.conselldemallorca.helium.ws.tramitacio.TramitacioException;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 
 /**
  * Interfície del servei de tramitació d'expedients de Helium
@@ -160,7 +161,7 @@ public interface TramitacioService {
 	 * @param tascaId
 	 * @throws TramitacioException
 	 */
-	public List<CampTasca> consultaFormulariTasca(
+	public List<CampTascaDto> consultaFormulariTasca(
 			String entornCodi,
 			String usuariCodi,
 			String tascaId) throws TramitacioException;
@@ -188,7 +189,7 @@ public interface TramitacioService {
 	 * @param tascaId
 	 * @throws TramitacioException
 	 */
-	public List<DocumentTasca> consultaDocumentsTasca(
+	public List<DocumentTascaDto> consultaDocumentsTasca(
 			String entornCodi,
 			String usuariCodi,
 			String tascaId) throws TramitacioException;
@@ -341,7 +342,7 @@ public interface TramitacioService {
 	 * @return
 	 * @throws TramitacioException
 	 */
-	public Long setDocumentProces(
+	public void setDocumentProces(
 			String entornCodi,
 			String usuariCodi,
 			String processInstanceId,

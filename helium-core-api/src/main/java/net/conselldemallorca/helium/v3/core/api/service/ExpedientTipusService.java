@@ -351,6 +351,22 @@ public interface ExpedientTipusService {
 	public ExpedientTipusDto findAmbCodiPerValidarRepeticio(
 			Long entornId,
 			String codi) throws NoTrobatException;
+	
+	/**
+	 * Retorna un tipus d'expedient donat el seu codi sense validar/autenticar.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param codi
+	 *            El codi per a la consulta.
+	 * @return El tipus d'expedient o null si no el troba.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public ExpedientTipusDto findAmbCodi(
+			Long entornId,
+			String codi) throws NoTrobatException;
+
 
 	/** 
 	 * Retorna la llista de tipus d'expedient paginada per la datatable.
