@@ -208,6 +208,16 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 				entornId,
 				codi);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTipusDto findAmbCodi(
+			Long entornId, 
+			String codi) {
+		return delegate.findAmbCodiPerValidarRepeticio(
+				entornId,
+				codi);
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
