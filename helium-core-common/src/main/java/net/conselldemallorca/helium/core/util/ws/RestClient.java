@@ -15,6 +15,8 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
+import net.conselldemallorca.helium.core.model.hibernate.Domini.OrigenCredencials;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 
 /**
@@ -35,10 +37,19 @@ public class RestClient {
 	 * @throws Exception 
 	 */
 	public static List<FilaResultat> get(Domini domini, String id, Map<String, Object>params) {
+		String username = null;
+		String password = null;
+		if (OrigenCredencials.PROPERTIES.equals(domini.getOrigenCredencials())) {
+			username = GlobalProperties.getInstance().getProperty(domini.getUsuari());
+			password = GlobalProperties.getInstance().getProperty(domini.getContrasenya());
+		} else {
+			username = domini.getUsuari();
+			password = domini.getContrasenya();
+		}
 		Client client = generateClient(
 								domini.getTipusAuth().toString(),
-								domini.getUsuari(), 
-								domini.getContrasenya());
+								username, 
+								password);
 		List<FilaResultat> res = null;
 		TypeReference<List<FilaResultat>> typeRef = 
                 new TypeReference<List<FilaResultat>>() {};
