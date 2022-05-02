@@ -126,6 +126,8 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	private String notificacioOficiText;
 
 	//  - Tràmits
+	
+	private boolean sistraActiu;
 	@MaxLength(64)
 	private String sistraTramitCodi;
 	@MaxLength(2048)
@@ -822,7 +824,13 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setNtiActiu(boolean ntiActiu) {
 		this.ntiActiu = ntiActiu;
 	}
-	
+	@Column(name="sistra_actiu")
+	public boolean isSistraActiu() {
+		return sistraActiu;
+	}
+	public void setSistraActiu(boolean sistraActiu) {
+		this.sistraActiu = sistraActiu;
+	}
 	@Column(name="nti_organo", length=256)
 	public String getNtiOrgano() {
 		return ntiOrgano;

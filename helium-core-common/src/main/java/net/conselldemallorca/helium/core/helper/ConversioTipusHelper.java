@@ -317,7 +317,7 @@ public class ConversioTipusHelper {
 						target.setFormextUrl(source.getFormextUrl());
 						target.setFormextUsuari(source.getFormextUsuari());
 						target.setFormextContrasenya(source.getFormextContrasenya());
-						
+						target.setSistraActiu(source.isSistraActiu());
 						target.setSistraTramitCodi(source.getSistraTramitCodi());
 						target.setNotibActiu(source.getNotibActiu());
 						target.setNotibEmisor(source.getNotibEmisor());
@@ -395,7 +395,7 @@ public class ConversioTipusHelper {
 							sequenciaAnyDefaultSorted.put(entry.getKey(), value);
 						}					
 						target.setSequenciaDefaultAny(sequenciaAnyDefaultSorted);
-						
+						target.setSistraActiu(source.isSistraActiu());
 						target.setSistraTramitCodi(source.getSistraTramitCodi());
 						target.setNotibActiu(source.getNotibActiu());
 						target.setNotibEmisor(source.getNotibEmisor());

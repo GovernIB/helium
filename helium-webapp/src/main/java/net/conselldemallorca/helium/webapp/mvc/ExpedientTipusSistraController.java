@@ -68,13 +68,15 @@ public class ExpedientTipusSistraController extends BaseController {
 		if (entorn != null) {
 			ExpedientTipus expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
 			command.setExpedientTipusId(expedientTipusId);
-			if (expedientTipus.getSistraTramitCodi() != null) {
+			if (expedientTipus.getSistraTramitCodi()!=null || expedientTipus.getSistraTramitCodi()!=null) 
 				command.setCodiTramit(expedientTipus.getSistraTramitCodi());
+			
+			if (expedientTipus.isSistraActiu())
 				command.setActiu(true);
-				
-			} else {
+
+			else
 				command.setActiu(false);
-			}
+			
 			
 			command.setNotificacionsActivades(expedientTipus.isNotificacionsActivades());
 			command.setNotificacioOrganCodi(expedientTipus.getNotificacioOrganCodi());

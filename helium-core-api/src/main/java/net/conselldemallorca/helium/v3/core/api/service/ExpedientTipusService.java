@@ -141,6 +141,7 @@ public interface ExpedientTipusService {
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public ExpedientTipusDto updateIntegracioTramits(
+			boolean sistraActiu,
 			Long entornId, 
 			Long expedientTipusId, 
 			String tramitCodi,

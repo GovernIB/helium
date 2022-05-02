@@ -591,6 +591,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusDto updateIntegracioTramits(
+			boolean sistraActiu,
 			Long entornId,
 			Long expedientTipusId,
 			String tramitCodi,
@@ -605,6 +606,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			String notificacioOficiTitol,
 			String notificacioOficiText) {
 		return delegate.updateIntegracioTramits(
+				sistraActiu,
 				entornId, 
 				expedientTipusId, 
 				tramitCodi, 

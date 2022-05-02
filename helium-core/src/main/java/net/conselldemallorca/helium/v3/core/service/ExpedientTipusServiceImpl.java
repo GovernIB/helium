@@ -424,6 +424,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Override
 	@Transactional
 	public ExpedientTipusDto updateIntegracioTramits(
+			boolean isActiu,
 			Long entornId, 
 			Long expedientTipusId, 
 			String tramitCodi,
@@ -444,7 +445,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"tramitCodi=" + tramitCodi + ")");
 		
 		ExpedientTipus entity = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
-
+		entity.setSistraActiu(isActiu);
 		entity.setSistraTramitCodi(tramitCodi);
 		entity.setNotificacionsActivades(notificacionsActivades);
 		entity.setNotificacioOrganCodi(notificacioOrganCodi);

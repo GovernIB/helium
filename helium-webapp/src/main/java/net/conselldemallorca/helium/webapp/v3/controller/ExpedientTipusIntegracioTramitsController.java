@@ -71,12 +71,13 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 			
 			ExpedientTipusIntegracioTramitsCommand command = new ExpedientTipusIntegracioTramitsCommand();			
 			command.setId(expedientTipusId);
-			if (expedientTipus.getSistraTramitCodi() != null) {
-				command.setTramitCodi(expedientTipus.getSistraTramitCodi());
+			if (expedientTipus.getSistraTramitCodi() != null && expedientTipus.isSistraActiu()) {	
 				command.setActiu(true);
 			} else {
 				command.setActiu(false);
 			}
+			//Sempre indiquem el tràmit codi sigui o no sigui actiu
+			command.setTramitCodi(expedientTipus.getSistraTramitCodi());
 			
 			command.setNotificacionsActivades(expedientTipus.isNotificacionsActivades());
 			command.setNotificacioOrganCodi(expedientTipus.getNotificacioOrganCodi());
@@ -128,11 +129,10 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 	        	response = AjaxHelper.generarAjaxFormErrors(command, bindingResult);
 	        } else {
         		expedientTipusService.updateIntegracioTramits(
+        				command.isActiu(),
         				entornActual.getId(),
         				expedientTipusId,
-        				command.isActiu() ? 
-        						command.getTramitCodi() 
-        						: null,
+        				command.getTramitCodi(),
         				command.isNotificacionsActivades(),
         				command.getNotificacioOrganCodi(),
         				command.getNotificacioOficinaCodi(),
@@ -166,7 +166,7 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 		if (command.isActiu()) {
 			if (isNullOrEmpty(command.getTramitCodi())){
 				// tramitCodi
-				if (isNullOrEmpty(command.getNotificacioOrganCodi())) {
+				if (isNullOrEmpty(command.getTramitCodi())) {
 					bindingResult.rejectValue("tramitCodi", "NotEmpty");
 				}				
 			}

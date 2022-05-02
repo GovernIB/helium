@@ -37,7 +37,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusController {
 
 	@RequestMapping(value = "/{expedientTipusId}/metadadesNti")
-	public String formext(
+	public String nti(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			Model model) {
@@ -63,7 +63,7 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 	
 	@RequestMapping(value = "/{expedientTipusId}/metadadesNti", method = RequestMethod.POST)
 	@ResponseBody
-	public AjaxFormResponse formextPost(
+	public AjaxFormResponse ntiPost(
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			@Validated(ExpedientTipusMetadadesNtiCommand.Modificacio.class) ExpedientTipusMetadadesNtiCommand command,

@@ -66,6 +66,7 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	private String formextUsuari;
 	private String formextContrasenya;
 	// Integració amb tràmits Sistra
+	private boolean sistraActiu;
 	private String sistraTramitCodi;
 	
 	private boolean ntiActiu;
@@ -392,7 +393,12 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	public void setArxiuActiu(boolean arxiuActiu) {
 		this.arxiuActiu = arxiuActiu;
 	}
-
+	public boolean isSistraActiu() {
+		return sistraActiu;
+	}
+	public void setSistraActiu(boolean sistraActiu) {
+		this.sistraActiu = sistraActiu;
+	}
 	public Boolean getNotibActiu() {
 		return notibActiu;
 	}
