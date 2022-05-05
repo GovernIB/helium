@@ -25,6 +25,7 @@ public class SistemaExternTimeoutException extends SistemaExternException {
 				expedientTipusCodi,
 				expedientTipusNom, 
 				sistemaExtern, 
+				null,
 				cause);
 	}
 	

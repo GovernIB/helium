@@ -337,6 +337,7 @@ public class DominiHelper {
 					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getId(), 
 					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getCodi(), 
 					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getNom(), 
+					domini.getExpedientTipus() == null ? domini.getNom() : domini.getExpedientTipus().getNom(), 
 					"(Domini intern '" + domini.getCodi() + "')", 
 					ex);
 		}
@@ -396,6 +397,7 @@ public class DominiHelper {
 					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getId(), 
 					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getCodi(), 
 					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getNom(), 
+					domini.getExpedientTipus() == null ? domini.getNom() : domini.getExpedientTipus().getNom(), 
 					"(Domini '" + domini.getCodi() + "')", 
 					ex);
 		}
@@ -474,7 +476,8 @@ public class DominiHelper {
 						null, 
 						domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getId(), 
 						domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getCodi(), 
-						domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getNom(), 
+						domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getNom(),
+						domini.getExpedientTipus() == null ? domini.getNom() : domini.getExpedientTipus().getNom(), 
 						"(Domini SQL'" + domini.getCodi() + "')", 
 						ex);
 			}

@@ -1568,6 +1568,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 					null, 
 					null, 
 					null, 
+					"EMAIL",
 					"(Enviament de mail '" + subject + "')", 
 					e);
 		}

@@ -1,6 +1,6 @@
 package net.conselldemallorca.helium.v3.core.api.exception;
 
-public abstract class HeliumException extends RuntimeException {
+public class HeliumException extends RuntimeException {
 	
 	//Dades de l'entorn
 	private Long entornId;

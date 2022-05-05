@@ -67,7 +67,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
-import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.api.exception.HeliumException;
 import net.conselldemallorca.helium.v3.core.repository.AreaJbpmIdRepository;
 import net.conselldemallorca.helium.v3.core.repository.AreaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CarrecJbpmIdRepository;
@@ -174,18 +174,18 @@ public class PlantillaHelper {
 							document),
 					contingut);
 		} catch (Exception ex) {
-			throw SistemaExternException.tractarSistemaExternException(
-					expedient.getEntorn().getId(),
-					expedient.getEntorn().getCodi(), 
-					expedient.getEntorn().getNom(), 
-					expedient.getId(), 
-					expedient.getTitol(), 
-					expedient.getNumero(), 
-					expedient.getTipus().getId(), 
-					expedient.getTipus().getCodi(), 
-					expedient.getTipus().getNom(), 
-					"(DOCUMENT PLANTILLA. Error al generar el document)", 
-					ex);
+			throw new HeliumException(
+				expedient.getEntorn().getId(),
+				expedient.getEntorn().getCodi(), 
+				expedient.getEntorn().getNom(), 
+				expedient.getId(), 
+				expedient.getTitol(), 
+				expedient.getNumero(), 
+				expedient.getTipus().getId(), 
+				expedient.getTipus().getCodi(), 
+				expedient.getTipus().getNom(), 
+				"(DOCUMENT PLANTILLA. Error al generar el document)", 
+				ex);
 		}
 	}
 

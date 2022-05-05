@@ -160,6 +160,7 @@ public class NotificacioHelper {
 					expedient.getTipus().getId(), 
 					expedient.getTipus().getCodi(), 
 					expedient.getTipus().getNom(), 
+					MonitorIntegracioHelper.INTCODI_NOTIB,
 					"(Enviament de notificació)", 
 					e);
 		}		

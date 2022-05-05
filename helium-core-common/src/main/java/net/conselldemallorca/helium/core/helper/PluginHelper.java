@@ -230,6 +230,7 @@ public class PluginHelper {
 					null, 
 					null, 
 					null, 
+					MonitorIntegracioHelper.INTCODI_PERSONA,
 					"No s'han pogut consultar persones amb el text (text=" + text + ")",
 					ex);
 		}
@@ -295,6 +296,7 @@ public class PluginHelper {
 						null, 
 						null, 
 						null, 
+						MonitorIntegracioHelper.INTCODI_PERSONA,
 						"No s'han pogut consultar persones amb el codi (codi=" + codi + ")",
 						ex);
 			}
@@ -373,6 +375,7 @@ public class PluginHelper {
 					expedient.getTipus().getId(), 
 					expedient.getTipus().getCodi(), 
 					expedient.getTipus().getNom(), 
+					MonitorIntegracioHelper.INTCODI_SISTRA,
 					"(SISTRA. Crear expedient: " + errorDescripcio + ")", 
 					ex);
 		}
@@ -461,6 +464,7 @@ public class PluginHelper {
 					expedient.getTipus().getId(), 
 					expedient.getTipus().getCodi(), 
 					expedient.getTipus().getNom(), 
+					MonitorIntegracioHelper.INTCODI_SISTRA,
 					"(SISTRA. Crear event: " + errorDescripcio + ")", 
 					ex);
 		}
@@ -504,16 +508,8 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw SistemaExternException.tractarSistemaExternException(
-					null,
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_SISTRA,
 					"(SISTRA. Tramitació: " + errorDescripcio + ")", 
 					ex);
 		}
@@ -580,7 +576,8 @@ public class PluginHelper {
 					expedient.getNumero(), 
 					expedient.getTipus().getId(), 
 					expedient.getTipus().getCodi(), 
-					expedient.getTipus().getNom(), 
+					expedient.getTipus().getNom(),
+					MonitorIntegracioHelper.INTCODI_SISTRA,
 					"(SISTRA. Creació d'expedient a la zona personal: " + errorDescripcio + ")", 
 					ex);
 		}
@@ -618,6 +615,7 @@ public class PluginHelper {
 					expedient.getTipus().getId(), 
 					expedient.getTipus().getCodi(), 
 					expedient.getTipus().getNom(), 
+					MonitorIntegracioHelper.INTCODI_SISTRA,
 					"(SISTRA. Registrar notificació: " + errorDescripcio + ")", 
 					ex);
 		}
@@ -702,16 +700,8 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw SistemaExternException.tractarSistemaExternException(
-					null,
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_SISTRA,
 					"(SISTRA. Obtenir justificant: " + errorDescripcio + ")", 
 					ex);
 		}
@@ -747,16 +737,9 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw SistemaExternException.tractarSistemaExternException(
-					null,
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
+			
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_SISTRA,
 					"(SISTRA. Obtenir justificant detall: " + errorDescripcio + ")", 
 					ex);
 		}
@@ -850,6 +833,7 @@ public class PluginHelper {
 					expedient.getTipus().getId(), 
 					expedient.getTipus().getCodi(), 
 					expedient.getTipus().getNom(), 
+					MonitorIntegracioHelper.INTCODI_REGISTRE,
 					"(Registre d'entrada: " + errorDescripcio + ")", 
 					ex);
 		}
@@ -941,6 +925,7 @@ public class PluginHelper {
 					expedient.getTipus().getId(), 
 					expedient.getTipus().getCodi(), 
 					expedient.getTipus().getNom(), 
+					MonitorIntegracioHelper.INTCODI_REGISTRE,
 					"(Registre de sortida: " + errorDescripcio + ")", 
 					ex);
 		}
@@ -1024,6 +1009,7 @@ public class PluginHelper {
 					expedient.getTipus().getId(), 
 					expedient.getTipus().getCodi(), 
 					expedient.getTipus().getNom(), 
+					MonitorIntegracioHelper.INTCODI_REGISTRE,
 					"(Registre de sortida: " + errorDescripcio + ")", 
 					ex);
 		}
@@ -1116,6 +1102,7 @@ public class PluginHelper {
 					expedient.getTipus().getId(), 
 					expedient.getTipus().getCodi(), 
 					expedient.getTipus().getNom(), 
+					MonitorIntegracioHelper.INTCODI_REGISTRE,
 					"(Registre de notificacio: " + errorDescripcio + ")", 
 					ex);
 		}
@@ -1189,6 +1176,7 @@ public class PluginHelper {
 					expedient.getTipus().getId(), 
 					expedient.getTipus().getCodi(), 
 					expedient.getTipus().getNom(), 
+					MonitorIntegracioHelper.INTCODI_REGISTRE,
 					"(Registre data de justificant: " + errorDescripcio + ")", 
 					ex);
 		}
@@ -1234,6 +1222,7 @@ public class PluginHelper {
 					expedient.getTipus().getId(), 
 					expedient.getTipus().getCodi(), 
 					expedient.getTipus().getNom(), 
+					MonitorIntegracioHelper.INTCODI_REGISTRE,
 					"(Registre oficina nom: " + errorDescripcio + ")", 
 					ex);
 		}
@@ -1303,6 +1292,7 @@ public class PluginHelper {
 					expedient.getTipus().getId(), 
 					expedient.getTipus().getCodi(), 
 					expedient.getTipus().getNom(), 
+					MonitorIntegracioHelper.INTCODI_REGISTRE,
 					"(Registre oficina nom: " + errorDescripcio + ")", 
 					ex);
 		}
@@ -1395,6 +1385,7 @@ public class PluginHelper {
 					expedient.getTipus().getId(), 
 					expedient.getTipus().getCodi(), 
 					expedient.getTipus().getNom(), 
+					MonitorIntegracioHelper.INTCODI_GESDOC,
 					"(GESTIÓ DOCUMENTAL. Crear document: " + errorDescripcio + ")", 
 					ex);
 		}
@@ -1428,16 +1419,8 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw SistemaExternException.tractarSistemaExternException(
-					null,
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_GESDOC,
 					"(GESTIÓ DOCUMENTAL. Crear document: " + errorDescripcio + ")", 
 					ex);
 		}
@@ -1482,6 +1465,7 @@ public class PluginHelper {
 					expedient.getTipus().getId(), 
 					expedient.getTipus().getCodi(), 
 					expedient.getTipus().getNom(), 
+					MonitorIntegracioHelper.INTCODI_GESDOC,
 					"(GESTIÓ DOCUMENTAL. Delete document: " + errorDescripcio + ")", 
 					ex);
 		}
@@ -1610,6 +1594,7 @@ public class PluginHelper {
 					expedient.getTipus().getId(), 
 					expedient.getTipus().getCodi(), 
 					expedient.getTipus().getNom(), 
+					MonitorIntegracioHelper.INTCODI_PFIRMA,
 					"(PORTASIGNATURES. Enviar: " + errorDescripcio + ")", 
 					ex);
 		}
@@ -1673,17 +1658,9 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw SistemaExternException.tractarSistemaExternException(
-					null,
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					"(PORTASIGNATURES. Cancelar: " + errorDescripcio + ")", 
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_PFIRMA,
+					"(PORTASIGNATURES. Cancelar: " + errorDescripcio + ")",
 					ex);
 		}
 	}
@@ -1740,16 +1717,8 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw SistemaExternException.tractarSistemaExternException(
-					null,
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"(CUSTÒDIA. Afegir signatura: " + errorDescripcio + ")", 
 					ex);
 		}
@@ -1785,16 +1754,8 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw SistemaExternException.tractarSistemaExternException(
-					null,
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"(CUSTÒDIA. Dades validació signatura: " + errorDescripcio + ")", 
 					ex);
 		}
@@ -1829,17 +1790,9 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw SistemaExternException.tractarSistemaExternException(
-					null,
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					"(CUSTÒDIA. Obtenir signatures: " + errorDescripcio + ")", 
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_CUSTODIA,
+					"(CUSTÒDIA. Obtenir signatures: " + errorDescripcio + ")",
 					ex);
 		}
 	}
@@ -1873,16 +1826,8 @@ public class PluginHelper {
 			logger.error(
 					errorDescripcio,
 					ex);
-			throw SistemaExternException.tractarSistemaExternException(
-					null,
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"(CUSTÒDIA. Obtenir signatures amb arxiu: " + errorDescripcio + ")", 
 					ex);
 		}
@@ -1925,7 +1870,8 @@ public class PluginHelper {
 					expedient.getTipus().getId(), 
 					expedient.getTipus().getCodi(), 
 					expedient.getTipus().getNom(), 
-					"(CUSTÒDIA: Esborrar signatures: " + errorDescripcio + ")", 
+					MonitorIntegracioHelper.INTCODI_CUSTODIA,
+					"(CUSTÒDIA: Esborrar signatures: " + errorDescripcio + ")",
 					ex);
 		}
 	}
@@ -1959,16 +1905,8 @@ public class PluginHelper {
 			logger.error(
 					referenciaCustodia,
 					ex);
-			throw SistemaExternException.tractarSistemaExternException(
-					null,
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_CUSTODIA,
 					"(CUSTÒDIA. Obtenir URL comprovació: " + errorDescripcio + ")", 
 					ex);
 		}
@@ -2026,17 +1964,9 @@ public class PluginHelper {
 					ex,
 					parametres);
 			logger.error(errorDescripcio, ex);
-			throw SistemaExternException.tractarSistemaExternException(
-					null,
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					"(PLUGIN SIGNATURA. Validació de signatura: " + errorDescripcio + ")", 
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_FIRMA,
+					"(PLUGIN SIGNATURA. Validació de signatura: " + errorDescripcio + ")",  
 					ex);
 		}
 	}
@@ -2098,7 +2028,10 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
-			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_FIRMA_SERV,
+					errorDescripcio, 
+					ex);
 		}
 	}
 
@@ -2151,7 +2084,7 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+			throw tractarExcepcioEnSistemaExtern(MonitorIntegracioHelper.INTCODI_ARXIU,errorDescripcio, ex);
 		}
 	}
 	
@@ -2203,7 +2136,7 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+			throw tractarExcepcioEnSistemaExtern(MonitorIntegracioHelper.INTCODI_ARXIU,errorDescripcio, ex);
 		}
 	}
 	
@@ -2234,7 +2167,7 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+			throw tractarExcepcioEnSistemaExtern(MonitorIntegracioHelper.INTCODI_ARXIU,errorDescripcio, ex);
 		}
 	}
 	
@@ -2265,7 +2198,7 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+			throw tractarExcepcioEnSistemaExtern(MonitorIntegracioHelper.INTCODI_ARXIU,errorDescripcio, ex);
 		}
 	}
 
@@ -2296,7 +2229,7 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+			throw tractarExcepcioEnSistemaExtern(MonitorIntegracioHelper.INTCODI_ARXIU,errorDescripcio, ex);
 		}
 	}
 
@@ -2328,7 +2261,7 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+			throw tractarExcepcioEnSistemaExtern(MonitorIntegracioHelper.INTCODI_ARXIU,errorDescripcio, ex);
 		}
 	}
 	
@@ -2456,7 +2389,7 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
-			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+			throw tractarExcepcioEnSistemaExtern(MonitorIntegracioHelper.INTCODI_ARXIU,errorDescripcio, ex);
 		}
 	}
 
@@ -2524,7 +2457,7 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
-			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+			throw tractarExcepcioEnSistemaExtern(MonitorIntegracioHelper.INTCODI_ARXIU,errorDescripcio, ex);
 		}
 	}
 
@@ -2586,7 +2519,7 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
-			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+			throw tractarExcepcioEnSistemaExtern(MonitorIntegracioHelper.INTCODI_ARXIU,errorDescripcio, ex);
 		}
 	}
 
@@ -2651,8 +2584,11 @@ public class PluginHelper {
 					System.currentTimeMillis() - t0,
 					errorDescripcio,
 					ex,
-					parametres);
-			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+					parametres);	
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_ARXIU.toString(),
+					errorDescripcio, 
+					ex);
 		}
 	}
 
@@ -2683,7 +2619,10 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_ARXIU.toString(),
+					errorDescripcio, 
+					ex);
 		}
 	}
 	
@@ -2743,7 +2682,10 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_NOTIB,
+					errorDescripcio, 
+					ex);
 		}
 		return resposta;
 	}
@@ -2825,7 +2767,10 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+			tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_NOTIB,
+					errorDescripcio, 
+					ex);
 		}
 	}
 	
@@ -2924,7 +2869,10 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_NOTIB,
+					errorDescripcio, 
+					ex);
 		}
 	}
 	
@@ -3075,7 +3023,10 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					IntegracioParametreDto.toIntegracioParametres(accioParams));
-			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_VALIDASIG,
+					errorDescripcio, 
+					ex);
 		}
 	}
 	
@@ -3150,7 +3101,10 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					IntegracioParametreDto.toIntegracioParametres(accioParams));
-			throw tractarExcepcioEnSistemaExtern(errorDescripcio, ex);
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_VALIDASIG,
+					errorDescripcio, 
+					ex);
 		}
 	}
 	
@@ -4091,12 +4045,15 @@ public class PluginHelper {
 				return getUnitatsOrganitzativesPlugin().findAmbCodi(codi);
 			} catch (net.conselldemallorca.helium.integracio.plugins.SistemaExternException e) {
 				throw tractarExcepcioEnSistemaExtern(
+						MonitorIntegracioHelper.INTCODI_REGISTRE,
 						"Error cercant unitats orgàniques amb codi: ( " + codi + " )",
 						e);
 			}
 		} else {
 			throw tractarExcepcioEnSistemaExtern(
-					"No s'ha especificat el codi de la unitat", null);
+					MonitorIntegracioHelper.INTCODI_REGISTRE,
+					"No s'ha especificat el codi de la unitat", 
+					null);
 		}
 	}
 	
@@ -4110,14 +4067,16 @@ public class PluginHelper {
 		if( arrel != null) {
 			try {
 				return getUnitatsOrganitzativesPlugin().findAmbPare(arrel);
-			} catch (net.conselldemallorca.helium.integracio.plugins.SistemaExternException e) {
+			} catch (net.conselldemallorca.helium.integracio.plugins.SistemaExternException ex) {
 				throw tractarExcepcioEnSistemaExtern(
+						"DIR3",
 						"Error cercant unitats orgàniques amb unitat arrel: ( " + arrel + " )",
-						e);
+						ex);
 			}
 		} else {
 			throw tractarExcepcioEnSistemaExtern(
-					"No s'ha especificat el codi de la unitat arrel", null);
+					"DIR3",
+					"No s'ha especificat el codi de la unitat arrel", null);	
 		}
 	}
 
@@ -4147,12 +4106,14 @@ public class PluginHelper {
 					personesPlugin = (PersonesPlugin)clazz.newInstance();
 				} catch (Exception ex) {
 					throw tractarExcepcioEnSistemaExtern(
+							MonitorIntegracioHelper.INTCODI_PERSONA,
 							"Error al crear la instància del plugin de persones (" +
 							"pluginClass=" + pluginClass + ")",
 							ex);
 				}
 			} else {
 				throw tractarExcepcioEnSistemaExtern(
+						MonitorIntegracioHelper.INTCODI_PERSONA,
 						"No està configurada la classe per al plugin de persones",
 						null);
 			}
@@ -4175,13 +4136,15 @@ public class PluginHelper {
 					Class<?> clazz = Class.forName(pluginClass);
 					tramitacioPlugin = (TramitacioPlugin)clazz.newInstance();
 				} catch (Exception ex) {
-					throw tractarExcepcioEnSistemaExtern(
+					throw tractarExcepcioEnSistemaExtern( 
+							MonitorIntegracioHelper.INTCODI_SISTRA,
 							"Error al crear la instància del plugin de tramitació (" +
 							"pluginClass=" + pluginClass + ")",
 							ex);
 				}
 			} else {
 				throw tractarExcepcioEnSistemaExtern(
+						MonitorIntegracioHelper.INTCODI_SISTRA,
 						"No està configurada la classe per al plugin de tramitació",
 						null);
 			}
@@ -4197,12 +4160,15 @@ public class PluginHelper {
 					registrePlugin = (RegistrePlugin)clazz.newInstance();
 				} catch (Exception ex) {
 					throw tractarExcepcioEnSistemaExtern(
+							MonitorIntegracioHelper.INTCODI_REGISTRE,
 							"Error al crear la instància del plugin de registre (" +
 							"pluginClass=" + pluginClass + ")",
 							ex);
 				}
 			} else {
 				throw tractarExcepcioEnSistemaExtern(
+						MonitorIntegracioHelper.INTCODI_REGISTRE,
+						"Error al crear la instància del plugin de registre (" +
 						"No està configurada la classe per al plugin de registre",
 						null);
 			}
@@ -4219,12 +4185,14 @@ public class PluginHelper {
 					registrePluginRegWeb3 = (RegistrePluginRegWeb3)clazz.newInstance();
 				} catch (Exception ex) {
 					throw tractarExcepcioEnSistemaExtern(
+							MonitorIntegracioHelper.INTCODI_REGISTRE,
 							"Error al crear la instància del plugin de REGWEB3 (" +
 							"pluginClass=" + pluginClass + ")",
 							ex);
 				}
 			} else {
 				throw tractarExcepcioEnSistemaExtern(
+						MonitorIntegracioHelper.INTCODI_REGISTRE,
 						"No està configurada la classe per al plugin de REGWEB3",
 						null);
 			}
@@ -4241,12 +4209,14 @@ public class PluginHelper {
 					gestioDocumentalPlugin = (GestioDocumentalPlugin)clazz.newInstance();
 				} catch (Exception ex) {
 					throw tractarExcepcioEnSistemaExtern(
+							MonitorIntegracioHelper.INTCODI_GESDOC,
 							"Error al crear la instància del plugin de gestió documental (" +
 							"pluginClass=" + pluginClass + ")",
 							ex);
 				}
 			} else {
 				throw tractarExcepcioEnSistemaExtern(
+						MonitorIntegracioHelper.INTCODI_GESDOC,
 						"No està configurada la classe per al plugin de gestió documental",
 						null);
 			}
@@ -4263,12 +4233,14 @@ public class PluginHelper {
 					portasignaturesPlugin = (PortasignaturesPlugin)clazz.newInstance();
 				} catch (Exception ex) {
 					throw tractarExcepcioEnSistemaExtern(
+							MonitorIntegracioHelper.INTCODI_PFIRMA,
 							"Error al crear la instància del plugin de portafirmes (" +
 							"pluginClass=" + pluginClass + ")",
 							ex);
 				}
 			} else {
 				throw tractarExcepcioEnSistemaExtern(
+						MonitorIntegracioHelper.INTCODI_PFIRMA,
 						"No està configurada la classe per al plugin de portafirmes",
 						null);
 			}
@@ -4284,12 +4256,14 @@ public class PluginHelper {
 					custodiaPlugin = (CustodiaPlugin)clazz.newInstance();
 				} catch (Exception ex) {
 					throw tractarExcepcioEnSistemaExtern(
+							MonitorIntegracioHelper.INTCODI_CUSTODIA,
 							"Error al crear la instància del plugin de custòdia (" +
 							"pluginClass=" + pluginClass + ")",
 							ex);
 				}
 			} else {
 				throw tractarExcepcioEnSistemaExtern(
+						MonitorIntegracioHelper.INTCODI_CUSTODIA,
 						"No està configurada la classe per al plugin de custòdia",
 						null);
 			}
@@ -4305,12 +4279,14 @@ public class PluginHelper {
 					signaturaPlugin = (SignaturaPlugin)clazz.newInstance();
 				} catch (Exception ex) {
 					throw tractarExcepcioEnSistemaExtern(
+							MonitorIntegracioHelper.INTCODI_FIRMA,
 							"Error al crear la instància del plugin de signatura (" +
 							"pluginClass=" + pluginClass + ")",
 							ex);
 				}
 			} else {
 				throw tractarExcepcioEnSistemaExtern(
+						MonitorIntegracioHelper.INTCODI_FIRMA,
 						"No està configurada la classe per al plugin de signatura",
 						null);
 			}
@@ -4326,12 +4302,14 @@ public class PluginHelper {
 					firmaPlugin = (FirmaPlugin)clazz.newInstance();
 				} catch (Exception ex) {
 					throw tractarExcepcioEnSistemaExtern(
+							MonitorIntegracioHelper.INTCODI_FIRMA_SERV,
 							"Error al crear la instància del plugin de firma en servidor (" +
 							"pluginClass=" + pluginClass + ")",
 							ex);
 				}
 			} else {
 				throw tractarExcepcioEnSistemaExtern(
+						MonitorIntegracioHelper.INTCODI_FIRMA_SERV,
 						"No està configurada la classe per al plugin de firma en servidor",
 						null);
 			}
@@ -4358,12 +4336,14 @@ public class PluginHelper {
 					}
 				} catch (Exception ex) {
 					throw tractarExcepcioEnSistemaExtern(
+							MonitorIntegracioHelper.INTCODI_ARXIU,
 							"Error al crear la instància del plugin d'arxiu digital (" +
 							"pluginClass=" + pluginClass + ")",
 							ex);
 				}
 			} else {
 				throw tractarExcepcioEnSistemaExtern(
+						MonitorIntegracioHelper.INTCODI_ARXIU,
 						"No està configurada la classe per al plugin d'arxiu digital",
 						null);
 			}
@@ -4379,12 +4359,14 @@ public class PluginHelper {
 					notificacioPlugin = (NotificacioPlugin)clazz.newInstance();
 				} catch (Exception ex) {
 					throw tractarExcepcioEnSistemaExtern(
+							MonitorIntegracioHelper.INTCODI_NOTIB,
 							"Error al crear la instància del plugin de NOTIFICACIÓ (" +
 							"pluginClass=" + pluginClass + ")",
 							ex);
 				}
 			} else {
 				throw tractarExcepcioEnSistemaExtern(
+						MonitorIntegracioHelper.INTCODI_NOTIB,
 						"No està configurada la classe per al plugin de NOTIFICACIÓ",
 						null);
 			}
@@ -4412,12 +4394,14 @@ public class PluginHelper {
 					}
 				} catch (Exception ex) {
 					throw tractarExcepcioEnSistemaExtern(
+							MonitorIntegracioHelper.INTCODI_VALIDASIG,
 							"Error al crear la instància del plugin de VALIDACIO SIGNATURES (" +
 							"pluginClass=" + pluginClass + ")",
 							ex);
 				}
 			} else {
 				throw tractarExcepcioEnSistemaExtern(
+						MonitorIntegracioHelper.INTCODI_VALIDASIG,
 						"No està configurada la classe per al plugin de VALIDACIO SIGNATURES",
 						null);
 			}
@@ -4434,12 +4418,14 @@ public class PluginHelper {
 					unitatsOrganitzativesPlugin = (UnitatsOrganiquesPlugin)clazz.newInstance();
 				} catch (Exception ex) {
 					throw tractarExcepcioEnSistemaExtern(
+							"DIR3",
 							"Error al crear la instància del plugin de unitats orgàniques (" +
 							"pluginClass=" + pluginClass + ")",
 							ex);
 				}
 			} else {
 				throw tractarExcepcioEnSistemaExtern(
+						"DIR3",
 						"No està configurada la classe per al plugin de unitats orgàniques",
 						null);
 			}
@@ -4448,6 +4434,7 @@ public class PluginHelper {
 	}
 
 	private SistemaExternException tractarExcepcioEnSistemaExtern(
+			String sistemaExtern,
 			String missatge,
 			Throwable ex) {
 		return SistemaExternException.tractarSistemaExternException(
@@ -4460,6 +4447,7 @@ public class PluginHelper {
 				null, 
 				null, 
 				null,
+				sistemaExtern,
 				missatge,
 				ex);
 	}

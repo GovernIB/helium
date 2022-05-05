@@ -303,6 +303,7 @@ public class DocumentHelperV3 {
 							expedient.getTipus().getId(), 
 							expedient.getTipus().getCodi(), 
 							expedient.getTipus().getNom(), 
+							MonitorIntegracioHelper.INTCODI_CONVDOC , //sistemaExtern
 							"No s'ha pogut generar la vista pel document (id=" + documentStoreId + ", processInstanceId=" + documentStore.getProcessInstanceId() + ")", 
 							ex);
 				}
@@ -1342,7 +1343,8 @@ public class DocumentHelperV3 {
 											expedient.getNumero(), 
 											expedient.getTipus().getId(), 
 											expedient.getTipus().getCodi(), 
-											expedient.getTipus().getNom(), 
+											expedient.getTipus().getNom(),
+											MonitorIntegracioHelper.INTCODI_CONVDOC,
 											"Estampar PDF '" + documentStore.getCodiDocument() + "'", 
 											ex);
 								}
@@ -1454,6 +1456,7 @@ public class DocumentHelperV3 {
 										expedient.getTipus().getId(), 
 										expedient.getTipus().getCodi(), 
 										expedient.getTipus().getNom(), 
+										MonitorIntegracioHelper.INTCODI_CONVDOC,
 										"Estampar PDF '" + documentStore.getCodiDocument() + "'", 
 										ex);
 							}

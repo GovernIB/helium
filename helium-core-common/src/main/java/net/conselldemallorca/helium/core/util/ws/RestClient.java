@@ -83,6 +83,7 @@ public class RestClient {
 					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getId(), 
 					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getCodi(), 
 					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getNom(), 
+					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getNom(), 
 					"(Domini '" + domini.getCodi() + "')", 
 					e);
 		}
@@ -134,6 +135,7 @@ public class RestClient {
 					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getId(), 
 					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getCodi(), 
 					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getNom(), 
+					domini.getExpedientTipus() == null ? null : domini.getExpedientTipus().getNom(),
 					"(Domini '" + domini.getCodi() + "')", 
 					e);
 		} 

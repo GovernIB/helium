@@ -23,6 +23,7 @@ public class SistemaExternConversioDocumentException extends SistemaExternExcept
 				expedientTipusId, 
 				expedientTipusCodi,
 				expedientTipusNom, 
+				"CONVDOC", //sistemaExtern
 				"Servidor extern de conversió de documents", 
 				cause);
 		this.publicMessage = "S'ha produït un error amb el servidor extern de conversió de documents.";

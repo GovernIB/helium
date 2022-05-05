@@ -20,6 +20,7 @@ import es.caib.plugins.arxiu.api.FirmaTipus;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
+import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
@@ -703,7 +704,8 @@ public class DocumentHelper {
 									expedient.getNumero(), 
 									expedient.getTipus().getId(), 
 									expedient.getTipus().getCodi(), 
-									expedient.getTipus().getNom(), 
+									expedient.getTipus().getNom(),
+									MonitorIntegracioHelper.INTCODI_PFIRMA,
 									"(PORTASIGNATURES. Enviar: " + errorDescripcio + ")", 
 									ex);
 						}

@@ -27,6 +27,7 @@ public class SistemaExternException extends HeliumException {
 			String expedientTipusCodi,
 			String expedientTipusNom,
 			String sistemaExtern,
+			String errorDescripcio,
 			Throwable cause) {
 		super(	entornId,
 				entornCodi,
@@ -91,6 +92,7 @@ public class SistemaExternException extends HeliumException {
 			String expedientTipusCodi,
 			String expedientTipusNom,
 			String sistemaExtern,
+			String errorDescripcio,
 			Throwable cause) {
 		
 		if(ExceptionUtils.getRootCause(cause) != null && 
@@ -122,6 +124,7 @@ public class SistemaExternException extends HeliumException {
 					expedientTipusCodi, 
 					expedientTipusNom, 
 					sistemaExtern, 
+					errorDescripcio,
 					cause);
 		}
 		
