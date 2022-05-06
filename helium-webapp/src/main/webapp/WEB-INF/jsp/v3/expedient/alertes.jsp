@@ -69,9 +69,9 @@
 							<c:when test="${alerta.terminiIniciat.estat=='CADUCAT'}"><fmt:message key="alerta.llistat.expirat"/></c:when>
 							<c:when test="${alerta.terminiIniciat.estat=='COMPLETAT_TEMPS'}"><fmt:message key="alerta.llistat.completat_atemps"/></c:when>
 							<c:when test="${alerta.terminiIniciat.estat=='COMPLETAT_FORA'}"><fmt:message key="alerta.llistat.completat_fora"/></c:when>
-							<c:otherwise>${alerta.text}</c:otherwise>
+							<c:otherwise><c:out value="${alerta.text}"/></c:otherwise>
 						</c:choose></c:when>
-						<c:otherwise>${alerta.text}</c:otherwise>
+						<c:otherwise><c:out value="${alerta.text}"/></c:otherwise>
 					</c:choose>
 				</td>
 				<td>
