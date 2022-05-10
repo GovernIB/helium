@@ -27,6 +27,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import net.conselldemallorca.helium.core.helper.DefinicioProcesHelper;
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
@@ -66,8 +67,12 @@ public abstract class BaseBackoffice {
 	@Resource
 	private CampTascaRepository campTascaRepository;
 
+	@Autowired
 	private DissenyService dissenyService;
-
+	
+	@Autowired
+	private net.conselldemallorca.helium.v3.core.api.service.DissenyService dissenyV3Service;
+	
 	public BaseBackoffice() {
 		
 	}
@@ -85,6 +90,8 @@ public abstract class BaseBackoffice {
 	}
 
 	public int processarTramit(DadesTramit tramit) throws Exception {
+
+		dissenyV3Service.findExpedientTipusAmbPermisDissenyUsuariActual(new Long(2));
 		List<ExpedientTipus> candidats = dissenyService.findExpedientTipusAmbSistraTramitCodi(tramit.getIdentificador());
 		for (ExpedientTipus expedientTipus: candidats) {
 			String expedientTitol = null;
@@ -92,13 +99,14 @@ public abstract class BaseBackoffice {
 				expedientTitol = tramit.getNumero();
 
 			EntornActual.setEntornId(expedientTipus.getEntorn().getId());
+			DefinicioProcesDto definicioProces = dissenyService.findDarreraAmbExpedientTipus(expedientTipus.getId());
 
 			// Crida al mètode de creació de l'expedient
 			ExpedientDto expedientNou = expedientService.create(
 					expedientTipus.getEntorn().getId(),
 					null,
 					expedientTipus.getId(),
-					null,
+					definicioProces != null ? definicioProces.getId() :null,
 					null,
 					null, // expedientNumero
 					expedientTitol,
@@ -530,5 +538,24 @@ public abstract class BaseBackoffice {
 		return documents;
 	}
 	protected static final Log logger = LogFactory.getLog(BaseBackoffice.class);
+
+	@Autowired
+	public net.conselldemallorca.helium.v3.core.api.service.DissenyService getDissenyV3Service() {
+		return dissenyV3Service;
+	}
+	@Autowired
+	public void setDissenyV3Service(net.conselldemallorca.helium.v3.core.api.service.DissenyService dissenyV3Service) {
+		this.dissenyV3Service = dissenyV3Service;
+	}
+	@Autowired
+	public ExpedientService getExpedientService() {
+		return expedientService;
+	}
+	@Autowired
+	public DissenyService getDissenyService() {
+		return dissenyService;
+	}
+	
+	
 
 }
