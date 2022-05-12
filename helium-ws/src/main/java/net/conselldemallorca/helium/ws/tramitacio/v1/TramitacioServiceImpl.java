@@ -72,6 +72,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 	private net.conselldemallorca.helium.v3.core.api.service.TascaService tascaServiceV3;
 	private DocumentService documentService;
 	private PermissionService permissionService;
+	private final String expLog = "Invocació del mètode del ws Tramitacio Externa V1: ";
+
+	private String usuariAutenticat = " usuari autenticat: " ;
 
 
 	@Override
@@ -81,6 +84,17 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String numero,
 			String titol,
 			List<ParellaCodiValor> valorsFormulari) throws TramitacioException {
+
+		logger.info(this.expLog.concat(
+				this.getNomMetode()
+				+ " [entorn=" + entorn
+				+ ", expedientTipus=" + expedientTipus 
+				+ ", numero=" + numero 
+				+ ", titol=" + titol 
+				+ ", " + usuariAutenticat
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
+		
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb aquest codi '" + entorn + "'");
@@ -109,8 +123,6 @@ public class TramitacioServiceImpl implements TramitacioService {
 							parella.getValor());
 			}
 		}
-		// Informació de l'inici d'expedient pels logs
-		String expLog = "[entorn=" +  entorn + ", expedientTipus=" + expedientTipus + ", numero=" + numero + ", titol=" + titol + "]";
 		try {
 			net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto expedient = expedientV3Service.create(
 					e.getId(),
@@ -144,7 +156,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 					null,
 					null,
 					false);
-			logger.info("Expedient iniciat a través del WS de tramitació externa V1 " + expLog);
+			logger.info("Expedient " + numero + " iniciat correctament");
 			return expedient.getProcessInstanceId();
 		} catch (Exception ex) {
 			logger.error("Error iniciant l'expedient a través del WS de tramitació externa V1 "  + expLog + ": " + ex.getMessage(), ex);
@@ -155,6 +167,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 	@Override
 	public List<TascaTramitacio> consultaTasquesPersonals(
 			String entorn) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				this.getNomMetode()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -175,6 +193,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 	@Override
 	public List<TascaTramitacio> consultaTasquesGrup(
 			String entorn) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				this.getNomMetode()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -196,6 +220,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public List<TascaTramitacio> consultaTasquesPersonalsByCodi(
 			String entorn, 
 			String codi) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				this.getNomMetode()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -217,6 +247,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public List<TascaTramitacio> consultaTasquesGrupByCodi(
 			String entorn, 
 			String codi) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				this.getNomMetode()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -238,6 +274,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public List<TascaTramitacio> consultaTasquesPersonalsByProces(
 			String entorn, 
 			String processInstanceId) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				this.getNomMetode()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -283,6 +325,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public List<TascaTramitacio> consultaTasquesGrupByProces(
 			String entorn, 
 			String processInstanceId) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				this.getNomMetode()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -328,6 +376,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public void agafarTasca(
 			String entorn,
 			String tascaId) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				this.getNomMetode()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -351,6 +405,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public void alliberarTasca(
 			String entorn,
 			String tascaId) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				this.getNomMetode()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -378,6 +438,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public List<CampTasca> consultaFormulariTasca(
 			String entorn,
 			String tascaId) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				this.getNomMetode()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -403,6 +469,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String tascaId,
 			List<ParellaCodiValor> valors) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				this.getNomMetode()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -458,6 +530,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public List<DocumentTasca> consultaDocumentsTasca(
 			String entorn,
 			String tascaId) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				this.getNomMetode()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -486,6 +564,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String nom,
 			Date data,
 			byte[] contingut) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				this.getNomMetode()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -511,6 +595,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String tascaId,
 			String document) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				this.getNomMetode()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -533,6 +623,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String tascaId,
 			String transicio) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				this.getNomMetode()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -554,6 +650,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public ExpedientInfo getExpedientInfo(
 			String entornCodi,
 			String processInstanceId) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				this.getNomMetode()
+				+ " [entorn=" + entornCodi
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entornCodi);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entornCodi + "'");
@@ -567,6 +669,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public List<CampProces> consultarVariablesProces(
 			String entorn,
 			String processInstanceId) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				this.getNomMetode()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -611,6 +719,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String processInstanceId,
 			String varCodi,
 			Object valor) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				this.getNomMetode()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -662,6 +776,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String processInstanceId,
 			String varCodi) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				this.getNomMetode()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -684,6 +804,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public List<DocumentProces> consultarDocumentsProces(
 			String entorn,
 			String processInstanceId) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				this.getNomMetode()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -709,6 +835,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public ArxiuProces getArxiuProces(
 			Long documentId) throws TramitacioException {
 		try {
+			logger.info(this.expLog.concat(
+					this.getNomMetode()
+					+ " [" 
+					+ usuariAutenticat 
+					+ SecurityContextHolder.getContext().getAuthentication().getName()
+					+ "]"));
 			ArxiuProces resposta = null;
 			if (documentId != null) {
 				DocumentDto docInfo = documentService.documentInfo(documentId);
@@ -721,6 +853,14 @@ public class TramitacioServiceImpl implements TramitacioService {
 					resposta = new ArxiuProces();
 					resposta.setNom(arxiu.getNom());
 					resposta.setContingut(arxiu.getContingut());
+					logger.info(this.expLog.concat(
+							this.getNomMetode()
+							+ " ["
+							+ ", document id =" + documentId
+							+ ", document nom =" + arxiu.getNom() 
+							+ ", " + usuariAutenticat
+							+ SecurityContextHolder.getContext().getAuthentication().getName()
+							+ "]"));
 				}
 			}
 			return resposta;
@@ -738,6 +878,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String arxiu,
 			Date data,
 			byte[] contingut) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				new Exception().getStackTrace()[0].getMethodName()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -774,6 +920,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String processInstanceId,
 			Long documentId) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				new Exception().getStackTrace()[0].getMethodName()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -798,6 +950,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String processInstanceId,
 			String accio) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				new Exception().getStackTrace()[0].getMethodName()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -828,6 +986,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String processInstanceId,
 			String script) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				new Exception().getStackTrace()[0].getMethodName()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -852,6 +1016,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String entorn,
 			String processInstanceId,
 			String motiu) throws TramitacioException{
+		logger.info(this.expLog.concat(
+				new Exception().getStackTrace()[0].getMethodName()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -875,6 +1045,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public void reprendreExpedient(
 			String entorn,
 			String processInstanceId) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				new Exception().getStackTrace()[0].getMethodName()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -907,6 +1083,13 @@ public class TramitacioServiceImpl implements TramitacioService {
 			Double geoPosX,
 			Double geoPosY,
 			String geoReferencia) throws TramitacioException {
+		this.expLog.concat(
+				" [entorn=" + entorn
+				+ ", expedientTipus=" + expedientTipusCodi 
+				+ ", numero=" + numero 
+				+ ", titol=" + titol 
+				+ ", " + usuariAutenticat + "]");
+		logger.info(expLog);
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -961,6 +1144,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 	public void deleteExpedient(
 			String entorn,
 			String processInstanceId) throws TramitacioException {
+		logger.info(this.expLog.concat(
+				new Exception().getStackTrace()[0].getMethodName()
+				+ " [entorn=" + entorn
+				+ ", " + usuariAutenticat 
+				+ SecurityContextHolder.getContext().getAuthentication().getName()
+				+ "]"));
 		Entorn e = findEntornAmbCodi(entorn);
 		if (e == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
@@ -1239,5 +1428,10 @@ public class TramitacioServiceImpl implements TramitacioService {
 	}
 
 	private static final Log logger = LogFactory.getLog(TramitacioServiceImpl.class);
+	
+	/** Obté el nom del mètode des d'on es crida */
+	private String getNomMetode() {
+		return new Exception().getStackTrace()[1].getMethodName();
+	}
 
 }
