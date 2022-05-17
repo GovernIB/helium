@@ -169,9 +169,21 @@
 			cursor: pointer;
 		}
 	</style>
-	<script type="text/javascript">
+	<script type="text/javascript">	
 		$(document).ready(function(){
-			$(".dropdown-menu").css("max-height", ($(window).height() - 75) +"px");
+
+			$('#searchEntorns').on('input', function(){
+				searchEntorns($('#searchEntorns').val());
+				
+			}).click(function(e){
+				e.preventDefault();
+				e.stopPropagation();
+				$('#searchEntorns').focus();
+				return false;
+			}
+			);
+			
+			$(".dropd+own-menu").css("max-height", ($(window).height() - 75) +"px");
 
 			if($(".nav-consulta-tipus").length == 0) {
 				$("#btnConsultes").remove();
@@ -191,6 +203,23 @@
 			 $('.arrow-top').fadeOut();
 			}
 		});
+		
+		function searchEntorns(text) {
+			fadeoutMs = 300;
+			$('.liEntorn').each(function() {
+				$entorn = $(this);
+				if (text == ""
+						|| $('a', this).text().toLowerCase().includes(text.toLowerCase())) 
+				{
+					$entorn.show();
+					
+				} else {
+					// amaga l'entorn
+					$entorn.hide(fadeoutMs);
+				}
+			});
+		}
+		
 	</script>
 	<decorator:head />
 </head>
@@ -215,11 +244,19 @@
 					<ul class="list-inline pull-right ul-menu">
 						<li class="dropdown big-size">
 							<c:if test="${fn:length(entorns) gt 1}"><a id="menuEntorns" href="#" data-toggle="dropdown"></c:if>
-							<span class="fa fa-cubes"></span> <span id="entornActualNom" data-toggle="tooltip" data-placement="bottom" title="${entornActual.nom}" class="text-limit w475" >${entornActual.nom}</span>
-							<c:if test="${fn:length(entorns) gt 1}"><b class="caret caret-white"></b></a></c:if>
-							<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+							<span class="fa fa-cubes"></span> <span id="entornActualNom" data-toggle="tooltip" data-placement="bottom" title="${entornActual.nom}" class="text-limit w475" >${entornActual.nom}</span>		
+							<ul class="dropdown-menu" id="ulEntorn" role="menu" aria-labelledby="dLabel">
+								<li style="display: block; min-width:350px; ">
+									<span class="fa fa-search" style="position: absolute;float: left;padding-left:30px;padding-top: 10px;"></span>
+									<input id="searchEntorns" class="form-control" 
+											placeholder="<spring:message code="perfil.usuari.filtrar"/>"
+											 autocomplete="off" spellcheck="false" autocorrect="off" tabindex="1" inline="true"
+										 style="padding-left: 30px; margin-left:7%; width:90% ; margin-right:9%; margin-top:2%;">
+								</li>
 								<c:forEach var="entorn" items="${entorns}">
-									<li><a href="<c:url value="/v3/index"><c:param name="entornCanviarAmbId" value="${entorn.id}"/></c:url>">${entorn.nom}</a></li>
+									<li class="liEntorn">
+										<a href="<c:url value="/v3/index"><c:param name="entornCanviarAmbId" value="${entorn.id}"/></c:url>">${entorn.nom}</a>
+									</li>
 			    				</c:forEach>
 							</ul>
 						</li>

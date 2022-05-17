@@ -22,13 +22,16 @@ import net.conselldemallorca.helium.core.model.hibernate.Entorn;
  */
 public interface EntornRepository extends JpaRepository<Entorn, Long> {
 
+	@Query(	"from Entorn e " +
+			"order by e.nom asc ")
 	List<Entorn> findByActiuTrue();
 
 	Entorn findByCodi(String codi);
 
 	@Query(	"from Entorn e " +
 			"where " +
-			"    (:esNullFiltre = true or lower(e.nom) like lower('%'||:filtre||'%') or lower(e.codi) like lower('%'||:filtre||'%')) ")
+			"    (:esNullFiltre = true or lower(e.nom) like lower('%'||:filtre||'%') or lower(e.codi) like lower('%'||:filtre||'%'))")
+	
 	Page<Entorn> findByFiltrePaginat(
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
