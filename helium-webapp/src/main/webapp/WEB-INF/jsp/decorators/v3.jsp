@@ -183,7 +183,7 @@
 			}
 			);
 			
-			$(".dropd+own-menu").css("max-height", ($(window).height() - 75) +"px");
+			$(".dropdown-menu").css("max-height", ($(window).height() - 75) +"px");
 
 			if($(".nav-consulta-tipus").length == 0) {
 				$("#btnConsultes").remove();
