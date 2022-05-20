@@ -32,6 +32,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.core.helper.EntornHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientHelper;
+import net.conselldemallorca.helium.core.helper.PermisosHelper;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
@@ -39,6 +42,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto.
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
@@ -92,6 +96,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Autowired
 	private EntornHelper entornHelper;
+	@Autowired
+	private ExpedientHelper expedientHelper;
 
 
 	@RequestMapping(method = RequestMethod.GET)
@@ -304,17 +310,21 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		boolean error = false;
-		// Comprova que no hi hagi expedients
-		if (expedientService.existsExpedientAmbEntornTipusITitol(
-				entornActual.getId(),
-				id,
-				null)) {
-			error = true;
-			MissatgesHelper.error(
-					request,
-					getMessage(
+		// Comprova si hi ha expedients, si te permís d'esborrar, s'esborraràn
+		List<Expedient> expedients = expedientHelper.findByEntornIdAndTipusAndTitol(entornActual.getId(), id, null);
+		if(!expedients.isEmpty()) {
+			for(Expedient exp: expedients) {
+				ExpedientDto expDto = expedientService.findAmbIdAmbPermis(exp.getId());
+				if(!expDto.isPermisDelete()) {
+					MissatgesHelper.error(
 							request,
-							"expedient.tipus.controller.eliminar.expedients.relacionats"));
+							getMessage(
+									request,
+									"expedient.tipus.controller.eliminar.expedients.noTePermisEsborrar"));
+					error=true;
+					break;
+				}
+			}
 		}
 		// Comprova que no hi hagi tipus d'expedients que heretin
 		List<ExpedientTipusDto> heretats = expedientTipusService.findHeretats(id); 
@@ -336,6 +346,33 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			error = true;
 		}
 		if (!error) {
+			if(!expedients.isEmpty()) {
+				int n = 0;
+				int errors = 0;
+				for(Expedient ex: expedients) {
+					try {
+						expedientService.delete(ex.getId());
+						n++;
+					} catch(Exception e) {
+						logger.error("Error esborrant l'expedient " + ex.getIdentificador() + ": " + e.getMessage());
+						errors++;
+					}
+				}
+				MissatgesHelper.success(
+						request,
+						getMessage(
+								request,
+								"expedient.tipus.controller.expedients.eliminats", 
+								new Object[] {n, expedients.size()}));
+				if(errors>0) {
+					MissatgesHelper.error(
+							request,
+							getMessage(
+									request,
+									"expedient.tipus.controller.expedients.eliminats.errors",
+									new Object[] {errors, expedients.size()}));
+				}
+			}
 			expedientTipusService.delete(
 					entornActual.getId(),
 					id);
