@@ -62,8 +62,13 @@
 									<li><a data-toggle="modal" href="expedientTipus/importar?expedientTipusId={{:id}}"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.importar"/></a></li>
 								{{/if}}
 								<c:if test="${potAdministrarEntorn or potDissenyarEntorn}">
-									<li><a href="expedientTipus/{{:id}}/delete" data-rdt-link-ajax="true" data-confirm="<spring:message code="expedient.tipus.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
-									<li><a href="expedientTipus/{{:id}}/netejarDp" class="consultar-expedient"><span class="fa fa-trash"></span>&nbsp;<spring:message code="entorn.llistat.netejar.definicions.proces"/></a></li>
+									<c:if test="${propagarEsborratExpedients}">
+										<li><a href="expedientTipus/{{:id}}/delete" data-rdt-link-ajax="true" data-confirm="<spring:message code="expedient.tipus.llistat.confirmacio.esborrar.esborrarExpedients"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+									</c:if>
+									<c:if test="${!propagarEsborratExpedients}">
+										<li><a href="expedientTipus/{{:id}}/delete" data-rdt-link-ajax="true" data-confirm="<spring:message code="expedient.tipus.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+									</c:if>
+								<li><a href="expedientTipus/{{:id}}/netejarDp" class="consultar-expedient"><span class="fa fa-trash"></span>&nbsp;<spring:message code="entorn.llistat.netejar.definicions.proces"/></a></li>
 								</c:if>
 							</ul>
 						</div>

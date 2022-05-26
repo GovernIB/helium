@@ -2229,7 +2229,13 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			throw tractarExcepcioEnSistemaExtern(MonitorIntegracioHelper.INTCODI_ARXIU,errorDescripcio, ex);
+			if(!isPropagarEsbExp())
+				throw tractarExcepcioEnSistemaExtern(MonitorIntegracioHelper.INTCODI_ARXIU,errorDescripcio, ex);
+			else {
+				logger.warn("Error esborrant el document amb UUID " + arxiuUuid+ " de l'Arxiu: " + ex.getClass() + " " + ex.getCause());
+			}
+
+				
 		}
 	}
 
@@ -4528,6 +4534,11 @@ public class PluginHelper {
 			dtos.add(dto);
 		}	
 		return dtos;
+	}
+	
+	/** Mètode per consultar la propietat de propagació d'esborrat d'expedients si s'esborra el tipus d'expedient.*/
+	private boolean isPropagarEsbExp() {
+				return "true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.configuracio.propagar.esborrar.expedients"));
 	}
 
 	private static final Log logger = LogFactory.getLog(PluginHelper.class);

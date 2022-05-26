@@ -35,6 +35,7 @@ import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
@@ -56,6 +57,7 @@ import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCommand.Creacio;
@@ -93,6 +95,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	@Autowired
 	private DefinicioProcesService definicioProcesService;
 	@Autowired
+	private ExpedientDocumentService expedientDocumentService;
+	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
 	@Autowired
 	private EntornHelper entornHelper;
@@ -104,6 +108,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	public String llistat(
 			HttpServletRequest request,
 			Model model) {
+		model.addAttribute("propagarEsborratExpedients",this.isPropagarEsbExp());	
 		return "v3/expedientTipusLlistat";
 	}
 
@@ -309,10 +314,11 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			@PathVariable Long id,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		boolean esborrarExpedients =isPropagarEsbExp();	
 		boolean error = false;
 		// Comprova si hi ha expedients, si te permís d'esborrar, s'esborraràn
 		List<Expedient> expedients = expedientHelper.findByEntornIdAndTipusAndTitol(entornActual.getId(), id, null);
-		if(!expedients.isEmpty()) {
+		if(!expedients.isEmpty() && esborrarExpedients) {
 			for(Expedient exp: expedients) {
 				ExpedientDto expDto = expedientService.findAmbIdAmbPermis(exp.getId());
 				if(!expDto.isPermisDelete()) {
@@ -346,7 +352,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			error = true;
 		}
 		if (!error) {
-			if(!expedients.isEmpty()) {
+			if(!expedients.isEmpty() && esborrarExpedients) {
 				int n = 0;
 				int errors = 0;
 				for(Expedient ex: expedients) {
@@ -355,7 +361,18 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 						n++;
 					} catch(Exception e) {
 						logger.error("Error esborrant l'expedient " + ex.getIdentificador() + ": " + e.getMessage());
-						errors++;
+						
+						if(ex.getArxiuUuid()!=null) {
+							String missatgeError = "Error esborrant l'expedient " + ex.getNumero() + " amb UUID " + ex.getArxiuUuid()+ " de l'Arxiu: " + e.getClass() + " " + e.getCause();
+							logger.warn(missatgeError);
+							MissatgesHelper.error(
+									request,
+									getMessage(
+											request,
+											missatgeError,
+											new Object[] {errors, expedients.size()}));
+						}
+							errors++;
 					}
 				}
 				MissatgesHelper.success(
@@ -1331,6 +1348,11 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 	    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+	}
+	
+	/** Mètode per consultar la propietat de propagació d'esborrat d'expedients si s'esborra el tipus d'expedient.*/
+	private boolean isPropagarEsbExp() {
+				return "true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.configuracio.propagar.esborrar.expedients"));
 	}
 	
 	private static final Log logger = LogFactory.getLog(ExpedientTipusController.class);

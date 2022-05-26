@@ -31,6 +31,8 @@ public class ConfiguracioParametresController extends BaseController {
 	
 	/** Constant de la propietat de redireccionar des de menús de la interfície 2.6 cap a la nova interfície 3.*/
 	private static final String APP_CONFIGURACIO_REDIRECCIONAR = "app.configuracio.redireccionar";
+	/**Paràmetre true/false per propagar l'esborrat d'expedients quan s'esborri un tipus d'expedient**/
+	private static final String APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS = "app.configuracio.propagar.esborrar.expedients";
 	
 	public enum Accions {
 		RESTAURAR,
@@ -49,6 +51,7 @@ public class ConfiguracioParametresController extends BaseController {
 		ParametresCommand parametresCommand = new ParametresCommand();
 		// Omple amb els valors del fitxer de propietats
 		parametresCommand.setRedireccionar(isRedireccionar());
+		parametresCommand.setPropagarEsborratExpedients(isPropagarEsbExp());
 		
 		model.addAttribute("parametresCommand", parametresCommand);
 				
@@ -65,8 +68,9 @@ public class ConfiguracioParametresController extends BaseController {
 		String messageKey;
 		if (Accions.GUARDAR.equals(accio)) {
 			// Guardar els valors en les propietats
-			logger.info("Guardant els valors dels paràmetres: {restaurar= " + parametresCommand.isRedireccionar() + "}");
+			logger.info("Guardant els valors dels paràmetres: {restaurar= " + parametresCommand.isRedireccionar() + ", propagar_esborrat_expedients: "+parametresCommand.isPropagarEsborratExpedients() +"}");
 			GlobalProperties.getInstance().setProperty(APP_CONFIGURACIO_REDIRECCIONAR, String.valueOf(parametresCommand.isRedireccionar()));
+			GlobalProperties.getInstance().setProperty(APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS, String.valueOf(parametresCommand.isPropagarEsborratExpedients()));
 			messageKey = "configuracio.parametres.accio.guardar.confirmacio";
 		} else {
 			// Restaurar els valors
@@ -92,6 +96,15 @@ public class ConfiguracioParametresController extends BaseController {
 			valorsDefecte.put(APP_CONFIGURACIO_REDIRECCIONAR, String.valueOf("true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty(APP_CONFIGURACIO_REDIRECCIONAR))));
 		}
 		return "true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty(APP_CONFIGURACIO_REDIRECCIONAR));
+	}
+	
+	/** Mètode per consultar la propietat de propagació d'esborrat d'expedients si s'esborra el tipus d'expedient.*/
+	private boolean isPropagarEsbExp() {
+		// Guarda el valor per defecte 
+				if (!valorsDefecte.containsKey(APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS)) {
+					valorsDefecte.put(APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS, String.valueOf("true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty(APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS))));
+				}
+				return "true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty(APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS));
 	}
 	
 	private static final Log logger = LogFactory.getLog(ConfiguracioParametresController.class);

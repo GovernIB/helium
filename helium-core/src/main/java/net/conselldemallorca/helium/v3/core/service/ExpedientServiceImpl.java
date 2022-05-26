@@ -85,6 +85,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.jbpm3.integracio.ExecucioHandlerException;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
@@ -523,7 +524,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				true,
 				false);
 		List<JbpmProcessInstance> processInstancesTree = jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId());
-		if (expedient.isArxiuActiu()) {
+		if (expedient.isArxiuActiu() && !isPropagarEsbExp()) {
 			// Si l'expedient està emmagatzemat a dins l'arxiu comprovam que
 			// l'expedient no contengui documents firmats abans d'esborrar-lo.
 			List<String> processInstanceIds = new ArrayList<String>();
@@ -3079,7 +3080,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 			}				
 		}
 	}
-
+	
+	/** Mètode per consultar la propietat de propagació d'esborrat d'expedients si s'esborra el tipus d'expedient.*/
+	private boolean isPropagarEsbExp() {
+				return "true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.configuracio.propagar.esborrar.expedients"));
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 }
