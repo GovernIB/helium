@@ -128,6 +128,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDt
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioException;
@@ -558,7 +559,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 				terminiIniciatRepository.delete(ti);
 			jbpmHelper.deleteProcessInstance(pi.getId());
 			for (DocumentStore documentStore: documentStoreRepository.findByProcessInstanceId(pi.getId())) {
-				if (documentStore.isSignat()) {
+				if (documentStore.isSignat() && documentStore.getReferenciaCustodia()!=null ) {
 					try {
 						pluginHelper.custodiaEsborrarSignatures(documentStore.getReferenciaCustodia(), expedient);
 					} catch (Exception ignored) {}
@@ -582,7 +583,11 @@ public class ExpedientServiceImpl implements ExpedientService {
 		expedientRepository.delete(expedient);
 		luceneHelper.deleteExpedient(expedient);
 		if (expedient.getArxiuUuid() != null && pluginHelper.arxiuExisteixExpedient(expedient.getArxiuUuid())) {			
-			pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());
+			try {
+				pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());
+			} catch (SistemaExternException e) {
+				logger.warn("Error esborrant l'expedient " + expedient.getNumero() + " " + expedient.getTitol() +" a l'Arxliu: " + e.getMessage());
+			}
 		}
 		crearRegistreExpedient(
 				expedient.getId(),
