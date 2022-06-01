@@ -15,7 +15,8 @@ import java.util.List;
 public class CsvHelper {
 	
 	/** Separador de columnes. */
-	private String separador = ";";
+	private char separador = ';';
+	private char delimitadorString = '\"';
 	/** Codificador per llegir el contingut. */
 	private String codificacio ="UTF-8";
 	/** Indica si el text està delimitat entre corxets. */
@@ -39,7 +40,7 @@ public class CsvHelper {
 			// 1a fila 
 			String line;
 		    while ((line = br.readLine()) != null) {
-		        String[] tokens = line.split(this.separador);
+		        String[] tokens = this.getCsvTokens(line, this.separador, this.delimitadorString);
 		        if (this.textEnCorxets) {
 		        	for (int i=0; i<tokens.length; i++) {
 		        		if (tokens[i].startsWith("\"") && tokens[i].endsWith("\""))
@@ -56,6 +57,66 @@ public class CsvHelper {
 		    }
 		}
 		return resultat;
+	}
+	
+	public String[] getCsvTokens(String line, char separador, char delimitadorString) {
+		List<String> tokens = new ArrayList<String>();
+		// si és un nou token i comença per delimitadorString llavors llegeix fins al següent delimitador d'string i guarda'l com un nou token
+		// altrament comença un nou string token i llegeix fins al següent separador
+		StringBuilder token = new StringBuilder();
+		if (line != null) {
+			for (int i=0; i<line.length(); i++) {
+				if(i!=line.length()-1) {
+					if (line.charAt(i) == delimitadorString) {
+						for(int j=i+1; j<line.length();j++) {
+							if(line.charAt(j)!=delimitadorString && j!=line.length()-1)  {
+								token.append(line.charAt(j));
+							}else {
+								i=j;
+								break;
+							}
+						}
+						tokens.add(token.toString());
+						token = new StringBuilder();
+					} else {
+						if(line.charAt(i)!=separador) {
+							for(int j=i; j<line.length();j++) {
+								if(line.charAt(j)!=separador && j!=line.length()-1) 
+									token.append(line.charAt(j));
+								else if (j==line.length()-1) {
+									token.append(line.charAt(j));
+									i=j;
+								}
+								else {
+									i=j;
+									break;
+								}
+							}
+							tokens.add(token.toString());
+							token = new StringBuilder();
+						}	
+					}
+				} else {
+					token.append(line.charAt(i));
+					tokens.add(token.toString());
+					break;
+				}
+					
+			}		
+		}
+		return tokens.toArray(new String[0]);
+	}
+	
+	public static void main(String[] args) {
+		System.out.println("Inici prova");
+		CsvHelper csvHelper = new CsvHelper();
+		//String line = "2022;22;Expedient 202205260922;\"El valor de text té el caràcter ';' que fa tanta nosa\";2;2022-05-26 12:3:4.567;-65;S";
+		//String line = "\"Valor1\";\"Valor ; 2\";2";
+		String line = "Any;Número;Títol;var_string;var_float;var_data;var_preu;var_bool";
+		String[] tokens = csvHelper.getCsvTokens(line, ';', '"');
+		for (int i=0; i< tokens.length; i++) {
+			System.out.println(i + " " + tokens[i]);
+		}
 	}
 
 	/** Mètode per escriure en un arxiu CSV per files i columnes el contingut
@@ -80,13 +141,20 @@ public class CsvHelper {
 		return csvBuilder.toString().getBytes(codificacio);
 	}
 
-
-	public String getSeparador() {
+	public char getSeparador() {
 		return separador;
 	}
 
-	public void setSeparador(String separador) {
+	public void setSeparador(char separador) {
 		this.separador = separador;
+	}
+
+	public char getDelimitadorString() {
+		return delimitadorString;
+	}
+
+	public void setDelimitadorString(char delimitadorString) {
+		this.delimitadorString = delimitadorString;
 	}
 
 	public String getCodificacio() {
