@@ -781,6 +781,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					if (consulta.getInformeContingut() != null && consulta.getInformeContingut().length > 0) {
 						consultaExportacio.setInformeNom(consulta.getInformeNom());
 						consultaExportacio.setInformeContingut(consulta.getInformeContingut());
+						consultaExportacio.setFormatExport(consulta.getFormatExport());
 					}
 					exportacio.getConsultes().add(consultaExportacio);
 					// Camps de la consulta
@@ -1392,9 +1393,11 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						if (consultaExportat.getInformeContingut() != null) {
 							consulta.setInformeNom(consultaExportat.getInformeNom());
 							consulta.setInformeContingut(consultaExportat.getInformeContingut());
+							consulta.setFormatExport(consultaExportat.getFormatExport());
 						} else {
 							consulta.setInformeNom(null);
 							consulta.setInformeContingut(null);
+							consulta.setFormatExport(null);
 						}
 						// Variables i paràmetres de la consulta
 						int versio;

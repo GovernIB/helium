@@ -21,6 +21,7 @@ public class ConsultaExportacio implements Serializable {
 	private String valorsPredefinits;
 	private String informeNom;
 	private byte[] informeContingut;
+	private String formatExport;
 	private boolean exportarActiu;
 	private boolean ocultarActiu;
 	private int ordre;
@@ -94,6 +95,13 @@ public class ConsultaExportacio implements Serializable {
 	}
 	public void setOrdre(int ordre) {
 		this.ordre = ordre;
+	}
+	public String getFormatExport() {
+		return formatExport;
+	}
+
+	public void setFormatExport(String formatExport) {
+		this.formatExport = formatExport;
 	}
 
 
