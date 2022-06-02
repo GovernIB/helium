@@ -230,6 +230,7 @@ public class ConversioTipusHelper {
 						target.setId(source.getId());
 						target.setInformeContingut(source.getInformeContingut());
 						target.setInformeNom(source.getInformeNom());
+						target.setFormatExport(source.getFormatExport());
 						target.setNom(source.getNom());
 						target.setOcultarActiu(source.isOcultarActiu());
 						target.setOrdre(source.getOrdre());

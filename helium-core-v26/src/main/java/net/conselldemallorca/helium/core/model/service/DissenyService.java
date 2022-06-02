@@ -1788,6 +1788,7 @@ public class DissenyService {
 				if (consulta.getInformeContingut() != null) {
 					nova.setInformeNom(consulta.getInformeNom());
 					nova.setInformeContingut(consulta.getInformeContingut());
+					nova.setFormatExport(consulta.getFormatExport());
 				}
 				nova.setExportarActiu(consulta.isExportarActiu());
 				nova.setOcultarActiu(consulta.isOcultarActiu());
