@@ -25,6 +25,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.EntornService;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
@@ -218,7 +219,11 @@ public class EntornServiceImpl implements EntornService {
 				entornId,
 				Entorn.class,
 				permis);
-   		usuariActualHelper.netejarCacheUsuari(permis.getPrincipalNom());
+		if (permis.getPrincipalTipus() == PrincipalTipusEnumDto.USUARI) {
+			usuariActualHelper.netejarCacheUsuari(permis.getPrincipalNom());
+		} else {
+			usuariActualHelper.netejarCacheUsuariTots();
+		}
 	}
 
 	/**
@@ -239,7 +244,11 @@ public class EntornServiceImpl implements EntornService {
 				entornId,
 				Entorn.class,
 				permisId);
-		usuariActualHelper.netejarCacheUsuari(permisDto.getPrincipalNom());
+		if (permisDto.getPrincipalTipus() == PrincipalTipusEnumDto.USUARI) {
+			usuariActualHelper.netejarCacheUsuari(permisDto.getPrincipalNom());
+		} else {
+			usuariActualHelper.netejarCacheUsuariTots();
+		}
 	}
 
 	/**
