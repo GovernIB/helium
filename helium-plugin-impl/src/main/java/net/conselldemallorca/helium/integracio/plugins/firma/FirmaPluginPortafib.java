@@ -49,6 +49,8 @@ public class FirmaPluginPortafib implements FirmaPlugin {
 				getPropertyApiUsername(),
 				getPropertyApiPassword());
 		
+		logger.debug("Firma simple en servidor. URL API REST Jersey: " + getPropertyApiEndpoint());
+		
 		FirmaSimpleFile fileToSign = new FirmaSimpleFile(nom, mime, contingut);
 
 		FirmaSimpleSignatureResult result;
