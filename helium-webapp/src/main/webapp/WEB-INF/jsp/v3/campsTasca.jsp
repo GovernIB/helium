@@ -61,7 +61,7 @@
 								<input type="text" id="${campCodi}" name="${campNom}" class="form-control date" placeholder="dd/mm/aaaa" data-required="${dada.required}" value="${formattedDate}"/>
 								</c:when>
 								<c:otherwise>
-								<c:set var="formattedDate" value="${command[campNom][campIndex]}"/>
+								<c:set var="formattedDate" value="${command[campNom]}"/>
 								<form:input path="${campCodi}" id="${campCodi}" cssClass="date form-control" placeholder="dd/mm/aaaa" data-required="${dada.required}"/>
 								</c:otherwise>
 							</c:choose>
