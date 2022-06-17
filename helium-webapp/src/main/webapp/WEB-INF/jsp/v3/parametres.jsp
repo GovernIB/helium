@@ -29,7 +29,6 @@
 				// ]]>
 			</script>			
 
-			<hel:inputCheckbox name="redireccionar" textKey="configuracio.parametres.redireccionar" comment="configuracio.parametres.redireccionar.info" />
 			<hel:inputCheckbox name="propagarEsborratExpedients" textKey="configuracio.parametres.propagarEsborratExpedients" comment="configuracio.parametres.propagarEsborratExpedients.info" />
 		</div>
 		<div id="modal-botons" class="well">

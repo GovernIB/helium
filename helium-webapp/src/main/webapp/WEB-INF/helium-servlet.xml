@@ -153,6 +153,19 @@
 			<mvc:exclude-mapping path="/**/selection/**"/>
 			<bean id="localeChangeInterceptor" class="net.conselldemallorca.helium.webapp.mvc.interceptor.IdiomaInterceptor" />
 		</mvc:interceptor>
+		
+		<mvc:interceptor>
+			<mvc:mapping path="/**"/>
+			<mvc:exclude-mapping path="/js/**"/>
+			<mvc:exclude-mapping path="/css/**"/>
+			<mvc:exclude-mapping path="/fonts/**"/>
+			<mvc:exclude-mapping path="/img/**"/>
+			<mvc:exclude-mapping path="/extensions/**"/>
+			<mvc:exclude-mapping path="/webjars/**"/>
+			<mvc:exclude-mapping path="/**/datatable/**"/>
+			<mvc:exclude-mapping path="/**/selection/**"/>
+			<bean class="net.conselldemallorca.helium.webapp.v3.interceptor.DissenyAnticInterceptor"/>
+		</mvc:interceptor>
 	</mvc:interceptors>
 
 	<bean id="beanNameViewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver">

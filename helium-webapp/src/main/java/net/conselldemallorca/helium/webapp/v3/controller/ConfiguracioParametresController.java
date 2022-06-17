@@ -29,8 +29,6 @@ import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 @RequestMapping("/v3/configuracio/parametres")
 public class ConfiguracioParametresController extends BaseController {
 	
-	/** Constant de la propietat de redireccionar des de menús de la interfície 2.6 cap a la nova interfície 3.*/
-	private static final String APP_CONFIGURACIO_REDIRECCIONAR = "app.configuracio.redireccionar";
 	/**Paràmetre true/false per propagar l'esborrat d'expedients quan s'esborri un tipus d'expedient**/
 	private static final String APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS = "app.configuracio.propagar.esborrar.expedients";
 	
@@ -50,7 +48,6 @@ public class ConfiguracioParametresController extends BaseController {
 		
 		ParametresCommand parametresCommand = new ParametresCommand();
 		// Omple amb els valors del fitxer de propietats
-		parametresCommand.setRedireccionar(isRedireccionar());
 		parametresCommand.setPropagarEsborratExpedients(isPropagarEsbExp());
 		
 		model.addAttribute("parametresCommand", parametresCommand);
@@ -68,8 +65,7 @@ public class ConfiguracioParametresController extends BaseController {
 		String messageKey;
 		if (Accions.GUARDAR.equals(accio)) {
 			// Guardar els valors en les propietats
-			logger.info("Guardant els valors dels paràmetres: {restaurar= " + parametresCommand.isRedireccionar() + ", propagar_esborrat_expedients: "+parametresCommand.isPropagarEsborratExpedients() +"}");
-			GlobalProperties.getInstance().setProperty(APP_CONFIGURACIO_REDIRECCIONAR, String.valueOf(parametresCommand.isRedireccionar()));
+			logger.info("Guardant els valors dels paràmetres: {propagar_esborrat_expedients: "+parametresCommand.isPropagarEsborratExpedients() +"}");
 			GlobalProperties.getInstance().setProperty(APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS, String.valueOf(parametresCommand.isPropagarEsborratExpedients()));
 			messageKey = "configuracio.parametres.accio.guardar.confirmacio";
 		} else {
@@ -89,15 +85,6 @@ public class ConfiguracioParametresController extends BaseController {
 		return "redirect:/modal/v3/configuracio/parametres";
 	}
 
-	/** Mètode per consultar la propietat de si s'ha de redireccionar del menú antic al nou menú. */
-	private boolean isRedireccionar() {
-		// Guarda el valor per defecte en cas d'haver de restaurar
-		if (!valorsDefecte.containsKey(APP_CONFIGURACIO_REDIRECCIONAR)) {
-			valorsDefecte.put(APP_CONFIGURACIO_REDIRECCIONAR, String.valueOf("true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty(APP_CONFIGURACIO_REDIRECCIONAR))));
-		}
-		return "true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty(APP_CONFIGURACIO_REDIRECCIONAR));
-	}
-	
 	/** Mètode per consultar la propietat de propagació d'esborrat d'expedients si s'esborra el tipus d'expedient.*/
 	private boolean isPropagarEsbExp() {
 		// Guarda el valor per defecte 

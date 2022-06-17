@@ -330,8 +330,15 @@
 										<li><a href="<c:url value="/v3/enumeracio"/>"><spring:message code='decorators.entorn.enumeracions' /></a></li>
 										<li><a href="<c:url value="/v3/domini"/>"><spring:message code='decorators.entorn.dominis' /></a></li>
 									</c:if>
-									<li role="separator" class="divider"></li>
-									<li><a target="_BLANK" href="<c:url value="/expedientTipus/llistat.html"/>">Disseny antic</a></li>
+									<c:if test="${dadesPersona.admin}">
+										<!-- Accés al menú antic només per usuaris HEL_ADMIN -->
+										<li role="separator" class="divider"></li>
+										<li><a target="_BLANK" href="<c:url value="/expedientTipus/llistat.html"/>">
+												<spring:message code="decorators.entorn.disseny.antic"></spring:message>
+												<span class="fa fa-info-circle text-primary" title="<spring:message code="decorators.entorn.disseny.antic.info"/>"></span>
+											</a>
+										</li>
+									</c:if>
 								</ul>
 							</div>
 						</c:if>

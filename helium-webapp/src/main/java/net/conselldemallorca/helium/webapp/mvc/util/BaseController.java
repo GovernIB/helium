@@ -119,9 +119,4 @@ public class BaseController implements MessageSourceAware {
 	public void setMessageSource(MessageSource messageSource) {
 		this.messageSource = messageSource;
 	}
-
-	/** Mètode per consultar la propietat de si s'ha de redireccionar del menú antic al nou menú. */
-	protected boolean isRedireccionar() {
-		return "true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.configuracio.redireccionar"));
-	}
 }

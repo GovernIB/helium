@@ -10,15 +10,8 @@ package net.conselldemallorca.helium.webapp.v3.command;
  */
 public class ParametresCommand {
 
-	boolean redireccionar;
 	boolean propagarEsborratExpedients;
 
-	public boolean isRedireccionar() {
-		return redireccionar;
-	}
-	public void setRedireccionar(boolean redireccionar) {
-		this.redireccionar = redireccionar;
-	}
 	public boolean isPropagarEsborratExpedients() {
 		return propagarEsborratExpedients;
 	}
