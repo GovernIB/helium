@@ -563,9 +563,10 @@ public class DistribucioHelper {
 		Map<String, AnotacioAnnex> annexos = new HashMap<String, AnotacioAnnex>();
 		String identificador = null;
 		for (AnotacioAnnex annex : anotacio.getAnnexos()) {
-			if (annex.getNom().toLowerCase().endsWith(".xml")) // Filtra només XML's
+			if (annex.getNom().toLowerCase().endsWith(".xml")) { // Filtra només XML's
 				identificador = FilenameUtils.removeExtension(annex.getNom());
 				annexos.put(identificador, annex);
+			}
 		}
 		// Obtenir una llista de variables inicials de la tasca
 		Map<String, CampTasca> campsTasca = new HashMap<String, CampTasca>();
