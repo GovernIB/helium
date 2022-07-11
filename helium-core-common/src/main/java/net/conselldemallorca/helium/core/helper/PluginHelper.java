@@ -71,6 +71,8 @@ import net.conselldemallorca.helium.integracio.plugins.notificacio.RespostaEnvia
 import net.conselldemallorca.helium.integracio.plugins.persones.DadesPersona;
 import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPlugin;
 import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPluginException;
+import net.conselldemallorca.helium.integracio.plugins.pinbal.DadesConsultaPinbal;
+import net.conselldemallorca.helium.integracio.plugins.pinbal.PinbalPluginInterface;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.DocumentPortasignatures;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PasSignatura;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortasignaturesPlugin;
@@ -134,6 +136,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto.RegistreNotificacioTramitSubsanacioParametreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ScspJustificant;
+import net.conselldemallorca.helium.v3.core.api.dto.ScspRespostaPinbal;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto.TramitDocumentSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
@@ -157,6 +161,9 @@ import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository
 public class PluginHelper {
 
 	private static final String CACHE_PERSONA_ID = "personaPluginCache";
+	public static final String serveiConsultaDades = "SVDDGPCIWS02";
+	public static final String serveiVerificacioDades = "SVDDGPVIWS02";
+	public static final String serveiObligacionsTributaries = "SVDCCAACPASWS01";
 	
 	@Resource
 	private PortasignaturesRepository portasignaturesRepository;
@@ -192,6 +199,7 @@ public class PluginHelper {
 	private NotificacioPlugin notificacioPlugin;
 	private IValidateSignaturePlugin validaSignaturaPlugin;
 	private UnitatsOrganiquesPlugin unitatsOrganitzativesPlugin;
+	private PinbalPluginInterface pinbalPlugin;
 
 
 
@@ -4376,6 +4384,30 @@ public class PluginHelper {
 		return notificacioPlugin;
 	}
 	
+	private PinbalPluginInterface getPinbalPlugin() {
+		if (pinbalPlugin == null) {
+			String pluginClass = GlobalProperties.getInstance().getProperty("app.pinbal.plugin.class");
+			if (pluginClass != null && pluginClass.length() > 0) {
+				try {
+					Class<?> clazz = Class.forName(pluginClass);
+					pinbalPlugin = (PinbalPluginInterface)clazz.newInstance();
+				} catch (Exception ex) {
+					throw tractarExcepcioEnSistemaExtern(
+							MonitorIntegracioHelper.INTCODI_PINBAL,
+							"Error al crear la instància del plugin de PINBAL(" +
+							"pluginClass=" + pluginClass + ")",
+							ex);
+				}
+			} else {
+				throw tractarExcepcioEnSistemaExtern(
+						MonitorIntegracioHelper.INTCODI_PINBAL,
+						"No està configurada la classe per al plugin de PINBAL",
+						null);
+			}
+		}
+		return pinbalPlugin;
+	}
+	
 	private IValidateSignaturePlugin getValidaSignaturaPlugin() {		
 		if (validaSignaturaPlugin == null) {
 			//es.caib.ripea.plugin.validatesignature.class
@@ -4530,6 +4562,67 @@ public class PluginHelper {
 			dtos.add(dto);
 		}	
 		return dtos;
+	}
+	
+
+public Object consultaSincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, Expedient expedient, String servei) {
+	
+	Object scspRespostaPinbal = null;
+	
+	String accioDescripcio = "Consulta Pinbal (Petició síncrona)";
+	
+	
+	IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+			new IntegracioParametreDto(
+					"expedient.id",
+					expedient.getId()),
+			new IntegracioParametreDto(
+					"expedient",
+					expedient.getIdentificadorLimitat())//,
+	};
+	long t0 = System.currentTimeMillis();
+	
+	try {
+		if (servei==null) {
+			scspRespostaPinbal= getPinbalPlugin().peticionSincronaClientPinbalGeneric(dadesConsultaPinbal);
+		}
+		else if(servei.equals(PluginHelper.serveiConsultaDades))
+			scspRespostaPinbal= getPinbalPlugin().peticionSincronaClientPinbalSvddgpciws02(dadesConsultaPinbal);
+		else if(servei.equals(PluginHelper.serveiVerificacioDades))
+			scspRespostaPinbal= getPinbalPlugin().peticionSincronaClientPinbalSvddgpviws02(dadesConsultaPinbal);
+		else if(servei.equals(PluginHelper.serveiObligacionsTributaries))
+			scspRespostaPinbal= getPinbalPlugin().peticionSincronaClientPinbalSvdccaacpasws01(dadesConsultaPinbal);
+		
+		
+		monitorIntegracioHelper.addAccioOk(
+				MonitorIntegracioHelper.INTCODI_PINBAL,
+				accioDescripcio,
+				IntegracioAccioTipusEnumDto.ENVIAMENT,
+				System.currentTimeMillis() - t0,
+				parametres);
+		
+	} catch (Exception ex) {
+		String errorDescripcio = "No s'ha pogut enviar la consulta síncrona a Pinbal: " + ex.getMessage();
+		monitorIntegracioHelper.addAccioError(
+				MonitorIntegracioHelper.INTCODI_PINBAL,
+				accioDescripcio,
+				IntegracioAccioTipusEnumDto.ENVIAMENT,
+				System.currentTimeMillis() - t0,
+				errorDescripcio,
+				ex,
+				parametres);
+		throw tractarExcepcioEnSistemaExtern(
+				MonitorIntegracioHelper.INTCODI_PINBAL,
+				errorDescripcio, 
+				ex);
+	}
+	return scspRespostaPinbal;
+}
+
+
+
+	public Object obtenirJustificantPinbal(Expedient expedient, DadesNotificacioDto dadesNotificacio) {
+		return null;
 	}
 
 	private static final Log logger = LogFactory.getLog(PluginHelper.class);

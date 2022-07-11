@@ -13,6 +13,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CarrecDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesConsultaPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDissenyDto;
@@ -869,8 +870,25 @@ public interface Jbpm3HeliumService {
 	public RespostaJustificantDetallRecepcioDto notificacioElectronicaJustificantDetall(
 			String registreNumero) throws Exception;
 	
-	public RespostaNotificacio altaNotificacio(DadesNotificacioDto notificacio) throws SistemaExternException, NoTrobatException;
+	public RespostaNotificacio altaNotificacio(
+			DadesNotificacioDto notificacio) throws SistemaExternException, NoTrobatException;
 
+	
+	/** PINBAL **/
+	public Object consultaPinbal(
+			DadesConsultaPinbalDto dadesConsultaPinbal, Long expedientId, String processInstanceId) throws SistemaExternException, NoTrobatException;
+
+	public Object consultaDadesIdentitatPinbalSVDDGPCIWS02(
+			DadesConsultaPinbalDto dadesConsultaPinbal, Long expedientId, String processInstanceId) throws SistemaExternException, NoTrobatException;
+	
+	public Object verificacioDadesIdentitatPinbalSVDDGPCIWS02(
+			DadesConsultaPinbalDto dadesConsultaPinbal, Long expedientId, String processInstanceId) throws SistemaExternException, NoTrobatException;
+	
+	public Object dadesTributariesPinbalSVDCCAACPASWS01(
+			DadesConsultaPinbalDto dadesConsultaPinbal, Long expedientId, String processInstanceId) throws SistemaExternException, NoTrobatException;
+	
+	
+	
 	/** Envia un document al portasignatures.
 	 * 
 	 * @param documentId

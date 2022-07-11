@@ -2305,7 +2305,7 @@ public class DocumentHelperV3 {
 				firmes =PluginHelper.toArxiusFirmesDto(documentArxiu.getFirmes());
 			}
 		}
-		String documentDescripcio = documentStore.isAdjunt() ? documentStore.getAdjuntTitol() : document.getNom();
+		String documentDescripcio = documentStore.isAdjunt() ? documentStore.getAdjuntTitol() : (document!=null ? document.getNom() : "");
 		if (expedient.isArxiuActiu()) {
 			// Document integrat amb l'Arxiu
 			if (arxiuUuid == null) {
