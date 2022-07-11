@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.AutenticacioTipus;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesConsultaPinbal;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesEnviament;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesNotificacio;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DetalleAviso;
@@ -25,6 +26,7 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.TipoAviso;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.TipoConfirmacionAviso;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.TipoEstadoNotificacion;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.Tramit;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesConsultaPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DetalleAvisoDto;
@@ -40,6 +42,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio.Notifica
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaJustificantDetallRecepcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio;
 import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TitularDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto.TramitDocumentSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
@@ -269,6 +272,39 @@ public class ConversioTipusHelper {
 //				token.isSuspended(),
 //				token.getLockOwner());
 //	}
+	
+	public static DadesConsultaPinbalDto toDadesConsultaPinbalDto(DadesConsultaPinbal dadesConsultaPinbal) {
+		DadesConsultaPinbalDto dadesDto = new DadesConsultaPinbalDto();
+		TitularDto titularDto = new TitularDto();
+		if(dadesConsultaPinbal.getTitular() != null) {
+			titularDto.setNombre(dadesConsultaPinbal.getTitular().getNombre());
+			titularDto.setApellido1(dadesConsultaPinbal.getTitular().getApellido1());
+			titularDto.setApellido2(dadesConsultaPinbal.getTitular().getApellido2());
+			titularDto.setNombreCompleto(dadesConsultaPinbal.getTitular().getNombreCompleto());	
+			titularDto.setDocumentacion(dadesConsultaPinbal.getTitular().getDocumentacion());
+			titularDto.setTipoDocumentacion(dadesConsultaPinbal.getTitular().getTipoDocumentacion());
+			dadesDto.setTitular(titularDto);
+		}
+		if(dadesConsultaPinbal.getDocumentCodi()!=null) {
+			dadesDto.setDocumentCodi(dadesConsultaPinbal.getDocumentCodi());
+		}
+		if(dadesConsultaPinbal.getXmlDadesEspecifiques()!=null) {
+			dadesDto.setXmlDadesEspecifiques(dadesConsultaPinbal.getXmlDadesEspecifiques());
+		}
+		if(dadesConsultaPinbal.getServeiCodi()!=null) {
+			dadesDto.setServeiCodi(dadesConsultaPinbal.getServeiCodi());
+		}
+		if(dadesConsultaPinbal.getConsentiment()!=null) {
+			dadesDto.setConsentiment(dadesConsultaPinbal.getConsentiment());
+		}
+		if(dadesConsultaPinbal.getFinalitat()!=null) {
+			dadesDto.setFinalitat(dadesConsultaPinbal.getFinalitat());
+		}
+		if(dadesConsultaPinbal.getInteressatCodi()!=null) {
+			dadesDto.setInteressatCodi(dadesConsultaPinbal.getInteressatCodi());
+		}
+		return dadesDto;	
+	}
 
 	public static DadesNotificacioDto toDadesNotificacioDto(Long expedientId, DadesNotificacio dadesNotificacio) {
 		

@@ -20,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import net.conselldemallorca.helium.jbpm3.handlers.exception.HeliumHandlerException;
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesConsultaPinbal;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesNotificacio;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreEntrada;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreNotificacio;
@@ -673,7 +674,71 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		
 	}
 	
+	/**
+	 * Fa una crida al servei genèric Pinbal.
+	 * 
+	 * @param dadesConsultaPinbal
+	 * @param expedientId
+	 * @param executionContext
+	 * @return
+	 */
+	public Object consultaPinbal(
+		DadesConsultaPinbal dadesConsultaPinbal, Long expedientId, String processInstanceId) throws JbpmException {
+		Object respostaPinbal = Jbpm3HeliumBridge.getInstanceService().consultaPinbal(
+				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), expedientId, processInstanceId);
+		return respostaPinbal;
+	}
 	
+	/**
+	 * Fa una crida al servei específic SVDDGPCIWS02 de consulta de dades de Pinbal.
+	 * 
+	 * @param dadesConsultaPinbal
+	 * @param expedientId
+	 * @param executionContext
+	 * @return
+	 */
+
+	public Object consultaPinbalSvddgpciws02(
+			DadesConsultaPinbal dadesConsultaPinbal, Long expedientId, String processInstanceId) {
+		Object respostaPinbal = Jbpm3HeliumBridge.getInstanceService().consultaDadesIdentitatPinbalSVDDGPCIWS02(
+				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), expedientId, processInstanceId);
+		return respostaPinbal;
+	}
+	
+	
+	/**
+	 * Fa una crida al servei específic SVDDGPVIWS02 de verificació de dades de Pinbal.
+	 * 
+	 * @param dadesConsultaPinbal
+	 * @param expedientId
+	 * @param executionContext
+	 * @return
+	 */
+
+	public Object consultaPinbalSvddgpviws02(
+			DadesConsultaPinbal dadesConsultaPinbal, Long expedientId, String processInstanceId) {
+		Object respostaPinbal = Jbpm3HeliumBridge.getInstanceService().verificacioDadesIdentitatPinbalSVDDGPCIWS02(
+				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), expedientId, processInstanceId);
+		//en aquest servei no se li pot passsar NonbreCompleto! MAXLENGTH=0
+		return respostaPinbal;
+	}
+	
+	
+	/**
+	 * Fa una crida al servei específic SVDCCAACPASWS01 de dades tributàries de Pinbal.
+	 * 
+	 * @param dadesConsultaPinbal
+	 * @param expedientId
+	 * @param executionContext
+	 * @return
+	 */
+
+	public Object consultaPinbalSvdccaacpasws01(
+			DadesConsultaPinbal dadesConsultaPinbal, Long expedientId, String processInstanceId) {
+		Object respostaPinbal = Jbpm3HeliumBridge.getInstanceService().dadesTributariesPinbalSVDCCAACPASWS01(
+				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), expedientId, processInstanceId);
+		return respostaPinbal;
+	}
 	
 	// NOTIB -- Inici
 	
