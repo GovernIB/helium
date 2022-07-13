@@ -104,14 +104,14 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice {
 							msg);
 				}
 			} catch(Exception e) {
-				logger.error("Error rebent la petició d'anotació de registre amb id=" + id + " : " + e.getMessage() + ". Es comunica l'error a Distribucio", e);
+				logger.error("Error rebent la petició d'anotació de registre amb id=" + id.getIndetificador() + " : " + e.getMessage() + ". Es comunica l'error a Distribucio", e);
 				try {
 					distribucioHelper.canviEstat(
 							idWs, 
 							es.caib.distribucio.ws.backofficeintegracio.Estat.ERROR,
-							"Error rebent l'anotació amb id " + id + ": " + e.getMessage());
+							"Error rebent l'anotació amb id " + id.getIndetificador() + ": " + e.getMessage());
 				} catch(Exception ed) {
-					logger.error("Error comunicant l'error de recepció a Distribucio de la petició amb id : " + id + ": " + ed.getMessage(), ed);
+					logger.error("Error comunicant l'error de recepció a Distribucio de la petició amb id : " + id.getIndetificador() + ": " + ed.getMessage(), ed);
 				}
 			}
 		}		
