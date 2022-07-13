@@ -2305,7 +2305,7 @@ public class DocumentHelperV3 {
 				firmes =PluginHelper.toArxiusFirmesDto(documentArxiu.getFirmes());
 			}
 		}
-		String documentDescripcio = documentStore.isAdjunt() ? documentStore.getAdjuntTitol() : (document!=null ? document.getNom() : "");
+		String documentNom = documentStore.isAdjunt() ? documentStore.getArxiuNom() : (document!=null ? document.getNom() : "");
 		if (expedient.isArxiuActiu()) {
 			// Document integrat amb l'Arxiu
 			if (arxiuUuid == null) {
@@ -2314,12 +2314,12 @@ public class DocumentHelperV3 {
 						arxiuNom,
 						arxiuContingut,
 						arxiuContentType);
-				// Canvia la descripció per no coincidir amb cap document amb el mateix nom a l'Arxiu
-				documentDescripcio = inArxiu(processInstanceId, documentStore.getArxiuUuid(), documentDescripcio);
+				//en comptes del títol o nom d'adjunt, s'ha de passar el nom de l'Arxiu com podria ser blank.pdf
+				documentNom = inArxiu(processInstanceId, documentStore.getArxiuUuid(), documentNom);
 				
 				ContingutArxiu contingutArxiu = pluginHelper.arxiuDocumentCrearActualitzar(
 						expedient,
-						documentDescripcio,
+						documentNom,
 						documentStore,
 						arxiu,
 						ambFirma,
@@ -2410,6 +2410,24 @@ public class DocumentHelperV3 {
 					documentStore.getId());
 		}
 	}
+	
+	/** 
+	 * Substitueix salts de línia i tabuladors per espais i lleva caràcters esttranys no contemplats.
+	 * 
+	 * @param nom Nom del contingut a revisar.
+	 * @return Retorna el nom substituïnt tabuladors, salts de línia i apòstrofs per espais i ignorant caràcters
+	 * invàlids. També treu el punt final en cas d'haver-n'hi.
+	 */
+	public static String revisarContingutNom(String nom) {
+		if (nom != null) {
+			nom = nom.replaceAll("[\\s\\']", " ").replaceAll("[^\\wçñàáèéíïòóúüÇÑÀÁÈÉÍÏÒÓÚÜ()\\-,\\.·\\s]", "").trim();
+			if (nom.endsWith(".")) {
+				nom = nom.substring(0, nom.length()-1);
+			}
+		}
+		return nom;
+	}
+
 	
 	/** Valida les firmes amb el plugin de validació de firmes */
 	private List<ArxiuFirmaDto> validaFirmaDocument(
@@ -2604,25 +2622,51 @@ public class DocumentHelperV3 {
 		return registreRepository.save(registre);
 	}
 	
-	/** Comprova si ja existeix a l'expedient un document amb el mateix nom i diferent UUID. */
+	/** Comprova si ja existeix a l'expedient un document amb el mateix nom i diferent UUID tenint en compte el . de l'extensió*/
 	private String inArxiu(String processInstanceId, String arxiuUuid, String documentNom){
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		
+		// Revisa els caràcters estranys com ho fa el plugin abans comprobar si ja existeix el nom
+		documentNom = revisarContingutNom(documentNom);
+		
 		if(expedient.isArxiuActiu()) {
+			
 			List<ContingutArxiu> continguts = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid()).getContinguts();
 			int ocurrences = 0;
 			if(continguts != null) {
-				Set<String> noms = new HashSet<String>();
+				List<String> nomsExistingInArxiu = new ArrayList<String>();
 				for(ContingutArxiu contingut : continguts) {
 					if (!contingut.getIdentificador().equals(arxiuUuid)) {
-						noms.add(contingut.getNom());
+						nomsExistingInArxiu.add(contingut.getNom());
 					}
 				}
 				String nouDocumentNom = new String(documentNom);
-				if (noms.contains(nouDocumentNom)) {
-					while(noms.contains(nouDocumentNom)) {
-						ocurrences ++;
-						nouDocumentNom = documentNom + " (" + ocurrences + ")";
+				if (nomsExistingInArxiu.contains(nouDocumentNom)) {
+					if (nouDocumentNom.contains(".")) {
+						// Nom amb extensió
+						String name = nouDocumentNom.substring(0, nouDocumentNom.lastIndexOf('.'));
+						String extension = nouDocumentNom.substring(nouDocumentNom.lastIndexOf('.'));
+						nouDocumentNom = name;
+						while(nomsExistingInArxiu.indexOf((nouDocumentNom + extension).toLowerCase()) >= 0) {
+							ocurrences ++;
+							nouDocumentNom = name + " (" + ocurrences + ")";
+						}
+						nouDocumentNom += extension;
+
+					} else {
+						// Nom sense extensió
+						while (nomsExistingInArxiu.indexOf(nouDocumentNom.toLowerCase()) >= 0) {
+							// if it does 'ocurrences' increments
+							ocurrences++;
+							// and the number of ocurences is added to the file name
+							// and it checks again if the new file name exists
+							nouDocumentNom = documentNom + " (" + ocurrences + ")";
+						}
 					}
+//					while(noms.contains(nouDocumentNom)) {
+//						ocurrences ++;
+//						nouDocumentNom = documentNom + " (" + ocurrences + ")";
+//					}
 				}
 				return nouDocumentNom;
 			}
