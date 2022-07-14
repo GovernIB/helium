@@ -429,7 +429,7 @@ tr.clicable {
 											<c:if test="${annex.error != null}">
 											<span 
 												class="fa fa-exclamation-triangle text-danger" 
-												title="#{annex.error }"></span>
+												title="${annex.error}"></span>
 											</c:if>
 										</td>
 									</tr>
