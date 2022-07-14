@@ -30,6 +30,11 @@ public class DocumentStoreDto implements Serializable {
 	
 	private String ntiIdDocOrigen;
 	
+	/** Indica si en la consulta Distribucio el marca com a válid o invàlid */
+	private boolean documentValid;
+	/** Camp on distribucio informa dels possibles errors que pugui tenir el document. */
+	private String documentError;
+	
 	
 	public String getNtiVersion() {
 		return ntiVersion;
@@ -116,6 +121,20 @@ public class DocumentStoreDto implements Serializable {
 	}
 	
 	
+	public boolean isDocumentValid() {
+		return documentValid;
+	}
+	public void setDocumentValid(boolean documentValid) {
+		this.documentValid = documentValid;
+	}
+	public String getDocumentError() {
+		return documentError;
+	}
+	public void setDocumentError(String documentError) {
+		this.documentError = documentError;
+	}
+
+
 	private static final long serialVersionUID = 774909297938469787L;
 	
 }

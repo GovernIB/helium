@@ -1005,6 +1005,8 @@ public class ExpedientLoggerHelper {
 										null,
 										null,
 										null,
+										null,
+										true,
 										null);
 								jbpmHelper.setProcessInstanceVariable(
 										pid,

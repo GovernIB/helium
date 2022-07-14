@@ -46,6 +46,8 @@ public class AnotacioListDto implements Serializable {
 	
 	// Per mostrar errors d'annexos al llistat
 	private boolean errorAnnexos;
+	private boolean annexosInvalids;
+	private boolean annexosEsborranys;
 	
 	public Long getId() {
 		return id;
@@ -166,6 +168,19 @@ public class AnotacioListDto implements Serializable {
 	}
 	public void setErrorAnnexos(boolean errorAnnexos) {
 		this.errorAnnexos = errorAnnexos;
+	}
+
+	public boolean isAnnexosInvalids() {
+		return annexosInvalids;
+	}
+	public void setAnnexosInvalids(boolean annexosInvalids) {
+		this.annexosInvalids = annexosInvalids;
+	}
+	public boolean isAnnexosEsborranys() {
+		return annexosEsborranys;
+	}
+	public void setAnnexosEsborranys(boolean annexosEsborranys) {
+		this.annexosEsborranys = annexosEsborranys;
 	}
 
 	private static final long serialVersionUID = 2160387490004131252L;	

@@ -62,7 +62,10 @@ tr.clicable {
 		</li>
 		<li role="presentation">
 			<a href="#annexos" aria-controls="annexos" role="tab" data-toggle="tab">
-				<c:if test="${anotacio.errorAnnexos}"><span class="fa fa-warning text-danger"></span></c:if>
+				<c:choose>
+					<c:when test="${anotacio.errorAnnexos || anotacio.annexosInvalids}"><span class="fa fa-warning text-danger"></span></c:when>
+					<c:when test="${anotacio.annexosEsborranys}"><span class="fa fa-warning text-warning"></span></c:when>
+				</c:choose>
 				<spring:message code="anotacio.detalls.pipella.annexos"/>&nbsp;
 				<span class="badge">${fn:length(anotacio.annexos)}</span>
 			</a>
@@ -349,6 +352,12 @@ tr.clicable {
 									<c:if test="${annex.error != null }">
 										<span class="fa fa-warning text-danger" title="<spring:message code="anotacio.annex.detalls.annex.error" arguments="${annex.error}"/>"></span>
 									</c:if>
+									<c:if test="${!annex.documentValid}">
+										<span class="fa fa-warning text-danger" title="<spring:message code="anotacio.annex.detalls.annex.invalid" arguments="${annex.documentError}"/>"></span>
+									</c:if>
+									<c:if test="${annex.arxiuEstat == 'ESBORRANY'}">
+										<span class="fa fa-warning text-warning" title="<spring:message code="anotacio.annex.detalls.annex.esborrany"/>"></span>
+									</c:if>
 									<button class="btn btn-default btn-xs pull-right" data-toggle="collapse" data-target="#collapse-annex-${status.index}"><span class="fa fa-chevron-down"></span></button>
 								</h3>
 							</div>
@@ -420,8 +429,35 @@ tr.clicable {
 											<c:if test="${annex.error != null}">
 											<span 
 												class="fa fa-exclamation-triangle text-danger" 
-												title="${annex.error }"></span>
+												title="#{annex.error }"></span>
 											</c:if>
+										</td>
+									</tr>
+									<tr>
+										<td><strong><spring:message code="anotacio.annex.detalls.camp.estat.arxiu"/></strong></td>
+										<td>
+											${annex.arxiuEstat}
+											<c:if test="${annex.arxiuEstat == 'ESBORRANY'}">
+											<span 
+												class="fa fa-exclamation-triangle text-warning" 
+												title="<spring:message code='anotacio.annex.detalls.camp.estat.arxiu.esborrany.avis'></spring:message>"></span>
+											</c:if>
+										</td>
+									</tr>
+									<tr>
+										<td><strong><spring:message code="anotacio.annex.detalls.camp.valid"/></strong></td>
+										<td>
+											<c:choose>
+												<c:when test="${annex.documentValid }">
+													<spring:message code="enum.si"></spring:message>
+												</c:when>
+												<c:when test="${!annex.documentValid }">
+													<span 
+														class="fa fa-exclamation-triangle text-danger"></span>
+													<spring:message code="enum.no"></spring:message>
+													: ${annex.documentError}
+												</c:when>
+											</c:choose>
 										</td>
 									</tr>
 									<tr>

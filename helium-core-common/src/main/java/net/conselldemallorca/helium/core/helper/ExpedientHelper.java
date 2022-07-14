@@ -1698,7 +1698,9 @@ public class ExpedientHelper {
 								null,
 								null,
 								null,
-								null);
+								null,
+								doc.getValue().isDocumentValid(),
+								doc.getValue().getDocumentError());
 					}
 				}
 			}
@@ -1717,7 +1719,9 @@ public class ExpedientHelper {
 							null,
 							null,
 							null,
-							null);
+							null,
+							adjunt.isDocumentValid(),
+							adjunt.getDocumentError());
 				}
 			}
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");

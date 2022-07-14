@@ -194,7 +194,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				ntiOrigen,
 				ntiEstadoElaboracion,
 				ntiTipoDocumental,
-				ntiIdOrigen);
+				ntiIdOrigen,
+				true,
+				null);
 		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 		expedientRegistreHelper.crearRegistreCrearDocumentInstanciaProces(
 				expedient.getId(),

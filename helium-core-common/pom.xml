@@ -479,13 +479,13 @@
 		<!-- Distribucio -->
 		<dependency>
 			<groupId>es.caib.distribucio</groupId>
-			<artifactId>distribucio-ws-client</artifactId>
-			<version>0.9.35</version>
+			<artifactId>distribucio-rest-client</artifactId>
+			<version>0.9.43</version>
 		</dependency>
 		<dependency>
 			<groupId>es.caib.distribucio</groupId>
 			<artifactId>distribucio-backoffice-utils</artifactId>
-			<version>0.9.29</version>
+			<version>0.9.43</version>
 		</dependency>
 	</dependencies>
 	<build>

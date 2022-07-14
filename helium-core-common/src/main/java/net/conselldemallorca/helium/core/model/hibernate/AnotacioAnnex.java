@@ -27,19 +27,20 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAnnexEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuEstat;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
-//import es.caib.distribucio.ws.backofficeintegracio.FirmaPerfil;
-//import es.caib.distribucio.ws.backofficeintegracio.FirmaTipus;
-//import es.caib.distribucio.ws.backofficeintegracio.NtiEstadoElaboracion;
-//import es.caib.distribucio.ws.backofficeintegracio.NtiOrigen;
-//import es.caib.distribucio.ws.backofficeintegracio.NtiTipoDocumento;
-//import es.caib.distribucio.ws.backofficeintegracio.SicresTipoDocumento;
-//import es.caib.distribucio.ws.backofficeintegracio.SicresValidezDocumento;
+//import es.caib.distribucio.rest.client.domini.FirmaPerfil;
+//import es.caib.distribucio.rest.client.domini.FirmaTipus;
+//import es.caib.distribucio.rest.client.domini.NtiEstadoElaboracion;
+//import es.caib.distribucio.rest.client.domini.NtiOrigen;
+//import es.caib.distribucio.rest.client.domini.NtiTipoDocumento;
+//import es.caib.distribucio.rest.client.domini.SicresTipoDocumento;
+//import es.caib.distribucio.rest.client.domini.SicresValidezDocumento;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
 
 /**
  * Classe del model de dades que representa un document
@@ -122,6 +123,18 @@ public class AnotacioAnnex implements Serializable, GenericEntity<Long> {
 	/** Valor del document store quan l'annex s'incorpora a un expedient. */
 	@Column(name = "document_store_id")
 	private Long documentStoreId = null;
+	
+	/** Indica si en la consulta Distribucio el marca com a válid o invàlid */
+	@Column(name = "document_valid")
+	private Boolean documentValid;
+	/** Camp on distribucio informa dels possibles errors que pugui tenir el document. */
+	@Column(name = "document_error", length = 1000)
+	private String documentError;
+	/** Camp que indica l'estat a l'Arxiu si és definitiu o esborrany. */
+	@Enumerated(EnumType.STRING)
+	@Column(name = "arxiu_estat")
+	private ArxiuEstat arxiuEstat;
+
 	
 	public Long getId() {
 		return id;
@@ -214,6 +227,18 @@ public class AnotacioAnnex implements Serializable, GenericEntity<Long> {
 		}
 		public Builder firmaNom(String firmaNom) {
 			built.firmaNom = firmaNom;
+			return this;
+		}
+		public Builder documentValid(boolean documentValid) {
+			built.documentValid = documentValid;
+			return this;
+		}
+		public Builder documentError(String documentError) {
+			built.documentError = documentError;
+			return this;
+		}
+		public Builder documentArxiuEstat(ArxiuEstat arxiuEstat) {
+			built.arxiuEstat = arxiuEstat;
 			return this;
 		}
 		public AnotacioAnnex build() {
@@ -350,12 +375,29 @@ public class AnotacioAnnex implements Serializable, GenericEntity<Long> {
 	public void setFirmaNom(String firmaNom) {
 		this.firmaNom = firmaNom;
 	}
-	
 	public Long getDocumentStoreId() {
 		return documentStoreId;
 	}
 	public void setDocumentStoreId(Long documentStoreId) {
 		this.documentStoreId = documentStoreId;
+	}
+	public boolean isDocumentValid() {
+		return documentValid != null ? documentValid.booleanValue() : true;
+	}
+	public void setDocumentValid(boolean documentValid) {
+		this.documentValid = documentValid;
+	}
+	public String getDocumentError() {
+		return documentError;
+	}
+	public void setDocumentError(String documentError) {
+		this.documentError = documentError;
+	}
+	public ArxiuEstat getArxiuEstat() {
+		return arxiuEstat;
+	}
+	public void setArxiuEstat(ArxiuEstat arxiuEstat) {
+		this.arxiuEstat = arxiuEstat;
 	}
 
 	private static final long serialVersionUID = 1864495018202820415L;	

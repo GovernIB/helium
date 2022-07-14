@@ -26,16 +26,16 @@ import es.caib.distribucio.backoffice.utils.sistra.BackofficeSistra2UtilsImpl;
 import es.caib.distribucio.backoffice.utils.sistra.formulario.Campo;
 import es.caib.distribucio.backoffice.utils.sistra.formulario.Formulario;
 import es.caib.distribucio.backoffice.utils.sistra.formulario.Valor;
-import es.caib.distribucio.ws.backofficeintegracio.Annex;
-import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreEntrada;
-import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreId;
-import es.caib.distribucio.ws.backofficeintegracio.BackofficeIntegracio;
-import es.caib.distribucio.ws.backofficeintegracio.Estat;
-import es.caib.distribucio.ws.backofficeintegracio.Interessat;
-import es.caib.distribucio.ws.backofficeintegracio.NtiEstadoElaboracion;
-import es.caib.distribucio.ws.backofficeintegracio.NtiOrigen;
-import es.caib.distribucio.ws.backofficeintegracio.NtiTipoDocumento;
-import es.caib.distribucio.ws.client.BackofficeIntegracioWsClientFactory;
+import es.caib.distribucio.rest.client.BackofficeIntegracioRestClient;
+import es.caib.distribucio.rest.client.BackofficeIntegracioRestClientFactory;
+import es.caib.distribucio.rest.client.domini.Annex;
+import es.caib.distribucio.rest.client.domini.AnotacioRegistreEntrada;
+import es.caib.distribucio.rest.client.domini.AnotacioRegistreId;
+import es.caib.distribucio.rest.client.domini.Estat;
+import es.caib.distribucio.rest.client.domini.Interessat;
+import es.caib.distribucio.rest.client.domini.NtiEstadoElaboracion;
+import es.caib.distribucio.rest.client.domini.NtiOrigen;
+import es.caib.distribucio.rest.client.domini.NtiTipoDocumento;
 import es.caib.plugins.arxiu.api.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
@@ -50,6 +50,7 @@ import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra.TipusMapeig;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuEstat;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
@@ -115,7 +116,7 @@ public class DistribucioHelper {
 	private PluginHelper pluginHelper;
 
 	/** Referència al client del WS de Distribució */
-	private BackofficeIntegracio wsClient = null;
+	private BackofficeIntegracioRestClient restClient = null;
 		
 
 	/** Mètode per obtenir la instància del client del WS de Distribucio.
@@ -124,21 +125,25 @@ public class DistribucioHelper {
 	 * @throws Exception
 	 * 				Pot llençar excepcions de tipus IOException de comunicació o si no està configurat llença una excepció.
 	 */
-	private BackofficeIntegracio getBackofficeIntegracioServicePort() throws Exception {
+	private BackofficeIntegracioRestClient getClientRest() throws Exception {
 		
-		if (wsClient == null) {
-			String url = GlobalProperties.getInstance().getProperty("net.conselldemallorca.helium.distribucio.backofficeIntegracio.ws.url");
+		if (restClient == null) {
+						
+			String url_base = GlobalProperties.getInstance().getProperty("net.conselldemallorca.helium.distribucio.backofficeIntegracio.ws.url");
 			String usuari = GlobalProperties.getInstance().getProperty("net.conselldemallorca.helium.distribucio.backofficeIntegracio.ws.username");
 			String contrasenya = GlobalProperties.getInstance().getProperty("net.conselldemallorca.helium.distribucio.backofficeIntegracio.ws.password");
-
-			if (url == null || "".equals(url.trim()))
-				throw new Exception("No s'ha trobat la configuració per accedir al WS del backoffice de Distribucio (net.conselldemallorca.helium.distribucio.backofficeIntegracio.ws.url");
-			wsClient = BackofficeIntegracioWsClientFactory.getWsClient(
-					url,
-					usuari,
-					contrasenya);
+			
+			if (url_base != null && usuari != null && contrasenya != null) {
+				logger.trace(">>> Creant el client BackofficeIntegracioRestClient API REST");
+				restClient = BackofficeIntegracioRestClientFactory.getRestClient(
+						url_base, 
+						usuari, 
+						contrasenya);
+			} else {
+				throw new RuntimeException("Falta configurar les propietats pel client de Backoffice de DISTRIBUCIO  es.caib.distribucio.backoffice.test.backofficeIntegracio.*");
+			}
 		}
-		return wsClient;
+		return restClient;
 	}
 
 	/** Mètode per invocar al WS de Distribució i notificar un canvi d'estat amb observacions.
@@ -149,7 +154,7 @@ public class DistribucioHelper {
 	 * @throws SistemaExternException 
 	 */
 	public void canviEstat(
-			es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreId anotacioRegistreId,
+			es.caib.distribucio.rest.client.domini.AnotacioRegistreId anotacioRegistreId,
 			Estat estat, 
 			String observacions) throws SistemaExternException {
 		String accioDescripcio = "Canvi d'estat de l'anotació de Distribució amb id de consulta \"" + (anotacioRegistreId != null ? anotacioRegistreId.getIndetificador() : "null") + "\" a " + estat;
@@ -160,7 +165,7 @@ public class DistribucioHelper {
 		};
 		long t0 = System.currentTimeMillis();
 		try {
-			this.getBackofficeIntegracioServicePort().canviEstat(anotacioRegistreId, estat, observacions);
+			this.getClientRest().canviEstat(anotacioRegistreId, estat, observacions);
 
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_DISTRIBUCIO,
@@ -189,7 +194,7 @@ public class DistribucioHelper {
 	 * @return
 	 */
 	public AnotacioRegistreEntrada consulta(
-			es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreId idWs)  throws SistemaExternException{
+			es.caib.distribucio.rest.client.domini.AnotacioRegistreId idWs)  throws SistemaExternException{
 		AnotacioRegistreEntrada anotacioRegistreEntrada = null;
 
 		String accioDescripcio = "Consulta de la informació de l'anotació de Distribució amb id de consulta \"" + (idWs != null ? idWs.getIndetificador() : "null") + "\"";
@@ -198,7 +203,7 @@ public class DistribucioHelper {
 		};
 		long t0 = System.currentTimeMillis();
 		try {
-			anotacioRegistreEntrada = this.getBackofficeIntegracioServicePort().consulta(idWs);
+			anotacioRegistreEntrada = this.getClientRest().consulta(idWs);
 
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_DISTRIBUCIO,
@@ -252,7 +257,7 @@ public class DistribucioHelper {
 				new Date(),
 				AnotacioEstatEnumDto.PENDENT,
 				anotacioEntrada.getAssumpteTipusCodi(),
-				anotacioEntrada.getData().toGregorianCalendar().getTime(),
+				anotacioEntrada.getData(),
 				anotacioEntrada.getEntitatCodi(),
 				anotacioEntrada.getIdentificador(),
 				anotacioEntrada.getIdiomaCodi(),
@@ -277,7 +282,7 @@ public class DistribucioHelper {
 				llibreDescripcio(anotacioEntrada.getLlibreDescripcio()).
 				observacions(anotacioEntrada.getObservacions()).
 				oficinaDescripcio(anotacioEntrada.getOficinaDescripcio()).
-				origenData(anotacioEntrada.getOrigenData() != null ? anotacioEntrada.getOrigenData().toGregorianCalendar().getTime() : null).
+				origenData(anotacioEntrada.getOrigenData() != null ? anotacioEntrada.getOrigenData() : null).
 				origenRegistreNumero(anotacioEntrada.getOrigenRegistreNumero()).
 				refExterna(anotacioEntrada.getRefExterna()).
 				solicita(anotacioEntrada.getSolicita()).
@@ -368,7 +373,7 @@ public class DistribucioHelper {
 		
 		AnotacioAnnex annexEntity = AnotacioAnnex.getBuilder(
 				annex.getNom(),
-				annex.getNtiFechaCaptura().toGregorianCalendar().getTime(),
+				annex.getNtiFechaCaptura(),
 				toNtiOrigenEnumDto(annex.getNtiOrigen()),
 				toNtiTipoDocumentalEnumDto(annex.getNtiTipoDocumental()),
 				annex.getSicresTipoDocumento() != null? annex.getSicresTipoDocumento().toString() : null,
@@ -381,6 +386,8 @@ public class DistribucioHelper {
 				sicresValidezDocumento(annex.getSicresValidezDocumento() != null? annex.getSicresValidezDocumento().toString() : null).
 				tipusMime(annex.getTipusMime()).
 				uuid(annex.getUuid()).
+				documentValid(annex.isDocumentValid()).
+				documentError(annex.getDocumentError()).
 				build();
 		annexEntity.setFirmaContingut(annex.getFirmaContingut());
 		annexEntity.setFirmaNom(annex.getFirmaNom());
@@ -389,6 +396,17 @@ public class DistribucioHelper {
 		annexEntity.setFirmaTamany(annex.getFirmaTamany());
 		if (annex.getFirmaTipus() != null)
 			annexEntity.setFirmaTipus(NtiTipoFirmaEnumDto.valueOf(annex.getFirmaTipus().toString()));
+		
+		if (annex.getEstat() != null) {
+			switch(annex.getEstat()) {
+			case DEFINITIU:
+				annexEntity.setArxiuEstat(ArxiuEstat.DEFINITIU);
+				break;
+			case ESBORRANY:
+				annexEntity.setArxiuEstat(ArxiuEstat.ESBORRANY);
+				break;
+			}
+		}
 		return anotacioAnnexRepository.save(annexEntity);	
 	}
 
@@ -519,7 +537,7 @@ public class DistribucioHelper {
 			try {
 				this.canviEstat(
 						idWs, 
-						es.caib.distribucio.ws.backofficeintegracio.Estat.PROCESSADA,
+						es.caib.distribucio.rest.client.domini.Estat.PROCESSADA,
 						"Anotació incorporada a l'expedient d'Helium " + expedient.getIdentificadorLimitat());
 			} catch(Exception e) {
 				String errMsg = "Error comunicant l'estat de processada a Distribucio:" + e.getMessage();
@@ -530,7 +548,7 @@ public class DistribucioHelper {
 			try {
 				this.canviEstat(
 						idWs, 
-						es.caib.distribucio.ws.backofficeintegracio.Estat.REBUDA,
+						es.caib.distribucio.rest.client.domini.Estat.REBUDA,
 						"Petició rebuda a Helium.");
 			} catch(Exception e) {
 				String errMsg = "Error comunicant l'estat de rebuda a Distribucio:" + e.getMessage();
@@ -808,7 +826,9 @@ public class DistribucioHelper {
 					resposta.setIdDocument(varHelium.getId());
 					resposta.setCodi(varHelium.getCodi());
 					resposta.setData(anotacio.getData());
-					resposta.setArxiuNom(document.getNom());					
+					resposta.setArxiuNom(document.getNom());
+					resposta.setDocumentValid(document.isDocumentValid());
+					resposta.setDocumentError(document.getDocumentError());
 				} else {
 					logger.warn("El contingut pel document " + document.getNom() + " de l'annocació " + anotacio.getExpedientNumero() + " es null i no es pot completar el mapeig de document SISTRA2 " + varSistra + " -> " + varHelium.getCodi());
 				}
@@ -868,6 +888,8 @@ public class DistribucioHelper {
 					docResposta.setData(anotacio.getData());
 					docResposta.setArxiuNom(document.getNom());
 					docResposta.setArxiuContingut(contingut);
+					docResposta.setDocumentValid(document.isDocumentValid());
+					docResposta.setDocumentError(document.getDocumentError());
 					resposta.add(docResposta);
 				} else {
 					logger.warn("El contingut pel document " + document.getNom() + " de l'annocació " + anotacio.getExpedientNumero() + " es null i no es pot completar el mapeig de l'adjunt SISTRA2 " + identificador);

@@ -1751,7 +1751,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					documentHelper.crearDocument(null, exp.getProcessInstanceId(), documentCodi, data, isAdjunt,
 							isAdjunt ? nom : null, fileName, contingut, null, // arxiuUuid
 							arxiuContentType, ambFirma, firmaSeparada, firmaContingut, ntiOrigen, ntiEstadoElaboracion,
-							ntiTipoDocumental, ntiIdOrigen);
+							ntiTipoDocumental, ntiIdOrigen, true, null);
 					mesuresTemporalsHelper.mesuraCalcular("Adjuntar document", "massiva", exp.getTipus().getNom());
 					// Modificar document
 				} else {

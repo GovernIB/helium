@@ -29,6 +29,7 @@ import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuEstat;
 
 /**
  * Classe del model de dades que representa una anotació al registre rebuda com a Backoffice 
@@ -724,18 +725,61 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 		this.rebuigMotiu = rebuigMotiu;
 	}
 	
+
+	/// Consultes sobre l'anotació
+	
+	@Transient
+	private boolean annexosRecorreguts = false;
+	@Transient	
+	private boolean errorAnnexos = false;
+	@Transient
+	private boolean annexosInvalids = false;
+	@Transient
+	private boolean annexosEsborranys = false;
+
 	/** Per informar a la llista d'anotacions si té error d'annexos. */
 	@Transient
 	public boolean 	isErrorAnnexos() {
-		boolean errorAnnexos = false;
-		for (AnotacioAnnex annex : this.getAnnexos()) {
-			if (annex.getError() != null) {
-				errorAnnexos = true;
-				break;
-			}
+		if (!annexosRecorreguts) {
+			this.revisarAnnexos();
 		}
 		return errorAnnexos;
 	}
-	
+
+	/** Per informar a la llista d'anotacions si té error d'annexos. */
+	@Transient
+	public boolean 	isAnnexosInvalids() {
+		if (!annexosRecorreguts) {
+			this.revisarAnnexos();
+		}
+		return annexosInvalids;
+	}
+
+	/** Per informar a la llista d'anotacions si té error d'annexos. */
+	@Transient
+	public boolean 	isAnnexosEsborranys() {
+		if (!annexosRecorreguts) {
+			this.revisarAnnexos();
+		}
+		return annexosEsborranys;
+	}
+
+	/** Mètode per recòrrer una sola vegada la llista d'annexos en la cerca d'errors, esborranys i invàlids. */
+	private void revisarAnnexos() {
+		for (AnotacioAnnex annex : this.getAnnexos()) {
+			if (annex.getError() != null) {
+				errorAnnexos = true;
+			}
+			if (!annex.isDocumentValid()) {
+				annexosInvalids = true;
+			}
+			if (annex.getArxiuEstat() == ArxiuEstat.ESBORRANY) {
+				annexosEsborranys = true;
+			}
+		}
+		annexosRecorreguts = true;
+	}
+
+
 	private static final long serialVersionUID = 1815997738055924981L;
 }

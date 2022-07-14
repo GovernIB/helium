@@ -104,7 +104,14 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	private String ntiDefinicionGenCsv;
 	@MaxLength(32)
 	private String arxiuUuid;
+	
+	/** Indica si en la consulta Distribucio el marca com a válid o invàlid */
+	private Boolean documentValid;
+	/** Camp on distribucio informa dels possibles errors que pugui tenir el document. */
+	@MaxLength(100)
+	private String documentError;
 
+	
 	public DocumentStore() {}
 	public DocumentStore(
 			DocumentFont font,
@@ -404,6 +411,22 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 		return !isRegistreEntrada();
 	}
 
+	@Column(name = "document_valid")
+	public boolean isDocumentValid() {
+		return documentValid != null ? documentValid.booleanValue() : true;
+	}
+	public void setDocumentValid(boolean documentValid) {
+		this.documentValid = documentValid;
+	}
+	
+	@Column(name = "document_error", length = 1000)
+	public String getDocumentError() {
+		return documentError;
+	}
+	public void setDocumentError(String documentError) {
+		this.documentError = documentError;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

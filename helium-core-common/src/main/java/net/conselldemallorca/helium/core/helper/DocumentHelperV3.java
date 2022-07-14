@@ -710,7 +710,46 @@ public class DocumentHelperV3 {
 				ntiOrigen,
 				ntiEstadoElaboracion,
 				ntiTipoDocumental,
-				ntiIdDocumentoOrigen);
+				ntiIdDocumentoOrigen,
+				true,
+				null);
+	}
+	
+	public Long crearDocument(
+			String taskInstanceId,
+			String processInstanceId,
+			String documentCodi,
+			Date documentData,
+			boolean isAdjunt,
+			String adjuntTitol,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			NtiOrigenEnumDto ntiOrigen,
+			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+			NtiTipoDocumentalEnumDto ntiTipoDocumental,
+			String ntiIdDocumentoOrigen,
+			boolean documentValid,
+			String documentError) {
+		return crearDocument(
+				taskInstanceId,
+				processInstanceId,
+				documentCodi,
+				documentData,
+				isAdjunt,
+				adjuntTitol,
+				arxiuNom,
+				arxiuContingut,
+				null, // arxiuUuid
+				this.getContentType(arxiuNom),
+				false,	// amb firma
+				false,
+				null,
+				ntiOrigen,
+				ntiEstadoElaboracion,
+				ntiTipoDocumental,
+				ntiIdDocumentoOrigen,
+				documentValid,
+				documentError);
 	}
 
 	public Long crearDocument(
@@ -730,7 +769,9 @@ public class DocumentHelperV3 {
 			NtiOrigenEnumDto ntiOrigen,
 			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
-			String ntiIdDocumentoOrigen) {
+			String ntiIdDocumentoOrigen, 
+			boolean documentValid,
+			String documentError) {
 		String documentCodiPerCreacio = documentCodi;
 		if (documentCodiPerCreacio == null && isAdjunt) {
 			documentCodiPerCreacio = new Long(new Date().getTime()).toString();
@@ -763,6 +804,8 @@ public class DocumentHelperV3 {
 				ntiEstadoElaboracion,
 				ntiTipoDocumental,
 				ntiIdDocumentoOrigen);
+		documentStoreCreat.setDocumentValid(documentValid);
+		documentStoreCreat.setDocumentError(documentError);
 		return documentStoreCreat.getId();
 	}
 
@@ -833,6 +876,8 @@ public class DocumentHelperV3 {
 					documentStore.getReferenciaFont(),
 					expedient);
 		}
+		documentStore.setDocumentValid(true);
+		documentStore.setDocumentError(null);
 		postProcessarDocument(
 				documentStore,
 				taskInstanceId,
@@ -924,7 +969,9 @@ public class DocumentHelperV3 {
 					ntiOrigen,
 					ntiEstadoElaboracion,
 					ntiTipoDocumental,
-					ntiIdDocumentoOrigen);
+					ntiIdDocumentoOrigen,
+					true,
+					null);
 		} else {
 			return actualitzarDocument(
 					documentStoreId,
@@ -1885,7 +1932,9 @@ public class DocumentHelperV3 {
 		dto.setNtiTipoFirma(documentStore.getNtiTipoFirma());
 		dto.setNtiCsv(documentStore.getNtiCsv());
 		dto.setNtiDefinicionGenCsv(documentStore.getNtiDefinicionGenCsv());
-		dto.setArxiuUuid(documentStore.getArxiuUuid());
+		dto.setArxiuUuid(documentStore.getArxiuUuid());		
+		dto.setDocumentValid(documentStore.isDocumentValid());
+		dto.setDocumentError(documentStore.getDocumentError());
 		
 		return dto;
 	}
@@ -1942,6 +1991,8 @@ public class DocumentHelperV3 {
 						getPropertyArxiuVerificacioBaseUrl() + documentStore.getNtiCsv());
 			}
 		}
+		dto.setDocumentValid(documentStore.isDocumentValid());
+		dto.setDocumentError(documentStore.getDocumentError());
 		return dto;
 	}
 

@@ -119,6 +119,8 @@
 					</script>
 				</th>
 				<th data-col-name="errorAnnexos" data-visible="false"/>
+				<th data-col-name="annexosInvalids" data-visible="false"/>
+				<th data-col-name="annexosEsborranys" data-visible="false"/>
 				<th data-col-name="estat" data-template="#cellEstatExpedientTemplate">
 					<spring:message code="anotacio.llistat.columna.estat"/>
 					<script id="cellEstatExpedientTemplate" type="text/x-jsrender">
@@ -132,6 +134,18 @@
 							<div class="pull-right">
 								<span class="fa fa-exclamation-triangle text-danger" 
 								title="<spring:message code="expedient.anotacio.llistat.error.annexos"/>"></span>
+							</div>
+						{{/if}}
+						{{if annexosInvalids}}
+							<div class="pull-right">
+								<span class="fa fa-exclamation-triangle text-danger" 
+								title="<spring:message code="expedient.anotacio.llistat.annexos.invalids"/>"></span>
+							</div>
+						{{/if}}
+						{{if annexosEsborranys}}
+							<div class="pull-right">
+								<span class="fa fa-exclamation-triangle text-warning"
+								title="<spring:message code="expedient.anotacio.llistat.annexos.esborranys"/>"></span>
 							</div>
 						{{/if}}
 					</script>

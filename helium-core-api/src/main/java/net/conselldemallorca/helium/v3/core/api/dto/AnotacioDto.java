@@ -48,6 +48,8 @@ public class AnotacioDto implements Serializable {
 	private List<AnotacioAnnexDto> annexos = new ArrayList<AnotacioAnnexDto>();
 	// Per mostrar errors d'annexos al llistat
 	private boolean errorAnnexos;
+	private boolean annexosInvalids;
+	private boolean annexosEsborranys;
 
 	private String aplicacioCodi;
 	private String aplicacioVersio;
@@ -169,6 +171,18 @@ public class AnotacioDto implements Serializable {
 	}
 	public void setErrorAnnexos(boolean errorAnnexos) {
 		this.errorAnnexos = errorAnnexos;
+	}
+	public boolean isAnnexosInvalids() {
+		return annexosInvalids;
+	}
+	public void setAnnexosInvalids(boolean annexosInvalids) {
+		this.annexosInvalids = annexosInvalids;
+	}
+	public boolean isAnnexosEsborranys() {
+		return annexosEsborranys;
+	}
+	public void setAnnexosEsborranys(boolean annexosEsborranys) {
+		this.annexosEsborranys = annexosEsborranys;
 	}
 	public String getAplicacioCodi() {
 		return aplicacioCodi;
