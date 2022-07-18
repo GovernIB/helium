@@ -10,10 +10,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -1757,19 +1755,12 @@ public class DocumentHelperV3 {
 					processInstanceId,
 					documentStore.getCodiDocument());
 		
-		String documentDescripcio;
-		if (documentStore.isAdjunt()) {
-			documentDescripcio = documentStore.getAdjuntTitol();
-		} else {
-			documentDescripcio = document.getNom();
-		}
-		
-		if (expedient.isArxiuActiu()) {
-			documentDescripcio = inArxiu(processInstanceId, documentStore.getArxiuUuid(), documentDescripcio);
-		}
+		String documentDescripcio = documentStore.isAdjunt() ? documentStore.getAdjuntTitol(): document.getNom();		
 		
 		if (documentStore.getArxiuUuid() != null) {
 			// Guardar firma a l'Arxiu
+			
+			String documentNom = inArxiu(processInstanceId, documentStore.getArxiuUuid(), arxiuNom);
 			
 			ArxiuDto arxiuFirmat = new ArxiuDto();
 			es.caib.plugins.arxiu.api.Document documentArxiu;
@@ -1786,7 +1777,8 @@ public class DocumentHelperV3 {
 				// El document ja està firmat a l'Arxiu, es guarda amb un altre uuid
 				documentStore.setArxiuUuid(null);
 				ContingutArxiu documentCreat = pluginHelper.arxiuDocumentCrearActualitzar(
-						expedient, 
+						expedient,
+						documentNom,
 						documentDescripcio, 
 						documentStore, 
 						new ArxiuDto(
@@ -1803,6 +1795,7 @@ public class DocumentHelperV3 {
 				pluginHelper.arxiuDocumentGuardarDocumentFirmat(
 						expedient,
 						documentStore,
+						documentNom,
 						documentDescripcio,
 						arxiuFirmat,
 						tipusFirma, 
@@ -2352,21 +2345,22 @@ public class DocumentHelperV3 {
 				firmes =PluginHelper.toArxiusFirmesDto(documentArxiu.getFirmes());
 			}
 		}
-		String documentNom = documentStore.isAdjunt() ? documentStore.getArxiuNom() : (document!=null ? document.getNom() : "");
 		if (expedient.isArxiuActiu()) {
 			// Document integrat amb l'Arxiu
 			if (arxiuUuid == null) {
+				String documentDescripcio = documentStore.isAdjunt() ? documentStore.getAdjuntTitol() : document.getNom();
 				// Actualitza el document a dins l'arxiu
 				ArxiuDto arxiu = new ArxiuDto(
 						arxiuNom,
 						arxiuContingut,
 						arxiuContentType);
-				//en comptes del títol o nom d'adjunt, s'ha de passar el nom de l'Arxiu com podria ser blank.pdf
-				documentNom = inArxiu(processInstanceId, documentStore.getArxiuUuid(), documentNom);
+				// Canvia el nom per l'Arxiu per no coincidir amb cap document amb el mateix nom a l'Arxiu
+				String documentNom = inArxiu(processInstanceId, documentStore.getArxiuUuid(), documentStore.getArxiuNom());
 				
 				ContingutArxiu contingutArxiu = pluginHelper.arxiuDocumentCrearActualitzar(
 						expedient,
 						documentNom,
+						documentDescripcio,
 						documentStore,
 						arxiu,
 						ambFirma,
@@ -2457,24 +2451,6 @@ public class DocumentHelperV3 {
 					documentStore.getId());
 		}
 	}
-	
-	/** 
-	 * Substitueix salts de línia i tabuladors per espais i lleva caràcters esttranys no contemplats.
-	 * 
-	 * @param nom Nom del contingut a revisar.
-	 * @return Retorna el nom substituïnt tabuladors, salts de línia i apòstrofs per espais i ignorant caràcters
-	 * invàlids. També treu el punt final en cas d'haver-n'hi.
-	 */
-	public static String revisarContingutNom(String nom) {
-		if (nom != null) {
-			nom = nom.replaceAll("[\\s\\']", " ").replaceAll("[^\\wçñàáèéíïòóúüÇÑÀÁÈÉÍÏÒÓÚÜ()\\-,\\.·\\s]", "").trim();
-			if (nom.endsWith(".")) {
-				nom = nom.substring(0, nom.length()-1);
-			}
-		}
-		return nom;
-	}
-
 	
 	/** Valida les firmes amb el plugin de validació de firmes */
 	private List<ArxiuFirmaDto> validaFirmaDocument(
@@ -2670,9 +2646,13 @@ public class DocumentHelperV3 {
 	}
 	
 	/** Comprova si ja existeix a l'expedient un document amb el mateix nom i diferent UUID tenint en compte el . de l'extensió*/
-	private String inArxiu(String processInstanceId, String arxiuUuid, String documentNom){
+	public String inArxiu(String processInstanceId, String arxiuUuid, String documentNom){
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		
+		if (documentNom == null) {
+			logger.warn("S'ha passat un nom de document null per fixar com a nom a l'Arxiu pel processInstanceId=" +processInstanceId + " i uuid=" + arxiuUuid);
+			documentNom = String.valueOf(new Date().getTime());
+		}
 		// Revisa els caràcters estranys com ho fa el plugin abans comprobar si ja existeix el nom
 		documentNom = revisarContingutNom(documentNom);
 		
@@ -2702,23 +2682,34 @@ public class DocumentHelperV3 {
 					} else {
 						// Nom sense extensió
 						while (nomsExistingInArxiu.indexOf(nouDocumentNom.toLowerCase()) >= 0) {
-							// if it does 'ocurrences' increments
-						ocurrences ++;
-							// and the number of ocurences is added to the file name
-							// and it checks again if the new file name exists
-						nouDocumentNom = documentNom + " (" + ocurrences + ")";
+							ocurrences ++;
+							nouDocumentNom = documentNom + " (" + ocurrences + ")";
+						}
 					}
+					documentNom = nouDocumentNom;
 				}
-//					while(noms.contains(nouDocumentNom)) {
-//						ocurrences ++;
-//						nouDocumentNom = documentNom + " (" + ocurrences + ")";
-//					}
-				}
-				return nouDocumentNom;
 			}
 		}
 		return documentNom;
 	}
+	
+	/** 
+	 * Substitueix salts de línia i tabuladors per espais i lleva caràcters esttranys no contemplats.
+	 * 
+	 * @param nom Nom del contingut a revisar.
+	 * @return Retorna el nom substituïnt tabuladors, salts de línia i apòstrofs per espais i ignorant caràcters
+	 * invàlids. També treu el punt final en cas d'haver-n'hi.
+	 */
+	public static String revisarContingutNom(String nom) {
+		if (nom != null) {
+			nom = nom.replaceAll("[\\s\\']", " ").replaceAll("[^\\wçñàáèéíïòóúüÇÑÀÁÈÉÍÏÒÓÚÜ()\\-,\\.·\\s]", "").trim();
+			if (nom.endsWith(".")) {
+				nom = nom.substring(0, nom.length()-1);
+			}
+		}
+		return nom;
+	}
+
 
 	private static final Log logger = LogFactory.getLog(DocumentHelperV3.class);
 

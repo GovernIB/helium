@@ -1207,13 +1207,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				
 			Document document = documentHelper.findDocumentPerInstanciaProcesICodi(
 					expedient.getProcessInstanceId(),
-					documentStore.getCodiDocument());
-			String documentDescripcio;
-			if (documentStore.isAdjunt()) {
-				documentDescripcio = documentStore.getAdjuntTitol();
-			} else {
-				documentDescripcio = document.getNom();
-			}
+					documentStore.getCodiDocument());			
+
 			ArxiuDto arxiu = documentHelper.getArxiuPerDocumentStoreId(
 					documentStore.getId(),
 					false,
@@ -1223,8 +1218,12 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				arxiu.setTipusMime(documentHelper.getContentType(arxiu.getNom()));
 				
 				
+			String documentNom = documentHelperV3.inArxiu(expedient.getProcessInstanceId(), "-", arxiu.getNom());
+			String documentDescripcio =  documentStore.isAdjunt() ? documentStore.getAdjuntTitol() :  document.getNom();			
+
 			ContingutArxiu contingutArxiu = pluginHelper.arxiuDocumentCrearActualitzar(
 					expedient,
+					documentNom,
 					documentDescripcio,
 					documentStore,
 					arxiu);
@@ -1242,6 +1241,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				pluginHelper.arxiuDocumentGuardarPdfFirmat(
 						expedient,
 						documentStore,
+						documentNom,
 						documentDescripcio,
 						arxiu);
 				documentArxiu = pluginHelper.arxiuDocumentInfo(
