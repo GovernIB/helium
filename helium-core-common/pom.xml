@@ -481,11 +481,23 @@
 			<groupId>es.caib.distribucio</groupId>
 			<artifactId>distribucio-rest-client</artifactId>
 			<version>0.9.43</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>jersey-client</artifactId>
+					<groupId>com.sun.jersey</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>es.caib.distribucio</groupId>
 			<artifactId>distribucio-backoffice-utils</artifactId>
 			<version>0.9.43</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>jersey-client</artifactId>
+					<groupId>com.sun.jersey</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 	<build>
