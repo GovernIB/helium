@@ -292,6 +292,10 @@
 								<td><strong><spring:message code="expedient.metadades.nti.camp.eni.firma.csvdef"/></strong></td>
 								<td>${arxiuDetall.eniCsvDef}</td>
 							</tr>
+							<tr>
+								<td><strong><spring:message code="expedient.metadades.nti.camp.arxiuEstat"/></strong></td>
+								<td>${arxiuDetall.arxiuEstat != null ? arxiuDetall.arxiuEstat : "-"}</td>
+							</tr>
 						</tbody>
 						</table>
 					</div>

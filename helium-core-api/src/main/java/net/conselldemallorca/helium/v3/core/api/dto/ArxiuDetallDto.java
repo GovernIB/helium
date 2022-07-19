@@ -14,6 +14,7 @@ import java.util.Map;
  */
 public class ArxiuDetallDto extends ArxiuContingutDto {
 
+	/** Descripcio en cas dels documents */
 	private String eniVersio;
 	private String eniIdentificador;
 	private NtiOrigenEnumDto eniOrigen;
@@ -39,6 +40,8 @@ public class ArxiuDetallDto extends ArxiuContingutDto {
 	
 	private List<ArxiuFirmaDto> firmes;
 	private List<ArxiuContingutDto> fills;
+
+	private ArxiuEstat arxiuEstat;
 
 	public String getEniVersio() {
 		return eniVersio;
@@ -171,6 +174,13 @@ public class ArxiuDetallDto extends ArxiuContingutDto {
 	}
 	public void setFills(List<ArxiuContingutDto> fills) {
 		this.fills = fills;
+	}
+
+	public ArxiuEstat getArxiuEstat() {
+		return arxiuEstat;
+	}
+	public void setArxiuEstat(ArxiuEstat arxiuEstat) {
+		this.arxiuEstat = arxiuEstat;
 	}
 
 	private static final long serialVersionUID = -2124829280908976623L;

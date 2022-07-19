@@ -50,6 +50,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuEstat;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
@@ -979,6 +980,16 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			documentHelper.actualitzarNtiFirma(documentStore, arxiuDocument);
 			arxiuDetall.setIdentificador(arxiuDocument.getIdentificador());
 			arxiuDetall.setNom(arxiuDocument.getNom());
+			if (arxiuDocument.getEstat() != null) {
+				switch(arxiuDocument.getEstat()) {
+				case DEFINITIU:
+					arxiuDetall.setArxiuEstat(ArxiuEstat.DEFINITIU);
+					break;
+				case ESBORRANY:
+					arxiuDetall.setArxiuEstat(ArxiuEstat.ESBORRANY);
+					break;				
+				}
+			}
 			List<Firma> firmes = arxiuDocument.getFirmes();
 			DocumentMetadades metadades = arxiuDocument.getMetadades();
 			if (metadades != null) {
