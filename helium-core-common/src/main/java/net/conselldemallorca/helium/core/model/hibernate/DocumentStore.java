@@ -415,7 +415,7 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	public boolean isDocumentValid() {
 		return documentValid != null ? documentValid.booleanValue() : true;
 	}
-	public void setDocumentValid(boolean documentValid) {
+	public void setDocumentValid(Boolean documentValid) {
 		this.documentValid = documentValid;
 	}
 	
