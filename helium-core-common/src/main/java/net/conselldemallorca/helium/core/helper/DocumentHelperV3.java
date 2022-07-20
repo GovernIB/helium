@@ -10,10 +10,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -2443,6 +2441,23 @@ public class DocumentHelperV3 {
 				contingut,
 				(contingutFirma != null && contingutFirma.length > 0) ? contingutFirma : null,
 				contentType);
+		
+		// Fa una validació de les firmes
+		for (ArxiuFirmaDto firma : firmes) {
+			if (NtiTipoFirmaEnumDto.ODT.equals(firma.getTipus())) {
+				throw new ValidacioException("L'Arxiu no accepta documents firmats de tipus ODF actualment (tipus: " +  firma.getTipus()
+				+ ", perfil: " + firma.getPerfil() + ")" );
+			}
+			if (firma.getTipus() == null) {
+				throw new ValidacioException("La firma no és vàlida. No s'ha pogut resoldre el tipus de firma (tipus: " +  firma.getTipus()
+				+ ", perfil: " + firma.getPerfil() + ")" );
+			}
+			if (firma.getPerfil() == null) {
+				throw new ValidacioException("La firma no és vàlida. No s'ha pogut resoldre el perfil de firma (tipus: " +  firma.getTipus()
+				+ ", perfil: " + firma.getPerfil() + ")" );
+			}
+		}
+		
 		documentStore.setSignat(true);
 		return firmes;
 	}

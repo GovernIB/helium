@@ -136,8 +136,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto.RegistreNotificacioTramitSubsanacioParametreDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ScspJustificant;
-import net.conselldemallorca.helium.v3.core.api.dto.ScspRespostaPinbal;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto.TramitDocumentSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
@@ -3014,6 +3012,10 @@ public class PluginHelper {
 						validateSignatureResponse.getSignFormat()));
 				firma.setTipusMime(contentType);
 				firmes.add(firma);
+				
+				accioParams.put("response.signProfile", validateSignatureResponse.getSignProfile());
+				accioParams.put("response.signType", validateSignatureResponse.getSignType());
+				accioParams.put("response.signFormat", firma.getTipus());
 			}			
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_VALIDASIG,
@@ -3144,16 +3146,20 @@ public class PluginHelper {
 			String tipus,
 			String format) {		
 		NtiTipoFirmaEnumDto tipusFirma = null;
-		if (tipus.equals("PAdES") || format.equals("implicit_enveloped/attached")) {
+		if (tipus.equals("PAdES") && format.equals("implicit_enveloped/attached")) {
 			tipusFirma = NtiTipoFirmaEnumDto.PADES;
+		} else if (tipus.equals("ODF") && format.equals("implicit_enveloped/attached")) {
+				tipusFirma = NtiTipoFirmaEnumDto.ODT;
 		} else if (tipus.equals("XAdES") && format.equals("explicit/detached")) {
 			tipusFirma = NtiTipoFirmaEnumDto.XADES_DET;
 		} else if (tipus.equals("XAdES") && format.equals("implicit_enveloping/attached")) {
 			tipusFirma = NtiTipoFirmaEnumDto.XADES_ENV;
-		} else if (tipus.equals("CAdES") && format.equals("explicit/detached")) {
+		} else if (tipus.equals("CAdES") && (format.equals("explicit/detached") || format.equals("explicit/externally_detached"))) {
 			tipusFirma = NtiTipoFirmaEnumDto.CADES_DET;
 		} else if (tipus.equals("CAdES") && format.equals("implicit_enveloping/attached")) {
 			tipusFirma = NtiTipoFirmaEnumDto.CADES_ATT;
+		} else if (tipus.equals("OOXML")) {
+			tipusFirma = NtiTipoFirmaEnumDto.OOXML;
 		}
 		return tipusFirma;
 	}
