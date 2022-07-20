@@ -18,7 +18,7 @@
 	<c:when test="${not empty expedientTipus}">
 
 		<form:form cssClass="form-horizontal" enctype="multipart/form-data" method="post" commandName="expedientTipusIntegracioDistribucioCommand">
-			<div style="height: 400px">        
+			<div style="height: 400px;float: left;width: 800px;">        
 				<input type="hidden" id="id" name="id" value="${expedientTipusIntegracioDistribucioCommand.id}"/>
 				<hel:inputCheckbox name="actiu" textKey="expedient.tipus.integracio.distribucio.activar"/>
 				<div id="inputs_integracioDistribucio" style="display:${expedientTipusIntegracioDistribucioCommand.actiu? 'inline' : 'none'}">
@@ -27,6 +27,12 @@
 					<hel:inputCheckbox name="procesAuto" textKey="expedient.tipus.integracio.distribucio.procesAuto" info="expedient.tipus.integracio.distribucio.procesAuto.comment"/>
 					<hel:inputCheckbox name="sistra" textKey="expedient.tipus.integracio.distribucio.sistra" info="expedient.tipus.integracio.distribucio.sistra.comment"/>
 				</div>
+			</div>
+			
+			<div style="height: 400px">
+				<button id="addRuleBtn" class="btn btn-primary right" type="submit" style="margin:47px" name="accio" value="addRule">
+					<span id="accioAddRuleSpin" class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.crearRegla"/>
+				</button>			
 			</div>
 			
 			<div id="modal-botons" class="well" style="text-align: right;">
@@ -79,6 +85,33 @@ $(document).ready(function() {
 		e.preventDefault();
 		return false;
 	})
+	
+	$('#addRuleBtn').click(function(e){
+		$('#contingut-alertes').empty();
+		$('#accioAddRuleSpin').addClass('fa-spin');
+		$(this).webutilNetejarErrorsCamps();
+		var url = "<c:url value="/v3/expedientTipus/${expedientTipus.id}/integracioDistribucio/addRule"></c:url>";
+	    $.ajax({
+	           type: "POST",
+	           url: url,
+	           data: {
+	        	   		codiProcediment: $('#codiProcediment').val()
+	        	   	  },
+	           success: function(ajaxResponse)
+	           {
+	        	   if (ajaxResponse.estatError) {
+	        		   $('#guardarRegla').webutilMostrarErrorsCamps(ajaxResponse.errorsCamps);
+	        	   }
+	           },
+				complete: function(){
+					webutilRefreshMissatges();
+					$('#accioAddRuleSpin').removeClass('fa-spin');
+				}
+	         });
+		e.preventDefault();
+		return false;
+	})
+	
 });
 // ]]>
 </script>			

@@ -7,6 +7,9 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -14,11 +17,17 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.core.helper.PluginHelper;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.integracio.plugins.unitat.UnitatOrganica;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.webapp.mvc.util.ReglesRestClient;
+import net.conselldemallorca.helium.webapp.mvc.util.ReglesRestClient.AddResponse;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusIntegracioDistribucioCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.AjaxHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.AjaxHelper.AjaxFormResponse;
@@ -38,6 +47,10 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 @RequestMapping("/v3/expedientTipus")
 public class ExpedientTipusIntegracioDistribucioController extends BaseExpedientTipusController {
 
+	@Autowired
+	private PluginHelper pluginHelper;
+
+	
 	@RequestMapping(value = "/{expedientTipusId}/integracioDistribucio")
 	public String distribucio(
 			HttpServletRequest request,
@@ -109,5 +122,88 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 	        }
 		}
     	return response;
-	}	
+	}
+	
+	/** Mètode per crear regla de Distribució **/
+	@RequestMapping(value = "/{expedientTipusId}/integracioDistribucio/addRule")
+	@ResponseBody
+	public AjaxFormResponse addRule(
+
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@RequestParam(value = "codiProcediment", required = true) String codiProcediment,
+			Model model) throws PermisDenegatException, IOException {
+		
+		String url = GlobalProperties.getInstance().getProperty("app.helium.distribucio.regles.api.rest.url");
+		String usuari = GlobalProperties.getInstance().getProperty("app.helium.distribucio.regles.api.rest.usuari");
+		String contrasenya = GlobalProperties.getInstance().getProperty("app.helium.distribucio.regles.api.rest.password");
+	
+		ReglesRestClient client = new ReglesRestClient(
+				url,
+				usuari,
+				contrasenya,
+				false);		
+		AjaxFormResponse ajaxResponse = AjaxHelper.generarAjaxFormOk();
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		
+		if (entornActual != null) {
+			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
+					entornActual.getId(),
+					expedientTipusId);
+			model.addAttribute("expedientTipus", expedientTipus);
+			ajaxResponse = AjaxHelper.generarAjaxFormOk();		
+			try {
+				String codiEntitat = expedientTipus.getNtiOrgano();
+				if(codiEntitat==null || "".equals(codiEntitat)) {
+					MissatgesHelper.error(
+							request,
+							getMessage(
+									request, 
+									"expedient.tipus.integracio.distribucio.regla.unitatOrganica.error"));
+					logger.error("expedient.tipus.integracio.distribucio.regla.unitatOrganica.error");
+
+				}
+				UnitatOrganica unitatOrganica = pluginHelper.findUnitatOrganica(codiEntitat);	
+	
+				String backoffice = GlobalProperties.getInstance().getProperty("app.helium.distribucio.regles.api.rest.codi.backoffice");
+				String sia = codiProcediment;
+				AddResponse response = client.add(unitatOrganica.getCodiUnitatArrel(), sia, backoffice);
+		
+
+				logger.debug("Resposta de la creació de la regla " + response.getMissatge());
+
+				if (response.isCorrecte()) {
+					if(response.getMissatge()!=null && !response.getMissatge().contains("Ja existeix"))
+						MissatgesHelper.success(
+									request, 
+									response.getMissatge());
+					else
+						if(response.getMissatge()!=null && response.getMissatge().contains("Ja existeix"))
+							MissatgesHelper.warning(
+									request, 
+									response.getMissatge());
+				} else  {
+					MissatgesHelper.error(
+							request,
+							getMessage(
+									request, 
+									"expedient.tipus.integracio.distribucio.regla.error")
+							+ ": " + response.getMissatge());
+					logger.error("Error retornat al crear regla en distribucio: " + response.getMissatge());
+
+				}
+			} catch (Exception e) {
+				  MissatgesHelper.error(
+							request, 
+							getMessage(
+									request, 
+									"expedient.tipus.integracio.distribucio.validacio"));
+				logger.error("Error creant la regla: " + e.getMessage(), e);
+			}
+				
+		}
+    	return ajaxResponse;
+	}
+	
+	private static final Log logger = LogFactory.getLog(ExpedientTipusIntegracioDistribucioController.class);
 }
