@@ -50,6 +50,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuEstat;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
@@ -192,7 +193,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				ntiOrigen,
 				ntiEstadoElaboracion,
 				ntiTipoDocumental,
-				ntiIdOrigen);
+				ntiIdOrigen,
+				true,
+				null);
 		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 		expedientRegistreHelper.crearRegistreCrearDocumentInstanciaProces(
 				expedient.getId(),
@@ -988,6 +991,16 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			documentHelper.actualitzarNtiFirma(documentStore, arxiuDocument);
 			arxiuDetall.setIdentificador(arxiuDocument.getIdentificador());
 			arxiuDetall.setNom(arxiuDocument.getNom());
+			if (arxiuDocument.getEstat() != null) {
+				switch(arxiuDocument.getEstat()) {
+				case DEFINITIU:
+					arxiuDetall.setArxiuEstat(ArxiuEstat.DEFINITIU);
+					break;
+				case ESBORRANY:
+					arxiuDetall.setArxiuEstat(ArxiuEstat.ESBORRANY);
+					break;				
+				}
+			}
 			List<Firma> firmes = arxiuDocument.getFirmes();
 			DocumentMetadades metadades = arxiuDocument.getMetadades();
 			if (metadades != null) {
@@ -1216,13 +1229,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				
 			Document document = documentHelper.findDocumentPerInstanciaProcesICodi(
 					expedient.getProcessInstanceId(),
-					documentStore.getCodiDocument());
-			String documentDescripcio;
-			if (documentStore.isAdjunt()) {
-				documentDescripcio = documentStore.getAdjuntTitol();
-			} else {
-				documentDescripcio = document.getNom();
-			}
+					documentStore.getCodiDocument());			
+
 			ArxiuDto arxiu = documentHelper.getArxiuPerDocumentStoreId(
 					documentStore.getId(),
 					false,
@@ -1232,8 +1240,12 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				arxiu.setTipusMime(documentHelper.getContentType(arxiu.getNom()));
 				
 				
+			String documentNom = documentHelperV3.inArxiu(expedient.getProcessInstanceId(), "-", arxiu.getNom());
+			String documentDescripcio =  documentStore.isAdjunt() ? documentStore.getAdjuntTitol() :  document.getNom();			
+
 			ContingutArxiu contingutArxiu = pluginHelper.arxiuDocumentCrearActualitzar(
 					expedient,
+					documentNom,
 					documentDescripcio,
 					documentStore,
 					arxiu);
@@ -1251,6 +1263,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				pluginHelper.arxiuDocumentGuardarPdfFirmat(
 						expedient,
 						documentStore,
+						documentNom,
 						documentDescripcio,
 						arxiu);
 				documentArxiu = pluginHelper.arxiuDocumentInfo(

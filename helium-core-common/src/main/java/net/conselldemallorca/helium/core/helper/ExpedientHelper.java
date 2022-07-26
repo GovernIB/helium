@@ -846,28 +846,42 @@ public class ExpedientHelper {
 					false,
 					false);
 			
+			String documentNom = arxiu.getNom();
+			
 			if (arxiu.getTipusMime() == null)
 				arxiu.setTipusMime(documentHelper.getContentType(arxiu.getNom()));
 			
-			// Si la descripició no acaba amb l'extensió l'afegeix
-			String extensio = "." + arxiu.getExtensio();
-			if (!documentDescripcio.endsWith(extensio))
-				documentDescripcio += extensio;
 			
 			// Corregeix el nom si ja hi ha un altre document amb el mateix nom i posant l'extensio
-			if (documentsExistents.contains(documentDescripcio)) {
-				int occurrences = 1;
-				String novaDescripcio;
-				do {
-					// descripcio.ext := descripcio (1).ext
-					novaDescripcio = documentDescripcio.substring(0, documentDescripcio.lastIndexOf(extensio)) + " (" + occurrences++ + ")" + extensio;
-				} while (documentsExistents.contains(novaDescripcio));
-				documentDescripcio = novaDescripcio;
+			documentNom = DocumentHelperV3.revisarContingutNom(documentNom);
+			String nouDocumentNom = new String(documentNom);
+			if (documentsExistents.contains(nouDocumentNom)) {
+				int occurrences = 0;
+				if (nouDocumentNom.contains(".")) {
+					// Nom amb extensió
+					String name = nouDocumentNom.substring(0, nouDocumentNom.lastIndexOf('.'));
+					String extension = nouDocumentNom.substring(nouDocumentNom.lastIndexOf('.'));
+					nouDocumentNom = name;
+					while(documentsExistents.contains((nouDocumentNom + extension).toLowerCase())) {
+						occurrences ++;
+						nouDocumentNom = name + " (" + occurrences + ")";
+					}
+					nouDocumentNom += extension;
+
+				} else {
+					// Nom sense extensió
+					while (documentsExistents.contains(nouDocumentNom.toLowerCase())) {
+						occurrences ++;
+						nouDocumentNom = documentNom + " (" + occurrences + ")";
+					}
+				}
+				documentNom = nouDocumentNom;
 			}
-			documentsExistents.add(documentDescripcio);
+			documentsExistents.add(documentNom);
 			
 			ContingutArxiu contingutArxiu = pluginHelper.arxiuDocumentCrearActualitzar(
 					expedient,
+					documentNom,
 					documentDescripcio,
 					documentStore,
 					arxiu);
@@ -885,6 +899,7 @@ public class ExpedientHelper {
 				pluginHelper.arxiuDocumentGuardarPdfFirmat(
 						expedient,
 						documentStore,
+						documentNom,
 						documentDescripcio,
 						arxiu);
 				documentArxiu = pluginHelper.arxiuDocumentInfo(
@@ -1698,7 +1713,9 @@ public class ExpedientHelper {
 								null,
 								null,
 								null,
-								null);
+								null,
+								doc.getValue().isDocumentValid(),
+								doc.getValue().getDocumentError());
 					}
 				}
 			}
@@ -1717,7 +1734,9 @@ public class ExpedientHelper {
 							null,
 							null,
 							null,
-							null);
+							null,
+							adjunt.isDocumentValid(),
+							adjunt.getDocumentError());
 				}
 			}
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");

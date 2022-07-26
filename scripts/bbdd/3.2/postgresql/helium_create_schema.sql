@@ -393,7 +393,9 @@ CREATE TABLE HEL_DOCUMENT_STORE
   NTI_TIPO_FIRMA       BIGINT,
   NTI_CSV              VARCHAR(256),
   NTI_DEF_GEN_CSV      VARCHAR(256),
-  ARXIU_UUID           VARCHAR(36)
+  ARXIU_UUID           VARCHAR(36),
+  DOCUMENT_VALID       BOOLEAN,
+  DOCUMENT_ERROR       character varying (1000)
 );
 
 
@@ -1562,7 +1564,10 @@ CREATE TABLE HEL_ANOTACIO_ANNEX (
 	ESTAT character varying (20),
 	ERROR character varying (4000),
 	NTI_ESTADO_ELABORACIO character varying(50) NOT NULL,
-	DOCUMENT_STORE_ID bigint
+	DOCUMENT_STORE_ID bigint,
+    DOCUMENT_VALID BOOLEAN,
+    DOCUMENT_ERROR character varying (1000),
+    ARXIU_ESTAT character varying (20)
 );
 
 

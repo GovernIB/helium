@@ -32,10 +32,10 @@ import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultatAnnex.AnnexAccio;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
 import es.caib.distribucio.core.api.exception.SistemaExternException;
-import es.caib.distribucio.ws.backofficeintegracio.Annex;
-import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreEntrada;
-import es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreId;
-import es.caib.distribucio.ws.backofficeintegracio.Estat;
+import es.caib.distribucio.rest.client.domini.Annex;
+import es.caib.distribucio.rest.client.domini.AnotacioRegistreEntrada;
+import es.caib.distribucio.rest.client.domini.AnotacioRegistreId;
+import es.caib.distribucio.rest.client.domini.Estat;
 import es.caib.plugins.arxiu.api.Document;
 import net.conselldemallorca.helium.core.helper.AlertaHelper;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
@@ -69,6 +69,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuEstat;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
@@ -351,6 +352,37 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		anotacio.setExpedientTipus(expedientTipus);
 		anotacio.setExpedient(expedient);
 		
+		// Si l'anotació té annexos invàlids o en estat esborrany posa una alerta a l'expedient
+		int nAnnexosInvalids = 0;
+		int nAnnexosEsborrany = 0;
+		for (AnotacioAnnex annex : anotacio.getAnnexos()) {
+			if (!annex.isDocumentValid()) {
+				nAnnexosInvalids++;
+			}
+			if (annex.getArxiuEstat() == ArxiuEstat.ESBORRANY) {
+				nAnnexosEsborrany++;
+			}
+		}
+		if (nAnnexosInvalids > 0 ) {
+			Alerta alerta = alertaHelper.crearAlerta(
+					expedient.getEntorn(), 
+					expedient, 
+					new Date(), 
+					null, 
+					"L'anotació " + anotacio.getIdentificador() + " té " + nAnnexosInvalids + " annexos invàlids que s'haurien de revisar i reparar.");
+			alerta.setPrioritat(AlertaPrioritat.ALTA);
+		}
+
+		if (nAnnexosEsborrany > 0 ) {
+			Alerta alerta = alertaHelper.crearAlerta(
+					expedient.getEntorn(), 
+					expedient, 
+					new Date(), 
+					null, 
+					"L'anotació " + anotacio.getIdentificador() + " té " + nAnnexosEsborrany + " en estat esborrany.");
+			alerta.setPrioritat(AlertaPrioritat.ALTA);
+		}
+
 		// Si l'expedient està integrat amb l'arxiu s'utlitzarà la llibreria d'utilitats de backoffice de Distribució per moure tots els annexos i incorporar
 		// la informació dels interessats.
 		ArxiuResultat resultat = null;
@@ -366,7 +398,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			// Consulta la informació de l'anotació 
 			AnotacioRegistreEntrada anotacioRegistreEntrada = null;
 			try {
-				es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreId idWs = new AnotacioRegistreId();
+				es.caib.distribucio.rest.client.domini.AnotacioRegistreId idWs = new AnotacioRegistreId();
 				idWs.setClauAcces(anotacio.getDistribucioClauAcces());
 				idWs.setIndetificador(anotacio.getDistribucioId());
 				anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
@@ -567,7 +599,9 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 						annex.getNtiOrigen(), 
 						annex.getNtiEstadoElaboracion(), 
 						annex.getNtiTipoDocumental(), 
-						annex.getNtiOrigen() != null ? annex.getNtiOrigen().toString() : null);
+						annex.getNtiOrigen() != null ? annex.getNtiOrigen().toString() : null,
+						annex.isDocumentValid(),
+						annex.getDocumentError());
 				annex.setDocumentStoreId(documentStoreId);
 			}
 		} catch(Exception e) {
@@ -858,7 +892,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			// S'enregistraran els events al monitor d'integració
 			backofficeUtils.setArxiuPluginListener(this);
 			// Prepara la consulta a Distribució
-			es.caib.distribucio.ws.backofficeintegracio.AnotacioRegistreId idWs = new AnotacioRegistreId();
+			es.caib.distribucio.rest.client.domini.AnotacioRegistreId idWs = new AnotacioRegistreId();
 			idWs.setClauAcces(anotacio.getDistribucioClauAcces());
 			idWs.setIndetificador(anotacio.getDistribucioId());
 			AnotacioRegistreEntrada anotacioRegistreEntrada;

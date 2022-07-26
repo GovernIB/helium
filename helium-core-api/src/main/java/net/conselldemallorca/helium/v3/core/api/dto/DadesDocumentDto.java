@@ -18,6 +18,9 @@ public class DadesDocumentDto {
 	private String arxiuNom;
 	private byte[] arxiuContingut;
 	private Long idDocument;
+	
+	private boolean documentValid;
+	private String documentError;
 
 
 
@@ -56,6 +59,18 @@ public class DadesDocumentDto {
 	}
 	public void setIdDocument(Long idDocument) {
 		this.idDocument = idDocument;
+	}
+	public boolean isDocumentValid() {
+		return documentValid;
+	}
+	public void setDocumentValid(boolean documentValid) {
+		this.documentValid = documentValid;
+	}
+	public String getDocumentError() {
+		return documentError;
+	}
+	public void setDocumentError(String documentError) {
+		this.documentError = documentError;
 	}
 
 }

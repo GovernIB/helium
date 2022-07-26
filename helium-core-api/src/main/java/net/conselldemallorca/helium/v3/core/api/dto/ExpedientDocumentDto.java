@@ -65,6 +65,10 @@ public class ExpedientDocumentDto implements Serializable {
 	private Long anotacioId = null;
 	private String anotacioIdentificador = null;
 	
+	/** Informació provinent del document de l'anotació original */
+	private boolean documentValid = true;
+	private String documentError;
+	
 	public boolean isNotificable() {
 		return notificable;
 	}
@@ -329,6 +333,19 @@ public class ExpedientDocumentDto implements Serializable {
 	}
 	public void setAnotacioIdentificador(String anotacioNumero) {
 		this.anotacioIdentificador = anotacioNumero;
+	}
+
+	public boolean isDocumentValid() {
+		return documentValid;
+	}
+	public void setDocumentValid(boolean documentValid) {
+		this.documentValid = documentValid;
+	}
+	public String getDocumentError() {
+		return documentError;
+	}
+	public void setDocumentError(String documentError) {
+		this.documentError = documentError;
 	}
 
 	private static final long serialVersionUID = -4307890997577367155L;

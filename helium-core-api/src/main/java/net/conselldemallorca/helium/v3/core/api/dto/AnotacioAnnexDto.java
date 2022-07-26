@@ -34,6 +34,12 @@ public class AnotacioAnnexDto implements Serializable {
 	private AnotacioAnnexEstatEnumDto estat;
 	private String error;
 	
+	/** Indica si en la consulta Distribucio el marca com a válid o invàlid */
+	private Boolean documentValid;
+	/** Camp on distribucio informa dels possibles errors que pugui tenir el document. */
+	private String documentError;
+	/** Camp que indica l'estat a l'Arxiu si és definitiu o esborrany. */
+	private ArxiuEstat arxiuEstat;
 	
 	public Long getId() {
 		return id;
@@ -142,6 +148,25 @@ public class AnotacioAnnexDto implements Serializable {
 	}
 	public void setError(String error) {
 		this.error = error;
+	}
+
+	public Boolean getDocumentValid() {
+		return documentValid;
+	}
+	public void setDocumentValid(Boolean documentValid) {
+		this.documentValid = documentValid;
+	}
+	public String getDocumentError() {
+		return documentError;
+	}
+	public void setDocumentError(String documentError) {
+		this.documentError = documentError;
+	}
+	public ArxiuEstat getArxiuEstat() {
+		return arxiuEstat;
+	}
+	public void setArxiuEstat(ArxiuEstat arxiuEstat) {
+		this.arxiuEstat = arxiuEstat;
 	}
 
 	private static final long serialVersionUID = 5464024480684761600L;

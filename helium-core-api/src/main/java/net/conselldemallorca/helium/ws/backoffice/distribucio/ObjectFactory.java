@@ -24,22 +24,14 @@ import javax.xml.namespace.QName;
 @XmlRegistry
 public class ObjectFactory {
 
-    private final static QName _ComunicarAnotacionsPendentsResponse_QNAME = new QName("http://www.caib.es/distribucio/ws/backoffice", "comunicarAnotacionsPendentsResponse");
     private final static QName _ComunicarAnotacionsPendents_QNAME = new QName("http://www.caib.es/distribucio/ws/backoffice", "comunicarAnotacionsPendents");
+    private final static QName _ComunicarAnotacionsPendentsResponse_QNAME = new QName("http://www.caib.es/distribucio/ws/backoffice", "comunicarAnotacionsPendentsResponse");
 
     /**
      * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: net.conselldemallorca.helium.ws.backoffice.distribucio
      * 
      */
     public ObjectFactory() {
-    }
-
-    /**
-     * Create an instance of {@link ComunicarAnotacionsPendents }
-     * 
-     */
-    public ComunicarAnotacionsPendents createComunicarAnotacionsPendents() {
-        return new ComunicarAnotacionsPendents();
     }
 
     /**
@@ -51,20 +43,19 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link ComunicarAnotacionsPendents }
+     * 
+     */
+    public ComunicarAnotacionsPendents createComunicarAnotacionsPendents() {
+        return new ComunicarAnotacionsPendents();
+    }
+
+    /**
      * Create an instance of {@link AnotacioRegistreId }
      * 
      */
     public AnotacioRegistreId createAnotacioRegistreId() {
         return new AnotacioRegistreId();
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link ComunicarAnotacionsPendentsResponse }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "http://www.caib.es/distribucio/ws/backoffice", name = "comunicarAnotacionsPendentsResponse")
-    public JAXBElement<ComunicarAnotacionsPendentsResponse> createComunicarAnotacionsPendentsResponse(ComunicarAnotacionsPendentsResponse value) {
-        return new JAXBElement<ComunicarAnotacionsPendentsResponse>(_ComunicarAnotacionsPendentsResponse_QNAME, ComunicarAnotacionsPendentsResponse.class, null, value);
     }
 
     /**
@@ -74,6 +65,15 @@ public class ObjectFactory {
     @XmlElementDecl(namespace = "http://www.caib.es/distribucio/ws/backoffice", name = "comunicarAnotacionsPendents")
     public JAXBElement<ComunicarAnotacionsPendents> createComunicarAnotacionsPendents(ComunicarAnotacionsPendents value) {
         return new JAXBElement<ComunicarAnotacionsPendents>(_ComunicarAnotacionsPendents_QNAME, ComunicarAnotacionsPendents.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link ComunicarAnotacionsPendentsResponse }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "http://www.caib.es/distribucio/ws/backoffice", name = "comunicarAnotacionsPendentsResponse")
+    public JAXBElement<ComunicarAnotacionsPendentsResponse> createComunicarAnotacionsPendentsResponse(ComunicarAnotacionsPendentsResponse value) {
+        return new JAXBElement<ComunicarAnotacionsPendentsResponse>(_ComunicarAnotacionsPendentsResponse_QNAME, ComunicarAnotacionsPendentsResponse.class, null, value);
     }
 
 }

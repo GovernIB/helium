@@ -2285,11 +2285,13 @@ public class PluginHelper {
 	public ContingutArxiu arxiuDocumentCrearActualitzar(
 			Expedient expedient,
 			String documentNom,
+			String documentDescripcio,
 			DocumentStore documentStore,
 			ArxiuDto arxiu) {
 		return arxiuDocumentCrearActualitzar(
 			expedient,
 			documentNom,
+			documentDescripcio,
 			documentStore,
 			arxiu,
 			false,
@@ -2300,6 +2302,7 @@ public class PluginHelper {
 	public ContingutArxiu arxiuDocumentCrearActualitzar(
 			Expedient expedient,
 			String documentNom,
+			String documentDescripcio,
 			DocumentStore documentStore,
 			ArxiuDto arxiu,
 			boolean ambFirma,
@@ -2322,6 +2325,10 @@ public class PluginHelper {
 						documentNom));
 		parametres.add(
 				new IntegracioParametreDto(
+						"documentDescripcio",
+						documentDescripcio));
+		parametres.add(
+				new IntegracioParametreDto(
 						"arxiuNom",
 						arxiu.getNom()));
 		parametres.add(
@@ -2336,6 +2343,7 @@ public class PluginHelper {
 						toArxiuDocument(
 								null,
 								documentNom,
+								documentDescripcio,
 								arxiu,
 								ambFirma,
 								firmaSeparada,
@@ -2355,6 +2363,7 @@ public class PluginHelper {
 						toArxiuDocument(
 								documentStore.getArxiuUuid(),
 								documentNom,
+								documentDescripcio,
 								arxiu,
 								ambFirma,
 								firmaSeparada,
@@ -2405,6 +2414,7 @@ public class PluginHelper {
 			Expedient expedient,
 			DocumentStore documentStore,
 			String documentNom,
+			String documentDescripcio,
 			ArxiuDto firmaPdf) {
 		String accioDescripcio = "Guardar PDF firmat com a document definitiu";
 		List<IntegracioParametreDto> parametres = new ArrayList<IntegracioParametreDto>();
@@ -2434,6 +2444,7 @@ public class PluginHelper {
 					toArxiuDocument(
 							documentStore.getArxiuUuid(),
 							documentNom,
+							documentDescripcio,
 							null,
 							firmaPdf,
 							FirmaTipus.PADES.name(),
@@ -2473,6 +2484,7 @@ public class PluginHelper {
 			Expedient expedient,
 			DocumentStore documentStore,
 			String documentNom,
+			String documentDescripcio,
 			ArxiuDto firma, 
 			String tipusFirma, 
 			String tipusFirmaEni, 
@@ -2482,6 +2494,7 @@ public class PluginHelper {
 		List<IntegracioParametreDto> parametres = new ArrayList<IntegracioParametreDto>();
 		parametres.add( new IntegracioParametreDto("id", documentStore.getId().toString()));
 		parametres.add( new IntegracioParametreDto("documentNom", documentNom));
+		parametres.add( new IntegracioParametreDto("documentDescripcio", documentDescripcio));
 		parametres.add( new IntegracioParametreDto("firmaFitxerNom", firma.getNom()));
 		parametres.add( new IntegracioParametreDto( "firmaFitxerTipusMime", firma.getTipusMime()));
 		parametres.add( new IntegracioParametreDto( "tipusFirma", tipusFirma));
@@ -2496,6 +2509,7 @@ public class PluginHelper {
 					toArxiuDocument(
 							documentStore.getArxiuUuid(),
 							documentNom,
+							documentDescripcio,
 							null,
 							firma,
 							tipusFirma, 
@@ -3461,6 +3475,7 @@ public class PluginHelper {
 	private es.caib.plugins.arxiu.api.Document toArxiuDocument(
 			String identificador,
 			String nom,
+			String descripcio,
 			ArxiuDto fitxer,
 			ArxiuDto firma,
 			String firmaTipus,
@@ -3494,6 +3509,7 @@ public class PluginHelper {
 		return toArxiuDocument(
 				identificador,
 				nom,
+				descripcio,
 				fitxer,
 				documentAmbFirma,
 				firmaSeparada,
@@ -3537,6 +3553,7 @@ public class PluginHelper {
 	private es.caib.plugins.arxiu.api.Document toArxiuDocument(
 			String identificador,
 			String nom,
+			String descripcio,
 			ArxiuDto fitxer,
 			boolean documentAmbFirma,
 			boolean firmaSeparada,
@@ -3552,6 +3569,7 @@ public class PluginHelper {
 			DocumentEstat estat) {
 		es.caib.plugins.arxiu.api.Document document = new es.caib.plugins.arxiu.api.Document();
 		document.setNom(nom);
+		document.setDescripcio(descripcio);
 		document.setIdentificador(identificador);
 		DocumentMetadades metadades = new DocumentMetadades();
 		metadades.setIdentificador(ntiIdentificador);

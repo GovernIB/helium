@@ -40,6 +40,18 @@
 								title="<spring:message code="expedient.anotacio.llistat.error.annexos"/>"></span>
 							</div>
 						{{/if}}
+						{{if annexosInvalids}}
+							<div class="pull-right">
+								<span class="fa fa-exclamation-triangle text-danger" 
+								title="<spring:message code="expedient.anotacio.llistat.annexos.invalids"/>"></span>
+							</div>
+						{{/if}}
+						{{if annexosEsborranys}}
+							<div class="pull-right">
+								<span class="fa fa-exclamation-triangle text-warning"
+								title="<spring:message code="expedient.anotacio.llistat.annexos.esborranys"/>"></span>
+							</div>
+						{{/if}}
 					</script>
 				</th>
 				<th data-col-name="extracte"><spring:message code="expedient.anotacio.llistat.columna.extracte"/></th>
@@ -48,6 +60,8 @@
 						<a href="<c:url value="/v3/anotacio/{{:id}}"/>" class="btn btn-default" data-toggle="modal" data-maximized="true"><span class="fa fa-info-circle"></span>&nbsp;<spring:message code="comu.boto.detalls"/></a>
 					</script>
  				</th> 
+				<th data-col-name="annexosInvalids" data-visible="false"></th>
+				<th data-col-name="annexosEsborranys" data-visible="false"></th>
 			</tr>
 		</thead>
 	</table>

@@ -142,6 +142,9 @@
 														title="<spring:message code='expedient.document.esborrar'/>">
 													</a>
 												</c:if>
+												<c:if test="${!document.documentValid}">
+													<span class="fa fa-exclamation-triangle fa-2x text-danger" title="<spring:message code="expedient.document.invalid" arguments="${document.documentError}"/>""></span>
+												</c:if>
 												<!-- FRAGMENT INFO FIRMA PENDENT -->
 												<c:if test="${not empty psignaPendentActual}">
 													<c:choose>

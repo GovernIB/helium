@@ -709,7 +709,46 @@ public class DocumentHelperV3 {
 				ntiOrigen,
 				ntiEstadoElaboracion,
 				ntiTipoDocumental,
-				ntiIdDocumentoOrigen);
+				ntiIdDocumentoOrigen,
+				true,
+				null);
+	}
+	
+	public Long crearDocument(
+			String taskInstanceId,
+			String processInstanceId,
+			String documentCodi,
+			Date documentData,
+			boolean isAdjunt,
+			String adjuntTitol,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			NtiOrigenEnumDto ntiOrigen,
+			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+			NtiTipoDocumentalEnumDto ntiTipoDocumental,
+			String ntiIdDocumentoOrigen,
+			boolean documentValid,
+			String documentError) {
+		return crearDocument(
+				taskInstanceId,
+				processInstanceId,
+				documentCodi,
+				documentData,
+				isAdjunt,
+				adjuntTitol,
+				arxiuNom,
+				arxiuContingut,
+				null, // arxiuUuid
+				this.getContentType(arxiuNom),
+				false,	// amb firma
+				false,
+				null,
+				ntiOrigen,
+				ntiEstadoElaboracion,
+				ntiTipoDocumental,
+				ntiIdDocumentoOrigen,
+				documentValid,
+				documentError);
 	}
 
 	public Long crearDocument(
@@ -729,7 +768,9 @@ public class DocumentHelperV3 {
 			NtiOrigenEnumDto ntiOrigen,
 			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
-			String ntiIdDocumentoOrigen) {
+			String ntiIdDocumentoOrigen, 
+			boolean documentValid,
+			String documentError) {
 		String documentCodiPerCreacio = documentCodi;
 		if (documentCodiPerCreacio == null && isAdjunt) {
 			documentCodiPerCreacio = new Long(new Date().getTime()).toString();
@@ -762,6 +803,8 @@ public class DocumentHelperV3 {
 				ntiEstadoElaboracion,
 				ntiTipoDocumental,
 				ntiIdDocumentoOrigen);
+		documentStoreCreat.setDocumentValid(documentValid);
+		documentStoreCreat.setDocumentError(documentError);
 		return documentStoreCreat.getId();
 	}
 
@@ -832,6 +875,8 @@ public class DocumentHelperV3 {
 					documentStore.getReferenciaFont(),
 					expedient);
 		}
+		documentStore.setDocumentValid(true);
+		documentStore.setDocumentError(null);
 		postProcessarDocument(
 				documentStore,
 				taskInstanceId,
@@ -923,7 +968,9 @@ public class DocumentHelperV3 {
 					ntiOrigen,
 					ntiEstadoElaboracion,
 					ntiTipoDocumental,
-					ntiIdDocumentoOrigen);
+					ntiIdDocumentoOrigen,
+					true,
+					null);
 		} else {
 			return actualitzarDocument(
 					documentStoreId,
@@ -1711,19 +1758,12 @@ public class DocumentHelperV3 {
 					processInstanceId,
 					documentStore.getCodiDocument());
 		
-		String documentDescripcio;
-		if (documentStore.isAdjunt()) {
-			documentDescripcio = documentStore.getAdjuntTitol();
-		} else {
-			documentDescripcio = document.getNom();
-		}
-		
-		if (expedient.isArxiuActiu()) {
-			documentDescripcio = inArxiu(processInstanceId, documentStore.getArxiuUuid(), documentDescripcio);
-		}
+		String documentDescripcio = documentStore.isAdjunt() ? documentStore.getAdjuntTitol(): document.getNom();		
 		
 		if (documentStore.getArxiuUuid() != null) {
 			// Guardar firma a l'Arxiu
+			
+			String documentNom = inArxiu(processInstanceId, documentStore.getArxiuUuid(), arxiuNom);
 			
 			ArxiuDto arxiuFirmat = new ArxiuDto();
 			es.caib.plugins.arxiu.api.Document documentArxiu;
@@ -1741,6 +1781,7 @@ public class DocumentHelperV3 {
 				documentStore.setArxiuUuid(null);
 				ContingutArxiu documentCreat = pluginHelper.arxiuDocumentCrearActualitzar(
 						expedient, 
+						documentNom,
 						documentDescripcio, 
 						documentStore, 
 						new ArxiuDto(
@@ -1757,6 +1798,7 @@ public class DocumentHelperV3 {
 				pluginHelper.arxiuDocumentGuardarDocumentFirmat(
 						expedient,
 						documentStore,
+						documentNom,
 						documentDescripcio,
 						arxiuFirmat,
 						tipusFirma, 
@@ -1888,6 +1930,8 @@ public class DocumentHelperV3 {
 		dto.setNtiCsv(documentStore.getNtiCsv());
 		dto.setNtiDefinicionGenCsv(documentStore.getNtiDefinicionGenCsv());
 		dto.setArxiuUuid(documentStore.getArxiuUuid());
+		dto.setDocumentValid(documentStore.isDocumentValid());
+		dto.setDocumentError(documentStore.getDocumentError());
 		
 		return dto;
 	}
@@ -1944,6 +1988,8 @@ public class DocumentHelperV3 {
 						getPropertyArxiuVerificacioBaseUrl() + documentStore.getNtiCsv());
 			}
 		}
+		dto.setDocumentValid(documentStore.isDocumentValid());
+		dto.setDocumentError(documentStore.getDocumentError());
 		return dto;
 	}
 
@@ -2307,6 +2353,7 @@ public class DocumentHelperV3 {
 		if (expedient.isArxiuActiu()) {
 			// Document integrat amb l'Arxiu
 			if (arxiuUuid == null) {
+				String documentDescripcio = documentStore.isAdjunt() ? documentStore.getAdjuntTitol() : document.getNom();
 				// Actualitza el document a dins l'arxiu
 				ArxiuDto arxiu = new ArxiuDto(
 						arxiuNom,
@@ -2317,6 +2364,7 @@ public class DocumentHelperV3 {
 				
 				ContingutArxiu contingutArxiu = pluginHelper.arxiuDocumentCrearActualitzar(
 						expedient,
+						documentNom,
 						documentNom,
 						documentStore,
 						arxiu,
@@ -2408,24 +2456,6 @@ public class DocumentHelperV3 {
 					documentStore.getId());
 		}
 	}
-	
-	/** 
-	 * Substitueix salts de línia i tabuladors per espais i lleva caràcters esttranys no contemplats.
-	 * 
-	 * @param nom Nom del contingut a revisar.
-	 * @return Retorna el nom substituïnt tabuladors, salts de línia i apòstrofs per espais i ignorant caràcters
-	 * invàlids. També treu el punt final en cas d'haver-n'hi.
-	 */
-	public static String revisarContingutNom(String nom) {
-		if (nom != null) {
-			nom = nom.replaceAll("[\\s\\']", " ").replaceAll("[^\\wçñàáèéíïòóúüÇÑÀÁÈÉÍÏÒÓÚÜ()\\-,\\.·\\s]", "").trim();
-			if (nom.endsWith(".")) {
-				nom = nom.substring(0, nom.length()-1);
-			}
-		}
-		return nom;
-	}
-
 	
 	/** Valida les firmes amb el plugin de validació de firmes */
 	private List<ArxiuFirmaDto> validaFirmaDocument(
@@ -2638,9 +2668,13 @@ public class DocumentHelperV3 {
 	}
 	
 	/** Comprova si ja existeix a l'expedient un document amb el mateix nom i diferent UUID tenint en compte el . de l'extensió*/
-	private String inArxiu(String processInstanceId, String arxiuUuid, String documentNom){
+	public String inArxiu(String processInstanceId, String arxiuUuid, String documentNom){
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		
+		if (documentNom == null) {
+			logger.warn("S'ha passat un nom de document null per fixar com a nom a l'Arxiu pel processInstanceId=" +processInstanceId + " i uuid=" + arxiuUuid);
+			documentNom = String.valueOf(new Date().getTime());
+		}
 		// Revisa els caràcters estranys com ho fa el plugin abans comprobar si ja existeix el nom
 		documentNom = revisarContingutNom(documentNom);
 		
@@ -2671,23 +2705,35 @@ public class DocumentHelperV3 {
 					} else {
 						// Nom sense extensió
 						while (nomsExistingInArxiu.indexOf(nouDocumentNom.toLowerCase()) >= 0) {
-							// if it does 'ocurrences' increments
-							ocurrences++;
-							// and the number of ocurences is added to the file name
-							// and it checks again if the new file name exists
+							ocurrences ++;
 							nouDocumentNom = documentNom + " (" + ocurrences + ")";
 						}
 					}
-//					while(noms.contains(nouDocumentNom)) {
-//						ocurrences ++;
-//						nouDocumentNom = documentNom + " (" + ocurrences + ")";
-//					}
+					documentNom = nouDocumentNom;
 				}
-				return nouDocumentNom;
 			}
 		}
+
 		return documentNom;
 	}
+
+	/** 
+	 * Substitueix salts de línia i tabuladors per espais i lleva caràcters esttranys no contemplats.
+	 * 
+	 * @param nom Nom del contingut a revisar.
+	 * @return Retorna el nom substituïnt tabuladors, salts de línia i apòstrofs per espais i ignorant caràcters
+	 * invàlids. També treu el punt final en cas d'haver-n'hi.
+	 */
+	public static String revisarContingutNom(String nom) {
+		if (nom != null) {
+			nom = nom.replaceAll("[\\s\\']", " ").replaceAll("[^\\wçñàáèéíïòóúüÇÑÀÁÈÉÍÏÒÓÚÜ()\\-,\\.·\\s]", "").trim();
+			if (nom.endsWith(".")) {
+				nom = nom.substring(0, nom.length()-1);
+			}
+		}
+		return nom;
+	}
+
 
 	private static final Log logger = LogFactory.getLog(DocumentHelperV3.class);
 

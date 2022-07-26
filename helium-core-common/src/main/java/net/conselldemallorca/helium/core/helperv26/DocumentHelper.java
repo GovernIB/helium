@@ -269,10 +269,13 @@ public class DocumentHelper {
 				pdfFirmat.setNom("firma.pdf");
 				pdfFirmat.setTipusMime("application/pdf");
 				pdfFirmat.setContingut(signatura);
+				String documentNom = documentHelperV3.inArxiu(expedient.getProcessInstanceId(), documentStore.getArxiuUuid(), dto.getArxiuNom());
+				String documentDescripcio = dto.getDocumentNom();
 				pluginHelper.arxiuDocumentGuardarPdfFirmat(
 						expedient,
 						documentStore,
-						dto.getDocumentNom(),
+						documentNom,
+						documentDescripcio,
 						pdfFirmat);
 				es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
 						documentStore.getArxiuUuid(),
