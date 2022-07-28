@@ -191,7 +191,8 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			Model model) {
         if (bindingResult.hasErrors()) {
     		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-    		model.addAttribute("heretat", campService.findAmbId(expedientTipusId, id));
+    		boolean heretat = campService.findAmbId(expedientTipusId, id) != null ? campService.findAmbId(expedientTipusId, id).isHeretat() : false;
+    		model.addAttribute("heretat", heretat);
     		this.omplirModelVariableForm(
     				request, 
     				entornActual.getId(),

@@ -22,10 +22,10 @@ public class CodiValidator implements ConstraintValidator<Codi, String>{
 		boolean valid = true;
 		
 		if (codi != null) {
-			// Que no comenci amb una majúscula seguida de minúscula
-			if (codi.matches("^[A-Z]{1}[a-z]{1}.*")) {
+			//  Els codis de variables no poden començar per majúscula seguida de minúscula, guió baix o número.
+			if (codi.matches("^[A-Z]{1}[a-z_$.A-Z0-9a-z]{1}.*")) {
 				context.buildConstraintViolationWithTemplate(
-						MessageHelper.getInstance().getMessage("error.camp.codi.maymin", null))
+						MessageHelper.getInstance().getMessage("error.camp.codi.char.mayguionum", null))
 						.addConstraintViolation();	
 				valid = false;
 			}
@@ -41,7 +41,14 @@ public class CodiValidator implements ConstraintValidator<Codi, String>{
 						MessageHelper.getInstance().getMessage("error.camp.codi.char.espai", null))
 						.addConstraintViolation();	
 				valid = false;
-			}		
+			}
+			// Els codis de variables només poden contenir caràcters sense accentuació que siguin majúscula, minúscula, número o guió baix.
+			if (!codi.matches("[a-z0-9A-Z_]*?")) {
+				context.buildConstraintViolationWithTemplate(
+						MessageHelper.getInstance().getMessage("error.camp.codi.char.caracters.nomespodencontenir", null))
+						.addConstraintViolation();	
+				valid = false;
+			}
 			if (!valid)
 				context.disableDefaultConstraintViolation();
 		}

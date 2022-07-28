@@ -105,7 +105,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 	@ModelAttribute("expedientInformeCommand")
 	public Object getFiltreCommand(
 			HttpServletRequest request,
-			Long consultaId) {
+			Long consultaId) throws Exception {
 		if (consultaId == null) 
 			return null;
 		Object filtreCommand = SessionHelper.getAttribute(request,SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId);
@@ -141,7 +141,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 	@ModelAttribute("expedientInformeParametrosCommand")
 	public Object getFiltreParameterCommand(
 			HttpServletRequest request,
-			Long consultaId) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+			Long consultaId) throws Exception {
 		Object filtreCommand = SessionHelper.getAttribute(request, SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS_PARAM);
 		if (filtreCommand != null)
 			return filtreCommand;
@@ -159,7 +159,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 	public String getConsulta(
 			HttpServletRequest request,
 			@RequestParam(value = "consultaId", required = true) Long consultaId,
-			Model model)  {
+			Model model) throws Exception  {
 		ConsultaDto consulta = dissenyService.findConsulteById(consultaId);
 		model.addAttribute("consulta", consulta);
 		model.addAttribute("campsFiltre", expedientService.findConsultaFiltre(consultaId));	
@@ -187,7 +187,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 			@Valid @ModelAttribute("expedientInformeCommand") Object filtreCommand,			
 			BindingResult bindingResult,
 			@RequestParam(value = "accio", required = false) String accio,
-			Model model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException  {
+			Model model) throws Exception  {
 		if ("netejar".equals(accio)) {
 			SessionHelper.removeAttribute(request, SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId);
 			filtreCommand = getFiltreCommand(request, consultaId);
@@ -280,7 +280,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 	public  String  mostrarInformeParams(
 			HttpServletRequest request,
 			@PathVariable Long consultaId,
-			Model model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+			Model model) throws Exception {
 		SessionHelper.removeAttribute(request, SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS_PARAM);
 		Object parametrosCommand = getFiltreParameterCommand(request, consultaId);
 		SessionHelper.setAttribute(request, SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS_PARAM, parametrosCommand);
@@ -298,7 +298,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 			BindingResult bindingResult,
 			@RequestParam(value = "accio", required = false) String accio,
 			HttpSession session,
-			Model model)  throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+			Model model)  throws Exception {
 		Map<String, Object> valors = TascaFormHelper.getValorsFromCommand(
 				expedientService.findConsultaInformeParams(consultaId),
 				parametrosCommand,
@@ -313,12 +313,12 @@ public class ExpedientInformeController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long consultaId,
 			HttpSession session,
-			Model model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+			Model model) throws Exception {
 		
 		return generarReport(session, consultaId, model, request);
 	}
 	
-	private String generarReport(HttpSession session, Long consultaId, Model model, HttpServletRequest request) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+	private String generarReport(HttpSession session, Long consultaId, Model model, HttpServletRequest request) throws Exception {
 		@SuppressWarnings("unchecked")
 		Map<String, Object> valors = (Map<String, Object>) session.getAttribute(SessionHelper.VARIABLE_SESSIO_COMMAND_VALUES+consultaId);
 		
@@ -664,7 +664,7 @@ public class ExpedientInformeController extends BaseExpedientController {
 	@ResponseBody
 	public Set<Long> seleccionarTots(
 			HttpServletRequest request,
-			@PathVariable Long consultaId) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException  {
+			@PathVariable Long consultaId) throws Exception  {
 		Object filtreCommand = getFiltreCommand(request, consultaId);
 		
 		List<TascaDadaDto> campsFiltre = expedientService.findConsultaFiltre(consultaId);
