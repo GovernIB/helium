@@ -105,7 +105,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 	@ModelAttribute("expedientInformeParametrosCommand")
 	public Object getFiltreParameterCommand(
 			HttpServletRequest request,
-			Long consultaId) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+			Long consultaId) throws Exception {
 		Object filtreCommand = SessionHelper.getAttribute(request, SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS_PARAM);
 		if (filtreCommand != null)
 			return filtreCommand;
@@ -160,7 +160,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 	public String informeParams(
 			HttpServletRequest request,
 			@PathVariable Long consultaId,
-			Model model) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+			Model model) throws Exception {
 		SessionHelper.removeAttribute(request, SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS_PARAM);
 		Object parametrosCommand = getFiltreParameterCommand(request, consultaId);
 		SessionHelper.setAttribute(request, SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS_PARAM, parametrosCommand);

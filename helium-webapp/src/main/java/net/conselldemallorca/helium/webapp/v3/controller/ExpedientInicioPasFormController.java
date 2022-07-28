@@ -70,7 +70,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long definicioProcesId,
 			Model model,
-			Map<String, Object> valorsRepro) {
+			Map<String, Object> valorsRepro) throws Exception {
 		try {
 			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
@@ -129,7 +129,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long definicioProcesId,
 			@RequestParam(required=false) Long reproId,
-			Model model) {
+			Model model) throws Exception {
 		if (reproId != null) {
 			try {
 				Map<String,Object> valors = reproService.findValorsById(reproId);

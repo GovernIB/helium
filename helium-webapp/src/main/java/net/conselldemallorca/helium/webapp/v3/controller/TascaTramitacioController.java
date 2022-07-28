@@ -133,17 +133,27 @@ public class TascaTramitacioController extends BaseTascaController {
 			HttpServletRequest request,
 			String tascaId,
 			String[] tasquesTramitar,
-			Model model) {
+			Model model) throws Exception {
 		// S'ha de inicialitzar el command abans de processar el RequestMapping
 		// del POSTs amb les modificacions al formulari de la tasca
 		if (tascaId != null && !tascaId.isEmpty()) {
 			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
-			return TascaFormHelper.getCommandBuitForCamps(
-					tascaService.findDades(tascaId),
-					campsAddicionals,
-					campsAddicionalsClasses,
-					false);
+			try {
+				return TascaFormHelper.getCommandBuitForCamps(
+						tascaService.findDades(tascaId),
+						campsAddicionals,
+						campsAddicionalsClasses,
+						false);
+			}catch(Exception ex) {
+				logger.error("S'ha produit un error al intentar guardar la variable amb id '" /*+ camp.getVarCodi()*/ , ex);
+				MissatgesHelper.error(
+						request,
+						getMessage(
+								request,
+								"expedient.tipus.camp.llistat.accio.modificar.error", 
+								new Object[] {ex.getMessage()}));
+			}
 		}
 		return null;
 	}
@@ -153,7 +163,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			HttpServletRequest request,
 			@PathVariable String tascaId,
 			@RequestParam(required=false) Long reproId,
-			Model model) {
+			Model model) throws Exception {
 		SessionHelper.removeAttribute(request,VARIABLE_TRAMITACIO_MASSIVA);
 		boolean bloquejarEdicioTasca = tascaService.isEnSegonPla(tascaId);
 		model.addAttribute("bloquejarEdicioTasca", bloquejarEdicioTasca);
@@ -217,7 +227,7 @@ public class TascaTramitacioController extends BaseTascaController {
 	public String form(
 			HttpServletRequest request,
 			@PathVariable String tascaId,
-			Model model) {
+			Model model) throws Exception {
 		model.addAttribute("bloquejarEdicioTasca", tascaService.isEnSegonPla(tascaId));
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 		List<ReproDto> repros = reproService.findReprosByUsuariTipusExpedient(tasca.getExpedientTipusId(), tasca.getJbpmName());
@@ -281,7 +291,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			@Valid @ModelAttribute("command") Object command, 
 			BindingResult result, 
 			SessionStatus status, 
-			Model model) {
+			Model model) throws Exception {
 		if (tascaService.isTascaValidada(tascaId)) {
 			return mostrarInformacioTascaPerPipelles(
 					request,
@@ -341,7 +351,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			@ModelAttribute("command") Object command, 
 			BindingResult result, 
 			SessionStatus status, 
-			Model model) {
+			Model model) throws Exception {
 		validar(request, tascaId, command, result, status, model);
 		if (result.hasErrors() || !accioCompletarForm(request, tascaId, transicio)) {
 			return mostrarInformacioTascaPerPipelles(
@@ -1001,7 +1011,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			HttpServletRequest request,
 			String tascaId,
 			Model model,
-			Map<String, Object> valorsFormulariExtern) {		
+			Map<String, Object> valorsFormulariExtern) throws Exception {		
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 		model.addAttribute("tasca", tasca);
 		List<TascaDadaDto> dades = tascaService.findDades(tascaId);
@@ -1113,7 +1123,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			HttpServletRequest request,
 			String tascaId,
 			Model model,
-			Map<String, Object> valorsFormulariExtern) {
+			Map<String, Object> valorsFormulariExtern) throws Exception {
 		Map<String, Object> campsAddicionals = new HashMap<String, Object>();
 		Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
 		

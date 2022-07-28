@@ -437,7 +437,7 @@ public class TascaFormHelper {
 			List<TascaDadaDto> tascaDades,
 			Map<String, Object> campsAddicionals,
 			Map<String, Class<?>> campsAddicionalsClasses,
-			boolean esConsultaPerTipus) {
+			boolean esConsultaPerTipus) throws Exception {
 		return getCommandBuitForCamps(
 				tascaDades, 
 				campsAddicionals, 
@@ -451,7 +451,7 @@ public class TascaFormHelper {
 			Map<String, Object> campsAddicionals,
 			Map<String, Class<?>> campsAddicionalsClasses,
 			Map<String, String> valorsPerDefecte,
-			boolean esConsultaPerTipus) {
+			boolean esConsultaPerTipus) throws Exception {
 		Map<String, Object> registres = new HashMap<String, Object>();
 		// Empram cglib per generar el command de manera dinàmica
 		Object command = getCommandModelForCamps(
@@ -485,7 +485,8 @@ public class TascaFormHelper {
 							camp.getVarCodi(),
 							valor);
 				} catch (Exception ex) {
-					logger.error("No s'ha pogut afegir el camp al command (" +
+					logger.error("S'ha produit un error al intentar guardar la variable amb id '" + camp.getVarCodi() , ex);
+					throw new Exception("No s'ha pogut afegir el camp al command ja que conté un codi invàlid (" +
 							"campCodi=" + camp.getVarCodi() + ", " +
 							"valor=" + varValorToString(valor) + ", " +
 							"class=" + varValorClassToString(valor) + ")", ex);
