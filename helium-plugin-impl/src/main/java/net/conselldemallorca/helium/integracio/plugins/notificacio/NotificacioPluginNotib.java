@@ -379,6 +379,9 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 			case ADMINISTRACIO:
 				p.setDir3Codi(persona.getCodiDir3());
 				break;
+			case JURIDICA:
+				p.setRaoSocial(persona.getNom());
+				break;
 			default:
 				break;
 			}
