@@ -29,6 +29,10 @@ public class AnotacioDto implements Serializable {
 	private AnotacioEstatEnumDto estat;
 	private Date dataRecepcio;
 	private Date dataProcessament;
+	private String errorProcessament;
+	private int consultaIntents;
+	private String consultaError;
+	private Date consultaData;
 	
 	private String distribucioId;
 	private String distribucioClauAcces;
@@ -46,10 +50,12 @@ public class AnotacioDto implements Serializable {
 
 	private List<AnotacioInteressatDto> interessats = new ArrayList<AnotacioInteressatDto>();
 	private List<AnotacioAnnexDto> annexos = new ArrayList<AnotacioAnnexDto>();
+
 	// Per mostrar errors d'annexos al llistat
 	private boolean errorAnnexos;
 	private boolean annexosInvalids;
 	private boolean annexosEsborranys;
+
 
 	private String aplicacioCodi;
 	private String aplicacioVersio;
@@ -111,6 +117,12 @@ public class AnotacioDto implements Serializable {
 	}
 	public void setDataProcessament(Date dataProcessament) {
 		this.dataProcessament = dataProcessament;
+	}
+	public String getErrorProcessament() {
+		return errorProcessament;
+	}
+	public void setErrorProcessament(String errorProcessament) {
+		this.errorProcessament = errorProcessament;
 	}
 	public String getDistribucioId() {
 		return distribucioId;
@@ -387,5 +399,23 @@ public class AnotacioDto implements Serializable {
 	}
 	public void setDestiDescripcio(String destiDescripcio) {
 		this.destiDescripcio = destiDescripcio;
+	}
+	public int getConsultaIntents() {
+		return consultaIntents;
+	}
+	public void setConsultaIntents(int consultaIntents) {
+		this.consultaIntents = consultaIntents;
+	}
+	public String getConsultaError() {
+		return consultaError;
+	}
+	public void setConsultaError(String consultaError) {
+		this.consultaError = consultaError;
+	}
+	public Date getConsultaData() {
+		return consultaData;
+	}
+	public void setConsultaData(Date consultaData) {
+		this.consultaData = consultaData;
 	}
 }

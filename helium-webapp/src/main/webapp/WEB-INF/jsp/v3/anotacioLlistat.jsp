@@ -124,11 +124,27 @@
 				<th data-col-name="estat" data-template="#cellEstatExpedientTemplate">
 					<spring:message code="anotacio.llistat.columna.estat"/>
 					<script id="cellEstatExpedientTemplate" type="text/x-jsrender">
-						{{:estat}}
+						{{if estat == 'PENDENT'}}
+							<spring:message code="enum.anotacio.estat.PENDENT"></spring:message>
+						{{else estat == 'PROCESSADA'}}
+							<spring:message code="enum.anotacio.estat.PROCESSADA"></spring:message>
+						{{else estat == 'REBUTJADA'}}
+							<spring:message code="enum.anotacio.estat.REBUTJADA"></spring:message>
+						{{else estat == 'COMUNICADA'}}
+							<spring:message code="enum.anotacio.estat.COMUNICADA"></spring:message>
+						{{else estat == 'ERROR_PROCESSANT'}}
+							<spring:message code="enum.anotacio.estat.ERROR_PROCESSANT"></spring:message>
+						{{else}}
+							{{:estat}}
+						{{/if}}
+
 						{{if dataProcessament}}
 							<br/><span class="text-muted small">
 									{{:~formatTemplateDate(dataProcessament)}} 
 								</span>
+						{{/if}}
+						{{if errorProcessament != null}}
+							<br/><span class="fa fa-exclamation-triangle text-danger" title="{{:errorProcessament}}"></span>
 						{{/if}}
 						{{if errorAnnexos}}
 							<div class="pull-right">
@@ -148,9 +164,24 @@
 								title="<spring:message code="expedient.anotacio.llistat.annexos.esborranys"/>"></span>
 							</div>
 						{{/if}}
+						{{if estat == 'COMUNICADA'}}
+							<br/><span class="text-muted small">
+									{{:consultaIntents}} / ${maxConsultaIntents}
+									{{if consultaError != null }}
+										<span class="fa fa-exclamation-triangle text-danger" title="{{:consultaError}}"></span>
+									{{/if}}
+									{{if consultaData }}
+										{{:~formatTemplateDate(consultaData)}}
+									{{/if}}
+								</span>
+						{{/if}}
 					</script>
 				</th>
 				<th data-col-name="dataProcessament" data-visible="false"/></th>
+				<th data-col-name="errorProcessament" data-visible="false"/>
+				<th data-col-name="consultaIntents" data-visible="false"/>
+				<th data-col-name="consultaError" data-visible="false"/>
+				<th data-col-name="consultaData" data-visible="false"/>
 				<th data-col-name="id" data-template="#cellAnotacioAccioTemplate" data-orderable="false" width="10%">
 					<script id="cellAnotacioAccioTemplate" type="text/x-jsrender">
 						<div class="dropdown">
@@ -163,7 +194,16 @@
 								{{if estat == 'PENDENT'}}
 									<li><a href="<c:url value="/v3/anotacio/{{:id}}/acceptar"/>" data-maximized="true" data-toggle="modal"><span class="fa fa-check"></span>&nbsp;<spring:message code="comu.boto.acceptar"/></a></li>
 									<li><a href="<c:url value="/v3/anotacio/{{:id}}/rebutjar"/>" data-toggle="modal" data-min-height="1200"><span class="fa fa-times"></span>&nbsp;<spring:message code="comu.boto.rebutjar"/></a></li>
+								{{/if}}
+								{{if estat == 'PENDENT' || estat == 'COMUNICADA' || estat == 'ERROR_PROCESSANT'}}
 									<li><a href="<c:url value="/v3/anotacio/{{:id}}/delete"/>" data-rdt-link-ajax="true" data-confirm="<spring:message code="anotacio.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
+								{{/if}}
+								{{if estat == 'ERROR_PROCESSANT'}}
+									<li><a href="<c:url value="/v3/anotacio/{{:id}}/reprocessar"/>" data-rdt-link-ajax="true"><span class="fa fa-cog"></span>&nbsp;<spring:message code="anotacio.llistat.accio.reprocessar"/></a></li>
+									<li><a href="<c:url value="/v3/anotacio/{{:id}}/marcarPendent"/>" data-rdt-link-ajax="true"><span class="fa fa-check"></span>&nbsp;<spring:message code="anotacio.llistat.accio.marcarPendent"/></a></li>
+								{{/if}}
+								{{if estat == 'COMUNICADA' && consultaIntents >= ${maxConsultaIntents}}}
+ 									<li><a href="<c:url value="/v3/anotacio/{{:id}}/reintentarConsulta"/>" data-rdt-link-ajax="true"><span class="fa fa-eraser"></span>&nbsp;<spring:message code="anotacio.llistat.accio.reintentarConsulta"/></a></li>
 								{{/if}}
 							</ul>
 						</div>

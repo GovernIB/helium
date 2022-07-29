@@ -1,5 +1,6 @@
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,6 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,10 +27,14 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
+import es.caib.distribucio.rest.client.domini.AnotacioRegistreEntrada;
+import es.caib.distribucio.rest.client.domini.AnotacioRegistreId;
+import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.NotificacioHelper;
 import net.conselldemallorca.helium.core.helper.TascaProgramadaHelper;
+import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
@@ -68,6 +77,8 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	private NotificacioHelper notificacioHelper;
 	@Resource
 	private TascaProgramadaHelper tascaProgramadaHelper;
+	@Resource
+	private DistribucioHelper distribucioHelper;
 	@Resource
   	private MetricRegistry metricRegistry;
 	
@@ -315,8 +326,113 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	}
 	/**************************/
 	
+	/** Tasca programada per comprovar les anotacions pendents de consultar periòdicament 
+	 * a DISTRIBUCIO. Entre comrpovació i comprovació hi ha un període de 10 segons. 
+	 * Les anotacions es consultaran fins a un màxim de n reintents definits per la 
+	 * propietat <i>app.anotacions.pendents.comprovar.intents</i> amb un valor per defecte
+	 * de 5 reintents.
+	 */
+	@Override
+	@Scheduled(fixedDelayString = "10000")
+	public void comprovarAnotacionsPendents() {
+		
+		int maxReintents = this.getConsultaAnotacioMaxReintents();
+		
+		// comprovar anotacions pendents de consultar i processar
+		int maxAnotacions = 100;
+		AnotacioRegistreId idWs;
+		List<Anotacio> anotacionsPendentsConsultar = distribucioHelper.findPendentConsultar(maxReintents, maxAnotacions);
+
+		// Posa una autenticació per defecte per l'usuari del registre
+		Authentication orgAuthentication = SecurityContextHolder.getContext().getAuthentication();
+		Authentication authentication = new UsernamePasswordAuthenticationToken(
+				"Distribucio", "N/A", // ome.getExecucioMassiva().getAuthenticationCredentials(),
+				new ArrayList<GrantedAuthority>());
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+		
+		// Tracta cada anotació per separat
+		for (Anotacio anotacio: anotacionsPendentsConsultar) {
+			
+			long anotacioId = anotacio.getId();
+			int consultaIntents = anotacio.getConsultaIntents() + 1;
+			String consultaError = null;
+			Date consultaData = new Date();
+			
+			idWs = new AnotacioRegistreId();
+			idWs.setIndetificador(anotacio.getIdentificador());
+			idWs.setClauAcces(anotacio.getDistribucioClauAcces());
+			
+			logger.debug("Consultant l'anotació " + idWs.getIndetificador() + " i clau " + idWs.getClauAcces() + ". Intent " + anotacio.getConsultaIntents() + " de " + maxReintents);
+
+			// Consulta la anotació a Distribucio
+			AnotacioRegistreEntrada anotacioRegistreEntrada = null;
+			try {
+				anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
+			} catch(Exception e) {
+				consultaError = "Error consultant l'anotació " + idWs.getIndetificador() + " i clau " + idWs.getClauAcces() + ". Intent " + anotacio.getConsultaIntents() + " de " + maxReintents + ": " + e.getMessage();
+				logger.error(consultaError, e);
+				
+				if (consultaIntents >= maxReintents) {
+					// Comunica l'error a Distribucio
+					try {
+						distribucioHelper.canviEstat(
+								idWs, 
+								es.caib.distribucio.rest.client.domini.Estat.ERROR,
+								"Error consultant l'anotació amb id " + idWs.getIndetificador() + " després de " + consultaIntents + " intents: " + e.getMessage());
+					} catch(Exception ed) {
+						logger.error("Error comunicant l'error de consulta a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
+					}
+				}
+			}			
+			distribucioHelper.updateConsulta(anotacioId, consultaIntents, consultaError, consultaData);
+			
+			if (anotacioRegistreEntrada == null || consultaError != null) {
+				// Continua amb la següent anotació.
+				continue;
+			}
+			
+			// Actualitza la informació de l'anotació amb les dades consultades i la posa en estat pendent.
+			logger.debug("Anotació " + idWs.getIndetificador() + " consultada correctament. Actualitzant la informació i estat a PENDENT.");
+			anotacio = distribucioHelper.updateAnotacio(anotacio.getId(), anotacioRegistreEntrada);
+
+			// Processa i comunica l'estat de processada 
+			try {
+				logger.debug("Processant l'anotació " + idWs.getIndetificador() + ".");
+				distribucioHelper.processarAnotacio(idWs, anotacioRegistreEntrada, anotacio);
+			} catch (Exception e) {
+				String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e.getMessage();
+				logger.error(errorProcessament, e);
+				anotacio = distribucioHelper.updateErrorProcessament(anotacioId, errorProcessament);
+
+				// Es comunica l'estat a Distribucio
+				try {
+					distribucioHelper.canviEstat(
+							idWs, 
+							es.caib.distribucio.rest.client.domini.Estat.ERROR,
+							"Error processant l'anotació amb id " + idWs.getIndetificador() + ": " + e.getMessage());
+				} catch(Exception ed) {
+					logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
+				}
+			}
+
+		}
+		// Restableix l'autenticació inicial del thread
+		SecurityContextHolder.getContext().setAuthentication(orgAuthentication);
+	}
+
 	
 	
+	private int getConsultaAnotacioMaxReintents() {
+		int maxReintents = 5;
+		try {
+			maxReintents = Integer.parseInt(
+					GlobalProperties.getInstance().getProperty("app.anotacions.pendents.comprovar.intents", "5")); 
+		} catch (Exception ex) {
+			logger.warn("Error llegint la propietat 'app.anotacions.pendents.comprovar.intents':" + ex.getMessage() );
+		}
+		return maxReintents;
+	}
+
 	public static void saveError(Long operacioMassivaId, Throwable error, ExecucioMassivaTipus tipus) {
 		if (tipus != ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC) {
 			StringBuilder sb = new StringBuilder();

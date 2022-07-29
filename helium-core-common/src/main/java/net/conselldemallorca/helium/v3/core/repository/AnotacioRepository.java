@@ -97,10 +97,20 @@ public interface AnotacioRepository extends JpaRepository<Anotacio, Long> {
 			Pageable pageable);
 	
 	/** Mètode per recuperar les peticions d'anotació per id de Distribucio. */
-	List<Anotacio> findByDistribucioId(String distribucioId);
+	List<Anotacio> findByDistribucioIdAndDistribucioClauAcces(String distribucioId, String distribucioClauAcces);
 	
 	/** Mètode per recuperr les anotacions associades a un expedient. */
 	@Query("from Anotacio a where a.expedient.id = :expedientId")
 	List<Anotacio> findByExpedientId(@Param("expedientId") Long expedientId);
+
+	@Query(
+			"from" +
+			"    Anotacio a " +
+			"where " +
+			"    a.estat = net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto.COMUNICADA " +
+			"and a.consultaIntents < :maxReintents ")
+	public Page<Anotacio> findAnotacionsPendentConsultarPaged(
+			@Param("maxReintents") int maxReintents,
+			Pageable pageable);
 
 }

@@ -21,4 +21,9 @@ public interface TascaProgramadaService {
 	public void comprovarEstatNotificacions() throws NoTrobatException;
 	
 	public void actualitzarEstatNotificacions(Long notificacioId) throws NoTrobatException;
+	
+	/** Tasca programada per comprovar les anotacions pendents de consultar periòdicament 
+	 * a DISTRIBUCIO. */
+	public void comprovarAnotacionsPendents();
+	
 }

@@ -294,8 +294,9 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
 		// Comprova els permisos
 		this.comprovaPermisAccio(anotacio);
-		// Comprova que no està processada ni rebutjada
-		if (! AnotacioEstatEnumDto.PENDENT.equals(anotacio.getEstat())) {
+		// Comprova que no està processada ni rebutjada 
+		if (AnotacioEstatEnumDto.PROCESSADA.equals(anotacio.getEstat()) 
+				|| AnotacioEstatEnumDto.REBUTJADA.equals(anotacio.getEstat())) {
 			throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot actualitzar perquè està en estat " + anotacio.getEstat());
 		}
 		// Actualitza l'expedient tipus
@@ -685,12 +686,97 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		Anotacio anotacio = anotacioRepository.findOne(anotacioId);		
 		// Comprova els permisos
 		this.comprovaPermisAccio(anotacio);
-		// Comprova que està pendent
-		if (! AnotacioEstatEnumDto.PENDENT.equals(anotacio.getEstat())) {
+		// Comprova que no està processada ni rebutjada
+		if (AnotacioEstatEnumDto.PROCESSADA.equals(anotacio.getEstat()) 
+				|| AnotacioEstatEnumDto.REBUTJADA.equals(anotacio.getEstat())) {
 			throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot esborrar perquè està en estat " + anotacio.getEstat());
+		}
+		if (AnotacioEstatEnumDto.PROCESSADA.equals(anotacio.getEstat()) 
+				&& ! AnotacioEstatEnumDto.REBUTJADA.equals(anotacio.getEstat())
+				&& ! ! AnotacioEstatEnumDto.COMUNICADA.equals(anotacio.getEstat())) {
+			throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot actualitzar perquè està en estat " + anotacio.getEstat());
 		}
 		// Esborra l'anotació
 		anotacioRepository.delete(anotacio);	
+	}
+	
+	@Override
+	public AnotacioDto reprocessar(Long anotacioId) throws Exception {
+		logger.debug(
+				"Reprocessant la petició d'anotació de registre (" +
+				"anotacioId=" + anotacioId + ")");
+		
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);		
+		// Comprova els permisos
+		this.comprovaPermisAccio(anotacio);
+		// Comprova que està en error de processament
+		if (!AnotacioEstatEnumDto.ERROR_PROCESSANT.equals(anotacio.getEstat())) {
+			throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot reprocessar perquè està en estat " + anotacio.getEstat());
+		}		
+		return conversioTipusHelper.convertir(
+				distribucioHelper.reprocessarAnotacio(anotacioId),
+				AnotacioDto.class);
+	}
+
+	@Override
+	@Transactional
+	public AnotacioDto marcarPendent(Long anotacioId) throws Exception {
+
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);		
+		
+		logger.debug(
+				"Marcant com a pendent l'anotació de registre (" +
+				"anotacioId=" + anotacioId + ", numero=" + anotacio.getIdentificador() + ")");
+
+		// Comprova els permisos
+		this.comprovaPermisAccio(anotacio);
+		// Comprova que està en error de processament
+		if (!AnotacioEstatEnumDto.ERROR_PROCESSANT.equals(anotacio.getEstat())) {
+			throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot consultar perquè està en estat " + anotacio.getEstat() 
+			+ ", ha d'estar en estat de error de processament.");
+		}
+		anotacio.setEstat(AnotacioEstatEnumDto.PENDENT);
+		anotacio.setErrorProcessament(null);
+
+		// Es comunica l'estat a Distribucio
+		try {
+			AnotacioRegistreId idWs = new AnotacioRegistreId();
+			idWs.setIndetificador(anotacio.getIdentificador());
+			idWs.setClauAcces(anotacio.getDistribucioClauAcces());
+
+			distribucioHelper.canviEstat(
+					idWs, 
+					es.caib.distribucio.rest.client.domini.Estat.PENDENT,
+					"Es marca l'anotació " + anotacio.getIdentificador() + " com a pendent des de l'estat de processament error.");
+		} catch(Exception ed) {
+			logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + anotacio.getIdentificador() + ": " + ed.getMessage(), ed);
+		}
+		
+		return conversioTipusHelper.convertir(
+				anotacio,
+				AnotacioDto.class);
+	}
+
+	
+	@Override
+	@Transactional
+	public AnotacioDto reintentarConsulta(Long anotacioId) throws Exception {
+		logger.debug(
+				"Consultant la petició d'anotació de registre (" +
+				"anotacioId=" + anotacioId + ")");
+
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);		
+		// Comprova els permisos
+		this.comprovaPermisAccio(anotacio);
+		// Comprova que està en error de processament
+		if (!AnotacioEstatEnumDto.COMUNICADA.equals(anotacio.getEstat())) {
+			throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot consultar perquè està en estat " + anotacio.getEstat());
+		}
+		logger.debug("Fixant els intents de consulta a 0 per l'anotació " + anotacio.getIdentificador());
+		distribucioHelper.updateConsulta(anotacioId, 0, null, null);
+		return conversioTipusHelper.convertir(
+				anotacio,
+				AnotacioDto.class);
 	}
 
 

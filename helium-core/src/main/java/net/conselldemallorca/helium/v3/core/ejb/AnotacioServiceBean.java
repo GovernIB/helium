@@ -75,6 +75,24 @@ public class AnotacioServiceBean implements AnotacioService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public AnotacioDto reprocessar(Long anotacioId) throws Exception {
+		return delegate.reprocessar(anotacioId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public AnotacioDto marcarPendent(Long anotacioId) throws Exception {
+		return delegate.marcarPendent(anotacioId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public AnotacioDto reintentarConsulta(Long anotacioId) throws Exception {
+		return delegate.reintentarConsulta(anotacioId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuDto getAnnexContingut(Long annexId) {
 		return delegate.getAnnexContingut(annexId);
 	}

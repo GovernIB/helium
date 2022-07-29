@@ -67,28 +67,30 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice {
 				anotacio = null;
 				logger.info("Processant la peticio d'anotació amb id " + id.getIndetificador());
 				// Comprova si ja està a BBDD, si ja està comunica l'estat a distribució sense més processament
-				anotacions = anotacioRepository.findByDistribucioId(id.getIndetificador());
+				anotacions = anotacioRepository.findByDistribucioIdAndDistribucioClauAcces(id.getIndetificador(), id.getClauAcces());
 				if (!anotacions.isEmpty()) {
 					if (anotacions.size() > 1)
 						logger.warn("S'han trobat " + anotacions.size() + " peticions d'anotació per l'identificador de Distribucio " + id.getIndetificador());
 					anotacio = anotacions.get(0);
 				}
 				if (anotacio == null) {
-					
-					distribucioHelper.processarAnotacio(idWs);
-					
+					// Guarda la informació mínima a la taula d'anotacions per a que la tasca en segon pla la consulti i processi
+					distribucioHelper.encuarAnotacio(idWs);
 				} else {
-					// Si la petició ja existeix torna a comunicar el seu estat
+					// Si la petició ja existeix determina què fer en cas de cada estat
 					es.caib.distribucio.rest.client.domini.Estat estat = es.caib.distribucio.rest.client.domini.Estat.PENDENT;
 					String msg = null;
 					switch(anotacio.getEstat()) {
 					case PENDENT:
 						estat = es.caib.distribucio.rest.client.domini.Estat.REBUDA;
-						msg = "La petició ja s'ha rebut anteriorment i està pendent de processar o rebutjar";
+						msg = "La petició ja s'ha rebut anteriorment i està pendent de processar o rebutjar manualment";
 						break;
 					case PROCESSADA:
 						estat = es.caib.distribucio.rest.client.domini.Estat.PROCESSADA;
 						msg = "La petició ja s'ha processat anteriorment.";
+						if (anotacio.getExpedient() != null) {
+							msg += " L'anotació ha estat processada a l'expedient " + anotacio.getExpedient().getIdentificador();
+						}
 						break;
 					case REBUTJADA:
 						estat = es.caib.distribucio.rest.client.domini.Estat.REBUTJADA;
@@ -96,12 +98,26 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice {
 								(anotacio.getDataProcessament() != null? "amb data " + sdf.format(anotacio.getDataProcessament()) : "") + 
 								"i motiu: " + anotacio.getRebuigMotiu();
 						break;
+					case COMUNICADA:
+						estat = null;
+						// Posa a 0 el número d'intents per a que es torni a processar
+						distribucioHelper.updateConsulta(
+								anotacio.getId(), 
+								0, 
+								anotacio.getConsultaError(), 
+								anotacio.getConsultaData());
+						break;
+					case ERROR_PROCESSANT:
+						distribucioHelper.reprocessarAnotacio(anotacio.getId());
+						break;
 					}
-					// Comunica l'estat actual
-					distribucioHelper.canviEstat(
-							idWs, 
-							estat,
-							msg);
+					if (estat != null) {
+						// Comunica l'estat actual
+						distribucioHelper.canviEstat(
+								idWs, 
+								estat,
+								msg);
+					}
 				}
 			} catch(Exception e) {
 				logger.error("Error rebent la petició d'anotació de registre amb id=" + id.getIndetificador() + " : " + e.getMessage() + ". Es comunica l'error a Distribucio", e);

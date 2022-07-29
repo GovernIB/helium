@@ -77,6 +77,39 @@ public interface AnotacioService {
 	 */
 	public void delete(
 			Long anotacioId) throws NoTrobatException, PermisDenegatException;
+	
+	/** Mètode per reprocessar una anotació que està en estat d'error de processament.
+	 * 
+	 * @param anotacioId
+	 * @return 
+	 * @throws Exception Llença excepció si no es té permís, no es troba l'anotació o hi ha algun
+	 * error en el reprocessament.
+	 * 
+	 */
+	public AnotacioDto reprocessar(
+			Long anotacioId) throws Exception;
+
+	/** Mètode per marcar com a pendent una anotació en estat de processament error.
+	 * 
+	 * @param anotacioId
+	 * @return 
+	 * @throws Exception Llença excepció si no es té permís, no es troba l'anotació o hi ha algun
+	 * error en la operació.
+	 * 
+	 */
+	public AnotacioDto marcarPendent(
+			Long anotacioId) throws Exception;
+	
+	/** Mètode per consultar una anotació que està en estat comunicada i que hagi esgotat els reintents.
+	 * 
+	 * @param anotacioId
+	 * @return 
+	 * @throws Exception Llença excepció si no es té permís, no es troba l'anotació o hi ha algun
+	 * error en el reprocessament.
+	 * 
+	 */
+	public AnotacioDto reintentarConsulta(
+			Long anotacioId) throws Exception;
 
 	/** Mètode per obtenir el contingut d'un annex per a la seva descàrrega
 	 * 
@@ -105,4 +138,5 @@ public interface AnotacioService {
 	 * @param expedientId
 	 */
 	public void esborrarAnotacionsExpedient(Long expedientId);
+
 }

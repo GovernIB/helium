@@ -52,7 +52,6 @@ tr.clicable {
 </head>
 <body>
 
-
 	<!------------------------------ TABLIST ------------------------------------------------->
 	<ul class="nav nav-tabs" role="tablist">
 		<li class="active" role="presentation"><a href="#informacio" aria-controls="informacio" role="tab" data-toggle="tab"><spring:message code="anotacio.detalls.pipella.informacio"/></a>
@@ -97,6 +96,29 @@ tr.clicable {
 				<tr>
 					<td><strong><spring:message code="anotacio.detalls.camp.data"/></strong></td>
 					<td><fmt:formatDate value="${anotacio.data}" pattern="dd/MM/yyyy HH:mm:ss"/></td>
+				</tr>
+				<tr>
+					<td><strong><spring:message code="anotacio.detalls.camp.estat"/></strong></td>
+					<td>
+						<spring:message code="enum.anotacio.estat.${anotacio.estat}"></spring:message>
+						
+						<c:if test="${anotacio.estat == 'ERROR_PROCESSANT'}">
+							<div class="alert alert-danger">
+								<span class="fa fa-exclamation-triangle"></span>
+								<spring:message code="anotacio.detalls.errorProcessament" arguments="${anotacio.errorProcessament}"></spring:message>
+							</div>
+						</c:if>
+						<c:if test="${anotacio.estat == 'COMUNICADA'}">
+							<div class="alert alert-warning">
+								<span class="fa fa-exclamation-triangle"></span>
+								<spring:message code="anotacio.detalls.consulta" arguments="${anotacio.consultaIntents},${ maxConsultaIntents}"></spring:message>
+								<c:if test="${anotacio.consultaError != null}">
+										<span class="fa fa-exclamation-triangle text-danger" title="${anotacio.consultaError }"></span>
+								</c:if>
+							</div>
+						</c:if>
+												
+					</td>
 				</tr>
 			</tbody>
 			</table>

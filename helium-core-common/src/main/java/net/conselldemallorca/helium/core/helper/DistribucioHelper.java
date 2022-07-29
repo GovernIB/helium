@@ -18,6 +18,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,6 +64,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
@@ -114,6 +117,9 @@ public class DistribucioHelper {
 	
 	@Resource
 	private PluginHelper pluginHelper;
+	
+	@Resource
+	private PaginacioHelper paginacioHelper;
 
 	/** Referència al client del WS de Distribució */
 	private BackofficeIntegracioRestClient restClient = null;
@@ -312,6 +318,126 @@ public class DistribucioHelper {
 		
 		return anotacioEntity;
 	}
+	
+	/** Mètode per actualitzar les dades referents als intents i error en les consultes
+	 * 
+	 * @param anotacioId
+	 * @param consultaIntents
+	 * @param consultaError
+	 * @param consultaData
+	 * @return
+	 */
+	@Transactional
+	public Anotacio updateConsulta(	long anotacioId,
+									int consultaIntents,
+									String consultaError,
+									Date consultaData) 
+	{
+		
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+		anotacio.setConsultaIntents(consultaIntents);
+		anotacio.setConsultaError(consultaError);
+		anotacio.setConsultaData(consultaData);
+		
+		return anotacio;
+	}
+
+	/** Mètode per actualitzar l'estat a ERROR_PROCESSANT i la descripció de l'error de processament.
+	 * 
+	 * @param anotacioId
+	 * @param errorProcessament
+	 * @return
+	 */
+	@Transactional
+	public Anotacio updateErrorProcessament(long anotacioId, String errorProcessament) {
+		
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+		anotacio.setErrorProcessament(errorProcessament);
+		anotacio.setEstat(AnotacioEstatEnumDto.ERROR_PROCESSANT);
+		return anotacio;
+	}
+
+	
+	/** Mètode per guardar a Helium la informació d'una anotació de registre consultada a Distribucio.
+	 *  
+	 * @param anotacio
+	 */
+	@Transactional
+	public Anotacio updateAnotacio(long anotacioId, AnotacioRegistreEntrada anotacioEntrada) {
+		
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+		
+		ExpedientTipus expedientTipus = null;
+		Expedient expedient = null;
+		if (anotacioEntrada.getProcedimentCodi() != null) {
+
+			// Cerca el tipus d'expedient per aquell codi de procediment
+			List<ExpedientTipus> expedientsTipus = expedientTipusRepository.findPerDistribuir(anotacioEntrada.getProcedimentCodi(), anotacioEntrada.getAssumpteCodiCodi());
+			if (!expedientsTipus.isEmpty()) {
+				expedientTipus = expedientsTipus.get(0);
+				
+				// Cerca si hi ha cap expedient que coincideixi amb el número d'expedient
+				if (anotacioEntrada.getExpedientNumero() != null) {
+					expedient = expedientRepository.findByTipusAndNumero(expedientTipus, anotacioEntrada.getExpedientNumero());
+				}
+			}
+		}
+		// Actualitza l'anotació
+		anotacio.setEstat(AnotacioEstatEnumDto.PENDENT);
+		anotacio.setAssumpteCodiCodi(anotacioEntrada.getAssumpteTipusCodi());
+		anotacio.setData(anotacioEntrada.getData());
+		anotacio.setEntitatCodi(anotacioEntrada.getEntitatCodi());
+		anotacio.setIdentificador(anotacioEntrada.getIdentificador());
+		anotacio.setIdiomaCodi(anotacioEntrada.getIdiomaCodi());
+		anotacio.setLlibreCodi(anotacioEntrada.getLlibreCodi());
+		anotacio.setOficinaCodi(anotacioEntrada.getOficinaCodi());
+		anotacio.setDestiCodi(anotacioEntrada.getDestiCodi());
+		anotacio.setExpedientTipus(expedientTipus);
+		anotacio.setExpedient(expedient);
+		anotacio.setAplicacioCodi(anotacioEntrada.getAplicacioCodi());
+		anotacio.setAplicacioVersio(anotacioEntrada.getAplicacioVersio());
+		anotacio.setAssumpteCodiCodi(anotacioEntrada.getAssumpteCodiCodi());
+		anotacio.setAssumpteCodiDescripcio(anotacioEntrada.getAssumpteCodiDescripcio());
+		anotacio.setAssumpteTipusDescripcio(anotacioEntrada.getAssumpteTipusDescripcio());
+		anotacio.setDocFisicaCodi(anotacioEntrada.getDocFisicaCodi());
+		anotacio.setDocFisicaDescripcio(anotacioEntrada.getDocFisicaDescripcio());
+		anotacio.setEntitatDescripcio(anotacioEntrada.getEntitatDescripcio());
+		anotacio.setExpedientNumero(anotacioEntrada.getExpedientNumero());
+		anotacio.setExposa(anotacioEntrada.getExposa());
+		anotacio.setExtracte(anotacioEntrada.getExtracte());
+		anotacio.setProcedimentCodi(anotacioEntrada.getProcedimentCodi());
+		anotacio.setIdiomaDescripcio(anotacioEntrada.getIdomaDescripcio());
+		anotacio.setLlibreDescripcio(anotacioEntrada.getLlibreDescripcio());
+		anotacio.setObservacions(anotacioEntrada.getObservacions());
+		anotacio.setOficinaDescripcio(anotacioEntrada.getOficinaDescripcio());
+		anotacio.setOrigenData(anotacioEntrada.getOrigenData() != null ? anotacioEntrada.getOrigenData() : null);
+		anotacio.setOrigenRegistreNumero(anotacioEntrada.getOrigenRegistreNumero());
+		anotacio.setRefExterna(anotacioEntrada.getRefExterna());
+		anotacio.setSolicita(anotacioEntrada.getSolicita());
+		anotacio.setTransportNumero(anotacioEntrada.getTransportNumero());
+		anotacio.setTransportTipusCodi(anotacioEntrada.getTransportTipusCodi());
+		anotacio.setTransportTipusDescripcio(anotacioEntrada.getTransportTipusDescripcio());
+		anotacio.setUsuariCodi(anotacioEntrada.getUsuariCodi());
+		anotacio.setUsuariNom(anotacioEntrada.getUsuariNom());
+		anotacio.setDestiDescripcio(anotacioEntrada.getDestiDescripcio());
+				
+		// Crea els interessats
+		for (Interessat interessat: anotacioEntrada.getInteressats()) {
+			anotacio.getInteressats().add(
+					crearInteressatEntity(
+							interessat,
+							anotacio));
+		}
+		// Crea els annexos
+		for (Annex annex: anotacioEntrada.getAnnexos()) {
+			anotacio.getAnnexos().add(
+					crearAnnexEntity(
+							annex,
+							anotacio));
+		}	
+		
+		return anotacio;
+	}
 
 	private AnotacioInteressat crearInteressatEntity(
 			Interessat interessat,
@@ -461,23 +587,51 @@ public class DistribucioHelper {
 		return ntiOrigenEnumDto;
 	}
 
-	/** Processa la petició dins d'una mateixa transacció per consultar l'anotació, guardar-la, processar-la
-	 * automàticament si cal i comunicar l'esta.
+	/** Guarda la informació de la petició a la taula d'anotacions amb l'estat de comunicada per a que la 
+	 * tasca en segon pla TascaProgramadaService.comprovarAnotacionsPendents la processi.
+	 * @param idWs
+	 */
+	@Transactional
+	public void encuarAnotacio(es.caib.distribucio.rest.client.domini.AnotacioRegistreId idWs) {
+		
+		Date data = new Date();
+		Anotacio anotacioEntity = Anotacio.getBuilder(
+						idWs.getIndetificador(), 
+						idWs.getClauAcces(), 
+						data, // dataRecepcio 
+						AnotacioEstatEnumDto.COMUNICADA, 
+						null, // assumpteTipusCodi
+						data, // data
+						null, // entitatCodi
+						idWs.getIndetificador(), 
+						null, // idiomaCodi
+						null, // llibreCodi
+						null, // oficinaCodi
+						null, // destiCodi
+						null, // expedientTipus
+						null) // expedient
+				
+				.extracte("(anotació comunicada pendent de consultar detalls)")
+				.build();
+		anotacioRepository.save(anotacioEntity);
+	}
+
+	
+	/** Processa l'anotació consultada per crear un expedient si cal i incorporar la informació a l'expedient
+	 * automàticament si cal i comunicar l'estat.
 	 * 
 	 * @param idWs
 	 */
 	@Transactional
-	public void processarAnotacio(AnotacioRegistreId idWs) throws Exception{
-
-		// si la petició no està a BBDD consulta la petició i la guarda a BBDD
-		AnotacioRegistreEntrada anotacioRegistreEntrada = this.consulta(idWs);
-
-		// Guarda l'anotació
-		Anotacio anotacioCreada = this.guardarAnotacio(idWs, anotacioRegistreEntrada);
+	public void processarAnotacio(
+			AnotacioRegistreId idWs,
+			AnotacioRegistreEntrada anotacioDistribucio,
+			Anotacio anotacio
+			) throws Exception{
 
 		// Comprova si l'anotació s'ha associat amb un tipus d'expedient amb processament automàtic
-		ExpedientTipus expedientTipus = anotacioCreada.getExpedientTipus();
-		Expedient expedient = anotacioCreada.getExpedient();
+		ExpedientTipus expedientTipus = anotacio.getExpedientTipus();
+		Expedient expedient = anotacio.getExpedient();
 		if (expedientTipus != null 
 				&& expedientTipus.isDistribucioProcesAuto()) {
 			
@@ -488,9 +642,9 @@ public class DistribucioHelper {
 				
 				if (expedientTipus.isDistribucioSistra()) {
 					// Extreu documents i variables segons el mapeig sistra
-					variables = this.getDadesInicials(expedientTipus, anotacioCreada);
-					documents = this.getDocumentsInicials(expedientTipus, anotacioCreada);
-					adjunts = this.getDocumentsAdjunts(expedientTipus, anotacioCreada);
+					variables = this.getDadesInicials(expedientTipus, anotacio);
+					documents = this.getDocumentsInicials(expedientTipus, anotacio);
+					adjunts = this.getDocumentsAdjunts(expedientTipus, anotacio);
 				}
 				// Crear l'expedient
 				expedient = expedientHelper.iniciar(
@@ -499,10 +653,10 @@ public class DistribucioHelper {
 						expedientTipus.getId(), //expedientTipusId, 
 						null, //definicioProcesId,
 						null, //any, 
-						expedientTipus.getDemanaNumero() ? anotacioCreada.getIdentificador() : null, //numero, 
-						expedientTipus.getDemanaTitol() ? anotacioCreada.getExtracte() : null, //titol, 
-						anotacioCreada.getIdentificador(), //registreNumero, 
-						anotacioCreada.getData(), //registreData, 
+						expedientTipus.getDemanaNumero() ? anotacio.getIdentificador() : null, //numero, 
+						expedientTipus.getDemanaTitol() ? anotacio.getExtracte() : null, //titol, 
+						anotacio.getIdentificador(), //registreNumero, 
+						anotacio.getData(), //registreData, 
 						null, //unitatAdministrativa, 
 						null, //idioma, 
 						false, //autenticat, 
@@ -526,12 +680,15 @@ public class DistribucioHelper {
 			}
 			// Incorporporar l'anotació a l'expedient
 			anotacioService.incorporarExpedient(
-					anotacioCreada.getId(), 
+					anotacio.getId(), 
 					expedientTipus.getId(), 
 					expedient.getId(),
 					true,
 					false);
-			
+
+			anotacio.setEstat(AnotacioEstatEnumDto.PROCESSADA);
+			anotacio.setDataProcessament(new Date());
+
 			// Canvi d'estat a processada
 			// Notifica a Distribucio que s'ha rebut correctament
 			try {
@@ -544,7 +701,7 @@ public class DistribucioHelper {
 				logger.warn(errMsg, e);				
 			}
 		} else {
-			// Notifica a Distribucio que s'ha rebut correctament
+			
 			try {
 				this.canviEstat(
 						idWs, 
@@ -557,6 +714,61 @@ public class DistribucioHelper {
 		}
 		logger.info("Rebuda correctament la petició d'anotació de registre amb id de Distribucio =" + idWs);
 	}
+	
+	/** Mètode per tornar a consultar i processar una anotació que estigui en estat d'error de processament.
+	 * 
+	 * @param anotacioId
+	 * @throws Exception Llença excepció si l'anotació no està en estat d'error de processament o si hi ha error en la consulta.
+	 */
+	@Transactional
+	public Anotacio reprocessarAnotacio(long anotacioId) throws Exception {
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+
+		logger.debug("Rerocessant l'anotació " + anotacio.getIdentificador() + ".");
+
+		if (!AnotacioEstatEnumDto.ERROR_PROCESSANT.equals(anotacio.getEstat())) {
+			throw new Exception("L'anotació " + anotacio.getExpedientNumero() + " està en estat " + anotacio.getEstat() + " i no es pot reprocessar.");
+		}
+		
+		// Consulta l'anotació
+		AnotacioRegistreId idWs = new AnotacioRegistreId();
+		idWs.setIndetificador(anotacio.getIdentificador());
+		idWs.setClauAcces(anotacio.getDistribucioClauAcces());
+		logger.debug("Consultant l'anotació " + idWs.getIndetificador() + " i clau " + idWs.getClauAcces());
+
+		// Consulta la anotació a Distribucio
+		AnotacioRegistreEntrada anotacioRegistreEntrada = null;
+		try {
+			anotacioRegistreEntrada = this.consulta(idWs);
+		} catch(Exception e) {
+			String errMsg = "Error consultant l'anotació " + idWs.getIndetificador() + " i clau " + idWs.getClauAcces() + ": " + e.getMessage();
+			logger.error(errMsg, e);
+			throw new Exception(errMsg, e);
+		}			
+
+		// Processa i comunica l'estat de processada 
+		try {
+			logger.debug("Rerocessant l'anotació " + idWs.getIndetificador() + ".");
+			anotacio.setEstat(AnotacioEstatEnumDto.PENDENT);
+			anotacio.setErrorProcessament(null);
+			this.processarAnotacio(idWs, anotacioRegistreEntrada, anotacio);
+		} catch (Exception e) {
+			String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e.getMessage();
+			logger.error(errorProcessament, e);
+			// Es comunica l'estat a Distribucio
+			try {
+				this.canviEstat(
+						idWs, 
+						es.caib.distribucio.rest.client.domini.Estat.ERROR,
+						errorProcessament);
+			} catch(Exception ed) {
+				logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
+			}
+			throw new Exception(errorProcessament, e);
+		}
+		return anotacio;
+	}
+
 
 	/** S'accepten documents xml tècnics de Sistra de formularis. Per cada document tècnic, si està mapejat
 	 * i és un XML que concorda amb l' XSD del formulari llavors es mapegen les dades de la forma ANNEX_TITOL.CAMPO_ID amb
@@ -899,6 +1111,29 @@ public class DistribucioHelper {
 		return resposta;
 	}
 
+	/** consulta la llista d'anotacions en estat comunicada i pendents de consultar que no han esgotat
+	 * els reintents. 
+	 * 
+	 * @param maxReintents Indica el màxim de reintents que pot realitzar-se per l'anotació.
+	 * @param maxAnotacions Indica el nombre màxim de resultats.
+	 * @return
+	 */
+	public List<Anotacio> findPendentConsultar(int maxReintents, int maxAnotacions) {
+		
+		PaginacioParamsDto paginacioParams = new PaginacioParamsDto();
+		paginacioParams.setPaginaNum(0);
+		paginacioParams.setPaginaTamany(maxAnotacions);
+		paginacioParams.afegirOrdre("dataRecepcio", OrdreDireccioDto.ASCENDENT);
+		
+		Page<Anotacio> pagina = anotacioRepository.findAnotacionsPendentConsultarPaged(
+				maxReintents, 
+				paginacioHelper.toSpringDataPageable(paginacioParams));
+
+		return pagina.getContent();
+
+	}
+
 
 	private static final Logger logger = LoggerFactory.getLogger(DistribucioHelper.class);
+
 }

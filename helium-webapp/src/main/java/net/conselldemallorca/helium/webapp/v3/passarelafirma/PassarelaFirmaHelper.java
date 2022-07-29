@@ -399,7 +399,6 @@ public class PassarelaFirmaHelper {
 		} else if (FileInfoSignature.SIGN_TYPE_CADES.equals(signType)) {
 		} else if (FileInfoSignature.SIGN_TYPE_XADES.equals(signType)) {
 		} else {
-			// TODO Traduir
 			throw new RuntimeException("Tipus de firma no suportada: " + signType);
 		}
 		if (FileInfoSignature.SIGN_ALGORITHM_SHA1.equals(signAlgorithm)
@@ -408,7 +407,6 @@ public class PassarelaFirmaHelper {
 				|| FileInfoSignature.SIGN_ALGORITHM_SHA512.equals(signAlgorithm)) {
 			// OK
 		} else {
-			// TODO Traduir
 			throw new RuntimeException("Tipus d'algorisme no suportat " + signAlgorithm);
 		}
 		FileInfoSignature fis = new FileInfoSignature(

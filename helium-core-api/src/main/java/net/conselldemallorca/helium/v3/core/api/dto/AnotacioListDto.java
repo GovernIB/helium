@@ -27,6 +27,10 @@ public class AnotacioListDto implements Serializable {
 	private AnotacioEstatEnumDto estat;
 	private Date dataRecepcio;
 	private Date dataProcessament;
+	private String errorProcessament;
+	private int consultaIntents;
+	private String consultaError;
+	private String consultaData;
 	
 	// Dades pròpies de l'anotació
 	
@@ -44,6 +48,8 @@ public class AnotacioListDto implements Serializable {
 	private String oficinaCodi;
 	private String oficinaDescripcio;
 	
+	
+
 	// Per mostrar errors d'annexos al llistat
 	private boolean errorAnnexos;
 	private boolean annexosInvalids;
@@ -84,6 +90,30 @@ public class AnotacioListDto implements Serializable {
 	}
 	public void setDataProcessament(Date dataProcessament) {
 		this.dataProcessament = dataProcessament;
+	}
+	public String getErrorProcessament() {
+		return errorProcessament;
+	}
+	public void setErrorProcessament(String errorProcessament) {
+		this.errorProcessament = errorProcessament;
+	}
+	public int getConsultaIntents() {
+		return consultaIntents;
+	}
+	public void setConsultaIntents(int consultaIntents) {
+		this.consultaIntents = consultaIntents;
+	}
+	public String getConsultaError() {
+		return consultaError;
+	}
+	public void setConsultaError(String consultaError) {
+		this.consultaError = consultaError;
+	}
+	public String getConsultaData() {
+		return consultaData;
+	}
+	public void setConsultaData(String consultaData) {
+		this.consultaData = consultaData;
 	}
 	public String getAplicacioCodi() {
 		return aplicacioCodi;

@@ -35,8 +35,6 @@ public class TascaProgramadaServiceBean implements TascaProgramadaService {
 	@RolesAllowed({"HEL_ADMIN"})
 	public void setReindexarAsincronament(boolean reindexar) {
 		delegate.setReindexarAsincronament(reindexar);
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -70,4 +68,11 @@ public class TascaProgramadaServiceBean implements TascaProgramadaService {
 	public void comprovarEstatNotificacions() throws NoTrobatException {
 		delegate.comprovarEstatNotificacions();
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void comprovarAnotacionsPendents() throws NoTrobatException {
+		delegate.comprovarAnotacionsPendents();
+	}
+
 }

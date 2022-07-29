@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.core.util.EntornActual;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAccioEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
@@ -84,6 +85,7 @@ public class AnotacioController extends BaseExpedientController {
 		model.addAttribute(filtreCommand);
 		this.modelEstats(model);
 		this.modelExpedientsTipus(SessionHelper.getSessionManager(request).getEntornActual(), model);
+		model.addAttribute("maxConsultaIntents", this.getMaxConsultaIntents());
 		return "v3/anotacioLlistat";
 	}
 	
@@ -150,6 +152,7 @@ public class AnotacioController extends BaseExpedientController {
 			Model model) {
 		AnotacioDto anotacio = anotacioService.findAmbId(id);
 		model.addAttribute("anotacio", anotacio);
+		model.addAttribute("maxConsultaIntents", this.getMaxConsultaIntents());
 		return "v3/anotacioDetall";
 	}
 	
@@ -447,7 +450,7 @@ public class AnotacioController extends BaseExpedientController {
 							"anotacio.llistat.accio.esborrar.success",
 							new Object[] {anotacio.getIdentificador()}));
 		} catch (Exception e) {
-			MissatgesHelper.success(
+			MissatgesHelper.error(
 					request,
 					getMessage(
 							request,
@@ -457,6 +460,98 @@ public class AnotacioController extends BaseExpedientController {
 		return "redirect:/v3/anotacio";
 	}
 	
+	/** Mètode per tornar a reprocessar anotacions en estat d'error de processament.
+	 * 
+	 * @param request
+	 * @param id
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/{id}/reprocessar", method = RequestMethod.GET)
+	public String reprocessar(
+			HttpServletRequest request,
+			@PathVariable Long id,
+			Model model) {
+		try {
+			AnotacioDto anotacio = anotacioService.reprocessar(id);
+			MissatgesHelper.success(
+					request,
+					getMessage(
+							request,
+							"anotacio.llistat.accio.reprocessar.success",
+							new Object[] {anotacio.getIdentificador()}));
+		} catch (Exception e) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"anotacio.llistat.accio.reprocessar.error",
+							new Object[] {id, e.getMessage()}));
+		}
+		return "redirect:/v3/anotacio";
+	}
+	
+	/** Mètode per marcar com a pendent una anotació en estat de processament error.
+	 * 
+	 * @param request
+	 * @param id
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/{id}/marcarPendent", method = RequestMethod.GET)
+	public String marcarPendent(
+			HttpServletRequest request,
+			@PathVariable Long id,
+			Model model) {
+		try {
+			AnotacioDto anotacio = anotacioService.marcarPendent(id);
+			MissatgesHelper.success(
+					request,
+					getMessage(
+							request,
+							"anotacio.llistat.accio.marcarPendent.success",
+							new Object[] {anotacio.getIdentificador()}));
+		} catch (Exception e) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"anotacio.llistat.accio.marcarPendent.error",
+							new Object[] {id, e.getMessage()}));
+		}
+		return "redirect:/v3/anotacio";
+	}
+
+	/** Mètode per fixar el número d'intents a 0 i que es torni a consultar a Distribucio.
+	 * 
+	 * @param request
+	 * @param id
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/{id}/reintentarConsulta", method = RequestMethod.GET)
+	public String reinentarConsulta(
+			HttpServletRequest request,
+			@PathVariable Long id,
+			Model model) {
+		try {
+			AnotacioDto anotacio = anotacioService.reintentarConsulta(id);
+			MissatgesHelper.success(
+					request,
+					getMessage(
+							request,
+							"anotacio.llistat.accio.reintentarConsulta.success",
+							new Object[] {anotacio.getIdentificador()}));
+		} catch (Exception e) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"anotacio.llistat.accio.reintentarConsulta.error",
+							new Object[] {id, e.getMessage()}));
+		}
+		return "redirect:/v3/anotacio";
+	}
 	
 	@RequestMapping(value = "/{anotacioId}/annex/{annexId}/descarregar", method = RequestMethod.GET)
 	public String descarregarAnnex(
@@ -575,6 +670,10 @@ public class AnotacioController extends BaseExpedientController {
 	}
 	
 	
+	private String getMaxConsultaIntents() {
+		return GlobalProperties.getInstance().getProperty("app.anotacions.pendents.comprovar.intents", "5");
+	}
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 	    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
@@ -583,5 +682,6 @@ public class AnotacioController extends BaseExpedientController {
 	    binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
 	}
 
+	
 	private static final Log logger = LogFactory.getLog(AnotacioController.class);
 }

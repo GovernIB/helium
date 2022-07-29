@@ -76,8 +76,21 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 	private AnotacioEstatEnumDto estat;
 	@Column(name = "data_recepcio", nullable = false)
 	private Date dataRecepcio;
+	
+	// Camps per la tasca en segon pla de consulta
+	@Column(name = "consulta_intents", nullable = false)
+	private int consultaIntents = 0;
+	@Column(name = "consulta_error", length = 1024)
+	private String consultaError = null;
+	@Column(name = "consulta_data")
+	private Date consultaData = null;
+	
+	// Camps de dades del processament
 	@Column(name = "data_processament")
 	private Date dataProcessament;
+	@Column(name = "error_processament", length = 1024)
+	private String errorProcessament = null;
+	
 	/** Motiu del rebuig en cas de rebutjar l'anotació */
 	@Column(name = "rebuig_motiu", length = 500)
 	private String rebuigMotiu;
@@ -92,7 +105,7 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 	private String assumpteCodiCodi;
 	@Column(name = "assumpte_codi_desc", length = 100)
 	private String assumpteCodiDescripcio;
-	@Column(name = "assumpte_tipus_codi", length = 16, nullable = false)
+	@Column(name = "assumpte_tipus_codi", length = 16)
 	private String assumpteTipusCodi;
 	@Column(name = "assumpte_tipus_desc", length = 100)
 	private String assumpteTipusDescripcio;
@@ -103,7 +116,7 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 	private String docFisicaCodi;
 	@Column(name = "doc_fisica_desc", length = 100)
 	private String docFisicaDescripcio;
-	@Column(name = "entitat_codi", length = 21, nullable = false)
+	@Column(name = "entitat_codi", length = 21)
 	private String entitatCodi;
 	@Column(name = "entitat_desc", length = 100)
 	private String entitatDescripcio;
@@ -115,19 +128,19 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 	private String extracte;
 	@Column(name = "procediment_codi", length = 20)
 	private String procedimentCodi;
-	@Column(name = "identificador", length = 100, nullable = false)
+	@Column(name = "identificador", length = 100)
 	private String identificador;
-	@Column(name = "idioma_codi", length = 2, nullable = false)
+	@Column(name = "idioma_codi", length = 2)
 	private String idiomaCodi;
 	@Column(name = "idioma_desc", length = 100)
 	private String idiomaDescripcio;
-	@Column(name = "llibre_codi", length = 4, nullable = false)
+	@Column(name = "llibre_codi", length = 4)
 	private String llibreCodi;
 	@Column(name = "llibre_desc", length = 100)
 	private String llibreDescripcio;
 	@Column(name = "observacions", length = 50)
 	private String observacions;
-	@Column(name = "oficina_codi", length = 21, nullable = false)
+	@Column(name = "oficina_codi", length = 21)
 	private String oficinaCodi;
 	@Column(name = "oficina_desc", length = 100)
 	private String oficinaDescripcio;
@@ -150,7 +163,7 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 	private String usuariCodi;
 	@Column(name = "usuari_nom", length = 80)
 	private String usuariNom;
-	@Column(name = "desti_codi", length = 21, nullable = false)
+	@Column(name = "desti_codi", length = 21)
 	private String destiCodi;
 	@Column(name = "desti_descripcio", length = 100)
 	private String destiDescripcio;
@@ -717,6 +730,30 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 	}
 	public void setDataProcessament(Date dataProcessament) {
 		this.dataProcessament = dataProcessament;
+	}
+	public String getErrorProcessament() {
+		return errorProcessament;
+	}
+	public void setErrorProcessament(String errorProcessament) {
+		this.errorProcessament = errorProcessament;
+	}
+	public int getConsultaIntents() {
+		return consultaIntents;
+	}
+	public void setConsultaIntents(int consultaIntents) {
+		this.consultaIntents = consultaIntents;
+	}
+	public String getConsultaError() {
+		return consultaError;
+	}
+	public void setConsultaError(String consultaError) {
+		this.consultaError = consultaError;
+	}
+	public Date getConsultaData() {
+		return consultaData;
+	}
+	public void setConsultaData(Date consultaData) {
+		this.consultaData = consultaData;
 	}
 	public String getRebuigMotiu() {
 		return rebuigMotiu;

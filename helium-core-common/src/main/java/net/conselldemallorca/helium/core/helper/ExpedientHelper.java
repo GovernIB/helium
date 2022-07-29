@@ -37,7 +37,6 @@ import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ExpedientEstat;
 import es.caib.plugins.arxiu.api.ExpedientMetadades;
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
-import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.helperv26.LuceneHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
@@ -1483,15 +1482,17 @@ public class ExpedientHelper {
 		
 		Expedient expedient = new Expedient();
 		Entorn entorn = entornHelper.getEntorn(entornId);
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String usuariBo = null;
 		if (usuari != null) {
 			comprovarUsuari(usuari);
 			usuariBo = usuari;
 		} else {
-			usuari = auth.getName();
-			if (auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken))
-				usuariBo = usuari;
+			if (SecurityContextHolder.getContext() != null && SecurityContextHolder.getContext().getAuthentication() != null) {
+				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+				usuari = auth.getName();
+				if (auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken))
+					usuariBo = usuari;
+			}
 		}
 		// Consulta de l'expedient tipus amb bloqueig del registre #1423
 		ExpedientTipus expedientTipus = expedientTipusRepository.findByIdAmbBloqueig(expedientTipusId);
@@ -1501,20 +1502,6 @@ public class ExpedientHelper {
 		}
 		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom());
 		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Nou expedient");
-		// Obté la llista de tipus d'expedient permesos
-		List<ExpedientTipus> tipusPermesos = expedientTipusRepository.findByEntorn(entorn);
-		permisosHelper.filterGrantedAny(
-				tipusPermesos,
-				new ObjectIdentifierExtractor<ExpedientTipus>() {
-					public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
-						return expedientTipus.getId();
-					}
-				},
-				ExpedientTipus.class,
-				new Permission[] {
-					ExtendedPermission.CREATE,
-					ExtendedPermission.ADMINISTRATION},
-				auth);
 		String iniciadorCodiCalculat = (iniciadorTipus.equals(IniciadorTipusDto.INTERN)) ? usuariBo : iniciadorCodi;
 		expedient.setTipus(expedientTipus);
 		expedient.setIniciadorTipus(conversioTipusHelper.convertir(iniciadorTipus, IniciadorTipus.class));
