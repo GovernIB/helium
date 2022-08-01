@@ -194,7 +194,7 @@
 						webutilRefreshMissatges();
 					}
 					if (settings.dataTableId) {
-						$('#' + settings.dataTableId).webutilDatatable('refresh');
+						$('#' + settings.dataTableId).webutilDatatable('reload');
 					}
 					if (settings.callback) {
 						eval(settings.callback);						
@@ -208,7 +208,7 @@
 							webutilRefreshMissatges();
 						}
 						if (settings.refreshDatatable) {
-							$('#' + settings.dataTableId).webutilDatatable('refresh');
+							$('#' + settings.dataTableId).webutilDatatable('reload');
 						}
 					}
 				});

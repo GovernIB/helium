@@ -618,6 +618,12 @@
 			}
 			$taula.dataTable().fnDraw();
 		};
+		plugin.reload = function(serverParams) {
+			if (serverParams) {
+				plugin.serverParams = serverParams;
+			}
+			$taula.DataTable().ajax.reload(null, false);
+		};
 		plugin.refreshUrl = function(url) {
 			$taula.dataTable().api().ajax.url(url).load();
 		}
@@ -1061,6 +1067,8 @@
             } else if (options && typeof options !== 'object') {
             	if ('refresh' === options) {
             		$(this).data(pluginName).refresh(param1);
+            	} else if ('reload' === options) {
+            		$(this).data(pluginName).reload(param1);
             	} else if ('refresh-url' === options) {
             		$(this).data(pluginName).changeUrl(param1);
             	} else if ('select-none' === options) {
