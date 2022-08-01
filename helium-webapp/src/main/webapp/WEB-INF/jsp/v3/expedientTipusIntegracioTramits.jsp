@@ -71,9 +71,10 @@
 				<input type="hidden" id="id" name="id" value="${expedientTipusIntegracioTramitsCommand.id}"/>
 				<hel:inputCheckbox name="actiu" textKey="expedient.tipus.integracio.tramits.activar"/>
 				<div >
-					<hel:inputText required="true" name="tramitCodi" textKey="expedient.tipus.integracio.tramits.tramitCodi" />
 					<!-- Botons per obrir els formularis dels mapejos -->
 					<div id="inputs_integracioTramits" style="display:${expedientTipusIntegracioTramitsCommand.actiu? 'inline' : 'none'}">
+					
+						<hel:inputText name="tramitCodi" textKey="expedient.tipus.integracio.tramits.tramitCodi" />
 					
 						<div class="form-group">
 							<label class="control-label col-xs-4" for="mapeigVariables">

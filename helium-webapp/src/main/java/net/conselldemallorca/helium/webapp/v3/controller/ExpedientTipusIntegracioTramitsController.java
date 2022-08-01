@@ -71,14 +71,8 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 			
 			ExpedientTipusIntegracioTramitsCommand command = new ExpedientTipusIntegracioTramitsCommand();			
 			command.setId(expedientTipusId);
-			if (expedientTipus.getSistraTramitCodi() != null && expedientTipus.isSistraActiu()) {	
-				command.setActiu(true);
-			} else {
-				command.setActiu(false);
-			}
-			//Sempre indiquem el tràmit codi sigui o no sigui actiu
-			command.setTramitCodi(expedientTipus.getSistraTramitCodi());
-			
+			command.setActiu(expedientTipus.isSistraActiu());
+			command.setTramitCodi(expedientTipus.getSistraTramitCodi());			
 			command.setNotificacionsActivades(expedientTipus.isNotificacionsActivades());
 			command.setNotificacioOrganCodi(expedientTipus.getNotificacioOrganCodi());
 			command.setNotificacioOficinaCodi(expedientTipus.getNotificacioOficinaCodi());
@@ -119,7 +113,7 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 		
 		if (entornActual != null) {
 			// Validació en el controlador
-			this.validarCommand(command, bindingResult);
+			this.validarCommand(expedientTipusId, command, bindingResult);
 	        if (bindingResult.hasErrors()) {
 		        MissatgesHelper.error(
 						request, 
@@ -160,14 +154,21 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 	}
 
 	/** Valida els camps del command depenent de les opcions que estiguin actives. 
+	 * @param expedientTipusId 
 	 * @param bindingResult */
-	private void validarCommand(ExpedientTipusIntegracioTramitsCommand command, BindingResult bindingResult) {
-		// Comprova que la url estigui informada si està activat
+	private void validarCommand(Long expedientTipusId, ExpedientTipusIntegracioTramitsCommand command, BindingResult bindingResult) {
+		
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbId(expedientTipusId);
+		
+		
+		// Comprova que el codi del tràmit estigui informat si està activat i no està integrat amb Distribucio i Sistra2
 		if (command.isActiu()) {
 			if (isNullOrEmpty(command.getTramitCodi())){
 				// tramitCodi
-				if (isNullOrEmpty(command.getTramitCodi())) {
-					bindingResult.rejectValue("tramitCodi", "NotEmpty");
+				if (isNullOrEmpty(command.getTramitCodi())
+						&& (!expedientTipus.isDistribucioActiu() 
+								|| !expedientTipus.isDistribucioSistra())) {
+					bindingResult.rejectValue("tramitCodi", "expedient.tipus.integracio.tramits.tramitCodi.validacio.NotEmpty");
 				}				
 			}
 		}
