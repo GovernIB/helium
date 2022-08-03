@@ -147,6 +147,21 @@ tr.clicable {
 									<td><strong><spring:message code="anotacio.detalls.camp.numexp"/></strong></td>
 									<td>${anotacio.expedientNumero}</td>
 								</tr>
+								<tr>
+									<td><strong><spring:message code="anotacio.detalls.pipella.interessats"/></strong></td>
+									<td colspan="3">
+										<c:if test="${not empty anotacio.interessats}">
+											<c:forEach var="interessat" items="${anotacio.interessats}" varStatus="status">
+												${interessat.documentNumero} -  ${interessat.nomComplet}
+												<c:if test="${interessat.representant != null }">
+													(${interessat.representant.documentNumero} -  ${interessat.representant.nomComplet})
+												</c:if>
+												<c:if test="${not status.last}"></br></c:if>
+												
+											</c:forEach>
+										</c:if>
+									</td>
+								</tr>
 							</tbody>
 							</table>
 						</div>

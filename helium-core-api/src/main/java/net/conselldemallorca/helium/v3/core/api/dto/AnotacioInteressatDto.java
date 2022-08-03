@@ -169,6 +169,28 @@ public class AnotacioInteressatDto implements Serializable {
 		this.organCodi = organCodi;
 	}
 	
+	/** Retorna el nom segons si és persona, administració o 
+	 * 
+	 */
+	public String getNomComplet() {
+		String nomComplet = null;
+		if ("PERSONA_FISICA".equals(tipus)) {
+			StringBuilder nomCompletStrb = new StringBuilder();
+			nomCompletStrb.append(nom);
+			if (llinatge1 != null) {
+				nomCompletStrb.append(" ").append(llinatge1);
+			}
+			if (llinatge2 != null) {
+				nomCompletStrb.append(" ").append(llinatge2);
+			}
+			nomComplet = nomCompletStrb.toString();
+		} else {
+			nomComplet = raoSocial != null ? raoSocial : nom;
+		}
+			
+		return nomComplet;
+	}
+	
 	
 	private static final long serialVersionUID = 3888652004198983250L;
 }
