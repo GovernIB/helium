@@ -37,8 +37,9 @@ public class DocumentLlegirProcesPareHandler extends AbstractHeliumActionHandler
 					varDocumentCodi);
 			if (dc == null)
 				throw new JbpmException("No s'ha especificat cap codi de document");
+
 			DocumentInfo docInfo = getDocumentInfo(
-					executionContext,
+					new ExecutionContext(tokenPare),
 					dc,
 					false);
 			if (docInfo != null) {
