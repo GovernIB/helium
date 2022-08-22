@@ -158,4 +158,17 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
             @Param("isNullAturat") boolean isNullAturat,
             @Param("aturat") Boolean aturat
             );
+    
+    /** Mètode per cercar els tipus d'expedient per cercador de tipologia.
+	 * MARTA: falta acabar query amb tots els paràmetres
+	 * @param ntiClasificacion
+	 * @return
+	 */
+    @Query(	"from " +
+			"    ExpedientTipus et " +
+			"where " +
+			"	et.ntiClasificacion like :ntiClasificacion ")
+	public List<ExpedientTipus> findByTipologia(
+			@Param("ntiClasificacion") String ntiClasificacion
+			);
 }

@@ -1234,7 +1234,14 @@ public interface ExpedientTipusService {
 	 * @return
 	 *  Retorna el tipus d'expedient configurat per a la combinació de codi procediment i codi tipus assumpte
 	 */
-	public ExpedientTipusDto findPerDistribucioValidacio(String codiProcediment, String codiAssumpte);	
+	public ExpedientTipusDto findPerDistribucioValidacio(String codiProcediment, String codiAssumpte);
+
+	/**Mètode per trobar els tipus d'expedients filtrats per tipologia*
+	 * 
+	 * @param codiSIA
+	 * @param entornId
+	 * */
+	public List<ExpedientTipusDto> findTipologiesByFiltre(String codiSIA, Long entornId);	
 
 	/**
 	 * Modifica les dades d'integracio Pinbal d'un tipus d'expedient.

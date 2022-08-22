@@ -3772,6 +3772,16 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 											aturat == null,
 											aturat);
 	}
+	
+	@Override
+	public List<ExpedientTipusDto> findTipologiesByFiltre(String codiSIA, Long entornId){
+		if(codiSIA!=null)
+			return conversioTipusHelper.convertirList(
+				expedientTipusRepository.findByTipologia(codiSIA),
+				ExpedientTipusDto.class);
+		else return this.findAmbEntornPermisDissenyar(entornId);
+		
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 

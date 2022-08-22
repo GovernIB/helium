@@ -733,4 +733,11 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 				estatId,
 				aturat);
 	}
+
+	@Override
+	public List<ExpedientTipusDto> findTipologiesByFiltre(String codiSIA, Long entornId) {
+		return delegate.findTipologiesByFiltre(codiSIA, entornId);
+	}
+
+	
 }
