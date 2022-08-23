@@ -539,7 +539,7 @@ public class ExpedientHelper {
 				false);
 		
 		//Actualitzem el nom de l'expedient a l'arxiu
-		if (expedient.getTipus().isArxiuActiu() &&
+		if (expedient.isArxiuActiu() &&
 			expedient.getArxiuUuid() != null &&
 			atributsArxiuCanviats) {
 			// Modifiquem l'expedient a l'arxiu.
