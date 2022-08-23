@@ -730,7 +730,26 @@ public class LuceneHelper extends LuceneIndexSupport {
 		try {
 			if (valorFiltre != null && valorFiltre != "") {
 				if (codiCamp.startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
-					if (ExpedientCamps.EXPEDIENT_CAMP_ENTORN.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_INICIADOR.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_GEOX.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_GEOY.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_GEOREF.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_REGNUM.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_REGDATA.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_UNIADM.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_IDIOMA.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_TRAMIT.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_TIPUS.equals(codiCamp)
+					if (ExpedientCamps.EXPEDIENT_CAMP_ID.equals(codiCamp)) {						
+						if (valorFiltre.getClass().isArray() ) {
+							// Rang d'identificadors
+							String valorInicial = ((String[]) valorFiltre)[0];
+							String valorFinal = ((String[]) valorFiltre)[1];
+							if (valorInicial != null && valorFinal != null) {
+								return new TermRangeQuery(codiCamp, valorInicial, valorFinal, true, true);
+							} else if (valorInicial != null) {
+								return new TermRangeQuery(codiCamp, valorInicial, MAX_VALUE, true, true);
+							} else if (valorFinal != null) {
+								return new TermRangeQuery(codiCamp, MIN_VALUE, valorFinal, true, true);
+							}
+						} else {
+							// Un únic identificador
+							String valorIndex = valorFiltre.toString();
+							if (valorIndex != null && valorIndex.length() > 0) {
+								return new TermQuery(new Term(codiCamp, valorIndex));
+							}
+						}
+					} else if (ExpedientCamps.EXPEDIENT_CAMP_ENTORN.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_INICIADOR.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_GEOX.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_GEOY.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_GEOREF.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_REGNUM.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_REGDATA.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_UNIADM.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_IDIOMA.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_TRAMIT.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_TIPUS.equals(codiCamp)
 							|| ExpedientCamps.EXPEDIENT_CAMP_ESTAT.equals(codiCamp)) {
 						String valorIndex = valorFiltre.toString();
 						if (valorIndex != null && valorIndex.length() > 0) {

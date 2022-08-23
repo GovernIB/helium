@@ -66,8 +66,9 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"where " +
 			"   e.tipus.id = :expedientTipusId " +
 			"	and ((lower(e.titol) like lower('%'||:text||'%')) " + 
-			"		 or (e.numero like '%'||:text||'%')) ")
-	List<Expedient> findByTipusAndNumeroOrTitol(
+			"		 or (e.numero like '%'||:text||'%') " +
+			"		 or (e.id = :text)) ")
+	List<Expedient> findByTipusAndNumeroOrTitolOrId(
 			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("text") String text);
 

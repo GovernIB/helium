@@ -954,7 +954,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 			// Comprova l'accés al tipus d'expedient
 			expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
 					expedientTipusId);
-			expedients = expedientRepository.findByTipusAndNumeroOrTitol(expedientTipusId, text); 
+			expedients = expedientRepository.findByTipusAndNumeroOrTitolOrId(expedientTipusId, text); 
 		}
 		return conversioTipusHelper.convertirList(
 				expedients,

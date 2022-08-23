@@ -10,21 +10,12 @@
 
 <div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>" style="margin-left: 0px !important;">
 
- 	<c:if test="${campActual.campTipus != 'DATE'}">
-	 	<c:if test="${campActual.varCodi != 'expedient$id'}">
+ 	<c:if test="${campActual.campTipus != 'DATE' && campActual.varCodi != 'expedient$id'}">
 			<label 	for="${campPath}" class="control-label top-label"
 					style="width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"
 					title="${campActual.campEtiqueta}">
 				${campActual.campEtiqueta}
 			</label>
-		</c:if>
-		<c:if test="${campActual.varCodi == 'expedient$id'}">
-			<label 	for="${campPath}[0]" class="control-label top-label"
-						style="width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"
-						title="${campActual.campEtiqueta}">
-						${campActual.campEtiqueta}
-			</label>
-		</c:if>
 	</c:if>
 
 	<div class="controls consulta-tipus-controls">
@@ -39,9 +30,14 @@
 					</c:if>
 					
 				<c:if test="${campActual.varCodi == 'expedient$id'}">
+						<label 	for="${campPath}[0]" class="control-label top-label"
+									style="width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;"
+									title="${campActual.campEtiqueta}">
+									${campActual.campEtiqueta}
+						</label>
 						<c:set var="urlConsultaInicial" value="/helium/v3/expedient/consulta/${consulta.id}/suggest/expedient/inici"/>
 						<c:set var="urlConsultaLlistat" value="/helium/v3/expedient/consulta/${consulta.id}/suggest/expedient/llista/${consulta.expedientTipus.id}"/>
-						<div class="col-md-5 p-0">
+						<div class="col-md-6 pr-15">
 								<hel:inputSuggest inline="true" 
 									name="${campPath}[0]" 
 									urlConsultaInicial="${urlConsultaInicial}" 
@@ -49,7 +45,7 @@
 									placeholder="Des de" 
 									text="Des de"/>
 						</div>
-						<div class="col-md-5 p-0">
+						<div class="col-md-6 pr-15">
 								<hel:inputSuggest inline="true" 
 									name="${campPath}[1]" 
 									urlConsultaInicial="${urlConsultaInicial}" 
