@@ -4,7 +4,6 @@
 package net.conselldemallorca.helium.integracio.plugins.firmaweb;
 
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -269,16 +268,9 @@ public class FirmaWebPluginPortafibRest {
 				if (fssr.getSignedFile() != null) {
 					fsf = fssr.getSignedFile();
 					final String outFile = signID + "_" + fsf.getNom();
-
-					FileOutputStream fos = new FileOutputStream(outFile);
-					fos.write(fsf.getData());
-					fos.flush();
-					data = fsf.getData();
+					fsf.setNom(outFile);
 					fssr.setSignedFile(fsf);
-					fos.close();
-					System.out.println("  RESULT: Fitxer signat guardat en '" + outFile + "'");
-					System.gc();
-					System.out.println(FirmaSimpleSignedFileInfo.toString(fssr.getSignedFileInfo()));
+					logger.info(FirmaSimpleSignedFileInfo.toString(fssr.getSignedFileInfo()));
 				}
 				break;
 			}
