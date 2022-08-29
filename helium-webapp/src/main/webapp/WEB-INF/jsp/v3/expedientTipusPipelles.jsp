@@ -233,9 +233,6 @@
 					<c:if test="${potDissenyarExpedientTipusAdmin}">
 						<li id="pipella-dominis"><a href="#contingut-dominis" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.dominis"/></a></li>
 					</c:if>
-					<c:if test="${potDissenyarExpedientTipusDelegat}">
-						<li id="pipella-consultes"><a href="#contingut-consultes" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.consultes"/></a></li>
-					</c:if>
 					<c:if test="${potDissenyarExpedientTipusAdmin}">
 						<li id="pipella-nti"><a href="#contingut-metadadesnti" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.integracio.arxiu"/></a></li>
 						<li id="pipella-integracio-tramits"><a href="#contingut-integracio-tramits" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.integracio.sistra"/></a></li>

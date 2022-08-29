@@ -390,6 +390,15 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 									new Object[] {errors, expedients.size()}));
 				}
 			}
+			else if (!expedients.isEmpty() && !esborrarExpedients){
+				
+					MissatgesHelper.error(
+							request,
+							getMessage(
+									request,
+									"expedient.tipus.controller.eliminar.expedients.relacionats"));
+					return "redirect:/v3/expedientTipus";
+			}
 			expedientTipusService.delete(
 					entornActual.getId(),
 					id);
@@ -398,7 +407,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					getMessage(
 							request,
 							"expedient.tipus.controller.eliminat"));
-		}			
+		} 
 		return "redirect:/v3/expedientTipus";
 	}
 	

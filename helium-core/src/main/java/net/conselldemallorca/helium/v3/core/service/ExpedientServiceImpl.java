@@ -580,6 +580,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 		for (ExecucioMassivaExpedient eme: execucioMassivaExpedientRepository.getExecucioMassivaByExpedient(id)) {
 			execucioMassivaExpedientRepository.delete(eme);
 		}
+		if (expedient.getRelacionsOrigen() != null) {
+			for (Expedient desti : expedient.getRelacionsOrigen()) {
+				expedient.removeRelacioOrigen(desti);
+				desti.removeRelacioOrigen(expedient);		
+			}
+		}
 		expedientRepository.delete(expedient);
 		luceneHelper.deleteExpedient(expedient);
 		if (expedient.getArxiuUuid() != null && pluginHelper.arxiuExisteixExpedient(expedient.getArxiuUuid())) {			
@@ -954,7 +960,17 @@ public class ExpedientServiceImpl implements ExpedientService {
 			// Comprova l'accés al tipus d'expedient
 			expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
 					expedientTipusId);
-			expedients = expedientRepository.findByTipusAndNumeroOrTitolOrId(expedientTipusId, text); 
+			expedients = expedientRepository.findByTipusAndNumeroOrTitol(expedientTipusId, text); 
+			
+			try {
+				Long expedientId = Long.valueOf(text);
+				Expedient expedient = expedientRepository.findOne(expedientId);
+				if (expedient != null && expedient.getTipus().getId() == expedientTipusId) {
+					expedients.add(expedient);
+				}
+			} catch(Exception e) {
+				// el text no es correspon a un id vàlid
+			}
 		}
 		return conversioTipusHelper.convertirList(
 				expedients,
