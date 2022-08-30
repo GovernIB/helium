@@ -72,7 +72,7 @@ public class CsvHelper {
 							if(line.charAt(j)!=delimitadorString && j!=line.length()-1)  {
 								token.append(line.charAt(j));
 							}else {
-								i=j;
+								i=j+1;
 								break;
 							}
 						}
@@ -94,7 +94,11 @@ public class CsvHelper {
 							}
 							tokens.add(token.toString());
 							token = new StringBuilder();
-						}	
+						} else {
+							token.append("");
+							tokens.add(token.toString());
+							token = new StringBuilder();
+						}
 					}
 				} else {
 					token.append(line.charAt(i));
@@ -112,7 +116,9 @@ public class CsvHelper {
 		CsvHelper csvHelper = new CsvHelper();
 		//String line = "2022;22;Expedient 202205260922;\"El valor de text té el caràcter ';' que fa tanta nosa\";2;2022-05-26 12:3:4.567;-65;S";
 		//String line = "\"Valor1\";\"Valor ; 2\";2";
-		String line = "Any;Número;Títol;var_string;var_float;var_data;var_preu;var_bool";
+		//String line = "Any;Número;Títol;var_string;var_float;var_data;var_preu;var_bool";
+		//String line = ";;\"El valor de text té el caràcter ';' que fa tanta nosa\";var_string;var_float;var_data;var_preu;var_bool";
+		String line = ";;Expedient 2025052609111202523;Text 1;1.1;26/05/22;1234.56;false";
 		String[] tokens = csvHelper.getCsvTokens(line, ';', '"');
 		for (int i=0; i< tokens.length; i++) {
 			System.out.println(i + " " + tokens[i]);
