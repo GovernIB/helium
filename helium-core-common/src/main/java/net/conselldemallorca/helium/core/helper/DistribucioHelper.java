@@ -146,7 +146,7 @@ public class DistribucioHelper {
 						usuari, 
 						contrasenya);
 			} else {
-				throw new RuntimeException("Falta configurar les propietats pel client de Backoffice de DISTRIBUCIO  es.caib.distribucio.backoffice.test.backofficeIntegracio.*");
+				throw new RuntimeException("Falta configurar les propietats pel client de Backoffice de DISTRIBUCIO net.conselldemallorca.helium.distribucio.backofficeIntegracio.*");
 			}
 		}
 		return restClient;
