@@ -2686,11 +2686,11 @@ public class DocumentHelperV3 {
 				List<String> nomsExistingInArxiu = new ArrayList<String>();
 				for(ContingutArxiu contingut : continguts) {
 					if (!contingut.getIdentificador().equals(arxiuUuid)) {
-						nomsExistingInArxiu.add(contingut.getNom());
+						nomsExistingInArxiu.add(contingut.getNom().toLowerCase());
 					}
 				}
 				String nouDocumentNom = new String(documentNom);
-				if (nomsExistingInArxiu.contains(nouDocumentNom)) {
+				if (nomsExistingInArxiu.contains(nouDocumentNom.toLowerCase())) {
 					if (nouDocumentNom.contains(".")) {
 						// Nom amb extensió
 						String name = nouDocumentNom.substring(0, nouDocumentNom.lastIndexOf('.'));
