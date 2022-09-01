@@ -374,6 +374,7 @@ public abstract class BaseBackoffice {
 							documentTelematic.getReferenciaClau(),
 							null,
 							null);
+					resposta.setDocumentValid(true);
 					resposta.setArxiuNom(vista.getArxiuNom());
 					resposta.setArxiuContingut(vista.getArxiuContingut());
 				}
