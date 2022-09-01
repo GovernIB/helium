@@ -91,7 +91,6 @@ public abstract class BaseBackoffice {
 
 	public int processarTramit(DadesTramit tramit) throws Exception {
 
-		dissenyV3Service.findExpedientTipusAmbPermisDissenyUsuariActual(new Long(2));
 		List<ExpedientTipus> candidats = dissenyService.findExpedientTipusAmbSistraTramitCodi(tramit.getIdentificador());
 		for (ExpedientTipus expedientTipus: candidats) {
 			String expedientTitol = null;
