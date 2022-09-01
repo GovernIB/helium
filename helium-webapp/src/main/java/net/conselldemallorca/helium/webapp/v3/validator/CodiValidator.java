@@ -23,7 +23,7 @@ public class CodiValidator implements ConstraintValidator<Codi, String>{
 		
 		if (codi != null) {
 			//  Els codis de variables no poden començar per majúscula seguida de minúscula, guió baix o número.
-			if (codi.matches("^[A-Z]{1}[a-z_$.A-Z0-9a-z]{1}.*")) {
+			if (codi.matches("^[A-Z]{1}[a-z_$.0-9a-z]{1}.*")) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage("error.camp.codi.char.mayguionum", null))
 						.addConstraintViolation();	
