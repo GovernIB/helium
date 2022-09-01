@@ -19,7 +19,7 @@ public class DadesDocumentDto {
 	private byte[] arxiuContingut;
 	private Long idDocument;
 	
-	private boolean documentValid;
+	private boolean documentValid = true;
 	private String documentError;
 
 
