@@ -187,6 +187,11 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	private String ntiSerieDocumental;
 	private boolean arxiuActiu;
 	
+	
+	private boolean pinbalActiu;
+	@MaxLength(44)
+	private String pinbalNifCif;
+	
 	public ExpedientTipus() {}
 	public ExpedientTipus(String codi, String nom, Entorn entorn) {
 		this.codi = codi;
@@ -824,10 +829,27 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setNtiActiu(boolean ntiActiu) {
 		this.ntiActiu = ntiActiu;
 	}
+	
+	@Column(name="pinbal_actiu")
+	public boolean isPinbalActiu() {
+		return pinbalActiu;
+	}
+	public void setPinbalActiu(boolean pinbalActiu) {
+		this.pinbalActiu = pinbalActiu;
+	}
+	@Column(name="pinbal_nif_cif", length=44)
+	public String getPinbalNifCif() {
+		return pinbalNifCif;
+	}
+	public void setPinbalNifCif(String pinbalNifCif) {
+		this.pinbalNifCif = pinbalNifCif;
+	}
+	
 	@Column(name="sistra_actiu")
 	public boolean isSistraActiu() {
 		return sistraActiu;
 	}
+	
 	public void setSistraActiu(boolean sistraActiu) {
 		this.sistraActiu = sistraActiu;
 	}

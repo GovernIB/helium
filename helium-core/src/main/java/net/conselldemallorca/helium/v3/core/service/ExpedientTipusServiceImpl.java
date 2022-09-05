@@ -554,6 +554,11 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		exportacio.setNtiClasificacion(tipus.getNtiClasificacion());
 		exportacio.setNtiSerieDocumental(tipus.getNtiSerieDocumental());
 		exportacio.setArxiuActiu(tipus.isArxiuActiu());
+		
+		//Integracio amb PINBAL
+		exportacio.setPinbalActiu(tipus.isPinbalActiu());
+		exportacio.setPinbalNifCif(tipus.getPinbalNifCif());
+		
 		// Integracio amb DISTRIBUCIO
 		exportacio.setDistribucioActiu(tipus.isDistribucioActiu());
 		exportacio.setDistribucioCodiAssumpte(tipus.getDistribucioCodiAssumpte());
@@ -927,6 +932,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 								mapeig.getCodiSistra(), 
 								MapeigSistra.TipusMapeig.valueOf(mapeig.getTipus().toString())));
 		}
+		
+		//Integració amb Pinbal
+		expedientTipus.setPinbalActiu(importacio.isPinbalActiu());
+		expedientTipus.setPinbalNifCif(importacio.getPinbalNifCif());
 		
 		boolean sobreEscriure = command.isSobreEscriure();
 		// Estats
@@ -3598,6 +3607,29 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				ExpedientTipusDto.class);	
 	}
 
+	
+	@Override
+	@Transactional
+	public ExpedientTipusDto updateIntegracioPinbal(
+			Long entornId,
+			Long expedientTipusId,
+			boolean pinbalActiu,
+			String pinbalNifCif) {
+		logger.debug(
+				"Modificant tipus d'expedient amb les dades d'integració amb Pinbal (" +
+				"entornId=" + entornId + ", " +
+				"expedientTipusId=" + expedientTipusId + ", " +
+				"pinbalActiu=" + pinbalActiu + ", " +
+				"pinbalNifCif=" + pinbalNifCif +")");
+		ExpedientTipus entity = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
+				expedientTipusId);
+		entity.setPinbalActiu(pinbalActiu);
+		entity.setPinbalNifCif(pinbalNifCif);
+		return conversioTipusHelper.convertir(
+				expedientTipusRepository.save(entity),
+				ExpedientTipusDto.class);	
+	}
+	
 	@Override
 	@Transactional
 	public ExpedientTipusDto updateIntegracioNotib(

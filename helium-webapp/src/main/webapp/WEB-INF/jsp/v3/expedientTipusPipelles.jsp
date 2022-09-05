@@ -239,7 +239,8 @@
 						<li id="pipella-integracio-distribucio"><a href="#contingut-integracio-distribucio" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.integracio.distribucio"/></a></li>
 						<li id="pipella-integracio-forms"><a href="#contingut-integracio-forms" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.integracio.forms"/></a></li>
 						<li id="pipella-integracio-notib"><a href="#contingut-integracio-notib" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.integracio.notib"/></a></li>
-						<li id="pipella-redireccions"><a href="#contingut-redireccions" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.redireccions"/></a></li>
+						<li id="pipella-integracio-pinbal"><a href="#contingut-integracio-pinbal" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.integracio.pinbal"/></a></li>
+						<li id="pipella-redireccions"><a href="#contingut-redireccions" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.redireccions"/></a></li>						
 					</c:if>
 				</ul>
 			</div>
@@ -290,6 +291,9 @@
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
 				<div id="contingut-integracio-notib" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedientTipus/${expedientTipus.id}/integracioNotib"/>">
+					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
+				</div>
+				<div id="contingut-integracio-pinbal" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedientTipus/${expedientTipus.id}/integracioPinbal"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
 				<div id="contingut-redireccions" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedientTipus/${expedientTipus.id}/redireccions"/>">

@@ -61,6 +61,10 @@ public class ExpedientTipusExportacio implements Serializable {
 	private String ntiSerieDocumental;
 	private boolean arxiuActiu;
 	
+	//Integracio PINBAL
+	private boolean pinbalActiu;
+	private String pinbalNifCif;
+	
 	// Integració DISTRIBUCIO
 	private boolean distribucioActiu;
 	private String distribucioCodiProcediment;
@@ -419,6 +423,21 @@ public class ExpedientTipusExportacio implements Serializable {
 	public void setHerenciaTasques(Map<String, List<TascaExportacio>> herenciaTasques) {
 		this.herenciaTasques = herenciaTasques;
 	}
+
+	public boolean isPinbalActiu() {
+		return pinbalActiu;
+	}
+	public void setPinbalActiu(boolean pinbalActiu) {
+		this.pinbalActiu = pinbalActiu;
+	}
+	
+	public String getPinbalNifCif() {
+		return pinbalNifCif;
+	}
+	public void setPinbalNifCif(String pinbalNifCif) {
+		this.pinbalNifCif = pinbalNifCif;
+	}
+
 
 	private static final long serialVersionUID = 4423574853273245620L;
 }

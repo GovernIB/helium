@@ -1918,7 +1918,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		UnitatOrganica unitatOrganica = pluginHelper.findUnitatOrganica(expedientTipus.getNtiOrgano());
 		dadesDto.setCodiProcediment(expedientTipus.getNtiClasificacion());
 		dadesDto.setUnitatTramitadora(unitatOrganica.getDenominacio());
-		dadesDto.setEntitat_CIF(unitatOrganica.getNifCif());
+		dadesDto.setEntitat_CIF(expedientTipus.getPinbalNifCif());
 		
 		return new DadesConsultaPinbal(
 				titular, 

@@ -650,6 +650,20 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTipusDto updateIntegracioPinbal(
+			Long entornId,
+			Long expedientTipusId,
+			boolean pinbalActiu,
+			String pinbalNifCif) {
+		return delegate.updateIntegracioPinbal(
+				entornId,
+				expedientTipusId,
+				pinbalActiu,
+				pinbalNifCif);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientTipusDto updateIntegracioNotib(
 			Long expedientTipusId, 
 			String notibEmisor, 

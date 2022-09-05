@@ -7,15 +7,9 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Properties;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -26,7 +20,6 @@ import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.UniformInterfaceException;
 
 import es.caib.pinbal.client.recobriment.ClientGeneric;
-import es.caib.pinbal.client.recobriment.model.ScspConfirmacionPeticion;
 import es.caib.pinbal.client.recobriment.model.ScspFuncionario;
 import es.caib.pinbal.client.recobriment.model.ScspJustificante;
 import es.caib.pinbal.client.recobriment.model.ScspRespuesta;
@@ -55,12 +48,7 @@ public class PinbalPlugin implements PinbalPluginInterface {
 
 	private static final Log logger = LogFactory.getLog(PinbalPlugin.class);
 	private static final boolean ENABLE_LOGGING = true;
-	
-	//Strings per fer proves en local
-	private static final String ENTITAT_CIF = "S0711001H";
-	private static final String CODIGO_PROCEDIMIENTO = "CODSVDR_GBA_20121107";
 
-	
 	private ClientGeneric clientGeneric;
 	private ClientSvddgpciws02 clientSvddgpciws02;
 	private ClientSvddgpviws02 clientSvddgpviws02;
@@ -85,11 +73,6 @@ public class PinbalPlugin implements PinbalPluginInterface {
 					"Error al obtenir la petició, el Codi del Servei és obligatori.");
 		}
 		clientGeneric = this.getClientGeneric();
-		
-		//descomentar per fer proves en local
-//		solicitud.setIdentificadorSolicitante(ENTITAT_CIF);
-//		solicitud.setCodigoProcedimiento(CODIGO_PROCEDIMIENTO);
-//		solicitud.setUnidadTramitadora("Departament de test");
 
 		solicitud.setIdentificadorSolicitante(dadesConsultaPinbal.getEntitat_CIF());
 		solicitud.setCodigoProcedimiento(dadesConsultaPinbal.getCodiProcediment());
@@ -135,20 +118,6 @@ public class PinbalPlugin implements PinbalPluginInterface {
 		return resposta;
 	}
 	
-	
-	private Element generarDatosEspecificos() throws ParserConfigurationException {
-		DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
-		fac.setNamespaceAware(true);
-		Document doc = fac.newDocumentBuilder().newDocument();
-		Element datosEspecificos = doc.createElement("DatosEspecificos");
-		Element consulta = doc.createElement("Consulta");
-		Element provincia = doc.createElement("CodigoProvincia");
-		provincia.setTextContent("07");
-		consulta.appendChild(provincia);
-		datosEspecificos.appendChild(consulta);
-		doc.appendChild(datosEspecificos);
-		return doc.getDocumentElement();
-	}
 
 	/**Servei de CONSULTA DE DADES D'IDENTITAT**/
 	@Override

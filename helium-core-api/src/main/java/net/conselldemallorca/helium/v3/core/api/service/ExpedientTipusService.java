@@ -1236,7 +1236,30 @@ public interface ExpedientTipusService {
 	 */
 	public ExpedientTipusDto findPerDistribucioValidacio(String codiProcediment, String codiAssumpte);	
 
-	
+	/**
+	 * Modifica les dades d'integracio Pinbal d'un tipus d'expedient.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @param pinbalActiu
+	 *            Indica si la integració amb Pinbal està activada.
+	 * @param cifNifUnitatOrg
+	 *            El CIF/NIF de la unitat orgànica.
+	 * 
+	 * @return El tipus d'expedient modificat.
+	 * 
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public ExpedientTipusDto updateIntegracioPinbal(
+			Long entornId, 
+			Long expedientTipusId, 
+			boolean pinbalActiu,
+			String pinbalNifCif);	
 
 
 }

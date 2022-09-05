@@ -74,6 +74,11 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	private String ntiClasificacion;
 	private String ntiSerieDocumental;
 
+	//Integració amb Pinbal
+	private boolean pinbalActiu;
+	private String pinbalNifCif;
+		
+		
 	private boolean arxiuActiu;
 	
 	// Integració NOTIB
@@ -461,6 +466,19 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 		return result;
 	}
 
+	public boolean isPinbalActiu() {
+		return pinbalActiu;
+	}
+	public void setPinbalActiu(boolean pinbalActiu) {
+		this.pinbalActiu = pinbalActiu;
+	}
+	
+	public String getPinbalNifCif() {
+		return pinbalNifCif;
+	}
+	public void setPinbalNifCif(String pinbalNifCif) {
+		this.pinbalNifCif = pinbalNifCif;
+	}
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;

@@ -330,6 +330,8 @@ public class ConversioTipusHelper {
 						target.setDistribucioProcesAuto(source.isDistribucioProcesAuto());
 						target.setDistribucioSistra(source.isDistribucioSistra());
 						
+						target.setPinbalActiu(source.isPinbalActiu());
+						target.setPinbalNifCif(source.getPinbalNifCif());
 						return target;
 					}
 				});
