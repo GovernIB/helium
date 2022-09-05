@@ -425,8 +425,10 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	private int getConsultaAnotacioMaxReintents() {
 		int maxReintents = 5;
 		try {
-			maxReintents = Integer.parseInt(
-					GlobalProperties.getInstance().getProperty("app.anotacions.pendents.comprovar.intents", "5")); 
+			String strVal = GlobalProperties.getInstance().getProperty("app.anotacions.pendents.comprovar.intents", "5");
+			if (strVal != null && !"".equals(strVal.trim())) {
+				maxReintents = Integer.parseInt(strVal);
+			}
 		} catch (Exception ex) {
 			logger.warn("Error llegint la propietat 'app.anotacions.pendents.comprovar.intents':" + ex.getMessage() );
 		}

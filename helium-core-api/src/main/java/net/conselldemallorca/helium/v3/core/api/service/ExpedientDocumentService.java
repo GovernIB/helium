@@ -62,7 +62,7 @@ public interface ExpedientDocumentService {
 	 *             identificador NTI Del document original.
 	 * @throws NoTrobatException
 	 */
-	public void create(
+	public Long create(
 			Long expedientId,
 			String processInstanceId,
 			String documentCodi,
@@ -124,6 +124,22 @@ public interface ExpedientDocumentService {
 			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
 			String ntiIdOrigen) throws NoTrobatException;
+
+	/** Mètode per crear o actualitzar un document a un procés
+	 * 
+	 * @param processInstanceId
+	 * @param documentCodi
+	 * @param data
+	 * @param arxiu
+	 * @param contingut
+	 * @return 
+	 */
+	public Long guardarDocumentProces(
+			String processInstanceId, 
+			String documentCodi, 
+			Date data, 
+			String arxiu,
+			byte[] contingut);
 
 	/**
 	 * Esborra un document d'una instància de procés.

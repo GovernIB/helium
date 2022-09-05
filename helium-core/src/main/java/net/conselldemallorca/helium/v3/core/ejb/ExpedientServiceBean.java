@@ -178,6 +178,13 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientDto findExpedientAmbProcessInstanceId(String processInstanceId) {
+		return delegate.findExpedientAmbProcessInstanceId(processInstanceId);
+	}
+
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<ExpedientDto> findAmbFiltrePaginat(
 			Long entornId,
 			Long expedientTipusId,

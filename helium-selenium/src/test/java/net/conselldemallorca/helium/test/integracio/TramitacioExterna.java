@@ -16,9 +16,9 @@ import org.junit.runners.MethodSorters;
 
 import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
 import net.conselldemallorca.helium.test.BaseTest;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.ws.tramitacio.CampProces;
 import net.conselldemallorca.helium.ws.tramitacio.CampTasca;
+import net.conselldemallorca.helium.ws.tramitacio.DocumentTasca;
 import net.conselldemallorca.helium.ws.tramitacio.ExpedientInfo;
 import net.conselldemallorca.helium.ws.tramitacio.ParellaCodiValor;
 import net.conselldemallorca.helium.ws.tramitacio.TascaTramitacio;
@@ -35,7 +35,8 @@ public class TramitacioExterna extends BaseTest {
 	
 	private static final String SELENIUM_TRAMITACIO_EXTERNA_EXPEDIENT_TITOL = "Selenium tramitació externa";
 	// Client al WS de tramitació
-	private TramitacioService ws = null;
+	private static TramitacioService ws = null;
+	private static String processInstanceId = null;
 			
 	@Before
 	public void setUp() throws Exception {
@@ -58,13 +59,14 @@ public class TramitacioExterna extends BaseTest {
 	@Test
 	public void a0_iniciExpedient(){
 		// Esborra els possibles expedients existents
-//		esborrarExpedientTramitacioExterna();
-		
+		if (propietats.isEsborrarExpedientTest()) {
+			esborrarExpedientTramitacioExterna();
+			
+		}		
 		// Crea l'expedient via WS
 		TramitacioService ws = getClientTramitacio();
 		List<ParellaCodiValor> valorsFormulari = new ArrayList<ParellaCodiValor>();
 		valorsFormulari.add(new ParellaCodiValor("tipus_test", "variables"));
-		String processInstanceId = null;
 		try {
 			processInstanceId = ws.iniciExpedient(
 					propietats.getEntornTestCodi(), 
@@ -107,15 +109,18 @@ public class TramitacioExterna extends BaseTest {
 		// Fixa una variable tipus registre
 		try {
 			Object[][] registre = new Object[][]{
-				new Object[] {1, 2, 3},
 				new Object[] {"a", "b", "c"},
-				new Object[] {1f, 2f, 3f}
+				new Object[] {new Integer(1),  new Integer(2), new Integer(3)},
+				new Object[] {new Boolean(true), new Boolean(false), new Boolean(true)},
+				new Object[] {"b1", "b2", "b3"},
+				new Object[] {new Date(), null, new Date()},
+				new Object[] {"v1", "v2", null}
 			};
 			ws.setVariableProces(
 					propietats.getEntornTestCodi(), 
 					propietats.getUsuariTestCodi(), 
 					processInstanceId, 
-					"registre", 
+					"prova_registre", 
 					registre);
 		} catch (TramitacioException e) {
 			e.printStackTrace();
@@ -132,7 +137,7 @@ public class TramitacioExterna extends BaseTest {
 	
 	/** Consulta la tasca de l'expedient creat */ 
 	@Test
-	public void a1_consultaTasca() throws TramitacioException {
+	public void a1_consultaTasques() throws TramitacioException {
 		TramitacioService ws = getClientTramitacio();
 		
 		List<TascaTramitacio> tasques = new ArrayList<TascaTramitacio>();
@@ -156,39 +161,7 @@ public class TramitacioExterna extends BaseTest {
 					&& Long.valueOf(expedient.getProcessInstanceId()).toString().equals(t.getProcessInstanceId()) ) 
 				{
 					tasca = t;
-				}
-			if (tasca == null)
-				fail("No s'ha trobat la tasca variables de l'expedient de proves");
-		} else
-			fail("No es pot cercar la tasca variables si l'expedient no s'ha creat");
-	}
-	
-	/** Consulta la tasca de l'expedient creat només amb tasques de grup */
-	@Test
-	public void a1_1_consultaTascaGrup() throws TramitacioException {
-		TramitacioService ws = getClientTramitacio();
-		
-		List<TascaTramitacio> tasques = new ArrayList<TascaTramitacio>();
-		try {
-			tasques = ws.consultaTasquesGrup(
-					propietats.getEntornTestCodi(), 
-					propietats.getUsuariTestCodi());
-		} catch (TramitacioException e) {
-			e.printStackTrace();
-			fail("Error consultant les tasques personals");
-		};
-		
-		ExpedientInfo expedient = getExpedientProva();
-		
-		// Si s'ha creat l'expedient de proves continua amb les proves sobre la serva tasca "variables"
-		if (expedient != null) {
-			// Cerca tasca "variables"
-			TascaTramitacio tasca = null;
-			for (TascaTramitacio t : tasques) 
-				if ("variables".equals(t.getCodi()) 
-					&& Long.valueOf(expedient.getProcessInstanceId()).toString().equals(t.getProcessInstanceId()) ) 
-				{
-					tasca = t;
+					break;
 				}
 			if (tasca == null)
 				fail("No s'ha trobat la tasca variables de l'expedient de proves");
@@ -198,7 +171,7 @@ public class TramitacioExterna extends BaseTest {
 	
 	/** Prova a modificar el valor d'una variable. */
 	@Test
-	public void a2_modificarVariables() {
+	public void a2_modificarVariablesTasca() {
 		TramitacioService ws = getClientTramitacio(); 
 		// Recupera la tasca
 		TascaTramitacio tasca = getTascaVariables();
@@ -220,14 +193,14 @@ public class TramitacioExterna extends BaseTest {
 		// Comprova que s'ha fixat bé el valor
 		boolean trobada = false;
 		try {
-			List<CampTascaDto> camps = ws.consultaFormulariTasca(
+			List<CampTasca> camps = ws.consultaFormulariTasca(
 					propietats.getEntornTestCodi(), 
 					propietats.getUsuariTestCodi(),
 					tasca.getId());
-			for (CampTascaDto camp : camps)
-				if ("text".equals(String.valueOf(camp.getId())) ) {
-//					assertTrue("El valor de la variable text és diferent a l'esperat: \"" + text + "\" != \"" + camp.getgetValor() + "\"",
-//							text.equals(camp.getValor()));
+			for (CampTasca camp : camps)
+				if ("text".equals(camp.getCodi()) ) {
+					assertTrue("El valor de la variable text és diferent a l'esperat: \"" + text + "\" != \"" + camp.getValor() + "\"",
+							text.equals(camp.getValor()));
 					trobada = true;
 					break;
 				}
@@ -237,6 +210,44 @@ public class TramitacioExterna extends BaseTest {
 		}
 		if (!trobada)
 			fail("No s'ha trobar la variable var_data");
+		
+		// Modifica un document de la tasca
+		try {
+			Date data = new Date();
+			ws.setDocumentTasca(propietats.getEntornTestCodi(), 
+					propietats.getEntornTestCodi(), 
+					tasca.getId(), 
+					"psigna_doc", 
+					"prova.txt",
+					data, 
+					new byte[]{});
+		} catch(Exception e) {
+			e.printStackTrace();
+			fail("Error establint el document en la tasca");
+		}
+
+	}
+	
+	/** Prova a modificar el valor d'una variable. */
+	@Test
+	public void a3_consultaDocuments() {
+		TramitacioService ws = getClientTramitacio(); 
+		// Recupera la tasca
+		TascaTramitacio tasca = getTascaVariables();
+		try {
+			List<DocumentTasca> documents = ws.consultaDocumentsTasca(
+					propietats.getEntornTestCodi(), 
+					propietats.getUsuariTestCodi(), 
+					tasca.getId());
+			if (documents != null) {
+				for (DocumentTasca document : documents) {
+					System.out.println("Document " + document.getId() + " " + document.getCodi() + " (" + document.getArxiu() + ")");
+				}
+			}
+		} catch (TramitacioException e) {
+			e.printStackTrace();
+			fail("Error consultant les variables del procés " + tasca.getProcessInstanceId());
+		}
 
 	}
 	
@@ -245,7 +256,7 @@ public class TramitacioExterna extends BaseTest {
 	 * 
 	 */
 	@Test
-	public void a3_finalitzarTasca() {
+	public void a4_finalitzarTasca() {
 		TramitacioService ws = getClientTramitacio();
 		// Recupera la tasca
 		TascaTramitacio tasca = getTascaVariables();		
@@ -261,11 +272,31 @@ public class TramitacioExterna extends BaseTest {
 		}
 	}
 
+	/** Comprova que es pugui finalitzar una tasca remotament
+	 * 
+	 */
+	@Test
+	public void a5_executarScript() {
+		TramitacioService ws = getClientTramitacio();
+		try {
+			ExpedientInfo expedient = this.getExpedientProva();
+			ws.executarScriptProces(					
+					propietats.getEntornTestCodi(), 
+					propietats.getUsuariTestCodi(), 
+					String.valueOf(expedient.getProcessInstanceId()), 
+					"executionContext.setVariable(\"xxx\", \"yyy\");");
+		} catch (TramitacioException e) {
+			e.printStackTrace();
+			fail("Error finalitzant la tasca: " + e);
+		}
+	}
+
 	/** Esborra l'expedient creat per fer les proves. */
 	@Test
-	public void a4_esborrarExpedientTramitacioExterna() {
-		if (propietats.isEsborrarExpedientTest())
+	public void a6_esborrarExpedientTramitacioExterna() {
+		if (propietats.isEsborrarExpedientTest()) {
 			esborrarExpedientTramitacioExterna();
+		}
 	}
 	
 	/** Mètode per iniciar la instància del WS de tramitació. */
@@ -296,22 +327,31 @@ public class TramitacioExterna extends BaseTest {
 		// Consulta els expedients
 		List<ExpedientInfo> expedients = new ArrayList<ExpedientInfo>();
 		try {
-			expedients = ws.consultaExpedients(
-					propietats.getEntornTestCodi(), 
-					propietats.getUsuariTestCodi(), 
-					SELENIUM_TRAMITACIO_EXTERNA_EXPEDIENT_TITOL, 
-					null, 
-					null, 
-					null, 
-					propietats.getTipusExpedientCodi(), 
-					null,
-					true, // Iniciats
-					false, // Finalitzats
-					null, 
-					null, 
-					null);
-			if (expedients != null && !expedients.isEmpty())
-				ret = expedients.get(0);
+			if (processInstanceId != null) {
+				ret = ws.getExpedientInfo(
+						propietats.getEntornTestCodi(), 
+						propietats.getUsuariTestCodi(), 
+						processInstanceId);
+			} else {
+				expedients = ws.consultaExpedients(
+						propietats.getEntornTestCodi(), 
+						propietats.getUsuariTestCodi(), 
+						SELENIUM_TRAMITACIO_EXTERNA_EXPEDIENT_TITOL, 
+						null, 
+						null, 
+						null, 
+						propietats.getTipusExpedientCodi(), 
+						null,
+						true, // Iniciats
+						false, // Finalitzats
+						null, 
+						null, 
+						null);
+				if (expedients != null && !expedients.isEmpty()) {
+					ret = expedients.get(0);
+					processInstanceId = String.valueOf(ret.getProcessInstanceId());
+				}
+			}
 		} catch (TramitacioException e) {
 			e.printStackTrace();
 			fail("Error consultant l'expedient: " + e.getMessage());
@@ -327,21 +367,28 @@ public class TramitacioExterna extends BaseTest {
 		List<TascaTramitacio> tasques = new ArrayList<TascaTramitacio>();
 		TascaTramitacio tasca = null;
 		try {
-			tasques = ws.consultaTasquesPersonals(
-					propietats.getEntornTestCodi(), 
-					propietats.getUsuariTestCodi());
+			if (processInstanceId != null) {
+				tasques = ws.consultaTasquesPersonalsByProces(
+						propietats.getEntornTestCodi(), 
+						propietats.getUsuariTestCodi(),
+						processInstanceId);
+			} else {
+				tasques = ws.consultaTasquesPersonals(
+						propietats.getEntornTestCodi(), 
+						propietats.getUsuariTestCodi());				
+			}
+			if (tasques != null)
+				for (TascaTramitacio t : tasques)
+					if ("variables".equals(t.getCodi() ) 
+						&& t.getResponsable() != null
+						&& t.getResponsable().equals(propietats.getUsuariTestCodi())) {
+						tasca = t;
+						break;
+					}
 		} catch (TramitacioException e) {
 			e.printStackTrace();
 			fail("Error consultant les tasques personals");
 		};
-		if (tasques != null)
-			for (TascaTramitacio t : tasques)
-				if ("variables".equals(t.getCodi() ) 
-					&& t.getResponsable() != null
-					&& t.getResponsable().equals(propietats.getUsuariTestCodi())) {
-					tasca = t;
-					break;
-				}
 		if (tasca == null)
 			fail("No s'ha trobat una tasca \"variables\" assignada a l'usuari " + propietats.getUsuariTestCodi());
 		return tasca;

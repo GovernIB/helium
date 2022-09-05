@@ -655,6 +655,20 @@ public class ExpedientServiceImpl implements ExpedientService {
 	 */
 	@Override
 	@Transactional(readOnly = true)
+	public ExpedientDto findExpedientAmbProcessInstanceId(String processInstanceId) {
+		logger.debug("Consultant l'expedient sense comprovar permisos (processInstanceId=" + processInstanceId + ")");
+		Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
+		return conversioTipusHelper.convertir(
+				expedient,
+				ExpedientDto.class);
+	}
+
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
 	public List<ExpedientDto> findAmbIds(Set<Long> ids) {
 		List<ExpedientDto> listExpedient = new ArrayList<ExpedientDto>();
 		logger.debug("Consultant l'expedient (ids=" + ids + ")");

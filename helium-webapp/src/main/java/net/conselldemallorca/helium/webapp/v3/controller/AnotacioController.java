@@ -671,7 +671,11 @@ public class AnotacioController extends BaseExpedientController {
 	
 	
 	private String getMaxConsultaIntents() {
-		return GlobalProperties.getInstance().getProperty("app.anotacions.pendents.comprovar.intents", "5");
+		String maxConsultaIntents = GlobalProperties.getInstance().getProperty("app.anotacions.pendents.comprovar.intents", "5");
+		if (maxConsultaIntents == null || "".equals(maxConsultaIntents.trim())) {
+			maxConsultaIntents = "5";
+		}
+		return maxConsultaIntents;
 	}
 
 	@InitBinder

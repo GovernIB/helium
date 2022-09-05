@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.Resource;
 
 import org.json.simple.JSONObject;
@@ -129,7 +130,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
 	@Override
 	@Transactional
-	public void create(
+	public Long create(
 			Long expedientId,
 			String processInstanceId,
 			String documentCodi,
@@ -176,7 +177,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 						ExpedientLogAccioTipus.PROCES_DOCUMENT_ADJUNTAR 
 						: ExpedientLogAccioTipus.PROCES_DOCUMENT_AFEGIR,
 				documentCodi);
-		documentHelper.crearDocument(
+		Long documentStoreId = documentHelper.crearDocument(
 				null,
 				processInstanceId,
 				documentCodi,
@@ -203,6 +204,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				documentCodi,
 				arxiuNom);
+		return documentStoreId;
 	}
 
 	@Override
@@ -286,6 +288,69 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				arxiuNomAntic,
 				arxiuNom);
 	}
+	
+	@Override
+	@Transactional
+	public Long guardarDocumentProces(
+			String processInstanceId, 
+			String documentCodi, 
+			Date data, 
+			String arxiu,
+			byte[] contingut) {
+		
+		logger.debug("Guardar document procés (" +
+				"processInstanceId=" + processInstanceId + ", " +
+				"documentCodi=" + documentCodi + ", " +
+				"data=" + data + ", " +
+				"arxiu=" + arxiu + ")");
+		
+		Long documentStoreId = null;
+		
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		ExpedientDocumentDto doc = documentHelperV3.findOnePerInstanciaProces(processInstanceId, documentCodi);
+
+		ExpedientDocumentDto expDocDto = this.findOneAmbInstanciaProces(expedient.getId(), processInstanceId, documentCodi);
+		if(expDocDto != null) { 
+			documentStoreId = expDocDto.getId();
+			this.update( 
+					expedient.getId(),
+					processInstanceId,
+					expDocDto.getId(), //Long documentStoreId,
+					(data != null ? data : expDocDto.getDataDocument()),
+					expDocDto.getAdjuntTitol(), //String adjuntTitol
+					arxiu,
+					contingut,
+					new MimetypesFileTypeMap().getContentType(arxiu),
+					false, //boolean ambFirma,
+					false, //boolean firmaSeparada,
+					null, //byte[] firmaContingut,
+					expDocDto.getNtiOrigen(), //NtiOrigenEnumDto ntiOrigen,
+					expDocDto.getNtiEstadoElaboracion(), //NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+					expDocDto.getNtiTipoDocumental(), //NtiTipoDocumentalEnumDto ntiTipoDocumental,
+					expDocDto.getNtiIdOrigen() //String ntiIdOrigen
+					);
+		} else {
+			documentStoreId = this.create(
+					expedient.getId(),
+					processInstanceId,
+					documentCodi, // null en el cas dels adjunts
+					(data != null ? data : new Date()),
+					null, // Títol en el cas dels adjunts (al crear ja li posa el nom del document)
+					arxiu,
+					contingut,
+					new MimetypesFileTypeMap().getContentType(arxiu),
+					false, //command.isAmbFirma(),
+					false, //DocumentTipusFirmaEnumDto.SEPARAT.equals(command.getTipusFirma()),
+					null, //firmaContingut,
+					null, //command.getNtiOrigen(),
+					null, //command.getNtiEstadoElaboracion(),
+					null, //command.getNtiTipoDocumental(),
+					null  //command.getNtiIdOrigen()
+					);
+		}
+		return documentStoreId;
+	}
+
 	
 	/**
 	 * {@inheritDoc}

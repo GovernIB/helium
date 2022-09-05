@@ -132,7 +132,7 @@ public class ExpedientAltaMassivaValidator implements ConstraintValidator<Expedi
 								if (contingutCsv[i].length != nColumnes) {
 									// Totes les files del CSV han de tenir el mateix número de columnes
 									context.buildConstraintViolationWithTemplate(
-											MessageHelper.getInstance().getMessage( this.codiMissatge + ".arxiu.minim.columnes"))
+											MessageHelper.getInstance().getMessage( this.codiMissatge + ".arxiu.numero.columnes"))
 									.addNode("file")
 									.addConstraintViolation();
 									valid = false;							

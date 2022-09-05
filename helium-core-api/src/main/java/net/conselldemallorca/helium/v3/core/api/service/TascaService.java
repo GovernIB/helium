@@ -247,7 +247,7 @@ public interface TascaService {
 			Map<String, Object> valorsFormulari) throws SistemaExternException, SistemaExternTimeoutException;
 
 	/**
-	 * Agafa una tasca assignada a aquest usuari com a tasca de grup.
+	 * Agafa una tasca assignada a l'usuari autenticat com a tasca de grup.
 	 * 
 	 * @param id
 	 *            Atribut id de la tasca.

@@ -26,37 +26,34 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
-import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
-import net.conselldemallorca.helium.core.helper.ExpedientHelper;
-import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
-import net.conselldemallorca.helium.core.helper.ExpedientRegistreHelper;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
-import net.conselldemallorca.helium.jbpm3.integracio.ResultatConsultaPaginadaJbpm;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.EntornService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
@@ -91,15 +88,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 	@Autowired
 	private ExpedientDocumentService expedientDocumentService;
 	@Autowired
+	private ExpedientDadaService expedientDadaService;
+	@Autowired
 	private JbpmHelper jbpmHelper;
-	@Autowired
-	private DocumentHelperV3 documentHelper;
-	@Autowired
-	private ExpedientLoggerHelper expedientLoggerHelper;
-	@Autowired
-	private ExpedientHelper expedientHelper;
-	@Autowired
-	private ExpedientRegistreHelper expedientRegistreHelper;
 	@Autowired
 	private MetricRegistry metricRegistry;
 	private final String expLog = "Invocació del mètode del ws Tramitacio Externa: ";
@@ -134,10 +125,10 @@ public class TramitacioServiceImpl implements TramitacioService {
 		ExpedientTipusDto et = findExpedientTipusAmbEntornICodi(e.getId(), expedientTipus);
 		if (et == null)
 			throw new TramitacioException("No existeix cap tipus d'expedient amb el codi '" + expedientTipus + "'");
-//		if (numero != null && !et.getTeNumero())
-//			throw new TramitacioException("Aquest tipus d'expedient no suporta número d'expedient");
-//		if (titol != null && !et.getTeTitol())
-//			throw new TramitacioException("Aquest tipus d'expedient no suporta titol d'expedient");
+		if (numero != null && !et.isTeNumero())
+			throw new TramitacioException("Aquest tipus d'expedient no suporta número d'expedient");
+		if (titol != null && !et.isTeTitol())
+			throw new TramitacioException("Aquest tipus d'expedient no suporta titol d'expedient");
 		Map<String, Object> variables = null;
 		if (valorsFormulari != null) {
 			variables = new HashMap<String, Object>();
@@ -186,12 +177,11 @@ public class TramitacioServiceImpl implements TramitacioService {
 						"expedientIniciar.count",
 						e.getCodi()));
 		countExptip.inc();
-
 		try {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			
-			net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto expedient = expedientService.create(
+			ExpedientDto expedient = expedientService.create(
 					e.getId(),
 					usuari,
 					et.getId(),
@@ -216,14 +206,14 @@ public class TramitacioServiceImpl implements TramitacioService {
 					false,
 					variables,
 					null,
-					net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto.INTERN,
+					ExpedientDto.IniciadorTipusDto.INTERN,
 					null,
 					null,
 					null,
 					null,
 					null,
 					false);	
-			logger.info("Expedient " + numero + " iniciat correctament");
+			logger.info("Expedient " + expedient.getNumero() + " iniciat a través del WS de tramitació externa V1 " + expLog);
 			return expedient.getProcessInstanceId();
 		} catch (Exception ex) {
 			logger.error("Error iniciant l'expedient a través del WS de tramitació externa "  + expLog + ": " + ex.getMessage(), ex);
@@ -351,7 +341,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			PaginacioParamsDto paginacio = this.findTotesPaginades();
 		
-			PaginaDto<ExpedientTascaDto> tasques2 = tascaService.findPerFiltrePaginat(
+			PaginaDto<ExpedientTascaDto> tasques = tascaService.findPerFiltrePaginat(
 					e.getId(), 
 					null, 
 					null, 
@@ -369,7 +359,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 					false, //nomesTasquesMeves
 					paginacio);
 			List<TascaTramitacio> resposta = new ArrayList<TascaTramitacio>();
-			for(ExpedientTascaDto tasca : tasques2) {
+			for(ExpedientTascaDto tasca : tasques) {
 				resposta.add(convertirTascaTramitacio(tasca));
 			}	
 			return resposta;
@@ -539,7 +529,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 
-			net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto expedient = expedientService.findAmbIdAmbPermis(Long.valueOf(processInstanceId));	
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);	
 			PaginacioParamsDto paginacio = new PaginacioParamsDto();
 			paginacio.afegirOrdre(
 					"dataCreacio",
@@ -603,7 +593,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			
-			net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto expedient = expedientService.findAmbIdAmbPermis(Long.valueOf(processInstanceId));
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
 			
 			PaginacioParamsDto paginacioParams = new PaginacioParamsDto();
 			paginacioParams.afegirOrdre(
@@ -711,8 +701,14 @@ public class TramitacioServiceImpl implements TramitacioService {
 			
 			PaginacioParamsDto paginacioParams = this.findTotesPaginades();
 		
-			ResultatConsultaPaginadaJbpm<JbpmTask> tasks = jbpmHelper.tascaFindByFiltrePaginat(
+			paginacioParams.setPaginaNum(0);
+			paginacioParams.setPaginaTamany(1000);
+			PaginaDto<ExpedientTascaDto> tasques = tascaService.findPerFiltrePaginat(
 					entornId,
+					null,
+					null,
+					null,
+					null,
 					usuariBo,
 					null,
 					null,
@@ -720,17 +716,12 @@ public class TramitacioServiceImpl implements TramitacioService {
 					null,
 					null,
 					null,
-					null,
-					null,
-					null,
-					null,
-					null,
-					false, // tasquesPersona
-					true, // tasquesGrup
-					true, // nomesPendents
+					false,
+					true,
+					true,
 					paginacioParams);
-			for (JbpmTask task: tasks.getLlista()) {
-				if (task.getId().equals(tascaId)) {
+			for (ExpedientTascaDto tasca: tasques.getContingut()) {
+				if (tasca.getId().equals(tascaId)) {
 					res = true;
 					break;
 				}
@@ -817,7 +808,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 	}
 
 	@Override
-	public List<CampTascaDto> consultaFormulariTasca(
+	public List<CampTasca> consultaFormulariTasca(
 			String entorn,
 			String usuari,
 			String tascaId) throws TramitacioException {
@@ -856,10 +847,18 @@ public class TramitacioServiceImpl implements TramitacioService {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			
-			net.conselldemallorca.helium.v3.core.api.dto.TascaDto tasca = tascaService.findTascaById(Long.valueOf(tascaId));	
-			List<CampTascaDto> resposta = new ArrayList<CampTascaDto>();
-			resposta.addAll(tasca.getCamps());
-			
+			// Consulta els camps de la tasca
+			ExpedientTascaDto expedienTasca = tascaService.findAmbIdPerTramitacio(tascaId);
+			Map<String, CampDto> camps = new HashMap<String, CampDto>();
+			for (CampTascaDto campTasca : definicioProcesService.tascaCampFindAll(expedienTasca.getExpedientTipusId(), expedienTasca.getTascaId())) {
+				camps.put(campTasca.getCamp().getCodi(), campTasca.getCamp());
+			}
+			List<CampTasca> resposta = new ArrayList<CampTasca>();
+			for (TascaDadaDto campTasca: tascaService.findDades(tascaId))
+				resposta.add(
+						convertirCampTasca(
+								campTasca,
+								camps.get(campTasca.getVarCodi())));
 			return resposta;
 		} finally {
 			contextTotal.stop();
@@ -954,7 +953,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 	}
 
 	@Override
-	public List<DocumentTascaDto> consultaDocumentsTasca(
+	public List<DocumentTasca> consultaDocumentsTasca(
 			String entorn,
 			String usuari,
 			String tascaId) throws TramitacioException {
@@ -993,9 +992,22 @@ public class TramitacioServiceImpl implements TramitacioService {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 
-			net.conselldemallorca.helium.v3.core.api.dto.TascaDto tasca = tascaService.findTascaById(Long.valueOf(tascaId));
-			List<DocumentTascaDto> resposta = tasca.getDocuments();
 
+			// Consulta els documents de la tasca
+			ExpedientTascaDto expedienTasca = tascaService.findAmbIdPerTramitacio(tascaId);
+			Map<String, DocumentDto> documents = new HashMap<String, DocumentDto>();
+			for (DocumentTascaDto documentTasca : definicioProcesService.tascaDocumentFindAll(expedienTasca.getExpedientTipusId(), expedienTasca.getTascaId())) {
+				documents.put(documentTasca.getDocument().getCodi(), documentTasca.getDocument());
+			}
+			List<DocumentTasca> resposta = new ArrayList<DocumentTasca>();
+			for (TascaDocumentDto documentTasca: tascaService.findDocuments(tascaId)) {
+				if (documentTasca.getDocumentStoreId() != null) {
+					resposta.add(
+							convertirDocumentTasca(
+									documentTasca,
+									documents.get(documentTasca.getDocumentCodi())));
+				}
+			}
 			return resposta;
 		} finally {
 			contextTotal.stop();
@@ -1047,17 +1059,20 @@ public class TramitacioServiceImpl implements TramitacioService {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 
-			if(tascaService.isTascaValidada(tascaId))
-				this.guardarDocumentTasca(
+			if(tascaService.isTascaValidada(tascaId)) {
+				tascaService.guardarDocumentTasca(
 						e.getId(), 
 						tascaId, 
 						documentCodi, 
 						documentData, 
 						arxiuNom, 
 						arxiuContingut, 
-						new MimetypesFileTypeMap().getContentType(arxiuNom),
+						new MimetypesFileTypeMap().getContentType(arxiuNom), 
+						false, 
+						false, 
+						null, 
 						usuari);
-			else {
+			} else {
 				logger.error("Tasca no validada");
 				throw new TramitacioException("error.tascaService.noValidada");	
 			}		
@@ -1069,75 +1084,6 @@ public class TramitacioServiceImpl implements TramitacioService {
 			contextTotal.stop();
 			contextEntorn.stop();
 		}
-	}
-	
-	private Long guardarDocumentTasca(
-			Long entornId,
-			String taskInstanceId,
-			String documentCodi,
-			Date documentData,
-			String arxiuNom,
-			byte[] arxiuContingut,
-			String arxiuContentType, 
-			String user) {
-		logger.debug("Crear document a dins la tasca (" +
-				"entornId=" + entornId + ", " +
-				"taskInstanceId=" + taskInstanceId + ", " +
-				"documentCodi=" + documentCodi + ", " +
-				"documentData=" + documentData + ", " +
-				"arxiuNom=" + arxiuNom + ", " +
-				"arxiuContingut=" + arxiuContingut + ", " +
-				"arxiuContentType=" + arxiuContentType + ", " +
-				"user=" + user + ")");
-		JbpmTask task = jbpmHelper.getTaskById(taskInstanceId);
-		DocumentStore documentStore = documentHelper.getDocumentStore(task, documentCodi);
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(task.getProcessInstanceId());
-		boolean creat = (documentStore == null);
-		if (creat) {
-			expedientLoggerHelper.afegirLogExpedientPerTasca(
-					taskInstanceId,
-					ExpedientLogAccioTipus.TASCA_DOCUMENT_AFEGIR,
-					documentCodi);
-		} else {
-			expedientLoggerHelper.afegirLogExpedientPerTasca(
-					taskInstanceId,
-					ExpedientLogAccioTipus.TASCA_DOCUMENT_MODIFICAR,
-					documentCodi);
-		}
-		String arxiuNomAntic = (documentStore != null) ? documentStore.getArxiuNom() : null;
-		
-		Long documentStoreId = documentHelper.crearActualitzarDocument(
-				taskInstanceId, 
-				taskInstanceId, 
-				documentCodi, 
-				documentData, 
-				arxiuNomAntic, 
-				arxiuContingut, 
-				null, 
-				null, 
-				null, 
-				documentCodi);
-		// Registra l'acció
-		if (user == null) {
-			user = SecurityContextHolder.getContext().getAuthentication().getName();
-		}
-		if (creat) {
-			expedientRegistreHelper.crearRegistreCrearDocumentTasca(
-					expedient.getId(),
-					taskInstanceId,
-					user,
-					documentCodi,
-					arxiuNom);
-		} else {
-			expedientRegistreHelper.crearRegistreModificarDocumentTasca(
-					expedient.getId(),
-					taskInstanceId,
-					user,
-					documentCodi,
-					arxiuNomAntic,
-					arxiuNom);
-		}
-		return documentStoreId;
 	}
 
 	@Override
@@ -1287,11 +1233,11 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
-			
-			net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto expedient = expedientService.findAmbIdAmbPermis(Long.valueOf(processInstanceId));
-			ExpedientInfo expInfo = toExpedientInfo(expedient);
-			return expInfo;		
-
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+			if (expedient == null) {
+				throw new Exception("No s'ha trobat cap expedient amb process instance id " + processInstanceId);
+			}
+			return toExpedientInfo(expedient);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut consultar l'expedient", ex);
 			throw new TramitacioException("No s'ha pogut consultar l'expedient: " + ex.getMessage());
@@ -1343,26 +1289,20 @@ public class TramitacioServiceImpl implements TramitacioService {
 			
 			List<CampProces> resposta = new ArrayList<CampProces>();
 
-			net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId);
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId);			
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
 			
-			if (instanciaProces.getVariables() != null) {
-				for (String var: instanciaProces.getVariables().keySet()) {
-					CampDto campVar = null;
-					for (CampDto camp: instanciaProces.getCamps()) {
-						if (camp.getCodi().equals(var)) {
-							campVar = camp;
-							break;
-						}
-					}
-					if (campVar == null) {
-						campVar = new CampDto();
-						campVar.setCodi(var);
-						campVar.setEtiqueta(var);
-						campVar.setTipus(CampTipusDto.STRING);
-					}
+			// Consulta els valors
+			Map<String, Object> valors = new HashMap<String, Object>();
+			for ( ExpedientDadaDto expedientDada : expedientDadaService.findAmbInstanciaProces(expedient.getId(), processInstanceId)) {
+				valors.put(expedientDada.getVarCodi(), expedientDada.getVarValor());
+			}
+			// Emplena el resultat
+			for (CampDto campVar : dissenyService.findCampsOrdenatsPerCodi(expedient.getTipus().getId(), instanciaProces.getDefinicioProces().getId(), true)) {
+				if (valors.containsKey(campVar.getCodi())) {
 					resposta.add(convertirCampProces(
 							campVar,
-							instanciaProces.getVariable(var)));
+							valors.get(campVar.getCodi())));
 				}
 			}
 			return resposta;
@@ -1374,6 +1314,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			contextEntorn.stop();
 		}
 	}
+
 
 	@Override
 	public void setVariableProces(
@@ -1416,6 +1357,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
+			Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
 			
 			if (valor instanceof Object[]) {
 				Object[] vs = (Object[])valor;
@@ -1431,17 +1373,23 @@ public class TramitacioServiceImpl implements TramitacioService {
 							vs[i] = ((XMLGregorianCalendar)vs[i]).toGregorianCalendar().getTime();
 					}
 				}
-
-				expedientService.update(null, varCodi, varCodi, entorn, null, usuari, null, null, null, processInstanceId, varCodi, false);
-
+				expedientDadaService.update(
+						expedientId,
+						processInstanceId,
+						varCodi,
+						valor);
 			} else if (valor instanceof XMLGregorianCalendar) {
-
-				expedientService.update(null, varCodi, varCodi, entorn, null, usuari, null, null, null, processInstanceId, varCodi, false);
-
+				expedientDadaService.update(
+						expedientId,
+						processInstanceId,
+						varCodi,
+						((XMLGregorianCalendar)valor).toGregorianCalendar().getTime());
 			} else {
-			
-				expedientService.update(null, varCodi, varCodi, entorn, null, usuari, null, null, null, processInstanceId, varCodi, false);
-
+				expedientDadaService.update(
+						expedientId,
+						processInstanceId,
+						varCodi,
+						valor);
 			}
 		} catch (NoTrobatException ex) {
 			logger.error("No s'ha pogut guardar la variable al procés: " + ex.getMessage());
@@ -1496,8 +1444,15 @@ public class TramitacioServiceImpl implements TramitacioService {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 
-			net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto expedient = expedientService.findAmbIdAmbPermis(Long.valueOf(processInstanceId));
-			expedientService.delete(expedient.getId());
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+			if (expedient == null) {
+				throw new Exception("No s'ha trobat cap expedient amb process instance id " + processInstanceId);
+			}
+
+			expedientDadaService.delete(
+					expedient.getId(), 
+					processInstanceId, 
+					varCodi);
 			
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut esborrar la variable al procés", ex);
@@ -1550,7 +1505,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			
 			List<DocumentProces> resposta = new ArrayList<DocumentProces>();
 
-			net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId);
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId);
 			
 			for (net.conselldemallorca.helium.v3.core.api.dto.DocumentDto document: instanciaProces.getVarsDocuments().values()) {
 				resposta.add(convertirDocumentProces(document));
@@ -1588,7 +1543,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			ArxiuProces resposta = null;
 			if (documentId != null) {
 
-				net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto arxiu = documentService.getArxiu(documentId);
+				ArxiuDto arxiu = documentService.getArxiu(documentId);
 				if (arxiu != null) {
 					resposta = new ArxiuProces();
 					resposta.setNom(arxiu.getNom());
@@ -1614,7 +1569,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 	}
 
 	@Override
-	public void setDocumentProces(
+	public Long setDocumentProces(
 			String entorn,
 			String usuari,
 			String processInstanceId,
@@ -1658,63 +1613,26 @@ public class TramitacioServiceImpl implements TramitacioService {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			
-			net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId);
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId);
 			if (instanciaProces == null)
 				throw new TramitacioException("No s'ha pogut trobar la instancia de proces amb id " + processInstanceId);
 
-			net.conselldemallorca.helium.v3.core.api.dto.DocumentDto documentdto = null;
-			ExpedientInfo expInfo = this.getExpedientInfo(e.getCodi(),usuari,processInstanceId); 
-			ExpedientTipusDto expTipusDto = expedientTipusService.findAmbId(expInfo.getExpedientTipusCodi() != null ? Long.valueOf(expInfo.getExpedientTipusCodi()): null);		
-			if (expTipusDto.isAmbInfoPropia()) 
-				documentdto = documentService.findAmbCodi(expTipusDto.getId(), null, documentCodi, expTipusDto.isAmbHerencia());
-			else 
-				documentdto = documentService.findAmbCodi(null, instanciaProces.getDefinicioProces().getId(), documentCodi, false);		
-			
-			if (documentdto == null)
+			DocumentDto document = documentService.findAmbCodi(
+					instanciaProces.getDefinicioProces().getExpedientTipus() != null ? instanciaProces.getDefinicioProces().getExpedientTipus().getId() : null,
+					instanciaProces.getDefinicioProces().getId(),
+					documentCodi,
+					true);
+			if (document == null)
 				throw new TramitacioException("No s'ha pogut trobar el document amb codi " + documentCodi);
-	
-			net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto expedient = expedientService.findAmbIdAmbPermis(Long.valueOf(processInstanceId));	
-			ExpedientDocumentDto expDocDto = expedientDocumentService.findOneAmbInstanciaProces(expedient.getId(), processInstanceId, documentCodi);
-			//DocumentStore documentStore = documentHelper.getDocumentStore(task, documentCodi);			
-			if(expDocDto!=null) 
-				expedientDocumentService.update( 
-						expedient.getId(),
-						processInstanceId,
-						expDocDto.getId(), //Long documentStoreId,
-						(data != null ? data : expDocDto.getDataDocument()),
-						expDocDto.getAdjuntTitol(), //String adjuntTitol
-						arxiu,
-						contingut,
-						new MimetypesFileTypeMap().getContentType(arxiu),
-						false, //boolean ambFirma,
-						false, //boolean firmaSeparada,
-						null, //byte[] firmaContingut,
-						expDocDto.getNtiOrigen(), //NtiOrigenEnumDto ntiOrigen,
-						expDocDto.getNtiEstadoElaboracion(), //NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
-						expDocDto.getNtiTipoDocumental(), //NtiTipoDocumentalEnumDto ntiTipoDocumental,
-						expDocDto.getNtiIdOrigen() //String ntiIdOrigen
-						) ;
-				
+			if (data == null)
+				data = new Date();
 			
-			else 
-				expedientDocumentService.create(
-						expedient.getId(),
-						processInstanceId,
-						documentCodi, // null en el cas dels adjunts
-						(data != null ? data : new Date()),
-						null, // Títol en el cas dels adjunts (al crear ja li posa el nom del document)
-						arxiu,
-						contingut,
-						new MimetypesFileTypeMap().getContentType(arxiu),
-						false, //command.isAmbFirma(),
-						false, //DocumentTipusFirmaEnumDto.SEPARAT.equals(command.getTipusFirma()),
-						null, //firmaContingut,
-						null, //command.getNtiOrigen(),
-						null, //command.getNtiEstadoElaboracion(),
-						null, //command.getNtiTipoDocumental(),
-						null  //command.getNtiIdOrigen()
-						);
-			
+			return expedientDocumentService.guardarDocumentProces(
+					processInstanceId,
+					documentCodi,
+					data,
+					arxiu,
+					contingut);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut guardar el document al procés", ex);
 			throw new TramitacioException("No s'ha pogut guardar el document al procés: " + ex.getMessage());
@@ -1764,7 +1682,13 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
-			documentService.delete(documentId);		
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+			if (expedient == null)
+				throw new TramitacioException("No s'ha pogut trobar l'expedient per la instancia de proces amb id " + processInstanceId);
+			expedientDocumentService.delete(
+					expedient.getId(), 
+					processInstanceId, 
+					documentId);
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut esborrar el document del procés", ex);
 			throw new TramitacioException("No s'ha pogut esborrar el document del procés: " + ex.getMessage());
@@ -1815,7 +1739,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			
-			net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto expedient = expedientService.findAmbIdAmbPermis(Long.valueOf(processInstanceId));
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+			if (expedient == null)
+				throw new TramitacioException("No s'ha pogut trobar l'expedient per la instancia de proces amb id " + processInstanceId);
 			expedientService.executarCampAccio(expedient.getId(), processInstanceId, accio);	
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut executar l'acció", ex);
@@ -1866,7 +1792,10 @@ public class TramitacioServiceImpl implements TramitacioService {
 		try {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
-			jbpmHelper.evaluateScript(processInstanceId, script, new HashSet<String>());		
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+			if (expedient == null)
+				throw new TramitacioException("No s'ha pogut trobar l'expedient per la instancia de proces amb id " + processInstanceId);
+			expedientService.procesScriptExec(expedient.getId(), processInstanceId, script);;
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut executar l'script", ex);
 			throw new TramitacioException("No s'ha pogut executar l'script: " + ex.getMessage());
@@ -1917,7 +1846,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 
-			net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto expedient = expedientService.findAmbIdAmbPermis(Long.valueOf(processInstanceId));
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+			if (expedient == null)
+				throw new TramitacioException("No s'ha pogut trobar l'expedient per la instancia de proces amb id " + processInstanceId);
 			expedientService.aturar(expedient.getId(), motiu);	
 		} catch (Exception ex) {
 			logger.error("No s'ha pogut aturar l'expedient", ex);
@@ -1968,7 +1899,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			
-			net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto expedient = expedientService.findAmbIdAmbPermis(Long.valueOf(processInstanceId));
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
+			if (expedient == null)
+				throw new TramitacioException("No s'ha pogut trobar l'expedient per la instancia de proces amb id " + processInstanceId);
 			expedientService.reprendre(expedient.getId());
 			
 		} catch (Exception ex) {
@@ -1982,7 +1915,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 
 	@Override
 	public List<ExpedientInfo> consultaExpedients(
-			String entorn,
+			String entornCodi,
 			String usuari,
 			String titol,
 			String numero,
@@ -1997,15 +1930,15 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String geoReferencia) throws TramitacioException {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entornCodi=" + entornCodi
 				+ ", expedientTipus=" + expedientTipusCodi 
 				+ ", numero=" + numero 
 				+ ", titol=" + titol 
 				+ ", " + usuariAutenticat
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+ "]"));
-		EntornDto e = findEntornAmbCodi(entorn);
-		if (e == null)
+		EntornDto entorn = findEntornAmbCodi(entornCodi);
+		if (entorn == null)
 			throw new TramitacioException("No existeix cap entorn amb el codi '" + entorn + "'");
 		final Timer timerTotal = metricRegistry.timer(
 				MetricRegistry.name(
@@ -2021,13 +1954,13 @@ public class TramitacioServiceImpl implements TramitacioService {
 				MetricRegistry.name(
 						TramitacioService.class,
 						"expedientConsulta",
-						e.getCodi()));
+						entorn.getCodi()));
 		final Timer.Context contextEntorn = timerEntorn.time();
 		Counter countEntorn = metricRegistry.counter(
 				MetricRegistry.name(
 						TramitacioService.class,
 						"expedientConsulta.count",
-						e.getCodi()));
+						entorn.getCodi()));
 		countEntorn.inc();
 		try {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
@@ -2037,9 +1970,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			ExpedientTipusDto expedientTipus = null; 
 			Long estatId = null;
 			if (expedientTipusCodi != null && expedientTipusCodi.length() > 0) {
-				expedientTipus = expedientTipusService.findAmbCodiPerValidarRepeticio(
-						e.getId(), 
-						expedientTipusCodi);
+				expedientTipus = expedientTipusService.findAmbCodi(entorn.getId(),  expedientTipusCodi);
 				
 				if (estatCodi != null && estatCodi.length() > 0) {
 					EstatDto estatDto = expedientTipusService.estatFindAmbCodi(expedientTipus.getId(), estatCodi);
@@ -2048,9 +1979,18 @@ public class TramitacioServiceImpl implements TramitacioService {
 			}
 			// Estableix l'usuari autenticat
 			establirUsuariAutenticat(usuari);
+			
+			EstatTipusDto estatTipus = null;
+			if (iniciat) {
+				estatTipus = EstatTipusDto.INICIAT;
+			} else if (finalitzat) {
+				estatTipus = EstatTipusDto.FINALITZAT;
+			} else if (estatId != null) {
+				estatTipus = EstatTipusDto.CUSTOM;
+			}
 			// Consulta d'expedients
-			List<Long> expedientsids = expedientService.findIdsAmbFiltre(
-					e.getId(),
+			List<Long> expedientsIds = expedientService.findIdsAmbFiltre(
+					entorn.getId(),
 					(expedientTipus != null? expedientTipus.getId() : null),
 					titol,
 					numero,
@@ -2058,7 +1998,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 					dataInici2,
 					null, //dataFiInicial
 					null, //dataFiFinal
-					EstatTipusDto.INICIAT, //??
+					estatTipus,
 					estatId,
 					geoPosX,
 					geoPosY,
@@ -2070,12 +2010,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 					false, //filtreCommand.isNomesErrors(),
 					MostrarAnulatsDto.NO); //
 				
-			Set<Long> seleccio = new HashSet<Long>();
-			if (expedientsids != null) {
-				for (Long id: expedientsids)
-							seleccio.add(id);			
-			}
-			List<net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto> expedients = expedientService.findAmbIds(seleccio);
+			List<net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto> expedients = expedientService.findAmbIds(new HashSet<Long>(expedientsIds));
 			// Construcció de la resposta
 			List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
 			for (net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto dto: expedients)
@@ -2127,9 +2062,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			
-			net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto expedient = expedientService.findAmbIdAmbPermis(Long.valueOf(processInstanceId));
+			ExpedientDto expedient = expedientService.findExpedientAmbProcessInstanceId(processInstanceId);
 			expedientService.delete(expedient.getId());
-			
 		} finally {
 			contextTotal.stop();
 			contextEntorn.stop();
@@ -2177,6 +2111,51 @@ public class TramitacioServiceImpl implements TramitacioService {
 		return tt;
 	}
 	
+	private CampTasca convertirCampTasca(
+			TascaDadaDto campTasca, 
+			CampDto campDto) {
+		CampTasca ct = new CampTasca();
+		ct.setCodi(campTasca.getVarCodi());
+		ct.setEtiqueta(campTasca.getCampEtiqueta());
+		ct.setTipus(campTasca.getCampTipus().name());
+		ct.setObservacions(campTasca.getObservacions());
+		if (campDto != null) {
+			ct.setDominiId(campDto.getDominiIdentificador());
+			ct.setDominiParams(campDto.getDominiParams());
+			ct.setDominiCampValor(campDto.getDominiCampValor());
+			ct.setDominiCampText(campDto.getDominiCampText());
+		}
+		ct.setJbpmAction(campTasca.getJbpmAction());
+		ct.setReadFrom(campTasca.isReadFrom());
+		ct.setWriteTo(campTasca.isWriteTo());
+		ct.setRequired(campTasca.isRequired());
+		ct.setReadOnly(campTasca.isReadOnly());
+		ct.setMultiple(campTasca.isCampMultiple());
+		ct.setOcult(campTasca.isCampOcult());
+		ct.setValor(campTasca.getVarValor());
+		return ct;
+	}
+
+	private DocumentTasca convertirDocumentTasca(
+			TascaDocumentDto documentTasca,
+			DocumentDto document) {
+		DocumentTasca dt = new DocumentTasca();
+		dt.setId(documentTasca.getDocumentStoreId());
+		if (document != null) {
+			dt.setCodi(document.getCodi());
+			dt.setNom(document.getNom());
+			dt.setDescripcio(document.getDescripcio());
+		} else {
+			dt.setCodi(documentTasca.getDocumentCodi());
+			dt.setNom(documentTasca.getDocumentNom());
+		}
+		dt.setArxiu(documentTasca.getArxiuNom());
+		dt.setData(documentTasca.getDataDocument());
+		if (documentTasca.isSignat()) {
+			dt.setUrlCustodia(documentTasca.getUrlVerificacioCustodia());
+		}
+		return dt;
+	}
 	private CampProces convertirCampProces(
 			CampDto campVar,
 			Object valor) {
@@ -2207,7 +2186,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		return dt;
 	}
 	
-	private ExpedientInfo toExpedientInfo (net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto expedient) {
+	private ExpedientInfo toExpedientInfo (ExpedientDto expedient) {
 		if(expedient!=null) {
 			ExpedientInfo resposta = new ExpedientInfo();
 			resposta.setTitol(expedient.getTitol());

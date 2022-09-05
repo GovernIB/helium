@@ -47,7 +47,7 @@ public interface DocumentService {
 			Long definicioProcesId, 
 			String codi,
 			boolean herencia);
-
+	
 	/**
 	 * Retorna tots els documents d'un tipus d'expedient o definició de procés
 	 *  donat el seu identificador ordenat pel codi del document.

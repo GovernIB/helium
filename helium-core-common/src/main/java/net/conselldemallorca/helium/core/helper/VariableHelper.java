@@ -172,7 +172,6 @@ public class VariableHelper {
 					campsIndexatsPerCodi.put(camp.getCodi(), camp);
 			}
 			camps = expedientTipus.getCamps();
-//			camps = new HashSet<Camp>(campRepository.findByExpedientTipusOrderByCodiAsc(exp.getTipus()));
 		} else {
 			camps = definicioProces.getCamps();
 		}
