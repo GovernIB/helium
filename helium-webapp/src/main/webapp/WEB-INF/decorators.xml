@@ -22,7 +22,6 @@
 	</excludes>
 	<decorator name="v3" page="v3.jsp">
 		<pattern>/v3/*</pattern>
-		<pattern>/modal/v3/*</pattern>
 	</decorator>
 	<decorator name="senseCapNiPeus" page="v3SenseCapNiPeus.jsp">
 		<pattern>*/firmapassarela*</pattern>
