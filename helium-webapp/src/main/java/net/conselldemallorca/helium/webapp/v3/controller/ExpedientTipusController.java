@@ -33,7 +33,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
-import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
@@ -57,7 +56,6 @@ import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCommand.Creacio;
@@ -94,8 +92,6 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	private DissenyService dissenyService;
 	@Autowired
 	private DefinicioProcesService definicioProcesService;
-	@Autowired
-	private ExpedientDocumentService expedientDocumentService;
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
 	@Autowired
@@ -320,8 +316,22 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		List<Expedient> expedients = expedientHelper.findByEntornIdAndTipusAndTitol(entornActual.getId(), id, null);
 		if(!expedients.isEmpty() && esborrarExpedients) {
 			for(Expedient exp: expedients) {
-				ExpedientDto expDto = expedientService.findAmbIdAmbPermis(exp.getId());
-				if(!expDto.isPermisDelete()) {
+				
+				ExpedientDto expDto = null;
+				
+				try {
+					expDto = expedientService.findAmbIdAmbPermis(exp.getId());
+				
+				}  catch(Exception e) {
+					MissatgesHelper.error(
+							request,
+							getMessage(
+									request,
+									"expedient.tipus.controller.eliminar.expedients.noTePermisEsborrar"));
+					error=true;
+					break;
+				}
+				if(expDto!=null && !expDto.isPermisDelete()) {
 					MissatgesHelper.error(
 							request,
 							getMessage(

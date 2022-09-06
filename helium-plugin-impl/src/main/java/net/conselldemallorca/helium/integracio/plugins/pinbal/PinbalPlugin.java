@@ -339,32 +339,28 @@ public class PinbalPlugin implements PinbalPluginInterface {
 }
 	private ClientGeneric getClientGeneric() {
 		if (clientGeneric == null) {
-//			clientGeneric =new ClientGeneric("https://proves.caib.es/pinbal", "$ripea_pinbal", "ripea_pinbal", false, null, null);
-			clientGeneric =new ClientGeneric("https://proves.caib.es/pinbalapi", "$ripea_pinbal", "ripea_pinbal", true, null, null);
+			clientGeneric =new ClientGeneric(getUrl(),  getUsername(), getPassword(), isJBoss(), null, null);
 		}
 		return clientGeneric;
 	}
 	
 	private ClientSvddgpciws02 getClientSvddgpciws02() {
 		if (clientSvddgpciws02 == null) {
-			clientSvddgpciws02 =new ClientSvddgpciws02(getUrl(), getUsername(), getPassword(), Boolean.valueOf(isJBoss()), null, null);
-//			clientSvddgpciws02 =new ClientSvddgpciws02("https://proves.caib.es/pinbalapi", "$ripea_pinbal", "ripea_pinbal", true, null, null);
+			clientSvddgpciws02 =new ClientSvddgpciws02(getUrl(), getUsername(), getPassword(), isJBoss(), null, null);
 		}
 		return clientSvddgpciws02;
 	}
 	
 	private ClientSvddgpviws02 getClientSvddgpviws02() {
 		if (clientSvddgpviws02 == null) {
-			clientSvddgpciws02 =new ClientSvddgpciws02(getUrl(), getUsername(), getPassword(), Boolean.valueOf(isJBoss()), null, null);
-//			clientSvddgpviws02 =new ClientSvddgpviws02("https://proves.caib.es/pinbalapi", "$ripea_pinbal", "ripea_pinbal", true, null, null);
+			clientSvddgpciws02 =new ClientSvddgpciws02(getUrl(), getUsername(), getPassword(), isJBoss(), null, null);
 		}
 		return clientSvddgpviws02;
 	}
 	
 	private ClientSvdccaacpasws01 getClientSvdccaacpasws01() {
 		if (clientSvdccaacpasws01 == null) {
-			clientSvdccaacpasws01 =new ClientSvdccaacpasws01(getUrl(), getUsername(), getPassword(), Boolean.valueOf(isJBoss()), null, null);
-//			clientSvdccaacpasws01 =new ClientSvdccaacpasws01("https://proves.caib.es/pinbalapi", "$ripea_pinbal", "ripea_pinbal", true, null, null);
+			clientSvdccaacpasws01 =new ClientSvdccaacpasws01(getUrl(), getUsername(), getPassword(), isJBoss(), null, null);
 		}
 		return clientSvdccaacpasws01;
 	}
@@ -388,8 +384,11 @@ public class PinbalPlugin implements PinbalPluginInterface {
 	private String getPassword() {
 		return GlobalProperties.getInstance().getProperty("app.pinbal.plugin.password");		
 	}
-	private String isJBoss() {
-		return GlobalProperties.getInstance().getProperty("app.pinbal.plugin.isJBoss");
+	private boolean isJBoss() {
+		if("false".equals(GlobalProperties.getInstance().getProperty("app.pinbal.plugin.isJBoss")))
+			return false;
+		else 
+			return true;
 	}
 
 	/**Compara els Tipus de Documentació amb els de Pinbal**/
@@ -449,11 +448,6 @@ public class PinbalPlugin implements PinbalPluginInterface {
 			funcionario.setNombreCompletoFuncionario(nomCompletFuncionari!=null && !nomCompletFuncionari.isEmpty()  ? dadesConsultaPinbal.getFuncionari().getNombreCompletoFuncionario() : dadesConsultaPinbal.getFuncionari().getSeudonimo());
 			funcionario.setSeudonimo(dadesConsultaPinbal.getFuncionari().getSeudonimo());	
 		} 
-//		else { 
-//			funcionario.setNifFuncionario("00000000T");
-//			funcionario.setNombreCompletoFuncionario("Funcionari CAIB");
-//			funcionario.setSeudonimo("pseudonimFuncionari");
-//		}
 		//les dades del titular ja han estat validades anteriorment
 		scspTitular.setTipoDocumentacion(compararTipusDocumentacio(dadesConsultaPinbal.getTitular().getTipusDocumentacion()));
 		scspTitular.setDocumentacion(dadesConsultaPinbal.getTitular().getDocumentacion());
