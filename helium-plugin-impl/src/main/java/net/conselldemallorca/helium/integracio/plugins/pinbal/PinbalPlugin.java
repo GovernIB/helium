@@ -353,7 +353,7 @@ public class PinbalPlugin implements PinbalPluginInterface {
 	
 	private ClientSvddgpviws02 getClientSvddgpviws02() {
 		if (clientSvddgpviws02 == null) {
-			clientSvddgpciws02 =new ClientSvddgpciws02(getUrl(), getUsername(), getPassword(), isJBoss(), null, null);
+			clientSvddgpviws02 =new ClientSvddgpviws02(getUrl(), getUsername(), getPassword(), isJBoss(), null, null);
 		}
 		return clientSvddgpviws02;
 	}
