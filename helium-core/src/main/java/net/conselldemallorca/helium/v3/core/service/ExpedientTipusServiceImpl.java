@@ -46,6 +46,7 @@ import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierE
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
+import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
@@ -119,6 +120,7 @@ import net.conselldemallorca.helium.v3.core.api.exportacio.TerminiExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ValidacioExportacio;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
+import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
@@ -194,6 +196,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private DocumentTascaRepository documentTascaRepository;
 	@Resource
 	private FirmaTascaRepository firmaTascaRepository;
+	@Resource
+	private AnotacioRepository anotacioRepository;
 
 	@Resource
 	private ExpedientHelper expedientHelper;
@@ -480,6 +484,11 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				true,
 				true);
 		ExpedientTipus entity = expedientTipusRepository.findOne(expedientTipusId);
+		
+		// Lleva la possible relació amb les anotacions
+		for (Anotacio anotacio : anotacioRepository.findByExpedientTipusId(expedientTipusId)) {
+			anotacio.setExpedientTipus(null);
+		}
 		
 		expedientTipusRepository.delete(entity);
 	}
