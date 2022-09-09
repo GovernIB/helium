@@ -18,22 +18,22 @@
 	<c:when test="${not empty expedientTipus}">
 
 		<form:form cssClass="form-horizontal" enctype="multipart/form-data" method="post" commandName="expedientTipusIntegracioDistribucioCommand">
-			<div style="height: 400px;float: left;width: 800px;">        
+			<div>
 				<input type="hidden" id="id" name="id" value="${expedientTipusIntegracioDistribucioCommand.id}"/>
 				<hel:inputCheckbox name="actiu" textKey="expedient.tipus.integracio.distribucio.activar"/>
 				<div id="inputs_integracioDistribucio" style="display:${expedientTipusIntegracioDistribucioCommand.actiu? 'inline' : 'none'}">
 					<hel:inputText name="codiProcediment" textKey="expedient.tipus.integracio.distribucio.codiProcediment" />
+					<div class="col-xs-4">
+						<a id="addRuleBtn" class="btn btn-primary">
+							<span id="accioAddRuleSpin" class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.crearRegla"/>
+						</a>
+					</div>
 					<hel:inputText name="codiAssumpte" textKey="expedient.tipus.integracio.distribucio.codiAssumpte" />
 					<hel:inputCheckbox name="procesAuto" textKey="expedient.tipus.integracio.distribucio.procesAuto" info="expedient.tipus.integracio.distribucio.procesAuto.comment"/>
 					<hel:inputCheckbox name="sistra" textKey="expedient.tipus.integracio.distribucio.sistra" info="expedient.tipus.integracio.distribucio.sistra.comment"/>
 				</div>
-			</div>
+			</div>			
 			
-			<div style="height: 400px">
-				<button id="addRuleBtn" class="btn btn-primary right" type="submit" style="margin:47px" name="accio" value="addRule">
-					<span id="accioAddRuleSpin" class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.crearRegla"/>
-				</button>			
-			</div>
 			
 			<div id="modal-botons" class="well" style="text-align: right;">
 				<span id="accioGuardarProcessant" style="display:none;">
@@ -55,6 +55,11 @@
 <script type="text/javascript">
 // <![CDATA[            
 $(document).ready(function() {
+	
+	// Redimensiona controls
+	$("input[name='codiProcediment']").parent('div').removeClass('col-xs-8').addClass('col-xs-4').parent(".form-group").append($('#addRuleBtn').parent());
+	$("input[name='codiAssumpte']").parent('div').removeClass('col-xs-8').addClass('col-xs-4');
+	
 	$('#actiu','#expedientTipusIntegracioDistribucioCommand').change(function() {
 		if ($(this).is(':checked')) {
 			$('#inputs_integracioDistribucio').show();

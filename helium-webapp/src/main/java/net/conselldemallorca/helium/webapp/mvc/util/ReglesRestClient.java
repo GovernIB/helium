@@ -7,6 +7,7 @@ import javax.management.InstanceNotFoundException;
 import javax.management.MalformedObjectNameException;
 import javax.naming.NamingException;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status.Family;
 import javax.ws.rs.core.UriBuilder;
 
 import com.sun.jersey.api.client.Client;
@@ -108,9 +109,7 @@ public class ReglesRestClient {
 					.post(ClientResponse.class);
 			
 			String missatge = response.getEntity(String.class);	
-			System.out.println("Resposta de la creació de la regla " + response.getStatus() + ": " + missatge);
-
-			if (response != null && response.getStatus()==200) {
+			if (response != null && response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
 				ret = true;
 			}
 			addResponse.setCorrecte(ret);

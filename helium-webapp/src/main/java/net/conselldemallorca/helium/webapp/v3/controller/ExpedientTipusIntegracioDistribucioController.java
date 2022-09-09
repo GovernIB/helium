@@ -131,76 +131,97 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
-			@RequestParam(value = "codiProcediment", required = true) String codiProcediment,
-			Model model) throws PermisDenegatException, IOException {
-		
-		String url = GlobalProperties.getInstance().getProperty("app.helium.distribucio.regles.api.rest.url");
-		String usuari = GlobalProperties.getInstance().getProperty("app.helium.distribucio.regles.api.rest.usuari");
-		String contrasenya = GlobalProperties.getInstance().getProperty("app.helium.distribucio.regles.api.rest.password");
-	
-		ReglesRestClient client = new ReglesRestClient(
-				url,
-				usuari,
-				contrasenya,
-				false);		
+			@RequestParam(value = "codiProcediment", required = false) String codiProcediment) throws PermisDenegatException, IOException {
+			
 		AjaxFormResponse ajaxResponse = AjaxHelper.generarAjaxFormOk();
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		
-		if (entornActual != null) {
+		try {
+
+			String url = GlobalProperties.getInstance().getProperty("app.helium.distribucio.regles.api.rest.url");
+			String usuari = GlobalProperties.getInstance().getProperty("app.helium.distribucio.regles.api.rest.usuari");
+			String contrasenya = GlobalProperties.getInstance().getProperty("app.helium.distribucio.regles.api.rest.password");
+			String backoffice = GlobalProperties.getInstance().getProperty("app.helium.distribucio.regles.api.rest.codi.backoffice");
+
+			if (url == null || "".equals(url) || backoffice == null || "".equals(backoffice)) {
+				throw new Exception("S'han de configurar les propietats per accedir a l'API REST de regles de DISTRIBUCIO app.helium.distribucio.regles.api.rest.* " +
+									"(url= \"" + url + "\", backoffice= \"" + backoffice + "\")");
+			}
+			if (codiProcediment == null || "".equals(codiProcediment)) {
+				throw new Exception("S'ha d'informar el codi de procediment per donar d'alta la regla");
+			}
+
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			if (entornActual == null) {
+				throw new Exception ("No hi ha entorn actual seleccionat.");
+			}
 			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
 					entornActual.getId(),
 					expedientTipusId);
-			model.addAttribute("expedientTipus", expedientTipus);
-			ajaxResponse = AjaxHelper.generarAjaxFormOk();		
-			try {
-				String codiEntitat = expedientTipus.getNtiOrgano();
-				if(codiEntitat==null || "".equals(codiEntitat)) {
-					MissatgesHelper.error(
-							request,
-							getMessage(
-									request, 
-									"expedient.tipus.integracio.distribucio.regla.unitatOrganica.error"));
-					logger.error("expedient.tipus.integracio.distribucio.regla.unitatOrganica.error");
-
-				}
-				UnitatOrganica unitatOrganica = pluginHelper.findUnitatOrganica(codiEntitat);	
-	
-				String backoffice = GlobalProperties.getInstance().getProperty("app.helium.distribucio.regles.api.rest.codi.backoffice");
-				String sia = codiProcediment;
-				AddResponse response = client.add(unitatOrganica.getCodiUnitatArrel(), sia, backoffice);
-		
-
-				logger.debug("Resposta de la creació de la regla " + response.getMissatge());
-
-				if (response.isCorrecte()) {
-					if(response.getMissatge()!=null && !response.getMissatge().contains("Ja existeix"))
-						MissatgesHelper.success(
-									request, 
-									response.getMissatge());
-					else
-						if(response.getMissatge()!=null && response.getMissatge().contains("Ja existeix"))
-							MissatgesHelper.warning(
-									request, 
-									response.getMissatge());
-				} else  {
-					MissatgesHelper.error(
-							request,
-							getMessage(
-									request, 
-									"expedient.tipus.integracio.distribucio.regla.error")
-							+ ": " + response.getMissatge());
-					logger.error("Error retornat al crear regla en distribucio: " + response.getMissatge());
-
-				}
-			} catch (Exception e) {
-				  MissatgesHelper.error(
-							request, 
-							getMessage(
-									request, 
-									"expedient.tipus.integracio.distribucio.validacio"));
-				logger.error("Error creant la regla: " + e.getMessage(), e);
+			
+			if (!expedientTipus.isNtiActiu()) {
+				throw new Exception("El tipus d'expedient no té les metadades NTI actives");
 			}
-				
+			String codiEntitat = expedientTipus.getNtiOrgano();
+			if(codiEntitat == null || "".equals(codiEntitat)) {
+				throw new Exception(
+						getMessage(
+								request, 
+								"expedient.tipus.integracio.distribucio.regla.unitatOrganica.error"));
+
+			}
+			// Consulta l'unitat arrel de la entitat del tipus d'expedinet
+			try {
+				UnitatOrganica unitatOrganica = pluginHelper.findUnitatOrganica(codiEntitat);
+				codiEntitat = unitatOrganica.getCodiUnitatArrel();
+			} catch (Exception e) {
+				String errMsg = "Error consultant la unitat arrel de l'enitat " + codiEntitat + ": " + e.getMessage() + ". Es provarà la creació amb el codi de l'entitat";
+				logger.error(errMsg, e);
+				MissatgesHelper.warning(request, errMsg);
+			}
+
+			ReglesRestClient client = new ReglesRestClient(
+					url,
+					usuari,
+					contrasenya,
+					false);		
+
+			// Invoca la creació 
+			AddResponse response = client.add(
+					codiEntitat, 
+					codiProcediment, 
+					backoffice);
+	
+
+			logger.debug("Resposta de la creació de la regla " + (response.isCorrecte() ? "OK" : "KO") + " " + response.getMissatge());
+
+			if (response.isCorrecte()) {
+				if(response.getMissatge()!=null && !response.getMissatge().contains("Ja existeix"))
+					MissatgesHelper.success(
+								request, 
+								response.getMissatge());
+				else
+					if(response.getMissatge()!=null && response.getMissatge().contains("Ja existeix"))
+						MissatgesHelper.warning(
+								request, 
+								response.getMissatge());
+			} else  {
+				MissatgesHelper.error(
+						request,
+						getMessage(
+								request, 
+								"expedient.tipus.integracio.distribucio.regla.error",
+								new Object[] {response.getMissatge()}));
+				logger.error("Error retornat al crear regla en distribucio: " + response.getMissatge());
+
+			}
+			
+		} catch(Exception e) {
+			String errMsg = getMessage(
+					request, 
+					"expedient.tipus.integracio.distribucio.regla.error",
+					new Object[] {e.getMessage()});
+			logger.error(errMsg, e);			
+			MissatgesHelper.error(request, errMsg);
 		}
     	return ajaxResponse;
 	}
