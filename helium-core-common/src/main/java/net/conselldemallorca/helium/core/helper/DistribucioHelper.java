@@ -375,7 +375,14 @@ public class DistribucioHelper {
 			List<ExpedientTipus> expedientsTipus = expedientTipusRepository.findPerDistribuir(anotacioEntrada.getProcedimentCodi(), anotacioEntrada.getAssumpteCodiCodi());
 			if (!expedientsTipus.isEmpty()) {
 				expedientTipus = expedientsTipus.get(0);
-				
+				if (expedientsTipus.size() > 1) {
+					StringBuilder expedientsTipusStr = new StringBuilder();
+					for (ExpedientTipus et : expedientsTipus) {
+						expedientsTipusStr.append(et.getCodi() + " ");
+					}
+					logger.warn("S'ha trobat més d'1 tipus d'expedient pel codi de procediment: " + anotacioEntrada.getProcedimentCodi() + " i assumpte: " + anotacioEntrada.getAssumpteCodiCodi() 
+								+ ":[ " + expedientsTipusStr.toString() + "]. S'escull el primer " + expedientsTipus.get(0).getCodi() + " de l'entorn " + expedientsTipus.get(0).getEntorn().getCodi());
+				}				
 				// Cerca si hi ha cap expedient que coincideixi amb el número d'expedient
 				if (anotacioEntrada.getExpedientNumero() != null) {
 					expedient = expedientRepository.findByTipusAndNumero(expedientTipus, anotacioEntrada.getExpedientNumero());
@@ -754,6 +761,7 @@ public class DistribucioHelper {
 			this.processarAnotacio(idWs, anotacioRegistreEntrada, anotacio);
 		} catch (Exception e) {
 			String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e.getMessage();
+			this.updateErrorProcessament(anotacio.getId(), errorProcessament);
 			logger.error(errorProcessament, e);
 			// Es comunica l'estat a Distribucio
 			try {

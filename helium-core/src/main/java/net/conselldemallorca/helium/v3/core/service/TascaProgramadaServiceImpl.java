@@ -16,9 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -345,9 +346,12 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 
 		// Posa una autenticació per defecte per l'usuari del registre
 		Authentication orgAuthentication = SecurityContextHolder.getContext().getAuthentication();
-		Authentication authentication = new UsernamePasswordAuthenticationToken(
-				"Distribucio", "N/A", // ome.getExecucioMassiva().getAuthenticationCredentials(),
-				new ArrayList<GrantedAuthority>());
+		List<GrantedAuthority> rols = new ArrayList<GrantedAuthority>();
+		rols.add(new SimpleGrantedAuthority("tothom"));
+		Authentication authentication = new AnonymousAuthenticationToken(
+				"DISTRIBUCIO", 
+				"DISTRIBUCIO",
+				rols);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		
 		// Tracta cada anotació per separat
