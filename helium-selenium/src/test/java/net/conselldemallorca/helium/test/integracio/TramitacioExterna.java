@@ -210,22 +210,6 @@ public class TramitacioExterna extends BaseTest {
 		}
 		if (!trobada)
 			fail("No s'ha trobar la variable var_data");
-		
-		// Modifica un document de la tasca
-		try {
-			Date data = new Date();
-			ws.setDocumentTasca(propietats.getEntornTestCodi(), 
-					propietats.getEntornTestCodi(), 
-					tasca.getId(), 
-					"psigna_doc", 
-					"prova.txt",
-					data, 
-					new byte[]{});
-		} catch(Exception e) {
-			e.printStackTrace();
-			fail("Error establint el document en la tasca");
-		}
-
 	}
 	
 	/** Prova a modificar el valor d'una variable. */
