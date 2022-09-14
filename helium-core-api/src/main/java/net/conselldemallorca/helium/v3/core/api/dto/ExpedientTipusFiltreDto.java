@@ -13,6 +13,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  */
 public class ExpedientTipusFiltreDto {
 
+
 	private String codiSIA;
 	private String numRegistre;
 	private String codiTipologia;

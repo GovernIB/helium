@@ -3786,7 +3786,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 
 	@Override
-	public List<ExpedientTipusDto> findTipologiesByFiltrePaginat(
+	public PaginaDto<ExpedientTipusDto> findTipologiesByFiltrePaginat(
 			Long entornId, 
 			ExpedientTipusFiltreDto filtreDto,
 			PaginacioParamsDto paginacioParams) {
@@ -3799,24 +3799,21 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		String codiSIA = filtreDto.getCodiSIA();
 		String numRegistre = filtreDto.getNumRegistre();
 
-		if(	codiTipologia!=null && !"".equals(codiTipologia)
-			|| nomTipologia !=null && !"".equals(nomTipologia)
-			|| codiSIA !=null  && !"".equals(codiSIA)
-			||	numRegistre!=null && !"".equals(numRegistre))
-			return conversioTipusHelper.convertirList(
-						expedientTipusRepository.findByTipologia(
-								codiTipologia == null || codiTipologia.isEmpty(),
-								codiTipologia,
-								nomTipologia == null || nomTipologia.isEmpty(),
-								nomTipologia,
-								codiSIA == null || codiSIA.isEmpty(),
-								codiSIA, 
-								numRegistre == null || numRegistre.isEmpty(),
-								numRegistre),
-						ExpedientTipusDto.class);
-		
-		else return this.findAmbEntornPermisDissenyar(entornId);
-	}
+		return paginacioHelper.toPaginaDto(
+				expedientTipusRepository.findByTipologia(
+						entornId == null,
+						entornId == null? 0L : entornId,
+						codiTipologia == null || codiTipologia.isEmpty(),
+						codiTipologia == null || codiTipologia.isEmpty() ? "" : codiTipologia,
+						nomTipologia == null || nomTipologia.isEmpty(),
+						nomTipologia == null || nomTipologia.isEmpty()? "" : nomTipologia,
+						codiSIA == null || codiSIA.isEmpty(),
+						codiSIA == null || codiSIA.isEmpty() ? "" : codiSIA, 
+						numRegistre == null || numRegistre.isEmpty(),
+						numRegistre == null || numRegistre.isEmpty() ? "" : numRegistre,
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams)),
+				ExpedientTipusDto.class);
+		}
 
-	
 }

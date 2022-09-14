@@ -736,7 +736,7 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	}
 
 	@Override
-	public List<ExpedientTipusDto> findTipologiesByFiltrePaginat(
+	public PaginaDto<ExpedientTipusDto> findTipologiesByFiltrePaginat(
 			Long entornId, 
 			ExpedientTipusFiltreDto filtreDto,
 			PaginacioParamsDto paginacioParams) {

@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.core.helper.PluginHelper;
+import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
+import net.conselldemallorca.helium.core.model.dto.PersonaDto;
+import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusFiltreDto;
@@ -70,16 +73,7 @@ public class ExpedientTipusAdminController extends BaseController {
 					return "v3/cercadorTipologies";
 
 		}
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		//Filtrem resultat
-		List<ExpedientTipusDto> expedientsTipusDto = new ArrayList<ExpedientTipusDto>();
-		expedientsTipusDto = expedientTipusService.findTipologiesByFiltrePaginat(
-				entornActual.getId(),
-				conversioTipusHelper.convertir(filtreCommand, ExpedientTipusFiltreDto.class),
-				null);	
-		model.addAttribute("expedientsTipusDto", expedientsTipusDto);
-				
-				
+		
 		return "v3/cercadorTipologies";
 	}
 	
@@ -105,17 +99,23 @@ public class ExpedientTipusAdminController extends BaseController {
 			HttpServletRequest request,
 			Model model) {
 		
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusAdminCommand filtreCommand = getFiltreCommand(request);
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
+		
+		Long entornId = null;
+		PersonaDto persona = (PersonaDto)request.getSession().getAttribute("dadesPersona");
+		if (!persona.isAdmin()) {
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			entornId = entornActual.getId();
+		}
 		return DatatablesHelper.getDatatableResponse(
 					request,
 					null,
 					expedientTipusService.findTipologiesByFiltrePaginat(
-							entornActual.getId(),
+							entornId,
 							conversioTipusHelper.convertir(filtreCommand, ExpedientTipusFiltreDto.class),
 							paginacioParams)
-					);	
+					);
 	}
 
 

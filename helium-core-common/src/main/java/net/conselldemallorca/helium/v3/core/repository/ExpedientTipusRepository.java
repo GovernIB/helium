@@ -159,6 +159,33 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
             @Param("aturat") Boolean aturat
             );
     
+    /**
+	  * Mètode per cercar els tipus d'expedient per cercador de tipologia tant pel seu codi, com pel nom, 
+	     *  com per codiSia (nti_clasificacion) i per número de registre associat a l'anotació o a algún expedient.
+	  * @param isNullCodi
+	  * @param codi
+	  * @param isNullNom
+	  * @param nom
+	  * @param isNullNtiClasificacion
+	  * @param ntiClasificacion
+	  * @param registre_num
+	  * @return
+	  */
+   @Query(	 "select et.id "
+   		 	+"from " 
+			+"    ExpedientTipus et " 
+			+"where " 
+	   		+" 		et.id in ( "
+	   		+"  		select e.tipus.id "
+	   		+"				from Expedient e "
+	   		+"				where (lower(e.registreNumero) like lower('%'||:registre_num||'%')  ) )"
+	   		+" 		or et.id in ( "
+	   		+" 			select a.expedient.tipus.id "
+	   		+"           	from Anotacio a "
+	   		+"           	where (lower(a.identificador) like lower('%'||:registre_num||'%')  ) ) "
+				)
+   List<Long> findIdsByNumeroRegistre(@Param("registre_num") String registre_num);
+   
 	 /**
 	  * Mètode per cercar els tipus d'expedient per cercador de tipologia tant pel seu codi, com pel nom, 
 	     *  com per codiSia (nti_clasificacion) i per número de registre associat a l'anotació o a algún expedient.
@@ -174,6 +201,8 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
     @Query(	 "from " 
 			+"    ExpedientTipus et " 
 			+"where " 
+			+" 	 (:isNullEntornId = true or et.entorn.id = :entornId) "
+			+"  and "
 			+" 	 (:isNullCodi = true or lower(et.codi) like lower('%'||:codi||'%')) "
 			+"  and "
 			+" 	 (:isNullNom = true or lower(et.nom) like lower('%'||:nom||'%')) "
@@ -192,7 +221,9 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
     		+"           	from Anotacio a "
     		+"           	where (lower(a.identificador) like lower('%'||:registre_num||'%')  ) ) ) ) "
 			)
-	 List<ExpedientTipus> findByTipologia(
+    Page<ExpedientTipus> findByTipologia(
+			@Param("isNullEntornId") boolean isNullEntornId,
+			@Param("entornId") Long entornId,
 			@Param("isNullCodi") boolean isNullCodi,
 			@Param("codi") String codi,
 			@Param("isNullNom") boolean isNullNom,
@@ -200,7 +231,8 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 			@Param("isNullNtiClasificacion") boolean isNullNtiClasificacion,
 			@Param("ntiClasificacion") String ntiClasificacion,
 			@Param("isNullRegistre_num") boolean isNullRegistre_num,
-			@Param("registre_num") String registre_num
+			@Param("registre_num") String registre_num,		
+			Pageable pageable
 			);
     
 

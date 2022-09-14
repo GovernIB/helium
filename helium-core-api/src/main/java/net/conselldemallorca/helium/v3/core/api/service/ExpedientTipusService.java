@@ -1242,7 +1242,7 @@ public interface ExpedientTipusService {
 	 * @param codiSIA
 	 * @param entornId
 	 * */
-	public List<ExpedientTipusDto> findTipologiesByFiltrePaginat(
+	public PaginaDto<ExpedientTipusDto> findTipologiesByFiltrePaginat(
 			Long entornId,
 			ExpedientTipusFiltreDto filtreDto,
 			PaginacioParamsDto paginacioParams);	

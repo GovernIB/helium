@@ -37,19 +37,19 @@
 
 <form:form action="" method="post" cssClass="well" commandName="expedientTipusAdminCommand">
 		<div class="row">
-			<div class="col-md-3">
+			<div class="col-md-2">
 				<hel:inputText name="codiTipologia" textKey="expedient.tipus.cercador.tipologies.codi.tipologia" placeholderKey="expedient.tipus.cercador.tipologies.codi.tipologia" inline="true"/>
 			</div>
 			<div class="col-md-3">
 				<hel:inputText name="nomTipologia" textKey="expedient.tipus.cercador.tipologies.nom.tipologia" placeholderKey="expedient.tipus.cercador.tipologies.nom.tipologia" inline="true"/>
 			</div>
-			<div class="col-md-3">
+			<div class="col-md-2">
 				<hel:inputText name="codiSIA" textKey="expedient.tipus.cercador.tipologies.codi.sia" placeholderKey="expedient.tipus.cercador.tipologies.codi.sia" inline="true"/>
 			</div>
 			<div class="col-md-3">
 				<hel:inputText name="numRegistre" textKey="expedient.tipus.cercador.tipologies.numero.registre.anotacio" placeholderKey="expedient.tipus.cercador.tipologies.numero.registre.anotacio" inline="true"/>
 			</div>
-			<div class="col-md-12 d-flex align-items-end">
+			<div class="col-md-2 d-flex align-items-end">
 				<div class="pull-right">
 					<button id="consultar" type="submit" name="accio" value="consultar" class="btn btn-primary" url="" style="display: none;"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
 					<button id="netejar" type="submit" name="accio" value="netejar" class="btn btn-default" url=""><spring:message code="comu.filtre.netejar"/></button>
@@ -66,7 +66,7 @@
 			data-paging-enabled="true"
 			data-ordering="true"
 			data-default-order="1"
-			data-default-dir="desc"
+			data-default-dir="asc"
 			data-rowhref-template="#rowhrefTemplate"
 			data-rowhref-maximized="true"
 			class="table table-striped table-bordered table-hover"
@@ -76,8 +76,14 @@
 				<th data-col-name="id" data-visible="false"/>
 				<th data-col-name="codi"><spring:message code='expedient.tipus.cercador.tipologies.codi.tipologia'/></th>
 				<th data-col-name="nom"><spring:message code='expedient.tipus.cercador.tipologies.tipus.expedient.titol'/></th>
-				<th data-col-name="ntiClasificacion"><spring:message code='expedient.tipus.cercador.tipologies.codi.sia'/></th>
-				
+				<th data-col-name="ntiClasificacion"><spring:message code='expedient.tipus.cercador.tipologies.codi.sia'/></th>				
+				<th data-col-name="entorn.codi" width="20%" data-template="#cellExpedientTipusEntornTemplate">
+					<spring:message code="expedient.tipus.cercador.tipologies.entorn"/>
+						<script id="cellExpedientTipusEntornTemplate" type="text/x-jsrender">
+							<span title="{{:entorn.nom}}">{{:entorn.codi}}</span>
+						</script>
+					</th>
+				<th data-col-name="entorn.nom" data-visible="false"/>
 			</tr>	
 		 </thead>
 						
