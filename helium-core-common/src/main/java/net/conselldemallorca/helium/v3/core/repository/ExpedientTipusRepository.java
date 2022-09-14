@@ -171,7 +171,7 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 	  * @param registre_num
 	  * @return
 	  */
-   @Query(	 "select et.id "
+   @Query(	 "select distinct et.id "
    		 	+"from " 
 			+"    ExpedientTipus et " 
 			+"where " 
@@ -208,18 +208,9 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 			+" 	 (:isNullNom = true or lower(et.nom) like lower('%'||:nom||'%')) "
 			+" 	and "
 			+"	 (:isNullNtiClasificacion = true or lower(et.ntiClasificacion) like lower('%'||:ntiClasificacion||'%'))" 
-			+"	and ( "
+			+"	and  "
 			+	"(:isNullRegistre_num = true or "
-    		+" 		et.id in ( "
-    		+"  		select e.tipus.id "
-    		+"				from Expedient e "
-    		+"				where (lower(e.registreNumero) like lower('%'||:registre_num||'%')  ) ))"
-    		+" 		or "
-    		+	"(:isNullRegistre_num = true or "
-    		+"		et.id in ( "
-    		+" 			select a.expedient.tipus.id "
-    		+"           	from Anotacio a "
-    		+"           	where (lower(a.identificador) like lower('%'||:registre_num||'%')  ) ) ) ) "
+    		+" 		et.id in (:expedientsTipusIds)) "
 			)
     Page<ExpedientTipus> findByTipologia(
 			@Param("isNullEntornId") boolean isNullEntornId,
@@ -231,7 +222,7 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
 			@Param("isNullNtiClasificacion") boolean isNullNtiClasificacion,
 			@Param("ntiClasificacion") String ntiClasificacion,
 			@Param("isNullRegistre_num") boolean isNullRegistre_num,
-			@Param("registre_num") String registre_num,		
+			@Param("expedientsTipusIds") List<Long> expedientsTipusIds,		
 			Pageable pageable
 			);
     

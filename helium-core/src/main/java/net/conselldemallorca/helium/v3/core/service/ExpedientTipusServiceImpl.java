@@ -101,6 +101,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.DeploymentException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExportException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.exportacio.AccioExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.AgrupacioExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.CampExportacio;
@@ -3799,6 +3800,18 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		String codiSIA = filtreDto.getCodiSIA();
 		String numRegistre = filtreDto.getNumRegistre();
 
+		
+		List<Long> expedientsTipusIds;
+		if (numRegistre == null || "".equals(numRegistre)) {
+			expedientsTipusIds = new ArrayList<Long>();
+		} else {
+			expedientsTipusIds = expedientTipusRepository.findIdsByNumeroRegistre(numRegistre);
+		}
+		if (expedientsTipusIds.isEmpty()) {
+			expedientsTipusIds.add(0L);
+		} else if (expedientsTipusIds.size() > 1000) {
+			throw new ValidacioException("La cerca per número de registre ha retornat " + expedientsTipusIds.size() + ". Concreti el número de registre.");
+		}
 		return paginacioHelper.toPaginaDto(
 				expedientTipusRepository.findByTipologia(
 						entornId == null,
@@ -3810,7 +3823,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						codiSIA == null || codiSIA.isEmpty(),
 						codiSIA == null || codiSIA.isEmpty() ? "" : codiSIA, 
 						numRegistre == null || numRegistre.isEmpty(),
-						numRegistre == null || numRegistre.isEmpty() ? "" : numRegistre,
+								expedientsTipusIds,
 						paginacioHelper.toSpringDataPageable(
 								paginacioParams)),
 				ExpedientTipusDto.class);
