@@ -3,17 +3,11 @@ package net.conselldemallorca.helium.webapp.v3.command;
 public class ExpedientTipusAdminCommand {
 	
 	private String codiTipologia;
+	private String nomTipologia;
 	private String codiSIA;
-	private String numRegistreAnotacio;
-	private Long expedientTipusId;
+	private String numRegistre;
 
-	
-	public Long getExpedientTipusId() {
-		return expedientTipusId;
-	}
-	public void setExpedientTipusId(Long expedientTipusId) {
-		this.expedientTipusId = expedientTipusId;
-	}
+
 	public String getCodiTipologia() {
 		return codiTipologia;
 	}
@@ -26,11 +20,18 @@ public class ExpedientTipusAdminCommand {
 	public void setCodiSIA(String codiSIA) {
 		this.codiSIA = codiSIA;
 	}
-	public String getNumRegistreAnotacio() {
-		return numRegistreAnotacio;
+	public String getNumRegistre() {
+		return numRegistre;
 	}
-	public void setNumRegistreAnotacio(String numRegistreAnotacio) {
-		this.numRegistreAnotacio = numRegistreAnotacio;
+	public void setNumRegistre(String numRegistre) {
+		this.numRegistre = numRegistre;
 	}
+	public String getNomTipologia() {
+		return nomTipologia;
+	}
+	public void setNomTipologia(String nomTipologia) {
+		this.nomTipologia = nomTipologia;
+	}
+	
 	
 }

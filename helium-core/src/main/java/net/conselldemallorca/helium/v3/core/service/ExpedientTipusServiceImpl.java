@@ -85,6 +85,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -3772,18 +3773,41 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 											aturat == null,
 											aturat);
 	}
-	
-	@Override
-	public List<ExpedientTipusDto> findTipologiesByFiltre(String codiSIA, Long entornId){
-		if(codiSIA!=null)
-			return conversioTipusHelper.convertirList(
-				expedientTipusRepository.findByTipologia(codiSIA),
-				ExpedientTipusDto.class);
-		else return this.findAmbEntornPermisDissenyar(entornId);
-		
-	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 
+	@Override
+	public List<ExpedientTipusDto> findTipologiesByFiltrePaginat(
+			Long entornId, 
+			ExpedientTipusFiltreDto filtreDto,
+			PaginacioParamsDto paginacioParams) {
+		logger.debug(
+				"Consultant els tipus d'expedient per datatable (" +
+				"expedientTipusFiltreDto=" + filtreDto + ")");
 
+		String codiTipologia = filtreDto.getCodiTipologia();	
+		String nomTipologia = filtreDto.getNomTipologia();
+		String codiSIA = filtreDto.getCodiSIA();
+		String numRegistre = filtreDto.getNumRegistre();
+
+		if(	codiTipologia!=null && !"".equals(codiTipologia)
+			|| nomTipologia !=null && !"".equals(nomTipologia)
+			|| codiSIA !=null  && !"".equals(codiSIA)
+			||	numRegistre!=null && !"".equals(numRegistre))
+			return conversioTipusHelper.convertirList(
+						expedientTipusRepository.findByTipologia(
+								codiTipologia == null || codiTipologia.isEmpty(),
+								codiTipologia,
+								nomTipologia == null || nomTipologia.isEmpty(),
+								nomTipologia,
+								codiSIA == null || codiSIA.isEmpty(),
+								codiSIA, 
+								numRegistre == null || numRegistre.isEmpty(),
+								numRegistre),
+						ExpedientTipusDto.class);
+		
+		else return this.findAmbEntornPermisDissenyar(entornId);
+	}
+
+	
 }

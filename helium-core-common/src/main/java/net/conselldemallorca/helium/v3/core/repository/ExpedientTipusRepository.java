@@ -159,16 +159,49 @@ public interface ExpedientTipusRepository extends JpaRepository<ExpedientTipus, 
             @Param("aturat") Boolean aturat
             );
     
-    /** Mètode per cercar els tipus d'expedient per cercador de tipologia.
-	 * MARTA: falta acabar query amb tots els paràmetres
-	 * @param ntiClasificacion
-	 * @return
-	 */
-    @Query(	"from " +
-			"    ExpedientTipus et " +
-			"where " +
-			"	et.ntiClasificacion like :ntiClasificacion ")
-	public List<ExpedientTipus> findByTipologia(
-			@Param("ntiClasificacion") String ntiClasificacion
+	 /**
+	  * Mètode per cercar els tipus d'expedient per cercador de tipologia tant pel seu codi, com pel nom, 
+	     *  com per codiSia (nti_clasificacion) i per número de registre associat a l'anotació o a algún expedient.
+	  * @param isNullCodi
+	  * @param codi
+	  * @param isNullNom
+	  * @param nom
+	  * @param isNullNtiClasificacion
+	  * @param ntiClasificacion
+	  * @param registre_num
+	  * @return
+	  */
+    @Query(	 "from " 
+			+"    ExpedientTipus et " 
+			+"where " 
+			+" 	 (:isNullCodi = true or lower(et.codi) like lower('%'||:codi||'%')) "
+			+"  and "
+			+" 	 (:isNullNom = true or lower(et.nom) like lower('%'||:nom||'%')) "
+			+" 	and "
+			+"	 (:isNullNtiClasificacion = true or lower(et.ntiClasificacion) like lower('%'||:ntiClasificacion||'%'))" 
+			+"	and ( "
+			+	"(:isNullRegistre_num = true or "
+    		+" 		et.id in ( "
+    		+"  		select e.tipus.id "
+    		+"				from Expedient e "
+    		+"				where (lower(e.registreNumero) like lower('%'||:registre_num||'%')  ) ))"
+    		+" 		or "
+    		+	"(:isNullRegistre_num = true or "
+    		+"		et.id in ( "
+    		+" 			select a.expedient.tipus.id "
+    		+"           	from Anotacio a "
+    		+"           	where (lower(a.identificador) like lower('%'||:registre_num||'%')  ) ) ) ) "
+			)
+	 List<ExpedientTipus> findByTipologia(
+			@Param("isNullCodi") boolean isNullCodi,
+			@Param("codi") String codi,
+			@Param("isNullNom") boolean isNullNom,
+			@Param("nom") String nom,
+			@Param("isNullNtiClasificacion") boolean isNullNtiClasificacion,
+			@Param("ntiClasificacion") String ntiClasificacion,
+			@Param("isNullRegistre_num") boolean isNullRegistre_num,
+			@Param("registre_num") String registre_num
 			);
+    
+
 }

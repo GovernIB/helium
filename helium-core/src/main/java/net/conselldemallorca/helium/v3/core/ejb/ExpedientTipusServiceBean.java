@@ -23,6 +23,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -735,8 +736,12 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	}
 
 	@Override
-	public List<ExpedientTipusDto> findTipologiesByFiltre(String codiSIA, Long entornId) {
-		return delegate.findTipologiesByFiltre(codiSIA, entornId);
+	public List<ExpedientTipusDto> findTipologiesByFiltrePaginat(
+			Long entornId, 
+			ExpedientTipusFiltreDto filtreDto,
+			PaginacioParamsDto paginacioParams) {
+		return delegate.findTipologiesByFiltrePaginat(entornId, filtreDto, paginacioParams);
+		
 	}
 
 	
