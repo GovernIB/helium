@@ -6,8 +6,8 @@ package net.conselldemallorca.helium.integracio.plugins.pinbal;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
-import java.util.Arrays;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -17,14 +17,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.UniformInterfaceException;
 
-import es.caib.pinbal.client.recobriment.ClientGeneric;
-import es.caib.pinbal.client.recobriment.model.ScspFuncionario;
 import es.caib.pinbal.client.recobriment.model.ScspJustificante;
-import es.caib.pinbal.client.recobriment.model.ScspRespuesta;
-import es.caib.pinbal.client.recobriment.model.ScspSolicitante.ScspConsentimiento;
-import es.caib.pinbal.client.recobriment.model.ScspTitular;
-import es.caib.pinbal.client.recobriment.model.ScspTitular.ScspTipoDocumentacion;
-import es.caib.pinbal.client.recobriment.model.Solicitud;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.integracio.plugins.firma.FirmaPluginPortafib;
 import net.conselldemallorca.helium.v3.core.api.dto.ScspRespostaPinbal;
 
 /**
@@ -40,7 +35,7 @@ public class PinbalGenericTest {
 //	private static final String URL_BASE = "http://localhost:8080/pinbal";
 //	private static final String USUARI = "user";
 //	private static final String CONTRASENYA = "passwd";
-	private static final String SERVEI_SCSP = "SVDDGPCIWS02";
+	private static final String SERVEI_SCSP = "SVDDELSEXCDIWS01";
 	private static final String ENTITAT_CIF = "S0711001H";
 	private static final String CODIGO_PROCEDIMIENTO = "CODSVDR_GBA_20121107";
 //	private static final String PETICION_SCSP_ID = "PBL0000000001292";
@@ -52,6 +47,14 @@ public class PinbalGenericTest {
 //	private ClientGeneric client = new ClientGeneric(URL_BASE, USUARI, CONTRASENYA);
 	
 	PinbalPlugin pinbalPlugin = new PinbalPlugin();
+
+	@Before
+	public void setUp() throws Exception {
+		System.setProperty("app.pinbal.plugin.url", "https://proves.caib.es/pinbalapi");
+		System.setProperty("app.pinbal.plugin.username", "$ripea_pinbal");
+		System.setProperty("app.pinbal.plugin.password", "ripea_pinbal");
+		System.setProperty("app.pinbal.plugin.isJBoss", "true");
+	}
 
 	@Test
 	public void peticionSincrona() throws UniformInterfaceException, ClientHandlerException, IOException {
@@ -70,7 +73,7 @@ public class PinbalGenericTest {
 				"00000000T",
 				"pseudònim funcionari");
 		
-		String xmlDadesEspecifiques="<?xml version=\"1.0\" encoding=\"UTF-8\"?><DatosEspecificos><Consulta><NumeroSoporte>${var_codi}</NumeroSoporte></Consulta></DatosEspecificos>";
+		String xmlDadesEspecifiques="<?xml version=\"1.0\" encoding=\"UTF-8\"?><DatosEspecificos><Consulta/></DatosEspecificos>";
 		
 		DadesConsultaPinbal dadesConsulta = new DadesConsultaPinbal(
 				titular,
