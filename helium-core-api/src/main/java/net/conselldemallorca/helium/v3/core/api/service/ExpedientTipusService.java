@@ -13,6 +13,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -1234,7 +1235,17 @@ public interface ExpedientTipusService {
 	 * @return
 	 *  Retorna el tipus d'expedient configurat per a la combinació de codi procediment i codi tipus assumpte
 	 */
-	public ExpedientTipusDto findPerDistribucioValidacio(String codiProcediment, String codiAssumpte);	
+	public ExpedientTipusDto findPerDistribucioValidacio(String codiProcediment, String codiAssumpte);
+
+	/**Mètode per trobar els tipus d'expedients filtrats per tipologia*
+	 * 
+	 * @param codiSIA
+	 * @param entornId
+	 * */
+	public List<ExpedientTipusDto> findTipologiesByFiltrePaginat(
+			Long entornId,
+			ExpedientTipusFiltreDto filtreDto,
+			PaginacioParamsDto paginacioParams);	
 
 	/**
 	 * Modifica les dades d'integracio Pinbal d'un tipus d'expedient.

@@ -389,6 +389,9 @@
 									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
 										<li><a id="botoMetriques" href="<c:url value="/v3/estadistica"/>"><spring:message code='decorators.superior.estadistica' /></a></li>
 									</c:if>
+									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
+										<li><a id="botoCercaTipologies" href="<c:url value="/v3/cercadorTipologies"/>"><spring:message code='decorator.menu.administracio.cercador.tipologies' /></a></li>
+									</c:if>
 								</ul>
 								<script type="text/javascript">
 									$('#mesures a').heliumEvalLink({
