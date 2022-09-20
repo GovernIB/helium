@@ -229,7 +229,7 @@ public class AdminServiceImpl implements AdminService {
 		case OK:
 			monitorIntegracioHelper.addAccioOk(
 					integracioCodi, 
-					errorDescripcio, 
+					descripcio, 
 					tipus, 
 					tempsResposta,  
 					params);
