@@ -418,18 +418,22 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/{consultaId}/suggest/expedient/llista/{expedientTipusId}/{text}", method = RequestMethod.GET, produces = {
+	@RequestMapping(value = "/{consultaId}/suggest/expedient/llista/{expedientTipusId}/**", method = RequestMethod.GET, produces = {
 			"application/json; charset=UTF-8" })
 	@ResponseBody
 	public List<Map<String, String>> suggestExpedientLlista(
+			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
-			@PathVariable String text, 
 			Model model) {
 		List<Map<String, String>> resultat = new ArrayList<Map<String, String>>();
 		Map<String, String> item;
 		List<ExpedientDto> llista = new ArrayList<ExpedientDto>();
 		if (expedientTipusId != null) {
-			llista = expedientService.findPerSuggest(expedientTipusId, text);
+			String requestURL = request.getRequestURL().toString();
+			String[] text = requestURL.split("/suggest/expedient/llista/" + expedientTipusId + "/");
+			if (text.length > 1) {
+				llista = expedientService.findPerSuggest(expedientTipusId, text[1]);
+			}
 		}
 		for (ExpedientDto expedientDto : llista) {
 			item = new HashMap<String, String>();
