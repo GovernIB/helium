@@ -8,17 +8,21 @@ import java.util.List;
 import java.util.Map;
 
 import org.jbpm.JbpmException;
+import org.jbpm.context.exe.ContextInstance;
 import org.jbpm.graph.exe.ExecutionContext;
+import org.jbpm.graph.exe.Token;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import net.conselldemallorca.helium.jbpm3.handlers.exception.HeliumHandlerException;
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ActionInfo;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesConsultaPinbal;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesNotificacio;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreEntrada;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreNotificacio;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreSortida;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentDisseny;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.EventInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
@@ -37,6 +41,7 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.TaskInstanceInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.TerminiInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.TimerInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.TokenInfo;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.Tramit;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.TransitionInfo;
 import net.conselldemallorca.helium.jbpm3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.jbpm3.helper.ConversioTipusInfoHelper;
@@ -45,6 +50,8 @@ import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.jbpm3.integracio.Termini;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaColumnaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiRespostaFilaDto;
@@ -129,54 +136,7 @@ public class HeliumApiImpl implements HeliumApi {
 		return ConversioTipusInfoHelper.toTimerInfo(executionContext.getTimer());
 	}
 	
-//	public ModuleDefinitionInfo getDefinition(Class clazz);
-//	public ModuleInstanceInfo getInstance(Class clazz);
-//	public ContextInstanceInfo getContextInstance();
-//	public TaskMgmtInstanceInfo getTaskMgmtInstance();
-//	public JbpmContextInfo getJbpmContext();
-//	public void setAction(Action action);
-//	public void setEvent(Event event);
-//	public void setTransition(Transition transition);
-//	public Node getTransitionSource();
-//	public void setTransitionSource(Node transitionSource);
-//	public GraphElement getEventSource();
-//	public void setEventSource(GraphElement eventSource);
-//	public void setTask(Task task);
-//	public void setTaskInstance(TaskInstance taskInstance);
-//	public void setSubProcessInstance(ProcessInstance subProcessInstance);
-//	public void setTimer(Timer timer);
-	
-//	public void leaveNode();
-//	public void leaveNode(String transitionName);
-//	public void leaveNode(Transition transition);
-	
-	
-	
-	// Funciona del BasicActionHandler
-//	public DocumentDisseny getDocumentDisseny(String codiDocument);
-//	public void crearReferenciaDocumentInstanciaProcesPare(String varDocument);
-//	public Tramit consultaTramit(
-//			String numero,
-//			String clau);
-//
-//	public byte[] obtenirArxiuGestorDocumental(String id);
-//	public void documentGuardar(
-//			String documentCodi,
-//			Date data,
-//			String arxiuNom,
-//			byte[] arxiuContingut);
-//	public void adjuntGuardar(
-//            String nomDocument,
-//            Date data,
-//            String arxiuNom,
-//            byte[] arxiuContingut);
-//	
-//	public Object getVariableGlobal(String varCodi);
-//	public void setVariableGlobal(
-//			String varCodi,
-//			Object varValor);
-//	public Object getVariableGlobalValor(String varCodi);
-	
+
 	@Override
 	public void desarInformacioExecucio(String missatge) throws Exception {
 		 ClassLoader surroundingClassLoader = Thread.currentThread().getContextClassLoader();
@@ -257,15 +217,76 @@ public class HeliumApiImpl implements HeliumApi {
 		return getVarValue(executionContext.getContextInstance().getVariable(varCodi));
 	}
 	
-	@Override
-	public String getVariableInstanciaProcesText(String varCodi) {
+	
+    @Override
+	public String getTextPerVariableAmbDomini(
+			String varCodi) {
+		return getVariableText(varCodi);
+	}
+	
+	
+	/** Retorna el valor text d'una variable cercant només en el context del procés.
+	 * 
+	 * @param varCodi
+	 * @return
+	 */
+    @Override
+	public String getVariableInstanciaProcesText(
+			String varCodi) {
 		ExpedientDadaDto dto = Jbpm3HeliumBridge.getInstanceService().getDadaPerProcessInstance(
-				getProcessInstanceId(),
+				getProcessInstanceId(executionContext),
 				varCodi);
 		if (dto == null)
 			return null;
 		else
 			return dto.getText();
+	}
+
+	protected String getProcessInstanceId(ExecutionContext executionContext) {
+		return new Long(executionContext.getProcessInstance().getId()).toString();
+	}
+	
+	protected String getTaskInstanceId(ExecutionContext executionContext) {
+		return new Long(executionContext.getTaskInstance().getId()).toString();
+	}
+
+	/**
+	 * Guarda un termini a dins una variable
+	 * 
+	 * @param varName
+	 * @param anys
+	 * @param mesos
+	 * @param dies
+	 */
+	@Override
+	public void terminiGuardar(
+			String varName,
+			int anys,
+			int mesos,
+			int dies) {
+		Termini termini = new Termini();
+		termini.setAnys(anys);
+		termini.setMesos(mesos);
+		termini.setDies(dies);
+		executionContext.setVariable(varName, termini);
+	}
+	
+	/**
+	 * Consulta les dades d'un tràmit
+	 * 
+	 * @param numero
+	 * @param clau
+	 */
+	@Override
+	public Tramit consultaTramit(
+			String numero,
+			String clau) {
+		try {
+			return ConversioTipusHelper.toTramit(
+					Jbpm3HeliumBridge.getInstanceService().getTramit(numero, clau));
+		} catch (Exception ex) {
+			throw new JbpmException("No s'ha pogut obtenir el tràmit (numero=" + numero + ", clau=" + clau + ")", ex);
+		}
 	}
 	
 	@Override
@@ -280,15 +301,6 @@ public class HeliumApiImpl implements HeliumApi {
 		}
 		executionContext.getContextInstance().setVariable(varCodi, varValor);
 	}
-	
-//	@Override
-//	public void terminiGuardar(
-//			String varName,
-//			int anys,
-//			int mesos,
-//			int dies) throws HeliumHandlerException {
-//		throw new HeliumHandlerException("Deprecated method. Use setVariableInstanciaTasca(varName, new TerminiInfo(anys, mesos, dies)) or setVariableInstanciaProces(varName, new TerminiInfo(anys, mesos, dies)) instead");
-//	}
 	
 	@Override
 	public ExpedientInfo getExpedient() {
@@ -400,7 +412,6 @@ public class HeliumApiImpl implements HeliumApi {
 	
 	/** Modifica el valor text per a un codi d'una enumeració.
 	 * 
-	 * @param executionContext
 	 * @param codiEnumeracio
 	 * 			Codi de l'enumeració per trobar l'enumeració.
 	 * @param codi
@@ -408,6 +419,7 @@ public class HeliumApiImpl implements HeliumApi {
 	 * @param valor
 	 * 			Cadena de text pel nom de l'enumeració corresponent al codi.
 	 */
+	@Override
 	public void enumeracioSetValor(
 			String codiEnumeracio,
 			String codi,
@@ -501,6 +513,67 @@ public class HeliumApiImpl implements HeliumApi {
 			throw new HeliumHandlerException("Error en la consulta d'expedients", ex);
 		}
 		return resposta;
+	}
+	
+	
+	/**
+	 * Obté la informació de disseny del document
+	 * 
+	 * @param codiDocument
+	 * @return
+	 */
+	@Override
+	public DocumentDisseny getDocumentDisseny(
+			String codiDocument) {
+		DefinicioProcesDto definicioProces = getDefinicioProces();
+		DocumentDissenyDto document = Jbpm3HeliumBridge.getInstanceService().getDocumentDisseny(
+				definicioProces.getId(),
+				String.valueOf(getProcessInstanceId()),
+				codiDocument);
+		if (document == null)
+			return null;
+		DocumentDisseny resposta = new DocumentDisseny();
+		resposta.setId(document.getId());
+		resposta.setCodi(document.getCodi());
+		resposta.setNom(document.getNom());
+		resposta.setDescripcio(document.getDescripcio());
+		resposta.setPlantilla(document.isPlantilla());
+		resposta.setContentType(document.getContentType());
+		resposta.setCustodiaCodi(document.getCustodiaCodi());
+		resposta.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
+		return resposta;
+	}
+
+	private DefinicioProcesDto getDefinicioProces() {
+		return Jbpm3HeliumBridge.getInstanceService().getDefinicioProcesPerProcessInstanceId(
+				getProcessInstanceId());
+	}
+
+	
+	/**
+	 * Enllaça un document d'una instancia de procés pare. Si el document
+	 * no existeix no el copia i no produeix cap error.
+	 * 
+	 * @param codiDocument
+	 */
+	@Override
+	public void crearReferenciaDocumentInstanciaProcesPare(
+			String varDocument) {
+		Token tokenPare = executionContext.getProcessInstance().getRootToken().getParent();
+		if (tokenPare != null) {
+			String varCodi = Jbpm3HeliumBridge.getInstanceService().getCodiVariablePerDocumentCodi(varDocument);
+			Object valor = tokenPare.getProcessInstance().getContextInstance().getVariable(varCodi);
+			if (valor != null) {
+				if (valor instanceof Long) {
+					long lv = ((Long)valor).longValue();
+					executionContext.setVariable(varCodi, new Long(-lv));
+				} else {
+					throw new JbpmException("El contingut del document '" + varDocument + "' no és del tipus correcte");
+				}
+			}
+		} else {
+			throw new JbpmException("Aquesta instància de procés no té pare");
+		}
 	}
 
 	@Override
@@ -760,6 +833,20 @@ public class HeliumApiImpl implements HeliumApi {
 			throw new HeliumHandlerException("No s'ha pogut obtenir el justificant de recepció", ex);
 		}
 	}
+	
+	
+	/**
+	 * Consulta la data del justificant de recepció d'una notificació.
+	 * 
+	 * @param registreNumero
+	 * @return
+	 */
+	@Override
+	public Date registreObtenirJustificantRecepcio(String registreNumero) {
+		return Jbpm3HeliumBridge.getInstanceService().registreNotificacioComprovarRecepcio(
+				registreNumero, null);
+	}
+	
 	@Override
 	public void expedientRelacionar(Long expedientId) {
 		ExpedientInfo expedient = getExpedient();
@@ -787,6 +874,105 @@ public class HeliumApiImpl implements HeliumApi {
 		}
 	}
 	
+	/**
+	 * Obté el contingut de l'arxiu directament de la gestió documental.
+	 * 
+	 * @param id
+	 * @return
+	 */
+	@Override
+	public byte[] obtenirArxiuGestorDocumental(String id) {
+		ArxiuDto arxiu = Jbpm3HeliumBridge.getInstanceService().getArxiuGestorDocumental(id);
+		if (arxiu != null)
+			return arxiu.getContingut();
+		else
+			return null;
+	}
+	
+	/**
+	 * Emmagatzema un document a dins l'expedient.
+	 * 
+	 * @param documentCodi
+	 * @param data
+	 * @param arxiuNom
+	 * @param arxiuContingut
+	 */
+	@Override
+	public void documentGuardar(
+			String documentCodi,
+			Date data,
+			String arxiuNom,
+			byte[] arxiuContingut) {
+		Jbpm3HeliumBridge.getInstanceService().documentExpedientGuardar(
+				getProcessInstanceId(),
+				documentCodi,
+				data,
+				arxiuNom,
+				arxiuContingut);
+	}
+
+	/**
+	 * Guarda un document adjunt.
+	 * 
+	 * @param nomDocument
+	 * @param data
+	 * @param arxiuNom
+	 * @param arxiuContingut
+	 */
+	@Override
+	public void adjuntGuardar(
+            String nomDocument,
+            Date data,
+            String arxiuNom,
+            byte[] arxiuContingut) {
+		Jbpm3HeliumBridge.getInstanceService().documentExpedientAdjuntar(
+				getProcessInstanceId(),
+				null, // adjuntId
+				nomDocument,
+				data,
+				arxiuNom,
+				arxiuContingut);
+    }
+
+	
+	/**
+	 * Retorna el valor d'una variable global.
+	 * 
+	 * @param varCodi
+	 * @return
+	 */
+	@Override
+	public Object getVariableGlobal(
+			String varCodi) {
+		ContextInstance ci = getContextInstanceGlobal(executionContext);
+		return ci.getVariable(varCodi);
+	}
+	/**
+	 * Modifica el valor d'una variable global.
+	 * 
+	 * @param varCodi
+	 * @return
+	 */
+	@Override
+	public void setVariableGlobal(
+			String varCodi,
+			Object varValor) {
+		ContextInstance ci = getContextInstanceGlobal(executionContext);
+		ci.setVariable(varCodi, varValor);
+	}
+	/**
+	 * Retorna el valor d'una variable global.
+	 * 
+	 * @param varCodi
+	 * @return
+	 */
+	@Override
+	public Object getVariableGlobalValor(
+			String varCodi) {
+		ContextInstance ci = getContextInstanceGlobal(executionContext);
+		return getVarValue(ci.getVariable(varCodi));
+	}
+	
 	@Override
 	public boolean expedientReindexar() {
 		boolean success;
@@ -809,6 +995,8 @@ public class HeliumApiImpl implements HeliumApi {
 				cancelarTasques);
 	}
 	
+	
+	
 	@Override
 	public void retrocedirGuardarParametres(List<String> parametres) {
 		StringBuilder sb = new StringBuilder();
@@ -821,6 +1009,39 @@ public class HeliumApiImpl implements HeliumApi {
 				PARAMS_RETROCEDIR_VARIABLE_PREFIX + executionContext.getAction().getId(),
 				sb.toString());
 	}
+	
+	/**
+	 * Reindexa l'expedient actual.
+	 */
+	@Override
+	public void instanciaProcesReindexar() {
+		Jbpm3HeliumBridge.getInstanceService().expedientReindexar(
+				getProcessInstanceId());
+	}
+	
+	/**
+	 * Reindexa l'expedient corresponent a una instància de procés.
+	 * 
+	 * @param processInstanceId
+	 */
+	@Override
+	public boolean instanciaProcesReindexar(String processInstanceId) {
+		return Jbpm3HeliumBridge.getInstanceService().expedientReindexar(
+				processInstanceId);
+	}
+
+	/**
+	 * Activa o desactiva un token
+	 * 
+	 * @param tokenId
+	 * @param activar
+	 * @return
+	 */
+	@Override
+	public boolean tokenActivar(long tokenId, boolean activar) {
+		return Jbpm3HeliumBridge.getInstanceService().tokenActivar(tokenId, activar);
+	}
+	
 	
 	private ExpedientDto getExpedientActual() {
 		ExpedientDto expedient = Jbpm3HeliumBridge.getInstanceService().getExpedientIniciant();
@@ -846,16 +1067,8 @@ public class HeliumApiImpl implements HeliumApi {
 		}
 	}
 
-	@Override
-	public RespostaEnviar altaNotificacio(DadesNotificacio dadesNotificacio, Long expedientId) throws JbpmException {
 
-		DadesNotificacioDto notificacio = ConversioTipusHelper.toDadesNotificacioDto(expedientId, dadesNotificacio);
-		
-		RespostaNotificacio respostaNotificacio = Jbpm3HeliumBridge.getInstanceService().altaNotificacio(notificacio);
-		
-		return ConversioTipusHelper.toRespostaEnviar(respostaNotificacio);		
-	}
-	
+	@Override
 	public void interessatCrear(
 			Interessat interessat) {
 		
@@ -863,7 +1076,7 @@ public class HeliumApiImpl implements HeliumApi {
 		Jbpm3HeliumBridge.getInstanceService().interessatCrear(interessatDto);	
 	}
 	
-	
+	@Override
 	public void interessatModificar(
 			Interessat interessat) {
 		
@@ -872,7 +1085,7 @@ public class HeliumApiImpl implements HeliumApi {
 		
 	}
 	
-	
+	@Override
 	public void interessatEliminar(
 			String codi,
 			Long expedientId) {
@@ -887,8 +1100,123 @@ public class HeliumApiImpl implements HeliumApi {
 	}
 	
 	
-
+	/**
+	 * Fa una crida al servei genèric Pinbal.
+	 * 
+	 * @param dadesConsultaPinbal
+	 * @param expedientId
+	 * @param processInstanceId
+	 * @return
+	 */
+	@Override
+	public Object consultaPinbal(
+		DadesConsultaPinbal dadesConsultaPinbal, Long expedientId, String processInstanceId) throws JbpmException {
+		Object respostaPinbal = Jbpm3HeliumBridge.getInstanceService().consultaPinbal(
+				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), expedientId, processInstanceId);
+		return respostaPinbal;
+	}
 	
+	/**
+	 * Fa una crida al servei específic SVDDGPCIWS02 de consulta de dades de Pinbal.
+	 * 
+	 * @param dadesConsultaPinbal
+	 * @param expedientId
+	 * @param processInstanceId
+	 * @return
+	 */
+	@Override
+	public Object consultaPinbalSvddgpciws02(
+			DadesConsultaPinbal dadesConsultaPinbal, Long expedientId, String processInstanceId) {
+		Object respostaPinbal = Jbpm3HeliumBridge.getInstanceService().consultaDadesIdentitatPinbalSVDDGPCIWS02(
+				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), expedientId, processInstanceId);
+		return respostaPinbal;
+	}
+	
+	
+	/**
+	 * Fa una crida al servei específic SVDDGPVIWS02 de verificació de dades de Pinbal.
+	 * 
+	 * @param dadesConsultaPinbal
+	 * @param expedientId
+	 * @param processInstanceId
+	 * @return
+	 */
+	@Override
+	public Object consultaPinbalSvddgpviws02(
+			DadesConsultaPinbal dadesConsultaPinbal, Long expedientId, String processInstanceId) {
+		Object respostaPinbal = Jbpm3HeliumBridge.getInstanceService().verificacioDadesIdentitatPinbalSVDDGPCIWS02(
+				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), expedientId, processInstanceId);
+		//en aquest servei no se li pot passsar NonbreCompleto! MAXLENGTH=0
+		return respostaPinbal;
+	}
+	
+	
+	/**
+	 * Fa una crida al servei específic SVDCCAACPASWS01 de dades tributàries de Pinbal.
+	 * 
+	 * @param dadesConsultaPinbal
+	 * @param expedientId
+	 * @param processInstanceId
+	 * @return
+	 */
+	@Override
+	public Object consultaPinbalSvdccaacpasws01(
+			DadesConsultaPinbal dadesConsultaPinbal, Long expedientId, String processInstanceId) {
+		Object respostaPinbal = Jbpm3HeliumBridge.getInstanceService().dadesTributariesPinbalSVDCCAACPASWS01(
+				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), expedientId, processInstanceId);
+		return respostaPinbal;
+	}
+	
+	// NOTIB -- Inici
+	
+		/**
+		 * Fa una notificació telemàtica al ciutadà mitjançant el servei de Notib.
+		 * 
+		 * @param dadesRegistre
+		 * @param executionContext
+		 * @return
+		 */	
+		@Override
+		public RespostaEnviar altaNotificacio(
+				DadesNotificacio dadesNotificacio, 
+				Long expedientId) throws JbpmException {
+
+			DadesNotificacioDto notificacio = ConversioTipusHelper.toDadesNotificacioDto(expedientId, dadesNotificacio);
+			
+			RespostaNotificacio respostaNotificacio = Jbpm3HeliumBridge.getInstanceService().altaNotificacio(notificacio);
+			
+			return ConversioTipusHelper.toRespostaEnviar(respostaNotificacio);		
+		}
+		
+		
+		// NOTIB -- Fi
+
+		/**
+		 * Retorna el valor d'una variable
+		 * 
+		 * @param varCodi
+		 * @return
+		 */
+		@Override
+		public Object getVariableValor(
+				String varCodi) {
+			return getVarValue(executionContext.getVariable(varCodi));
+		}
+	
+		private ContextInstance getContextInstanceGlobal(
+				ExecutionContext executionContext) {
+			ContextInstance ci = executionContext.getContextInstance();
+			if (executionContext.getToken() != null) {
+				ci = executionContext.getToken().getProcessInstance().getContextInstance();
+				while (ci.getProcessInstance().getSuperProcessToken() != null) {
+					ci = ci.getProcessInstance().getSuperProcessToken().getProcessInstance().getContextInstance();
+				}
+			}
+			return ci;
+		}
+	
+		
+		static final long serialVersionUID = 1L;
 	
 	
 }

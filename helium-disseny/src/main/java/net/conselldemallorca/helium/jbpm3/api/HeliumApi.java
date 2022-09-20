@@ -8,10 +8,12 @@ import org.jbpm.JbpmException;
 
 import net.conselldemallorca.helium.jbpm3.handlers.exception.HeliumHandlerException;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ActionInfo;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesConsultaPinbal;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesNotificacio;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreEntrada;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreNotificacio;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesRegistreSortida;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentDisseny;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.EventInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.ExpedientInfo;
@@ -28,6 +30,7 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.TaskInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.TaskInstanceInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.TimerInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.TokenInfo;
+import net.conselldemallorca.helium.jbpm3.handlers.tipus.Tramit;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.TransitionInfo;
 
 public interface HeliumApi {
@@ -77,55 +80,7 @@ public interface HeliumApi {
 	 * @return Informació del timer on s'executa la accio
 	 */
 	public TimerInfo getTimer();
-	
-//	public ModuleDefinitionInfo getDefinition(Class clazz);
-//	public ModuleInstanceInfo getInstance(Class clazz);
-//	public ContextInstanceInfo getContextInstance();
-//	public TaskMgmtInstanceInfo getTaskMgmtInstance();
-//	public JbpmContextInfo getJbpmContext();
-//	public void setAction(Action action);
-//	public void setEvent(Event event);
-//	public void setTransition(Transition transition);
-//	public Node getTransitionSource();
-//	public void setTransitionSource(Node transitionSource);
-//	public GraphElement getEventSource();
-//	public void setEventSource(GraphElement eventSource);
-//	public void setTask(Task task);
-//	public void setTaskInstance(TaskInstance taskInstance);
-//	public void setSubProcessInstance(ProcessInstance subProcessInstance);
-//	public void setTimer(Timer timer);
-	
-//	public void leaveNode();
-//	public void leaveNode(String transitionName);
-//	public void leaveNode(Transition transition);
-	
-	
-	
-	// Funciona del BasicActionHandler
-//	public DocumentDisseny getDocumentDisseny(String codiDocument);
-//	public void crearReferenciaDocumentInstanciaProcesPare(String varDocument);
-//	public Tramit consultaTramit(
-//			String numero,
-//			String clau);
-//
-//	public byte[] obtenirArxiuGestorDocumental(String id);
-//	public void documentGuardar(
-//			String documentCodi,
-//			Date data,
-//			String arxiuNom,
-//			byte[] arxiuContingut);
-//	public void adjuntGuardar(
-//            String nomDocument,
-//            Date data,
-//            String arxiuNom,
-//            byte[] arxiuContingut);
-//	
-//	public Object getVariableGlobal(String varCodi);
-//	public void setVariableGlobal(
-//			String varCodi,
-//			Object varValor);
-//	public Object getVariableGlobalValor(String varCodi);
-	
+
 	/**
 	 * Permet generar missatges que es mostraran en temps real, quan la acció s'executa en la 
 	 * finalització d'una tasca en segon pla.
@@ -133,7 +88,8 @@ public interface HeliumApi {
 	 * @param missatge Missatge a mostrar a l'usuari en l'execució d'una acció d'una tasca que s'executa en segon pla.
 	 * @throws Exception en cas de no poder obtenir el token o la tasca on s'està executant la acció
 	 */
-	public void desarInformacioExecucio(String missatge) throws Exception;
+	public void desarInformacioExecucio(
+			String missatge) throws Exception;
 	
 	// Funcions Anàlisi
 	/**
@@ -144,7 +100,8 @@ public interface HeliumApi {
 	 * @param varCodi Codi de la variable a llegir
 	 * @return El valor de la variable. Null en cas que no existeixi la variable.
 	 */
-	public Object getVariable(String varCodi);
+	public Object getVariable(
+			String varCodi);
 	/**
 	 * Obté el text que es mostra a Helium d'una variable de jBPM. Depenent del tipus de variable, 
 	 * el valor es formata o es consulta abans de mostrar-lo a l'usuari. 
@@ -154,7 +111,8 @@ public interface HeliumApi {
 	 * @param varCodi Codi de la variable a llegir
 	 * @return El valor de la variable formatat per mostrar a l'usuari. Null en cas que no existeixi la variable.
 	 */
-	public String getVariableText(String varCodi);
+	public String getVariableText(
+			String varCodi);
 	
 	/**
 	 * Obté el valor d'una variable de jBPM de la instància de tasca.
@@ -164,7 +122,8 @@ public interface HeliumApi {
 	 * @throws HeliumHandlerException Si l'execució d'aquest mètode es realitza a dins un handler no associat 
 	 * a una instància de tasca es produirà una excepció
 	 */
-	public Object getVariableInstanciaTasca(String varCodi) throws HeliumHandlerException;
+	public Object getVariableInstanciaTasca(
+			String varCodi) throws HeliumHandlerException;
 	/**
 	 * Obté el text que es mostra a Helium d'una variable de jBPM de la instància de tasca. 
 	 * Depenent del tipus de variable, el valor es formateja o es consulta abans de mostrar-lo a l'usuari.
@@ -174,7 +133,8 @@ public interface HeliumApi {
 	 * @throws HeliumHandlerException Si l'execució d'aquest mètode es realitza a dins un handler no associat 
 	 * a una instància de tasca es produirà una excepció
 	 */
-	public String getVariableInstanciaTascaText(String varCodi) throws HeliumHandlerException;
+	public String getVariableInstanciaTascaText(
+			String varCodi) throws HeliumHandlerException;
 	/**
 	 * Modifica el valor d'una variable jBPM de la instància de tasca
 	 * 
@@ -183,7 +143,9 @@ public interface HeliumApi {
 	 * @throws HeliumHandlerException Si l'execució d'aquest mètode es realitza a dins un handler no associat 
 	 * a una instància de tasca es produirà una excepció
 	 */
-	public void setVariableInstanciaTasca(String varCodi, Object varValor) throws HeliumHandlerException;
+	public void setVariableInstanciaTasca(
+			String varCodi, 
+			Object varValor) throws HeliumHandlerException;
 	
 	/**
 	 * Obté el valor d'una variable de jBPM de la instància de procés
@@ -191,7 +153,8 @@ public interface HeliumApi {
 	 * @param varCodi Codi de la variable a llegir
 	 * @return El valor de la variable. Null en cas que no existeixi la variable.
 	 */
-	public Object getVariableInstanciaProces(String varCodi);
+	public Object getVariableInstanciaProces(
+			String varCodi);
 	/**
 	 * Obté el text que es mostra a Helium d'una variable de jBPM de la instància de procés. 
 	 * Depenent del tipus de variable, el valor es formateja o es consulta abans de mostrar-lo a l'usuari.
@@ -199,31 +162,18 @@ public interface HeliumApi {
 	 * @param varCodi Codi de la variable a llegir
 	 * @return El valor de la variable formatat per mostrar a l'usuari. Null en cas que no existeixi la variable.
 	 */
-	public String getVariableInstanciaProcesText(String varCodi);
+	public String getVariableInstanciaProcesText(
+			String varCodi);
 	/**
 	 * Modifica el valor d'una variable jBPM de la instància de procés
 	 * 
 	 * @param varCodi Codi de la variable a modificar
 	 * @param varValor Nou valor de la variable
 	 */
-	public void setVariableInstanciaProces(String varCodi, Object varValor);
+	public void setVariableInstanciaProces(
+			String varCodi, 
+			Object varValor);
 
-//	/**
-//	 * Deprecated method.  
-//	 * Use: {@link #setVariableInstanciaProces(String, Object) setVariableInstanciaProces}or {@link #setVariableInstanciaTasca(String, Object) setVariableInstanciaTasca} methods instead.
-//	 * <pre> Ex. {@code setVariableInstanciaTasca(varName, new TerminiInfo(anys, mesos, dies))}</pre>
-//	 * @param varName Nom de la variable on desar el termini
-//	 * @param anys Anys de duració del termini
-//	 * @param mesos Mesos de duració del termini
-//	 * @param dies Dies de duració del termini
-//	 * @throws HeliumHandlerException en el cas que s'executi la acció fora de l'ambit de tasca
-//	 */
-//	@Deprecated
-//	public void terminiGuardar(
-//			String varName,
-//			int anys,
-//			int mesos,
-//			int dies) throws HeliumHandlerException;
 	
 	/**
 	 * Obté la informació de l'expedient a on s'està executant el handler
@@ -239,7 +189,8 @@ public interface HeliumApi {
 	 * @throws HeliumHandlerException Si l'execució d'aquest mètode es realitza a dins un handler no associat 
 	 * a una instància de tasca es produirà una excepció
 	 */
-	public void errorValidacioInstanciaTasca(String error);
+	public void errorValidacioInstanciaTasca(
+			String error);
 	
 	/**
 	 * Realitza una consulta de domini i retorna el resultat
@@ -274,7 +225,8 @@ public interface HeliumApi {
 	 * @return Una llista amb els resultats retornats per la consulta de domini
 	 * @throws HeliumHandlerException Si no es troba la enumeracio amb el codi indicat es produirà una excepció
 	 */
-	public List<ParellaCodiValor> consultaEnumeracio(String codiEnumeracio) throws HeliumHandlerException;
+	public List<ParellaCodiValor> consultaEnumeracio(
+			String codiEnumeracio) throws HeliumHandlerException;
 	
 	/** Consulta el valor text per a un codi d'una enumeració
 	 * 
@@ -366,7 +318,8 @@ public interface HeliumApi {
 	 * @param documentCodi
 	 * @return La informació del document
 	 */
-	public DocumentInfo getDocument(String documentCodi);
+	public DocumentInfo getDocument(
+			String documentCodi);
 	
 	/**
 	 * Crea una anotació al registre d'entrada
@@ -405,20 +358,23 @@ public interface HeliumApi {
 	 * @param registreNumero El número de registre de la notificació telemàtica
 	 * @return La informació relativa al justificant de recepció
 	 */
-	public JustificantRecepcioInfo obtenirJustificantRecepcio(String registreNumero);
+	public JustificantRecepcioInfo obtenirJustificantRecepcio(
+			String registreNumero);
 	
 	/**
 	 * Crea una relació entre l'expedient actual i l'expedient indicat
 	 * 
 	 * @param expedientId L'identificador de l'expedient a relacionar amb l'actual
 	 */
-	public void expedientRelacionar(Long expedientId);
+	public void expedientRelacionar(
+			Long expedientId);
 	/**
 	 * Atura la tramitació de l'expedient actual
 	 * 
 	 * @param motiu El motiu pel qual s'atura l'expedient
 	 */
-	public void expedientAturar(String motiu);
+	public void expedientAturar(
+			String motiu);
 	/**
 	 * Reprèn lla tramitació de l'expedient actual.
 	 * 
@@ -462,5 +418,187 @@ public interface HeliumApi {
 	public void interessatEliminar(
 			String codi,
 			Long expedientId);
+	/**
+	 * Obté la informació de disseny del document
+	 * 
+	 * @param codiDocument
+	 * @return
+	 */
+	DocumentDisseny getDocumentDisseny(
+			String codiDocument);
+	/**
+	 * Enllaça un document d'una instancia de procés pare. Si el document
+	 * no existeix no el copia i no produeix cap error.
+	 * 
+	 * @param codiDocument
+	 */
+	void crearReferenciaDocumentInstanciaProcesPare(
+			String varDocument);
+	/**
+	 * Consulta la data del justificant de recepció d'una notificació.
+	 * 
+	 * @param registreNumero
+	 * @return
+	 */
+	Date registreObtenirJustificantRecepcio(
+			String registreNumero);
+	/**
+	 * Obté el contingut de l'arxiu directament de la gestió documental.
+	 * 
+	 * @param id
+	 * @return
+	 */
+	byte[] obtenirArxiuGestorDocumental(
+			String id);
+	/**
+	 * Emmagatzema un document a dins l'expedient.
+	 * 
+	 * @param documentCodi
+	 * @param data
+	 * @param arxiuNom
+	 * @param arxiuContingut
+	 */
+	void documentGuardar(
+			String documentCodi, 
+			Date data, 
+			String arxiuNom, 
+			byte[] arxiuContingut);
+	/**
+	 * Guarda un document adjunt.
+	 * 
+	 * @param nomDocument
+	 * @param data
+	 * @param arxiuNom
+	 * @param arxiuContingut
+	 */
+	void adjuntGuardar(
+			String nomDocument, 
+			Date data, 
+			String arxiuNom, 
+			byte[] arxiuContingut);
+	/**
+	 * Retorna el valor d'una variable global.
+	 * 
+	 * @param varCodi
+	 * @return
+	 */
+	Object getVariableGlobal(String varCodi);
+	/**
+	 * Modifica el valor d'una variable global.
+	 * 
+	 * @param varCodi
+	 * @return
+	 */
+	void setVariableGlobal(String varCodi, Object varValor);
+	/**
+	 * Retorna el valor d'una variable global.
+	 * 
+	 * @param varCodi
+	 * @return
+	 */
+	Object getVariableGlobalValor(String varCodi);
+	/**
+	 * Reindexa l'expedient actual.
+	 */
+	void instanciaProcesReindexar();
+	/**
+	 * Activa o desactiva un token
+	 * 
+	 * @param tokenId
+	 * @param activar
+	 * @return
+	 */
+	boolean tokenActivar(long tokenId, boolean activar);
+	/**
+	 * Reindexa l'expedient corresponent a una instància de procés.
+	 * 
+	 * @param processInstanceId
+	 */
+	boolean instanciaProcesReindexar(String processInstanceId);
+	/**
+	 * Fa una crida al servei genèric Pinbal.
+	 * 
+	 * @param dadesConsultaPinbal
+	 * @param expedientId
+	 * @param processInstanceId
+	 * @return
+	 */
+	Object consultaPinbal(
+			DadesConsultaPinbal dadesConsultaPinbal, 
+			Long expedientId, 
+			String processInstanceId)
+			throws JbpmException;
+	/**
+	 * Fa una crida al servei específic SVDDGPCIWS02 de consulta de dades de Pinbal.
+	 * 
+	 * @param dadesConsultaPinbal
+	 * @param expedientId
+	 * @param processInstanceId
+	 * @return
+	 */
+	Object consultaPinbalSvddgpciws02(
+			DadesConsultaPinbal dadesConsultaPinbal, 
+			Long expedientId,
+			String processInstanceId);
+	/**
+	 * Fa una crida al servei específic SVDDGPVIWS02 de verificació de dades de Pinbal.
+	 * 
+	 * @param dadesConsultaPinbal
+	 * @param expedientId
+	 * @param processInstanceId
+	 * @return
+	 */
+	Object consultaPinbalSvddgpviws02(
+			DadesConsultaPinbal dadesConsultaPinbal, 
+			Long expedientId,
+			String processInstanceId);
+	/**
+	 * Fa una crida al servei específic SVDCCAACPASWS01 de dades tributàries de Pinbal.
+	 * 
+	 * @param dadesConsultaPinbal
+	 * @param expedientId
+	 * @param processInstanceId
+	 * @return
+	 */
+	Object consultaPinbalSvdccaacpasws01(
+			DadesConsultaPinbal dadesConsultaPinbal, 
+			Long expedientId,
+			String processInstanceId);
+	/**
+	 * Retorna el valor d'una variable
+	 * 
+	 * @param varCodi
+	 * @return
+	 */
+	Object getVariableValor(
+			String varCodi);
+	
+	String getTextPerVariableAmbDomini(
+			String varCodi);
+	/**
+	 * Guarda un termini a dins una variable
+	 * 
+	 * @param varName
+	 * @param anys
+	 * @param mesos
+	 * @param dies
+	 */
+	void terminiGuardar(
+			String varName, 
+			int anys, 
+			int mesos, 
+			int dies);
+	/**
+	 * Consulta les dades d'un tràmit
+	 * 
+	 * @param numero
+	 * @param clau
+	 */
+	Tramit consultaTramit(
+			String numero, 
+			String clau);
+	
+	
+	
 	
 }

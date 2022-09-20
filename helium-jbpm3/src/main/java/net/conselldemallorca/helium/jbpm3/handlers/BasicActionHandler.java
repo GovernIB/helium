@@ -679,7 +679,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	 * 
 	 * @param dadesConsultaPinbal
 	 * @param expedientId
-	 * @param executionContext
+	 * @param processInstanceId
 	 * @return
 	 */
 	public Object consultaPinbal(
@@ -694,7 +694,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	 * 
 	 * @param dadesConsultaPinbal
 	 * @param expedientId
-	 * @param executionContext
+	 * @param processInstanceId
 	 * @return
 	 */
 
@@ -711,7 +711,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	 * 
 	 * @param dadesConsultaPinbal
 	 * @param expedientId
-	 * @param executionContext
+	 * @param processInstanceId
 	 * @return
 	 */
 
@@ -729,7 +729,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	 * 
 	 * @param dadesConsultaPinbal
 	 * @param expedientId
-	 * @param executionContext
+	 * @param processInstanceId
 	 * @return
 	 */
 
