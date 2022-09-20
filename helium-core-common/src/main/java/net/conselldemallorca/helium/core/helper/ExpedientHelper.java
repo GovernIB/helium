@@ -72,6 +72,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
@@ -162,10 +163,10 @@ public class ExpedientHelper {
 		if (expedient.getIniciadorTipus().equals(IniciadorTipus.INTERN)) {
 			if (expedient.getIniciadorCodi() != null)
 				dto.setIniciadorPersona(
-						pluginHelper.personaFindAmbCodi(expedient.getIniciadorCodi()));
+						findPersonaOrDefault(expedient.getIniciadorCodi()));
 			if (expedient.getResponsableCodi() != null)
 					dto.setResponsablePersona(
-							pluginHelper.personaFindAmbCodi(expedient.getResponsableCodi()));
+							findPersonaOrDefault(expedient.getResponsableCodi()));
 		}
 		if (expedient.getIniciadorTipus().equals(IniciadorTipus.SISTRA))
 			dto.setBantelEntradaNum(expedient.getNumeroEntradaSistra());
@@ -203,6 +204,23 @@ public class ExpedientHelper {
 		dto.setReindexarError(expedient.isReindexarError());
 		return dto;
 	}
+	
+	/** Mètode per evitar l'error quan l'usuari no es troba i com a mínim
+	 * retornar una persona DTO amb el codi informat.
+	 * @param personaCodi
+	 * @return
+	 */
+	private PersonaDto findPersonaOrDefault(String personaCodi) {
+		PersonaDto persona;
+		try {
+			persona = pluginHelper.personaFindAmbCodi(personaCodi);
+		} catch(Exception e) {
+			logger.warn("Error consultant la persona amb codi " + personaCodi + ": " + e.getMessage());
+			persona = new PersonaDto(personaCodi, "(" + personaCodi + ")", "", "", Sexe.SEXE_DONA);
+		}
+		return persona;
+	}
+
 
 	public Expedient getExpedientComprovantPermisos(
 			Long id,
