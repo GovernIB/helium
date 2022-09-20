@@ -1177,8 +1177,9 @@ public class DocumentHelperV3 {
 			String taskInstanceId,
 			String processInstanceId,
 			Date dataDocument) {
+		ArxiuDto resultat;
 		if (document.isPlantilla()) {
-			ArxiuDto resultat = plantillaHelper.generarDocumentPlantilla(
+			resultat = plantillaHelper.generarDocumentPlantilla(
 					expedient,
 					document,
 					taskInstanceId,
@@ -1211,13 +1212,15 @@ public class DocumentHelperV3 {
 							messageHelper.getMessage("error.document.conversio.externa"));
 				}
 			}
-			return resultat;
 		} else {
-			ArxiuDto resultat = new ArxiuDto(
+			resultat = new ArxiuDto(
 					document.getArxiuNom(),
 					document.getArxiuContingut());
-			return resultat;
 		}
+		if (resultat.getTipusMime() == null) {
+			resultat.setTipusMime(getContentType(resultat.getNom()));
+		}
+		return resultat;
 	}
 
 	public DocumentDto toDocumentDto(
