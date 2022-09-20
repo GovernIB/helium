@@ -2175,14 +2175,16 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					valorHelium  = new Boolean("s".equals(valor) || "true".equals(valor));
 					break;
 				case DATE:
-					valorHelium = DateUtils.parseDate(valor, new String[]{
-							"yyyy-MM-dd",
-							"yyyy-MM-dd HH:mm:ss",
-							"yyyy-MM-dd HH:mm:ss.S",
-							"dd/MM/yyyy",
-							"dd/MM/yyyy HH:mm:ss",
-							"dd/MM/yyyy HH:mm:ss.S",
-							});
+					if (!"".equals(valor.trim())) {
+						valorHelium = DateUtils.parseDate(valor, new String[]{
+								"yyyy-MM-dd",
+								"yyyy-MM-dd HH:mm:ss",
+								"yyyy-MM-dd HH:mm:ss.S",
+								"dd/MM/yyyy",
+								"dd/MM/yyyy HH:mm:ss",
+								"dd/MM/yyyy HH:mm:ss.S",
+								});
+					}
 					break;
 				case FLOAT:
 					valorHelium = Double.parseDouble(valor.replace(",", "."));
