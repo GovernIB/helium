@@ -162,5 +162,27 @@ public class PortaFIBCallbackRest {
 		return new ResponseEntity<String>("OK", HttpStatus.OK);
 	}
 
+	/** Mètode per consultar la versió. Es retorna 1. */
+	@RequestMapping(value = "/versio", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Integer> versio() {
+		logger.debug("Rebuda consulta de versió al callback de portafirmes API REST v1");
+
+		long t0 = System.currentTimeMillis();
+		String accioDescripcio = "Consulta de la versió del callback REST 1.0";
+		List<IntegracioParametreDto> parametres = new ArrayList<IntegracioParametreDto>();
+
+		adminService.monitorAddAccio(
+				MonitorIntegracioHelper.INTCODI_PFIRMA, 
+				accioDescripcio,
+				IntegracioAccioTipusEnumDto.RECEPCIO, 
+				IntegracioAccioEstatEnumDto.OK, 
+				System.currentTimeMillis() - t0,
+				null, null, 
+				parametres);
+
+		return new ResponseEntity<Integer>(new Integer(1), HttpStatus.OK);
+	}
+	
 	private static final Log logger = LogFactory.getLog(PortaFIBCallbackRest.class);
 }

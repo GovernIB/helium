@@ -170,6 +170,7 @@
 			<!-- Integracio PortaFIB -->
 			<url-pattern>/rest/portafib/callback</url-pattern>
 			<url-pattern>/rest/portafib/callback/event</url-pattern>
+			<url-pattern>/rest/portafib/callback/versio</url-pattern>
 			<!-- Selenium-integraciones.begin -->
 			<url-pattern>/ws/CustodiaDocumentos</url-pattern>
 			<url-pattern>/ws/portafirmas</url-pattern>
