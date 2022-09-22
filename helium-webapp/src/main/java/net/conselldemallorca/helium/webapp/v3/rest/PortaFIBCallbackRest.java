@@ -68,7 +68,7 @@ public class PortaFIBCallbackRest {
 				+ "estat: " + estat + ", " + "motiu rebuig: " + motiuRebuig + ")");
 
 		long t0 = System.currentTimeMillis();
-		String accioDescripcio = "Petició rebuda al callback WS 1.0";
+		String accioDescripcio = "Petició rebuda al callback API REST 1.0";
 		List<IntegracioParametreDto> parametres = new ArrayList<IntegracioParametreDto>();
 		parametres.add(new IntegracioParametreDto("documentId", new Long(documentId).toString()));
 		parametres.add(new IntegracioParametreDto("estat", new Integer(estat).toString()));
