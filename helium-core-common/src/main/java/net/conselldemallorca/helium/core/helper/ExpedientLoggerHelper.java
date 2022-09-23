@@ -973,7 +973,7 @@ public class ExpedientLoggerHelper {
 										false,
 										null,
 										"document.pdf",
-										getContingutRecurs("document_buit.pdf"),
+										getContingutRecurs("/net/conselldemallorca/helium/core/model/service/document_buit.pdf"),
 										null,
 										null,
 										null,
@@ -1001,7 +1001,7 @@ public class ExpedientLoggerHelper {
 										false,
 										null,
 										"document.pdf",
-										getContingutRecurs("document_buit.pdf"),
+										getContingutRecurs("/net/conselldemallorca/helium/core/model/service/document_buit.pdf"),
 										null,
 										null,
 										null,
@@ -1078,7 +1078,7 @@ public class ExpedientLoggerHelper {
 											false,
 											null,
 											"document.pdf",
-											getContingutRecurs("document_buit.pdf"),
+											getContingutRecurs("/net/conselldemallorca/helium/core/model/service/document_buit.pdf"),
 											null,
 											null,
 											null,
@@ -1106,7 +1106,7 @@ public class ExpedientLoggerHelper {
 											false,
 											null,
 											"document.pdf",
-											getContingutRecurs("document_buit.pdf"),
+											getContingutRecurs("/net/conselldemallorca/helium/core/model/service/document_buit.pdf"),
 											null,
 											null,
 											null,
@@ -1352,8 +1352,10 @@ public class ExpedientLoggerHelper {
 		try {
 			InputStream inputStream = getClass().getResourceAsStream(recurs);
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			for (int readBytes = inputStream.read(); readBytes >= 0; readBytes = inputStream.read())
-				outputStream.write(readBytes);
+			if(inputStream != null) {
+				for (int readBytes = inputStream.read(); readBytes >= 0; readBytes = inputStream.read())
+					outputStream.write(readBytes);
+			}
 			byte[] byteData = outputStream.toByteArray();
 			inputStream.close();
 			outputStream.close();
