@@ -424,7 +424,7 @@ public interface HeliumApi {
 	 * @param codiDocument
 	 * @return
 	 */
-	DocumentDisseny getDocumentDisseny(
+	public DocumentDisseny getDocumentDisseny(
 			String codiDocument);
 	/**
 	 * Enllaça un document d'una instancia de procés pare. Si el document
@@ -432,7 +432,7 @@ public interface HeliumApi {
 	 * 
 	 * @param codiDocument
 	 */
-	void crearReferenciaDocumentInstanciaProcesPare(
+	public void crearReferenciaDocumentInstanciaProcesPare(
 			String varDocument);
 	/**
 	 * Consulta la data del justificant de recepció d'una notificació.
@@ -440,7 +440,7 @@ public interface HeliumApi {
 	 * @param registreNumero
 	 * @return
 	 */
-	Date registreObtenirJustificantRecepcio(
+	public Date registreObtenirJustificantRecepcio(
 			String registreNumero);
 	/**
 	 * Obté el contingut de l'arxiu directament de la gestió documental.
@@ -448,7 +448,7 @@ public interface HeliumApi {
 	 * @param id
 	 * @return
 	 */
-	byte[] obtenirArxiuGestorDocumental(
+	public byte[] obtenirArxiuGestorDocumental(
 			String id);
 	/**
 	 * Emmagatzema un document a dins l'expedient.
@@ -458,7 +458,7 @@ public interface HeliumApi {
 	 * @param arxiuNom
 	 * @param arxiuContingut
 	 */
-	void documentGuardar(
+	public void documentGuardar(
 			String documentCodi, 
 			Date data, 
 			String arxiuNom, 
@@ -471,7 +471,7 @@ public interface HeliumApi {
 	 * @param arxiuNom
 	 * @param arxiuContingut
 	 */
-	void adjuntGuardar(
+	public void adjuntGuardar(
 			String nomDocument, 
 			Date data, 
 			String arxiuNom, 
@@ -482,7 +482,7 @@ public interface HeliumApi {
 	 * @param varCodi
 	 * @return
 	 */
-	Object getVariableGlobal(String varCodi);
+	public Object getVariableGlobal(String varCodi);
 	/**
 	 * Modifica el valor d'una variable global.
 	 * 
@@ -496,11 +496,11 @@ public interface HeliumApi {
 	 * @param varCodi
 	 * @return
 	 */
-	Object getVariableGlobalValor(String varCodi);
+	public Object getVariableGlobalValor(String varCodi);
 	/**
 	 * Reindexa l'expedient actual.
 	 */
-	void instanciaProcesReindexar();
+	public void instanciaProcesReindexar();
 	/**
 	 * Activa o desactiva un token
 	 * 
@@ -508,13 +508,13 @@ public interface HeliumApi {
 	 * @param activar
 	 * @return
 	 */
-	boolean tokenActivar(long tokenId, boolean activar);
+	public boolean tokenActivar(long tokenId, boolean activar);
 	/**
 	 * Reindexa l'expedient corresponent a una instància de procés.
 	 * 
 	 * @param processInstanceId
 	 */
-	boolean instanciaProcesReindexar(String processInstanceId);
+	public boolean instanciaProcesReindexar(String processInstanceId);
 	/**
 	 * Fa una crida al servei genèric Pinbal.
 	 * 
@@ -523,7 +523,7 @@ public interface HeliumApi {
 	 * @param processInstanceId
 	 * @return
 	 */
-	Object consultaPinbal(
+	public Object consultaPinbal(
 			DadesConsultaPinbal dadesConsultaPinbal, 
 			Long expedientId, 
 			String processInstanceId)
@@ -536,7 +536,7 @@ public interface HeliumApi {
 	 * @param processInstanceId
 	 * @return
 	 */
-	Object consultaPinbalSvddgpciws02(
+	public Object consultaPinbalSvddgpciws02(
 			DadesConsultaPinbal dadesConsultaPinbal, 
 			Long expedientId,
 			String processInstanceId);
@@ -548,7 +548,7 @@ public interface HeliumApi {
 	 * @param processInstanceId
 	 * @return
 	 */
-	Object consultaPinbalSvddgpviws02(
+	public Object consultaPinbalSvddgpviws02(
 			DadesConsultaPinbal dadesConsultaPinbal, 
 			Long expedientId,
 			String processInstanceId);
@@ -560,7 +560,7 @@ public interface HeliumApi {
 	 * @param processInstanceId
 	 * @return
 	 */
-	Object consultaPinbalSvdccaacpasws01(
+	public Object consultaPinbalSvdccaacpasws01(
 			DadesConsultaPinbal dadesConsultaPinbal, 
 			Long expedientId,
 			String processInstanceId);
@@ -570,10 +570,10 @@ public interface HeliumApi {
 	 * @param varCodi
 	 * @return
 	 */
-	Object getVariableValor(
+	public Object getVariableValor(
 			String varCodi);
 	
-	String getTextPerVariableAmbDomini(
+	public String getTextPerVariableAmbDomini(
 			String varCodi);
 	/**
 	 * Guarda un termini a dins una variable
@@ -583,7 +583,7 @@ public interface HeliumApi {
 	 * @param mesos
 	 * @param dies
 	 */
-	void terminiGuardar(
+	public void terminiGuardar(
 			String varName, 
 			int anys, 
 			int mesos, 
@@ -594,7 +594,7 @@ public interface HeliumApi {
 	 * @param numero
 	 * @param clau
 	 */
-	Tramit consultaTramit(
+	public Tramit consultaTramit(
 			String numero, 
 			String clau);
 	

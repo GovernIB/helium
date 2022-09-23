@@ -1173,7 +1173,7 @@ public class HeliumApiImpl implements HeliumApi {
 		 * Fa una notificació telemàtica al ciutadà mitjançant el servei de Notib.
 		 * 
 		 * @param dadesRegistre
-		 * @param executionContext
+		 * @param expedientId
 		 * @return
 		 */	
 		@Override
