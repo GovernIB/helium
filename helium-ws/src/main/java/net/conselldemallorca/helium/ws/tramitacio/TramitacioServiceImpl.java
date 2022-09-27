@@ -111,7 +111,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 				
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", expedientTipus=" + expedientTipus 
 				+ ", numero=" + numero 
 				+ ", titol=" + titol 
@@ -232,7 +233,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+"]"));
@@ -306,7 +308,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String usuari) throws TramitacioException {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+"]"));
@@ -379,7 +382,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String codi) throws TramitacioException {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+"]"));
@@ -437,7 +441,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String codi) throws TramitacioException {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+"]"));
@@ -496,7 +501,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String processInstanceId) throws TramitacioException {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+"]"));
@@ -560,7 +566,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String processInstanceId) throws TramitacioException {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+"]"));
@@ -639,7 +646,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String tascaId) throws TramitacioException {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+"]"));
@@ -746,7 +754,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String tascaId) throws TramitacioException {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+"]"));
@@ -814,7 +823,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String tascaId) throws TramitacioException {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+ "]"));
@@ -874,7 +884,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			List<ParellaCodiValor> valors) throws TramitacioException {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+"]"));
@@ -959,7 +970,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String tascaId) throws TramitacioException {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+"]"));
@@ -1026,7 +1038,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			byte[] arxiuContingut) throws TramitacioException {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+"]"));
@@ -1094,7 +1107,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String document) throws TramitacioException {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+"]"));
@@ -1151,7 +1165,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String transicio) throws TramitacioException {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+"]"));
@@ -1201,7 +1216,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String processInstanceId) throws TramitacioException {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entornCodi
+				+ " [entorn=" + entornCodi 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+"]"));
@@ -1254,7 +1270,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String processInstanceId) throws TramitacioException {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+"]"));
@@ -1325,7 +1342,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			Object valor) throws TramitacioException {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+"]"));
@@ -1358,7 +1376,9 @@ public class TramitacioServiceImpl implements TramitacioService {
 			Authentication authentication =  new UsernamePasswordAuthenticationToken(usuari, null);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			Long expedientId = expedientService.findIdAmbProcessInstanceId(processInstanceId);
-			
+			if (expedientId == null) {
+				throw new TramitacioException("No s'ha trobat cap expedient per la instància de procés pogut guardar la variable al procés: " + processInstanceId);
+			}
 			if (valor instanceof Object[]) {
 				Object[] vs = (Object[])valor;
 				for (int i = 0; i < vs.length; i++) {
@@ -1411,7 +1431,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String varCodi) throws TramitacioException {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+"]"));
@@ -1470,7 +1491,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String processInstanceId) throws TramitacioException {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+"]"));
@@ -1525,7 +1547,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 			Long documentId) throws TramitacioException {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [" 
+				+ " [documentId= " + documentId + ", " 
 				+ usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+ "]"));
@@ -1539,24 +1561,24 @@ public class TramitacioServiceImpl implements TramitacioService {
 						TramitacioService.class,
 						"procesDocumentDescarregar.count"));
 		countTotal.inc();
+		
 		try {
 			ArxiuProces resposta = null;
 			if (documentId != null) {
-
-				ArxiuDto arxiu = documentService.getArxiu(documentId);
+				ArxiuDto arxiu = expedientDocumentService.arxiuFindAmbDocumentStoreId(documentId);
 				if (arxiu != null) {
 					resposta = new ArxiuProces();
 					resposta.setNom(arxiu.getNom());
 					resposta.setContingut(arxiu.getContingut());
-					
+
 					logger.info(this.expLog.concat(
-						this.getNomMetode()
-						+ " ["
-						+ ", document id =" + documentId
-						+ ", document nom =" + arxiu.getNom() 
-						+ ", " + usuariAutenticat
-						+ SecurityContextHolder.getContext().getAuthentication().getName()
-						+ "]"));
+							this.getNomMetode()
+							+ " ["
+							+ ", document id =" + documentId
+							+ ", document nom =" + arxiu.getNom() 
+							+ ", " + usuariAutenticat
+							+ SecurityContextHolder.getContext().getAuthentication().getName()
+							+ "]"));
 				}
 			}
 			return resposta;
@@ -1580,7 +1602,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 		
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+"]"));
@@ -1650,7 +1673,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			Long documentId) throws TramitacioException {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+ "]"));
@@ -1706,7 +1730,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String accio) throws TramitacioException {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+ "]"));
@@ -1760,7 +1785,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String script) throws TramitacioException {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+ "]"));
@@ -1813,7 +1839,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String motiu) throws TramitacioException{
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+ "]"));
@@ -1866,7 +1893,8 @@ public class TramitacioServiceImpl implements TramitacioService {
 			String processInstanceId) throws TramitacioException {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
-				+ " [entorn=" + entorn
+				+ " [entorn=" + entorn 
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+ "]"));
@@ -2030,6 +2058,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 		logger.info(this.expLog.concat(
 				this.getNomMetode()
 				+ " [entorn=" + entorn
+				+ ", usuari=" + usuari
 				+ ", " + usuariAutenticat 
 				+ SecurityContextHolder.getContext().getAuthentication().getName()
 				+ "]"));
@@ -2077,7 +2106,6 @@ public class TramitacioServiceImpl implements TramitacioService {
 		return entornDto;
 	}
 	private ExpedientTipusDto findExpedientTipusAmbEntornICodi(Long entornId, String codi) {
-//		return expedientTipusService.findAmbCodiPerValidarRepeticio(entornId, codi);
 		return expedientTipusService.findAmbCodi(entornId, codi);
 	}
 
@@ -2086,7 +2114,6 @@ public class TramitacioServiceImpl implements TramitacioService {
 		tt.setId(tasca.getId());
 		tt.setCodi(tasca.getJbpmName());
 		tt.setTitol(tasca.getTitol());
-		//tt.setExpedient(tasca.getex.gete.getExpedientNumero());
 		tt.setMissatgeInfo(tasca.getTascaMissatgeInfo());
 		tt.setMissatgeWarn(tasca.getTascaMissatgeWarn());
 		if (tasca.getResponsable() != null)
