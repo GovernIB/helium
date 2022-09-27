@@ -59,4 +59,8 @@ public enum NtiTipoDocumentalEnumDto {
 	public String getValorNti() {
 		return RegistreAnnexNtiTipusDocumentEnum.valueOf(this.name()).getValor();
 	}
+	/** Retorna el valor numèric del NTI pel tipus de document. */
+	public Integer getValorNumericNti() {
+		return Integer.valueOf(getValorNti().substring(2));
+	}
 }

@@ -1512,9 +1512,16 @@ public class PluginHelper {
 			parametres[2] = new IntegracioParametreDto(
 					"documentNom",
 					document != null ? document.getDocumentNom() : null);
+			Integer documentTipus = null;
+			if(document!=null) {
+				if(document.getTipusDocPortasignatures()!=null)
+					documentTipus = document.getTipusDocPortasignatures();
+				else if (document.getNtiTipoDocumental()!=null)
+					if(document.getNtiTipoDocumental()!=null)
+						documentTipus = document.getNtiTipoDocumental().getValorNumericNti();			}
 			parametres[3] = new IntegracioParametreDto(
 					"documentTipus",
-					document != null ? document.getTipusDocPortasignatures() : null);
+					documentTipus);
 			parametres[4] = new IntegracioParametreDto(
 					"arxiuNom",
 					document != null ? document.getArxiuNom() : null);
@@ -3946,7 +3953,10 @@ public class PluginHelper {
 		documentPs.setTitol(StringUtils.abbreviate(StringUtils.abbreviate(expedient.getIdentificador(), 90) + ": " + document.getDocumentNom(), 254));
 		documentPs.setArxiuNom(document.getVistaNom());
 		documentPs.setArxiuContingut(document.getVistaContingut());
-		documentPs.setTipus(document.getTipusDocPortasignatures());
+		if(document.getTipusDocPortasignatures()!=null)
+			documentPs.setTipus(document.getTipusDocPortasignatures());
+		else if(document.getNtiTipoDocumental()!=null)	
+			documentPs.setTipus(document.getNtiTipoDocumental().getValorNumericNti());
 		documentPs.setSignat(document.isSignat());
 		documentPs.setReference(document.getId().toString());
 		// Llargada màxima per la descripciól 255. Abreuja l'identificador de l'expedient a 90 i tot plegat a 255

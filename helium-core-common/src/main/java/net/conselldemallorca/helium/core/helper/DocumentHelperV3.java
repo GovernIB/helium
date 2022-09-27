@@ -1245,6 +1245,9 @@ public class DocumentHelperV3 {
 				dto.setSignat(documentStore.isSignat());
 				dto.setAdjunt(documentStore.isAdjunt());
 				dto.setAdjuntTitol(documentStore.getAdjuntTitol());
+				dto.setNtiOrigen(documentStore.getNtiOrigen());
+				dto.setNtiEstadoElaboracion(documentStore.getNtiEstadoElaboracion());
+				dto.setNtiTipoDocumental(documentStore.getNtiTipoDocumental());
 				try {
 					dto.setTokenSignatura(getDocumentTokenUtils().xifrarToken(documentStoreId.toString()));
 				} catch (Exception ex) {
