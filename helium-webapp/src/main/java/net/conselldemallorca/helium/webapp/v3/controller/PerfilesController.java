@@ -1,15 +1,20 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -61,6 +66,26 @@ public class PerfilesController extends BaseController {
 		model.addAttribute(getFiltreCommand(request, model));
 		return "v3/persona/perfil";
 	}
+
+	@RequestMapping(value = "/logout", method = RequestMethod.GET)
+	@ResponseBody
+	public String get(
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
+		HttpSession session= request.getSession(false);
+		SecurityContextHolder.clearContext();
+        session= request.getSession(false);
+        if(session != null) {
+           session.invalidate();
+        }// Només per Jboss
+        for(Cookie cookie : request.getCookies()) {
+        	Cookie ck = new Cookie(cookie.getName(), null);
+			ck.setPath(request.getContextPath());
+			ck.setMaxAge(0);
+			response.addCookie(ck);
+        }
+        return "redirect:/";
+	}
+	
 
 	@RequestMapping(value = "/consulta/{entornCodi}", method = RequestMethod.GET)
 	@ResponseBody
