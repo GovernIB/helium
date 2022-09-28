@@ -224,8 +224,8 @@ public class TramitacioExterna extends BaseTest {
 					propietats.getEntornTestCodi(), 
 					propietats.getUsuariTestCodi(), 
 					tasca.getId());
+			ArxiuProces arxiu = ws.getArxiuProces(98551L);
 			if (documents != null) {
-				ArxiuProces arxiu;
 				for (DocumentTasca document : documents) {
 					System.out.println("Document " + document.getId() + " " + document.getCodi() + " (" + document.getArxiu() + ")");
 					// GetArxiuProces
