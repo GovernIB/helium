@@ -407,8 +407,10 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		
 		dadesNotificacioDto.setDocumentArxiuNom(documentDto.getArxiuNom());
 		dadesNotificacioDto.setDocumentArxiuContingut(documentDto.getArxiuContingut());
-		dadesNotificacioDto.setDocumentArxiuUuid(documentDto.getArxiuUuid());
-		
+		// Si el document té contingut val més no enviar l'UUID
+		if (documentDto.getArxiuContingut() == null) {
+			dadesNotificacioDto.setDocumentArxiuUuid(documentDto.getArxiuUuid());
+		}		
 		dadesNotificacioDto.setDocumentId(documentStoreId);
 					
 		// De moment envia només a un interessat titular però es pot crear un enviament per cada titular amb la llista de destinataris		

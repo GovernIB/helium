@@ -1301,11 +1301,13 @@ public class DocumentHelperV3 {
 				if (documentStore.getArxiuUuid() != null) {
 					// Si el document està guardat a l'arxiu no és necessari estampar-lo abans
 					// de firmar i una vegada firmat hem de mostrar la versió imprimible.
-					boolean ambContingut = ambContingutOriginal 
+					boolean ambContingut = (ambContingutOriginal 
 											|| ambContingutSignat 
-											|| ambContingutVista 
-											|| (perNotificar 
-													&& documentStore.getArxiuNom().toLowerCase().endsWith(".pdf"));
+											|| ambContingutVista);
+					// Si s'ha de notificar llavors es passa el contingut si no té uuid d'arxiu o no és un PDF
+					ambContingut = ambContingut && 
+								   perNotificar && (documentStore.getArxiuUuid() == null 
+													|| !documentStore.getArxiuNom().toLowerCase().endsWith(".pdf"));
 					es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
 							documentStore.getArxiuUuid(),
 							null,
