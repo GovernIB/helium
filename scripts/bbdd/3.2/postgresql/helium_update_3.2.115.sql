@@ -2,6 +2,7 @@
 
 --#1569 Quan es deshabilita la integració amb tràmits SISTRA es perd el codi del tràmit
 ALTER TABLE HEL_EXPEDIENT_TIPUS ADD SISTRA_ACTIU BOOLEAN DEFAULT false;
+UPDATE HEL_EXPEDIENT_TIPUS SET SISTRA_ACTIU = true WHERE SISTRA_CODTRA IS NOT NULL;
 
 --#1577  Incorporar en el grup de handlers predefinits en la gestió d'expedients la integració amb PINBAL
 --Corregir la tasca de pinbal i afegir la configuració de la integració
