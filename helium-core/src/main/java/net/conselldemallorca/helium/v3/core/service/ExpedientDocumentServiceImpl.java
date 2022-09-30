@@ -307,7 +307,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		Long documentStoreId = null;
 		
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		ExpedientDocumentDto doc = documentHelperV3.findOnePerInstanciaProces(processInstanceId, documentCodi);
 
 		ExpedientDocumentDto expDocDto = this.findOneAmbInstanciaProces(expedient.getId(), processInstanceId, documentCodi);
 		if(expDocDto != null) { 
@@ -408,8 +407,10 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		
 		dadesNotificacioDto.setDocumentArxiuNom(documentDto.getArxiuNom());
 		dadesNotificacioDto.setDocumentArxiuContingut(documentDto.getArxiuContingut());
-		dadesNotificacioDto.setDocumentArxiuUuid(documentDto.getArxiuUuid());
-		
+		// Si el document té contingut val més no enviar l'UUID
+		if (documentDto.getArxiuContingut() == null) {
+			dadesNotificacioDto.setDocumentArxiuUuid(documentDto.getArxiuUuid());
+		}		
 		dadesNotificacioDto.setDocumentId(documentStoreId);
 					
 		// De moment envia només a un interessat titular però es pot crear un enviament per cada titular amb la llista de destinataris		
@@ -635,6 +636,27 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		expedientHelper.comprovarInstanciaProces(
 				expedient,
 				documentStore.getProcessInstanceId());
+		return documentHelper.getArxiuPerDocumentStoreId(
+				documentStoreId,
+				false,
+				true);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public ArxiuDto arxiuFindAmbDocumentStoreId(Long documentStoreId) throws NoTrobatException {
+		logger.debug("Consulta de l'arxiu del document per documentStoreId (" +
+				"documentStoreId=" + documentStoreId + ")");
+		
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		if (documentStore == null) {
+			throw new NoTrobatException(
+					DocumentStore.class,
+					documentStoreId);
+		}
 		return documentHelper.getArxiuPerDocumentStoreId(
 				documentStoreId,
 				false,

@@ -21,6 +21,7 @@ import org.fundaciobit.apisib.apifirmaasyncsimple.v2.jersey.ApiFirmaAsyncSimpleJ
 
 import es.caib.portafib.ws.api.v1.WsI18NException;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
 
 /**
  * Implementació del plugin de portasignatures per l'API REST Simple del PortaFIB.
@@ -31,6 +32,8 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugin {
+
+	private OpenOfficeUtils openOfficeUtils;
 
 	@Override
 	public Integer uploadDocument(
@@ -83,11 +86,18 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 			if (annexos != null) {
 				List<FirmaAsyncSimpleAnnex> portafirmesAnnexos = new ArrayList<FirmaAsyncSimpleAnnex>();
 				
+				FirmaAsyncSimpleAnnex portafirmesAnnex;
 				for (DocumentPortasignatures annex : annexos) {
-					FirmaAsyncSimpleAnnex portafirmesAnnex = new FirmaAsyncSimpleAnnex();
-					portafirmesAnnex.setAnnex(toFirmaAsyncSimpleFile(annex));
+					portafirmesAnnex = new FirmaAsyncSimpleAnnex();
 					portafirmesAnnex.setAttach(false);
 					portafirmesAnnex.setSign(false);
+											
+					FirmaAsyncSimpleFile fitxer = new FirmaAsyncSimpleFile();
+					fitxer.setNom(annex.getArxiuNom());
+					fitxer.setData(annex.getArxiuContingut());
+					fitxer.setMime(getOpenOfficeUtils().getArxiuMimeType(annex.getArxiuNom()));
+					portafirmesAnnex.setAnnex(fitxer);
+					
 					portafirmesAnnexos.add(portafirmesAnnex);
 				}
 				signatureRequest.setAnnexs(portafirmesAnnexos);
@@ -235,5 +245,11 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 		return blocsAsyncs;
 	}
 
+	private OpenOfficeUtils getOpenOfficeUtils() {
+		if (openOfficeUtils == null) {
+			openOfficeUtils = new OpenOfficeUtils();
+		}
+		return openOfficeUtils;
+	}
 
 }

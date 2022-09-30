@@ -1535,7 +1535,7 @@ public class PluginHelper {
 					"destinatariPas2",
 					personestoString(personesPas2));
 			parametres[8] = new IntegracioParametreDto(
-					"destinatari3",
+					"destinatariPas3",
 					personestoString(personesPas3));
 			if (document == null) {
 				throw new NullPointerException("El document per a enviar a portafirmes es null.");

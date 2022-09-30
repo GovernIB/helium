@@ -179,6 +179,12 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 				processInstanceId,
 				documentStoreId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ArxiuDto arxiuFindAmbDocumentStoreId(Long documentId) throws NoTrobatException {
+		return delegate.arxiuFindAmbDocumentStoreId(documentId);
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})

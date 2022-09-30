@@ -16,6 +16,7 @@ import org.junit.runners.MethodSorters;
 
 import net.conselldemallorca.helium.core.util.ws.WsClientUtils;
 import net.conselldemallorca.helium.test.BaseTest;
+import net.conselldemallorca.helium.ws.tramitacio.ArxiuProces;
 import net.conselldemallorca.helium.ws.tramitacio.CampProces;
 import net.conselldemallorca.helium.ws.tramitacio.CampTasca;
 import net.conselldemallorca.helium.ws.tramitacio.DocumentTasca;
@@ -223,9 +224,13 @@ public class TramitacioExterna extends BaseTest {
 					propietats.getEntornTestCodi(), 
 					propietats.getUsuariTestCodi(), 
 					tasca.getId());
+			ArxiuProces arxiu = ws.getArxiuProces(98551L);
 			if (documents != null) {
 				for (DocumentTasca document : documents) {
 					System.out.println("Document " + document.getId() + " " + document.getCodi() + " (" + document.getArxiu() + ")");
+					// GetArxiuProces
+					arxiu = ws.getArxiuProces(document.getId());
+					System.out.println("Document " + arxiu.getNom() + " consultat amb " + arxiu.getContingut().length + " bytes");
 				}
 			}
 		} catch (TramitacioException e) {

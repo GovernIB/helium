@@ -245,6 +245,17 @@ public interface ExpedientDocumentService {
 			Long expedientId,
 			String processInstanceId,
 			Long documentStoreId) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Retorna l'arxiu del document donat el seu documentStoreId.
+	 * 
+	 * @param documentId
+	 * @return
+	 * @throws NoTrobatException
+	 */
+	public ArxiuDto arxiuFindAmbDocumentStoreId(
+			Long documentId) throws NoTrobatException;
+
 
 	/**
 	 * Genera l'arxiu d'un document a partir de la seva plantilla.
@@ -427,5 +438,6 @@ public interface ExpedientDocumentService {
 	public void migrarArxiu(
 			Long expedientId,
 			Long documentStoreId) throws NoTrobatException, PermisDenegatException;
+
 
 }
