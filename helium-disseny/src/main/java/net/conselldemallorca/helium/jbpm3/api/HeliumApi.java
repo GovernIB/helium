@@ -519,51 +519,35 @@ public interface HeliumApi {
 	 * Fa una crida al servei genèric Pinbal.
 	 * 
 	 * @param dadesConsultaPinbal
-	 * @param expedientId
-	 * @param processInstanceId
 	 * @return
 	 */
 	public Object consultaPinbal(
-			DadesConsultaPinbal dadesConsultaPinbal, 
-			Long expedientId, 
-			String processInstanceId)
+			DadesConsultaPinbal dadesConsultaPinbal)
 			throws JbpmException;
 	/**
 	 * Fa una crida al servei específic SVDDGPCIWS02 de consulta de dades de Pinbal.
 	 * 
 	 * @param dadesConsultaPinbal
-	 * @param expedientId
-	 * @param processInstanceId
 	 * @return
 	 */
 	public Object consultaPinbalSvddgpciws02(
-			DadesConsultaPinbal dadesConsultaPinbal, 
-			Long expedientId,
-			String processInstanceId);
+			DadesConsultaPinbal dadesConsultaPinbal);
 	/**
 	 * Fa una crida al servei específic SVDDGPVIWS02 de verificació de dades de Pinbal.
 	 * 
 	 * @param dadesConsultaPinbal
-	 * @param expedientId
-	 * @param processInstanceId
 	 * @return
 	 */
 	public Object consultaPinbalSvddgpviws02(
-			DadesConsultaPinbal dadesConsultaPinbal, 
-			Long expedientId,
-			String processInstanceId);
+			DadesConsultaPinbal dadesConsultaPinbal);
 	/**
 	 * Fa una crida al servei específic SVDCCAACPASWS01 de dades tributàries de Pinbal.
 	 * 
 	 * @param dadesConsultaPinbal
-	 * @param expedientId
-	 * @param processInstanceId
 	 * @return
 	 */
 	public Object consultaPinbalSvdccaacpasws01(
-			DadesConsultaPinbal dadesConsultaPinbal, 
-			Long expedientId,
-			String processInstanceId);
+			DadesConsultaPinbal dadesConsultaPinbal);
 	/**
 	 * Retorna el valor d'una variable
 	 * 

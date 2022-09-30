@@ -844,7 +844,7 @@ public class HeliumApiImpl implements HeliumApi {
 	@Override
 	public Date registreObtenirJustificantRecepcio(String registreNumero) {
 		return Jbpm3HeliumBridge.getInstanceService().registreNotificacioComprovarRecepcio(
-				registreNumero, null);
+				registreNumero, this.getExpedient().getId());
 	}
 	
 	@Override
@@ -1110,9 +1110,9 @@ public class HeliumApiImpl implements HeliumApi {
 	 */
 	@Override
 	public Object consultaPinbal(
-		DadesConsultaPinbal dadesConsultaPinbal, Long expedientId, String processInstanceId) throws JbpmException {
+		DadesConsultaPinbal dadesConsultaPinbal) throws JbpmException {
 		Object respostaPinbal = Jbpm3HeliumBridge.getInstanceService().consultaPinbal(
-				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), expedientId, processInstanceId);
+				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), getExpedient().getId(), getProcessInstanceId());
 		return respostaPinbal;
 	}
 	
@@ -1126,9 +1126,9 @@ public class HeliumApiImpl implements HeliumApi {
 	 */
 	@Override
 	public Object consultaPinbalSvddgpciws02(
-			DadesConsultaPinbal dadesConsultaPinbal, Long expedientId, String processInstanceId) {
+			DadesConsultaPinbal dadesConsultaPinbal) {
 		Object respostaPinbal = Jbpm3HeliumBridge.getInstanceService().consultaDadesIdentitatPinbalSVDDGPCIWS02(
-				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), expedientId, processInstanceId);
+				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), getExpedient().getId(), getProcessInstanceId());
 		return respostaPinbal;
 	}
 	
@@ -1137,15 +1137,13 @@ public class HeliumApiImpl implements HeliumApi {
 	 * Fa una crida al servei específic SVDDGPVIWS02 de verificació de dades de Pinbal.
 	 * 
 	 * @param dadesConsultaPinbal
-	 * @param expedientId
-	 * @param processInstanceId
 	 * @return
 	 */
 	@Override
 	public Object consultaPinbalSvddgpviws02(
-			DadesConsultaPinbal dadesConsultaPinbal, Long expedientId, String processInstanceId) {
+			DadesConsultaPinbal dadesConsultaPinbal) {
 		Object respostaPinbal = Jbpm3HeliumBridge.getInstanceService().verificacioDadesIdentitatPinbalSVDDGPCIWS02(
-				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), expedientId, processInstanceId);
+				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal),  getExpedient().getId(), getProcessInstanceId());
 		//en aquest servei no se li pot passsar NonbreCompleto! MAXLENGTH=0
 		return respostaPinbal;
 	}
@@ -1155,15 +1153,13 @@ public class HeliumApiImpl implements HeliumApi {
 	 * Fa una crida al servei específic SVDCCAACPASWS01 de dades tributàries de Pinbal.
 	 * 
 	 * @param dadesConsultaPinbal
-	 * @param expedientId
-	 * @param processInstanceId
 	 * @return
 	 */
 	@Override
 	public Object consultaPinbalSvdccaacpasws01(
-			DadesConsultaPinbal dadesConsultaPinbal, Long expedientId, String processInstanceId) {
+			DadesConsultaPinbal dadesConsultaPinbal) {
 		Object respostaPinbal = Jbpm3HeliumBridge.getInstanceService().dadesTributariesPinbalSVDCCAACPASWS01(
-				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), expedientId, processInstanceId);
+				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), getExpedient().getId(), getProcessInstanceId());
 		return respostaPinbal;
 	}
 	
