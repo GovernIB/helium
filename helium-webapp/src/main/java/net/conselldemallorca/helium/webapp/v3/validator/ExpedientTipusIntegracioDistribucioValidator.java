@@ -9,6 +9,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusIntegracioDistribucioCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
 /**
  * Validador per a la comanda de modificar les dades d'integració amb Distribució. Valida:
@@ -51,6 +52,21 @@ public class ExpedientTipusIntegracioDistribucioValidator implements ConstraintV
 				context.buildConstraintViolationWithTemplate(errMsg)
 				.addNode("codiAssumpte")
 				.addConstraintViolation();
+				valid = false;
+			}
+			
+			if (expedientTipus != null && !expedientTipus.isSistraActiu() && command.isSistra()) {
+				
+				String errMsg = "expedient.tipus.integracio.tramits.validacio.no.activar";
+						MessageHelper.getInstance().getMessage(errMsg, new Object[] {
+								expedientTipus.getCodi(),
+								expedientTipus.getNom(),
+								expedientTipus.getEntorn().getCodi(),
+								expedientTipus.getEntorn().getNom(),
+								command.getCodiProcediment(),
+								command.getCodiAssumpte()
+						});
+						context.buildConstraintViolationWithTemplate(errMsg).addNode("sistra").addConstraintViolation();
 				valid = false;
 			}
 		}

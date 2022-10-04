@@ -47,7 +47,8 @@ public class ExpedientTipusDao extends HibernateGenericDao<ExpedientTipus, Long>
 
 	public List<ExpedientTipus> findAmbSistraTramitCodi(String tramitCodi) {
 		return findByCriteria(
-				Restrictions.eq("sistraTramitCodi", tramitCodi));
+				Restrictions.eq("sistraTramitCodi", tramitCodi),
+				Restrictions.eq("sistraActiu", true));
 	}
 
 	public ExpedientTipus findAmbEntornICodi(

@@ -113,7 +113,7 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 		
 		if (entornActual != null) {
 			// Validació en el controlador
-			this.validarCommand(expedientTipusId, command, bindingResult);
+			this.validarCommand(expedientTipusId, command, bindingResult, request);
 	        if (bindingResult.hasErrors()) {
 		        MissatgesHelper.error(
 						request, 
@@ -156,7 +156,7 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 	/** Valida els camps del command depenent de les opcions que estiguin actives. 
 	 * @param expedientTipusId 
 	 * @param bindingResult */
-	private void validarCommand(Long expedientTipusId, ExpedientTipusIntegracioTramitsCommand command, BindingResult bindingResult) {
+	private void validarCommand(Long expedientTipusId, ExpedientTipusIntegracioTramitsCommand command, BindingResult bindingResult, HttpServletRequest request) {
 		
 		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbId(expedientTipusId);
 		
@@ -189,6 +189,14 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 			if (isNullOrEmpty(command.getNotificacioCodiProcediment())) {
 				bindingResult.rejectValue("notificacioCodiProcediment", "NotEmpty");
 			}				
+		}
+		if (!command.isActiu() && expedientTipus.isDistribucioSistra()) {
+			bindingResult.rejectValue("actiu", "expedient.tipus.integracio.tramits.validacio.no.desactivar");
+			 MissatgesHelper.error(
+						request, 
+						getMessage(
+								request, 
+								"expedient.tipus.integracio.tramits.validacio.no.desactivar"));
 		}
 	}
 
