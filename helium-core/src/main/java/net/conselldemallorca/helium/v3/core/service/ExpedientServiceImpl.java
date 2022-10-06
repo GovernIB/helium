@@ -2242,8 +2242,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 
 		if (definicioProces == null){
-			definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
-					entornId,
+			definicioProces = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(
+					expedientTipus.getId(),
 					expedientTipus.getJbpmProcessDefinitionKey());
 		}
 		if (definicioProcesId == null && definicioProces == null) {
