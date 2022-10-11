@@ -16,15 +16,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.UniformInterfaceException;
 
 import es.caib.pinbal.client.recobriment.ClientGeneric;
 import es.caib.pinbal.client.recobriment.model.ScspFuncionario;
 import es.caib.pinbal.client.recobriment.model.ScspJustificante;
 import es.caib.pinbal.client.recobriment.model.ScspRespuesta;
-import es.caib.pinbal.client.recobriment.model.ScspTitular;
 import es.caib.pinbal.client.recobriment.model.ScspSolicitante.ScspConsentimiento;
+import es.caib.pinbal.client.recobriment.model.ScspTitular;
 import es.caib.pinbal.client.recobriment.model.ScspTitular.ScspTipoDocumentacion;
 import es.caib.pinbal.client.recobriment.model.Solicitud;
 import es.caib.pinbal.client.recobriment.svdccaacpasws01.ClientSvdccaacpasws01;
@@ -58,7 +56,7 @@ public class PinbalPlugin implements PinbalPluginInterface {
 		}
 	
 	@Override
-	public ScspRespostaPinbal peticionSincronaClientPinbalGeneric(DadesConsultaPinbal dadesConsultaPinbal) throws UniformInterfaceException, ClientHandlerException, IOException {
+	public ScspRespostaPinbal peticionSincronaClientPinbalGeneric(DadesConsultaPinbal dadesConsultaPinbal) throws Exception {
 		
 		Solicitud solicitud = new Solicitud();
 	
@@ -121,7 +119,7 @@ public class PinbalPlugin implements PinbalPluginInterface {
 
 	/**Servei de CONSULTA DE DADES D'IDENTITAT**/
 	@Override
-	public Object peticionSincronaClientPinbalSvddgpciws02(DadesConsultaPinbal dadesConsultaPinbal) throws UniformInterfaceException, ClientHandlerException, IOException {
+	public Object peticionSincronaClientPinbalSvddgpciws02(DadesConsultaPinbal dadesConsultaPinbal) throws Exception {
 		
 		SolicitudSvddgpciws02 solicitud = new SolicitudSvddgpciws02();
 
@@ -177,7 +175,7 @@ public class PinbalPlugin implements PinbalPluginInterface {
 	/**Servei de VERIRICACIÓ DE DADES D'IDENTITAT**/
 	@Override
 	public Object peticionSincronaClientPinbalSvddgpviws02(DadesConsultaPinbal dadesConsultaPinbal)
-			throws UniformInterfaceException, ClientHandlerException, IOException {
+			throws Exception {
 		SolicitudSvddgpviws02 solicitud = new SolicitudSvddgpviws02();
 
 		if (this.validarDadesObligatories(dadesConsultaPinbal)) {
@@ -226,7 +224,7 @@ public class PinbalPlugin implements PinbalPluginInterface {
 	/**Servei d'OBTENCIÓ DE DADES TRIBUTÀRIES**/
 	@Override
 	public Object peticionSincronaClientPinbalSvdccaacpasws01(DadesConsultaPinbal dadesConsultaPinbal)
-			throws UniformInterfaceException, ClientHandlerException, IOException {
+			throws Exception {
 		SolicitudSvdccaacpasws01 solicitud = new SolicitudSvdccaacpasws01();
 
 		if (this.validarDadesObligatories(dadesConsultaPinbal)) {
@@ -296,7 +294,7 @@ public class PinbalPlugin implements PinbalPluginInterface {
 	}
 	
 	@Override
-	public Object getJustificantPinbal(String peticioId) throws IOException  {
+	public Object getJustificantPinbal(String peticioId) throws Exception  {
 		clientGeneric=this.getClientGeneric();
 		clientGeneric.enableLogginFilter();
 		ScspJustificante justificante;
@@ -318,7 +316,7 @@ public class PinbalPlugin implements PinbalPluginInterface {
 	}
 	
 	/**Obté les dades del justificant Pinbal i les converteix a Helium**/
-	public ScspJustificant getJustificantPinbal(String idPeticio, String documentCodi) throws IOException {
+	public ScspJustificant getJustificantPinbal(String idPeticio, String documentCodi) throws Exception {
 		
 		ScspJustificante justificante = new ScspJustificante();
 		ScspJustificant justificant = new ScspJustificant();
@@ -459,7 +457,7 @@ public class PinbalPlugin implements PinbalPluginInterface {
 	}
 	
 	/**Retorna la resposta de pinbal amb el justificant en format Helium**/
-	private ScspRespostaPinbal convertirFromPinbalIgetJustificant(ScspRespuesta scspRespuesta, String documentCodi) throws IOException {
+	private ScspRespostaPinbal convertirFromPinbalIgetJustificant(ScspRespuesta scspRespuesta, String documentCodi) throws Exception {
 		ScspRespostaPinbal resposta = new ScspRespostaPinbal();
 		resposta.setIdPeticion(scspRespuesta.getAtributos().getIdPeticion());
 		resposta.setJustificant(this.getJustificantPinbal(resposta.getIdPeticion(), documentCodi));
