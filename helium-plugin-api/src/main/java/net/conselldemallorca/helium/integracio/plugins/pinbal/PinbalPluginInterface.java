@@ -3,11 +3,6 @@
  */
 package net.conselldemallorca.helium.integracio.plugins.pinbal;
 
-import java.io.IOException;
-
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.UniformInterfaceException;
-
 /**
  * Interfície per accedir a la funcionalitat de pinbal.
  * 
@@ -15,18 +10,18 @@ import com.sun.jersey.api.client.UniformInterfaceException;
  */
 public interface PinbalPluginInterface {
 
-	public Object peticionSincronaClientPinbalGeneric(DadesConsultaPinbal dadesConsultaPinbal) throws UniformInterfaceException, ClientHandlerException, IOException;
+	public Object peticionSincronaClientPinbalGeneric(DadesConsultaPinbal dadesConsultaPinbal) throws Exception;
 
-	public Object peticionSincronaClientPinbalSvddgpciws02(DadesConsultaPinbal dadesConsultaPinbal) throws UniformInterfaceException, ClientHandlerException, IOException;
+	public Object peticionSincronaClientPinbalSvddgpciws02(DadesConsultaPinbal dadesConsultaPinbal) throws Exception;
 	
-	public Object peticionSincronaClientPinbalSvddgpviws02(DadesConsultaPinbal dadesConsultaPinbal) throws UniformInterfaceException, ClientHandlerException, IOException;
+	public Object peticionSincronaClientPinbalSvddgpviws02(DadesConsultaPinbal dadesConsultaPinbal) throws Exception;
 
-	public Object peticionSincronaClientPinbalSvdccaacpasws01(DadesConsultaPinbal dadesConsultaPinbal) throws UniformInterfaceException, ClientHandlerException, IOException;
+	public Object peticionSincronaClientPinbalSvdccaacpasws01(DadesConsultaPinbal dadesConsultaPinbal) throws Exception;
 
-	public Object getRespuestaPinbal(String peticioId) throws IOException;
+	public Object getRespuestaPinbal(String peticioId) throws Exception;
 	
 
-	public Object getJustificantPinbal(String peticioId) throws IOException;
+	public Object getJustificantPinbal(String peticioId) throws Exception;
 	
 	
 }

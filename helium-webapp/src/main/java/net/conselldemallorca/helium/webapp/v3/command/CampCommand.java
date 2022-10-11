@@ -16,8 +16,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.webapp.v3.command.CampCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.CampCommand.Modificacio;
-import net.conselldemallorca.helium.webapp.v3.validator.Codi;
 import net.conselldemallorca.helium.webapp.v3.validator.Camp;
+import net.conselldemallorca.helium.webapp.v3.validator.CodiVariable;
 
 /**
  * Command per editar la informació de les varialbes dels tipus d'expedient 
@@ -33,7 +33,7 @@ public class CampCommand {
 	private Long agrupacioId;
 	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 64, groups = {Creacio.class})
-	@Codi(groups = {Creacio.class, Modificacio.class})
+	@CodiVariable(groups = {Creacio.class, Modificacio.class})
 	private String codi;
 	@NotNull(groups = {Creacio.class, Modificacio.class})
 	private CampTipusDto tipus;

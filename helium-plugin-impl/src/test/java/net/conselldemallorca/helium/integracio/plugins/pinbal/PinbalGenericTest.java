@@ -5,8 +5,6 @@ package net.conselldemallorca.helium.integracio.plugins.pinbal;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.io.IOException;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,12 +12,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.UniformInterfaceException;
 
 import es.caib.pinbal.client.recobriment.model.ScspJustificante;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.integracio.plugins.firma.FirmaPluginPortafib;
 import net.conselldemallorca.helium.v3.core.api.dto.ScspRespostaPinbal;
 
 /**
@@ -57,7 +51,7 @@ public class PinbalGenericTest {
 	}
 
 	@Test
-	public void peticionSincrona() throws UniformInterfaceException, ClientHandlerException, IOException {
+	public void peticionSincrona() throws Exception {
 	
 		
 		Titular titular = new Titular (
@@ -101,7 +95,7 @@ public class PinbalGenericTest {
 //	}
 
 //	@Test
-	public void getJustificante() throws IOException {
+	public void getJustificante() throws Exception {
 		ScspJustificante justificante = (ScspJustificante) pinbalPlugin.getJustificantPinbal(PETICION_SCSP_ID);
 //		ScspJustificante justificante = client.getJustificante(PETICION_SCSP_ID);
 		assertNotNull(justificante);
