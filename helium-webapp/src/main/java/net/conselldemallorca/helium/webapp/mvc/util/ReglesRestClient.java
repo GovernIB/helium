@@ -1,5 +1,6 @@
 package net.conselldemallorca.helium.webapp.mvc.util;
 
+import java.net.URLEncoder;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
@@ -95,7 +96,7 @@ public class ReglesRestClient {
 		ClientResponse response;
 		AddResponse addResponse = new AddResponse(false, null);
 		try {
-			String urlAmbMetode = baseUrl + CARPETA_SERVICE_PATH + "/add?entitat=" + entitat + "&sia=" + sia + "&backoffice=" + backoffice;
+			String urlAmbMetode = baseUrl + CARPETA_SERVICE_PATH + "/add?entitat=" + entitat + "&sia=" + sia + "&backoffice=" + URLEncoder.encode(backoffice, "UTF-8");
 			Client jerseyClient = generarClient();
 			if (username != null) {
 				autenticarClient(
