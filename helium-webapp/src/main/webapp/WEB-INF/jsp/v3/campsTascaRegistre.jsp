@@ -26,7 +26,7 @@
 	
 		<%-- CAPÇALERA TAULA ------------------------------------------------------------------------------------------%>
 		<div class="registre_taula">
-		<table id="table_mult_${varStatusMain.index}" class="table table-bordered table-condensed" data-registre-id="${dadaActual.campId}">
+		<table id="table_mult_${dadaActual.varCodi}_${varStatusMain.index}" class="table table-bordered table-condensed" data-registre-id="${dadaActual.campId}">
 			<thead>
 			<tr>
 				<c:forEach var="membre" items="${registreCap}" varStatus="varStatusCab">
@@ -114,10 +114,10 @@
 		<c:if test="${not empty campErrorsReg}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${dadaActual.varCodi}"/></p></c:if>
 		<c:if test="${!dadaActual.readOnly && !tasca.validada}">
 			<div <c:if test="${not empty dadaActual.registreDades}"> class="hide"</c:if>>
-				<button id="button_add_table_mult_${varStatusMain.index}"
+				<button id="button_add_table_mult_${dadaActual.varCodi}_${varStatusMain.index}"
 					type="button" 
 					class="btn btn-default pull-left btn_afegir"
-					onclick="return addField('table_mult_${varStatusMain.index}', '${dadaActual.campId}')">
+					onclick="return addField('table_mult_${dadaActual.varCodi}_${varStatusMain.index}', '${dadaActual.campId}')">
 						<spring:message code='comuns.afegir' />
 				</button>
 			</div>
