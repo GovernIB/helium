@@ -48,6 +48,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
@@ -229,21 +230,44 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			if (auth != null) {
 				ExpedientDto expedient = getExpedientActual(executionContext);
-				EstatDto estat = Jbpm3HeliumBridge.getInstanceService().findEstatAmbEntornIExpedientTipusICodi(
-						expedient.getEntorn().getId(),
-						expedientTipusCodi,
-						estatCodi);
+				ExpedientTipusDto expTipusDto;
+				EstatDto estat = null;
+				// si passen un expedient tipus codi buscar-lo, si no es el de l'expedient
+				if(expedientTipusCodi != null && !expedientTipusCodi.equals("")) {	
+					expTipusDto = Jbpm3HeliumBridge.getInstanceService().findExpedientTipusAmbEntorniCodi(
+							expedient.getEntorn().getId(), 
+							expedientTipusCodi);
+					if (expTipusDto == null ) 
+						throw new JbpmException("No s'ha trobat cap tipus d'expedient amb codi \"" + expedientTipusCodi 
+								+ "\" a l'entorn actual \"" + expedient.getEntorn().getCodi() + "\" per la consulta d'expedients.");
+					
+				} else 
+					expTipusDto = expedient.getTipus(); 
+				if (estatCodi != null && !"".equals(estatCodi)) {
+					 estat = Jbpm3HeliumBridge.getInstanceService().findEstatAmbEntornIExpedientTipusICodi(
+							expedient.getEntorn().getId(),
+							expTipusDto.getCodi(),
+							estatCodi);
+					 if (estat == null ) 
+							throw new JbpmException("No s'ha trobat cap estat \"" + estatCodi 
+									+ "\" a l'entorn actual \"" + expedient.getEntorn().getCodi() 
+									+ "\" per la consulta d'expedients de tipus d'expedient amb codi  \"" + expedientTipusCodi + ".\" ");		
+				}
+
 				// Consulta d'expedients
-				List<ExpedientDto> resultats = Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaGeneral(
-						expedient.getEntorn().getId(),
-						titol,
-						numero,
-						dataInici1,
-						dataInici2,
-						expedient.getTipus().getId(),
-						estat == null ? null : estat.getId(),
-						iniciat,
-						finalitzat);
+				List<ExpedientDto> resultats = new ArrayList<ExpedientDto>();
+				
+					resultats = Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaGeneral(
+							expedient.getEntorn().getId(),
+							titol,
+							numero,
+							dataInici1,
+							dataInici2,
+							expTipusDto.getId(),
+							estat == null ? null : estat.getId(),
+							iniciat,
+							finalitzat);
+				
 				// Construcció de la resposta
 				List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
 				for (ExpedientDto dto: resultats)
@@ -253,7 +277,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 				throw new JbpmException("No hi ha usuari autenticat");
 			}
 		} catch (Exception ex) {
-			throw new JbpmException("Error en la consulta d'expedients", ex);
+			throw new JbpmException(ex.getMessage()!=null ? ex.getMessage() :"Error en la consulta d'expedients", ex);
 		}
 	}
 	/**

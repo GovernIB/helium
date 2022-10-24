@@ -84,6 +84,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
@@ -109,6 +110,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ZonaperEventDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ZonaperExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.registre.RegistreAnotacio;
@@ -2718,6 +2720,20 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(Jbpm3HeliumHelper.class);
+
+
+
+
+	@Override
+	public ExpedientTipusDto findExpedientTipusAmbEntorniCodi(Long entornId, String expedientTipusCodi)
+			throws NoTrobatException, PermisDenegatException {
+		
+			return conversioTipusHelper.convertir(
+					expedientTipusRepository.findByEntornAndCodi(
+							entornRepository.findOne(entornId), 
+							expedientTipusCodi),
+					ExpedientTipusDto.class);
+	}
 
 
 

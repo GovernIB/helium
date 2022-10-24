@@ -59,6 +59,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
@@ -446,11 +447,27 @@ public class HeliumApiImpl implements HeliumApi {
 			if (auth != null) {
 				ExpedientDto expedient = getExpedientActual();
 				EstatDto estat = null;
+				ExpedientTipusDto expTipusDto;
+				// si passen un expedient tipus codi buscar-lo, si no es el de l'expedient
+				if(expedientTipusCodi != null && !expedientTipusCodi.equals("")) {	
+					expTipusDto = Jbpm3HeliumBridge.getInstanceService().findExpedientTipusAmbEntorniCodi(
+							expedient.getEntorn().getId(), 
+							expedientTipusCodi);
+					if (expTipusDto == null ) 
+						throw new JbpmException("No s'ha trobat cap tipus d'expedient amb codi \"" + expedientTipusCodi 
+								+ "\" a l'entorn actual \"" + expedient.getEntorn().getCodi() + "\" per la consulta d'expedients.");
+					
+				} else 
+					expTipusDto = expedient.getTipus(); 
 				if (estatCodi != null && !"".equals(estatCodi)) {
-					estat = Jbpm3HeliumBridge.getInstanceService().findEstatAmbEntornIExpedientTipusICodi(
-						expedient.getEntorn().getId(),
-						expedientTipusCodi,
-						estatCodi);
+					 estat = Jbpm3HeliumBridge.getInstanceService().findEstatAmbEntornIExpedientTipusICodi(
+							expedient.getEntorn().getId(),
+							expTipusDto.getCodi(),
+							estatCodi);
+					 if (estat == null ) 
+							throw new JbpmException("No s'ha trobat cap estat \"" + estatCodi 
+									+ "\" a l'entorn actual \"" + expedient.getEntorn().getCodi() 
+									+ "\" per la consulta d'expedients de tipus d'expedient amb codi  \"" + expedientTipusCodi + ".\" ");		
 				}
 				// Consulta d'expedients
 				List<ExpedientDto> resultats = Jbpm3HeliumBridge.getInstanceService().findExpedientsConsultaGeneral(
@@ -463,6 +480,7 @@ public class HeliumApiImpl implements HeliumApi {
 						estat == null ? null : estat.getId(),
 						iniciat,
 						finalitzat);
+				
 				// Construcció de la resposta
 				List<ExpedientInfo> resposta = new ArrayList<ExpedientInfo>();
 				for (ExpedientDto dto: resultats)
@@ -472,7 +490,7 @@ public class HeliumApiImpl implements HeliumApi {
 				throw new HeliumHandlerException("No hi ha usuari autenticat");
 			}
 		} catch (Exception ex) {
-			throw new HeliumHandlerException("Error en la consulta d'expedients", ex);
+			throw new HeliumHandlerException(ex.getMessage()!=null ? ex.getMessage() : "Error en la consulta d'expedients", ex);
 		}
 	}
 	
@@ -510,7 +528,7 @@ public class HeliumApiImpl implements HeliumApi {
 				throw new HeliumHandlerException("No hi ha usuari autenticat");
 			}
 		} catch (Exception ex) {
-			throw new HeliumHandlerException("Error en la consulta d'expedients", ex);
+			throw new HeliumHandlerException(ex.getMessage()!=null ? ex.getMessage(): "Error en la consulta d'expedients", ex);
 		}
 		return resposta;
 	}

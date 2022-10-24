@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.security.acls.model.NotFoundException;
+
 import com.codahale.metrics.MetricRegistry;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AreaDto;
@@ -25,6 +27,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
@@ -43,6 +46,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ZonaperEventDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ZonaperExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
@@ -1228,5 +1232,23 @@ public interface Jbpm3HeliumService {
 	void interessatModificar(InteressatDto interessat);
 
 	void interessatEliminar(InteressatDto interessat);
+	
+	/**
+	 * Retorna un tipus d'expedient donat un entorn i un codi d'expedient
+	 * 
+	 * @param entornId
+	 *            L'atribut id del entorn.
+	 * @param expedientTipusId
+	 *            L'atribut codi del tipus d'expedient.
+	 * @return
+	 *            El tipus d'expedient.
+	 * @throws NotFoundException
+	 *             Si algun dels ids especificats no s'ha trobat.
+	 * @throws NotAllowedException
+	 *             Si no es tenen els permisos adequats.
+	 */
+	public ExpedientTipusDto findExpedientTipusAmbEntorniCodi(
+			Long entornId,
+			String expedientTipusCodi) throws NoTrobatException, PermisDenegatException;
 
 }
