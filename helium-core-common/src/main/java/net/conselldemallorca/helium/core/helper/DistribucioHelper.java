@@ -994,7 +994,7 @@ public class DistribucioHelper {
 		Map<String, DadesDocumentDto> resposta = new HashMap<String, DadesDocumentDto>();
 		List<MapeigSistra> mapeigsSistra = mapeigSistraRepository.findByFiltre(expedientTipus.getId(), TipusMapeig.Document);
 		if (mapeigsSistra.size() == 0)
-			return null;
+			return resposta;
 
 		List<DocumentDto> documents = getDocuments(expedientTipus);
 		logger.debug("Mapeig de documents SISTRA2-Helium per l'anotació " + anotacio.getIdentificador() + 
