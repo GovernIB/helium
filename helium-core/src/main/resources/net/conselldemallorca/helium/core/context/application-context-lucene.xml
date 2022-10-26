@@ -11,6 +11,7 @@
 		default-autowire="byType">
 
 	<bean id="analyzer" class="org.apache.lucene.analysis.standard.StandardAnalyzer"/>
+	
 	<bean id="fsDirectory" class="org.springmodules.lucene.index.support.FSDirectoryFactoryBean">
 		<property name="location" value="${app.lucene.fs.basedir}"/>
 		<property name="create" value="true"/>

@@ -844,29 +844,16 @@ public class LuceneHelper extends LuceneIndexSupport {
 	private Query queryPerStringAmbWildcards(String codi, String termes) {		
 		BooleanQuery booleanQuery = new BooleanQuery();
 		String[] termesTots = termes.trim().split(LUCENE_ESCAPE_CHARS);
+		boolean primer, darrer;
 		for (String terme : termesTots) {
-			if (terme.equals(termesTots[0])) {
-				booleanQuery.add(
-						new WildcardQuery(new Term(
-								codi,
-								"*" + terme)),
-						BooleanClause.Occur.MUST
-				);
-			} else if (terme.equals(termesTots[termesTots.length-1])) {
-				booleanQuery.add(
-						new WildcardQuery(new Term(
-								codi,
-								terme + "*")),
-						BooleanClause.Occur.MUST
-				);
-			} else {
-				booleanQuery.add(
-						new TermQuery(new Term(
-								codi,
-								terme)),
-						BooleanClause.Occur.MUST
-				);					
-			}
+			primer = terme.equals(termesTots[0]);
+			darrer = terme.equals(termesTots[termesTots.length-1]);
+			booleanQuery.add(
+					new WildcardQuery(new Term(
+							codi,
+						(primer ? "*" : "") + terme + (darrer? "*" : ""))),
+					BooleanClause.Occur.MUST
+			);
 		}
 		return booleanQuery;
 	}
