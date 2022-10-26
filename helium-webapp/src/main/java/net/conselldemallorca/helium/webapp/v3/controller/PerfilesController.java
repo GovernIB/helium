@@ -68,8 +68,7 @@ public class PerfilesController extends BaseController {
 	}
 
 	@RequestMapping(value = "/logout", method = RequestMethod.GET)
-	@ResponseBody
-	public String get(
+	public String logout(
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		HttpSession session= request.getSession(false);
 		SecurityContextHolder.clearContext();
