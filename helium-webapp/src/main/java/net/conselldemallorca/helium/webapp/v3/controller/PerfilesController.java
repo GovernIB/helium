@@ -70,15 +70,19 @@ public class PerfilesController extends BaseController {
 	@RequestMapping(value = "/logout", method = RequestMethod.GET)
 	public String logout(
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
-		HttpSession session= request.getSession(false);
+		HttpSession session = request.getSession(false);
 		SecurityContextHolder.clearContext();
         session= request.getSession(false);
-        if(session != null) {
-           session.invalidate();
+		if (session != null) {
+			session.invalidate();
         }// Només per Jboss
         for(Cookie cookie : request.getCookies()) {
         	Cookie ck = new Cookie(cookie.getName(), null);
-			ck.setPath(request.getContextPath());
+        	if (cookie.getName().startsWith("es.caib.loginModule")) {
+    			ck.setPath("/");
+        	} else {
+    			ck.setPath(request.getContextPath());
+        	}
 			ck.setMaxAge(0);
 			response.addCookie(ck);
         }
