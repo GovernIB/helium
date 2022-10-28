@@ -75,7 +75,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 	protected static final String VALOR_DOMINI_SUFIX = "@text@";
 	private static final String MIN_VALUE = "0000";
 	private static final String MAX_VALUE = "99999999999999999999999999999999999999999999999";
-	private static final String LUCENE_ESCAPE_CHARS = " |\\+|\'|\\(|\\)|\\[|\\]|\\&|\\!|\\*|\\{|\\}|\\?|\\:|\\^|\\~|\"|\\\\";
+	private static final String LUCENE_ESCAPE_CHARS = " |\\+|\\-|\\_|\'|\\(|\\)|\\[|\\]|\\&|\\!|\\*|\\{|\\}|\\?|\\:|\\^|\\~|\"|\\\\";
 	private static final String EXPEDIENT_NUMERO_SEPARADOR = ";";
 	
 	protected LuceneSearchTemplate searchTemplate;
