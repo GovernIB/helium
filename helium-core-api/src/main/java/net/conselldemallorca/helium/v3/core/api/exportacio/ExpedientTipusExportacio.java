@@ -41,6 +41,7 @@ public class ExpedientTipusExportacio implements Serializable {
 	private boolean reindexacioAsincrona;
 	private boolean ambInfoPropia;
 	private boolean heretable;
+	private boolean sistraActiu;
 	private String expedientTipusPareCodi;
 
 	private Map<Integer, SequenciaAnyDto> sequenciaAny = new TreeMap<Integer, SequenciaAnyDto>();
@@ -436,6 +437,13 @@ public class ExpedientTipusExportacio implements Serializable {
 	}
 	public void setPinbalNifCif(String pinbalNifCif) {
 		this.pinbalNifCif = pinbalNifCif;
+	}
+
+	public boolean isSistraActiu() {
+		return sistraActiu;
+	}
+	public void setSistraActiu(boolean sistraActiu) {
+		this.sistraActiu = sistraActiu;
 	}
 
 

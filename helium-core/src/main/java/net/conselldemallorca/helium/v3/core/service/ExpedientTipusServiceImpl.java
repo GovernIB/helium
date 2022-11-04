@@ -576,6 +576,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		exportacio.setDistribucioCodiProcediment(tipus.getDistribucioCodiProcediment());
 		exportacio.setDistribucioProcesAuto(tipus.isDistribucioProcesAuto());
 		exportacio.setDistribucioSistra(tipus.isDistribucioSistra());
+		exportacio.setSistraActiu(tipus.isSistraActiu());
 		// Integració amb NOTIB
 		exportacio.setNotibActiu(tipus.getNotibActiu());
 		exportacio.setNotibEmisor(tipus.getNotibEmisor());
@@ -915,6 +916,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		expedientTipus.setDistribucioCodiProcediment(importacio.getDistribucioCodiProcediment());
 		expedientTipus.setDistribucioProcesAuto(importacio.isDistribucioProcesAuto());
 		expedientTipus.setDistribucioSistra(importacio.isDistribucioSistra());
+		expedientTipus.setSistraActiu(importacio.isSistraActiu());
 		// Integració amb NOTIB
 		expedientTipus.setNotibActiu(importacio.getNotibActiu());
 		expedientTipus.setNotibEmisor(importacio.getNotibEmisor());
