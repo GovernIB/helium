@@ -86,7 +86,7 @@ public class PerfilesController extends BaseController {
 			ck.setMaxAge(0);
 			response.addCookie(ck);
         }
-        return "redirect:/";
+		return "v3/persona/logout";
 	}
 	
 
