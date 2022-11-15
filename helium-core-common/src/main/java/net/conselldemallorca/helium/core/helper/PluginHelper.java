@@ -3149,6 +3149,8 @@ public class PluginHelper {
 			perfilFirma = ArxiuFirmaPerfilEnumDto.EPES;
 		} else if("PAdES-LTV".equals(perfil)) {
 			perfilFirma = ArxiuFirmaPerfilEnumDto.LTV;
+		} else if("PAdES-Basic".equals(perfil)) {
+			perfilFirma = ArxiuFirmaPerfilEnumDto.BASIC;
 		} else if("AdES-T".equals(perfil)) {
 			perfilFirma = ArxiuFirmaPerfilEnumDto.T;
 		} else if("AdES-C".equals(perfil)) {
