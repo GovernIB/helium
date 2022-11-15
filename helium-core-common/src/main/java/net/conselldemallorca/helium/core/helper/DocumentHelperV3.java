@@ -60,6 +60,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiDocumentoFormato;
@@ -2365,6 +2366,7 @@ public class DocumentHelperV3 {
 		String documentNom = documentStore.isAdjunt() ? documentStore.getArxiuNom() : (document!=null ? document.getNom() : "");
 		if (expedient.isArxiuActiu()) {
 			// Document integrat amb l'Arxiu
+			comprovarFirmesReconegudes(firmes);
 			if (arxiuUuid == null) {
 				String documentDescripcio = documentStore.isAdjunt() ? documentStore.getAdjuntTitol() : document.getNom();
 				// Actualitza el document a dins l'arxiu
@@ -2505,6 +2507,24 @@ public class DocumentHelperV3 {
 		return firmes;
 	}
 	
+	private boolean comprovarFirmesReconegudes(List<ArxiuFirmaDto> arxiuFirmes) {
+
+		// comprovar si la firma està reconeguda
+		for (ArxiuFirmaDto arxiuFirma : arxiuFirmes) {
+			// comprova que el tipus i el perfil estiguin reconeguts pel model CAIb
+			if (arxiuFirma.getTipus().equals(NtiTipoFirmaEnumDto.SMIME) || 
+					arxiuFirma.getTipus().equals(NtiTipoFirmaEnumDto.ODT) || 
+					arxiuFirma.getTipus().equals(NtiTipoFirmaEnumDto.OOXML)) {
+				throw new ValidacioException("El tipus de firma: "+ arxiuFirma.getTipus() +" no està reconegut en el model CAIB");
+			}
+			if (arxiuFirma.getPerfil().equals(ArxiuFirmaPerfilEnumDto.BASIC) || 
+					arxiuFirma.getPerfil().equals(ArxiuFirmaPerfilEnumDto.BASELINE_T) || 
+					arxiuFirma.getPerfil().equals(ArxiuFirmaPerfilEnumDto.LTA)) {
+				throw new ValidacioException("El perfil de firma: "+ arxiuFirma.getPerfil() +" no està reconegut en el model CAIB");
+			}	
+		}
+		return true;
+	}
 	public void actualizarMetadadesNti(
 			Expedient expedient,
 			Document document,
