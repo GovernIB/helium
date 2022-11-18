@@ -242,6 +242,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setEntorn(entorn);
 		entity.setCodi(expedientTipus.getCodi());
 		entity.setNom(expedientTipus.getNom());
+		entity.setTipus(expedientTipus.getTipus());
 		entity.setAmbInfoPropia(expedientTipus.isAmbInfoPropia());
 		entity.setHeretable(expedientTipus.isHeretable());
 		if (expedientTipus.getExpedientTipusPareId() != null)
@@ -306,6 +307,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		ExpedientTipus entity = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipus.getId());
 				
 		entity.setNom(expedientTipus.getNom());
+		entity.setTipus(expedientTipus.getTipus());
 		entity.setAmbInfoPropia(expedientTipus.isAmbInfoPropia());
 		entity.setHeretable(expedientTipus.isHeretable());
 		if (expedientTipus.getExpedientTipusPareId() != null)
@@ -528,6 +530,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		exportacio.setRestringirPerGrup(tipus.isRestringirPerGrup());
 		exportacio.setSeleccionarAny(tipus.isSeleccionarAny());
 		exportacio.setAmbRetroaccio(tipus.isAmbRetroaccio());
+		exportacio.setTipus(tipus.getTipus());
 		exportacio.setAmbInfoPropia(tipus.isAmbInfoPropia());
 		exportacio.setReindexacioAsincrona(tipus.isReindexacioAsincrona());
 		exportacio.setSequencia(tipus.getSequencia());
@@ -873,6 +876,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			}
 		if (!expedientTipusExisteix || command.isDadesBasiques()) {
 			expedientTipus.setNom(importacio.getNom());
+			expedientTipus.setTipus(importacio.getTipus());
 			expedientTipus.setAmbInfoPropia(importacio.isAmbInfoPropia());
 			expedientTipus.setTeTitol(importacio.isTeTitol());
 			expedientTipus.setDemanaTitol(importacio.isDemanaTitol());

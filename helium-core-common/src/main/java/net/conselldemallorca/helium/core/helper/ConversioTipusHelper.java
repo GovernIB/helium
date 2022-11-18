@@ -268,6 +268,7 @@ public class ConversioTipusHelper {
 						target.setRestringirPerGrup(source.isRestringirPerGrup());
 						target.setSeleccionarAny(source.isSeleccionarAny());
 						target.setAmbRetroaccio(source.isAmbRetroaccio());
+						target.setTipus(source.getTipus());
 						target.setAmbInfoPropia(source.isAmbInfoPropia());
 						target.setHeretable(source.isHeretable());
 						target.setExpedientTipusPareId(source.getExpedientTipusPare() != null ? source.getExpedientTipusPare().getId() : null );

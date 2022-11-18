@@ -37,8 +37,15 @@
 				// <![CDATA[
 				var esborrarMsg = "<spring:message code='expedient.tipus.form.boto.esborrar' />";
 				
+				
 				$(document).ready( function() {
-					
+
+					$('#tipus').change(function() {
+						if ($(this).val() == 'ESTAT' && !$('#ambInfoPropia').is(":checked")) {
+							$('#ambInfoPropia').click();
+						}
+					}).change();
+
 					$('#reiniciarCadaAny').change(function() {
 						canviReiniciar();
 					})
@@ -108,6 +115,7 @@
 			</script>			
 			<hel:inputText required="true" name="codi" textKey="expedient.tipus.form.camp.codi" disabled="${! empty expedientTipusCommand.id}"/>
 			<hel:inputText required="true" name="nom" textKey="expedient.tipus.form.camp.titol" />
+			<hel:inputSelect required="true" name="tipus" textKey="expedient.tipus.form.camp.tipus" placeholderKey="expedient.tipus.form.camp.tipus" optionItems="${tipus}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 			<hel:inputCheckbox name="ambInfoPropia" textKey="expedient.tipus.form.camp.ambInfoPropia" />
 			<p id="ambInfoPropiaNota" class="help-block"><spring:message code="expedient.tipus.form.camp.ambInfoPropia.nota"></spring:message></p>			
 			<hel:inputCheckbox name="heretable" textKey="expedient.tipus.form.camp.heretable" disabled="${! expedientTipusCommand.ambInfoPropia}" />

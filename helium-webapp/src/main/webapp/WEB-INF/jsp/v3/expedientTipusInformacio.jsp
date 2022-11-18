@@ -51,6 +51,8 @@
 						<dd>${expedientTipus.codi}</dd>
 						<dt><spring:message code="expedient.tipus.info.camp.titol"/></dt>
 						<dd>${expedientTipus.nom}</dd>				
+						<dt><spring:message code="expedient.tipus.info.camp.tipus"/></dt>
+						<dd><spring:message code="expedient.tipus.tipus.enum.${expedientTipus.tipus}"/></dd>				
 						<dt><spring:message code="expedient.tipus.info.camp.ambInfoPropia"/></dt>
 						<dd>
 							<spring:message code="comu.${expedientTipus.ambInfoPropia}"></spring:message>

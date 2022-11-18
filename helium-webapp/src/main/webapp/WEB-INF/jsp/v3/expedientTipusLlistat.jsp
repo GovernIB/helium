@@ -40,6 +40,16 @@
 				<th data-col-name="id" data-visible="false"/>
 				<th data-col-name="codi" width="20%"><spring:message code="expedient.tipus.llistat.columna.codi"/></th>
 				<th data-col-name="nom"><spring:message code="expedient.tipus.llistat.columna.titol"/></th>
+				<th data-col-name="tipus" width="10%" data-template="#cellExpedientTipusTipusTemplate">
+					<spring:message code="expedient.tipus.llistat.columna.tipus"/>
+						<script id="cellExpedientTipusTipusTemplate" type="text/x-jsrender">
+								{{if tipus == 'FLOW' }}
+									<spring:message code="expedient.tipus.tipus.enum.FLOW"/>
+								{{else}}
+									<spring:message code="expedient.tipus.tipus.enum.ESTAT"/>
+								{{/if}}
+						</script>
+					</th>
 				<th data-col-name="permisCount" data-template="#cellPermisosTemplate" data-orderable="false" width="13%">
 					<script id="cellPermisosTemplate" type="text/x-jsrender">
 						{{if permisAdministration || ${potAdministrarEntorn} }}

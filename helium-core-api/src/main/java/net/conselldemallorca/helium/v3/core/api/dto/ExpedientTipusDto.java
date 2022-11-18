@@ -36,6 +36,7 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	private boolean seleccionarAny;
 	private boolean ambRetroaccio;
 	private boolean reindexacioAsincrona;
+	private ExpedientTipusTipusEnumDto tipus;
 	private boolean ambInfoPropia;
 	private boolean heretable;
 	private Long expedientTipusPareId;
@@ -207,6 +208,12 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	}
 	public void setReindexacioAsincrona(boolean reindexacioAsincrona) {
 		this.reindexacioAsincrona = reindexacioAsincrona;
+	}
+	public ExpedientTipusTipusEnumDto getTipus() {
+		return tipus;
+	}
+	public void setTipus(ExpedientTipusTipusEnumDto tipus) {
+		this.tipus = tipus;
 	}
 	public boolean isAmbInfoPropia() {
 		return ambInfoPropia;

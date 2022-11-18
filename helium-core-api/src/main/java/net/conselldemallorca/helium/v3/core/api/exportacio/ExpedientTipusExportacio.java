@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaDefaultAnyDto;
 
@@ -39,6 +40,7 @@ public class ExpedientTipusExportacio implements Serializable {
 	private boolean seleccionarAny;
 	private boolean ambRetroaccio;
 	private boolean reindexacioAsincrona;
+	private ExpedientTipusTipusEnumDto tipus;
 	private boolean ambInfoPropia;
 	private boolean heretable;
 	private boolean sistraActiu;
@@ -207,6 +209,12 @@ public class ExpedientTipusExportacio implements Serializable {
 	}
 	public void setReindexacioAsincrona(boolean reindexacioAsincrona) {
 		this.reindexacioAsincrona = reindexacioAsincrona;
+	}
+	public ExpedientTipusTipusEnumDto getTipus() {
+		return tipus;
+	}
+	public void setTipus(ExpedientTipusTipusEnumDto tipus) {
+		this.tipus = tipus;
 	}
 	public boolean isAmbInfoPropia() {
 		return ambInfoPropia;

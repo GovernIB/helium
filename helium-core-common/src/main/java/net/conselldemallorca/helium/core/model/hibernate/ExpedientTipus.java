@@ -39,6 +39,8 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLengt
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
+
 /**
  * Objecte de domini que representa un tipus d'expedient.
  * 
@@ -83,6 +85,12 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	private boolean seleccionarAny;
 	private boolean ambRetroaccio;
 	private boolean reindexacioAsincrona;
+	
+	/** Indica si el tipus d'expedient està basat en un flux o en estats
+	 * 
+	 */
+	private ExpedientTipusTipusEnumDto tipus;
+	
 	/** Indica si el tipus d'expedient té lligada la informació de les variables, agrupacions i documents
 	 * directament o a través de la definició de procesos tal i com s'ha fet fins ara.
 	 */
@@ -358,6 +366,14 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	}
 	public void setAmbRetroaccio(boolean ambRetroaccio) {
 		this.ambRetroaccio = ambRetroaccio;
+	}
+
+	@Column(name="tipus")
+	public ExpedientTipusTipusEnumDto getTipus() {
+		return tipus;
+	}
+	public void setTipus(ExpedientTipusTipusEnumDto tipus) {
+		this.tipus = tipus;
 	}
 
 	@Column(name="amb_info_propia")
