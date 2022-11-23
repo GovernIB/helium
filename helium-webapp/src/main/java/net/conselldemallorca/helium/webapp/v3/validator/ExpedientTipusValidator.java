@@ -15,6 +15,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
@@ -189,6 +190,44 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 							.addConstraintViolation();	
 					valid = false;
 				}
+			}
+		}
+		// Si està definit per estats llavors ha de tenir informació pròpia, no pot ser heretable ni heretar ni tenir retroacció ni reindexar asíncronament
+		if (command.getTipus() != null && ExpedientTipusTipusEnumDto.ESTAT.equals(command.getTipus())) {
+			if (!command.isAmbInfoPropia()) {
+				context.buildConstraintViolationWithTemplate(
+						MessageHelper.getInstance().getMessage(this.codiMissatge + ".ambInfoPropia", null))
+						.addNode("ambInfoPropia")
+						.addConstraintViolation();	
+				valid = false;
+			}
+			if (command.isHeretable()) {
+				context.buildConstraintViolationWithTemplate(
+						MessageHelper.getInstance().getMessage(this.codiMissatge + ".heretable", null))
+						.addNode("heretable")
+						.addConstraintViolation();	
+				valid = false;
+			}
+			if (command.getExpedientTipusPareId() != null) {
+				context.buildConstraintViolationWithTemplate(
+						MessageHelper.getInstance().getMessage(this.codiMissatge + ".expedientTipusPareId", null))
+						.addNode("expedientTipusPareId")
+						.addConstraintViolation();	
+				valid = false;
+			}
+			if (command.isAmbRetroaccio()) {
+				context.buildConstraintViolationWithTemplate(
+						MessageHelper.getInstance().getMessage(this.codiMissatge + ".ambRetroaccio", null))
+						.addNode("ambRetroaccio")
+						.addConstraintViolation();	
+				valid = false;
+			}
+			if (command.isReindexacioAsincrona()) {
+				context.buildConstraintViolationWithTemplate(
+						MessageHelper.getInstance().getMessage(this.codiMissatge + ".reindexacioAsincrona", null))
+						.addNode("reindexacioAsincrona")
+						.addConstraintViolation();	
+				valid = false;
 			}
 		}
 		if (!valid)

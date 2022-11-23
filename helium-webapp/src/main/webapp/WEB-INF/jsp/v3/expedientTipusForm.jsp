@@ -41,8 +41,20 @@
 				$(document).ready( function() {
 
 					$('#tipus').change(function() {
-						if ($(this).val() == 'ESTAT' && !$('#ambInfoPropia').is(":checked")) {
-							$('#ambInfoPropia').click();
+						//→ tasca definició tipus amagar info pròpia, herència, retrocés i reindexació asíncrona
+						if ($(this).val() == 'ESTAT') {
+							if ( !$('#ambInfoPropia').is(":checked")) {
+								$('#ambInfoPropia').click();
+							}
+							$('#heretable').removeAttr('checked');
+							$('#expedientTipusPareId').val('').change();
+							$('#ambRetroaccio').removeAttr('checked');
+							$('#reindexacioAsincrona').removeAttr('checked');
+							$('#heretable, #expedientTipusPareId, #ambRetroaccio, #reindexacioAsincrona').attr('disabled', 'disabled');
+							$('#ambInfoPropia').attr('readonly', 'readonly');
+						} else {
+							$('#ambInfoPropia').removeAttr('readonly');
+							$('#ambInfoPropia, #heretable, #expedientTipusPareId, #ambRetroaccio, #reindexacioAsincrona').removeAttr('disabled');
 						}
 					}).change();
 
@@ -58,6 +70,9 @@
 					        $('#heretable,#expedientTipusPareId').removeAttr("disabled");
 					    }else {
 					        $('#heretable,#expedientTipusPareId').attr("disabled", "true");
+							if ($('#tipus').val() == 'ESTAT') {
+								$('#tipus').change();
+							}
 					    }
 					});
 					// Si és heretable esborra el valor d'expedientTipusPare

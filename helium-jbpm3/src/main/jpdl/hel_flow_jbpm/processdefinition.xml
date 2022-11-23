@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition 
+  xmlns="urn:jbpm.org:jpdl-3.2"
+  name="hel_flow_jbpm">
+   <start-state name="inici">
+      <transition name="to_stat" to="estat"></transition>
+   </start-state>
+   <state name="estat">
+      <transition name="to_fi" to="fi"></transition>
+   </state>
+   <end-state name="fi"></end-state>
+</process-definition>

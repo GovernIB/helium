@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root-container name="hel_flow_jbpm" width="622" height="340">
+  <node name="inici" x="150" y="25" width="140" height="40">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="estat" x="150" y="125" width="140" height="40">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node name="fi" x="150" y="225" width="140" height="40"/>
+</root-container>
