@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ import net.conselldemallorca.helium.core.model.hibernate.*;
 import net.conselldemallorca.helium.v3.core.api.dto.*;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
 import net.conselldemallorca.helium.v3.core.repository.*;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,6 +82,7 @@ import net.conselldemallorca.helium.v3.core.api.exportacio.RegistreMembreExporta
 import net.conselldemallorca.helium.v3.core.api.exportacio.TascaExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.TerminiExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ValidacioExportacio;
+import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 
 /**
@@ -222,9 +225,48 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				entity.getSequenciaAny().put(anyEntity.getAny(), anyEntity);
 			}
 		}
+
+		if (ExpedientTipusTipusEnumDto.ESTAT.equals(entity.getTipus())) {
+			// Associa el tipus al flux senzill
+			entity.setJbpmProcessDefinitionKey(
+							this.getDefinicioProcesEstats(entorn)
+								.getJbpmKey());
+		}
+
 		return conversioTipusHelper.convertir(
 				expedientTipusRepository.save(entity),
 				ExpedientTipusDto.class);
+	}
+
+	private DefinicioProces getDefinicioProcesEstats(Entorn entorn) {
+		DefinicioProces definicioProces = definicioProcesHelper.findDarreraVersioDefinicioProces(null, DefinicioProcesService.HELIUM_JBPM_FLOW);
+		if (definicioProces == null) {
+			definicioProces = definicioProcesHelper.desplegarJbpm(
+					DefinicioProcesService.HELIUM_JBPM_FLOW + ".par",
+					this.getContingutHelJbpmFlow(),
+					entorn,
+					null);
+			logger.info("Desplegada la definició de procés pel flux hel_jbpm_flow per expedients basats en estats: " + definicioProces.getIdPerMostrar() );
+		}
+		return definicioProces;
+	}
+
+	private byte[] getContingutHelJbpmFlow() {
+		byte[] contingut;
+		InputStream is = null;
+		String fitxer = "/par/hel_jbpm.par";
+		try {
+			is = getClass().getResourceAsStream(fitxer);
+			contingut = IOUtils.toByteArray(is);
+		} catch(Exception e) {
+			throw new RuntimeException("Error obtenint el contingut de " + fitxer + ": " + e.getClass() + ": " + e.getMessage(), e);
+		} finally {
+			try {
+				if (is != null)
+					is.close();
+			} catch(Exception e) {e.printStackTrace();}
+		}
+		return contingut;
 	}
 
 	/**
@@ -237,6 +279,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			ExpedientTipusDto expedientTipus,
 			List<Integer> sequenciesAny,
 			List<Long> sequenciesValor) {
+
 		logger.debug(
 				"Modificant tipus d'expedient existent (" +
 				"entornId=" + entornId + ", " +
@@ -244,6 +287,11 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"sequenciesAny=" + sequenciesAny + ", " +
 				"sequenciesValor=" + sequenciesValor + ")");
 		
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true,
+				false);
+
 		ExpedientTipus entity = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipus.getId());
 				
 		entity.setNom(expedientTipus.getNom());
@@ -295,6 +343,14 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			entity.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
 			entity.setReindexacioAsincrona(expedientTipus.isReindexacioAsincrona());
 		}
+
+		if (ExpedientTipusTipusEnumDto.ESTAT.equals(entity.getTipus())) {
+			// Associa el tipus al flux senzill
+			entity.setJbpmProcessDefinitionKey(
+							this.getDefinicioProcesEstats(entorn)
+								.getJbpmKey());
+		}
+
 		return conversioTipusHelper.convertir(
 				expedientTipusRepository.save(entity),
 				ExpedientTipusDto.class);
@@ -2355,7 +2411,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if (ExpedientTipusTipusEnumDto.ESTAT.equals(estat.getExpedientTipus().getTipus())) {
 			estat.setOrdre(dto.getOrdre());
 		}
-		
+
 		return conversioTipusHelper.convertir(
 				estatRepository.save(estat),
 				EstatDto.class);

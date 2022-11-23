@@ -22,6 +22,9 @@ import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExport
  * @author Limit Tecnologies <limit@limit.es>
  */
 public interface DefinicioProcesService {
+	
+	/** Codi del flux jbpm pels expedients basats en estats. */
+	public static String HELIUM_JBPM_FLOW = "hel_jbpm";
 
 	/** Tasca la definició de proces per identificador.
 	 * 
