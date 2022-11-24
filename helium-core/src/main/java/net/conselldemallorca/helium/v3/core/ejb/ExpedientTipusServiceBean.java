@@ -10,6 +10,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
+import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
@@ -393,8 +394,68 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public boolean estatMoure(Long estatId, int posicio) throws NoTrobatException {
 		return delegate.estatMoure(estatId, posicio);
 	}
-	
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public List<PermisDto> estatPermisFindAll(Long estatId) {
+        return delegate.estatPermisFindAll(estatId);
+    }
+
 	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PermisDto estatPermisFindById(Long estatId, Long permisId) throws NoTrobatException, PermisDenegatException {
+		return delegate.estatPermisFindById(estatId, permisId);
+	}
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public void estatPermisUpdate(Long estatId, PermisDto permis) throws NoTrobatException, PermisDenegatException {
+        delegate.estatPermisUpdate(estatId, permis);
+    }
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public void estatPermisDelete(Long estatId, Long permisId) throws NoTrobatException, PermisDenegatException {
+        delegate.estatPermisDelete(estatId, permisId);
+    }
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public List<EstatReglaDto> estatReglaFindAll(Long estatId) {
+        return delegate.estatReglaFindAll(estatId);
+    }
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public EstatReglaDto estatReglaFindById(Long estatId, Long reglaId) {
+		return delegate.estatReglaFindById(estatId, reglaId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public EstatReglaDto estatReglaCreate(Long estatId, EstatReglaDto reglaDto) throws NoTrobatException, PermisDenegatException {
+        return delegate.estatReglaCreate(estatId, reglaDto);
+    }
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public EstatReglaDto estatReglaUpdate(Long estatId, EstatReglaDto reglaDto) throws NoTrobatException, PermisDenegatException {
+		return delegate.estatReglaUpdate(estatId, reglaDto);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void estatReglaDelete(Long estatId, Long reglaId) throws NoTrobatException, PermisDenegatException {
+		delegate.estatReglaDelete(estatId, reglaId);
+	}
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public boolean estatReglaMoure(Long reglaId, int posicio) {
+        return delegate.estatReglaMoure(reglaId, posicio);
+    }
+
+    @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ReassignacioDto reassignacioCreate(Long expedientTipusId, ReassignacioDto reassignacio) throws PermisDenegatException {
 		return delegate.reassignacioCreate(expedientTipusId, reassignacio);

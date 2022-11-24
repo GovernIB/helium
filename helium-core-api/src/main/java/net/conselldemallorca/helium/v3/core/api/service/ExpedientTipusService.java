@@ -21,6 +21,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.ExportException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
@@ -787,6 +788,77 @@ public interface ExpedientTipusService {
 	 */
 	public boolean estatMoure(Long estatId, int posicio) throws NoTrobatException;
 
+	// PERMISOS ESTATS
+
+	/**
+	 * Retorna els permisos per a un estat.
+	 *
+	 * @param estatId
+	 *            Atribut id de l'estat.
+	 * @return els permisos del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<PermisDto> estatPermisFindAll(Long estatId);
+
+	/**
+	 * Retorna un permis donat el seu id.
+	 *
+	 * @param estatId
+	 *            Atribut id de l'entorn.
+	 * @param permisId
+	 *            Atribut id del permis.
+	 * @return el permis amb l'id especificat.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public PermisDto estatPermisFindById(Long estatId, Long permisId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Modifica un permis existent d'un estat.
+	 *
+	 * @param estatId
+	 *            Atribut id de l'estat.
+	 * @param permis
+	 *            La informació del permis.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public void estatPermisUpdate(Long estatId, PermisDto permis) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Esborra un permis existent d'un estat.
+	 *
+	 * @param estatId
+	 *            Atribut id de l'estat.
+	 * @param permisId
+	 *            Atribut id del permis.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public void estatPermisDelete(Long estatId, Long permisId) throws NoTrobatException, PermisDenegatException;
+
+	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// REGLES
+
+	public List<EstatReglaDto> estatReglaFindAll(Long estatId);
+	public EstatReglaDto estatReglaFindById(Long estatId, Long reglaId);
+	public EstatReglaDto estatReglaCreate(Long estatId, EstatReglaDto reglaDto) throws NoTrobatException, PermisDenegatException;
+	public EstatReglaDto estatReglaUpdate(Long estatId, EstatReglaDto reglaDto) throws NoTrobatException, PermisDenegatException;
+	public void estatReglaDelete(Long estatId, Long reglaId) throws NoTrobatException, PermisDenegatException;
+	public boolean estatReglaMoure(Long reglaId, int posicio);
+
+	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/**
 	 * Crea una nova consulta.
 	 * 
@@ -1270,7 +1342,6 @@ public interface ExpedientTipusService {
 			Long entornId, 
 			Long expedientTipusId, 
 			boolean pinbalActiu,
-			String pinbalNifCif);	
-
+			String pinbalNifCif);
 
 }

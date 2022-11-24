@@ -11,6 +11,8 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import net.conselldemallorca.helium.core.model.hibernate.EstatRegla;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
 import org.springframework.stereotype.Component;
 
 import ma.glasnost.orika.CustomConverter;
@@ -333,6 +335,7 @@ public class ConversioTipusHelper {
 						
 						target.setPinbalActiu(source.isPinbalActiu());
 						target.setPinbalNifCif(source.getPinbalNifCif());
+						target.setTipus(source.getTipus());
 						return target;
 					}
 				});
@@ -485,7 +488,14 @@ public class ConversioTipusHelper {
 						target.setEmail(source.getEmail());
 						return target;
 					}
-		});			
+		});
+
+		mapperFactory.classMap(EstatRegla.class, EstatReglaDto.class)
+				.field("expedientTipus.id", "expedientTipusId")
+				.field("estat.id", "estatId")
+				.byDefault()
+				.register();
+
 	}
 
 	public <T> T convertir(Object source, Class<T> targetType) {

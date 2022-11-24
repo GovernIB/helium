@@ -10,7 +10,17 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
+import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAccioEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.AccioEnum;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.QuiEnum;
+import net.conselldemallorca.helium.webapp.v3.command.EstatReglaCommand;
+import net.conselldemallorca.helium.webapp.v3.command.PermisCommand;
+import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,6 +128,13 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		
 		model.addAttribute("expedientTipusId", expedientTipusId);
 		model.addAttribute("expedientTipusEstatCommand", command);
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		if (entornActual != null) {
+			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
+					entornActual.getId(),
+					expedientTipusId);
+			model.addAttribute("expedientTipus", expedientTipus);
+		}
 		return "v3/expedientTipusEstatForm";
 	}
 	
@@ -130,6 +147,13 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			Model model) {
         if (bindingResult.hasErrors()) {
         	model.addAttribute("expedientTipusId", expedientTipusId);
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			if (entornActual != null) {
+				ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
+						entornActual.getId(),
+						expedientTipusId);
+				model.addAttribute("expedientTipus", expedientTipus);
+			}
         	return "v3/expedientTipusEstatForm";
         } else {
         	// Verificar permisos
@@ -159,6 +183,14 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 				dto,
 				ExpedientTipusEstatCommand.class);
 		command.setExpedientTipusId(expedientTipusId);
+
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		if (entornActual != null) {
+			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
+					entornActual.getId(),
+					expedientTipusId);
+			model.addAttribute("expedientTipus", expedientTipus);
+		}
 		
 		model.addAttribute("expedientTipusEstatCommand", command);
 		model.addAttribute("expedientTipusId", expedientTipusId);
@@ -176,6 +208,13 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
         if (bindingResult.hasErrors()) {
         	model.addAttribute("expedientTipusId", expedientTipusId);
     		model.addAttribute("heretat", expedientTipusService.estatFindAmbId(expedientTipusId, id).isHeretat());
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			if (entornActual != null) {
+				ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
+						entornActual.getId(),
+						expedientTipusId);
+				model.addAttribute("expedientTipus", expedientTipus);
+			}
         	return "v3/expedientTipusEstatForm";
         } else {
         	expedientTipusService.estatUpdate(
@@ -407,7 +446,272 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 							new Object[] {insercions, actualitzacions}));        		
 			return modalUrlTancar(false);	
         }
-	}	
+	}
+
+
+	// PERMISOS
+	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/permisos", method = RequestMethod.GET)
+	public String permisosGet(HttpServletRequest request,
+							  @PathVariable Long expedientTipusId,
+							  @PathVariable Long estatId,
+							  Model model) {
+
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
+				entornActual.getId(),
+				expedientTipusId);
+		EstatDto estat = expedientTipusService.estatFindAmbId(expedientTipusId, estatId);
+
+		model.addAttribute("expedientTipus", expedientTipus);
+		model.addAttribute("estat", estat);
+		return "v3/expedientTipusEstatPermisos";
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/permis/datatable", method = RequestMethod.GET)
+	@ResponseBody
+	DatatablesResponse permisDatatable(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			Model model) {
+		return DatatablesHelper.getDatatableResponse(
+				request,
+				null,
+				expedientTipusService.estatPermisFindAll(estatId));
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/permis/new", method = RequestMethod.GET)
+	public String permisNewGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			Model model) {
+		model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
+		model.addAttribute(new PermisCommand());
+		return "v3/expedientTipusEstatPermisForm";
+	}
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/permis/new", method = RequestMethod.POST)
+	public String permisNewPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			@Valid PermisCommand command,
+			BindingResult bindingResult,
+			Model model) {
+		return permisUpdatePost(
+				request,
+				expedientTipusId,
+				estatId,
+				null,
+				command,
+				bindingResult,
+				model);
+	}
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/permis/{permisId}", method = RequestMethod.GET)
+	public String permisUpdateGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			@PathVariable Long permisId,
+			Model model) {
+		model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
+		PermisDto permis = expedientTipusService.estatPermisFindById(estatId, permisId);
+		model.addAttribute(conversioTipusHelper.convertir(permis, PermisCommand.class));
+		return "v3/expedientTipusEstatPermisForm";
+	}
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/permis/{permisId}", method = RequestMethod.POST)
+	public String permisUpdatePost(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			@PathVariable Long permisId,
+			@Valid PermisCommand command,
+			BindingResult bindingResult,
+			Model model) {
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
+			return "v3/expedientTipusEstatPermisForm";
+		} else {
+			expedientTipusService.estatPermisUpdate(
+					estatId,
+					conversioTipusHelper.convertir(command, PermisDto.class));
+
+			MissatgesHelper.success(
+					request,
+					getMessage(request, "expedient.tipus.estat.controller.permis.actualitzat"));
+			return modalUrlTancar();
+		}
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/permis/{permisId}/delete")
+	public String permisDelete(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			@PathVariable Long permisId,
+			Model model) {
+
+		expedientTipusService.estatPermisDelete(
+				estatId,
+				permisId);
+
+		model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
+		model.addAttribute(new PermisCommand());
+		return "redirect:/v3/expedientTipus/" + expedientTipusId + "/estat/" + estatId + "/permisos";
+	}
+
+
+
+	// REGLES
+	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/regles", method = RequestMethod.GET)
+	public String reglesGet(HttpServletRequest request,
+							@PathVariable Long expedientTipusId,
+							@PathVariable Long estatId,
+							Model model) {
+
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
+				entornActual.getId(),
+				expedientTipusId);
+		EstatDto estat = expedientTipusService.estatFindAmbId(expedientTipusId, estatId);
+
+		model.addAttribute("expedientTipus", expedientTipus);
+		model.addAttribute("estat", estat);
+
+		return "v3/expedientTipusEstatRegles";
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/regla/datatable", method = RequestMethod.GET)
+	@ResponseBody
+	DatatablesResponse reglesDatatable(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			Model model) {
+		return DatatablesHelper.getDatatableResponse(
+				request,
+				null,
+				expedientTipusService.estatReglaFindAll(estatId),
+				"id");
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/regla/new", method = RequestMethod.GET)
+	public String reglaNewGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			Model model) {
+		model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
+		model.addAttribute(EstatReglaCommand.builder().estatId(estatId).expedientTipusId(expedientTipusId).build());
+		modelRegles(model);
+		return "v3/expedientTipusEstatReglaForm";
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/regla/new", method = RequestMethod.POST)
+	public String reglaNewPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			@Valid EstatReglaCommand command,
+			BindingResult bindingResult,
+			Model model) {
+		return reglaUpdatePost(
+				request,
+				expedientTipusId,
+				estatId,
+				null,
+				command,
+				bindingResult,
+				model);
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/regla/{reglaId}", method = RequestMethod.GET)
+	public String reglaUpdateGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			@PathVariable Long reglaId,
+			Model model) {
+		model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
+		EstatReglaDto regla = expedientTipusService.estatReglaFindById(estatId, reglaId);
+		model.addAttribute(conversioTipusHelper.convertir(regla, EstatReglaCommand.class));
+		modelRegles(model);
+		return "v3/expedientTipusEstatReglaForm";
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/regla/{reglaId}", method = RequestMethod.POST)
+	public String reglaUpdatePost(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			@PathVariable Long reglaId,
+			@Valid EstatReglaCommand command,
+			BindingResult bindingResult,
+			Model model) {
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
+			modelRegles(model);
+			return "v3/expedientTipusEstatReglaForm";
+		} else {
+			if (reglaId == null) {
+				expedientTipusService.estatReglaCreate(estatId, conversioTipusHelper.convertir(command, EstatReglaDto.class));
+				MissatgesHelper.success(request, getMessage(request, "expedient.tipus.estat.controller.regla.creat"));
+			} else {
+				expedientTipusService.estatReglaUpdate(estatId, conversioTipusHelper.convertir(command, EstatReglaDto.class));
+				MissatgesHelper.success(request, getMessage(request, "expedient.tipus.estat.controller.regla.actualitzat"));
+			}
+			return modalUrlTancar();
+		}
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/regla/{reglaId}/delete")
+	public String reglaDelete(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			@PathVariable Long reglaId,
+			Model model) {
+
+		expedientTipusService.estatReglaDelete(
+				estatId,
+				reglaId);
+
+		model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
+		model.addAttribute(new EstatReglaCommand());
+		return "redirect:/v3/expedientTipus/" + expedientTipusId + "/estat/" + estatId + "/regles";
+	}
+
+	private void modelRegles(Model model) {
+		model.addAttribute("quiOptions", EnumHelper.getOptionsForEnum(QuiEnum.class, "enum.regla.qui."));
+		model.addAttribute("queOptions", EnumHelper.getOptionsForEnum(QueEnum.class, "enum.regla.que."));
+		model.addAttribute("accioOptions", EnumHelper.getOptionsForEnum(AccioEnum.class, "enum.regla.accio."));
+
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/regla/{reglaId}/moure/{posicio}", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean moureRegla(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			@PathVariable Long reglaId,
+			@PathVariable int posicio,
+			Model model) {
+		boolean ret = false;
+
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDto tipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
+				entornActual.getId(),
+				expedientTipusId);
+
+		return expedientTipusService.estatReglaMoure(reglaId, posicio);
+	}
+
+
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {

@@ -16,6 +16,10 @@ import java.util.TreeSet;
 
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.core.model.hibernate.*;
+import net.conselldemallorca.helium.v3.core.api.dto.*;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
+import net.conselldemallorca.helium.v3.core.repository.*;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,58 +49,14 @@ import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Accio;
-import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
-import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
-import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
-import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
-import net.conselldemallorca.helium.core.model.hibernate.Consulta;
-import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusParamConsultaCamp;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
-import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
-import net.conselldemallorca.helium.core.model.hibernate.Entorn;
-import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
-import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
-import net.conselldemallorca.helium.core.model.hibernate.Estat;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
-import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
-import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
-import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
-import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
-import net.conselldemallorca.helium.core.model.hibernate.Tasca;
-import net.conselldemallorca.helium.core.model.hibernate.Termini;
-import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
-import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
-import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusFiltreDto;
-import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
-import net.conselldemallorca.helium.v3.core.api.dto.SequenciaDefaultAnyDto;
 import net.conselldemallorca.helium.v3.core.api.exception.DeploymentException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExportException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -121,28 +81,6 @@ import net.conselldemallorca.helium.v3.core.api.exportacio.TascaExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.TerminiExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ValidacioExportacio;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
-import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
-import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
-import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
-import net.conselldemallorca.helium.v3.core.repository.CampRegistreRepository;
-import net.conselldemallorca.helium.v3.core.repository.CampRepository;
-import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
-import net.conselldemallorca.helium.v3.core.repository.CampValidacioRepository;
-import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
-import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
-import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
-import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
-import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
-import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepository;
-import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
-import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
-import net.conselldemallorca.helium.v3.core.repository.MapeigSistraRepository;
-import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
-import net.conselldemallorca.helium.v3.core.repository.SequenciaAnyRepository;
-import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
 
 /**
  * Implementació del servei per a gestionar tipus d'expedients.
@@ -200,6 +138,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private FirmaTascaRepository firmaTascaRepository;
 	@Resource
 	private AnotacioRepository anotacioRepository;
+	@Resource
+	private EstatReglaRepository estatReglaRepository;
 
 	@Resource
 	private ExpedientHelper expedientHelper;
@@ -2384,13 +2324,16 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Transactional
 	public EstatDto estatCreate(Long expedientTipusId, EstatDto dto) {
 		Estat estat = new Estat();
-		estat.setExpedientTipus( 
-				expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
-						expedientTipusId));
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+		estat.setExpedientTipus(expedientTipus);
 		estat.setCodi(dto.getCodi());
 		estat.setNom(dto.getNom());
-		Integer seguentOrdre = estatRepository.getSeguentOrdre(expedientTipusId); 
-		estat.setOrdre(seguentOrdre == null ? 0 : seguentOrdre + 1);
+		if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedientTipus.getTipus())) {
+			estat.setOrdre(dto.getOrdre());
+		} else {
+			Integer seguentOrdre = estatRepository.getSeguentOrdre(expedientTipusId);
+			estat.setOrdre(seguentOrdre == null ? 0 : seguentOrdre + 1);
+		}
 		return conversioTipusHelper.convertir(
 				estatRepository.save(estat),
 				EstatDto.class);
@@ -2404,11 +2347,14 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			throw new NoTrobatException(Estat.class, dto.getId());
 		}
 		
-		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
-				estat.getExpedientTipus().getId());
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
 		
 		estat.setCodi(dto.getCodi());
 		estat.setNom(dto.getNom());
+
+		if (ExpedientTipusTipusEnumDto.ESTAT.equals(estat.getExpedientTipus().getTipus())) {
+			estat.setOrdre(dto.getOrdre());
+		}
 		
 		return conversioTipusHelper.convertir(
 				estatRepository.save(estat),
@@ -2463,7 +2409,21 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 
 		PaginaDto<EstatDto> pagina = paginacioHelper.toPaginaDto(
 				page,
-				EstatDto.class);				
+				EstatDto.class);
+
+		List<Long> ids = new ArrayList<Long>();
+		for (EstatDto dto: pagina.getContingut()) {
+			ids.add(dto.getId());
+		}
+		Map<Long, List<PermisDto>> permisos = permisosHelper.findPermisos(
+				ids,
+				Estat.class);
+
+		for (EstatDto dto: pagina.getContingut()) {
+			List<PermisDto> permisosEstat = permisos.get(dto.getId());
+			dto.setPermisCount(permisosEstat != null ? permisosEstat.size() : 0);
+			dto.setReglesCount(estatReglaRepository.countByEstatId(dto.getId()).intValue());
+		}
 
 		if (ambHerencia) {
 			// Llista d'heretats
@@ -2524,11 +2484,179 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		}
 		return ret;
 	}
-	
-	
-	
-	
-	
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<PermisDto> estatPermisFindAll(Long estatId) {
+		logger.debug("Consultant permisos de l'estat (estat=" + estatId + ")");
+
+		Estat estat = estatRepository.findOne(estatId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+
+		return permisosHelper.findPermisos(
+				estatId,
+				Estat.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public PermisDto estatPermisFindById(Long estatId, Long permisId) {
+		logger.debug(
+				"Consultant un permis donat el seu id (" +
+						"estatId=" + estatId + ", " +
+						"permisId=" + permisId + ")");
+
+		Estat estat = estatRepository.findOne(estatId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+
+		List<PermisDto> permisos = permisosHelper.findPermisos(
+				estatId,
+				Estat.class);
+		for (PermisDto permis: permisos) {
+			if (permis.getId().equals(permisId)) {
+				return permis;
+			}
+		}
+		throw new NoTrobatException(PermisDto.class, permisId);
+	}
+
+	@Override
+	@Transactional
+	public void estatPermisUpdate(Long estatId, PermisDto permis) throws NoTrobatException, PermisDenegatException {
+		logger.debug("Actualitzant permis per a l'estat (" +
+						"estatId=" + estatId + ", " +
+						"permis=" + permis + ")");
+
+		Estat estat = estatRepository.findOne(estatId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		permisosHelper.updatePermis(
+				estatId,
+				Estat.class,
+				permis);
+	}
+
+	@Override
+	@Transactional
+	public void estatPermisDelete(Long estatId, Long permisId) throws NoTrobatException, PermisDenegatException {
+		logger.debug("Esborrant permis per a l'estat (" +
+				"estatId=" + estatId + ", " +
+				"permisId=" + permisId + ")");
+
+		Estat estat = estatRepository.findOne(estatId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		permisosHelper.deletePermis(
+				estatId,
+				Estat.class,
+				permisId);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<EstatReglaDto> estatReglaFindAll(Long estatId) {
+		Estat estat = estatRepository.findOne(estatId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		List<EstatRegla> regles = estatReglaRepository.findByEstatOrderByOrdreAsc(estat);
+		return conversioTipusHelper.convertirList(regles, EstatReglaDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public EstatReglaDto estatReglaFindById(Long estatId, Long reglaId) {
+		Estat estat = estatRepository.findOne(estatId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		EstatRegla regla = estatReglaRepository.findOne(reglaId);
+		if (regla == null)
+			throw new NoTrobatException(EstatRegla.class, reglaId);
+		return conversioTipusHelper.convertir(regla, EstatReglaDto.class);
+	}
+
+	@Override
+	@Transactional
+	public EstatReglaDto estatReglaCreate(Long estatId, EstatReglaDto reglaDto) throws NoTrobatException, PermisDenegatException {
+		Estat estat = estatRepository.findOne(estatId);
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		Integer seguentOrdre = estatReglaRepository.getSeguentOrdre(estatId);
+		seguentOrdre = seguentOrdre == null ? 0 : seguentOrdre + 1;
+		EstatRegla regla = EstatRegla.builder()
+				.nom(reglaDto.getNom())
+				.ordre(seguentOrdre)
+				.qui(reglaDto.getQui())
+				.quiValor(reglaDto.getQuiValor())
+				.que(reglaDto.getQue())
+				.queValor(reglaDto.getQueValor())
+				.accio(reglaDto.getAccio())
+				.estat(estat)
+				.expedientTipus(expedientTipus)
+				.entorn(expedientTipus.getEntorn())
+				.build();
+		return conversioTipusHelper.convertir(estatReglaRepository.save(regla), EstatReglaDto.class);
+	}
+
+	@Override
+	@Transactional
+	public EstatReglaDto estatReglaUpdate(Long estatId, EstatReglaDto reglaDto) throws NoTrobatException, PermisDenegatException {
+		Estat estat = estatRepository.findOne(estatId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		EstatRegla regla = estatReglaRepository.findOne(reglaDto.getId());
+		if (regla == null)
+			throw new NoTrobatException(EstatRegla.class, reglaDto.getId());
+
+		regla.setNom(reglaDto.getNom());
+		regla.setQui(reglaDto.getQui());
+		regla.setQuiValor(reglaDto.getQuiValor());
+		regla.setQue(reglaDto.getQue());
+		regla.setQueValor(reglaDto.getQueValor());
+		regla.setAccio(reglaDto.getAccio());
+		return conversioTipusHelper.convertir(estatReglaRepository.save(regla), EstatReglaDto.class);
+	}
+
+	@Override
+	@Transactional
+	public void estatReglaDelete(Long estatId, Long reglaId) throws NoTrobatException, PermisDenegatException {
+		Estat estat = estatRepository.findOne(estatId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		EstatRegla regla = estatReglaRepository.findOne(reglaId);
+		if (regla == null)
+			throw new NoTrobatException(EstatRegla.class, reglaId);
+
+		estatReglaRepository.delete(regla);
+	}
+
+	@Override
+	@Transactional
+	public boolean estatReglaMoure(Long reglaId, int posicio) {
+		logger.debug(
+				"Moguent la regla (" +
+						"reglaId=" + reglaId + ", " +
+						"posicio=" + posicio + ")");
+		boolean ret = false;
+		EstatRegla regla = estatReglaRepository.findOne(reglaId);
+		if (regla == null) {
+			throw new NoTrobatException(EstatRegla.class, reglaId);
+		}
+		findAmbIdPermisDissenyar(
+				regla.getExpedientTipus().getEntorn().getId(),
+				regla.getExpedientTipus().getId());
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(regla.getExpedientTipus().getId());
+		Estat estat = estatRepository.findOne(regla.getEstat().getId());
+		if (estat == null) {
+			throw new NoTrobatException(Estat.class, regla.getEstat().getId());
+		}
+
+		List<EstatRegla> regles = estatReglaRepository.findByEstatOrderByOrdreAsc(estat);
+		if(posicio != regles.indexOf(regla)) {
+			regles.remove(regla);
+			regles.add(posicio, regla);
+			int i = 0;
+			for (EstatRegla r : regles) {
+				r.setOrdre(i++);
+				estatReglaRepository.save(r);
+			}
+		}
+		return ret;
+	}
+
+
 	@Override
 	@Transactional
 	public void definicioProcesIncorporar(
