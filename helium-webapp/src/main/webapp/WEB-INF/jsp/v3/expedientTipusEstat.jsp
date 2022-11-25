@@ -116,7 +116,7 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-default" data-dismiss="modal">Tancar</button>
-						<button type="button" class="btn btn-primary">Assigna nou ordre</button>
+						<button type="button" class="btn btn-primary" id="assigna-ordre-btn">Assigna nou ordre</button>
 					</div>
 				</div>
 			</div>
@@ -169,6 +169,22 @@
 			$(".out-border").removeClass("selected").addClass("not-selected");
 			$(this).removeClass("not-selected").addClass("selected");
 		})
+
+		$("#assigna-ordre-btn").click(function() {
+			debugger;
+			let ordreSelected = $(".out-border.selected");
+			if (!ordreSelected) {
+				return;
+			}
+			let id = $("div.selector-contenidor").data("estatid");
+			let pos = $("div.selector-contenidor").data("pos");
+			let ordre = ordreSelected.data("ordre");
+			canviarPosicioPerEstat(id, pos, ordre);
+		});
+
+		$("#modal-selector-ordre").on("hidden.bs.modal", function () {
+			$('#expedientTipusEstat').webutilDatatable('refresh');
+		})
 	});
 
 	const canviarPosicioEstatPerEstats = (pos) => {
@@ -179,7 +195,7 @@
 		if ((ordreCodis.length == 2 && ordreCodis[1].ordre == 1) ||
 				(ordreCodis.length == 3 && (ordreCodis[2].ordre - ordreCodis[0].ordre == 1))) {
 			// Denanar a l'usuari quin ordre assignar
-			demanarOrdreUsuari(ordreCodis);
+			demanarOrdreUsuari(ordreCodis, id, pos);
 		} else {
 			canviarPosicioPerEstat(id, pos, null);
 		}
@@ -200,12 +216,13 @@
 		return {ordre: ordre, codi: codi};
 	}
 	const demanarOrdreUsuari = (ordreCodis, id, pos) => {
+		let midaOrdres = ordreCodis.length;
 		let contenidor = $('<div class="selector-contenidor" data-estatid="' + id + '" data-pos="' + pos + '"></div>');
-		generaTaula(getPrimerOrdre(ordreCodis)).appendTo(contenidor);
-		generaTaula(getSegonOrdre(ordreCodis)).appendTo(contenidor);
-		if (ordreCodis.length == 3) {
+		generaTaula(getPrimerOrdre(ordreCodis), midaOrdres == 3 ? "1-1-2" : "1-1").appendTo(contenidor);
+		generaTaula(getSegonOrdre(ordreCodis), midaOrdres == 3 ? "1-2-2" : "1-2").appendTo(contenidor);
+		if (midaOrdres == 3) {
 			$("#modal-dialog").addClass("modal-lg");
-			generaTaula(getTercerOrdre(ordreCodis)).appendTo(contenidor);
+			generaTaula(getTercerOrdre(ordreCodis), "1-2-3").appendTo(contenidor);
 		} else {
 			$("#modal-dialog").removeClass("modal-lg");
 		}
@@ -245,8 +262,8 @@
 		nouOrdreCodi.push({ordre: parseInt(ordreCodi[2].ordre) + 1, codi: ordreCodi[2].codi});
 		return nouOrdreCodi;
 	}
-	const generaTaula = (ordreCodi) => {
-		let outborder = $('<div class="out-border not-selected"></div>');
+	const generaTaula = (ordreCodi, ordre) => {
+		let outborder = $('<div class="out-border not-selected" data-ordre="' + ordre + '"></div>');
 		let contenidor = $('<div class="taula-contenidor"></div>');
 		let taula = $('<table class="table table-striped table-bordered dataTable no-footer"></table>');
 		taula.append($('<tr class="odd"><td>' + ordreCodi[0].ordre + '</td><td>' + ordreCodi[0].codi + '</td></tr>'));
