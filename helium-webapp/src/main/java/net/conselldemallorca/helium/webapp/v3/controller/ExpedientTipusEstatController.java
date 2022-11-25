@@ -13,7 +13,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAccioEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.AccioEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
@@ -607,7 +612,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			Model model) {
 		model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
 		model.addAttribute(EstatReglaCommand.builder().estatId(estatId).expedientTipusId(expedientTipusId).build());
-		modelRegles(model);
+		modelRegles(model, expedientTipusId, null);
 		return "v3/expedientTipusEstatReglaForm";
 	}
 
@@ -639,7 +644,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
 		EstatReglaDto regla = expedientTipusService.estatReglaFindById(estatId, reglaId);
 		model.addAttribute(conversioTipusHelper.convertir(regla, EstatReglaCommand.class));
-		modelRegles(model);
+		modelRegles(model, expedientTipusId, regla.getQue());
 		return "v3/expedientTipusEstatReglaForm";
 	}
 
@@ -654,7 +659,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			Model model) {
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("estat", expedientTipusService.estatFindAmbId(expedientTipusId, estatId));
-			modelRegles(model);
+			modelRegles(model, expedientTipusId, command.getQue());
 			return "v3/expedientTipusEstatReglaForm";
 		} else {
 			if (reglaId == null) {
@@ -685,13 +690,6 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		return "redirect:/v3/expedientTipus/" + expedientTipusId + "/estat/" + estatId + "/regles";
 	}
 
-	private void modelRegles(Model model) {
-		model.addAttribute("quiOptions", EnumHelper.getOptionsForEnum(QuiEnum.class, "enum.regla.qui."));
-		model.addAttribute("queOptions", EnumHelper.getOptionsForEnum(QueEnum.class, "enum.regla.que."));
-		model.addAttribute("accioOptions", EnumHelper.getOptionsForEnum(AccioEnum.class, "enum.regla.accio."));
-
-	}
-
 	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/regla/{reglaId}/moure/{posicio}", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean moureRegla(
@@ -711,6 +709,129 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		return expedientTipusService.estatReglaMoure(reglaId, posicio);
 	}
 
+	@RequestMapping(value = "/{expedientTipusId}/var/select", method = RequestMethod.GET)
+	@ResponseBody
+	public List<ParellaCodiValorDto> reglaGetVars(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			Model model) {
+
+		List<CampDto> campsDto = campService.findAllOrdenatsPerCodi(expedientTipusId, null);
+		// Crea les parelles de codi i valor
+		List<ParellaCodiValorDto> dades = new ArrayList<ParellaCodiValorDto>();
+		for (CampDto camp : campsDto) {
+			dades.add(ParellaCodiValorDto.builder().codi(camp.getCodi()).valor(camp.getEtiqueta()).build());
+		}
+		return dades;
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/doc/select", method = RequestMethod.GET)
+	@ResponseBody
+	public List<ParellaCodiValorDto> reglaGetDocs(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			Model model) {
+
+		List<DocumentDto> documentDtos = documentService.findAll(expedientTipusId, null);
+		// Crea les parelles de codi i valor
+		List<ParellaCodiValorDto> documents = new ArrayList<ParellaCodiValorDto>();
+		for (DocumentDto document : documentDtos) {
+			documents.add(ParellaCodiValorDto.builder().codi(document.getCodi()).valor(document.getNom()).build());
+		}
+		return documents;
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/term/select", method = RequestMethod.GET)
+	@ResponseBody
+	public List<ParellaCodiValorDto> reglaGetTerms(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			Model model) {
+
+		List<TerminiDto> terminiDtos = terminiService.findAll(expedientTipusId, null);
+		// Crea les parelles de codi i valor
+		List<ParellaCodiValorDto> terminis = new ArrayList<ParellaCodiValorDto>();
+		for (TerminiDto termini : terminiDtos) {
+			terminis.add(ParellaCodiValorDto.builder().codi(termini.getCodi()).valor(termini.getNom()).build());
+		}
+		return terminis;
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/agrup/select", method = RequestMethod.GET)
+	@ResponseBody
+	public List<ParellaCodiValorDto> reglaGetAgrups(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			Model model) {
+
+		List<CampAgrupacioDto> agrupacioDtos = campService.agrupacioFindAll(expedientTipusId, null, false);
+		// Crea les parelles de codi i valor
+		List<ParellaCodiValorDto> agrupacions = new ArrayList<ParellaCodiValorDto>();
+		for (CampAgrupacioDto agrupacio : agrupacioDtos) {
+			agrupacions.add(ParellaCodiValorDto.builder().codi(agrupacio.getCodi()).valor(agrupacio.getNom()).build());
+		}
+		return agrupacions;
+	}
+
+	@RequestMapping(value = "/persona/suggest/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
+	@ResponseBody
+	public String personaSuggest(
+			@PathVariable String text,
+			Model model) {
+		String textDecoded = text;
+		List<PersonaDto> lista = aplicacioService.findPersonaLikeCodiOrNomSencer(textDecoded);
+		String json = "[";
+		for (PersonaDto persona: lista) {
+			json += "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"},";
+		}
+		if (json.length() > 1) json = json.substring(0, json.length() - 1);
+		json += "]";
+		return json;
+	}
+
+	@RequestMapping(value = "/persona/suggestInici/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
+	@ResponseBody
+	public String personaSuggestInici(
+			@PathVariable String text,
+			Model model) {
+		PersonaDto persona = aplicacioService.findPersonaAmbCodi(text);
+		if (persona != null) {
+			return "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"}";
+		}
+		return null;
+	}
+
+	private void modelRegles(Model model, Long expedientTipusId, QueEnum que) {
+		model.addAttribute("quiOptions", EnumHelper.getOptionsForEnum(QuiEnum.class, "enum.regla.qui."));
+		model.addAttribute("queOptions", EnumHelper.getOptionsForEnum(QueEnum.class, "enum.regla.que."));
+		model.addAttribute("accioOptions", EnumHelper.getOptionsForEnum(AccioEnum.class, "enum.regla.accio."));
+
+		List<String> valorsQue = new ArrayList<String>();
+
+		List<ParellaCodiValorDto> valors = null;
+		if (que != null) {
+			switch (que) {
+				case DADA:
+					valors = reglaGetVars(null, expedientTipusId, null);
+					break;
+				case DOCUMENT:
+					valors = reglaGetDocs(null, expedientTipusId, null);
+					break;
+				case TERMINI:
+					valors = reglaGetTerms(null, expedientTipusId, null);
+					break;
+				case AGRUPACIO:
+					valors = reglaGetAgrups(null, expedientTipusId, null);
+					break;
+			}
+			if (valors != null && !valors.isEmpty()) {
+				for (ParellaCodiValorDto codiValor: valors) {
+					valorsQue.add(codiValor.getCodi() + " | " + codiValor.getValor());
+				}
+			}
+		}
+		model.addAttribute("valorsQue", valorsQue);
+	}
 
 
 	@InitBinder

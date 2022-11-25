@@ -22,6 +22,8 @@ public interface PersonesPlugin {
 	 */
 	public List<DadesPersona> findLikeNomSencer(String text) throws PersonesPluginException;
 
+	public List<DadesPersona> findLikeCodiOrNomSencer(String text) throws PersonesPluginException;
+
 	/**
 	 * Retorna la persona amb el codi especificat
 	 * 

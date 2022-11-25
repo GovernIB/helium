@@ -19,11 +19,15 @@
 	<script src="<c:url value="/js/webutil.datatable.js"/>"></script>
 	<script src="<c:url value="/js/webutil.modal.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.tablednd.js"/>"></script>
+	<style>
+		.label-accio {font-size: 13px; margin-top: 5px; margin-bottom: 5px; display: block;}
+		.label-ocult {background-color: rgba(0,0,0,0); border: dashed 1px #ccc; color: #888;}
+	</style>
 	<hel:modalHead/>
 </head>
 <body>
 	<div class="text-right" data-toggle="botons-titol">
-		<a class="btn btn-default" href="regla/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.regla.accio.nou"/></a>
+		<a class="btn btn-default" href="regla/new" data-toggle="modal" data-maximized="true"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.regla.accio.nou"/></a>
 	</div>
 	<table	id="estatRegles"
 			data-toggle="datatable"
@@ -41,11 +45,11 @@
 					<spring:message code="expedient.tipus.regla.form.camp.qui"/>
 					<script id="cellQuiTemplate" type="text/x-jsrender">
 					{{if qui == 'TOTHOM'}}
-						<spring:message code="enum.regla.qui.TOTHOM"/>
+						<span class="fa fa-globe"></span> <spring:message code="enum.regla.qui.TOTHOM"/>
 					{{else qui == 'USUARI'}}
-						<spring:message code="enum.regla.qui.USUARI"/>
+						<span class="fa fa-user"></span> <spring:message code="enum.regla.qui.USUARI"/>
 					{{else qui == 'ROL'}}
-						<spring:message code="enum.regla.qui.ROL"/>
+						<span class="fa fa-users"></span> <spring:message code="enum.regla.qui.ROL"/>
 					{{else}}
 						{{>qui}}
 					{{/if}}
@@ -63,18 +67,28 @@
 					<spring:message code="expedient.tipus.regla.form.camp.que"/>
 					<script id="cellQueTemplate" type="text/x-jsrender">
 					{{if que == 'TOT'}}
+<%--						<span class="fa fa-globe"></span> --%>
 						<spring:message code="enum.regla.que.TOT"/>
 					{{else que == 'DADES'}}
+						<span class="fa fa-tags"></span>
 						<spring:message code="enum.regla.que.DADES"/>
 					{{else que == 'DOCUMENTS'}}
+<%--						<span class="fa fa-clone"></span> --%>
 						<spring:message code="enum.regla.que.DOCUMENTS"/>
+					{{else que == 'TERMINIS'}}
+<%--						<span class="fa fa-cogs"></span> --%>
+						<spring:message code="enum.regla.que.TERMINIS"/>
 					{{else que == 'AGRUPACIO'}}
+<%--						<span class="fa fa-th"></span> --%>
 						<spring:message code="enum.regla.que.AGRUPACIO"/>
 					{{else que == 'DADA'}}
+<%--						<span class="fa fa-tag"></span> --%>
 						<spring:message code="enum.regla.que.DADA"/>
 					{{else que == 'DOCUMENT'}}
+<%--						<span class="fa fa-file-o"></span> --%>
 						<spring:message code="enum.regla.que.DOCUMENT"/>
 					{{else que == 'TERMINI'}}
+<%--						<span class="fa fa-cog"></span> --%>
 						<spring:message code="enum.regla.que.TERMINI"/>
 					{{else}}
 						{{>que}}
@@ -93,17 +107,17 @@
 					<spring:message code="expedient.tipus.regla.form.camp.accio"/>
 					<script id="cellAccioTemplate" type="text/x-jsrender">
 					{{if accio == 'MOSTRAR'}}
-						<spring:message code="enum.regla.accio.MOSTRAR"/>
+						<span class="label label-info label-accio"><span class="fa fa-eye"></span> <spring:message code="enum.regla.accio.MOSTRAR"/></span>
 					{{else accio == 'OCULTAR'}}
-						<spring:message code="enum.regla.accio.OCULTAR"/>
+						<span class="label label-ocult label-accio"><span class="fa fa-eye-slash"></span> <spring:message code="enum.regla.accio.OCULTAR"/></span>
 					{{else accio == 'EDITAR'}}
-						<spring:message code="enum.regla.accio.EDITAR"/>
+						<span class="label label-success label-accio"><span class="fa fa-pencil-square-o"></span> <spring:message code="enum.regla.accio.EDITAR"/></span>
 					{{else accio == 'BLOQUEJAR'}}
-						<spring:message code="enum.regla.accio.BLOQUEJAR"/>
+						<span class="label label-warning label-accio"><span class="fa fa-lock"></span> <spring:message code="enum.regla.accio.BLOQUEJAR"/></span>
 					{{else accio == 'REQUERIR'}}
-						<spring:message code="enum.regla.accio.REQUERIR"/>
+						<span class="label label-primary label-accio"><span class="fa fa-asterisk"></span> <spring:message code="enum.regla.accio.REQUERIR"/></span>
 					{{else}}
-						{{>accio}}
+						<span class="label label-default label-accio">{{>accio}}</span>
 					{{/if}}
 					</script>
 				</th>
@@ -112,7 +126,7 @@
 						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								<li><a data-toggle="modal" href="regla/{{:id}}"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a></li>
+								<li><a data-toggle="modal" data-maximized="true" href="regla/{{:id}}"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a></li>
 								<li><a href="regla/{{:id}}/delete" data-rdt-link-ajax="true" data-confirm="<spring:message code="expedient.tipus.permis.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 							</ul>
 						</div>

@@ -11,6 +11,24 @@
 <script type="text/javascript" src="<c:url value="/js/jquery/jquery.tablednd.js"/>"></script>
 <style>
 	.table-bordered>tbody>tr>td { max-width: 140px; }
+	.selector-contenidor { display: flex; }
+	.taula-contenidor {
+		margin: 0px;
+		overflow: hidden;
+		background-color: #f9f9f9;
+		border-radius: 8px;
+		mask-image: linear-gradient(to left, rgba(255,255,255,0), rgba(255,255,255,1) 50%);
+		-webkit-mask-image: linear-gradient(to left, rgba(255,255,255,0), rgba(255,255,255,1) 50%);
+		cursor: pointer;
+	}
+	.taula-contenidor table { border: none; }
+	.taula-contenidor table tr:first-child{ border-top: none; }
+	.taula-contenidor table tr:first-child td { border-top: none; }
+	tr.selected { font-weight: bold; background-color: yellowgreen; }
+	.out-border { flex-grow: 1; box-shadow: 0 1px 5px rgb(21 34 53 / 30%); border: none; border-radius: 8px; margin: 10px; opacity: 50%; }
+	.out-border.not-selected:hover { opacity: 100%; box-shadow: 0 6px 18px 0 rgb(21 34 53 / 30%); }
+	.out-border.selected { opacity: 100%; box-shadow: 0 6px 18px 0 rgb(102 175 233 / 90%);  }
+
 </style>
 
 <c:url var="urlDatatable" value="/v3/expedientTipus/${expedientTipus.id}/estats/datatable"/>
@@ -86,6 +104,23 @@
 		</script>
 		<script id="rowhrefTemplateEstats" type="text/x-jsrender">${expedientTipus.id}/estat/{{:id}}/update</script>
 
+		<div id="modal-selector-ordre" class="modal fade" tabindex="-1" role="dialog">
+			<div id="modal-dialog" class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title">Selecciona l'ordre a assignar</h4>
+					</div>
+					<div id="selector-ordre" class="modal-body">
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Tancar</button>
+						<button type="button" class="btn btn-primary">Assigna nou ordre</button>
+					</div>
+				</div>
+			</div>
+		</div>
 
 	</c:when>
 	<c:otherwise>
@@ -94,51 +129,30 @@
 </c:choose>
 <script>
 	var filaMovem;
-	var idMovem;
 
 	$(document).ready(function() {
-	<c:if test="${expedientTipus.tipus == 'FLOW'}">
 		$('#expedientTipusEstat').on('draw.dt', function() {
 			// Posa la taula com a ordenable
 			$("#expedientTipusEstat").tableDnD({
 				onDragClass: "drag",
 				onDrop: function(table, row) {
 					var pos = row.rowIndex - 1;
-					var id= obtenirId(pos);
 					if (pos != filaMovem) {
+						<c:choose>
+						<c:when test="${expedientTipus.tipus == 'FLOW'}">
+						var id= obtenirId(pos);
 						canviarPosicioEstat(id,pos);
-						$('tr').off('click');
-						$('td').off('click');
-					}
-				},
-				onDragStart: function(table, row) {
-						filaMovem = row.rowIndex-1;
-				}
-			});
-			$("#expedientTipusEstat tr").hover(function() {
-				$(this.cells[0]).addClass('showDragHandle');
-			}, function() {
-				$(this.cells[0]).removeClass('showDragHandle');
-			});
-		});
-	</c:if>
-	<c:if test="${expedientTipus.tipus == 'ESTAT'}">
-		$('#expedientTipusEstat').on('draw.dt', function() {
-			// Posa la taula com a ordenable
-			$("#expedientTipusEstat").tableDnD({
-				onDragClass: "drag",
-				onDrop: function(table, row) {
-					var pos = row.rowIndex - 1;
-					var id= obtenirId(pos);
-					if (pos != filaMovem) {
-						canviarPosicioEstatPerEstats(id,pos);
+						</c:when>
+						<c:when test="${expedientTipus.tipus == 'ESTAT'}">
+						canviarPosicioEstatPerEstats(pos);
+						</c:when>
+						</c:choose>
 						$('tr').off('click');
 						$('td').off('click');
 					}
 				},
 				onDragStart: function(table, row) {
 					filaMovem = row.rowIndex-1;
-					idMovem = $("#expedientTipusEstat tr:eq(" + filaMovem + ")").attr("id");
 				}
 			});
 			$("#expedientTipusEstat tr").hover(function() {
@@ -147,21 +161,127 @@
 				$(this.cells[0]).removeClass('showDragHandle');
 			});
 		});
-	</c:if>
-
 		$('#exportar_dades').click(function(event) {
 			webutilDownloadAndRefresh($(this).attr('href'), event);
 		});
 
+		$("#selector-ordre").on("click", ".out-border", function() {
+			$(".out-border").removeClass("selected").addClass("not-selected");
+			$(this).removeClass("not-selected").addClass("selected");
+		})
 	});
 
-	function canviarPosicioEstatPerEstats(id, pos) {
+	const canviarPosicioEstatPerEstats = (pos) => {
+		// const filaModuga = getPosicioFilaMoguda(pos);
+		const ordreCodis = getOrdresCodis(pos);
+		const id = obtenirId(pos);
 
+		if ((ordreCodis.length == 2 && ordreCodis[1].ordre == 1) ||
+				(ordreCodis.length == 3 && (ordreCodis[2].ordre - ordreCodis[0].ordre == 1))) {
+			// Denanar a l'usuari quin ordre assignar
+			demanarOrdreUsuari(ordreCodis);
+		} else {
+			canviarPosicioPerEstat(id, pos, null);
+		}
+	}
+	const getOrdresCodis = (posfila) => {
+		let ordres = [];
+		if (posfila > 0) {
+			ordres.push(getOrdreCodiFila(posfila - 1));
+		}
+		ordres.push(getOrdreCodiFila(posfila));
+		ordres.push(getOrdreCodiFila(posfila + 1));
+		return ordres;
+	}
+	const getOrdreCodiFila = (posfila) => {
+		let fila = $("#expedientTipusEstat tr:eq("+getPosicioFilaMoguda(posfila)+")");
+		let ordre = fila.find("td:eq(0)").text().trim();
+		let codi = fila.find("td:eq(1)").text().trim();
+		return {ordre: ordre, codi: codi};
+	}
+	const demanarOrdreUsuari = (ordreCodis, id, pos) => {
+		let contenidor = $('<div class="selector-contenidor" data-estatid="' + id + '" data-pos="' + pos + '"></div>');
+		generaTaula(getPrimerOrdre(ordreCodis)).appendTo(contenidor);
+		generaTaula(getSegonOrdre(ordreCodis)).appendTo(contenidor);
+		if (ordreCodis.length == 3) {
+			$("#modal-dialog").addClass("modal-lg");
+			generaTaula(getTercerOrdre(ordreCodis)).appendTo(contenidor);
+		} else {
+			$("#modal-dialog").removeClass("modal-lg");
+		}
+		$("#selector-ordre").empty();
+		$("#selector-ordre").append(contenidor);
+
+		$("#modal-selector-ordre").modal();
+	}
+	const getPrimerOrdre = (ordreCodi) => {
+		let nouOrdreCodi = [];
+		if (ordreCodi.length == 2) {
+			nouOrdreCodi.push({ordre: 1, codi: ordreCodi[0].codi});
+			nouOrdreCodi.push({ordre: 1, codi: ordreCodi[1].codi});
+		} else {
+			nouOrdreCodi.push({ordre: ordreCodi[0].ordre, codi: ordreCodi[0].codi});
+			nouOrdreCodi.push({ordre: ordreCodi[0].ordre, codi: ordreCodi[1].codi});
+			nouOrdreCodi.push({ordre: ordreCodi[2].ordre, codi: ordreCodi[2].codi});
+		}
+		return nouOrdreCodi;
+	}
+	const getSegonOrdre = (ordreCodi) => {
+		let nouOrdreCodi = [];
+		if (ordreCodi.length == 2) {
+			nouOrdreCodi.push({ordre: 1, codi: ordreCodi[0].codi});
+			nouOrdreCodi.push({ordre: 2, codi: ordreCodi[1].codi});
+		} else {
+			nouOrdreCodi.push({ordre: ordreCodi[0].ordre, codi: ordreCodi[0].codi});
+			nouOrdreCodi.push({ordre: ordreCodi[2].ordre, codi: ordreCodi[1].codi});
+			nouOrdreCodi.push({ordre: ordreCodi[2].ordre, codi: ordreCodi[2].codi});
+		}
+		return nouOrdreCodi;
+	}
+	const getTercerOrdre = (ordreCodi) => {
+		let nouOrdreCodi = [];
+		nouOrdreCodi.push({ordre: ordreCodi[0].ordre, codi: ordreCodi[0].codi});
+		nouOrdreCodi.push({ordre: parseInt(ordreCodi[0].ordre) + 1, codi: ordreCodi[1].codi});
+		nouOrdreCodi.push({ordre: parseInt(ordreCodi[2].ordre) + 1, codi: ordreCodi[2].codi});
+		return nouOrdreCodi;
+	}
+	const generaTaula = (ordreCodi) => {
+		let outborder = $('<div class="out-border not-selected"></div>');
+		let contenidor = $('<div class="taula-contenidor"></div>');
+		let taula = $('<table class="table table-striped table-bordered dataTable no-footer"></table>');
+		taula.append($('<tr class="odd"><td>' + ordreCodi[0].ordre + '</td><td>' + ordreCodi[0].codi + '</td></tr>'));
+		taula.append($('<tr class="even selected"><td>' + ordreCodi[1].ordre + '</td><td>' + ordreCodi[1].codi + '</td></tr>'));
+		if (ordreCodi.length == 3) {
+			taula.append($('<tr class="odd"><td>' + ordreCodi[2].ordre + '</td><td>' + ordreCodi[2].codi + '</td></tr>'));
+		}
+		contenidor.append(taula);
+		outborder.append(contenidor);
+		return outborder;
 	}
 
-	function canviarPosicioEstat(id, pos) {
+	const obtenirId = (pos) => {
+		return $("#expedientTipusEstat tr:eq("+getPosicioFilaMoguda(pos)+")").attr("id").split("_")[1];
+	}
+	const getPosicioFilaMoguda = (pos) => {
+		if (filaMovem == pos) {
+			return filaMovem + 1;
+		} else {
+			if ( filaMovem < pos) {	//baixam elements
+				return filaMovem + (pos - filaMovem) + 1;
+			} else {					//pujam elements
+				return filaMovem - (filaMovem - pos) + 1;
+			}
+		}
+	}
+
+
+
+	const canviarPosicioPerEstat = (id, pos, ordre) => {
+
+	}
+	const canviarPosicioEstat = (id, pos) => {
 		// Canvia la ordenació sempre amb ordre ascendent
-		$('#campValidacio').DataTable().order([3, 'asc']);
+		// $('#campValidacio').DataTable().order([3, 'asc']);
 		var getUrl = '<c:url value="/v3/expedientTipus/${expedientTipusId}/estat/"/>'+id+'/moure/'+pos;
 		$.ajax({
 			type: 'GET',
@@ -172,20 +292,5 @@
 				$('#expedientTipusEstat').webutilDatatable('refresh');
 			}
 		});
-	}
-
-	function obtenirId(pos){
-		if(filaMovem==pos){
-			var fila = filaMovem + 1;
-		} else {
-			if( filaMovem < pos){	//baixam elements
-				var fila = filaMovem + (pos-filaMovem)+1;
-			}else{					//pujam elements
-				var fila = filaMovem - (filaMovem-pos)+1;
-			}
-		}
-		id = $("#expedientTipusEstat tr:eq("+fila+")").attr("id");
-		id2 = id.split("_");
-		return id2[1] ;
 	}
 </script>

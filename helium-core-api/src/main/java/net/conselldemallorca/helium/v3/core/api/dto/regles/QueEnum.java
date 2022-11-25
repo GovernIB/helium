@@ -4,6 +4,7 @@ public enum QueEnum {
     TOT,
     DADES,
     DOCUMENTS,
+    TERMINIS,
     AGRUPACIO,
     DADA,
     DOCUMENT,
