@@ -11,11 +11,11 @@ import org.jeasy.rules.annotation.Rule;
 import org.jeasy.rules.api.Facts;
 
 @Rule(priority = 13)
-public class RuleQueDocuements {
+public class RuleQueTerminis {
 
     @Condition
     public boolean when(@Fact("fact") VariableFact fact) {
-        if (fact.isAplicaReglaQui() && QueEnum.DOCUMENTS.equals(fact.getQue()) && TipusVarEnum.DOCUMENT.equals(fact.getTipus()))
+        if (fact.isAplicaReglaQui() && QueEnum.DOCUMENTS.equals(fact.getQue()) && TipusVarEnum.TERMINI.equals(fact.getTipus()))
             return true;
         return false;
     }
