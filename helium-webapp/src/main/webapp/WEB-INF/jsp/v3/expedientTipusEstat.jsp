@@ -38,7 +38,7 @@
 		<table	id="expedientTipusEstat"
 				data-toggle="datatable"
 				data-url="${urlDatatable}"
-				data-paging-enabled="true"
+				data-paging-enabled="false"
 				data-info-type="search+button"
 				data-rowhref-toggle="modal"
 				data-rowhref-template="#rowhrefTemplateEstats" 
@@ -191,7 +191,7 @@
 		const ordreCodis = getOrdresCodis(pos);
 		const id = obtenirId(pos);
 
-		if (ordreCodis.length == 2 || (ordreCodis.length == 3 && (ordreCodis[2].ordre - ordreCodis[0].ordre == 1))) {
+		if (ordreCodis.length == 2 || (ordreCodis.length == 3 && (ordreCodis[2].ordre - ordreCodis[0].ordre != 0))) {
 			// Denanar a l'usuari quin ordre assignar
 			demanarOrdreUsuari(ordreCodis, id, pos);
 		} else {
@@ -228,6 +228,7 @@
 		}
 		$("#selector-ordre").empty();
 		$("#selector-ordre").append(contenidor);
+		$(".modal-footer button").prop("disabled", false);
 
 		$("#modal-selector-ordre").modal();
 	}

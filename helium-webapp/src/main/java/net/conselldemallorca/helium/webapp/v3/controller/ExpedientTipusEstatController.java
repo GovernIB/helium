@@ -343,9 +343,8 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		ExpedientTipusDto tipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
 				entornActual.getId(),
 				expedientTipusId);
-// TODO:
-//		return expedientTipusService.estatMoureOrdre(estatId, posicio, ordre);
-		return ret;
+
+		return expedientTipusService.estatMoureOrdre(estatId, posicio, ordre);
 	}
 	
 	

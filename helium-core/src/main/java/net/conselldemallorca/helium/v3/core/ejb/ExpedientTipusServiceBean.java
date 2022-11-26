@@ -397,6 +397,12 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
     @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public boolean estatMoureOrdre(Long estatId, int posicio, String ordre) throws NoTrobatException {
+        return delegate.estatMoureOrdre(estatId, posicio, ordre);
+    }
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
     public int getEstatSeguentOrdre(Long expedientTipusId) throws NoTrobatException {
         return delegate.getEstatSeguentOrdre(expedientTipusId);
     }

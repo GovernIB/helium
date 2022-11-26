@@ -148,4 +148,10 @@ public interface EstatRepository extends JpaRepository<Estat, Long> {
 	public void decreseEstatsWithBiggerOrder(
 			@Param("expedientTipus") ExpedientTipus expedientTipus,
 			@Param("ordre")int ordre);
+
+	@Modifying
+	@Query("update Estat set ordre = (ordre + 1) where expedientTipus = :expedientTipus and ordre > :ordre")
+	public void increseEstatsWithBiggerOrder(
+			@Param("expedientTipus") ExpedientTipus expedientTipus,
+			@Param("ordre")int ordre);
 }

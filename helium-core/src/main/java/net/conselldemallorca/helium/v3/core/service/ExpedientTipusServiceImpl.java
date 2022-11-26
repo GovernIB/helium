@@ -22,7 +22,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.*;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
 import net.conselldemallorca.helium.v3.core.repository.*;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -2565,6 +2564,70 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	}
 
 	@Override
+	@Transactional
+	public boolean estatMoureOrdre(Long estatId, int posicio, String tipusOrdre) throws NoTrobatException {
+		// Possibles ordres:
+		//  - auto  --> No hi ha ambiguitat, i per tant es calcularà de forma automàtica. (Es mou entre dos estats que tenen el mateix ordre)
+		//  - 1-1   --> Es mou a l'inici, i agafa el mateix valor del que hi havia abans al inici
+		//  - 1-2   --> Es mou a l'inici, agafa el valor 1 i es desplaça la resta d'estats
+		//  - 8-9   --> Es mou al final, i agafa el valor del que estava abans al final + 1
+		//  - 9-9   --> Es mou al final, i agafa el mateix valor del que hi havia abans al final
+		//  - 1-1-2 --> Es moun entre dos estats que tenen ordres consecutius, i agafa el mateix valor que el primer d'ells
+		//  - 1-2-2 --> Es moun entre dos estats que tenen ordres consecutius, i agafa el mateix valor que el segon d'ells
+		//  - 1-2-3 --> Es moun entre dos estats que tenen ordres consecutius, agafa el mateix valor que el segon d'ells, i desplaça la resta d'estats
+
+		logger.debug(
+				"Moguent l'estat (" +
+						"estatId=" + estatId + ", " +
+						"posicio=" + posicio + ")");
+		Estat estat = estatRepository.findOne(estatId);
+		if (estat == null) {
+			throw new NoTrobatException(Estat.class, estatId);
+		}
+
+		findAmbIdPermisDissenyar(
+				estat.getExpedientTipus().getEntorn().getId(),
+				estat.getExpedientTipus().getId());
+
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		List<Estat> estats = estatRepository.findByExpedientTipusOrderByOrdreAsc(expedientTipus);
+
+		int posicioActual = estats.indexOf(estat);
+		int ordreActual = estat.getOrdre();
+		Long estatAmbMateixOrdre = estatRepository.countByExpedientTipusAndOrdre(expedientTipus, estat.getOrdre());
+
+		if ("auto".equals(tipusOrdre)) { 			// Agafa el mateix valor que l'estat que hi havia on es mou
+			estat.setOrdre(estats.get(posicio).getOrdre());
+		} else if ("1-1".equals(tipusOrdre)) {		// Posicio == 0. Ordre = 1
+			estat.setOrdre(1);
+		} else if ("1-2".equals(tipusOrdre)) {		// Posicio == 0. Ordre = 1. Tots els estats augmenten en 1
+			estatRepository.increseEstatsWithBiggerOrder(expedientTipus, 0);
+			estat.setOrdre(1);
+		} else if ("8-9".equals(tipusOrdre)) {		// Posicio == final. Ordre = mateix que l'estat final + 1
+			estat.setOrdre(estats.get(posicio).getOrdre() + 1);
+		} else if ("9-9".equals(tipusOrdre)) {		// Posicio == final. Ordre = mateix que l'estat final
+			estat.setOrdre(estats.get(posicio).getOrdre());
+		} else if ("1-1-2".equals(tipusOrdre)) { 	// Ordre = mateix que l'estat anterior
+			int ordre = posicioActual < posicio ? estats.get(posicio).getOrdre() : estats.get(posicio - 1).getOrdre();
+			estat.setOrdre(ordre);
+		} else if ("1-2-2".equals(tipusOrdre)) {	// Ordre = mateix que l'estat posterior
+			int ordre = posicioActual < posicio ? estats.get(posicio + 1).getOrdre() : estats.get(posicio).getOrdre();
+			estat.setOrdre(ordre);
+		} else if ("1-2-3".equals(tipusOrdre)) {	// Ordre = mateix que l'estat posterior. Tots els estats posteriors augmenten en 1
+			int ordre = posicioActual < posicio ? estats.get(posicio + 1).getOrdre() : estats.get(posicio).getOrdre();
+			estatRepository.increseEstatsWithBiggerOrder(expedientTipus, ordre - 1);
+			estat.setOrdre(ordre);
+		} else {
+			throw new RuntimeException("Tipus d'ordre invàlid");
+		}
+
+		// Reordenam els estats que hi havia darrera el que movem
+		if (estatAmbMateixOrdre.intValue() == 1)
+			estatRepository.decreseEstatsWithBiggerOrder(expedientTipus, ordreActual);
+		return true;
+	}
+
+	@Override
 	@Transactional(readOnly = true)
 	public int getEstatSeguentOrdre(Long expedientTipusId) throws NoTrobatException {
 		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
@@ -3127,7 +3190,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	}
 
 	/** Funció per reasignar el valor d'ordre per a les agrupacions d'un tipus d'expedient */
-	@Transactional
 	private int reordenarConsultes(Long expedientTipusId) {
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
 		Set<Consulta> consultes = expedientTipus.getConsultes();
