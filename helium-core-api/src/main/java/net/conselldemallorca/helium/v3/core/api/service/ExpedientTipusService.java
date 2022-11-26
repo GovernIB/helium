@@ -788,6 +788,14 @@ public interface ExpedientTipusService {
 	 */
 	public boolean estatMoure(Long estatId, int posicio) throws NoTrobatException;
 
+	/**
+	 * Obté el següent ordre no assignat dels estats
+	 * @param expedientTipusId	Identificador del tipus d'expedient
+	 * @return
+	 * @throws NoTrobatException	Si no es troba el tipus d'exèdient
+	 */
+	public int getEstatSeguentOrdre(Long expedientTipusId) throws NoTrobatException;
+
 	// PERMISOS ESTATS
 
 	/**

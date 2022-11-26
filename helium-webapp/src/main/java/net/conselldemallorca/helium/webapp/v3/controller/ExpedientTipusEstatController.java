@@ -128,6 +128,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			@RequestParam(required = false) Long agrupacioId,
 			Model model) {
 		ExpedientTipusEstatCommand command = new ExpedientTipusEstatCommand();
+		command.setOrdre(expedientTipusService.getEstatSeguentOrdre(expedientTipusId));
 		
 		command.setExpedientTipusId(expedientTipusId);
 		
@@ -314,6 +315,36 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		else {
 			ret = expedientTipusService.estatMoure(estatId, posicio);
 		}
+		return ret;
+	}
+
+	// Atenció: Els ordres no poden tenir forats entre mig, però poden tenir repetits.
+	// Possibles ordres:
+	//  - auto  --> No hi ha ambiguitat, i per tant es calcularà de forma automàtica. (Es mou entre dos estats que tenen el mateix ordre)
+	//  - 1-1   --> Es mou a l'inici, i agafa el mateix valor del que hi havia abans al inici
+	//  - 1-2   --> Es mou a l'inici, agafa el valor 1 i es desplaça la resta d'estats
+	//  - 8-9   --> Es mou al final, i agafa el valor del que estava abans al final + 1
+	//  - 9-9   --> Es mou al final, i agafa el mateix valor del que hi havia abans al final
+	//  - 1-1-2 --> Es moun entre dos estats que tenen ordres consecutius, i agafa el mateix valor que el primer d'ells
+	//  - 1-2-2 --> Es moun entre dos estats que tenen ordres consecutius, i agafa el mateix valor que el segon d'ells
+	//  - 1-2-3 --> Es moun entre dos estats que tenen ordres consecutius, agafa el mateix valor que el segon d'ells, i desplaça la resta d'estats
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/moure/{posicio}/ordre/{ordre}", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean moureReglaAmbOrdre(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			@PathVariable int posicio,
+			@PathVariable String ordre,
+			Model model) {
+		boolean ret = false;
+
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDto tipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
+				entornActual.getId(),
+				expedientTipusId);
+// TODO:
+//		return expedientTipusService.estatMoureOrdre(estatId, posicio, ordre);
 		return ret;
 	}
 	

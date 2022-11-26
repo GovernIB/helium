@@ -109,14 +109,14 @@
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title">Selecciona l'ordre a assignar</h4>
+						<h4 class="modal-title"><spring:message code="expedient.tipus.estat.llistat.seleccionar.ordre"/></h4>
 					</div>
 					<div id="selector-ordre" class="modal-body">
 
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal">Tancar</button>
-						<button type="button" class="btn btn-primary" id="assigna-ordre-btn">Assigna nou ordre</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal"><spring:message code="comu.boto.tancar"/></button>
+						<button type="button" class="btn btn-primary" id="assigna-ordre-btn"><spring:message code="expedient.tipus.estat.llistat.assignar.ordre"/></button>
 					</div>
 				</div>
 			</div>
@@ -171,7 +171,6 @@
 		})
 
 		$("#assigna-ordre-btn").click(function() {
-			debugger;
 			let ordreSelected = $(".out-border.selected");
 			if (!ordreSelected) {
 				return;
@@ -192,12 +191,11 @@
 		const ordreCodis = getOrdresCodis(pos);
 		const id = obtenirId(pos);
 
-		if ((ordreCodis.length == 2 && ordreCodis[1].ordre == 1) ||
-				(ordreCodis.length == 3 && (ordreCodis[2].ordre - ordreCodis[0].ordre == 1))) {
+		if (ordreCodis.length == 2 || (ordreCodis.length == 3 && (ordreCodis[2].ordre - ordreCodis[0].ordre == 1))) {
 			// Denanar a l'usuari quin ordre assignar
 			demanarOrdreUsuari(ordreCodis, id, pos);
 		} else {
-			canviarPosicioPerEstat(id, pos, null);
+			canviarPosicioPerEstat(id, pos, 'auto');
 		}
 	}
 	const getOrdresCodis = (posfila) => {
@@ -206,7 +204,9 @@
 			ordres.push(getOrdreCodiFila(posfila - 1));
 		}
 		ordres.push(getOrdreCodiFila(posfila));
-		ordres.push(getOrdreCodiFila(posfila + 1));
+		if (posfila < $("#expedientTipusEstat tbody tr:visible").length - 1) {
+			ordres.push(getOrdreCodiFila(posfila + 1));
+		}
 		return ordres;
 	}
 	const getOrdreCodiFila = (posfila) => {
@@ -218,8 +218,8 @@
 	const demanarOrdreUsuari = (ordreCodis, id, pos) => {
 		let midaOrdres = ordreCodis.length;
 		let contenidor = $('<div class="selector-contenidor" data-estatid="' + id + '" data-pos="' + pos + '"></div>');
-		generaTaula(getPrimerOrdre(ordreCodis), midaOrdres == 3 ? "1-1-2" : "1-1").appendTo(contenidor);
-		generaTaula(getSegonOrdre(ordreCodis), midaOrdres == 3 ? "1-2-2" : "1-2").appendTo(contenidor);
+		generaTaula(getPrimerOrdre(ordreCodis, pos), midaOrdres == 3 ? "1-1-2" : pos == 0 ? "1-1" : "9-9").appendTo(contenidor);
+		generaTaula(getSegonOrdre(ordreCodis, pos), midaOrdres == 3 ? "1-2-2" : pos == 0 ? "1-2" : "8-9").appendTo(contenidor);
 		if (midaOrdres == 3) {
 			$("#modal-dialog").addClass("modal-lg");
 			generaTaula(getTercerOrdre(ordreCodis), "1-2-3").appendTo(contenidor);
@@ -231,11 +231,22 @@
 
 		$("#modal-selector-ordre").modal();
 	}
-	const getPrimerOrdre = (ordreCodi) => {
+	const getPrimerOrdre = (ordreCodi, pos) => {
 		let nouOrdreCodi = [];
-		if (ordreCodi.length == 2) {
-			nouOrdreCodi.push({ordre: 1, codi: ordreCodi[0].codi});
-			nouOrdreCodi.push({ordre: 1, codi: ordreCodi[1].codi});
+		const first = pos == 0;
+		if (ordreCodi.length == 2 && first) {
+			nouOrdreCodi.push({ordre: ordreCodi[1].ordre, codi: ordreCodi[0].codi});
+			nouOrdreCodi.push({ordre: ordreCodi[1].ordre, codi: ordreCodi[1].codi});
+		} else if (ordreCodi.length == 2) {
+			const ordreFilaMoguda = parseInt($("#expedientTipusEstat tbody tr:eq(" + pos + ") td:eq(0)").text().trim());
+			const ordreOrigenRepetits = $("#expedientTipusEstat tbody tr:visible td:first-child").filter(function() {
+				let ordreActual = parseInt($(this).text().trim());
+				return ordreFilaMoguda === ordreActual;
+			});
+			const repetit = ordreOrigenRepetits.length > 1;
+			const ordre = repetit ? parseInt(ordreCodi[0].ordre) : parseInt(ordreCodi[0].ordre) - 1;
+			nouOrdreCodi.push({ordre: ordre, codi: ordreCodi[0].codi});
+			nouOrdreCodi.push({ordre: ordre, codi: ordreCodi[1].codi});
 		} else {
 			nouOrdreCodi.push({ordre: ordreCodi[0].ordre, codi: ordreCodi[0].codi});
 			nouOrdreCodi.push({ordre: ordreCodi[0].ordre, codi: ordreCodi[1].codi});
@@ -243,11 +254,22 @@
 		}
 		return nouOrdreCodi;
 	}
-	const getSegonOrdre = (ordreCodi) => {
+	const getSegonOrdre = (ordreCodi, pos) => {
+		const first = pos == 0;
 		let nouOrdreCodi = [];
-		if (ordreCodi.length == 2) {
-			nouOrdreCodi.push({ordre: 1, codi: ordreCodi[0].codi});
-			nouOrdreCodi.push({ordre: 2, codi: ordreCodi[1].codi});
+		if (ordreCodi.length == 2 && first) {
+			nouOrdreCodi.push({ordre: ordreCodi[1].ordre, codi: ordreCodi[0].codi});
+			nouOrdreCodi.push({ordre: parseInt(ordreCodi[1].ordre) + 1, codi: ordreCodi[1].codi});
+		} else if (ordreCodi.length == 2) {
+			const ordreFilaMoguda = parseInt($("#expedientTipusEstat tbody tr:eq(" + pos + ") td:eq(0)").text().trim());
+			const ordreOrigenRepetits = $("#expedientTipusEstat tbody tr:visible td:first-child").filter(function() {
+				let ordreActual = parseInt($(this).text().trim());
+				return ordreFilaMoguda === ordreActual;
+			});
+			const repetit = ordreOrigenRepetits.length > 1;
+			const ordre = repetit ? parseInt(ordreCodi[0].ordre) : parseInt(ordreCodi[0].ordre) - 1;
+			nouOrdreCodi.push({ordre: ordre, codi: ordreCodi[0].codi});
+			nouOrdreCodi.push({ordre: ordre + 1, codi: ordreCodi[1].codi});
 		} else {
 			nouOrdreCodi.push({ordre: ordreCodi[0].ordre, codi: ordreCodi[0].codi});
 			nouOrdreCodi.push({ordre: ordreCodi[2].ordre, codi: ordreCodi[1].codi});
@@ -294,7 +316,17 @@
 
 
 	const canviarPosicioPerEstat = (id, pos, ordre) => {
-
+		var getUrl = '<c:url value="/v3/expedientTipus/${expedientTipusId}/estat/"/>'+id+'/moure/'+pos+'/ordre/'+ordre;
+		$.ajax({
+			type: 'GET',
+			url: getUrl,
+			async: true,
+			complete: function() {
+				webutilRefreshMissatges();
+				$("#modal-selector-ordre").modal('hide');
+				$('#expedientTipusEstat').webutilDatatable('refresh');
+			}
+		});
 	}
 	const canviarPosicioEstat = (id, pos) => {
 		// Canvia la ordenació sempre amb ordre ascendent

@@ -44,13 +44,28 @@ public class ExpedientTipusEstatValidator implements ConstraintValidator<Expedie
 			}
 		}
 		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbId(estat.getExpedientTipusId());
-		if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedientTipus.getTipus()) && estat.getOrdre() < 0) {
-			context.buildConstraintViolationWithTemplate(
-							MessageHelper.getInstance().getMessage(this.codiMissatge + ".ordre.buit", null))
-					.addNode("ordre")
-					.addConstraintViolation();
-			valid = false;
+
+		// Validacions del camp ordre en tipus d'expedients per estat
+		if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedientTipus.getTipus())) {
+			//  - L'ordre no és negatiu
+			if (estat.getOrdre() < 1) {
+				context.buildConstraintViolationWithTemplate(
+								MessageHelper.getInstance().getMessage(this.codiMissatge + ".ordre.buit", null))
+						.addNode("ordre")
+						.addConstraintViolation();
+				valid = false;
+			}
+			//  - No es permeten forats entre ordres
+			int maxOrdre = expedientTipusService.getEstatSeguentOrdre(estat.getExpedientTipusId());
+			if (estat.getOrdre() > maxOrdre) {
+				context.buildConstraintViolationWithTemplate(
+								MessageHelper.getInstance().getMessage(this.codiMissatge + ".ordre.forat", new Object[] {maxOrdre}))
+						.addNode("ordre")
+						.addConstraintViolation();
+				valid = false;
+			}
 		}
+
 		if (!valid)
 			context.disableDefaultConstraintViolation();
 

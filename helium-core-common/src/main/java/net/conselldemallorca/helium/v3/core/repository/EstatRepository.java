@@ -8,6 +8,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -135,5 +136,16 @@ public interface EstatRepository extends JpaRepository<Estat, Long> {
 			"where " +
 			"	es.codi = e.codi " +
 			" 	and es.expedientTipus.id = et.expedientTipusPare.id ")
-	List<Estat> findSobreescrits(@Param("expedientTipusId") Long expedientTipusId);	
+	List<Estat> findSobreescrits(@Param("expedientTipusId") Long expedientTipusId);
+
+	@Query("select count(e) from Estat e where e.expedientTipus = :expedientTipus and e.ordre = :ordre")
+	public Long countByExpedientTipusAndOrdre(
+			@Param("expedientTipus") ExpedientTipus expedientTipus,
+			@Param("ordre") int ordre);
+
+	@Modifying
+	@Query("update Estat set ordre = (ordre - 1) where expedientTipus = :expedientTipus and ordre > :ordre")
+	public void decreseEstatsWithBiggerOrder(
+			@Param("expedientTipus") ExpedientTipus expedientTipus,
+			@Param("ordre")int ordre);
 }

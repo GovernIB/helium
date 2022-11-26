@@ -2426,20 +2426,42 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			throw new NoTrobatException(Estat.class, estatId);
 		}
 		ExpedientTipus expedientTipus = expedientTipusRepository.findById(estat.getExpedientTipus().getId());
+
+		int ordre = estat.getOrdre();
 		expedientTipus.getEstats().remove(estat);
-		// Esborra
-		estatRepository.delete(estat);
-		estatRepository.flush();
-		// Reordena els estats
-		List<Estat> estats = estatRepository.findByExpedientTipusOrderByOrdreAsc(expedientTipus);		
-		int i = 0;
-		for (Estat e: estats)
-			e.setOrdre(i++);
+		if (ExpedientTipusTipusEnumDto.FLOW.equals(expedientTipus.getTipus())) {
+			// Esborra
+			estatRepository.delete(estat);
+			estatRepository.flush();
+			// Reordena els estats
+			List<Estat> estats = estatRepository.findByExpedientTipusOrderByOrdreAsc(expedientTipus);
+			int i = 0;
+			for (Estat e : estats)
+				e.setOrdre(i++);
+		} else {
+			// Esborra
+			// Permisos
+			List<PermisDto> permisos = permisosHelper.findPermisos(
+					estatId,
+					Estat.class);
+			for(PermisDto permis: permisos)
+				permisosHelper.deletePermis(estatId, Estat.class, permis.getId());
+			// Regles
+			estatReglaRepository.delete(estatReglaRepository.findByEstat(estat));
+			// Estat
+			estatRepository.delete(estat);
+			estatRepository.flush();
+			// Reordena els estats
+			Long estatAmbMateixOrdre = estatRepository.countByExpedientTipusAndOrdre(expedientTipus, ordre);
+			if (estatAmbMateixOrdre.intValue() == 0) {
+				estatRepository.decreseEstatsWithBiggerOrder(expedientTipus, ordre);
+			}
+		}
 	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
+
+		/**
+         * {@inheritDoc}
+         */
 	@Override
 	@Transactional(readOnly = true)
 	public PaginaDto<EstatDto> estatFindPerDatatable(
@@ -2540,6 +2562,14 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			}
 		}
 		return ret;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public int getEstatSeguentOrdre(Long expedientTipusId) throws NoTrobatException {
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+		Integer seguentOrdre = estatRepository.getSeguentOrdre(expedientTipusId);
+		return seguentOrdre == null ? 0 : seguentOrdre + 1;
 	}
 
 	@Override
