@@ -30,6 +30,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+import javax.persistence.UniqueConstraint;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
@@ -40,7 +41,8 @@ import java.util.Set;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name="HEL_ESTAT_REGLA")
+@Table(name="HEL_ESTAT_REGLA",
+        uniqueConstraints={@UniqueConstraint(columnNames={"nom", "expedient_tipus_id"})})
 @org.hibernate.annotations.Table(
         appliesTo = "HEL_ESTAT_REGLA",
         indexes = {

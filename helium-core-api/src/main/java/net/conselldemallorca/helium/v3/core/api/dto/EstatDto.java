@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,7 +18,9 @@ import java.io.Serializable;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Getter @Setter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class EstatDto extends HeretableDto implements Serializable {
 
 	private static final long serialVersionUID = 1L;

@@ -12,17 +12,23 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAccioEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisEstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.AccioEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.QuiEnum;
+import net.conselldemallorca.helium.v3.core.api.exportacio.EstatExportacio;
 import net.conselldemallorca.helium.webapp.v3.command.EstatReglaCommand;
 import net.conselldemallorca.helium.webapp.v3.command.PermisCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
@@ -358,16 +364,13 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 
 
         	try {
-        		List<EstatDto> estats = expedientTipusService.estatFindAll(
-        				expedientTipusId, 
-        				true); // amb herència
-        		
-        		String estatsString = "";
-        		for(EstatDto estat: estats){
-        			estatsString +=
-        					estat.getCodi()+";"+estat.getNom()+"\n";
-        		}
-        		
+
+				ObjectMapper mapper = new ObjectMapper();
+				mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+
+				List<EstatExportacio> estatExportacioList = expedientTipusService.estatExportacio(expedientTipusId, true);
+				byte[] exportacioJson = mapper.writeValueAsBytes(estatExportacioList);
+
         		MissatgesHelper.success(
     					request, 
     					getMessage(
@@ -377,10 +380,9 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
         		response.setHeader("Pragma", "");
         		response.setHeader("Expires", "");
         		response.setHeader("Cache-Control", "");
-        		response.setHeader("Content-Disposition", "attachment; filename=\""
-        				+ "estats_exp.csv" + "\"");
-        		response.setContentType("text/plain");
-        		response.getOutputStream().write(estatsString.getBytes());
+        		response.setHeader("Content-Disposition", "attachment; filename=\"estats_exp.json\"");
+        		response.setContentType("application/json");
+        		response.getOutputStream().write(exportacioJson);
         
         	} catch(Exception e) {
         		logger.error(e);
@@ -428,57 +430,70 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
     				for (EstatDto estat : expedientTipusService.estatFindAll(expedientTipusId, false))
    						expedientTipusService.estatDelete(estat.getId());
     			}
-    			BufferedReader br = new BufferedReader(new InputStreamReader(command.getMultipartFile().getInputStream()));
-    			String linia = br.readLine();
-    			EstatDto estat = new EstatDto();
-    			String codi;
-    			String nom;
-    			while (linia != null) {
-    				String[] columnes = linia.contains(";") ? linia.split(";") : linia.split(",");
-    				if (columnes.length > 1) {
-    					codi = columnes[0];
-    					// Comprova que el codi sigui vàlid
-    					if (! CodiValidator.isValid(codi)) {
-    		        		MissatgesHelper.error(
-    		        				request,
-    		        				getMessage(
-    		        						request, 
-    		        						"expedient.tipus.estat.importar.controller.error.codi",
-    		        						new Object[]{codi}));
-    					} else {
-    						// Completa la inserció o actualització
-        					nom = columnes[1];
-        					estat = expedientTipusService.estatFindAmbCodi(expedientTipusId, codi);
-        					if (estat == null) {
-        						estat = new EstatDto();
-        						estat.setCodi(codi);
-        						estat.setNom(nom);
-        						expedientTipusService.estatCreate(expedientTipusId, estat);
-        						insercions++;
-        					} else {
-        						estat.setNom(nom);
-        						expedientTipusService.estatUpdate(estat);
-        						actualitzacions++;
-        					}
-    					}
-    				}
-    				linia = br.readLine();
-    			}
+
+				ObjectMapper mapper = new ObjectMapper();
+				mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+				mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+				List<EstatExportacio> estatExportacioList = mapper.readValue(command.getMultipartFile().getInputStream(), new TypeReference<List<EstatExportacio>>(){});
+    			for (EstatExportacio estatExportacio: estatExportacioList) {
+					// Comprova que el codi sigui vàlid
+					if (! CodiValidator.isValid(estatExportacio.getCodi())) {
+						MissatgesHelper.error(
+								request,
+								getMessage(request, "expedient.tipus.estat.importar.controller.error.codi", new Object[]{estatExportacio.getCodi()}));
+						continue;
+					}
+
+					// Crear o actualitzar estat
+					EstatDto estat = expedientTipusService.estatFindAmbCodi(expedientTipusId, estatExportacio.getCodi());
+					if (estat == null) {
+						EstatDto estatDto = EstatDto.builder()
+								.codi(estatExportacio.getCodi())
+								.nom(estatExportacio.getNom())
+								.ordre(estatExportacio.getOrdre())
+								.build();
+						estat = expedientTipusService.estatCreate(expedientTipusId, estatDto);
+						insercions++;
+					} else {
+						estat.setNom(estatExportacio.getNom());
+						estat.setOrdre(estatExportacio.getOrdre());
+						expedientTipusService.estatUpdate(estat);
+						actualitzacions++;
+					}
+
+					// Crear o actualitzar regles
+					if (estatExportacio.getRegles() != null) {
+						for(EstatReglaDto reglaExportacio: estatExportacio.getRegles()) {
+							EstatReglaDto regla = expedientTipusService.estatReglaFindByNom(estat.getId(), reglaExportacio.getNom());
+							if (regla == null) {
+								expedientTipusService.estatReglaCreate(estat.getId(), reglaExportacio);
+							} else {
+								reglaExportacio.setId(regla.getId());
+								expedientTipusService.estatReglaUpdate(estat.getId(), reglaExportacio);
+							}
+						}
+					}
+
+					// Actualitzar permisos
+					if (estatExportacio.getPermisos() != null) {
+						for (PermisEstatDto permisExportacio: estatExportacio.getPermisos()) {
+							expedientTipusService.estatPermisUpdate(
+									estat.getId(),
+									conversioTipusHelper.convertir(permisExportacio, PermisDto.class));
+						}
+					}
+				}
+
         	} catch(Exception e) {
         		logger.error(e);
         		MissatgesHelper.error(
         				request,
-        				getMessage(
-        						request, 
-        						"expedient.tipus.estat.importar.controller.error",
-        						new Object[]{e.getLocalizedMessage()}));
+        				getMessage(request, "expedient.tipus.estat.importar.controller.error", new Object[]{e.getLocalizedMessage()}));
         	}
     		MissatgesHelper.success(
 					request, 
-					getMessage(
-							request, 
-							"expedient.tipus.estat.importar.controller.success",
-							new Object[] {insercions, actualitzacions}));        		
+					getMessage(request, "expedient.tipus.estat.importar.controller.success", new Object[] {insercions, actualitzacions}));
 			return modalUrlTancar(false);	
         }
 	}

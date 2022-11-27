@@ -600,7 +600,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if (command.getEstats().size() > 0)
 			for (Estat estat: tipus.getEstats()) 
 				if (command.getEstats().contains(estat.getCodi()))
-					exportacio.getEstats().add(new EstatExportacio(estat.getCodi(), estat.getNom(), estat.getOrdre()));
+					exportacio.getEstats().add(getEstatExportacio(estat, true));
 		// Variables
 		if (command.getVariables().size() > 0)
 			for (Camp camp : tipus.getCamps()) 
@@ -2637,6 +2637,55 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 
 	@Override
 	@Transactional(readOnly = true)
+	public List<EstatExportacio> estatExportacio(Long expedientTipusId, boolean ambPermisos) throws NoTrobatException {
+		List<EstatExportacio> estatsExportacio = new ArrayList<EstatExportacio>();
+
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+		HerenciaHelper.ambHerencia(expedientTipus);
+
+		// Consulta els estats
+		List<Estat> estats;
+		if (HerenciaHelper.ambHerencia(expedientTipus))
+			estats = estatRepository.findAllAmbHerencia(expedientTipusId);
+		else
+			estats = estatRepository.findAll(expedientTipusId);
+
+		for (Estat estat: estats) {
+			estatsExportacio.add(getEstatExportacio(estat, ambPermisos));
+		}
+
+		return estatsExportacio;
+	}
+
+	private EstatExportacio getEstatExportacio(Estat estat, boolean ambPermisos) {
+
+		// Regles
+		List<EstatReglaDto> reglesDto = null;
+		List<EstatRegla> regles = estatReglaRepository.findByEstatOrderByOrdreAsc(estat);
+		if (regles != null && !regles.isEmpty()) {
+			reglesDto = conversioTipusHelper.convertirList(regles, EstatReglaDto.class);
+		}
+		// Permisos
+		List<PermisEstatDto> permisosDto = null;
+		if (ambPermisos) {
+			List<PermisDto> permisos = permisosHelper.findPermisos(estat.getId(), Estat.class);
+			if (permisos != null && !permisos.isEmpty()) {
+				permisosDto = conversioTipusHelper.convertirList(permisos, PermisEstatDto.class);
+			}
+		}
+
+		return EstatExportacio.builder()
+				.codi(estat.getCodi())
+				.nom(estat.getNom())
+				.ordre(estat.getOrdre())
+				.regles(reglesDto)
+				.permisos(permisosDto)
+//					.accions()
+				.build();
+	}
+
+	@Override
+	@Transactional(readOnly = true)
 	public List<PermisDto> estatPermisFindAll(Long estatId) {
 		logger.debug("Consultant permisos de l'estat (estat=" + estatId + ")");
 
@@ -2717,6 +2766,14 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		EstatRegla regla = estatReglaRepository.findOne(reglaId);
 		if (regla == null)
 			throw new NoTrobatException(EstatRegla.class, reglaId);
+		return conversioTipusHelper.convertir(regla, EstatReglaDto.class);
+	}
+
+	@Override
+	public EstatReglaDto estatReglaFindByNom(Long estatId, String nom) {
+		Estat estat = estatRepository.findOne(estatId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		EstatRegla regla = estatReglaRepository.findByNom(estatId, nom);
 		return conversioTipusHelper.convertir(regla, EstatReglaDto.class);
 	}
 

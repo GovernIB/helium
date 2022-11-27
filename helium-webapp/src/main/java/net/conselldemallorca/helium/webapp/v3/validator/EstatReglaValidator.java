@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.webapp.v3.validator;
 
+import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.QuiEnum;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
@@ -34,6 +35,16 @@ public class EstatReglaValidator implements ConstraintValidator<EstatRegla, Esta
 			EstatReglaCommand command,
 			ConstraintValidatorContext context) {
 		boolean valid = true;
+		// comprova que el nom sigui únic
+		if (command.getNom() != null) {
+			EstatReglaDto repetit = expedientTipusService.estatReglaFindByNom(command.getEstatId(), command.getNom());
+			if (repetit != null && (command.getId() == null || !command.getId().equals(repetit.getId()))) {
+				context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage(anotacio.message() + ".nom.repetit"))
+						.addNode("nom")
+						.addConstraintViolation();
+				valid = false;
+			}
+		}
 		// Comprova la obligatorietat dels valors
 		// QUI --> Si no és tothom s'han d'informar valors
 		if (QuiEnum.USUARI.equals(command.getQui()) || QuiEnum.ROL.equals(command.getQui())) {
