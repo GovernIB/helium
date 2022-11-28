@@ -102,6 +102,8 @@ public class DadesPersona implements Serializable {
 			if (index != -1) {
 				setNom(nomSencer.substring(0, index));
 				setLlinatges(nomSencer.substring(index + 1));
+			} else {
+				setNom(nomSencer);
 			}
 		}
 	}

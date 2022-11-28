@@ -35,4 +35,7 @@ public interface EstatReglaRepository extends JpaRepository<EstatRegla, Long> {
 			+ "from EstatRegla r "
 			+ "where r.estat.id=:estatId")
 	public Integer getSeguentOrdre(@Param("estatId") Long estatId);
+
+	@Query("from EstatRegla r where r.estat.id=:estatId and r.nom = :nom")
+	EstatRegla findByNom(@Param("estatId") Long estatId, @Param("nom") String nom);
 }

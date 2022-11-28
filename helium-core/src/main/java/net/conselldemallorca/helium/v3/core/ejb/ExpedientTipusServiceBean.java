@@ -11,6 +11,7 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
 import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
+import net.conselldemallorca.helium.v3.core.api.exportacio.EstatExportacio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
@@ -397,6 +398,24 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
     @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public boolean estatMoureOrdre(Long estatId, int posicio, String ordre) throws NoTrobatException {
+        return delegate.estatMoureOrdre(estatId, posicio, ordre);
+    }
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public int getEstatSeguentOrdre(Long expedientTipusId) throws NoTrobatException {
+        return delegate.getEstatSeguentOrdre(expedientTipusId);
+    }
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public List<EstatExportacio> estatExportacio(Long expedientTipusId, boolean ambPermisos) throws NoTrobatException {
+        return delegate.estatExportacio(expedientTipusId, ambPermisos);
+    }
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
     public List<PermisDto> estatPermisFindAll(Long estatId) {
         return delegate.estatPermisFindAll(estatId);
     }
@@ -431,7 +450,13 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 		return delegate.estatReglaFindById(estatId, reglaId);
 	}
 
-	@Override
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public EstatReglaDto estatReglaFindByNom(Long estatId, String nom) {
+        return delegate.estatReglaFindByNom(estatId, nom);
+    }
+
+    @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
     public EstatReglaDto estatReglaCreate(Long estatId, EstatReglaDto reglaDto) throws NoTrobatException, PermisDenegatException {
         return delegate.estatReglaCreate(estatId, reglaDto);

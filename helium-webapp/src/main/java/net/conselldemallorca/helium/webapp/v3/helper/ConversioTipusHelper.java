@@ -24,6 +24,11 @@ public class ConversioTipusHelper {
 
 	public ConversioTipusHelper() {
 		mapperFactory = new DefaultMapperFactory.Builder().build();
+
+//		mapperFactory.classMap(EstatReglaDto.class, EstatReglaCommand.class)
+//				.field("quiValor", "quiUserValor")
+//				.byDefault()
+//				.register();
 	}
 
 	public <T> T convertir(Object source, Class<T> targetType) {

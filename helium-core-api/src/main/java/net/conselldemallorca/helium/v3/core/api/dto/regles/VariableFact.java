@@ -19,7 +19,7 @@ public class VariableFact {
     private AccioEnum accio;
 
     // Variable
-    private boolean dada;
+    private TipusVarEnum tipus;
     private String varCodi;
     private String agrupacioCodi;
 

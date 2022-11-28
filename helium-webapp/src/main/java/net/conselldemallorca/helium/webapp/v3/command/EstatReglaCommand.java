@@ -8,7 +8,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.regles.AccioEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.QuiEnum;
 import net.conselldemallorca.helium.webapp.v3.validator.EstatRegla;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -31,6 +30,7 @@ public class EstatReglaCommand {
     @NotNull
     private QuiEnum qui;
     private List<String> quiValor;
+    @NotNull
     private QueEnum que;
     private List<String> queValor;
     @NotNull

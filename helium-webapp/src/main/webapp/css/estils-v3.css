@@ -368,3 +368,5 @@ span.herencia {
 .form-switch input:checked + input + i::before { transform: translate3d(18px, 2px, 0) scale3d(0, 0, 0); }
 
 .form-switch input:checked + input + i::after { transform: translate3d(22px, 2px, 0); }
+
+.ocult {display: none;}

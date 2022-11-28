@@ -48,5 +48,6 @@ public interface AplicacioService {
 	 * @return la llista de persones
 	 */
 	public List<PersonaDto> findPersonaLikeNomSencer(String text) throws SistemaExternException;
+	public List<PersonaDto> findPersonaLikeCodiOrNomSencer(String text) throws SistemaExternException;
 
 }

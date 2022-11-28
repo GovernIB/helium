@@ -11,6 +11,8 @@ public class RuleQue extends ActivationRuleGroup {
         addRule(new RuleQueAgrupacio());
         addRule(new RuleQueDada());
         addRule(new RuleQueDocument());
+        addRule(new RuleQueTermini());
+        addRule(new RuleQueTerminis());
     }
 
     @Override

@@ -19,25 +19,130 @@
 	<script src="<c:url value="/webjars/select2/4.0.1/dist/js/i18n/${idioma}.js"/>"></script>
 	<script>
 		$(document).ready(function() {
-			$("#quiValor").select2({
-				theme: "bootstrap",
-				placeholder: "<spring:message code="expedient.tipus.regla.form.camp.qui.valors"/>",
-				minimumResultsForSearch: 10,
-				tags: true,
-				tokenSeparators: [',', ' ']
-			});
+			configQuiValor("${estatReglaCommand.qui}");
+
 			$("#queValor").select2({
 				theme: "bootstrap",
 				placeholder: "<spring:message code="expedient.tipus.regla.form.camp.que.valors"/>",
-				minimumResultsForSearch: 10,
-				tags: true,
-				tokenSeparators: [',', ' ']
+				minimumResultsForSearch: 5
 			});
+
+			$("#qui").change((e) => {
+				updateQui($(e.currentTarget).val());
+			});
+			$("#que").change((e) => {
+				updateQue($(e.currentTarget).val());
+			});
+
+			let qui = $("#qui").val();
+			if (qui === 'TOTHOM' || qui === '') {
+				$("#quiValor").prop("disabled", true);
+			}
+
+			let que = $("#que").val();
+			if (que === 'TOT' || que === 'DADES' || que === 'DOCUMENTS' || que === 'TERMINIS' || que === '') {
+				$("#queValor").prop("disabled", true);
+			}
 		});
+
+		const updateQui = (qui) => {
+			$("#quiValor").val(null).trigger('change');
+			$("#quiValor option").each(function(){
+				$(this).remove();
+			});
+			$("#quiValor").select2("destroy");
+			configQuiValor(qui);
+
+			if (qui === 'TOTHOM' || qui === '') {
+				$("#quiValor").prop("disabled", true);
+			} else {
+				$("#quiValor").prop("disabled", false);
+			}
+		}
+		const configQuiValor = (qui) => {
+			if (qui !== 'USUARI') {
+				$("#quiValor").select2({
+					theme: "bootstrap",
+					placeholder: "<spring:message code="expedient.tipus.regla.form.camp.qui.valors"/>",
+					minimumResultsForSearch: 5,
+					tags: true,
+					tokenSeparators: [',', ' ']
+				});
+			} else {
+				$("#quiValor").select2({
+					theme: "bootstrap",
+					placeholder: "<spring:message code="expedient.tipus.regla.form.camp.qui.valors"/>",
+					minimumInputLength: 3,
+					ajax: {
+						url: (params) => { return "<c:url value="/v3/expedientTipus/persona/suggest/"/>" + params.term; },
+						dataType: 'json',
+						processResults: (data) => {
+							let results = [];
+							data.forEach(d => results.push({id: d.codi + " | " + d.nom, text: d.codi + " | " + d.nom}));
+							return { results: results };
+						}
+					}
+				});
+			}
+		}
+		const updateQue = (que) => {
+			if (que === 'TOT' || que === 'DADES' || que === 'DOCUMENTS' || que === 'TERMINIS' || que === '') {
+				$("#queValor").val(null).trigger('change');
+				$("#queValor").prop("disabled", true);
+			} else {
+				$("#queValor").prop("disabled", false);
+				ompleQueVariables(que);
+			}
+		}
+		const ompleQueVariables = (que) => {
+			let queValorPare = $("#queValor").parent();
+			valorsLoadingStart(queValorPare);
+
+			let getUrl = '';
+			if (que === 'DADA') {
+				getUrl = '<c:url value="/v3/expedientTipus/${estatReglaCommand.expedientTipusId}/var/select"/>';
+			} else if (que === 'DOCUMENT') {
+				getUrl = '<c:url value="/v3/expedientTipus/${estatReglaCommand.expedientTipusId}/doc/select"/>';
+			} else if (que === 'TERMINI') {
+				getUrl = '<c:url value="/v3/expedientTipus/${estatReglaCommand.expedientTipusId}/term/select"/>';
+			} else if (que === 'AGRUPACIO') {
+				getUrl = '<c:url value="/v3/expedientTipus/${estatReglaCommand.expedientTipusId}/agrup/select"/>';
+			} else {
+				return;
+			}
+
+			$.ajax({
+				type: 'GET',
+				url: getUrl,
+				dataType: "json",
+				async: true,
+				success: function(data) {
+					$("#queValor option").each(function(){
+						$(this).remove();
+					});
+					for (let i = 0; i < data.length; i++) {
+						$("#queValor").append($("<option>" + data[i].codi + " | " + data[i].valor + "</option>"));
+					}
+					$("#queValor").val('').change();
+					valorsLoadingStop(queValorPare);
+				},
+				error: function(e) {
+					console.log("Error obtenint dades: " + e);
+					valorsLoadingStop(queValorPare);
+				}
+			});
+		}
+		const valorsLoadingStart = (el) => {
+			$("<span class='fa fa-circle-o-notch fa-spin valors-load'></span>").appendTo($(".select2-container", el));
+		}
+		const valorsLoadingStop = (el) => {
+			el.find(".valors-load").remove();
+		}
 	</script>
 	<style>
 		.text-left { text-align: left !important; }
 		.select2-container { width: 100% !important; }
+		.valors-load { position: absolute; font-size: 20px; right: 10px; top: 8px; color: cornflowerblue; }
 	</style>
 	<hel:modalHead/>
 </head>
@@ -58,11 +163,15 @@
 				<hel:inputSelect name="qui" textKey="expedient.tipus.regla.form.camp.qui" emptyOption="true" optionItems="${quiOptions}" optionValueAttribute="value" optionTextKeyAttribute="text" labelSize="6" required="true"/>
 			</div>
 			<div class="col-xs-8">
-				<div class="form-group">
-					<div class="controls col-xs-12">
-						<form:select path="quiValor" cssClass="form-control" id="quiValor" multiple="multiple">
-							<form:options items="${estatReglaCommand.quiValor}"/>
-						</form:select>
+				<div id="notUser">
+					<c:set var="quiErrors"><form:errors path="quiValor"/></c:set>
+					<div class="form-group<c:if test="${not empty quiErrors}"> has-error</c:if>">
+						<div class="controls col-xs-12">
+							<form:select path="quiValor" cssClass="form-control" id="quiValor" multiple="multiple">
+								<form:options items="${estatReglaCommand.quiValor}"/>
+							</form:select>
+							<c:if test="${not empty quiErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="quiValor"/></p></c:if>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -72,11 +181,13 @@
 				<hel:inputSelect name="que" textKey="expedient.tipus.regla.form.camp.que" emptyOption="true" optionItems="${queOptions}" optionValueAttribute="value" optionTextKeyAttribute="text" labelSize="6" required="true"/>
 			</div>
 			<div class="col-xs-8">
-				<div class="form-group">
+				<c:set var="queErrors"><form:errors path="queValor"/></c:set>
+				<div class="form-group<c:if test="${not empty queErrors}"> has-error</c:if>">
 					<div class="controls col-xs-12">
 						<form:select path="queValor" cssClass="form-control" id="queValor" multiple="multiple">
-							<form:options items="${estatReglaCommand.queValor}"/>
+							<form:options items="${valorsQue}"/>
 						</form:select>
+						<c:if test="${not empty queErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="queValor"/></p></c:if>
 					</div>
 				</div>
 			</div>

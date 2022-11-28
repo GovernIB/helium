@@ -2,6 +2,7 @@
 package net.conselldemallorca.helium.v3.core.regles.que;
 
 import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.TipusVarEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.VariableFact;
 import org.jeasy.rules.annotation.Action;
 import org.jeasy.rules.annotation.Condition;
@@ -14,7 +15,7 @@ public class RuleQueDades {
 
     @Condition
     public boolean when(@Fact("fact") VariableFact fact) {
-        if (fact.isAplicaReglaQui() && QueEnum.DADES.equals(fact.getQue()) && fact.isDada())
+        if (fact.isAplicaReglaQui() && QueEnum.DADES.equals(fact.getQue()) && TipusVarEnum.DADA.equals(fact.getTipus()))
             return true;
         return false;
     }

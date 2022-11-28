@@ -25,6 +25,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.ExportException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exportacio.EstatExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacioCommandDto;;
 
@@ -206,8 +207,6 @@ public interface ExpedientTipusService {
 	 * 
 	 * @param entornId
 	 *            Atribut id de l'entorn.
-	 * @param expedientTipusId
-	 *            Atribut id del tipus d'expedient.
 	 * @return Els tipus d'expedient amb permis de consulta.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
@@ -245,8 +244,6 @@ public interface ExpedientTipusService {
 	 * 
 	 * @param entornId
 	 *            Atribut id de l'entorn.
-	 * @param expedientTipusId
-	 *            Atribut id del tipus d'expedient.
 	 * @return Els tipus d'expedient amb permisos de disseny.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
@@ -259,8 +256,6 @@ public interface ExpedientTipusService {
 	 * 
 	 * @param entornId
 	 *            Atribut id de l'entorn.
-	 * @param expedientTipusId
-	 *            Atribut id del tipus d'expedient.
 	 * @return Els tipus d'expedient amb permisos sobre anotacions.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
@@ -318,8 +313,6 @@ public interface ExpedientTipusService {
 	 * 
 	 * @param entornId
 	 *            Atribut id de l'entorn.
-	 * @param expedientTipusId
-	 *            Atribut id del tipus d'expedient.
 	 * @return Els tipus d'expedient amb permis de creació.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
@@ -565,13 +558,11 @@ public interface ExpedientTipusService {
 	/**
 	 * Esborra una entitat.
 	 * 
-	 * @param entornId
-	 *            Atribut id de l'entorn.
 	 * @param id
 	 *            Atribut id de la definicio de procés.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws AccioDenegatException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public void definicioProcesDelete(
@@ -599,10 +590,10 @@ public interface ExpedientTipusService {
 	 * - Accions
 	 * - Recursos
 	 * @param expedientTipusId
-	 * @param id Identificador del tipus d'expedient.
+	 * @param expedientTipusId Identificador del tipus d'expedient.
 	 * @param sobreescriure Indica si les variables se sobreesciuran al tipus d'expedient o es deixaran sense sobreescriure.
 	 * @param tasques Indica que es relacionin les variables, documents i signatures de la tasca amb les definides a nivell de tipus d'expedient.
-	 * @throws Llença una excepció si no s'ha pogut acomplir alguna dependència o ha succeït algun error.
+	 * @throws ExportException Llença una excepció si no s'ha pogut acomplir alguna dependència o ha succeït algun error.
 	 */
 	public void definicioProcesIncorporar(
 			Long expedientTipusId, 
@@ -613,14 +604,12 @@ public interface ExpedientTipusService {
 	/**
 	 * Crea una nova reassignacio.
 	 * 
-	 * @param entornId
-	 *            Atribut id de l'entorn.
 	 * @param expedientTipusId
 	 *            Atribut id del tipus d'expedient.
 	 * @param reassignacio
 	 *            La informació de la reassignacio a crear.
 	 * @return la reassignacio creada.
-	 * @throws ReassignacioDenegatException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public ReassignacioDto reassignacioCreate(
@@ -630,16 +619,12 @@ public interface ExpedientTipusService {
 	/**
 	 * Modificació d'una reassignacio existent.
 	 * 
-	 * @param entornId
-	 *            Atribut id de l'entorn.
-	 * @param expedientTipusId
-	 *            Atribut id del tipus d'expedient.
 	 * @param reassignacio
 	 *            La informació de la reassignacio a modificar.
 	 * @return la reassignacio modificat.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws ReassignacioDenegatException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public ReassignacioDto reassignacioUpdate(
@@ -648,13 +633,11 @@ public interface ExpedientTipusService {
 	/**
 	 * Esborra un entitat.
 	 * 
-	 * @param entornId
-	 *            Atribut id de l'entorn.
 	 * @param reassignacioId
 	 *            Atribut id de la reassignacio.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws ReassignacioDenegatException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public void reassignacioDelete(
@@ -710,10 +693,10 @@ public interface ExpedientTipusService {
 	/** 
 	 * Retorna l'estat del tipus d'expedient donat el seu identificador. Té en compte els
 	 * heretats i informa el camps d'herència del dto.
-	 * 
+	 *
+	 * @param expedientTipusId
 	 * @param estatId
-	 * @param id 
-	 * 
+	 *
 	 * @return L'estat del tipus d'expedient.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
@@ -731,23 +714,18 @@ public interface ExpedientTipusService {
 	/**
 	 * Crea un nou estat.
 	 * 
-	 * @param entornId	Atribut id de l'entorn.
 	 * @param expedientTipusId	Atribut id del tipus d'expedient.
 	 * @param estat	La informació del camp a crear.
 	 * @return el estat creat.
-	 * @throws CampDenegatException Si no es tenen els permisos necessaris.
 	 */
 	public EstatDto estatCreate(Long expedientTipusId, EstatDto estat);
 
 	/**
 	 * Modificació d'un estat existent.
 	 * 
-	 * @param entornId	Atribut id de l'entorn.
-	 * @param expedientTipusId	Atribut id del tipus d'expedient.
-	 * @param trmini	La informació del estat a modificar.
+	 * @param estat	Atribut id de l'entorn.
 	 * @return el estat modificat.
 	 * @throws NoTrobatException	Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws CampDenegatException	Si no es tenen els permisos necessaris.
 	 */
 	public EstatDto estatUpdate(EstatDto estat);
 
@@ -772,10 +750,9 @@ public interface ExpedientTipusService {
 	/**
 	 * Esborra un estat.
 	 * 
-	 * @param entornId	Atribut id de l'entorn.
 	 * @param estatId	Atribut id del estat.
 	 * @throws NoTrobatException	Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws CampDenegatException	Si no es tenen els permisos necessaris.
+	 * @throws PermisDenegatException	Si no es tenen els permisos necessaris.
 	 */
 	public void estatDelete(Long estatId) throws NoTrobatException, PermisDenegatException;
 
@@ -788,8 +765,35 @@ public interface ExpedientTipusService {
 	 */
 	public boolean estatMoure(Long estatId, int posicio) throws NoTrobatException;
 
-	// PERMISOS ESTATS
+	/**
+	 * Canvia un estat de posició
+	 * @param estatId	Identificador de l'estat a moure
+	 * @param posicio	Posició on situar l'estat
+	 * @param ordre		Tipus d'ordre a aplicar
+	 * @return
+	 * @throws NoTrobatException	Si no es troba l'estat
+	 */
+	public boolean estatMoureOrdre(Long estatId, int posicio, String ordre) throws NoTrobatException;
 
+	/**
+	 * Obté el següent ordre no assignat dels estats
+	 * @param expedientTipusId	Identificador del tipus d'expedient
+	 * @return
+	 * @throws NoTrobatException	Si no es troba el tipus d'exèdient
+	 */
+	public int getEstatSeguentOrdre(Long expedientTipusId) throws NoTrobatException;
+
+	/**
+	 * Retorna la informació dels estats d'un tipus d'expedient per exportar
+	 *
+	 * @param expedientTipusId	Identificador del tipus d'expedient
+	 * @return
+	 * @throws NoTrobatException	Si no es troba el tipus d'exèdient
+	 */
+	public List<EstatExportacio> estatExportacio(Long expedientTipusId, boolean ambPermisos) throws NoTrobatException;
+
+	// PERMISOS ESTATS
+	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Retorna els permisos per a un estat.
 	 *
@@ -850,11 +854,98 @@ public interface ExpedientTipusService {
 
 	// REGLES
 
+	/**
+	 * Retorna les regles per a un estat.
+	 *
+	 * @param estatId
+	 *            Atribut id de l'estat.
+	 * @return les regles del tipus d'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
 	public List<EstatReglaDto> estatReglaFindAll(Long estatId);
+
+	/**
+	 * Retorna una regla donat el seu id.
+	 *
+	 * @param estatId
+	 *            Atribut id de l'entorn.
+	 * @param reglaId
+	 *            Atribut id de la regla.
+	 * @return la regla amb l'id especificat.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
 	public EstatReglaDto estatReglaFindById(Long estatId, Long reglaId);
+
+	/**
+	 * Retorna una regla donat el seu nom.
+	 *
+	 * @param estatId
+	 *            Atribut id de l'entorn.
+	 * @param nom
+	 *            Atribut nom de la regla.
+	 * @return la regla amb el nom especificat.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb el nom especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public EstatReglaDto estatReglaFindByNom(Long estatId, String nom);
+
+	/**
+	 * Crea una regla per un estat.
+	 *
+	 * @param estatId
+	 *            Atribut id de l'estat.
+	 * @param reglaDto
+	 *            La informació de la regla.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat l'estat amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
 	public EstatReglaDto estatReglaCreate(Long estatId, EstatReglaDto reglaDto) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Modifica una regla existent d'un estat.
+	 *
+	 * @param estatId
+	 *            Atribut id de l'estat.
+	 * @param reglaDto
+	 *            La informació de la regla.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat l'estat o el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
 	public EstatReglaDto estatReglaUpdate(Long estatId, EstatReglaDto reglaDto) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Esborra una regla existent d'un estat.
+	 *
+	 * @param estatId
+	 *            Atribut id de l'estat.
+	 * @param reglaId
+	 *            Atribut id de la regla.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat l'estat o el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
 	public void estatReglaDelete(Long estatId, Long reglaId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Canvia una regla de posició
+	 * @param reglaId	Identificador de la regla a moure
+	 * @param posicio	Posició on situar la regla
+	 * @return
+	 * @throws NoTrobatException	Si no es troba l'estat
+	 */
 	public boolean estatReglaMoure(Long reglaId, int posicio);
 
 	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -867,7 +958,7 @@ public interface ExpedientTipusService {
 	 * @param consulta
 	 *            La informació de la consulta a crear.
 	 * @return la consulta creada.
-	 * @throws ConsultaDenegatException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public ConsultaDto consultaCreate(
@@ -883,7 +974,7 @@ public interface ExpedientTipusService {
 	 * @return la consulta modificada.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws ConsultaDenegatException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public ConsultaDto consultaUpdate(
@@ -897,7 +988,7 @@ public interface ExpedientTipusService {
 	 *            Atribut id de la consulta.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws ConsultaDenegatException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public void consultaDelete(
@@ -922,7 +1013,7 @@ public interface ExpedientTipusService {
 	 * 
 	 * @param filtre
 	 *            Text per a filtrar els resultats.
-	 * @param string 
+	 * @param entornId
 	 * @param paginacioParams
 	 *            Paràmetres per a la paginació dels resultats.
 	 * @return La pàgina del llistat de tipus d'expedients.
@@ -979,7 +1070,7 @@ public interface ExpedientTipusService {
 	 * @param consultaCamp
 	 *            La informació del camp de la consulta a crear.
 	 * @return el camp de la consulta creat.
-	 * @throws ConsultaCampDenegatException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public ConsultaCampDto consultaCampCreate(
@@ -1087,7 +1178,7 @@ public interface ExpedientTipusService {
 	 * Mètode per consultar tots els mapejos d'un tipus d'expedient segons el tipus
 	 * per validar la repetició i per filtrar variables ja utilitzades.
 	 * 
-	 * @param consultaId
+	 * @param expedientTipusId
 	 * @param tipus
 	 * @return
 	 */
@@ -1118,8 +1209,6 @@ public interface ExpedientTipusService {
 	/**
 	 * Crea un nou mapeig per a la integració amb Sistra del tipus d'expedient.
 	 * 
-	 * @param entornId
-	 *            Atribut id de l'entorn.
 	 * @param expedientTipusId
 	 *            Atribut id del camp del tipus d'expedient.
 	 * @param mapeig
@@ -1135,16 +1224,12 @@ public interface ExpedientTipusService {
 	/**
 	 * Modificació d'un mapeig existent.
 	 * 
-	 * @param entornId
-	 *            Atribut id de l'entorn.
-	 * @param expedientTipusId
-	 *            Atribut id del tipus d'expedient.
 	 * @param mapeig
 	 *            La informació del mapeig a modificar.
 	 * @return el mapeig modificat.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
-	 * @throws CampDenegatException
+	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
 	public MapeigSistraDto mapeigUpdate(
@@ -1166,7 +1251,7 @@ public interface ExpedientTipusService {
 	/**
 	 * Retorna una mapeig d'un tipus d'expedient donat el seu codi helium.
 	 * 
-	 * @param tipusExpedientId
+	 * @param expedientTipusId
 	 * @param codiHelium
 	 *            El codi per a la consulta.
 	 * @return La accio del tipus d'expedient o null si no el troba.
@@ -1179,7 +1264,7 @@ public interface ExpedientTipusService {
 	 * Retorna una mapeig d'un tipus d'expedient donat el seu codi Sistra.
 	 * @param tipusMapeig 
 	 * 
-	 * @param tipusExpedientId
+	 * @param expedientTipusId
 	 * @param tipusMapeig
 	 * @param codiSistra
 	 *            El codi per a la consulta.
@@ -1311,7 +1396,7 @@ public interface ExpedientTipusService {
 
 	/**Mètode per trobar els tipus d'expedients filtrats per tipologia*
 	 * 
-	 * @param codiSIA
+	 * @param filtreDto
 	 * @param entornId
 	 * */
 	public PaginaDto<ExpedientTipusDto> findTipologiesByFiltrePaginat(
@@ -1328,7 +1413,7 @@ public interface ExpedientTipusService {
 	 *            Atribut id del tipus d'expedient.
 	 * @param pinbalActiu
 	 *            Indica si la integració amb Pinbal està activada.
-	 * @param cifNifUnitatOrg
+	 * @param pinbalNifCif
 	 *            El CIF/NIF de la unitat orgànica.
 	 * 
 	 * @return El tipus d'expedient modificat.
