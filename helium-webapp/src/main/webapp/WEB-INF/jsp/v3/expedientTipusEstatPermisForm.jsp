@@ -19,16 +19,16 @@
 	<script src="<c:url value="/webjars/select2/4.0.1/dist/js/i18n/${idioma}.js"/>"></script>
 	<script>
 		$(document).ready(function() {
-			$(":checkbox").on('change', function () {
-				if ($(this).attr('name') !== 'read' && $(this).prop("checked")) {
-					$("#read").prop('checked', true);
-				}
-				if ($(this).attr('name') === 'read' && !$(this).prop("checked")) {
-					$("#write").prop('checked', false);
-					$("#dataManagement").prop('checked', false);
-					$("#docManagement").prop('checked', false);
-				}
-			});
+			// $(":checkbox").on('change', function () {
+			// 	if ($(this).attr('name') !== 'read' && $(this).prop("checked")) {
+			// 		$("#read").prop('checked', true);
+			// 	}
+			// 	if ($(this).attr('name') === 'read' && !$(this).prop("checked")) {
+			// 		$("#write").prop('checked', false);
+			// 		$("#dataManagement").prop('checked', false);
+			// 		$("#docManagement").prop('checked', false);
+			// 	}
+			// });
 		});
 
 	</script>

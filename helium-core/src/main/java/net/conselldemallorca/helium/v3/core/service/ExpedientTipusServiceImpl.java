@@ -2632,7 +2632,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	public int getEstatSeguentOrdre(Long expedientTipusId) throws NoTrobatException {
 		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 		Integer seguentOrdre = estatRepository.getSeguentOrdre(expedientTipusId);
-		return seguentOrdre == null ? 0 : seguentOrdre + 1;
+		return seguentOrdre == null ? 1 : seguentOrdre + 1;
 	}
 
 	@Override
