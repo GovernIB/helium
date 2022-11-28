@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.AccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
@@ -202,6 +203,14 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 			String definicioProcesCodi, 
 			String jbpmAction,
 			Model model) {
+
+		// Tipus
+		List<ParellaCodiValorDto> tipusOpcions = new ArrayList<ParellaCodiValorDto>();
+		for (AccioTipusEnumDto tipus : AccioTipusEnumDto.values()) {
+			tipusOpcions.add(new ParellaCodiValorDto(tipus.toString(), getMessage(request, "accio.tipus.enum." + tipus)));
+		}
+		model.addAttribute("tipus", tipusOpcions);
+
 		model.addAttribute("definicionsProces", 
 				expedientTipusService.definicioProcesFindJbjmKey(
 						entornId, 

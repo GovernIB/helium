@@ -43,18 +43,30 @@
 			<input type="hidden" name="id" value="${expedientTipusAccioCommand.id}"/>
 			<hel:inputText required="true" name="codi" textKey="expedient.tipus.accio.form.accio.codi" />
 			<hel:inputText required="true" name="nom" textKey="expedient.tipus.accio.form.accio.nom" />
-			<c:if test="${not empty expedientTipusAccioCommand.expedientTipusId}">
-				<hel:inputSelect required="true" name="defprocJbpmKey" textKey="expedient.tipus.accio.form.accio.defprocJbpmKey" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.defprocJbpmKey.placeholder" optionItems="${definicionsProces}" />
-				<hel:inputSelect required="true" name="jbpmAction" textKey="expedient.tipus.accio.form.accio.jbpmAction" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.jbpmAction" optionItems="${accions}" optionValueAttribute="codi" optionTextAttribute="valor"/>
-			</c:if>
-			<c:if test="${not empty expedientTipusAccioCommand.definicioProcesId}">
-				<input type="hidden" name="defprocJbpmKey" value="${expedientTipusAccioCommand.defprocJbpmKey}" />
-				<hel:inputSelect required="true" name="jbpmAction" textKey="expedient.tipus.accio.form.accio.jbpmAction" optionItems="${handlers}" />
-			</c:if>
 			<hel:inputTextarea name="descripcio" textKey="expedient.tipus.accio.form.accio.descripcio" />
-			<hel:inputCheckbox name="publica" textKey="expedient.tipus.accio.form.accio.publica" />
-			<hel:inputCheckbox name="oculta" textKey="expedient.tipus.accio.form.accio.oculta" />
-			<hel:inputText name="rols" textKey="expedient.tipus.accio.form.accio.rols" />
+			<hel:inputSelect required="true" name="tipus" textKey="expedient.tipus.accio.form.accio.tipus" placeholderKey="expedient.tipus.accio.form.accio.tipus" optionItems="${tipus}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+			<div id="rowHandler">
+				<c:if test="${not empty expedientTipusAccioCommand.expedientTipusId}">
+					<hel:inputSelect required="true" name="defprocJbpmKey" textKey="expedient.tipus.accio.form.accio.defprocJbpmKey" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.defprocJbpmKey.placeholder" optionItems="${definicionsProces}" />
+					<hel:inputSelect required="true" name="jbpmAction" textKey="expedient.tipus.accio.form.accio.jbpmAction" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.jbpmAction" optionItems="${accions}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+				</c:if>
+				<c:if test="${not empty expedientTipusAccioCommand.definicioProcesId}">
+					<input type="hidden" name="defprocJbpmKey" value="${expedientTipusAccioCommand.defprocJbpmKey}" />
+					<hel:inputSelect required="true" name="jbpmAction" textKey="expedient.tipus.accio.form.accio.jbpmAction" optionItems="${handlers}" />
+				</c:if>
+			</div>
+			<div id="rowHandlerPredefinit">
+				<p>Handler predefinit</p>
+			</div>
+			<div id="rowScript">
+				<hel:inputTextarea name="script" required="true" textKey="expedient.tipus.accio.form.accio.script" />
+			</div>
+			<fieldset>
+				<legend><spring:message code="expedient.tipus.accio.form.legend.visibilitat"></spring:message></legend>
+				<hel:inputCheckbox name="publica" textKey="expedient.tipus.accio.form.accio.publica" />
+				<hel:inputCheckbox name="oculta" textKey="expedient.tipus.accio.form.accio.oculta" />
+				<hel:inputText name="rols" textKey="expedient.tipus.accio.form.accio.rols" />
+			</fieldset>
 		</div>
 		
 		<div id="modal-botons" class="well">
@@ -81,6 +93,24 @@
    			//<c:if test="${heretat}">
 			webutilDisableInputs($('#expedientTipusAccioCommand'));
 			//</c:if>
+			
+			// Canvi del tipus d'acció
+			$('#tipus').change(function(){
+				$('#rowHandler').hide();
+				$('#rowHandlerPredefinit').hide();
+				$('#rowScript').hide();
+				switch($(this).val()) {
+					case 'HANDLER':
+						$('#rowHandler').show();
+					break;
+					case 'HANDLER_PREDEFINIT':
+						$('#rowHandlerPredefinit').show();
+						break;
+					case 'SCRIPT':
+						$('#rowScript').show();
+						break;
+				}
+			}).change();
 			
 			// Canvi en la selecció de la definicion
 			$('#defprocJbpmKey').change(function() {

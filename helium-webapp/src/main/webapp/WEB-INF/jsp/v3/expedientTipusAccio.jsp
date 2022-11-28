@@ -61,6 +61,19 @@
 						</script>
 					</th>
 					<th data-col-name="nom"><spring:message code="expedient.tipus.accio.llistat.columna.nom"/></th>
+					<th data-col-name="tipus" data-template="#cellAccioTipusTemplate">
+						<spring:message code="expedient.tipus.accio.llistat.columna.tipus"/>
+						<script id="cellAccioTipusTemplate" type="text/x-jsrender">
+							{{if tipus == 'HANDLER'}}
+								<spring:message code="accio.tipus.enum.HANDLER"/>
+							{{else tipus == 'HANDLER_PREDEFINIT'}}
+								<spring:message code="accio.tipus.enum.HANDLER_PREDEFINIT"/>
+							{{else tipus == 'SCRIPT'}}
+								<spring:message code="accio.tipus.enum.SCRIPT"/>
+							{{/if}}
+						</div>
+					</script>
+					</th>
 					<c:if test="${not empty expedientTipus}">
 						<!-- Per les accions dels tipus d'expedient es mostra la clau de la definició de procés -->
 						<th data-col-name="defprocJbpmKey"><spring:message code="expedient.tipus.accio.llistat.columna.defprocJbpmKey"/></th>

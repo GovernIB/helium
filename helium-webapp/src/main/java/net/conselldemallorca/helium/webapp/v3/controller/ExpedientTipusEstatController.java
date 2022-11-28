@@ -55,11 +55,19 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.AccioEnum;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.QuiEnum;
+import net.conselldemallorca.helium.webapp.v3.command.EstatReglaCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEstatCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ImportarDadesCommand;
+import net.conselldemallorca.helium.webapp.v3.command.PermisCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
+import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
@@ -323,7 +331,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		}
 		return ret;
 	}
-
+	
 	// Atenció: Els ordres no poden tenir forats entre mig, però poden tenir repetits.
 	// Possibles ordres:
 	//  - auto  --> No hi ha ambiguitat, i per tant es calcularà de forma automàtica. (Es mou entre dos estats que tenen el mateix ordre)
@@ -344,12 +352,12 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			@PathVariable String ordre,
 			Model model) {
 		boolean ret = false;
-
+	
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto tipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
 				entornActual.getId(),
 				expedientTipusId);
-
+	
 		return expedientTipusService.estatMoureOrdre(estatId, posicio, ordre);
 	}
 	
@@ -364,13 +372,13 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 
 
         	try {
-
+        		
 				ObjectMapper mapper = new ObjectMapper();
 				mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
 				List<EstatExportacio> estatExportacioList = expedientTipusService.estatExportacio(expedientTipusId, true);
 				byte[] exportacioJson = mapper.writeValueAsBytes(estatExportacioList);
-
+        		
         		MissatgesHelper.success(
     					request, 
     					getMessage(
@@ -381,7 +389,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
         		response.setHeader("Expires", "");
         		response.setHeader("Cache-Control", "");
         		response.setHeader("Content-Disposition", "attachment; filename=\"estats_exp.json\"");
-        		response.setContentType("application/json");
+        		response.setContentType("text/plain");
         		response.getOutputStream().write(exportacioJson);
         
         	} catch(Exception e) {
@@ -437,30 +445,30 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 
 				List<EstatExportacio> estatExportacioList = mapper.readValue(command.getMultipartFile().getInputStream(), new TypeReference<List<EstatExportacio>>(){});
     			for (EstatExportacio estatExportacio: estatExportacioList) {
-					// Comprova que el codi sigui vàlid
+    					// Comprova que el codi sigui vàlid
 					if (! CodiValidator.isValid(estatExportacio.getCodi())) {
-						MissatgesHelper.error(
-								request,
+    		        		MissatgesHelper.error(
+    		        				request,
 								getMessage(request, "expedient.tipus.estat.importar.controller.error.codi", new Object[]{estatExportacio.getCodi()}));
 						continue;
 					}
 
 					// Crear o actualitzar estat
 					EstatDto estat = expedientTipusService.estatFindAmbCodi(expedientTipusId, estatExportacio.getCodi());
-					if (estat == null) {
+        					if (estat == null) {
 						EstatDto estatDto = EstatDto.builder()
 								.codi(estatExportacio.getCodi())
 								.nom(estatExportacio.getNom())
 								.ordre(estatExportacio.getOrdre())
 								.build();
 						estat = expedientTipusService.estatCreate(expedientTipusId, estatDto);
-						insercions++;
-					} else {
+        						insercions++;
+        					} else {
 						estat.setNom(estatExportacio.getNom());
 						estat.setOrdre(estatExportacio.getOrdre());
-						expedientTipusService.estatUpdate(estat);
-						actualitzacions++;
-					}
+        						expedientTipusService.estatUpdate(estat);
+        						actualitzacions++;
+        					}
 
 					// Crear o actualitzar regles
 					if (estatExportacio.getRegles() != null) {
@@ -481,10 +489,9 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 							expedientTipusService.estatPermisUpdate(
 									estat.getId(),
 									conversioTipusHelper.convertir(permisExportacio, PermisDto.class));
-						}
-					}
-				}
-
+    					}
+    				}
+    			}
         	} catch(Exception e) {
         		logger.error(e);
         		MissatgesHelper.error(
@@ -877,7 +884,29 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		}
 		model.addAttribute("valorsQue", valorsQue);
 	}
+	
+	// ACCIONS
+	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/accions", method = RequestMethod.GET)
+	public String accions(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			Model model) {
+		
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
+				entornActual.getId(),
+				expedientTipusId);
+		EstatDto estat = expedientTipusService.estatFindAmbId(expedientTipusId, estatId);
+
+		model.addAttribute("expedientTipus", expedientTipus);
+		model.addAttribute("estat", estat);
+
+		return "v3/expedientTipusEstatAccions";
+	}	
+	
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {

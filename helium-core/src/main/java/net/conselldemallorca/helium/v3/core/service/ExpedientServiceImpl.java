@@ -20,6 +20,7 @@ import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,6 +94,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.ResultatConsultaPaginadaJbpm;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.AccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuContingutDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuContingutTipusEnumDto;
@@ -1637,10 +1639,20 @@ public class ExpedientServiceImpl implements ExpedientService {
 					accio.getJbpmAction());
 			try {
 				// Executa l'acció
-				jbpmHelper.executeActionInstanciaProces(
-						processInstanceId,
-						accio.getJbpmAction(),
-						herenciaHelper.getProcessDefinitionIdHeretadaAmbExpedient(expedient));
+				if (AccioTipusEnumDto.HANDLER.equals(accio.getTipus())) {
+					jbpmHelper.executeActionInstanciaProces(
+							processInstanceId,
+							accio.getJbpmAction(),
+							herenciaHelper.getProcessDefinitionIdHeretadaAmbExpedient(expedient));
+				} else if (AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
+					//TODO: fer la crida als handlers predefinits d'Helium
+					throw new NotImplementedException("Acció handler predefinit no implementat.");
+				} else if (AccioTipusEnumDto.SCRIPT.equals(accio.getTipus())) {
+					jbpmHelper.evaluateScript(
+							processInstanceId, 
+							accio.getScript(), 
+							new HashSet<String>());
+				}
 			} catch (Exception ex) {
 				if (ex instanceof ExecucioHandlerException) {
 					logger.error(

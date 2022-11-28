@@ -8,6 +8,7 @@ import javax.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.AccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.service.AccioService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
@@ -64,6 +65,37 @@ public class ExpedientTipusAccioValidator implements ConstraintValidator<Expedie
 						.addConstraintViolation();	
 				valid = false;
 			}
+		}
+		if (accio.getTipus() == null) {
+			context.buildConstraintViolationWithTemplate(
+					MessageHelper.getInstance().getMessage(this.codiMissatge + ".tipus.null", null))
+					.addNode("tipus")
+					.addConstraintViolation();	
+			valid = false;
+		} else {
+			if (AccioTipusEnumDto.HANDLER.equals(accio.getTipus())) {
+				if (accio.getDefprocJbpmKey() == null || accio.getDefprocJbpmKey().trim().isEmpty()) {
+					context.buildConstraintViolationWithTemplate(
+							MessageHelper.getInstance().getMessage("NotEmpty", null))
+							.addNode("defprocJbpmKey")
+							.addConstraintViolation();	
+					valid = false;
+				}
+				if (accio.getJbpmAction() == null || accio.getJbpmAction().trim().isEmpty()) {
+					context.buildConstraintViolationWithTemplate(
+							MessageHelper.getInstance().getMessage("NotEmpty", null))
+							.addNode("jbpmAction")
+							.addConstraintViolation();	
+					valid = false;
+				}
+			} else if (AccioTipusEnumDto.SCRIPT.equals(accio.getTipus()) 
+					&& (accio.getScript() == null || accio.getScript().trim().isEmpty())) {
+				context.buildConstraintViolationWithTemplate(
+						MessageHelper.getInstance().getMessage("NotEmpty", null))
+						.addNode("script")
+						.addConstraintViolation();	
+				valid = false;
+			} 
 		}
 		if (!valid)
 			context.disableDefaultConstraintViolation();
