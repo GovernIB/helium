@@ -73,9 +73,11 @@ public class AccioServiceImpl implements AccioService {
 				
 		entity.setCodi(accio.getCodi());
 		entity.setNom(accio.getNom());
+		entity.setDescripcio(accio.getDescripcio());
+		entity.setTipus(accio.getTipus());
 		entity.setDefprocJbpmKey(accio.getDefprocJbpmKey());
 		entity.setJbpmAction(accio.getJbpmAction());
-		entity.setDescripcio(accio.getDescripcio());
+		entity.setScript(accio.getScript());
 		entity.setPublica(accio.isPublica());
 		entity.setOculta(accio.isOculta());
 		entity.setRols(accio.getRols());		
@@ -103,9 +105,11 @@ public class AccioServiceImpl implements AccioService {
 
 		entity.setCodi(accio.getCodi());
 		entity.setNom(accio.getNom());
+		entity.setDescripcio(accio.getDescripcio());
+		entity.setTipus(accio.getTipus());
 		entity.setDefprocJbpmKey(accio.getDefprocJbpmKey());
 		entity.setJbpmAction(accio.getJbpmAction());
-		entity.setDescripcio(accio.getDescripcio());
+		entity.setScript(accio.getScript());
 		entity.setPublica(accio.isPublica());
 		entity.setOculta(accio.isOculta());
 		entity.setRols(accio.getRols());		

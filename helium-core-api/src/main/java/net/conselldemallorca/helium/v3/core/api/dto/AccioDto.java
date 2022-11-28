@@ -15,9 +15,13 @@ public class AccioDto extends HeretableDto implements Serializable {
 	private Long id;
 	private String codi;
 	private String nom;
+	private String descripcio;
+	private AccioTipusEnumDto tipus;
 	private String defprocJbpmKey;
 	private String jbpmAction;
-	private String descripcio;
+	private String predefinitCodi;
+	private String predefinitDades;
+	private String script;
 	private boolean publica;
 	private boolean oculta;
 	private String rols;
@@ -90,7 +94,38 @@ public class AccioDto extends HeretableDto implements Serializable {
 		return descripcio;
 	}
 
+	public AccioTipusEnumDto getTipus() {
+		return tipus;
+	}
+	public void setTipus(AccioTipusEnumDto tipus) {
+		this.tipus = tipus;
+	}
+
+	public String getPredefinitCodi() {
+		return predefinitCodi;
+	}
+
+	public void setPredefinitCodi(String predefinitCodi) {
+		this.predefinitCodi = predefinitCodi;
+	}
+
 	public void setDescripcio(String descripcio) {
 		this.descripcio = descripcio;
+	}
+	
+	public String getPredefinitDades() {
+		return predefinitDades;
+	}
+
+	public void setPredefinitDades(String predefinitDades) {
+		this.predefinitDades = predefinitDades;
+	}
+
+	public String getScript() {
+		return script;
+	}
+
+	public void setScript(String script) {
+		this.script = script;
 	}
 }

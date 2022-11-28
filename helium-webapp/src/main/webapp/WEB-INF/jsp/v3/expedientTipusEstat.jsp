@@ -56,6 +56,18 @@
 							<a href="${expedientTipus.id}/estat/{{:id}}/regles" data-maximized="true" data-toggle="" class="btn btn-default"><span class="fa fa-eye-slash"></span>&nbsp;<spring:message code="expedient.tipus.estat.llistat.accio.regles"/>&nbsp;<span class="badge">{{:reglesCount}}</span></a>
 						</script>
 					</th>
+					<th data-col-name="reglesCount" data-template="#cellAccionsTemplate" data-orderable="false" width="13%">
+						<script id="cellAccionsTemplate" type="text/x-jsrender">
+							<a href="${expedientTipus.id}/estat/{{:id}}/accions" data-maximized="true" data-toggle="modal" class="btn btn-default">
+								<span class="fa fa-bolt"></span>&nbsp;<spring:message code="expedient.tipus.estat.llistat.accio.accions"/>&nbsp;
+								<span class="badge">
+										<span class="fa fa-sign-in"/> {{:reglesCount}}
+ 										&nbsp;
+										<span class="fa fa-sign-out"/> {{:reglesCount}}
+								</span>
+							</a>
+						</script>
+					</th>
 					</c:if>
 					<th data-col-name="id" data-template="#cellEstatsTemplate" data-orderable="false" width="5%">
 						<script id="cellEstatsTemplate" type="text/x-jsrender">
@@ -66,6 +78,9 @@
 									<li><a data-toggle="modal" href="${expedientTipus.id}/estat/{{:id}}/update"><span class="fa fa-search"></span>&nbsp;<spring:message code="comu.boto.visualitzar"/></a></li>
 								{{else}}
 									<li><a data-toggle="modal" href="${expedientTipus.id}/estat/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
+									<c:if test="${expedientTipus.tipus == 'ESTAT'}">
+										<li><a data-toggle="modal" href="${expedientTipus.id}/estat/{{:id}}/accions"><span class="fa fa-bolt"></span>&nbsp;<spring:message code="expedient.tipus.estat.llistat.accio.accions"/></a></li>
+									</c:if>
 									<li><a href="${expedientTipus.id}/estat/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.estat.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 								{{/if}}
 							</ul>

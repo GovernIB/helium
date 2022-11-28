@@ -12,15 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAccioEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
-import net.conselldemallorca.helium.v3.core.api.dto.regles.AccioEnum;
-import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
-import net.conselldemallorca.helium.v3.core.api.dto.regles.QuiEnum;
-import net.conselldemallorca.helium.webapp.v3.command.EstatReglaCommand;
-import net.conselldemallorca.helium.webapp.v3.command.PermisCommand;
-import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,11 +35,19 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.AccioEnum;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.QuiEnum;
+import net.conselldemallorca.helium.webapp.v3.command.EstatReglaCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEstatCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ImportarDadesCommand;
+import net.conselldemallorca.helium.webapp.v3.command.PermisCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
+import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
@@ -711,7 +710,28 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 		return expedientTipusService.estatReglaMoure(reglaId, posicio);
 	}
 
+	// ACCIONS
+	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/accions", method = RequestMethod.GET)
+	public String accions(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			Model model) {
+		
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
+				entornActual.getId(),
+				expedientTipusId);
+		EstatDto estat = expedientTipusService.estatFindAmbId(expedientTipusId, estatId);
+
+		model.addAttribute("expedientTipus", expedientTipus);
+		model.addAttribute("estat", estat);
+
+		return "v3/expedientTipusEstatAccions";
+	}	
+	
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {

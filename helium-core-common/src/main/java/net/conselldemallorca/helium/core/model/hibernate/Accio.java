@@ -7,6 +7,8 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -20,6 +22,9 @@ import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
+import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
+
+import net.conselldemallorca.helium.v3.core.api.dto.AccioTipusEnumDto;
 
 /**
  * Objecte de domini que representa un document de la definició
@@ -47,6 +52,10 @@ public class Accio implements Serializable, GenericEntity<Long> {
 	private String nom;
 	@MaxLength(255)
 	private String descripcio;
+	
+    @NotNull
+	private AccioTipusEnumDto tipus;
+
 	@NotBlank
 	@MaxLength(255)
 	private String jbpmAction;
@@ -61,6 +70,12 @@ public class Accio implements Serializable, GenericEntity<Long> {
 	
 	@MaxLength(255)
 	private String defprocJbpmKey;
+	
+//	private String predefinitCodi;
+//	private String predefinitDades;
+	@MaxLength(1024)
+	private String script;
+
 
 	public Accio() {}
 	public Accio(DefinicioProces definicioProces, String codi, String nom, String jbpmAction) {
@@ -112,12 +127,29 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.descripcio = descripcio;
 	}
 
+    @Column(name="tipus")
+    @Enumerated(EnumType.STRING)
+	public AccioTipusEnumDto getTipus() {
+		return tipus;
+	}
+	public void setTipus(AccioTipusEnumDto tipus) {
+		this.tipus = tipus;
+	}
+	
 	@Column(name="jbpm_action", length=255, nullable=false)
 	public String getJbpmAction() {
 		return jbpmAction;
 	}
 	public void setJbpmAction(String jbpmAction) {
 		this.jbpmAction = jbpmAction;
+	}
+
+    @Column(name="script")
+	public String getScript() {
+		return script;
+	}
+	public void setScript(String script) {
+		this.script = script;
 	}
 
 	@Column(name="publica")
