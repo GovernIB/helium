@@ -2366,7 +2366,8 @@ public class DocumentHelperV3 {
 		String documentNom = documentStore.isAdjunt() ? documentStore.getArxiuNom() : (document!=null ? document.getNom() : "");
 		if (expedient.isArxiuActiu()) {
 			// Document integrat amb l'Arxiu
-			comprovarFirmesReconegudes(firmes);
+			if(firmes!=null && !firmes.isEmpty())
+				comprovarFirmesReconegudes(firmes);
 			if (arxiuUuid == null) {
 				String documentDescripcio = documentStore.isAdjunt() ? documentStore.getAdjuntTitol() : document.getNom();
 				// Actualitza el document a dins l'arxiu

@@ -595,7 +595,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						new MapeigSistraExportacio(
 								mapeig.getCodiHelium(), 
 								mapeig.getCodiSistra(), 
-								MapeigSistraDto.TipusMapeig.valueOf(mapeig.getTipus().toString())));
+								MapeigSistraDto.TipusMapeig.valueOf(mapeig.getTipus().toString()),
+								mapeig.isEvitarSobreescriptura()));
 		}
 		// Estats
 		if (command.getEstats().size() > 0)
@@ -944,7 +945,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 								expedientTipus,
 								mapeig.getCodiHelium(), 
 								mapeig.getCodiSistra(), 
-								MapeigSistra.TipusMapeig.valueOf(mapeig.getTipus().toString())));
+								MapeigSistra.TipusMapeig.valueOf(mapeig.getTipus().toString()),
+								mapeig.isEvitarSobreescriure()));
 		}
 		
 		//Integració amb Pinbal
@@ -3405,8 +3407,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setCodiSistra(mapeig.getCodiSistra());
 		if (mapeig.getTipus() == TipusMapeig.Adjunt) 
 			entity.setCodiHelium(mapeig.getCodiSistra());
-		else
+		else{
 			entity.setCodiHelium(mapeig.getCodiHelium());
+			entity.setEvitarSobreescriptura(mapeig.isEvitarSobreescriptura());
+		}
 		entity.setTipus(MapeigSistra.TipusMapeig.valueOf(mapeig.getTipus().toString()));
 		// MapeigSistra associat a l'expedient
 		entity.setExpedientTipus(expedientTipus);		
@@ -3429,10 +3433,13 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		MapeigSistra entity = mapeigSistraRepository.findOne(mapeig.getId());
 
 		entity.setCodiSistra(mapeig.getCodiSistra());
+		entity.setEvitarSobreescriptura(mapeig.isEvitarSobreescriptura());
 		if (mapeig.getTipus() == TipusMapeig.Adjunt) 
 			entity.setCodiHelium(mapeig.getCodiSistra());
-		else
+		else {
 			entity.setCodiHelium(mapeig.getCodiHelium());
+			entity.setEvitarSobreescriptura(mapeig.isEvitarSobreescriptura());
+		}
 				
 		return conversioTipusHelper.convertir(
 				mapeigSistraRepository.save(entity),

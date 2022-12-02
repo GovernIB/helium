@@ -26,6 +26,7 @@ public class ExpedientTipusIntegracioTramitsMapeigCommand {
 	private String codiSistra;
 	@NotNull(groups = {Creacio.class, Modificacio.class})
 	private TipusMapeig tipus;
+	private boolean evitarSobreescriptura;
 	
 	public Long getExpedientTipusId() {
 		return expedientTipusId;
@@ -57,6 +58,12 @@ public class ExpedientTipusIntegracioTramitsMapeigCommand {
 	public void setTipus(TipusMapeig tipus) {
 		this.tipus = tipus;
 	}
+	public boolean isEvitarSobreescriptura() {
+		return evitarSobreescriptura;
+	}
+	public void setEvitarSobreescriptura(boolean evitarSobreescriptura) {
+		this.evitarSobreescriptura = evitarSobreescriptura;
+	}
 	
 	public static MapeigSistraDto asMapeigSistraDto(ExpedientTipusIntegracioTramitsMapeigCommand command) {
 		MapeigSistraDto dto = new MapeigSistraDto();
@@ -64,6 +71,7 @@ public class ExpedientTipusIntegracioTramitsMapeigCommand {
 		dto.setCodiHelium(command.getCodiHelium());
 		dto.setCodiSistra(command.getCodiSistra());
 		dto.setTipus(command.getTipus());
+		dto.setEvitarSobreescriptura(command.isEvitarSobreescriptura());
 		return dto;
 	}
 

@@ -114,4 +114,11 @@ public class AnotacioServiceBean implements AnotacioService {
 	public void esborrarAnotacionsExpedient(Long expedientId) {
 		delegate.esborrarAnotacionsExpedient(expedientId);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId) {
+		delegate.reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
+		
+	}
 }

@@ -53,17 +53,18 @@ public class MapeigSistra implements Serializable, GenericEntity<Long> {
 	private String codiSistra;
 	@NotNull
 	private TipusMapeig tipus;
-
+	private boolean evitarSobreescriptura;
 	@NotNull
 	private ExpedientTipus expedientTipus;
 
 
 	public MapeigSistra() {}
-	public MapeigSistra(ExpedientTipus expedientTipus, String codiHelium, String codiSistra, TipusMapeig tipus) {
+	public MapeigSistra(ExpedientTipus expedientTipus, String codiHelium, String codiSistra, TipusMapeig tipus, boolean evitarSobreescriure) {
 		this.expedientTipus = expedientTipus;
 		this.codiHelium = codiHelium;
 		this.codiSistra = codiSistra;
 		this.tipus = tipus;
+		this.evitarSobreescriptura = evitarSobreescriure;
 	}
 
 	@Id
@@ -108,7 +109,16 @@ public class MapeigSistra implements Serializable, GenericEntity<Long> {
 		else
 			return expedientTipus.getNom() + "/" + nom;
 	}*/
-
+	
+	@Column(name="no_sobreescriure")
+	public boolean isEvitarSobreescriptura() {
+		return evitarSobreescriptura;
+	}
+	public void setEvitarSobreescriptura(boolean evitarSobreescriptura) {
+		this.evitarSobreescriptura = evitarSobreescriptura;
+	}
+	
+	
 	@ManyToOne(optional=false)
 	@JoinColumn(name="expedient_tipus_id")
 	@ForeignKey(name="hel_exptipus_map_sistra_fk")
