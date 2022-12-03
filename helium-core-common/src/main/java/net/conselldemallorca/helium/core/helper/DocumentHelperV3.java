@@ -1718,7 +1718,7 @@ public class DocumentHelperV3 {
 	 * @param arxiu
 	 * @return
 	 */
-	private ArxiuDto converteixPdf(ArxiuDto arxiu) {
+	public ArxiuDto converteixPdf(ArxiuDto arxiu) {
 		ArxiuDto arxiuPdf = new ArxiuDto();
 		arxiuPdf.setTipusMime("application/pdf");
 		try {

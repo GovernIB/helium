@@ -20,6 +20,9 @@
 		<pattern>/rest/notib*</pattern>
 		<pattern>/rest/portafib*</pattern>
 	</excludes>
+	<decorator name="viewerPdfDecorator" page="viewerPdfDecorator.jsp">
+		<pattern>*/viewer.html*</pattern>
+	</decorator>
 	<decorator name="v3" page="v3.jsp">
 		<pattern>/v3/*</pattern>
 	</decorator>

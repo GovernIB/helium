@@ -245,9 +245,32 @@ $(document).ajaxError(function(event, jqxhr, ajaxSettings, thrownError) {
 				timeout: 10000,
 				success: function() {
 					webutilRefreshMissatges();
+					// if((!$element.hasAttribute('data-reload-table') || $element.data('reloadTable') == "true") &&
 					if ($element.closest('.dataTables_wrapper')) {
 						var $dataTable = $('table.dataTable', $element.closest('.dataTables_wrapper'));
 						$dataTable.webutilDatatable('refresh');
+					// }
+					// if ($element.hasAttribute('data-callback')) {
+					// 	let callback = $element.data('callback');
+					// 	var sep = callback.indexOf('(');
+					// 	if ( sep != -1) {
+					// 		callbackFunctionName = callback.substring(0, sep);
+					// 		callbackFunctionParams = callback.substring(sep + 1, callback.lastIndexOf(')')).split(",");
+					// 		// modalExecuteFunctionByName(callbackFunctionName, window, callbackFunctionParams, data);
+					// 		let i = 0;
+					// 		let args = [];
+					// 		for(i = 0; i < callbackFunctionParams; i++)
+					// 			args[i] = callbackFunctionParams[i].trim();
+					// 		args[i] = data;
+					// 		let namespaces = callbackFunctionName.split('.');
+					// 		let func = namespaces.pop();
+					// 		let context = window;
+					// 		for(i = 0; i < namespaces; i++)
+					// 			context = context[namespaces[i]];
+					// 		if (context[func] === undefined)
+					// 			return false
+					// 		return context[func].apply(this, args);
+					// 	}
 					}
 				}
 		    });

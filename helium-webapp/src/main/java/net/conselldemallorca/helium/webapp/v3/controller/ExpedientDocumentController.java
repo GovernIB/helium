@@ -20,6 +20,14 @@ import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
+import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
+import net.conselldemallorca.helium.webapp.v3.helper.JsonResponse;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -86,6 +94,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientDocumentService expedientDocumentService;
+	@Autowired
+	private DocumentService documentService;
 	// TODO: eliminar la referencia al core 2.6 i passar el mètode processarDocumentPendentPortasignatures al pluginHelper
 	@Autowired
 	private PluginService pluginService;
@@ -142,6 +152,75 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		}
 	}
 
+	@RequestMapping(value = "/{expedientId}/document/datatable", method = RequestMethod.GET)
+	@ResponseBody
+	public DatatablesResponse documentDatatable(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model) {
+
+		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
+		return DatatablesHelper.getDatatableResponse(
+				request,
+				null,
+				expedientDocumentService.findDocumentsExpedient(expedientId, paginacioParams),
+				"id");
+
+	}
+
+	@RequestMapping(value = "/{expedientId}/document/selection", method = RequestMethod.POST)
+	@ResponseBody
+	public Set<Long> documentSelection(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@RequestParam(value = "ids[]", required = false) Long[] ids,
+			@RequestParam(value = "method", required = false) String method,
+			Model model) {
+		return documentSelectionTipus(request, expedientId, null, ids, method, model);
+	}
+
+	@RequestMapping(value = "/{expedientId}/document/selection/{tipus}", method = RequestMethod.POST)
+	@ResponseBody
+	public Set<Long> documentSelectionTipus(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String tipus,
+			@RequestParam(value = "ids[]", required = false) Long[] ids,
+			@RequestParam(value = "method", required = false) String method,
+			Model model) {
+
+		SessionHelper.SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> seleccio = sessionManager.getSeleccioDocuments(expedientId);
+		if (seleccio == null) {
+			seleccio = new HashSet<Long>();
+			sessionManager.setSeleccioDocuments(expedientId,seleccio);
+		}
+
+		if ("selection".equalsIgnoreCase(tipus)) {
+			if ("add".equalsIgnoreCase(method) && ids != null) {
+				for (Long idu: ids) {
+					if (!seleccio.contains(idu)) {
+						seleccio.add(idu);
+					}
+				}
+			} else if ("remove".equalsIgnoreCase(method) && ids != null) {
+				for (Long idu: ids) {
+					if (seleccio.contains(idu)) {
+						seleccio.remove(idu);
+					}
+				}
+			}
+		} else if ("clear".equalsIgnoreCase(tipus)) {
+			seleccio.clear();
+		} else if ("all".equalsIgnoreCase(tipus)) {
+			seleccio.clear();
+			seleccio.addAll(expedientDocumentService.findIdsDocumentsByExpedient(expedientId));
+		}
+
+		sessionManager.setSeleccioDocuments(expedientId, seleccio);
+		return seleccio;
+	}
+
 	@RequestMapping(value = "/{expedientId}/document", method = RequestMethod.GET)
 	public String document(
 			HttpServletRequest request,
@@ -149,6 +228,19 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@RequestParam(defaultValue = "default") String sort,
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus())) {
+			model.addAttribute("expedient", expedient);
+			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
+			if (!NodecoHelper.isNodeco(request)) {
+				return mostrarInformacioExpedientPerPipella(
+						request,
+						expedientId,
+						model,
+						"documents");
+			}
+			return "v3/expedientDocumentList";
+		}
+
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
 		Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documents = new LinkedHashMap<InstanciaProcesDto, List<ExpedientDocumentDto>>();
 		List<PortasignaturesDto> portasignaturesPendent = expedientDocumentService.portasignaturesFindPendents(
@@ -209,12 +301,52 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return "v3/procesDocuments";
 	}
 
+	@RequestMapping(value = "/{expedientId}/document/{documentCodi}/new", method = RequestMethod.GET)
+	public String nouDocCodiGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String documentCodi,
+			Model model) {
+		ExpedientDto expedient = expedientService.findAmbId(expedientId);
+		DocumentDto document = documentService.findAmbCodi(expedient.getTipus().getId(), null, documentCodi, false);
+		DocumentExpedientCommand command = DocumentExpedientCommand.builder()
+				.expedientId(expedientId)
+				.data(new Date())
+				.validarArxius(true)
+				.codi(documentCodi)
+				.nom(document.getNom())
+				.ntiActiu(expedient.isNtiActiu())
+				.ntiOrigen(document.getNtiOrigen())
+				.ntiEstadoElaboracion(document.getNtiEstadoElaboracion())
+				.ntiTipoDocumental(document.getNtiTipoDocumental())
+				.generarPlantilla(document.isPlantilla())
+				.build();
+		model.addAttribute("documentExpedientCommand", command);
+		emplenarModelNti(expedientId, model);
+		model.addAttribute(
+				"tipusFirmaOptions",
+				EnumHelper.getOptionsForEnum(
+						DocumentTipusFirmaEnumDto.class,
+						"enum.document.tipus.firma."));
+		model.addAttribute("ambDocument", true);
+		return "v3/expedientDocumentForm";
+	}
+	@RequestMapping(value = "/{expedientId}/document/new", method = RequestMethod.GET)
+	public String documentNouGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model) {
+		return nouGet(request, expedientId, null, model);
+	}
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/new", method = RequestMethod.GET)
 	public String nouGet(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String processInstanceId,
 			Model model) {
+		if (processInstanceId == null) {
+			processInstanceId = expedientService.findAmbId(expedientId).getProcessInstanceId();
+		}
 		DocumentExpedientCommand command = new DocumentExpedientCommand();
 		command.setExpedientId(expedientId);
 		command.setData(new Date());
@@ -230,6 +362,28 @@ public class ExpedientDocumentController extends BaseExpedientController {
 						"enum.document.tipus.firma."));
 		return "v3/expedientDocumentForm";
 	}
+
+	@RequestMapping(value = "/{expedientId}/document/{documentCodi}/new", method = RequestMethod.POST)
+	public String nouDocCodiPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String documentCodi,
+			@Validated(Create.class) @ModelAttribute DocumentExpedientCommand command,
+			BindingResult bindingResult,
+			Model model) throws IOException {
+		command.setDocumentCodi(documentCodi);
+		model.addAttribute("ambDocument", true);
+		return nouPost(request, expedientId, null, command, bindingResult, model);
+	}
+	@RequestMapping(value="/{expedientId}/document/new", method = RequestMethod.POST)
+	public String nouPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@Validated(Create.class) @ModelAttribute DocumentExpedientCommand command,
+			BindingResult bindingResult,
+			Model model) throws IOException {
+		return nouPost(request, expedientId, null, command, bindingResult, model);
+	}
 	@RequestMapping(value="/{expedientId}/proces/{processInstanceId}/document/new", method = RequestMethod.POST)
 	public String nouPost(
 			HttpServletRequest request,
@@ -239,6 +393,9 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			BindingResult bindingResult,
 			Model model) throws IOException {
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		if (processInstanceId == null) {
+			processInstanceId = expedient.getProcessInstanceId();
+		}
 		command.setNtiActiu(expedient.isNtiActiu());
 		if (!bindingResult.hasErrors()) {
 			String documentCodi = null;
@@ -310,6 +467,14 @@ public class ExpedientDocumentController extends BaseExpedientController {
     	return "v3/expedientDocumentForm";
 	}
 
+	@RequestMapping(value = "/{expedientId}/document/{documentStoreId}/update", method = RequestMethod.GET)
+	public String updateDocGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long documentStoreId,
+			Model model) {
+		return updateGet(request, expedientId, null, documentStoreId, model);
+	}
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/update", method = RequestMethod.GET)
 	public String updateGet(
 			HttpServletRequest request,
@@ -317,6 +482,12 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable String processInstanceId,
 			@PathVariable Long documentStoreId,
 			Model model) {
+
+		if (processInstanceId == null) {
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+			processInstanceId = expedient.getProcessInstanceId();
+		}
+
 		ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
 				expedientId,
 				processInstanceId,
@@ -350,6 +521,16 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return "v3/expedientDocumentForm";
 	}
 
+	@RequestMapping(value="/{expedientId}/document/{documentStoreId}/update", method = RequestMethod.POST)
+	public String updateDocPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long documentStoreId,
+			@Validated(Update.class) @ModelAttribute DocumentExpedientCommand command,
+			BindingResult result,
+			Model model) throws IOException {
+		return updatePost(request, expedientId, null, documentStoreId, command, result, model);
+	}
 	@RequestMapping(value="/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/update", method = RequestMethod.POST)
 	public String updatePost(
 			HttpServletRequest request,
@@ -360,6 +541,9 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			BindingResult result,
 			Model model) throws IOException {
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		if (processInstanceId == null) {
+			processInstanceId = expedient.getProcessInstanceId();
+		}
 		command.setNtiActiu(expedient.isNtiActiu());
 		ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
     			expedientId,
@@ -440,8 +624,15 @@ public class ExpedientDocumentController extends BaseExpedientController {
     	return "v3/expedientDocumentForm";
 	}
 
-	
-	
+
+	@RequestMapping(value = "/{expedientId}/document/{documentStoreId}/notificar", method = RequestMethod.GET)
+	public String notificarGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long documentStoreId,
+			Model model) {
+		return notificarGet(request, expedientId, null, documentStoreId, model);
+	}
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/notificar", method = RequestMethod.GET)
 	public String notificarGet(
 			HttpServletRequest request,
@@ -449,6 +640,11 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable String processInstanceId,
 			@PathVariable Long documentStoreId,
 			Model model) {
+
+		if (processInstanceId == null) {
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+			processInstanceId = expedient.getProcessInstanceId();
+		}
 
 		DocumentNotificacioCommand command = new DocumentNotificacioCommand();
 		Calendar caducitat = new GregorianCalendar();
@@ -472,7 +668,17 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		}
 		return "v3/expedientDocumentNotificar";
 	}
-	
+
+	@RequestMapping(value="/{expedientId}/document/{documentStoreId}/notificar", method = RequestMethod.POST)
+	public String notificarDocPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long documentStoreId,
+			@Validated DocumentNotificacioCommand documentNotificacioCommand,
+			BindingResult result,
+			Model model) throws IOException {
+		return notificarPost(request, expedientId, null, documentStoreId, documentNotificacioCommand, result, model);
+	}
 	@RequestMapping(value="/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/notificar", method = RequestMethod.POST)
 	public String notificarPost(
 			HttpServletRequest request,
@@ -482,6 +688,12 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@Validated DocumentNotificacioCommand documentNotificacioCommand,
 			BindingResult result,
 			Model model) throws IOException {
+
+		if (processInstanceId == null) {
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+			processInstanceId = expedient.getProcessInstanceId();
+		}
+
 		if (result.hasErrors()) {
 			this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
 	    	return "v3/expedientDocumentNotificar";
@@ -586,6 +798,10 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable Long documentStoreId,
 			Model model) {
 		try {
+			if (processInstanceId == null) {
+				ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+				processInstanceId = expedient.getProcessInstanceId();
+			}
 			ArxiuDto arxiu = expedientDocumentService.arxiuFindAmbDocument(
 					expedientId,
 					processInstanceId,
@@ -601,6 +817,38 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			return "redirect:/v3/expedient/" + expedientId;
 		}
 		return "arxiuView";
+	}
+
+	@RequestMapping(value="/{expedientId}/document/{documentStoreId}/descarregar")
+	public String docDescarregar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long documentStoreId,
+			Model model) {
+		return descarregar(request, expedientId, null, documentStoreId, model);
+	}
+
+	@RequestMapping(value="/{expedientId}/document/{documentStoreId}/returnFitxer", method = RequestMethod.GET)
+	@ResponseBody
+	public JsonResponse docPrevisualitzacio(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long documentStoreId,
+			Model model) {
+		try {
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+			ArxiuDto arxiuPdf = expedientDocumentService.arxiuPdfFindAmbDocument(
+					expedientId,
+					expedient.getProcessInstanceId(),
+					documentStoreId);
+			return new JsonResponse(arxiuPdf);
+
+		} catch (SistemaExternException e) {
+			logger.error("Error descarregant i convertint fitxer", e);
+			MissatgesHelper.error(request, e.getPublicMessage());
+			model.addAttribute("pipellaActiva", "documents");
+			return new JsonResponse(true, e.getMessage());
+		}
 	}
 
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/metadadesNti", method = RequestMethod.GET)
@@ -748,6 +996,15 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return "arxiuView";
 	}
 
+	@RequestMapping(value = "/{expedientId}/document/{documentStoreId}/signatura/verificar", method = RequestMethod.GET)
+	public String verificarDocSignatura(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long documentStoreId,
+			@RequestParam(value = "urlVerificacioCustodia", required = false) final String urlVerificacioCustodia,
+			ModelMap model) throws ServletException {
+		return verificarSignatura(request, expedientId, null, documentStoreId, urlVerificacioCustodia, model);
+	}
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/signatura/verificar", method = RequestMethod.GET)
 	public String verificarSignatura(
 			HttpServletRequest request,
@@ -763,6 +1020,10 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				return "v3/utils/modalIframe";
 			}			
 			// Recupera la informació del document i la afegeix al model
+			if (processInstanceId == null) {
+				ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+				processInstanceId = expedient.getProcessInstanceId();
+			}
 			ExpedientDocumentDto ed = expedientDocumentService.findOneAmbInstanciaProces(
 					expedientId,
 					processInstanceId,
@@ -783,6 +1044,15 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	/** Mètode per redireccionar cal a la pàgina de verificació del CSV. Pot ser que el document no el tingui
 	 * ben informat i s'hagi de consultar a l'Arxiu. Si no es pot consultar s'ha de retornar un error.
 	 */
+	@RequestMapping(value = "/{expedientId}/document/{documentStoreId}/signatura/verificarCsv", method = RequestMethod.GET)
+	public String verificarDocCsv(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long documentStoreId,
+			@RequestParam(value = "csv", required = false) final String csv,
+			ModelMap model) throws ServletException {
+		return verificarCsv(request, expedientId, null, documentStoreId, csv, model);
+	}
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/signatura/verificarCsv", method = RequestMethod.GET)
 	public String verificarCsv(
 			HttpServletRequest request,
@@ -793,6 +1063,10 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			ModelMap model) throws ServletException {
 		String ret = "redirect:/v3/expedient/";
 		try {
+			if (processInstanceId == null) {
+				ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+				processInstanceId = expedient.getProcessInstanceId();
+			}
 			// La pròpia consulta actualtiza el CSV al documnet
 			expedientDocumentService.getArxiuDetall(
 					expedientId,
@@ -812,6 +1086,15 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	}
 
 
+	@RequestMapping(value = "/{expedientId}/document/{documentStoreId}/signatura/esborrar", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean signaturaDocEsborrar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long documentStoreId,
+			ModelMap model) throws ServletException {
+		return signaturaEsborrar(request, expedientId, null, documentStoreId, model);
+	}
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/signatura/esborrar", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean signaturaEsborrar(
@@ -866,11 +1149,30 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable String processInstanceId,
 			@PathVariable Long documentStoreId) {
 		Object psignaInfo = expedientDocumentService.findPortasignaturesInfo(expedientId, processInstanceId, documentStoreId);
-		
+
 		return psignaInfo;
 	}
 
 	/** Mètode per reintentar el processament del document que s'envia al porta signatures. */
+	@RequestMapping(
+			value="/{expedientId}/document/{documentStoreId}/psignaReintentar/{psignaId}",
+			method = RequestMethod.GET)
+	@ResponseBody
+	public boolean documentPsignaReintentar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long documentStoreId,
+			@PathVariable Integer psignaId,
+			Model model) {
+		boolean response = false;
+		if (pluginService.processarDocumentPendentPortasignatures(psignaId)) {
+			MissatgesHelper.success(request, getMessage(request, "expedient.psigna.reintentar.ok"));
+			return true;
+		} else {
+			MissatgesHelper.error(request, getMessage(request, "expedient.psigna.reintentar.error"));
+		}
+		return response;
+	}
 	@RequestMapping(
 			value="/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/psignaReintentar", 
 			method = RequestMethod.GET)

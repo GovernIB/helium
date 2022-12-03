@@ -126,6 +126,12 @@
 					if (plugin.settings.rowInfo) {
 						$('td:last-child', row).html('<a href="#" class="btn btn-default btn-sm"><span class="fa fa-caret-down"></span></a>')
 					}
+					if (plugin.settings.rowcolidNullclass) {
+						let rowId = data['id'];
+						if (rowId == null) {
+							$(row).addClass(plugin.settings.rowcolidNullclass);
+						}
+					}
 					if (plugin.settings.rowhrefTemplate) {
 						if (plugin.settings.rowhrefToggle)
 							$(row).attr('data-toggle', plugin.settings.rowhrefToggle);
@@ -423,15 +429,30 @@
 					}
 					
 					if(ids.length == 0) {
-						$.ajax({
-							type: 'GET',
-							url: 'selectionDp/clear',
-							data: { },
-							success: function(resposta) {
-								$(plugin.settings.selectionCounter).html(resposta.length);
-								window[$taula.data('id') + '_selected_ids'] = resposta;
-							}
-						});
+						if (plugin.settings.selectionUrlClear) {
+							$.ajax({
+								type: 'GET',
+								url: plugin.settings.selectionUrlClear,
+								data: { },
+								success: function(resposta) {
+									$(plugin.settings.selectionCounter).html(resposta.length);
+									window[$taula.data('id') + '_selected_ids'] = resposta;
+								}
+							});
+						} else {
+							$.ajax({
+								type: 'POST',
+								url: plugin.settings.selectionUrl,
+								data: {
+									"ids": ids,
+									"method": 'clear'
+								},
+								success: function(resposta) {
+									$(plugin.settings.selectionCounter).html(resposta.length);
+									window[$taula.data('id') + '_selected_ids'] = resposta;
+								}
+							});
+						}
 					}else {
 						editSelection(ids, 'add');
 					}
@@ -735,12 +756,14 @@
 					if (converter.indexOf('date') === 0 || converter.indexOf('time') != -1) {
 						var date = new Date(data);
 						var horaAmbFormat = "";
+						var horaMinutFormat = "";
 						var dataAmbFormat;
 						if (converter.indexOf('time') != -1) {
 							var hores = ("00" + date.getHours()).slice(-2);
 							var minuts = ("00" + date.getMinutes()).slice(-2);
 							var segons = ("00" + date.getSeconds()).slice(-2);
-							horaAmbFormat = hores + ":" + minuts + ":" + segons;
+							horaMinutFormat = hores + ":" + minuts;
+							horaAmbFormat = horaMinutFormat + ":" + segons;
 						}
 						if (converter.indexOf('date') === 0) {
 							var dia = ("00" + date.getDate()).slice(-2);
@@ -749,6 +772,9 @@
 							dataAmbFormat = dia + "/" + mes + "/" + any;
 							if (converter == 'datetime') {
 								dataAmbFormat += " " + horaAmbFormat;
+							}
+							if (converter == 'datetimeminute') {
+								dataAmbFormat += " " + horaMinutFormat;
 							}
 						} else {
 							dataAmbFormat = horaAmbFormat;

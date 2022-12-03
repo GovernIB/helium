@@ -5,15 +5,27 @@ package net.conselldemallorca.helium.v3.core.service;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.core.common.JbpmVars;
+import net.conselldemallorca.helium.v3.core.api.dto.*;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.CampFormProperties;
+import net.conselldemallorca.helium.v3.core.regles.ReglaHelper;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -49,24 +61,7 @@ import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuEstat;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
@@ -127,6 +122,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private DocumentHelperV3 documentHelperV3;
 	@Resource
 	private NotificacioHelper notificacioHelper;
+	@Resource
+	private ReglaHelper reglaHelper;
 
 	@Override
 	@Transactional
@@ -539,9 +536,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				false,
 				false,
 				false);
-		expedientHelper.comprovarInstanciaProces(
-				expedient,
-				processInstanceId);
+//		expedientHelper.comprovarInstanciaProces(
+//				expedient,
+//				processInstanceId);
 		if (processInstanceId == null) {
 			return documentHelper.findDocumentsPerInstanciaProces(
 					expedient.getProcessInstanceId());
@@ -554,7 +551,173 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		}
 	}
 
-	/**
+    @Override
+	@Transactional(readOnly = true)
+    public List<DocumentListDto> findDocumentsExpedient(Long expedientId, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
+		logger.debug("Consulta els documents de l'expedient' (expedientId=" + expedientId + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+		String processInstanceId = expedient.getProcessInstanceId();
+
+		List<Document> documentsTipusExpedient = documentRepository.findByExpedientTipusId(expedient.getTipus().getId());
+		List<ExpedientDocumentDto> documentsExpedient = findAmbInstanciaProces(expedientId, expedient.getProcessInstanceId());
+		List<PortasignaturesDto> documentsPsignaPendent = portasignaturesFindPendents(expedientId, expedient.getProcessInstanceId());
+		Map<String, CampFormProperties> documentsFormProperties = reglaHelper.getDocumentFormProperties(expedient.getTipus(), expedient.getEstat());
+
+		List<DocumentListDto> documents = new ArrayList<DocumentListDto>();
+		List<Long> documentIds = new ArrayList<Long>();
+
+		// Documents definits al tipus d'expedient
+		for (Document dTipExp: documentsTipusExpedient) {
+			ExpedientDocumentDto dExp = getDocumentExpedient(documentsExpedient, dTipExp.getCodi());
+			PortasignaturesDto dPsigna = dExp != null ? getDocumentPsignaPendent(documentsPsignaPendent, dExp.getId()) : null;
+			CampFormProperties documentFormProperties = documentsFormProperties.get(dTipExp.getCodi());
+			if (dExp != null)
+				documentIds.add(dExp.getId());
+
+			DocumentListDto document = null;
+			if (dExp == null) {
+				document = DocumentListDto.builder()
+						.codi(dTipExp.getCodi())
+						.nom(dTipExp.getNom())
+						.tipoDocumental(dTipExp.getNtiTipoDocumental())
+						.processInstanceId(processInstanceId)
+						.expedientId(expedientId)
+						.build();
+			} else {
+				document = toDocumentList(expedient, processInstanceId, dTipExp, dExp, dPsigna, documentFormProperties);
+			}
+			documents.add(document);
+		}
+
+		// Documents adjunts
+		for(ExpedientDocumentDto dExp: documentsExpedient) {
+			if (documentIds.contains(dExp.getId()))
+				continue;
+
+			PortasignaturesDto dPsigna = dExp != null ? getDocumentPsignaPendent(documentsPsignaPendent, dExp.getId()) : null;
+			CampFormProperties documentFormProperties = documentsFormProperties.get(dExp.getDocumentCodi());
+
+			DocumentListDto document = toDocumentList(expedient, processInstanceId, null, dExp, dPsigna, documentFormProperties);
+			documents.add(document);
+		}
+
+		List<OrdreDto> ordres = paginacioParams.getOrdres();
+		OrdreDto ordreDto = null;
+		OrdreDto ordreDto2 = null;
+
+		if (ordres != null && !ordres.isEmpty()) {
+			ordreDto = ordres.get(0);
+			if (ordres.size() > 1)
+				ordreDto2 = ordres.get(1);
+		}
+
+		final String ordre = ordreDto != null ? ordreDto.getCamp() : "nom";
+		final String ordre2 = ordreDto2 != null ? ordreDto2.getCamp() : null;
+		final OrdreDireccioDto direccio = ordreDto != null ? ordreDto.getDireccio() : OrdreDireccioDto.ASCENDENT;
+		final OrdreDireccioDto direccio2 = ordreDto2 != null ? ordreDto2.getDireccio() : null;
+
+		Collections.sort(documents, new Comparator<DocumentListDto>() {
+			@Override
+			public int compare(DocumentListDto o1, DocumentListDto o2) {
+				int result = compareDocByCamp(o1, o2, ordre);
+				if (result != 0 || ordre2 == null)
+					return OrdreDireccioDto.ASCENDENT.equals(direccio) ? result : -result;
+				result = compareDocByCamp(o1, o2, ordre2);
+				return OrdreDireccioDto.ASCENDENT.equals(direccio2) ? result : -result;
+			}
+		});
+
+		return documents;
+    }
+
+	private int compareDocByCamp(DocumentListDto o1, DocumentListDto o2, String camp) {
+		int result = 0;
+		if ("nom".equals(camp)) {
+			result = o1.getNom() == null ? -1 : o2.getNom() == null ? 1 : o1.getNom().toUpperCase().compareTo(o2.getNom().toUpperCase());
+		} else if ("tipoDocumental".equals(camp)) {
+			result = o1.getTipoDocumental() == null ? -1 : o2.getTipoDocumental() == null ? 1 : o1.getTipoDocumental().name().toUpperCase().compareTo(o2.getTipoDocumental().name().toUpperCase());
+		} else if ("dataCreacio".equals(camp)) {
+			result = o1.getDataCreacio() == null ? -1 : o2.getDataCreacio() == null ? 1 : o1.getDataCreacio().compareTo(o2.getDataCreacio());
+		} else if ("dataDocument".equals(camp)) {
+			result = o1.getDataDocument() == null ? -1 : o2.getDataDocument() == null ? 1 : o1.getDataDocument().compareTo(o2.getDataDocument());
+		}
+		return result;
+	}
+
+	private static DocumentListDto toDocumentList(Expedient expedient, String processInstanceId, Document dTipExp, ExpedientDocumentDto dExp, PortasignaturesDto dPsigna, CampFormProperties documentFormProperties) {
+		DocumentListDto document;
+		document = DocumentListDto.builder()
+				.id(dExp.getId())
+				.codi(dExp.getDocumentCodi())
+				.nom(dExp.isAdjunt() ? dExp.getAdjuntTitol() : dExp.getDocumentNom())
+				.dataCreacio(dExp.getDataCreacio())
+				.dataDocument(dExp.getDataDocument())
+				.tipoDocumental(dTipExp != null ? dTipExp.getNtiTipoDocumental() : dExp.getNtiTipoDocumental())
+				.processInstanceId(processInstanceId)
+				.expedientId(expedient.getId())
+				.adjunt(dExp.isAdjunt())
+				.extensio(dExp.getArxiuExtensio() != null ? dExp.getArxiuExtensio().toUpperCase() : null)
+				.signat(dExp.isSignat())
+				.notificable(dExp.isNotificable())
+				.notificat(dExp.isNotificat())
+				.arxiuActiu(dExp.isArxiuActiu())
+				.ntiActiu(expedient.isNtiActiu())
+				.registrat(dExp.isRegistrat())
+				.documentValid(dExp.isDocumentValid())
+				.psignaError(dPsigna != null ? dPsigna.isError() : false)
+				.signaturaUrlVerificacio(dExp.getSignaturaUrlVerificacio())
+				.psignaPendent(dPsigna != null)
+				.ntiCsv(dExp.getNtiCsv())
+//				.psignaEstat(dPsigna != null ? dPsigna.getEstat() : null)
+//				.psignaDocumentId(dPsigna != null ? dPsigna.getDocumentId() : null)
+//				.psignaDataEnviat(dPsigna != null ? dPsigna.getDataEnviat() : null)
+				.arxiuUuid(dExp.getArxiuUuid())
+				.expedientArxiuUuid(expedient.getArxiuUuid())
+				.deAnotacio(dExp.getAnotacioId() != null)
+				.anotacioId(dExp.getAnotacioId())
+				.anotacioIdentificador(dExp.getAnotacioIdentificador())
+				.error(dExp.getError())
+				.documentError(dExp.getDocumentError())
+//				.psignaInfo(dPsigna == null ? null : DocumentListPsignaDto.builder()
+//						.documentId(dPsigna.getDocumentId())
+//						.pendent(dPsigna.isPendent())
+//						.error(dPsigna.isError())
+//						.estat(dPsigna.getEstat())
+//						.dataEnviat(dPsigna.getDataEnviat())
+//						.dataProcessamentPrimer(dPsigna.getDataProcessamentPrimer())
+//						.dataProcessamentDarrer(dPsigna.getDataProcessamentDarrer())
+//						.errorProcessant(dPsigna.getErrorProcessant())
+//						.motiuRebuig(dPsigna.getMotiuRebuig())
+//						.build())
+				.visible(documentFormProperties != null ? documentFormProperties.isVisible() : true)
+				.editable(documentFormProperties != null ? documentFormProperties.isEditable() : true)
+				.obligatori(documentFormProperties != null ? documentFormProperties.isObligatori() : false)
+				.build();
+		return document;
+	}
+
+	private ExpedientDocumentDto getDocumentExpedient(List<ExpedientDocumentDto> documentsExpedient, String documentCodi) {
+		for(ExpedientDocumentDto docExpedient: documentsExpedient) {
+			if (docExpedient.getDocumentCodi() != null && docExpedient.getDocumentCodi().equals(documentCodi))
+				return docExpedient;
+		}
+		return null;
+	}
+
+	private PortasignaturesDto getDocumentPsignaPendent(List<PortasignaturesDto> documentsPsignaPendent, Long documentStoreId) {
+		for (PortasignaturesDto docPsigna: documentsPsignaPendent) {
+			if (docPsigna.getDocumentStoreId().equals(documentStoreId))
+				return docPsigna;
+		}
+		return null;
+	}
+
+    /**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -641,7 +804,19 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				false,
 				true);
 	}
-	
+
+	@Override
+	@Transactional(readOnly = true)
+	public ArxiuDto arxiuPdfFindAmbDocument(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId) {
+		ArxiuDto arxiuDto = arxiuFindAmbDocument(expedientId, processInstanceId, documentStoreId);
+		if ("application/pdf".equals(arxiuDto.getTipusMime()))
+			return arxiuDto;
+		return documentHelperV3.converteixPdf(arxiuDto);
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1369,6 +1544,36 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 					ex);
 		}
 		
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Set<Long> findIdsDocumentsByExpedient(Long expedientId) {
+		Set<Long> documentStoreIds = new HashSet<Long>();
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				new Permission[] {ExtendedPermission.READ});
+		Map<String, Object> variables = jbpmHelper.getProcessInstanceVariables(expedient.getProcessInstanceId());
+		if (variables != null) {
+			if (variables != null) {
+				variables.remove(JbpmVars.VAR_TASCA_VALIDADA);
+				variables.remove(JbpmVars.VAR_TASCA_DELEGACIO);
+				List<String> codisEsborrar = new ArrayList<String>();
+				for (String codi: variables.keySet()) {
+					if (!codi.startsWith(JbpmVars.PREFIX_DOCUMENT) && !codi.startsWith(JbpmVars.PREFIX_ADJUNT)) {
+						codisEsborrar.add(codi);
+					}
+				}
+				for (String codi: codisEsborrar)
+					variables.remove(codi);
+			}
+			for (String var: variables.keySet()) {
+				Long documentStoreId = (Long)variables.get(var);
+				if (documentStoreId != null)
+					documentStoreIds.add(documentStoreId);
+			}
+		}
+		return documentStoreIds;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientDocumentServiceImpl.class);

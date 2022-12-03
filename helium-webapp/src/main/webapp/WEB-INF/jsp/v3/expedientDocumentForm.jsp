@@ -6,7 +6,7 @@
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 
 <c:choose>
-	<c:when test="${empty document}"><
+	<c:when test="${empty document}">
 		<c:set var="titol"><spring:message code="expedient.document.afegir"/></c:set>
 		<c:set var="formAction">new</c:set>
 	</c:when>
@@ -15,11 +15,13 @@
 		<c:set var="formAction">update</c:set>
 	</c:otherwise>
 </c:choose>
+<c:if test="${not empty documentExpedientCommand.nom}">
+	<c:set var="titol">${titol}: ${documentExpedientCommand.nom}</c:set>
+</c:if>
 
 <html>
 <head>
 	<title>${titol}</title>
-	<hel:modalHead/>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
@@ -32,10 +34,11 @@
 	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
 	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
+	<hel:modalHead/>
 <style type="text/css">
 	.btn-file {position: relative; overflow: hidden;}
 	.btn-file input[type=file] {position: absolute; top: 0; right: 0; min-width: 100%; min-height: 100%; font-size: 100px; text-align: right; filter: alpha(opacity = 0); opacity: 0; outline: none; background: white; cursor: inherit; display: block;}
-	.col-xs-4 {width: 20%;}		
+	.col-xs-4 {width: 20%;}
 	.col-xs-8 {width: 80%;}
 	#s2id_estatId {width: 100% !important;}
 	.titol-missatge {
@@ -56,34 +59,26 @@
 </style>
 <script type="text/javascript">
 // <![CDATA[
-var dadesNti = [];
-<c:forEach items="${documentsNoUtilitzats}" var="d">
-dadesNti['${d.codi}'] = new Object();
-dadesNti['${d.codi}'].ntiOrigen = '${d.ntiOrigen}';
-dadesNti['${d.codi}'].ntiEstadoElaboracion = '${d.ntiEstadoElaboracion}';
-dadesNti['${d.codi}'].ntiTipoDocumental = '${d.ntiTipoDocumental}';
-dadesNti['${d.codi}'].plantilla = ${d.plantilla};
-</c:forEach>
-
+<c:if test="${not empty documentsNoUtilitzats}">
+	var dadesNti = [];
+	<c:forEach items="${documentsNoUtilitzats}" var="d">
+	dadesNti['${d.codi}'] = new Object();
+	dadesNti['${d.codi}'].ntiOrigen = '${d.ntiOrigen}';
+	dadesNti['${d.codi}'].ntiEstadoElaboracion = '${d.ntiEstadoElaboracion}';
+	dadesNti['${d.codi}'].ntiTipoDocumental = '${d.ntiTipoDocumental}';
+	dadesNti['${d.codi}'].plantilla = ${d.plantilla};
+	</c:forEach>
+</c:if>
 
 $(document).ready( function() {
-	
+
 	$('#arxiuNom').on('click', function() {
 		$('input[name=arxiu]').click();
 	});
 	$('#firmaNom').on('click', function() {
 		$('input[name=firma]').click();
 	});
-	$('#documentCodi').on('click', function() {
-		var valor = $(this).val();
-		if (valor == '##adjuntar_arxiu##') {
-			$("#titolArxiu").show();
-		} else {
-			$("#titolArxiu").hide();
-			$('#pipella-general a').click();
-		}
-	}).click();
-	
+
 	$('label[for=generarPlantilla]').append($('#generarPlantillaBtn'))
 	$('#generarPlantilla').change(function() {
 		if ($(this).prop('checked') == true) {
@@ -97,39 +92,66 @@ $(document).ready( function() {
 		}
 	}).change();
 
-	// Carrega dades nti per defecte
-	$('#documentCodi')
-		.select2({language: "${idioma}"})
-		.change(function() {
-			var documentCodi = $(this).val();
-			$('#generarPlantilla').closest('.form-group').hide();
-			$('#generarPlantilla').prop('checked', false).change();
-			
-			if (dadesNti[documentCodi]) {
-				$('#ntiOrigen').val(dadesNti[documentCodi].ntiOrigen).change();
-				$('#ntiEstadoElaboracion').val(dadesNti[documentCodi].ntiEstadoElaboracion).change();
-				$('#ntiTipoDocumental').val(dadesNti[documentCodi].ntiTipoDocumental).change();
-				if (dadesNti[documentCodi].plantilla) {
-					// Per documents tipus plantlilla mostra un enllaç a la generació de documents
-					var href = '<c:url value="/modal/v3/expedient/${expedientId}/proces/${document != null? document.processInstanceId : processInstanceId}/document/{documentCodi}/generar"/>';
-					href = href.replace("{documentCodi}", $('#documentCodi').val());
-					console.log(href);
-					$('#generarPlantillaBtn').attr('href', href);
-					$('#generarPlantilla').closest('.form-group').show();
-				}
+	<c:choose>
+	<c:when test="${ambDocument}">
+		$('#selDocument').hide();
+		$('#generarPlantilla').closest('.form-group').hide();
+		$('#generarPlantilla').prop('checked', false).change();
+		let generarPlantilla = ${documentExpedientCommand.generarPlantilla};
+		if (generarPlantilla) {
+			// Per documents tipus plantlilla mostra un enllaç a la generació de documents
+			var href = '<c:url value="/modal/v3/expedient/${expedientId}/proces/${document != null? document.processInstanceId : processInstanceId}/document/${documentExpedientCommand.codi}/generar"/>';
+			console.log(href);
+			$('#generarPlantillaBtn').attr('href', href);
+			$('#generarPlantilla').closest('.form-group').show();
+		}
+	</c:when>
+	<c:otherwise>
+		$('#documentCodi').on('click', function() {
+			var valor = $(this).val();
+			if (valor == '##adjuntar_arxiu##') {
+				$("#titolArxiu").show();
 			} else {
-				$('#ntiOrigen,#ntiEstadoElaboracion,ntiTipoDocumental').val('').change();			
+				$("#titolArxiu").hide();
+				$('#pipella-general a').click();
 			}
-		})
-		.change();
-	
+		}).click();
+
+		// Carrega dades nti per defecte
+		$('#documentCodi')
+			.select2({language: "${idioma}"})
+			.change(function() {
+				var documentCodi = $(this).val();
+				$('#generarPlantilla').closest('.form-group').hide();
+				$('#generarPlantilla').prop('checked', false).change();
+
+				if (dadesNti[documentCodi]) {
+					$('#ntiOrigen').val(dadesNti[documentCodi].ntiOrigen).change();
+					$('#ntiEstadoElaboracion').val(dadesNti[documentCodi].ntiEstadoElaboracion).change();
+					$('#ntiTipoDocumental').val(dadesNti[documentCodi].ntiTipoDocumental).change();
+					if (dadesNti[documentCodi].plantilla) {
+						// Per documents tipus plantlilla mostra un enllaç a la generació de documents
+						var href = '<c:url value="/modal/v3/expedient/${expedientId}/proces/${document != null? document.processInstanceId : processInstanceId}/document/{documentCodi}/generar"/>';
+						href = href.replace("{documentCodi}", $('#documentCodi').val());
+						console.log(href);
+						$('#generarPlantillaBtn').attr('href', href);
+						$('#generarPlantilla').closest('.form-group').show();
+					}
+				} else {
+					$('#ntiOrigen,#ntiEstadoElaboracion,ntiTipoDocumental').val('').change();
+				}
+			})
+			.change();
+	</c:otherwise>
+	</c:choose>
+
 	// Errors en les pipelles
 	$('.tab-pane').each(function() {
 		if ($('.has-error', this).length > 0) {
 			$('a[href="#' + $(this).attr('id') + '"]').append(' <span class="fa fa-exclamation-triangle text-danger"/>');
 		}
 	});
-	
+
 	$('input[type=checkbox][name=ambFirma]').on('change', function() {
 		if($(this).prop("checked") == true){
 			$('#input-firma').removeClass('hidden');
@@ -145,17 +167,17 @@ $(document).ready( function() {
 			$('#input-firma-arxiu').addClass('hidden');
 		}
 	});
-	
+
 	$('input[type=checkbox][name=ambFirma]').change();
 	$('input[type=radio][name=tipusFirma]:checked').change();
-	
+
 	$("#arxiu").change(function (){
 		$('#arxiuNom').val($(this).val().split('\\').pop());
 	});
 	$("#firma").change(function (){
 		$('#firmaNom').val($(this).val().split('\\').pop());
 	});
-}); 
+});
 
 function mostrarAmagarFile() {
 	$("#amagarFile").removeClass("hide");
@@ -173,11 +195,13 @@ function mostrarAmagarFile() {
 			<form:hidden path="docId"/>
 			<form:hidden path="expedientId"/>
 			<form:hidden path="validarArxius"/>
-			<form:hidden path="codi"/>			
+			<form:hidden path="codi"/>
+			<c:if test="${ambDocument}"><form:hidden path="documentCodi"/></c:if>
 			<input type="hidden" id="processInstanceId" name="processInstanceId" value="${document.processInstanceId}"/>
 			<input type="hidden" id="modificarArxiu" name="modificarArxiu" value="false"/>
-<c:choose>
-	<c:when test="${empty document}">
+<c:if test="${not ambDocument}">
+	<c:choose>
+		<c:when test="${empty document}">
 			<div id="selDocument" class="form-group">
 				<label class="control-label col-xs-5 obligatori" for="documentCodi">Document</label>
 				<div id="elDocument_controls" class="col-xs-7">
@@ -194,8 +218,8 @@ function mostrarAmagarFile() {
 					<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="documentCodi"/></p></c:if>
 				</div>
 			</div>
-	</c:when>
-	<c:otherwise>
+		</c:when>
+		<c:otherwise>
 			<h4 class="titol-missatge">
 				<label><c:choose><c:when test="${document.adjunt}">${document.adjuntTitol}</c:when><c:otherwise>${document.documentNom}</c:otherwise></c:choose></label>
  				<c:if test="${empty document.signaturaPortasignaturesId && not document.signat}">
@@ -204,8 +228,9 @@ function mostrarAmagarFile() {
 					</a>
 				</c:if>
 			</h4>
-	</c:otherwise>
-</c:choose>
+		</c:otherwise>
+	</c:choose>
+</c:if>
 			<c:if test="${expedient.ntiActiu}">
 				<div>
 					<ul class="nav nav-tabs" role="tablist">
@@ -216,7 +241,7 @@ function mostrarAmagarFile() {
 			</c:if>
 
 			<div class="tab-content">
-				<div id="dades-generals" class="tab-pane in active">	
+				<div id="dades-generals" class="tab-pane in active">
 					<div id="titolArxiu" style="display: ${document.adjunt ? "inline" : "none"}">
 						<hel:inputText required="true" name="nom" textKey="expedient.document.titol" placeholderKey="expedient.document.titol"/>
 					</div>
@@ -227,10 +252,10 @@ function mostrarAmagarFile() {
 						<div style="display: none;">
 							<a 	id="generarPlantillaBtn"
 								class="icon"
-								style="font-weight: bold;" 
-								title="<spring:message code='expedient.document.form.camp.generar.descarregar'/>" 
+								style="font-weight: bold;"
+								title="<spring:message code='expedient.document.form.camp.generar.descarregar'/>"
 								href="<c:url value="/modal/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.documentCodi}/generar"/>">
-			 					<i class="fa fa-file-text-o fa-sm"></i> 
+			 					<i class="fa fa-file-text-o fa-sm"></i>
 			 				</a>
 						</div>
 					</c:if>
@@ -271,9 +296,9 @@ function mostrarAmagarFile() {
 								</div>
 							</div>
 						</div>
-					</div>					
+					</div>
 				</div>
-				
+
 				<c:if test="${expedient.ntiActiu}">
 					<div id="dades-nti" class="tab-pane">
 						<hel:inputSelect name="ntiOrigen" textKey="document.metadades.nti.origen" optionItems="${ntiOrigen}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" comment="expedient.tipus.document.form.camp.nti.origen.comentari"/>
@@ -288,7 +313,7 @@ function mostrarAmagarFile() {
 <script type="text/javascript">mostrarAmagarFile();</script>
 		</c:if>
 		<div id="modal-botons" class="well">
-			<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.cancelar"/></button>
+			<button type="button" class="btn btn-default modal-tancar" data-modal-cancel="true" name="submit" value="cancel"><spring:message code="comu.boto.cancelar"/></button>
 <c:choose>
 	<c:when test="${empty document}">
 			<button class="btn btn-primary right" type="submit" name="accio" value="document_adjuntar">

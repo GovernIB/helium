@@ -3,14 +3,17 @@
  */
 package net.conselldemallorca.helium.v3.core.api.service;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
@@ -181,6 +184,7 @@ public interface ExpedientDocumentService {
 			Long expedientId,
 			String processInstanceId) throws NoTrobatException, PermisDenegatException;
 
+	public List<DocumentListDto> findDocumentsExpedient(Long expedientId, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException;
 	/**
 	 * Retorna un document d'una instància de procés de
 	 * l'expedient.
@@ -245,7 +249,8 @@ public interface ExpedientDocumentService {
 			Long expedientId,
 			String processInstanceId,
 			Long documentStoreId) throws NoTrobatException, PermisDenegatException;
-	
+
+	public ArxiuDto arxiuPdfFindAmbDocument(Long expedientId, String processInstanceId, Long documentStoreId);
 	/**
 	 * Retorna l'arxiu del document donat el seu documentStoreId.
 	 * 
@@ -439,5 +444,5 @@ public interface ExpedientDocumentService {
 			Long expedientId,
 			Long documentStoreId) throws NoTrobatException, PermisDenegatException;
 
-
+    public Set<Long> findIdsDocumentsByExpedient(Long expedientId);
 }

@@ -5,11 +5,13 @@ package net.conselldemallorca.helium.v3.core.ejb;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
@@ -144,7 +146,13 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 				processInstanceId);
 	}
 
-	@Override
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public List<DocumentListDto> findDocumentsExpedient(Long expedientId, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
+        return delegate.findDocumentsExpedient(expedientId, paginacioParams);
+    }
+
+    @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientDocumentDto findOneAmbInstanciaProces(
 			Long expedientId,
@@ -179,8 +187,14 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 				processInstanceId,
 				documentStoreId);
 	}
-	
-	@Override
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public ArxiuDto arxiuPdfFindAmbDocument(Long expedientId, String processInstanceId, Long documentStoreId) {
+        return delegate.arxiuPdfFindAmbDocument(expedientId, processInstanceId, documentStoreId);
+    }
+
+    @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuDto arxiuFindAmbDocumentStoreId(Long documentId) throws NoTrobatException {
 		return delegate.arxiuFindAmbDocumentStoreId(documentId);
@@ -337,4 +351,10 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	public void migrarArxiu(Long expedientId, Long documentStoreId) throws NoTrobatException, PermisDenegatException {
 		delegate.migrarArxiu(expedientId, documentStoreId);
 	}
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public Set<Long> findIdsDocumentsByExpedient(Long expedientId) {
+        return delegate.findIdsDocumentsByExpedient(expedientId);
+    }
 }

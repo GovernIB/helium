@@ -439,59 +439,98 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
    						expedientTipusService.estatDelete(estat.getId());
     			}
 
-				ObjectMapper mapper = new ObjectMapper();
-				mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-				mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-				List<EstatExportacio> estatExportacioList = mapper.readValue(command.getMultipartFile().getInputStream(), new TypeReference<List<EstatExportacio>>(){});
-    			for (EstatExportacio estatExportacio: estatExportacioList) {
-    					// Comprova que el codi sigui vàlid
-					if (! CodiValidator.isValid(estatExportacio.getCodi())) {
-    		        		MissatgesHelper.error(
-    		        				request,
-								getMessage(request, "expedient.tipus.estat.importar.controller.error.codi", new Object[]{estatExportacio.getCodi()}));
-						continue;
-					}
-
-					// Crear o actualitzar estat
-					EstatDto estat = expedientTipusService.estatFindAmbCodi(expedientTipusId, estatExportacio.getCodi());
-        					if (estat == null) {
-						EstatDto estatDto = EstatDto.builder()
-								.codi(estatExportacio.getCodi())
-								.nom(estatExportacio.getNom())
-								.ordre(estatExportacio.getOrdre())
-								.build();
-						estat = expedientTipusService.estatCreate(expedientTipusId, estatDto);
-        						insercions++;
-        					} else {
-						estat.setNom(estatExportacio.getNom());
-						estat.setOrdre(estatExportacio.getOrdre());
-        						expedientTipusService.estatUpdate(estat);
-        						actualitzacions++;
-        					}
-
-					// Crear o actualitzar regles
-					if (estatExportacio.getRegles() != null) {
-						for(EstatReglaDto reglaExportacio: estatExportacio.getRegles()) {
-							EstatReglaDto regla = expedientTipusService.estatReglaFindByNom(estat.getId(), reglaExportacio.getNom());
-							if (regla == null) {
-								expedientTipusService.estatReglaCreate(estat.getId(), reglaExportacio);
+				if (command.getMultipartFile().getOriginalFilename().toLowerCase().endsWith(".csv")) {
+					BufferedReader br = new BufferedReader(new InputStreamReader(command.getMultipartFile().getInputStream()));
+					String linia = br.readLine();
+					String codi;
+					String nom;
+					while (linia != null) {
+						String[] columnes = linia.contains(";") ? linia.split(";") : linia.split(",");
+						if (columnes.length > 1) {
+							codi = columnes[0];
+							// Comprova que el codi sigui vàlid
+							if (! CodiValidator.isValid(codi)) {
+								MissatgesHelper.error(
+										request,
+										getMessage(
+												request,
+												"expedient.tipus.estat.importar.controller.error.codi",
+												new Object[]{codi}));
 							} else {
-								reglaExportacio.setId(regla.getId());
-								expedientTipusService.estatReglaUpdate(estat.getId(), reglaExportacio);
+								// Completa la inserció o actualització
+								nom = columnes[1];
+								EstatDto estat = expedientTipusService.estatFindAmbCodi(expedientTipusId, codi);
+								if (estat == null) {
+									estat = new EstatDto();
+									estat.setCodi(codi);
+									estat.setNom(nom);
+									expedientTipusService.estatCreate(expedientTipusId, estat);
+									insercions++;
+								} else {
+									estat.setNom(nom);
+									expedientTipusService.estatUpdate(estat);
+									actualitzacions++;
+								}
+							}
+						}
+						linia = br.readLine();
+					}
+				} else {
+					ObjectMapper mapper = new ObjectMapper();
+					mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+					mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+					List<EstatExportacio> estatExportacioList = mapper.readValue(command.getMultipartFile().getInputStream(), new TypeReference<List<EstatExportacio>>() {
+					});
+					for (EstatExportacio estatExportacio : estatExportacioList) {
+						// Comprova que el codi sigui vàlid
+						if (!CodiValidator.isValid(estatExportacio.getCodi())) {
+							MissatgesHelper.error(
+									request,
+									getMessage(request, "expedient.tipus.estat.importar.controller.error.codi", new Object[]{estatExportacio.getCodi()}));
+							continue;
+						}
+
+						// Crear o actualitzar estat
+						EstatDto estat = expedientTipusService.estatFindAmbCodi(expedientTipusId, estatExportacio.getCodi());
+						if (estat == null) {
+							EstatDto estatDto = EstatDto.builder()
+									.codi(estatExportacio.getCodi())
+									.nom(estatExportacio.getNom())
+									.ordre(estatExportacio.getOrdre())
+									.build();
+							estat = expedientTipusService.estatCreate(expedientTipusId, estatDto);
+							insercions++;
+						} else {
+							estat.setNom(estatExportacio.getNom());
+							estat.setOrdre(estatExportacio.getOrdre());
+							expedientTipusService.estatUpdate(estat);
+							actualitzacions++;
+						}
+
+						// Crear o actualitzar regles
+						if (estatExportacio.getRegles() != null) {
+							for (EstatReglaDto reglaExportacio : estatExportacio.getRegles()) {
+								EstatReglaDto regla = expedientTipusService.estatReglaFindByNom(estat.getId(), reglaExportacio.getNom());
+								if (regla == null) {
+									expedientTipusService.estatReglaCreate(estat.getId(), reglaExportacio);
+								} else {
+									reglaExportacio.setId(regla.getId());
+									expedientTipusService.estatReglaUpdate(estat.getId(), reglaExportacio);
+								}
+							}
+						}
+
+						// Actualitzar permisos
+						if (estatExportacio.getPermisos() != null) {
+							for (PermisEstatDto permisExportacio : estatExportacio.getPermisos()) {
+								expedientTipusService.estatPermisUpdate(
+										estat.getId(),
+										conversioTipusHelper.convertir(permisExportacio, PermisDto.class));
 							}
 						}
 					}
-
-					// Actualitzar permisos
-					if (estatExportacio.getPermisos() != null) {
-						for (PermisEstatDto permisExportacio: estatExportacio.getPermisos()) {
-							expedientTipusService.estatPermisUpdate(
-									estat.getId(),
-									conversioTipusHelper.convertir(permisExportacio, PermisDto.class));
-    					}
-    				}
-    			}
+				}
         	} catch(Exception e) {
         		logger.error(e);
         		MissatgesHelper.error(

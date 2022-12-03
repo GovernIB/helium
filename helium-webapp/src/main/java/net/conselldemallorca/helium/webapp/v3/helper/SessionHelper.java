@@ -49,6 +49,7 @@ public class SessionHelper {
 	public static final String VARIABLE_FILTRE_CONSULTA_TIPUS = "filtreConsultaTipus";
 	public static final String VARIABLE_FILTRE_CONSULTA_TIPUS_PARAM = "filtreConsultaTipusParam";
 	public static final String VARIABLE_SELECCIO_MASSIVES = "seleccioMassives";
+	private static final String VARIABLE_SELECCIO_DOCUMENTS = "seleccioDocuments";
 
 	public static Object getAttribute(
 			HttpServletRequest request,
@@ -237,6 +238,24 @@ public class SessionHelper {
 					request,
 					VARIABLE_SELECCIO_CONSULTA_GENERAL,
 					seleccioConsultaGeneral);
+		}
+		public Set<Long> getSeleccioDocuments(Long expedientId) {
+			Map<Long,Set<Long>> mapaDocs = (Map<Long,Set<Long>>)getAttribute(
+					request,
+					VARIABLE_SELECCIO_DOCUMENTS);
+			return mapaDocs != null ? mapaDocs.get(expedientId) : null;
+		}
+		public void setSeleccioDocuments(Long expedientId, Set<Long> seleccioDocuments) {
+			Map<Long,Set<Long>> mapaDocs = (Map<Long,Set<Long>>)getAttribute(
+					request,
+					VARIABLE_SELECCIO_DOCUMENTS);
+			if (mapaDocs == null)
+				mapaDocs = new HashMap<Long, Set<Long>>();
+			mapaDocs.put(expedientId, seleccioDocuments);
+			setAttribute(
+					request,
+					VARIABLE_SELECCIO_DOCUMENTS,
+					mapaDocs);
 		}
 		@SuppressWarnings("unchecked")
 		public Set<Long> getSeleccioConsultaDpNoUtilitzades(Long expedientTipusId) {

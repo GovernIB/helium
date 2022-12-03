@@ -19,6 +19,9 @@
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/moment.js"/>"></script>
 	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
+	<script src="<c:url value="/js/webutil.common.js"/>"></script>
+	<script src="<c:url value="/js/helium.modal.js"/>"></script>
+	<script src="<c:url value="/js/webutil.modal.js"/>"></script>
 
 <style type="text/css">
 #expedient-info h3 {

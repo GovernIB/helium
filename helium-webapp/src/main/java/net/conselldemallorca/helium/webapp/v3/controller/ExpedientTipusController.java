@@ -1036,7 +1036,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	}
 	
 	
-	@RequestMapping(value = "/{id}/selectionDp/{global}")
+	@RequestMapping(value = "/{id}/selection/{global}")
 	@ResponseBody
 	public Set<Long> seleccioDp(
 			HttpServletRequest request,

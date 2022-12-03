@@ -50,15 +50,18 @@ public class ReglaHelper {
     private TerminiRepository terminiRepository;
 
     public Map<String, CampFormProperties> getCampFormProperties(ExpedientTipus expedientTipus, Estat estat) {
+        Map<String, CampFormProperties> campFormPropertiesMap = new HashMap<String, CampFormProperties>();
+        if (estat == null)
+            return campFormPropertiesMap;
 
-        List<EstatRegla> regles = estatReglaRepository.findByExpedientTipusAndEstat(expedientTipus, estat);
+        List<EstatRegla> regles = estatReglaRepository.findByEstatOrderByOrdreAsc(estat);
+        if (regles == null || regles.isEmpty())
+            return campFormPropertiesMap;
         List<Camp> dades = campRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus);
-        List<Document> documents = documentRepository.findByExpedientTipusId(expedientTipus.getId());
-        List<Termini> terminis = terminiRepository.findByExpedientTipus(expedientTipus.getId());
-
+        if (dades == null || dades.isEmpty())
+            return campFormPropertiesMap;
 
         String usuariCodi = SecurityContextHolder.getContext().getAuthentication().getName();
-
         Set<String> usuariRols = new HashSet<String>();
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         for (GrantedAuthority ga: auth.getAuthorities())
@@ -81,19 +84,13 @@ public class ReglaHelper {
 
         Facts facts = new Facts();
         for(EstatRegla regla: regles) {
-            QuiEnum qui = regla.getQui();
-            QueEnum que = regla.getQue();
-            AccioEnum accio = regla.getAccio();
-            Set<String> quiValors = regla.getQuiValor(); // getReglaValors(regla.getQuiValor());
-            Set<String> queValors = regla.getQueValor(); // getReglaValors(regla.getQueValor());
-
             for(Camp dada: dades) {
                 VariableFact variableFact = VariableFact.builder()
-                        .qui(qui)
-                        .quiValors(quiValors)
-                        .que(que)
-                        .queValors(queValors)
-                        .accio(accio)
+                        .qui(regla.getQui())
+                        .quiValors(regla.getQuiValor())
+                        .que(regla.getQue())
+                        .queValors(regla.getQueValor())
+                        .accio(regla.getAccio())
                         .usuariCodi(usuariCodi)
                         .usuariRols(usuariRols)
 //                        .usuariCarrecIds(usuariCarrecIds)
@@ -103,32 +100,90 @@ public class ReglaHelper {
                         .build();
                 facts.put(dada.getCodi(), variableFact);
             }
+        }
+
+        rulesEngine.fire(rules, facts);
+        while (facts.iterator().hasNext()) {
+            Map.Entry<String, Object> fact = facts.iterator().next();
+            campFormPropertiesMap.put(fact.getKey(), getCampFormProperties((VariableFact) fact.getValue()));
+        }
+        return campFormPropertiesMap;
+    }
+
+    public Map<String, CampFormProperties> getDocumentFormProperties(ExpedientTipus expedientTipus, Estat estat) {
+        Map<String, CampFormProperties> campFormPropertiesMap = new HashMap<String, CampFormProperties>();
+        if (estat == null)
+            return campFormPropertiesMap;
+
+        List<EstatRegla> regles = estatReglaRepository.findByEstatOrderByOrdreAsc(estat);
+        if (regles == null || regles.isEmpty())
+            return campFormPropertiesMap;
+        List<Document> documents = documentRepository.findByExpedientTipusId(expedientTipus.getId());
+        if (documents == null || documents.isEmpty())
+            return campFormPropertiesMap;
+
+        String usuariCodi = SecurityContextHolder.getContext().getAuthentication().getName();
+        Set<String> usuariRols = new HashSet<String>();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        for (GrantedAuthority ga: auth.getAuthorities())
+            usuariRols.add(ga.getAuthority());
+
+        Facts facts = new Facts();
+        for(EstatRegla regla: regles) {
             for(Document document: documents) {
                 VariableFact variableFact = VariableFact.builder()
                         .qui(regla.getQui())
-                        .quiValors(quiValors)
+                        .quiValors(regla.getQuiValor())
                         .que(regla.getQue())
-                        .queValors(queValors)
+                        .queValors(regla.getQueValor())
                         .accio(regla.getAccio())
                         .usuariCodi(usuariCodi)
                         .usuariRols(usuariRols)
-//                        .usuariCarrecIds(usuariCarrecIds)
                         .tipus(TipusVarEnum.DOCUMENT)
                         .varCodi(document.getCodi())
                         .agrupacioCodi(null)
                         .build();
                 facts.put(document.getCodi(), variableFact);
             }
+        }
+
+        rulesEngine.fire(rules, facts);
+        while (facts.iterator().hasNext()) {
+            Map.Entry<String, Object> fact = facts.iterator().next();
+            campFormPropertiesMap.put(fact.getKey(), getCampFormProperties((VariableFact) fact.getValue()));
+        }
+        return campFormPropertiesMap;
+    }
+
+    public Map<String, CampFormProperties> getTerminisFormProperties(ExpedientTipus expedientTipus, Estat estat) {
+        Map<String, CampFormProperties> campFormPropertiesMap = new HashMap<String, CampFormProperties>();
+        if (estat == null)
+            return campFormPropertiesMap;
+
+        List<EstatRegla> regles = estatReglaRepository.findByEstatOrderByOrdreAsc(estat);
+        if (regles == null || regles.isEmpty())
+            return campFormPropertiesMap;
+        List<Termini> terminis = terminiRepository.findByExpedientTipus(expedientTipus.getId());
+        if (terminis == null || terminis.isEmpty())
+            return campFormPropertiesMap;
+
+        String usuariCodi = SecurityContextHolder.getContext().getAuthentication().getName();
+        Set<String> usuariRols = new HashSet<String>();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        for (GrantedAuthority ga: auth.getAuthorities())
+            usuariRols.add(ga.getAuthority());
+
+        Facts facts = new Facts();
+        for(EstatRegla regla: regles) {
             for(Termini termini: terminis) {
                 VariableFact variableFact = VariableFact.builder()
                         .qui(regla.getQui())
-                        .quiValors(quiValors)
+                        .quiValors(regla.getQuiValor())
                         .que(regla.getQue())
-                        .queValors(queValors)
+                        .queValors(regla.getQueValor())
                         .accio(regla.getAccio())
                         .usuariCodi(usuariCodi)
                         .usuariRols(usuariRols)
-//                        .usuariCarrecIds(usuariCarrecIds)
                         .tipus(TipusVarEnum.TERMINI)
                         .varCodi(termini.getCodi())
                         .agrupacioCodi(null)
@@ -138,7 +193,6 @@ public class ReglaHelper {
         }
 
         rulesEngine.fire(rules, facts);
-        Map<String, CampFormProperties> campFormPropertiesMap = new HashMap<String, CampFormProperties>();
         while (facts.iterator().hasNext()) {
             Map.Entry<String, Object> fact = facts.iterator().next();
             campFormPropertiesMap.put(fact.getKey(), getCampFormProperties((VariableFact) fact.getValue()));
