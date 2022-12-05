@@ -21,6 +21,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatAccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.ExportException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -950,6 +951,123 @@ public interface ExpedientTipusService {
 
 	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// ACCIONS DELS ESTATS
+
+	/** 
+	 * Retorna la relació d'accions per un estat paginada per la datatable.
+	 * 
+	 * @param estatId
+	 * 
+	 * @param filtre
+	 *            Text per a filtrar els resultats.
+	 * @param paginacioParams
+	 *            Paràmetres per a la paginació dels resultats.
+	 * @return La pàgina de la llistat de tipus d'expedients.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public PaginaDto<EstatAccioDto> estatAccioEntradaFindPerDatatable(
+			Long estatId, 
+			String filtre, 
+			PaginacioParamsDto paginacioParams);
+	
+	/**
+	 * Afegeix una acció a l'entrada d'un estat.
+	 *
+	 * @param estatId
+	 *            Atribut id de l'estat.
+	 * @param accioId
+	 *            Identificador de l'estat.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat l'estat amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public EstatAccioDto estatAccioEntradaAfegir(Long estatId, Long accioId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Esborra la relació estat-acció de la llista d'accions d'entrada de l'estat.
+	 *
+	 * @param estatId
+	 *            Atribut id de l'estat.
+	 * @param estatAccioId
+	 *            Identificador de la relació entre l'estat i l'acció.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat l'estat amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public void estatAccioEntradaDelete(Long estatId, Long estatAccioId);
+
+	/**
+	 * Canvia una acció de la llista d'accions d'entrada de l'estat.
+	 * @param estatAccioId	Identificador de la relació d'estat i acció d'entrada.
+	 * @param posicio	Posició on situar la regla
+	 * @return
+	 * @throws NoTrobatException	Si no es troba l'estat-acció
+	 */
+	public boolean estatAccioEntradaMoure(Long estatAccioId, int posicio);
+
+	
+	/** 
+	 * Retorna la relació d'accions per un estat paginada per la datatable.
+	 * 
+	 * @param estatId
+	 * 
+	 * @param filtre
+	 *            Text per a filtrar els resultats.
+	 * @param paginacioParams
+	 *            Paràmetres per a la paginació dels resultats.
+	 * @return La pàgina de la llistat de tipus d'expedients.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public PaginaDto<EstatAccioDto> estatAccioSortidaFindPerDatatable(
+			Long estatId, 
+			String filtre, 
+			PaginacioParamsDto paginacioParams);
+	
+	/**
+	 * Afegeix una acció a l'sortida d'un estat.
+	 *
+	 * @param estatId
+	 *            Atribut id de l'estat.
+	 * @param accioId
+	 *            Identificador de l'estat.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat l'estat amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public EstatAccioDto estatAccioSortidaAfegir(Long estatId, Long accioId) throws NoTrobatException, PermisDenegatException;
+
+	/**
+	 * Esborra la relació estat-acció de la llista d'accions d'sortida de l'estat.
+	 *
+	 * @param estatId
+	 *            Atribut id de l'estat.
+	 * @param estatAccioId
+	 *            Identificador de la relació entre l'estat i l'acció.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat l'estat amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public void estatAccioSortidaDelete(Long estatId, Long estatAccioId);
+
+	/**
+	 * Canvia una acció de la llista d'accions d'sortida de l'estat.
+	 * @param estatAccioId	Identificador de la relació d'estat i acció d'sortida.
+	 * @param posicio	Posició on situar la regla
+	 * @return
+	 * @throws NoTrobatException	Si no es troba l'estat-acció
+	 */
+	public boolean estatAccioSortidaMoure(Long estatAccioId, int posicio);
+
+	
 	/**
 	 * Crea una nova consulta.
 	 * 
@@ -1428,5 +1546,6 @@ public interface ExpedientTipusService {
 			Long expedientTipusId, 
 			boolean pinbalActiu,
 			String pinbalNifCif);
+
 
 }

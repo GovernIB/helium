@@ -10,8 +10,6 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
-import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
-import net.conselldemallorca.helium.v3.core.api.exportacio.EstatExportacio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
@@ -33,9 +31,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatAccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.ExportException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exportacio.EstatExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacioCommandDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
@@ -480,6 +481,58 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
         return delegate.estatReglaMoure(reglaId, posicio);
     }
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PaginaDto<EstatAccioDto> estatAccioEntradaFindPerDatatable(Long estatId, String filtre,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException {
+		return delegate.estatAccioEntradaFindPerDatatable(estatId, filtre, paginacioParams);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public EstatAccioDto estatAccioEntradaAfegir(Long estatId, Long accioId)
+			throws NoTrobatException, PermisDenegatException {
+		return delegate.estatAccioEntradaAfegir(estatId, accioId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void estatAccioEntradaDelete(Long estatId, Long estatAccioId) {
+		delegate.estatAccioEntradaDelete(estatId, estatAccioId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean estatAccioEntradaMoure(Long estatAccioId, int posicio) {
+		return delegate.estatAccioEntradaMoure(estatAccioId, posicio);
+	}
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PaginaDto<EstatAccioDto> estatAccioSortidaFindPerDatatable(Long estatId, String filtre,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException {
+		return delegate.estatAccioSortidaFindPerDatatable(estatId, filtre, paginacioParams);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public EstatAccioDto estatAccioSortidaAfegir(Long estatId, Long accioId)
+			throws NoTrobatException, PermisDenegatException {
+		return delegate.estatAccioSortidaAfegir(estatId, accioId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void estatAccioSortidaDelete(Long estatId, Long estatAccioId) {
+		delegate.estatAccioSortidaDelete(estatId, estatAccioId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean estatAccioSortidaMoure(Long estatAccioId, int posicio) {
+		return delegate.estatAccioSortidaMoure(estatAccioId, posicio);
+	}
+
+	
     @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ReassignacioDto reassignacioCreate(Long expedientTipusId, ReassignacioDto reassignacio) throws PermisDenegatException {
@@ -828,7 +881,5 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			PaginacioParamsDto paginacioParams) {
 		return delegate.findTipologiesByFiltrePaginat(entornId, filtreDto, paginacioParams);
 		
-	}
-
-	
+	}	
 }

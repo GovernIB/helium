@@ -74,14 +74,15 @@
 							<a href="${expedientTipus.id}/estat/{{:id}}/regles" data-maximized="true" data-toggle="" class="btn btn-default"><span class="fa fa-eye-slash"></span>&nbsp;<spring:message code="expedient.tipus.estat.llistat.accio.regles"/>&nbsp;<span class="badge">{{:reglesCount}}</span></a>
 						</script>
 					</th>
-					<th data-col-name="reglesCount" data-template="#cellAccionsTemplate" data-orderable="false" width="13%">
+					<th data-col-name="id" data-template="#cellAccionsTemplate" data-orderable="false" width="13%">
 						<script id="cellAccionsTemplate" type="text/x-jsrender">
 							<a href="${expedientTipus.id}/estat/{{:id}}/accions" data-maximized="true" data-toggle="modal" class="btn btn-default">
+								<span class="badge">
+										<span class="fa fa-sign-in"/> {{:accionsEntradaCount}}
+								</span>
 								<span class="fa fa-bolt"></span>&nbsp;<spring:message code="expedient.tipus.estat.llistat.accio.accions"/>&nbsp;
 								<span class="badge">
-										<span class="fa fa-sign-in"/> {{:reglesCount}}
- 										&nbsp;
-										<span class="fa fa-sign-out"/> {{:reglesCount}}
+										<span class="fa fa-sign-out"/> {{:accionsSortidaCount}}
 								</span>
 							</a>
 						</script>
@@ -105,6 +106,8 @@
 						</div>
 					</script>
 					</th>
+					<th data-col-name="accionsEntradaCount" data-visible="false"/>
+					<th data-col-name="accionsSortidaCount" data-visible="false"/>
 					<th data-col-name="sobreescriu" data-visible="false"/>
 					<th data-col-name="heretat" data-visible="false"/>
 				</tr>

@@ -32,6 +32,8 @@ public class EstatDto extends HeretableDto implements Serializable {
 
 	private int permisCount = 0;
 	private int reglesCount = 0;
+	private int accionsEntradaCount = 0;
+	private int accionsSortidaCount = 0;
 
 	public EstatDto(Long id, String codi, String nom) {
 		super();

@@ -17,10 +17,6 @@ import java.util.TreeSet;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.core.model.hibernate.*;
-import net.conselldemallorca.helium.v3.core.api.dto.*;
-import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
-import net.conselldemallorca.helium.v3.core.repository.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -51,14 +47,65 @@ import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
+import net.conselldemallorca.helium.core.model.hibernate.Accio;
+import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
+import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
+import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
+import net.conselldemallorca.helium.core.model.hibernate.Consulta;
+import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusParamConsultaCamp;
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
+import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Domini.TipusDomini;
+import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
+import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
+import net.conselldemallorca.helium.core.model.hibernate.Estat;
+import net.conselldemallorca.helium.core.model.hibernate.EstatAccioEntrada;
+import net.conselldemallorca.helium.core.model.hibernate.EstatAccioSortida;
+import net.conselldemallorca.helium.core.model.hibernate.EstatRegla;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
+import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
+import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
+import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
+import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
+import net.conselldemallorca.helium.core.model.hibernate.Tasca;
+import net.conselldemallorca.helium.core.model.hibernate.Termini;
+import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusFiltreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisEstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
+import net.conselldemallorca.helium.v3.core.api.dto.SequenciaDefaultAnyDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatAccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.DeploymentException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExportException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -84,6 +131,31 @@ import net.conselldemallorca.helium.v3.core.api.exportacio.TerminiExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ValidacioExportacio;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
+import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
+import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampRegistreRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampValidacioRepository;
+import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
+import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
+import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
+import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
+import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
+import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepository;
+import net.conselldemallorca.helium.v3.core.repository.EstatAccioEntradaRepository;
+import net.conselldemallorca.helium.v3.core.repository.EstatAccioSortidaRepository;
+import net.conselldemallorca.helium.v3.core.repository.EstatReglaRepository;
+import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
+import net.conselldemallorca.helium.v3.core.repository.MapeigSistraRepository;
+import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
+import net.conselldemallorca.helium.v3.core.repository.SequenciaAnyRepository;
+import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
 
 /**
  * Implementació del servei per a gestionar tipus d'expedients.
@@ -143,6 +215,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private AnotacioRepository anotacioRepository;
 	@Resource
 	private EstatReglaRepository estatReglaRepository;
+	@Resource
+	private EstatAccioEntradaRepository estatAccioEntradaRepository;
+	@Resource
+	private EstatAccioSortidaRepository estatAccioSortidaRepository;
 
 	@Resource
 	private ExpedientHelper expedientHelper;
@@ -2501,6 +2577,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			List<PermisDto> permisosEstat = permisos.get(dto.getId());
 			dto.setPermisCount(permisosEstat != null ? permisosEstat.size() : 0);
 			dto.setReglesCount(estatReglaRepository.countByEstatId(dto.getId()).intValue());
+			dto.setAccionsEntradaCount(estatAccioEntradaRepository.countByEstatId(dto.getId()).intValue());
+			dto.setAccionsSortidaCount(estatAccioSortidaRepository.countByEstatId(dto.getId()).intValue());
 		}
 
 		if (ambHerencia) {
@@ -2862,7 +2940,161 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		}
 		return ret;
 	}
+	
+	
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<EstatAccioDto> estatAccioEntradaFindPerDatatable(Long estatId, String filtre,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException {
+		logger.debug(
+				"Consultant les accions per l'estat per datatable (" +
+				"estatId=" + estatId + ", " +
+				"filtre=" + filtre + ")");
+						
+		
+		return paginacioHelper.toPaginaDto(
+				estatAccioEntradaRepository.findByFiltrePaginat(
+						estatId,
+						filtre == null || "".equals(filtre), 
+						filtre, 
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams)),
+				EstatAccioDto.class);	
+	}
+	
+	@Override
+	@Transactional
+	public EstatAccioDto estatAccioEntradaAfegir(Long estatId, Long accioId) throws NoTrobatException, PermisDenegatException {
+		Estat estat = estatRepository.findOne(estatId);
+		Accio accio = accioRepository.findOne(accioId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		Integer seguentOrdre = estatAccioEntradaRepository.getSeguentOrdre(estatId);
+		seguentOrdre = seguentOrdre == null ? 0 : seguentOrdre + 1;
+		EstatAccioEntrada estatAccioEntrada = EstatAccioEntrada.builder()
+				.estat(estat)
+				.accio(accio)
+				.ordre(seguentOrdre)
+				.build();
+		return conversioTipusHelper.convertir(
+				estatAccioEntradaRepository.save(estatAccioEntrada), 
+				EstatAccioDto.class);
+	}
+	
+	@Override
+	@Transactional
+	public void estatAccioEntradaDelete(Long estatId, Long estatAccioId) throws NoTrobatException, PermisDenegatException {
+		Estat estat = estatRepository.findOne(estatId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		EstatAccioEntrada estatAccioEntrada = estatAccioEntradaRepository.findOne(estatAccioId);
+		if (estatAccioEntrada == null)
+			throw new NoTrobatException(EstatAccioEntrada.class, estatAccioId);
 
+		estatAccioEntradaRepository.delete(estatAccioEntrada);
+		estatAccioEntradaRepository.flush();
+		// Reordena els estats
+		List<EstatAccioEntrada> estatAccions = estatAccioEntradaRepository.findByEstatOrderByOrdreAsc(estat);
+		int i = 0;
+		for (EstatAccioEntrada ea : estatAccions)
+			ea.setOrdre(i++);
+	}
+
+	@Override
+	@Transactional
+	public boolean estatAccioEntradaMoure(
+			Long estatAccioId, 
+			int posicio) {
+		boolean ret = false;
+		EstatAccioEntrada estatAccio = estatAccioEntradaRepository.findOne(estatAccioId);
+		if (estatAccio != null) {
+			List<EstatAccioEntrada> estatAccions = estatAccioEntradaRepository.findByEstatOrderByOrdreAsc(estatAccio.getEstat());
+			if(posicio != estatAccions.indexOf(estatAccio)) {
+				estatAccions.remove(estatAccio);
+				estatAccions.add(posicio, estatAccio);
+				int i = 0;
+				for (EstatAccioEntrada c : estatAccions) {
+					c.setOrdre(i++);
+				}
+			}
+		}
+		return ret;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<EstatAccioDto> estatAccioSortidaFindPerDatatable(Long estatId, String filtre,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException {
+		logger.debug(
+				"Consultant les accions per l'estat per datatable (" +
+				"estatId=" + estatId + ", " +
+				"filtre=" + filtre + ")");
+						
+		
+		return paginacioHelper.toPaginaDto(
+				estatAccioSortidaRepository.findByFiltrePaginat(
+						estatId,
+						filtre == null || "".equals(filtre), 
+						filtre, 
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams)),
+				EstatAccioDto.class);	
+	}
+	
+	@Override
+	@Transactional
+	public EstatAccioDto estatAccioSortidaAfegir(Long estatId, Long accioId) throws NoTrobatException, PermisDenegatException {
+		Estat estat = estatRepository.findOne(estatId);
+		Accio accio = accioRepository.findOne(accioId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		Integer seguentOrdre = estatAccioSortidaRepository.getSeguentOrdre(estatId);
+		seguentOrdre = seguentOrdre == null ? 0 : seguentOrdre + 1;
+		EstatAccioSortida estatAccioSortida = EstatAccioSortida.builder()
+				.estat(estat)
+				.accio(accio)
+				.ordre(seguentOrdre)
+				.build();
+		return conversioTipusHelper.convertir(
+				estatAccioSortidaRepository.save(estatAccioSortida), 
+				EstatAccioDto.class);
+	}
+	
+	@Override
+	@Transactional
+	public void estatAccioSortidaDelete(Long estatId, Long estatAccioId) throws NoTrobatException, PermisDenegatException {
+		Estat estat = estatRepository.findOne(estatId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		EstatAccioSortida estatAccioSortida = estatAccioSortidaRepository.findOne(estatAccioId);
+		if (estatAccioSortida == null)
+			throw new NoTrobatException(EstatAccioSortida.class, estatAccioId);
+
+		estatAccioSortidaRepository.delete(estatAccioSortida);
+		estatAccioSortidaRepository.flush();
+		// Reordena els estats
+		List<EstatAccioSortida> estatAccions = estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estat);
+		int i = 0;
+		for (EstatAccioSortida ea : estatAccions)
+			ea.setOrdre(i++);
+	}
+
+	@Override
+	@Transactional
+	public boolean estatAccioSortidaMoure(
+			Long estatAccioId, 
+			int posicio) {
+		boolean ret = false;
+		EstatAccioSortida estatAccio = estatAccioSortidaRepository.findOne(estatAccioId);
+		if (estatAccio != null) {
+			List<EstatAccioSortida> estatAccions = estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estatAccio.getEstat());
+			if(posicio != estatAccions.indexOf(estatAccio)) {
+				estatAccions.remove(estatAccio);
+				estatAccions.add(posicio, estatAccio);
+				int i = 0;
+				for (EstatAccioSortida c : estatAccions) {
+					c.setOrdre(i++);
+				}
+			}
+		}
+		return ret;
+	}
 
 	@Override
 	@Transactional
@@ -4169,5 +4401,4 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 								paginacioParams)),
 				ExpedientTipusDto.class);
 		}
-
 }
