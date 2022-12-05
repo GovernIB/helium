@@ -25,7 +25,6 @@ import net.conselldemallorca.helium.v3.core.regles.ReglaHelper;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -668,21 +667,22 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				.arxiuActiu(dExp.isArxiuActiu())
 				.ntiActiu(expedient.isNtiActiu())
 				.registrat(dExp.isRegistrat())
-				.documentValid(dExp.isDocumentValid())
-				.psignaError(dPsigna != null ? dPsigna.isError() : false)
-				.signaturaUrlVerificacio(dExp.getSignaturaUrlVerificacio())
-				.psignaPendent(dPsigna != null)
+				.docValid(dExp.isDocumentValid())
+				.psError(dPsigna != null ? dPsigna.isError() : false)
+				.signUrlVer(dExp.getSignaturaUrlVerificacio())
+				.psPendent(dPsigna != null)
 				.ntiCsv(dExp.getNtiCsv())
-//				.psignaEstat(dPsigna != null ? dPsigna.getEstat() : null)
+				.psEstat(dPsigna != null ? dPsigna.getEstat() : null)
+				.psDocId(dPsigna != null ? dPsigna.getDocumentId() : null)
 //				.psignaDocumentId(dPsigna != null ? dPsigna.getDocumentId() : null)
 //				.psignaDataEnviat(dPsigna != null ? dPsigna.getDataEnviat() : null)
 				.arxiuUuid(dExp.getArxiuUuid())
-				.expedientArxiuUuid(expedient.getArxiuUuid())
-				.deAnotacio(dExp.getAnotacioId() != null)
+				.expUuid(expedient.getArxiuUuid())
+//				.deAnotacio(dExp.getAnotacioId() != null)
 				.anotacioId(dExp.getAnotacioId())
-				.anotacioIdentificador(dExp.getAnotacioIdentificador())
+				.anotacioIdf(dExp.getAnotacioIdentificador())
 				.error(dExp.getError())
-				.documentError(dExp.getDocumentError())
+				.docError(dExp.getDocumentError())
 //				.psignaInfo(dPsigna == null ? null : DocumentListPsignaDto.builder()
 //						.documentId(dPsigna.getDocumentId())
 //						.pendent(dPsigna.isPendent())

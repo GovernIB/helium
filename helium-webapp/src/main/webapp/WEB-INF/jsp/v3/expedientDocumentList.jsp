@@ -33,7 +33,7 @@
 					$(element).click((e) => {
 						const documentId = $(element).find(".accionsDocument").first().data("documentId");
 						const documentNom = escape($(element).find("td:eq(1)").text().trim());
-						const documentArxivat = $(element).find(".accionsDocument").first().data("arxivat");
+						// const documentArxivat = $(element).find(".accionsDocument").first().data("arxivat");
 						showViewer(e, documentId, documentNom);
 					})
 				}
@@ -101,7 +101,7 @@
 		  data-url="${urlDatatable}"
 		  data-paging-enabled="false"
 		  data-ordering="true"
-		  data-default-order="14"
+		  data-default-order="24"
 		  data-info-type="search+button"
 		  data-rowcolid-nullclass="no-data"
 		  data-selection-enabled="true"
@@ -114,22 +114,25 @@
 		<th data-col-name="id" data-visible="false"/>
 		<th data-col-name="codi" data-visible="false"/>
 		<th data-col-name="error" data-visible="false"/>
+		<th data-col-name="docError" data-visible="false"/>
 		<th data-col-name="adjunt" data-visible="false"/>
 		<th data-col-name="signat" data-visible="false"/>
-		<th data-col-name="signaturaUrlVerificacio" data-visible="false"/>
+		<th data-col-name="signUrlVer" data-visible="false"/>
 		<th data-col-name="arxiuActiu" data-visible="false"/>
 		<th data-col-name="ntiCsv" data-visible="false"/>
 		<th data-col-name="registrat" data-visible="false"/>
-		<th data-col-name="documentValid" data-visible="false"/>
-		<th data-col-name="arxivat" data-visible="false"/>
+		<th data-col-name="docValid" data-visible="false"/>
 		<th data-col-name="notificable" data-visible="false"/>
-		<th data-col-name="psignaPendent" data-visible="false"/>
-		<th data-col-name="psignaError" data-visible="false"/>
+		<th data-col-name="psPendent" data-visible="false"/>
+		<th data-col-name="psError" data-visible="false"/>
+		<th data-col-name="psEstat" data-visible="false"/>
+		<th data-col-name="psDocId" data-visible="false"/>
 		<th data-col-name="ntiActiu" data-visible="false"/>
+		<th data-col-name="arxiuUuid" data-visible="false"/>
+		<th data-col-name="expUuid" data-visible="false"/>
 		<th data-col-name="notificat" data-visible="false"/>
-		<th data-col-name="deAnotacio" data-visible="false"/>
 		<th data-col-name="anotacioId" data-visible="false"/>
-		<th data-col-name="anotacioIdentificador" data-visible="false"/>
+		<th data-col-name="anotacioIdf" data-visible="false"/>
 		<th data-col-name="extensio" data-visible="false"/>
 		<th data-col-name="editable" data-visible="false"/>
 		<th data-col-name="nom" data-orderable="true" width="54%" data-template="#cellNomTemplate">
@@ -139,7 +142,7 @@
 					<span class="fa fa-2x fa-file-o nodoc-icon"></span>
 					{{:nom}}
 				{{else error}}
-					<span class="fa-stack fa-1x no-doc" title="${document.error}">
+					<span class="fa-stack fa-1x no-doc" title="{{:docError}}">
 						<span class="fa fa-file fa-stack-2x doc-error"></span>
 						<span class="fa fa-warning fa-inverse fa-stack-1x doc-error-icon"></span>
 					</span>
@@ -151,42 +154,43 @@
 					<span class="extensionIcon">{{:extensio}}</span>
 					{{:nom}}
 					<%--Notificable--%>
-					{{if notificable}}<span class="label label-default label-doc" title="<spring:message code='expedient.document.notificable'/>"><span class="fa fa-paper-plane-o"></span></span>{{/if}}
+					{{if notificable && !notificat}}<span id="notificable_{{:id}}" class="label label-default label-doc" title="<spring:message code='expedient.document.notificable'/>"><span class="fa fa-paper-plane-o"></span></span>{{/if}}
 					<%--Signat     --%>
-					{{if signat}}
-						{{if !arxiuActiu}}
-							{{if signaturaUrlVerificacio != null}}
-								<a href="{{:signaturaUrlVerificacio}}" target="_blank"><span class="fa fa-certificate"></span>&nbsp;<spring:message code="expedient.document.signat"/></a>
+					{{if signat}}<span id="signat_{{:id}}" class="label label-primary label-doc" title="<spring:message code='expedient.document.signat'/>"><span class="fa fa-certificate"></span></span>{{/if}}
+					<%--Registrat  --%>
+					{{if registrat}}<span id="signat_{{:id}}" class="label label-success label-doc" title="<spring:message code='expedient.document.registrat'/>"><span class="fa fa-book"></span></span>{{/if}}
+					<%--Portafirmes--%>
+					{{if psPendent}}
+						{{if psError}}
+							{{if psEstat == "PROCESSAT"}}
+								<span id="psigna_{{:id}}" class="label label-danger label-doc" title="<spring:message code='expedient.document.rebutjat.psigna.error'/>"><spring:message code="expedient.document.info.etiqueta.psigna"/> <span class="fa fa-exclamation-triangle></span></span>
 							{{else}}
-								<a href="${expedient.id}/document/{{:id}}/signatura/verificar?urlVerificacioCustodia={{:signaturaUrlVerificacio}}" data-toggle="modal" data-refrescar="false"><span class="fa fa-certificate"></span>&nbsp;<spring:message code="expedient.document.signat"/></a>
+								<span id="psigna_{{:id}}" class="label label-danger label-doc" title="<spring:message code='expedient.document.pendent.psigna.error'/>"><spring:message code="expedient.document.info.etiqueta.psigna"/> <span class="fa fa-exclamation-triangle></span></span>
 							{{/if}}
 						{{else}}
-							{{if ntiCsv != null}}
-								<a href="{{:signaturaUrlVerificacio}}" target="_blank"><span class="fa fa-certificate"></span>&nbsp;<spring:message code="expedient.document.signat"/></a>
-							{{else}}
-								<a href="${expedient.id}/document/{{:id}}/signatura/verificarCsv" data-toggle="modal" data-refrescar="false"><span class="fa fa-certificate"></span>&nbsp;<spring:message code="expedient.document.signat"/></a>
-							{{/if}}
+							<span id="psigna_{{:id}}" class="label label-warning label-doc" title="<spring:message code='expedient.document.pendent.psigna'/>"><spring:message code="expedient.document.info.etiqueta.psigna"/> <span class="fa fa-clock-o></span></span>
 						{{/if}}
-					{{/if}}
-					<%--Registrat  --%>
-					{{if registrat}}
-						<a href="${expedient.id}/document/{{:id}}/registre/verificar" data-toggle="modal"><span class="fa fa-book" data-refrescar="false"></span>&nbsp;<spring:message code="expedient.document.registrat"/></a>
-					{{/if}}
-					<%--Portafirmes--%>
-					{{if psignaPendent}}
 					{{/if}}
 					<%--NTI        --%>
 					{{if ntiActiu}}
+						<span id="nti_{{:id}}" class="label label-info label-doc">
+							{{if expUuid == null}}
+								<spring:message code="expedient.info.etiqueta.nti"/>
+							{{else}}
+								<spring:message code="expedient.info.etiqueta.arxiu"/>
+								{{if arxiuUuid == null}}
+									<span class="fa fa-warning text-danger" title="<spring:message code='expedient.document.arxiu.error.uuidnoexistent' />"></span>
+								{{/if}}
+							{{/if}}
+						</span>
 					{{/if}}
 					<%--Notificat  --%>
-					{{if notificat}}
-					{{/if}}
+					{{if notificat}}<span id="notificat_{{:id}}" class="label label-warning label-doc" title="<spring:message code='expedient.document.notificat'/>"><spring:message code="expedient.document.info.etiqueta.notificat"/></span>{{/if}}
 					<%--De anotacio--%>
-					{{if deAnotacio}}
-					{{/if}}
+					{{if anotacioId != null}}<span id="anotacio_{{:id}}" class="label label-warning label-doc" title="<spring:message code='expedient.document.info.etiqueta.anotacio.title' arguments='{{:anotacioIdf}}'/>"><spring:message code="expedient.document.info.etiqueta.anotacio"/></span>{{/if}}
 					<%--Doc Invàlid--%>
-					{{if !documentValid}}
-						<span class="label label-danger label-doc" title="<spring:message code='expedient.document.invalid' arguments='${document.documentError}'/>"><span class="fa fa-exclamation-triangle></span></span>
+					{{if !docValid}}
+						<span class="label label-danger label-doc" title="<spring:message code='expedient.document.invalid' arguments='{{:docError}}'/>"><span class="fa fa-exclamation-triangle></span></span>
 					{{/if}}
 				{{/if}}
 			</script>
@@ -246,7 +250,7 @@
 			{{if id == null}}
 				<a class="btn btn-default" href="${expedient.id}/document/{{:codi}}/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nou_document"/></a>
 			{{else}}
-				<div data-document-id="{{:id}}" data-arxivat="{{:arxivat}}" data-psigna="{{psignaInfo}}" class="dropdown accionsDocument">
+				<div data-document-id="{{:id}}" <%--data-arxivat="{{:arxivat}}" data-psigna="{{psignaInfo}}"--%> class="dropdown accionsDocument">
 					<button class="btn btn-primary" data-toggle="dropdown" style="width:100%;"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 					<ul class="dropdown-menu dropdown-menu-right">
 						{{if !error}}
@@ -259,17 +263,17 @@
 							<%--Signat     --%>
 							{{if signat}}
 								{{if !arxiuActiu}}
-									{{if signaturaUrlVerificacio != null}}
-										<li><a href="{{:signaturaUrlVerificacio}}" target="_blank"><span class="fa fa-certificate fa-fw"></span>&nbsp;<spring:message code="expedient.document.signat.detalls"/></a></li>
+									{{if signUrlVer != null}}
+										<li><a href="{{:signUrlVer}}" target="_blank"><span class="fa fa-certificate fa-fw"></span>&nbsp;<spring:message code="expedient.document.signat.detalls"/></a></li>
 									{{else}}
-										<li><a href="${expedient.id}/document/{{:id}}/signatura/verificar?urlVerificacioCustodia={{:signaturaUrlVerificacio}}" data-toggle="modal" data-refrescar="false"><span class="fa fa-certificate fa-fw"></span>&nbsp;<spring:message code="expedient.document.signat.detalls"/></a></li>
+										<li><a href="${expedient.id}/document/{{:id}}/signatura/verificar?urlVerificacioCustodia={{:signUrlVer}}" data-toggle="modal" data-refrescar="false"><span class="fa fa-certificate fa-fw"></span>&nbsp;<spring:message code="expedient.document.signat.detalls"/></a></li>
 									{{/if}}
 									{{if editable}}
 										<li><a href="${expedient.id}/document/{{:id}}/signatura/esborrar" data-toggle="ajax" data-confirm="<spring:message code="expedient.document.confirm_esborrar_signatures"/>"><span class="fa fa-ban fa-fw"></span>&nbsp;<spring:message code="comuns.esborrar"/></a></li>
 									{{/if}}
 								{{else}}
 									{{if ntiCsv != null}}
-										<li id="signatura-lnk"><a href="{{:signaturaUrlVerificacio}}" target="_blank"><span class="fa fa-certificate" data-refrescar="false"></span>&nbsp;<spring:message code="expedient.document.signat.detalls"/></a></li>
+										<li id="signatura-lnk"><a href="{{:signUrlVer}}" target="_blank"><span class="fa fa-certificate" data-refrescar="false"></span>&nbsp;<spring:message code="expedient.document.signat.detalls"/></a></li>
 									{{else}}
 										<li id="signatura-lnk"><a href="${expedient.id}/document/{{:id}}/signatura/verificarCsv" data-toggle="modal"><span class="fa fa-certificate"></span>&nbsp;<spring:message code="expedient.document.signat.detalls"/></a></li>
 									{{/if}}
@@ -279,8 +283,21 @@
 							{{if registrat}}
 								<li><a href="${expedient.id}/document/{{:id}}/registre/verificar" data-toggle="modal"><span class="fa fa-book fa-fw" data-refrescar="false"></span>&nbsp;<spring:message code="expedient.document.registrat.detalls"/></a></li>
 							{{/if}}
+							<%--Portafirmes--%>
+							{{if psPendent}}
+								<li><a href="${expedient.id}/document/{{:id}}/psignaReintentar/{{:psDocId}}" data-toggle="modal"><span class="fa fa-book fa-fw" data-refrescar="false"></span>&nbsp;<spring:message code="expedient.document.psigna.reintentar"/></a></li>
+							{{/if}}
+							<%--NTI        --%>
+							{{if ntiActiu}}
+								<li><a href="${expedient.id}/document/{{:id}}/metadadesNti" data-toggle="modal"><span class="fa fa-cloud-upload fa-fw" data-refrescar="false"></span>&nbsp;<spring:message code="expedient.document.info.etiqueta.nti.detall"/></a></li>
+							{{/if}}
+							<%--De anotacio--%>
+							{{if anotacioId != null}}
+								<li><a href="../anotacio/{{:anotacioId}}" data-toggle="modal"><span class="fa fa-sign-out fa-fw" data-refrescar="false"></span>&nbsp;<spring:message code="expedient.document.info.anotacio.detall"/></a></li>
+							{{/if}}
 						{{/if}}
-						<%--Descarregar--%><li><a href="${expedient.id}/document/{{:id}}/descarregar"><span class="fa fa-download fa-fw"></span>&nbsp;<spring:message code="expedient.document.descarregar"/></a></li>
+						<%--Descarregar--%>
+						<li><a href="${expedient.id}/document/{{:id}}/descarregar"><span class="fa fa-download fa-fw"></span>&nbsp;<spring:message code="expedient.document.descarregar"/></a></li>
 					</ul>
 				</div>
 			{{/if}}

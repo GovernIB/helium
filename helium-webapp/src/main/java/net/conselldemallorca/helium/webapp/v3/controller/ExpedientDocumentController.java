@@ -20,7 +20,6 @@ import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
@@ -105,8 +104,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	private ExpedientInteressatService expedientInteressatService;
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
-	@Resource(name="documentHelperV3")
-	private DocumentHelperV3 documentHelper;
 
 	/** comparador per ordenar documents per codi de document primer i per títol de l'adjunt si són adjunts després.
 	 *
@@ -1154,14 +1151,29 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	}
 
 	/** Mètode per reintentar el processament del document que s'envia al porta signatures. */
-	@RequestMapping(
-			value="/{expedientId}/document/{documentStoreId}/psignaReintentar/{psignaId}",
-			method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/document/{documentStoreId}/psignaReintentar/{psignaDocId}", method = RequestMethod.GET)
+	public String documentPsignaReintentarGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long documentStoreId,
+			@PathVariable Integer psignaDocId,
+			ModelMap model) throws ServletException {
+		try {
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+			model.addAttribute("expedientId", expedientId);
+			model.addAttribute("portasignatures", expedientDocumentService.getPortasignaturesByDocumentId(psignaDocId));
+			model.addAttribute("document", expedientDocumentService.findOneAmbInstanciaProces(expedientId, expedient.getProcessInstanceId(), documentStoreId));
+			return "v3/expedientDocumentPsignaReprocessar";
+		} catch(Exception ex) {
+			logger.error("Error al verificar la signatura", ex);
+			throw new ServletException(ex);
+		}
+	}
+	@RequestMapping(value="/{expedientId}/document/{documentStoreId}/psignaReintentar/{psignaId}", method = RequestMethod.POST)
 	@ResponseBody
 	public boolean documentPsignaReintentar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
-			@PathVariable Long documentStoreId,
 			@PathVariable Integer psignaId,
 			Model model) {
 		boolean response = false;
@@ -1189,7 +1201,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		else
 			MissatgesHelper.error(request, getMessage(request, "expedient.psigna.reintentar.error"));
 
-		return "redirect:/v3/expedient/" + expedientId;
+		return "redirect:/v3/expedient/" + expedientId + "?pipellaActiva=documents";
 	}
 
 	@RequestMapping(value = "/document/arxiuMostrar")

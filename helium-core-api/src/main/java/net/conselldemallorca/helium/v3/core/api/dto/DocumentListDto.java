@@ -40,31 +40,31 @@ public class DocumentListDto implements Serializable {
 	private boolean arxiuActiu;
 	private boolean ntiActiu;
 	private boolean registrat;
-	private boolean documentValid;
-	private boolean psignaPendent;
-	private boolean psignaError;
+	private boolean docValid;
+	private boolean psPendent;
+	private boolean psError;
 	private boolean arxivat;
-	private boolean deAnotacio;
+//	private boolean deAnotacio;
 
-	private String signaturaUrlVerificacio;
+	private String signUrlVer;
 	private String ntiCsv;
 
-//	private String psignaEstat;
-//	private Integer psignaDocumentId;
+	private String psEstat;
+	private Integer psDocId;
 //	private Date psignaDataEnviat;
 //	private Date psignaDataProcessamentPrimer;
 //	private Date psignaDataProcessamentDarrer;
-	private String psignaErrorProcessant;
-	private String psignaMotiuRebuig;
+//	private String psignaErrorProcessant;
+//	private String psignaMotiuRebuig;
 
 	private String arxiuUuid;
-	private String expedientArxiuUuid;
+	private String expUuid;
 
 	private Long anotacioId = null;
-	private String anotacioIdentificador = null;
+	private String anotacioIdf = null;
 
 	private String error;
-	private String documentError;
+	private String docError;
 
 	private boolean visible = true;
 	private boolean editable = true;
