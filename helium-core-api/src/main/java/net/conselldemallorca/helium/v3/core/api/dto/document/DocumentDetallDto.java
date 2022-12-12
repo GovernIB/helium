@@ -41,6 +41,7 @@ public class DocumentDetallDto {
     private SignaturaValidacioDetallDto signaturaValidacioDetall;
     private PsignaDetallDto psignaDetall;
     private ArxiuDetallDto arxiuDetall;
+    private NtiDetallDto ntiDetall;
     private AnotacioDto anotacio;
     private List<DadesNotificacioDto> notificacions;
 

@@ -124,13 +124,13 @@ const toggleViewer = (viewer) => {
     if (!$(viewer).is(':visible')) {
         // let documentId = $(viewer).data('documentid');
         // var urlDescarrega = urlDescarregaBase + documentId + '/returnFitxer';
-        $(viewer).slideDown(500);
+        $(viewer).slideDown(500, toggleCardCaret($(viewer).prev()));
         console.log('Loaded', $(viewer).data('loaded'));
         if ($(viewer).data('loaded') == undefined) {
             showDocument(viewer);
         }
     } else {
-        $(viewer).slideUp(500);
+        $(viewer).slideUp(500, toggleCardCaret($(viewer).prev()));
     }
 
 }

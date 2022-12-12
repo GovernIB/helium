@@ -1,9 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%--<link href="<c:url value="/css/exp-doc.css"/>" rel="stylesheet"/>--%>
 
@@ -22,7 +23,7 @@
 	.body-ocult {display: none;}
 
 	.card {--bs-card-spacer-y: 1em; --bs-card-spacer-x: 1em; --bs-card-title-spacer-y: 0.5em; --bs-card-border-width: 0; --bs-card-border-color: rgba(0, 0, 0, 0.125); --bs-card-border-radius: 0.75em; --bs-card-box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); --bs-card-inner-border-radius: 0.7em; --bs-card-cap-padding-y: 0.5em; --bs-card-cap-padding-x: 1em; --bs-card-cap-bg: #fff; --bs-card-bg: #fff; --bs-card-img-overlay-padding: 1em; --bs-card-group-margin: 0.75em; position: relative; display: flex; flex-direction: column; min-width: 0; /*height: var(--bs-card-height);*/ word-wrap: break-word; background-color: var(--bs-card-bg); background-clip: border-box; border: var(--bs-card-border-width) solid var(--bs-card-border-color); border-radius: var(--bs-card-border-radius);}
-	.card > hr {margin-right: 0; margin-left: 0; margin-top: 7px; margin-bottom: 7px;}
+	.card > hr {margin-right: 0; margin-left: 0; margin-top: 2px; margin-bottom: 7px;}
     .card > .list-group {border-top: inherit; border-bottom: inherit;}
     .card > .list-group:first-child {border-top-width: 0; border-top-left-radius: var(--bs-card-inner-border-radius); border-top-right-radius: var(--bs-card-inner-border-radius);}
     .card > .list-group:last-child {border-bottom-width: 0; border-bottom-right-radius: var(--bs-card-inner-border-radius); border-bottom-left-radius: var(--bs-card-inner-border-radius);}
@@ -32,7 +33,7 @@
     .card-subtitle {margin-top: calc(-0.5 * var(--bs-card-title-spacer-y));}
     .card-subtitle, .card-text:last-child {margin-bottom: 0;}
     .card-link + .card-link {margin-left: var(--bs-card-spacer-x);}
-    .card-header {padding: var(--bs-card-cap-padding-y) var(--bs-card-cap-padding-x); margin-bottom: 0; color: var(--bs-card-cap-color); background-color: var(--bs-card-cap-bg); border-bottom: var(--bs-card-border-width) solid var(--bs-card-border-color);}
+    .card-header {padding: var(--bs-card-cap-padding-y) var(--bs-card-cap-padding-x) var(--bs-card-cap-padding-y) 0.25em; margin-bottom: 0; color: var(--bs-card-cap-color); background-color: var(--bs-card-cap-bg); border-bottom: var(--bs-card-border-width) solid var(--bs-card-border-color);}
     .card-header:first-child {border-radius: var(--bs-card-inner-border-radius) var(--bs-card-inner-border-radius) 0 0;}
     .card-footer {padding: var(--bs-card-cap-padding-y) var(--bs-card-cap-padding-x); color: var(--bs-card-cap-color); background-color: var(--bs-card-cap-bg); border-top: var(--bs-card-border-width) solid var(--bs-card-border-color);}
     .card-footer:last-child {border-radius: 0 0 var(--bs-card-inner-border-radius) var(--bs-card-inner-border-radius);}
@@ -44,7 +45,7 @@
     .card-img, .card-img-top {border-top-left-radius: var(--bs-card-inner-border-radius); border-top-right-radius: var(--bs-card-inner-border-radius);}
     .card-img, .card-img-bottom {border-bottom-right-radius: var(--bs-card-inner-border-radius); border-bottom-left-radius: var(--bs-card-inner-border-radius);}
 
-    .card-icon {border-radius: 0.75em; width: 60px; height: 40px; background-position: 50%; text-align: center!important; margin-top: -1.5em!important; fill: currentColor; stroke: none; display: inline-block; color: #111;}
+    .card-icon {border-radius: 0.5em; width: 54px; height: 35px; background-position: 50%; text-align: center!important; margin-top: -0.25em!important; fill: currentColor; stroke: none; display: inline-block; color: #111;}
     .card-icon > i {top: 24%; position: relative; padding-right: 2px; padding-left: 2px;}
     h6 {font-size: 1em !important; line-height: 1.625 !important; font-weight: bold !important;}
     .bg-gradient-primary {background-image: linear-gradient(195deg, #ec407a, #d81b60);}
@@ -143,7 +144,7 @@
     .text-sm {font-size: 0.875em !important;}
     .text-xs {font-size: 0.75em !important;}
     .text-xxs {font-size: 0.65em !important;}
-    p {line-height: 1.625; font-weight: 300;}
+    p {line-height: 1; font-weight: 300; margin-bottom: 4px;}
     .text-justify {text-align: justify !important;}
     .text-wrap {white-space: normal !important;}
     .text-nowrap {white-space: nowrap !important;}
@@ -204,17 +205,17 @@
 	// ]]>
 </script>
 
-<div class="container-fluid py-3">
+<div class="container-fluid">
 	<div class="row mtop-3">
 
 		<%-- REGISTRE => detall.registreDetall --%>
 		<c:set var="registre" value="${detall.registreDetall}"/>
 		<div class="col-xl-3 col-sm-3 mb-xl-0 mb-4">
 			<div class="card">
-				<div class="card-header p-3 pt-2">
-					<div class="card-icon position-absolute pointer <c:choose><c:when test="${detall.registrat}">bg-gradient-success shadow-success</c:when><c:otherwise>bg-gradient-secondary shadow-secondary</c:otherwise></c:choose>">
-						<i class="fa fa-book fa-inverse fa-lg"></i>
-						<i class="fa fa-caret-down fa-inverse fa-lg"></i>
+				<div class="card-header pointer p-3 pt-2">
+					<div class="card-icon position-absolute <c:choose><c:when test="${detall.registrat}">bg-gradient-success shadow-success</c:when><c:otherwise>bg-gradient-secondary shadow-secondary</c:otherwise></c:choose>">
+						<i class="fa fa-book fa-inverse fa-1x"></i>
+						<i class="fa fa-caret-down fa-inverse fa-1x"></i>
 					</div>
 					<div class="text-end pt-1">
 						<h6 class="ch-titol">Registre</h6>
@@ -230,7 +231,7 @@
 						<%-- Data de registre--%>
 						<li class="list-group-item d-flex justify-content-between border-0">
 							<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.info.camp.registre.data"/></div>
-							<div class="d-flex flex-column text-sm">${registre != null ? '<fn:formatDate value="${registre.registreData}" pattern="dd/MM/yyyy HH:mm"/>' : '--'}</div>
+							<div class="d-flex flex-column text-sm">${registre != null ? '<fmt:formatDate value="${registre.registreData}" pattern="dd/MM/yyyy HH:mm"/>' : '--'}</div>
 						</li>
 						<%-- Oficina de registre--%>
 						<li class="list-group-item d-flex justify-content-between border-0">
@@ -258,10 +259,10 @@
 		<c:set var="signatura" value="${detall.signaturaValidacioDetall}"/>
 		<div class="col-xl-3 col-sm-3 mb-xl-0 mb-4">
 			<div class="card">
-				<div class="card-header p-3 pt-2">
-					<div class="card-icon position-absolute pointer <c:choose><c:when test="${detall.signat}">bg-gradient-success shadow-success</c:when><c:otherwise>bg-gradient-secondary shadow-secondary</c:otherwise></c:choose>">
-						<i class="fa fa-certificate fa-inverse fa-lg"></i>
-						<i class="fa fa-caret-down fa-inverse fa-lg"></i>
+				<div class="card-header p-3 pt-2 pointer">
+					<div class="card-icon position-absolute <c:choose><c:when test="${detall.signat}">bg-gradient-success shadow-success</c:when><c:otherwise>bg-gradient-secondary shadow-secondary</c:otherwise></c:choose>">
+						<i class="fa fa-certificate fa-inverse fa-1x"></i>
+						<i class="fa fa-caret-down fa-inverse fa-1x"></i>
 					</div>
 					<div class="text-end pt-1">
 						<h6 class="ch-titol">Signatura</h6>
@@ -290,10 +291,10 @@
 		<c:set var="signatura" value="${detall.psignaDetall}"/>
 		<div class="col-xl-3 col-sm-3 mb-xl-0 mb-4">
 			<div class="card">
-				<div class="card-header p-3 pt-2">
-					<div class="card-icon position-absolute pointer <c:choose><c:when test="${detall.psignaPendent}">bg-gradient-success shadow-success</c:when><c:otherwise>bg-gradient-secondary shadow-secondary</c:otherwise></c:choose>">
-						<i class="fa fa-clock-o fa-inverse fa-lg"></i>
-						<i class="fa fa-caret-down fa-inverse fa-lg"></i>
+				<div class="card-header pointer p-3 pt-2">
+					<div class="card-icon position-absolute <c:choose><c:when test="${detall.psignaPendent}">bg-gradient-success shadow-success</c:when><c:otherwise>bg-gradient-secondary shadow-secondary</c:otherwise></c:choose>">
+						<i class="fa fa-clock-o fa-inverse fa-1x"></i>
+						<i class="fa fa-caret-down fa-inverse fa-1x"></i>
 					</div>
 					<div class="text-end pt-1">
 						<h6 class="ch-titol">Pendent de Portasignatures</h6>
@@ -322,10 +323,10 @@
 		<c:set var="notificacions" value="${detall.notificacions}"/>
 		<div class="col-xl-3 col-sm-3 mb-xl-0 mb-4">
 			<div class="card">
-				<div class="card-header p-3 pt-2">
-					<div class="card-icon position-absolute pointer <c:choose><c:when test="${detall.notificat}">bg-gradient-success shadow-success</c:when><c:otherwise>bg-gradient-secondary shadow-secondary</c:otherwise></c:choose>">
-						<i class="fa fa-paper-plane-o fa-inverse fa-lg"></i>
-						<i class="fa fa-caret-down fa-inverse fa-lg"></i>
+				<div class="card-header pointer p-3 pt-2">
+					<div class="card-icon position-absolute <c:choose><c:when test="${detall.notificat}">bg-gradient-success shadow-success</c:when><c:otherwise>bg-gradient-secondary shadow-secondary</c:otherwise></c:choose>">
+						<i class="fa fa-paper-plane-o fa-inverse fa-1x"></i>
+						<i class="fa fa-caret-down fa-inverse fa-1x"></i>
 					</div>
 					<div class="text-end pt-1">
 						<h6 class="ch-titol">Notificacions</h6>
@@ -333,11 +334,39 @@
 				</div>
 				<div class="card-body body-ocult">
 					<ul class="list-group">
-						<%-- --%>
 						<li class="list-group-item d-flex justify-content-between border-0">
-							<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.info.numero_registre"/></div>
-							<div class="d-flex flex-column text-sm">${registre != null ? registre.registreNumero : '--'}</div>
+							<div class="d-flex flex-column text-dark font-weight-bold text-sm">Destinatari</div>
+							<div class="d-flex flex-column text-dark font-weight-bold text-sm">Estat</div>
 						</li>
+						<c:forEach var="notificacio" items="${notificacions}" varStatus="status">
+							<c:forEach var="enviament" items="${notificacio.enviaments}" varStatus="statuse">
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-sm">
+										<span class="label label-default">${notificacio.enviamentTipus == "NOTIFICACIO" ? 'N' : 'C'}</span>
+										<span>
+										<h6>${enviament.titular.nomSencer}</h6>
+										<p>${notificacio.enviatData}</p>
+									</span>
+									</div>
+									<div class="d-flex flex-column text-sm">
+										<c:set var="ecolor" value="default"/>
+										<c:choose>
+											<c:when test="${enviament.estat == 'LLEGIDA' or
+														enviament.estat == 'NOTIFICADA'}"><c:set var="ecolor" value="success"/></c:when>
+											<c:when test="${enviament.estat == 'ABSENT' or
+														enviament.estat == 'DESCONEGUT' or
+														enviament.estat == 'ADRESA_INCORRECTA' or
+														enviament.estat == 'MORT' or
+														enviament.estat == 'EXTRAVIADA' or
+														enviament.estat == 'SENSE_INFORMACIO' or
+														enviament.estat == 'ERROR_ENTREGA' or
+														enviament.estat == 'EXPIRADA'}"><c:set var="ecolor" value="Danger"/></c:when>
+										</c:choose>
+										<span class="label label-${ecolor}">${enviament.estat}</span>
+									</div>
+								</li>
+							</c:forEach>
+						</c:forEach>
 					</ul>
 				</div>
 				<hr class="dark horizontal my-0">
@@ -352,31 +381,345 @@
 
 
 	</div>
-	<div class="row mtop-4">
+	<div class="row mtop-2">
 
 		<%-- ARXIU/NTI => detall.arxiuDetall --%>
-		<c:set var="notificacions" value="${detall.arxiuDetall}"/>
+		<c:set var="arxiuDetall" value="${detall.arxiuDetall}"/>
+		<c:set var="ntiDetall" value="${detall.ntiDetall}"/>
 		<div class="col-lg-6 col-md-6 mtop-3 mb-4">
 			<div class="card">
-				<div class="card-header p-3 pt-2">
-					<div class="card-icon position-absolute pointer <c:choose><c:when test="${detall.nti || detall.arxiu}">bg-gradient-success shadow-success</c:when><c:otherwise>bg-gradient-secondary shadow-secondary</c:otherwise></c:choose>">
-						<i class="fa fa-bookmark fa-inverse fa-lg"></i>
-						<i class="fa fa-caret-down fa-inverse fa-lg"></i>
+				<div class="card-header pointer p-3 pt-2">
+					<div class="card-icon position-absolute <c:choose><c:when test="${detall.nti || detall.arxiu}">bg-gradient-success shadow-success</c:when><c:otherwise>bg-gradient-secondary shadow-secondary</c:otherwise></c:choose>">
+						<i class="fa fa-bookmark fa-inverse fa-1x"></i>
+						<i class="fa fa-caret-down fa-inverse fa-1x"></i>
 					</div>
 					<div class="text-end pt-1">
-						<h6 class="ch-titol">Notificacions</h6>
+						<h6 class="ch-titol">
+							<c:choose>
+								<c:when test="${detall.arxiu}">ARXIU</c:when>
+								<c:when test="${detall.nti}">NTI</span></p></c:when>
+								<c:otherwise>ARXIU / NTI</c:otherwise>
+							</c:choose>
+						</h6>
 					</div>
 				</div>
 				<div class="card-body body-ocult">
-					<ul class="list-group">
-						<%-- --%>
-						<li class="list-group-item d-flex justify-content-between border-0">
-							<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.info.numero_registre"/></div>
-							<div class="d-flex flex-column text-sm">${registre != null ? registre.registreNumero : '--'}</div>
-						</li>
+
+				<!-- Formulari per incoporar el document a l'Arxiu si es detecta error de no Uuid -->
+				<c:if test="${errorArxiuNoUuid}">
+					<div class="row alert alert-danger" style="margin: 0px; margin-bottom: 10px;">
+						<div class="col-sm-10">
+							<p><spring:message code="expedient.document.arxiu.error.uuidnoexistent.info"/></p>
+						</div>
+<%--						TODO: --%>
+<%--						<div class="col-sm-2">--%>
+<%--							<form action="incoporarArxiu" method="post">--%>
+<%--								<button id="incorporarArxiuButton" type="submit" class="btn btn-default" title="<spring:message code='expedient.document.arxiu.migrar.arxiu'></spring:message>">--%>
+<%--									<span class="fa fa-upload"></span>--%>
+<%--									<spring:message code="comu.boto.migrar"></spring:message>--%>
+<%--								</button>--%>
+<%--							<form>--%>
+<%--						</div>--%>
+					</div>
+				</c:if>
+
+				<c:if test="${not empty detall.arxiuDetall}">
+					<ul class="nav nav-pills" role="tablist">
+						<li id = role="presentation" class="active"><a class="pill-link" href="#nti_${detall.documentStoreId}" aria-controls="nti" role="tab" data-toggle="tab"><spring:message code="expedient.metadades.nti.tab.nti"/></a></li>
+						<li role="presentation"><a class="pill-link" href="#info_${detall.documentStoreId}" aria-controls="info" role="tab" data-toggle="tab"><spring:message code="expedient.metadades.nti.tab.info"/></a></li>
+						<c:if test="${not empty arxiuDetall.fills}"><li role="presentation"><a class="pill-link" href="#fills_${detall.documentStoreId}" aria-controls="fills" role="tab" data-toggle="tab"><spring:message code="expedient.metadades.nti.tab.fills"/> <span class="badge badge-default">${fn:length(arxiuDetall.fills)}</span></a></li></c:if>
+						<c:if test="${not empty arxiuDetall.firmes}"><li role="presentation"><a class="pill-link" href="#firmes_${detall.documentStoreId}" aria-controls="firmes" role="tab" data-toggle="tab"><spring:message code="expedient.metadades.nti.tab.firmes"/> <span class="badge badge-default">${fn:length(arxiuDetall.firmes)}</span></a></li></c:if>
+						<c:if test="${not empty arxiuDetall.metadadesAddicionals}"><li role="presentation"><a class="pill-link" href="#metadades_${detall.documentStoreId}" aria-controls="metadades" role="tab" data-toggle="tab"><spring:message code="expedient.metadades.nti.tab.metadades"/></a></li></c:if>
 					</ul>
+
+					<div class="tab-content">
+						<%-- Metadades NTI --%>
+						<div id="nti_${detall.documentStoreId}" class="tab-pane in active">
+				</c:if>
+<%--							metadades nti--%>
+							<ul class="list-group">
+								<%-- --%>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="document.metadades.nti.version"/></div>
+									<div class="d-flex flex-column text-sm">${ntiDetall.ntiVersion != null ? ntiDetall.ntiVersion : '--'}</div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="document.metadades.nti.identificador"/></div>
+									<div class="d-flex flex-column text-sm">${ntiDetall.ntiIdentificador != null ? ntiDetall.ntiIdentificador : '--'}</div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="document.metadades.nti.organo"/></div>
+									<div class="d-flex flex-column text-sm">${ntiDetall.ntiOrgano != null ? ntiDetall.ntiOrgano : '--'}</div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="document.metadades.nti.fecha.captura"/></div>
+									<div class="d-flex flex-column text-sm"><c:choose><c:when test="${not empty detall.dataCreacio}"><fmt:formatDate value="${detall.dataCreacio}" pattern="dd/MM/yyyy HH:mm"/></c:when><c:otherwise>--</c:otherwise></c:choose></div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="document.metadades.nti.origen"/></div>
+									<div class="d-flex flex-column text-sm"><c:choose><c:when test="${not empty ntiDetall.ntiOrigen}"><spring:message code="nti.document.origen.${ntiDetall.ntiOrigen}"/></c:when><c:otherwise>--</c:otherwise></c:choose></div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="document.metadades.nti.estado.elaboracion"/></div>
+									<div class="d-flex flex-column text-sm"><c:choose><c:when test="${not empty ntiDetall.ntiEstadoElaboracion}"><spring:message code="nti.document.estado.elaboracion.${ntiDetall.ntiEstadoElaboracion}"/></c:when><c:otherwise>--</c:otherwise></c:choose></div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="document.metadades.nti.nombre.formato"/></div>
+									<div class="d-flex flex-column text-sm"><c:choose><c:when test="${not empty ntiDetall.ntiNombreFormato}"><spring:message code="nti.document.format.${ntiDetall.ntiNombreFormato}"/></c:when><c:otherwise>--</c:otherwise></c:choose></div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="document.metadades.nti.tipo.documental"/></div>
+									<div class="d-flex flex-column text-sm"><c:choose><c:when test="${not empty ntiDetall.ntiTipoDocumental}"><spring:message code="nti.document.tipo.documental.${ntiDetall.ntiTipoDocumental}"/></c:when><c:otherwise>--</c:otherwise></c:choose></div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="document.metadades.nti.iddoc.origen"/></div>
+									<div class="d-flex flex-column text-sm">${ntiDetall.ntiIdDocumentoOrigen != null ? ntiDetall.ntiIdDocumentoOrigen : '--'}</div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="document.metadades.nti.tipo.firma"/></div>
+									<div class="d-flex flex-column text-sm"><c:choose><c:when test="${not empty ntiDetall.ntiTipoFirma}">${ntiDetall.ntiTipoFirma}<c:if test="${not empty detall.ntiCsv}">, CSV</c:if></c:when><c:otherwise>--</c:otherwise></c:choose></div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="document.metadades.nti.csv"/></div>
+									<div class="d-flex flex-column text-sm">${ntiDetall.ntiCsv != null ? ntiDetall.ntiCsv : '--'}</div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="document.metadades.nti.defgen.csv"/></div>
+									<div class="d-flex flex-column text-sm">${ntiDetall.ntiDefinicionGenCsv != null ? ntiDetall.ntiDefinicionGenCsv : '--'}</div>
+								</li>
+							</ul>
+							<c:if test="${detall.errorMetadadesNti}">
+								<div class="row alert alert-danger" style="margin: 0px; margin-bottom: 10px;">
+									<div class="col-sm-10">
+										<p><spring:message code="expedient.metadades.nti.dades.error.info"/></p>
+									</div>
+<%--					TODO:--%>
+<%--									<div class="col-sm-2">--%>
+<%--										<form  action="<c:url value="/v3/expedient/${expedient.id}/metadadesNti/arreglar"/>" method="post">--%>
+<%--											<button id="arreglarNtiButton" type="submit" class="btn btn-default" title="<spring:message code='expedient.metadades.nti.dades.error.arreglar.info'></spring:message>">--%>
+<%--												<span class="fa fa-cog"></span>--%>
+<%--												<spring:message code="expedient.metadades.nti.dades.error.arreglar"></spring:message>--%>
+<%--											</button>--%>
+<%--										<form>--%>
+<%--									</div>--%>
+								</div>
+							</c:if>
+				<c:if test="${not empty arxiuDetall}">
+						</div>
+
+						<%-- Informació arxiu --%>
+						<div id="info_${detall.documentStoreId}" class="tab-pane">
+							<ul class="list-group">
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.identificador"/></div>
+									<div class="d-flex flex-column text-sm">${arxiuDetall.identificador != null ? arxiuDetall.identificador : '--'}</div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.nom"/></div>
+									<div class="d-flex flex-column text-sm">${arxiuDetall.nom != null ? arxiuDetall.nom : '--'}</div>
+								</li>
+								<c:if test="${not empty arxiuDetall.serieDocumental}">
+									<li class="list-group-item d-flex justify-content-between border-0">
+										<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.serie.doc"/></div>
+										<div class="d-flex flex-column text-sm">${arxiuDetall.serieDocumental != null ? arxiuDetall.serieDocumental : '--'}</div>
+									</li>
+								</c:if>
+							</ul>
+
+							<c:if test="${not empty arxiuDetall.contingutTipusMime or not empty arxiuDetall.contingutArxiuNom}">
+							<hr class="dark horizontal my-0">
+
+							<div class="text-dark font-weight-bold"><spring:message code="expedient.metadades.nti.grup.contingut"/></div>
+							<ul class="list-group">
+								<c:if test="${not empty arxiuDetall.contingutTipusMime}">
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.contingut.tipus.mime"/></div>
+									<div class="d-flex flex-column text-sm">${arxiuDetall.contingutTipusMime != null ? arxiuDetall.contingutTipusMime : '--'}</div>
+								</li>
+								</c:if>
+								<c:if test="${not empty arxiuDetall.contingutArxiuNom}">
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.contingut.arxiu.nom"/></div>
+									<div class="d-flex flex-column text-sm">${arxiuDetall.contingutArxiuNom != null ? arxiuDetall.contingutArxiuNom : '--'}</div>
+								</li>
+								</c:if>
+							</ul>
+							</c:if>
+
+							<c:if test="${not empty arxiuDetall.eniIdentificador}">
+								<hr class="dark horizontal my-0">
+
+								<div class="text-dark font-weight-bold"><spring:message code="expedient.metadades.nti.grup.metadades"/></div>
+								<ul class="list-group">
+									<li class="list-group-item d-flex justify-content-between border-0">
+										<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.eni.versio"/></div>
+										<div class="d-flex flex-column text-sm">${arxiuDetall.eniVersio != null ? arxiuDetall.eniVersio : '--'}</div>
+									</li>
+									<li class="list-group-item d-flex justify-content-between border-0">
+										<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.eni.identificador"/></div>
+										<div class="d-flex flex-column text-sm">${arxiuDetall.eniIdentificador != null ? arxiuDetall.eniIdentificador : '--'}</div>
+									</li>
+									<c:if test="${not empty arxiuDetall.eniOrgans}">
+										<li class="list-group-item d-flex justify-content-between border-0">
+											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.eni.organs"/></div>
+											<div class="d-flex flex-column text-sm">
+												<c:if test="${empty arxiuDetall.eniOrgans}">--</c:if>
+												<c:forEach var="organ" items="${arxiuDetall.eniOrgans}" varStatus="status">
+													${organ}<c:if test="${not status.last}">,</c:if>
+												</c:forEach>
+											</div>
+										</li>
+									</c:if>
+									<c:if test="${not empty arxiuDetall.eniDataObertura}">
+										<li class="list-group-item d-flex justify-content-between border-0">
+											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.eni.data.obertura"/></div>
+											<div class="d-flex flex-column text-sm"><c:choose><c:when test="${not empty arxiuDetall.eniDataObertura}"><fmt:formatDate value="${arxiuDetall.eniDataObertura}" pattern="dd/MM/yyyy HH:mm:ss"/></c:when><c:otherwise>--</c:otherwise></c:choose></div>
+										</li>
+									</c:if>
+									<c:if test="${not empty arxiuDetall.eniClassificacio}">
+										<li class="list-group-item d-flex justify-content-between border-0">
+											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.eni.classificacio"/></div>
+											<div class="d-flex flex-column text-sm">${arxiuDetall.eniClassificacio != null ? arxiuDetall.eniClassificacio : '--'}</div>
+										</li>
+									</c:if>
+									<c:if test="${not empty arxiuDetall.eniEstat}">
+										<li class="list-group-item d-flex justify-content-between border-0">
+											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.eni.estat"/></div>
+											<div class="d-flex flex-column text-sm">${arxiuDetall.eniEstat != null ? arxiuDetall.eniEstat : '--'}</div>
+										</li>
+									</c:if>
+									<c:if test="${not empty arxiuDetall.eniDataCaptura}">
+										<li class="list-group-item d-flex justify-content-between border-0">
+											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.eni.data.captura"/></div>
+											<div class="d-flex flex-column text-sm"><c:choose><c:when test="${not empty arxiuDetall.eniDataCaptura}"><fmt:formatDate value="${arxiuDetall.eniDataCaptura}" pattern="dd/MM/yyyy HH:mm:ss"/></c:when><c:otherwise>--</c:otherwise></c:choose></div>
+										</li>
+									</c:if>
+									<c:if test="${not empty arxiuDetall.eniOrigen}">
+										<li class="list-group-item d-flex justify-content-between border-0">
+											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.eni.origen"/></div>
+											<div class="d-flex flex-column text-sm">${arxiuDetall.eniOrigen != null ? arxiuDetall.eniOrigen : '--'}</div>
+										</li>
+									</c:if>
+									<c:if test="${not empty arxiuDetall.eniEstatElaboracio}">
+										<li class="list-group-item d-flex justify-content-between border-0">
+											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.eni.estat.elab"/></div>
+											<div class="d-flex flex-column text-sm">${arxiuDetall.eniEstatElaboracio != null ? arxiuDetall.eniEstatElaboracio : '--'}</div>
+										</li>
+									</c:if>
+									<c:if test="${not empty arxiuDetall.eniTipusDocumental}">
+										<li class="list-group-item d-flex justify-content-between border-0">
+											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.eni.tipus.doc"/></div>
+											<div class="d-flex flex-column text-sm">${arxiuDetall.eniTipusDocumental != null ? arxiuDetall.eniTipusDocumental : '--'}</div>
+										</li>
+									</c:if>
+									<c:if test="${not empty arxiuDetall.eniFormat}">
+										<li class="list-group-item d-flex justify-content-between border-0">
+											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.eni.format.nom"/></div>
+											<div class="d-flex flex-column text-sm">${arxiuDetall.eniFormat != null ? arxiuDetall.eniFormat : '--'}</div>
+										</li>
+									</c:if>
+									<c:if test="${not empty arxiuDetall.eniExtensio}">
+										<li class="list-group-item d-flex justify-content-between border-0">
+											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.eni.format.ext"/></div>
+											<div class="d-flex flex-column text-sm">${arxiuDetall.eniExtensio != null ? arxiuDetall.eniExtensio : '--'}</div>
+										</li>
+									</c:if>
+									<c:if test="${not empty arxiuDetall.eniInteressats}">
+										<li class="list-group-item d-flex justify-content-between border-0">
+											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.eni.interessats"/></div>
+											<div class="d-flex flex-column text-sm">
+												<c:if test="${empty arxiuDetall.eniInteressats}">--</c:if>
+												<c:forEach var="interessat" items="${arxiuDetall.eniInteressats}" varStatus="status">
+													${interessat}<c:if test="${not status.last}">,</c:if>
+												</c:forEach>
+											</div>
+										</li>
+									</c:if>
+									<c:if test="${not empty arxiuDetall.eniDocumentOrigenId}">
+										<li class="list-group-item d-flex justify-content-between border-0">
+											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.eni.doc.orig.id"/></div>
+											<div class="d-flex flex-column text-sm">${arxiuDetall.eniDocumentOrigenId != null ? arxiuDetall.eniDocumentOrigenId : '--'}</div>
+										</li>
+									</c:if>
+									<li class="list-group-item d-flex justify-content-between border-0">
+										<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.eni.firma.csv"/></div>
+										<div class="d-flex flex-column text-sm">${arxiuDetall.eniCsv != null ? arxiuDetall.eniCsv : '--'}</div>
+									</li>
+									<li class="list-group-item d-flex justify-content-between border-0">
+										<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.eni.firma.csvdef"/></div>
+										<div class="d-flex flex-column text-sm">${arxiuDetall.eniCsvDef != null ? arxiuDetall.eniCsvDef : '--'}</div>
+									</li>
+									<li class="list-group-item d-flex justify-content-between border-0">
+										<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.arxiuEstat"/></div>
+										<div class="d-flex flex-column text-sm">${arxiuDetall.arxiuEstat != null ? arxiuDetall.arxiuEstat : "--"}</div>
+									</li>
+								</ul>
+							</c:if>
+						</div>
+
+						<%-- Fills --%>
+						<c:if test="${not empty arxiuDetall.fills}">
+						<div id="fills_${detall.documentStoreId}" class="tab-pane">
+							<ul class="list-group">
+								<c:forEach var="fill" items="${arxiuDetall.fills}" varStatus="status">
+									<li class="list-group-item d-flex justify-content-between border-0">
+										<div class="d-flex flex-column text-sm">${fill.tipus}</div>
+										<div class="d-flex flex-column text-sm">${fill.nom}</div>
+									</li>
+								</c:forEach>
+							</ul>
+						</div>
+						</c:if>
+
+						<%-- Firmes --%>
+						<c:if test="${not empty arxiuDetall.firmes}">
+						<div id="firmes_${detall.documentStoreId}" class="tab-pane">
+							<ul class="list-group">
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.firma.tipus"/></div>
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.firma.perfil"/></div>
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.firma.contingut"/></div>
+								</li>
+								<c:forEach var="firma" items="${arxiuDetall.firmes}" varStatus="status">
+									<li class="list-group-item d-flex justify-content-between border-0">
+										<div class="d-flex flex-column text-sm">${firma.tipus}</div>
+										<div class="d-flex flex-column text-sm">${firma.perfil}</div>
+										<div class="d-flex flex-column text-sm">
+											<c:choose>
+												<c:when test="${firma.tipus == 'CSV'}">${firma.contingutComString}</c:when>
+												<c:when test="${firma.tipus == 'XADES_DET' or firma.tipus == 'CADES_DET'}">
+													<a href="<c:url value='/v3/expedient/${expedientId}/document/${detall.documentStoreId}/firma/${status.index}/descarregar'></c:url>" class="btn btn-default btn-sm pull-right">
+														<span class="fa fa-download"  title="<spring:message code="comu.boto.descarregar"/>"></span>
+													</a>
+												</c:when>
+												<c:otherwise></c:otherwise>
+											</c:choose>
+										</div>
+									</li>
+								</c:forEach>
+							</ul>
+						</div>
+						</c:if>
+
+						<%-- Metadades Arxiu --%>
+						<c:if test="${not empty arxiuDetall.metadadesAddicionals}">
+						<div id="metadades_${detall.documentStoreId}" class="tab-pane">
+							<ul class="list-group">
+							<c:forEach var="metadada" items="${arxiuDetall.metadadesAddicionals}" varStatus="status">
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm">${metadada.key}</div>
+									<div class="d-flex flex-column text-sm">${metadada.value}</div>
+								</li>
+							</c:forEach>
+							</ul>
+						</div>
+						</c:if>
+					</div>
+				</c:if>
 				</div>
+
 				<hr class="dark horizontal my-0">
+
 				<div class="card-footer p-3">
 					<c:choose>
 						<c:when test="${detall.arxiu}"><p class="mb-0">Document <span class="text-success text-sm font-weight-bolder">ARXIVAT</span></p></c:when>
@@ -391,10 +734,10 @@
 		<c:set var="anotacio" value="${detall.anotacio}"/>
 		<div class="col-lg-6 col-md-6 mtop-3 mb-4">
 			<div class="card">
-				<div class="card-header p-3 pt-2">
-					<div class="card-icon position-absolute pointer <c:choose><c:when test="${detall.deAnotacio}">bg-gradient-success shadow-success</c:when><c:otherwise>bg-gradient-secondary shadow-secondary</c:otherwise></c:choose>">
-						<i class="fa fa-file-text fa-inverse fa-lg"></i>
-						<i class="fa fa-caret-down fa-inverse fa-lg"></i>
+				<div class="card-header pointer p-3 pt-2">
+					<div class="card-icon position-absolute <c:choose><c:when test="${detall.deAnotacio}">bg-gradient-success shadow-success</c:when><c:otherwise>bg-gradient-secondary shadow-secondary</c:otherwise></c:choose>">
+						<i class="fa fa-file-text fa-inverse fa-1x"></i>
+						<i class="fa fa-caret-down fa-inverse fa-1x"></i>
 					</div>
 					<div class="text-end pt-1">
 						<h6 class="ch-titol">Anotació origen</h6>
@@ -422,12 +765,12 @@
 	<footer class="footer py-4">
 		<div class="row mtop-4">
 			<div class="previs-icon position-absolute bg-gradient-info shadow-info text-white font-weight-bold pointer">
-				<i class="fa fa-eye fa-inverse fa-lg"></i>
+				<i class="fa fa-eye fa-inverse fa-1x"></i>
 				<span class="previs-text">Previsualització</span>
-				<i class="fa fa-caret-down fa-inverse fa-lg"></i>
+				<i class="fa fa-caret-down fa-inverse fa-1x"></i>
 			</div>
-			<div class="viewer mtop-3" data-documentid="${detall.documentStoreId}" style="display: none; width: 100%;">
-				<iframe class="viewer-iframe" width="100%" height="540" frameBorder="0"></iframe>
+			<div class="viewer mtop-4" data-documentid="${detall.documentStoreId}" style="display: none; width: 100%;">
+				<iframe class="viewer-iframe" width="100%" height="540" frameBorder="0" style="padding: 15px;"></iframe>
 			</div>
 		</div>
 	</footer>

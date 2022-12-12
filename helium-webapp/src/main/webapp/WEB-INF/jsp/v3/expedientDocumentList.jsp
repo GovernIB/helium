@@ -54,11 +54,13 @@
 			})
 		});
 
-		$("#expedientDocuments").on('click', 'div.card-icon.pointer', (event) => {
-			let cardHeader = $(event.currentTarget).parent();
+		// Plegar / Desplegar els detalls d'un document
+		$("#expedientDocuments").on('click', 'div.card-header.pointer', (event) => {
+			let cardHeader = $(event.currentTarget);
 			toggleCard(cardHeader);
 		});
 
+		// Plegar / Desplegar la previasualització d'un document
 		$("#expedientDocuments").on('click', '.previs-icon', (event) => {
 			let viewer = $(event.currentTarget).next();
 			toggleViewer(viewer);
@@ -128,6 +130,7 @@
 	.label-doc {float: right; line-height: 16px;}
 	.doc-details {background-color: #EFF2F5;}
 	.doc-details td {padding: 0px;}
+	.pill-link {position: relative !important; display: block !important; padding: 5px 10px !important; margin-right: 2px !important;}
 </style>
 
 <c:url var="urlDatatable" value="/v3/expedient/${expedient.id}/document/datatable"/>
@@ -135,6 +138,7 @@
 <table	id="expedientDocuments"
 		  data-toggle="datatable"
 		  data-url="${urlDatatable}"
+		  data-ajax-request-type="POST"
 		  data-paging-enabled="false"
 		  data-ordering="true"
 		  data-default-order="24"

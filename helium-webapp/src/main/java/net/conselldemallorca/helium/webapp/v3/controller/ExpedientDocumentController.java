@@ -136,7 +136,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		}
 	}
 
-	@RequestMapping(value = "/{expedientId}/document/datatable", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/document/datatable", method = RequestMethod.POST)
 	@ResponseBody
 	public DatatablesResponse documentDatatable(
 			HttpServletRequest request,
@@ -149,7 +149,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				null,
 				expedientDocumentService.findDocumentsExpedient(expedientId, paginacioParams),
 				"id");
-
 	}
 
 	@RequestMapping(value = "/{expedientId}/document/selection", method = RequestMethod.POST)
@@ -1037,6 +1036,15 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	}
 	
 	/** Mètode per descarregar una firma dettached des de la modal de dades de l'arxiu d'un document. */
+	@RequestMapping(value = "/{expedientId}/document/{documentStoreId}/firma/{firmaIndex}/descarregar", method = RequestMethod.GET)
+	public String descarregarDocFirma(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long documentStoreId,
+			@PathVariable int firmaIndex,
+			Model model) {
+		return descarregarFirma(request, expedientId, null, documentStoreId, firmaIndex, model);
+	}
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/firma/{firmaIndex}/descarregar", method = RequestMethod.GET)
 	public String descarregarFirma(
 			HttpServletRequest request,

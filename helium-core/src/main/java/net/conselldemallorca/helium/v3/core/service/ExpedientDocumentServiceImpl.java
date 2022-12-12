@@ -1267,6 +1267,20 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		}
 
 		// NTI
+		documentDetallBuilder.ntiDetall(NtiDetallDto.builder()
+				.ntiVersion(document.getNtiVersion())
+				.ntiIdentificador(document.getNtiIdentificador())
+				.ntiOrgano(document.getNtiOrgano())
+				.ntiOrigen(document.getNtiOrigen())
+				.ntiEstadoElaboracion(document.getNtiEstadoElaboracion())
+				.ntiNombreFormato(document.getNtiNombreFormato())
+				.ntiTipoDocumental(document.getNtiTipoDocumental())
+				.ntiIdOrigen(document.getNtiIdOrigen())
+				.ntiTipoFirma(document.getNtiTipoFirma())
+				.ntiCsv(document.getNtiCsv())
+				.ntiDefinicionGenCsv(document.getNtiDefinicionGenCsv())
+				.arxiuUuid(document.getArxiuUuid())
+				.build());
 		if (expedient.isArxiuActiu()) {
 			if (!StringUtils.isEmpty(document.getArxiuUuid())) {
 				documentDetallBuilder.arxiuDetall(getArxiuDetall(
