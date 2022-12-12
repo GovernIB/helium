@@ -3,8 +3,6 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,26 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAccioEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PermisEstatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.regles.AccioEnum;
-import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
-import net.conselldemallorca.helium.v3.core.api.dto.regles.QuiEnum;
-import net.conselldemallorca.helium.v3.core.api.exportacio.EstatExportacio;
-import net.conselldemallorca.helium.webapp.v3.command.EstatReglaCommand;
-import net.conselldemallorca.helium.webapp.v3.command.PermisCommand;
-import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +27,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
@@ -56,10 +42,14 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisEstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.AccioEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.QuiEnum;
+import net.conselldemallorca.helium.v3.core.api.exportacio.EstatExportacio;
 import net.conselldemallorca.helium.webapp.v3.command.EstatReglaCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEstatCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ImportarDadesCommand;
@@ -351,7 +341,6 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			@PathVariable int posicio,
 			@PathVariable String ordre,
 			Model model) {
-		boolean ret = false;
 	
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto tipus = expedientTipusService.findAmbIdPermisDissenyarDelegat(
@@ -942,10 +931,224 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 
 		model.addAttribute("expedientTipus", expedientTipus);
 		model.addAttribute("estat", estat);
+		model.addAttribute("heretat", estat.isHeretat());
+		model.addAttribute("accions", accioService.findAll(expedientTipusId, null));
 
 		return "v3/expedientTipusEstatAccions";
 	}	
 	
+	@RequestMapping(value="/{expedientTipusId}/estat/{estatId}/accions/entrada/datatable", method = RequestMethod.GET)
+	@ResponseBody
+	public DatatablesResponse estatAccionsEntradaDatatable(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			Model model) {
+		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
+
+		return DatatablesHelper.getDatatableResponse(
+				request,
+				null,
+				expedientTipusService.estatAccioEntradaFindPerDatatable(
+						estatId,
+						paginacioParams.getFiltre(),
+						paginacioParams),
+				"id");
+	}		
+
+	@RequestMapping(value="/{expedientTipusId}/estat/{estatId}/accions/entrada/add/{accioId}", method = RequestMethod.POST)
+	@ResponseBody
+	public boolean estatAccionsEntradaAfegir(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			@PathVariable Long accioId) {
+		try {
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			expedientTipusService.findAmbIdPermisDissenyarDelegat(
+					entornActual.getId(),
+					expedientTipusId);
+			
+			expedientTipusService.estatAccioEntradaAfegir(
+					estatId,
+					accioId);
+
+			MissatgesHelper.success(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.estat.controller.accio.entrada.afegir.correcte"));
+			return true;
+		} catch(Exception e) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.estat.controller.accio.afegir.error",
+							new Object[] {e.getMessage()}));
+		}
+		return false;
+	}	
+	
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/accions/entrada/{estatAccioId}/delete")
+	@ResponseBody
+	public boolean estatAccionsentradaDelete(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			@PathVariable Long estatAccioId,
+			Model model) {
+
+		try {
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			expedientTipusService.findAmbIdPermisDissenyarDelegat(
+					entornActual.getId(),
+					expedientTipusId);
+
+			expedientTipusService.estatAccioEntradaDelete(
+					estatId,
+					estatAccioId);
+
+			MissatgesHelper.success(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.estat.controller.accio.entrada.esborrar.correcte"));
+			return true;
+		} catch(Exception e) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.estat.controller.accio.esborrar.error",
+							new Object[] {e.getMessage()}));
+		}
+		return false;
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/accions/entrada/{estatAccioId}/moure/{posicio}", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean estatAccioEntradaMoure(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			@PathVariable Long estatAccioId,
+			@PathVariable int posicio,
+			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		expedientTipusService.findAmbIdPermisDissenyarDelegat(
+				entornActual.getId(),
+				expedientTipusId);
+
+		return expedientTipusService.estatAccioEntradaMoure(estatAccioId, posicio);
+	}
+	
+	
+	@RequestMapping(value="/{expedientTipusId}/estat/{estatId}/accions/sortida/datatable", method = RequestMethod.GET)
+	@ResponseBody
+	public DatatablesResponse estatAccionsSortidaDatatable(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			Model model) {
+		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
+
+		return DatatablesHelper.getDatatableResponse(
+				request,
+				null,
+				expedientTipusService.estatAccioSortidaFindPerDatatable(
+						estatId,
+						paginacioParams.getFiltre(),
+						paginacioParams),
+				"id");
+	}		
+
+	@RequestMapping(value="/{expedientTipusId}/estat/{estatId}/accions/sortida/add/{accioId}", method = RequestMethod.POST)
+	@ResponseBody
+	public boolean estatAccionsSortidaAfegir(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			@PathVariable Long accioId) {
+		try {
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			expedientTipusService.findAmbIdPermisDissenyarDelegat(
+					entornActual.getId(),
+					expedientTipusId);
+			
+			expedientTipusService.estatAccioSortidaAfegir(
+					estatId,
+					accioId);
+
+			MissatgesHelper.success(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.estat.controller.accio.sortida.afegir.correcte"));
+			return true;
+		} catch(Exception e) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.estat.controller.accio.afegir.error",
+							new Object[] {e.getMessage()}));
+		}
+		return false;
+	}	
+	
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/accions/sortida/{estatAccioId}/delete")
+	@ResponseBody
+	public boolean estatAccionssortidaDelete(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			@PathVariable Long estatAccioId,
+			Model model) {
+
+		try {
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			expedientTipusService.findAmbIdPermisDissenyarDelegat(
+					entornActual.getId(),
+					expedientTipusId);
+
+			expedientTipusService.estatAccioSortidaDelete(
+					estatId,
+					estatAccioId);
+
+			MissatgesHelper.success(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.estat.controller.accio.sortida.esborrar.correcte"));
+			return true;
+		} catch(Exception e) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.estat.controller.accio.esborrar.error",
+							new Object[] {e.getMessage()}));
+		}
+		return false;
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/estat/{estatId}/accions/sortida/{estatAccioId}/moure/{posicio}", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean estatAccioSortidaMoure(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long estatId,
+			@PathVariable Long estatAccioId,
+			@PathVariable int posicio,
+			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		expedientTipusService.findAmbIdPermisDissenyarDelegat(
+				entornActual.getId(),
+				expedientTipusId);
+
+		return expedientTipusService.estatAccioSortidaMoure(estatAccioId, posicio);
+	}
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
