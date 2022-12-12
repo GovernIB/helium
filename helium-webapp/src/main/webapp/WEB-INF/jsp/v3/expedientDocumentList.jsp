@@ -5,16 +5,22 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 
+<%--<script src="<c:url value="/webjars/jquery/1.12.0/dist/jquery.min.js"/>"></script>--%>
 <script src="<c:url value="/webjars/datatables.net/1.10.10/js/jquery.dataTables.min.js"/>"></script>
 <script src="<c:url value="/webjars/datatables.net-bs/1.10.10/js/dataTables.bootstrap.min.js"/>"></script>
 <link href="<c:url value="/webjars/datatables.net-bs/1.10.10/css/dataTables.bootstrap.min.css"/>" rel="stylesheet"></link>
 <script src="<c:url value="/webjars/datatables.net-select/1.1.0/js/dataTables.select.min.js"/>"></script>
 <script src="<c:url value="/js/jsrender.min.js"/>"></script>
 <script src="<c:url value="/js/webutil.datatable.js"/>"></script>
-<script src="<c:url value="/js/expdoc-viewer.js"/>"></script>
 <%--<script slot="<c:url value="/js/bootbox.all.min.js"/>"></script>--%>
+
+<%--Visualitzar detall i previsualització del document => Es troba a expedientPipelles.jsp--%>
+<%--<script src="<c:url value="/js/expdoc-viewer.js"/>"></script>--%>
+
 <script type="application/javascript">
-	var urlDescarrebaBase = '<c:url value="/v3/expedient/${expedient.id}/document/"/>';
+
+	<%-- Paràmetres necessaris per al visor de la previsualització del document	--%>
+	var urlDescarregaBase = '<c:url value="/nodeco/v3/expedient/${expedient.id}/document/"/>';
 	var urlViewer = '<c:url value="/webjars/pdf-js/2.13.216/web/viewer.html"/>';
 	var msgViewer = [];
 	msgViewer['previs'] = '<spring:message code="expedient.document.previsualitzacio"/>';
@@ -22,25 +28,53 @@
 	msgViewer['error'] = '<spring:message code="expedient.document.previsualitzacio.error"/>';
 	msgViewer['warning'] = '<spring:message code="expedient.document.previsualitzacio.warning"/>';
 
+
 	$(document).ready(() => {
+		<%-- Al recarregar la taula... --%>
 		$("#expedientDocuments").on("draw.dt", () => {
+
+			<%-- Si el primer document és inexistent fem la vora superior de 3px, ja que amb els 2px per defecte no es veu --%>
 			let firstTr = $("#expedientDocuments tbody tr:first-child");
 			if (firstTr.hasClass("no-data")) {
 				firstTr.css("border-top", "dashed 3px #BBB");
 			}
+
+			<%-- Per cada fila... --%>
 			$("#expedientDocuments tbody tr").each((index, element) => {
 				if (!$(element).hasClass("no-data")) {
-					$(element).click((e) => {
-						const documentId = $(element).find(".accionsDocument").first().data("documentId");
-						const documentNom = escape($(element).find("td:eq(1)").text().trim());
-						// const documentArxivat = $(element).find(".accionsDocument").first().data("arxivat");
-						showViewer(e, documentId, documentNom);
+					<%-- Obrim el detall del document al fer clic a la fila del document --%>
+					$(element).click((event) => {
+						if (event.target.tagName.toLowerCase() !== 'a' && (event.target.cellIndex === undefined || event.target.cellIndex === 0 || event.target.cellIndex > 4)) return;
+						toggleDocDetails(element);
 					})
+				} else {
+					<%-- Eliminam els checks dels documents inexistents--%>
+					$(element).find(".fa-square-o").remove();
 				}
 			})
 		});
 
-		//scroll top
+		$("#expedientDocuments").on('click', 'div.card-icon.pointer', (event) => {
+			let cardHeader = $(event.currentTarget).parent();
+			toggleCard(cardHeader);
+		});
+
+		$("#expedientDocuments").on('click', '.previs-icon', (event) => {
+			let viewer = $(event.currentTarget).next();
+			toggleViewer(viewer);
+		});
+
+		<%-- Al seleccionar i deseleccionar, eliminarem els checks dels documents inexistents--%>
+		$("#expedientDocuments").on('selectionchange.dt', () => {
+			console.log('selectionchange');
+			$("#expedientDocuments tbody tr.no-data").each((index, element) => {
+				$(element).find(".fa-square-o").remove();
+				$(element).find(".fa-check-square-o").remove();
+			});
+		});
+
+
+		// Botó per tornar a dalt: scroll top
 		$('.btn-top').on('click', () => {
 			$([document.documentElement, document.body]).animate({
 				scrollTop: 0
@@ -56,9 +90,9 @@
 			});
 		});
 
-		$('body').on('click', 'button.modal-tancar', (e) => {
-			alert('tancant modal');
-		})
+		// $('body').on('click', 'button.modal-tancar', (e) => {
+		// 	alert('tancant modal');
+		// })
 	});
 
 	// const esborrarSignatura = (id, correcte) => {
@@ -80,10 +114,10 @@
 
 </script>
 <style>
+	#expedientDocuments {border-collapse: collapse !important; margin-bottom: 15px !important;}
+	#expedientDocuments tbody tr td {vertical-align: middle;}
 	.table-bordered>tbody>tr>td {max-width: 155px;}
 	.no-data {color: #bbb; border: dashed 2px; cursor: default !important;}
-	#expedientDocuments {border-collapse: collapse !important;}
-	#expedientDocuments tbody tr td {vertical-align: middle;}
 	.btn-top {position: fixed; z-index: 1000; right: 15px; bottom: 50px; background-color: #FFF; padding: 0 5px 0 5px; border-radius: 5px; cursor: pointer; opacity: 0.1;}
 	.doc-icon {color: #337ab7;}
 	.nodoc-icon {margin-right: 12px;}
@@ -92,6 +126,8 @@
 	.doc-error {color: indianred;}
 	.doc-error-icon {top: 3px;}
 	.label-doc {float: right; line-height: 16px;}
+	.doc-details {background-color: #EFF2F5;}
+	.doc-details td {padding: 0px;}
 </style>
 
 <c:url var="urlDatatable" value="/v3/expedient/${expedient.id}/document/datatable"/>
@@ -285,7 +321,7 @@
 							{{/if}}
 							<%--Portafirmes--%>
 							{{if psPendent}}
-								<li><a href="${expedient.id}/document/{{:id}}/psignaReintentar/{{:psDocId}}" data-toggle="modal"><span class="fa fa-book fa-fw" data-refrescar="false"></span>&nbsp;<spring:message code="expedient.document.psigna.reintentar"/></a></li>
+								<li><a href="${expedient.id}/document/{{:id}}/psignaReintentar/{{:psDocId}}" data-toggle="modal"><span class="fa fa-clock-o fa-fw" data-refrescar="false"></span>&nbsp;<spring:message code="expedient.document.psigna.reintentar"/></a></li>
 							{{/if}}
 							<%--NTI        --%>
 							{{if ntiActiu}}
@@ -306,12 +342,12 @@
 	</tr>
 	</thead>
 </table>
-<div class="panel panel-default" id="resum-viewer" style="display: none; width: 100%;" >
-	<iframe id="container" class="viewer-padding" width="100%" height="540" frameBorder="0"></iframe>
-</div>
-<div class="btn-top">
-	<span class="fa fa-arrow-up"></span>
-</div>
+<%--<div class="panel panel-default" id="resum-viewer" style="display: none; width: 100%;" >--%>
+<%--	<iframe id="container" class="viewer-padding" width="100%" height="540" frameBorder="0"></iframe>--%>
+<%--</div>--%>
+<%--<div class="btn-top">--%>
+<%--	<span class="fa fa-arrow-up"></span>--%>
+<%--</div>--%>
 <script id="tableButtonsDocumentsTemplate" type="text/x-jsrender">
 	<div class="botons-titol text-right">
 		<a id="descarregarZip" href="<c:url value="/v3/expedient/${expedient.id}/document/descarregarZip"/>" class="btn btn-default" title="<spring:message code="expedient.document.descarregar.zip"/>">

@@ -22,7 +22,7 @@
 	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 	<script src="<c:url value="/js/webutil.modal.js"/>"></script>
-
+	<script src="<c:url value="/js/expdoc-viewer.js"/>"></script>
 <style type="text/css">
 #expedient-info h3 {
 	font-weight: bold;

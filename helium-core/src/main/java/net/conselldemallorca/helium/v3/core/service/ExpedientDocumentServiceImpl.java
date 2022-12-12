@@ -16,12 +16,16 @@ import java.util.Set;
 import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.Resource;
 
+import com.google.common.base.Strings;
 import net.conselldemallorca.helium.core.common.JbpmVars;
+import net.conselldemallorca.helium.core.model.hibernate.*;
 import net.conselldemallorca.helium.v3.core.api.dto.*;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.document.*;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.CampFormProperties;
 import net.conselldemallorca.helium.v3.core.regles.ReglaHelper;
+import net.conselldemallorca.helium.v3.core.repository.*;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,15 +49,7 @@ import net.conselldemallorca.helium.core.helper.NotificacioHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Interessat;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
@@ -65,20 +61,13 @@ import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
-import net.conselldemallorca.helium.v3.core.repository.DocumentNotificacioRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
-import net.conselldemallorca.helium.v3.core.repository.InteressatRepository;
-import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
-import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
-import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 
 
-/**
- * Implementació dels mètodes del servei ExpedientDocumentService.
- * 
- * @author Limit Tecnologies <limit@limit.es>
- */
+	/**
+     * Implementació dels mètodes del servei ExpedientDocumentService.
+     *
+     * @author Limit Tecnologies <limit@limit.es>
+     */
 @Service
 public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
@@ -97,7 +86,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	@Resource
 	private PaginacioHelper paginacioHelper;
 	@Resource
-	NotificacioRepository notificacioRepository;
+	private NotificacioRepository notificacioRepository;
+	@Resource
+	private AnotacioRepository anotacioRepository;
 
 	@Resource
 	private PluginHelper pluginHelper;
@@ -1142,6 +1133,21 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public PortasignaturesDto getPortasignaturesByProcessInstanceAndDocumentStoreId(
+			String processInstanceId,
+			Long documentStoreId) {
+		Portasignatures portasignatures = null;
+		if (!Strings.isNullOrEmpty(processInstanceId) && documentStoreId != null) {
+			portasignatures = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(
+					processInstanceId,
+					documentStoreId);
+		}
+		return conversioTipusHelper.convertir(portasignatures, PortasignaturesDto.class);
+
+	}
+
 	
 	@Override
 	@Transactional(readOnly = true)
@@ -1212,6 +1218,155 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			throw new NoTrobatException(DocumentDto.class, documentStoreId);
 		}
 		return dto;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public DocumentDetallDto getDocumentDetalls(Long expedientId, Long documentStoreId) {
+		// Expedient
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+		// Document
+		ExpedientDocumentDto document = findOneAmbInstanciaProces(
+				expedientId,
+				expedient.getProcessInstanceId(),
+				documentStoreId);
+
+		// Detalls del document
+		DocumentDetallDto.DocumentDetallDtoBuilder documentDetallBuilder = DocumentDetallDto.builder()
+				.documentStoreId(documentStoreId)
+				.documentNom(document.getDocumentNom())
+				.arxiuNom(document.getArxiuNom())
+				.adjunt(document.isAdjunt())
+				.adjuntTitol(document.getAdjuntTitol())
+				.dataCreacio(document.getDataCreacio())
+				.dataModificacio(document.getDataModificacio())
+				.dataDocument(document.getDataDocument())
+				.notificable(document.isNotificable())
+				.arxiuUuid(document.getArxiuUuid())
+				.ntiCsv(document.getNtiCsv())
+				.nti(expedient.isNtiActiu() && expedient.getArxiuUuid() == null)
+				.arxiu(expedient.isNtiActiu() && expedient.getArxiuUuid() != null)
+				.signat(document.isSignat())
+				.registrat(document.isRegistrat())
+				.deAnotacio(document.getAnotacioId() != null)
+				.notificat(document.isNotificat());
+
+		// Registre
+		if (document.isRegistrat()) {
+			documentDetallBuilder.registreDetall(RegistreDetallDto.builder()
+					.registreOficinaNom(document.getRegistreOficinaNom())
+					.registreData(document.getRegistreData())
+					.registreEntrada(document.isRegistreEntrada())
+					.registreNumero(document.getRegistreNumero())
+					.build());
+		}
+
+		// NTI
+		if (expedient.isArxiuActiu()) {
+			if (!StringUtils.isEmpty(document.getArxiuUuid())) {
+				documentDetallBuilder.arxiuDetall(getArxiuDetall(
+						expedientId,
+						expedient.getProcessInstanceId(),
+						documentStoreId));
+			} else {
+				documentDetallBuilder.errorArxiuNoUuid(true);
+			}
+			if (expedient.getNtiOrgano() == null) {
+				documentDetallBuilder.errorMetadadesNti(true);
+			}
+		}
+
+		// Signatura / Url de verificació
+		if (document.isSignat()) {
+			SignaturaValidacioDetallDto.SignaturaValidacioDetallDtoBuilder signaturaValidacioDetallBuilder = SignaturaValidacioDetallDto.builder().signat(true);
+			if (expedient.isArxiuActiu()) {
+				if (document.getNtiCsv() != null) {
+					signaturaValidacioDetallBuilder.urlVerificacio(document.getSignaturaUrlVerificacio());
+				} else {
+					// La crida a arxiuDetall ha actualitzar el CSV al documnet. Per tant el tornam a consultar
+					ExpedientDocumentDto expedientDocument = findOneAmbInstanciaProces(
+							expedientId,
+							expedient.getProcessInstanceId(),
+							documentStoreId);
+					signaturaValidacioDetallBuilder.urlVerificacio("redirect:" + expedientDocument.getSignaturaUrlVerificacio());
+				}
+			} else {
+				if (!StringUtils.isEmpty(document.getSignaturaUrlVerificacio())) {
+					signaturaValidacioDetallBuilder.urlVerificacio(document.getSignaturaUrlVerificacio());
+				} else {
+					DocumentDto signatura = findDocumentAmbId(documentStoreId);
+					signaturaValidacioDetallBuilder.tokenSignatura(signatura.getTokenSignatura());
+					DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+					if (documentStore == null)
+						throw new NoTrobatException(DocumentStore.class, documentStoreId);
+					List<RespostaValidacioSignaturaDto> signatures = documentHelper.getRespostasValidacioSignatura(documentStore);
+					List<SignaturaDetallDto> signaturaValidacioDetall = new ArrayList<SignaturaDetallDto>();
+					for (RespostaValidacioSignaturaDto sign : signatures) {
+						String nomResponsable = null;
+						String nifResponsable = null;
+						if (sign.getDadesCertificat() != null && !sign.getDadesCertificat().isEmpty()) {
+							nomResponsable = sign.getDadesCertificat().get(0).getNombreCompletoResponsable();
+							nifResponsable = sign.getDadesCertificat().get(0).getNifResponsable();
+						}
+						signaturaValidacioDetall.add(SignaturaDetallDto.builder()
+								.estatOk(sign.isEstatOk())
+								.nomResponsable(nomResponsable)
+								.nifResponsable(nifResponsable)
+								.build());
+					}
+					signaturaValidacioDetallBuilder.signatures(signaturaValidacioDetall);
+				}
+			}
+			documentDetallBuilder.signaturaValidacioDetall(signaturaValidacioDetallBuilder.build());
+		}
+
+		// Psigna
+		PortasignaturesDto portasignatures = getPortasignaturesByProcessInstanceAndDocumentStoreId(
+				expedient.getProcessInstanceId(),
+				documentStoreId);
+		if (portasignatures != null) {
+			documentDetallBuilder
+					.psignaPendent(!"PROCESSAT".equals(portasignatures.getEstat()))
+					.psignaDetall(PsignaDetallDto.builder()
+							.documentId(portasignatures.getDocumentId())
+							.dataEnviat(portasignatures.getDataEnviat())
+							.estat(portasignatures.getEstat())
+							.error(portasignatures.isError())
+							.errorProcessant(portasignatures.getErrorProcessant())
+							.motiuRebuig(portasignatures.getMotiuRebuig())
+							.dataProcessamentPrimer(portasignatures.getDataProcessamentPrimer())
+							.dataProcessamentDarrer(portasignatures.getDataProcessamentDarrer())
+							.build());
+		} else {
+			documentDetallBuilder.psignaPendent(false);
+		}
+
+
+		// Anotacio
+		if (document.getAnotacioId() != null) {
+			Anotacio anotacio = anotacioRepository.findOne(document.getAnotacioId());
+			if (anotacio == null) {
+				throw new NoTrobatException(Anotacio.class, document.getAnotacioId());
+			}
+			documentDetallBuilder.anotacio(conversioTipusHelper.convertir(anotacio, AnotacioDto.class));
+		}
+
+		// Notificacio
+		if (document.isNotificat()) {
+			 List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
+			 List<DadesNotificacioDto> notificaionsDetalls = new ArrayList<DadesNotificacioDto>();
+			 for (DocumentNotificacio enviament: enviaments) {
+				 notificaionsDetalls.add(notificacioHelper.toDadesNotificacioDto(enviament));
+			 }
+			 documentDetallBuilder.notificacions(notificaionsDetalls);
+		}
+
+		return documentDetallBuilder.build();
 	}
 
 	@Transactional
@@ -1577,4 +1732,5 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientDocumentServiceImpl.class);
+
 }

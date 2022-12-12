@@ -12,6 +12,7 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
+import net.conselldemallorca.helium.v3.core.api.dto.document.DocumentDetallDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
@@ -277,8 +278,14 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 		return delegate.getPortasignaturesByDocumentId(documentId);
 	}
 
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public PortasignaturesDto getPortasignaturesByProcessInstanceAndDocumentStoreId(String processInstanceId, Long documentStoreId) {
+        return delegate.getPortasignaturesByProcessInstanceAndDocumentStoreId(processInstanceId, documentStoreId);
+    }
 
-	@Override
+
+    @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuDto findArxiuAmbTokenPerMostrar(
 			String token) throws NoTrobatException {
@@ -299,7 +306,13 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 		return delegate.findDocumentAmbId(documentStoreId);
 	}
 
-	@Override
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public DocumentDetallDto getDocumentDetalls(Long expedientId, Long documentStoreId) {
+        return delegate.getDocumentDetalls(expedientId, documentStoreId);
+    }
+
+    @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuDetallDto getArxiuDetall(
 			Long expedientId,

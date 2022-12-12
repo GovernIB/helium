@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.v3.core.api.service;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +22,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.document.DocumentDetallDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
@@ -289,6 +289,10 @@ public interface ExpedientDocumentService {
 	 */
 	public PortasignaturesDto getPortasignaturesByDocumentId(Integer documentId);
 
+	public PortasignaturesDto getPortasignaturesByProcessInstanceAndDocumentStoreId(
+			String processInstanceId,
+			Long documentStoreId);
+
 	/**
 	 * Genera l'arxiu d'un document a partir de la seva plantilla.
 	 * 
@@ -370,12 +374,14 @@ public interface ExpedientDocumentService {
 			String arxiuNom) throws NoTrobatException, PermisDenegatException;
 
 	public List<RespostaValidacioSignaturaDto> verificarSignatura(Long documentStoreId);
-	
-	public ArxiuDto findArxiuAmbTokenPerMostrar(String token) throws NoTrobatException;
+
+    public ArxiuDto findArxiuAmbTokenPerMostrar(String token) throws NoTrobatException;
 
 	public ArxiuDto findArxiuAmbTokenPerSignar(String token) throws NoTrobatException;
 
 	public DocumentDto findDocumentAmbId(Long documentStoreId) throws NoTrobatException;
+
+	public DocumentDetallDto getDocumentDetalls(Long expedientId, Long documentStoreId);
 
 	/**
 	 * Retorna la informació del document emmagatzemada a dins l'arxiu.
@@ -445,4 +451,5 @@ public interface ExpedientDocumentService {
 			Long documentStoreId) throws NoTrobatException, PermisDenegatException;
 
     public Set<Long> findIdsDocumentsByExpedient(Long expedientId);
+
 }

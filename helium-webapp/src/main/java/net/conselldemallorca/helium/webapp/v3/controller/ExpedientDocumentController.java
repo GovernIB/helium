@@ -16,12 +16,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.*;
+import net.conselldemallorca.helium.v3.core.api.dto.document.*;
+import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
 import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
@@ -48,25 +48,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.util.PdfUtils;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalViaTipus;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.IdiomaEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientInteressatService;
@@ -102,6 +87,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	private NtiHelper ntiHelper;
 	@Autowired
 	private ExpedientInteressatService expedientInteressatService;
+	@Autowired
+	private AnotacioService anotacioService;
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
 
@@ -621,6 +608,145 @@ public class ExpedientDocumentController extends BaseExpedientController {
     	return "v3/expedientDocumentForm";
 	}
 
+
+	@RequestMapping(value = "/{expedientId}/document/{documentStoreId}/detall", method = RequestMethod.GET)
+//	@ResponseBody
+	public String getDetall(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long documentStoreId,
+			Model model) {
+
+		DocumentDetallDto documentDetall = expedientDocumentService.getDocumentDetalls(expedientId, documentStoreId);
+		model.addAttribute("detall", documentDetall);
+		return "v3/expedientDocumentDetall";
+//		// Expedient
+//		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+//		// Document
+//		ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
+//				expedientId,
+//				expedient.getProcessInstanceId(),
+//				documentStoreId);
+//
+//		// Detalls del document
+//		DocumentDetallDto.DocumentDetallDtoBuilder documentDetallBuilder = DocumentDetallDto.builder()
+//				.documentNom(document.getDocumentNom())
+//				.arxiuNom(document.getArxiuNom())
+//				.adjunt(document.isAdjunt())
+//				.adjuntTitol(document.getAdjuntTitol())
+//				.dataCreacio(document.getDataCreacio())
+//				.dataModificacio(document.getDataModificacio())
+//				.dataDocument(document.getDataDocument())
+//				.notificable(document.isNotificable())
+//				.arxiuUuid(document.getArxiuUuid())
+//				.ntiCsv(document.getNtiCsv())
+//				.nti(expedient.isNtiActiu() && expedient.getArxiuUuid() == null)
+//				.arxiu(expedient.isNtiActiu() && expedient.getArxiuUuid() != null)
+//				.signat(document.isSignat())
+//				.registrat(document.isRegistrat())
+//				.deAnotacio(document.getAnotacioId() != null)
+//				.notificat(document.isNotificat());
+//
+//		// Registre
+//		if (document.isRegistrat()) {
+//			documentDetallBuilder.registreDetall(RegistreDetallDto.builder()
+//					.registreOficinaNom(document.getRegistreOficinaNom())
+//					.registreData(document.getRegistreData())
+//					.registreEntrada(document.isRegistreEntrada())
+//					.registreNumero(document.getRegistreNumero())
+//					.build());
+//		}
+//
+//		// NTI
+//		if (expedient.isArxiuActiu()) {
+//			if (!StringUtils.isEmpty(document.getArxiuUuid())) {
+//				documentDetallBuilder.arxiuDetall(expedientDocumentService.getArxiuDetall(
+//						expedientId,
+//						expedient.getProcessInstanceId(),
+//						documentStoreId));
+//			} else {
+//				documentDetallBuilder.errorArxiuNoUuid(true);
+//			}
+//			if (expedient.getNtiOrgano() == null) {
+//				documentDetallBuilder.errorMetadadesNti(true);
+//			}
+//		}
+//
+//		// Signatura / Url de verificació
+//		if (document.isSignat()) {
+//			SignaturaValidacioDetallDto.SignaturaValidacioDetallDtoBuilder signaturaValidacioDetallBuilder = SignaturaValidacioDetallDto.builder().signat(true);
+//			if (expedient.isArxiuActiu()) {
+//				if (document.getNtiCsv() != null) {
+//					signaturaValidacioDetallBuilder.urlVerificacio(document.getSignaturaUrlVerificacio());
+//				} else {
+//					// La crida a arxiuDetall ha actualitzar el CSV al documnet. Per tant el tornam a consultar
+//					ExpedientDocumentDto expedientDocument = expedientDocumentService.findOneAmbInstanciaProces(
+//							expedientId,
+//							expedient.getProcessInstanceId(),
+//							documentStoreId);
+//					signaturaValidacioDetallBuilder.urlVerificacio("redirect:" + expedientDocument.getSignaturaUrlVerificacio());
+//				}
+//			} else {
+//				if (!StringUtils.isEmpty(document.getSignaturaUrlVerificacio())) {
+//					signaturaValidacioDetallBuilder.urlVerificacio(document.getSignaturaUrlVerificacio());
+//				} else {
+//					DocumentDto signatura = expedientDocumentService.findDocumentAmbId(documentStoreId);
+//					signaturaValidacioDetallBuilder.tokenSignatura(signatura.getTokenSignatura());
+//
+//					List<RespostaValidacioSignaturaDto> signatures = expedientService.verificarSignatura(documentStoreId);
+//					List<SignaturaDetallDto> signaturaValidacioDetall = new ArrayList<SignaturaDetallDto>();
+//					for (RespostaValidacioSignaturaDto sign : signatures) {
+//						String nomResponsable = null;
+//						String nifResponsable = null;
+//						if (sign.getDadesCertificat() != null && !sign.getDadesCertificat().isEmpty()) {
+//							nomResponsable = sign.getDadesCertificat().get(0).getNombreCompletoResponsable();
+//							nifResponsable = sign.getDadesCertificat().get(0).getNifResponsable();
+//						}
+//						signaturaValidacioDetall.add(SignaturaDetallDto.builder()
+//								.estatOk(sign.isEstatOk())
+//								.nomResponsable(nomResponsable)
+//								.nifResponsable(nifResponsable)
+//								.build());
+//					}
+//					signaturaValidacioDetallBuilder.signatures(signaturaValidacioDetall);
+//				}
+//			}
+//			documentDetallBuilder.signaturaValidacioDetall(signaturaValidacioDetallBuilder.build());
+//		}
+//
+//		// Psigna
+//		PortasignaturesDto portasignatures = expedientDocumentService.getPortasignaturesByProcessInstanceAndDocumentStoreId(
+//				expedient.getProcessInstanceId(),
+//				documentStoreId);
+//		if (portasignatures != null) {
+//			documentDetallBuilder
+//					.psignaPendent(!"PROCESSAT".equals(portasignatures.getEstat()))
+//					.psignaDetall(PsignaDetallDto.builder()
+//							.documentId(portasignatures.getDocumentId())
+//							.dataEnviat(portasignatures.getDataEnviat())
+//							.estat(portasignatures.getEstat())
+//							.error(portasignatures.isError())
+//							.errorProcessant(portasignatures.getErrorProcessant())
+//							.motiuRebuig(portasignatures.getMotiuRebuig())
+//							.dataProcessamentPrimer(portasignatures.getDataProcessamentPrimer())
+//							.dataProcessamentDarrer(portasignatures.getDataProcessamentDarrer())
+//							.build());
+//		} else {
+//			documentDetallBuilder.psignaPendent(false);
+//		}
+//
+//
+//		// Anotacio
+//		if (document.getAnotacioId() != null) {
+//			documentDetallBuilder.deAnotacio(anotacioService.findAmbId(document.getAnotacioId()));
+//		}
+//
+//		// Notificacio
+//		if (document.isNotificat()) {
+//			// List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
+//		}
+//		return documentDetallBuilder.build();
+	}
 
 	@RequestMapping(value = "/{expedientId}/document/{documentStoreId}/notificar", method = RequestMethod.GET)
 	public String notificarGet(

@@ -456,7 +456,8 @@
 					}else {
 						editSelection(ids, 'add');
 					}
-					
+
+					$taula.trigger('selectionchange.dt');
 					/*$taula.trigger(
 							'selectionchange.dataTable',
 							[ids]);*/
