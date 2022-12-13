@@ -296,66 +296,6 @@
 			<version>3.0</version>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.webjars.bower</groupId>
-			<artifactId>jquery</artifactId>
-			<version>1.12.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars.bower</groupId>
-			<artifactId>bootstrap</artifactId>
-			<version>3.3.6</version>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars.bower</groupId>
-			<artifactId>font-awesome</artifactId>
-			<version>4.5.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars.bower</groupId>
-			<artifactId>datatables.net</artifactId>
-			<version>1.10.10</version>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars.bower</groupId>
-			<artifactId>datatables.net-bs</artifactId>
-			<version>1.10.10</version>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars.bower</groupId>
-			<artifactId>datatables.net-scroller</artifactId>
-			<version>1.4.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars.bower</groupId>
-			<artifactId>datatables.net-select</artifactId>
-			<version>1.1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars.bower</groupId>
-			<artifactId>datatables.net-select-bs</artifactId>
-			<version>1.1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars.bower</groupId>
-			<artifactId>select2</artifactId>
-			<version>4.0.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars.bower</groupId>
-			<artifactId>select2-bootstrap-theme</artifactId>
-			<version>0.1.0-beta.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars</groupId>
-			<artifactId>pdf-js</artifactId>
-			<version>2.13.216</version>
-		</dependency>
-		<dependency>
-			<groupId>org.webjars.bower</groupId>
-			<artifactId>jsrender</artifactId>
-			<version>1.0.0-rc.70</version>
-		</dependency>
  		<dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>
 		    <artifactId>jackson-core</artifactId>
@@ -416,8 +356,7 @@
 		      <artifactId>jaxb-impl</artifactId>
 		    </exclusion>
 		  </exclusions>
-		</dependency>	
-	    
+		</dependency>
 		<dependency>
 			<groupId>org.fundaciobit.plugins</groupId>
 			<artifactId>plugin-signatureweb-miniappletinclient</artifactId>
@@ -486,6 +425,66 @@
 							<groupId>org.slf4j</groupId>
 						</exclusion>
 					</exclusions>
+				</dependency>
+				<dependency>
+					<groupId>org.webjars.bower</groupId>
+					<artifactId>jquery</artifactId>
+					<version>1.12.0</version>
+				</dependency>
+				<dependency>
+					<groupId>org.webjars.bower</groupId>
+					<artifactId>bootstrap</artifactId>
+					<version>3.3.6</version>
+				</dependency>
+				<dependency>
+					<groupId>org.webjars.bower</groupId>
+					<artifactId>font-awesome</artifactId>
+					<version>4.5.0</version>
+				</dependency>
+				<dependency>
+					<groupId>org.webjars.bower</groupId>
+					<artifactId>datatables.net</artifactId>
+					<version>1.10.10</version>
+				</dependency>
+				<dependency>
+					<groupId>org.webjars.bower</groupId>
+					<artifactId>datatables.net-bs</artifactId>
+					<version>1.10.10</version>
+				</dependency>
+				<dependency>
+					<groupId>org.webjars.bower</groupId>
+					<artifactId>datatables.net-scroller</artifactId>
+					<version>1.4.0</version>
+				</dependency>
+				<dependency>
+					<groupId>org.webjars.bower</groupId>
+					<artifactId>datatables.net-select</artifactId>
+					<version>1.1.0</version>
+				</dependency>
+				<dependency>
+					<groupId>org.webjars.bower</groupId>
+					<artifactId>datatables.net-select-bs</artifactId>
+					<version>1.1.0</version>
+				</dependency>
+				<dependency>
+					<groupId>org.webjars.bower</groupId>
+					<artifactId>select2</artifactId>
+					<version>4.0.1</version>
+				</dependency>
+				<dependency>
+					<groupId>org.webjars.bower</groupId>
+					<artifactId>select2-bootstrap-theme</artifactId>
+					<version>0.1.0-beta.4</version>
+				</dependency>
+				<dependency>
+					<groupId>org.webjars</groupId>
+					<artifactId>pdf-js</artifactId>
+					<version>2.13.216</version>
+				</dependency>
+				<dependency>
+					<groupId>org.webjars.bower</groupId>
+					<artifactId>jsrender</artifactId>
+					<version>1.0.0-rc.70</version>
 				</dependency>
 				<dependency>
 					<groupId>${project.groupId}</groupId>
