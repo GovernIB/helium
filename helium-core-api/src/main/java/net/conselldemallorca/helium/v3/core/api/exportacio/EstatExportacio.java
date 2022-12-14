@@ -3,16 +3,17 @@
  */
 package net.conselldemallorca.helium.v3.core.api.exportacio;
 
+import java.io.Serializable;
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisEstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatAccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
-
-import java.io.Serializable;
-import java.util.List;
 
 
 /**
@@ -35,7 +36,6 @@ public class EstatExportacio implements Serializable {
 
 	private List<EstatReglaDto> regles;
 	private List<PermisEstatDto> permisos;
-	// TODO:
-//	private List<EstatAccioDto> accions;
-	
+	private List<EstatAccioDto> accionsEntrada;
+	private List<EstatAccioDto> accionsSortida;
 }
