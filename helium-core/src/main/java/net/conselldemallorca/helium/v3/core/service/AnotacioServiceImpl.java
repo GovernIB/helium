@@ -1159,7 +1159,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					processInstanceId,
 					varCodi,
 					varValor);	
-		} else {
+		} else if (!variableExisteix){
 			this.dadaCreate(
 						expedientId,
 						processInstanceId,								
@@ -1250,17 +1250,17 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					null,
 					expedient.getProcessInstanceId(),
 					dadesDocumentDto.getData(),
-					dadesDocumentDto.getTitol(), // Títol en el cas dels adjunts
-					dadesDocumentDto.getArxiuNom(), //arxiuNom,
-					dadesDocumentDto.getArxiuContingut(), //arxiuContingut,
-					document.getArxiuExtensio(), //arxiuContentType,
-					document.isSignat(), //command.isAmbFirma(),
-					false, //boolean firmaSeparada,
-					null, //byte[] firmaContingut
-					document.getNtiOrigen(),// command.getNtiOrigen(),
-					document.getNtiEstadoElaboracion(),//command.getNtiEstadoElaboracion(),
-					document.getNtiTipoDocumental(),//command.getNtiTipoDocumental(),
-					document.getNtiIdOrigen());//command.getNtiIdOrigen());
+					dadesDocumentDto.getTitol(),
+					dadesDocumentDto.getArxiuNom(),
+					dadesDocumentDto.getArxiuContingut(),
+					document.getArxiuExtensio(),
+					document.isSignat(),
+					false,
+					null,
+					document.getNtiOrigen(),
+					document.getNtiEstadoElaboracion(),
+					document.getNtiTipoDocumental(),
+					document.getNtiIdOrigen());
 			
 			
 			
@@ -1272,18 +1272,18 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					dadesDocumentDto.getCodi(),
 					dadesDocumentDto.getData(),
 					false, //isAdjunt
-					dadesDocumentDto.getTitol(), // Títol en el cas dels adjunts
-					dadesDocumentDto.getArxiuNom(), //arxiuNom,
-					dadesDocumentDto.getArxiuContingut(), //arxiuContingut,
+					dadesDocumentDto.getTitol(),
+					dadesDocumentDto.getArxiuNom(),
+					dadesDocumentDto.getArxiuContingut(),
 					null, // arxiuUuid
-					documentHelper.getContentType(dadesDocumentDto.getArxiuNom()),//document.getArxiuExtensio(), //arxiuContentType,
+					documentHelper.getContentType(dadesDocumentDto.getArxiuNom()),
 					false,//document.isSignat(), //command.isAmbFirma(),
 					false,
 					null,
-					null, // document.getNtiOrigen(),// command.getNtiOrigen(),
-					null, //document.getNtiEstadoElaboracion(),//command.getNtiEstadoElaboracion(),
-					null, //document.getNtiTipoDocumental(),//command.getNtiTipoDocumental(),
-					null, //document.getNtiIdOrigen(),
+					null,
+					null,
+					null,
+					null,
 					true,
 					null);
 		}
