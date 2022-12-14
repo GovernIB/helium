@@ -78,7 +78,7 @@
 						<!-- Per les accions dels tipus d'expedient es mostra la clau de la definició de procés -->
 						<th data-col-name="defprocJbpmKey"><spring:message code="expedient.tipus.accio.llistat.columna.defprocJbpmKey"/></th>
 					</c:if>
-					<th data-col-name="jbpmAction"><spring:message code="expedient.tipus.accio.llistat.columna.jbpmAction"/></th>
+					<th data-col-name="handler" data-orderable="false"><spring:message code="expedient.tipus.accio.llistat.columna.jbpmAction"/></th>
 					<th data-col-name="id" data-template="#cellAccionsAccioTemplate" data-orderable="false" width="10%">
 						<script id="cellAccionsAccioTemplate" type="text/x-jsrender">
 						<div class="dropdown">

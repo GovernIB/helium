@@ -1407,8 +1407,11 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 									expedientTipus, 
 									accioExportat.getCodi(), 
 									accioExportat.getNom(),
+									accioExportat.getTipus(),
 									accioExportat.getDefprocJbpmKey(),
-									accioExportat.getJbpmAction());
+									accioExportat.getJbpmAction(),
+									accioExportat.getPredefinitClasse(),
+									accioExportat.getPredefinitDades());
 							expedientTipus.getAccions().add(accio);
 							accioRepository.save(accio);
 						} else {
@@ -3180,8 +3183,11 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 								expedientTipus,
 								accio.getCodi(),
 								accio.getNom(),
+								accio.getTipus(),
 								definicioProces.getJbpmKey(),
-								accio.getJbpmAction());
+								accio.getJbpmAction(),
+								accio.getPredefinitClasse(),
+								accio.getPredefinitDades());
 						expedientTipus.getAccions().add(nova);
 					} else if (sobreescriure) {
 						nova.setNom(accio.getNom());

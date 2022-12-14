@@ -1,0 +1,433 @@
+[
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientComentariModificarHandler",
+  "nom" : "Modificar el comentari de l'expedient",
+  "descripcio" : "Aquest handler ens permet modificar el comentari de l'expedient.",
+  "parametres" : [ {
+	"codi": "comentari",
+    "nom" : "Comentari",
+    "obligatori" : false,
+    "param" : "comentari",
+    "paramDesc" : "Comentari de l'expedient",
+    "varParam" : "varComentari",
+    "varParamDesc" : "Variable que conté el comentari de l'expedient"
+  }],
+  "agrupacio" : "EXPEDIENTS"
+ }, 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientEstatModificarHandler",
+  "nom" : "Modificar l'estat de l'expedient",
+  "descripcio" : "Aquest handler ens permet modificar l'estat de l'expedient.",
+  "parametres" : [ 
+  	{
+	"codi": "estatCodi",
+    "nom" : "Codi de l'estat",
+    "obligatori" : false,
+    "param" : "estatCodi",
+    "paramDesc" : "Codi de l'estat",
+    "varParam" : "varEstatCodi",
+    "varParamDesc" : "Variable que conté el codi de l'estat"
+  }],
+  "agrupacio" : "EXPEDIENTS"
+ }, 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientNumeroModificarHandler",
+  "nom" : "Modificar el número de l'expedient",
+  "descripcio" : "Aquest handler ens permet modificar el número d'expedient.",
+  "parametres" : [ 
+  	{
+	"codi": "numero",
+    "nom" : "Número d'expedient",
+    "obligatori" : true,
+    "param" : "numero",
+    "paramDesc" : "Número d'expedient",
+    "varParam" : "varNumero",
+    "varParamDesc" : "Variable que conté el número d'expedient"
+  }],
+  "agrupacio" : "EXPEDIENTS"
+ }, 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientResponsableModificarHandler",
+  "nom" : "Modificar el responsable de l'expedient",
+  "descripcio" : "Aquest handler ens permet modificar la persona responsable de l'expedient.",
+  "parametres" : [ 
+  	{
+	"codi": "responsableCodi",
+    "nom" : "Codi de l'usuari responsable",
+    "obligatori" : false,
+    "param" : "responsableCodi",
+    "paramDesc" : "Codi de l'usuari responsable",
+    "varParam" : "varResponsableCodi",
+    "varParamDesc" : "Variable que conté el codi de l'usuari responsable"
+  }],
+  "agrupacio" : "EXPEDIENTS"
+ }, 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientTitolModificarHandler",
+  "nom" : "Modificar el títol de l'expedient",
+  "descripcio" : "Aquest handler ens permet modificar el títol de l'expedient.",
+  "parametres" : [ 
+  	{
+	"codi": "titol",
+    "nom" : "Títol de l'expedient",
+    "obligatori" : false,
+    "param" : "titol",
+    "paramDesc" : "Títol de l'expedient",
+    "varParam" : "varTitol",
+    "varParamDesc" : "Variable que conté el títol de l'expedient"
+  }],
+  "agrupacio" : "EXPEDIENTS"
+ }, 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientGeorefModificarHandler",
+  "nom" : "Georeferenciació d'un expedient",
+  "descripcio" : "Aquest handler permet modificar les dades necessàries per a la georeferenciació d'un expedient, la qual es pot dur a terme per referència cadastral o coordenades XY.",
+  "parametres" : [ 
+  	{
+	"codi": "posx",
+    "nom" : "Valor de la coordenada X",
+    "obligatori" : false,
+    "param" : "posx",
+    "paramDesc" : "Valor de la coordenada X",
+    "varParam" : "varPosx",
+    "varParamDesc" : "Variable que conté la coordenada X"
+  },
+  	{
+	"codi": "posy",
+    "nom" : "Valor de la coordenada Y",
+    "obligatori" : false,
+    "param" : "posy",
+    "paramDesc" : "Valor de la coordenada Y",
+    "varParam" : "varPosy",
+    "varParamDesc" : "Variable que conté la coordenada Y"
+  },
+  	{
+	"codi": "referencia",
+    "nom" : "Referència cadastral",
+    "obligatori" : false,
+    "param" : "referencia",
+    "paramDesc" : "Referència cadastral",
+    "varParam" : "varReferencia",
+    "varParamDesc" : "Variable que conté la referència cadastral"
+  }],
+  "agrupacio" : "EXPEDIENTS"
+ }, 
+ 
+  {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientGrupModificarHandler",
+  "nom" : "Canviar el grup d'usuaris d'un expedient",
+  "descripcio" : "Aquest handler permet modificar el grup d'usuaris d'un expedient.",
+  "parametres" : [ 
+  	{
+	"codi": "grup",
+    "nom" : "Codi del nou grup",
+    "obligatori" : false,
+    "param" : "grup",
+    "paramDesc" : "Codi del nou grup",
+    "varParam" : "varGrup",
+    "varParamDesc" : "Variable que conté el codi del nou grup"
+  }],
+  "agrupacio" : "EXPEDIENTS"
+  }, 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientAturarHandler",
+  "nom" : "Aturar un expedient",
+  "descripcio" : "Aquest handler ens permet aturar temporalment la tramitació d'un expedient.",
+  "parametres" : [ 
+  	{
+	"codi": "motiu",
+    "nom" : "Motiu",
+    "obligatori" : false,
+    "param" : "motiu",
+    "paramDesc" : "Motiu pel qual s'ha aturat l'expedient",
+    "varParam" : "varMotiu",
+    "varParamDesc" : "Variable que conté el motiu pel qual s'ha aturat l'expedient"
+  }],
+  "agrupacio" : "EXPEDIENTS"
+ }, 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientReprendreHandler",
+  "nom" : "Reprendre un expedient aturat",
+  "descripcio" : "Handler que possibilita reprendre la tramitació d'un expedient aturat.",
+  "parametres" : [],
+  "agrupacio" : "EXPEDIENTS"
+ }, 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientFinalitzarHandler",
+  "nom" : "Finalitzar un expedient",
+  "descripcio" : "Handler que permet finalitzar l'expedient des de qualsevol node.",
+  "parametres" : [],
+  "agrupacio" : "EXPEDIENTS"
+ },
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientDesfinalitzarHandler",
+  "nom" : "Desfer Finalització d'un expedient",
+  "descripcio" : "Aquest handler ens permet desfinalitzar i reprendre un expedient depengent del valor que s'especifiqui als paràmetres.",
+  "parametres" : [ 
+   {
+	"codi": "reprendre",
+    "nom" : "Reprendre",
+    "obligatori" : false,
+    "param" : "reprendre",
+    "paramDesc" : "Indica si es reprèn o no l'expedient",
+    "varParam" : "varReprendre",
+    "varParamDesc" : "Variable que conté el valor per reprendre o no l'expedient"
+   }],
+  "agrupacio" : "EXPEDIENTS"
+ },   
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ProcesTitolModificarHandler",
+  "nom" : "Configuració del títol del subprocés",
+  "descripcio" : "Aquest handler ens permet configurar el títol amb el que es mostrarà el subprocés a dins el desplegable del subprocessos.",
+  "parametres" : [ 
+  	{
+	"codi": "titol",
+    "nom" : "nom",
+    "obligatori" : false,
+    "param" : "titol",
+    "paramDesc" : "Títol de l'expedient",
+    "varParam" : "varTitol",
+    "varParamDesc" : "Variable que conté el títol de l'expedient"
+  }],
+  "agrupacio" : "EXPEDIENTS"
+  },
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientBuidaLogHandler",
+  "nom" : "Buidar els logs",
+  "descripcio" : "Aquest handler ens permet buidar els logs de l'expedient.",
+  "parametres" : [],
+  "agrupacio" : "EXPEDIENTS"
+ },
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientConsultarHandler",
+  "nom" : "Consultar informació d'un Expedient i deixar la informació en variables",
+  "descripcio" : "Handler que permet consultar la informació d'un expedient.",
+  "parametres" : [ 
+  	{
+	"codi": "registreNumero",
+    "nom" : "Número de registre",
+    "obligatori" : false,
+    "param" : null,
+    "paramDesc" : null,
+    "varParam" : "varRegistreNumero",
+    "varParamDesc" : "Número de registre de l'expedient"
+  	},{
+	"codi": "titol",
+    "nom" : "Títol de l'expedient",
+    "obligatori" : false,
+    "param" : null,
+    "paramDesc" : null,
+    "varParam" : "varTitol",
+    "varParamDesc" : "Títol de l'expedient"
+  	},{
+	"codi": "numero",
+    "nom" : "Número de l'expedient",
+    "obligatori" : false,
+    "param" : null,
+    "paramDesc" : null,
+    "varParam" : "varNumero",
+    "varParamDesc" : "Número de l'expedient"
+  	},{
+	"codi": "dataInici",
+    "nom" : "Data d'inici de l'expedient",
+    "obligatori" : false,
+    "param" : null,
+    "paramDesc" : null,
+    "varParam" : "varDataInici",
+    "varParamDesc" : "Data d'inici de l'expedient"
+  	}],
+  "agrupacio" : "EXPEDIENTS"
+  },  
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.DocumentEsborrarHandler",
+  "nom" : "Esborrar document",
+  "descripcio" : "Handler que permet esborrar un document d'un procés.",
+  "parametres" : [ 
+  	{
+	"codi": "documentCodi",
+    "nom" : "Codi del document a esborrar",
+    "obligatori" : false,
+    "param" : "documentCodi",
+    "paramDesc" : "Codi del document a esborrar",
+    "varParam" : "varDocumentCodi",
+    "varParamDesc" : "Variable que conté el codi del document a esborrar"
+  }],
+  "agrupacio" : "DOCUMENTS"
+ },  
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.DocumentEscriureProcesPareHandler",
+  "nom" : "Copiar un document a un procés pare",
+  "descripcio" : "Aquest handler permet lligar un document d'un procés fill al procés pare d'on aquest prové.",
+  "parametres" : [ 
+  	{
+	"codi": "documentCodi",
+    "nom" : "Codi del document a copiar",
+    "obligatori" : false,
+    "param" : "documentCodi",
+    "paramDesc" : "Codi del document a copiar",
+    "varParam" : "varDocumentCodi",
+    "varParamDesc" : "Variable que conté el codi del document a copiar"
+  }],
+  "agrupacio" : "DOCUMENTS"
+ },
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.DocumentLlegirProcesPareHandler",
+  "nom" : "Copiar un document des d'un procés pare",
+  "descripcio" : "Aquest handler permet lligar un document d'un procés pare al procés actual.",
+  "parametres" : [ 
+  	{
+	"codi": "documentCodi",
+    "nom" : "Codi del document a copiar",
+    "obligatori" : false,
+    "param" : "documentCodi",
+    "paramDesc" : "Codi del document a copiar",
+    "varParam" : "varDocumentCodi",
+    "varParamDesc" : "Variable que conté el codi del document a copiar"
+  }],
+  "agrupacio" : "DOCUMENTS"
+ },  
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.DocumentExpedientCopiarDestiHandler",
+  "nom" : "Copiar un document des de l'expedient actual",
+  "descripcio" : "Handler que permet copiar un document des de l'expedient actual a un altre expedient.",
+  "parametres" : [ 
+   {
+	"codi": "destiExpedientTipus",
+    "nom" : "Codi del tipus de l'expedient destí",
+    "obligatori" : false,
+    "param" : "destiExpedientTipus",
+    "paramDesc" : "Codi del tipus de l'expedient destí",
+    "varParam" : "varDestiExpedientTipus",
+    "varParamDesc" : "Variable que conté el codi del tipus de l'expedient destí"
+   },{
+	"codi": "destiExpedientNumero",
+    "nom" : "Número de l'expedient destí",
+    "obligatori" : false,
+    "param" : "destiExpedientNumero",
+    "paramDesc" : "Número de l'expedient destí",
+    "varParam" : "varDestiExpedientNumero",
+    "varParamDesc" : "Variable que conté el número de l'expedient destí"
+   },{
+	"codi": "destiExpedientDocument",
+    "nom" : "Codi del document a l'expedient destí",
+    "obligatori" : false,
+    "param" : "destiExpedientDocument",
+    "paramDesc" : "Codi del document a l'expedient destí",
+    "varParam" : "varDestiExpedientDocument",
+    "varParamDesc" : "Variable que conté el codi del document a l'expedient destí"
+   },{
+	"codi": "documentCodi",
+    "nom" : "Codi del document a copiar",
+    "obligatori" : true,
+    "param" : "documentCodi",
+    "paramDesc" : "Codi del document a copiar",
+    "varParam" : "varDocumentCodi",
+    "varParamDesc" : "Variable que conté el codi del document a copiar"
+   }],
+  "agrupacio" : "DOCUMENTS"
+ },  
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.DocumentExpedientCopiarOrigenHandler",
+  "nom" : "Copiar un document a l'expedient actual",
+  "descripcio" : "Handler que permet copiar un document des d'un expedient origen a l'expedient actual.",
+  "parametres" : [ 
+   {
+	"codi": "origenExpedientTipus",
+    "nom" : "Codi del tipus de l'expedient origen",
+    "obligatori" : false,
+    "param" : "origenExpedientTipus",
+    "paramDesc" : "Codi del tipus de l'expedient origen",
+    "varParam" : "varOrigenExpedientTipus",
+    "varParamDesc" : "Variable que conté el codi del tipus de l'expedient origen"
+   },{
+	"codi": "origenExpedientNumero",
+    "nom" : "Número de l'expedient origen",
+    "obligatori" : false,
+    "param" : "origenExpedientNumero",
+    "paramDesc" : "Número de l'expedient origen",
+    "varParam" : "varOrigenExpedientNumero",
+    "varParamDesc" : "Variable que conté el número de l'expedient origen"
+   },{
+	"codi": "origenExpedientDocument",
+    "nom" : "Codi del document a l'expedient origen",
+    "obligatori" : false,
+    "param" : "origenExpedientDocument",
+    "paramDesc" : "Codi del document a l'expedient origen",
+    "varParam" : "varOrigenExpedientDocument",
+    "varParamDesc" : "Variable que conté el codi del document a l'expedient origen"
+   },{
+	"codi": "documentCodi",
+    "nom" : "Codi del document a copiar",
+    "obligatori" : true,
+    "param" : "documentCodi",
+    "paramDesc" : "Codi del document a copiar",
+    "varParam" : "varDocumentCodi",
+    "varParamDesc" : "Variable que conté el codi del document a copiar"
+   }],  "agrupacio" : "DOCUMENTS"
+ },  
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.DocumentGenerarHandler",
+  "nom" : "Generar un document",
+  "descripcio" : "Handler per generar un document de forma automàtica a partir d'una plantilla.",
+  "parametres" : [ 
+   {
+	"codi": "documentCodi",
+    "nom" : "Codi del document a crear",
+    "obligatori" : true,
+    "param" : "documentCodi",
+    "paramDesc" : "Codi del document a crear",
+    "varParam" : "varDocumentCodi",
+    "varParamDesc" : "Variable que conté el codi del document a crear"
+   },{
+	"codi": "data",
+    "nom" : "Data amb què es crearà el document",
+    "obligatori" : false,
+    "param" : "data",
+    "paramDesc" : "Data amb què es crearà el document",
+    "varParam" : "varData",
+    "varParamDesc" : "Variable que conté la data del document"
+  }],
+  "agrupacio" : "DOCUMENTS"
+ },  
+
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.xxx",
+  "nom" : "nom",
+  "descripcio" : "desc",
+  "parametres" : [ 
+  	{
+	"codi": "codi",
+    "nom" : "nom",
+    "obligatori" : false,
+    "param" : "param",
+    "paramDesc" : "paramDesc",
+    "varParam" : "varParam",
+    "varParamDesc" : "varDesc"
+  }],
+  "agrupacio" : "EXPEDIENTS"
+ },
+ 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.AlertaCrearHandler",
+  "nom" : "Crear alerta",
+  "descripcio" : "Aquest handler ens permet enviar una alerta a un usuari.",
+  "parametres" : [ {
+	"codi": "usuari",
+    "nom" : "Usuari",
+    "obligatori" : false,
+    "param" : "usuari",
+    "paramDesc" : "Usuari destinatari de l'alerta",
+    "varParam" : "varUsuari",
+    "varParamDesc" : "Variable que conté l'usuari destinatari de l'alerta"
+  }, {
+	"codi": "text",
+    "nom" : "Text",
+    "obligatori" : true,
+    "param" : "text",
+    "paramDesc" : "Text de l'alerta",
+    "varParam" : "varText",
+    "varParamDesc" : "Variable que conté el text de l'alerta"
+  } ],
+  "agrupacio" : "ALERTES"
+ }
+]

@@ -3,10 +3,17 @@
  */
 package net.conselldemallorca.helium.webapp.v3.command;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioTipusEnumDto;
@@ -47,8 +54,8 @@ public class ExpedientTipusAccioCommand {
 	private String jbpmAction;
 	
 	// Tipus handler predefinit Helium
-	private String predefinitCodi;
-	private String predefinitDades;
+	private String predefinitClasse;
+	private Map<String, String> predefinitDades = new HashMap<String, String>();
 	
 	// Tipus script
 	@Size(max = 1024, groups = {Creacio.class, Modificacio.class})
@@ -113,16 +120,16 @@ public class ExpedientTipusAccioCommand {
 	public void setJbpmAction(String jbpmAction) {
 		this.jbpmAction = jbpmAction;
 	}
-	public String getPredefinitCodi() {
-		return predefinitCodi;
+	public String getPredefinitClasse() {
+		return predefinitClasse;
 	}
-	public void setPredefinitCodi(String predefinitCodi) {
-		this.predefinitCodi = predefinitCodi;
+	public void setPredefinitClasse(String predefinitClasse) {
+		this.predefinitClasse = predefinitClasse;
 	}
-	public String getPredefinitDades() {
+	public Map<String, String> getPredefinitDades() {
 		return predefinitDades;
 	}
-	public void setPredefinitDades(String predefinitDades) {
+	public void setPredefinitDades(Map<String, String> predefinitDades) {
 		this.predefinitDades = predefinitDades;
 	}
 	public String getScript() {
@@ -160,14 +167,35 @@ public class ExpedientTipusAccioCommand {
 		dto.setDefprocJbpmKey(command.getDefprocJbpmKey());
 		dto.setJbpmAction(command.getJbpmAction());
 		dto.setDescripcio(command.getDescripcio());
-		dto.setPredefinitCodi(command.getPredefinitCodi());
-		dto.setPredefinitDades(command.getPredefinitDades());
+		dto.setPredefinitClasse(command.getPredefinitClasse());
+		try {
+			ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+			dto.setPredefinitDades(
+					ow.writeValueAsString(command.getPredefinitDades()));
+		} catch(Exception e) {
+			/* L'error de conversió s'hauria d'haver detectat a la validació */
+			dto.setPredefinitDades("[{'error': 'Error convertint les dades a JSON'}]");
+		}
+
 		dto.setScript(command.getScript());
 		dto.setPublica(command.isPublica());
 		dto.setOculta(command.isOculta());
 		dto.setRols(command.getRols());	
 		
 		return dto;
+	}
+	
+	public String getPredefinitDadesJson() {
+	
+		String json = "[]";
+
+		ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+		try {
+			json = ow.writeValueAsString(predefinitDades);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return json;
 	}
 
 	public interface Creacio {}
