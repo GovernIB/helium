@@ -47,10 +47,10 @@ public class PinbalPlugin implements PinbalPluginInterface {
 	private static final Log logger = LogFactory.getLog(PinbalPlugin.class);
 	private static final boolean ENABLE_LOGGING = true;
 
-	private ClientGeneric clientGeneric;
-	private ClientSvddgpciws02 clientSvddgpciws02;
-	private ClientSvddgpviws02 clientSvddgpviws02;
-	private ClientSvdccaacpasws01 clientSvdccaacpasws01;
+//	private ClientGeneric clientGeneric;
+//	private ClientSvddgpciws02 clientSvddgpciws02;
+//	private ClientSvddgpviws02 clientSvddgpviws02;
+//	private ClientSvdccaacpasws01 clientSvdccaacpasws01;
 	
 	public PinbalPlugin() {	
 		}
@@ -70,7 +70,7 @@ public class PinbalPlugin implements PinbalPluginInterface {
 			throw new IOException(
 					"Error al obtenir la petició, el Codi del Servei és obligatori.");
 		}
-		clientGeneric = this.getClientGeneric();
+		ClientGeneric clientGeneric = this.getClientGeneric();
 
 		solicitud.setIdentificadorSolicitante(dadesConsultaPinbal.getEntitat_CIF());
 		solicitud.setCodigoProcedimiento(dadesConsultaPinbal.getCodiProcediment());
@@ -145,7 +145,7 @@ public class PinbalPlugin implements PinbalPluginInterface {
 			solicitud.setTitular(scspTitular);
 		}
 
-		clientSvddgpciws02 = this.getClientSvddgpciws02();
+		ClientSvddgpciws02 clientSvddgpciws02 = this.getClientSvddgpciws02();
 		
 		if (ENABLE_LOGGING) {
 			clientSvddgpciws02.enableLogginFilter();
@@ -194,7 +194,7 @@ public class PinbalPlugin implements PinbalPluginInterface {
 		solicitud.setFuncionario(funcionario);
 		solicitud.setTitular(scspTitular);
 
-		clientSvddgpviws02 = this.getClientSvddgpviws02();
+		ClientSvddgpviws02 clientSvddgpviws02 = this.getClientSvddgpviws02();
 		
 		if (ENABLE_LOGGING) {
 			clientSvddgpviws02.enableLogginFilter();
@@ -247,7 +247,7 @@ public class PinbalPlugin implements PinbalPluginInterface {
 			scspTitular.setNombreCompleto(dadesConsultaPinbal.getTitular().getNombreCompleto());
 			solicitud.setTitular(scspTitular);
 		}
-		this.clientSvdccaacpasws01 = this.getClientSvdccaacpasws01();
+		ClientSvdccaacpasws01 clientSvdccaacpasws01 = this.getClientSvdccaacpasws01();
 		
 		if (ENABLE_LOGGING) {
 			clientSvdccaacpasws01.enableLogginFilter();
@@ -277,7 +277,7 @@ public class PinbalPlugin implements PinbalPluginInterface {
 
 	@Override
 	public Object getRespuestaPinbal(String peticioId) throws IOException {
-		clientGeneric=this.getClientGeneric();
+		ClientGeneric clientGeneric=this.getClientGeneric();
 		clientGeneric.enableLogginFilter();
 		ScspRespuesta respuesta;
 		try {
@@ -295,7 +295,7 @@ public class PinbalPlugin implements PinbalPluginInterface {
 	
 	@Override
 	public Object getJustificantPinbal(String peticioId) throws Exception  {
-		clientGeneric=this.getClientGeneric();
+		ClientGeneric clientGeneric=this.getClientGeneric();
 		clientGeneric.enableLogginFilter();
 		ScspJustificante justificante;
 		try {
@@ -336,31 +336,19 @@ public class PinbalPlugin implements PinbalPluginInterface {
 	
 }
 	private ClientGeneric getClientGeneric() {
-		if (clientGeneric == null) {
-			clientGeneric =new ClientGeneric(getUrl(),  getUsername(), getPassword(), isJBoss(), null, null);
-		}
-		return clientGeneric;
+		return new ClientGeneric(getUrl(),  getUsername(), getPassword(), isJBoss(), null, null);
 	}
 	
 	private ClientSvddgpciws02 getClientSvddgpciws02() {
-		if (clientSvddgpciws02 == null) {
-			clientSvddgpciws02 =new ClientSvddgpciws02(getUrl(), getUsername(), getPassword(), isJBoss(), null, null);
-		}
-		return clientSvddgpciws02;
+		return new ClientSvddgpciws02(getUrl(), getUsername(), getPassword(), isJBoss(), null, null);
 	}
 	
 	private ClientSvddgpviws02 getClientSvddgpviws02() {
-		if (clientSvddgpviws02 == null) {
-			clientSvddgpviws02 =new ClientSvddgpviws02(getUrl(), getUsername(), getPassword(), isJBoss(), null, null);
-		}
-		return clientSvddgpviws02;
+		return new ClientSvddgpviws02(getUrl(), getUsername(), getPassword(), isJBoss(), null, null);
 	}
 	
 	private ClientSvdccaacpasws01 getClientSvdccaacpasws01() {
-		if (clientSvdccaacpasws01 == null) {
-			clientSvdccaacpasws01 =new ClientSvdccaacpasws01(getUrl(), getUsername(), getPassword(), isJBoss(), null, null);
-		}
-		return clientSvdccaacpasws01;
+		return new ClientSvdccaacpasws01(getUrl(), getUsername(), getPassword(), isJBoss(), null, null);
 	}
 	
 	
