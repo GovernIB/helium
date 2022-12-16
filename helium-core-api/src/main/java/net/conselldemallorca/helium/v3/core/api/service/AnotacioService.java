@@ -58,12 +58,13 @@ public interface AnotacioService {
 	 * @param comprovarPermis Indica si comprovar o no permisos de l'usuari actual ja que pot ser que la 
 	 * 			incorporació sigui automàtica des de la recepció de l'anotació.
 	 */
-	public AnotacioDto incorporarExpedient(
+	public AnotacioDto incorporarReprocessarExpedient(
 			Long anotacioId, 
 			Long expedientTipusId, 
 			Long expedientId, 
 			boolean associarInteressats,
-			boolean comprovarPermis);
+			boolean comprovarPermis,
+			boolean reprocessar);
 	
 	/**
 	 * Esborra una petició d'anotació de registre de Distribucio

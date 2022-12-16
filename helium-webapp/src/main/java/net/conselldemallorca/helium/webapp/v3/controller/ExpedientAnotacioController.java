@@ -20,6 +20,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.AnotacioFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
@@ -37,13 +38,15 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 
 	@Autowired
 	private AnotacioService anotacioService;
+	@Autowired
+	private ExpedientService expedientService;
 
 	@RequestMapping(value="/{expedientId}/anotacio", method = RequestMethod.GET)
 	public String llistat(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
-		
+		model.addAttribute("expedient",expedientService.findAmbId(expedientId));
 		model.addAttribute("expedientId", expedientId);	
 		return "v3/expedientAnotacioLlistat";
 	}

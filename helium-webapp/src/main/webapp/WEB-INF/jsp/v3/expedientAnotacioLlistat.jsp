@@ -64,8 +64,20 @@
 									<a href="<c:url value="/v3/anotacio/{{:id}}"/>" data-toggle="modal" data-maximized="true"><span class="fa fa-info-circle"></span>&nbsp;<spring:message code="comu.boto.detalls"/></a>
 								</li>
 								<li>
-									<a href="<c:url value="/v3/expedient/{{:expedient.id}}/anotacio/{{:id}}"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.anotacio.llistat.processar.mapeig"/></a>
-								</li>					
+								<c:if test="${expedient.tipus.distribucioSistra == true}">
+									<c:choose>
+										<c:when test="${dadesPersona.admin || potProcessarAnotacions}">
+											<li>
+												<a href="<c:url value="/v3/expedient/{{:expedient.id}}/anotacio/{{:id}}"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.anotacio.llistat.processar.mapeig"/></a>
+											</li>							
+										</c:when>
+										<c:otherwise>
+											<li class="disabled">
+												<a href="#" class="disabled" title="<spring:message code="expedient.anotacio.llistat.processar.mapeig.permisos"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.anotacio.llistat.processar.mapeig"/></a>
+											</li>
+										</c:otherwise>	
+									</c:choose>	
+								</c:if>						
 							</ul>
 					</div>
 					</script>

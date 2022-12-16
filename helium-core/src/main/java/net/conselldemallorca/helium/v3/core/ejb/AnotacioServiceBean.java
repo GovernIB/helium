@@ -63,8 +63,8 @@ public class AnotacioServiceBean implements AnotacioService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public AnotacioDto incorporarExpedient(Long anotacioId, Long expedientTipusId, Long expedientId, boolean associarInteressats, boolean comprovarPermis) {
-		return delegate.incorporarExpedient(anotacioId, expedientTipusId, expedientId, associarInteressats, comprovarPermis);
+	public AnotacioDto incorporarReprocessarExpedient(Long anotacioId, Long expedientTipusId, Long expedientId, boolean associarInteressats, boolean comprovarPermis, boolean reprocessar) {
+		return delegate.incorporarReprocessarExpedient(anotacioId, expedientTipusId, expedientId, associarInteressats, comprovarPermis, reprocessar);
 	}
 	
 	@Override

@@ -642,6 +642,7 @@ public class DistribucioHelper {
 		if (expedientTipus != null 
 				&& expedientTipus.isDistribucioProcesAuto()) {
 			
+			boolean reprocessar = false;
 			if (expedient == null) {
 				Map<String, Object> variables = null;
 				Map<String, DadesDocumentDto> documents = null;
@@ -684,14 +685,17 @@ public class DistribucioHelper {
 						null, //responsableCodi, 
 						documents, //documents, 
 						adjunts); //adjunts);
+			} else {
+				reprocessar = true;
 			}
 			// Incorporporar l'anotació a l'expedient
-			anotacioService.incorporarExpedient(
+			anotacioService.incorporarReprocessarExpedient(
 					anotacio.getId(), 
 					expedientTipus.getId(), 
 					expedient.getId(),
 					true,
-					false);
+					false,
+					reprocessar);
 
 			anotacio.setEstat(AnotacioEstatEnumDto.PROCESSADA);
 			anotacio.setDataProcessament(new Date());

@@ -360,12 +360,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 			if (anotacioId != null) {
 				// Incorporporar l'anotació a l'expedient
-				anotacioService.incorporarExpedient(
+				anotacioService.incorporarReprocessarExpedient(
 						anotacio.getId(), 
 						expedientTipusId, 
 						expedient.getId(),
 						anotacioInteressatsAssociar,
-						true);
+						true,
+						false);
 			}
 
 			// Retorna la informació de l'expedient que s'ha iniciat

@@ -351,12 +351,13 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	 */
 	@Override
 	@Transactional
-	public AnotacioDto incorporarExpedient(
+	public AnotacioDto incorporarReprocessarExpedient(
 			Long anotacioId, 
 			Long expedientTipusId, 
 			Long expedientId, 
 			boolean associarInteressats,
-			boolean comprovarPermis) {
+			boolean comprovarPermis,
+			boolean reprocessar) {
 		logger.debug(
 				"Incorporant la petició d'anotació de registre a un expedient(" +
 				"anotacioId=" + anotacioId + ", " +
@@ -383,7 +384,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			throw new RuntimeException("No es pot incorporar l'anotació " + 
 						anotacioId + " a l'expedient " + expedientId + " i tipus d'expedient " + 
 						expedientTipusId + " perquè no s'ha pogut recuperar la informació associada.");
-		if(expedientTipus.isDistribucioSistra()) {
+
+		if(reprocessar && expedientTipus.isDistribucioSistra()) {
 			reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
 		}
 		anotacio.setExpedientTipus(expedientTipus);
@@ -1105,13 +1107,14 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			//Recuperar mapejos
 			Map<String, Object> variables = null;
 			Map<String, DadesDocumentDto> documents = null;
+			List<DadesDocumentDto> annexos = null;
 			MapeigSistra mapeigSistra = null;
 			ExpedientDadaDto dada = null;
 			DadesDocumentDto dadesDocumentDto = null;
-			// Extreu documents i variables segons el mapeig sistra
+			// Extreu variables i documents i annexos segons el mapeig sistra
 			variables = distribucioHelper.getDadesInicials(expedientTipus, anotacio);
 			documents = distribucioHelper.getDocumentsInicials(expedientTipus, anotacio);			
-			
+			annexos = distribucioHelper.getDocumentsAdjunts(expedientTipus, anotacio);
 			for (String varCodi : variables.keySet()) {	
 				// Obtenir la variable de l'expedient, comprovar si aquest mapeig existeix o no	
 				mapeigSistra = mapeigSistraRepository.findByExpedientTipusAndCodiHelium(expedientTipus, varCodi);	
@@ -1146,6 +1149,13 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 						documents, 
 						mapeigSistra.getCodiHelium());
 				
+			}
+			
+			//Fem el mateix per els Annexos (adjunts), els creem encara que ja hi siguin
+			for (DadesDocumentDto adjunt : annexos) {
+				processarAdjuntsAnotacio( 
+						expedient, 
+						adjunt);		
 			}
 		}	
 	}
@@ -1266,7 +1276,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			
 		} else if (!documentExisteix) {
 			dadesDocumentDto = documents.get(codiHelium);
-			Long documentStoreId = documentHelper.crearDocument(
+			documentHelper.crearDocument(
 					null,
 					expedient.getProcessInstanceId(),
 					dadesDocumentDto.getCodi(),
@@ -1284,12 +1294,29 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					null,
 					null,
 					null,
-					true,
-					null);
+					dadesDocumentDto.isDocumentValid(),
+					dadesDocumentDto.getDocumentError());
 		}
 		
 	}
 
+	private void processarAdjuntsAnotacio(Expedient expedient, DadesDocumentDto adjunt ) {
+		documentHelper.crearDocument(
+				null,
+				expedient.getProcessInstanceId(),
+				null,
+				adjunt.getData(),
+				true,
+				adjunt.getTitol(),
+				adjunt.getArxiuNom(),
+				adjunt.getArxiuContingut(),
+				null,
+				null,
+				null,
+				null,
+				adjunt.isDocumentValid(),
+				adjunt.getDocumentError());
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(AnotacioServiceImpl.class);
 }
