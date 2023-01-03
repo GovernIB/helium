@@ -16,7 +16,7 @@
 	<hel:modalHead/>
 </head>
 <body>
-	<!-- Formulari per incoporar el document a l'Arxiu si es detecta error de no Uuid -->
+	<!-- Formulari per incoporar el document a l'Arxiu si es detecta error de no Uuid -->MARTA
 	<c:if test="${errorArxiuNoUuid}">
 		<div class="row alert alert-danger" style="margin: 0px; margin-bottom: 10px;">
 			<div class="col-sm-10">
@@ -266,6 +266,21 @@
 								<tr>
 									<td><strong><spring:message code="expedient.metadades.nti.camp.eni.format.ext"/></strong></td>
 									<td>${arxiuDetall.eniExtensio}</td>
+								</tr>
+							</c:if>
+							<c:if test="${not empty arxiuDetall.versionsDocument}">
+								<tr>
+									<td><strong><spring:message code="expedient.metadades.nti.camp.eni.versions"/></strong></td>
+									<td>
+										<c:forEach var="versio" items="${arxiuDetall.versionsDocument}" varStatus="status">
+											${versio} <!--<c:if test="${not status.last}">,</c:if>-->
+								${versio.identificador}
+											<a id="descarregarZip"
+												href="<c:url value="/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${versio.identificador}/descarregar"/>" class="btn btn-default" title="<spring:message code="expedient.document.descarregar.zip"/>">
+												<span class="fa fa-download"></span> <spring:message code="comu.boto.descarregar"></spring:message>
+											</a>
+										</c:forEach>
+									</td>
 								</tr>
 							</c:if>
 							<c:if test="${not empty arxiuDetall.eniInteressats}">

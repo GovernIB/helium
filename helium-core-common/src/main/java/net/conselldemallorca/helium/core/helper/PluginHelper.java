@@ -2598,6 +2598,18 @@ public class PluginHelper {
 			throw tractarExcepcioEnSistemaExtern(MonitorIntegracioHelper.INTCODI_ARXIU,errorDescripcio, ex);
 		}
 	}
+	
+	public List<Object> versions(String arxiuUuid){
+		List<Object> versionsDocument = new ArrayList<Object>();
+		List<ContingutArxiu> contingutArxiusVersions = getArxiuPlugin().documentVersions(arxiuUuid);
+		for(ContingutArxiu contingutArxiuVersio: contingutArxiusVersions) {
+			versionsDocument.add(this.arxiuDocumentInfo(arxiuUuid, 
+														contingutArxiuVersio.getVersio(), 
+														true, 
+														true));
+		}
+		return versionsDocument;
+	}
 
 	public es.caib.plugins.arxiu.api.Document arxiuDocumentInfo(
 			String arxiuUuid,
@@ -2642,6 +2654,10 @@ public class PluginHelper {
 								documentContingut.getContingut().length);
 						documentDetalls.getContingut().setTipusMime("application/pdf");
 					}
+//					List<ContingutArxiu> versionsDocument = getArxiuPlugin().documentVersions(arxiuUuid);
+//					if(versionsDocument!=null && !versionsDocument.isEmpty()) {
+//						//documentDetalls.
+//					}
 				}
 			}
 			monitorIntegracioHelper.addAccioOk(
