@@ -268,21 +268,6 @@
 									<td>${arxiuDetall.eniExtensio}</td>
 								</tr>
 							</c:if>
-							<c:if test="${not empty arxiuDetall.versionsDocument}">
-								<tr>
-									<td><strong><spring:message code="expedient.metadades.nti.camp.eni.versions"/></strong></td>
-									<td>
-										<c:forEach var="versio" items="${arxiuDetall.versionsDocument}" varStatus="status">
-											${versio} <!--<c:if test="${not status.last}">,</c:if>-->
-								${versio.identificador}
-											<a id="descarregarZip"
-												href="<c:url value="/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${versio.identificador}/descarregar"/>" class="btn btn-default" title="<spring:message code="expedient.document.descarregar.zip"/>">
-												<span class="fa fa-download"></span> <spring:message code="comu.boto.descarregar"></spring:message>
-											</a>
-										</c:forEach>
-									</td>
-								</tr>
-							</c:if>
 							<c:if test="${not empty arxiuDetall.eniInteressats}">
 								<tr>
 									<td><strong><spring:message code="expedient.metadades.nti.camp.eni.interessats"/></strong></td>
@@ -311,6 +296,37 @@
 								<td><strong><spring:message code="expedient.metadades.nti.camp.arxiuEstat"/></strong></td>
 								<td>${arxiuDetall.arxiuEstat != null ? arxiuDetall.arxiuEstat : "-"}</td>
 							</tr>
+							<c:if test="${not empty arxiuDetall.versionsDocument}">
+								<tr>
+									<td><strong><spring:message code="expedient.metadades.nti.camp.eni.versions"/></strong></td>
+									<td>
+										<c:forEach var="versio" items="${arxiuDetall.versionsDocument}" varStatus="status">
+										
+										<!--  <a href="<c:url value="/v3/expedient/${expedientId}/proces/${expedientDocument.processInstanceId}/document/${versio.identificador}/descarregar"/>" class="btn btn-default">-->	
+											<a href = "<c:url value = "https://docse.caib.es/share/proxy/alfresco/api/node/content/versionStore/version2Store/${versio.identificador}/${versio.nom}?a=true"/>" target="_blank" class="btn btn-default">	
+												
+												<!--<span class="fa fa-download"></span> <spring:message code="comu.boto.descarregar"></spring:message>-->
+												 <span class="fa fa-file fa-4x no-doc" title="Descarregar document"></span>
+												<span class="badge">
+													${versio.versio}
+												</span>
+												<strong class="nom_document"> ${versio.nom}</strong>
+												<c:if test="${document.adjunt}">
+													<span class="adjuntIcon icon fa fa-paperclip fa-2x"></span>
+												</c:if>
+												<%--c:if test="${document.arxiuActiu and document.signat}">
+													<span class="adjuntIcon icon fa fa-certificate fa-2x"></span>
+												</c:if--%>
+												<span class="extensionIcon">
+													${fn:toUpperCase(document.arxiuExtensio)}
+												</span>
+												
+											</a>
+											
+										</c:forEach>
+									</td>
+								</tr>
+							</c:if>
 						</tbody>
 						</table>
 					</div>
