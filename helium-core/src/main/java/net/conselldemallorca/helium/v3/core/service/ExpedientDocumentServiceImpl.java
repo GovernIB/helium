@@ -1072,7 +1072,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			arxiuDetall = new ArxiuDetallDto();
 			es.caib.plugins.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
 					documentStore.getArxiuUuid(),
-					null,//MARTA aquí li estem passant null a versio
+					null,
 					false,
 					true);
 			List<Object> versions = pluginHelper.versions(documentStore.getArxiuUuid());

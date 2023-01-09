@@ -302,11 +302,9 @@
 									<td>
 										<c:forEach var="versio" items="${arxiuDetall.versionsDocument}" varStatus="status">
 										
-										<!--  <a href="<c:url value="/v3/expedient/${expedientId}/proces/${expedientDocument.processInstanceId}/document/${versio.identificador}/descarregar"/>" class="btn btn-default">-->	
-											<a href = "<c:url value = "https://docse.caib.es/share/proxy/alfresco/api/node/content/versionStore/version2Store/${versio.identificador}/${versio.nom}?a=true"/>" target="_blank" class="btn btn-default">	
+											<a href = "<c:url value = "https://docse.caib.es/share/proxy/alfresco/api/node/content/versionStore/version2Store/${versio.identificador}/${versio.nom}?a=true"/>" target="_blank" class="btn btn-default">		
 												
-												<!--<span class="fa fa-download"></span> <spring:message code="comu.boto.descarregar"></spring:message>-->
-												 <span class="fa fa-file fa-4x no-doc" title="Descarregar document"></span>
+											    <span class="fa fa-file fa-4x no-doc" title="Descarregar document"></span>
 												<span class="badge">
 													${versio.versio}
 												</span>
@@ -314,9 +312,7 @@
 												<c:if test="${document.adjunt}">
 													<span class="adjuntIcon icon fa fa-paperclip fa-2x"></span>
 												</c:if>
-												<%--c:if test="${document.arxiuActiu and document.signat}">
-													<span class="adjuntIcon icon fa fa-certificate fa-2x"></span>
-												</c:if--%>
+												
 												<span class="extensionIcon">
 													${fn:toUpperCase(document.arxiuExtensio)}
 												</span>
