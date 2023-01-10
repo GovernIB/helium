@@ -602,6 +602,33 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		}
 		return "arxiuView";
 	}
+	
+	@RequestMapping(value="/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/descarregar/versio/{versioId}/")
+	public String descarregarVersio(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId,
+			@PathVariable String versioId,
+			Model model) {
+		try {
+			ArxiuDto arxiu = expedientDocumentService.arxiuFindAmbDocumentVersio(
+					expedientId,
+					processInstanceId,
+					documentStoreId,
+					versioId);
+			if (arxiu != null) {
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
+			}
+		} catch (SistemaExternException e) {
+			logger.error("Error descarregant fitxer", e);
+			MissatgesHelper.error(request, e.getPublicMessage());
+			model.addAttribute("pipellaActiva", "documents");
+			return "redirect:/v3/expedient/" + expedientId;
+		}
+		return "arxiuView";
+	}
 
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/metadadesNti", method = RequestMethod.GET)
 	public String metadadesNti(

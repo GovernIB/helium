@@ -861,7 +861,8 @@ public class ExpedientHelper {
 			ArxiuDto arxiu = documentHelper.getArxiuPerDocumentStoreId(
 					documentStore.getId(),
 					false,
-					false);
+					false,
+					null);
 			
 			String documentNom = arxiu.getNom();
 			

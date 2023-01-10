@@ -301,24 +301,21 @@
 									<td><strong><spring:message code="expedient.metadades.nti.camp.eni.versions"/></strong></td>
 									<td>
 										<c:forEach var="versio" items="${arxiuDetall.versionsDocument}" varStatus="status">
-										
-											<a href = "<c:url value = "https://docse.caib.es/share/proxy/alfresco/api/node/content/versionStore/version2Store/${versio.identificador}/${versio.nom}?a=true"/>" target="_blank" class="btn btn-default">		
-												
-											    <span class="fa fa-file fa-4x no-doc" title="Descarregar document"></span>
-												<span class="badge">
-													${versio.versio}
-												</span>
+											<a href="<c:url value="/v3/expedient/${expedientId}/proces/${expedientDocument.processInstanceId}/document/${expedientDocument.id}/descarregar/versio/${versio.eniVersio}/"/>">		
+											    <span class="fa fa-file no-doc" title="Descarregar document"></span>
+												<strong class="nom_document">
+													v.${versio.eniVersio}
+												</strong>
 												<strong class="nom_document"> ${versio.nom}</strong>
 												<c:if test="${document.adjunt}">
 													<span class="adjuntIcon icon fa fa-paperclip fa-2x"></span>
 												</c:if>
-												
 												<span class="extensionIcon">
 													${fn:toUpperCase(document.arxiuExtensio)}
 												</span>
-												
+												<!--<fmt:formatDate value="${versio.eniDataCaptura}" pattern="dd/MM/yyyy HH:mm:ss"/>-->	
 											</a>
-											
+											<br/>	
 										</c:forEach>
 									</td>
 								</tr>

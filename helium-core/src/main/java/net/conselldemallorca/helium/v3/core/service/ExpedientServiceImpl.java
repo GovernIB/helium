@@ -2986,7 +2986,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 					arxiu = documentHelper.getArxiuPerDocumentStoreId(
 							document.getId(),
 							false,
-							false);
+							false,
+							null);
 					// Crea l'entrada en el zip
 					String recursNom = this.getZipRecursNom(
 							expedient, 

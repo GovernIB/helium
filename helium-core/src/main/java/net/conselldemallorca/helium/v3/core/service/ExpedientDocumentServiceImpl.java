@@ -639,7 +639,41 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		return documentHelper.getArxiuPerDocumentStoreId(
 				documentStoreId,
 				false,
-				true);
+				true,
+				null);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ArxiuDto arxiuFindAmbDocumentVersio(Long expedientId, String processInstanceId, Long documentStoreId,
+			String versio) throws NoTrobatException, PermisDenegatException {
+		logger.debug("Consulta de l'arxiu del document de la instància de procés segons versió (" +
+				"expedientId=" + expedientId + ", " +
+				"processInstanceId=" + processInstanceId + ", " +
+				"documentStoreId=" + documentStoreId + ", " +
+				"versioId=" + versio + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		if (documentStore == null) {
+			throw new NoTrobatException(
+					DocumentStore.class,
+					documentStoreId);
+		}
+		expedientHelper.comprovarInstanciaProces(
+				expedient,
+				documentStore.getProcessInstanceId());
+		return documentHelper.getArxiuPerDocumentStoreId(
+				documentStoreId,
+				false,
+				true,
+				versio);
 	}
 	
 	/**
@@ -660,7 +694,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		return documentHelper.getArxiuPerDocumentStoreId(
 				documentStoreId,
 				false,
-				true);
+				true,
+				null);
 	}
 
 	/**
@@ -1075,7 +1110,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 					null,
 					false,
 					true);
-			List<Object> versions = pluginHelper.versions(documentStore.getArxiuUuid());
+			List<ArxiuDetallDto> versions = pluginHelper.versions(documentStore.getArxiuUuid());
 			if(versions != null) {
 				arxiuDetall.setVersionsDocument(versions);
 			}
@@ -1325,7 +1360,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			ArxiuDto arxiu = documentHelper.getArxiuPerDocumentStoreId(
 					documentStore.getId(),
 					false,
-					false);
+					false,
+					null);
 				
 			if (arxiu.getTipusMime() == null)
 				arxiu.setTipusMime(documentHelper.getContentType(arxiu.getNom()));

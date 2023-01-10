@@ -637,7 +637,8 @@ public class TascaServiceImpl implements TascaService {
 			return documentHelper.getArxiuPerDocumentStoreId(
 					documentStore.getId(),
 					false,
-					false);
+					false,
+					null);
 		} else {
 			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(
 					task.getProcessInstanceId());

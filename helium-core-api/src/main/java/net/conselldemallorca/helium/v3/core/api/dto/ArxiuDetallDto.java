@@ -32,7 +32,7 @@ public class ArxiuDetallDto extends ArxiuContingutDto {
 	private String serieDocumental;
 	private String eniCsv;
 	private String eniCsvDef;
-	private List<Object> versionsDocument;
+	private List<ArxiuDetallDto> versionsDocument;
 
 	private Map<String, Object> metadadesAddicionals;
 
@@ -184,10 +184,10 @@ public class ArxiuDetallDto extends ArxiuContingutDto {
 		this.arxiuEstat = arxiuEstat;
 	}
 
-	public List<Object> getVersionsDocument() {
+	public List<ArxiuDetallDto> getVersionsDocument() {
 		return versionsDocument;
 	}
-	public void setVersionsDocument(List<Object> versionsDocument) {
+	public void setVersionsDocument(List<ArxiuDetallDto> versionsDocument) {
 		this.versionsDocument = versionsDocument;
 	}
 
