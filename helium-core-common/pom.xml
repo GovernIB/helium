@@ -480,7 +480,7 @@
 		<dependency>
 			<groupId>es.caib.distribucio</groupId>
 			<artifactId>distribucio-rest-client</artifactId>
-			<version>0.9.43</version>
+			<version>0.9.47</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>jersey-client</artifactId>
@@ -491,7 +491,7 @@
 		<dependency>
 			<groupId>es.caib.distribucio</groupId>
 			<artifactId>distribucio-backoffice-utils</artifactId>
-			<version>0.9.43</version>
+			<version>0.9.47</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>jersey-client</artifactId>
