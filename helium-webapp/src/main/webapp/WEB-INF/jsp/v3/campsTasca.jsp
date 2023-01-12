@@ -42,20 +42,15 @@
 			</c:if>
 			
 <%-- DATE ---------------------------------------------------------------------------------------%>		
-			<c:if test="${dada.campTipus == 'DATE'}">
+			<c:if test="${dada.campTipus == 'DATE'}">aquí1
 				<div class="input-group">
 					<c:choose>
 						<c:when test='${dada.campMultiple or isMultiple}'>
-							<c:choose>
-								<c:when test='${command[campNom]["class"].name == "java.util.Date"}' >
-								<fmt:formatDate value="${command[campNom]}" var="formattedDate" type="date" pattern="dd/MM/yyyy" />
-								</c:when>
-								<c:otherwise><c:set var="formattedDate" value="${command[campNom][campIndex] + 'f'}"/></c:otherwise>
-							</c:choose>
+							
 							<input type="text" id="${campCodi}" name="${campNom}" class="form-control date" placeholder="dd/mm/aaaa" data-required="${dada.required}" value="${formattedDate}"/>
-							</c:when>
+						</c:when>
 						<c:otherwise>
-						<c:choose>
+							<c:choose>
 								<c:when test='${command[campNom]["class"].name == "java.util.Date"}' >
 								<fmt:formatDate value="${command[campNom]}" var="formattedDate" type="date" pattern="dd/MM/yyyy" />
 								<input type="text" id="${campCodi}" name="${campNom}" class="form-control date" placeholder="dd/mm/aaaa" data-required="${dada.required}" value="${formattedDate}"/>
