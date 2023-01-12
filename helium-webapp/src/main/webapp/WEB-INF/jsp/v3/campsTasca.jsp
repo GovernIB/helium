@@ -42,7 +42,7 @@
 			</c:if>
 			
 <%-- DATE ---------------------------------------------------------------------------------------%>		
-			<c:if test="${dada.campTipus == 'DATE'}">aquí1
+			<c:if test="${dada.campTipus == 'DATE'}">
 				<div class="input-group">
 					<c:choose>
 						<c:when test='${dada.campMultiple or isMultiple}'>
