@@ -53,6 +53,7 @@ public enum NtiTipoDocumentalEnumDto {
 	COMUNICACIO_CIUTADA,
 	FACTURA,
 	ALTRES_INCAUTATS,
+	ALTRES,
 	LLEI,
 	MOCIO,
 	INSTRUCCIO,
@@ -71,8 +72,7 @@ public enum NtiTipoDocumentalEnumDto {
 	SOLICITUD_INFORMACIO,
 	ESCRIT,
 	INICIATIVA__LEGISLATIVA,
-	PETICIO,
-	ALTRES;
+	PETICIO;
 	
 	/** Retorna el codi NTI pel tipus de document. */
 	public String getValorNti() {
