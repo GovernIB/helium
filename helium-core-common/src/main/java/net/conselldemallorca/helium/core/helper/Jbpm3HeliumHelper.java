@@ -1064,12 +1064,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"mesos=" + mesos + ", " +
 				"dies=" + dies + ", " +
 				"esDataFi=" + esDataFi + ")");
-		DefinicioProces definicioProces = getDefinicioProcesDonatProcessInstanceId(processInstanceId);
-		Termini termini = terminiHelper.findAmbDefinicioProcesICodi(
-				definicioProces,
-				terminiCodi);
-		if (termini == null)
-			throw new NoTrobatException(Termini.class, terminiCodi);
+		
+		Termini termini = this.getTermini(processInstanceId, terminiCodi);		
 		terminiHelper.iniciar(
 				termini.getId(),
 				processInstanceId,
@@ -1082,6 +1078,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		
 	}
 
+
 	@Override
 	public void terminiIniciar(
 			String terminiCodi,
@@ -1093,11 +1090,21 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"processInstanceId=" + processInstanceId + ", " +
 				"data=" + data + ", " +
 				"esDataFi=" + esDataFi + ")");
+		Termini termini = this.getTermini(processInstanceId, terminiCodi);		
+		terminiHelper.iniciar(
+				termini.getId(),
+				processInstanceId,
+				data,
+				esDataFi,
+				false);
+	}
+
+	private Termini getTermini(String processInstanceId, String terminiCodi) {
+
 		DefinicioProces definicioProces = getDefinicioProcesDonatProcessInstanceId(processInstanceId);
 		ExpedientTipus expedientTipus = definicioProces.getExpedientTipus() != null? 
 											definicioProces.getExpedientTipus() 
 											: null;
-
 		Termini termini = null;
 		if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
 			termini = terminiHelper.findAmbExpedientTipusICodi(
@@ -1107,15 +1114,11 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			termini = terminiHelper.findAmbDefinicioProcesICodi(
 					definicioProces,
 					terminiCodi);
-		}				
+		}
 		if (termini == null)
 			throw new NoTrobatException(Termini.class, terminiCodi);
-		terminiHelper.iniciar(
-				termini.getId(),
-				processInstanceId,
-				data,
-				esDataFi,
-				false);
+		return termini;
+
 	}
 
 	@Override
