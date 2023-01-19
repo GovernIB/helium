@@ -1190,11 +1190,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				"processInstanceId=" + processInstanceId + ", " +
 				"varCodi=" + varCodi + ", " +
 				"varValor=" + varValor + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				new Permission[] {
-						ExtendedPermission.DATA_MANAGE,
-						ExtendedPermission.ADMINISTRATION});
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		expedientLoggerHelper.afegirLogExpedientPerProces(
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_VARIABLE_CREAR,
@@ -1210,12 +1206,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				"processInstanceId=" + processInstanceId + ", " +
 				"varCodi=" + varCodi + ", " +
 				"varValor=" + varValor + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				new Permission[] {
-						ExtendedPermission.DATA_MANAGE,
-						ExtendedPermission.ADMINISTRATION});
-		
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);		
 		jbpmHelper.deleteProcessInstanceVariable(processInstanceId, varCodi);
 		// Esborra la descripció per variables que mantenen el valor de la consulta
 		Camp camp;
