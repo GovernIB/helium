@@ -48,10 +48,10 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 			
 			DocumentV2 document = new DocumentV2();
 			document.setArxiuNom(notificacio.getDocumentArxiuNom());
-			if (notificacio.getDocumentArxiuContingut() != null && notificacio.getDocumentArxiuUuid()==null)
+			if (notificacio.getDocumentArxiuContingut() != null) {
 				document.setContingutBase64(new String(Base64.encodeBase64(notificacio.getDocumentArxiuContingut())));
-			else
-				document.setUuid(notificacio.getDocumentArxiuUuid());
+			}
+			document.setUuid(notificacio.getDocumentArxiuUuid());
 			document.setCsv(notificacio.getDocumentArxiuCsv());
 			
 			

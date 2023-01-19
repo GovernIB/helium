@@ -1387,6 +1387,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"ambContingutSignat=" + ambContingutSignat + ", " + 
 				"ambContingutVista=" + ambContingutVista + ", " + 
 				"perSignar=" + perSignar + ", " + 
+				"perNotificar=" + perNotificar + ", " + 
 				"ambSegellSignatura=" + ambSegellSignatura + ")");
 		return conversioTipusHelper.convertir(
 				documentHelper.toDocumentDto(

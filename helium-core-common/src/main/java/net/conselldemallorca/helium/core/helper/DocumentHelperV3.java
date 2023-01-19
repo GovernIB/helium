@@ -1310,7 +1310,7 @@ public class DocumentHelperV3 {
 											|| ambContingutVista);
 					// Si s'ha de notificar llavors es passa el contingut si no té uuid d'arxiu o no és un PDF
 					ambContingut = ambContingut && 
-								   (!perNotificar 
+								   (!(perNotificar && documentStore.isSignat())
 										   || documentStore.getArxiuUuid() == null
 										   || ! documentStore.getArxiuNom().toLowerCase().endsWith(".pdf"));
 					es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
