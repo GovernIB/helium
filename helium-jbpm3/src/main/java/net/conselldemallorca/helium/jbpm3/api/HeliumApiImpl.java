@@ -1062,9 +1062,15 @@ public class HeliumApiImpl implements HeliumApi {
 	
 	
 	private ExpedientDto getExpedientActual() {
-		ExpedientDto expedient = Jbpm3HeliumBridge.getInstanceService().getExpedientIniciant();
-		if (expedient == null) {
-			expedient = Jbpm3HeliumBridge.getInstanceService().getExpedientArrelAmbProcessInstanceId(getProcessInstanceId());
+		ExpedientDto expedient = null;
+		try {
+			expedient = Jbpm3HeliumBridge.getInstanceService()
+							.getExpedientArrelAmbProcessInstanceId(getProcessInstanceId());
+		} catch(NoTrobatException nte) {
+			expedient = Jbpm3HeliumBridge.getInstanceService().getExpedientIniciant();
+			if (expedient == null) {
+				throw nte;
+			}
 		}
 		return expedient;
 	}

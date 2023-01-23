@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -118,6 +119,7 @@ import net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPlug
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPluginException;
 import net.conselldemallorca.helium.integracio.plugins.unitat.UnitatOrganica;
 import net.conselldemallorca.helium.integracio.plugins.unitat.UnitatsOrganiquesPlugin;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
@@ -2598,6 +2600,25 @@ public class PluginHelper {
 			throw tractarExcepcioEnSistemaExtern(MonitorIntegracioHelper.INTCODI_ARXIU,errorDescripcio, ex);
 		}
 	}
+	
+	public List<ArxiuDetallDto> versions(String arxiuUuid){
+		List<ArxiuDetallDto> versionsDocument = new ArrayList<ArxiuDetallDto>();
+		List<ContingutArxiu> contingutArxiusVersions = getArxiuPlugin().documentVersions(arxiuUuid);
+		for(ContingutArxiu contingutArxiuVersio: contingutArxiusVersions) {
+			es.caib.plugins.arxiu.api.Document documentInfo = this.arxiuDocumentInfo(arxiuUuid, 
+					contingutArxiuVersio.getVersio(), 
+					true, 
+					true);
+			ArxiuDetallDto arxiuDetallDto= new ArxiuDetallDto();
+			arxiuDetallDto.setNom(documentInfo.getNom());			
+			arxiuDetallDto.setEniVersio(documentInfo.getVersio());
+			arxiuDetallDto.setContingutTipusMime(documentInfo.getContingut()!=null ? documentInfo.getContingut().getTipusMime() : null);
+			arxiuDetallDto.setEniDataCaptura(documentInfo.getMetadades() != null ? documentInfo.getMetadades().getDataCaptura() : null);
+			versionsDocument.add(arxiuDetallDto);
+		}
+		Collections.reverse(versionsDocument);
+		return versionsDocument;
+	}
 
 	public es.caib.plugins.arxiu.api.Document arxiuDocumentInfo(
 			String arxiuUuid,
@@ -2642,6 +2663,10 @@ public class PluginHelper {
 								documentContingut.getContingut().length);
 						documentDetalls.getContingut().setTipusMime("application/pdf");
 					}
+//					List<ContingutArxiu> versionsDocument = getArxiuPlugin().documentVersions(arxiuUuid);
+//					if(versionsDocument!=null && !versionsDocument.isEmpty()) {
+//						//documentDetalls.
+//					}
 				}
 			}
 			monitorIntegracioHelper.addAccioOk(

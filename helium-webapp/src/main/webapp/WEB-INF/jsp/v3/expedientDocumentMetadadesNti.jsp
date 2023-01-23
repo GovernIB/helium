@@ -16,7 +16,7 @@
 	<hel:modalHead/>
 </head>
 <body>
-	<!-- Formulari per incoporar el document a l'Arxiu si es detecta error de no Uuid -->
+	<!-- Formulari per incoporar el document a l'Arxiu si es detecta error de no Uuid -->MARTA
 	<c:if test="${errorArxiuNoUuid}">
 		<div class="row alert alert-danger" style="margin: 0px; margin-bottom: 10px;">
 			<div class="col-sm-10">
@@ -296,6 +296,30 @@
 								<td><strong><spring:message code="expedient.metadades.nti.camp.arxiuEstat"/></strong></td>
 								<td>${arxiuDetall.arxiuEstat != null ? arxiuDetall.arxiuEstat : "-"}</td>
 							</tr>
+							<c:if test="${not empty arxiuDetall.versionsDocument}">
+								<tr>
+									<td><strong><spring:message code="expedient.metadades.nti.camp.eni.versions"/></strong></td>
+									<td>
+										<c:forEach var="versio" items="${arxiuDetall.versionsDocument}" varStatus="status">
+											<a href="<c:url value="/v3/expedient/${expedientId}/proces/${expedientDocument.processInstanceId}/document/${expedientDocument.id}/descarregar/versio/${versio.eniVersio}/"/>">		
+											    <span class="fa fa-file no-doc" title="Descarregar document"></span>
+												<strong class="nom_document">
+													v.${versio.eniVersio}
+												</strong>
+												<strong class="nom_document"> ${versio.nom}</strong>
+												<c:if test="${document.adjunt}">
+													<span class="adjuntIcon icon fa fa-paperclip fa-2x"></span>
+												</c:if>
+												<span class="extensionIcon">
+													${fn:toUpperCase(document.arxiuExtensio)}
+												</span>
+												<!--<fmt:formatDate value="${versio.eniDataCaptura}" pattern="dd/MM/yyyy HH:mm:ss"/>-->	
+											</a>
+											<br/>	
+										</c:forEach>
+									</td>
+								</tr>
+							</c:if>
 						</tbody>
 						</table>
 					</div>

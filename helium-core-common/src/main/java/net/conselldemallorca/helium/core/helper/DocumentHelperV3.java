@@ -193,7 +193,8 @@ public class DocumentHelperV3 {
 	public ArxiuDto getArxiuPerDocumentStoreId(
 			Long documentStoreId,
 			boolean perSignar,
-			boolean ambSegellSignatura) {
+			boolean ambSegellSignatura,
+			String versio) {
 		ArxiuDto resposta = new ArxiuDto();
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		// Obtenim el contingut de l'arxiu
@@ -201,7 +202,7 @@ public class DocumentHelperV3 {
 		if (documentStore.getArxiuUuid() != null) {
 			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
 					documentStore.getArxiuUuid(),
-					null,
+					versio,
 					true,
 					documentStore.isSignat());
 			resposta.setNom(documentStore.getArxiuNom());
@@ -1638,7 +1639,8 @@ public class DocumentHelperV3 {
 		ArxiuDto arxiuPerFirmar = getArxiuPerDocumentStoreId(
 				documentStoreId,
 				true,
-				(documentStore.getArxiuUuid() == null));
+				(documentStore.getArxiuUuid() == null),
+				null);
 		if (! "pdf".equals(arxiuPerFirmar.getExtensio())) {
 			arxiuPerFirmar.getNom();
 			// Transforma l'arxiu a PDF
