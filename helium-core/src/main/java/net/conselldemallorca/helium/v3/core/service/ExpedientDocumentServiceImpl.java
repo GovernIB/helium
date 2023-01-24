@@ -1241,6 +1241,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				.documentStoreId(documentStoreId)
 				.documentNom(document.getDocumentNom())
 				.arxiuNom(document.getArxiuNom())
+				.extensio(document.getArxiuExtensio())
 				.adjunt(document.isAdjunt())
 				.adjuntTitol(document.getAdjuntTitol())
 				.dataCreacio(document.getDataCreacio())

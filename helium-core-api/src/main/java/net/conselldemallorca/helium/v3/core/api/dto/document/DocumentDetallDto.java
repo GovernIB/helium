@@ -19,6 +19,7 @@ public class DocumentDetallDto {
     private Long documentStoreId;
     private String documentNom;
     private String arxiuNom;
+    private String extensio;
     private boolean adjunt;
     private String adjuntTitol;
     private Date dataCreacio;

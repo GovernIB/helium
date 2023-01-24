@@ -23,6 +23,8 @@ import java.util.TreeMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import net.conselldemallorca.helium.v3.core.api.dto.*;
+import net.conselldemallorca.helium.webapp.v3.helper.*;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,21 +45,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
-import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
 
 /**
  * Controlador per a la pipella de dades de l'expedient.
@@ -74,12 +64,40 @@ public class ExpedientDadaController extends BaseExpedientController {
 	private ExpedientDadaService expedientDadaService;
 
 
+	@RequestMapping(value = "/{expedientId}/dada/datatable", method = RequestMethod.POST)
+	@ResponseBody
+	public DatatablesHelper.DatatablesResponse documentDatatable(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model) {
+
+		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
+		return DatatablesHelper.getDatatableResponse(
+				request,
+				null,
+				expedientDadaService.findDadesExpedient(expedientId, paginacioParams),
+				"id");
+	}
 
 	@RequestMapping(value = "/{expedientId}/dada")
 	public String dades(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus())) {
+			model.addAttribute("expedient", expedient);
+			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
+			if (!NodecoHelper.isNodeco(request)) {
+				return mostrarInformacioExpedientPerPipella(
+						request,
+						expedientId,
+						model,
+						"dades");
+			}
+			return "v3/expedientDadesList";
+		}
+
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioExpedientPerPipella(
 					request,

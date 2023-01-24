@@ -618,6 +618,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 
 		DocumentDetallDto documentDetall = expedientDocumentService.getDocumentDetalls(expedientId, documentStoreId);
 		model.addAttribute("detall", documentDetall);
+		model.addAttribute("expedientId", expedientId);
 		return "v3/expedientDocumentDetall";
 //		// Expedient
 //		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);

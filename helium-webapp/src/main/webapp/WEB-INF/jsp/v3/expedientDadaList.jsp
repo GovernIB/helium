@@ -18,58 +18,29 @@
 <%--<script src="<c:url value="/js/expdoc-viewer.js"/>"></script>--%>
 
 <script type="application/javascript">
-
-	<%-- Paràmetres necessaris per al visor de la previsualització del document	--%>
-	var urlDescarregaBase = '<c:url value="/nodeco/v3/expedient/${expedient.id}/document/"/>';
-	var urlViewer = '<c:url value="/webjars/pdf-js/2.13.216/web/viewer.html"/>';
-	var msgViewer = [];
-	msgViewer['previs'] = '<spring:message code="expedient.document.previsualitzacio"/>';
-	msgViewer['nom'] = '<spring:message code="expedient.document.info.nom"/>';
-	msgViewer['error'] = '<spring:message code="expedient.document.previsualitzacio.error"/>';
-	msgViewer['warning'] = '<spring:message code="expedient.document.previsualitzacio.warning"/>';
-
-
 	$(document).ready(() => {
 		<%-- Al recarregar la taula... --%>
-		$("#expedientDocuments").on("draw.dt", () => {
+		$("#expedientDades").on("draw.dt", () => {
 
 			<%-- Si el primer document és inexistent fem la vora superior de 3px, ja que amb els 2px per defecte no es veu --%>
-			let firstTr = $("#expedientDocuments tbody tr:first-child");
+			let firstTr = $("#expedientDades tbody tr:first-child");
 			if (firstTr.hasClass("no-data")) {
 				firstTr.css("border-top", "dashed 3px #BBB");
 			}
 
 			<%-- Per cada fila... --%>
-			$("#expedientDocuments tbody tr").each((index, element) => {
-				if (!$(element).hasClass("no-data")) {
-					<%-- Obrim el detall del document al fer clic a la fila del document --%>
-					$(element).click((event) => {
-						if (event.target.tagName.toLowerCase() !== 'a' && (event.target.cellIndex === undefined || event.target.cellIndex === 0 || event.target.cellIndex > 4)) return;
-						toggleDocDetails(element);
-					})
-				} else {
+			$("#expedientDades tbody tr").each((index, element) => {
+				if ($(element).hasClass("no-data")) {
 					<%-- Eliminam els checks dels documents inexistents--%>
 					$(element).find(".fa-square-o").remove();
 				}
 			})
 		});
 
-		// Plegar / Desplegar els detalls d'un document
-		$("#expedientDocuments").on('click', 'div.card-header.pointer', (event) => {
-			let cardHeader = $(event.currentTarget);
-			toggleCard(cardHeader);
-		});
-
-		// Plegar / Desplegar la previasualització d'un document
-		$("#expedientDocuments").on('click', '.previs-icon', (event) => {
-			let viewer = $(event.currentTarget).next();
-			toggleViewer(viewer);
-		});
-
 		<%-- Al seleccionar i deseleccionar, eliminarem els checks dels documents inexistents--%>
-		$("#expedientDocuments").on('selectionchange.dt', () => {
+		$("#expedientDades").on('selectionchange.dt', () => {
 			console.log('selectionchange');
-			$("#expedientDocuments tbody tr.no-data").each((index, element) => {
+			$("#expedientDades tbody tr.no-data").each((index, element) => {
 				$(element).find(".fa-square-o").remove();
 				$(element).find(".fa-check-square-o").remove();
 			});
@@ -91,33 +62,11 @@
 				opacity: opacity
 			});
 		});
-
-		// $('body').on('click', 'button.modal-tancar', (e) => {
-		// 	alert('tancant modal');
-		// })
 	});
-
-	// const esborrarSignatura = (id, correcte) => {
-	// 	if (correcte) {
-	// 		$("#signatura_" + id).remove();
-	// 		$("#signatura_" + id).remove();
-	// 	}
-	// }
-
-	<%--const confirmPsigna(psignaInfo)--%>
-	<%--bootbox.confirm({--%>
-	<%--	size: 'large',--%>
-	<%--	title: '<spring:message code="expedient.document.pendent.psigna"/>',--%>
-	<%--	message: '',--%>
-	<%--	callback: function(result) {--%>
-
-	<%--	}--%>
-	<%--});--%>
-
 </script>
 <style>
-	#expedientDocuments {border-collapse: collapse !important; margin-bottom: 15px !important;}
-	#expedientDocuments tbody tr td {vertical-align: middle;}
+	#expedientDades {border-collapse: collapse !important; margin-bottom: 15px !important;}
+	#expedientDades tbody tr td {vertical-align: middle;}
 	.table-bordered>tbody>tr>td {max-width: 155px;}
 	.no-data {color: #bbb; border: dashed 2px; cursor: default !important;}
 	.btn-top {position: fixed; z-index: 1000; right: 15px; bottom: 50px; background-color: #FFF; padding: 0 5px 0 5px; border-radius: 5px; cursor: pointer; opacity: 0.1;}
@@ -133,9 +82,9 @@
 	.pill-link {position: relative !important; display: block !important; padding: 5px 10px !important; margin-right: 2px !important;}
 </style>
 
-<c:url var="urlDatatable" value="/v3/expedient/${expedient.id}/document/datatable"/>
+<c:url var="urlDatatable" value="/v3/expedient/${expedient.id}/dada/datatable"/>
 
-<table	id="expedientDocuments"
+<table	id="expedientDades"
 		  data-toggle="datatable"
 		  data-url="${urlDatatable}"
 		  data-ajax-request-type="POST"

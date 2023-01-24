@@ -11,6 +11,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.v3.core.api.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.model.Permission;
@@ -37,9 +38,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
-import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
 import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
@@ -358,7 +356,24 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		return agrupacionsDto;
 	}
 
-	/*********************/
+    @Override
+	@Transactional(readOnly = true)
+    public List<DadaListDto> findDadesExpedient(Long expedientId, PaginacioParamsDto paginacioParams) {
+		logger.debug("Consultant les dades de l'expedient (expedientId=" + expedientId + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+		String processInstanceId = expedient.getProcessInstanceId();
+
+		List<ExpedientDadaDto> dadesExpedient = variableHelper.findDadesPerInstanciaProces(processInstanceId, true);
+
+		return null;
+    }
+
+    /*********************/
 
 	private void optimitzarValorPerConsultesDominiGuardar(
 			ExpedientTipus expedientTipus, 

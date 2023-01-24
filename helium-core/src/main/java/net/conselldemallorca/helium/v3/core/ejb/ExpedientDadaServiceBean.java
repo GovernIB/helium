@@ -9,6 +9,8 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
+import net.conselldemallorca.helium.v3.core.api.dto.DadaListDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
@@ -105,5 +107,11 @@ public class ExpedientDadaServiceBean implements ExpedientDadaService {
 		return delegate.agrupacionsFindAmbInstanciaProces(
 				expedientId,
 				processInstanceId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<DadaListDto> findDadesExpedient(Long expedientId, PaginacioParamsDto paginacioParams) {
+		return delegate.findDadesExpedient(expedientId, paginacioParams);
 	}
 }

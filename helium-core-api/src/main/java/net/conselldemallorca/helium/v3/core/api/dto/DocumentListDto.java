@@ -66,8 +66,11 @@ public class DocumentListDto implements Serializable {
 	private String error;
 	private String docError;
 
+	@Builder.Default
 	private boolean visible = true;
+	@Builder.Default
 	private boolean editable = true;
+	@Builder.Default
 	private boolean obligatori = false;
 
 }
