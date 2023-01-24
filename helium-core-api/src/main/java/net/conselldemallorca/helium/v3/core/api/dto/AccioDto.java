@@ -19,7 +19,7 @@ public class AccioDto extends HeretableDto implements Serializable {
 	private AccioTipusEnumDto tipus;
 	private String defprocJbpmKey;
 	private String jbpmAction;
-	private String predefinitCodi;
+	private String predefinitClasse;
 	private String predefinitDades;
 	private String script;
 	private boolean publica;
@@ -101,12 +101,12 @@ public class AccioDto extends HeretableDto implements Serializable {
 		this.tipus = tipus;
 	}
 
-	public String getPredefinitCodi() {
-		return predefinitCodi;
+	public String getPredefinitClasse() {
+		return predefinitClasse;
 	}
 
-	public void setPredefinitCodi(String predefinitCodi) {
-		this.predefinitCodi = predefinitCodi;
+	public void setPredefinitClasse(String predefinitClasse) {
+		this.predefinitClasse = predefinitClasse;
 	}
 
 	public void setDescripcio(String descripcio) {
@@ -127,5 +127,22 @@ public class AccioDto extends HeretableDto implements Serializable {
 
 	public void setScript(String script) {
 		this.script = script;
+	}
+	
+	public String getHandler() {
+		String handler;
+		switch(this.tipus) {
+		case HANDLER:
+			handler = this.jbpmAction;
+			break;
+		case HANDLER_PREDEFINIT:
+			handler = this.getPredefinitClasse();
+			break;
+		case SCRIPT:
+		default:
+			handler = "";
+			break;		
+		}
+		return handler;
 	}
 }

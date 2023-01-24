@@ -87,6 +87,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.jbpm3.handlers.ExpedientTitolModificarHandler;
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.jbpm3.integracio.ExecucioHandlerException;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
@@ -1646,7 +1647,12 @@ public class ExpedientServiceImpl implements ExpedientService {
 							herenciaHelper.getProcessDefinitionIdHeretadaAmbExpedient(expedient));
 				} else if (AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
 					//TODO: fer la crida als handlers predefinits d'Helium
+//					ExpedientTitolModificarHandler handler = new ExpedientTitolModificarHandler();
+//					handler.setTitol(titol);
+//					handler.execute(executionContext);
 					throw new NotImplementedException("Acció handler predefinit no implementat.");
+					
+					
 				} else if (AccioTipusEnumDto.SCRIPT.equals(accio.getTipus())) {
 					jbpmHelper.evaluateScript(
 							processInstanceId, 

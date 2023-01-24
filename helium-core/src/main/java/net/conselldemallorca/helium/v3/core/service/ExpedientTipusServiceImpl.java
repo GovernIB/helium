@@ -1407,8 +1407,11 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 									expedientTipus, 
 									accioExportat.getCodi(), 
 									accioExportat.getNom(),
+									accioExportat.getTipus(),
 									accioExportat.getDefprocJbpmKey(),
-									accioExportat.getJbpmAction());
+									accioExportat.getJbpmAction(),
+									accioExportat.getPredefinitClasse(),
+									accioExportat.getPredefinitDades());
 							expedientTipus.getAccions().add(accio);
 							accioRepository.save(accio);
 						} else {
@@ -2751,6 +2754,20 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				permisosDto = conversioTipusHelper.convertirList(permisos, PermisEstatDto.class);
 			}
 		}
+		
+		// Accions entrada
+		List<EstatAccioDto> estatAccionsEntradaDto = new ArrayList<EstatAccioDto>();
+		List<EstatAccioEntrada> estatAccioEntrada = estatAccioEntradaRepository.findByEstatOrderByOrdreAsc(estat);
+		if (estatAccioEntrada != null && !estatAccioEntrada.isEmpty()) {
+			estatAccionsEntradaDto = conversioTipusHelper.convertirList(estatAccioEntrada, EstatAccioDto.class);
+		}
+
+		// Accions sortida
+		List<EstatAccioDto> estatAccionsSortidaDto = new ArrayList<EstatAccioDto>();
+		List<EstatAccioSortida> estatAccioSortida = estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estat);
+		if (estatAccioSortida != null && !estatAccioSortida.isEmpty()) {
+			estatAccionsSortidaDto = conversioTipusHelper.convertirList(estatAccioSortida, EstatAccioDto.class);
+		}
 
 		return EstatExportacio.builder()
 				.codi(estat.getCodi())
@@ -2758,7 +2775,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				.ordre(estat.getOrdre())
 				.regles(reglesDto)
 				.permisos(permisosDto)
-//					.accions()
+				.accionsEntrada(estatAccionsEntradaDto)
+				.accionsSortida(estatAccionsSortidaDto)
 				.build();
 	}
 
@@ -2964,6 +2982,24 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	
 	@Override
 	@Transactional
+	public void estatAccionsDeleteAll(Long estatId) throws NoTrobatException, PermisDenegatException {
+		logger.debug(
+				"Esborrant totes les accions d'entrada i sortida de l'estat  (" +
+				"estatId=" + estatId + ")");
+		Estat estat = estatRepository.findOne(estatId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		// Accions d'entrada
+		for (EstatAccioEntrada estatAccio : estatAccioEntradaRepository.findByEstatOrderByOrdreAsc(estat)) {
+			estatAccioEntradaRepository.delete(estatAccio);
+		}
+		// Accions de sortida
+		for (EstatAccioSortida estatAccio : estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estat)) {
+			estatAccioSortidaRepository.delete(estatAccio);
+		}
+	}
+
+	@Override
+	@Transactional
 	public EstatAccioDto estatAccioEntradaAfegir(Long estatId, Long accioId) throws NoTrobatException, PermisDenegatException {
 		Estat estat = estatRepository.findOne(estatId);
 		Accio accio = accioRepository.findOne(accioId);
@@ -3147,8 +3183,11 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 								expedientTipus,
 								accio.getCodi(),
 								accio.getNom(),
+								accio.getTipus(),
 								definicioProces.getJbpmKey(),
-								accio.getJbpmAction());
+								accio.getJbpmAction(),
+								accio.getPredefinitClasse(),
+								accio.getPredefinitDades());
 						expedientTipus.getAccions().add(nova);
 					} else if (sobreescriure) {
 						nova.setNom(accio.getNom());

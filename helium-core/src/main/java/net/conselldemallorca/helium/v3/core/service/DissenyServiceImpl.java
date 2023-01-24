@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.v3.core.service;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -29,6 +30,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
@@ -78,6 +82,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.handlers.HandlerDto;
 import net.conselldemallorca.helium.v3.core.api.exception.DeploymentException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
@@ -1217,6 +1222,21 @@ public class DissenyServiceImpl implements DissenyService {
 		
 		return conversioTipusHelper.convertirList(consultaCamps, ConsultaCampDto.class);
 	}
+	
+	@Override
+	public List<HandlerDto> getHandlersPredefinits() {
+		List<HandlerDto> handlers;
+		InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("handlersPredefinits.json");			
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			handlers = mapper.readValue(in, new TypeReference<List<HandlerDto>>(){});
+		} catch (Exception e) {
+			logger.error("Error llegint els handlers predefinits : " + e.getMessage(), e);
+			handlers = new ArrayList<HandlerDto>();
+		}
+		return handlers;
+	}
+
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 }

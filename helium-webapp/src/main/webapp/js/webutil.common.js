@@ -130,6 +130,12 @@ function webutilDisableInputs(formulari) {
 	$('select', formulari).attr('disabled', true);
 	$('input[type=checkbox]', formulari).attr('disabled', 'disabled');
 }
+/** Funció per tornar a habilitar els camps d'un formulari. */
+function webutilEnableInputs(formulari) {
+	$(':input', formulari).removeAttr('readonly');
+	$('select', formulari).removeAttr('disabled');
+	$('input[type=checkbox]', formulari).removeAttr('disabled');
+}
 
 
 $(document).ajaxError(function(event, jqxhr, ajaxSettings, thrownError) {

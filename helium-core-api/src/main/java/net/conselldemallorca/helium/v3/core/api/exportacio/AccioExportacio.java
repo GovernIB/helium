@@ -5,6 +5,8 @@ package net.conselldemallorca.helium.v3.core.api.exportacio;
 
 import java.io.Serializable;
 
+import net.conselldemallorca.helium.v3.core.api.dto.AccioTipusEnumDto;
+
 
 
 /**
@@ -17,11 +19,14 @@ public class AccioExportacio implements Serializable {
 	private String codi;
 	private String nom;
 	private String descripcio;
+	private AccioTipusEnumDto tipus;
 	private String defprocJbpmKey;
 	private String jbpmAction;
 	private boolean publica;
 	private boolean oculta;
 	private String rols;
+	private String predefinitClasse;
+	private String predefinitDades;
 
 
 
@@ -93,6 +98,32 @@ public class AccioExportacio implements Serializable {
 	}
 	public void setRols(String rols) {
 		this.rols = rols;
+	}
+
+
+
+	public AccioTipusEnumDto getTipus() {
+		return tipus;
+	}
+
+	public void setTipus(AccioTipusEnumDto tipus) {
+		this.tipus = tipus;
+	}
+
+	public String getPredefinitClasse() {
+		return predefinitClasse;
+	}
+
+	public void setPredefinitClasse(String predefinitClasse) {
+		this.predefinitClasse = predefinitClasse;
+	}
+
+	public String getPredefinitDades() {
+		return predefinitDades;
+	}
+
+	public void setPredefinitDades(String predefinitDades) {
+		this.predefinitDades = predefinitDades;
 	}
 
 

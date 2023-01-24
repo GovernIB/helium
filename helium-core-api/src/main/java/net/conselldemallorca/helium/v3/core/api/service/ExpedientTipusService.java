@@ -955,6 +955,19 @@ public interface ExpedientTipusService {
 	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// ACCIONS DELS ESTATS
+	
+	/**
+	 * Esborra totes les accions d'entrada i sortida d'un estat pels expedients basats en estats.
+	 *
+	 * @param estatId
+	 *            Atribut id de l'estat.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat l'estat amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public void estatAccionsDeleteAll(Long estatId) throws NoTrobatException, PermisDenegatException;
+
 
 	/** 
 	 * Retorna la relació d'accions per un estat paginada per la datatable.

@@ -13,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
@@ -71,25 +72,50 @@ public class Accio implements Serializable, GenericEntity<Long> {
 	@MaxLength(255)
 	private String defprocJbpmKey;
 	
-//	private String predefinitCodi;
-//	private String predefinitDades;
+	@MaxLength(255)
+	private String predefinitClasse;
+	@Lob
+	@MaxLength(20000)
+	private String predefinitDades;
+	
 	@MaxLength(1024)
 	private String script;
 
 
 	public Accio() {}
-	public Accio(DefinicioProces definicioProces, String codi, String nom, String jbpmAction) {
+	public Accio(
+			DefinicioProces definicioProces, 
+			String codi, 
+			String nom, 
+			AccioTipusEnumDto tipus,
+			String jbpmAction,
+			String predefinitClasse,
+			String predefinitDades) {
 		this.definicioProces = definicioProces;
 		this.codi = codi;
 		this.nom = nom;
+		this.tipus = tipus;
 		this.jbpmAction = jbpmAction;
+		this.predefinitClasse = predefinitClasse;
+		this.predefinitDades = predefinitDades;
 	}
-	public Accio(ExpedientTipus expedientTipus, String codi, String nom, String defprocJbpmKey, String jbpmAction) {
+	public Accio(
+			ExpedientTipus expedientTipus, 
+			String codi, 
+			String nom, 
+			AccioTipusEnumDto tipus,
+			String defprocJbpmKey, 
+			String jbpmAction,
+			String predefinitClasse,
+			String predefinitDades) {
 		this.expedientTipus = expedientTipus;
 		this.codi = codi;
 		this.nom = nom;
+		this.tipus = tipus;
 		this.defprocJbpmKey = defprocJbpmKey;
 		this.jbpmAction = jbpmAction;
+		this.predefinitClasse = predefinitClasse;
+		this.predefinitDades = predefinitDades;
 	}
 
 	@Id
@@ -212,6 +238,21 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.defprocJbpmKey = defprocJbpmKey;
 	}
 
+	@Column(name="predefinit_classe", length=255)
+	public String getPredefinitClasse() {
+		return predefinitClasse;
+	}
+	public void setPredefinitClasse(String predefinitClasse) {
+		this.predefinitClasse = predefinitClasse;
+	}
+	
+	@Column(name="predefinit_dades", length=255)
+	public String getPredefinitDades() {
+		return predefinitDades;
+	}
+	public void setPredefinitDades(String predefinitDades) {
+		this.predefinitDades = predefinitDades;
+	}
 
 	@Override
 	public int hashCode() {
@@ -219,11 +260,15 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		int result = 1;
 		result = prime * result + ((codi == null) ? 0 : codi.hashCode());
 		result = prime * result
+				+ ((tipus == null) ? 0 : tipus.hashCode());
+		result = prime * result
 				+ ((definicioProces == null) ? 0 : definicioProces.hashCode());
 		result = prime * result
 				+ ((expedientTipus == null) ? 0 : expedientTipus.hashCode());
 		result = prime * result
 				+ ((defprocJbpmKey == null) ? 0 : defprocJbpmKey.hashCode());
+		result = prime * result
+				+ ((predefinitClasse == null) ? 0 : predefinitClasse.hashCode());
 		return result;
 	}
 	@Override
@@ -240,6 +285,11 @@ public class Accio implements Serializable, GenericEntity<Long> {
 				return false;
 		} else if (!codi.equals(other.codi))
 			return false;
+		if (tipus == null) {
+			if (other.tipus != null)
+				return false;
+		} else if (!tipus.equals(other.tipus))
+			return false;
 		if (definicioProces == null) {
 			if (other.definicioProces != null)
 				return false;
@@ -254,6 +304,16 @@ public class Accio implements Serializable, GenericEntity<Long> {
 			if (other.defprocJbpmKey != null)
 				return false;
 		} else if (!defprocJbpmKey.equals(other.defprocJbpmKey))
+			return false;
+		if (predefinitClasse == null) {
+			if (other.predefinitClasse != null)
+				return false;
+		} else if (!predefinitClasse.equals(other.predefinitClasse))
+			return false;
+		if (predefinitDades == null) {
+			if (other.predefinitDades != null)
+				return false;
+		} else if (!predefinitDades.equals(other.predefinitDades))
 			return false;
 		
 		return true;

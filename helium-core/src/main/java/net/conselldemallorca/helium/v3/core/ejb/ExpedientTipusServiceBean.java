@@ -490,6 +490,13 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void estatAccionsDeleteAll(Long estatId) throws NoTrobatException, PermisDenegatException {
+		delegate.estatAccionsDeleteAll(estatId);
+	}	
+
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public EstatAccioDto estatAccioEntradaAfegir(Long estatId, Long accioId)
 			throws NoTrobatException, PermisDenegatException {
 		return delegate.estatAccioEntradaAfegir(estatId, accioId);
@@ -881,5 +888,6 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			PaginacioParamsDto paginacioParams) {
 		return delegate.findTipologiesByFiltrePaginat(entornId, filtreDto, paginacioParams);
 		
-	}	
+	}
+
 }

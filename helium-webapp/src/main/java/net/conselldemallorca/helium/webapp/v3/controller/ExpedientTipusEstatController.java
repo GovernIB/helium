@@ -34,6 +34,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
@@ -48,6 +49,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PermisEstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.AccioEnum;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatAccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.QuiEnum;
@@ -519,6 +521,41 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 										estat.getId(),
 										conversioTipusHelper.convertir(permisExportacio, PermisDto.class));
 							}
+						}
+						
+						// Actualitzar accions
+						
+						// esborra les accions de l'estat
+						expedientTipusService.estatAccionsDeleteAll(estat.getId());
+
+						if (estatExportacio.getAccionsEntrada() != null) {
+							for (EstatAccioDto estatAccio : estatExportacio.getAccionsEntrada()) {
+								AccioDto accio = accioService.findAmbCodi(expedientTipusId, null, estatAccio.getAccio().getCodi());
+								if (accio != null) {
+									expedientTipusService.estatAccioEntradaAfegir(estat.getId(), accio.getId());
+								} else {
+									MissatgesHelper.warning(
+											request, 
+											getMessage(request, 
+													"expedient.tipus.estat.importar.controller.avis.estat.accio.entrada", 
+													new Object[] {estatAccio.getAccio().getCodi(), estatAccio.getAccio().getNom(), estat.getCodi(), estat.getNom()}) );
+								}
+							}							
+						}
+						
+						if (estatExportacio.getAccionsSortida() != null) {
+							for (EstatAccioDto estatAccio : estatExportacio.getAccionsSortida()) {
+								AccioDto accio = accioService.findAmbCodi(expedientTipusId, null, estatAccio.getAccio().getCodi());
+								if (accio != null) {
+									expedientTipusService.estatAccioSortidaAfegir(estat.getId(), accio.getId());
+								} else {
+									MissatgesHelper.warning(
+											request, 
+											getMessage(request, 
+													"expedient.tipus.estat.importar.controller.avis.estat.accio.sortida", 
+													new Object[] {estatAccio.getAccio().getCodi(), estatAccio.getAccio().getNom(), estat.getCodi(), estat.getNom()}) );
+								}
+							}							
 						}
 					}
 				}

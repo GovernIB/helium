@@ -437,7 +437,10 @@ public class DefinicioProcesHelper {
 									definicio, 
 									accioExportat.getCodi(), 
 									accioExportat.getNom(),
-									accioExportat.getJbpmAction());
+									accioExportat.getTipus(),
+									accioExportat.getJbpmAction(),
+									accioExportat.getPredefinitClasse(),
+									accioExportat.getPredefinitDades());
 							definicio.getAccions().add(accio);
 							accioRepository.save(accio);
 						} else {
@@ -1089,7 +1092,10 @@ public class DefinicioProcesHelper {
 					desti,
 					accio.getCodi(),
 					accio.getNom(),
-					accio.getJbpmAction());
+					accio.getTipus(),
+					accio.getJbpmAction(),
+					accio.getPredefinitClasse(),
+					accio.getPredefinitDades());
 			nova.setDescripcio(accio.getDescripcio());
 			nova.setOculta(accio.isOculta());
 			nova.setPublica(accio.isPublica());
