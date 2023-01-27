@@ -484,7 +484,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		for ( AnotacioAnnex annex : anotacio.getAnnexos() ) {			
 			// Incorpora cada annex de forma separada per evitar excepcions i continuar amb els altres
 			// Si no s'integra amb Sistra crea un document per annex incorportat correctament
-			this.incorporarAnnex(
+			distribucioHelper.incorporarAnnex(
 					expedientTipus.isDistribucioSistra(),
 					expedient, 
 					anotacio, 
@@ -567,94 +567,6 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				anotacio, 
 				AnotacioDto.class);
 	}
-	
-	/** Incorpora l'annex a l'expedient segons el resultat. Si s'ha pogut moure
-	 * llavors crea un nou document si no està mapejat com a Sistra.
-	 * 
-	 * {@inheritDoc}
-	 * @param isSistra Si l'expedient no és sistra llavors crearà un annex per cada annex mogut.
-	 * @param anotacio 
-	 * @param expedient 
-	 * @param annex 
-	 * @param resultat 
-	 */
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void incorporarAnnex(boolean isSistra, Expedient expedient, Anotacio anotacio, AnotacioAnnex annex, ArxiuResultat resultat) {
-		
-		ArxiuResultatAnnex resultatAnnex = null;
-		// El títol contindrà el número de l'anotació
-		String adjuntTitol = anotacio.getIdentificador() + "/" + annex.getNom();
-		logger.debug("Incorporant l'annex (annex=" + adjuntTitol + ") a l'expedient " + expedient.getIdentificador());
-		try {
-			byte[] contingut = null;
-			String arxiuUuid = null;
-			if (expedient.isArxiuActiu()) {
-				resultatAnnex = resultat.getResultatAnnex(annex.getUuid());
-				// Consulta si s'acaba de moure
-				switch(resultatAnnex.getAccio()) {
-				case ERROR:
-					annex.setEstat(AnotacioAnnexEstatEnumDto.PENDENT);
-					annex.setError(resultatAnnex.getErrorCodi() + " - " + resultatAnnex.getErrorMessage());
-					break;
-				case EXISTENT:
-				case MOGUT:
-					annex.setEstat(AnotacioAnnexEstatEnumDto.MOGUT);
-					annex.setUuid(resultatAnnex.getIdentificadorAnnex());
-					arxiuUuid = annex.getUuid();
-				}
-			} else {
-				Annex a = new Annex();
-				a.setUuid(annex.getUuid());
-				resultatAnnex = new ArxiuResultatAnnex();
-				resultat.addResultatAnnex(a, resultatAnnex);
-				// Recupera el contingut del document i crea un document a Helium
-				contingut = annex.getContingut();
-				if (contingut == null) {
-					// Recupera el contingut de l'Arxiu
-					Document documentArxiu = pluginHelper.arxiuDocumentInfo(annex.getUuid(), null, true, true);
-					contingut = documentArxiu.getContingut() != null? documentArxiu.getContingut().getContingut() : null;
-				}
-				annex.setEstat(AnotacioAnnexEstatEnumDto.MOGUT);					
-				// Posa el resultat per evitar error
-				resultatAnnex.setAccio(AnnexAccio.MOGUT);
-			}
-			if (	!isSistra 
-					&& AnotacioAnnexEstatEnumDto.MOGUT.equals(annex.getEstat())) {
-				// Crea un document a Helium 
-				Long documentStoreId = documentHelper.crearDocument(
-						null, 
-						expedient.getProcessInstanceId(), 
-						null, 
-						annex.getNtiFechaCaptura(), 
-						true, 
-						annex.getTitol(), 
-						annex.getNom(), 
-						contingut, 
-						arxiuUuid,
-						annex.getTipusMime(), 
-						expedient.isArxiuActiu() && annex.getFirmaTipus() != null,  
-						false, //firmaSeparada, 
-						null, //firmaContingut, 
-						annex.getNtiOrigen(), 
-						annex.getNtiEstadoElaboracion(), 
-						annex.getNtiTipoDocumental(), 
-						annex.getNtiOrigen() != null ? annex.getNtiOrigen().toString() : null,
-						annex.isDocumentValid(),
-						annex.getDocumentError());
-				annex.setDocumentStoreId(documentStoreId);
-			}
-		} catch(Exception e) {
-			annex.setError("Error incorporant l'annex a l'expedient: " + e.getMessage());
-			annex.setEstat(AnotacioAnnexEstatEnumDto.PENDENT);
-			if (resultatAnnex != null) {
-				resultatAnnex.setAccio(AnnexAccio.ERROR);
-				resultatAnnex.setErrorCodi(-1);
-				resultatAnnex.setException(e);
-				resultatAnnex.setErrorMessage("Error recuperant el contingut de l'annex: " + e.getMessage());
-			}
-		}
-	}
-
 	
 	/** Resol el tipus d'interessat segons la infomració provinent de Distribució */
 	private InteressatTipusEnumDto getInteressatTipus(AnotacioInteressat interessat) {
@@ -1037,7 +949,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			}
 		}
 		// Incorpora l'annex a l'expedient
-		this.incorporarAnnex(
+		distribucioHelper.incorporarAnnex(
 				expedientTipus.isDistribucioSistra(), 
 				anotacio.getExpedient(), 
 				anotacio, 
