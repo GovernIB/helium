@@ -55,7 +55,6 @@ tr.clicable {
 		var accio = '${anotacioAcceptarCommand.accio}';
 		
 		function adaptarVisibilitat(accio) {
-			debugger;
 			if (accio != '')
 				$('.guardar, .crear, .incorporar').addClass('hidden');
 			if (accio == 'GUARDAR') {

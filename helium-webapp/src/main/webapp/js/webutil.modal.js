@@ -66,6 +66,7 @@
 							$('#' + modalDivId).webutilModalShow({
 								adjustHeight: plugin.settings.adjustHeight,
 								maximized: plugin.settings.maximized,
+								height: plugin.settings.height,
 								refreshMissatges: plugin.settings.refreshMissatges,
 								refreshDatatable: plugin.settings.refreshDatatable,
 								elementBotons: plugin.settings.elementBotons,
@@ -79,6 +80,7 @@
 							$('#' + modalDivId).webutilModalShow({
 								adjustHeight: plugin.settings.adjustHeight,
 								maximized: plugin.settings.maximized,
+								height: plugin.settings.height,
 								refreshMissatges: plugin.settings.refreshMissatges,
 								refreshDatatable: plugin.settings.refreshDatatable,
 								elementBotons: plugin.settings.elementBotons,

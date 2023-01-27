@@ -142,16 +142,16 @@
 		    allowClear: true,
 		    minimumResultsForSearch: 6
 		});
-		$("#varCodi").on('select2-open', function() {
-			var iframe = $('.modal-body iframe', window.parent.document);
-			var height = $('html').height() + 30;
-			iframe.height(height + 'px');
-		});
-		$("#varCodi").on('select2-close', function() {
-			var iframe = $('.modal-body iframe', window.parent.document);
-			var height = $('html').height();
-			iframe.height(height + 'px');
-		});
+		// $("#varCodi").on('select2-open', function() {
+		// 	var iframe = $('.modal-body iframe', window.parent.document);
+		// 	var height = $('html').height() + 30;
+		// 	iframe.height(height + 'px');
+		// });
+		// $("#varCodi").on('select2-close', function() {
+		// 	var iframe = $('.modal-body iframe', window.parent.document);
+		// 	var height = $('html').height();
+		// 	iframe.height(height + 'px');
+		// });
 		$("#varCodi").on("change", function(e) {
 			var ruta = document.URL; 
 			$("#command").attr('action', ruta);

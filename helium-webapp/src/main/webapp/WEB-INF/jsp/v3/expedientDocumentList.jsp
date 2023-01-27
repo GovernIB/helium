@@ -6,9 +6,9 @@
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 
 <%--<script src="<c:url value="/webjars/jquery/1.12.0/dist/jquery.min.js"/>"></script>--%>
-<script src="<c:url value="/webjars/datatables.net/1.10.10/js/jquery.dataTables.min.js"/>"></script>
-<script src="<c:url value="/webjars/datatables.net-bs/1.10.10/js/dataTables.bootstrap.min.js"/>"></script>
-<link href="<c:url value="/webjars/datatables.net-bs/1.10.10/css/dataTables.bootstrap.min.css"/>" rel="stylesheet"></link>
+<script src="<c:url value="/webjars/datatables.net/1.10.13/js/jquery.dataTables.min.js"/>"></script>
+<script src="<c:url value="/webjars/datatables.net-bs/1.10.13/js/dataTables.bootstrap.min.js"/>"></script>
+<link href="<c:url value="/webjars/datatables.net-bs/1.10.13/css/dataTables.bootstrap.min.css"/>" rel="stylesheet"></link>
 <script src="<c:url value="/webjars/datatables.net-select/1.1.0/js/dataTables.select.min.js"/>"></script>
 <script src="<c:url value="/js/jsrender.min.js"/>"></script>
 <script src="<c:url value="/js/webutil.datatable.js"/>"></script>
@@ -368,6 +368,9 @@
 	</tr>
 	</thead>
 </table>
+<div class="btn-top">
+	<span class="fa fa-arrow-up"></span>
+</div>
 <script id="tableButtonsDocumentsTemplate" type="text/x-jsrender">
 	<div class="botons-titol text-right">
 		<a id="descarregarZip" href="<c:url value="/v3/expedient/${expedient.id}/document/descarregarZip"/>" class="btn btn-default" title="<spring:message code="expedient.document.descarregar.zip"/>">

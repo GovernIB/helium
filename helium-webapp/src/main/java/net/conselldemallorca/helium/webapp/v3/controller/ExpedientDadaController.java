@@ -95,7 +95,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 						model,
 						"dades");
 			}
-			return "v3/expedientDadesList";
+			return "v3/expedientDadaList";
 		}
 
 		if (!NodecoHelper.isNodeco(request)) {
@@ -383,6 +383,20 @@ public class ExpedientDadaController extends BaseExpedientController {
 		return null;
 	}
 
+	@RequestMapping(value = "/{expedientId}/dada/new", method = RequestMethod.GET)
+	public String novaDadaExpGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model) {
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		String procesId = expedient.getProcessInstanceId();
+		return novaDadaAmbCodiGet(
+				request,
+				expedientId,
+				procesId,
+				null,
+				model);
+	}
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/new", method = RequestMethod.GET)
 	public String novaDadaGet(
 			HttpServletRequest request,

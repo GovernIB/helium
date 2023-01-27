@@ -577,6 +577,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 						.tipoDocumental(dTipExp.getNtiTipoDocumental())
 						.processInstanceId(processInstanceId)
 						.expedientId(expedientId)
+						.visible(documentFormProperties != null ? documentFormProperties.isVisible() : true)
+						.editable(documentFormProperties != null ? documentFormProperties.isEditable() : true)
+						.obligatori(documentFormProperties != null ? documentFormProperties.isObligatori() : false)
 						.build();
 			} else {
 				document = toDocumentList(expedient, processInstanceId, dTipExp, dExp, dPsigna, documentFormProperties);

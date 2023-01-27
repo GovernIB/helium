@@ -1,0 +1,9 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Mon May 23 08:07:48 CEST 2022
+file\:///home/siona/git/ripea/ripea-war/../local-repo/.lastUpdated=1653286068304
+@default-ettrema-repo-https\://dl.bintray.com/milton/Milton/.lastUpdated=1653286068303
+https\://governib.github.io/maven/maven/.error=
+file\:///home/siona/git/ripea/ripea-war/../local-repo/.error=
+https\://repo.maven.apache.org/maven2/.lastUpdated=1653286068332
+https\://dl.bintray.com/milton/Milton/.error=Could not transfer artifact org.webjars.bower\:datatables.net\:pom\:1.10.13 from/to ettrema-repo (https\://dl.bintray.com/milton/Milton/)\: transfer failed for https\://dl.bintray.com/milton/Milton/org/webjars/bower/datatables.net/1.10.13/datatables.net-1.10.13.pom
+https\://governib.github.io/maven/maven/.lastUpdated=1653286068230

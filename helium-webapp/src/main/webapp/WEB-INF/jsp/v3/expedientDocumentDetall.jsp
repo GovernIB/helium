@@ -300,7 +300,7 @@
 									<div class="d-flex flex-column text-sm">${firma.nifResponsable}</div>
 									<div class="d-flex flex-column text-sm">
 										<c:choose>
-											<c:when test="${firma.estatOk'}"><span class="fa fa-check text-success"></span></c:when>
+											<c:when test="${firma.estatOk}"><span class="fa fa-check text-success"></span></c:when>
 											<c:otherwise><span class="fa fa-times text-danger"></span></c:otherwise>
 										</c:choose>
 									</div>

@@ -5,17 +5,13 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 
-<%--<script src="<c:url value="/webjars/jquery/1.12.0/dist/jquery.min.js"/>"></script>--%>
-<script src="<c:url value="/webjars/datatables.net/1.10.10/js/jquery.dataTables.min.js"/>"></script>
-<script src="<c:url value="/webjars/datatables.net-bs/1.10.10/js/dataTables.bootstrap.min.js"/>"></script>
-<link href="<c:url value="/webjars/datatables.net-bs/1.10.10/css/dataTables.bootstrap.min.css"/>" rel="stylesheet"></link>
+<script src="<c:url value="/webjars/datatables.net/1.10.13/js/jquery.dataTables.min.js"/>"></script>
+<script src="<c:url value="/webjars/datatables.net-bs/1.10.13/js/dataTables.bootstrap.min.js"/>"></script>
+<link href="<c:url value="/webjars/datatables.net-bs/1.10.13/css/dataTables.bootstrap.min.css"/>" rel="stylesheet"></link>
 <script src="<c:url value="/webjars/datatables.net-select/1.1.0/js/dataTables.select.min.js"/>"></script>
 <script src="<c:url value="/js/jsrender.min.js"/>"></script>
 <script src="<c:url value="/js/webutil.datatable.js"/>"></script>
-<%--<script slot="<c:url value="/js/bootbox.all.min.js"/>"></script>--%>
-
-<%--Visualitzar detall i previsualització del document => Es troba a expedientPipelles.jsp--%>
-<%--<script src="<c:url value="/js/expdoc-viewer.js"/>"></script>--%>
+<%--<script src="<c:url value="/js/webutil.modal.js"/>"></script>--%>
 
 <script type="application/javascript">
 	$(document).ready(() => {
@@ -29,22 +25,22 @@
 			}
 
 			<%-- Per cada fila... --%>
-			$("#expedientDades tbody tr").each((index, element) => {
-				if ($(element).hasClass("no-data")) {
-					<%-- Eliminam els checks dels documents inexistents--%>
-					$(element).find(".fa-square-o").remove();
-				}
-			})
+<%--			$("#expedientDades tbody tr").each((index, element) => {--%>
+<%--				if ($(element).hasClass("no-data")) {--%>
+<%--					&lt;%&ndash; Eliminam els checks dels documents inexistents&ndash;%&gt;--%>
+<%--					$(element).find(".fa-square-o").remove();--%>
+<%--				}--%>
+<%--			})--%>
 		});
 
 		<%-- Al seleccionar i deseleccionar, eliminarem els checks dels documents inexistents--%>
-		$("#expedientDades").on('selectionchange.dt', () => {
-			console.log('selectionchange');
-			$("#expedientDades tbody tr.no-data").each((index, element) => {
-				$(element).find(".fa-square-o").remove();
-				$(element).find(".fa-check-square-o").remove();
-			});
-		});
+		// $("#expedientDades").on('selectionchange.dt', () => {
+		// 	console.log('selectionchange');
+		// 	$("#expedientDades tbody tr.no-data").each((index, element) => {
+		// 		$(element).find(".fa-square-o").remove();
+		// 		$(element).find(".fa-check-square-o").remove();
+		// 	});
+		// });
 
 
 		// Botó per tornar a dalt: scroll top
@@ -72,7 +68,7 @@
 	.btn-top {position: fixed; z-index: 1000; right: 15px; bottom: 50px; background-color: #FFF; padding: 0 5px 0 5px; border-radius: 5px; cursor: pointer; opacity: 0.1;}
 	.doc-icon {color: #337ab7;}
 	.nodoc-icon {margin-right: 12px;}
-	.adjuntIcon {top:-10px; left:-7px;}
+	.adjustIcon {top:-2px;}
 	.extensionIcon {color: white; position: relative; left: -26px; top: 5px; font-size: 9px; font-weight: bold; margin-right: -12px;}
 	.doc-error {color: indianred;}
 	.doc-error-icon {top: 3px;}
@@ -80,6 +76,7 @@
 	.doc-details {background-color: #EFF2F5;}
 	.doc-details td {padding: 0px;}
 	.pill-link {position: relative !important; display: block !important; padding: 5px 10px !important; margin-right: 2px !important;}
+	.text-center {text-align: center !important;}
 </style>
 
 <c:url var="urlDatatable" value="/v3/expedient/${expedient.id}/dada/datatable"/>
@@ -90,225 +87,62 @@
 		  data-ajax-request-type="POST"
 		  data-paging-enabled="false"
 		  data-ordering="true"
-		  data-default-order="24"
+		  data-default-order="4"
 		  data-info-type="search+button"
 		  data-rowcolid-nullclass="no-data"
-		  data-selection-enabled="true"
-		  data-selection-url="${expedient.id}/document/selection"
-		  data-selection-counter="#descarregarCount"
-		  data-botons-template="#tableButtonsDocumentsTemplate"
+		  data-selection-enabled="false"
+<%--		  data-selection-url="${expedient.id}/dada/selection"--%>
+<%--		  data-selection-counter="#descarregarCount"--%>
+		  data-botons-template="#tableButtonsDadesTemplate"
 		  class="table table-striped table-bordered table-hover">
 	<thead>
 	<tr>
 		<th data-col-name="id" data-visible="false"/>
-		<th data-col-name="codi" data-visible="false"/>
-		<th data-col-name="error" data-visible="false"/>
-		<th data-col-name="docError" data-visible="false"/>
-		<th data-col-name="adjunt" data-visible="false"/>
-		<th data-col-name="signat" data-visible="false"/>
-		<th data-col-name="signUrlVer" data-visible="false"/>
-		<th data-col-name="arxiuActiu" data-visible="false"/>
-		<th data-col-name="ntiCsv" data-visible="false"/>
-		<th data-col-name="registrat" data-visible="false"/>
-		<th data-col-name="docValid" data-visible="false"/>
-		<th data-col-name="notificable" data-visible="false"/>
-		<th data-col-name="psPendent" data-visible="false"/>
-		<th data-col-name="psError" data-visible="false"/>
-		<th data-col-name="psEstat" data-visible="false"/>
-		<th data-col-name="psDocId" data-visible="false"/>
-		<th data-col-name="ntiActiu" data-visible="false"/>
-		<th data-col-name="arxiuUuid" data-visible="false"/>
-		<th data-col-name="expUuid" data-visible="false"/>
-		<th data-col-name="notificat" data-visible="false"/>
-		<th data-col-name="anotacioId" data-visible="false"/>
-		<th data-col-name="anotacioIdf" data-visible="false"/>
-		<th data-col-name="extensio" data-visible="false"/>
-		<th data-col-name="editable" data-visible="false"/>
-		<th data-col-name="nom" data-orderable="true" width="54%" data-template="#cellNomTemplate">
-			<spring:message code="expedient.tipus.document.llistat.columna.nom"/>
-			<script id="cellNomTemplate" type="text/x-jsrender">
-				{{if id == null}}
-					<span class="fa fa-2x fa-file-o nodoc-icon"></span>
-					{{:nom}}
-				{{else error}}
-					<span class="fa-stack fa-1x no-doc" title="{{:docError}}">
-						<span class="fa fa-file fa-stack-2x doc-error"></span>
-						<span class="fa fa-warning fa-inverse fa-stack-1x doc-error-icon"></span>
-					</span>
-				{{else}}
-					<span class="fa-stack fa-1x doc-icon">
-						<span class="fa fa-file fa-stack-2x"></span>
-						{{if adjunt}}<span class="adjuntIcon fa fa-stack-1x fa-inverse fa-paperclip"></span>{{/if}}
-					</span>
-					<span class="extensionIcon">{{:extensio}}</span>
-					{{:nom}}
-					<%--Notificable--%>
-					{{if notificable && !notificat}}<span id="notificable_{{:id}}" class="label label-default label-doc" title="<spring:message code='expedient.document.notificable'/>"><span class="fa fa-paper-plane-o"></span></span>{{/if}}
-					<%--Signat     --%>
-					{{if signat}}<span id="signat_{{:id}}" class="label label-primary label-doc" title="<spring:message code='expedient.document.signat'/>"><span class="fa fa-certificate"></span></span>{{/if}}
-					<%--Registrat  --%>
-					{{if registrat}}<span id="signat_{{:id}}" class="label label-success label-doc" title="<spring:message code='expedient.document.registrat'/>"><span class="fa fa-book"></span></span>{{/if}}
-					<%--Portafirmes--%>
-					{{if psPendent}}
-						{{if psError}}
-							{{if psEstat == "PROCESSAT"}}
-								<span id="psigna_{{:id}}" class="label label-danger label-doc" title="<spring:message code='expedient.document.rebutjat.psigna.error'/>"><spring:message code="expedient.document.info.etiqueta.psigna"/> <span class="fa fa-exclamation-triangle></span></span>
-							{{else}}
-								<span id="psigna_{{:id}}" class="label label-danger label-doc" title="<spring:message code='expedient.document.pendent.psigna.error'/>"><spring:message code="expedient.document.info.etiqueta.psigna"/> <span class="fa fa-exclamation-triangle></span></span>
-							{{/if}}
-						{{else}}
-							<span id="psigna_{{:id}}" class="label label-warning label-doc" title="<spring:message code='expedient.document.pendent.psigna'/>"><spring:message code="expedient.document.info.etiqueta.psigna"/> <span class="fa fa-clock-o></span></span>
-						{{/if}}
-					{{/if}}
-					<%--NTI        --%>
-					{{if ntiActiu}}
-						<span id="nti_{{:id}}" class="label label-info label-doc">
-							{{if expUuid == null}}
-								<spring:message code="expedient.info.etiqueta.nti"/>
-							{{else}}
-								<spring:message code="expedient.info.etiqueta.arxiu"/>
-								{{if arxiuUuid == null}}
-									<span class="fa fa-warning text-danger" title="<spring:message code='expedient.document.arxiu.error.uuidnoexistent' />"></span>
-								{{/if}}
-							{{/if}}
-						</span>
-					{{/if}}
-					<%--Notificat  --%>
-					{{if notificat}}<span id="notificat_{{:id}}" class="label label-warning label-doc" title="<spring:message code='expedient.document.notificat'/>"><spring:message code="expedient.document.info.etiqueta.notificat"/></span>{{/if}}
-					<%--De anotacio--%>
-					{{if anotacioId != null}}<span id="anotacio_{{:id}}" class="label label-warning label-doc" title="<spring:message code='expedient.document.info.etiqueta.anotacio.title' arguments='{{:anotacioIdf}}'/>"><spring:message code="expedient.document.info.etiqueta.anotacio"/></span>{{/if}}
-					<%--Doc Invàlid--%>
-					{{if !docValid}}
-						<span class="label label-danger label-doc" title="<spring:message code='expedient.document.invalid' arguments='{{:docError}}'/>"><span class="fa fa-exclamation-triangle></span></span>
-					{{/if}}
-				{{/if}}
-			</script>
-		</th>
-		<th data-col-name="tipoDocumental" data-orderable="true" width="12%" data-template="#cellTipusTemplate">
-			<spring:message code="expedient.metadades.nti.camp.eni.tipus.doc"/>
+		<th data-col-name="campId" data-visible="false"/>
+		<th data-col-name="campCodi" data-visible="false"/>
+<%--		<th data-col-name="required" data-visible="false"/>--%>
+<%--		<th data-col-name="ocult" data-visible="false"/>--%>
+<%--		<th data-col-name="multiple" data-visible="false"/>--%>
+<%--		<th data-col-name="editable" data-visible="false"/>--%>
+		<th data-col-name="tipus" data-orderable="true" width="1%" data-template="#cellTipusTemplate" data-class="text-center">
 			<script id="cellTipusTemplate" type="text/x-jsrender">
-				{{if tipoDocumental == 'RESOLUCIO'}}
-					<spring:message code="anotacio.annex.detalls.camp.ntiTipusDocument.RESOLUCIO"/>
-				{{else tipoDocumental == 'ACORD'}}
-					<spring:message code="anotacio.annex.detalls.camp.ntiTipusDocument.ACORD"/>
-				{{else tipoDocumental == 'CONTRACTE'}}
-					<spring:message code="anotacio.annex.detalls.camp.ntiTipusDocument.CONTRACTE"/>
-				{{else tipoDocumental == 'CONVENI'}}
-					<spring:message code="anotacio.annex.detalls.camp.ntiTipusDocument.CONVENI"/>
-				{{else tipoDocumental == 'DECLARACIO'}}
-					<spring:message code="anotacio.annex.detalls.camp.ntiTipusDocument.DECLARACIO"/>
-				{{else tipoDocumental == 'COMUNICACIO'}}
-					<spring:message code="anotacio.annex.detalls.camp.ntiTipusDocument.COMUNICACIO"/>
-				{{else tipoDocumental == 'NOTIFICACIO'}}
-					<spring:message code="anotacio.annex.detalls.camp.ntiTipusDocument.NOTIFICACIO"/>
-				{{else tipoDocumental == 'PUBLICACIO'}}
-					<spring:message code="anotacio.annex.detalls.camp.ntiTipusDocument.PUBLICACIO"/>
-				{{else tipoDocumental == 'JUSTIFICANT_RECEPCIO'}}
-					<spring:message code="anotacio.annex.detalls.camp.ntiTipusDocument.JUSTIFICANT_RECEPCIO"/>
-				{{else tipoDocumental == 'ACTA'}}
-					<spring:message code="anotacio.annex.detalls.camp.ntiTipusDocument.ACTA"/>
-				{{else tipoDocumental == 'CERTIFICAT'}}
-					<spring:message code="anotacio.annex.detalls.camp.ntiTipusDocument.CERTIFICAT"/>
-				{{else tipoDocumental == 'DILIGENCIA'}}
-					<spring:message code="anotacio.annex.detalls.camp.ntiTipusDocument.DILIGENCIA"/>
-				{{else tipoDocumental == 'INFORME'}}
-					<spring:message code="anotacio.annex.detalls.camp.ntiTipusDocument.INFORME"/>
-				{{else tipoDocumental == 'SOLICITUD'}}
-					<spring:message code="anotacio.annex.detalls.camp.ntiTipusDocument.SOLICITUD"/>
-				{{else tipoDocumental == 'DENUNCIA'}}
-					<spring:message code="anotacio.annex.detalls.camp.ntiTipusDocument.DENUNCIA"/>
-				{{else tipoDocumental == 'ALEGACIO'}}
-					<spring:message code="anotacio.annex.detalls.camp.ntiTipusDocument.ALEGACIO"/>
-				{{else tipoDocumental == 'RECURS'}}
-					<spring:message code="anotacio.annex.detalls.camp.ntiTipusDocument.RECURS"/>
-				{{else tipoDocumental == 'COMUNICACIO_CIUTADA'}}
-					<spring:message code="anotacio.annex.detalls.camp.ntiTipusDocument.COMUNICACIO_CIUTADA"/>
-				{{else tipoDocumental == 'FACTURA'}}
-					<spring:message code="anotacio.annex.detalls.camp.ntiTipusDocument.FACTURA"/>
-				{{else tipoDocumental == 'ALTRES_INCAUTATS'}}
-					<spring:message code="anotacio.annex.detalls.camp.ntiTipusDocument.ALTRES_INCAUTATS"/>
-				{{else tipoDocumental == 'ALTRES'}}
-					<spring:message code="anotacio.annex.detalls.camp.ntiTipusDocument.ALTRES"/>
+				{{if tipus == null}}
+					<span class="fa fa-2x fa-file-o nodoc-icon"></span>
+				{{else}}
+					{{if tipus == "STRING"}}<span class="fa-stack fa-1x"><span class="fa fa-square-o fa-stack-2x"></span><span class="adjustIcon fa fa-stack-1x">T</span></span>{{/if}}
+					{{if tipus == "INTEGER"}}<span class="fa-stack fa-1x"><span class="fa fa-square-o fa-stack-2x"></span><span class="adjustIcon fa fa-stack-1x">99</span></span>{{/if}}
+					{{if tipus == "FLOAT"}}<span class="fa-stack fa-1x"><span class="fa fa-square-o fa-stack-2x"></span><span class="adjustIcon fa fa-stack-1x">9,9</span></span>{{/if}}
+					{{if tipus == "BOOLEAN"}}<span class="fa fa-2x fa-check-square-o"></span>{{/if}}
+					{{if tipus == "TEXTAREA"}}<span class="fa-stack fa-1x"><span class="fa fa-square-o fa-stack-2x"></span><span class="adjustIcon fa fa-stack-1x fa-bars"></span></span>{{/if}}
+					{{if tipus == "DATE"}}<span class="fa fa-2x fa-calendar" style="font-size:1.6em;"></span>{{/if}}
+					{{if tipus == "PRICE"}}<span class="fa fa-2x fa-eur"></span>{{/if}}
+					{{if tipus == "TERMINI"}}<span class="fa fa-2x fa-clock-o"></span>{{/if}}
+					{{if tipus == "SELECCIO"}}<span class="fa fa-2x fa-chevron-down"></span>{{/if}}
+					{{if tipus == "SUGGEST"}}<span class="fa fa-2x fa-chevron-circle-down"></span>{{/if}}
+					{{if tipus == "REGISTRE"}}<span class="fa fa-2x fa-table"></span>{{/if}}
+					{{if tipus == "ACCIO"}}<span class="fa fa-2x fa-bolt"></span>{{/if}}
 				{{/if}}
 			</script>
 		</th>
-		<th data-col-name="dataCreacio" data-converter="date" data-orderable="true" width="10%"><spring:message code="expedient.document.data"/></th>
-		<th data-col-name="dataDocument" data-converter="datetimeminute" data-orderable="true" width="10%"><spring:message code="expedient.document.adjuntat"/></th>
+		<th data-col-name="nom" data-orderable="true" width="20%"><spring:message code="expedient.tipus.document.llistat.columna.nom"/></th>
+		<th data-col-name="valor" data-orderable="false" width="70%"  data-template="#cellValorTemplate">
+			<spring:message code="expedient.nova.data.valor"/>
+			<script id="cellValorTemplate" type="text/x-jsrender">
+				{{:valor}}
+			</script>
+		</th>
 		<th data-col-name="id" data-template="#cellAccionsTemplate" data-orderable="false" width="5%">
 			<script id="cellAccionsTemplate" type="text/x-jsrender">
 			{{if id == null}}
-				<a class="btn btn-default" href="${expedient.id}/document/{{:codi}}/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nou_document"/></a>
+				<a class="btn btn-default" href="${expedient.id}/dada/{{:campCodi}}/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nova_dada"/></a>
 			{{else}}
 				<div data-document-id="{{:id}}" <%--data-arxivat="{{:arxivat}}" data-psigna="{{psignaInfo}}"--%> class="dropdown accionsDocument">
 					<button class="btn btn-primary" data-toggle="dropdown" style="width:100%;"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 					<ul class="dropdown-menu dropdown-menu-right">
-						{{if !error}}
-							<%--Modificar  TODO: Si no està en estat definitiu ni pendent de firma (portafirmes)--%>
-							{{if editable && !signat}}<li><a data-toggle="modal" href="${expedient.id}/document/{{:id}}/update"><span class="fa fa-pencil fa-fw"></span>&nbsp;<spring:message code="comuns.modificar"/></a></li>{{/if}}
-							<%--Borrar  TODO: Si està a l'arxiu no definitiu també es pot borrar. Si està pendent de firma no es pot borrar   --%>
-							{{if editable && (!signat || !arxiuActiu)}}<li><a href="${expedient.id}/document/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.llistat.document.confirm_esborrar"/>"><span class="fa fa-trash-o fa-fw"></span>&nbsp;<spring:message code="comuns.esborrar"/></a></li>{{/if}}
-							<%--Notificar  --%>
-							{{if notificable}}<li><a href="${expedient.id}/document/{{:id}}/notificar" data-toggle="modal"><span class="fa fa-paper-plane-o fa-fw"></span>&nbsp;<spring:message code="expedient.document.notificar"/></a></li>{{/if}}
-							<%--Signat     --%>
-							{{if signat}}
-								{{if !arxiuActiu}}
-									{{if signUrlVer != null}}
-										<li><a href="{{:signUrlVer}}" target="_blank"><span class="fa fa-certificate fa-fw"></span>&nbsp;<spring:message code="expedient.document.signat.detalls"/></a></li>
-									{{else}}
-										<li><a href="${expedient.id}/document/{{:id}}/signatura/verificar?urlVerificacioCustodia={{:signUrlVer}}" data-toggle="modal" data-refrescar="false"><span class="fa fa-certificate fa-fw"></span>&nbsp;<spring:message code="expedient.document.signat.detalls"/></a></li>
-									{{/if}}
-									{{if editable}}
-										<li><a href="${expedient.id}/document/{{:id}}/signatura/esborrar" data-toggle="ajax" data-confirm="<spring:message code="expedient.document.confirm_esborrar_signatures"/>"><span class="fa fa-ban fa-fw"></span>&nbsp;<spring:message code="comuns.esborrar"/></a></li>
-									{{/if}}
-								{{else}}
-									{{if ntiCsv != null}}
-										<li id="signatura-lnk"><a href="{{:signUrlVer}}" target="_blank"><span class="fa fa-certificate" data-refrescar="false"></span>&nbsp;<spring:message code="expedient.document.signat.detalls"/></a></li>
-									{{else}}
-										<li id="signatura-lnk"><a href="${expedient.id}/document/{{:id}}/signatura/verificarCsv" data-toggle="modal"><span class="fa fa-certificate"></span>&nbsp;<spring:message code="expedient.document.signat.detalls"/></a></li>
-									{{/if}}
-								{{/if}}
-							{{/if}}
-							<%--Registrat  --%>
-							{{if registrat}}
-								<li><a href="${expedient.id}/document/{{:id}}/registre/verificar" data-toggle="modal"><span class="fa fa-book fa-fw" data-refrescar="false"></span>&nbsp;<spring:message code="expedient.document.registrat.detalls"/></a></li>
-							{{/if}}
-							<%--Portafirmes--%>
-							{{if psPendent}}
-								<li><a href="${expedient.id}/document/{{:id}}/psignaReintentar/{{:psDocId}}" data-toggle="modal"><span class="fa fa-clock-o fa-fw" data-refrescar="false"></span>&nbsp;<spring:message code="expedient.document.psigna.reintentar"/></a></li>
-							{{/if}}
-							<%--NTI        --%>
-							{{if ntiActiu}}
-								<li><a href="${expedient.id}/document/{{:id}}/metadadesNti" data-toggle="modal"><span class="fa fa-cloud-upload fa-fw" data-refrescar="false"></span>&nbsp;<spring:message code="expedient.document.info.etiqueta.nti.detall"/></a></li>
-							{{/if}}
-							<%--De anotacio--%>
-							{{if anotacioId != null}}
-								<li><a href="../anotacio/{{:anotacioId}}" data-toggle="modal"><span class="fa fa-sign-out fa-fw" data-refrescar="false"></span>&nbsp;<spring:message code="expedient.document.info.anotacio.detall"/></a></li>
-							{{/if}}
+						{{if !error && editable}}
+							{{if editable}}<li><a data-toggle="modal" href="${expedient.id}/dada/{{:id}}/update"><span class="fa fa-pencil fa-fw"></span>&nbsp;<spring:message code="comuns.modificar"/></a></li>{{/if}}
+							{{if editable}}<li><a href="${expedient.id}/dada/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.llistat.document.confirm_esborrar"/>"><span class="fa fa-trash-o fa-fw"></span>&nbsp;<spring:message code="comuns.esborrar"/></a></li>{{/if}}
 						{{/if}}
-
-						<%--Desar a arxiu--%>
-						{{if arxiuActiu && arxiuUuid == null}}
-							{{if expUuid == null}}
-								<li title="<spring:message code="expedient.document.signat.detalls"/>"><a class="disabled" disabled='disabled' href="#"><span class="fa fa-refresh"></span>&nbsp;<spring:message code="expedient.document.arxiu.desar"/></a></li>
-							{{else}}
-								<li><a class="${expedientPare.arxiuUuid == null ? 'disabled' : ''}" href="${expedient.id}/document/{{:id}}/guardarDocumentArxiu"/>"><span class="fa fa-refresh"></span>&nbsp;<spring:message code="expedient.document.arxiu.desar"/></a></li>
-							{{/if}}
-						{{/if}}
-
-						<%-- TODO: --%>
-						<%--Firma en portafirmes --%>
-
-						<%--Firma en navegador --%>
-
-						<%--Enviar a viafirma?? --%>
-
-						<%-- Exportació ENI --%>
-
-
-						<%-- FI TODO --%>
-
-						<%--Descarregar--%>
-						<li><a href="${expedient.id}/document/{{:id}}/descarregar"><span class="fa fa-download fa-fw"></span>&nbsp;<spring:message code="expedient.document.descarregar"/></a></li>
 					</ul>
 				</div>
 			{{/if}}
@@ -317,18 +151,25 @@
 	</tr>
 	</thead>
 </table>
-<script id="tableButtonsDocumentsTemplate" type="text/x-jsrender">
+<div class="btn-top">
+	<span class="fa fa-arrow-up"></span>
+</div>
+<script id="tableButtonsDadesTemplate" type="text/x-jsrender">
 	<div class="botons-titol text-right">
-		<a id="descarregarZip" href="<c:url value="/v3/expedient/${expedient.id}/document/descarregarZip"/>" class="btn btn-default" title="<spring:message code="expedient.document.descarregar.zip"/>">
-			<span class="fa fa-download"></span> <spring:message code="comu.boto.descarregar"/> <span id="descarregarCount" class="badge"></span>
+		<a id="boto-ocults" href="#" class="btn btn-default<c:if test="${ambOcults}"> active</c:if>">
+			<c:choose>
+				<c:when test="${ambOcults}"><span class="fa fa-check-square-o"></span></c:when>
+				<c:otherwise><span class="fa fa-square-o"></span></c:otherwise>
+			</c:choose>
+			<spring:message code='expedient.dada.mostrar.ocultes'/>
 		</a>
-		<a id="nou_document" class="btn btn-default" href="${expedient.id}/document/new" data-toggle="modal" data-datatable-id="expedientTipusEstat"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nou_document"/></a>
+		<a id="nova_dada" class="btn btn-default" href="${expedient.id}/dada/new" data-toggle="modal" data-adjust-height="false" data-height="350" data-datatable-id="expedientDades"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nova_dada"/></a>
 	</div>
 </script>
-<script id="rowhrefTemplateDocuments" type="text/x-jsrender">
+<script id="rowhrefTemplateDades" type="text/x-jsrender">
 	{{if id == null}}
-		${expedient.id}/document/{{:codi}}/new
+		${expedient.id}/dada/{{:codi}}/new
 	{{else}}
-		${expedient.id}/document/{{:id}}/update
+		${expedient.id}/dada/{{:id}}/update
 	{{/if}}
 </script>

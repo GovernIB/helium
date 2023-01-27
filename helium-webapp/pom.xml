@@ -444,12 +444,12 @@
 				<dependency>
 					<groupId>org.webjars.bower</groupId>
 					<artifactId>datatables.net</artifactId>
-					<version>1.10.10</version>
+					<version>1.10.13</version>
 				</dependency>
 				<dependency>
 					<groupId>org.webjars.bower</groupId>
 					<artifactId>datatables.net-bs</artifactId>
-					<version>1.10.10</version>
+					<version>1.10.13</version>
 				</dependency>
 				<dependency>
 					<groupId>org.webjars.bower</groupId>
@@ -465,6 +465,11 @@
 					<groupId>org.webjars.bower</groupId>
 					<artifactId>datatables.net-select-bs</artifactId>
 					<version>1.1.0</version>
+				</dependency>
+				<dependency>
+					<groupId>org.webjars.bower</groupId>
+					<artifactId>datatables.net-rowgroup</artifactId>
+					<version>1.0.3</version>
 				</dependency>
 				<dependency>
 					<groupId>org.webjars.bower</groupId>

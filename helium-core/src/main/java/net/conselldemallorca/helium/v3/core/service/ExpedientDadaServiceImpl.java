@@ -4,14 +4,21 @@
 package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.v3.core.api.dto.*;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.CampFormProperties;
+import net.conselldemallorca.helium.v3.core.regles.ReglaHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.model.Permission;
@@ -79,6 +86,9 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	private ExpedientDadaHelper expedientDadaHelper;
 	@Resource
 	private TascaRepository tascaRepository;
+
+	@Resource
+	private ReglaHelper reglaHelper;
 
 
 
@@ -369,9 +379,155 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		String processInstanceId = expedient.getProcessInstanceId();
 
 		List<ExpedientDadaDto> dadesExpedient = variableHelper.findDadesPerInstanciaProces(processInstanceId, true);
+		List<Camp> camps = campRepository.findByExpedientTipusOrderByCodiAsc(expedient.getTipus());
+		Map<String, CampFormProperties> campsFormProperties = reglaHelper.getCampFormProperties(expedient.getTipus(), expedient.getEstat());
 
-		return null;
+		List<DadaListDto> dades = new ArrayList<DadaListDto>();
+
+		for (Camp camp: camps) {
+			ExpedientDadaDto dadaExp = getDadaExpedient(dadesExpedient, camp.getId());
+			CampFormProperties campFormProperties = campsFormProperties.get(camp.getCodi());
+
+			DadaListDto dada = null;
+			if (dadaExp == null) {
+				dada = DadaListDto.builder()
+						.campId(camp.getId())
+						.campCodi(camp.getCodi())
+						.tipus(CampTipusDto.valueOf(camp.getTipus().name()))
+						.nom(camp.getEtiqueta())
+						.processInstanceId(processInstanceId)
+						.expedientId(expedientId)
+						.visible(campFormProperties != null ? campFormProperties.isVisible() : true)
+						.editable(campFormProperties != null ? campFormProperties.isEditable() : true)
+						.obligatori(campFormProperties != null ? campFormProperties.isObligatori() : false)
+						.build();
+			} else {
+				dada = toDadaListDto(camp, dadaExp, campFormProperties, processInstanceId, expedientId);
+			}
+			dades.add(dada);
+		}
+
+		List<PaginacioParamsDto.OrdreDto> ordres = paginacioParams.getOrdres();
+		PaginacioParamsDto.OrdreDto ordreDto = null;
+
+		if (ordres != null && !ordres.isEmpty()) {
+			ordreDto = ordres.get(0);
+		}
+
+		final String ordre = ordreDto != null ? ordreDto.getCamp() : "nom";
+		final PaginacioParamsDto.OrdreDireccioDto direccio = ordreDto != null ? ordreDto.getDireccio() : PaginacioParamsDto.OrdreDireccioDto.ASCENDENT;
+		Collections.sort(dades, new Comparator<DadaListDto>() {
+			@Override
+			public int compare(DadaListDto o1, DadaListDto o2) {
+				int result = compareDadaByCamp(o1, o2, ordre);
+				return PaginacioParamsDto.OrdreDireccioDto.ASCENDENT.equals(direccio) ? result : -result;
+			}
+		});
+
+		return dades;
     }
+
+	private static DadaListDto toDadaListDto(Camp camp, ExpedientDadaDto dadaExp, CampFormProperties campFormProperties, String processInstanceId, Long expedientId) {
+		DadaListDto dada;
+
+		DadaValorDto valor = getDadaValor(camp, dadaExp);
+
+		dada = DadaListDto.builder()
+				.id(dadaExp.getVarCodi())
+				.nom(camp.getEtiqueta())
+				.valor(valor)
+				.campId(camp.getId())
+				.campCodi(camp.getCodi())
+				.tipus(CampTipusDto.valueOf(camp.getTipus().name()))
+				.registre(dadaExp.isCampTipusRegistre())
+				.multiple(camp.isMultiple())
+				.ocult(camp.isOcult())
+				.jbpmAction(camp.getJbpmAction())
+				.observacions(camp.getObservacions())
+				.error(dadaExp.getError())
+				.agrupacioNom(camp.getAgrupacio() != null ? camp.getAgrupacio().getDescripcio() : null)
+				.processInstanceId(processInstanceId)
+				.expedientId(expedientId)
+				.visible(campFormProperties != null ? campFormProperties.isVisible() : true)
+				.editable(campFormProperties != null ? campFormProperties.isEditable() : true)
+				.obligatori(campFormProperties != null ? campFormProperties.isObligatori() : false)
+				.build();
+		return dada;
+	}
+
+	private static DadaValorDto getDadaValor(Camp camp, ExpedientDadaDto dadaExp) {
+		int files = 0;
+		int columnes = 0;
+		Map<String, Boolean> valorHeader = null;
+		List<List<String>> valorBody = null;
+		String valorSimple = null;
+		List<String> valorMultiple = null;
+
+		if (dadaExp.isCampTipusRegistre()) {
+			// Capçalera
+			valorHeader = new LinkedHashMap<String, Boolean>();
+			for (CampRegistre fila : camp.getRegistreMembres()) {
+				if (fila.isLlistar()) {
+					valorHeader.put(fila.getMembre().getEtiqueta(), fila.isObligatori());
+					columnes++;
+				}
+			}
+			// Dades
+			List<ExpedientDadaDto> dadesRegistrePerTaula = dadaExp.getDadesRegistrePerTaula();
+			if (dadesRegistrePerTaula != null) {
+				files = dadesRegistrePerTaula.size();
+				valorBody = new ArrayList<List<String>>();
+				for (ExpedientDadaDto fila : dadesRegistrePerTaula) {
+					List<String> valorFila = new ArrayList<String>();
+					for(ExpedientDadaDto cela: fila.getRegistreDades()) {
+						if (cela.isLlistar()) {
+							valorFila.add(cela.getText());
+						}
+					}
+					valorBody.add(valorFila);
+				}
+			}
+
+		} else if (dadaExp.isCampMultiple()) {
+			valorMultiple = new ArrayList<String>();
+			for (ExpedientDadaDto dadaMultiple: dadaExp.getMultipleDades()) {
+				valorMultiple.add(dadaMultiple.getText());
+			}
+		} else {
+			valorSimple = dadaExp.getText();
+		}
+		return DadaValorDto.builder()
+				.registre(dadaExp.isCampTipusRegistre())
+				.multiple(dadaExp.isCampMultiple())
+				.files(files)
+				.columnes(columnes)
+				.valorHeader(valorHeader)
+				.valorBody(valorBody)
+				.valorSimple(valorSimple)
+				.valorMultiple(valorMultiple)
+				.build();
+	}
+
+	private int compareDadaByCamp(DadaListDto o1, DadaListDto o2, String camp) {
+		int result = o1.getAgrupacioNom() == null ? (o2.getAgrupacioNom() == null ? 0 : -1) : (o2.getAgrupacioNom() == null ? 1 : o1.getAgrupacioNom().compareTo(o2.getAgrupacioNom()));
+		if (result != 0)
+			return result;
+		if ("tipus".equals(camp)) {
+			result = o1.getTipus() == null ? -1 : o2.getTipus() == null ? 1 : o1.getTipus().name().toUpperCase().compareTo(o2.getTipus().name().toUpperCase());
+		}
+		if ("nom".equals(camp) || result == 0) {
+			result = o1.getNom() == null ? -1 : o2.getNom() == null ? 1 : o1.getNom().toUpperCase().compareTo(o2.getNom().toUpperCase());
+		}
+			return result;
+	}
+
+	private ExpedientDadaDto getDadaExpedient(List<ExpedientDadaDto> dadesExpedient, Long campId) {
+		for(ExpedientDadaDto dadaExpedient: dadesExpedient) {
+			if (dadaExpedient.getCampId() != null && dadaExpedient.getCampId().equals(campId))
+				return dadaExpedient;
+		}
+		return null;
+	}
 
     /*********************/
 

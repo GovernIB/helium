@@ -26,32 +26,26 @@ import java.util.List;
 @AllArgsConstructor
 public class DadaListDto {
 
-	private Long id;
-	private String varCodi;
-	private Object varValor;
+	private String id;
+	private String nom;
+	private DadaValorDto valor;
 
 	private Long campId;
-	private CampTipusDto campTipus;
-	private String campEtiqueta;
-	private boolean campMultiple;
-	private boolean campOcult;
-	private String[] campParams;
+	private String campCodi;
+	private CampTipusDto tipus;
+	private boolean registre;
+	private boolean multiple;
+	private boolean ocult;
 
 	private String jbpmAction;
 	private String observacions;
-	private String definicioProcesKey;
-
-	private String text;
-	private List<DadaListDto> multipleDades;
-	private List<DadaListDto> registreDades;
-	private List<ValidacioDto> validacions;
 
 	private String error;
 
-	private boolean required; // Si es obligatori a dins camp tipus registre
-	private boolean llistar;  // Si s'ha de llistar dins camp tipus registre
-	private int ordre;
-	private Long agrupacioId;
+	private String agrupacioNom;
+
+	private String processInstanceId;
+	private Long expedientId;
 
 	@Builder.Default
 	private boolean visible = true;
