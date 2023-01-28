@@ -128,7 +128,34 @@
 		<th data-col-name="valor" data-orderable="false" width="70%"  data-template="#cellValorTemplate">
 			<spring:message code="expedient.nova.data.valor"/>
 			<script id="cellValorTemplate" type="text/x-jsrender">
-				{{:valor}}
+				{{if valor.registre}}
+					<ul class="list-group">
+						<li class="list-group-item d-flex justify-content-between border-0">
+							<c:forEach var="header" items="${valor.valorHeader}">
+								<div class="d-flex flex-column text-dark font-weight-bold text-sm <c:if test="${header.value}">obligatori</c:if>">${header.key}</div>
+							</c:forEach>
+						</li>
+						<c:forEach var="fila" items="${valor.valorBody}">
+							<li class="list-group-item d-flex justify-content-between border-0">
+								<c:forEach var="cela" items="${fila}">
+									<div class="d-flex flex-column text-sm">${cela}</div>
+								</c:forEach>
+							</li>
+						</c:forEach>
+					</ul>
+				{{else}}
+					{{if valor.multiple}}
+						<ul class="list-group">
+							<c:forEach var="fila" items="${valor.valorMultiple}">
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-sm">${fila}</div>
+								</li>
+							</c:forEach>
+						</ul>
+					{{else}}
+						{{:valor.valorSimple}}
+					{{/if}}
+				{{/if}}
 			</script>
 		</th>
 		<th data-col-name="id" data-template="#cellAccionsTemplate" data-orderable="false" width="5%">
