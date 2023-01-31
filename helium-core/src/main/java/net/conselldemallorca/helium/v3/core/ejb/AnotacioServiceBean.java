@@ -117,7 +117,7 @@ public class AnotacioServiceBean implements AnotacioService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId) {
+	public void reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId) throws Exception {
 		delegate.reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
 		
 	}

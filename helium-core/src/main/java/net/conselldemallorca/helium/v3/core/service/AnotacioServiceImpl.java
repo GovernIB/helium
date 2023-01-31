@@ -386,7 +386,11 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 						expedientTipusId + " perquè no s'ha pogut recuperar la informació associada.");
 
 		if(reprocessar && expedientTipus.isDistribucioSistra()) {
-			reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
+			try {
+				reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
+			} catch (Exception e) {
+				
+			}
 		}
 		anotacio.setExpedientTipus(expedientTipus);
 		anotacio.setExpedient(expedient);
@@ -999,7 +1003,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	
 	@Override
 	@Transactional
-	public void reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId) {
+	public void reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId) throws Exception {
 		logger.debug(
 				"Reprocessant el mapeig de l'anotació de l'expedient ( " +
 				"anotacioId=" + anotacioId + ", " +
@@ -1024,24 +1028,40 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			ExpedientDadaDto dada = null;
 			DadesDocumentDto dadesDocumentDto = null;
 			// Extreu variables i documents i annexos segons el mapeig sistra
-			variables = distribucioHelper.getDadesInicials(expedientTipus, anotacio);
+			try {
+				variables = distribucioHelper.getDadesInicials(expedientTipus, anotacio);
+			} catch (Exception e) {
+				String errMsg = "Error processant el mapeig de l'anotació " + 
+						anotacio.getIdentificador() + 
+						". Hi podrien haver dades o documents que no s'haguessin mapejat correctament. Recomanem reprocessar el mapeig de l'anotació a l'expedient.";
+				logger.error(errMsg, e);
+				Alerta alerta = alertaHelper.crearAlerta(
+						expedient.getEntorn(), 
+						expedient, 
+						new Date(), 
+						null, 
+						errMsg);
+				alerta.setPrioritat(AlertaPrioritat.ALTA);	
+			}
 			documents = distribucioHelper.getDocumentsInicials(expedientTipus, anotacio);			
 			annexos = distribucioHelper.getDocumentsAdjunts(expedientTipus, anotacio);
-			for (String varCodi : variables.keySet()) {	
-				// Obtenir la variable de l'expedient, comprovar si aquest mapeig existeix o no	
-				mapeigSistra = mapeigSistraRepository.findByExpedientTipusAndCodiHelium(expedientTipus, varCodi);	
-				dada = variableHelper.getDadaPerInstanciaProces(
-						expedient.getProcessInstanceId(),
-						varCodi,
-						true);
-				boolean variableExisteix = dada !=null ? true : false;
-				processarVariablesAnotacio(
-						expedientId,
-						expedient.getProcessInstanceId(),
-						varCodi,
-						variables.get(varCodi),
-						variableExisteix,
-						mapeigSistra.isEvitarSobreescriptura());
+			if(variables!=null) {
+				for (String varCodi : variables.keySet()) {	
+					// Obtenir la variable de l'expedient, comprovar si aquest mapeig existeix o no	
+					mapeigSistra = mapeigSistraRepository.findByExpedientTipusAndCodiHelium(expedientTipus, varCodi);	
+					dada = variableHelper.getDadaPerInstanciaProces(
+							expedient.getProcessInstanceId(),
+							varCodi,
+							true);
+					boolean variableExisteix = dada !=null ? true : false;
+					processarVariablesAnotacio(
+							expedientId,
+							expedient.getProcessInstanceId(),
+							varCodi,
+							variables.get(varCodi),
+							variableExisteix,
+							mapeigSistra.isEvitarSobreescriptura());
+				}
 			}
 			
 			//Fem el mateix per els documents del mapeig

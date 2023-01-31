@@ -141,7 +141,8 @@ public interface AnotacioService {
 	public void esborrarAnotacionsExpedient(Long expedientId);
 
 	/** Recupera el mapeig de Sistra i l'aplica a l'expedient.
+	 * @throws Exception 
 	 */
-	public void reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId);
+	public void reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId) throws Exception;
 
 }

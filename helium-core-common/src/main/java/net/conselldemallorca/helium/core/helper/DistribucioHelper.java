@@ -800,8 +800,9 @@ public class DistribucioHelper {
 	 * @param expedientTipus
 	 * @param anotacio
 	 * @return
+	 * @throws Exception 
 	 */
-	public Map<String, Object> getDadesInicials(ExpedientTipus expedientTipus, Anotacio anotacio) {
+	public Map<String, Object> getDadesInicials(ExpedientTipus expedientTipus, Anotacio anotacio) throws Exception {
 		
 		logger.debug("Mapeig de documents SISTRA2-Helium per l'anotació " + anotacio.getIdentificador() + 
 												" i el tipus d'expedient " + expedientTipus.getCodi() + " - " + expedientTipus.getNom() + 
@@ -960,7 +961,7 @@ public class DistribucioHelper {
 		}
 	}
 
-	private Formulario getFormulario(AnotacioAnnex anotacioAnnex) {
+	private Formulario getFormulario(AnotacioAnnex anotacioAnnex) throws Exception {
 		Formulario formulario = null;
 		if (anotacioAnnex != null) {
 			try {	
@@ -983,7 +984,9 @@ public class DistribucioHelper {
 				else 
 					logger.error("No s'ha pogut consultar el contingut pel document SISTRA2 " + anotacioAnnex.getTitol() + " de l'anotacio " + anotacioAnnex.getAnotacio().getId() + " " + anotacioAnnex.getAnotacio().getIdentificador() + " perquè el contingut és null");
 			} catch (Exception e) {
-				logger.error("Error obtenint les dades del formulari per l'annex de Sistra2 " + anotacioAnnex.getTitol() + " de l'anotació " + anotacioAnnex.getAnotacio().getId() + " " + anotacioAnnex.getAnotacio().getIdentificador() + " " + anotacioAnnex.getAnotacio().getExtracte() + ": " + e.getMessage(), e);
+				String errMsg ="Error obtenint les dades del formulari per l'annex de Sistra2 " + anotacioAnnex.getTitol() + " de l'anotació " + anotacioAnnex.getAnotacio().getId() + " " + anotacioAnnex.getAnotacio().getIdentificador() + " " + anotacioAnnex.getAnotacio().getExtracte() + ": " + e.getMessage();
+				logger.error(errMsg, e);
+				throw new Exception(errMsg, e);
 			}
 		}
 		return formulario;
