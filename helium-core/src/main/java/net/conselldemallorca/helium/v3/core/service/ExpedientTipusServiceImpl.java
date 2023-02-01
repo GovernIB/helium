@@ -710,6 +710,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					documentExportacio.setContentType(document.getContentType());
 					documentExportacio.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
 					documentExportacio.setAdjuntarAuto(document.isAdjuntarAuto());
+					documentExportacio.setGenerarNomesTasca(document.isGenerarNomesTasca());
 					if (document.getCampData() != null)
 						documentExportacio.setCodiCampData(document.getCampData().getCodi());
 					documentExportacio.setConvertirExtensio(document.getConvertirExtensio());
@@ -1268,6 +1269,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						document.setContentType(documentExportat.getContentType());
 						document.setTipusDocPortasignatures(documentExportat.getTipusDocPortasignatures());
 						document.setAdjuntarAuto(documentExportat.isAdjuntarAuto());
+						document.setGenerarNomesTasca(documentExportat.isGenerarNomesTasca());
 						if (documentExportat.getCodiCampData() != null)
 							document.setCampData(camps.get(documentExportat.getCodiCampData()));
 						document.setConvertirExtensio(documentExportat.getConvertirExtensio());
@@ -2741,6 +2743,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					nou.setContentType(document.getContentType());
 					nou.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
 					nou.setAdjuntarAuto(document.isAdjuntarAuto());
+					nou.setGenerarNomesTasca(document.isGenerarNomesTasca());
 					if (document.getCampData() != null && document.getCampData().getCodi() != null)
 						nou.setCampData(camps.get(document.getCampData().getCodi()));
 					nou.setConvertirExtensio(document.getConvertirExtensio());

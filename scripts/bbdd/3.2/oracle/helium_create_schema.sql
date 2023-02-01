@@ -279,6 +279,7 @@ CREATE TABLE HEL_DOCUMENT
 (
   ID                     NUMBER(19)             NOT NULL,
   ADJUNTAR_AUTO          NUMBER(1),
+  GENERAR_NOMES_TASCA    NUMBER(1) DEFAULT 0,
   ARXIU_CONTINGUT        BLOB,
   ARXIU_NOM              VARCHAR2(255 CHAR),
   CODI                   VARCHAR2(64 CHAR)      NOT NULL,

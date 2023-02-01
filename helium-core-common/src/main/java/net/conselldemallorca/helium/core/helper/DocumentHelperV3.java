@@ -1301,6 +1301,7 @@ public class DocumentHelperV3 {
 						dto.setDocumentNom(doc.getNom());
 						dto.setTipusDocPortasignatures(doc.getTipusDocPortasignatures());
 						dto.setAdjuntarAuto(doc.isAdjuntarAuto());
+						dto.setGenerarNomesTasca(doc.isGenerarNomesTasca());
 					}
 				}
 				if (documentStore.getArxiuUuid() != null) {
@@ -2027,6 +2028,7 @@ public class DocumentHelperV3 {
 		dto.setPlantilla(document.isPlantilla());
 		dto.setExtensionsPermeses(document.getExtensionsPermeses());
 		dto.setAdjuntarAuto(document.isAdjuntarAuto());
+		dto.setGenerarNomesTasca(document.isGenerarNomesTasca());
 		dto.setArxiuNom(document.getArxiuNom());
 		dto.setArxiuContingutDefinit(document.getArxiuContingut() != null && document.getArxiuContingut().length > 0);
 		Long documentStoreId;

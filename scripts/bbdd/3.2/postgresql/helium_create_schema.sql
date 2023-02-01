@@ -283,6 +283,7 @@ CREATE TABLE HEL_DOCUMENT
 (
   ID                     BIGINT             NOT NULL,
   ADJUNTAR_AUTO          BOOLEAN,
+  GENERAR_NOMES_TASCA    BOOLEAN DEFAULT FALSE,
   ARXIU_CONTINGUT        BYTEA,
   ARXIU_NOM              VARCHAR(255),
   CODI                   VARCHAR(64)      NOT NULL,

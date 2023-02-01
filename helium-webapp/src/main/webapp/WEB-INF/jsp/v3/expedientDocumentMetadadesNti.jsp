@@ -16,7 +16,7 @@
 	<hel:modalHead/>
 </head>
 <body>
-	<!-- Formulari per incoporar el document a l'Arxiu si es detecta error de no Uuid -->MARTA
+	<!-- Formulari per incoporar el document a l'Arxiu si es detecta error de no Uuid -->
 	<c:if test="${errorArxiuNoUuid}">
 		<div class="row alert alert-danger" style="margin: 0px; margin-bottom: 10px;">
 			<div class="col-sm-10">

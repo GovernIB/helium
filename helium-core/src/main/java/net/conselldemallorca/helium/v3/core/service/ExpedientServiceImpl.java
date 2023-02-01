@@ -3145,7 +3145,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	/** Funció que mira si l'expedient està integrat amb l'arxiu i utlitzarà 
 	//la llibreria d'utilitats de backoffice de Distribució per moure tots els annexos **/
 	private void moureAnnexos(Expedient expedient) {
-		ArxiuResultat resultat = null;//MARTA
+		ArxiuResultat resultat = null;
 		List<Anotacio> anotacions = anotacioRepository.findByExpedientId(expedient.getId());
 		if (expedient.isArxiuActiu()) {
 			//Recorro les anotacions associades a l'expedient

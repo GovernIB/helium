@@ -23,6 +23,7 @@ public class DocumentDissenyDto {
 	private boolean adjuntarAuto;
 	private String convertirExtensio;
 	private String extensionsPermeses;
+	private boolean generarNomesTasca;
 
 
 
@@ -92,5 +93,12 @@ public class DocumentDissenyDto {
 	public void setExtensionsPermeses(String extensionsPermeses) {
 		this.extensionsPermeses = extensionsPermeses;
 	}
+	public boolean isGenerarNomesTasca() {
+		return generarNomesTasca;
+	}
+	public void setGenerarNomesTasca(boolean generarNomesTasca) {
+		this.generarNomesTasca = generarNomesTasca;
+	}
+	
 
 }

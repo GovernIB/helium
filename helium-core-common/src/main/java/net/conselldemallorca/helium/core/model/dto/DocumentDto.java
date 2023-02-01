@@ -53,6 +53,8 @@ public class DocumentDto implements Serializable {
 	private boolean adjuntarAuto;
 
 	private String urlVerificacioCustodia;
+	
+	private boolean generarNomesTasca;
 
 
 
@@ -254,7 +256,12 @@ public class DocumentDto implements Serializable {
 	public void setUrlVerificacioCustodia(String urlVerificacioCustodia) {
 		this.urlVerificacioCustodia = urlVerificacioCustodia;
 	}
-
+	public boolean isGenerarNomesTasca() {
+		return generarNomesTasca;
+	}
+	public void setGenerarNomesTasca(boolean generarNomesTasca) {
+		this.generarNomesTasca = generarNomesTasca;
+	}
 	public String getArxiuNomSenseExtensio() {
 		if (getArxiuNom() == null)
 			return null;

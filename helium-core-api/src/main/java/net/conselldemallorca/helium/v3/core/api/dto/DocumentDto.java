@@ -83,6 +83,11 @@ public class DocumentDto extends HeretableDto implements Serializable {
 	 * Si isIgnored = true llavors no es realitzarà la retroacció i no s'esborrarà
 	 * el contingut del document. */
 	private boolean ignored;
+	
+	/* Flag per permetre generar el document tipus plantilla des de la tasca, no es podrà generar des de la gestió de documents
+	 * Als documents de tipus plantilla que tinguin aquest flag informat no els apareixerà 
+	 * el check per generar des de plantilla */
+	private boolean generarNomesTasca;
 
 	public Long getId() {
 		return id;
@@ -421,7 +426,12 @@ public class DocumentDto extends HeretableDto implements Serializable {
 	public void setArxiuUuid(String arxiuUuid) {
 		this.arxiuUuid = arxiuUuid;
 	}	
-
+	public boolean isGenerarNomesTasca() {
+		return generarNomesTasca;
+	}
+	public void setGenerarNomesTasca(boolean generarNomesTasca) {
+		this.generarNomesTasca = generarNomesTasca;
+	}
 	public String getArxiuNomSenseExtensio() {
 		if (getArxiuNom() == null)
 			return null;

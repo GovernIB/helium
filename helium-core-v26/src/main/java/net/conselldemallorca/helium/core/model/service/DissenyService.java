@@ -1345,6 +1345,7 @@ public class DissenyService {
 			dto.setContentType(document.getContentType());
 			dto.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
 			dto.setAdjuntarAuto(document.isAdjuntarAuto());
+			dto.setGenerarNomesTasca(document.isGenerarNomesTasca());
 			if (document.getCampData() != null)
 				dto.setCodiCampData(document.getCampData().getCodi());
 			dto.setConvertirExtensio(document.getConvertirExtensio());
@@ -2746,6 +2747,7 @@ public class DissenyService {
 			nou.setContentType(document.getContentType());
 			nou.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
 			nou.setAdjuntarAuto(document.isAdjuntarAuto());
+			nou.setGenerarNomesTasca(document.isGenerarNomesTasca());
 			nou.setConvertirExtensio(document.getConvertirExtensio());
 			if (document.getCampData() != null)
 				nou.setCampData(camps.get(document.getCampData().getCodi()));
@@ -3022,6 +3024,7 @@ public class DissenyService {
 			nou.setContentType(document.getContentType());
 			nou.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
 			nou.setAdjuntarAuto(document.isAdjuntarAuto());
+			nou.setGenerarNomesTasca(document.isGenerarNomesTasca());
 			if (document.getCodiCampData() != null)
 				nou.setCampData(camps.get(document.getCodiCampData()));
 			nou.setConvertirExtensio(document.getConvertirExtensio());

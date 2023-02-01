@@ -89,6 +89,7 @@ public class ConversioTipusHelper {
 						}
 						target.setConvertirExtensio(source.getConvertirExtensio());
 						target.setAdjuntarAuto(source.isAdjuntarAuto());
+						target.setGenerarNomesTasca(source.isGenerarNomesTasca());
 						target.setExtensionsPermeses(source.getExtensionsPermeses());
 						target.setContentType(source.getContentType());
 						target.setCustodiaCodi(source.getCustodiaCodi());

@@ -53,6 +53,8 @@ public class TascaDocumentDto {
 	private String urlVerificacioCustodia;
 		
 	private String extensionsPermeses;
+	
+	private boolean generarNomesTasca;
 
 	public TascaDocumentDto() {
 	}
@@ -220,6 +222,13 @@ public class TascaDocumentDto {
 	}
 	public void setDocumentStoreId(Long documentStoreId) {
 		this.documentStoreId = documentStoreId;
+	}
+	public boolean isGenerarNomesTasca() {
+		return generarNomesTasca;
+	}
+
+	public void setGenerarNomesTasca(boolean generarNomesTasca) {
+		this.generarNomesTasca = generarNomesTasca;
 	}
 
 	public String getArxiuNomSenseExtensio() {
