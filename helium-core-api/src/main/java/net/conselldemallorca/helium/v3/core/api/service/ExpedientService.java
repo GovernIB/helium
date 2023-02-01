@@ -985,4 +985,13 @@ public interface ExpedientService {
 	 */
 	public void arreglarMetadadesNti(Long expedientId);
 
+	/** Mètode per canviar l'estat a l'expedient tenint en compte les accions de sortida de l'estat
+	 * actual i les accions d'entrada de l'estat destí.
+	 * 
+	 * @param expedientId
+	 * @param estatId
+	 * @return
+	 */
+	public EstatDto estatCanviar(Long expedientId, Long estatId);
+
 }

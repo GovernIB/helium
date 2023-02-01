@@ -154,4 +154,7 @@ public interface EstatRepository extends JpaRepository<Estat, Long> {
 	public void increseEstatsWithBiggerOrder(
 			@Param("expedientTipus") ExpedientTipus expedientTipus,
 			@Param("ordre")int ordre);
+	
+	public List<Estat> findByExpedientTipusAndOrdre(ExpedientTipus expedientTipus, Integer ordre);
+	
 }
