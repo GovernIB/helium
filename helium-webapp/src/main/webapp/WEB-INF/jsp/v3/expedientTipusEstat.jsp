@@ -98,7 +98,7 @@
 								{{else}}
 									<li><a data-toggle="modal" href="${expedientTipus.id}/estat/{{:id}}/update"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
 									<c:if test="${expedientTipus.tipus == 'ESTAT'}">
-										<li><a data-toggle="modal" href="${expedientTipus.id}/estat/{{:id}}/accions"><span class="fa fa-bolt"></span>&nbsp;<spring:message code="expedient.tipus.estat.llistat.accio.accions"/></a></li>
+										<li><a data-toggle="modal" href="${expedientTipus.id}/estat/{{:id}}/accions" data-maximized="true"><span class="fa fa-bolt"></span>&nbsp;<spring:message code="expedient.tipus.estat.llistat.accio.accions"/></a></li>
 									</c:if>
 									<li><a href="${expedientTipus.id}/estat/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.tipus.estat.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 								{{/if}}

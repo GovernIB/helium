@@ -20,7 +20,6 @@ import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +33,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ExpedientMetadades;
@@ -87,7 +89,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.jbpm3.handlers.ExpedientTitolModificarHandler;
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.jbpm3.integracio.ExecucioHandlerException;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
@@ -1616,6 +1617,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional
 	public void accioExecutar(
@@ -1646,13 +1648,19 @@ public class ExpedientServiceImpl implements ExpedientService {
 							accio.getJbpmAction(),
 							herenciaHelper.getProcessDefinitionIdHeretadaAmbExpedient(expedient));
 				} else if (AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
-					//TODO: fer la crida als handlers predefinits d'Helium
-//					ExpedientTitolModificarHandler handler = new ExpedientTitolModificarHandler();
-//					handler.setTitol(titol);
-//					handler.execute(executionContext);
-					throw new NotImplementedException("Acció handler predefinit no implementat.");
-					
-					
+					Map<String, String> dades;
+					try {
+						dades = (Map<String, String>) new ObjectMapper()
+								.readValue(
+										accio.getPredefinitDades(), 
+										new TypeReference<Map<String, String>>(){});
+					} catch(Exception e) {
+						throw new RuntimeException("Error obtenint les dades predefinides pel handler " + accio.getPredefinitClasse() + ": " + e.getMessage());
+					}
+					jbpmHelper.executeHandlerPredefinit(
+							processInstanceId,
+							accio.getPredefinitClasse(),
+							dades);				
 				} else if (AccioTipusEnumDto.SCRIPT.equals(accio.getTipus())) {
 					jbpmHelper.evaluateScript(
 							processInstanceId, 

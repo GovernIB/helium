@@ -98,7 +98,7 @@
 
 		// <![CDATA[
 	
-	 	var handlersPredefinitsJson = ${handlersPredefinitsJson };
+	 	var handlersPredefinitsJson = ${handlersPredefinitsJson != null? handlersPredefinitsJson : "[]" };
 	 	var predefinitDades = ${dadesPredefinidesJson}
 
 		$(document).ready(function() {			

@@ -391,20 +391,157 @@
  },  
 
  {
-  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.xxx",
-  "nom" : "nom",
-  "descripcio" : "desc",
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.PortasignaturesHandler",
+  "nom" : "Enviament d’un document al portasignatures",
+  "descripcio" : "Aquest handler ens permet enviar un document a signar al portasignatures. El document pot passar per tres passes de signatura, i on en cada passa es pot signar per una o més persones.",
   "parametres" : [ 
   	{
-	"codi": "codi",
-    "nom" : "nom",
+	"codi": "responsableCodi",
+    "nom" : "Codi del responsable",
     "obligatori" : false,
-    "param" : "param",
-    "paramDesc" : "paramDesc",
-    "varParam" : "varParam",
-    "varParamDesc" : "varDesc"
+    "param" : "responsableCodi",
+    "paramDesc" : "Codi de l’usuari responsable que ha de signar el document",
+    "varParam" : "varResponsableCodi",
+    "varParamDesc" : "Variable que conté el codi de l’usuari responsable que ha de signar el document."
+	},{
+	"codi": "pas1Responsables",
+    "nom" : "Pas 1: Codis dels usuaris responsables de la signatura del document, separats per comes",
+    "obligatori" : false,
+    "param" : "pas1Responsables",
+    "paramDesc" : "Pas 1: Codis dels usuaris responsables de la signatura del document, separats per comes",
+    "varParam" : "varPas1Responsables",
+    "varParamDesc" : "Pas 1: Variable que conté els codis dels usuaris responsables de la signatura del document"
+	},{
+	"codi": "pas1MinSignataris",
+    "nom" : "Pas 1: Número mínim de responsables que han d’haver signat abans d’anar al pas 2",
+    "obligatori" : false,
+    "param" : "pas1MinSignataris",
+    "paramDesc" : "Pas 1: Número mínim de responsables que han d’haver signat abans d’anar al pas 2",
+    "varParam" : "varPas1MinSignataris",
+    "varParamDesc" : "Pas 1: Variable que conté el número mínim de responsables que han d’haver signat abans d’anar al pas 2"
+	},{
+	"codi": "pas2Responsables",
+    "nom" : "Pas 2: Codis dels usuaris responsables de la signatura del document, separats per comes",
+    "obligatori" : false,
+    "param" : "pas2Responsables",
+    "paramDesc" : "Pas 2: Codis dels usuaris responsables de la signatura del document, separats per comes",
+    "varParam" : "varPas2Responsables",
+    "varParamDesc" : "Pas 2: Variable que conté els codis dels usuaris responsables de la signatura del document"
+	},{
+	"codi": "pas2MinSignataris",
+    "nom" : "Pas 2: Número mínim de responsables que han d’haver signat abans d’anar al pas 3",
+    "obligatori" : false,
+    "param" : "pas2MinSignataris",
+    "paramDesc" : "Pas 2: Número mínim de responsables que han d’haver signat abans d’anar al pas 3",
+    "varParam" : "varPas2MinSignataris",
+    "varParamDesc" : "Pas 2: Variable que conté el número mínim de responsables que han d’haver signat abans d’anar al pas 3"
+	},{
+	"codi": "pas3Responsables",
+    "nom" : "Pas 3: Codis dels usuaris responsables de la signatura del document, separats per comes",
+    "obligatori" : false,
+    "param" : "pas3Responsables",
+    "paramDesc" : "Pas 3: Codis dels usuaris responsables de la signatura del document, separats per comes",
+    "varParam" : "varPas3Responsables",
+    "varParamDesc" : "Pas 3: Variable que conté els codis dels usuaris responsables de la signatura del document"
+	},{
+	"codi": "pas3MinSignataris",
+    "nom" : "Pas 3: Número mínim de responsables que han d’haver signat per considerar el document com signat",
+    "obligatori" : false,
+    "param" : "pas3MinSignataris",
+    "paramDesc" : "Pas 3: Número mínim de responsables que han d’haver signat per considerar el document com signat",
+    "varParam" : "varPas3MinSignataris",
+    "varParamDesc" : "Pas 3: Variable que conté el número mínim de responsables que han d’haver signat per considerar el document com signat"
+	},{
+	"codi": "document",
+    "nom" : "Codi del document a signar",
+    "obligatori" : false,
+    "param" : "document",
+    "paramDesc" : "Codi del document a signar",
+    "varParam" : "varDocument",
+    "varParamDesc" : "Variable que conté el Codi del document a signar"
+	},{
+	"codi": "annexos",
+    "nom" : "Codis dels documents annexos de consulta que acompanyen al document a signar",
+    "obligatori" : false,
+    "param" : "annexos",
+    "paramDesc" : "Codis dels documents annexos de consulta que acompanyen al document a signar",
+    "varParam" : "varAnnexos",
+    "varParamDesc" : "Variable que conté els codis dels documents annexos de consulta que acompanyen al document a signar"
+	},{
+	"codi": "importancia",
+    "nom" : "Importància de la signatura del document",
+    "obligatori" : false,
+    "param" : "importancia",
+    "paramDesc" : "Importància de la signatura del document",
+    "varParam" : "varImportancia",
+    "varParamDesc" : "Variable que conté la importància de la signatura del document"
+	},{
+	"codi": "dataLimit",
+    "nom" : "Data límit per a signar el document",
+    "obligatori" : false,
+    "param" : "dataLimit",
+    "paramDesc" : "Data límit per a signar el document",
+    "varParam" : "varDataLimit",
+    "varParamDesc" : "Variable que conté la data límit per a signar el document"
+	},{
+	"codi": "transicioOK",
+    "nom" : "Transició de sortida per a signatura correcta",
+    "obligatori" : false,
+    "param" : "transicioOK",
+    "paramDesc" : "Transició de sortida per a signatura correcta",
+    "varParam" : "varTransicioOK",
+    "varParamDesc" : "Variable que conté la transició de sortida per a signatura amb errors"
+	}],
+  "agrupacio" : "DOCUMENTS"
+ },
+ 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.DocumentAdjuntarHandler",
+  "nom" : "Adjuntar un document",
+  "descripcio" : "Handler per adjuntar un document al procés.",
+  "parametres" : [ 
+  	{
+	"codi": "documentOrigen",
+    "nom" : "Document original a adjuntar",
+    "obligatori" : true,
+    "param" : "documentOrigen",
+    "paramDesc" : "Codi del document original a adjuntar",
+    "varParam" : "varDocumentOrigen",
+    "varParamDesc" : "Variable que conté el codi del document original a adjuntar"
+  },{
+	"codi": "titol",
+    "nom" : "Text pel títol del document",
+    "obligatori" : false,
+    "param" : "titol",
+    "paramDesc" : "Text pel títol del document",
+    "varParam" : "varTitol",
+    "varParamDesc" : "Variable que conté el text pel títol del document"
+  },{
+	"codi": "data",
+    "nom" : "Valor per la data del document",
+    "obligatori" : false,
+    "param" : "data",
+    "paramDesc" : "Valor per la data del document",
+    "varParam" : "varData",
+    "varParamDesc" : "Variable que conté el valor per la data del document"
+  },{
+	"codi": "concatenarTitol",
+    "nom" : "Indica si concatenar el títol al nom del document original",
+    "obligatori" : false,
+    "param" : "concatenarTitol",
+    "paramDesc" : "Indica si concatenar el títol al nom del document original",
+    "varParam" : null,
+    "varParamDesc" : null
+  },{
+	"codi": "esborrarDocument",
+    "nom" : "Indica si esborrar el document de l'expedient després d'adjuntar-lo",
+    "obligatori" : false,
+    "param" : "esborrarDocument",
+    "paramDesc" : "Indica si esborrar el document de l'expedient després d'adjuntar-lo",
+    "varParam" : null,
+    "varParamDesc" : null
   }],
-  "agrupacio" : "EXPEDIENTS"
+  "agrupacio" : "DOCUMENTS"
  },
  
  {

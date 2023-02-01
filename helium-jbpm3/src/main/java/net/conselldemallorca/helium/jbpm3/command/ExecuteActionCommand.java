@@ -10,7 +10,6 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jbpm.JbpmConfiguration;
 import org.jbpm.JbpmContext;
-import org.jbpm.JbpmException;
 import org.jbpm.command.AbstractGetObjectBaseCommand;
 import org.jbpm.file.def.FileDefinition;
 import org.jbpm.graph.def.Action;
