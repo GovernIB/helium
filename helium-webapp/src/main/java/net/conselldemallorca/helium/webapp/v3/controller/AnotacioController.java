@@ -261,12 +261,14 @@ public class AnotacioController extends BaseExpedientController {
 				break;
 			case INCORPORAR:
 				// Incorpora la informació de l'anotació a l'expedient
-				anotacio = anotacioService.incorporarExpedient(
+				anotacio = anotacioService.incorporarReprocessarExpedient(
 						command.getId(),
 						command.getExpedientTipusId(),
 						command.getExpedientId(),
 						command.isAssociarInteressats(),
+						true,
 						true);
+			
 				MissatgesHelper.success(
 						request, 
 						getMessage(
@@ -477,6 +479,7 @@ public class AnotacioController extends BaseExpedientController {
 			@PathVariable Long id,
 			Model model) {
 		try {
+			//TODO: aquesta està correcta
 			AnotacioDto anotacio = anotacioService.reprocessar(id);
 			MissatgesHelper.success(
 					request,

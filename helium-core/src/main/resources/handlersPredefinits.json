@@ -392,7 +392,7 @@
 
  {
   "classe" : "net.conselldemallorca.helium.jbpm3.handlers.PortasignaturesHandler",
-  "nom" : "Enviament d’un document al portasignatures",
+  "nom" : "Enviament d'un document al portasignatures",
   "descripcio" : "Aquest handler ens permet enviar un document a signar al portasignatures. El document pot passar per tres passes de signatura, i on en cada passa es pot signar per una o més persones.",
   "parametres" : [ 
   	{
@@ -400,9 +400,9 @@
     "nom" : "Codi del responsable",
     "obligatori" : false,
     "param" : "responsableCodi",
-    "paramDesc" : "Codi de l’usuari responsable que ha de signar el document",
+    "paramDesc" : "Codi de l'usuari responsable que ha de signar el document",
     "varParam" : "varResponsableCodi",
-    "varParamDesc" : "Variable que conté el codi de l’usuari responsable que ha de signar el document."
+    "varParamDesc" : "Variable que conté el codi de l'usuari responsable que ha de signar el document."
 	},{
 	"codi": "pas1Responsables",
     "nom" : "Pas 1: Codis dels usuaris responsables de la signatura del document, separats per comes",
@@ -413,12 +413,12 @@
     "varParamDesc" : "Pas 1: Variable que conté els codis dels usuaris responsables de la signatura del document"
 	},{
 	"codi": "pas1MinSignataris",
-    "nom" : "Pas 1: Número mínim de responsables que han d’haver signat abans d’anar al pas 2",
+    "nom" : "Pas 1: Número mínim de responsables que han d'haver signat abans d'anar al pas 2",
     "obligatori" : false,
     "param" : "pas1MinSignataris",
-    "paramDesc" : "Pas 1: Número mínim de responsables que han d’haver signat abans d’anar al pas 2",
+    "paramDesc" : "Pas 1: Número mínim de responsables que han d'haver signat abans d'anar al pas 2",
     "varParam" : "varPas1MinSignataris",
-    "varParamDesc" : "Pas 1: Variable que conté el número mínim de responsables que han d’haver signat abans d’anar al pas 2"
+    "varParamDesc" : "Pas 1: Variable que conté el número mínim de responsables que han d'haver signat abans d'anar al pas 2"
 	},{
 	"codi": "pas2Responsables",
     "nom" : "Pas 2: Codis dels usuaris responsables de la signatura del document, separats per comes",
@@ -429,12 +429,12 @@
     "varParamDesc" : "Pas 2: Variable que conté els codis dels usuaris responsables de la signatura del document"
 	},{
 	"codi": "pas2MinSignataris",
-    "nom" : "Pas 2: Número mínim de responsables que han d’haver signat abans d’anar al pas 3",
+    "nom" : "Pas 2: Número mínim de responsables que han d'haver signat abans d'anar al pas 3",
     "obligatori" : false,
     "param" : "pas2MinSignataris",
-    "paramDesc" : "Pas 2: Número mínim de responsables que han d’haver signat abans d’anar al pas 3",
+    "paramDesc" : "Pas 2: Número mínim de responsables que han d'haver signat abans d'anar al pas 3",
     "varParam" : "varPas2MinSignataris",
-    "varParamDesc" : "Pas 2: Variable que conté el número mínim de responsables que han d’haver signat abans d’anar al pas 3"
+    "varParamDesc" : "Pas 2: Variable que conté el número mínim de responsables que han d'haver signat abans d'anar al pas 3"
 	},{
 	"codi": "pas3Responsables",
     "nom" : "Pas 3: Codis dels usuaris responsables de la signatura del document, separats per comes",
@@ -445,12 +445,12 @@
     "varParamDesc" : "Pas 3: Variable que conté els codis dels usuaris responsables de la signatura del document"
 	},{
 	"codi": "pas3MinSignataris",
-    "nom" : "Pas 3: Número mínim de responsables que han d’haver signat per considerar el document com signat",
+    "nom" : "Pas 3: Número mínim de responsables que han d'haver signat per considerar el document com signat",
     "obligatori" : false,
     "param" : "pas3MinSignataris",
-    "paramDesc" : "Pas 3: Número mínim de responsables que han d’haver signat per considerar el document com signat",
+    "paramDesc" : "Pas 3: Número mínim de responsables que han d'haver signat per considerar el document com signat",
     "varParam" : "varPas3MinSignataris",
-    "varParamDesc" : "Pas 3: Variable que conté el número mínim de responsables que han d’haver signat per considerar el document com signat"
+    "varParamDesc" : "Pas 3: Variable que conté el número mínim de responsables que han d'haver signat per considerar el document com signat"
 	},{
 	"codi": "document",
     "nom" : "Codi del document a signar",
@@ -566,5 +566,280 @@
     "varParamDesc" : "Variable que conté el text de l'alerta"
   } ],
   "agrupacio" : "ALERTES"
+ },
+ 
+  {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.TerminiIniciarHandler",
+  "nom" : "Iniciar un termini",
+  "descripcio" : "Aquest handler ens permet iniciar un termini. Aquest termini pot ser un termini de la definició de procés o correspondre a una variable de tipus termini. La data d'inici es pot calcular segons la definició del termini o bé passar-se com paràmetre. També es pot calcular la data d'inici passant una data final a partir de la qual s'hagi de calcular.",
+  "parametres" : [ 
+  	{
+	"codi": "terminiCodi",
+    "nom" : "Codi del termin",
+    "obligatori" : true,
+    "param" : "terminiCodi",
+    "paramDesc" : "Codi del termini",
+    "varParam" : "varTerminiCodi",
+    "varParamDesc" : "Variable que conté el codi del termini iniciat"
+  },{
+	"codi": "varData",
+    "nom" : "Variable data",
+    "obligatori" : false,
+    "param" : null,
+    "paramDesc" :null,
+    "varParam" : "varData",
+    "varParamDesc" : "Variable que conté la data en la que s’ha d’iniciar el termini."
+  },{
+	"codi": "sumarUnDia",
+    "nom" : "Sumar un dia",
+    "obligatori" : false,
+    "param" : "sumarUnDia",
+    "paramDesc" : "Indica si sumar un dia a la data d’inici calculada. Basta informar qualsevol valor",
+    "varParam" : null,
+    "varParamDesc" : null
+  },{
+	"codi": "varTermini",
+    "nom" : "Variable termini",
+    "obligatori" : false,
+    "param" : "varTermini",
+    "paramDesc" : "Variable de tipus termini",
+    "varParam" : null,
+    "varParamDesc" : null
+  },{
+	"codi": "esDataFi",
+    "nom" : "És data fi",
+    "obligatori" : false,
+    "param" : "esDataFi",
+    "paramDesc" : "Indica si varData és la data final del termini. En aquest cas, es calcula la data inici a partir de la data final. S'ha de posar el valor 'true'",
+    "varParam" : null,
+    "varParamDesc" : null
+  }],
+  "agrupacio" : "TERMINIS"
+ },
+  {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.TerminiPausarHandler",
+  "nom" : "Aturar un termini",
+  "descripcio" : "Aquest handler ens permet aturar temporalment un termini iniciat.",
+  "parametres" : [ 
+  	{
+	"codi": "terminiCodi",
+    "nom" : "Codi del termini iniciat",
+    "obligatori" : true,
+    "param" : "terminiCodi",
+    "paramDesc" : "Codi del termini iniciat",
+    "varParam" : "varTerminiCodi",
+    "varParamDesc" : "Variable que conté el codi del termini iniciat"
+  },{
+	"codi": "varData",
+    "nom" : "Variable data",
+    "obligatori" : false,
+    "param" : null,
+    "paramDesc" : null,
+    "varParam" : "varData",
+    "varParamDesc" : "Variable que conté la data en la que s’ha d’aturar el termini"
+  }],
+  "agrupacio" : "TERMINIS"
+ },
+  {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.TerminiContinuarHandler",
+  "nom" : "Continuar un termini aturat",
+  "descripcio" : "Aquest handler ens permet continuar un termini aturat.",
+  "parametres" : [ 
+  	{
+	"codi": "terminiCodi",
+    "nom" : "Codi del termini iniciat",
+    "obligatori" : true,
+    "param" : "terminiCodi",
+    "paramDesc" : "Codi del termini iniciat",
+    "varParam" : "varTerminiCodi",
+    "varParamDesc" : "Variable que conté el codi del termini iniciat"
+  },{
+	"codi": "varData",
+    "nom" : "Variable data",
+    "obligatori" : false,
+    "param" : null,
+    "paramDesc" : null,
+    "varParam" : "varData",
+    "varParamDesc" : "Variable que conté la data en la que s’ha de continuar el termini"
+  }],
+  "agrupacio" : "TERMINIS"
+ },
+  {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.TerminiCancelarHandler",
+  "nom" : "Cancel·lar un termini iniciat",
+  "descripcio" : "Aquest handler ens permet cancel·lar un termini iniciat.",
+  "parametres" : [ 
+  	{
+	"codi": "terminiCodi",
+    "nom" : "Codi del termini iniciat",
+    "obligatori" : true,
+    "param" : "terminiCodi",
+    "paramDesc" : "Codi del termini iniciat",
+    "varParam" : "varTerminiCodi",
+    "varParamDesc" : "Variable que conté el codi del termini iniciat"
+  },{
+	"codi": "varData",
+    "nom" : "Variable data",
+    "obligatori" : false,
+    "param" : null,
+    "paramDesc" : null,
+    "varParam" : "varData",
+    "varParamDesc" : "Variable que conté la data en la que s’ha de cancel·lar el termini"
+  }],
+  "agrupacio" : "TERMINIS"
+ },
+  {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.TerminiCalcularDataIniciHandler",
+  "nom" : "Calcular data inici d’un termini",
+  "descripcio" : "Handler que calcula la data d’inici d’un temini. Aquest termini pot ser un termini de la definició de procés o correspondre a una variable de tipus termini.",
+  "parametres" : [ 
+  	{
+	"codi": "terminiCodi",
+    "nom" : "Codi del termini iniciat",
+    "obligatori" : true,
+    "param" : "terminiCodi",
+    "paramDesc" : "Codi del termini iniciat",
+    "varParam" : "varTerminiCodi",
+    "varParamDesc" : "Variable que conté el codi del termini iniciat"
+  },{
+	"codi": "varData",
+    "nom" : "Variable data",
+    "obligatori" : false,
+    "param" : null,
+    "paramDesc" : null,
+    "varParam" : "varData",
+    "varParamDesc" : "Variable que conté la data final a partir de la qual calcular la data inicial del termini"
+  },{
+	"codi": "restarUnDia",
+    "nom" : "Restar un dia",
+    "obligatori" : false,
+    "param" : "restarUnDia",
+    "paramDesc" : "Restar un dia a la data inici calculada",
+    "varParam" : null,
+    "varParamDesc" : null
+  },{
+	"codi": "varTermini",
+    "nom" : "Variable de tipus termini",
+    "obligatori" : false,
+    "param" : "varTermini",
+    "paramDesc" : "Variable de tipus termini",
+    "varParam" : null,
+    "varParamDesc" : null
+  },{
+	"codi": "varDataInici",
+    "nom" : "Variable on guardar la data d'inici",
+    "obligatori" : true,
+    "param" : "varDataInici",
+    "paramDesc" : "Codi de la variable on guardar la data d'inici calculada",
+    "varParam" : null,
+    "varParamDesc" : null
+  	}],
+  "agrupacio" : "TERMINIS"
+ },
+{
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.TerminiCalcularDataFiHandler",
+  "nom" : "Calcular data fi d’un termini",
+  "descripcio" : "Handler que calcula la data fi d’un temini. Aquest termini pot ser un termini de la definició de procés o correspondre a una variable de tipus termini.",
+  "parametres" : [ 
+  	{
+	"codi": "terminiCodi",
+    "nom" : "Codi del termini iniciat",
+    "obligatori" : true,
+    "param" : "terminiCodi",
+    "paramDesc" : "Codi del termini iniciat",
+    "varParam" : "varTerminiCodi",
+    "varParamDesc" : "Variable que conté el codi del termini iniciat"
+  },{
+	"codi": "varData",
+    "nom" : "Variable data",
+    "obligatori" : false,
+    "param" : null,
+    "paramDesc" : null,
+    "varParam" : "varData",
+    "varParamDesc" : "Variable que conté la data final a partir de la qual calcular la data inicial del termini"
+  },{
+	"codi": "sumarUnDia",
+    "nom" : "Sumpar un dia",
+    "obligatori" : false,
+    "param" : "sumarUnDia",
+    "paramDesc" : "Sumar un dia a la data inici calculada",
+    "varParam" : null,
+    "varParamDesc" : null
+  },{
+	"codi": "varTermini",
+    "nom" : "Variable de tipus termini",
+    "obligatori" : false,
+    "param" : "varTermini",
+    "paramDesc" : "Variable de tipus termini",
+    "varParam" : null,
+    "varParamDesc" : null
+  },{
+	"codi": "varDataFi",
+    "nom" : "Variable on guardar la data de fi",
+    "obligatori" : true,
+    "param" : "varDataFi",
+    "paramDesc" : "Codi de la variable on guardar la data de fi calculada",
+    "varParam" : null,
+    "varParamDesc" : null
+  	}],
+  "agrupacio" : "TERMINIS"
+ }, 
+ 
+  {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.TerminiVariableGuardarHandler",
+  "nom" : "Configurar termini",
+  "descripcio" : "Handler que permet configurar una variable de tipus termini. La seva durada es pot definir en anys, mesos i dies.",
+  "parametres" : [ 
+  	{
+	"codi": "varTermini",
+    "nom" : "Variable on guardar el termini",
+    "obligatori" : true,
+    "param" : "varTermini",
+    "paramDesc" : "Variable on guardar el termini",
+    "varParam" : null,
+    "varParamDesc" : null
+  },{
+	"codi": "anys",
+    "nom" : "Anys",
+    "obligatori" : true,
+    "param" : "anys",
+    "paramDesc" : "Número d’anys de la durada del termini",
+    "varParam" : "varAnys",
+    "varParamDesc" : "Variable que conté el número d’anys de la durada del termini"
+  },{
+	"codi": "mesos",
+    "nom" : "Mesos",
+    "obligatori" : true,
+    "param" : "mesos",
+    "paramDesc" : "Número de mesos de la durada del termini",
+    "varParam" : "varMesos",
+    "varParamDesc" : "Variable que conté el número de mesos de la durada del termini"
+  },{
+	"codi": "dies",
+    "nom" : "Dies",
+    "obligatori" : true,
+    "param" : "dies",
+    "paramDesc" : "Número de dies de la durada del termini",
+    "varParam" : "varDies",
+    "varParamDesc" : "Variable que conté el número de dies de la durada del termini"
+  }],
+  "agrupacio" : "TERMINIS"
+ },
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ConfigurarAmbTerminiHandler",
+  "nom" : "Configuració segons un termini iniciat",
+  "descripcio" : "Aquest handler ens permet configurar la data límit d’una instància de tasca o un timer amb la data de fi d’un termini iniciat.",
+  "parametres" : [ 
+  	{
+	"codi": "terminiCodi",
+    "nom" : "Codi del termini",
+    "obligatori" : true,
+    "param" : "terminiCodi",
+    "paramDesc" : "Codi del termini",
+    "varParam" : "varTerminiCodi",
+    "varParamDesc" : "Variable que conté el codi del termini"
+  }],
+  "agrupacio" : "TERMINIS"
  }
+ 
 ]

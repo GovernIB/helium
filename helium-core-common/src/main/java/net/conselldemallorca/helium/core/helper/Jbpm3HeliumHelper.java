@@ -1064,12 +1064,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"mesos=" + mesos + ", " +
 				"dies=" + dies + ", " +
 				"esDataFi=" + esDataFi + ")");
-		DefinicioProces definicioProces = getDefinicioProcesDonatProcessInstanceId(processInstanceId);
-		Termini termini = terminiHelper.findAmbDefinicioProcesICodi(
-				definicioProces,
-				terminiCodi);
-		if (termini == null)
-			throw new NoTrobatException(Termini.class, terminiCodi);
+		
+		Termini termini = this.getTermini(processInstanceId, terminiCodi);		
 		terminiHelper.iniciar(
 				termini.getId(),
 				processInstanceId,
@@ -1082,6 +1078,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		
 	}
 
+
 	@Override
 	public void terminiIniciar(
 			String terminiCodi,
@@ -1093,11 +1090,21 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"processInstanceId=" + processInstanceId + ", " +
 				"data=" + data + ", " +
 				"esDataFi=" + esDataFi + ")");
+		Termini termini = this.getTermini(processInstanceId, terminiCodi);		
+		terminiHelper.iniciar(
+				termini.getId(),
+				processInstanceId,
+				data,
+				esDataFi,
+				false);
+	}
+
+	private Termini getTermini(String processInstanceId, String terminiCodi) {
+
 		DefinicioProces definicioProces = getDefinicioProcesDonatProcessInstanceId(processInstanceId);
 		ExpedientTipus expedientTipus = definicioProces.getExpedientTipus() != null? 
 											definicioProces.getExpedientTipus() 
 											: null;
-
 		Termini termini = null;
 		if (expedientTipus != null && expedientTipus.isAmbInfoPropia()) {
 			termini = terminiHelper.findAmbExpedientTipusICodi(
@@ -1107,15 +1114,11 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			termini = terminiHelper.findAmbDefinicioProcesICodi(
 					definicioProces,
 					terminiCodi);
-		}				
+		}
 		if (termini == null)
 			throw new NoTrobatException(Termini.class, terminiCodi);
-		terminiHelper.iniciar(
-				termini.getId(),
-				processInstanceId,
-				data,
-				esDataFi,
-				false);
+		return termini;
+
 	}
 
 	@Override
@@ -1384,6 +1387,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"ambContingutSignat=" + ambContingutSignat + ", " + 
 				"ambContingutVista=" + ambContingutVista + ", " + 
 				"perSignar=" + perSignar + ", " + 
+				"perNotificar=" + perNotificar + ", " + 
 				"ambSegellSignatura=" + ambSegellSignatura + ")");
 		return conversioTipusHelper.convertir(
 				documentHelper.toDocumentDto(
@@ -1415,7 +1419,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		return documentHelper.getArxiuPerDocumentStoreId(
 				documentStoreId,
 				false,
-				false);
+				false,
+				null);
 	}
 
 	@Override
@@ -1916,11 +1921,19 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				personaDto.getCodi()
 				);
 	
-		PluginHelper pluginHelper = new PluginHelper();
-		UnitatOrganica unitatOrganica = pluginHelper.findUnitatOrganica(expedientTipus.getNtiOrgano());
 		dadesDto.setCodiProcediment(expedientTipus.getNtiClasificacion());
-		dadesDto.setUnitatTramitadora(unitatOrganica.getDenominacio());
-		dadesDto.setEntitat_CIF(expedientTipus.getPinbalNifCif());
+		dadesDto.setEntitat_CIF(expedientTipus.getPinbalNifCif());		
+		try
+	    {
+	      UnitatOrganica unitatOrganica = this.pluginHelper.findUnitatOrganica(expedientTipus.getNtiOrgano());
+	      dadesDto.setUnitatTramitadora(abreuja(unitatOrganica.getDenominacio(), 64));
+	    }
+	    catch (Exception e)
+	    {
+	      logger.error("Error d'integraicó consultant la UO: " + expedientTipus.getNtiOrgano() + " " + e.getMessage(), e);
+	      logger.warn("Com a unitat tramitadora per la consulta a PINBAL es fixa el codi DIR3 " + expedientTipus.getNtiOrgano());
+	      dadesDto.setUnitatTramitadora(expedientTipus.getNtiOrgano());
+	    }
 		
 		return new DadesConsultaPinbal(
 				titular, 
@@ -1934,6 +1947,13 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				dadesDto.getCodiProcediment(), 
 				dadesDto.getEntitat_CIF(),
 				dadesDto.getUnitatTramitadora());
+	}
+	
+	private String abreuja(String text, int maxim) {
+		if ((text.length() > maxim) && (maxim - 3 > 0)) {
+			text = text.substring(0, maxim - 3) + "...";
+		}
+		return text;
 	}
 	
 	@Override

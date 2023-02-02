@@ -61,9 +61,10 @@
 	 			fileUrl="${arxiuUrl}"
 	 			fileExists="${not empty expedientTipusDocumentCommand.arxiuContingut}" />		
 			<hel:inputCheckbox name="plantilla" textKey="expedient.tipus.document.form.camp.plantilla" />
-			<hel:inputCheckbox name="notificable" textKey="expedient.tipus.document.form.camp.notificable" />
 			<hel:inputText name="convertirExtensio" textKey="expedient.tipus.document.form.camp.gen_ext" />
 			<hel:inputCheckbox name="adjuntarAuto" textKey="expedient.tipus.document.form.camp.adj_auto" />
+			<hel:inputCheckbox name="generarNomesTasca" textKey="expedient.tipus.document.form.camp.generar.nomes.tasca" info="expedient.tipus.document.form.camp.generar.nomes.tasca.info"/>
+			<hel:inputCheckbox name="notificable" textKey="expedient.tipus.document.form.camp.notificable" />
 			<hel:inputSelect name="campId" textKey="expedient.tipus.document.form.camp.camp_data" required="false" emptyOption="true" placeholderKey="expedient.tipus.document.form.camp.camp_data.buit" optionItems="${camps}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 			<hel:inputText name="extensionsPermeses" textKey="expedient.tipus.document.form.camp.ext_perm" comment="expedient.tipus.document.form.camp.ext_perm.comment"/>
 			<hel:inputText name="contentType" textKey="expedient.tipus.document.form.camp.ctype" comment="expedient.tipus.document.form.camp.ctype.comment" />

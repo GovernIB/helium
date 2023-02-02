@@ -30,6 +30,7 @@ public class DocumentExportacio implements Serializable {
 	private String extensionsPermeses;
 	private boolean ignored;
 	private NtiTipoDocumentalEnumDto ntiTipoDocumental;
+	private boolean generarNomesTasca;
 	
 	public DocumentExportacio(
 			String codi,
@@ -174,6 +175,14 @@ public class DocumentExportacio implements Serializable {
 
 	public void setNtiTipoDocumental(NtiTipoDocumentalEnumDto ntiTipoDocumental) {
 		this.ntiTipoDocumental = ntiTipoDocumental;
+	}
+
+	public boolean isGenerarNomesTasca() {
+		return generarNomesTasca;
+	}
+
+	public void setGenerarNomesTasca(boolean generarNomesTasca) {
+		this.generarNomesTasca = generarNomesTasca;
 	}
 
 	private static final long serialVersionUID = 1L;

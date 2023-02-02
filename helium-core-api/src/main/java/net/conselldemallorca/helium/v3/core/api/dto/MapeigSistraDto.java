@@ -23,6 +23,7 @@ public class MapeigSistraDto implements Serializable {
 	private String codiSistra;
 	private TipusMapeig tipus;
 	private ExpedientTipusDto expedientTipus;
+	private boolean evitarSobreescriptura;
 
 
 	public MapeigSistraDto() {}
@@ -62,6 +63,13 @@ public class MapeigSistraDto implements Serializable {
 	}
 	public void setExpedientTipus(ExpedientTipusDto expedientTipus) {
 		this.expedientTipus = expedientTipus;
+	}
+	
+	public boolean isEvitarSobreescriptura() {
+		return evitarSobreescriptura;
+	}
+	public void setEvitarSobreescriptura(boolean evitarSobreescriptura) {
+		this.evitarSobreescriptura = evitarSobreescriptura;
 	}
 	@Override
 	public int hashCode() {

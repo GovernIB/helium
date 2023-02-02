@@ -18,13 +18,15 @@ public class MapeigSistraExportacio implements Serializable {
 	private String codiHelium;
 	private String codiSistra;
 	private TipusMapeig tipus;
+	private boolean evitarSobreescriure;
 
 
 	public MapeigSistraExportacio() {}
-	public MapeigSistraExportacio(String codiHelium, String codiSistra, TipusMapeig tipus) {
+	public MapeigSistraExportacio(String codiHelium, String codiSistra, TipusMapeig tipus, boolean evitarSobreescriure) {
 		this.codiHelium = codiHelium;
 		this.codiSistra = codiSistra;
 		this.tipus = tipus;
+		this.evitarSobreescriure = evitarSobreescriure;
 	}
 
 	public Long getId() {
@@ -50,6 +52,12 @@ public class MapeigSistraExportacio implements Serializable {
 	}
 	public void setTipus(TipusMapeig tipus) {
 		this.tipus = tipus;
+	}
+	public boolean isEvitarSobreescriure() {
+		return evitarSobreescriure;
+	}
+	public void setEvitarSobreescriure(boolean evitarSobreescriure) {
+		this.evitarSobreescriure = evitarSobreescriure;
 	}
 
 	private static final long serialVersionUID = 1L;

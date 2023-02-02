@@ -67,6 +67,7 @@
 	dadesNti['${d.codi}'].ntiEstadoElaboracion = '${d.ntiEstadoElaboracion}';
 	dadesNti['${d.codi}'].ntiTipoDocumental = '${d.ntiTipoDocumental}';
 	dadesNti['${d.codi}'].plantilla = ${d.plantilla};
+dadesNti['${d.codi}'].generarNomesTasca = ${d.generarNomesTasca};
 	</c:forEach>
 </c:if>
 
@@ -129,7 +130,7 @@ $(document).ready( function() {
 					$('#ntiOrigen').val(dadesNti[documentCodi].ntiOrigen).change();
 					$('#ntiEstadoElaboracion').val(dadesNti[documentCodi].ntiEstadoElaboracion).change();
 					$('#ntiTipoDocumental').val(dadesNti[documentCodi].ntiTipoDocumental).change();
-					if (dadesNti[documentCodi].plantilla) {
+				if (dadesNti[documentCodi].plantilla && !dadesNti[documentCodi].generarNomesTasca) {
 						// Per documents tipus plantlilla mostra un enllaç a la generació de documents
 						var href = '<c:url value="/modal/v3/expedient/${expedientId}/proces/${document != null? document.processInstanceId : processInstanceId}/document/{documentCodi}/generar"/>';
 						href = href.replace("{documentCodi}", $('#documentCodi').val());

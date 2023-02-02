@@ -311,7 +311,7 @@ public class EntornService {
 			dto.setEstats(estats);
 			List<MapeigSistraExportacio> mapeigs = new ArrayList<MapeigSistraExportacio>();
 			for (MapeigSistra mapeig : expedientTipus.getMapeigSistras()){
-				mapeigs.add(new MapeigSistraExportacio(mapeig.getCodiHelium(), mapeig.getCodiSistra(), mapeig.getTipus()));
+				mapeigs.add(new MapeigSistraExportacio(mapeig.getCodiHelium(), mapeig.getCodiSistra(), mapeig.getTipus(), mapeig.isEvitarSobreescriptura()));
 			}
 			dto.setMapeigSistras(mapeigs);
 			List<DominiExportacio> dominisExp = new ArrayList<DominiExportacio>();
@@ -545,7 +545,8 @@ public class EntornService {
 							nou,
 							mapeig.getCodiHelium(),
 							mapeig.getCodiSistra(),
-							mapeig.getTipus());
+							mapeig.getTipus(),
+							mapeig.isEvitarSobreescriptura());
 				} else {
 					mnou.setCodiSistra(mapeig.getCodiSistra());
 					mnou.setTipus(mapeig.getTipus());

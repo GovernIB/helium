@@ -57,11 +57,34 @@
 				<th data-col-name="extracte"><spring:message code="expedient.anotacio.llistat.columna.extracte"/></th>
  				<th data-col-name="id" data-template="#cellAnotacioAccionsTemplate" data-orderable="false" width="10%"> 
  					<script id="cellAnotacioAccionsTemplate" type="text/x-jsrender"> 
-						<a href="<c:url value="/v3/anotacio/{{:id}}"/>" class="btn btn-default" data-toggle="modal" data-maximized="true"><span class="fa fa-info-circle"></span>&nbsp;<spring:message code="comu.boto.detalls"/></a>
+					<div class="dropdown">
+							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
+							<ul class="dropdown-menu pull-right">
+								<li>							
+									<a href="<c:url value="/v3/anotacio/{{:id}}"/>" data-toggle="modal" data-maximized="true"><span class="fa fa-info-circle"></span>&nbsp;<spring:message code="comu.boto.detalls"/></a>
+								</li>
+								<li>
+								<c:if test="${expedient.tipus.distribucioSistra == true}">
+									<c:choose>
+										<c:when test="${dadesPersona.admin || potProcessarAnotacions}">
+											<li>
+												<a href="<c:url value="/v3/expedient/{{:expedient.id}}/anotacio/{{:id}}"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.anotacio.llistat.processar.mapeig"/></a>
+											</li>							
+										</c:when>
+										<c:otherwise>
+											<li class="disabled">
+												<a href="#" class="disabled" title="<spring:message code="expedient.anotacio.llistat.processar.mapeig.permisos"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.anotacio.llistat.processar.mapeig"/></a>
+											</li>
+										</c:otherwise>	
+									</c:choose>	
+								</c:if>						
+							</ul>
+					</div>
 					</script>
  				</th> 
 				<th data-col-name="annexosInvalids" data-visible="false"></th>
 				<th data-col-name="annexosEsborranys" data-visible="false"></th>
+				<th data-col-name="expedient" data-visible="false"></th>
 			</tr>
 		</thead>
 	</table>

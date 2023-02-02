@@ -491,6 +491,7 @@ public class DocumentService {
 		resposta.setDataDocument(new Date());
 		resposta.setArxiuNom(document.getNom() + ".odt");
 		resposta.setAdjuntarAuto(document.isAdjuntarAuto());
+		resposta.setGenerarNomesTasca(document.isGenerarNomesTasca());
 		if (document.isPlantilla()) {
 			ExpedientDto expedient;
 			TascaDto tasca = null;

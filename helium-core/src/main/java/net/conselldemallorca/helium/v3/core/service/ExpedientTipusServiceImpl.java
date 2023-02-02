@@ -674,7 +674,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						new MapeigSistraExportacio(
 								mapeig.getCodiHelium(), 
 								mapeig.getCodiSistra(), 
-								MapeigSistraDto.TipusMapeig.valueOf(mapeig.getTipus().toString())));
+								MapeigSistraDto.TipusMapeig.valueOf(mapeig.getTipus().toString()),
+								mapeig.isEvitarSobreescriptura()));
 		}
 		// Estats
 		if (command.getEstats().size() > 0)
@@ -788,6 +789,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					documentExportacio.setContentType(document.getContentType());
 					documentExportacio.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
 					documentExportacio.setAdjuntarAuto(document.isAdjuntarAuto());
+					documentExportacio.setGenerarNomesTasca(document.isGenerarNomesTasca());
 					if (document.getCampData() != null)
 						documentExportacio.setCodiCampData(document.getCampData().getCodi());
 					documentExportacio.setConvertirExtensio(document.getConvertirExtensio());
@@ -1024,7 +1026,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 								expedientTipus,
 								mapeig.getCodiHelium(), 
 								mapeig.getCodiSistra(), 
-								MapeigSistra.TipusMapeig.valueOf(mapeig.getTipus().toString())));
+								MapeigSistra.TipusMapeig.valueOf(mapeig.getTipus().toString()),
+								mapeig.isEvitarSobreescriure()));
 		}
 		
 		//Integració amb Pinbal
@@ -1346,6 +1349,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						document.setContentType(documentExportat.getContentType());
 						document.setTipusDocPortasignatures(documentExportat.getTipusDocPortasignatures());
 						document.setAdjuntarAuto(documentExportat.isAdjuntarAuto());
+						document.setGenerarNomesTasca(documentExportat.isGenerarNomesTasca());
 						if (documentExportat.getCodiCampData() != null)
 							document.setCampData(camps.get(documentExportat.getCodiCampData()));
 						document.setConvertirExtensio(documentExportat.getConvertirExtensio());
@@ -3397,6 +3401,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					nou.setContentType(document.getContentType());
 					nou.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
 					nou.setAdjuntarAuto(document.isAdjuntarAuto());
+					nou.setGenerarNomesTasca(document.isGenerarNomesTasca());
 					if (document.getCampData() != null && document.getCampData().getCodi() != null)
 						nou.setCampData(camps.get(document.getCampData().getCodi()));
 					nou.setConvertirExtensio(document.getConvertirExtensio());
@@ -4062,8 +4067,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setCodiSistra(mapeig.getCodiSistra());
 		if (mapeig.getTipus() == TipusMapeig.Adjunt) 
 			entity.setCodiHelium(mapeig.getCodiSistra());
-		else
+		else{
 			entity.setCodiHelium(mapeig.getCodiHelium());
+			entity.setEvitarSobreescriptura(mapeig.isEvitarSobreescriptura());
+		}
 		entity.setTipus(MapeigSistra.TipusMapeig.valueOf(mapeig.getTipus().toString()));
 		// MapeigSistra associat a l'expedient
 		entity.setExpedientTipus(expedientTipus);		
@@ -4086,10 +4093,13 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		MapeigSistra entity = mapeigSistraRepository.findOne(mapeig.getId());
 
 		entity.setCodiSistra(mapeig.getCodiSistra());
+		entity.setEvitarSobreescriptura(mapeig.isEvitarSobreescriptura());
 		if (mapeig.getTipus() == TipusMapeig.Adjunt) 
 			entity.setCodiHelium(mapeig.getCodiSistra());
-		else
+		else {
 			entity.setCodiHelium(mapeig.getCodiHelium());
+			entity.setEvitarSobreescriptura(mapeig.isEvitarSobreescriptura());
+		}
 				
 		return conversioTipusHelper.convertir(
 				mapeigSistraRepository.save(entity),

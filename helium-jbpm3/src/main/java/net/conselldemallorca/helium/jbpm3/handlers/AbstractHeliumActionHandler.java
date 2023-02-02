@@ -33,10 +33,15 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 			throws Exception;
 
 	ExpedientDto getExpedientActual(ExecutionContext executionContext) {
-		ExpedientDto expedient = Jbpm3HeliumBridge.getInstanceService().getExpedientIniciant();
-		if (expedient == null) {
+		ExpedientDto expedient = null;
+		try {
 			expedient = Jbpm3HeliumBridge.getInstanceService().getExpedientArrelAmbProcessInstanceId(
 					getProcessInstanceId(executionContext));
+		} catch(NoTrobatException nte) {
+			expedient = Jbpm3HeliumBridge.getInstanceService().getExpedientIniciant();
+			if (expedient == null) {
+				throw nte;
+			}
 		}
 		return expedient;
 	}

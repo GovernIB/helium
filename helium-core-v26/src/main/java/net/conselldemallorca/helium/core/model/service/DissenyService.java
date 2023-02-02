@@ -1196,7 +1196,7 @@ public class DissenyService {
 		return mapeigSistraDao.getById(id, false);
 	}
 	public MapeigSistra createMapeigSistra(String codiHelium, String codiSistra, TipusMapeig tipus, ExpedientTipus expedientTipus) {
-		MapeigSistra mapeig = new MapeigSistra(expedientTipus, codiHelium, codiSistra, tipus);
+		MapeigSistra mapeig = new MapeigSistra(expedientTipus, codiHelium, codiSistra, tipus, false);
 		/*mapeig.setCodiHelium(codiHelium);
 		mapeig.setCodiSistra(codiSistra);
 		mapeig.setTipus(tipus);
@@ -1346,6 +1346,7 @@ public class DissenyService {
 			dto.setContentType(document.getContentType());
 			dto.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
 			dto.setAdjuntarAuto(document.isAdjuntarAuto());
+			dto.setGenerarNomesTasca(document.isGenerarNomesTasca());
 			if (document.getCampData() != null)
 				dto.setCodiCampData(document.getCampData().getCodi());
 			dto.setConvertirExtensio(document.getConvertirExtensio());
@@ -1492,7 +1493,7 @@ public class DissenyService {
 		dto.setEstats(estats);
 		List<MapeigSistraExportacio> mapeigs = new ArrayList<MapeigSistraExportacio>();
 		for (MapeigSistra mapeig : expedientTipus.getMapeigSistras()){
-			mapeigs.add(new MapeigSistraExportacio(mapeig.getCodiHelium(), mapeig.getCodiSistra(), mapeig.getTipus()));
+			mapeigs.add(new MapeigSistraExportacio(mapeig.getCodiHelium(), mapeig.getCodiSistra(), mapeig.getTipus(), mapeig.isEvitarSobreescriptura()));
 		}
 		dto.setMapeigSistras(mapeigs);
 		List<DominiExportacio> dominisExp = new ArrayList<DominiExportacio>();
@@ -1681,7 +1682,8 @@ public class DissenyService {
 							expedientTipus,
 							mapeig.getCodiHelium(),
 							mapeig.getCodiSistra(),
-							mapeig.getTipus());
+							mapeig.getTipus(),
+							mapeig.isEvitarSobreescriptura());
 				} else {
 					mnou.setCodiSistra(mapeig.getCodiSistra());
 					mnou.setTipus(mapeig.getTipus());
@@ -2749,6 +2751,7 @@ public class DissenyService {
 			nou.setContentType(document.getContentType());
 			nou.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
 			nou.setAdjuntarAuto(document.isAdjuntarAuto());
+			nou.setGenerarNomesTasca(document.isGenerarNomesTasca());
 			nou.setConvertirExtensio(document.getConvertirExtensio());
 			if (document.getCampData() != null)
 				nou.setCampData(camps.get(document.getCampData().getCodi()));
@@ -3028,6 +3031,7 @@ public class DissenyService {
 			nou.setContentType(document.getContentType());
 			nou.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
 			nou.setAdjuntarAuto(document.isAdjuntarAuto());
+			nou.setGenerarNomesTasca(document.isGenerarNomesTasca());
 			if (document.getCodiCampData() != null)
 				nou.setCampData(camps.get(document.getCodiCampData()));
 			nou.setConvertirExtensio(document.getConvertirExtensio());

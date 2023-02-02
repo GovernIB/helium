@@ -88,7 +88,7 @@
 		 </thead>
 						
 		</table>
-		<script id="rowhrefTemplate" type="text/x-jsrender"><c:url value="/v3/expedientTipus/{{:id}}"/></script>	
+		<script id="rowhrefTemplate"></script>	
 
 
 	<script type="text/javascript">

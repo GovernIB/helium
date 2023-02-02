@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,6 +35,9 @@ import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import es.caib.plugins.arxiu.api.ConsultaFiltre;
+import es.caib.plugins.arxiu.api.ConsultaOperacio;
+import es.caib.plugins.arxiu.api.ConsultaResultat;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ContingutOrigen;
 import es.caib.plugins.arxiu.api.DocumentContingut;
@@ -54,6 +58,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
@@ -114,6 +119,7 @@ import net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPlug
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPluginException;
 import net.conselldemallorca.helium.integracio.plugins.unitat.UnitatOrganica;
 import net.conselldemallorca.helium.integracio.plugins.unitat.UnitatsOrganiquesPlugin;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
@@ -183,7 +189,9 @@ public class PluginHelper {
 	private UsuariActualHelper usuariActualHelper;
 	@Resource
 	private AlertaHelper alertaHelper;
-
+	@Resource
+	private ExpedientHelper expedientHelper;
+	
 	private PersonesPlugin personesPlugin;
 	private TramitacioPlugin tramitacioPlugin;
 	private RegistrePlugin registrePlugin;
@@ -2113,7 +2121,7 @@ public class PluginHelper {
 		try {
 			ContingutArxiu expedientCreat = getArxiuPlugin().expedientCrear(
 					toArxiuExpedient(
-							expedient.getIdentificador(),
+							this.inArxiuExpedient(expedient.getIdentificador(), null, expedient.getTipus()),
 							Arrays.asList(obtenirNtiOrgano(expedient)),
 							expedient.getDataInici(),
 							obtenirNtiClasificacion(expedient),
@@ -2142,6 +2150,47 @@ public class PluginHelper {
 		}
 	}
 	
+	private String inArxiuExpedient(String identificador, String uuid, ExpedientTipus tipus) {
+		String nouNomExpedient = null;
+		boolean nomExistent;
+		int n = 0;
+		ConsultaFiltre consultaFiltre = new ConsultaFiltre();
+		List<ConsultaFiltre> filtre = new ArrayList<ConsultaFiltre>();
+		consultaFiltre.setOperacio(ConsultaOperacio.IGUAL);
+		consultaFiltre.setMetadada("cm:name");
+		filtre.add(consultaFiltre);
+		ConsultaFiltre consultaFiltre2 = new ConsultaFiltre();
+		consultaFiltre2.setOperacio(ConsultaOperacio.IGUAL);
+		consultaFiltre2.setMetadada("eni:cod_clasificacion");
+		consultaFiltre2.setValorOperacio1(tipus != null ? tipus.getNtiSerieDocumental() : null);
+		filtre.add(consultaFiltre2);
+		ConsultaResultat consultaResultat = getArxiuPlugin().expedientConsulta(filtre, 0, 10);
+		do {
+			nouNomExpedient = this.treureCaractersEstranys(identificador);
+			nomExistent = false;
+			if (n > 0) {
+				nouNomExpedient = this.treureCaractersEstranys(identificador + " (" + n+")");
+			}
+			consultaFiltre.setValorOperacio1(nouNomExpedient);
+			consultaResultat = getArxiuPlugin().expedientConsulta(filtre, 0, 50);
+			if (consultaResultat != null && consultaResultat.getResultats()!=null && consultaResultat.getResultats().size() > 0) {
+				if (uuid != null) {
+					for (ContingutArxiu contingut : consultaResultat.getResultats()) {
+						if (!contingut.getIdentificador().equals(uuid)) {
+							nomExistent = true;
+							break;
+						}
+					}
+				} else {
+					nomExistent = true;
+				}
+				n++;
+			}
+		} while (nomExistent);
+		
+		return nouNomExpedient;
+	}
+
 	public void arxiuExpedientModificar(
 			Expedient expedient) {
 		String accioDescripcio = "Modificació d'expedient";
@@ -2166,7 +2215,7 @@ public class PluginHelper {
 		try {
 			getArxiuPlugin().expedientModificar(
 					toArxiuExpedient(
-							expedient.getIdentificador(),
+							this.inArxiuExpedient(expedient.getIdentificador(), expedient.getArxiuUuid(), expedient.getTipus()),
 							Arrays.asList(obtenirNtiOrgano(expedient)),
 							expedient.getDataInici(),
 							obtenirNtiClasificacion(expedient),
@@ -2592,6 +2641,25 @@ public class PluginHelper {
 			throw tractarExcepcioEnSistemaExtern(MonitorIntegracioHelper.INTCODI_ARXIU,errorDescripcio, ex);
 		}
 	}
+	
+	public List<ArxiuDetallDto> versions(String arxiuUuid){
+		List<ArxiuDetallDto> versionsDocument = new ArrayList<ArxiuDetallDto>();
+		List<ContingutArxiu> contingutArxiusVersions = getArxiuPlugin().documentVersions(arxiuUuid);
+		for(ContingutArxiu contingutArxiuVersio: contingutArxiusVersions) {
+			es.caib.plugins.arxiu.api.Document documentInfo = this.arxiuDocumentInfo(arxiuUuid, 
+					contingutArxiuVersio.getVersio(), 
+					true, 
+					true);
+			ArxiuDetallDto arxiuDetallDto= new ArxiuDetallDto();
+			arxiuDetallDto.setNom(documentInfo.getNom());			
+			arxiuDetallDto.setEniVersio(documentInfo.getVersio());
+			arxiuDetallDto.setContingutTipusMime(documentInfo.getContingut()!=null ? documentInfo.getContingut().getTipusMime() : null);
+			arxiuDetallDto.setEniDataCaptura(documentInfo.getMetadades() != null ? documentInfo.getMetadades().getDataCaptura() : null);
+			versionsDocument.add(arxiuDetallDto);
+		}
+		Collections.reverse(versionsDocument);
+		return versionsDocument;
+	}
 
 	public es.caib.plugins.arxiu.api.Document arxiuDocumentInfo(
 			String arxiuUuid,
@@ -2636,6 +2704,10 @@ public class PluginHelper {
 								documentContingut.getContingut().length);
 						documentDetalls.getContingut().setTipusMime("application/pdf");
 					}
+//					List<ContingutArxiu> versionsDocument = getArxiuPlugin().documentVersions(arxiuUuid);
+//					if(versionsDocument!=null && !versionsDocument.isEmpty()) {
+//						//documentDetalls.
+//					}
 				}
 			}
 			monitorIntegracioHelper.addAccioOk(
@@ -3190,6 +3262,8 @@ public class PluginHelper {
 			perfilFirma = ArxiuFirmaPerfilEnumDto.EPES;
 		} else if("PAdES-LTV".equals(perfil)) {
 			perfilFirma = ArxiuFirmaPerfilEnumDto.LTV;
+		} else if("PAdES-Basic".equals(perfil)) {
+			perfilFirma = ArxiuFirmaPerfilEnumDto.BASIC;
 		} else if("AdES-T".equals(perfil)) {
 			perfilFirma = ArxiuFirmaPerfilEnumDto.T;
 		} else if("AdES-C".equals(perfil)) {
@@ -3505,15 +3579,13 @@ public class PluginHelper {
 	}
 
 	private String treureCaractersEstranys(String nom) {
-		String nomRevisat;
 		if (nom != null) {
-			nomRevisat = nom.trim().replace("&", "&amp;").replaceAll("[~\"#%*:<\n\r\t>/?/|\\\\ ]", "_");
-			// L'Arxiu no admet un punt al final del nom #1418
-			if (nomRevisat.endsWith("."))
-				nomRevisat = nomRevisat.substring(0, nomRevisat.length() - 1) + "_";
-		} else
-			nomRevisat = null;
-		return nomRevisat;
+			nom = nom.replaceAll("[\\s\\']", " ").replaceAll("[^\\wçñàáèéíïòóúüÇÑÀÁÈÉÍÏÒÓÚÜ()\\-,\\.·\\s]", "").trim();
+			if (nom.endsWith(".")) {
+				nom = nom.substring(0, nom.length()-1);
+			}
+		}
+		return nom;
 	}
 
 	private static List<NtiTipoFirmaEnumDto> TIPUS_FIRMES_ATTACHED = Arrays.asList(NtiTipoFirmaEnumDto.CADES_DET, NtiTipoFirmaEnumDto.PADES, NtiTipoFirmaEnumDto.XADES_ENV);

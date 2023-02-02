@@ -92,6 +92,10 @@ public class Document implements Serializable, GenericEntity<Long> {
 	private NtiEstadoElaboracionEnumDto ntiEstadoElaboracion;
 	private NtiTipoDocumentalEnumDto ntiTipoDocumental;
 
+	/** Flag per permetre generar el document tipus plantilla des de la tasca, no es podrà generar des de la gestió de documents
+	 * Als documents de tipus plantilla que tinguin aquest flag informat no els apareixerà 
+	 * el check per generar des de plantilla */
+	private boolean generarNomesTasca;
 
 
 	public Document() {
@@ -319,10 +323,19 @@ public class Document implements Serializable, GenericEntity<Long> {
 	}
 	
 	
+	@Column(name="generar_nomes_tasca")
+	public boolean isGenerarNomesTasca() {
+		return generarNomesTasca;
+	}
+	public void setGenerarNomesTasca(boolean generarNomesTasca) {
+		this.generarNomesTasca = generarNomesTasca;
+	}
+	
 	@Transient
 	public String getCodiNom() {
 		return codi + "/" + nom;
 	}
+	
 	@Transient
 	public boolean isExtensioPermesa(String ext) {
 		if (extensionsPermeses != null && extensionsPermeses.trim().length() > 0) {
