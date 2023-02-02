@@ -600,6 +600,9 @@ dd.subproc {
 				<c:if test="${expedient.permisLogRead and not perEstats}">
 					<li id="pipella-registre"><a href="#contingut-registre" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.registre"/></a></li>
 				</c:if>
+				<c:if test="${perEstats}">
+					<li id="pipella-estats"><a href="#contingut-estats" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.estats"/></a></li>
+				</c:if>
 				<c:if test="${numAccions > 0}">
 					<li id="pipella-accions"><a href="#contingut-accions" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.accions"/></a></li>
 				</c:if>
@@ -638,6 +641,11 @@ dd.subproc {
 				</c:if>
 				<c:if test="${expedient.permisLogRead and not perEstats}">
 					<div id="contingut-registre" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/registre"/>">
+						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
+					</div>
+				</c:if>
+				<c:if test="${perEstats}">
+					<div id="contingut-estats" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/estat"/>">
 						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 					</div>
 				</c:if>
