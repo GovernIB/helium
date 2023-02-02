@@ -206,8 +206,12 @@
 	</script>
 	
 	<fieldset>
-		<legend><spring:message code="expedient.tipus.estat.accions.entrada.legend"></spring:message></legend>
-
+		<legend>
+			<i class="fa fa-bolt text-primary"></i>
+			<i class="fa fa-sign-in text-primary"></i>
+		    <spring:message code="expedient.tipus.estat.accions.entrada.legend"></spring:message>
+		</legend>
+		
 		<table	id="estatAccionsEntradaDataTable"
 				data-toggle="datatable"
 				data-url="<c:url value="/v3/expedientTipus/${expedientTipus.id}/estat/${estat.id}/accions/entrada/datatable"></c:url>"
@@ -249,7 +253,12 @@
 	</fieldset>
 
 	<fieldset>
-		<legend><spring:message code="expedient.tipus.estat.accions.sortida.legend"></spring:message></legend>
+	
+		<legend>
+			<i class="fa fa-bolt text-primary"></i>
+			<i class="fa fa-sign-out text-primary"></i>
+			<spring:message code="expedient.tipus.estat.accions.sortida.legend"></spring:message>
+		</legend>
 		
 
 		<table	id="estatAccionsSortidaDataTable"

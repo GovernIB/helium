@@ -69,6 +69,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.EstatAccioEntrada;
 import net.conselldemallorca.helium.core.model.hibernate.EstatAccioSortida;
 import net.conselldemallorca.helium.core.model.hibernate.EstatRegla;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
@@ -150,6 +151,7 @@ import net.conselldemallorca.helium.v3.core.repository.EstatAccioEntradaReposito
 import net.conselldemallorca.helium.v3.core.repository.EstatAccioSortidaRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatReglaRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.MapeigSistraRepository;
@@ -171,6 +173,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private DefinicioProcesHelper definicioProcesHelper;
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
+	@Resource
+	private ExpedientRepository expedientRepository;
 	@Resource
 	private SequenciaAnyRepository sequenciaRepository;
 	@Resource
@@ -2736,6 +2740,50 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		}
 
 		return estatsExportacio;
+	}
+
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<EstatDto> estatGetAvancar(long expedientId) {
+		logger.debug(
+				"Consultant els possibles estats per avançar l'expedient (" +
+				"expedientId=" + expedientId+ ")");
+		Expedient expedient = expedientRepository.findOne(expedientId);		
+		int estatOrdre= 0;
+		if (expedient.getEstat() != null ) {
+			estatOrdre =  expedient.getEstat().getOrdre();
+		} else if (expedient.getDataFi() == null) {
+			estatOrdre = 0;
+		} else {
+			estatOrdre = estatRepository.getSeguentOrdre(expedient.getTipus().getId());
+		}
+		List<Estat> estats = estatRepository.findByExpedientTipusAndOrdre(expedient.getTipus(), estatOrdre + 1);
+		return conversioTipusHelper.convertirList(estats, EstatDto.class);
+
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<EstatDto> estatGetRetrocedir(long expedientId) {
+		List<EstatDto> estatsRetrocedir = new ArrayList<EstatDto>();
+		logger.debug(
+				"Consultant els possibles estats per retrocedir l'expedient (" +
+				"expedientId=" + expedientId+ ")");
+		logger.debug(
+				"Consultant els possibles estats per avançar l'expedient (" +
+				"expedientId=" + expedientId+ ")");
+		Expedient expedient = expedientRepository.findOne(expedientId);		
+		int estatOrdre= 0;
+		if (expedient.getEstat() != null ) {
+			estatOrdre =  expedient.getEstat().getOrdre();
+		} else if (expedient.getDataFi() == null) {
+			estatOrdre = 0;
+		} else {
+			estatOrdre = estatRepository.getSeguentOrdre(expedient.getTipus().getId());
+		}
+		List<Estat> estats = estatRepository.findByExpedientTipusAndOrdre(expedient.getTipus(), estatOrdre - 1);
+		return conversioTipusHelper.convertirList(estats, EstatDto.class);
 	}
 
 	private EstatExportacio getEstatExportacio(Estat estat, boolean ambPermisos) {

@@ -20,7 +20,6 @@ import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +33,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ExpedientMetadades;
@@ -73,6 +75,8 @@ import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
+import net.conselldemallorca.helium.core.model.hibernate.EstatAccioEntrada;
+import net.conselldemallorca.helium.core.model.hibernate.EstatAccioSortida;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
@@ -87,7 +91,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.jbpm3.handlers.ExpedientTitolModificarHandler;
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.jbpm3.integracio.ExecucioHandlerException;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
@@ -109,6 +112,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
@@ -148,6 +152,8 @@ import net.conselldemallorca.helium.v3.core.repository.DocumentNotificacioReposi
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
+import net.conselldemallorca.helium.v3.core.repository.EstatAccioEntradaRepository;
+import net.conselldemallorca.helium.v3.core.repository.EstatAccioSortidaRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientHeliumRepository;
@@ -211,6 +217,10 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private DocumentNotificacioRepository documentNotificacioRepository;
 	@Resource
 	private AnotacioRepository anotacioRepository;
+	@Resource
+	private EstatAccioEntradaRepository estatAccioEntradaRepository;
+	@Resource
+	private EstatAccioSortidaRepository estatAccioSortidaRepository;	
 
 	@Resource
 	private ExpedientHelper expedientHelper;
@@ -1616,6 +1626,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional
 	public void accioExecutar(
@@ -1639,26 +1650,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 					ExpedientLogAccioTipus.EXPEDIENT_ACCIO,
 					accio.getJbpmAction());
 			try {
-				// Executa l'acció
-				if (AccioTipusEnumDto.HANDLER.equals(accio.getTipus())) {
-					jbpmHelper.executeActionInstanciaProces(
-							processInstanceId,
-							accio.getJbpmAction(),
-							herenciaHelper.getProcessDefinitionIdHeretadaAmbExpedient(expedient));
-				} else if (AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
-					//TODO: fer la crida als handlers predefinits d'Helium
-//					ExpedientTitolModificarHandler handler = new ExpedientTitolModificarHandler();
-//					handler.setTitol(titol);
-//					handler.execute(executionContext);
-					throw new NotImplementedException("Acció handler predefinit no implementat.");
-					
-					
-				} else if (AccioTipusEnumDto.SCRIPT.equals(accio.getTipus())) {
-					jbpmHelper.evaluateScript(
-							processInstanceId, 
-							accio.getScript(), 
-							new HashSet<String>());
-				}
+				this.executarAccio(processInstanceId, accio, expedient);
 			} catch (Exception ex) {
 				if (ex instanceof ExecucioHandlerException) {
 					logger.error(
@@ -1694,6 +1686,40 @@ public class ExpedientServiceImpl implements ExpedientService {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
+	private void executarAccio(String processInstanceId, Accio accio, Expedient expedient) {
+		if (processInstanceId == null) {
+			processInstanceId = expedient.getProcessInstanceId();
+		}
+		// Executa l'acció
+		if (AccioTipusEnumDto.HANDLER.equals(accio.getTipus())) {
+			jbpmHelper.executeActionInstanciaProces(
+					processInstanceId,
+					accio.getJbpmAction(),
+					herenciaHelper.getProcessDefinitionIdHeretadaAmbExpedient(expedient));
+		} else if (AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
+			Map<String, String> dades;
+			try {
+				dades = (Map<String, String>) new ObjectMapper()
+						.readValue(
+								accio.getPredefinitDades(), 
+								new TypeReference<Map<String, String>>(){});
+			} catch(Exception e) {
+				throw new RuntimeException("Error obtenint les dades predefinides pel handler " + accio.getPredefinitClasse() + ": " + e.getMessage());
+			}
+			jbpmHelper.executeHandlerPredefinit(
+					processInstanceId,
+					accio.getPredefinitClasse(),
+					dades);				
+		} else if (AccioTipusEnumDto.SCRIPT.equals(accio.getTipus())) {
+			jbpmHelper.evaluateScript(
+					processInstanceId, 
+					accio.getScript(), 
+					new HashSet<String>());
+		}
+	}
+
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -3137,6 +3163,59 @@ public class ExpedientServiceImpl implements ExpedientService {
 	/** Mètode per consultar la propietat de propagació d'esborrat d'expedients si s'esborra el tipus d'expedient.*/
 	private boolean isPropagarEsbExp() {
 				return "true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.configuracio.propagar.esborrar.expedients"));
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public EstatDto estatCanviar(Long expedientId, Long estatId) {
+		
+		logger.debug("Canviant l'estat a l'expedient (" +
+				"estatId=" + estatId + ")");
+		
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+
+		Estat estatActual = expedient.getEstat();
+		Estat estatFutur = estatRepository.findOne(estatId);
+		if (estatFutur.getExpedientTipus().getId() != expedient.getTipus().getId()) {
+			throw new ValidacioException("L'estat " + estatId + " no pertany al tipus d'expedient de l'expedient " + expedientId);
+		}
+
+		if (expedient.getEstat() != null) {
+			List<EstatAccioSortida> accionsSortida = estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(expedient.getEstat());
+			// Executa les accions de sortida
+			for (EstatAccioSortida estatAccioSortida : accionsSortida) {
+				this.executarAccio(null, estatAccioSortida.getAccio(), expedient);
+			}
+		}
+		Estat estat = null;
+		if (estatId != null) {
+			estat = estatRepository.findOne(estatId);
+			List<EstatAccioEntrada> accionsEntrada = estatAccioEntradaRepository.findByEstatOrderByOrdreAsc(estat);
+			// Executa les accions d'entrada
+			for (EstatAccioEntrada estatAccioEntrada : accionsEntrada) {
+				this.executarAccio(null, estatAccioEntrada.getAccio(), expedient);
+			}
+		}
+		expedient.setEstat(estat);
+
+		// Reindexa l'expedient
+		expedientHelper.verificarFinalitzacioExpedient(expedient);
+		indexHelper.expedientIndexLuceneUpdate(expedient.getProcessInstanceId());
+		
+//		expedientLoggerHelper.afegirLogExpedientPerExpedient(
+//				expedient.getId(),
+//				ExpedientLogAccioTipus.EXPEDIENT_MODIFICAR,
+//				null);
+		
+		return conversioTipusHelper.convertir(estat, EstatDto.class);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);

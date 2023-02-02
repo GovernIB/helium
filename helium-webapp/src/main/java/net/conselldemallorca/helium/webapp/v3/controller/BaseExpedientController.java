@@ -72,6 +72,10 @@ public class BaseExpedientController extends BaseController {
 		model.addAttribute("subprocessos", subprocessos);
 		model.addAttribute("numAccions", numAccions);
 		model.addAttribute("perEstats", ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus()));
+		if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus())) {
+			model.addAttribute("estatsAvancar", expedientTipusService.estatGetAvancar(expedient.getId()));
+			model.addAttribute("estatsRetrocedir", expedientTipusService.estatGetRetrocedir(expedient.getId()));
+		}
 		return "v3/expedientPipelles";
 	}
 

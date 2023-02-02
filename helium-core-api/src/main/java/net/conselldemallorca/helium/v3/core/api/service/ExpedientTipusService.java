@@ -793,6 +793,20 @@ public interface ExpedientTipusService {
 	 */
 	public List<EstatExportacio> estatExportacio(Long expedientTipusId, boolean ambPermisos) throws NoTrobatException;
 
+	/** Retorna la llista d'estats als quals es pot avançar des de l'estat actual de l'expedient. 
+	 * 
+	 * @param expedientId
+	 * @return Llista d'estats possibles als quals avançar.
+	 */
+	public List<EstatDto> estatGetAvancar(long expedientId);
+
+	/** Retorna la llista d'estats als quals es pot avançar des de l'estat actual de l'expedient. 
+	 * 
+	 * @param expedientId
+	 * @return Llista d'estats possibles als quals avançar.
+	 */
+	public List<EstatDto> estatGetRetrocedir(long expedientId);
+
 	// PERMISOS ESTATS
 	// ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/**
@@ -1559,6 +1573,5 @@ public interface ExpedientTipusService {
 			Long expedientTipusId, 
 			boolean pinbalActiu,
 			String pinbalNifCif);
-
 
 }

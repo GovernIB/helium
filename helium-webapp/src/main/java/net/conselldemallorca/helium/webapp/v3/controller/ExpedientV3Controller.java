@@ -437,6 +437,23 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		return "redirect:/v3/expedient/" + expedientId;
 	}
 
+	@RequestMapping(value = "/{expedientId}/estat/{estatId}/canviar", method = RequestMethod.GET)
+	public String estatCanviar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long estatId) {
+		try {
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+			expedientService.estatCanviar(expedient.getId(), estatId);
+			MissatgesHelper.success(request, getMessage(request, "expedient.info.estat.canviar.correcte"));
+		} catch (Exception ex) {
+			String errMsg = getMessage(request, "expedient.info.estat.canviar.error", new Object[] {ex.getMessage()});
+			logger.error(errMsg, ex);
+			MissatgesHelper.error(request, errMsg);
+		}
+		return "redirect:/v3/expedient/" + expedientId;
+	}
+
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {

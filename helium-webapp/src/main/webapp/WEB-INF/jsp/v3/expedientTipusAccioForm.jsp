@@ -61,6 +61,7 @@
 			<div id="rowHandlerPredefinit">
 				
 				<hel:inputSelect required="true" name="predefinitClasse" textKey="expedient.tipus.accio.form.accio.handlerPredefinit" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.handlerPredefinit.placeholder" />
+				<span id='predefinitClasseDescripcio' class="text-muted"></span>
 
 				<fieldset>
 					<legend><spring:message code="expedient.tipus.accio.form.legend.handler.predefinit"></spring:message></legend>					
@@ -98,7 +99,7 @@
 
 		// <![CDATA[
 	
-	 	var handlersPredefinitsJson = ${handlersPredefinitsJson };
+	 	var handlersPredefinitsJson = ${handlersPredefinitsJson != null? handlersPredefinitsJson : "[]" };
 	 	var predefinitDades = ${dadesPredefinidesJson}
 
 		$(document).ready(function() {			
@@ -135,8 +136,8 @@
 			
 			$('#predefinitClasse').change(function() {
 				carregarParametresHandlerPredefinit();
-			});
-			
+			}).after($("#predefinitClasseDescripcio"));
+						
 			carregarHandlersPredefinits();			
 		});
 		
@@ -196,6 +197,7 @@
 		// A partir del handler predefinit carrega els paràmetres
 		function carregarParametresHandlerPredefinit() {
 			$('#mapejosHandlerPredefinit').empty();
+			$("#predefinitClasseDescripcio").html("")
 			var handlerPredefinit = $("#predefinitClasse").val();
 			if (handlerPredefinit === '') {
 				return;
@@ -207,6 +209,7 @@
 					handlerInfo = handlersPredefinitsJson[i];
 				}
 			}
+			$("#predefinitClasseDescripcio").html(handlerInfo.descripcio)
 			// Pinta els paràmtres
 			if (handlerInfo != null) {
 				if (handlerInfo.parametres.length > 0) {
@@ -243,6 +246,7 @@
 			if (parametre.param != null) {
 				$inputText.attr('id', parametre.param);
 				$inputText.attr('name','predefinitDades[' + parametre.param + ']');
+				$inputText.attr("placeholder", parametre.paramDesc);
 				$inputText.val(predefinitDades[parametre.param]);
 								
 			} else {
@@ -253,6 +257,7 @@
 				
 			$selectVarParam = $('.varParam', $parametres);
 			if (parametre.varParam != null) {
+				$selectVarParam.attr("placeholder", parametre.varParamDesc);
 				$selectVarParam.select2({
 				    width: '100%',
 				    allowClear: true

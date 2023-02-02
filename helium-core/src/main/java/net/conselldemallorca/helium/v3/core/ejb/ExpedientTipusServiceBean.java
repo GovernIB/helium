@@ -415,6 +415,19 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
         return delegate.estatExportacio(expedientTipusId, ambPermisos);
     }
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<EstatDto> estatGetAvancar(long expedientId) {
+		return delegate.estatGetAvancar(expedientId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<EstatDto> estatGetRetrocedir(long expedientId) {
+		return delegate.estatGetRetrocedir(expedientId);
+	}
+
+	
     @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
     public List<PermisDto> estatPermisFindAll(Long estatId) {

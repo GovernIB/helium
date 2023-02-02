@@ -299,6 +299,24 @@ dd.subproc {
 </head>
 <body>
 
+	<div id="botonsEstats" class="row" style="margin-bottom: 5px;">
+		<!-- Botons per retrocedir d'estat -->
+		<c:if test="${estatsRetrocedir != null }">
+			<c:forEach var="estat" items="${estatsRetrocedir}">
+				<a href="<c:url value="/v3/expedient/${expedientId}/estat/${estat.id}/canviar" />" class="btn btn-warning"  style="float: left; margin-left: 15px;">
+					<b>&lt;</b> <spring:message code="expedient.info.estat.retrocedir" arguments="${estat.nom}"></spring:message></a>					
+			</c:forEach>
+		</c:if>
+	
+		<!-- Botons per avançar d'estat -->
+		<c:if test="${estatsAvancar != null }">
+			<c:forEach var="estat" items="${estatsAvancar}">
+				<a href="<c:url value="/v3/expedient/${expedientId}/estat/${estat.id}/canviar" />" class="btn btn-success" style="float: right; margin-right: 15px;">
+					<spring:message code="expedient.info.estat.avancar" arguments="${estat.nom}"></spring:message> <b>&gt;</b></a>
+			</c:forEach>
+		</c:if>
+	</div>
+
 	<div class="row">
 		<div class="col-md-3">
 			<div id="expedient-info" class="well">
@@ -497,6 +515,19 @@ dd.subproc {
 							</c:if>
 							<c:if test="${expedient.permisAdministration and expedient.tipus.arxiuActiu and empty expedient.arxiuUuid}">
 								<li><a href="<c:url value="../../v3/expedient/${expedientId}/migrarArxiu"/>" onclick="return confirmarMigrarArxiu(event)"><span class="fa fa-suitcase"></span>&nbsp;<spring:message code="expedient.info.accio.migrararxiu"/></a></li>
+							</c:if>
+							
+							<c:if test="${perEstats == true }">
+								<li class="divider"></li>
+								<c:forEach var="estat" items="${estatsRetrocedir}">
+									<li><a href="<c:url value="/v3/expedient/${expedientId}/estat/${estat.id}/canviar" />">
+										<b>&lt;&lt;</b> <spring:message code="expedient.info.estat.retrocedir" arguments="${estat.nom}"></spring:message></a></li>
+								</c:forEach>
+							
+								<c:forEach var="estat" items="${estatsAvancar}">
+									<li><a href="<c:url value="/v3/expedient/${expedientId}/estat/${estat.id}/canviar" />">
+										<b>&gt;&gt;</b> <spring:message code="expedient.info.estat.avancar" arguments="${estat.nom}"></spring:message></a></li>
+								</c:forEach>
 							</c:if>
 						</ul>
 					</div>

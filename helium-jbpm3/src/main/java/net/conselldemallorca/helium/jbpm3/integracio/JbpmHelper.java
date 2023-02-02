@@ -61,6 +61,7 @@ import net.conselldemallorca.helium.jbpm3.command.DescribeTaskInstanceCommand;
 import net.conselldemallorca.helium.jbpm3.command.EvaluateExpressionCommand;
 import net.conselldemallorca.helium.jbpm3.command.EvaluateScriptCommand;
 import net.conselldemallorca.helium.jbpm3.command.ExecuteActionCommand;
+import net.conselldemallorca.helium.jbpm3.command.ExecuteHadlerPredefinitCommand;
 import net.conselldemallorca.helium.jbpm3.command.FindArrivingNodeNamesCommand;
 import net.conselldemallorca.helium.jbpm3.command.FindExpedientIdsFiltreCommand;
 import net.conselldemallorca.helium.jbpm3.command.FindJbpmTasksFiltreCommand;
@@ -1298,6 +1299,23 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM executeActionInstanciaTasca", "jbpmDao");
 	}
 	
+	public void executeHandlerPredefinit(
+			String processInstanceId, 
+			String predefinitClasse, 
+			Map<String, String> predefinitDades) {
+		
+		final long id = Long.parseLong(processInstanceId);
+		ExecuteHadlerPredefinitCommand command = new ExecuteHadlerPredefinitCommand(
+				id,
+				predefinitClasse,
+				predefinitDades);
+		executeCommandWithAutoSave(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+
+	}	
+
 	
 	public void retrocedirAccio(
 			String processInstanceId,
@@ -2038,5 +2056,5 @@ public class JbpmHelper {
 	public void updateSubprocessDefinition(ProcessDefinition pd1, ProcessDefinition pd2) {
 		UpdateSubprocessDefinitionCommand command = new UpdateSubprocessDefinitionCommand(pd1, pd2);
 		commandService.execute(command);
-	}	
+	}
 }
