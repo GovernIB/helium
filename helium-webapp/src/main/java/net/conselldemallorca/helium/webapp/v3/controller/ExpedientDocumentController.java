@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -42,7 +43,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
+import net.conselldemallorca.helium.core.helper.ExpedientHelper;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.service.PluginService;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
@@ -97,6 +101,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource(name="documentHelperV3")
 	private DocumentHelperV3 documentHelper;
+	@Resource
+	private ExpedientHelper expedientHelper;
 
 	/** comparador per ordenar documents per codi de document primer i per títol de l'adjunt si són adjunts després.
 	 *
@@ -460,6 +466,20 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		model.addAttribute("documentNotificacioCommand", command);
 		
 		ExpedientDocumentDto document = this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
+		//Validar que tingui els permissos de gestió documental o administrar
+		try {
+			Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+						expedientId,
+						new Permission[] {
+								ExtendedPermission.DOC_MANAGE,
+								ExtendedPermission.ADMINISTRATION});
+		} catch (Exception e) {
+			MissatgesHelper.error(request, 
+					getMessage(request, 
+							"expedient.document.notificar.validacio.no.permisos"));
+			return modalUrlTancar(false);
+		}
+		
 		
 		// Validar que l'arxiu sigui convertible a pdf o zip
 		if (!PdfUtils.isArxiuConvertiblePdf(document.getArxiuNom())
