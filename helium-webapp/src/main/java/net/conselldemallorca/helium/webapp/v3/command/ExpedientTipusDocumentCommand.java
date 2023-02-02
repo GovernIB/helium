@@ -52,6 +52,7 @@ public class ExpedientTipusDocumentCommand {
 	private NtiOrigenEnumDto ntiOrigen;
 	private NtiEstadoElaboracionEnumDto ntiEstadoElaboracion;
 	private NtiTipoDocumentalEnumDto ntiTipoDocumental;
+	private boolean generarNomesTasca;
 
 	public Long getExpedientTipusId() {
 		return expedientTipusId;
@@ -179,7 +180,12 @@ public class ExpedientTipusDocumentCommand {
 	public void setNtiTipoDocumental(NtiTipoDocumentalEnumDto ntiTipoDocumental) {
 		this.ntiTipoDocumental = ntiTipoDocumental;
 	}
-
+	public boolean isGenerarNomesTasca() {
+		return generarNomesTasca;
+	}
+	public void setGenerarNomesTasca(boolean generarNomesTasca) {
+		this.generarNomesTasca = generarNomesTasca;
+	}
 	public static DocumentDto asDocumentDto(ExpedientTipusDocumentCommand command) {
 		DocumentDto dto = new DocumentDto();
 		dto.setId(command.getId());
@@ -192,6 +198,7 @@ public class ExpedientTipusDocumentCommand {
 		dto.setNotificable(command.isNotificable());
 		dto.setConvertirExtensio(command.getConvertirExtensio());
 		dto.setAdjuntarAuto(command.isAdjuntarAuto());
+		dto.setGenerarNomesTasca(command.isGenerarNomesTasca());
 		if(command.getCampId() != null) {
 			CampDto campDto = new CampDto();
 			campDto.setId(command.getCampId());

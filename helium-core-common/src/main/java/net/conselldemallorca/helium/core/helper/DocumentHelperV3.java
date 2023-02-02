@@ -60,6 +60,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiDocumentoFormato;
@@ -192,7 +193,8 @@ public class DocumentHelperV3 {
 	public ArxiuDto getArxiuPerDocumentStoreId(
 			Long documentStoreId,
 			boolean perSignar,
-			boolean ambSegellSignatura) {
+			boolean ambSegellSignatura,
+			String versio) {
 		ArxiuDto resposta = new ArxiuDto();
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		// Obtenim el contingut de l'arxiu
@@ -200,7 +202,7 @@ public class DocumentHelperV3 {
 		if (documentStore.getArxiuUuid() != null) {
 			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
 					documentStore.getArxiuUuid(),
-					null,
+					versio,
 					true,
 					documentStore.isSignat());
 			resposta.setNom(documentStore.getArxiuNom());
@@ -1299,6 +1301,7 @@ public class DocumentHelperV3 {
 						dto.setDocumentNom(doc.getNom());
 						dto.setTipusDocPortasignatures(doc.getTipusDocPortasignatures());
 						dto.setAdjuntarAuto(doc.isAdjuntarAuto());
+						dto.setGenerarNomesTasca(doc.isGenerarNomesTasca());
 					}
 				}
 				if (documentStore.getArxiuUuid() != null) {
@@ -1309,7 +1312,7 @@ public class DocumentHelperV3 {
 											|| ambContingutVista);
 					// Si s'ha de notificar llavors es passa el contingut si no té uuid d'arxiu o no és un PDF
 					ambContingut = ambContingut && 
-								   (!perNotificar 
+								   (!(perNotificar && documentStore.isSignat())
 										   || documentStore.getArxiuUuid() == null
 										   || ! documentStore.getArxiuNom().toLowerCase().endsWith(".pdf"));
 					es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
@@ -1637,7 +1640,8 @@ public class DocumentHelperV3 {
 		ArxiuDto arxiuPerFirmar = getArxiuPerDocumentStoreId(
 				documentStoreId,
 				true,
-				(documentStore.getArxiuUuid() == null));
+				(documentStore.getArxiuUuid() == null),
+				null);
 		if (! "pdf".equals(arxiuPerFirmar.getExtensio())) {
 			arxiuPerFirmar.getNom();
 			// Transforma l'arxiu a PDF
@@ -2024,6 +2028,7 @@ public class DocumentHelperV3 {
 		dto.setPlantilla(document.isPlantilla());
 		dto.setExtensionsPermeses(document.getExtensionsPermeses());
 		dto.setAdjuntarAuto(document.isAdjuntarAuto());
+		dto.setGenerarNomesTasca(document.isGenerarNomesTasca());
 		dto.setArxiuNom(document.getArxiuNom());
 		dto.setArxiuContingutDefinit(document.getArxiuContingut() != null && document.getArxiuContingut().length > 0);
 		Long documentStoreId;
@@ -2365,6 +2370,8 @@ public class DocumentHelperV3 {
 		String documentNom = documentStore.isAdjunt() ? documentStore.getArxiuNom() : (document!=null ? document.getNom() : "");
 		if (expedient.isArxiuActiu()) {
 			// Document integrat amb l'Arxiu
+			if(firmes!=null && !firmes.isEmpty())
+				comprovarFirmesReconegudes(firmes);
 			if (arxiuUuid == null) {
 				String documentDescripcio = documentStore.isAdjunt() ? documentStore.getAdjuntTitol() : document.getNom();
 				// Actualitza el document a dins l'arxiu
@@ -2505,6 +2512,24 @@ public class DocumentHelperV3 {
 		return firmes;
 	}
 	
+	private boolean comprovarFirmesReconegudes(List<ArxiuFirmaDto> arxiuFirmes) {
+
+		// comprovar si la firma està reconeguda
+		for (ArxiuFirmaDto arxiuFirma : arxiuFirmes) {
+			// comprova que el tipus i el perfil estiguin reconeguts pel model CAIb
+			if (arxiuFirma.getTipus().equals(NtiTipoFirmaEnumDto.SMIME) || 
+					arxiuFirma.getTipus().equals(NtiTipoFirmaEnumDto.ODT) || 
+					arxiuFirma.getTipus().equals(NtiTipoFirmaEnumDto.OOXML)) {
+				throw new ValidacioException("El tipus de firma: "+ arxiuFirma.getTipus() +" no està reconegut en el model CAIB");
+			}
+			if (arxiuFirma.getPerfil().equals(ArxiuFirmaPerfilEnumDto.BASIC) || 
+					arxiuFirma.getPerfil().equals(ArxiuFirmaPerfilEnumDto.BASELINE_T) || 
+					arxiuFirma.getPerfil().equals(ArxiuFirmaPerfilEnumDto.LTA)) {
+				throw new ValidacioException("El perfil de firma: "+ arxiuFirma.getPerfil() +" no està reconegut en el model CAIB");
+			}	
+		}
+		return true;
+	}
 	public void actualizarMetadadesNti(
 			Expedient expedient,
 			Document document,

@@ -252,6 +252,30 @@ public interface ExpedientDocumentService {
 
 	public ArxiuDto arxiuPdfFindAmbDocument(Long expedientId, String processInstanceId, Long documentStoreId);
 	/**
+	 * Retorna l'arxiu del document de la versió indicada.
+	 * 
+	 * @param expedientId
+	 *             atribut id de l'expedient.
+	 * @param processInstanceId
+	 *             atribut id de la instància de procés.
+	 * @param documentStoreId
+	 *             atribut id del document emmagatzemat.
+	 * @param versio
+	 *             atribut versio del document emmagatzemat.
+	 * @return L'arxiu del document.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat l'element amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos requerits per aquesta acció.
+	 */
+	public ArxiuDto arxiuFindAmbDocumentVersio(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId,
+			String versio) throws NoTrobatException, PermisDenegatException;
+	
+	
+	/**
 	 * Retorna l'arxiu del document donat el seu documentStoreId.
 	 * 
 	 * @param documentId

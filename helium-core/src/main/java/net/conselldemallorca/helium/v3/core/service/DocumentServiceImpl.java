@@ -139,6 +139,7 @@ public class DocumentServiceImpl implements DocumentService {
 		entity.setArxiuContingut(document.getArxiuContingut());
 		entity.setConvertirExtensio(document.getConvertirExtensio());
 		entity.setAdjuntarAuto(document.isAdjuntarAuto());
+		entity.setGenerarNomesTasca(document.isGenerarNomesTasca());
 		if (document.getCampData() != null) {
 			entity.setCampData(campRepository.findOne(document.getCampData().getId()));
 		}
@@ -274,6 +275,7 @@ public class DocumentServiceImpl implements DocumentService {
 		}
 		entity.setConvertirExtensio(document.getConvertirExtensio());
 		entity.setAdjuntarAuto(document.isAdjuntarAuto());
+		entity.setGenerarNomesTasca(document.isGenerarNomesTasca());
 		if (document.getCampData() != null) {
 			entity.setCampData(campRepository.findOne(document.getCampData().getId()));
 		} else {

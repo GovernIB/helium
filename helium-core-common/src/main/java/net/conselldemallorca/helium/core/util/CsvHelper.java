@@ -39,8 +39,10 @@ public class CsvHelper {
 			List<String[]> files = new ArrayList<String[]>();
 			// 1a fila 
 			String line;
+			int cont = 0;
 		    while ((line = br.readLine()) != null) {
-		        String[] tokens = this.getCsvTokens(line, this.separador, this.delimitadorString);
+		    	cont++;
+		        String[] tokens = this.getCsvTokens(line, this.separador, this.delimitadorString, cont);
 		        if (this.textEnCorxets) {
 		        	for (int i=0; i<tokens.length; i++) {
 		        		if (tokens[i].startsWith("\"") && tokens[i].endsWith("\""))
@@ -59,7 +61,7 @@ public class CsvHelper {
 		return resultat;
 	}
 	
-	public String[] getCsvTokens(String line, char separador, char delimitadorString) {
+	public String[] getCsvTokens(String line, char separador, char delimitadorString, int cont) throws Exception {
 		List<String> tokens = new ArrayList<String>();
 		// si és un nou token i comença per delimitadorString llavors llegeix fins al següent delimitador d'string i guarda'l com un nou token
 		// altrament comença un nou string token i llegeix fins al següent separador
@@ -83,9 +85,21 @@ public class CsvHelper {
 							for(int j=i; j<line.length();j++) {
 								if(line.charAt(j)!=separador && j!=line.length()-1) 
 									token.append(line.charAt(j));
-								else if (j==line.length()-1) {
+								else if (j==line.length()-1 && line.charAt(j)!=separador) {
 									token.append(line.charAt(j));
 									i=j;
+								} else if (j==line.length()-1 && line.charAt(j)==separador) {
+									i=j;
+									token.append("");
+									tokens.add(token.toString());
+									token = new StringBuilder();
+									continue;
+								} else if (j!=line.length()-1 && line.charAt(j)==separador) {
+									i=j;
+									token.append("");
+									tokens.add(token.toString());
+									token = new StringBuilder();
+									continue;
 								}
 								else {
 									i=j;
@@ -118,10 +132,17 @@ public class CsvHelper {
 		//String line = "\"Valor1\";\"Valor ; 2\";2";
 		//String line = "Any;Número;Títol;var_string;var_float;var_data;var_preu;var_bool";
 		//String line = ";;\"El valor de text té el caràcter ';' que fa tanta nosa\";var_string;var_float;var_data;var_preu;var_bool";
-		String line = ";;Expedient 2025052609111202523;Text 1;1.1;26/05/22;1234.56;false";
-		String[] tokens = csvHelper.getCsvTokens(line, ';', '"');
-		for (int i=0; i< tokens.length; i++) {
-			System.out.println(i + " " + tokens[i]);
+		String line = "Expedient 2025052609111202523;Text 1;1.1;26/05/22;1234.56;;";
+		String[] tokens;
+		try {
+			int cont=0;
+			tokens = csvHelper.getCsvTokens(line, ';', '"', cont);
+			for (int i=0; i< tokens.length; i++) {
+				System.out.println(i + " " + tokens[i]);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

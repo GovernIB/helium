@@ -74,6 +74,7 @@ public class ExpedientTipusDocumentsController extends BaseController {
             document.setDescripcio(vell.getDescripcio());
             document.setPlantilla(vell.isPlantilla());
             document.setAdjuntarAuto(vell.isAdjuntarAuto());
+            document.setGenerarNomesTasca(vell.isGenerarNomesTasca());
             document.setContentType(vell.getContentType());
             document.setCustodiaCodi(vell.getCustodiaCodi());
             document.setTipusDocPortasignatures(vell.getTipusDocPortasignatures());

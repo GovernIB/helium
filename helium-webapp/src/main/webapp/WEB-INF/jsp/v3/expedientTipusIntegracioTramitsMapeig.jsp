@@ -45,6 +45,9 @@
 				<hel:inputSelect required="true" name="codiHelium" textKey="expedient.tipus.integracio.tramits.mapeig.form.camp.codiHelium" optionItems="${variables}" optionTextAttribute="codi" optionValueAttribute="valor" />
 			</c:if>
 			<hel:inputText required="true" name="codiSistra" textKey="expedient.tipus.integracio.tramits.mapeig.form.camp.codiSistra" />
+			<c:if test="${tipus != 'Adjunt'}">
+				<hel:inputCheckbox name="evitarSobreescriptura" textKey="expedient.tipus.integracio.tramits.mapeig.form.camp.evitarSobreescriptura" info="expedient.tipus.integracio.tramits.mapeig.form.camp.evitarSobreescriptura.comment"/>
+			</c:if>
 		</div>
 
 		<div id="modal-botons" class="well" style="text-align: right;">
@@ -75,6 +78,18 @@
 					<th data-col-name="id" data-visible="false"/>
 					<th data-col-name="codiHelium" data-visible="${tipus != 'Adjunt'}"><spring:message code="expedient.tipus.integracio.tramits.mapeig.llistat.columna.codiHelium"/></th>
 					<th data-col-name="codiSistra"><spring:message code="expedient.tipus.integracio.tramits.mapeig.llistat.columna.codiSistra"/></th>
+					<c:if test="${tipus != 'Adjunt'}">
+						<th data-col-name="evitarSobreescriptura" data-template="#cellevitarSobreescripturaTemplate">
+							<spring:message code="expedient.tipus.integracio.tramits.mapeig.llistat.columna.evitarSobreescriptura"/>
+								<script id="cellevitarSobreescripturaTemplate" type="text/x-jsrender">
+								{{if evitarSobreescriptura }}
+									<div style="text-align: center;">
+										<spring:message code="comu.check"></spring:message>
+									</div>
+								{{/if}}
+							</script>
+						</th>
+					</c:if>	
 					<th data-col-name="id" data-template="#cellParametreTemplate" data-orderable="false" width="10%">
 						<script id="cellParametreTemplate" type="text/x-jsrender">
 						<div class="dropdown">
@@ -138,6 +153,11 @@
 		$("#inputParametreId").val(id);
 		$("#codiHelium").val($("#mapeigSistra tr[id='row_"+id+"'] td:nth-child(1)").text()).change();
 		$("#codiSistra").val($("#mapeigSistra tr[id='row_"+id+"'] td:nth-child(${ tipus != 'Adjunt' ? 2 : 1})").text());
+		if ($("#mapeigSistra tr[id='row_"+id+"'] td:nth-child(3)").text().includes('✓')) {
+			$('#evitarSobreescriptura').prop('checked', 'checked');
+		} else {
+			$('#evitarSobreescriptura').removeProp('checked');
+		}		
 	}
 		
 	function resetFormulari() {

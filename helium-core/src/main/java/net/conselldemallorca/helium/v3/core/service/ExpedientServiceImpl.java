@@ -37,10 +37,17 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
+import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
+import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
+import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
+import es.caib.distribucio.rest.client.domini.AnotacioRegistreEntrada;
+import es.caib.distribucio.rest.client.domini.AnotacioRegistreId;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ExpedientMetadades;
 import net.conselldemallorca.helium.core.common.ExpedientCamps;
 import net.conselldemallorca.helium.core.common.JbpmVars;
+import net.conselldemallorca.helium.core.helper.AlertaHelper;
 import net.conselldemallorca.helium.core.helper.ConsultaHelper;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DistribucioHelper;
@@ -64,7 +71,9 @@ import net.conselldemallorca.helium.core.helperv26.LuceneHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
+import net.conselldemallorca.helium.core.model.hibernate.Alerta.AlertaPrioritat;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
+import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
@@ -100,6 +109,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.ResultatConsultaPaginadaJbp
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAnnexEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuContingutDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuContingutTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
@@ -123,6 +133,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto.ErrorTipus
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiExpedienteEstadoEnumDto;
@@ -173,7 +185,7 @@ import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Service("expedientServiceV3")
-public class ExpedientServiceImpl implements ExpedientService {
+public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListener {
 
 	@Resource
 	private DocumentRepository documentRepository;
@@ -268,6 +280,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 	private DistribucioHelper distribucioHelper;
 	@Resource
 	private AnotacioService anotacioService;
+	@Resource
+	private AlertaHelper alertaHelper;
 
 	/**
 	 * {@inheritDoc}
@@ -373,12 +387,13 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 			if (anotacioId != null) {
 				// Incorporporar l'anotació a l'expedient
-				anotacioService.incorporarExpedient(
+				anotacioService.incorporarReprocessarExpedient(
 						anotacio.getId(), 
 						expedientTipusId, 
 						expedient.getId(),
 						anotacioInteressatsAssociar,
-						true);
+						true,
+						false);
 			}
 
 			// Retorna la informació de l'expedient que s'ha iniciat
@@ -1323,6 +1338,7 @@ public class ExpedientServiceImpl implements ExpedientService {
 
 		try {
 			expedientHelper.migrarArxiu(expedient);
+			moureAnnexos(expedient);
 		} catch (Exception ex) {
 			String errorDescripcio = "Error migrant l'expedient " + expedient.getTitol() + " a l'arxiu: " + ex.getMessage();
 			if (expedient.getArxiuUuid() != null && !expedient.getArxiuUuid().isEmpty()) {
@@ -3029,7 +3045,8 @@ public class ExpedientServiceImpl implements ExpedientService {
 					arxiu = documentHelper.getArxiuPerDocumentStoreId(
 							document.getId(),
 							false,
-							false);
+							false,
+							null);
 					// Crea l'entrada en el zip
 					String recursNom = this.getZipRecursNom(
 							expedient, 
@@ -3165,6 +3182,88 @@ public class ExpedientServiceImpl implements ExpedientService {
 				return "true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.configuracio.propagar.esborrar.expedients"));
 	}
 	
+	/** Funció que mira si l'expedient està integrat amb l'arxiu i utlitzarà 
+	//la llibreria d'utilitats de backoffice de Distribució per moure tots els annexos **/
+	private void moureAnnexos(Expedient expedient) {
+		ArxiuResultat resultat = null;
+		List<Anotacio> anotacions = anotacioRepository.findByExpedientId(expedient.getId());
+		if (expedient.isArxiuActiu()) {
+			//Recorro les anotacions associades a l'expedient
+			if(anotacions!=null) {
+				for(Anotacio anotacio: anotacions) {
+			
+					// Utilitza la llibreria d'utilitats de Distribució per incorporar la informació de l'anotació directament a l'expedient dins l'Arxiu
+					es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
+					BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
+					// Posarà els annexos en la carpeta de l'anotació
+					backofficeUtils.setCarpeta(anotacio.getIdentificador());
+					// S'enregistraran els events al monitor d'integració
+					backofficeUtils.setArxiuPluginListener(this);
+					// Consulta la informació de l'anotació 
+					AnotacioRegistreEntrada anotacioRegistreEntrada = null;
+					try {
+						es.caib.distribucio.rest.client.domini.AnotacioRegistreId idWs = new AnotacioRegistreId();
+						idWs.setClauAcces(anotacio.getDistribucioClauAcces());
+						idWs.setIndetificador(anotacio.getDistribucioId());
+						anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
+						
+					} catch(Exception e) {
+						// Error no controlat consultant la informació de l'expedient, es posa una alerta
+						String errMsg = "Error consultant la informació de l'anotació " + 
+								anotacio.getIdentificador() + " a l'hora d'incorporar la anotació a l'expedient, és necessari reintentar el processament dels annexos.";
+						logger.error(errMsg, e);
+						Alerta alerta = alertaHelper.crearAlerta(
+								expedient.getEntorn(), 
+								expedient, 
+								new Date(), 
+								null, 
+								errMsg);
+						alerta.setPrioritat(AlertaPrioritat.ALTA);
+						resultat = new ArxiuResultat();
+						for (AnotacioAnnex annex : anotacio.getAnnexos()) {
+							annex.setEstat(AnotacioAnnexEstatEnumDto.PENDENT);
+							annex.setError(errMsg);
+						}
+					}
+					// Processa la informació amb la llibreria d'utilitats per moure els annexos
+					if (anotacioRegistreEntrada != null) {
+						resultat = backofficeUtils.crearExpedientAmbAnotacioRegistre(expedientArxiu, anotacioRegistreEntrada);
+						if (resultat.getErrorCodi() != 0) {
+							// Error en el processament
+							String errMsg = "S'han produit errors processant l'anotació de Distribucio \"" + anotacio.getIdentificador() + "\" amb la llibreria de distribucio-backoffice-utils: " + resultat.getErrorCodi() + " " + resultat.getErrorMessage();
+							logger.error(errMsg, resultat.getException());
+							Alerta alerta = alertaHelper.crearAlerta(
+									expedient.getEntorn(), 
+									expedient, 
+									new Date(), 
+									null, 
+									errMsg + ". Es necessari reintentar el processament.");
+							alerta.setPrioritat(AlertaPrioritat.ALTA);
+						}
+					}
+				}
+			}
+		} else {
+			resultat = new ArxiuResultat();
+		}
+		
+		// Si no s'integra amb Sistra2
+		if(anotacions!=null) {
+			for(Anotacio anotacio: anotacions) {
+				for ( AnotacioAnnex annex : anotacio.getAnnexos() ) {			
+					// Incorpora cada annex de forma separada per evitar excepcions i continuar amb els altres
+					// Si no s'integra amb Sistra crea un document per annex incorportat correctament
+					distribucioHelper.incorporarAnnex(
+							expedient.getTipus().isDistribucioSistra(),
+							expedient, 
+							anotacio, 
+							annex, 
+							resultat);
+				}
+			}
+		}
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -3217,6 +3316,42 @@ public class ExpedientServiceImpl implements ExpedientService {
 		
 		return conversioTipusHelper.convertir(estat, EstatDto.class);
 	}
-
+	
+	/** Mètode per implementar la interfície {@link ArxiuPluginListener} de Distribució per rebre events de quan es crida l'Arxiu i afegir
+	 * els logs al monitor d'integracions. 
+	 * @param metode
+	 * @param parametres
+	 * @param correcte
+	 * @param error
+	 * @param e
+	 * @param timeMs
+	 */
+	@Override
+	public void event(String metode, Map<String, String> parametres, boolean correcte, String error, Exception e, long timeMs) {
+		
+		IntegracioParametreDto[] parametresMonitor = new IntegracioParametreDto[parametres.size()];
+		int i = 0;
+		for (String nom : parametres.keySet())
+			parametresMonitor[i++] = new IntegracioParametreDto(nom, parametres.get(nom));
+		
+		if (correcte) {
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_ARXIU, 
+					"Invocació al mètode del plugin d'Arxiu " + metode, 
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					timeMs, 
+					parametresMonitor);
+		} else {
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_ARXIU, 
+					"Error invocant al mètode del plugin d'Arxiu " + metode, 
+					IntegracioAccioTipusEnumDto.ENVIAMENT, 
+					timeMs,
+					error, 
+					e, 
+					parametresMonitor);	
+		}
+	}
+	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
 }

@@ -32,6 +32,7 @@ public class ArxiuDetallDto extends ArxiuContingutDto {
 	private String serieDocumental;
 	private String eniCsv;
 	private String eniCsvDef;
+	private List<ArxiuDetallDto> versionsDocument;
 
 	private Map<String, Object> metadadesAddicionals;
 
@@ -182,6 +183,16 @@ public class ArxiuDetallDto extends ArxiuContingutDto {
 	public void setArxiuEstat(ArxiuEstat arxiuEstat) {
 		this.arxiuEstat = arxiuEstat;
 	}
+
+	public List<ArxiuDetallDto> getVersionsDocument() {
+		return versionsDocument;
+	}
+	public void setVersionsDocument(List<ArxiuDetallDto> versionsDocument) {
+		this.versionsDocument = versionsDocument;
+	}
+
+
+
 
 	private static final long serialVersionUID = -2124829280908976623L;
 

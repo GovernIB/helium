@@ -37,7 +37,6 @@ import net.conselldemallorca.helium.core.helper.HerenciaHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.VariableHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
@@ -46,7 +45,6 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
-import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
 import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
@@ -120,7 +118,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_VARIABLE_CREAR,
 				varCodi);
-		optimitzarValorPerConsultesDominiGuardar(expedient.getTipus(), processInstanceId, varCodi, varValor);
+		expedientDadaHelper.optimitzarValorPerConsultesDominiGuardar(expedient.getTipus(), processInstanceId, varCodi, varValor);
 		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 		Registre registre = crearRegistreInstanciaProces(
 				expedientId,
@@ -174,7 +172,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_VARIABLE_MODIFICAR,
 				varCodi);
-		optimitzarValorPerConsultesDominiGuardar(
+		expedientDadaHelper.optimitzarValorPerConsultesDominiGuardar(
 				expedient.getTipus(),
 				processInstanceId,
 				varCodi,
@@ -565,49 +563,6 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	}
 
     /*********************/
-
-	private void optimitzarValorPerConsultesDominiGuardar(
-			ExpedientTipus expedientTipus, 
-			String processInstanceId,
-			String varName,
-			Object varValue) {
-		JbpmProcessDefinition jpd = jbpmHelper.findProcessDefinitionWithProcessInstanceId(processInstanceId);
-		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(jpd.getId());
-		Camp camp;
-		if (expedientTipus.isAmbInfoPropia())
-			camp = campRepository.findByExpedientTipusAndCodi(
-					expedientTipus.getId(), 
-					varName,
-					expedientTipus.getExpedientTipusPare() != null);
-		else {
-			camp = campRepository.findByDefinicioProcesAndCodi(
-					definicioProces,
-					varName);			
-		}
-		if (camp != null && camp.isDominiCacheText()) {
-			if (varValue != null) {
-				if (camp.getTipus().equals(TipusCamp.SELECCIO) ||
-					camp.getTipus().equals(TipusCamp.SUGGEST)) {
-					
-					String text;
-					try {
-						// Consultem el valor de la variable
-						text = variableHelper.getTextPerCamp(
-								camp, 
-								varValue, 
-								null, 
-								null,
-								processInstanceId);
-					} catch (Exception e) {
-						text = "";
-					}
-					
-					jbpmHelper.setProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + varName, text);
-				}
-			}
-		}
-		jbpmHelper.setProcessInstanceVariable(processInstanceId, varName, varValue);
-	}
 
 	private Registre crearRegistreInstanciaProces(
 			Long expedientId,

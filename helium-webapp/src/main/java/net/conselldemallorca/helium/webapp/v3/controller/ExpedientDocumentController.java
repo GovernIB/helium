@@ -19,14 +19,6 @@ import java.util.Set;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.*;
-import net.conselldemallorca.helium.v3.core.api.dto.document.*;
-import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
-import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
-import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
-import net.conselldemallorca.helium.webapp.v3.helper.JsonResponse;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,9 +42,27 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.util.PdfUtils;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalViaTipus;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IdiomaEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.document.DocumentDetallDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientInteressatService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
@@ -61,11 +71,15 @@ import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.C
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Update;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentNotificacioCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
 import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.JsonResponse;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NtiHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 /**
  * Controlador per a la pàgina de documents de l'expedient.
@@ -87,8 +101,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	private NtiHelper ntiHelper;
 	@Autowired
 	private ExpedientInteressatService expedientInteressatService;
-	@Autowired
-	private AnotacioService anotacioService;
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
 
@@ -778,8 +790,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		command.setIdioma(IdiomaEnumDto.CA);
 		model.addAttribute("documentNotificacioCommand", command);
 		
-		ExpedientDocumentDto document = this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
-		
+		ExpedientDocumentDto document = this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);		
 		// Validar que l'arxiu sigui convertible a pdf o zip
 		if (!PdfUtils.isArxiuConvertiblePdf(document.getArxiuNom())
 				&& !"zip".equals((document.getArxiuExtensio() != null ? document.getArxiuExtensio().toLowerCase() :  ""))) {
@@ -972,6 +983,33 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			model.addAttribute("pipellaActiva", "documents");
 			return new JsonResponse(true, e.getMessage());
 		}
+	}
+
+	@RequestMapping(value="/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/descarregar/versio/{versioId}/")
+	public String descarregarVersio(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId,
+			@PathVariable String versioId,
+			Model model) {
+		try {
+			ArxiuDto arxiu = expedientDocumentService.arxiuFindAmbDocumentVersio(
+					expedientId,
+					processInstanceId,
+					documentStoreId,
+					versioId);
+			if (arxiu != null) {
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
+			}
+		} catch (SistemaExternException e) {
+			logger.error("Error descarregant fitxer", e);
+			MissatgesHelper.error(request, e.getPublicMessage());
+			model.addAttribute("pipellaActiva", "documents");
+			return "redirect:/v3/expedient/" + expedientId;
+		}
+		return "arxiuView";
 	}
 
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/metadadesNti", method = RequestMethod.GET)

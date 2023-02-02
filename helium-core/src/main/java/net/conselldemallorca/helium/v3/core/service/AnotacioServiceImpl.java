@@ -37,32 +37,41 @@ import es.caib.distribucio.rest.client.domini.AnotacioRegistreEntrada;
 import es.caib.distribucio.rest.client.domini.AnotacioRegistreId;
 import es.caib.distribucio.rest.client.domini.Estat;
 import es.caib.plugins.arxiu.api.Document;
+import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helper.AlertaHelper;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientDadaHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
+import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
+import net.conselldemallorca.helium.core.helper.VariableHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta.AlertaPrioritat;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioInteressat;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Interessat;
+import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAnnexEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
@@ -72,7 +81,11 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuEstat;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
@@ -84,9 +97,13 @@ import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException
 import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioAnnexRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampRepository;
+import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.InteressatRepository;
+import net.conselldemallorca.helium.v3.core.repository.MapeigSistraRepository;
 
 /**
  * Implementació del servei per a gestionar anotacions de distribució.
@@ -113,6 +130,14 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	@Resource
 	private InteressatRepository interessatRepository;	
 	@Resource
+	private MapeigSistraRepository mapeigSistraRepository;
+	@Resource
+	private DocumentStoreRepository documentStoreRepository;
+	@Resource
+	private DefinicioProcesRepository definicioProcesRepository;
+	@Resource
+	private CampRepository campRepository;
+	@Resource
 	private PaginacioHelper paginacioHelper;
 	@Resource
 	private MessageHelper messageHelper;
@@ -134,6 +159,14 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	private ExpedientLoggerHelper expedientLoggerHelper;
 	@Resource
 	private AlertaHelper alertaHelper;
+	@Resource
+	private VariableHelper variableHelper;
+	@Resource
+	private JbpmHelper jbpmHelper;
+	@Resource
+	private IndexHelper indexHelper;
+	@Resource
+	private ExpedientDadaHelper expedientDadaHelper;
 	/**
 	 * {@inheritDoc}
 	 */
@@ -318,12 +351,13 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	 */
 	@Override
 	@Transactional
-	public AnotacioDto incorporarExpedient(
+	public AnotacioDto incorporarReprocessarExpedient(
 			Long anotacioId, 
 			Long expedientTipusId, 
 			Long expedientId, 
 			boolean associarInteressats,
-			boolean comprovarPermis) {
+			boolean comprovarPermis,
+			boolean reprocessar) {
 		logger.debug(
 				"Incorporant la petició d'anotació de registre a un expedient(" +
 				"anotacioId=" + anotacioId + ", " +
@@ -350,6 +384,14 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			throw new RuntimeException("No es pot incorporar l'anotació " + 
 						anotacioId + " a l'expedient " + expedientId + " i tipus d'expedient " + 
 						expedientTipusId + " perquè no s'ha pogut recuperar la informació associada.");
+
+		if(reprocessar && expedientTipus.isDistribucioSistra()) {
+			try {
+				reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
+			} catch (Exception e) {
+				
+			}
+		}
 		anotacio.setExpedientTipus(expedientTipus);
 		anotacio.setExpedient(expedient);
 		
@@ -446,7 +488,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		for ( AnotacioAnnex annex : anotacio.getAnnexos() ) {			
 			// Incorpora cada annex de forma separada per evitar excepcions i continuar amb els altres
 			// Si no s'integra amb Sistra crea un document per annex incorportat correctament
-			this.incorporarAnnex(
+			distribucioHelper.incorporarAnnex(
 					expedientTipus.isDistribucioSistra(),
 					expedient, 
 					anotacio, 
@@ -529,94 +571,6 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				anotacio, 
 				AnotacioDto.class);
 	}
-	
-	/** Incorpora l'annex a l'expedient segons el resultat. Si s'ha pogut moure
-	 * llavors crea un nou document si no està mapejat com a Sistra.
-	 * 
-	 * {@inheritDoc}
-	 * @param isSistra Si l'expedient no és sistra llavors crearà un annex per cada annex mogut.
-	 * @param anotacio 
-	 * @param expedient 
-	 * @param annex 
-	 * @param resultat 
-	 */
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void incorporarAnnex(boolean isSistra, Expedient expedient, Anotacio anotacio, AnotacioAnnex annex, ArxiuResultat resultat) {
-		
-		ArxiuResultatAnnex resultatAnnex = null;
-		// El títol contindrà el número de l'anotació
-		String adjuntTitol = anotacio.getIdentificador() + "/" + annex.getNom();
-		logger.debug("Incorporant l'annex (annex=" + adjuntTitol + ") a l'expedient " + expedient.getIdentificador());
-		try {
-			byte[] contingut = null;
-			String arxiuUuid = null;
-			if (expedient.isArxiuActiu()) {
-				resultatAnnex = resultat.getResultatAnnex(annex.getUuid());
-				// Consulta si s'acaba de moure
-				switch(resultatAnnex.getAccio()) {
-				case ERROR:
-					annex.setEstat(AnotacioAnnexEstatEnumDto.PENDENT);
-					annex.setError(resultatAnnex.getErrorCodi() + " - " + resultatAnnex.getErrorMessage());
-					break;
-				case EXISTENT:
-				case MOGUT:
-					annex.setEstat(AnotacioAnnexEstatEnumDto.MOGUT);
-					annex.setUuid(resultatAnnex.getIdentificadorAnnex());
-					arxiuUuid = annex.getUuid();
-				}
-			} else {
-				Annex a = new Annex();
-				a.setUuid(annex.getUuid());
-				resultatAnnex = new ArxiuResultatAnnex();
-				resultat.addResultatAnnex(a, resultatAnnex);
-				// Recupera el contingut del document i crea un document a Helium
-				contingut = annex.getContingut();
-				if (contingut == null) {
-					// Recupera el contingut de l'Arxiu
-					Document documentArxiu = pluginHelper.arxiuDocumentInfo(annex.getUuid(), null, true, true);
-					contingut = documentArxiu.getContingut() != null? documentArxiu.getContingut().getContingut() : null;
-				}
-				annex.setEstat(AnotacioAnnexEstatEnumDto.MOGUT);					
-				// Posa el resultat per evitar error
-				resultatAnnex.setAccio(AnnexAccio.MOGUT);
-			}
-			if (	!isSistra 
-					&& AnotacioAnnexEstatEnumDto.MOGUT.equals(annex.getEstat())) {
-				// Crea un document a Helium 
-				Long documentStoreId = documentHelper.crearDocument(
-						null, 
-						expedient.getProcessInstanceId(), 
-						null, 
-						annex.getNtiFechaCaptura(), 
-						true, 
-						annex.getTitol(), 
-						annex.getNom(), 
-						contingut, 
-						arxiuUuid,
-						annex.getTipusMime(), 
-						expedient.isArxiuActiu() && annex.getFirmaTipus() != null,  
-						false, //firmaSeparada, 
-						null, //firmaContingut, 
-						annex.getNtiOrigen(), 
-						annex.getNtiEstadoElaboracion(), 
-						annex.getNtiTipoDocumental(), 
-						annex.getNtiOrigen() != null ? annex.getNtiOrigen().toString() : null,
-						annex.isDocumentValid(),
-						annex.getDocumentError());
-				annex.setDocumentStoreId(documentStoreId);
-			}
-		} catch(Exception e) {
-			annex.setError("Error incorporant l'annex a l'expedient: " + e.getMessage());
-			annex.setEstat(AnotacioAnnexEstatEnumDto.PENDENT);
-			if (resultatAnnex != null) {
-				resultatAnnex.setAccio(AnnexAccio.ERROR);
-				resultatAnnex.setErrorCodi(-1);
-				resultatAnnex.setException(e);
-				resultatAnnex.setErrorMessage("Error recuperant el contingut de l'annex: " + e.getMessage());
-			}
-		}
-	}
-
 	
 	/** Resol el tipus d'interessat segons la infomració provinent de Distribució */
 	private InteressatTipusEnumDto getInteressatTipus(AnotacioInteressat interessat) {
@@ -999,7 +953,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			}
 		}
 		// Incorpora l'annex a l'expedient
-		this.incorporarAnnex(
+		distribucioHelper.incorporarAnnex(
 				expedientTipus.isDistribucioSistra(), 
 				anotacio.getExpedient(), 
 				anotacio, 
@@ -1045,6 +999,246 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				// Altrament les desrelaciona de l'expedient
 				anotacio.setExpedient(null);
 		}
+	}
+	
+	@Override
+	@Transactional
+	public void reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId) throws Exception {
+		logger.debug(
+				"Reprocessant el mapeig de l'anotació de l'expedient ( " +
+				"anotacioId=" + anotacioId + ", " +
+				"expedientId=" + expedientId + ")");
+		
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+	
+		// Recupera la informació del tipus d'expedient i l'expedient
+		ExpedientTipus expedientTipus = null;
+		Expedient expedient = null;
+		expedient = expedientRepository.findOne(expedientId);
+		if(expedient!=null)
+			expedientTipus = expedient.getTipus();
+		
+		// Comprovar que té integració amb Sistra2 activada
+		if(expedientTipus.isDistribucioSistra()) {
+			//Recuperar mapejos
+			Map<String, Object> variables = null;
+			Map<String, DadesDocumentDto> documents = null;
+			List<DadesDocumentDto> annexos = null;
+			MapeigSistra mapeigSistra = null;
+			ExpedientDadaDto dada = null;
+			DadesDocumentDto dadesDocumentDto = null;
+			// Extreu variables i documents i annexos segons el mapeig sistra
+			try {
+				variables = distribucioHelper.getDadesInicials(expedientTipus, anotacio);
+			} catch (Exception e) {
+				String errMsg = "Error processant el mapeig de l'anotació " + 
+						anotacio.getIdentificador() + 
+						". Hi podrien haver dades o documents que no s'haguessin mapejat correctament. Recomanem reprocessar el mapeig de l'anotació a l'expedient.";
+				logger.error(errMsg, e);
+				Alerta alerta = alertaHelper.crearAlerta(
+						expedient.getEntorn(), 
+						expedient, 
+						new Date(), 
+						null, 
+						errMsg);
+				alerta.setPrioritat(AlertaPrioritat.ALTA);	
+			}
+			documents = distribucioHelper.getDocumentsInicials(expedientTipus, anotacio);			
+			annexos = distribucioHelper.getDocumentsAdjunts(expedientTipus, anotacio);
+			if(variables!=null) {
+				for (String varCodi : variables.keySet()) {	
+					// Obtenir la variable de l'expedient, comprovar si aquest mapeig existeix o no	
+					mapeigSistra = mapeigSistraRepository.findByExpedientTipusAndCodiHelium(expedientTipus, varCodi);	
+					dada = variableHelper.getDadaPerInstanciaProces(
+							expedient.getProcessInstanceId(),
+							varCodi,
+							true);
+					boolean variableExisteix = dada !=null ? true : false;
+					processarVariablesAnotacio(
+							expedientId,
+							expedient.getProcessInstanceId(),
+							varCodi,
+							variables.get(varCodi),
+							variableExisteix,
+							mapeigSistra.isEvitarSobreescriptura());
+				}
+			}
+			
+			//Fem el mateix per els documents del mapeig
+			for (String documentCodi : documents.keySet()) {
+				mapeigSistra = mapeigSistraRepository.findByExpedientTipusAndCodiHelium(expedientTipus, documentCodi);	
+				ExpedientDocumentDto document = documentHelper.findOnePerInstanciaProces(
+						expedient.getProcessInstanceId(), 
+						documentCodi);	
+				
+				boolean documentExisteix = document !=null ? true : false;
+				processarDocumentsAnotacio(
+						dadesDocumentDto, 
+						expedient, 
+						document, 
+						documentExisteix, 
+						mapeigSistra.isEvitarSobreescriptura(), 
+						documents, 
+						mapeigSistra.getCodiHelium());
+				
+			}
+			
+			//Fem el mateix per els Annexos (adjunts), els creem encara que ja hi siguin
+			for (DadesDocumentDto adjunt : annexos) {
+				processarAdjuntsAnotacio( 
+						expedient, 
+						adjunt);		
+			}
+		}	
+	}
+	
+	private void processarVariablesAnotacio(
+			Long expedientId, String processInstanceId, String varCodi, Object varValor, boolean variableExisteix, boolean evitarSobreescriptura) {
+		if (variableExisteix && !evitarSobreescriptura) {
+			// actualitzar variable
+			this.dadaUpdate(
+					expedientId,
+					processInstanceId,
+					varCodi,
+					varValor);	
+		} else if (!variableExisteix){
+			this.dadaCreate(
+						expedientId,
+						processInstanceId,								
+						varCodi,
+						varValor);
+		}					
+		
+	}
+	
+	
+	private void dadaCreate(
+			Long expedientId,
+			String processInstanceId,
+			String varCodi,
+			Object varValor) {
+		logger.debug("Modificant dada de la instància de procés (" +
+				"expedientId=" + expedientId + ", " +
+				"processInstanceId=" + processInstanceId + ", " +
+				"varCodi=" + varCodi + ", " +
+				"varValor=" + varValor + ")");
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		expedientLoggerHelper.afegirLogExpedientPerProces(
+				processInstanceId,
+				ExpedientLogAccioTipus.PROCES_VARIABLE_CREAR,
+				varCodi);
+		expedientDadaHelper.optimitzarValorPerConsultesDominiGuardar(expedient.getTipus(), processInstanceId, varCodi, varValor);
+		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
+	}
+
+	
+	private void dadaUpdate(Long expedientId, String processInstanceId, String varCodi, Object varValor ) {
+		logger.debug("Modificant dada de la instància de procés (" +
+				"expedientId=" + expedientId + ", " +
+				"processInstanceId=" + processInstanceId + ", " +
+				"varCodi=" + varCodi + ", " +
+				"varValor=" + varValor + ")");
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);		
+		jbpmHelper.deleteProcessInstanceVariable(processInstanceId, varCodi);
+		// Esborra la descripció per variables que mantenen el valor de la consulta
+		Camp camp;
+		InstanciaProcesDto instanciaProces = expedientHelper.getInstanciaProcesById(processInstanceId);
+		DefinicioProces definicioProces = definicioProcesRepository.findOne(instanciaProces.getDefinicioProces().getId());
+		if (expedient.getTipus().isAmbInfoPropia()) {
+			// obtenir el camp amb expedient tipus codi i codi de la variable
+			camp = campRepository.findByExpedientTipusAndCodi(expedient.getTipus().getId(), varCodi, expedient.getTipus().getExpedientTipusPare() != null);
+		}else {
+			camp = campRepository.findByDefinicioProcesAndCodi(definicioProces, varCodi);
+		}
+		if (camp != null && camp.isDominiCacheText())
+			jbpmHelper.deleteProcessInstanceVariable(processInstanceId, JbpmVars.PREFIX_VAR_DESCRIPCIO + varCodi);
+		
+		expedientLoggerHelper.afegirLogExpedientPerProces(
+				processInstanceId,
+				ExpedientLogAccioTipus.PROCES_VARIABLE_MODIFICAR,
+				varCodi);
+		expedientDadaHelper.optimitzarValorPerConsultesDominiGuardar(
+				expedient.getTipus(),
+				processInstanceId,
+				varCodi,
+				varValor);
+	}
+	
+
+	private void processarDocumentsAnotacio(
+			DadesDocumentDto dadesDocumentDto, 
+			Expedient expedient, 
+			ExpedientDocumentDto document, 
+			boolean documentExisteix,
+			boolean evitarSobreescriptura,
+			Map<String, DadesDocumentDto> documents,
+			String codiHelium) {
+		
+		if (documentExisteix && !evitarSobreescriptura) {
+			// Si existeix i es pot sobreescriure, l'actualitzem, sino el creem
+			dadesDocumentDto = documents.get(codiHelium);
+			DocumentStore documentStore = documentStoreRepository.findOne(document.getId());
+			documentHelper.actualitzarDocument(
+					documentStore.getId(),
+					null,
+					expedient.getProcessInstanceId(),
+					dadesDocumentDto.getData(),
+					dadesDocumentDto.getTitol(),
+					dadesDocumentDto.getArxiuNom(),
+					dadesDocumentDto.getArxiuContingut(),
+					document.getArxiuExtensio(),
+					document.isSignat(),
+					false,
+					null,
+					document.getNtiOrigen(),
+					document.getNtiEstadoElaboracion(),
+					document.getNtiTipoDocumental(),
+					document.getNtiIdOrigen());
+			
+			
+			
+		} else if (!documentExisteix) {
+			dadesDocumentDto = documents.get(codiHelium);
+			documentHelper.crearDocument(
+					null,
+					expedient.getProcessInstanceId(),
+					dadesDocumentDto.getCodi(),
+					dadesDocumentDto.getData(),
+					false, //isAdjunt
+					dadesDocumentDto.getTitol(),
+					dadesDocumentDto.getArxiuNom(),
+					dadesDocumentDto.getArxiuContingut(),
+					null, // arxiuUuid
+					documentHelper.getContentType(dadesDocumentDto.getArxiuNom()),
+					false,//document.isSignat(), //command.isAmbFirma(),
+					false,
+					null,
+					null,
+					null,
+					null,
+					null,
+					dadesDocumentDto.isDocumentValid(),
+					dadesDocumentDto.getDocumentError());
+		}
+		
+	}
+
+	private void processarAdjuntsAnotacio(Expedient expedient, DadesDocumentDto adjunt ) {
+		documentHelper.crearDocument(
+				null,
+				expedient.getProcessInstanceId(),
+				null,
+				adjunt.getData(),
+				true,
+				adjunt.getTitol(),
+				adjunt.getArxiuNom(),
+				adjunt.getArxiuContingut(),
+				null,
+				null,
+				null,
+				null,
+				adjunt.isDocumentValid(),
+				adjunt.getDocumentError());
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(AnotacioServiceImpl.class);
