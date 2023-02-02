@@ -155,5 +155,10 @@ public interface ExpedientDadaService {
 			Long expedientId,
 			String processInstanceId) throws NoTrobatException, PermisDenegatException;
 
-    public List<DadaListDto> findDadesExpedient(Long expedientId, PaginacioParamsDto paginacioParams);
+    public List<DadaListDto> findDadesExpedient(
+			Long expedientId,
+			Boolean totes,
+			Boolean ambOcults,
+			Boolean noPendents,
+			PaginacioParamsDto paginacioParams);
 }

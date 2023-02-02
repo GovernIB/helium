@@ -75,6 +75,16 @@
 			});
 		});
 
+		$('body').on('click', '#boto-tots', () => {
+			opcionsVisualitzacioChanged('boto-tots')
+		});
+
+		$('body').on('keypress', "#searchDocuments", function (keyData) {
+			debugger
+			if (keyData.which == 13) { //execute on keyenter
+				opcionsVisualitzacioChanged();
+			}
+		});
 
 		// Botó per tornar a dalt: scroll top
 		$('.btn-top').on('click', () => {
@@ -96,6 +106,25 @@
 		// 	alert('tancant modal');
 		// })
 	});
+
+	const opcionsVisualitzacioChanged = (id) => {
+		if (id)
+			toggleCheck(id);
+
+		let serverParams = {};
+		serverParams['tots'] = $("#boto-totes").hasClass("active");
+		if ($("#searchDocuments").val())
+			serverParams['search[value]'] = $("#searchDocuments").val();
+		$('#expedientDades').webutilDatatable('refresh', serverParams);
+	}
+
+	const toggleCheck = (id) => {
+		let boto = $("#" + id);
+		let botoCheck = $("#" + id + "-check");
+		botoCheck.toggleClass("fa-check-square-o");
+		botoCheck.toggleClass("fa-square-o");
+		boto.toggleClass("active");
+	}
 
 	// const esborrarSignatura = (id, correcte) => {
 	// 	if (correcte) {
@@ -373,6 +402,16 @@
 </div>
 <script id="tableButtonsDocumentsTemplate" type="text/x-jsrender">
 	<div class="botons-titol text-right">
+		<span style="padding-left: 5px">
+			<span class="fa fa-search" style="position: absolute;float: left;padding-left: 10px;padding-top: 10px;"></span>
+			<input id="searchDocuments" class="form-control" placeholder="<spring:message code="expedient.document.filtrar"/>" autocomplete="off" spellcheck="false" autocorrect="off" tabindex="1" style="padding-left: 35px;">
+		</span>
+		<c:if test="${expedient.permisAdministration}">
+			<a id="boto-tots" href="#" class="btn btn-default">
+				<span id="boto-tots-check" class="fa fa-square-o"></span>
+				<spring:message code='expedient.document.mostrar.tots'/>
+			</a>
+		</c:if>
 		<a id="descarregarZip" href="<c:url value="/v3/expedient/${expedient.id}/document/descarregarZip"/>" class="btn btn-default" title="<spring:message code="expedient.document.descarregar.zip"/>">
 			<span class="fa fa-download"></span> <spring:message code="comu.boto.descarregar"/> <span id="descarregarCount" class="badge"></span>
 		</a>

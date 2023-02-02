@@ -71,7 +71,7 @@
 			else if (plugin.settings.infoType == 'search+button')
 				domPrefix = '<"row"<"col-md-' + colMd33p + '"i><"col-md-' + colMd66p + '"<"botons fright"><"fright"f>>>';
 			else
-				domPrefix = '<"row"<"col-md-' + colMd50p + '"i><"col-md-' + colMd50p + '"<"botons">>>';
+				domPrefix = '<"row"<"col-md-' + colMd33p + '"i><"col-md-' + colMd66p + '"<"botons">>>';
 			var language = solveLanguage();
 			var ajaxRequestType = plugin.settings.ajaxRequestType;
 			var dataTableOptions = {
@@ -279,8 +279,13 @@
 			if ($('thead th[data-col-name]', $taula).length > 0) {
 				var columns = [];
 				var defaultOrder = plugin.settings.defaultOrder;
+				var fixedOrder = plugin.settings.fixedOrder;
+				var rowGroup = plugin.settings.group;
 				if (typeof plugin.settings.defaultOrder != 'undefined' && plugin.settings.selectionEnabled) {
 					defaultOrder++;
+				}
+				if (typeof plugin.settings.fixedOrder != 'undefined' && plugin.settings.selectionEnabled) {
+					fixedOrder++;
 				}
 				var defaultDir = plugin.settings.defaultDir;
 				dataTableOptions['ordering'] = plugin.settings.ordering;
@@ -338,6 +343,12 @@
 				dataTableOptions['columns'] = columns;
 				if (typeof defaultOrder != 'undefined') {
 					dataTableOptions['order'] = [[defaultOrder, defaultDir]];
+				}
+				if (typeof fixedOrder != 'undefined') {
+					dataTableOptions['orderFixed'] = [fixedOrder, defaultDir];
+				}
+				if (typeof rowGroup != 'undefined') {
+					dataTableOptions['rowGroup'] = {'dataSrc': rowGroup};
 				}
 			}
 			$taula.on('processing.dt', function(e, settings_, processing) {
@@ -1104,7 +1115,7 @@
             		$(this).data(pluginName).selectAll();
             	} else if ('selection' === options) {
             		$(this).data(pluginName).selection(param1);
-            	}
+				}
             }
         });
     }

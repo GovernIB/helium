@@ -26,6 +26,7 @@ import javax.validation.Valid;
 import net.conselldemallorca.helium.v3.core.api.dto.*;
 import net.conselldemallorca.helium.webapp.v3.helper.*;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,11 +72,19 @@ public class ExpedientDadaController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			Model model) {
 
+		Boolean totes = Boolean.parseBoolean(request.getParameter("totes"));
+		Boolean ambOcults = true;
+		Boolean noPendents = false;
+//		Boolean ambOcults = Boolean.parseBoolean(request.getParameter("ambOcults"));
+//		Boolean noPendents = Boolean.parseBoolean(request.getParameter("noPendents"));
+//		String filtre = request.getParameter("filtre");
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
+//		paginacioParams.setFiltre(filtre);
+
 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,
-				expedientDadaService.findDadesExpedient(expedientId, paginacioParams),
+				expedientDadaService.findDadesExpedient(expedientId, totes, ambOcults, noPendents, paginacioParams),
 				"id");
 	}
 
@@ -153,6 +162,17 @@ public class ExpedientDadaController extends BaseExpedientController {
 		return "v3/procesDades";
 	}
 
+	@RequestMapping(value = "/{expedientId}/dada/{varCodi}/delete", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean dadaExpBorrar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String varCodi,
+			Model model) {
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		String procesId = expedient.getProcessInstanceId();
+	return dadaBorrar(request, expedientId, procesId, varCodi, model);
+	}
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean dadaBorrar(
@@ -236,6 +256,16 @@ public class ExpedientDadaController extends BaseExpedientController {
 		return null;
 	}
 
+	@RequestMapping(value = "/{expedientId}/dada/{varCodi}/update", method = RequestMethod.GET)
+	public String modificarVariablesExpGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String varCodi,
+			Model model) {
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		String procesId = expedient.getProcessInstanceId();
+		return modificarVariablesGet(request, expedientId, procesId, varCodi, model);
+	}
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/update", method = RequestMethod.GET)
 	public String modificarVariablesGet(
 			HttpServletRequest request,
@@ -260,6 +290,19 @@ public class ExpedientDadaController extends BaseExpedientController {
 		return "v3/expedientDadaModificar";
 	}
 
+	@RequestMapping(value = "/{expedientId}/dada/{varCodi}/update", method = RequestMethod.POST)
+	public String dadaExpEditar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String varCodi,
+			@Valid @ModelAttribute("modificarVariableCommand") Object command,
+			BindingResult result,
+			SessionStatus status,
+			Model model) {
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		String procesId = expedient.getProcessInstanceId();
+		return dadaEditar(request, expedientId, procesId, varCodi, command, result, status, model);
+	}
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/update", method = RequestMethod.POST)
 	public String dadaEditar(
 			HttpServletRequest request,
@@ -312,6 +355,20 @@ public class ExpedientDadaController extends BaseExpedientController {
 	}	
 	
 	/** Cas en que s'edita una dada de tipus acció i es prem sobre l'acció*/
+	@RequestMapping(value = "/{expedientId}/dada/{varCodi}/update/accio", method = RequestMethod.POST)
+	public String dadaExpEditarAccio(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String varCodi,
+			@RequestParam(value = "accioCamp", required = true) String accioCamp,
+			@Valid @ModelAttribute("modificarVariableCommand") Object command,
+			BindingResult result,
+			SessionStatus status,
+			Model model) {
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		String procesId = expedient.getProcessInstanceId();
+		return dadaEditarAccio(request, expedientId, procesId, varCodi, accioCamp, command, result, status, model);
+	}
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/update/accio", method = RequestMethod.POST)
 	public String dadaEditarAccio(
 			HttpServletRequest request,
@@ -411,6 +468,21 @@ public class ExpedientDadaController extends BaseExpedientController {
 				model);
 	}
 
+	@RequestMapping(value = "/{expedientId}/dada/{varCodi}/new", method = RequestMethod.GET)
+	public String novaDadaExpAmbCodiGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String varCodi,
+			Model model) {
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		String procesId = expedient.getProcessInstanceId();
+		return novaDadaAmbCodiGet(
+				request,
+				expedientId,
+				procesId,
+				varCodi,
+				model);
+	}
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/new", method = RequestMethod.GET)
 	public String novaDadaAmbCodiGet(
 			HttpServletRequest request,
@@ -433,6 +505,20 @@ public class ExpedientDadaController extends BaseExpedientController {
 			return "v3/expedientDadaNova";
 		return "v3/expedientDadaNova";
 	}
+
+	@RequestMapping(value = "/{expedientId}/dada/{varCodi}/new", method = RequestMethod.POST)
+	public String novaDadaExpAmbCodiPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String varCodi,
+			@Valid @ModelAttribute("addVariableCommand") Object command,
+			BindingResult result,
+			SessionStatus status,
+			Model model) {
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		String procesId = expedient.getProcessInstanceId();
+		return novaDadaAmbCodiPost(request, expedientId, procesId, varCodi, command, result, status, model);
+	}
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/new", method = RequestMethod.POST)
 	public String novaDadaAmbCodiPost(
 			HttpServletRequest request,
@@ -448,7 +534,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 				result.rejectValue(
 						"varCodi",
 						"expedient.nova.data.camp.variable.buit");
-			} else if ("String".equals(varCodi)) { // Variable nova tipus String
+			} else if ("__string".equals(varCodi)) { // Variable nova tipus String
 				String codi = (String)PropertyUtils.getSimpleProperty(command, "codi");
 				String valor = (String)PropertyUtils.getSimpleProperty(command, "valor");
 				// Validam que el nom de la variable no comenci per majúscula seguida de minúscula

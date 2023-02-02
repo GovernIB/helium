@@ -27,6 +27,8 @@
 	.col-xs-9 {width: 80%;}
 	.pad-left-col-xs-3 {left: 20%;}
 </style>
+
+<c:if test="${not empty param.labelClass}"><c:set var="labelClass" value="${param.labelClass}"/></c:if>
 	
 <form:form id="command" commandName="addVariableCommand" action="" cssClass="form-horizontal form-tasca" method="post">
 	<input type="hidden" id="procesId" name="procesId" value="${procesId}">
@@ -39,7 +41,7 @@
 			<form:select path="varCodi" cssClass="form-control" id="varCodi">
 				<option value=""></option>
 				<optgroup label="<spring:message code='expedient.nova.data.no.definida'/>">
-					<option value="String"><spring:message code="expedient.nova.data.string"/></option>
+					<option value="__string"><spring:message code="expedient.nova.data.string"/></option>
 				</optgroup>
 				<optgroup label="<spring:message code='expedient.nova.data.definida'/>">
 					<c:forEach var="opt" items="${camps}">
@@ -159,7 +161,7 @@
 				$("#nova").addClass("hide");
 				$("#valordada").addClass("hide");
 				$("#command").attr('action', ruta + "Buit");
-			} else  if (e.val == "String") {
+			} else  if (e.val == "__string") {
 				$("#valordada").addClass("hide");
 				$("#nova").removeClass("hide");
 			} else {
@@ -173,7 +175,7 @@
 		if (codi != "") {
 			$("#varCodi").select2("val", "${varCodi}");
 			$("#varCodi").click();
-			if ($("#varCodi").val() == "String") {
+			if ($("#varCodi").val() == "__string") {
 				$("#valordada").addClass("hide");
 				$("#nova").removeClass("hide");
 			} else {

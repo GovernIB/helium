@@ -563,9 +563,12 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
 		// Documents definits al tipus d'expedient
 		for (Document dTipExp: documentsTipusExpedient) {
+			CampFormProperties documentFormProperties = documentsFormProperties.get(dTipExp.getCodi());
+			if (documentFormProperties != null && !documentFormProperties.isVisible())
+				continue;
+
 			ExpedientDocumentDto dExp = getDocumentExpedient(documentsExpedient, dTipExp.getCodi());
 			PortasignaturesDto dPsigna = dExp != null ? getDocumentPsignaPendent(documentsPsignaPendent, dExp.getId()) : null;
-			CampFormProperties documentFormProperties = documentsFormProperties.get(dTipExp.getCodi());
 			if (dExp != null)
 				documentIds.add(dExp.getId());
 
@@ -592,8 +595,11 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			if (documentIds.contains(dExp.getId()))
 				continue;
 
-			PortasignaturesDto dPsigna = dExp != null ? getDocumentPsignaPendent(documentsPsignaPendent, dExp.getId()) : null;
 			CampFormProperties documentFormProperties = documentsFormProperties.get(dExp.getDocumentCodi());
+			if (documentFormProperties != null && !documentFormProperties.isVisible())
+				continue;
+
+			PortasignaturesDto dPsigna = dExp != null ? getDocumentPsignaPendent(documentsPsignaPendent, dExp.getId()) : null;
 
 			DocumentListDto document = toDocumentList(expedient, processInstanceId, null, dExp, dPsigna, documentFormProperties);
 			documents.add(document);

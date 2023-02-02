@@ -15,10 +15,12 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.v3.core.api.dto.*;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.CampFormProperties;
 import net.conselldemallorca.helium.v3.core.regles.ReglaHelper;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.model.Permission;
@@ -86,6 +88,8 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	private ExpedientDadaHelper expedientDadaHelper;
 	@Resource
 	private TascaRepository tascaRepository;
+	@Resource
+	private MessageHelper messageHelper;
 
 	@Resource
 	private ReglaHelper reglaHelper;
@@ -368,7 +372,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 
     @Override
 	@Transactional(readOnly = true)
-    public List<DadaListDto> findDadesExpedient(Long expedientId, PaginacioParamsDto paginacioParams) {
+    public List<DadaListDto> findDadesExpedient(Long expedientId, Boolean totes, Boolean ambOcults, Boolean noPendents, PaginacioParamsDto paginacioParams) {
 		logger.debug("Consultant les dades de l'expedient (expedientId=" + expedientId + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
@@ -377,33 +381,69 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				false,
 				false);
 		String processInstanceId = expedient.getProcessInstanceId();
+		String filtre = paginacioParams.getFiltre();
+		boolean filtrar = !StringUtils.isEmpty(filtre);
 
 		List<ExpedientDadaDto> dadesExpedient = variableHelper.findDadesPerInstanciaProces(processInstanceId, true);
 		List<Camp> camps = campRepository.findByExpedientTipusOrderByCodiAsc(expedient.getTipus());
 		Map<String, CampFormProperties> campsFormProperties = reglaHelper.getCampFormProperties(expedient.getTipus(), expedient.getEstat());
 
 		List<DadaListDto> dades = new ArrayList<DadaListDto>();
+		List<String> dadesCodis = new ArrayList<String>();
 
 		for (Camp camp: camps) {
-			ExpedientDadaDto dadaExp = getDadaExpedient(dadesExpedient, camp.getId());
-			CampFormProperties campFormProperties = campsFormProperties.get(camp.getCodi());
 
-			DadaListDto dada = null;
+			if (camp.isOcult() && !ambOcults)
+				continue;
+
+			CampFormProperties campFormProperties = campsFormProperties.get(camp.getCodi());
+			if (!totes && campFormProperties != null && !campFormProperties.isVisible())
+				continue;
+
+			if (filtrar && !camp.getEtiqueta().contains(filtre))
+				continue;
+
+			ExpedientDadaDto dadaExp = getDadaExpedient(dadesExpedient, camp.getId());
+
 			if (dadaExp == null) {
-				dada = DadaListDto.builder()
-						.campId(camp.getId())
-						.campCodi(camp.getCodi())
-						.tipus(CampTipusDto.valueOf(camp.getTipus().name()))
-						.nom(camp.getEtiqueta())
-						.processInstanceId(processInstanceId)
-						.expedientId(expedientId)
-						.visible(campFormProperties != null ? campFormProperties.isVisible() : true)
-						.editable(campFormProperties != null ? campFormProperties.isEditable() : true)
-						.obligatori(campFormProperties != null ? campFormProperties.isObligatori() : false)
-						.build();
+				if (!noPendents)
+					dades.add(DadaListDto.builder()
+							.campId(camp.getId())
+							.campCodi(camp.getCodi())
+							.tipus(CampTipusDto.valueOf(camp.getTipus().name()))
+							.nom(camp.getEtiqueta())
+							.processInstanceId(processInstanceId)
+							.expedientId(expedientId)
+							.agrupacioNom(camp.getAgrupacio() != null ? camp.getAgrupacio().getNom() : "Sense agrupacio")
+							.ocult(camp.isOcult())
+							.visible(campFormProperties != null ? campFormProperties.isVisible() : true)
+							.editable(campFormProperties != null ? campFormProperties.isEditable() : true)
+							.obligatori(campFormProperties != null ? campFormProperties.isObligatori() : false)
+							.valor(DadaValorDto.builder().build())
+							.build());
 			} else {
-				dada = toDadaListDto(camp, dadaExp, campFormProperties, processInstanceId, expedientId);
+				dadesCodis.add(dadaExp.getVarCodi());
+				dades.add(toDadaListDto(camp, dadaExp, campFormProperties, processInstanceId, expedientId));
 			}
+		}
+
+		for (ExpedientDadaDto dadaExp: dadesExpedient) {
+			if (dadesCodis.contains(dadaExp.getVarCodi()))
+				continue;
+
+			if (filtrar && !dadaExp.getVarCodi().contains(filtre))
+				continue;
+
+			DadaListDto dada = DadaListDto.builder()
+					.id(dadaExp.getVarCodi())
+					.nom(dadaExp.getVarCodi())
+					.valor(DadaValorDto.builder().valorSimple(dadaExp.getText()).build())
+					.campCodi(dadaExp.getVarCodi())
+					.tipus(CampTipusDto.STRING)
+					.agrupacioNom("Dades adjuntes")
+					.processInstanceId(processInstanceId)
+					.expedientId(expedientId)
+					.build();
 			dades.add(dada);
 		}
 
@@ -428,14 +468,10 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
     }
 
 	private static DadaListDto toDadaListDto(Camp camp, ExpedientDadaDto dadaExp, CampFormProperties campFormProperties, String processInstanceId, Long expedientId) {
-		DadaListDto dada;
-
-		DadaValorDto valor = getDadaValor(camp, dadaExp);
-
-		dada = DadaListDto.builder()
+		return DadaListDto.builder()
 				.id(dadaExp.getVarCodi())
 				.nom(camp.getEtiqueta())
-				.valor(valor)
+				.valor(getDadaValor(camp, dadaExp))
 				.campId(camp.getId())
 				.campCodi(camp.getCodi())
 				.tipus(CampTipusDto.valueOf(camp.getTipus().name()))
@@ -445,14 +481,13 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				.jbpmAction(camp.getJbpmAction())
 				.observacions(camp.getObservacions())
 				.error(dadaExp.getError())
-				.agrupacioNom(camp.getAgrupacio() != null ? camp.getAgrupacio().getDescripcio() : null)
+				.agrupacioNom(camp.getAgrupacio() != null ? camp.getAgrupacio().getNom() : "Sense agrupacio")
 				.processInstanceId(processInstanceId)
 				.expedientId(expedientId)
 				.visible(campFormProperties != null ? campFormProperties.isVisible() : true)
 				.editable(campFormProperties != null ? campFormProperties.isEditable() : true)
 				.obligatori(campFormProperties != null ? campFormProperties.isObligatori() : false)
 				.build();
-		return dada;
 	}
 
 	private static DadaValorDto getDadaValor(Camp camp, ExpedientDadaDto dadaExp) {
@@ -481,7 +516,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 					List<String> valorFila = new ArrayList<String>();
 					for(ExpedientDadaDto cela: fila.getRegistreDades()) {
 						if (cela.isLlistar()) {
-							valorFila.add(cela.getText());
+							valorFila.add(cela.getTextMultiple());
 						}
 					}
 					valorBody.add(valorFila);

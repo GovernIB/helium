@@ -8,7 +8,9 @@
 <script src="<c:url value="/webjars/datatables.net/1.10.13/js/jquery.dataTables.min.js"/>"></script>
 <script src="<c:url value="/webjars/datatables.net-bs/1.10.13/js/dataTables.bootstrap.min.js"/>"></script>
 <link href="<c:url value="/webjars/datatables.net-bs/1.10.13/css/dataTables.bootstrap.min.css"/>" rel="stylesheet"></link>
-<script src="<c:url value="/webjars/datatables.net-select/1.1.0/js/dataTables.select.min.js"/>"></script>
+<%--<script src="<c:url value="/webjars/datatables.net-select/1.1.0/js/dataTables.select.min.js"/>"></script>--%>
+<%--<script src="<c:url value="/webjars/datatables.net-rowgroup/1.0.3/js/dataTables.rowGroup.min.js"/>"></script>--%>
+<script src="<c:url value="/js/datatables/js/dataTables.rowGroup.js"/>"></script>
 <script src="<c:url value="/js/jsrender.min.js"/>"></script>
 <script src="<c:url value="/js/webutil.datatable.js"/>"></script>
 <%--<script src="<c:url value="/js/webutil.modal.js"/>"></script>--%>
@@ -17,31 +19,42 @@
 	$(document).ready(() => {
 		<%-- Al recarregar la taula... --%>
 		$("#expedientDades").on("draw.dt", () => {
-
-			<%-- Si el primer document és inexistent fem la vora superior de 3px, ja que amb els 2px per defecte no es veu --%>
+			<%-- Si la primera dada és inexistent fem la vora superior de 3px, ja que amb els 2px per defecte no es veu --%>
 			let firstTr = $("#expedientDades tbody tr:first-child");
 			if (firstTr.hasClass("no-data")) {
 				firstTr.css("border-top", "dashed 3px #BBB");
 			}
-
-			<%-- Per cada fila... --%>
-<%--			$("#expedientDades tbody tr").each((index, element) => {--%>
-<%--				if ($(element).hasClass("no-data")) {--%>
-<%--					&lt;%&ndash; Eliminam els checks dels documents inexistents&ndash;%&gt;--%>
-<%--					$(element).find(".fa-square-o").remove();--%>
-<%--				}--%>
-<%--			})--%>
+		});
+		$("#expedientDades").on("rowgroup-draw.dt", () => {
+			filtraDades();
 		});
 
-		<%-- Al seleccionar i deseleccionar, eliminarem els checks dels documents inexistents--%>
-		// $("#expedientDades").on('selectionchange.dt', () => {
-		// 	console.log('selectionchange');
-		// 	$("#expedientDades tbody tr.no-data").each((index, element) => {
-		// 		$(element).find(".fa-square-o").remove();
-		// 		$(element).find(".fa-check-square-o").remove();
-		// 	});
-		// });
 
+		$('body').on('change', '#boto-totes', () => {
+			opcionsVisualitzacioChanged('boto-totes');
+		});
+		$('body').on('change', '#boto-ocults', () => {
+			// opcionsVisualitzacioChanged('boto-ocults');
+			filtraDades();
+		});
+		$('body').on('change', '#boto-pendents', () => {
+			// opcionsVisualitzacioChanged('boto-pendents');
+			filtraDades();
+		});
+
+		$('body').on('mouseup', 'button.modal-tancar', (event) => {
+			$(event.currentTarget).closest('.modal-content').find('.close').trigger('click');
+		})
+
+		$('body').on('keypress', "#searchDades", function (keyData) {
+			// $("#expedientDades tbody").removeHighlight();
+			// if ($(this).val() != '')
+			// $("#expedientDades tbody").highlight($(this).val());
+			if (keyData.which == 13) { //execute on keyenter
+				// opcionsVisualitzacioChanged();
+				filtraDades();
+			}
+		});
 
 		// Botó per tornar a dalt: scroll top
 		$('.btn-top').on('click', () => {
@@ -59,6 +72,83 @@
 			});
 		});
 	});
+
+	const opcionsVisualitzacioChanged = () => {
+		let serverParams = {};
+		serverParams['totes'] = $("#boto-totes").parent().hasClass("active");
+		$('#expedientDades').webutilDatatable('refresh', serverParams);
+	}
+
+	const filtraDades = () => {
+		const filtre = $("#searchDades").val().toLowerCase();
+		const mostrarOcults = $("#boto-ocults").parent().hasClass("active");
+		const mostrarPendents = $("#boto-pendents").parent().hasClass("active");
+
+		$("#expedientDades tbody").removeHighlight();
+		$("#expedientDades tr").show();
+
+		if (filtre != '')
+			$("#expedientDades tbody").highlight(filtre);
+debugger
+		let hideAgrupacio = true;
+		let visibles = 0;
+		$($("#expedientDades tbody>tr").get().reverse()).each((index, fila) => {
+			if ($(fila).hasClass('group')) {
+				if (hideAgrupacio && filtre != '' && $(fila).find('td:eq(0)').text().toLowerCase().includes(filtre)) {
+					let varsAgrupacio = $(fila).nextUntil('.group');
+					varsAgrupacio.each((idx, row) => {
+						if (visualitzarFila(row, '', mostrarOcults, mostrarPendents)) {
+							hideAgrupacio = false;
+							visibles++;
+							$(row).show();
+						}
+					})
+				}
+				$(fila).toggle(!hideAgrupacio);
+				hideAgrupacio = true;
+			} else {
+				if (visualitzarFila(fila, filtre, mostrarOcults, mostrarPendents)) {
+					hideAgrupacio = false;
+					visibles++;
+					$(fila).show();
+				} else {
+					$(fila).hide();
+				}
+			}
+		});
+		if (visibles > 0) {
+			$("#expedientDades_info").text("Mostrant 1 a " + visibles + " de " + visibles + " resultats");
+			$('#expedientDades_noDades').hide();
+		} else {
+			$("#expedientDades_info").text("Mostrant 0 resultats");
+			if($('#expedientDades_noDades').length){
+				$('#expedientDades_noDades').show();
+			}else{
+				$('<tr id="expedientDades_noDades"><td colspan="4">Sense dades</td></tr>').appendTo("#expedientDades tbody");
+			}
+		}
+		$(".datatable-dades-carregant").hide();
+	}
+
+	const visualitzarFila = (fila, filtre, mostrarOcults, mostrarPendents) => {
+		let mostrar = true;
+		if (!mostrarPendents) {
+			if ($(fila).hasClass("no-data")) {
+				mostrar = false;
+			}
+		}
+		if (mostrar && !mostrarOcults) {
+			if ($(fila).find(".fa-eye-slash").length) {
+				mostrar = false;
+			}
+		}
+		if (mostrar && filtre != '') {
+			if (!$(fila).find('td:eq(1)').text().toLowerCase().includes(filtre) && !$(fila).find('td:eq(2)').text().toLowerCase().includes(filtre)) {
+				mostrar = false;
+			}
+		}
+		return mostrar;
+	}
 </script>
 <style>
 	#expedientDades {border-collapse: collapse !important; margin-bottom: 15px !important;}
@@ -77,6 +167,18 @@
 	.doc-details td {padding: 0px;}
 	.pill-link {position: relative !important; display: block !important; padding: 5px 10px !important; margin-right: 2px !important;}
 	.text-center {text-align: center !important;}
+	.list-group {margin-bottom: 0px !important;}
+	.obligatori {background-position: right 4px !important; padding-right: 10px !important;}
+	.d-flex {display: flex !important;}
+	/*.flex-column {flex-direction: column !important;}*/
+	.justify-content-between {justify-content: space-between !important;}
+	.text-dark {color: #344767 !important;}
+	.font-weight-bold {font-weight: 600 !important;}
+	.text-sm {font-size: 0.875em !important;}
+	tr.group {font-weight: bold; background-color: #F0F0F0 !important;}
+	tr:not(.no-data):has(.fa-eye-slash) {color: #999;}
+	.dada-oculta {color: indianred; top: -14px; right: -4px; position: relative;}
+	.highlight {background-color: #fff34d; color: black; padding:1px 2px;}
 </style>
 
 <c:url var="urlDatatable" value="/v3/expedient/${expedient.id}/dada/datatable"/>
@@ -87,10 +189,12 @@
 		  data-ajax-request-type="POST"
 		  data-paging-enabled="false"
 		  data-ordering="true"
-		  data-default-order="4"
-		  data-info-type="search+button"
+		  data-default-order="8"
+		  data-info-type="button"
 		  data-rowcolid-nullclass="no-data"
 		  data-selection-enabled="false"
+<%--		  data-fixed-order="1"--%>
+		  data-group="agrupacioNom"
 <%--		  data-selection-url="${expedient.id}/dada/selection"--%>
 <%--		  data-selection-counter="#descarregarCount"--%>
 		  data-botons-template="#tableButtonsDadesTemplate"
@@ -98,12 +202,12 @@
 	<thead>
 	<tr>
 		<th data-col-name="id" data-visible="false"/>
+		<th data-col-name="agrupacioNom" data-visible="false"/>
 		<th data-col-name="campId" data-visible="false"/>
 		<th data-col-name="campCodi" data-visible="false"/>
-<%--		<th data-col-name="required" data-visible="false"/>--%>
-<%--		<th data-col-name="ocult" data-visible="false"/>--%>
-<%--		<th data-col-name="multiple" data-visible="false"/>--%>
-<%--		<th data-col-name="editable" data-visible="false"/>--%>
+		<th data-col-name="obligatori" data-visible="false"/>
+		<th data-col-name="editable" data-visible="false"/>
+		<th data-col-name="ocult" data-visible="false"/>
 		<th data-col-name="tipus" data-orderable="true" width="1%" data-template="#cellTipusTemplate" data-class="text-center">
 			<script id="cellTipusTemplate" type="text/x-jsrender">
 				{{if tipus == null}}
@@ -119,38 +223,48 @@
 					{{if tipus == "TERMINI"}}<span class="fa fa-2x fa-clock-o"></span>{{/if}}
 					{{if tipus == "SELECCIO"}}<span class="fa fa-2x fa-chevron-down"></span>{{/if}}
 					{{if tipus == "SUGGEST"}}<span class="fa fa-2x fa-chevron-circle-down"></span>{{/if}}
-					{{if tipus == "REGISTRE"}}<span class="fa fa-2x fa-table"></span>{{/if}}
+					{{if tipus == "REGISTRE"}}<span class="fa fa-2x fa-table" style="font-size:1.6em;"></span>{{/if}}
 					{{if tipus == "ACCIO"}}<span class="fa fa-2x fa-bolt"></span>{{/if}}
 				{{/if}}
 			</script>
 		</th>
-		<th data-col-name="nom" data-orderable="true" width="20%"><spring:message code="expedient.tipus.document.llistat.columna.nom"/></th>
+		<th data-col-name="nom" data-orderable="true" width="20%" data-template="#cellNomTemplate">
+			<spring:message code="expedient.tipus.document.llistat.columna.nom"/>
+			<script id="cellNomTemplate" type="text/x-jsrender">
+				<span {{if obligatori}}class="obligatori"{{/if}}>{{:nom}}</span>
+				{{if ocult}}
+					<span class="fa fa-eye-slash pull-right dada-oculta" title="Dada oculta"></span>
+				{{/if}}
+			</script>
+		</th>
 		<th data-col-name="valor" data-orderable="false" width="70%"  data-template="#cellValorTemplate">
 			<spring:message code="expedient.nova.data.valor"/>
 			<script id="cellValorTemplate" type="text/x-jsrender">
 				{{if valor.registre}}
-					<ul class="list-group">
+					<ul class="list-group registre">
 						<li class="list-group-item d-flex justify-content-between border-0">
-							<c:forEach var="header" items="${valor.valorHeader}">
-								<div class="d-flex flex-column text-dark font-weight-bold text-sm <c:if test="${header.value}">obligatori</c:if>">${header.key}</div>
-							</c:forEach>
+							{{for valor.valorHeader}}
+								{{props #data}}
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm {{if prop}}obligatori{{/if}}">{{>key}}</div>
+								{{/props}}
+							{{/for}}
 						</li>
-						<c:forEach var="fila" items="${valor.valorBody}">
+						{{for valor.valorBody}}
 							<li class="list-group-item d-flex justify-content-between border-0">
-								<c:forEach var="cela" items="${fila}">
-									<div class="d-flex flex-column text-sm">${cela}</div>
-								</c:forEach>
+								{{for #data}}
+									<div class="d-flex flex-column text-sm">{{>#data}}</div>
+								{{/for}}
 							</li>
-						</c:forEach>
+						{{/for}}
 					</ul>
 				{{else}}
 					{{if valor.multiple}}
-						<ul class="list-group">
-							<c:forEach var="fila" items="${valor.valorMultiple}">
+						<ul class="list-group multiple">
+							{{for valor.valorMultiple}}
 								<li class="list-group-item d-flex justify-content-between border-0">
-									<div class="d-flex flex-column text-sm">${fila}</div>
+									<div class="d-flex flex-column text-sm">{{>#data}}</div>
 								</li>
-							</c:forEach>
+							{{/for}}
 						</ul>
 					{{else}}
 						{{:valor.valorSimple}}
@@ -164,7 +278,7 @@
 				<a class="btn btn-default" href="${expedient.id}/dada/{{:campCodi}}/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nova_dada"/></a>
 			{{else}}
 				<div data-document-id="{{:id}}" <%--data-arxivat="{{:arxivat}}" data-psigna="{{psignaInfo}}"--%> class="dropdown accionsDocument">
-					<button class="btn btn-primary" data-toggle="dropdown" style="width:100%;"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
+					<button class="btn btn-primary" data-toggle="dropdown" {{if error || !editable}}disabled="disabled"{{/if}} style="width:100%;"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 					<ul class="dropdown-menu dropdown-menu-right">
 						{{if !error && editable}}
 							{{if editable}}<li><a data-toggle="modal" href="${expedient.id}/dada/{{:id}}/update"><span class="fa fa-pencil fa-fw"></span>&nbsp;<spring:message code="comuns.modificar"/></a></li>{{/if}}
@@ -183,13 +297,23 @@
 </div>
 <script id="tableButtonsDadesTemplate" type="text/x-jsrender">
 	<div class="botons-titol text-right">
-		<a id="boto-ocults" href="#" class="btn btn-default<c:if test="${ambOcults}"> active</c:if>">
-			<c:choose>
-				<c:when test="${ambOcults}"><span class="fa fa-check-square-o"></span></c:when>
-				<c:otherwise><span class="fa fa-square-o"></span></c:otherwise>
-			</c:choose>
-			<spring:message code='expedient.dada.mostrar.ocultes'/>
-		</a>
+		<span style="padding-left: 5px">
+			<span class="fa fa-search" style="position: absolute;float: left;padding-left: 10px;padding-top: 10px;"></span>
+			<input id="searchDades" class="form-control" placeholder="<spring:message code="expedient.dada.filtrar"/>" autocomplete="off" spellcheck="false" autocorrect="off" tabindex="1" style="padding-left: 35px;">
+		</span>
+		<div class="btn-group" data-toggle="buttons">
+			<c:if test="${expedient.permisAdministration}">
+				<label class="btn btn-default" title="<spring:message code='expedient.dada.mostrar.totes'/>">
+					<input type="checkbox" id="boto-totes" autocomplete="off"><span class="fa fa-globe"></span>
+				</label>
+			</c:if>
+			<label class="btn btn-default" title="<spring:message code='expedient.dada.mostrar.ocultes'/>">
+				<input type="checkbox" id="boto-ocults" autocomplete="off"><span class="fa fa-eye-slash"></span>
+			</label>
+			<label class="btn btn-default active" title="<spring:message code='expedient.dada.mostrar.pendents'/>">
+				<input type="checkbox" id="boto-pendents" autocomplete="off" checked><span class="fa fa-plus"></span>
+			</label>
+		</div>
 		<a id="nova_dada" class="btn btn-default" href="${expedient.id}/dada/new" data-toggle="modal" data-adjust-height="false" data-height="350" data-datatable-id="expedientDades"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nova_dada"/></a>
 	</div>
 </script>
