@@ -34,11 +34,9 @@
 			opcionsVisualitzacioChanged('boto-totes');
 		});
 		$('body').on('change', '#boto-ocults', () => {
-			// opcionsVisualitzacioChanged('boto-ocults');
 			filtraDades();
 		});
 		$('body').on('change', '#boto-pendents', () => {
-			// opcionsVisualitzacioChanged('boto-pendents');
 			filtraDades();
 		});
 
@@ -47,11 +45,7 @@
 		})
 
 		$('body').on('keypress', "#searchDades", function (keyData) {
-			// $("#expedientDades tbody").removeHighlight();
-			// if ($(this).val() != '')
-			// $("#expedientDades tbody").highlight($(this).val());
 			if (keyData.which == 13) { //execute on keyenter
-				// opcionsVisualitzacioChanged();
 				filtraDades();
 			}
 		});
@@ -89,7 +83,7 @@
 
 		if (filtre != '')
 			$("#expedientDades tbody").highlight(filtre);
-debugger
+
 		let hideAgrupacio = true;
 		let visibles = 0;
 		$($("#expedientDades tbody>tr").get().reverse()).each((index, fila) => {
@@ -156,21 +150,12 @@ debugger
 	.table-bordered>tbody>tr>td {max-width: 155px;}
 	.no-data {color: #bbb; border: dashed 2px; cursor: default !important;}
 	.btn-top {position: fixed; z-index: 1000; right: 15px; bottom: 50px; background-color: #FFF; padding: 0 5px 0 5px; border-radius: 5px; cursor: pointer; opacity: 0.1;}
-	.doc-icon {color: #337ab7;}
 	.nodoc-icon {margin-right: 12px;}
 	.adjustIcon {top:-2px;}
-	.extensionIcon {color: white; position: relative; left: -26px; top: 5px; font-size: 9px; font-weight: bold; margin-right: -12px;}
-	.doc-error {color: indianred;}
-	.doc-error-icon {top: 3px;}
-	.label-doc {float: right; line-height: 16px;}
-	.doc-details {background-color: #EFF2F5;}
-	.doc-details td {padding: 0px;}
-	.pill-link {position: relative !important; display: block !important; padding: 5px 10px !important; margin-right: 2px !important;}
 	.text-center {text-align: center !important;}
 	.list-group {margin-bottom: 0px !important;}
 	.obligatori {background-position: right 4px !important; padding-right: 10px !important;}
 	.d-flex {display: flex !important;}
-	/*.flex-column {flex-direction: column !important;}*/
 	.justify-content-between {justify-content: space-between !important;}
 	.text-dark {color: #344767 !important;}
 	.font-weight-bold {font-weight: 600 !important;}
@@ -208,8 +193,8 @@ debugger
 		<th data-col-name="obligatori" data-visible="false"/>
 		<th data-col-name="editable" data-visible="false"/>
 		<th data-col-name="ocult" data-visible="false"/>
-		<th data-col-name="tipus" data-orderable="true" width="1%" data-template="#cellTipusTemplate" data-class="text-center">
-			<script id="cellTipusTemplate" type="text/x-jsrender">
+		<th data-col-name="tipus" data-orderable="true" width="1%" data-template="#cellDadaTipusTemplate" data-class="text-center">
+			<script id="cellDadaTipusTemplate" type="text/x-jsrender">
 				{{if tipus == null}}
 					<span class="fa fa-2x fa-file-o nodoc-icon"></span>
 				{{else}}
@@ -228,18 +213,18 @@ debugger
 				{{/if}}
 			</script>
 		</th>
-		<th data-col-name="nom" data-orderable="true" width="20%" data-template="#cellNomTemplate">
+		<th data-col-name="nom" data-orderable="true" width="20%" data-template="#cellDadaNomTemplate">
 			<spring:message code="expedient.tipus.document.llistat.columna.nom"/>
-			<script id="cellNomTemplate" type="text/x-jsrender">
+			<script id="cellDadaNomTemplate" type="text/x-jsrender">
 				<span {{if obligatori}}class="obligatori"{{/if}}>{{:nom}}</span>
 				{{if ocult}}
 					<span class="fa fa-eye-slash pull-right dada-oculta" title="Dada oculta"></span>
 				{{/if}}
 			</script>
 		</th>
-		<th data-col-name="valor" data-orderable="false" width="70%"  data-template="#cellValorTemplate">
+		<th data-col-name="valor" data-orderable="false" width="70%"  data-template="#cellDadaValorTemplate">
 			<spring:message code="expedient.nova.data.valor"/>
-			<script id="cellValorTemplate" type="text/x-jsrender">
+			<script id="cellDadaValorTemplate" type="text/x-jsrender">
 				{{if valor.registre}}
 					<ul class="list-group registre">
 						<li class="list-group-item d-flex justify-content-between border-0">
@@ -272,8 +257,8 @@ debugger
 				{{/if}}
 			</script>
 		</th>
-		<th data-col-name="id" data-template="#cellAccionsTemplate" data-orderable="false" width="5%">
-			<script id="cellAccionsTemplate" type="text/x-jsrender">
+		<th data-col-name="id" data-template="#cellDadaAccionsTemplate" data-orderable="false" width="5%">
+			<script id="cellDadaAccionsTemplate" type="text/x-jsrender">
 			{{if id == null}}
 				<a class="btn btn-default" href="${expedient.id}/dada/{{:campCodi}}/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nova_dada"/></a>
 			{{else}}

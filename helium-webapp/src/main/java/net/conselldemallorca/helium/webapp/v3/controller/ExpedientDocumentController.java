@@ -143,11 +143,12 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			Model model) {
 
+		Boolean tots = Boolean.parseBoolean(request.getParameter("tots"));
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,
-				expedientDocumentService.findDocumentsExpedient(expedientId, paginacioParams),
+				expedientDocumentService.findDocumentsExpedient(expedientId, tots, paginacioParams),
 				"id");
 	}
 

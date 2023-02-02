@@ -51,7 +51,9 @@
 					<%-- Eliminam els checks dels documents inexistents--%>
 					$(element).find(".fa-square-o").remove();
 				}
-			})
+			});
+
+			filtraDadesDoc();
 		});
 
 		// Plegar / Desplegar els detalls d'un document
@@ -75,14 +77,16 @@
 			});
 		});
 
-		$('body').on('click', '#boto-tots', () => {
+		$('body').on('change', '#boto-tots', () => {
 			opcionsVisualitzacioChanged('boto-tots')
+		});
+		$('body').on('change', '#boto-dpendents', () => {
+			filtraDadesDoc();
 		});
 
 		$('body').on('keypress', "#searchDocuments", function (keyData) {
-			debugger
 			if (keyData.which == 13) { //execute on keyenter
-				opcionsVisualitzacioChanged();
+				filtraDadesDoc();
 			}
 		});
 
@@ -107,23 +111,61 @@
 		// })
 	});
 
-	const opcionsVisualitzacioChanged = (id) => {
-		if (id)
-			toggleCheck(id);
-
+	const opcionsVisualitzacioChanged = () => {
 		let serverParams = {};
-		serverParams['tots'] = $("#boto-totes").hasClass("active");
-		if ($("#searchDocuments").val())
-			serverParams['search[value]'] = $("#searchDocuments").val();
-		$('#expedientDades').webutilDatatable('refresh', serverParams);
+		serverParams['tots'] = $("#boto-tots").hasClass("active");
+		$('#expedientDocuments').webutilDatatable('refresh', serverParams);
 	}
 
-	const toggleCheck = (id) => {
-		let boto = $("#" + id);
-		let botoCheck = $("#" + id + "-check");
-		botoCheck.toggleClass("fa-check-square-o");
-		botoCheck.toggleClass("fa-square-o");
-		boto.toggleClass("active");
+	const filtraDadesDoc = () => {
+		const filtre = $("#searchDocuments").val().toLowerCase();
+		const mostrarPendents = $("#boto-dpendents").parent().hasClass("active");
+
+		$("#expedientDocuments tbody").removeHighlight();
+		$("#expedientDocuments tr").show();
+
+		if (filtre != '')
+			$("#expedientDocuments tbody").highlight(filtre);
+
+		let visibles = 0;
+		$("#expedientDocuments tbody>tr").not(".datatable-dades-carregant,#expedientDocuments_noDades").each((index, fila) => {
+			if (visualitzarFilaDoc(fila, filtre, mostrarPendents)) {
+				visibles++;
+				$(fila).show();
+			} else {
+				$(fila).hide();
+			}
+		});
+		if (visibles > 0) {
+			$("#expedientDocuments_info").text("Mostrant 1 a " + visibles + " de " + visibles + " resultats");
+			$('#expedientDocuments_noDades').hide();
+		} else {
+			$("#expedientDocuments_info").text("Mostrant 0 resultats");
+			if($('#expedientDocuments_noDades').length){
+				$('#expedientDocuments_noDades').show();
+			}else{
+				$('<tr id="expedientDocuments_noDades"><td colspan="4">Sense dades</td></tr>').appendTo("#expedientDocuments tbody");
+			}
+		}
+		$(".datatable-dades-carregant").hide();
+	}
+
+	const visualitzarFilaDoc = (fila, filtre, mostrarPendents) => {
+		let mostrar = true;
+		if (!mostrarPendents) {
+			if ($(fila).hasClass("no-data")) {
+				mostrar = false;
+			}
+		}
+		if (mostrar && filtre != '') {
+			if (!$(fila).find('td:eq(1)').text().toLowerCase().includes(filtre) &&
+					!$(fila).find('td:eq(2)').text().toLowerCase().includes(filtre) &&
+					!$(fila).find('td:eq(3)').text().toLowerCase().includes(filtre) &&
+					!$(fila).find('td:eq(4)').text().toLowerCase().includes(filtre)) {
+				mostrar = false;
+			}
+		}
+		return mostrar;
 	}
 
 	// const esborrarSignatura = (id, correcte) => {
@@ -160,6 +202,7 @@
 	.doc-details {background-color: #EFF2F5;}
 	.doc-details td {padding: 0px;}
 	.pill-link {position: relative !important; display: block !important; padding: 5px 10px !important; margin-right: 2px !important;}
+	.highlight {background-color: #fff34d; color: black; padding:1px 2px;}
 </style>
 
 <c:url var="urlDatatable" value="/v3/expedient/${expedient.id}/document/datatable"/>
@@ -171,7 +214,7 @@
 		  data-paging-enabled="false"
 		  data-ordering="true"
 		  data-default-order="24"
-		  data-info-type="search+button"
+		  data-info-type="button"
 		  data-rowcolid-nullclass="no-data"
 		  data-selection-enabled="true"
 		  data-selection-url="${expedient.id}/document/selection"
@@ -406,12 +449,16 @@
 			<span class="fa fa-search" style="position: absolute;float: left;padding-left: 10px;padding-top: 10px;"></span>
 			<input id="searchDocuments" class="form-control" placeholder="<spring:message code="expedient.document.filtrar"/>" autocomplete="off" spellcheck="false" autocorrect="off" tabindex="1" style="padding-left: 35px;">
 		</span>
-		<c:if test="${expedient.permisAdministration}">
-			<a id="boto-tots" href="#" class="btn btn-default">
-				<span id="boto-tots-check" class="fa fa-square-o"></span>
-				<spring:message code='expedient.document.mostrar.tots'/>
-			</a>
-		</c:if>
+		<div class="btn-group" data-toggle="buttons">
+			<c:if test="${expedient.permisAdministration}">
+				<label class="btn btn-default" title="<spring:message code='expedient.document.mostrar.tots'/>">
+					<input type="checkbox" id="boto-tots" autocomplete="off"><span class="fa fa-globe"></span>
+				</label>
+			</c:if>
+			<label class="btn btn-default active" title="<spring:message code='expedient.dada.mostrar.pendents'/>">
+				<input type="checkbox" id="boto-dpendents" autocomplete="off" checked><span class="fa fa-plus"></span>
+			</label>
+		</div>
 		<a id="descarregarZip" href="<c:url value="/v3/expedient/${expedient.id}/document/descarregarZip"/>" class="btn btn-default" title="<spring:message code="expedient.document.descarregar.zip"/>">
 			<span class="fa fa-download"></span> <spring:message code="comu.boto.descarregar"/> <span id="descarregarCount" class="badge"></span>
 		</a>

@@ -184,7 +184,7 @@ public interface ExpedientDocumentService {
 			Long expedientId,
 			String processInstanceId) throws NoTrobatException, PermisDenegatException;
 
-	public List<DocumentListDto> findDocumentsExpedient(Long expedientId, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException;
+	public List<DocumentListDto> findDocumentsExpedient(Long expedientId, Boolean tots, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException;
 	/**
 	 * Retorna un document d'una instància de procés de
 	 * l'expedient.

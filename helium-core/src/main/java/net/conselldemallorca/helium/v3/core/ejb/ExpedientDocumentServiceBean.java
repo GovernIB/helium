@@ -149,8 +149,8 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 
     @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-    public List<DocumentListDto> findDocumentsExpedient(Long expedientId, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
-        return delegate.findDocumentsExpedient(expedientId, paginacioParams);
+    public List<DocumentListDto> findDocumentsExpedient(Long expedientId, Boolean tots, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
+        return delegate.findDocumentsExpedient(expedientId, tots, paginacioParams);
     }
 
     @Override

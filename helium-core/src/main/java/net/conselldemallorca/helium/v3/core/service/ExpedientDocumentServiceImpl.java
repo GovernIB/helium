@@ -543,7 +543,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
     @Override
 	@Transactional(readOnly = true)
-    public List<DocumentListDto> findDocumentsExpedient(Long expedientId, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
+    public List<DocumentListDto> findDocumentsExpedient(Long expedientId, Boolean tots, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
 		logger.debug("Consulta els documents de l'expedient' (expedientId=" + expedientId + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
@@ -551,8 +551,23 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				false,
 				false,
 				false);
-		String processInstanceId = expedient.getProcessInstanceId();
 
+		if (tots) {
+			// Comprovam que l'usuari té permisos d'administrador sobre l'expedient
+			try {
+				expedientHelper.getExpedientComprovantPermisos(
+						expedientId,
+						false,
+						false,
+						false,
+						true);
+			} catch (PermisDenegatException pde) {
+				// Si no es tenen permisos d'administrador no es mostraran totes les dades
+				tots = false;
+			}
+		}
+
+		String processInstanceId = expedient.getProcessInstanceId();
 		List<Document> documentsTipusExpedient = documentRepository.findByExpedientTipusId(expedient.getTipus().getId());
 		List<ExpedientDocumentDto> documentsExpedient = findAmbInstanciaProces(expedientId, expedient.getProcessInstanceId());
 		List<PortasignaturesDto> documentsPsignaPendent = portasignaturesFindPendents(expedientId, expedient.getProcessInstanceId());
@@ -564,7 +579,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		// Documents definits al tipus d'expedient
 		for (Document dTipExp: documentsTipusExpedient) {
 			CampFormProperties documentFormProperties = documentsFormProperties.get(dTipExp.getCodi());
-			if (documentFormProperties != null && !documentFormProperties.isVisible())
+			if (!tots && documentFormProperties != null && !documentFormProperties.isVisible())
 				continue;
 
 			ExpedientDocumentDto dExp = getDocumentExpedient(documentsExpedient, dTipExp.getCodi());

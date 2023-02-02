@@ -19,6 +19,7 @@ import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.v3.core.api.dto.*;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.CampFormProperties;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.regles.ReglaHelper;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -380,6 +381,22 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				false,
 				false,
 				false);
+
+		if (totes) {
+			// Comprovam que l'usuari té permisos d'administrador sobre l'expedient
+			try {
+				expedientHelper.getExpedientComprovantPermisos(
+						expedientId,
+						false,
+						false,
+						false,
+						true);
+			} catch (PermisDenegatException pde) {
+				// Si no es tenen permisos d'administrador no es mostraran totes les dades
+				totes = false;
+			}
+		}
+
 		String processInstanceId = expedient.getProcessInstanceId();
 		String filtre = paginacioParams.getFiltre();
 		boolean filtrar = !StringUtils.isEmpty(filtre);
