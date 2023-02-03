@@ -467,20 +467,15 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		
 		ExpedientDocumentDto document = this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
 		//Validar que tingui els permissos de gestió documental o administrar
-		try {
-			Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-						expedientId,
-						new Permission[] {
-								ExtendedPermission.DOC_MANAGE,
-								ExtendedPermission.ADMINISTRATION});
-		} catch (Exception e) {
-			MissatgesHelper.error(request, 
+		
+		ExpedientDto expedientDto = expedientService.findAmbIdAmbPermis(expedientId);
+		if (!expedientDto.isPermisDocManagement() || !expedientDto.isPermisAdministration()) {
+				MissatgesHelper.error(request, 
 					getMessage(request, 
 							"expedient.document.notificar.validacio.no.permisos"));
-			return modalUrlTancar(false);
-		}
-		
-		
+				return modalUrlTancar(false);
+			}
+
 		// Validar que l'arxiu sigui convertible a pdf o zip
 		if (!PdfUtils.isArxiuConvertiblePdf(document.getArxiuNom())
 				&& !"zip".equals((document.getArxiuExtensio() != null ? document.getArxiuExtensio().toLowerCase() :  ""))) {
