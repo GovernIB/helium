@@ -74,6 +74,7 @@
 	}
 
 	const filtraDades = () => {
+		debugger;
 		const filtre = $("#searchDades").val().toLowerCase();
 		const mostrarOcults = $("#boto-ocults").parent().hasClass("active");
 		const mostrarPendents = $("#boto-pendents").parent().hasClass("active");
@@ -86,7 +87,7 @@
 
 		let hideAgrupacio = true;
 		let visibles = 0;
-		$($("#expedientDades tbody>tr").get().reverse()).each((index, fila) => {
+		$($("#expedientDades tbody>tr").not(".datatable-dades-carregant,#expedientDades_noDades").get().reverse()).each((index, fila) => {
 			if ($(fila).hasClass('group')) {
 				if (hideAgrupacio && filtre != '' && $(fila).find('td:eq(0)').text().toLowerCase().includes(filtre)) {
 					let varsAgrupacio = $(fila).nextUntil('.group');
