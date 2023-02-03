@@ -73,7 +73,8 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 		EXPEDIENT_FINALITZAR,
 		EXPEDIENT_DESFINALITZAR,		// 35
 		EXPEDIENT_MIGRAR_ARXIU,
-		ANOTACIO_RELACIONAR
+		ANOTACIO_RELACIONAR,
+		EXPEDIENT_ESTAT_CANVIAR
 		}			
 
 	public enum ExpedientLogEstat {
@@ -272,7 +273,9 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_FINALITZAR) ||
 				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_DESFINALITZAR) ||
 				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_MIGRAR_ARXIU) ||
-				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR_TASQUES);
+				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR_TASQUES) ||
+				accioTipus.equals(ExpedientLogAccioTipus.ANOTACIO_RELACIONAR) ||
+				accioTipus.equals(ExpedientLogAccioTipus.EXPEDIENT_ESTAT_CANVIAR);
 	}
 
 	@Override

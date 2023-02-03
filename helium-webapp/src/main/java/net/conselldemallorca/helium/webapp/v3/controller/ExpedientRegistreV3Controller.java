@@ -68,6 +68,30 @@ public class ExpedientRegistreV3Controller extends BaseExpedientController {
 		return "v3/expedientLog";
 	}
 
+	/** Vista simplificada per expedients basats en estats. En comptes de veuve el registre per
+	 * procesos es mostra una taula amb els canvis d'estat.
+	 * @param request
+	 * @param expedientId
+	 * @param tipus_retroces
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/{expedientId}/estat", method = RequestMethod.GET)
+	public String estat(
+			HttpServletRequest request, 
+			@PathVariable Long expedientId,
+			Model model) {
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);		
+		model.addAttribute(
+				"expedient",
+				expedient);
+		model.addAttribute(
+				"logs",
+				expedientRegistreService.registreFindExpedientCanvisEstat(
+						expedient.getId()));
+		return "v3/expedientEstat";
+	}
+
 	@RequestMapping(value = "retrocedir")
 	@ResponseBody
 	public boolean retrocedir(

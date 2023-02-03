@@ -3288,7 +3288,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		}
 
 		if (expedient.getEstat() != null) {
-			List<EstatAccioSortida> accionsSortida = estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(expedient.getEstat());
+			List<EstatAccioSortida> accionsSortida = estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estatActual);
 			// Executa les accions de sortida
 			for (EstatAccioSortida estatAccioSortida : accionsSortida) {
 				this.executarAccio(null, estatAccioSortida.getAccio(), expedient);
@@ -3309,10 +3309,10 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		expedientHelper.verificarFinalitzacioExpedient(expedient);
 		indexHelper.expedientIndexLuceneUpdate(expedient.getProcessInstanceId());
 		
-//		expedientLoggerHelper.afegirLogExpedientPerExpedient(
-//				expedient.getId(),
-//				ExpedientLogAccioTipus.EXPEDIENT_MODIFICAR,
-//				null);
+		expedientLoggerHelper.afegirLogExpedientPerExpedient(
+				expedient.getId(),
+				ExpedientLogAccioTipus.EXPEDIENT_ESTAT_CANVIAR,
+				expedient.getEstat() != null ? expedient.getEstat().getNom() : "-");
 		
 		return conversioTipusHelper.convertir(estat, EstatDto.class);
 	}
