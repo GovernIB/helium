@@ -976,6 +976,8 @@ public interface ExpedientService {
 	 */
 	public byte[] getZipDocumentacio(Long expedientId);
 
+	public byte[] getZipDocumentacio(Long expedientId, Set<Long> seleccio);
+
 	/** Actualitza les metadade NTI que falten a partir de la informació de l'Arxiu
 	 * per l'expedient i pels documents. En principi a partir de la versió 3.2.112
 	 * ja no s'haurien de produir errors després de migrar un expedient sense dades

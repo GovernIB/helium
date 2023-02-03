@@ -74,7 +74,6 @@
 	}
 
 	const filtraDades = () => {
-		debugger;
 		const filtre = $("#searchDades").val().toLowerCase();
 		const mostrarOcults = $("#boto-ocults").parent().hasClass("active");
 		const mostrarPendents = $("#boto-pendents").parent().hasClass("active");

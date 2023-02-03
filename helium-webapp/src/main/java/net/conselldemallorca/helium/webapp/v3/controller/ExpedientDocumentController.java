@@ -172,7 +172,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@RequestParam(value = "ids[]", required = false) Long[] ids,
 			@RequestParam(value = "method", required = false) String method,
 			Model model) {
-		return documentSelectionTipus(request, expedientId, null, ids, method, model);
+		return documentSelectionTipus(request, expedientId, "selection", ids, method, model);
 	}
 
 	@RequestMapping(value = "/{expedientId}/document/selection/{tipus}", method = RequestMethod.POST)
@@ -195,7 +195,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		if ("selection".equalsIgnoreCase(tipus)) {
 			if ("add".equalsIgnoreCase(method) && ids != null) {
 				for (Long idu: ids) {
-					if (!seleccio.contains(idu)) {
+					if (idu != null && !seleccio.contains(idu)) {
 						seleccio.add(idu);
 					}
 				}
@@ -1431,6 +1431,25 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			model.addAttribute(
 					ArxiuView.MODEL_ATTRIBUTE_DATA,
 					expedientService.getZipDocumentacio(expedientId));
+		} catch(Exception e) {
+			MissatgesHelper.error(request, getMessage(request, "expedient.document.descarregar.zip.error", new Object[]{ e.getMessage() } ));
+		}
+		return "arxiuView";
+	}
+
+	@RequestMapping(value = "/{expedientId}/document/descarregar", method = RequestMethod.GET)
+	public String descarregarDocumentacio(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model)  {
+		try {
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+			SessionHelper.SessionManager sessionManager = SessionHelper.getSessionManager(request);
+			Set<Long> seleccio = sessionManager.getSeleccioDocuments(expedientId);
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, expedient.getIdentificador() + ".zip");
+			model.addAttribute(
+					ArxiuView.MODEL_ATTRIBUTE_DATA,
+					expedientService.getZipDocumentacio(expedientId, seleccio));
 		} catch(Exception e) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.document.descarregar.zip.error", new Object[]{ e.getMessage() } ));
 		}
