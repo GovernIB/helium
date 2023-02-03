@@ -87,9 +87,9 @@ public class ReglaHelper {
             for(Camp dada: dades) {
                 VariableFact variableFact = VariableFact.builder()
                         .qui(regla.getQui())
-                        .quiValors(regla.getQuiValor())
+                        .quiValors(getCodiValors(regla.getQuiValor()))
                         .que(regla.getQue())
-                        .queValors(regla.getQueValor())
+                        .queValors(getCodiValors(regla.getQueValor()))
                         .accio(regla.getAccio())
                         .usuariCodi(usuariCodi)
                         .usuariRols(usuariRols)
@@ -98,15 +98,12 @@ public class ReglaHelper {
                         .varCodi(dada.getCodi())
                         .agrupacioCodi(dada.getAgrupacio() != null ? dada.getAgrupacio().getCodi() : null)
                         .build();
-                facts.put(dada.getCodi(), variableFact);
+                facts.put("fact", variableFact);
+                rulesEngine.fire(rules, facts);
+                campFormPropertiesMap.put(dada.getCodi(), getCampFormProperties(variableFact));
             }
         }
 
-        rulesEngine.fire(rules, facts);
-        while (facts.iterator().hasNext()) {
-            Map.Entry<String, Object> fact = facts.iterator().next();
-            campFormPropertiesMap.put(fact.getKey(), getCampFormProperties((VariableFact) fact.getValue()));
-        }
         return campFormPropertiesMap;
     }
 
@@ -133,9 +130,9 @@ public class ReglaHelper {
             for(Document document: documents) {
                 VariableFact variableFact = VariableFact.builder()
                         .qui(regla.getQui())
-                        .quiValors(regla.getQuiValor())
+                        .quiValors(getCodiValors(regla.getQuiValor()))
                         .que(regla.getQue())
-                        .queValors(regla.getQueValor())
+                        .queValors(getCodiValors(regla.getQueValor()))
                         .accio(regla.getAccio())
                         .usuariCodi(usuariCodi)
                         .usuariRols(usuariRols)
@@ -143,15 +140,12 @@ public class ReglaHelper {
                         .varCodi(document.getCodi())
                         .agrupacioCodi(null)
                         .build();
-                facts.put(document.getCodi(), variableFact);
+                facts.put("fact", variableFact);
+                rulesEngine.fire(rules, facts);
+                campFormPropertiesMap.put(document.getCodi(), getCampFormProperties(variableFact));
             }
         }
 
-        rulesEngine.fire(rules, facts);
-        while (facts.iterator().hasNext()) {
-            Map.Entry<String, Object> fact = facts.iterator().next();
-            campFormPropertiesMap.put(fact.getKey(), getCampFormProperties((VariableFact) fact.getValue()));
-        }
         return campFormPropertiesMap;
     }
 
@@ -178,9 +172,9 @@ public class ReglaHelper {
             for(Termini termini: terminis) {
                 VariableFact variableFact = VariableFact.builder()
                         .qui(regla.getQui())
-                        .quiValors(regla.getQuiValor())
+                        .quiValors(getCodiValors(regla.getQuiValor()))
                         .que(regla.getQue())
-                        .queValors(regla.getQueValor())
+                        .queValors(getCodiValors(regla.getQueValor()))
                         .accio(regla.getAccio())
                         .usuariCodi(usuariCodi)
                         .usuariRols(usuariRols)
@@ -188,15 +182,12 @@ public class ReglaHelper {
                         .varCodi(termini.getCodi())
                         .agrupacioCodi(null)
                         .build();
-                facts.put(termini.getCodi(), variableFact);
+                facts.put("fact", variableFact);
+                rulesEngine.fire(rules, facts);
+                campFormPropertiesMap.put(termini.getCodi(), getCampFormProperties(variableFact));
             }
         }
 
-        rulesEngine.fire(rules, facts);
-        while (facts.iterator().hasNext()) {
-            Map.Entry<String, Object> fact = facts.iterator().next();
-            campFormPropertiesMap.put(fact.getKey(), getCampFormProperties((VariableFact) fact.getValue()));
-        }
         return campFormPropertiesMap;
     }
 
@@ -206,5 +197,16 @@ public class ReglaHelper {
                 .editable(fact.isEditable())
                 .obligatori(fact.isObligatori())
                 .build();
+    }
+
+    private Set<String> getCodiValors(Set<String> valors) {
+        if (valors == null)
+            return null;
+
+        Set<String> codis = new HashSet<String>();
+        for(String valor: valors) {
+            codis.add(valor.split(" \\| ")[0]);
+        }
+        return codis;
     }
 }

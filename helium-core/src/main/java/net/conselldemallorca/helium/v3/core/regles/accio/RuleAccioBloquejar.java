@@ -9,7 +9,7 @@ import org.jeasy.rules.annotation.Fact;
 import org.jeasy.rules.annotation.Rule;
 import org.jeasy.rules.api.Facts;
 
-@Rule(priority = 11)
+@Rule(priority = 24)
 public class RuleAccioBloquejar {
 
     @Condition

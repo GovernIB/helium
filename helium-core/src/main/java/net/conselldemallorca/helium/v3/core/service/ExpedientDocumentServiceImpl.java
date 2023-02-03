@@ -574,18 +574,17 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		Map<String, CampFormProperties> documentsFormProperties = reglaHelper.getDocumentFormProperties(expedient.getTipus(), expedient.getEstat());
 
 		List<DocumentListDto> documents = new ArrayList<DocumentListDto>();
-		List<Long> documentIds = new ArrayList<Long>();
+		List<String> documentCodis = new ArrayList<String>();
 
 		// Documents definits al tipus d'expedient
 		for (Document dTipExp: documentsTipusExpedient) {
+			documentCodis.add(dTipExp.getCodi());
 			CampFormProperties documentFormProperties = documentsFormProperties.get(dTipExp.getCodi());
 			if (!tots && documentFormProperties != null && !documentFormProperties.isVisible())
 				continue;
 
 			ExpedientDocumentDto dExp = getDocumentExpedient(documentsExpedient, dTipExp.getCodi());
 			PortasignaturesDto dPsigna = dExp != null ? getDocumentPsignaPendent(documentsPsignaPendent, dExp.getId()) : null;
-			if (dExp != null)
-				documentIds.add(dExp.getId());
 
 			DocumentListDto document = null;
 			if (dExp == null) {
@@ -607,7 +606,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
 		// Documents adjunts
 		for(ExpedientDocumentDto dExp: documentsExpedient) {
-			if (documentIds.contains(dExp.getId()))
+			if (documentCodis.contains(dExp.getDocumentCodi()))
 				continue;
 
 			CampFormProperties documentFormProperties = documentsFormProperties.get(dExp.getDocumentCodi());

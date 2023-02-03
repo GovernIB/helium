@@ -9,7 +9,7 @@ import org.jeasy.rules.annotation.Fact;
 import org.jeasy.rules.annotation.Rule;
 import org.jeasy.rules.api.Facts;
 
-@Rule(priority = 16)
+@Rule(priority = 17)
 public class RuleQueDocument {
 
     @Condition

@@ -10,7 +10,7 @@ import org.jeasy.rules.annotation.Fact;
 import org.jeasy.rules.annotation.Rule;
 import org.jeasy.rules.api.Facts;
 
-@Rule(priority = 13)
+@Rule(priority = 14)
 public class RuleQueTerminis {
 
     @Condition

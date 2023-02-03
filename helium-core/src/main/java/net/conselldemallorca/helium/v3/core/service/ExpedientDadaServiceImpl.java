@@ -407,19 +407,16 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		List<String> dadesCodis = new ArrayList<String>();
 
 		for (Camp camp: camps) {
-
+			dadesCodis.add(camp.getCodi());
 			if (camp.isOcult() && !ambOcults)
 				continue;
-
+			if (filtrar && !camp.getEtiqueta().contains(filtre))
+				continue;
 			CampFormProperties campFormProperties = campsFormProperties.get(camp.getCodi());
 			if (!totes && campFormProperties != null && !campFormProperties.isVisible())
 				continue;
 
-			if (filtrar && !camp.getEtiqueta().contains(filtre))
-				continue;
-
 			ExpedientDadaDto dadaExp = getDadaExpedient(dadesExpedient, camp.getId());
-
 			if (dadaExp == null) {
 				if (!noPendents)
 					dades.add(DadaListDto.builder()
@@ -437,7 +434,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 							.valor(DadaValorDto.builder().build())
 							.build());
 			} else {
-				dadesCodis.add(dadaExp.getVarCodi());
+//				dadesCodis.add(dadaExp.getVarCodi());
 				dades.add(toDadaListDto(camp, dadaExp, campFormProperties, processInstanceId, expedientId));
 			}
 		}

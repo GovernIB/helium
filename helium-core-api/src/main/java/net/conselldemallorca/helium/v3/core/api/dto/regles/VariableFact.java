@@ -31,7 +31,9 @@ public class VariableFact {
     private Set<String> usuariCarrecIds;
 
     // Camps que defineixen com mostrar la variable
+    @Builder.Default
     private boolean visible = true;
+    @Builder.Default
     private boolean editable = true;
     private boolean obligatori = false;
 
