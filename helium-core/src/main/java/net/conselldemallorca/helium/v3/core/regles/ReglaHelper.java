@@ -83,8 +83,9 @@ public class ReglaHelper {
 //        }
 
         Facts facts = new Facts();
-        for(EstatRegla regla: regles) {
-            for(Camp dada: dades) {
+        for(Camp dada: dades) {
+            CampFormProperties campFormProperties = getDefaultCampFormProperties();
+            for(EstatRegla regla: regles) {
                 VariableFact variableFact = VariableFact.builder()
                         .qui(regla.getQui())
                         .quiValors(getCodiValors(regla.getQuiValor()))
@@ -97,11 +98,15 @@ public class ReglaHelper {
                         .tipus(TipusVarEnum.DADA)
                         .varCodi(dada.getCodi())
                         .agrupacioCodi(dada.getAgrupacio() != null ? dada.getAgrupacio().getCodi() : null)
+                        .visible(campFormProperties.isVisible())
+                        .editable(campFormProperties.isEditable())
+                        .obligatori(campFormProperties.isObligatori())
                         .build();
                 facts.put("fact", variableFact);
                 rulesEngine.fire(rules, facts);
-                campFormPropertiesMap.put(dada.getCodi(), getCampFormProperties(variableFact));
+                campFormProperties = getCampFormProperties(variableFact);
             }
+            campFormPropertiesMap.put(dada.getCodi(), campFormProperties);
         }
 
         return campFormPropertiesMap;
@@ -126,8 +131,9 @@ public class ReglaHelper {
             usuariRols.add(ga.getAuthority());
 
         Facts facts = new Facts();
-        for(EstatRegla regla: regles) {
-            for(Document document: documents) {
+        for(Document document: documents) {
+            CampFormProperties campFormProperties = getDefaultCampFormProperties();
+            for(EstatRegla regla: regles) {
                 VariableFact variableFact = VariableFact.builder()
                         .qui(regla.getQui())
                         .quiValors(getCodiValors(regla.getQuiValor()))
@@ -139,11 +145,15 @@ public class ReglaHelper {
                         .tipus(TipusVarEnum.DOCUMENT)
                         .varCodi(document.getCodi())
                         .agrupacioCodi(null)
+                        .visible(campFormProperties.isVisible())
+                        .editable(campFormProperties.isEditable())
+                        .obligatori(campFormProperties.isObligatori())
                         .build();
                 facts.put("fact", variableFact);
                 rulesEngine.fire(rules, facts);
-                campFormPropertiesMap.put(document.getCodi(), getCampFormProperties(variableFact));
+                campFormProperties = getCampFormProperties(variableFact);
             }
+            campFormPropertiesMap.put(document.getCodi(), campFormProperties);
         }
 
         return campFormPropertiesMap;
@@ -168,8 +178,9 @@ public class ReglaHelper {
             usuariRols.add(ga.getAuthority());
 
         Facts facts = new Facts();
-        for(EstatRegla regla: regles) {
-            for(Termini termini: terminis) {
+        for(Termini termini: terminis) {
+            CampFormProperties campFormProperties = getDefaultCampFormProperties();
+            for(EstatRegla regla: regles) {
                 VariableFact variableFact = VariableFact.builder()
                         .qui(regla.getQui())
                         .quiValors(getCodiValors(regla.getQuiValor()))
@@ -181,11 +192,15 @@ public class ReglaHelper {
                         .tipus(TipusVarEnum.TERMINI)
                         .varCodi(termini.getCodi())
                         .agrupacioCodi(null)
+                        .visible(campFormProperties.isVisible())
+                        .editable(campFormProperties.isEditable())
+                        .obligatori(campFormProperties.isObligatori())
                         .build();
                 facts.put("fact", variableFact);
                 rulesEngine.fire(rules, facts);
-                campFormPropertiesMap.put(termini.getCodi(), getCampFormProperties(variableFact));
+                campFormProperties = getCampFormProperties(variableFact);
             }
+            campFormPropertiesMap.put(termini.getCodi(), campFormProperties);
         }
 
         return campFormPropertiesMap;
@@ -196,6 +211,14 @@ public class ReglaHelper {
                 .visible(fact.isVisible())
                 .editable(fact.isEditable())
                 .obligatori(fact.isObligatori())
+                .build();
+    }
+
+    private CampFormProperties getDefaultCampFormProperties() {
+        return CampFormProperties.builder()
+                .visible(true)
+                .editable(true)
+                .obligatori(false)
                 .build();
     }
 

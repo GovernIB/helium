@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 
 @Data
 @Builder
@@ -19,8 +20,8 @@ public class EstatReglaDto {
     private Long expedientTipusId;
     private Long estatId;
     private QuiEnum qui;
-    private Set<String> quiValor;
+    private SortedSet<String> quiValor;
     private QueEnum que;
-    private Set<String> queValor;
+    private SortedSet<String> queValor;
     private AccioEnum accio;
 }
