@@ -30,6 +30,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.repository.DocumentNotificacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
@@ -60,6 +61,10 @@ public class NotificacioHelper {
 	private PluginHelper pluginHelper;
 	@Resource
 	private DocumentHelperV3 documentHelperV3;
+	@Resource
+	private MonitorIntegracioHelper monitorIntegracioHelper;
+	@Resource
+	private UsuariActualHelper usuariActualHelper;
 
 
 	// Notificació SISTRA
@@ -145,6 +150,21 @@ public class NotificacioHelper {
 	public DocumentNotificacio altaNotificacio(
 			Expedient expedient,
 			DadesNotificacioDto dadesNotificacioDto) {
+		
+		//Si no troba la persona llença excepció
+		PersonaDto persona = null;
+		String error = null;
+		try {	
+			persona = pluginHelper.personaFindAmbCodi(usuariActualHelper.getUsuariActual());
+			if (persona==null || "anonymousUser".equals(persona.getCodi())) {
+				throw new NoTrobatException(PersonaDto.class, usuariActualHelper.getUsuariActual());
+			}
+		} catch (NoTrobatException e) {
+			error = "L'usuari autenticat " + usuariActualHelper.getUsuariActual() + 
+					" no s'ha pogut consultar i provocarà error de notificació al Notib.";
+			throw new RuntimeException(error, e);
+		}
+		
 		
 		RespostaEnviar resposta = null; 
 		try {
