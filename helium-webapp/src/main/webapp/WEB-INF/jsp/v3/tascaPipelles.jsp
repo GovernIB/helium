@@ -207,7 +207,7 @@ function refrescarAlertesFunction() {
 			</ul>
 			<div class="tab-content">
 				<c:if test="${hasFormulari}">
-					<div id="tasca-form" class="tab-pane active" data-href="<c:url value="/nodeco/v3/tasca/${tasca.id}/form"/>"></div>
+					<div id="tasca-form" class="tab-pane active" data-href="<c:url value="/nodeco/v3/tasca/${tasca.id}/form?reproId=${reproId}"/>"></div>
 				</c:if>
 				<c:if test="${hasDocuments}">
 					<c:choose>

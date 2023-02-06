@@ -168,21 +168,22 @@ public class TascaTramitacioController extends BaseTascaController {
 		boolean bloquejarEdicioTasca = tascaService.isEnSegonPla(tascaId);
 		model.addAttribute("bloquejarEdicioTasca", bloquejarEdicioTasca);
 		
-		Map<String,Object> variables = null;
-		if (reproId != null) {
-			variables = reproService.findValorsById(reproId);
-			List<TascaDadaDto> tascaDades = tascaService.findDades(tascaId);
-			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
-			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
-			Object commandValidar = TascaFormHelper.getCommandForCamps(
-					tascaDades,
-					variables,
-					campsAddicionals,
-					campsAddicionalsClasses,
-					false);
-			model.addAttribute("command", commandValidar);
-			SessionHelper.setAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId, commandValidar);
-		}
+		model.addAttribute("reproId", reproId);
+//		Map<String,Object> variables = null;
+//		if (reproId != null) {
+//			variables = reproService.findValorsById(reproId);
+//			List<TascaDadaDto> tascaDades = tascaService.findDades(tascaId);
+//			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+//			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+//			Object commandValidar = TascaFormHelper.getCommandForCamps(
+//					tascaDades,
+//					variables,
+//					campsAddicionals,
+//					campsAddicionalsClasses,
+//					false);
+//			model.addAttribute("command", commandValidar);
+//			SessionHelper.setAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId, commandValidar);
+//		}
 
 		if (bloquejarEdicioTasca) {
 			MissatgesHelper.warning(request, getMessage(request, "expedient.tasca.segon.pla.bloquejada"));
@@ -227,6 +228,7 @@ public class TascaTramitacioController extends BaseTascaController {
 	public String form(
 			HttpServletRequest request,
 			@PathVariable String tascaId,
+			@RequestParam(required=false) Long reproId,
 			Model model) throws Exception {
 		model.addAttribute("bloquejarEdicioTasca", tascaService.isEnSegonPla(tascaId));
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
@@ -248,7 +250,8 @@ public class TascaTramitacioController extends BaseTascaController {
 				request,
 				tascaId,
 				model,
-				null);
+				null,
+				reproId);
 		
 		return "v3/tascaForm";
 	}
@@ -1011,22 +1014,11 @@ public class TascaTramitacioController extends BaseTascaController {
 			HttpServletRequest request,
 			String tascaId,
 			Model model,
-			Map<String, Object> valorsFormulariExtern) throws Exception {		
+			Map<String, Object> valorsFormulariExtern,
+			Long reproId) throws Exception {		
 		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 		model.addAttribute("tasca", tasca);
-		List<TascaDadaDto> dades = tascaService.findDades(tascaId);
-		/*if (logger.isDebugEnabled()) {
-			logger.debug("Dades de la tasca (id=" + tascaId + ", titol=" + tasca.getTitol() + ", numDades=" + dades.size() + ")");
-			for (TascaDadaDto dada: dades) {
-				logger.debug("    Dada (" +
-						"varCodi=" + dada.getVarCodi() + ", " +
-						"campEtiqueta=" + dada.getCampEtiqueta() + ", " +
-						"campTipus=" + dada.getCampTipus() + ", " +
-						"text=" + dada.getTextMultiple() + ", " +
-						"class=" + dada.getJavaClassMultiple() + ")");
-			}
-		}*/
-		
+		List<TascaDadaDto> dades = tascaService.findDades(tascaId);		
 		Map<CampAgrupacioDto, List<TascaDadaDto>> mapDades = new TreeMap<CampAgrupacioDto, List<TascaDadaDto>>(
 				// Comparador d'ordre d'agrupacions, primer la null, després heretades i finalment pròpies
 				new Comparator<CampAgrupacioDto>() {
@@ -1098,24 +1090,37 @@ public class TascaTramitacioController extends BaseTascaController {
 			listTerminis.add(new ParellaCodiValorDto(String.valueOf(i), i));
 		model.addAttribute("listTerminis", listTerminis);
 		
-		Object tascaFormCommand = SessionHelper.getAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId);
-		SessionHelper.removeAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId);		
-		if (tascaFormCommand == null) {
-			tascaFormCommand = inicialitzarTascaFormCommand(
-					request,
-					tascaId,
-					model,
-					valorsFormulariExtern);
+		if (reproId != null) {
+			Map<String,Object> variables = reproService.findValorsById(reproId);
+			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+			Object commandRepro = TascaFormHelper.getCommandForCamps(
+					dades,
+					variables,
+					campsAddicionals,
+					campsAddicionalsClasses,
+					false);
+			model.addAttribute("command", commandRepro);
 		} else {
-			Object bindingResult = SessionHelper.getAttribute(request,VARIABLE_COMMAND_BINDING_RESULT_TRAMITACIO+tascaId);
-			SessionHelper.removeAttribute(request,VARIABLE_COMMAND_BINDING_RESULT_TRAMITACIO+tascaId);
-			model.addAttribute("org.springframework.validation.BindingResult.command", bindingResult);
+			Object tascaFormCommand = SessionHelper.getAttribute(request,VARIABLE_COMMAND_TRAMITACIO+tascaId);
+			if (tascaFormCommand == null) {
+				tascaFormCommand = inicialitzarTascaFormCommand(
+						request,
+						tascaId,
+						model,
+						valorsFormulariExtern);
+			} else {
+				SessionHelper.removeAttribute(request, VARIABLE_COMMAND_TRAMITACIO+tascaId);
+				Object bindingResult = SessionHelper.getAttribute(request,VARIABLE_COMMAND_BINDING_RESULT_TRAMITACIO+tascaId);
+				SessionHelper.removeAttribute(request,VARIABLE_COMMAND_BINDING_RESULT_TRAMITACIO+tascaId);
+				model.addAttribute("org.springframework.validation.BindingResult.command", bindingResult);
+			}
+			TascaFormHelper.ompleMultiplesBuits(
+					tascaFormCommand,
+					dades, 
+					false);
+			model.addAttribute("command", tascaFormCommand);
 		}
-		TascaFormHelper.ompleMultiplesBuits(
-				tascaFormCommand,
-				dades, 
-				false);
-		model.addAttribute("command", tascaFormCommand);
 		model.addAttribute("isModal", ModalHelper.isModal(request));
 	}
 
