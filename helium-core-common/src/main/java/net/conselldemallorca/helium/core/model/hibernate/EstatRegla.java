@@ -1,21 +1,8 @@
 package net.conselldemallorca.helium.core.model.hibernate;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import net.conselldemallorca.helium.v3.core.api.dto.regles.AccioEnum;
-import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
-import net.conselldemallorca.helium.v3.core.api.dto.regles.QuiEnum;
-import org.hibernate.annotations.ForeignKey;
-import org.hibernate.annotations.Index;
-import org.hibernate.annotations.JoinColumnOrFormula;
-import org.hibernate.annotations.JoinFormula;
-import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
+import java.io.Serializable;
+import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -27,13 +14,22 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.UniqueConstraint;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Set;
+
+import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.Index;
+import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.AccioEnum;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.QuiEnum;
 
 @Data
 //@EqualsAndHashCode(onlyExplicitlyIncluded = true)

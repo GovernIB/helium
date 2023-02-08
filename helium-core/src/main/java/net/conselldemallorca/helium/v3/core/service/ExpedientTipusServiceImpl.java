@@ -311,6 +311,14 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			entity.setJbpmProcessDefinitionKey(
 							this.getDefinicioProcesEstats(entorn)
 								.getJbpmKey());
+			expedientTipusRepository.saveAndFlush(entity);
+			// Crea un estata per defecte
+			Estat estat = new Estat();
+			estat.setExpedientTipus(entity);
+			estat.setCodi("inici");
+			estat.setNom("Estat inicial");
+			estat.setOrdre(1);
+			estat = estatRepository.save(estat);
 		}
 
 		return conversioTipusHelper.convertir(
@@ -568,6 +576,13 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		// Lleva la possible relació amb les anotacions
 		for (Anotacio anotacio : anotacioRepository.findByExpedientTipusId(expedientTipusId)) {
 			anotacio.setExpedientTipus(null);
+		}
+		
+		// Esborra les regles i les accions dels estats
+		for (Estat estat : entity.getEstats()) {
+			estatReglaRepository.delete(estatReglaRepository.findByEstat(estat));
+			estatAccioEntradaRepository.delete(estatAccioEntradaRepository.findByEstatOrderByOrdreAsc(estat));
+			estatAccioSortidaRepository.delete(estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estat));		
 		}
 		
 		expedientTipusRepository.delete(entity);
@@ -2512,6 +2527,18 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			throw new NoTrobatException(Estat.class, estatId);
 		}
 		ExpedientTipus expedientTipus = expedientTipusRepository.findById(estat.getExpedientTipus().getId());
+		if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedientTipus.getTipus())) {
+			// Comrpova que no s'estigui esborrant l'únic estat
+			List<Estat> expedientTipusEstats = estatRepository.findAllAmbHerencia(estat.getExpedientTipus().getId());
+			if (expedientTipusEstats.size() == 1) {
+				throw new  ValidacioException("No es pot esborrar l'únic estat d'un tipus d'expedient basat en estats.");
+			}
+		}
+		// Comprova que no hi hagi expedients associats
+		long expedientsPerEstat = expedientRepository.countByEstat(estat);
+		if (expedientsPerEstat > 0) {
+			throw new ValidacioException("No es pot esborrar l'estat perquè hi ha " + expedientsPerEstat + " expedients amb aquest estat.");
+		}
 
 		int ordre = estat.getOrdre();
 		expedientTipus.getEstats().remove(estat);

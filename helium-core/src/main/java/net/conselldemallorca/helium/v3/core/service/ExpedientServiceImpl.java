@@ -1704,35 +1704,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	
 	@SuppressWarnings("unchecked")
 	private void executarAccio(String processInstanceId, Accio accio, Expedient expedient) {
-		if (processInstanceId == null) {
-			processInstanceId = expedient.getProcessInstanceId();
-		}
-		// Executa l'acció
-		if (AccioTipusEnumDto.HANDLER.equals(accio.getTipus())) {
-			jbpmHelper.executeActionInstanciaProces(
-					processInstanceId,
-					accio.getJbpmAction(),
-					herenciaHelper.getProcessDefinitionIdHeretadaAmbExpedient(expedient));
-		} else if (AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
-			Map<String, String> dades;
-			try {
-				dades = (Map<String, String>) new ObjectMapper()
-						.readValue(
-								accio.getPredefinitDades(), 
-								new TypeReference<Map<String, String>>(){});
-			} catch(Exception e) {
-				throw new RuntimeException("Error obtenint les dades predefinides pel handler " + accio.getPredefinitClasse() + ": " + e.getMessage());
-			}
-			jbpmHelper.executeHandlerPredefinit(
-					processInstanceId,
-					accio.getPredefinitClasse(),
-					dades);				
-		} else if (AccioTipusEnumDto.SCRIPT.equals(accio.getTipus())) {
-			jbpmHelper.evaluateScript(
-					processInstanceId, 
-					accio.getScript(), 
-					new HashSet<String>());
-		}
+		expedientHelper.executarAccio(processInstanceId, accio, expedient);
 	}
 
 
@@ -3283,38 +3255,12 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				false,
 				false);
 
-		Estat estatActual = expedient.getEstat();
-		Estat estatFutur = estatRepository.findOne(estatId);
-		if (estatFutur.getExpedientTipus().getId() != expedient.getTipus().getId()) {
-			throw new ValidacioException("L'estat " + estatId + " no pertany al tipus d'expedient de l'expedient " + expedientId);
-		}
-
-		if (expedient.getEstat() != null) {
-			List<EstatAccioSortida> accionsSortida = estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estatActual);
-			// Executa les accions de sortida
-			for (EstatAccioSortida estatAccioSortida : accionsSortida) {
-				this.executarAccio(null, estatAccioSortida.getAccio(), expedient);
-			}
-		}
-		Estat estat = null;
-		if (estatId != null) {
-			estat = estatRepository.findOne(estatId);
-			List<EstatAccioEntrada> accionsEntrada = estatAccioEntradaRepository.findByEstatOrderByOrdreAsc(estat);
-			// Executa les accions d'entrada
-			for (EstatAccioEntrada estatAccioEntrada : accionsEntrada) {
-				this.executarAccio(null, estatAccioEntrada.getAccio(), expedient);
-			}
-		}
-		expedient.setEstat(estat);
+		Estat estat = expedientHelper.estatCanviar(expedient, estatId);
 
 		// Reindexa l'expedient
 		expedientHelper.verificarFinalitzacioExpedient(expedient);
 		indexHelper.expedientIndexLuceneUpdate(expedient.getProcessInstanceId());
 		
-		expedientLoggerHelper.afegirLogExpedientPerExpedient(
-				expedient.getId(),
-				ExpedientLogAccioTipus.EXPEDIENT_ESTAT_CANVIAR,
-				expedient.getEstat() != null ? expedient.getEstat().getNom() : "-");
 		
 		return conversioTipusHelper.convertir(estat, EstatDto.class);
 	}
