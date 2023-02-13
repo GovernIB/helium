@@ -922,7 +922,7 @@ public class VariableHelper {
 									valorsAddicionalsConsulta,
 									taskInstanceId,
 									processInstanceId,
-									false);
+									true);
 							dtoRegistre.setRequired(campRegistre.isObligatori());
 							dtoRegistre.setOrdre(campRegistre.getOrdre());
 							dtoRegistre.setLlistar(campRegistre.isLlistar());
@@ -941,7 +941,8 @@ public class VariableHelper {
 											processInstanceId));
 							if (dto.getText() == null || dto.getText().isEmpty()) {
 								dto.setText("");
-							}							
+							}
+							dto.setCampMultiple(false);
 						} catch (SistemaExternException ex) {
 							dto.setText("");
 							logger.error("Error al obtenir text per la dada de l'expedient (processInstanceId=" + processInstanceId + ", variable=" + camp.getCodi() + ")", ex);
