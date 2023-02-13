@@ -6,13 +6,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
@@ -20,6 +13,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+
+import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
 /**
  * Controlador per a la pàgina d'accions de l'expedient.
@@ -96,11 +95,20 @@ public class ExpedientAccioController extends BaseExpedientController {
 					procesId,
 					accioId);
 			nomAccio = accio.getNom();
-			Throwable t = ExceptionUtils.getRootCause(ex) != null? ExceptionUtils.getCause(ex) : ex ;
-			MissatgesHelper.error(
-	    			request,
-	    			getMessage(request, "error.executar.accio") + " " + nomAccio + ": " + t.getClass().getSimpleName() + ": "+ t.getMessage());
-			logger.error(getMessage(request, "error.executar.accio") +" "+ accioId + ": "+ t, ex);
+			StringBuilder message = new StringBuilder();
+			Throwable t = ex;
+			boolean root;
+			do {
+				message.append(t.getMessage());
+				t = t.getCause();
+				root = t == null || t == t.getCause();
+				if (!root) {
+					message.append(": ");
+				}
+			} while (!root);
+			String errMsg = getMessage(request, "error.executar.accio") + " " + nomAccio + ": " + ex.getClass().getSimpleName() + ": "+ message.toString();
+			MissatgesHelper.error(request, errMsg);
+			logger.error(errMsg, ex);
 		}
 		model.addAttribute("pipellaActiva", "accions");
 		return "redirect:/v3/expedient/" + expedientId;

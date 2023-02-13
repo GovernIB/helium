@@ -56,9 +56,13 @@ public class ExecuteHadlerPredefinitCommand extends AbstractGetObjectBaseCommand
 			ActionHandler handler = (ActionHandler) object;
 			// Dades
 			PropertyAccessor pa = PropertyAccessorFactory.forDirectFieldAccess(object);
+			Object valor;
 			for (String camp : predefinitDades.keySet()) {
-				// set the property directly, bypassing the mutator (if any)
-				pa.setPropertyValue(camp, predefinitDades.get(camp));
+				valor = predefinitDades.get(camp);
+				if (valor != null && 
+						(!(valor instanceof String) || !((String) valor).isEmpty())) {
+					pa.setPropertyValue(camp, predefinitDades.get(camp));
+				}
 			}
 			ProcessInstance pi = jbpmContext.getProcessInstance(id);
 			ExecutionContext ec = new ExecutionContext(pi.getRootToken());

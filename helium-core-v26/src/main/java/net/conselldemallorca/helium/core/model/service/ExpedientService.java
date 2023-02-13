@@ -2130,11 +2130,11 @@ public class ExpedientService {
 					ex.getMethodName(),
 					ex.getFileName(),
 					ex.getLineNumber(),
-					"Error al executa l'acció '" + accio.getCodi() + "': " + ex.toString(), 
+					"Error al executar l'acció '" + accio.getCodi() + "': " + ex.toString(), 
 					ex.getCause());
 		} catch (Exception ex) {
 			logger.error(
-					"Error al executa l'acció '" + accio.getCodi() + "'",
+					"Error al executar l'acció '" + accio.getCodi() + "'",
 					ex);
 			throw new TramitacioException(
 					expedient.getEntorn().getId(),
@@ -2146,7 +2146,7 @@ public class ExpedientService {
 					expedient.getTipus().getId(), 
 					expedient.getTipus().getCodi(), 
 					expedient.getTipus().getNom(), 
-					"Error al executa l'acció '" + accio.getCodi(), 
+					"Error al executar l'acció '" + accio.getCodi(), 
 					ex);
 		}
 		if (expedient == null) {

@@ -247,17 +247,19 @@
 				$inputText.attr('id', parametre.param);
 				$inputText.attr('name','predefinitDades[' + parametre.param + ']');
 				$inputText.attr("placeholder", parametre.paramDesc);
+				$inputText.attr("title", parametre.paramDesc);
 				$inputText.val(predefinitDades[parametre.param]);
 								
 			} else {
 				$inputText.remove();
-	            $menuSelect.find('option[value="text"]').attr('disabled', 'disabled');
+	            $menuSelect.find('option[value="text"]').remove();
 				$menuSelect.val('var');
 			}
 				
 			$selectVarParam = $('.varParam', $parametres);
 			if (parametre.varParam != null) {
 				$selectVarParam.attr("placeholder", parametre.varParamDesc);
+				$selectVarParam.attr("title", parametre.varParamDesc);
 				$selectVarParam.select2({
 				    width: '100%',
 				    allowClear: true
@@ -267,7 +269,7 @@
 				$selectVarParam.val(predefinitDades[parametre.varParam]);								
 			} else {
 				$selectVarParam.remove();
-	            $menuSelect.find('option[value="var"]').attr('disabled', 'disabled');
+	            $menuSelect.find('option[value="var"]').remove();
 				$menuSelect.val('text');
 			}
 			

@@ -1670,11 +1670,11 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			} catch (Exception ex) {
 				if (ex instanceof ExecucioHandlerException) {
 					logger.error(
-							"Error al executa l'acció '" + accio.getCodi() + "': " + ex.toString(),
+							"Error al executar l'acció '" + accio.getCodi() + "': " + ex.toString(),
 							ex.getCause());
 				} else {
 					logger.error(
-							"Error al executa l'acció '" + accio.getCodi() + "'",
+							"Error al executar l'acció '" + accio.getCodi() + "'",
 							ex);
 				}
 				throw new TramitacioException(
@@ -1687,7 +1687,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 						expedient.getTipus().getId(), 
 						expedient.getTipus().getCodi(), 
 						expedient.getTipus().getNom(), 
-						"Error al executa l'acció '" + accio.getCodi() + "'", 
+						"Error al executar l'acció '" + accio.getCodi() + "'", 
 						ex);
 			}
 			expedientHelper.verificarFinalitzacioExpedient(expedient);
@@ -1740,11 +1740,11 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		} catch (Exception ex) {
 			if (ex instanceof ExecucioHandlerException) {
 				logger.error(
-						"Error al executa l'acció '" + accioCamp + "': " + ex.toString(),
+						"Error al executar l'acció '" + accioCamp + "': " + ex.toString(),
 						ex.getCause());
 			} else {
 				logger.error(
-						"Error al executa l'acció '" + accioCamp + "'",
+						"Error al executar l'acció '" + accioCamp + "'",
 						ex);
 			}
 			throw new TramitacioException(
@@ -1757,7 +1757,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					expedient.getTipus().getId(), 
 					expedient.getTipus().getCodi(), 
 					expedient.getTipus().getNom(), 
-					"Error al executa l'acció '" + accioCamp + "'", 
+					"Error al executar l'acció '" + accioCamp + "'", 
 					ex);
 		}
 		expedientHelper.verificarFinalitzacioExpedient(expedient);
