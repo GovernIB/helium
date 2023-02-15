@@ -307,7 +307,7 @@
 											</div>
 										</c:if>
 										<c:forEach var="versio" items="${arxiuDetall.versionsDocument}" varStatus="status">
-											<a href="<c:url value="/v3/expedient/${expedientId}/proces/${expedientDocument.processInstanceId}/document/${expedientDocument.id}/descarregar/versio/${versio.eniVersio}/"/>">		
+											<a href="<c:url value="/v3/expedient/${expedientId}/proces/${expedientDocument.processInstanceId}/document/${expedientDocument.id}/descarregar/versio/${versio.eniVersio}/${arxiuDetall.expedientTancat}"/>">		
 											    <span class="fa fa-file no-doc" title="Descarregar document"></span>
 												<strong class="nom_document">
 													v.${versio.eniVersio}

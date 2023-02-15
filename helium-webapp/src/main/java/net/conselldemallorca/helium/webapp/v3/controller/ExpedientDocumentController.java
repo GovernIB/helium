@@ -618,20 +618,21 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return "arxiuView";
 	}
 	
-	@RequestMapping(value="/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/descarregar/versio/{versioId}/")
+	@RequestMapping(value="/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/descarregar/versio/{versioId}/{expedientTancat}")
 	public String descarregarVersio(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String processInstanceId,
 			@PathVariable Long documentStoreId,
 			@PathVariable String versioId,
+			@PathVariable boolean expedientTancat,
 			Model model) {
 		try {
 			ArxiuDto arxiu = expedientDocumentService.arxiuFindAmbDocumentVersio(
 					expedientId,
 					processInstanceId,
 					documentStoreId,
-					versioId);
+					expedientTancat == true ? null : versioId);
 			if (arxiu != null) {
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
