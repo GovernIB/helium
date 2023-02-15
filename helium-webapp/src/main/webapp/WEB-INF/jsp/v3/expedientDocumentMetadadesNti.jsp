@@ -300,6 +300,12 @@
 								<tr>
 									<td><strong><spring:message code="expedient.metadades.nti.camp.eni.versions"/></strong></td>
 									<td>
+										<c:if test="${arxiuDetall.expedientTancat }">
+											<div class="alert alert-warning">
+												<span class="fa fa-warning"></span>
+												<spring:message code="document.metadades.nti.darrera.versio"/>
+											</div>
+										</c:if>
 										<c:forEach var="versio" items="${arxiuDetall.versionsDocument}" varStatus="status">
 											<a href="<c:url value="/v3/expedient/${expedientId}/proces/${expedientDocument.processInstanceId}/document/${expedientDocument.id}/descarregar/versio/${versio.eniVersio}/"/>">		
 											    <span class="fa fa-file no-doc" title="Descarregar document"></span>
