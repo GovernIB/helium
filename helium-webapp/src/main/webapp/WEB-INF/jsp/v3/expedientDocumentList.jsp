@@ -88,15 +88,11 @@
 				filtraDadesDoc();
 			}
 		});
-
-		// $('body').on('click', 'button.modal-tancar', (e) => {
-		// 	alert('tancant modal');
-		// })
 	});
 
 	const opcionsVisualitzacioChanged = () => {
 		let serverParams = {};
-		serverParams['tots'] = $("#boto-tots").hasClass("active");
+		serverParams['tots'] = $("#boto-tots").parent().hasClass("active");
 		$('#expedientDocuments').webutilDatatable('refresh', serverParams);
 	}
 
@@ -180,7 +176,7 @@
 	.extensionIcon {color: white; position: relative; left: -26px; top: 5px; font-size: 9px; font-weight: bold; margin-right: -12px;}
 	.doc-error {color: indianred;}
 	.doc-error-icon {top: 3px;}
-	.label-doc {float: right; line-height: 16px;}
+	.label-doc {float: right; line-height: 16px; margin-right: 3px;}
 	.doc-details {background-color: #EFF2F5;}
 	.doc-details td {padding: 0px;}
 	.pill-link {position: relative !important; display: block !important; padding: 5px 10px !important; margin-right: 2px !important;}

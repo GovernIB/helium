@@ -2082,24 +2082,39 @@ public class DocumentHelperV3 {
 		if (documentStore == null) {
 			return null;
 		}
+		ExpedientDocumentDto  ed = null;
 		if (!documentStore.isAdjunt()) {
 			Document document = findDocumentPerInstanciaProcesICodi(
 					processInstanceId,
 					documentStore.getCodiDocument());
 			if (document != null) {
-				return crearDtoPerDocumentExpedient(
+				ed = crearDtoPerDocumentExpedient(
 								document,
 								documentStore);
+				Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+				List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStore.getId());
+				ed.setNotificat(!enviaments.isEmpty());
+				return ed;
 			} else {
 				throw new NoTrobatException(
 						Document.class,
 						"(codi=" + documentStore.getCodiDocument() + ")");
 			}
 		} else {
-			return crearDtoPerAdjuntExpedient(
+			ed = crearDtoPerAdjuntExpedient(
 					getAdjuntIdDeVariableJbpm(documentStore.getJbpmVariable()),
 					documentStore);
 		}
+		// Consulta els annexos de les anotacions de registre i les guarda en un Map<Long documentStoreId, Anotacio>
+		List<AnotacioAnnex> annexos = anotacioAnnexRepository.findByDocumentStoreId(documentStore.getId());
+		if (annexos.size() > 0) {
+			if (annexos.size() > 1) {
+				logger.warn("S'ha trobat més d'un annex d'anotació pel documentStoreId " + documentStore.getId() );
+			}
+			ed.setAnotacioId(annexos.get(0).getAnotacio().getId());
+			ed.setAnotacioIdentificador(annexos.get(0).getAnotacio().getIdentificador());
+		}
+		return ed;
 	}
 
 	private String calcularArxiuNom(

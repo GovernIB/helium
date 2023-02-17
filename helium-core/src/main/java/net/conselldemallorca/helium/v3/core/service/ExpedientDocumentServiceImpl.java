@@ -526,9 +526,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				false,
 				false,
 				false);
-//		expedientHelper.comprovarInstanciaProces(
-//				expedient,
-//				processInstanceId);
 		if (processInstanceId == null) {
 			return documentHelper.findDocumentsPerInstanciaProces(
 					expedient.getProcessInstanceId());
@@ -688,26 +685,12 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				.ntiCsv(dExp.getNtiCsv())
 				.psEstat(dPsigna != null ? dPsigna.getEstat() : null)
 				.psDocId(dPsigna != null ? dPsigna.getDocumentId() : null)
-//				.psignaDocumentId(dPsigna != null ? dPsigna.getDocumentId() : null)
-//				.psignaDataEnviat(dPsigna != null ? dPsigna.getDataEnviat() : null)
 				.arxiuUuid(dExp.getArxiuUuid())
 				.expUuid(expedient.getArxiuUuid())
-//				.deAnotacio(dExp.getAnotacioId() != null)
 				.anotacioId(dExp.getAnotacioId())
 				.anotacioIdf(dExp.getAnotacioIdentificador())
 				.error(dExp.getError())
 				.docError(dExp.getDocumentError())
-//				.psignaInfo(dPsigna == null ? null : DocumentListPsignaDto.builder()
-//						.documentId(dPsigna.getDocumentId())
-//						.pendent(dPsigna.isPendent())
-//						.error(dPsigna.isError())
-//						.estat(dPsigna.getEstat())
-//						.dataEnviat(dPsigna.getDataEnviat())
-//						.dataProcessamentPrimer(dPsigna.getDataProcessamentPrimer())
-//						.dataProcessamentDarrer(dPsigna.getDataProcessamentDarrer())
-//						.errorProcessant(dPsigna.getErrorProcessant())
-//						.motiuRebuig(dPsigna.getMotiuRebuig())
-//						.build())
 				.visible(documentFormProperties != null ? documentFormProperties.isVisible() : true)
 				.editable(documentFormProperties != null ? documentFormProperties.isEditable() : true)
 				.obligatori(documentFormProperties != null ? documentFormProperties.isObligatori() : false)
@@ -1316,7 +1299,11 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				.signat(document.isSignat())
 				.registrat(document.isRegistrat())
 				.deAnotacio(document.getAnotacioId() != null)
-				.notificat(document.isNotificat());
+				.notificat(document.isNotificat())
+				.notificable(document.isNotificable())
+				.deAnotacio(document.getAnotacioId() != null);
+
+
 
 		// Registre
 		if (document.isRegistrat()) {
@@ -1609,6 +1596,63 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 						break;
 					case ALTRES:
 						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.ALTRES);
+						break;
+					case COMPAREIXENSA:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.COMPAREIXENSA);
+						break;
+					case CONVOCATORIA:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.CONVOCATORIA);
+						break;
+					case DICTAMEN_COMISSIO:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.DICTAMEN_COMISSIO);
+						break;
+					case ESCRIT:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.ESCRIT);
+						break;
+					case ESMENA:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.ESMENA);
+						break;
+					case INFORME_PONENCIA:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.INFORME_PONENCIA);
+						break;
+					case INICIATIVA_LEGISLATIVA:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.INICIATIVA_LEGISLATIVA);
+						break;
+					case INICIATIVA__LEGISLATIVA:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.INICIATIVA__LEGISLATIVA);
+						break;
+					case INSTRUCCIO:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.INSTRUCCIO);
+						break;
+					case INTERPELACIO:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.INTERPELACIO);
+						break;
+					case LLEI:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.LLEI);
+						break;
+					case MOCIO:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.MOCIO);
+						break;
+					case ORDRE_DIA:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.ORDRE_DIA);
+						break;
+					case PETICIO:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.PETICIO);
+						break;
+					case PREGUNTA:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.PREGUNTA);
+						break;
+					case PROPOSICIO_NO_LLEI:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.PROPOSICIO_NO_LLEI);
+						break;
+					case PROPOSTA_RESOLUCIO:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.PROPOSTA_RESOLUCIO);
+						break;
+					case RESPOSTA:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.RESPOSTA);
+						break;
+					case SOLICITUD_INFORMACIO:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.SOLICITUD_INFORMACIO);
 						break;
 					}
 				}

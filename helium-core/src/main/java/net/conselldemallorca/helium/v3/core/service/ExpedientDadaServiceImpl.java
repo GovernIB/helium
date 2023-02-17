@@ -434,7 +434,6 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 							.valor(DadaValorDto.builder().build())
 							.build());
 			} else {
-//				dadesCodis.add(dadaExp.getVarCodi());
 				dades.add(toDadaListDto(camp, dadaExp, campFormProperties, processInstanceId, expedientId));
 			}
 		}

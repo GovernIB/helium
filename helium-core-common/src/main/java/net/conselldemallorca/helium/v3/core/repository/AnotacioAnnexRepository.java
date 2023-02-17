@@ -18,5 +18,9 @@ public interface AnotacioAnnexRepository extends JpaRepository<AnotacioAnnex, Lo
 
 	/** Troba la llista d'annexos per un expedient. */
 	List<AnotacioAnnex> findByAnotacioExpedientId(Long id);
+	
+	/** Troba la llista d'annexos per un documentStoreId, només n'hauria de trobar un. */
+	List<AnotacioAnnex> findByDocumentStoreId(Long documentStoreId);
+	
 
 }
