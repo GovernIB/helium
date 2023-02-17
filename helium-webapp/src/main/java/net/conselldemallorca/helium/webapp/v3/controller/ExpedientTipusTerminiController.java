@@ -111,6 +111,7 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
 			Model model) {
 		ExpedientTipusTerminiCommand command = new ExpedientTipusTerminiCommand();
 		model.addAttribute("expedientTipusTerminiCommand", command);
+		model.addAttribute("expedientTipus", expedientTipusService.findAmbId(expedientTipusId));
 		return "v3/expedientTipusTerminiForm";
 	}
 	
@@ -123,6 +124,7 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
 			Model model) {
         if (bindingResult.hasErrors()) {
         	model.addAttribute("expedientTipusId", expedientTipusId);
+        	model.addAttribute("expedientTipus", expedientTipusService.findAmbId(expedientTipusId));
         	return "v3/expedientTipusTerminiForm";
         } else {
         	// Verificar permisos
@@ -154,6 +156,7 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
 				ExpedientTipusTerminiCommand.class);
 		model.addAttribute("expedientTipusTerminiCommand", command);
 		model.addAttribute("expedientTipusId", expedientTipusId);
+		model.addAttribute("expedientTipus", expedientTipusService.findAmbId(expedientTipusId));
 		model.addAttribute("heretat", dto.isHeretat());
 		return "v3/expedientTipusTerminiForm";
 	}
@@ -167,6 +170,7 @@ public class ExpedientTipusTerminiController extends BaseExpedientTipusControlle
 			Model model) {
         if (bindingResult.hasErrors()) {
         	model.addAttribute("expedientTipusId", expedientTipusId);
+        	model.addAttribute("expedientTipus", expedientTipusService.findAmbId(expedientTipusId));
     		model.addAttribute("heretat", terminiService.findAmbId(expedientTipusId, id).isHeretat());
         	return "v3/expedientTipusTerminiForm";
         } else {

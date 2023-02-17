@@ -60,21 +60,24 @@ div.procesaccio:hover {
 				<c:set var="proces" value="${dadesProces.key}"/>
 				<div id="dataTable_accio_${proces.id}">
 					<div class="panel panel-default">
-						<div id="${proces.id}-titol-accions" class="panel-heading clicable procesaccio" data-toggle="collapse" data-target="#panel_accio_${proces.id}" data-id="${proces.id}_accio" data-carrega="<c:if test='${!procesFirst}'>ajax</c:if>">
-							<c:choose>
-								<c:when test="${proces.id == inicialProcesInstanceId}">
-									<spring:message code='common.tabsexp.proc_princip'/>
-								</c:when>
-								<c:otherwise>${proces.titol}</c:otherwise>
-							</c:choose>
-							<div class="pull-right">
+					
+						<c:if test="${ expedient.tipus.tipus == 'FLOW'}">
+							<div id="${proces.id}-titol-accions" class="panel-heading clicable procesaccio" data-toggle="collapse" data-target="#panel_accio_${proces.id}" data-id="${proces.id}_accio" data-carrega="<c:if test='${!procesFirst}'>ajax</c:if>">
 								<c:choose>
-									<c:when test="${procesFirst}"><span class="icona-collapse fa fa-chevron-up"></span></c:when>
-									<c:otherwise><span class="icona-collapse fa fa-chevron-down"></i></c:otherwise>
+									<c:when test="${proces.id == inicialProcesInstanceId}">
+										<spring:message code='common.tabsexp.proc_princip'/>
+									</c:when>
+									<c:otherwise>${proces.titol}</c:otherwise>
 								</c:choose>
-							</div>
-						</div> 
-						<div id="panel_accio_${proces.id}" class="dataTable_accio panel-body collapse<c:if test="${procesFirst}"> in</c:if>">
+								<div class="pull-right">
+									<c:choose>
+										<c:when test="${procesFirst}"><span class="icona-collapse fa fa-chevron-up"></span></c:when>
+										<c:otherwise><span class="icona-collapse fa fa-chevron-down"></i></c:otherwise>
+									</c:choose>
+								</div>
+							</div> 
+						</c:if>
+						<div id="panel_accio_${proces.id}" class="dataTable_accio ${expedient.tipus.tipus == 'FLOW' ? 'panel-body' : '' } collapse<c:if test="${procesFirst}"> in</c:if>">
 							<c:choose>
 								<c:when test="${not empty dadesProces.value && fn:length(dadesProces.value) > 0}">
 									<c:set var="dadesAgrupacio" value="${dadesProces.value}" scope="request"/>
