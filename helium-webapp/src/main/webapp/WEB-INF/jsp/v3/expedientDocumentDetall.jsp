@@ -8,197 +8,7 @@
 
 <%--<link href="<c:url value="/css/exp-doc.css"/>" rel="stylesheet"/>--%>
 
-<style type="text/css">
-	.container-fluid {padding-right: 10px; padding-left: 10px; margin-right: auto; margin-left: auto;}
-	.py-3 {padding-top: 1em !important; padding-bottom: 0em !important;}
-	.py-4 {padding-top: 1.5em !important; padding-bottom: 1.5em !important;}
-	.mtop-3 {margin-top: 1em !important;}
-	.mtop-4 {margin-top: 1.5em !important;}
-	.pointer {cursor: pointer;}
-	.ch-titol {margin: 4px 0px 0px 0px;}
 
-	.previs-icon {left: 2.5em; border-radius: 0.75em; width: 180px; height: 40px; background-position: 50%; text-align: center!important; margin-top: -1.5em!important; fill: currentColor; stroke: none; display: inline-block; color: #111;}
-	.previs-icon > i {top: 24%; position: relative;}
-	.previs-text {top: 24%; position: relative; margin-left: 0.5rem !important;}
-	.body-ocult {display: none;}
-
-	.card {--bs-card-spacer-y: 1em; --bs-card-spacer-x: 1em; --bs-card-title-spacer-y: 0.5em; --bs-card-border-width: 0; --bs-card-border-color: rgba(0, 0, 0, 0.125); --bs-card-border-radius: 0.75em; --bs-card-box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); --bs-card-inner-border-radius: 0.7em; --bs-card-cap-padding-y: 0.5em; --bs-card-cap-padding-x: 1em; --bs-card-cap-bg: #fff; --bs-card-bg: #fff; --bs-card-img-overlay-padding: 1em; --bs-card-group-margin: 0.75em; position: relative; display: flex; flex-direction: column; min-width: 0; /*height: var(--bs-card-height);*/ word-wrap: break-word; background-color: var(--bs-card-bg); background-clip: border-box; border: var(--bs-card-border-width) solid var(--bs-card-border-color); border-radius: var(--bs-card-border-radius);}
-	.card > hr {margin-right: 0; margin-left: 0; margin-top: 2px; margin-bottom: 7px;}
-    .card > .list-group {border-top: inherit; border-bottom: inherit;}
-    .card > .list-group:first-child {border-top-width: 0; border-top-left-radius: var(--bs-card-inner-border-radius); border-top-right-radius: var(--bs-card-inner-border-radius);}
-    .card > .list-group:last-child {border-bottom-width: 0; border-bottom-right-radius: var(--bs-card-inner-border-radius); border-bottom-left-radius: var(--bs-card-inner-border-radius);}
-    .card > .card-header + .list-group, .card > .list-group + .card-footer {border-top: 0;}
-    .card-body {flex: 1 1 auto; padding: var(--bs-card-spacer-y) var(--bs-card-spacer-x); color: var(--bs-card-color);}
-    .card-title {margin-bottom: var(--bs-card-title-spacer-y);}
-    .card-subtitle {margin-top: calc(-0.5 * var(--bs-card-title-spacer-y));}
-    .card-subtitle, .card-text:last-child {margin-bottom: 0;}
-    .card-link + .card-link {margin-left: var(--bs-card-spacer-x);}
-    .card-header {padding: var(--bs-card-cap-padding-y) var(--bs-card-cap-padding-x) var(--bs-card-cap-padding-y) 0.25em; margin-bottom: 0; color: var(--bs-card-cap-color); background-color: var(--bs-card-cap-bg); border-bottom: var(--bs-card-border-width) solid var(--bs-card-border-color);}
-    .card-header:first-child {border-radius: var(--bs-card-inner-border-radius) var(--bs-card-inner-border-radius) 0 0;}
-    .card-footer {padding: var(--bs-card-cap-padding-y) var(--bs-card-cap-padding-x); color: var(--bs-card-cap-color); background-color: var(--bs-card-cap-bg); border-top: var(--bs-card-border-width) solid var(--bs-card-border-color);}
-    .card-footer:last-child {border-radius: 0 0 var(--bs-card-inner-border-radius) var(--bs-card-inner-border-radius);}
-    .card-header-tabs {margin-right: calc(-0.5 * var(--bs-card-cap-padding-x)); margin-bottom: calc(-1 * var(--bs-card-cap-padding-y)); margin-left: calc(-0.5 * var(--bs-card-cap-padding-x));	border-bottom: 0;}
-    .card-header-tabs .nav-link.active {background-color: var(--bs-card-bg); border-bottom-color: var(--bs-card-bg);}
-    .card-header-pills {margin-right: calc(-0.5 * var(--bs-card-cap-padding-x)); margin-left: calc(-0.5 * var(--bs-card-cap-padding-x));}
-    .card-img-overlay {position: absolute; top: 0; right: 0; bottom: 0; left: 0; padding: var(--bs-card-img-overlay-padding); border-radius: var(--bs-card-inner-border-radius);}
-    .card-img, .card-img-bottom, .card-img-top {width: 100%;}
-    .card-img, .card-img-top {border-top-left-radius: var(--bs-card-inner-border-radius); border-top-right-radius: var(--bs-card-inner-border-radius);}
-    .card-img, .card-img-bottom {border-bottom-right-radius: var(--bs-card-inner-border-radius); border-bottom-left-radius: var(--bs-card-inner-border-radius);}
-
-    .card-icon {border-radius: 0.5em; width: 54px; height: 35px; background-position: 50%; text-align: center!important; margin-top: -0.25em!important; fill: currentColor; stroke: none; display: inline-block; color: #111;}
-    .card-icon > i {top: 24%; position: relative; padding-right: 2px; padding-left: 2px;}
-    h6 {font-size: 1em !important; line-height: 1.625 !important; font-weight: bold !important;}
-    .bg-gradient-primary {background-image: linear-gradient(195deg, #ec407a, #d81b60);}
-    .bg-gradient-secondary {background-image: linear-gradient(195deg, #747b8a, #495361);}
-    .bg-gradient-success {background-image: linear-gradient(195deg, #66bb6a, #43a047);}
-    .bg-gradient-info {background-image: linear-gradient(195deg, #49a3f1, #1a73e8);}
-    .bg-gradient-warning {background-image: linear-gradient(195deg, #ffa726, #fb8c00);}
-    .bg-gradient-danger {background-image: linear-gradient(195deg, #ef5350, #e53935);}
-    .bg-gradient-light {background-image: linear-gradient(195deg, #ebeff4, #ced4da);}
-    .bg-gradient-dark {background-image: linear-gradient(195deg, #42424a, #191919);}
-    .shadow-primary {box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(233, 30, 99, 0.4) !important;}
-    .shadow-secondary {box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 0 7px 10px -5px hsla(0, 0%, 82%, 0.4) !important;}
-    .shadow-info {box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(0, 188, 212, 0.4) !important;}
-    .shadow-warning {box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(255, 152, 0, 0.4) !important;}
-    .shadow-success {box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(76, 175, 80, 0.4) !important;}
-    .shadow-danger {box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(244, 67, 54, 0.4) !important;}
-    .shadow-dark {box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(64, 64, 64, 0.4) !important;}
-    .shadow-light {box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14), 0 7px 10px -5px rgba(233, 30, 99, 0.4) !important;}
-    .position-static {position: static !important;}
-    .position-relative {position: relative !important;}
-    .position-absolute {position: absolute !important;}
-    .position-fixed {position: fixed !important;}
-    .position-sticky {position: sticky !important;}
-    .text-start {text-align: left !important;}
-    .text-end {text-align: right !important;}
-    .text-center {text-align: center !important;}
-    .text-decoration-underline {text-decoration: underline !important;}
-    .text-decoration-line-through {text-decoration: line-through !important;}
-    .text-lowercase {text-transform: lowercase !important;}
-    .text-uppercase {text-transform: uppercase !important;}
-    .text-capitalize {text-transform: capitalize !important;}
-    .text-break {word-break: break-word !important;}
-    .text-primary {color: #e91e63 !important;}
-    .text-secondary {color: #7b809a !important;}
-    .text-success {color: #4caf50 !important;}
-    .text-info {color: #1a73e8 !important;}
-    .text-warning {color: #fb8c00 !important;}
-    .text-danger {color: #f44335 !important;}
-    .text-light {color: #f0f2f5 !important;}
-    .text-dark {color: #344767 !important;}
-    .text-white {color: #fff !important;}
-    .text-body {color: #7b809a !important;}
-    .text-rose {color: #e91e63 !important;}
-    .text-muted {color: #6c757d !important;}
-    .text-opacity-25 {--bs-text-opacity: 0.25;}
-    .text-opacity-50 {--bs-text-opacity: 0.5;}
-    .text-opacity-75 {--bs-text-opacity: 0.75;}
-    .text-opacity-100 {--bs-text-opacity: 1;}
-    .d-inline {display: inline !important;}
-    .d-inline-block {display: inline-block !important;}
-    .d-block {display: block !important;}
-    .d-grid {display: grid !important;}
-    .d-table {display: table !important;}
-    .d-table-row {display: table-row !important;}
-    .d-table-cell {display: table-cell !important;}
-    .d-flex {display: flex !important;}
-    .d-inline-flex {display: inline-flex !important;}
-    .d-none {display: none !important;}.list-group {--bs-list-group-color: inherit; --bs-list-group-bg: #fff; --bs-list-group-border-color: rgba(0, 0, 0, 0.125); --bs-list-group-border-width: 1px; --bs-list-group-border-radius: 0.375em; --bs-list-group-item-padding-x: 1em; --bs-list-group-item-padding-y: 0.5em; --bs-list-group-action-color: #495057; --bs-list-group-action-hover-color: #495057; --bs-list-group-action-hover-bg: #f8f9fa; --bs-list-group-action-active-color: #7b809a; --bs-list-group-action-active-bg: #f0f2f5; --bs-list-group-disabled-color: #6c757d; --bs-list-group-disabled-bg: #fff; --bs-list-group-active-color: #fff; --bs-list-group-active-bg: #e91e63; --bs-list-group-active-border-color: #e91e63; display: flex; flex-direction: column; padding-left: 0; margin-bottom: 0; border-radius: var(--bs-list-group-border-radius);}
-    .flex-fill {flex: 1 1 auto !important;}
-    .flex-row {flex-direction: row !important;}
-    .flex-column {flex-direction: column !important;}
-    .flex-row-reverse {flex-direction: row-reverse !important;}
-    .flex-column-reverse {flex-direction: column-reverse !important;}
-    .flex-grow-0 {flex-grow: 0 !important;}
-    .flex-grow-1 {flex-grow: 1 !important;}
-    .flex-grow-2 {flex-grow: 2 !important;}
-    .flex-shrink-0 {flex-shrink: 0 !important;}
-    .flex-shrink-1 {flex-shrink: 1 !important;}
-    .flex-wrap {flex-wrap: wrap !important;}
-    .flex-nowrap {flex-wrap: nowrap !important;}
-    .flex-wrap-reverse {flex-wrap: wrap-reverse !important;}
-    .justify-content-start {justify-content: flex-start !important;}
-    .justify-content-end {justify-content: flex-end !important;}
-    .justify-content-center {justify-content: center !important;}
-    .justify-content-between {justify-content: space-between !important;}
-    .justify-content-around {justify-content: space-around !important;}
-    .justify-content-evenly {justify-content: space-evenly !important;}
-    .align-items-start {align-items: flex-start !important;}
-    .align-items-end {align-items: flex-end !important;}
-    .align-items-center {align-items: center !important;}
-    .align-items-baseline {align-items: baseline !important;}
-    .align-items-stretch {align-items: stretch !important;}
-    .align-content-start {align-content: flex-start !important;}
-    .align-content-end {align-content: flex-end !important;}
-    .align-content-center {align-content: center !important;}
-    .align-content-between {align-content: space-between !important;}
-    .align-content-around {align-content: space-around !important;}
-    .align-content-stretch {align-content: stretch !important;}
-    .align-self-auto {align-self: auto !important;}
-    .align-self-start {align-self: flex-start !important;}
-    .align-self-end {align-self: flex-end !important;}
-    .align-self-center {align-self: center !important;}
-    .align-self-baseline {align-self: baseline !important;}
-    .align-self-stretch {align-self: stretch !important;}
-    .text-lg {font-size: 1.125em !important;}
-    .text-md {font-size: 1em !important;}
-    .text-sm {font-size: 0.875em !important;}
-    .text-xs {font-size: 0.75em !important;}
-    .text-xxs {font-size: 0.65em !important;}
-    p {line-height: 1; font-weight: 300; margin-bottom: 4px;}
-    .text-justify {text-align: justify !important;}
-    .text-wrap {white-space: normal !important;}
-    .text-nowrap {white-space: nowrap !important;}
-    .text-truncate {overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
-    .font-weight-light {font-weight: 300 !important;}
-    .font-weight-lighter {font-weight: lighter !important;}
-    .font-weight-normal {font-weight: 400 !important;}
-    .font-weight-bold {font-weight: 600 !important;}
-    .font-weight-bolder {font-weight: 700 !important;}
-    .font-italic {font-style: italic !important;}
-    .border {border: 1px solid #dee2e6 !important;}
-    .border-0 {border: 0 !important; border-width: 0 !important;
-    .border-top {border-top: 1px solid #dee2e6 !important;}
-    .border-top-0 {border-top: 0 !important;}
-    .border-end {border-right: 1px solid #dee2e6 !important;}
-    .border-end-0 {border-right: 0 !important;}
-    .border-bottom {border-bottom: 1px solid #dee2e6 !important;}
-    .border-bottom-0 {border-bottom: 0 !important;}
-    .border-start {border-left: 1px solid #dee2e6 !important;}
-    .border-start-0 {border-left: 0 !important;}
-    .border-primary {border-color: #e91e63 !important;}
-    .border-secondary {border-color: #7b809a !important;}
-    .border-success {border-color: #4caf50 !important;}
-    .border-info {border-color: #1a73e8 !important;}
-    .border-warning {border-color: #fb8c00 !important;}
-    .border-danger {border-color: #f44335 !important;}
-    .border-light {border-color: #f0f2f5 !important;}
-    .border-dark {border-color: #344767 !important;}
-    .border-white {border-color: #fff !important;}
-    .border-1 {border-width: 1px !important;}
-    .border-2 {border-width: 2px !important;}
-    .border-3 {border-width: 3px !important;}
-    .border-4 {border-width: 4px !important;}
-    .border-5 {border-width: 5px !important;}
-    .border-opacity-10 {--bs-border-opacity: 0.1;}
-    .border-opacity-25 {--bs-border-opacity: 0.25;}
-    .border-opacity-50 {--bs-border-opacity: 0.5;}
-    .border-opacity-75 {--bs-border-opacity: 0.75;}
-    .border-opacity-100 {--bs-border-opacity: 1;}
-	.fr10 {float: right; margin-left: 10px;}
-
-    .list-group-item {position: relative; display: block; padding: var(--bs-list-group-item-padding-y) var(--bs-list-group-item-padding-x); color: var(--bs-list-group-color); background-color: var(--bs-list-group-bg); border: var(--bs-list-group-border-width) solid var(--bs-list-group-border-color);}
-    .list-group-item:first-child {border-top-left-radius: inherit; border-top-right-radius: inherit;}
-    .list-group-item:last-child {border-bottom-right-radius: inherit; border-bottom-left-radius: inherit;}
-
-    html * {
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-    }
-    *, :after, :before {
-        box-sizing: border-box;
-    }
-</style>
 <script type="text/javascript">
 	// <![CDATA[
 	$(document).ready( function() {
@@ -207,329 +17,296 @@
 	// ]]>
 </script>
 
-<div class="container-fluid">
-	<div class="row mtop-3">
 
+	<!-- Tabuladors -->		
+	
+	<ul class="nav nav-tabs nav-justified" role="tablist">
+		<li id="pipella-documentDetall-registre-${detall.documentStoreId}">
+			<a href="#contingut-documentDetall-registre-${detall.documentStoreId}" role="button" data-toggle="tab" class="active">
+				<span class="fa fa-book <c:choose><c:when test="${detall.registrat}">fa-success</c:when><c:otherwise>fa-default</c:otherwise></c:choose>"/>
+				<spring:message code="expedient.document.detall.pipella.registre"/>
+			</a>
+		</li>
+		<li id="pipella-documentDetall-signatura-${detall.documentStoreId}">
+			<a href="#contingut-documentDetall-signatura-${detall.documentStoreId}" role="tab" data-toggle="tab">
+				<span class="fa fa-certificate <c:choose><c:when test="${detall.signat}">fa-success</c:when><c:otherwise>fa-default</c:otherwise></c:choose>"/>
+				<spring:message code="expedient.document.detall.pipella.signatura"/>
+			</a>
+		</li>
+		<li id="pipella-documentDetall-portasignatura-${detall.documentStoreId}">
+			<a href="#contingut-documentDetall-portasignatura-${detall.documentStoreId}" role="tab" data-toggle="tab">
+				<span class="fa fa-clock-o <c:choose><c:when test="${detall.psignaPendent}">fa-success</c:when><c:otherwise>fa-default</c:otherwise></c:choose>"/>
+				<spring:message code="expedient.document.detall.pipella.portasignatura"/>
+			</a>
+		</li>
+		<li id="pipella-documentDetall-notificacions-${detall.documentStoreId}">
+			<a href="#contingut-documentDetall-notificacions-${detall.documentStoreId}" role="tab" data-toggle="tab">
+				<span class="fa fa-paper-plane-o <c:choose><c:when test="${detall.notificat}">fa-success</c:when><c:otherwise>fa-default</c:otherwise></c:choose>"/>
+				<spring:message code="expedient.document.detall.pipella.notificacions"/>
+			</a>
+		</li>
+		<li id="pipella-documentDetall-arxiu-${detall.documentStoreId}">
+			<a href="#contingut-documentDetall-arxiu-${detall.documentStoreId}" role="tab" data-toggle="tab">
+				<span class="fa fa-bookmark <c:choose><c:when test="${detall.nti || detall.arxiu}">fa-success</c:when><c:otherwise>fa-default</c:otherwise></c:choose>"/>
+				<c:choose>
+					<c:when test="${detall.arxiu}">Arxiu</c:when>
+					<c:when test="${detall.nti}">NTI</span></p></c:when>
+					<c:otherwise>NTI / Arxiu</c:otherwise>
+				</c:choose>
+			</a>
+		</li>
+		<li id="pipella-documentDetall-anotacions-${detall.documentStoreId}">
+			<a href="#contingut-documentDetall-anotacions-${detall.documentStoreId}" role="tab" data-toggle="tab">
+				<span class="fa fa-file-text <c:choose><c:when test="${detall.deAnotacio}">fa-success</c:when><c:otherwise>fa-default</c:otherwise></c:choose>"/>
+				<spring:message code="expedient.document.detall.pipella.anotacions"/>
+			</a>
+		</li>
+	
+		<li id="pipella-documentDetall-previsualitzacio-${detall.documentStoreId}" role="button">
+			<a href="#contingut-documentDetall-previsualitzacio-${detall.documentStoreId}" class="previs-icon" role="tab" data-toggle="tab">
+				<span class="fa fa-eye fa-inverse<c:choose><c:when test="${detall.extensio == 'pdf' or detall.extensio == 'pdt' or detall.extensio == 'docx'}">fa-success</c:when><c:otherwise>fa-default</c:otherwise></c:choose>"/>
+				<spring:message code="expedient.document.previsualitzacio"/>
+			</a>
+		</li>
+					
+	</ul>
+	
+	
+	<div class="tab-content">
+	
 		<%-- REGISTRE => detall.registreDetall --%>
-		<c:set var="registre" value="${detall.registreDetall}"/>
-		<div class="col-xl-3 col-sm-3 mb-xl-0 mb-4">
-			<div class="card">
-				<div class="card-header pointer p-3 pt-2">
-					<div class="card-icon position-absolute <c:choose><c:when test="${detall.registrat}">bg-gradient-success shadow-success</c:when><c:otherwise>bg-gradient-secondary shadow-secondary</c:otherwise></c:choose>">
-						<i class="fa fa-book fa-inverse fa-1x"></i>
-						<i class="fa fa-caret-down fa-inverse fa-1x"></i>
-					</div>
-					<div class="text-end pt-1">
-						<h6 class="ch-titol">Registre</h6>
-					</div>
-				</div>
-				<div class="card-body body-ocult">
-					<ul class="list-group">
-						<%-- Número de registre--%>
-						<li class="list-group-item d-flex justify-content-between border-0">
-							<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.info.numero_registre"/></div>
-							<div class="d-flex flex-column text-sm">${registre != null ? registre.registreNumero : '--'}</div>
-						</li>
-						<%-- Data de registre--%>
-						<li class="list-group-item d-flex justify-content-between border-0">
-							<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.info.camp.registre.data"/></div>
-							<div class="d-flex flex-column text-sm">${registre != null ? '<fmt:formatDate value="${registre.registreData}" pattern="dd/MM/yyyy HH:mm"/>' : '--'}</div>
-						</li>
-						<%-- Oficina de registre--%>
-						<li class="list-group-item d-flex justify-content-between border-0">
-							<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.info.camp.registre.oficina"/></div>
-							<div class="d-flex flex-column text-sm">${registre != null ? registre.registreOficinaNom : '--'}</div>
-						</li>
-						<%-- Tipus de registre--%>
-						<li class="list-group-item d-flex justify-content-between border-0">
-							<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.info.camp.registre.tipus"/></div>
-							<div class="d-flex flex-column text-sm">${registre != null ? (registre.registreEntrada ? '<spring:message code="expedient.info.camp.registre.tipus.entrada"/>' : '<spring:message code="expedient.info.camp.registre.tipus.sortida"/>') : '--'}</div>
-						</li>
-					</ul>
-				</div>
-				<hr class="dark horizontal my-0">
-				<div class="card-footer p-3">
-					<c:choose>
-						<c:when test="${detall.registrat}"><p class="mb-0">Document <span class="text-success text-sm font-weight-bolder">REGISTRAT</span></p></c:when>
-						<c:otherwise><p class="mb-0">Document <span class="text-danger text-sm font-weight-bolder">NO REGISTRAT</span></p></c:otherwise>
-					</c:choose>
-				</div>
-			</div>
+		
+		<div id="contingut-documentDetall-registre-${detall.documentStoreId}" class="tab-pane">
+			<c:set var="registre" value="${detall.registreDetall}"/>
+			<ul class="list-group">
+				<%-- Número de registre--%>
+				<li class="list-group-item d-flex justify-content-between border-0">
+					<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.info.numero_registre"/></div>
+					<div class="d-flex flex-column text-sm">${registre != null ? registre.registreNumero : '--'}</div>
+				</li>
+				<%-- Data de registre--%>
+				<li class="list-group-item d-flex justify-content-between border-0">
+					<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.info.camp.registre.data"/></div>
+					<div class="d-flex flex-column text-sm">${registre != null ? '<fmt:formatDate value="${registre.registreData}" pattern="dd/MM/yyyy HH:mm"/>' : '--'}</div>
+				</li>
+				<%-- Oficina de registre--%>
+				<li class="list-group-item d-flex justify-content-between border-0">
+					<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.info.camp.registre.oficina"/></div>
+					<div class="d-flex flex-column text-sm">${registre != null ? registre.registreOficinaNom : '--'}</div>
+				</li>
+				<%-- Tipus de registre--%>
+				<li class="list-group-item d-flex justify-content-between border-0">
+					<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.info.camp.registre.tipus"/></div>
+					<div class="d-flex flex-column text-sm">${registre != null ? (registre.registreEntrada ? '<spring:message code="expedient.info.camp.registre.tipus.entrada"/>' : '<spring:message code="expedient.info.camp.registre.tipus.sortida"/>') : '--'}</div>
+				</li>
+			</ul>
+	
+			<hr class="dark horizontal my-0"/>
+			<c:choose>
+				<c:when test="${detall.registrat}"><p class="mb-0">Document <span class="text-success text-sm font-weight-bolder">REGISTRAT</span></p></c:when>
+				<c:otherwise><p class="mb-0">Document <span class="text-danger text-sm font-weight-bolder">NO REGISTRAT</span></p></c:otherwise>
+			</c:choose>
+	
 		</div>
-
+					
+			
 		<%-- SIGNATURA => detall.signaturaValidacioDetall --%>
-		<c:set var="signatura" value="${detall.signaturaValidacioDetall}"/>
-		<div class="col-xl-3 col-sm-3 mb-xl-0 mb-4">
-			<div class="card">
-				<div class="card-header p-3 pt-2 pointer">
-					<div class="card-icon position-absolute <c:choose><c:when test="${detall.signat}">bg-gradient-success shadow-success</c:when><c:otherwise>bg-gradient-secondary shadow-secondary</c:otherwise></c:choose>">
-						<i class="fa fa-certificate fa-inverse fa-1x"></i>
-						<i class="fa fa-caret-down fa-inverse fa-1x"></i>
-					</div>
-					<div class="text-end pt-1">
-						<h6 class="ch-titol">Signatura</h6>
-					</div>
-				</div>
-				<div class="card-body body-ocult">
-					<ul class="list-group">
-						<%-- --%>
+		
+		<div id="contingut-documentDetall-signatura-${detall.documentStoreId}" class="tab-pane">
+			<c:set var="signatura" value="${detall.signaturaValidacioDetall}"/>
+			<ul class="list-group">
+				<%-- --%>
+				<li class="list-group-item d-flex justify-content-between border-0">
+					<div class="d-flex flex-column text-dark font-weight-bold text-sm">Verificació de la signatura</div>
+					<div class="d-flex flex-column text-sm"><c:choose><c:when test="${signatura != null and not empty signatura.urlVerificacio}"><a href="${signatura.urlVerificacio}" target="blank"><span class="fa fa-certificate"/> <span class="fa fa-external-link"></span></a></c:when><c:otherwise>--</c:otherwise></c:choose></div>
+				</li>
+				<c:if test="${not empty signatura.tokenSignatura}">
+					<c:url value="/v3/expedient/document/arxiuMostrar" var="downloadUrl"><c:param name="token" value="${signatura.tokenSignatura}"/></c:url>
+					<li class="list-group-item d-flex justify-content-between border-0">
+						<div class="d-flex flex-column text-dark font-weight-bold text-sm">Verificació de la signatura</div>
+						<div class="d-flex flex-column text-sm"><c:choose><c:when test="${signatura != null and not empty signatura.urlVerificacio}"><a href="${signatura.urlVerificacio}"><span class="fa fa-external-link"></span></a></c:when><c:otherwise>--</c:otherwise></c:choose></div>
+					</li>
+				</c:if>
+				<c:if test="not empty signatura.signatures">
+					<li class="list-group-item d-flex justify-content-between border-0">
+						<div class="d-flex flex-column text-dark font-weight-bold text-sm">Firmes</div>
+						<div class="d-flex flex-column text-sm"></div>
+					</li>
+					<li class="list-group-item d-flex justify-content-between border-0">
+						<div class="d-flex flex-column text-dark font-weight-bold text-sm">Responsable</div>
+						<div class="d-flex flex-column text-dark font-weight-bold text-sm">NIF</div>
+						<div class="d-flex flex-column text-dark font-weight-bold text-sm">Estat</div>
+					</li>
+					<c:forEach var="firma" items="${signatura.signatures}" varStatus="status">
 						<li class="list-group-item d-flex justify-content-between border-0">
-							<div class="d-flex flex-column text-dark font-weight-bold text-sm">Verificació de la signatura</div>
-							<div class="d-flex flex-column text-sm"><c:choose><c:when test="${signatura != null and not empty signatura.urlVerificacio}"><a href="${signatura.urlVerificacio}"><span class="fa fa-external-link"></span></a></c:when><c:otherwise>--</c:otherwise></c:choose></div>
+							<div class="d-flex flex-column text-sm">${firma.nomResponsable}</div>
+							<div class="d-flex flex-column text-sm">${firma.nifResponsable}</div>
+							<div class="d-flex flex-column text-sm">
+								<c:choose>
+									<c:when test="${firma.estatOk}"><span class="fa fa-check text-success"></span></c:when>
+									<c:otherwise><span class="fa fa-times text-danger"></span></c:otherwise>
+								</c:choose>
+							</div>
 						</li>
-						<c:if test="${not empty signatura.tokenSignatura}">
-							<c:url value="/v3/expedient/document/arxiuMostrar" var="downloadUrl"><c:param name="token" value="${signatura.tokenSignatura}"/></c:url>
-							<li class="list-group-item d-flex justify-content-between border-0">
-								<div class="d-flex flex-column text-dark font-weight-bold text-sm">Verificació de la signatura</div>
-								<div class="d-flex flex-column text-sm"><c:choose><c:when test="${signatura != null and not empty signatura.urlVerificacio}"><a href="${signatura.urlVerificacio}"><span class="fa fa-external-link"></span></a></c:when><c:otherwise>--</c:otherwise></c:choose></div>
-							</li>
-						</c:if>
-						<c:if test="not empty signatura.signatures">
-							<li class="list-group-item d-flex justify-content-between border-0">
-								<div class="d-flex flex-column text-dark font-weight-bold text-sm">Firmes</div>
-								<div class="d-flex flex-column text-sm"></div>
-							</li>
-							<li class="list-group-item d-flex justify-content-between border-0">
-								<div class="d-flex flex-column text-dark font-weight-bold text-sm">Responsable</div>
-								<div class="d-flex flex-column text-dark font-weight-bold text-sm">NIF</div>
-								<div class="d-flex flex-column text-dark font-weight-bold text-sm">Estat</div>
-							</li>
-							<c:forEach var="firma" items="${signatura.signatures}" varStatus="status">
-								<li class="list-group-item d-flex justify-content-between border-0">
-									<div class="d-flex flex-column text-sm">${firma.nomResponsable}</div>
-									<div class="d-flex flex-column text-sm">${firma.nifResponsable}</div>
-									<div class="d-flex flex-column text-sm">
-										<c:choose>
-											<c:when test="${firma.estatOk}"><span class="fa fa-check text-success"></span></c:when>
-											<c:otherwise><span class="fa fa-times text-danger"></span></c:otherwise>
-										</c:choose>
-									</div>
-								</li>
-							</c:forEach>
-						</c:if>
-					</ul>
-				</div>
-				<hr class="dark horizontal my-0">
-				<div class="card-footer p-3">
-					<c:choose>
-						<c:when test="${detall.signat}"><p class="mb-0">Document <span class="text-success text-sm font-weight-bolder">SIGNAT</span></p></c:when>
-						<c:otherwise><p class="mb-0">Document <span class="text-danger text-sm font-weight-bolder">NO SIGNAT</span></p></c:otherwise>
-					</c:choose>
-				</div>
+					</c:forEach>
+				</c:if>
+			</ul>
+			<hr class="dark horizontal my-0">
+			<div class="card-footer p-3">
+				<c:choose>
+					<c:when test="${detall.signat}"><p class="mb-0">Document <span class="text-success text-sm font-weight-bolder">SIGNAT</span></p></c:when>
+					<c:otherwise><p class="mb-0">Document <span class="text-danger text-sm font-weight-bolder">NO SIGNAT</span></p></c:otherwise>
+				</c:choose>
 			</div>
 		</div>
-
+		
+	
 		<%-- PSIGNA => detall.signaturaValidacioDetall --%>
-		<c:set var="psigna" value="${detall.psignaDetall}"/>
-		<div class="col-xl-3 col-sm-3 mb-xl-0 mb-4">
-			<div class="card">
-				<div class="card-header pointer p-3 pt-2">
-					<div class="card-icon position-absolute <c:choose><c:when test="${detall.psignaPendent}">bg-gradient-success shadow-success</c:when><c:otherwise>bg-gradient-secondary shadow-secondary</c:otherwise></c:choose>">
-						<i class="fa fa-clock-o fa-inverse fa-1x"></i>
-						<i class="fa fa-caret-down fa-inverse fa-1x"></i>
-					</div>
-					<div class="text-end pt-1">
-						<h6 class="ch-titol">Pendent de Portasignatures</h6>
-					</div>
-				</div>
-				<div class="card-body body-ocult">
-					<c:if test="${not empty psigna}">
-						<ul class="list-group">
-							<%-- --%>
-							<li class="list-group-item d-flex justify-content-between border-0">
-								<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="common.icones.doc.psigna.id"/></div>
-								<div class="d-flex flex-column text-sm">${psigna.documentId != null ? registre.documentId : '--'}</div>
-							</li>
-							<li class="list-group-item d-flex justify-content-between border-0">
-								<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="common.icones.doc.psigna.data.enviat"/></div>
-								<div class="d-flex flex-column text-sm"><c:choose><c:when test="${not empty psigna.dataEnviat}"><fmt:formatDate value="${psigna.dataEnviat}" pattern="dd/MM/yyyy HH:mm"/></c:when><c:otherwise>--</c:otherwise></c:choose></div>
-							</li>
-							<li class="list-group-item d-flex justify-content-between border-0">
-								<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="common.icones.doc.psigna.estat"/></div>
-								<div class="d-flex flex-column text-sm">
-									<c:choose>
-										<c:when test="${psigna.estat == 'PROCESSAT' && psigna.error}">
-											<span class="pull-right" id="psignaEstat">REBUTJAT</span>
-										</c:when>
-										<c:when test="${psigna.estat != 'PROCESSAT' && psigna.error && not empty psigna.errorProcessant}">
-											<span class="pull-right" id="psignaEstat">PENDENT</span>
-										</c:when>
-										<c:otherwise>
-											<span class="pull-right" id="psignaEstat">${psigna.estat}</span>
-										</c:otherwise>
-									</c:choose>
-								</div>
-							</li>
-							<c:if test="${not empty psigna.motiuRebuig}">
-								<li class="list-group-item d-flex justify-content-between border-0">
-									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="common.icones.doc.psigna.motiu.rebuig"/></div>
-									<div class="d-flex flex-column text-sm">${psigna.motiuRebuig != null ? psigna.motiuRebuig : '--'}</div>
-								</li>
-							</c:if>
-							<c:if test="${not empty psigna.dataProcessamentPrimer}">
-								<li class="list-group-item d-flex justify-content-between border-0">
-									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="common.icones.doc.psigna.data.proces.primer"/></div>
-									<div class="d-flex flex-column text-sm"><c:choose><c:when test="${not empty psigna.dataProcessamentPrimer}"><fmt:formatDate value="${psigna.dataProcessamentPrimer}" pattern="dd/MM/yyyy HH:mm"/></c:when><c:otherwise>--</c:otherwise></c:choose></div>
-								</li>
-							</c:if>
-							<c:if test="${not empty psigna.dataProcessamentDarrer}">
-								<li class="list-group-item d-flex justify-content-between border-0">
-									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="common.icones.doc.psigna.data.proces.darrer"/></div>
-									<div class="d-flex flex-column text-sm"><c:choose><c:when test="${not empty psigna.dataProcessamentDarrer}"><fmt:formatDate value="${psigna.dataProcessamentDarrer}" pattern="dd/MM/yyyy HH:mm"/></c:when><c:otherwise>--</c:otherwise></c:choose></div>
-								</li>
-							</c:if>
-						</ul>
-
-<%--						<c:if test="${psigna.error && psigna.estat != 'PROCESSAT'}">--%>
-<%--							<c:if test="${expedient.permisDocManagement}">--%>
-<%--								<form id="form_psigna_${document.id}" action="<c:url value='../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/psignaReintentar'/>">--%>
-<%--									<input type="hidden" name="id" value="${document.processInstanceId}"/>--%>
-<%--									<input type="hidden" name="psignaId" value="${psigna.documentId}"/>--%>
-<%--								</form>--%>
-<%--							</c:if>--%>
-<%--						</c:if>--%>
-					</c:if>
-				</div>
-				<hr class="dark horizontal my-0">
-				<div class="card-footer p-3">
-					<c:choose>
-						<c:when test="${detall.psignaPendent}">
+		<div id="contingut-documentDetall-portasignatura-${detall.documentStoreId}" class="tab-pane">
+			<c:set var="psigna" value="${detall.psignaDetall}"/>
+			<c:if test="${not empty psigna}">
+				<ul class="list-group">
+					<li class="list-group-item d-flex justify-content-between border-0">
+						<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="common.icones.doc.psigna.id"/></div>
+						<div class="d-flex flex-column text-sm"><c:choose><c:when test="${not empty psigna.documentId}">${psigna.documentId}</c:when><c:otherwise>--</c:otherwise></c:choose></div>
+					</li>
+					<li class="list-group-item d-flex justify-content-between border-0">
+						<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="common.icones.doc.psigna.data.enviat"/></div>
+						<div class="d-flex flex-column text-sm"><c:choose><c:when test="${not empty psigna.dataEnviat}"><fmt:formatDate value="${psigna.dataEnviat}" pattern="dd/MM/yyyy HH:mm"/></c:when><c:otherwise>--</c:otherwise></c:choose></div>
+					</li>
+					<li class="list-group-item d-flex justify-content-between border-0">
+						<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="common.icones.doc.psigna.estat"/></div>
+						<div class="d-flex flex-column text-sm">
 							<c:choose>
-								<c:when test="${psigna.error and psigna.estat != 'PROCESSAT'}">
-									<p class="mb-0">Document amb error: <span class="text-dander text-sm font-weight-bolder"><spring:message code="expedient.document.pendent.psigna.error" /></span></p>
+								<c:when test="${psigna.estat == 'PROCESSAT' && psigna.error}">
+									<span>REBUTJAT</span>
 								</c:when>
-								<c:when test="${psigna.error and psigna.estat == 'PROCESSAT'}">
-									<p class="mb-0">Document amb error: <span class="text-danger text-sm font-weight-bolder"><spring:message code="expedient.document.rebutjat.psigna.error" /></span></p>
+								<c:when test="${psigna.estat != 'PROCESSAT' && psigna.error && not empty psigna.errorProcessant}">
+									<span>PENDENT</span>
 								</c:when>
 								<c:otherwise>
-									<p class="mb-0">Document <span class="text-success text-sm font-weight-bolder">PENDENT de Portasignatures</span></p>
+									<span>${psigna.estat}</span>
 								</c:otherwise>
 							</c:choose>
-						</c:when>
-						<c:otherwise><p class="mb-0">Document <span class="text-danger text-sm font-weight-bolder">NO PENDENT de Portasignatures</span></p></c:otherwise>
-					</c:choose>
-				</div>
-			</div>
-		</div>
-
-		<%-- NOTIFICACIONS => detall.notificacions --%>
-		<c:set var="notificacions" value="${detall.notificacions}"/>
-		<div class="col-xl-3 col-sm-3 mb-xl-0 mb-4">
-			<div class="card">
-				<div class="card-header pointer p-3 pt-2">
-					<div class="card-icon position-absolute <c:choose><c:when test="${detall.notificat}">bg-gradient-success shadow-success</c:when><c:otherwise>bg-gradient-secondary shadow-secondary</c:otherwise></c:choose>">
-						<i class="fa fa-paper-plane-o fa-inverse fa-1x"></i>
-						<i class="fa fa-caret-down fa-inverse fa-1x"></i>
-					</div>
-					<div class="text-end pt-1">
-						<h6 class="ch-titol">Notificacions</h6>
-					</div>
-				</div>
-				<div class="card-body body-ocult">
-					<ul class="list-group">
-						<li class="list-group-item d-flex justify-content-between border-0">
-							<div class="d-flex flex-column text-dark font-weight-bold text-sm">Destinatari</div>
-							<div class="d-flex flex-column text-dark font-weight-bold text-sm">Estat</div>
-						</li>
-						<c:forEach var="notificacio" items="${notificacions}" varStatus="status">
-							<c:forEach var="enviament" items="${notificacio.enviaments}" varStatus="statuse">
-								<li class="list-group-item d-flex justify-content-between border-0">
-									<div class="d-flex flex-column text-sm">
-										<span class="label label-default">${notificacio.enviamentTipus == "NOTIFICACIO" ? 'N' : 'C'}</span>
-										<span>
-											<h6>${enviament.titular.nomSencer}</h6>
-											<p>${notificacio.enviatData}</p>
-										</span>
-									</div>
-									<div class="d-flex flex-column text-sm">
-										<c:set var="ecolor" value="default"/>
-										<c:choose>
-											<c:when test="${enviament.estat == 'LLEGIDA' or
-														enviament.estat == 'NOTIFICADA'}"><c:set var="ecolor" value="success"/></c:when>
-											<c:when test="${enviament.estat == 'ABSENT' or
-														enviament.estat == 'DESCONEGUT' or
-														enviament.estat == 'ADRESA_INCORRECTA' or
-														enviament.estat == 'MORT' or
-														enviament.estat == 'EXTRAVIADA' or
-														enviament.estat == 'SENSE_INFORMACIO' or
-														enviament.estat == 'ERROR_ENTREGA' or
-														enviament.estat == 'EXPIRADA'}"><c:set var="ecolor" value="Danger"/></c:when>
-										</c:choose>
-										<span class="label label-${ecolor}">${enviament.estat}</span>
-									</div>
-								</li>
-							</c:forEach>
-						</c:forEach>
-					</ul>
-				</div>
-				<hr class="dark horizontal my-0">
-				<div class="card-footer p-3">
-					<c:choose>
-						<c:when test="${detall.notificat}"><p class="mb-0">Document <span class="text-success text-sm font-weight-bolder">NOTIFICAT</span></p></c:when>
-						<c:otherwise><p class="mb-0">Document <span class="text-danger text-sm font-weight-bolder">NO NOTIFICAT</span></p></c:otherwise>
-					</c:choose>
-				</div>
-			</div>
-		</div>
-
-
-	</div>
-	<div class="row mtop-2">
-
-		<%-- ARXIU/NTI => detall.arxiuDetall --%>
-		<c:set var="arxiuDetall" value="${detall.arxiuDetall}"/>
-		<c:set var="ntiDetall" value="${detall.ntiDetall}"/>
-		<div class="col-lg-6 col-md-6 mtop-3 mb-4">
-			<div class="card">
-				<div class="card-header pointer p-3 pt-2">
-					<div class="card-icon position-absolute <c:choose><c:when test="${detall.nti || detall.arxiu}">bg-gradient-success shadow-success</c:when><c:otherwise>bg-gradient-secondary shadow-secondary</c:otherwise></c:choose>">
-						<i class="fa fa-bookmark fa-inverse fa-1x"></i>
-						<i class="fa fa-caret-down fa-inverse fa-1x"></i>
-					</div>
-					<div class="text-end pt-1">
-						<h6 class="ch-titol">
-							<c:choose>
-								<c:when test="${detall.arxiu}">ARXIU</c:when>
-								<c:when test="${detall.nti}">NTI</span></p></c:when>
-								<c:otherwise>ARXIU / NTI</c:otherwise>
-							</c:choose>
-						</h6>
-					</div>
-				</div>
-				<div class="card-body body-ocult">
-
-				<!-- Formulari per incoporar el document a l'Arxiu si es detecta error de no Uuid -->
-				<c:if test="${errorArxiuNoUuid}">
-					<div class="row alert alert-danger" style="margin: 0px; margin-bottom: 10px;">
-						<div class="col-sm-10">
-							<p><spring:message code="expedient.document.arxiu.error.uuidnoexistent.info"/></p>
 						</div>
-<%--						TODO: --%>
-<%--						<div class="col-sm-2">--%>
-<%--							<form action="incoporarArxiu" method="post">--%>
-<%--								<button id="incorporarArxiuButton" type="submit" class="btn btn-default" title="<spring:message code='expedient.document.arxiu.migrar.arxiu'></spring:message>">--%>
-<%--									<span class="fa fa-upload"></span>--%>
-<%--									<spring:message code="comu.boto.migrar"></spring:message>--%>
-<%--								</button>--%>
-<%--							<form>--%>
-<%--						</div>--%>
-					</div>
-				</c:if>
+					</li>
+					<c:if test="${not empty psigna.motiuRebuig}">
+						<li class="list-group-item d-flex justify-content-between border-0">
+							<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="common.icones.doc.psigna.motiu.rebuig"/></div>
+							<div class="d-flex flex-column text-sm">${psigna.motiuRebuig != null ? psigna.motiuRebuig : '--'}</div>
+						</li>
+					</c:if>
+					<c:if test="${not empty psigna.dataProcessamentPrimer}">
+						<li class="list-group-item d-flex justify-content-between border-0">
+							<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="common.icones.doc.psigna.data.proces.primer"/></div>
+							<div class="d-flex flex-column text-sm"><c:choose><c:when test="${not empty psigna.dataProcessamentPrimer}"><fmt:formatDate value="${psigna.dataProcessamentPrimer}" pattern="dd/MM/yyyy HH:mm"/></c:when><c:otherwise>--</c:otherwise></c:choose></div>
+						</li>
+					</c:if>
+					<c:if test="${not empty psigna.dataProcessamentDarrer}">
+						<li class="list-group-item d-flex justify-content-between border-0">
+							<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="common.icones.doc.psigna.data.proces.darrer"/></div>
+							<div class="d-flex flex-column text-sm"><c:choose><c:when test="${not empty psigna.dataProcessamentDarrer}"><fmt:formatDate value="${psigna.dataProcessamentDarrer}" pattern="dd/MM/yyyy HH:mm"/></c:when><c:otherwise>--</c:otherwise></c:choose></div>
+						</li>
+					</c:if>
+				</ul>
+	
+	<%--						<c:if test="${psigna.error && psigna.estat != 'PROCESSAT'}">--%>
+	<%--							<c:if test="${expedient.permisDocManagement}">--%>
+	<%--								<form id="form_psigna_${document.id}" action="<c:url value='../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/psignaReintentar'/>">--%>
+	<%--									<input type="hidden" name="id" value="${document.processInstanceId}"/>--%>
+	<%--									<input type="hidden" name="psignaId" value="${psigna.documentId}"/>--%>
+	<%--								</form>--%>
+	<%--							</c:if>--%>
+	<%--						</c:if>--%>
+			</c:if>
+			<hr class="dark horizontal my-0"/>
+			<c:choose>
+				<c:when test="${detall.psignaPendent}">
+					<c:choose>
+						<c:when test="${psigna.error and psigna.estat != 'PROCESSAT'}">
+							<p class="mb-0">Document amb error: <span class="text-dander text-sm font-weight-bolder"><spring:message code="expedient.document.pendent.psigna.error" /></span></p>
+						</c:when>
+						<c:when test="${psigna.error and psigna.estat == 'PROCESSAT'}">
+							<p class="mb-0">Document amb error: <span class="text-danger text-sm font-weight-bolder"><spring:message code="expedient.document.rebutjat.psigna.error" /></span></p>
+						</c:when>
+						<c:otherwise>
+							<p class="mb-0">Document <span class="text-success text-sm font-weight-bolder">PENDENT de Portasignatures</span></p>
+						</c:otherwise>
+					</c:choose>
+				</c:when>
+				<c:otherwise><p class="mb-0">Document <span class="text-danger text-sm font-weight-bolder">NO PENDENT de Portasignatures</span></p></c:otherwise>
+			</c:choose>
+		</div>
+	
+		<%-- NOTIFICACIONS => detall.notificacions --%>
+		<div id="contingut-documentDetall-notificacions-${detall.documentStoreId}" class="tab-pane">
+			<c:set var="notificacions" value="${detall.notificacions}"/>
+			<ul class="list-group">
+				<li class="list-group-item d-flex justify-content-between border-0">
+					<div class="d-flex flex-column text-dark font-weight-bold text-sm">Destinatari</div>
+					<div class="d-flex flex-column text-dark font-weight-bold text-sm">Estat</div>
+				</li>
+				<c:forEach var="notificacio" items="${notificacions}" varStatus="status">
+					<c:forEach var="enviament" items="${notificacio.enviaments}" varStatus="statuse">
+						<li class="list-group-item d-flex justify-content-between border-0">
+							<div class="d-flex flex-column text-sm">
+								<span class="label label-default">${notificacio.enviamentTipus == "NOTIFICACIO" ? 'N' : 'C'}</span>
+								<span>
+									<h6>${enviament.titular.nomSencer}</h6>
+									<p>${notificacio.enviatData}</p>
+								</span>
+							</div>
+							<div class="d-flex flex-column text-sm">
+								<c:set var="ecolor" value="default"/>
+								<c:choose>
+									<c:when test="${enviament.estat == 'LLEGIDA' or
+												enviament.estat == 'NOTIFICADA'}"><c:set var="ecolor" value="success"/></c:when>
+									<c:when test="${enviament.estat == 'ABSENT' or
+												enviament.estat == 'DESCONEGUT' or
+												enviament.estat == 'ADRESA_INCORRECTA' or
+												enviament.estat == 'MORT' or
+												enviament.estat == 'EXTRAVIADA' or
+												enviament.estat == 'SENSE_INFORMACIO' or
+												enviament.estat == 'ERROR_ENTREGA' or
+												enviament.estat == 'EXPIRADA'}"><c:set var="ecolor" value="Danger"/></c:when>
+								</c:choose>
+								<span class="label label-${ecolor}">${enviament.estat}</span>
+							</div>
+						</li>
+					</c:forEach>
+				</c:forEach>
+			</ul>
+			
+			<hr class="dark horizontal my-0"/>
+			<div class="card-footer p-3">
+				<c:choose>
+					<c:when test="${detall.notificat}"><p class="mb-0">Document <span class="text-success text-sm font-weight-bolder">NOTIFICAT</span></p></c:when>
+					<c:otherwise><p class="mb-0">Document <span class="text-danger text-sm font-weight-bolder">NO NOTIFICAT</span></p></c:otherwise>
+				</c:choose>
+			</div>
+		</div>
+	
+	
+		<%-- ARXIU/NTI => detall.arxiuDetall --%>
+		<div id="contingut-documentDetall-arxiu-${detall.documentStoreId}" class="tab-pane">
+			
+			<c:set var="arxiuDetall" value="${detall.arxiuDetall}"/>
+			<c:set var="ntiDetall" value="${detall.ntiDetall}"/>
+			<c:if test="${not empty detall.arxiuDetall}">
+				<ul class="nav nav-pills" role="tablist">
+					<li role="presentation" class="active"><a class="pill-link" href="#documentDetall_nti_${detall.documentStoreId}" aria-controls="nti" role="tab" data-toggle="tab"><spring:message code="expedient.metadades.nti.tab.nti"/></a></li>
+					<li role="presentation"><a class="pill-link" href="#documentDetall_info_${detall.documentStoreId}" aria-controls="info" role="tab" data-toggle="tab"><spring:message code="expedient.metadades.nti.tab.info"/></a></li>
+					<c:if test="${not empty arxiuDetall.fills}"><li role="presentation"><a class="pill-link" href="#documentDetall_fills_${detall.documentStoreId}" aria-controls="fills" role="tab" data-toggle="tab"><spring:message code="expedient.metadades.nti.tab.fills"/> <span class="badge badge-default">${fn:length(arxiuDetall.fills)}</span></a></li></c:if>
+					<c:if test="${not empty arxiuDetall.firmes}"><li role="presentation"><a class="pill-link" href="#documentDetall_firmes_${detall.documentStoreId}" aria-controls="firmes" role="tab" data-toggle="tab"><spring:message code="expedient.metadades.nti.tab.firmes"/> <span class="badge badge-default">${fn:length(arxiuDetall.firmes)}</span></a></li></c:if>
+					<c:if test="${not empty arxiuDetall.metadadesAddicionals}"><li role="presentation"><a class="pill-link" href="#documentDetall_metadades_${detall.documentStoreId}" aria-controls="metadades" role="tab" data-toggle="tab"><spring:message code="expedient.metadades.nti.tab.metadades"/></a></li></c:if>
+				</ul>
+			</c:if>
 
-				<c:if test="${not empty detall.arxiuDetall}">
-					<ul class="nav nav-pills" role="tablist">
-						<li role="presentation" class="active"><a class="pill-link" href="#nti_${detall.documentStoreId}" aria-controls="nti" role="tab" data-toggle="tab"><spring:message code="expedient.metadades.nti.tab.nti"/></a></li>
-						<li role="presentation"><a class="pill-link" href="#info_${detall.documentStoreId}" aria-controls="info" role="tab" data-toggle="tab"><spring:message code="expedient.metadades.nti.tab.info"/></a></li>
-						<c:if test="${not empty arxiuDetall.fills}"><li role="presentation"><a class="pill-link" href="#fills_${detall.documentStoreId}" aria-controls="fills" role="tab" data-toggle="tab"><spring:message code="expedient.metadades.nti.tab.fills"/> <span class="badge badge-default">${fn:length(arxiuDetall.fills)}</span></a></li></c:if>
-						<c:if test="${not empty arxiuDetall.firmes}"><li role="presentation"><a class="pill-link" href="#firmes_${detall.documentStoreId}" aria-controls="firmes" role="tab" data-toggle="tab"><spring:message code="expedient.metadades.nti.tab.firmes"/> <span class="badge badge-default">${fn:length(arxiuDetall.firmes)}</span></a></li></c:if>
-						<c:if test="${not empty arxiuDetall.metadadesAddicionals}"><li role="presentation"><a class="pill-link" href="#metadades_${detall.documentStoreId}" aria-controls="metadades" role="tab" data-toggle="tab"><spring:message code="expedient.metadades.nti.tab.metadades"/></a></li></c:if>
-					</ul>
-
-					<div class="tab-content">
-						<%-- Metadades NTI --%>
-						<div id="nti_${detall.documentStoreId}" class="tab-pane in active">
-				</c:if>
-<%--							metadades nti--%>
+				<div class="tab-content">
+					<%-- Metadades NTI --%>
+					<c:if test="${not empty detall.ntiDetall }">
+					
+						<div id="documentDetall_nti_${detall.documentStoreId}" class="tab-pane in active">
 							<ul class="list-group">
 								<%-- --%>
 								<li class="list-group-item d-flex justify-content-between border-0">
@@ -586,22 +363,24 @@
 									<div class="col-sm-10">
 										<p><spring:message code="expedient.metadades.nti.dades.error.info"/></p>
 									</div>
-<%--					TODO:--%>
-<%--									<div class="col-sm-2">--%>
-<%--										<form  action="<c:url value="/v3/expedient/${expedient.id}/metadadesNti/arreglar"/>" method="post">--%>
-<%--											<button id="arreglarNtiButton" type="submit" class="btn btn-default" title="<spring:message code='expedient.metadades.nti.dades.error.arreglar.info'></spring:message>">--%>
-<%--												<span class="fa fa-cog"></span>--%>
-<%--												<spring:message code="expedient.metadades.nti.dades.error.arreglar"></spring:message>--%>
-<%--											</button>--%>
-<%--										<form>--%>
-<%--									</div>--%>
+		<%--					TODO:--%>
+		<%--									<div class="col-sm-2">--%>
+		<%--										<form  action="<c:url value="/v3/expedient/${expedient.id}/metadadesNti/arreglar"/>" method="post">--%>
+		<%--											<button id="arreglarNtiButton" type="submit" class="btn btn-default" title="<spring:message code='expedient.metadades.nti.dades.error.arreglar.info'></spring:message>">--%>
+		<%--												<span class="fa fa-cog"></span>--%>
+		<%--												<spring:message code="expedient.metadades.nti.dades.error.arreglar"></spring:message>--%>
+		<%--											</button>--%>
+		<%--										<form>--%>
+		<%--									</div>--%>
 								</div>
 							</c:if>
-				<c:if test="${not empty arxiuDetall}">
 						</div>
+					</c:if>
+
+					<c:if test="${not empty detall.arxiuDetall}">
 
 						<%-- Informació arxiu --%>
-						<div id="info_${detall.documentStoreId}" class="tab-pane">
+						<div id="documentDetall_info_${detall.documentStoreId}" class="tab-pane">
 							<ul class="list-group">
 								<li class="list-group-item d-flex justify-content-between border-0">
 									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.identificador"/></div>
@@ -749,10 +528,10 @@
 								</ul>
 							</c:if>
 						</div>
-
+						
 						<%-- Fills --%>
 						<c:if test="${not empty arxiuDetall.fills}">
-						<div id="fills_${detall.documentStoreId}" class="tab-pane">
+						<div id="documentDetall_fills_${detall.documentStoreId}" class="tab-pane">
 							<ul class="list-group">
 								<c:forEach var="fill" items="${arxiuDetall.fills}" varStatus="status">
 									<li class="list-group-item d-flex justify-content-between border-0">
@@ -763,10 +542,10 @@
 							</ul>
 						</div>
 						</c:if>
-
+	
 						<%-- Firmes --%>
 						<c:if test="${not empty arxiuDetall.firmes}">
-						<div id="firmes_${detall.documentStoreId}" class="tab-pane">
+						<div id="documentDetall_firmes_${detall.documentStoreId}" class="tab-pane">
 							<ul class="list-group">
 								<li class="list-group-item d-flex justify-content-between border-0">
 									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="expedient.metadades.nti.camp.firma.tipus"/></div>
@@ -793,10 +572,10 @@
 							</ul>
 						</div>
 						</c:if>
-
+	
 						<%-- Metadades Arxiu --%>
 						<c:if test="${not empty arxiuDetall.metadadesAddicionals}">
-						<div id="metadades_${detall.documentStoreId}" class="tab-pane">
+						<div id="documentDetall_metadades_${detall.documentStoreId}" class="tab-pane">
 							<ul class="list-group">
 							<c:forEach var="metadada" items="${arxiuDetall.metadadesAddicionals}" varStatus="status">
 								<li class="list-group-item d-flex justify-content-between border-0">
@@ -807,297 +586,284 @@
 							</ul>
 						</div>
 						</c:if>
-					</div>
-				</c:if>
-				</div>
-
-				<hr class="dark horizontal my-0">
-
-				<div class="card-footer p-3">
-					<c:choose>
-						<c:when test="${detall.arxiu}"><p class="mb-0">Document <span class="text-success text-sm font-weight-bolder">ARXIVAT</span></p></c:when>
-						<c:when test="${detall.nti}"><p class="mb-0">Document <span class="text-success text-sm font-weight-bolder">CUSTODIAT</span></p></c:when>
-						<c:otherwise><p class="mb-0">Document <span class="text-danger text-sm font-weight-bolder">NO ARXIVAT ni CUSTODIAT</span></p></c:otherwise>
-					</c:choose>
-				</div>
-			</div>
+						
+					</c:if>
+					
+				</div>		
+						
+			<hr class="dark horizontal my-0"/>
+			<c:choose>
+				<c:when test="${detall.arxiu}"><p class="mb-0">Document <span class="text-success text-sm font-weight-bolder">ARXIVAT</span></p></c:when>
+				<c:when test="${detall.nti}"><p class="mb-0">Document <span class="text-success text-sm font-weight-bolder">CUSTODIAT</span></p></c:when>
+				<c:otherwise><p class="mb-0">Document <span class="text-danger text-sm font-weight-bolder">NO ARXIVAT ni CUSTODIAT</span></p></c:otherwise>
+			</c:choose>				
 		</div>
-
-		<%-- ANOTACIO => detall.arxiuDetall --%>
-		<c:set var="anotacio" value="${detall.anotacio}"/>
-		<div class="col-lg-6 col-md-6 mtop-3 mb-4">
-			<div class="card">
-				<div class="card-header pointer p-3 pt-2">
-					<div class="card-icon position-absolute <c:choose><c:when test="${detall.deAnotacio}">bg-gradient-success shadow-success</c:when><c:otherwise>bg-gradient-secondary shadow-secondary</c:otherwise></c:choose>">
-						<i class="fa fa-file-text fa-inverse fa-1x"></i>
-						<i class="fa fa-caret-down fa-inverse fa-1x"></i>
-					</div>
-					<div class="text-end pt-1">
-						<h6 class="ch-titol">Anotació origen</h6>
-					</div>
-				</div>
-				<div class="card-body body-ocult">
-					<c:choose>
-						<c:when test="${not empty anotacio.annexos}">
-							<ul class="nav nav-pills" role="tablist">
-								<li role="presentation" class="active"><a class="pill-link" href="#informacio_${anotacio.id}" aria-controls="nti" role="tab" data-toggle="tab"><spring:message code="anotacio.detalls.pipella.informacio"/></a></li>
-								<li role="presentation"><a class="pill-link" href="#interessats_${anotacio.id}" aria-controls="info" role="tab" data-toggle="tab"><spring:message code="anotacio.detalls.pipella.interessats"/></a></li>
-								<li role="presentation"><a class="pill-link" href="#annexos_${anotacio.id}" aria-controls="fills" role="tab" data-toggle="tab">
+		
+	
+		<%-- ANOTACIO => detall.anotacio --%>
+		<div id="contingut-documentDetall-anotacions-${detall.documentStoreId}" class="tab-pane">
+			<c:set var="anotacio" value="${detall.anotacio}"/>
+			<c:choose>
+				<c:when test="${not empty anotacio.annexos}">
+					<ul class="nav nav-pills" role="tablist">
+						<li role="presentation" class="active"><a class="pill-link" href="#informacio_${anotacio.id}" aria-controls="nti" role="tab" data-toggle="tab"><spring:message code="anotacio.detalls.pipella.informacio"/></a></li>
+						<li role="presentation"><a class="pill-link" href="#interessats_${anotacio.id}" aria-controls="info" role="tab" data-toggle="tab"><spring:message code="anotacio.detalls.pipella.interessats"/></a></li>
+						<li role="presentation"><a class="pill-link" href="#annexos_${anotacio.id}" aria-controls="fills" role="tab" data-toggle="tab">
+							<c:choose>
+								<c:when test="${anotacio.errorAnnexos || anotacio.annexosInvalids}"><span class="fa fa-warning text-danger"></span></c:when>
+								<c:when test="${anotacio.annexosEsborranys}"><span class="fa fa-warning text-warning"></span></c:when>
+							</c:choose>
+							<spring:message code="anotacio.detalls.pipella.annexos"/></a></li>
+						<c:if test="${not empty anotacio.distibucioErrorNotificacio}"><li role="presentation"><a class="pill-link" href="#error_${anotacio.id}" aria-controls="firmes" role="tab" data-toggle="tab"><spring:message code="anotacio.detalls.pipella.error"/></a></li></c:if>
+					</ul>
+	
+					<%-- Informació --%>
+					<div class="tab-content">
+						<div id="informacio_${anotacio.id}" class="tab-pane in active">
+							<ul class="list-group">
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.tipus"/></div>
+									<div class="d-flex flex-column text-sm"><spring:message code="anotacio.detalls.entrada"/></div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.numero"/></div>
+									<div class="d-flex flex-column text-sm">${anotacio.identificador != null ? anotacio.identificador : '--'}</div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.data"/></div>
+									<div class="d-flex flex-column text-sm"><c:choose><c:when test="${not empty anotacio.data}"><fmt:formatDate value="${anotacio.data}" pattern="dd/MM/yyyy HH:mm:ss"/></c:when><c:otherwise>--</c:otherwise></c:choose></div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.estat"/></div>
+									<div class="d-flex flex-column text-sm"><c:choose><c:when test="${not empty anotacio.estat}"><spring:message code="enum.anotacio.estat.${anotacio.estat}"/></c:when><c:otherwise>'--'</c:otherwise></c:choose></div>
 									<c:choose>
-										<c:when test="${anotacio.errorAnnexos || anotacio.annexosInvalids}"><span class="fa fa-warning text-danger"></span></c:when>
-										<c:when test="${anotacio.annexosEsborranys}"><span class="fa fa-warning text-warning"></span></c:when>
+										<c:when test="${anotacio.estat == 'ERROR_PROCESSANT'}">
+											<div class="d-flex flex-column text-sm text-danger">
+												<span class="fa fa-exclamation-triangle"></span>
+												<spring:message code="anotacio.detalls.errorProcessament" arguments="${anotacio.errorProcessament}"/>
+											</div>
+										</c:when>
+										<c:when test="${anotacio.estat == 'COMUNICADA'}">
+											<div class="d-flex flex-column text-sm text-warning" <c:if test="${anotacio.consultaError != null}">title="${anotacio.consultaError}"</c:if>>
+												<span class="fa fa-exclamation-triangle"></span>
+												<spring:message code="anotacio.detalls.consulta" arguments="${anotacio.consultaIntents},${ maxConsultaIntents}"/>
+											</div>
+											<span class="pull-right" id="psignaEstat">PENDENT</span>
+										</c:when>
 									</c:choose>
-									<spring:message code="anotacio.detalls.pipella.annexos"/></a></li>
-								<c:if test="${not empty anotacio.distibucioErrorNotificacio}"><li role="presentation"><a class="pill-link" href="#error_${anotacio.id}" aria-controls="firmes" role="tab" data-toggle="tab"><spring:message code="anotacio.detalls.pipella.error"/></a></li></c:if>
+								</li>
 							</ul>
-
-							<%-- Informació --%>
-							<div class="tab-content">
-								<div id="informacio_${anotacio.id}" class="tab-pane in active">
+	
+							<hr class="dark horizontal my-0">
+	
+							<div class="d-flex flex-column text-sm"><h6><spring:message code="anotacio.detalls.titol.obligatories"/></h6></div>
+							<ul class="list-group">
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.oficina"/></div>
+									<div class="d-flex flex-column text-sm"><c:choose><c:when test="${anotacio.oficinaCodi != null}">${anotacio.oficinaDescripcio} (${anotacio.oficinaCodi})</c:when><c:otherwise>'--'</c:otherwise></c:choose></div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.llibre"/></div>
+									<div class="d-flex flex-column text-sm"><c:choose><c:when test="${anotacio.llibreCodi != null}">${anotacio.llibreDescripcio} (${anotacio.llibreCodi})</c:when><c:otherwise>'--'</c:otherwise></c:choose></div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.extracte"/></div>
+									<div class="d-flex flex-column text-sm">${anotacio.extracte != null ? anotacio.extracte : '--'}</div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.docfis"/></div>
+									<div class="d-flex flex-column text-sm"><c:choose><c:when test="${anotacio.docFisicaCodi != null}">${anotacio.docFisicaCodi} - ${anotacio.docFisicaDescripcio})</c:when><c:otherwise>'--'</c:otherwise></c:choose></div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.desti"/></div>
+									<div class="d-flex flex-column text-sm"><c:choose><c:when test="${anotacio.destiCodi != null}">${anotacio.destiDescripcio} (${anotacio.destiCodi})</c:when><c:otherwise>'--'</c:otherwise></c:choose></div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.assumpte.tipus"/></div>
+									<div class="d-flex flex-column text-sm"><c:choose><c:when test="${anotacio.assumpteTipusDescripcio != null}">${anotacio.destiDescripcio} (${anotacio.assumpteTipusCodi})</c:when><c:otherwise>'--'</c:otherwise></c:choose></div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.idioma"/></div>
+									<div class="d-flex flex-column text-sm"><c:choose><c:when test="${anotacio.idiomaDescripcio != null}">${anotacio.destiDescripcio} (${anotacio.idiomaCodi})</c:when><c:otherwise>'--'</c:otherwise></c:choose></div>
+								</li>
+							</ul>
+	
+							<hr class="dark horizontal my-0">
+	
+							<div class="d-flex flex-column text-sm"><h6><spring:message code="anotacio.detalls.titol.opcionals"/></h6></div>
+							<ul class="list-group">
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.procediment.codi"/></div>
+									<div class="d-flex flex-column text-sm">${anotacio.procedimentCodi != null ? anotacio.procedimentCodi : '--'}</div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.assumpte.codi"/></div>
+									<div class="d-flex flex-column text-sm">${anotacio.assumpteCodiCodi != null ? anotacio.assumpteCodiCodi : '--'}</div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.refext"/></div>
+									<div class="d-flex flex-column text-sm">${anotacio.refExterna != null ? anotacio.refExterna : '--'}</div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.numexp"/></div>
+									<div class="d-flex flex-column text-sm">${anotacio.expedientNumero != null ? anotacio.expedientNumero : '--'}</div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.transport.tipus"/></div>
+									<div class="d-flex flex-column text-sm"><c:choose><c:when test="${anotacio.transportTipusCodi != null}">${anotacio.transportTipusDescripcio} (${anotacio.transportTipusCodi})</c:when><c:otherwise>'--'</c:otherwise></c:choose></div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.transport.num"/></div>
+									<div class="d-flex flex-column text-sm">${anotacio.transportNumero != null ? anotacio.transportNumero : '--'}</div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.origen.num"/></div>
+									<div class="d-flex flex-column text-sm">${anotacio.origenRegistreNumero != null ? anotacio.origenRegistreNumero : '--'}</div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.origen.data"/></div>
+									<div class="d-flex flex-column text-sm"><c:choose><c:when test="${not empty anotacio.origenData}"><fmt:formatDate value="${anotacio.origenData}" pattern="dd/MM/yyyy HH:mm:ss"/></c:when><c:otherwise>--</c:otherwise></c:choose></div>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.observacions"/></div>
+									<div class="d-flex flex-column text-sm">${anotacio.observacions != null ? anotacio.observacions : '--'}</div>
+								</li>
+							</ul>
+	
+						</div>
+	
+						<%-- Interessats --%>
+						<div id="interessats_${anotacio.id}" class="tab-pane">
+							<c:choose>
+								<c:when test="${not empty anotacio.interessats}">
 									<ul class="list-group">
 										<li class="list-group-item d-flex justify-content-between border-0">
-											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.tipus"/></div>
-											<div class="d-flex flex-column text-sm"><spring:message code="anotacio.detalls.entrada"/></div>
+											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.interessat.tipus"/></div>
+											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.interessat.document"/></div>
+											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.interessat.nom"/></div>
 										</li>
-										<li class="list-group-item d-flex justify-content-between border-0">
-											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.numero"/></div>
-											<div class="d-flex flex-column text-sm">${anotacio.identificador != null ? anotacio.identificador : '--'}</div>
-										</li>
-										<li class="list-group-item d-flex justify-content-between border-0">
-											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.data"/></div>
-											<div class="d-flex flex-column text-sm"><c:choose><c:when test="${not empty anotacio.data}"><fmt:formatDate value="${anotacio.data}" pattern="dd/MM/yyyy HH:mm:ss"/></c:when><c:otherwise>--</c:otherwise></c:choose></div>
-										</li>
-										<li class="list-group-item d-flex justify-content-between border-0">
-											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.estat"/></div>
-											<div class="d-flex flex-column text-sm"><c:choose><c:when test="${not empty anotacio.estat}"><spring:message code="enum.anotacio.estat.${anotacio.estat}"/></c:when><c:otherwise>'--'</c:otherwise></c:choose></div>
-											<c:choose>
-												<c:when test="${anotacio.estat == 'ERROR_PROCESSANT'}">
-													<div class="d-flex flex-column text-sm text-danger">
-														<span class="fa fa-exclamation-triangle"></span>
-														<spring:message code="anotacio.detalls.errorProcessament" arguments="${anotacio.errorProcessament}"/>
-													</div>
-												</c:when>
-												<c:when test="${anotacio.estat == 'COMUNICADA'}">
-													<div class="d-flex flex-column text-sm text-warning" <c:if test="${anotacio.consultaError != null}">title="${anotacio.consultaError}"</c:if>>
-														<span class="fa fa-exclamation-triangle"></span>
-														<spring:message code="anotacio.detalls.consulta" arguments="${anotacio.consultaIntents},${ maxConsultaIntents}"/>
-													</div>
-													<span class="pull-right" id="psignaEstat">PENDENT</span>
-												</c:when>
-											</c:choose>
-										</li>
-									</ul>
-
-									<hr class="dark horizontal my-0">
-
-									<div class="d-flex flex-column text-sm"><h6><spring:message code="anotacio.detalls.titol.obligatories"/></h6></div>
-									<ul class="list-group">
-										<li class="list-group-item d-flex justify-content-between border-0">
-											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.oficina"/></div>
-											<div class="d-flex flex-column text-sm"><c:choose><c:when test="${anotacio.oficinaCodi != null}">${anotacio.oficinaDescripcio} (${anotacio.oficinaCodi})</c:when><c:otherwise>'--'</c:otherwise></c:choose></div>
-										</li>
-										<li class="list-group-item d-flex justify-content-between border-0">
-											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.llibre"/></div>
-											<div class="d-flex flex-column text-sm"><c:choose><c:when test="${anotacio.llibreCodi != null}">${anotacio.llibreDescripcio} (${anotacio.llibreCodi})</c:when><c:otherwise>'--'</c:otherwise></c:choose></div>
-										</li>
-										<li class="list-group-item d-flex justify-content-between border-0">
-											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.extracte"/></div>
-											<div class="d-flex flex-column text-sm">${anotacio.extracte != null ? anotacio.extracte : '--'}</div>
-										</li>
-										<li class="list-group-item d-flex justify-content-between border-0">
-											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.docfis"/></div>
-											<div class="d-flex flex-column text-sm"><c:choose><c:when test="${anotacio.docFisicaCodi != null}">${anotacio.docFisicaCodi} - ${anotacio.docFisicaDescripcio})</c:when><c:otherwise>'--'</c:otherwise></c:choose></div>
-										</li>
-										<li class="list-group-item d-flex justify-content-between border-0">
-											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.desti"/></div>
-											<div class="d-flex flex-column text-sm"><c:choose><c:when test="${anotacio.destiCodi != null}">${anotacio.destiDescripcio} (${anotacio.destiCodi})</c:when><c:otherwise>'--'</c:otherwise></c:choose></div>
-										</li>
-										<li class="list-group-item d-flex justify-content-between border-0">
-											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.assumpte.tipus"/></div>
-											<div class="d-flex flex-column text-sm"><c:choose><c:when test="${anotacio.assumpteTipusDescripcio != null}">${anotacio.destiDescripcio} (${anotacio.assumpteTipusCodi})</c:when><c:otherwise>'--'</c:otherwise></c:choose></div>
-										</li>
-										<li class="list-group-item d-flex justify-content-between border-0">
-											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.idioma"/></div>
-											<div class="d-flex flex-column text-sm"><c:choose><c:when test="${anotacio.idiomaDescripcio != null}">${anotacio.destiDescripcio} (${anotacio.idiomaCodi})</c:when><c:otherwise>'--'</c:otherwise></c:choose></div>
-										</li>
-									</ul>
-
-									<hr class="dark horizontal my-0">
-
-									<div class="d-flex flex-column text-sm"><h6><spring:message code="anotacio.detalls.titol.opcionals"/></h6></div>
-									<ul class="list-group">
-										<li class="list-group-item d-flex justify-content-between border-0">
-											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.procediment.codi"/></div>
-											<div class="d-flex flex-column text-sm">${anotacio.procedimentCodi != null ? anotacio.procedimentCodi : '--'}</div>
-										</li>
-										<li class="list-group-item d-flex justify-content-between border-0">
-											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.assumpte.codi"/></div>
-											<div class="d-flex flex-column text-sm">${anotacio.assumpteCodiCodi != null ? anotacio.assumpteCodiCodi : '--'}</div>
-										</li>
-										<li class="list-group-item d-flex justify-content-between border-0">
-											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.refext"/></div>
-											<div class="d-flex flex-column text-sm">${anotacio.refExterna != null ? anotacio.refExterna : '--'}</div>
-										</li>
-										<li class="list-group-item d-flex justify-content-between border-0">
-											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.numexp"/></div>
-											<div class="d-flex flex-column text-sm">${anotacio.expedientNumero != null ? anotacio.expedientNumero : '--'}</div>
-										</li>
-										<li class="list-group-item d-flex justify-content-between border-0">
-											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.transport.tipus"/></div>
-											<div class="d-flex flex-column text-sm"><c:choose><c:when test="${anotacio.transportTipusCodi != null}">${anotacio.transportTipusDescripcio} (${anotacio.transportTipusCodi})</c:when><c:otherwise>'--'</c:otherwise></c:choose></div>
-										</li>
-										<li class="list-group-item d-flex justify-content-between border-0">
-											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.transport.num"/></div>
-											<div class="d-flex flex-column text-sm">${anotacio.transportNumero != null ? anotacio.transportNumero : '--'}</div>
-										</li>
-										<li class="list-group-item d-flex justify-content-between border-0">
-											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.origen.num"/></div>
-											<div class="d-flex flex-column text-sm">${anotacio.origenRegistreNumero != null ? anotacio.origenRegistreNumero : '--'}</div>
-										</li>
-										<li class="list-group-item d-flex justify-content-between border-0">
-											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.origen.data"/></div>
-											<div class="d-flex flex-column text-sm"><c:choose><c:when test="${not empty anotacio.origenData}"><fmt:formatDate value="${anotacio.origenData}" pattern="dd/MM/yyyy HH:mm:ss"/></c:when><c:otherwise>--</c:otherwise></c:choose></div>
-										</li>
-										<li class="list-group-item d-flex justify-content-between border-0">
-											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.observacions"/></div>
-											<div class="d-flex flex-column text-sm">${anotacio.observacions != null ? anotacio.observacions : '--'}</div>
-										</li>
-									</ul>
-
-								</div>
-
-								<%-- Interessats --%>
-								<div id="interessats_${anotacio.id}" class="tab-pane">
-									<c:choose>
-										<c:when test="${not empty anotacio.interessats}">
-											<ul class="list-group">
-												<li class="list-group-item d-flex justify-content-between border-0">
-													<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.interessat.tipus"/></div>
-													<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.interessat.document"/></div>
-													<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.interessat.nom"/></div>
-												</li>
-												<c:forEach var="interessat" items="${anotacio.interessats}" varStatus="status">
+										<c:forEach var="interessat" items="${anotacio.interessats}" varStatus="status">
+											<li class="list-group-item d-flex justify-content-between border-0">
+												<div class="d-flex flex-column text-sm"><spring:message code="anotacio.interessat.tipus.enum.${interessat.tipus}"/></div>
+												<div class="d-flex flex-column text-sm">${interessat.documentTipus}: ${interessat.documentNumero}</div>
+												<div class="d-flex flex-column flex-grow-1 text-sm">
+													<c:choose>
+														<c:when test="${interessat.tipus == 'PERSONA_FISICA'}">${interessat.nom} ${interessat.llinatge1} ${interessat.llinatge2}</c:when>
+														<c:otherwise>${interessat.raoSocial}</c:otherwise>
+													</c:choose>
+													<button type="button" class="btn btn-default desplegable fr10" href="#detalls_${status.index}" data-toggle="collapse" aria-expanded="false" aria-controls="detalls_${status.index}"><span class="fa fa-caret-down"></span></button>
+												</div>
+											</li>
+											<li id="detalls_${status.index}" class="collapse detall list-group-item d-flex justify-content-between border-0">
+												<ul class="list-group">
 													<li class="list-group-item d-flex justify-content-between border-0">
-														<div class="d-flex flex-column text-sm"><spring:message code="anotacio.interessat.tipus.enum.${interessat.tipus}"/></div>
-														<div class="d-flex flex-column text-sm">${interessat.documentTipus}: ${interessat.documentNumero}</div>
-														<div class="d-flex flex-column flex-grow-1 text-sm">
-															<c:choose>
-																<c:when test="${interessat.tipus == 'PERSONA_FISICA'}">${interessat.nom} ${interessat.llinatge1} ${interessat.llinatge2}</c:when>
-																<c:otherwise>${interessat.raoSocial}</c:otherwise>
-															</c:choose>
-															<button type="button" class="btn btn-default desplegable fr10" href="#detalls_${status.index}" data-toggle="collapse" aria-expanded="false" aria-controls="detalls_${status.index}"><span class="fa fa-caret-down"></span></button>
-														</div>
+														<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.pais"/></div>
+														<div class="d-flex flex-column text-sm">${interessat.pais}</div>
+														<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.provincia"/></div>
+														<div class="d-flex flex-column text-sm">${interessat.provincia}</div>
 													</li>
-													<li id="detalls_${status.index}" class="collapse detall list-group-item d-flex justify-content-between border-0">
-														<ul class="list-group">
-															<li class="list-group-item d-flex justify-content-between border-0">
-																<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.pais"/></div>
-																<div class="d-flex flex-column text-sm">${interessat.pais}</div>
-																<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.provincia"/></div>
-																<div class="d-flex flex-column text-sm">${interessat.provincia}</div>
-															</li>
-															<li class="list-group-item d-flex justify-content-between border-0">
-																<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.municipi"/></div>
-																<div class="d-flex flex-column text-sm">${interessat.municipi}</div>
-																<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.adresa"/></div>
-																<div class="d-flex flex-column text-sm">${interessat.adresa}</div>
-															</li>
-															<li class="list-group-item d-flex justify-content-between border-0">
-																<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.codiPostal"/></div>
-																<div class="d-flex flex-column text-sm">${interessat.cp}</div>
-																<div class="d-flex flex-column text-dark font-weight-bold text-sm"></div>
-																<div class="d-flex flex-column text-sm"></div>
-															</li>
-															<li class="list-group-item d-flex justify-content-between border-0">
-																<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.email"/></div>
-																<div class="d-flex flex-column text-sm">${interessat.email}</div>
-																<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.telefon"/></div>
-																<div class="d-flex flex-column text-sm">${interessat.telefon}</div>
-															</li>
-															<li class="list-group-item d-flex justify-content-between border-0">
-																<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.canalPreferent"/></div>
-																<div class="d-flex flex-column text-sm"><c:if test="${not empty interessat.canal}"><spring:message code="anotacio.interessat.detalls.camp.canalPreferent.${interessat.canal}"/></c:if></div>
-																<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.observacions"/></div>
-																<div class="d-flex flex-column text-sm">${interessat.observacions}</div>
-															</li>
-														</ul>
-														<c:if test="${not empty interessat.representant}">
-															<c:set var="representant" value="${interessat.representant}"/>
-															<h6><spring:message code="anotacio.interessat.detalls.camp.representant"/></h6>
+													<li class="list-group-item d-flex justify-content-between border-0">
+														<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.municipi"/></div>
+														<div class="d-flex flex-column text-sm">${interessat.municipi}</div>
+														<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.adresa"/></div>
+														<div class="d-flex flex-column text-sm">${interessat.adresa}</div>
+													</li>
+													<li class="list-group-item d-flex justify-content-between border-0">
+														<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.codiPostal"/></div>
+														<div class="d-flex flex-column text-sm">${interessat.cp}</div>
+														<div class="d-flex flex-column text-dark font-weight-bold text-sm"></div>
+														<div class="d-flex flex-column text-sm"></div>
+													</li>
+													<li class="list-group-item d-flex justify-content-between border-0">
+														<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.email"/></div>
+														<div class="d-flex flex-column text-sm">${interessat.email}</div>
+														<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.telefon"/></div>
+														<div class="d-flex flex-column text-sm">${interessat.telefon}</div>
+													</li>
+													<li class="list-group-item d-flex justify-content-between border-0">
+														<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.canalPreferent"/></div>
+														<div class="d-flex flex-column text-sm"><c:if test="${not empty interessat.canal}"><spring:message code="anotacio.interessat.detalls.camp.canalPreferent.${interessat.canal}"/></c:if></div>
+														<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.observacions"/></div>
+														<div class="d-flex flex-column text-sm">${interessat.observacions}</div>
+													</li>
+												</ul>
+												<c:if test="${not empty interessat.representant}">
+													<c:set var="representant" value="${interessat.representant}"/>
+													<h6><spring:message code="anotacio.interessat.detalls.camp.representant"/></h6>
+													<ul class="list-group">
+														<li class="list-group-item d-flex justify-content-between border-0">
+															<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.interessat.tipus"/></div>
+															<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.interessat.document"/></div>
+															<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.interessat.nom"/></div>
+														</li>
+														<li class="list-group-item d-flex justify-content-between border-0">
+															<div class="d-flex flex-column text-sm"><spring:message code="anotacio.interessat.tipus.enum.${representant.tipus}"/></div>
+															<div class="d-flex flex-column text-sm">${representant.documentTipus}: ${representant.documentNumero}</div>
+															<div class="d-flex flex-column flex-grow-1 text-sm">
+																<c:choose>
+																	<c:when test="${representant.tipus == 'PERSONA_FISICA'}">${representant.nom} ${representant.llinatge1} ${representant.llinatge2}</c:when>
+																	<c:otherwise>${representant.raoSocial}</c:otherwise>
+																</c:choose>
+																<c:if test="${representant.tipus != 'ADMINISTRACIO'}">
+																	<button type="button" class="btn btn-default desplegable fr10" href="#detalls_${status.index}_rep" data-toggle="collapse" aria-expanded="false" aria-controls="detalls_${status.index}_rep"><span class="fa fa-caret-down"></span></button>
+																</c:if>
+															</div>
+														</li>
+														<li id="detalls_${status.index}_rep" class="collapse detall list-group-item d-flex justify-content-between border-0">
 															<ul class="list-group">
 																<li class="list-group-item d-flex justify-content-between border-0">
-																	<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.interessat.tipus"/></div>
-																	<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.interessat.document"/></div>
-																	<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.camp.interessat.nom"/></div>
+																	<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.pais"/></div>
+																	<div class="d-flex flex-column text-sm">${representant.pais}</div>
+																	<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.provincia"/></div>
+																	<div class="d-flex flex-column text-sm">${representant.provincia}</div>
 																</li>
 																<li class="list-group-item d-flex justify-content-between border-0">
-																	<div class="d-flex flex-column text-sm"><spring:message code="anotacio.interessat.tipus.enum.${representant.tipus}"/></div>
-																	<div class="d-flex flex-column text-sm">${representant.documentTipus}: ${representant.documentNumero}</div>
-																	<div class="d-flex flex-column flex-grow-1 text-sm">
-																		<c:choose>
-																			<c:when test="${representant.tipus == 'PERSONA_FISICA'}">${representant.nom} ${representant.llinatge1} ${representant.llinatge2}</c:when>
-																			<c:otherwise>${representant.raoSocial}</c:otherwise>
-																		</c:choose>
-																		<c:if test="${representant.tipus != 'ADMINISTRACIO'}">
-																			<button type="button" class="btn btn-default desplegable fr10" href="#detalls_${status.index}_rep" data-toggle="collapse" aria-expanded="false" aria-controls="detalls_${status.index}_rep"><span class="fa fa-caret-down"></span></button>
-																		</c:if>
-																	</div>
+																	<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.municipi"/></div>
+																	<div class="d-flex flex-column text-sm">${representant.municipi}</div>
+																	<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.adresa"/></div>
+																	<div class="d-flex flex-column text-sm">${representant.adresa}</div>
 																</li>
-																<li id="detalls_${status.index}_rep" class="collapse detall list-group-item d-flex justify-content-between border-0">
-																	<ul class="list-group">
-																		<li class="list-group-item d-flex justify-content-between border-0">
-																			<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.pais"/></div>
-																			<div class="d-flex flex-column text-sm">${representant.pais}</div>
-																			<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.provincia"/></div>
-																			<div class="d-flex flex-column text-sm">${representant.provincia}</div>
-																		</li>
-																		<li class="list-group-item d-flex justify-content-between border-0">
-																			<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.municipi"/></div>
-																			<div class="d-flex flex-column text-sm">${representant.municipi}</div>
-																			<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.adresa"/></div>
-																			<div class="d-flex flex-column text-sm">${representant.adresa}</div>
-																		</li>
-																		<li class="list-group-item d-flex justify-content-between border-0">
-																			<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.codiPostal"/></div>
-																			<div class="d-flex flex-column text-sm">${representant.cp}</div>
-																			<div class="d-flex flex-column text-dark font-weight-bold text-sm"></div>
-																			<div class="d-flex flex-column text-sm"></div>
-																		</li>
-																		<li class="list-group-item d-flex justify-content-between border-0">
-																			<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.email"/></div>
-																			<div class="d-flex flex-column text-sm">${representant.email}</div>
-																			<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.telefon"/></div>
-																			<div class="d-flex flex-column text-sm">${representant.telefon}</div>
-																		</li>
-																		<li class="list-group-item d-flex justify-content-between border-0">
-																			<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.canalPreferent"/></div>
-																			<div class="d-flex flex-column text-sm"><c:if test="${not empty representant.canal}"><spring:message code="anotacio.interessat.detalls.camp.canalPreferent.${representant.canal}"/></c:if></div>
-																			<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.observacions"/></div>
-																			<div class="d-flex flex-column text-sm">${representant.observacions}</div>
-																		</li>
-																	</ul>
+																<li class="list-group-item d-flex justify-content-between border-0">
+																	<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.codiPostal"/></div>
+																	<div class="d-flex flex-column text-sm">${representant.cp}</div>
+																	<div class="d-flex flex-column text-dark font-weight-bold text-sm"></div>
+																	<div class="d-flex flex-column text-sm"></div>
+																</li>
+																<li class="list-group-item d-flex justify-content-between border-0">
+																	<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.email"/></div>
+																	<div class="d-flex flex-column text-sm">${representant.email}</div>
+																	<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.telefon"/></div>
+																	<div class="d-flex flex-column text-sm">${representant.telefon}</div>
+																</li>
+																<li class="list-group-item d-flex justify-content-between border-0">
+																	<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.canalPreferent"/></div>
+																	<div class="d-flex flex-column text-sm"><c:if test="${not empty representant.canal}"><spring:message code="anotacio.interessat.detalls.camp.canalPreferent.${representant.canal}"/></c:if></div>
+																	<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.detalls.camp.observacions"/></div>
+																	<div class="d-flex flex-column text-sm">${representant.observacions}</div>
 																</li>
 															</ul>
-														</c:if>
-													</li>
-												</c:forEach>
-											</ul>
-									</c:when>
-									<c:otherwise>
-										<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.buit"/></div>
-									</c:otherwise>
-									</c:choose>
-								</div>
-
-								<%-- Annexos --%>
-								<div id="annexos_${anotacio.id}" class="tab-pane">
-									<c:choose>
-										<c:when test="${not empty anotacio.annexos}">
-											<ul class="list-group">
-												<li class="list-group-item d-flex justify-content-between border-0">
-													<div class="d-flex flex-column text-sm"><spring:message code="anotacio.detalls.camp.interessat.tipus"/></div>
-												</li>
-												<c:forEach var="annex" items="${anotacio.annexos}" varStatus="status">
+														</li>
+													</ul>
+												</c:if>
+											</li>
+										</c:forEach>
+									</ul>
+							</c:when>
+							<c:otherwise>
+								<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.interessat.buit"/></div>
+							</c:otherwise>
+							</c:choose>
+						</div>
+	
+						<%-- Annexos --%>
+						<div id="annexos_${anotacio.id}" class="tab-pane">
+							<c:choose>
+								<c:when test="${not empty anotacio.annexos}">
+									<ul class="list-group">
+										<li class="list-group-item d-flex justify-content-between border-0">
+											<div class="d-flex flex-column text-sm"><spring:message code="anotacio.detalls.camp.interessat.tipus"/></div>
+										</li>
+										<c:forEach var="annex" items="${anotacio.annexos}" varStatus="status">
 	<%--												<script type="text/javascript">--%>
 	<%--													$(document).ready(function() {--%>
 	<%--														$("#collapse-registre-firmes-<c:out value='${annex.id}'/>").on('show.bs.collapse', function(data){--%>
@@ -1110,170 +876,164 @@
 	<%--														});--%>
 	<%--													});--%>
 	<%--												</script>--%>
+											<li class="list-group-item d-flex justify-content-between border-0">
+												<div class="d-flex flex-column text-sm">
+													${annex.titol}
+													<c:if test="${annex.error != null }">
+														<span class="fa fa-warning text-danger" title="<spring:message code="anotacio.annex.detalls.annex.error" arguments="${annex.error}"/>"></span>
+													</c:if>
+													<c:if test="${!annex.documentValid}">
+														<span class="fa fa-warning text-danger" title="<spring:message code="anotacio.annex.detalls.annex.invalid" arguments="${annex.documentError}"/>"></span>
+													</c:if>
+													<c:if test="${annex.arxiuEstat == 'ESBORRANY'}">
+														<span class="fa fa-warning text-warning" title="<spring:message code="anotacio.annex.detalls.annex.esborrany"/>"></span>
+													</c:if>
+													<button class="btn btn-default btn-xs pull-right" data-toggle="collapse" data-target="#collapse-annex-${status.index}"><span class="fa fa-chevron-down"></span></button>
+												</div>
+											</li>
+											<li id="collapse-annex-${status.index}" class="collapse collapse-annex detall list-group-item d-flex justify-content-between border-0" data-registre-id="${anotacio.id}"  data-fitxer-arxiu-uuid="${annex.uuid}">
+												<ul class="list-group">
 													<li class="list-group-item d-flex justify-content-between border-0">
-														<div class="d-flex flex-column text-sm">
-															${annex.titol}
-															<c:if test="${annex.error != null }">
-																<span class="fa fa-warning text-danger" title="<spring:message code="anotacio.annex.detalls.annex.error" arguments="${annex.error}"/>"></span>
-															</c:if>
-															<c:if test="${!annex.documentValid}">
-																<span class="fa fa-warning text-danger" title="<spring:message code="anotacio.annex.detalls.annex.invalid" arguments="${annex.documentError}"/>"></span>
-															</c:if>
-															<c:if test="${annex.arxiuEstat == 'ESBORRANY'}">
-																<span class="fa fa-warning text-warning" title="<spring:message code="anotacio.annex.detalls.annex.esborrany"/>"></span>
-															</c:if>
-															<button class="btn btn-default btn-xs pull-right" data-toggle="collapse" data-target="#collapse-annex-${status.index}"><span class="fa fa-chevron-down"></span></button>
-														</div>
-													</li>
-													<li id="collapse-annex-${status.index}" class="collapse collapse-annex detall list-group-item d-flex justify-content-between border-0" data-registre-id="${anotacio.id}"  data-fitxer-arxiu-uuid="${annex.uuid}">
-														<ul class="list-group">
-															<li class="list-group-item d-flex justify-content-between border-0">
 	<%--														<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.detalls.annex.processament.error"/></div>--%>
 	<%--														<div class="d-flex flex-column text-sm">--%>
 	<%--															<a href="<c:url value="/v3/anotacio/${anotacio.id}/annex/${annex.id}/reintentar"/>"--%>
 	<%--												  				 class="btn btn-xs btn-default pull-right"><span class="fa fa-refresh"></span>--%>
 	<%--																<spring:message code="anotacio.annex.detalls.annex.accio.reintentar" /></a>--%>
 	<%--														</div>--%>
-															</li>
-															<li class="list-group-item d-flex justify-content-between border-0">
-																<div class="d-flex flex-column text-sm"><pre>${annex.error}</pre></div>
-															</li>
-															<li class="list-group-item d-flex justify-content-between border-0">
-																<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.detalls.camp.eni.data.captura"/></div>
-																<div class="d-flex flex-column text-sm"><c:if test="${not empty annex.ntiFechaCaptura}"><fmt:formatDate value="${annex.ntiFechaCaptura}" pattern="dd/MM/yyyy HH:mm:ss"/></c:if></div>
-															</li>
-															<li class="list-group-item d-flex justify-content-between border-0">
-																<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.detalls.camp.eni.origen"/></div>
-																<div class="d-flex flex-column text-sm"><c:if test="${not empty annex.ntiOrigen}">${annex.ntiOrigen}</c:if></div>
-															</li>
-															<li class="list-group-item d-flex justify-content-between border-0">
-																<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.detalls.camp.eni.tipus.documental"/></div>
-																<div class="d-flex flex-column text-sm"><c:if test="${not empty annex.ntiTipoDocumental}"><spring:message code="anotacio.annex.detalls.camp.ntiTipusDocument.${annex.ntiTipoDocumental}"/></c:if></div>
-															</li>
-															<li class="list-group-item d-flex justify-content-between border-0">
-																<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.detalls.camp.sicres.tipus.document"/></div>
-																<div class="d-flex flex-column text-sm"><c:if test="${not empty annex.sicresTipoDocumento}"><spring:message code="anotacio.annex.detalls.camp.sicresTipusDocument.${annex.sicresTipoDocumento}"/></c:if></div>
-															</li>
-															<li class="list-group-item d-flex justify-content-between border-0">
-																<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.detalls.camp.arxiu.uuid"/></div>
-																<div class="d-flex flex-column text-sm">
-																	${annex.uuid}
-																	<c:if test="${annex.uuid == null }">
-																		<span class="fa fa-warning text-warning" title="<spring:message code="anotacio.annex.detalls.camp.arxiu.uuid.buit.avis"/>"></span>
-																	</c:if>
-																</div>
-															</li>
-															<c:if test="${not empty annex.observacions}">
-																<li class="list-group-item d-flex justify-content-between border-0">
-																	<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.detalls.camp.observacions"/></div>
-																	<div class="d-flex flex-column text-sm">${annex.observacions}</div>
-																</li>
-															</c:if>
-															<li class="list-group-item d-flex justify-content-between border-0">
-																<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.detalls.camp.fitxer"/></div>
-																<div class="d-flex flex-column text-sm">
-																	${annex.nom}
-																	<a href='<c:url value="/v3/anotacio/${anotacio.id}/annex/${annex.id}/descarregar"></c:url>'
-																	   class="btn btn-default btn-sm pull-right">
-																		<span class="fa fa-download" title="<spring:message code="anotacio.annex.detalls.camp.fitxer.descarregar"/>"></span>
-																	</a>
-																</div>
-															</li>
-															<li class="list-group-item d-flex justify-content-between border-0">
-																<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.detalls.camp.estat"/></div>
-																<div class="d-flex flex-column text-sm">
-																	${annex.estat}
-																	<c:if test="${annex.error != null}"><span class="fa fa-exclamation-triangle text-danger" title="${annex.error}"></span></c:if>
-																</div>
-															</li>
-															<li class="list-group-item d-flex justify-content-between border-0">
-																<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.detalls.camp.estat.arxiu"/></div>
-																<div class="d-flex flex-column text-sm">
-																	${annex.arxiuEstat}
-																	<c:if test="${annex.arxiuEstat == 'ESBORRANY'}"><span class="fa fa-exclamation-triangle text-warning" title="<spring:message code='anotacio.annex.detalls.camp.estat.arxiu.esborrany.avis'></spring:message>"></span></c:if>
-																</div>
-															</li>
-															<li class="list-group-item d-flex justify-content-between border-0">
-																<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.detalls.camp.valid"/></div>
-																<div class="d-flex flex-column text-sm">
-																	<c:choose>
-																		<c:when test="${annex.documentValid }"><spring:message code="enum.si"></spring:message></c:when>
-																		<c:when test="${!annex.documentValid }"><span class="fa fa-exclamation-triangle text-danger"></span> <spring:message code="enum.no"></spring:message>: ${annex.documentError}</c:when>
-																	</c:choose>
-																</div>
-															</li>
-<%--															<li class="list-group-item d-flex justify-content-between border-0">--%>
-<%--																<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.detalls.camp.firmes"/></div>--%>
-<%--																<div class="d-flex flex-column text-sm"><button class="btn btn-default btn-xs pull-right" data-toggle="collapse" data-target="#collapse-registre-firmes-${annex.id}"><span class="fa fa-chevron-down"></span></button></div>--%>
-<%--															</li>--%>
-<%--															<li id="collapse-registre-firmes-${annex.id}" class="collapse collapse-annex collapse-registre-firmes list-group-item d-flex justify-content-between border-0">--%>
-<%--															</li>--%>
-														</ul>
 													</li>
-												</c:forEach>
-											</ul>
-										</c:when>
-										<c:otherwise>
-											<ul class="list-group">
-												<li class="list-group-item d-flex justify-content-between border-0">
-												<c:choose>
-													<c:when test="${not empty annexosErrorMsg}">
-														<div class="d-flex flex-column text-danger font-weight-bold text-sm">${annexosErrorMsg}</div>
-													</c:when>
-													<c:otherwise>
-														<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.buit"/></div>
-													</c:otherwise>
-												</c:choose>
-												</li>
-											</ul>
-										</c:otherwise>
-									</c:choose>
-
-								</div>
-
-								<%-- Error --%>
-								<div id="error_${anotacio.id}" class="tab-pane">
+													<li class="list-group-item d-flex justify-content-between border-0">
+														<div class="d-flex flex-column text-sm"><pre>${annex.error}</pre></div>
+													</li>
+													<li class="list-group-item d-flex justify-content-between border-0">
+														<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.detalls.camp.eni.data.captura"/></div>
+														<div class="d-flex flex-column text-sm"><c:if test="${not empty annex.ntiFechaCaptura}"><fmt:formatDate value="${annex.ntiFechaCaptura}" pattern="dd/MM/yyyy HH:mm:ss"/></c:if></div>
+													</li>
+													<li class="list-group-item d-flex justify-content-between border-0">
+														<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.detalls.camp.eni.origen"/></div>
+														<div class="d-flex flex-column text-sm"><c:if test="${not empty annex.ntiOrigen}">${annex.ntiOrigen}</c:if></div>
+													</li>
+													<li class="list-group-item d-flex justify-content-between border-0">
+														<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.detalls.camp.eni.tipus.documental"/></div>
+														<div class="d-flex flex-column text-sm"><c:if test="${not empty annex.ntiTipoDocumental}"><spring:message code="anotacio.annex.detalls.camp.ntiTipusDocument.${annex.ntiTipoDocumental}"/></c:if></div>
+													</li>
+													<li class="list-group-item d-flex justify-content-between border-0">
+														<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.detalls.camp.sicres.tipus.document"/></div>
+														<div class="d-flex flex-column text-sm"><c:if test="${not empty annex.sicresTipoDocumento}"><spring:message code="anotacio.annex.detalls.camp.sicresTipusDocument.${annex.sicresTipoDocumento}"/></c:if></div>
+													</li>
+													<li class="list-group-item d-flex justify-content-between border-0">
+														<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.detalls.camp.arxiu.uuid"/></div>
+														<div class="d-flex flex-column text-sm">
+															${annex.uuid}
+															<c:if test="${annex.uuid == null }">
+																<span class="fa fa-warning text-warning" title="<spring:message code="anotacio.annex.detalls.camp.arxiu.uuid.buit.avis"/>"></span>
+															</c:if>
+														</div>
+													</li>
+													<c:if test="${not empty annex.observacions}">
+														<li class="list-group-item d-flex justify-content-between border-0">
+															<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.detalls.camp.observacions"/></div>
+															<div class="d-flex flex-column text-sm">${annex.observacions}</div>
+														</li>
+													</c:if>
+													<li class="list-group-item d-flex justify-content-between border-0">
+														<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.detalls.camp.fitxer"/></div>
+														<div class="d-flex flex-column text-sm">
+															${annex.nom}
+															<a href='<c:url value="/v3/anotacio/${anotacio.id}/annex/${annex.id}/descarregar"></c:url>'
+															   class="btn btn-default btn-sm pull-right">
+																<span class="fa fa-download" title="<spring:message code="anotacio.annex.detalls.camp.fitxer.descarregar"/>"></span>
+															</a>
+														</div>
+													</li>
+													<li class="list-group-item d-flex justify-content-between border-0">
+														<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.detalls.camp.estat"/></div>
+														<div class="d-flex flex-column text-sm">
+															${annex.estat}
+															<c:if test="${annex.error != null}"><span class="fa fa-exclamation-triangle text-danger" title="${annex.error}"></span></c:if>
+														</div>
+													</li>
+													<li class="list-group-item d-flex justify-content-between border-0">
+														<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.detalls.camp.estat.arxiu"/></div>
+														<div class="d-flex flex-column text-sm">
+															${annex.arxiuEstat}
+															<c:if test="${annex.arxiuEstat == 'ESBORRANY'}"><span class="fa fa-exclamation-triangle text-warning" title="<spring:message code='anotacio.annex.detalls.camp.estat.arxiu.esborrany.avis'></spring:message>"></span></c:if>
+														</div>
+													</li>
+													<li class="list-group-item d-flex justify-content-between border-0">
+														<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.detalls.camp.valid"/></div>
+														<div class="d-flex flex-column text-sm">
+															<c:choose>
+																<c:when test="${annex.documentValid }"><spring:message code="enum.si"></spring:message></c:when>
+																<c:when test="${!annex.documentValid }"><span class="fa fa-exclamation-triangle text-danger"></span> <spring:message code="enum.no"></spring:message>: ${annex.documentError}</c:when>
+															</c:choose>
+														</div>
+													</li>
+	<%--															<li class="list-group-item d-flex justify-content-between border-0">--%>
+	<%--																<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.detalls.camp.firmes"/></div>--%>
+	<%--																<div class="d-flex flex-column text-sm"><button class="btn btn-default btn-xs pull-right" data-toggle="collapse" data-target="#collapse-registre-firmes-${annex.id}"><span class="fa fa-chevron-down"></span></button></div>--%>
+	<%--															</li>--%>
+	<%--															<li id="collapse-registre-firmes-${annex.id}" class="collapse collapse-annex collapse-registre-firmes list-group-item d-flex justify-content-between border-0">--%>
+	<%--															</li>--%>
+												</ul>
+											</li>
+										</c:forEach>
+									</ul>
+								</c:when>
+								<c:otherwise>
 									<ul class="list-group">
 										<li class="list-group-item d-flex justify-content-between border-0">
-<%--											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.errorNotifacio"/></div>--%>
-<%--											<div class="d-flex flex-column text-sm">--%>
-<%--												<a href="<c:url value="/v3/anotacio/${anotacio.id}/reintentarNotificar"/>"--%>
-<%--												   class="btn btn-xs btn-default pull-right"><span class="fa fa-refresh"></span>--%>
-<%--													<spring:message code="anotacio.detalls.annex.accio.reintentar" /></a>--%>
-<%--											</div>--%>
-										</li>
-										<li class="list-group-item d-flex justify-content-between border-0">
-											<div class="d-flex flex-column text-sm"><pre>${anotacio.distibucioErrorNotificacio}</pre></div>
+										<c:choose>
+											<c:when test="${not empty annexosErrorMsg}">
+												<div class="d-flex flex-column text-danger font-weight-bold text-sm">${annexosErrorMsg}</div>
+											</c:when>
+											<c:otherwise>
+												<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.annex.buit"/></div>
+											</c:otherwise>
+										</c:choose>
 										</li>
 									</ul>
-								</div>
-							</div>
-						</c:when>
-						<c:otherwise>
-							<span class="text-dark font-weight-bold">Sense ANOTACIÓ</span>
-						</c:otherwise>
-					</c:choose>
-				</div>
-				<hr class="dark horizontal my-0">
-				<div class="card-footer p-3">
-					<c:choose>
-						<c:when test="${detall.deAnotacio}"><p class="mb-0">Document <span class="text-success text-sm font-weight-bolder">PROVÉ d'una ANOTACIÓ</span></p></c:when>
-						<c:otherwise><p class="mb-0">Document <span class="text-danger text-sm font-weight-bolder">NO PROVÉ d'una ANOTACIÓ</span></p></c:otherwise>
-					</c:choose>
-				</div>
+								</c:otherwise>
+							</c:choose>
+	
+						</div>
+	
+						<%-- Error --%>
+						<div id="error_${anotacio.id}" class="tab-pane">
+							<ul class="list-group">
+								<li class="list-group-item d-flex justify-content-between border-0">
+	<%--											<div class="d-flex flex-column text-dark font-weight-bold text-sm"><spring:message code="anotacio.detalls.errorNotifacio"/></div>--%>
+	<%--											<div class="d-flex flex-column text-sm">--%>
+	<%--												<a href="<c:url value="/v3/anotacio/${anotacio.id}/reintentarNotificar"/>"--%>
+	<%--												   class="btn btn-xs btn-default pull-right"><span class="fa fa-refresh"></span>--%>
+	<%--													<spring:message code="anotacio.detalls.annex.accio.reintentar" /></a>--%>
+	<%--											</div>--%>
+								</li>
+								<li class="list-group-item d-flex justify-content-between border-0">
+									<div class="d-flex flex-column text-sm"><pre>${anotacio.distibucioErrorNotificacio}</pre></div>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</c:when>
+				<c:otherwise>
+					<span class="text-dark font-weight-bold">Sense ANOTACIÓ</span>
+				</c:otherwise>
+			</c:choose>
+			<hr class="dark horizontal my-0"/>
+			<div class="card-footer p-3">
+				<c:choose>
+					<c:when test="${detall.deAnotacio}"><p class="mb-0">Document <span class="text-success text-sm font-weight-bolder">PROVÉ d'una ANOTACIÓ</span></p></c:when>
+					<c:otherwise><p class="mb-0">Document <span class="text-danger text-sm font-weight-bolder">NO PROVÉ d'una ANOTACIÓ</span></p></c:otherwise>
+				</c:choose>
 			</div>
 		</div>
-	</div>
-	<footer class="footer py-4">
-		<div class="row mtop-4">
+		
+		<%-- PREVISUALITZACIO--%>
+		<div id="contingut-documentDetall-previsualitzacio-${detall.documentStoreId}" class="tab-pane">
+		
 			<%-- Depenent del format del document serà previsualització o descàrrega--%>
 			<c:choose>
 				<c:when test="${detall.extensio == 'pdf' or detall.extensio == 'pdt' or detall.extensio == 'docx'}">
-					<div class="previs-icon position-absolute bg-gradient-info shadow-info text-white font-weight-bold pointer">
-						<i class="fa fa-eye fa-inverse fa-1x"></i>
-						<span class="previs-text">Previsualització</span>
-						<i class="fa fa-caret-down fa-inverse fa-1x"></i>
-					</div>
 					<div class="viewer mtop-4" data-documentid="${detall.documentStoreId}" style="display: none; width: 100%;">
 						<iframe class="viewer-iframe" width="100%" height="540" frameBorder="0" style="padding: 15px;"></iframe>
 					</div>
@@ -1282,9 +1042,8 @@
 					<a href="${expedientId}/document/${detall.id}/descarregar" class="position-absolute bg-gradient-info shadow-info text-white font-weight-bold pointer">
 						<span class="fa fa-download fa-inverse fa-1x"></span>&nbsp;<spring:message code="expedient.document.descarregar"/></a></li>
 						<span>Descarregar</span>
-					</div>
 				</c:otherwise>
-			</c:choose>
-		</div>
-	</footer>
-</div>
+			</c:choose>			
+		
+		</div>			
+	</div>

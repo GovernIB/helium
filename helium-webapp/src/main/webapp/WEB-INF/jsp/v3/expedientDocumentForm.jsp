@@ -59,8 +59,8 @@
 </style>
 <script type="text/javascript">
 // <![CDATA[
-<c:if test="${not empty documentsNoUtilitzats}">
 	var dadesNti = [];
+<c:if test="${not empty documentsNoUtilitzats}">
 	<c:forEach items="${documentsNoUtilitzats}" var="d">
 	dadesNti['${d.codi}'] = new Object();
 	dadesNti['${d.codi}'].ntiOrigen = '${d.ntiOrigen}';
@@ -108,7 +108,7 @@ $(document).ready( function() {
 		}
 	</c:when>
 	<c:otherwise>
-		$('#documentCodi').on('click', function() {
+		$('#documentCodi').on('change', function() {
 			var valor = $(this).val();
 			if (valor == '##adjuntar_arxiu##') {
 				$("#titolArxiu").show();
@@ -120,7 +120,7 @@ $(document).ready( function() {
 
 		// Carrega dades nti per defecte
 		$('#documentCodi')
-			.select2({language: "${idioma}", theme: "bootstrap"})
+			.select2({language: "${idioma}"})
 			.change(function() {
 				var documentCodi = $(this).val();
 				$('#generarPlantilla').closest('.form-group').hide();

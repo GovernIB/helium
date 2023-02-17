@@ -294,7 +294,7 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 
     @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-    public PortasignaturesDto getPortasignaturesByProcessInstanceAndDocumentStoreId(String processInstanceId, Long documentStoreId) {
+    public List<PortasignaturesDto> getPortasignaturesByProcessInstanceAndDocumentStoreId(String processInstanceId, Long documentStoreId) {
         return delegate.getPortasignaturesByProcessInstanceAndDocumentStoreId(processInstanceId, documentStoreId);
     }
 

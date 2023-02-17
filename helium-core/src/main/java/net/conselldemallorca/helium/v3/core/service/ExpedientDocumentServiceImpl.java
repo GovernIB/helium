@@ -1145,7 +1145,10 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				false,
 				false,
 				false);
-		Portasignatures portasignatures = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(processInstanceId, documentStoreId);
+		List<Portasignatures> peticions = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(processInstanceId, documentStoreId);
+		if (peticions.isEmpty())
+			return null;
+		Portasignatures portasignatures = peticions.get(0);
 		SimpleDateFormat dt = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
 		JSONObject resposta = new JSONObject();
 		resposta.put("id", portasignatures.getId());
@@ -1193,16 +1196,16 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public PortasignaturesDto getPortasignaturesByProcessInstanceAndDocumentStoreId(
+	public List<PortasignaturesDto> getPortasignaturesByProcessInstanceAndDocumentStoreId(
 			String processInstanceId,
 			Long documentStoreId) {
-		Portasignatures portasignatures = null;
+		List<Portasignatures> portasignatures = new ArrayList<Portasignatures>();
 		if (!Strings.isNullOrEmpty(processInstanceId) && documentStoreId != null) {
 			portasignatures = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(
 					processInstanceId,
 					documentStoreId);
 		}
-		return conversioTipusHelper.convertir(portasignatures, PortasignaturesDto.class);
+		return conversioTipusHelper.convertirList(portasignatures, PortasignaturesDto.class);
 
 	}
 
@@ -1399,22 +1402,27 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		}
 
 		// Psigna
-		PortasignaturesDto portasignatures = getPortasignaturesByProcessInstanceAndDocumentStoreId(
+		List<PortasignaturesDto> portasignatures = getPortasignaturesByProcessInstanceAndDocumentStoreId(
 				expedient.getProcessInstanceId(),
 				documentStoreId);
-		if (portasignatures != null) {
-			documentDetallBuilder
-					.psignaPendent(!"PROCESSAT".equals(portasignatures.getEstat()))
+		if (!portasignatures.isEmpty()) {
+			for (PortasignaturesDto peticio : portasignatures) {
+				if (!"PROCESSAT".equals(peticio.getEstat())) {
+					documentDetallBuilder
+					.psignaPendent(!"PROCESSAT".equals(peticio.getEstat()))
 					.psignaDetall(PsignaDetallDto.builder()
-							.documentId(portasignatures.getDocumentId())
-							.dataEnviat(portasignatures.getDataEnviat())
-							.estat(portasignatures.getEstat())
-							.error(portasignatures.isError())
-							.errorProcessant(portasignatures.getErrorProcessant())
-							.motiuRebuig(portasignatures.getMotiuRebuig())
-							.dataProcessamentPrimer(portasignatures.getDataProcessamentPrimer())
-							.dataProcessamentDarrer(portasignatures.getDataProcessamentDarrer())
+							.documentId(peticio.getDocumentId())
+							.dataEnviat(peticio.getDataEnviat())
+							.estat(peticio.getEstat())
+							.error(peticio.isError())
+							.errorProcessant(peticio.getErrorProcessant())
+							.motiuRebuig(peticio.getMotiuRebuig())
+							.dataProcessamentPrimer(peticio.getDataProcessamentPrimer())
+							.dataProcessamentDarrer(peticio.getDataProcessamentDarrer())
 							.build());
+					break;
+				}
+			}
 		} else {
 			documentDetallBuilder.psignaPendent(false);
 		}
@@ -1478,7 +1486,12 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 					null,
 					false,
 					true);
-			List<ArxiuDetallDto> versions = pluginHelper.versions(documentStore.getArxiuUuid());
+			List<ArxiuDetallDto> versions;
+			try {
+				versions = pluginHelper.versions(documentStore.getArxiuUuid());
+			} catch(Exception e) {
+				versions = new ArrayList<ArxiuDetallDto>();
+			}
 			if(versions != null) {
 				arxiuDetall.setVersionsDocument(versions);
 			}

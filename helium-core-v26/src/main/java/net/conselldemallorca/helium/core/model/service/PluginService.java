@@ -58,6 +58,7 @@ import net.conselldemallorca.helium.integracio.plugins.tramitacio.ResultatProces
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 
 
 /**
@@ -412,23 +413,26 @@ public class PluginService {
 								portasignatures.getDocumentId(),
 								documentStore);
 						portasignatures.setDataCustodiaOk(new Date());
-						// Avança el flux
-						jbpmDao.signalToken(
-								tokenId.longValue(),
-								portasignatures.getTransicioOK());
 
-						//Actualitzem l'estat de l'expedient, ja que si tot el procés de firma i de custòdia
-						// ha anat bé, es possible que s'avanci cap al node "fi"
 						JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(
 								token.getProcessInstanceId());
 						Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
-						expedientHelper.verificarFinalitzacioExpedient(
-								expedient);
-						
-						// Reindexa els possibles canvis
-						getServiceUtils().expedientIndexLuceneUpdate(
-								token.getProcessInstanceId());
 
+						if (ExpedientTipusTipusEnumDto.FLOW.equals(expedient.getTipus().getTipus())) {
+							// Avança el flux
+							jbpmDao.signalToken(
+									tokenId.longValue(),
+									portasignatures.getTransicioOK());
+
+							//Actualitzem l'estat de l'expedient, ja que si tot el procés de firma i de custòdia
+							// ha anat bé, es possible que s'avanci cap al node "fi"
+							expedientHelper.verificarFinalitzacioExpedient(
+									expedient);
+							
+							// Reindexa els possibles canvis
+							getServiceUtils().expedientIndexLuceneUpdate(
+									token.getProcessInstanceId());
+						}
 						resposta = true;
 
 					} catch (PluginException pex) {

@@ -46,7 +46,7 @@ public interface PortasignaturesRepository extends JpaRepository<Portasignatures
 			"where " +
 			"    p.processInstanceId = :processInstanceId " +
 			"and p.documentStoreId = :documentStoreId ")
-	Portasignatures findByProcessInstanceIdAndDocumentStoreId(
+	List<Portasignatures> findByProcessInstanceIdAndDocumentStoreId(
 			@Param("processInstanceId") String processInstanceId,
 			@Param("documentStoreId") Long documentStoreId);
 

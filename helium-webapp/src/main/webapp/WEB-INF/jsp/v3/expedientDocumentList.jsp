@@ -64,13 +64,12 @@
 
 		// Plegar / Desplegar la previasualització d'un document
 		$("#expedientDocuments").on('click', '.previs-icon', (event) => {
-			let viewer = $(event.currentTarget).next();
+			let viewer = $($(event.currentTarget).attr('href')).find('.viewer');
 			toggleViewer(viewer);
 		});
 
 		<%-- Al seleccionar i deseleccionar, eliminarem els checks dels documents inexistents--%>
 		$("#expedientDocuments").on('selectionchange.dt', () => {
-			console.log('selectionchange');
 			$("#expedientDocuments tbody tr.no-data").each((index, element) => {
 				$(element).find(".fa-square-o").remove();
 				$(element).find(".fa-check-square-o").remove();
@@ -88,22 +87,6 @@
 			if (keyData.which == 13) { //execute on keyenter
 				filtraDadesDoc();
 			}
-		});
-
-		// Botó per tornar a dalt: scroll top
-		$('.btn-top').on('click', () => {
-			$([document.documentElement, document.body]).animate({
-				scrollTop: 0
-			}, 200);
-		});
-		$(document).scroll(() => {
-			var scrollTop = $(document).scrollTop();
-			var opacity = 0.4 + scrollTop / 1500;
-			if (opacity > 0.9)
-				opacity = 0.9;
-			$('.btn-top').css({
-				opacity: opacity
-			});
 		});
 
 		// $('body').on('click', 'button.modal-tancar', (e) => {
@@ -191,7 +174,6 @@
 	#expedientDocuments tbody tr td {vertical-align: middle;}
 	.table-bordered>tbody>tr>td {max-width: 155px;}
 	.no-data {color: #bbb; border: dashed 2px; cursor: default !important;}
-	.btn-top {position: fixed; z-index: 1000; right: 15px; bottom: 50px; background-color: #FFF; padding: 0 5px 0 5px; border-radius: 5px; cursor: pointer; opacity: 0.1;}
 	.doc-icon {color: #337ab7;}
 	.nodoc-icon {margin-right: 12px;}
 	.adjuntIcon {top:-10px; left:-7px;}
@@ -259,12 +241,29 @@
 						<span class="fa fa-warning fa-inverse fa-stack-1x doc-error-icon"></span>
 					</span>
 				{{else}}
-					<span class="fa-stack fa-1x doc-icon">
-						<span class="fa fa-file fa-stack-2x"></span>
-						{{if adjunt}}<span class="adjuntIcon fa fa-stack-1x fa-inverse fa-paperclip"></span>{{/if}}
-					</span>
-					<span class="extensionIcon">{{:extensio}}</span>
+					<a href="${expedient.id}/document/{{:id}}/descarregar" title="<spring:message code="expedient.document.descarregar"/>">
+						<span class="fa-stack fa-1x doc-icon">
+							<span class="fa fa-file fa-stack-2x"></span>
+							{{if adjunt}}<span class="adjuntIcon fa fa-stack-1x fa-inverse fa-paperclip"></span>{{/if}}
+						</span>
+						<span class="extensionIcon">{{:extensio}}</span>
+					</a>
 					{{:nom}}
+					<%--NTI/Arxiu--%>
+					{{if ntiActiu}}
+						<a href="${expedient.id}/proces/${expedient.processInstanceId}/document/{{:id}}/metadadesNti" data-toggle="modal">
+						<span id="nti_{{:id}}" class="label label-info label-doc">
+							{{if expUuid == null}}
+								<spring:message code="expedient.info.etiqueta.nti"/>
+							{{else}}
+								<spring:message code="expedient.info.etiqueta.arxiu"/>
+								{{if arxiuUuid == null}}
+									<span class="fa fa-warning text-danger" title="<spring:message code='expedient.document.arxiu.error.uuidnoexistent' />"></span>
+								{{/if}}
+							{{/if}}
+						</span>
+						</a>
+					{{/if}}
 					<%--Notificable--%>
 					{{if notificable && !notificat}}<span id="notificable_{{:id}}" class="label label-default label-doc" title="<spring:message code='expedient.document.notificable'/>"><span class="fa fa-paper-plane-o"></span></span>{{/if}}
 					<%--Signat     --%>
@@ -280,21 +279,8 @@
 								<span id="psigna_{{:id}}" class="label label-danger label-doc" title="<spring:message code='expedient.document.pendent.psigna.error'/>"><spring:message code="expedient.document.info.etiqueta.psigna"/> <span class="fa fa-exclamation-triangle></span></span>
 							{{/if}}
 						{{else}}
-							<span id="psigna_{{:id}}" class="label label-warning label-doc" title="<spring:message code='expedient.document.pendent.psigna'/>"><spring:message code="expedient.document.info.etiqueta.psigna"/> <span class="fa fa-clock-o></span></span>
+							<span id="psigna_{{:id}}" class="label label-warning label-doc" title="<spring:message code='expedient.document.pendent.psigna'/>"><spring:message code="expedient.document.info.etiqueta.psigna"/> <span class="fa fa-clock-o"></span></span>
 						{{/if}}
-					{{/if}}
-					<%--NTI        --%>
-					{{if ntiActiu}}
-						<span id="nti_{{:id}}" class="label label-info label-doc">
-							{{if expUuid == null}}
-								<spring:message code="expedient.info.etiqueta.nti"/>
-							{{else}}
-								<spring:message code="expedient.info.etiqueta.arxiu"/>
-								{{if arxiuUuid == null}}
-									<span class="fa fa-warning text-danger" title="<spring:message code='expedient.document.arxiu.error.uuidnoexistent' />"></span>
-								{{/if}}
-							{{/if}}
-						</span>
 					{{/if}}
 					<%--Notificat  --%>
 					{{if notificat}}<span id="notificat_{{:id}}" class="label label-warning label-doc" title="<spring:message code='expedient.document.notificat'/>"><spring:message code="expedient.document.info.etiqueta.notificat"/></span>{{/if}}
@@ -369,14 +355,14 @@
 							<%--Modificar  TODO: Si no està en estat definitiu ni pendent de firma (portafirmes)--%>
 							{{if editable && !signat}}<li><a data-toggle="modal" href="${expedient.id}/document/{{:id}}/update"><span class="fa fa-pencil fa-fw"></span>&nbsp;<spring:message code="comuns.modificar"/></a></li>{{/if}}
 							<%--Borrar  TODO: Si està a l'arxiu no definitiu també es pot borrar. Si està pendent de firma no es pot borrar   --%>
-							{{if editable && (!signat || !arxiuActiu)}}<li><a href="${expedient.id}/document/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.llistat.document.confirm_esborrar"/>"><span class="fa fa-trash-o fa-fw"></span>&nbsp;<spring:message code="comuns.esborrar"/></a></li>{{/if}}
+							{{if editable && (!signat || !arxiuActiu)}}<li><a href="<c:url value="/v3/expedient/${expedient.id}/proces/${expedient.processInstanceId}/document/{{:id}}/esborrar"/>" data-toggle="ajax" data-confirm="<spring:message code="expedient.llistat.document.confirm_esborrar"/>"><span class="fa fa-trash-o fa-fw"></span>&nbsp;<spring:message code="comuns.esborrar"/></a></li>{{/if}}
 							<%--Notificar  --%>
 							{{if notificable}}<li><a href="${expedient.id}/document/{{:id}}/notificar" data-toggle="modal"><span class="fa fa-paper-plane-o fa-fw"></span>&nbsp;<spring:message code="expedient.document.notificar"/></a></li>{{/if}}
 							<%--Signat     --%>
 							{{if signat}}
 								{{if !arxiuActiu}}
 									{{if signUrlVer != null}}
-										<li><a href="{{:signUrlVer}}" target="_blank"><span class="fa fa-certificate fa-fw"></span>&nbsp;<spring:message code="expedient.document.signat.detalls"/></a></li>
+										<li><a href="{{:signUrlVer}}" target="_blank" onclick="event.stopPropagation()"><span class="fa fa-certificate fa-fw"></span>&nbsp;<spring:message code="expedient.document.signat.detalls"/></a></li>
 									{{else}}
 										<li><a href="${expedient.id}/document/{{:id}}/signatura/verificar?urlVerificacioCustodia={{:signUrlVer}}" data-toggle="modal" data-refrescar="false"><span class="fa fa-certificate fa-fw"></span>&nbsp;<spring:message code="expedient.document.signat.detalls"/></a></li>
 									{{/if}}
@@ -385,7 +371,7 @@
 									{{/if}}
 								{{else}}
 									{{if ntiCsv != null}}
-										<li id="signatura-lnk"><a href="{{:signUrlVer}}" target="_blank"><span class="fa fa-certificate" data-refrescar="false"></span>&nbsp;<spring:message code="expedient.document.signat.detalls"/></a></li>
+										<li id="signatura-lnk"><a href="{{:signUrlVer}}" target="_blank" onclick="event.stopPropagation()"><span class="fa fa-certificate" data-refrescar="false"></span>&nbsp;<spring:message code="expedient.document.signat.detalls"/></a></li>
 									{{else}}
 										<li id="signatura-lnk"><a href="${expedient.id}/document/{{:id}}/signatura/verificarCsv" data-toggle="modal"><span class="fa fa-certificate"></span>&nbsp;<spring:message code="expedient.document.signat.detalls"/></a></li>
 									{{/if}}
@@ -401,7 +387,7 @@
 							{{/if}}
 							<%--NTI        --%>
 							{{if ntiActiu}}
-								<li><a href="${expedient.id}/document/{{:id}}/metadadesNti" data-toggle="modal"><span class="fa fa-cloud-upload fa-fw" data-refrescar="false"></span>&nbsp;<spring:message code="expedient.document.info.etiqueta.nti.detall"/></a></li>
+								<li><a href="${expedient.id}/proces/${expedient.processInstanceId}/document/{{:id}}/metadadesNti" data-toggle="modal"><span class="fa fa-bookmark fa-fw" data-refrescar="false"></span>&nbsp;<spring:message code="expedient.document.info.etiqueta.nti.detall"/></a></li>
 							{{/if}}
 							<%--De anotacio--%>
 							{{if anotacioId != null}}
@@ -440,9 +426,6 @@
 	</tr>
 	</thead>
 </table>
-<div class="btn-top">
-	<span class="fa fa-arrow-up"></span>
-</div>
 <script id="tableButtonsDocumentsTemplate" type="text/x-jsrender">
 	<div class="botons-titol text-right">
 		<span style="padding-left: 5px">

@@ -118,6 +118,17 @@ dd.subproc {
 				carregaTab(targetHref);
 			}
 		})
+		// Actualitza la pipella activa a la query per poder refrescar
+		$('#expedient-pipelles>.nav-tabs>li').click(function() {
+			let url = new URL(window.location);
+			if ($(this).attr('id') != 'pipella-dades') {
+				url.searchParams.set('pipellaActiva', $(this).attr('id').replace('pipella-',''));
+			} else {
+				url.searchParams.delete('pipellaActiva');
+			}
+			window.history.pushState({}, '', url);
+		});
+		
 		<c:choose>
 			<c:when test="${not empty pipellaActiva}">$('#expedient-pipelles li#pipella-${pipellaActiva} a').click();</c:when>
 			<c:otherwise>$('#expedient-pipelles li:first a').click();</c:otherwise>

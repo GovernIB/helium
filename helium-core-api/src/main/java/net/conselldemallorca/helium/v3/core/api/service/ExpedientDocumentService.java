@@ -313,7 +313,7 @@ public interface ExpedientDocumentService {
 	 */
 	public PortasignaturesDto getPortasignaturesByDocumentId(Integer documentId);
 
-	public PortasignaturesDto getPortasignaturesByProcessInstanceAndDocumentStoreId(
+	public List<PortasignaturesDto> getPortasignaturesByProcessInstanceAndDocumentStoreId(
 			String processInstanceId,
 			Long documentStoreId);
 
