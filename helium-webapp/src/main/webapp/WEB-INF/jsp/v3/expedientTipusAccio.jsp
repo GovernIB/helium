@@ -104,6 +104,9 @@
 
 		<script id="tableButtonsAccionsTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
+				<c:if test="${perEstats}">
+					<a id="desplegar" class="btn btn-default" href="${baseUrl}/accio/desplegar" data-toggle="modal" data-datatable-id="expedientTipusAccio"><span class="fa fa-download"></span>&nbsp;<spring:message code="expedient.tipus.accio.llistat.accio.desplegar.handlers"/></a>
+				</c:if>
 				<a id="nova_accio" class="btn btn-default" href="${baseUrl}/accio/new" data-toggle="modal" data-datatable-id="expedientTipusAccio"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.accio.llistat.accio.nova"/></a>
 			</div>
 		</script>

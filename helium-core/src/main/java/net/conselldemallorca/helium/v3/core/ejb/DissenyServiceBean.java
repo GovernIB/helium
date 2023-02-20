@@ -55,7 +55,19 @@ public class DissenyServiceBean implements DissenyService {
 		return delegate.findAccionsJbpmOrdenades(definicioProcesId);
 	}
 
-	/**
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public List<String> findHandlersJbpmOrdenats(Long definicioProcesId) {
+        return delegate.findHandlersJbpmOrdenats(definicioProcesId);
+    }
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public List<ParellaCodiValorDto> findHandlerParams(Long definicioProcesId, String handler) {
+        return delegate.findHandlerParams(definicioProcesId, handler);
+    }
+
+    /**
 	 * Retorna els tipus d'expedient per als quals l'usuari actual te permisos de lectura.
 	 * 
 	 * @param entornId
@@ -320,7 +332,13 @@ public class DissenyServiceBean implements DissenyService {
 		delegate.propagarHandlers(idDefinicioProcesOrigen, idsDefinicioProcesDesti);
 	}
 
-	@Override
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public void updateHandlersAccions(Long expedientTipusId, String nomArxiu, byte[] contingut) {
+        delegate.updateHandlersAccions(expedientTipusId, nomArxiu, contingut);
+    }
+
+    @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesExportacio getDefinicioProcesExportacioFromContingut(String fitxer, byte[] contingut) {
 		return delegate.getDefinicioProcesExportacioFromContingut(fitxer, contingut);

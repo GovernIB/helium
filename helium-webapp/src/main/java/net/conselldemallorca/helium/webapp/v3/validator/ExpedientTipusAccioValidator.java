@@ -6,6 +6,7 @@ import java.util.List;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
@@ -35,6 +36,8 @@ public class ExpedientTipusAccioValidator implements ConstraintValidator<Expedie
 	private AccioService accioService;
 	@Autowired
 	private DissenyService dissenyService;
+	@Autowired
+	private ExpedientTipusService expedientTipusService;
 
 	@Override
 	public void initialize(ExpedientTipusAccio anotacio) {
@@ -82,7 +85,7 @@ public class ExpedientTipusAccioValidator implements ConstraintValidator<Expedie
 			valid = false;
 		} else {
 			if (AccioTipusEnumDto.HANDLER.equals(accio.getTipus())) {
-				if (accio.getDefprocJbpmKey() == null || accio.getDefprocJbpmKey().trim().isEmpty()) {
+				if ((accio.getDefprocJbpmKey() == null || accio.getDefprocJbpmKey().trim().isEmpty()) && !accio.isPerEstats()) {
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage("NotEmpty", null))
 							.addNode("defprocJbpmKey")

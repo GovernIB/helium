@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.v3.core.service;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -20,10 +21,17 @@ import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtField;
+import net.conselldemallorca.helium.jbpm3.api.HeliumActionHandler;
 import org.jbpm.graph.def.ProcessDefinition;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
+import org.jbpm.util.IoUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.asm.ClassReader;
+import org.springframework.asm.FieldVisitor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
@@ -195,8 +203,37 @@ public class DissenyServiceImpl implements DissenyService {
 		return accions;
 	}
 
-	
-	private void getAllDefinicioProcesOrderByVersio (DefinicioProcesDto definicioProcesDto, ExpedientTipus expedientTipus) {	
+    @Override
+    public List<String> findHandlersJbpmOrdenats(Long definicioProcesId) {
+		Set<String> recursosNom = getRecursosNom(definicioProcesId);
+		List<String> handlers = new ArrayList<String>(recursosNom);
+		handlers.remove("processdefinition.xml");
+		java.util.Collections.sort(handlers);
+		return handlers;
+    }
+
+    @Override
+    public List<ParellaCodiValorDto> findHandlerParams(Long definicioProcesId, String handler) {
+		List<ParellaCodiValorDto> parametres = new ArrayList<ParellaCodiValorDto>();
+		byte[] handlerContingut = getRecursContingut(definicioProcesId, handler);
+
+		try {
+			ClassPool cp = ClassPool.getDefault();
+			CtClass ctClass = cp.makeClass(new ByteArrayInputStream(handlerContingut));
+			CtField[] declaredFields = ctClass.getDeclaredFields();
+			for (CtField declaredField: declaredFields) {
+				parametres.add(new ParellaCodiValorDto(declaredField.getName(), declaredField.getType().getName()));
+			}
+			ctClass.detach();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		return parametres;
+    }
+
+
+    private void getAllDefinicioProcesOrderByVersio (DefinicioProcesDto definicioProcesDto, ExpedientTipus expedientTipus) {
 		
 		JbpmProcessDefinition jb = jbpmHelper.getProcessDefinition(definicioProcesDto.getJbpmId());
 		definicioProcesDto.setEtiqueta(jb.getProcessDefinition().getName()+" v."+jb.getVersion());
@@ -663,7 +700,6 @@ public class DissenyServiceImpl implements DissenyService {
 		return lista;
 	}
 	
-	@Transactional(readOnly=true)
 	private List<ExpedientTipusDto> getExpedientTipusAmbEntorn(Entorn entorn) {
 		List<ExpedientTipusDto> tipus = conversioTipusHelper.convertirList(expedientTipusRepository.findByEntornOrderByCodiAsc(entorn), ExpedientTipusDto.class);
 		permisosHelper.filterGrantedAny(
@@ -1159,8 +1195,52 @@ public class DissenyServiceImpl implements DissenyService {
 					Long.parseLong(definicioProcesDesti.getJbpmId()), 
 					handlers);	
 		}
-	}	
-	
+	}
+
+    @Override
+	@Transactional
+    public void updateHandlersAccions(Long expedientTipusId, String nomArxiu, byte[] contingut) {
+
+		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
+		DefinicioProces definicioProces = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(expedientTipusId, expedientTipus.getJbpmProcessDefinitionKey());
+		if (definicioProces == null) {
+			throw new DeploymentException(messageHelper.getMessage("definicio.proces.actualitzar.handlers.error.definicio"));
+		}
+
+		try {
+			ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(contingut));
+			Map<String, byte[]> handlers = processJarHandlersFile(zipInputStream);
+			// Actualitza els handlers de la darrera versió de la definició de procés
+			if (!handlers.isEmpty()) {
+				jbpmHelper.updateHandlers(Long.parseLong(definicioProces.getJbpmId()), handlers);
+			}
+		} catch (Exception e) {
+			throw new DeploymentException(messageHelper.getMessage("definicio.proces.actualitzar.error.parse"));
+		}
+
+    }
+
+	private Map<String,byte[]> processJarHandlersFile(ZipInputStream zipInputStream) throws IOException {
+		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
+
+		ZipEntry zipEntry = zipInputStream.getNextEntry();
+		while (zipEntry != null) {
+			String nom = zipEntry.getName();
+			if (nom.endsWith(".class")) {
+				byte[] bytes = IoUtil.readBytes(zipInputStream);
+				if (bytes != null) {
+					ClassReader cr = new ClassReader(bytes);
+					if ("net/conselldemallorca/helium/jbpm3/api/HeliumActionHandler".equalsIgnoreCase(cr.getSuperName())) {
+						handlers.put(nom.replace("/", ".").substring(0, nom.length() - 6), bytes);
+					}
+				}
+			}
+			zipEntry = zipInputStream.getNextEntry();
+		}
+
+		return handlers;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

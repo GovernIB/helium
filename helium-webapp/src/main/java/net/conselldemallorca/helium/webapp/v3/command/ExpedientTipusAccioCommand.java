@@ -65,7 +65,9 @@ public class ExpedientTipusAccioCommand {
 	private boolean oculta;
 	@Size(max = 512, groups = {Creacio.class, Modificacio.class})
 	private String rols;
-	
+
+	private boolean perEstats;
+
 	public Long getExpedientTipusId() {
 		return expedientTipusId;
 	}
@@ -156,7 +158,13 @@ public class ExpedientTipusAccioCommand {
 	public void setRols(String rols) {
 		this.rols = rols;
 	}
-	
+	public boolean isPerEstats() {
+		return perEstats;
+	}
+	public void setPerEstats(boolean perEstats) {
+		this.perEstats = perEstats;
+	}
+
 	public static AccioDto asAccioDto(ExpedientTipusAccioCommand command) {
 		AccioDto dto = new AccioDto();
 		

@@ -312,6 +312,18 @@ public interface DissenyService {
 			Long idDefinicioProcesOrignen, 
 			List<Long> idsDefinicioProcesDesti);
 
+	/**
+	 *  Métode per rebre un arxiu .jar i actualitzar els handlers del tipus d'expedient per estats
+	 *
+	 * @param expedientTipusId
+	 * @param nomArxiu Nom per comprovar que acabi amb jar.
+	 * @param contingut Contingut del fitxer jar que conté els handlers a desplegar.
+	 */
+	public void updateHandlersAccions(
+			Long expedientTipusId,
+			String nomArxiu,
+			byte[] contingut);
+
 	/** Obté el contingut d'una exportació donat el nom del fitxer amb la extensió i el contingut del mateix.
 	 * 
 	 * @param fitxer Nom del fitxer. Si acaba amb .*ar o .xml és una exportació JBPM i si acaba en .exp és una
@@ -329,6 +341,10 @@ public interface DissenyService {
 	 * Serveix per tenir una lllista dels noms dels seus handlers. 
 	 */
 	public List<String> findAccionsJbpmOrdenades(Long definicioProcesId);
+
+	public List<String> findHandlersJbpmOrdenats(Long definicioProcesId);
+
+	public List<ParellaCodiValorDto> findHandlerParams(Long definicioProcesId, String handler);
 	
 	public ConsultaDto getConsultaById(Long id);
 	

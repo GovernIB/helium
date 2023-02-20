@@ -3,7 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
-import java.io.InputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -14,10 +14,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.io.IOUtils;
+import lombok.SneakyThrows;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -308,10 +310,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 
 		if (ExpedientTipusTipusEnumDto.ESTAT.equals(entity.getTipus())) {
 			// Associa el tipus al flux senzill
-			entity.setJbpmProcessDefinitionKey(
-							this.getDefinicioProcesEstats(entorn)
-								.getJbpmKey());
 			expedientTipusRepository.saveAndFlush(entity);
+			entity.setJbpmProcessDefinitionKey(this.getDefinicioProcesEstats(entity, entorn).getJbpmKey());
+
 			// Crea un estata per defecte
 			Estat estat = new Estat();
 			estat.setExpedientTipus(entity);
@@ -326,35 +327,57 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				ExpedientTipusDto.class);
 	}
 
-	private DefinicioProces getDefinicioProcesEstats(Entorn entorn) {
-		DefinicioProces definicioProces = definicioProcesHelper.findDarreraVersioDefinicioProces(null, DefinicioProcesService.HELIUM_JBPM_FLOW);
+	private DefinicioProces getDefinicioProcesEstats(ExpedientTipus expedientTipus, Entorn entorn) {
+		DefinicioProces definicioProces = definicioProcesHelper.findDarreraVersioDefinicioProces(expedientTipus, DefinicioProcesService.HELIUM_JBPM_FLOW + expedientTipus.getCodi());
 		if (definicioProces == null) {
 			definicioProces = definicioProcesHelper.desplegarJbpm(
-					DefinicioProcesService.HELIUM_JBPM_FLOW + ".par",
-					this.getContingutHelJbpmFlow(),
+					DefinicioProcesService.HELIUM_JBPM_FLOW + expedientTipus.getCodi() + ".par",
+					this.getContingutHelJbpmFlow(expedientTipus.getCodi()),
 					entorn,
-					null);
+					expedientTipus);
 			logger.info("Desplegada la definició de procés pel flux hel_jbpm_flow per expedients basats en estats: " + definicioProces.getIdPerMostrar() );
 		}
 		return definicioProces;
 	}
 
-	private byte[] getContingutHelJbpmFlow() {
-		byte[] contingut;
-		InputStream is = null;
-		String fitxer = "/par/hel_jbpm.par";
+	@SneakyThrows
+	private byte[] getContingutHelJbpmFlow(String expedientTipusCodi) {
+//		byte[] contingut;
+//		InputStream is = null;
+//		String fitxer = "/par/hel_jbpm.par";
+//		try {
+//			is = getClass().getResourceAsStream(fitxer);
+//			contingut = IOUtils.toByteArray(is);
+//		} catch(Exception e) {
+//			throw new RuntimeException("Error obtenint el contingut de " + fitxer + ": " + e.getClass() + ": " + e.getMessage(), e);
+//		} finally {
+//			try {
+//				if (is != null)
+//					is.close();
+//			} catch(Exception e) {e.printStackTrace();}
+//		}
+//		return contingut;
+
+		ByteArrayOutputStream baos = null;
+		ZipOutputStream zos = null;
 		try {
-			is = getClass().getResourceAsStream(fitxer);
-			contingut = IOUtils.toByteArray(is);
+			byte[] pd = DefinicioProcesService.PROCESS_DEFINITION_XML.replace("[PD_NAME]", expedientTipusCodi).getBytes("UTF-8");
+			baos = new ByteArrayOutputStream();
+			zos = new ZipOutputStream(baos);
+			ZipEntry entry = new ZipEntry("processdefinition.xml");
+			entry.setSize(pd.length);
+			zos.putNextEntry(entry);
+			zos.write(pd);
+			zos.closeEntry();
 		} catch(Exception e) {
-			throw new RuntimeException("Error obtenint el contingut de " + fitxer + ": " + e.getClass() + ": " + e.getMessage(), e);
+			throw new RuntimeException("Error generant el fitxer processdefinition.xml: " + e.getClass() + ": " + e.getMessage(), e);
 		} finally {
 			try {
-				if (is != null)
-					is.close();
+				if (zos != null) zos.close();
+				if (baos != null) baos.close();
 			} catch(Exception e) {e.printStackTrace();}
 		}
-		return contingut;
+		return baos.toByteArray();
 	}
 
 	/**
@@ -434,9 +457,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 
 		if (ExpedientTipusTipusEnumDto.ESTAT.equals(entity.getTipus())) {
 			// Associa el tipus al flux senzill
-			entity.setJbpmProcessDefinitionKey(
-							this.getDefinicioProcesEstats(entorn)
-								.getJbpmKey());
+			entity.setJbpmProcessDefinitionKey(this.getDefinicioProcesEstats(entity, entorn).getJbpmKey());
 		}
 
 		return conversioTipusHelper.convertir(

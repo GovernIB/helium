@@ -24,7 +24,21 @@ import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExport
 public interface DefinicioProcesService {
 	
 	/** Codi del flux jbpm pels expedients basats en estats. */
-	public static String HELIUM_JBPM_FLOW = "hel_jbpm";
+	public static String HELIUM_JBPM_FLOW = "PD_ESTATS_";
+	public final static String PROCESS_DEFINITION_XML =
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"\n" +
+			"<process-definition \n" +
+			"  xmlns=\"urn:jbpm.org:jpdl-3.2\"\n" +
+			"  name=\"[PD_NAME]\">\n" +
+			"   <start-state name=\"inici\">\n" +
+			"      <transition name=\"to_stat\" to=\"estat\"></transition>\n" +
+			"   </start-state>\n" +
+			"   <state name=\"estat\">\n" +
+			"      <transition name=\"to_fi\" to=\"fi\"></transition>\n" +
+			"   </state>\n" +
+			"   <end-state name=\"fi\"></end-state>\n" +
+			"</process-definition>";
 
 	/** Tasca la definició de proces per identificador.
 	 * 

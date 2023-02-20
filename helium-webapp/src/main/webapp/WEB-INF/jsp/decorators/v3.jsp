@@ -44,6 +44,7 @@
 		.cabecera_reducida .navbar-btn {margin-top: 0px;}
 		.cabecera_reducida .navbar-btn .btn {padding: 3px 12px;}
 		.cabecera_reducida-main {margin-top: -30px;}
+		.navbar-right {margin-right: 0px;}
 		.nav-consulta-tipus {    
 			color: black;
 		    list-style-type: none;

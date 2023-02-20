@@ -3,12 +3,16 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusAccioDesplegarCommand;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +20,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -72,6 +77,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
 					entornActual.getId(),
 					expedientTipusId);
+			model.addAttribute("perEstats", ExpedientTipusTipusEnumDto.ESTAT.equals(expedientTipus.getTipus()));
 			model.addAttribute("expedientTipus", expedientTipus);
 			model.addAttribute("baseUrl", expedientTipus.getId());
 		}
@@ -111,7 +117,9 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 				null,
 				null,
 				null,
+				command,
 				model);
+
 		return "v3/expedientTipusAccioForm";
 	}
 	
@@ -131,6 +139,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
     				command.getDefprocJbpmKey(),
     				command.getJbpmAction(),
     				command.getPredefinitDadesJson(),
+					command,
     				model);
         	return "v3/expedientTipusAccioForm";
         } else {
@@ -182,7 +191,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 				dto.getDefprocJbpmKey(),
 				dto.getJbpmAction(),
 				dto.getPredefinitDades(),
-				model);
+				command, model);
 		model.addAttribute("heretat", dto.isHeretat());
 
 		return "v3/expedientTipusAccioForm";
@@ -204,7 +213,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
     				command.getDefprocJbpmKey(),
     				command.getJbpmAction(),
     				command.getPredefinitDadesJson(),
-    				model);
+					command, model);
     		model.addAttribute("heretat", accioService.findAmbId(
     				expedientTipusId, 
     				id).isHeretat());
@@ -222,13 +231,27 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 	}
 	
 	private void omplirModelFormulariAccio(
-			HttpServletRequest request, 
-			Long entornId, 
-			Long expedientTipusId, 
-			String definicioProcesCodi, 
+			HttpServletRequest request,
+			Long entornId,
+			Long expedientTipusId,
+			String definicioProcesCodi,
 			String jbpmAction,
-			String predefinitDades, 
+			String predefinitDades,
+			ExpedientTipusAccioCommand command,
 			Model model) {
+
+		// Per estats
+		boolean perEstats = false;
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDto expedientTipus = null;
+		if (entornActual != null) {
+			expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
+					entornActual.getId(),
+					expedientTipusId);
+			perEstats = ExpedientTipusTipusEnumDto.ESTAT.equals(expedientTipus.getTipus());
+			model.addAttribute("perEstats", perEstats);
+		}
+		command.setPerEstats(perEstats);
 
 		// Tipus
 		List<ParellaCodiValorDto> tipusOpcions = new ArrayList<ParellaCodiValorDto>();
@@ -237,14 +260,24 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 		}
 		model.addAttribute("tipus", tipusOpcions);
 
-		model.addAttribute("definicionsProces", 
-				expedientTipusService.definicioProcesFindJbjmKey(
-						entornId, 
-						expedientTipusId, 
-						false,
-						true));
-		model.addAttribute("accions", 
-				this.getAccions(expedientTipusId, definicioProcesCodi, jbpmAction));
+		if (perEstats) {
+			DefinicioProcesDto definicioProces = dissenyService.findDarreraVersioForExpedientTipusIDefProcCodi(expedientTipusId, expedientTipus.getJbpmProcessDefinitionKey());
+			List<String> handlers = dissenyService.findHandlersJbpmOrdenats(definicioProces.getId());
+			List<ParellaCodiValorDto> accions = new ArrayList<ParellaCodiValorDto>();
+			for (String accio : handlers) {
+				accions.add(new ParellaCodiValorDto(accio, accio));
+			}
+			model.addAttribute("accions", accions);
+		} else {
+			model.addAttribute("definicionsProces",
+					expedientTipusService.definicioProcesFindJbjmKey(
+							entornId,
+							expedientTipusId,
+							false,
+							true));
+			model.addAttribute("accions",
+					this.getAccions(expedientTipusId, definicioProcesCodi, jbpmAction));
+		}
 		
 		// Grups de handlers predefinits
 		List<ParellaCodiValorDto> handlersPredefinititsGrups = new ArrayList<ParellaCodiValorDto>();
@@ -297,6 +330,90 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 			return false;
 		}
 	}
+
+	@RequestMapping(value = "/{expedientTipusId}/accio/desplegar", method = RequestMethod.GET)
+	public String desplegar(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
+				entornActual.getId(),
+				expedientTipusId);
+		ExpedientTipusAccioDesplegarCommand command = new ExpedientTipusAccioDesplegarCommand();
+		command.setExpedientTipusId(expedientTipusId);
+		command.setEntornId(entornActual.getId());
+		model.addAttribute("expedientTipus", expedientTipus);
+		model.addAttribute("command", command);
+		return "v3/expedientTipusAccioDesplegarForm";
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/accio/desplegar", method = RequestMethod.POST)
+	public String desplegarPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@ModelAttribute("command") @Valid ExpedientTipusAccioDesplegarCommand command,
+			BindingResult bindingResult,
+			Model model) throws IOException {
+		boolean error = false;
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		if (bindingResult.hasErrors()) {
+			error = true;
+		} else {
+			try {
+				ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
+						entornActual.getId(),
+						expedientTipusId);
+				if (!ExpedientTipusTipusEnumDto.ESTAT.equals(expedientTipus.getTipus())) {
+					MissatgesHelper.error(request, getMessage(request, "expedient.tipus.accio.desplegar.flow"));
+					error = true;
+				}
+				dissenyService.updateHandlersAccions(
+						expedientTipusId,
+						command.getFile().getOriginalFilename(),
+						command.getFile().getBytes());
+				MissatgesHelper.success(request, getMessage(request, "expedient.tipus.accio.desplegar.form.success"));
+			} catch (Exception e) {
+				logger.error("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
+				MissatgesHelper.error(
+						request,
+						getMessage(request, "definicio.proces.actualitzar.excepcio", new Object[]{e.getMessage()}));
+				error = true;
+			}
+		}
+		if (error) {
+			ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
+					entornActual.getId(),
+					expedientTipusId);
+			model.addAttribute("expedientTipus", expedientTipus);
+			return "v3/expedientTipusAccioDesplegarForm";
+		} else {
+			return modalUrlTancar(false);
+		}
+	}
+
+	@RequestMapping(value = "/{expedientTipusId}/accio/params", method = RequestMethod.GET)
+	@ResponseBody
+	public List<ParellaCodiValorDto> getParametresHandler(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@RequestParam(value="handler", required=true) String handler,
+			Model model) {
+		List<ParellaCodiValorDto> parametres = new ArrayList<ParellaCodiValorDto>();
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
+				entornActual.getId(),
+				expedientTipusId);
+		if (!ExpedientTipusTipusEnumDto.ESTAT.equals(expedientTipus.getTipus())) {
+//			MissatgesHelper.error(request, getMessage(request, "expedient.tipus.accio.desplegar.flow"));
+			throw new RuntimeException(getMessage(request, "expedient.tipus.accio.desplegar.flow"));
+		}
+		DefinicioProcesDto definicioProces = dissenyService.findDarreraVersioForExpedientTipusIDefProcCodi(expedientTipusId, expedientTipus.getJbpmProcessDefinitionKey());
+		parametres = dissenyService.findHandlerParams(definicioProces.getId(), handler);
+		// Select d'accions
+		return parametres;
+	}
+
 	
 	/** Mètode per obtenir les possibles versions per al select de definicions de procés via ajax. */
 	@RequestMapping(value = "/{expedientTipusId}/definicio/{definicioCodi}/accions/select", method = RequestMethod.GET)
@@ -317,7 +434,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 	 * 
 	 * @param expedientTipusId
 	 * @param definicioCodi
-	 * @param jbpmActionActual 
+	 * @param jbpmAction
 	 * @return
 	 */
 	private List<ParellaCodiValorDto> getAccions(Long expedientTipusId, String definicioCodi, String jbpmAction) {
@@ -327,7 +444,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 		if(expedientTipusId != null && definicioCodi != null) {
 			// Darrera versió de la definició de procés
 			DefinicioProcesDto definicioProces = dissenyService.findDarreraVersioForExpedientTipusIDefProcCodi(expedientTipusId, definicioCodi);
-			accions = dissenyService.findAccionsJbpmOrdenades(definicioProces.getId());
+			accions = dissenyService.findHandlersJbpmOrdenats(definicioProces.getId());
 		}
 		for (String accio : accions) {
 			ret.add(new ParellaCodiValorDto(accio, accio));
