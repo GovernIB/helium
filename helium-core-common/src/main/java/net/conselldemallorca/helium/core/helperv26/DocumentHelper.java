@@ -183,10 +183,9 @@ public class DocumentHelper {
 							documentStore.getReferenciaFont(),
 							expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
 				if (processInstanceId != null) {
-					Portasignatures psigna = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(
+					for (Portasignatures psigna : portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(
 							processInstanceId,
-							documentStore.getId());
-					if (psigna != null) {
+							documentStore.getId())) {
 						psigna.setEstat(TipusEstat.ESBORRAT);
 						portasignaturesRepository.save(psigna);
 					}
@@ -229,12 +228,11 @@ public class DocumentHelper {
 							documentStore.getReferenciaFont(),
 							expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
 				if (processInstanceId != null) {
-					Portasignatures psigna = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(
+					for (Portasignatures psigna : portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(
 							processInstanceId,
-							documentStore.getId());
-					if (psigna != null) {
+							documentStore.getId())) {
 						psigna.setEstat(TipusEstat.ESBORRAT);
-						portasignaturesRepository.save(psigna);
+						portasignaturesRepository.save(psigna);						
 					}
 				}
 				documentStoreRepository.delete(documentStoreId);

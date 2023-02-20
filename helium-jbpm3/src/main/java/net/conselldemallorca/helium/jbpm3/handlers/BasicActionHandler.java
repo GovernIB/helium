@@ -967,7 +967,7 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 		}
 		// Variable "prefix" + codi definicio de procés + codi acció + id dels logs
 		executionContext.setVariable(
-				PARAMS_RETROCEDIR_VARIABLE_PREFIX + executionContext.getAction().getName(),
+				PARAMS_RETROCEDIR_VARIABLE_PREFIX + (executionContext.getAction() != null ? executionContext.getAction().getName() : ""),
 				sb.toString());
 	}
 
