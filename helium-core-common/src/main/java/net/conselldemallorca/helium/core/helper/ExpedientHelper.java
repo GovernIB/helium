@@ -1952,22 +1952,32 @@ public class ExpedientHelper {
 		if (processInstanceId == null) {
 			processInstanceId = expedient.getProcessInstanceId();
 		}
+		boolean perEstats = ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus());
 		// Executa l'acció
-		if (AccioTipusEnumDto.HANDLER.equals(accio.getTipus())) {
-			jbpmHelper.executeActionInstanciaProces(
-					processInstanceId,
-					accio.getJbpmAction(),
-					herenciaHelper.getProcessDefinitionIdHeretadaAmbExpedient(expedient));
-		} else if (AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
-			Map<String, String> dades;
+		Map<String, String> dades = new HashMap<String, String>();
+		if ((AccioTipusEnumDto.HANDLER.equals(accio.getTipus()) && perEstats) || AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
 			try {
 				dades = (Map<String, String>) new ObjectMapper()
 						.readValue(
-								accio.getPredefinitDades(), 
+								accio.getPredefinitDades(),
 								new TypeReference<Map<String, String>>(){});
 			} catch(Exception e) {
 				throw new RuntimeException("Error obtenint les dades predefinides pel handler " + accio.getPredefinitClasse() + ": " + e.getMessage());
 			}
+		}
+		if (AccioTipusEnumDto.HANDLER.equals(accio.getTipus())) {
+			if (perEstats) {
+				jbpmHelper.executeHandler(
+						processInstanceId,
+						accio.getJbpmAction(),
+						dades);
+			} else {
+				jbpmHelper.executeActionInstanciaProces(
+						processInstanceId,
+						accio.getJbpmAction(),
+						herenciaHelper.getProcessDefinitionIdHeretadaAmbExpedient(expedient));
+			}
+		} else if (AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
 			jbpmHelper.executeHandlerPredefinit(
 					processInstanceId,
 					accio.getPredefinitClasse(),
