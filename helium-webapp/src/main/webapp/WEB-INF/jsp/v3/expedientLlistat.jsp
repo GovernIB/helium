@@ -189,6 +189,10 @@ $(document).ready(function() {
 				});
 		}
 	});
+
+	$("body").on("click", '#btnBdades', function(event) {
+		webutilBase64DownloadAndRefresh($(this).attr('href'), event);
+	});
 });
 
 
@@ -592,6 +596,7 @@ function refrescaEstatSegonPla() {
 			<div id="btnTramitacio" class="btn-group">
 				<a class="btn btn-default" href="../v3/expedient/seleccioTots" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
 				<a class="btn btn-default" href="../v3/expedient/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
+				<a id="btnBdades" class="btn btn-default" href="../v3/expedient/descarregardades"><span class="fa fa-download"></span> <spring:message code="expedient.llistat.accio.descarregar"/></a>
 				<a class="btn btn-default" href="../v3/expedient/massiva"><spring:message code="expedient.llistat.accio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
 			</div>
 		</div>
@@ -611,6 +616,5 @@ function refrescaEstatSegonPla() {
 			</div>
 		</div>
 	</div>
-
 </body>
 </html>

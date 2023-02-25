@@ -2228,6 +2228,58 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		return llistaExpedientIds;
 	}
 
+	@Override
+	@Transactional(readOnly=true)
+	public List<ExpedientConsultaDissenyDto> findExpedientsExportacio(List<Long> ids, String entornCodi) {
+		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
+		if (ids == null || ids.isEmpty()) {
+			return resposta;
+		}
+		ExpedientTipus expedientTipus = expedientRepository.findOne(ids.get(0)).getTipus();
+		List<Camp> camps = campRepository.findByExpedientTipusAmbHerencia(expedientTipus.getId());
+		String sort = "expedient$identificador"; //ExpedientCamps.EXPEDIENT_CAMP_ID;
+		boolean asc = false;
+		int firstRow = 0;
+		int maxResults = -1;
+
+		List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneHelper.findAmbDadesExpedientPaginatV3(
+				entornCodi,
+				ids,
+				camps,
+				sort,
+				asc,
+				firstRow,
+				maxResults);
+
+		for (Map<String, DadaIndexadaDto> dadesExpedient: dadesExpedients) {
+			DadaIndexadaDto dadaExpedientId = dadesExpedient.get(LuceneHelper.CLAU_EXPEDIENT_ID);
+			ExpedientConsultaDissenyDto fila = new ExpedientConsultaDissenyDto();
+			Expedient expedient = expedientRepository.findOne(Long.parseLong(dadaExpedientId.getValorIndex()));
+			if (expedient != null) {
+				ExpedientDto expedientDto = expedientHelper.toExpedientDto(expedient);
+				expedientHelper.omplirPermisosExpedient(expedientDto);
+				fila.setExpedient(expedientDto);
+				consultaHelper.revisarDadesExpedientAmbValorsEnumeracionsODominis(
+						dadesExpedient,
+						camps,
+						expedient);
+				fila.setDadesExpedient(dadesExpedient);
+				resposta.add(fila);
+			}
+			dadesExpedient.remove(LuceneHelper.CLAU_EXPEDIENT_ID);
+		}
+
+		Iterator<Map<String, DadaIndexadaDto>> it = dadesExpedients.iterator();
+		while (it.hasNext()) {
+			Map<String, DadaIndexadaDto> dadesExpedient = it.next();
+			DadaIndexadaDto dadaExpedientId = dadesExpedient.get(LuceneHelper.CLAU_EXPEDIENT_ID);
+			if (dadaExpedientId != null && !ids.contains(Long.parseLong(dadaExpedientId.getValorIndex()))) {
+				it.remove();
+			}
+		}
+		return resposta;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

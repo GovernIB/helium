@@ -124,6 +124,56 @@ function webutilDownloadAndRefresh(arxiuUrl, event, callbackFunction) {
 	}
 }
 
+function webutilBase64DownloadAndRefresh(arxiuUrl, event, callbackFunction) {
+
+	$("#overlay").show();
+	// Fa la petició a la url de l'arxiu
+	$.get( arxiuUrl, { responseType: 'arraybuffer' })
+		.success(function (data, status, xhr) {
+			// estableix el nom de la descàrrega i el tipus
+			var b64Data = data;
+			var contentType = xhr.getResponseHeader("Content-Type");
+			var disposition = xhr.getResponseHeader('Content-Disposition');
+			var filename = disposition.substring(disposition.lastIndexOf("=") + 1) || "download";
+
+			// Processam les dades rebudes
+			var sliceSize = 512;
+			var byteCharacters = window.atob(b64Data);
+			var byteArrays = [];
+
+			for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+				var slice = byteCharacters.slice(offset, offset + sliceSize);
+				var byteNumbers = new Array(slice.length);
+				for (var i = 0; i < slice.length; i++) {
+					byteNumbers[i] = slice.charCodeAt(i);
+				}
+				var byteArray = new Uint8Array(byteNumbers);
+				byteArrays.push(byteArray);
+			}
+			// Crea un enllaç per obrir la descàrrega
+			var blob = new Blob(byteArrays, { type: contentType });
+			var link=document.createElement('a');
+			link.href=window.URL.createObjectURL(blob);
+			link.download= filename;
+			(document.body || document.documentElement).appendChild(link);
+			link.click();
+		}).always(function(){
+		if (callbackFunction)
+			try {
+				callbackFunction();
+			} catch(e) {
+				console.error("Error executant la funció de callback " + callbackFunction + ": " + e);
+			}
+		webutilRefreshMissatges();
+		$("#overlay").hide();
+	});
+	// Atura els events de l'enllaç
+	if (event != null) {
+		event.preventDefault();
+		event.stopPropagation();
+	}
+}
+
 /** Funció per deshabilitar els camps d'un formulari. Els de text tornen readonly y la resta disabled */
 function webutilDisableInputs(formulari) {
 	$(':input', formulari).attr('readonly', true);

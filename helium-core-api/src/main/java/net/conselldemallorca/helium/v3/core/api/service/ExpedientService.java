@@ -836,6 +836,8 @@ public interface ExpedientService {
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup);
 
+	public List<ExpedientConsultaDissenyDto> findExpedientsExportacio(List<Long> ids, String entornCodi);
+
     public enum FiltreAnulat {
 		ACTIUS		("expedient.consulta.anulats.actius"),
 		ANUL_LATS	("expedient.consulta.anulats.anulats"),
