@@ -299,6 +299,9 @@
 				<input type="checkbox" id="boto-pendents" autocomplete="off" checked><span class="fa fa-plus"></span>
 			</label>
 		</div>
+		<a id="descarregarDades" href="<c:url value="/v3/expedient/${expedient.id}/dades/descarregar"/>" class="btn btn-default" title="<spring:message code="expedient.dada.descarregar"/>">
+			<span class="fa fa-download"></span> <spring:message code="comu.boto.descarregar"/>
+		</a>
 		<a id="nova_dada" class="btn btn-default" href="${expedient.id}/dada/new" data-toggle="modal" data-adjust-height="false" data-height="350" data-datatable-id="expedientDades"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nova_dada"/></a>
 	</div>
 </script>

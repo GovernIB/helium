@@ -325,29 +325,9 @@ public class ExpedientLlistatController extends BaseExpedientController {
 	private void exportXLS(HttpServletResponse response, List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto) {
 		HSSFWorkbook wb = new HSSFWorkbook();
 
-		HSSFFont greyFont = wb.createFont();
-		greyFont.setColor(HSSFColor.GREY_25_PERCENT.index);
-		greyFont.setCharSet(HSSFFont.ANSI_CHARSET);
-
-		HSSFCellStyle cellStyle = wb.createCellStyle();
-		cellStyle.setDataFormat(wb.getCreationHelper().createDataFormat().getFormat("dd/MM/yyyy HH:mm"));
-		cellStyle.setWrapText(true);
-
-		HSSFCellStyle cellGreyStyle = wb.createCellStyle();
-		cellGreyStyle.setDataFormat(wb.getCreationHelper().createDataFormat().getFormat("dd/MM/yyyy HH:mm"));
-		cellGreyStyle.setWrapText(true);
-		cellGreyStyle.setFont(greyFont);
-
-		HSSFCellStyle greyStyle = wb.createCellStyle();
-		greyStyle.setFont(greyFont);
-
 		DataFormat format = wb.createDataFormat();
 		HSSFCellStyle dStyle = wb.createCellStyle();
 		dStyle.setDataFormat(format.getFormat("0.00"));
-
-		HSSFCellStyle dGreyStyle = wb.createCellStyle();
-		dGreyStyle.setFont(greyFont);
-		dGreyStyle.setDataFormat(format.getFormat("0.00"));
 
 		// GENERAL
 		HSSFSheet sheet = wb.createSheet("Hoja 1");

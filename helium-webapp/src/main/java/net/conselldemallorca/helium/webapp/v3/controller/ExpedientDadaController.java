@@ -20,15 +20,28 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import net.conselldemallorca.helium.v3.core.api.dto.*;
 import net.conselldemallorca.helium.webapp.v3.helper.*;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFPatternFormatting;
+import org.apache.poi.hssf.usermodel.HSSFRichTextString;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -86,6 +99,21 @@ public class ExpedientDadaController extends BaseExpedientController {
 				null,
 				expedientDadaService.findDadesExpedient(expedientId, totes, ambOcults, noPendents, paginacioParams),
 				"id");
+	}
+
+	@RequestMapping(value = "/{expedientId}/dades/descarregar", method = RequestMethod.GET)
+	public void descarregarDades(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			@PathVariable Long expedientId)  {
+		try {
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+			List<DadaListDto> dades = expedientDadaService.findDadesExpedient(expedientId, true, true, false, new PaginacioParamsDto());
+			exportXLS(response, expedient, dades);
+		} catch(Exception e) {
+			logger.error("Error generant excel amb les dades de l'expedient: " + expedientId, e);
+			MissatgesHelper.error(request, getMessage(request, "expedient.dada.descarregar.error", new Object[]{ e.getMessage() } ));
+		}
 	}
 
 	@RequestMapping(value = "/{expedientId}/dada")
@@ -884,7 +912,174 @@ public class ExpedientDadaController extends BaseExpedientController {
 			logger.error(errMsg + ": "+ ex.getLocalizedMessage(), ex);
 		}
 		
-	}	
+	}
+
+	private void exportXLS(HttpServletResponse response, ExpedientDto expedient, List<DadaListDto> dades) {
+		HSSFWorkbook wb = new HSSFWorkbook();
+
+		// GENERAL
+		HSSFSheet sheet = wb.createSheet("Dades expedient");
+
+		// ESTILS
+		// Capçalera
+		HSSFFont headFont = wb.createFont();
+		headFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+		headFont.setFontHeightInPoints((short) 16);
+
+		HSSFCellStyle headerStyle = wb.createCellStyle();
+//		headerStyle.setFillBackgroundColor(HSSFColor.GREY_80_PERCENT.index);
+		headerStyle.setFont(headFont);
+
+		// Agrupacions
+		HSSFFont agFont = wb.createFont();
+		agFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+		agFont.setFontHeightInPoints((short) 12);
+
+		HSSFCellStyle agStyle = wb.createCellStyle();
+		agStyle.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
+		agStyle.setFillPattern(HSSFPatternFormatting.SOLID_FOREGROUND);
+		agStyle.setFont(agFont);
+
+		// Nom
+		HSSFFont bold = wb.createFont();
+		bold.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+
+		HSSFCellStyle nStyle = wb.createCellStyle();
+		nStyle.setFont(bold);
+
+		// Valor
+		DataFormat format = wb.createDataFormat();
+		HSSFCellStyle dStyle = wb.createCellStyle();
+		dStyle.setDataFormat(format.getFormat("0.00"));
+		dStyle.setWrapText(true);
+		HSSFCellStyle hStyle = wb.createCellStyle();
+		hStyle.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
+		hStyle.setFillPattern(HSSFPatternFormatting.FINE_DOTS);
+
+
+		// CONTINGUT
+
+		// Calcular nombre màxim de columnes
+		int maxColumns = 2;
+		if (!dades.isEmpty()) {
+			for (DadaListDto dada : dades) {
+				if (dada.isRegistre()) {
+					maxColumns = Math.max(maxColumns, dada.getValor().getColumnes());
+				}
+			}
+		}
+
+		// Capçalera
+		HSSFRow xlsRow = sheet.createRow(0);
+		HSSFCell cell;
+		cell = xlsRow.createCell(0);
+		cell.setCellValue(new HSSFRichTextString("Expedient: " + expedient.getIdentificador()));
+		cell.setCellStyle(headerStyle);
+		for (int i = 1; i < (maxColumns + 2); i++)
+			xlsRow.createCell(i);
+		sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, maxColumns + 1));
+		xlsRow.setHeightInPoints(24);
+
+		int rowNum = 1;
+
+		xlsRow = sheet.createRow(rowNum++);
+
+		// Dades
+		if (!dades.isEmpty()) {
+			List<String> agrupacions = new ArrayList<String>();
+			for (DadaListDto dada : dades) {
+
+				String agrupacio = dada.getAgrupacioNom();
+				if (!agrupacions.contains(agrupacio)) {
+					setCellValue(sheet, agrupacio, rowNum, 0, agStyle);
+					xlsRow = sheet.getRow(rowNum);
+					for (int i = 1; i < (maxColumns + 2); i++)
+						xlsRow.createCell(i);
+					sheet.addMergedRegion(new CellRangeAddress(rowNum, rowNum, 0, maxColumns + 1));
+					xlsRow.setHeightInPoints(18);
+					agrupacions.add(agrupacio);
+					rowNum++;
+				}
+
+				int rowInicial = rowNum;
+				int numRows = 1;
+
+				// Nom
+				if (dada.isRegistre()) {
+					numRows = dada.getValor().getFiles() + 1;
+				} else if (dada.isMultiple()) {
+					numRows = dada.getValor().getValorMultiple().size();
+				}
+
+				xlsRow = sheet.createRow(rowNum++);
+				setCellValue(xlsRow, dada.getNom(), 0, nStyle);
+				if (numRows > 1) {
+					for (int i = 1; i < numRows; i++)
+						xlsRow = sheet.createRow(rowNum++);
+					sheet.addMergedRegion(new CellRangeAddress(rowInicial, rowInicial + numRows - 1, 0, 0));
+				}
+
+
+
+				// Valor
+				int colNum = 1;
+				if (dada.isRegistre()) {
+					// Capçalera
+					xlsRow = sheet.getRow(rowInicial);
+					int hcol = 0;
+					for(Map.Entry<String, Boolean> entry: dada.getValor().getValorHeader().entrySet()) {
+						setCellValue(xlsRow, entry.getKey(), colNum + hcol, hStyle);
+						hcol++;
+					}
+					// Dades
+					List<List<String>> valors = dada.getValor().getValorBody();
+					if (valors != null && !valors.isEmpty()) {
+						for (int fila = 0; fila < numRows; fila++) {
+							xlsRow = sheet.getRow(rowInicial + fila + 1);
+							for (int col = 0; col < dada.getValor().getColumnes(); col++) {
+								if (valors.size() > fila && valors.get(fila).size() > col) {
+									setCellValue(xlsRow, valors.get(fila).get(col), colNum + col, dStyle);
+								}
+							}
+						}
+					}
+				} else if (dada.isMultiple()) {
+					for (int fila = 0; fila < numRows; fila++) {
+						setCellValue(sheet, dada.getValor().getValorMultiple().get(fila), rowInicial + fila, colNum, dStyle);
+					}
+				} else {
+					setCellValue(xlsRow, dada.getValor().getValorSimple(), colNum, dStyle);
+				}
+			}
+
+			for (int colNum = 0; colNum < maxColumns; colNum++)
+				sheet.autoSizeColumn(colNum);
+		}
+
+		try {
+			response.setHeader("Pragma", "");
+			response.setHeader("Expires", "");
+			response.setHeader("Cache-Control", "");
+			response.setHeader("Content-Disposition", "attachment; filename=Dades expedient.xls");
+			response.setContentType("application/vnd.ms-excel;base64");
+			wb.write( response.getOutputStream() );
+		} catch (Exception e) {
+			logger.error("Mesures temporals: No s'ha pogut realitzar la exportació.");
+		}
+	}
+
+	private static void setCellValue(HSSFSheet sheet, String valor, int rowNum, int colNum, HSSFCellStyle style) {
+		HSSFRow xlsRow = sheet.getRow(rowNum);
+		if (xlsRow == null)
+			xlsRow = sheet.createRow(rowNum);
+		setCellValue(xlsRow, valor, colNum, style);
+	}
+	private static void setCellValue(HSSFRow xlsRow, String valor, int colNum, HSSFCellStyle style) {
+		HSSFCell cell = xlsRow.createCell(colNum);
+		cell.setCellValue(valor);
+		cell.setCellStyle(style);
+		
+	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientDadaController.class);
 

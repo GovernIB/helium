@@ -373,26 +373,19 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	@Transactional(readOnly = true)
     public List<DadaListDto> findDadesExpedient(Long expedientId, Boolean totes, Boolean ambOcults, Boolean noPendents, PaginacioParamsDto paginacioParams) {
 		logger.debug("Consultant les dades de l'expedient (expedientId=" + expedientId + ")");
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				true,
-				false,
-				false,
-				false);
+		Expedient expedient = null;
 
 		if (totes) {
 			// Comprovam que l'usuari té permisos d'administrador sobre l'expedient
 			try {
-				expedientHelper.getExpedientComprovantPermisos(
-						expedientId,
-						false,
-						false,
-						false,
-						true);
+				expedientHelper.getExpedientComprovantPermisos(expedientId, false, false, false, true);
 			} catch (PermisDenegatException pde) {
 				// Si no es tenen permisos d'administrador no es mostraran totes les dades
 				totes = false;
 			}
+		}
+		if (expedient == null) {
+			expedient = expedientHelper.getExpedientComprovantPermisos(expedientId, true, false, false, false);
 		}
 
 		String processInstanceId = expedient.getProcessInstanceId();
