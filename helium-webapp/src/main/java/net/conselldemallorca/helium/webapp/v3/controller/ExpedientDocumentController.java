@@ -622,7 +622,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 
 
 	@RequestMapping(value = "/{expedientId}/document/{documentStoreId}/detall", method = RequestMethod.GET)
-//	@ResponseBody
 	public String getDetall(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
