@@ -209,7 +209,7 @@
   			<div class="wrapper">
 				<ul class="nav nav-tabs pipelles" role="tablist">
 					<li id="pipella-informacio"><a href="#contingut-informacio" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.informacio"/></a></li>
-					<c:if test="${potDissenyarExpedientTipusDelegat}">
+					<c:if test="${expedientTipus.tipus eq 'FLOW' && potDissenyarExpedientTipusDelegat}">
 						<li id="pipella-definicions-proces"><a href="#contingut-definicions-proces" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.definicions.proces"/></a></li>
 					</c:if>
 					<c:if test="${potDissenyarExpedientTipusAdmin}">
@@ -218,7 +218,7 @@
 					<c:if test="${potDissenyarExpedientTipusDelegat}">
 						<li id="pipella-documents"><a href="#contingut-documents" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.documents"/></a></li>
 					</c:if>
-					<c:if test="${potDissenyarExpedientTipusAdmin}">
+					<c:if test="${expedientTipus.tipus eq 'FLOW' && potDissenyarExpedientTipusAdmin}">
 						<li id="pipella-tasques"><a href="#contingut-tasques" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.tasques"/></a></li>
 					</c:if>
 					<c:if test="${potDissenyarExpedientTipusAdmin}">

@@ -92,7 +92,7 @@
 								</c:if>
 							</dd>
 						</c:if>
-						<c:if test="${not empty definicioProcesInicial}">
+						<c:if test="${expedientTipus.tipus eq 'FLOW' && not empty definicioProcesInicial}">
 							<dt><spring:message code="expedient.tipus.info.camp.definicio.proces.inicial"/></dt>
 							<dd>${definicioProcesInicial.jbpmKey}</dd>
 						</c:if>
@@ -106,12 +106,14 @@
 									<li><a data-toggle="modal" href="<c:url value="/v3/expedientTipus/${expedientTipus.id}/exportar"/>"><span class="fa fa-sign-out"></span>&nbsp;<spring:message code="comu.filtre.exportar"/></a></li>
 									<li><a data-toggle="modal" href="<c:url value="/v3/expedientTipus/importar?expedientTipusId=${expedientTipus.id}"/>"><span class="fa fa-sign-in"></span>&nbsp;<spring:message code="comu.importar"/></a></li>
 								</c:if>
-								<c:if test="${ potDissenyarExpedientTipusDelegat}">
-									<li><a href="<c:url value="/v3/expedientTipus/${expedientTipus.id}/propagarPlantilles"/>" title="<spring:message code="exptipus.info.propagar.plantilles.info"/>" ><span class="fa fa-cog"></span>&nbsp;<spring:message code="exptipus.info.propagar.plantilles"/></a></li>
-									<li><a href="<c:url value="/v3/expedientTipus/${expedientTipus.id}/propagarConsultes"/>" title="<spring:message code="exptipus.info.propagar.consultes.info"/>" ><span class="fa fa-cog"></span>&nbsp;<spring:message code="exptipus.info.propagar.consultes"/></a></li>
-								</c:if>
-								<c:if test="${ potDissenyarExpedientTipusAdmin }">
-									<li><a data-toggle="modal" href="<c:url value="/v3/expedientTipus/${expedientTipus.id}/propagarHandlers"/>" title="<spring:message code="expedient.info.propagar.handlers.info"/>" ><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.info.propagar.handlers"/> ...</a></li>
+								<c:if test="${expedientTipus.tipus eq 'FLOW'}">
+									<c:if test="${ potDissenyarExpedientTipusDelegat}">
+										<li><a href="<c:url value="/v3/expedientTipus/${expedientTipus.id}/propagarPlantilles"/>" title="<spring:message code="exptipus.info.propagar.plantilles.info"/>" ><span class="fa fa-cog"></span>&nbsp;<spring:message code="exptipus.info.propagar.plantilles"/></a></li>
+										<li><a href="<c:url value="/v3/expedientTipus/${expedientTipus.id}/propagarConsultes"/>" title="<spring:message code="exptipus.info.propagar.consultes.info"/>" ><span class="fa fa-cog"></span>&nbsp;<spring:message code="exptipus.info.propagar.consultes"/></a></li>
+									</c:if>
+									<c:if test="${ potDissenyarExpedientTipusAdmin }">
+										<li><a data-toggle="modal" href="<c:url value="/v3/expedientTipus/${expedientTipus.id}/propagarHandlers"/>" title="<spring:message code="expedient.info.propagar.handlers.info"/>" ><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.info.propagar.handlers"/> ...</a></li>
+									</c:if>
 								</c:if>
 								<c:if test="${potDissenyarEntorn or potAdministrarEntorn}">
 									<li class="divider"></li>

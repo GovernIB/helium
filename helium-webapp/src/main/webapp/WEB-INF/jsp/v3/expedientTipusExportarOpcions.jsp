@@ -131,7 +131,7 @@
 			</div>
 		</div>
 
-		<div id="definicions" class="agrupacio">
+		<div id="definicions" class="agrupacio" style="display:${expedientTipus.tipus eq 'FLOW'? 'inline':'none'};">
 			<div class="panel-heading clicable" data-toggle="collapse" data-target="#panel_definicions">
 				<span class="marcador tots fa fa-check-square-o"></span>
 				<span class="marcador algun fa fa-check-square-o text-muted" style="display: none;"></span>
