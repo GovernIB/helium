@@ -73,12 +73,14 @@
 			</a>
 		</li>
 	
-		<li id="pipella-documentDetall-previsualitzacio-${detall.documentStoreId}" class="pull-right" role="button">
-			<a href="#contingut-documentDetall-previsualitzacio-${detall.documentStoreId}" class="previs-icon" role="tab" data-toggle="tab">
-				<span class="fa fa-eye fa-inverse<c:choose><c:when test="${detall.extensio == 'pdf' or detall.extensio == 'pdt' or detall.extensio == 'docx'}">text-success</c:when><c:otherwise>text-default</c:otherwise></c:choose>"></span>
-				<spring:message code="expedient.document.previsualitzacio"/>
-			</a>
-		</li>
+		<c:if test="${detall.extensio == 'pdf' or detall.extensio == 'pdt' or detall.extensio == 'docx'}">
+			<li id="pipella-documentDetall-previsualitzacio-${detall.documentStoreId}" class="pull-right" role="button">	
+				<a href="#contingut-documentDetall-previsualitzacio-${detall.documentStoreId}" class="previs-icon" role="tab" data-toggle="tab">
+					<span class="fa fa-eye"></span>
+					<spring:message code="expedient.document.previsualitzacio"/>
+				</a>
+			</li>			
+		</c:if>
 					
 	</ul>
 	
@@ -217,7 +219,7 @@
 	
 	<%--						<c:if test="${psigna.error && psigna.estat != 'PROCESSAT'}">--%>
 	<%--							<c:if test="${expedient.permisDocManagement}">--%>
-	<%--								<form id="form_psigna_${document.id}" action="<c:url value='../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/psignaReintentar'/>">--%>
+	<%--								<form id="form_psigna_${detall.documentStoreId}" action="<c:url value='../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${detall.documentStoreId}/psignaReintentar'/>">--%>
 	<%--									<input type="hidden" name="id" value="${document.processInstanceId}"/>--%>
 	<%--									<input type="hidden" name="psignaId" value="${psigna.documentId}"/>--%>
 	<%--								</form>--%>
@@ -251,7 +253,8 @@
 				<thead>
 					<tr>
 						<th>Destinatari</th>
-						<th>Estat</th>
+						<th>Estat notificació</th>
+						<th>Estat enviament</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -262,7 +265,30 @@
 								<td>
 									<span class="label label-default">${notificacio.enviamentTipus == "NOTIFICACIO" ? 'N' : 'C'}</span>
 										<b>${enviament.titular.nomSencer}</b>
-										<p>${notificacio.enviatData}</p>
+										<p class="comment">${notificacio.enviatData}</p>
+								</td>
+								<td>
+									<span title="<spring:message code="notificacio.etst.enum.${notificacio.estat}.info"/>">
+										<c:choose>
+										<c:when test="${notificacio.estat == 'PENDENT'}">
+											<span class="fa fa-clock-o"></span>
+										</c:when>
+										<c:when test="${notificacio.estat == 'ENVIADA'}">
+											<span class="fa fa-send-o"></span>
+											<span class="label label-warning"></span>
+										</c:when>
+										<c:when test="${notificacio.estat == 'REGISTRADA'}">
+											<span class="fa fa-file-o"></span>
+										</c:when>
+										<c:when test="${notificacio.estat == 'FINALITZADA'}">
+											<span class="fa fa-check"></span>
+										</c:when>							
+										<c:when test="${notificacio.estat == 'PROCESSADA'}">
+											<span class="fa fa-check-circle"></span>
+										</c:when>
+										</c:choose>
+										<spring:message code="notificacio.etst.enum.${notificacio.estat}"/>
+									</span>
 								</td>
 								<td>
 									<c:set var="ecolor" value="default"/>
@@ -276,9 +302,10 @@
 													enviament.estat == 'EXTRAVIADA' or
 													enviament.estat == 'SENSE_INFORMACIO' or
 													enviament.estat == 'ERROR_ENTREGA' or
-													enviament.estat == 'EXPIRADA'}"><c:set var="ecolor" value="Danger"/></c:when>
+													enviament.estat == 'EXPIRADA'}"><c:set var="ecolor" value="danger"/></c:when>
+										<c:otherwise><c:set var="ecolor" value="default"/></c:otherwise>
 									</c:choose>
-									<span class="label label-${ecolor}">${enviament.estat}</span>
+									<span class="label label-${ecolor}">${enviament.estat != null? enviament.estat : '-'}</span>
 								</td>
 							</tr>
 						</c:forEach>
@@ -618,21 +645,21 @@
 			<c:choose>
 				<c:when test="${not empty anotacio.annexos}">
 					<ul class="nav nav-pills" role="tablist">
-						<li role="presentation" class="active"><a class="pill-link" href="#informacio_${anotacio.id}" aria-controls="nti" role="tab" data-toggle="tab"><spring:message code="anotacio.detalls.pipella.informacio"/></a></li>
-						<li role="presentation"><a class="pill-link" href="#interessats_${anotacio.id}" aria-controls="info" role="tab" data-toggle="tab"><spring:message code="anotacio.detalls.pipella.interessats"/></a></li>
-						<li role="presentation"><a class="pill-link" href="#annexos_${anotacio.id}" aria-controls="fills" role="tab" data-toggle="tab">
+						<li role="presentation" class="active"><a class="pill-link" href="#document_${detall.documentStoreId}_antotacio_${anotacio.id}_informacio" aria-controls="nti" role="tab" data-toggle="tab"><spring:message code="anotacio.detalls.pipella.informacio"/></a></li>
+						<li role="presentation"><a class="pill-link" href="#document_${detall.documentStoreId}_antotacio_${anotacio.id}_interessats" aria-controls="info" role="tab" data-toggle="tab"><spring:message code="anotacio.detalls.pipella.interessats"/> <span class="badge">${fn:length(anotacio.interessats)}</span></a></li>
+						<li role="presentation"><a class="pill-link" href="#document_${detall.documentStoreId}_antotacio_${anotacio.id}_annexos" aria-controls="fills" role="tab" data-toggle="tab">
 							<c:choose>
 								<c:when test="${anotacio.errorAnnexos || anotacio.annexosInvalids}"><span class="fa fa-warning text-danger"></span></c:when>
 								<c:when test="${anotacio.annexosEsborranys}"><span class="fa fa-warning text-warning"></span></c:when>
 							</c:choose>
-							<spring:message code="anotacio.detalls.pipella.annexos"/></a></li>
+							<spring:message code="anotacio.detalls.pipella.annexos"/> <span class="badge">${fn:length(anotacio.annexos)}</span></a></li>
 						<c:if test="${not empty anotacio.distibucioErrorNotificacio}"><li role="presentation"><a class="pill-link" href="#error_${anotacio.id}" aria-controls="firmes" role="tab" data-toggle="tab"><spring:message code="anotacio.detalls.pipella.error"/></a></li></c:if>
 					</ul>
 	
 					<%-- Informació --%>
 					<div class="tab-content">
 					
-						<div id="informacio_${anotacio.id}" class="tab-pane in active">
+						<div id="document_${detall.documentStoreId}_antotacio_${anotacio.id}_informacio" class="tab-pane in active">
 							<dl class="dl-horizontal">
 								
 									<dt><spring:message code="anotacio.detalls.camp.tipus"/></dt>
@@ -669,84 +696,97 @@
 	
 							<hr class="dark horizontal my-0">
 	
-							<div><h6><spring:message code="anotacio.detalls.titol.obligatories"/></h6></div>
-							<dl class="dl-horizontal">
+							<div class="row">
+							
+								<div class="col-sm-6">
+							
+									<b><spring:message code="anotacio.detalls.titol.obligatories"/></b>
+									
+									<dl class="dl-horizontal">
 								
-									<dt><spring:message code="anotacio.detalls.camp.oficina"/></dt>
-									<dd><c:choose><c:when test="${anotacio.oficinaCodi != null}">${anotacio.oficinaDescripcio} (${anotacio.oficinaCodi})</c:when><c:otherwise>'--'</c:otherwise></c:choose></dd>
+										<dt><spring:message code="anotacio.detalls.camp.oficina"/></dt>
+										<dd><c:choose><c:when test="${anotacio.oficinaCodi != null}">${anotacio.oficinaDescripcio} (${anotacio.oficinaCodi})</c:when><c:otherwise>'--'</c:otherwise></c:choose></dd>
+									
+									
+										<dt><spring:message code="anotacio.detalls.camp.llibre"/></dt>
+										<dd><c:choose><c:when test="${anotacio.llibreCodi != null}">${anotacio.llibreDescripcio} (${anotacio.llibreCodi})</c:when><c:otherwise>'--'</c:otherwise></c:choose></dd>
+									
+									
+										<dt><spring:message code="anotacio.detalls.camp.extracte"/></dt>
+										<dd>${anotacio.extracte != null ? anotacio.extracte : '--'}</dd>
+									
+									
+										<dt><spring:message code="anotacio.detalls.camp.docfis"/></dt>
+										<dd><c:choose><c:when test="${anotacio.docFisicaCodi != null}">${anotacio.docFisicaCodi} - ${anotacio.docFisicaDescripcio})</c:when><c:otherwise>'--'</c:otherwise></c:choose></dd>
+									
+									
+										<dt><spring:message code="anotacio.detalls.camp.desti"/></dt>
+										<dd><c:choose><c:when test="${anotacio.destiCodi != null}">${anotacio.destiDescripcio} (${anotacio.destiCodi})</c:when><c:otherwise>'--'</c:otherwise></c:choose></dd>
+									
+									
+										<dt><spring:message code="anotacio.detalls.camp.assumpte.tipus"/></dt>
+										<dd><c:choose><c:when test="${anotacio.assumpteTipusDescripcio != null}">${anotacio.destiDescripcio} (${anotacio.assumpteTipusCodi})</c:when><c:otherwise>'--'</c:otherwise></c:choose></dd>
+									
+									
+										<dt><spring:message code="anotacio.detalls.camp.idioma"/></dt>
+										<dd><c:choose><c:when test="${anotacio.idiomaDescripcio != null}">${anotacio.destiDescripcio} (${anotacio.idiomaCodi})</c:when><c:otherwise>'--'</c:otherwise></c:choose></dd>
+									
+								</dl>
+										
+								</div>
 								
+								<div class="col-sm-6">
 								
-									<dt><spring:message code="anotacio.detalls.camp.llibre"/></dt>
-									<dd><c:choose><c:when test="${anotacio.llibreCodi != null}">${anotacio.llibreDescripcio} (${anotacio.llibreCodi})</c:when><c:otherwise>'--'</c:otherwise></c:choose></dd>
-								
-								
-									<dt><spring:message code="anotacio.detalls.camp.extracte"/></dt>
-									<dd>${anotacio.extracte != null ? anotacio.extracte : '--'}</dd>
-								
-								
-									<dt><spring:message code="anotacio.detalls.camp.docfis"/></dt>
-									<dd><c:choose><c:when test="${anotacio.docFisicaCodi != null}">${anotacio.docFisicaCodi} - ${anotacio.docFisicaDescripcio})</c:when><c:otherwise>'--'</c:otherwise></c:choose></dd>
-								
-								
-									<dt><spring:message code="anotacio.detalls.camp.desti"/></dt>
-									<dd><c:choose><c:when test="${anotacio.destiCodi != null}">${anotacio.destiDescripcio} (${anotacio.destiCodi})</c:when><c:otherwise>'--'</c:otherwise></c:choose></dd>
-								
-								
-									<dt><spring:message code="anotacio.detalls.camp.assumpte.tipus"/></dt>
-									<dd><c:choose><c:when test="${anotacio.assumpteTipusDescripcio != null}">${anotacio.destiDescripcio} (${anotacio.assumpteTipusCodi})</c:when><c:otherwise>'--'</c:otherwise></c:choose></dd>
-								
-								
-									<dt><spring:message code="anotacio.detalls.camp.idioma"/></dt>
-									<dd><c:choose><c:when test="${anotacio.idiomaDescripcio != null}">${anotacio.destiDescripcio} (${anotacio.idiomaCodi})</c:when><c:otherwise>'--'</c:otherwise></c:choose></dd>
-								
-							</dl>
+									<b><spring:message code="anotacio.detalls.titol.opcionals"/></b>
+
+									<dl class="dl-horizontal">
+										
+											<dt><spring:message code="anotacio.detalls.camp.procediment.codi"/></dt>
+											<dd>${anotacio.procedimentCodi != null ? anotacio.procedimentCodi : '--'}</dd>
+										
+										
+											<dt><spring:message code="anotacio.detalls.camp.assumpte.codi"/></dt>
+											<dd>${anotacio.assumpteCodiCodi != null ? anotacio.assumpteCodiCodi : '--'}</dd>
+										
+										
+											<dt><spring:message code="anotacio.detalls.camp.refext"/></dt>
+											<dd>${anotacio.refExterna != null ? anotacio.refExterna : '--'}</dd>
+										
+										
+											<dt><spring:message code="anotacio.detalls.camp.numexp"/></dt>
+											<dd>${anotacio.expedientNumero != null ? anotacio.expedientNumero : '--'}</dd>
+										
+										
+											<dt><spring:message code="anotacio.detalls.camp.transport.tipus"/></dt>
+											<dd><c:choose><c:when test="${anotacio.transportTipusCodi != null}">${anotacio.transportTipusDescripcio} (${anotacio.transportTipusCodi})</c:when><c:otherwise>'--'</c:otherwise></c:choose></dd>
+										
+										
+											<dt><spring:message code="anotacio.detalls.camp.transport.num"/></dt>
+											<dd>${anotacio.transportNumero != null ? anotacio.transportNumero : '--'}</dd>
+										
+										
+											<dt><spring:message code="anotacio.detalls.camp.origen.num"/></dt>
+											<dd>${anotacio.origenRegistreNumero != null ? anotacio.origenRegistreNumero : '--'}</dd>
+										
+										
+											<dt><spring:message code="anotacio.detalls.camp.origen.data"/></dt>
+											<dd><c:choose><c:when test="${not empty anotacio.origenData}"><fmt:formatDate value="${anotacio.origenData}" pattern="dd/MM/yyyy HH:mm:ss"/></c:when><c:otherwise>--</c:otherwise></c:choose></dd>
+										
+										
+											<dt><spring:message code="anotacio.detalls.camp.observacions"/></dt>
+											<dd>${anotacio.observacions != null ? anotacio.observacions : '--'}</dd>
+										
+									</dl>
+									
+								</div>
+																
+							</div>
 	
 							<hr class="dark horizontal my-0">
-	
-							<div><h6><spring:message code="anotacio.detalls.titol.opcionals"/></h6></div>
-							<dl class="dl-horizontal">
-								
-									<dt><spring:message code="anotacio.detalls.camp.procediment.codi"/></dt>
-									<dd>${anotacio.procedimentCodi != null ? anotacio.procedimentCodi : '--'}</dd>
-								
-								
-									<dt><spring:message code="anotacio.detalls.camp.assumpte.codi"/></dt>
-									<dd>${anotacio.assumpteCodiCodi != null ? anotacio.assumpteCodiCodi : '--'}</dd>
-								
-								
-									<dt><spring:message code="anotacio.detalls.camp.refext"/></dt>
-									<dd>${anotacio.refExterna != null ? anotacio.refExterna : '--'}</dd>
-								
-								
-									<dt><spring:message code="anotacio.detalls.camp.numexp"/></dt>
-									<dd>${anotacio.expedientNumero != null ? anotacio.expedientNumero : '--'}</dd>
-								
-								
-									<dt><spring:message code="anotacio.detalls.camp.transport.tipus"/></dt>
-									<dd><c:choose><c:when test="${anotacio.transportTipusCodi != null}">${anotacio.transportTipusDescripcio} (${anotacio.transportTipusCodi})</c:when><c:otherwise>'--'</c:otherwise></c:choose></dd>
-								
-								
-									<dt><spring:message code="anotacio.detalls.camp.transport.num"/></dt>
-									<dd>${anotacio.transportNumero != null ? anotacio.transportNumero : '--'}</dd>
-								
-								
-									<dt><spring:message code="anotacio.detalls.camp.origen.num"/></dt>
-									<dd>${anotacio.origenRegistreNumero != null ? anotacio.origenRegistreNumero : '--'}</dd>
-								
-								
-									<dt><spring:message code="anotacio.detalls.camp.origen.data"/></dt>
-									<dd><c:choose><c:when test="${not empty anotacio.origenData}"><fmt:formatDate value="${anotacio.origenData}" pattern="dd/MM/yyyy HH:mm:ss"/></c:when><c:otherwise>--</c:otherwise></c:choose></dd>
-								
-								
-									<dt><spring:message code="anotacio.detalls.camp.observacions"/></dt>
-									<dd>${anotacio.observacions != null ? anotacio.observacions : '--'}</dd>
-								
-							</dl>
-	
 						</div>
 	
 						<%-- Interessats --%>
-						<div id="interessats_${anotacio.id}" class="tab-pane">
+						<div id="document_${detall.documentStoreId}_antotacio_${anotacio.id}_interessats" class="tab-pane">
 							<c:choose>
 								<c:when test="${not empty anotacio.interessats}">
 									<table class="table table-bordered">
@@ -755,6 +795,7 @@
 												<th><spring:message code="anotacio.detalls.camp.interessat.tipus"/></th>
 												<th><spring:message code="anotacio.detalls.camp.interessat.document"/></th>
 												<th><spring:message code="anotacio.detalls.camp.interessat.nom"/></th>
+												<th style="width: 50px;"></th>
 											</tr>
 										</thead>
 										<tbody>
@@ -768,10 +809,102 @@
 															<c:when test="${interessat.tipus == 'PERSONA_FISICA'}">${interessat.nom} ${interessat.llinatge1} ${interessat.llinatge2}</c:when>
 															<c:otherwise>${interessat.raoSocial}</c:otherwise>
 														</c:choose>
-														<button type="button" class="btn btn-default desplegable fr10" href="#detalls_${status.index}" data-toggle="collapse" aria-expanded="false" aria-controls="detalls_${status.index}"><span class="fa fa-caret-down"></span></button>
+													</td>
+													<td>
+														<c:if test="${interessat.tipus != 'ADMINISTRACIO'}">
+															<button type="button" class="btn btn-default desplegable fr10" href="#document_${detall.documentStoreId}_antotacio_${anotacio.id}_detalls_${status.index}" data-toggle="collapse" aria-expanded="false" aria-controls="document_${detall.documentStoreId}_antotacio_${anotacio.id}_detalls_${status.index}"><span class="fa fa-caret-down"></span></button>
+														</c:if>
 													</td>
 												</tr>
-												<!-- TODO interessats detall -->
+												<!-- Detall interessats -->
+												<tr class="collapse detall" id="document_${detall.documentStoreId}_antotacio_${anotacio.id}_detalls_${status.index}">
+													<td colspan="4">
+														<div class="row">
+															<div class="col-xs-6">
+																<dl class="dl-horizontal">
+																	<dt><spring:message code="anotacio.interessat.detalls.camp.pais"/></dt><dd>${interessat.pais}</dd>
+																	<dt><spring:message code="anotacio.interessat.detalls.camp.provincia"/></dt><dd>${interessat.provincia}</dd>											
+																	<dt><spring:message code="anotacio.interessat.detalls.camp.municipi"/></dt><dd>${interessat.municipi}</dd>
+																	<dt><spring:message code="anotacio.interessat.detalls.camp.adresa"/></dt><dd>${interessat.adresa}</dd>
+																	<dt><spring:message code="anotacio.interessat.detalls.camp.codiPostal"/></dt><dd>${interessat.cp}</dd>
+																</dl>
+															</div>
+															<div class="col-xs-6">
+																<dl class="dl-horizontal">
+																	<dt><spring:message code="anotacio.interessat.detalls.camp.email"/></dt><dd>${interessat.email}</dd>
+																	<dt><spring:message code="anotacio.interessat.detalls.camp.telefon"/></dt><dd>${interessat.telefon}</dd>
+																	<dt><spring:message code="anotacio.interessat.detalls.camp.canalPreferent"/></dt><dd><c:if test="${not empty interessat.canal}"><spring:message code="anotacio.interessat.detalls.camp.canalPreferent.${interessat.canal}"/></c:if></dd>
+																	<dt><spring:message code="anotacio.interessat.detalls.camp.observacions"/></dt><dd>${interessat.observacions}</dd>
+																</dl>
+															</div>
+															
+															<!-- NOU APARTAT REPRESENTANT -->
+															<c:if test="${not empty interessat.representant}">
+																<c:set var="representant" value="${interessat.representant}"/>
+																<div class="col-xs-12">
+																	<table class="table table-bordered">
+																		<thead>
+																			<tr><th colspan="4"><spring:message code="anotacio.interessat.detalls.camp.representant"/></th></tr>
+																			<tr>
+																				<th style="width: 150px;"><spring:message code="anotacio.detalls.camp.interessat.tipus"/></th>
+																				<th style="width: 150px;"><spring:message code="anotacio.detalls.camp.interessat.document"/></th>
+																				<th><spring:message code="anotacio.detalls.camp.interessat.nom"/></th>
+																				<th style="width: 50px;"></th>
+																			</tr>
+																		</thead>
+																		<tbody>
+																			<tr <c:if test="${status.index%2 == 0}">class="odd"</c:if>>
+																				<td>
+																					<spring:message code="anotacio.interessat.tipus.enum.${representant.tipus}"/>
+																				</td>
+																				<td>${representant.documentTipus}: ${representant.documentNumero}</td>
+																				<c:choose>
+																					<c:when test="${representant.tipus == 'PERSONA_FISICA'}">
+																						<td>${representant.nom} ${representant.llinatge1} ${representant.llinatge2}</td>
+																					</c:when>
+																					<c:otherwise>
+																						<td>${representant.raoSocial}</td>
+																					</c:otherwise>
+																				</c:choose>
+																				<td>
+																					<c:if test="${representant.tipus != 'ADMINISTRACIO'}">
+																						<button type="button" class="btn btn-default desplegable" href="#document_${detall.documentStoreId}_antotacio_${anotacio.id}_detalls_${status.index}_representant" data-toggle="collapse" aria-expanded="false" aria-controls="document_${detall.documentStoreId}_antotacio_${anotacio.id}_detalls_${status.index}_representant">
+																							<span class="fa fa-caret-down"></span>
+																						</button>
+																					</c:if>
+																				</td>
+																			</tr>
+																			<tr class="collapse detall" id="document_${detall.documentStoreId}_antotacio_${anotacio.id}_detalls_${status.index}_representant">
+																				<td colspan="4">
+																					<div class="row">
+																						<div class="col-xs-6">
+																							<dl class="dl-horizontal">
+																								<dt><spring:message code="anotacio.interessat.detalls.camp.pais"/></dt><dd>${representant.pais}</dd>
+																								<dt><spring:message code="anotacio.interessat.detalls.camp.provincia"/></dt><dd>${representant.provincia}</dd>											
+																								<dt><spring:message code="anotacio.interessat.detalls.camp.municipi"/></dt><dd>${representant.municipi}</dd>
+																								<dt><spring:message code="anotacio.interessat.detalls.camp.adresa"/></dt><dd>${representant.adresa}</dd>
+																								<dt><spring:message code="anotacio.interessat.detalls.camp.codiPostal"/></dt><dd>${representant.cp}</dd>
+																							</dl>
+																						</div>
+																						<div class="col-xs-6">
+																							<dl class="dl-horizontal">
+																								<dt><spring:message code="anotacio.interessat.detalls.camp.email"/></dt><dd>${representant.email}</dd>
+																								<dt><spring:message code="anotacio.interessat.detalls.camp.telefon"/></dt><dd>${representant.telefon}</dd>
+																								<dt><spring:message code="anotacio.interessat.detalls.camp.canalPreferent"/></dt><dd><c:if test="${not empty representant.canal}"><spring:message code="anotacio.interessat.detalls.camp.canalPreferent.${representant.canal}"/></c:if></dd>
+																								<dt><spring:message code="anotacio.interessat.detalls.camp.observacions"/></dt><dd>${representant.observacions}</dd>
+																							</dl>
+																						</div>
+																					</div>
+																				</td>						
+																			</tr>
+																		</tbody>
+																	</table>
+																</div>
+															</c:if>
+														</div>
+													</td>						
+												</tr>
+												<!-- Detall interessats -->												
 											</c:forEach>											
 										</tbody>
 									</table>
@@ -783,8 +916,178 @@
 						</div>
 	
 						<%-- Annexos --%>
-						<div id="annexos_${anotacio.id}" class="tab-pane">
-							<h1>TODO: annexos</h1>
+						<div id="document_${detall.documentStoreId}_antotacio_${anotacio.id}_annexos" class="tab-pane">
+							<c:choose>
+								<c:when test="${not empty anotacio.annexos}">
+									<c:forEach var="annex" items="${anotacio.annexos}" varStatus="status">
+
+										<script type="text/javascript">
+											$(document).ready(function() {
+											    $("#collapse-registre-firmes-annex-${status.index}-anotacio-${anotacio.id}-document-${detall.documentStoreId}").on('show.bs.collapse', function(data){  	
+												    if (!$(this).data("loaded")) {
+												        var annexId = $(this).data("annexId");
+												        $(this).append("<div style='text-align: center; margin-bottom: 60px; margin-top: 60px;''><span class='fa fa-circle-o-notch fa-spin fa-3x' title='<spring:message code="anotacio.annex.detalls.annex.firmes.consultant" />'/></div>");
+												        $(this).load('<c:url value="/nodeco/v3/anotacio/${anotacio.id}/annex/"/>' + ${annex.id} + '/firmaInfo');
+												        $(this).data("loaded", true);
+												    }
+											    });
+										 	});
+										</script>
+									
+										<div class="panel panel-default">
+											<div class="panel-heading">
+												<h3 class="panel-title">
+													<span class="fa fa-file"></span>
+													${annex.titol}
+													<c:if test="${annex.error != null }">
+														<span class="fa fa-warning text-danger" title="<spring:message code="anotacio.annex.detalls.annex.error" arguments="${annex.error}"/>"></span>
+													</c:if>
+													<c:if test="${!annex.documentValid}">
+														<span class="fa fa-warning text-danger" title="<spring:message code="anotacio.annex.detalls.annex.invalid" arguments="${annex.documentError}"/>"></span>
+													</c:if>
+													<c:if test="${annex.arxiuEstat == 'ESBORRANY'}">
+														<span class="fa fa-warning text-warning" title="<spring:message code="anotacio.annex.detalls.annex.esborrany"/>"></span>
+													</c:if>
+													<button class="btn btn-default btn-xs pull-right" data-toggle="collapse" data-target="#collapse-annex-${status.index}-anotacio-${anotacio.id}-document-${detall.documentStoreId}"><span class="fa fa-chevron-down"></span></button>
+												</h3>
+											</div>
+				 							<div id="collapse-annex-${status.index}-anotacio-${anotacio.id}-document-${detall.documentStoreId}" class="panel-collapse collapse collapse-annex" role="tabpanel" aria-labelledby="dadesAnnex${status.index}-anotacio-${anotacio.id}-document-${detall.documentStoreId}" data-registre-id="${anotacio.id}"  data-fitxer-arxiu-uuid="${annex.uuid}">
+								
+												<div>
+													<c:if test="${annex.estat == 'PENDENT' && not empty annex.error}">
+													
+														<div class="alert well-sm alert-danger alert-dismissable" style="margin-bottom: 0px;">
+															<span class="fa fa-exclamation-triangle"></span>
+															<spring:message code="anotacio.annex.detalls.annex.processament.error" />
+															<a href="<c:url value="/v3/anotacio/${anotacio.id}/annex/${annex.id}/reintentar"/>"
+																class="btn btn-xs btn-default pull-right"><span class="fa fa-refresh"></span>
+																<spring:message code="anotacio.annex.detalls.annex.accio.reintentar" /></a>
+														</div>
+														<pre style="height: 200px; background-color: white; margin-bottom: 0px;">${annex.error}</pre>
+													</c:if>
+												</div>
+												<table class="table table-bordered">
+												<tbody>														
+													<tr>
+														<td><strong><spring:message code="anotacio.annex.detalls.camp.eni.data.captura"/></strong></td>
+														<td><c:if test="${not empty annex.ntiFechaCaptura}"><fmt:formatDate value="${annex.ntiFechaCaptura}" pattern="dd/MM/yyyy HH:mm:ss"/></c:if></td>
+													</tr>
+													<tr>
+														<td><strong><spring:message code="anotacio.annex.detalls.camp.eni.origen"/></strong></td>
+														<td><c:if test="${not empty annex.ntiOrigen}">${annex.ntiOrigen}</c:if></td>
+													</tr>
+													<tr>
+														<td><strong><spring:message code="anotacio.annex.detalls.camp.eni.tipus.documental"/></strong></td>
+														<td><c:if test="${not empty annex.ntiTipoDocumental}"><spring:message code="anotacio.annex.detalls.camp.ntiTipusDocument.${annex.ntiTipoDocumental}"/></c:if></td>
+													</tr>
+													<tr>
+														<td><strong><spring:message code="anotacio.annex.detalls.camp.sicres.tipus.document"/></strong></td>
+														<td><c:if test="${not empty annex.sicresTipoDocumento}"><spring:message code="anotacio.annex.detalls.camp.sicresTipusDocument.${annex.sicresTipoDocumento}"/></c:if></td>
+													</tr>
+													<tr>
+														<td><strong><spring:message code="anotacio.annex.detalls.camp.arxiu.uuid"/></strong></td>
+														<td>
+															${annex.uuid}
+															<c:if test="${annex.uuid == null }">
+																<span class="fa fa-warning text-warning" title="<spring:message code="anotacio.annex.detalls.camp.arxiu.uuid.buit.avis"/>"></span>
+															</c:if>
+														</td>
+													</tr>
+												
+													<c:if test="${not empty annex.observacions}">
+														<tr>
+															<td><strong><spring:message code="anotacio.annex.detalls.camp.observacions"/></strong></td>
+															<td>${annex.observacions}</td>
+														</tr>
+													</c:if>
+													<tr>
+														<td><strong><spring:message code="anotacio.annex.detalls.camp.fitxer"/></strong></td>
+														<td>
+															${annex.nom}
+															<a href='<c:url value="/v3/anotacio/${anotacio.id}/annex/${annex.id}/descarregar"></c:url>' 
+															class="btn btn-default btn-sm pull-right">
+																<span class="fa fa-download" title="<spring:message code="anotacio.annex.detalls.camp.fitxer.descarregar"/>"></span>
+															</a>
+														</td>
+													</tr>
+													<tr>
+														<td><strong><spring:message code="anotacio.annex.detalls.camp.estat"/></strong></td>
+														<td>
+															${annex.estat}
+															<c:if test="${annex.error != null}">
+															<span 
+																class="fa fa-exclamation-triangle text-danger" 
+																title="${annex.error}"></span>
+															</c:if>
+														</td>
+													</tr>
+													<tr>
+														<td><strong><spring:message code="anotacio.annex.detalls.camp.estat.arxiu"/></strong></td>
+														<td>
+															${annex.arxiuEstat}
+															<c:if test="${annex.arxiuEstat == 'ESBORRANY'}">
+															<span 
+																class="fa fa-exclamation-triangle text-warning" 
+																title="<spring:message code='anotacio.annex.detalls.camp.estat.arxiu.esborrany.avis'></spring:message>"></span>
+															</c:if>
+														</td>
+													</tr>
+													<tr>
+														<td><strong><spring:message code="anotacio.annex.detalls.camp.valid"/></strong></td>
+														<td>
+															<c:choose>
+																<c:when test="${annex.documentValid }">
+																	<spring:message code="enum.si"></spring:message>
+																</c:when>
+																<c:when test="${!annex.documentValid }">
+																	<span 
+																		class="fa fa-exclamation-triangle text-danger"></span>
+																	<spring:message code="enum.no"></spring:message>
+																	: ${annex.documentError}
+																</c:when>
+															</c:choose>
+														</td>
+													</tr>
+													<tr>
+														<td colspan="2">
+															<div class="panel panel-default">
+																<div class="panel-heading">
+																	<h3 class="panel-title">
+																		<span class="fa fa-certificate"></span>
+																		<spring:message code="anotacio.annex.detalls.camp.firmes"/>
+																		<button class="btn btn-default btn-xs pull-right" data-toggle="collapse" data-target="#collapse-registre-firmes-annex-${status.index}-anotacio-${anotacio.id}-document-${detall.documentStoreId}"><span class="fa fa-chevron-down"></span></button>
+																	</h3>
+																</div>
+																<div id="collapse-registre-firmes-annex-${status.index}-anotacio-${anotacio.id}-document-${detall.documentStoreId}" class="panel-collapse collapse collapse-annex collapse-registre-firmes" role="tabpanel" data-annex-id="${annex.id}"> 
+																</div> 
+															</div>
+														</td>
+													</tr>
+												
+												</table>
+				 							</div> 
+										</div>
+									</c:forEach>
+								</c:when>
+								<c:otherwise>
+									<c:choose>
+										<c:when test="${not empty annexosErrorMsg}">
+											<div class="row col-xs-12">
+												<div class="alert alert-danger">
+													${annexosErrorMsg}
+												</div>
+											</div>						
+										</c:when>
+										<c:otherwise>
+											<div class="row col-xs-12">
+												<div class="well">
+													<spring:message code="anotacio.annex.buit"/>
+												</div>
+											</div>
+										</c:otherwise>
+									</c:choose>				
+								</c:otherwise>
+							</c:choose>
 						</div>
 	
 						<%-- Error --%>
@@ -830,8 +1133,7 @@
 				</c:when>
 				<c:otherwise>
 					<a href="${expedientId}/document/${detall.id}/descarregar" class="position-absolute bg-gradient-info shadow-info text-white font-weight-bold pointer">
-						<span class="fa fa-download fa-inverse fa-1x"></span>&nbsp;<spring:message code="expedient.document.descarregar"/></a></li>
-						<span>Descarregar</span>
+						<span class="fa fa-download fa-inverse fa-1x"></span>&nbsp;<spring:message code="expedient.document.descarregar"/></a>
 				</c:otherwise>
 			</c:choose>			
 		

@@ -20,13 +20,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-import net.conselldemallorca.helium.v3.core.api.dto.*;
-import net.conselldemallorca.helium.webapp.v3.helper.*;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,7 +37,6 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.DataFormat;
-import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
@@ -59,9 +55,25 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
+import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadaListDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
 
 /**
  * Controlador per a la pipella de dades de l'expedient.

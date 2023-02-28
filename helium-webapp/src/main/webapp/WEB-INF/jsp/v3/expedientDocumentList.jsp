@@ -65,7 +65,9 @@
 		// Plegar / Desplegar la previasualització d'un document
 		$("#expedientDocuments").on('click', '.previs-icon', (event) => {
 			let viewer = $($(event.currentTarget).attr('href')).find('.viewer');
-			toggleViewer(viewer);
+			if (viewer.length) {
+				toggleViewer(viewer);
+			}
 		});
 
 		<%-- Al seleccionar i deseleccionar, eliminarem els checks dels documents inexistents--%>
@@ -441,7 +443,7 @@
 		<a id="descarregarZip" href="<c:url value="/v3/expedient/${expedient.id}/document/descarregar"/>" class="btn btn-default" title="<spring:message code="expedient.document.descarregar.zip"/>">
 			<span class="fa fa-download"></span> <spring:message code="comu.boto.descarregar"/> <span id="descarregarCount" class="badge">&nbsp;</span>
 		</a>
-		<a id="nou_document" class="btn btn-default" href="${expedient.id}/document/new" data-toggle="modal" data-datatable-id="expedientTipusEstat"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nou_document"/></a>
+		<a id="nou_document" class="btn btn-default" href="${expedient.id}/document/new" data-toggle="modal" data-datatable-id="expedientTipusEstat" data-datatable-id="expedientDocuments"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nou_document"/></a>
 	</div>
 </script>
 <script id="rowhrefTemplateDocuments" type="text/x-jsrender">
