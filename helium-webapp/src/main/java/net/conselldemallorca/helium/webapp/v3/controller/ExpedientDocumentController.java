@@ -1180,23 +1180,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	    }
 	}
 
-	/*
-	 * retorna un JSON de amb la info del document
-	 */
-	@RequestMapping(
-			value="/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/psignainfo", 
-			method = RequestMethod.GET)
-	@ResponseBody
-	public Object psignaInfo(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			@PathVariable String processInstanceId,
-			@PathVariable Long documentStoreId) {
-		Object psignaInfo = expedientDocumentService.findPortasignaturesInfo(expedientId, processInstanceId, documentStoreId);
-
-		return psignaInfo;
-	}
-
 	/** Mètode per reintentar el processament del document que s'envia al porta signatures. */
 	@RequestMapping(value = "/{expedientId}/document/{documentStoreId}/psignaReintentar/{psignaDocId}", method = RequestMethod.GET)
 	public String documentPsignaReintentarGet(
@@ -1207,7 +1190,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			ModelMap model) throws ServletException {
 		try {
 			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
-			model.addAttribute("expedientId", expedientId);
+			model.addAttribute("expedient", expedient);
 			model.addAttribute("portasignatures", expedientDocumentService.getPortasignaturesByDocumentId(psignaDocId));
 			model.addAttribute("document", expedientDocumentService.findOneAmbInstanciaProces(expedientId, expedient.getProcessInstanceId(), documentStoreId));
 			return "v3/expedientDocumentPsignaReprocessar";
@@ -1217,20 +1200,22 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		}
 	}
 	@RequestMapping(value="/{expedientId}/document/{documentStoreId}/psignaReintentar/{psignaId}", method = RequestMethod.POST)
-	@ResponseBody
-	public boolean documentPsignaReintentar(
+	public String documentPsignaReintentar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
+			@PathVariable Long documentStoreId,
 			@PathVariable Integer psignaId,
 			Model model) {
-		boolean response = false;
-		if (pluginService.processarDocumentPendentPortasignatures(psignaId)) {
-			MissatgesHelper.success(request, getMessage(request, "expedient.psigna.reintentar.ok"));
-			return true;
-		} else {
-			MissatgesHelper.error(request, getMessage(request, "expedient.psigna.reintentar.error"));
+		try {
+			if (pluginService.processarDocumentPendentPortasignatures(psignaId)) {
+				MissatgesHelper.success(request, getMessage(request, "expedient.psigna.reintentar.ok"));
+			} else {
+				MissatgesHelper.error(request, getMessage(request, "expedient.psigna.reintentar.error"));
+			}
+		} catch(Exception e) {
+			MissatgesHelper.error(request, "Error incontrolat reintentant el processament");
 		}
-		return response;
+		return "redirect:" + request.getHeader("referer");
 	}
 	@RequestMapping(
 			value="/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/psignaReintentar", 

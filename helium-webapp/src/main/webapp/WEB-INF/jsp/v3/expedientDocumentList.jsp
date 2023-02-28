@@ -149,23 +149,6 @@
 		return mostrar;
 	}
 
-	// const esborrarSignatura = (id, correcte) => {
-	// 	if (correcte) {
-	// 		$("#signatura_" + id).remove();
-	// 		$("#signatura_" + id).remove();
-	// 	}
-	// }
-
-	<%--const confirmPsigna(psignaInfo)--%>
-	<%--bootbox.confirm({--%>
-	<%--	size: 'large',--%>
-	<%--	title: '<spring:message code="expedient.document.pendent.psigna"/>',--%>
-	<%--	message: '',--%>
-	<%--	callback: function(result) {--%>
-
-	<%--	}--%>
-	<%--});--%>
-
 </script>
 <style>
 	#expedientDocuments {border-collapse: collapse !important; margin-bottom: 15px !important;}
@@ -339,8 +322,8 @@
 				{{/if}}
 			</script>
 		</th>
-		<th data-col-name="dataCreacio" data-converter="date" data-orderable="true" width="10%"><spring:message code="expedient.document.data"/></th>
-		<th data-col-name="dataDocument" data-converter="datetimeminute" data-orderable="true" width="10%"><spring:message code="expedient.document.adjuntat"/></th>
+		<th data-col-name="dataDocument" data-converter="date" data-orderable="true" width="10%"><spring:message code="expedient.document.data"/></th>
+		<th data-col-name="dataCreacio" data-converter="datetimeminute" data-orderable="true" width="10%"><spring:message code="expedient.document.adjuntat"/></th>
 		<th data-col-name="id" data-template="#cellAccionsTemplate" data-orderable="false" width="5%">
 			<script id="cellAccionsTemplate" type="text/x-jsrender">
 			{{if id == null}}
@@ -443,7 +426,7 @@
 		<a id="descarregarZip" href="<c:url value="/v3/expedient/${expedient.id}/document/descarregar"/>" class="btn btn-default" title="<spring:message code="expedient.document.descarregar.zip"/>">
 			<span class="fa fa-download"></span> <spring:message code="comu.boto.descarregar"/> <span id="descarregarCount" class="badge">&nbsp;</span>
 		</a>
-		<a id="nou_document" class="btn btn-default" href="${expedient.id}/document/new" data-toggle="modal" data-datatable-id="expedientTipusEstat" data-datatable-id="expedientDocuments"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nou_document"/></a>
+		<a id="nou_document" class="btn btn-default" href="${expedient.id}/document/new" data-toggle="modal" data-datatable-id="expedientDocuments"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nou_document"/></a>
 	</div>
 </script>
 <script id="rowhrefTemplateDocuments" type="text/x-jsrender">

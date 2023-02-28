@@ -34,9 +34,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;

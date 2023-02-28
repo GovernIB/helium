@@ -216,15 +216,6 @@
 						
 					</c:if>
 				</dl>
-	
-	<%--						<c:if test="${psigna.error && psigna.estat != 'PROCESSAT'}">--%>
-	<%--							<c:if test="${expedient.permisDocManagement}">--%>
-	<%--								<form id="form_psigna_${detall.documentStoreId}" action="<c:url value='../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${detall.documentStoreId}/psignaReintentar'/>">--%>
-	<%--									<input type="hidden" name="id" value="${document.processInstanceId}"/>--%>
-	<%--									<input type="hidden" name="psignaId" value="${psigna.documentId}"/>--%>
-	<%--								</form>--%>
-	<%--							</c:if>--%>
-	<%--						</c:if>--%>
 			</c:if>
 			<hr class="dark horizontal my-0"/>
 			<c:choose>

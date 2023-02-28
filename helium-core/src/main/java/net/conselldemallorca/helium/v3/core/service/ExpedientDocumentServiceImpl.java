@@ -51,7 +51,6 @@ import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
@@ -881,45 +880,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		logger.debug("Consulta dels documents pendents del portafirmes (" +
 				"expedientId=" + expedientId + ", " +
 				"processInstanceId=" + processInstanceId + ")");
-		List<PortasignaturesDto> resposta = new ArrayList<PortasignaturesDto>();
-		List<Portasignatures> pendents = pluginHelper.findPendentsPortasignaturesPerProcessInstanceId(processInstanceId);
-		for (Portasignatures pendent: pendents) {
-			PortasignaturesDto dto = new PortasignaturesDto();
-			dto.setId(pendent.getId());
-			dto.setDocumentId(pendent.getDocumentId());
-			dto.setTokenId(pendent.getTokenId());
-			dto.setDataEnviat(pendent.getDataEnviat());
-			if (TipusEstat.ERROR.equals(pendent.getEstat())) {
-				if (Transicio.SIGNAT.equals(pendent.getTransition()))
-					dto.setEstat(TipusEstat.SIGNAT.toString());
-				else
-					dto.setEstat(TipusEstat.REBUTJAT.toString());
-				dto.setError(true);
-			} else if (TipusEstat.PROCESSAT.equals(pendent.getEstat()) && Transicio.REBUTJAT.equals(pendent.getTransition())) {
-				 dto.setEstat(TipusEstat.PROCESSAT.toString());
-				 dto.setError(true);
-			} else {
-				dto.setEstat(pendent.getEstat().toString());
-				dto.setError(false);
-			}
-			if (pendent.getTransition() != null)
-				dto.setTransicio(pendent.getTransition().toString());
-			dto.setDocumentStoreId(pendent.getDocumentStoreId());
-			dto.setMotiuRebuig(pendent.getMotiuRebuig());
-			dto.setTransicioOK(pendent.getTransicioOK());
-			dto.setTransicioKO(pendent.getTransicioKO());
-			dto.setDataProcessamentPrimer(pendent.getDataProcessamentPrimer());
-			dto.setDataProcessamentDarrer(pendent.getDataProcessamentDarrer());
-			dto.setDataSignatRebutjat(pendent.getDataSignatRebutjat());
-			dto.setDataCustodiaIntent(pendent.getDataCustodiaIntent());
-			dto.setDataCustodiaOk(pendent.getDataCustodiaOk());
-			dto.setDataSignalIntent(pendent.getDataSignalIntent());
-			dto.setDataSignalOk(pendent.getDataSignalOk());
-			dto.setErrorProcessant(pendent.getErrorCallbackProcessant());
-			dto.setProcessInstanceId(pendent.getProcessInstanceId());
-			resposta.add(dto);
-		}
-		return resposta;
+		return conversioTipusHelper.convertirList(
+				pluginHelper.findPendentsPortasignaturesPerProcessInstanceId(processInstanceId),
+				PortasignaturesDto.class);
 	}
 
 	/**
@@ -1187,7 +1150,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			portasignatures = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(
 					processInstanceId,
 					documentStoreId);
-		}
+			}
 		return conversioTipusHelper.convertirList(portasignatures, PortasignaturesDto.class);
 
 	}
