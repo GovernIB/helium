@@ -877,6 +877,442 @@
   "agrupacio" : "TERMINIS"
  },
 
+{
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.RegistreSortidaRegWeb3Handler",
+  "nom" : "Registrar sortida de document",
+  "descripcio" : "Aquest handler ens permet registrar la sortida d’un document.",
+  "parametres" : [ 
+  	{
+	"codi": "entitatCodi",
+    "nom" : "Codi DIR3 de l'entitat on enregistrar la sortida.",
+    "obligatori" : true,
+    "param" : "entitatCodi",
+    "paramDesc" : "Codi DIR3 de l'entitat on enregistrar la sortida.",
+    "varParam" : "varEntitatCodi",
+    "varParamDesc" : "Variable que conté el codi DIR3 de l'entitat on enregistrar la sortida."
+	},
+  	{
+	"codi": "organOrigen",
+    "nom" : "Codi DIR3 de l'òrtgan origen",
+    "obligatori" : true,
+    "param" : "organOrigen",
+    "paramDesc" : "Codi DIR3 de l'òrgan origen del registre de sortida.",
+    "varParam" : "varOrganOrigen",
+    "varParamDesc" : "Variable que conté el codi DIR3 de l'òrgan origen del registre de sortida."
+	},
+  	{
+	"codi": "oficinaCodi",
+    "nom" : "Codi de l'oficina",
+    "obligatori" : true,
+    "param" : "oficinaCodi",
+    "paramDesc" : "Codi de l'oficina on enregistrar la sortida.",
+    "varParam" : "varOficinaCodi",
+    "varParamDesc" : "Variable que conté el codi de l'oficina on enregistrar la sortida."
+	},
+  	{
+	"codi": "llibreCodi",
+    "nom" : "Codi del llibre",
+    "obligatori" : true,
+    "param" : "llibreCodi",
+    "paramDesc" : "Codi del llibre on enregistrar la sortida.",
+    "varParam" : "varLlibreCodi",
+    "varParamDesc" : "Variable que conté el codi del llibre on enregistrar la sortida."
+	},
+  	{
+	"codi": "extracte",
+    "nom" : "Extracte",
+    "obligatori" : true,
+    "param" : "extracte",
+    "paramDesc" : "Extracte del registre de sortida.",
+    "varParam" : "varExtracte",
+    "varParamDesc" : "Variable que conté el text per l'extracte del registre de sortida."
+	},
+  	{
+	"codi": "documentacioFisicaCodi",
+    "nom" : "Codi documentacio física",
+    "obligatori" : false,
+    "param" : "documentacioFisicaCodi",
+    "paramDesc" : "Codi de la documentació física.",
+    "varParam" : "varDocumentacioFisicaCodi",
+    "varParamDesc" : "Variable que conté el codi de la documentació física."
+	},
+  	{
+	"codi": "assumpteTipusCodi",
+    "nom" : "Codi del tipus d'assumpte",
+    "obligatori" : false,
+    "param" : "assumpteTipusCodi",
+    "paramDesc" : "Codi del tipus d'assumpte. En desús.",
+    "varParam" : "varAssumpteTipusCodi",
+    "varParamDesc" : "Variable que conté el codi pel tipus d'assumpte."
+	},
+  	{
+	"codi": "assumpteCodi",
+    "nom" : "Codi assumpte",
+    "obligatori" : false,
+    "param" : "assumpteCodi",
+    "paramDesc" : "Codi de l'assumpte.",
+    "varParam" : "varAssumpteCodi",
+    "varParamDesc" : "varParamDesc"
+	},
+  	{
+	"codi": "usuariCodi",
+    "nom" : "Codi usuari",
+    "obligatori" : false,
+    "param" : "usuariCodi",
+    "paramDesc" : "Codi de l'usuari pel registre de sortida.",
+    "varParam" : "varUsuariCodi",
+    "varParamDesc" : "Variable que conté el codi d'usuari pel registre de sortida."
+	},
+	
+	
+  	{
+	"codi": "interessatTipus",
+    "nom" : "Tipus interessat",
+    "obligatori" : false,
+    "param" : "interessatTipus",
+    "paramDesc" : "Tipus d'interessat. Els possibles valors són: '1' per administració, '2' per persona física i '3' per persona jurídica.",
+    "varParam" : "varInteressatTipus",
+    "varParamDesc" : "Variable que conté el valor pel tipus d'interessat."
+	},
+  	{
+	"codi": "interessatDocumentTipus",
+    "nom" : "Tipus document interessat",
+    "obligatori" : false,
+    "param" : "interessatDocumentTipus",
+    "paramDesc" : "Tipus de document de l'interessat. Els possibles valors són: 'N' per NIF, 'C' per CIF, 'P' per passaport, 'E' per estranger, 'X' per altres i 'O' per codi origen.",
+    "varParam" : "varInteressatDocumentTipus",
+    "varParamDesc" : "Variable que conté el valor pel tipus de document de l'interessat."
+	},
+  	{
+	"codi": "interessatDocumentNum",
+    "nom" : "Número de document de l'interessat.",
+    "obligatori" : false,
+    "param" : "interessatDocumentNum",
+    "paramDesc" : "Número de document de l'interessat.",
+    "varParam" : "varInteressatDocumentNum",
+    "varParamDesc" : "Variable que conté el número de document de l'interessat."
+	},
+  	{
+	"codi": "interessatEmail",
+    "nom" : "Email de l'interessat",
+    "obligatori" : false,
+    "param" : "interessatEmail",
+    "paramDesc" : "Email de l'interessat.",
+    "varParam" : "varInteressatEmail",
+    "varParamDesc" : "Variable que conté l'email de l'interessat."
+	},
+  	{
+	"codi": "interessatTelefon",
+    "nom" : "Teléfon interessat",
+    "obligatori" : false,
+    "param" : "interessatTelefon",
+    "paramDesc" : "Teléfon interessat.",
+    "varParam" : "varInteressatTelefon",
+    "varParamDesc" : "Variable que conté el teléfon de l'interessat."
+	},
+  	{
+	"codi": "interessatNom",
+    "nom" : "Nom de l'interessat",
+    "obligatori" : false,
+    "param" : "interessatNom",
+    "paramDesc" : "Nom de l'interessat.",
+    "varParam" : "varInteressatNom",
+    "varParamDesc" : "Variable que conté el nom de l'interessat."
+	},
+  	{
+	"codi": "interessatLlinatge1",
+    "nom" : "Llinatge 1 interessat",
+    "obligatori" : false,
+    "param" : "interessatLlinatge1",
+    "paramDesc" : "Llinatge 1 de l'interessat en cas de ser una persona física.",
+    "varParam" : "varInteressatLlinatge1",
+    "varParamDesc" : "Variable que conté el llinatge 1 de l'interessat en cas de ser persona física."
+	},
+  	{
+	"codi": "interessatLlinatge2",
+    "nom" : "Llinatge 2 interessat",
+    "obligatori" : false,
+    "param" : "interessatLlinatge2",
+    "paramDesc" : "Llinatge 2 de l'interessat en cas de tenir-ne.",
+    "varParam" : "varInteressatLlinatge2",
+    "varParamDesc" : "Variable que conté el llinatge 2 de l'interessat en cas de tenir-ne."
+	},
+  	{
+	"codi": "interessatRaoSocial",
+    "nom" : "Raó social de l'interessat",
+    "obligatori" : false,
+    "param" : "interessatRaoSocial",
+    "paramDesc" : "Raó social de l'interessat.",
+    "varParam" : "varInteressatRaoSocial",
+    "varParamDesc" : "Variable que conté el nom social de l'interessat."
+	},
+  	{
+	"codi": "interessatPais",
+    "nom" : "Codi país interessat",
+    "obligatori" : false,
+    "param" : "interessatPais",
+    "paramDesc" : "Codi del país de l'interessat.",
+    "varParam" : "varInteressatPais",
+    "varParamDesc" : "Variable que conté el codi del país de l'interessat."
+	},
+  	{
+	"codi": "interessatProvincia",
+    "nom" : "Codi província interessat",
+    "obligatori" : false,
+    "param" : "interessatProvincia",
+    "paramDesc" : "Codi de la província de l'interessat.",
+    "varParam" : "varInteressatProvincia",
+    "varParamDesc" : "Variable que conté el codi de la província de l'interessat."
+	},
+  	{
+	"codi": "interessatMunicipi",
+    "nom" : "Codi de municipi de l'interessat",
+    "obligatori" : false,
+    "param" : "interessatMunicipi",
+    "paramDesc" : "Codi de municipi de l'interessat.",
+    "varParam" : "varInteressatMunicipi",
+    "varParamDesc" : "Variable que conté el codi de municipi de l'interessat"
+	},
+  	{
+	"codi": "interessatCodiPostal",
+    "nom" : "Codi postal de l'interessat",
+    "obligatori" : false,
+    "param" : "interessatCodiPostal",
+    "paramDesc" : "Codi postal de l'interessat.",
+    "varParam" : "varInteressatCodiPostal",
+    "varParamDesc" : "Variable que conté el codi postal de l'interessat."
+	},
+  	{
+	"codi": "interessatAdresa",
+    "nom" : "Adreça interessat",
+    "obligatori" : false,
+    "param" : "interessatAdresa",
+    "paramDesc" : "Adreça interessat.",
+    "varParam" : "varInteressatAdresa",
+    "varParamDesc" : "Variable que conté l'adreça interessat."
+	},
+	
+	{
+	"codi": "representantTipus",
+    "nom" : "Tipus representant",
+    "obligatori" : false,
+    "param" : "representantTipus",
+    "paramDesc" : "Tipus d'representant. Els possibles valors són: '1' per administració, '2' per persona física i '3' per persona jurídica.",
+    "varParam" : "varrepresentantTipus",
+    "varParamDesc" : "Variable que conté el valor pel tipus de representant."
+	},
+  	{
+	"codi": "representantDocumentTipus",
+    "nom" : "Tipus document representant",
+    "obligatori" : false,
+    "param" : "representantDocumentTipus",
+    "paramDesc" : "Tipus de document del representant. Els possibles valors són: 'N' per NIF, 'C' per CIF, 'P' per passaport, 'E' per estranger, 'X' per altres i 'O' per codi origen.",
+    "varParam" : "varrepresentantDocumentTipus",
+    "varParamDesc" : "Variable que conté el valor pel tipus de document del representant."
+	},
+  	{
+	"codi": "representantDocumentNum",
+    "nom" : "Número de document del representant.",
+    "obligatori" : false,
+    "param" : "representantDocumentNum",
+    "paramDesc" : "Número de document del representant.",
+    "varParam" : "varrepresentantDocumentNum",
+    "varParamDesc" : "Variable que conté el número de document del representant."
+	},
+  	{
+	"codi": "representantEmail",
+    "nom" : "Email del representant",
+    "obligatori" : false,
+    "param" : "representantEmail",
+    "paramDesc" : "Email del representant.",
+    "varParam" : "varrepresentantEmail",
+    "varParamDesc" : "Variable que conté l'email del representant."
+	},
+  	{
+	"codi": "representantTelefon",
+    "nom" : "Teléfon representant",
+    "obligatori" : false,
+    "param" : "representantTelefon",
+    "paramDesc" : "Teléfon representant.",
+    "varParam" : "varrepresentantTelefon",
+    "varParamDesc" : "Variable que conté el teléfon del representant."
+	},
+  	{
+	"codi": "representantNom",
+    "nom" : "Nom del representant",
+    "obligatori" : false,
+    "param" : "representantNom",
+    "paramDesc" : "Nom del representant.",
+    "varParam" : "varrepresentantNom",
+    "varParamDesc" : "Variable que conté el nom del representant."
+	},
+  	{
+	"codi": "representantLlinatge1",
+    "nom" : "Llinatge 1 representant",
+    "obligatori" : false,
+    "param" : "representantLlinatge1",
+    "paramDesc" : "Llinatge 1 del representant en cas de ser una persona física.",
+    "varParam" : "varrepresentantLlinatge1",
+    "varParamDesc" : "Variable que conté el llinatge 1 del representant en cas de ser persona física."
+	},
+  	{
+	"codi": "representantLlinatge2",
+    "nom" : "Llinatge 2 representant",
+    "obligatori" : false,
+    "param" : "representantLlinatge2",
+    "paramDesc" : "Llinatge 2 del representant en cas de tenir-ne.",
+    "varParam" : "varrepresentantLlinatge2",
+    "varParamDesc" : "Variable que conté el llinatge 2 del representant en cas de tenir-ne."
+	},
+  	{
+	"codi": "representantRaoSocial",
+    "nom" : "Raó social del representant",
+    "obligatori" : false,
+    "param" : "representantRaoSocial",
+    "paramDesc" : "Raó social del representant.",
+    "varParam" : "varrepresentantRaoSocial",
+    "varParamDesc" : "Variable que conté el nom social del representant."
+	},
+  	{
+	"codi": "representantPais",
+    "nom" : "Codi país representant",
+    "obligatori" : false,
+    "param" : "representantPais",
+    "paramDesc" : "Codi del país del representant.",
+    "varParam" : "varrepresentantPais",
+    "varParamDesc" : "Variable que conté el codi del país del representant."
+	},
+  	{
+	"codi": "representantProvincia",
+    "nom" : "Codi província representant",
+    "obligatori" : false,
+    "param" : "representantProvincia",
+    "paramDesc" : "Codi de la província del representant.",
+    "varParam" : "varrepresentantProvincia",
+    "varParamDesc" : "Variable que conté el codi de la província del representant."
+	},
+  	{
+	"codi": "representantMunicipi",
+    "nom" : "Codi de municipi del representant",
+    "obligatori" : false,
+    "param" : "representantMunicipi",
+    "paramDesc" : "Codi de municipi del representant.",
+    "varParam" : "varrepresentantMunicipi",
+    "varParamDesc" : "Variable que conté el codi de municipi del representant"
+	},
+  	{
+	"codi": "representantCodiPostal",
+    "nom" : "Codi postal del representant",
+    "obligatori" : false,
+    "param" : "representantCodiPostal",
+    "paramDesc" : "Codi postal del representant.",
+    "varParam" : "varrepresentantCodiPostal",
+    "varParamDesc" : "Variable que conté el codi postal del representant."
+	},
+  	{
+	"codi": "representantAdresa",
+    "nom" : "Adreça representant",
+    "obligatori" : false,
+    "param" : "representantAdresa",
+    "paramDesc" : "Adreça representant.",
+    "varParam" : "varrepresentantAdresa",
+    "varParamDesc" : "Variable que conté l'adreça representant."
+	},
+	
+  	{
+	"codi": "idiomaCodi",
+    "nom" : "Codi de l'idioma del registre",
+    "obligatori" : false,
+    "param" : "idiomaCodi",
+    "paramDesc" : "Codi de l'idioma en què es fa l'assentament. Els codis disponibles són: 'ca' pel català, 'es' pel castellà, 'gl' pel gallec, 'eu' pel basc i 'en' per l'anglès.",
+    "varParam" : "varIdiomaCodi",
+    "varParamDesc" : "Variable que conté el codi de l'idioma en què es fa l'assentament."
+	},
+  	{
+	"codi": "codiDocument",
+    "nom" : "Codi del document",
+    "obligatori" : false,
+    "param" : "codiDocument",
+    "paramDesc" : "Codi del document que s'enregistra.",
+    "varParam" : "varCodiDocument",
+    "varParamDesc" : "Variable que conté el codi del document que s'enregistra."
+	},
+  	{
+	"codi": "documentValidesa",
+    "nom" : "Validesa document",
+    "obligatori" : false,
+    "param" : "documentValidesa",
+    "paramDesc" : "Validesa del document.",
+    "varParam" : "varDocumentValidesa",
+    "varParamDesc" : "Variable que conté la validesa del document."
+	},
+  	{
+	"codi": "documentTipus",
+    "nom" : "Tipus de document",
+    "obligatori" : false,
+    "param" : "documentTipus",
+    "paramDesc" : "Tipus de document.",
+    "varParam" : "varDocumentTipus",
+    "varParamDesc" : "Variable que conté el tipus de document."
+	},
+  	{
+	"codi": "documentTipusDocumental",
+    "nom" : "Tipus documental del document",
+    "obligatori" : false,
+    "param" : "documentTipusDocumental",
+    "paramDesc" : "Tipus documental del document.",
+    "varParam" : "varDocumentTipusDocumental",
+    "varParamDesc" : "Variable que conté el tipus documental del document."
+	},
+  	{
+	"codi": "documentOrigen",
+    "nom" : "Origen document",
+    "obligatori" : false,
+    "param" : "documentOrigen",
+    "paramDesc" : "Especifica l'origen del document si és de l'administració o del ciutadà.",
+    "varParam" : "varDocumentOrigen",
+    "varParamDesc" : "Variable per especifica l'origen del document si és de l'administració o del ciutadà."
+	},
+  	{
+	"codi": "documentObservacions",
+    "nom" : "Observacions document",
+    "obligatori" : false,
+    "param" : "documentObservacions",
+    "paramDesc" : "Observacions del document.",
+    "varParam" : "varDocumentObservacions",
+    "varParamDesc" : "Variable que conté el text de les observacions del document."
+	},
+  	{
+	"codi": "documentModeFirma",
+    "nom" : "Mode de firma del document",
+    "obligatori" : false,
+    "param" : "documentModeFirma",
+    "paramDesc" : "Mode de firma del document. És un valor numéric.",
+    "varParam" : "varDocumentModeFirma",
+    "varParamDesc" : "Variable que conté el valor del mode de firma del document."
+	},
+  	{
+	"codi": "varNumeroRegistre",
+    "nom" : "Variable on guardar el número de registre",
+    "obligatori" : false,
+    "param" : "varNumeroRegistre",
+    "paramDesc" : "Codi de la variable on guardar el número de registre un cop enregistrada la sortida del document.",
+    "varParam" : null,
+    "varParamDesc" : null
+	},
+  	{
+	"codi": "varDataRegistre",
+    "nom" : "Variable on guardar la data de registre",
+    "obligatori" : false,
+    "param" : "varDataRegistre",
+    "paramDesc" : "Codi de la variable on guardar la data de registre un cop enregistrada la sortida del document.",
+    "varParam" : null,
+    "varParamDesc" : null
+	}
+	],
+  "agrupacio" : "REGISTRE"
+ },
+ 
  {
   "classe" : "net.conselldemallorca.helium.jbpm3.handlers.InteressatCrearHandler",
   "nom" : "Crear interessar",

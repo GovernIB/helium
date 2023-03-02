@@ -507,7 +507,7 @@ function refrescaEstatSegonPla() {
 				</th>
 				<th data-rdt-property="tipus.nom" data-rdt-template="cellTipusTemplate" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.tipus"/>
 					<script id="cellTipusTemplate" type="text/x-jsrender">
-					<span class="expedient_tipus" data-tipus="{{:tipus.tipus}}">{{:tipus.tipus}}
+					<span class="expedient_tipus" data-tipus="{{:tipus.tipus}}">
 						{{:tipus.nom}}
 					</span>
 					</script>				

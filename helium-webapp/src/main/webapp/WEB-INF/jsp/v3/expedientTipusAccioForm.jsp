@@ -37,7 +37,7 @@
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>	
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 </head>
-<body>		
+<body>	
 	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="expedientTipusAccioCommand">
 		<div>        
 			<input type="hidden" name="id" value="${expedientTipusAccioCommand.id}"/>
@@ -109,18 +109,15 @@
    			//<c:if test="${heretat}">
 			webutilDisableInputs($('#expedientTipusAccioCommand'));
 			//</c:if>
-
 			// Canvi del tipus d'acció
 			$('#tipus').change(function(){
 				$('#rowHandler').hide();
 				$('#rowHandlerPredefinit').hide();
 				$('#rowScript').hide();
 				$('#fmapejos').hide();
-				$('#mapejosHandlerPredefinit').empty();
 				webutilDisableInputs('#rowHandler,#rowHandlerPredefinit,#rowScript');
 				switch($(this).val()) {
 					case 'HANDLER':
-						$('#predefinitClasse').val('').change();
 						webutilEnableInputs('#rowHandler');
 						$('#rowHandler').show();
 						//<c:if test="${perEstats}">
@@ -128,14 +125,11 @@
 						//</c:if>
 					break;
 					case 'HANDLER_PREDEFINIT':
-						$('#defprocJbpmKey').val('').change();
 						webutilEnableInputs('#rowHandlerPredefinit');
 						$('#rowHandlerPredefinit').show();
 						$('#fmapejos').show();
 						break;
 					case 'SCRIPT':
-						$('#defprocJbpmKey').val('').change();
-						$('#predefinitClasse').val('').change();
 						webutilEnableInputs('#rowScript');
 						$('#rowScript').show();
 						break;
@@ -147,17 +141,19 @@
 				refrescaAccions();
 			});
 			
+			
+			$('#predefinitClasse').after($("#predefinitClasseDescripcio"));
 			$('#predefinitClasse').change(function() {
 				carregarParametresHandlerPredefinit();
 			}).after($("#predefinitClasseDescripcio"));
 
 			//<c:if test="${perEstats}">
 			$("#rowDefProc").hide();
+			$('#jbpmAction').val('${expedientTipusAccioCommand.jbpmAction}');
 			$('#jbpmAction').change(function() {
 				carregarParametresHandler();
-			}).after($("#predefinitClasseDescripcio"));
+			}).change();
 			//</c:if>
-
 			carregarHandlersPredefinits();			
 		});
 		
@@ -212,12 +208,12 @@
 				group.append($("<option/>", {value: handlersPredefinitsJson[i].classe, text: handlersPredefinitsJson[i].nom}));
 			}
 			$("#predefinitClasse").val('${command.predefinitClasse}').val(valor).change();
-			$('#jbpmAction').val('${expedientTipusAccioCommand.jbpmAction}').change();
 		}
 		
 		// A partir del handler predefinit carrega els paràmetres
 		function carregarParametresHandlerPredefinit() {
 			$('#mapejosHandlerPredefinit').empty();
+
 			$("#predefinitClasseDescripcio").html("")
 			var handlerPredefinit = $("#predefinitClasse").val();
 			if (handlerPredefinit === '') {
@@ -327,12 +323,11 @@
 
 		function carregarParametresHandler() {
 			$('#mapejosHandlerPredefinit').empty();
-			var handler = $("#jbpmAction").val();
-			if (handler === '') {
-				return;
-			}
 			// Troba la informació del handler
 			var jbpmActionActual = $('#jbpmAction').val();
+			if (jbpmActionActual == null || jbpmActionActual == '') {
+				return;
+			}
 			var getUrl = '<c:url value="/v3/expedientTipus/${expedientTipusAccioCommand.expedientTipusId}/accio/params"/>';
 			$.ajax({
 				type: 'GET',
@@ -342,7 +337,7 @@
 				success: function(data) {
 					// Pinta els paràmetres
 					if (data != null && data.length > 0) {
-						for (let i = 0; i < data.length; i++) {
+						for (i = 0; i < data.length; i++) {
 							afegirParametresHandler(data[i].codi);
 						}
 					} else {
@@ -350,7 +345,7 @@
 					}
 				},
 				error: function(e) {
-					console.log("Error obtenint els paràmetres delhandler " + jbpmActionActual + ": " + e);
+					console.log("Error obtenint els paràmetres del handler " + jbpmActionActual + ": " + e);
 				}
 			}).done(function() {
 				// Netejem l'array amb els valors que han arribat del controlador
