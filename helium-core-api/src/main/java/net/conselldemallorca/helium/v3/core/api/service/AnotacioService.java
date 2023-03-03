@@ -143,6 +143,6 @@ public interface AnotacioService {
 	/** Recupera el mapeig de Sistra i l'aplica a l'expedient.
 	 * @throws Exception 
 	 */
-	public void reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId) throws Exception;
+	public void reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId);
 
 }
