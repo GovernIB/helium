@@ -70,9 +70,12 @@ public class ExpedientRegistreV3Controller extends BaseExpedientController {
 
 	/** Vista simplificada per expedients basats en estats. En comptes de veuve el registre per
 	 * procesos es mostra una taula amb els canvis d'estat.
+	 * Si es demana el registre detallat llavors es comprova que l'usuari tingui permís per veure el registre
+	 * o que sigui administrador.
+	 * 
 	 * @param request
 	 * @param expedientId
-	 * @param tipus_retroces
+	 * @param detall
 	 * @param model
 	 * @return
 	 */
@@ -80,15 +83,20 @@ public class ExpedientRegistreV3Controller extends BaseExpedientController {
 	public String estat(
 			HttpServletRequest request, 
 			@PathVariable Long expedientId,
+			@RequestParam(value = "detall", required = false, defaultValue = "false") Boolean detall,			
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);		
 		model.addAttribute(
 				"expedient",
 				expedient);
 		model.addAttribute(
+				"detall",
+				detall);
+		model.addAttribute(
 				"logs",
 				expedientRegistreService.registreFindExpedientCanvisEstat(
-						expedient.getId()));
+						expedient.getId(),
+						detall));
 		return "v3/expedientEstat";
 	}
 

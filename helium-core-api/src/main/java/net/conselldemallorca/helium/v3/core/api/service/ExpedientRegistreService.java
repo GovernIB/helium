@@ -45,12 +45,15 @@ public interface ExpedientRegistreService {
 	 * 
 	 * @param expedientId
 	 *            Atribut id de l'expedient.
+	 * @param detall
+	 *            Indica si retornar a més dels canvis d'estat el detall dels altres logs.
 	 * @return els logs de l'expedient pels canvis d'estat.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat cap expedient amb l'id especificat.
 	 */
 	public List<ExpedientLogDto> registreFindExpedientCanvisEstat(
-			Long expedientId) throws NoTrobatException;
+			Long expedientId,
+			boolean detall) throws NoTrobatException;
 	/**
 	 * Obté les tasques associades als logs de l'expedient.
 	 * 

@@ -47,8 +47,9 @@ public class ExpedientRegistreServiceBean implements ExpedientRegistreService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientLogDto> registreFindExpedientCanvisEstat(
-			Long expedientId) throws NoTrobatException {
-		return delegate.registreFindExpedientCanvisEstat(expedientId);
+			Long expedientId,
+			boolean detall) throws NoTrobatException {
+		return delegate.registreFindExpedientCanvisEstat(expedientId, detall);
 	}
 
 	

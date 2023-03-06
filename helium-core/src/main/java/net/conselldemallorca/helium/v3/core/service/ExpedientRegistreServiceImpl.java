@@ -138,11 +138,12 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<ExpedientLogDto> registreFindExpedientCanvisEstat(
-			Long expedientId) throws NoTrobatException {
+			Long expedientId,
+			boolean detall) throws NoTrobatException {
 		
 		List<ExpedientLogDto> logs = new ArrayList<ExpedientLogDto>();
 		for (ExpedientLog log : expedientLogRepository.findAmbExpedientIdOrdenatsPerData(expedientId)) {
-			if (log.getAccioTipus().equals(ExpedientLogAccioTipus.EXPEDIENT_ESTAT_CANVIAR)) {
+			if (detall || log.getAccioTipus().equals(ExpedientLogAccioTipus.EXPEDIENT_ESTAT_CANVIAR)) {
 				logs.add(conversioTipusHelper.convertir(log, ExpedientLogDto.class));
 			}
 		}

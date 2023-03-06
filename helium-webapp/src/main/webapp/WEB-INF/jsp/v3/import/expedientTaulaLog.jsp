@@ -85,7 +85,7 @@
 					<c:when test="${log.accioTipus == 'EXPEDIENT_ATURAR'}"><spring:message code="expedient.log.info.missatges"/>: ${log.accioParams}</c:when>
 					<c:when test="${log.accioTipus == 'EXPEDIENT_ACCIO'}"><spring:message code="expedient.log.info.accio"/>: ${log.accioParams}</c:when>
 					<c:when test="${log.accioTipus == 'EXPEDIENT_RETROCEDIR' or log.accioTipus == 'EXPEDIENT_RETROCEDIR_TASQUES'}">
-						<a data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/logRetrocedit?id=${expedient.id}&logId=${log.id}"/>" class="icon a-modal-registre"><i class="fa fa-search"></i></a>
+						<a data-rdt-link-modal="true" data-toggle="modal" href="<c:url value="../../v3/expedient/logRetrocedit?id=${expedient.id}&logId=${log.id}"/>" class="icon a-modal-registre"><i class="fa fa-search"></i></a>
 					</c:when>
 					<c:when test="${log.accioTipus == 'ANOTACIO_RELACIONAR'}">
 						${log.accioParams}
