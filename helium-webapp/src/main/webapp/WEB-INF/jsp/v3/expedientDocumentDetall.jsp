@@ -97,13 +97,26 @@
 					<dd>${registre != null ? registre.registreNumero : '--'}</dd>
 				<%-- Data de registre--%>
 					<dt><spring:message code="expedient.info.camp.registre.data"/></dt>
-					<dd>${registre != null ? '<fmt:formatDate value="${registre.registreData}" pattern="dd/MM/yyyy HH:mm"/>' : '--'}</dd>
+					<dd>
+						<c:choose>
+							<c:when test="${registre != null}">
+								<fmt:formatDate value="${registre.registreData}" pattern="dd/MM/yyyy HH:mm"/>
+							</c:when>
+							<c:otherwise>--</c:otherwise>
+						</c:choose>
+					</dd>
 				<%-- Oficina de registre--%>
 					<dt><spring:message code="expedient.info.camp.registre.oficina"/></dt>
 					<dd>${registre != null ? registre.registreOficinaNom : '--'}</dd>
 				<%-- Tipus de registre--%>
 					<dt><spring:message code="expedient.info.camp.registre.tipus"/></dt>
-					<dd>${registre != null ? (registre.registreEntrada ? '<spring:message code="expedient.info.camp.registre.tipus.entrada"/>' : '<spring:message code="expedient.info.camp.registre.tipus.sortida"/>') : '--'}</dd>
+					<dd>
+						<c:choose>
+							<c:when test="${registre.registreEntrada == true }"><spring:message code="expedient.info.camp.registre.tipus.entrada"/></c:when>
+							<c:when test="${registre.registreEntrada == false }"><spring:message code="expedient.info.camp.registre.tipus.sortida"/></c:when>
+							<c:otherwise>--</c:otherwise>
+						</c:choose>
+					</dd>
 			</dl>
 	
 			<hr class="dark horizontal my-0"/>

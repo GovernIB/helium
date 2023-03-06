@@ -360,7 +360,7 @@
 							{{/if}}
 							<%--Registrat  --%>
 							{{if registrat}}
-								<li><a href="${expedient.id}/document/{{:id}}/registre/verificar" data-toggle="modal"><span class="fa fa-book fa-fw" data-refrescar="false"></span>&nbsp;<spring:message code="expedient.document.registrat.detalls"/></a></li>
+								<li><a href="${expedient.id}/proces/${expedient.processInstanceId}/document/{{:id}}/registre/verificar" data-toggle="modal"><span class="fa fa-book fa-fw" data-refrescar="false"></span>&nbsp;<spring:message code="expedient.document.registrat.detalls"/></a></li>
 							{{/if}}
 							<%--Portafirmes--%>
 							{{if psPendent}}
