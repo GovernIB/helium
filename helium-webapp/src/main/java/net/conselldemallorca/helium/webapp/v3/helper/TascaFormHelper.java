@@ -262,7 +262,9 @@ public class TascaFormHelper {
 		if (expedientDadaDto.getRegistreDades() != null) {
 			List<TascaDadaDto> registreDades = new ArrayList<TascaDadaDto>();
 			for (ExpedientDadaDto dto: expedientDadaDto.getRegistreDades()) {
-				registreDades.add(getTascaDadaDtoFromExpedientDadaDto(dto));
+				TascaDadaDto tascaDada = getTascaDadaDtoFromExpedientDadaDto(dto);
+				tascaDada.setCampMultiple(false);
+				registreDades.add(tascaDada);
 			}
 			tascaDto.setRegistreDades(registreDades);
 		}

@@ -1436,15 +1436,18 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 					null,
 					false,
 					true);
-			List<ArxiuDetallDto> versions;
+			DocumentMetadades metadades = arxiuDocument.getMetadades();
+			Map<String,Object> metadadesAdicionals = metadades!=null ? metadades.getMetadadesAddicionals() : null;
+			if(metadadesAdicionals!=null) {
+				arxiuDetall.setExpedientTancat(metadadesAdicionals.get("eni:fecha_fin_exp")!=null ? true : false);
+			}
+			List<ArxiuDetallDto> versions =  new ArrayList<ArxiuDetallDto>();
 			try {
-				versions = pluginHelper.versions(documentStore.getArxiuUuid());
-			} catch(Exception e) {
-				versions = new ArrayList<ArxiuDetallDto>();
+				versions = pluginHelper.versions(documentStore.getArxiuUuid(), arxiuDetall.isExpedientTancat());
+			} catch (Exception e) {
+				logger.error("Error obtenint les versions del document amb uuid: " + documentStore.getArxiuUuid(), e);
 			}
-			if(versions != null) {
-				arxiuDetall.setVersionsDocument(versions);
-			}
+			
 			documentHelper.actualitzarNtiFirma(documentStore, arxiuDocument);
 			arxiuDetall.setIdentificador(arxiuDocument.getIdentificador());
 			arxiuDetall.setNom(arxiuDocument.getNom());
@@ -1459,7 +1462,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				}
 			}
 			List<Firma> firmes = arxiuDocument.getFirmes();
-			DocumentMetadades metadades = arxiuDocument.getMetadades();
+			//DocumentMetadades metadades = arxiuDocument.getMetadades();
 			if (metadades != null) {
 				arxiuDetall.setEniVersio(metadades.getVersioNti());
 				arxiuDetall.setEniIdentificador(metadades.getIdentificador());

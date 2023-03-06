@@ -384,11 +384,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 						expedientTipusId + " perquè no s'ha pogut recuperar la informació associada.");
 
 		if(reprocessar && expedientTipus.isDistribucioSistra()) {
-			try {
-				reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
-			} catch (Exception e) {
-				
-			}
+			reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
 		}
 		anotacio.setExpedientTipus(expedientTipus);
 		anotacio.setExpedient(expedient);
@@ -1001,7 +997,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	
 	@Override
 	@Transactional
-	public void reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId) throws Exception {
+	public void reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId) {
 		logger.debug(
 				"Reprocessant el mapeig de l'anotació de l'expedient ( " +
 				"anotacioId=" + anotacioId + ", " +

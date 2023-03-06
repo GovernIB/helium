@@ -45,21 +45,13 @@
 			<c:if test="${dada.campTipus == 'DATE'}">
 				<div class="input-group">
 					<c:choose>
-						<c:when test='${dada.campMultiple or isMultiple}'>
-							
-							<input type="text" id="${campCodi}" name="${campNom}" class="form-control date" placeholder="dd/mm/aaaa" data-required="${dada.required}" value="${formattedDate}"/>
+						<c:when test='${(dada.campMultiple or isMultiple)}'>
+								<fmt:formatDate value="${command[campNom][campIndex]}" var="formattedDate" type="date" pattern="dd/MM/yyyy" />
+								<input type="text" id="${campCodi}" name="${campNom}" class="form-control date" placeholder="dd/mm/aaaa" data-required="${dada.required}" value="${formattedDate}"/>
 						</c:when>
 						<c:otherwise>
-							<c:choose>
-								<c:when test='${command[campNom]["class"].name == "java.util.Date"}' >
-								<fmt:formatDate value="${command[campNom]}" var="formattedDate" type="date" pattern="dd/MM/yyyy" />
-								<input type="text" id="${campCodi}" name="${campNom}" class="form-control date" placeholder="dd/mm/aaaa" data-required="${dada.required}" value="${formattedDate}"/>
-								</c:when>
-								<c:otherwise>
 								<c:set var="formattedDate" value="${command[campNom]}"/>
 								<form:input path="${campCodi}" id="${campCodi}" cssClass="date form-control" placeholder="dd/mm/aaaa" data-required="${dada.required}"/>
-								</c:otherwise>
-							</c:choose>
 						</c:otherwise>
 					</c:choose>
 					<span class="input-group-addon btn_date"><span class="fa fa-calendar"></span></span>

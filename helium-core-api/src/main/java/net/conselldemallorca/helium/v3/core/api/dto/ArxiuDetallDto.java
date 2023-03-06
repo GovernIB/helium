@@ -33,6 +33,7 @@ public class ArxiuDetallDto extends ArxiuContingutDto {
 	private String eniCsv;
 	private String eniCsvDef;
 	private List<ArxiuDetallDto> versionsDocument;
+	private boolean expedientTancat;
 
 	private Map<String, Object> metadadesAddicionals;
 
@@ -189,6 +190,13 @@ public class ArxiuDetallDto extends ArxiuContingutDto {
 	}
 	public void setVersionsDocument(List<ArxiuDetallDto> versionsDocument) {
 		this.versionsDocument = versionsDocument;
+	}
+
+	public boolean isExpedientTancat() {
+		return expedientTancat;
+	}
+	public void setExpedientTancat(boolean expedientTancat) {
+		this.expedientTancat = expedientTancat;
 	}
 
 

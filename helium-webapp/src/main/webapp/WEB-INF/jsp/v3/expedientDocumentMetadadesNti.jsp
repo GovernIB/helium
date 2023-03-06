@@ -92,7 +92,7 @@
 				<td><strong><spring:message code="document.metadades.nti.nombre.formato"/></strong></td>
 				<td>
 					<c:if test="${not empty expedientDocument.ntiNombreFormato}">
-						<spring:message code="nti.document.format.${expedientDocument.ntiNombreFormato}"/>
+						<spring:message code="nti.document.format.${expedientDocument.ntiNombreFormato}" text="${expedientDocument.ntiNombreFormato}"/>
 					</c:if>
 				</td>
 			</tr>
@@ -300,8 +300,14 @@
 								<tr>
 									<td><strong><spring:message code="expedient.metadades.nti.camp.eni.versions"/></strong></td>
 									<td>
+										<c:if test="${arxiuDetall.expedientTancat }">
+											<div class="alert alert-warning">
+												<span class="fa fa-warning"></span>
+												<spring:message code="document.metadades.nti.darrera.versio"/>
+											</div>
+										</c:if>
 										<c:forEach var="versio" items="${arxiuDetall.versionsDocument}" varStatus="status">
-											<a href="<c:url value="/v3/expedient/${expedientId}/proces/${expedientDocument.processInstanceId}/document/${expedientDocument.id}/descarregar/versio/${versio.eniVersio}/"/>">		
+											<a href="<c:url value="/v3/expedient/${expedientId}/proces/${expedientDocument.processInstanceId}/document/${expedientDocument.id}/descarregar/versio/${versio.eniVersio}/${arxiuDetall.expedientTancat}"/>">		
 											    <span class="fa fa-file no-doc" title="Descarregar document"></span>
 												<strong class="nom_document">
 													v.${versio.eniVersio}

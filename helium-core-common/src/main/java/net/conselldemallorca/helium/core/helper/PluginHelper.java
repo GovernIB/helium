@@ -53,6 +53,7 @@ import es.caib.plugins.arxiu.api.Firma;
 import es.caib.plugins.arxiu.api.FirmaPerfil;
 import es.caib.plugins.arxiu.api.FirmaTipus;
 import es.caib.plugins.arxiu.api.IArxiuPlugin;
+import es.caib.plugins.arxiu.caib.ArxiuCaibException;
 import net.conselldemallorca.helium.core.helper.PortasignaturesHelper.PortasignaturesRollback;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
@@ -2642,14 +2643,22 @@ public class PluginHelper {
 		}
 	}
 	
-	public List<ArxiuDetallDto> versions(String arxiuUuid){
+	public List<ArxiuDetallDto> versions(String arxiuUuid, boolean expedientTancat){
 		List<ArxiuDetallDto> versionsDocument = new ArrayList<ArxiuDetallDto>();
 		List<ContingutArxiu> contingutArxiusVersions = getArxiuPlugin().documentVersions(arxiuUuid);
+		es.caib.plugins.arxiu.api.Document documentInfo = null;
 		for(ContingutArxiu contingutArxiuVersio: contingutArxiusVersions) {
-			es.caib.plugins.arxiu.api.Document documentInfo = this.arxiuDocumentInfo(arxiuUuid, 
+			if(!expedientTancat) {
+				documentInfo = this.arxiuDocumentInfo(arxiuUuid, 
 					contingutArxiuVersio.getVersio(), 
 					true, 
 					true);
+			} else {
+				documentInfo = this.arxiuDocumentInfo(arxiuUuid, 
+						null, //si l'expedient està tancat no retornarà versions, li hem de passar null
+						true, 
+						true);
+			}
 			ArxiuDetallDto arxiuDetallDto= new ArxiuDetallDto();
 			arxiuDetallDto.setNom(documentInfo.getNom());			
 			arxiuDetallDto.setEniVersio(documentInfo.getVersio());
@@ -2719,6 +2728,10 @@ public class PluginHelper {
 			return documentDetalls;
 		} catch (Exception ex) {
 			String errorDescripcio = "No s'ha pogut consultar la informació del document: " + ex.getMessage();
+			if(ex instanceof ArxiuCaibException && "COD_021".equals(((ArxiuCaibException)ex).getArxiuCodi())) {
+				//aquest error indica que està tancat a l'arxiu i no es poden descarregar versions anteriors
+				errorDescripcio = "No s'ha pogut consultar les versions anteriors del document: " + ex.getMessage();
+			}
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_ARXIU,
 					accioDescripcio,
