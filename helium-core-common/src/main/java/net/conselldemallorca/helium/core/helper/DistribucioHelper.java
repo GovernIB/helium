@@ -609,7 +609,7 @@ public class DistribucioHelper {
 	 */
 	@Transactional
 	public void encuarAnotacio(es.caib.distribucio.rest.client.domini.AnotacioRegistreId idWs) {
-		
+		//MARTA aquí s'encua l'anotació!
 		Date data = new Date();
 		Anotacio anotacioEntity = Anotacio.getBuilder(
 						idWs.getIndetificador(), 
@@ -720,6 +720,14 @@ public class DistribucioHelper {
 				String errMsg = "Error comunicant l'estat de processada a Distribucio:" + e.getMessage();
 				logger.warn(errMsg, e);				
 			}
+		} else if (expedientTipus==null){
+
+			this.rebutjar(
+					anotacio,
+					"No hi ha cap tipus d'expedient per processar anotacions amb codi de procediment " + anotacio.getProcedimentCodi() + 
+					" i assumpte " + anotacio.getAssumpteCodiCodi() +", es rebutja automàticament amb data " + new Date() +
+					". Petició rebutjada a Helium. L'anotació no es correspon amb cap Tipus d'expedient.");				
+		
 		} else {
 			
 			try {
@@ -733,6 +741,29 @@ public class DistribucioHelper {
 			}			
 		}
 		logger.info("Rebuda correctament la petició d'anotació de registre amb id de Distribucio =" + idWs);
+	}
+	
+	public void rebutjar(Anotacio anotacio, String observacions ) {
+		// Canvia l'estat del registre a la BBDD
+				anotacio.setEstat(AnotacioEstatEnumDto.REBUTJADA);
+				anotacio.setRebuigMotiu(observacions);
+				anotacio.setDataProcessament(new Date());
+				
+				// Notifica el nou estat a Distribucio
+				try {
+					AnotacioRegistreId anotacioRegistreId = new AnotacioRegistreId();
+					anotacioRegistreId.setClauAcces(anotacio.getDistribucioClauAcces());
+					anotacioRegistreId.setIndetificador(anotacio.getDistribucioId());
+
+					this.canviEstat(
+							anotacioRegistreId,
+							Estat.REBUTJADA,
+							observacions);
+					
+				} catch (Exception e) {
+					String errMsg = "Error comunicant l'estat de rebutjada a Distribucio:" + e.getMessage();
+					logger.warn(errMsg, e);
+				}
 	}
 	
 	/** Mètode per tornar a consultar i processar una anotació que estigui en estat d'error de processament.

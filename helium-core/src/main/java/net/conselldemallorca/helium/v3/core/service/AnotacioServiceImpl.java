@@ -290,26 +290,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		if (! AnotacioEstatEnumDto.PENDENT.equals(anotacio.getEstat())) {
 			throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot rebutjar perquè està en estat " + anotacio.getEstat());
 		}
-
-		// Canvia l'estat del registre a la BBDD
-		anotacio.setEstat(AnotacioEstatEnumDto.REBUTJADA);
-		anotacio.setRebuigMotiu(observacions);
-		anotacio.setDataProcessament(new Date());
-		
-		// Notifica el nou estat a Distribucio
-		try {
-			AnotacioRegistreId anotacioRegistreId = new AnotacioRegistreId();
-			anotacioRegistreId.setClauAcces(anotacio.getDistribucioClauAcces());
-			anotacioRegistreId.setIndetificador(anotacio.getDistribucioId());
-
-			distribucioHelper.canviEstat(
-					anotacioRegistreId,
-					Estat.REBUTJADA,
-					observacions);
-		} catch (Exception e) {
-			String errMsg = "Error comunicant l'estat de rebutjada a Distribucio:" + e.getMessage();
-			logger.warn(errMsg, e);
-		}
+		distribucioHelper.rebutjar(anotacio, observacions);
+	
 	}
 
 	/**
