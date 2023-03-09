@@ -122,12 +122,14 @@
 						$('#rowHandler').show();
 						//<c:if test="${perEstats}">
 						$('#fmapejos').show();
+						$('#jbpmAction').change();
 						//</c:if>
 					break;
 					case 'HANDLER_PREDEFINIT':
 						webutilEnableInputs('#rowHandlerPredefinit');
 						$('#rowHandlerPredefinit').show();
 						$('#fmapejos').show();
+						$('#predefinitClasse').change();
 						break;
 					case 'SCRIPT':
 						webutilEnableInputs('#rowScript');

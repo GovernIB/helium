@@ -447,7 +447,18 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			expedientService.estatCanviar(expedient.getId(), estatId);
 			MissatgesHelper.success(request, getMessage(request, "expedient.info.estat.canviar.correcte"));
 		} catch (Exception ex) {
-			String errMsg = getMessage(request, "expedient.info.estat.canviar.error", new Object[] {ex.getMessage()});
+			StringBuilder message = new StringBuilder(ex.getClass().getSimpleName() + ": ");
+			Throwable t = ex;
+			boolean root;
+			do {
+				message.append(t.getMessage());
+				t = t.getCause();
+				root = t == null || t == t.getCause();
+				if (!root) {
+					message.append(": ");
+				}
+			} while (!root);
+			String errMsg = getMessage(request, "expedient.info.estat.canviar.error", new Object[] {message.toString()});
 			logger.error(errMsg, ex);
 			MissatgesHelper.error(request, errMsg);
 		}

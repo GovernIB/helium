@@ -373,7 +373,7 @@
 								
 								
 									<dt><spring:message code="document.metadades.nti.nombre.formato"/></dt>
-									<dd><c:choose><c:when test="${not empty ntiDetall.ntiNombreFormato}"><spring:message code="nti.document.format.${ntiDetall.ntiNombreFormato}"/></c:when><c:otherwise>--</c:otherwise></c:choose></dd>
+									<dd><c:choose><c:when test="${not empty ntiDetall.ntiNombreFormato}"><spring:message code="nti.document.format.${ntiDetall.ntiNombreFormato}" text="${ntiDetall.ntiNombreFormato}"/></c:when><c:otherwise>--</c:otherwise></c:choose></dd>
 								
 								
 									<dt><spring:message code="document.metadades.nti.tipo.documental"/></dt>
