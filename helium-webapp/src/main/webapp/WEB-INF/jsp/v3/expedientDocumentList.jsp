@@ -159,6 +159,7 @@
 	.nodoc-icon {margin-right: 12px;}
 	.adjuntIcon {top:-10px; left:-7px;}
 	.extensionIcon {color: white; position: relative; left: -26px; top: 5px; font-size: 9px; font-weight: bold; margin-right: -12px;}
+	.obligatori {background-position: right 4px !important; padding-right: 10px !important;}
 	.doc-error {color: indianred;}
 	.doc-error-icon {top: 3px;}
 	.label-doc {float: right; line-height: 16px; margin-right: 3px;}
@@ -176,7 +177,7 @@
 		  data-ajax-request-type="POST"
 		  data-paging-enabled="false"
 		  data-ordering="true"
-		  data-default-order="24"
+		  data-default-order="25"
 		  data-info-type="button"
 		  data-rowcolid-nullclass="no-data"
 		  data-selection-enabled="true"
@@ -210,12 +211,13 @@
 		<th data-col-name="anotacioIdf" data-visible="false"/>
 		<th data-col-name="extensio" data-visible="false"/>
 		<th data-col-name="editable" data-visible="false"/>
+		<th data-col-name="obligatori" data-visible="false"/>
 		<th data-col-name="nom" data-orderable="true" width="54%" data-template="#cellNomTemplate">
 			<spring:message code="expedient.tipus.document.llistat.columna.nom"/>
 			<script id="cellNomTemplate" type="text/x-jsrender">
 				{{if id == null}}
 					<span class="fa fa-2x fa-file-o nodoc-icon"></span>
-					{{:nom}}
+					<span {{if obligatori}}class="obligatori"{{/if}}>{{:nom}}</span>
 				{{else error}}
 					<span class="fa-stack fa-1x no-doc" title="{{:docError}}">
 						<span class="fa fa-file fa-stack-2x doc-error"></span>
@@ -229,7 +231,7 @@
 						</span>
 						<span class="extensionIcon">{{:extensio}}</span>
 					</a>
-					{{:nom}}
+					<span {{if obligatori}}class="obligatori"{{/if}}>{{:nom}}</span>
 					<%--NTI/Arxiu--%>
 					{{if ntiActiu}}
 						<a href="${expedient.id}/proces/${expedient.processInstanceId}/document/{{:id}}/metadadesNti" data-toggle="modal">
