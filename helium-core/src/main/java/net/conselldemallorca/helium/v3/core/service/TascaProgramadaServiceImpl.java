@@ -7,6 +7,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
@@ -44,6 +47,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Notificacio;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentEnviamentEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.SemaphoreDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
@@ -327,6 +331,106 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	}
 	/**************************/
 	
+	
+	/** Classe runable per guardar un annex a l'Arxiu en un thread independent.
+	 * 
+	 */
+	public class GuardarAnotacioPendentThread implements Runnable {
+
+		private Anotacio anotacio;	
+	    private Long anotacioId;
+	    private AnotacioRegistreId idWs;
+	    private int maxReintents;
+	    private int consultaIntents;
+	    private String consultaError ;
+	    private Date consultaData;
+		
+		/** Constructor amb els objectes de consulta i el zip per actualitzar. 
+		 * @param idWs 
+		 * @param maxReintents 
+		 * @param registreHelper 
+		 * @param errors 
+		 * @param errors */
+		public GuardarAnotacioPendentThread(
+				Anotacio anotacio,
+				Long anotacioId,
+				AnotacioRegistreId idWs,
+				int maxReintents,
+				int consultaIntents,
+				String consultaError,
+				Date consultaData) {
+			this.anotacio = anotacio;
+			this.anotacioId = anotacioId;
+			this.idWs = idWs;
+			this.maxReintents = maxReintents;
+			this.consultaIntents = consultaIntents;
+			this.consultaError = consultaError;
+			this.consultaData = consultaData;
+		}
+
+		@Override
+		public void run() {
+			// Consulta la anotació a Distribucio
+				AnotacioRegistreEntrada anotacioRegistreEntrada = null;
+				
+					try {
+						anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
+					} catch(Exception e) {
+						consultaError  = "Error consultant l'anotació " + idWs.getIndetificador() + " i clau " + idWs.getClauAcces() + ". Intent " + anotacio.getConsultaIntents() + " de " + maxReintents + ": " + e.getMessage();
+						logger.error(consultaError, e);
+							
+						if (consultaIntents >= maxReintents) {
+							// Comunica l'error a Distribucio
+							try {
+								distribucioHelper.canviEstat(
+										idWs, 
+										es.caib.distribucio.rest.client.domini.Estat.ERROR,
+										"Error consultant l'anotació amb id " + idWs.getIndetificador() + " després de " + consultaIntents + " intents: " + e.getMessage());
+							} catch(Exception ed) {
+								logger.error("Error comunicant l'error de consulta a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
+							}
+						}
+					}			
+				distribucioHelper.updateConsulta(anotacioId, consultaIntents, consultaError, consultaData);
+//				if (anotacioRegistreEntrada == null || consultaError != null) {
+//					// Continua amb la següent anotació.
+//					continue;
+//				}
+				
+				// Actualitza la informació de l'anotació amb les dades consultades i la posa en estat pendent.
+				
+				logger.debug("Anotació " + idWs.getIndetificador() + " consultada correctament. Actualitzant la informació i estat a PENDENT.");
+				
+				if (anotacioRegistreEntrada != null ) {
+					anotacio = distribucioHelper.updateAnotacio(anotacio.getId(), anotacioRegistreEntrada);
+	
+					// Processa i comunica l'estat de processada 
+					try {
+						logger.debug("Processant l'anotació " + idWs.getIndetificador() + ".");
+						distribucioHelper.processarAnotacio(idWs, anotacioRegistreEntrada, anotacio);
+					} catch (Exception e) {
+						String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e.getMessage();
+						logger.error(errorProcessament, e);
+						anotacio = distribucioHelper.updateErrorProcessament(anotacioId, errorProcessament);
+	
+						// Es comunica l'estat a Distribucio
+						try {
+							distribucioHelper.canviEstat(
+									idWs, 
+									es.caib.distribucio.rest.client.domini.Estat.ERROR,
+									"Error processant l'anotació amb id " + idWs.getIndetificador() + ": " + e.getMessage());
+						} catch(Exception ed) {
+							logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
+						}
+					}
+				}
+						
+		}
+		
+	}
+	
+	
+	
 	/** Tasca programada per comprovar les anotacions pendents de consultar periòdicament 
 	 * a DISTRIBUCIO. Entre comrpovació i comprovació hi ha un període de 10 segons. 
 	 * Les anotacions es consultaran fins a un màxim de n reintents definits per la 
@@ -337,14 +441,15 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	@Scheduled(fixedDelayString = "10000")
 	public void comprovarAnotacionsPendents() {
 		
-		int maxReintents = this.getConsultaAnotacioMaxReintents();
+		int maxReintents = 50; //this.getConsultaAnotacioMaxReintents();
 		
 		// comprovar anotacions pendents de consultar i processar
 		int maxAnotacions = 100;
 		AnotacioRegistreId idWs;
-		List<Anotacio> anotacionsPendentsConsultar = distribucioHelper.findPendentConsultar(maxReintents, maxAnotacions);
-
-		// Posa una autenticació per defecte per l'usuari del registre
+		
+		
+//		int maxResultats = 200;
+		int maxThreadsParallel = 4;//MARTA mirar si ho poso per propietat!  registreHelper.getMaxThreadsParallelProperty();
 		Authentication orgAuthentication = SecurityContextHolder.getContext().getAuthentication();
 		List<GrantedAuthority> rols = new ArrayList<GrantedAuthority>();
 		rols.add(new SimpleGrantedAuthority("tothom"));
@@ -354,77 +459,53 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 				rols);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		
-		// Tracta cada anotació per separat
-		for (Anotacio anotacio: anotacionsPendentsConsultar) {
+		
+		List<Anotacio> anotacionsPendentsConsultar;
+
+		// Consulta sincronitzada amb l'arribada d'anotacions per evitar problemes de sincronisme
+		synchronized (SemaphoreDto.getSemaphore()) {
+			anotacionsPendentsConsultar = distribucioHelper.findPendentConsultar(maxReintents, maxAnotacions);
+		}
+		if (anotacionsPendentsConsultar != null && !anotacionsPendentsConsultar.isEmpty()) {
 			
-			long anotacioId = anotacio.getId();
-			int consultaIntents = anotacio.getConsultaIntents() + 1;
+			
+//			logger.debug("Consultant l'anotació " + idWs.getIndetificador() + " i clau " + idWs.getClauAcces() + ". Intent " + anotacio.getConsultaIntents() + " de " + maxReintents);
+
 			String consultaError = null;
 			Date consultaData = new Date();
+			long startTime = new Date().getTime();
+			ExecutorService executor = Executors.newFixedThreadPool(maxThreadsParallel);
 			
-			idWs = new AnotacioRegistreId();
-			idWs.setIndetificador(anotacio.getIdentificador());
-			idWs.setClauAcces(anotacio.getDistribucioClauAcces());
-			
-			logger.debug("Consultant l'anotació " + idWs.getIndetificador() + " i clau " + idWs.getClauAcces() + ". Intent " + anotacio.getConsultaIntents() + " de " + maxReintents);
-
-			// Consulta la anotació a Distribucio
-			AnotacioRegistreEntrada anotacioRegistreEntrada = null;
-			try {
-				anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
-			} catch(Exception e) {
-				consultaError = "Error consultant l'anotació " + idWs.getIndetificador() + " i clau " + idWs.getClauAcces() + ". Intent " + anotacio.getConsultaIntents() + " de " + maxReintents + ": " + e.getMessage();
-				logger.error(consultaError, e);
-				
-				if (consultaIntents >= maxReintents) {
-					// Comunica l'error a Distribucio
-					try {
-						distribucioHelper.canviEstat(
-								idWs, 
-								es.caib.distribucio.rest.client.domini.Estat.ERROR,
-								"Error consultant l'anotació amb id " + idWs.getIndetificador() + " després de " + consultaIntents + " intents: " + e.getMessage());
-					} catch(Exception ed) {
-						logger.error("Error comunicant l'error de consulta a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
-					}
-				}
-			}			
-			distribucioHelper.updateConsulta(anotacioId, consultaIntents, consultaError, consultaData);
-			
-			if (anotacioRegistreEntrada == null || consultaError != null) {
-				// Continua amb la següent anotació.
-				continue;
+			for (Anotacio anotacioPendent : anotacionsPendentsConsultar) {
+				idWs = new AnotacioRegistreId();
+				idWs.setIndetificador(anotacioPendent.getIdentificador());
+				idWs.setClauAcces(anotacioPendent.getDistribucioClauAcces());
+				int consultaIntents = anotacioPendent.getConsultaIntents() + 1;
+				Runnable thread =
+						new GuardarAnotacioPendentThread(
+								anotacioPendent,
+								anotacioPendent.getId(),
+								idWs,
+								maxReintents,
+								consultaIntents,
+								consultaError,
+								consultaData);
+				executor.execute(thread);
 			}
 			
-			// Actualitza la informació de l'anotació amb les dades consultades i la posa en estat pendent.
-			logger.debug("Anotació " + idWs.getIndetificador() + " consultada correctament. Actualitzant la informació i estat a PENDENT.");
-			anotacio = distribucioHelper.updateAnotacio(anotacio.getId(), anotacioRegistreEntrada);
-
-			// Processa i comunica l'estat de processada 
-			try {
-				logger.debug("Processant l'anotació " + idWs.getIndetificador() + ".");
-				distribucioHelper.processarAnotacio(idWs, anotacioRegistreEntrada, anotacio);
-			} catch (Exception e) {
-				String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e.getMessage();
-				logger.error(errorProcessament, e);
-				anotacio = distribucioHelper.updateErrorProcessament(anotacioId, errorProcessament);
-
-				// Es comunica l'estat a Distribucio
-				try {
-					distribucioHelper.canviEstat(
-							idWs, 
-							es.caib.distribucio.rest.client.domini.Estat.ERROR,
-							"Error processant l'anotació amb id " + idWs.getIndetificador() + ": " + e.getMessage());
-				} catch(Exception ed) {
-					logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
-				}
-			}
-
-		}
-		// Restableix l'autenticació inicial del thread
-		SecurityContextHolder.getContext().setAuthentication(orgAuthentication);
+	        executor.shutdown();
+	        while (!executor.isTerminated()) {
+	        	try {
+	        		executor.awaitTermination(100, TimeUnit.MILLISECONDS);
+	        	} catch (InterruptedException e) {}
+	        }
+	        long stopTime = new Date().getTime();
+			logger.trace("Finished processing annotacions with " + maxThreadsParallel + " threads. " + anotacionsPendentsConsultar.size() + " annotacions processed in " + (stopTime - startTime) + "ms");
+			
+		}				
 	}
-
 	
+
 	
 	private int getConsultaAnotacioMaxReintents() {
 		int maxReintents = 5;
