@@ -215,8 +215,18 @@
 	</table>
 	<script id="rowhrefTemplate" type="text/x-jsrender"><c:url value="/v3/anotacio/{{:id}}"/></script>	
 	
-	<script id="tableButtonsAccionsTemplate" type="text/x-jsrender">
-		<div class="botons-titol text-right">	
+	<script id="tableButtonsAccionsTemplate" type="text/x-jsrender">	
+		<div class="botons-titol text-right">
+			<b><spring:message code="anotacio.llistat.numero.threads.consultats"/></b>
+			<c:choose>
+				<c:when test="${!empty globalProperties['app.anotacions.consulta.num.threads']}">
+					${globalProperties['app.anotacions.consulta.num.threads']}
+				</c:when>
+				<c:otherwise>
+					5
+				</c:otherwise>
+			</c:choose>	
+			<span ></span>&nbsp;
 			<a id="exportar_excel" href="<c:url value="../../../helium/v3/anotacio/excel"/>" class="btn btn-default">
 				<span class="fa fa-download"></span>&nbsp;<spring:message code="comuns.descarregar"/>
 			</a>
