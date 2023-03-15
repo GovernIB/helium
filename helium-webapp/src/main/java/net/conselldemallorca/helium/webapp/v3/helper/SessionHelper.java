@@ -34,6 +34,7 @@ public class SessionHelper {
 	public static final String VARIABLE_PERMIS_ENTORN_DESIGN = "potDissenyarEntorn";
 	public static final String VARIABLE_PERMIS_ENTORN_ADMIN = "potAdministrarEntorn";
 	public static final String VARIABLE_PERMIS_ANOTACIONS_PROCESSAR = "potProcessarAnotacions";
+	public static final String VARIABLE_PERMIS_AVISOS_DISSENY = "potDissenyarAvisos";
 	public static final String VARIABLE_PERMIS_SCRIPTS_EXECUTAR = "potExecutarScripts";
 	public static final String VARIABLE_HIHA_TRAMITS_INICIABLES = "hiHaTramitsPerIniciar";
 
@@ -139,6 +140,19 @@ public class SessionHelper {
 					VARIABLE_PERMIS_EXPTIP_DISSENY,
 					potDissenyarExpedientTipus);
 		}
+		
+		public Boolean getPotDissenyarAvisos() {
+			return (Boolean)getAttribute(
+					request,
+					VARIABLE_PERMIS_AVISOS_DISSENY);
+		}
+		public void setPotDissenyarAvisos(Boolean potDissenyarAvisos) {
+			setAttribute(
+					request,
+					VARIABLE_PERMIS_AVISOS_DISSENY,
+					potDissenyarAvisos);
+		}
+		
 		public Boolean getPotProcessarAnotacions() {
 			return (Boolean)getAttribute(
 					request,

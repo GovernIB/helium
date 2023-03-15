@@ -66,6 +66,7 @@ public class PaginacioHelper {
 		return toSpringDataPageable(dto, null);
 	}
 
+	
 	public <T> PaginaDto<T> toPaginaDto(
 			Page<?> page,
 			Class<T> targetType) {
@@ -86,6 +87,28 @@ public class PaginacioHelper {
 		}
 		return dto;
 	}
+	
+	public <T> PaginaDto<T> toPaginaDto(
+			List<?> llista,
+			Class<T> targetType) {
+		PaginaDto<T> dto = new PaginaDto<T>();
+		dto.setNumero(0);
+		dto.setTamany(llista.size());
+		dto.setTotal(1);
+		dto.setElementsTotal(llista.size());
+		dto.setAnteriors(false);
+		dto.setPrimera(true);
+		dto.setPosteriors(false);
+		dto.setDarrera(true);
+		if (targetType != null) {
+			dto.setContingut(
+					conversioTipusHelper.convertirList(
+							llista,
+							targetType));
+		}
+		return dto;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public <T> PaginaDto<T> toPaginaDto(Page<?> page) {
 		PaginaDto<T> dto = new PaginaDto<T>();
@@ -169,6 +192,45 @@ public class PaginacioHelper {
 							targetType));
 		}
 		return dto;
+	}
+	public <T> Sort toSpringDataSort(
+			PaginacioParamsDto dto) {
+		return toSpringDataSort(dto.getOrdres(), null);
+	}
+	public Sort toSpringDataSort(
+			List<OrdreDto> ordres,
+			Map<String, String[]> mapeigPropietatsOrdenacio) {
+		List<Order> orders = new ArrayList<Order>();
+		if (ordres != null) {
+			for (OrdreDto ordre: ordres) {
+				Direction direccio = OrdreDireccioDto.DESCENDENT.equals(ordre.getDireccio()) ? Sort.Direction.DESC : Sort.Direction.ASC;
+				if (mapeigPropietatsOrdenacio != null) {
+					String[] mapeig = mapeigPropietatsOrdenacio.get(ordre.getCamp());
+					if (mapeig != null) {
+						for (String prop: mapeig) {
+							orders.add(new Order(
+									direccio,
+									prop));
+						}
+					} else {
+						orders.add(new Order(
+								direccio,
+								ordre.getCamp()));
+					}
+				} else {
+					orders.add(new Order(
+							direccio,
+							ordre.getCamp()));
+				}
+			}
+		}
+		if (!orders.isEmpty())
+			return new Sort(orders);
+		else
+			return null;
+	}
+	public boolean esPaginacioActivada(PaginacioParamsDto dto) {
+		return dto.getPaginaTamany() > 0;
 	}
 
 	public interface Converter<S, T> {

@@ -14,7 +14,12 @@
 
 
 <%--pageContext.setAttribute("requestContext", new org.springframework.web.servlet.support.RequestContext(request));--%>
+<% pageContext.setAttribute("avisos",net.conselldemallorca.helium.webapp.v3.helper.AvisHelper.getAvisos(request));
 
+pageContext.setAttribute(
+			"avisos",
+			net.conselldemallorca.helium.webapp.v3.helper.AvisHelper.getAvisos(request));
+%>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -124,6 +129,7 @@
 <body>
 	<div id="main">
 		<div id="header">
+		
 			<c:if test="${not empty versioError}">
 				<div id="error" style="background-color: red; padding:5px 10px 5px 24px;">
 					<span style="text-decoration: blink; color: white; font-weight: bold;">${versioError}</span> 
@@ -171,6 +177,23 @@
 			</div>
 		</div>
 		<div id="content">
+		<c:if test="${not empty avisos}">
+			<div id="accordion">
+				<c:forEach var="avis" items="${avisos}" varStatus="status">
+						<div class="card avisCard ${avis.avisNivell == 'INFO' ? 'avisCardInfo':''} ${avis.avisNivell == 'WARNING' ? 'avisCardWarning':''} ${avis.avisNivell == 'ERROR' ? 'avisCardError':''}">
+	
+							<div data-toggle="collapse" data-target="#collapse${status.index}" class="card-header avisCardHeader">
+								${avis.avisNivell == 'INFO' ? '<span class="fa fa-info-circle text-info"></span>':''} ${avis.avisNivell == 'WARNING' ? '<span class="fa fa-exclamation-triangle text-warning"></span>':''} ${avis.avisNivell == 'ERROR' ? '<span class="fa fa-warning text-danger"></span>':''} ${avis.assumpte}
+							<button class="btn btn-default btn-xs pull-right"><span class="fa fa-chevron-down "></span></button>										
+							</div>
+	
+							<div id="collapse${status.index}" class="collapse" data-parent="#accordion">
+								<div class="card-body avisCardBody" >${avis.missatge}</div>
+							</div>
+						</div>
+				</c:forEach>
+			</div>
+		</c:if>
 			<jsp:include page="../common/missatgesInfoError.jsp"/>
 			<decorator:body />
 		</div>

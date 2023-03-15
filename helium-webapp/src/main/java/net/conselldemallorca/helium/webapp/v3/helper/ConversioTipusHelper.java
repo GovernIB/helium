@@ -20,13 +20,13 @@ import ma.glasnost.orika.impl.DefaultMapperFactory;
 @Component
 public class ConversioTipusHelper {
 
-	private MapperFactory mapperFactory;
+	private static MapperFactory mapperFactory;
 
 	public ConversioTipusHelper() {
 		mapperFactory = new DefaultMapperFactory.Builder().build();
 	}
 
-	public <T> T convertir(Object source, Class<T> targetType) {
+	public static <T> T convertir(Object source, Class<T> targetType) {
 		if (source == null)
 			return null;
 		return getMapperFacade().map(source, targetType);
@@ -42,7 +42,7 @@ public class ConversioTipusHelper {
 		return getMapperFacade().mapAsSet(items, targetType);
 	}
 
-	private MapperFacade getMapperFacade() {
+	private static MapperFacade getMapperFacade() {
 		return mapperFactory.getMapperFacade();
 	}
 

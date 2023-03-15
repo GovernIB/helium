@@ -75,7 +75,7 @@
 			<hel:inputSelect inline="true" name="estat" optionItems="${estats}" emptyOption="true" textKey="anotacio.llistat.filtre.camp.estat" placeholderKey="anotacio.llistat.filtre.camp.estat" optionValueAttribute="codi" optionTextAttribute="valor"/>
 		</div>					
 	</div>
-
+	
 	</form:form>
 
 	<table	id="anotacio"
@@ -88,6 +88,7 @@
 			data-rowhref-template="#rowhrefTemplate"
 			data-rowhref-toggle="modal"
 			data-rowhref-maximized="true"
+			data-botons-template="#tableButtonsAccionsTemplate"
 			class="table table-striped table-bordered table-hover"
 			style="width:100%">			
 		<thead>
@@ -214,6 +215,24 @@
 	</table>
 	<script id="rowhrefTemplate" type="text/x-jsrender"><c:url value="/v3/anotacio/{{:id}}"/></script>	
 	
+	<script id="tableButtonsAccionsTemplate" type="text/x-jsrender">	
+		<div class="botons-titol text-right">
+			<b><spring:message code="anotacio.llistat.numero.threads.consultats"/></b>
+			<c:choose>
+				<c:when test="${!empty globalProperties['app.anotacions.consulta.num.threads']}">
+					${globalProperties['app.anotacions.consulta.num.threads']}
+				</c:when>
+				<c:otherwise>
+					5
+				</c:otherwise>
+			</c:choose>	
+			<span ></span>&nbsp;
+			<a id="exportar_excel" href="<c:url value="../../../helium/v3/anotacio/excel"/>" class="btn btn-default">
+				<span class="fa fa-download"></span>&nbsp;<spring:message code="comuns.descarregar"/>
+			</a>
+		</div>
+	</script>
+		
 	<script type="text/javascript">
 	// <![CDATA[
 
