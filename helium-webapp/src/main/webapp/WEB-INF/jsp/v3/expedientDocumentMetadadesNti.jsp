@@ -92,7 +92,7 @@
 				<td><strong><spring:message code="document.metadades.nti.nombre.formato"/></strong></td>
 				<td>
 					<c:if test="${not empty expedientDocument.ntiNombreFormato}">
-						<spring:message code="nti.document.format.${expedientDocument.ntiNombreFormato}"/>
+						<spring:message code="nti.document.format.${expedientDocument.ntiNombreFormato}" text="${expedientDocument.ntiNombreFormato}"/>
 					</c:if>
 				</td>
 			</tr>

@@ -21,7 +21,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
@@ -36,7 +35,6 @@ import es.caib.distribucio.rest.client.domini.Annex;
 import es.caib.distribucio.rest.client.domini.AnotacioRegistreEntrada;
 import es.caib.distribucio.rest.client.domini.AnotacioRegistreId;
 import es.caib.distribucio.rest.client.domini.Estat;
-import es.caib.plugins.arxiu.api.Document;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helper.AlertaHelper;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
@@ -368,11 +366,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 						expedientTipusId + " perquè no s'ha pogut recuperar la informació associada.");
 
 		if(reprocessar && expedientTipus.isDistribucioSistra()) {
-			try {
-				reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
-			} catch (Exception e) {
-				
-			}
+			reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
 		}
 		anotacio.setExpedientTipus(expedientTipus);
 		anotacio.setExpedient(expedient);
@@ -985,7 +979,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	
 	@Override
 	@Transactional
-	public void reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId) throws Exception {
+	public void reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId) {
 		logger.debug(
 				"Reprocessant el mapeig de l'anotació de l'expedient ( " +
 				"anotacioId=" + anotacioId + ", " +

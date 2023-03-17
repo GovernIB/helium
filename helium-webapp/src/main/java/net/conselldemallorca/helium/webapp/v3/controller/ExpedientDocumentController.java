@@ -469,7 +469,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		//Validar que tingui els permissos de gestió documental o administrar
 		
 		ExpedientDto expedientDto = expedientService.findAmbIdAmbPermis(expedientId);
-		if (!expedientDto.isPermisDocManagement() || !expedientDto.isPermisAdministration()) {
+		if (!expedientDto.isPermisDocManagement() && !expedientDto.isPermisAdministration()) {
 				MissatgesHelper.error(request, 
 					getMessage(request, 
 							"expedient.document.notificar.validacio.no.permisos"));
