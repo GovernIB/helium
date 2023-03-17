@@ -45,7 +45,7 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 			String custodiaId = getIdCustodia(id);
 			byte[] xml = getClienteCustodia().custodiarPDFFirmado(
 					new ByteArrayInputStream(signatura),
-					arxiuNom,
+					this.abreujarNom(arxiuNom),
 					custodiaId,
 					tipusDocument);
 			CustodiaResponseCaib resposta = getClienteCustodia().parseResponse(xml);
@@ -244,5 +244,25 @@ public class CustodiaPluginCaib implements CustodiaPlugin {
 	private String getIdCustodia(String docId) {
 		return docId;
 	}
+	
+	private String abreujarNom(String arxiuNom) {
+		int limitCaracters = 150;
+		String nomCurt = arxiuNom;
+		int senseExtensio = arxiuNom.lastIndexOf(".");
+		if(arxiuNom.length()> limitCaracters) {
+			String extensioAmbPunt = arxiuNom.substring(senseExtensio);
+			nomCurt = (arxiuNom.substring(0, senseExtensio).substring(0,limitCaracters-extensioAmbPunt.length())).concat(extensioAmbPunt);
+		}		
+		return nomCurt;
+	}
+	
+	public static void main(String[] args) {
+		CustodiaPluginCaib plugin = new CustodiaPluginCaib();
+		String nomLlarg="0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999..........0000000000111111111122222222223333333333aaaaaaaaaaaaa.pdf";
+		String nouNom = plugin.abreujarNom(nomLlarg);
+		System.out.println(nouNom);
+			
+	}
+
 
 }
