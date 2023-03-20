@@ -724,8 +724,9 @@ public class DistribucioHelper {
 			this.rebutjar(
 					anotacio,
 					"No hi ha cap tipus d'expedient per processar anotacions amb codi de procediment " + anotacio.getProcedimentCodi() + 
-					" i assumpte " + anotacio.getAssumpteCodiCodi() +", es rebutja automàticament amb data " + new Date() +
-					". Petició rebutjada a Helium. L'anotació no es correspon amb cap Tipus d'expedient.");				
+					" i assumpte " + (anotacio.getAssumpteCodiCodi()!=null ? anotacio.getAssumpteCodiCodi() : "(sense assumpte)") +", es rebutja automàticament amb data " 
+					+ new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()) +
+					". Petició rebutjada a Helium.");				
 		
 		} else {
 			
