@@ -61,6 +61,8 @@ public class ExpedientDocumentDto implements Serializable {
 	
 	private boolean notificat;
 	
+	private String custodiaCodi;
+	
 	/** Per marcar a la pipella de documents si prové d'una anotació. */
 	private Long anotacioId = null;
 	private String anotacioIdentificador = null;
@@ -335,6 +337,12 @@ public class ExpedientDocumentDto implements Serializable {
 		this.anotacioIdentificador = anotacioNumero;
 	}
 
+	public String getCustodiaCodi() {
+		return custodiaCodi;
+	}
+	public void setCustodiaCodi(String custodiaCodi) {
+		this.custodiaCodi = custodiaCodi;
+	}
 	public boolean isDocumentValid() {
 		return documentValid;
 	}

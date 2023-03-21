@@ -351,4 +351,15 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	public void migrarArxiu(Long expedientId, Long documentStoreId) throws NoTrobatException, PermisDenegatException {
 		delegate.migrarArxiu(expedientId, documentStoreId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void processarFirmaClient(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId,
+			String arxiuNom,
+			byte[] contingutFirmat) throws PermisDenegatException {
+		delegate.processarFirmaClient(expedientId, processInstanceId, documentStoreId, arxiuNom, contingutFirmat);
+	}
 }

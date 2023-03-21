@@ -311,6 +311,13 @@ span.herencia {
   visibility: visible;
 }
 
+.hiddenInfo {
+  visibility: hidden;
+}
+.hiddenInfoContainer:hover .hiddenInfo {
+  visibility: visible;
+}
+
 
 .avisCardHeader:first-child {
     border-radius: calc(.25rem - 1px) calc(.25rem - 1px) 0 0;

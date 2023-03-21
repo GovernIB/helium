@@ -463,5 +463,20 @@ public interface ExpedientDocumentService {
 			Long expedientId,
 			Long documentStoreId) throws NoTrobatException, PermisDenegatException;
 
+	/** Mètode per processar la firma en passarel·la des de la gestió de documents, validar la firma,
+	 * gurardar el document firmat i deixar una entrada en el registre.
+	 * @param documentStoreId
+	 * @param arxiuNom
+	 * @param processInstanceId 
+	 * @param expedientId 
+	 * @param contingutFirmat
+	 */
+	public void processarFirmaClient(
+			Long expedientId, 
+			String processInstanceId, 
+			Long documentStoreId,
+			String arxiuNom,
+			byte[] contingutFirmat) throws PermisDenegatException;
+
 
 }

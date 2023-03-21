@@ -1926,6 +1926,8 @@ public class DocumentHelperV3 {
 				dto.setSignaturaUrlVerificacio(
 						getPropertyArxiuVerificacioBaseUrl() + documentStore.getNtiCsv());
 			}
+		} else {
+			dto.setCustodiaCodi(document.getCustodiaCodi());
 		}
 		dto.setRegistrat(documentStore.isRegistrat());
 		if (documentStore.isRegistrat()) {

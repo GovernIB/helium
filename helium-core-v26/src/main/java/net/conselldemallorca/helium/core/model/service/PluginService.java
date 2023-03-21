@@ -397,7 +397,7 @@ public class PluginService {
 						ThreadLocalInfo.clearProcessInstanceFinalitzatIds();
 						expedientLogHelper.afegirLogExpedientPerProces(
 								token.getProcessInstanceId(),
-								ExpedientLogAccioTipus.PROCES_DOCUMENT_SIGNAR,
+								ExpedientLogAccioTipus.PROCES_DOCUMENT_PORTAFIRMES,
 								new Boolean(true).toString());
 						if (portasignatures.getDataSignalIntent() == null)
 							portasignatures.setDataSignalIntent(new Date());
@@ -449,7 +449,7 @@ public class PluginService {
 					try {
 						expedientLogHelper.afegirLogExpedientPerProces(
 								token.getProcessInstanceId(),
-								ExpedientLogAccioTipus.PROCES_DOCUMENT_SIGNAR,
+								ExpedientLogAccioTipus.PROCES_DOCUMENT_PORTAFIRMES,
 								new Boolean(false).toString());
 						jbpmDao.signalToken(
 								tokenId.longValue(),
