@@ -406,6 +406,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 				// Processa i comunica l'estat de processada 
 				try {
 					logger.debug("Processant l'anotació " + idWs.getIndetificador() + ".");
+					distribucioHelper.setProcessant(anotacio.getId(), true);
 					distribucioHelper.processarAnotacio(idWs, anotacioRegistreEntrada, anotacio);
 				} catch (Exception e) {
 					String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e.getMessage();
@@ -421,6 +422,8 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 					} catch(Exception ed) {
 						logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
 					}
+				} finally {
+					distribucioHelper.setProcessant(anotacio.getId(), false);
 				}
 			}					
 		}	

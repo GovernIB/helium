@@ -55,6 +55,8 @@ public class AnotacioDto implements Serializable {
 	private boolean errorAnnexos;
 	private boolean annexosInvalids;
 	private boolean annexosEsborranys;
+	//Per mostrar si s'està processant per threads de la Tasca programada
+	private boolean processant;
 
 
 	private String aplicacioCodi;
@@ -418,4 +420,11 @@ public class AnotacioDto implements Serializable {
 	public void setConsultaData(Date consultaData) {
 		this.consultaData = consultaData;
 	}
+	public boolean isProcessant() {
+		return processant;
+	}
+	public void setProcessant(boolean processant) {
+		this.processant = processant;
+	}
+	
 }

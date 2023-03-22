@@ -243,7 +243,13 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				paginacioHelper.toSpringDataPageable(paginacioParams));
 		
 		PaginaDto<AnotacioListDto> pagina = paginacioHelper.toPaginaDto(page, AnotacioListDto.class);
-
+		
+		for(AnotacioListDto anotacio: pagina.getContingut()){
+			if(distribucioHelper.isProcessant(anotacio.getId())) { //MARTA ojo mirar q sigui el mateix id!
+				anotacio.setProcessant(true);
+			}
+		}
+		
 		return pagina;
 	}
 

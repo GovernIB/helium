@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -1271,7 +1272,23 @@ public class DistribucioHelper {
 		}
 	}
 
+	private List<Long> anotacionsPendentsEnProces = Collections.synchronizedList(new ArrayList<Long>());
 	
+	public boolean isProcessant(Long anotacioId) {
+		return anotacionsPendentsEnProces.contains(anotacioId);
+	}
+
+	public void setProcessant(Long anotacioId, boolean processant) {
+		if (processant) {
+			if (!anotacionsPendentsEnProces.contains(anotacioId)) {
+				anotacionsPendentsEnProces.add(anotacioId);
+			}
+		} else {
+			anotacionsPendentsEnProces.remove(anotacioId);
+		}
+	}
+
+
 	private static final Logger logger = LoggerFactory.getLogger(DistribucioHelper.class);
 
 }
