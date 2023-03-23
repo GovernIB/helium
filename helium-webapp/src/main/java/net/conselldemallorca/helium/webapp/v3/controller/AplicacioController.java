@@ -46,12 +46,12 @@ public class AplicacioController {
 
 	@RequestMapping(value = "/v3/missatges", method = RequestMethod.GET)
 	public String getMissatges(HttpServletRequest request) {
-		return "v3/missatges";
+		return "v3/missatges";//request.getSession().getAttribute(net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper.SESSION_ATTRIBUTE_SUCCESS)
 	}
 
 	@RequestMapping(value = "/v3/utils/modalTancar", method = RequestMethod.GET)
 	public String modalTancar() {
-		return "utils/modalTancar";
+		return "v3/utils/modalTancar";
 	}
 
 	@RequestMapping(value = "/v3/index", method = RequestMethod.GET)

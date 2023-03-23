@@ -384,4 +384,17 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
     public Set<Long> findIdsDocumentsByExpedient(Long expedientId) {
         return delegate.findIdsDocumentsByExpedient(expedientId);
     }
+    
+    	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void processarFirmaClient(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId,
+			String arxiuNom,
+			byte[] contingutFirmat) throws PermisDenegatException {
+		delegate.processarFirmaClient(expedientId, processInstanceId, documentStoreId, arxiuNom, contingutFirmat);
+	}
+    
 }

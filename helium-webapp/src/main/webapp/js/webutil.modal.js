@@ -203,7 +203,7 @@
 					}
 				});
 				iframe.on('load', function () {
-					var pathname = this.contentDocument.location.pathname;
+					var pathname = this.contentDocument != null ? this.contentDocument.location.pathname : null;
 					if (pathname == webutilModalTancarPath()) {
 						$('button.close', $(this).closest('.modal-dialog')).trigger('click');
 						if (settings.refreshMissatges) {

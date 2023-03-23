@@ -1,6 +1,7 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -9,13 +10,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFRichTextString;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.DataFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
@@ -37,11 +50,15 @@ import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAccioEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioFiltreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.AnotacioListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
@@ -692,7 +709,235 @@ public class AnotacioController extends BaseExpedientController {
 	    dateFormat.setLenient(false);
 	    binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
 	}
+	
+	@RequestMapping(value = "/excel", method = RequestMethod.GET)
+	public void excel(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			HttpSession session,
+			Model model) 
+					throws IllegalAccessException, InvocationTargetException, NoSuchMethodException  {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		AnotacioFiltreCommand filtreCommand = getFiltreCommand(request);
+		
+		List<AnotacioListDto> anotacions = new ArrayList<AnotacioListDto>();
+		int nPagina = 0;
+		int grandariaPagina = 100;
+		
+		PaginaDto<AnotacioListDto> paginaDto;
+		PaginacioParamsDto paginacio = new PaginacioParamsDto();
+		paginacio.setPaginaTamany(grandariaPagina);
+		paginacio.afegirOrdre(
+				"data",
+				OrdreDireccioDto.DESCENDENT);
+		
+		do {
+			paginacio.setPaginaNum(nPagina++);
+			paginaDto = anotacioService.findAmbFiltrePaginat(
+					entornActual.getId(),
+					conversioTipusHelper.convertir(filtreCommand, AnotacioFiltreDto.class),
+					paginacio);	
+			anotacions.addAll(paginaDto.getContingut());			
+		} while(!paginaDto.isDarrera());
+
+		generarExcel(
+				request,
+				response,
+				anotacions);
+	}
+	
+	private void generarExcel(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			List<AnotacioListDto> anotacions) {
+	
+		
+		HSSFWorkbook wb;
+		HSSFCellStyle cellStyle;
+		HSSFCellStyle dStyle;
+		HSSFFont bold;
+		HSSFCellStyle cellGreyStyle;
+		HSSFCellStyle greyStyle;
+		HSSFCellStyle dGreyStyle;
+		HSSFFont greyFont;
+		wb = new HSSFWorkbook();
+	
+		bold = wb.createFont();
+		bold.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+		bold.setColor(HSSFColor.WHITE.index);
+		
+		greyFont = wb.createFont();
+		greyFont.setColor(HSSFColor.GREY_25_PERCENT.index);
+		greyFont.setCharSet(HSSFFont.ANSI_CHARSET);
+		
+		cellStyle = wb.createCellStyle();
+		cellStyle.setDataFormat(wb.getCreationHelper().createDataFormat().getFormat("dd/MM/yyyy HH:mm"));
+		cellStyle.setWrapText(true);
+		
+		cellGreyStyle = wb.createCellStyle();
+		cellGreyStyle.setDataFormat(wb.getCreationHelper().createDataFormat().getFormat("dd/MM/yyyy HH:mm"));
+		cellGreyStyle.setWrapText(true);
+		cellGreyStyle.setFont(greyFont);
+		
+		greyStyle = wb.createCellStyle();
+		greyStyle.setFont(greyFont);
+	
+		DataFormat format = wb.createDataFormat();
+		dStyle = wb.createCellStyle();
+		dStyle.setDataFormat(format.getFormat("0.00"));
+	
+		dGreyStyle = wb.createCellStyle();
+		dGreyStyle.setFont(greyFont);
+		dGreyStyle.setDataFormat(format.getFormat("0.00"));
+		HSSFSheet sheet = wb.createSheet("Hoja 1");
+		if (!anotacions.isEmpty())
+			createHeader(
+					wb,
+					sheet,
+					anotacions,
+					request);
+		int rowNum = 1;
+		int colNum = 0;
+		for (AnotacioListDto  anotacioDto : anotacions) {
+			try {
+				HSSFRow xlsRow = sheet.createRow(rowNum++);
+				colNum = 0;	
+				HSSFCell cell = xlsRow.createCell(colNum);
+
+				cell = xlsRow.createCell(colNum++);
+				cell.setCellValue(anotacioDto.getData());
+				cell.setCellStyle(cellStyle);//format de data
+						
+				cell = xlsRow.createCell(colNum++);
+				cell.setCellValue(anotacioDto.getIdentificador());//Número de registre
+				cell.setCellStyle(dStyle);
+						
+				cell = xlsRow.createCell(colNum++);
+				cell.setCellValue(anotacioDto.getExtracte());
+				cell.setCellStyle(dStyle);
+						
+				cell = xlsRow.createCell(colNum++);
+				cell.setCellValue(anotacioDto.getProcedimentCodi());
+				cell.setCellStyle(dStyle);
+						
+				cell = xlsRow.createCell(colNum++);
+				cell.setCellValue(anotacioDto.getExpedientNumero());
+				cell.setCellStyle(dStyle);
+						
+				cell = xlsRow.createCell(colNum++);
+				cell.setCellValue(anotacioDto.getDataRecepcio());
+				cell.setCellStyle(cellStyle);//format de data
+						
+				cell = xlsRow.createCell(colNum++);
+				cell.setCellValue(anotacioDto.getExpedientTipus() != null ? anotacioDto.getExpedientTipus().getCodi() : "");
+				cell.setCellStyle(dStyle);
+					
+				cell = xlsRow.createCell(colNum++);
+				cell.setCellValue(anotacioDto.getExpedient() != null ? anotacioDto.getExpedient().getNumeroIdentificador() : "");
+				cell.setCellStyle(dStyle);
+								
+				cell = xlsRow.createCell(colNum++);
+				cell.setCellValue(anotacioDto.getEstat().name());
+				cell.setCellStyle(dStyle);
+			} catch (Exception e) {
+				logger.error("Export Excel: No s'ha pogut crear la línia: " + rowNum + " - amb ID: " + anotacioDto.getExpedient().getId(), e);
+			}
+	
+		}
+		for(int i=0; i<colNum; i++)
+			sheet.autoSizeColumn(i);
+
+		try {
+			String fileName = "Anotacions.xls";
+			response.setHeader("Pragma", "");
+			response.setHeader("Expires", "");
+			response.setHeader("Cache-Control", "");
+			response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+			response.setContentType(new MimetypesFileTypeMap().getContentType(fileName));
+			wb.write( response.getOutputStream() );
+		} catch (Exception e) {
+			logger.error("Anotacions: No s'ha pogut realitzar la exportació.");
+		}
+	}
 
 	
+	private void createHeader(
+			HSSFWorkbook wb,
+			HSSFSheet sheet,
+			List<AnotacioListDto> anotacions,
+			HttpServletRequest request) {
+		HSSFFont bold;
+		bold = wb.createFont();
+		bold.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+		bold.setColor(HSSFColor.WHITE.index);
+		HSSFCellStyle headerStyle;
+		headerStyle = wb.createCellStyle();
+		headerStyle.setFillPattern(HSSFCellStyle.FINE_DOTS);
+		headerStyle.setFillBackgroundColor(HSSFColor.GREY_80_PERCENT.index);
+		headerStyle.setFont(bold);
+		int rowNum = 0;
+		int colNum = 0;
+		// Capçalera
+		HSSFRow xlsRow = sheet.createRow(rowNum++);
+		HSSFCell cell;
+		cell = xlsRow.createCell(colNum);
+		cell.setCellStyle(headerStyle);
+		sheet.autoSizeColumn(colNum);
+		cell = xlsRow.createCell(colNum++);
+		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage(
+						request, 
+						"anotacio.llistat.columna.data"))));
+		cell.setCellStyle(headerStyle);
+
+		cell = xlsRow.createCell(colNum++);
+		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage(
+					request, 
+					"anotacio.llistat.columna.identificador"))));
+		cell.setCellStyle(headerStyle);
+
+		cell = xlsRow.createCell(colNum++);
+		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage(
+					request, 
+					"anotacio.llistat.columna.extracte"))));
+		cell.setCellStyle(headerStyle);
+
+		cell = xlsRow.createCell(colNum++);
+		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage(
+					request, 
+					"anotacio.llistat.columna.procedimentCodi"))));
+		cell.setCellStyle(headerStyle);
+
+		cell = xlsRow.createCell(colNum++);
+		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage(
+					request, 
+					"anotacio.llistat.columna.expedientNumero"))));
+		cell.setCellStyle(headerStyle);
+			
+		cell = xlsRow.createCell(colNum++);
+		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage(
+					request, 
+					"anotacio.llistat.columna.dataRecepcio"))));
+		cell.setCellStyle(headerStyle);
+			
+		cell = xlsRow.createCell(colNum++);
+		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage(
+					request, 
+					"anotacio.llistat.columna.expedientTipus"))));
+		cell.setCellStyle(headerStyle);
+			
+		cell = xlsRow.createCell(colNum++);
+		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage(
+					request, 
+					"anotacio.llistat.columna.expedient"))));
+		cell.setCellStyle(headerStyle);
+			
+		cell = xlsRow.createCell(colNum++);
+		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage(
+					request, 
+					"anotacio.llistat.columna.estat"))));
+		cell.setCellStyle(headerStyle);
+	}
+
+
 	private static final Log logger = LogFactory.getLog(AnotacioController.class);
 }

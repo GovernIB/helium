@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -719,6 +720,15 @@ public class DistribucioHelper {
 				String errMsg = "Error comunicant l'estat de processada a Distribucio:" + e.getMessage();
 				logger.warn(errMsg, e);				
 			}
+		} else if (expedientTipus==null){
+
+			this.rebutjar(
+					anotacio,
+					"No hi ha cap tipus d'expedient per processar anotacions amb codi de procediment " + anotacio.getProcedimentCodi() + 
+					" i assumpte " + (anotacio.getAssumpteCodiCodi()!=null ? anotacio.getAssumpteCodiCodi() : "(sense assumpte)") +", es rebutja automàticament amb data " 
+					+ new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()) +
+					". Petició rebutjada a Helium.");				
+		
 		} else {
 			
 			try {
@@ -732,6 +742,25 @@ public class DistribucioHelper {
 			}			
 		}
 		logger.info("Rebuda correctament la petició d'anotació de registre amb id de Distribucio =" + idWs);
+	}
+	
+	public void rebutjar(Anotacio anotacio, String observacions ) {
+		// Canvia l'estat del registre a la BBDD
+		anotacio.setEstat(AnotacioEstatEnumDto.REBUTJADA);
+		anotacio.setRebuigMotiu(observacions);
+		anotacio.setDataProcessament(new Date());			
+		// Notifica el nou estat a Distribucio
+		try {
+			AnotacioRegistreId anotacioRegistreId = new AnotacioRegistreId();
+			anotacioRegistreId.setClauAcces(anotacio.getDistribucioClauAcces());
+			anotacioRegistreId.setIndetificador(anotacio.getDistribucioId());
+			this.canviEstat(anotacioRegistreId,
+							Estat.REBUTJADA,
+							observacions);			
+		} catch (Exception e) {
+			String errMsg = "Error comunicant l'estat de rebutjada a Distribucio:" + e.getMessage();
+			logger.warn(errMsg, e);
+		}
 	}
 	
 	/** Mètode per tornar a consultar i processar una anotació que estigui en estat d'error de processament.
@@ -1243,7 +1272,23 @@ public class DistribucioHelper {
 		}
 	}
 
+	private List<Long> anotacionsPendentsEnProces = Collections.synchronizedList(new ArrayList<Long>());
 	
+	public boolean isProcessant(Long anotacioId) {
+		return anotacionsPendentsEnProces.contains(anotacioId);
+	}
+
+	public void setProcessant(Long anotacioId, boolean processant) {
+		if (processant) {
+			if (!anotacionsPendentsEnProces.contains(anotacioId)) {
+				anotacionsPendentsEnProces.add(anotacioId);
+			}
+		} else {
+			anotacionsPendentsEnProces.remove(anotacioId);
+		}
+	}
+
+
 	private static final Logger logger = LoggerFactory.getLogger(DistribucioHelper.class);
 
 }

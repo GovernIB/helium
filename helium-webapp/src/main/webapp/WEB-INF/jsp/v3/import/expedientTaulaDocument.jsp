@@ -34,7 +34,7 @@
 			</table>
 		</c:when>
 		<c:otherwise>
-			<table id="document_${document.id}" class="table-condensed marTop6 tableDocuments cellDocument">
+			<table id="document_${document.id}" class="table-condensed marTop6 tableDocuments cellDocument hiddenInfoContainer">
 				<thead>
 					<tr>
 						<td class="left">
@@ -77,7 +77,7 @@
 															<span class="fa fa-2x fa-paper-plane" title="<spring:message code='expedient.document.notificar' />"></span>
 													</a>
 												</c:if>												
-												
+
 												<c:if test="${document.signat}">
 													<c:choose>
 														<c:when test="${not document.arxiuActiu}">
@@ -179,6 +179,15 @@
 															</a>
 														</c:otherwise>
 													</c:choose>
+												</c:if>
+												<c:if test="${!document.signat && expedient.permisDocManagement && empty psignaPendentActual && (! empty expedient.arxiuUuid || ! empty document.custodiaCodi)}">
+													<a 	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/firmaPassarela"
+														data-rdt-link-modal="true" 
+														data-rdt-link-modal-min-height="400" 
+														data-rdt-link-callback="recargarPanel(${document.processInstanceId});"
+														class="icon firmaPassarela hiddenInfo">
+															<span class="fa fa-2x fa-pencil-square-o" title="<spring:message code='expedient.document.firmaPassarela' />"></span>
+													</a>
 												</c:if>
 												<!-- FI FRAGMENT -->
 												<c:if test="${expedient.ntiActiu and expedient.permisRead}">

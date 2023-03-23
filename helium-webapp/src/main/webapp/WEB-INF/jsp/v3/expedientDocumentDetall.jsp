@@ -11,7 +11,7 @@
 <style>
 .dl-horizontal dt::after {content: ": ";}
 .doctab a {color: #555555 !important;}
-.doctab span.fa {color: #a94442 !important;}
+.doctab span.fa {color: #777 !important;}
 .doctab.active a {font-weight: bold !important;}
 .doctab.actiu span.fa {color: #3c763d !important;}
 .docAnnex .panel-heading {background-color: #fff !important;}

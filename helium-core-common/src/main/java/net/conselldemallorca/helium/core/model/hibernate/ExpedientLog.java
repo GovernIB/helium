@@ -67,13 +67,14 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 		EXPEDIENT_RELACIO_ESBORRAR,
 		EXPEDIENT_ACCIO,
 		EXPEDIENT_RETROCEDIR,			// 30
-		PROCES_DOCUMENT_SIGNAR,
+		PROCES_DOCUMENT_PORTAFIRMES,
 		EXPEDIENT_RETROCEDIR_TASQUES,
 		PROCES_LLAMAR_SUBPROCES,
 		EXPEDIENT_FINALITZAR,
 		EXPEDIENT_DESFINALITZAR,		// 35
 		EXPEDIENT_MIGRAR_ARXIU,
 		ANOTACIO_RELACIONAR,
+		PROCES_DOCUMENT_FIRMAR,
 		EXPEDIENT_ESTAT_CANVIAR
 		}			
 
@@ -256,9 +257,10 @@ public class ExpedientLog implements Serializable, GenericEntity<Long> {
 				accioTipus.equals(ExpedientLogAccioTipus.PROCES_DOCUMENT_MODIFICAR) ||
 				accioTipus.equals(ExpedientLogAccioTipus.PROCES_DOCUMENT_ESBORRAR) ||
 				accioTipus.equals(ExpedientLogAccioTipus.PROCES_DOCUMENT_ADJUNTAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.PROCES_DOCUMENT_SIGNAR) ||
+				accioTipus.equals(ExpedientLogAccioTipus.PROCES_DOCUMENT_PORTAFIRMES) ||
 				accioTipus.equals(ExpedientLogAccioTipus.PROCES_SCRIPT_EXECUTAR) ||
-				accioTipus.equals(ExpedientLogAccioTipus.PROCES_ACTUALITZAR);
+				accioTipus.equals(ExpedientLogAccioTipus.PROCES_ACTUALITZAR) ||
+				accioTipus.equals(ExpedientLogAccioTipus.PROCES_DOCUMENT_FIRMAR);
 	}
 	@Transient
 	public boolean isTargetExpedient() {

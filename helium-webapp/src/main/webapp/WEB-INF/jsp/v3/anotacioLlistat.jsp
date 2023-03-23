@@ -75,7 +75,7 @@
 			<hel:inputSelect inline="true" name="estat" optionItems="${estats}" emptyOption="true" textKey="anotacio.llistat.filtre.camp.estat" placeholderKey="anotacio.llistat.filtre.camp.estat" optionValueAttribute="codi" optionTextAttribute="valor"/>
 		</div>					
 	</div>
-
+	
 	</form:form>
 
 	<table	id="anotacio"
@@ -88,6 +88,7 @@
 			data-rowhref-template="#rowhrefTemplate"
 			data-rowhref-toggle="modal"
 			data-rowhref-maximized="true"
+			data-botons-template="#tableButtonsAccionsTemplate"
 			class="table table-striped table-bordered table-hover"
 			style="width:100%">			
 		<thead>
@@ -121,8 +122,9 @@
 				<th data-col-name="errorAnnexos" data-visible="false"/>
 				<th data-col-name="annexosInvalids" data-visible="false"/>
 				<th data-col-name="annexosEsborranys" data-visible="false"/>
+				<th data-col-name="processant" data-visible="false"/>
 				<th data-col-name="estat" data-template="#cellEstatExpedientTemplate">
-					<spring:message code="anotacio.llistat.columna.estat"/>
+					<spring:message code="anotacio.llistat.columna.estat"/> <span class="fa fa-list" id="showModalProcesEstatButton" title="<spring:message code="anotacio.llistat.columna.estat.llegenda"/>" style="cursor:over; opacity: 0.5"></span>
 					<script id="cellEstatExpedientTemplate" type="text/x-jsrender">
 						{{if estat == 'PENDENT'}}
 							<spring:message code="enum.anotacio.estat.PENDENT"></spring:message>
@@ -162,6 +164,12 @@
 							<div class="pull-right">
 								<span class="fa fa-exclamation-triangle text-warning"
 								title="<spring:message code="expedient.anotacio.llistat.annexos.esborranys"/>"></span>
+							</div>
+						{{/if}}
+						{{if processant}}
+							<div class="pull-right">
+								<span class="fa fa-cog fa-spin"
+								title="<spring:message code="expedient.anotacio.llistat.processant"/>"></span>
 							</div>
 						{{/if}}
 						{{if estat == 'COMUNICADA'}}
@@ -211,9 +219,53 @@
 				</th>
 			</tr>
 		</thead>
-	</table>
+	</table>	
+	<!-- Modal pels estats del processament -->
+	<div id="modalProcesEstat" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title"><span class="fa fa-list"></span> <spring:message code="anotacio.llistat.columna.estat.llegenda"></spring:message></h4>
+				</div>
+				<div class="modal-body">
+					<ul>
+						<c:set var="enumValues" value="<%=net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto.values()%>"/>
+						<c:forEach items="${enumValues}" var="enumValue">
+						  	<li>
+						  		<strong><spring:message code="anotacio.proces.estat.enum.${enumValue}"/></strong> :
+						  		<br/>
+						  		<span><spring:message code="anotacio.proces.estat.enum.${enumValue}.info"/></span>
+						  	</li>
+						</c:forEach>
+					</ul>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal"><spring:message code="comu.boto.tancar"/></button>
+				</div>
+			</div>
+		</div>
+	</div>	
 	<script id="rowhrefTemplate" type="text/x-jsrender"><c:url value="/v3/anotacio/{{:id}}"/></script>	
 	
+	<script id="tableButtonsAccionsTemplate" type="text/x-jsrender">	
+		<div class="botons-titol text-right">
+			<b><spring:message code="anotacio.llistat.numero.threads.consultats"/></b>
+			<c:choose>
+				<c:when test="${!empty globalProperties['app.anotacions.consulta.num.threads']}">
+					${globalProperties['app.anotacions.consulta.num.threads']}
+				</c:when>
+				<c:otherwise>
+					5
+				</c:otherwise>
+			</c:choose>	
+			<span ></span>&nbsp;
+			<a id="exportar_excel" href="<c:url value="../../../helium/v3/anotacio/excel"/>" class="btn btn-default">
+				<span class="fa fa-download"></span>&nbsp;<spring:message code="comuns.descarregar"/>
+			</a>
+		</div>
+	</script>
+		
 	<script type="text/javascript">
 	// <![CDATA[
 
@@ -224,6 +276,10 @@
 		});
 		            
 	$(document).ready(function() {
+		$('#showModalProcesEstatButton').click(function(e) {
+			$('#modalProcesEstat').modal();
+			e.stopPropagation();
+		});	
 	});
 	
 	// ]]>

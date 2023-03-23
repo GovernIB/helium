@@ -4,6 +4,7 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <%@ taglib uri="http://www.opensymphony.com/sitemesh/decorator" prefix="decorator"%>
+<% pageContext.setAttribute("avisos",net.conselldemallorca.helium.webapp.v3.helper.AvisHelper.getAvisos(request));%>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -406,6 +407,9 @@
 									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
 										<li><a id="botoCercaTipologies" href="<c:url value="/v3/cercadorTipologies"/>"><spring:message code='decorator.menu.administracio.cercador.tipologies' /></a></li>
 									</c:if>
+									<c:if test="${dadesPersona.admin || potDissenyarAvisos}">
+										<li><a id="menuAvisos" href="<c:url value="/v3/avis"/>"><spring:message code="decorator.menu.avisos"/></a></li>
+									</c:if>
 								</ul>
 								<script type="text/javascript">
 									$('#mesures a').heliumEvalLink({
@@ -445,6 +449,24 @@
 			<c:set var="screen"><decorator:getProperty property="meta.screen"/></c:set>
 			<c:set var="metaTitleIconClass"><decorator:getProperty property="meta.title-icon-class"/></c:set>
 			<c:set var="decoratorMetaSubtitle"><decorator:getProperty property="meta.subtitle"/></c:set>
+			<c:if test="${not empty avisos}">
+			<div id="accordion">
+				<c:forEach var="avis" items="${avisos}" varStatus="status">
+						<div class="card avisCard ${avis.avisNivell == 'INFO' ? 'avisCardInfo':''} ${avis.avisNivell == 'WARNING' ? 'avisCardWarning':''} ${avis.avisNivell == 'ERROR' ? 'avisCardError':''}">
+	
+							<div data-toggle="collapse" data-target="#collapse${status.index}" class="card-header avisCardHeader">
+								${avis.avisNivell == 'INFO' ? '<span class="fa fa-info-circle text-info"></span>':''} ${avis.avisNivell == 'WARNING' ? '<span class="fa fa-exclamation-triangle text-warning"></span>':''} ${avis.avisNivell == 'ERROR' ? '<span class="fa fa-warning text-danger"></span>':''} ${avis.assumpte}
+							<button class="btn btn-default btn-xs pull-right"><span class="fa fa-chevron-down "></span></button>										
+							</div>
+	
+							<div id="collapse${status.index}" class="collapse" data-parent="#accordion">
+								<div class="card-body avisCardBody" >${avis.missatge}</div>
+							</div>
+						</div>
+				</c:forEach>
+			</div>
+		</c:if>
+
 			<c:if test="${not empty decoratorMetaTitle}">
 				<div class="panel-heading">
 					<div class="row">

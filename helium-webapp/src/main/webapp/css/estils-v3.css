@@ -311,6 +311,67 @@ span.herencia {
   visibility: visible;
 }
 
+.hiddenInfo {
+  visibility: hidden;
+}
+.hiddenInfoContainer:hover .hiddenInfo {
+  visibility: visible;
+}
+
+.avisCardHeader:first-child {
+    border-radius: calc(.25rem - 1px) calc(.25rem - 1px) 0 0;
+    border-top-left-radius: calc(0.25rem - 1px);
+    border-top-right-radius: calc(0.25rem - 1px);
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+.avisCard {
+	border-radius: 0.25rem;
+	border-width: 1px;
+	border-style: solid;
+	margin-bottom: 3px;
+}
+.avisCardInfo {
+	border-color: #bee5eb;
+}
+.avisCardWarning {
+	border-color: #faebcc;
+}
+.avisCardError {
+	border-color: #f5c6cb;
+}
+.avisCardHeader {
+    padding: 5px;
+    padding-left: 10px;
+}
+.avisCardBody {
+	padding-left: 15px;
+	padding-right: 10px;
+	background-color: #fff;
+}
+.avisCardInfo .avisCardHeader{
+	color: #0c5460;
+	background-color: #d1ecf1;
+}
+.avisCardWarning .avisCardHeader {
+	color: #8a6d3b;
+	background-color: #fcf8e3;
+}
+.avisCardError .avisCardHeader {
+	color: #721c24;
+	background-color: #f8d7da;
+}
+
+.avisCardInfo button{
+	color: #0c5460CC;
+}
+.avisCardWarning button{
+	color: #8a6d3bCC;
+}
+.avisCardError button{
+	color: #721c24CC;
+}
+
 .form-switch {
 	display: inline-block;
 	cursor: pointer;

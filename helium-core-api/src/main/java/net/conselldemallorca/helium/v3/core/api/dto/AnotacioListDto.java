@@ -55,6 +55,9 @@ public class AnotacioListDto implements Serializable {
 	private boolean annexosInvalids;
 	private boolean annexosEsborranys;
 	
+	//Per mostrar si s'està processant per threads de la Tasca programada
+	private boolean processant;
+	
 	public Long getId() {
 		return id;
 	}
@@ -211,6 +214,12 @@ public class AnotacioListDto implements Serializable {
 	}
 	public void setAnnexosEsborranys(boolean annexosEsborranys) {
 		this.annexosEsborranys = annexosEsborranys;
+	}
+	public boolean isProcessant() {
+		return processant;
+	}
+	public void setProcessant(boolean processant) {
+		this.processant = processant;
 	}
 
 	private static final long serialVersionUID = 2160387490004131252L;	

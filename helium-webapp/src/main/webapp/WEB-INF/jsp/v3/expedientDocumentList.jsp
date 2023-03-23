@@ -387,10 +387,12 @@
 							{{/if}}
 						{{/if}}
 
+						<%--Firma en navegador --%>
+						{{if editable && !signat && arxiuUuid != null && !psPendent}}
+								<li><a href="${expedient.id}/proces/${expedient.processInstanceId}/document/{{:id}}/firmaPassarela" data-toggle="modal"><span class="fa fa-pencil-square-o fa-fw" data-refrescar="false"></span>&nbsp;<spring:message code="expedient.document.firmaPassarela"/></a></li>
+						{{/if}}
 						<%-- TODO: --%>
 						<%--Firma en portafirmes --%>
-
-						<%--Firma en navegador --%>
 
 						<%--Enviar a viafirma?? --%>
 

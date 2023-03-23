@@ -49,7 +49,9 @@ import net.conselldemallorca.helium.core.helper.NotificacioHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.PdfUtils;
@@ -1830,6 +1832,71 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			}
 		}
 		return documentStoreIds;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void processarFirmaClient(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId,
+			String arxiuNom,
+			byte[] contingutFirmat) throws PermisDenegatException {
+		logger.debug("Processar la firma en client (expedientId=" + expedientId + ", processInstanceId=" + processInstanceId + ", documentStoreId=" + documentStoreId + ", arxiuNom=" + arxiuNom + ")");
+
+		// Comprova els permisos per modificar documents a l'expedient
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				new Permission[] {
+						ExtendedPermission.DOC_MANAGE,
+						ExtendedPermission.ADMINISTRATION});
+		expedientHelper.comprovarInstanciaProces(
+				expedient,
+				processInstanceId);
+		DocumentStore documentStore = documentStoreRepository.findByIdAndProcessInstanceId(
+				documentStoreId,
+				processInstanceId);
+		if (documentStore == null) {
+			throw new NoTrobatException(
+					DocumentStore.class, 
+					documentStoreId);
+		}
+		// Actualitza la informació del document firmat
+		documentHelper.actualitzarDocument(
+				documentStore.getId(),
+				null,
+				expedient.getProcessInstanceId(),
+				documentStore.getDataDocument(),
+				documentStore.getAdjuntTitol(),
+				arxiuNom,
+				contingutFirmat,
+				new MimetypesFileTypeMap().getContentType(arxiuNom),
+				true,
+				false,
+				null,
+				documentStore.getNtiOrigen(),
+				documentStore.getNtiEstadoElaboracion(),
+				documentStore.getNtiTipoDocumental(),
+				documentStore.getNtiIdDocumentoOrigen());
+	
+		// Enregistra la firma del document als logs
+		expedientRegistreHelper.crearRegistreSignarDocument(
+				processInstanceId,
+				SecurityContextHolder.getContext().getAuthentication().getName(), 
+				documentStore.getCodiDocument());
+		
+		// Afegeix el log a l'expedient
+		ExpedientLog expedientLog = expedientLoggerHelper.afegirLogExpedientPerExpedient(
+				expedient.getId(),
+				ExpedientLogAccioTipus.PROCES_DOCUMENT_FIRMAR,
+				documentStore.isAdjunt() ? 
+						documentStore.getAdjuntTitol()
+						:documentStore.getCodiDocument());
+		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
+
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientDocumentServiceImpl.class);
