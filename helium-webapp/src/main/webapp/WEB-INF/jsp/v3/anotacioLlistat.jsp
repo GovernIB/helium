@@ -85,6 +85,7 @@
 			data-ordering="true"
 			data-default-order="1"
 			data-default-dir="desc"
+			data-selection-enabled="true"
 			data-rowhref-template="#rowhrefTemplate"
 			data-rowhref-toggle="modal"
 			data-rowhref-maximized="true"
@@ -107,7 +108,7 @@
 							{{:expedientTipus.codi}}
 							<span class="fa fa-info-circle" 
 								title="{{:expedientTipus.codi}} - {{:expedientTipus.nom}} 
-(Entrorn {{:expedientTipus.entorn.codi}} - {{:expedientTipus.entorn.nom}})"></span> 
+								(Entrorn {{:expedientTipus.entorn.codi}} - {{:expedientTipus.entorn.nom}})"></span> 
 						{{/if}}
 					</script>
 				</th>
@@ -219,7 +220,23 @@
 				</th>
 			</tr>
 		</thead>
-	</table>	
+	</table>
+
+	<div id="modal-error" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title"></h4>
+				</div>
+				<div class="modal-body">
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal"><spring:message code="comu.boto.tancar"/></button>
+				</div>
+			</div>
+		</div>
+	</div>	
 	<!-- Modal pels estats del processament -->
 	<div id="modalProcesEstat" class="modal fade">
 		<div class="modal-dialog">
@@ -263,6 +280,16 @@
 			<a id="exportar_excel" href="<c:url value="../../../helium/v3/anotacio/excel"/>" class="btn btn-default">
 				<span class="fa fa-download"></span>&nbsp;<spring:message code="comuns.descarregar"/>
 			</a>
+			<div id="btnTramitacio" class="btn-group">
+				<a class="btn btn-default" href="../v3/anotacio/seleccioTots" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
+				<a class="btn btn-default" href="../v3/anotacio/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
+				<button class="btn btn-default" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;&nbsp;</span>&nbsp;<span class="caret"></span></button>
+ 					<ul class="dropdown-menu">
+						<li id="liTramitacioMassiva"><a href="<c:url value="../../../v3/anotacio/massiva"/>" onclick="botoMassiuClick(this)" data-rdt-link-modal="true" data-rdt-link-modal-maximize="true"><spring:message code="expedient.llistat.tramitacio.massiva"/></a></li>
+						<li id="liReintentarConsulta"><a id="selection" class="btn" href="<c:url value="../../../v3/reintentarConsulta"/>" data-rdt-link-ajax="true"><spring:message code="anotacio.llistat.reintentar.consulta"/></a></li>
+ 						<li id="liReintentarProcessar"><a id="selection" class="btn" href="<c:url value="../../../v3/reintentarProcessar"/>" data-rdt-link-ajax="true"><spring:message code="anotacio.llistat.reintentar.processar"/></a></li>
+ 					</ul>
+			</div>
 		</div>
 	</script>
 		
@@ -281,6 +308,7 @@
 			e.stopPropagation();
 		});	
 	});
+
 	
 	// ]]>
 	</script>	

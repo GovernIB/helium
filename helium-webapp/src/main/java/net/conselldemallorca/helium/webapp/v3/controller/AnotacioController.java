@@ -7,8 +7,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.Resource;
@@ -55,6 +58,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -67,9 +71,11 @@ import net.conselldemallorca.helium.webapp.v3.command.AnotacioAcceptarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.AnotacioAcceptarCommand.CrearIncorporar;
 import net.conselldemallorca.helium.webapp.v3.command.AnotacioFiltreCommand;
 import net.conselldemallorca.helium.webapp.v3.command.AnotacioRebutjarCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientConsultaCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
 import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
@@ -139,6 +145,68 @@ public class AnotacioController extends BaseExpedientController {
 							DatatablesHelper.getPaginacioDtoFromRequest(request)));		
 	}
 
+	@RequestMapping(value = "/select", method = RequestMethod.GET)
+	@ResponseBody
+	public int select(
+			HttpServletRequest request,
+			@RequestParam(value="ids[]", required = false) Long[] ids) {
+//		@SuppressWarnings("unchecked")
+//		Set<Long> seleccio = (Set<Long>)RequestSessionHelper.obtenirObjecteSessio(
+//				request,
+//				SESSION_ATTRIBUTE_SELECCIO);
+//		if (seleccio == null) {
+//			seleccio = new HashSet<Long>();
+//			RequestSessionHelper.actualitzarObjecteSessio(
+//					request,
+//					SESSION_ATTRIBUTE_SELECCIO,
+//					seleccio);
+//		}
+//		if (ids != null) {
+//			for (Long id: ids) {
+//				seleccio.add(id);
+//			}
+//		} else {
+//			EntitatDto entitatActual = getEntitatActualComprovantPermisAdmin(request);
+//			RegistreFiltreCommand filtreCommand = getFiltreCommand(request);			
+//			seleccio.addAll(
+//					registreService.findRegistreIds(
+//							entitatActual.getId(),
+//							null, // bustiesUsuari
+//							RegistreFiltreCommand.asDto(filtreCommand),
+//							false, 
+//							true));
+//		}
+//		return seleccio.size();
+		return 0;
+	}
+
+	@RequestMapping(value = "/deselect", method = RequestMethod.GET)
+	@ResponseBody
+	public int deselect(
+			HttpServletRequest request,
+			@RequestParam(value="ids[]", required = false) Long[] ids) {
+//		@SuppressWarnings("unchecked")
+//		Set<Long> seleccio = (Set<Long>)RequestSessionHelper.obtenirObjecteSessio(
+//				request,
+//				SESSION_ATTRIBUTE_SELECCIO);
+//		if (seleccio == null) {
+//			seleccio = new HashSet<Long>();
+//			RequestSessionHelper.actualitzarObjecteSessio(
+//					request,
+//					SESSION_ATTRIBUTE_SELECCIO,
+//					seleccio);
+//		}
+//		if (ids != null) {
+//			for (Long id: ids) {
+//				seleccio.remove(id);
+//			}
+//		} else {
+//			seleccio.clear();
+//		}
+//		return seleccio.size();
+		return 1;
+	}		
+	
 	/** Mètode per obtenir o inicialitzar el filtre del formulari de cerca.
 	 * 
 	 * @param request
@@ -154,6 +222,81 @@ public class AnotacioController extends BaseExpedientController {
 		}
 		return filtreCommand;
 	}
+	
+	@RequestMapping(value = "/selection", method = RequestMethod.POST)
+	@ResponseBody
+	public Set<Long> seleccio(
+			HttpServletRequest request,
+			@RequestParam(value = "ids", required = false) String ids) {
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> seleccio = sessionManager.getSeleccioConsultaGeneral();
+		if (seleccio == null) {
+			seleccio = new HashSet<Long>();
+			sessionManager.setSeleccioConsultaGeneral(seleccio);
+		}
+		if (ids != null) {
+			String[] idsparts = (ids.contains(",")) ? ids.split(",") : new String[] {ids};
+			for (String id: idsparts) {
+				try {
+					long l = Long.parseLong(id.trim());
+					if (l >= 0) {
+						seleccio.add(l);
+					} else {
+						seleccio.remove(-l);
+					}
+				} catch (NumberFormatException ex) {}
+			}
+		}
+		return seleccio;
+	}
+	
+	@RequestMapping(value = "/seleccioTots")
+	@ResponseBody
+	public Set<Long> seleccioTots(HttpServletRequest request) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		AnotacioFiltreCommand filtreCommand = getFiltreCommand(request);
+		List<AnotacioListDto> anotacions = this.anotacionsList(entornActual, filtreCommand);
+		List<Long> ids = new ArrayList<Long>();
+		
+		for(AnotacioListDto anotacio: anotacions) {
+			ids.add(anotacio.getId());
+		}
+		
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> seleccio = sessionManager.getSeleccioConsultaGeneral();
+		if (seleccio == null) {
+			seleccio = new HashSet<Long>();
+			sessionManager.setSeleccioConsultaGeneral(seleccio);
+		}
+		if (ids != null) {
+			for (Long id: ids) {
+				try {
+					if (id >= 0) {
+						seleccio.add(id);
+					} else {
+						seleccio.remove(-id);
+					}
+				} catch (NumberFormatException ex) {}
+			}
+			Iterator<Long> iterador = seleccio.iterator();
+			while( iterador.hasNext() ) {
+				if (!ids.contains(iterador.next())) {
+					iterador.remove();
+				}
+			}
+		}
+		return seleccio;
+	}
+	
+	@RequestMapping(value = "/seleccioNetejar")
+	@ResponseBody
+	public Set<Long> seleccioNetejar(HttpServletRequest request) {
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> ids = sessionManager.getSeleccioConsultaGeneral();
+		ids.clear();
+		return ids;
+	}
+	
 	
 	/** Mètode per veure el detall d'una anotació provinent de Distribució
 	 * 
@@ -720,6 +863,15 @@ public class AnotacioController extends BaseExpedientController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		AnotacioFiltreCommand filtreCommand = getFiltreCommand(request);
 		
+		List<AnotacioListDto> anotacions = this.anotacionsList(entornActual, filtreCommand);
+
+		generarExcel(
+				request,
+				response,
+				anotacions);
+	}
+	
+	private List<AnotacioListDto> anotacionsList (EntornDto entornActual, AnotacioFiltreCommand filtreCommand){
 		List<AnotacioListDto> anotacions = new ArrayList<AnotacioListDto>();
 		int nPagina = 0;
 		int grandariaPagina = 100;
@@ -739,11 +891,7 @@ public class AnotacioController extends BaseExpedientController {
 					paginacio);	
 			anotacions.addAll(paginaDto.getContingut());			
 		} while(!paginaDto.isDarrera());
-
-		generarExcel(
-				request,
-				response,
-				anotacions);
+		return anotacions;
 	}
 	
 	private void generarExcel(
@@ -937,6 +1085,79 @@ public class AnotacioController extends BaseExpedientController {
 					"anotacio.llistat.columna.estat"))));
 		cell.setCellStyle(headerStyle);
 	}
+	
+	
+	@RequestMapping(value = "/reintentarConsulta")
+	@ResponseBody
+	public Set<Long> seleccioReintentarConsulta(HttpServletRequest request) {
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		AnotacioFiltreCommand filtreCommand = getFiltreCommand(request);
+		Set<Long> ids = sessionManager.getSeleccioAnotacio();
+		Set<Long> idsAgafats = new HashSet<Long>();
+		if (ids == null || ids.isEmpty()) {
+			MissatgesHelper.error(request, getMessage(request, "error.no.anotacio.selec"));
+		} else {
+			Set<Long> idsError = new HashSet<Long>();
+			for (Long anotacioId : ids) {
+				try {
+					anotacioService.reintentarConsulta(anotacioId);
+					idsAgafats.add(anotacioId);
+				} catch (Exception ex) {
+					idsError.add(anotacioId);
+				}
+			}
+			if (idsAgafats.size() > 0)
+				MissatgesHelper.success(request, getMessage(request, "anotacio.llistat.seleccionats.reintentats.success", new Object[] {idsAgafats.size(), ids.size()} ));
+			if (idsError.size() > 0)
+				for(AnotacioListDto anotacioError : this.anotacionsList(entornActual, filtreCommand))
+					MissatgesHelper.error(request, getMessage(
+														request, 
+														"tasca.llistat.agafar.seleccionats.error", 
+														new Object[] {
+																anotacioError.getIdentificador(),
+																anotacioError.getAssumpteCodiCodi()} ));
+			// Neteja la selecció
+			sessionManager.getSeleccioConsultaTasca().clear();
+		}		
+		return idsAgafats;
+	}
+	
+//	@RequestMapping(value = "/reintentarProcessament")
+//	@ResponseBody
+//	public Set<Long> seleccioReintentarProcessament(HttpServletRequest request) {
+//		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+//		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+//		AnotacioFiltreCommand filtreCommand = getFiltreCommand(request);
+//		Set<Long> ids = sessionManager.getSeleccioConsultaTasca();
+//		Set<Long> idsAgafats = new HashSet<Long>();
+//		if (ids == null || ids.isEmpty()) {
+//			MissatgesHelper.error(request, getMessage(request, "error.no.tasc.selec"));
+//		} else {
+//			Set<Long> idsError = new HashSet<Long>();
+//			for (Long tascaId : ids) {
+//				try {
+//					tascaService.alliberar(tascaId.toString());
+//					idsAgafats.add(tascaId);
+//				} catch (Exception ex) {
+//					idsError.add(tascaId);
+//				}
+//			}
+//			if (idsAgafats.size() > 0)
+//				MissatgesHelper.success(request, getMessage(request, "tasca.llistat.alliberar.seleccionats.success", new Object[] {idsAgafats.size(), ids.size()} ));
+//			if (idsError.size() > 0)
+//				for(ExpedientTascaDto tascaError : tascaService.findAmbIds(idsError))
+//					MissatgesHelper.error(request, getMessage(
+//														request, 
+//														"tasca.llistat.alliberar.seleccionats.error", 
+//														new Object[] {
+//																tascaError.getTitol(),
+//																tascaError.getExpedientIdentificador()} ));
+//			// Neteja la selecció
+//			sessionManager.getSeleccioConsultaTasca().clear();
+//		}		
+//		return idsAgafats;
+//	}
 
 
 	private static final Log logger = LogFactory.getLog(AnotacioController.class);

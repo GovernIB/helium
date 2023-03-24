@@ -44,6 +44,7 @@ public class SessionHelper {
 	public static final String VARIABLE_SELECCIO_CONSULTA_GENERAL = "seleccioConsultaGeneral";
 	public static final String VARIABLE_SELECCIO_INFORME = "seleccioInforme";
 	public static final String VARIABLE_SELECCIO_TASCA = "seleccioTasca";
+	public static final String VARIABLE_SELECCIO_ANOTACIO = "seleccioAnotacio";
 	public static final String VARIABLE_SELECCIO_CONSULTA_DP_NU = "seleccioDpNoUtilitzades";
 	public static final String VARIABLE_SELECCIO_CONSULTA_AFECTATS_DP = "seleccioExpedientsAfectatsDp";
 	public static final String VARIABLE_SESSIO_COMMAND_VALUES = "consultaCommandValues";
@@ -303,6 +304,18 @@ public class SessionHelper {
 					request,
 					VARIABLE_SELECCIO_TASCA,
 					seleccioConsultaTasca);
+		}
+		@SuppressWarnings("unchecked")
+		public Set<Long> getSeleccioAnotacio() {
+			return (Set<Long>)getAttribute(
+					request,
+					VARIABLE_SELECCIO_ANOTACIO);
+		}
+		public void setSeleccioAnotacio(Set<Long> seleccioAnotacio) {
+			setAttribute(
+					request,
+					VARIABLE_SELECCIO_ANOTACIO,
+					seleccioAnotacio);
 		}
 		@SuppressWarnings("unchecked")
 		public Set<Long> getSeleccioInforme(Long consultaId) {
