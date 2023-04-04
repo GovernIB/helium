@@ -245,12 +245,81 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		PaginaDto<AnotacioListDto> pagina = paginacioHelper.toPaginaDto(page, AnotacioListDto.class);
 		
 		for(AnotacioListDto anotacio: pagina.getContingut()){
-			if(distribucioHelper.isProcessant(anotacio.getId())) { //MARTA ojo mirar q sigui el mateix id!
+			if(distribucioHelper.isProcessant(anotacio.getId())) {
 				anotacio.setProcessant(true);
 			}
 		}
 		
 		return pagina;
+	}
+
+	@Override
+	public List<Long> findIdsAmbFiltre(Long entornId, AnotacioFiltreDto filtreDto) {
+		logger.debug(
+				"Consultant eks identificadors les anotacions per datatable (" +
+				"anotacioFiltreDto=" + filtreDto + ")");
+
+		// Llista d'expedients tipus amb permís de relacionar
+		List<Long> expedientTipusIdsPermesos = null;
+		// Pot veure:
+		// - Totes les anotacions si és administrador d'Helium
+		// - Les anotacions dels tipus d'expedient amb permís de relacionar en el cas de no ser-ho
+		// - Les anotacions d'un expedient en el cas de passar-ho com a filtre
+		// Si el filtre especifica l'id de l'expedient des de la pipella d'anotacions de l'expedient
+		if (filtreDto.getExpedientId() != null) {
+			// Comprova que pugui llegir l'expedient pel cas de la pipella d'anotacions de l'expedient
+			expedientHelper.getExpedientComprovantPermisos(filtreDto.getExpedientId(), true, false, false, false);
+		} else {
+			// Comporova que sigui administrador o recupera els tipus permesos per la vista d'anotacions
+			if (!usuariActualHelper.isAdministrador()) {
+				expedientTipusIdsPermesos = expedientTipusHelper.findIdsAmbPermisos(
+						entornHelper.getEntorn(entornId),
+						new Permission[] {
+								ExtendedPermission.RELATE,
+								ExtendedPermission.ADMINISTRATION
+						});
+				if (expedientTipusIdsPermesos.isEmpty())
+					expedientTipusIdsPermesos.add(0L);
+			}
+		}
+		
+		Date dataFinal = null;
+		if (filtreDto.getDataFinal() != null) {
+			// Corregeix la data final per arribar a les 00:00:00h del dia següent.
+			Calendar c = new GregorianCalendar();
+			c.setTime(filtreDto.getDataFinal());
+			c.add(Calendar.DATE, 1);
+			c.set(Calendar.HOUR_OF_DAY, 0);
+			c.set(Calendar.MINUTE, 0);
+			c.set(Calendar.SECOND, 0);
+			c.set(Calendar.MILLISECOND, 0);
+			dataFinal = c.getTime();
+		}
+		List<Long> ids = anotacioRepository.findIdsAmbFiltre(
+				filtreDto.getCodiProcediment() == null || filtreDto.getCodiProcediment().isEmpty(),
+				filtreDto.getCodiProcediment(),
+				filtreDto.getCodiAssumpte() == null || filtreDto.getCodiAssumpte().isEmpty(),
+				filtreDto.getCodiAssumpte(),
+				filtreDto.getNumeroExpedient() == null || filtreDto.getNumeroExpedient().isEmpty(),
+				filtreDto.getNumeroExpedient(),
+				filtreDto.getNumero() == null || filtreDto.getNumero().isEmpty(),
+				filtreDto.getNumero(),
+				filtreDto.getExtracte() == null || filtreDto.getExtracte().isEmpty(),
+				filtreDto.getExtracte(),
+				filtreDto.getDataInicial() == null,
+				filtreDto.getDataInicial(),
+				dataFinal == null,
+				dataFinal,
+				filtreDto.getEstat() == null,
+				filtreDto.getEstat(),
+				filtreDto.getExpedientTipusId() == null,
+				filtreDto.getExpedientTipusId(),
+				filtreDto.getExpedientId() == null,
+				filtreDto.getExpedientId(),
+				expedientTipusIdsPermesos == null,
+				expedientTipusIdsPermesos == null? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesos);
+		
+		return ids;	
 	}
 
 	/**

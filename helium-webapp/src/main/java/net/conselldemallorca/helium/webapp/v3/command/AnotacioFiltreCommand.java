@@ -25,6 +25,7 @@ public class AnotacioFiltreCommand {
 	private Date dataFinal;
 	private Long expedientTipusId;
 	private AnotacioEstatEnumDto estat;
+	private String anotacioTramitacioMassivaAnotacioId;
 
 	@Override
 	public String toString() {
@@ -102,5 +103,15 @@ public class AnotacioFiltreCommand {
 	public void setEstat(AnotacioEstatEnumDto estat) {
 		this.estat = estat;
 	}
+
+	public String getAnotacioTramitacioMassivaAnotacioId() {
+		return anotacioTramitacioMassivaAnotacioId;
+	}
+
+	public void setAnotacioTramitacioMassivaAnotacioId(String anotacioTramitacioMassivaAnotacioId) {
+		this.anotacioTramitacioMassivaAnotacioId = anotacioTramitacioMassivaAnotacioId;
+	}
+
+
 	
 }

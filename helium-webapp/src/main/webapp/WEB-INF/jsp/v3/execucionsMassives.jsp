@@ -483,7 +483,7 @@
 							
 							var exps =  execucio.total;
 							if (exps > 0) {
-							if(execucio.tipus=="ALTA_MASSIVA"){
+								if(execucio.tipus=="ALTA_MASSIVA"){
 									content += 
 									'<div id="downloadCSV_' + execucio.id + '" class="panel panel-default">'+
 										'<a id="downloadCSVa_' + execucio.id + '" href="<c:url value="/v3/execucionsMassives/getCsvOriginalContent/'+execucio.id +'"/>" class="badge" title="<spring:message code="expedient.document.descarregar"/>">'+
@@ -494,6 +494,54 @@
 										'</a>' +
 									'</div>'  ;
 									
+								}
+								if(execucio.tipus=='REINTENTAR_CONSULTA_ANOTACIONS'){
+									content += 
+										'<table class="table table-striped table-bordered dataTable" id="massexpt_' + execucio.id + '">' +
+										'<thead>' +
+											'<tr>' +
+												'<th class="massiu-expedient"><spring:message code="anotacio.llistat.accio.massiva.titol"/></th>' +
+												'<th class="massiu-estat"><spring:message code="expedient.consulta.estat"/></th>' +
+												'<th class="massiu-expedient"><spring:message code="expedient.tramitacio.massiva.header.data"/></th>' +
+											'</tr>' +
+										'</thead>' +
+									'<tbody>';
+								}
+								if(execucio.tipus=='REINTENTAR_PROCESSAMENT_ANOTACIONS'){
+									content += 
+										'<table class="table table-striped table-bordered dataTable" id="massexpt_' + execucio.id + '">' +
+										'<thead>' +
+											'<tr>' +
+												'<th class="massiu-expedient"><spring:message code="anotacio.llistat.accio.massiva.titol"/></th>' +
+												'<th class="massiu-estat"><spring:message code="expedient.consulta.estat"/></th>' +
+												'<th class="massiu-expedient"><spring:message code="expedient.tramitacio.massiva.header.data"/></th>' +
+											'</tr>' +
+										'</thead>' +
+									'<tbody>';
+								}
+								if(execucio.tipus=='REINTENTAR_MAPEIG_ANOTACIONS'){
+									content += 
+										'<table class="table table-striped table-bordered dataTable" id="massexpt_' + execucio.id + '">' +
+										'<thead>' +
+											'<tr>' +
+												'<th class="massiu-expedient"><spring:message code="anotacio.llistat.accio.massiva.titol"/></th>' +
+												'<th class="massiu-estat"><spring:message code="expedient.consulta.estat"/></th>' +
+												'<th class="massiu-expedient"><spring:message code="expedient.tramitacio.massiva.header.data"/></th>' +
+											'</tr>' +
+										'</thead>' +
+									'<tbody>';
+								}
+								if(execucio.tipus=='ESBORRAR_ANOTACIONS'){
+									content += 
+										'<table class="table table-striped table-bordered dataTable" id="massexpt_' + execucio.id + '">' +
+										'<thead>' +
+											'<tr>' +
+												'<th class="massiu-expedient"><spring:message code="anotacio.llistat.accio.massiva.titol"/></th>' +
+												'<th class="massiu-estat"><spring:message code="expedient.consulta.estat"/></th>' +
+												'<th class="massiu-expedient"><spring:message code="expedient.tramitacio.massiva.header.data"/></th>' +
+											'</tr>' +
+										'</thead>' +
+									'<tbody>';
 								}
 								if (execucio.tipus == 'ELIMINAR_VERSIO_DEFPROC') {
 									content += 
@@ -506,7 +554,10 @@
 												'</tr>' +
 											'</thead>' +
 										'<tbody>';
-								} else {
+								} else if (execucio.tipus!='REINTENTAR_CONSULTA_ANOTACIONS' 
+										&& execucio.tipus!='REINTENTAR_PROCESSAMENT_ANOTACIONS'
+										&& execucio.tipus!='REINTENTAR_MAPEIG_ANOTACIONS'
+										&& execucio.tipus!='ESBORRAR_ANOTACIONS'){
 									content += 
 				
 										'<table class="table table-striped table-bordered dataTable" id="massexpt_' + execucio.id + '">' +
