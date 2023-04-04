@@ -71,7 +71,7 @@
 			else if (plugin.settings.infoType == 'search+button')
 				domPrefix = '<"row"<"col-md-' + colMd33p + '"i><"col-md-' + colMd66p + '"<"botons fright"><"fright"f>>>';
 			else
-				domPrefix = '<"row"<"col-md-' + colMd50p + '"i><"col-md-' + colMd50p + '"<"botons">>>';
+				domPrefix = '<"row"<"col-md-' + colMd33p + '"i><"col-md-' + colMd66p + '"<"botons">>>';
 			var language = solveLanguage();
 			var ajaxRequestType = plugin.settings.ajaxRequestType;
 			var dataTableOptions = {
@@ -125,6 +125,12 @@
 					}
 					if (plugin.settings.rowInfo) {
 						$('td:last-child', row).html('<a href="#" class="btn btn-default btn-sm"><span class="fa fa-caret-down"></span></a>')
+					}
+					if (plugin.settings.rowcolidNullclass) {
+						let rowId = data['id'];
+						if (rowId == null) {
+							$(row).addClass(plugin.settings.rowcolidNullclass);
+						}
 					}
 					if (plugin.settings.rowhrefTemplate) {
 						if (plugin.settings.rowhrefToggle)
@@ -273,8 +279,13 @@
 			if ($('thead th[data-col-name]', $taula).length > 0) {
 				var columns = [];
 				var defaultOrder = plugin.settings.defaultOrder;
+				var fixedOrder = plugin.settings.fixedOrder;
+				var rowGroup = plugin.settings.group;
 				if (typeof plugin.settings.defaultOrder != 'undefined' && plugin.settings.selectionEnabled) {
 					defaultOrder++;
+				}
+				if (typeof plugin.settings.fixedOrder != 'undefined' && plugin.settings.selectionEnabled) {
+					fixedOrder++;
 				}
 				var defaultDir = plugin.settings.defaultDir;
 				dataTableOptions['ordering'] = plugin.settings.ordering;
@@ -332,6 +343,12 @@
 				dataTableOptions['columns'] = columns;
 				if (typeof defaultOrder != 'undefined') {
 					dataTableOptions['order'] = [[defaultOrder, defaultDir]];
+				}
+				if (typeof fixedOrder != 'undefined') {
+					dataTableOptions['orderFixed'] = [fixedOrder, defaultDir];
+				}
+				if (typeof rowGroup != 'undefined') {
+					dataTableOptions['rowGroup'] = {'dataSrc': rowGroup};
 				}
 			}
 			$taula.on('processing.dt', function(e, settings_, processing) {
@@ -423,25 +440,40 @@
 					}
 					
 					if(ids.length == 0) {
-						$.ajax({
-							type: 'GET',
-							url: 'selectionDp/clear',
-							data: { },
-							success: function(resposta) {
-								$(plugin.settings.selectionCounter).html(resposta.length);
-								window[$taula.data('id') + '_selected_ids'] = resposta;
-							}
-						});
+						if (plugin.settings.selectionUrlClear) {
+							$.ajax({
+								type: 'GET',
+								url: plugin.settings.selectionUrlClear,
+								data: { },
+								success: function(resposta) {
+									$(plugin.settings.selectionCounter).html(resposta.length);
+									window[$taula.data('id') + '_selected_ids'] = resposta;
+								}
+							});
+						} else {
+							$.ajax({
+								type: 'POST',
+								url: plugin.settings.selectionUrl,
+								data: {
+									"ids": ids,
+									"method": 'clear'
+								},
+								success: function(resposta) {
+									$(plugin.settings.selectionCounter).html(resposta.length);
+									window[$taula.data('id') + '_selected_ids'] = resposta;
+								}
+							});
+						}
 					}else {
 						editSelection(ids, 'add');
 					}
-					
+
+					$taula.trigger('selectionchange.dt')
 					/*$taula.trigger(
 							'selectionchange.dataTable',
 							[ids]);*/
 				};
 				$taula.on('select.dt', function (e, dt, type, indexes) {
-					console.log('click');
 					if (window[$taula.data('id') + '_prevent_next_select'] && event.type != 'click') {
 //						event.preventDefault();
 //						return false;
@@ -735,12 +767,14 @@
 					if (converter.indexOf('date') === 0 || converter.indexOf('time') != -1) {
 						var date = new Date(data);
 						var horaAmbFormat = "";
+						var horaMinutFormat = "";
 						var dataAmbFormat;
 						if (converter.indexOf('time') != -1) {
 							var hores = ("00" + date.getHours()).slice(-2);
 							var minuts = ("00" + date.getMinutes()).slice(-2);
 							var segons = ("00" + date.getSeconds()).slice(-2);
-							horaAmbFormat = hores + ":" + minuts + ":" + segons;
+							horaMinutFormat = hores + ":" + minuts;
+							horaAmbFormat = horaMinutFormat + ":" + segons;
 						}
 						if (converter.indexOf('date') === 0) {
 							var dia = ("00" + date.getDate()).slice(-2);
@@ -749,6 +783,9 @@
 							dataAmbFormat = dia + "/" + mes + "/" + any;
 							if (converter == 'datetime') {
 								dataAmbFormat += " " + horaAmbFormat;
+							}
+							if (converter == 'datetimeminute') {
+								dataAmbFormat += " " + horaMinutFormat;
 							}
 						} else {
 							dataAmbFormat = horaAmbFormat;

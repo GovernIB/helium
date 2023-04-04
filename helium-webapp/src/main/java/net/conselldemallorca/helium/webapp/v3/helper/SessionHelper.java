@@ -306,12 +306,12 @@ public class SessionHelper {
 					seleccioConsultaTasca);
 		}
 		@SuppressWarnings("unchecked")
-		public Set<Long> getSeleccioAnotacio() {
-			return (Set<Long>)getAttribute(
+		public List<Long>  getSeleccioAnotacio() {
+			return (List<Long>)getAttribute(
 					request,
 					VARIABLE_SELECCIO_ANOTACIO);
 		}
-		public void setSeleccioAnotacio(Set<Long> seleccioAnotacio) {
+		public void setSeleccioAnotacio(List<Long> seleccioAnotacio) {
 			setAttribute(
 					request,
 					VARIABLE_SELECCIO_ANOTACIO,

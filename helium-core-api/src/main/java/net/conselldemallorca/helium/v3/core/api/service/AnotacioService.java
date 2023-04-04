@@ -10,7 +10,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 
 /**
  * Servei per a la consulta i gestió d'anotacions de distribució. Poden veure anotacions i realitzar accions 
@@ -26,6 +26,9 @@ public interface AnotacioService {
 			Long entornId,
 			AnotacioFiltreDto filtreDto,
 			PaginacioParamsDto paginacioParams);
+	
+	/** Mètode per consultar el llistat d'identificadors de les anotacions a partir d'un filtre. */
+	public List<Long> findIdsAmbFiltre(Long entornId, AnotacioFiltreDto filtreDto);
 
 	/** Mètode per consultar una anotació per identificador.
 	 * 

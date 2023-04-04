@@ -469,7 +469,7 @@ function refrescaEstatSegonPla() {
 				</div>
 			</div>
 		</div>
-	</form:form>MARTA!
+	</form:form>
 	<table id="taulaDades" class="table table-striped table-bordered table-hover" data-rdt-button-template="tableButtonsTemplate" data-rdt-filtre-form-id="expedientConsultaCommand" data-rdt-seleccionable="true" data-rdt-seleccionable-columna="0" <c:if test="${not empty preferenciesUsuari.numElementosPagina}">data-rdt-display-length-default="${preferenciesUsuari.numElementosPagina}"</c:if>>
 		<thead>
 			<tr>
