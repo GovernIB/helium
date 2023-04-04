@@ -75,6 +75,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.AnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioListDto;
+import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuEstat;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDetallDto;
@@ -384,7 +385,16 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 						expedientTipusId + " perquè no s'ha pogut recuperar la informació associada.");
 
 		if(reprocessar && expedientTipus.isDistribucioSistra()) {
-			reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
+			AnotacioMapeigResultatDto resultatMapeig = reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
+			if (resultatMapeig.isError()) {
+				Alerta alerta = alertaHelper.crearAlerta(
+						expedient.getEntorn(), 
+						expedient, 
+						new Date(), 
+						null, 
+						resultatMapeig.getMissatgeAlertaErrors());
+				alerta.setPrioritat(AlertaPrioritat.ALTA);	
+			}
 		}
 		anotacio.setExpedientTipus(expedientTipus);
 		anotacio.setExpedient(expedient);
@@ -997,13 +1007,15 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	
 	@Override
 	@Transactional
-	public void reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId) {
+	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId) {
+		AnotacioMapeigResultatDto resultatMapeig = new AnotacioMapeigResultatDto();
 		logger.debug(
 				"Reprocessant el mapeig de l'anotació de l'expedient ( " +
 				"anotacioId=" + anotacioId + ", " +
 				"expedientId=" + expedientId + ")");
 		
 		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+		resultatMapeig.setAnotacioNumero(anotacio.getIdentificador());
 	
 		// Recupera la informació del tipus d'expedient i l'expedient
 		ExpedientTipus expedientTipus = null;
@@ -1021,24 +1033,12 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			MapeigSistra mapeigSistra = null;
 			ExpedientDadaDto dada = null;
 			DadesDocumentDto dadesDocumentDto = null;
+
 			// Extreu variables i documents i annexos segons el mapeig sistra
-			try {
-				variables = distribucioHelper.getDadesInicials(expedientTipus, anotacio);
-			} catch (Exception e) {
-				String errMsg = "Error processant el mapeig de l'anotació " + 
-						anotacio.getIdentificador() + 
-						". Hi podrien haver dades o documents que no s'haguessin mapejat correctament. Recomanem reprocessar el mapeig de l'anotació a l'expedient.";
-				logger.error(errMsg, e);
-				Alerta alerta = alertaHelper.crearAlerta(
-						expedient.getEntorn(), 
-						expedient, 
-						new Date(), 
-						null, 
-						errMsg);
-				alerta.setPrioritat(AlertaPrioritat.ALTA);	
-			}
-			documents = distribucioHelper.getDocumentsInicials(expedientTipus, anotacio);			
-			annexos = distribucioHelper.getDocumentsAdjunts(expedientTipus, anotacio);
+			resultatMapeig = distribucioHelper.getMapeig(expedientTipus, anotacio);
+			variables = resultatMapeig.getDades();
+			documents = resultatMapeig.getDocuments();
+			annexos = resultatMapeig.getAdjunts();			
 			if(variables!=null) {
 				for (String varCodi : variables.keySet()) {	
 					// Obtenir la variable de l'expedient, comprovar si aquest mapeig existeix o no	
@@ -1083,7 +1083,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 						expedient, 
 						adjunt);		
 			}
-		}	
+		}
+		return resultatMapeig;
 	}
 	
 	private void processarVariablesAnotacio(

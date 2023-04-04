@@ -630,9 +630,11 @@ public class AnotacioController extends BaseExpedientController {
 					request, 
 					getMessage(request, "anotacio.annex.reintentar.success"));
 		} catch (Exception e) {
+			String errMsg = getMessage(request, "anotacio.annex.reintentar.error", new Object[] {e.getMessage()});
+			logger.error(errMsg, e);
 			MissatgesHelper.error(
 					request, 
-					getMessage(request, "anotacio.annex.reintentar.error", new Object[] {e.getMessage()}));
+					errMsg);
 		}
 		return "redirect:/modal/v3/anotacio/" + anotacioId;
 	}	

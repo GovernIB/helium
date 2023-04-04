@@ -7,6 +7,7 @@ import java.util.Date;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,9 @@ import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
  */
 @Component
 public class AlertaHelper {
+
+	/** Llargada màxima del camp text. */
+    private static final int MAX_TEXT = 1024;
 
     @Resource
     private AlertaRepository alertaRepository;
@@ -48,7 +52,7 @@ public class AlertaHelper {
         alerta.setExpedient(expedient);
         alerta.setDataCreacio(data);
         alerta.setDestinatari(usuariCodi);
-        alerta.setText(text);
+        alerta.setText(StringUtils.left(text, MAX_TEXT));
         alertaRepository.save(alerta);
         return alerta;
     } 

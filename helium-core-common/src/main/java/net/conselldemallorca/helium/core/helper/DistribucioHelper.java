@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
+import java.awt.Color;
+import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -15,6 +17,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.lowagie.text.Font;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfWriter;
 
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultatAnnex;
@@ -42,6 +49,7 @@ import es.caib.distribucio.rest.client.domini.NtiEstadoElaboracion;
 import es.caib.distribucio.rest.client.domini.NtiOrigen;
 import es.caib.distribucio.rest.client.domini.NtiTipoDocumento;
 import es.caib.plugins.arxiu.api.Document;
+import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioInteressat;
@@ -52,10 +60,12 @@ import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
+import net.conselldemallorca.helium.core.model.hibernate.Alerta.AlertaPrioritat;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra.TipusMapeig;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAnnexEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuEstat;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
@@ -128,6 +138,9 @@ public class DistribucioHelper {
 	
 	@Resource(name = "documentHelperV3")
 	private DocumentHelperV3 documentHelper;
+
+	@Resource
+	private AlertaHelper alertaHelper;
 
 	/** Referència al client del WS de Distribució */
 	private BackofficeIntegracioRestClient restClient = null;
@@ -655,12 +668,14 @@ public class DistribucioHelper {
 				Map<String, Object> variables = null;
 				Map<String, DadesDocumentDto> documents = null;
 				List<DadesDocumentDto> adjunts = null;
+				AnotacioMapeigResultatDto resultatMapeig = null;
 				
 				if (expedientTipus.isDistribucioSistra()) {
+					resultatMapeig = this.getMapeig(expedientTipus, anotacio);
 					// Extreu documents i variables segons el mapeig sistra
-					variables = this.getDadesInicials(expedientTipus, anotacio);
-					documents = this.getDocumentsInicials(expedientTipus, anotacio);
-					adjunts = this.getDocumentsAdjunts(expedientTipus, anotacio);
+					variables = resultatMapeig.getDades();
+					documents = resultatMapeig.getDocuments();
+					adjunts = resultatMapeig.getAdjunts();
 				}
 				// Crear l'expedient
 				expedient = expedientHelper.iniciar(
@@ -693,6 +708,16 @@ public class DistribucioHelper {
 						null, //responsableCodi, 
 						documents, //documents, 
 						adjunts); //adjunts);
+				if (resultatMapeig != null && resultatMapeig.isError()) {
+					Alerta alerta = alertaHelper.crearAlerta(
+							expedient.getEntorn(), 
+							expedient, 
+							new Date(), 
+							null, 
+							resultatMapeig.getMissatgeAlertaErrors());
+					alerta.setPrioritat(AlertaPrioritat.ALTA);	
+				}
+
 			} else {
 				reprocessar = true;
 			}
@@ -789,6 +814,22 @@ public class DistribucioHelper {
 		return anotacio;
 	}
 
+	/** Processa el mapeig amb Sistra2 de les variables, documents i adjunts. Retorna el resultat amb els
+	 * mapejos i si hi ha hagut errors.
+	 * 
+	 * @param expedientTipus
+	 * @param anotacio
+	 * @return
+	 */
+	public AnotacioMapeigResultatDto getMapeig(ExpedientTipus expedientTipus, Anotacio anotacio) {
+		AnotacioMapeigResultatDto resultat = new AnotacioMapeigResultatDto();
+		resultat.setAnotacioNumero(anotacio.getIdentificador());
+		resultat.setDades(this.getDadesInicials(expedientTipus, anotacio, resultat.getErrorsDades()));
+		resultat.setDocuments(this.getDocumentsInicials(expedientTipus, anotacio, resultat.getErrorsDocuments()));
+		resultat.setAdjunts(this.getDocumentsAdjunts(expedientTipus, anotacio, resultat.getErrorsAdjunts()));
+		return resultat;
+	}
+
 
 	/** S'accepten documents xml tècnics de Sistra de formularis. Per cada document tècnic, si està mapejat
 	 * i és un XML que concorda amb l' XSD del formulari llavors es mapegen les dades de la forma ANNEX_TITOL.CAMPO_ID amb
@@ -801,7 +842,7 @@ public class DistribucioHelper {
 	 * @return
 	 * @throws Exception 
 	 */
-	public Map<String, Object> getDadesInicials(ExpedientTipus expedientTipus, Anotacio anotacio) throws Exception {
+	public Map<String, Object> getDadesInicials(ExpedientTipus expedientTipus, Anotacio anotacio, Map<String, String> errors)  {
 		
 		logger.debug("Mapeig de documents SISTRA2-Helium per l'anotació " + anotacio.getIdentificador() + 
 												" i el tipus d'expedient " + expedientTipus.getCodi() + " - " + expedientTipus.getNom() + 
@@ -845,7 +886,12 @@ public class DistribucioHelper {
 					// Recupera la informació del formulari de l'annex
 					Formulario formulari = formularis.get(annexTitol);
 					if (formulari == null) {
-						formulari = this.getFormulario(annexos.get(annexTitol));
+						try {
+							formulari = this.getFormulario(annexos.get(annexTitol));
+						} catch (Exception e) {
+							logger.error("Error obtenint el formulari \"" + annexTitol + "\" pel mapeig " + mapeig + " del tipus d'expedient " + expedientTipus.getCodi() + " i l'anotació " + anotacio.getIdentificador(), e);
+							errors.put(mapeig.toString(), "Error obtenint el formulari: " + e.getMessage());
+						}
 						formularis.put(annexTitol, formulari);
 					}
 					if (formulari != null) {
@@ -858,7 +904,8 @@ public class DistribucioHelper {
 									resposta.put(mapeig.getCodiHelium(), valorHelium);
 									logger.debug(valorHelium != null ? valorHelium.toString() : "");
 								} catch (Exception ex) {
-									logger.error("Error en el mapeig de variable SISTRA2 " + expedientTipus.getCodi() + " " + mapeig.getCodiHelium() + "-" + mapeig.getCodiSistra() + ": " + ex.getMessage(), ex);
+									logger.error("Error en el mapeig de variable SISTRA2 " + expedientTipus.getCodi() + " " + mapeig.getCodiHelium() + "-" + mapeig.getCodiSistra() + " de l'anotació " + anotacio.getIdentificador() + ": " + ex.getMessage(), ex);
+									errors.put(mapeig.toString(), ex.getMessage());
 								}
 								break;
 							}
@@ -1004,7 +1051,7 @@ public class DistribucioHelper {
 		}
 	}
 
-	public Map<String, DadesDocumentDto> getDocumentsInicials(ExpedientTipus expedientTipus, Anotacio anotacio) {
+	public Map<String, DadesDocumentDto> getDocumentsInicials(ExpedientTipus expedientTipus, Anotacio anotacio, Map<String, String> errors) {
 		
 		Map<String, DadesDocumentDto> resposta = new HashMap<String, DadesDocumentDto>();
 		List<MapeigSistra> mapeigsSistra = mapeigSistraRepository.findByFiltre(expedientTipus.getId(), TipusMapeig.Document);
@@ -1026,52 +1073,141 @@ public class DistribucioHelper {
 			}
 			try {
 				if (docHelium != null) {
-					DadesDocumentDto document = documentSistra(anotacio, mapeig.getCodiSistra(), docHelium);
+					DadesDocumentDto document = documentSistra(anotacio, mapeig, docHelium, errors);
 					if (document != null) {
 						resposta.put(mapeig.getCodiHelium(), document);
 						logger.debug(document.getCodi());
 					}
 				}
 			} catch (Exception ex) {
-				logger.error("Error en el mapeig de document SISTRA2 " + expedientTipus.getCodi() + " " + mapeig.getCodiHelium() + "-" + mapeig.getCodiSistra() + ": " + ex.getMessage(), ex);
+				logger.error("Error en el mapeig de document SISTRA2 " + expedientTipus.getCodi() + " " + mapeig.getCodiHelium() + "-" + mapeig.getCodiSistra() + " de l'anotació " + anotacio.getIdentificador() + ": " + ex.getMessage(), ex);
+				errors.put(mapeig.toString(), ex.getMessage());
 			}
 			logger.debug("}");
 		}
 		return resposta;		
 	}
 	
+	/** Mètode per consultar el document a partir de la informació del mapeig del document o l'adjunt. 
+	 * 
+	 * @param anotacio Anotació per la qual s'està fent el mapeig.
+	 * @param mapeig Informació del mapeig del document o de l'adjunt.
+	 * @param varHelium Codi de la variable Helium pel mapeig.
+	 * @param errors Mapeig d'errors per tenir informació dels possibles errors.
+	 * @return Retorna les dades del document.
+	 * @throws Exception Error si no s'ha pogut recuperar el contingut ni crear un contingut buit.
+	 */
 	private DadesDocumentDto documentSistra(
 			Anotacio anotacio,
-			String varSistra,
-			DocumentDto varHelium) throws Exception {
+			MapeigSistra mapeig,
+			DocumentDto varHelium,
+			Map<String, String> errors) throws Exception {
 		DadesDocumentDto resposta = null;
 		String identificador = null;
+		String varSistra = mapeig.getCodiSistra();
 		for (AnotacioAnnex document: anotacio.getAnnexos()) {
 			identificador = FilenameUtils.removeExtension(document.getNom());
 			if (varSistra.equalsIgnoreCase(identificador)) {
 				byte[] contingut = document.getContingut();
+				Exception exception = null;
 				if (document.getContingut() == null &&  document.getUuid() != null) {
 					// Recupera el contingut de l'Arxiu
-					Document documentArxiu = pluginHelper.arxiuDocumentInfo(document.getUuid(), null, true, true);
-					contingut = documentArxiu.getContingut() != null? documentArxiu.getContingut().getContingut() : null;
+					Document documentArxiu = null;
+					try {
+						// Consulta la versió imprimible del document.
+						documentArxiu = pluginHelper.arxiuDocumentInfo(document.getUuid(), null, true, true);
+						contingut = documentArxiu.getContingut() != null? documentArxiu.getContingut().getContingut() : null;
+					} catch (Exception e) {
+						exception = e;
+					}
+					if (exception != null) {
+						try {
+							// Consulta la versió original.
+							logger.error("Error consultant el document " + varSistra + " pel mapeig de l'anotació " + anotacio.getIdentificador() + ". Es procedeix a consultar el contingut original.", exception);
+							documentArxiu = pluginHelper.arxiuDocumentOriginal(document.getUuid(), null);
+						} catch (Exception e) {
+							exception = e;
+							logger.error("Error consultant l'original del document " + varSistra + " pel mapeig de l'anotació " + anotacio.getIdentificador(), e);
+						}
+					}
+					contingut = documentArxiu != null && documentArxiu.getContingut() != null? 
+									documentArxiu.getContingut().getContingut() 
+									: null;
 				}
 				if (contingut != null) {
 					resposta = new DadesDocumentDto();
-					resposta.setArxiuContingut(contingut);				
-					resposta.setIdDocument(varHelium.getId());
-					resposta.setCodi(varHelium.getCodi());
+					resposta.setArxiuContingut(contingut);
+					if (varHelium != null) {
+						resposta.setIdDocument(varHelium.getId());
+						resposta.setCodi(varHelium.getCodi());
+					}
 					resposta.setData(anotacio.getData());
 					resposta.setArxiuNom(document.getNom());
 					resposta.setDocumentValid(document.isDocumentValid());
 					resposta.setDocumentError(document.getDocumentError());
 				} else {
-					logger.warn("El contingut pel document " + document.getNom() + " de l'annocació " + anotacio.getExpedientNumero() + " es null i no es pot completar el mapeig de document SISTRA2 " + varSistra + " -> " + varHelium.getCodi());
+					errors.put(varSistra, "No s'ha pogut obtenir el contingut imprimible ni original del document.");
+					resposta = buildDocumentInvalid(anotacio, document, varHelium, mapeig, exception);
 				}
 				break;
 			}
 		}
 		return resposta;
 	}
+	
+	/** Crea un PDF advertint de l'error i retorna un document invàlid per afegir a l'expeident. 
+	 * @param mapeig 
+	 * @throws Exception Excepció si no troba el contingut i no pot generar un contingut buit. */
+	private DadesDocumentDto buildDocumentInvalid(
+				Anotacio anotacio, 
+				AnotacioAnnex annex, 
+				DocumentDto varHelium, 
+				MapeigSistra mapeig,
+				Exception exception) throws Exception {
+
+		DadesDocumentDto resposta = new DadesDocumentDto();
+		if (varHelium != null) {
+			resposta.setIdDocument(varHelium.getId());
+			resposta.setCodi(varHelium.getCodi());
+		}
+		resposta.setData(anotacio.getData());
+		resposta.setArxiuNom(annex.getNom());
+		resposta.setDocumentValid(false);
+		
+		String errMsg = "Error obtenint el document mapegat \"" + annex.getNom() + "\" de l'anotació " + anotacio.getIdentificador() + " pel mapeig " + mapeig.toString();
+		resposta.setDocumentError(errMsg + ": " + exception.getClass() + ": " + exception.getMessage());
+		
+		try {
+			// Crea un pdf i el guarda com un annex a l'expedient
+			com.lowagie.text.Document document = new com.lowagie.text.Document();
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			PdfWriter.getInstance(document, bos);        
+	        document.open();
+	        
+	        Font fontTitol = new Font(Font.HELVETICA, 18, Font.BOLD, new Color(255, 149, 35));
+	        Paragraph p = new Paragraph("Avís d' HELIUM", fontTitol);
+	        p.setExtraParagraphSpace(10f);
+	        document.add(p);
+	        document.add(new Paragraph(errMsg));
+	        document.add(new Paragraph("Aquest document és invàlid. Podeu provar de substituir-lo per l'annex de l'anotació " + anotacio.getIdentificador() + " reprocessant el mapeig o editant aquest document amb les opcions de gestió de documents d'Helium."));
+	        document.add(new Paragraph("Per a més informació consulteu el responsable del tipus d'expedient."));
+	        document.add(new Paragraph("Data de la generació del document: " + new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date())));
+	        document.add(new Paragraph("Detall de l'error en la consulta del document: "));
+	        document.add(new Paragraph(exception.getClass() + ": " + exception.getMessage()));
+	        document.add(new Paragraph(ExceptionUtils.getStackTrace(exception)));
+	        
+	        document.close();
+	        bos.close();
+	        
+	        resposta.setArxiuContingut(bos.toByteArray());			
+		} catch(Exception e) {
+			logger.error("Error construïnt el document buit per l'error amb el document \"" + annex.getNom() + "\" de l'anotació " + anotacio.getIdentificador());
+			throw new Exception("Hi ha hagut un error en el mapeig i no s'ha pogut generar el contingut buit: " + e.getMessage(), exception);
+		}
+		
+		return resposta;
+	}
+
 	private List<DocumentDto> getDocuments(ExpedientTipus expedientTipus) {
 		DefinicioProcesDto definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(expedientTipus.getId());
 		List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
@@ -1081,7 +1217,7 @@ public class DistribucioHelper {
 		return documents;
 	}
 
-	public List<DadesDocumentDto> getDocumentsAdjunts(ExpedientTipus expedientTipus, Anotacio anotacio) {
+	public List<DadesDocumentDto> getDocumentsAdjunts(ExpedientTipus expedientTipus, Anotacio anotacio, Map<String, String> errors) {
 
 		logger.debug("Mapeig de documents adjunts SISTRA2-Helium per l'anotació " + anotacio.getIdentificador() + 
 				" i el tipus d'expedient " + expedientTipus.getCodi() + " - " + expedientTipus.getNom() + 
@@ -1095,9 +1231,13 @@ public class DistribucioHelper {
 			logger.debug("{" + mapeig.getCodiSistra());
 			if (MapeigSistra.TipusMapeig.Adjunt.equals(mapeig.getTipus())){
 				try {
-					resposta.addAll(documentsSistraAdjunts(anotacio, mapeig.getCodiHelium()));
+					DadesDocumentDto documentSistra = documentSistra(anotacio, mapeig, null, errors);
+					if (documentSistra != null) {
+						resposta.add(documentSistra);
+					}
 				} catch (Exception ex) {
-					logger.error("Error en el mapeig d'adjunt SISTRA2 " + expedientTipus.getCodi() + " " + mapeig.getCodiSistra() + ": " + ex.getMessage(), ex);
+					logger.error("Error en el mapeig d'adjunt SISTRA2 " + expedientTipus.getCodi() + " " + mapeig.getCodiSistra() + " de l'anotació " + anotacio.getIdentificador() + ": " + ex.getMessage(), ex);
+					errors.put(mapeig.toString(), ex.getMessage());
 				}
 			}
 			logger.debug("}");
@@ -1105,35 +1245,6 @@ public class DistribucioHelper {
 		return resposta;
 	}
 	
-	private List<DadesDocumentDto> documentsSistraAdjunts(Anotacio anotacio, String codiHelium) {
-		List<DadesDocumentDto> resposta = new ArrayList<DadesDocumentDto>();
-		String identificador = null;
-		for (AnotacioAnnex document: anotacio.getAnnexos()) {
-			identificador = FilenameUtils.removeExtension(document.getNom());
-			if (identificador.equalsIgnoreCase(codiHelium)) {
-				byte[] contingut = document.getContingut();
-				if (document.getContingut() == null &&  document.getUuid() != null) {
-					// Recupera el contingut de l'Arxiu
-					Document documentArxiu = pluginHelper.arxiuDocumentInfo(document.getUuid(), null, true, true);
-					contingut = documentArxiu.getContingut() != null? documentArxiu.getContingut().getContingut() : null;
-				}
-				if (contingut != null) {
-					DadesDocumentDto docResposta = new DadesDocumentDto();
-					docResposta.setTitol(document.getTitol());
-					docResposta.setData(anotacio.getData());
-					docResposta.setArxiuNom(document.getNom());
-					docResposta.setArxiuContingut(contingut);
-					docResposta.setDocumentValid(document.isDocumentValid());
-					docResposta.setDocumentError(document.getDocumentError());
-					resposta.add(docResposta);
-				} else {
-					logger.warn("El contingut pel document " + document.getNom() + " de l'annocació " + anotacio.getExpedientNumero() + " es null i no es pot completar el mapeig de l'adjunt SISTRA2 " + identificador);
-				}
-			}
-		}
-		return resposta;
-	}
-
 	/** consulta la llista d'anotacions en estat comunicada i pendents de consultar que no han esgotat
 	 * els reintents. 
 	 * 
@@ -1245,5 +1356,4 @@ public class DistribucioHelper {
 
 	
 	private static final Logger logger = LoggerFactory.getLogger(DistribucioHelper.class);
-
 }
