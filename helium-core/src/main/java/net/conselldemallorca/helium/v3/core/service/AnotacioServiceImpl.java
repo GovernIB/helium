@@ -1188,7 +1188,9 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					document.getNtiOrigen(),
 					document.getNtiEstadoElaboracion(),
 					document.getNtiTipoDocumental(),
-					document.getNtiIdOrigen());
+					document.getNtiIdOrigen(),
+					dadesDocumentDto.isDocumentValid(),
+					dadesDocumentDto.getDocumentError());
 			
 			
 			

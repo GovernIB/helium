@@ -1136,6 +1136,7 @@ public class DistribucioHelper {
 				}
 				if (contingut != null) {
 					resposta = new DadesDocumentDto();
+					resposta.setTitol(document.getTitol());
 					resposta.setArxiuContingut(contingut);
 					if (varHelium != null) {
 						resposta.setIdDocument(varHelium.getId());
@@ -1166,6 +1167,7 @@ public class DistribucioHelper {
 				Exception exception) throws Exception {
 
 		DadesDocumentDto resposta = new DadesDocumentDto();
+		resposta.setTitol(annex.getTitol());
 		if (varHelium != null) {
 			resposta.setIdDocument(varHelium.getId());
 			resposta.setCodi(varHelium.getCodi());
@@ -1174,7 +1176,7 @@ public class DistribucioHelper {
 		resposta.setArxiuNom(annex.getNom());
 		resposta.setDocumentValid(false);
 		
-		String errMsg = "Error obtenint el document mapegat \"" + annex.getNom() + "\" de l'anotació " + anotacio.getIdentificador() + " pel mapeig " + mapeig.toString();
+		String errMsg = "Error obtenint el document mapegat \"" + annex.getNom() + "\" amb títol \"" + annex.getTitol() + "\" de l'anotació " + anotacio.getIdentificador() + " pel mapeig " + mapeig.toString() + ".";
 		resposta.setDocumentError(errMsg + ": " + exception.getClass() + ": " + exception.getMessage());
 		
 		try {
