@@ -931,7 +931,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		}
 		// Integració amb Sistra
 		if (command.isIntegracioSistra()) {
-			expedientTipus.setSistraActiu(importacio.getSistraTramitCodi() != null);
+			expedientTipus.setSistraActiu(importacio.isSistraActiu());
 			expedientTipus.setSistraTramitCodi(importacio.getSistraTramitCodi());
 			if (expedientTipusExisteix) {
 				// esborra els mapegos existents
