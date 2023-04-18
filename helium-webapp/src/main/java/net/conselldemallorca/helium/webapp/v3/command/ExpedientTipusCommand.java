@@ -27,7 +27,7 @@ public class ExpedientTipusCommand {
 	@NotEmpty(groups = {Creacio.class})
 	@Size(max = 64, groups = {Creacio.class})
 	private String codi;
-	@NotEmpty(groups = {Creacio.class, Modificacio.class})
+	@NotEmpty(groups = {Creacio.class})
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String nom;
 	private ExpedientTipusTipusEnumDto tipus = ExpedientTipusTipusEnumDto.FLOW;

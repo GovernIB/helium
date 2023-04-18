@@ -74,7 +74,7 @@
 						</div>
 					</script>
 					</th>
-					<c:if test="${not empty expedientTipus}">
+					<c:if test="${not empty expedientTipus && not perEstats}">
 						<!-- Per les accions dels tipus d'expedient es mostra la clau de la definició de procés -->
 						<th data-col-name="defprocJbpmKey"><spring:message code="expedient.tipus.accio.llistat.columna.defprocJbpmKey"/></th>
 					</c:if>

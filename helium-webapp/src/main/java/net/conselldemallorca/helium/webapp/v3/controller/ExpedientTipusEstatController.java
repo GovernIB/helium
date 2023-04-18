@@ -6,7 +6,9 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -426,10 +428,13 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 
 			int insercions = 0;
 			int actualitzacions = 0;
+			int esborrats = 0;
+			Map<Long, EstatDto> estatsEsborrar = new HashMap<Long, EstatDto>();
         	try {
     			if (command.isEliminarValorsAntics()) {
-    				for (EstatDto estat : expedientTipusService.estatFindAll(expedientTipusId, false))
-   						expedientTipusService.estatDelete(estat.getId());
+    				for (EstatDto estat : expedientTipusService.estatFindAll(expedientTipusId, false)) {
+    					estatsEsborrar.put(estat.getId(), estat);
+    				}
     			}
 
 				if (command.getMultipartFile().getOriginalFilename().toLowerCase().endsWith(".csv")) {
@@ -460,6 +465,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 									expedientTipusService.estatCreate(expedientTipusId, estat);
 									insercions++;
 								} else {
+									estatsEsborrar.remove(estat.getId());
 									estat.setNom(nom);
 									expedientTipusService.estatUpdate(estat);
 									actualitzacions++;
@@ -495,6 +501,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 							estat = expedientTipusService.estatCreate(expedientTipusId, estatDto);
 							insercions++;
 						} else {
+							estatsEsborrar.remove(estat.getId());
 							estat.setNom(estatExportacio.getNom());
 							estat.setOrdre(estatExportacio.getOrdre());
 							expedientTipusService.estatUpdate(estat);
@@ -559,6 +566,16 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 						}
 					}
 				}
+				for (Long estatId : estatsEsborrar.keySet()) {
+					System.out.println(estatId);
+					try  {
+						expedientTipusService.estatDelete(estatId);
+						esborrats++;
+					} catch (Exception e) {
+						EstatDto estat = estatsEsborrar.get(estatId);
+						MissatgesHelper.error(request, getMessage(request, "expedient.tipus.estat.importar.controller.error.estat.antic.esborrar", new Object[] {estat.getCodi(), estat.getNom(), e.getMessage()}));
+					}
+				}
         	} catch(Exception e) {
         		logger.error(e);
         		MissatgesHelper.error(
@@ -567,7 +584,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
         	}
     		MissatgesHelper.success(
 					request, 
-					getMessage(request, "expedient.tipus.estat.importar.controller.success", new Object[] {insercions, actualitzacions}));
+					getMessage(request, "expedient.tipus.estat.importar.controller.success", new Object[] {insercions, actualitzacions, esborrats}));
 			return modalUrlTancar(false);	
         }
 	}

@@ -154,7 +154,7 @@
 
 		<div class="row">
 			<div class="col-xs-12">
-				<hel:inputText name="nom" textKey="expedient.tipus.regla.form.camp.nom" readonly="${not empty estatReglaCommand.id}" labelSize="2" required="true"/>
+				<hel:inputText name="nom" textKey="expedient.tipus.regla.form.camp.nom"  labelSize="2" required="true"/>
 			</div>
 		</div>
 		<hr/>

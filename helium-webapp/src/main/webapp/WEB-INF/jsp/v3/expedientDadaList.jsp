@@ -50,21 +50,6 @@
 			}
 		});
 
-		// Botó per tornar a dalt: scroll top
-		$('.btn-top').on('click', () => {
-			$([document.documentElement, document.body]).animate({
-				scrollTop: 0
-			}, 200);
-		});
-		$(document).scroll(() => {
-			var scrollTop = $(document).scrollTop();
-			var opacity = 0.4 + scrollTop / 1500;
-			if (opacity > 0.9)
-				opacity = 0.9;
-			$('.btn-top').css({
-				opacity: opacity
-			});
-		});
 	});
 
 	const opcionsVisualitzacioChanged = () => {
@@ -149,7 +134,6 @@
 	#expedientDades tbody tr td {vertical-align: middle;}
 	.table-bordered>tbody>tr>td {max-width: 155px;}
 	.no-data {color: #bbb; border: dashed 2px; cursor: default !important;}
-	.btn-top {position: fixed; z-index: 1000; right: 15px; bottom: 50px; background-color: #FFF; padding: 0 5px 0 5px; border-radius: 5px; cursor: pointer; opacity: 0.1;}
 	.nodoc-icon {margin-right: 12px;}
 	.adjustIcon {top:-2px;}
 	.text-center {text-align: center !important;}
@@ -260,7 +244,7 @@
 		<th data-col-name="id" data-template="#cellDadaAccionsTemplate" data-orderable="false" width="5%">
 			<script id="cellDadaAccionsTemplate" type="text/x-jsrender">
 			{{if id == null}}
-				<a class="btn btn-default" href="${expedient.id}/dada/{{:campCodi}}/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nova_dada"/></a>
+				<a class="btn btn-default" href="${expedient.id}/dada/{{:campCodi}}/new" data-toggle="modal" data-adjust-height="false" data-height="350"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nova_dada"/></a>
 			{{else}}
 				<div data-document-id="{{:id}}" <%--data-arxivat="{{:arxivat}}" data-psigna="{{psignaInfo}}"--%> class="dropdown accionsDocument">
 					<button class="btn btn-primary" data-toggle="dropdown" {{if error || !editable}}disabled="disabled"{{/if}} style="width:100%;"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
@@ -277,9 +261,6 @@
 	</tr>
 	</thead>
 </table>
-<div class="btn-top">
-	<span class="fa fa-arrow-up"></span>
-</div>
 <script id="tableButtonsDadesTemplate" type="text/x-jsrender">
 	<div class="botons-titol text-right">
 		<span style="padding-left: 5px">

@@ -406,7 +406,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		ExpedientTipus entity = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipus.getId());
 				
 		entity.setNom(expedientTipus.getNom());
-		entity.setTipus(expedientTipus.getTipus());
 		entity.setAmbInfoPropia(expedientTipus.isAmbInfoPropia());
 		entity.setHeretable(expedientTipus.isHeretable());
 		if (expedientTipus.getExpedientTipusPareId() != null)
@@ -2582,6 +2581,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				permisosHelper.deletePermis(estatId, Estat.class, permis.getId());
 			// Regles
 			estatReglaRepository.delete(estatReglaRepository.findByEstat(estat));
+			// Accions
+			estatAccioEntradaRepository.delete(estatAccioEntradaRepository.findByEstatOrderByOrdreAsc(estat));
+			estatAccioSortidaRepository.delete(estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estat));		
 			// Estat
 			estatRepository.delete(estat);
 			estatRepository.flush();

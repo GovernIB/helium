@@ -42,11 +42,11 @@
 			<%-- Per cada fila... --%>
 			$("#expedientDocuments tbody tr").each((index, element) => {
 				if (!$(element).hasClass("no-data")) {
-					<%-- Obrim el detall del document al fer clic a la fila del document --%>
-					$(element).click((event) => {
+					<%-- Obrim el detall del document al fer clic a les cel·les 1-4 del document --%>
+					$("td:gt(0):lt(4)", $(element)).click((event) => {
 						if (event.target.tagName.toLowerCase() !== 'a' && (event.target.cellIndex === undefined || event.target.cellIndex === 0 || event.target.cellIndex > 4)) return;
 						toggleDocDetails(element);
-					})
+					}).css('cursor', 'pointer');
 				} else {
 					<%-- Eliminam els checks dels documents inexistents--%>
 					$(element).find(".fa-square-o").remove();
