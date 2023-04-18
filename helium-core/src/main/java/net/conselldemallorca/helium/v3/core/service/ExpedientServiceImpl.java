@@ -105,6 +105,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.ResultatConsultaPaginadaJbp
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAnnexEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuContingutDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuContingutTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
@@ -322,21 +323,23 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		
 		Expedient expedient = null;
 		Anotacio anotacio = null;
+		AnotacioMapeigResultatDto resultatMapeig = null;
 		try {
 			if (anotacioId != null) {
 				anotacio = anotacioRepository.findOne(anotacioId);
 				ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);				
 				if (expedientTipus.isDistribucioSistra()) {
 					// Extreu documents i variables segons el mapeig sistra
+					resultatMapeig = distribucioHelper.getMapeig(expedientTipus, anotacio);
 					if (variables == null)
 						variables = new HashMap<String, Object>();
-					variables.putAll(distribucioHelper.getDadesInicials(expedientTipus, anotacio));
+					variables.putAll(resultatMapeig.getDades());
 					if (documents == null) 
 						documents = new HashMap<String, DadesDocumentDto>();
-					documents.putAll(distribucioHelper.getDocumentsInicials(expedientTipus, anotacio));
+					documents.putAll(resultatMapeig.getDocuments());
 					if (adjunts == null)
 						adjunts = new ArrayList<DadesDocumentDto>();
-					adjunts.addAll(distribucioHelper.getDocumentsAdjunts(expedientTipus, anotacio));
+					adjunts.addAll(resultatMapeig.getAdjunts());
 				}
 				registreNumero = anotacio.getIdentificador();
 				registreData = anotacio.getData();
@@ -376,6 +379,15 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					adjunts);
 
 			if (anotacioId != null) {
+				if (resultatMapeig != null && resultatMapeig.isError()) {
+					Alerta alerta = alertaHelper.crearAlerta(
+							expedient.getEntorn(), 
+							expedient, 
+							new Date(), 
+							null, 
+							resultatMapeig.getMissatgeAlertaErrors());
+					alerta.setPrioritat(AlertaPrioritat.ALTA);	
+				}
 				// Incorporporar l'anotació a l'expedient
 				anotacioService.incorporarReprocessarExpedient(
 						anotacio.getId(), 

@@ -161,6 +161,18 @@ public class MapeigSistra implements Serializable, GenericEntity<Long> {
 			return false;
 		return true;
 	}
+	
+	/** Per mostrar el mapeig de la forma D(doc_sistra->doc_helium) */
+	@Override
+	public String toString() {
+		StringBuilder str = new StringBuilder();
+		str.append(this.getTipus().toString().subSequence(0, 1)).append("(").append(this.getCodiSistra());
+		if (!TipusMapeig.Adjunt.equals(this.getTipus())) {
+			str.append("->").append(this.getCodiHelium());
+		}
+		str.append(")");
+		return str.toString();
+	}
 
 
 
