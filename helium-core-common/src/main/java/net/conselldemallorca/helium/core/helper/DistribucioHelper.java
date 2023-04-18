@@ -361,7 +361,7 @@ public class DistribucioHelper {
 	public Anotacio updateErrorProcessament(long anotacioId, String errorProcessament) {
 		
 		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
-		anotacio.setErrorProcessament(errorProcessament);
+		anotacio.setErrorProcessament(errorProcessament.substring(0, 1024));//trunquem missatge d'error per poder guardar a bbdd
 		anotacio.setEstat(AnotacioEstatEnumDto.ERROR_PROCESSANT);
 		return anotacio;
 	}

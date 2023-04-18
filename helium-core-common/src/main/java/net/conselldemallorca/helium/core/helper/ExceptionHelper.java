@@ -39,6 +39,21 @@ public class ExceptionHelper {
 			return getMissageFinalCadenaExcepcions(ex.getCause());
 		}
 	}
+	
+	public String getRouteCauses(Exception e) {
+		StringBuilder message = new StringBuilder();
+		Throwable t = e;
+		boolean root;
+		do {
+			message.append(t.getMessage());
+			t = t.getCause();
+			root = t == null || t == t.getCause();
+			if (!root) {
+				message.append(": ");
+			}
+		} while (!root);
+		return message.toString();
+	}
 
 	private static final Log logger = LogFactory.getLog(ExceptionHelper.class);
 }

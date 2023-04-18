@@ -34,8 +34,8 @@ public class TramitacioException extends HeliumException {
 			  expedientTipusId, 
 			  expedientTipusCodi,
 			  expedientTipusNom,
-			  "S'ha produït un error de tramitació. " + message + ": " + cause.getMessage(),
-			  cause);
+			  "S'ha produït un error de tramitació. " + message,
+			  null);
 	}
 	
 	public String getPublicMessage() {

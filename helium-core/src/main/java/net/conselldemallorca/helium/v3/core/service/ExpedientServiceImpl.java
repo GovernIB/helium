@@ -50,6 +50,7 @@ import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
+import net.conselldemallorca.helium.core.helper.ExceptionHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientRegistreHelper;
@@ -269,6 +270,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	private AnotacioService anotacioService;
 	@Resource
 	private AlertaHelper alertaHelper;
+	@Resource
+	private ExceptionHelper exceptionHelper;
 
 	/**
 	 * {@inheritDoc}
@@ -1677,7 +1680,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 						expedient.getTipus().getId(), 
 						expedient.getTipus().getCodi(), 
 						expedient.getTipus().getNom(), 
-						"Error al executa l'acció '" + accio.getCodi() + "'", 
+						"Error al executa l'acció '" + accio.getCodi() + "'"+ exceptionHelper.getRouteCauses(ex),
 						ex);
 			}
 			expedientHelper.verificarFinalitzacioExpedient(expedient);
