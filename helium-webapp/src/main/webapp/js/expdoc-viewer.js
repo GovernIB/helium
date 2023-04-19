@@ -17,8 +17,14 @@ const toggleDocDetails = (tr) => {
 // Tancar el detall d'un document
 const closeDocDetail = (detail) => {
     // Per tancar el detall dels documents ho feim amb un efecte d'acordiò de 500ms
-    if ($(detail).next().hasClass('doc-details')) {
-        slideRowUp($(detail).next(), 500);
+	let $detail = $(detail).next();
+    if ($detail.hasClass('doc-details')) {
+    	let remove = !$(detail).next().hasClass('loaded');
+        slideRowUp($detail, 500, function() { 
+        	if (remove) {
+        		$detail.remove();
+        	}
+        });
     }
 }
 
@@ -53,13 +59,6 @@ const createDocDetail = (row) => {
     }).fail(function(jqXHR, exception) {
         modalAjaxErrorFunction(jqXHR, exception);
     });
-
-
-
-
-    // const documentArxivat = $(element).find(".accionsDocument").first().data("arxivat");
-    // showViewer(e, documentId, documentNom);
-
 }
 
 // Afegim dues files per a mantenir els colors de parells i senars de la taula.
@@ -77,6 +76,8 @@ const addRowDetail = (row, id, data) => {
         $('.wrapping-slide', $(row).next()).html(data);
         // Mostram la fila
         slideRowDown($(row).next(), 500);
+        // Marca el detall com a carregat
+        $(row).next().addClass('loaded');
     });
 }
 

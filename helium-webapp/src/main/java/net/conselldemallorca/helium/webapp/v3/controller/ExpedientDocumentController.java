@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
@@ -46,8 +45,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
-import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
@@ -643,11 +640,17 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable Long documentStoreId,
-			Model model) {
+			Model model) throws Exception {
 
-		DocumentDetallDto documentDetall = expedientDocumentService.getDocumentDetalls(expedientId, documentStoreId);
-		model.addAttribute("detall", documentDetall);
-		model.addAttribute("expedientId", expedientId);
+		try {
+			DocumentDetallDto documentDetall = expedientDocumentService.getDocumentDetalls(expedientId, documentStoreId);
+			model.addAttribute("detall", documentDetall);
+			model.addAttribute("expedientId", expedientId);
+		} catch(Exception e) {
+			String errMsg = getMessage(request, "expedient.document.detall.consulta.error", new Object[] {e.getMessage()});
+			logger.error(errMsg, e);
+			throw new Exception(errMsg, e);
+		}
 		return "v3/expedientDocumentDetall";
 	}
 
@@ -1457,6 +1460,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			model.addAttribute("potFirmar", true);
 			return "v3/expedientDocumentFirmaPassarelaForm";
 		}
+		String ret = "redirect:/v3/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + documentStoreId + "/firmaPassarela";
 		try {
 			ArxiuDto arxiuPerFirmar = expedientDocumentService.arxiuFindAmbDocument(
 					expedientId,
@@ -1476,14 +1480,16 @@ public class ExpedientDocumentController extends BaseExpedientController {
 					LocaleContextHolder.getLocale().getLanguage(),
 					modalStr + "/v3/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + documentStoreId + "/firmaPassarelaFinal",
 					false);
-			return "redirect:" + procesFirmaUrl;
+			ret = "redirect:" + procesFirmaUrl;
 		} catch(Exception e) {
-			
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request, 
+							"document.controller.firma.passarela.inici.error",
+							new Object[] {e.getMessage()}));
 		}
-		return getModalControllerReturnValueSuccess(
-				request, 
-				"redirect:/v3/helium/expedient/" + expedientId + "?pipellaActiva=documents",
-				null);
+		return ret;
 	}
 
 	/** Mètode que es crida a la tornada de la firma per passarel·la en el Portasignatures. Si tot va bé es tanca la modal
