@@ -107,6 +107,12 @@ public class ExecucioMassivaServiceBean implements ExecucioMassivaService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void reintentarExecucioMassiva(Long id) {
+		delegate.reintentarExecucioMassiva(id);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void rependreExecucioMassivaExpedient(Long id) {
 		delegate.rependreExecucioMassivaExpedient(id);
 	}

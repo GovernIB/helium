@@ -355,6 +355,42 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		return ret;
 	}
 
+	@Transactional
+	@Override
+	public void reintentarExecucioMassiva(Long id) {
+
+		try {
+			ExecucioMassiva execucioMassiva = execucioMassivaRepository.findOne(id);
+			if (execucioMassiva == null) {
+				throw new NoTrobatException(ExecucioMassiva.class, id);
+			}
+
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			if (!UsuariActualHelper.isAdministrador(auth)) {
+				expedientTipusHelper
+						.getExpedientTipusComprovantPermisLectura(execucioMassiva.getExpedientTipus().getId());
+			}
+
+			List<ExecucioMassivaExpedient> execucionsMassivesExpedients = execucioMassivaExpedientRepository
+					.findByExecucioMassivaId(id);
+			int n = 0;
+			for (ExecucioMassivaExpedient e : execucionsMassivesExpedients) {
+				if (e.getDataFi() != null && ExecucioMassivaEstat.ESTAT_ERROR.equals(e.getEstat())) {
+					e.setEstat(ExecucioMassivaEstat.ESTAT_PENDENT);
+					e.setDataFi(null);
+					n++;
+				}
+			}	
+			execucioMassiva.setDataFi(null);
+			logger.info("S'han reintentat " + n + " execucions d'expedients de " + execucionsMassivesExpedients.size()
+					+ " execucions per l'execució massiva amb id " + id);
+
+		} catch (Exception ex) {
+			String errMsg = "No s'ha pogut reintentar la execucio massiva amb id " + id + ": " + ex.getMessage();
+			logger.error(errMsg, ex);
+			throw new RuntimeException(errMsg, ex);
+		}
+	}
 
 	@Transactional
 	@Override
@@ -682,14 +718,15 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				}
 
 				String error = expedient.getError();
-				if (error != null || expedient.getEstat() == ExecucioMassivaEstat.ESTAT_ERROR) {
+				if (expedient.getEstat() == ExecucioMassivaEstat.ESTAT_ERROR) {
 					if (error != null)
 						error = error.replace("'", "&#8217;").replace("\"", "&#8220;");
 					danger++;
-				} else if (expedient.getEstat() == ExecucioMassivaEstat.ESTAT_FINALITZAT) {
+				} 
+				if (expedient.getEstat() == ExecucioMassivaEstat.ESTAT_FINALITZAT) {
 					finalitzat++;
-				} else if (expedient.getDataFi() == null
-						&& ExecucioMassivaEstat.ESTAT_PENDENT.equals(expedient.getEstat())) {
+				} 
+				if (ExecucioMassivaEstat.ESTAT_PENDENT.equals(expedient.getEstat())) {
 					pendent++;
 				}
 				mjson_exp.put("error", JSONValue.escape(error));

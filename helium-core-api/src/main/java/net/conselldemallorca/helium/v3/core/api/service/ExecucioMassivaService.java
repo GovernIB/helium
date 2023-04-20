@@ -88,4 +88,10 @@ public interface ExecucioMassivaService {
 
 	/** Mètode per descarregar l'arxiu CSV amb el resultat de l'execució massiva.*/
 	public byte[] getCsvOriginalContent(Long execucioMassivaId);
+
+	/**
+	 * Mètode per reintentar tos els casos d'error de les execucions massives.
+	 * @param id
+	 */
+	public void reintentarExecucioMassiva(Long id);
 }
