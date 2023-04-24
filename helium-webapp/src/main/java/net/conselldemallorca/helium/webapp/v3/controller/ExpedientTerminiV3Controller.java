@@ -15,6 +15,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.CampFormProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +74,11 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
 		Map<InstanciaProcesDto, List<TerminiDto>> terminis = new LinkedHashMap<InstanciaProcesDto, List<TerminiDto>>();
 		Map<String, List<TerminiIniciatDto>> iniciats = new LinkedHashMap<String, List<TerminiIniciatDto>>();
+		boolean perEstats = ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus());
+		Map<String, CampFormProperties> terminisFormProperties = null;
+		if (perEstats) {
+			terminisFormProperties = expedientTerminiService.getTerminisFormProperties(expedient.getTipus().getId(), expedient.getEstat().getCodi());
+		}
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
 			List<TerminiDto> terminisInstanciaProces = null;
 			if (instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
@@ -83,6 +90,16 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 						expedientTerminiService.iniciatFindAmbProcessInstanceId(
 								expedientId,
 								instanciaProces.getId()));
+			}
+			if (perEstats) {
+				for (TerminiDto termini: terminisInstanciaProces) {
+					CampFormProperties terminiFormProperties = terminisFormProperties.get(termini.getCodi());
+					if (terminiFormProperties != null) {
+						termini.setVisible(terminiFormProperties.isVisible());
+						termini.setEditable(terminiFormProperties.isEditable());
+						termini.setObligatori(terminiFormProperties.isObligatori());
+					}
+				}
 			}
 			terminis.put(instanciaProces, terminisInstanciaProces);
 		}

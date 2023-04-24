@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
+import lombok.Builder;
+
 import java.io.Serializable;
 
 /**
@@ -26,6 +28,10 @@ public class TerminiDto extends HeretableDto implements Serializable {
 	private boolean alertaPrevia;
 	private boolean alertaFinal;
 	private boolean alertaCompletat;
+
+	private boolean visible = true;
+	private boolean editable = true;
+	private boolean obligatori = false;
 	
 	public TerminiDto() {
 		super();
@@ -126,6 +132,25 @@ public class TerminiDto extends HeretableDto implements Serializable {
 	}
 	public void setAlertaCompletat(boolean alertaCompletat) {
 		this.alertaCompletat = alertaCompletat;
+	}
+
+	public boolean isVisible() {
+		return visible;
+	}
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+	}
+	public boolean isEditable() {
+		return editable;
+	}
+	public void setEditable(boolean editable) {
+		this.editable = editable;
+	}
+	public boolean isObligatori() {
+		return obligatori;
+	}
+	public void setObligatori(boolean obligatori) {
+		this.obligatori = obligatori;
 	}
 
 	public String getDurada() {

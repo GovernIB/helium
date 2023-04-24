@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.v3.core.api.service;
 import java.util.List;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampInfoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -161,4 +162,6 @@ public interface ExpedientDadaService {
 			Boolean ambOcults,
 			Boolean noPendents,
 			PaginacioParamsDto paginacioParams);
+
+	public List<CampInfoDto> getCampsNoUtilitzatsPerEstats(Long expedientId);
 }

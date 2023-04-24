@@ -5,14 +5,18 @@ package net.conselldemallorca.helium.v3.core.ejb;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
+import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.CampFormProperties;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
@@ -165,5 +169,11 @@ public class ExpedientTerminiServiceBean implements ExpedientTerminiService {
 		delegate.festiuDelete(data);
 		
 	}
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public Map<String, CampFormProperties> getTerminisFormProperties(Long expedientTipusId, String estatCodi) {
+        return delegate.getTerminisFormProperties(expedientTipusId, estatCodi);
+    }
 
 }

@@ -568,7 +568,57 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		return null;
 	}
 
-    /*********************/
+	@Override
+	@Transactional(readOnly = true)
+	public List<CampInfoDto> getCampsNoUtilitzatsPerEstats(Long expedientId) {
+		logger.debug("Consultant els camps no utilitzats de l'expedient (expedientId=" + expedientId + ")");
+		List<CampInfoDto> campsNoUtilitzats = new ArrayList<CampInfoDto>();
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(expedientId, true, false, false, false);
+		List<Camp> camps = campRepository.findByExpedientTipusOrderByCodiAsc(expedient.getTipus());
+		List<ExpedientDadaDto> dadesExpedient = variableHelper.findDadesPerInstanciaProces(expedient.getProcessInstanceId(), true);
+		Map<String, CampFormProperties> campsFormProperties = reglaHelper.getCampFormProperties(expedient.getTipus(), expedient.getEstat());
+
+		if (dadesExpedient != null && !dadesExpedient.isEmpty()) {
+			Collections.sort(
+					dadesExpedient,
+					new Comparator<ExpedientDadaDto>() {
+						public int compare(ExpedientDadaDto d1, ExpedientDadaDto d2) {
+							return d1.getVarCodi().compareToIgnoreCase(d2.getVarCodi());
+						}
+					}
+			);
+
+			int i = 0;
+			for(Camp camp: camps) {
+				while (i < (dadesExpedient.size() - 1) && camp.getCodi().compareToIgnoreCase(dadesExpedient.get(i).getVarCodi()) > 0)
+					i++;
+				if (dadesExpedient.isEmpty() || !camp.getCodi().equals(dadesExpedient.get(i).getVarCodi())) {
+					CampFormProperties campFormProperties = campsFormProperties.get(camp.getCodi());
+					campsNoUtilitzats.add(toCampInfoDto(camp, campFormProperties));
+				} else if (i < (dadesExpedient.size() - 1)){
+					i++;
+				}
+			}
+		} else {
+			for(Camp camp: camps) {
+				CampFormProperties campFormProperties = campsFormProperties.get(camp.getCodi());
+				campsNoUtilitzats.add(toCampInfoDto(camp, campFormProperties));
+			}
+		}
+		return campsNoUtilitzats;
+	}
+
+	private CampInfoDto toCampInfoDto(Camp camp, CampFormProperties campFormProperties) {
+		return CampInfoDto.builder()
+				.codi(camp.getCodi())
+				.etiqueta(camp.getEtiqueta())
+				.visible(campFormProperties != null ? campFormProperties.isVisible() : true)
+				.editable(campFormProperties != null ? campFormProperties.isEditable() : true)
+				.obligatori(campFormProperties != null ? campFormProperties.isObligatori() : false)
+				.build();
+	}
+
+	/*********************/
 
 	private Registre crearRegistreInstanciaProces(
 			Long expedientId,

@@ -12,6 +12,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentInfoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
@@ -491,4 +492,5 @@ public interface ExpedientDocumentService {
 			String arxiuNom,
 			byte[] contingutFirmat) throws PermisDenegatException;
 
+    public List<DocumentInfoDto> getDocumentsNoUtilitzatsPerEstats(Long expedientId);
 }

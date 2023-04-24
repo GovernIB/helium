@@ -19,6 +19,9 @@ import java.util.Set;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentInfoDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.CampFormProperties;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -356,12 +359,14 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			Model model) {
 		if (processInstanceId == null) {
 			processInstanceId = expedientService.findAmbId(expedientId).getProcessInstanceId();
+			model.addAttribute("documentsNoUtilitzats", expedientDocumentService.getDocumentsNoUtilitzatsPerEstats(expedientId));
+		} else {
+			model.addAttribute("documentsNoUtilitzats", getDocumentsNoUtilitzats(expedientId, processInstanceId));
 		}
 		DocumentExpedientCommand command = new DocumentExpedientCommand();
 		command.setExpedientId(expedientId);
 		command.setData(new Date());
 		command.setValidarArxius(true);
-		model.addAttribute("documentsNoUtilitzats", getDocumentsNoUtilitzats(expedientId, processInstanceId));
 		model.addAttribute("processInstanceId", processInstanceId);
 		model.addAttribute("documentExpedientCommand", command);
 		emplenarModelNti(expedientId, model);
@@ -403,8 +408,10 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			BindingResult bindingResult,
 			Model model) throws IOException {
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		boolean perEstats = false;
 		if (processInstanceId == null) {
 			processInstanceId = expedient.getProcessInstanceId();
+			perEstats = true;
 		}
 		command.setNtiActiu(expedient.isNtiActiu());
 		if (!bindingResult.hasErrors()) {
@@ -464,6 +471,11 @@ public class ExpedientDocumentController extends BaseExpedientController {
 					MissatgesHelper.error(request, errMsg);
 				}
 			}
+		}
+		if (perEstats) {
+			model.addAttribute("documentsNoUtilitzats", expedientDocumentService.getDocumentsNoUtilitzatsPerEstats(expedientId));
+		} else {
+			model.addAttribute("documentsNoUtilitzats", getDocumentsNoUtilitzats(expedientId, processInstanceId));
 		}
     	model.addAttribute("documentsNoUtilitzats", getDocumentsNoUtilitzats(expedientId, processInstanceId));
 		model.addAttribute("processInstanceId", processInstanceId);
@@ -1368,8 +1380,9 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				new CustomDateEditor(new SimpleDateFormat("dd/MM/yyyy"), true));
 	}
 
-	private List<DocumentDto> getDocumentsNoUtilitzats(Long expedientId, String procesId) {
+	private List<DocumentInfoDto> getDocumentsNoUtilitzats(Long expedientId, String procesId) {
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
+		List<DocumentInfoDto> documentsNoUtilitzats = new ArrayList<DocumentInfoDto>();
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
 				expedient.getTipus().getId(),
@@ -1377,7 +1390,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				true);	// amb herència
 		List<ExpedientDocumentDto> documentsInstancia = expedientDocumentService.findAmbInstanciaProces(expedientId, procesId);
 		if (documentsInstancia != null && documentsInstancia.size() > 0) {
-			List<DocumentDto> documentsNoUtilitzats = new ArrayList<DocumentDto>();
 			// Posa els codis dels documents utilitzats en un Set
 			Set<String> codisDocumentsExistents = new HashSet<String>();
 			for (ExpedientDocumentDto documentExpedient : documentsInstancia)
@@ -1385,11 +1397,25 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			// Mira quins documents no s'han utilitzat i els retorna
 			for(DocumentDto document: documents) 
 				if (!codisDocumentsExistents.contains(document.getCodi()))
-					documentsNoUtilitzats.add(document);
-			return documentsNoUtilitzats;
+					documentsNoUtilitzats.add(toDocumentInfo(document));
 		} else {
-			return documents;
+			for(DocumentDto document: documents) {
+				documentsNoUtilitzats.add(toDocumentInfo(document));
+			}
 		}
+		return documentsNoUtilitzats;
+	}
+
+	private DocumentInfoDto toDocumentInfo(DocumentDto document) {
+		return DocumentInfoDto.builder()
+				.codi(document.getCodi())
+				.documentNom(document.getDocumentNom())
+				.plantilla(document.isPlantilla())
+				.ntiOrigen(document.getNtiOrigen())
+				.ntiEstadoElaboracion(document.getNtiEstadoElaboracion())
+				.ntiTipoDocumental(document.getNtiTipoDocumental())
+				.generarNomesTasca(document.isGenerarNomesTasca())
+				.build();
 	}
 
 	private ExpedientDto emplenarModelNti(

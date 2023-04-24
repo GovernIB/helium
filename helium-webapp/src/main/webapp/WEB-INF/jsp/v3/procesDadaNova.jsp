@@ -26,6 +26,8 @@
 	.col-xs-3 {width: 20%;}
 	.col-xs-9 {width: 80%;}
 	.pad-left-col-xs-3 {left: 20%;}
+	.candau {color: #666666;}
+	.select2-result-label:has(> span.candau) {cursor: not-allowed;}
 </style>
 
 <c:if test="${not empty param.labelClass}"><c:set var="labelClass" value="${param.labelClass}"/></c:if>
@@ -45,7 +47,10 @@
 				</optgroup>
 				<optgroup label="<spring:message code='expedient.nova.data.definida'/>">
 					<c:forEach var="opt" items="${camps}">
-						<form:option value="${opt.codi}">${opt.codi} / ${opt.etiqueta}</form:option>
+						<c:if test="${opt.visible}">
+							<c:set var="bloquejat" value="${!opt.editable}"/>
+							<form:option value="${opt.codi}" disabled="${bloquejat}" data-locked="${bloquejat}">${opt.codi} / ${opt.etiqueta}</form:option>
+						</c:if>
 					</c:forEach>
 				</optgroup>
 			</form:select>
@@ -137,12 +142,24 @@
 <script type="text/javascript">
 	var codi = "${varCodi}";
 	var procesId = "${procesId}";
+
+	function formatDisabled(opt) {
+		let originalOpt = opt.element;
+		let text = opt.text;
+		if ($(originalOpt).data('locked') == true) {
+			return text + ' <span class="fa fa-lock pull-right candau">';
+		} else {
+			return text;
+		}
+	}
+
 	$(document).ready(function() {
 		$("#varCodi").select2({
 		    width: 'resolve',
 		    placeholder: '<spring:message code="expedient.nova.data.selecciona"/>',
 		    allowClear: true,
-		    minimumResultsForSearch: 6
+		    minimumResultsForSearch: 6,
+			formatResult: formatDisabled
 		});
 		// $("#varCodi").on('select2-open', function() {
 		// 	var iframe = $('.modal-body iframe', window.parent.document);

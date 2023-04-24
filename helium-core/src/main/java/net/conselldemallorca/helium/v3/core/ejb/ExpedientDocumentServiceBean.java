@@ -11,6 +11,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentInfoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.document.DocumentDetallDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -396,5 +397,11 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			byte[] contingutFirmat) throws PermisDenegatException {
 		delegate.processarFirmaClient(expedientId, processInstanceId, documentStoreId, arxiuNom, contingutFirmat);
 	}
-    
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public List<DocumentInfoDto> getDocumentsNoUtilitzatsPerEstats(Long expedientId) {
+        return delegate.getDocumentsNoUtilitzatsPerEstats(expedientId);
+    }
+
 }

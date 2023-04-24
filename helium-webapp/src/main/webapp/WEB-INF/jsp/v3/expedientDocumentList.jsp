@@ -167,6 +167,7 @@
 	.doc-details td {padding: 0px;}
 	.pill-link {position: relative !important; display: block !important; padding: 5px 10px !important; margin-right: 2px !important;}
 	.highlight {background-color: #fff34d; color: black; padding:1px 2px;}
+	.doc-bloquejat {font-size: 24px; color: #AAAAAA;}
 </style>
 
 <c:url var="urlDatatable" value="/v3/expedient/${expedient.id}/document/datatable"/>
@@ -223,6 +224,9 @@
 						<span class="fa fa-file fa-stack-2x doc-error"></span>
 						<span class="fa fa-warning fa-inverse fa-stack-1x doc-error-icon"></span>
 					</span>
+					{{if !editable}}
+						<span class="fa fa-lock pull-right doc-bloquejat" title="Document bloquejat en aquest estat"></span>
+					{{/if}}
 				{{else}}
 					<a href="${expedient.id}/document/{{:id}}/descarregar" title="<spring:message code="expedient.document.descarregar"/>">
 						<span class="fa-stack fa-1x doc-icon">
@@ -232,6 +236,9 @@
 						<span class="extensionIcon">{{:extensio}}</span>
 					</a>
 					<span {{if obligatori}}class="obligatori"{{/if}}>{{:nom}}</span>
+					{{if !editable}}
+						<span class="fa fa-lock pull-right doc-bloquejat" title="Document bloquejat en aquest estat"></span>
+					{{/if}}
 					<%--NTI/Arxiu--%>
 					{{if ntiActiu}}
 						<a href="${expedient.id}/proces/${expedient.processInstanceId}/document/{{:id}}/metadadesNti" data-toggle="modal">
@@ -329,7 +336,11 @@
 		<th data-col-name="id" data-template="#cellAccionsTemplate" data-orderable="false" width="5%">
 			<script id="cellAccionsTemplate" type="text/x-jsrender">
 			{{if id == null}}
-				<a class="btn btn-default" href="${expedient.id}/document/{{:codi}}/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nou_document"/></a>
+				{{if editable}}
+					<a class="btn btn-default" href="${expedient.id}/document/{{:codi}}/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nou_document"/></a>
+				{{else}}
+					<span class="fa fa-lock pull-right doc-bloquejat" title="Document bloquejat en aquest estat"></span>
+				{{/if}}
 			{{else}}
 				<div data-document-id="{{:id}}" <%--data-arxivat="{{:arxivat}}" data-psigna="{{psignaInfo}}"--%> class="dropdown accionsDocument">
 					<button class="btn btn-primary" data-toggle="dropdown" style="width:100%;"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>

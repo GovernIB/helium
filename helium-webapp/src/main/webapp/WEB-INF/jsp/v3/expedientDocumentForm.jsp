@@ -41,21 +41,12 @@
 	.col-xs-4 {width: 20%;}
 	.col-xs-8 {width: 80%;}
 	#s2id_estatId {width: 100% !important;}
-	.titol-missatge {
-		margin-left: 3px;
-		padding-top: 10px;
-		padding-bottom: 10px;
-	}
-	.titol-missatge label {
-		padding-right: 10px;
-	}
-	.nav-tabs li.disabled a {
-	    pointer-events: none;
-	}
-	.tab-pane {
-		min-height: 300px;
-		margin-top: 25px;
-	}
+	.titol-missatge {margin-left: 3px; padding-top: 10px; padding-bottom: 10px;}
+	.titol-missatge label {padding-right: 10px;}
+	.nav-tabs li.disabled a {pointer-events: none;}
+	.tab-pane {min-height: 300px; margin-top: 25px;}
+	.candau {color: #666666;}
+	.select2-result-label:has(> span.candau) {cursor: not-allowed;}
 </style>
 <script type="text/javascript">
 // <![CDATA[
@@ -118,9 +109,21 @@ $(document).ready( function() {
 			}
 		}).click();
 
+		function formatDisabled(opt) {
+			let originalOpt = opt.element;
+			let text = opt.text;
+			if ($(originalOpt).data('locked') == true) {
+				return text + ' <span class="fa fa-lock pull-right candau">';
+			} else {
+				return text;
+			}
+		}
+
 		// Carrega dades nti per defecte
 		$('#documentCodi')
-			.select2({language: "${idioma}"})
+			.select2({
+				language: "${idioma}",
+				formatResult: formatDisabled})
 			.change(function() {
 				var documentCodi = $(this).val();
 				$('#generarPlantilla').closest('.form-group').hide();
@@ -212,7 +215,10 @@ function mostrarAmagarFile() {
 						</optgroup>
 						<optgroup label="<spring:message code='expedient.nou.document.existent'/>">
 							<c:forEach var="opt" items="${documentsNoUtilitzats}">
-								<form:option value="${opt.codi}">${opt.documentNom}</form:option>
+								<c:if test="${opt.visible}">
+									<c:set var="bloquejat" value="${!opt.editable}"/>
+									<form:option value="${opt.codi}" disabled="${bloquejat}" data-locked="${bloquejat}">${opt.documentNom}</form:option>
+								</c:if>
 							</c:forEach>
 						</optgroup>
 					</form:select>

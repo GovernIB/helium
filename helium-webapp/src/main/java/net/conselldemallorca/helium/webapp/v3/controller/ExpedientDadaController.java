@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import net.conselldemallorca.helium.v3.core.api.dto.CampInfoDto;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -485,12 +486,10 @@ public class ExpedientDadaController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
-		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
-		String procesId = expedient.getProcessInstanceId();
 		return novaDadaAmbCodiGet(
 				request,
 				expedientId,
-				procesId,
+				null,
 				null,
 				model);
 	}
@@ -514,12 +513,10 @@ public class ExpedientDadaController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable String varCodi,
 			Model model) {
-		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
-		String procesId = expedient.getProcessInstanceId();
 		return novaDadaAmbCodiGet(
 				request,
 				expedientId,
-				procesId,
+				null,
 				varCodi,
 				model);
 	}
@@ -530,7 +527,13 @@ public class ExpedientDadaController extends BaseExpedientController {
 			@PathVariable String procesId,
 			@PathVariable String varCodi,
 			Model model) {
-		model.addAttribute("camps", getCampsNoUtilitzats(expedientId, procesId));
+		if (procesId == null) {
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+			procesId = expedient.getProcessInstanceId();
+			model.addAttribute("camps", expedientDadaService.getCampsNoUtilitzatsPerEstats(expedientId));
+		} else {
+			model.addAttribute("camps", getCampsNoUtilitzats(expedientId, procesId));
+		}
 		model.addAttribute(
 				"addVariableCommand",
 				populateAddCommand(
@@ -555,9 +558,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 			BindingResult result,
 			SessionStatus status,
 			Model model) {
-		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
-		String procesId = expedient.getProcessInstanceId();
-		return novaDadaAmbCodiPost(request, expedientId, procesId, varCodi, command, result, status, model);
+		return novaDadaAmbCodiPost(request, expedientId, null, varCodi, command, result, status, model);
 	}
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/new", method = RequestMethod.POST)
 	public String novaDadaAmbCodiPost(
@@ -569,7 +570,12 @@ public class ExpedientDadaController extends BaseExpedientController {
 			BindingResult result, 
 			SessionStatus status, 
 			Model model) {
-		try {			
+		try {
+			boolean perEstats = procesId == null;
+			if (perEstats) {
+				ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+				procesId = expedient.getProcessInstanceId();
+			}
 			if ("Buit".equals(varCodi)) {
 				result.rejectValue(
 						"varCodi",
@@ -630,7 +636,11 @@ public class ExpedientDadaController extends BaseExpedientController {
 				}
 			}
 			if (result.hasErrors()) {
-				model.addAttribute("camps", getCampsNoUtilitzats(expedientId, procesId));
+				if (perEstats) {
+					model.addAttribute("camps", expedientDadaService.getCampsNoUtilitzatsPerEstats(expedientId));
+				} else {
+					model.addAttribute("camps", getCampsNoUtilitzats(expedientId, procesId));
+				}
 				return "v3/expedientDadaNova";
 			}
 			MissatgesHelper.success(request, getMessage(request, "info.dada.nova.proces.creada") );
@@ -726,9 +736,9 @@ public class ExpedientDadaController extends BaseExpedientController {
 		model.addAttribute("totalsPerProces", totalsPerProces);
 	}
 
-	private List<CampDto> getCampsNoUtilitzats(Long expedientId, String procesInstanceId) {
+	private List<CampInfoDto> getCampsNoUtilitzats(Long expedientId, String procesInstanceId) {
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesInstanceId);
-		List<CampDto> campsNoUtilitzats = new ArrayList<CampDto>();
+		List<CampInfoDto> campsNoUtilitzats = new ArrayList<CampInfoDto>();
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		List<CampDto> camps = dissenyService.findCampsOrdenatsPerCodi(
 					expedient.getTipus().getId(),
@@ -752,15 +762,17 @@ public class ExpedientDadaController extends BaseExpedientController {
 				while (i < (dadesInstancia.size() - 1) && camp.getCodi().compareToIgnoreCase(dadesInstancia.get(i).getVarCodi()) > 0)
 					i++;
 				if (dadesInstancia.isEmpty() || !camp.getCodi().equals(dadesInstancia.get(i).getVarCodi())) {
-					campsNoUtilitzats.add(camp);
+					campsNoUtilitzats.add(CampInfoDto.builder().codi(camp.getCodi()).etiqueta(camp.getEtiqueta()).build());
 				} else if (i < (dadesInstancia.size() - 1)){
 					i++;
 				}
 			}
-			return campsNoUtilitzats;
 		} else {
-			return camps;
+			for(CampDto camp: camps) {
+				campsNoUtilitzats.add(CampInfoDto.builder().codi(camp.getCodi()).etiqueta(camp.getEtiqueta()).build());
+			}
 		}
+		return campsNoUtilitzats;
 	}
 
 	/** Retorna les dades de la instància de procés agrupades per agrupació. S'ha de tenir en compte

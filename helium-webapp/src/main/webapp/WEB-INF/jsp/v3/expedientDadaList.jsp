@@ -148,6 +148,7 @@
 	tr:not(.no-data):has(.fa-eye-slash) {color: #999;}
 	.dada-oculta {color: indianred; top: -14px; right: -4px; position: relative;}
 	.highlight {background-color: #fff34d; color: black; padding:1px 2px;}
+	.camp-bloquejat {font-size: 24px; color: #AAAAAA;}
 </style>
 
 <c:url var="urlDatatable" value="/v3/expedient/${expedient.id}/dada/datatable"/>
@@ -243,18 +244,22 @@
 		</th>
 		<th data-col-name="id" data-template="#cellDadaAccionsTemplate" data-orderable="false" width="5%">
 			<script id="cellDadaAccionsTemplate" type="text/x-jsrender">
-			{{if id == null}}
-				<a class="btn btn-default" href="${expedient.id}/dada/{{:campCodi}}/new" data-toggle="modal" data-adjust-height="false" data-height="350"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nova_dada"/></a>
+			{{if editable}}
+				{{if id == null}}
+					<a class="btn btn-default" href="${expedient.id}/dada/{{:campCodi}}/new" data-toggle="modal" data-adjust-height="false" data-height="350"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nova_dada"/></a>
+				{{else}}
+					<div data-document-id="{{:id}}" <%--data-arxivat="{{:arxivat}}" data-psigna="{{psignaInfo}}"--%> class="dropdown accionsDocument">
+						<button class="btn btn-primary" data-toggle="dropdown" {{if error}}disabled="disabled"{{/if}} style="width:100%;"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
+						<ul class="dropdown-menu dropdown-menu-right">
+							{{if !error}}
+								<li><a data-toggle="modal" href="${expedient.id}/dada/{{:id}}/update"><span class="fa fa-pencil fa-fw"></span>&nbsp;<spring:message code="comuns.modificar"/></a></li>
+								<li><a href="${expedient.id}/dada/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.llistat.document.confirm_esborrar"/>"><span class="fa fa-trash-o fa-fw"></span>&nbsp;<spring:message code="comuns.esborrar"/></a></li>
+							{{/if}}
+						</ul>
+					</div>
+				{{/if}}
 			{{else}}
-				<div data-document-id="{{:id}}" <%--data-arxivat="{{:arxivat}}" data-psigna="{{psignaInfo}}"--%> class="dropdown accionsDocument">
-					<button class="btn btn-primary" data-toggle="dropdown" {{if error || !editable}}disabled="disabled"{{/if}} style="width:100%;"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
-					<ul class="dropdown-menu dropdown-menu-right">
-						{{if !error && editable}}
-							{{if editable}}<li><a data-toggle="modal" href="${expedient.id}/dada/{{:id}}/update"><span class="fa fa-pencil fa-fw"></span>&nbsp;<spring:message code="comuns.modificar"/></a></li>{{/if}}
-							{{if editable}}<li><a href="${expedient.id}/dada/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.llistat.document.confirm_esborrar"/>"><span class="fa fa-trash-o fa-fw"></span>&nbsp;<spring:message code="comuns.esborrar"/></a></li>{{/if}}
-						{{/if}}
-					</ul>
-				</div>
+				<span class="fa fa-lock pull-right camp-bloquejat" title="Camp bloquejat en aquest estat"></span>
 			{{/if}}
 			</script>
 		</th>

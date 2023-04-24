@@ -4,9 +4,17 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.core.model.hibernate.Estat;
+import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.CampFormProperties;
+import net.conselldemallorca.helium.v3.core.regles.ReglaHelper;
+import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.model.Permission;
@@ -61,6 +69,10 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 	@Resource
 	private ExpedientRepository expedientRepository;
 	@Resource
+	private ExpedientTipusRepository expedientTipusRepository;
+	@Resource
+	private EstatRepository estatRepository;
+	@Resource
 	private JbpmHelper jbpmHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
@@ -69,6 +81,8 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 	@Resource
 	private TerminiHelper terminiHelper;
 
+	@Resource
+	private ReglaHelper reglaHelper;
 
 
 	/**
@@ -416,9 +430,16 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 		}
 	}
 
+    @Override
+	@Transactional(readOnly = true)
+    public Map<String, CampFormProperties> getTerminisFormProperties(Long expedientTipusId, String estatCodi) {
+		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+		Estat estat = estatRepository.findByExpedientTipusIdAndCodi(expedientTipusId, estatCodi);
+        return reglaHelper.getTerminisFormProperties(expedientTipus, estat);
+    }
 
 
-	private Date getDataFiTermini(
+    private Date getDataFiTermini(
 			Date inici,
 			int anys,
 			int mesos,

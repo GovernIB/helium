@@ -1899,6 +1899,51 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(ExpedientDocumentServiceImpl.class);
+        @Override
+		@Transactional(readOnly = true)
+        public List<DocumentInfoDto> getDocumentsNoUtilitzatsPerEstats(Long expedientId) {
+			logger.debug("Consultant els documents no utilitzats de l'expedient (expedientId=" + expedientId + ")");
+			List<DocumentInfoDto> documentsNoUtilitzats = new ArrayList<DocumentInfoDto>();
+			Expedient expedient = expedientHelper.getExpedientComprovantPermisos(expedientId, true, false, false, false);
+
+			List<Document> documents = documentRepository.findByExpedientTipusId(expedient.getTipus().getId());
+			List<ExpedientDocumentDto> documentsExpedient = documentHelper.findDocumentsPerInstanciaProces(expedient.getProcessInstanceId());
+			Map<String, CampFormProperties> documentFormProperties = reglaHelper.getDocumentFormProperties(expedient.getTipus(), expedient.getEstat());
+
+			if (documentsExpedient != null && !documentsExpedient.isEmpty()) {
+				// Posa els codis dels documents utilitzats en un Set
+				Set<String> codisDocumentsExistents = new HashSet<String>();
+				for (ExpedientDocumentDto documentExpedient : documentsExpedient)
+					codisDocumentsExistents.add(documentExpedient.getDocumentCodi());
+				// Mira quins documents no s'han utilitzat i els retorna
+				for(Document document: documents)
+					if (!codisDocumentsExistents.contains(document.getCodi()))
+						documentsNoUtilitzats.add(toDocumentInfo(document, documentFormProperties.get(document.getCodi())));
+				return documentsNoUtilitzats;
+			} else {
+				for(Document document: documents) {
+					documentsNoUtilitzats.add(toDocumentInfo(document, documentFormProperties.get(document.getCodi())));
+				}
+			}
+            return documentsNoUtilitzats;
+        }
+
+		private DocumentInfoDto toDocumentInfo(Document document, CampFormProperties campFormProperties) {
+			return DocumentInfoDto.builder()
+					.codi(document.getCodi())
+					.documentNom(document.getNom())
+					.plantilla(document.isPlantilla())
+					.ntiOrigen(document.getNtiOrigen())
+					.ntiEstadoElaboracion(document.getNtiEstadoElaboracion())
+					.ntiTipoDocumental(document.getNtiTipoDocumental())
+					.generarNomesTasca(document.isGenerarNomesTasca())
+					.visible(campFormProperties != null ? campFormProperties.isVisible() : true)
+					.editable(campFormProperties != null ? campFormProperties.isEditable() : true)
+					.obligatori(campFormProperties != null ? campFormProperties.isObligatori() : false)
+					.build();
+		}
+
+
+		private static final Logger logger = LoggerFactory.getLogger(ExpedientDocumentServiceImpl.class);
 
 }
