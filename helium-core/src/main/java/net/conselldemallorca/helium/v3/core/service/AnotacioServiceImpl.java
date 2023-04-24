@@ -1047,6 +1047,85 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	 */
 	@Override
 	@Transactional
+	public void reintentarTraspasAnotacio(Long anotacioId) throws Exception {
+		
+		logger.debug(
+				"Reintentant el traspàs de l'anotació (" +
+				"anotacioId=" + anotacioId + ")");
+
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+		// Comprova els permisos
+		this.comprovaPermisAccio(anotacio);
+		if (anotacio.getExpedient() == null)
+			throw new Exception("No es pot processar l'annex perquè l'anotació no té cap expedient associat.");
+		
+		Expedient expedient = anotacio.getExpedient();
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		
+		// Reintenta la incorporació de l'anotació
+		ArxiuResultat resultat = new ArxiuResultat();
+		
+		if (expedient.isArxiuActiu()) {			
+			// Utilitza la llibreria d'utilitats de Distribució per incorporar la informació de l'anotació directament a l'expedient dins l'Arxiu
+			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
+			BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
+			// Posarà els annexos en la carpeta de l'anotació
+			backofficeUtils.setCarpeta(anotacio.getIdentificador());
+			// S'enregistraran els events al monitor d'integració
+			backofficeUtils.setArxiuPluginListener(this);
+			// Prepara la consulta a Distribució
+			es.caib.distribucio.rest.client.domini.AnotacioRegistreId idWs = new AnotacioRegistreId();
+			idWs.setClauAcces(anotacio.getDistribucioClauAcces());
+			idWs.setIndetificador(anotacio.getDistribucioId());
+			AnotacioRegistreEntrada anotacioRegistreEntrada;
+			try {
+				anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
+				resultat = backofficeUtils.crearExpedientAmbAnotacioRegistre(expedientArxiu, anotacioRegistreEntrada);
+			} catch(Exception e) {
+				String errMsg = "Error reprocessant la informació de l'anotació de registre \"" + anotacio.getIdentificador() + "\" de Distribució: " + e.getMessage();
+				logger.error(errMsg, e);
+				throw new SistemaExternException(errMsg, e);
+			}
+		}
+		
+		// Depenent del resultat llença excepció
+		boolean error = false;
+		StringBuilder errorMsg = new StringBuilder();
+		if (resultat.getErrorCodi() != 0) {
+			error = true;
+			errorMsg.append("Error reprocessant l'anotació l'expedient amb la llibreria d'utilitats de Distribucio: " + resultat.getErrorCodi() + " " + resultat.getErrorMessage());
+		}
+		
+		for(AnotacioAnnex a : anotacio.getAnnexos()){
+			logger.debug(
+					"Reintent de processament de l'annex (" +
+					"anotacioId=" + anotacioId + " " + anotacio.getIdentificador() + ", annexId=" + a.getId() + 
+					" " + a.getNom() + ", annexEstat=" + a.getEstat() + ", annexError=" + a.getError() + ")");
+			// Incorpora l'annex a l'expedient
+			distribucioHelper.incorporarAnnex(
+					expedientTipus.isDistribucioSistra(), 
+					anotacio.getExpedient(), 
+					anotacio, 
+					a, 
+					resultat);
+			ArxiuResultatAnnex resultatAnnex = resultat.getResultatAnnex(a.getUuid());
+			if (resultatAnnex!=null && AnnexAccio.ERROR.equals(resultatAnnex.getAccio())) {
+				error = true;
+				errorMsg.append(resultatAnnex.getErrorCodi() + " - " + resultatAnnex.getErrorMessage());
+			}
+			if (error)
+				throw new Exception(errorMsg.toString());
+		}
+		
+
+		
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
 	public void esborrarAnotacionsExpedient(Long expedientId) {
 		logger.debug(
 				"Esborrant o deslligant les anotacions de l'expedient (" +

@@ -151,4 +151,12 @@ public interface AnotacioService {
 	 */
 	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId);
 
+	/** Reintenta el processament dels annexos d'una anotació per incorporar-los a Helium.
+	 * 
+	 * @param anotacioId
+	 * @throws Llença excepció en cas de no anar bé.
+	 * @return
+	 */
+	public void reintentarTraspasAnotacio(Long anotacioId) throws Exception;
+
 }

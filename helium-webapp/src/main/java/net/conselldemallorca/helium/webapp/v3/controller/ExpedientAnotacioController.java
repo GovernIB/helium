@@ -88,18 +88,30 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value="/{expedientId}/anotacio/{anotacioId}", method = RequestMethod.GET)
+	@RequestMapping(value="/{expedientId}/anotacio/{anotacioId}/{nomesAnnexos}", method = RequestMethod.GET)
 	String reprocessar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable Long anotacioId,
+			@PathVariable boolean nomesAnnexos,
 			Model model) {
 		
 		SessionHelper.getSessionManager(request).getEntornActual();
 		
 		// cridar al servei d'anotacions per reprocessar mapeig
 		try {
-			AnotacioMapeigResultatDto resultatMapeig = anotacioService.reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
+			AnotacioMapeigResultatDto resultatMapeig = new AnotacioMapeigResultatDto();
+			if(!nomesAnnexos)
+				resultatMapeig = anotacioService.reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
+			else {
+				anotacioService.reintentarTraspasAnotacio(anotacioId);
+				MissatgesHelper.success(
+						request, 
+						getMessage(
+								request, 
+								"expedient.anotacio.llistat.processar.nomes.annexos.ok"));      
+			}
+				
 			// Si hi ha errors posa alertes, afegiex elements span i title per abreujar el missatge sense perdre informació.
 			if (resultatMapeig.isError()) {
 				StringBuilder errMsg = new StringBuilder();
@@ -148,7 +160,11 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 								"expedient.anotacio.llistat.processar.mapeig.ok"));        			
 			}
 		} catch(Exception e) {
-			String errMsg = this.getMessage(request, "expedient.anotacio.llistat.processar.mapeig.ko", new Object[] {e.getMessage()});
+			String errMsg = null;
+			if(!nomesAnnexos)
+				errMsg = this.getMessage(request, "expedient.anotacio.llistat.processar.mapeig.ko", new Object[] {e.getMessage()});
+			else
+				errMsg = this.getMessage(request, "expedient.anotacio.llistat.processar.nomes.annexos.ko", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg);
 		}

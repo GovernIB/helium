@@ -96,7 +96,7 @@
 			style="width:100%">			
 		<thead>
 			<tr>
-				<th data-col-name="id" data-visible="true" data-orderable="false"/>
+				<th data-col-name="id" data-visible="false" data-orderable="false"/>
 				<th data-col-name="data" data-converter="datetime"><spring:message code="anotacio.llistat.columna.data"/></th>
 				<th data-col-name="identificador"><spring:message code="anotacio.llistat.columna.identificador"/></th>
 				<th data-col-name="extracte" data-renderer="maxLength(50)"><spring:message code="anotacio.llistat.columna.extracte"/></th>

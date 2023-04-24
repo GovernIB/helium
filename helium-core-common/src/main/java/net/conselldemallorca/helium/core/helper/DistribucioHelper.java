@@ -1330,6 +1330,7 @@ public class DistribucioHelper {
 				case MOGUT:
 					annex.setEstat(AnotacioAnnexEstatEnumDto.MOGUT);
 					annex.setUuid(resultatAnnex.getIdentificadorAnnex());
+					annex.setError(null);
 					arxiuUuid = annex.getUuid();
 				}
 			} else {
