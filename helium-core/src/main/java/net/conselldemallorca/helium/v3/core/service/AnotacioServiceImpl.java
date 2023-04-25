@@ -8,7 +8,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -35,6 +34,7 @@ import es.caib.distribucio.rest.client.domini.Annex;
 import es.caib.distribucio.rest.client.domini.AnotacioRegistreEntrada;
 import es.caib.distribucio.rest.client.domini.AnotacioRegistreId;
 import es.caib.distribucio.rest.client.domini.Estat;
+import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
 import es.caib.plugins.arxiu.api.Document;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helper.AlertaHelper;
@@ -497,7 +497,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
 			BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
 			// Posarà els annexos en la carpeta de l'anotació
-			backofficeUtils.setCarpeta(anotacio.getIdentificador());
+			backofficeUtils.setCarpeta(ArxiuConversioHelper.revisarContingutNom(anotacio.getIdentificador().replace("/", "_")));
 			// S'enregistraran els events al monitor d'integració
 			backofficeUtils.setArxiuPluginListener(this);
 			// Consulta la informació de l'anotació 
@@ -1017,28 +1017,41 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		ArxiuResultat resultat = new ArxiuResultat();
 		annex.setError(null);
 		
+		String annexUuid = annex.getUuid();
 		if (expedient.isArxiuActiu()) {			
+			
+			// Consulta el nom real a l'Arxiu
+			String annexAnotacioNomArxiu = null;
+			try {
+				es.caib.plugins.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
+						annexUuid,
+						null,
+						false,
+						annex.getFirmaTipus() != null);
+				annexAnotacioNomArxiu = arxiuDocument.getNom();
+			} catch (Exception e) {
+				String errMsg = "Error reprocessant consultant els detalls de l'annex " + annex.getId() + " \"" + annex.getTitol() + "\" per reintentar la seva incorporació a l'expedient " + expedient.getNumero() + ": " + e.getMessage();
+				logger.error(errMsg, e);
+				throw new SistemaExternException(errMsg, e);
+			}
+
 			// Utilitza la llibreria d'utilitats de Distribució per incorporar la informació de l'anotació directament a l'expedient dins l'Arxiu
 			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
 			BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
 			// Posarà els annexos en la carpeta de l'anotació
-			backofficeUtils.setCarpeta(anotacio.getIdentificador());
+			backofficeUtils.setCarpeta(ArxiuConversioHelper.revisarContingutNom(anotacio.getIdentificador().replace("/", "_")));
 			// S'enregistraran els events al monitor d'integració
 			backofficeUtils.setArxiuPluginListener(this);
-			// Prepara la consulta a Distribució
-			es.caib.distribucio.rest.client.domini.AnotacioRegistreId idWs = new AnotacioRegistreId();
-			idWs.setClauAcces(anotacio.getDistribucioClauAcces());
-			idWs.setIndetificador(anotacio.getDistribucioId());
-			AnotacioRegistreEntrada anotacioRegistreEntrada;
+			// Prepara la informació de l'anotació
+			AnotacioRegistreEntrada anotacioRegistreEntrada = new AnotacioRegistreEntrada();
 			try {
-				anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
-				// Modifica el resultat per deixar només l'annex amb mateix uuid
-				ListIterator<Annex> iAnnexos = anotacioRegistreEntrada.getAnnexos().listIterator();
-				while (iAnnexos.hasNext()) {
-					if (!iAnnexos.next().getUuid().equals(annex.getUuid())) {
-						iAnnexos.remove();
-					}
-				}
+				List<Annex> annexos = new ArrayList<Annex>();
+				Annex annexAnotacio = new Annex();
+				annexAnotacio.setUuid(annex.getUuid());
+				annexAnotacio.setTitol(annex.getTitol());
+				annexAnotacio.setNom(annexAnotacioNomArxiu);
+				annexos.add(annexAnotacio);		
+				anotacioRegistreEntrada.setAnnexos(annexos);
 				resultat = backofficeUtils.crearExpedientAmbAnotacioRegistre(expedientArxiu, anotacioRegistreEntrada);
 			} catch(Exception e) {
 				String errMsg = "Error reprocessant la informació de l'anotació de registre \"" + anotacio.getIdentificador() + "\" de Distribució: " + e.getMessage();
@@ -1066,7 +1079,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			error = true;
 			errorMsg.append("Error reprocessant l'anotació l'expedient amb la llibreria d'utilitats de Distribucio: " + resultat.getErrorCodi() + " " + resultat.getErrorMessage());
 		}
-		ArxiuResultatAnnex resultatAnnex = resultat.getResultatAnnex(annex.getUuid());
+		ArxiuResultatAnnex resultatAnnex = resultat.getResultatAnnex(annexUuid);
 		if (AnnexAccio.ERROR.equals(resultatAnnex.getAccio())) {
 			error = true;
 			errorMsg.append(resultatAnnex.getErrorCodi() + " - " + resultatAnnex.getErrorMessage());
