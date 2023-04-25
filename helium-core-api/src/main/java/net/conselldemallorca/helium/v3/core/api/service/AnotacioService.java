@@ -116,11 +116,6 @@ public interface AnotacioService {
 	public AnotacioDto reintentarConsulta(
 			Long anotacioId) throws Exception;
 
-	/** Mètode per obtenir el contingut d'un annex per a la seva descàrrega
-	 * 
-	 * @param annexId
-	 */
-	public ArxiuDto getAnnexContingut(Long annexId);
 
 	/** Mètode per consultar les firmes d'un annex
 	 * 
@@ -158,5 +153,17 @@ public interface AnotacioService {
 	 * @return
 	 */
 	public void reintentarTraspasAnotacio(Long anotacioId) throws Exception;
+
+	/** Mètode per obtenir el contingut d'un annex (en la seva versió imprimible) per a la seva descàrrega
+	 * 
+	 * @param annexId
+	 */
+	public ArxiuDto getAnnexContingutVersioImprimible(Long annexId);
+
+	/** Mètode per obtenir el contingut d'un annex per a la seva descàrrega
+	 * 
+	 * @param annexId
+	 */
+	public ArxiuDto getAnnexContingutVersioOriginal(Long annexId);
 
 }

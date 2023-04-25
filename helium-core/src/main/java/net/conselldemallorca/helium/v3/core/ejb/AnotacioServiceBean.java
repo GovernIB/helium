@@ -101,8 +101,14 @@ public class AnotacioServiceBean implements AnotacioService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ArxiuDto getAnnexContingut(Long annexId) {
-		return delegate.getAnnexContingut(annexId);
+	public ArxiuDto getAnnexContingutVersioOriginal(Long annexId) {
+		return delegate.getAnnexContingutVersioOriginal(annexId);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ArxiuDto getAnnexContingutVersioImprimible(Long annexId) {
+		return delegate.getAnnexContingutVersioImprimible(annexId);
 	}
 	
 	@Override

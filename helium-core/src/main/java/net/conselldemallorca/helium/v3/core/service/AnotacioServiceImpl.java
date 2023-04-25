@@ -35,6 +35,7 @@ import es.caib.distribucio.rest.client.domini.Annex;
 import es.caib.distribucio.rest.client.domini.AnotacioRegistreEntrada;
 import es.caib.distribucio.rest.client.domini.AnotacioRegistreId;
 import es.caib.distribucio.rest.client.domini.Estat;
+import es.caib.plugins.arxiu.api.Document;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helper.AlertaHelper;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
@@ -877,7 +878,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public ArxiuDto getAnnexContingut(Long annexId) {
+	public ArxiuDto getAnnexContingutVersioImprimible(Long annexId) {
 		
 		// Recupera l'annex
 		AnotacioAnnex annex = anotacioAnnexRepository.findOne(annexId);
@@ -888,7 +889,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				
 		ArxiuDto arxiu = new ArxiuDto();
 		if (annex.getContingut() == null) {
-			// Recupera el contingut de l'Arxiu
+			// Recupera el contingut de l'Arxiu (versió imprimible)
 			es.caib.plugins.arxiu.api.Document document = pluginHelper.arxiuDocumentInfo(
 					annex.getUuid(),
 					null,
@@ -904,6 +905,38 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		
 		return arxiu;
 	}
+	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public ArxiuDto getAnnexContingutVersioOriginal(Long annexId) {
+		
+		// Recupera l'annex
+		AnotacioAnnex annex = anotacioAnnexRepository.findOne(annexId);
+		if (annex == null)
+			throw new NoTrobatException(AnotacioAnnex.class, annexId);
+		// Comprova l'accés
+		this.comprovaPermisLectura(annex.getAnotacio());			
+		ArxiuDto arxiu = new ArxiuDto();
+		if (annex.getContingut() == null) {
+			Document documentArxiu = pluginHelper.arxiuDocumentOriginal(annex.getUuid(), null);
+			if (documentArxiu != null ) {
+				byte[] contingut = documentArxiu.getContingut() != null? documentArxiu.getContingut().getContingut() : null;
+				if (contingut!=null)
+					arxiu.setContingut(contingut);
+			}
+		} else {
+			arxiu.setContingut(annex.getContingut());
+		}
+		arxiu.setNom(annex.getNom());
+		arxiu.setTipusMime(annex.getTipusMime());
+		
+		return arxiu;
+	}
+	
 	
 	
 	/**

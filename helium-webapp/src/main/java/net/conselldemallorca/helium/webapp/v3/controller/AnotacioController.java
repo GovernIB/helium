@@ -668,8 +668,8 @@ public class AnotacioController extends BaseExpedientController {
 		return "redirect:/v3/anotacio";
 	}
 	
-	@RequestMapping(value = "/{anotacioId}/annex/{annexId}/descarregar", method = RequestMethod.GET)
-	public String descarregarAnnex(
+	@RequestMapping(value = "/{anotacioId}/annex/{annexId}/descarregar/original", method = RequestMethod.GET)
+	public String descarregarAnnexOriginal(
 			HttpServletRequest request,
 			HttpServletResponse response,
 			@PathVariable Long anotacioId,
@@ -679,7 +679,46 @@ public class AnotacioController extends BaseExpedientController {
 		String error = null;
 		Exception ex = null;
 		try {
-			ArxiuDto arxiu = anotacioService.getAnnexContingut(annexId);
+			ArxiuDto arxiu = anotacioService.getAnnexContingutVersioOriginal(annexId);
+			if (arxiu != null) {
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
+			}
+			success = true;
+		} catch (SistemaExternException e) {
+			error = e.getPublicMessage();	
+			ex = e;
+		} catch (Exception e) {
+			error = e.getMessage();
+			ex = e;
+		}
+		if (success)
+			return "arxiuView";
+		else {
+			String errMsg = getMessage(
+					request, 
+					"anotacio.annex.descarregar.error",
+					new Object[] {error});
+			logger.error(errMsg, ex);
+			MissatgesHelper.error(
+					request, 
+					errMsg);
+			return "redirect:" + request.getHeader("referer");
+		}
+	}
+	
+	@RequestMapping(value = "/{anotacioId}/annex/{annexId}/descarregar/imprimible", method = RequestMethod.GET)
+	public String descarregarAnnexImprimible(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			@PathVariable Long anotacioId,
+			@PathVariable Long annexId,
+			Model model) throws IOException {
+		boolean success = false;
+		String error = null;
+		Exception ex = null;
+		try {
+			ArxiuDto arxiu = anotacioService.getAnnexContingutVersioImprimible(annexId);
 			if (arxiu != null) {
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
