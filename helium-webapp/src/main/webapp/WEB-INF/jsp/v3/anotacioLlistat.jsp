@@ -291,6 +291,7 @@
  					<ul class="dropdown-menu">
 						<li id="liReintentarConsulta"><a id="selection"  data-maximized="true" href="<c:url value="../../../helium/v3/anotacio/reintentarConsulta"/>" data-rdt-link-ajax="true"><spring:message code="anotacio.llistat.reintentar.consulta"/></a></li>
  						<li id="liReintentarProcessar"><a id="selection"  href="<c:url value="../../../helium/v3/anotacio/reintentarProcessament"/>" data-rdt-link-ajax="true"><spring:message code="anotacio.llistat.reintentar.processament"/></a></li>
+						<li id="liReintentarProcessarNomesAnnexos"><a id="selection"  href="<c:url value="../../../helium/v3/anotacio/reintentarProcessamentNomesAnnexos"/>" data-rdt-link-ajax="true"><spring:message code="anotacio.llistat.reintentar.processament.nomes.annexos"/></a></li>
 						<li id="liReintentarMapeig"><a id="selection" href="<c:url value="../../../helium/v3/anotacio/reprocessarMapeig"/>" data-rdt-link-ajax="true"><spring:message code="anotacio.llistat.reintentar.mapeig"/></a></li>
 						<li id="liEsborrarAnotacions"><a id="selection"  href="<c:url value="../../../helium/v3/anotacio/esborrarAnotacions"/>" data-rdt-link-ajax="true"><spring:message code="anotacio.llistat.esborrar.anotacions"/></a></li>
  					</ul>

@@ -1250,5 +1250,43 @@ public class AnotacioController extends BaseExpedientController {
 		return "redirect:/v3/anotacio";
 	}
 	
+	/** Acció del menú desplegable d'Accions massives d'anotacions, per iniciar una tasca en segon pla per reintentar el processament dels annexos de les
+	 *  anotacions, és a dir moure els diferents annexos que encara estiguin a l'expedient d'Arxiu de Distribucio cap a la carpeta de l'anotació dins d'expedient 
+	 *  d'Arxiu d'Helium
+	 */
+	@RequestMapping(value = "/reintentarProcessamentNomesAnnexos", method = RequestMethod.GET)
+	public String reintentarProcessamentNomesAnnexos(
+			HttpServletRequest request,
+			Model model) {
+		// Programa la execució massiva
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		ExecucioMassivaDto dto = new ExecucioMassivaDto();
+		dto.setTipus(ExecucioMassivaTipusDto.REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS);
+		dto.setEnviarCorreu(false);
+		List<Long> ids =  sessionManager.getSeleccioAnotacio();
+		if (ids == null || ids.isEmpty()) {
+			MissatgesHelper.error(request, getMessage(request, "error.no.anotacio.selec"));
+		} else {
+			dto.setAuxIds(ids);
+			try {
+				execucioMassivaService.crearExecucioMassiva(dto);
+				MissatgesHelper.success(
+						request,
+						getMessage(
+								request,
+								"anotacio.llistat.accio.massiva.info.reintentar.processament.nomes.annexos.success"));
+			} catch(Exception e) {
+				MissatgesHelper.error(
+						request,
+						getMessage(
+								request,
+								"anotacio.llistat.accio.massiva.info.reintentar.processament.nomes.annexos.error",
+								new Object[] {e.getMessage()}));
+			}					
+			sessionManager.getSeleccioAnotacio().clear();
+		}
+		return "redirect:/v3/anotacio";
+	}
+	
 	private static final Log logger = LogFactory.getLog(AnotacioController.class);
 }

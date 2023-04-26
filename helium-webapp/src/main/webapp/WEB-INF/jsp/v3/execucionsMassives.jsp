@@ -554,6 +554,18 @@
 										'</thead>' +
 									'<tbody>';
 								}
+								if(execucio.tipus=='REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS'){
+									content += 
+										'<table class="table table-striped table-bordered dataTable" id="massexpt_' + execucio.id + '">' +
+										'<thead>' +
+											'<tr>' +
+												'<th class="massiu-expedient"><spring:message code="anotacio.llistat.accio.massiva.titol"/></th>' +
+												'<th class="massiu-estat"><spring:message code="expedient.consulta.estat"/></th>' +
+												'<th class="massiu-expedient"><spring:message code="expedient.tramitacio.massiva.header.data"/></th>' +
+											'</tr>' +
+										'</thead>' +
+									'<tbody>';
+								}
 								if(execucio.tipus=='REINTENTAR_MAPEIG_ANOTACIONS'){
 									content += 
 										'<table class="table table-striped table-bordered dataTable" id="massexpt_' + execucio.id + '">' +
@@ -592,6 +604,7 @@
 								} else if (execucio.tipus!='REINTENTAR_CONSULTA_ANOTACIONS' 
 										&& execucio.tipus!='REINTENTAR_PROCESSAMENT_ANOTACIONS'
 										&& execucio.tipus!='REINTENTAR_MAPEIG_ANOTACIONS'
+										&& execucio.tipus!='REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS'
 										&& execucio.tipus!='ESBORRAR_ANOTACIONS'){
 									content += 
 				

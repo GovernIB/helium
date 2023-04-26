@@ -703,7 +703,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				} else if (execucio.getTipus() == ExecucioMassivaTipus.REINTENTAR_CONSULTA_ANOTACIONS
 						   || execucio.getTipus() == ExecucioMassivaTipus.ESBORRAR_ANOTACIONS
 						   || execucio.getTipus() == ExecucioMassivaTipus.REINTENTAR_MAPEIG_ANOTACIONS
-						   || execucio.getTipus() == ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS) {
+						   || execucio.getTipus() == ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS
+						   || execucio.getTipus() == ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS) {
 					Anotacio anotacio = anotacioRepository.findOne(expedient.getAuxId());
 					titol = expedient.getAuxText() != null ? expedient.getAuxText()
 							: anotacio.getIdentificador();
@@ -919,6 +920,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			label = messageHelper.getMessage("expedient.massiva.anotacions.reprocessar.mapeig");
 		} else if (tipus.equals(ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS)) {
 			label = messageHelper.getMessage("expedient.massiva.anotacions.reintentar.processament");
+		} else if (tipus.equals(ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS)) {
+			label = messageHelper.getMessage("expedient.massiva.anotacions.reintentar.processament.nomes.annexos");
 		} else {
 			label = tipus.name();
 		}
@@ -978,7 +981,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				&& tipus != ExecucioMassivaTipus.ESBORRAR_ANOTACIONS
 				&& tipus != ExecucioMassivaTipus.REINTENTAR_CONSULTA_ANOTACIONS
 				&& tipus != ExecucioMassivaTipus.REINTENTAR_MAPEIG_ANOTACIONS
-				&& tipus != ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS) {
+				&& tipus != ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS
+				&& tipus != ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS) {
 			expedient = expedientHelper.findExpedientByProcessInstanceId(ome.getProcessInstanceId());
 		}
 
@@ -990,7 +994,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				|| tipus == ExecucioMassivaTipus.ESBORRAR_ANOTACIONS
 				|| tipus == ExecucioMassivaTipus.REINTENTAR_CONSULTA_ANOTACIONS
 				|| tipus == ExecucioMassivaTipus.REINTENTAR_MAPEIG_ANOTACIONS
-				|| tipus == ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS))
+				|| tipus == ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS
+				|| tipus == ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS ))
 			expedientTipus = exm.getExpedientTipus();
 		else
 			expedientTipus = expedient.getTipus();
@@ -1123,6 +1128,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				mesuresTemporalsHelper.mesuraIniciar("Esborrar anotacions", "massiva", expedient_s);
 				esborrarAnotacions(ome);
 				mesuresTemporalsHelper.mesuraCalcular("Esborrar anotacions", "massiva", expedient_s);
+			} else if (tipus == ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS) {
+				mesuresTemporalsHelper.mesuraIniciar("Reintentar processament només annexos anotacions", "massiva", expedient_s);
+				reintentarProcessamentAnotacionsNomesAnnexos(ome);
+				mesuresTemporalsHelper.mesuraCalcular("Reintentar processament només annexos anotacions", "massiva", expedient_s);	
 			}
 			SecurityContextHolder.getContext().setAuthentication(orgAuthentication);
 		} catch (Exception ex) {
@@ -2093,6 +2102,27 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		}catch(Exception ex) {
 			logger.error("OPERACIO:" + ome.getId()
 			+ ". No s'ha pogut reintentar el processament de les anotacions", ex);
+			throw ex;
+		}
+	}
+	
+	/** Reintentar processament  dels annexos de les anotacions  (reintentar moure els diferents annexos que encara 
+	 *  estiguin a l'expedient d'Arxiu de Distribucio cap a la carpeta de l'anotació dins d'expedient d'Arxiu d'Helium)
+	 **/
+	
+	private void reintentarProcessamentAnotacionsNomesAnnexos(ExecucioMassivaExpedient ome) throws Exception {
+		StringBuilder errorMsg = new StringBuilder();
+		ExecucioMassivaEstat estat = ExecucioMassivaEstat.ESTAT_FINALITZAT;
+		ome.setDataInici(new Date());
+		try {
+			anotacioService.reintentarTraspasAnotacio(ome.getAuxId());
+			ome.setEstat(estat);
+			ome.setError(errorMsg.length() > 0 ? errorMsg.toString() : null);
+			ome.setDataFi(new Date());
+			execucioMassivaExpedientRepository.save(ome);
+		}catch(Exception ex) {
+			logger.error("OPERACIO:" + ome.getId()
+			+ ". No s'ha pogut reintentar el processament dels annexos", ex);
 			throw ex;
 		}
 	}
