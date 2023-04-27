@@ -68,10 +68,14 @@
 									<c:choose>
 										<c:when test="${dadesPersona.admin || potProcessarAnotacions}">
 											<li>
-												<a href="<c:url value="/v3/expedient/{{:expedient.id}}/anotacio/{{:id}}/{{:false}}"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.anotacio.llistat.processar.mapeig"/></a>
+												<a href="<c:url value="/v3/expedient/{{:expedient.id}}/anotacio/{{:id}}/{{:false}}"/>" title="<spring:message code="expedient.anotacio.llistat.processar.mapeig.title"/>">
+													<span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.anotacio.llistat.processar.mapeig"/>
+												</a>
 											</li>
 											<li>
-												<a href="<c:url value="/v3/expedient/{{:expedient.id}}/anotacio/{{:id}}/{{:true}}"/>"><span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.anotacio.llistat.processar.nomes.annexos"/></a>
+												<a href="<c:url value="/v3/expedient/{{:expedient.id}}/anotacio/{{:id}}/{{:true}}"/>" title="<spring:message code="expedient.anotacio.llistat.processar.nomes.annexos.title"/>">
+														<span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.anotacio.llistat.processar.nomes.annexos"/>
+												</a>
 											</li>							
 										</c:when>
 										<c:otherwise>
