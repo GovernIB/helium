@@ -10,6 +10,7 @@
 		<input type="hidden" name="entornId" value="${command.entornId}" />
 		<input type="hidden" name="expedientTipusPare" value="${command.expedientTipusPare}" />
 
+		<c:set var="estatsErrors"><form:errors path="estats"/></c:set>
 		<c:set var="variablesErrors"><form:errors path="variables"/></c:set>
 		<c:set var="documentsErrors"><form:errors path="documents"/></c:set>
 		<c:set var="consultesErrors"><form:errors path="consultes"/></c:set>
@@ -27,7 +28,8 @@
 					<span class="fa fa-chevron-up" style="display: none;"></span>
 				</div>
 			</div>
-			<div id="panel_estats" class="taula panel-body collapse">
+			<div id="panel_estats" class="taula panel-body collapse <c:if test="${not empty estatsErrors}"> has-error</c:if>">
+				<c:if test="${not empty estatsErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="estats"/></p></c:if>
 				<table id="estats-taula"
 						class="table table-striped table-bordered table-hover">
 					<thead>

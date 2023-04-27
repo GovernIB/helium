@@ -438,10 +438,7 @@ public class DefinicioProcesHelper {
 									definicio, 
 									accioExportat.getCodi(), 
 									accioExportat.getNom(),
-									accioExportat.getTipus(),
-									accioExportat.getJbpmAction(),
-									accioExportat.getPredefinitClasse(),
-									accioExportat.getPredefinitDades());
+									accioExportat.getTipus());
 							definicio.getAccions().add(accio);
 							accioRepository.save(accio);
 						} else {
@@ -449,6 +446,10 @@ public class DefinicioProcesHelper {
 							accio.setJbpmAction(accioExportat.getJbpmAction());
 						}
 						accio.setDescripcio(accioExportat.getDescripcio());
+						accio.setJbpmAction(accioExportat.getJbpmAction());
+						accio.setScript(accioExportat.getScript());
+						accio.setPredefinitClasse(accioExportat.getPredefinitClasse());
+						accio.setPredefinitDades(accioExportat.getPredefinitDades());
 						accio.setPublica(accioExportat.isPublica());
 						accio.setOculta(accioExportat.isOculta());
 						accio.setRols(accioExportat.getRols());
@@ -1052,8 +1053,12 @@ public class DefinicioProcesHelper {
 							accio.getCodi(),
 							accio.getNom(),
 							accio.getDescripcio(),
+							accio.getTipus(),
 							accio.getDefprocJbpmKey(),
 							accio.getJbpmAction(),
+							accio.getPredefinitClasse(),
+							accio.getPredefinitDades(),
+							accio.getScript(),
 							accio.isPublica(),
 							accio.isOculta(),
 							accio.getRols());
@@ -1094,11 +1099,12 @@ public class DefinicioProcesHelper {
 					desti,
 					accio.getCodi(),
 					accio.getNom(),
-					accio.getTipus(),
-					accio.getJbpmAction(),
-					accio.getPredefinitClasse(),
-					accio.getPredefinitDades());
+					accio.getTipus());
 			nova.setDescripcio(accio.getDescripcio());
+			nova.setJbpmAction(accio.getJbpmAction());
+			nova.setScript(accio.getScript());
+			nova.setPredefinitClasse(accio.getPredefinitClasse());
+			nova.setPredefinitDades(accio.getPredefinitDades());
 			nova.setOculta(accio.isOculta());
 			nova.setPublica(accio.isPublica());
 			nova.setRols(accio.getRols());

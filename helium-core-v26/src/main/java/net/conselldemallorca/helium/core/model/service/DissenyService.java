@@ -2676,11 +2676,12 @@ public class DissenyService {
 					desti,
 					accio.getCodi(),
 					accio.getNom(),
-					accio.getTipus(),
-					accio.getJbpmAction(),
-					accio.getPredefinitClasse(),
-					accio.getPredefinitDades());
+					accio.getTipus());
 			nova.setDescripcio(accio.getDescripcio());
+			nova.setJbpmAction(accio.getJbpmAction());
+			nova.setScript(accio.getScript());
+			nova.setPredefinitClasse(accio.getPredefinitClasse());
+			nova.setPredefinitDades(accio.getPredefinitDades());
 			nova.setOculta(accio.isOculta());
 			nova.setPublica(accio.isPublica());
 			nova.setRols(accio.getRols());
@@ -2878,12 +2879,10 @@ public class DissenyService {
 						definicioProces,
 						accio.getCodi(),
 						accio.getNom(),
-						AccioTipusEnumDto.HANDLER,
-						accio.getJbpmAction(),
-						null,
-						null);
+						AccioTipusEnumDto.HANDLER);
 			}
 			nova.setDescripcio(accio.getDescripcio());
+			nova.setJbpmAction(accio.getJbpmAction());
 			nova.setPublica(accio.isPublica());
 			nova.setOculta(accio.isOculta());
 			nova.setRols(accio.getRols());

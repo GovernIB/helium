@@ -27,6 +27,7 @@ public class AccioExportacio implements Serializable {
 	private String rols;
 	private String predefinitClasse;
 	private String predefinitDades;
+	private String script;
 
 
 
@@ -34,16 +35,24 @@ public class AccioExportacio implements Serializable {
 			String codi,
 			String nom,
 			String descripcio,
+			AccioTipusEnumDto tipus,
 			String defprocJbpmKey,
 			String jbpmAction,
+			String predefinitClasse,
+			String predefinitDades,
+			String script,
 			boolean publica,
 			boolean oculta,
 			String rols) {
 		this.codi = codi;
 		this.nom = nom;
 		this.descripcio = descripcio;
+		this.tipus = tipus;
 		this.defprocJbpmKey = defprocJbpmKey;
 		this.jbpmAction = jbpmAction;
+		this.predefinitClasse = predefinitClasse;
+		this.predefinitDades = predefinitDades;
+		this.setScript(script);
 		this.publica = publica;
 		this.oculta = oculta;
 		this.rols = rols;
@@ -100,8 +109,6 @@ public class AccioExportacio implements Serializable {
 		this.rols = rols;
 	}
 
-
-
 	public AccioTipusEnumDto getTipus() {
 		return tipus;
 	}
@@ -124,6 +131,16 @@ public class AccioExportacio implements Serializable {
 
 	public void setPredefinitDades(String predefinitDades) {
 		this.predefinitDades = predefinitDades;
+	}
+
+
+
+	public String getScript() {
+		return script;
+	}
+
+	public void setScript(String script) {
+		this.script = script;
 	}
 
 

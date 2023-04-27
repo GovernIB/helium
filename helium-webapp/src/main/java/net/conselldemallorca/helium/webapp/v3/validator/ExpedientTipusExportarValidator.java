@@ -1,7 +1,9 @@
 package net.conselldemallorca.helium.webapp.v3.validator;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,12 +23,14 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatAccioDto;
 import net.conselldemallorca.helium.v3.core.api.service.CampService;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
@@ -280,6 +284,34 @@ public class ExpedientTipusExportarValidator implements ConstraintValidator<Expe
 						}
 				}
 			
+			// Estats. Comprova que també s'exportitn les seves accions d'entrada y sortida
+			for (String estatCodi : command.getEstats()) {
+				EstatDto estat = expedientTipusService.estatFindAmbCodi(command.getId(), estatCodi);
+				List<String> accionsError = new ArrayList<String>();
+				// Accions d'entrada
+				for (EstatAccioDto estatAccio : expedientTipusService.estatAccioEntradaFindAll(estat.getId())) {
+					if (!command.getAccions().contains(estatAccio.getAccio().getCodi())) {
+						accionsError.add("E \" " + estatAccio.getAccio().getCodi() + " - " + estatAccio.getAccio().getNom() + "\"");
+					}
+				}
+				// Accions de sortida
+				for (EstatAccioDto estatAccio : expedientTipusService.estatAccioSortidaFindAll(estat.getId())) {
+					if (!command.getAccions().contains(estatAccio.getAccio().getCodi())) {
+						accionsError.add("S \"" + estatAccio.getAccio().getCodi() + " - " + estatAccio.getAccio().getNom() + "\"");
+					}
+				}
+				if (!accionsError.isEmpty()) {
+					context.buildConstraintViolationWithTemplate(
+							MessageHelper.getInstance().getMessage(
+									this.codiMissatge + ".estat.accio.llistat", 
+									new Object[] {estat.getCodi(), estat.getNom(), accionsError}))
+					.addNode("estats")
+					.addConstraintViolation();
+					valid = false;
+				}
+				
+				
+			}
 			// Herència
 			
 			// Camps, documents i signatures

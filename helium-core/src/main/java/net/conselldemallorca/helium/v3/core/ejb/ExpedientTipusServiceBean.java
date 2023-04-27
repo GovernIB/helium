@@ -500,7 +500,19 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			PaginacioParamsDto paginacioParams) throws NoTrobatException {
 		return delegate.estatAccioEntradaFindPerDatatable(estatId, filtre, paginacioParams);
 	}
-	
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<EstatAccioDto> estatAccioEntradaFindAll(Long estatId) throws NoTrobatException {
+		return delegate.estatAccioEntradaFindAll(estatId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<EstatAccioDto> estatAccioSortidaFindAll(Long estatId) throws NoTrobatException {
+		return delegate.estatAccioSortidaFindAll(estatId);
+	}
+
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void estatAccionsDeleteAll(Long estatId) throws NoTrobatException, PermisDenegatException {

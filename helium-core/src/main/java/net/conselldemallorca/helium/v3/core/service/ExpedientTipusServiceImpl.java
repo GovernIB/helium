@@ -19,7 +19,6 @@ import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
-import lombok.SneakyThrows;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +33,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.SneakyThrows;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
@@ -865,8 +865,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							accio.getCodi(),
 							accio.getNom(),
 							accio.getDescripcio(),
+							accio.getTipus(),
 							accio.getDefprocJbpmKey(),
 							accio.getJbpmAction(),
+							accio.getPredefinitClasse(),
+							accio.getPredefinitDades(),
+							accio.getScript(),
 							accio.isPublica(),
 							accio.isOculta(),
 							accio.getRols());
@@ -973,7 +977,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			expedientTipus.setEntorn(entorn);
 			expedientTipus.setCodi(command.getCodi());
 			expedientTipus.setNom(importacio.getNom());
-			expedientTipus = expedientTipusRepository.save(expedientTipus);
+			expedientTipus.setTipus(importacio.getTipus());
+			expedientTipus = expedientTipusRepository.saveAndFlush(expedientTipus);
 		} else			
 			// Recupera el tipus d'expedient existent
 			if (entornHelper.potDissenyarEntorn(entornId)) {
@@ -1070,6 +1075,46 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		expedientTipus.setPinbalNifCif(importacio.getPinbalNifCif());
 		
 		boolean sobreEscriure = command.isSobreEscriure();
+		
+		// Accions
+		Accio accio;
+		Map<String, Accio> accions = new HashMap<String, Accio>();
+		if (command.getAccions().size() > 0) {
+			for(AccioExportacio accioExportat : importacio.getAccions() ) {
+				if (command.getAccions().contains(accioExportat.getCodi())){
+					accio = null;
+					if (expedientTipusExisteix) {
+						accio = accioRepository.findByExpedientTipusIdAndCodi(expedientTipus.getId(), accioExportat.getCodi());
+					}
+					if (accio == null || sobreEscriure) {
+						if (accio == null) {
+							accio = new Accio(
+									expedientTipus, 
+									accioExportat.getCodi(), 
+									accioExportat.getNom(),
+									accioExportat.getTipus());
+							expedientTipus.getAccions().add(accio);
+							accioRepository.saveAndFlush(accio);
+						} else {
+							accio.setNom(accioExportat.getNom());
+							accio.setTipus(accioExportat.getTipus());
+						}
+						accio.setDescripcio(accioExportat.getDescripcio());
+						accio.setJbpmAction(accioExportat.getJbpmAction());
+						accio.setDefprocJbpmKey(accioExportat.getDefprocJbpmKey());
+						accio.setScript(accioExportat.getScript());
+						accio.setPredefinitClasse(accioExportat.getPredefinitClasse());
+						accio.setPredefinitDades(accioExportat.getPredefinitDades());
+						accio.setPublica(accioExportat.isPublica());
+						accio.setOculta(accioExportat.isOculta());
+						accio.setRols(accioExportat.getRols());
+						
+						accions.put(accio.getCodi(), accio);
+					}
+				}
+			}
+		}
+		
 		// Estats
 		Estat estat;
 		if (command.getEstats().size() > 0)
@@ -1089,8 +1134,100 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							estatRepository.save(estat);
 						} else {
 							estat.setNom(estatExportat.getNom());
+							// Esborra
+							// Permisos
+							List<PermisDto> permisos = permisosHelper.findPermisos(
+									estat.getId(),
+									Estat.class);
+							for(PermisDto permis: permisos)
+								permisosHelper.deletePermis(estat.getId(), Estat.class, permis.getId());
+							// Regles
+							estatReglaRepository.delete(estatReglaRepository.findByEstat(estat));
+							estatReglaRepository.flush();
+							// Accions
+							estatAccioEntradaRepository.delete(estatAccioEntradaRepository.findByEstatOrderByOrdreAsc(estat));
+							estatAccioEntradaRepository.flush();
+							estatAccioSortidaRepository.delete(estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estat));		
+							estatAccioSortidaRepository.flush();
 						}
 						estat.setOrdre(estatExportat.getOrdre());
+						
+						// Afegerix
+						// Regles
+						if (estatExportat.getRegles() != null) {
+							for (EstatReglaDto r : estatExportat.getRegles()) {
+								EstatRegla regla = EstatRegla.builder()
+										.nom(r.getNom())
+										.ordre(r.getOrdre())
+										.qui(r.getQui())
+										.quiValor(r.getQuiValor())
+										.que(r.getQue())
+										.queValor(r.getQueValor())
+										.accio(r.getAccio())
+										.estat(estat)
+										.expedientTipus(expedientTipus)
+										.entorn(expedientTipus.getEntorn())
+										.build();
+								estatReglaRepository.save(regla);
+							}
+						}
+						// Permisos
+						if (estatExportat.getPermisos() != null) {
+							for (PermisEstatDto p : estatExportat.getPermisos()) {
+								permisosHelper.updatePermis(
+										estat.getId(),
+										Estat.class,
+										p.toPermisDto());
+							}
+						}
+						// Accions d'entrada
+						if (estatExportat.getAccionsEntrada() != null) {
+							for (EstatAccioDto a : estatExportat.getAccionsEntrada()) {
+								accio = accions.get(a.getAccio().getCodi());
+								if (accio == null) {
+									accio = accioRepository.findByExpedientTipusIdAndCodi(expedientTipusId, a.getAccio().getCodi());
+								}
+								if (accio == null) {
+									throw new DeploymentException(
+											messageHelper.getMessage(
+												"exportar.validacio.estat.accio.entrada", 
+												new Object[]{
+														estat.getCodi(),
+														estat.getNom(),
+														a.getAccio().getCodi()}));
+								}
+								EstatAccioEntrada estatAccioEntrada = EstatAccioEntrada.builder()
+										.estat(estat)
+										.accio(accio)
+										.ordre(a.getOrdre())
+										.build();
+								estatAccioEntradaRepository.save(estatAccioEntrada);
+							}							
+						}
+						// Accions de sortida
+						if (estatExportat.getAccionsSortida() != null) {
+							for (EstatAccioDto a : estatExportat.getAccionsSortida()) {
+								accio = accions.get(a.getAccio().getCodi());
+								if (accio == null) {
+									accio = accioRepository.findByExpedientTipusIdAndCodi(expedientTipusId, a.getAccio().getCodi());
+								}
+								if (accio == null) {
+									throw new DeploymentException(
+											messageHelper.getMessage(
+												"exportar.validacio.estat.accio.sortida", 
+												new Object[]{
+														estat.getCodi(),
+														estat.getNom(),
+														a.getAccio().getCodi()}));
+								}
+								EstatAccioSortida estatAccioSortida = EstatAccioSortida.builder()
+										.estat(estat)
+										.accio(accio)
+										.ordre(a.getOrdre())
+										.build();
+								estatAccioSortidaRepository.save(estatAccioSortida);
+							}	
+						}					
 					}
 				}
 		
@@ -1435,39 +1572,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					}
 				}
 
-		// Accions
-		Accio accio;
-		if (command.getAccions().size() > 0)
-			for(AccioExportacio accioExportat : importacio.getAccions() )
-				if (command.getAccions().contains(accioExportat.getCodi())){
-					accio = null;
-					if (expedientTipusExisteix) {
-						accio = accioRepository.findByExpedientTipusIdAndCodi(expedientTipus.getId(), accioExportat.getCodi());
-					}
-					if (accio == null || sobreEscriure) {
-						if (accio == null) {
-							accio = new Accio(
-									expedientTipus, 
-									accioExportat.getCodi(), 
-									accioExportat.getNom(),
-									accioExportat.getTipus(),
-									accioExportat.getDefprocJbpmKey(),
-									accioExportat.getJbpmAction(),
-									accioExportat.getPredefinitClasse(),
-									accioExportat.getPredefinitDades());
-							expedientTipus.getAccions().add(accio);
-							accioRepository.save(accio);
-						} else {
-							accio.setNom(accioExportat.getNom());
-							accio.setJbpmAction(accioExportat.getJbpmAction());
-						}
-						accio.setDescripcio(accioExportat.getDescripcio());
-						accio.setPublica(accioExportat.isPublica());
-						accio.setOculta(accioExportat.isOculta());
-						accio.setRols(accioExportat.getRols());
-					}
-				}
-		
 		// Definicions
 		DefinicioProces definicioProces;
 		if (command.getDefinicionsProces().size() > 0) {
@@ -2820,12 +2924,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<EstatDto> estatGetRetrocedir(long expedientId) {
-		List<EstatDto> estatsRetrocedir = new ArrayList<EstatDto>();
 		logger.debug(
 				"Consultant els possibles estats per retrocedir l'expedient (" +
-				"expedientId=" + expedientId+ ")");
-		logger.debug(
-				"Consultant els possibles estats per avançar l'expedient (" +
 				"expedientId=" + expedientId+ ")");
 		Expedient expedient = expedientRepository.findOne(expedientId);		
 		int estatOrdre= 0;
@@ -3083,6 +3183,39 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
+	public List<EstatAccioDto> estatAccioEntradaFindAll(Long estatId) throws NoTrobatException {
+		logger.debug(
+				"Consultant les accions d'entrada per l'estat  (" +
+				"estatId=" + estatId + ")");
+		
+		Estat estat = estatRepository.findOne(estatId);
+		if (estat == null) {
+			throw new NoTrobatException(Estat.class, estatId);
+		}
+		return conversioTipusHelper.convertirList(
+				estatAccioEntradaRepository.findByEstatOrderByOrdreAsc(estat), 
+				EstatAccioDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<EstatAccioDto> estatAccioSortidaFindAll(Long estatId) throws NoTrobatException {
+		logger.debug(
+				"Consultant les accions de sortida per l'estat  (" +
+				"estatId=" + estatId + ")");
+		
+		Estat estat = estatRepository.findOne(estatId);
+		if (estat == null) {
+			throw new NoTrobatException(Estat.class, estatId);
+		}
+		return conversioTipusHelper.convertirList(
+				estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estat), 
+				EstatAccioDto.class);
+	}
+
+	
+	@Override
 	@Transactional
 	public void estatAccionsDeleteAll(Long estatId) throws NoTrobatException, PermisDenegatException {
 		logger.debug(
@@ -3285,17 +3418,18 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 								expedientTipus,
 								accio.getCodi(),
 								accio.getNom(),
-								accio.getTipus(),
-								definicioProces.getJbpmKey(),
-								accio.getJbpmAction(),
-								accio.getPredefinitClasse(),
-								accio.getPredefinitDades());
+								accio.getTipus());
 						expedientTipus.getAccions().add(nova);
 					} else if (sobreescriure) {
 						nova.setNom(accio.getNom());
-						nova.setJbpmAction(accio.getJbpmAction());
+						nova.setTipus(accio.getTipus());
 					}
 					nova.setDescripcio(accio.getDescripcio());
+					nova.setJbpmAction(accio.getJbpmAction());
+					nova.setScript(accio.getScript());
+					nova.setDefprocJbpmKey(accio.getDefprocJbpmKey());
+					nova.setPredefinitClasse(accio.getPredefinitClasse());
+					nova.setPredefinitDades(accio.getPredefinitDades());
 					nova.setPublica(accio.isPublica());
 					nova.setOculta(accio.isOculta());
 					nova.setRols(accio.getRols());

@@ -1,10 +1,16 @@
 package net.conselldemallorca.helium.v3.core.api.dto.regles;
 
+import java.io.Serializable;
+
+import lombok.EqualsAndHashCode;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 
-public class EstatAccioDto {
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+public class EstatAccioDto implements Serializable {
 	
+	private static final long serialVersionUID = -2789724055214172092L;
+
 	private Long id;
     private int ordre;
     private String nom;

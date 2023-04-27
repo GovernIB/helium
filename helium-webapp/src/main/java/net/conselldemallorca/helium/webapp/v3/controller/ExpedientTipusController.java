@@ -583,15 +583,17 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		}
 		command.setIntegracioSistra(true);
 		command.setIntegracioForms(true);
-		if (exportacio.getExpedientTipusPareCodi() != null) {
-			command.setExpedientTipusPare(exportacio.getExpedientTipusPareCodi());
-			command.setTasquesHerencia(true);
+		if (exportacio != null) {
+			if (exportacio.getExpedientTipusPareCodi() != null) {
+				command.setExpedientTipusPare(exportacio.getExpedientTipusPareCodi());
+				command.setTasquesHerencia(true);
+			}
+		 	EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), exportacio, model);			
 		}
 		
 		model.addAttribute("inici", true); // per marcar tots els checboxs inicialment
-		model.addAttribute("command", command);	
-	 	EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), exportacio, model);
+		model.addAttribute("command", command);
 
 		return "v3/expedientTipusImportarOpcions";
 	}	

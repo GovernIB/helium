@@ -334,6 +334,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				.ntiTipoDocumental(document.getNtiTipoDocumental())
 				.generarPlantilla(document.isPlantilla())
 				.build();
+		model.addAttribute("processInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("documentExpedientCommand", command);
 		emplenarModelNti(expedientId, model);
 		model.addAttribute(

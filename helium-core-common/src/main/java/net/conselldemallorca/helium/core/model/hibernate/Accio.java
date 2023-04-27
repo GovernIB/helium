@@ -87,35 +87,21 @@ public class Accio implements Serializable, GenericEntity<Long> {
 			DefinicioProces definicioProces, 
 			String codi, 
 			String nom, 
-			AccioTipusEnumDto tipus,
-			String jbpmAction,
-			String predefinitClasse,
-			String predefinitDades) {
+			AccioTipusEnumDto tipus) {
 		this.definicioProces = definicioProces;
 		this.codi = codi;
 		this.nom = nom;
 		this.tipus = tipus;
-		this.jbpmAction = jbpmAction;
-		this.predefinitClasse = predefinitClasse;
-		this.predefinitDades = predefinitDades;
 	}
 	public Accio(
 			ExpedientTipus expedientTipus, 
 			String codi, 
 			String nom, 
-			AccioTipusEnumDto tipus,
-			String defprocJbpmKey, 
-			String jbpmAction,
-			String predefinitClasse,
-			String predefinitDades) {
+			AccioTipusEnumDto tipus) {
 		this.expedientTipus = expedientTipus;
 		this.codi = codi;
 		this.nom = nom;
 		this.tipus = tipus;
-		this.defprocJbpmKey = defprocJbpmKey;
-		this.jbpmAction = jbpmAction;
-		this.predefinitClasse = predefinitClasse;
-		this.predefinitDades = predefinitDades;
 	}
 
 	@Id

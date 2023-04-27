@@ -1001,6 +1001,32 @@ public interface ExpedientTipusService {
 			String filtre, 
 			PaginacioParamsDto paginacioParams);
 	
+	/** 
+	 * Retorna la llista d'accions d'entrada per un estat ordenada per la columna ordre.
+	 * 
+	 * @param estatId
+	 * 
+	 * @return La llista d'accions d'entrada.
+	 * 
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public List<EstatAccioDto> estatAccioEntradaFindAll(
+			Long estatId);
+
+	/** 
+	 * Retorna la llista d'accions de sortida per un estat ordenada per la columna ordre.
+	 * 
+	 * @param estatId
+	 * 
+	 * @return La llista d'accions de sortida.
+	 * 
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public List<EstatAccioDto> estatAccioSortidaFindAll(
+			Long estatId);
+	
 	/**
 	 * Afegeix una acció a l'entrada d'un estat.
 	 *

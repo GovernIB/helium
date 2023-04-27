@@ -3,14 +3,13 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
+import java.io.Serializable;
+
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
-import java.io.Serializable;
 
 /**
  * Informació d'un permís.
@@ -22,7 +21,6 @@ import java.io.Serializable;
 @NoArgsConstructor @AllArgsConstructor
 public class PermisEstatDto implements Serializable {
 
-//	private Long id;
 	@EqualsAndHashCode.Include
 	private String principalNom;
 	@EqualsAndHashCode.Include
@@ -33,6 +31,15 @@ public class PermisEstatDto implements Serializable {
 	private boolean dataManagement;
 	private boolean docManagement;
 
+	public PermisDto toPermisDto() {
+		PermisDto permis = new PermisDto();
+		permis.setRead(this.read);
+		permis.setWrite(this.write);
+		permis.setDataManagement(this.dataManagement);
+		permis.setDocManagement(this.docManagement);
+
+		return permis;
+	}
 	private static final long serialVersionUID = -139254994389509932L;
 
 }
