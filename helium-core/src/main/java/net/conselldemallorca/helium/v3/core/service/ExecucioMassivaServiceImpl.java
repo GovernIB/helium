@@ -2092,7 +2092,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		ExecucioMassivaEstat estat = ExecucioMassivaEstat.ESTAT_FINALITZAT;
 		ome.setDataInici(new Date());
 		// Recupera l'anotació 
-		Anotacio anotacio = anotacioRepository.findOne(ome.getAuxId());
 		try {
 			anotacioService.reprocessar(ome.getAuxId());
 			ome.setEstat(estat);

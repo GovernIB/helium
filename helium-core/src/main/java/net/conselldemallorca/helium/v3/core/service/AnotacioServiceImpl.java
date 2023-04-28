@@ -725,9 +725,11 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		Anotacio anotacio = anotacioRepository.findOne(anotacioId);		
 		// Comprova els permisos
 		this.comprovaPermisAccio(anotacio);
-		// Comprova que està en error de processament
-		if (!AnotacioEstatEnumDto.ERROR_PROCESSANT.equals(anotacio.getEstat())) {
-			throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot reprocessar perquè està en estat " + anotacio.getEstat());
+		// Comprova que està en error de processament o que està rebutjada o pendent i sense expedient relacionat
+		if (!AnotacioEstatEnumDto.ERROR_PROCESSANT.equals(anotacio.getEstat())
+				&& !( Arrays.asList(ArrayUtils.toArray(AnotacioEstatEnumDto.PENDENT, AnotacioEstatEnumDto.REBUTJADA)).contains(anotacio.getEstat())
+						&& anotacio.getExpedient() == null) ) {
+			throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot reprocessar perquè està en estat " + anotacio.getEstat() + (anotacio.getExpedient() != null ? " i té un expedient associat" : ""));
 		}		
 		return conversioTipusHelper.convertir(
 				distribucioHelper.reprocessarAnotacio(anotacioId),

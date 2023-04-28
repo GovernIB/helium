@@ -18,6 +18,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +32,7 @@ import com.lowagie.text.Font;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.pdf.PdfWriter;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultatAnnex;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultatAnnex.AnnexAccio;
@@ -364,6 +366,30 @@ public class DistribucioHelper {
 		return anotacio;
 	}
 
+	/** Mètode per posar una anotació com a pendent de consulta sense annexos ni interessats
+	 * 
+	 * @param anotacioId
+	 * @param consultaIntents
+	 * @param consultaError
+	 * @param consultaData
+	 * @return
+	 */
+	@Transactional
+	public Anotacio resetConsulta(long anotacioId, String errorProcessament) 
+	{
+		
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+		anotacio.setErrorProcessament(errorProcessament);
+		anotacio.setConsultaIntents(0);
+
+		// Esborra annexos y interessats per evitar duplicar-los quan es torni a consultar
+		anotacioAnnexRepository.delete(anotacio.getAnnexos());
+		anotacioInteressatRepository.delete(anotacio.getInteressats());
+		anotacio.getAnnexos().clear();
+		anotacio.getInteressats().clear();
+		
+		return anotacio;
+	}
 	/** Mètode per actualitzar l'estat a ERROR_PROCESSANT i la descripció de l'error de processament.
 	 * 
 	 * @param anotacioId
@@ -799,9 +825,12 @@ public class DistribucioHelper {
 
 		logger.debug("Rerocessant l'anotació " + anotacio.getIdentificador() + ".");
 
-		if (!AnotacioEstatEnumDto.ERROR_PROCESSANT.equals(anotacio.getEstat())) {
-			throw new Exception("L'anotació " + anotacio.getExpedientNumero() + " està en estat " + anotacio.getEstat() + " i no es pot reprocessar.");
-		}
+		// Comprova que està en error de processament o que està rebutjada o pendent i sense expedient relacionat
+		if (!AnotacioEstatEnumDto.ERROR_PROCESSANT.equals(anotacio.getEstat())
+				&& !( Arrays.asList(ArrayUtils.toArray(AnotacioEstatEnumDto.PENDENT, AnotacioEstatEnumDto.REBUTJADA)).contains(anotacio.getEstat())
+						&& anotacio.getExpedient() == null) ) {
+			throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot reprocessar perquè està en estat " + anotacio.getEstat() + (anotacio.getExpedient() != null ? " i té un expedient associat" : ""));
+		}		
 		
 		// Consulta l'anotació
 		AnotacioRegistreId idWs = new AnotacioRegistreId();
