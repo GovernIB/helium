@@ -1020,8 +1020,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		annex.setError(null);
 		
 		String annexUuid = annex.getUuid();
-		if (expedient.isArxiuActiu()) {
-			
+		if (expedient.isArxiuActiu()) {			
 			// Consulta el nom real a l'Arxiu
 			String annexAnotacioNomArxiu = null;
 			try {
