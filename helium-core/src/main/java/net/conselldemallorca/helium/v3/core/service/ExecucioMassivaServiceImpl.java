@@ -49,6 +49,7 @@ import com.codahale.metrics.Timer;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DefinicioProcesHelper;
+import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
@@ -192,6 +193,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private UsuariActualHelper usuariActualHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
+	@Resource
+	private DistribucioHelper distribucioHelper;
 
 	@Autowired
 	private TascaService tascaService;
@@ -2093,6 +2096,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		ome.setDataInici(new Date());
 		// Recupera l'anotació 
 		try {
+			distribucioHelper.setProcessant(ome.getAuxId(), true);
 			anotacioService.reprocessar(ome.getAuxId());
 			ome.setEstat(estat);
 			ome.setError(errorMsg.length() > 0 ? errorMsg.toString() : null);
@@ -2102,6 +2106,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			logger.error("OPERACIO:" + ome.getId()
 			+ ". No s'ha pogut reintentar el processament de les anotacions", ex);
 			throw ex;
+		} finally {
+			distribucioHelper.setProcessant(ome.getAuxId(), false);
 		}
 	}
 	
