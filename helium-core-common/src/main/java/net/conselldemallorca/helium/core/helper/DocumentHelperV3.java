@@ -2414,7 +2414,8 @@ public class DocumentHelperV3 {
 			if(firmes!=null && !firmes.isEmpty())
 				comprovarFirmesReconegudes(firmes);
 			if (arxiuUuid == null) {
-				String documentDescripcio = documentStore.isAdjunt() ? documentStore.getAdjuntTitol() : document.getNom();
+				String documentDescripcio = documentStore.isAdjunt() ? documentStore.getAdjuntTitol() 
+											: (document!=null ? document.getNom() : documentNom );
 				// Actualitza el document a dins l'arxiu
 				ArxiuDto arxiu = new ArxiuDto(
 						arxiuNom,
