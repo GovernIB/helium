@@ -443,13 +443,11 @@ tr.clicable {
 												<spring:message code="anotacio.annex.detalls.camp.fitxer.descarregar.imprimible"/>
 												<span class="fa fa-download" title="<spring:message code="anotacio.annex.detalls.camp.fitxer.descarregar.imprimible"/>"></span>
 											</a>
-											<c:if test="${not empty annex.firmaTipus}">
-												<a href='<c:url value="/v3/anotacio/${anotacio.id}/annex/${annex.id}/descarregar/original"></c:url>' 
-													class="btn btn-default btn-sm pull-right arxiu-download">
-													<spring:message code="anotacio.annex.detalls.camp.fitxer.descarregar.original"/>
-													<span class="fa fa-download" title="<spring:message code="anotacio.annex.detalls.camp.fitxer.descarregar.original"/>"></span>
-												</a>	
-											</c:if>	
+											<a href='<c:url value="/v3/anotacio/${anotacio.id}/annex/${annex.id}/descarregar/original"></c:url>' 
+												class="btn btn-default btn-sm pull-right arxiu-download">
+												<spring:message code="anotacio.annex.detalls.camp.fitxer.descarregar.original"/>
+												<span class="fa fa-download" title="<spring:message code="anotacio.annex.detalls.camp.fitxer.descarregar.original"/>"></span>
+											</a>
 										</td>
 									</tr>
 									<tr>

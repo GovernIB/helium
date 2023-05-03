@@ -400,7 +400,7 @@ public class DistribucioHelper {
 	public Anotacio updateErrorProcessament(long anotacioId, String errorProcessament) {
 		
 		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
-		anotacio.setErrorProcessament(errorProcessament.substring(0, 1024));//trunquem missatge d'error per poder guardar a bbdd
+		anotacio.setErrorProcessament(errorProcessament.substring(0, Math.min(1024, errorProcessament.length())));
 		anotacio.setEstat(AnotacioEstatEnumDto.ERROR_PROCESSANT);
 		return anotacio;
 	}
@@ -415,29 +415,7 @@ public class DistribucioHelper {
 		
 		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
 		
-		ExpedientTipus expedientTipus = null;
-		Expedient expedient = null;
-		if (anotacioEntrada.getProcedimentCodi() != null) {
-
-			// Cerca el tipus d'expedient per aquell codi de procediment
-			List<ExpedientTipus> expedientsTipus = expedientTipusRepository.findPerDistribuir(anotacioEntrada.getProcedimentCodi(), anotacioEntrada.getAssumpteCodiCodi());
-			if (!expedientsTipus.isEmpty()) {
-				expedientTipus = expedientsTipus.get(0);
-				if (expedientsTipus.size() > 1) {
-					StringBuilder expedientsTipusStr = new StringBuilder();
-					for (ExpedientTipus et : expedientsTipus) {
-						expedientsTipusStr.append(et.getCodi() + " ");
-					}
-					logger.warn("S'ha trobat més d'1 tipus d'expedient pel codi de procediment: " + anotacioEntrada.getProcedimentCodi() + " i assumpte: " + anotacioEntrada.getAssumpteCodiCodi() 
-								+ ":[ " + expedientsTipusStr.toString() + "]. S'escull el primer " + expedientsTipus.get(0).getCodi() + " de l'entorn " + expedientsTipus.get(0).getEntorn().getCodi());
-				}				
-				// Cerca si hi ha cap expedient que coincideixi amb el número d'expedient
-				if (anotacioEntrada.getExpedientNumero() != null) {
-					expedient = expedientRepository.findByTipusAndNumero(expedientTipus, anotacioEntrada.getExpedientNumero());
-				}
-			}
-		}
-		// Actualitza l'anotació
+				// Actualitza l'anotació
 		anotacio.setEstat(AnotacioEstatEnumDto.PENDENT);
 		anotacio.setAssumpteCodiCodi(anotacioEntrada.getAssumpteTipusCodi());
 		anotacio.setData(anotacioEntrada.getData());
@@ -447,8 +425,6 @@ public class DistribucioHelper {
 		anotacio.setLlibreCodi(anotacioEntrada.getLlibreCodi());
 		anotacio.setOficinaCodi(anotacioEntrada.getOficinaCodi());
 		anotacio.setDestiCodi(anotacioEntrada.getDestiCodi());
-		anotacio.setExpedientTipus(expedientTipus);
-		anotacio.setExpedient(expedient);
 		anotacio.setAplicacioCodi(anotacioEntrada.getAplicacioCodi());
 		anotacio.setAplicacioVersio(anotacioEntrada.getAplicacioVersio());
 		anotacio.setAssumpteCodiCodi(anotacioEntrada.getAssumpteCodiCodi());
@@ -491,7 +467,42 @@ public class DistribucioHelper {
 							anotacio));
 		}	
 		
+		// Relaciona amb un tipus d'expedient i un expedient segons el codi de procediment de l'anotació
+		this.updateRelacioExpedientTipus(anotacio);
+		
 		return anotacio;
+	}
+
+	/** Segons el codi de procediment de l'anotació troba el tipus d'expedient relacionat i segons el número d'expedient troba l'expedient al qual incorporar l'anotació.
+	 * 
+	 * @param anotacio
+	 */
+	@Transactional
+	public void updateRelacioExpedientTipus(Anotacio anotacio) {
+		ExpedientTipus expedientTipus = null;
+		Expedient expedient = null;
+		if (anotacio.getProcedimentCodi() != null) {
+
+			// Cerca el tipus d'expedient per aquell codi de procediment
+			List<ExpedientTipus> expedientsTipus = expedientTipusRepository.findPerDistribuir(anotacio.getProcedimentCodi(), anotacio.getAssumpteCodiCodi());
+			if (!expedientsTipus.isEmpty()) {
+				expedientTipus = expedientsTipus.get(0);
+				if (expedientsTipus.size() > 1) {
+					StringBuilder expedientsTipusStr = new StringBuilder();
+					for (ExpedientTipus et : expedientsTipus) {
+						expedientsTipusStr.append(et.getCodi() + " ");
+					}
+					logger.warn("S'ha trobat més d'1 tipus d'expedient pel codi de procediment: " + anotacio.getProcedimentCodi() + " i assumpte: " + anotacio.getAssumpteCodiCodi() 
+								+ ":[ " + expedientsTipusStr.toString() + "]. S'escull el primer " + expedientsTipus.get(0).getCodi() + " de l'entorn " + expedientsTipus.get(0).getEntorn().getCodi());
+				}				
+				// Cerca si hi ha cap expedient que coincideixi amb el número d'expedient
+				if (anotacio.getExpedientNumero() != null) {
+					expedient = expedientRepository.findByTipusAndNumero(expedientTipus, anotacio.getExpedientNumero());
+				}
+			}
+		}
+		anotacio.setExpedientTipus(expedientTipus);
+		anotacio.setExpedient(expedient);
 	}
 
 	private AnotacioInteressat crearInteressatEntity(
@@ -853,6 +864,9 @@ public class DistribucioHelper {
 			logger.debug("Rerocessant l'anotació " + idWs.getIndetificador() + ".");
 			anotacio.setEstat(AnotacioEstatEnumDto.PENDENT);
 			anotacio.setErrorProcessament(null);
+			// Torna a consultar si està relacionat amb un tipus d'expedient i/o expedient
+			this.updateRelacioExpedientTipus(anotacio);
+			// Reprocessa l'anotació
 			this.processarAnotacio(idWs, anotacioRegistreEntrada, anotacio);
 		} catch (Exception e) {
 			String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e.getMessage();

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -1125,6 +1126,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			List<Annex> annexos = new ArrayList<Annex>();
 			String annexAnotacioNomArxiu;
 			Annex annexAnotacio = null;
+			Map<Annex, ArxiuResultatAnnex> errorsConsulta = new HashMap<Annex, ArxiuResultatAnnex>();
 			for (AnotacioAnnex annex : anotacio.getAnnexos() ) {
 				try {
 					annexAnotacio = new Annex();
@@ -1150,11 +1152,15 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					resultatAnnex.setErrorMessage(errMsg);
 					resultatAnnex.setException(e);
 					resultatAnnex.setIdentificadorAnnex(annex.getUuid());
-					resultat.addResultatAnnex(annexAnotacio, resultatAnnex);
+					errorsConsulta.put(annexAnotacio, resultatAnnex);
 				}
 			}
 			anotacioRegistreEntrada.setAnnexos(annexos);
 			resultat = backofficeUtils.crearExpedientAmbAnotacioRegistre(expedientArxiu, anotacioRegistreEntrada);
+			// Al resultat hi afegeix els errors que s'havien produït per consulta dels detalls
+			for (Annex annexAnotacioError : errorsConsulta.keySet()) {
+				resultat.addResultatAnnex(annexAnotacioError, errorsConsulta.get(annexAnotacioError));
+			}
 		}
 		
 		// Depenent del resultat llença excepció

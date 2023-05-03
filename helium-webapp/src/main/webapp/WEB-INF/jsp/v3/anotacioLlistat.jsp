@@ -279,7 +279,7 @@
 				</c:otherwise>
 			</c:choose>	
 			<span ></span>&nbsp;
-			<a id="exportar_excel" href="<c:url value="../../../helium/v3/anotacio/excel"/>" class="btn btn-default">
+			<a id="exportar_excel" href="<c:url value="/v3/anotacio/excel"/>" class="btn btn-default">
 				<span class="fa fa-download"></span>&nbsp;<spring:message code="comuns.descarregar"/>
 			</a>
 			<div id="btnTramitacio" class="btn-group">
@@ -289,11 +289,11 @@
 
 				<button class="btn btn-default" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;&nbsp;</span>&nbsp;<span class="caret"></span></button>
  					<ul class="dropdown-menu">
-						<li id="liReintentarConsulta"><a id="selection"  data-maximized="true" href="<c:url value="../../../helium/v3/anotacio/reintentarConsulta"/>" data-rdt-link-ajax="true"><spring:message code="anotacio.llistat.reintentar.consulta"/></a></li>
- 						<li id="liReintentarProcessar"><a id="selection"  href="<c:url value="../../../helium/v3/anotacio/reintentarProcessament"/>" data-rdt-link-ajax="true"><spring:message code="anotacio.llistat.reintentar.processament"/></a></li>
-						<li id="liReintentarProcessarNomesAnnexos"><a id="selection"  href="<c:url value="../../../helium/v3/anotacio/reintentarProcessamentNomesAnnexos"/>" data-rdt-link-ajax="true"><spring:message code="anotacio.llistat.reintentar.processament.nomes.annexos"/></a></li>
-						<li id="liReintentarMapeig"><a id="selection" href="<c:url value="../../../helium/v3/anotacio/reprocessarMapeig"/>" data-rdt-link-ajax="true"><spring:message code="anotacio.llistat.reintentar.mapeig"/></a></li>
-						<li id="liEsborrarAnotacions"><a id="selection"  href="<c:url value="../../../helium/v3/anotacio/esborrarAnotacions"/>" data-rdt-link-ajax="true"><spring:message code="anotacio.llistat.esborrar.anotacions"/></a></li>
+						<li><a id="selection"  data-maximized="true" href="<c:url value="/v3/anotacio/reintentarConsulta"/>" data-rdt-link-ajax="true" title="<spring:message code="anotacio.llistat.reintentar.consulta.title"/>"><spring:message code="anotacio.llistat.reintentar.consulta"/></a></li>
+ 						<li><a id="selection"  href="<c:url value="/v3/anotacio/reintentarProcessament"/>" data-rdt-link-ajax="true" title="<spring:message code="anotacio.llistat.reintentar.processament.title"/>"><spring:message code="anotacio.llistat.reintentar.processament"/></a></li>
+						<li><a id="selection" href="<c:url value="/v3/anotacio/reprocessarMapeig"/>" data-rdt-link-ajax="true" title="<spring:message code="anotacio.llistat.reintentar.mapeig.title"/>"><spring:message code="anotacio.llistat.reintentar.mapeig"/></a></li>
+						<li><a id="selection"  href="<c:url value="/v3/anotacio/reintentarProcessamentNomesAnnexos"/>" data-rdt-link-ajax="true" title="<spring:message code="anotacio.llistat.reintentar.processament.nomes.annexos.title"/>"><spring:message code="anotacio.llistat.reintentar.processament.nomes.annexos"/></a></li>
+						<li><a id="selection"  href="<c:url value="/v3/anotacio/esborrarAnotacions"/>" data-rdt-link-ajax="true" title="<spring:message code="anotacio.llistat.esborrar.anotacions.title"/>"><spring:message code="anotacio.llistat.esborrar.anotacions"/></a></li>
  					</ul>
 			</div>
 		</div>
