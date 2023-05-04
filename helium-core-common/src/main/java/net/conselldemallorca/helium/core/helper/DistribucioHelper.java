@@ -390,6 +390,7 @@ public class DistribucioHelper {
 		
 		return anotacio;
 	}
+
 	/** Mètode per actualitzar l'estat a ERROR_PROCESSANT i la descripció de l'error de processament.
 	 * 
 	 * @param anotacioId
@@ -405,6 +406,19 @@ public class DistribucioHelper {
 		return anotacio;
 	}
 
+	/** Mètode per actualitzar l'error de processament per un annex en concret en una nova transacció.
+	 * 
+	 * @param annexId
+	 * @param errorProcessament
+	 * @return
+	 */
+	@Transactional( propagation = Propagation.REQUIRES_NEW)
+	public AnotacioAnnex updateErrorAnnex(long annexId, String error) {
+		
+		AnotacioAnnex anotacioAnnex = anotacioAnnexRepository.findOne(annexId);
+		anotacioAnnex.setError(error);
+		return anotacioAnnex;
+	}
 	
 	/** Mètode per guardar a Helium la informació d'una anotació de registre consultada a Distribucio.
 	 *  

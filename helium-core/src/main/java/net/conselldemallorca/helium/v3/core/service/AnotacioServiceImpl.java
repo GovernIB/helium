@@ -1034,6 +1034,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			} catch (Exception e) {
 				String errMsg = "Error reprocessant consultant els detalls de l'annex " + annex.getId() + " \"" + annex.getTitol() + "\" per reintentar la seva incorporació a l'expedient " + expedient.getNumero() + ": " + e.getMessage();
 				logger.error(errMsg, e);
+				distribucioHelper.updateErrorAnnex(annexId, errMsg);
 				throw new SistemaExternException(errMsg, e);
 			}
 

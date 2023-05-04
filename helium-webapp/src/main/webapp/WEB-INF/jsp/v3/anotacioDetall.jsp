@@ -372,7 +372,7 @@ tr.clicable {
 									<span class="fa fa-file"></span>
 									${annex.titol}
 									<c:if test="${annex.error != null }">
-										<span class="fa fa-warning text-danger" title="<spring:message code="anotacio.annex.detalls.annex.error" arguments="${annex.error}"/>"></span>
+										<span class="fa fa-warning text-danger" title="<spring:message code="anotacio.annex.detalls.annex.error" arguments="${annex.error}" htmlEscape="true"/>"></span>
 									</c:if>
 									<c:if test="${!annex.documentValid}">
 										<span class="fa fa-warning text-danger" title="<spring:message code="anotacio.annex.detalls.annex.invalid" arguments="${annex.documentError}"/>"></span>
