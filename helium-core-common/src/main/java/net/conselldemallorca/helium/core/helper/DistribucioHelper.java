@@ -820,6 +820,7 @@ public class DistribucioHelper {
 		logger.info("Rebuda correctament la petició d'anotació de registre amb id de Distribucio =" + idWs);
 	}
 	
+	@Transactional
 	public void rebutjar(Anotacio anotacio, String observacions ) {
 		// Canvia l'estat del registre a la BBDD
 		anotacio.setEstat(AnotacioEstatEnumDto.REBUTJADA);

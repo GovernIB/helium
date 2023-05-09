@@ -45,7 +45,7 @@ public class AvisValidator implements ConstraintValidator<Avis, AvisCommand>{
 			}
 		}
 		if(command.getHoraFi()!=null) {
-		   Matcher m = p.matcher(command.getHoraInici());
+		   Matcher m = p.matcher(command.getHoraFi());
 	       valid = m.matches();
 	       if(!valid) {
 				context.buildConstraintViolationWithTemplate(
