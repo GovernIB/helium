@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,6 +21,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
@@ -35,6 +37,7 @@ import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Sort;
 import org.hibernate.annotations.SortType;
+import org.hibernate.annotations.Type;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
@@ -155,6 +158,11 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	private boolean distribucioProcesAuto;
 	/** Indica si s'ha d'aplicar la integració amb SISTRA quan es processi l'anotació. */
 	private boolean distribucioSistra;
+	
+	//Manual d'ajuda
+	@MaxLength(1024)
+	private String manualAjudaNom;
+	private byte[] manualAjudaContent;
 
 	@NotNull
 	private Entorn entorn;
@@ -893,6 +901,24 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 		this.repros = repros;
 	}
 	
+	@Column(name="manual_ajuda_nom", length=256)
+	public String getManualAjudaNom() {
+		return manualAjudaNom;
+	}
+	public void setManualAjudaNom(String manualAjudaNom) {
+		this.manualAjudaNom = manualAjudaNom;
+	}
+	
+	@Lob
+	@Type(type="org.hibernate.type.BinaryType")
+	@Basic(fetch=FetchType.LAZY)
+	@Column(name="manual_ajuda_content", length=256)
+	public byte[] getManualAjudaContent() {
+		return manualAjudaContent;
+	}
+	public void setManualAjudaContent(byte[] manualAjudaContent) {
+		this.manualAjudaContent = manualAjudaContent;
+	}
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}

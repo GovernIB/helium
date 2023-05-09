@@ -163,6 +163,16 @@
 			<c:if test="${potDissenyar}">
 				<hel:inputCheckbox name="ambRetroaccio" textKey="expedient.tipus.form.camp.ambRetroaccio" />
 				<hel:inputCheckbox name="reindexacioAsincrona" textKey="expedient.tipus.form.camp.reindexacioAsincrona" />
+		
+				<c:set var="arxiuUrl">/v3/expedientTipus/${id}/documentDownload</c:set>
+ 				<hel:inputFile 
+	 			name="manualAjudaContent" 
+	 			required="false" 
+	 			textKey="expedient.tipus.form.camp.manual.ajuda"
+	 			fileName="manualAjudaNom"
+	 			fileUrl="${arxiuUrl}"
+	 			fileExists="${not empty expedientTipusCommand.manualAjudaContent}" />	
+
 			</c:if>
 		</div>
 		<div id="modal-botons" class="well">
