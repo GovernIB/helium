@@ -103,10 +103,9 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice {
 						msg = "L'anotació \"" + anotacio.getIdentificador() + "\" s'havia rebutjat anteriorment " + 
 								(anotacio.getDataProcessament() != null? "amb data " + sdf.format(anotacio.getDataProcessament()) : "") + 
 								"i motiu: " + anotacio.getRebuigMotiu() + ". Es marca com a comunicada per tornar a consultar-la i processar-la.";
-						distribucioHelper.resetConsulta(anotacio.getId(), msg);
 						logger.debug(msg);
-						break;						
-						// No fa break per a que es marqui com a comunicada.
+						distribucioHelper.resetConsulta(anotacio.getId(), null);
+						break;
 					case COMUNICADA:
 						estat = null;
 						// Posa a 0 el número d'intents per a que es torni a processar pel thread de la tasca programada de consultar anotacions pendents

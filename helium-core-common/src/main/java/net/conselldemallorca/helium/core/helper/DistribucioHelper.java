@@ -366,7 +366,7 @@ public class DistribucioHelper {
 		return anotacio;
 	}
 
-	/** Mètode per posar una anotació com a pendent de consulta sense annexos ni interessats
+	/** Mètode per posar una anotació com a comunicada sense annexos ni interessats per a que es torni a processar.
 	 * 
 	 * @param anotacioId
 	 * @param consultaIntents
@@ -381,6 +381,7 @@ public class DistribucioHelper {
 		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
 		anotacio.setErrorProcessament(errorProcessament);
 		anotacio.setConsultaIntents(0);
+		anotacio.setEstat(AnotacioEstatEnumDto.COMUNICADA);
 
 		// Esborra annexos y interessats per evitar duplicar-los quan es torni a consultar
 		anotacioAnnexRepository.delete(anotacio.getAnnexos());
