@@ -1194,52 +1194,59 @@ public class DistribucioHelper {
 		DadesDocumentDto resposta = null;
 		String identificador = null;
 		String varSistra = mapeig.getCodiSistra();
-		for (AnotacioAnnex document: anotacio.getAnnexos()) {
-			identificador = FilenameUtils.removeExtension(document.getNom());
+		// Recorre tots els documents annexos, si hi ha més d'un amb el mateix codi llavors es queda el que tingui extensió .pdf
+		AnotacioAnnex document = null;
+		for (AnotacioAnnex documentAnotacio: anotacio.getAnnexos()) {
+			identificador = FilenameUtils.removeExtension(documentAnotacio.getNom());
 			if (varSistra.equalsIgnoreCase(identificador)) {
-				byte[] contingut = document.getContingut();
-				Exception exception = null;
-				if (document.getContingut() == null &&  document.getUuid() != null) {
-					// Recupera el contingut de l'Arxiu
-					Document documentArxiu = null;
+				if (document == null
+						|| documentAnotacio.getNom().toLowerCase().endsWith(".pdf")) {
+					document = documentAnotacio;
+				}
+			}
+		}
+		if (document != null) {
+			byte[] contingut = document.getContingut();
+			Exception exception = null;
+			if (document.getContingut() == null &&  document.getUuid() != null) {
+				// Recupera el contingut de l'Arxiu
+				Document documentArxiu = null;
+				try {
+					// Consulta la versió imprimible del document.
+					documentArxiu = pluginHelper.arxiuDocumentInfo(document.getUuid(), null, true, true);
+					contingut = documentArxiu.getContingut() != null? documentArxiu.getContingut().getContingut() : null;
+				} catch (Exception e) {
+					exception = e;
+				}
+				if (exception != null) {
 					try {
-						// Consulta la versió imprimible del document.
-						documentArxiu = pluginHelper.arxiuDocumentInfo(document.getUuid(), null, true, true);
-						contingut = documentArxiu.getContingut() != null? documentArxiu.getContingut().getContingut() : null;
+						// Consulta la versió original.
+						logger.error("Error consultant el document " + varSistra + " pel mapeig de l'anotació " + anotacio.getIdentificador() + ". Es procedeix a consultar el contingut original.", exception);
+						documentArxiu = pluginHelper.arxiuDocumentOriginal(document.getUuid(), null);
 					} catch (Exception e) {
 						exception = e;
+						logger.error("Error consultant l'original del document " + varSistra + " pel mapeig de l'anotació " + anotacio.getIdentificador(), e);
 					}
-					if (exception != null) {
-						try {
-							// Consulta la versió original.
-							logger.error("Error consultant el document " + varSistra + " pel mapeig de l'anotació " + anotacio.getIdentificador() + ". Es procedeix a consultar el contingut original.", exception);
-							documentArxiu = pluginHelper.arxiuDocumentOriginal(document.getUuid(), null);
-						} catch (Exception e) {
-							exception = e;
-							logger.error("Error consultant l'original del document " + varSistra + " pel mapeig de l'anotació " + anotacio.getIdentificador(), e);
-						}
-					}
-					contingut = documentArxiu != null && documentArxiu.getContingut() != null? 
-									documentArxiu.getContingut().getContingut() 
-									: null;
 				}
-				if (contingut != null) {
-					resposta = new DadesDocumentDto();
-					resposta.setTitol(document.getTitol());
-					resposta.setArxiuContingut(contingut);
-					if (varHelium != null) {
-						resposta.setIdDocument(varHelium.getId());
-						resposta.setCodi(varHelium.getCodi());
-					}
-					resposta.setData(anotacio.getData());
-					resposta.setArxiuNom(document.getNom());
-					resposta.setDocumentValid(document.isDocumentValid());
-					resposta.setDocumentError(document.getDocumentError());
-				} else {
-					errors.put(varSistra, "No s'ha pogut obtenir el contingut imprimible ni original del document.");
-					resposta = buildDocumentInvalid(anotacio, document, varHelium, mapeig, exception);
+				contingut = documentArxiu != null && documentArxiu.getContingut() != null? 
+								documentArxiu.getContingut().getContingut() 
+								: null;
+			}
+			if (contingut != null) {
+				resposta = new DadesDocumentDto();
+				resposta.setTitol(document.getTitol());
+				resposta.setArxiuContingut(contingut);
+				if (varHelium != null) {
+					resposta.setIdDocument(varHelium.getId());
+					resposta.setCodi(varHelium.getCodi());
 				}
-				break;
+				resposta.setData(anotacio.getData());
+				resposta.setArxiuNom(document.getNom());
+				resposta.setDocumentValid(document.isDocumentValid());
+				resposta.setDocumentError(document.getDocumentError());
+			} else {
+				errors.put(varSistra, "No s'ha pogut obtenir el contingut imprimible ni original del document.");
+				resposta = buildDocumentInvalid(anotacio, document, varHelium, mapeig, exception);
 			}
 		}
 		return resposta;
