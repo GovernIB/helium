@@ -39,9 +39,9 @@ public class AvisCommand {
 	@Size(max = 255, groups = { Creacio.class, Modificacio.class })
 	private String horaFi;
 
-	@NotNull
+	@NotNull(groups = { Creacio.class, Modificacio.class })
 	private Date dataInici;
-	@NotNull
+	@NotNull(groups = { Creacio.class, Modificacio.class })
 	private Date dataFinal;
 	private Boolean actiu;
 	@NotNull

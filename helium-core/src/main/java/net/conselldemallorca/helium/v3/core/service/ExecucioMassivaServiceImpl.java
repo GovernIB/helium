@@ -708,9 +708,16 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 						   || execucio.getTipus() == ExecucioMassivaTipus.REINTENTAR_MAPEIG_ANOTACIONS
 						   || execucio.getTipus() == ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS
 						   || execucio.getTipus() == ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS) {
-					Anotacio anotacio = anotacioRepository.findOne(expedient.getAuxId());
-					titol = expedient.getAuxText() != null ? expedient.getAuxText()
-							: anotacio.getIdentificador();
+					if (expedient.getAuxText() != null) {
+						titol = expedient.getAuxText();
+					} else {
+						Anotacio anotacio = anotacioRepository.findOne(expedient.getAuxId());
+						if (anotacio != null) {
+							titol = anotacio.getIdentificador();
+						} else {
+							titol = String.valueOf(expedient.getAuxId());
+						}
+					}
 				}
 				Map<String, Object> mjson_exp = new LinkedHashMap<String, Object>();
 				mjson_exp.put("id", expedient.getId());
@@ -1898,7 +1905,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				ome.setEstat(ExecucioMassivaEstat.ESTAT_ERROR);
 				ome.setError("No s'ha reindexat tot l'expedient correctament, cal entrar a revisar les dades");
 				ome.setAuxText(
-						"El procés de reindexació ha retornat que no s'ha reindexar totalment l'expeient, cal entrar en la gestió de l'expedient per revisar les dades");
+						"El procés de reindexació ha retornat que no s'ha reindexar totalment l'expedient, cal entrar en la gestió de l'expedient per revisar les dades");
 			}
 			ome.setDataFi(new Date());
 			execucioMassivaExpedientRepository.saveAndFlush(ome);
@@ -2168,6 +2175,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		// Recupera l'anotació 
 		Anotacio anotacio = anotacioRepository.findOne(ome.getAuxId());
 		try {
+			ome.setAuxText(anotacio.getIdentificador());
 			anotacioService.delete(anotacio.getId());
 			ome.setEstat(estat);
 			ome.setError(errorMsg.length() > 0 ? errorMsg.toString() : null);
