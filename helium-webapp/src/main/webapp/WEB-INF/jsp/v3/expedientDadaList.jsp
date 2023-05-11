@@ -8,14 +8,87 @@
 <script src="<c:url value="/webjars/datatables.net/1.10.13/js/jquery.dataTables.min.js"/>"></script>
 <script src="<c:url value="/webjars/datatables.net-bs/1.10.13/js/dataTables.bootstrap.min.js"/>"></script>
 <link href="<c:url value="/webjars/datatables.net-bs/1.10.13/css/dataTables.bootstrap.min.css"/>" rel="stylesheet"></link>
-<%--<script src="<c:url value="/webjars/datatables.net-select/1.1.0/js/dataTables.select.min.js"/>"></script>--%>
-<%--<script src="<c:url value="/webjars/datatables.net-rowgroup/1.0.3/js/dataTables.rowGroup.min.js"/>"></script>--%>
 <script src="<c:url value="/js/datatables/js/dataTables.rowGroup.js"/>"></script>
+<script src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
+<script src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
+<script src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
 <script src="<c:url value="/js/jsrender.min.js"/>"></script>
+<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
+<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
+<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
 <script src="<c:url value="/js/webutil.datatable.js"/>"></script>
-<%--<script src="<c:url value="/js/webutil.modal.js"/>"></script>--%>
+<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
 
 <script type="application/javascript">
+	let expedientId = "${expedientId}";
+	let currentEditedDada;
+	let currentEditedCela;
+	let mouseDownCela;
+
+	$(document).keyup((event) => {
+		if (event.key === "Escape" || event.key === "Esc") {
+			console.log("Pressed Escape key");
+			finishEditing();
+		} else if (event.key === "Enter") {
+			console.log("Pressed Enter key");
+			if (currentEditedCela) {
+				event.preventDefault();
+				submitEditForm(currentEditedCela.find('form'));
+			}
+		}
+	});
+
+	$(document).keydown((event) => {
+		if (event.key === "Tab") {
+			// Si estem editant una dada, evitam que el tab surti fora del formulari
+			if (!currentEditedDada)
+				return true;
+
+			const tabbable = $()
+					.add(currentEditedCela.find("button, input:not([type='hidden']), select, textarea"))
+					.add(currentEditedCela.find("[href]"))
+					.add(currentEditedCela.find("[tabindex]:not([tabindex='-1'])"));
+			const target = $(event.target);
+			if (target.closest('.varValor').length) {
+				if (event.shiftKey) {
+					if (target.is(tabbable.first())) {
+						event.preventDefault();
+						tabbable.last().focus();
+					}
+				} else {
+					if (target.is(tabbable.last())) {
+						event.preventDefault();
+						tabbable.first().focus();
+					}
+				}
+			} else {
+				event.preventDefault();
+				if (event.shiftKey) {
+					tabbable.last().focus();
+				} else {
+					tabbable.first().focus();
+				}
+			}
+		}
+	});
+
+	// Mirar el click. El canvi de focus amb tabulador el mantenim sempre dins el formulari
+	$(document).on('mousedown', (event) => {
+		let desti = $(event.target);
+		mouseDownCela = desti.closest('.varValor');
+
+		if (!currentEditedDada) {
+			return true;
+		}
+		let exitForm = !desti.closest('.varValor').length || desti.closest('.varValor').find('.varVal').data('codi') !== currentEditedDada;
+		if (exitForm) {
+			console.log("Focus out of " + currentEditedDada + " form");
+			submitEditForm(currentEditedCela.find('form'));
+		}
+		return true;
+	});
+
+
 	$(document).ready(() => {
 		<%-- Al recarregar la taula... --%>
 		$("#expedientDades").on("draw.dt", () => {
@@ -24,6 +97,7 @@
 			if (firstTr.hasClass("no-data")) {
 				firstTr.css("border-top", "dashed 3px #BBB");
 			}
+			$("td>span.fa-lock").closest('tr').addClass('dada-bloquejada');
 		});
 		$("#expedientDades").on("rowgroup-draw.dt", () => {
 			filtraDades();
@@ -50,7 +124,222 @@
 			}
 		});
 
+		$("#expedientDades").on('click', (event) => {
+			console.log("Clic en taula");
+			if (!mouseDownCela)
+				return true;
+
+			console.log('Click on cela de dada');
+			const cela = mouseDownCela;
+			// let cela = $(event.currentTarget).closest('.varValor');
+			if (cela.find('.varEdit').length > 0) {
+				console.log("Clic no retorna cela");
+				return true;
+			}
+
+			const dadaValor = cela.find('.varVal');
+			const dadaCodi = dadaValor.data('codi');
+			const editable = dadaValor.hasClass('editable');
+			console.log('Editing dada ' + dadaCodi);
+
+			currentEditedDada = dadaCodi;
+			currentEditedCela = cela
+
+			if (editable) {
+				console.log('Obtenint formulari');
+				dadaValor.addClass('ocult');
+				let dadaEdit = $('<span class="varEdit"><span class="fa fa-circle-o-notch fa-spin"></span></span>');
+				let botonsEdit = $('<span class="btnEdit"><button type="button" class="btn btn-success btn-ok"><span class="fa fa-check"></span></button><button type="button" class="btn btn-danger btn-cancel"><span class="fa fa-times"></span></button></span>');
+				beginEditing(cela);
+				cela.append(dadaEdit);
+				$.get("<c:url value="/nodeco/v3/expedient/${expedient.id}/dada/"/>" + dadaCodi + "/edit", function(data) {
+					dadaEdit.html(data);
+					cela.append(botonsEdit);
+					postEditForm(dadaEdit);
+				}).fail(function(jqXHR, textStatus, errorThrown) {
+					console.log('Error obtenint formulari', textStatus);
+					webutilRefreshMissatges();
+					dadaEdit.remove();
+					dadaValor.removeClass('ocult');
+				});
+
+			}
+
+		});
+
+		$("#expedientDades").on('submit', 'form', (event) => {
+			console.log('Submit form!!', event);
+			event.preventDefault();
+			// submitEditForm($(event.target));
+		})
+
+		$("#expedientDades").on('click', '.btn-cancel', (event) => {
+			event.stopPropagation();
+			finishEditing();
+		});
+
+		$("#expedientDades").on('click', '.btn-ok', (event) => {
+			event.stopPropagation();
+			submitEditForm(currentEditedCela.find('form'));
+		});
+
+
 	});
+
+	const beginEditing = (cela) => {
+		let accio = cela.next().children().first();
+		if (accio.is("div")) {
+			accio.children().first().prop("disabled", true).addClass('isDisabled');
+		} else {
+			accio.prop("disabled", true).addClass('isDisabled');
+		}
+	}
+
+	const finishEditing = () => {
+		$('.varEdit').remove();
+		$('.btnEdit').remove();
+		$('#overlay').hide();
+		console.log("Overlay OFF - Finish edit");
+		$('.varVal').removeClass('ocult');
+		$('.isDisabled').prop("disabled", false).removeClass('isDisabled');
+		currentEditedDada = undefined;
+		currentEditedCela = undefined;
+	}
+
+	const postEditForm = (dadaEdit) => {
+		dadaEdit.find('#modal-botons').remove();
+		dadaEdit.find('.form-group > label').addClass('ocult');
+		dadaEdit.find('.col-xs-9').removeClass('col-xs-9');
+		dadaEdit.find('th>label').removeClass('col-xs-3');
+		dadaEdit.find('.tercpre, .tercmig, .tercpost').addClass('col-xs-4');
+		loadFormAccions(dadaEdit.find("form"));
+		dadaEdit.find('input:text, input:checkbox, textarea').first().focus();
+	}
+
+	const postSubmitForm = (dadaEdit, dadaCodi) => {
+		debugger
+		console.log("Post submit");
+		let fila = dadaEdit.closest('tr');
+		if (fila.hasClass('no-data')) {
+			// Canviar id de fila, i afegir botó d'accions
+			fila.attr('id', 'row_' + dadaCodi);
+			fila.removeClass('no-data');
+			let celaAccions = fila.find('td').last();
+			let botoAccions = $('<div data-document-id="' + dadaCodi + '" class="dropdown accionsDocument">' +
+					'<button class="btn btn-primary" data-toggle="dropdown" style="width:100%;" aria-expanded="false"><span class="fa fa-cog"></span>&nbsp;Accions&nbsp;<span class="caret"></span></button>' +
+					'<ul class="dropdown-menu dropdown-menu-right">' +
+					'<li class="ld-editar"><a data-toggle="modal" href="' + expedientId + '/dada/' + dadaCodi + '/update"><span class="fa fa-pencil fa-fw"></span>&nbsp;Modificar</a></li>' +
+					'<li class="ld-borrar"><a href="' + expedientId + '/dada/' + dadaCodi + '/delete" data-toggle="ajax" data-confirm="Estau segur que voleu esborrar aquest document?"><span class="fa fa-trash-o fa-fw"></span>&nbsp;Esborrar</a></li>' +
+					'</ul>' +
+					'</div>');
+			celaAccions.empty();
+			celaAccions.append(botoAccions);
+			$(botoAccions).find('button').dropdown();
+			$(botoAccions).webutilModalEval();
+			$(botoAccions).webutilAjaxEval();
+			$(botoAccions).webutilConfirmEval();
+		}
+	}
+
+	const submitEditForm = (fomulari) => {
+		console.log('Submitting form');
+		$("#overlay").show();
+		console.log("Overlay ON");
+		const cela = fomulari.closest('.varValor');
+		const dadaValor = cela.find('.varVal');
+		const dadaEdit = cela.find('.varEdit');
+		const dadaCodi = dadaValor.data('codi');
+
+		$.ajax({
+			type: 'POST',
+			url: "<c:url value="/nodeco/v3/expedient/${expedient.id}/proces/${expedient.processInstanceId}/dada/"/>" + dadaCodi + "/edit",
+			data: fomulari.serialize(),
+			dataType: "html",
+			async: true,
+			success: function(data) {
+				if (data.indexOf('form id="command"') == -1) {
+					dadaValor.html(data);
+					postSubmitForm(dadaEdit, dadaCodi);
+					finishEditing();
+				} else {
+					dadaEdit.html(data);
+					postEditForm(dadaEdit);
+				}
+				$('#overlay').hide();
+				console.log("Overlay OFF - Success");
+			},
+			error: function(e) {
+				console.log("Error desant dades: ", e);
+				webutilRefreshMissatges();
+				let errorAlert = $('<div class="alert alert-danger alert-inline" role="alert"><span class="fa fa-exclamation-triangle"></span> S\'ha produït un error al intentar desar la dada \'' + dadaCodi + '\': ' + e.statusText + '</div>');
+				cela.prepend(errorAlert);
+				finishEditing();
+				$('#overlay').hide();
+				console.log("Overlay OFF - Error");
+				setTimeout(function () {errorAlert.hide('slow', function(){ errorAlert.remove(); });}, 5000);
+			}
+		});
+		console.log('Finish submitting form');
+	}
+
+	const loadFormAccions = (formulari) => {
+		let action = $(formulari).attr('action');
+		$(formulari).attr('action', cleanAction($(formulari).attr('action')));
+		// Ajustaments per a cada tipus de camp
+		$(formulari).find(".price").priceFormat({prefix: '', centsSeparator: ',', thousandsSeparator: '.', allowNegative: true});
+		$(formulari).find(".date").mask("99/99/9999").datepicker({language: 'ca', autoclose: true, dateFormat: "dd/mm/yy"});
+		$(formulari).find(".btn_date").click(function(){
+			$(this).prev(".date").trigger("focus");
+		});
+		$(formulari).find(".termini").each(function(){
+			$(this).select2({width: 'resolve', allowClear: true, minimumResultsForSearch: 10});
+		});
+		$(formulari).find(".termdia").keyfilter(/^[-+]?[0-9]*$/);
+		$(formulari).find(".enter").keyfilter(/^[-+]?[0-9]*$/);
+		$(formulari).find(".float").keyfilter(/^[-+]?[0-9]*[.]?[0-9]*$/);
+		$(formulari).find(".suggest").each(function() {
+			initSuggest(this);
+		});
+		$(formulari).find(".seleccio").each(function() {
+			initSeleccio(this);
+		});
+		// Camp múltiple: afegir
+		$(formulari).on("click", ".btn_multiple", function() {
+			addMultiple(this);
+		});
+		$(formulari).find(".validada, .formext").each(function(index){
+			validado(true);
+		});
+		// Camp múltiple: eliminar
+		$(formulari).on("click", ".btn_eliminar", function() {
+			delMultiple(this);
+		});
+		// Eliminar fila
+		$(formulari).on("click", ".eliminarFila", function() {
+			delFila(this);
+		});
+
+		// Funcionalitats concretes
+		$(formulari).on("click", ".btn_date", function(){
+			$(this).closest(".date").focus();
+		});
+		$(formulari).on("click", ".btn_date_pre", function(){
+			$(this).next().focus();
+		});
+		$(formulari).on("change", ".checkboxmul", function() {
+			if($(this).is(":checked")) {
+				$(this).prev().val(true);
+			} else {
+				$(this).prev().val(false);
+			}
+		});
+		$(formulari).find(".btn_accio").click(function() {
+			return executeAction(this);
+		});
+		$(formulari).find('#boto-formext').click(function() {
+			return openFormExtern(this);
+		});
+	}
 
 	const opcionsVisualitzacioChanged = () => {
 		let serverParams = {};
@@ -149,6 +438,52 @@
 	.dada-oculta {color: indianred; top: -14px; right: -4px; position: relative;}
 	.highlight {background-color: #fff34d; color: black; padding:1px 2px;}
 	.camp-bloquejat {font-size: 24px; color: #AAAAAA;}
+	.varEdit .form-group {margin-left: 0px !important; width: 100% !important;}
+	.varEdit .form-control {width: 100%;}
+	.varEdit .multiple label.control-label {display: none;}
+	.varEdit .multiple input-group-multiple {display: none;}
+	.varEdit .multiple input.camp-multiple {width: calc(100% - 41px) !important;}
+	.varEdit .multiple textarea {width: calc(100% - 41px) !important;}
+	.varEdit tr.multiple textarea {width: 100% !important;}
+	.varEdit tr.multiple input {width: 100% !important;}
+	.varEdit .multiple .input-group {width: calc(100% - 41px);}
+	.varEdit .multiple .termgrup {width: calc(100% - 41px) !important;}
+	.varEdit .multiple .seleccio {width: calc(100% - 41px) !important;}
+	.varEdit .multiple .suggest {width: calc(100% - 41px) !important; float: left;}
+	.varEdit .multiple .input-group input {width: 100% !important;}
+	.varEdit .multiple .tercpost>input {width: 100% !important;}
+	.varEdit .multiple .multiple_camp > .controls.multiple_camp {position: relative;}
+	.varEdit .multiple .multiple_camp > .controls.multiple_camp > .termgrup+.btn_eliminar {position: absolute; bottom: 4px; right: 0px;}
+	.varEdit div.inputcheck {display: inline;}
+	.varEdit .input-group {width: 100%;}
+	.varEdit .input-group-multiple {min-height: 34px;}
+	.varEdit input.checkbox {max-width: 22px; width: 22px;}
+	.varEdit input.checkbox:focus {min-width: 27px;}
+	.varEdit button.btn_eliminar {float: right;}
+	.varEdit .input-group-addon:last-child {width: 40px !important;}
+	.varEdit .termgrup .label-term {display: block !important;}
+	.varEdit .termgrup ~ .termgrup .label-term {display: none;}
+	.varEdit label {font-size: 12px;}
+	.varEdit .label-term {text-align: left;}
+	.varEdit .tercpre {padding-left: 0px;}
+	.varEdit .tercmig {padding-left: 7px; padding-right: 7px;}
+	.varEdit .tercpost {padding-right: 0px;}
+	.varEdit .termini {width: 100% !important;}
+	.varEdit table {margin-bottom: 0px;}
+	.varEdit {width: calc(100% - 20px); float: left;}
+	.varEdit button.btn_afegir.btn_multiple {margin-top: 4px;}
+	.btnEdit {float: left; width: 20px;}
+	.btnEdit .btn {margin: 1px; font-size: 8px; float: right;}
+	.btnEdit .btn-ok {padding: 1px 2px;}
+	.btnEdit .btn-cancel {padding: 1px 3px;}
+	.varValor {position: relative; cursor: pointer;}
+	.dada-bloquejada > .varValor {cursor: not-allowed !important;}
+	.alert-inline {font-size: 12px; padding: 2px 8px !important;}
+	.overlay {z-index: 16777271; position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: rgba(0,0,0,.2); cursor: progress; text-align: center;}
+	.overlay > span {margin-top: 15px;}
+	.isDisabled {pointer-events: none; opacity: 0.5;}
+	#overlay {position: fixed; display: none; width: 100%; height: 100%; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.2); z-index: 200; cursor: pointer;}
+	#ov_spin {position: absolute; top: 50%; left: 50%; font-size: 40px; transform: translate(-50%,-50%); -ms-transform: translate(-50%,-50%);}
 </style>
 
 <c:url var="urlDatatable" value="/v3/expedient/${expedient.id}/dada/datatable"/>
@@ -207,9 +542,10 @@
 				{{/if}}
 			</script>
 		</th>
-		<th data-col-name="valor" data-orderable="false" width="70%"  data-template="#cellDadaValorTemplate">
+		<th data-col-name="valor" data-orderable="false" width="70%" data-template="#cellDadaValorTemplate" data-class="varValor">
 			<spring:message code="expedient.nova.data.valor"/>
 			<script id="cellDadaValorTemplate" type="text/x-jsrender">
+				<span id="varVal-{{:campCodi}}" class="varVal {{if editable}}editable{{/if}}" data-codi={{:campCodi}}>
 				{{if valor.registre}}
 					<ul class="list-group registre">
 						<li class="list-group-item d-flex justify-content-between border-0">
@@ -240,13 +576,14 @@
 						{{:valor.valorSimple}}
 					{{/if}}
 				{{/if}}
+				</span>
 			</script>
 		</th>
 		<th data-col-name="id" data-template="#cellDadaAccionsTemplate" data-orderable="false" width="5%">
 			<script id="cellDadaAccionsTemplate" type="text/x-jsrender">
 			{{if editable}}
 				{{if id == null}}
-					<a class="btn btn-default" href="${expedient.id}/dada/{{:campCodi}}/new" data-toggle="modal" data-adjust-height="false" data-height="350"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nova_dada"/></a>
+					<a class="btn btn-default" href="${expedient.id}/dada/{{:campCodi}}/new?ocultarVar=true" data-toggle="modal" data-adjust-height="false" data-height="350"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nova_dada"/></a>
 				{{else}}
 					<div data-document-id="{{:id}}" <%--data-arxivat="{{:arxivat}}" data-psigna="{{psignaInfo}}"--%> class="dropdown accionsDocument">
 						<button class="btn btn-primary" data-toggle="dropdown" {{if error}}disabled="disabled"{{/if}} style="width:100%;"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
@@ -298,3 +635,5 @@
 		${expedient.id}/dada/{{:id}}/update
 	{{/if}}
 </script>
+
+<div id="overlay"><span id="ov_spin" class="fa fa-circle-o-notch fa-2x fa-spin"></span></div>

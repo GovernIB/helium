@@ -164,4 +164,6 @@ public interface ExpedientDadaService {
 			PaginacioParamsDto paginacioParams);
 
 	public List<CampInfoDto> getCampsNoUtilitzatsPerEstats(Long expedientId);
+
+	public DadaListDto getDadaList(Long expedientId, String procesId, String varCodi);
 }

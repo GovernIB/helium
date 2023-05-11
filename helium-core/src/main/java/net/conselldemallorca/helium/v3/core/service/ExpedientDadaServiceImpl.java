@@ -608,6 +608,28 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		return campsNoUtilitzats;
 	}
 
+	@Override
+	public DadaListDto getDadaList(Long expedientId, String procesId, String varCodi) {
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(expedientId, true, false, false, false);
+		Camp camp = campRepository.findByExpedientTipusAndCodi(expedient.getTipus().getId(), varCodi, false);
+		ExpedientDadaDto dadaExp = variableHelper.getDadaPerInstanciaProces(procesId, varCodi, true);
+
+		if (camp != null) {
+			return toDadaListDto(camp, dadaExp, null, procesId, expedientId);
+		} else {
+			return DadaListDto.builder()
+					.id(dadaExp.getVarCodi())
+					.nom(dadaExp.getVarCodi())
+					.valor(DadaValorDto.builder().valorSimple(dadaExp.getText()).build())
+					.campCodi(dadaExp.getVarCodi())
+					.tipus(CampTipusDto.STRING)
+					.agrupacioNom("Dades adjuntes")
+					.processInstanceId(procesId)
+					.expedientId(expedientId)
+					.build();
+		}
+	}
+
 	private CampInfoDto toCampInfoDto(Camp camp, CampFormProperties campFormProperties) {
 		return CampInfoDto.builder()
 				.codi(camp.getCodi())

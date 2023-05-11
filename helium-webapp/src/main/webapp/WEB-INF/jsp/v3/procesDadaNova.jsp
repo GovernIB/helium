@@ -36,27 +36,34 @@
 	<input type="hidden" id="procesId" name="procesId" value="${procesId}">
 
 	<c:set var="command" value="${addVariableCommand}"/>
-	<c:set var="campErrors"><form:errors path="varCodi"/></c:set>	
-	<div id="selCamp" class="form-group">
-		<label class="control-label col-xs-3 obligatori" for="varCodi"><spring:message code="expedient.dada.variable"/></label>
-		<div id="selCamp_controls" class="col-xs-9 controls">
-			<form:select path="varCodi" cssClass="form-control" id="varCodi">
-				<option value=""></option>
-				<optgroup label="<spring:message code='expedient.nova.data.no.definida'/>">
-					<option value="__string"><spring:message code="expedient.nova.data.string"/></option>
-				</optgroup>
-				<optgroup label="<spring:message code='expedient.nova.data.definida'/>">
-					<c:forEach var="opt" items="${camps}">
-						<c:if test="${opt.visible}">
-							<c:set var="bloquejat" value="${!opt.editable}"/>
-							<form:option value="${opt.codi}" disabled="${bloquejat}" data-locked="${bloquejat}">${opt.codi} / ${opt.etiqueta}</form:option>
-						</c:if>
-					</c:forEach>
-				</optgroup>
-			</form:select>
-			<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="varCodi"/></p></c:if>
-		</div>
-	</div>
+	<c:set var="campErrors"><form:errors path="varCodi"/></c:set>
+	<c:choose>
+		<c:when test="${ocultarSelectorVar}">
+			<form:hidden path="varCodi" />
+		</c:when>
+		<c:otherwise>
+			<div id="selCamp" class="form-group">
+				<label class="control-label col-xs-3 obligatori" for="varCodi"><spring:message code="expedient.dada.variable"/></label>
+				<div id="selCamp_controls" class="col-xs-9 controls">
+					<form:select path="varCodi" cssClass="form-control" id="varCodi">
+						<option value=""></option>
+						<optgroup label="<spring:message code='expedient.nova.data.no.definida'/>">
+							<option value="__string"><spring:message code="expedient.nova.data.string"/></option>
+						</optgroup>
+						<optgroup label="<spring:message code='expedient.nova.data.definida'/>">
+							<c:forEach var="opt" items="${camps}">
+								<c:if test="${opt.visible}">
+									<c:set var="bloquejat" value="${!opt.editable}"/>
+									<form:option value="${opt.codi}" disabled="${bloquejat}" data-locked="${bloquejat}">${opt.codi} / ${opt.etiqueta}</form:option>
+								</c:if>
+							</c:forEach>
+						</optgroup>
+					</form:select>
+					<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="varCodi"/></p></c:if>
+				</div>
+			</div>
+		</c:otherwise>
+	</c:choose>
 
 	<div id="nova" class="hide">
 		<c:set var="campErrors"><form:errors path="codi"/></c:set>
@@ -154,6 +161,7 @@
 	}
 
 	$(document).ready(function() {
+		<c:if test="${not ocultarSelectorVar}">
 		$("#varCodi").select2({
 		    width: 'resolve',
 		    placeholder: '<spring:message code="expedient.nova.data.selecciona"/>',
@@ -161,16 +169,6 @@
 		    minimumResultsForSearch: 6,
 			formatResult: formatDisabled
 		});
-		// $("#varCodi").on('select2-open', function() {
-		// 	var iframe = $('.modal-body iframe', window.parent.document);
-		// 	var height = $('html').height() + 30;
-		// 	iframe.height(height + 'px');
-		// });
-		// $("#varCodi").on('select2-close', function() {
-		// 	var iframe = $('.modal-body iframe', window.parent.document);
-		// 	var height = $('html').height();
-		// 	iframe.height(height + 'px');
-		// });
 		$("#varCodi").on("change", function(e) {
 			var ruta = document.URL; 
 			$("#command").attr('action', ruta);
@@ -202,6 +200,7 @@
 					$("#formulari").load('<c:url value="/modal/v3/expedient/${expedientId}/proces/${procesId}/dada/"/>' + $("#varCodi").val() + '/update');
 			}
 		}
+		</c:if>
 		$("button:submit").click(function(){
 			if ($("#varCodi").val() == "") {
 				$("#selCamp").addClass("has-error");

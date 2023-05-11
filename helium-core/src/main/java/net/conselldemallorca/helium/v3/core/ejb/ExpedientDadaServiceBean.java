@@ -121,4 +121,10 @@ public class ExpedientDadaServiceBean implements ExpedientDadaService {
     public List<CampInfoDto> getCampsNoUtilitzatsPerEstats(Long expedientId) {
         return delegate.getCampsNoUtilitzatsPerEstats(expedientId);
     }
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public DadaListDto getDadaList(Long expedientId, String procesId, String varCodi) {
+        return delegate.getDadaList(expedientId, procesId, varCodi);
+    }
 }

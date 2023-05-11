@@ -2274,7 +2274,13 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		return resposta;
 	}
 
-	/**
+    @Override
+	@Transactional(readOnly=true)
+    public String getExpedientProcessInstanceId(Long expedientId) {
+        return expedientRepository.getExpedientProcessInstanceId(expedientId);
+    }
+
+    /**
 	 * {@inheritDoc}
 	 */
 	@Override

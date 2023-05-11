@@ -23,6 +23,14 @@
 	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 	<script src="<c:url value="/js/webutil.modal.js"/>"></script>
 	<script src="<c:url value="/js/expdoc-viewer.js"/>"></script>
+
+	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
+	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
+	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
+	<script src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
+	<script src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
+	<script src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
+	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
 <style type="text/css">
 #expedient-info h3 {
 	font-weight: bold;

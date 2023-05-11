@@ -534,6 +534,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 		} else {
 			model.addAttribute("camps", getCampsNoUtilitzats(expedientId, procesId));
 		}
+		String ocultarVar = request.getParameter("ocultarVar");
+		model.addAttribute("ocultarSelectorVar", ocultarVar != null ? Boolean.parseBoolean(ocultarVar) : false);
 		model.addAttribute(
 				"addVariableCommand",
 				populateAddCommand(
@@ -544,8 +546,6 @@ public class ExpedientDadaController extends BaseExpedientController {
 						null,
 						null,
 						model));
-		if (varCodi == null)
-			return "v3/expedientDadaNova";
 		return "v3/expedientDadaNova";
 	}
 
@@ -638,6 +638,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 			if (result.hasErrors()) {
 				if (perEstats) {
 					model.addAttribute("camps", expedientDadaService.getCampsNoUtilitzatsPerEstats(expedientId));
+					String ocultarVar = request.getParameter("ocultarVar");
+					model.addAttribute("ocultarSelectorVar", ocultarVar != null ? Boolean.parseBoolean(ocultarVar) : false);
 				} else {
 					model.addAttribute("camps", getCampsNoUtilitzats(expedientId, procesId));
 				}
@@ -651,6 +653,98 @@ public class ExpedientDadaController extends BaseExpedientController {
 			logger.error("S'ha produit un error al intentar modificar la variable '" + varCodi + "' de l'expedient amb id '" + expedientId + "' (proces: " + procesId + ")", ex);
 		}
 		return modalUrlTancar(false);
+	}
+
+
+	@RequestMapping(value = "/{expedientId}/dada/{varCodi}/edit", method = RequestMethod.GET)
+	public String dadaExpAmbCodiEdit(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String varCodi,
+			Model model) {
+		Object command;
+		try {
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+			String procesId = expedient.getProcessInstanceId();
+			command = populateCommand(
+					request,
+					expedientId,
+					procesId,
+					URLDecoder.decode(varCodi,"UTF-8"),
+					true, // emplenar
+					model);
+			model.addAttribute("modificarVariableCommand", command);
+			model.addAttribute("inline", true);
+		} catch (UnsupportedEncodingException e) {
+			logger.error(e);
+			MissatgesHelper.error(request, getMessage(request, "expedient.dada.modificar.error") );
+		}
+
+		return "v3/expedientDadaEdit";
+	}
+
+	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/edit", method = RequestMethod.POST)
+	public String dadaExpAmbCodiEditPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String procesId,
+			@PathVariable String varCodi,
+			@Valid @ModelAttribute("modificarVariableCommand") Object command,
+			BindingResult result,
+			Model model) throws Exception {
+		try {
+//			String procesId = expedientService.getExpedientProcessInstanceId(expedientId);
+			List<TascaDadaDto> tascaDades = new ArrayList<TascaDadaDto>();
+			TascaDadaDto tascaDada = TascaFormHelper.getTascaDadaDtoFromExpedientDadaDto(
+					expedientDadaService.findOnePerInstanciaProces(
+							expedientId,
+							procesId,
+							varCodi));
+			tascaDades.add(tascaDada);
+			Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDades, command, false);
+			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+			Object commandValidar = TascaFormHelper.getCommandForCamps(
+					tascaDades,
+					variables,
+					campsAddicionals,
+					campsAddicionalsClasses,
+					false);
+			TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
+					expedientService,
+					tascaDades);
+			validator.setValidarExpresions(false);
+			validator.setValidarObligatoris(true);
+			validator.validate(commandValidar, result);
+			if (result.hasErrors()) {
+//				model.addAttribute("modificarVariableCommand", command);
+				model.addAttribute("inline", true);
+				return "v3/expedientDadaEdit";
+			}
+
+			if (tascaDada.getVarValor() == null) {
+				expedientDadaService.create(
+						expedientId,
+						procesId,
+						varCodi,
+						variables.get(varCodi));
+
+			} else {
+				expedientDadaService.update(
+						expedientId,
+						procesId,
+						varCodi,
+						variables.get(varCodi));
+			}
+			DadaListDto dada = expedientDadaService.getDadaList(expedientId, procesId, varCodi);
+			model.addAttribute("dada", dada);
+			return "v3/expedientDadaShow";
+		} catch (Exception ex) {
+			logger.error(ex);
+			MissatgesHelper.error(request, getMessage(request, "expedient.dada.modificar.error") + ": " + ex.getMessage() );
+			throw ex;
+		}
+
 	}
 
 	/** Cas en que es prem el botó acció en el cas que hi hagi una variable acció. */

@@ -459,5 +459,9 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 	@Query("select count(e) from Expedient e where e.estat = :estat")
 	public long countByEstat(@Param("estat") Estat estat);
 
+	@Query(	"select e.processInstanceId " +
+			"from Expedient e " +
+			"where e.id = :expedientId ")
+	String getExpedientProcessInstanceId(@Param("expedientId") Long expedientId);
 
 }
