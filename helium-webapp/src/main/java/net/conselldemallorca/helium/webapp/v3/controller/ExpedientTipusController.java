@@ -297,7 +297,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
         	if (manualAjudaContent != null && manualAjudaContent.getSize() > 0) {
 				try {
 					command.setManualAjudaContent(IOUtils.toByteArray(manualAjudaContent.getInputStream()));
-					command.setManualAjudaNom(manualAjudaContent.getName()+manualAjudaContent.getContentType());
+					command.setManualAjudaNom(manualAjudaContent.getOriginalFilename());
 				} catch (IOException e) {
 					logger.error("No s'ha pogut guardar el manual: " + id, e);
 					return "redirect:/v3/expedientTipus";
@@ -1395,11 +1395,13 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		expedientTipusService.findAmbIdPermisDissenyarDelegat(
 					entornActual.getId(),
 					expedientTipusId);
-//		ArxiuDto arxiu = documentService.getArxiu(expedientTipusId);
-//		if (arxiu != null) {
-//			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
-//			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
-//		}
+		ExpedientTipusDto expedientTipusDto = expedientTipusService.findAmbIdPermisDissenyar(
+				entornActual.getId(),
+				expedientTipusId);
+		if(expedientTipusDto!=null && expedientTipusDto.getManualAjudaContent()!=null && expedientTipusDto.getManualAjudaNom()!=null) {
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, expedientTipusDto.getManualAjudaNom());
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, expedientTipusDto.getManualAjudaContent());
+		}
 		return "arxiuView";
 	}
 

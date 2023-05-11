@@ -309,9 +309,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setNom(expedientTipus.getNom());
 		entity.setAmbInfoPropia(expedientTipus.isAmbInfoPropia());
 		entity.setHeretable(expedientTipus.isHeretable());
-//		if (actualitzarContingut) {
-			entity.setManualAjudaContent(entity.getManualAjudaContent());
-//		}
+		entity.setManualAjudaContent(entity.getManualAjudaContent());
 		if (expedientTipus.getExpedientTipusPareId() != null)
 			entity.setExpedientTipusPare(expedientTipusRepository.findOne(expedientTipus.getExpedientTipusPareId()));
 		else
