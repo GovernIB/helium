@@ -60,6 +60,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientL
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.LogInfo;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Interessat;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
@@ -83,6 +84,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
@@ -218,6 +220,14 @@ public class ExpedientHelper {
 		dto.setAmbRetroaccio(expedient.isAmbRetroaccio());
 		dto.setReindexarData(expedient.getReindexarData());
 		dto.setReindexarError(expedient.isReindexarError());
+		// Interessats
+		List<InteressatDto> interessats = new ArrayList<InteressatDto>() ;
+		if (expedient.getInteressats() != null) {
+			for (Interessat interessat : expedient.getInteressats()) {
+				interessats.add(conversioTipusHelper.convertir(interessat, InteressatDto.class));
+			}			
+		}
+		dto.setInteressats(interessats);
 		return dto;
 	}
 	

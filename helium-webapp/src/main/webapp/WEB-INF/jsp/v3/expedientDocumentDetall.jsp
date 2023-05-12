@@ -893,7 +893,7 @@
 					</div>
 				</c:when>
 				<c:otherwise>
-					<a href="${expedientId}/document/${detall.id}/descarregar" class="position-absolute bg-gradient-info shadow-info text-white font-weight-bold pointer">
+					<a href="${expedientId}/document/${detall.documentStoreId}/descarregar" class="position-absolute bg-gradient-info shadow-info text-white font-weight-bold pointer">
 						<span class="fa fa-download fa-inverse fa-1x"></span>&nbsp;<spring:message code="expedient.document.descarregar"/></a>
 				</c:otherwise>
 			</c:choose>			

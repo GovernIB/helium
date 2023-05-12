@@ -434,7 +434,9 @@ public class ExpedientTerminiServiceImpl implements ExpedientTerminiService {
 	@Transactional(readOnly = true)
     public Map<String, CampFormProperties> getTerminisFormProperties(Long expedientTipusId, String estatCodi) {
 		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
-		Estat estat = estatRepository.findByExpedientTipusIdAndCodi(expedientTipusId, estatCodi);
+		Estat estat = estatCodi != null ? 
+				estatRepository.findByExpedientTipusIdAndCodi(expedientTipusId, estatCodi)
+				: null;
         return reglaHelper.getTerminisFormProperties(expedientTipus, estat);
     }
 

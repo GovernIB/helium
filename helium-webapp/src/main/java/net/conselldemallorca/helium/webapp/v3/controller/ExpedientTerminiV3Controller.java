@@ -77,7 +77,9 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 		boolean perEstats = ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus());
 		Map<String, CampFormProperties> terminisFormProperties = null;
 		if (perEstats) {
-			terminisFormProperties = expedientTerminiService.getTerminisFormProperties(expedient.getTipus().getId(), expedient.getEstat().getCodi());
+			terminisFormProperties = expedientTerminiService.getTerminisFormProperties(
+					expedient.getTipus().getId(), 
+					expedient.getEstat() != null? expedient.getEstat().getCodi() : null);
 		}
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
 			List<TerminiDto> terminisInstanciaProces = null;
