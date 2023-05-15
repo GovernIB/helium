@@ -35,8 +35,10 @@ import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientRegistreService;
@@ -45,6 +47,7 @@ import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.CanviVersioProcesCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 /**
  * Controlador per a la pàgina d'informació de l'expedient.
@@ -437,6 +440,24 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		return "redirect:/v3/expedient/" + expedientId;
 	}
 
+	@RequestMapping(value="/{expedientTipusId}/documentDownload", method = RequestMethod.GET)
+	public String documentDownload(
+			HttpServletRequest request, 
+			@PathVariable Long expedientTipusId, 
+			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		expedientTipusService.findAmbIdPermisDissenyarDelegat(
+					entornActual.getId(),
+					expedientTipusId);
+		ExpedientTipusDto expedientTipusDto = expedientTipusService.findAmbIdPermisDissenyar(
+				entornActual.getId(),
+				expedientTipusId);
+		if(expedientTipusDto!=null && expedientTipusDto.getManualAjudaContent()!=null && expedientTipusDto.getManualAjudaNom()!=null) {
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, expedientTipusDto.getManualAjudaNom());
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, expedientTipusDto.getManualAjudaContent());
+		}
+		return "arxiuView";
+	}
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
