@@ -149,7 +149,7 @@
 								</span>
 						{{/if}}
 						{{if errorProcessament != null}}
-							<br/><span class="fa fa-exclamation-triangle text-danger" title="{{:errorProcessament}}"></span>
+							<br/><span class="fa fa-exclamation-triangle text-danger" title="{{>errorProcessament}}"></span>
 						{{/if}}
 						{{if errorAnnexos}}
 							<div class="pull-right">
@@ -179,7 +179,7 @@
 							<br/><span class="text-muted small">
 									{{:consultaIntents}} / ${maxConsultaIntents}
 									{{if consultaError != null }}
-										<span class="fa fa-exclamation-triangle text-danger" title="{{:consultaError}}"></span>
+										<span class="fa fa-exclamation-triangle text-danger" title="{{>consultaError}}"></span>
 									{{/if}}
 									{{if consultaData }}
 										{{:~formatTemplateDate(consultaData)}}

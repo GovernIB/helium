@@ -26,7 +26,7 @@ public class AvisCommand {
 	
 	
 	private Long id;
-	@NotEmpty(groups = {Creacio.class})
+	@NotEmpty(groups = { Creacio.class, Modificacio.class })
 	@Size(max = 255, groups = { Creacio.class, Modificacio.class })
 	private String assumpte;
 	@NotEmpty(groups = { Creacio.class, Modificacio.class })
@@ -39,9 +39,9 @@ public class AvisCommand {
 	@Size(max = 255, groups = { Creacio.class, Modificacio.class })
 	private String horaFi;
 
-	@NotNull
+	@NotNull(groups = { Creacio.class, Modificacio.class })
 	private Date dataInici;
-	@NotNull
+	@NotNull(groups = { Creacio.class, Modificacio.class })
 	private Date dataFinal;
 	private Boolean actiu;
 	@NotNull
