@@ -5,12 +5,13 @@ import java.util.List;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioListDto;
+import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 
 /**
  * Servei per a la consulta i gestió d'anotacions de distribució. Poden veure anotacions i realitzar accions 
@@ -26,6 +27,9 @@ public interface AnotacioService {
 			Long entornId,
 			AnotacioFiltreDto filtreDto,
 			PaginacioParamsDto paginacioParams);
+	
+	/** Mètode per consultar el llistat d'identificadors de les anotacions a partir d'un filtre. */
+	public List<Long> findIdsAmbFiltre(Long entornId, AnotacioFiltreDto filtreDto);
 
 	/** Mètode per consultar una anotació per identificador.
 	 * 
@@ -112,11 +116,6 @@ public interface AnotacioService {
 	public AnotacioDto reintentarConsulta(
 			Long anotacioId) throws Exception;
 
-	/** Mètode per obtenir el contingut d'un annex per a la seva descàrrega
-	 * 
-	 * @param annexId
-	 */
-	public ArxiuDto getAnnexContingut(Long annexId);
 
 	/** Mètode per consultar les firmes d'un annex
 	 * 
@@ -141,8 +140,30 @@ public interface AnotacioService {
 	public void esborrarAnotacionsExpedient(Long expedientId);
 
 	/** Recupera el mapeig de Sistra i l'aplica a l'expedient.
+	 * @return	Retorna un objecte de tipus <code>AnotacioMapeigResultatDto</code> amb el resultat del mapeig
+	 * de variables, documents i adjunts per poder advertir a l'usuari o afegir una alerta dels mapejos que han fallat.
 	 * @throws Exception 
 	 */
-	public void reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId);
+	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId);
+
+	/** Reintenta el processament dels annexos d'una anotació per incorporar-los a Helium.
+	 * 
+	 * @param anotacioId
+	 * @throws Llença excepció en cas de no anar bé.
+	 * @return
+	 */
+	public void reintentarTraspasAnotacio(Long anotacioId) throws Exception;
+
+	/** Mètode per obtenir el contingut d'un annex (en la seva versió imprimible) per a la seva descàrrega
+	 * 
+	 * @param annexId
+	 */
+	public ArxiuDto getAnnexContingutVersioImprimible(Long annexId);
+
+	/** Mètode per obtenir el contingut d'un annex per a la seva descàrrega
+	 * 
+	 * @param annexId
+	 */
+	public ArxiuDto getAnnexContingutVersioOriginal(Long annexId);
 
 }

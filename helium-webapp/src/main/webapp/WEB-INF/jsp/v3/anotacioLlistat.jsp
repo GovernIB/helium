@@ -26,6 +26,7 @@
 	<script src="<c:url value="/webjars/datatables.net/1.10.13/js/jquery.dataTables.min.js"/>"></script>
 	<script src="<c:url value="/webjars/datatables.net-bs/1.10.13/js/dataTables.bootstrap.min.js"/>"></script>
 	<link href="<c:url value="/webjars/datatables.net-bs/1.10.13/css/dataTables.bootstrap.min.css"/>" rel="stylesheet"></link>
+	<script src="<c:url value="/webjars/datatables.net-select/1.1.0/js/dataTables.select.min.js"/>"></script>
 	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
 	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 	<script src="<c:url value="/js/webutil.datatable.js"/>"></script>
@@ -85,15 +86,16 @@
 			data-ordering="true"
 			data-default-order="1"
 			data-default-dir="desc"
-			data-rowhref-template="#rowhrefTemplate"
-			data-rowhref-toggle="modal"
-			data-rowhref-maximized="true"
+			data-selection-enabled="true"
+			data-selection-url="anotacio/selection"
+			data-selection-counter="#tramitacioMassivaCount"
+			data-info-type="button"
 			data-botons-template="#tableButtonsAccionsTemplate"
 			class="table table-striped table-bordered table-hover"
 			style="width:100%">			
 		<thead>
 			<tr>
-				<th data-col-name="id" data-visible="false"/>
+				<th data-col-name="id" data-visible="false" data-orderable="false"/>
 				<th data-col-name="data" data-converter="datetime"><spring:message code="anotacio.llistat.columna.data"/></th>
 				<th data-col-name="identificador"><spring:message code="anotacio.llistat.columna.identificador"/></th>
 				<th data-col-name="extracte" data-renderer="maxLength(50)"><spring:message code="anotacio.llistat.columna.extracte"/></th>
@@ -146,7 +148,7 @@
 								</span>
 						{{/if}}
 						{{if errorProcessament != null}}
-							<br/><span class="fa fa-exclamation-triangle text-danger" title="{{:errorProcessament}}"></span>
+							<br/><span class="fa fa-exclamation-triangle text-danger" title="{{>errorProcessament}}"></span>
 						{{/if}}
 						{{if errorAnnexos}}
 							<div class="pull-right">
@@ -176,7 +178,7 @@
 							<br/><span class="text-muted small">
 									{{:consultaIntents}} / ${maxConsultaIntents}
 									{{if consultaError != null }}
-										<span class="fa fa-exclamation-triangle text-danger" title="{{:consultaError}}"></span>
+										<span class="fa fa-exclamation-triangle text-danger" title="{{>consultaError}}"></span>
 									{{/if}}
 									{{if consultaData }}
 										{{:~formatTemplateDate(consultaData)}}
@@ -220,6 +222,22 @@
 			</tr>
 		</thead>
 	</table>	
+
+	<div id="modal-error" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title"></h4>
+				</div>
+				<div class="modal-body">
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal"><spring:message code="comu.boto.tancar"/></button>
+				</div>
+			</div>
+		</div>
+	</div>	
 	<!-- Modal pels estats del processament -->
 	<div id="modalProcesEstat" class="modal fade">
 		<div class="modal-dialog">
@@ -260,9 +278,23 @@
 				</c:otherwise>
 			</c:choose>	
 			<span ></span>&nbsp;
-			<a id="exportar_excel" href="<c:url value="../../../helium/v3/anotacio/excel"/>" class="btn btn-default">
+			<a id="exportar_excel" href="<c:url value="/v3/anotacio/excel"/>" class="btn btn-default">
 				<span class="fa fa-download"></span>&nbsp;<spring:message code="comuns.descarregar"/>
 			</a>
+			<div id="btnTramitacio" class="btn-group">
+			
+				<button id="seleccioAll" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>" class="btn btn-default"><span class="fa fa-check-square-o"></span></button>
+				<button id="seleccioNone" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>" class="btn btn-default"><span class="fa fa-square-o"></span></button>
+
+				<button class="btn btn-default" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;&nbsp;</span>&nbsp;<span class="caret"></span></button>
+ 					<ul class="dropdown-menu">
+						<li><a id="selection"  data-maximized="true" href="<c:url value="/v3/anotacio/reintentarConsulta"/>" data-rdt-link-ajax="true" title="<spring:message code="anotacio.llistat.reintentar.consulta.title"/>"><spring:message code="anotacio.llistat.reintentar.consulta"/></a></li>
+ 						<li><a id="selection"  href="<c:url value="/v3/anotacio/reintentarProcessament"/>" data-rdt-link-ajax="true" title="<spring:message code="anotacio.llistat.reintentar.processament.title"/>"><spring:message code="anotacio.llistat.reintentar.processament"/></a></li>
+						<li><a id="selection" href="<c:url value="/v3/anotacio/reprocessarMapeig"/>" data-rdt-link-ajax="true" title="<spring:message code="anotacio.llistat.reintentar.mapeig.title"/>"><spring:message code="anotacio.llistat.reintentar.mapeig"/></a></li>
+						<li><a id="selection"  href="<c:url value="/v3/anotacio/reintentarProcessamentNomesAnnexos"/>" data-rdt-link-ajax="true" title="<spring:message code="anotacio.llistat.reintentar.processament.nomes.annexos.title"/>"><spring:message code="anotacio.llistat.reintentar.processament.nomes.annexos"/></a></li>
+						<li><a id="selection"  href="<c:url value="/v3/anotacio/esborrarAnotacions"/>" data-rdt-link-ajax="true" title="<spring:message code="anotacio.llistat.esborrar.anotacions.title"/>"><spring:message code="anotacio.llistat.esborrar.anotacions"/></a></li>
+ 					</ul>
+			</div>
 		</div>
 	</script>
 		
@@ -280,6 +312,44 @@
 			$('#modalProcesEstat').modal();
 			e.stopPropagation();
 		});	
+		
+			var selectButtonsInitialized = false;
+		
+			$('#anotacio').on( 'draw.dt', function () {		
+
+				if (!selectButtonsInitialized) {
+
+					selectButtonsInitialized = true;
+					$('#seleccioAll').on('click', function(e) {
+						$.get(
+								"anotacio/seleccioTots",
+								function(data) {
+									$("#tramitacioMassivaCount").html(data);
+									$('#anotacio').webutilDatatable('refresh');
+								}
+						);
+						return false;
+					});
+					$('#seleccioNone').on('click', function() {
+						$.get(
+								"anotacio/seleccioNetejar",
+								function(data) {
+									$("#tramitacioMassivaCount").html(data);
+									$('#anotacio').webutilDatatable('select-none');
+								}
+						);
+						return false;
+					});	
+				}//if
+			})
+			.on('selectionchange.dataTable', function (accio, ids) {
+				$.get(
+					"anotacio/" + accio,
+					{ids: ids},
+					function(data) {
+						$("#tramitacioMassivaCount").html(data);
+					});
+			});
 	});
 	
 	// ]]>

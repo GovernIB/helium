@@ -188,6 +188,27 @@ public class ExecucionsMassivesController extends BaseExpedientController {
 			
 			return ajaxResponse;
 	}
+	
+	@RequestMapping(value = "reintentarExecucioMassiva", method = RequestMethod.POST)
+	@ResponseBody
+	public AjaxResponse reintentarExecucioMassiva(@RequestParam(value = "id") Long id, HttpServletRequest request,
+			HttpServletResponse response, ModelMap model, HttpSession session) throws Exception {
+			
+			AjaxResponse ajaxResponse = new AjaxResponse();
+			try {
+				execucioMassivaService.reintentarExecucioMassiva(id);
+				ajaxResponse.setMissatge("L'execució massiva amb id " + id + " s'ha reintentat correctament ");
+				
+			} catch (Exception ex) {
+				String errMsg = "No s'ha pogut reintentar l'execució massiva dels casos d'execució amb error amb id " + id;
+				logger.error(errMsg, ex);
+				ajaxResponse.setError(true);
+				ajaxResponse.setMissatge(errMsg);
+			}
+			
+			return ajaxResponse;
+	}
+
 
 	/**
 	 * Refresca las barras de progreso de detalle de las acciones masivas

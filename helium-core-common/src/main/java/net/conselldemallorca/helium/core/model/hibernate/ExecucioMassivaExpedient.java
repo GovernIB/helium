@@ -55,6 +55,8 @@ public class ExecucioMassivaExpedient implements Serializable, GenericEntity<Lon
 	private String processInstanceId;
 	private Long definicioProcesId;
 	private String auxText;
+	/** Camp per un id genèric en cas d'accions amb consultes o anotacions. */
+	private Long auxId;
 
 
 	public ExecucioMassivaExpedient() {}
@@ -83,6 +85,13 @@ public class ExecucioMassivaExpedient implements Serializable, GenericEntity<Lon
 	public ExecucioMassivaExpedient(ExecucioMassiva execucioMassiva, Long definicioProcesId, int ordre) {
 		this.execucioMassiva = execucioMassiva;
 		this.definicioProcesId = definicioProcesId;
+		this.ordre = ordre;
+		this.estat = ExecucioMassivaEstat.ESTAT_PENDENT;
+		this.dataInici = execucioMassiva.getDataInici();
+	}
+	public ExecucioMassivaExpedient(ExecucioMassiva execucioMassiva, Long auxId, int ordre, boolean anotacio) {
+		this.execucioMassiva = execucioMassiva;
+		this.auxId = auxId;
 		this.ordre = ordre;
 		this.estat = ExecucioMassivaEstat.ESTAT_PENDENT;
 		this.dataInici = execucioMassiva.getDataInici();
@@ -184,6 +193,14 @@ public class ExecucioMassivaExpedient implements Serializable, GenericEntity<Lon
 	}
 	public void setDefinicioProcesId(Long definicioProcesId) {
 		this.definicioProcesId = definicioProcesId;
+	}
+	
+	@Column(name="aux_id", nullable=true)
+	public Long getAuxId() {
+		return auxId;
+	}
+	public void setAuxId(Long auxId) {
+		this.auxId = auxId;
 	}
 	
 	@Column(name="aux_text", nullable=true)

@@ -34,6 +34,7 @@ import com.codahale.metrics.Timer;
 import es.caib.distribucio.rest.client.domini.AnotacioRegistreEntrada;
 import es.caib.distribucio.rest.client.domini.AnotacioRegistreId;
 import net.conselldemallorca.helium.core.helper.DistribucioHelper;
+import net.conselldemallorca.helium.core.helper.ExceptionHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.NotificacioHelper;
@@ -85,6 +86,8 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 	private DistribucioHelper distribucioHelper;
 	@Resource
   	private MetricRegistry metricRegistry;
+	@Resource
+	private ExceptionHelper exceptionHelper;
 	
 	private static Map<Long, String> errorsMassiva = new HashMap<Long, String>();
 	
@@ -409,7 +412,8 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 					distribucioHelper.setProcessant(anotacio.getId(), true);
 					distribucioHelper.processarAnotacio(idWs, anotacioRegistreEntrada, anotacio);
 				} catch (Exception e) {
-					String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e.getMessage();
+					String message = exceptionHelper.getRouteCauses(e);
+					String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + message;
 					logger.error(errorProcessament, e);
 					anotacio = distribucioHelper.updateErrorProcessament(anotacioId, errorProcessament);
 	

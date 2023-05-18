@@ -15,6 +15,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioListDto;
+import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -42,6 +43,13 @@ public class AnotacioServiceBean implements AnotacioService {
 			PaginacioParamsDto paginacioParams) {
 		return delegate.findAmbFiltrePaginat( entornId, filtreDto, paginacioParams);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<Long> findIdsAmbFiltre(Long entornId, AnotacioFiltreDto filtreDto) {
+		return delegate.findIdsAmbFiltre( entornId, filtreDto);
+	}
+
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -93,8 +101,14 @@ public class AnotacioServiceBean implements AnotacioService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ArxiuDto getAnnexContingut(Long annexId) {
-		return delegate.getAnnexContingut(annexId);
+	public ArxiuDto getAnnexContingutVersioOriginal(Long annexId) {
+		return delegate.getAnnexContingutVersioOriginal(annexId);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ArxiuDto getAnnexContingutVersioImprimible(Long annexId) {
+		return delegate.getAnnexContingutVersioImprimible(annexId);
 	}
 	
 	@Override
@@ -117,8 +131,15 @@ public class AnotacioServiceBean implements AnotacioService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId) {
-		delegate.reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
+	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId) {
+		return delegate.reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
+		
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void reintentarTraspasAnotacio(Long anotacioId) throws Exception {
+		delegate.reintentarTraspasAnotacio(anotacioId);
 		
 	}
 }

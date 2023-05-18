@@ -1,5 +1,5 @@
--- ORACLE
 -- #1648 Publicació d'avisos 
+
 CREATE TABLE HEL_AVIS
 (
   ID                   NUMBER(19)               NOT NULL,
@@ -23,4 +23,11 @@ ALTER TABLE HEL_AVIS ADD (
 CREATE INDEX HEL_AVIS_DATA_INICI_I ON HEL_AVIS(DATA_INICI);
 CREATE INDEX HEL_AVIS_DATA_FINAL_I ON HEL_AVIS(DATA_FINAL);
 
---GRANT SELECT, UPDATE, INSERT, DELETE ON HEL_AVIS TO WWW_DISTRIBUCIO; 
+GRANT SELECT, UPDATE, INSERT, DELETE ON HEL_AVIS TO WWW_HELIUM;
+
+--1654 Accions sobre les anotacions filtrades
+ALTER TABLE HEL_EXEC_MASEXP ADD AUX_ID NUMBER(19,0);
+
+--#1664 El check d'activar tràmits no s'acaba d'exportar bé
+--Script per posar el check a true a tots els que no s'hagin importat correctament
+UPDATE HEL_EXPEDIENT_TIPUS SET SISTRA_ACTIU = 1 WHERE DISTR_SISTRA = 1 AND SISTRA_ACTIU = 0

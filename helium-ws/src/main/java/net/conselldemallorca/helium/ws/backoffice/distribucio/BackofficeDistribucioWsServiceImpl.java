@@ -18,6 +18,8 @@ import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
+import net.conselldemallorca.helium.v3.core.repository.AnotacioAnnexRepository;
+import net.conselldemallorca.helium.v3.core.repository.AnotacioInteressatRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
 
 
@@ -40,6 +42,10 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice {
 	private DistribucioHelper distribucioHelper;
 	@Autowired
 	private AnotacioRepository anotacioRepository;
+	@Autowired
+	private AnotacioAnnexRepository anotacioAnnexRepository;
+	@Autowired
+	private AnotacioInteressatRepository anotacioInteressatRepository;
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
 	
@@ -93,14 +99,16 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice {
 						}
 						break;
 					case REBUTJADA:
-						estat = es.caib.distribucio.rest.client.domini.Estat.REBUTJADA;
-						msg = "La petició ja s'ha rebutjat anteriorment " + 
+						estat = null;
+						msg = "L'anotació \"" + anotacio.getIdentificador() + "\" s'havia rebutjat anteriorment " + 
 								(anotacio.getDataProcessament() != null? "amb data " + sdf.format(anotacio.getDataProcessament()) : "") + 
-								"i motiu: " + anotacio.getRebuigMotiu();
+								"i motiu: " + anotacio.getRebuigMotiu() + ". Es marca com a comunicada per tornar a consultar-la i processar-la.";
+						logger.debug(msg);
+						distribucioHelper.resetConsulta(anotacio.getId(), null);
 						break;
 					case COMUNICADA:
 						estat = null;
-						// Posa a 0 el número d'intents per a que es torni a processar
+						// Posa a 0 el número d'intents per a que es torni a processar pel thread de la tasca programada de consultar anotacions pendents
 						distribucioHelper.updateConsulta(
 								anotacio.getId(), 
 								0, 

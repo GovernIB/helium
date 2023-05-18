@@ -4,8 +4,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import net.conselldemallorca.helium.core.helper.ExceptionHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
@@ -29,6 +32,9 @@ import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 @RequestMapping("/v3/expedient")
 public class ExpedientAccioController extends BaseExpedientController {
 
+	@Resource
+	ExceptionHelper exceptionHelper;
+	
 	@RequestMapping(value = "/{expedientId}/accio", method = RequestMethod.GET)
 	public String accions(
 			HttpServletRequest request,
@@ -95,20 +101,10 @@ public class ExpedientAccioController extends BaseExpedientController {
 					procesId,
 					accioId);
 			nomAccio = accio.getNom();
-			StringBuilder message = new StringBuilder();
-			Throwable t = ex;
-			boolean root;
-			do {
-				message.append(t.getMessage());
-				t = t.getCause();
-				root = t == null || t == t.getCause();
-				if (!root) {
-					message.append(": ");
-				}
-			} while (!root);
-			String errMsg = getMessage(request, "error.executar.accio") + " " + nomAccio + ": " + ex.getClass().getSimpleName() + ": "+ message.toString();
-			MissatgesHelper.error(request, errMsg);
-			logger.error(errMsg, ex);
+			MissatgesHelper.error(
+	    			request,
+	    			getMessage(request, "error.executar.accio") + " " + nomAccio + ": " + ex.getClass().getSimpleName() + ": "+ exceptionHelper.getRouteCauses(ex));
+			logger.error(getMessage(request, "error.executar.accio") +" "+ accioId + ": "+ exceptionHelper.getRouteCauses(ex), ex);
 		}
 		model.addAttribute("pipellaActiva", "accions");
 		return "redirect:/v3/expedient/" + expedientId;

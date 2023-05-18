@@ -84,7 +84,7 @@
 		<div class="row">
 			<div class="col-sm-11">
 				<hel:inputText required="true" name="assumpte" textKey="avis.assumpte" />
-				<hel:inputTextarea name="missatge" textKey="avis.missatge" />
+				<hel:inputTextarea required="true" name="missatge" textKey="avis.missatge" />
 				<hel:inputDate required="true" name="dataInici" textKey="avis.dataInici" placeholder="dd/MM/yyyy hh:mm" />
 				<fmt:formatDate value="${avis.dataInici}" pattern="dd/MM/yyyy"/>
 				<hel:inputDate required="true" name="dataFinal" textKey="avis.dataFi" placeholder="dd/MM/yyyy hh:mm" />

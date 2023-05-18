@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -35,6 +35,8 @@ import es.caib.distribucio.rest.client.domini.Annex;
 import es.caib.distribucio.rest.client.domini.AnotacioRegistreEntrada;
 import es.caib.distribucio.rest.client.domini.AnotacioRegistreId;
 import es.caib.distribucio.rest.client.domini.Estat;
+import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
+import es.caib.plugins.arxiu.api.Document;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helper.AlertaHelper;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
@@ -75,6 +77,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.AnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioListDto;
+import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuEstat;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDetallDto;
@@ -245,12 +248,81 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		PaginaDto<AnotacioListDto> pagina = paginacioHelper.toPaginaDto(page, AnotacioListDto.class);
 		
 		for(AnotacioListDto anotacio: pagina.getContingut()){
-			if(distribucioHelper.isProcessant(anotacio.getId())) { //MARTA ojo mirar q sigui el mateix id!
+			if(distribucioHelper.isProcessant(anotacio.getId())) {
 				anotacio.setProcessant(true);
 			}
 		}
 		
 		return pagina;
+	}
+
+	@Override
+	public List<Long> findIdsAmbFiltre(Long entornId, AnotacioFiltreDto filtreDto) {
+		logger.debug(
+				"Consultant eks identificadors les anotacions per datatable (" +
+				"anotacioFiltreDto=" + filtreDto + ")");
+
+		// Llista d'expedients tipus amb permís de relacionar
+		List<Long> expedientTipusIdsPermesos = null;
+		// Pot veure:
+		// - Totes les anotacions si és administrador d'Helium
+		// - Les anotacions dels tipus d'expedient amb permís de relacionar en el cas de no ser-ho
+		// - Les anotacions d'un expedient en el cas de passar-ho com a filtre
+		// Si el filtre especifica l'id de l'expedient des de la pipella d'anotacions de l'expedient
+		if (filtreDto.getExpedientId() != null) {
+			// Comprova que pugui llegir l'expedient pel cas de la pipella d'anotacions de l'expedient
+			expedientHelper.getExpedientComprovantPermisos(filtreDto.getExpedientId(), true, false, false, false);
+		} else {
+			// Comporova que sigui administrador o recupera els tipus permesos per la vista d'anotacions
+			if (!usuariActualHelper.isAdministrador()) {
+				expedientTipusIdsPermesos = expedientTipusHelper.findIdsAmbPermisos(
+						entornHelper.getEntorn(entornId),
+						new Permission[] {
+								ExtendedPermission.RELATE,
+								ExtendedPermission.ADMINISTRATION
+						});
+				if (expedientTipusIdsPermesos.isEmpty())
+					expedientTipusIdsPermesos.add(0L);
+			}
+		}
+		
+		Date dataFinal = null;
+		if (filtreDto.getDataFinal() != null) {
+			// Corregeix la data final per arribar a les 00:00:00h del dia següent.
+			Calendar c = new GregorianCalendar();
+			c.setTime(filtreDto.getDataFinal());
+			c.add(Calendar.DATE, 1);
+			c.set(Calendar.HOUR_OF_DAY, 0);
+			c.set(Calendar.MINUTE, 0);
+			c.set(Calendar.SECOND, 0);
+			c.set(Calendar.MILLISECOND, 0);
+			dataFinal = c.getTime();
+		}
+		List<Long> ids = anotacioRepository.findIdsAmbFiltre(
+				filtreDto.getCodiProcediment() == null || filtreDto.getCodiProcediment().isEmpty(),
+				filtreDto.getCodiProcediment(),
+				filtreDto.getCodiAssumpte() == null || filtreDto.getCodiAssumpte().isEmpty(),
+				filtreDto.getCodiAssumpte(),
+				filtreDto.getNumeroExpedient() == null || filtreDto.getNumeroExpedient().isEmpty(),
+				filtreDto.getNumeroExpedient(),
+				filtreDto.getNumero() == null || filtreDto.getNumero().isEmpty(),
+				filtreDto.getNumero(),
+				filtreDto.getExtracte() == null || filtreDto.getExtracte().isEmpty(),
+				filtreDto.getExtracte(),
+				filtreDto.getDataInicial() == null,
+				filtreDto.getDataInicial(),
+				dataFinal == null,
+				dataFinal,
+				filtreDto.getEstat() == null,
+				filtreDto.getEstat(),
+				filtreDto.getExpedientTipusId() == null,
+				filtreDto.getExpedientTipusId(),
+				filtreDto.getExpedientId() == null,
+				filtreDto.getExpedientId(),
+				expedientTipusIdsPermesos == null,
+				expedientTipusIdsPermesos == null? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesos);
+		
+		return ids;	
 	}
 
 	/**
@@ -372,7 +444,16 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 						expedientTipusId + " perquè no s'ha pogut recuperar la informació associada.");
 
 		if(reprocessar && expedientTipus.isDistribucioSistra()) {
-			reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
+			AnotacioMapeigResultatDto resultatMapeig = reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
+			if (resultatMapeig.isError()) {
+				Alerta alerta = alertaHelper.crearAlerta(
+						expedient.getEntorn(), 
+						expedient, 
+						new Date(), 
+						null, 
+						resultatMapeig.getMissatgeAlertaErrors());
+				alerta.setPrioritat(AlertaPrioritat.ALTA);	
+			}
 		}
 		anotacio.setExpedientTipus(expedientTipus);
 		anotacio.setExpedient(expedient);
@@ -417,7 +498,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
 			BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
 			// Posarà els annexos en la carpeta de l'anotació
-			backofficeUtils.setCarpeta(anotacio.getIdentificador());
+			backofficeUtils.setCarpeta(ArxiuConversioHelper.revisarContingutNom(anotacio.getIdentificador().replace("/", "_")));
 			// S'enregistraran els events al monitor d'integració
 			backofficeUtils.setArxiuPluginListener(this);
 			// Consulta la informació de l'anotació 
@@ -645,9 +726,11 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		Anotacio anotacio = anotacioRepository.findOne(anotacioId);		
 		// Comprova els permisos
 		this.comprovaPermisAccio(anotacio);
-		// Comprova que està en error de processament
-		if (!AnotacioEstatEnumDto.ERROR_PROCESSANT.equals(anotacio.getEstat())) {
-			throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot reprocessar perquè està en estat " + anotacio.getEstat());
+		// Comprova que està en error de processament o que està rebutjada o pendent i sense expedient relacionat
+		if (!AnotacioEstatEnumDto.ERROR_PROCESSANT.equals(anotacio.getEstat())
+				&& !( Arrays.asList(ArrayUtils.toArray(AnotacioEstatEnumDto.PENDENT, AnotacioEstatEnumDto.REBUTJADA)).contains(anotacio.getEstat())
+						&& anotacio.getExpedient() == null) ) {
+			throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot reprocessar perquè està en estat " + anotacio.getEstat() + (anotacio.getExpedient() != null ? " i té un expedient associat" : ""));
 		}		
 		return conversioTipusHelper.convertir(
 				distribucioHelper.reprocessarAnotacio(anotacioId),
@@ -798,7 +881,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public ArxiuDto getAnnexContingut(Long annexId) {
+	public ArxiuDto getAnnexContingutVersioImprimible(Long annexId) {
 		
 		// Recupera l'annex
 		AnotacioAnnex annex = anotacioAnnexRepository.findOne(annexId);
@@ -809,7 +892,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				
 		ArxiuDto arxiu = new ArxiuDto();
 		if (annex.getContingut() == null) {
-			// Recupera el contingut de l'Arxiu
+			// Recupera el contingut de l'Arxiu (versió imprimible)
 			es.caib.plugins.arxiu.api.Document document = pluginHelper.arxiuDocumentInfo(
 					annex.getUuid(),
 					null,
@@ -825,6 +908,38 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		
 		return arxiu;
 	}
+	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public ArxiuDto getAnnexContingutVersioOriginal(Long annexId) {
+		
+		// Recupera l'annex
+		AnotacioAnnex annex = anotacioAnnexRepository.findOne(annexId);
+		if (annex == null)
+			throw new NoTrobatException(AnotacioAnnex.class, annexId);
+		// Comprova l'accés
+		this.comprovaPermisLectura(annex.getAnotacio());			
+		ArxiuDto arxiu = new ArxiuDto();
+		if (annex.getContingut() == null) {
+			Document documentArxiu = pluginHelper.arxiuDocumentOriginal(annex.getUuid(), null);
+			if (documentArxiu != null ) {
+				byte[] contingut = documentArxiu.getContingut() != null? documentArxiu.getContingut().getContingut() : null;
+				if (contingut!=null)
+					arxiu.setContingut(contingut);
+			}
+		} else {
+			arxiu.setContingut(annex.getContingut());
+		}
+		arxiu.setNom(annex.getNom());
+		arxiu.setTipusMime(annex.getTipusMime());
+		
+		return arxiu;
+	}
+	
 	
 	
 	/**
@@ -905,28 +1020,41 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		ArxiuResultat resultat = new ArxiuResultat();
 		annex.setError(null);
 		
+		String annexUuid = annex.getUuid();
 		if (expedient.isArxiuActiu()) {			
+			// Consulta el nom real a l'Arxiu
+			String annexAnotacioNomArxiu = null;
+			try {
+				es.caib.plugins.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
+						annexUuid,
+						null,
+						false,
+						annex.getFirmaTipus() != null);
+				annexAnotacioNomArxiu = arxiuDocument.getNom();
+			} catch (Exception e) {
+				String errMsg = "Error reprocessant consultant els detalls de l'annex " + annex.getId() + " \"" + annex.getTitol() + "\" per reintentar la seva incorporació a l'expedient " + expedient.getNumero() + ": " + e.getMessage();
+				logger.error(errMsg, e);
+				distribucioHelper.updateErrorAnnex(annexId, errMsg);
+				throw new SistemaExternException(errMsg, e);
+			}
+
 			// Utilitza la llibreria d'utilitats de Distribució per incorporar la informació de l'anotació directament a l'expedient dins l'Arxiu
 			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
 			BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
 			// Posarà els annexos en la carpeta de l'anotació
-			backofficeUtils.setCarpeta(anotacio.getIdentificador());
+			backofficeUtils.setCarpeta(ArxiuConversioHelper.revisarContingutNom(anotacio.getIdentificador().replace("/", "_")));
 			// S'enregistraran els events al monitor d'integració
 			backofficeUtils.setArxiuPluginListener(this);
-			// Prepara la consulta a Distribució
-			es.caib.distribucio.rest.client.domini.AnotacioRegistreId idWs = new AnotacioRegistreId();
-			idWs.setClauAcces(anotacio.getDistribucioClauAcces());
-			idWs.setIndetificador(anotacio.getDistribucioId());
-			AnotacioRegistreEntrada anotacioRegistreEntrada;
+			// Prepara la informació de l'anotació
+			AnotacioRegistreEntrada anotacioRegistreEntrada = new AnotacioRegistreEntrada();
 			try {
-				anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
-				// Modifica el resultat per deixar només l'annex amb mateix uuid
-				ListIterator<Annex> iAnnexos = anotacioRegistreEntrada.getAnnexos().listIterator();
-				while (iAnnexos.hasNext()) {
-					if (!iAnnexos.next().getUuid().equals(annex.getUuid())) {
-						iAnnexos.remove();
-					}
-				}
+				List<Annex> annexos = new ArrayList<Annex>();
+				Annex annexAnotacio = new Annex();
+				annexAnotacio.setUuid(annex.getUuid());
+				annexAnotacio.setTitol(annex.getTitol());
+				annexAnotacio.setNom(annexAnotacioNomArxiu);
+				annexos.add(annexAnotacio);		
+				anotacioRegistreEntrada.setAnnexos(annexos);
 				resultat = backofficeUtils.crearExpedientAmbAnotacioRegistre(expedientArxiu, anotacioRegistreEntrada);
 			} catch(Exception e) {
 				String errMsg = "Error reprocessant la informació de l'anotació de registre \"" + anotacio.getIdentificador() + "\" de Distribució: " + e.getMessage();
@@ -954,13 +1082,119 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			error = true;
 			errorMsg.append("Error reprocessant l'anotació l'expedient amb la llibreria d'utilitats de Distribucio: " + resultat.getErrorCodi() + " " + resultat.getErrorMessage());
 		}
-		ArxiuResultatAnnex resultatAnnex = resultat.getResultatAnnex(annex.getUuid());
+		ArxiuResultatAnnex resultatAnnex = resultat.getResultatAnnex(annexUuid);
 		if (AnnexAccio.ERROR.equals(resultatAnnex.getAccio())) {
 			error = true;
 			errorMsg.append(resultatAnnex.getErrorCodi() + " - " + resultatAnnex.getErrorMessage());
 		}
 		if (error)
 			throw new Exception(errorMsg.toString());
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public void reintentarTraspasAnotacio(Long anotacioId) throws Exception {
+		
+		logger.debug(
+				"Reintentant el traspàs de l'anotació (" +
+				"anotacioId=" + anotacioId + ")");
+
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+		// Comprova els permisos
+		this.comprovaPermisAccio(anotacio);
+		if (anotacio.getExpedient() == null)
+			throw new Exception("No es pot processar l'annex perquè l'anotació no té cap expedient associat.");
+		
+		Expedient expedient = anotacio.getExpedient();
+		ExpedientTipus expedientTipus = expedient.getTipus();
+		
+		// Reintenta la incorporació de l'anotació
+		ArxiuResultat resultat = new ArxiuResultat();
+		
+		if (expedient.isArxiuActiu()) {
+			// Utilitza la llibreria d'utilitats de Distribució per incorporar la informació de l'anotació directament a l'expedient dins l'Arxiu
+			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
+			BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
+			// Posarà els annexos en la carpeta de l'anotació
+			backofficeUtils.setCarpeta(ArxiuConversioHelper.revisarContingutNom(anotacio.getIdentificador().replace("/", "_")));
+			// S'enregistraran els events al monitor d'integració
+			backofficeUtils.setArxiuPluginListener(this);
+			// Prepara la informació de l'anotació
+			AnotacioRegistreEntrada anotacioRegistreEntrada = new AnotacioRegistreEntrada();
+			List<Annex> annexos = new ArrayList<Annex>();
+			String annexAnotacioNomArxiu;
+			Annex annexAnotacio = null;
+			Map<Annex, ArxiuResultatAnnex> errorsConsulta = new HashMap<Annex, ArxiuResultatAnnex>();
+			for (AnotacioAnnex annex : anotacio.getAnnexos() ) {
+				try {
+					annexAnotacio = new Annex();
+					annexAnotacio.setUuid(annex.getUuid());
+					annexAnotacio.setTitol(annex.getTitol());
+					// Consulta el nom real a l'Arxiu
+					es.caib.plugins.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
+							annex.getUuid(),
+							null,
+							false,
+							annex.getFirmaTipus() != null);
+					annexAnotacioNomArxiu = arxiuDocument.getNom();
+					// L'afegeix a la llista d'annexos a traspassar
+					annexAnotacio.setNom(annexAnotacioNomArxiu);
+					annexos.add(annexAnotacio);		
+				} catch(Exception e) {
+					String errMsg = "Error reprocessant consultant els detalls de l'annex " + annex.getId() + " \"" + annex.getTitol() + "\" per reintentar la seva incorporació a l'expedient " + expedient.getNumero() + ": " + e.getMessage();
+					logger.error(errMsg, e);
+					ArxiuResultatAnnex resultatAnnex = new ArxiuResultatAnnex();
+					resultatAnnex.setAccio(AnnexAccio.ERROR);
+					resultatAnnex.setAnnex(annexAnotacio);
+					resultatAnnex.setErrorCodi(-1);
+					resultatAnnex.setErrorMessage(errMsg);
+					resultatAnnex.setException(e);
+					resultatAnnex.setIdentificadorAnnex(annex.getUuid());
+					errorsConsulta.put(annexAnotacio, resultatAnnex);
+				}
+			}
+			anotacioRegistreEntrada.setAnnexos(annexos);
+			resultat = backofficeUtils.crearExpedientAmbAnotacioRegistre(expedientArxiu, anotacioRegistreEntrada);
+			// Al resultat hi afegeix els errors que s'havien produït per consulta dels detalls
+			for (Annex annexAnotacioError : errorsConsulta.keySet()) {
+				resultat.addResultatAnnex(annexAnotacioError, errorsConsulta.get(annexAnotacioError));
+			}
+		}
+		
+		// Depenent del resultat llença excepció
+		boolean error = false;
+		StringBuilder errorMsg = new StringBuilder();
+		if (resultat.getErrorCodi() != 0) {
+			error = true;
+			errorMsg.append("Error reprocessant l'anotació l'expedient amb la llibreria d'utilitats de Distribucio: " + resultat.getErrorCodi() + " " + resultat.getErrorMessage());
+		}
+		
+		String annexUuid;
+		for(AnotacioAnnex a : anotacio.getAnnexos()){
+			logger.debug(
+					"Reintent de processament de l'annex (" +
+					"anotacioId=" + anotacioId + " " + anotacio.getIdentificador() + ", annexId=" + a.getId() + 
+					" " + a.getNom() + ", annexEstat=" + a.getEstat() + ", annexError=" + a.getError() + ")");
+			annexUuid = a.getUuid();
+			// Incorpora l'annex a l'expedient
+			distribucioHelper.incorporarAnnex(
+					expedientTipus.isDistribucioSistra(), 
+					anotacio.getExpedient(), 
+					anotacio, 
+					a, 
+					resultat);
+			ArxiuResultatAnnex resultatAnnex = resultat.getResultatAnnex(annexUuid);
+			if (resultatAnnex!=null && AnnexAccio.ERROR.equals(resultatAnnex.getAccio())) {
+				error = true;
+				errorMsg.append(resultatAnnex.getErrorCodi() + " - " + resultatAnnex.getErrorMessage());
+			}
+			if (error)
+				throw new Exception(errorMsg.toString());
+		}
+		
 	}
 	
 	/**
@@ -985,13 +1219,15 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	
 	@Override
 	@Transactional
-	public void reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId) {
+	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId) {
+		AnotacioMapeigResultatDto resultatMapeig = new AnotacioMapeigResultatDto();
 		logger.debug(
 				"Reprocessant el mapeig de l'anotació de l'expedient ( " +
 				"anotacioId=" + anotacioId + ", " +
 				"expedientId=" + expedientId + ")");
 		
 		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+		resultatMapeig.setAnotacioNumero(anotacio.getIdentificador());
 	
 		// Recupera la informació del tipus d'expedient i l'expedient
 		ExpedientTipus expedientTipus = null;
@@ -1009,24 +1245,12 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			MapeigSistra mapeigSistra = null;
 			ExpedientDadaDto dada = null;
 			DadesDocumentDto dadesDocumentDto = null;
+
 			// Extreu variables i documents i annexos segons el mapeig sistra
-			try {
-				variables = distribucioHelper.getDadesInicials(expedientTipus, anotacio);
-			} catch (Exception e) {
-				String errMsg = "Error processant el mapeig de l'anotació " + 
-						anotacio.getIdentificador() + 
-						". Hi podrien haver dades o documents que no s'haguessin mapejat correctament. Recomanem reprocessar el mapeig de l'anotació a l'expedient.";
-				logger.error(errMsg, e);
-				Alerta alerta = alertaHelper.crearAlerta(
-						expedient.getEntorn(), 
-						expedient, 
-						new Date(), 
-						null, 
-						errMsg);
-				alerta.setPrioritat(AlertaPrioritat.ALTA);	
-			}
-			documents = distribucioHelper.getDocumentsInicials(expedientTipus, anotacio);			
-			annexos = distribucioHelper.getDocumentsAdjunts(expedientTipus, anotacio);
+			resultatMapeig = distribucioHelper.getMapeig(expedientTipus, anotacio);
+			variables = resultatMapeig.getDades();
+			documents = resultatMapeig.getDocuments();
+			annexos = resultatMapeig.getAdjunts();			
 			if(variables!=null) {
 				for (String varCodi : variables.keySet()) {	
 					// Obtenir la variable de l'expedient, comprovar si aquest mapeig existeix o no	
@@ -1071,7 +1295,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 						expedient, 
 						adjunt);		
 			}
-		}	
+		}
+		return resultatMapeig;
 	}
 	
 	private void processarVariablesAnotacio(
@@ -1175,7 +1400,9 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					document.getNtiOrigen(),
 					document.getNtiEstadoElaboracion(),
 					document.getNtiTipoDocumental(),
-					document.getNtiIdOrigen());
+					document.getNtiIdOrigen(),
+					dadesDocumentDto.isDocumentValid(),
+					dadesDocumentDto.getDocumentError());
 			
 			
 			

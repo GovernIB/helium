@@ -2,6 +2,8 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -30,7 +32,9 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.DataFormat;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -54,6 +58,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.AnotacioListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -62,6 +68,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDire
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
+import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.AnotacioAcceptarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.AnotacioAcceptarCommand.CrearIncorporar;
@@ -74,6 +81,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
 
 /**
  * Controlador per visualitzar la llista de peticions d'anotacions que han arribat a Helium
@@ -90,6 +98,9 @@ public class AnotacioController extends BaseExpedientController {
 	private ConversioTipusHelper conversioTipusHelper;
 	
 	private @Autowired ExpedientIniciController expedientIniciController;
+	
+	@Autowired
+	private ExecucioMassivaService execucioMassivaService;
 
 	private static final String SESSION_ATTRIBUTE_FILTRE = "AnotacioController.session.filtre";
 	
@@ -136,9 +147,10 @@ public class AnotacioController extends BaseExpedientController {
 					anotacioService.findAmbFiltrePaginat(
 							entornActual.getId(),
 							conversioTipusHelper.convertir(filtreCommand, AnotacioFiltreDto.class),
-							DatatablesHelper.getPaginacioDtoFromRequest(request)));		
-	}
-
+							DatatablesHelper.getPaginacioDtoFromRequest(request)),
+					"id");		
+	}	
+	
 	/** Mètode per obtenir o inicialitzar el filtre del formulari de cerca.
 	 * 
 	 * @param request
@@ -154,6 +166,84 @@ public class AnotacioController extends BaseExpedientController {
 		}
 		return filtreCommand;
 	}
+	
+	
+	@RequestMapping(value = "/seleccioTots", method = RequestMethod.GET)
+	@ResponseBody
+	public String seleccioTots(
+			HttpServletRequest request,
+			@RequestParam(value = "ids[]", required = false) Long[] ids,
+			@RequestParam(value = "method", required = false) String method,
+			Model model) {
+		
+		List<Long> llistaIds = selectionTipus(request, "all", null, "all", model);
+		return String.valueOf(llistaIds.size());
+	}
+
+	@RequestMapping(value = "/seleccioNetejar", method = RequestMethod.GET)
+	@ResponseBody
+	public String seleccioNetejar(
+			HttpServletRequest request,
+			@RequestParam(value = "ids[]", required = false) Long[] ids,
+			@RequestParam(value = "method", required = false) String method,
+			Model model) {
+		List<Long> llistaIds = selectionTipus(request, "clear", null, "clear", model);
+		return String.valueOf(llistaIds.size());
+	}
+	
+	@RequestMapping(value = "/selection", method = RequestMethod.POST)
+	@ResponseBody
+	public List<Long> selection(
+			HttpServletRequest request,
+			@RequestParam(value = "ids[]", required = false) Long[] ids,
+			@RequestParam(value = "method", required = false) String method,
+			Model model) {
+		return selectionTipus(request, "selection", ids, method, model);
+	}
+
+	@RequestMapping(value = "/selection/{tipus}", method = RequestMethod.POST)
+	@ResponseBody
+	public List<Long> selectionTipus(
+			HttpServletRequest request,
+			@PathVariable String tipus,
+			@RequestParam(value = "ids[]", required = false) Long[] ids,
+			@RequestParam(value = "method", required = false) String method,
+			Model model) {
+
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		SessionHelper.SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		List<Long> seleccio = sessionManager.getSeleccioAnotacio();
+		if (seleccio == null) {
+			seleccio = new ArrayList<Long>();
+			sessionManager.setSeleccioAnotacio(seleccio);
+		}
+
+		if ("selection".equalsIgnoreCase(tipus)) {
+			if ("add".equalsIgnoreCase(method) && ids != null) {
+				for (Long idu: ids) {
+					if (idu != null && !seleccio.contains(idu)) {
+						seleccio.add(idu);
+					}
+				}
+			} else if ("remove".equalsIgnoreCase(method) && ids != null) {
+				for (Long idu: ids) {
+					if (seleccio.contains(idu)) {
+						seleccio.remove(idu);
+					}
+				}
+			}
+		} else if ("clear".equalsIgnoreCase(tipus)) {
+			seleccio.clear();
+		} else if ("all".equalsIgnoreCase(tipus)) {
+			seleccio.clear();
+			seleccio.addAll(anotacioService.findIdsAmbFiltre(
+					entornActual.getId(), 
+					ConversioTipusHelper.convertir(this.getFiltreCommand(request), AnotacioFiltreDto.class)));
+		}
+
+		sessionManager.setSeleccioAnotacio(seleccio);
+		return seleccio;
+	}	
 	
 	/** Mètode per veure el detall d'una anotació provinent de Distribució
 	 * 
@@ -577,8 +667,8 @@ public class AnotacioController extends BaseExpedientController {
 		return "redirect:/v3/anotacio";
 	}
 	
-	@RequestMapping(value = "/{anotacioId}/annex/{annexId}/descarregar", method = RequestMethod.GET)
-	public String descarregarAnnex(
+	@RequestMapping(value = "/{anotacioId}/annex/{annexId}/descarregar/original", method = RequestMethod.GET)
+	public String descarregarAnnexOriginal(
 			HttpServletRequest request,
 			HttpServletResponse response,
 			@PathVariable Long anotacioId,
@@ -588,7 +678,46 @@ public class AnotacioController extends BaseExpedientController {
 		String error = null;
 		Exception ex = null;
 		try {
-			ArxiuDto arxiu = anotacioService.getAnnexContingut(annexId);
+			ArxiuDto arxiu = anotacioService.getAnnexContingutVersioOriginal(annexId);
+			if (arxiu != null) {
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
+			}
+			success = true;
+		} catch (SistemaExternException e) {
+			error = e.getPublicMessage();	
+			ex = e;
+		} catch (Exception e) {
+			error = e.getMessage();
+			ex = e;
+		}
+		if (success)
+			return "arxiuView";
+		else {
+			String errMsg = getMessage(
+					request, 
+					"anotacio.annex.descarregar.error",
+					new Object[] {error});
+			logger.error(errMsg, ex);
+			MissatgesHelper.error(
+					request, 
+					errMsg);
+			return "redirect:" + request.getHeader("referer");
+		}
+	}
+	
+	@RequestMapping(value = "/{anotacioId}/annex/{annexId}/descarregar/imprimible", method = RequestMethod.GET)
+	public String descarregarAnnexImprimible(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			@PathVariable Long anotacioId,
+			@PathVariable Long annexId,
+			Model model) throws IOException {
+		boolean success = false;
+		String error = null;
+		Exception ex = null;
+		try {
+			ArxiuDto arxiu = anotacioService.getAnnexContingutVersioImprimible(annexId);
 			if (arxiu != null) {
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
@@ -647,9 +776,11 @@ public class AnotacioController extends BaseExpedientController {
 					request, 
 					getMessage(request, "anotacio.annex.reintentar.success"));
 		} catch (Exception e) {
+			String errMsg = getMessage(request, "anotacio.annex.reintentar.error", new Object[] {e.getMessage()});
+			logger.error(errMsg, e);
 			MissatgesHelper.error(
 					request, 
-					getMessage(request, "anotacio.annex.reintentar.error", new Object[] {e.getMessage()}));
+					errMsg);
 		}
 		return "redirect:/modal/v3/anotacio/" + anotacioId;
 	}	
@@ -708,6 +839,25 @@ public class AnotacioController extends BaseExpedientController {
 	    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 	    dateFormat.setLenient(false);
 	    binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
+	    
+		binder.registerCustomEditor(
+				Long.class,
+				new CustomNumberEditor(Long.class, true));
+
+		binder.registerCustomEditor(
+				Double.class,
+				new CustomNumberEditor(Double.class, true));
+		
+		binder.registerCustomEditor(
+				BigDecimal.class,
+				new CustomNumberEditor(
+						BigDecimal.class,
+						new DecimalFormat("#,##0.00"),
+						true));
+		
+		binder.registerCustomEditor(
+				Boolean.class,
+				new CustomBooleanEditor(true));
 	}
 	
 	@RequestMapping(value = "/excel", method = RequestMethod.GET)
@@ -720,6 +870,15 @@ public class AnotacioController extends BaseExpedientController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		AnotacioFiltreCommand filtreCommand = getFiltreCommand(request);
 		
+		List<AnotacioListDto> anotacions = this.anotacionsList(entornActual, filtreCommand);
+
+		generarExcel(
+				request,
+				response,
+				anotacions);
+	}
+	
+	private List<AnotacioListDto> anotacionsList (EntornDto entornActual, AnotacioFiltreCommand filtreCommand){
 		List<AnotacioListDto> anotacions = new ArrayList<AnotacioListDto>();
 		int nPagina = 0;
 		int grandariaPagina = 100;
@@ -739,11 +898,7 @@ public class AnotacioController extends BaseExpedientController {
 					paginacio);	
 			anotacions.addAll(paginaDto.getContingut());			
 		} while(!paginaDto.isDarrera());
-
-		generarExcel(
-				request,
-				response,
-				anotacions);
+		return anotacions;
 	}
 	
 	private void generarExcel(
@@ -937,7 +1092,200 @@ public class AnotacioController extends BaseExpedientController {
 					"anotacio.llistat.columna.estat"))));
 		cell.setCellStyle(headerStyle);
 	}
-
-
+	
+	
+	
+	/** Acció del menú desplegable d'Accions massives d'anotacions, per iniciar una tasca en segon pla per Reintentar consulta  de les
+	 * anotacions seleccionades a le taula d'anotacions  (les que estan en consulta error es tornarien a consultar i potser processar)
+	 */
+	@RequestMapping(value = "/reintentarConsulta", method = RequestMethod.GET)
+	public String reintentarConsulta(
+			HttpServletRequest request,
+			Model model) {
+		// Programa la execució massiva
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		ExecucioMassivaDto dto = new ExecucioMassivaDto();
+		dto.setTipus(ExecucioMassivaTipusDto.REINTENTAR_CONSULTA_ANOTACIONS);
+		dto.setEnviarCorreu(false);
+		List<Long> ids =  sessionManager.getSeleccioAnotacio();
+		if (ids == null || ids.isEmpty()) {
+			MissatgesHelper.error(request, getMessage(request, "error.no.anotacio.selec"));
+		} else {
+			dto.setAuxIds(ids);
+			try {
+				execucioMassivaService.crearExecucioMassiva(dto);
+				MissatgesHelper.success(
+						request,
+						getMessage(
+								request,
+								"anotacio.llistat.accio.massiva.info.reintentar.consulta.success"));
+			} catch(Exception e) {
+				MissatgesHelper.error(
+						request,
+						getMessage(
+								request,
+								"anotacio.llistat.accio.massiva.info.reintentar.consulta.error",
+								new Object[] {e.getMessage()}));
+			}					
+			// Neteja la selecció
+			sessionManager.getSeleccioAnotacio().clear();
+		}
+		return "redirect:/v3/anotacio";
+	}
+	
+	/** Acció del menú desplegable d'Accions massives d'anotacions, per iniciar una tasca en segon pla per esborrar  les
+	 * anotacions seleccionades a le taula d'anotacions
+	 */
+	@RequestMapping(value = "/esborrarAnotacions", method = RequestMethod.GET)
+	public String esborrarAnotacions(
+			HttpServletRequest request,
+			Model model) {
+		// Programa la execució massiva
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		ExecucioMassivaDto dto = new ExecucioMassivaDto();
+		dto.setTipus(ExecucioMassivaTipusDto.ESBORRAR_ANOTACIONS);
+		dto.setEnviarCorreu(false);
+		List<Long> ids =  sessionManager.getSeleccioAnotacio();
+		if (ids == null || ids.isEmpty()) {
+			MissatgesHelper.error(request, getMessage(request, "error.no.anotacio.selec"));
+		} else {
+			dto.setAuxIds(ids);
+			try {
+				execucioMassivaService.crearExecucioMassiva(dto);
+				MissatgesHelper.success(
+						request,
+						getMessage(
+								request,
+								"anotacio.llistat.accio.massiva.info.esborrar.anotacions.success"));
+			} catch(Exception e) {
+				MissatgesHelper.error(
+						request,
+						getMessage(
+								request,
+								"anotacio.llistat.accio.massiva.info.esborrar.anotacions.error",
+								new Object[] {e.getMessage()}));
+			}					
+			// Neteja la selecció
+			sessionManager.getSeleccioAnotacio().clear();
+		}
+		return "redirect:/v3/anotacio";
+	}
+	
+	
+	/** Acció del menú desplegable d'Accions massives d'anotacions, per iniciar una tasca en segon pla per reintentar el processament de les
+	 * anotacions seleccionades a le taula d'anotacions (les que tenen error de processament es tornarien a intentar processar i les anotacions
+	 *	pendents d'accio manual es miraria si es pot processar amb algun tipus d'expedient)
+	 */
+	@RequestMapping(value = "/reintentarProcessament", method = RequestMethod.GET)
+	public String reintentarProcessament(
+			HttpServletRequest request,
+			Model model) {
+		// Programa la execució massiva
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		ExecucioMassivaDto dto = new ExecucioMassivaDto();
+		dto.setTipus(ExecucioMassivaTipusDto.REINTENTAR_PROCESSAMENT_ANOTACIONS);
+		dto.setEnviarCorreu(false);
+		List<Long> ids =  sessionManager.getSeleccioAnotacio();
+		if (ids == null || ids.isEmpty()) {
+			MissatgesHelper.error(request, getMessage(request, "error.no.anotacio.selec"));
+		} else {
+			dto.setAuxIds(ids);
+			try {
+				execucioMassivaService.crearExecucioMassiva(dto);
+				MissatgesHelper.success(
+						request,
+						getMessage(
+								request,
+								"anotacio.llistat.accio.massiva.info.reintentar.processament.success"));
+			} catch(Exception e) {
+				MissatgesHelper.error(
+						request,
+						getMessage(
+								request,
+								"anotacio.llistat.accio.massiva.info.reintentar.processament.error",
+								new Object[] {e.getMessage()}));
+			}					
+			// Neteja la selecció
+			sessionManager.getSeleccioAnotacio().clear();
+		}
+		return "redirect:/v3/anotacio";
+	}
+	
+	/** Acció del menú desplegable d'Accions massives d'anotacions, per iniciar una tasca en segon pla per reprocessar el mapeig de les
+	 * anotacions seleccionades a le taula d'anotacions (les que tenen un expedient associat es tornaria a aplicar el mapeig)
+	 */
+	@RequestMapping(value = "/reprocessarMapeig", method = RequestMethod.GET)
+	public String reprocessarMapeig(
+			HttpServletRequest request,
+			Model model) {
+		// Programa la execució massiva
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		ExecucioMassivaDto dto = new ExecucioMassivaDto();
+		dto.setTipus(ExecucioMassivaTipusDto.REINTENTAR_MAPEIG_ANOTACIONS);
+		dto.setEnviarCorreu(false);
+		List<Long> ids =  sessionManager.getSeleccioAnotacio();
+		if (ids == null || ids.isEmpty()) {
+			MissatgesHelper.error(request, getMessage(request, "error.no.anotacio.selec"));
+		} else {
+			dto.setAuxIds(ids);
+			try {
+				execucioMassivaService.crearExecucioMassiva(dto);
+				MissatgesHelper.success(
+						request,
+						getMessage(
+								request,
+								"anotacio.llistat.accio.massiva.info.reintentar.mapeig.success"));
+			} catch(Exception e) {
+				MissatgesHelper.error(
+						request,
+						getMessage(
+								request,
+								"anotacio.llistat.accio.massiva.info.reintentar.mapeig.error",
+								new Object[] {e.getMessage()}));
+			}					
+			// Neteja la selecció
+			sessionManager.getSeleccioAnotacio().clear();
+		}
+		return "redirect:/v3/anotacio";
+	}
+	
+	/** Acció del menú desplegable d'Accions massives d'anotacions, per iniciar una tasca en segon pla per reintentar el processament dels annexos de les
+	 *  anotacions, és a dir moure els diferents annexos que encara estiguin a l'expedient d'Arxiu de Distribucio cap a la carpeta de l'anotació dins d'expedient 
+	 *  d'Arxiu d'Helium
+	 */
+	@RequestMapping(value = "/reintentarProcessamentNomesAnnexos", method = RequestMethod.GET)
+	public String reintentarProcessamentNomesAnnexos(
+			HttpServletRequest request,
+			Model model) {
+		// Programa la execució massiva
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		ExecucioMassivaDto dto = new ExecucioMassivaDto();
+		dto.setTipus(ExecucioMassivaTipusDto.REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS);
+		dto.setEnviarCorreu(false);
+		List<Long> ids =  sessionManager.getSeleccioAnotacio();
+		if (ids == null || ids.isEmpty()) {
+			MissatgesHelper.error(request, getMessage(request, "error.no.anotacio.selec"));
+		} else {
+			dto.setAuxIds(ids);
+			try {
+				execucioMassivaService.crearExecucioMassiva(dto);
+				MissatgesHelper.success(
+						request,
+						getMessage(
+								request,
+								"anotacio.llistat.accio.massiva.info.reintentar.processament.nomes.annexos.success"));
+			} catch(Exception e) {
+				MissatgesHelper.error(
+						request,
+						getMessage(
+								request,
+								"anotacio.llistat.accio.massiva.info.reintentar.processament.nomes.annexos.error",
+								new Object[] {e.getMessage()}));
+			}					
+			sessionManager.getSeleccioAnotacio().clear();
+		}
+		return "redirect:/v3/anotacio";
+	}
+	
 	private static final Log logger = LogFactory.getLog(AnotacioController.class);
 }

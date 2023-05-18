@@ -30,7 +30,10 @@ public class AvisValidator implements ConstraintValidator<Avis, AvisCommand>{
 	public boolean isValid(AvisCommand command, ConstraintValidatorContext context) {
 		
 		boolean valid = true;
-		AvisDto repetit = avisService.findById(command.getId());
+		AvisDto repetit = null;
+		
+		if(command!=null && command.getId()!=null)
+			repetit = avisService.findById(command.getId());
 		Pattern p = Pattern.compile(regex);
 		if(command.getHoraInici()!=null) {	
 			Matcher m = p.matcher(command.getHoraInici());
@@ -42,13 +45,19 @@ public class AvisValidator implements ConstraintValidator<Avis, AvisCommand>{
 			}
 		}
 		if(command.getHoraFi()!=null) {
-		   Matcher m = p.matcher(command.getHoraInici());
+		   Matcher m = p.matcher(command.getHoraFi());
 	       valid = m.matches();
 	       if(!valid) {
 				context.buildConstraintViolationWithTemplate(
 					MessageHelper.getInstance().getMessage("error.avis.validacio", null))
 					.addConstraintViolation();	
 			}
+		}
+		if(command.getDataFinal()!=null && command.getDataInici()!=null && command.getDataInici().after(command.getDataFinal())) {
+			valid = false;
+			context.buildConstraintViolationWithTemplate(
+					MessageHelper.getInstance().getMessage("error.validacio.avis.dataInici.menor.dataFi", null))
+					.addConstraintViolation();	
 		}
 		if (repetit != null && (command.getId() == null || !command.getId().equals(repetit.getId()))) {
 			context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage(avis.codiRepetit()))

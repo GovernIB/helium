@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,14 +18,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioFiltreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
 
 /**
  * Controlador per a la pestanya d'anotacions de registre en la gestió dels expedients.
@@ -86,27 +88,83 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value="/{expedientId}/anotacio/{anotacioId}", method = RequestMethod.GET)
+	@RequestMapping(value="/{expedientId}/anotacio/{anotacioId}/{nomesAnnexos}", method = RequestMethod.GET)
 	String reprocessar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable Long anotacioId,
+			@PathVariable boolean nomesAnnexos,
 			Model model) {
 		
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		SessionHelper.getSessionManager(request).getEntornActual();
 		
 		// cridar al servei d'anotacions per reprocessar mapeig
 		try {
-			anotacioService.reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
-			MissatgesHelper.success(
-					request, 
-					getMessage(
-							request, 
-							"expedient.anotacio.llistat.processar.mapeig.ok"));        			
-
-		
+			AnotacioMapeigResultatDto resultatMapeig = new AnotacioMapeigResultatDto();
+			if(!nomesAnnexos)
+				resultatMapeig = anotacioService.reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
+			else {
+				anotacioService.reintentarTraspasAnotacio(anotacioId);
+				MissatgesHelper.success(
+						request, 
+						getMessage(
+								request, 
+								"expedient.anotacio.llistat.processar.nomes.annexos.ok"));      
+			}
+				
+			// Si hi ha errors posa alertes, afegiex elements span i title per abreujar el missatge sense perdre informació.
+			if (resultatMapeig.isError()) {
+				StringBuilder errMsg = new StringBuilder();
+				errMsg.append(resultatMapeig.getMissatgeAlerta()).append("<ul>");
+				int i;
+				if (!resultatMapeig.getErrorsDades().isEmpty()) {
+					errMsg.append("<li>Variables : ");
+					i = 0;
+					for (String clau : resultatMapeig.getErrorsDades().keySet()) {
+						errMsg.append("<span title=\"").append(StringEscapeUtils.escapeHtml4(resultatMapeig.getErrorsDades().get(clau))).append("\">").append(clau).append("</span>");
+						if (i++ < resultatMapeig.getErrorsDades().size()) {
+							errMsg.append(", ");
+						}
+					}
+					errMsg.append("</li>"); 
+				}
+				if (!resultatMapeig.getErrorsDocuments().isEmpty()) {
+					errMsg.append("<li>Documents : ");
+					i = 0;
+					for (String clau : resultatMapeig.getErrorsDocuments().keySet()) {
+						errMsg.append("<span title=\"").append(StringEscapeUtils.escapeHtml4(resultatMapeig.getErrorsDocuments().get(clau))).append("\">").append(clau).append("</span>");
+						if (i++ < resultatMapeig.getErrorsDades().size()) {
+							errMsg.append(", ");
+						}
+					}
+					errMsg.append("</li>");
+				}
+				if (!resultatMapeig.getErrorsAdjunts().isEmpty()) {
+					errMsg.append("<li>Adjunts : ");
+					i = 0;
+					for (String clau : resultatMapeig.getErrorsAdjunts().keySet()) {
+						errMsg.append("<span title=\"").append(StringEscapeUtils.escapeHtml4(resultatMapeig.getErrorsAdjunts().get(clau))).append("\">").append(clau).append("</span>");
+						if (i++ < resultatMapeig.getErrorsDades().size()) {
+							errMsg.append(", ");
+						}
+					}
+					errMsg.append("</li>");
+				}
+				errMsg.append("</ul>");
+				MissatgesHelper.error(request, errMsg.toString());
+			} else {
+				MissatgesHelper.success(
+						request, 
+						getMessage(
+								request, 
+								"expedient.anotacio.llistat.processar.mapeig.ok"));        			
+			}
 		} catch(Exception e) {
-			String errMsg = this.getMessage(request, "expedient.anotacio.llistat.processar.mapeig.ko", new Object[] {e.getMessage()});
+			String errMsg = null;
+			if(!nomesAnnexos)
+				errMsg = this.getMessage(request, "expedient.anotacio.llistat.processar.mapeig.ko", new Object[] {e.getMessage()});
+			else
+				errMsg = this.getMessage(request, "expedient.anotacio.llistat.processar.nomes.annexos.ko", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg);
 		}

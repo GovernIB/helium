@@ -2747,6 +2747,52 @@ public class PluginHelper {
 		}
 	}
 
+	public es.caib.plugins.arxiu.api.Document arxiuDocumentOriginal(
+			String arxiuUuid,
+			String versio) {
+		String accioDescripcio = "Consulta l'original d'un document amb contingut";
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"arxiuUuid",
+						arxiuUuid),
+				new IntegracioParametreDto(
+						"versio",
+						versio),
+		};
+		long t0 = System.currentTimeMillis();
+		try {
+			es.caib.plugins.arxiu.api.Document documentDetalls = getArxiuPlugin().documentDetalls(
+					arxiuUuid,
+					versio,
+					true);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametres);
+			return documentDetalls;
+		} catch (Exception ex) {
+			String errorDescripcio = "No s'ha pogut consultar el document original amb contingut: " + ex.getMessage();
+			if(ex instanceof ArxiuCaibException && "COD_021".equals(((ArxiuCaibException)ex).getArxiuCodi())) {
+				//aquest error indica que està tancat a l'arxiu i no es poden descarregar versions anteriors
+				errorDescripcio = "No s'ha pogut consultar les versions anteriors del document: " + ex.getMessage();
+			}
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);	
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_ARXIU.toString(),
+					errorDescripcio, 
+					ex);
+		}
+	}
+
 	public void arxiuDocumentEsborrar(
 			String arxiuUuid) {
 		String accioDescripcio = "Consulta d'un document";

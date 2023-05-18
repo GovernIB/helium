@@ -839,9 +839,9 @@ public class DocumentHelperV3 {
 					ntiTipoDocumental,
 					ntiIdDocumentoOrigen);
 
-		}
+	}
 	
-		public Long actualitzarDocument(
+	public Long actualitzarDocument(
 			Long documentStoreId,
 			String taskInstanceId,
 			String processInstanceId,
@@ -857,6 +857,45 @@ public class DocumentHelperV3 {
 			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
 			String ntiIdDocumentoOrigen) {
+			
+		return actualitzarDocument(
+				documentStoreId,
+				null,
+				processInstanceId,
+				documentData,
+				adjuntTitol,
+				arxiuNom,
+				arxiuContingut,
+				this.getContentType(arxiuNom),
+				ambFirma,
+				firmaSeparada,
+				null,
+				ntiOrigen,
+				ntiEstadoElaboracion,
+				ntiTipoDocumental,
+				ntiIdDocumentoOrigen,
+				true,	// documetn vàlid
+				null);	// error
+	}
+		
+	public Long actualitzarDocument(
+			Long documentStoreId,
+			String taskInstanceId,
+			String processInstanceId,
+			Date documentData,
+			String adjuntTitol,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			String arxiuContentType,
+			boolean ambFirma,
+			boolean firmaSeparada,
+			byte[] firmaContingut,
+			NtiOrigenEnumDto ntiOrigen,
+			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+			NtiTipoDocumentalEnumDto ntiTipoDocumental,
+			String ntiIdDocumentoOrigen,
+			boolean documentValid,
+			String documentError) {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		if (documentStore == null) {
 			throw new NoTrobatException(
@@ -877,8 +916,8 @@ public class DocumentHelperV3 {
 					documentStore.getReferenciaFont(),
 					expedient);
 		}
-		documentStore.setDocumentValid(true);
-		documentStore.setDocumentError(null);
+		documentStore.setDocumentValid(documentValid);
+		documentStore.setDocumentError(documentError);
 		postProcessarDocument(
 				documentStore,
 				taskInstanceId,
@@ -2390,7 +2429,8 @@ public class DocumentHelperV3 {
 			if(firmes!=null && !firmes.isEmpty())
 				comprovarFirmesReconegudes(firmes);
 			if (arxiuUuid == null) {
-				String documentDescripcio = documentStore.isAdjunt() ? documentStore.getAdjuntTitol() : document.getNom();
+				String documentDescripcio = documentStore.isAdjunt() ? documentStore.getAdjuntTitol() 
+											: (document!=null ? document.getNom() : documentNom );
 				// Actualitza el document a dins l'arxiu
 				ArxiuDto arxiu = new ArxiuDto(
 						arxiuNom,

@@ -49,6 +49,7 @@ import com.codahale.metrics.Timer;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DefinicioProcesHelper;
+import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
@@ -64,6 +65,7 @@ import net.conselldemallorca.helium.core.helper.TerminiHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
+import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
@@ -98,6 +100,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.ExecucioMassivaException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
+import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
@@ -106,6 +109,7 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTascaService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
+import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaCampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
@@ -152,6 +156,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	@Resource
 	private AccioRepository accioRepository;
 	@Resource
+	private AnotacioRepository anotacioRepository;
+	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
 	private TerminiHelper terminiHelper;
@@ -187,6 +193,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private UsuariActualHelper usuariActualHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
+	@Resource
+	private DistribucioHelper distribucioHelper;
 
 	@Autowired
 	private TascaService tascaService;
@@ -200,6 +208,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private ExpedientTascaService expedientTascaService;
 	@Autowired
 	private ExpedientRegistreService expedientRegistreService;
+	@Autowired
+	private AnotacioService anotacioService;
 
 	@Transactional
 	@Override
@@ -208,6 +218,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				|| (dto.getTascaIds() != null && dto.getTascaIds().length > 0)
 				|| (dto.getProcInstIds() != null && !dto.getProcInstIds().isEmpty())
 				|| (dto.getDefProcIds() != null && dto.getDefProcIds().length > 0)
+				|| (dto.getAuxIds() != null && !dto.getAuxIds().isEmpty())
 				|| (ExecucioMassivaTipusDto.ALTA_MASSIVA.equals(dto.getTipus()) && dto.getContingutCsv() != null)) {
 			String log = "Creació d'execució massiva (" + dto.getTipus() + ", dataInici=" + dto.getDataInici();
 			if (dto.getExpedientTipusId() != null)
@@ -217,6 +228,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				log += dto.getExpedientIds().size();
 			else if (dto.getProcInstIds() != null)
 				log += dto.getProcInstIds().size();
+			else if (dto.getAuxIds() != null)
+				log += dto.getAuxIds().size();
 			else if (dto.getContingutCsv() != null)
 				log += dto.getContingutCsv().length - 1;
 			else
@@ -295,6 +308,12 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					expedients = true;					
 				}
 				
+			} else if (dto.getAuxIds() != null && !dto.getAuxIds().isEmpty()) {
+				for (Long anotacioId : dto.getAuxIds()) {
+					ExecucioMassivaExpedient eme = new ExecucioMassivaExpedient(execucioMassiva, anotacioId, ordre++, true);	
+					execucioMassiva.addExpedient(eme);
+					expedients = true;
+				}
 			}
 			// Entorn
 			Long entornId = expedientTipus != null && expedientTipus.getEntorn() != null
@@ -339,6 +358,42 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		return ret;
 	}
 
+	@Transactional
+	@Override
+	public void reintentarExecucioMassiva(Long id) {
+
+		try {
+			ExecucioMassiva execucioMassiva = execucioMassivaRepository.findOne(id);
+			if (execucioMassiva == null) {
+				throw new NoTrobatException(ExecucioMassiva.class, id);
+			}
+
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			if (!UsuariActualHelper.isAdministrador(auth)) {
+				expedientTipusHelper
+						.getExpedientTipusComprovantPermisLectura(execucioMassiva.getExpedientTipus().getId());
+			}
+
+			List<ExecucioMassivaExpedient> execucionsMassivesExpedients = execucioMassivaExpedientRepository
+					.findByExecucioMassivaId(id);
+			int n = 0;
+			for (ExecucioMassivaExpedient e : execucionsMassivesExpedients) {
+				if (e.getDataFi() != null && ExecucioMassivaEstat.ESTAT_ERROR.equals(e.getEstat())) {
+					e.setEstat(ExecucioMassivaEstat.ESTAT_PENDENT);
+					e.setDataFi(null);
+					n++;
+				}
+			}	
+			execucioMassiva.setDataFi(null);
+			logger.info("S'han reintentat " + n + " execucions d'expedients de " + execucionsMassivesExpedients.size()
+					+ " execucions per l'execució massiva amb id " + id);
+
+		} catch (Exception ex) {
+			String errMsg = "No s'ha pogut reintentar la execucio massiva amb id " + id + ": " + ex.getMessage();
+			logger.error(errMsg, ex);
+			throw new RuntimeException(errMsg, ex);
+		}
+	}
 
 	@Transactional
 	@Override
@@ -648,6 +703,21 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				} else if (execucio.getTipus() == ExecucioMassivaTipus.PROPAGAR_CONSULTES) {
 					titol = expedient.getAuxText() != null ? expedient.getAuxText()
 							: consultaRepository.findOne(expedient.getDefinicioProcesId()).getCodi();
+				} else if (execucio.getTipus() == ExecucioMassivaTipus.REINTENTAR_CONSULTA_ANOTACIONS
+						   || execucio.getTipus() == ExecucioMassivaTipus.ESBORRAR_ANOTACIONS
+						   || execucio.getTipus() == ExecucioMassivaTipus.REINTENTAR_MAPEIG_ANOTACIONS
+						   || execucio.getTipus() == ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS
+						   || execucio.getTipus() == ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS) {
+					if (expedient.getAuxText() != null) {
+						titol = expedient.getAuxText();
+					} else {
+						Anotacio anotacio = anotacioRepository.findOne(expedient.getAuxId());
+						if (anotacio != null) {
+							titol = anotacio.getIdentificador();
+						} else {
+							titol = String.valueOf(expedient.getAuxId());
+						}
+					}
 				}
 				Map<String, Object> mjson_exp = new LinkedHashMap<String, Object>();
 				mjson_exp.put("id", expedient.getId());
@@ -659,14 +729,15 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				}
 
 				String error = expedient.getError();
-				if (error != null || expedient.getEstat() == ExecucioMassivaEstat.ESTAT_ERROR) {
+				if (expedient.getEstat() == ExecucioMassivaEstat.ESTAT_ERROR) {
 					if (error != null)
 						error = error.replace("'", "&#8217;").replace("\"", "&#8220;");
 					danger++;
-				} else if (expedient.getEstat() == ExecucioMassivaEstat.ESTAT_FINALITZAT) {
+				} 
+				if (expedient.getEstat() == ExecucioMassivaEstat.ESTAT_FINALITZAT) {
 					finalitzat++;
-				} else if (expedient.getDataFi() == null
-						&& ExecucioMassivaEstat.ESTAT_PENDENT.equals(expedient.getEstat())) {
+				} 
+				if (ExecucioMassivaEstat.ESTAT_PENDENT.equals(expedient.getEstat())) {
 					pendent++;
 				}
 				mjson_exp.put("error", JSONValue.escape(error));
@@ -851,6 +922,16 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		} else if (tipus.equals(ExecucioMassivaTipus.ALTA_MASSIVA)) {
 			label = messageHelper.getMessage("expedient.massiva.altaMassiva",
 					new Object[] { execucioMassiva.getExpedientTipus().getCodi() });
+		} else if (tipus.equals(ExecucioMassivaTipus.ESBORRAR_ANOTACIONS)) {
+			label = messageHelper.getMessage("expedient.massiva.anotacions.esborrar");
+		} else if (tipus.equals(ExecucioMassivaTipus.REINTENTAR_CONSULTA_ANOTACIONS)) {
+			label = messageHelper.getMessage("expedient.massiva.anotacions.reintentar.consulta");
+		} else if (tipus.equals(ExecucioMassivaTipus.REINTENTAR_MAPEIG_ANOTACIONS)) {
+			label = messageHelper.getMessage("expedient.massiva.anotacions.reprocessar.mapeig");
+		} else if (tipus.equals(ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS)) {
+			label = messageHelper.getMessage("expedient.massiva.anotacions.reintentar.processament");
+		} else if (tipus.equals(ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS)) {
+			label = messageHelper.getMessage("expedient.massiva.anotacions.reintentar.processament.nomes.annexos");
 		} else {
 			label = tipus.name();
 		}
@@ -906,7 +987,12 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		} else if (tipus != ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC
 				&& tipus != ExecucioMassivaTipus.PROPAGAR_PLANTILLES
 				&& tipus != ExecucioMassivaTipus.PROPAGAR_CONSULTES
-				&& tipus != ExecucioMassivaTipus.ALTA_MASSIVA) {
+				&& tipus != ExecucioMassivaTipus.ALTA_MASSIVA
+				&& tipus != ExecucioMassivaTipus.ESBORRAR_ANOTACIONS
+				&& tipus != ExecucioMassivaTipus.REINTENTAR_CONSULTA_ANOTACIONS
+				&& tipus != ExecucioMassivaTipus.REINTENTAR_MAPEIG_ANOTACIONS
+				&& tipus != ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS
+				&& tipus != ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS) {
 			expedient = expedientHelper.findExpedientByProcessInstanceId(ome.getProcessInstanceId());
 		}
 
@@ -914,7 +1000,12 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		if (expedient == null && (tipus == ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC
 				|| tipus == ExecucioMassivaTipus.PROPAGAR_PLANTILLES
 				|| tipus == ExecucioMassivaTipus.PROPAGAR_CONSULTES
-				|| tipus == ExecucioMassivaTipus.ALTA_MASSIVA))
+				|| tipus == ExecucioMassivaTipus.ALTA_MASSIVA
+				|| tipus == ExecucioMassivaTipus.ESBORRAR_ANOTACIONS
+				|| tipus == ExecucioMassivaTipus.REINTENTAR_CONSULTA_ANOTACIONS
+				|| tipus == ExecucioMassivaTipus.REINTENTAR_MAPEIG_ANOTACIONS
+				|| tipus == ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS
+				|| tipus == ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS ))
 			expedientTipus = exm.getExpedientTipus();
 		else
 			expedientTipus = expedient.getTipus();
@@ -1031,6 +1122,26 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				mesuresTemporalsHelper.mesuraIniciar("Alta massiva CSV", "massiva", expedient_s);
 				altaMassivaCsv(ome);
 				mesuresTemporalsHelper.mesuraCalcular("Alta massiva CSV", "massiva", expedient_s);				
+			} else if (tipus == ExecucioMassivaTipus.REINTENTAR_CONSULTA_ANOTACIONS) {
+				mesuresTemporalsHelper.mesuraIniciar("Reintentar consulta anotacions", "massiva", expedient_s);
+				reintentarConsultaAnotacions(ome);
+				mesuresTemporalsHelper.mesuraCalcular("Reintentar consulta anotacions", "massiva", expedient_s);
+			} else if (tipus == ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS) {
+				mesuresTemporalsHelper.mesuraIniciar("Reintentar processament anotacions", "massiva", expedient_s);
+				reintentarProcessamentAnotacions(ome);
+				mesuresTemporalsHelper.mesuraCalcular("Reintentar processament anotacions", "massiva", expedient_s);		
+			} else if (tipus == ExecucioMassivaTipus.REINTENTAR_MAPEIG_ANOTACIONS) {
+				mesuresTemporalsHelper.mesuraIniciar("Reintentar mapeig anotacions", "massiva", expedient_s);
+				reprocessarMapeigAnotacions(ome);
+				mesuresTemporalsHelper.mesuraCalcular("Reintentar mapeig anotacions", "massiva", expedient_s);		
+			} else if (tipus == ExecucioMassivaTipus.ESBORRAR_ANOTACIONS) {
+				mesuresTemporalsHelper.mesuraIniciar("Esborrar anotacions", "massiva", expedient_s);
+				esborrarAnotacions(ome);
+				mesuresTemporalsHelper.mesuraCalcular("Esborrar anotacions", "massiva", expedient_s);
+			} else if (tipus == ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS) {
+				mesuresTemporalsHelper.mesuraIniciar("Reintentar processament només annexos anotacions", "massiva", expedient_s);
+				reintentarProcessamentAnotacionsNomesAnnexos(ome);
+				mesuresTemporalsHelper.mesuraCalcular("Reintentar processament només annexos anotacions", "massiva", expedient_s);	
 			}
 			SecurityContextHolder.getContext().setAuthentication(orgAuthentication);
 		} catch (Exception ex) {
@@ -1794,7 +1905,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				ome.setEstat(ExecucioMassivaEstat.ESTAT_ERROR);
 				ome.setError("No s'ha reindexat tot l'expedient correctament, cal entrar a revisar les dades");
 				ome.setAuxText(
-						"El procés de reindexació ha retornat que no s'ha reindexar totalment l'expeient, cal entrar en la gestió de l'expedient per revisar les dades");
+						"El procés de reindexació ha retornat que no s'ha reindexar totalment l'expedient, cal entrar en la gestió de l'expedient per revisar les dades");
 			}
 			ome.setDataFi(new Date());
 			execucioMassivaExpedientRepository.saveAndFlush(ome);
@@ -1956,6 +2067,123 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		} catch (Exception ex) {
 			logger.error("OPERACIO:" + ome.getId()
 					+ ". No s'han pogut propagar els documents plantilla de la definició de procés", ex);
+			throw ex;
+		}
+	}
+	
+	/**Reintentar consulta  de les anotacions  (les que estan en consulta error es tornarien a consultar i potser processar)
+	 * **/
+	
+	private void reintentarConsultaAnotacions(ExecucioMassivaExpedient ome) throws Exception {
+		StringBuilder errorMsg = new StringBuilder();
+		ExecucioMassivaEstat estat = ExecucioMassivaEstat.ESTAT_FINALITZAT;
+		ome.setDataInici(new Date());
+		// Recupera l'anotació 
+		try {
+			anotacioService.reintentarConsulta(ome.getAuxId());
+			ome.setEstat(estat);
+			ome.setError(errorMsg.length() > 0 ? errorMsg.toString() : null);
+			ome.setDataFi(new Date());
+			execucioMassivaExpedientRepository.save(ome);
+		}catch(Exception ex) {
+			logger.error("OPERACIO:" + ome.getId()
+			+ ". No s'ha pogut reintentar la consulta de les anotacions", ex);
+			throw ex;
+		}
+	}
+	
+	/**Reintentar processament  de les anotacions  (les que tenen error de processament es tornarien a intentar processar i 
+	 * les anotacions pendents d'accio manual es miraria si es pot processar amb algun tipus d'expedient)
+	 * **/
+	
+	private void reintentarProcessamentAnotacions(ExecucioMassivaExpedient ome) throws Exception {
+		StringBuilder errorMsg = new StringBuilder();
+		ExecucioMassivaEstat estat = ExecucioMassivaEstat.ESTAT_FINALITZAT;
+		ome.setDataInici(new Date());
+		// Recupera l'anotació 
+		try {
+			distribucioHelper.setProcessant(ome.getAuxId(), true);
+			anotacioService.reprocessar(ome.getAuxId());
+			ome.setEstat(estat);
+			ome.setError(errorMsg.length() > 0 ? errorMsg.toString() : null);
+			ome.setDataFi(new Date());
+			execucioMassivaExpedientRepository.save(ome);
+		}catch(Exception ex) {
+			logger.error("OPERACIO:" + ome.getId()
+			+ ". No s'ha pogut reintentar el processament de les anotacions", ex);
+			throw ex;
+		} finally {
+			distribucioHelper.setProcessant(ome.getAuxId(), false);
+		}
+	}
+	
+	/** Reintentar processament  dels annexos de les anotacions  (reintentar moure els diferents annexos que encara 
+	 *  estiguin a l'expedient d'Arxiu de Distribucio cap a la carpeta de l'anotació dins d'expedient d'Arxiu d'Helium)
+	 **/
+	
+	private void reintentarProcessamentAnotacionsNomesAnnexos(ExecucioMassivaExpedient ome) throws Exception {
+		StringBuilder errorMsg = new StringBuilder();
+		ExecucioMassivaEstat estat = ExecucioMassivaEstat.ESTAT_FINALITZAT;
+		ome.setDataInici(new Date());
+		try {
+			anotacioService.reintentarTraspasAnotacio(ome.getAuxId());
+			ome.setEstat(estat);
+			ome.setError(errorMsg.length() > 0 ? errorMsg.toString() : null);
+			ome.setDataFi(new Date());
+			execucioMassivaExpedientRepository.save(ome);
+		}catch(Exception ex) {
+			logger.error("OPERACIO:" + ome.getId()
+			+ ". No s'ha pogut reintentar el processament dels annexos", ex);
+			throw ex;
+		}
+	}
+	
+	
+	/**Reprocessar mapeig  de les anotacions (les que tenen un expedient associat es tornaria a aplicar el mapeig)
+	 **/
+	
+	private void reprocessarMapeigAnotacions(ExecucioMassivaExpedient ome) throws Exception {
+		StringBuilder errorMsg = new StringBuilder();
+		ExecucioMassivaEstat estat = ExecucioMassivaEstat.ESTAT_FINALITZAT;
+		ome.setDataInici(new Date());
+		// Recupera l'anotació 
+		Anotacio anotacio = anotacioRepository.findOne(ome.getAuxId());
+		try {
+			if(anotacio.getExpedient()!=null) {
+				anotacioService.reprocessarMapeigAnotacioExpedient(anotacio.getExpedient().getId(), ome.getAuxId());
+				ome.setEstat(estat);
+				ome.setError(errorMsg.length() > 0 ? errorMsg.toString() : null);
+				ome.setDataFi(new Date());
+				execucioMassivaExpedientRepository.save(ome);
+			} else {
+				throw new ValidacioException("S'ha intentat reprocessar el Mapeig d'una anotació sense expedient associat: "+anotacio.getIdentificador());
+			}
+		}catch(Exception ex) {
+			logger.error("OPERACIO:" + ome.getId()
+			+ ". No s'ha pogut reprocessar el mapeig de les anotacions", ex);
+			throw ex;
+		}
+	}
+	
+	/**Esborrar les anotacions seleccionades
+	 **/
+	
+	private void esborrarAnotacions(ExecucioMassivaExpedient ome) throws Exception {
+		StringBuilder errorMsg = new StringBuilder();
+		ExecucioMassivaEstat estat = ExecucioMassivaEstat.ESTAT_FINALITZAT;
+		ome.setDataInici(new Date());
+		// Recupera l'anotació 
+		Anotacio anotacio = anotacioRepository.findOne(ome.getAuxId());
+		try {
+			ome.setAuxText(anotacio.getIdentificador());
+			anotacioService.delete(anotacio.getId());
+			ome.setEstat(estat);
+			ome.setError(errorMsg.length() > 0 ? errorMsg.toString() : null);
+			ome.setDataFi(new Date());
+			execucioMassivaExpedientRepository.save(ome);
+		}catch(Exception ex) {
+			logger.error("OPERACIO:" + ome.getId()
+			+ ". No s'ha pogut esborrar les anotacions", ex);
 			throw ex;
 		}
 	}

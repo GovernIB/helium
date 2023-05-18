@@ -32,7 +32,12 @@ public class ExecucioMassivaDto {
 		PROPAGAR_CONSULTES,
 		FINALITZAR_EXPEDIENT,
 		MIGRAR_EXPEDIENT,
-		ALTA_MASSIVA
+		ALTA_MASSIVA,
+		REINTENTAR_CONSULTA_ANOTACIONS,
+		REINTENTAR_PROCESSAMENT_ANOTACIONS,
+		REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS,
+		REINTENTAR_MAPEIG_ANOTACIONS,
+		ESBORRAR_ANOTACIONS
 	}
 
 	private Long id;
@@ -51,6 +56,7 @@ public class ExecucioMassivaDto {
 	private List<String> procInstIds;
 	private Long[] defProcIds;
 	private String[][] contingutCsv;
+	private List<Long> auxIds;
 
 	public Long getId() {
 		return id;
@@ -136,4 +142,12 @@ public class ExecucioMassivaDto {
 	public void setContingutCsv(String[][] contingutCsv) {
 		this.contingutCsv = contingutCsv;
 	}
+	public List<Long> getAuxIds() {
+		return auxIds;
+	}
+	public void setAuxIds(List<Long> auxIds) {
+		this.auxIds = auxIds;
+	}
+
+	
 }

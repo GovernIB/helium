@@ -3,11 +3,8 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
@@ -33,7 +30,6 @@ import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
-import net.conselldemallorca.helium.webapp.v3.validator.AvisValidator;
 
 /**
  * Controlador per al manteniment de avisos.
@@ -46,8 +42,7 @@ public class AvisController extends BaseController {
 	
 	@Autowired
 	private AvisService avisService;
-	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
+
 	private static final String SESSION_ATTRIBUTE_FILTRE = "AvisController.session.filtre";
 	
 	@RequestMapping(method = RequestMethod.GET)
@@ -115,7 +110,7 @@ public class AvisController extends BaseController {
         	return "v3/avisForm";
         } else {
     		avisService.create(
-    				conversioTipusHelper.convertir(
+    				ConversioTipusHelper.convertir(
     						command,
     						AvisDto.class));
 			return getModalControllerReturnValueSuccess(
@@ -133,28 +128,11 @@ public class AvisController extends BaseController {
 		AvisDto dto = avisService.findById(
 				avisId);
 		model.addAttribute(
-				conversioTipusHelper.convertir(
+				ConversioTipusHelper.convertir(
 						dto,
 						AvisCommand.class));
 		return "v3/avisForm";
 	}
-	
-//	@RequestMapping(value = "/{avisId}", method = RequestMethod.GET)
-//	public String get(
-//			@PathVariable Long avisId,
-//			Model model) {
-//		AvisDto avis = null;
-//		if (avisId != null)
-//			avis = avisService.findById(avisId);
-//		if (avis != null) {
-//			model.addAttribute(AvisCommand.asCommand(avis));
-//		} else {
-//			AvisCommand avisCommand = new AvisCommand();
-//			avisCommand.setDataInici(new Date());
-//			model.addAttribute(avisCommand);
-//		}
-//		return "v3/avisForm";
-//	}
 	
 	@RequestMapping(value = "/{avisId}/update", method = RequestMethod.POST)
 	public String updatePost(
@@ -168,7 +146,7 @@ public class AvisController extends BaseController {
         } else {
         	command.setId(avisId);
         	avisService.update(
-        			conversioTipusHelper.convertir(
+        			ConversioTipusHelper.convertir(
     						command,
     						AvisDto.class));
 			return getModalControllerReturnValueSuccess(
@@ -255,7 +233,4 @@ public class AvisController extends BaseController {
 		}
 		return filtreCommand;
 	}
-
-	
-	private static final Log logger = LogFactory.getLog(AvisController.class);
 }

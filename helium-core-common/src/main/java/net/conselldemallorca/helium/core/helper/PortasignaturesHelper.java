@@ -34,7 +34,8 @@ public class PortasignaturesHelper {
 	
 	/** Classe auxiliar per fer el rollback del portafirmes en cas que s'hagi produit un error
 	 * en la transacció i que s'hagi d'eliminar el document del portafirmes.
-	 * @author danielm
+	 * 
+	 * @author Limit Tecnologies <limit@limit.es>
 	 *
 	 */
 	public static class PortasignaturesRollback implements TransactionSynchronization {

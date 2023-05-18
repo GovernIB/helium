@@ -263,7 +263,7 @@
 	    
 	    function createBar(id, executades) {
 	    	var text = '<div class="progress">';
-	    	text += '<div class="progress-bar progress-bar-success" role="progressbar"' +
+	    	text += '<div class="progress-bar progress-bar-striped progress-bar-success" role="progressbar"' +
 	    	  		'     aria-valuenow="'+executades+'" aria-valuemin="0" aria-valuemax="100"' +
 	    	  		'     style="width: '+executades+'%">' +
 	    	  		'  <span><div class="value">'+executades+'%</div></span>' +
@@ -275,7 +275,7 @@
 	    
 	    function createTit(execucio) {
 	    	var title = execucio.text + "\nEntorn: " + execucio.entornCodi + " - " + execucio.entornNom + " \nExpedient tipus: " + execucio.expedientTipusCodi + " - " + execucio.expedientTipusNom;  
-	    	
+	    	let cancelada = execucio.processat < execucio.total && execucio.dataFi;
 	    	var text =	
 	    		'<div id="mass_' + execucio.id + '" href="#collapse_' + execucio.id + '" data-toggle="collapse" class="panel-heading clicable grup">' +
 	    		'<div class="row pull-left massiu-dades">' +
@@ -283,7 +283,8 @@
 				'<div class="col-md-2 one-line"><div><span class="mass-badge badge in-line-badge">' + execucio.total + '</span></div> ' + 
 												'<div class="massiu-dades" id="pbar_' + execucio.id + '"><span class="plabel" id="plabel_' + execucio.id + '">' + execucio.executades + '%</span></div> ' + 
 												'<div class="mass-cancelar" style="position: absolute; right: -10px; display: ' + (execucio.executades == 100 ? 'none' : 'inline') + '"><a id="mass_cancelar_' + execucio.id + '" class="btn btn-default btn-xs" data-id="' + execucio.id + '" title="<spring:message code="comu.boto.cancelar"/>"><span class="fa fa-stop text-danger"></span></a></div>' +
-												'<div class="mass-rependre" style="position: absolute; right: -10px; z-index: 999; display: ' + (!execucio.cancelada ? 'none' : 'inline') + '"><a id="mass_rependre_' + execucio.id + '" class="btn btn-default btn-xs" data-id="' + execucio.id + '" title="<spring:message code="comu.boto.rependre"/>"><span class="fa fa-play"></span></a></div></div>' +		
+												'<div class="mass-rependre" style="position: absolute; right: -10px; z-index: 999; display: ' + (!execucio.cancelada ? 'none' : 'inline') + '"><a id="mass_rependre_' + execucio.id + '" class="btn btn-default btn-xs" data-id="' + execucio.id + '" title="<spring:message code="comu.boto.rependre"/>"><span class="fa fa-play"></span></a></div>' +
+												'<div class="mass-reintentar" style="position: absolute; right: -10px; z-index: 999; display: ' + (!execucio.error ? 'none' : (cancelada || execucio.cancelada ? 'none' : 'inline')) + '"><a id="mass_reintentar_' + execucio.id + '" class="btn btn-default btn-xs" data-id="' + execucio.id + '" title="<spring:message code="comu.boto.reintentar"/>"><span class="fa fa-repeat"></span></a></div></div>' +		
 				'<div class="mass-processat col-md-1 text-right">' + execucio.processat + '</div>' + 
 				'<div class="mass-error col-md-1 text-right">' + execucio.error + '</div>' + 
 				'<div class="col-md-2">' + execucio.data + '</div>' + 
@@ -437,6 +438,40 @@
 	        });	
 		}
 		
+		function reintentarExecucioMassiva(id) {
+			// Confirmació
+			if (!confirm("<spring:message code="expedient.tramitacio.massiva.reintentar.confirm"/>"))
+				return false;
+
+			webutilEsborrarAlertes();
+			$a = $('#mass_reintentar_' + id);
+			$a.attr('disabled', 'disabled');
+			$.ajax({
+	            url : '<c:url value="/v3/execucionsMassives/reintentarExecucioMassiva"/>', 
+	            type : 'POST',
+	            data : {id : id},
+	            dataType : 'json',
+	            success : function(data) {
+	            	if (data.error) {
+	            		webutilAlertaError(data.missatge);
+	            	} else {
+	            		webutilAlertaSuccess(data.missatge);
+	            		carregaExecucionsMassives(page, true)
+	            	}
+	            },
+	            error: function (request, status, error) {
+	            	// Mostra l'error
+	            	console.log("bar");
+	            	console.log(status);
+	            	console.log(error);
+	            	webutilAlertaError(request.responseText);
+	            },
+	            complete: function() {
+					$a.removeAttr('disabled');
+	            }
+	        });	
+		}
+		
 		function carregaExecucionsMassives(numResultats,header) {
 			$.ajax({
 				url: nivell + "/refreshBarsExpedientMassive",
@@ -483,7 +518,7 @@
 							
 							var exps =  execucio.total;
 							if (exps > 0) {
-							if(execucio.tipus=="ALTA_MASSIVA"){
+								if(execucio.tipus=="ALTA_MASSIVA"){
 									content += 
 									'<div id="downloadCSV_' + execucio.id + '" class="panel panel-default">'+
 										'<a id="downloadCSVa_' + execucio.id + '" href="<c:url value="/v3/execucionsMassives/getCsvOriginalContent/'+execucio.id +'"/>" class="badge" title="<spring:message code="expedient.document.descarregar"/>">'+
@@ -494,6 +529,66 @@
 										'</a>' +
 									'</div>'  ;
 									
+								}
+								if(execucio.tipus=='REINTENTAR_CONSULTA_ANOTACIONS'){
+									content += 
+										'<table class="table table-striped table-bordered dataTable" id="massexpt_' + execucio.id + '">' +
+										'<thead>' +
+											'<tr>' +
+												'<th class="massiu-expedient"><spring:message code="anotacio.llistat.accio.massiva.titol"/></th>' +
+												'<th class="massiu-estat"><spring:message code="expedient.consulta.estat"/></th>' +
+												'<th class="massiu-expedient"><spring:message code="expedient.tramitacio.massiva.header.data"/></th>' +
+											'</tr>' +
+										'</thead>' +
+									'<tbody>';
+								}
+								if(execucio.tipus=='REINTENTAR_PROCESSAMENT_ANOTACIONS'){
+									content += 
+										'<table class="table table-striped table-bordered dataTable" id="massexpt_' + execucio.id + '">' +
+										'<thead>' +
+											'<tr>' +
+												'<th class="massiu-expedient"><spring:message code="anotacio.llistat.accio.massiva.titol"/></th>' +
+												'<th class="massiu-estat"><spring:message code="expedient.consulta.estat"/></th>' +
+												'<th class="massiu-expedient"><spring:message code="expedient.tramitacio.massiva.header.data"/></th>' +
+											'</tr>' +
+										'</thead>' +
+									'<tbody>';
+								}
+								if(execucio.tipus=='REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS'){
+									content += 
+										'<table class="table table-striped table-bordered dataTable" id="massexpt_' + execucio.id + '">' +
+										'<thead>' +
+											'<tr>' +
+												'<th class="massiu-expedient"><spring:message code="anotacio.llistat.accio.massiva.titol"/></th>' +
+												'<th class="massiu-estat"><spring:message code="expedient.consulta.estat"/></th>' +
+												'<th class="massiu-expedient"><spring:message code="expedient.tramitacio.massiva.header.data"/></th>' +
+											'</tr>' +
+										'</thead>' +
+									'<tbody>';
+								}
+								if(execucio.tipus=='REINTENTAR_MAPEIG_ANOTACIONS'){
+									content += 
+										'<table class="table table-striped table-bordered dataTable" id="massexpt_' + execucio.id + '">' +
+										'<thead>' +
+											'<tr>' +
+												'<th class="massiu-expedient"><spring:message code="anotacio.llistat.accio.massiva.titol"/></th>' +
+												'<th class="massiu-estat"><spring:message code="expedient.consulta.estat"/></th>' +
+												'<th class="massiu-expedient"><spring:message code="expedient.tramitacio.massiva.header.data"/></th>' +
+											'</tr>' +
+										'</thead>' +
+									'<tbody>';
+								}
+								if(execucio.tipus=='ESBORRAR_ANOTACIONS'){
+									content += 
+										'<table class="table table-striped table-bordered dataTable" id="massexpt_' + execucio.id + '">' +
+										'<thead>' +
+											'<tr>' +
+												'<th class="massiu-expedient"><spring:message code="anotacio.llistat.accio.massiva.titol"/></th>' +
+												'<th class="massiu-estat"><spring:message code="expedient.consulta.estat"/></th>' +
+												'<th class="massiu-expedient"><spring:message code="expedient.tramitacio.massiva.header.data"/></th>' +
+											'</tr>' +
+										'</thead>' +
+									'<tbody>';
 								}
 								if (execucio.tipus == 'ELIMINAR_VERSIO_DEFPROC') {
 									content += 
@@ -506,7 +601,11 @@
 												'</tr>' +
 											'</thead>' +
 										'<tbody>';
-								} else {
+								} else if (execucio.tipus!='REINTENTAR_CONSULTA_ANOTACIONS' 
+										&& execucio.tipus!='REINTENTAR_PROCESSAMENT_ANOTACIONS'
+										&& execucio.tipus!='REINTENTAR_MAPEIG_ANOTACIONS'
+										&& execucio.tipus!='REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS'
+										&& execucio.tipus!='ESBORRAR_ANOTACIONS'){
 									content += 
 				
 										'<table class="table table-striped table-bordered dataTable" id="massexpt_' + execucio.id + '">' +
@@ -539,6 +638,11 @@
 						});
 						$('.mass-rependre a').click(function(event) {
 							rependreExecucioMassiva($(this).data('id'));
+							event.preventDefault();
+							return false;
+						});
+						$('.mass-reintentar a').click(function(event) {
+							reintentarExecucioMassiva($(this).data('id'));
 							event.preventDefault();
 							return false;
 						});
@@ -596,18 +700,24 @@
 			$('#mass_' + execucio.id + ' .massiu-dades .mass-processat').text(execucio.processat);
 			$('#mass_' + execucio.id + ' .massiu-dades .mass-error').text(execucio.error);
 			$('#mass_' + execucio.id + ' .massiu-dades .mass-data-fi').text(execucio.dataFi != undefined ? execucio.dataFi : '');
+			let cancelada = execucio.processat < execucio.total && execucio.dataFi;
 			if (execucio.executades == 100) {
 				$('#mass_' + execucio.id + ' .mass-cancelar').hide();
 			} else {
 				$('#mass_' + execucio.id + ' .mass-cancelar').show();	
 			}
-			if (execucio.processat < execucio.total && execucio.dataFi) {
+			if (cancelada) {
 				// Cancel·lada
 				$('#mass_' + execucio.id + ' .mass-rependre').show();
 			} else {
 				$('#mass_' + execucio.id + ' .mass-rependre').hide();
 			}
-			
+			if (!cancelada && execucio.error && execucio.executades == 100) {
+				// Error
+				$('#mass_' + execucio.id + ' .mass-reintentar').show();
+			} else {
+				$('#mass_' + execucio.id + ' .mass-reintentar').hide();
+			}
 			createBar("pbar_" + execucio.id, execucio.executades);
 
 			$(".msg-error").unbind();
