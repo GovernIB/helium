@@ -743,8 +743,8 @@ public class DocumentHelperV3 {
 				null, // arxiuUuid
 				this.getContentType(arxiuNom),
 				false,	// amb firma
-				false,
-				null,
+				false,	// firma separada
+				null,	// firma contingut
 				ntiOrigen,
 				ntiEstadoElaboracion,
 				ntiTipoDocumental,
@@ -2414,8 +2414,6 @@ public class DocumentHelperV3 {
 			if(firmes!=null && !firmes.isEmpty())
 				comprovarFirmesReconegudes(firmes);
 			if (arxiuUuid == null) {
-				String documentDescripcio = documentStore.isAdjunt() ? documentStore.getAdjuntTitol() 
-											: (document!=null ? document.getNom() : documentNom );
 				// Actualitza el document a dins l'arxiu
 				ArxiuDto arxiu = new ArxiuDto(
 						arxiuNom,
@@ -2707,10 +2705,6 @@ public class DocumentHelperV3 {
 	}
 
 	public String getContentType(String arxiuNom) {
-		String fileNameDetect = tika.detect(arxiuNom);
-        if (!fileNameDetect.equals(MimeTypes.OCTET_STREAM)) {
-            return fileNameDetect;
-        }
         String fileContentDetect = tika.detect(arxiuNom);
         if (!fileContentDetect.equals(MimeTypes.OCTET_STREAM)) {
             return fileContentDetect;

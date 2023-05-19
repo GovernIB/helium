@@ -72,10 +72,10 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
@@ -1704,45 +1704,21 @@ public class ExpedientHelper {
 		try {
 			// Afegim els documents
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
-			if (documents != null){
-				for (Map.Entry<String, DadesDocumentDto> doc: documents.entrySet()) {
-					if (doc.getValue() != null) {
-						documentHelper.crearDocument(
-								null,
-								expedient.getProcessInstanceId(),
-								doc.getValue().getCodi(),
-								doc.getValue().getData(),
-								false,
-								null,
-								doc.getValue().getArxiuNom(),
-								doc.getValue().getArxiuContingut(),
-								null,
-								null,
-								null,
-								null,
-								doc.getValue().isDocumentValid(),
-								doc.getValue().getDocumentError());
-					}
+			if (documents != null) {
+				for (DadesDocumentDto document : documents.values()) {
+					this.crearDocumentAdjuntInicial(
+							false, 
+							expedient, 
+							document);
 				}
 			}
 			// Afegim els adjunts
 			if (adjunts != null) {
 				for (DadesDocumentDto adjunt: adjunts) {
-					documentHelper.crearDocument(
-							null,
-							expedient.getProcessInstanceId(),
-							null,
-							adjunt.getData(),
-							true,
-							adjunt.getTitol(),
-							adjunt.getArxiuNom(),
-							adjunt.getArxiuContingut(),
-							null,
-							null,
-							null,
-							null,
-							adjunt.isDocumentValid(),
-							adjunt.getDocumentError());
+					this.crearDocumentAdjuntInicial(
+							true, 
+							expedient, 
+							adjunt);
 				}
 			}
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
@@ -1775,6 +1751,41 @@ public class ExpedientHelper {
 		return expedientPerRetornar;
 	}
 
+	/** Mètode per afegir els documents inicials a l'expedient com a document o adjunt. Si l'expedient no està integrat amb l'Arxiu i 
+	 * el document o adjunt sí llavors recupera el contingut.
+	 * 
+	 * @param isAdjunt
+	 * @param expedient
+	 * @param document
+	 */
+	private void crearDocumentAdjuntInicial(
+			boolean isAdjunt, 
+			Expedient expedient, 
+			DadesDocumentDto document) {
+		
+		documentHelper.crearDocument(
+				null, //taskInstanceId
+				expedient.getProcessInstanceId(),
+				isAdjunt? null : document.getCodi(),
+				document.getData(),
+				isAdjunt, // isAdjunt
+				isAdjunt ? document.getTitol() : null, //adjuntTitol
+				document.getArxiuNom(),
+				document.getArxiuContingut(),
+				document.getUuid(),
+				document.getTipusMime(),
+				expedient.isArxiuActiu() && document.getFirmaTipus() != null,	// amb firma
+				false,	// firma separada
+				null,	// firma contingut
+				document.getNtiOrigen(),
+				document.getNtiEstadoElaboracion(),
+				document.getNtiTipoDocumental(),
+				document.getNtiIdDocumentoOrigen(),
+				document.isDocumentValid(),
+				document.getDocumentError());
+	}
+	
+	
 	private PersonaDto comprovarUsuari(String usuari) {
 		try {
 			PersonaDto persona = pluginHelper.personaFindAmbCodi(usuari);

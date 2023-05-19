@@ -330,7 +330,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);				
 				if (expedientTipus.isDistribucioSistra()) {
 					// Extreu documents i variables segons el mapeig sistra
-					resultatMapeig = distribucioHelper.getMapeig(expedientTipus, anotacio);
+					boolean ambContingut = !expedientTipus.isArxiuActiu(); 
+					resultatMapeig = distribucioHelper.getMapeig(expedientTipus, anotacio, ambContingut);
 					if (variables == null)
 						variables = new HashMap<String, Object>();
 					variables.putAll(resultatMapeig.getDades());
