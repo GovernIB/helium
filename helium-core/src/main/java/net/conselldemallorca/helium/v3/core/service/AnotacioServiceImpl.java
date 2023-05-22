@@ -1402,7 +1402,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					document.getNtiTipoDocumental(),
 					document.getNtiIdOrigen(),
 					dadesDocumentDto.isDocumentValid(),
-					dadesDocumentDto.getDocumentError());
+					dadesDocumentDto.getDocumentError(),
+					dadesDocumentDto.getAnnexId());
 			
 			
 			
@@ -1427,13 +1428,13 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					dadesDocumentDto.getNtiTipoDocumental(),
 					dadesDocumentDto.getNtiIdDocumentoOrigen(),
 					dadesDocumentDto.isDocumentValid(),
-					dadesDocumentDto.getDocumentError());
+					dadesDocumentDto.getDocumentError(),
+					dadesDocumentDto.getAnnexId());
 		}
 		
 	}
 
 	private void processarAdjuntsAnotacio(Expedient expedient, DadesDocumentDto adjunt ) {
-		//TODO: mateix canvi que a expedientHelper.iniciar
 		documentHelper.crearDocument(
 				null,
 				expedient.getProcessInstanceId(),
@@ -1453,7 +1454,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				adjunt.getNtiTipoDocumental(),
 				adjunt.getNtiIdDocumentoOrigen(),
 				adjunt.isDocumentValid(),
-				adjunt.getDocumentError());
+				adjunt.getDocumentError(),
+				adjunt.getAnnexId());
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(AnotacioServiceImpl.class);

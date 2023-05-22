@@ -73,8 +73,8 @@
 												</a>
 											</li>
 											<li>
-												<a href="<c:url value="/v3/expedient/{{:expedient.id}}/anotacio/{{:id}}/{{:true}}"/>" title="<spring:message code="expedient.anotacio.llistat.processar.nomes.annexos.title"/>">
-														<span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.anotacio.llistat.processar.nomes.annexos"/>
+												<a href="<c:url value="/v3/expedient/{{:expedient.id}}/anotacio/{{:id}}/{{:true}}"/>" title="<spring:message code="expedient.anotacio.llistat.processar.traspas.title"/>">
+														<span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.anotacio.llistat.processar.traspas"/>
 												</a>
 											</li>							
 										</c:when>

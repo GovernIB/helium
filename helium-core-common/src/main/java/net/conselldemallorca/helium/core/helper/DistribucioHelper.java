@@ -1220,6 +1220,7 @@ public class DistribucioHelper {
 			resposta.setArxiuNom(document.getNom());
 			resposta.setDocumentValid(document.isDocumentValid());
 			resposta.setDocumentError(document.getDocumentError());
+			resposta.setAnnexId(document.getId());
 
 			if (ambContingut) {
 				byte[] contingut = document.getContingut();
@@ -1446,7 +1447,8 @@ public class DistribucioHelper {
 						annex.getNtiTipoDocumental(), 
 						annex.getNtiOrigen() != null ? annex.getNtiOrigen().toString() : null,
 						annex.isDocumentValid(),
-						annex.getDocumentError());
+						annex.getDocumentError(),
+						annex.getId());
 				annex.setDocumentStoreId(documentStoreId);
 			}
 		} catch(Exception e) {

@@ -477,6 +477,4 @@ public interface ExpedientDocumentService {
 			Long documentStoreId,
 			String arxiuNom,
 			byte[] contingutFirmat) throws PermisDenegatException;
-
-
 }

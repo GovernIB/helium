@@ -337,7 +337,7 @@ public class DocumentHelperV3 {
 		// Consulta els annexos de les anotacions de registre i les guarda en un Map<Long documentStoreId, Anotacio>
 		Map<Long, AnotacioAnnex> mapAnotacions = new HashMap<Long, AnotacioAnnex>();
 		for (AnotacioAnnex annex : anotacioAnnexRepository.findByAnotacioExpedientId(expedient.getId()))
-			mapAnotacions.put(annex.getDocumentStoreId(), annex);
+			mapAnotacions.put(annex.getId(), annex);
 		// Consulta els documents de l'instància de procés
 		Map<String, Object> varsInstanciaProces = jbpmHelper.getProcessInstanceVariables(processInstanceId);
 		if (varsInstanciaProces != null) {
@@ -345,6 +345,7 @@ public class DocumentHelperV3 {
 			for (String var: varsInstanciaProces.keySet()) {
 				Long documentStoreId = (Long)varsInstanciaProces.get(var);
 				if (documentStoreId != null) {
+					ExpedientDocumentDto ed = null;
 					if (var.startsWith(JbpmVars.PREFIX_DOCUMENT)) {
 						// Afegeix el document
 						String documentCodi = getDocumentCodiDeVariableJbpm(var);
@@ -356,7 +357,7 @@ public class DocumentHelperV3 {
 							}
 						}
 						if (document != null) {
-							ExpedientDocumentDto ed = crearDtoPerDocumentExpedient(
+							ed = crearDtoPerDocumentExpedient(
 									document,
 									documentStoreId);
 							List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
@@ -373,16 +374,18 @@ public class DocumentHelperV3 {
 						}
 					} else if (var.startsWith(JbpmVars.PREFIX_ADJUNT)) {
 						// Afegeix l'adjunt
-						ExpedientDocumentDto ed = crearDtoPerAdjuntExpedient(
+						ed = crearDtoPerAdjuntExpedient(
 								getAdjuntIdDeVariableJbpm(var),
 								documentStoreId);
 						ed.setNotificat(false); // De moment els annexos no es notifiquen
-						AnotacioAnnex annex = mapAnotacions.get(ed.getId());
-						if (annex != null) {
-							ed.setAnotacioId(annex.getAnotacio().getId());
-							ed.setAnotacioIdentificador(annex.getAnotacio().getIdentificador());
-						}
 						resposta.add(ed);
+					}
+					// Afegeix informació de l'annex relacionat amb el document
+					if (ed != null && mapAnotacions.containsKey(ed.getAnotacioAnnexId())) {
+						AnotacioAnnex annex = mapAnotacions.get(ed.getAnotacioAnnexId());
+						ed.setAnotacioId(annex.getAnotacio().getId());
+						ed.setAnotacioIdentificador(annex.getAnotacio().getIdentificador());
+						ed.setAnotacioAnnexTitol(annex.getTitol());
 					}
 				}
 			}
@@ -713,7 +716,9 @@ public class DocumentHelperV3 {
 				ntiTipoDocumental,
 				ntiIdDocumentoOrigen,
 				true,
-				null);
+				null,
+				null //annexId
+				);
 	}
 	
 	public Long crearDocument(
@@ -750,7 +755,9 @@ public class DocumentHelperV3 {
 				ntiTipoDocumental,
 				ntiIdDocumentoOrigen,
 				documentValid,
-				documentError);
+				documentError,
+				null // annexId
+				);
 	}
 
 	public Long crearDocument(
@@ -772,7 +779,8 @@ public class DocumentHelperV3 {
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
 			String ntiIdDocumentoOrigen, 
 			boolean documentValid,
-			String documentError) {
+			String documentError,
+			Long annexId) {
 		String documentCodiPerCreacio = documentCodi;
 		if (documentCodiPerCreacio == null && isAdjunt) {
 			documentCodiPerCreacio = new Long(new Date().getTime()).toString();
@@ -788,6 +796,7 @@ public class DocumentHelperV3 {
 		if (isAdjunt) {
 			documentStore.setAdjuntTitol(adjuntTitol);
 		}
+		documentStore.setAnnexId(annexId);
 		DocumentStore documentStoreCreat = documentStoreRepository.save(documentStore);
 		documentStoreRepository.flush();
 		postProcessarDocument(
@@ -875,7 +884,8 @@ public class DocumentHelperV3 {
 				ntiTipoDocumental,
 				ntiIdDocumentoOrigen,
 				true,	// documetn vàlid
-				null);	// error
+				null,	// error
+				null);	// annexId
 	}
 		
 	public Long actualitzarDocument(
@@ -895,7 +905,8 @@ public class DocumentHelperV3 {
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
 			String ntiIdDocumentoOrigen,
 			boolean documentValid,
-			String documentError) {
+			String documentError,
+			Long annexId) {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		if (documentStore == null) {
 			throw new NoTrobatException(
@@ -918,6 +929,9 @@ public class DocumentHelperV3 {
 		}
 		documentStore.setDocumentValid(documentValid);
 		documentStore.setDocumentError(documentError);
+		if (annexId != null) {
+			documentStore.setAnnexId(annexId);
+		}
 		postProcessarDocument(
 				documentStore,
 				taskInstanceId,
@@ -1011,7 +1025,9 @@ public class DocumentHelperV3 {
 					ntiTipoDocumental,
 					ntiIdDocumentoOrigen,
 					true,
-					null);
+					null,
+					null // annexId
+					);
 		} else {
 			return actualitzarDocument(
 					documentStoreId,
@@ -1990,6 +2006,7 @@ public class DocumentHelperV3 {
 		dto.setArxiuUuid(documentStore.getArxiuUuid());
 		dto.setDocumentValid(documentStore.isDocumentValid());
 		dto.setDocumentError(documentStore.getDocumentError());
+		dto.setAnotacioAnnexId(documentStore.getAnnexId());
 		
 		return dto;
 	}
@@ -2048,6 +2065,7 @@ public class DocumentHelperV3 {
 		}
 		dto.setDocumentValid(documentStore.isDocumentValid());
 		dto.setDocumentError(documentStore.getDocumentError());
+		dto.setAnotacioAnnexId(documentStore.getAnnexId());
 		return dto;
 	}
 

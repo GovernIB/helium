@@ -1782,7 +1782,8 @@ public class ExpedientHelper {
 				document.getNtiTipoDocumental(),
 				document.getNtiIdDocumentoOrigen(),
 				document.isDocumentValid(),
-				document.getDocumentError());
+				document.getDocumentError(),
+				document.getAnnexId());
 	}
 	
 	
