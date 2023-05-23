@@ -214,10 +214,11 @@
 													<span class="label label-warning etiqueta-nti-arxiu"><spring:message code="expedient.document.info.etiqueta.notificat"/></span>
 												</c:if>
 												<c:if test="${document.anotacioId != null}">
-													<a href="../../v3/anotacio/${document.anotacioId}"
-														title="<spring:message code="expedient.document.info.etiqueta.anotacio.title" arguments="${document.anotacioIdentificador}"/>"
+													<a href="<c:url value="../../v3/anotacio/${document.anotacioId}?annexId=${document.anotacioAnnexId}"/>"
+														title="<spring:message code="expedient.document.info.etiqueta.anotacio.title" arguments="${document.anotacioIdentificador},${document.anotacioAnnexTitol}" htmlEscape="true"/>"
 														data-rdt-link-modal="true"
 														data-rdt-link-modal="true"
+														data-rdt-link-modal-maximize="true"
 														class="linkNti">
 														<span class="label label-warning etiqueta-nti-arxiu"><spring:message code="expedient.document.info.etiqueta.anotacio"/></span>
 													</a>													

@@ -109,7 +109,7 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 						request, 
 						getMessage(
 								request, 
-								"expedient.anotacio.llistat.processar.nomes.annexos.ok"));      
+								"expedient.anotacio.llistat.processar.traspas.ok"));      
 			}
 				
 			// Si hi ha errors posa alertes, afegiex elements span i title per abreujar el missatge sense perdre informació.
@@ -164,7 +164,7 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 			if(!nomesAnnexos)
 				errMsg = this.getMessage(request, "expedient.anotacio.llistat.processar.mapeig.ko", new Object[] {e.getMessage()});
 			else
-				errMsg = this.getMessage(request, "expedient.anotacio.llistat.processar.nomes.annexos.ko", new Object[] {e.getMessage()});
+				errMsg = this.getMessage(request, "expedient.anotacio.llistat.processar.traspas.ko", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg);
 		}

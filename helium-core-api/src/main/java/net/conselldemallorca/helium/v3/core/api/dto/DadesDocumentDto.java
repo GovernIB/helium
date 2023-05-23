@@ -22,7 +22,15 @@ public class DadesDocumentDto {
 	private boolean documentValid = true;
 	private String documentError;
 
-
+	private String uuid;
+	private String tipusMime;
+	private NtiOrigenEnumDto ntiOrigen;
+	private NtiEstadoElaboracionEnumDto ntiEstadoElaboracion;
+	private NtiTipoDocumentalEnumDto ntiTipoDocumental;
+	private String ntiIdDocumentoOrigen;
+	private NtiTipoFirmaEnumDto firmaTipus;
+	private Long annexId;
+	
 
 	public String getCodi() {
 		return codi;
@@ -72,5 +80,52 @@ public class DadesDocumentDto {
 	public void setDocumentError(String documentError) {
 		this.documentError = documentError;
 	}
-
+	public String getUuid() {
+		return uuid;
+	}
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+	public String getTipusMime() {
+		return tipusMime;
+	}
+	public void setTipusMime(String tipusMime) {
+		this.tipusMime = tipusMime;
+	}
+	public NtiOrigenEnumDto getNtiOrigen() {
+		return ntiOrigen;
+	}
+	public void setNtiOrigen(NtiOrigenEnumDto ntiOrigen) {
+		this.ntiOrigen = ntiOrigen;
+	}
+	public NtiEstadoElaboracionEnumDto getNtiEstadoElaboracion() {
+		return ntiEstadoElaboracion;
+	}
+	public void setNtiEstadoElaboracion(NtiEstadoElaboracionEnumDto ntiEstadoElaboracion) {
+		this.ntiEstadoElaboracion = ntiEstadoElaboracion;
+	}
+	public NtiTipoDocumentalEnumDto getNtiTipoDocumental() {
+		return ntiTipoDocumental;
+	}
+	public void setNtiTipoDocumental(NtiTipoDocumentalEnumDto ntiTipoDocumental) {
+		this.ntiTipoDocumental = ntiTipoDocumental;
+	}
+	public String getNtiIdDocumentoOrigen() {
+		return ntiIdDocumentoOrigen;
+	}
+	public void setNtiIdDocumentoOrigen(String ntiIdDocumentoOrigen) {
+		this.ntiIdDocumentoOrigen = ntiIdDocumentoOrigen;
+	}
+	public NtiTipoFirmaEnumDto getFirmaTipus() {
+		return firmaTipus;
+	}
+	public void setFirmaTipus(NtiTipoFirmaEnumDto firmaTipus) {
+		this.firmaTipus = firmaTipus;
+	}
+	public Long getAnnexId() {
+		return annexId;
+	}
+	public void setAnnexId(Long annexId) {
+		this.annexId = annexId;
+	}
 }

@@ -111,6 +111,8 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	@MaxLength(100)
 	private String documentError;
 
+	/** Identificador de l'annex de l'anotació del qual prové el document o adjunt. */
+	private Long annexId;
 	
 	public DocumentStore() {}
 	public DocumentStore(
@@ -426,6 +428,15 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	public void setDocumentError(String documentError) {
 		this.documentError = documentError;
 	}
+	
+	@Column(name = "annex_id")
+	public Long getAnnexId() {
+		return annexId;
+	}
+	public void setAnnexId(Long annexId) {
+		this.annexId = annexId;
+	}
+	
 	
 	@Override
 	public int hashCode() {

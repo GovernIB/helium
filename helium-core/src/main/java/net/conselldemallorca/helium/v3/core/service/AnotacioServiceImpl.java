@@ -1231,8 +1231,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	
 		// Recupera la informació del tipus d'expedient i l'expedient
 		ExpedientTipus expedientTipus = null;
-		Expedient expedient = null;
-		expedient = expedientRepository.findOne(expedientId);
+		Expedient expedient = expedientRepository.findOne(expedientId);
 		if(expedient!=null)
 			expedientTipus = expedient.getTipus();
 		
@@ -1247,7 +1246,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			DadesDocumentDto dadesDocumentDto = null;
 
 			// Extreu variables i documents i annexos segons el mapeig sistra
-			resultatMapeig = distribucioHelper.getMapeig(expedientTipus, anotacio);
+			boolean ambContingut = expedient != null ? !expedient.isArxiuActiu() : !expedientTipus.isArxiuActiu(); 
+			resultatMapeig = distribucioHelper.getMapeig(expedientTipus, anotacio, ambContingut);
 			variables = resultatMapeig.getDades();
 			documents = resultatMapeig.getDocuments();
 			annexos = resultatMapeig.getAdjunts();			
@@ -1402,32 +1402,34 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					document.getNtiTipoDocumental(),
 					document.getNtiIdOrigen(),
 					dadesDocumentDto.isDocumentValid(),
-					dadesDocumentDto.getDocumentError());
+					dadesDocumentDto.getDocumentError(),
+					dadesDocumentDto.getAnnexId());
 			
 			
 			
 		} else if (!documentExisteix) {
 			dadesDocumentDto = documents.get(codiHelium);
 			documentHelper.crearDocument(
-					null,
+					null, //taskInstanceId
 					expedient.getProcessInstanceId(),
 					dadesDocumentDto.getCodi(),
 					dadesDocumentDto.getData(),
-					false, //isAdjunt
-					dadesDocumentDto.getTitol(),
+					false, // isAdjunt
+					null, //adjuntTitol
 					dadesDocumentDto.getArxiuNom(),
 					dadesDocumentDto.getArxiuContingut(),
-					null, // arxiuUuid
-					documentHelper.getContentType(dadesDocumentDto.getArxiuNom()),
-					false,//document.isSignat(), //command.isAmbFirma(),
-					false,
-					null,
-					null,
-					null,
-					null,
-					null,
+					dadesDocumentDto.getUuid(),
+					dadesDocumentDto.getTipusMime(),
+					expedient.isArxiuActiu() && dadesDocumentDto.getFirmaTipus() != null,	// amb firma
+					false,	// firma separada
+					null,	// firma contingut
+					dadesDocumentDto.getNtiOrigen(),
+					dadesDocumentDto.getNtiEstadoElaboracion(),
+					dadesDocumentDto.getNtiTipoDocumental(),
+					dadesDocumentDto.getNtiIdDocumentoOrigen(),
 					dadesDocumentDto.isDocumentValid(),
-					dadesDocumentDto.getDocumentError());
+					dadesDocumentDto.getDocumentError(),
+					dadesDocumentDto.getAnnexId());
 		}
 		
 	}
@@ -1438,16 +1440,22 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				expedient.getProcessInstanceId(),
 				null,
 				adjunt.getData(),
-				true,
+				true, // isAdjunt
 				adjunt.getTitol(),
 				adjunt.getArxiuNom(),
 				adjunt.getArxiuContingut(),
-				null,
-				null,
-				null,
-				null,
+				adjunt.getUuid(),
+				documentHelper.getContentType(adjunt.getArxiuNom()),
+				expedient.isArxiuActiu() && adjunt.getFirmaTipus() != null,	// amb firma
+				false,	// firma separada
+				null,	// firma contingut
+				adjunt.getNtiOrigen(),
+				adjunt.getNtiEstadoElaboracion(),
+				adjunt.getNtiTipoDocumental(),
+				adjunt.getNtiIdDocumentoOrigen(),
 				adjunt.isDocumentValid(),
-				adjunt.getDocumentError());
+				adjunt.getDocumentError(),
+				adjunt.getAnnexId());
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(AnotacioServiceImpl.class);

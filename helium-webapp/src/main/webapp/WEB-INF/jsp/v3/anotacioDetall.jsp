@@ -39,15 +39,26 @@ tr.clicable {
 }
 </style>
 <script type="text/javascript">
+//<![CDATA[            
 	
 	$(document).ready(function() {
 		
 		$(".desplegable").click(function(){
 			$(this).find("span").toggleClass("fa-caret-up");
 			$(this).find("span").toggleClass("fa-caret-down");
-		});		
+		});
+		
+		// Si es passa un annexId es canvia de pestanya i navega cap a l'annex
+		let annexId = ${annexId != null ? annexId : 'null'};
+		if (annexId) {
+			$('a[href="#annexos"').click();
+			$('#anotacio_annex_' + annexId).click();
+			$('button[data-toggle="collapse"]', $('#anotacio_annex_'+ annexId)).click()
+			$('#anotacio_annex_' + annexId).get(0).scrollIntoView();
+		}
 });
 
+// ]]>
 </script>
 </head>
 <body>
@@ -366,7 +377,7 @@ tr.clicable {
 						 	});
 						</script>
 					
-						<div class="panel panel-default">
+						<div class="panel panel-default" id="anotacio_annex_${annex.id}">
 							<div class="panel-heading">
 								<h3 class="panel-title">
 									<span class="fa fa-file"></span>
@@ -488,6 +499,32 @@ tr.clicable {
 											</c:choose>
 										</td>
 									</tr>
+									<c:if test="${documents[annex.id] != null}">
+										<c:forEach var="document" items="${documents[annex.id]}" varStatus="status">
+											<tr>
+												<c:if test="${status.index == 0}">
+													<td rowspan="${fn:length(documents[annex.id])}">
+														<strong><spring:message code="anotacio.annex.detalls.camp.documents.expedient"/></strong>
+													</td>
+												</c:if>
+												<td id="#document_annex_${document.id}" data-adjunt="${document.adjunt}" data-codi="${document.documentCodi}">
+												
+													<span class="fa-stack fa-1x doc-icon" style="color: #337ab7;" 
+															title="<c:choose><c:when test="${document.adjunt}"><spring:message code="anotacio.annex.detalls.camp.documents.expedient.adjunt"/></c:when><c:otherwise><spring:message code="anotacio.annex.detalls.camp.documents.expedient.document"/></c:otherwise></c:choose>">
+														<span class="fa fa-file fa-stack-1x"></span>
+														<c:if test="${document.adjunt}">
+															<span class="fa fa-stack-1x fa-inverse fa-paperclip" style="font-size: 0.9rem;"></span>
+														</c:if>
+													</span>
+						
+													<c:choose>
+														<c:when test="${document.adjunt}">${document.adjuntTitol}</c:when>
+														<c:otherwise><span title="${document.documentCodi}">${document.documentNom}</span></c:otherwise>
+													</c:choose>
+												</td>
+											</tr>
+										</c:forEach>
+									</c:if>
 									<tr>
 										<td colspan="2">
 											<div class="panel panel-default">
