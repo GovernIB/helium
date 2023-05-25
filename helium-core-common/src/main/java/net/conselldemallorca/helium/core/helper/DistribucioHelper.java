@@ -104,6 +104,8 @@ import net.conselldemallorca.helium.v3.core.repository.MapeigSistraRepository;
 @Component
 public class DistribucioHelper {
 
+	@Resource
+	private ExceptionHelper exceptionHelper;
 	@Autowired
 	private AnotacioRepository anotacioRepository;
 	@Autowired
@@ -403,6 +405,7 @@ public class DistribucioHelper {
 		
 		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
 		anotacio.setErrorProcessament(errorProcessament.substring(0, Math.min(1024, errorProcessament.length())));
+		anotacio.setDataProcessament(new Date());
 		anotacio.setEstat(AnotacioEstatEnumDto.ERROR_PROCESSANT);
 		return anotacio;
 	}
@@ -886,8 +889,8 @@ public class DistribucioHelper {
 			this.updateRelacioExpedientTipus(anotacio);
 			// Reprocessa l'anotació
 			this.processarAnotacio(idWs, anotacioRegistreEntrada, anotacio);
-		} catch (Exception e) {
-			String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e.getMessage();
+		} catch (Throwable e) {
+			String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + exceptionHelper.getRouteCauses(e);
 			this.updateErrorProcessament(anotacio.getId(), errorProcessament);
 			logger.error(errorProcessament, e);
 			// Es comunica l'estat a Distribucio

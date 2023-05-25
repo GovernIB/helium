@@ -43,6 +43,7 @@ import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
+import net.conselldemallorca.helium.core.helper.ExceptionHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientDadaHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
@@ -120,6 +121,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	private DistribucioHelper distribucioHelper;
 	@Resource(name = "documentHelperV3")
 	private DocumentHelperV3 documentHelper;
+	@Resource
+	private ExceptionHelper exceptionHelper;
 	@Resource
 	private AnotacioRepository anotacioRepository;
 	@Resource
@@ -731,9 +734,30 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				&& !( Arrays.asList(ArrayUtils.toArray(AnotacioEstatEnumDto.PENDENT, AnotacioEstatEnumDto.REBUTJADA)).contains(anotacio.getEstat())
 						&& anotacio.getExpedient() == null) ) {
 			throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot reprocessar perquè està en estat " + anotacio.getEstat() + (anotacio.getExpedient() != null ? " i té un expedient associat" : ""));
-		}		
+		}
+		try {
+			anotacio = distribucioHelper.reprocessarAnotacio(anotacioId);
+		} catch(Throwable e) {
+			AnotacioRegistreId idWs = new AnotacioRegistreId();
+			idWs.setIndetificador(anotacio.getIdentificador());
+			idWs.setClauAcces(anotacio.getDistribucioClauAcces());
+			String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + exceptionHelper.getRouteCauses(e);
+			anotacio = distribucioHelper.updateErrorProcessament(anotacio.getId(), errorProcessament);
+			logger.error(errorProcessament, e);
+			// Es comunica l'estat a Distribucio
+			try {
+				distribucioHelper.canviEstat(
+						idWs, 
+						es.caib.distribucio.rest.client.domini.Estat.ERROR,
+						errorProcessament);
+			} catch(Exception ed) {
+				logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
+			}
+			throw new Exception(errorProcessament, e);
+			
+		}
 		return conversioTipusHelper.convertir(
-				distribucioHelper.reprocessarAnotacio(anotacioId),
+				anotacio,
 				AnotacioDto.class);
 	}
 
@@ -755,6 +779,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			+ ", ha d'estar en estat de error de processament.");
 		}
 		anotacio.setEstat(AnotacioEstatEnumDto.PENDENT);
+		anotacio.setDataProcessament(null);
 		anotacio.setErrorProcessament(null);
 
 		// Es comunica l'estat a Distribucio

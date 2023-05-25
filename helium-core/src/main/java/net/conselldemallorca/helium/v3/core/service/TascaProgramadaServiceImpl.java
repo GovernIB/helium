@@ -411,7 +411,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 					logger.debug("Processant l'anotació " + idWs.getIndetificador() + ".");
 					distribucioHelper.setProcessant(anotacio.getId(), true);
 					distribucioHelper.processarAnotacio(idWs, anotacioRegistreEntrada, anotacio);
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					String message = exceptionHelper.getRouteCauses(e);
 					String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + message;
 					logger.error(errorProcessament, e);
