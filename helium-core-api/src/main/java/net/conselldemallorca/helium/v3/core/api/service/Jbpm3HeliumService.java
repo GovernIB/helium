@@ -911,6 +911,7 @@ public interface Jbpm3HeliumService {
 	 * @param processInstanceId
 	 * @param transicioOK
 	 * @param transicioKO
+	 * @param portafirmesFluxId
 	 * 
 	 * @return Retorna l'identificador del document donat pel portasignatures.
 	 */
@@ -930,7 +931,8 @@ public interface Jbpm3HeliumService {
 			Long tokenId,
 			Long processInstanceId,
 			String transicioOK,
-			String transicioKO) throws SistemaExternException;
+			String transicioKO,
+			String portafirmesFluxId) throws SistemaExternException;
 	
 	/**
 	 * 

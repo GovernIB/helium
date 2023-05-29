@@ -2189,7 +2189,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			Long tokenId,
 			Long processInstanceId,
 			String transicioOK,
-			String transicioKO) {
+			String transicioKO,
+			String portafirmesFluxId) {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentId);
 		// Valida que no sigui ja un document firmat
 		if (documentStore.isSignat()) 
@@ -2219,23 +2220,45 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				}
 			}
 		}
-		return pluginHelper.portasignaturesEnviar(
-				document,
-				annexos,
-				persona,
-				personesPas1,
-				minSignatarisPas1,
-				personesPas2,
-				minSignatarisPas2,
-				personesPas3,
-				minSignatarisPas3,
-				expedientRepository.findOne(expedientId),
-				importancia,
-				dataLimit,
-				tokenId,
-				processInstanceId,
-				transicioOK,
-				transicioKO);
+		if(portafirmesFluxId != null) {
+			return pluginHelper.portasignaturesEnviar(
+					document,
+					annexos,
+					persona,
+					personesPas1,
+					minSignatarisPas1,
+					personesPas2,
+					minSignatarisPas2,
+					personesPas3,
+					minSignatarisPas3,
+					expedientRepository.findOne(expedientId),
+					importancia,
+					dataLimit,
+					tokenId,
+					processInstanceId,
+					transicioOK,
+					transicioKO,
+					portafirmesFluxId);
+		} else {
+			return pluginHelper.portasignaturesEnviar(
+					document,
+					annexos,
+					persona,
+					personesPas1,
+					minSignatarisPas1,
+					personesPas2,
+					minSignatarisPas2,
+					personesPas3,
+					minSignatarisPas3,
+					expedientRepository.findOne(expedientId),
+					importancia,
+					dataLimit,
+					tokenId,
+					processInstanceId,
+					transicioOK,
+					transicioKO,
+					null);
+		}	
 	}
 
 	@Override

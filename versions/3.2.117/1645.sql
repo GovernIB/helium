@@ -1,0 +1,11 @@
+-- #1645 Incloure l'edició dels fluxos de firma a Helium
+
+
+-- Oracle
+ALTER TABLE HEL_DOCUMENT ADD PORTAFIRMES_FLUX_ID VARCHAR2(64 CHAR);
+
+
+-- Postgresql
+ALTER TABLE HEL_DOCUMENT ADD PORTAFIRMES_FLUX_ID VARCHAR(1024);
+
+
