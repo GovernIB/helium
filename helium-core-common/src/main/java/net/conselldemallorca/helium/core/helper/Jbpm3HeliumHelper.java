@@ -2220,8 +2220,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				}
 			}
 		}
-		if(portafirmesFluxId != null) {
-			return pluginHelper.portasignaturesEnviar(
+		
+		return pluginHelper.portasignaturesEnviar(
 					document,
 					annexos,
 					persona,
@@ -2239,26 +2239,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 					transicioOK,
 					transicioKO,
 					portafirmesFluxId);
-		} else {
-			return pluginHelper.portasignaturesEnviar(
-					document,
-					annexos,
-					persona,
-					personesPas1,
-					minSignatarisPas1,
-					personesPas2,
-					minSignatarisPas2,
-					personesPas3,
-					minSignatarisPas3,
-					expedientRepository.findOne(expedientId),
-					importancia,
-					dataLimit,
-					tokenId,
-					processInstanceId,
-					transicioOK,
-					transicioKO,
-					null);
-		}	
 	}
 
 	@Override

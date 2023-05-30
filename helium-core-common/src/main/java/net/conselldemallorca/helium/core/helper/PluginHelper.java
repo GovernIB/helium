@@ -82,10 +82,10 @@ import net.conselldemallorca.helium.integracio.plugins.pinbal.PinbalPluginInterf
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.DocumentPortasignatures;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PasSignatura;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortafirmesCarrec;
+import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortafirmesFluxBloc;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortafirmesFluxInfo;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortafirmesFluxResposta;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortafirmesIniciFluxResposta;
-import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortafirmesPluginFluxSimple;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortasignaturesPlugin;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortasignaturesPluginException;
 import net.conselldemallorca.helium.integracio.plugins.registre.DadesAssumpte;
@@ -209,7 +209,6 @@ public class PluginHelper {
 	private GestioDocumentalPlugin gestioDocumentalPlugin;
 	private RegistrePluginRegWeb3 registrePluginRegWeb3;
 	private PortasignaturesPlugin portasignaturesPlugin;
-	private PortafirmesPluginFluxSimple portafirmesPluginFluxSimple;
 	private CustodiaPlugin custodiaPlugin;
 	private SignaturaPlugin signaturaPlugin;
 	private FirmaPlugin firmaPlugin;
@@ -1520,7 +1519,6 @@ public class PluginHelper {
 			String transicioOK,
 			String transicioKO,
 			String portafirmesFluxId) {
-		//MARTA aquí falta implementar com s'enviaria en cas que tingués portafirmesFluxId (veure codi Ripea a funció update de PortafirmesPluginPortafib.java)
 		IntegracioParametreDto[] parametres = null;
 		long t0 = System.currentTimeMillis();
 		try {
@@ -1576,7 +1574,8 @@ public class PluginHelper {
 							minSignatarisPas3),
 					this.getRemitentNom(expedient.getIdentificador()),
 					importancia,
-					dataLimit);
+					dataLimit,
+					portafirmesFluxId);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_PFIRMA,
 					"Enviar document a firmar",
@@ -4436,13 +4435,13 @@ public class PluginHelper {
 		return portasignaturesPlugin;
 	}
 	
-	private PortafirmesPluginFluxSimple getPortafirmesPluginPortafibFluxSimple() {
-		if (portafirmesPluginFluxSimple == null) {
+	private PortasignaturesPlugin getPortafirmesPluginPortafibFluxSimple() {
+		if (portasignaturesPlugin == null) {
 			String pluginClass = GlobalProperties.getInstance().getProperty("app.portafirmes.plugin.flux.firma.class");
 			if ((pluginClass != null) && (pluginClass.length() > 0)) {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);
-					portafirmesPluginFluxSimple = (PortafirmesPluginFluxSimple)clazz.newInstance();
+					portasignaturesPlugin = (PortasignaturesPlugin)clazz.newInstance();
 				} catch (Exception ex) {
 					throw tractarExcepcioEnSistemaExtern(
 							MonitorIntegracioHelper.INTCODI_PFIRMA,
@@ -4457,7 +4456,7 @@ public class PluginHelper {
 						null);
 			}
 		}
-		return portafirmesPluginFluxSimple;
+		return portasignaturesPlugin;
 	}
 	
 	private CustodiaPlugin getCustodiaPlugin() {
