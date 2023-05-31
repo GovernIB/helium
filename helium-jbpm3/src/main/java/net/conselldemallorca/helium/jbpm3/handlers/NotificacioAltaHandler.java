@@ -426,7 +426,7 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 				executionContext,
 				entregaPostalActiva,
 				varEntregaPostalActiva);
-		enviament.setEntregaPostalActiva(entregaPostalActivaVal != null ? entregaPostalActivaVal.booleanValue() : false);
+		enviament.setEntregaPostalActiva(false); //(entregaPostalActivaVal != null ? entregaPostalActivaVal.booleanValue() : false); //Forcem false issue #1675
 		String strEntregaPostalViaTipus = (String)getValorOVariable(
 				executionContext,
 				entregaPostalViaTipus,

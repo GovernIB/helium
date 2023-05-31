@@ -584,7 +584,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 							interessat.getEmail(), 
 							interessat.getTelefon(),
 							expedient,
-							interessat.getAdresa() != null && interessat.getCp() != null, // entregaPostal
+							false, //interessat.getAdresa() != null && interessat.getCp() != null, // entregaPostalActiva o el nom correcte de la propietat //Forcem false issue #1675
 							EntregaPostalTipus.SENSE_NORMALITZAR,
 							interessat.getAdresa(), // adreça línia 1
 							null, // linia2,

@@ -82,6 +82,7 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 							enviamentNotib.getDestinataris().add(toPersonaNotib(destinatari));
 						}
 					}
+					enviament.setEntregaPostalActiva(false);//Forcem false issue #1675
 					enviamentNotib.setEntregaPostalActiva(enviament.isEntregaPostalActiva());
 					if (enviament.isEntregaPostalActiva()) {
 						EntregaPostal entregaPostal = new EntregaPostal();
