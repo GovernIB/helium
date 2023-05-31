@@ -2080,8 +2080,8 @@ public class ExpedientService {
 	public List<JbpmProcessInstance> findProcessInstancesWithProcessDefinitionName(String jbpmKey) {
 		return jbpmHelper.findProcessInstancesWithProcessDefinitionName(jbpmKey);
 	}
-	public List<JbpmProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(String jbpmKey, Long entornId) {
-		return jbpmHelper.findProcessInstancesWithProcessDefinitionNameAndEntorn(jbpmKey, entornId);
+	public List<JbpmProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(String jbpmKey, Long entornId, Long expedientTipusId) {
+		return jbpmHelper.findProcessInstancesWithProcessDefinitionNameEntornAndTipus(jbpmKey, entornId, expedientTipusId);
 	}
 	public Accio getAccio(
 			String processInstanceId,

@@ -680,12 +680,13 @@ public class JbpmHelper {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<JbpmProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(String processName, Long entornId) {
+	public List<JbpmProcessInstance> findProcessInstancesWithProcessDefinitionNameEntornAndTipus(String processName, Long entornId, Long expedientTipusId) {
 		//adminService.mesuraIniciar("jBPM findProcessInstancesWithProcessDefinitionNameAndEntorn", "jbpmDao");
 		List<JbpmProcessInstance> resultat = new ArrayList<JbpmProcessInstance>();
 		GetProcessInstancesEntornCommand command = new GetProcessInstancesEntornCommand();
 		command.setProcessDefinitionName(processName);
 		command.setEntornId(entornId);
+		command.setExpedientTipusId(expedientTipusId);
 		for (ProcessInstance pd: (List<ProcessInstance>)commandService.execute(command)) {
 			resultat.add(new JbpmProcessInstance(pd));
 		}

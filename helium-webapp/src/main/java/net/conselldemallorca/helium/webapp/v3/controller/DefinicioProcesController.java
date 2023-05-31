@@ -700,8 +700,9 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		    				dto.setParam2(execucioMassivaService.serialize(Integer.valueOf(definicioProces.getVersio())));
 		    				dto.setTipus(ExecucioMassivaTipusDto.ACTUALITZAR_VERSIO_DEFPROC);
 		    				dto.setProcInstIds(
-		    						expedientService.findProcesInstanceIdsAmbEntornAndProcessDefinitionName(
+		    						expedientService.findProcesInstanceIdsAmbEntornTipusAndProcessDefinitionName(
 							    						entornActual.getId(),
+							    						definicioProces.getExpedientTipus() != null? definicioProces.getExpedientTipus().getId() : null,
 							    						definicioProces.getJbpmKey()));
 		        			try {
 		        				execucioMassivaService.crearExecucioMassiva(dto);

@@ -2951,17 +2951,20 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<String> findProcesInstanceIdsAmbEntornAndProcessDefinitionName(
+	public List<String> findProcesInstanceIdsAmbEntornTipusAndProcessDefinitionName(
 			Long entornId, 
+			Long expedientTipusId,
 			String jbpmKey) {
-		logger.debug("Consultant instancies de procés amb entorn i process definition name(" + 
-			"entornId = " + entornId + 
+		logger.debug("Consultant instancies de procés amb entorn, tipus i process definition name(" + 
+				"entornId = " + entornId + 
+			", expedientTipusId = " + expedientTipusId + 
 			", jbpmKey = " + jbpmKey + ")");
 		List<String> processInstancesIds = new ArrayList<String>();
 		for (JbpmProcessInstance processInstance : 
-			jbpmHelper.findProcessInstancesWithProcessDefinitionNameAndEntorn(
+			jbpmHelper.findProcessInstancesWithProcessDefinitionNameEntornAndTipus(
 					jbpmKey, 
-					entornId))
+					entornId,
+					expedientTipusId))
 			processInstancesIds.add(processInstance.getId());
 		return processInstancesIds;
 	}
