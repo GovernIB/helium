@@ -32,6 +32,7 @@ import es.caib.plugins.arxiu.api.DocumentEstat;
 import es.caib.plugins.arxiu.api.Firma;
 import es.caib.plugins.arxiu.api.FirmaPerfil;
 import es.caib.plugins.arxiu.api.FirmaTipus;
+import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
@@ -2817,13 +2818,7 @@ public class DocumentHelperV3 {
 	 * invàlids. També treu el punt final en cas d'haver-n'hi.
 	 */
 	public static String revisarContingutNom(String nom) {
-		if (nom != null) {
-			nom = nom.replaceAll("[\\s\\']", " ").replaceAll("[^\\wçñàáèéíïòóúüÇÑÀÁÈÉÍÏÒÓÚÜ()\\-,\\.·\\s]", "").trim();
-			if (nom.endsWith(".")) {
-				nom = nom.substring(0, nom.length()-1);
-			}
-		}
-		return nom;
+		return ArxiuConversioHelper.revisarContingutNom(nom);
 	}
 
 

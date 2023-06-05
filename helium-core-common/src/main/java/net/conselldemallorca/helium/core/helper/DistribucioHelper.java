@@ -1258,6 +1258,8 @@ public class DistribucioHelper {
 						resposta.setArxiuContingut(contingut);
 					}
 				}
+			} else {
+				resposta.setUuid(document.getUuid());	
 			}
 		}
 		return resposta;
