@@ -37,7 +37,7 @@ public class GetProcessInstancesEntornCommand extends AbstractGetObjectBaseComma
     		" from org.jbpm.graph.exe.ProcessInstance as pi,"
     		+ "	   net.conselldemallorca.helium.core.model.hibernate.Expedient e ");
     if (expedientTipusId == null) {
-    	queryText.append("	   net.conselldemallorca.helium.core.model.hibernate.DefinicioProces dp ");
+    	queryText.append("	   ,net.conselldemallorca.helium.core.model.hibernate.DefinicioProces dp ");
     }
     queryText.append(
     		" where pi.end = null " +
@@ -61,7 +61,7 @@ public class GetProcessInstancesEntornCommand extends AbstractGetObjectBaseComma
     		.setString("processDefinitionName", processDefinitionName)
     		.setLong("entornId", entornId);
     if (this.expedientTipusId != null) {
-    	query.setLong(":expedientTipusId", this.expedientTipusId);
+    	query.setLong("expedientTipusId", this.expedientTipusId);
     }
     
     return retrieveProcessInstanceDetails(query.list());

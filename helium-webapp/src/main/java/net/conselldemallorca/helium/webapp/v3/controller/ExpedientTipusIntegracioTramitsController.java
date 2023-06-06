@@ -343,7 +343,10 @@ public class ExpedientTipusIntegracioTramitsController extends BaseExpedientTipu
 				expedientTipusId);
 		DefinicioProcesDto definicioProces = null;
 		if (!expedientTipus.isAmbInfoPropia() && expedientTipus.getJbpmProcessDefinitionKey() != null)
-			definicioProces = definicioProcesService.findByEntornIdAndJbpmKey(entornId, expedientTipus.getJbpmProcessDefinitionKey());
+			definicioProces = definicioProcesService.findByEntornTipusIdAndJbpmKey(
+					entornId,
+					expedientTipusId,
+					expedientTipus.getJbpmProcessDefinitionKey());
 		
 		if (tipus.equals(TipusMapeig.Variable)) {
 			// Variables

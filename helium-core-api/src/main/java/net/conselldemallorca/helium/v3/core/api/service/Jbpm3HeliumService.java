@@ -161,12 +161,14 @@ public interface Jbpm3HeliumService {
 	 * seu entorn i la clau jBPM.
 	 * 
 	 * @param entornId
+	 * @param expedientTipusId
 	 * @param jbpmKey
 	 * @return
 	 * @throws EntornNotFoundException
 	 */
 	public DefinicioProcesDto getDarreraVersioAmbEntornIJbpmKey(
 			Long entornId,
+			Long expedientTipusId,
 			String jbpmKey) throws NoTrobatException;
 
 	/**

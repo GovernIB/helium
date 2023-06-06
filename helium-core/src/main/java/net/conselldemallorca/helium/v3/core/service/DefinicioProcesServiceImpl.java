@@ -141,20 +141,24 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public DefinicioProcesDto findByEntornIdAndJbpmKey(
+	public DefinicioProcesDto findByEntornTipusIdAndJbpmKey(
 			Long entornId, 
+			Long expedientTipusId,
 			String jbpmKey) {
 		logger.debug(
-				"Consultant darrera versió definicio proces amb entornId i jbpmKey (" +
+				"Consultant darrera versió definicio proces amb entornId, expedientTipusId i jbpmKey (" +
 				"entornId=" + entornId + ", " +
+				"expedientTipusId=" + expedientTipusId + ", " +
 				"jbmpKey = " + jbpmKey + ")");
 
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
 				true);
 		
-		DefinicioProces definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
+		DefinicioProces definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornTipusIJbpmKey(
 				entorn.getId(), 
+				expedientTipusId == null,
+				expedientTipusId != null ? expedientTipusId : 0L,				
 				jbpmKey);
 		
 		DefinicioProcesDto dto = null;
@@ -389,11 +393,12 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				"entornId=" + entornId + ", " +
 				"definicioProcesId = " + definicioProcesId + ")");
 		DefinicioProces definicioProces = definicioProcesRepository.findById(definicioProcesId);
+		Long expedientTipusId = null;
 		// Control d'accés
-		if (definicioProces.getExpedientTipus() != null)			
-			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
-					definicioProces.getExpedientTipus().getId());
-		else
+		if (definicioProces.getExpedientTipus() != null) {	
+			expedientTipusId = definicioProces.getExpedientTipus().getId();
+			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+		} else
 			entornHelper.getEntornComprovantPermisos(EntornActual.getEntornId(), true, true);
 
 		jbpmHelper.esborrarDesplegament(
@@ -405,8 +410,10 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				&& definicioProces.getJbpmKey().equals(definicioProces.getExpedientTipus().getJbpmProcessDefinitionKey())) {
 			ExpedientTipus expedientTipus = expedientTipusRepository.findOne(definicioProces.getExpedientTipus().getId());
 			// Troba la darrera definició de procés
-			definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
+			definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornTipusIJbpmKey(
 					expedientTipus.getEntorn().getId(), 
+					expedientTipusId == null,
+					expedientTipusId != null ? expedientTipusId : 0L,
 					definicioProces.getJbpmKey());
 			if (definicioProces == null) {
 				expedientTipus.setJbpmProcessDefinitionKey(null);

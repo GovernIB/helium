@@ -351,11 +351,14 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public DefinicioProcesDto getDarreraVersioAmbEntornIJbpmKey(
 			Long entornId,
+			Long expedientTipusId,
 			String jbpmKey) {
-		logger.debug("Obtenint la darrera versió de la definició de procés donat l'entorn i el codi jBPM (entornId=" + entornId + ", jbpmKey=" + jbpmKey + ")");
+		logger.debug("Obtenint la darrera versió de la definició de procés donat l'entorn, tipus i el codi jBPM (entornId=" + entornId + ", expedientTipusId=" + expedientTipusId + ", jbpmKey=" + jbpmKey + ")");
 		return conversioTipusHelper.convertir(
-				definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
+				definicioProcesRepository.findDarreraVersioAmbEntornTipusIJbpmKey(
 						entornId,
+						expedientTipusId == null,
+						expedientTipusId != null? expedientTipusId : 0L,
 						jbpmKey),
 				DefinicioProcesDto.class);
 	}

@@ -41,8 +41,8 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public DefinicioProcesDto findByEntornIdAndJbpmKey(Long entornId, String jbpmKey) {
-		return delegate.findByEntornIdAndJbpmKey(entornId, jbpmKey);
+	public DefinicioProcesDto findByEntornTipusIdAndJbpmKey(Long entornId, Long expedientTipusId, String jbpmKey) {
+		return delegate.findByEntornTipusIdAndJbpmKey(entornId, expedientTipusId, jbpmKey);
 	}
 
 	@Override

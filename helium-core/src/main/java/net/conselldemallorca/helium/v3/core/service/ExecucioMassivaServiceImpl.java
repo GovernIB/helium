@@ -2213,12 +2213,17 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			// passar l'id de la consulta
 			Consulta consulta = consultaRepository.findById(ome.getDefinicioProcesId());
 			Camp camp;
+			Long expedientTipusId = ome.getExecucioMassiva().getExpedientTipus().getId();
 			// Per cada variable de tipus informe o filtre
 			for (ConsultaCamp consultaCamp : consulta.getCamps()) {
 				if (consultaCamp.getTipus() != TipusConsultaCamp.PARAM && consultaCamp.getDefprocJbpmKey() != null) {
 					// Recupera la darrera versió de la definició de procés
 					DefinicioProces definicioDarrera = definicioProcesRepository
-							.findDarreraVersioAmbEntornIJbpmKey(entorn.getId(), consultaCamp.getDefprocJbpmKey());
+							.findDarreraVersioAmbEntornTipusIJbpmKey(
+									entorn.getId(),
+									false,
+									expedientTipusId,
+									consultaCamp.getDefprocJbpmKey());
 					if (consultaCamp.getDefprocVersio() != definicioDarrera.getVersio()) {
 						camp = campRepository.findByDefinicioProcesAndCodi(definicioDarrera,
 								consultaCamp.getCampCodi());
