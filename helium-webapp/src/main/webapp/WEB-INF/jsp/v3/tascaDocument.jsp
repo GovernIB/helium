@@ -76,7 +76,7 @@
 							<c:if test="${document.plantilla and document.adjuntarAuto}">
 							</c:if>
 							title="<spring:message code='expedient.massiva.tasca.doc.generar' />">
-							<i class="fa fa-file-text-o"></i>MARTA
+							<i class="fa fa-file-text-o"></i>
 						</a>
 		 			</c:if>
 		 			
