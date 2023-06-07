@@ -31,22 +31,23 @@ public class UpdateSubprocessDefinitionCommand extends AbstractGetObjectBaseComm
 
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
+		
 		SQLQuery updateQuery = jbpmContext.getSession().createSQLQuery(
 				"update jbpm_node " +
-				"set subprocessdefinition_ = ? " +
+				"set subprocessdefinition_ = :subprocessDefinitionId " +
 				"where id_ in (  " +
 				"	select n.id_  " +
 				"	from jbpm_node n  " +
-				"		inner join jbpm_processdefinition pd on n.subprocessdefinition_ = pd.id_  " +
 				"	where  " +
-				"		pd.name_ = ? " +
-				"		and n.processdefinition_ = ? " +
+				"		n.processdefinition_ = :processDefinitionId " +
+				"		and n.subprocname_ = :subprocessDefinitionName " +
 				")");
-		updateQuery.setLong(0, subprocessDefinition.getId());
-		updateQuery.setString(1, subprocessDefinition.getName());
-		updateQuery.setLong(2, processDefinition.getId());
+		updateQuery.setLong("subprocessDefinitionId", subprocessDefinition.getId());
+		updateQuery.setLong("processDefinitionId", processDefinition.getId());
+		updateQuery.setString("subprocessDefinitionName", subprocessDefinition.getName());
 		int result = updateQuery.executeUpdate();
 		return result;
+
 	}
 
 	public ProcessDefinition getProcessDefinition() {
