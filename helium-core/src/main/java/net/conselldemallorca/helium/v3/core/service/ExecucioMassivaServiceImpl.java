@@ -2366,6 +2366,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			String errMsg = "Error no controlat en l'execució massiva d'alta d'expedient per CSV: " + ex.getMessage();
 			logger.error(errMsg, ex);
 			errText.append(errMsg);
+		} catch (Throwable e) {
+			Throwable t = ExceptionUtils.getRootCause(e) != null? ExceptionUtils.getCause(e) : e ;
+			throw new Exception(messageHelper.getMessage("error.proces.peticio") + ": "
+				+ ExceptionUtils.getRootCauseMessage(e), t);
 		}
 		ome.setError(errText.length() > 0 ? errText.toString() : null);
 		ome.setDataFi(new Date());

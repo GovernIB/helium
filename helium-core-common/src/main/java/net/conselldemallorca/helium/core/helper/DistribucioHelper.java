@@ -735,36 +735,52 @@ public class DistribucioHelper {
 					adjunts = resultatMapeig.getAdjunts();
 				}
 				// Crear l'expedient
-				expedient = expedientHelper.iniciar(
-						expedientTipus.getEntorn().getId(), //entornId
-						null, //usuari, 
-						expedientTipus.getId(), //expedientTipusId, 
-						null, //definicioProcesId,
-						null, //any, 
-						expedientTipus.getDemanaNumero() ? anotacio.getIdentificador() : null, //numero, 
-						expedientTipus.getDemanaTitol() ? anotacio.getExtracte() : null, //titol, 
-						anotacio.getIdentificador(), //registreNumero, 
-						anotacio.getData(), //registreData, 
-						null, //unitatAdministrativa, 
-						null, //idioma, 
-						false, //autenticat, 
-						null, //tramitadorNif, 
-						null, //tramitadorNom, 
-						null, //interessatNif, 
-						null, //interessatNom, 
-						null, //representantNif, 
-						null, //representantNom, 
-						false, //avisosHabilitats, 
-						null, //avisosEmail, 
-						null, //avisosMobil, 
-						false, //notificacioTelematicaHabilitada, 
-						variables, //variables, 
-						null, //transitionName, 
-						IniciadorTipusDto.INTERN, //IniciadorTipus 
-						null, //iniciadorCodi, 
-						null, //responsableCodi, 
-						documents, //documents, 
-						adjunts); //adjunts);
+				try {
+					expedient = expedientHelper.iniciar(
+							expedientTipus.getEntorn().getId(), //entornId
+							null, //usuari, 
+							expedientTipus.getId(), //expedientTipusId, 
+							null, //definicioProcesId,
+							null, //any, 
+							expedientTipus.getDemanaNumero() ? anotacio.getIdentificador() : null, //numero, 
+							expedientTipus.getDemanaTitol() ? anotacio.getExtracte() : null, //titol, 
+							anotacio.getIdentificador(), //registreNumero, 
+							anotacio.getData(), //registreData, 
+							null, //unitatAdministrativa, 
+							null, //idioma, 
+							false, //autenticat, 
+							null, //tramitadorNif, 
+							null, //tramitadorNom, 
+							null, //interessatNif, 
+							null, //interessatNom, 
+							null, //representantNif, 
+							null, //representantNom, 
+							false, //avisosHabilitats, 
+							null, //avisosEmail, 
+							null, //avisosMobil, 
+							false, //notificacioTelematicaHabilitada, 
+							variables, //variables, 
+							null, //transitionName, 
+							IniciadorTipusDto.INTERN, //IniciadorTipus 
+							null, //iniciadorCodi, 
+							null, //responsableCodi, 
+							documents, //documents, 
+							adjunts); //adjunts);
+				} catch (Throwable e) {
+					String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + exceptionHelper.getRouteCauses(e);
+					this.updateErrorProcessament(anotacio.getId(), errorProcessament);
+					logger.error(errorProcessament, e);
+					 //Es comunica l'estat a Distribucio
+					try {
+						this.canviEstat(
+								idWs, 
+								es.caib.distribucio.rest.client.domini.Estat.ERROR,
+								errorProcessament);
+					} catch(Exception ed) {
+						logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
+					}
+					throw new Exception(errorProcessament, e);
+				}				
 				if (resultatMapeig != null && resultatMapeig.isError()) {
 					Alerta alerta = alertaHelper.crearAlerta(
 							expedient.getEntorn(), 

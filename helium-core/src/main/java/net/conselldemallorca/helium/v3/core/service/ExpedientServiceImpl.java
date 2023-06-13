@@ -20,6 +20,7 @@ import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -426,7 +427,11 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					ex.getCause());
 		} catch (ValidationException ex) {
 			throw new TramitacioValidacioException("Error de validació en Handler", ex);
-		}
+		} catch (Exception e) {
+			Throwable t = ExceptionUtils.getRootCause(e) != null? ExceptionUtils.getCause(e) : e ;
+			throw new Exception(messageHelper.getMessage("error.proces.peticio") + ": "
+					+ ExceptionUtils.getRootCauseMessage(e), t);
+		} 
 	}
 
 
