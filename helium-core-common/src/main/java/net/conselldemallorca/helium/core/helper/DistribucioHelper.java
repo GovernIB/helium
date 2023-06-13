@@ -535,7 +535,7 @@ public class DistribucioHelper {
 		 			canal (interessat.getRepresentant().getCanal()).
 		 			cp (interessat.getRepresentant().getCp()).
 		 			documentNumero (interessat.getRepresentant().getDocumentNumero()).
-		 			documentTipus (interessat.getRepresentant().getDocumentTipus().name()).
+		 			documentTipus (interessat.getRepresentant().getDocumentTipus() != null ? interessat.getRepresentant().getDocumentTipus().name() : null).
 		 			email (interessat.getRepresentant().getEmail()).
 		 			llinatge1 (interessat.getRepresentant().getLlinatge1()).
 		 			llinatge2 (interessat.getRepresentant().getLlinatge2()).
