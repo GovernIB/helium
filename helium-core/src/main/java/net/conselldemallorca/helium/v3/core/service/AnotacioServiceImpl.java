@@ -736,25 +736,9 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot reprocessar perquè està en estat " + anotacio.getEstat() + (anotacio.getExpedient() != null ? " i té un expedient associat" : ""));
 		}
 		try {
-			anotacio = distribucioHelper.reprocessarAnotacio(anotacioId);
+			anotacio = distribucioHelper.reprocessarAnotacio(anotacioId);//aquí es controla l'excepció i el canvi d'estat a Distribució
 		} catch(Throwable e) {
-			AnotacioRegistreId idWs = new AnotacioRegistreId();
-			idWs.setIndetificador(anotacio.getIdentificador());
-			idWs.setClauAcces(anotacio.getDistribucioClauAcces());
-			String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + exceptionHelper.getRouteCauses(e);
-			anotacio = distribucioHelper.updateErrorProcessament(anotacio.getId(), errorProcessament);
-			logger.error(errorProcessament, e);
-			// Es comunica l'estat a Distribucio
-			try {
-				distribucioHelper.canviEstat(
-						idWs, 
-						es.caib.distribucio.rest.client.domini.Estat.ERROR,
-						errorProcessament);
-			} catch(Exception ed) {
-				logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
-			}
-			throw new Exception(errorProcessament, e);
-			
+			throw new Exception(e);	
 		}
 		return conversioTipusHelper.convertir(
 				anotacio,

@@ -767,7 +767,7 @@ public class DistribucioHelper {
 							documents, //documents, 
 							adjunts); //adjunts);
 				} catch (Throwable e) {
-					String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + exceptionHelper.getRouteCauses(e);
+					String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e;
 					this.updateErrorProcessament(anotacio.getId(), errorProcessament);
 					logger.error(errorProcessament, e);
 					 //Es comunica l'estat a Distribucio
@@ -779,7 +779,7 @@ public class DistribucioHelper {
 					} catch(Exception ed) {
 						logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
 					}
-					throw new Exception(errorProcessament, e);
+					throw new Exception(errorProcessament);
 				}				
 				if (resultatMapeig != null && resultatMapeig.isError()) {
 					Alerta alerta = alertaHelper.crearAlerta(
@@ -904,21 +904,9 @@ public class DistribucioHelper {
 			// Torna a consultar si està relacionat amb un tipus d'expedient i/o expedient
 			this.updateRelacioExpedientTipus(anotacio);
 			// Reprocessa l'anotació
-			this.processarAnotacio(idWs, anotacioRegistreEntrada, anotacio);
+			this.processarAnotacio(idWs, anotacioRegistreEntrada, anotacio);//aquí ja es comunica l'error i el canvi d'estat a Distribució
 		} catch (Throwable e) {
-			String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + exceptionHelper.getRouteCauses(e);
-			this.updateErrorProcessament(anotacio.getId(), errorProcessament);
-			logger.error(errorProcessament, e);
-			// Es comunica l'estat a Distribucio
-			try {
-				this.canviEstat(
-						idWs, 
-						es.caib.distribucio.rest.client.domini.Estat.ERROR,
-						errorProcessament);
-			} catch(Exception ed) {
-				logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
-			}
-			throw new Exception(errorProcessament, e);
+			throw new Exception(e);
 		}
 		return anotacio;
 	}

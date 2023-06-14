@@ -1745,9 +1745,9 @@ public class ExpedientHelper {
 				} catch(Exception re) {
 					logger.error("Error esborrant l'expedient " + expedientPerRetornar.getIdentificador() + " amb uuid " + arxiuUuid + " :" + re.getMessage());
 				}
-			Throwable t = ExceptionUtils.getRootCause(ex) != null? ExceptionUtils.getCause(ex) : ex ;
+			
 			throw new RuntimeException(messageHelper.getMessage("error.proces.peticio") + ": "
-					+ ExceptionUtils.getRootCauseMessage(ex), t);
+					+ ExceptionUtils.getRootCauseMessage(ex));
 		}
 		
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom());
