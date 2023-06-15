@@ -2132,23 +2132,22 @@ public class PluginHelper {
 			nouNomExpedient = this.treureCaractersEstranys(identificador);
 			if (n > 0) {
 				sufix = "_" + n;
-				nouNomExpedient = nouNomExpedient.substring(0, Math.min(nouNomExpedient.length(), MAX_LENGTH_ARXIU) - sufix.length()) + sufix; 
+				nouNomExpedient = nouNomExpedient.substring(0, Math.min(nouNomExpedient.length(), MAX_LENGTH_ARXIU)); 
+				if(nouNomExpedient.length()+sufix.length()>=MAX_LENGTH_ARXIU)
+						nouNomExpedient= nouNomExpedient.substring(0,nouNomExpedient.length() - sufix.length());
+				nouNomExpedient = nouNomExpedient + sufix;
 			} else {
 				nouNomExpedient = nouNomExpedient.substring(0, Math.min(nouNomExpedient.length(), MAX_LENGTH_ARXIU));
 			}
 			nomExistent = false;
 			consultaFiltre.setValorOperacio1(nouNomExpedient);
 			consultaResultat = getArxiuPlugin().expedientConsulta(filtre, 0, 50);
-			if (consultaResultat != null && consultaResultat.getResultats()!=null && consultaResultat.getResultats().size() > 0) {
-				if (uuid != null) {
-					for (ContingutArxiu contingut : consultaResultat.getResultats()) {
-						if (!contingut.getIdentificador().equals(uuid)) {
-							nomExistent = true;
-							break;
-						}
+			if (consultaResultat != null && consultaResultat.getResultats()!=null && consultaResultat.getResultats().size() > 0 || uuid==null) {
+				for (ContingutArxiu contingut : consultaResultat.getResultats()) {
+					if (!contingut.getIdentificador().equals(uuid)) {
+						nomExistent = true;
+						break;
 					}
-				} else {
-					nomExistent = true;
 				}
 				n++;
 			}
