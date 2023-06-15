@@ -405,19 +405,23 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 				definicioProces.getJbpmId());
 		// 
 		definicioProcesRepository.delete(definicioProces);
-		// Si era darrera versió de la definició de procés inicial del tipus d'expedient posa la propietat a null
-		if (definicioProces.getExpedientTipus() != null
-				&& definicioProces.getJbpmKey().equals(definicioProces.getExpedientTipus().getJbpmProcessDefinitionKey())) {
+		if (definicioProces.getExpedientTipus() != null) {
 			ExpedientTipus expedientTipus = expedientTipusRepository.findOne(definicioProces.getExpedientTipus().getId());
-			// Troba la darrera definició de procés
-			definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornTipusIJbpmKey(
-					expedientTipus.getEntorn().getId(), 
-					expedientTipusId == null,
-					expedientTipusId != null ? expedientTipusId : 0L,
-					definicioProces.getJbpmKey());
-			if (definicioProces == null) {
-				expedientTipus.setJbpmProcessDefinitionKey(null);
-				expedientTipusRepository.save(expedientTipus);
+			// Si era darrera versió de la definició de procés inicial del tipus d'expedient posa la propietat a null
+			if (definicioProces.getJbpmKey().equals(definicioProces.getExpedientTipus().getJbpmProcessDefinitionKey())) {
+				// Troba la darrera definició de procés
+				definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornTipusIJbpmKey(
+						expedientTipus.getEntorn().getId(), 
+						expedientTipusId == null,
+						expedientTipusId != null ? expedientTipusId : 0L,
+						definicioProces.getJbpmKey());
+				if (definicioProces == null) {
+					expedientTipus.setJbpmProcessDefinitionKey(null);
+					expedientTipusRepository.save(expedientTipus);
+				}
+			} else {
+				expedientTipus.getDefinicionsProces().remove(definicioProces);
+				definicioProcesHelper.relacionarDarreresVersionsDefinicionsProces(expedientTipus.getDefinicionsProces());
 			}
 		}
 	}
