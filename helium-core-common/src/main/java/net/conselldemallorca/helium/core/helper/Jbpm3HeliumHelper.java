@@ -496,6 +496,17 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				interessat.getCodiPostal(),
 				interessat.getEntregaDeh(),
 				interessat.getEntregaDehObligat());
+		if(expedient.getInteressats()!=null)
+			expedient.getInteressats().add(interessatEntity);
+		else {
+			List<Interessat> interessatsList = new ArrayList<Interessat>();
+			interessatsList.add(interessatEntity);
+			expedient.setInteressats(interessatsList);
+		}
+		if (expedient.isArxiuActiu()) {
+			// Modifiquem l'expedient a l'arxiu.
+			pluginHelper.arxiuExpedientModificar(expedient);
+		}
 		
 		interessatRepository.save(interessatEntity);
 	}
@@ -530,6 +541,11 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		interessatEntity.setCodiPostal(interessat.getCodiPostal());
 		interessatEntity.setEntregaDeh(interessat.getEntregaDeh());
 		interessatEntity.setEntregaDehObligat(interessat.getEntregaDehObligat());
+		
+		if (expedient.isArxiuActiu()) {
+			// Modifiquem l'expedient a l'arxiu.
+			pluginHelper.arxiuExpedientModificar(expedient);
+		}
 	}
 	
 	
@@ -614,7 +630,10 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		interessats.remove(interessatEntity);
 		expedient.setInteressats(interessats);
 		interessatRepository.delete(interessatEntity);
-		
+		if (expedient.isArxiuActiu()) {
+			// Modifiquem l'expedient a l'arxiu.
+			pluginHelper.arxiuExpedientModificar(expedient);
+		}
 	}
 	
 

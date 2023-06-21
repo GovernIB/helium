@@ -61,6 +61,7 @@ import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Interessat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
@@ -2099,7 +2100,7 @@ public class PluginHelper {
 							expedient.getDataInici(),
 							obtenirNtiClasificacion(expedient),
 							false,
-							null,
+							this.interessatsCodis(expedient.getInteressats()),
 							obtenirNtiSerieDocumental(expedient),
 							expedient.getArxiuUuid()));
 			monitorIntegracioHelper.addAccioOk(
@@ -2197,7 +2198,7 @@ public class PluginHelper {
 							expedient.getDataInici(),
 							obtenirNtiClasificacion(expedient),
 							expedient.getDataFi() != null,
-							null,
+							this.interessatsCodis(expedient.getInteressats()),
 							obtenirNtiSerieDocumental(expedient),
 							expedient.getArxiuUuid()));
 			monitorIntegracioHelper.addAccioOk(
@@ -2219,6 +2220,17 @@ public class PluginHelper {
 			throw tractarExcepcioEnSistemaExtern(MonitorIntegracioHelper.INTCODI_ARXIU,errorDescripcio, ex);
 		}
 	}
+	
+	private List<String> interessatsCodis( List<Interessat> interessatsExpedient) {
+		List<String> interessatsCodisToReturn = new ArrayList<String>();
+		if (interessatsExpedient != null) {
+			for (Interessat interessat : interessatsExpedient) {	
+				interessatsCodisToReturn.add(interessat.getCodi());		
+			}	
+		}
+		return interessatsCodisToReturn;
+	}
+	
 	
 	public void arxiuExpedientTancar(
 			String arxiuUuid) {

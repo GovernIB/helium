@@ -740,7 +740,8 @@ public class ExpedientHelper {
 		}else {
 			//firmem els documents que no estan firmats
 			firmarDocumentsPerArxiuFiExpedient(expedient);	
-			
+			// Modifiquem l'expedient a l'arxiu.
+			pluginHelper.arxiuExpedientModificar(expedient);
 			// Tanca l'expedient a l'arxiu.
 			ExpedientMetadades metadades = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid()).getMetadades();
 			if(metadades.getEstat() != ExpedientEstat.TANCAT) {
