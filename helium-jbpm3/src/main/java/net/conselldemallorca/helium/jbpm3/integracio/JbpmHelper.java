@@ -664,28 +664,15 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM findProcessInstancesWithProcessDefinitionId", "jbpmDao");
 		return resultat;
 	}
-
 	
 	@SuppressWarnings("unchecked")
-	public List<JbpmProcessInstance> findProcessInstancesWithProcessDefinitionName(String processName) {
-		//adminService.mesuraIniciar("jBPM findProcessInstancesWithProcessDefinitionName", "jbpmDao");
-		List<JbpmProcessInstance> resultat = new ArrayList<JbpmProcessInstance>();
-		GetProcessInstancesCommand command = new GetProcessInstancesCommand();
-		command.setProcessDefinitionName(processName);
-		for (ProcessInstance pd: (List<ProcessInstance>)commandService.execute(command)) {
-			resultat.add(new JbpmProcessInstance(pd));
-		}
-		//adminService.mesuraCalcular("jBPM findProcessInstancesWithProcessDefinitionName", "jbpmDao");
-		return resultat;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public List<JbpmProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(String processName, Long entornId) {
+	public List<JbpmProcessInstance> findProcessInstancesWithProcessDefinitionNameEntornAndTipus(String processName, Long entornId, Long expedientTipusId) {
 		//adminService.mesuraIniciar("jBPM findProcessInstancesWithProcessDefinitionNameAndEntorn", "jbpmDao");
 		List<JbpmProcessInstance> resultat = new ArrayList<JbpmProcessInstance>();
 		GetProcessInstancesEntornCommand command = new GetProcessInstancesEntornCommand();
 		command.setProcessDefinitionName(processName);
 		command.setEntornId(entornId);
+		command.setExpedientTipusId(expedientTipusId);
 		for (ProcessInstance pd: (List<ProcessInstance>)commandService.execute(command)) {
 			resultat.add(new JbpmProcessInstance(pd));
 		}

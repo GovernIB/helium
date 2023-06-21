@@ -32,6 +32,7 @@ import es.caib.plugins.arxiu.api.DocumentEstat;
 import es.caib.plugins.arxiu.api.Firma;
 import es.caib.plugins.arxiu.api.FirmaPerfil;
 import es.caib.plugins.arxiu.api.FirmaTipus;
+import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
@@ -1834,9 +1835,7 @@ public class DocumentHelperV3 {
 		
 		if (documentStore.getArxiuUuid() != null) {
 			// Guardar firma a l'Arxiu
-			
-			String documentNom = inArxiu(processInstanceId, documentStore.getArxiuUuid(), arxiuNom);
-			
+						
 			ArxiuDto arxiuFirmat = new ArxiuDto();
 			es.caib.plugins.arxiu.api.Document documentArxiu;
 						
@@ -1847,6 +1846,14 @@ public class DocumentHelperV3 {
 					false, 
 					true);
 			
+			// Mira que no hi hagi un document amb el mateix nom o que com a mínim sigui ell mateix en cas d'actualitzar
+			String documentNom = inArxiu(
+					processInstanceId, 
+					DocumentEstat.DEFINITIU.equals(documentArxiu.getEstat()) ? 
+							null 							// Nou document a l'Arxiu
+							: documentStore.getArxiuUuid(), // Actualització del documetn
+					arxiuNom);
+
 			if (documentArxiu != null && DocumentEstat.DEFINITIU.equals(documentArxiu.getEstat())) 
 			{
 				// El document ja està firmat a l'Arxiu, es guarda amb un altre uuid
@@ -2817,13 +2824,7 @@ public class DocumentHelperV3 {
 	 * invàlids. També treu el punt final en cas d'haver-n'hi.
 	 */
 	public static String revisarContingutNom(String nom) {
-		if (nom != null) {
-			nom = nom.replaceAll("[\\s\\']", " ").replaceAll("[^\\wçñàáèéíïòóúüÇÑÀÁÈÉÍÏÒÓÚÜ()\\-,\\.·\\s]", "").trim();
-			if (nom.endsWith(".")) {
-				nom = nom.substring(0, nom.length()-1);
-			}
-		}
-		return nom;
+		return ArxiuConversioHelper.revisarContingutNom(nom);
 	}
 
 

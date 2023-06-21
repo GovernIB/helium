@@ -54,6 +54,7 @@ import es.caib.plugins.arxiu.api.FirmaPerfil;
 import es.caib.plugins.arxiu.api.FirmaTipus;
 import es.caib.plugins.arxiu.api.IArxiuPlugin;
 import es.caib.plugins.arxiu.caib.ArxiuCaibException;
+import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
 import net.conselldemallorca.helium.core.helper.PortasignaturesHelper.PortasignaturesRollback;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
@@ -2137,24 +2138,28 @@ public class PluginHelper {
 		consultaFiltre2.setValorOperacio1(tipus != null ? tipus.getNtiSerieDocumental() : null);
 		filtre.add(consultaFiltre2);
 		ConsultaResultat consultaResultat = getArxiuPlugin().expedientConsulta(filtre, 0, 10);
+		String sufix = "";
+		int MAX_LENGTH_ARXIU = 255;
 		do {
 			nouNomExpedient = this.treureCaractersEstranys(identificador);
-			nomExistent = false;
 			if (n > 0) {
-				nouNomExpedient = this.treureCaractersEstranys(identificador + " (" + n+")");
+				sufix = "_" + n;
+				nouNomExpedient = nouNomExpedient.substring(0, Math.min(nouNomExpedient.length(), MAX_LENGTH_ARXIU)); 
+				if(nouNomExpedient.length()+sufix.length()>=MAX_LENGTH_ARXIU)
+						nouNomExpedient= nouNomExpedient.substring(0,nouNomExpedient.length() - sufix.length());
+				nouNomExpedient = nouNomExpedient + sufix;
+			} else {
+				nouNomExpedient = nouNomExpedient.substring(0, Math.min(nouNomExpedient.length(), MAX_LENGTH_ARXIU));
 			}
+			nomExistent = false;
 			consultaFiltre.setValorOperacio1(nouNomExpedient);
 			consultaResultat = getArxiuPlugin().expedientConsulta(filtre, 0, 50);
-			if (consultaResultat != null && consultaResultat.getResultats()!=null && consultaResultat.getResultats().size() > 0) {
-				if (uuid != null) {
-					for (ContingutArxiu contingut : consultaResultat.getResultats()) {
-						if (!contingut.getIdentificador().equals(uuid)) {
-							nomExistent = true;
-							break;
-						}
+			if (consultaResultat != null && consultaResultat.getResultats()!=null && consultaResultat.getResultats().size() > 0 || uuid==null) {
+				for (ContingutArxiu contingut : consultaResultat.getResultats()) {
+					if (!contingut.getIdentificador().equals(uuid)) {
+						nomExistent = true;
+						break;
 					}
-				} else {
-					nomExistent = true;
 				}
 				n++;
 			}
@@ -3609,13 +3614,7 @@ public class PluginHelper {
 	}
 
 	private String treureCaractersEstranys(String nom) {
-		if (nom != null) {
-			nom = nom.replaceAll("[\\s\\']", " ").replaceAll("[^\\wçñàáèéíïòóúüÇÑÀÁÈÉÍÏÒÓÚÜ()\\-,\\.·\\s]", "").trim();
-			if (nom.endsWith(".")) {
-				nom = nom.substring(0, nom.length()-1);
-			}
-		}
-		return nom;
+		return ArxiuConversioHelper.revisarContingutNom(nom);
 	}
 
 	private static List<NtiTipoFirmaEnumDto> TIPUS_FIRMES_ATTACHED = Arrays.asList(NtiTipoFirmaEnumDto.CADES_DET, NtiTipoFirmaEnumDto.PADES, NtiTipoFirmaEnumDto.XADES_ENV);

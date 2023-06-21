@@ -175,7 +175,10 @@ public class DefinicioProcesDeployController extends BaseController {
 					    				dto.setParam2(execucioMassivaService.serialize(Integer.valueOf(dp.getVersio())));
 //					    				dto.setExpedientTipusId(command.getExpedientTipusId());
 					    				dto.setTipus(ExecucioMassivaTipus.ACTUALITZAR_VERSIO_DEFPROC);
-					    				List<JbpmProcessInstance> procInstances = expedientService.findProcessInstancesWithProcessDefinitionNameAndEntorn(dp.getJbpmKey(), entorn.getId());
+					    				List<JbpmProcessInstance> procInstances = expedientService.findProcessInstancesWithProcessDefinitionNameAndEntorn(
+																		    						dp.getJbpmKey(), 
+																		    						entorn.getId(), 
+																		    						dp.getExpedientTipus() != null ? dp.getExpedientTipus().getId() : null);
 					    				List<String> pi_ids = new ArrayList<String>();
 //					    				List<Long> exp_ids = new ArrayList<Long>();
 					    				for (JbpmProcessInstance pi: procInstances) {

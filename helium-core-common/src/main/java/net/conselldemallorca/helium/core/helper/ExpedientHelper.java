@@ -17,6 +17,7 @@ import java.util.UUID;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.jbpm.jpdl.el.ELException;
 import org.jbpm.jpdl.el.ExpressionEvaluator;
@@ -1734,7 +1735,7 @@ public class ExpedientHelper {
 			logger.debug("Indexant nou expedient (id=" + expedient.getProcessInstanceId() + ")");
 			indexHelper.expedientIndexLuceneCreate(expedient.getProcessInstanceId());
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");			
-		} catch(Exception e) {
+		} catch( Throwable ex) {
 			// Rollback de la creació de l'expedient a l'arxiu
 			if (arxiuUuid != null)
 				try {
@@ -1744,7 +1745,9 @@ public class ExpedientHelper {
 				} catch(Exception re) {
 					logger.error("Error esborrant l'expedient " + expedientPerRetornar.getIdentificador() + " amb uuid " + arxiuUuid + " :" + re.getMessage());
 				}
-			throw e;
+			
+			throw new RuntimeException(messageHelper.getMessage("error.proces.peticio") + ": "
+					+ ExceptionUtils.getRootCauseMessage(ex));
 		}
 		
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom());

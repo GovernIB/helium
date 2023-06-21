@@ -1710,8 +1710,10 @@ public class TascaServiceImpl implements TascaService {
 		if (definicioProcesId != null) {
 			definicioProces = definicioProcesRepository.findById(definicioProcesId);
 		} else {
-			definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
-					expedientTipus.getEntorn().getId(), 
+			definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornTipusIJbpmKey(
+					expedientTipus.getEntorn().getId(),
+					false,
+					expedientTipusId,
 					expedientTipus.getJbpmProcessDefinitionKey());
 		}
 		if (definicioProcesId == null && definicioProces == null) {

@@ -31,14 +31,15 @@ public interface DefinicioProcesService {
 	public DefinicioProcesDto findById(Long definicioProcesId);
 
 	/**
-	 * Retorna la darrera versió de la definició de procés donat l'identificador de l'entorn
+	 * Retorna la darrera versió de la definició de procés donat l'identificador de l'entorn, l'identificador del tipus d'expedient i 
 	 * i l'identificador jbpm.
 	 * @param entornId
 	 * @param jbpmKey
 	 * @return
 	 */
-	public DefinicioProcesDto findByEntornIdAndJbpmKey(
+	public DefinicioProcesDto findByEntornTipusIdAndJbpmKey(
 			Long entornId, 
+			Long expedientTipusId,
 			String jbpmKey);
 
 	/**

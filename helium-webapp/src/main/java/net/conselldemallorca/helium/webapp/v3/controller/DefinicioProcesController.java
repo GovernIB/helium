@@ -114,31 +114,33 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			@PathVariable Long definicioProcesId,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		Long definicioProcesAnteriorId = null;
 		try {
 			DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyar(entornActual.getId(), definicioProcesId);
 			if (definicioProces == null)
 				throw new NoTrobatException(DefinicioProcesDto.class, definicioProcesId);
 
+			Long expedientTipusId = definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null;
+			
 			this.deleteDefinicioProces(entornActual.getId(), request, definicioProces);
 			
 			// Cerca la darrera definició de procés per codi jbpm i expedient Tipus
-			ExpedientTipusDto et = definicioProces.getExpedientTipus();
-			if (et != null)
-				definicioProces = dissenyService.findDarreraDefinicioProcesForExpedientTipus(et.getId());
-			else
-				definicioProcesService.findByEntornIdAndJbpmKey(entornActual.getId(), jbmpKey);
+			definicioProces = definicioProcesService.findByEntornTipusIdAndJbpmKey(
+					entornActual.getId(),
+					expedientTipusId,
+					jbmpKey);
 			
-			// Si no es troba la definició de procés anterior o canvia el tipus d'expedient torna al llistat
-			if (definicioProces == null 
-					|| (et != null && !et.getId().equals(definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : 0L)))
-				return "redirect:/v3/definicioProces";
-			
+			// Si no es troba la definició de procés anterior torna al llistat
+			if (definicioProces == null) {
+				return "redirect:/v3/definicioProces";		
+			}
+			definicioProcesAnteriorId = definicioProces.getId();
 		} catch (Exception e) {
 			logger.error("Error : (" + e.getClass() + ") " + e.getLocalizedMessage(), e);
 			MissatgesHelper.error(request, getMessage(request, "definicio.proces.delete.error", new Object[] {e.getLocalizedMessage()}));
 		}
 		// Retorna a la pàgina de pipelles		
-		return "redirect:/v3/definicioProces/"+jbmpKey;
+		return "redirect:/v3/definicioProces/"+jbmpKey + (definicioProcesAnteriorId != null ? "/" + definicioProcesAnteriorId : "");
 	}
 	
 	/** Mètode privat compartit per esborrar una definició de procés. 
@@ -191,26 +193,18 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		return success;
 	}
 
-	/** Vista de les pipelles per a la definició de procés que mostrarà la darrera versió. */
+	/** Antigament mostrava la darrera versió de la definició de procés de l'entonr però s'ha d'expecificar una versió o tipus d'expedient. */
 	@RequestMapping(value = "/{jbmpKey}", method = RequestMethod.GET)
 	public String pipelles(
 			HttpServletRequest request,
 			@PathVariable String jbmpKey,
-			Model model) {		
-		// consulta la darrera definicio de procés de l'entonr i redirigeix cap al mètode
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		DefinicioProcesDto definicioProces = definicioProcesService.findByEntornIdAndJbpmKey(
-				entornActual.getId(),
-				jbmpKey);
-		if (definicioProces == null) {
-			MissatgesHelper.error(
-					request, 
-					getMessage(request, 
-							"definicio.proces.pipelles.definicio.no.trobada", 
-							new Object[] {jbmpKey}));
-			return "redirect:/v3/definicioProces";			
-		}		
-		return "redirect:/v3/definicioProces/" + jbmpKey + "/" + definicioProces.getId();
+			Model model) {
+		MissatgesHelper.warning(
+				request, 
+				getMessage(
+						request, 
+						"definicio.proces.pipelles.no.identificador"));
+		return "redirect:/v3/definicioProces";			
 	}
 
 	/** Vista de les pipelles per a la definició de procés mostrant una específica. */
@@ -350,15 +344,16 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		DefinicioProcesDto definicioProces = null;
-		if (definicioProcesId == null) {
-			// si no s'especifica una definició de procés en concret s'hagafa la darrera versió
-			definicioProces = definicioProcesService.findByEntornIdAndJbpmKey(
-					entornActual.getId(),
-					jbmpKey);
-			definicioProcesId = definicioProces.getId();
-		} else {
-			definicioProces = definicioProcesService.findById(definicioProcesId);
+		if (definicioProcesId == null) {			
+			MissatgesHelper.warning(
+					request, 
+					getMessage(
+							request, 
+							"definicio.proces.pipelles.no.identificador"));
+			return "redirect:/v3/definicioProces";			
+
 		}
+		definicioProces = definicioProcesService.findById(definicioProcesId);
 		DefinicioProcesExportarCommand command = new DefinicioProcesExportarCommand();
 		command.setId(definicioProcesId);
 		model.addAttribute("inici", true); // per marcar tots els checboxs inicialment
@@ -670,8 +665,9 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         					);
         			// Guarda la darrera per copiar dades
         			DefinicioProcesDto darreraDefinicioProces = 
-        					definicioProcesService.findByEntornIdAndJbpmKey(
+        					definicioProcesService.findByEntornTipusIdAndJbpmKey(
         							entornActual.getId(), 
+        							command.getExpedientTipusId(),
         							exportacio.getDefinicioProcesDto().getJbpmKey());
         			// Realitza la importació com a una nova versió
         			exportacio.getDefinicioProcesDto().setEtiqueta(command.getEtiqueta());
@@ -700,8 +696,9 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		    				dto.setParam2(execucioMassivaService.serialize(Integer.valueOf(definicioProces.getVersio())));
 		    				dto.setTipus(ExecucioMassivaTipusDto.ACTUALITZAR_VERSIO_DEFPROC);
 		    				dto.setProcInstIds(
-		    						expedientService.findProcesInstanceIdsAmbEntornAndProcessDefinitionName(
+		    						expedientService.findProcesInstanceIdsAmbEntornTipusAndProcessDefinitionName(
 							    						entornActual.getId(),
+							    						definicioProces.getExpedientTipus() != null? definicioProces.getExpedientTipus().getId() : null,
 							    						definicioProces.getJbpmKey()));
 		        			try {
 		        				execucioMassivaService.crearExecucioMassiva(dto);

@@ -22,24 +22,47 @@ public class GetProcessInstancesEntornCommand extends AbstractGetObjectBaseComma
 
   private String processDefinitionName;
   private Long entornId;
+  private Long expedientTipusId;
   
+  /** Si el tipus d'expedient és null ha de trobar els expedients de l'entorn relacionats amb les definicions
+   * globals i si no és null llavors ha de filtrar els expedients segons el tipus d'expedient.
+   */
   public Object execute(JbpmContext jbpmContext) throws Exception
   {
     setJbpmContext(jbpmContext);
 
-    StringBuffer queryText = new StringBuffer(
+    StringBuilder queryText = new StringBuilder();
+    queryText.append(
     		"select pi" + 
     		" from org.jbpm.graph.exe.ProcessInstance as pi,"
-    		+ "	   net.conselldemallorca.helium.core.model.hibernate.Expedient e " +
+    		+ "	   net.conselldemallorca.helium.core.model.hibernate.Expedient e ");
+    if (expedientTipusId == null) {
+    	queryText.append("	   ,net.conselldemallorca.helium.core.model.hibernate.DefinicioProces dp ");
+    }
+    queryText.append(
     		" where pi.end = null " +
     		" and pi.processDefinition.name = :processDefinitionName " +
     		" and e.id = pi.expedient.id " +
-    		" and e.entorn.id = :entornId " +
+    		" and e.entorn.id = :entornId ");
+    if (this.expedientTipusId != null) {
+    	// Expedients del tipus d'expedient
+    	queryText.append(
+    		" and e.tipus.id = :expedientTipusId");
+    } else {
+    	// Processos relacionats amb una definició deprocés global
+    	queryText.append(
+        		" and pi.processDefinition.id = dp.jbpmId " +
+                " and dp.expedientTipus is null ");    	
+    }
+    queryText.append(
     		" order by pi.start desc");
 
     Query query = jbpmContext.getSession().createQuery(queryText.toString())
     		.setString("processDefinitionName", processDefinitionName)
     		.setLong("entornId", entornId);
+    if (this.expedientTipusId != null) {
+    	query.setLong("expedientTipusId", this.expedientTipusId);
+    }
     
     return retrieveProcessInstanceDetails(query.list());
   }
@@ -62,7 +85,7 @@ public class GetProcessInstancesEntornCommand extends AbstractGetObjectBaseComma
     this.processDefinitionName = processName;
   }
 
-  public long getEntornId()
+  public Long getEntornId()
   {
     return entornId;
   }
@@ -72,11 +95,22 @@ public class GetProcessInstancesEntornCommand extends AbstractGetObjectBaseComma
     this.entornId = entornId;
   }
 
+  public Long getExpedientTipusId()
+  {
+    return expedientTipusId;
+  }
 
+  public void setExpedientTipusId(Long expedientTipusId)
+  {
+    this.expedientTipusId = expedientTipusId;
+  }
+  
   @Override
   public String getAdditionalToStringInformation()
   {
-    return "entornId=" + entornId
+    return "entornId=" + entornId 
+      + ";expedientTipusId=" + expedientTipusId
       + ";processDefinitionName=" + processDefinitionName;
   }
+
 }

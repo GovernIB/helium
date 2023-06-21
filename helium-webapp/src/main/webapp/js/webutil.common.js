@@ -242,7 +242,7 @@ $(document).ajaxError(function(event, jqxhr, ajaxSettings, thrownError) {
 			$.ajax({
 				type: "GET",
 				url: webutilUrlAmbPrefix($element.attr("href"), '/ajax'),
-				timeout: 10000,
+				timeout: 30000,
 				success: function() {
 					webutilRefreshMissatges();
 					if ($element.closest('.dataTables_wrapper')) {

@@ -19,6 +19,7 @@ public ProcessDefinition findSubProcess(Element subProcessElement) {
 
     String subProcessName = subProcessElement.attributeValue("name");
     String subProcessVersion = subProcessElement.attributeValue("version");
+    Long expedientTipusId = null;
 
     // if this parsing is done in the context of a process deployment, there is
     // a database connection to look up the subprocess.
@@ -27,6 +28,15 @@ public ProcessDefinition findSubProcess(Element subProcessElement) {
     JbpmContext jbpmContext = JbpmContext.getCurrentJbpmContext();
     if (jbpmContext != null) {
       
+    	// Determina el tipus d'expedient
+     if (subProcessElement.attributeValue("expedientTipusId") != null) {
+    	 try {
+        	 expedientTipusId = Long.parseLong(subProcessElement.attributeValue("expedientTipusId"));    		 
+         } catch (Exception e) {
+             throw new JpdlException("Error determinant l' expedientTipusId en el rocess-state: " + subProcessElement.asXML());
+           }
+     }
+    	
       // now, we must be able to find the sub-process
       if (subProcessName != null) {
         
@@ -52,6 +62,7 @@ public ProcessDefinition findSubProcess(Element subProcessElement) {
         	if (entorn != null & entorn.getId() != null) {
         		DefinicioProcesDto definicioProces = Jbpm3HeliumBridge.getInstanceService().getDarreraVersioAmbEntornIJbpmKey(
         				entorn.getId(),
+        				expedientTipusId,
         				subProcessName);
             	if (definicioProces != null && !definicioProces.getEntorn().getId().equals(entorn.getId()))
             		throw new JpdlException("sub-process not accesible: " + subProcessElement.asXML());

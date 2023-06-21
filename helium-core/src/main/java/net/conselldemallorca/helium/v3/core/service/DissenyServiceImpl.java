@@ -297,7 +297,11 @@ public class DissenyServiceImpl implements DissenyService {
 			expedientTipusId = expedientTipus.getId();
 		}
 		else
-			definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(entornId, jbpmKey);
+			definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornTipusIJbpmKey(
+					entornId, 
+					expedientTipusId == null,
+					expedientTipusId != null ? expedientTipusId : 0L,
+					jbpmKey);
 
 		if (definicioProces != null) {
 			JbpmProcessDefinition jb = jbpmHelper.getProcessDefinition(definicioProces.getJbpmId());			

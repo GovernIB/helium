@@ -60,7 +60,7 @@ $(document).ready(function() {
 
 		<hel:inputSelect name="idioma" optionItems="${idiomes}" emptyOption="true" textKey="notificacio.form.camp.idioma" placeholderKey="anotacio.llistat.filtre.camp.estat" optionValueAttribute="codi" optionTextAttribute="valor"/>
 		
-		<hel:inputCheckbox name="entregaPostalActiva" textKey="expedient.document.notificar.form.camp.entregaPostalActiva" />
+	<!--	<hel:inputCheckbox name="entregaPostalActiva" textKey="expedient.document.notificar.form.camp.entregaPostalActiva" /> -->
 		
 <!-- 		<div id="entregaPostal" class="hidden"> -->
 <%-- 			<hel:inputSelect required="true" name="entregaPostalViaTipus" optionItems="${entregaPostalViaTipusEstats}" optionValueAttribute="valor" optionTextAttribute="codi" textKey="expedient.document.notificar.form.camp.entregaPostalViaTipus" /> --%>
