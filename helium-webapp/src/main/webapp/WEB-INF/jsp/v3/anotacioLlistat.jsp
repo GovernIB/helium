@@ -134,7 +134,8 @@
 						{{else estat == 'PROCESSADA'}}
 							<spring:message code="enum.anotacio.estat.PROCESSADA"></spring:message>
 						{{else estat == 'REBUTJADA'}}
-							<spring:message code="enum.anotacio.estat.REBUTJADA"></spring:message>
+							<spring:message code="enum.anotacio.estat.REBUTJADA" ></spring:message>
+							<span class="fa fa-info-circle" title="<spring:message code="anotacio.detalls.rebuigMotiu">{{>rebuigMotiu}}</spring:message>"></span>
 						{{else estat == 'COMUNICADA'}}
 							<spring:message code="enum.anotacio.estat.COMUNICADA"></spring:message>
 						{{else estat == 'ERROR_PROCESSANT'}}
@@ -190,6 +191,7 @@
 				</th>
 				<th data-col-name="dataProcessament" data-visible="false"/></th>
 				<th data-col-name="errorProcessament" data-visible="false"/>
+				<th data-col-name="rebuigMotiu" data-visible="false"/>	
 				<th data-col-name="consultaIntents" data-visible="false"/>
 				<th data-col-name="consultaError" data-visible="false"/>
 				<th data-col-name="consultaData" data-visible="false"/>

@@ -119,6 +119,10 @@ tr.clicable {
 								<spring:message code="anotacio.detalls.errorProcessament" arguments="${anotacio.errorProcessament}"></spring:message>
 							</div>
 						</c:if>
+						<c:if test="${anotacio.estat == 'REBUTJADA'}">
+							<fmt:formatDate value="${anotacio.dataProcessament}" pattern="dd/MM/yyyy HH:mm:ss"/>
+							<pre style="height: 70px; margin-bottom: 0px;">${anotacio.rebuigMotiu}</pre>	
+						</c:if>
 						<c:if test="${anotacio.estat == 'COMUNICADA'}">
 							<div class="alert alert-warning">
 								<span class="fa fa-exclamation-triangle"></span>
