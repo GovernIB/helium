@@ -59,6 +59,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
+import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAnnexEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
@@ -886,7 +887,8 @@ public class DocumentHelperV3 {
 				ntiIdDocumentoOrigen,
 				true,	// documetn vàlid
 				null,	// error
-				null);	// annexId
+				null,	// annexId
+				null);	// annexUuid	
 	}
 		
 	public Long actualitzarDocument(
@@ -907,7 +909,8 @@ public class DocumentHelperV3 {
 			String ntiIdDocumentoOrigen,
 			boolean documentValid,
 			String documentError,
-			Long annexId) {
+			Long annexId,
+			String annexUuid) {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		if (documentStore == null) {
 			throw new NoTrobatException(
@@ -915,9 +918,19 @@ public class DocumentHelperV3 {
 					documentStoreId);
 		}
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		// Comprova la llista d'enviaments
 		List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
-		if (enviaments != null && enviaments.size() > 0)
+		if (enviaments != null && enviaments.size() > 0) {
 			throw new ValidacioException("No es pot modificar un document amb " + enviaments.size() + " enviaments");
+		}
+		// Comprova si fa referència a un annex i si aquest está mogut o no 
+		if (expedient.isArxiuActiu() && documentStore.getAnnexId() != null) {
+			AnotacioAnnex annex = anotacioAnnexRepository.findOne(documentStore.getAnnexId());
+			if (annex != null && !AnotacioAnnexEstatEnumDto.MOGUT.equals(annex.getEstat())) {
+				throw new ValidacioException("No es pot modificar un document que faci referència a un annex que encara no s'ha mogut a l'Arxiu. " + 
+												"S'ha de reprocessar el traspàs o esborrar-lo i ajuntar-ne un altre.");
+			}
+		}
 		documentStore.setDataDocument(documentData);
 		documentStore.setDataModificacio(new Date());
 		if (documentStore.isAdjunt()) {
@@ -930,8 +943,11 @@ public class DocumentHelperV3 {
 		}
 		documentStore.setDocumentValid(documentValid);
 		documentStore.setDocumentError(documentError);
+		String arxiuUuid = null;
 		if (annexId != null) {
 			documentStore.setAnnexId(annexId);
+			// S'actualitzarà el document amb el nou uuid, l'existent es perdrà en tancar l'expedient
+			arxiuUuid = annexUuid;
 		}
 		postProcessarDocument(
 				documentStore,
@@ -939,7 +955,7 @@ public class DocumentHelperV3 {
 				processInstanceId,
 				arxiuNom,
 				arxiuContingut,
-				null, //arxiuUuid
+				arxiuUuid,
 				arxiuContentType,
 				ambFirma,
 				firmaSeparada,

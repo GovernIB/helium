@@ -1287,17 +1287,20 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 						documentCodi);	
 				
 				boolean documentExisteix = document !=null ? true : false;
-				// Si el document està firmat i a l'Arxiu llavors no es pot modifirar.
-				if (documentExisteix 
-						&& document.isSignat()
-						&& !mapeigSistra.isEvitarSobreescriptura()
-						&& expedient.isArxiuActiu()) 
-				{
-					// No es pot modificar un document firmat
-					resultatMapeig.getErrorsDocuments().put(documentCodi, "El document no es pot sobreescriure perquè està firmat i no es pot modificar.");
-					continue;					
-				}
 				
+				
+				if (documentExisteix && expedient.isArxiuActiu()) {
+					// Si el document està firmat i a l'Arxiu llavors no es pot modifirar.
+					if (document.isSignat() && !mapeigSistra.isEvitarSobreescriptura()) {
+						// No es pot modificar un document firmat
+						resultatMapeig.getErrorsDocuments().put(documentCodi, "El document no es pot sobreescriure perquè està firmat i no es pot modificar.");
+						continue;						
+					}
+					// Si el document prové d'una anotació llavors ja està mapejat i no cal sobreescriure
+					if (document.getAnotacioAnnexId() != null) {
+						continue;
+					}
+				}	
 				processarDocumentsAnotacio(
 						dadesDocumentDto, 
 						expedient, 
@@ -1423,7 +1426,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					document.getNtiIdOrigen(),
 					dadesDocumentDto.isDocumentValid(),
 					dadesDocumentDto.getDocumentError(),
-					dadesDocumentDto.getAnnexId());
+					dadesDocumentDto.getAnnexId(), 
+					dadesDocumentDto.getUuid());
 			
 			
 			
