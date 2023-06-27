@@ -88,8 +88,14 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice {
 					String msg = null;
 					switch(anotacio.getEstat()) {
 					case PENDENT:
-						estat = es.caib.distribucio.rest.client.domini.Estat.REBUDA;
-						msg = "La petició ja s'ha rebut anteriorment i està pendent de processar o rebutjar manualment";
+						if (anotacio.getExpedientTipus() == null 
+							|| anotacio.getExpedientTipus().isDistribucioProcesAuto()) 
+						{
+							distribucioHelper.reprocessarAnotacio(anotacio.getId());
+						} else {
+							estat = es.caib.distribucio.rest.client.domini.Estat.REBUDA;
+							msg = "La petició ja s'ha rebut anteriorment i està pendent de processar o rebutjar manualment";
+						}
 						break;
 					case PROCESSADA:
 						estat = es.caib.distribucio.rest.client.domini.Estat.PROCESSADA;

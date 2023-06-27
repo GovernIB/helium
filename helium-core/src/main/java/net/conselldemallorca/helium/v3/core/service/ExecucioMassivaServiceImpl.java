@@ -369,7 +369,11 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			}
 
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			// Comprova que sigui administrador o que tingui permís de lectura sobre el tipus d'expedient
 			if (!UsuariActualHelper.isAdministrador(auth)) {
+				if (execucioMassiva.getExpedientTipus() == null) {
+					throw new RuntimeException("Error de permisos. L'usuari no és administrador i l'execució massiva no té cap tipus d'expedient per poder comprovar el permís de lectura.");
+				}
 				expedientTipusHelper
 						.getExpedientTipusComprovantPermisLectura(execucioMassiva.getExpedientTipus().getId());
 			}
@@ -2109,8 +2113,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			ome.setDataFi(new Date());
 			execucioMassivaExpedientRepository.save(ome);
 		}catch(Exception ex) {
+			String errMsg = "No s'ha pogut reintentar el processament de les anotacions: " + ex.getMessage(); 
 			logger.error("OPERACIO:" + ome.getId()
-			+ ". No s'ha pogut reintentar el processament de les anotacions", ex);
+			+ ". " + errMsg, ex);
 			throw ex;
 		} finally {
 			distribucioHelper.setProcessant(ome.getAuxId(), false);

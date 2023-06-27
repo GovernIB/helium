@@ -1080,15 +1080,20 @@ public class DocumentHelperV3 {
 			boolean esborrarDocument = true;
 			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 			List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
-			if (enviaments != null && enviaments.size() > 0)
-				// si té enviaments no s'esborra el document per a que es pugui consultar des de l'anotació.
+			if (enviaments != null && enviaments.size() > 0) {
+				// si té enviaments no s'esborra el document per a que es pugui consultar des de la notificació.
 				esborrarDocument = false;
+			}
 			if (expedient.isArxiuActiu()) {
 				if (documentStore.isSignat()) {
 					throw new ValidacioException("No es pot esborrar un document firmat");
 				} else {
-					if (esborrarDocument)
-						pluginHelper.arxiuDocumentEsborrar(documentStore.getArxiuUuid());
+					if (esborrarDocument ) {
+						// No esborra el document de l'Arxiu si té un annex associat
+						if (documentStore.getAnnexId() == null) {
+							pluginHelper.arxiuDocumentEsborrar(documentStore.getArxiuUuid());
+						}
+					}
 				}
 			} else {
 				if (documentStore.isSignat()) {

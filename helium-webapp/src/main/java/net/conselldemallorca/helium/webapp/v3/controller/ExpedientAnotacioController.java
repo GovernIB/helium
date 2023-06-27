@@ -112,7 +112,7 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 								"expedient.anotacio.llistat.processar.traspas.ok"));      
 			}
 				
-			// Si hi ha errors posa alertes, afegiex elements span i title per abreujar el missatge sense perdre informació.
+			// Si hi ha errors posa alertes, afegeix elements span i title per abreujar el missatge sense perdre informació.
 			if (resultatMapeig.isError()) {
 				StringBuilder errMsg = new StringBuilder();
 				errMsg.append(resultatMapeig.getMissatgeAlerta()).append("<ul>");
