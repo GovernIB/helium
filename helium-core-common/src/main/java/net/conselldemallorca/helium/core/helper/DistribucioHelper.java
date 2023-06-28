@@ -63,6 +63,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
@@ -94,6 +95,7 @@ import net.conselldemallorca.helium.v3.core.repository.AnotacioAnnexRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioInteressatRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.MapeigSistraRepository;
@@ -148,6 +150,10 @@ public class DistribucioHelper {
 
 	@Resource
 	private AlertaHelper alertaHelper;
+	
+	@Resource
+	private DocumentStoreRepository documentStoreRepository;
+
 
 	/** Referència al client del WS de Distribució */
 	private BackofficeIntegracioRestClient restClient = null;
@@ -852,7 +858,7 @@ public class DistribucioHelper {
 				logger.warn(errMsg, e);				
 			}			
 		}
-		logger.info("Rebuda correctament la petició d'anotació de registre amb id de Distribucio =" + idWs);
+		logger.info("Rebuda correctament la petició d'anotació de registre amb id de Distribucio =" + (idWs != null ? idWs.getIndetificador() : ""));
 	}
 	
 	@Transactional
@@ -1434,6 +1440,10 @@ public class DistribucioHelper {
 					annex.setError(null);
 					arxiuUuid = annex.getUuid();
 				}
+				// Actualitza l'uuid a tots els documents que fan referència a l'annex que poden contenir l'uuid anterior
+				for (DocumentStore ds : documentStoreRepository.findByAnnexId(annex.getId())) {
+					ds.setArxiuUuid(arxiuUuid);
+				}				
 			} else {
 				Annex a = new Annex();
 				a.setUuid(annex.getUuid());

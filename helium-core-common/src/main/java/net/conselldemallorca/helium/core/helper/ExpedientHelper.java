@@ -35,6 +35,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.caib.plugins.arxiu.api.ContingutArxiu;
+import es.caib.plugins.arxiu.api.DocumentEstat;
 import es.caib.plugins.arxiu.api.ExpedientEstat;
 import es.caib.plugins.arxiu.api.ExpedientMetadades;
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
@@ -1018,10 +1019,23 @@ public class ExpedientHelper {
 		
 		// Firma en el servidor els documents pendents de firma
 		for (DocumentStore documentStore: documentsPerSignar) {
+			es.caib.plugins.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
+					documentStore.getArxiuUuid(),
+					null,
+					false,
+					documentStore.isSignat());
+			
+			if (!DocumentEstat.DEFINITIU.equals(arxiuDocument.getEstat())) {
+				// Firma en servidor i el guarda
 				documentHelper.firmaServidor(
 						documentStore.getProcessInstanceId(),
 						documentStore.getId(), 
 						messageHelper.getMessage("document.controller.firma.servidor.default.message"));
+			} else {
+				// Actualitza les dades amb el document firmat
+				documentHelper.actualitzarNtiFirma(documentStore, arxiuDocument);
+				documentStore.setSignat(arxiuDocument.getFirmes() != null && !arxiuDocument.getFirmes().isEmpty());
+			}
 		}
 	}
 	
