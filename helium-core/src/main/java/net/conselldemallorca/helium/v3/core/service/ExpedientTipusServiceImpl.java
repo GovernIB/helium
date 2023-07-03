@@ -1688,8 +1688,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		ExpedientTipusDto tipusDto = conversioTipusHelper.convertir(
 				tipus,
 				ExpedientTipusDto.class); 
-		tipusDto.setManualAjudaContent(tipus.getManualAjudaContent());
-		tipusDto.setManualAjudaNom(tipus.getManualAjudaNom());
 		// Omple els permisos del tipus d'expedient
 		expedientHelper.omplirPermisosExpedientTipus(tipusDto);
 

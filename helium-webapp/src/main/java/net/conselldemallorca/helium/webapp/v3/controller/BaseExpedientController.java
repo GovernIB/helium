@@ -55,16 +55,9 @@ public class BaseExpedientController extends BaseController {
 			model.addAttribute("pipellaActiva", request.getParameter("pipellaActiva"));
 		else
 			model.addAttribute("pipellaActiva", "dades");
-		expedientTipusService.findAmbIdPermisDissenyarDelegat(
-				entornActual.getId(),
-				expedient.getTipus().getId());
-		ExpedientTipusDto expedientTipusDto = expedientTipusService.findAmbIdPermisDissenyar(
-				entornActual.getId(),
-				expedient.getTipus().getId());
-		if(expedientTipusDto!=null && expedientTipusDto.getManualAjudaContent()!=null && expedientTipusDto.getManualAjudaNom()!=null) {
+		ExpedientTipusDto expedientTipusDto = expedientTipusService.findAmbId(expedient.getTipus().getId());
+		if(expedientTipusDto!=null && expedientTipusDto.getManualAjudaNom()!=null) {
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, expedientTipusDto.getManualAjudaNom());
-			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, expedientTipusDto.getManualAjudaContent());
-			expedient.getTipus().setManualAjudaContent(expedientTipusDto.getManualAjudaContent());
 			expedient.getTipus().setManualAjudaNom(expedientTipusDto.getManualAjudaNom());
 		}
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
