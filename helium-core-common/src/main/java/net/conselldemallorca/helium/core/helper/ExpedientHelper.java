@@ -1760,10 +1760,13 @@ public class ExpedientHelper {
 					logger.error("Error esborrant l'expedient " + expedientPerRetornar.getIdentificador() + " amb uuid " + arxiuUuid + " :" + re.getMessage());
 				}
 			
+			logger.error("Error iniciant expedient (entorn=" + (entorn != null ? entorn.getCodi() : "") 
+							+ ", tipus=" + (expedientTipus != null ? expedientTipus.getCodi() : "") + "): " 
+							+ ex.getMessage(), ex);
+			
 			throw new RuntimeException(messageHelper.getMessage("error.proces.peticio") + ": "
-					+ ExceptionUtils.getRootCauseMessage(ex));
+					+ ExceptionUtils.getRootCauseMessage(ex), ex);
 		}
-		
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom());
 		return expedientPerRetornar;
 	}
