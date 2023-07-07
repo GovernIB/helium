@@ -265,9 +265,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			Long expedientTipusId,
 			Model model) {
 		List<CampDto> camps = campService.findTipusData(expedientTipusId, null);
-		
-//		List<PortafirmesFluxRespostaDto> llistaFluxesFirmes = portafirmesFluxService.recuperarPlantillesDisponibles(false);
-				
+						
 		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
 		for (CampDto camp: camps) {
 			resposta.add(new ParellaCodiValorDto(camp.getId().toString(), (camp.getCodi() + "/" + camp.getEtiqueta())));

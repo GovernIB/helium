@@ -240,6 +240,7 @@ div.dropdown-menu.loading .rmodal_carrecs {
 		});
 		$(".portafirmesFluxId_btn_edicio").on('click', function(){
 			var metaDocumentNom = "${fn:replace(expedientTipusDocumentCommand.nom, charSearch, charReplace)}";
+			alert(metaDocumentNom);
 			$.ajax({
 				type: 'GET',
 				dataType: "json",
@@ -249,7 +250,7 @@ div.dropdown-menu.loading .rmodal_carrecs {
 					if (transaccioResponse != null && !transaccioResponse.error) {
 						localStorage.setItem('transaccioId', transaccioResponse.idTransaccio);
 						$('#expedientTipusDocumentCommand').addClass("hidden");
-						//alert(transaccioResponse.urlRedireccio);
+						alert(transaccioResponse.urlRedireccio);
 						var fluxIframe = '<div class="iframe_container">' + 
 											'<iframe onload="removeLoading()" id="fluxIframe" class="iframe_content" width="100%" height="100%" frameborder="0" allowtransparency="true" src="' + transaccioResponse.urlRedireccio + '"></iframe>' + 
 							  			 '</div>';

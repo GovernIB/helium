@@ -16,6 +16,7 @@ import org.fundaciobit.apisib.apifirmaasyncsimple.v2.beans.FirmaAsyncSimpleRevis
 import org.fundaciobit.apisib.apifirmaasyncsimple.v2.beans.FirmaAsyncSimpleSignature;
 import org.fundaciobit.apisib.apifirmaasyncsimple.v2.beans.FirmaAsyncSimpleSignatureBlock;
 import org.fundaciobit.apisib.apifirmaasyncsimple.v2.beans.FirmaAsyncSimpleSignatureRequestInfo;
+import org.fundaciobit.apisib.apifirmaasyncsimple.v2.beans.FirmaAsyncSimpleSignatureRequestWithFlowTemplateCode;
 import org.fundaciobit.apisib.apifirmaasyncsimple.v2.beans.FirmaAsyncSimpleSignatureRequestWithSignBlockList;
 import org.fundaciobit.apisib.apifirmaasyncsimple.v2.beans.FirmaAsyncSimpleSignedFile;
 import org.fundaciobit.apisib.apifirmaasyncsimple.v2.beans.FirmaAsyncSimpleSigner;
@@ -119,17 +120,26 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 				}
 				signatureRequest.setAnnexs(portafirmesAnnexos);
 			}
-
 			FirmaAsyncSimpleSignatureBlock[] signatureBlocks  = null;
-			if (plantillaFluxId != null /* || idTransaccio != null */) {
-//				### convertir en blocs de portafirmes a partir d'un id de transacció o d'una plantilla
+			if (plantillaFluxId != null /* || idTransaccio != null */) {//MARTA mirar aquí! plantillaFluxId i blocs
+				FirmaAsyncSimpleSignatureRequestWithFlowTemplateCode signatureRequestAmbPlantilla;
+				
+				
+				//				### convertir en blocs de portafirmes a partir d'un id de transacció o d'una plantilla
 //				signatureBlocks = idTransaccio != null ? recuperarFluxDeFirma(idTransaccio) : toFirmaAsyncSimpleSignatureBlockFromId(plantillaFluxId, "ca");
 				signatureBlocks = toFirmaAsyncSimpleSignatureBlockFromId(plantillaFluxId, "ca");
+				signatureRequest.setSignatureBlocks(signatureBlocks);
+				signatureRequestAmbPlantilla = new FirmaAsyncSimpleSignatureRequestWithFlowTemplateCode(
+			            signatureRequest, plantillaFluxId);
+				peticioDeFirmaId = getFirmaAsyncSimpleApi().createAndStartSignatureRequestWithFlowTemplateCode(signatureRequestAmbPlantilla);
 			} else if (passesSignatura != null && passesSignatura.length > 0) {
 				signatureBlocks  = toFluxDeFirmes(Arrays.asList(passesSignatura));
+				signatureRequest.setSignatureBlocks(signatureBlocks);
+				peticioDeFirmaId = getFirmaAsyncSimpleApi().createAndStartSignatureRequestWithSignBlockList(signatureRequest);
 			}
-			signatureRequest.setSignatureBlocks(signatureBlocks);
-			peticioDeFirmaId = getFirmaAsyncSimpleApi().createAndStartSignatureRequestWithSignBlockList(signatureRequest);
+//			signatureRequest.setSignatureBlocks(signatureBlocks);
+//			peticioDeFirmaId = getFirmaAsyncSimpleApi().createAndStartSignatureRequestWithSignBlockList(signatureRequest);//MARTA peta aquí!  
+			//no pot transformar el json a un objecte, mira si tenim les mateixes dependències que a Ripea....
 			return new Long(peticioDeFirmaId).intValue();
 		} catch (Exception ex) {
 			throw new PortasignaturesPluginException(
@@ -450,7 +460,7 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 				plantilla.setFluxId(flowTemplate.getKey());
 				plantilla.setNom(flowTemplate.getValue());
 				plantilles.add(plantilla);
-				System.out.println("plantilla = " + flowTemplate.getKey() +"_"+ flowTemplate.getValue());
+//				System.out.println("plantilla = " + flowTemplate.getKey() +"_"+ flowTemplate.getValue());
 			}
 		} catch (Exception ex) {
 			throw new SistemaExternException(

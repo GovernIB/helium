@@ -1,6 +1,7 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -11,6 +12,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,32 +54,43 @@ import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalViaTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IdiomaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxRespostaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesIniciFluxRespostaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
+import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientInteressatService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.PortafirmesFluxService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Create;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Update;
+import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientEnviarPortasignaturesCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientFirmaPassarelaCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientFirmaPassarelaCommand.FirmaPassarela;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentNotificacioCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusConsultaVarCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
@@ -85,6 +98,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NtiHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.passarelafirma.PassarelaFirmaConfig;
 import net.conselldemallorca.helium.webapp.v3.passarelafirma.PassarelaFirmaHelper;
 
@@ -114,6 +128,11 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	private ExpedientHelper expedientHelper;
 	@Autowired
 	private PassarelaFirmaHelper passarelaFirmaHelper;
+	@Autowired
+	private PortafirmesFluxService portafirmesFluxService;
+	@Autowired
+	private ExpedientService expedientService;
+	
 
 	/** comparador per ordenar documents per codi de document primer i per títol de l'adjunt si són adjunts després.
 	 *
@@ -1091,7 +1110,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		model.addAttribute("potFirmar", potFirmar);
 		return "v3/expedientDocumentFirmaPassarelaForm";
 	}
-
 	/** 
 	 * Inicia el procés de firma del document i si tot va bé redirigeix cap a la URL retornada pel
 	 * portasignatures.
@@ -1266,6 +1284,246 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return ret;
 	}
 	
+	
+	/** Obre el formulari de l'enviament al portafirmes
+	 * 
+	 */
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/enviarPortasignatures", method = RequestMethod.GET)
+	public String enviarPortasignaturesGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId,
+			Model model) {		
+		ExpedientDocumentDto expedientDocumentDto = expedientDocumentService.findOneAmbInstanciaProces(
+				expedientId,
+				processInstanceId,
+				documentStoreId);
+		boolean potFirmar = true;
+		if (expedientDocumentDto.getArxiuUuid() == null && expedientDocumentDto.getCustodiaCodi() == null) {
+			MissatgesHelper.error(request, getMessage(request, "expedient.document.firmaPassarela.validacio.custodia.codi"));
+			potFirmar = false;
+		}
+		
+		DocumentExpedientEnviarPortasignaturesCommand command = new DocumentExpedientEnviarPortasignaturesCommand();
+		
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		if(expedientDocumentDto.getDocumentCodi()!=null) {			
+			DocumentDto documentDto = expedientDocumentService.findDocumentAmbId(documentStoreId);
+			command.setNom(documentDto.getDocumentNom());
+			command.setId(documentDto.getDocumentId());
+			if(documentDto.getPortafirmesFluxId()!=null) {
+				expedientDocumentDto.setPortafirmesFluxId(documentDto.getPortafirmesFluxId());
+				command.setPortafirmesFluxId(documentDto.getPortafirmesFluxId());
+				model.addAttribute("portafirmesFluxSeleccionat", documentDto.getPortafirmesFluxId());
+				String urlMostrarPlantilla = portafirmesFluxService.recuperarUrlMostrarPlantilla(documentDto.getPortafirmesFluxId());
+				model.addAttribute("urlFluxFirmes", urlMostrarPlantilla);
+			}
+		}
+		// Possibles annexos
+		List<ExpedientDocumentDto> annexos = expedientDocumentService.findAmbInstanciaProces(expedientId, processInstanceId);
+		// Treu adjunts i el propi document
+		Iterator<ExpedientDocumentDto> docI = annexos.iterator();
+		while(docI.hasNext()) {
+			ExpedientDocumentDto doc = docI.next();
+			if (doc.getId() == documentStoreId
+					|| doc.isAdjunt()) {
+				docI.remove();
+			}
+		}
+		model.addAttribute("annexos", annexos);
+		
+		command.setMotiu(getMessage(request, "expedient.document.firmaPassarela.camp.motiu.default", new Object[] {expedient.getNumero()}));
+		List<ExpedientTascaDto> tasques = expedientService.findTasquesPendents(
+				expedientId,
+				true,//nomesTasquesPersonals,
+				false);//nomesTasquesGrup);
+		command.setPrioritat(tasques.get(0).getPrioritat().toString());//MARTA agafo la primera tasca??? només n'hi ha una??
+		
+		model.addAttribute("document", expedientDocumentDto);	
+		model.addAttribute("expedientId", expedientId);
+		model.addAttribute("documentExpedientEnviarPortasignaturesCommand", command);
+		model.addAttribute("potFirmar", potFirmar);
+		return "v3/expedientDocumentEnviarPortasignaturesForm";
+	}
+	
+//	@RequestMapping(value = "/{expedientTipusId}/document/{id}/iniciarTransaccio", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/enviarPortasignatures/iniciarTransaccio", method = RequestMethod.GET)
+	@ResponseBody
+	public PortafirmesIniciFluxRespostaDto iniciarTransaccio(
+			HttpServletRequest request,
+			@RequestParam(value = "nom", required = false) String nom,
+			@RequestParam(value = "plantillaId", required = false) String plantillaId,
+			@PathVariable Long expedientId, 
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId,
+			Model model) throws UnsupportedEncodingException {
+//		organGestorService.actualitzarOrganCodi(SessioHelper.getOrganActual(request));
+		String urlReturn;
+		PortafirmesIniciFluxRespostaDto transaccioResponse = null;
+		try {
+//			urlReturn = aplicacioService.propertyBaseUrl() + "/metaExpedient/metaDocument/flux/returnurl/";
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+			urlReturn =  request.getContextPath() + "/v3/expedient/" +expedient.getId();
+//			model.addAttribute("redireccioUrl",  request.getContextPath() + "/v3/expedientTipus/" + expedientTipusId);
+			if (plantillaId != null && !plantillaId.isEmpty()) {
+				transaccioResponse = new PortafirmesIniciFluxRespostaDto();
+				String urlEdicio = portafirmesFluxService.recuperarUrlEdicioPlantilla(plantillaId, urlReturn);
+				transaccioResponse.setUrlRedireccio(urlEdicio);
+				model.addAttribute("urlEdicio", urlEdicio);
+//				String urlMostrarPlantilla = portafirmesFluxService.recuperarUrlMostrarPlantilla(plantillaId);
+//				model.addAttribute("urlFluxFirmes", urlMostrarPlantilla);
+			} else {
+				transaccioResponse = portafirmesFluxService.iniciarFluxFirma(urlReturn, true);
+			}
+		} catch (Exception ex) {
+			logger.error("Error al iniciar transacio", ex);
+			transaccioResponse = new PortafirmesIniciFluxRespostaDto();
+			transaccioResponse.setError(true);
+			transaccioResponse.setErrorDescripcio(ex.getMessage());
+		}
+
+		return transaccioResponse;
+	}
+	
+//	@RequestMapping(value = "/{expedientTipusId}/document/{id}/tancarTransaccio/{idTransaccio}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/tancarTransaccio/{idTransaccio}", method = RequestMethod.GET)
+	@ResponseBody
+	public void tancarTransaccio(
+			HttpServletRequest request, 
+			@PathVariable String idTransaccio,
+			@PathVariable Long expedientId, 
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId,
+			Model model) {
+		portafirmesFluxService.tancarTransaccio(idTransaccio);
+	}
+	
+//	@RequestMapping(value = "/{expedientTipusId}/document/{id}/flux/plantilles", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/flux/plantilles", method = RequestMethod.GET)
+	@ResponseBody
+	public List<PortafirmesFluxRespostaDto> getPlantillesDisponibles(
+			HttpServletRequest request, 
+			@PathVariable Long expedientId, 
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId,
+			Model model) {		
+		List<PortafirmesFluxRespostaDto> resposta = portafirmesFluxService.recuperarPlantillesDisponibles(false);
+		return resposta;
+	}
+	
+//	@RequestMapping(value = "/{expedientTipusId}/document/{id}/flux/returnurl/{transactionId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/flux/returnurl/{transactionId}", method = RequestMethod.GET)
+	public String transaccioEstat(
+			HttpServletRequest request, 
+			@PathVariable String transactionId, 
+			@PathVariable Long expedientId, 
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId,
+			Model model) {
+		PortafirmesFluxRespostaDto resposta = portafirmesFluxService.recuperarFluxFirma(transactionId);
+
+		if (resposta.isError() && resposta.getEstat() != null) {
+			model.addAttribute(
+					"FluxError",
+					getMessage(request, "expedient.tipus.document.form.camp.portafirmes.flux.enum." + resposta.getEstat()));
+		} else {
+			model.addAttribute(
+					"FluxCreat",
+					getMessage(request, "expedient.tipus.document.form.camp.portafirmes.flux.enum.FINAL_OK"));
+			model.addAttribute("fluxId", resposta.getFluxId());
+			model.addAttribute("FluxNom", resposta.getNom());
+		}
+		return "portafirmesModalTancar";
+	}
+
+	//@RequestMapping(value = "/{expedientTipusId}/document/{id}/flux/returnurl/", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/flux/returnurl/", method = RequestMethod.GET)
+	public String transaccioEstat(HttpServletRequest request, Model model) {
+		model.addAttribute(
+				"FluxCreat",
+				getMessage(request, "metadocument.form.camp.portafirmes.flux.edicio.enum.FINAL_OK"));
+		return "portafirmesModalTancar";
+	}
+	
+//	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/annex/new", method = RequestMethod.POST)
+//	public String annexesNouPost(
+//			HttpServletRequest request,
+//			@PathVariable Long expedientTipusId,
+//			@Validated(ExpedientTipusConsultaVarCommand.Creacio.class) ExpedientTipusConsultaVarCommand command,
+//			BindingResult bindingResult,
+//			Model model) {
+//        if (bindingResult.hasErrors()) {
+//    		omplirModelAnnexes(
+//    				request,
+//    				command,
+//    				model);
+//        	return "v3/expedientDocumentEnviarPortasignaturesForm";
+//        } else {
+//        	List<ConsultaCampDto> commandDtos = ExpedientTipusConsultaVarCommand.asConsultaCampDto(command);
+//        	if (command.getOrigen() >= 0) {
+//        		DefinicioProcesDto definicioProces = definicioProcesService.findById(command.getOrigen());
+//        		// Completa les dades de la definicó de procés
+//        		for (ConsultaCampDto commandDto : commandDtos) {
+//	        		commandDto.setDefprocJbpmKey(definicioProces.getJbpmKey());
+//	        		commandDto.setDefprocVersio(definicioProces.getVersio());
+//        		}
+//        	}
+//        	// Crea les variables i les afegeix
+//        	int nSuccess = 0;
+//    		for (ConsultaCampDto commandDto : commandDtos) {
+//    			try {
+//	        		expedientTipusService.consultaCampCreate(
+//	        				consultaId,
+//	        				commandDto);
+//	        		nSuccess++;
+//    			} catch (Exception e) {
+//    				MissatgesHelper.error(
+//    						request, 
+//    						getMessage(
+//    								request,
+//    								"expedient.tipus.consulta.vars.controller.crear.error",
+//    								new Object[] {commandDto.getCampCodi(), e.getLocalizedMessage()}));
+//    			}
+//    		}
+//        	// Esborra de la sessió el filtre
+//			SessionHelper.removeAttribute(request, SessionHelper.VARIABLE_FILTRE_CONSULTA_TIPUS + consultaId);
+//    		if (nSuccess > 0)
+//				MissatgesHelper.success(
+//						request,
+//						getMessage(
+//								request,
+//								"expedient.tipus.consulta.vars.controller.creat",
+//								new Object [] {nSuccess}));
+//        	return variables(request, expedientTipusId, consultaId, model, command.getTipus(), command.getOrigen());
+//        }
+//	}
+//	/** Mètode privat per omplir el model pel formulari d'annexes. */
+//	private void omplirModelAnnexes(
+//			HttpServletRequest request, 
+//			ExpedientTipusConsultaVarCommand command,
+//			Model model) {
+//
+//		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+//		
+//		List<DefinicioProcesDto> definicions = definicioProcesService.findAll(
+//				entornActual.getId(),
+//				command.getExpedientTipusId(),
+//				true); //incloureGlobals
+//	
+//		model.addAttribute("definicionsProces", definicions);
+//
+//		model.addAttribute("expedientTipusId", command.getExpedientTipusId());
+//		model.addAttribute("consulta", expedientTipusService.consultaFindAmbId(command.getConsultaId()));
+//		model.addAttribute("tipus", command.getTipus());
+//
+//		model.addAttribute("variables", obtenirParellesVariables(
+//				request,
+//				command.getExpedientTipusId(),
+//				command.getConsultaId(),
+//				command.getOrigen(),
+//				command.getTipus()));
+//	}
 	
 	private static final Log logger = LogFactory.getLog(ExpedientDocumentController.class);
 

@@ -20,7 +20,8 @@ public class ExpedientDocumentDto implements Serializable {
 	private Date dataDocument;
 	private String arxiuNom;
 	private String processInstanceId;
-
+	private String portafirmesFluxId;
+	
 	private Long documentId;
 	private String documentCodi;
 	private String documentNom;
@@ -368,6 +369,12 @@ public class ExpedientDocumentDto implements Serializable {
 	}
 	public void setDocumentError(String documentError) {
 		this.documentError = documentError;
+	}
+	public String getPortafirmesFluxId() {
+		return portafirmesFluxId;
+	}
+	public void setPortafirmesFluxId(String portafirmesFluxId) {
+		this.portafirmesFluxId = portafirmesFluxId;
 	}
 
 	private static final long serialVersionUID = -4307890997577367155L;
