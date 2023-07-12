@@ -76,6 +76,8 @@ public class InteressatValidator implements ConstraintValidator<Interessat, Inte
 			valid = false;
 		}
 		
+		/* #1675 Es treu la validació mentre no hi hagi entrega postal. 
+
 		// Línies entrega postal
 		try {
 			if (command.getEntregaPostal() && (command.getLinia1() == null || command.getLinia1().isEmpty())) {
@@ -106,6 +108,7 @@ public class InteressatValidator implements ConstraintValidator<Interessat, Inte
 		} catch (final Exception ex) {
 			logger.error("Ha d'informar els camps codi postal, línia 1 i línia 2 quan hi ha entrega postal", ex);
         }
+        */
 		
 		// email per entregues DEH
 		try {
