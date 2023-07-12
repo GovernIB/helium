@@ -202,11 +202,34 @@ public class DocumentHelperV3 {
 		// Obtenim el contingut de l'arxiu
 		byte[] arxiuOrigenContingut = null;
 		if (documentStore.getArxiuUuid() != null) {
-			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
+
+			// #1697 Es revisa que no retorni contingut null i es reintenta
+			es.caib.plugins.arxiu.api.Document documentArxiu = null;
+			int intents = 0;
+			do {
+				documentArxiu = pluginHelper.arxiuDocumentInfo(
 					documentStore.getArxiuUuid(),
 					versio,
 					true,
 					documentStore.isSignat());
+				if (documentArxiu == null || documentArxiu.getContingut() == null) {
+					logger.warn("La consulta del contingut pel document amb id=" + documentStore.getId() + 
+								" ha retornat " + (documentArxiu == null ? "": "documentArxiu.contingut") + " null" );
+				}
+			} while (intents++ < 5
+						&& (documentArxiu == null
+							|| documentArxiu.getContingut() == null));
+			
+			if (documentArxiu == null
+					|| documentArxiu.getContingut() == null )
+			{
+				throw new SistemaExternException(
+						MonitorIntegracioHelper.INTCODI_ARXIU,
+						"No s'ha pogut consultar el contingut a l'Arxiu pel document id=" + documentStore.getId() + 
+						" amb uuid=" + documentStore.getArxiuUuid() + " i " + (documentStore.isAdjunt() ? "títol d'adjunt " + documentStore.getAdjuntTitol() : "codi de document " + documentStore.getCodiDocument()) +
+						" després de " + intents + "intents.",
+						null);
+			}
 			resposta.setNom(documentStore.getArxiuNom());
 			resposta.setContingut(documentArxiu.getContingut().getContingut());
 			resposta.setTipusMime(
