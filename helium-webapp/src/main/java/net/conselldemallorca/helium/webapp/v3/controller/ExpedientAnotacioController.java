@@ -112,7 +112,7 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 								"expedient.anotacio.llistat.processar.traspas.ok"));      
 			}
 				
-			// Si hi ha errors posa alertes, afegiex elements span i title per abreujar el missatge sense perdre informació.
+			// Si hi ha errors posa alertes, afegeix elements span i title per abreujar el missatge sense perdre informació.
 			if (resultatMapeig.isError()) {
 				StringBuilder errMsg = new StringBuilder();
 				errMsg.append(resultatMapeig.getMissatgeAlerta()).append("<ul>");
@@ -122,7 +122,7 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 					i = 0;
 					for (String clau : resultatMapeig.getErrorsDades().keySet()) {
 						errMsg.append("<span title=\"").append(StringEscapeUtils.escapeHtml4(resultatMapeig.getErrorsDades().get(clau))).append("\">").append(clau).append("</span>");
-						if (i++ < resultatMapeig.getErrorsDades().size()) {
+						if (i++ < resultatMapeig.getErrorsDades().size() - 1) {
 							errMsg.append(", ");
 						}
 					}
@@ -133,7 +133,7 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 					i = 0;
 					for (String clau : resultatMapeig.getErrorsDocuments().keySet()) {
 						errMsg.append("<span title=\"").append(StringEscapeUtils.escapeHtml4(resultatMapeig.getErrorsDocuments().get(clau))).append("\">").append(clau).append("</span>");
-						if (i++ < resultatMapeig.getErrorsDades().size()) {
+						if (i++ < resultatMapeig.getErrorsDocuments().size() - 1) {
 							errMsg.append(", ");
 						}
 					}
@@ -144,7 +144,7 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 					i = 0;
 					for (String clau : resultatMapeig.getErrorsAdjunts().keySet()) {
 						errMsg.append("<span title=\"").append(StringEscapeUtils.escapeHtml4(resultatMapeig.getErrorsAdjunts().get(clau))).append("\">").append(clau).append("</span>");
-						if (i++ < resultatMapeig.getErrorsDades().size()) {
+						if (i++ < resultatMapeig.getErrorsAdjunts().size() - 1) {
 							errMsg.append(", ");
 						}
 					}

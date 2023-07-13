@@ -59,6 +59,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
+import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAnnexEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
@@ -201,11 +202,34 @@ public class DocumentHelperV3 {
 		// Obtenim el contingut de l'arxiu
 		byte[] arxiuOrigenContingut = null;
 		if (documentStore.getArxiuUuid() != null) {
-			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
+
+			// #1697 Es revisa que no retorni contingut null i es reintenta
+			es.caib.plugins.arxiu.api.Document documentArxiu = null;
+			int intents = 0;
+			do {
+				documentArxiu = pluginHelper.arxiuDocumentInfo(
 					documentStore.getArxiuUuid(),
 					versio,
 					true,
 					documentStore.isSignat());
+				if (documentArxiu == null || documentArxiu.getContingut() == null) {
+					logger.warn("La consulta del contingut pel document amb id=" + documentStore.getId() + 
+								" ha retornat " + (documentArxiu == null ? "": "documentArxiu.contingut") + " null" );
+				}
+			} while (intents++ < 5
+						&& (documentArxiu == null
+							|| documentArxiu.getContingut() == null));
+			
+			if (documentArxiu == null
+					|| documentArxiu.getContingut() == null )
+			{
+				throw new SistemaExternException(
+						MonitorIntegracioHelper.INTCODI_ARXIU,
+						"No s'ha pogut consultar el contingut a l'Arxiu pel document id=" + documentStore.getId() + 
+						" amb uuid=" + documentStore.getArxiuUuid() + " i " + (documentStore.isAdjunt() ? "títol d'adjunt " + documentStore.getAdjuntTitol() : "codi de document " + documentStore.getCodiDocument()) +
+						" després de " + intents + "intents.",
+						null);
+			}
 			resposta.setNom(documentStore.getArxiuNom());
 			resposta.setContingut(documentArxiu.getContingut().getContingut());
 			resposta.setTipusMime(
@@ -886,7 +910,8 @@ public class DocumentHelperV3 {
 				ntiIdDocumentoOrigen,
 				true,	// documetn vàlid
 				null,	// error
-				null);	// annexId
+				null,	// annexId
+				null);	// annexUuid	
 	}
 		
 	public Long actualitzarDocument(
@@ -907,7 +932,8 @@ public class DocumentHelperV3 {
 			String ntiIdDocumentoOrigen,
 			boolean documentValid,
 			String documentError,
-			Long annexId) {
+			Long annexId,
+			String annexUuid) {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		if (documentStore == null) {
 			throw new NoTrobatException(
@@ -915,9 +941,19 @@ public class DocumentHelperV3 {
 					documentStoreId);
 		}
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		// Comprova la llista d'enviaments
 		List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
-		if (enviaments != null && enviaments.size() > 0)
+		if (enviaments != null && enviaments.size() > 0) {
 			throw new ValidacioException("No es pot modificar un document amb " + enviaments.size() + " enviaments");
+		}
+		// Comprova si fa referència a un annex i si aquest está mogut o no 
+		if (expedient.isArxiuActiu() && documentStore.getAnnexId() != null) {
+			AnotacioAnnex annex = anotacioAnnexRepository.findOne(documentStore.getAnnexId());
+			if (annex != null && !AnotacioAnnexEstatEnumDto.MOGUT.equals(annex.getEstat())) {
+				throw new ValidacioException("No es pot modificar un document que faci referència a un annex que encara no s'ha mogut a l'Arxiu. " + 
+												"S'ha de reprocessar el traspàs o esborrar-lo i ajuntar-ne un altre.");
+			}
+		}
 		documentStore.setDataDocument(documentData);
 		documentStore.setDataModificacio(new Date());
 		if (documentStore.isAdjunt()) {
@@ -930,8 +966,11 @@ public class DocumentHelperV3 {
 		}
 		documentStore.setDocumentValid(documentValid);
 		documentStore.setDocumentError(documentError);
+		String arxiuUuid = null;
 		if (annexId != null) {
 			documentStore.setAnnexId(annexId);
+			// S'actualitzarà el document amb el nou uuid, l'existent es perdrà en tancar l'expedient
+			arxiuUuid = annexUuid;
 		}
 		postProcessarDocument(
 				documentStore,
@@ -939,7 +978,7 @@ public class DocumentHelperV3 {
 				processInstanceId,
 				arxiuNom,
 				arxiuContingut,
-				null, //arxiuUuid
+				arxiuUuid,
 				arxiuContentType,
 				ambFirma,
 				firmaSeparada,
@@ -1080,15 +1119,20 @@ public class DocumentHelperV3 {
 			boolean esborrarDocument = true;
 			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 			List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
-			if (enviaments != null && enviaments.size() > 0)
-				// si té enviaments no s'esborra el document per a que es pugui consultar des de l'anotació.
+			if (enviaments != null && enviaments.size() > 0) {
+				// si té enviaments no s'esborra el document per a que es pugui consultar des de la notificació.
 				esborrarDocument = false;
+			}
 			if (expedient.isArxiuActiu()) {
 				if (documentStore.isSignat()) {
 					throw new ValidacioException("No es pot esborrar un document firmat");
 				} else {
-					if (esborrarDocument)
-						pluginHelper.arxiuDocumentEsborrar(documentStore.getArxiuUuid());
+					if (esborrarDocument ) {
+						// No esborra el document de l'Arxiu si té un annex associat
+						if (documentStore.getAnnexId() == null) {
+							pluginHelper.arxiuDocumentEsborrar(documentStore.getArxiuUuid());
+						}
+					}
 				}
 			} else {
 				if (documentStore.isSignat()) {

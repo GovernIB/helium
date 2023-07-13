@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.commons.io.FilenameUtils;
@@ -23,6 +24,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
@@ -53,6 +55,7 @@ import es.caib.distribucio.rest.client.domini.NtiOrigen;
 import es.caib.distribucio.rest.client.domini.NtiTipoDocumento;
 import es.caib.plugins.arxiu.api.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
+import net.conselldemallorca.helium.core.model.hibernate.Alerta.AlertaPrioritat;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioInteressat;
@@ -60,10 +63,10 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
-import net.conselldemallorca.helium.core.model.hibernate.Alerta.AlertaPrioritat;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra.TipusMapeig;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAnnexEstatEnumDto;
@@ -92,6 +95,7 @@ import net.conselldemallorca.helium.v3.core.repository.AnotacioAnnexRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioInteressatRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.MapeigSistraRepository;
@@ -146,9 +150,24 @@ public class DistribucioHelper {
 
 	@Resource
 	private AlertaHelper alertaHelper;
+	
+	@Resource
+	private DocumentStoreRepository documentStoreRepository;
+
 
 	/** Referència al client del WS de Distribució */
 	private BackofficeIntegracioRestClient restClient = null;
+	
+	/** Referència pròpia per cridar mètodes de forma transaccional */
+	private DistribucioHelper self;
+    @Autowired
+    private ApplicationContext applicationContext;
+
+    @PostConstruct
+    public void postContruct(){
+        self = applicationContext.getBean(DistribucioHelper.class);
+    }
+
 		
 
 	/** Mètode per obtenir la instància del client del WS de Distribucio.
@@ -400,7 +419,7 @@ public class DistribucioHelper {
 	 * @param errorProcessament
 	 * @return
 	 */
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public Anotacio updateErrorProcessament(long anotacioId, String errorProcessament) {
 		
 		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
@@ -768,7 +787,8 @@ public class DistribucioHelper {
 							adjunts); //adjunts);
 				} catch (Throwable e) {
 					String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e;
-					this.updateErrorProcessament(anotacio.getId(), errorProcessament);
+					// Crida fent referència al bean per crear una nova transacció
+					self.updateErrorProcessament(anotacio.getId(), errorProcessament);
 					logger.error(errorProcessament, e);
 					 //Es comunica l'estat a Distribucio
 					try {
@@ -838,7 +858,7 @@ public class DistribucioHelper {
 				logger.warn(errMsg, e);				
 			}			
 		}
-		logger.info("Rebuda correctament la petició d'anotació de registre amb id de Distribucio =" + idWs);
+		logger.info("Rebuda correctament la petició d'anotació de registre amb id de Distribucio =" + (idWs != null ? idWs.getIndetificador() : ""));
 	}
 	
 	@Transactional
@@ -1228,6 +1248,8 @@ public class DistribucioHelper {
 			resposta.setDocumentValid(document.isDocumentValid());
 			resposta.setDocumentError(document.getDocumentError());
 			resposta.setAnnexId(document.getId());
+			
+			resposta.setFirmaTipus(document.getFirmaTipus());
 
 			if (ambContingut) {
 				byte[] contingut = document.getContingut();
@@ -1418,6 +1440,10 @@ public class DistribucioHelper {
 					annex.setError(null);
 					arxiuUuid = annex.getUuid();
 				}
+				// Actualitza l'uuid a tots els documents que fan referència a l'annex que poden contenir l'uuid anterior
+				for (DocumentStore ds : documentStoreRepository.findByAnnexId(annex.getId())) {
+					ds.setArxiuUuid(arxiuUuid);
+				}				
 			} else {
 				Annex a = new Annex();
 				a.setUuid(annex.getUuid());

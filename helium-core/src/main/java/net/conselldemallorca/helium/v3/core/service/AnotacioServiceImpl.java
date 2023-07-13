@@ -35,8 +35,8 @@ import es.caib.distribucio.rest.client.domini.Annex;
 import es.caib.distribucio.rest.client.domini.AnotacioRegistreEntrada;
 import es.caib.distribucio.rest.client.domini.AnotacioRegistreId;
 import es.caib.distribucio.rest.client.domini.Estat;
-import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
 import es.caib.plugins.arxiu.api.Document;
+import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helper.AlertaHelper;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
@@ -1287,6 +1287,20 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 						documentCodi);	
 				
 				boolean documentExisteix = document !=null ? true : false;
+				
+				
+				if (documentExisteix && expedient.isArxiuActiu()) {
+					// Si el document està firmat i a l'Arxiu llavors no es pot modifirar.
+					if (document.isSignat() && !mapeigSistra.isEvitarSobreescriptura()) {
+						// No es pot modificar un document firmat
+						resultatMapeig.getErrorsDocuments().put(documentCodi, "El document no es pot sobreescriure perquè està firmat i no es pot modificar.");
+						continue;						
+					}
+					// Si el document prové d'una anotació llavors ja està mapejat i no cal sobreescriure
+					if (document.getAnotacioAnnexId() != null) {
+						continue;
+					}
+				}	
 				processarDocumentsAnotacio(
 						dadesDocumentDto, 
 						expedient, 
@@ -1412,7 +1426,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					document.getNtiIdOrigen(),
 					dadesDocumentDto.isDocumentValid(),
 					dadesDocumentDto.getDocumentError(),
-					dadesDocumentDto.getAnnexId());
+					dadesDocumentDto.getAnnexId(), 
+					dadesDocumentDto.getUuid());
 			
 			
 			

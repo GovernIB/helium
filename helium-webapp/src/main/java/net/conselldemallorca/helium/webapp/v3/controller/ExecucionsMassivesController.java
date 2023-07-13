@@ -180,7 +180,7 @@ public class ExecucionsMassivesController extends BaseExpedientController {
 				ajaxResponse.setMissatge("L'execució massiva amb id " + id + " s'ha reprès correctament ");
 				
 			} catch (Exception ex) {
-				String errMsg = "No s'ha pogut rependre la execució massiva d'expedients amb id " + id;
+				String errMsg = "No s'ha pogut rependre la execució massiva d'expedients amb id " + id + ": " + ex.getMessage();
 				logger.error(errMsg, ex);
 				ajaxResponse.setError(true);
 				ajaxResponse.setMissatge(errMsg);
@@ -200,7 +200,7 @@ public class ExecucionsMassivesController extends BaseExpedientController {
 				ajaxResponse.setMissatge("L'execució massiva amb id " + id + " s'ha reintentat correctament ");
 				
 			} catch (Exception ex) {
-				String errMsg = "No s'ha pogut reintentar l'execució massiva dels casos d'execució amb error amb id " + id;
+				String errMsg = "Error reintentant l'acció massiva amb id " + id + ": " + ex.getMessage();
 				logger.error(errMsg, ex);
 				ajaxResponse.setError(true);
 				ajaxResponse.setMissatge(errMsg);
