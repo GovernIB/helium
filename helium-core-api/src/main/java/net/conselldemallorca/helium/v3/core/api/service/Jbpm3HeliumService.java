@@ -161,12 +161,14 @@ public interface Jbpm3HeliumService {
 	 * seu entorn i la clau jBPM.
 	 * 
 	 * @param entornId
+	 * @param expedientTipusId
 	 * @param jbpmKey
 	 * @return
 	 * @throws EntornNotFoundException
 	 */
 	public DefinicioProcesDto getDarreraVersioAmbEntornIJbpmKey(
 			Long entornId,
+			Long expedientTipusId,
 			String jbpmKey) throws NoTrobatException;
 
 	/**
@@ -911,6 +913,7 @@ public interface Jbpm3HeliumService {
 	 * @param processInstanceId
 	 * @param transicioOK
 	 * @param transicioKO
+	 * @param portafirmesFluxId
 	 * 
 	 * @return Retorna l'identificador del document donat pel portasignatures.
 	 */
@@ -930,7 +933,8 @@ public interface Jbpm3HeliumService {
 			Long tokenId,
 			Long processInstanceId,
 			String transicioOK,
-			String transicioKO) throws SistemaExternException;
+			String transicioKO,
+			String portafirmesFluxId) throws SistemaExternException;
 	
 	/**
 	 * 

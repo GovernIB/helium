@@ -13,6 +13,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +31,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
@@ -59,6 +62,7 @@ import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
+import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCommand.Modificacio;
@@ -284,6 +288,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	public String modificarPost(
 			HttpServletRequest request,
 			@PathVariable Long id,
+			@RequestParam(value = "manualAjudaContent_multipartFile", required = false) final MultipartFile manualAjudaContent,
+			@RequestParam(value = "manualAjudaContent_deleted", required = false) final boolean eliminarManualAjudaContent,
 			@Validated(Modificacio.class) ExpedientTipusCommand command,
 			BindingResult bindingResult,
 			Model model) {
@@ -291,6 +297,22 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
     		omplirModelExpedientTipusForm( request, id, model);		
         	return "v3/expedientTipusForm";
         } else {
+        	boolean actualitzarContingut = false;
+        	if (eliminarManualAjudaContent) {
+        		command.setManualAjudaContent(null);
+        		command.setManualAjudaNom(null);
+        		actualitzarContingut = true;
+        	}
+        	if (manualAjudaContent != null && manualAjudaContent.getSize() > 0) {
+				try {
+					command.setManualAjudaContent(IOUtils.toByteArray(manualAjudaContent.getInputStream()));
+					command.setManualAjudaNom(manualAjudaContent.getOriginalFilename());
+				} catch (IOException e) {
+					logger.error("No s'ha pogut guardar el manual: " + id, e);
+					return "redirect:/v3/expedientTipus";
+				}
+				actualitzarContingut = true;
+			}
     		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
     		// Transforma els llistats d'anys i valors 
     		List<Integer> sequenciesAny = new ArrayList<Integer>();
@@ -1374,6 +1396,26 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				definicionsSeleccionades,
 				model);
 	}	
+	
+	@RequestMapping(value="/{expedientTipusId}/documentDownload", method = RequestMethod.GET)
+	public String documentDownload(
+			HttpServletRequest request, 
+			@PathVariable Long expedientTipusId, 
+			Model model) {
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		expedientTipusService.findAmbIdPermisDissenyarDelegat(
+					entornActual.getId(),
+					expedientTipusId);
+		ExpedientTipusDto expedientTipusDto = expedientTipusService.findAmbIdPermisDissenyar(
+				entornActual.getId(),
+				expedientTipusId);
+		if(expedientTipusDto!=null && expedientTipusDto.getManualAjudaContent()!=null && expedientTipusDto.getManualAjudaNom()!=null) {
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, expedientTipusDto.getManualAjudaNom());
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, expedientTipusDto.getManualAjudaContent());
+		}
+		return "arxiuView";
+	}
+
 	
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {

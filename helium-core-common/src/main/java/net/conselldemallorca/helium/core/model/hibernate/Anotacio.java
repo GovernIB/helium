@@ -86,6 +86,7 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 	private Date consultaData = null;
 	
 	// Camps de dades del processament
+	/** Data en què s'ha processat amb o sense error o que s'ha rebutjat l'anotació. */
 	@Column(name = "data_processament")
 	private Date dataProcessament;
 	@Column(name = "error_processament", length = 1024)

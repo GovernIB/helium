@@ -1,5 +1,6 @@
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
+import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Interessat;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
@@ -40,6 +42,9 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 	
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
+	
+	@Resource
+	private PluginHelper pluginHelper;
 	
 	/**
 	 * {@inheritDoc}
@@ -71,7 +76,17 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 				interessat.getCodiPostal(),
 				interessat.getEntregaDeh(),
 				interessat.getEntregaDehObligat());
-
+			if(expedient.getInteressats()!=null)
+				expedient.getInteressats().add(interessatEntity);
+			else {
+				List<Interessat> interessatsList = new ArrayList<Interessat>();
+				interessatsList.add(interessatEntity);
+				expedient.setInteressats(interessatsList);
+			}
+			if (expedient.isArxiuActiu()) {
+				// Modifiquem l'expedient a l'arxiu.
+				pluginHelper.arxiuExpedientModificar(expedient);
+			}
 		return conversioTipusHelper.convertir(
 				interessatRepository.save(interessatEntity),
 				InteressatDto.class);
@@ -103,7 +118,11 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		interessatEntity.setCodiPostal(interessat.getCodiPostal());
 		interessatEntity.setEntregaDeh(interessat.getEntregaDeh());
 		interessatEntity.setEntregaDehObligat(interessat.getEntregaDehObligat());
-
+		Expedient expedient = expedientRepository.findOne(interessat.getExpedientId());
+		if (expedient.isArxiuActiu()) {
+			// Modifiquem l'expedient a l'arxiu.
+			pluginHelper.arxiuExpedientModificar(expedient);
+		}
 		return conversioTipusHelper.convertir(
 				interessatEntity,
 				InteressatDto.class);
@@ -133,7 +152,16 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			Long interessatId) {
 		logger.debug("Esborrant interessat (interessatId=" + interessatId + ")");
 		Interessat interessat = comprovarInteressat(interessatId);
+		Expedient expedient = expedientRepository.findOne(interessat.getExpedient().getId());
+		List<Interessat> interessats = expedient.getInteressats();
+		interessats.remove(interessat);
+		expedient.setInteressats(interessats);
 		interessatRepository.delete(interessat);
+		
+		if (expedient.isArxiuActiu()) {
+			// Modifiquem l'expedient a l'arxiu.
+			pluginHelper.arxiuExpedientModificar(expedient);
+		}
 	}
 	
 	

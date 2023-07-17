@@ -41,13 +41,15 @@ import es.caib.portafib.ws.api.v1.TipusDocumentInfoWs;
 import es.caib.portafib.ws.api.v1.WsI18NException;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
+import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.wsdl.ImportanceEnum;
 
 /**
  * Implementació del plugin de portasignatures per la CAIB.
- * 
+ * @deprecated Aquesta implementació és per invocar el WS SOAP que ja no s'ha d'utilitzar.
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Deprecated
 public class PortasignaturesPluginPortafib implements PortasignaturesPlugin {
 
 	private OpenOfficeUtils openOfficeUtils;
@@ -59,7 +61,8 @@ public class PortasignaturesPluginPortafib implements PortasignaturesPlugin {
 			PasSignatura[] passesSignatura,
 			String remitent,
 			String importancia,
-			Date dataLimit) throws PortasignaturesPluginException {
+			Date dataLimit,
+			String fluxId) throws PortasignaturesPluginException {
 		try {
 			PeticioDeFirmaWs requestPeticioDeFirmaWs = new PeticioDeFirmaWs();
 			requestPeticioDeFirmaWs.setTitol(
@@ -365,6 +368,77 @@ public class PortasignaturesPluginPortafib implements PortasignaturesPlugin {
 			openOfficeUtils = new OpenOfficeUtils();
 		}
 		return openOfficeUtils;
+	}
+
+	@Override
+	public PortafirmesIniciFluxResposta iniciarFluxDeFirma(String idioma, boolean isPlantilla, String nom,
+			String descripcio, boolean descripcioVisible, String returnUrl) throws SistemaExternException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PortafirmesFluxResposta recuperarFluxDeFirmaByIdTransaccio(String idTransaccio)
+			throws SistemaExternException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<PortafirmesFluxResposta> recuperarPlantillesDisponibles(String idioma) throws SistemaExternException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PortafirmesFluxInfo recuperarFluxDeFirmaByIdPlantilla(String idTransaccio, String idioma)
+			throws SistemaExternException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String recuperarUrlViewEditPlantilla(String idPlantilla, String idioma, String urlReturn, boolean edicio)
+			throws SistemaExternException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean esborrarPlantillaFirma(String idioma, String plantillaFluxId) throws SistemaExternException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void tancarTransaccioFlux(String idTransaccio) throws SistemaExternException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public List<PortafirmesCarrec> recuperarCarrecs() throws SistemaExternException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PortafirmesCarrec recuperarCarrec(String carrecId) throws SistemaExternException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<PortafirmesFluxResposta> recuperarPlantillesPerFiltre(String idioma, String descripcio)
+			throws SistemaExternException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String recuperarUrlViewEstatFluxDeFirmes(long portafirmesId, String idioma) throws SistemaExternException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

@@ -32,6 +32,7 @@ import es.caib.plugins.arxiu.api.DocumentEstat;
 import es.caib.plugins.arxiu.api.Firma;
 import es.caib.plugins.arxiu.api.FirmaPerfil;
 import es.caib.plugins.arxiu.api.FirmaTipus;
+import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
@@ -58,6 +59,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
+import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAnnexEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
@@ -200,11 +202,34 @@ public class DocumentHelperV3 {
 		// Obtenim el contingut de l'arxiu
 		byte[] arxiuOrigenContingut = null;
 		if (documentStore.getArxiuUuid() != null) {
-			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
+
+			// #1697 Es revisa que no retorni contingut null i es reintenta
+			es.caib.plugins.arxiu.api.Document documentArxiu = null;
+			int intents = 0;
+			do {
+				documentArxiu = pluginHelper.arxiuDocumentInfo(
 					documentStore.getArxiuUuid(),
 					versio,
 					true,
 					documentStore.isSignat());
+				if (documentArxiu == null || documentArxiu.getContingut() == null) {
+					logger.warn("La consulta del contingut pel document amb id=" + documentStore.getId() + 
+								" ha retornat " + (documentArxiu == null ? "": "documentArxiu.contingut") + " null" );
+				}
+			} while (intents++ < 5
+						&& (documentArxiu == null
+							|| documentArxiu.getContingut() == null));
+			
+			if (documentArxiu == null
+					|| documentArxiu.getContingut() == null )
+			{
+				throw new SistemaExternException(
+						MonitorIntegracioHelper.INTCODI_ARXIU,
+						"No s'ha pogut consultar el contingut a l'Arxiu pel document id=" + documentStore.getId() + 
+						" amb uuid=" + documentStore.getArxiuUuid() + " i " + (documentStore.isAdjunt() ? "títol d'adjunt " + documentStore.getAdjuntTitol() : "codi de document " + documentStore.getCodiDocument()) +
+						" després de " + intents + "intents.",
+						null);
+			}
 			resposta.setNom(documentStore.getArxiuNom());
 			resposta.setContingut(documentArxiu.getContingut().getContingut());
 			resposta.setTipusMime(
@@ -337,7 +362,7 @@ public class DocumentHelperV3 {
 		// Consulta els annexos de les anotacions de registre i les guarda en un Map<Long documentStoreId, Anotacio>
 		Map<Long, AnotacioAnnex> mapAnotacions = new HashMap<Long, AnotacioAnnex>();
 		for (AnotacioAnnex annex : anotacioAnnexRepository.findByAnotacioExpedientId(expedient.getId()))
-			mapAnotacions.put(annex.getDocumentStoreId(), annex);
+			mapAnotacions.put(annex.getId(), annex);
 		// Consulta els documents de l'instància de procés
 		Map<String, Object> varsInstanciaProces = jbpmHelper.getProcessInstanceVariables(processInstanceId);
 		if (varsInstanciaProces != null) {
@@ -345,6 +370,7 @@ public class DocumentHelperV3 {
 			for (String var: varsInstanciaProces.keySet()) {
 				Long documentStoreId = (Long)varsInstanciaProces.get(var);
 				if (documentStoreId != null) {
+					ExpedientDocumentDto ed = null;
 					if (var.startsWith(JbpmVars.PREFIX_DOCUMENT)) {
 						// Afegeix el document
 						String documentCodi = getDocumentCodiDeVariableJbpm(var);
@@ -356,7 +382,7 @@ public class DocumentHelperV3 {
 							}
 						}
 						if (document != null) {
-							ExpedientDocumentDto ed = crearDtoPerDocumentExpedient(
+							ed = crearDtoPerDocumentExpedient(
 									document,
 									documentStoreId);
 							List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
@@ -373,16 +399,18 @@ public class DocumentHelperV3 {
 						}
 					} else if (var.startsWith(JbpmVars.PREFIX_ADJUNT)) {
 						// Afegeix l'adjunt
-						ExpedientDocumentDto ed = crearDtoPerAdjuntExpedient(
+						ed = crearDtoPerAdjuntExpedient(
 								getAdjuntIdDeVariableJbpm(var),
 								documentStoreId);
 						ed.setNotificat(false); // De moment els annexos no es notifiquen
-						AnotacioAnnex annex = mapAnotacions.get(ed.getId());
-						if (annex != null) {
-							ed.setAnotacioId(annex.getAnotacio().getId());
-							ed.setAnotacioIdentificador(annex.getAnotacio().getIdentificador());
-						}
 						resposta.add(ed);
+					}
+					// Afegeix informació de l'annex relacionat amb el document
+					if (ed != null && mapAnotacions.containsKey(ed.getAnotacioAnnexId())) {
+						AnotacioAnnex annex = mapAnotacions.get(ed.getAnotacioAnnexId());
+						ed.setAnotacioId(annex.getAnotacio().getId());
+						ed.setAnotacioIdentificador(annex.getAnotacio().getIdentificador());
+						ed.setAnotacioAnnexTitol(annex.getTitol());
 					}
 				}
 			}
@@ -713,7 +741,9 @@ public class DocumentHelperV3 {
 				ntiTipoDocumental,
 				ntiIdDocumentoOrigen,
 				true,
-				null);
+				null,
+				null //annexId
+				);
 	}
 	
 	public Long crearDocument(
@@ -743,14 +773,16 @@ public class DocumentHelperV3 {
 				null, // arxiuUuid
 				this.getContentType(arxiuNom),
 				false,	// amb firma
-				false,
-				null,
+				false,	// firma separada
+				null,	// firma contingut
 				ntiOrigen,
 				ntiEstadoElaboracion,
 				ntiTipoDocumental,
 				ntiIdDocumentoOrigen,
 				documentValid,
-				documentError);
+				documentError,
+				null // annexId
+				);
 	}
 
 	public Long crearDocument(
@@ -772,7 +804,8 @@ public class DocumentHelperV3 {
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
 			String ntiIdDocumentoOrigen, 
 			boolean documentValid,
-			String documentError) {
+			String documentError,
+			Long annexId) {
 		String documentCodiPerCreacio = documentCodi;
 		if (documentCodiPerCreacio == null && isAdjunt) {
 			documentCodiPerCreacio = new Long(new Date().getTime()).toString();
@@ -788,6 +821,7 @@ public class DocumentHelperV3 {
 		if (isAdjunt) {
 			documentStore.setAdjuntTitol(adjuntTitol);
 		}
+		documentStore.setAnnexId(annexId);
 		DocumentStore documentStoreCreat = documentStoreRepository.save(documentStore);
 		documentStoreRepository.flush();
 		postProcessarDocument(
@@ -875,7 +909,9 @@ public class DocumentHelperV3 {
 				ntiTipoDocumental,
 				ntiIdDocumentoOrigen,
 				true,	// documetn vàlid
-				null);	// error
+				null,	// error
+				null,	// annexId
+				null);	// annexUuid	
 	}
 		
 	public Long actualitzarDocument(
@@ -895,7 +931,9 @@ public class DocumentHelperV3 {
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
 			String ntiIdDocumentoOrigen,
 			boolean documentValid,
-			String documentError) {
+			String documentError,
+			Long annexId,
+			String annexUuid) {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		if (documentStore == null) {
 			throw new NoTrobatException(
@@ -903,9 +941,19 @@ public class DocumentHelperV3 {
 					documentStoreId);
 		}
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		// Comprova la llista d'enviaments
 		List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
-		if (enviaments != null && enviaments.size() > 0)
+		if (enviaments != null && enviaments.size() > 0) {
 			throw new ValidacioException("No es pot modificar un document amb " + enviaments.size() + " enviaments");
+		}
+		// Comprova si fa referència a un annex i si aquest está mogut o no 
+		if (expedient.isArxiuActiu() && documentStore.getAnnexId() != null) {
+			AnotacioAnnex annex = anotacioAnnexRepository.findOne(documentStore.getAnnexId());
+			if (annex != null && !AnotacioAnnexEstatEnumDto.MOGUT.equals(annex.getEstat())) {
+				throw new ValidacioException("No es pot modificar un document que faci referència a un annex que encara no s'ha mogut a l'Arxiu. " + 
+												"S'ha de reprocessar el traspàs o esborrar-lo i ajuntar-ne un altre.");
+			}
+		}
 		documentStore.setDataDocument(documentData);
 		documentStore.setDataModificacio(new Date());
 		if (documentStore.isAdjunt()) {
@@ -918,13 +966,19 @@ public class DocumentHelperV3 {
 		}
 		documentStore.setDocumentValid(documentValid);
 		documentStore.setDocumentError(documentError);
+		String arxiuUuid = null;
+		if (annexId != null) {
+			documentStore.setAnnexId(annexId);
+			// S'actualitzarà el document amb el nou uuid, l'existent es perdrà en tancar l'expedient
+			arxiuUuid = annexUuid;
+		}
 		postProcessarDocument(
 				documentStore,
 				taskInstanceId,
 				processInstanceId,
 				arxiuNom,
 				arxiuContingut,
-				null, //arxiuUuid
+				arxiuUuid,
 				arxiuContentType,
 				ambFirma,
 				firmaSeparada,
@@ -1011,7 +1065,9 @@ public class DocumentHelperV3 {
 					ntiTipoDocumental,
 					ntiIdDocumentoOrigen,
 					true,
-					null);
+					null,
+					null // annexId
+					);
 		} else {
 			return actualitzarDocument(
 					documentStoreId,
@@ -1063,15 +1119,20 @@ public class DocumentHelperV3 {
 			boolean esborrarDocument = true;
 			Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 			List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
-			if (enviaments != null && enviaments.size() > 0)
-				// si té enviaments no s'esborra el document per a que es pugui consultar des de l'anotació.
+			if (enviaments != null && enviaments.size() > 0) {
+				// si té enviaments no s'esborra el document per a que es pugui consultar des de la notificació.
 				esborrarDocument = false;
+			}
 			if (expedient.isArxiuActiu()) {
 				if (documentStore.isSignat()) {
 					throw new ValidacioException("No es pot esborrar un document firmat");
 				} else {
-					if (esborrarDocument)
-						pluginHelper.arxiuDocumentEsborrar(documentStore.getArxiuUuid());
+					if (esborrarDocument ) {
+						// No esborra el document de l'Arxiu si té un annex associat
+						if (documentStore.getAnnexId() == null) {
+							pluginHelper.arxiuDocumentEsborrar(documentStore.getArxiuUuid());
+						}
+					}
 				}
 			} else {
 				if (documentStore.isSignat()) {
@@ -1818,9 +1879,7 @@ public class DocumentHelperV3 {
 		
 		if (documentStore.getArxiuUuid() != null) {
 			// Guardar firma a l'Arxiu
-			
-			String documentNom = inArxiu(processInstanceId, documentStore.getArxiuUuid(), arxiuNom);
-			
+						
 			ArxiuDto arxiuFirmat = new ArxiuDto();
 			es.caib.plugins.arxiu.api.Document documentArxiu;
 						
@@ -1831,6 +1890,14 @@ public class DocumentHelperV3 {
 					false, 
 					true);
 			
+			// Mira que no hi hagi un document amb el mateix nom o que com a mínim sigui ell mateix en cas d'actualitzar
+			String documentNom = inArxiu(
+					processInstanceId, 
+					DocumentEstat.DEFINITIU.equals(documentArxiu.getEstat()) ? 
+							null 							// Nou document a l'Arxiu
+							: documentStore.getArxiuUuid(), // Actualització del documetn
+					arxiuNom);
+
 			if (documentArxiu != null && DocumentEstat.DEFINITIU.equals(documentArxiu.getEstat())) 
 			{
 				// El document ja està firmat a l'Arxiu, es guarda amb un altre uuid
@@ -1990,6 +2057,7 @@ public class DocumentHelperV3 {
 		dto.setArxiuUuid(documentStore.getArxiuUuid());
 		dto.setDocumentValid(documentStore.isDocumentValid());
 		dto.setDocumentError(documentStore.getDocumentError());
+		dto.setAnotacioAnnexId(documentStore.getAnnexId());
 		
 		return dto;
 	}
@@ -2048,6 +2116,7 @@ public class DocumentHelperV3 {
 		}
 		dto.setDocumentValid(documentStore.isDocumentValid());
 		dto.setDocumentError(documentStore.getDocumentError());
+		dto.setAnotacioAnnexId(documentStore.getAnnexId());
 		return dto;
 	}
 
@@ -2429,8 +2498,6 @@ public class DocumentHelperV3 {
 			if(firmes!=null && !firmes.isEmpty())
 				comprovarFirmesReconegudes(firmes);
 			if (arxiuUuid == null) {
-				String documentDescripcio = documentStore.isAdjunt() ? documentStore.getAdjuntTitol() 
-											: (document!=null ? document.getNom() : documentNom );
 				// Actualitza el document a dins l'arxiu
 				ArxiuDto arxiu = new ArxiuDto(
 						arxiuNom,
@@ -2722,10 +2789,6 @@ public class DocumentHelperV3 {
 	}
 
 	public String getContentType(String arxiuNom) {
-		String fileNameDetect = tika.detect(arxiuNom);
-        if (!fileNameDetect.equals(MimeTypes.OCTET_STREAM)) {
-            return fileNameDetect;
-        }
         String fileContentDetect = tika.detect(arxiuNom);
         if (!fileContentDetect.equals(MimeTypes.OCTET_STREAM)) {
             return fileContentDetect;
@@ -2820,13 +2883,7 @@ public class DocumentHelperV3 {
 	 * invàlids. També treu el punt final en cas d'haver-n'hi.
 	 */
 	public static String revisarContingutNom(String nom) {
-		if (nom != null) {
-			nom = nom.replaceAll("[\\s\\']", " ").replaceAll("[^\\wçñàáèéíïòóúüÇÑÀÁÈÉÍÏÒÓÚÜ()\\-,\\.·\\s]", "").trim();
-			if (nom.endsWith(".")) {
-				nom = nom.substring(0, nom.length()-1);
-			}
-		}
-		return nom;
+		return ArxiuConversioHelper.revisarContingutNom(nom);
 	}
 
 

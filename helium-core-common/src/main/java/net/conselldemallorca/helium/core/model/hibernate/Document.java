@@ -76,6 +76,8 @@ public class Document implements Serializable, GenericEntity<Long> {
 	private String convertirExtensio;
 	@MaxLength(255)
 	private String extensionsPermeses;
+	@MaxLength(64)
+	private String portafirmesFluxId;
 
 	private DefinicioProces definicioProces;
 	private ExpedientTipus expedientTipus;
@@ -331,6 +333,14 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.generarNomesTasca = generarNomesTasca;
 	}
 	
+	
+	@Column(name="portafirmes_flux_id", length=64)
+	public String getPortafirmesFluxId() {
+		return portafirmesFluxId;
+	}
+	public void setPortafirmesFluxId(String portafirmesFluxId) {
+		this.portafirmesFluxId = portafirmesFluxId;
+	}
 	@Transient
 	public String getCodiNom() {
 		return codi + "/" + nom;

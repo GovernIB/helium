@@ -40,7 +40,7 @@ public class ExceptionHelper {
 		}
 	}
 	
-	public String getRouteCauses(Exception e) {
+	public String getRouteCauses(Throwable e) {
 		StringBuilder message = new StringBuilder();
 		Throwable t = e;
 		boolean root;

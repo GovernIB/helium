@@ -41,6 +41,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
@@ -504,6 +505,19 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			MissatgesHelper.error(request, getMessage(request, "expedient.info.estat.canviar.documents.obligatoris", new Object[] {documentsObligatoris.size(), documentsObligatoris}));
 		}
 		return correcte;
+	}
+	
+	@RequestMapping(value="/{expedientTipusId}/documentDownload", method = RequestMethod.GET)
+	public String documentDownload(
+			HttpServletRequest request, 
+			@PathVariable Long expedientTipusId, 
+			Model model) {
+		ExpedientTipusDto expedientTipusDto = expedientTipusService.findAmbId(expedientTipusId);
+		if(expedientTipusDto!=null && expedientTipusDto.getManualAjudaContent()!=null && expedientTipusDto.getManualAjudaNom()!=null) {
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, expedientTipusDto.getManualAjudaNom());
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, expedientTipusDto.getManualAjudaContent());
+		}
+		return "arxiuView";
 	}
 
 	@InitBinder

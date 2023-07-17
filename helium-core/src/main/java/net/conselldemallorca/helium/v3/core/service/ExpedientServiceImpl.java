@@ -20,6 +20,7 @@ import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -337,7 +338,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);				
 				if (expedientTipus.isDistribucioSistra()) {
 					// Extreu documents i variables segons el mapeig sistra
-					resultatMapeig = distribucioHelper.getMapeig(expedientTipus, anotacio);
+					boolean ambContingut = !expedientTipus.isArxiuActiu(); 
+					resultatMapeig = distribucioHelper.getMapeig(expedientTipus, anotacio, ambContingut);
 					if (variables == null)
 						variables = new HashMap<String, Object>();
 					variables.putAll(resultatMapeig.getDades());
@@ -432,7 +434,11 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					ex.getCause());
 		} catch (ValidationException ex) {
 			throw new TramitacioValidacioException("Error de validació en Handler", ex);
-		}
+		} catch (Exception e) {
+			Throwable t = ExceptionUtils.getRootCause(e) != null? ExceptionUtils.getCause(e) : e ;
+			throw new Exception(messageHelper.getMessage("error.proces.peticio") + ": "
+					+ ExceptionUtils.getRootCauseMessage(e), t);
+		} 
 	}
 
 
@@ -3018,17 +3024,20 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<String> findProcesInstanceIdsAmbEntornAndProcessDefinitionName(
+	public List<String> findProcesInstanceIdsAmbEntornTipusAndProcessDefinitionName(
 			Long entornId, 
+			Long expedientTipusId,
 			String jbpmKey) {
-		logger.debug("Consultant instancies de procés amb entorn i process definition name(" + 
-			"entornId = " + entornId + 
+		logger.debug("Consultant instancies de procés amb entorn, tipus i process definition name(" + 
+				"entornId = " + entornId + 
+			", expedientTipusId = " + expedientTipusId + 
 			", jbpmKey = " + jbpmKey + ")");
 		List<String> processInstancesIds = new ArrayList<String>();
 		for (JbpmProcessInstance processInstance : 
-			jbpmHelper.findProcessInstancesWithProcessDefinitionNameAndEntorn(
+			jbpmHelper.findProcessInstancesWithProcessDefinitionNameEntornAndTipus(
 					jbpmKey, 
-					entornId))
+					entornId,
+					expedientTipusId))
 			processInstancesIds.add(processInstance.getId());
 		return processInstancesIds;
 	}

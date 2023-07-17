@@ -42,11 +42,13 @@ public class BantelV2Backoffice extends BaseBackoffice implements BantelFacade {
 			logger.info("Petició de processament tramit " + request);
 			boolean error = false;
 			DadesTramit dadesTramit = null;
+			String identificadorTramit = null;
 			try {
 				// Se sincronitza per consultar primer si ja existeix l'expedient
 				synchronized(this) {
 					logger.info("Processant el tramit " + request);
 					dadesTramit = ServiceProxy.getInstance().getPluginService().obtenirDadesTramit(request);
+					identificadorTramit = dadesTramit.getIdentificador();
 					// Comprova sija existeix l'expedient a partir del tràmit
 					boolean existeix = existeixExpedient(dadesTramit.getNumero(),
 														String.valueOf(dadesTramit.getClauAcces()));
@@ -58,7 +60,7 @@ public class BantelV2Backoffice extends BaseBackoffice implements BantelFacade {
 					}
 				}
 			} catch (Exception ex) {
-				logger.error("Error petició de processament tramit " + request + " amb identificador " + dadesTramit.getIdentificador() + " --> " + dadesTramit, ex);
+				logger.error("Error petició de processament tramit " + request + " amb identificador " + identificadorTramit + " --> " + dadesTramit, ex);
 				error = true;
 			}
 			try {

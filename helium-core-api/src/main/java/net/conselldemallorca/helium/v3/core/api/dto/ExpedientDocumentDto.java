@@ -66,6 +66,8 @@ public class ExpedientDocumentDto implements Serializable {
 	/** Per marcar a la pipella de documents si prové d'una anotació. */
 	private Long anotacioId = null;
 	private String anotacioIdentificador = null;
+	private Long anotacioAnnexId = null;
+	private String anotacioAnnexTitol = null;
 	
 	/** Informació provinent del document de l'anotació original */
 	private boolean documentValid = true;
@@ -337,6 +339,18 @@ public class ExpedientDocumentDto implements Serializable {
 		this.anotacioIdentificador = anotacioNumero;
 	}
 
+	public Long getAnotacioAnnexId() {
+		return anotacioAnnexId;
+	}
+	public void setAnotacioAnnexId(Long anotacioAnnexId) {
+		this.anotacioAnnexId = anotacioAnnexId;
+	}
+	public String getAnotacioAnnexTitol() {
+		return anotacioAnnexTitol;
+	}
+	public void setAnotacioAnnexTitol(String anotacioAnnexTitol) {
+		this.anotacioAnnexTitol = anotacioAnnexTitol;
+	}
 	public String getCustodiaCodi() {
 		return custodiaCodi;
 	}

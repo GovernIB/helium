@@ -35,14 +35,15 @@ import es.caib.distribucio.rest.client.domini.Annex;
 import es.caib.distribucio.rest.client.domini.AnotacioRegistreEntrada;
 import es.caib.distribucio.rest.client.domini.AnotacioRegistreId;
 import es.caib.distribucio.rest.client.domini.Estat;
-import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
 import es.caib.plugins.arxiu.api.Document;
+import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helper.AlertaHelper;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
+import net.conselldemallorca.helium.core.helper.ExceptionHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientDadaHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
@@ -120,6 +121,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	private DistribucioHelper distribucioHelper;
 	@Resource(name = "documentHelperV3")
 	private DocumentHelperV3 documentHelper;
+	@Resource
+	private ExceptionHelper exceptionHelper;
 	@Resource
 	private AnotacioRepository anotacioRepository;
 	@Resource
@@ -581,7 +584,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 							interessat.getEmail(), 
 							interessat.getTelefon(),
 							expedient,
-							interessat.getAdresa() != null && interessat.getCp() != null, // entregaPostal
+							false, //interessat.getAdresa() != null && interessat.getCp() != null, // entregaPostalActiva o el nom correcte de la propietat //Forcem false issue #1675
 							EntregaPostalTipus.SENSE_NORMALITZAR,
 							interessat.getAdresa(), // adreça línia 1
 							null, // linia2,
@@ -731,9 +734,14 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				&& !( Arrays.asList(ArrayUtils.toArray(AnotacioEstatEnumDto.PENDENT, AnotacioEstatEnumDto.REBUTJADA)).contains(anotacio.getEstat())
 						&& anotacio.getExpedient() == null) ) {
 			throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot reprocessar perquè està en estat " + anotacio.getEstat() + (anotacio.getExpedient() != null ? " i té un expedient associat" : ""));
-		}		
+		}
+		try {
+			anotacio = distribucioHelper.reprocessarAnotacio(anotacioId);//aquí es controla l'excepció i el canvi d'estat a Distribució
+		} catch(Throwable e) {
+			throw new Exception(e);	
+		}
 		return conversioTipusHelper.convertir(
-				distribucioHelper.reprocessarAnotacio(anotacioId),
+				anotacio,
 				AnotacioDto.class);
 	}
 
@@ -755,6 +763,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			+ ", ha d'estar en estat de error de processament.");
 		}
 		anotacio.setEstat(AnotacioEstatEnumDto.PENDENT);
+		anotacio.setDataProcessament(null);
 		anotacio.setErrorProcessament(null);
 
 		// Es comunica l'estat a Distribucio
@@ -1231,8 +1240,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	
 		// Recupera la informació del tipus d'expedient i l'expedient
 		ExpedientTipus expedientTipus = null;
-		Expedient expedient = null;
-		expedient = expedientRepository.findOne(expedientId);
+		Expedient expedient = expedientRepository.findOne(expedientId);
 		if(expedient!=null)
 			expedientTipus = expedient.getTipus();
 		
@@ -1247,7 +1255,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			DadesDocumentDto dadesDocumentDto = null;
 
 			// Extreu variables i documents i annexos segons el mapeig sistra
-			resultatMapeig = distribucioHelper.getMapeig(expedientTipus, anotacio);
+			boolean ambContingut = expedient != null ? !expedient.isArxiuActiu() : !expedientTipus.isArxiuActiu(); 
+			resultatMapeig = distribucioHelper.getMapeig(expedientTipus, anotacio, ambContingut);
 			variables = resultatMapeig.getDades();
 			documents = resultatMapeig.getDocuments();
 			annexos = resultatMapeig.getAdjunts();			
@@ -1278,6 +1287,20 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 						documentCodi);	
 				
 				boolean documentExisteix = document !=null ? true : false;
+				
+				
+				if (documentExisteix && expedient.isArxiuActiu()) {
+					// Si el document està firmat i a l'Arxiu llavors no es pot modifirar.
+					if (document.isSignat() && !mapeigSistra.isEvitarSobreescriptura()) {
+						// No es pot modificar un document firmat
+						resultatMapeig.getErrorsDocuments().put(documentCodi, "El document no es pot sobreescriure perquè està firmat i no es pot modificar.");
+						continue;						
+					}
+					// Si el document prové d'una anotació llavors ja està mapejat i no cal sobreescriure
+					if (document.getAnotacioAnnexId() != null) {
+						continue;
+					}
+				}	
 				processarDocumentsAnotacio(
 						dadesDocumentDto, 
 						expedient, 
@@ -1402,32 +1425,35 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					document.getNtiTipoDocumental(),
 					document.getNtiIdOrigen(),
 					dadesDocumentDto.isDocumentValid(),
-					dadesDocumentDto.getDocumentError());
+					dadesDocumentDto.getDocumentError(),
+					dadesDocumentDto.getAnnexId(), 
+					dadesDocumentDto.getUuid());
 			
 			
 			
 		} else if (!documentExisteix) {
 			dadesDocumentDto = documents.get(codiHelium);
 			documentHelper.crearDocument(
-					null,
+					null, //taskInstanceId
 					expedient.getProcessInstanceId(),
 					dadesDocumentDto.getCodi(),
 					dadesDocumentDto.getData(),
-					false, //isAdjunt
-					dadesDocumentDto.getTitol(),
+					false, // isAdjunt
+					null, //adjuntTitol
 					dadesDocumentDto.getArxiuNom(),
 					dadesDocumentDto.getArxiuContingut(),
-					null, // arxiuUuid
-					documentHelper.getContentType(dadesDocumentDto.getArxiuNom()),
-					false,//document.isSignat(), //command.isAmbFirma(),
-					false,
-					null,
-					null,
-					null,
-					null,
-					null,
+					dadesDocumentDto.getUuid(),
+					dadesDocumentDto.getTipusMime(),
+					expedient.isArxiuActiu() && dadesDocumentDto.getFirmaTipus() != null,	// amb firma
+					false,	// firma separada
+					null,	// firma contingut
+					dadesDocumentDto.getNtiOrigen(),
+					dadesDocumentDto.getNtiEstadoElaboracion(),
+					dadesDocumentDto.getNtiTipoDocumental(),
+					dadesDocumentDto.getNtiIdDocumentoOrigen(),
 					dadesDocumentDto.isDocumentValid(),
-					dadesDocumentDto.getDocumentError());
+					dadesDocumentDto.getDocumentError(),
+					dadesDocumentDto.getAnnexId());
 		}
 		
 	}
@@ -1438,16 +1464,22 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				expedient.getProcessInstanceId(),
 				null,
 				adjunt.getData(),
-				true,
+				true, // isAdjunt
 				adjunt.getTitol(),
 				adjunt.getArxiuNom(),
 				adjunt.getArxiuContingut(),
-				null,
-				null,
-				null,
-				null,
+				adjunt.getUuid(),
+				documentHelper.getContentType(adjunt.getArxiuNom()),
+				expedient.isArxiuActiu() && adjunt.getFirmaTipus() != null,	// amb firma
+				false,	// firma separada
+				null,	// firma contingut
+				adjunt.getNtiOrigen(),
+				adjunt.getNtiEstadoElaboracion(),
+				adjunt.getNtiTipoDocumental(),
+				adjunt.getNtiIdDocumentoOrigen(),
 				adjunt.isDocumentValid(),
-				adjunt.getDocumentError());
+				adjunt.getDocumentError(),
+				adjunt.getAnnexId());
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(AnotacioServiceImpl.class);

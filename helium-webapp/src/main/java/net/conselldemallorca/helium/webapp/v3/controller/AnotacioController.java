@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.activation.MimetypesFileTypeMap;
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -60,6 +59,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -69,6 +69,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.AnotacioAcceptarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.AnotacioAcceptarCommand.CrearIncorporar;
@@ -94,13 +95,14 @@ public class AnotacioController extends BaseExpedientController {
 	
 	@Autowired
 	private AnotacioService anotacioService;
-	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
 	
 	private @Autowired ExpedientIniciController expedientIniciController;
 	
 	@Autowired
 	private ExecucioMassivaService execucioMassivaService;
+
+	@Autowired
+	private ExpedientDocumentService expedientDocumentService;
 
 	private static final String SESSION_ATTRIBUTE_FILTRE = "AnotacioController.session.filtre";
 	
@@ -146,7 +148,7 @@ public class AnotacioController extends BaseExpedientController {
 					null,
 					anotacioService.findAmbFiltrePaginat(
 							entornActual.getId(),
-							conversioTipusHelper.convertir(filtreCommand, AnotacioFiltreDto.class),
+							ConversioTipusHelper.convertir(filtreCommand, AnotacioFiltreDto.class),
 							DatatablesHelper.getPaginacioDtoFromRequest(request)),
 					"id");		
 	}	
@@ -256,10 +258,28 @@ public class AnotacioController extends BaseExpedientController {
 	public String detall(
 			HttpServletRequest request, 
 			@PathVariable Long id,
+			@RequestParam(value = "annexId", required = false) Long annexId,
 			Model model) {
 		AnotacioDto anotacio = anotacioService.findAmbId(id);
 		model.addAttribute("anotacio", anotacio);
+		model.addAttribute("annexId", annexId);
 		model.addAttribute("maxConsultaIntents", this.getMaxConsultaIntents());
+		Map<Long, List<ExpedientDocumentDto>> documents = new HashMap<Long, List<ExpedientDocumentDto>>();
+		if (anotacio != null && anotacio.getExpedient() != null) {
+			if (anotacio.getExpedient() != null) {
+				for (ExpedientDocumentDto d : expedientDocumentService.findAmbInstanciaProces(
+						anotacio.getExpedient().getId(),
+						anotacio.getExpedient().getProcessInstanceId())) {
+					if (d.getAnotacioId() != null && d.getAnotacioId().equals(id)) {
+						if (!documents.containsKey(d.getAnotacioAnnexId())) {
+							documents.put(d.getAnotacioAnnexId(), new ArrayList<ExpedientDocumentDto>());
+						}
+						documents.get(d.getAnotacioAnnexId()).add(d);
+					}
+				}
+			}			
+		}		
+		model.addAttribute("documents", documents);
 		return "v3/anotacioDetall";
 	}
 	
@@ -586,7 +606,6 @@ public class AnotacioController extends BaseExpedientController {
 			@PathVariable Long id,
 			Model model) {
 		try {
-			//TODO: aquesta està correcta
 			AnotacioDto anotacio = anotacioService.reprocessar(id);
 			MissatgesHelper.success(
 					request,
@@ -894,7 +913,7 @@ public class AnotacioController extends BaseExpedientController {
 			paginacio.setPaginaNum(nPagina++);
 			paginaDto = anotacioService.findAmbFiltrePaginat(
 					entornActual.getId(),
-					conversioTipusHelper.convertir(filtreCommand, AnotacioFiltreDto.class),
+					ConversioTipusHelper.convertir(filtreCommand, AnotacioFiltreDto.class),
 					paginacio);	
 			anotacions.addAll(paginaDto.getContingut());			
 		} while(!paginaDto.isDarrera());

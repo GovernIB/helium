@@ -918,8 +918,9 @@ public interface ExpedientService {
 	 * @param jbpmKey
 	 * @return
 	 */
-	public List<String> findProcesInstanceIdsAmbEntornAndProcessDefinitionName(
+	public List<String> findProcesInstanceIdsAmbEntornTipusAndProcessDefinitionName(
 			Long entornId, 
+			Long expedientTipusId,
 			String jbpmKey);
 
 	/**

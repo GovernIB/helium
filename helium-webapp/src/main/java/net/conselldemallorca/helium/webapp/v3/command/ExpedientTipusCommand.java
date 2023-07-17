@@ -52,6 +52,8 @@ public class ExpedientTipusCommand {
 	private boolean ambRetroaccio;
 	private boolean reindexacioAsincrona;
 	private String diesNoLaborables;
+	private String manualAjudaNom;
+	private byte[] manualAjudaContent;
 
 	private List<String> sequenciesAny = new ArrayList<String>();
 	private List<String> sequenciesValor = new ArrayList<String>();
@@ -208,6 +210,20 @@ public class ExpedientTipusCommand {
 	public void setSequenciesValor(List<String> sequenciesValor) {
 		this.sequenciesValor = sequenciesValor;
 	}
+
+	public String getManualAjudaNom() {
+		return manualAjudaNom;
+	}
+	public void setManualAjudaNom(String manualAjudaNom) {
+		this.manualAjudaNom = manualAjudaNom;
+	}
+	public byte[] getManualAjudaContent() {
+		return manualAjudaContent;
+	}
+	public void setManualAjudaContent(byte[] manualAjudaContent) {
+		this.manualAjudaContent = manualAjudaContent;
+	}
+
 
 	public interface Creacio {}
 	public interface Modificacio {}

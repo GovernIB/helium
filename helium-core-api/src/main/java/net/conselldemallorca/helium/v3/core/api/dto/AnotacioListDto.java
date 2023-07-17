@@ -28,6 +28,7 @@ public class AnotacioListDto implements Serializable {
 	private Date dataRecepcio;
 	private Date dataProcessament;
 	private String errorProcessament;
+	private String rebuigMotiu;
 	private int consultaIntents;
 	private String consultaError;
 	private String consultaData;
@@ -99,6 +100,12 @@ public class AnotacioListDto implements Serializable {
 	}
 	public void setErrorProcessament(String errorProcessament) {
 		this.errorProcessament = errorProcessament;
+	}
+	public String getRebuigMotiu() {
+		return rebuigMotiu;
+	}
+	public void setRebuigMotiu(String rebuigMotiu) {
+		this.rebuigMotiu = rebuigMotiu;
 	}
 	public int getConsultaIntents() {
 		return consultaIntents;

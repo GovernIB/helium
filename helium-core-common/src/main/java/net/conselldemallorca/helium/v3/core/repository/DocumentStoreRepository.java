@@ -38,4 +38,7 @@ public interface DocumentStoreRepository extends JpaRepository<DocumentStore, Lo
 	public List<DocumentStore> findByProcessInstanceIdInAndSignatTrue(
 			@Param("processInstanceIds") List<String> processInstanceIds);
 
+	/** Per trobar tots els documents que fan referència a un annex per actualitzar el seu UUID. */
+	public List<DocumentStore> findByAnnexId(long annexId);
+
 }

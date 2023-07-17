@@ -58,9 +58,12 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			"        	DefinicioProces dps " +
 			"    	where " +
 			"       	dps.entorn.id = :entornId" +
+			"       	and ((:esNullExpedientTipusId = true and dps.expedientTipus is null) or dps.expedientTipus.id = :expedientTipusId)" +
 			"    		and dps.jbpmKey = :jbpmKey) ")
-	DefinicioProces findDarreraVersioAmbEntornIJbpmKey(
+	DefinicioProces findDarreraVersioAmbEntornTipusIJbpmKey(
 		@Param("entornId") Long entornId,
+		@Param("esNullExpedientTipusId") boolean esNullExpedientTipusId,
+		@Param("expedientTipusId") long expedientTipusId,		
 		@Param("jbpmKey") String jbpmKey);
 	
 	/** Troba la darrera versió de la definició de procés per codi jbpm per a un tipus d'expedient sense tenir en compte

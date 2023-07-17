@@ -53,6 +53,7 @@ public class ExpedientTipusDocumentCommand {
 	private NtiEstadoElaboracionEnumDto ntiEstadoElaboracion;
 	private NtiTipoDocumentalEnumDto ntiTipoDocumental;
 	private boolean generarNomesTasca;
+	private String portafirmesFluxId;
 
 	public Long getExpedientTipusId() {
 		return expedientTipusId;
@@ -186,6 +187,13 @@ public class ExpedientTipusDocumentCommand {
 	public void setGenerarNomesTasca(boolean generarNomesTasca) {
 		this.generarNomesTasca = generarNomesTasca;
 	}
+	
+	public String getPortafirmesFluxId() {
+		return portafirmesFluxId;
+	}
+	public void setPortafirmesFluxId(String portafirmesFluxId) {
+		this.portafirmesFluxId = portafirmesFluxId;
+	}
 	public static DocumentDto asDocumentDto(ExpedientTipusDocumentCommand command) {
 		DocumentDto dto = new DocumentDto();
 		dto.setId(command.getId());
@@ -214,6 +222,7 @@ public class ExpedientTipusDocumentCommand {
 		dto.setNtiOrigen(command.getNtiOrigen());
 		dto.setNtiEstadoElaboracion(command.getNtiEstadoElaboracion());
 		dto.setNtiTipoDocumental(command.getNtiTipoDocumental());
+		dto.setPortafirmesFluxId(command.getPortafirmesFluxId());
 		return dto;
 	}
 

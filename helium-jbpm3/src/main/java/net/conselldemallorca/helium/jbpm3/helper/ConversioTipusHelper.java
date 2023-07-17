@@ -357,8 +357,8 @@ public class ConversioTipusHelper {
 				destinataris.add(destinatari);
 			}
 			enviament.setDestinataris(destinataris);
-			
-			enviament.setEntregaPostalActiva(dadesEnviament.isEntregaPostalActiva());
+			enviament.setEntregaPostalActiva(false); //Forcem false issue #1675
+//			enviament.setEntregaPostalActiva(dadesEnviament.isEntregaPostalActiva());
 			if (dadesEnviament.getEntregaPostalTipus() != null)
 				enviament.setEntregaPostalTipus(DadesEnviamentDto.EntregaPostalTipus.valueOf(dadesEnviament.getEntregaPostalTipus().name()));
 			if (dadesEnviament.getEntregaPostalViaTipus() != null)

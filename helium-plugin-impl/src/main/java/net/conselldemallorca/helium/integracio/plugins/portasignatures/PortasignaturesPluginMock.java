@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
+
 
 /**
  * Implementació Mock del plugin de portasignatures.
@@ -42,7 +44,8 @@ public class PortasignaturesPluginMock implements PortasignaturesPlugin {
 			PasSignatura[] passesSignatura,
 			String remitent,
 			String importancia,
-			Date dataLimit) throws PortasignaturesPluginException {
+			Date dataLimit,
+			String fluxId) throws PortasignaturesPluginException {
 		
 		// Calcula un nou id pel document dins custòdia
 		Integer newDocumentId = new Integer(new Long(System.currentTimeMillis()).intValue());
@@ -108,6 +111,77 @@ public class PortasignaturesPluginMock implements PortasignaturesPlugin {
 		File file = new File(filePath);
 		if (file.exists())
 			file.delete();
+	}
+
+	@Override
+	public PortafirmesIniciFluxResposta iniciarFluxDeFirma(String idioma, boolean isPlantilla, String nom,
+			String descripcio, boolean descripcioVisible, String returnUrl) throws SistemaExternException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PortafirmesFluxResposta recuperarFluxDeFirmaByIdTransaccio(String idTransaccio)
+			throws SistemaExternException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<PortafirmesFluxResposta> recuperarPlantillesDisponibles(String idioma) throws SistemaExternException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PortafirmesFluxInfo recuperarFluxDeFirmaByIdPlantilla(String idTransaccio, String idioma)
+			throws SistemaExternException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String recuperarUrlViewEditPlantilla(String idPlantilla, String idioma, String urlReturn, boolean edicio)
+			throws SistemaExternException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean esborrarPlantillaFirma(String idioma, String plantillaFluxId) throws SistemaExternException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void tancarTransaccioFlux(String idTransaccio) throws SistemaExternException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public List<PortafirmesCarrec> recuperarCarrecs() throws SistemaExternException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PortafirmesCarrec recuperarCarrec(String carrecId) throws SistemaExternException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<PortafirmesFluxResposta> recuperarPlantillesPerFiltre(String idioma, String descripcio)
+			throws SistemaExternException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String recuperarUrlViewEstatFluxDeFirmes(long portafirmesId, String idioma) throws SistemaExternException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

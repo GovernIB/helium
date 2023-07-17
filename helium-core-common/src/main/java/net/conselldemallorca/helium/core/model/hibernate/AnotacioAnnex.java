@@ -120,7 +120,7 @@ public class AnotacioAnnex implements Serializable, GenericEntity<Long> {
 	@ForeignKey(name = "hel_interessat_anotacio_fk")
 	private Anotacio anotacio;
 	
-	/** Valor del document store quan l'annex s'incorpora a un expedient. */
+	/** Valor del document store quan l'annex s'incorpora a un expedient. Deprectat des de la versió 3.2.117*/
 	@Column(name = "document_store_id")
 	private Long documentStoreId = null;
 	

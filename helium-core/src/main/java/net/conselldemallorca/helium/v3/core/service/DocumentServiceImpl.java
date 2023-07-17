@@ -153,7 +153,7 @@ public class DocumentServiceImpl implements DocumentService {
 		entity.setNtiOrigen(document.getNtiOrigen());
 		entity.setNtiEstadoElaboracion(document.getNtiEstadoElaboracion());
 		entity.setNtiTipoDocumental(document.getNtiTipoDocumental());
-													  
+		entity.setPortafirmesFluxId(document.getPortafirmesFluxId());									  
    
   
 		if (expedientTipusId != null)
@@ -238,6 +238,7 @@ public class DocumentServiceImpl implements DocumentService {
 				document,
 				DocumentDto.class);
 		dto.setArxiuContingut(document.getArxiuContingut());
+		dto.setPortafirmesFluxId(document.getPortafirmesFluxId());
 		// Herencia
 		ExpedientTipus tipus = expedientTipusId != null? expedientTipusRepository.findOne(expedientTipusId) : null;
 		if (tipus != null && tipus.getExpedientTipusPare() != null) {
@@ -292,7 +293,7 @@ public class DocumentServiceImpl implements DocumentService {
 		entity.setNtiOrigen(document.getNtiOrigen());
 		entity.setNtiEstadoElaboracion(document.getNtiEstadoElaboracion());
 		entity.setNtiTipoDocumental(document.getNtiTipoDocumental());
-													  
+		entity.setPortafirmesFluxId(document.getPortafirmesFluxId());											  
    
 
 		return conversioTipusHelper.convertir(

@@ -365,7 +365,14 @@ dd.subproc {
 						<dd>${expedient.titol}</dd>
 					</c:if>
 					<dt><spring:message code="expedient.info.camp.tipus"/></dt>
-					<dd>${expedient.tipus.nom}</dd>
+					<dd>${expedient.tipus.nom}
+						<c:if test="${expedient.tipus.manualAjudaNom != null}">
+							<c:set var="arxiuUrl">../../v3/expedient/${expedient.tipus.id}/documentDownload"</c:set>
+								<a id="descarregarZip"
+									href="<c:url value="${arxiuUrl}"/>" class="fa fa-book" title="<spring:message code="expedient.tipus.form.camp.manual.ajuda.descarregar"/>">
+								</a>
+						</c:if>	
+					</dd>
 					<c:if test="${not empty expedient.registreNumero}">
 						<dt><spring:message code='expedient.info.camp.registre.numero' /></dt>
 						<dd>${expedient.registreNumero}</dd></c:if>

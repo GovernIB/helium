@@ -67,6 +67,7 @@ public class DocumentDto extends HeretableDto implements Serializable {
 	private String custodiaCodi;
 	private Integer tipusDocPortasignatures;
 
+	private String portafirmesFluxId;
 	private String tokenSignatura;
 	private String tokenSignaturaMultiple;
 	private boolean signatEnTasca;
@@ -431,6 +432,13 @@ public class DocumentDto extends HeretableDto implements Serializable {
 	}
 	public void setGenerarNomesTasca(boolean generarNomesTasca) {
 		this.generarNomesTasca = generarNomesTasca;
+	}
+	
+	public String getPortafirmesFluxId() {
+		return portafirmesFluxId;
+	}
+	public void setPortafirmesFluxId(String portafirmesFluxId) {
+		this.portafirmesFluxId = portafirmesFluxId;
 	}
 	public String getArxiuNomSenseExtensio() {
 		if (getArxiuNom() == null)

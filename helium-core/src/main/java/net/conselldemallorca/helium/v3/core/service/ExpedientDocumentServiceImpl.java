@@ -184,6 +184,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				ntiTipoDocumental,
 				ntiIdOrigen,
 				true,
+				null,
 				null);
 		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 		expedientRegistreHelper.crearRegistreCrearDocumentInstanciaProces(
@@ -435,7 +436,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		dadesEnviamentDto.setDestinataris(destinataris);
 		// Entrega postal
 		if (interessatEntity.isEntregaPostal()) {
-			dadesEnviamentDto.setEntregaPostalActiva(interessatEntity.isEntregaPostal());
+			dadesEnviamentDto.setEntregaPostalActiva(false);//(interessatEntity.isEntregaPostal());//Forcem false issue #1675
 			dadesEnviamentDto.setEntregaPostalTipus(EntregaPostalTipus.valueOf(interessatEntity.getEntregaTipus().name()));
 			dadesEnviamentDto.setEntregaPostalLinea1(interessatEntity.getLinia1());
 			dadesEnviamentDto.setEntregaPostalLinea2(interessatEntity.getLinia2());

@@ -93,6 +93,10 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	private String distribucioCodiAssumpte;
 	private boolean distribucioProcesAuto;
 	private boolean distribucioSistra;
+	
+	//Manual d'ajuda
+	private String manualAjudaNom;
+	private byte[] manualAjudaContent;
 
 
 	public Long getId() {
@@ -485,6 +489,19 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	}
 	public void setPinbalNifCif(String pinbalNifCif) {
 		this.pinbalNifCif = pinbalNifCif;
+	}
+	
+	public String getManualAjudaNom() {
+		return manualAjudaNom;
+	}
+	public void setManualAjudaNom(String manualAjudaNom) {
+		this.manualAjudaNom = manualAjudaNom;
+	}
+	public byte[] getManualAjudaContent() {
+		return manualAjudaContent;
+	}
+	public void setManualAjudaContent(byte[] manualAjudaContent) {
+		this.manualAjudaContent = manualAjudaContent;
 	}
 	public boolean equals(Object obj) {
 		if (this == obj)

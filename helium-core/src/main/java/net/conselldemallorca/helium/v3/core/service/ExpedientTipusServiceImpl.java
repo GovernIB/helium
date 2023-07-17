@@ -404,10 +404,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				false);
 
 		ExpedientTipus entity = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipus.getId());
-				
+		entity.setManualAjudaContent(expedientTipus.getManualAjudaContent());	
+		entity.setManualAjudaNom(expedientTipus.getManualAjudaNom());
 		entity.setNom(expedientTipus.getNom());
 		entity.setAmbInfoPropia(expedientTipus.isAmbInfoPropia());
 		entity.setHeretable(expedientTipus.isHeretable());
+		entity.setManualAjudaContent(entity.getManualAjudaContent());
 		if (expedientTipus.getExpedientTipusPareId() != null)
 			entity.setExpedientTipusPare(expedientTipusRepository.findOne(expedientTipus.getExpedientTipusPareId()));
 		else
@@ -1908,7 +1910,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		ExpedientTipusDto tipusDto = conversioTipusHelper.convertir(
 				tipus,
 				ExpedientTipusDto.class); 
-		
 		// Omple els permisos del tipus d'expedient
 		expedientHelper.omplirPermisosExpedientTipus(tipusDto);
 

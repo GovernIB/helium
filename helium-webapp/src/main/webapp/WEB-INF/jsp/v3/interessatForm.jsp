@@ -78,7 +78,7 @@ $(document).ready(function() {
 	});		
 
 	
-	$('input[type=checkbox][name=entregaPostal]').on('change', function() {
+	/*$('input[type=checkbox][name=entregaPostal]').on('change', function() {
 		if($(this).prop("checked") == true){
 			$('#entrgePostalForm').removeClass('hidden');
 			webutilModalAdjustHeight();
@@ -87,7 +87,7 @@ $(document).ready(function() {
 		}
 	});	
 
-	$('input[type=checkbox][name=entregaPostal').trigger('change');
+	$('input[type=checkbox][name=entregaPostal').trigger('change');*/
 
 	var select2Options = {theme: 'bootstrap'};
 	$('select[name=tipus').select2("destroy");
@@ -156,7 +156,7 @@ $(document).ready(function() {
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-xs-8" style="float: right;">
+			<div class="hidden" style="float: right;">
 				<hel:inputCheckbox name="entregaPostal" textKey="interessat.form.camp.entregaPostal" labelSize="11"></hel:inputCheckbox>
 			</div>
 		</div>

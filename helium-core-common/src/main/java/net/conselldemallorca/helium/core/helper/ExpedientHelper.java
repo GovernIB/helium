@@ -17,6 +17,7 @@ import java.util.UUID;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.jbpm.jpdl.el.ELException;
 import org.jbpm.jpdl.el.ExpressionEvaluator;
@@ -37,6 +38,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.caib.plugins.arxiu.api.ContingutArxiu;
+import es.caib.plugins.arxiu.api.DocumentEstat;
 import es.caib.plugins.arxiu.api.ExpedientEstat;
 import es.caib.plugins.arxiu.api.ExpedientMetadades;
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
@@ -80,12 +82,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
@@ -765,7 +767,8 @@ public class ExpedientHelper {
 		}else {
 			//firmem els documents que no estan firmats
 			firmarDocumentsPerArxiuFiExpedient(expedient);	
-			
+			// Modifiquem l'expedient a l'arxiu.
+			pluginHelper.arxiuExpedientModificar(expedient);
 			// Tanca l'expedient a l'arxiu.
 			ExpedientMetadades metadades = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid()).getMetadades();
 			if(metadades.getEstat() != ExpedientEstat.TANCAT) {
@@ -1043,10 +1046,23 @@ public class ExpedientHelper {
 		
 		// Firma en el servidor els documents pendents de firma
 		for (DocumentStore documentStore: documentsPerSignar) {
+			es.caib.plugins.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
+					documentStore.getArxiuUuid(),
+					null,
+					false,
+					documentStore.isSignat());
+			
+			if (!DocumentEstat.DEFINITIU.equals(arxiuDocument.getEstat())) {
+				// Firma en servidor i el guarda
 				documentHelper.firmaServidor(
 						documentStore.getProcessInstanceId(),
 						documentStore.getId(), 
 						messageHelper.getMessage("document.controller.firma.servidor.default.message"));
+			} else {
+				// Actualitza les dades amb el document firmat
+				documentHelper.actualitzarNtiFirma(documentStore, arxiuDocument);
+				documentStore.setSignat(arxiuDocument.getFirmes() != null && !arxiuDocument.getFirmes().isEmpty());
+			}
 		}
 	}
 	
@@ -1738,45 +1754,21 @@ public class ExpedientHelper {
 		try {
 			// Afegim els documents
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
-			if (documents != null){
-				for (Map.Entry<String, DadesDocumentDto> doc: documents.entrySet()) {
-					if (doc.getValue() != null) {
-						documentHelper.crearDocument(
-								null,
-								expedient.getProcessInstanceId(),
-								doc.getValue().getCodi(),
-								doc.getValue().getData(),
-								false,
-								null,
-								doc.getValue().getArxiuNom(),
-								doc.getValue().getArxiuContingut(),
-								null,
-								null,
-								null,
-								null,
-								doc.getValue().isDocumentValid(),
-								doc.getValue().getDocumentError());
-					}
+			if (documents != null) {
+				for (DadesDocumentDto document : documents.values()) {
+					this.crearDocumentAdjuntInicial(
+							false, 
+							expedient, 
+							document);
 				}
 			}
 			// Afegim els adjunts
 			if (adjunts != null) {
 				for (DadesDocumentDto adjunt: adjunts) {
-					documentHelper.crearDocument(
-							null,
-							expedient.getProcessInstanceId(),
-							null,
-							adjunt.getData(),
-							true,
-							adjunt.getTitol(),
-							adjunt.getArxiuNom(),
-							adjunt.getArxiuContingut(),
-							null,
-							null,
-							null,
-							null,
-							adjunt.isDocumentValid(),
-							adjunt.getDocumentError());
+					this.crearDocumentAdjuntInicial(
+							true, 
+							expedient, 
+							adjunt);
 				}
 			}
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
@@ -1792,7 +1784,7 @@ public class ExpedientHelper {
 			logger.debug("Indexant nou expedient (id=" + expedient.getProcessInstanceId() + ")");
 			indexHelper.expedientIndexLuceneCreate(expedient.getProcessInstanceId());
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");			
-		} catch(Exception e) {
+		} catch( Throwable ex) {
 			// Rollback de la creació de l'expedient a l'arxiu
 			if (arxiuUuid != null)
 				try {
@@ -1802,13 +1794,54 @@ public class ExpedientHelper {
 				} catch(Exception re) {
 					logger.error("Error esborrant l'expedient " + expedientPerRetornar.getIdentificador() + " amb uuid " + arxiuUuid + " :" + re.getMessage());
 				}
-			throw e;
+			
+			logger.error("Error iniciant expedient (entorn=" + (entorn != null ? entorn.getCodi() : "") 
+							+ ", tipus=" + (expedientTipus != null ? expedientTipus.getCodi() : "") + "): " 
+							+ ex.getMessage(), ex);
+			
+			throw new RuntimeException(messageHelper.getMessage("error.proces.peticio") + ": "
+					+ ExceptionUtils.getRootCauseMessage(ex), ex);
 		}
-		
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom());
 		return expedientPerRetornar;
 	}
 
+	/** Mètode per afegir els documents inicials a l'expedient com a document o adjunt. Si l'expedient no està integrat amb l'Arxiu i 
+	 * el document o adjunt sí llavors recupera el contingut.
+	 * 
+	 * @param isAdjunt
+	 * @param expedient
+	 * @param document
+	 */
+	private void crearDocumentAdjuntInicial(
+			boolean isAdjunt, 
+			Expedient expedient, 
+			DadesDocumentDto document) {
+		
+		documentHelper.crearDocument(
+				null, //taskInstanceId
+				expedient.getProcessInstanceId(),
+				isAdjunt? null : document.getCodi(),
+				document.getData(),
+				isAdjunt, // isAdjunt
+				isAdjunt ? document.getTitol() : null, //adjuntTitol
+				document.getArxiuNom(),
+				document.getArxiuContingut(),
+				document.getUuid(),
+				document.getTipusMime(),
+				expedient.isArxiuActiu() && document.getFirmaTipus() != null,	// amb firma
+				false,	// firma separada
+				null,	// firma contingut
+				document.getNtiOrigen(),
+				document.getNtiEstadoElaboracion(),
+				document.getNtiTipoDocumental(),
+				document.getNtiIdDocumentoOrigen(),
+				document.isDocumentValid(),
+				document.getDocumentError(),
+				document.getAnnexId());
+	}
+	
+	
 	private PersonaDto comprovarUsuari(String usuari) {
 		try {
 			PersonaDto persona = pluginHelper.personaFindAmbCodi(usuari);

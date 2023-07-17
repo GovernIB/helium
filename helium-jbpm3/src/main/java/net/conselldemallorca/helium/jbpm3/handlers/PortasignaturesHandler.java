@@ -46,6 +46,8 @@ public class PortasignaturesHandler extends BasicActionHandler implements AccioE
 	private String transicioOK;
 	private String varTransicioKO;
 	private String transicioKO;
+	private String varPortafirmesFluxId;
+	private String portafirmesFluxId;
 
 	public void execute(ExecutionContext executionContext) throws Exception {
 		try {
@@ -91,7 +93,8 @@ public class PortasignaturesHandler extends BasicActionHandler implements AccioE
 					executionContext.getToken().getId(),
 					executionContext.getProcessInstance().getId(),
 					(String)getValorOVariable(executionContext, transicioOK, varTransicioOK),
-					(String)getValorOVariable(executionContext, transicioKO, varTransicioKO));
+					(String)getValorOVariable(executionContext, transicioKO, varTransicioKO),
+					(String)getValorOVariable(executionContext, portafirmesFluxId, varPortafirmesFluxId));
 			
 			// Guarda l'identificador pel cas de fer retroacció
 			List<String> parametresRetroaccio = new ArrayList<String>();
@@ -180,6 +183,12 @@ public class PortasignaturesHandler extends BasicActionHandler implements AccioE
 	}
 	public void setTransicioKO(String transicioKO) {
 		this.transicioKO = transicioKO;
+	}
+	public void setVarPortafirmesFluxId(String varPortafirmesFluxId) {
+		this.varPortafirmesFluxId = varPortafirmesFluxId;
+	}
+	public void setPortafirmesFluxId(String portafirmesFluxId) {
+		this.portafirmesFluxId = portafirmesFluxId;
 	}
 
 	private List<PersonaDto> getPersonesPas(ExecutionContext executionContext, int pas) {

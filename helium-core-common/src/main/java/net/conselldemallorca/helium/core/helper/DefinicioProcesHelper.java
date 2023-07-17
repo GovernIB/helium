@@ -1296,10 +1296,12 @@ public class DefinicioProcesHelper {
 			ExpedientTipus expedientTipus, 
 			String jbpmKey) {
 		DefinicioProces definicioProces = null;
+		Long expedientTipusId = null;
 		if (expedientTipus != null) {
+			expedientTipusId = expedientTipus.getId();
 			// Cerca la darrera versió de la definició de procés per codi pel tipus d'expedient
 			definicioProces = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(
-					expedientTipus.getId(),
+					expedientTipusId,
 					jbpmKey);
 			// Si no la troba i hi ha herència la cerca al pare
 			if (definicioProces == null && expedientTipus.getExpedientTipusPare() != null)
@@ -1309,7 +1311,7 @@ public class DefinicioProcesHelper {
 		}
 		// Si no la trova cerca a l'entorn
 		if (definicioProces == null && expedientTipus != null)
-			definicioProces = definicioProcesRepository.findDarreraVersioAmbEntornIJbpmKey(
+			definicioProces = definicioProcesRepository.findDarreraVersioGlobalAmbJbpmKey(
 					expedientTipus.getEntorn().getId(),
 					jbpmKey);
 		return definicioProces;

@@ -2072,16 +2072,16 @@ public class ExpedientService {
 
 	public void actualitzarProcessInstancesADarreraVersio(
 			String jbpmKey) {
-		List<JbpmProcessInstance> processInstances = jbpmHelper.findProcessInstancesWithProcessDefinitionName(jbpmKey);
+		List<JbpmProcessInstance> processInstances = jbpmHelper.findProcessInstancesWithProcessDefinitionNameEntornAndTipus(jbpmKey, null, null);
 		for (JbpmProcessInstance pi: processInstances) {
 			jbpmHelper.changeProcessInstanceVersion(pi.getId(), -1);
 		}
 	}
 	public List<JbpmProcessInstance> findProcessInstancesWithProcessDefinitionName(String jbpmKey) {
-		return jbpmHelper.findProcessInstancesWithProcessDefinitionName(jbpmKey);
+		return jbpmHelper.findProcessInstancesWithProcessDefinitionNameEntornAndTipus(jbpmKey, null, null);
 	}
-	public List<JbpmProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(String jbpmKey, Long entornId) {
-		return jbpmHelper.findProcessInstancesWithProcessDefinitionNameAndEntorn(jbpmKey, entornId);
+	public List<JbpmProcessInstance> findProcessInstancesWithProcessDefinitionNameAndEntorn(String jbpmKey, Long entornId, Long expedientTipusId) {
+		return jbpmHelper.findProcessInstancesWithProcessDefinitionNameEntornAndTipus(jbpmKey, entornId, expedientTipusId);
 	}
 	public Accio getAccio(
 			String processInstanceId,

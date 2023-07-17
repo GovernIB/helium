@@ -369,7 +369,11 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			}
 
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			// Comprova que sigui administrador o que tingui permís de lectura sobre el tipus d'expedient
 			if (!UsuariActualHelper.isAdministrador(auth)) {
+				if (execucioMassiva.getExpedientTipus() == null) {
+					throw new RuntimeException("Error de permisos. L'usuari no és administrador i l'execució massiva no té cap tipus d'expedient per poder comprovar el permís de lectura.");
+				}
 				expedientTipusHelper
 						.getExpedientTipusComprovantPermisLectura(execucioMassiva.getExpedientTipus().getId());
 			}
@@ -1869,7 +1873,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 					documentHelper.crearDocument(null, exp.getProcessInstanceId(), documentCodi, data, isAdjunt,
 							isAdjunt ? nom : null, fileName, contingut, null, // arxiuUuid
 							arxiuContentType, ambFirma, firmaSeparada, firmaContingut, ntiOrigen, ntiEstadoElaboracion,
-							ntiTipoDocumental, ntiIdOrigen, true, null);
+							ntiTipoDocumental, ntiIdOrigen, true, null, null);
 					mesuresTemporalsHelper.mesuraCalcular("Adjuntar document", "massiva", exp.getTipus().getNom());
 					// Modificar document
 				} else {
@@ -2109,8 +2113,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			ome.setDataFi(new Date());
 			execucioMassivaExpedientRepository.save(ome);
 		}catch(Exception ex) {
+			String errMsg = "No s'ha pogut reintentar el processament de les anotacions: " + ex.getMessage(); 
 			logger.error("OPERACIO:" + ome.getId()
-			+ ". No s'ha pogut reintentar el processament de les anotacions", ex);
+			+ ". " + errMsg, ex);
 			throw ex;
 		} finally {
 			distribucioHelper.setProcessant(ome.getAuxId(), false);
@@ -2213,12 +2218,17 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			// passar l'id de la consulta
 			Consulta consulta = consultaRepository.findById(ome.getDefinicioProcesId());
 			Camp camp;
+			Long expedientTipusId = ome.getExecucioMassiva().getExpedientTipus().getId();
 			// Per cada variable de tipus informe o filtre
 			for (ConsultaCamp consultaCamp : consulta.getCamps()) {
 				if (consultaCamp.getTipus() != TipusConsultaCamp.PARAM && consultaCamp.getDefprocJbpmKey() != null) {
 					// Recupera la darrera versió de la definició de procés
 					DefinicioProces definicioDarrera = definicioProcesRepository
-							.findDarreraVersioAmbEntornIJbpmKey(entorn.getId(), consultaCamp.getDefprocJbpmKey());
+							.findDarreraVersioAmbEntornTipusIJbpmKey(
+									entorn.getId(),
+									false,
+									expedientTipusId,
+									consultaCamp.getDefprocJbpmKey());
 					if (consultaCamp.getDefprocVersio() != definicioDarrera.getVersio()) {
 						camp = campRepository.findByDefinicioProcesAndCodi(definicioDarrera,
 								consultaCamp.getCampCodi());
@@ -2361,6 +2371,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 			String errMsg = "Error no controlat en l'execució massiva d'alta d'expedient per CSV: " + ex.getMessage();
 			logger.error(errMsg, ex);
 			errText.append(errMsg);
+		} catch (Throwable e) {
+			Throwable t = ExceptionUtils.getRootCause(e) != null? ExceptionUtils.getCause(e) : e ;
+			throw new Exception(messageHelper.getMessage("error.proces.peticio") + ": "
+				+ ExceptionUtils.getRootCauseMessage(e), t);
 		}
 		ome.setError(errText.length() > 0 ? errText.toString() : null);
 		ome.setDataFi(new Date());

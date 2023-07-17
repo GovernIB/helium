@@ -66,7 +66,8 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 							minSignatarisPas3),
 					expedient.getIdentificador(),
 					importancia,
-					dataLimit);
+					dataLimit,
+					null);
 		} catch (PortasignaturesPluginException ex) {
 			logger.error("Error al enviar el document al portasignatures", ex);
 			throw new PluginException("Error al enviar el document al portasignatures", ex);
