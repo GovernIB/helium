@@ -78,7 +78,9 @@
 									<c:if test="${!propagarEsborratExpedients}">
 										<li><a href="expedientTipus/{{:id}}/delete" data-rdt-link-ajax="true" data-confirm="<spring:message code="expedient.tipus.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 									</c:if>
-								<li><a href="expedientTipus/{{:id}}/netejarDp" class="consultar-expedient"><span class="fa fa-trash"></span>&nbsp;<spring:message code="entorn.llistat.netejar.definicions.proces"/></a></li>
+								{{if tipus == 'FLOW' }}
+									<li><a href="expedientTipus/{{:id}}/netejarDp" class="consultar-expedient"><span class="fa fa-trash"></span>&nbsp;<spring:message code="entorn.llistat.netejar.definicions.proces"/></a></li>
+								{{/if}}
 								</c:if>
 							</ul>
 						</div>

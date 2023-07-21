@@ -218,7 +218,7 @@
 					<c:if test="${potDissenyarExpedientTipusDelegat}">
 						<li id="pipella-documents"><a href="#contingut-documents" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.documents"/></a></li>
 					</c:if>
-					<c:if test="${potDissenyarExpedientTipusAdmin}">
+					<c:if test="${expedientTipus.tipus == 'FLOW' && potDissenyarExpedientTipusAdmin}">
 						<li id="pipella-tasques"><a href="#contingut-tasques" role="tab" data-toggle="tab"><spring:message code="expedient.tipus.pipelles.pipella.tasques"/></a></li>
 					</c:if>
 					<c:if test="${potDissenyarExpedientTipusAdmin}">

@@ -40,9 +40,11 @@ import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.CampService;
+import net.conselldemallorca.helium.v3.core.regles.ReglaHelper;
 import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
@@ -51,6 +53,7 @@ import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
+import net.conselldemallorca.helium.v3.core.repository.EstatReglaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 
 /**
@@ -78,9 +81,13 @@ public class CampServiceImpl implements CampService {
 	private ConsultaRepository consultaRepository;
 	@Resource
 	private ConsultaCampRepository consultaCampRepository;
+	@Resource 
+	private EstatReglaRepository estatReglaRepository;
 
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
+	@Resource
+	private ReglaHelper reglaHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
@@ -176,6 +183,13 @@ public class CampServiceImpl implements CampService {
 				"camp.id=" + camp.getId() + ", " +
 				"camp =" + camp + ")");
 		Camp entity = campRepository.findOne(camp.getId());
+		
+		reglaHelper.updateReglaValor(
+				entity.getExpedientTipus(), 
+				entity.getCodi() + " | " + entity.getEtiqueta(),
+				camp.getCodi() + " | " + camp.getEtiqueta(),
+				QueEnum.DADA);
+		
 		entity.setCodi(camp.getCodi());
 		entity.setTipus(conversioTipusHelper.convertir(camp.getTipus(), Camp.TipusCamp.class));
 		entity.setEtiqueta(camp.getEtiqueta());
@@ -257,6 +271,11 @@ public class CampServiceImpl implements CampService {
 			if (entity.getAgrupacio() != null) {
 				reordenarCamps(entity.getAgrupacio().getId());
 			}
+			
+			reglaHelper.deleteReglaValor(
+					entity.getExpedientTipus(), 
+					entity.getCodi() + " | " + entity.getEtiqueta(),
+					QueEnum.DADA);
 		}
 	}
 
@@ -585,6 +604,13 @@ public class CampServiceImpl implements CampService {
 				"agrupacio.id=" + agrupacio.getId() + ", " +
 				"agrupacio =" + agrupacio + ")");
 		CampAgrupacio entity = campAgrupacioRepository.findOne(agrupacio.getId());
+		
+		reglaHelper.updateReglaValor(
+				entity.getExpedientTipus(), 
+				entity.getCodi() + " | " + entity.getNom(),
+				agrupacio.getCodi() + " | " + agrupacio.getNom(),
+				QueEnum.AGRUPACIO);
+		
 		entity.setCodi(agrupacio.getCodi());
 		entity.setNom(agrupacio.getNom());
 		entity.setDescripcio(agrupacio.getDescripcio());
@@ -639,6 +665,11 @@ public class CampServiceImpl implements CampService {
 		reordenarAgrupacions(
 				entity.getExpedientTipus() != null? entity.getExpedientTipus().getId() : null,
 				entity.getDefinicioProces() != null? entity.getDefinicioProces().getId() : null);
+		
+		reglaHelper.deleteReglaValor(
+				entity.getExpedientTipus(), 
+				entity.getCodi() + " | " + entity.getNom(),
+				QueEnum.AGRUPACIO);
 	}
 	
 	/** Funció per reasignar el valor d'ordre per a les agrupacions d'un tipus d'expedient o definició de procés*/

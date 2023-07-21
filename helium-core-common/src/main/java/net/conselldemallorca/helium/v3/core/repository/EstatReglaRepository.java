@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.v3.core.repository;
 
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
 import net.conselldemallorca.helium.core.model.hibernate.EstatRegla;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -38,4 +39,23 @@ public interface EstatReglaRepository extends JpaRepository<EstatRegla, Long> {
 
 	@Query("from EstatRegla r where r.estat.id=:estatId and r.nom = :nom")
 	EstatRegla findByNom(@Param("estatId") Long estatId, @Param("nom") String nom);
+
+
+	/** Troba totes les regles que contenenun valor en concret per un tipus d'expedient
+	 * 
+	 * @param dada Tipus de valor
+	 * @param expedientTipusId
+	 * @param estatReglaValor Valor a cercar
+	 * @return
+	 */
+	@Query(
+			"from EstatRegla regla " +
+			"	inner join regla.queValor as valor " +
+			"where regla.expedientTipus = :expedientTipus" +
+			"		and regla.que =  :que " +
+			"		and valor like :estatReglaValor ")
+	public List<EstatRegla> findByExpedientTipusAndValor(
+			@Param("expedientTipus") ExpedientTipus expedientTipus, 
+			@Param("que") QueEnum que, 
+			@Param("estatReglaValor") String estatReglaValor);
 }

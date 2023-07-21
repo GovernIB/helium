@@ -1,21 +1,12 @@
 package net.conselldemallorca.helium.v3.core.regles;
 
-import net.conselldemallorca.helium.core.model.hibernate.Camp;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.Estat;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.EstatRegla;
-import net.conselldemallorca.helium.core.model.hibernate.Termini;
-import net.conselldemallorca.helium.v3.core.api.dto.regles.AccioEnum;
-import net.conselldemallorca.helium.v3.core.api.dto.regles.CampFormProperties;
-import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
-import net.conselldemallorca.helium.v3.core.api.dto.regles.QuiEnum;
-import net.conselldemallorca.helium.v3.core.api.dto.regles.TipusVarEnum;
-import net.conselldemallorca.helium.v3.core.api.dto.regles.VariableFact;
-import net.conselldemallorca.helium.v3.core.repository.CampRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
-import net.conselldemallorca.helium.v3.core.repository.EstatReglaRepository;
-import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.jeasy.rules.api.Facts;
 import org.jeasy.rules.api.Rules;
 import org.jeasy.rules.api.RulesEngine;
@@ -24,12 +15,23 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import net.conselldemallorca.helium.core.model.hibernate.Camp;
+import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.Estat;
+import net.conselldemallorca.helium.core.model.hibernate.EstatRegla;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Termini;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.CampFormProperties;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.TipusVarEnum;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.VariableFact;
+import net.conselldemallorca.helium.v3.core.repository.CampRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
+import net.conselldemallorca.helium.v3.core.repository.EstatReglaRepository;
+import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
 
 @Component
 public class ReglaHelper {
@@ -231,5 +233,63 @@ public class ReglaHelper {
             codis.add(valor.split(" \\| ")[0]);
         }
         return codis;
+    }
+
+    /** Mètode comú per actualitzar les regles d'un tipus d'expedient quan es canviï el codi o etiqueta d'un
+     * camp, document, agrupació o termini.
+     * 
+     * @param expedientTipus
+     * @param estatReglaValor
+     * @param newEstatReglaValor
+     * @param dada
+     */
+    @Transactional
+	public void updateReglaValor(
+			ExpedientTipus expedientTipus, 
+			String estatReglaValor, 
+			String newEstatReglaValor, 
+			QueEnum dada) {
+
+		// Si canvia el nom actualitza les regles que hi facin referència
+		if (expedientTipus != null 
+				&& expedientTipus.getTipus() == ExpedientTipusTipusEnumDto.ESTAT 
+				&& !newEstatReglaValor.equals(estatReglaValor)) {
+			for (EstatRegla regla : estatReglaRepository.findByExpedientTipusAndValor(expedientTipus, dada, estatReglaValor)) {
+				if (regla.getQueValor().contains(estatReglaValor)) {
+					regla.getQueValor().remove(estatReglaValor);
+					regla.getQueValor().add(newEstatReglaValor);
+				}
+			}
+		}		
+	}
+    
+
+    /** Mètode comú per esborrar de les regles d'un tipus d'expedient els valors quan s'elimini un
+     * camp, document, agrupació o termini.
+     * 
+     * @param expedientTipus
+     * @param estatReglaValor
+     * @param newEstatReglaValor
+     * @param dada
+     */
+    @Transactional
+	public void deleteReglaValor(
+			ExpedientTipus expedientTipus, 
+			String estatReglaValor, 
+			QueEnum dada) {
+
+		// Si canvia el nom actualitza les regles que hi facin referència
+		if (expedientTipus != null 
+				&& expedientTipus.getTipus() == ExpedientTipusTipusEnumDto.ESTAT) {
+			for (EstatRegla regla : estatReglaRepository.findByExpedientTipusAndValor(expedientTipus, dada, estatReglaValor)) {
+				Iterator<String> valorI = regla.getQueValor().iterator();
+				while (valorI.hasNext()) {
+					String valor = valorI.next();
+					if (valor.equals(estatReglaValor)) {
+						valorI.remove();
+					}
+				}
+			}
+		}
     }
 }

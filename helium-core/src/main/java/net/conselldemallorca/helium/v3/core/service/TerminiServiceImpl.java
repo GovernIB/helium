@@ -24,9 +24,11 @@ import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
+import net.conselldemallorca.helium.v3.core.regles.ReglaHelper;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
@@ -52,6 +54,8 @@ public class TerminiServiceImpl implements TerminiService {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private PaginacioHelper paginacioHelper;
+	@Resource
+	private ReglaHelper reglaHelper;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -176,6 +180,12 @@ public class TerminiServiceImpl implements TerminiService {
 			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
 					termini.getExpedientTipus().getId());
 		
+		reglaHelper.updateReglaValor(
+				termini.getExpedientTipus(), 
+				termini.getCodi() + " | " + termini.getNom(),
+				dto.getCodi() + " | " + dto.getNom(),
+				QueEnum.TERMINI);
+
 		termini.setCodi(dto.getCodi());
 		termini.setNom(dto.getNom());
 		termini.setDescripcio(dto.getDescripcio());
@@ -216,6 +226,12 @@ public class TerminiServiceImpl implements TerminiService {
 			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
 					expedientTipusId);		
 		terminiRepository.delete(termini);
+		
+		reglaHelper.deleteReglaValor(
+				termini.getExpedientTipus(), 
+				termini.getCodi() + " | " + termini.getNom(),
+				QueEnum.TERMINI);
+
 	}
 	
 	/**
