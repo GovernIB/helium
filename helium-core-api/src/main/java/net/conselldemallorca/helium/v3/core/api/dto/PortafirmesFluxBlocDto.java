@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.conselldemallorca.helium.integracio.plugins.portasignatures;
+package net.conselldemallorca.helium.v3.core.api.dto;
 
 import java.util.List;
 
@@ -10,17 +10,18 @@ import java.util.List;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class PortafirmesFluxBloc {
+public class PortafirmesFluxBlocDto {
 
 	private int minSignataris = 0;
 	private boolean[] obligatorietats;
-	private String[] destinataris;//signataris
-	
-	public PortafirmesFluxBloc () {
+//	private String[] destinataris;
+	private List<PersonaDto> destinataris;
+
+	public PortafirmesFluxBlocDto () {
 		
 	}
 	
-	public PortafirmesFluxBloc (int minSignataris, String[] destinataris ) {
+	public PortafirmesFluxBlocDto (int minSignataris, List<PersonaDto> destinataris ) {
 		this.setMinSignataris(minSignataris);
 		this.setDestinataris(destinataris);
 	}
@@ -38,15 +39,12 @@ public class PortafirmesFluxBloc {
 	public void setObligatorietats(boolean[] obligatorietats) {
 		this.obligatorietats = obligatorietats;
 	}
-
-	public String[] getDestinataris() {
+	public List<PersonaDto> getDestinataris() {
 		return destinataris;
 	}
-
-	public void setDestinataris(String[] destinataris) {
+	public void setDestinataris(List<PersonaDto> destinataris) {
 		this.destinataris = destinataris;
 	}
 
-	
 
 }

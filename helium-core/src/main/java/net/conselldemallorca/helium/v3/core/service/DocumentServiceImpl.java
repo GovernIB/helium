@@ -153,8 +153,11 @@ public class DocumentServiceImpl implements DocumentService {
 		entity.setNtiOrigen(document.getNtiOrigen());
 		entity.setNtiEstadoElaboracion(document.getNtiEstadoElaboracion());
 		entity.setNtiTipoDocumental(document.getNtiTipoDocumental());
+		entity.setPortafirmesActiu(document.isPortafirmesActiu());
 		entity.setPortafirmesFluxId(document.getPortafirmesFluxId());									  
-   
+		entity.setPortafirmesFluxTipus(document.getPortafirmesFluxTipus());
+		entity.setPortafirmesSequenciaTipus(document.getPortafirmesSequenciaTipus());
+		entity.setPortafirmesResponsables(document.getPortafirmesResponsables()!=null? document.getPortafirmesResponsables().split(",") : null );
   
 		if (expedientTipusId != null)
 			entity.setExpedientTipus(expedientTipusRepository.findOne(expedientTipusId));
@@ -195,6 +198,12 @@ public class DocumentServiceImpl implements DocumentService {
 					document,
 					DocumentDto.class);
 			ret.setArxiuContingut(document.getArxiuContingut());
+			//Portafirmes
+			ret.setPortafirmesActiu(document.isPortafirmesActiu());
+			ret.setPortafirmesFluxId(document.getPortafirmesFluxId());
+			ret.setPortafirmesFluxTipus(document.getPortafirmesFluxTipus());
+			ret.setPortafirmesSequenciaTipus(document.getPortafirmesSequenciaTipus());
+			ret.setPortafirmesResponsables(document.getPortafirmesResponsables());
 		}
 		return ret;
 	}
@@ -238,7 +247,14 @@ public class DocumentServiceImpl implements DocumentService {
 				document,
 				DocumentDto.class);
 		dto.setArxiuContingut(document.getArxiuContingut());
+		
+		//Portafirmes
+		dto.setPortafirmesActiu(document.isPortafirmesActiu());
 		dto.setPortafirmesFluxId(document.getPortafirmesFluxId());
+		dto.setPortafirmesFluxTipus(document.getPortafirmesFluxTipus());
+		dto.setPortafirmesSequenciaTipus(document.getPortafirmesSequenciaTipus());
+//		dto.setPortafirmesResponsables(document.getPortafirmesResponsables()!=null? document.getPortafirmesResponsables().split(",") : null );
+		dto.setPortafirmesResponsables(document.getPortafirmesResponsables());
 		// Herencia
 		ExpedientTipus tipus = expedientTipusId != null? expedientTipusRepository.findOne(expedientTipusId) : null;
 		if (tipus != null && tipus.getExpedientTipusPare() != null) {
@@ -293,12 +309,39 @@ public class DocumentServiceImpl implements DocumentService {
 		entity.setNtiOrigen(document.getNtiOrigen());
 		entity.setNtiEstadoElaboracion(document.getNtiEstadoElaboracion());
 		entity.setNtiTipoDocumental(document.getNtiTipoDocumental());
-		entity.setPortafirmesFluxId(document.getPortafirmesFluxId());											  
-   
+		entity.setPortafirmesActiu(document.isPortafirmesActiu());
+		if(document.isPortafirmesActiu()) {
+			entity.setPortafirmesFluxId(document.getPortafirmesFluxId());	
+			entity.setPortafirmesFluxTipus(document.getPortafirmesFluxTipus());
+			entity.setPortafirmesSequenciaTipus(document.getPortafirmesSequenciaTipus());
+			if(document.getPortafirmesResponsables()!=null) {
+				//MARTA aquí setejar String!
+//				entity.setPortafirmesResponsables(this.getResponsablesFromArray(document.getPortafirmesResponsables()));
+
+				entity.setPortafirmesResponsables(document.getPortafirmesResponsables()!=null? document.getPortafirmesResponsables().split(",") : null );
+			}
+		} else {
+			entity.setPortafirmesFluxId(null);	
+			entity.setPortafirmesFluxTipus(null);
+			entity.setPortafirmesSequenciaTipus(null);
+			entity.setPortafirmesResponsables(null);	
+		}
 
 		return conversioTipusHelper.convertir(
 				documentRepository.save(entity),
 				DocumentDto.class);
+	}
+	
+	private String getResponsablesFromArray(String[] responsables) {
+		StringBuilder responsablesStr = new StringBuilder();
+		if (responsables != null) {
+			for (String responsable: responsables) {
+				if (responsablesStr.length() > 0)
+					responsablesStr.append(",");
+				responsablesStr.append(responsable);
+			}
+		}
+		return responsablesStr.toString();
 	}
 
 	@Override

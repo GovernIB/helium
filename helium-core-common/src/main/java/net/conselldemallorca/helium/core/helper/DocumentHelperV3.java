@@ -592,6 +592,15 @@ public class DocumentHelperV3 {
 		return documentStore;
 	}
 	
+	public DocumentStore findById(
+			Long documentStoreId) {
+		DocumentStore documentStore = null;
+		if (documentStoreId != null) {
+			documentStore = documentStoreRepository.findOne(documentStoreId);
+		}
+		return documentStore;
+	}
+	
 	public List<RespostaValidacioSignaturaDto> getRespostasValidacioSignatura(DocumentStore documentStore) {
 		DocumentDto document = toDocumentDto(
 				documentStore.getId(),

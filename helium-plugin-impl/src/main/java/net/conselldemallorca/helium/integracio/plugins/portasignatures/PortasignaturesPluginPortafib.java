@@ -58,7 +58,7 @@ public class PortasignaturesPluginPortafib implements PortasignaturesPlugin {
 			DocumentPortasignatures document,
 			List<DocumentPortasignatures> annexos,
 			boolean isSignarAnnexos,
-			PasSignatura[] passesSignatura,
+			List<PortafirmesFluxBloc> blocList,
 			String remitent,
 			String importancia,
 			Date dataLimit,
@@ -105,7 +105,7 @@ public class PortasignaturesPluginPortafib implements PortasignaturesPlugin {
 			}
 			requestPeticioDeFirmaWs.setFluxDeFirmes(
 					toFluxDeFirmes(
-							Arrays.asList(passesSignatura),
+							blocList,
 							null));
 			requestPeticioDeFirmaWs.setFitxerAFirmar(
 					toFitxerBean(document));
@@ -205,14 +205,14 @@ public class PortasignaturesPluginPortafib implements PortasignaturesPlugin {
 	}
 
 	private FluxDeFirmesWs toFluxDeFirmes(
-			List<PasSignatura> passes,
+			List<PortafirmesFluxBloc> blocs,
 			String plantillaFluxId) throws Exception {
-		if (passes == null && plantillaFluxId == null) {
+		if (blocs == null && plantillaFluxId == null) {
 			throw new PortasignaturesPluginException(
 					"És necessari configurar algun responsable de firmar el document");
 		}
 		FluxDeFirmesWs fluxWs;
-		if (plantillaFluxId != null && passes == null) {
+		if (plantillaFluxId != null && blocs == null) {
 			fluxWs = getPeticioDeFirmaWs().instantiatePlantillaFluxDeFirmes(
 					new Long(plantillaFluxId).longValue());
 		} else {
@@ -220,17 +220,17 @@ public class PortasignaturesPluginPortafib implements PortasignaturesPlugin {
 			fluxWs = new FluxDeFirmesWs();
 			fluxWs.setNom("Flux Helium " + System.nanoTime());
 
-			PasSignatura pas;
+			PortafirmesFluxBloc fluxBloc;
 		    BlocDeFirmesWs bloc;
 		    String signatari;
 		    String usuariEntitat;
-			for(int i = 0; i < passes.size(); i++) {
-				pas = passes.get(i);
+			for(int i = 0; i < blocs.size(); i++) {
+				fluxBloc = blocs.get(i);
 				bloc = new BlocDeFirmesWs();
-			    bloc.setMinimDeFirmes(pas.getMinSignataris());
+			    bloc.setMinimDeFirmes(fluxBloc.getMinSignataris());
 			    bloc.setOrdre(i);
-			    for (int j = 0; j<pas.getSignataris().length; j++) {
-			    	signatari = pas.getSignataris()[j];
+			    for (int j = 0; j<fluxBloc.getDestinataris().length; j++) {
+			    	signatari = fluxBloc.getDestinataris()[j];
 			    	// Cercar usuariEntitat associat al nif
 			    	usuariEntitat = usuariEntitatAPI.getUsuariEntitatIDInMyEntitatByAdministrationID(signatari);
 				    FirmaBean firma = new FirmaBean();
@@ -414,18 +414,6 @@ public class PortasignaturesPluginPortafib implements PortasignaturesPlugin {
 	public void tancarTransaccioFlux(String idTransaccio) throws SistemaExternException {
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public List<PortafirmesCarrec> recuperarCarrecs() throws SistemaExternException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PortafirmesCarrec recuperarCarrec(String carrecId) throws SistemaExternException {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

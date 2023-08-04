@@ -118,11 +118,5 @@ public interface PortafirmesFluxService {
 			String plantillaFluxId,
 			String returnUrl);
 	
-	/**
-	 * Recupera un llistat dels càrrecs disponibles per l'usuari aplicació configurat
-	 * 
-	 * @return Els càrrecs
-	 */
-	public List<PortafirmesCarrecDto> recuperarCarrecs();
 
 }

@@ -5,9 +5,11 @@
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
+<c:set var="charSearch" value='"' />
+<c:set var="charReplace" value='\\"' />
 <c:choose>
 	<c:when test="${document.adjunt}">
-		<c:set var="titol"><spring:message code="expedient.document.enviar.portasignatures.firmaPassarela.titol.adjunt" arguments="${document.adjuntTitol}"/></c:set>
+		<c:set var="titol"><spring:message code="expedient.document.enviar.portasignatures.titol.adjunt" arguments="${document.adjuntTitol}"/></c:set>
 	</c:when>
 	<c:otherwise>
 		<c:set var="titol"><spring:message code="expedient.document.enviar.portasignatures.titol.document" arguments="${document.documentNom}"/></c:set>
@@ -151,17 +153,38 @@ div.dropdown-menu.loading .rmodal_carrecs {
 			<div>
 				<input type="hidden" name="id" value="${documentExpedientEnviarPortasignaturesCommand.id}"/>
 				<hel:inputText required="true" name="motiu" textKey="expedient.document.enviar.portasignatures.camp.motiu"/>
-				<hel:inputText required="true" name="prioritat" textKey="expedient.document.enviar.portasignatures.camp.prioritat"/>
+				<hel:inputSelect name="portafirmesPrioritatTipus" textKey="expedient.document.enviar.portasignatures.camp.prioritat" 
+							optionItems="${portafirmesPrioritatEnumOptions}" optionValueAttribute="value" optionTextKeyAttribute="text" 
+							disabled="${bloquejarCamps}"/>
 				<hel:inputSelect required="true" name="annexos" multiple="true" textKey="expedient.document.enviar.portasignatures.camp.annexos" placeholderKey="expedient.document.enviar.portasignatures.camp.annexos.placeholder" optionItems="${annexos}" optionValueAttribute="id" optionTextAttribute="documentNom" labelSize="4"/>
-				<hel:inputSelect name="portafirmesFluxId" textKey="expedient.tipus.document.form.camp.id.flux.firma" emptyOption="true" botons="true"  
-					icon="fa fa-external-link" iconAddicional="fa fa-trash-o" buttonMsg="${buttonTitle}"
-					placeholderKey="expedient.tipus.document.form.camp.id.flux.firma.buit" />
-					
-					<c:if test="${urlFluxFirmes!=null and not empty urlFluxFirmes}">
-						<div class="blocks_container">
-							<iframe width="100%" height="500px" frameborder="0" allowtransparency="true" src="${urlFluxFirmes}"></iframe>
-						</div>
+				<c:if test="${documentExpedientEnviarPortasignaturesCommand.portafirmesActiu}">
+					<c:if test="${documentExpedientEnviarPortasignaturesCommand.portafirmesFluxTipus eq 'FLUX'}">
+						<hel:inputSelect name="portafirmesFluxId" textKey="expedient.tipus.document.form.camp.id.flux.firma" emptyOption="true" botons="true"  
+						icon="fa fa-external-link" iconAddicional="fa fa-trash-o" buttonMsg="${buttonTitle}"
+						placeholderKey="expedient.tipus.document.form.camp.id.flux.firma.buit" />
+						
+						<c:if test="${urlFluxFirmes!=null and not empty urlFluxFirmes}">
+							<div class="blocks_container">
+								<iframe width="100%" height="500px" frameborder="0" allowtransparency="true" src="${urlFluxFirmes}"></iframe>
+							</div>
+						</c:if>
 					</c:if>
+					<c:if test="${documentExpedientEnviarPortasignaturesCommand.portafirmesFluxTipus eq 'SIMPLE'}">	
+						<hel:inputSuggest 
+							inline="false" 
+							name="portafirmesResponsables" 
+							urlConsultaInicial="/helium/v3/expedient/persona/suggestInici" 
+							urlConsultaLlistat="/helium/v3/expedient/persona/suggest" 
+							textKey="expedient.tipus.form.camp.responsableDefecteCodi" 
+							placeholderKey="expedient.tipus.form.camp.responsableDefecteCodi" 
+							multiple="true"/>
+			
+						<hel:inputSelect name="portafirmesSequenciaTipus" textKey="expedient.tipus.document.form.camp.portafirmes.sequencia.firma" 
+							optionItems="${portafirmesSequenciaTipusEnumOptions}" optionValueAttribute="value" optionTextKeyAttribute="text" 
+							disabled="${bloquejarCamps}"/>
+					</c:if>
+							
+				</c:if>
 			</div>
 			
 			<div id="modal-botons" class="well">
@@ -187,14 +210,12 @@ div.dropdown-menu.loading .rmodal_carrecs {
 			//</c:if>
 		});
 		$(".portafirmesFluxId_btn_edicio").on('click', function(){
-			//var metaDocumentNom ="psigna-gdoc";//MARTA ojo canviar!!
 			var metaDocumentNom = "${fn:replace(documentExpedientEnviarPortasignaturesCommand.nom, charSearch, charReplace)}";
 			alert(metaDocumentNom);
 			$.ajax({
 				type: 'GET',
 				dataType: "json",
 				data: {nom: metaDocumentNom, plantillaId: $("#portafirmesFluxId").val()},
-				//url: "<c:url value="/v3/expedientTipus/${expedientTipusDocumentCommand.expedientTipusId}/document/${expedientTipusDocumentCommand.id}/iniciarTransaccio"/>",
 				url: "<c:url value="/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${documentExpedientEnviarPortasignaturesCommand.id}/enviarPortasignatures/iniciarTransaccio"/>",
 				success: function(transaccioResponse) {
 					if (transaccioResponse != null && !transaccioResponse.error) {
@@ -237,7 +258,6 @@ div.dropdown-menu.loading .rmodal_carrecs {
 		$.ajax({
 				type: 'GET',
 				dataType: "json",
-				//url: "<c:url value="/v3/expedientTipus/${expedientTipusDocumentCommand.expedientTipusId}/document/${expedientTipusDocumentCommand.id}/flux/plantilles"/>",
 				url: "<c:url value="/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${documentExpedientEnviarPortasignaturesCommand.id}/flux/plantilles"/>",
 					success: function(data) {
 								var plantillaActual = "${portafirmesFluxSeleccionat}";
@@ -285,7 +305,6 @@ div.dropdown-menu.loading .rmodal_carrecs {
 			$.ajax({
 					type: 'GET',
 					dataType: "json",
-						//url: "<c:url value="/v3/expedientTipus/${expedientTipusDocumentCommand.expedientTipusId}/document/${expedientTipusDocumentCommand.id}/flux/esborrar/"/>" + portafirmesFluxId,
 						url: "<c:url value="/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${documentExpedientEnviarPortasignaturesCommand.id}/flux/esborrar/"/>" + portafirmesFluxId,
 							success: function(esborrat) {
 								if (esborrat) {

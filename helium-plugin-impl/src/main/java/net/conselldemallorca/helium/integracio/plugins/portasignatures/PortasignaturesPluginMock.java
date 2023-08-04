@@ -41,7 +41,7 @@ public class PortasignaturesPluginMock implements PortasignaturesPlugin {
 			DocumentPortasignatures document,
 			List<DocumentPortasignatures> annexos,
 			boolean isSignarAnnexos,
-			PasSignatura[] passesSignatura,
+			List<PortafirmesFluxBloc> blocList,
 			String remitent,
 			String importancia,
 			Date dataLimit,
@@ -157,18 +157,6 @@ public class PortasignaturesPluginMock implements PortasignaturesPlugin {
 	public void tancarTransaccioFlux(String idTransaccio) throws SistemaExternException {
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public List<PortafirmesCarrec> recuperarCarrecs() throws SistemaExternException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PortafirmesCarrec recuperarCarrec(String carrecId) throws SistemaExternException {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

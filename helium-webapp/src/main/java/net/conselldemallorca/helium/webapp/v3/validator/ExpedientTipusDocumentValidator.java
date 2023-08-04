@@ -6,6 +6,7 @@ import javax.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
@@ -54,6 +55,38 @@ public class ExpedientTipusDocumentValidator implements ConstraintValidator<Expe
 						.addConstraintViolation();	
 				valid = false;
 			}
+		}
+		// TODO MARTA
+		// Comprova les opcions del portasignatures
+		// el tipus flux o simple ha d'estar informat
+		// simple: el tipus paral·lel o sèrie i els responsables han d'estar informats. la llargada dels responsables no pot ser major a 1024 comptant el separador
+		// flux: el flux id ha d'estar informat
+		if (document.isPortafirmesActiu()) {
+			if(document.getPortafirmesFluxTipus()!=null) {
+				if(document.getPortafirmesFluxTipus().equals(PortafirmesTipusEnumDto.FLUX) && document.getPortafirmesFluxId()==null) {
+					context.buildConstraintViolationWithTemplate(
+							MessageHelper.getInstance().getMessage("expedient.tipus.document.form.camp.portafirmes.flux.id.buit"))
+							.addNode("fluxId")
+							.addConstraintViolation();	
+					valid = false;
+				}
+				if((document.getPortafirmesFluxTipus().equals(PortafirmesTipusEnumDto.SIMPLE))&&
+						(document.getPortafirmesResponsables()==null || document.getPortafirmesResponsables().length()==0 || document.getPortafirmesResponsables().length()>1024))
+				{
+					context.buildConstraintViolationWithTemplate(
+							MessageHelper.getInstance().getMessage( "expedient.tipus.document.form.camp.portafirmes.responsables.buit"))
+							.addNode("responsablesFlux")
+							.addConstraintViolation();
+					valid = false;
+				}
+			} else {
+				context.buildConstraintViolationWithTemplate(
+						MessageHelper.getInstance().getMessage("expedient.tipus.document.form.camp.portafirmes.tipus.buit"))
+						.addNode("fluxTipus")
+						.addConstraintViolation();	
+				valid = false;
+			}
+			
 		}
 		if (!valid) {
 			context.disableDefaultConstraintViolation();

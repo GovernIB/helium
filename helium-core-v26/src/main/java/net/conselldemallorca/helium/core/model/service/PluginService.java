@@ -48,6 +48,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transic
 import net.conselldemallorca.helium.core.model.hibernate.Usuari;
 import net.conselldemallorca.helium.core.security.AclServiceDao;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortafirmesFluxBloc;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirDadesTramitRequest;
@@ -152,12 +153,13 @@ public class PluginService {
 			Long documentId,
 			List<Long> annexosId,
 			PersonaDto persona,
-			List<PersonaDto> personesPas1,
-			int minSignatarisPas1,
-			List<PersonaDto> personesPas2,
-			int minSignatarisPas2,
-			List<PersonaDto> personesPas3,
-			int minSignatarisPas3,
+			List<PortafirmesFluxBloc> flux,
+//			List<PersonaDto> personesPas1,
+//			int minSignatarisPas1,
+//			List<PersonaDto> personesPas2,
+//			int minSignatarisPas2,
+//			List<PersonaDto> personesPas3,
+//			int minSignatarisPas3,
 			Expedient expedient,
 			String importancia,
 			Date dataLimit,
@@ -183,16 +185,38 @@ public class PluginService {
 					}
 				}
 			}	
+			//MARTA descomentar després
+//			List<PortafirmesFluxBloc> flux = new ArrayList<PortafirmesFluxBloc>();//MARTA
+//			if (fluxId == null) {
+//				if (MetaDocumentFirmaSequenciaTipusEnumDto.SERIE.equals(fluxTipus)) {
+//					for (String responsable: responsables) {
+//						PortafirmesFluxBloc bloc = new PortafirmesFluxBloc();
+//						bloc.setMinSignataris(1);
+//						bloc.setDestinataris(new String[] {responsable});
+//						bloc.setObligatorietats(new boolean[] {true});
+//						flux.add(bloc);
+//					}
+//				} else if (MetaDocumentFirmaSequenciaTipusEnumDto.PARALEL.equals(fluxTipus)) {
+//					PortafirmesFluxBloc bloc = new PortafirmesFluxBloc();
+//					bloc.setMinSignataris(responsables.length);
+//					bloc.setDestinataris(responsables);
+//					boolean[] obligatorietats = new boolean[responsables.length];
+//					Arrays.fill(obligatorietats, true);
+//					bloc.setObligatorietats(obligatorietats);
+//					flux.add(bloc);
+//				}
+//			}
 			Integer doc = pluginPortasignaturesDao.uploadDocument(
 					document,
 					annexos,
 					persona,
-					personesPas1,
-					minSignatarisPas1,
-					personesPas2,
-					minSignatarisPas2,
-					personesPas3,
-					minSignatarisPas3,
+					flux,
+//					personesPas1,
+//					minSignatarisPas1,
+//					personesPas2,
+//					minSignatarisPas2,
+//					personesPas3,
+//					minSignatarisPas3,
 					expedient,
 					importancia,
 					dataLimit);

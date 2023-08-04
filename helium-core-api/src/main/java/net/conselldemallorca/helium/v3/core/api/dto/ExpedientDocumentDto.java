@@ -20,7 +20,13 @@ public class ExpedientDocumentDto implements Serializable {
 	private Date dataDocument;
 	private String arxiuNom;
 	private String processInstanceId;
+	
+	private boolean portafirmesActiu = false;
+	private PortafirmesTipusEnumDto portafirmesFluxTipus;	
+	private PortafirmesSimpleTipusEnumDto portafirmesSequenciaTipus;
+	private String portafirmesResponsables;
 	private String portafirmesFluxId;
+	private String portafirmesPrioritatEnumDto;
 	
 	private Long documentId;
 	private String documentCodi;
@@ -375,6 +381,36 @@ public class ExpedientDocumentDto implements Serializable {
 	}
 	public void setPortafirmesFluxId(String portafirmesFluxId) {
 		this.portafirmesFluxId = portafirmesFluxId;
+	}
+	public boolean isPortafirmesActiu() {
+		return portafirmesActiu;
+	}
+	public void setPortafirmesActiu(boolean portafirmesActiu) {
+		this.portafirmesActiu = portafirmesActiu;
+	}
+	public PortafirmesTipusEnumDto getPortafirmesFluxTipus() {
+		return portafirmesFluxTipus;
+	}
+	public void setPortafirmesFluxTipus(PortafirmesTipusEnumDto portafirmesFluxTipus) {
+		this.portafirmesFluxTipus = portafirmesFluxTipus;
+	}
+	public PortafirmesSimpleTipusEnumDto getPortafirmesSequenciaTipus() {
+		return portafirmesSequenciaTipus;
+	}
+	public void setPortafirmesSequenciaTipus(PortafirmesSimpleTipusEnumDto portafirmesSequenciaTipus) {
+		this.portafirmesSequenciaTipus = portafirmesSequenciaTipus;
+	}
+	public String getPortafirmesPrioritatEnumDto() {
+		return portafirmesPrioritatEnumDto;
+	}
+	public void setPortafirmesPrioritatEnumDto(String portafirmesPrioritatEnumDto) {
+		this.portafirmesPrioritatEnumDto = portafirmesPrioritatEnumDto;
+	}
+	public String getPortafirmesResponsables() {
+		return portafirmesResponsables;
+	}
+	public void setPortafirmesResponsables(String portafirmesResponsables) {
+		this.portafirmesResponsables = portafirmesResponsables;
 	}
 
 	private static final long serialVersionUID = -4307890997577367155L;

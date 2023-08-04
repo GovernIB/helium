@@ -12,12 +12,16 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxBlocDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -307,6 +311,13 @@ public interface ExpedientDocumentService {
 	 * @return
 	 */
 	public PortasignaturesDto getPortasignaturesByDocumentId(Integer documentId);
+	
+	/** Mètode per consultar la informació del portasignatures pel documentStoreId.
+	 * 
+	 * @param documentStoreId
+	 * @return
+	 */
+	public PortasignaturesDto getPortasignaturesByDocumentStoreId(Long documentStoreId);
 
 	/**
 	 * Genera l'arxiu d'un document a partir de la seva plantilla.
@@ -477,4 +488,49 @@ public interface ExpedientDocumentService {
 			Long documentStoreId,
 			String arxiuNom,
 			byte[] contingutFirmat) throws PermisDenegatException;
+
+	/** Envia un document al portasignatures.
+	 * 
+	 * @param document
+	 * @param annexos
+	 * @param persona
+	 * @param personesPas
+	 * @param minSignatarisPas
+	 * @param expedient
+	 * @param importancia
+	 * @param dataLimit
+	 * @param tokenId
+	 * @param processInstanceId
+	 * @param transicioOK
+	 * @param transicioKO
+	 * @param portafirmesFluxId
+	 * 
+	 * @return Retorna l'identificador del document donat pel portasignatures.
+	 */
+	public void enviarPortasignatures(
+			DocumentDto document,
+			List<DocumentDto> annexos,
+			PersonaDto persona,
+			List<PortafirmesFluxBlocDto> blocList,
+			ExpedientDto expedient,
+			String importancia,
+			Date dataLimit,
+			Long tokenId,
+			Long processInstanceId,
+			String transicioOK,
+			String transicioKO,
+			String[] responsables, 
+			PortafirmesSimpleTipusEnumDto fluxTipus,
+			String portafirmesFluxId) throws SistemaExternException;
+
+	/**
+	 * Cancela l'enviament d'un document a firmar al portafirmes.
+	 * @param documentId
+	 * @param portasignaturesId
+	 */
+
+	public void portafirmesCancelar(
+		Integer documentId,
+		Long portasignaturesId) throws SistemaExternException;
+
 }

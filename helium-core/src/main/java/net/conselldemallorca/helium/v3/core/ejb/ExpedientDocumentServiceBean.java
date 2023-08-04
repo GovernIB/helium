@@ -19,16 +19,21 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxBlocDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 
 /**
@@ -209,6 +214,15 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 				expedientId,
 				processInstanceId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PortasignaturesDto getPortasignaturesByDocumentStoreId(
+			Long documentStoreId) {
+		return delegate.getPortasignaturesByDocumentStoreId(
+				documentStoreId);
+	}
+	
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -362,4 +376,46 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			byte[] contingutFirmat) throws PermisDenegatException {
 		delegate.processarFirmaClient(expedientId, processInstanceId, documentStoreId, arxiuNom, contingutFirmat);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void enviarPortasignatures(
+			DocumentDto document, 
+			List<DocumentDto> annexos, 
+			PersonaDto persona,
+			List<PortafirmesFluxBlocDto> blocList, 
+			ExpedientDto expedient, 
+			String importancia, 
+			Date dataLimit, 
+			Long tokenId,
+			Long processInstanceId, 
+			String transicioOK, 
+			String transicioKO, 
+			String[] responsables, 
+			PortafirmesSimpleTipusEnumDto fluxTipus,
+			String portafirmesFluxId) throws SistemaExternException {
+		delegate.enviarPortasignatures(
+				document, 
+				annexos, 
+				persona,
+				blocList, 
+				expedient, 
+				importancia, 
+				dataLimit, 
+				tokenId, 
+				processInstanceId, 
+				transicioOK, 
+				transicioKO,
+				responsables, 
+				fluxTipus,
+				portafirmesFluxId);
+		
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void portafirmesCancelar(Integer documentId, Long portasignaturesId) throws SistemaExternException {
+		delegate.portafirmesCancelar(documentId, portasignaturesId);		
+	}
+
 }

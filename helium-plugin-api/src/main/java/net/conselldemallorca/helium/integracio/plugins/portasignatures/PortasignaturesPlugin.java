@@ -2,8 +2,8 @@ package net.conselldemallorca.helium.integracio.plugins.portasignatures;
 
 import java.util.Date;
 import java.util.List;
-
 import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
+
 
 /**
  * Plugin per a la integració amb portasignatures.
@@ -29,7 +29,7 @@ public interface PortasignaturesPlugin {
 			DocumentPortasignatures document,
 			List<DocumentPortasignatures> annexos,
 			boolean isSignarAnnexos,
-			PasSignatura[] passesSignatura,
+			List<PortafirmesFluxBloc> blocList,
 			String remitent,
 			String importancia,
 			Date dataLimit,
@@ -166,27 +166,7 @@ public interface PortasignaturesPlugin {
 	public void tancarTransaccioFlux(
 			String idTransaccio) throws SistemaExternException;
 
-
-	/**
-	 * Recupera els càrrecs disponibles per un usuari aplicació
-	 * 
-	 * @return Una llista dels càrrecs
-	 * @throws SistemaExternException
-	 * 			Si hi ha hagut algun problema per dur a terme l'acció.
-	 */
-	List<PortafirmesCarrec> recuperarCarrecs() throws SistemaExternException;
-
-	/**
-	 * Recupera la informació d'un càrrec a partir del seu id
-	 * 
-	 * @param carrecId
-	 * 				ID del càrrec a consultar
-	 * @return La informació del càrrec
-	 * @throws SistemaExternException
-	 * 			Si hi ha hagut algun problema per dur a terme l'acció.
-	 */
-	PortafirmesCarrec recuperarCarrec(String carrecId) throws SistemaExternException;
-
+	
 	public List<PortafirmesFluxResposta> recuperarPlantillesPerFiltre(
 			String idioma,
 			String descripcio) throws SistemaExternException;

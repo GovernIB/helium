@@ -122,21 +122,6 @@ public class PortafirmesFluxServiceImpl implements PortafirmesFluxService {
 		String idioma = LocaleContextHolder.getLocale().getLanguage();
 		return pluginHelper.portafirmesEsborrarPlantillaFirma(idioma, plantillaFluxId);
 	}
-
-	@Override
-	public List<PortafirmesCarrecDto> recuperarCarrecs() {
-		logger.debug("Recuperant els càrrecs disponibles");
-		return pluginHelper.portafirmesRecuperarCarrecs();
-	}
-	
-//	private String generarNomFlux(String documentNom) {		
-//		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd_HH:mm:ss");
-//		Date date = new Date();
-//		documentNom = documentNom.replace(" ", "_");
-//		
-//		String nomFlux = "Flux_" + documentNom + "_" + dateFormat.format(date);
-//		return nomFlux;
-//	}
 	
 	private static final Logger logger = LoggerFactory.getLogger(PortafirmesFluxServiceImpl.class);
 

@@ -83,9 +83,4 @@ public class PortafirmesFluxServiceBean implements PortafirmesFluxService {
 		return delegate.esborrarPlantilla(plantillaFluxId);
 	}
 
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<PortafirmesCarrecDto> recuperarCarrecs() {
-		return delegate.recuperarCarrecs();
-	}
 }

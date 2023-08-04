@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,17 +31,22 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxRespostaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesIniciFluxRespostaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.api.service.PortafirmesFluxService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDocumentCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
@@ -152,11 +158,37 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 				ExpedientTipusDocumentCommand.class);
 		command.setExpedientTipusId(expedientTipusId);
 		command.setCampId(dto.getCampData() != null ? dto.getCampData().getId() : null);
-		model.addAttribute("portafirmesFluxSeleccionat", dto.getPortafirmesFluxId());
-		model.addAttribute("expedientTipusDocumentCommand", command);
 		omplirModelComu(request, expedientTipusId, model);
 		model.addAttribute("heretat", dto.isHeretat());
+		model.addAttribute("portafirmesFluxSeleccionat", dto.getPortafirmesFluxId());
+		model.addAttribute("portafirmesResponsables", dto.getPortafirmesResponsables());
+		model.addAttribute(
+				"fluxtipEnumOptions",
+				EnumHelper.getOptionsForEnum(
+						PortafirmesTipusEnumDto.class
+						,"enum.document.tipus.portafirmes."));
+		model.addAttribute(
+				"portafirmesSequenciaTipusEnumOptions",
+				EnumHelper.getOptionsForEnum(
+						PortafirmesSimpleTipusEnumDto.class
+						,"enum.document.tipus.portafirmes.sequencia."));
+		model.addAttribute("expedientTipusDocumentCommand", command);
 		return "v3/expedientTipusDocumentForm";
+	}
+	
+	private String getResponsablesFromArray(String[] portafirmesResponsables) {
+		StringBuilder responsablesStr = new StringBuilder();
+		if (portafirmesResponsables != null) {
+			for (String responsable: portafirmesResponsables) {
+				if (responsablesStr.length() > 0)
+					responsablesStr.append(",");
+				responsablesStr.append(responsable);
+			}
+			return responsablesStr.toString();
+		} else {
+			return null;
+		}
+
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/document/{id}/update", method = RequestMethod.POST)
@@ -281,18 +313,14 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 	@ResponseBody
 	public PortafirmesIniciFluxRespostaDto iniciarTransaccio(
 			HttpServletRequest request,
-			@RequestParam(value = "nom", required = false) String nom,
 			@RequestParam(value = "plantillaId", required = false) String plantillaId,
 			@PathVariable Long expedientTipusId, 
 			@PathVariable Long id,
 			Model model) throws UnsupportedEncodingException {
-//		organGestorService.actualitzarOrganCodi(SessioHelper.getOrganActual(request));
 		String urlReturn;
 		PortafirmesIniciFluxRespostaDto transaccioResponse = null;
 		try {
-//			urlReturn = aplicacioService.propertyBaseUrl() + "/metaExpedient/metaDocument/flux/returnurl/";
 			urlReturn =  request.getContextPath() + "/v3/expedientTipus/" +expedientTipusId;
-//			model.addAttribute("redireccioUrl",  request.getContextPath() + "/v3/expedientTipus/" + expedientTipusId);
 			if (plantillaId != null && !plantillaId.isEmpty()) {
 				transaccioResponse = new PortafirmesIniciFluxRespostaDto();
 				String urlEdicio = portafirmesFluxService.recuperarUrlEdicioPlantilla(plantillaId, urlReturn);
@@ -306,9 +334,21 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			transaccioResponse.setError(true);
 			transaccioResponse.setErrorDescripcio(ex.getMessage());
 		}
-
 		return transaccioResponse;
 	}
+
+
+	
+	@RequestMapping(value = "/{expedientTipusId}/document/{id}/flux/esborrar/{plantillaId}", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean esborrarPlantilla(
+			HttpServletRequest request,
+			@PathVariable String plantillaId,
+			Model model) {
+		
+		return portafirmesFluxService.esborrarPlantilla(plantillaId);
+	}
+	
 	
 	@RequestMapping(value = "/{expedientTipusId}/document/{id}/tancarTransaccio/{idTransaccio}", method = RequestMethod.GET)
 	@ResponseBody
@@ -347,6 +387,6 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 				getMessage(request, "metadocument.form.camp.portafirmes.flux.edicio.enum.FINAL_OK"));
 		return "portafirmesModalTancar";
 	}
-
+	
 	private static final Log logger = LogFactory.getLog(ExpedientTipusDocumentController.class);
 }

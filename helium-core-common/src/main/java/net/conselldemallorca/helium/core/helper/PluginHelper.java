@@ -29,11 +29,13 @@ import org.fundaciobit.plugins.validatesignature.api.SignatureRequestedInformati
 import org.fundaciobit.plugins.validatesignature.api.TimeStampInfo;
 import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureRequest;
 import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+
 
 import es.caib.plugins.arxiu.api.ConsultaFiltre;
 import es.caib.plugins.arxiu.api.ConsultaOperacio;
@@ -146,10 +148,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesCarrecDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxBlocDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxRespostaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxEstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxInfoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesIniciFluxRespostaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
@@ -1507,12 +1511,7 @@ public class PluginHelper {
 			DocumentDto document,
 			List<DocumentDto> annexos,
 			PersonaDto persona,
-			List<PersonaDto> personesPas1,
-			int minSignatarisPas1,
-			List<PersonaDto> personesPas2,
-			int minSignatarisPas2,
-			List<PersonaDto> personesPas3,
-			int minSignatarisPas3,
+			List<PortafirmesFluxBlocDto> blocList,
 			Expedient expedient,
 			String importancia,
 			Date dataLimit,
@@ -1520,60 +1519,98 @@ public class PluginHelper {
 			Long processInstanceId,
 			String transicioOK,
 			String transicioKO,
+			String[] responsables, 
+			PortafirmesSimpleTipusEnumDto fluxTipus,
 			String portafirmesFluxId) {
-		IntegracioParametreDto[] parametres = null;
+		
+		List<IntegracioParametreDto> parametresList = new ArrayList<IntegracioParametreDto>();
 		long t0 = System.currentTimeMillis();
 		try {
-			parametres = new IntegracioParametreDto[9];
-			parametres[0] = new IntegracioParametreDto(
+
+			parametresList.add(new IntegracioParametreDto(
 					"expedient",
-					expedient != null ? expedient.getIdentificador() : null);
-			parametres[1] = new IntegracioParametreDto(
+					expedient != null ? expedient.getIdentificador() : null));
+			
+			parametresList.add(new IntegracioParametreDto(
 					"documentCodi",
-					document != null ? document.getDocumentCodi() : null);
-			parametres[2] = new IntegracioParametreDto(
+					document != null ? document.getDocumentCodi() : null));
+					
+			parametresList.add( new IntegracioParametreDto(
 					"documentNom",
-					document != null ? document.getDocumentNom() : null);
+					document != null ? document.getDocumentNom() : null));
+							
 			Integer documentTipus = null;
 			if(document!=null) {
 				if(document.getTipusDocPortasignatures()!=null)
 					documentTipus = document.getTipusDocPortasignatures();
 				else if (document.getNtiTipoDocumental()!=null)
 					if(document.getNtiTipoDocumental()!=null)
-						documentTipus = document.getNtiTipoDocumental().getValorNumericNti();			}
-			parametres[3] = new IntegracioParametreDto(
-					"documentTipus",
-					documentTipus);
-			parametres[4] = new IntegracioParametreDto(
-					"arxiuNom",
-					document != null ? document.getArxiuNom() : null);
-			parametres[5] = new IntegracioParametreDto(
-					"destinatari",
-					getSignatariIdPerPersona(persona));
-			parametres[6] = new IntegracioParametreDto(
-					"destinatariPas1",
-					personestoString(personesPas1));
-			parametres[7] = new IntegracioParametreDto(
-					"destinatariPas2",
-					personestoString(personesPas2));
-			parametres[8] = new IntegracioParametreDto(
-					"destinatariPas3",
-					personestoString(personesPas3));
-			if (document == null) {
-				throw new NullPointerException("El document per a enviar a portafirmes es null.");
+						documentTipus = document.getNtiTipoDocumental().getValorNumericNti();			
 			}
+
+			parametresList.add(new IntegracioParametreDto(
+					"documentTipus",
+					documentTipus));
+
+			parametresList.add(new IntegracioParametreDto(
+					"arxiuNom",
+					document != null ? document.getArxiuNom() : null));
+			
+			parametresList.add(new IntegracioParametreDto(
+					"destinatari",
+					getSignatariIdPerPersona(persona)));
+				
+			if(portafirmesFluxId!=null) {
+				parametresList.add(new IntegracioParametreDto(
+						"portafirmesFluxId",
+						portafirmesFluxId));
+			}
+			for(PortafirmesFluxBlocDto bloc: blocList) {
+				if(bloc!=null && bloc.getDestinataris()!=null && !bloc.getDestinataris().isEmpty()){
+					if (PortafirmesSimpleTipusEnumDto.SERIE.equals(fluxTipus)) {
+						for (int i = 0; i < bloc.getDestinataris().size(); i++) {
+							parametresList.add(new IntegracioParametreDto(
+								"destinatariPas" + (i + 1),
+								getSignatariIdPerPersona(bloc.getDestinataris().get(i))));	
+						}
+					} else {//PARAL.LEL
+						parametresList.add(new IntegracioParametreDto(
+								"destinatariPas",
+								personestoString(bloc.getDestinataris())));	
+					}
+				}
+			}
+//			parametres = new IntegracioParametreDto[parametresList.size()];
+//			for(int i=0; i<parametresList.size(); i++) {
+//				parametres[i]=parametresList.get(i);
+//			}
+
+			List<PortafirmesFluxBloc> flux = new ArrayList<PortafirmesFluxBloc>();//MARTA
+			if (portafirmesFluxId == null) {
+				if (PortafirmesSimpleTipusEnumDto.SERIE.equals(fluxTipus)) {
+					for (String responsable: responsables) {
+						PortafirmesFluxBloc bloc = new PortafirmesFluxBloc();
+						bloc.setMinSignataris(1);
+						bloc.setDestinataris(new String[] {responsable});
+						bloc.setObligatorietats(new boolean[] {true});
+						flux.add(bloc);
+					}
+				} else if (PortafirmesSimpleTipusEnumDto.PARALEL.equals(fluxTipus)) {
+					PortafirmesFluxBloc bloc = new PortafirmesFluxBloc();
+					bloc.setMinSignataris(responsables.length);
+					bloc.setDestinataris(responsables);
+					boolean[] obligatorietats = new boolean[responsables.length];
+					Arrays.fill(obligatorietats, true);
+					bloc.setObligatorietats(obligatorietats);
+					flux.add(bloc);
+				}
+			}
+	
 			Integer resposta = getPortasignaturesPlugin().uploadDocument(
 					getDocumentPortasignatures(document, expedient),
 					getAnnexosPortasignatures(annexos, expedient),
 					false,
-					getPassesSignatura(
-							getSignatariIdPerPersona(persona),
-							personesPas1,
-							minSignatarisPas1,
-							personesPas2,
-							minSignatarisPas2,
-							personesPas3,
-							minSignatarisPas3),
+					flux,
 					this.getRemitentNom(expedient.getIdentificador()),
 					importancia,
 					dataLimit,
@@ -1583,7 +1620,7 @@ public class PluginHelper {
 					"Enviar document a firmar",
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
-					parametres);
+					parametresList.toArray(new IntegracioParametreDto[parametresList.size()]));
 			Calendar cal = Calendar.getInstance();
 			Portasignatures portasignatures = new Portasignatures();
 			portasignatures.setDocumentId(resposta);
@@ -1596,12 +1633,7 @@ public class PluginHelper {
 			portasignatures.setExpedient(expedient);
 			portasignatures.setProcessInstanceId(processInstanceId.toString());
 			portasignaturesRepository.save(portasignatures);
-			
-			// Programa la eliminació del document en cas d'error posterior
-			PortasignaturesRollback portasignaturesRollback = 
-					new PortasignaturesHelper.PortasignaturesRollback(resposta, this);
-			TransactionSynchronizationManager.registerSynchronization(portasignaturesRollback);
-			
+
 			return resposta;
 			
 		} catch (Exception ex) {
@@ -1616,7 +1648,7 @@ public class PluginHelper {
 					System.currentTimeMillis() - t0,
 					errorDescripcio,
 					ex,
-					parametres);
+					parametresList.toArray(new IntegracioParametreDto[parametresList.size()]));
 			logger.error(
 					errorDescripcio,
 					ex);
@@ -1661,22 +1693,29 @@ public class PluginHelper {
 	}
 
 	public void portasignaturesCancelar(
-			Integer documentId) {
+			Integer documentId,
+			Long portasignaturesId) {
 		long t0 = System.currentTimeMillis();
 		try {
-			getPortasignaturesPlugin().deleteDocuments(
-					documentId);
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_PFIRMA,
-					"Cancel·lació d'enviaments de documents",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					new IntegracioParametreDto(
-							"documentId",
-							documentId));
-			Portasignatures portasignatures = portasignaturesRepository.findByDocumentId(documentId);
+			Portasignatures portasignatures;
+			if(portasignaturesId == null) {
+				portasignatures = portasignaturesRepository.findByDocumentId(documentId);
+			} else {
+				portasignatures = portasignaturesRepository.findById(portasignaturesId);
+			}
 			if (portasignatures != null) {
+				getPortasignaturesPlugin().deleteDocuments(
+						documentId);
 				portasignatures.setEstat(TipusEstat.CANCELAT);
+				monitorIntegracioHelper.addAccioOk(
+						MonitorIntegracioHelper.INTCODI_PFIRMA,
+						"Cancel·lació d'enviaments de documents",
+						IntegracioAccioTipusEnumDto.ENVIAMENT,
+						System.currentTimeMillis() - t0,
+						new IntegracioParametreDto(
+								"documentId",
+								documentId));
+				portasignaturesRepository.saveAndFlush(portasignatures);
 			}
 		} catch (PortasignaturesPluginException ex) {
 			String errorDescripcio = "No s'han pogut cancel·lar els enviaments al portafirmes (" +
@@ -4132,57 +4171,8 @@ public class PluginHelper {
 			resposta.add(getDocumentPortasignatures(document, expedient));
 		return resposta;
 	}
-	private PasSignatura[] getPassesSignatura(
-			String signatariId,
-			List<PersonaDto> personesPas1,
-			int minSignatarisPas1,
-			List<PersonaDto> personesPas2,
-			int minSignatarisPas2,
-			List<PersonaDto> personesPas3,
-			int minSignatarisPas3) {
-		if (personesPas1 != null && personesPas1.size() > 0) {
-			List<PasSignatura> passes = new ArrayList<PasSignatura>();
-			PasSignatura pas = new PasSignatura();
-			List<String> signataris = getSignatariIdsPerPersones(personesPas1);
-			pas.setSignataris(signataris.toArray(new String[signataris.size()]));
-			pas.setMinSignataris(minSignatarisPas1);
-			passes.add(pas);
-			if (personesPas2 != null && personesPas2.size() > 0) {
-				pas = new PasSignatura();
-				signataris = getSignatariIdsPerPersones(personesPas2);
-				pas.setSignataris(signataris.toArray(new String[signataris.size()]));
-				pas.setMinSignataris(minSignatarisPas2);
-				passes.add(pas);
-			}
-			if (personesPas3 != null && personesPas3.size() > 0) {
-				pas = new PasSignatura();
-				signataris = getSignatariIdsPerPersones(personesPas3);
-				pas.setSignataris(signataris.toArray(new String[signataris.size()]));
-				pas.setMinSignataris(minSignatarisPas3);
-				passes.add(pas);
-			}
-			return passes.toArray(new PasSignatura[passes.size()]);
-		} else if (signatariId != null) {
-			PasSignatura[] passes = new PasSignatura[1];
-			PasSignatura pas = new PasSignatura();
-			pas.setMinSignataris(1);
-			pas.setSignataris(new String[] {signatariId});
-			passes[0] = pas;
-			return passes;
-		} else {
-			PasSignatura[] passes = new PasSignatura[0];
-			return passes;
-		}
-	}
-	private List<String> getSignatariIdsPerPersones(List<PersonaDto> persones) {
-		List<String> signatariIds = new ArrayList<String>();
-		for (PersonaDto persona: persones) {
-			String signatariId = getSignatariIdPerPersona(persona);
-			if (signatariId != null)
-				signatariIds.add(signatariId);
-		}
-		return signatariIds;
-	}
+	
+	
 	private String getSignatariIdPerPersona(PersonaDto persona) {
 		if (persona == null) {
 			return null;
@@ -4448,7 +4438,7 @@ public class PluginHelper {
 	
 	private PortasignaturesPlugin getPortafirmesPluginPortafibFluxSimple() {
 		if (portasignaturesPlugin == null) {
-			String pluginClass = GlobalProperties.getInstance().getProperty("app.portafirmes.plugin.flux.firma.class");
+			String pluginClass = GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.class");
 			if ((pluginClass != null) && (pluginClass.length() > 0)) {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);
@@ -5260,119 +5250,6 @@ public Object consultaSincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, Ex
 					ex);
 		}
 		return resposta;
-	}
-	
-	public List<PortafirmesCarrecDto> portafirmesRecuperarCarrecs() {
-
-		String accioDescripcio = "Recuperant els càrrecs disponibles";
-		long t0 = System.currentTimeMillis();
-		List<PortafirmesCarrecDto> carrecsDto = new ArrayList<PortafirmesCarrecDto>();
-		try {
-			List<PortafirmesCarrec> portafirmesCarrecs = getPortafirmesPluginPortafibFluxSimple().recuperarCarrecs();
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_PFIRMA,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					new IntegracioParametreDto(
-							"portafirmesCarrecs",
-							portafirmesCarrecs));
-			for (PortafirmesCarrec portafirmesCarrec : portafirmesCarrecs) {
-				PortafirmesCarrecDto carrecDto = new PortafirmesCarrecDto();
-				carrecDto.setCarrecId(portafirmesCarrec.getCarrecId());
-				carrecDto.setCarrecName(portafirmesCarrec.getCarrecName());
-				carrecDto.setEntitatId(portafirmesCarrec.getEntitatId());
-				carrecDto.setUsuariPersonaId(portafirmesCarrec.getUsuariPersonaId());
-				carrecDto.setUsuariPersonaNif(portafirmesCarrec.getUsuariPersonaNif());
-				carrecDto.setUsuariPersonaEmail(portafirmesCarrec.getUsuariPersonaEmail());
-				carrecDto.setUsuariPersonaNom(portafirmesCarrec.getUsuariPersonaNom());
-				carrecsDto.add(carrecDto);
-			}
-		} catch (Exception ex) {
-			String errorDescripcio = "Error al accedir al plugin de portafirmes";
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_PFIRMA,
-					"Tancar Flux Firma",
-					IntegracioAccioTipusEnumDto.RECEPCIO,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					null);
-			logger.error(
-					errorDescripcio,
-					ex);
-			throw SistemaExternException.tractarSistemaExternException(
-					null,
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					MonitorIntegracioHelper.INTCODI_PFIRMA,
-					"(PORTASIGNATURES. Recuperar càrrecs Flux de Firma: " + errorDescripcio + ")",
-					ex);
-		}
-		return carrecsDto;
-	}
-	
-	public PortafirmesCarrecDto portafirmesRecuperarCarrec(String carrecId) {
-
-		String accioDescripcio = "Recuperan un càrrec a partir del seu ID";
-		Map<String, String> accioParams = new HashMap<String, String>();
-		accioParams.put("carrecId", carrecId);
-		long t0 = System.currentTimeMillis();
-		PortafirmesCarrecDto carrecDto = new PortafirmesCarrecDto();
-		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
-				new IntegracioParametreDto(
-						"carrecId",
-						carrecId)
-		};
-		try {
-			PortafirmesCarrec portafirmesCarrec = getPortafirmesPluginPortafibFluxSimple().recuperarCarrec(carrecId);		
-			carrecDto.setCarrecId(portafirmesCarrec.getCarrecId());
-			carrecDto.setCarrecName(portafirmesCarrec.getCarrecName());
-			carrecDto.setEntitatId(portafirmesCarrec.getEntitatId());
-			carrecDto.setUsuariPersonaId(portafirmesCarrec.getUsuariPersonaId());
-			carrecDto.setUsuariPersonaNif(portafirmesCarrec.getUsuariPersonaNif());
-			carrecDto.setUsuariPersonaEmail(portafirmesCarrec.getUsuariPersonaEmail());
-			carrecDto.setUsuariPersonaNom(portafirmesCarrec.getUsuariPersonaNom());
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_PFIRMA,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					parametres);
-		} catch (Exception ex) {
-			String errorDescripcio = "Error al accedir al plugin de portafirmes";
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_PFIRMA,
-					"Tancar Flux Firma",
-					IntegracioAccioTipusEnumDto.RECEPCIO,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					parametres);
-			logger.error(
-					errorDescripcio,
-					ex);
-			throw SistemaExternException.tractarSistemaExternException(
-					null,
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					MonitorIntegracioHelper.INTCODI_PFIRMA,
-					"(PORTASIGNATURES. Recuperar càrrec Flux de Firma: " + errorDescripcio + ")",
-					ex);
-		}
-		return carrecDto;
 	}
 
 	private static final Log logger = LogFactory.getLog(PluginHelper.class);

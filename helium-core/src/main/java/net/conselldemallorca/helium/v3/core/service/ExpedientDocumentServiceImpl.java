@@ -16,6 +16,7 @@ import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.domain.BasePermission;
+import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -61,6 +62,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPos
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
@@ -68,10 +70,13 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxBlocDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.repository.DocumentNotificacioRepository;
@@ -1005,6 +1010,22 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		return conversioTipusHelper.convertir(portasignatures, PortasignaturesDto.class);
 
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public PortasignaturesDto getPortasignaturesByDocumentStoreId(Long documentStoreId) {
+		Portasignatures portasignatures = null;
+		if (documentStoreId != null) {
+			List<Portasignatures> peticions = portasignaturesRepository.findPerEstatIDocumentStoreId(documentStoreId,TipusEstat.PENDENT);
+			if (!peticions.isEmpty()) {
+				if (peticions.size() > 1) {
+					logger.warn("S'ha trobat més d'una petició pendent pel document amb documentStoreId = " + documentStoreId + ". Es retorna la primera petició");
+				}
+				portasignatures = peticions.get(0);
+			}
+		}
+		return conversioTipusHelper.convertir(portasignatures, PortasignaturesDto.class);
+	}
 
 	
 	@Override
@@ -1490,4 +1511,48 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientDocumentServiceImpl.class);
+
+	@Override
+	public void enviarPortasignatures(
+			DocumentDto document, 
+			List<DocumentDto> annexos, 
+			PersonaDto persona,
+			List<PortafirmesFluxBlocDto> blocList,
+			ExpedientDto expedientDto, 
+			String importancia, 
+			Date dataLimit, 
+			Long tokenId,
+			Long processInstanceId, 
+			String transicioOK, 
+			String transicioKO, 
+			String[] responsables, 
+			PortafirmesSimpleTipusEnumDto fluxTipus,
+			String portafirmesFluxId) throws SistemaExternException {
+		
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(String.valueOf(processInstanceId));
+		
+		pluginHelper.portasignaturesEnviar(
+				document, 
+				annexos, 
+				persona, 
+				blocList, 
+				expedient, 
+				importancia, 
+				dataLimit, 
+				tokenId, 
+				processInstanceId, 
+				transicioOK, 
+				transicioKO, 
+				responsables,
+				fluxTipus,
+				portafirmesFluxId);
+		
+	}
+
+	@Override
+	public void portafirmesCancelar(Integer documentId, Long portasignaturesId)
+			throws SistemaExternException {	
+		pluginHelper.portasignaturesCancelar(documentId, portasignaturesId);
+	
+	}
 }
