@@ -39,8 +39,8 @@ import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
-import es.caib.distribucio.rest.client.domini.AnotacioRegistreEntrada;
-import es.caib.distribucio.rest.client.domini.AnotacioRegistreId;
+import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreEntrada;
+import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ExpedientMetadades;
 import net.conselldemallorca.helium.core.common.ExpedientCamps;
@@ -3182,7 +3182,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					// Consulta la informació de l'anotació 
 					AnotacioRegistreEntrada anotacioRegistreEntrada = null;
 					try {
-						es.caib.distribucio.rest.client.domini.AnotacioRegistreId idWs = new AnotacioRegistreId();
+						es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId idWs = new AnotacioRegistreId();
 						idWs.setClauAcces(anotacio.getDistribucioClauAcces());
 						idWs.setIndetificador(anotacio.getDistribucioId());
 						anotacioRegistreEntrada = distribucioHelper.consulta(idWs);

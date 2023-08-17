@@ -79,6 +79,7 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 			command.setCodiAssumpte(expedientTipus.getDistribucioCodiAssumpte());
 			command.setProcesAuto(expedientTipus.isDistribucioProcesAuto());
 			command.setSistra(expedientTipus.isDistribucioSistra());
+//			command.setPresencial(expedientTipus.getPresencial());
 			
 			model.addAttribute("expedientTipusIntegracioDistribucioCommand", command);
 		}

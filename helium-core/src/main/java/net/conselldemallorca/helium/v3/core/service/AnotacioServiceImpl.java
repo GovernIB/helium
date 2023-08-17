@@ -31,10 +31,10 @@ import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultatAnnex.AnnexAccio;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
 import es.caib.distribucio.core.api.exception.SistemaExternException;
-import es.caib.distribucio.rest.client.domini.Annex;
-import es.caib.distribucio.rest.client.domini.AnotacioRegistreEntrada;
-import es.caib.distribucio.rest.client.domini.AnotacioRegistreId;
-import es.caib.distribucio.rest.client.domini.Estat;
+import es.caib.distribucio.rest.client.integracio.domini.Annex;
+import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreEntrada;
+import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId;
+import es.caib.distribucio.rest.client.integracio.domini.Estat;
 import es.caib.plugins.arxiu.api.Document;
 import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
 import net.conselldemallorca.helium.core.common.JbpmVars;
@@ -507,7 +507,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			// Consulta la informació de l'anotació 
 			AnotacioRegistreEntrada anotacioRegistreEntrada = null;
 			try {
-				es.caib.distribucio.rest.client.domini.AnotacioRegistreId idWs = new AnotacioRegistreId();
+				es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId idWs = new AnotacioRegistreId();
 				idWs.setClauAcces(anotacio.getDistribucioClauAcces());
 				idWs.setIndetificador(anotacio.getDistribucioId());
 				anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
@@ -774,7 +774,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 
 			distribucioHelper.canviEstat(
 					idWs, 
-					es.caib.distribucio.rest.client.domini.Estat.PENDENT,
+					es.caib.distribucio.rest.client.integracio.domini.Estat.PENDENT,
 					"Es marca l'anotació " + anotacio.getIdentificador() + " com a pendent des de l'estat de processament error.");
 		} catch(Exception ed) {
 			logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + anotacio.getIdentificador() + ": " + ed.getMessage(), ed);

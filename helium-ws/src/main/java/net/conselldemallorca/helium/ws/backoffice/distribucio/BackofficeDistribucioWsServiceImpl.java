@@ -64,11 +64,11 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice {
 				0, 
 				new IntegracioParametreDto("ids", ToStringBuilder.reflectionToString(ids)));
 
-		es.caib.distribucio.rest.client.domini.AnotacioRegistreId idWs;
+		es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId idWs;
 		List<Anotacio> anotacions;
 		Anotacio anotacio;
 		for (AnotacioRegistreId id : ids) {
-			idWs = conversioTipusHelper.convertir(id, es.caib.distribucio.rest.client.domini.AnotacioRegistreId.class);
+			idWs = conversioTipusHelper.convertir(id, es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId.class);
 			try {
 				anotacio = null;
 				logger.info("Processant la peticio d'anotació amb id " + id.getIndetificador());
@@ -84,7 +84,7 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice {
 					distribucioHelper.encuarAnotacio(idWs);
 				} else {
 					// Si la petició ja existeix determina què fer en cas de cada estat
-					es.caib.distribucio.rest.client.domini.Estat estat = es.caib.distribucio.rest.client.domini.Estat.PENDENT;
+					es.caib.distribucio.rest.client.integracio.domini.Estat estat = es.caib.distribucio.rest.client.integracio.domini.Estat.PENDENT;
 					String msg = null;
 					switch(anotacio.getEstat()) {
 					case PENDENT:
@@ -93,12 +93,12 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice {
 						{
 							distribucioHelper.reprocessarAnotacio(anotacio.getId());
 						} else {
-							estat = es.caib.distribucio.rest.client.domini.Estat.REBUDA;
+							estat = es.caib.distribucio.rest.client.integracio.domini.Estat.REBUDA;
 							msg = "La petició ja s'ha rebut anteriorment i està pendent de processar o rebutjar manualment";
 						}
 						break;
 					case PROCESSADA:
-						estat = es.caib.distribucio.rest.client.domini.Estat.PROCESSADA;
+						estat = es.caib.distribucio.rest.client.integracio.domini.Estat.PROCESSADA;
 						msg = "La petició ja s'ha processat anteriorment.";
 						if (anotacio.getExpedient() != null) {
 							msg += " L'anotació ha estat processada a l'expedient " + anotacio.getExpedient().getIdentificador();
@@ -138,7 +138,7 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice {
 				try {
 					distribucioHelper.canviEstat(
 							idWs, 
-							es.caib.distribucio.rest.client.domini.Estat.ERROR,
+							es.caib.distribucio.rest.client.integracio.domini.Estat.ERROR,
 							"Error rebent l'anotació amb id " + id.getIndetificador() + ": " + e.getMessage());
 				} catch(Exception ed) {
 					logger.error("Error comunicant l'error de recepció a Distribucio de la petició amb id : " + id.getIndetificador() + ": " + ed.getMessage(), ed);

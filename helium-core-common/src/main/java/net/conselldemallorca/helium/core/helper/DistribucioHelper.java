@@ -43,16 +43,16 @@ import es.caib.distribucio.backoffice.utils.sistra.BackofficeSistra2UtilsImpl;
 import es.caib.distribucio.backoffice.utils.sistra.formulario.Campo;
 import es.caib.distribucio.backoffice.utils.sistra.formulario.Formulario;
 import es.caib.distribucio.backoffice.utils.sistra.formulario.Valor;
-import es.caib.distribucio.rest.client.BackofficeIntegracioRestClient;
-import es.caib.distribucio.rest.client.BackofficeIntegracioRestClientFactory;
-import es.caib.distribucio.rest.client.domini.Annex;
-import es.caib.distribucio.rest.client.domini.AnotacioRegistreEntrada;
-import es.caib.distribucio.rest.client.domini.AnotacioRegistreId;
-import es.caib.distribucio.rest.client.domini.Estat;
-import es.caib.distribucio.rest.client.domini.Interessat;
-import es.caib.distribucio.rest.client.domini.NtiEstadoElaboracion;
-import es.caib.distribucio.rest.client.domini.NtiOrigen;
-import es.caib.distribucio.rest.client.domini.NtiTipoDocumento;
+import es.caib.distribucio.rest.client.integracio.BackofficeIntegracioRestClient;
+import es.caib.distribucio.rest.client.integracio.BackofficeIntegracioRestClientFactory;
+import es.caib.distribucio.rest.client.integracio.domini.Annex;
+import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreEntrada;
+import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId;
+import es.caib.distribucio.rest.client.integracio.domini.Estat;
+import es.caib.distribucio.rest.client.integracio.domini.Interessat;
+import es.caib.distribucio.rest.client.integracio.domini.NtiEstadoElaboracion;
+import es.caib.distribucio.rest.client.integracio.domini.NtiOrigen;
+import es.caib.distribucio.rest.client.integracio.domini.NtiTipoDocumento;
 import es.caib.plugins.arxiu.api.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta.AlertaPrioritat;
@@ -205,8 +205,8 @@ public class DistribucioHelper {
 	 * @throws SistemaExternException 
 	 */
 	public void canviEstat(
-			es.caib.distribucio.rest.client.domini.AnotacioRegistreId anotacioRegistreId,
-			Estat estat, 
+			es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId anotacioRegistreId,
+			Estat estat,
 			String observacions) throws SistemaExternException {
 		String accioDescripcio = "Canvi d'estat de l'anotació de Distribució amb id de consulta \"" + (anotacioRegistreId != null ? anotacioRegistreId.getIndetificador() : "null") + "\" a " + estat;
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
@@ -245,7 +245,7 @@ public class DistribucioHelper {
 	 * @return
 	 */
 	public AnotacioRegistreEntrada consulta(
-			es.caib.distribucio.rest.client.domini.AnotacioRegistreId idWs)  throws SistemaExternException{
+			es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId idWs)  throws SistemaExternException{
 		AnotacioRegistreEntrada anotacioRegistreEntrada = null;
 
 		String accioDescripcio = "Consulta de la informació de l'anotació de Distribució amb id de consulta \"" + (idWs != null ? idWs.getIndetificador() : "null") + "\"";
@@ -281,7 +281,7 @@ public class DistribucioHelper {
 
 	/** Mètode per guardar a Helium la informació d'una anotació de registre consultada a Distribucio.
 	 *  
-	 * @param anotacio
+	 * @param idWs
 	 */
 	@Transactional
 	public Anotacio guardarAnotacio(AnotacioRegistreId idWs, AnotacioRegistreEntrada anotacioEntrada) {
@@ -390,9 +390,7 @@ public class DistribucioHelper {
 	/** Mètode per posar una anotació com a comunicada sense annexos ni interessats per a que es torni a processar.
 	 * 
 	 * @param anotacioId
-	 * @param consultaIntents
-	 * @param consultaError
-	 * @param consultaData
+	 * @param errorProcessament
 	 * @return
 	 */
 	@Transactional
@@ -432,7 +430,7 @@ public class DistribucioHelper {
 	/** Mètode per actualitzar l'error de processament per un annex en concret en una nova transacció.
 	 * 
 	 * @param annexId
-	 * @param errorProcessament
+	 * @param error
 	 * @return
 	 */
 	@Transactional( propagation = Propagation.REQUIRES_NEW)
@@ -445,7 +443,7 @@ public class DistribucioHelper {
 	
 	/** Mètode per guardar a Helium la informació d'una anotació de registre consultada a Distribucio.
 	 *  
-	 * @param anotacio
+	 * @param anotacioId
 	 */
 	@Transactional
 	public Anotacio updateAnotacio(long anotacioId, AnotacioRegistreEntrada anotacioEntrada) {
@@ -695,7 +693,7 @@ public class DistribucioHelper {
 	 * @param idWs
 	 */
 	@Transactional
-	public void encuarAnotacio(es.caib.distribucio.rest.client.domini.AnotacioRegistreId idWs) {
+	public void encuarAnotacio(es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId idWs) {
 		
 		Date data = new Date();
 		Anotacio anotacioEntity = Anotacio.getBuilder(
@@ -794,7 +792,7 @@ public class DistribucioHelper {
 					try {
 						this.canviEstat(
 								idWs, 
-								es.caib.distribucio.rest.client.domini.Estat.ERROR,
+								es.caib.distribucio.rest.client.integracio.domini.Estat.ERROR,
 								errorProcessament);
 					} catch(Exception ed) {
 						logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
@@ -831,7 +829,7 @@ public class DistribucioHelper {
 			try {
 				this.canviEstat(
 						idWs, 
-						es.caib.distribucio.rest.client.domini.Estat.PROCESSADA,
+						es.caib.distribucio.rest.client.integracio.domini.Estat.PROCESSADA,
 						"Anotació incorporada a l'expedient d'Helium " + expedient.getIdentificadorLimitat());
 			} catch(Exception e) {
 				String errMsg = "Error comunicant l'estat de processada a Distribucio:" + e.getMessage();
@@ -851,7 +849,7 @@ public class DistribucioHelper {
 			try {
 				this.canviEstat(
 						idWs, 
-						es.caib.distribucio.rest.client.domini.Estat.REBUDA,
+						es.caib.distribucio.rest.client.integracio.domini.Estat.REBUDA,
 						"Petició rebuda a Helium.");
 			} catch(Exception e) {
 				String errMsg = "Error comunicant l'estat de rebuda a Distribucio:" + e.getMessage();
