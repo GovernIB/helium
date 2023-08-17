@@ -4,9 +4,13 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
 
+import es.caib.bantel.ws.v2.model.referenciaentrada.ReferenciaEntrada;
+import es.caib.bantel.ws.v2.model.referenciaentrada.ReferenciasEntrada;
+import es.caib.bantel.ws.v2.services.BantelFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,6 +26,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.api.service.EntornService;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import org.springframework.web.context.ContextLoader;
 
 /**
  * Controlador per a la pàgina inicial (index).
@@ -94,4 +99,44 @@ public class AplicacioController {
 					(entornHelper.esAdminEntorn(EntornActual.getEntornId()))? entornService.findActiusAmbPermisAdmin():new ArrayList<EntornDto>());
 		return "v3/metrics";
 	}
+
+
+//	@RequestMapping(value = "/send/sistra1", method = RequestMethod.GET)
+//	@ResponseBody
+//	public String sendSistra1(HttpServletRequest request) {
+//		try {
+//			BantelFacade bantelFacade = ContextLoader.getCurrentWebApplicationContext().getBean(BantelFacade.class);
+//			ReferenciasEntrada referenciasEntrada = new ReferenciasEntrada();
+//			ReferenciaEntrada referenciaEntrada = new ReferenciaEntrada();
+//			referenciaEntrada.setNumeroEntrada("BTE/" + getRandomNumber() + "/2023");
+//			referenciaEntrada.setClaveAcceso(getRandomString());
+//			referenciasEntrada.getReferenciaEntrada().add(referenciaEntrada);
+//			bantelFacade.avisoEntradas(referenciasEntrada);
+//		} catch (Exception ex) {
+//			ex.printStackTrace();
+//			return "ERROR: " + ex.getCause();
+//		}
+//		return "OK";
+//	}
+//
+//	private String getRandomString() {
+//
+//		int leftLimit = 97; // letter 'a'
+//		int rightLimit = 122; // letter 'z'
+//		int targetStringLength = 10;
+//		Random random = new Random();
+//		StringBuilder buffer = new StringBuilder(targetStringLength);
+//		for (int i = 0; i < targetStringLength; i++) {
+//			int randomLimitedInt = leftLimit + (int)
+//					(random.nextFloat() * (rightLimit - leftLimit + 1));
+//			buffer.append((char) randomLimitedInt);
+//		}
+//		return buffer.toString();
+//	}
+//	private int getRandomNumber() {
+//		return getRandomNumber(1, 999999);
+//	}
+//	private int getRandomNumber(int min, int max) {
+//		return (int) ((Math.random() * (max - min)) + min);
+//	}
 }

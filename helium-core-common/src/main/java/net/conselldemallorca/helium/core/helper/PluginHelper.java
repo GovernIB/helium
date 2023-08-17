@@ -3607,8 +3607,7 @@ public class PluginHelper {
 
 	private static List<NtiTipoFirmaEnumDto> TIPUS_FIRMES_ATTACHED = Arrays.asList(NtiTipoFirmaEnumDto.CADES_DET, NtiTipoFirmaEnumDto.PADES, NtiTipoFirmaEnumDto.XADES_ENV);
 
-	/** Mètode per obtenir un objecte Document per crear o actualitzar a l'arxiu. 
-	 * @param string */
+	/** Mètode per obtenir un objecte Document per crear o actualitzar a l'arxiu. */
 	private es.caib.plugins.arxiu.api.Document toArxiuDocument(
 			String identificador,
 			String nom,
@@ -4233,7 +4232,7 @@ public class PluginHelper {
 	
 	/**
 	 * Metode per cercar Unitats Orgàniques per codi d'unitata pare
-	 * @param superior 
+	 * @param arrel
 	 * 	<i> Codi d'unitat orgànica pare </i>
 	 * @return
 	 */
