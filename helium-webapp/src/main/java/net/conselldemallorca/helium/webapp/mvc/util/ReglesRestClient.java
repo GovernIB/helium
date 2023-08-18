@@ -91,12 +91,16 @@ public class ReglesRestClient {
 	public AddResponse add(
 			String entitat, 
 			String sia,
-			String backoffice) {
+			String backoffice,
+			Boolean presencial) {
 		boolean ret = false;
 		ClientResponse response;
 		AddResponse addResponse = new AddResponse(false, null);
 		try {
 			String urlAmbMetode = baseUrl + CARPETA_SERVICE_PATH + "/add?entitat=" + entitat + "&sia=" + sia + "&backoffice=" + URLEncoder.encode(backoffice, "UTF-8");
+			if (presencial != null) {
+				urlAmbMetode += "&presencial=" + presencial;
+			}
 			Client jerseyClient = generarClient();
 			if (username != null) {
 				autenticarClient(

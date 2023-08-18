@@ -402,7 +402,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			String codiProcediment,
 			String codiAssumpte,
 			boolean procesAuto,
-			boolean sistra) {
+			boolean sistra,
+			Boolean presencial) {
 		logger.debug(
 				"Modificant tipus d'expedient amb dades d'integracio amb distribucio externs (" +
 				"entornId=" + entornId + ", " +
@@ -420,6 +421,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setDistribucioCodiAssumpte(codiAssumpte);
 		entity.setDistribucioProcesAuto(procesAuto);
 		entity.setDistribucioSistra(sistra);
+		entity.setPresencial(presencial);
 
 		return conversioTipusHelper.convertir(
 				expedientTipusRepository.save(entity),
@@ -2914,7 +2916,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	}
 
 	/** Funció per reasignar el valor d'ordre per a les agrupacions d'un tipus d'expedient */
-	@Transactional
 	private int reordenarConsultes(Long expedientTipusId) {
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
 		Set<Consulta> consultes = expedientTipus.getConsultes();

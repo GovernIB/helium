@@ -92,10 +92,12 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	private String distribucioCodiAssumpte;
 	private boolean distribucioProcesAuto;
 	private boolean distribucioSistra;
-	
+	private Boolean presencial;
+
 	//Manual d'ajuda
 	private String manualAjudaNom;
 	private byte[] manualAjudaContent;
+
 
 
 	public Long getId() {
@@ -496,6 +498,14 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	public void setManualAjudaContent(byte[] manualAjudaContent) {
 		this.manualAjudaContent = manualAjudaContent;
 	}
+
+	public Boolean getPresencial() {
+		return presencial;
+	}
+	public void setPresencial(Boolean presencial) {
+		this.presencial = presencial;
+	}
+
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;

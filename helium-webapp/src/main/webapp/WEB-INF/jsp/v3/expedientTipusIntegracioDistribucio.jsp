@@ -31,6 +31,7 @@
 					<hel:inputText name="codiAssumpte" textKey="expedient.tipus.integracio.distribucio.codiAssumpte" />
 					<hel:inputCheckbox name="procesAuto" textKey="expedient.tipus.integracio.distribucio.procesAuto" info="expedient.tipus.integracio.distribucio.procesAuto.comment"/>
 					<hel:inputCheckbox name="sistra" textKey="expedient.tipus.integracio.distribucio.sistra" info="expedient.tipus.integracio.distribucio.sistra.comment"/>
+					<hel:inputSelect name="presencial" textKey="expedient.tipus.integracio.distribucio.presencial" optionItems="${sino}" optionTextAttribute="text" optionValueAttribute="value"  />
 				</div>
 			</div>			
 			
@@ -59,7 +60,9 @@ $(document).ready(function() {
 	// Redimensiona controls
 	$("input[name='codiProcediment']").parent('div').removeClass('col-xs-8').addClass('col-xs-4').parent(".form-group").append($('#addRuleBtn').parent());
 	$("input[name='codiAssumpte']").parent('div').removeClass('col-xs-8').addClass('col-xs-4');
-	
+	$("select[name='presencial']").parent('div').removeClass('col-xs-8').addClass('col-xs-4');
+	$('#s2id_presencial').css('width', '100%');
+
 	$('#actiu','#expedientTipusIntegracioDistribucioCommand').change(function() {
 		if ($(this).is(':checked')) {
 			$('#inputs_integracioDistribucio').show();
@@ -100,7 +103,8 @@ $(document).ready(function() {
 	           type: "POST",
 	           url: url,
 	           data: {
-	        	   		codiProcediment: $('#codiProcediment').val()
+	        	   		codiProcediment: $('#codiProcediment').val(),
+				   		presencial: $('#presencial').val()
 	        	   	  },
 	           success: function(ajaxResponse)
 	           {

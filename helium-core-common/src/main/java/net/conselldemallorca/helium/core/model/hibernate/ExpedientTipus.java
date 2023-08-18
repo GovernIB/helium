@@ -158,7 +158,8 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	private boolean distribucioProcesAuto;
 	/** Indica si s'ha d'aplicar la integració amb SISTRA quan es processi l'anotació. */
 	private boolean distribucioSistra;
-	
+	private Boolean presencial;
+
 	//Manual d'ajuda
 	@MaxLength(1024)
 	private String manualAjudaNom;
@@ -194,12 +195,12 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	@MaxLength(16)
 	private String ntiSerieDocumental;
 	private boolean arxiuActiu;
-	
-	
+
+
 	private boolean pinbalActiu;
 	@MaxLength(44)
 	private String pinbalNifCif;
-	
+
 	public ExpedientTipus() {}
 	public ExpedientTipus(String codi, String nom, Entorn entorn) {
 		this.codi = codi;
@@ -594,7 +595,15 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setDistribucioCodiProcediment(String distribucioCodiProcediment) {
 		this.distribucioCodiProcediment = distribucioCodiProcediment;
 	}
-	
+
+	@Column(name="presencial")
+	public Boolean getPresencial() {
+		return presencial;
+	}
+	public void setPresencial(Boolean presencial) {
+		this.presencial = presencial;
+	}
+
 	@Column(name="distr_codi_assumpte", length=200)
 	public String getDistribucioCodiAssumpte() {
 		return distribucioCodiAssumpte;
@@ -919,6 +928,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setManualAjudaContent(byte[] manualAjudaContent) {
 		this.manualAjudaContent = manualAjudaContent;
 	}
+
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
@@ -952,5 +962,4 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	}
 
 	private static final long serialVersionUID = 1L;
-
 }

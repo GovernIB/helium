@@ -4,9 +4,13 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.webapp.v3.helper.*;
+import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper.HtmlOption;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +34,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException
 import net.conselldemallorca.helium.webapp.mvc.util.ReglesRestClient;
 import net.conselldemallorca.helium.webapp.mvc.util.ReglesRestClient.AddResponse;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusIntegracioDistribucioCommand;
-import net.conselldemallorca.helium.webapp.v3.helper.AjaxHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.AjaxHelper.AjaxFormResponse;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 /**
  * Controlador per a la pestanya de d'integració dels tipus d'expedient com a backoffice de Distribucio.
@@ -79,9 +79,10 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 			command.setCodiAssumpte(expedientTipus.getDistribucioCodiAssumpte());
 			command.setProcesAuto(expedientTipus.isDistribucioProcesAuto());
 			command.setSistra(expedientTipus.isDistribucioSistra());
-//			command.setPresencial(expedientTipus.getPresencial());
+			command.setPresencial(expedientTipus.getPresencial());
 			
 			model.addAttribute("expedientTipusIntegracioDistribucioCommand", command);
+			model.addAttribute("sino", getSiNo());
 		}
 		
 		return "v3/expedientTipusIntegracioDistribucio";
@@ -122,7 +123,8 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 	        				command.getCodiProcediment(),
 	        				command.getCodiAssumpte(),
 	        				command.isProcesAuto(),
-	        				command.isSistra());
+	        				command.isSistra(),
+							command.getPresencial());
 		        MissatgesHelper.success(
 						request, 
 						getMessage(
@@ -140,7 +142,8 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
-			@RequestParam(value = "codiProcediment", required = false) String codiProcediment) throws PermisDenegatException, IOException {
+			@RequestParam(value = "codiProcediment", required = false) String codiProcediment,
+			@RequestParam(value = "presencial", required = false) Boolean presencial) throws PermisDenegatException, IOException {
 			
 		AjaxFormResponse ajaxResponse = AjaxHelper.generarAjaxFormOk();
 		
@@ -198,7 +201,8 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 			AddResponse response = client.add(
 					codiEntitat, 
 					codiProcediment, 
-					backoffice);
+					backoffice,
+					presencial);
 	
 
 			logger.debug("Resposta de la creació de la regla " + (response.isCorrecte() ? "OK" : "KO") + " " + response.getMissatge());
@@ -233,6 +237,14 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 			MissatgesHelper.error(request, errMsg);
 		}
     	return ajaxResponse;
+	}
+
+	private List<HtmlOption> getSiNo() {
+		List<HtmlOption> sino = new ArrayList<HtmlOption>();
+		sino.add(new HtmlOption("", "--"));
+		sino.add(new HtmlOption("true", "Si"));
+		sino.add(new HtmlOption("false", "No"));
+		return sino;
 	}
 	
 	private static final Log logger = LogFactory.getLog(ExpedientTipusIntegracioDistribucioController.class);
