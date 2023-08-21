@@ -484,9 +484,11 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		// Comrova les variables obligatòries
 		List<String> variablesObligatories = new ArrayList<String>();
 		for (DadaListDto dada : expedientDadaService.findDadesExpedient(expedient.getId(), true, true, false, new PaginacioParamsDto())) {
-			if (dada.isObligatori() && dada.getId() == null) {
-				variablesObligatories.add(dada.getNom());
-				correcte = false;
+			if (dada.isObligatori()) {
+				if (this.dadaBuidaONula(dada)) {
+					variablesObligatories.add(dada.getNom());
+					correcte = false;
+				}
 			}
 		}
 		if (!variablesObligatories.isEmpty()) {
@@ -507,6 +509,28 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		return correcte;
 	}
 	
+	/** Comprova si la dada és buida o nula segons el tipus de dada */
+	private boolean dadaBuidaONula(DadaListDto dada) {
+		boolean ret = false;				
+		if (dada == null  || dada.getId() == null) {
+			ret = true;
+		} else {
+			// Comprova el valor
+			if (dada.getValor() == null) {
+				ret = true;
+			} else if (dada.isMultiple()) {
+				if (dada.getValor().getFiles() == 0 || dada.getValor().getValorMultiple() == null || dada.getValor().getValorMultiple().isEmpty()) {
+					// Valor múltiple buit
+					ret = true;
+				}
+			} else {
+				// Valor simple buit
+				ret = dada.getValor().getValorSimple() == null || dada.getValor().getValorSimple().isEmpty();
+			}
+		}
+		return ret;
+	}
+
 	@RequestMapping(value="/{expedientTipusId}/documentDownload", method = RequestMethod.GET)
 	public String documentDownload(
 			HttpServletRequest request, 

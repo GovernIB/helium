@@ -431,3 +431,9 @@ span.herencia {
 .form-switch input:checked + input + i::after { transform: translate3d(22px, 2px, 0); }
 
 .ocult {display: none;}
+
+/* Select2 */
+/***********/
+
+/* Color de fons per les opcions seleccionades. Es posa més gris per destacar-les més, sobreescriu el vaor #f5f5f5 */
+.select2-container--bootstrap .select2-results__option[aria-selected="true"] { background-color: #dfdfdf !important; }

@@ -8,12 +8,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
 
 /**
  * DTO amb informació d'una dada de l'expedient.
@@ -42,6 +36,7 @@ public class DadaListDto {
 
 	private String error;
 
+	private int agrupacioOrdre;
 	private String agrupacioNom;
 
 	private String processInstanceId;

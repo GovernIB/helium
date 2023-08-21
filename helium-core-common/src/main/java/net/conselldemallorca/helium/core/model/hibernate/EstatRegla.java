@@ -38,7 +38,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.regles.QuiEnum;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name="HEL_ESTAT_REGLA",
-        uniqueConstraints={@UniqueConstraint(columnNames={"nom", "expedient_tipus_id"})})
+        uniqueConstraints={@UniqueConstraint(columnNames={"nom", "estat_id"})})
 @org.hibernate.annotations.Table(
         appliesTo = "HEL_ESTAT_REGLA",
         indexes = {

@@ -419,6 +419,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 							.nom(camp.getEtiqueta())
 							.processInstanceId(processInstanceId)
 							.expedientId(expedientId)
+							.agrupacioOrdre(camp.getAgrupacio() != null ? camp.getAgrupacio().getOrdre() : Integer.MAX_VALUE - 1)
 							.agrupacioNom(camp.getAgrupacio() != null ? camp.getAgrupacio().getNom() : "Sense agrupacio")
 							.ocult(camp.isOcult())
 							.visible(campFormProperties != null ? campFormProperties.isVisible() : true)
@@ -444,6 +445,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 					.valor(DadaValorDto.builder().valorSimple(dadaExp.getText()).build())
 					.campCodi(dadaExp.getVarCodi())
 					.tipus(CampTipusDto.STRING)
+					.agrupacioOrdre(Integer.MAX_VALUE)
 					.agrupacioNom("Dades adjuntes")
 					.processInstanceId(processInstanceId)
 					.expedientId(expedientId)
@@ -485,6 +487,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				.jbpmAction(camp.getJbpmAction())
 				.observacions(camp.getObservacions())
 				.error(dadaExp.getError())
+				.agrupacioOrdre(camp.getAgrupacio() != null ? camp.getAgrupacio().getOrdre() : Integer.MAX_VALUE - 1)
 				.agrupacioNom(camp.getAgrupacio() != null ? camp.getAgrupacio().getNom() : "Sense agrupacio")
 				.processInstanceId(processInstanceId)
 				.expedientId(expedientId)
@@ -548,7 +551,10 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	}
 
 	private int compareDadaByCamp(DadaListDto o1, DadaListDto o2, String camp) {
-		int result = o1.getAgrupacioNom() == null ? (o2.getAgrupacioNom() == null ? 0 : -1) : (o2.getAgrupacioNom() == null ? 1 : o1.getAgrupacioNom().compareTo(o2.getAgrupacioNom()));
+		int result = Integer.compare(o1.getAgrupacioOrdre(),  o2.getAgrupacioOrdre());
+		if (result == 0) {
+			result = o1.getAgrupacioNom() == null ? (o2.getAgrupacioNom() == null ? 0 : -1) : (o2.getAgrupacioNom() == null ? 1 : o1.getAgrupacioNom().compareTo(o2.getAgrupacioNom()));			
+		}
 		if (result != 0)
 			return result;
 		if ("tipus".equals(camp)) {
@@ -623,6 +629,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 					.valor(DadaValorDto.builder().valorSimple(dadaExp.getText()).build())
 					.campCodi(dadaExp.getVarCodi())
 					.tipus(CampTipusDto.STRING)
+					.agrupacioOrdre(Integer.MAX_VALUE)
 					.agrupacioNom("Dades adjuntes")
 					.processInstanceId(procesId)
 					.expedientId(expedientId)
