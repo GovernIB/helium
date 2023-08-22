@@ -169,7 +169,7 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 
 			String msg = getMessage(
 					request,
-					"expedient.tipus.integracio.distribucio.regla.crearActualitar.success",
+					"expedient.tipus.integracio.distribucio.regla.crearActualitzar.success",
 					new Object[] {codiProcediment, response.getMsg()});
 
 			if (response.isCorrecte()) {
