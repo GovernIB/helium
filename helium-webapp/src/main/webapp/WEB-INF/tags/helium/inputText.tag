@@ -11,6 +11,7 @@
 <%@ attribute name="disabled" required="false" rtexprvalue="true"%>
 <%@ attribute name="readonly" required="false" rtexprvalue="true"%>
 <%@ attribute name="comment" required="false" rtexprvalue="true"%>
+<%@ attribute name="info" required="false" rtexprvalue="true"%>
 <%@ attribute name="labelSize" required="false" rtexprvalue="true"%>
 <c:if test="${empty labelSize}"><c:set var="labelSize" value="${4}"/></c:if>
 <c:set var="campPath" value="${name}"/>
@@ -21,7 +22,11 @@
 <c:choose>
 	<c:when test="${not inline}">
 		<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
-			<label class="control-label col-xs-${labelSize} ${campClassRequired}" for="${campPath}">${campLabelText}</label>
+			<label class="control-label col-xs-${labelSize} ${campClassRequired} hiddenInfoContainer" for="${campPath}">${campLabelText}
+				<c:if test="${not empty info}">
+					<span class="fa fa-info-circle text-info hiddenInfo" data-placement="auto" title="<spring:message code="${info}"/>"></span>
+				</c:if>
+			</label>
 			<div class="col-xs-${12 - labelSize}">
 				<form:input path="${campPath}" cssClass="form-control" id="${campPath}" readonly="${readonly}" disabled="${disabled}" placeholder="${campPlaceholder}"/>
 				<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${campPath}"/></p></c:if>

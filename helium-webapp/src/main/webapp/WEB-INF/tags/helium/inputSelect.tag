@@ -20,6 +20,7 @@
 <%@ attribute name="disabled" required="false" rtexprvalue="true"%>
 <%@ attribute name="readonly" required="false" rtexprvalue="true"%>
 <%@ attribute name="comment" required="false" rtexprvalue="true"%>
+<%@ attribute name="info" required="false" rtexprvalue="true"%>
 <%@ attribute name="labelSize" required="false" rtexprvalue="true"%>
 <%@ attribute name="multiple" required="false" rtexprvalue="true"%>
 
@@ -32,7 +33,11 @@
 <c:choose>
 	<c:when test="${not inline}">
 		<div class="form-group<c:if test="${not empty campErrors}"> has-error</c:if>">
-			<label class="control-label col-xs-${labelSize} ${campClassRequired}" for="${campPath}">${campLabelText}</label>
+			<label class="control-label col-xs-${labelSize} ${campClassRequired} hiddenInfoContainer" for="${campPath}">${campLabelText}
+				<c:if test="${not empty info}">
+					<span class="fa fa-info-circle text-info hiddenInfo" data-placement="auto" title="<spring:message code="${info}"/>"></span>
+				</c:if>
+			</label>		
 			<div class="controls col-xs-${12 - labelSize}">
 				<form:select path="${campPath}" cssClass="form-control" id="${campPath}" disabled="${disabled}" multiple="${multiple}">
 					<c:if test="${emptyOption == 'true'}">

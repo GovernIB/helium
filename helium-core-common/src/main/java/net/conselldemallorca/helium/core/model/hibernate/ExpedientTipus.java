@@ -154,11 +154,12 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	private String distribucioCodiProcediment;
 	@MaxLength(20)
 	private String distribucioCodiAssumpte;
+	/** Opció de filtre per crear la regla segons si l'anotació és prensencial o no. */
+	private Boolean distribucioPresencial;
 	/** Indica si processar automàticament l'anotació de registre associada. */
 	private boolean distribucioProcesAuto;
 	/** Indica si s'ha d'aplicar la integració amb SISTRA quan es processi l'anotació. */
 	private boolean distribucioSistra;
-	private Boolean presencial;
 
 	//Manual d'ajuda
 	@MaxLength(1024)
@@ -596,12 +597,12 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 		this.distribucioCodiProcediment = distribucioCodiProcediment;
 	}
 
-	@Column(name="presencial")
-	public Boolean getPresencial() {
-		return presencial;
+	@Column(name="distr_presencial")
+	public Boolean getDistribucioPresencial() {
+		return distribucioPresencial;
 	}
-	public void setPresencial(Boolean presencial) {
-		this.presencial = presencial;
+	public void setDistribucioPresencial(Boolean presencial) {
+		this.distribucioPresencial = presencial;
 	}
 
 	@Column(name="distr_codi_assumpte", length=200)
