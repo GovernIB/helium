@@ -1,36 +1,11 @@
 package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
-import java.util.Map;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
-import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusFiltreDto;
-import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
-import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesCarrecDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxInfoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxRespostaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesIniciFluxRespostaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
-import net.conselldemallorca.helium.v3.core.api.exception.ExportException;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
-import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacio;
-import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacioCommandDto;;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;;
 
 /**
  * Servei per al manteniment dels fluxes de firmes del portafirmes.
@@ -117,6 +92,17 @@ public interface PortafirmesFluxService {
 	public String recuperarUrlEdicioPlantilla(
 			String plantillaFluxId,
 			String returnUrl);
+
+	/**
+	 * Recupera url per visualitzar l'estat d'un flux de firmes d'una petició.
+	 *
+	 * @param portafirmesId
+	 * 				Id de la petició de firma.
+	 * @return la url de Portafirmes.
+	 * @throws SistemaExternException
+	 *            Hi ha hagut algun error en la comunicació amb el portafirmes.
+	 */
+	public String recuperarUrlViewEstatFluxDeFirmes(long portafirmesId);
 	
 
 }

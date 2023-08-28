@@ -19,8 +19,9 @@ import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
  * 		- no estigui duplicat
  * 		- No comenci per majúscula seguida de minúscula
  * 		- No contingui espais
- * - Comprova que el tipus:
- * 
+ * - Comprova les opcions del portasignatures el tipus flux o simple ha d'estar informat
+ * 	- Simple: el tipus paral·lel o sèrie i els responsables han d'estar informats. la llargada dels responsables no pot ser major a 1024 comptant el separador
+ *	- Flux: el flux id ha d'estar informat
  */
 public class ExpedientTipusDocumentValidator implements ConstraintValidator<ExpedientTipusDocument, ExpedientTipusDocumentCommand>{
 
@@ -56,7 +57,6 @@ public class ExpedientTipusDocumentValidator implements ConstraintValidator<Expe
 				valid = false;
 			}
 		}
-		// TODO MARTA
 		// Comprova les opcions del portasignatures
 		// el tipus flux o simple ha d'estar informat
 		// simple: el tipus paral·lel o sèrie i els responsables han d'estar informats. la llargada dels responsables no pot ser major a 1024 comptant el separador
@@ -66,7 +66,7 @@ public class ExpedientTipusDocumentValidator implements ConstraintValidator<Expe
 				if(document.getPortafirmesFluxTipus().equals(PortafirmesTipusEnumDto.FLUX) && document.getPortafirmesFluxId()==null) {
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage("expedient.tipus.document.form.camp.portafirmes.flux.id.buit"))
-							.addNode("fluxId")
+							.addNode("portafirmesFluxId")
 							.addConstraintViolation();	
 					valid = false;
 				}
@@ -75,7 +75,7 @@ public class ExpedientTipusDocumentValidator implements ConstraintValidator<Expe
 				{
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage( "expedient.tipus.document.form.camp.portafirmes.responsables.buit"))
-							.addNode("responsablesFlux")
+							.addNode("portafirmesResponsables")
 							.addConstraintViolation();
 					valid = false;
 				}

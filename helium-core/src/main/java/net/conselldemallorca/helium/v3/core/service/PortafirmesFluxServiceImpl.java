@@ -14,7 +14,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import net.conselldemallorca.helium.core.helper.PluginHelper;
-import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesCarrecDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxInfoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxRespostaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesIniciFluxRespostaDto;
@@ -123,7 +122,12 @@ public class PortafirmesFluxServiceImpl implements PortafirmesFluxService {
 		return pluginHelper.portafirmesEsborrarPlantillaFirma(idioma, plantillaFluxId);
 	}
 	
+	@Override
+	public String recuperarUrlViewEstatFluxDeFirmes(long portafirmesId) {
+		logger.debug("Consultant la url de la vista de l'estat del flux de firmees amb id=" + portafirmesId);
+		String idioma = LocaleContextHolder.getLocale().getLanguage();
+		return pluginHelper.portafirmesRecuperarUrlEstatFluxFirmes(portafirmesId, idioma);
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(PortafirmesFluxServiceImpl.class);
-
-
 }

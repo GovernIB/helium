@@ -1393,12 +1393,13 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			model.addAttribute("expedientId", expedientId);
 			model.addAttribute("potFirmar", true);
 			
-		if(document.getPortafirmesFluxId()!=null) {
-			String urlMostrarPlantilla = portafirmesFluxService.recuperarUrlMostrarPlantilla(document.getPortafirmesFluxId());
-			model.addAttribute("urlFluxFirmes", urlMostrarPlantilla);
-		}
 		PortasignaturesDto psignaPendentActual = expedientDocumentService.getPortasignaturesByDocumentStoreId(documentStoreId);
 		model.addAttribute("psignaPendentActual", psignaPendentActual);
+		if(psignaPendentActual.getDocumentId() != null) {
+			String urlMostrarPlantilla = portafirmesFluxService.recuperarUrlViewEstatFluxDeFirmes(psignaPendentActual.getDocumentId());
+			model.addAttribute("urlFluxFirmes", urlMostrarPlantilla);
+		}
+		
 		return "v3/expedientDocumentPendentPortasignaturesForm";
 	}
 	/** 
@@ -1430,14 +1431,14 @@ public class ExpedientDocumentController extends BaseExpedientController {
 					request, 
 					getMessage(
 							request,"expedient.document.enviar.portasignatures.ok"));
+			return modalUrlTancar(false);
 		} catch(Exception e) {
 			String errMsg = getMessage(request, "expedient.document.enviar.portasignatures.error", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg);
 	
 		}
-		model.addAttribute("pipellaActiva", "documents");	
-		return "v3/expedientDocumentForm";
+		return "v3/expedientDocumentEnviarPortasignaturesForm";
 		
 	}
 	private void enviarPortasignatures(DocumentExpedientEnviarPortasignaturesCommand command, Long documentStoreId, Long expedientId, String processInstanceId) {
@@ -1549,6 +1550,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 					request, 
 					getMessage(
 							request,"expedient.document.portasignatures.enviament.cancelat"));
+			return modalUrlTancar(false);
 		} catch(Exception e) {
 			String errMsg = getMessage(request, "expedient.document.portasignatures.enviament.cancelat.error", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);

@@ -29,13 +29,10 @@ import org.fundaciobit.plugins.validatesignature.api.SignatureRequestedInformati
 import org.fundaciobit.plugins.validatesignature.api.TimeStampInfo;
 import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureRequest;
 import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
 
 import es.caib.plugins.arxiu.api.ConsultaFiltre;
 import es.caib.plugins.arxiu.api.ConsultaOperacio;
@@ -57,7 +54,6 @@ import es.caib.plugins.arxiu.api.FirmaTipus;
 import es.caib.plugins.arxiu.api.IArxiuPlugin;
 import es.caib.plugins.arxiu.caib.ArxiuCaibException;
 import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
-import net.conselldemallorca.helium.core.helper.PortasignaturesHelper.PortasignaturesRollback;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
@@ -84,8 +80,6 @@ import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPluginEx
 import net.conselldemallorca.helium.integracio.plugins.pinbal.DadesConsultaPinbal;
 import net.conselldemallorca.helium.integracio.plugins.pinbal.PinbalPluginInterface;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.DocumentPortasignatures;
-import net.conselldemallorca.helium.integracio.plugins.portasignatures.PasSignatura;
-import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortafirmesCarrec;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortafirmesFluxBloc;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortafirmesFluxInfo;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortafirmesFluxResposta;
@@ -147,11 +141,10 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesCarrecDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxBlocDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxRespostaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxEstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxInfoDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxRespostaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesIniciFluxRespostaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
@@ -5251,6 +5244,6 @@ public Object consultaSincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, Ex
 		}
 		return resposta;
 	}
-
+	
 	private static final Log logger = LogFactory.getLog(PluginHelper.class);
 }

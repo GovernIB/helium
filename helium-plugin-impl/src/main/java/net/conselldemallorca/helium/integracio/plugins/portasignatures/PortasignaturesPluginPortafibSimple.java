@@ -1,15 +1,10 @@
 package net.conselldemallorca.helium.integracio.plugins.portasignatures;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-
-import javax.xml.ws.BindingProvider;
 
 import org.fundaciobit.apisib.apifirmaasyncsimple.v2.ApiFirmaAsyncSimple;
 import org.fundaciobit.apisib.apifirmaasyncsimple.v2.beans.FirmaAsyncSimpleAnnex;
@@ -31,23 +26,24 @@ import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleE
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleFlowTemplate;
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleFlowTemplateList;
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleFlowTemplateRequest;
+import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleGetFlowResultResponse;
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleGetTransactionIdRequest;
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleKeyValue;
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleReviser;
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleSignature;
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleStartTransactionRequest;
+import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleStatus;
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleViewFlowTemplateRequest;
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.jersey.ApiFlowTemplateSimpleJersey;
+import org.fundaciobit.apisib.core.exceptions.ApisIBClientException;
+import org.fundaciobit.apisib.core.exceptions.ApisIBServerException;
+import org.fundaciobit.apisib.core.exceptions.ApisIBTimeOutException;
+import org.slf4j.LoggerFactory;
 
-import es.caib.portafib.ws.api.v1.CarrecWs;
-import es.caib.portafib.ws.api.v1.PortaFIBUsuariEntitatWs;
-import es.caib.portafib.ws.api.v1.PortaFIBUsuariEntitatWsService;
-import es.caib.portafib.ws.api.v1.UsuariPersonaBean;
 import es.caib.portafib.ws.api.v1.WsI18NException;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
 import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
-import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxBlocDto;
 
 /**
  * Implementació del plugin de portasignatures per l'API REST Simple del PortaFIB.
@@ -517,8 +513,89 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 	@Override
 	public PortafirmesFluxResposta recuperarFluxDeFirmaByIdTransaccio(String idTransaccio)
 			throws SistemaExternException {
-		// TODO Auto-generated method stub
-		return null;
+		PortafirmesFluxResposta resposta = new PortafirmesFluxResposta();
+		try {
+			FlowTemplateSimpleGetFlowResultResponse result = getFlowTemplateResult(idTransaccio);
+			FlowTemplateSimpleStatus transactionStatus = result.getStatus();
+			int status = transactionStatus.getStatus();
+
+			switch (status) {
+				case FlowTemplateSimpleStatus.STATUS_INITIALIZING:
+						resposta.setError(true);
+						resposta.setEstat(PortafirmesFluxEstat.INITIALIZING);
+						logger.error("S'ha rebut un estat inconsistent del procés de construcció del flux. (Inialitzant). Consulti amb el seu administrador.");
+						return resposta;
+				case FlowTemplateSimpleStatus.STATUS_IN_PROGRESS:
+						resposta.setError(true);
+						resposta.setEstat(PortafirmesFluxEstat.IN_PROGRESS);
+						logger.error("S'ha rebut un estat inconsistent de construcció del flux (En Progrés). Consulti amb el seu administrador.");
+						return resposta;
+				case FlowTemplateSimpleStatus.STATUS_FINAL_ERROR:
+						String desc = transactionStatus.getErrorStackTrace();
+						resposta.setError(true);
+						resposta.setEstat(PortafirmesFluxEstat.FINAL_ERROR);
+						if (desc != null) {
+							logger.error(desc);
+						}
+						logger.error("Error durant la construcció del flux: " + transactionStatus.getErrorMessage());
+						return resposta;
+				case FlowTemplateSimpleStatus.STATUS_CANCELLED:
+						resposta.setError(true);
+						resposta.setEstat(PortafirmesFluxEstat.CANCELLED);
+						logger.error("L'usuari ha cancelat la construcció del flux");
+						return resposta;
+				case FlowTemplateSimpleStatus.STATUS_FINAL_OK:
+						FlowTemplateSimpleFlowTemplate flux = result.getFlowInfo();
+
+						resposta.setError(false);
+						resposta.setEstat(PortafirmesFluxEstat.FINAL_OK);
+						resposta.setFluxId(flux.getIntermediateServerFlowTemplateId());
+						resposta.setNom(flux.getName());
+						resposta.setDescripcio(flux.getDescription());
+					break;
+				default: {
+					throw new Exception("Codi d'estat desconegut (" + status + ")");
+				}
+			}
+		} catch (ApisIBClientException ex) {
+			throw new SistemaExternException(
+					"S'ha produït un error en el ConnectionManager del Client",
+					ex);
+		} catch (ApisIBServerException ex) {
+			throw new SistemaExternException(
+					"S'ha produït un error indeterminat al Servidor",
+					ex);
+		} catch (ApisIBTimeOutException ex) {
+			throw new SistemaExternException(
+					"Problemes de comunicació amb el servidor intermedi",
+					ex);
+		} catch (Exception ex) {
+			throw new SistemaExternException(
+					"S'ha produït un error en el ConnectionManager del Client",
+					ex);
+		} finally {
+			try {
+				if (resposta.getFluxId() != null)
+					closeTransaction(idTransaccio);
+			} catch (Exception ex) {
+				throw new SistemaExternException(
+						"S'ha produït un error tancant la transacció",
+						ex);
+			}
+		}
+		return resposta;
+	}
+
+	private FlowTemplateSimpleGetFlowResultResponse getFlowTemplateResult(
+			String transactionID) throws SistemaExternException {
+		FlowTemplateSimpleGetFlowResultResponse result = null;
+
+		try {
+			result = getFluxDeFirmaClient().getFlowTemplateResult(transactionID);
+		} catch (Exception ex) {
+			throw new SistemaExternException("", ex);
+		}
+		return result;
 	}
 
 	@Override
@@ -620,8 +697,21 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 
 	@Override
 	public String recuperarUrlViewEstatFluxDeFirmes(long portafirmesId, String idioma) throws SistemaExternException {
-		// TODO Auto-generated method stub
-		return null;
+		String urlFluxFirmes;
+		try {
+			// only works in jboss in tomcat gives error: 
+			// java.lang.AbstractMethodError: org.fundaciobit.apisib.apifirmaasyncsimple.v2.jersey.ApiFirmaAsyncSimpleJersey.getUrlToViewFlow(Lorg/fundaciobit/apisib/apifirmaasyncsimple/v2/beans/FirmaAsyncSimpleSignatureRequestInfo;)Ljava/lang/String;
+			// don't know why it is happening because it seems there is only one class: org.fundaciobit.apisib.apifirmaasyncsimple.v2.jersey.ApiFirmaAsyncSimpleJersey (apifirmaasyncsimple-jersey-2.0.1.jar) 
+			// that extends interface org.fundaciobit.apisib.apifirmaasyncsimple.v2.jersey.ApiFirmaAsyncSimple (apifirmaasyncsimple-api-2.0.1.jar) 
+			// and this class has method getUrlToViewFlow() defined
+			FirmaAsyncSimpleSignatureRequestInfo request = new FirmaAsyncSimpleSignatureRequestInfo(portafirmesId, idioma);
+			urlFluxFirmes = getFirmaAsyncSimpleApi().getUrlToViewFlow(request);
+		} catch (Exception ex) {
+			throw new SistemaExternException(
+					"No s'ha pogut recuperar la url per visualitzar l'estat del flux de firmes",
+					ex);
+		}
+		return urlFluxFirmes;
 	}
 	
 	private String getTransaction(
@@ -660,4 +750,5 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 		}
 	}
 
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(PortasignaturesPluginPortafibSimple.class);
 }

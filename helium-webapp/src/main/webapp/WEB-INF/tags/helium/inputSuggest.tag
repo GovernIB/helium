@@ -78,7 +78,6 @@ $(document).ready(function() {
 		    	$.ajax($(element).data('urlInicial') + "/" + $(element).val(), {
 	                dataType: "json"
 	            }).done(function(data) {
-	            	debugger;
 	            	var valors_inicials = [];
 	     			if (data) {
 	     				if (Array.isArray(data)) {

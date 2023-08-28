@@ -42,50 +42,68 @@
 		
 		<form:form 	cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="documentExpedientEnviarPortasignaturesCommand">
 			<div class="modal-body">
-				<input type="hidden" name="id" value="${documentExpedientEnviarPortasignaturesCommand.id}"/>
-				<ul class="list-group">
-					  	<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.id"/>
-					  		</strong><span class="pull-right" id="psignaDocumentId">${psignaPendentActual.documentId}</span>
-					  	</li>
-					  	<li class="list-group-item">
-					  		<strong><spring:message code="common.icones.doc.psigna.data.enviat"/></strong>
-					  		<span class="pull-right" id="psignaDataEnviat"><fmt:formatDate value="${psignaPendentActual.dataEnviat}" pattern="dd/MM/yyyy HH:mm"/></span></li>
-					  	
-					  	<li class="list-group-item">
- 					  		<strong><spring:message code="common.icones.doc.psigna.estat"/></strong>
- 					  		
- 					  		<c:choose>
- 							<c:when test="${psignaPendentActual.estat == 'PROCESSAT' && psignaPendentActual.error}">
- 								<span class="pull-right" id="psignaEstat">REBUTJAT</span>
- 							</c:when>
- 							<c:when test="${psignaPendentActual.estat != 'PROCESSAT' && psignaPendentActual.error && not empty psignaPendentActual.errorProcessant}">
- 								<span class="pull-right" id="psignaEstat">PENDENT</span>
- 							</c:when>
- 							<c:otherwise>
- 								<span class="pull-right" id="psignaEstat">${psignaPendentActual.estat}</span>
- 							</c:otherwise>
- 							</c:choose>
- 					  	</li>
- 					  	<li class="list-group-item">
- 					  		<strong><spring:message code="common.icones.doc.psigna.data.proces.primer"/></strong>
- 					  		<span class="pull-right" id="psignaDataEnviat"><fmt:formatDate value="${psignaPendentActual.dataProcessamentPrimer}" pattern="dd/MM/yyyy HH:mm"/>
- 					  		</span>
- 					  	</li>
- 					  	<li class="list-group-item">
- 					  		<strong><spring:message code="common.icones.doc.psigna.data.proces.darrer"/></strong>
- 					  		<span class="pull-right" id="psignaDataEnviat"><fmt:formatDate value="${psignaPendentActual.dataProcessamentDarrer}" pattern="dd/MM/yyyy HH:mm"/>
- 					  		</span>
- 					  	</li>
- 					
-	 					<c:if test="${psignaPendentActual.estat != 'PROCESSAT' && psignaPendentActual.error && not empty psignaPendentActual.errorProcessant}"> 	
-	 					  <li class="list-group-item">
-	 					  		<strong><spring:message code="common.icones.doc.psigna.error.processant"/></strong>
-	 					  		<br/>
-		 					  	<textarea rows="10" cols="50" style="width:auto;">${psignaPendentActual.errorProcessant}</textarea> 
-	 						
-	 						</li>
-	 					</c:if>	
- 					</ul> 	
+				<input type="hidden" name="id" value="${documentExpedientEnviarPortasignaturesCommand.id}"/> 
+
+
+				<div class="container">
+					<div class="row">
+					
+						<div class="col-sm-6">
+							<ul class="list-group">
+							  	<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.id"/>
+							  		</strong><span class="pull-right" id="psignaDocumentId">${psignaPendentActual.documentId}</span>
+							  	</li>
+							  	<li class="list-group-item">
+							  		<strong><spring:message code="common.icones.doc.psigna.data.enviat"/></strong>
+							  		<span class="pull-right" id="psignaDataEnviat"><fmt:formatDate value="${psignaPendentActual.dataEnviat}" pattern="dd/MM/yyyy HH:mm"/></span></li>
+							  	
+							  	<li class="list-group-item">
+		 					  		<strong><spring:message code="common.icones.doc.psigna.estat"/></strong>
+		 					  		
+		 					  		<c:choose>
+		 							<c:when test="${psignaPendentActual.estat == 'PROCESSAT' && psignaPendentActual.error}">
+		 								<span class="pull-right" id="psignaEstat">REBUTJAT</span>
+		 							</c:when>
+		 							<c:when test="${psignaPendentActual.estat != 'PROCESSAT' && psignaPendentActual.error && not empty psignaPendentActual.errorProcessant}">
+		 								<span class="pull-right" id="psignaEstat">PENDENT</span>
+		 							</c:when>
+		 							<c:otherwise>
+		 								<span class="pull-right" id="psignaEstat">${psignaPendentActual.estat}</span>
+		 							</c:otherwise>
+		 							</c:choose>
+		 					  	</li>
+		 					  	<li class="list-group-item">
+		 					  		<strong><spring:message code="common.icones.doc.psigna.data.proces.primer"/></strong>
+		 					  		<span class="pull-right" id="psignaDataEnviat"><fmt:formatDate value="${psignaPendentActual.dataProcessamentPrimer}" pattern="dd/MM/yyyy HH:mm"/>
+		 					  		</span>
+		 					  	</li>
+		 					  	<li class="list-group-item">
+		 					  		<strong><spring:message code="common.icones.doc.psigna.data.proces.darrer"/></strong>
+		 					  		<span class="pull-right" id="psignaDataEnviat"><fmt:formatDate value="${psignaPendentActual.dataProcessamentDarrer}" pattern="dd/MM/yyyy HH:mm"/>
+		 					  		</span>
+		 					  	</li>
+		 					
+			 					<c:if test="${psignaPendentActual.estat != 'PROCESSAT' && psignaPendentActual.error && not empty psignaPendentActual.errorProcessant}"> 	
+			 					  <li class="list-group-item">
+			 					  		<strong><spring:message code="common.icones.doc.psigna.error.processant"/></strong>
+			 					  		<br/>
+				 					  	<textarea rows="10" cols="50" style="width:auto;">${psignaPendentActual.errorProcessant}</textarea> 
+			 						
+			 						</li>
+			 					</c:if>	
+		 					</ul> 	
+						</div>
+						
+						<c:if test="${not empty urlFluxFirmes}">
+							<div class="col-sm-6" style="height:100%;">
+								<div class="blocks_container">
+									<iframe width="100%" height="300px" frameborder="0" allowtransparency="true" src="${urlFluxFirmes}"></iframe>
+								</div>
+							</div>
+						</c:if>
+					</div>							
+				</div>
+				
 			</div>
 			
 			<div id="modal-botons" class="well">
