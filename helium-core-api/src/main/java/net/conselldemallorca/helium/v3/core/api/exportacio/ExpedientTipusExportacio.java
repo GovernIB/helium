@@ -70,6 +70,7 @@ public class ExpedientTipusExportacio implements Serializable {
 	private boolean distribucioActiu;
 	private String distribucioCodiProcediment;
 	private String distribucioCodiAssumpte;
+	private Boolean distribucioPresencial;
 	private boolean distribucioProcesAuto;
 	private boolean distribucioSistra;
 	
@@ -318,6 +319,12 @@ public class ExpedientTipusExportacio implements Serializable {
 	}
 	public void setDistribucioCodiAssumpte(String distribucioCodiAssumpte) {
 		this.distribucioCodiAssumpte = distribucioCodiAssumpte;
+	}
+	public Boolean getDistribucioPresencial() {
+		return distribucioPresencial;
+	}
+	public void setDistribucioPresencial(Boolean distribucioPresencial) {
+		this.distribucioPresencial = distribucioPresencial;
 	}
 	public boolean isDistribucioProcesAuto() {
 		return distribucioProcesAuto;

@@ -31,8 +31,8 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
-import es.caib.distribucio.rest.client.domini.AnotacioRegistreEntrada;
-import es.caib.distribucio.rest.client.domini.AnotacioRegistreId;
+import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreEntrada;
+import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId;
 import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.helper.ExceptionHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
@@ -350,9 +350,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 		/** Constructor amb els objectes de consulta i el zip per actualitzar. 
 		 * @param idWs 
 		 * @param maxReintents 
-		 * @param registreHelper 
-		 * @param errors 
-		 * @param errors */
+		 * @param consultaError */
 		public GuardarAnotacioPendentThread(
 				Anotacio anotacio,
 				Long anotacioId,
@@ -393,7 +391,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 					try {
 						distribucioHelper.canviEstat(
 									idWs, 
-									es.caib.distribucio.rest.client.domini.Estat.ERROR,
+									es.caib.distribucio.rest.client.integracio.domini.Estat.ERROR,
 									"Error consultant l'anotació amb id " + idWs.getIndetificador() + " després de " + consultaIntents + " intents: " + e.getMessage());
 					} catch(Exception ed) {
 						logger.error("Error comunicant l'error de consulta a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
@@ -421,7 +419,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 					try {
 						distribucioHelper.canviEstat(
 								idWs, 
-								es.caib.distribucio.rest.client.domini.Estat.ERROR,
+								es.caib.distribucio.rest.client.integracio.domini.Estat.ERROR,
 								"Error processant l'anotació amb id " + idWs.getIndetificador() + ": " + e.getMessage());
 					} catch(Exception ed) {
 						logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);

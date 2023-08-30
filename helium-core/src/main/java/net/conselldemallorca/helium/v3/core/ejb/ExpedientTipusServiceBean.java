@@ -687,8 +687,9 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			String codiProcediment,
 			String codiAssumpte,
 			boolean procesAuto,
-			boolean sistra) {
-		return delegate.updateIntegracioDistribucio(entornId, expedientTipusId, actiu, codiProcediment, codiAssumpte, procesAuto, sistra);
+			boolean sistra,
+			Boolean presencial) {
+		return delegate.updateIntegracioDistribucio(entornId, expedientTipusId, actiu, codiProcediment, codiAssumpte, procesAuto, sistra, presencial);
 	}
 	
 	/**

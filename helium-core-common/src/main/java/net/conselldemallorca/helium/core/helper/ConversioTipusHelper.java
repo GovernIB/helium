@@ -335,6 +335,7 @@ public class ConversioTipusHelper {
 						target.setPinbalNifCif(source.getPinbalNifCif());
 						target.setManualAjudaNom(source.getManualAjudaNom());
 						target.setManualAjudaContent(source.getManualAjudaContent());
+						target.setDistribucioPresencial(source.getDistribucioPresencial());
 						return target;
 					}
 				});

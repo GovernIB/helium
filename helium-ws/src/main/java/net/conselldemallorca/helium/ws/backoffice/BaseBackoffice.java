@@ -22,12 +22,12 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import net.conselldemallorca.helium.core.helper.DefinicioProcesHelper;
 import net.conselldemallorca.helium.core.model.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
@@ -72,6 +72,8 @@ public abstract class BaseBackoffice {
 	
 	@Autowired
 	private net.conselldemallorca.helium.v3.core.api.service.DissenyService dissenyV3Service;
+
+	protected static Tika tika = new Tika();
 	
 	public BaseBackoffice() {
 		
@@ -362,7 +364,7 @@ public abstract class BaseBackoffice {
 		is.close();
 		return doc;
 	}
-	
+
 	private DadesDocumentDto documentSistra(
 			DadesTramit tramit,
 			String varSistra,
@@ -387,6 +389,12 @@ public abstract class BaseBackoffice {
 					resposta.setDocumentValid(true);
 					resposta.setArxiuNom(vista.getArxiuNom());
 					resposta.setArxiuContingut(vista.getArxiuContingut());
+					resposta.setTipusMime(tika.detect(vista.getArxiuContingut()));
+				}
+				try {
+					resposta.setTipusMime(tika.detect(resposta.getArxiuContingut()));
+				} catch (Exception ex) {
+					logger.warn("No ha estat possible recuperar el tipus mime del documents procedient de Sistra", ex);
 				}
 				break;
 			}

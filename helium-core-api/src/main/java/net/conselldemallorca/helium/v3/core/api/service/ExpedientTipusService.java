@@ -112,6 +112,7 @@ public interface ExpedientTipusService {
 	 * @param codiProcediment
 	 * @param procesAuto Indica si processar automàticament
 	 * @param sistra Indica si aplicar la integració i el mapeig de SISTRA
+	 * @param presencial Indica si les anotacions s'han realitzat de forma presencial
 	 * 
 	 * @return El tipus d'expedient modificat.
 	 * 
@@ -127,7 +128,8 @@ public interface ExpedientTipusService {
 			String codiProcediment,
 			String codiAssumpte,
 			boolean procesAuto,
-			boolean sistra);	
+			boolean sistra,
+			Boolean presencial);
 
 	/** 
 	 * Modifica les dades del tipus d'expedient referents amb la integració amb els tràmits de 

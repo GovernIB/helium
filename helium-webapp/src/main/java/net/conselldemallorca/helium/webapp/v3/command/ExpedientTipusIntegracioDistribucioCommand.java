@@ -16,6 +16,11 @@ import net.conselldemallorca.helium.webapp.v3.validator.ExpedientTipusIntegracio
 @ExpedientTipusIntegracioDistribucio(groups = {Modificacio.class})
 public class ExpedientTipusIntegracioDistribucioCommand {
 
+//	public enum SiNo {
+//		SI,
+//		NO
+//	}
+
 	@NotNull(groups = {Modificacio.class})
 	private Long id;
 	private boolean actiu;
@@ -25,6 +30,7 @@ public class ExpedientTipusIntegracioDistribucioCommand {
 	private String codiAssumpte;
 	private boolean procesAuto;
 	private boolean sistra;
+	private Boolean presencial;
 
 	public Long getId() {
 		return id;
@@ -62,6 +68,13 @@ public class ExpedientTipusIntegracioDistribucioCommand {
 	}
 	public void setSistra(boolean sistra) {
 		this.sistra = sistra;
+	}
+
+	public Boolean getPresencial() {
+		return presencial;
+	}
+	public void setPresencial(Boolean presencial) {
+		this.presencial = presencial;
 	}
 
 	public interface Modificacio {}
