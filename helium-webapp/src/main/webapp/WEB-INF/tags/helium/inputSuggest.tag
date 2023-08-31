@@ -17,7 +17,6 @@
 <%@ attribute name="labelSize" required="false" rtexprvalue="true"%>
 <c:if test="${empty labelSize}"><c:set var="labelSize" value="${4}"/></c:if>
 <c:set var="campPath" value="${name}"/>
-<c:choose><c:when test='${multiple}'><c:set var="campId" value="${fn:replace(fn:replace(id, '[', ''), ']','')}"/></c:when><c:otherwise><c:set var="campId" value="${name}"/></c:otherwise></c:choose>
 <c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
 <c:set var="campClassRequired"><c:if test="${required}">obligatori</c:if></c:set>
 <c:choose>
@@ -35,29 +34,32 @@
 				</c:choose>
 			</label>
 			<div class="controls col-xs-${12 - labelSize}">
-				<c:choose>
-					<c:when test='${multiple}'><input type="text" id="${campId}" name="${campPath}" class="form-control suggest" <c:if test="${disabled}">disabled </c:if>value="${command[campPath][campIndex]}" style="width: 100%"  data-url-llistat="${urlConsultaLlistat}" data-url-inicial="${urlConsultaInicial}"/></c:when>
-					<c:otherwise><form:input path="${campPath}" cssClass="form-control suggest" id="${campPath}" disabled="${disabled}" styleClass="width: 100%"  data-url-llistat="${urlConsultaLlistat}" data-url-inicial="${urlConsultaInicial}"/></c:otherwise>
-				</c:choose>
+				<form:input path="${campPath}" cssClass="form-control suggest" id="${campPath}" disabled="${disabled}" styleClass="width: 100%"  data-url-llistat="${urlConsultaLlistat}" data-url-inicial="${urlConsultaInicial}" />
 				<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${campPath}"/></p></c:if>
 			</div>
 		</div>
 	</c:when>
 	<c:otherwise>
-		<c:choose>
-			<c:when test='${multiple}'><input type="text" id="${campId}" name="${campPath}" class="form-control suggest" <c:if test="${disabled}">disabled </c:if>value="${command[campPath][campIndex]}"  data-url-llistat="${urlConsultaLlistat}" data-url-inicial="${urlConsultaInicial}"/></c:when>
-			<c:otherwise><form:input path="${campPath}" cssClass="form-control suggest" id="${campPath}" disabled="${disabled}"  data-url-llistat="${urlConsultaLlistat}" data-url-inicial="${urlConsultaInicial}"/></c:otherwise>
-		</c:choose>
+		<form:input path="${campPath}" cssClass="form-control suggest" id="${campPath}" disabled="${disabled}"  data-url-llistat="${urlConsultaLlistat}" data-url-inicial="${urlConsultaInicial}"/>
 	</c:otherwise>
 </c:choose>
-<script>
+<script type="text/javascript">
+// <![CDATA[
+
+var multiple = "true" == "${multiple == true}";
+
 $(document).ready(function() {
 	
-	$("[id='${campId}']").select2({
+	
+	$("[id='${campPath}']").select2({
 	    minimumInputLength: 3,
 	    width: '100%',
 	    placeholder: '${placeholderText}',
 	    allowClear: true,
+	    //<c:if test="${multiple == true}">
+	    tags: true,
+	    tokenSeparators: [','],
+	    //</c:if>
 	    ajax: {
 	        url: function (value) {
 	        	return $(this).data('urlLlistat') + "/" + value;
@@ -76,7 +78,21 @@ $(document).ready(function() {
 		    	$.ajax($(element).data('urlInicial') + "/" + $(element).val(), {
 	                dataType: "json"
 	            }).done(function(data) {
-	            	callback({id: data.codi, text: data.nom});
+	            	var valors_inicials = [];
+	     			if (data) {
+	     				if (Array.isArray(data)) {
+	     					for (i = 0; i < data.length; i++) {
+		    	            	valors_inicials.push({id: data[i].codi, text: data[i].nom});
+	     					}
+	     				} else {
+	    	            	valors_inicials.push({id: data.codi, text: data.nom});
+	     				}
+	     				if (multiple) {
+	    	            	callback(valors_inicials);
+	     				} else {
+	    	            	callback(valors_inicials[0]);	     					
+	     				}
+	     			}
 	            });
 	    	}
 	    },
@@ -90,4 +106,8 @@ $(document).ready(function() {
 		iframe.height(height + 'px');
 	});
 });
+
+// ]]>
+</script>	
+
 </script>

@@ -723,6 +723,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					documentExportacio.setExtensionsPermeses(document.getExtensionsPermeses());
 					documentExportacio.setIgnored(document.isIgnored());
 					documentExportacio.setNtiTipoDocumental(document.getNtiTipoDocumental());
+					documentExportacio.setPortafirmesActiu(document.isPortafirmesActiu());
+					documentExportacio.setPortafirmesFluxId(document.getPortafirmesFluxId());
+					documentExportacio.setPortafirmesFluxTipus(document.getPortafirmesFluxTipus());
+					documentExportacio.setPortafirmesSequenciaTipus(document.getPortafirmesSequenciaTipus());
+					documentExportacio.setPortafirmesResponsables(document.getPortafirmesResponsables()!=null? document.getPortafirmesResponsables().split(",") : null );
+					
 					exportacio.getDocuments().add(documentExportacio);
 				}
 		}		

@@ -172,13 +172,26 @@
 															</c:if>
 														</c:when>
 														<c:otherwise>
-															<a 	data-psigna = "${document.id}"
-																class="icon fa fa-clock-o fa-2x psigna-info"
-																style="cursor:pointer" 
-																title="<spring:message code='expedient.document.pendent.psigna'/>">
+															<a 	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/pendentSignatura"
+																data-rdt-link-modal="true" 
+																data-rdt-link-modal-maximize="false"
+																data-rdt-link-modal-min-height="400" 
+																data-rdt-link-callback="recargarPanel(${document.processInstanceId});"
+																class="icon enviarPortasignatures">
+																<span class="icon fa fa-clock-o fa-2x psigna-info" title="<spring:message code='expedient.document.pendent.psigna' />"></span>
 															</a>
 														</c:otherwise>
 													</c:choose>
+												</c:if>
+												<c:if test="${!document.signat && expedient.permisDocManagement && empty psignaPendentActual && (! empty expedient.arxiuUuid || document.portafirmesActiu || ! empty document.custodiaCodi)}">
+													<a 	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/enviarPortasignatures"
+														data-rdt-link-modal="true" 
+														data-rdt-link-modal-maximize="false"
+														data-rdt-link-modal-min-height="400" 
+														data-rdt-link-callback="recargarPanel(${document.processInstanceId});"
+														class="icon enviarPortasignatures">
+															<span class="fa fa-2x fa-envelope-o" title="<spring:message code='expedient.document.enviar.portasignatures' />"></span>
+													</a>
 												</c:if>
 												<c:if test="${!document.signat && expedient.permisDocManagement && empty psignaPendentActual && (! empty expedient.arxiuUuid || ! empty document.custodiaCodi)}">
 													<a 	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/firmaPassarela"

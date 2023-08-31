@@ -30,7 +30,14 @@ public class DocumentDto extends HeretableDto implements Serializable {
 	private String documentNom;
 	private String documentContentType;
 	private String documentCustodiaCodi;
+
 	private Integer documentTipusDocPortasignatures;
+	private boolean portafirmesActiu = false;
+	private PortafirmesTipusEnumDto portafirmesFluxTipus;	
+	private PortafirmesSimpleTipusEnumDto portafirmesSequenciaTipus;
+	private String portafirmesResponsables;
+	private String portafirmesFluxId;
+	
 	private boolean documentPendentSignar = false;
 	private boolean signatRequired = false;
 
@@ -67,7 +74,6 @@ public class DocumentDto extends HeretableDto implements Serializable {
 	private String custodiaCodi;
 	private Integer tipusDocPortasignatures;
 
-	private String portafirmesFluxId;
 	private String tokenSignatura;
 	private String tokenSignaturaMultiple;
 	private boolean signatEnTasca;
@@ -192,6 +198,30 @@ public class DocumentDto extends HeretableDto implements Serializable {
 	public void setDocumentTipusDocPortasignatures(
 			Integer documentTipusDocPortasignatures) {
 		this.documentTipusDocPortasignatures = documentTipusDocPortasignatures;
+	}
+	public boolean isPortafirmesActiu() {
+		return portafirmesActiu;
+	}
+	public void setPortafirmesActiu(boolean portafirmesActiu) {
+		this.portafirmesActiu = portafirmesActiu;
+	}
+	public PortafirmesTipusEnumDto getPortafirmesFluxTipus() {
+		return portafirmesFluxTipus;
+	}
+	public void setPortafirmesFluxTipus(PortafirmesTipusEnumDto portafirmesFluxTipus) {
+		this.portafirmesFluxTipus = portafirmesFluxTipus;
+	}
+	public PortafirmesSimpleTipusEnumDto getPortafirmesSequenciaTipus() {
+		return portafirmesSequenciaTipus;
+	}
+	public void setPortafirmesSequenciaTipus(PortafirmesSimpleTipusEnumDto portafirmesSequenciaTipus) {
+		this.portafirmesSequenciaTipus = portafirmesSequenciaTipus;
+	}
+	public String getPortafirmesResponsables() {
+		return portafirmesResponsables;
+	}
+	public void setPortafirmesResponsables(String portafirmesResponsables) {
+		this.portafirmesResponsables = portafirmesResponsables;
 	}
 	public boolean isDocumentPendentSignar() {
 		return documentPendentSignar;

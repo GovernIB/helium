@@ -29,7 +29,6 @@ import org.fundaciobit.plugins.signature.api.SecureVerificationCodeStampInfo;
 import org.fundaciobit.plugins.signature.api.SignaturesTableHeader;
 import org.fundaciobit.plugins.signature.api.StatusSignature;
 import org.fundaciobit.plugins.signature.api.StatusSignaturesSet;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -41,6 +40,7 @@ import com.artofsolving.jodconverter.DocumentFormatRegistry;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.firmaweb.FirmaWebPluginPortafibRest;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.webapp.v3.helper.UrlHelper;
 
 /**
  * Classes s'ajuda per a les accions de la passarel·la de firma.
@@ -112,7 +112,7 @@ public class PassarelaFirmaHelper {
 				commonInfoSignature,
 				new FileInfoSignature[] {fis},
 				urlFinalHelium,
-				getAbsoluteControllerBase(
+				UrlHelper.getAbsoluteControllerBase(
 						request,
 						PassarelaFirmaHelper.CONTEXTWEB) + "/final/"+signaturesSetId, 
 				documentId);
@@ -173,7 +173,7 @@ public class PassarelaFirmaHelper {
 		// Crida el teu plugin amb la info a partir signaturesSet
 		FileInfoSignature fitxerPerFirmar = firmaconfig.getFileInfoSignatureArray()[0];
 
-		final String urlFinal =getAbsoluteControllerBase(request,"").concat(urlFinalTascaDocument + "?signaturesSetId=" + signaturesSetId);
+		final String urlFinal = UrlHelper.getAbsoluteControllerBase(request,"").concat(urlFinalTascaDocument + "?signaturesSetId=" + signaturesSetId);
 				
 		String urlToPluginWebPage = signaturePlugin.firmar(
 					signaturesSetId, 
@@ -211,7 +211,7 @@ public class PassarelaFirmaHelper {
 			throw new Exception(msg);
 		}
 		String absoluteRequestPluginBasePath = getRequestPluginBasePath(
-				getAbsoluteControllerBase(
+				UrlHelper.getAbsoluteControllerBase(
 						request,
 						PassarelaFirmaHelper.CONTEXTWEB),
 				signaturesSetId,
@@ -539,15 +539,6 @@ public class PassarelaFirmaHelper {
 			HttpServletRequest request,
 			String webContext) {
 		return request.getContextPath() + webContext;
-	}
-	private String getAbsoluteControllerBase(
-			HttpServletRequest request,
-			String webContext) {
-		return	request.getScheme() + "://" +
-				request.getServerName() + ":" +
-				request.getServerPort() +
-				request.getContextPath() +
-				webContext;
 	}
 
 	public String getArxiuMimeType(String nomArxiu) {

@@ -60,7 +60,7 @@ public class PortasignaturesHelper {
 			if ( TransactionSynchronization.STATUS_ROLLED_BACK == status) {
 				try {					
 					// Rollback. Cancel·lar la petició que s'acaba de fer al portafirmes.
-					pluginHelper.portasignaturesCancelar(documentId);
+					pluginHelper.portasignaturesCancelar(documentId, null);
 					logger.debug("PortasignaturesHelper: Rollback de la petició de firma al portafirmes " + documentId + " realitzada correctament");
 				} catch (Exception e) {
 					logger.error("PortasignaturesHelper: Error en el rollback de firma al portafirmes " + documentId + ": " + e.getMessage(), e);

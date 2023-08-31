@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.webapp.v3.command;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
@@ -12,6 +13,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesTipusEnumDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDocumentCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDocumentCommand.Modificacio;
 import net.conselldemallorca.helium.webapp.v3.validator.Codi;
@@ -53,6 +56,12 @@ public class ExpedientTipusDocumentCommand {
 	private NtiEstadoElaboracionEnumDto ntiEstadoElaboracion;
 	private NtiTipoDocumentalEnumDto ntiTipoDocumental;
 	private boolean generarNomesTasca;
+	
+	private boolean portafirmesActiu = false;
+	@NotNull(groups = {Creacio.class, Modificacio.class})
+	private PortafirmesTipusEnumDto portafirmesFluxTipus;	
+	private PortafirmesSimpleTipusEnumDto portafirmesSequenciaTipus;
+	private String portafirmesResponsables;
 	private String portafirmesFluxId;
 
 	public Long getExpedientTipusId() {
@@ -188,6 +197,31 @@ public class ExpedientTipusDocumentCommand {
 		this.generarNomesTasca = generarNomesTasca;
 	}
 	
+	public boolean isPortafirmesActiu() {
+		return portafirmesActiu;
+	}
+	public void setPortafirmesActiu(boolean portafirmesActiu) {
+		this.portafirmesActiu = portafirmesActiu;
+	}
+	public PortafirmesTipusEnumDto getPortafirmesFluxTipus() {
+		return portafirmesFluxTipus;
+	}
+	public void setPortafirmesFluxTipus(PortafirmesTipusEnumDto portafirmesFluxTipus) {
+		this.portafirmesFluxTipus = portafirmesFluxTipus;
+	}
+	public PortafirmesSimpleTipusEnumDto getPortafirmesSequenciaTipus() {
+		return portafirmesSequenciaTipus;
+	}
+	public void setPortafirmesSequenciaTipus(PortafirmesSimpleTipusEnumDto portafirmesSequenciaTipus) {
+		this.portafirmesSequenciaTipus = portafirmesSequenciaTipus;
+	}
+
+	public String getPortafirmesResponsables() {
+		return portafirmesResponsables;
+	}
+	public void setPortafirmesResponsables(String portafirmesResponsables) {
+		this.portafirmesResponsables = portafirmesResponsables;
+	}
 	public String getPortafirmesFluxId() {
 		return portafirmesFluxId;
 	}
@@ -222,10 +256,33 @@ public class ExpedientTipusDocumentCommand {
 		dto.setNtiOrigen(command.getNtiOrigen());
 		dto.setNtiEstadoElaboracion(command.getNtiEstadoElaboracion());
 		dto.setNtiTipoDocumental(command.getNtiTipoDocumental());
-		dto.setPortafirmesFluxId(command.getPortafirmesFluxId());
+		dto.setPortafirmesActiu(command.isPortafirmesActiu());
+		
+		if (dto.isPortafirmesActiu()) {
+			dto.setPortafirmesFluxTipus(command.getPortafirmesFluxTipus());
+			if(dto.getPortafirmesFluxTipus().equals(PortafirmesTipusEnumDto.FLUX)) {
+				dto.setPortafirmesFluxId(command.getPortafirmesFluxId());
+			}
+			else if(dto.getPortafirmesFluxTipus().equals(PortafirmesTipusEnumDto.SIMPLE)) {
+				dto.setPortafirmesSequenciaTipus(command.getPortafirmesSequenciaTipus());
+				dto.setPortafirmesResponsables(command.getPortafirmesResponsables());
+			}		
+		}
 		return dto;
 	}
-
+	private static String getResponsablesFromArray(String[] portafirmesResponsables) {
+		StringBuilder responsablesStr = new StringBuilder();
+		if (portafirmesResponsables != null) {
+			for (String responsable: portafirmesResponsables) {
+				if (responsablesStr.length() > 0)
+					responsablesStr.append(",");
+				responsablesStr.append(responsable);
+			}
+			return responsablesStr.toString();
+		} else {
+			return null;
+		}
+	}
 	public interface Creacio {}
 	public interface Modificacio {}
 

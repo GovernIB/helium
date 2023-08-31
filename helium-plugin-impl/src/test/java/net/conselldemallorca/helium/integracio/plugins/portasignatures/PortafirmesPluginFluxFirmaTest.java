@@ -71,7 +71,7 @@ public class PortafirmesPluginFluxFirmaTest {
 				"");
 		
 	}
-	PortafirmesPluginPortafibFluxSimple plugin;
+	PortasignaturesPluginPortafibSimple plugin;
 	
 
 //	@Test

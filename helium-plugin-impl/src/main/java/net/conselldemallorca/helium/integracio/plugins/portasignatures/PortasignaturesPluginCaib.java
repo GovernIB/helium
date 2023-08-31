@@ -69,7 +69,7 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 			DocumentPortasignatures document,
 			List<DocumentPortasignatures> annexos,
 			boolean isSignarAnnexos,
-			PasSignatura[] passesSignatura,
+			List<PortafirmesFluxBloc> blocList,
 			String remitent,
 			String importancia,
 			Date dataLimit,
@@ -98,7 +98,7 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 							document,
 							annexos,
 							isSignarAnnexos,
-							passesSignatura,
+							blocList,
 							remitent,
 							importancia,
 							dataLimit),
@@ -261,7 +261,7 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 			DocumentPortasignatures document,
 			List<DocumentPortasignatures> annexos,
 			boolean isSignarAnnexos,
-			PasSignatura[] passesSignatura,
+			List<PortafirmesFluxBloc> blocList,
 			String remitent,
 			String importancia,
 			Date dataLimit) {
@@ -323,12 +323,12 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 		Steps steps = new Steps();
 		steps.setSignMode(SignModeEnum.detached);
 		List<Step> stepList = new ArrayList<Step>();
-		for (PasSignatura pas: passesSignatura) {
+		for (PortafirmesFluxBloc bloc: blocList) {
 			// Cream una etapa amb un firmant.
 			UploadStep step = new UploadStep();
-			step.setMinimalSigners(pas.getMinSignataris());
+			step.setMinimalSigners(bloc.getMinSignataris());
 			List<Signer> signerList = new ArrayList<Signer>();
-			for (String signatari: pas.getSignataris()) {
+			for (String signatari: bloc.getDestinataris()) {
 				// És necessari que el DNI del certificat coincideixi amb el DNI de l'usuari logat a Portafirmas.
 				Signer signer = new Signer();
 				signer.setId(signatari);
@@ -337,13 +337,13 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 			}
 			step.setSigners(
 					signerList.toArray(
-							new Signer[pas.getSignataris().length]));
+							new Signer[bloc.getDestinataris().length]));
 			stepList.add(step);
 		}
 		steps.setStep(
 				stepList.toArray(
-						new Step[passesSignatura.length]));
-		// Afegim les etapes al document.
+						new Step[blocList.size()]));
+//		// Afegim les etapes al document.
 		documentRequest.setSteps(steps);
 		return documentRequest;
 	}
@@ -442,18 +442,6 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 	public void tancarTransaccioFlux(String idTransaccio) throws SistemaExternException {
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public List<PortafirmesCarrec> recuperarCarrecs() throws SistemaExternException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public PortafirmesCarrec recuperarCarrec(String carrecId) throws SistemaExternException {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

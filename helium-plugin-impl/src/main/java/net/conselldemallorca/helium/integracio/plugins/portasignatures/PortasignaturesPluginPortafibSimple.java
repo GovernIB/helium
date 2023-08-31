@@ -3,7 +3,6 @@ package net.conselldemallorca.helium.integracio.plugins.portasignatures;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -16,6 +15,7 @@ import org.fundaciobit.apisib.apifirmaasyncsimple.v2.beans.FirmaAsyncSimpleRevis
 import org.fundaciobit.apisib.apifirmaasyncsimple.v2.beans.FirmaAsyncSimpleSignature;
 import org.fundaciobit.apisib.apifirmaasyncsimple.v2.beans.FirmaAsyncSimpleSignatureBlock;
 import org.fundaciobit.apisib.apifirmaasyncsimple.v2.beans.FirmaAsyncSimpleSignatureRequestInfo;
+import org.fundaciobit.apisib.apifirmaasyncsimple.v2.beans.FirmaAsyncSimpleSignatureRequestWithFlowTemplateCode;
 import org.fundaciobit.apisib.apifirmaasyncsimple.v2.beans.FirmaAsyncSimpleSignatureRequestWithSignBlockList;
 import org.fundaciobit.apisib.apifirmaasyncsimple.v2.beans.FirmaAsyncSimpleSignedFile;
 import org.fundaciobit.apisib.apifirmaasyncsimple.v2.beans.FirmaAsyncSimpleSigner;
@@ -26,13 +26,19 @@ import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleE
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleFlowTemplate;
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleFlowTemplateList;
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleFlowTemplateRequest;
+import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleGetFlowResultResponse;
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleGetTransactionIdRequest;
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleKeyValue;
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleReviser;
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleSignature;
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleStartTransactionRequest;
+import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleStatus;
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.beans.FlowTemplateSimpleViewFlowTemplateRequest;
 import org.fundaciobit.apisib.apiflowtemplatesimple.v1.jersey.ApiFlowTemplateSimpleJersey;
+import org.fundaciobit.apisib.core.exceptions.ApisIBClientException;
+import org.fundaciobit.apisib.core.exceptions.ApisIBServerException;
+import org.fundaciobit.apisib.core.exceptions.ApisIBTimeOutException;
+import org.slf4j.LoggerFactory;
 
 import es.caib.portafib.ws.api.v1.WsI18NException;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
@@ -56,7 +62,7 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 			DocumentPortasignatures document, 
 			List<DocumentPortasignatures> annexos,
 			boolean isSignarAnnexos, 
-			PasSignatura[] passesSignatura, 
+			List<PortafirmesFluxBloc> blocList,
 			String remitent, 
 			String importancia,
 			Date dataLimit,
@@ -119,17 +125,27 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 				}
 				signatureRequest.setAnnexs(portafirmesAnnexos);
 			}
-
 			FirmaAsyncSimpleSignatureBlock[] signatureBlocks  = null;
-			if (plantillaFluxId != null /* || idTransaccio != null */) {
-//				### convertir en blocs de portafirmes a partir d'un id de transacció o d'una plantilla
+			if (plantillaFluxId != null /* || idTransaccio != null */) {//MARTA mirar aquí! plantillaFluxId i blocs
+				FirmaAsyncSimpleSignatureRequestWithFlowTemplateCode signatureRequestAmbPlantilla;
+				
+				
+				//				### convertir en blocs de portafirmes a partir d'un id de transacció o d'una plantilla
 //				signatureBlocks = idTransaccio != null ? recuperarFluxDeFirma(idTransaccio) : toFirmaAsyncSimpleSignatureBlockFromId(plantillaFluxId, "ca");
 				signatureBlocks = toFirmaAsyncSimpleSignatureBlockFromId(plantillaFluxId, "ca");
-			} else if (passesSignatura != null && passesSignatura.length > 0) {
-				signatureBlocks  = toFluxDeFirmes(Arrays.asList(passesSignatura));
+				signatureRequest.setSignatureBlocks(signatureBlocks);
+				signatureRequestAmbPlantilla = new FirmaAsyncSimpleSignatureRequestWithFlowTemplateCode(
+			            signatureRequest, plantillaFluxId);
+				//peticioDeFirmaId = getFirmaAsyncSimpleApi().createAndStartSignatureRequestWithFlowTemplateCode(signatureRequestAmbPlantilla);
+			//} else if (passesSignatura != null && passesSignatura.length > 0) {
+			} else if (blocList!=null && !blocList.isEmpty()) {
+				signatureBlocks  = toFluxDeFirmes(blocList);
+				signatureRequest.setSignatureBlocks(signatureBlocks);
+				//peticioDeFirmaId = getFirmaAsyncSimpleApi().createAndStartSignatureRequestWithSignBlockList(signatureRequest);
 			}
 			signatureRequest.setSignatureBlocks(signatureBlocks);
-			peticioDeFirmaId = getFirmaAsyncSimpleApi().createAndStartSignatureRequestWithSignBlockList(signatureRequest);
+			peticioDeFirmaId = getFirmaAsyncSimpleApi().createAndStartSignatureRequestWithSignBlockList(signatureRequest);//MARTA peta aquí!  
+			//no pot transformar el json a un objecte, mira si tenim les mateixes dependències que a Ripea....
 			return new Long(peticioDeFirmaId).intValue();
 		} catch (Exception ex) {
 			throw new PortasignaturesPluginException(
@@ -162,6 +178,42 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 			blocsAsyncs = toFirmaAsyncSimpleSignatureBlock(blocks);
 		} catch (Exception ex) {
 			throw new SistemaExternException(ex);
+		}
+		return blocsAsyncs;
+	}
+	
+	private FirmaAsyncSimpleSignatureBlock[] simpleBlockToPortafirmesBlock(List<PortafirmesFluxBloc> flux) throws SistemaExternException {
+		FirmaAsyncSimpleSignatureBlock[] blocsAsyncs = null;
+		try {
+			int i = 0;
+			blocsAsyncs = new FirmaAsyncSimpleSignatureBlock[flux.size()];
+			for (PortafirmesFluxBloc portafirmesFluxBloc : flux) {
+				FirmaAsyncSimpleSignatureBlock blocAsync = new FirmaAsyncSimpleSignatureBlock();
+				//firmes mínimes
+				blocAsync.setMinimumNumberOfSignaturesRequired(portafirmesFluxBloc.getMinSignataris());
+				//Firmants
+				List<FirmaAsyncSimpleSignature> signatures = new ArrayList<FirmaAsyncSimpleSignature>();
+				for (String destinatari : portafirmesFluxBloc.getDestinataris()) {
+					FirmaAsyncSimpleSignature signature = new FirmaAsyncSimpleSignature();
+					signature.setRequired(true);
+					//Firmant
+					FirmaAsyncSimpleSigner signer = new FirmaAsyncSimpleSigner();
+					if (destinatari.startsWith("CARREC")) {
+						String carrecName = destinatari.substring(destinatari.indexOf("[") + 1, destinatari.indexOf("]"));
+						signer.setPositionInTheCompany(carrecName);
+					} else {
+						signer.setAdministrationID(destinatari);
+					}
+					signature.setSigner(signer);
+					signatures.add(signature);
+				}
+	
+				blocAsync.setSigners(signatures);
+				blocsAsyncs[i] = blocAsync;
+				i++;
+			}
+		} catch (Exception ex) {
+			throw new SistemaExternException("Hi ha hagut un error construint el flux", ex);
 		}
 		return blocsAsyncs;
 	}
@@ -281,25 +333,51 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 
 
 	private ApiFirmaAsyncSimple getFirmaAsyncSimpleApi() throws MalformedURLException {
-		String apiRestUrl = getBaseUrl() + "/common/rest/apifirmaasyncsimple/v2";
 		ApiFirmaAsyncSimple api = new ApiFirmaAsyncSimpleJersey(
-				apiRestUrl,
-				getUserName(),
-				getPassword());
+				getUrlFirmaSimpleAsync(),
+				getUsernameFirmaSimpleAsync(),
+				getPasswordFirmaSimpleAsync());
 		return api;
 	}
 
-	private String getBaseUrl() {
-		return (String)GlobalProperties.getInstance().getProperty(
-				"app.portasignatures.plugin.portafib.base.url");
-	}
 
-	private String getUserName() {
-		return GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.portafib.username");
+	private String getUrlFirmaSimpleAsync() {
+		return GlobalProperties.getInstance().getProperty(
+				"app.portasignatures.plugin.portafib.firmasimpleasync.url");
 	}
-	private String getPassword() {
-		return GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.portafib.password");
+	private String getUsernameFirmaSimpleAsync() {
+		return GlobalProperties.getInstance().getProperty(
+				"app.portasignatures.plugin.portafib.username");
 	}
+	private String getPasswordFirmaSimpleAsync() {
+		return GlobalProperties.getInstance().getProperty(
+				"app.portasignatures.plugin.portafib.password");
+	}
+	
+	private ApiFlowTemplateSimple getFluxDeFirmaClient() throws MalformedURLException {
+		String apiRestUrl = getUrlFirmaSimpleFlux();
+		ApiFlowTemplateSimple api = new ApiFlowTemplateSimpleJersey(
+				apiRestUrl,
+				getUsernameFirmaSimpleFlux(),
+				getPasswordFirmaSimpleFlux());
+		return api;
+	}
+	
+	private String getUrlFirmaSimpleFlux() {
+		return GlobalProperties.getInstance().getProperty(
+				"app.portafirmes.plugin.flux.firma.url");
+	}
+	private String getUsernameFirmaSimpleFlux() {
+		return GlobalProperties.getInstance().getProperty(
+				"app.portafirmes.plugin.flux.firma.usuari");
+	}
+	private String getPasswordFirmaSimpleFlux() {
+		return GlobalProperties.getInstance().getProperty(
+				"app.portafirmes.plugin.flux.firma.password");
+	}
+	
+	
+
 	private String getPerfil() {
 		return GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.portafib.perfil");
 	}
@@ -337,26 +415,26 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 	}
 	
 	private FirmaAsyncSimpleSignatureBlock[] toFluxDeFirmes(
-			List<PasSignatura> passes) throws Exception {
+			List<PortafirmesFluxBloc> blocs) throws Exception {
 		FirmaAsyncSimpleSignatureBlock[] blocsAsyncs = null;
-		if (passes == null || passes.isEmpty()) {
+		if (blocs == null || blocs.isEmpty()) {
 			throw new PortasignaturesPluginException(
-					"És necessari configurar algun responsable de firmar el document");
+					"És necessari configurar algún responsable de firmar el document");
 		}
 		try {
-			blocsAsyncs = new FirmaAsyncSimpleSignatureBlock[passes.size()];
-			for (int i = 0; i < passes.size(); i++) {
-				PasSignatura pas = passes.get(i);
+			blocsAsyncs = new FirmaAsyncSimpleSignatureBlock[blocs.size()];
+			for (int i = 0; i < blocs.size(); i++) {
+				PortafirmesFluxBloc bloc = blocs.get(i);
 				FirmaAsyncSimpleSignatureBlock blocAsync = new FirmaAsyncSimpleSignatureBlock();
 				
-				blocAsync.setMinimumNumberOfSignaturesRequired(pas.getMinSignataris());
+				blocAsync.setMinimumNumberOfSignaturesRequired(bloc.getMinSignataris());
 			    String signatari;
 				List<FirmaAsyncSimpleSignature> signatures = new ArrayList<FirmaAsyncSimpleSignature>();
-			    for (int j = 0; j<pas.getSignataris().length; j++) {
+			    for (int j = 0; j<bloc.getDestinataris().length; j++) {
 					FirmaAsyncSimpleSignature signature = new FirmaAsyncSimpleSignature();
 					signature.setRequired(true);
 					
-			    	signatari = pas.getSignataris()[j];
+			    	signatari = bloc.getDestinataris()[j];
 					//Firmant
 					FirmaAsyncSimpleSigner signer = new FirmaAsyncSimpleSigner();
 					if (signatari.startsWith("CARREC")) {
@@ -424,7 +502,7 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 		} catch (Exception ex) {
 			throw new SistemaExternException(
 					"No s'ha pogut iniciar la transacció (" +
-					"portafib=" + getBaseUrl() + ", " +			
+					"portafib=" + this.getUrlFirmaSimpleFlux() + ", " +			
 					"transactionId=" + idTransaccio + ", " +
 					"returnUrl=" + urlReturn + ")",
 					ex);
@@ -435,8 +513,89 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 	@Override
 	public PortafirmesFluxResposta recuperarFluxDeFirmaByIdTransaccio(String idTransaccio)
 			throws SistemaExternException {
-		// TODO Auto-generated method stub
-		return null;
+		PortafirmesFluxResposta resposta = new PortafirmesFluxResposta();
+		try {
+			FlowTemplateSimpleGetFlowResultResponse result = getFlowTemplateResult(idTransaccio);
+			FlowTemplateSimpleStatus transactionStatus = result.getStatus();
+			int status = transactionStatus.getStatus();
+
+			switch (status) {
+				case FlowTemplateSimpleStatus.STATUS_INITIALIZING:
+						resposta.setError(true);
+						resposta.setEstat(PortafirmesFluxEstat.INITIALIZING);
+						logger.error("S'ha rebut un estat inconsistent del procés de construcció del flux. (Inialitzant). Consulti amb el seu administrador.");
+						return resposta;
+				case FlowTemplateSimpleStatus.STATUS_IN_PROGRESS:
+						resposta.setError(true);
+						resposta.setEstat(PortafirmesFluxEstat.IN_PROGRESS);
+						logger.error("S'ha rebut un estat inconsistent de construcció del flux (En Progrés). Consulti amb el seu administrador.");
+						return resposta;
+				case FlowTemplateSimpleStatus.STATUS_FINAL_ERROR:
+						String desc = transactionStatus.getErrorStackTrace();
+						resposta.setError(true);
+						resposta.setEstat(PortafirmesFluxEstat.FINAL_ERROR);
+						if (desc != null) {
+							logger.error(desc);
+						}
+						logger.error("Error durant la construcció del flux: " + transactionStatus.getErrorMessage());
+						return resposta;
+				case FlowTemplateSimpleStatus.STATUS_CANCELLED:
+						resposta.setError(true);
+						resposta.setEstat(PortafirmesFluxEstat.CANCELLED);
+						logger.error("L'usuari ha cancelat la construcció del flux");
+						return resposta;
+				case FlowTemplateSimpleStatus.STATUS_FINAL_OK:
+						FlowTemplateSimpleFlowTemplate flux = result.getFlowInfo();
+
+						resposta.setError(false);
+						resposta.setEstat(PortafirmesFluxEstat.FINAL_OK);
+						resposta.setFluxId(flux.getIntermediateServerFlowTemplateId());
+						resposta.setNom(flux.getName());
+						resposta.setDescripcio(flux.getDescription());
+					break;
+				default: {
+					throw new Exception("Codi d'estat desconegut (" + status + ")");
+				}
+			}
+		} catch (ApisIBClientException ex) {
+			throw new SistemaExternException(
+					"S'ha produït un error en el ConnectionManager del Client",
+					ex);
+		} catch (ApisIBServerException ex) {
+			throw new SistemaExternException(
+					"S'ha produït un error indeterminat al Servidor",
+					ex);
+		} catch (ApisIBTimeOutException ex) {
+			throw new SistemaExternException(
+					"Problemes de comunicació amb el servidor intermedi",
+					ex);
+		} catch (Exception ex) {
+			throw new SistemaExternException(
+					"S'ha produït un error en el ConnectionManager del Client",
+					ex);
+		} finally {
+			try {
+				if (resposta.getFluxId() != null)
+					closeTransaction(idTransaccio);
+			} catch (Exception ex) {
+				throw new SistemaExternException(
+						"S'ha produït un error tancant la transacció",
+						ex);
+			}
+		}
+		return resposta;
+	}
+
+	private FlowTemplateSimpleGetFlowResultResponse getFlowTemplateResult(
+			String transactionID) throws SistemaExternException {
+		FlowTemplateSimpleGetFlowResultResponse result = null;
+
+		try {
+			result = getFluxDeFirmaClient().getFlowTemplateResult(transactionID);
+		} catch (Exception ex) {
+			throw new SistemaExternException("", ex);
+		}
+		return result;
 	}
 
 	@Override
@@ -450,7 +609,7 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 				plantilla.setFluxId(flowTemplate.getKey());
 				plantilla.setNom(flowTemplate.getValue());
 				plantilles.add(plantilla);
-				System.out.println("plantilla = " + flowTemplate.getKey() +"_"+ flowTemplate.getValue());
+//				System.out.println("plantilla = " + flowTemplate.getKey() +"_"+ flowTemplate.getValue());
 			}
 		} catch (Exception ex) {
 			throw new SistemaExternException(
@@ -527,43 +686,7 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 		}
 	}
 
-	@Override
-	public List<PortafirmesCarrec> recuperarCarrecs() throws SistemaExternException {
-//		List<PortafirmesCarrec> carrecs = new ArrayList<PortafirmesCarrec>();
-//		try {
-//			List<CarrecWs> carrecsWs = getUsuariEntitatWs().getCarrecsOfMyEntitat();
-//			if (carrecsWs != null) {
-//				for (CarrecWs carrecWs : carrecsWs) {
-//					PortafirmesCarrec carrec = new PortafirmesCarrec();
-//					carrec.setCarrecId(carrecWs.getCarrecID());
-//					carrec.setCarrecName(carrecWs.getCarrecName());
-//					carrec.setEntitatId(carrecWs.getEntitatID());
-//					carrec.setUsuariPersonaId(carrecWs.getUsuariPersonaID());
-//					if (carrecMostrarPersona()) {
-//						UsuariPersonaBean usuariPersona = getUsuariEntitatWs().getUsuariPersona(carrecWs.getUsuariPersonaID());
-//						if (usuariPersona != null) {
-//							carrec.setUsuariPersonaNif(usuariPersona.getNif());
-//							carrec.setUsuariPersonaEmail(usuariPersona.getEmail());
-//							carrec.setUsuariPersonaNom(usuariPersona.getNom());
-//						} else {
-//							throw new SistemaExternException("No s'ha trobat cap usuari persona amb id " + carrecWs.getUsuariPersonaID() + " relacionat amb aquest càrrec");
-//						}
-//					}
-//					carrecs.add(carrec);
-//				}
-//			}
-//			return carrecs;
-//		} catch (Exception ex) {
-//			throw new SistemaExternException("Hi ha hagut un problema recuperant els càrrecs per l'usuari aplicació " + getUsername(), ex);
-//		}
-		return null;
-	}
-
-	@Override
-	public PortafirmesCarrec recuperarCarrec(String carrecId) throws SistemaExternException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 
 	@Override
 	public List<PortafirmesFluxResposta> recuperarPlantillesPerFiltre(String idioma, String descripcio)
@@ -574,8 +697,21 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 
 	@Override
 	public String recuperarUrlViewEstatFluxDeFirmes(long portafirmesId, String idioma) throws SistemaExternException {
-		// TODO Auto-generated method stub
-		return null;
+		String urlFluxFirmes;
+		try {
+			// only works in jboss in tomcat gives error: 
+			// java.lang.AbstractMethodError: org.fundaciobit.apisib.apifirmaasyncsimple.v2.jersey.ApiFirmaAsyncSimpleJersey.getUrlToViewFlow(Lorg/fundaciobit/apisib/apifirmaasyncsimple/v2/beans/FirmaAsyncSimpleSignatureRequestInfo;)Ljava/lang/String;
+			// don't know why it is happening because it seems there is only one class: org.fundaciobit.apisib.apifirmaasyncsimple.v2.jersey.ApiFirmaAsyncSimpleJersey (apifirmaasyncsimple-jersey-2.0.1.jar) 
+			// that extends interface org.fundaciobit.apisib.apifirmaasyncsimple.v2.jersey.ApiFirmaAsyncSimple (apifirmaasyncsimple-api-2.0.1.jar) 
+			// and this class has method getUrlToViewFlow() defined
+			FirmaAsyncSimpleSignatureRequestInfo request = new FirmaAsyncSimpleSignatureRequestInfo(portafirmesId, idioma);
+			urlFluxFirmes = getFirmaAsyncSimpleApi().getUrlToViewFlow(request);
+		} catch (Exception ex) {
+			throw new SistemaExternException(
+					"No s'ha pogut recuperar la url per visualitzar l'estat del flux de firmes",
+					ex);
+		}
+		return urlFluxFirmes;
 	}
 	
 	private String getTransaction(
@@ -597,7 +733,7 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 		} catch (Exception ex) {
 			throw new SistemaExternException(
 					"No s'ha pogut recuperar el id de la transacció (" +
-					"portafib=" + getBaseUrl() + ", " +					
+					"portafib=" + this.getUrlFirmaSimpleFlux() + ", " +					
 					"nom=" + nom + ", " +
 					"descripcio=" + descripcio + ")",
 					ex);
@@ -613,27 +749,6 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 			throw new SistemaExternException("", ex);
 		}
 	}
-	
-	private ApiFlowTemplateSimple getFluxDeFirmaClient() throws MalformedURLException {
-		String apiRestUrl = getFluxUrl();
-		ApiFlowTemplateSimple api = new ApiFlowTemplateSimpleJersey(
-				apiRestUrl,
-				getFluxUserName(),
-				getFluxPassword());
-		return api;
-	}
-	
-	private String getFluxUrl() {
-		return (String)GlobalProperties.getInstance().getProperty(
-				"app.portafirmes.plugin.flux.firma.url");
-	}
 
-	private String getFluxUserName() {
-		return GlobalProperties.getInstance().getProperty("app.portafirmes.plugin.flux.firma.usuari");
-	}
-	private String getFluxPassword() {
-		return GlobalProperties.getInstance().getProperty("app.portafirmes.plugin.flux.firma.password");
-	}
-	
-
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(PortasignaturesPluginPortafibSimple.class);
 }

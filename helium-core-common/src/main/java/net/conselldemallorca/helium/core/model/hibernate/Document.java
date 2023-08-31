@@ -11,6 +11,8 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -33,6 +35,8 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesTipusEnumDto;
 
 /**
  * Objecte de domini que representa un document de la definició
@@ -52,51 +56,128 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 				})
 public class Document implements Serializable, GenericEntity<Long> {
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.TABLE, generator="gen_document")
+	@TableGenerator(name="gen_document", table="hel_idgen", pkColumnName="taula", valueColumnName="valor")
+	@Column(name="id")
 	private Long id;
+	
 	@NotBlank
 	@MaxLength(64)
+	@Column(name="codi", length=64, nullable=false)
 	private String codi;
+	
 	@NotBlank
 	@MaxLength(255)
+	@Column(name="nom", length=255, nullable=false)
 	private String nom;
+	
 	@MaxLength(255)
+	@Column(name="descripcio", length=255)
 	private String descripcio;
+	
+	@Lob
+	@Type(type="org.hibernate.type.BinaryType")
+	@Basic(fetch=FetchType.LAZY)
+	@Column(name="arxiu_contingut")
 	private byte[] arxiuContingut;
+	
 	@MaxLength(255)
+	@Column(name="arxiu_nom", length=255)
 	private String arxiuNom;
+	
+	@Column(name="plantilla")
 	private boolean plantilla;
+	
+	@Column(name="notificable")
 	private boolean notificable;
+	
 	@MaxLength(255)
+	@Column(name="content_type", length=255)
 	private String contentType;
+	
 	@MaxLength(255)
+	@Column(name="custodia_codi", length=255)
 	private String custodiaCodi;
-	private Integer tipusDocPortasignatures;
+	
+	@Column(name="adjuntar_auto")
 	private boolean adjuntarAuto;
+	
 	@MaxLength(10)
+	@Column(name="convertir_ext", length=10)
 	private String convertirExtensio;
+	
 	@MaxLength(255)
+	@Column(name="extensions_permeses", length=255)
 	private String extensionsPermeses;
+	
+	// Camps pel portasignatures
+	@Column(name="tipus_portasignatures")
+	private Integer tipusDocPortasignatures;
+	
+	/** Opció d'enviar al portasignatures activa des de la gestió de documents. */
+	@Column(name = "portafirmes_actiu")
+	private boolean portafirmesActiu = false;
+	
+	/** Tipus de definició d'enviament al Portasignatures per flux simple o definició de flux id. */
+	@Enumerated(EnumType.STRING)
+	@Column(name = "portafirmes_fluxtip", length = 256)
+	private PortafirmesTipusEnumDto portafirmesFluxTipus;	
+	
+	/** Tipus de seqüència sèrie o paral·lel en cas de flux simple amb n responsables. */
+	@Enumerated(EnumType.STRING)
+	@Column(name = "portafirmes_seqtip", length = 256)
+	private PortafirmesSimpleTipusEnumDto portafirmesSequenciaTipus;
+	
+	/** Responsables de firma en cas de tipus de firme per flux simple. Es guarda la llista de responsables separada per coma */
+	@Column(name = "portafirmes_responsables", length = 512)
+	private String portafirmesResponsables;
+	
+	/** Identificador del flux al Portasignatures */
 	@MaxLength(64)
+	@Column(name="portafirmes_flux_id", length=64)
 	private String portafirmesFluxId;
 
+
+	@ManyToOne(optional=true)
+	@JoinColumn(name="definicio_proces_id")
+	@ForeignKey(name="hel_defproc_document_fk")
 	private DefinicioProces definicioProces;
+	
+	@ManyToOne(optional=true)
+	@JoinColumn(name="expedient_tipus_id")
+	@ForeignKey(name="hel_exptip_doc_fk")
 	private ExpedientTipus expedientTipus;
+	
+	@ManyToOne(optional=true)
+	@JoinColumn(name="camp_data_id")
+	@ForeignKey(name="hel_camp_document_fk")
 	private Camp campData;
 
+	@OneToMany(mappedBy="document", cascade={CascadeType.ALL})
 	private Set<DocumentTasca> tasques = new HashSet<DocumentTasca>();
+	
+	@OneToMany(mappedBy="document", cascade={CascadeType.ALL})
 	private Set<FirmaTasca> firmes = new HashSet<FirmaTasca>();
 
 	/** Indica si permetre o no la retroacció. Si isIgnored = true llavors no es realitzarà la retroacció i no s'esborrarà
 	 * el contingut del document. */
+	@Column(name="ignored")
 	private boolean ignored;
 
+	@Column(name="nti_origen")
 	private NtiOrigenEnumDto ntiOrigen;
+	
+	@Column(name="nti_estado_elab")
 	private NtiEstadoElaboracionEnumDto ntiEstadoElaboracion;
+	
+	@Column(name="nti_tipo_doc")
 	private NtiTipoDocumentalEnumDto ntiTipoDocumental;
 
 	/** Flag per permetre generar el document tipus plantilla des de la tasca, no es podrà generar des de la gestió de documents
 	 * Als documents de tipus plantilla que tinguin aquest flag informat no els apareixerà 
 	 * el check per generar des de plantilla */
+	@Column(name="generar_nomes_tasca")
 	private boolean generarNomesTasca;
 
 
@@ -116,10 +197,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.nom = nom;
 	}
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.TABLE, generator="gen_document")
-	@TableGenerator(name="gen_document", table="hel_idgen", pkColumnName="taula", valueColumnName="valor")
-	@Column(name="id")
 	public Long getId() {
 		return id;
 	}
@@ -127,7 +204,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.id = id;
 	}
 
-	@Column(name="codi", length=64, nullable=false)
 	public String getCodi() {
 		return codi;
 	}
@@ -135,7 +211,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.codi = codi;
 	}
 
-	@Column(name="nom", length=255, nullable=false)
 	public String getNom() {
 		return nom;
 	}
@@ -143,7 +218,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.nom = nom;
 	}
 
-	@Column(name="descripcio", length=255)
 	public String getDescripcio() {
 		return descripcio;
 	}
@@ -151,10 +225,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.descripcio = descripcio;
 	}
 
-	@Lob
-	@Type(type="org.hibernate.type.BinaryType")
-	@Basic(fetch=FetchType.LAZY)
-	@Column(name="arxiu_contingut")
 	public byte[] getArxiuContingut() {
 		return arxiuContingut;
 	}
@@ -162,7 +232,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.arxiuContingut = arxiuContingut;
 	}
 
-	@Column(name="arxiu_nom", length=255)
 	public String getArxiuNom() {
 		return arxiuNom;
 	}
@@ -170,7 +239,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.arxiuNom = arxiuNom;
 	}
 
-	@Column(name="plantilla")
 	public boolean isPlantilla() {
 		return plantilla;
 	}
@@ -178,7 +246,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.plantilla = plantilla;
 	}
 	
-	@Column(name="notificable")
 	public boolean isNotificable() {
 		return notificable;
 	}
@@ -186,7 +253,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.notificable = notificable;
 	}
 	
-	@Column(name="content_type", length=255)
 	public String getContentType() {
 		return contentType;
 	}
@@ -194,7 +260,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.contentType = contentType;
 	}
 
-	@Column(name="custodia_codi", length=255)
 	public String getCustodiaCodi() {
 		return custodiaCodi;
 	}
@@ -202,15 +267,51 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.custodiaCodi = custodiaCodi;
 	}
 
-	@Column(name="tipus_portasignatures")
+	// PORTASIGNATURES 
+	
 	public Integer getTipusDocPortasignatures() {
 		return tipusDocPortasignatures;
 	}
 	public void setTipusDocPortasignatures(Integer tipusDocPortasignatures) {
 		this.tipusDocPortasignatures = tipusDocPortasignatures;
 	}
+	
+	public boolean isPortafirmesActiu() {
+		return portafirmesActiu;
+	}
+	public void setPortafirmesActiu(boolean portafirmesActiu) {
+		this.portafirmesActiu = portafirmesActiu;
+	}
 
-	@Column(name="adjuntar_auto")
+	public PortafirmesTipusEnumDto getPortafirmesFluxTipus() {
+		return portafirmesFluxTipus;
+	}
+	public void setPortafirmesFluxTipus(PortafirmesTipusEnumDto portafirmesFluxTipus) {
+		this.portafirmesFluxTipus = portafirmesFluxTipus;
+	}
+
+	public PortafirmesSimpleTipusEnumDto getPortafirmesSequenciaTipus() {
+		return portafirmesSequenciaTipus;
+	}
+	public void setPortafirmesSequenciaTipus(PortafirmesSimpleTipusEnumDto portafirmesSequenciaTipus) {
+		this.portafirmesSequenciaTipus = portafirmesSequenciaTipus;
+	}
+
+	public String getPortafirmesResponsables() {
+		return portafirmesResponsables;
+	}
+	
+	public void setPortafirmesResponsables(String[] portafirmesResponsables) {
+		this.portafirmesResponsables = getResponsablesFromArray(portafirmesResponsables);
+	}
+	
+	public String getPortafirmesFluxId() {
+		return portafirmesFluxId;
+	}
+	public void setPortafirmesFluxId(String portafirmesFluxId) {
+		this.portafirmesFluxId = portafirmesFluxId;
+	}
+
 	public boolean isAdjuntarAuto() {
 		return adjuntarAuto;
 	}
@@ -218,7 +319,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.adjuntarAuto = adjuntarAuto;
 	}
 
-	@Column(name="convertir_ext", length=10)
 	public String getConvertirExtensio() {
 		return convertirExtensio;
 	}
@@ -226,7 +326,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.convertirExtensio = convertirExtensio;
 	}
 
-	@Column(name="extensions_permeses", length=255)
 	public String getExtensionsPermeses() {
 		return extensionsPermeses;
 	}
@@ -234,7 +333,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.extensionsPermeses = extensionsPermeses;
 	}
 
-	@Column(name="nti_origen")
 	public NtiOrigenEnumDto getNtiOrigen() {
 		return ntiOrigen;
 	}
@@ -242,7 +340,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.ntiOrigen = ntiOrigen;
 	}
 
-	@Column(name="nti_estado_elab")
 	public NtiEstadoElaboracionEnumDto getNtiEstadoElaboracion() {
 		return ntiEstadoElaboracion;
 	}
@@ -250,7 +347,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.ntiEstadoElaboracion = ntiEstadoElaboracion;
 	}
 
-	@Column(name="nti_tipo_doc")
 	public NtiTipoDocumentalEnumDto getNtiTipoDocumental() {
 		return ntiTipoDocumental;
 	}
@@ -258,9 +354,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.ntiTipoDocumental = ntiTipoDocumental;
 	}
 
-	@ManyToOne(optional=true)
-	@JoinColumn(name="definicio_proces_id")
-	@ForeignKey(name="hel_defproc_document_fk")
 	public DefinicioProces getDefinicioProces() {
 		return definicioProces;
 	}
@@ -268,9 +361,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.definicioProces = definicioProces;
 	}
 	
-	@ManyToOne(optional=true)
-	@JoinColumn(name="expedient_tipus_id")
-	@ForeignKey(name="hel_exptip_doc_fk")
 	public ExpedientTipus getExpedientTipus() {
 		return expedientTipus;
 	}
@@ -278,9 +368,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.expedientTipus = expedientTipus;
 	}
 
-	@ManyToOne(optional=true)
-	@JoinColumn(name="camp_data_id")
-	@ForeignKey(name="hel_camp_document_fk")
 	public Camp getCampData() {
 		return campData;
 	}
@@ -288,7 +375,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.campData = campData;
 	}
 
-	@OneToMany(mappedBy="document", cascade={CascadeType.ALL})
 	public Set<DocumentTasca> getTasques() {
 		return this.tasques;
 	}
@@ -302,7 +388,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 		getTasques().remove(tasca);
 	}
 
-	@OneToMany(mappedBy="document", cascade={CascadeType.ALL})
 	public Set<FirmaTasca> getFirmes() {
 		return this.firmes;
 	}
@@ -316,7 +401,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 		getFirmes().remove(firma);
 	}
 
-	@Column(name="ignored")
 	public boolean isIgnored() {
 		return ignored;
 	}
@@ -325,7 +409,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 	}
 	
 	
-	@Column(name="generar_nomes_tasca")
 	public boolean isGenerarNomesTasca() {
 		return generarNomesTasca;
 	}
@@ -333,14 +416,21 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.generarNomesTasca = generarNomesTasca;
 	}
 	
+	private static String getResponsablesFromArray(String[] portafirmesResponsables) {
+		StringBuilder responsablesStr = new StringBuilder();
+		if (portafirmesResponsables != null) {
+			for (String responsable: portafirmesResponsables) {
+				if (responsablesStr.length() > 0)
+					responsablesStr.append(",");
+				responsablesStr.append(responsable);
+			}
+			return responsablesStr.toString();
+		} else {
+			return null;
+		}
+
+	}
 	
-	@Column(name="portafirmes_flux_id", length=64)
-	public String getPortafirmesFluxId() {
-		return portafirmesFluxId;
-	}
-	public void setPortafirmesFluxId(String portafirmesFluxId) {
-		this.portafirmesFluxId = portafirmesFluxId;
-	}
 	@Transient
 	public String getCodiNom() {
 		return codi + "/" + nom;

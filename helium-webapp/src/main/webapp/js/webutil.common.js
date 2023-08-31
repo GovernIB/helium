@@ -51,17 +51,21 @@ function webutilAlertaError(missatge, divAlertes) {
 	return $div;
 }
 
-function webutilModalAdjustHeight() {
-	$html = $(document.documentElement);
-	$iframe = $(window.frameElement);
+function webutilModalAdjustHeight(iframe) {
+	var $iframe = (iframe) ? $(iframe) : $(window.frameElement);
 	var modalobj = $iframe.parent().parent().parent();
 	var taraModal = $('.modal-header', modalobj).outerHeight() + $('.modal-footer', modalobj).outerHeight();
-	var maxBodyHeight = $(window.top).height() - taraModal - 70;
-	var pixelsCorreccio = 15;
-	var bodyHeight = $(this).contents().find("body").outerHeight() + pixelsCorreccio;
-	$(iframe).height(bodyHeight + 'px');
-	var modalBodyHeight = (bodyHeight > maxBodyHeight) ? (maxBodyHeight + 5) : (bodyHeight + 5);
-	$('div.modal-body', modalobj).height(modalBodyHeight + 'px');
+	var maxBodyHeight = $(window.top).height() - taraModal - 62;
+	var htmlHeight = (iframe) ? $(iframe).contents().find("html").height() : document.documentElement.scrollHeight;
+	if (htmlHeight > maxBodyHeight) {
+		$iframe.height(maxBodyHeight + 'px');
+		$('.modal-body', modalobj).css('height', maxBodyHeight + 'px');
+		$iframe.contents().find("body").css('height', maxBodyHeight + 'px');
+	} else {
+		$iframe.parent().css('height', htmlHeight + 'px');
+		$iframe.css('min-height', htmlHeight + 'px');
+		$iframe.closest('div.modal-body').height(htmlHeight + 'px');
+	}
 }
 
 function webutilUrlAmbPrefix(url, prefix) {

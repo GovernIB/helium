@@ -14,6 +14,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEs
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.DocumentPortasignatures;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PasSignatura;
+import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortafirmesFluxBloc;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortasignaturesPlugin;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortasignaturesPluginException;
 
@@ -42,12 +43,7 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 			DocumentDto document,
 			List<DocumentDto> annexos,
 			PersonaDto persona,
-			List<PersonaDto> personesPas1,
-			int minSignatarisPas1,
-			List<PersonaDto> personesPas2,
-			int minSignatarisPas2,
-			List<PersonaDto> personesPas3,
-			int minSignatarisPas3,
+			List<PortafirmesFluxBloc> blocList,
 			Expedient expedient,
 			String importancia,
 			Date dataLimit) throws Exception {
@@ -56,14 +52,15 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 					getDocumentPortasignatures(document, expedient),
 					getAnnexosPortasignatures(annexos, expedient),
 					false,
-					getPassesSignatura(
-							getSignatariIdPerPersona(persona),
-							personesPas1,
-							minSignatarisPas1,
-							personesPas2,
-							minSignatarisPas2,
-							personesPas3,
-							minSignatarisPas3),
+					blocList,
+//					getPassesSignatura(
+//							getSignatariIdPerPersona(persona),
+//							personesPas1,
+//							minSignatarisPas1,
+//							personesPas2,
+//							minSignatarisPas2,
+//							personesPas3,
+//							minSignatarisPas3),
 					expedient.getIdentificador(),
 					importancia,
 					dataLimit,

@@ -90,6 +90,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxBlocDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReferenciaNotificacio;
 import net.conselldemallorca.helium.v3.core.api.dto.ReferenciaRDSJustificanteDto;
@@ -2243,16 +2244,42 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			}
 		}
 		
-		return pluginHelper.portasignaturesEnviar(
+//		List<List<PersonaDto>> personesPas = new ArrayList<List<PersonaDto>>();
+//		if(personesPas1 != null) {
+//			personesPas.add(personesPas1);
+//			if(personesPas2 != null)
+//				personesPas.add(personesPas2);	
+//			if(personesPas3 != null)
+//				personesPas.add(personesPas3);	
+//		}
+		
+//		int[] minSignatarisPas = new int [] { minSignatarisPas1, minSignatarisPas2, minSignatarisPas3};
+		
+		List<PortafirmesFluxBlocDto> blocList = new ArrayList<PortafirmesFluxBlocDto>();
+		List<PersonaDto> personesPasList = new ArrayList<PersonaDto>();
+		if(personesPas1 != null && !personesPas1.isEmpty()) {
+			personesPasList.addAll(personesPas1);
+			PortafirmesFluxBlocDto bloc = new PortafirmesFluxBlocDto(minSignatarisPas1,personesPasList);
+			blocList.add(bloc);
+		} 
+		if(personesPas2 != null && !personesPas2.isEmpty()) {
+			personesPasList.addAll(personesPas2);
+			PortafirmesFluxBlocDto bloc = new PortafirmesFluxBlocDto(minSignatarisPas2,personesPasList);
+			blocList.add(bloc);
+		} 
+		if(personesPas3 != null) {
+			personesPasList.addAll(personesPas3);
+			PortafirmesFluxBlocDto bloc = new PortafirmesFluxBlocDto(minSignatarisPas3,personesPasList);
+			blocList.add(bloc);
+		}
+
+		return pluginHelper.portasignaturesEnviar( 
 					document,
 					annexos,
 					persona,
-					personesPas1,
-					minSignatarisPas1,
-					personesPas2,
-					minSignatarisPas2,
-					personesPas3,
-					minSignatarisPas3,
+//					(List<PersonaDto>[]) personesPas.toArray(),
+//					minSignatarisPas,
+					blocList,
 					expedientRepository.findOne(expedientId),
 					importancia,
 					dataLimit,
@@ -2260,13 +2287,15 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 					processInstanceId,
 					transicioOK,
 					transicioKO,
-					portafirmesFluxId);
+					null,//tipus,veure com li passo això
+					null,//responsables,//MARTA veure com li passo això
+					portafirmesFluxId!=null ? portafirmesFluxId : document.getPortafirmesFluxId());
 	}
 
 	@Override
 	public void portasignaturesEliminar(
 			Integer documentId) {
-		pluginHelper.portasignaturesCancelar(documentId);
+		pluginHelper.portasignaturesCancelar(documentId, null);
 	}
 
 	@Override

@@ -6,6 +6,8 @@ package net.conselldemallorca.helium.v3.core.api.exportacio;
 import java.io.Serializable;
 
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesTipusEnumDto;
 
 /**
  * DTO amb informació d'un document per a l'exportació.
@@ -31,6 +33,11 @@ public class DocumentExportacio implements Serializable {
 	private boolean ignored;
 	private NtiTipoDocumentalEnumDto ntiTipoDocumental;
 	private boolean generarNomesTasca;
+	private boolean portafirmesActiu = false;
+	private PortafirmesTipusEnumDto portafirmesFluxTipus;	
+	private PortafirmesSimpleTipusEnumDto portafirmesSequenciaTipus;
+	private String[] portafirmesResponsables;
+	private String portafirmesFluxId;
 	
 	public DocumentExportacio(
 			String codi,
@@ -183,6 +190,46 @@ public class DocumentExportacio implements Serializable {
 
 	public void setGenerarNomesTasca(boolean generarNomesTasca) {
 		this.generarNomesTasca = generarNomesTasca;
+	}
+
+	public boolean isPortafirmesActiu() {
+		return portafirmesActiu;
+	}
+
+	public void setPortafirmesActiu(boolean portafirmesActiu) {
+		this.portafirmesActiu = portafirmesActiu;
+	}
+
+	public PortafirmesTipusEnumDto getPortafirmesFluxTipus() {
+		return portafirmesFluxTipus;
+	}
+
+	public void setPortafirmesFluxTipus(PortafirmesTipusEnumDto portafirmesFluxTipus) {
+		this.portafirmesFluxTipus = portafirmesFluxTipus;
+	}
+
+	public PortafirmesSimpleTipusEnumDto getPortafirmesSequenciaTipus() {
+		return portafirmesSequenciaTipus;
+	}
+
+	public void setPortafirmesSequenciaTipus(PortafirmesSimpleTipusEnumDto portafirmesSequenciaTipus) {
+		this.portafirmesSequenciaTipus = portafirmesSequenciaTipus;
+	}
+
+	public String[] getPortafirmesResponsables() {
+		return portafirmesResponsables;
+	}
+
+	public void setPortafirmesResponsables(String[] portafirmesResponsables) {
+		this.portafirmesResponsables = portafirmesResponsables;
+	}
+
+	public String getPortafirmesFluxId() {
+		return portafirmesFluxId;
+	}
+
+	public void setPortafirmesFluxId(String portafirmesFluxId) {
+		this.portafirmesFluxId = portafirmesFluxId;
 	}
 
 	private static final long serialVersionUID = 1L;

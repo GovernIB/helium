@@ -106,13 +106,6 @@ body.loading .rmodal {
 .portafirmesFluxId_btn_edicio:hover {
 	cursor: pointer;
 }
-.flux_disabled {
-	pointer-events: none;
-	cursor: not-allowed;
-}
-.flux_disabled:hover {
-	cursor: not-allowed;
-}
 .carrec-selected {
 	font-weight: bold;
 	background-color: #1a3d5c;
@@ -186,13 +179,45 @@ div.dropdown-menu.loading .rmodal_carrecs {
 			<hel:inputText name="extensionsPermeses" textKey="expedient.tipus.document.form.camp.ext_perm" comment="expedient.tipus.document.form.camp.ext_perm.comment"/>
 			<hel:inputText name="contentType" textKey="expedient.tipus.document.form.camp.ctype" comment="expedient.tipus.document.form.camp.ctype.comment" />
 			<hel:inputText name="custodiaCodi" textKey="expedient.tipus.document.form.camp.codi_custodia" comment="expedient.tipus.document.form.camp.codi_custodia.comment" />
-			<hel:inputText name="tipusDocPortasignatures" textKey="expedient.tipus.document.form.camp.tipus_doc" comment="expedient.tipus.document.form.camp.tipus_doc.comment" />
+			<hel:inputCheckbox name="ignored" textKey="expedient.tipus.document.form.camp.ignored" comment="expedient.tipus.document.form.camp.ignored.comment"/>
 			
-			<hel:inputSelect name="portafirmesFluxId" textKey="expedient.tipus.document.form.camp.id.flux.firma" emptyOption="true" botons="true"  
-				icon="fa fa-external-link" iconAddicional="fa fa-trash-o" buttonMsg="${buttonTitle}"
-				placeholderKey="expedient.tipus.document.form.camp.id.flux.firma.buit" />
+			<!-- Portasignatures -->
+			<fieldset>
+				<legend><spring:message code="expedient.tipus.document.form.legend.enviament.portasignatures"></spring:message></legend>
+				<hel:inputText name="tipusDocPortasignatures" textKey="expedient.tipus.document.form.camp.tipus_doc" comment="expedient.tipus.document.form.camp.tipus_doc.comment" />
+				<hel:inputCheckbox name="portafirmesActiu" textKey="expedient.tipus.document.form.camp.portafirmes.actiu" />
+				<div id="opcions_portafirmes" class="opcions_portafirmes">
+					<hel:inputSelect name="portafirmesFluxTipus" textKey="expedient.tipus.document.form.camp.portafirmes.flux.tipus" 
+							optionItems="${fluxtipEnumOptions}" optionValueAttribute="value" optionTextKeyAttribute="text" 
+							disabled="${bloquejarCamps}" required="true"/>
+					<div id="flux_portafib" class="flux_portafib">
+						
+						<div id="divAlertesFlux"></div>
+						
+						<hel:inputSelect name="portafirmesFluxId" textKey="expedient.tipus.document.form.camp.id.flux.firma" emptyOption="true" botons="true"  
+							icon="fa fa-external-link" iconAddicional="fa fa-trash-o" buttonMsg="${buttonTitle}"
+							placeholderKey="expedient.tipus.document.form.camp.id.flux.firma.buit"  required="true"/>
+					</div>
+					<div id="flux_simple" class="flux_simple">
 			
-			<hel:inputCheckbox name="ignored" textKey="expedient.tipus.document.form.camp.ignored" comment="expedient.tipus.document.form.camp.ignored.comment"/> 			
+					<hel:inputSuggest 
+							inline="false" 
+							name="portafirmesResponsables" 
+							urlConsultaInicial="/helium/v3/expedient/persona/suggestInici" 
+							urlConsultaLlistat="/helium/v3/expedient/persona/suggest" 
+							textKey="expedient.tipus.form.camp.responsableDefecteCodi" 
+							placeholderKey="expedient.tipus.form.camp.responsableDefecteCodi" 
+							multiple="true"
+							required="true"/>
+			
+					<hel:inputSelect name="portafirmesSequenciaTipus" textKey="expedient.tipus.document.form.camp.portafirmes.sequencia.firma" 
+							optionItems="${portafirmesSequenciaTipusEnumOptions}" optionValueAttribute="value" optionTextKeyAttribute="text" 
+							disabled="${bloquejarCamps}" required="true"/>
+					</div>
+				</div> 			
+			</fieldset>
+			
+			<!-- Metadades NTI -->
 			<fieldset>
 				<legend><spring:message code="expedient.tipus.document.form.legend.metadades.nti"></spring:message></legend>
 				<hel:inputSelect name="ntiOrigen" textKey="expedient.tipus.document.form.camp.nti.origen" optionItems="${ntiOrigen}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" comment="expedient.tipus.document.form.camp.nti.origen.comentari"/>
@@ -216,7 +241,7 @@ div.dropdown-menu.loading .rmodal_carrecs {
 					</c:otherwise>
 				</c:choose>
 			</c:if>
-		</div>MMM - ${transaccioResponse}
+		</div>
 		<c:if test="${transaccioResponse != null && !transaccioResponse.error}">
 			<div id="modal-botons" class="well">
 				<c:if test="${fluxIframe}">
@@ -234,63 +259,74 @@ div.dropdown-menu.loading .rmodal_carrecs {
 	<script type="text/javascript">
 		// <![CDATA[
 		$(document).ready(function() {
+			
    			//<c:if test="${heretat}">
 			webutilDisableInputs($('#expedientTipusDocumentCommand'));
 			//</c:if>
-		});
-		$(".portafirmesFluxId_btn_edicio").on('click', function(){
-			var metaDocumentNom = "${fn:replace(expedientTipusDocumentCommand.nom, charSearch, charReplace)}";
-			$.ajax({
-				type: 'GET',
-				dataType: "json",
-				data: {nom: metaDocumentNom, plantillaId: $("#portafirmesFluxId").val()},
-				url: "<c:url value="/v3/expedientTipus/${expedientTipusDocumentCommand.expedientTipusId}/document/${expedientTipusDocumentCommand.id}/iniciarTransaccio"/>",
-				success: function(transaccioResponse) {
-					if (transaccioResponse != null && !transaccioResponse.error) {
-						localStorage.setItem('transaccioId', transaccioResponse.idTransaccio);
-						$('#expedientTipusDocumentCommand').addClass("hidden");
-						//alert(transaccioResponse.urlRedireccio);
-						var fluxIframe = '<div class="iframe_container">' + 
-											'<iframe onload="removeLoading()" id="fluxIframe" class="iframe_content" width="100%" height="100%" frameborder="0" allowtransparency="true" src="' + transaccioResponse.urlRedireccio + '"></iframe>' + 
-							  			 '</div>';
-						$('.flux_container').html(fluxIframe);	
-						adjustModalPerFlux();
-						$body = $("body");
-						$body.addClass("loading");
-					} else if (transaccioResponse != null && transaccioResponse.error) {
-						let currentIframe = window.frameElement;
-						var alertDiv = '<div class="alert alert-danger" role="alert">' + 
-											'<a class="close" data-dismiss="alert">×</a>' + 
-											'<span>' + transaccioResponse.errorDescripcio + '</span>' +
-									   '</div>';
-						$('form').prev().find('.alert').remove();
-						$('form').prev().prepend(alertDiv);
-						webutilModalAdjustHeight();
-					}
-				},
-				error: function(error) {
-					if (error != null && error.responseJSON != null) {
-						let currentIframe = window.frameElement;
-						var alertDiv = '<div class="alert alert-danger" role="alert">' + 
-											'<a class="close" data-dismiss="alert">×</a>' + 
-											'<span>' + error.responseJSON.message + '</span>' + 
-									   '</div>';
-						$('form').prev().find('.alert').remove();
-						$('form').prev().prepend(alertDiv);
-						webutilModalAdjustHeight();
-					}
+			$("#portafirmesActiu", "#expedientTipusDocumentCommand").change(function() {
+				if ($(this).is(':checked')) {
+					$('.opcions_portafirmes').show();
+					
+				} else {
+					$('.opcions_portafirmes').hide();
 				}
+			
+			}).change();
+			
+			$("#portafirmesFluxTipus").on('change', function() {
+				if($(this).val() == 'SIMPLE') {
+					$('.flux_portafib').hide();
+					$('.flux_simple').show();
+				} else {
+					$('.flux_portafib').show();
+					$('.flux_simple').hide();
+				}
+			}).change();
+
+			
+			$(".portafirmesFluxId_btn_edicio").on('click', function() {
+				var metaDocumentNom = "${fn:replace(expedientTipusDocumentCommand.nom, charSearch, charReplace)}";
+				webutilEsborrarAlertes('#divAlertesFlux');
+				$.ajax({
+					type: 'GET',
+					dataType: "json",
+					data: {nom: metaDocumentNom, plantillaId: $("#portafirmesFluxId").val()},
+					url: "<c:url value="/v3/expedientTipus/${expedientTipusDocumentCommand.expedientTipusId}/document/iniciarTransaccio"/>",
+					success: function(transaccioResponse) {
+						if (transaccioResponse != null && !transaccioResponse.error) {
+							localStorage.setItem('transaccioId', transaccioResponse.idTransaccio);
+							$('#expedientTipusDocumentCommand').addClass("hidden");
+							var fluxIframe = '<div class="iframe_container">' + 
+												'<iframe onload="removeLoading()" id="fluxIframe" class="iframe_content" width="100%" height="100%" frameborder="0" allowtransparency="true" src="' + transaccioResponse.urlRedireccio + '"></iframe>' + 
+								  			 '</div>';
+							$('.flux_container').html(fluxIframe);	
+							adjustModalPerFlux();
+							$body = $("body");
+							$body.addClass("loading");
+						} else if (transaccioResponse != null && transaccioResponse.error) {
+							webutilAlertaWarning(transaccioResponse.errorDescripcio, '#divAlertesFlux');
+							webutilModalAdjustHeight();
+						}
+					},
+					error: function(error) {
+						if (error != null && error.responseJSON != null) {
+							let currentIframe = window.frameElement;
+							webutilModalAdjustHeight();
+						}
+					}
+				});
 			});
-		});
-		
-		$.ajax({
-				type: 'GET',
-				dataType: "json",
-				url: "<c:url value="/v3/expedientTipus/${expedientTipusDocumentCommand.expedientTipusId}/document/${expedientTipusDocumentCommand.id}/flux/plantilles"/>",
+
+			// Càrregal de les opcions del desplegable de fluxos
+			$.ajax({
+					type: 'GET',
+					dataType: "json",
+					url: "<c:url value="/v3/expedientTipus/${expedientTipusDocumentCommand.expedientTipusId}/document/flux/plantilles"/>",
 					success: function(data) {
 								var plantillaActual = "${portafirmesFluxSeleccionat}";
 								var selPlantilles = $("#portafirmesFluxId");
 								selPlantilles.empty();
+								selPlantilles.append("<option value=\"\"></option>");
 								selPlantilles.append("<option value=\"\"></option>");
 								if (data) {
 									var items = [];
@@ -309,174 +345,86 @@ div.dropdown-menu.loading .rmodal_carrecs {
 									selPlantilles.change();
 									$(".portafirmesFluxId_btn_edicio").attr("title", "<spring:message code="expedient.tipus.document.form.camp.portafirmes.flux.editar"/>");
 								}
-							},
-							error: function (error) {
+					},
+					error: function (error) {
 								var selPlantilles = $("#portafirmesFluxId");
 								selPlantilles.empty();
 								selPlantilles.append("<option value=\"\"></option>");
 								var select2Options = {theme: 'bootstrap', minimumResultsForSearch: "6"};
 								selPlantilles.select2(select2Options);
-							}
-						});
-						
+					}
+			});
+			
+
 			$(".portafirmesFluxId_btn_addicional").on('click', function () {
-						if (confirm("<spring:message code="expedient.tipus.document.form.camp.portafirmes.flux.esborrar.confirm"/>")) {
-								var portafirmesFluxId = $("#portafirmesFluxId").val();
-								var successAlert = "<div class='alert alert-success' role='alert'>" +
-														"<a class='close' data-dismiss='alert'>×</a>" + 
-														"<span><spring:message code='expedient.tipus.document.form.camp.portafirmes.flux.esborrar.ok'/></span>" +
-												   "</div>";
-								var errorAlert = "<div class='alert alert-danger' role='alert'>" + 
-													 "<a class='close' data-dismiss='alert'>×</a>" + 
-													 "<span><spring:message code='expedient.tipus.document.form.camp.portafirmes.flux.esborrar.ko'/></span>" + 
-												 "</div>";
-			$.ajax({
-					type: 'GET',
-					dataType: "json",
-						url: "<c:url value="/v3/expedientTipus/${expedientTipusDocumentCommand.expedientTipusId}/document/${expedientTipusDocumentCommand.id}/flux/esborrar/"/>" + portafirmesFluxId,
-							success: function(esborrat) {
-								if (esborrat) {
-											$('form').prev().find('.alert').remove();
-											$('form').prev().prepend(successAlert);
+				
+				if (confirm("<spring:message code="expedient.tipus.document.form.camp.portafirmes.flux.esborrar.confirm"/>")) {
+
+					var portafirmesFluxId = $("#portafirmesFluxId").val();
+					webutilEsborrarAlertes('#divAlertesFlux');
+					$.ajax({
+							type: 'GET',
+							dataType: "json",
+								url: "<c:url value="/v3/expedientTipus/${expedientTipusDocumentCommand.expedientTipusId}/document/flux/esborrar/"/>" + portafirmesFluxId,
+									success: function(esborrat) {
+										if (esborrat) {
+											webutilAlertaSuccess("<spring:message code='expedient.tipus.document.form.camp.portafirmes.flux.esborrar.ok'/>", '#divAlertesFlux');
 											$("#portafirmesFluxId option[value='" + portafirmesFluxId + "']").remove();
+											$("#portafirmesFluxId").val('').change();
 										} else {
-											$('form').prev().find('.alert').remove();
-											$('form').prev().prepend(errorAlert);
+											webutilAlertaError("<spring:message code='expedient.tipus.document.form.camp.portafirmes.flux.esborrar.ko'/>", '#divAlertesFlux');
 										}
 										webutilModalAdjustHeight();
 									},
 									error: function (error) {
-										$('form').prev().find('.alert').remove();
-										$('form').prev().prepend(errorAlert);
+										webutilAlertaError("<spring:message code='expedient.tipus.document.form.camp.portafirmes.flux.esborrar.ko'/>", '#divAlertesFlux');
 										webutilModalAdjustHeight();		
 									}
-								});
-							}
 						});
-			$("#portafirmesFluxId").on('change', function () {
-						var portafirmesFluxId = $(this).val();
-						if(portafirmesFluxId != null && portafirmesFluxId != '') {
-								$(".portafirmesFluxId_btn_edicio").attr("title", "<spring:message code="expedient.tipus.document.form.camp.portafirmes.flux.editar"/>");
-								$(".portafirmesFluxId_btn_addicional").removeClass("flux_disabled");
-							} else {
-								$(".portafirmesFluxId_btn_edicio").attr("title", "<spring:message code="expedient.tipus.document.form.camp.portafirmes.flux.iniciar"/>");
-								$(".portafirmesFluxId_btn_addicional").addClass("flux_disabled");
-							}
-						});
-						
-			$("#portafirmesFluxId").trigger('change');
+					}
+			});
 
+			$("#portafirmesFluxId").on('change', function () {
+				var portafirmesFluxId = $(this).val();
+				if(portafirmesFluxId != null && portafirmesFluxId != '') {
+						$(".portafirmesFluxId_btn_edicio").attr("title", "<spring:message code="expedient.tipus.document.form.camp.portafirmes.flux.editar"/>");
+						$(".portafirmesFluxId_btn_addicional").removeClass("disabled");
+					} else {
+						$(".portafirmesFluxId_btn_edicio").attr("title", "<spring:message code="expedient.tipus.document.form.camp.portafirmes.flux.iniciar"/>");
+						$(".portafirmesFluxId_btn_addicional").addClass("disabled");
+					}
+			});
+						
 			$('.modal-cancel').on('click', function(){
 					localStorage.removeItem('transaccioId');
 			});
-						
-			$(".portafirmesResponsables_btn").attr("title", "<spring:message code="expedient.tipus.document.form.camp.portafirmes.carrecs"/>");
 			
-			$("#portafirmesResponsables").on('select2:unselecting', function (e) {
-					var optionRemoved = e.params.args.data.id;
-					$("#portafirmesResponsables option[value='" + optionRemoved + "']").remove();
-			});
-						
-						
-			function toggleCarrecs() {
-					var dropdown = $(".portafirmesResponsables_btn").parent().find('.dropdown-menu');
-					if (dropdown.length === 0) {
-						$(".portafirmesResponsables_btn").parent().append(recuperarCarrecs());
-							$(".portafirmesResponsables_btn").parent().find('.dropdown-menu').toggle();
-							
-					} else {
-						dropdown.toggle();
-					}
-			}
-						
-			function recuperarCarrecs() {
-					var llistatCarrecs = "<div class='loading dropdown-menu'>";
-					$.ajax({
-								type: 'GET',
-								dataType: "json",
-								url: "<c:url value="/v3/expedientTipus/${expedientTipusDocumentCommand.expedientTipusId}/document/${expedientTipusDocumentCommand.id}/carrecs"/>",
-								success: function(carrecs) {
-									var dropdown = $(".portafirmesResponsables_btn").parent().find('.dropdown-menu');
-									dropdown.removeClass('loading');
-									if (carrecs) {
-										llistatCarrecs += '<div class="carrecsList">';
-										$.each(carrecs, function(i, carrec) {
-											var persona = '';
-											if (carrec.usuariPersonaNom) {
-												persona = ' (' + carrec.usuariPersonaNom + ' - ' + carrec.usuariPersonaNif + ' - ' + carrec.usuariPersonaId + ')';
-											}
-											var nomCarrec = carrec.carrecName + persona;
-											llistatCarrecs += "<div class='carrec_" + carrec.carrecId + "'><a onclick='seleccionarCarrec(" + JSON.stringify(carrec) + ")'>" + nomCarrec + "</a></div>";	
-											
-											$('#portafirmesResponsables option').each(function(i, responsable) {
-												if (responsable.value === carrec.carrecId) {
-													llistatCarrecs = llistatCarrecs.replace('carrec_' + carrec.carrecId, 'carrec_' + carrec.carrecId + ' carrec-selected');
-												}
-											});
-										});
-									}
-									dropdown.append(llistatCarrecs);
-								},
-								error: function (error) {
-									var dropdown = $(".portafirmesResponsables_btn").parent().find('.dropdown-menu');
-									dropdown.removeClass('loading');
-									dropdown.empty();
-									dropdown.append("Hi ha hagut un problema recuperant els càrrecs " + error.statusText);
-								},
-								statusCode: {
-							        500: function(error) {
-							        	var dropdown = $(".portafirmesResponsables_btn").parent().find('.dropdown-menu');
-										dropdown.removeClass('loading');
-							        	dropdown.empty();
-										dropdown.append("Hi ha hagut un problema recuperant els càrrecs: " + error.statusText);
-							        }
-							   	}
-							});
-							llistatCarrecs += "<div class='rmodal_carrecs'></div></div>";
-							return llistatCarrecs;
-						}
+			// Posa les alertes del fux darrera el selector del flux
+			$('#divAlertesFlux').insertAfter($('#portafirmesFluxId'));
 
-				function seleccionarCarrec(carrec) {
-							if ($('.carrec_' + carrec.carrecId).hasClass('carrec-selected')) {
-								$("#portafirmesResponsables option[value='" + carrec.carrecId + "']").remove();
-								$('.carrec_' + carrec.carrecId).removeClass('carrec-selected');
-							} else {
-								var persona = '';
-								if (carrec.usuariPersonaNif) {
-									persona = ' (' + carrec.usuariPersonaNif + ')';
-								}
-								var nomCarrec = carrec.carrecName + persona;
-								var items = [];
-								items.push({
-									"id": carrec.carrecId,
-									"text": nomCarrec
-								});
-							    var newOption = new Option(items[0].text, items[0].id, true, true);
-							    $("#portafirmesResponsables").append(newOption).trigger('change');
+								
+		});
 
-								$('.carrec_' + carrec.carrecId).addClass('carrec-selected');
-							}
-						}
-							
-				function adjustModalPerFlux() {
-							var $iframe = $(window.frameElement);
-							$iframe.css('height', '100%');
-							$iframe.parent().css('height', '600px');
-							$iframe.closest('div.modal-content').css('height',  'auto');
-							$iframe.closest('div.modal-dialog').css({
-								'height':'auto',
-								'height': '100%',
-								'margin': '3% auto',
-								'padding': '0'
-							});
-							$iframe.closest('div.modal-lg').css('width', '95%');
-							$iframe.parent().next().addClass('hidden');
-						}
+		function adjustModalPerFlux() {
+					var $iframe = $(window.frameElement);
+					$iframe.css('height', '100%');
+					$iframe.parent().css('height', '600px');
+					$iframe.closest('div.modal-content').css('height',  'auto');
+					$iframe.closest('div.modal-dialog').css({
+						'height':'auto',
+						'height': '100%',
+						'margin': '3% auto',
+						'padding': '0'
+					});
+					$iframe.closest('div.modal-lg').css('width', '95%');
+					$iframe.parent().next().addClass('hidden');
+		}
 
-				function removeLoading() {
-							$body = $("body");
-							$body.removeClass("loading");
-				}
+		function removeLoading() {
+						$body = $("body");
+						$body.removeClass("loading");
+		}
+		
 		// ]]>
 	</script>			
 		

@@ -14,7 +14,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import net.conselldemallorca.helium.core.helper.PluginHelper;
-import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesCarrecDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxInfoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxRespostaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesIniciFluxRespostaDto;
@@ -122,23 +121,13 @@ public class PortafirmesFluxServiceImpl implements PortafirmesFluxService {
 		String idioma = LocaleContextHolder.getLocale().getLanguage();
 		return pluginHelper.portafirmesEsborrarPlantillaFirma(idioma, plantillaFluxId);
 	}
-
+	
 	@Override
-	public List<PortafirmesCarrecDto> recuperarCarrecs() {
-		logger.debug("Recuperant els càrrecs disponibles");
-		return pluginHelper.portafirmesRecuperarCarrecs();
+	public String recuperarUrlViewEstatFluxDeFirmes(long portafirmesId) {
+		logger.debug("Consultant la url de la vista de l'estat del flux de firmees amb id=" + portafirmesId);
+		String idioma = LocaleContextHolder.getLocale().getLanguage();
+		return pluginHelper.portafirmesRecuperarUrlEstatFluxFirmes(portafirmesId, idioma);
 	}
-	
-//	private String generarNomFlux(String documentNom) {		
-//		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd_HH:mm:ss");
-//		Date date = new Date();
-//		documentNom = documentNom.replace(" ", "_");
-//		
-//		String nomFlux = "Flux_" + documentNom + "_" + dateFormat.format(date);
-//		return nomFlux;
-//	}
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(PortafirmesFluxServiceImpl.class);
-
-
 }
