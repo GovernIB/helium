@@ -1287,6 +1287,25 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return ret;
 	}
 	
+	@RequestMapping(value = "/{expedientId}/document/notificarZip", method = RequestMethod.GET)
+	public String notificarZip(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model) {
+		DocumentExpedientCommand command = new DocumentExpedientCommand();
+		command.setExpedientId(expedientId);
+		command.setData(new Date());
+		command.setValidarArxius(true);
+//		model.addAttribute("documentsNoUtilitzats", getDocumentsNoUtilitzats(expedientId, processInstanceId));
+		model.addAttribute("documentExpedientCommand", command);
+		emplenarModelNti(expedientId, model);
+		model.addAttribute(
+				"tipusFirmaOptions",
+				EnumHelper.getOptionsForEnum(
+						DocumentTipusFirmaEnumDto.class,
+						"enum.document.tipus.firma."));
+		return "v3/expedientDocumentNotificarZip";
+	}
 	
 	/** Obre el formulari de l'enviament al portafirmes
 	 * 

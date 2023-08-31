@@ -68,12 +68,22 @@ div.proces:hover {
 					<span class="fa fa-search" style="position: absolute;float: left;padding-left: 10px;padding-top: 10px;"></span>
 					<input id="searchDocuments" class="form-control" placeholder="<spring:message code="expedient.document.filtrar"/>" autocomplete="off" spellcheck="false" autocorrect="off" tabindex="1"
 						style="padding-left: 35px;">
-			</td>
+				</td>
 				<td>
 					<span id="searchTotal" style="padding-left: 20px; font-weight: bold;"></span>
 				</td>
 			</tr>
 		</table>
+	</div>
+	<div class="pull-left">
+		
+		<a id="notificarZip" class="btn btn-default" 
+			href="../../v3/expedient/${expedientId}/document/notificarZip" 
+			data-rdt-link-modal="true" 
+			data-rdt-link-modal-min-height="180">
+				<span class="fa fa-paper-plane"></span>
+				<spring:message code="expedient.boto.notificar_zip"/>
+		</a>
 	</div>
 </div>
 
