@@ -29,10 +29,8 @@ public class DocumentExpedientEnviarPortasignaturesCommand {
 	@NotEmpty(groups = {EnviarPortasignatures.class}) 
 	@Size(max=256, groups = {EnviarPortasignatures.class})
 	private String motiu;
-//	@Size(max = 64, groups = { Creacio.class, Modificacio.class })
-//	private String prioritat;
 	@Size(max = 64, groups = { Creacio.class, Modificacio.class })
-	private String portafirmesFluxId;
+	private String portafirmesEnviarFluxId;
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String nom;
 	private List<Long> annexos = new ArrayList<Long>();
@@ -41,8 +39,14 @@ public class DocumentExpedientEnviarPortasignaturesCommand {
 	private PortafirmesTipusEnumDto portafirmesFluxTipus;
 	@NotNull(groups = {Creacio.class, Modificacio.class})
 	private PortafirmesPrioritatEnumDto portafirmesPrioritatTipus;
+
+	private PortafirmesSimpleTipusEnumDto portafirmesSequenciaTipus;
 	
-	
+	private String[] portafirmesResponsables;
+
+	/** Nou flux ID en el cas que l'usuari el creï des de la modal d'enviament. 
+	 * En crear-se el flux es fixarà des de portafirmesModalTancar. */
+	private String portafirmesNouFluxId = null;
 	
 	public boolean isPortafirmesActiu() {
 		return portafirmesActiu;
@@ -62,16 +66,12 @@ public class DocumentExpedientEnviarPortasignaturesCommand {
 	public void setPortafirmesSequenciaTipus(PortafirmesSimpleTipusEnumDto portafirmesSequenciaTipus) {
 		this.portafirmesSequenciaTipus = portafirmesSequenciaTipus;
 	}
-	public String getPortafirmesResponsables() {
+	public String[] getPortafirmesResponsables() {
 		return portafirmesResponsables;
 	}
-	public void setPortafirmesResponsables(String portafirmesResponsables) {
+	public void setPortafirmesResponsables(String[] portafirmesResponsables) {
 		this.portafirmesResponsables = portafirmesResponsables;
 	}
-
-
-	private PortafirmesSimpleTipusEnumDto portafirmesSequenciaTipus;
-	private String portafirmesResponsables;
 	
 	public String getMotiu() {
 		return motiu;
@@ -92,11 +92,11 @@ public class DocumentExpedientEnviarPortasignaturesCommand {
 	public void setAnnexos(List<Long> annexos) {
 		this.annexos = annexos;
 	}
-	public String getPortafirmesFluxId() {
-		return portafirmesFluxId;
+	public String getPortafirmesEnviarFluxId() {
+		return portafirmesEnviarFluxId;
 	}
-	public void setPortafirmesFluxId(String portafirmesFluxId) {
-		this.portafirmesFluxId = portafirmesFluxId;
+	public void setPortafirmesEnviarFluxId(String portafirmesFluxId) {
+		this.portafirmesEnviarFluxId = portafirmesFluxId;
 	}
 	public String getNom() {
 		return nom;
@@ -109,6 +109,14 @@ public class DocumentExpedientEnviarPortasignaturesCommand {
 	}
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+
+	public String getPortafirmesNouFluxId() {
+		return portafirmesNouFluxId;
+	}
+	public void setPortafirmesNouFluxId(String portafirmesNouFluxId) {
+		this.portafirmesNouFluxId = portafirmesNouFluxId;
 	}
 
 

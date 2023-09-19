@@ -145,45 +145,37 @@
 												<c:if test="${!document.documentValid}">
 													<span class="fa fa-exclamation-triangle fa-2x text-danger" title="<spring:message htmlEscape="true" code="expedient.document.invalid" arguments="${document.documentError}"/>""></span>
 												</c:if>
-												<!-- FRAGMENT INFO FIRMA PENDENT -->
+												
+												<!-- Enllaç per obrir la modal d'informació del portasignatures -->
 												<c:if test="${not empty psignaPendentActual}">
 													<c:choose>
 														<c:when test="${psignaPendentActual.error}">
+															<c:set var="iconPendentSignaturaBtn" value="fa-exclamation-triangle"/>
 															<c:choose>
- 															<c:when test="${psignaPendentActual.estat != 'PROCESSAT'}">
- 																<c:set var="missatgeIconaError" value="expedient.document.pendent.psigna.error"/>
- 															</c:when>
- 															<c:otherwise>
- 																<c:set var="missatgeIconaError" value="expedient.document.rebutjat.psigna.error"/>
- 															</c:otherwise>
- 															</c:choose>
-															<a 	data-psigna = "${document.id}"
-																class="icon fa fa-exclamation-triangle fa-2x psigna-info" 
-																style="cursor:pointer"
-																title="<spring:message code='${missatgeIconaError}'/>">
-															</a>
-															<c:if test="${psignaPendentActual.error && psignaPendentActual.estat != 'PROCESSAT'}">
-																<c:if test="${expedient.permisDocManagement}">
-																	<form id="form_psigna_${document.id}" action="<c:url value='../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/psignaReintentar'/>">
-																		<input type="hidden" name="id" value="${document.processInstanceId}"/>
-																		<input type="hidden" name="psignaId" value="${psignaPendentActual.documentId}"/>
-																	</form>
-																</c:if>
-															</c:if>
+																<c:when test="${psignaPendentActual.rebutjadaProcessada}">
+																	<c:set var="titlePendentSignaturaBtn" value="expedient.document.rebutjat.psigna.error"/>
+																</c:when>
+																<c:otherwise>
+																	<c:set var="titlePendentSignaturaBtn" value="expedient.document.pendent.psigna.error"/>
+																</c:otherwise>
+															</c:choose>
 														</c:when>
 														<c:otherwise>
-															<a 	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/pendentSignatura"
+ 																<c:set var="titlePendentSignaturaBtn" value="expedient.document.pendent.psigna"/>
+ 																<c:set var="iconPendentSignaturaBtn" value="fa fa-clock-o"/>
+														</c:otherwise>
+													</c:choose>
+													<a 	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/pendentSignatura"
 																data-rdt-link-modal="true" 
 																data-rdt-link-modal-maximize="false"
 																data-rdt-link-modal-min-height="400" 
 																data-rdt-link-callback="recargarPanel(${document.processInstanceId});"
 																class="icon enviarPortasignatures">
-																<span class="icon fa fa-clock-o fa-2x psigna-info" title="<spring:message code='expedient.document.pendent.psigna' />"></span>
-															</a>
-														</c:otherwise>
-													</c:choose>
+																<span class="icon fa ${iconPendentSignaturaBtn} fa-2x psigna-info" title="<spring:message code='${titlePendentSignaturaBtn}' />"></span>
+													</a>
 												</c:if>
-												<c:if test="${!document.signat && expedient.permisDocManagement && empty psignaPendentActual && (! empty expedient.arxiuUuid || document.portafirmesActiu || ! empty document.custodiaCodi)}">
+												
+												<c:if test="${!document.signat && expedient.permisDocManagement && (empty psignaPendentActual || psignaPendentActual.rebutjadaProcessada) && document.portafirmesActiu && (! empty expedient.arxiuUuid  || ! empty document.custodiaCodi)}">
 													<a 	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/enviarPortasignatures"
 														data-rdt-link-modal="true" 
 														data-rdt-link-modal-maximize="false"
@@ -274,77 +266,3 @@
 		</c:otherwise>
 	</c:choose>
 </td>
-<c:if test="${not empty psignaPendentActual}">
-	<div id="psigna_${document.id}" class="modal fade">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title">Document pendent del portasignatures</h4>
-				</div>
-				<div class="modal-body">
-					<ul class="list-group">
-					  	<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.id"/></strong><span class="pull-right" id="psignaDocumentId">${psignaPendentActual.documentId}</span></li>
-					  	<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.data.enviat"/></strong><span class="pull-right" id="psignaDataEnviat"><fmt:formatDate value="${psignaPendentActual.dataEnviat}" pattern="dd/MM/yyyy HH:mm"/></span></li>
-					  	
-					  	<li class="list-group-item">
- 					  		<strong><spring:message code="common.icones.doc.psigna.estat"/></strong>
- 					  		
- 					  		<c:choose>
- 							<c:when test="${psignaPendentActual.estat == 'PROCESSAT' && psignaPendentActual.error}">
- 								<span class="pull-right" id="psignaEstat">REBUTJAT</span>
- 							</c:when>
- 							<c:when test="${psignaPendentActual.estat != 'PROCESSAT' && psignaPendentActual.error && not empty psignaPendentActual.errorProcessant}">
- 								<span class="pull-right" id="psignaEstat">PENDENT</span>
- 							</c:when>
- 							<c:otherwise>
- 								<span class="pull-right" id="psignaEstat">${psignaPendentActual.estat}</span>
- 							</c:otherwise>
- 							</c:choose>
- 					  		
- 					  	</li>
-					  	
-						
-						<c:if test="${not empty psignaPendentActual.motiuRebuig}">
-							<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.motiu.rebuig"/></strong><span class="pull-right">${psignaPendentActual.motiuRebuig}</span></li>
-						</c:if>
-						<c:if test="${not empty psignaPendentActual.dataProcessamentPrimer}">
-							<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.data.proces.primer"/></strong><span class="pull-right"><fmt:formatDate value="${psignaPendentActual.dataProcessamentPrimer}" pattern="dd/MM/yyyy HH:mm"/></span></li>
-						</c:if>
-						<c:if test="${not empty psignaPendentActual.dataProcessamentDarrer}">
-							<li class="list-group-item"><strong><spring:message code="common.icones.doc.psigna.data.proces.darrer"/></strong><span class="pull-right"><fmt:formatDate value="${psignaPendentActual.dataProcessamentDarrer}" pattern="dd/MM/yyyy HH:mm"/></span></li>
-						</c:if>
-					</ul>
-					<c:if test="${psignaPendentActual.error && not empty psignaPendentActual.errorProcessant}">
-						<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-							<div class="panel panel-default">
-								<div class="panel-heading" role="tab" id="headingOne">
-									<h4 class="panel-title">
-										<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-											<strong><spring:message code="common.icones.doc.psigna.error.processant"/></strong>
-										</a>
-									</h4>
-								</div>
-								<div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
-									<div class="panel-body panell-error">
-										${psignaPendentActual.errorProcessant}
-									</div>
-								</div>
-							</div>
-						</div>
-					</c:if>
-				</div>
-				<div class="modal-footer">
-					<c:if test="${psignaPendentActual.error && psignaPendentActual.estat != 'PROCESSAT'}">
-						<c:if test="${expedient.permisDocManagement}">
-							<button type="button" class="btn btn-primary"  onclick="reprocessar(${document.id})">
-								<i class="fa fa-file-text-o"></i> <spring:message code="common.icones.doc.psigna.reintentar"/>
-							</button>
-						</c:if>
-					</c:if>
-					<button type="button" class="btn btn-default" data-dismiss="modal" id="psignaTancar"><spring:message code="comu.boto.tancar"/></button>
-				</div>
-			</div>
-		</div>
-	</div>
-</c:if>

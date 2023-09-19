@@ -47,6 +47,10 @@ public class PortasignaturesDto {
 	private String processInstanceId;
 	private boolean error;
 	private String errorProcessant;
+	/** En la conversió les peticions processades per la transició de rebutjades es marcaven com a 
+	 * error en la llista de pendents. S'informa aquest flag per poder tornar a enviar-les des de la gestió de documents.
+	 */
+	private boolean rebutjadaProcessada = false;
 
 	public Long getId() {
 		return id;
@@ -174,6 +178,12 @@ public class PortasignaturesDto {
 				TipusEstat.SIGNAT.equals(estat) ||
 				TipusEstat.REBUTJAT.equals(estat) ||
 				TipusEstat.ERROR.equals(estat);
+	}
+	public boolean isRebutjadaProcessada() {
+		return rebutjadaProcessada;
+	}
+	public void setRebutjadaProcessada(boolean rebutjadaProcessada) {
+		this.rebutjadaProcessada = rebutjadaProcessada;
 	}
 
 }

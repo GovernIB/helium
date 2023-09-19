@@ -26,39 +26,31 @@ public interface PortasignaturesRepository extends JpaRepository<Portasignatures
 			"from " +
 			"    Portasignatures p " +
 			"where " +
-			"    processInstanceId = :processInstanceId")
-	List<Portasignatures> findByProcessInstanceId(
-			@Param("processInstanceId") String processInstanceId);
-
-	@Query(
-			"from " +
-			"    Portasignatures p " +
-			"where " +
 			"    p.processInstanceId = :processInstanceId " +
-			"and p.estat not in :estats ")
+			"and p.estat not in :estats " +
+			"order by p.id desc ")
 	List<Portasignatures> findByProcessInstanceIdAndEstatNotIn(
 			@Param("processInstanceId") String processInstanceId,
 			@Param("estats") List<TipusEstat> estats);
 
-	@Query(
-			"from " +
+	@Query("from " +
 			"    Portasignatures p " +
 			"where " +
 			"    p.processInstanceId = :processInstanceId " +
-			"and p.documentStoreId = :documentStoreId ")
-	Portasignatures findByProcessInstanceIdAndDocumentStoreId(
+			"and p.documentStoreId = :documentStoreId " +
+			"order by p.id desc ")
+	List<Portasignatures> findByProcessInstanceIdAndDocumentStoreId(
 			@Param("processInstanceId") String processInstanceId,
 			@Param("documentStoreId") Long documentStoreId);
 
+	/** Per trobar per id del portasignatures. */
 	Portasignatures findByDocumentId(Integer documentId);
-	
-	@Query("select p from Portasignatures p where documentStoreId=:documentStoreId and p.estat=:estat")
-	List<Portasignatures> findPerEstatIDocumentStoreId(
-			@Param("documentStoreId") Long documentStoreId,
-			@Param("estat") TipusEstat estat);
-	
-	@Query("select p from Portasignatures p where processInstanceId=:processInstanceId")
-	List<Portasignatures> findPendentsPerProcessInstanceId(@Param("processInstanceId") String processInstanceId);
+		
+	@Query("select p " +
+			"from Portasignatures p " +
+			"where processInstanceId = :processInstanceId "  +
+			"order by p.id desc ")
+	List<Portasignatures> findPerProcessInstanceId(@Param("processInstanceId") String processInstanceId);
 
 	List<Portasignatures> findByExpedientAndEstat(
 			Expedient expedient,

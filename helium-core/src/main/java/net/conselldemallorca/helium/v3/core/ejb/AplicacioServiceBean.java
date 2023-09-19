@@ -66,4 +66,12 @@ public class AplicacioServiceBean implements AplicacioService {
 		return delegate.findPersonaActual();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PersonaDto findPersonaCarrecAmbCodi(String codi) {
+		return delegate.findPersonaCarrecAmbCodi(codi);
+	}
 }

@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import javax.annotation.Resource;
 
@@ -183,12 +184,14 @@ public class DocumentHelper {
 							documentStore.getReferenciaFont(),
 							expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
 				if (processInstanceId != null) {
-					Portasignatures psigna = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(
+					List<Portasignatures> peticions = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(
 							processInstanceId,
 							documentStore.getId());
-					if (psigna != null) {
-						psigna.setEstat(TipusEstat.ESBORRAT);
-						portasignaturesRepository.save(psigna);
+					if (!peticions.isEmpty()) {
+						for (Portasignatures peticio : peticions) {
+							peticio.setEstat(TipusEstat.ESBORRAT);
+							portasignaturesRepository.save(peticio);
+						}
 					}
 				}
 				documentStoreRepository.delete(documentStoreId);
@@ -229,12 +232,14 @@ public class DocumentHelper {
 							documentStore.getReferenciaFont(),
 							expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
 				if (processInstanceId != null) {
-					Portasignatures psigna = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(
+					List<Portasignatures> peticions = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(
 							processInstanceId,
 							documentStore.getId());
-					if (psigna != null) {
-						psigna.setEstat(TipusEstat.ESBORRAT);
-						portasignaturesRepository.save(psigna);
+					if (!peticions.isEmpty()) {
+						for (Portasignatures peticio : peticions) {
+							peticio.setEstat(TipusEstat.ESBORRAT);
+							portasignaturesRepository.save(peticio);
+						}
 					}
 				}
 				documentStoreRepository.delete(documentStoreId);

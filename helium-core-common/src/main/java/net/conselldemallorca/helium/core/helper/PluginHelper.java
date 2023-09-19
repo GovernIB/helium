@@ -10,7 +10,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -80,6 +79,7 @@ import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPluginEx
 import net.conselldemallorca.helium.integracio.plugins.pinbal.DadesConsultaPinbal;
 import net.conselldemallorca.helium.integracio.plugins.pinbal.PinbalPluginInterface;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.DocumentPortasignatures;
+import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortafirmesCarrec;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortafirmesFluxBloc;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortafirmesFluxInfo;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortafirmesFluxResposta;
@@ -141,6 +141,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesCarrecDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxBlocDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxEstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxInfoDto;
@@ -260,20 +261,34 @@ public class PluginHelper {
 		}
 	}
 	
-	public List<Portasignatures> findPendentsPortasignaturesPerProcessInstanceId(String processInstanceId) {		
-		List<Portasignatures> psignas = portasignaturesRepository.findPendentsPerProcessInstanceId(processInstanceId);
-		Iterator<Portasignatures> it = psignas.iterator();
-		while (it.hasNext()) {
-			Portasignatures psigna = it.next();
-			if (	!TipusEstat.PENDENT.equals(psigna.getEstat()) &&
-					!TipusEstat.SIGNAT.equals(psigna.getEstat()) &&
-					!TipusEstat.REBUTJAT.equals(psigna.getEstat()) &&
-					!TipusEstat.ERROR.equals(psigna.getEstat()) &&
-					!(TipusEstat.PROCESSAT.equals(psigna.getEstat()) && Transicio.REBUTJAT.equals(psigna.getTransition()))) {
-				it.remove();
+	/** Consulta les darreres peticions dels documents del procés i retorna només les que 
+	 * estiguin en un estat pendent de processar o processat i rebutjat. 
+	 */
+	public List<Portasignatures> findPendentsPortasignaturesPerProcessInstanceId(String processInstanceId) {	
+		
+		// Consulta les peticions pendents
+		List<Portasignatures> psignas = portasignaturesRepository.findPerProcessInstanceId(processInstanceId);
+		// Agafa només les darreres peticions
+		// Map<documentStoreId, Portasignatures> per retornar només la darrera petició.
+		Map<Long, Portasignatures> peticionsDocuments = new HashMap<Long, Portasignatures>();
+		for (Portasignatures peticio : psignas) {
+				if(!peticionsDocuments.containsKey(peticio.getDocumentStoreId()) 
+						|| peticionsDocuments.get(peticio.getDocumentStoreId()).getId() < peticio.getId()) {
+					peticionsDocuments.put(peticio.getDocumentStoreId(), peticio);
+				}
+		}
+		// De les darreres peticions retorna només les que estiguin en un estat pendent o processades i rebutjades		
+		List<TipusEstat> estatsPendents = TipusEstat.getPendents();
+		List<Portasignatures> peticionsPendents = new ArrayList<Portasignatures>();
+		for (Portasignatures peticio : peticionsDocuments.values()) {
+			if (estatsPendents.contains(peticio.getEstat()) || 
+					(TipusEstat.PROCESSAT.equals(peticio.getEstat()) 
+							&& Transicio.REBUTJAT.equals(peticio.getTransition())))
+			{
+				peticionsPendents.add(peticio);
 			}
 		}
-		return psignas;
+		return peticionsPendents;
 	}
 
 	public PersonaDto personaFindAmbCodi(String codi) {
@@ -1503,7 +1518,6 @@ public class PluginHelper {
 	public Integer portasignaturesEnviar(
 			DocumentDto document,
 			List<DocumentDto> annexos,
-			PersonaDto persona,
 			List<PortafirmesFluxBlocDto> blocList,
 			Expedient expedient,
 			String importancia,
@@ -1512,7 +1526,6 @@ public class PluginHelper {
 			Long processInstanceId,
 			String transicioOK,
 			String transicioKO,
-			String[] responsables, 
 			PortafirmesSimpleTipusEnumDto fluxTipus,
 			String portafirmesFluxId) {
 		
@@ -1548,54 +1561,47 @@ public class PluginHelper {
 			parametresList.add(new IntegracioParametreDto(
 					"arxiuNom",
 					document != null ? document.getArxiuNom() : null));
-			
-			parametresList.add(new IntegracioParametreDto(
-					"destinatari",
-					getSignatariIdPerPersona(persona)));
-				
+							
 			if(portafirmesFluxId!=null) {
 				parametresList.add(new IntegracioParametreDto(
 						"portafirmesFluxId",
 						portafirmesFluxId));
 			}
-			for(PortafirmesFluxBlocDto bloc: blocList) {
-				if(bloc!=null && bloc.getDestinataris()!=null && !bloc.getDestinataris().isEmpty()){
-					if (PortafirmesSimpleTipusEnumDto.SERIE.equals(fluxTipus)) {
-						for (int i = 0; i < bloc.getDestinataris().size(); i++) {
-							parametresList.add(new IntegracioParametreDto(
-								"destinatariPas" + (i + 1),
-								getSignatariIdPerPersona(bloc.getDestinataris().get(i))));	
-						}
-					} else {//PARAL.LEL
-						parametresList.add(new IntegracioParametreDto(
-								"destinatariPas",
-								personestoString(bloc.getDestinataris())));	
-					}
-				}
-			}
-//			parametres = new IntegracioParametreDto[parametresList.size()];
-//			for(int i=0; i<parametresList.size(); i++) {
-//				parametres[i]=parametresList.get(i);
-//			}
-
-			List<PortafirmesFluxBloc> flux = new ArrayList<PortafirmesFluxBloc>();//MARTA
+			
+			// Construeix els blocs de firmes
+			List<PortafirmesFluxBloc> flux = new ArrayList<PortafirmesFluxBloc>();
 			if (portafirmesFluxId == null) {
-				if (PortafirmesSimpleTipusEnumDto.SERIE.equals(fluxTipus)) {
-					for (String responsable: responsables) {
-						PortafirmesFluxBloc bloc = new PortafirmesFluxBloc();
-						bloc.setMinSignataris(1);
-						bloc.setDestinataris(new String[] {responsable});
-						bloc.setObligatorietats(new boolean[] {true});
-						flux.add(bloc);
+				int nPas = 0;
+				int nDestinatari;
+				int nDestinataris;
+				StringBuilder destinatarisPasosParam = new StringBuilder("[");
+				for(PortafirmesFluxBlocDto bloc: blocList) {
+					destinatarisPasosParam.append("{ pas: ").append(nPas + 1).append(", destinataris: [");
+					nDestinataris = bloc.getDestinataris().size();
+					nDestinatari = 0;
+				
+					PortafirmesFluxBloc portafirmesbloc = new PortafirmesFluxBloc();
+					portafirmesbloc.setMinSignataris(nDestinataris);
+					String[] destinataris = new String[nDestinataris];
+					boolean[] obligatorietats = new boolean[nDestinataris];
+					
+					for (String destinatari : bloc.getDestinataris()) {
+						destinatarisPasosParam.append(destinatari);
+						if (nDestinatari < bloc.getDestinataris().size()) {
+							destinatarisPasosParam.append(", ");
+						}
+						
+						destinataris[nDestinatari] = destinatari;
+						obligatorietats[nDestinatari] = true;
+						nDestinatari++;
 					}
-				} else if (PortafirmesSimpleTipusEnumDto.PARALEL.equals(fluxTipus)) {
-					PortafirmesFluxBloc bloc = new PortafirmesFluxBloc();
-					bloc.setMinSignataris(responsables.length);
-					bloc.setDestinataris(responsables);
-					boolean[] obligatorietats = new boolean[responsables.length];
-					Arrays.fill(obligatorietats, true);
-					bloc.setObligatorietats(obligatorietats);
-					flux.add(bloc);
+
+					portafirmesbloc.setDestinataris(destinataris);
+					portafirmesbloc.setObligatorietats(obligatorietats);
+
+					destinatarisPasosParam.append("]");
+					
+					flux.add(portafirmesbloc);
 				}
 			}
 	
@@ -1632,7 +1638,6 @@ public class PluginHelper {
 		} catch (Exception ex) {
 			String errorDescripcio = "No s'han pogut enviar el document al portafirmes (" +
 					"documentId=" + (document == null ? "NULL" : document.getId()) + ", " +
-					"destinatari=" + (persona == null ? "NULL" : persona.getCodi()) + ", " +
 					"expedient=" + (expedient == null ? "NULL" : expedient.getIdentificador()) + ")";
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_PFIRMA,
@@ -1686,16 +1691,11 @@ public class PluginHelper {
 	}
 
 	public void portasignaturesCancelar(
-			Integer documentId,
-			Long portasignaturesId) {
+			Integer documentId) {
 		long t0 = System.currentTimeMillis();
 		try {
 			Portasignatures portasignatures;
-			if(portasignaturesId == null) {
-				portasignatures = portasignaturesRepository.findByDocumentId(documentId);
-			} else {
-				portasignatures = portasignaturesRepository.findById(portasignaturesId);
-			}
+			portasignatures = portasignaturesRepository.findByDocumentId(documentId);
 			if (portasignatures != null) {
 				getPortasignaturesPlugin().deleteDocuments(
 						documentId);
@@ -1732,6 +1732,101 @@ public class PluginHelper {
 					ex);
 		}
 	}
+	
+	/** Recupera la llista de càrrecs definits en el Portafib. 
+	 * 
+	 * @return
+	 */
+	public List<PortafirmesCarrecDto> portafirmesRecuperarCarrecs() {
+		
+		String accioDescripcio = "Consulta de la llista de càrrecs";
+		long t0 = System.currentTimeMillis();
+		List<PortafirmesCarrecDto> carrecsDto = new ArrayList<PortafirmesCarrecDto>();
+		try {
+			List<PortafirmesCarrec> portafirmesCarrecs = getPortasignaturesPlugin().recuperarCarrecs();
+			for (PortafirmesCarrec portafirmesCarrec : portafirmesCarrecs) {
+				PortafirmesCarrecDto carrecDto = new PortafirmesCarrecDto();
+				carrecDto.setCarrecId(portafirmesCarrec.getCarrecId());
+				carrecDto.setCarrecName(portafirmesCarrec.getCarrecName());
+				carrecDto.setEntitatId(portafirmesCarrec.getEntitatId());
+				carrecDto.setUsuariPersonaId(portafirmesCarrec.getUsuariPersonaId());
+				carrecDto.setUsuariPersonaNif(portafirmesCarrec.getUsuariPersonaNif());
+				carrecDto.setUsuariPersonaEmail(portafirmesCarrec.getUsuariPersonaEmail());
+				carrecDto.setUsuariPersonaNom(portafirmesCarrec.getUsuariPersonaNom());
+				carrecsDto.add(carrecDto);
+			}
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_PFIRMA,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0);
+		} catch (Exception ex) {
+			String errorDescripcio = "Error consultant la llista de càrrecs al portasignatures: " + ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_PFIRMA,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex);
+			logger.error(
+					errorDescripcio,
+					ex);
+			throw new SistemaExternException(MonitorIntegracioHelper.INTCODI_PFIRMA, errorDescripcio, ex);
+		}
+		return carrecsDto;
+	}
+
+	public PortafirmesCarrecDto portafirmesRecuperarCarrec(String carrecId) {
+
+		String accioDescripcio = "Consulta del càrrec amb codi \"" + carrecId + "\"";
+		PortafirmesCarrec portafirmesCarrec = null;
+		List<IntegracioParametreDto> parametresList = new ArrayList<IntegracioParametreDto>();
+		parametresList.add(new IntegracioParametreDto("carrecId", carrecId));
+		long t0 = System.currentTimeMillis();
+		PortafirmesCarrecDto carrecDto = new PortafirmesCarrecDto();
+		try {
+			portafirmesCarrec = getPortasignaturesPlugin().recuperarCarrec(carrecId);
+			if (portafirmesCarrec  != null) {
+				carrecDto.setCarrecId(portafirmesCarrec.getCarrecId());
+				carrecDto.setCarrecName(portafirmesCarrec.getCarrecName());
+				carrecDto.setEntitatId(portafirmesCarrec.getEntitatId());
+				carrecDto.setUsuariPersonaId(portafirmesCarrec.getUsuariPersonaId());
+				carrecDto.setUsuariPersonaNif(portafirmesCarrec.getUsuariPersonaNif());
+				carrecDto.setUsuariPersonaEmail(portafirmesCarrec.getUsuariPersonaEmail());
+				carrecDto.setUsuariPersonaNom(portafirmesCarrec.getUsuariPersonaNom());
+				parametresList.add(new IntegracioParametreDto("resultat", carrecDto.getCarrecName() + (" - " + carrecDto.getUsuariPersonaNom() != null ? " - " + carrecDto.getUsuariPersonaNom() : "")));
+			} else {
+				parametresList.add(new IntegracioParametreDto("resultat", "[no trobat]"));				
+			}
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_PFIRMA,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametresList.toArray(new IntegracioParametreDto[parametresList.size()]));
+		} catch (Exception ex) {
+			String errorDescripcio = "Error consultant el càrrec amb codi \"" + carrecId + "\" al portasignatures: " + ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_PFIRMA,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametresList.toArray(new IntegracioParametreDto[parametresList.size()]));
+			logger.error(
+					errorDescripcio,
+					ex);
+			throw new SistemaExternException(
+					MonitorIntegracioHelper.INTCODI_PFIRMA, 
+					errorDescripcio, 
+					ex);
+
+		}
+		return carrecDto;
+	}
+
 
 	public String custodiaAfegirSignatura(
 			String referenciaCustodia,
@@ -4178,24 +4273,6 @@ public class PluginHelper {
 		}
 		return signatariId;
 	}
-	
-	private String personestoString(List<PersonaDto> persones) {
-		if (persones == null) {
-			return null;
-		}
-		StringBuilder sb = new StringBuilder();
-		for (PersonaDto persona: persones) {
-			if (persona != null) {
-				sb.append(getSignatariIdPerPersona(persona));
-				sb.append(",");
-			}
-		}
-		if (sb.length() > 0) {
-			return sb.substring(0, sb.length() - 1).toString();
-		} else {
-			return "";
-		}
-	}
 
 	private String getDescripcioErrorRegistre(
 			RegistreAnotacioDto anotacio) {
@@ -5088,7 +5165,7 @@ public Object consultaSincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, Ex
 		return resposta;
 	}
 	
-	public List<PortafirmesFluxRespostaDto> portafirmesRecuperarPlantillesDisponibles(String usuariCodi, String idioma, boolean filtrar) {
+	public List<PortafirmesFluxRespostaDto> portafirmesRecuperarPlantillesDisponibles(String descripciofiltre, String idioma, boolean filtrar) {
 
 		String accioDescripcio = "Recuperant plantilles disponibles flux de firma";
 		long t0 = System.currentTimeMillis();
@@ -5096,7 +5173,7 @@ public Object consultaSincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, Ex
 		try {
 			List<PortafirmesFluxResposta> plantilles = null;
 			 if (filtrar) {
-				plantilles = getPortafirmesPluginPortafibFluxSimple().recuperarPlantillesPerFiltre(idioma, usuariCodi);
+				plantilles = getPortafirmesPluginPortafibFluxSimple().recuperarPlantillesPerFiltre(idioma, descripciofiltre);
 			} else {
 				plantilles = getPortafirmesPluginPortafibFluxSimple().recuperarPlantillesDisponibles(idioma);
 			}
@@ -5113,8 +5190,8 @@ public Object consultaSincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, Ex
 							IntegracioAccioTipusEnumDto.ENVIAMENT,
 							System.currentTimeMillis() - t0,
 							new IntegracioParametreDto(
-									"usuariCodi",
-									usuariCodi));
+									"descripciofiltre",
+									descripciofiltre));
 				}
 			}
 		} catch (Exception ex) {
@@ -5127,8 +5204,8 @@ public Object consultaSincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, Ex
 					errorDescripcio,
 					ex,
 					new IntegracioParametreDto(
-							"usuariCodi",
-							usuariCodi));
+							"descripciofiltre",
+							descripciofiltre));
 			logger.error(
 					errorDescripcio,
 					ex);

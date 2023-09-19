@@ -4,16 +4,14 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import es.caib.bantel.ws.v2.model.referenciaentrada.ReferenciaEntrada;
-import es.caib.bantel.ws.v2.model.referenciaentrada.ReferenciasEntrada;
-import es.caib.bantel.ws.v2.services.BantelFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -22,11 +20,13 @@ import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesCarrecDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
+import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.v3.core.api.service.EntornService;
+import net.conselldemallorca.helium.v3.core.api.service.PortafirmesFluxService;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
-import org.springframework.web.context.ContextLoader;
 
 /**
  * Controlador per a la pàgina inicial (index).
@@ -40,6 +40,10 @@ public class AplicacioController {
 	private AdminService adminService;
 	@Autowired
 	private EntornService entornService;
+	@Autowired
+	private AplicacioService aplicacioService;
+	@Autowired
+	private PortafirmesFluxService portafirmesFluxService;
 	@Autowired
 	private EntornHelper entornHelper;
 
@@ -99,6 +103,55 @@ public class AplicacioController {
 					(entornHelper.esAdminEntorn(EntornActual.getEntornId()))? entornService.findActiusAmbPermisAdmin():new ArrayList<EntornDto>());
 		return "v3/metrics";
 	}
+
+	
+	
+	/** Suggest pels valors inicials per a la selecció múltiple de usuaris o càrrecs des de l'edició de fluxos simples
+	 * en el disseny de documents o enviament al portafirmes de documents des de la gestió de documents. Arriba un text amb els codis separats
+	 * per coma "," on els condis de persones venen tal qual i els càrrecs arriben com "CARREC[codi_carrec]".
+	 * 
+	 * @param text
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/v3/personaCarrec/suggestInici/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
+	@ResponseBody
+	public String personaCarrecSuggestInici(
+			@PathVariable String text,
+			Model model) {
+		String response = null;
+		if (text != null) {
+			StringBuilder json = new StringBuilder("[");
+			String [] codis = text.split(",");
+			net.conselldemallorca.helium.v3.core.api.dto.PersonaDto persona;
+			for (int i = 0; i < codis.length; i++) {
+				try {
+					persona = aplicacioService.findPersonaCarrecAmbCodi(codis[i]);				
+				} catch(Exception e) {
+					persona = new net.conselldemallorca.helium.v3.core.api.dto.PersonaDto();
+					persona.setCodi(codis[i]);
+					persona.setNomSencer(codis[i] + " (no trobat)");
+				}
+				json.append("{\"codi\":\"").append(persona.getCodi()).append("\", \"nom\":\"").append(persona.getNomSencer()).append("\"}");
+				if (i < codis.length - 1) {
+					json.append(",");
+				}
+			}
+			json.append("]");
+			response = json.toString();
+		}
+		return response;
+	}
+	
+	/** Consulta Ajax de la llista de càrrecs definida al Portafirmes. */
+	@RequestMapping(value = "/v3/portasig/carrecs", method = RequestMethod.GET)
+	@ResponseBody
+	public List<PortafirmesCarrecDto> recuperarCarrecs(
+			HttpServletRequest request, 
+			Model model) {
+		return portafirmesFluxService.recuperarCarrecs();
+	}
+	
 
 
 //	@RequestMapping(value = "/send/sistra1", method = RequestMethod.GET)

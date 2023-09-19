@@ -35,7 +35,7 @@
 			</label>
 			<div class="controls col-xs-${12 - labelSize}">
 				<form:input path="${campPath}" cssClass="form-control suggest" id="${campPath}" disabled="${disabled}" styleClass="width: 100%"  data-url-llistat="${urlConsultaLlistat}" data-url-inicial="${urlConsultaInicial}" />
-				<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${campPath}"/></p></c:if>
+      				<c:if test="${not empty campErrors}"><p class="help-block"><span class="fa fa-exclamation-triangle"></span>&nbsp;<form:errors path="${campPath}"/></p></c:if>
 			</div>
 		</div>
 	</c:when>

@@ -2244,31 +2244,38 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			}
 		}
 		
-//		List<List<PersonaDto>> personesPas = new ArrayList<List<PersonaDto>>();
-//		if(personesPas1 != null) {
-//			personesPas.add(personesPas1);
-//			if(personesPas2 != null)
-//				personesPas.add(personesPas2);	
-//			if(personesPas3 != null)
-//				personesPas.add(personesPas3);	
-//		}
-		
-//		int[] minSignatarisPas = new int [] { minSignatarisPas1, minSignatarisPas2, minSignatarisPas3};
+		// Si es posa un destinatari llavors es posa en el pas 1
+		if (persona != null) {
+			if (personesPas1 == null) {
+				personesPas1 = new ArrayList<PersonaDto>();
+			}
+			personesPas1.add(0, persona);
+			minSignatarisPas1 = 1;
+		}
 		
 		List<PortafirmesFluxBlocDto> blocList = new ArrayList<PortafirmesFluxBlocDto>();
-		List<PersonaDto> personesPasList = new ArrayList<PersonaDto>();
+		List<String> personesPasList = new ArrayList<String>();
+		
 		if(personesPas1 != null && !personesPas1.isEmpty()) {
-			personesPasList.addAll(personesPas1);
+			for (PersonaDto p : personesPas1) {
+				personesPasList.add(p.getCodi());
+			}
 			PortafirmesFluxBlocDto bloc = new PortafirmesFluxBlocDto(minSignatarisPas1,personesPasList);
 			blocList.add(bloc);
 		} 
 		if(personesPas2 != null && !personesPas2.isEmpty()) {
-			personesPasList.addAll(personesPas2);
+			personesPasList = new ArrayList<String>();
+			for (PersonaDto p : personesPas2) {
+				personesPasList.add(p.getCodi());
+			}
 			PortafirmesFluxBlocDto bloc = new PortafirmesFluxBlocDto(minSignatarisPas2,personesPasList);
 			blocList.add(bloc);
 		} 
 		if(personesPas3 != null) {
-			personesPasList.addAll(personesPas3);
+			personesPasList = new ArrayList<String>();
+			for (PersonaDto p : personesPas3) {
+				personesPasList.add(p.getCodi());
+			}
 			PortafirmesFluxBlocDto bloc = new PortafirmesFluxBlocDto(minSignatarisPas3,personesPasList);
 			blocList.add(bloc);
 		}
@@ -2276,9 +2283,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		return pluginHelper.portasignaturesEnviar( 
 					document,
 					annexos,
-					persona,
-//					(List<PersonaDto>[]) personesPas.toArray(),
-//					minSignatarisPas,
 					blocList,
 					expedientRepository.findOne(expedientId),
 					importancia,
@@ -2287,15 +2291,14 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 					processInstanceId,
 					transicioOK,
 					transicioKO,
-					null,//tipus,veure com li passo això
-					null,//responsables,//MARTA veure com li passo això
+					null,
 					portafirmesFluxId!=null ? portafirmesFluxId : document.getPortafirmesFluxId());
 	}
 
 	@Override
 	public void portasignaturesEliminar(
 			Integer documentId) {
-		pluginHelper.portasignaturesCancelar(documentId, null);
+		pluginHelper.portasignaturesCancelar(documentId);
 	}
 
 	@Override

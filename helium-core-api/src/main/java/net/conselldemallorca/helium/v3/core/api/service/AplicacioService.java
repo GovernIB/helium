@@ -49,4 +49,12 @@ public interface AplicacioService {
 	 */
 	public List<PersonaDto> findPersonaLikeNomSencer(String text) throws SistemaExternException;
 
+	/**
+	 * Retorna informació d'una persona o càrrec donat el seu codi.
+	 * 
+	 * @param codi el codi de la persona o del càrrec
+	 * @return la informació de la persona o càrrec
+	 */
+	public PersonaDto findPersonaCarrecAmbCodi(String codi) throws NoTrobatException, SistemaExternException;
+
 }

@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.webapp.v3.command;
 
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
@@ -57,12 +56,11 @@ public class ExpedientTipusDocumentCommand {
 	private NtiTipoDocumentalEnumDto ntiTipoDocumental;
 	private boolean generarNomesTasca;
 	
-	private boolean portafirmesActiu = false;
-	@NotNull(groups = {Creacio.class, Modificacio.class})
 	private PortafirmesTipusEnumDto portafirmesFluxTipus;	
 	private PortafirmesSimpleTipusEnumDto portafirmesSequenciaTipus;
 	private String portafirmesResponsables;
 	private String portafirmesFluxId;
+	private boolean portafirmesActiu = false;
 
 	public Long getExpedientTipusId() {
 		return expedientTipusId;
@@ -256,9 +254,7 @@ public class ExpedientTipusDocumentCommand {
 		dto.setNtiOrigen(command.getNtiOrigen());
 		dto.setNtiEstadoElaboracion(command.getNtiEstadoElaboracion());
 		dto.setNtiTipoDocumental(command.getNtiTipoDocumental());
-		dto.setPortafirmesActiu(command.isPortafirmesActiu());
-		
-		if (dto.isPortafirmesActiu()) {
+		if (command.getPortafirmesFluxTipus() != null) {
 			dto.setPortafirmesFluxTipus(command.getPortafirmesFluxTipus());
 			if(dto.getPortafirmesFluxTipus().equals(PortafirmesTipusEnumDto.FLUX)) {
 				dto.setPortafirmesFluxId(command.getPortafirmesFluxId());
@@ -266,24 +262,11 @@ public class ExpedientTipusDocumentCommand {
 			else if(dto.getPortafirmesFluxTipus().equals(PortafirmesTipusEnumDto.SIMPLE)) {
 				dto.setPortafirmesSequenciaTipus(command.getPortafirmesSequenciaTipus());
 				dto.setPortafirmesResponsables(command.getPortafirmesResponsables());
-			}		
+			}
+			dto.setPortafirmesActiu(command.isPortafirmesActiu());
 		}
 		return dto;
 	}
-	private static String getResponsablesFromArray(String[] portafirmesResponsables) {
-		StringBuilder responsablesStr = new StringBuilder();
-		if (portafirmesResponsables != null) {
-			for (String responsable: portafirmesResponsables) {
-				if (responsablesStr.length() > 0)
-					responsablesStr.append(",");
-				responsablesStr.append(responsable);
-			}
-			return responsablesStr.toString();
-		} else {
-			return null;
-		}
-	}
 	public interface Creacio {}
 	public interface Modificacio {}
-
 }

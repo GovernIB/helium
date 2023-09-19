@@ -2,6 +2,7 @@ package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
 
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesCarrecDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxInfoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxRespostaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesIniciFluxRespostaDto;
@@ -17,6 +18,10 @@ public interface PortafirmesFluxService {
 	/**
 	 * Inicia un flux de firma
 	 * 
+	 * @param expedientTipusId
+	 * 				ID del tipus d'expedient pel qual s'està creant el flux. S'usarà per crear el filtre per descripció.
+	 * @param usuariCodi
+	 * 				Codi de l'usuari quan es crea des de la gestió de documents per poder esborrar-los. Si es crea des del disseny s'ha de passar buit.
 	 * @param urlReturn
 	 * 				Url on es retornarà la cridada de Portafib.
 	 * @param tipusDocumentNom
@@ -24,6 +29,8 @@ public interface PortafirmesFluxService {
 	 * @return El id de la transacció i la url de redirecció.
 	 */
 	public PortafirmesIniciFluxRespostaDto iniciarFluxFirma(
+			Long expedientTipusId,
+			String usuariCodi,
 			String urlReturn,
 			boolean isPlantilla) throws SistemaExternException;
 	
@@ -54,14 +61,17 @@ public interface PortafirmesFluxService {
 	public PortafirmesFluxInfoDto recuperarDetallFluxFirma(String plantillaFluxId);
 	
 	/**
-	 * Recupera un llistat de les plantilles disponibles per un usuari aplicació
-	 * @param filtrar 
-	 * @param transaccioId
-	 * 				Id de la transacció.
+	 * Recupera un llistat de les plantilles disponibles per un tipus d'expedient.
+	 * 
+	 * @param expedientTipusId 
+	 * 				Id del tipus d'expedient per filtrar per entorn i tipus d'expedient.
+
+	 * @param usuari 
+	 * 				Codi de l'usuari per trobar les plantilles definides per l'usuari. 
 	 * 
 	 * @return La el id del flux de firma o error.
 	 */
-	public List<PortafirmesFluxRespostaDto> recuperarPlantillesDisponibles(boolean filtrar);
+	public List<PortafirmesFluxRespostaDto> recuperarPlantillesDisponibles(Long expedientTipusId, String usuari);
 	
 	/**
 	 * Recupera un llistat de les plantilles disponibles per un usuari aplicació
@@ -104,5 +114,11 @@ public interface PortafirmesFluxService {
 	 */
 	public String recuperarUrlViewEstatFluxDeFirmes(long portafirmesId);
 	
+	/**
+	 * Recupera un llistat dels càrrecs disponibles per l'usuari aplicació configurat
+	 * 
+	 * @return Els càrrecs
+	 */
+	public List<PortafirmesCarrecDto> recuperarCarrecs();
 
 }

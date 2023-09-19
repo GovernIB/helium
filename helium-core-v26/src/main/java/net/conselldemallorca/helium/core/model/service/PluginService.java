@@ -3,8 +3,6 @@
  */
 package net.conselldemallorca.helium.core.model.service;
 
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -36,7 +34,6 @@ import net.conselldemallorca.helium.core.model.dao.UsuariDao;
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.exception.IllegalStateException;
-import net.conselldemallorca.helium.core.model.exception.IncidentThrowsAdviceHelper;
 import net.conselldemallorca.helium.core.model.exception.PluginException;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
@@ -48,7 +45,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transic
 import net.conselldemallorca.helium.core.model.hibernate.Usuari;
 import net.conselldemallorca.helium.core.security.AclServiceDao;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortafirmesFluxBloc;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesTramit;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.DadesVistaDocument;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.ObtenirDadesTramitRequest;
@@ -146,95 +142,6 @@ public class PluginService {
 	    		nsyn++;
 	    	}
 	    	logger.info("Fi de la sincronització de persones (processades: " + nsyn + ", creades: " + ncre + ")");
-		}
-	}
-
-	public void enviarPortasignatures(
-			Long documentId,
-			List<Long> annexosId,
-			PersonaDto persona,
-			List<PortafirmesFluxBloc> flux,
-//			List<PersonaDto> personesPas1,
-//			int minSignatarisPas1,
-//			List<PersonaDto> personesPas2,
-//			int minSignatarisPas2,
-//			List<PersonaDto> personesPas3,
-//			int minSignatarisPas3,
-			Expedient expedient,
-			String importancia,
-			Date dataLimit,
-			Long tokenId,
-			Long processInstanceId,
-			String transicioOK,
-			String transicioKO) throws PluginException {
-		try {
-			DocumentDto document = documentHelper.getDocumentVista(
-					documentId,
-					true,
-					true);
-			List<DocumentDto> annexos = null;
-			if (annexosId != null) {
-				annexos = new ArrayList<DocumentDto>();
-				for (Long docId: annexosId) {
-					DocumentDto docDto = documentHelper.getDocumentVista(
-							docId,
-							false,
-							false);
-					if (docDto != null){
-						annexos.add(docDto);
-					}
-				}
-			}	
-			//MARTA descomentar després
-//			List<PortafirmesFluxBloc> flux = new ArrayList<PortafirmesFluxBloc>();//MARTA
-//			if (fluxId == null) {
-//				if (MetaDocumentFirmaSequenciaTipusEnumDto.SERIE.equals(fluxTipus)) {
-//					for (String responsable: responsables) {
-//						PortafirmesFluxBloc bloc = new PortafirmesFluxBloc();
-//						bloc.setMinSignataris(1);
-//						bloc.setDestinataris(new String[] {responsable});
-//						bloc.setObligatorietats(new boolean[] {true});
-//						flux.add(bloc);
-//					}
-//				} else if (MetaDocumentFirmaSequenciaTipusEnumDto.PARALEL.equals(fluxTipus)) {
-//					PortafirmesFluxBloc bloc = new PortafirmesFluxBloc();
-//					bloc.setMinSignataris(responsables.length);
-//					bloc.setDestinataris(responsables);
-//					boolean[] obligatorietats = new boolean[responsables.length];
-//					Arrays.fill(obligatorietats, true);
-//					bloc.setObligatorietats(obligatorietats);
-//					flux.add(bloc);
-//				}
-//			}
-			Integer doc = pluginPortasignaturesDao.uploadDocument(
-					document,
-					annexos,
-					persona,
-					flux,
-//					personesPas1,
-//					minSignatarisPas1,
-//					personesPas2,
-//					minSignatarisPas2,
-//					personesPas3,
-//					minSignatarisPas3,
-					expedient,
-					importancia,
-					dataLimit);
-			IncidentThrowsAdviceHelper.addDadesAdvicePortasignatures(doc);
-			Calendar cal = Calendar.getInstance();
-			Portasignatures portasignatures = new Portasignatures();
-			portasignatures.setDocumentId(doc);
-			portasignatures.setTokenId(tokenId);
-			portasignatures.setDataEnviat(cal.getTime());
-			portasignatures.setEstat(TipusEstat.PENDENT);
-			portasignatures.setDocumentStoreId(documentId);
-			portasignatures.setTransicioOK(transicioOK);
-			portasignatures.setTransicioKO(transicioKO);
-			portasignatures.setExpedient(expedient);
-			portasignatures.setProcessInstanceId(processInstanceId.toString());
-			pluginPortasignaturesDao.saveOrUpdate(portasignatures);
-		} catch (Exception e) {
-			throw new PluginException(getServiceUtils().getMessage("error.pluginService.pujarDocument"), e);
 		}
 	}
 
@@ -410,9 +317,18 @@ public class PluginService {
 			if (portasignatures.getDataProcessamentPrimer() == null)
 				portasignatures.setDataProcessamentPrimer(new Date());
 			portasignatures.setDataProcessamentDarrer(new Date());
-			Long tokenId = portasignatures.getTokenId();
-			JbpmToken token = jbpmDao.getTokenById(tokenId.toString());
 			DocumentStore documentStore = documentStoreDao.getById(portasignatures.getDocumentStoreId(), false);
+			Long tokenId = portasignatures.getTokenId();
+			JbpmToken token;
+			String processInstanceId;
+			if (tokenId != null) {
+				token = jbpmDao.getTokenById(tokenId.toString());
+				processInstanceId = token.getProcessInstanceId();
+			} else {
+				token = null;
+				processInstanceId = documentStore.getProcessInstanceId();
+			}
+			
 			if (documentStore != null) {
 				if (TipusEstat.SIGNAT.equals(portasignatures.getEstat()) ||
 					(TipusEstat.ERROR.equals(portasignatures.getEstat()) && Transicio.SIGNAT.equals(portasignatures.getTransition()))) {
@@ -420,7 +336,7 @@ public class PluginService {
 					try {
 						ThreadLocalInfo.clearProcessInstanceFinalitzatIds();
 						expedientLogHelper.afegirLogExpedientPerProces(
-								token.getProcessInstanceId(),
+								processInstanceId,
 								ExpedientLogAccioTipus.PROCES_DOCUMENT_PORTAFIRMES,
 								new Boolean(true).toString());
 						if (portasignatures.getDataSignalIntent() == null)
@@ -436,25 +352,25 @@ public class PluginService {
 								portasignatures.getDocumentId(),
 								documentStore);
 						portasignatures.setDataCustodiaOk(new Date());
-						// Avança el flux
-						jbpmDao.signalToken(
-								tokenId.longValue(),
-								portasignatures.getTransicioOK());
-
-						//Actualitzem l'estat de l'expedient, ja que si tot el procés de firma i de custòdia
-						// ha anat bé, es possible que s'avanci cap al node "fi"
-						JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(
-								token.getProcessInstanceId());
-						Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
-						expedientHelper.verificarFinalitzacioExpedient(
-								expedient);
-						
-						// Reindexa els possibles canvis
-						getServiceUtils().expedientIndexLuceneUpdate(
-								token.getProcessInstanceId());
-
+						if (token != null) {
+							// Avança el flux
+							jbpmDao.signalToken(
+									tokenId.longValue(),
+									portasignatures.getTransicioOK());
+							
+							//Actualitzem l'estat de l'expedient, ja que si tot el procés de firma i de custòdia
+							// ha anat bé, es possible que s'avanci cap al node "fi"
+							JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(
+									token.getProcessInstanceId());
+							Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
+							expedientHelper.verificarFinalitzacioExpedient(
+									expedient);
+							
+							// Reindexa els possibles canvis
+							getServiceUtils().expedientIndexLuceneUpdate(
+									token.getProcessInstanceId());
+						}
 						resposta = true;
-
 					} catch (PluginException pex) {
 						errorProcesPsigna(
 								portasignatures,
@@ -472,15 +388,27 @@ public class PluginService {
 					// Processa els documents rebujats
 					try {
 						expedientLogHelper.afegirLogExpedientPerProces(
-								token.getProcessInstanceId(),
+								processInstanceId,
 								ExpedientLogAccioTipus.PROCES_DOCUMENT_PORTAFIRMES,
 								new Boolean(false).toString());
-						jbpmDao.signalToken(
-								tokenId.longValue(),
-								portasignatures.getTransicioKO());
+						if (token != null) {
+							jbpmDao.signalToken(
+									tokenId.longValue(),
+									portasignatures.getTransicioKO());
+
+							//Actualitzem l'estat de l'expedient, ja que si tot el procés de firma i de custòdia
+							// ha anat malament també és possible que s'avanci cap al node "fi"
+							JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(
+									token.getProcessInstanceId());
+							Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
+							expedientHelper.verificarFinalitzacioExpedient(
+									expedient);
+							
+							// Reindexa els possibles canvis
+							getServiceUtils().expedientIndexLuceneUpdate(
+									token.getProcessInstanceId());
+						}
 						portasignatures.setEstat(TipusEstat.PROCESSAT);
-						getServiceUtils().expedientIndexLuceneUpdate(
-								token.getProcessInstanceId());
 						resposta = true;
 					} catch (Exception ex) {
 						errorProcesPsigna(

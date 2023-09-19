@@ -30,6 +30,9 @@ import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
+import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
+import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
+import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.InteressatTipusEnum;
@@ -50,6 +53,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaDefaultAnyDto;
 
@@ -486,6 +490,53 @@ public class ConversioTipusHelper {
 						}
 						target.setTelefon(source.getTelefon());
 						target.setEmail(source.getEmail());
+						return target;
+					}
+		});			
+		// Converteix la entity Portasignatures a PortasignaturesDto
+		mapperFactory.getConverterFactory().registerConverter(
+				new CustomConverter<Portasignatures, PortasignaturesDto>() {
+					
+					@Override
+					public PortasignaturesDto convert(
+							Portasignatures source,
+							Type<? extends PortasignaturesDto> destinationType) {
+
+						PortasignaturesDto target = new PortasignaturesDto();
+						
+						target.setId(source.getId());
+						target.setDocumentId(source.getDocumentId());
+						target.setTokenId(source.getTokenId());
+						target.setDataEnviat(source.getDataEnviat());
+						if (TipusEstat.ERROR.equals(source.getEstat())) {
+							if (Transicio.SIGNAT.equals(source.getTransition()))
+								target.setEstat(TipusEstat.SIGNAT.toString());
+							else
+								target.setEstat(TipusEstat.REBUTJAT.toString());
+							target.setError(true);
+						} else if (TipusEstat.PROCESSAT.equals(source.getEstat()) && Transicio.REBUTJAT.equals(source.getTransition())) {
+							 target.setEstat(TipusEstat.PROCESSAT.toString());
+							 target.setError(true);
+							 target.setRebutjadaProcessada(true);
+						} else {
+							target.setEstat(source.getEstat().toString());
+							target.setError(false);
+						}
+						if (source.getTransition() != null)
+							target.setTransicio(source.getTransition().toString());
+						target.setDocumentStoreId(source.getDocumentStoreId());
+						target.setMotiuRebuig(source.getMotiuRebuig());
+						target.setTransicioOK(source.getTransicioOK());
+						target.setTransicioKO(source.getTransicioKO());
+						target.setDataProcessamentPrimer(source.getDataProcessamentPrimer());
+						target.setDataProcessamentDarrer(source.getDataProcessamentDarrer());
+						target.setDataSignatRebutjat(source.getDataSignatRebutjat());
+						target.setDataCustodiaIntent(source.getDataCustodiaIntent());
+						target.setDataCustodiaOk(source.getDataCustodiaOk());
+						target.setDataSignalIntent(source.getDataSignalIntent());
+						target.setDataSignalOk(source.getDataSignalOk());
+						target.setErrorProcessant(source.getErrorCallbackProcessant());
+						target.setProcessInstanceId(source.getProcessInstanceId());
 						return target;
 					}
 		});			

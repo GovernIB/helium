@@ -185,36 +185,66 @@ div.dropdown-menu.loading .rmodal_carrecs {
 			<fieldset>
 				<legend><spring:message code="expedient.tipus.document.form.legend.enviament.portasignatures"></spring:message></legend>
 				<hel:inputText name="tipusDocPortasignatures" textKey="expedient.tipus.document.form.camp.tipus_doc" comment="expedient.tipus.document.form.camp.tipus_doc.comment" />
-				<hel:inputCheckbox name="portafirmesActiu" textKey="expedient.tipus.document.form.camp.portafirmes.actiu" />
-				<div id="opcions_portafirmes" class="opcions_portafirmes">
-					<hel:inputSelect name="portafirmesFluxTipus" textKey="expedient.tipus.document.form.camp.portafirmes.flux.tipus" 
-							optionItems="${fluxtipEnumOptions}" optionValueAttribute="value" optionTextKeyAttribute="text" 
-							disabled="${bloquejarCamps}" required="true"/>
-					<div id="flux_portafib" class="flux_portafib">
-						
-						<div id="divAlertesFlux"></div>
-						
-						<hel:inputSelect name="portafirmesFluxId" textKey="expedient.tipus.document.form.camp.id.flux.firma" emptyOption="true" botons="true"  
-							icon="fa fa-external-link" iconAddicional="fa fa-trash-o" buttonMsg="${buttonTitle}"
-							placeholderKey="expedient.tipus.document.form.camp.id.flux.firma.buit"  required="true"/>
-					</div>
-					<div id="flux_simple" class="flux_simple">
-			
+
+				<hel:inputSelect name="portafirmesFluxTipus" 
+						textKey="expedient.tipus.document.form.camp.portafirmes.flux.tipus" 
+						info="expedient.tipus.document.form.camp.portafirmes.flux.tipus.info" 
+						optionItems="${fluxtipEnumOptions}" 
+						optionValueAttribute="value" 
+						optionTextKeyAttribute="text" 
+						disabled="${bloquejarCamps}" required="false" emptyOption="true"/>
+
+				<div id="flux_portafib" class="flux_portafib">
+					
+					<div id="divAlertesFlux"></div>
+					
+					<hel:inputSelect name="portafirmesFluxId" textKey="expedient.tipus.document.form.camp.id.flux.firma" emptyOption="true" botons="true"  
+						icon="fa fa-external-link" iconAddicional="fa fa-trash-o" buttonMsg="${buttonTitle}"
+						placeholderKey="expedient.tipus.document.form.camp.id.flux.firma.buit"  required="true"/>
+				</div>
+				
+				<div id="flux_simple" class="flux_simple">
 					<hel:inputSuggest 
 							inline="false" 
 							name="portafirmesResponsables" 
-							urlConsultaInicial="/helium/v3/expedient/persona/suggestInici" 
+							urlConsultaInicial="/helium/v3/personaCarrec/suggestInici" 
 							urlConsultaLlistat="/helium/v3/expedient/persona/suggest" 
-							textKey="expedient.tipus.form.camp.responsableDefecteCodi" 
-							placeholderKey="expedient.tipus.form.camp.responsableDefecteCodi" 
+							textKey="expedient.document.enviar.portasignatures.camp.responsables" 
+							placeholderKey="expedient.document.enviar.portasignatures.camp.responsables" 
 							multiple="true"
 							required="true"/>
+					
+					<!-- Botó i desplegable de responsables -->
+					<div class="form-group">
+						<label class="col-xs-4"><span id="portafirmesCarrecsSpin" class="fa fa-refresh fa-spin" style="display:none; float: right;"></span></label>
+						<div class="col-xs-8">
+							<table border="0" width="100%">
+								<tr>
+									<td>
+										<a class="btn btn-default btn-sm portafirmesCarrecsBtn" onclick="toggleCarrecs()" title="<spring:message code='expedient.document.enviar.portasignatures.camp.carrecs.info'/>"><i class="fa fa-star"></i></a>
+									</td>
+									<td style="width:100%;">
+										<div id="portafirmesCarrecsSelectDiv" class="" style="display: none;">
+											<select id="portafirmesCarrecsSelect" style="width: 100%;">
+												<option value"">&nbsp;</option>
+											</select>
+										</div>
+									</td>
+								</tr>
+							</table>		
+						</div>
+					</div>
+					
 			
 					<hel:inputSelect name="portafirmesSequenciaTipus" textKey="expedient.tipus.document.form.camp.portafirmes.sequencia.firma" 
 							optionItems="${portafirmesSequenciaTipusEnumOptions}" optionValueAttribute="value" optionTextKeyAttribute="text" 
 							disabled="${bloquejarCamps}" required="true"/>
-					</div>
-				</div> 			
+				</div>
+				
+				<div id="div_portafirmesActiu" class="div_portafirmesActiu">
+					<hel:inputCheckbox name="portafirmesActiu" textKey="expedient.tipus.document.form.camp.portafirmes.actiu" info="expedient.tipus.document.form.camp.portafirmes.actiu.info" />
+				</div>
+				
 			</fieldset>
 			
 			<!-- Metadades NTI -->
@@ -242,44 +272,34 @@ div.dropdown-menu.loading .rmodal_carrecs {
 				</c:choose>
 			</c:if>
 		</div>
-		<c:if test="${transaccioResponse != null && !transaccioResponse.error}">
-			<div id="modal-botons" class="well">
-				<c:if test="${fluxIframe}">
-					<button type="submit" class="btn btn-success"><span class="fa fa-pencil-square-o"></span> <spring:message code="expedient.document.firmaPassarela.boto.firmar"/></button>
-				</c:if>			
-				<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.cancelar"/></button>
-			</div>
-		</c:if>
-		<c:if test="${transaccioResponse == null}">
-			<div id="modal-botons">
-				<c:if test="${!consultar}"><button type="submit" class="btn btn-success"><span class="fa fa-save"></span>&nbsp;<spring:message code="comu.boto.guardar"/></button></c:if>
-				<a href="<c:url value="/v3/expedientTipus/${expedientTipusDocumentCommand.expedientTipusId}/document"/>" class="btn btn-default modal-cancel" data-modal-cancel="true"><spring:message code="comu.boto.cancelar"/></a>
-			</div>
-		</c:if>
 	<script type="text/javascript">
 		// <![CDATA[
+		            
 		$(document).ready(function() {
+
+			if (window.frameElement != null) {
+				let currentHeight = window.frameElement.contentWindow.document.body.scrollHeight;
+				localStorage.setItem("currentIframeHeight", currentHeight);
+			}
 			
    			//<c:if test="${heretat}">
 			webutilDisableInputs($('#expedientTipusDocumentCommand'));
 			//</c:if>
-			$("#portafirmesActiu", "#expedientTipusDocumentCommand").change(function() {
-				if ($(this).is(':checked')) {
-					$('.opcions_portafirmes').show();
-					
-				} else {
-					$('.opcions_portafirmes').hide();
-				}
-			
-			}).change();
 			
 			$("#portafirmesFluxTipus").on('change', function() {
 				if($(this).val() == 'SIMPLE') {
 					$('.flux_portafib').hide();
 					$('.flux_simple').show();
-				} else {
+					$('.div_portafirmesActiu').show();
+				} else if ( $(this).val() == 'FLUX') {
 					$('.flux_portafib').show();
 					$('.flux_simple').hide();
+					$('.div_portafirmesActiu').show();
+				} else {
+					$('.flux_portafib').hide();
+					$('.flux_simple').hide();
+					$('.div_portafirmesActiu').hide();
+					$('#portafirmesActiu').prop( "checked", false );
 				}
 			}).change();
 
@@ -394,7 +414,7 @@ div.dropdown-menu.loading .rmodal_carrecs {
 						$(".portafirmesFluxId_btn_addicional").addClass("disabled");
 					}
 			});
-						
+									
 			$('.modal-cancel').on('click', function(){
 					localStorage.removeItem('transaccioId');
 			});
@@ -402,6 +422,18 @@ div.dropdown-menu.loading .rmodal_carrecs {
 			// Posa les alertes del fux darrera el selector del flux
 			$('#divAlertesFlux').insertAfter($('#portafirmesFluxId'));
 
+			// Recupera els càrrecs i quan se seleccionen s'afegeixen a la select de responsables.
+			$('#portafirmesCarrecsSelect').select2({
+				    width: 'resolve',
+				    theme: "bootstrap",
+				    placeholder: "<spring:message code='expedient.document.enviar.portasignatures.camp.carrecs.placeholder'/>",
+				    allowClear: true,
+				    minimumResultsForSearch: 3
+			}).on('change', function() {
+				if ($(this).val() != '') {
+					seleccionarCarrec($(this).val());
+				}
+			});
 								
 		});
 
@@ -424,6 +456,78 @@ div.dropdown-menu.loading .rmodal_carrecs {
 						$body = $("body");
 						$body.removeClass("loading");
 		}
+		
+		var mostrarCarrecs = false;
+		var carrecsCarregats = false;
+		
+		function toggleCarrecs() {
+			
+			mostrarCarrecs = !mostrarCarrecs;
+			if (mostrarCarrecs) {
+				if (!carrecsCarregats) {
+					recuperarCarrecs();
+					carrecsCarregats = true;
+				} else {
+					$('#portafirmesCarrecsSelectDiv').show();
+				}
+			} else {
+				$('#portafirmesCarrecsSelectDiv').hide();
+			}
+		}
+
+		function recuperarCarrecs() {
+			$('#portafirmesCarrecsSpin').show();
+			$.ajax({
+				type: 'GET',
+				dataType: "json",
+				url: "<c:url value="/v3/portasig/carrecs"/>",
+				success: function(carrecs) {
+					if (carrecs) {
+						$.each(carrecs, function(i, carrec) {
+							var persona = '';
+							if (carrec.usuariPersonaNom) {
+								persona = ' (' + carrec.usuariPersonaNom + ' - ' + carrec.usuariPersonaNif + ' - ' + carrec.usuariPersonaId + ')';
+							}
+							var nomCarrec = carrec.carrecName + persona;
+							var newOption = new Option(nomCarrec, 'CARREC[' + carrec.carrecId + ']', false, false);
+							$('#portafirmesCarrecsSelect').append(newOption).trigger('change');
+
+						});
+					}
+					$('#portafirmesCarrecsSelect').trigger('change');
+				},
+				error: function (error) {
+					webutilAlertaWarning("Hi ha hagut un problema recuperant els càrrecs " + error.statusText, '#divAlertesFlux');
+				},
+				statusCode: {
+			        500: function(error) {
+						webutilAlertaWarning("Hi ha hagut un problema recuperant els càrrecs " + error.statusText, '#divAlertesFlux');
+			        }
+			   	}, 
+			   	complete: function() {
+					$('#portafirmesCarrecsSelectDiv').show();
+					$('#portafirmesCarrecsSpin').hide();
+			   	}
+			});
+		}
+		
+		// Afegeix el càrrec a la llista de responsables si no existeix o la treu en cas que existeixi.
+		function seleccionarCarrec(carrec) {
+			let responsables;
+			debugger;
+			if ($('#portafirmesResponsables').val() != '') {
+				responsables = $('#portafirmesResponsables').val().split(',');
+			} else {
+				responsables = [];
+			}
+			if (responsables.includes(carrec)) {
+				responsables.splice( responsables.indexOf(carrec), 1);
+			} else {
+				responsables.push(carrec);				
+			}
+			$('#portafirmesResponsables').val(responsables).change();
+		}
+		
 		
 		// ]]>
 	</script>			

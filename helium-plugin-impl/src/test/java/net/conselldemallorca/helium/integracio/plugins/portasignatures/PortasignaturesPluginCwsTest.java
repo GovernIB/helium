@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.integracio.plugins.portasignatures;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
@@ -53,15 +54,18 @@ public class PortasignaturesPluginCwsTest {
 		document.setArxiuContingut(IOUtils.toByteArray(getDocumentTest()));
 		document.setSignat(false);
 		document.setReference(new Long(System.currentTimeMillis()).toString());
-		PasSignatura pasSignatura = new PasSignatura();
-		pasSignatura.setSignataris(new String[] {DESTINATARI_FIRMA});
-		pasSignatura.setMinSignataris(1);
+
+		List<PortafirmesFluxBloc> blockList = new ArrayList<PortafirmesFluxBloc>();
+		PortafirmesFluxBloc block = new PortafirmesFluxBloc(1, new String[] {DESTINATARI_FIRMA});
+		blockList.add(block);
+
 		portasignaturesPlugin.uploadDocument(
 				document,
 				new ArrayList<DocumentPortasignatures>(),
 				false,
-				new PasSignatura[] {pasSignatura},
+				blockList,
 				"Helium test",
+				null,
 				null,
 				null);
 	}

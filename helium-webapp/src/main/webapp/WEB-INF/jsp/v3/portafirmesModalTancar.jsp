@@ -28,11 +28,16 @@ if (fluxIframe) {
 	const fluxCreatedNom = "${FluxNom}";
 	const $modalFlux = $(fluxIframe.parentElement.parentElement).prev();
 	var alerta;
-	
 	if (idTransaccioFlux != null && idTransaccioFlux != '') {
 		var newOption = "<option value=\"" + idTransaccioFlux + "\" selected>" + fluxCreatedNom + "</option>";
-		$modalFlux.find('#portafirmesFluxId').append(newOption).val(idTransaccioFlux).change();
-	} else if (fluxErrorDesc != null && fluxErrorDesc != '') {
+		$portafirmesFluxId = $modalFlux.find('#portafirmesFluxId');
+		$portafirmesFluxId.append(newOption).val(idTransaccioFlux);
+		$portafirmesFluxId.val(idTransaccioFlux);
+		// No actualitza el text seleccionat, hactualitzem el div del select2
+		$modalFlux.find('#s2id_portafirmesFluxId').find('.select2-chosen').html(fluxCreatedNom);
+		$portafirmesFluxId.change();
+	} else if (fluxErrorDesc != null && fluxErrorDesc != '') 		
+	{
 		alerta = fluxErrorDesc;
 		//desactivar selecció si s'ha creat un nou flux
 		if (localStorage.getItem('transaccioId') == null && localStorage.getItem('transaccioId') == '') {
@@ -42,6 +47,10 @@ if (fluxIframe) {
 		$modalFlux.find(".portafirmesEnviarFluxId_btn_addicional").find('i').addClass('fa-eye').removeClass('fa-eye-slash');
 	}
 	if (fluxSuccesDesc != null && fluxSuccesDesc != '') {
+
+		// Flux creat des de la modal d'enviament de l'usuari, informa el camp ocult per poder enviar fent referència al nou camp
+		$modalFlux.find('#portafirmesNouFluxId').val(idTransaccioFlux);
+		
 		$modalFlux.find('#portafirmesEnviarFluxId').empty();
 		$modalFlux.find('#portafirmesEnviarFluxId').attr('disabled', true);
 		//desactivar botó de visualitzar
@@ -74,8 +83,7 @@ if (fluxIframe) {
 	$(fluxIframe.parentElement).trigger('remove');
 }
 
-function adjustModalPerFluxRemove(fluxCreatedNom) {
-	webutilModalAdjustHeight();
+function adjustModalPerFluxRemove(fluxCreatedNom) { 
 	let $iframe = $(window.parent.frameElement);
 	let height = localStorage.getItem('currentIframeHeight');
 	$iframe.css('height', (height =! null) ? height : '50vh');
@@ -87,12 +95,13 @@ function adjustModalPerFluxRemove(fluxCreatedNom) {
 		'padding': '0'
 	});
 	$iframe.closest('div.modal-lg').css('width', '900px');
-
 	$iframe.parent().next().removeClass('hidden');
 	if ($iframe.parent().next().find('button').hasClass('disabled') && (fluxCreatedNom != null && fluxCreatedNom != '')) {
 		$iframe.parent().next().find('button').removeClass("disabled");
 	}
+	
 	localStorage.removeItem('currentIframeHeight');
+	webutilModalAdjustHeight($iframe);
 }
 
 </script>

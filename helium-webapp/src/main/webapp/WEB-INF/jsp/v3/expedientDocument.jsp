@@ -130,10 +130,6 @@ function esborrarSignatura(documentStoreId, correcte) {
 	}
 }
 
-function reprocessar(documentId) {
-	$('#form_psigna_' + documentId).submit();
-}
-
 function searchDocuments(text) {
 	total = 0;
 	totalProces = 0;

@@ -457,4 +457,16 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 		return null;
 	}
 
+	@Override
+	public List<PortafirmesCarrec> recuperarCarrecs() throws SistemaExternException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PortafirmesCarrec recuperarCarrec(String carrecId) throws SistemaExternException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

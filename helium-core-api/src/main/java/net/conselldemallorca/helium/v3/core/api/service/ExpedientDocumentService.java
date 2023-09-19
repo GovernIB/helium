@@ -19,8 +19,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxBlocDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
@@ -286,24 +284,20 @@ public interface ExpedientDocumentService {
 
 
 	/**
-	 * Genera l'arxiu d'un document a partir de la seva plantilla.
+	 * Consulta la llista de peticions al portafirmes en un estat pendent de processar a processat i rebutjat.
 	 * 
 	 * @param expedientId
 	 *             atribut id de l'expedient.
 	 * @param processInstanceId
 	 *             atribut id de la instància de procés.
-	 * @return
+	 * @return Retorna una llista de peticions pendents o processades i rebutjades. En el cas que hi hagi més d'una anotació per document llavors retorna només la darrera.
+	 * 
 	 * @throws NoTrobatException
 	 * @throws PermisDenegatException
 	 */
 	public List<PortasignaturesDto> portasignaturesFindPendents(
 			Long expedientId,
 			String processInstanceId) throws NoTrobatException, PermisDenegatException;
-
-	public Object findPortasignaturesInfo(
-			Long expedientId, 
-			String processInstanceId, 
-			Long documentStoreId) throws NoTrobatException;
 
 	/** Mètode per consultar la informació del portasignatures pel documentId.
 	 * 
@@ -314,10 +308,11 @@ public interface ExpedientDocumentService {
 	
 	/** Mètode per consultar la informació del portasignatures pel documentStoreId.
 	 * 
+	 * @param processInstanceId
 	 * @param documentStoreId
 	 * @return
 	 */
-	public PortasignaturesDto getPortasignaturesByDocumentStoreId(Long documentStoreId);
+	public PortasignaturesDto getPortasignaturesByDocumentStoreId(String processInstanceId, Long documentStoreId);
 
 	/**
 	 * Genera l'arxiu d'un document a partir de la seva plantilla.
@@ -493,7 +488,6 @@ public interface ExpedientDocumentService {
 	 * 
 	 * @param document
 	 * @param annexos
-	 * @param persona
 	 * @param personesPas
 	 * @param minSignatarisPas
 	 * @param expedient
@@ -503,6 +497,8 @@ public interface ExpedientDocumentService {
 	 * @param processInstanceId
 	 * @param transicioOK
 	 * @param transicioKO
+	 * @param fluxTipus
+	 * @param responsables
 	 * @param portafirmesFluxId
 	 * 
 	 * @return Retorna l'identificador del document donat pel portasignatures.
@@ -510,8 +506,6 @@ public interface ExpedientDocumentService {
 	public void enviarPortasignatures(
 			DocumentDto document,
 			List<DocumentDto> annexos,
-			PersonaDto persona,
-			List<PortafirmesFluxBlocDto> blocList,
 			ExpedientDto expedient,
 			String importancia,
 			Date dataLimit,
@@ -519,18 +513,15 @@ public interface ExpedientDocumentService {
 			Long processInstanceId,
 			String transicioOK,
 			String transicioKO,
-			String[] responsables, 
 			PortafirmesSimpleTipusEnumDto fluxTipus,
+			String[] responsables, 
 			String portafirmesFluxId) throws SistemaExternException;
 
 	/**
 	 * Cancela l'enviament d'un document a firmar al portafirmes.
-	 * @param documentId
-	 * @param portasignaturesId
+	 * @param documentId	Id del portasignatures
 	 */
-
 	public void portafirmesCancelar(
-		Integer documentId,
-		Long portasignaturesId) throws SistemaExternException;
+		Integer documentId) throws SistemaExternException;
 
 }
