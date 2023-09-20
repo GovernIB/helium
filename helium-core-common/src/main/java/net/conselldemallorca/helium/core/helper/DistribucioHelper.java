@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.core.helper;
 
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -1059,8 +1060,8 @@ public class DistribucioHelper {
 		} else {
 			// Camp
 			if (camp.isMultiple()) {
-				// Multiple
-				Object[] valorsHelium = new Object[campo.getValores().size()];
+				// Multiple 
+				Object[] valorsHelium = (Object[]) Array.newInstance(camp.getJavaClass(), campo.getValores().size());
 				for (int i = 0; i < campo.getValores().size(); i++) {
 					valorsHelium[i] = valorPerHeliumSimple(getValorSistra(campo, i), camp);
 				}
@@ -1082,6 +1083,9 @@ public class DistribucioHelper {
 			if ("compuesto".equals(campo.getTipo())) {
 				// Valor a l'atribut "codigo", per exemple: <CAMPO id="id" tipo="compuesto"><VALOR codigo="C1">C1 - Text</VALOR></CAMPO>
 				valor = campo.getValores().get(index).getCodigo();
+			} else if ("multivaluado".equals(campo.getTipo())) {
+				Valor vs2 = campo.getValores().get(index);
+				valor = vs2.getCodigo() != null ? vs2.getCodigo() : vs2.getValue();				
 			} else {
 				// Valor de tipus "simple", per exemple <CAMPO id="id" tipo="simple"><VALOR>Text</VALOR></CAMPO>
 				valor = campo.getValores().get(index).getValue();
