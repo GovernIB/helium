@@ -491,7 +491,7 @@
 		<dependency>
 			<groupId>es.caib.distribucio</groupId>
 			<artifactId>distribucio-backoffice-utils</artifactId>
-			<version>0.9.49</version>
+			<version>0.9.50</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>jersey-client</artifactId>
