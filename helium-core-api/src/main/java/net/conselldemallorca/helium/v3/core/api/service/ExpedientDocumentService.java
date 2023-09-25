@@ -282,6 +282,17 @@ public interface ExpedientDocumentService {
 	public ArxiuDto arxiuFindAmbDocumentStoreId(
 			Long documentId) throws NoTrobatException;
 
+	/** 
+	 * Retorna el contingut original del document en cas d'estar integrat amb l'Arxiu. 
+	 * 
+	 * @param expedientId
+	 * @param documentStoreId
+	 * @return
+	 */
+	public ArxiuDto arxiuFindOriginal(
+			Long expedientId, 
+			Long documentStoreId) throws NoTrobatException;
+
 
 	/**
 	 * Consulta la llista de peticions al portafirmes en un estat pendent de processar a processat i rebutjat.
@@ -523,5 +534,6 @@ public interface ExpedientDocumentService {
 	 */
 	public void portafirmesCancelar(
 		Integer documentId) throws SistemaExternException;
+
 
 }

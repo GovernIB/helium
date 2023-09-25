@@ -703,6 +703,53 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				true,
 				null);	
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public ArxiuDto arxiuFindOriginal(
+			Long expedientId, 
+			Long documentStoreId) throws NoTrobatException {
+		logger.debug("Consulta de l'arxiu del document original (" +
+				"expedientId=" + expedientId + ", " +
+				"documentStoreId=" + documentStoreId + ")");
+		
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+		
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		if (documentStore == null) {
+			throw new NoTrobatException(
+					DocumentStore.class,
+					documentStoreId);
+		}
+		
+		expedientHelper.comprovarInstanciaProces(
+				expedient,
+				documentStore.getProcessInstanceId());
+		
+		ArxiuDto arxiu = new ArxiuDto();
+		arxiu.setNom(documentStore.getArxiuNom());
+		if (documentStore.getArxiuContingut() == null && documentStore.getArxiuUuid() != null) {
+			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentOriginal(documentStore.getArxiuUuid(), null);
+			if (documentArxiu != null && documentArxiu.getContingut() != null) {
+				arxiu.setContingut(documentArxiu.getContingut().getContingut());
+				arxiu.setTipusMime(documentArxiu.getContingut().getTipusMime());
+			}
+		} else {
+			arxiu.setContingut(documentStore.getArxiuContingut());
+			arxiu.setTipusMime(documentHelperV3.getContentType(documentStore.getArxiuNom()));
+		}
+		
+		return arxiu;
+	}
+
 
 	/**
 	 * {@inheritDoc}

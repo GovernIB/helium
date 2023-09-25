@@ -26,7 +26,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxBlocDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
@@ -203,6 +202,15 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	public ArxiuDto arxiuFindAmbDocumentStoreId(Long documentId) throws NoTrobatException {
 		return delegate.arxiuFindAmbDocumentStoreId(documentId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ArxiuDto arxiuFindOriginal(
+			Long expedientId, 
+			Long documentStoreId) throws NoTrobatException {
+		return delegate.arxiuFindOriginal(expedientId, documentStoreId);
+	}
+
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})

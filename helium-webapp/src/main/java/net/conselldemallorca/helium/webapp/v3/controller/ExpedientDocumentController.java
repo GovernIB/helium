@@ -637,22 +637,46 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable String processInstanceId,
 			@PathVariable Long documentStoreId,
 			Model model) {
+		String ret;
+		ArxiuDto arxiu = null;
+		Exception exception = null;
+		// Prova de descarregar el document
 		try {
-			ArxiuDto arxiu = expedientDocumentService.arxiuFindAmbDocument(
+			arxiu = expedientDocumentService.arxiuFindAmbDocument(
 					expedientId,
 					processInstanceId,
 					documentStoreId);
+		} catch (SistemaExternException e) {
+			exception = e;
+		}
+		if (exception != null) {
+			// Si està integrat amb l'Arxiu prova d'obtenir el contingut original
+			try {
+				ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+				if (expedient.isArxiuActiu()) {
+					// Si està integrat amb l'Arxiu prova de descarregar l'original
+					arxiu = expedientDocumentService.arxiuFindOriginal(expedientId, documentStoreId);
+					exception = null;
+				}
+			} catch (Exception e) {
+				exception = e;
+			}
+		}
+
+		// Missatge d'error
+		if (exception != null) {
+			logger.error("Error obtenint el document", exception);
+			MissatgesHelper.error(request, exception.getMessage());
+			model.addAttribute("pipellaActiva", "documents");
+			ret = "redirect:/v3/expedient/" + expedientId;
+		} else {
 			if (arxiu != null) {
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
-			}
-		} catch (SistemaExternException e) {
-			logger.error("Error descarregant fitxer", e);
-			MissatgesHelper.error(request, e.getPublicMessage());
-			model.addAttribute("pipellaActiva", "documents");
-			return "redirect:/v3/expedient/" + expedientId;
+			}			
+			ret = "arxiuView";
 		}
-		return "arxiuView";
+		return ret;
 	}
 	
 	@RequestMapping(value="/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/descarregar/versio/{versioId}/{expedientTancat}")

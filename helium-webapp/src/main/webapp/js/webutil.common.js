@@ -93,6 +93,7 @@ function userAborted(xhr) {
 function webutilDownloadAndRefresh(arxiuUrl, event, callbackFunction) {
 
 	// Fa la petició a la url de l'arxiu
+	$('html').css('cursor', 'wait');
 	$.get( arxiuUrl, { responseType: 'arraybuffer' })
         .success(function (response, status, xhr) {
         	// estableix el nom de la descàrrega i el tipus
@@ -113,6 +114,7 @@ function webutilDownloadAndRefresh(arxiuUrl, event, callbackFunction) {
             (document.body || document.documentElement).appendChild(link);
             link.click();
 		}).always(function(){
+			$('html').css('cursor', 'default');
 			if (callbackFunction)
 				try {
 					callbackFunction();
