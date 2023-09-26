@@ -69,6 +69,7 @@ public class DocumentNotificacio implements Serializable, GenericEntity<Long> {
 	@ForeignKey(name = "hel_document_notif_fk")
 	private DocumentStore document;
 	
+	//Utilitzarem aquesta taula per indicar els documents dins d'un .ZIP notificat (tot i que no són annexos)
 	@ManyToMany(
 			cascade = CascadeType.ALL,
 			fetch = FetchType.LAZY)

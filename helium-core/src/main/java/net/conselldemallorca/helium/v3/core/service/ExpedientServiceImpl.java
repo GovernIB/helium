@@ -3048,6 +3048,66 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		}
 		return baos.toByteArray();
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public byte[] getZipPerNotificar(Long expedientId, List<ExpedientDocumentDto> documentsPerAfegir) {
+		
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ZipOutputStream out = new ZipOutputStream(baos);
+		ZipEntry ze;
+		ArxiuDto arxiu;
+		try {
+			// Consulta l'arbre de processos
+			List<InstanciaProcesDto> arbreProcessos =
+					expedientHelper.getArbreInstanciesProces(String.valueOf(expedient.getProcessInstanceId()));
+			// Llistat de noms dins del zip per no repetir-los.
+			Set<String> nomsArxius = new HashSet<String>();
+			for (InstanciaProcesDto instanciaProces: arbreProcessos) {
+				// Per cada instancia de proces consulta els documents.
+//				List<ExpedientDocumentDto> documentsInstancia = 
+//						documentHelper.findDocumentsPerInstanciaProces(
+//							instanciaProces.getId());
+				// Per cada document de la instància
+				for (ExpedientDocumentDto document : documentsPerAfegir) {
+					// Consulta l'arxiu del document
+					DocumentStore documentStore = documentStoreRepository.findOne(document.getId());
+					if (documentStore == null) {
+						throw new NoTrobatException(
+								DocumentStore.class,
+								document.getId());
+					}
+					// Consulta el contingut.
+					arxiu = documentHelper.getArxiuPerDocumentStoreId(
+							document.getId(),
+							false,
+							false,
+							null);
+					// Crea l'entrada en el zip
+					String recursNom = this.getZipRecursNom(
+							expedient, 
+							instanciaProces, 
+							document, 
+							arxiu,
+							nomsArxius);
+					ze = new ZipEntry(recursNom);
+					out.putNextEntry(ze);
+					out.write(arxiu.getContingut());
+					out.closeEntry();
+				}
+			}			
+			out.close();
+		} catch (Exception e) {
+			String errMsg = "Error construint el zip dels documents per notificar " + expedient.getIdentificador() + ": " + e.getMessage();
+			logger.error(errMsg, e);
+			throw new RuntimeException(errMsg, e);
+		}
+		return baos.toByteArray();
+	}
 
 	/** Estableix en nom de l'arxiu a partir del document i l'extensió de l'arxiu. Afegeix una carpeta
 	 * si el procés no és el principal, corregeix els caràcters estranys i vigila que no es repeteixin.

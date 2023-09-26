@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
 import org.springframework.security.crypto.codec.Base64;
@@ -22,7 +23,9 @@ import net.conselldemallorca.helium.jbpm3.handlers.tipus.DadesNotificacio.Idioma
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.PersonaInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio;
@@ -282,28 +285,69 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 				executionContext,
 				document,
 				varDocument);
+		boolean multiDocumentsZip = false;
 		if (doc != null && !doc.isEmpty()) {
-			documentInfo = getDocumentInfo(executionContext, doc, false);
-			if (documentInfo != null) {
+			List<Long> documentsId = null;
+			documentsId = new ArrayList<Long>();
+			List<ExpedientDocumentDto> documentsPerNotificar = new ArrayList<ExpedientDocumentDto>();
+			String[] codis = doc.split(",");
+			if(codis!=null) {
+				for (String codi: codis) {
+					codi = StringUtils.replace(StringUtils.trim(codi), "\\t", "    ");
+					Long docId = null;
+					try {
+					docId = (Long)executionContext.getVariable(
+							Jbpm3HeliumBridge.getInstanceService().getCodiVariablePerDocumentCodi(codi));
+					} catch (Exception e) {
+						throw new JbpmException("No existeix cap document amb documentCodi: " + docId + ".");
+					}
+					if (docId != null) {
+						documentsId.add(docId);
+						ExpedientDocumentDto documentContingutAlZip = Jbpm3HeliumBridge.getInstanceService().findOneAmbInstanciaProces(
+																			expedient.getId(), expedient.getProcessInstanceId(), docId);
+						if(documentContingutAlZip!=null)
+							documentsPerNotificar.add(documentContingutAlZip);
+					} 
+					else throw new JbpmException("No existeix cap document amb documentCodi: " + codi + ".");	
+				}
+
+				Long documentStoreId = null;
+				byte[] contingut = null;
+				if(documentsId!=null && !documentsId.isEmpty()) {
+					contingut = Jbpm3HeliumBridge.getInstanceService().getZipPerNotificar(expedient.getId(), documentsPerNotificar); 
+					String documentCodi = "Notificació " + new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date());
+					documentStoreId = Jbpm3HeliumBridge.getInstanceService().guardarDocumentProces(expedient.getProcessInstanceId(), null, new Date(), documentCodi+".zip", contingut, documentsPerNotificar);
+					ExpedientDocumentDto expDocDto = Jbpm3HeliumBridge.getInstanceService().findOneAmbInstanciaProces(expedient.getId(), expedient.getProcessInstanceId(), documentStoreId);
+					ArxiuDto arxiu = Jbpm3HeliumBridge.getInstanceService().arxiuFindAmbDocument(
+							expedient.getId(),
+							expedient.getProcessInstanceId(),
+							documentStoreId);
+					dadesNotificacio.setDocumentId(documentStoreId);
+					dadesNotificacio.setDocumentArxiuNom(documentCodi+"."+arxiu.getExtensio());
+					dadesNotificacio.setDocumentArxiuContingut(arxiu.getContingut());
+					dadesNotificacio.setDocumentArxiuUuid(expDocDto.getArxiuUuid());
+					multiDocumentsZip=documentsId.size()>1;
+				}				
+			}
+			else if (codis==null) {			
+				documentInfo = getDocumentInfo(executionContext, doc, false);
 				DocumentDto document = Jbpm3HeliumBridge
-							.getInstanceService().getDocumentInfo(documentInfo.getId(),
-																	true, // Amb contingut
-																	false,
-																	false,
-																	false,
-																	true, // Per notificar
-																	false);
+						.getInstanceService().getDocumentInfo(documentInfo.getId(),
+																true, // Amb contingut
+																false,
+																false,
+																false,
+																true, // Per notificar
+																false);
 				dadesNotificacio.setDocumentId(document.getId());
 				dadesNotificacio.setDocumentArxiuNom(document.getArxiuNom());
 				dadesNotificacio.setDocumentArxiuContingut(document.getArxiuContingut());
 				dadesNotificacio.setDocumentArxiuUuid(document.getArxiuUuid());
+				}
 			} else {
 				throw new JbpmException("No existia ningún documento con documentCodi: " + varDocument + ".");
 			}
-		}
-		
-
-		
+	
 		String codiProcediment = (String)getValorOVariable(
 				executionContext,
 				procedimentCodi,
@@ -535,7 +579,22 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 		enviaments.add(enviament);
 		dadesNotificacio.setEnviaments(enviaments);
 		
-		altaNotificacio(dadesNotificacio, expedient.getId());
+		altaNotificacio(dadesNotificacio, expedient.getId());	
+	
+		if(multiDocumentsZip) {//Si és un zip el signem
+			try {
+				Jbpm3HeliumBridge.getInstanceService().documentFirmaServidor(
+					getProcessInstanceId(executionContext),
+					null,
+					dadesNotificacio.getDocumentArxiuNom(),
+					dadesNotificacio.getDocumentArxiuContingut(),
+					dadesNotificacio.getDocumentId());
+			} catch(Exception e) {
+				//posar alerta a l'expedient
+				Jbpm3HeliumBridge.getInstanceService().alertaCrear(expedient.getEntorn().getId(), expedient.getId(), new Date(), null, "No s'ha pogut signar el zip notificat " + dadesNotificacio.getDocumentArxiuNom());
+				throw new JbpmException("No s'ha pogut completar la notificació i signatura del zip " + dadesNotificacio.getDocumentArxiuNom() + ".");
+			}
+		}
 	}
 	
 	private String formatIdentificadorEni(String identificador) {

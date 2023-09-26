@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import es.caib.distribucio.core.api.service.ws.backoffice.NtiEstadoElaboracion;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.DocumentEstat;
 import es.caib.plugins.arxiu.api.Firma;
@@ -64,6 +65,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiDocumentoFormato;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
@@ -402,7 +404,9 @@ public class DocumentHelperV3 {
 						ed = crearDtoPerAdjuntExpedient(
 								getAdjuntIdDeVariableJbpm(var),
 								documentStoreId);
-						ed.setNotificat(false); // De moment els annexos no es notifiquen
+						List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
+						ed.setNotificat(!enviaments.isEmpty());
+//						ed.setNotificat(false); // De moment els annexos no es notifiquen
 						resposta.add(ed);
 					}
 					// Afegeix informació de l'annex relacionat amb el document
@@ -689,7 +693,8 @@ public class DocumentHelperV3 {
 					FirmaTipus.PADES.name(),
 					"TF06",
 					FirmaPerfil.EPES.name(),
-					signatura);
+					signatura,
+					null);
 
 
 			// Guarda el valor en una variable jbpm
@@ -751,8 +756,8 @@ public class DocumentHelperV3 {
 				ntiIdDocumentoOrigen,
 				true,
 				null,
-				null //annexId
-				);
+				null, //annexId
+				null);
 	}
 	
 	public Long crearDocument(
@@ -790,8 +795,8 @@ public class DocumentHelperV3 {
 				ntiIdDocumentoOrigen,
 				documentValid,
 				documentError,
-				null // annexId
-				);
+				null, // annexId
+				null);
 	}
 
 	public Long crearDocument(
@@ -814,7 +819,8 @@ public class DocumentHelperV3 {
 			String ntiIdDocumentoOrigen, 
 			boolean documentValid,
 			String documentError,
-			Long annexId) {
+			Long annexId,
+			List<ExpedientDocumentDto> annexosPerNotificar) {
 		String documentCodiPerCreacio = documentCodi;
 		if (documentCodiPerCreacio == null && isAdjunt) {
 			documentCodiPerCreacio = new Long(new Date().getTime()).toString();
@@ -831,6 +837,17 @@ public class DocumentHelperV3 {
 			documentStore.setAdjuntTitol(adjuntTitol);
 		}
 		documentStore.setAnnexId(annexId);
+		if(annexosPerNotificar!=null && !annexosPerNotificar.isEmpty()) {
+			List<DocumentStore> documentsContinguts = new ArrayList<DocumentStore>();
+			List<DocumentStore> zips = new ArrayList<DocumentStore>();
+			zips.add(documentStore); //aquesta llista li setejarem a cada documentStore contingut al zip
+			for(ExpedientDocumentDto exp : annexosPerNotificar) {
+				DocumentStore documentStoreCont = documentStoreRepository.findOne(exp.getId());
+				documentStoreCont.setZips(zips);
+				documentsContinguts.add(documentStoreCont);
+			}
+			documentStore.setContinguts(documentsContinguts);
+		}
 		DocumentStore documentStoreCreat = documentStoreRepository.save(documentStore);
 		documentStoreRepository.flush();
 		postProcessarDocument(
@@ -1075,8 +1092,8 @@ public class DocumentHelperV3 {
 					ntiIdDocumentoOrigen,
 					true,
 					null,
-					null // annexId
-					);
+					null, // annexId
+					null);
 		} else {
 			return actualitzarDocument(
 					documentStoreId,
@@ -1354,6 +1371,7 @@ public class DocumentHelperV3 {
 				dto.setNtiOrigen(documentStore.getNtiOrigen());
 				dto.setNtiEstadoElaboracion(documentStore.getNtiEstadoElaboracion());
 				dto.setNtiTipoDocumental(documentStore.getNtiTipoDocumental());
+//				dto.setArxiuContingut(documentStore.getArxiuContingut());
 				try {
 					dto.setTokenSignatura(getDocumentTokenUtils().xifrarToken(documentStoreId.toString()));
 				} catch (Exception ex) {
@@ -1739,7 +1757,8 @@ public class DocumentHelperV3 {
 	public void firmaServidor(
 			String processInstanceId,
 			Long documentStoreId,
-			String motiu) {
+			String motiu,
+			byte[] arxiuContingut) {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		ArxiuDto arxiuPerFirmar = getArxiuPerDocumentStoreId(
@@ -1747,8 +1766,7 @@ public class DocumentHelperV3 {
 				true,
 				(documentStore.getArxiuUuid() == null),
 				null);
-		if (! "pdf".equals(arxiuPerFirmar.getExtensio())) {
-			arxiuPerFirmar.getNom();
+		if (! "pdf".equals(arxiuPerFirmar.getExtensio()) &&  !"zip".equals(arxiuPerFirmar.getExtensio())) {
 			// Transforma l'arxiu a PDF
 			arxiuPerFirmar = this.converteixPdf(arxiuPerFirmar);							
 		}
@@ -1789,7 +1807,8 @@ public class DocumentHelperV3 {
 				firma.getTipusFirma(),
 				firma.getTipusFirmaEni(),
 				perfil,
-				firma.getContingut());
+				firma.getContingut(),
+				arxiuContingut);
 	}
 
 	
@@ -1866,7 +1885,8 @@ public class DocumentHelperV3 {
 			String tipusFirma, 
 			String tipusFirmaEni, 
 			String perfilFirmaEni, 
-			byte[] signatura) {
+			byte[] signatura,
+			byte[] arxiuContingut) {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		
@@ -1931,7 +1951,8 @@ public class DocumentHelperV3 {
 						arxiuFirmat,
 						tipusFirma, 
 						tipusFirmaEni, 
-						perfilFirmaEni);
+						perfilFirmaEni,
+						arxiuContingut);
 			}
 			// Actualitza la informació al document store
 			documentArxiu = pluginHelper.arxiuDocumentInfo(
@@ -2233,7 +2254,7 @@ public class DocumentHelperV3 {
 	private String calcularArxiuNomOriginal(
 			DocumentStore documentStore) {
 		String nomOriginal;
-		if (documentStore.isSignat() && isSignaturaFileAttached()) {
+		if (documentStore.isSignat() && isSignaturaFileAttached() && PdfUtils.isArxiuConvertiblePdf(documentStore.getArxiuNom())) {
 			nomOriginal = getNomArxiuAmbExtensio(
 					documentStore.getArxiuNom(),
 					getExtensioArxiuSignat());
@@ -2877,6 +2898,39 @@ public class DocumentHelperV3 {
 		return ArxiuConversioHelper.revisarContingutNom(nom);
 	}
 
+	public List<DocumentStore> getDocumentsContinguts (Long documentStoreId){
+		return documentStoreRepository.findDocumentsContinguts(documentStoreId);
+		
+	}
+	
+	public DocumentStoreDto toDocumentStoreDto(DocumentStore ds, boolean isZip) {
+		DocumentStoreDto dsDto = new DocumentStoreDto();
+		if(ds.getContinguts()!=null && !ds.getContinguts().isEmpty() && isZip) {
+			List<DocumentStoreDto> contingutsDto = new ArrayList<DocumentStoreDto>();
+			for(DocumentStore contingut: ds.getContinguts()) {
+				contingutsDto.add(this.toDocumentStoreDto(contingut, false));
+			}
+			dsDto.setContinguts(contingutsDto);
+		}
+		dsDto.setDataCreacio(ds.getDataCreacio());
+		dsDto.setDocumentError(ds.getDocumentError());
+		dsDto.setDocumentValid(ds.isDocumentValid());
+		dsDto.setNtiDefGenCsv(ds.getNtiDefinicionGenCsv());
+		dsDto.setNtiEstatElaboracio(ds.getNtiEstadoElaboracion()!=null ? ds.getNtiEstadoElaboracion().toString() : NtiEstadoElaboracion.ORIGINAL.toString() );
+		dsDto.setNtiIdDocOrigen(ds.getNtiIdDocumentoOrigen()!=null ? ds.getNtiIdDocumentoOrigen().toString() : null);
+		dsDto.setNtiIdentificador(ds.getNtiIdentificador());
+		dsDto.setNtiNomFormat(ds.getNtiNombreFormato()!=null ? ds.getNtiNombreFormato().toString() : null);
+		dsDto.setNtiOrgan(ds.getNtiOrgano()!=null ? ds.getNtiOrgano().toString() : null);
+		dsDto.setNtiOrigen(ds.getNtiOrigen()!=null ? ds.getNtiOrigen().toString() : null);
+		dsDto.setNtiTipoFirma(ds.getNtiTipoFirma()!=null ? ds.getNtiTipoFirma().toString() : null);
+		dsDto.setNtiTipusDocumental(ds.getNtiTipoDocumental()!=null ? ds.getNtiTipoDocumental().toString() : null);
+		dsDto.setNtiValorCsv(ds.getNtiCsv());
+		dsDto.setNtiVersion(ds.getNtiVersion());
+		dsDto.setNom(ds.getCodiDocument());
+		dsDto.setId(ds.getId());
+		//dsDto.setZips(ds.getZips());
+		return dsDto;
+	}
 
 	private static final Log logger = LogFactory.getLog(DocumentHelperV3.class);
 

@@ -11,6 +11,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
@@ -62,6 +63,7 @@ public interface ExpedientDocumentService {
 	 *             tipus de document NTI.
 	 * @param ntiIdOrigen
 	 *             identificador NTI Del document original.
+	 * @param annexosPerNotificar
 	 * @throws NoTrobatException
 	 */
 	public Long create(
@@ -79,7 +81,8 @@ public interface ExpedientDocumentService {
 			NtiOrigenEnumDto ntiOrigen,
 			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
-			String ntiIdOrigen) throws NoTrobatException;
+			String ntiIdOrigen,
+			List<ExpedientDocumentDto> annexosPerNotificar) throws NoTrobatException;
 
 	/**
 	 * Crea un nou document a dins la instància de procés.
@@ -134,6 +137,7 @@ public interface ExpedientDocumentService {
 	 * @param data
 	 * @param arxiu
 	 * @param contingut
+	 * @param annexosPerNotificar
 	 * @return 
 	 */
 	public Long guardarDocumentProces(
@@ -141,7 +145,8 @@ public interface ExpedientDocumentService {
 			String documentCodi, 
 			Date data, 
 			String arxiu,
-			byte[] contingut);
+			byte[] contingut,
+			List<ExpedientDocumentDto> annexosPerNotificar);
 
 	/**
 	 * Esborra un document d'una instància de procés.
@@ -438,6 +443,7 @@ public interface ExpedientDocumentService {
 	 * 
 	 * @param expedientId
 	 * @param documentStoreId
+	 * @param documentsDinsZip,
 	 * @param dadesNotificacioDto
 	 * @param interessatsId
 	 * @param representantId
@@ -446,6 +452,7 @@ public interface ExpedientDocumentService {
 	public DadesNotificacioDto notificarDocument(
 			Long expedientId, 
 			Long documentStoreId, 
+			List<DocumentStoreDto> documentsDinsZip,
 			DadesNotificacioDto dadesNotificacioDto, 
 			Long interessatsIds, 
 			Long representantId);

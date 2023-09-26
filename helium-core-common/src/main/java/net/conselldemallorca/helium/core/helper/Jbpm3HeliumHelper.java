@@ -3,19 +3,25 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
+import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.Resource;
 
 import org.hibernate.Hibernate;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -47,6 +53,8 @@ import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.pinbal.DadesConsultaPinbal;
@@ -83,12 +91,17 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxBlocDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
@@ -244,7 +257,11 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Resource 
 	private AlertaHelper alertaHelper;
 
-
+	@Resource
+	private ExpedientLoggerHelper expedientLoggerHelper;
+	
+	@Resource
+	private ExpedientRegistreHelper expedientRegistreHelper;
 
 
 	@Override
@@ -942,16 +959,21 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void documentFirmaServidor(
 			String processInstanceId,
 			String documentCodi,
-			String motiu) throws ValidacioException {
+			String motiu,
+			byte[] contingut,
+			Long documentStoreId) throws ValidacioException {
 		
-		Long documentStoreId = documentHelper.findDocumentStorePerInstanciaProcesAndDocumentCodi(
-				processInstanceId, 
-				documentCodi);
+		if(documentStoreId==null) {
+			documentStoreId = documentHelper.findDocumentStorePerInstanciaProcesAndDocumentCodi(
+					processInstanceId, 
+					documentCodi);
+		}
 		
 		documentHelper.firmaServidor(
 				processInstanceId,
 				documentStoreId,
-				motiu);
+				motiu,
+				contingut !=null ? contingut : null);
 	}
 
 	@Override
@@ -2812,10 +2834,434 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 					ExpedientTipusDto.class);
 	}
 
+	@Override
+	public byte[] getZipPerNotificar(Long expedientId, List<ExpedientDocumentDto> documentsPerAfegir) {
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ZipOutputStream out = new ZipOutputStream(baos);
+		ZipEntry ze;
+		ArxiuDto arxiu;
+		try {
+			// Consulta l'arbre de processos
+			List<InstanciaProcesDto> arbreProcessos =
+					expedientHelper.getArbreInstanciesProces(String.valueOf(expedient.getProcessInstanceId()));
+			// Llistat de noms dins del zip per no repetir-los.
+			Set<String> nomsArxius = new HashSet<String>();
+			for (InstanciaProcesDto instanciaProces: arbreProcessos) {
+				// Per cada instancia de proces consulta els documents.
+				for (ExpedientDocumentDto document : documentsPerAfegir) {
+					// Consulta l'arxiu del document
+					DocumentStore documentStore = documentStoreRepository.findOne(document.getId());
+					if (documentStore == null) {
+						throw new NoTrobatException(
+								DocumentStore.class,
+								document.getId());
+					}
+					// Consulta el contingut.
+					arxiu = documentHelper.getArxiuPerDocumentStoreId(
+							document.getId(),
+							false,
+							false,
+							null);
+					// Crea l'entrada en el zip
+					String recursNom = this.getZipRecursNom(
+							expedient, 
+							instanciaProces, 
+							document, 
+							arxiu,
+							nomsArxius);
+					ze = new ZipEntry(recursNom);
+					out.putNextEntry(ze);
+					out.write(arxiu.getContingut());
+					out.closeEntry();
+				}
+			}			
+			out.close();
+		} catch (Exception e) {
+			String errMsg = "Error construint el zip dels documents per notificar " + expedient.getIdentificador() + ": " + e.getMessage();
+			logger.error(errMsg, e);
+			throw new RuntimeException(errMsg, e);
+		}
+		return baos.toByteArray();
+	}
 
+	/** Estableix en nom de l'arxiu a partir del document i l'extensió de l'arxiu. Afegeix una carpeta
+	 * si el procés no és el principal, corregeix els caràcters estranys i vigila que no es repeteixin.
+	 * 
+	 * @param expedient Per determinar si és el procés principal
+	 * @param instanciaProces Per determinar si és el procés principal i crear una carpeta en cas contrari.
+	 * @param document Per recuperar el nom per l'arxiu
+	 * @param arxiu Per recuperar l'extensió
+	 * @param nomsArxius Per controlar la llista de noms utilitzats.
+	 * @return
+	 */
+	private String getZipRecursNom(Expedient expedient, InstanciaProcesDto instanciaProces,
+			ExpedientDocumentDto document, ArxiuDto arxiu, Set<String> nomsArxius) {
+		String recursNom;
+		// Nom
+		String nom;
+		// Segons si és adjunt o document
+		if (document.isAdjunt())
+			nom = document.getAdjuntTitol();
+		else
+			nom = document.getDocumentNom();
+		nom = nom.replaceAll("/", "_");
+		// Carpeta
+		String carpeta = null;
+		if (!instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
+			// Carpeta per un altre procés
+			carpeta = instanciaProces.getId() + " - " + instanciaProces.getTitol();
+			carpeta = carpeta.replaceAll("/", "_");
+		}
+		// Extensió
+		String extensio = arxiu.getExtensio();
 
+		// Vigila que no es repeteixi
+		int comptador = 0;
+		do {
+			recursNom = (carpeta != null ? carpeta + "/" : "") +
+						nom + 
+						(comptador > 0 ? " (" + comptador + ")" : "") +
+						"." + extensio;
+			comptador++;
+		} while (nomsArxius.contains(recursNom));
 
+		// Guarda en nom com a utiltizat
+		nomsArxius.add(recursNom);
+		return recursNom;
+	}
 
+	@Override
+	public DocumentDto findDocumentAmbId(Long documentStoreId) throws NoTrobatException {
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		DocumentDto dto = documentHelper.toDocumentDto(
+				documentStoreId,
+				false,
+				false,
+				true,
+				true,
+				true, // Per notificar
+				(documentStore == null || documentStore.getArxiuUuid() == null));
+		if (dto == null) {
+			throw new NoTrobatException(DocumentDto.class, documentStoreId);
+		}
+		return dto;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public ExpedientDocumentDto findOneAmbInstanciaProces(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId) {
+		logger.debug("Consulta un document de la instància de procés (" +
+				"expedientId=" + expedientId + ", " +
+				"processInstanceId=" + processInstanceId + ", " +
+				"documentStoreId=" + documentStoreId + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+		expedientHelper.comprovarInstanciaProces(
+				expedient,
+				processInstanceId);
+		return documentHelper.findOnePerInstanciaProces(
+				processInstanceId,
+				documentStoreId);
+	}
+	
+	@Override
+	@Transactional
+	public Long guardarDocumentProces(
+			String processInstanceId, 
+			String documentCodi, 
+			Date data, 
+			String arxiu,
+			byte[] contingut,
+			List<ExpedientDocumentDto> annexosPerNotificar) {
+		
+		logger.debug("Guardar document procés (" +
+				"processInstanceId=" + processInstanceId + ", " +
+				"documentCodi=" + documentCodi + ", " +
+				"data=" + data + ", " +
+				"arxiu=" + arxiu + ")");
+		
+		Long documentStoreId = null;
+		
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+
+		ExpedientDocumentDto expDocDto = this.findOneAmbInstanciaProces(expedient.getId(), processInstanceId, documentCodi);
+		if(expDocDto != null) { 
+			documentStoreId = expDocDto.getId();
+			this.update( 
+					expedient.getId(),
+					processInstanceId,
+					expDocDto.getId(), //Long documentStoreId,
+					(data != null ? data : expDocDto.getDataDocument()),
+					expDocDto.getAdjuntTitol(), //String adjuntTitol
+					arxiu,
+					contingut,
+					new MimetypesFileTypeMap().getContentType(arxiu),
+					false, //boolean ambFirma,
+					false, //boolean firmaSeparada,
+					null, //byte[] firmaContingut,
+					expDocDto.getNtiOrigen(), //NtiOrigenEnumDto ntiOrigen,
+					expDocDto.getNtiEstadoElaboracion(), //NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+					expDocDto.getNtiTipoDocumental(), //NtiTipoDocumentalEnumDto ntiTipoDocumental,
+					expDocDto.getNtiIdOrigen() //String ntiIdOrigen
+					);
+		} else {
+			documentStoreId = this.create(
+					expedient.getId(),
+					processInstanceId,
+					documentCodi, // null en el cas dels adjunts
+					(data != null ? data : new Date()),
+					null, // Títol en el cas dels adjunts (al crear ja li posa el nom del document)
+					arxiu,
+					contingut,
+					documentHelper.getContentType(arxiu),//new MimetypesFileTypeMap().getContentType(arxiu),
+					false, //command.isAmbFirma(),
+					false, //DocumentTipusFirmaEnumDto.SEPARAT.equals(command.getTipusFirma()),
+					null, //firmaContingut,
+					null, //command.getNtiOrigen(),
+					null, //command.getNtiEstadoElaboracion(),
+					null, //command.getNtiTipoDocumental(),
+					null,  //command.getNtiIdOrigen()
+					annexosPerNotificar);
+		}
+		return documentStoreId;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public ExpedientDocumentDto findOneAmbInstanciaProces(
+			Long expedientId,
+			String processInstanceId,
+			String documentCodi) {
+		logger.debug("Consulta un document de la instància de procés (" +
+				"expedientId=" + expedientId + ", " +
+				"processInstanceId=" + processInstanceId + ", " +
+				"documentCodi=" + documentCodi + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+		expedientHelper.comprovarInstanciaProces(
+				expedient,
+				processInstanceId);
+		return documentHelper.findOnePerInstanciaProces(
+				processInstanceId,
+				documentCodi);
+	}
+	
+	@Override
+	@Transactional
+	public void update(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId,
+			Date data,
+			String adjuntTitol,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			String arxiuContentType,
+			boolean ambFirma,
+			boolean firmaSeparada,
+			byte[] firmaContingut,
+			NtiOrigenEnumDto ntiOrigen,
+			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+			NtiTipoDocumentalEnumDto ntiTipoDocumental,
+			String ntiIdOrigen) {
+		logger.debug("Modificar document de l'expedient (" +
+				"expedientId=" + expedientId + ", " +
+				"processInstanceId=" + processInstanceId + ", " +
+				"documentStoreId=" + documentStoreId + ", " +
+				"data=" + data + ", " +
+				"adjuntTitol=" + adjuntTitol + ", " +
+				"arxiuNom=" + arxiuNom + ", " +
+				"arxiuContingut=" + arxiuContingut + ", " +
+				"arxiuContentType=" + arxiuContentType + ", " +
+				"ambFirma=" + ambFirma + ", " +
+				"firmaSeparada=" + firmaSeparada + ", " +
+				"firmaContingut=" + firmaContingut + ", " +
+				"ntiOrigen=" + ntiOrigen + ", " +
+				"ntiEstadoElaboracion=" + ntiEstadoElaboracion + ", " +
+				"ntiTipoDocumental=" + ntiTipoDocumental + ", " +
+				"ntiIdOrigen=" + ntiIdOrigen + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				new Permission[] {
+						ExtendedPermission.DOC_MANAGE,
+						ExtendedPermission.ADMINISTRATION});
+		expedientHelper.comprovarInstanciaProces(
+				expedient,
+				processInstanceId);
+		DocumentStore documentStore = documentStoreRepository.findByIdAndProcessInstanceId(
+				documentStoreId,
+				processInstanceId);
+		if (documentStore == null) {
+			throw new NoTrobatException(
+					DocumentStore.class, 
+					documentStoreId);
+		}
+		String documentCodi = documentStore.getCodiDocument();
+		String arxiuNomAntic = documentStore.getArxiuNom();
+		expedientLoggerHelper.afegirLogExpedientPerProces(
+				processInstanceId,
+				ExpedientLogAccioTipus.PROCES_DOCUMENT_MODIFICAR,
+				documentCodi);
+		documentHelper.actualitzarDocument(
+				documentStoreId,
+				null,
+				processInstanceId,
+				data,
+				documentStore.isAdjunt() ? adjuntTitol : null,
+				arxiuNom,
+				arxiuContingut,
+				arxiuContentType,
+				ambFirma,
+				firmaSeparada,
+				firmaContingut,
+				ntiOrigen,
+				ntiEstadoElaboracion,
+				ntiTipoDocumental,
+				ntiIdOrigen);
+		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
+		expedientRegistreHelper.crearRegistreModificarDocumentInstanciaProces(
+				expedient.getId(),
+				processInstanceId,
+				SecurityContextHolder.getContext().getAuthentication().getName(),
+				documentCodi,
+				arxiuNomAntic,
+				arxiuNom);
+	}
+	
+	@Override
+	@Transactional
+	public Long create(
+			Long expedientId,
+			String processInstanceId,
+			String documentCodi,
+			Date data,
+			String adjuntTitol,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			String arxiuContentType,
+			boolean ambFirma,
+			boolean firmaSeparada,
+			byte[] firmaContingut,
+			NtiOrigenEnumDto ntiOrigen,
+			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+			NtiTipoDocumentalEnumDto ntiTipoDocumental,
+			String ntiIdOrigen,
+			List<ExpedientDocumentDto> annexosPerNotificar) {
+		logger.debug("Crear document a dins l'expedient (" +
+				"expedientId=" + expedientId + ", " +
+				"processInstanceId=" + processInstanceId + ", " +
+				"documentCodi=" + documentCodi + ", " +
+				"data=" + data + ", " +
+				"adjuntTitol=" + adjuntTitol + ", " +
+				"arxiuNom=" + arxiuNom + ", " +
+				"arxiuContingut=" + arxiuContingut + ", " +
+				"arxiuContentType=" + arxiuContentType + ", " +
+				"ambFirma=" + ambFirma + ", " +
+				"firmaSeparada=" + firmaSeparada + ", " +
+				"firmaContingut=" + firmaContingut + ", " +
+				"ntiOrigen=" + ntiOrigen + ", " +
+				"ntiEstadoElaboracion=" + ntiEstadoElaboracion + ", " +
+				"ntiTipoDocumental=" + ntiTipoDocumental + ", " +
+				"ntiIdOrigen=" + ntiIdOrigen + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				new Permission[] {
+						ExtendedPermission.DOC_MANAGE,
+						ExtendedPermission.ADMINISTRATION});
+		expedientHelper.comprovarInstanciaProces(
+				expedient,
+				processInstanceId);
+		boolean isAdjunt = documentCodi == null;
+		expedientLoggerHelper.afegirLogExpedientPerProces(
+				processInstanceId,
+				isAdjunt ? 
+						ExpedientLogAccioTipus.PROCES_DOCUMENT_ADJUNTAR 
+						: ExpedientLogAccioTipus.PROCES_DOCUMENT_AFEGIR,
+				documentCodi);
+		Long documentStoreId = documentHelper.crearDocument(
+				null,
+				processInstanceId,
+				documentCodi,
+				data,
+				isAdjunt,
+				isAdjunt ? adjuntTitol : null,
+				arxiuNom,
+				arxiuContingut,
+				null, // arxiuUuid
+				arxiuContentType,
+				ambFirma,
+				firmaSeparada,
+				firmaContingut,
+				ntiOrigen,
+				ntiEstadoElaboracion,
+				ntiTipoDocumental,
+				ntiIdOrigen,
+				true,
+				null,
+				null,
+				annexosPerNotificar);
+		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
+		expedientRegistreHelper.crearRegistreCrearDocumentInstanciaProces(
+				expedient.getId(),
+				processInstanceId,
+				SecurityContextHolder.getContext().getAuthentication().getName(),
+				documentCodi,
+				arxiuNom);
+		return documentStoreId;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public ArxiuDto arxiuFindAmbDocument(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId) {
+		logger.debug("Consulta de l'arxiu del document de la instància de procés (" +
+				"expedientId=" + expedientId + ", " +
+				"processInstanceId=" + processInstanceId + ", " +
+				"documentStoreId=" + documentStoreId + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		if (documentStore == null) {
+			throw new NoTrobatException(
+					DocumentStore.class,
+					documentStoreId);
+		}
+		expedientHelper.comprovarInstanciaProces(
+				expedient,
+				documentStore.getProcessInstanceId());
+		return documentHelper.getArxiuPerDocumentStoreId(
+				documentStoreId,
+				false,
+				true,
+				null);
+	}
 
 
 }

@@ -25,6 +25,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentEnviamentEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
@@ -242,7 +243,16 @@ public class NotificacioHelper {
 		notificacio.setDataCaducitat(dadesNotificacio.getCaducitat());
 		
 		notificacio.setDocument(documentStoreRepository.findOne(dadesNotificacio.getDocumentId()));
-
+		
+		if(dadesNotificacio.getDocumentsDinsZip()!=null && !dadesNotificacio.getDocumentsDinsZip().isEmpty()) {
+			List<DocumentStore> llistatDocuments = new ArrayList<DocumentStore>();
+			for (DocumentStoreDto dsDto : dadesNotificacio.getDocumentsDinsZip()) {
+				DocumentStore ds = documentStoreRepository.findOne(dsDto.getId());
+				llistatDocuments.add(ds);
+			}
+			notificacio.setAnnexos(llistatDocuments);
+		}
+ 		
 		// TODO: Només 1 enviament
 		DadesEnviamentDto dadesEnviament = dadesNotificacio.getEnviaments().get(0);
 

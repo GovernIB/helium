@@ -26,11 +26,15 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
@@ -412,6 +416,7 @@ public interface Jbpm3HeliumService {
 	 * @param processInstanceId
 	 * @param documentCodi
 	 * @param motiu
+	 * @param contingut
 	 * @throws NoTrobatException
 	 * @throws ValidacioException
 	 * @throws TramitacioException
@@ -419,7 +424,9 @@ public interface Jbpm3HeliumService {
 	public void documentFirmaServidor(
 			String processInstanceId,
 			String documentCodi,
-			String motiu) throws NoTrobatException, ValidacioException, TramitacioException;
+			String motiu,
+			byte[] contingut,
+			Long documentStoreId) throws NoTrobatException, ValidacioException, TramitacioException;
 
 	/**
 	 * Obté el termini donada una instància de procés i el codi del termini.
@@ -1254,5 +1261,194 @@ public interface Jbpm3HeliumService {
 	public ExpedientTipusDto findExpedientTipusAmbEntorniCodi(
 			Long entornId,
 			String expedientTipusCodi) throws NoTrobatException, PermisDenegatException;
+	
+	/** Crea un .zip amb els documents a Notificar
+	 * 
+	 * @param expedientId
+	 * @param documentsPerAfegir
+	 * @return Retorna el contingut del zip.
+	 */
+	byte[] getZipPerNotificar(Long expedientId, List<ExpedientDocumentDto> documentsPerAfegir);
 
+	public DocumentDto findDocumentAmbId(Long documentStoreId) throws NoTrobatException;
+	
+	/**
+	 * Retorna un document d'una instància de procés de
+	 * l'expedient.
+	 * 
+	 * @param expedientId
+	 *            Atribut id de l'expedient que es vol consultar.
+	 * @param processInstanceId
+	 *            Atribut processInstanceId que es vol consultar. Si no
+	 *            s'especifica s'agafa l'instància de procés arrel.
+	 * @param documentStoreId
+	 *            Atribut id de la taula document_store del document que
+	 *            es vol consultar.
+	 * @return El document de l'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat l'element amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos requerits per aquesta acció.
+	 */
+	public ExpedientDocumentDto findOneAmbInstanciaProces(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId) throws NoTrobatException, PermisDenegatException;
+	
+	/** Mètode per crear o actualitzar un document a un procés
+	 * 
+	 * @param processInstanceId
+	 * @param documentCodi
+	 * @param data
+	 * @param arxiu
+	 * @param contingut
+	 * @param annexosPerNotificar
+	 * @return 
+	 */
+	public Long guardarDocumentProces(
+			String processInstanceId, 
+			String documentCodi, 
+			Date data, 
+			String arxiu,
+			byte[] contingut,
+			List<ExpedientDocumentDto> annexosPerNotificar);
+	
+	/**
+	 * Retorna un document d'una instància de procés de
+	 * l'expedient.
+	 * 
+	 * @param expedientId
+	 *            Atribut id de l'expedient que es vol consultar.
+	 * @param processInstanceId
+	 *            Atribut processInstanceId que es vol consultar. Si no
+	 *            s'especifica s'agafa l'instància de procés arrel.
+	 * @param documentCodi
+	 *            Codi del document que es vol consultar.
+	 * @return El document de l'expedient.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat l'element amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos requerits per aquesta acció.
+	 */
+	public ExpedientDocumentDto findOneAmbInstanciaProces(
+			Long expedientId,
+			String processInstanceId,
+			String documentCodi) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Crea un nou document a dins la instància de procés.
+	 * 
+	 * @param expedientId
+	 *             atribut id de l'expedient.
+	 * @param processInstanceId
+	 *             atribut id de la instància de procés.
+	 * @param documentStoreId
+	 *             identificador del document a modificar.
+	 * @param data
+	 *             data del document.
+	 * @param adjuntTitol
+	 *             Títol per l'adjunt en cas que sigui un adjunt.
+	 * @param arxiuNom
+	 *             nom d'arxiu del document.
+	 * @param arxiuContingut
+	 *             contingut de l'arxiu del document.
+	 * @param arxiuContentType
+	 *             ContentType de l'arxiu.
+	 * @param ntiOrigen
+	 *             orígen NTI.
+	 * @param ntiEstadoElaboracion
+	 *             estat d'elaboració NTI.
+	 * @param ntiTipoDocumental
+	 *             tipus de document NTI.
+	 * @param ntiIdOrigen
+	 *             identificador NTI Del document original.
+	 * @throws NoTrobatException
+	 */
+	public void update(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId,
+			Date data,
+			String adjuntTitol,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			String arxiuContentType,
+			boolean ambFirma,
+			boolean firmaSeparada,
+			byte[] firmaContingut,
+			NtiOrigenEnumDto ntiOrigen,
+			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+			NtiTipoDocumentalEnumDto ntiTipoDocumental,
+			String ntiIdOrigen) throws NoTrobatException;
+	
+	/**
+	 * Crea un nou document a dins la instància de procés.
+	 * 
+	 * @param expedientId
+	 *             atribut id de l'expedient.
+	 * @param processInstanceId
+	 *             atribut id de la instància de procés.
+	 * @param documentCodi
+	 *             codi de document dins el disseny de l'expedient. Si aquest paràmetre no està informat llavors es tractarà 
+	 *             el document com un adjunt i s'aprofitarà el títol pel nou document i es tractarà com a tal.
+	 * @param data
+	 *             data del document.
+	 * @param adjuntTitol
+	 *             Títol per l'adjunt en el cas que no s'informi del codi del document.
+	 * @param arxiuNom
+	 *             nom d'arxiu del document.
+	 * @param arxiuContingut
+	 *             contingut de l'arxiu del document.
+	 * @param arxiuContentType
+	 *             ContentType de l'arxiu.
+	 * @param ntiOrigen
+	 *             orígen NTI.
+	 * @param ntiEstadoElaboracion
+	 *             estat d'elaboració NTI.
+	 * @param ntiTipoDocumental
+	 *             tipus de document NTI.
+	 * @param ntiIdOrigen
+	 *             identificador NTI Del document original.
+	 * @param annexosPerNotificar
+	 * @throws NoTrobatException
+	 */
+	public Long create(
+			Long expedientId,
+			String processInstanceId,
+			String documentCodi,
+			Date data,
+			String adjuntTitol,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			String arxiuContentType,
+			boolean ambFirma,
+			boolean firmaSeparada,
+			byte[] firmaContingut,
+			NtiOrigenEnumDto ntiOrigen,
+			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
+			NtiTipoDocumentalEnumDto ntiTipoDocumental,
+			String ntiIdOrigen,
+			List<ExpedientDocumentDto> annexosPerNotificar) throws NoTrobatException;
+
+	
+	/**
+	 * Retorna l'arxiu del document.
+	 * 
+	 * @param expedientId
+	 *             atribut id de l'expedient.
+	 * @param processInstanceId
+	 *             atribut id de la instància de procés.
+	 * @param documentStoreId
+	 *             atribut id del document emmagatzemat.
+	 * @return L'arxiu del document.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat l'element amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos requerits per aquesta acció.
+	 */
+	public ArxiuDto arxiuFindAmbDocument(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId) throws NoTrobatException, PermisDenegatException;
+	
 }

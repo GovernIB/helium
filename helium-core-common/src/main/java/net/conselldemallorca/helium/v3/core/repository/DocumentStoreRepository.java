@@ -41,4 +41,13 @@ public interface DocumentStoreRepository extends JpaRepository<DocumentStore, Lo
 	/** Per trobar tots els documents que fan referència a un annex per actualitzar el seu UUID. */
 	public List<DocumentStore> findByAnnexId(long annexId);
 
+	/** Per trobar tots els documents continguts en cas de que sigui un zip. */
+	@Query(
+			"select ds.continguts from DocumentStore ds "+
+			"where ds.id = :documentStoreId ")
+	public List<DocumentStore> findDocumentsContinguts(
+			@Param("documentStoreId") Long documentStoreId);
+	
+	
+	
 }

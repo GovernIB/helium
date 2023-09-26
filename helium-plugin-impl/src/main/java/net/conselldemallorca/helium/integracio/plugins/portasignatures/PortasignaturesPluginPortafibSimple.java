@@ -134,8 +134,17 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 				signatureRequest.setAnnexs(portafirmesAnnexos);
 			}
 			FirmaAsyncSimpleSignatureBlock[] signatureBlocks  = null;
+<<<<<<< HEAD
 			if (plantillaFluxId != null ) {
 				// Convertir en blocs de portafirmes a partir d'un id de transacció o d'una plantilla
+=======
+			if (plantillaFluxId != null /* || idTransaccio != null */) {
+				FirmaAsyncSimpleSignatureRequestWithFlowTemplateCode signatureRequestAmbPlantilla;
+				
+				
+				//				### convertir en blocs de portafirmes a partir d'un id de transacció o d'una plantilla
+//				signatureBlocks = idTransaccio != null ? recuperarFluxDeFirma(idTransaccio) : toFirmaAsyncSimpleSignatureBlockFromId(plantillaFluxId, "ca");
+>>>>>>> refs/heads/#1656_Permetre_notificar_més_d'un_document_i_a_la_vegada_en_un_.zip_ok
 				signatureBlocks = toFirmaAsyncSimpleSignatureBlockFromId(plantillaFluxId, "ca");
 				signatureRequest.setSignatureBlocks(signatureBlocks);
 			} else if (blocList!=null && !blocList.isEmpty()) {
@@ -143,7 +152,12 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 				signatureRequest.setSignatureBlocks(signatureBlocks);
 			}
 			signatureRequest.setSignatureBlocks(signatureBlocks);
+<<<<<<< HEAD
 			peticioDeFirmaId = getFirmaAsyncSimpleApi().createAndStartSignatureRequestWithSignBlockList(signatureRequest);//MARTA peta aquí!  
+=======
+			peticioDeFirmaId = getFirmaAsyncSimpleApi().createAndStartSignatureRequestWithSignBlockList(signatureRequest); 
+			//no pot transformar el json a un objecte, mira si tenim les mateixes dependències que a Ripea....
+>>>>>>> refs/heads/#1656_Permetre_notificar_més_d'un_document_i_a_la_vegada_en_un_.zip_ok
 			return new Long(peticioDeFirmaId).intValue();
 		} catch (Exception ex) {
 			throw new PortasignaturesPluginException(

@@ -35,7 +35,9 @@ public class DocumentFirmaServidorHandler extends AbstractHeliumActionHandler im
 		Jbpm3HeliumBridge.getInstanceService().documentFirmaServidor(
 				getProcessInstanceId(executionContext),
 				docCodi,
-				motiu);
+				motiu,
+				null,
+				null);
 		logger.debug("Handler firma servidor finalitzat amb èxit");
 	}
 

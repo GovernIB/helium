@@ -5,6 +5,8 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 
+<script src="<c:url value="/js/webutil.modal.js"/>"></script>
+
 <style>
 div.proces {
 	color: white !important;
@@ -77,10 +79,9 @@ div.proces:hover {
 	</div>
 	<div class="pull-left">
 		
-		<a id="notificarZip" class="btn btn-default" 
-			href="../../v3/expedient/${expedientId}/document/notificarZip" 
-			data-rdt-link-modal="true" 
-			data-rdt-link-modal-min-height="180">
+		<a class="btn btn-default" 
+			href="../../v3/expedient/${expedientId}/document/notificarZip" "
+			data-toggle="modal">
 				<span class="fa fa-paper-plane"></span>
 				<spring:message code="expedient.boto.notificar_zip"/>
 		</a>

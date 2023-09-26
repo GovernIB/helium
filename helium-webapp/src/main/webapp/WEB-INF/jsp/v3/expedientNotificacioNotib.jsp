@@ -17,7 +17,7 @@
 					<th><spring:message code="expedient.notificacio.estat.enviament"/></th>
 					<th><spring:message code="expedient.notificacio.titular"/></th>
 					<th><spring:message code="expedient.notificacio.destinatari"/></th>
-					<th><spring:message code="expedient.notificacio.document"/></th>
+					<th style="width:20%"><spring:message code="expedient.notificacio.document"/></th>
 					<th><spring:message code="expedient.notificacio.justificant"/></th>
  					<th></th>
 				</tr>
@@ -76,6 +76,18 @@
 								${notificacio.documentNom != null? notificacio.documentNom : notificacio.documentArxiuNom}
 								<span class="fa fa-download fa-lg"></span>
 							</a>
+							<c:if test="${not empty notificacio.documentsDinsZip}">
+							<br/><span class="">Conté:</span>
+								<c:forEach items="${notificacio.documentsDinsZip}" var="docContingut">
+									<div id="docContingut_${docContingut.id}" class="">	
+											-<a href="<c:url value="/v3/expedient/${expedient.id}/proces/${expedient.processInstanceId}/document/${docContingut.id}/descarregar"/>"
+											title="<spring:message code="expedient.notificacio.descarregar.doc"/> ${docContingut.nom}">
+											${docContingut.nom != null? docContingut.nom : docContingut.id}
+											<span class="fa fa-download fa-lg"></span>
+											</a>			
+									</div>
+								</c:forEach>
+							</c:if>					
 						</td>
 						<td>
 							<c:if test="${not empty notificacio.justificantId}">
