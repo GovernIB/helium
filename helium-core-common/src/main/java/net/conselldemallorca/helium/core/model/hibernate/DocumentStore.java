@@ -4,7 +4,9 @@
 package net.conselldemallorca.helium.core.model.hibernate;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -13,7 +15,10 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import javax.persistence.Temporal;
@@ -113,6 +118,13 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 
 	/** Identificador de l'annex de l'anotació del qual prové el document o adjunt. */
 	private Long annexId;
+
+	/** Llista de documents continguts en el zip guardats a laa taula hel_document_contingut. S'usa en les notificacions de zips. */
+	private List<DocumentStore> continguts = new ArrayList<DocumentStore>();
+	
+	/** Llista de documents zip que contenen aquest document guardats a la taula hel_document_contingut. S'usa en les notificacions de zips. */
+	private List<DocumentStore> zips = new ArrayList<DocumentStore>();
+
 	
 	public DocumentStore() {}
 	public DocumentStore(
@@ -438,6 +450,24 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	}
 	
 	
+	@JoinTable(name = "hel_document_contingut", joinColumns = {
+	@JoinColumn(name = "id", referencedColumnName = "id", nullable = false) }, inverseJoinColumns = {
+	@JoinColumn(name = "document_contingut", referencedColumnName = "id", nullable = false) })
+	@ManyToMany
+	public List<DocumentStore> getContinguts() {
+		return continguts;
+	}
+	public void setContinguts(List<DocumentStore> continguts) {
+		this.continguts = continguts;
+	}
+	
+	@ManyToMany(mappedBy = "continguts")
+	public List<DocumentStore> getZips() {
+		return zips;
+	}
+	public void setZips(List<DocumentStore> zips) {
+		this.zips = zips;
+	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;

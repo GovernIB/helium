@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.Resource;
 
 import org.apache.commons.io.FilenameUtils;
@@ -22,6 +23,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.tika.Tika;
+import org.apache.tika.mime.MimeTypes;
 import org.fundaciobit.plugins.validatesignature.api.CertificateInfo;
 import org.fundaciobit.plugins.validatesignature.api.IValidateSignaturePlugin;
 import org.fundaciobit.plugins.validatesignature.api.SignatureDetailInfo;
@@ -216,6 +219,7 @@ public class PluginHelper {
 	private IValidateSignaturePlugin validaSignaturaPlugin;
 	private UnitatsOrganiquesPlugin unitatsOrganitzativesPlugin;
 	private PinbalPluginInterface pinbalPlugin;
+	private Tika tika = new Tika();
 
 
 
@@ -1578,7 +1582,7 @@ public class PluginHelper {
 //				parametres[i]=parametresList.get(i);
 //			}
 
-			List<PortafirmesFluxBloc> flux = new ArrayList<PortafirmesFluxBloc>();//MARTA
+			List<PortafirmesFluxBloc> flux = new ArrayList<PortafirmesFluxBloc>();
 			if (portafirmesFluxId == null) {
 				if (PortafirmesSimpleTipusEnumDto.SERIE.equals(fluxTipus)) {
 					for (String responsable: responsables) {
@@ -2606,7 +2610,8 @@ public class PluginHelper {
 			ArxiuDto firma, 
 			String tipusFirma, 
 			String tipusFirmaEni, 
-			String perfilFirmaEni) {
+			String perfilFirmaEni,
+			byte[] arxiuContingut) {
 		
 		String accioDescripcio = "Guardar firma per document";
 		List<IntegracioParametreDto> parametres = new ArrayList<IntegracioParametreDto>();
@@ -2623,12 +2628,17 @@ public class PluginHelper {
 		try {
 			ArxiuDto arxiu = new ArxiuDto();
 			arxiu.setNom(documentStore.getArxiuNom());
+			arxiu.setContingut(documentStore.getArxiuContingut()!=null ? documentStore.getArxiuContingut() : arxiuContingut);
+			//DocumentExtensio ext = getExtensioPerArxiu(FilenameUtils.getExtension(arxiu.getNom()));
+			//new MimetypesFileTypeMap().getContentType(arxiu.getNom());
+			arxiu.setTipusMime(this.getContentType(arxiu.getNom()));
+			
 			ContingutArxiu documentPerRetornar = getArxiuPlugin().documentModificar(
 					toArxiuDocument(
 							documentStore.getArxiuUuid(),
-							documentNom,
+							documentStore.getArxiuNom(),
 							documentDescripcio,
-							null,
+							arxiu,
 							firma,
 							tipusFirma, 
 							tipusFirmaEni,
@@ -3661,7 +3671,7 @@ public class PluginHelper {
 		return ArxiuConversioHelper.revisarContingutNom(nom);
 	}
 
-	private static List<NtiTipoFirmaEnumDto> TIPUS_FIRMES_ATTACHED = Arrays.asList(NtiTipoFirmaEnumDto.CADES_DET, NtiTipoFirmaEnumDto.PADES, NtiTipoFirmaEnumDto.XADES_ENV);
+	private static List<NtiTipoFirmaEnumDto> TIPUS_FIRMES_ATTACHED = Arrays.asList(NtiTipoFirmaEnumDto.CADES_ATT, NtiTipoFirmaEnumDto.PADES, NtiTipoFirmaEnumDto.XADES_ENV);
 
 	/** Mètode per obtenir un objecte Document per crear o actualitzar a l'arxiu. */
 	private es.caib.plugins.arxiu.api.Document toArxiuDocument(
@@ -3690,7 +3700,7 @@ public class PluginHelper {
 			arxiuFirma.setAutofirma(false);
 			arxiuFirma.setContingut(firma.getContingut());
 			arxiuFirma.setFitxerNom(firma.getNom());
-			arxiuFirma.setTipusMime(firma.getTipusMime());
+			arxiuFirma.setTipusMime(firma.getTipusMime());//aquí li assigna octet-stream
 			arxiuFirma.setTipus(this.firmaTipusEniToArxiu(firmaTipusEni));
 			arxiuFirma.setPerfil(ArxiuFirmaPerfilEnumDto.valueOf(firmaPerfil));
 			firmes = Arrays.asList(arxiuFirma);
@@ -3900,19 +3910,26 @@ public class PluginHelper {
 			} else {
 				// detached
 				contingut = new DocumentContingut();
-				contingut.setArxiuNom(fitxer.getNom());
-				contingut.setContingut(fitxer.getContingut());
-				contingut.setTipusMime(fitxer.getTipusMime());
-				document.setContingut(contingut);
+				if (fitxer != null) {
+					contingut.setArxiuNom(fitxer.getNom());
+					contingut.setContingut(fitxer.getContingut());
+					contingut.setTipusMime(new MimetypesFileTypeMap().getContentType(fitxer.getNom()));
+					document.setContingut(contingut);
+				} 
 				document.setFirmes(new ArrayList<Firma>());
-				for (ArxiuFirmaDto firmaDto: firmes) {
-					Firma firma = new Firma();
-					firma.setFitxerNom(firmaDto.getFitxerNom());
-					firma.setContingut(firmaDto.getContingut());
-					firma.setTipusMime(firmaDto.getTipusMime());
-					setFirmaTipusPerfil(firma, firmaDto);
-					firma.setCsvRegulacio(firmaDto.getCsvRegulacio());
-					document.getFirmes().add(firma);
+				if (firmes != null && !firmes.isEmpty()) {
+					for (ArxiuFirmaDto firmaDto: firmes) {
+						Firma firma = new Firma();
+						firma.setFitxerNom(firmaDto.getFitxerNom());
+						firma.setContingut(firmaDto.getContingut());
+						firma.setTipusMime(firmaDto.getTipusMime()); 
+						if (firmaDto.getContingut() != null) {
+							firma.setTamany(firmaDto.getContingut().length);
+						}
+						setFirmaTipusPerfil(firma, firmaDto);
+						firma.setCsvRegulacio(firmaDto.getCsvRegulacio());
+						document.getFirmes().add(firma);							
+					}
 				}
 			}
 		}
@@ -4211,6 +4228,14 @@ public class PluginHelper {
 	private DocumentExtensio getExtensioPerArxiu(String fitxerExtensio) {
 		String extensioAmbPunt = (fitxerExtensio.startsWith(".")) ? fitxerExtensio.toLowerCase() : "." + fitxerExtensio.toLowerCase();
 		return DocumentExtensio.toEnum(extensioAmbPunt);
+	}
+	
+	public String getContentType(String arxiuNom) {
+        String fileContentDetect = tika.detect(arxiuNom);
+        if (!fileContentDetect.equals(MimeTypes.OCTET_STREAM)) {
+            return fileContentDetect;
+        }
+        return MimeTypes.OCTET_STREAM;
 	}
 	
 	/**

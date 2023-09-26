@@ -185,27 +185,7 @@ public class PluginService {
 					}
 				}
 			}	
-			//MARTA descomentar després
-//			List<PortafirmesFluxBloc> flux = new ArrayList<PortafirmesFluxBloc>();//MARTA
-//			if (fluxId == null) {
-//				if (MetaDocumentFirmaSequenciaTipusEnumDto.SERIE.equals(fluxTipus)) {
-//					for (String responsable: responsables) {
-//						PortafirmesFluxBloc bloc = new PortafirmesFluxBloc();
-//						bloc.setMinSignataris(1);
-//						bloc.setDestinataris(new String[] {responsable});
-//						bloc.setObligatorietats(new boolean[] {true});
-//						flux.add(bloc);
-//					}
-//				} else if (MetaDocumentFirmaSequenciaTipusEnumDto.PARALEL.equals(fluxTipus)) {
-//					PortafirmesFluxBloc bloc = new PortafirmesFluxBloc();
-//					bloc.setMinSignataris(responsables.length);
-//					bloc.setDestinataris(responsables);
-//					boolean[] obligatorietats = new boolean[responsables.length];
-//					Arrays.fill(obligatorietats, true);
-//					bloc.setObligatorietats(obligatorietats);
-//					flux.add(bloc);
-//				}
-//			}
+			
 			Integer doc = pluginPortasignaturesDao.uploadDocument(
 					document,
 					annexos,

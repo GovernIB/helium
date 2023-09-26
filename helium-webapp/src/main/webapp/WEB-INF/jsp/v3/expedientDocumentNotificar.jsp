@@ -6,7 +6,7 @@
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <html>
 <head>
-	<title><spring:message code="expedient.document.notificar"/></title>
+	<title><spring:message code="expedient.document.notificar"/> ${document.arxiuNom}</title>
 	<hel:modalHead/>
 	<script src="<c:url value="/js/webutil.common.js"/>"></script>	
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>

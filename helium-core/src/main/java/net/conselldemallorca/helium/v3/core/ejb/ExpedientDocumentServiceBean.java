@@ -18,6 +18,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
@@ -65,7 +66,8 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			NtiOrigenEnumDto ntiOrigen,
 			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
-			String ntiIdOrigen) {
+			String ntiIdOrigen,
+			List<ExpedientDocumentDto> annexosPerNotificar) {
 		return delegate.create(
 				expedientId,
 				processInstanceId,
@@ -81,7 +83,8 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 				ntiOrigen,
 				ntiEstadoElaboracion,
 				ntiTipoDocumental,
-				ntiIdOrigen);
+				ntiIdOrigen,
+				annexosPerNotificar);
 	}
 
 	@Override
@@ -123,8 +126,8 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public Long guardarDocumentProces(String processInstanceId, String documentCodi, Date data, String arxiu,
-			byte[] contingut) {
-		return delegate.guardarDocumentProces(processInstanceId, documentCodi, data, arxiu, contingut);
+			byte[] contingut, List<ExpedientDocumentDto> annexosPerNotificar) {
+		return delegate.guardarDocumentProces(processInstanceId, documentCodi, data, arxiu, contingut, annexosPerNotificar);
 	}
 
 	@Override
@@ -338,10 +341,11 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	public DadesNotificacioDto notificarDocument(
 			Long expedientId, 
 			Long documentStoreId, 
+			List<DocumentStoreDto> documentsDinsZip,
 			DadesNotificacioDto dadesNotificacioDto,
 			Long interessatsId,
 			Long representantId) {
-		return delegate.notificarDocument(expedientId, documentStoreId, dadesNotificacioDto, interessatsId, representantId);		
+		return delegate.notificarDocument(expedientId, documentStoreId, documentsDinsZip, dadesNotificacioDto, interessatsId, representantId);		
 	}
 
 	@Override

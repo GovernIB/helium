@@ -61,6 +61,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
@@ -153,7 +154,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			NtiOrigenEnumDto ntiOrigen,
 			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
-			String ntiIdOrigen) {
+			String ntiIdOrigen,
+			List<ExpedientDocumentDto> annexosPerNotificar) {
 		logger.debug("Crear document a dins l'expedient (" +
 				"expedientId=" + expedientId + ", " +
 				"processInstanceId=" + processInstanceId + ", " +
@@ -205,7 +207,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				ntiIdOrigen,
 				true,
 				null,
-				null);
+				null,
+				annexosPerNotificar);
 		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 		expedientRegistreHelper.crearRegistreCrearDocumentInstanciaProces(
 				expedient.getId(),
@@ -305,7 +308,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			String documentCodi, 
 			Date data, 
 			String arxiu,
-			byte[] contingut) {
+			byte[] contingut,
+			List<ExpedientDocumentDto> annexosPerNotificar) {
 		
 		logger.debug("Guardar document procés (" +
 				"processInstanceId=" + processInstanceId + ", " +
@@ -346,15 +350,15 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 					null, // Títol en el cas dels adjunts (al crear ja li posa el nom del document)
 					arxiu,
 					contingut,
-					new MimetypesFileTypeMap().getContentType(arxiu),
+					documentHelper.getContentType(arxiu),
 					false, //command.isAmbFirma(),
 					false, //DocumentTipusFirmaEnumDto.SEPARAT.equals(command.getTipusFirma()),
 					null, //firmaContingut,
 					null, //command.getNtiOrigen(),
 					null, //command.getNtiEstadoElaboracion(),
 					null, //command.getNtiTipoDocumental(),
-					null  //command.getNtiIdOrigen()
-					);
+					null,  //command.getNtiIdOrigen()
+					annexosPerNotificar);
 		}
 		return documentStoreId;
 	}
@@ -387,6 +391,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	public DadesNotificacioDto notificarDocument(
 			Long expedientId,
 			Long documentStoreId,
+			List<DocumentStoreDto> documentsDinsZip,
 			DadesNotificacioDto dadesNotificacioDto,
 			Long interessatId,
 			Long representantId) {
@@ -421,7 +426,10 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			dadesNotificacioDto.setDocumentArxiuUuid(documentDto.getArxiuUuid());
 		}		
 		dadesNotificacioDto.setDocumentId(documentStoreId);
-					
+		
+		//Si es tracta d'un zip amb un llistat de documents, els posem dins annexos
+		dadesNotificacioDto.setDocumentsDinsZip(documentsDinsZip);
+		
 		// De moment envia només a un interessat titular però es pot crear un enviament per cada titular amb la llista de destinataris		
 		Interessat interessatEntity	= interessatRepository.findOne(interessatId);
 

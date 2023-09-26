@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -26,6 +27,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.tika.Tika;
 import org.fundaciobit.plugins.signature.api.FileInfoSignature;
 import org.fundaciobit.plugins.signature.api.StatusSignature;
 import org.fundaciobit.plugins.signature.api.StatusSignaturesSet;
@@ -67,6 +69,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IdiomaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxBlocDto;
@@ -93,6 +98,8 @@ import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientEnviarPor
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientEnviarPortasignaturesCommand.EnviarPortasignatures;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientFirmaPassarelaCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientFirmaPassarelaCommand.FirmaPassarela;
+import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientNotificarZipCommand;
+import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientNotificarZipCommand.NotificarZip;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentNotificacioCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
@@ -326,7 +333,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 							command.getNtiOrigen(),
 							command.getNtiEstadoElaboracion(),
 							command.getNtiTipoDocumental(),
-							command.getNtiIdOrigen());
+							command.getNtiIdOrigen(),
+							null);
 					
 					MissatgesHelper.success(request, getMessage(request, "info.document.guardat") );
 					return modalUrlTancar(false);
@@ -500,7 +508,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		
 		ExpedientDocumentDto document = this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
 		//Validar que tingui els permissos de gestió documental o administrar
-		
+		command.setConcepte(document.getArxiuNom());
 		ExpedientDto expedientDto = expedientService.findAmbIdAmbPermis(expedientId);
 		if (!expedientDto.isPermisDocManagement() && !expedientDto.isPermisAdministration()) {
 				MissatgesHelper.error(request, 
@@ -548,9 +556,21 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				dadesNotificacio = expedientDocumentService.notificarDocument(
 						expedientId,
 						documentStoreId,
+						dadesNotificacioDto.getDocumentsDinsZip(),
 						dadesNotificacioDto,
 						interessatId,
 						documentNotificacioCommand.getRepresentantId());
+				if(dadesNotificacioDto!=null && dadesNotificacioDto.getDocumentArxiuContingut()!=null) {
+					Tika tika = new Tika();
+					//Si estem notificant un zip, un cop notificat firmen en servidor
+					if(tika.detect(dadesNotificacioDto.getDocumentArxiuContingut()).contains("zip")) {	
+						ArxiuDto arxiu = expedientDocumentService.arxiuFindAmbDocument(
+								expedientId,
+								processInstanceId,
+								documentStoreId);
+						documentHelper.firmaServidor(processInstanceId, documentStoreId, "notificació de zip", arxiu.getContingut());
+					}
+				}
 				// Missatge del resultat
 				if (! dadesNotificacio.getError())
 					MissatgesHelper.success(request, getMessage(request, "info.document.notificat", new Object[] {interessat.getFullInfo()}));
@@ -564,7 +584,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
 			return "v3/expedientDocumentNotificar";
 		}
-		return modalUrlTancar(false);
+		return modalUrlTancar(true);
 	}
 	
 	private ExpedientDocumentDto emplenarModelNotificacioDocument(
@@ -1291,20 +1311,70 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	public String notificarZip(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
-			Model model) {
-		DocumentExpedientCommand command = new DocumentExpedientCommand();
-		command.setExpedientId(expedientId);
-		command.setData(new Date());
-		command.setValidarArxius(true);
-//		model.addAttribute("documentsNoUtilitzats", getDocumentsNoUtilitzats(expedientId, processInstanceId));
-		model.addAttribute("documentExpedientCommand", command);
+			Model model) throws ParseException {
+		DocumentExpedientNotificarZipCommand command = new DocumentExpedientNotificarZipCommand();	
+		ExpedientDto expedientDto = expedientService.findAmbIdAmbPermis(expedientId);	
+		String processInstanceId = expedientDto.getProcessInstanceId();
+		// Possibles annexos
+		List<ExpedientDocumentDto> annexos = expedientDocumentService.findAmbInstanciaProces(expedientId, processInstanceId);		
+		model.addAttribute("annexos", annexos);
+		
+		String str = new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date());
+		command.setTitol("Notificació " + str);
+
 		emplenarModelNti(expedientId, model);
-		model.addAttribute(
-				"tipusFirmaOptions",
-				EnumHelper.getOptionsForEnum(
-						DocumentTipusFirmaEnumDto.class,
-						"enum.document.tipus.firma."));
+		command.setNtiOrigen(NtiOrigenEnumDto.ADMINISTRACIO);
+		command.setNtiEstadoElaboracion(NtiEstadoElaboracionEnumDto.ORIGINAL);
+		command.setNtiTipoDocumental(NtiTipoDocumentalEnumDto.NOTIFICACIO);
+		model.addAttribute("documentExpedientNotificarZipCommand", command);
 		return "v3/expedientDocumentNotificarZip";
+	}
+	
+	@RequestMapping(value = "/{expedientId}/document/notificarZip", method = RequestMethod.POST)
+	public String notificarZipPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@Validated(NotificarZip.class) DocumentExpedientNotificarZipCommand command,
+			BindingResult bindingResult,
+			Model model) {
+		
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);	
+		String processInstanceId = expedient.getProcessInstanceId();
+		
+		if (bindingResult.hasErrors()) {
+			emplenarModelNti(expedientId, model);
+			return "v3/expedientDocumentNotificarZip";
+		}
+		try {
+			List<ExpedientDocumentDto> annexos = expedientDocumentService.findAmbInstanciaProces(expedientId, processInstanceId);
+			List<Long> annexosId = command.getAnnexos();
+			List<ExpedientDocumentDto> annexosPerNotificar = new ArrayList<ExpedientDocumentDto>();
+			if (annexosId != null) {
+				for(ExpedientDocumentDto annex: annexos) {
+					if (annexosId.contains(annex.getId()))
+							annexosPerNotificar.add(annex);
+				}
+				
+			}
+			Long documentStoreId = null;
+			byte[] contingut = null;
+			if(annexosPerNotificar!=null && !annexosPerNotificar.isEmpty()) {
+				contingut = expedientService.getZipPerNotificar(expedientId, annexosPerNotificar);
+				String documentCodi = command.getTitol();
+				documentStoreId = expedientDocumentService.guardarDocumentProces(expedient.getProcessInstanceId(), null, new Date(), documentCodi+".zip", contingut, annexosPerNotificar);
+			}
+			//DocumentDto documentZipCreat = expedientDocumentService.findDocumentAmbId(documentStoreId);
+		
+			return "redirect:/modal/v3/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + documentStoreId + "/notificar";
+
+		
+		} catch(Exception e) {
+			String errMsg = getMessage(request, "expedient.document.notificat.zip.error", new Object[] {e.getMessage()});
+			logger.error(errMsg, e);
+			MissatgesHelper.error(request, errMsg);
+		}
+//		return "redirect:/modal/v3/expedientDocumentNotificar";
+		return null;
 	}
 	
 	/** Obre el formulari de l'enviament al portafirmes
@@ -1490,7 +1560,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		}
 
 		//Com a RIPEA
-		List<PortafirmesFluxBlocDto> blocList = new ArrayList<PortafirmesFluxBlocDto>();//MARTA
+		List<PortafirmesFluxBlocDto> blocList = new ArrayList<PortafirmesFluxBlocDto>();
 		PortafirmesFluxBlocDto bloc = null;
 		if (command.getPortafirmesResponsables()!=null && !command.getPortafirmesResponsables().isEmpty()) {
 			String[] responsablesCodis = command.getPortafirmesResponsables().split(",");

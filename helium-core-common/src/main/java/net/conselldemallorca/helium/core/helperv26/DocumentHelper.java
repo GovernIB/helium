@@ -504,7 +504,8 @@ public class DocumentHelper {
 				FirmaTipus.PADES.name(),
 				"TF06",
 				FirmaPerfil.EPES.name(),
-				signatura);
+				signatura,
+				null);
 	}
 
 	private Long getDocumentStoreIdDeVariableJbpm(

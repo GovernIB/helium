@@ -1481,7 +1481,8 @@ public class DistribucioHelper {
 						annex.getNtiOrigen() != null ? annex.getNtiOrigen().toString() : null,
 						annex.isDocumentValid(),
 						annex.getDocumentError(),
-						annex.getId());
+						annex.getId(),
+						null);
 				annex.setDocumentStoreId(documentStoreId);
 			}
 		} catch(Exception e) {

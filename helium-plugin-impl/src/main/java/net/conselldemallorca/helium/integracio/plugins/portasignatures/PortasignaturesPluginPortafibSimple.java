@@ -126,7 +126,7 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 				signatureRequest.setAnnexs(portafirmesAnnexos);
 			}
 			FirmaAsyncSimpleSignatureBlock[] signatureBlocks  = null;
-			if (plantillaFluxId != null /* || idTransaccio != null */) {//MARTA mirar aquí! plantillaFluxId i blocs
+			if (plantillaFluxId != null /* || idTransaccio != null */) {
 				FirmaAsyncSimpleSignatureRequestWithFlowTemplateCode signatureRequestAmbPlantilla;
 				
 				
@@ -144,7 +144,7 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 				//peticioDeFirmaId = getFirmaAsyncSimpleApi().createAndStartSignatureRequestWithSignBlockList(signatureRequest);
 			}
 			signatureRequest.setSignatureBlocks(signatureBlocks);
-			peticioDeFirmaId = getFirmaAsyncSimpleApi().createAndStartSignatureRequestWithSignBlockList(signatureRequest);//MARTA peta aquí!  
+			peticioDeFirmaId = getFirmaAsyncSimpleApi().createAndStartSignatureRequestWithSignBlockList(signatureRequest); 
 			//no pot transformar el json a un objecte, mira si tenim les mateixes dependències que a Ripea....
 			return new Long(peticioDeFirmaId).intValue();
 		} catch (Exception ex) {

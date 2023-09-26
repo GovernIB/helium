@@ -1031,7 +1031,8 @@ public class ExpedientHelper {
 				documentHelper.firmaServidor(
 						documentStore.getProcessInstanceId(),
 						documentStore.getId(), 
-						messageHelper.getMessage("document.controller.firma.servidor.default.message"));
+						messageHelper.getMessage("document.controller.firma.servidor.default.message"),
+						null);
 			} else {
 				// Actualitza les dades amb el document firmat
 				documentHelper.actualitzarNtiFirma(documentStore, arxiuDocument);
@@ -1804,7 +1805,8 @@ public class ExpedientHelper {
 				document.getNtiIdDocumentoOrigen(),
 				document.isDocumentValid(),
 				document.getDocumentError(),
-				document.getAnnexId());
+				document.getAnnexId(),
+				null);
 	}
 	
 	

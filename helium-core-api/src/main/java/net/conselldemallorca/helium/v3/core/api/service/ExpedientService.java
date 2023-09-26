@@ -20,6 +20,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
@@ -1004,5 +1005,13 @@ public interface ExpedientService {
 	 * @param expedientId
 	 */
 	public void arreglarMetadadesNti(Long expedientId);
+
+	/** Crea un .zip amb els documents a Notificar
+	 * 
+	 * @param expedientId
+	 * @param documentsPerAfegir
+	 * @return Retorna el contingut del zip.
+	 */
+	byte[] getZipPerNotificar(Long expedientId, List<ExpedientDocumentDto> documentsPerAfegir);
 
 }

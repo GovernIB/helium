@@ -1453,7 +1453,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					dadesDocumentDto.getNtiIdDocumentoOrigen(),
 					dadesDocumentDto.isDocumentValid(),
 					dadesDocumentDto.getDocumentError(),
-					dadesDocumentDto.getAnnexId());
+					dadesDocumentDto.getAnnexId(),
+					null);
 		}
 		
 	}
@@ -1479,7 +1480,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				adjunt.getNtiIdDocumentoOrigen(),
 				adjunt.isDocumentValid(),
 				adjunt.getDocumentError(),
-				adjunt.getAnnexId());
+				adjunt.getAnnexId(),
+				null);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(AnotacioServiceImpl.class);

@@ -45,6 +45,7 @@ public class DadesNotificacioDto {
 	private String enviamentIdentificador;
 	private String enviamentReferencia;
 	private IdiomaEnumDto idioma;
+	private List<DocumentStoreDto> documentsDinsZip;
 
 
 	
@@ -227,6 +228,13 @@ public class DadesNotificacioDto {
 	public void setEnviamentReferencia(String enviamentReferencia) {
 		this.enviamentReferencia = enviamentReferencia;
 	}
+	public List<DocumentStoreDto> getDocumentsDinsZip() {
+		return documentsDinsZip;
+	}
+	public void setDocumentsDinsZip(List<DocumentStoreDto> documentsDinsZip) {
+		this.documentsDinsZip = documentsDinsZip;
+	}
+	
 
 
 }

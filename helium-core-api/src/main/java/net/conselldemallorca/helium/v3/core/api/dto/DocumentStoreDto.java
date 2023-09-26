@@ -4,7 +4,9 @@
 package net.conselldemallorca.helium.v3.core.api.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -14,6 +16,8 @@ import java.util.Date;
  */
 public class DocumentStoreDto implements Serializable {
 	
+	private Long id;
+	private String nom;
 	private String ntiVersion;
 	private String ntiIdentificador;
 	private String ntiOrgan;
@@ -35,6 +39,12 @@ public class DocumentStoreDto implements Serializable {
 	/** Camp on distribucio informa dels possibles errors que pugui tenir el document. */
 	private String documentError;
 	
+	/** Llista de documents continguts en el zip guardats a laa taula hel_document_contingut. S'usa en les notificacions de zips. */
+	private List<DocumentStoreDto> continguts = new ArrayList<DocumentStoreDto>();
+	
+	/** Llista de documents zip que contenen aquest document guardats a la taula hel_document_contingut. S'usa en les notificacions de zips. */
+	private List<DocumentStoreDto> zips = new ArrayList<DocumentStoreDto>();
+
 	
 	public String getNtiVersion() {
 		return ntiVersion;
@@ -132,6 +142,33 @@ public class DocumentStoreDto implements Serializable {
 	}
 	public void setDocumentError(String documentError) {
 		this.documentError = documentError;
+	}
+
+	public List<DocumentStoreDto> getContinguts() {
+		return continguts;
+	}
+	public void setContinguts(List<DocumentStoreDto> continguts) {
+		this.continguts = continguts;
+	}
+	public List<DocumentStoreDto> getZips() {
+		return zips;
+	}
+	public void setZips(List<DocumentStoreDto> zips) {
+		this.zips = zips;
+	}
+
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
+	
+	public String getNom() {
+		return nom;
+	}
+	public void setNom(String nom) {
+		this.nom = nom;
 	}
 
 
