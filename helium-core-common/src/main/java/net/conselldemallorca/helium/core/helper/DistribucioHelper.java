@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.core.helper;
 
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -41,6 +42,7 @@ import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultatAnnex.AnnexAccio;
 import es.caib.distribucio.backoffice.utils.sistra.BackofficeSistra2Utils;
 import es.caib.distribucio.backoffice.utils.sistra.BackofficeSistra2UtilsImpl;
 import es.caib.distribucio.backoffice.utils.sistra.formulario.Campo;
+import es.caib.distribucio.backoffice.utils.sistra.formulario.Elemento;
 import es.caib.distribucio.backoffice.utils.sistra.formulario.Formulario;
 import es.caib.distribucio.backoffice.utils.sistra.formulario.Valor;
 import es.caib.distribucio.rest.client.integracio.BackofficeIntegracioRestClient;
@@ -61,7 +63,6 @@ import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioInteressat;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
-import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
@@ -108,6 +109,11 @@ import net.conselldemallorca.helium.v3.core.repository.MapeigSistraRepository;
 @Component
 public class DistribucioHelper {
 
+	public static final String SISTRA2_CAMP_FORM_SIMPLE = "simple";
+	public static final String SISTRA2_CAMP_FORM_COMPUESTO = "compuesto";
+	public static final String SISTRA2_CAMP_FORM_MULTIVALUADO = "multivaluado";
+	public static final String SISTRA2_CAMP_FORM_LISTA = "lista";
+	
 	@Resource
 	private ExceptionHelper exceptionHelper;
 	@Autowired
@@ -1035,32 +1041,45 @@ public class DistribucioHelper {
 	}
 	
 	
-	private Object valorVariableHelium(Campo campo, CampTasca campTasca) {
+	private Object valorVariableHelium(Campo campo, CampTasca campTasca) throws Exception {
 		Object valorHelium = null;
 		Camp camp = campTasca.getCamp();
 		if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
-			// Camp registre
-			Object[] dadesRegistre = new Object[camp.getRegistreMembres().size()];
-			for (int i = 0; i < camp.getRegistreMembres().size(); i++) {
-				CampRegistre campRegistre = camp.getRegistreMembres().get(i);
-				for (Valor valor : campo.getValores()) {
-					if (campRegistre.getMembre().getCodi().equals(valor.getCodigo())) {						
-						dadesRegistre[i] = valorPerHeliumSimple(valor.getValue(), campRegistre.getMembre());
+			if (SISTRA2_CAMP_FORM_LISTA.equals(campo.getTipo())) {
+				// Camp registre
+				
+				if (camp.isMultiple()) {
+					Object[] resposta = new Object[campo.getElementos() != null ? campo.getElementos().size() : 0];
+					for (int i = 0; i < resposta.length; i++) {
+						Elemento elemento = campo.getElementos().get(i);
+						Object[] filaResposta = new Object[camp.getRegistreMembres().size()];
+						for (int j = 0; j < filaResposta.length && j < elemento.getCampo().size(); j++) {
+							Camp campRegistre = camp.getRegistreMembres().get(j).getMembre();
+							Campo campoElemento = elemento.getCampo().get(j);
+							filaResposta[j] = valorPerHeliumSimple(getValorSistra(campoElemento, 0), campRegistre);
+						}
+						resposta[i] = filaResposta;
 					}
+					valorHelium = resposta;
+				} else {
+					Object[] resposta = new Object[camp.getRegistreMembres().size()];
+					Elemento elemento = campo.getElementos().get(0);
+					for (int i = 0; i < resposta.length && i < elemento.getCampo().size(); i++) {
+						Camp campRegistre = camp.getRegistreMembres().get(i).getMembre();
+						Campo campoElemento = elemento.getCampo().get(i);
+						resposta[i] = valorPerHeliumSimple(getValorSistra(campoElemento, 0), campRegistre);
+					}
+					valorHelium = resposta;
 				}
-			}
-			if (camp.isMultiple()) {
-				Object[] valorsHelium = new Object[1];
-				valorsHelium[0] = dadesRegistre;
-				valorHelium = valorsHelium;
 			} else {
-				valorHelium = dadesRegistre;
+				throw new Exception("No s'ha pogut mapejar el camp " + camp.getCodi() + " de tipus registre: el camp de SISTRA2 \"" + campo.getId() +
+						"\" es de tipus " + campo.getTipo() + " i no es pot mapejar contra un registre");
 			}
 		} else {
 			// Camp
 			if (camp.isMultiple()) {
-				// Multiple
-				Object[] valorsHelium = new Object[campo.getValores().size()];
+				// Multiple 
+				Object[] valorsHelium = (Object[]) Array.newInstance(camp.getJavaClass(), campo.getValores().size());
 				for (int i = 0; i < campo.getValores().size(); i++) {
 					valorsHelium[i] = valorPerHeliumSimple(getValorSistra(campo, i), camp);
 				}
@@ -1079,12 +1098,17 @@ public class DistribucioHelper {
 		if (campo != null 
 				&& campo.getValores().size() > 0
 				&& index < campo.getValores().size()) {
-			if ("compuesto".equals(campo.getTipo())) {
+			if (SISTRA2_CAMP_FORM_COMPUESTO.equals(campo.getTipo())) {
 				// Valor a l'atribut "codigo", per exemple: <CAMPO id="id" tipo="compuesto"><VALOR codigo="C1">C1 - Text</VALOR></CAMPO>
 				valor = campo.getValores().get(index).getCodigo();
+			} else if (SISTRA2_CAMP_FORM_MULTIVALUADO.equals(campo.getTipo())) {
+				Valor vs2 = campo.getValores().get(index);
+				valor = vs2.getCodigo() != null ? vs2.getCodigo() : vs2.getValue();				
 			} else {
 				// Valor de tipus "simple", per exemple <CAMPO id="id" tipo="simple"><VALOR>Text</VALOR></CAMPO>
-				valor = campo.getValores().get(index).getValue();
+				valor = campo.getValores().get(index) != null? 
+						campo.getValores().get(index).getValue() 
+						: null;
 			}
 		}
 		return valor;

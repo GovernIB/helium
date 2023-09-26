@@ -1268,7 +1268,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 							expedient.getProcessInstanceId(),
 							varCodi,
 							true);
-					boolean variableExisteix = dada !=null ? true : false;
+					boolean variableExisteix = dada !=null && (dada.getMultipleValor() != null || dada.getVarValor() != null);
 					processarVariablesAnotacio(
 							expedientId,
 							expedient.getProcessInstanceId(),

@@ -12,6 +12,7 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesCarrecDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxInfoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxRespostaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesIniciFluxRespostaDto;
@@ -34,9 +35,13 @@ public class PortafirmesFluxServiceBean implements PortafirmesFluxService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PortafirmesIniciFluxRespostaDto iniciarFluxFirma(
+			Long expedientTipusId,
+			String usuariCodi,
 			String urlReturn, 
 			boolean isPlantilla) {
 		return delegate.iniciarFluxFirma(
+				expedientTipusId,
+				usuariCodi,
 				urlReturn, 
 				isPlantilla);
 	}
@@ -67,8 +72,8 @@ public class PortafirmesFluxServiceBean implements PortafirmesFluxService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<PortafirmesFluxRespostaDto> recuperarPlantillesDisponibles(boolean filtrar) {
-		return delegate.recuperarPlantillesDisponibles(filtrar);
+	public List<PortafirmesFluxRespostaDto> recuperarPlantillesDisponibles(Long expedientTipusId, String usuari) {
+		return delegate.recuperarPlantillesDisponibles(expedientTipusId, usuari);
 	}
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -86,6 +91,12 @@ public class PortafirmesFluxServiceBean implements PortafirmesFluxService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public String recuperarUrlViewEstatFluxDeFirmes(long portafirmesId) {
 		return delegate.recuperarUrlViewEstatFluxDeFirmes(portafirmesId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<PortafirmesCarrecDto> recuperarCarrecs() {
+		return delegate.recuperarCarrecs();
 	}
 
 }

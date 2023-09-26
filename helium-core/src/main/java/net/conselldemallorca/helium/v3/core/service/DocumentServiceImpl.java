@@ -309,22 +309,20 @@ public class DocumentServiceImpl implements DocumentService {
 		entity.setNtiOrigen(document.getNtiOrigen());
 		entity.setNtiEstadoElaboracion(document.getNtiEstadoElaboracion());
 		entity.setNtiTipoDocumental(document.getNtiTipoDocumental());
-		entity.setPortafirmesActiu(document.isPortafirmesActiu());
-		if(document.isPortafirmesActiu()) {
+		if(document.getPortafirmesFluxTipus() != null) {
 			entity.setPortafirmesFluxId(document.getPortafirmesFluxId());	
 			entity.setPortafirmesFluxTipus(document.getPortafirmesFluxTipus());
 			entity.setPortafirmesSequenciaTipus(document.getPortafirmesSequenciaTipus());
 			if(document.getPortafirmesResponsables()!=null) {
-				//MARTA aquí setejar String!
-//				entity.setPortafirmesResponsables(this.getResponsablesFromArray(document.getPortafirmesResponsables()));
-
 				entity.setPortafirmesResponsables(document.getPortafirmesResponsables()!=null? document.getPortafirmesResponsables().split(",") : null );
 			}
+			entity.setPortafirmesActiu(document.isPortafirmesActiu());
 		} else {
 			entity.setPortafirmesFluxId(null);	
 			entity.setPortafirmesFluxTipus(null);
 			entity.setPortafirmesSequenciaTipus(null);
 			entity.setPortafirmesResponsables(null);	
+			entity.setPortafirmesActiu(false);
 		}
 
 		return conversioTipusHelper.convertir(

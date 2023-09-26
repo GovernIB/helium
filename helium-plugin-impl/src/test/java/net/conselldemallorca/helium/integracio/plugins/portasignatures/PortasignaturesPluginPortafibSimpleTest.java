@@ -58,15 +58,18 @@ public class PortasignaturesPluginPortafibSimpleTest {
 		document.setTipus(DOC_TIPUS);
 		document.setSignat(false);
 		document.setReference(new Long(System.currentTimeMillis()).toString());
-		PasSignatura pasSignatura = new PasSignatura();
-		pasSignatura.setSignataris(new String[] {DESTINATARI});
-		pasSignatura.setMinSignataris(1);
+		
+		List<PortafirmesFluxBloc> blockList = new ArrayList<PortafirmesFluxBloc>();
+		PortafirmesFluxBloc block = new PortafirmesFluxBloc(1, new String[] {DESTINATARI});
+		blockList.add(block);
+		
 		portasignaturesPlugin.uploadDocument(
 				document,
 				new ArrayList<DocumentPortasignatures>(),
 				false,
-				new PasSignatura[] {pasSignatura},
+				blockList,
 				"Helium test",
+				null,
 				null,
 				null);
 	}
@@ -82,26 +85,28 @@ public class PortasignaturesPluginPortafibSimpleTest {
 			document.setTipus(DOC_TIPUS);
 			document.setSignat(false);
 			document.setReference(new Long(System.currentTimeMillis()).toString());
-			List<PasSignatura> pasos = new ArrayList<PasSignatura>();
-			PasSignatura pasSignatura ;
 			List<String> destinataris;
+			
+			List<PortafirmesFluxBloc> blockList = new ArrayList<PortafirmesFluxBloc>();
+			PortafirmesFluxBloc block;
 			for (int i = 1; i <=3; i++) {
-				pasSignatura = new PasSignatura();
+				block = new PortafirmesFluxBloc();
 				destinataris = new ArrayList<String>();
 				for(int j=0; j<i; j++) {
 					//destinataris.add("destinatari_" + i + "_" + j);
 					destinataris.add(DESTINATARI);
 				}
-				pasSignatura.setSignataris( destinataris.toArray(new String[0]));
-				pasSignatura.setMinSignataris(1);
-				pasos.add(pasSignatura);
+				block.setDestinataris(destinataris.toArray(new String[0]));
+				block.setMinSignataris(1);
+				blockList.add(block);
 			}
 			portasignaturesPlugin.uploadDocument(
 					document,
 					new ArrayList<DocumentPortasignatures>(),
 					false,
-					pasos.toArray(new PasSignatura[0]),
+					blockList,
 					"Helium test",
+					null,
 					null,
 					null);
 		} catch(Exception e) { 

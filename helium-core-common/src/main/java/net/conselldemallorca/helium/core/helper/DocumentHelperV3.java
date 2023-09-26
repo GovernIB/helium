@@ -1157,14 +1157,9 @@ public class DocumentHelperV3 {
 							expedientHelper.findExpedientByProcessInstanceId(processInstanceId));
 				}
 				if (processInstanceId != null) {
-					List<TipusEstat> estats = new ArrayList<TipusEstat>();
-					estats.add(TipusEstat.PENDENT);
-					estats.add(TipusEstat.SIGNAT);
-					estats.add(TipusEstat.REBUTJAT);
-					estats.add(TipusEstat.ERROR);
 					List<Portasignatures> psignaPendents = portasignaturesRepository.findByProcessInstanceIdAndEstatNotIn(
 							processInstanceId,
-							estats);
+							TipusEstat.getPendents());
 					for (Portasignatures psigna: psignaPendents) {
 						if (psigna.getDocumentStoreId().longValue() == documentStore.getId().longValue()) {
 							psigna.setEstat(TipusEstat.ESBORRAT);
@@ -2031,6 +2026,7 @@ public class DocumentHelperV3 {
 		dto.setDocumentCodi(document.getCodi());
 		dto.setDocumentNom(document.getNom());
 		dto.setNotificable(document.isNotificable());
+		dto.setPortafirmesActiu(document.isPortafirmesActiu());
 		dto.setPlantilla(document.isPlantilla());
 		dto.setSignat(documentStore.isSignat());
 		if (documentStore.isSignat()) {

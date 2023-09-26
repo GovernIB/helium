@@ -17,7 +17,9 @@ import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesCarrecDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.v3.core.repository.UsuariPreferenciesRepository;
 
@@ -83,6 +85,31 @@ public class AplicacioServiceImpl implements AplicacioService {
 		return pluginHelper.personaFindLikeNomSencer(text);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public PersonaDto findPersonaCarrecAmbCodi(String codi) {
+		
+		logger.debug("Obtenint usuari/càrrec amb codi (codi=" + codi + ")");
+		PersonaDto persona = null;
+		if (codi.matches("CARREC\\[(.*)\\]")) {
+			String codiCarrec = codi.substring(codi.indexOf('[') + 1, codi.indexOf(']'));
+			PortafirmesCarrecDto carrec = pluginHelper.portafirmesRecuperarCarrec(codiCarrec);
+			if (carrec != null) {
+				persona = new PersonaDto();
+				persona.setCodi(codi);
+				persona.setNom(carrec.getCarrecName() + (carrec.getUsuariPersonaNom() != null ? " - " + carrec.getUsuariPersonaNom() : "") );
+				persona.setDni(carrec.getUsuariPersonaNif());
+			} else {
+				throw new NoTrobatException(PersonaDto.class, codi);
+			}
+		} else {
+			persona = pluginHelper.personaFindAmbCodi(codi);			
+		}
+		return persona;
+	}
 
 
 	private static final Logger logger = LoggerFactory.getLogger(AplicacioServiceImpl.class);

@@ -60,8 +60,6 @@ import net.conselldemallorca.helium.webapp.v3.helper.UrlHelper;
 public class ExpedientTipusDocumentController extends BaseExpedientTipusController {
 
 	@Autowired
-	private ConversioTipusHelper conversioTipusHelper;
-	@Autowired
 	private NtiHelper ntiHelper;
 	@Autowired
 	private PortafirmesFluxService portafirmesFluxService;
@@ -150,7 +148,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 			@PathVariable Long id,
 			Model model) {
 		DocumentDto dto = documentService.findAmbId(expedientTipusId, id);
-		ExpedientTipusDocumentCommand command = conversioTipusHelper.convertir(
+		ExpedientTipusDocumentCommand command = ConversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusDocumentCommand.class);
 		command.setExpedientTipusId(expedientTipusId);
@@ -162,21 +160,6 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 		return "v3/expedientTipusDocumentForm";
 	}
 	
-	private String getResponsablesFromArray(String[] portafirmesResponsables) {
-		StringBuilder responsablesStr = new StringBuilder();
-		if (portafirmesResponsables != null) {
-			for (String responsable: portafirmesResponsables) {
-				if (responsablesStr.length() > 0)
-					responsablesStr.append(",");
-				responsablesStr.append(responsable);
-			}
-			return responsablesStr.toString();
-		} else {
-			return null;
-		}
-
-	}
-
 	@RequestMapping(value = "/{expedientTipusId}/document/{id}/update", method = RequestMethod.POST)
 	public String modificarPost(
 			HttpServletRequest request, 
@@ -268,11 +251,11 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 
 	@RequestMapping(value = "/{expedientTipusId}/document/flux/plantilles", method = RequestMethod.GET)
 	@ResponseBody
-	public List<PortafirmesFluxRespostaDto> getPlantillesDisponibles(
+	public List<PortafirmesFluxRespostaDto> portasigPlantillesDisponibles(
 			HttpServletRequest request, 
 			@PathVariable Long expedientTipusId, 
 			Model model) {		
-		List<PortafirmesFluxRespostaDto> resposta = portafirmesFluxService.recuperarPlantillesDisponibles(false);
+		List<PortafirmesFluxRespostaDto> resposta = portafirmesFluxService.recuperarPlantillesDisponibles(expedientTipusId, null);
 		return resposta;
 	}
 
@@ -304,10 +287,18 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 						,"enum.document.tipus.portafirmes.sequencia."));
 	}
 	
-	
+	/** Mètode Ajax per iniciar l'edició d'un flux de firma i retornar la URL a carregar per a poder-lo editar des d'Helium.
+	 * 
+	 * @param request
+	 * @param plantillaId
+	 * @param expedientTipusId
+	 * @param model
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 */
 	@RequestMapping(value = "/{expedientTipusId}/document/iniciarTransaccio", method = RequestMethod.GET)
 	@ResponseBody
-	public PortafirmesIniciFluxRespostaDto iniciarTransaccio(
+	public PortafirmesIniciFluxRespostaDto portasigIniciarTransaccio(
 			HttpServletRequest request,
 			@RequestParam(value = "plantillaId", required = false) String plantillaId,
 			@PathVariable Long expedientTipusId, 
@@ -323,7 +314,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 				String urlEdicio = portafirmesFluxService.recuperarUrlEdicioPlantilla(plantillaId, urlReturn);
 				transaccioResponse.setUrlRedireccio(urlEdicio);
 			} else {
-				transaccioResponse = portafirmesFluxService.iniciarFluxFirma(urlReturn, true);
+				transaccioResponse = portafirmesFluxService.iniciarFluxFirma(expedientTipusId, null, urlReturn, true);
 			}
 		} catch (Exception ex) {
 			logger.error("Error al iniciar transacio", ex);
@@ -338,7 +329,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 	
 	@RequestMapping(value = "/{expedientTipusId}/document/flux/esborrar/{plantillaId}", method = RequestMethod.GET)
 	@ResponseBody
-	public boolean esborrarPlantilla(
+	public boolean portasigEsborrarPlantilla(
 			HttpServletRequest request,
 			@PathVariable String plantillaId,
 			Model model) {
@@ -349,7 +340,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 	
 	@RequestMapping(value = "/{expedientTipusId}/document/tancarTransaccio/{idTransaccio}", method = RequestMethod.GET)
 	@ResponseBody
-	public void tancarTransaccio(
+	public void portasigTancarTransaccio(
 			HttpServletRequest request, 
 			@PathVariable String idTransaccio, 
 			Model model) {
@@ -357,7 +348,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 	}
 	
 	@RequestMapping(value = "/{expedientTipusId}/document/flux/returnurl/{transactionId}", method = RequestMethod.GET)
-	public String transaccioEstat(
+	public String portasigTransaccioEstat(
 			HttpServletRequest request, 
 			@PathVariable String transactionId, 
 			Model model) {
@@ -378,12 +369,12 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 	}
 
 	@RequestMapping(value = "/{expedientTipusId}/document/flux/returnurl/", method = RequestMethod.GET)
-	public String transaccioEstat(HttpServletRequest request, Model model) {
+	public String portasigTransaccioEstat(HttpServletRequest request, Model model) {
 		model.addAttribute(
 				"FluxCreat",
 				getMessage(request, "expedient.tipus.document.form.camp.portafirmes.flux.edicio.enum.FINAL_OK"));
 		return "v3/portafirmesModalTancar";
 	}
-	
+
 	private static final Log logger = LogFactory.getLog(ExpedientTipusDocumentController.class);
 }

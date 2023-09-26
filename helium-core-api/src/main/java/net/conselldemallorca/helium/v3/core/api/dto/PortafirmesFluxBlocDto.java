@@ -14,14 +14,13 @@ public class PortafirmesFluxBlocDto {
 
 	private int minSignataris = 0;
 	private boolean[] obligatorietats;
-//	private String[] destinataris;
-	private List<PersonaDto> destinataris;
+	private List<String> destinataris;
 
 	public PortafirmesFluxBlocDto () {
 		
 	}
 	
-	public PortafirmesFluxBlocDto (int minSignataris, List<PersonaDto> destinataris ) {
+	public PortafirmesFluxBlocDto (int minSignataris, List<String> destinataris ) {
 		this.setMinSignataris(minSignataris);
 		this.setDestinataris(destinataris);
 	}
@@ -39,10 +38,10 @@ public class PortafirmesFluxBlocDto {
 	public void setObligatorietats(boolean[] obligatorietats) {
 		this.obligatorietats = obligatorietats;
 	}
-	public List<PersonaDto> getDestinataris() {
+	public List<String> getDestinataris() {
 		return destinataris;
 	}
-	public void setDestinataris(List<PersonaDto> destinataris) {
+	public void setDestinataris(List<String> destinataris) {
 		this.destinataris = destinataris;
 	}
 

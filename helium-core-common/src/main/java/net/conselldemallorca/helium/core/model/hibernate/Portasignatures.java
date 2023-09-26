@@ -1,7 +1,9 @@
 package net.conselldemallorca.helium.core.model.hibernate;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -35,7 +37,17 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 		PROCESSAT,	// El document signat o rebujat s'ha processat correctament
 		CANCELAT,	// El document s'ha esborrat de l'expedient
 		ERROR,		// El document s'ha intentat processar i ha produit un error
-		ESBORRAT	// S'ha esborrat l'expedient al qual pertany el document
+		ESBORRAT;	// S'ha esborrat l'expedient al qual pertany el document
+		
+			
+		public static List<TipusEstat> getPendents() {
+			List<TipusEstat> estats = new ArrayList<TipusEstat>();
+			estats.add(TipusEstat.PENDENT);
+			estats.add(TipusEstat.SIGNAT);
+			estats.add(TipusEstat.REBUTJAT);
+			estats.add(TipusEstat.ERROR);
+			return estats;
+		}
 	}
 
 	public enum Transicio {

@@ -26,8 +26,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxBlocDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
@@ -204,6 +202,15 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	public ArxiuDto arxiuFindAmbDocumentStoreId(Long documentId) throws NoTrobatException {
 		return delegate.arxiuFindAmbDocumentStoreId(documentId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ArxiuDto arxiuFindOriginal(
+			Long expedientId, 
+			Long documentStoreId) throws NoTrobatException {
+		return delegate.arxiuFindOriginal(expedientId, documentStoreId);
+	}
+
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -218,8 +225,10 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PortasignaturesDto getPortasignaturesByDocumentStoreId(
+			String processInstanceId, 
 			Long documentStoreId) {
 		return delegate.getPortasignaturesByDocumentStoreId(
+				processInstanceId,
 				documentStoreId);
 	}
 	
@@ -278,13 +287,6 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 		return delegate.verificarSignatura(documentStoreId);
 	}
 
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public Object findPortasignaturesInfo(Long expedientId, String processInstanceId, Long documentStoreId)
-			throws NoTrobatException {
-		return delegate.findPortasignaturesInfo(expedientId, processInstanceId, documentStoreId);
-	}
-	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PortasignaturesDto getPortasignaturesByDocumentId(Integer documentId) {
@@ -382,8 +384,6 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	public void enviarPortasignatures(
 			DocumentDto document, 
 			List<DocumentDto> annexos, 
-			PersonaDto persona,
-			List<PortafirmesFluxBlocDto> blocList, 
 			ExpedientDto expedient, 
 			String importancia, 
 			Date dataLimit, 
@@ -391,14 +391,12 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			Long processInstanceId, 
 			String transicioOK, 
 			String transicioKO, 
-			String[] responsables, 
 			PortafirmesSimpleTipusEnumDto fluxTipus,
+			String[] responsables, 
 			String portafirmesFluxId) throws SistemaExternException {
 		delegate.enviarPortasignatures(
 				document, 
 				annexos, 
-				persona,
-				blocList, 
 				expedient, 
 				importancia, 
 				dataLimit, 
@@ -406,16 +404,16 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 				processInstanceId, 
 				transicioOK, 
 				transicioKO,
-				responsables, 
 				fluxTipus,
+				responsables,
 				portafirmesFluxId);
 		
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void portafirmesCancelar(Integer documentId, Long portasignaturesId) throws SistemaExternException {
-		delegate.portafirmesCancelar(documentId, portasignaturesId);		
+	public void portafirmesCancelar(Integer documentId) throws SistemaExternException {
+		delegate.portafirmesCancelar(documentId);		
 	}
 
 }

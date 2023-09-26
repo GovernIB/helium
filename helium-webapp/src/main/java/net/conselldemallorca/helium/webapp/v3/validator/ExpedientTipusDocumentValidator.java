@@ -58,35 +58,33 @@ public class ExpedientTipusDocumentValidator implements ConstraintValidator<Expe
 			}
 		}
 		// Comprova les opcions del portasignatures
-		// el tipus flux o simple ha d'estar informat
 		// simple: el tipus paral·lel o sèrie i els responsables han d'estar informats. la llargada dels responsables no pot ser major a 1024 comptant el separador
 		// flux: el flux id ha d'estar informat
-		if (document.isPortafirmesActiu()) {
-			if(document.getPortafirmesFluxTipus()!=null) {
-				if(document.getPortafirmesFluxTipus().equals(PortafirmesTipusEnumDto.FLUX) && document.getPortafirmesFluxId()==null) {
-					context.buildConstraintViolationWithTemplate(
-							MessageHelper.getInstance().getMessage("expedient.tipus.document.form.camp.portafirmes.flux.id.buit"))
-							.addNode("portafirmesFluxId")
-							.addConstraintViolation();	
-					valid = false;
-				}
-				if((document.getPortafirmesFluxTipus().equals(PortafirmesTipusEnumDto.SIMPLE))&&
-						(document.getPortafirmesResponsables()==null || document.getPortafirmesResponsables().length()==0 || document.getPortafirmesResponsables().length()>1024))
-				{
-					context.buildConstraintViolationWithTemplate(
-							MessageHelper.getInstance().getMessage( "expedient.tipus.document.form.camp.portafirmes.responsables.buit"))
-							.addNode("portafirmesResponsables")
-							.addConstraintViolation();
-					valid = false;
-				}
-			} else {
+		if(document.getPortafirmesFluxTipus() != null) {
+			if(document.getPortafirmesFluxTipus().equals(PortafirmesTipusEnumDto.FLUX) && document.getPortafirmesFluxId()==null) {
+				context.buildConstraintViolationWithTemplate(
+						MessageHelper.getInstance().getMessage("expedient.tipus.document.form.camp.portafirmes.flux.id.buit"))
+						.addNode("portafirmesFluxId")
+						.addConstraintViolation();	
+				valid = false;
+			}
+			if((document.getPortafirmesFluxTipus().equals(PortafirmesTipusEnumDto.SIMPLE))&&
+					(document.getPortafirmesResponsables()==null || document.getPortafirmesResponsables().length()==0 || document.getPortafirmesResponsables().length()>1024))
+			{
+				context.buildConstraintViolationWithTemplate(
+						MessageHelper.getInstance().getMessage( "expedient.tipus.document.form.camp.portafirmes.responsables.buit"))
+						.addNode("portafirmesResponsables")
+						.addConstraintViolation();
+				valid = false;
+			}
+			// Si està configurat per poder enviar des de la gestió de documents llavors ha de tenir un tipus de flux informat
+			if (document.isPortafirmesActiu() && document.getPortafirmesFluxTipus() == null) {
 				context.buildConstraintViolationWithTemplate(
 						MessageHelper.getInstance().getMessage("expedient.tipus.document.form.camp.portafirmes.tipus.buit"))
 						.addNode("fluxTipus")
 						.addConstraintViolation();	
 				valid = false;
 			}
-			
 		}
 		if (!valid) {
 			context.disableDefaultConstraintViolation();

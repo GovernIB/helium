@@ -119,22 +119,13 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 	public String personaSuggestInici(
 			@PathVariable String text,
 			Model model) {
-		String response = null;
-		if (text != null) {
-			StringBuilder json = new StringBuilder("[");
-			String [] codis = text.split(",");
-			for (int i = 0; i < codis.length; i++) {
-				PersonaDto persona = aplicacioService.findPersonaAmbCodi(codis[i]);				
-				json.append("{\"codi\":\"").append(persona.getCodi()).append("\", \"nom\":\"").append(persona.getNomSencer()).append("\"}");
-				if (i < codis.length - 1) {
-					json.append(",");
+		PersonaDto persona = aplicacioService.findPersonaAmbCodi(text);
+		if (persona != null) {
+			return "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"}";
 				}
-			}
-			json.append("]");
-			response = json.toString();
-		}
-		return response;
+		return null;
 	}
+	
 	
 	private class TascaReassignarValidator implements Validator {
 		private String tipus;

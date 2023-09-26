@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -12,17 +11,16 @@ import java.util.Map;
 import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.Resource;
 
-import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.domain.BasePermission;
-import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.DocumentMetadades;
 import es.caib.plugins.arxiu.api.Firma;
@@ -47,8 +45,6 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientL
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Interessat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
@@ -70,6 +66,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesCarrecDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxBlocDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
@@ -704,8 +701,55 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				documentStoreId,
 				false,
 				true,
-				null);
+				null);	
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public ArxiuDto arxiuFindOriginal(
+			Long expedientId, 
+			Long documentStoreId) throws NoTrobatException {
+		logger.debug("Consulta de l'arxiu del document original (" +
+				"expedientId=" + expedientId + ", " +
+				"documentStoreId=" + documentStoreId + ")");
+		
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+		
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		if (documentStore == null) {
+			throw new NoTrobatException(
+					DocumentStore.class,
+					documentStoreId);
+		}
+		
+		expedientHelper.comprovarInstanciaProces(
+				expedient,
+				documentStore.getProcessInstanceId());
+		
+		ArxiuDto arxiu = new ArxiuDto();
+		arxiu.setNom(documentStore.getArxiuNom());
+		if (documentStore.getArxiuContingut() == null && documentStore.getArxiuUuid() != null) {
+			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentOriginal(documentStore.getArxiuUuid(), null);
+			if (documentArxiu != null && documentArxiu.getContingut() != null) {
+				arxiu.setContingut(documentArxiu.getContingut().getContingut());
+				arxiu.setTipusMime(documentArxiu.getContingut().getTipusMime());
+			}
+		} else {
+			arxiu.setContingut(documentStore.getArxiuContingut());
+			arxiu.setTipusMime(documentHelperV3.getContentType(documentStore.getArxiuNom()));
+		}
+		
+		return arxiu;
+	}
+
 
 	/**
 	 * {@inheritDoc}
@@ -718,45 +762,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		logger.debug("Consulta dels documents pendents del portafirmes (" +
 				"expedientId=" + expedientId + ", " +
 				"processInstanceId=" + processInstanceId + ")");
-		List<PortasignaturesDto> resposta = new ArrayList<PortasignaturesDto>();
 		List<Portasignatures> pendents = pluginHelper.findPendentsPortasignaturesPerProcessInstanceId(processInstanceId);
-		for (Portasignatures pendent: pendents) {
-			PortasignaturesDto dto = new PortasignaturesDto();
-			dto.setId(pendent.getId());
-			dto.setDocumentId(pendent.getDocumentId());
-			dto.setTokenId(pendent.getTokenId());
-			dto.setDataEnviat(pendent.getDataEnviat());
-			if (TipusEstat.ERROR.equals(pendent.getEstat())) {
-				if (Transicio.SIGNAT.equals(pendent.getTransition()))
-					dto.setEstat(TipusEstat.SIGNAT.toString());
-				else
-					dto.setEstat(TipusEstat.REBUTJAT.toString());
-				dto.setError(true);
-			} else if (TipusEstat.PROCESSAT.equals(pendent.getEstat()) && Transicio.REBUTJAT.equals(pendent.getTransition())) {
-				 dto.setEstat(TipusEstat.PROCESSAT.toString());
-				 dto.setError(true);
-			} else {
-				dto.setEstat(pendent.getEstat().toString());
-				dto.setError(false);
-			}
-			if (pendent.getTransition() != null)
-				dto.setTransicio(pendent.getTransition().toString());
-			dto.setDocumentStoreId(pendent.getDocumentStoreId());
-			dto.setMotiuRebuig(pendent.getMotiuRebuig());
-			dto.setTransicioOK(pendent.getTransicioOK());
-			dto.setTransicioKO(pendent.getTransicioKO());
-			dto.setDataProcessamentPrimer(pendent.getDataProcessamentPrimer());
-			dto.setDataProcessamentDarrer(pendent.getDataProcessamentDarrer());
-			dto.setDataSignatRebutjat(pendent.getDataSignatRebutjat());
-			dto.setDataCustodiaIntent(pendent.getDataCustodiaIntent());
-			dto.setDataCustodiaOk(pendent.getDataCustodiaOk());
-			dto.setDataSignalIntent(pendent.getDataSignalIntent());
-			dto.setDataSignalOk(pendent.getDataSignalOk());
-			dto.setErrorProcessant(pendent.getErrorCallbackProcessant());
-			dto.setProcessInstanceId(pendent.getProcessInstanceId());
-			resposta.add(dto);
-		}
-		return resposta;
+		return conversioTipusHelper.convertirList(pendents, PortasignaturesDto.class);
 	}
 
 	/**
@@ -955,51 +962,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		return documentHelper.getRespostasValidacioSignatura(documentStore);
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	@Transactional(readOnly = true)
-	public Object findPortasignaturesInfo(Long expedientId, String processInstanceId, Long documentStoreId) {
-		expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				true,
-				false,
-				false,
-				false);
-		Portasignatures portasignatures = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(processInstanceId, documentStoreId);
-		SimpleDateFormat dt = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
-		JSONObject resposta = new JSONObject();
-		resposta.put("id", portasignatures.getId());
-		resposta.put("documentId", portasignatures.getDocumentId());
-		resposta.put("tokenId", portasignatures.getTokenId());
-		resposta.put("dataEnviat", dt.format(portasignatures.getDataEnviat()));
-		resposta.put("estat", portasignatures.getEstat());
-		resposta.put("transicio", portasignatures.getTransition().toString());
-		resposta.put("documentStoreId", portasignatures.getDocumentStoreId());
-		resposta.put("motiuRebuig", portasignatures.getMotiuRebuig());
-		resposta.put("transicioOK", portasignatures.getTransicioOK());
-		resposta.put("transicioKO", portasignatures.getTransicioKO());
-		resposta.put("dataProcessamentPrimer", dt.format(portasignatures.getDataProcessamentPrimer()));
-		resposta.put("dataProcessamentDarrer", dt.format(portasignatures.getDataProcessamentDarrer()));
-		resposta.put("dataSignatRebutjat", dt.format(portasignatures.getDataSignatRebutjat()));
-		resposta.put("dataCustodiaIntent", dt.format(portasignatures.getDataCustodiaIntent()));
-		resposta.put("dataCustodiaOk", dt.format(portasignatures.getDataCustodiaOk()));
-		resposta.put("dataSignalIntent", dt.format(portasignatures.getDataSignalIntent()));
-		resposta.put("dataSignalOk", dt.format(portasignatures.getDataSignalOk()));
-		resposta.put("processInstanceId", portasignatures.getProcessInstanceId());
-		resposta.put("errorProcessant", portasignatures.getErrorCallbackProcessant());
-		if (TipusEstat.ERROR.equals(portasignatures.getEstat())) {
-			resposta.put("error", true);
-		} else {
-			resposta.put("error", false);
-		}
-		if (TipusEstat.PENDENT.equals(portasignatures.getEstat())) { 
-			resposta.put("pendent", true);
-		} else {
-			resposta.put("pendent", false);
-		}
-		return resposta;
-	}
-
 	@Override
 	@Transactional(readOnly = true)
 	public PortasignaturesDto getPortasignaturesByDocumentId(Integer documentId) {
@@ -1013,10 +975,10 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	
 	@Override
 	@Transactional(readOnly = true)
-	public PortasignaturesDto getPortasignaturesByDocumentStoreId(Long documentStoreId) {
+	public PortasignaturesDto getPortasignaturesByDocumentStoreId(String processInstanceId, Long documentStoreId) {
 		Portasignatures portasignatures = null;
 		if (documentStoreId != null) {
-			List<Portasignatures> peticions = portasignaturesRepository.findPerEstatIDocumentStoreId(documentStoreId,TipusEstat.PENDENT);
+			List<Portasignatures> peticions = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(processInstanceId, documentStoreId);
 			if (!peticions.isEmpty()) {
 				if (peticions.size() > 1) {
 					logger.warn("S'ha trobat més d'una petició pendent pel document amb documentStoreId = " + documentStoreId + ". Es retorna la primera petició");
@@ -1510,31 +1472,61 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
 	}
 
-	private static final Logger logger = LoggerFactory.getLogger(ExpedientDocumentServiceImpl.class);
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
+	@Transactional
 	public void enviarPortasignatures(
 			DocumentDto document, 
 			List<DocumentDto> annexos, 
-			PersonaDto persona,
-			List<PortafirmesFluxBlocDto> blocList,
 			ExpedientDto expedientDto, 
 			String importancia, 
 			Date dataLimit, 
 			Long tokenId,
 			Long processInstanceId, 
 			String transicioOK, 
-			String transicioKO, 
-			String[] responsables, 
+			String transicioKO,
 			PortafirmesSimpleTipusEnumDto fluxTipus,
+			String[] responsables, 
 			String portafirmesFluxId) throws SistemaExternException {
 		
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(String.valueOf(processInstanceId));
 		
+		List<PortafirmesFluxBlocDto> blocList = null;
+		if (portafirmesFluxId == null) {
+			blocList = new ArrayList<PortafirmesFluxBlocDto>();
+			PortafirmesFluxBlocDto bloc = null;
+			String[] responsablesCodis = responsables;
+			if (fluxTipus.equals(PortafirmesSimpleTipusEnumDto.SERIE)) {			
+				for (int i = 0; i < responsablesCodis.length; i++) {
+					List<String> personesPas = new ArrayList<String>();
+					bloc = new PortafirmesFluxBlocDto();
+					personesPas.add(responsablesCodis[i]);
+					bloc.setDestinataris(personesPas);
+					bloc.setMinSignataris(1);
+					bloc.setObligatorietats(new boolean[] {true});
+					blocList.add(bloc);
+				}
+			} else { // PortafirmesSimpleTipusEnumDto.PARALEL
+				bloc = new PortafirmesFluxBlocDto();
+				List<String> personesPas = new ArrayList<String>();
+				bloc.setMinSignataris(responsablesCodis.length);
+				for (int i = 0; i < responsablesCodis.length; i++) {
+					personesPas.add(responsablesCodis[i]);
+				}
+				bloc.setDestinataris(personesPas);
+				boolean[] obligatorietats = new boolean[responsablesCodis.length];
+				Arrays.fill(obligatorietats, true);
+				bloc.setObligatorietats(obligatorietats);
+				blocList.add(bloc);
+			}
+		}
+		
+		
 		pluginHelper.portasignaturesEnviar(
 				document, 
 				annexos, 
-				persona, 
 				blocList, 
 				expedient, 
 				importancia, 
@@ -1543,16 +1535,40 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				processInstanceId, 
 				transicioOK, 
 				transicioKO, 
-				responsables,
 				fluxTipus,
 				portafirmesFluxId);
-		
 	}
 
+	private PersonaDto findPersonaCarrecAmbCodi(String codi) {
+		logger.debug("Obtenint usuari/càrrec amb codi (codi=" + codi + ")");
+		PersonaDto persona = null;
+		try {
+			persona = pluginHelper.personaFindAmbCodi(codi);
+		} catch (NoTrobatException ex) {
+			logger.error("No s'ha trobat cap usuari amb el codi " + codi + ". Procedim a cercar si és un càrrec.");
+			persona = new PersonaDto();
+			PortafirmesCarrecDto carrec = pluginHelper.portafirmesRecuperarCarrec(codi);
+			if (carrec != null) {
+				persona.setCodi(carrec.getCarrecId());
+				persona.setNom(carrec.getCarrecName() + (carrec.getUsuariPersonaNom() != null ? " - " + carrec.getUsuariPersonaNom() : "") );
+				persona.setDni(carrec.getUsuariPersonaNif());
+			} else {
+				throw new NoTrobatException(PersonaDto.class, codi);
+			}
+		}
+		return persona;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	public void portafirmesCancelar(Integer documentId, Long portasignaturesId)
+	@Transactional
+	public void portafirmesCancelar(Integer documentId)
 			throws SistemaExternException {	
-		pluginHelper.portasignaturesCancelar(documentId, portasignaturesId);
+		pluginHelper.portasignaturesCancelar(documentId);
 	
 	}
+	
+	private static final Logger logger = LoggerFactory.getLogger(ExpedientDocumentServiceImpl.class);
 }

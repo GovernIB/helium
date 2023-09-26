@@ -27,25 +27,23 @@
 </head>
 <body>
 	<c:if test="${potFirmar}">
-		<c:choose>
-			<c:when test="${psignaPendentActual.estat != 'PROCESSAT' && psignaPendentActual.error && not empty psignaPendentActual.errorProcessant}">
-				<c:set var="formAction">
-					<c:url value="/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/reintentarEnviamentPortasignatures"/>
-				</c:set>
-			</c:when>	
-			<c:when test="${psignaPendentActual.estat != 'PROCESSAT' && !psignaPendentActual.error}">
-				<c:set var="formAction">
-					<c:url value="/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/portasignaturesCancelarEnviament/${psignaPendentActual.documentId}"/>
-				</c:set>
-			</c:when>	
-		</c:choose>
+		<c:set var="formActionCancelar">
+			<c:url value="/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/portasignaturesCancelarEnviament/${psignaPendentActual.documentId}"/>
+		</c:set>
+		<c:set var="formActionReintentar">
+			<c:url value="/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/psignaReintentar"/>
+		</c:set>
 		
-		<form:form 	cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="documentExpedientEnviarPortasignaturesCommand">
+		<form:form 	cssClass="form-horizontal" action="${formActionCancelar}" enctype="multipart/form-data" method="get" commandName="psingaReintentarCancelarCommand">
 			<div class="modal-body">
 				<input type="hidden" name="id" value="${documentExpedientEnviarPortasignaturesCommand.id}"/> 
+				<!-- Dades per cancel·lar l'enviament -->
+				<c:if test="${expedient.permisDocManagement}">
+					<input type="hidden" name="id" value="${document.processInstanceId}"/>
+					<input type="hidden" name="psignaId" value="${psignaPendentActual.documentId}"/>
+				</c:if>
 
-
-				<div class="container">
+				<div class="container" style="width: 100%;">
 					<div class="row">
 					
 						<div class="col-sm-6">
@@ -59,7 +57,6 @@
 							  	
 							  	<li class="list-group-item">
 		 					  		<strong><spring:message code="common.icones.doc.psigna.estat"/></strong>
-		 					  		
 		 					  		<c:choose>
 		 							<c:when test="${psignaPendentActual.estat == 'PROCESSAT' && psignaPendentActual.error}">
 		 								<span class="pull-right" id="psignaEstat">REBUTJAT</span>
@@ -72,6 +69,11 @@
 		 							</c:otherwise>
 		 							</c:choose>
 		 					  	</li>
+								<c:if test="${not empty psignaPendentActual.motiuRebuig}">
+									<li class="list-group-item">
+										<strong><spring:message code="common.icones.doc.psigna.motiu.rebuig"/></strong><span class="pull-right">${psignaPendentActual.motiuRebuig}</span>
+									</li>
+								</c:if>
 		 					  	<li class="list-group-item">
 		 					  		<strong><spring:message code="common.icones.doc.psigna.data.proces.primer"/></strong>
 		 					  		<span class="pull-right" id="psignaDataEnviat"><fmt:formatDate value="${psignaPendentActual.dataProcessamentPrimer}" pattern="dd/MM/yyyy HH:mm"/>
@@ -82,17 +84,15 @@
 		 					  		<span class="pull-right" id="psignaDataEnviat"><fmt:formatDate value="${psignaPendentActual.dataProcessamentDarrer}" pattern="dd/MM/yyyy HH:mm"/>
 		 					  		</span>
 		 					  	</li>
-		 					
-			 					<c:if test="${psignaPendentActual.estat != 'PROCESSAT' && psignaPendentActual.error && not empty psignaPendentActual.errorProcessant}"> 	
-			 					  <li class="list-group-item">
-			 					  		<strong><spring:message code="common.icones.doc.psigna.error.processant"/></strong>
-			 					  		<br/>
-				 					  	<textarea rows="10" cols="50" style="width:auto;">${psignaPendentActual.errorProcessant}</textarea> 
-			 						
-			 						</li>
-			 					</c:if>	
-		 					</ul> 	
-						</div>
+		 					  	<c:if test="${not empty token }">
+			 					  	<li class="list-group-item">
+			 					  		<strong><spring:message code="common.icones.doc.psigna.node.flux"/></strong>
+			 					  		<span class="pull-right" id="psignaToken">${token.nodeName}
+			 					  		</span>
+			 					  	</li>
+		 					  	</c:if>	
+		 					</ul>		 					
+						</div>						
 						
 						<c:if test="${not empty urlFluxFirmes}">
 							<div class="col-sm-6" style="height:100%;">
@@ -101,7 +101,31 @@
 								</div>
 							</div>
 						</c:if>
-					</div>							
+					</div>
+					
+					<c:if test="${psignaPendentActual.error && not empty psignaPendentActual.errorProcessant}">
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+									<div class="panel panel-default">
+										<div class="panel-heading" role="tab" id="headingOne">
+											<h4 class="panel-title">
+												<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+													<strong><spring:message code="common.icones.doc.psigna.error.processant"/></strong>
+												</a>
+											</h4>
+										</div>
+										<div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+											<div class="panel-body panell-error">
+												${psignaPendentActual.errorProcessant}
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</c:if>
+
 				</div>
 				
 			</div>
@@ -109,14 +133,12 @@
 			<div id="modal-botons" class="well">
 				<c:if test="${potFirmar}">
 					<c:if test="${psignaPendentActual.estat != 'PROCESSAT' && psignaPendentActual.error && not empty psignaPendentActual.errorProcessant}"> 	
-						<button type="submit" class="btn btn-primary right"><span class="fa fa-pencil-square-o"></span> <spring:message code="common.icones.doc.psigna.reintentar"/></button>
+						<button type="submit" name="btnReintentarProcessament" class="btn btn-primary right"><span class="fa fa-pencil-square-o"></span> <spring:message code="common.icones.doc.psigna.reintentar"/></button>
 					</c:if>
-					<c:if test="${psignaPendentActual.estat != 'PROCESSAT' && !psignaPendentActual.error}"> 	
-						<button type="submit" class="btn btn-default"><span class="fa fa-times"></span> <spring:message code="expedient.document.portasignatures.cancelar.enviament"/></button>
+					<c:if test="${psignaPendentActual.estat != 'PROCESSAT' && expedient.permisDocManagement}">
+						<button type="submit" name="btnCancelarEnviament" class="btn btn-default"><span class="fa fa-times"></span> <spring:message code="expedient.document.portasignatures.cancelar.enviament"/></button>
 					</c:if>
-					
 				</c:if>	
-					
 				<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.cancelar"/></button>
 			</div>
 		</form:form>
@@ -125,13 +147,34 @@
 	
 	
 	<script type="text/javascript">
-		// <![CDATA[
+		// <![CDATA[		        
+		var tokenId = ${psignaPendentActual.tokenId != null ? psignaPendentActual.tokenId : "null"};
+		
 		$(document).ready(function() {
-   			//<c:if test="${heretat}">
-			webutilDisableInputs($('#documentExpedientEnviarPortasignaturesCommand'));
-			//</c:if>
-		});
 			
+   			//<c:if test="${heretat}">
+			webutilDisableInputs($('#psingaReintentarCancelarCommand'));
+			//</c:if>
+			
+			$('button[name=btnCancelarEnviament]').click(function(e) {
+				let confirmMsg = "Esteu segur que voleu cancel·lar la petició de firma del document?";
+				if (tokenId != null) {
+					confirmMsg = confirmMsg + " Si confirmeu es cancel·larà la petició al Portafirmes i el flux associat continuarà com si s'hagués rebutjat.";
+				}
+				if (confirm(confirmMsg)) {
+					$('#psingaReintentarCancelarCommand').attr('action', "${formActionCancelar}");
+					return true;
+				} else {
+					e.preventDefault();
+					e.stopPropagation();
+					return false;
+				}
+			});
+			
+			$('button[name=btnReintentarProcessament]').click(function(e) {
+				$('#psingaReintentarCancelarCommand').attr('action', "${formActionReintentar}");				 				
+			})
+		});
 		
 		// ]]>
 	</script>			
