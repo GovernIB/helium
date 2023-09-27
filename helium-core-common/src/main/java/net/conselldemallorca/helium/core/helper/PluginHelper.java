@@ -1571,31 +1571,8 @@ public class PluginHelper {
 						"portafirmesFluxId",
 						portafirmesFluxId));
 			}
-<<<<<<< HEAD
 			
 			// Construeix els blocs de firmes
-=======
-			for(PortafirmesFluxBlocDto bloc: blocList) {
-				if(bloc!=null && bloc.getDestinataris()!=null && !bloc.getDestinataris().isEmpty()){
-					if (PortafirmesSimpleTipusEnumDto.SERIE.equals(fluxTipus)) {
-						for (int i = 0; i < bloc.getDestinataris().size(); i++) {
-							parametresList.add(new IntegracioParametreDto(
-								"destinatariPas" + (i + 1),
-								getSignatariIdPerPersona(bloc.getDestinataris().get(i))));	
-						}
-					} else {//PARAL.LEL
-						parametresList.add(new IntegracioParametreDto(
-								"destinatariPas",
-								personestoString(bloc.getDestinataris())));	
-					}
-				}
-			}
-//			parametres = new IntegracioParametreDto[parametresList.size()];
-//			for(int i=0; i<parametresList.size(); i++) {
-//				parametres[i]=parametresList.get(i);
-//			}
-
->>>>>>> refs/heads/#1656_Permetre_notificar_més_d'un_document_i_a_la_vegada_en_un_.zip_ok
 			List<PortafirmesFluxBloc> flux = new ArrayList<PortafirmesFluxBloc>();
 			if (portafirmesFluxId == null) {
 				int nPas = 0;
