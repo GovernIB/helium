@@ -68,7 +68,7 @@
 												</c:if>
 												
 												<c:if test="${document.notificable}">
-													<a 	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/notificar/"
+													<a 	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/notificar"
 														data-rdt-link-modal="true" 
 														data-rdt-link-modal-min-height="265" 
 														data-rdt-link-callback="recargarPanel(${document.processInstanceId});"

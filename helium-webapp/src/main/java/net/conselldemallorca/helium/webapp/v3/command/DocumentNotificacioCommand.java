@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -24,12 +25,12 @@ public class DocumentNotificacioCommand {
 	@NotEmpty
 	private List<Long> interessatsIds = new ArrayList<Long>();
 	private Long representantId = null;
-	@NotEmpty
+	@NotEmpty @Size(max=240)
 	private String concepte;
 	@NotNull
 	private ServeiTipusEnumDto serveiTipusEnum;
 	private String grupCodi;
-	
+	@Size(max=1000)
 	private String descripcio;
 	@NotNull
 	private EnviamentTipusEnumDto enviamentTipus;
