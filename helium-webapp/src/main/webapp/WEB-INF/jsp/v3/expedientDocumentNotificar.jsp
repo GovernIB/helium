@@ -91,7 +91,7 @@ $(document).ready(function() {
 <!-- 		</div> -->
 		
 		<div id="modal-botons" class="well">
-			<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.cancelar"/></button>
+			<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel" data-modal-cancel="true"><spring:message code="comu.boto.cancelar"/></button>
 			<button class="btn btn-primary right" type="submit" name="accio" value="notificar"><spring:message code='comuns.notificar' /></button>
 		</div>
 	</form:form>

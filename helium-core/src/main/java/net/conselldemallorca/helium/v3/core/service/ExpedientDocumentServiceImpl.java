@@ -344,7 +344,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 					processInstanceId,
 					documentCodi, // null en el cas dels adjunts
 					(data != null ? data : new Date()),
-					null, // Títol en el cas dels adjunts (al crear ja li posa el nom del document)
+					this.getExtensio(arxiu)!= null && this.getExtensio(arxiu).equals("zip") ? arxiu : null, // Títol en el cas dels adjunts (al crear ja li posa el nom del document)
 					arxiu,
 					contingut,
 					documentHelper.getContentType(arxiu),

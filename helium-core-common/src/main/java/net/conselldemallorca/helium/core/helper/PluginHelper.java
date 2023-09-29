@@ -3800,11 +3800,6 @@ public class PluginHelper {
 			firmes = Arrays.asList(arxiuFirma);
 			documentAmbFirma = true;
 			firmaSeparada =  !TIPUS_FIRMES_ATTACHED.contains(arxiuFirma.getTipus());
-			if (!firmaSeparada) {
-				
-			} else {
-				
-			}
 			extensio = getExtensioPerArxiu(FilenameUtils.getExtension(
 							firmaSeparada && fitxer != null && fitxer.getNom() != null ? 
 									fitxer.getNom()

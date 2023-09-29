@@ -11,6 +11,7 @@
 <head>
 	<title>${titol}</title>
 	<hel:modalHead/>
+	<script src="<c:url value="/js/webutil.common.js"/>"></script>	
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
@@ -18,13 +19,12 @@
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
+	<script src="<c:url value="/js/moment.js"/>"></script>
+	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
+	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
 	<script src="<c:url value="/js/webutil.common.js"/>"></script>
+	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
 <script type="text/javascript">
-// <![CDATA[
-$(document).ready( function() {
-	
-}); 
-// ]]>
 </script>
 </head>
 
@@ -46,10 +46,8 @@ $(document).ready( function() {
 				<hel:inputSelect name="ntiTipoDocumental" textKey="expedient.tipus.document.form.camp.nti.tipo.documental" optionItems="${ntiTipoDocumental}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="false" comment="expedient.tipus.document.form.camp.nti.tipo.documental.comentari"/>
 			</fieldset>
 			<div id="modal-botons" class="well">
-				
 					<button type="submit" class="btn btn-success" name="accio" value="zip_generar"><span class="fa fa-pencil-square-o"></span> <spring:message code="expedient.document.notificar.zip.afegir"/></button>
-
-					<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.cancelar"/></button>
+					<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel" data-modal-cancel="true"><spring:message code="comu.boto.cancelar"/></button>
 			</div>
 		</form:form>
 
