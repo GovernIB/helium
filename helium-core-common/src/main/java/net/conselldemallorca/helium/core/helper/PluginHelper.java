@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.Resource;
 
 import org.apache.commons.io.FilenameUtils;
@@ -3801,7 +3800,16 @@ public class PluginHelper {
 			firmes = Arrays.asList(arxiuFirma);
 			documentAmbFirma = true;
 			firmaSeparada =  !TIPUS_FIRMES_ATTACHED.contains(arxiuFirma.getTipus());
-			extensio = getExtensioPerArxiu(FilenameUtils.getExtension(arxiuFirma.getFitxerNom()));
+			if (!firmaSeparada) {
+				
+			} else {
+				
+			}
+			extensio = getExtensioPerArxiu(FilenameUtils.getExtension(
+							firmaSeparada && fitxer != null && fitxer.getNom() != null ? 
+									fitxer.getNom()
+									:arxiuFirma.getFitxerNom()
+						));
 		}
 		return toArxiuDocument(
 				identificador,
@@ -4008,7 +4016,7 @@ public class PluginHelper {
 				if (fitxer != null) {
 					contingut.setArxiuNom(fitxer.getNom());
 					contingut.setContingut(fitxer.getContingut());
-					contingut.setTipusMime(new MimetypesFileTypeMap().getContentType(fitxer.getNom()));
+					contingut.setTipusMime(this.getContentType(fitxer.getNom()));
 					document.setContingut(contingut);
 				} 
 				document.setFirmes(new ArrayList<Firma>());

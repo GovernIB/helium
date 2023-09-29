@@ -49,5 +49,13 @@ public interface DocumentStoreRepository extends JpaRepository<DocumentStore, Lo
 			@Param("documentStoreId") Long documentStoreId);
 	
 	
+	/** Per trobar tots els identificadors de documents continguts en diferents .zips. */
+	@Query(
+			"select ds.continguts " + 
+			"from DocumentStore ds "+
+			"where ds.id in (:documentsContinentsIds) ")
+	public List<DocumentStore> findDocumentsContingutsIds(
+			@Param("documentsContinentsIds") List<Long> documentsContinentsIds);
+	
 	
 }

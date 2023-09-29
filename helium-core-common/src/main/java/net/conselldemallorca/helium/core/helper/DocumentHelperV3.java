@@ -365,6 +365,18 @@ public class DocumentHelperV3 {
 		Map<Long, AnotacioAnnex> mapAnotacions = new HashMap<Long, AnotacioAnnex>();
 		for (AnotacioAnnex annex : anotacioAnnexRepository.findByAnotacioExpedientId(expedient.getId()))
 			mapAnotacions.put(annex.getId(), annex);
+		
+		// Cosulta els documents notificats de l'expedient per marcar-los com a notificats
+		List<Long> documentsNotificats = documentNotificacioRepository.getDocumentsNotificatsIdsPerExpedient(expedient);		
+		// Afegeix els documents continguts en els possibles .zips notificats
+		if (!documentsNotificats.isEmpty()) {
+			for (DocumentStore dsContingut : documentStoreRepository.findDocumentsContingutsIds(documentsNotificats)) {
+				if (!documentsNotificats.contains(dsContingut.getId())) {
+					documentsNotificats.add(dsContingut.getId());
+				}
+			};
+		}
+				
 		// Consulta els documents de l'instància de procés
 		Map<String, Object> varsInstanciaProces = jbpmHelper.getProcessInstanceVariables(processInstanceId);
 		if (varsInstanciaProces != null) {
@@ -387,27 +399,20 @@ public class DocumentHelperV3 {
 							ed = crearDtoPerDocumentExpedient(
 									document,
 									documentStoreId);
-							List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
-							ed.setNotificat(!enviaments.isEmpty());
 							ed.setAnotacioId(null); // De moment només arriben per anotació els annexos
-							resposta.add(ed);
 						} else {
 							ExpedientDocumentDto dto = new ExpedientDocumentDto();
 							dto.setId(documentStoreId);
 							dto.setProcessInstanceId(processInstanceId);
 							dto.setError("No s'ha trobat el document de la definició de procés (" +
 										"documentCodi=" + documentCodi + ")");
-							resposta.add(dto);
+							ed = dto;
 						}
 					} else if (var.startsWith(JbpmVars.PREFIX_ADJUNT)) {
 						// Afegeix l'adjunt
 						ed = crearDtoPerAdjuntExpedient(
 								getAdjuntIdDeVariableJbpm(var),
 								documentStoreId);
-						List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
-						ed.setNotificat(!enviaments.isEmpty());
-//						ed.setNotificat(false); // De moment els annexos no es notifiquen
-						resposta.add(ed);
 					}
 					// Afegeix informació de l'annex relacionat amb el document
 					if (ed != null && mapAnotacions.containsKey(ed.getAnotacioAnnexId())) {
@@ -416,6 +421,10 @@ public class DocumentHelperV3 {
 						ed.setAnotacioIdentificador(annex.getAnotacio().getIdentificador());
 						ed.setAnotacioAnnexTitol(annex.getTitol());
 					}
+					// Informació de les notificacions
+					ed.setNotificat(documentsNotificats.contains(documentStoreId));
+					
+					resposta.add(ed);
 				}
 			}
 		}

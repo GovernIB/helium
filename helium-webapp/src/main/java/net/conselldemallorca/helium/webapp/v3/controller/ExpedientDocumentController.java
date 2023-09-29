@@ -62,6 +62,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPos
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalViaTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
@@ -1388,6 +1389,51 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		}
 //		return "redirect:/modal/v3/expedientDocumentNotificar";
 		return null;
+	}
+	
+	/** Modal per veure el llistat de notificacions relacioandes amb un document.
+	 * 
+	 * @param request
+	 * @param documentId
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/notificacions", method = RequestMethod.GET)
+	public String notificacions(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId,
+			Model model) {
+		
+		ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
+				expedientId,
+				processInstanceId,
+				documentStoreId);
+
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		List<DadesNotificacioDto> notificacionsDocument = new ArrayList<DadesNotificacioDto>();
+		for(DadesNotificacioDto notificacio: expedientService.findNotificacionsNotibPerExpedientId(expedient.getId())) {
+			if (documentStoreId.equals(notificacio.getDocumentId())) {
+				notificacionsDocument.add(notificacio); 
+			} else {
+				// Mira dins dels possibles documents continguts en el document zip notificat
+				Iterator<DocumentStoreDto> contingutsI = notificacio.getDocumentsDinsZip().iterator();
+				boolean enContinguts = false;
+				while (!enContinguts && contingutsI.hasNext()) {
+					DocumentStoreDto dsContingut = contingutsI.next();
+					if (documentStoreId.equals(dsContingut.getId())) {
+						notificacionsDocument.add(notificacio); 
+						enContinguts = true;
+					}
+				}
+			}
+		}
+		model.addAttribute("document", document);
+		model.addAttribute("expedient", expedient);
+		model.addAttribute("notificacions", notificacionsDocument);
+		
+		return "v3/expedientDocumentNotificacions";
 	}
 	
 	/** Obre el formulari de l'enviament al portafirmes

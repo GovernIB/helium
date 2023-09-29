@@ -6,11 +6,9 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
@@ -28,11 +26,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
-import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
@@ -40,6 +35,7 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 
 /**
@@ -55,8 +51,6 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 	private ExpedientService expedientService;
 	@Autowired
 	private ExpedientDocumentService expedientDocumentService;
-	@Resource(name="documentHelperV3")
-	private DocumentHelperV3 documentHelper;
 	
 	@RequestMapping(value = "/{expedientId}/notificacio/{notificacioId}/info", method = RequestMethod.GET)
 	public String notificacioInfo(
@@ -138,18 +132,9 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 			Model model) {		
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		List<DadesNotificacioDto> notificacions = expedientService.findNotificacionsNotibPerExpedientId(expedient.getId());
-		for(DadesNotificacioDto notificacio: notificacions) {
-			if(notificacio.getDocumentId()!=null) {
-				List<DocumentStore> documentsContinguts = documentHelper.getDocumentsContinguts(notificacio.getDocumentId());
-				List<DocumentStoreDto> documentsContingutsDto = new ArrayList<DocumentStoreDto>();
-				for(DocumentStore ds: documentsContinguts) {
-					documentsContingutsDto.add(documentHelper.toDocumentStoreDto(ds, false));
-				}
-				notificacio.setDocumentsDinsZip(documentsContingutsDto);
-			}
-		}
-		model.addAttribute("expedient",expedient);
-		model.addAttribute("notificacions",notificacions);
+
+		model.addAttribute("expedient", expedient);
+		model.addAttribute("notificacions", notificacions);
 		
 		return "v3/expedientNotificacioNotib";
 	}
@@ -185,9 +170,16 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "expedient.notificacio.consultar.estat.not.found", new Object[] {notificacioId}));
 		}
-		return "redirect:/v3/expedient/" + expedientId +"?pipellaActiva=notificacions";
+		
+		String ret;
+		if ( ModalHelper.isRefererUriModal(request)){
+			ret = "redirect:" + request.getHeader("referer");
+		} else {
+			ret = "redirect:/v3/expedient/" + expedientId +"?pipellaActiva=notificacions";
+		}
+		return ret;
 	}
-	
+
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(

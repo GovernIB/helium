@@ -46,6 +46,12 @@ public class ModalHelper {
 		}
 	}
 
+	public static boolean isRefererUriModal(
+			HttpServletRequest request) {
+		String referer = request.getHeader("referer");
+		return referer != null && referer.contains(URI_PREFIX_MODAL);
+	}
+
 	private static boolean isRequestUriModal(
 			HttpServletRequest request) {
 		return request.getRequestURI().contains(URI_PREFIX_MODAL);

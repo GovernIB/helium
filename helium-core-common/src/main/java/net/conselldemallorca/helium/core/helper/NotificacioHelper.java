@@ -353,7 +353,16 @@ public class NotificacioHelper {
 		
 		dadesNotificacio.setEnviamentReferencia(notificacio.getEnviamentReferencia());
 		dadesNotificacio.setEnviamentIdentificador(notificacio.getEnviamentIdentificador());
-		
+
+		// Documents notificats i continguts
+		if(notificacio.getDocument() != null) {
+			List<DocumentStoreDto> documentsContingutsDto = new ArrayList<DocumentStoreDto>();
+			// List<DocumentStore> documentsContinguts = documentHelper.getDocumentsContinguts(notificacio.getDocumentId());
+			for(DocumentStore ds: notificacio.getDocument().getContinguts()) {
+				documentsContingutsDto.add(documentHelperV3.toDocumentStoreDto(ds, false));
+			}
+			dadesNotificacio.setDocumentsDinsZip(documentsContingutsDto);
+		}
 		return dadesNotificacio;
 	}
 	
