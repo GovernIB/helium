@@ -1295,13 +1295,16 @@ public class ExpedientHelper {
 		
 		// Obté la llista de totes les instancies de processos finalitzats excepte l'actual
 		List<String> processInstanceFinalitzatIds = ThreadLocalInfo.getProcessInstanceFinalitzatIds();
-		processInstanceFinalitzatIds.remove(expedient.getProcessInstanceId());
-
-		// actualitza tots els expedients processos finalitzats
-		for (String processInstanceId: processInstanceFinalitzatIds) {
-			verificarFinalitzacioProcessInstance(processInstanceId);
+		if(processInstanceFinalitzatIds != null && !processInstanceFinalitzatIds.isEmpty()) {
+			
+			processInstanceFinalitzatIds.remove(expedient.getProcessInstanceId());
+	
+			// actualitza tots els expedients processos finalitzats
+			for (String processInstanceId: processInstanceFinalitzatIds) {
+				verificarFinalitzacioProcessInstance(processInstanceId);
+			}
+			ThreadLocalInfo.clearProcessInstanceFinalitzatIds();
 		}
-		ThreadLocalInfo.clearProcessInstanceFinalitzatIds();
 	}
 
 	public List<InstanciaProcesDto> getArbreInstanciesProces(
@@ -1485,7 +1488,7 @@ public class ExpedientHelper {
 		JbpmProcessInstance processInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
 		
 		// Si el procés està finalitzat
-		if (processInstance.getEnd() != null) {
+		if (processInstance!=null && processInstance.getEnd() != null) {
 			// Actualitzar data de fi de l'expedient
 			Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
 			if (expedient != null) {
