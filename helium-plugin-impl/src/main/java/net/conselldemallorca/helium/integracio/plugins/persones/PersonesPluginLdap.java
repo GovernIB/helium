@@ -51,6 +51,16 @@ public class PersonesPluginLdap implements PersonesPlugin {
 		}
 	}
 
+	public List<DadesPersona> findLikeCodiOrNomSencer(String text) throws PersonesPluginException {
+		try {
+			String likeFilter = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.search.filter.userlike");
+			String filter = new String(likeFilter).replace("###", text);
+			return findPersonesLdap(filter);
+		} catch (Exception ex) {
+			throw new PersonesPluginException("No s'ha pogut trobar cap persona", ex);
+		}
+	}
+
 	public List<DadesPersona> findAll() throws PersonesPluginException {
 		try {
 			String likeFilter = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.search.filter.like");

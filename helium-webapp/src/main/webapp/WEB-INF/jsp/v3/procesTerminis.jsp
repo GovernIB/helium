@@ -47,21 +47,24 @@ div.procesTermini:hover {
 			<c:set var="proces" value="${dadesProces.key}"/>
 			<div id="dataTable_termini_${proces.id}">
 				<div class="panel panel-default">
-					<div id="${proces.id}-titol-termini" class="panel-heading clicable procesTermini" data-processinstanceid="${proces.id}" data-toggle="collapse" data-target="#panel_termini_${proces.id}" data-id="${proces.id}_termini" data-carrega="<c:if test='${!procesFirst}'>ajax</c:if>">
-						<c:choose>
-							<c:when test="${proces.id == inicialProcesInstanceId}">
-								<spring:message code='common.tabsexp.proc_princip'/>
-							</c:when>
-							<c:otherwise>${proces.titol}</c:otherwise>
-						</c:choose>
-						<div class="pull-right">
+				
+					<c:if test="${ expedient.tipus.tipus == 'FLOW'}">
+						<div id="${proces.id}-titol-termini" class="panel-heading clicable procesTermini" data-processinstanceid="${proces.id}" data-toggle="collapse" data-target="#panel_termini_${proces.id}" data-id="${proces.id}_termini" data-carrega="<c:if test='${!procesFirst}'>ajax</c:if>">
 							<c:choose>
-								<c:when test="${procesFirst}"><span class="icona-collapse fa fa-chevron-up"></span></c:when>
-								<c:otherwise><span class="icona-collapse fa fa-chevron-down"></i></c:otherwise>
+								<c:when test="${proces.id == inicialProcesInstanceId}">
+									<spring:message code='common.tabsexp.proc_princip'/>
+								</c:when>
+								<c:otherwise>${proces.titol}</c:otherwise>
 							</c:choose>
+							<div class="pull-right">
+								<c:choose>
+									<c:when test="${procesFirst}"><span class="icona-collapse fa fa-chevron-up"></span></c:when>
+									<c:otherwise><span class="icona-collapse fa fa-chevron-down"></i></c:otherwise>
+								</c:choose>
+							</div>
 						</div>
-					</div>
-					<div id="panel_termini_${proces.id}" class="dataTable_termini panel-body collapse<c:if test="${procesFirst}"> in</c:if>">
+					</c:if>
+					<div id="panel_termini_${proces.id}" class="dataTable_termini ${expedient.tipus.tipus == 'FLOW' ? 'panel-body' : '' } collapse<c:if test="${procesFirst}"> in</c:if>">
 						<c:choose>
 							<c:when test="${not empty dadesProces.value && fn:length(dadesProces.value) > 0}">
 								<c:set var="dadesAgrupacio" value="${dadesProces.value}" scope="request"/>

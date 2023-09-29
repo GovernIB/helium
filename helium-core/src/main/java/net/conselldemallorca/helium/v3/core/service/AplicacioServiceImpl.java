@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,6 +110,12 @@ public class AplicacioServiceImpl implements AplicacioService {
 			persona = pluginHelper.personaFindAmbCodi(codi);			
 		}
 		return persona;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<PersonaDto> findPersonaLikeCodiOrNomSencer(String text) throws SistemaExternException {
+		return pluginHelper.personaFindLikeCodiOrNomSencer(text);
 	}
 
 

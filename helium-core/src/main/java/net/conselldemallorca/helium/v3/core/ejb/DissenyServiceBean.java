@@ -31,6 +31,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.handlers.HandlerDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
@@ -54,7 +55,19 @@ public class DissenyServiceBean implements DissenyService {
 		return delegate.findAccionsJbpmOrdenades(definicioProcesId);
 	}
 
-	/**
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public List<String> findHandlersJbpmOrdenats(Long definicioProcesId) {
+        return delegate.findHandlersJbpmOrdenats(definicioProcesId);
+    }
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public List<ParellaCodiValorDto> findHandlerParams(Long definicioProcesId, String handler) {
+        return delegate.findHandlerParams(definicioProcesId, handler);
+    }
+
+    /**
 	 * Retorna els tipus d'expedient per als quals l'usuari actual te permisos de lectura.
 	 * 
 	 * @param entornId
@@ -319,7 +332,13 @@ public class DissenyServiceBean implements DissenyService {
 		delegate.propagarHandlers(idDefinicioProcesOrigen, idsDefinicioProcesDesti);
 	}
 
-	@Override
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public void updateHandlersAccions(Long expedientTipusId, String nomArxiu, byte[] contingut) {
+        delegate.updateHandlersAccions(expedientTipusId, nomArxiu, contingut);
+    }
+
+    @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DefinicioProcesExportacio getDefinicioProcesExportacioFromContingut(String fitxer, byte[] contingut) {
 		return delegate.getDefinicioProcesExportacioFromContingut(fitxer, contingut);
@@ -356,5 +375,11 @@ public class DissenyServiceBean implements DissenyService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<FilaResultat> consultaDomini(Long id, String codiDomini, Map<String, Object> parametres) {
 		return delegate.consultaDomini(id, codiDomini, parametres);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<HandlerDto> getHandlersPredefinits() {
+		return delegate.getHandlersPredefinits();
 	}
 }

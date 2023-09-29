@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -34,12 +35,17 @@ import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadaListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientRegistreService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
@@ -60,6 +66,10 @@ public class ExpedientV3Controller extends BaseExpedientController {
 	private ExpedientService expedientService;
 	@Autowired
 	private ExpedientRegistreService expedientRegistreService;
+	@Autowired
+	private ExpedientDocumentService expedientDocumentService;
+	@Autowired
+	private ExpedientDadaService expedientDadaService;
 
 	@Autowired
 	private AplicacioService aplicacioService;
@@ -436,6 +446,89 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			MissatgesHelper.error(request, getMessage(request, "error.migrar.expedient.arxiu") + ": " + ex.getLocalizedMessage());
 		}
 		return "redirect:/v3/expedient/" + expedientId;
+	}
+
+	@RequestMapping(value = "/{expedientId}/estat/{estatId}/canviar", method = RequestMethod.GET)
+	public String estatCanviar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long estatId) {
+		try {
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+			if (this.validarVariablesDocumentsCanviEstat(request, expedient)) {
+				expedientService.estatCanviar(expedient.getId(), estatId);
+				MissatgesHelper.success(request, getMessage(request, "expedient.info.estat.canviar.correcte"));
+			}
+		} catch (Exception ex) {
+			StringBuilder message = new StringBuilder(ex.getClass().getSimpleName() + ": ");
+			Throwable t = ex;
+			boolean root;
+			do {
+				message.append(t.getMessage());
+				t = t.getCause();
+				root = t == null || t == t.getCause();
+				if (!root) {
+					message.append(": ");
+				}
+			} while (!root);
+			String errMsg = getMessage(request, "expedient.info.estat.canviar.error", new Object[] {message.toString()});
+			logger.error(errMsg, ex);
+			MissatgesHelper.error(request, errMsg);
+		}
+		return "redirect:/v3/expedient/" + expedientId;
+	}
+
+
+	private boolean validarVariablesDocumentsCanviEstat(HttpServletRequest request, ExpedientDto expedient) {
+		boolean correcte = true;
+		// Comrova les variables obligatòries
+		List<String> variablesObligatories = new ArrayList<String>();
+		for (DadaListDto dada : expedientDadaService.findDadesExpedient(expedient.getId(), true, true, false, new PaginacioParamsDto())) {
+			if (dada.isObligatori()) {
+				if (this.dadaBuidaONula(dada)) {
+					variablesObligatories.add(dada.getNom());
+					correcte = false;
+				}
+			}
+		}
+		if (!variablesObligatories.isEmpty()) {
+			MissatgesHelper.error(request, getMessage(request, "expedient.info.estat.canviar.dades.obligatories", new Object[] {variablesObligatories.size(), variablesObligatories}));
+		}
+		
+		// Comprova els documents obligatoris
+		List<String> documentsObligatoris = new ArrayList<String>();
+		for (DocumentListDto document : expedientDocumentService.findDocumentsExpedient(expedient.getId(), true, new PaginacioParamsDto())) {
+			if (document.isObligatori() && document.getId() == null) {
+				documentsObligatoris.add(document.getNom());
+				correcte = false;
+			}
+		}
+		if (!documentsObligatoris.isEmpty()) {
+			MissatgesHelper.error(request, getMessage(request, "expedient.info.estat.canviar.documents.obligatoris", new Object[] {documentsObligatoris.size(), documentsObligatoris}));
+		}
+		return correcte;
+	}
+	
+	/** Comprova si la dada és buida o nula segons el tipus de dada */
+	private boolean dadaBuidaONula(DadaListDto dada) {
+		boolean ret = false;				
+		if (dada == null  || dada.getId() == null) {
+			ret = true;
+		} else {
+			// Comprova el valor
+			if (dada.getValor() == null) {
+				ret = true;
+			} else if (dada.isMultiple()) {
+				if (dada.getValor().getFiles() == 0 || dada.getValor().getValorMultiple() == null || dada.getValor().getValorMultiple().isEmpty()) {
+					// Valor múltiple buit
+					ret = true;
+				}
+			} else {
+				// Valor simple buit
+				ret = dada.getValor().getValorSimple() == null || dada.getValor().getValorSimple().isEmpty();
+			}
+		}
+		return ret;
 	}
 
 	@RequestMapping(value="/{expedientTipusId}/documentDownload", method = RequestMethod.GET)

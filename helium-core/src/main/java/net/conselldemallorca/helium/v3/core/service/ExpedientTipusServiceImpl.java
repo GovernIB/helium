@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -13,6 +14,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
@@ -30,6 +33,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.SneakyThrows;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
@@ -64,6 +68,10 @@ import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
+import net.conselldemallorca.helium.core.model.hibernate.EstatAccioEntrada;
+import net.conselldemallorca.helium.core.model.hibernate.EstatAccioSortida;
+import net.conselldemallorca.helium.core.model.hibernate.EstatRegla;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
@@ -87,16 +95,20 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusFiltreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MapeigSistraDto.TipusMapeig;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisEstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaDefaultAnyDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatAccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.DeploymentException;
 import net.conselldemallorca.helium.v3.core.api.exception.ExportException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -120,6 +132,7 @@ import net.conselldemallorca.helium.v3.core.api.exportacio.RegistreMembreExporta
 import net.conselldemallorca.helium.v3.core.api.exportacio.TascaExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.TerminiExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ValidacioExportacio;
+import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
@@ -136,7 +149,11 @@ import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepository;
+import net.conselldemallorca.helium.v3.core.repository.EstatAccioEntradaRepository;
+import net.conselldemallorca.helium.v3.core.repository.EstatAccioSortidaRepository;
+import net.conselldemallorca.helium.v3.core.repository.EstatReglaRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.MapeigSistraRepository;
@@ -158,6 +175,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private DefinicioProcesHelper definicioProcesHelper;
 	@Resource
 	private ExpedientTipusRepository expedientTipusRepository;
+	@Resource
+	private ExpedientRepository expedientRepository;
 	@Resource
 	private SequenciaAnyRepository sequenciaRepository;
 	@Resource
@@ -200,6 +219,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private FirmaTascaRepository firmaTascaRepository;
 	@Resource
 	private AnotacioRepository anotacioRepository;
+	@Resource
+	private EstatReglaRepository estatReglaRepository;
+	@Resource
+	private EstatAccioEntradaRepository estatAccioEntradaRepository;
+	@Resource
+	private EstatAccioSortidaRepository estatAccioSortidaRepository;
 
 	@Resource
 	private ExpedientHelper expedientHelper;
@@ -242,6 +267,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setEntorn(entorn);
 		entity.setCodi(expedientTipus.getCodi());
 		entity.setNom(expedientTipus.getNom());
+		entity.setTipus(expedientTipus.getTipus());
 		entity.setAmbInfoPropia(expedientTipus.isAmbInfoPropia());
 		entity.setHeretable(expedientTipus.isHeretable());
 		if (expedientTipus.getExpedientTipusPareId() != null)
@@ -281,9 +307,77 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				entity.getSequenciaAny().put(anyEntity.getAny(), anyEntity);
 			}
 		}
+
+		if (ExpedientTipusTipusEnumDto.ESTAT.equals(entity.getTipus())) {
+			// Associa el tipus al flux senzill
+			expedientTipusRepository.saveAndFlush(entity);
+			entity.setJbpmProcessDefinitionKey(this.getDefinicioProcesEstats(entity, entorn).getJbpmKey());
+
+			// Crea un estata per defecte
+			Estat estat = new Estat();
+			estat.setExpedientTipus(entity);
+			estat.setCodi("inici");
+			estat.setNom("Estat inicial");
+			estat.setOrdre(1);
+			estat = estatRepository.save(estat);
+		}
+
 		return conversioTipusHelper.convertir(
 				expedientTipusRepository.save(entity),
 				ExpedientTipusDto.class);
+	}
+
+	private DefinicioProces getDefinicioProcesEstats(ExpedientTipus expedientTipus, Entorn entorn) {
+		DefinicioProces definicioProces = definicioProcesHelper.findDarreraVersioDefinicioProces(expedientTipus, DefinicioProcesService.HELIUM_JBPM_FLOW + expedientTipus.getCodi());
+		if (definicioProces == null) {
+			definicioProces = definicioProcesHelper.desplegarJbpm(
+					DefinicioProcesService.HELIUM_JBPM_FLOW + expedientTipus.getCodi() + ".par",
+					this.getContingutHelJbpmFlow(expedientTipus.getCodi()),
+					entorn,
+					expedientTipus);
+			logger.info("Desplegada la definició de procés pel flux hel_jbpm_flow per expedients basats en estats: " + definicioProces.getIdPerMostrar() );
+		}
+		return definicioProces;
+	}
+
+	@SneakyThrows
+	private byte[] getContingutHelJbpmFlow(String expedientTipusCodi) {
+//		byte[] contingut;
+//		InputStream is = null;
+//		String fitxer = "/par/hel_jbpm.par";
+//		try {
+//			is = getClass().getResourceAsStream(fitxer);
+//			contingut = IOUtils.toByteArray(is);
+//		} catch(Exception e) {
+//			throw new RuntimeException("Error obtenint el contingut de " + fitxer + ": " + e.getClass() + ": " + e.getMessage(), e);
+//		} finally {
+//			try {
+//				if (is != null)
+//					is.close();
+//			} catch(Exception e) {e.printStackTrace();}
+//		}
+//		return contingut;
+
+		ByteArrayOutputStream baos = null;
+		ZipOutputStream zos = null;
+		try {
+			byte[] pd = DefinicioProcesService.PROCESS_DEFINITION_XML.replace("[PD_NAME]", expedientTipusCodi).getBytes("UTF-8");
+			baos = new ByteArrayOutputStream();
+			zos = new ZipOutputStream(baos);
+			ZipEntry entry = new ZipEntry("processdefinition.xml");
+			entry.setSize(pd.length);
+			zos.putNextEntry(entry);
+			zos.write(pd);
+			zos.closeEntry();
+		} catch(Exception e) {
+			throw new RuntimeException("Error generant el fitxer processdefinition.xml: " + e.getClass() + ": " + e.getMessage(), e);
+		} finally {
+			try {
+				if (zos != null) zos.close();
+				if (baos != null) baos.close();
+			} catch(Exception e) {e.printStackTrace();}
+		}
+		return baos.toByteArray();
 	}
 
 	/**
@@ -296,6 +390,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			ExpedientTipusDto expedientTipus,
 			List<Integer> sequenciesAny,
 			List<Long> sequenciesValor) {
+
 		logger.debug(
 				"Modificant tipus d'expedient existent (" +
 				"entornId=" + entornId + ", " +
@@ -303,6 +398,11 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"sequenciesAny=" + sequenciesAny + ", " +
 				"sequenciesValor=" + sequenciesValor + ")");
 		
+		Entorn entorn = entornHelper.getEntornComprovantPermisos(
+				entornId,
+				true,
+				false);
+
 		ExpedientTipus entity = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipus.getId());
 		entity.setManualAjudaContent(expedientTipus.getManualAjudaContent());	
 		entity.setManualAjudaNom(expedientTipus.getManualAjudaNom());
@@ -355,6 +455,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			entity.setAmbRetroaccio(expedientTipus.isAmbRetroaccio());
 			entity.setReindexacioAsincrona(expedientTipus.isReindexacioAsincrona());
 		}
+
+		if (ExpedientTipusTipusEnumDto.ESTAT.equals(entity.getTipus())) {
+			// Associa el tipus al flux senzill
+			entity.setJbpmProcessDefinitionKey(this.getDefinicioProcesEstats(entity, entorn).getJbpmKey());
+		}
+
 		return conversioTipusHelper.convertir(
 				expedientTipusRepository.save(entity),
 				ExpedientTipusDto.class);
@@ -497,6 +603,13 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			anotacio.setExpedientTipus(null);
 		}
 		
+		// Esborra les regles i les accions dels estats
+		for (Estat estat : entity.getEstats()) {
+			estatReglaRepository.delete(estatReglaRepository.findByEstat(estat));
+			estatAccioEntradaRepository.delete(estatAccioEntradaRepository.findByEstatOrderByOrdreAsc(estat));
+			estatAccioSortidaRepository.delete(estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estat));		
+		}
+		
 		expedientTipusRepository.delete(entity);
 	}
 
@@ -533,6 +646,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		exportacio.setRestringirPerGrup(tipus.isRestringirPerGrup());
 		exportacio.setSeleccionarAny(tipus.isSeleccionarAny());
 		exportacio.setAmbRetroaccio(tipus.isAmbRetroaccio());
+		exportacio.setTipus(tipus.getTipus());
 		exportacio.setAmbInfoPropia(tipus.isAmbInfoPropia());
 		exportacio.setReindexacioAsincrona(tipus.isReindexacioAsincrona());
 		exportacio.setSequencia(tipus.getSequencia());
@@ -608,7 +722,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if (command.getEstats().size() > 0)
 			for (Estat estat: tipus.getEstats()) 
 				if (command.getEstats().contains(estat.getCodi()))
-					exportacio.getEstats().add(new EstatExportacio(estat.getCodi(), estat.getNom(), estat.getOrdre()));
+					exportacio.getEstats().add(getEstatExportacio(estat, true));
 		// Variables
 		if (command.getVariables().size() > 0)
 			for (Camp camp : tipus.getCamps()) 
@@ -763,8 +877,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							accio.getCodi(),
 							accio.getNom(),
 							accio.getDescripcio(),
+							accio.getTipus(),
 							accio.getDefprocJbpmKey(),
 							accio.getJbpmAction(),
+							accio.getPredefinitClasse(),
+							accio.getPredefinitDades(),
+							accio.getScript(),
 							accio.isPublica(),
 							accio.isOculta(),
 							accio.getRols());
@@ -871,7 +989,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			expedientTipus.setEntorn(entorn);
 			expedientTipus.setCodi(command.getCodi());
 			expedientTipus.setNom(importacio.getNom());
-			expedientTipus = expedientTipusRepository.save(expedientTipus);
+			expedientTipus.setTipus(importacio.getTipus());
+			expedientTipus = expedientTipusRepository.saveAndFlush(expedientTipus);
 		} else			
 			// Recupera el tipus d'expedient existent
 			if (entornHelper.potDissenyarEntorn(entornId)) {
@@ -887,6 +1006,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			}
 		if (!expedientTipusExisteix || command.isDadesBasiques()) {
 			expedientTipus.setNom(importacio.getNom());
+			expedientTipus.setTipus(importacio.getTipus());
 			expedientTipus.setAmbInfoPropia(importacio.isAmbInfoPropia());
 			expedientTipus.setTeTitol(importacio.isTeTitol());
 			expedientTipus.setDemanaTitol(importacio.isDemanaTitol());
@@ -968,6 +1088,46 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		expedientTipus.setPinbalNifCif(importacio.getPinbalNifCif());
 		
 		boolean sobreEscriure = command.isSobreEscriure();
+		
+		// Accions
+		Accio accio;
+		Map<String, Accio> accions = new HashMap<String, Accio>();
+		if (command.getAccions().size() > 0) {
+			for(AccioExportacio accioExportat : importacio.getAccions() ) {
+				if (command.getAccions().contains(accioExportat.getCodi())){
+					accio = null;
+					if (expedientTipusExisteix) {
+						accio = accioRepository.findByExpedientTipusIdAndCodi(expedientTipus.getId(), accioExportat.getCodi());
+					}
+					if (accio == null || sobreEscriure) {
+						if (accio == null) {
+							accio = new Accio(
+									expedientTipus, 
+									accioExportat.getCodi(), 
+									accioExportat.getNom(),
+									accioExportat.getTipus());
+							expedientTipus.getAccions().add(accio);
+							accioRepository.saveAndFlush(accio);
+						} else {
+							accio.setNom(accioExportat.getNom());
+							accio.setTipus(accioExportat.getTipus());
+						}
+						accio.setDescripcio(accioExportat.getDescripcio());
+						accio.setJbpmAction(accioExportat.getJbpmAction());
+						accio.setDefprocJbpmKey(accioExportat.getDefprocJbpmKey());
+						accio.setScript(accioExportat.getScript());
+						accio.setPredefinitClasse(accioExportat.getPredefinitClasse());
+						accio.setPredefinitDades(accioExportat.getPredefinitDades());
+						accio.setPublica(accioExportat.isPublica());
+						accio.setOculta(accioExportat.isOculta());
+						accio.setRols(accioExportat.getRols());
+						
+						accions.put(accio.getCodi(), accio);
+					}
+				}
+			}
+		}
+		
 		// Estats
 		Estat estat;
 		if (command.getEstats().size() > 0)
@@ -987,8 +1147,100 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							estatRepository.save(estat);
 						} else {
 							estat.setNom(estatExportat.getNom());
+							// Esborra
+							// Permisos
+							List<PermisDto> permisos = permisosHelper.findPermisos(
+									estat.getId(),
+									Estat.class);
+							for(PermisDto permis: permisos)
+								permisosHelper.deletePermis(estat.getId(), Estat.class, permis.getId());
+							// Regles
+							estatReglaRepository.delete(estatReglaRepository.findByEstat(estat));
+							estatReglaRepository.flush();
+							// Accions
+							estatAccioEntradaRepository.delete(estatAccioEntradaRepository.findByEstatOrderByOrdreAsc(estat));
+							estatAccioEntradaRepository.flush();
+							estatAccioSortidaRepository.delete(estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estat));		
+							estatAccioSortidaRepository.flush();
 						}
 						estat.setOrdre(estatExportat.getOrdre());
+						
+						// Afegerix
+						// Regles
+						if (estatExportat.getRegles() != null) {
+							for (EstatReglaDto r : estatExportat.getRegles()) {
+								EstatRegla regla = EstatRegla.builder()
+										.nom(r.getNom())
+										.ordre(r.getOrdre())
+										.qui(r.getQui())
+										.quiValor(r.getQuiValor())
+										.que(r.getQue())
+										.queValor(r.getQueValor())
+										.accio(r.getAccio())
+										.estat(estat)
+										.expedientTipus(expedientTipus)
+										.entorn(expedientTipus.getEntorn())
+										.build();
+								estatReglaRepository.save(regla);
+							}
+						}
+						// Permisos
+						if (estatExportat.getPermisos() != null) {
+							for (PermisEstatDto p : estatExportat.getPermisos()) {
+								permisosHelper.updatePermis(
+										estat.getId(),
+										Estat.class,
+										p.toPermisDto());
+							}
+						}
+						// Accions d'entrada
+						if (estatExportat.getAccionsEntrada() != null) {
+							for (EstatAccioDto a : estatExportat.getAccionsEntrada()) {
+								accio = accions.get(a.getAccio().getCodi());
+								if (accio == null) {
+									accio = accioRepository.findByExpedientTipusIdAndCodi(expedientTipusId, a.getAccio().getCodi());
+								}
+								if (accio == null) {
+									throw new DeploymentException(
+											messageHelper.getMessage(
+												"exportar.validacio.estat.accio.entrada", 
+												new Object[]{
+														estat.getCodi(),
+														estat.getNom(),
+														a.getAccio().getCodi()}));
+								}
+								EstatAccioEntrada estatAccioEntrada = EstatAccioEntrada.builder()
+										.estat(estat)
+										.accio(accio)
+										.ordre(a.getOrdre())
+										.build();
+								estatAccioEntradaRepository.save(estatAccioEntrada);
+							}							
+						}
+						// Accions de sortida
+						if (estatExportat.getAccionsSortida() != null) {
+							for (EstatAccioDto a : estatExportat.getAccionsSortida()) {
+								accio = accions.get(a.getAccio().getCodi());
+								if (accio == null) {
+									accio = accioRepository.findByExpedientTipusIdAndCodi(expedientTipusId, a.getAccio().getCodi());
+								}
+								if (accio == null) {
+									throw new DeploymentException(
+											messageHelper.getMessage(
+												"exportar.validacio.estat.accio.sortida", 
+												new Object[]{
+														estat.getCodi(),
+														estat.getNom(),
+														a.getAccio().getCodi()}));
+								}
+								EstatAccioSortida estatAccioSortida = EstatAccioSortida.builder()
+										.estat(estat)
+										.accio(accio)
+										.ordre(a.getOrdre())
+										.build();
+								estatAccioSortidaRepository.save(estatAccioSortida);
+							}	
+						}					
 					}
 				}
 		
@@ -1333,36 +1585,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					}
 				}
 
-		// Accions
-		Accio accio;
-		if (command.getAccions().size() > 0)
-			for(AccioExportacio accioExportat : importacio.getAccions() )
-				if (command.getAccions().contains(accioExportat.getCodi())){
-					accio = null;
-					if (expedientTipusExisteix) {
-						accio = accioRepository.findByExpedientTipusIdAndCodi(expedientTipus.getId(), accioExportat.getCodi());
-					}
-					if (accio == null || sobreEscriure) {
-						if (accio == null) {
-							accio = new Accio(
-									expedientTipus, 
-									accioExportat.getCodi(), 
-									accioExportat.getNom(),
-									accioExportat.getDefprocJbpmKey(),
-									accioExportat.getJbpmAction());
-							expedientTipus.getAccions().add(accio);
-							accioRepository.save(accio);
-						} else {
-							accio.setNom(accioExportat.getNom());
-							accio.setJbpmAction(accioExportat.getJbpmAction());
-						}
-						accio.setDescripcio(accioExportat.getDescripcio());
-						accio.setPublica(accioExportat.isPublica());
-						accio.setOculta(accioExportat.isOculta());
-						accio.setRols(accioExportat.getRols());
-					}
-				}
-		
 		// Definicions
 		DefinicioProces definicioProces;
 		if (command.getDefinicionsProces().size() > 0) {
@@ -2396,13 +2618,16 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Transactional
 	public EstatDto estatCreate(Long expedientTipusId, EstatDto dto) {
 		Estat estat = new Estat();
-		estat.setExpedientTipus( 
-				expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
-						expedientTipusId));
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+		estat.setExpedientTipus(expedientTipus);
 		estat.setCodi(dto.getCodi());
 		estat.setNom(dto.getNom());
-		Integer seguentOrdre = estatRepository.getSeguentOrdre(expedientTipusId); 
-		estat.setOrdre(seguentOrdre == null ? 0 : seguentOrdre + 1);
+		if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedientTipus.getTipus())) {
+			estat.setOrdre(dto.getOrdre());
+		} else {
+			Integer seguentOrdre = estatRepository.getSeguentOrdre(expedientTipusId);
+			estat.setOrdre(seguentOrdre == null ? 0 : seguentOrdre + 1);
+		}
 		return conversioTipusHelper.convertir(
 				estatRepository.save(estat),
 				EstatDto.class);
@@ -2416,12 +2641,15 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			throw new NoTrobatException(Estat.class, dto.getId());
 		}
 		
-		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
-				estat.getExpedientTipus().getId());
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
 		
 		estat.setCodi(dto.getCodi());
 		estat.setNom(dto.getNom());
-		
+
+		if (ExpedientTipusTipusEnumDto.ESTAT.equals(estat.getExpedientTipus().getTipus())) {
+			estat.setOrdre(dto.getOrdre());
+		}
+
 		return conversioTipusHelper.convertir(
 				estatRepository.save(estat),
 				EstatDto.class);
@@ -2435,20 +2663,57 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			throw new NoTrobatException(Estat.class, estatId);
 		}
 		ExpedientTipus expedientTipus = expedientTipusRepository.findById(estat.getExpedientTipus().getId());
+		if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedientTipus.getTipus())) {
+			// Comrpova que no s'estigui esborrant l'únic estat
+			List<Estat> expedientTipusEstats = estatRepository.findAllAmbHerencia(estat.getExpedientTipus().getId());
+			if (expedientTipusEstats.size() == 1) {
+				throw new  ValidacioException("No es pot esborrar l'únic estat d'un tipus d'expedient basat en estats.");
+			}
+		}
+		// Comprova que no hi hagi expedients associats
+		long expedientsPerEstat = expedientRepository.countByEstat(estat);
+		if (expedientsPerEstat > 0) {
+			throw new ValidacioException("No es pot esborrar l'estat perquè hi ha " + expedientsPerEstat + " expedients amb aquest estat.");
+		}
+
+		int ordre = estat.getOrdre();
 		expedientTipus.getEstats().remove(estat);
-		// Esborra
-		estatRepository.delete(estat);
-		estatRepository.flush();
-		// Reordena els estats
-		List<Estat> estats = estatRepository.findByExpedientTipusOrderByOrdreAsc(expedientTipus);		
-		int i = 0;
-		for (Estat e: estats)
-			e.setOrdre(i++);
+		if (ExpedientTipusTipusEnumDto.FLOW.equals(expedientTipus.getTipus())) {
+			// Esborra
+			estatRepository.delete(estat);
+			estatRepository.flush();
+			// Reordena els estats
+			List<Estat> estats = estatRepository.findByExpedientTipusOrderByOrdreAsc(expedientTipus);
+			int i = 0;
+			for (Estat e : estats)
+				e.setOrdre(i++);
+		} else {
+			// Esborra
+			// Permisos
+			List<PermisDto> permisos = permisosHelper.findPermisos(
+					estatId,
+					Estat.class);
+			for(PermisDto permis: permisos)
+				permisosHelper.deletePermis(estatId, Estat.class, permis.getId());
+			// Regles
+			estatReglaRepository.delete(estatReglaRepository.findByEstat(estat));
+			// Accions
+			estatAccioEntradaRepository.delete(estatAccioEntradaRepository.findByEstatOrderByOrdreAsc(estat));
+			estatAccioSortidaRepository.delete(estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estat));		
+			// Estat
+			estatRepository.delete(estat);
+			estatRepository.flush();
+			// Reordena els estats
+			Long estatAmbMateixOrdre = estatRepository.countByExpedientTipusAndOrdre(expedientTipus, ordre);
+			if (estatAmbMateixOrdre.intValue() == 0) {
+				estatRepository.decreseEstatsWithBiggerOrder(expedientTipus, ordre);
+			}
+		}
 	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
+
+		/**
+         * {@inheritDoc}
+         */
 	@Override
 	@Transactional(readOnly = true)
 	public PaginaDto<EstatDto> estatFindPerDatatable(
@@ -2475,7 +2740,23 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 
 		PaginaDto<EstatDto> pagina = paginacioHelper.toPaginaDto(
 				page,
-				EstatDto.class);				
+				EstatDto.class);
+
+		List<Long> ids = new ArrayList<Long>();
+		for (EstatDto dto: pagina.getContingut()) {
+			ids.add(dto.getId());
+		}
+		Map<Long, List<PermisDto>> permisos = permisosHelper.findPermisos(
+				ids,
+				Estat.class);
+
+		for (EstatDto dto: pagina.getContingut()) {
+			List<PermisDto> permisosEstat = permisos.get(dto.getId());
+			dto.setPermisCount(permisosEstat != null ? permisosEstat.size() : 0);
+			dto.setReglesCount(estatReglaRepository.countByEstatId(dto.getId()).intValue());
+			dto.setAccionsEntradaCount(estatAccioEntradaRepository.countByEstatId(dto.getId()).intValue());
+			dto.setAccionsSortidaCount(estatAccioSortidaRepository.countByEstatId(dto.getId()).intValue());
+		}
 
 		if (ambHerencia) {
 			// Llista d'heretats
@@ -2536,11 +2817,568 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		}
 		return ret;
 	}
+
+	@Override
+	@Transactional
+	public boolean estatMoureOrdre(Long estatId, int posicio, String tipusOrdre) throws NoTrobatException {
+		// Possibles ordres:
+		//  - auto  --> No hi ha ambiguitat, i per tant es calcularà de forma automàtica. (Es mou entre dos estats que tenen el mateix ordre)
+		//  - 1-1   --> Es mou a l'inici, i agafa el mateix valor del que hi havia abans al inici
+		//  - 1-2   --> Es mou a l'inici, agafa el valor 1 i es desplaça la resta d'estats
+		//  - 8-9   --> Es mou al final, i agafa el valor del que estava abans al final + 1
+		//  - 9-9   --> Es mou al final, i agafa el mateix valor del que hi havia abans al final
+		//  - 1-1-2 --> Es moun entre dos estats que tenen ordres consecutius, i agafa el mateix valor que el primer d'ells
+		//  - 1-2-2 --> Es moun entre dos estats que tenen ordres consecutius, i agafa el mateix valor que el segon d'ells
+		//  - 1-2-3 --> Es moun entre dos estats que tenen ordres consecutius, agafa el mateix valor que el segon d'ells, i desplaça la resta d'estats
+
+		logger.debug(
+				"Moguent l'estat (" +
+						"estatId=" + estatId + ", " +
+						"posicio=" + posicio + ")");
+		Estat estat = estatRepository.findOne(estatId);
+		if (estat == null) {
+			throw new NoTrobatException(Estat.class, estatId);
+		}
+
+		findAmbIdPermisDissenyar(
+				estat.getExpedientTipus().getEntorn().getId(),
+				estat.getExpedientTipus().getId());
+
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		List<Estat> estats = estatRepository.findByExpedientTipusOrderByOrdreAsc(expedientTipus);
+
+		int posicioActual = estats.indexOf(estat);
+		int ordreActual = estat.getOrdre();
+		Long estatAmbMateixOrdre = estatRepository.countByExpedientTipusAndOrdre(expedientTipus, estat.getOrdre());
+
+		if ("auto".equals(tipusOrdre)) { 			// Agafa el mateix valor que l'estat que hi havia on es mou
+			estat.setOrdre(estats.get(posicio).getOrdre());
+		} else if ("1-1".equals(tipusOrdre)) {		// Posicio == 0. Ordre = 1
+			estat.setOrdre(1);
+		} else if ("1-2".equals(tipusOrdre)) {		// Posicio == 0. Ordre = 1. Tots els estats augmenten en 1
+			estatRepository.increseEstatsWithBiggerOrder(expedientTipus, 0);
+			estat.setOrdre(1);
+		} else if ("8-9".equals(tipusOrdre)) {		// Posicio == final. Ordre = mateix que l'estat final + 1
+			estat.setOrdre(estats.get(posicio).getOrdre() + 1);
+		} else if ("9-9".equals(tipusOrdre)) {		// Posicio == final. Ordre = mateix que l'estat final
+			estat.setOrdre(estats.get(posicio).getOrdre());
+		} else if ("1-1-2".equals(tipusOrdre)) { 	// Ordre = mateix que l'estat anterior
+			int ordre = posicioActual < posicio ? estats.get(posicio).getOrdre() : estats.get(posicio - 1).getOrdre();
+			estat.setOrdre(ordre);
+		} else if ("1-2-2".equals(tipusOrdre)) {	// Ordre = mateix que l'estat posterior
+			int ordre = posicioActual < posicio ? estats.get(posicio + 1).getOrdre() : estats.get(posicio).getOrdre();
+			estat.setOrdre(ordre);
+		} else if ("1-2-3".equals(tipusOrdre)) {	// Ordre = mateix que l'estat posterior. Tots els estats posteriors augmenten en 1
+			int ordre = posicioActual < posicio ? estats.get(posicio + 1).getOrdre() : estats.get(posicio).getOrdre();
+			estatRepository.increseEstatsWithBiggerOrder(expedientTipus, ordre - 1);
+			estat.setOrdre(ordre);
+		} else {
+			throw new RuntimeException("Tipus d'ordre invàlid");
+		}
+
+		// Reordenam els estats que hi havia darrera el que movem
+		if (estatAmbMateixOrdre.intValue() == 1)
+			estatRepository.decreseEstatsWithBiggerOrder(expedientTipus, ordreActual);
+		return true;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public int getEstatSeguentOrdre(Long expedientTipusId) throws NoTrobatException {
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+		Integer seguentOrdre = estatRepository.getSeguentOrdre(expedientTipusId);
+		return seguentOrdre == null ? 1 : seguentOrdre + 1;
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<EstatExportacio> estatExportacio(Long expedientTipusId, boolean ambPermisos) throws NoTrobatException {
+		List<EstatExportacio> estatsExportacio = new ArrayList<EstatExportacio>();
+
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+		HerenciaHelper.ambHerencia(expedientTipus);
+
+		// Consulta els estats
+		List<Estat> estats;
+		if (HerenciaHelper.ambHerencia(expedientTipus))
+			estats = estatRepository.findAllAmbHerencia(expedientTipusId);
+		else
+			estats = estatRepository.findAll(expedientTipusId);
+
+		for (Estat estat: estats) {
+			estatsExportacio.add(getEstatExportacio(estat, ambPermisos));
+		}
+
+		return estatsExportacio;
+	}
+
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<EstatDto> estatGetAvancar(long expedientId) {
+		logger.debug(
+				"Consultant els possibles estats per avançar l'expedient (" +
+				"expedientId=" + expedientId+ ")");
+		Expedient expedient = expedientRepository.findOne(expedientId);		
+		int estatOrdre= 0;
+		if (expedient.getEstat() != null ) {
+			estatOrdre =  expedient.getEstat().getOrdre();
+		} else if (expedient.getDataFi() == null) {
+			estatOrdre = 0;
+		} else {
+			estatOrdre = estatRepository.getSeguentOrdre(expedient.getTipus().getId());
+		}
+		List<Estat> estats = estatRepository.findByExpedientTipusAndOrdre(expedient.getTipus(), estatOrdre + 1);
+		return conversioTipusHelper.convertirList(estats, EstatDto.class);
+
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<EstatDto> estatGetRetrocedir(long expedientId) {
+		logger.debug(
+				"Consultant els possibles estats per retrocedir l'expedient (" +
+				"expedientId=" + expedientId+ ")");
+		Expedient expedient = expedientRepository.findOne(expedientId);		
+		int estatOrdre= 0;
+		if (expedient.getEstat() != null ) {
+			estatOrdre =  expedient.getEstat().getOrdre();
+		} else if (expedient.getDataFi() == null) {
+			estatOrdre = 0;
+		} else {
+			estatOrdre = estatRepository.getSeguentOrdre(expedient.getTipus().getId());
+		}
+		List<Estat> estats = estatRepository.findByExpedientTipusAndOrdre(expedient.getTipus(), estatOrdre - 1);
+		return conversioTipusHelper.convertirList(estats, EstatDto.class);
+	}
+
+	private EstatExportacio getEstatExportacio(Estat estat, boolean ambPermisos) {
+
+		// Regles
+		List<EstatReglaDto> reglesDto = null;
+		List<EstatRegla> regles = estatReglaRepository.findByEstatOrderByOrdreAsc(estat);
+		if (regles != null && !regles.isEmpty()) {
+			reglesDto = conversioTipusHelper.convertirList(regles, EstatReglaDto.class);
+		}
+		// Permisos
+		List<PermisEstatDto> permisosDto = null;
+		if (ambPermisos) {
+			List<PermisDto> permisos = permisosHelper.findPermisos(estat.getId(), Estat.class);
+			if (permisos != null && !permisos.isEmpty()) {
+				permisosDto = conversioTipusHelper.convertirList(permisos, PermisEstatDto.class);
+			}
+		}
+		
+		// Accions entrada
+		List<EstatAccioDto> estatAccionsEntradaDto = new ArrayList<EstatAccioDto>();
+		List<EstatAccioEntrada> estatAccioEntrada = estatAccioEntradaRepository.findByEstatOrderByOrdreAsc(estat);
+		if (estatAccioEntrada != null && !estatAccioEntrada.isEmpty()) {
+			estatAccionsEntradaDto = conversioTipusHelper.convertirList(estatAccioEntrada, EstatAccioDto.class);
+		}
+
+		// Accions sortida
+		List<EstatAccioDto> estatAccionsSortidaDto = new ArrayList<EstatAccioDto>();
+		List<EstatAccioSortida> estatAccioSortida = estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estat);
+		if (estatAccioSortida != null && !estatAccioSortida.isEmpty()) {
+			estatAccionsSortidaDto = conversioTipusHelper.convertirList(estatAccioSortida, EstatAccioDto.class);
+		}
+
+		return EstatExportacio.builder()
+				.codi(estat.getCodi())
+				.nom(estat.getNom())
+				.ordre(estat.getOrdre())
+				.regles(reglesDto)
+				.permisos(permisosDto)
+				.accionsEntrada(estatAccionsEntradaDto)
+				.accionsSortida(estatAccionsSortidaDto)
+				.build();
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<PermisDto> estatPermisFindAll(Long estatId) {
+		logger.debug("Consultant permisos de l'estat (estat=" + estatId + ")");
+
+		Estat estat = estatRepository.findOne(estatId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+
+		return permisosHelper.findPermisos(
+				estatId,
+				Estat.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public PermisDto estatPermisFindById(Long estatId, Long permisId) {
+		logger.debug(
+				"Consultant un permis donat el seu id (" +
+						"estatId=" + estatId + ", " +
+						"permisId=" + permisId + ")");
+
+		Estat estat = estatRepository.findOne(estatId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+
+		List<PermisDto> permisos = permisosHelper.findPermisos(
+				estatId,
+				Estat.class);
+		for (PermisDto permis: permisos) {
+			if (permis.getId().equals(permisId)) {
+				return permis;
+			}
+		}
+		throw new NoTrobatException(PermisDto.class, permisId);
+	}
+
+	@Override
+	@Transactional
+	public void estatPermisUpdate(Long estatId, PermisDto permis) throws NoTrobatException, PermisDenegatException {
+		logger.debug("Actualitzant permis per a l'estat (" +
+						"estatId=" + estatId + ", " +
+						"permis=" + permis + ")");
+
+		Estat estat = estatRepository.findOne(estatId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		permisosHelper.updatePermis(
+				estatId,
+				Estat.class,
+				permis);
+	}
+
+	@Override
+	@Transactional
+	public void estatPermisDelete(Long estatId, Long permisId) throws NoTrobatException, PermisDenegatException {
+		logger.debug("Esborrant permis per a l'estat (" +
+				"estatId=" + estatId + ", " +
+				"permisId=" + permisId + ")");
+
+		Estat estat = estatRepository.findOne(estatId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		permisosHelper.deletePermis(
+				estatId,
+				Estat.class,
+				permisId);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<EstatReglaDto> estatReglaFindAll(Long estatId) {
+		Estat estat = estatRepository.findOne(estatId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		List<EstatRegla> regles = estatReglaRepository.findByEstatOrderByOrdreAsc(estat);
+		return conversioTipusHelper.convertirList(regles, EstatReglaDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public EstatReglaDto estatReglaFindById(Long estatId, Long reglaId) {
+		Estat estat = estatRepository.findOne(estatId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		EstatRegla regla = estatReglaRepository.findOne(reglaId);
+		if (regla == null)
+			throw new NoTrobatException(EstatRegla.class, reglaId);
+		return conversioTipusHelper.convertir(regla, EstatReglaDto.class);
+	}
+
+	@Override
+	public EstatReglaDto estatReglaFindByNom(Long estatId, String nom) {
+		Estat estat = estatRepository.findOne(estatId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		EstatRegla regla = estatReglaRepository.findByNom(estatId, nom);
+		return conversioTipusHelper.convertir(regla, EstatReglaDto.class);
+	}
+
+	@Override
+	@Transactional
+	public EstatReglaDto estatReglaCreate(Long estatId, EstatReglaDto reglaDto) throws NoTrobatException, PermisDenegatException {
+		Estat estat = estatRepository.findOne(estatId);
+		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		Integer seguentOrdre = estatReglaRepository.getSeguentOrdre(estatId);
+		seguentOrdre = seguentOrdre == null ? 0 : seguentOrdre + 1;
+		EstatRegla regla = EstatRegla.builder()
+				.nom(reglaDto.getNom())
+				.ordre(seguentOrdre)
+				.qui(reglaDto.getQui())
+				.quiValor(reglaDto.getQuiValor())
+				.que(reglaDto.getQue())
+				.queValor(reglaDto.getQueValor())
+				.accio(reglaDto.getAccio())
+				.estat(estat)
+				.expedientTipus(expedientTipus)
+				.entorn(expedientTipus.getEntorn())
+				.build();
+		return conversioTipusHelper.convertir(estatReglaRepository.save(regla), EstatReglaDto.class);
+	}
+
+	@Override
+	@Transactional
+	public EstatReglaDto estatReglaUpdate(Long estatId, EstatReglaDto reglaDto) throws NoTrobatException, PermisDenegatException {
+		Estat estat = estatRepository.findOne(estatId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		EstatRegla regla = estatReglaRepository.findOne(reglaDto.getId());
+		if (regla == null)
+			throw new NoTrobatException(EstatRegla.class, reglaDto.getId());
+
+		regla.setNom(reglaDto.getNom());
+		regla.setQui(reglaDto.getQui());
+		regla.setQuiValor(reglaDto.getQuiValor());
+		regla.setQue(reglaDto.getQue());
+		regla.setQueValor(reglaDto.getQueValor());
+		regla.setAccio(reglaDto.getAccio());
+		return conversioTipusHelper.convertir(estatReglaRepository.save(regla), EstatReglaDto.class);
+	}
+
+	@Override
+	@Transactional
+	public void estatReglaDelete(Long estatId, Long reglaId) throws NoTrobatException, PermisDenegatException {
+		Estat estat = estatRepository.findOne(estatId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		EstatRegla regla = estatReglaRepository.findOne(reglaId);
+		if (regla == null)
+			throw new NoTrobatException(EstatRegla.class, reglaId);
+
+		estatReglaRepository.delete(regla);
+	}
+
+	@Override
+	@Transactional
+	public boolean estatReglaMoure(Long reglaId, int posicio) {
+		logger.debug(
+				"Moguent la regla (" +
+						"reglaId=" + reglaId + ", " +
+						"posicio=" + posicio + ")");
+		boolean ret = false;
+		EstatRegla regla = estatReglaRepository.findOne(reglaId);
+		if (regla == null) {
+			throw new NoTrobatException(EstatRegla.class, reglaId);
+		}
+		findAmbIdPermisDissenyar(
+				regla.getExpedientTipus().getEntorn().getId(),
+				regla.getExpedientTipus().getId());
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(regla.getExpedientTipus().getId());
+		Estat estat = estatRepository.findOne(regla.getEstat().getId());
+		if (estat == null) {
+			throw new NoTrobatException(Estat.class, regla.getEstat().getId());
+		}
+
+		List<EstatRegla> regles = estatReglaRepository.findByEstatOrderByOrdreAsc(estat);
+		if(posicio != regles.indexOf(regla)) {
+			regles.remove(regla);
+			regles.add(posicio, regla);
+			int i = 0;
+			for (EstatRegla r : regles) {
+				r.setOrdre(i++);
+				estatReglaRepository.save(r);
+			}
+		}
+		return ret;
+	}
 	
 	
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<EstatAccioDto> estatAccioEntradaFindPerDatatable(Long estatId, String filtre,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException {
+		logger.debug(
+				"Consultant les accions per l'estat per datatable (" +
+				"estatId=" + estatId + ", " +
+				"filtre=" + filtre + ")");
+						
+		
+		return paginacioHelper.toPaginaDto(
+				estatAccioEntradaRepository.findByFiltrePaginat(
+						estatId,
+						filtre == null || "".equals(filtre), 
+						filtre, 
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams)),
+				EstatAccioDto.class);	
+	}
 	
+	@Override
+	@Transactional(readOnly = true)
+	public List<EstatAccioDto> estatAccioEntradaFindAll(Long estatId) throws NoTrobatException {
+		logger.debug(
+				"Consultant les accions d'entrada per l'estat  (" +
+				"estatId=" + estatId + ")");
+		
+		Estat estat = estatRepository.findOne(estatId);
+		if (estat == null) {
+			throw new NoTrobatException(Estat.class, estatId);
+		}
+		return conversioTipusHelper.convertirList(
+				estatAccioEntradaRepository.findByEstatOrderByOrdreAsc(estat), 
+				EstatAccioDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<EstatAccioDto> estatAccioSortidaFindAll(Long estatId) throws NoTrobatException {
+		logger.debug(
+				"Consultant les accions de sortida per l'estat  (" +
+				"estatId=" + estatId + ")");
+		
+		Estat estat = estatRepository.findOne(estatId);
+		if (estat == null) {
+			throw new NoTrobatException(Estat.class, estatId);
+		}
+		return conversioTipusHelper.convertirList(
+				estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estat), 
+				EstatAccioDto.class);
+	}
+
 	
+	@Override
+	@Transactional
+	public void estatAccionsDeleteAll(Long estatId) throws NoTrobatException, PermisDenegatException {
+		logger.debug(
+				"Esborrant totes les accions d'entrada i sortida de l'estat  (" +
+				"estatId=" + estatId + ")");
+		Estat estat = estatRepository.findOne(estatId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		// Accions d'entrada
+		for (EstatAccioEntrada estatAccio : estatAccioEntradaRepository.findByEstatOrderByOrdreAsc(estat)) {
+			estatAccioEntradaRepository.delete(estatAccio);
+		}
+		// Accions de sortida
+		for (EstatAccioSortida estatAccio : estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estat)) {
+			estatAccioSortidaRepository.delete(estatAccio);
+		}
+	}
+
+	@Override
+	@Transactional
+	public EstatAccioDto estatAccioEntradaAfegir(Long estatId, Long accioId) throws NoTrobatException, PermisDenegatException {
+		Estat estat = estatRepository.findOne(estatId);
+		Accio accio = accioRepository.findOne(accioId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		Integer seguentOrdre = estatAccioEntradaRepository.getSeguentOrdre(estatId);
+		seguentOrdre = seguentOrdre == null ? 0 : seguentOrdre + 1;
+		EstatAccioEntrada estatAccioEntrada = EstatAccioEntrada.builder()
+				.estat(estat)
+				.accio(accio)
+				.ordre(seguentOrdre)
+				.build();
+		return conversioTipusHelper.convertir(
+				estatAccioEntradaRepository.save(estatAccioEntrada), 
+				EstatAccioDto.class);
+	}
 	
+	@Override
+	@Transactional
+	public void estatAccioEntradaDelete(Long estatId, Long estatAccioId) throws NoTrobatException, PermisDenegatException {
+		Estat estat = estatRepository.findOne(estatId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		EstatAccioEntrada estatAccioEntrada = estatAccioEntradaRepository.findOne(estatAccioId);
+		if (estatAccioEntrada == null)
+			throw new NoTrobatException(EstatAccioEntrada.class, estatAccioId);
+
+		estatAccioEntradaRepository.delete(estatAccioEntrada);
+		estatAccioEntradaRepository.flush();
+		// Reordena els estats
+		List<EstatAccioEntrada> estatAccions = estatAccioEntradaRepository.findByEstatOrderByOrdreAsc(estat);
+		int i = 0;
+		for (EstatAccioEntrada ea : estatAccions)
+			ea.setOrdre(i++);
+	}
+
+	@Override
+	@Transactional
+	public boolean estatAccioEntradaMoure(
+			Long estatAccioId, 
+			int posicio) {
+		boolean ret = false;
+		EstatAccioEntrada estatAccio = estatAccioEntradaRepository.findOne(estatAccioId);
+		if (estatAccio != null) {
+			List<EstatAccioEntrada> estatAccions = estatAccioEntradaRepository.findByEstatOrderByOrdreAsc(estatAccio.getEstat());
+			if(posicio != estatAccions.indexOf(estatAccio)) {
+				estatAccions.remove(estatAccio);
+				estatAccions.add(posicio, estatAccio);
+				int i = 0;
+				for (EstatAccioEntrada c : estatAccions) {
+					c.setOrdre(i++);
+				}
+			}
+		}
+		return ret;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public PaginaDto<EstatAccioDto> estatAccioSortidaFindPerDatatable(Long estatId, String filtre,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException {
+		logger.debug(
+				"Consultant les accions per l'estat per datatable (" +
+				"estatId=" + estatId + ", " +
+				"filtre=" + filtre + ")");
+						
+		
+		return paginacioHelper.toPaginaDto(
+				estatAccioSortidaRepository.findByFiltrePaginat(
+						estatId,
+						filtre == null || "".equals(filtre), 
+						filtre, 
+						paginacioHelper.toSpringDataPageable(
+								paginacioParams)),
+				EstatAccioDto.class);	
+	}
+	
+	@Override
+	@Transactional
+	public EstatAccioDto estatAccioSortidaAfegir(Long estatId, Long accioId) throws NoTrobatException, PermisDenegatException {
+		Estat estat = estatRepository.findOne(estatId);
+		Accio accio = accioRepository.findOne(accioId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		Integer seguentOrdre = estatAccioSortidaRepository.getSeguentOrdre(estatId);
+		seguentOrdre = seguentOrdre == null ? 0 : seguentOrdre + 1;
+		EstatAccioSortida estatAccioSortida = EstatAccioSortida.builder()
+				.estat(estat)
+				.accio(accio)
+				.ordre(seguentOrdre)
+				.build();
+		return conversioTipusHelper.convertir(
+				estatAccioSortidaRepository.save(estatAccioSortida), 
+				EstatAccioDto.class);
+	}
+	
+	@Override
+	@Transactional
+	public void estatAccioSortidaDelete(Long estatId, Long estatAccioId) throws NoTrobatException, PermisDenegatException {
+		Estat estat = estatRepository.findOne(estatId);
+		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(estat.getExpedientTipus().getId());
+		EstatAccioSortida estatAccioSortida = estatAccioSortidaRepository.findOne(estatAccioId);
+		if (estatAccioSortida == null)
+			throw new NoTrobatException(EstatAccioSortida.class, estatAccioId);
+
+		estatAccioSortidaRepository.delete(estatAccioSortida);
+		estatAccioSortidaRepository.flush();
+		// Reordena els estats
+		List<EstatAccioSortida> estatAccions = estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estat);
+		int i = 0;
+		for (EstatAccioSortida ea : estatAccions)
+			ea.setOrdre(i++);
+	}
+
+	@Override
+	@Transactional
+	public boolean estatAccioSortidaMoure(
+			Long estatAccioId, 
+			int posicio) {
+		boolean ret = false;
+		EstatAccioSortida estatAccio = estatAccioSortidaRepository.findOne(estatAccioId);
+		if (estatAccio != null) {
+			List<EstatAccioSortida> estatAccions = estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estatAccio.getEstat());
+			if(posicio != estatAccions.indexOf(estatAccio)) {
+				estatAccions.remove(estatAccio);
+				estatAccions.add(posicio, estatAccio);
+				int i = 0;
+				for (EstatAccioSortida c : estatAccions) {
+					c.setOrdre(i++);
+				}
+			}
+		}
+		return ret;
+	}
+
 	@Override
 	@Transactional
 	public void definicioProcesIncorporar(
@@ -2592,14 +3430,18 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 								expedientTipus,
 								accio.getCodi(),
 								accio.getNom(),
-								definicioProces.getJbpmKey(),
-								accio.getJbpmAction());
+								accio.getTipus());
 						expedientTipus.getAccions().add(nova);
 					} else if (sobreescriure) {
 						nova.setNom(accio.getNom());
-						nova.setJbpmAction(accio.getJbpmAction());
+						nova.setTipus(accio.getTipus());
 					}
 					nova.setDescripcio(accio.getDescripcio());
+					nova.setJbpmAction(accio.getJbpmAction());
+					nova.setScript(accio.getScript());
+					nova.setDefprocJbpmKey(accio.getDefprocJbpmKey());
+					nova.setPredefinitClasse(accio.getPredefinitClasse());
+					nova.setPredefinitDades(accio.getPredefinitDades());
 					nova.setPublica(accio.isPublica());
 					nova.setOculta(accio.isOculta());
 					nova.setRols(accio.getRols());
@@ -3852,5 +4694,4 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 								paginacioParams)),
 				ExpedientTipusDto.class);
 		}
-
 }

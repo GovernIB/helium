@@ -9,6 +9,7 @@ import java.util.List;
 import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
 
+import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.DocumentInfo;
 import net.conselldemallorca.helium.jbpm3.handlers.tipus.RespostaRegistre;
 import net.conselldemallorca.helium.jbpm3.helper.ConversioTipusHelper;
@@ -169,6 +170,10 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 				executionContext,
 				documentCodi,
 				true);
+		
+		if (documentInfo == null) {
+			throw new ValidationException("No s'ha pogut recuperar la informació pel document amb codi " + documentCodi);
+		}
 
 		// Info de l'Assentament
 		anotacio.setEntitatCodi((String)getValorOVariable(

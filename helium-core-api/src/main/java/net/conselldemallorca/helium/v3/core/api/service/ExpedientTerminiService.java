@@ -5,10 +5,14 @@ package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FestiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiIniciatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.CampFormProperties;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
@@ -209,4 +213,5 @@ public interface ExpedientTerminiService {
 	public void festiuDelete(
 			String data) throws ValidacioException, Exception;
 
+    public Map<String, CampFormProperties> getTerminisFormProperties(Long expedientTipusId, String estatCodi);
 }

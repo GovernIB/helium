@@ -19,6 +19,7 @@
 	</thead>
 	<tbody>
 </c:if>
+<c:if test="${termini.visible}">
 		<c:set var="iniciat" value=""/>
 		<c:forEach var="ini" items="${iniciats_termini}">
 			<c:if test="${termini.id == ini.termini.id and empty ini.dataCancelacio}">
@@ -26,7 +27,7 @@
 			</c:if>
 		</c:forEach>
 		<tr>
-			<td>${termini.nom}</td>
+			<td><span class="<c:if test="${termini.obligatori}">obligatori</c:if>">${termini.nom}</span></td>
 			<td>
 				<c:choose>
 					<c:when test="${not empty iniciat}">
@@ -75,6 +76,7 @@
 			</td>
 			<c:if test="${expedient.permisTermManagement}">
 				<td class="termini_options">
+					<c:if test="${termini.editable}">
 					<c:choose>
 						<c:when test="${not termini.manual or not empty iniciat}">
 							<c:choose>
@@ -140,10 +142,14 @@
 								href="<c:url value="../../v3/expedient/${expedientId}/proces/${procesId}/termini/${iniciat.id}/modificar"/>"><i class="fa fa-pencil-square-o" alt="<spring:message code="expedient.termini.accio.modificar"/>" title="<spring:message code="expedient.termini.accio.modificar"/>" border="0"/></a>
 						</c:otherwise>
 					</c:choose>
+					</c:if>
+					<c:if test="${!termini.editable}">
+						<span class="fa fa-lock pull-right term-bloquejat" style="font-size: 24px; color: #AAAAAA;" title="Termini bloquejat en aquest estat"></span>
+					</c:if>
 				</td>
 			</c:if>
 		</tr>
-		
+</c:if>
 <c:if test="${index == (paramCount-1)}">
 	</tbody>
 </table>

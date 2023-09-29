@@ -19,7 +19,18 @@
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/moment.js"/>"></script>
 	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
+	<script src="<c:url value="/js/webutil.common.js"/>"></script>
+	<script src="<c:url value="/js/helium.modal.js"/>"></script>
+	<script src="<c:url value="/js/webutil.modal.js"/>"></script>
+	<script src="<c:url value="/js/expdoc-viewer.js"/>"></script>
 
+	<link href="<c:url value="/css/datepicker.css"/>" rel="stylesheet">
+	<script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
+	<script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
+	<script src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
+	<script src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
+	<script src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
+	<script src="<c:url value="/js/helium3Tasca.js"/>"></script>
 <style type="text/css">
 #expedient-info h3 {
 	font-weight: bold;
@@ -115,6 +126,17 @@ dd.subproc {
 				carregaTab(targetHref);
 			}
 		})
+		// Actualitza la pipella activa a la query per poder refrescar
+		$('#expedient-pipelles>.nav-tabs>li').click(function() {
+			let url = new URL(window.location);
+			if ($(this).attr('id') != 'pipella-dades') {
+				url.searchParams.set('pipellaActiva', $(this).attr('id').replace('pipella-',''));
+			} else {
+				url.searchParams.delete('pipellaActiva');
+			}
+			window.history.pushState({}, '', url);
+		});
+		
 		<c:choose>
 			<c:when test="${not empty pipellaActiva}">$('#expedient-pipelles li#pipella-${pipellaActiva} a').click();</c:when>
 			<c:otherwise>$('#expedient-pipelles li:first a').click();</c:otherwise>
@@ -296,6 +318,24 @@ dd.subproc {
 </head>
 <body>
 
+	<div id="botonsEstats" class="row" style="margin-bottom: 5px;">
+		<!-- Botons per retrocedir d'estat -->
+		<c:if test="${estatsRetrocedir != null }">
+			<c:forEach var="estat" items="${estatsRetrocedir}">
+				<a href="<c:url value="/v3/expedient/${expedientId}/estat/${estat.id}/canviar" />" class="btn btn-warning"  style="float: left; margin-left: 15px;">
+					<b>&lt;</b> <spring:message code="expedient.info.estat.retrocedir" arguments="${estat.nom}"></spring:message></a>					
+			</c:forEach>
+		</c:if>
+	
+		<!-- Botons per avançar d'estat -->
+		<c:if test="${estatsAvancar != null }">
+			<c:forEach var="estat" items="${estatsAvancar}">
+				<a href="<c:url value="/v3/expedient/${expedientId}/estat/${estat.id}/canviar" />" class="btn btn-success" style="float: right; margin-right: 15px;">
+					<spring:message code="expedient.info.estat.avancar" arguments="${estat.nom}"></spring:message> <b>&gt;</b></a>
+			</c:forEach>
+		</c:if>
+	</div>
+
 	<div class="row">
 		<div class="col-md-3">
 			<div id="expedient-info" class="well">
@@ -390,26 +430,28 @@ dd.subproc {
 						<dt><spring:message code='expedient.info.camp.responsable' /></dt>
 						<dd>${expedient.responsablePersona.nomSencer}</dd>
 					</c:if>					
-					<dt><spring:message code="expedient.info.camp.defproc"/></dt>
-					<dd class="proces">	
-						<span class="fa fa-picture-o" onclick="$('#imgDefinicioProcesJbpm').toggle();" style="display: none !important; cursor: pointer"></span>
-						&nbsp;<label id="desc_def_proc"><c:out value="${definicioProces.etiqueta}"/></label>&nbsp;
-<%-- 						<c:if test="${expedient.permisWrite}"><span class="fa fa-pencil edita" onclick="$('#canviDefinicioProcesJbpm').toggleClass('hide');" style="cursor: pointer"></span></c:if> --%>
-						<c:if test="${expedient.permisDefprocUpdate}"><a id="canviversio" data-rdt-link-modal-min-height="300" data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/canviVersio"/>"><span class="fa fa-pencil edita"></span></a></c:if>
-						<%-- 				
-						<div id="imgDefinicioProcesJbpm" class="hide">
-							<img src="<c:url value="/v3/expedient/${expedientId}/imatgeDefProces"/>"/>
-						</div> 
-						--%>
-						<c:if test="${not empty subprocessos}">
-							<dt class="subproc"><spring:message code="expedient.info.camp.defproc.subprocessos"/></dt>
-							<c:forEach var="subproces" items="${subprocessos}">
-								<dd class="subproc">
-									${subproces}
-								</dd>
-							</c:forEach>
-						</c:if>
-					</dd>
+					<c:if test="${!perEstats}">
+						<dt><spring:message code="expedient.info.camp.defproc"/></dt>
+						<dd class="proces">	
+							<span class="fa fa-picture-o" onclick="$('#imgDefinicioProcesJbpm').toggle();" style="display: none !important; cursor: pointer"></span>
+							&nbsp;<label id="desc_def_proc"><c:out value="${definicioProces.etiqueta}"/></label>&nbsp;
+	<%-- 						<c:if test="${expedient.permisWrite}"><span class="fa fa-pencil edita" onclick="$('#canviDefinicioProcesJbpm').toggleClass('hide');" style="cursor: pointer"></span></c:if> --%>
+							<c:if test="${expedient.permisDefprocUpdate}"><a id="canviversio" data-rdt-link-modal-min-height="300" data-rdt-link-modal="true" href="<c:url value="../../v3/expedient/${expedientId}/canviVersio"/>"><span class="fa fa-pencil edita"></span></a></c:if>
+							<%-- 				
+							<div id="imgDefinicioProcesJbpm" class="hide">
+								<img src="<c:url value="/v3/expedient/${expedientId}/imatgeDefProces"/>"/>
+							</div> 
+							--%>
+							<c:if test="${not empty subprocessos}">
+								<dt class="subproc"><spring:message code="expedient.info.camp.defproc.subprocessos"/></dt>
+								<c:forEach var="subproces" items="${subprocessos}">
+									<dd class="subproc">
+										${subproces}
+									</dd>
+								</c:forEach>
+							</c:if>
+						</dd>
+					</c:if>
 				</dl>
 				<c:if test="${not empty relacionats}">
 					<h4 id="expedient-info-relacionats"><spring:message code="expedient.info.relacionats"/></h4>
@@ -502,6 +544,19 @@ dd.subproc {
 							<c:if test="${expedient.permisAdministration and expedient.tipus.arxiuActiu and empty expedient.arxiuUuid}">
 								<li><a href="<c:url value="../../v3/expedient/${expedientId}/migrarArxiu"/>" onclick="return confirmarMigrarArxiu(event)"><span class="fa fa-suitcase"></span>&nbsp;<spring:message code="expedient.info.accio.migrararxiu"/></a></li>
 							</c:if>
+							
+							<c:if test="${perEstats == true }">
+								<li class="divider"></li>
+								<c:forEach var="estat" items="${estatsRetrocedir}">
+									<li><a href="<c:url value="/v3/expedient/${expedientId}/estat/${estat.id}/canviar" />">
+										<b>&lt;&lt;</b> <spring:message code="expedient.info.estat.retrocedir" arguments="${estat.nom}"></spring:message></a></li>
+								</c:forEach>
+							
+								<c:forEach var="estat" items="${estatsAvancar}">
+									<li><a href="<c:url value="/v3/expedient/${expedientId}/estat/${estat.id}/canviar" />">
+										<b>&gt;&gt;</b> <spring:message code="expedient.info.estat.avancar" arguments="${estat.nom}"></spring:message></a></li>
+								</c:forEach>
+							</c:if>
 						</ul>
 					</div>
 				</c:if>
@@ -564,12 +619,17 @@ dd.subproc {
 				<li id="pipella-interessats"><a href="#contingut-interessats" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.interessats"/></a></li>
 				<li id="pipella-cronograma"><a href="#contingut-cronograma" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.cronograma"/></a></li>
 				<li id="pipella-terminis"><a href="#contingut-terminis" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.terminis"/></a></li>
-				<li id="pipella-tasques"><a href="#contingut-tasques" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.tasques"/></a></li>
-				<c:if test="${expedient.permisTokenRead}">
+				<c:if test="${not perEstats}">
+					<li id="pipella-tasques"><a href="#contingut-tasques" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.tasques"/></a></li>
+				</c:if>
+				<c:if test="${expedient.permisTokenRead and not perEstats}">
 					<li id="pipella-tokens"><a href="#contingut-tokens" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.tokens"/></a></li>
 				</c:if>
-				<c:if test="${expedient.permisLogRead}">
+				<c:if test="${expedient.permisLogRead and not perEstats}">
 					<li id="pipella-registre"><a href="#contingut-registre" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.registre"/></a></li>
+				</c:if>
+				<c:if test="${perEstats}">
+					<li id="pipella-estats"><a href="#contingut-estats" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.estats"/></a></li>
 				</c:if>
 				<c:if test="${numAccions > 0}">
 					<li id="pipella-accions"><a href="#contingut-accions" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.accions"/></a></li>
@@ -597,16 +657,23 @@ dd.subproc {
 				<div id="contingut-terminis" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/termini"/>">
 					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 				</div>
-				<div id="contingut-tasques" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/tasca"/>">
-					<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
-				</div>
-				<c:if test="${expedient.permisTokenRead}">
+				<c:if test="${not perEstats}">
+					<div id="contingut-tasques" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/tasca"/>">
+						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
+					</div>
+				</c:if>
+				<c:if test="${expedient.permisTokenRead and not perEstats}">
 					<div id="contingut-tokens" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/token"/>">
 						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 					</div>
 				</c:if>
-				<c:if test="${expedient.permisLogRead}">
+				<c:if test="${expedient.permisLogRead and not perEstats}">
 					<div id="contingut-registre" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/registre"/>">
+						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
+					</div>
+				</c:if>
+				<c:if test="${perEstats}">
+					<div id="contingut-estats" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/estat"/>">
 						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 					</div>
 				</c:if>

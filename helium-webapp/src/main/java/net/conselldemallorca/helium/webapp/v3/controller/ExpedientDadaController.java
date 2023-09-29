@@ -21,11 +21,24 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import net.conselldemallorca.helium.v3.core.api.dto.CampInfoDto;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFPatternFormatting;
+import org.apache.poi.hssf.usermodel.HSSFRichTextString;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -45,14 +58,18 @@ import org.springframework.web.bind.support.SessionStatus;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadaListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
@@ -74,12 +91,63 @@ public class ExpedientDadaController extends BaseExpedientController {
 	private ExpedientDadaService expedientDadaService;
 
 
+	@RequestMapping(value = "/{expedientId}/dada/datatable", method = RequestMethod.POST)
+	@ResponseBody
+	public DatatablesHelper.DatatablesResponse documentDatatable(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model) {
+
+		Boolean totes = Boolean.parseBoolean(request.getParameter("totes"));
+		Boolean ambOcults = true;
+		Boolean noPendents = false;
+//		Boolean ambOcults = Boolean.parseBoolean(request.getParameter("ambOcults"));
+//		Boolean noPendents = Boolean.parseBoolean(request.getParameter("noPendents"));
+//		String filtre = request.getParameter("filtre");
+		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
+//		paginacioParams.setFiltre(filtre);
+
+		return DatatablesHelper.getDatatableResponse(
+				request,
+				null,
+				expedientDadaService.findDadesExpedient(expedientId, totes, ambOcults, noPendents, paginacioParams),
+				"id");
+	}
+
+	@RequestMapping(value = "/{expedientId}/dades/descarregar", method = RequestMethod.GET)
+	public void descarregarDades(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			@PathVariable Long expedientId)  {
+		try {
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+			List<DadaListDto> dades = expedientDadaService.findDadesExpedient(expedientId, true, true, false, new PaginacioParamsDto());
+			exportXLS(response, expedient, dades);
+		} catch(Exception e) {
+			logger.error("Error generant excel amb les dades de l'expedient: " + expedientId, e);
+			MissatgesHelper.error(request, getMessage(request, "expedient.dada.descarregar.error", new Object[]{ e.getMessage() } ));
+		}
+	}
 
 	@RequestMapping(value = "/{expedientId}/dada")
 	public String dades(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus())) {
+			model.addAttribute("expedient", expedient);
+			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
+			if (!NodecoHelper.isNodeco(request)) {
+				return mostrarInformacioExpedientPerPipella(
+						request,
+						expedientId,
+						model,
+						"dades");
+			}
+			return "v3/expedientDadaList";
+		}
+
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioExpedientPerPipella(
 					request,
@@ -135,6 +203,17 @@ public class ExpedientDadaController extends BaseExpedientController {
 		return "v3/procesDades";
 	}
 
+	@RequestMapping(value = "/{expedientId}/dada/{varCodi}/delete", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean dadaExpBorrar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String varCodi,
+			Model model) {
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		String procesId = expedient.getProcessInstanceId();
+	return dadaBorrar(request, expedientId, procesId, varCodi, model);
+	}
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/delete", method = RequestMethod.GET)
 	@ResponseBody
 	public boolean dadaBorrar(
@@ -218,6 +297,16 @@ public class ExpedientDadaController extends BaseExpedientController {
 		return null;
 	}
 
+	@RequestMapping(value = "/{expedientId}/dada/{varCodi}/update", method = RequestMethod.GET)
+	public String modificarVariablesExpGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String varCodi,
+			Model model) {
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		String procesId = expedient.getProcessInstanceId();
+		return modificarVariablesGet(request, expedientId, procesId, varCodi, model);
+	}
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/update", method = RequestMethod.GET)
 	public String modificarVariablesGet(
 			HttpServletRequest request,
@@ -242,6 +331,19 @@ public class ExpedientDadaController extends BaseExpedientController {
 		return "v3/expedientDadaModificar";
 	}
 
+	@RequestMapping(value = "/{expedientId}/dada/{varCodi}/update", method = RequestMethod.POST)
+	public String dadaExpEditar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String varCodi,
+			@Valid @ModelAttribute("modificarVariableCommand") Object command,
+			BindingResult result,
+			SessionStatus status,
+			Model model) {
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		String procesId = expedient.getProcessInstanceId();
+		return dadaEditar(request, expedientId, procesId, varCodi, command, result, status, model);
+	}
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/update", method = RequestMethod.POST)
 	public String dadaEditar(
 			HttpServletRequest request,
@@ -294,6 +396,20 @@ public class ExpedientDadaController extends BaseExpedientController {
 	}	
 	
 	/** Cas en que s'edita una dada de tipus acció i es prem sobre l'acció*/
+	@RequestMapping(value = "/{expedientId}/dada/{varCodi}/update/accio", method = RequestMethod.POST)
+	public String dadaExpEditarAccio(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String varCodi,
+			@RequestParam(value = "accioCamp", required = true) String accioCamp,
+			@Valid @ModelAttribute("modificarVariableCommand") Object command,
+			BindingResult result,
+			SessionStatus status,
+			Model model) {
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		String procesId = expedient.getProcessInstanceId();
+		return dadaEditarAccio(request, expedientId, procesId, varCodi, accioCamp, command, result, status, model);
+	}
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/update/accio", method = RequestMethod.POST)
 	public String dadaEditarAccio(
 			HttpServletRequest request,
@@ -365,6 +481,18 @@ public class ExpedientDadaController extends BaseExpedientController {
 		return null;
 	}
 
+	@RequestMapping(value = "/{expedientId}/dada/new", method = RequestMethod.GET)
+	public String novaDadaExpGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model) {
+		return novaDadaAmbCodiGet(
+				request,
+				expedientId,
+				null,
+				null,
+				model);
+	}
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/new", method = RequestMethod.GET)
 	public String novaDadaGet(
 			HttpServletRequest request,
@@ -379,6 +507,19 @@ public class ExpedientDadaController extends BaseExpedientController {
 				model);
 	}
 
+	@RequestMapping(value = "/{expedientId}/dada/{varCodi}/new", method = RequestMethod.GET)
+	public String novaDadaExpAmbCodiGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String varCodi,
+			Model model) {
+		return novaDadaAmbCodiGet(
+				request,
+				expedientId,
+				null,
+				varCodi,
+				model);
+	}
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/new", method = RequestMethod.GET)
 	public String novaDadaAmbCodiGet(
 			HttpServletRequest request,
@@ -386,7 +527,15 @@ public class ExpedientDadaController extends BaseExpedientController {
 			@PathVariable String procesId,
 			@PathVariable String varCodi,
 			Model model) {
-		model.addAttribute("camps", getCampsNoUtilitzats(expedientId, procesId));
+		if (procesId == null) {
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+			procesId = expedient.getProcessInstanceId();
+			model.addAttribute("camps", expedientDadaService.getCampsNoUtilitzatsPerEstats(expedientId));
+		} else {
+			model.addAttribute("camps", getCampsNoUtilitzats(expedientId, procesId));
+		}
+		String ocultarVar = request.getParameter("ocultarVar");
+		model.addAttribute("ocultarSelectorVar", ocultarVar != null ? Boolean.parseBoolean(ocultarVar) : false);
 		model.addAttribute(
 				"addVariableCommand",
 				populateAddCommand(
@@ -397,9 +546,19 @@ public class ExpedientDadaController extends BaseExpedientController {
 						null,
 						null,
 						model));
-		if (varCodi == null)
-			return "v3/expedientDadaNova";
 		return "v3/expedientDadaNova";
+	}
+
+	@RequestMapping(value = "/{expedientId}/dada/{varCodi}/new", method = RequestMethod.POST)
+	public String novaDadaExpAmbCodiPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String varCodi,
+			@Valid @ModelAttribute("addVariableCommand") Object command,
+			BindingResult result,
+			SessionStatus status,
+			Model model) {
+		return novaDadaAmbCodiPost(request, expedientId, null, varCodi, command, result, status, model);
 	}
 	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/new", method = RequestMethod.POST)
 	public String novaDadaAmbCodiPost(
@@ -411,12 +570,17 @@ public class ExpedientDadaController extends BaseExpedientController {
 			BindingResult result, 
 			SessionStatus status, 
 			Model model) {
-		try {			
+		try {
+			boolean perEstats = procesId == null;
+			if (perEstats) {
+				ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+				procesId = expedient.getProcessInstanceId();
+			}
 			if ("Buit".equals(varCodi)) {
 				result.rejectValue(
 						"varCodi",
 						"expedient.nova.data.camp.variable.buit");
-			} else if ("STRING".equals(varCodi)) { // Variable nova tipus String
+			} else if ("__string".equals(varCodi)) { // Variable nova tipus String
 				String codi = (String)PropertyUtils.getSimpleProperty(command, "codi");
 				String valor = (String)PropertyUtils.getSimpleProperty(command, "valor");
 				// Validam que el nom de la variable no comenci per majúscula seguida de minúscula
@@ -472,7 +636,13 @@ public class ExpedientDadaController extends BaseExpedientController {
 				}
 			}
 			if (result.hasErrors()) {
-				model.addAttribute("camps", getCampsNoUtilitzats(expedientId, procesId));
+				if (perEstats) {
+					model.addAttribute("camps", expedientDadaService.getCampsNoUtilitzatsPerEstats(expedientId));
+					String ocultarVar = request.getParameter("ocultarVar");
+					model.addAttribute("ocultarSelectorVar", ocultarVar != null ? Boolean.parseBoolean(ocultarVar) : false);
+				} else {
+					model.addAttribute("camps", getCampsNoUtilitzats(expedientId, procesId));
+				}
 				return "v3/expedientDadaNova";
 			}
 			MissatgesHelper.success(request, getMessage(request, "info.dada.nova.proces.creada") );
@@ -483,6 +653,98 @@ public class ExpedientDadaController extends BaseExpedientController {
 			logger.error("S'ha produit un error al intentar modificar la variable '" + varCodi + "' de l'expedient amb id '" + expedientId + "' (proces: " + procesId + ")", ex);
 		}
 		return modalUrlTancar(false);
+	}
+
+
+	@RequestMapping(value = "/{expedientId}/dada/{varCodi}/edit", method = RequestMethod.GET)
+	public String dadaExpAmbCodiEdit(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String varCodi,
+			Model model) {
+		Object command;
+		try {
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+			String procesId = expedient.getProcessInstanceId();
+			command = populateCommand(
+					request,
+					expedientId,
+					procesId,
+					URLDecoder.decode(varCodi,"UTF-8"),
+					true, // emplenar
+					model);
+			model.addAttribute("modificarVariableCommand", command);
+			model.addAttribute("inline", true);
+		} catch (UnsupportedEncodingException e) {
+			logger.error(e);
+			MissatgesHelper.error(request, getMessage(request, "expedient.dada.modificar.error") );
+		}
+
+		return "v3/expedientDadaEdit";
+	}
+
+	@RequestMapping(value = "/{expedientId}/proces/{procesId}/dada/{varCodi}/edit", method = RequestMethod.POST)
+	public String dadaExpAmbCodiEditPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String procesId,
+			@PathVariable String varCodi,
+			@Valid @ModelAttribute("modificarVariableCommand") Object command,
+			BindingResult result,
+			Model model) throws Exception {
+		try {
+//			String procesId = expedientService.getExpedientProcessInstanceId(expedientId);
+			List<TascaDadaDto> tascaDades = new ArrayList<TascaDadaDto>();
+			TascaDadaDto tascaDada = TascaFormHelper.getTascaDadaDtoFromExpedientDadaDto(
+					expedientDadaService.findOnePerInstanciaProces(
+							expedientId,
+							procesId,
+							varCodi));
+			tascaDades.add(tascaDada);
+			Map<String, Object> variables = TascaFormHelper.getValorsFromCommand(tascaDades, command, false);
+			Map<String, Object> campsAddicionals = new HashMap<String, Object>();
+			Map<String, Class<?>> campsAddicionalsClasses = new HashMap<String, Class<?>>();
+			Object commandValidar = TascaFormHelper.getCommandForCamps(
+					tascaDades,
+					variables,
+					campsAddicionals,
+					campsAddicionalsClasses,
+					false);
+			TascaFormValidatorHelper validator = new TascaFormValidatorHelper(
+					expedientService,
+					tascaDades);
+			validator.setValidarExpresions(false);
+			validator.setValidarObligatoris(true);
+			validator.validate(commandValidar, result);
+			if (result.hasErrors()) {
+//				model.addAttribute("modificarVariableCommand", command);
+				model.addAttribute("inline", true);
+				return "v3/expedientDadaEdit";
+			}
+
+			if (tascaDada.getVarValor() == null) {
+				expedientDadaService.create(
+						expedientId,
+						procesId,
+						varCodi,
+						variables.get(varCodi));
+
+			} else {
+				expedientDadaService.update(
+						expedientId,
+						procesId,
+						varCodi,
+						variables.get(varCodi));
+			}
+			DadaListDto dada = expedientDadaService.getDadaList(expedientId, procesId, varCodi);
+			model.addAttribute("dada", dada);
+			return "v3/expedientDadaShow";
+		} catch (Exception ex) {
+			logger.error(ex);
+			MissatgesHelper.error(request, getMessage(request, "expedient.dada.modificar.error") + ": " + ex.getMessage() );
+			throw ex;
+		}
+
 	}
 
 	/** Cas en que es prem el botó acció en el cas que hi hagi una variable acció. */
@@ -568,9 +830,9 @@ public class ExpedientDadaController extends BaseExpedientController {
 		model.addAttribute("totalsPerProces", totalsPerProces);
 	}
 
-	private List<CampDto> getCampsNoUtilitzats(Long expedientId, String procesInstanceId) {
+	private List<CampInfoDto> getCampsNoUtilitzats(Long expedientId, String procesInstanceId) {
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesInstanceId);
-		List<CampDto> campsNoUtilitzats = new ArrayList<CampDto>();
+		List<CampInfoDto> campsNoUtilitzats = new ArrayList<CampInfoDto>();
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		List<CampDto> camps = dissenyService.findCampsOrdenatsPerCodi(
 					expedient.getTipus().getId(),
@@ -594,15 +856,17 @@ public class ExpedientDadaController extends BaseExpedientController {
 				while (i < (dadesInstancia.size() - 1) && camp.getCodi().compareToIgnoreCase(dadesInstancia.get(i).getVarCodi()) > 0)
 					i++;
 				if (dadesInstancia.isEmpty() || !camp.getCodi().equals(dadesInstancia.get(i).getVarCodi())) {
-					campsNoUtilitzats.add(camp);
+					campsNoUtilitzats.add(CampInfoDto.builder().codi(camp.getCodi()).etiqueta(camp.getEtiqueta()).build());
 				} else if (i < (dadesInstancia.size() - 1)){
 					i++;
 				}
 			}
-			return campsNoUtilitzats;
 		} else {
-			return camps;
+			for(CampDto camp: camps) {
+				campsNoUtilitzats.add(CampInfoDto.builder().codi(camp.getCodi()).etiqueta(camp.getEtiqueta()).build());
+			}
 		}
+		return campsNoUtilitzats;
 	}
 
 	/** Retorna les dades de la instància de procés agrupades per agrupació. S'ha de tenir en compte
@@ -766,7 +1030,174 @@ public class ExpedientDadaController extends BaseExpedientController {
 			logger.error(errMsg + ": "+ ex.getLocalizedMessage(), ex);
 		}
 		
-	}	
+	}
+
+	private void exportXLS(HttpServletResponse response, ExpedientDto expedient, List<DadaListDto> dades) {
+		HSSFWorkbook wb = new HSSFWorkbook();
+
+		// GENERAL
+		HSSFSheet sheet = wb.createSheet("Dades expedient");
+
+		// ESTILS
+		// Capçalera
+		HSSFFont headFont = wb.createFont();
+		headFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+		headFont.setFontHeightInPoints((short) 16);
+
+		HSSFCellStyle headerStyle = wb.createCellStyle();
+//		headerStyle.setFillBackgroundColor(HSSFColor.GREY_80_PERCENT.index);
+		headerStyle.setFont(headFont);
+
+		// Agrupacions
+		HSSFFont agFont = wb.createFont();
+		agFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+		agFont.setFontHeightInPoints((short) 12);
+
+		HSSFCellStyle agStyle = wb.createCellStyle();
+		agStyle.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
+		agStyle.setFillPattern(HSSFPatternFormatting.SOLID_FOREGROUND);
+		agStyle.setFont(agFont);
+
+		// Nom
+		HSSFFont bold = wb.createFont();
+		bold.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+
+		HSSFCellStyle nStyle = wb.createCellStyle();
+		nStyle.setFont(bold);
+
+		// Valor
+		DataFormat format = wb.createDataFormat();
+		HSSFCellStyle dStyle = wb.createCellStyle();
+		dStyle.setDataFormat(format.getFormat("0.00"));
+		dStyle.setWrapText(true);
+		HSSFCellStyle hStyle = wb.createCellStyle();
+		hStyle.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
+		hStyle.setFillPattern(HSSFPatternFormatting.FINE_DOTS);
+
+
+		// CONTINGUT
+
+		// Calcular nombre màxim de columnes
+		int maxColumns = 2;
+		if (!dades.isEmpty()) {
+			for (DadaListDto dada : dades) {
+				if (dada.isRegistre()) {
+					maxColumns = Math.max(maxColumns, dada.getValor().getColumnes());
+				}
+			}
+		}
+
+		// Capçalera
+		HSSFRow xlsRow = sheet.createRow(0);
+		HSSFCell cell;
+		cell = xlsRow.createCell(0);
+		cell.setCellValue(new HSSFRichTextString("Expedient: " + expedient.getIdentificador()));
+		cell.setCellStyle(headerStyle);
+		for (int i = 1; i < (maxColumns + 2); i++)
+			xlsRow.createCell(i);
+		sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, maxColumns + 1));
+		xlsRow.setHeightInPoints(24);
+
+		int rowNum = 1;
+
+		xlsRow = sheet.createRow(rowNum++);
+
+		// Dades
+		if (!dades.isEmpty()) {
+			List<String> agrupacions = new ArrayList<String>();
+			for (DadaListDto dada : dades) {
+
+				String agrupacio = dada.getAgrupacioNom();
+				if (!agrupacions.contains(agrupacio)) {
+					setCellValue(sheet, agrupacio, rowNum, 0, agStyle);
+					xlsRow = sheet.getRow(rowNum);
+					for (int i = 1; i < (maxColumns + 2); i++)
+						xlsRow.createCell(i);
+					sheet.addMergedRegion(new CellRangeAddress(rowNum, rowNum, 0, maxColumns + 1));
+					xlsRow.setHeightInPoints(18);
+					agrupacions.add(agrupacio);
+					rowNum++;
+				}
+
+				int rowInicial = rowNum;
+				int numRows = 1;
+
+				// Nom
+				if (dada.isRegistre()) {
+					numRows = dada.getValor().getFiles() + 1;
+				} else if (dada.isMultiple()) {
+					numRows = dada.getValor().getValorMultiple().size();
+				}
+
+				xlsRow = sheet.createRow(rowNum++);
+				setCellValue(xlsRow, dada.getNom(), 0, nStyle);
+				if (numRows > 1) {
+					for (int i = 1; i < numRows; i++)
+						xlsRow = sheet.createRow(rowNum++);
+					sheet.addMergedRegion(new CellRangeAddress(rowInicial, rowInicial + numRows - 1, 0, 0));
+				}
+
+
+
+				// Valor
+				int colNum = 1;
+				if (dada.isRegistre()) {
+					// Capçalera
+					xlsRow = sheet.getRow(rowInicial);
+					int hcol = 0;
+					for(Map.Entry<String, Boolean> entry: dada.getValor().getValorHeader().entrySet()) {
+						setCellValue(xlsRow, entry.getKey(), colNum + hcol, hStyle);
+						hcol++;
+					}
+					// Dades
+					List<List<String>> valors = dada.getValor().getValorBody();
+					if (valors != null && !valors.isEmpty()) {
+						for (int fila = 0; fila < numRows; fila++) {
+							xlsRow = sheet.getRow(rowInicial + fila + 1);
+							for (int col = 0; col < dada.getValor().getColumnes(); col++) {
+								if (valors.size() > fila && valors.get(fila).size() > col) {
+									setCellValue(xlsRow, valors.get(fila).get(col), colNum + col, dStyle);
+								}
+							}
+						}
+					}
+				} else if (dada.isMultiple()) {
+					for (int fila = 0; fila < numRows; fila++) {
+						setCellValue(sheet, dada.getValor().getValorMultiple().get(fila), rowInicial + fila, colNum, dStyle);
+					}
+				} else {
+					setCellValue(xlsRow, dada.getValor().getValorSimple(), colNum, dStyle);
+				}
+			}
+
+			for (int colNum = 0; colNum < maxColumns; colNum++)
+				sheet.autoSizeColumn(colNum);
+		}
+
+		try {
+			response.setHeader("Pragma", "");
+			response.setHeader("Expires", "");
+			response.setHeader("Cache-Control", "");
+			response.setHeader("Content-Disposition", "attachment; filename=Dades expedient.xls");
+			response.setContentType("application/vnd.ms-excel;base64");
+			wb.write( response.getOutputStream() );
+		} catch (Exception e) {
+			logger.error("Mesures temporals: No s'ha pogut realitzar la exportació.");
+		}
+	}
+
+	private static void setCellValue(HSSFSheet sheet, String valor, int rowNum, int colNum, HSSFCellStyle style) {
+		HSSFRow xlsRow = sheet.getRow(rowNum);
+		if (xlsRow == null)
+			xlsRow = sheet.createRow(rowNum);
+		setCellValue(xlsRow, valor, colNum, style);
+	}
+	private static void setCellValue(HSSFRow xlsRow, String valor, int colNum, HSSFCellStyle style) {
+		HSSFCell cell = xlsRow.createCell(colNum);
+		cell.setCellValue(valor);
+		cell.setCellStyle(style);
+		
+	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientDadaController.class);
 

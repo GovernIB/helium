@@ -31,9 +31,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatAccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.ExportException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exportacio.EstatExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacioCommandDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
@@ -393,8 +396,176 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public boolean estatMoure(Long estatId, int posicio) throws NoTrobatException {
 		return delegate.estatMoure(estatId, posicio);
 	}
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public boolean estatMoureOrdre(Long estatId, int posicio, String ordre) throws NoTrobatException {
+        return delegate.estatMoureOrdre(estatId, posicio, ordre);
+    }
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public int getEstatSeguentOrdre(Long expedientTipusId) throws NoTrobatException {
+        return delegate.getEstatSeguentOrdre(expedientTipusId);
+    }
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public List<EstatExportacio> estatExportacio(Long expedientTipusId, boolean ambPermisos) throws NoTrobatException {
+        return delegate.estatExportacio(expedientTipusId, ambPermisos);
+    }
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<EstatDto> estatGetAvancar(long expedientId) {
+		return delegate.estatGetAvancar(expedientId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<EstatDto> estatGetRetrocedir(long expedientId) {
+		return delegate.estatGetRetrocedir(expedientId);
+	}
+
+	
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public List<PermisDto> estatPermisFindAll(Long estatId) {
+        return delegate.estatPermisFindAll(estatId);
+    }
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PermisDto estatPermisFindById(Long estatId, Long permisId) throws NoTrobatException, PermisDenegatException {
+		return delegate.estatPermisFindById(estatId, permisId);
+	}
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public void estatPermisUpdate(Long estatId, PermisDto permis) throws NoTrobatException, PermisDenegatException {
+        delegate.estatPermisUpdate(estatId, permis);
+    }
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public void estatPermisDelete(Long estatId, Long permisId) throws NoTrobatException, PermisDenegatException {
+        delegate.estatPermisDelete(estatId, permisId);
+    }
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public List<EstatReglaDto> estatReglaFindAll(Long estatId) {
+        return delegate.estatReglaFindAll(estatId);
+    }
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public EstatReglaDto estatReglaFindById(Long estatId, Long reglaId) {
+		return delegate.estatReglaFindById(estatId, reglaId);
+	}
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public EstatReglaDto estatReglaFindByNom(Long estatId, String nom) {
+        return delegate.estatReglaFindByNom(estatId, nom);
+    }
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public EstatReglaDto estatReglaCreate(Long estatId, EstatReglaDto reglaDto) throws NoTrobatException, PermisDenegatException {
+        return delegate.estatReglaCreate(estatId, reglaDto);
+    }
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public EstatReglaDto estatReglaUpdate(Long estatId, EstatReglaDto reglaDto) throws NoTrobatException, PermisDenegatException {
+		return delegate.estatReglaUpdate(estatId, reglaDto);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void estatReglaDelete(Long estatId, Long reglaId) throws NoTrobatException, PermisDenegatException {
+		delegate.estatReglaDelete(estatId, reglaId);
+	}
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public boolean estatReglaMoure(Long reglaId, int posicio) {
+        return delegate.estatReglaMoure(reglaId, posicio);
+    }
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PaginaDto<EstatAccioDto> estatAccioEntradaFindPerDatatable(Long estatId, String filtre,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException {
+		return delegate.estatAccioEntradaFindPerDatatable(estatId, filtre, paginacioParams);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<EstatAccioDto> estatAccioEntradaFindAll(Long estatId) throws NoTrobatException {
+		return delegate.estatAccioEntradaFindAll(estatId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<EstatAccioDto> estatAccioSortidaFindAll(Long estatId) throws NoTrobatException {
+		return delegate.estatAccioSortidaFindAll(estatId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void estatAccionsDeleteAll(Long estatId) throws NoTrobatException, PermisDenegatException {
+		delegate.estatAccionsDeleteAll(estatId);
+	}	
+
 	
 	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public EstatAccioDto estatAccioEntradaAfegir(Long estatId, Long accioId)
+			throws NoTrobatException, PermisDenegatException {
+		return delegate.estatAccioEntradaAfegir(estatId, accioId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void estatAccioEntradaDelete(Long estatId, Long estatAccioId) {
+		delegate.estatAccioEntradaDelete(estatId, estatAccioId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean estatAccioEntradaMoure(Long estatAccioId, int posicio) {
+		return delegate.estatAccioEntradaMoure(estatAccioId, posicio);
+	}
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PaginaDto<EstatAccioDto> estatAccioSortidaFindPerDatatable(Long estatId, String filtre,
+			PaginacioParamsDto paginacioParams) throws NoTrobatException {
+		return delegate.estatAccioSortidaFindPerDatatable(estatId, filtre, paginacioParams);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public EstatAccioDto estatAccioSortidaAfegir(Long estatId, Long accioId)
+			throws NoTrobatException, PermisDenegatException {
+		return delegate.estatAccioSortidaAfegir(estatId, accioId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void estatAccioSortidaDelete(Long estatId, Long estatAccioId) {
+		delegate.estatAccioSortidaDelete(estatId, estatAccioId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean estatAccioSortidaMoure(Long estatAccioId, int posicio) {
+		return delegate.estatAccioSortidaMoure(estatAccioId, posicio);
+	}
+
+	
+    @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ReassignacioDto reassignacioCreate(Long expedientTipusId, ReassignacioDto reassignacio) throws PermisDenegatException {
 		return delegate.reassignacioCreate(expedientTipusId, reassignacio);
@@ -745,5 +916,4 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 		
 	}
 
-	
 }

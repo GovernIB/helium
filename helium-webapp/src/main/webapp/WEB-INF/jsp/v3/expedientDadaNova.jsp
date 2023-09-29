@@ -10,7 +10,9 @@
 </head>
 <body>		
 	<div id="formulari">
-	<c:import url="procesDadaNova.jsp"/>
+	<c:import url="procesDadaNova.jsp">
+		<c:param name="labelClass" value="col-xs-3"/>
+	</c:import>
 	</div>
 	
 	<div id="modal-botons" class="well">

@@ -10,6 +10,7 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCommand.Modificacio;
 import net.conselldemallorca.helium.webapp.v3.validator.ExpedientTipus;
@@ -26,9 +27,10 @@ public class ExpedientTipusCommand {
 	@NotEmpty(groups = {Creacio.class})
 	@Size(max = 64, groups = {Creacio.class})
 	private String codi;
-	@NotEmpty(groups = {Creacio.class, Modificacio.class})
+	@NotEmpty(groups = {Creacio.class})
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String nom;
+	private ExpedientTipusTipusEnumDto tipus = ExpedientTipusTipusEnumDto.FLOW;
 	private boolean ambInfoPropia;
 	private boolean heretable;
 	private Long expedientTipusPareId;
@@ -73,6 +75,12 @@ public class ExpedientTipusCommand {
 	}
 	public void setNom(String nom) {
 		this.nom = nom;
+	}
+	public ExpedientTipusTipusEnumDto getTipus() {
+		return tipus;
+	}
+	public void setTipus(ExpedientTipusTipusEnumDto tipus) {
+		this.tipus = tipus;
 	}
 	public boolean isAmbInfoPropia() {
 		return ambInfoPropia;

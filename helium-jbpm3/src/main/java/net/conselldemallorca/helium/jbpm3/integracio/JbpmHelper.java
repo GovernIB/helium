@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import net.conselldemallorca.helium.jbpm3.command.*;
 import org.jbpm.JbpmException;
 import org.jbpm.command.CancelTokenCommand;
 import org.jbpm.command.ChangeProcessInstanceVersionCommand;
@@ -46,73 +47,6 @@ import org.jbpm.taskmgmt.exe.TaskInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import net.conselldemallorca.helium.jbpm3.command.AddProcessInstanceMessageLogCommand;
-import net.conselldemallorca.helium.jbpm3.command.AddTaskInstanceMessageLogCommand;
-import net.conselldemallorca.helium.jbpm3.command.AddToAutoSaveCommand;
-import net.conselldemallorca.helium.jbpm3.command.CancelProcessInstanceCommand;
-import net.conselldemallorca.helium.jbpm3.command.CancelTaskInstanceCommand;
-import net.conselldemallorca.helium.jbpm3.command.CloneTaskInstanceCommand;
-import net.conselldemallorca.helium.jbpm3.command.DeleteProcessInstanceCommand;
-import net.conselldemallorca.helium.jbpm3.command.DeleteProcessInstanceLogsCommand;
-import net.conselldemallorca.helium.jbpm3.command.DeleteProcessInstanceVariablesCommand;
-import net.conselldemallorca.helium.jbpm3.command.DeleteTaskInstanceVariablesCommand;
-import net.conselldemallorca.helium.jbpm3.command.DescribeProcessInstanceCommand;
-import net.conselldemallorca.helium.jbpm3.command.DescribeTaskInstanceCommand;
-import net.conselldemallorca.helium.jbpm3.command.EvaluateExpressionCommand;
-import net.conselldemallorca.helium.jbpm3.command.EvaluateScriptCommand;
-import net.conselldemallorca.helium.jbpm3.command.ExecuteActionCommand;
-import net.conselldemallorca.helium.jbpm3.command.FindArrivingNodeNamesCommand;
-import net.conselldemallorca.helium.jbpm3.command.FindExpedientIdsFiltreCommand;
-import net.conselldemallorca.helium.jbpm3.command.FindJbpmTasksFiltreCommand;
-import net.conselldemallorca.helium.jbpm3.command.FindProcessInstanceLogsCommand;
-import net.conselldemallorca.helium.jbpm3.command.FindProcessInstanceTimersCommand;
-import net.conselldemallorca.helium.jbpm3.command.FindTaskInstanceForTokenAndTaskCommand;
-import net.conselldemallorca.helium.jbpm3.command.FindTaskInstanceIdForTokenIdCommand;
-import net.conselldemallorca.helium.jbpm3.command.GetActionByIdCommand;
-import net.conselldemallorca.helium.jbpm3.command.GetExpedientsAfectatsListCommand;
-import net.conselldemallorca.helium.jbpm3.command.GetGroupTaskListCommand;
-import net.conselldemallorca.helium.jbpm3.command.GetPersonalTaskListCommand;
-import net.conselldemallorca.helium.jbpm3.command.GetProcesDefinitionEntornNotUsedListCommand;
-import net.conselldemallorca.helium.jbpm3.command.GetProcesDefinitionNotUsedListCommand;
-import net.conselldemallorca.helium.jbpm3.command.GetProcessDefinitionByIdCommand;
-import net.conselldemallorca.helium.jbpm3.command.GetProcessInstancesEntornCommand;
-import net.conselldemallorca.helium.jbpm3.command.GetProcessInstancesTreeCommand;
-import net.conselldemallorca.helium.jbpm3.command.GetProcessLogByIdCommand;
-import net.conselldemallorca.helium.jbpm3.command.GetRootProcessInstancesForActiveTasksCommand;
-import net.conselldemallorca.helium.jbpm3.command.GetRootProcessInstancesForExpedientsWithActiveTasksCommand;
-import net.conselldemallorca.helium.jbpm3.command.GetSubProcessDefinitionsCommand;
-import net.conselldemallorca.helium.jbpm3.command.GetTaskIdFromVariableLogCommand;
-import net.conselldemallorca.helium.jbpm3.command.GetTaskListCommand;
-import net.conselldemallorca.helium.jbpm3.command.GetTasquesSegonPlaPendentsIdsCommand;
-import net.conselldemallorca.helium.jbpm3.command.GetTokenByIdCommand;
-import net.conselldemallorca.helium.jbpm3.command.GetVariableIdFromVariableLogCommand;
-import net.conselldemallorca.helium.jbpm3.command.GuardarErrorFinalitzacioCommand;
-import net.conselldemallorca.helium.jbpm3.command.HasStartBetweenLogsCommand;
-import net.conselldemallorca.helium.jbpm3.command.ListActionsCommand;
-import net.conselldemallorca.helium.jbpm3.command.MarcarFinalitzarCommand;
-import net.conselldemallorca.helium.jbpm3.command.MarcarIniciFinalitzacioSegonPlaCommand;
-import net.conselldemallorca.helium.jbpm3.command.ProcessInstanceEndCommand;
-import net.conselldemallorca.helium.jbpm3.command.ReassignTaskInstanceCommand;
-import net.conselldemallorca.helium.jbpm3.command.ReleaseTaskInstanceCommand;
-import net.conselldemallorca.helium.jbpm3.command.ResumeProcessInstanceTimerCommand;
-import net.conselldemallorca.helium.jbpm3.command.ResumeProcessInstancesCommand;
-import net.conselldemallorca.helium.jbpm3.command.ResumeTaskInstanceCommand;
-import net.conselldemallorca.helium.jbpm3.command.RetryJobCommand;
-import net.conselldemallorca.helium.jbpm3.command.RevertProcessInstanceEndCommand;
-import net.conselldemallorca.helium.jbpm3.command.RevertTokenEndCommand;
-import net.conselldemallorca.helium.jbpm3.command.SaveProcessInstanceVariablesCommand;
-import net.conselldemallorca.helium.jbpm3.command.SaveTaskInstanceVariablesCommand;
-import net.conselldemallorca.helium.jbpm3.command.SignalProcessInstanceCommand;
-import net.conselldemallorca.helium.jbpm3.command.StartProcessInstanceCommand;
-import net.conselldemallorca.helium.jbpm3.command.StartTaskInstanceCommand;
-import net.conselldemallorca.helium.jbpm3.command.SuspendProcessInstanceTimerCommand;
-import net.conselldemallorca.helium.jbpm3.command.SuspendProcessInstancesCommand;
-import net.conselldemallorca.helium.jbpm3.command.SuspendTaskInstanceCommand;
-import net.conselldemallorca.helium.jbpm3.command.TakeTaskInstanceCommand;
-import net.conselldemallorca.helium.jbpm3.command.TokenActivarCommand;
-import net.conselldemallorca.helium.jbpm3.command.TokenRedirectCommand;
-import net.conselldemallorca.helium.jbpm3.command.UpdateHandlersCommand;
-import net.conselldemallorca.helium.jbpm3.command.UpdateSubprocessDefinitionCommand;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
@@ -664,6 +598,7 @@ public class JbpmHelper {
 		//adminService.mesuraCalcular("jBPM findProcessInstancesWithProcessDefinitionId", "jbpmDao");
 		return resultat;
 	}
+
 	
 	@SuppressWarnings("unchecked")
 	public List<JbpmProcessInstance> findProcessInstancesWithProcessDefinitionNameEntornAndTipus(String processName, Long entornId, Long expedientTipusId) {
@@ -1284,8 +1219,40 @@ public class JbpmHelper {
 				AddToAutoSaveCommand.TIPUS_INSTANCIA_TASCA);
 		//adminService.mesuraCalcular("jBPM executeActionInstanciaTasca", "jbpmDao");
 	}
-	
-	
+
+	public void executeHandler(
+			String processInstanceId,
+			String handlerName,
+			Map<String, String> dades) {
+
+		final long id = Long.parseLong(processInstanceId);
+		ExecuteHandlerCommand command = new ExecuteHandlerCommand(
+				id,
+				handlerName,
+				dades);
+		executeCommandWithAutoSave(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+	}
+
+	public void executeHandlerPredefinit(
+			String processInstanceId, 
+			String predefinitClasse, 
+			Map<String, String> predefinitDades) {
+		
+		final long id = Long.parseLong(processInstanceId);
+		ExecuteHadlerPredefinitCommand command = new ExecuteHadlerPredefinitCommand(
+				id,
+				predefinitClasse,
+				predefinitDades);
+		executeCommandWithAutoSave(
+				command,
+				id,
+				AddToAutoSaveCommand.TIPUS_INSTANCIA_PROCES);
+
+	}	
+
 	public void retrocedirAccio(
 			String processInstanceId,
 			String actionName,
@@ -2025,5 +1992,5 @@ public class JbpmHelper {
 	public void updateSubprocessDefinition(ProcessDefinition pd1, ProcessDefinition pd2) {
 		UpdateSubprocessDefinitionCommand command = new UpdateSubprocessDefinitionCommand(pd1, pd2);
 		commandService.execute(command);
-	}	
+	}
 }

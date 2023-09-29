@@ -66,6 +66,7 @@
 							$('#' + modalDivId).webutilModalShow({
 								adjustHeight: plugin.settings.adjustHeight,
 								maximized: plugin.settings.maximized,
+								height: plugin.settings.height,
 								refreshMissatges: plugin.settings.refreshMissatges,
 								refreshDatatable: plugin.settings.refreshDatatable,
 								elementBotons: plugin.settings.elementBotons,
@@ -79,6 +80,7 @@
 							$('#' + modalDivId).webutilModalShow({
 								adjustHeight: plugin.settings.adjustHeight,
 								maximized: plugin.settings.maximized,
+								height: plugin.settings.height,
 								refreshMissatges: plugin.settings.refreshMissatges,
 								refreshDatatable: plugin.settings.refreshDatatable,
 								elementBotons: plugin.settings.elementBotons,
@@ -201,7 +203,7 @@
 					}
 				});
 				iframe.on('load', function () {
-					var pathname = this.contentDocument.location.pathname;
+					var pathname = this.contentDocument != null ? this.contentDocument.location.pathname : null;
 					if (pathname == webutilModalTancarPath()) {
 						$('button.close', $(this).closest('.modal-dialog')).trigger('click');
 						if (settings.refreshMissatges) {

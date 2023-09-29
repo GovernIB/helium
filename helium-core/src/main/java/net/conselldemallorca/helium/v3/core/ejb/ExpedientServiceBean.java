@@ -24,6 +24,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
@@ -594,7 +595,19 @@ public class ExpedientServiceBean implements ExpedientService {
 		return delegate.findIdsPerConsultaInforme(consultaId, valors, nomesMeves, nomesAlertes, mostrarAnulats, nomesTasquesPersonals, nomesTasquesGrup);
 	}
 
-	@Override
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public List<ExpedientConsultaDissenyDto> findExpedientsExportacio(List<Long> ids, String entornCodi) {
+        return delegate.findExpedientsExportacio(ids, entornCodi);
+    }
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public String getExpedientProcessInstanceId(Long expedientId) {
+        return delegate.getExpedientProcessInstanceId(expedientId);
+    }
+
+    @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<ExpedientConsultaDissenyDto> findConsultaInformePaginat(Long consultaId, Map<String, Object> valorsPerService, boolean nomesMeves, boolean nomesAlertes, boolean mostrarAnulats, boolean nomesTasquesPersonals, boolean nomesTasquesGrup, PaginacioParamsDto paginacioParams) {
 		return delegate.findConsultaInformePaginat(consultaId, valorsPerService, nomesMeves, nomesAlertes, mostrarAnulats, nomesTasquesPersonals, nomesTasquesGrup, paginacioParams);
@@ -689,8 +702,14 @@ public class ExpedientServiceBean implements ExpedientService {
 	public byte[] getZipDocumentacio(Long expedientId) {
 		return delegate.getZipDocumentacio(expedientId);
 	}
-	
-	@Override
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public byte[] getZipDocumentacio(Long expedientId, Set<Long> seleccio) {
+        return delegate.getZipDocumentacio(expedientId, seleccio);
+    }
+
+    @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void arreglarMetadadesNti(Long expedientId) {
 		delegate.arreglarMetadadesNti(expedientId);
@@ -698,7 +717,12 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+<<<<<<< HEAD
 	public byte[] getZipPerNotificar(Long expedientId, List<ExpedientDocumentDto> documentsPerAfegir) {
 		return delegate.getZipPerNotificar(expedientId, documentsPerAfegir);
+=======
+	public EstatDto estatCanviar(Long expedientId, Long estatId) {
+		return delegate.estatCanviar(expedientId, estatId);
+>>>>>>> refs/remotes/origin/#1627_HELIUM_sense_motor_de_WF
 	}
 }

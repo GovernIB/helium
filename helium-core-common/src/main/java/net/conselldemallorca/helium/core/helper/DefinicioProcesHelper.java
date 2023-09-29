@@ -162,7 +162,14 @@ public class DefinicioProcesHelper {
 		boolean definicioProcesExisteix = definicioProcesId != null;
 		DefinicioProces definicio;
 		if ( ! definicioProcesExisteix) {
+			
 			// Nova definició de procés
+			definicio = this.desplegarJbpm(
+					importacio.getNomDeploy(), 
+					importacio.getContingutDeploy(),
+					entorn,
+					expedientTipus);
+			
 			JbpmProcessDefinition dpd = jbpmHelper.desplegar(
 					importacio.getNomDeploy(), 
 					importacio.getContingutDeploy());
@@ -431,7 +438,7 @@ public class DefinicioProcesHelper {
 									definicio, 
 									accioExportat.getCodi(), 
 									accioExportat.getNom(),
-									accioExportat.getJbpmAction());
+									accioExportat.getTipus());
 							definicio.getAccions().add(accio);
 							accioRepository.save(accio);
 						} else {
@@ -439,6 +446,10 @@ public class DefinicioProcesHelper {
 							accio.setJbpmAction(accioExportat.getJbpmAction());
 						}
 						accio.setDescripcio(accioExportat.getDescripcio());
+						accio.setJbpmAction(accioExportat.getJbpmAction());
+						accio.setScript(accioExportat.getScript());
+						accio.setPredefinitClasse(accioExportat.getPredefinitClasse());
+						accio.setPredefinitDades(accioExportat.getPredefinitDades());
 						accio.setPublica(accioExportat.isPublica());
 						accio.setOculta(accioExportat.isOculta());
 						accio.setRols(accioExportat.getRols());
@@ -544,6 +555,53 @@ public class DefinicioProcesHelper {
 			}			
 			expedientTipus.getDefinicionsProces().add(definicio);
 		}		
+		return definicio;
+	}
+
+	public DefinicioProces desplegarJbpm(
+			String nomDeploy, 
+			byte[] contingutDeploy,
+			Entorn entorn,
+			ExpedientTipus expedientTipus) {
+
+		DefinicioProces definicio  = null;
+		JbpmProcessDefinition dpd = jbpmHelper.desplegar(
+				nomDeploy, 
+				contingutDeploy);
+		if (dpd != null) {
+			// Crea la nova definició de procés
+			definicio = new DefinicioProces(
+					dpd.getId(),
+					dpd.getKey(),
+					dpd.getVersion(),
+					entorn);
+			definicio.setExpedientTipus(expedientTipus);
+			if (expedientTipus != null)
+				expedientTipus.getDefinicionsProces().add(definicio);
+			definicio = definicioProcesRepository.saveAndFlush(definicio);
+			// Crea les tasques publicades
+			for (String nomTasca: jbpmHelper.getTaskNamesFromDeployedProcessDefinition(dpd)) {
+				Tasca tasca = new Tasca(
+						definicio,
+						nomTasca,
+						nomTasca,
+						TipusTasca.ESTAT);
+				String prefixRecursBo = "forms/" + nomTasca;
+				for (String resourceName: jbpmHelper.getResourceNames(dpd.getId())) {
+					if (resourceName.startsWith(prefixRecursBo)) {
+						tasca.setTipus(TipusTasca.FORM);
+						tasca.setRecursForm(nomTasca);
+						break;
+					}
+				}
+				tascaRepository.save(tasca);
+				definicio.getTasques().add(tasca);
+			}
+			definicioProcesRepository.save(definicio);
+		} else
+			throw new DeploymentException(
+					messageHelper.getMessage("exportar.validacio.definicio.deploy.error"));
+
 		return definicio;
 	}
 
@@ -995,8 +1053,12 @@ public class DefinicioProcesHelper {
 							accio.getCodi(),
 							accio.getNom(),
 							accio.getDescripcio(),
+							accio.getTipus(),
 							accio.getDefprocJbpmKey(),
 							accio.getJbpmAction(),
+							accio.getPredefinitClasse(),
+							accio.getPredefinitDades(),
+							accio.getScript(),
 							accio.isPublica(),
 							accio.isOculta(),
 							accio.getRols());
@@ -1037,8 +1099,12 @@ public class DefinicioProcesHelper {
 					desti,
 					accio.getCodi(),
 					accio.getNom(),
-					accio.getJbpmAction());
+					accio.getTipus());
 			nova.setDescripcio(accio.getDescripcio());
+			nova.setJbpmAction(accio.getJbpmAction());
+			nova.setScript(accio.getScript());
+			nova.setPredefinitClasse(accio.getPredefinitClasse());
+			nova.setPredefinitDades(accio.getPredefinitDades());
 			nova.setOculta(accio.isOculta());
 			nova.setPublica(accio.isPublica());
 			nova.setRols(accio.getRols());
@@ -1244,9 +1310,9 @@ public class DefinicioProcesHelper {
 						jbpmKey);
 		}
 		// Si no la trova cerca a l'entorn
-		if (definicioProces == null)
+		if (definicioProces == null && expedientTipus != null)
 			definicioProces = definicioProcesRepository.findDarreraVersioGlobalAmbJbpmKey(
-					expedientTipus.getEntorn().getId(), 
+					expedientTipus.getEntorn().getId(),
 					jbpmKey);
 		return definicioProces;
 	}

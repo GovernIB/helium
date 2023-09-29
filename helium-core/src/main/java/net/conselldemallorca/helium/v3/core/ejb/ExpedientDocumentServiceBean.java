@@ -5,11 +5,15 @@ package net.conselldemallorca.helium.v3.core.ejb;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentInfoDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
+import net.conselldemallorca.helium.v3.core.api.dto.document.DocumentDetallDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
@@ -152,6 +156,12 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public List<DocumentListDto> findDocumentsExpedient(Long expedientId, Boolean tots, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
+        return delegate.findDocumentsExpedient(expedientId, tots, paginacioParams);
+    }
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ExpedientDocumentDto findOneAmbInstanciaProces(
 			Long expedientId,
 			String processInstanceId,
@@ -187,6 +197,12 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	}
 	
 	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public ArxiuDto arxiuPdfFindAmbDocument(Long expedientId, String processInstanceId, Long documentStoreId) {
+        return delegate.arxiuPdfFindAmbDocument(expedientId, processInstanceId, documentStoreId);
+    }
+
+    @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuDto arxiuFindAmbDocumentVersio(
 			Long expedientId, 
@@ -296,6 +312,12 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 		return delegate.getPortasignaturesByDocumentId(documentId);
 	}
 
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public List<PortasignaturesDto> getPortasignaturesByProcessInstanceAndDocumentStoreId(String processInstanceId, Long documentStoreId) {
+        return delegate.getPortasignaturesByProcessInstanceAndDocumentStoreId(processInstanceId, documentStoreId);
+    }
+
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -319,6 +341,12 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	}
 
 	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public DocumentDetallDto getDocumentDetalls(Long expedientId, Long documentStoreId) {
+        return delegate.getDocumentDetalls(expedientId, documentStoreId);
+    }
+
+    @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public ArxiuDetallDto getArxiuDetall(
 			Long expedientId,
@@ -374,6 +402,13 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public Set<Long> findIdsDocumentsByExpedient(Long expedientId) {
+        return delegate.findIdsDocumentsByExpedient(expedientId);
+    }
+    
+    	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void processarFirmaClient(
 			Long expedientId,
 			String processInstanceId,
@@ -419,5 +454,12 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	public void portafirmesCancelar(Integer documentId) throws SistemaExternException {
 		delegate.portafirmesCancelar(documentId);		
 	}
+
+
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public List<DocumentInfoDto> getDocumentsNoUtilitzatsPerEstats(Long expedientId) {
+        return delegate.getDocumentsNoUtilitzatsPerEstats(expedientId);
+    }
 
 }

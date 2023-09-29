@@ -39,6 +39,24 @@
 				
 				$(document).ready( function() {
 					
+					$('#tipus').change(function() {
+						//→ tasca definició tipus amagar info pròpia, herència, retrocés i reindexació asíncrona
+						if ($(this).val() == 'ESTAT') {
+							if ( !$('#ambInfoPropia').is(":checked")) {
+								$('#ambInfoPropia').click();
+							}
+							$('#heretable').removeAttr('checked');
+							$('#expedientTipusPareId').val('').change();
+							$('#ambRetroaccio').removeAttr('checked');
+							$('#reindexacioAsincrona').removeAttr('checked');
+							$('#heretable, #expedientTipusPareId, #ambRetroaccio, #reindexacioAsincrona').attr('disabled', 'disabled');
+							$('#ambInfoPropia').attr('readonly', 'readonly');
+						} else {
+							$('#ambInfoPropia').removeAttr('readonly');
+							$('#ambInfoPropia, #heretable, #expedientTipusPareId, #ambRetroaccio, #reindexacioAsincrona').removeAttr('disabled');
+						}
+					}).change();
+
 					$('#reiniciarCadaAny').change(function() {
 						canviReiniciar();
 					})
@@ -51,6 +69,9 @@
 					        $('#heretable,#expedientTipusPareId').removeAttr("disabled");
 					    }else {
 					        $('#heretable,#expedientTipusPareId').attr("disabled", "true");
+							if ($('#tipus').val() == 'ESTAT') {
+								$('#tipus').change();
+					    }
 					    }
 					});
 					// Si és heretable esborra el valor d'expedientTipusPare
@@ -108,6 +129,7 @@
 			</script>			
 			<hel:inputText required="true" name="codi" textKey="expedient.tipus.form.camp.codi" disabled="${! empty expedientTipusCommand.id}"/>
 			<hel:inputText required="true" name="nom" textKey="expedient.tipus.form.camp.titol" />
+			<hel:inputSelect required="true" disabled="${expedientTipusCommand.id != null}" name="tipus" textKey="expedient.tipus.form.camp.tipus" placeholderKey="expedient.tipus.form.camp.tipus" optionItems="${tipus}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 			<hel:inputCheckbox name="ambInfoPropia" textKey="expedient.tipus.form.camp.ambInfoPropia" />
 			<p id="ambInfoPropiaNota" class="help-block"><spring:message code="expedient.tipus.form.camp.ambInfoPropia.nota"></spring:message></p>			
 			<hel:inputCheckbox name="heretable" textKey="expedient.tipus.form.camp.heretable" disabled="${! expedientTipusCommand.ambInfoPropia}" />

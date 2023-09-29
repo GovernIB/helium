@@ -41,6 +41,7 @@
  	#grup-default-dades label.obligatori {background-position: right 7px;padding-right: 15px;}
  	.taula_registre {color: #666666 !important;}
 	.taula_registre thead label {color: #666666 !important; }
+	.obligatori {background-position: right 4px !important; padding-right: 10px !important;}
 </style>
 
 <c:set var="grupId" value="grup-default"/>

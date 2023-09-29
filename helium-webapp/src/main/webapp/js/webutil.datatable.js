@@ -468,12 +468,13 @@
 						editSelection(ids, 'add');
 					}
 
-					$taula.trigger('selectionchange.dt')
+					$taula.trigger('selectionchange.dt');
 					/*$taula.trigger(
 							'selectionchange.dataTable',
 							[ids]);*/
 				};
 				$taula.on('select.dt', function (e, dt, type, indexes) {
+					console.log('click');
 					if (window[$taula.data('id') + '_prevent_next_select'] && event.type != 'click') {
 //						event.preventDefault();
 //						return false;
@@ -1114,7 +1115,7 @@
             		$(this).data(pluginName).selectAll();
             	} else if ('selection' === options) {
             		$(this).data(pluginName).selection(param1);
-            	}
+				}
             }
         });
     }

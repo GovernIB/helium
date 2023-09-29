@@ -174,6 +174,15 @@ public interface HeliumApi {
 			String varCodi, 
 			Object varValor);
 
+	/**
+	 * Modifica el valor d'una variable jBPM de la instància de procés
+	 *
+	 * @param varCodi Codi de la variable a modificar
+	 * @param varValor Nou valor de la variable
+	 */
+	public void setVariable(
+			String varCodi,
+			Object varValor);
 	
 	/**
 	 * Obté la informació de l'expedient a on s'està executant el handler

@@ -66,7 +66,7 @@
 	</style>
 <script>
 $(document).ready(function() {
-	$("#taulaDades").heliumDataTable({
+	var taulaDadesExpedient = $("#taulaDades").heliumDataTable({
 		ajaxSourceUrl: "<c:url value="/v3/expedient/datatable"/>",
 		localeUrl: "<c:url value="/js/dataTables-locales/dataTables_locale_ca.txt"/>",
 		drawCallback: function() {
@@ -88,6 +88,13 @@ $(document).ready(function() {
 			filtreActiu();
 		},
 		rowClickCallback: function(row, event) {
+
+			if ($('.expedient_tipus',row).data('tipus') == 'ESTAT') {
+				event.preventDefault();
+				window.location = '<c:url value="/v3/expedient/"/>' + $(row).find(".rdt-seleccio").val();
+				return false;
+			}
+			
 			var clickNomesDesplegar = true;
 			var numTds = $('td', $(event.target).closest('tr')).length;
 			var tdDesplegarIndex = numTds - 6;
@@ -181,6 +188,10 @@ $(document).ready(function() {
 					}
 				});
 		}
+	});
+
+	$("body").on("click", '#btnBdades', function(event) {
+		webutilBase64DownloadAndRefresh($(this).attr('href'), event);
 	});
 });
 
@@ -476,7 +487,9 @@ function refrescaEstatSegonPla() {
 				<th data-rdt-property="id" width="4%" data-rdt-sortable="false"></th>
 				<th data-rdt-property="id" data-rdt-template="cellPendentsTemplate" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="2%">
 					<script id="cellPendentsTemplate" type="text/x-jsrender">
-						<span class="icona-tasques-pendents fa fa-chevron-down" title="<spring:message code="expedient.llistat.tasques.pendents.mostrar"/>"></span>						
+						{{if tipus.tipus == 'FLOW' }}
+							<span class="icona-tasques-pendents fa fa-chevron-down" title="<spring:message code="expedient.llistat.tasques.pendents.mostrar"/>"></span>
+						{{/if}}
 					</script>
 				</th>
 				<th data-rdt-property="identificador" data-rdt-template="cellReindexacioTemplate" data-rdt-visible="true">
@@ -492,7 +505,13 @@ function refrescaEstatSegonPla() {
 					{{/if}}
 					</script>
 				</th>
-				<th data-rdt-property="tipus.nom" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.tipus"/></th>
+				<th data-rdt-property="tipus.nom" data-rdt-template="cellTipusTemplate" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.tipus"/>
+					<script id="cellTipusTemplate" type="text/x-jsrender">
+					<span class="expedient_tipus" data-tipus="{{:tipus.tipus}}">
+						{{:tipus.nom}}
+					</span>
+					</script>				
+				</th>
 				<th data-rdt-property="dataInici" data-rdt-type="datetime" data-rdt-sorting="desc" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.iniciat"/></th>
 				<th data-rdt-property="dataFi" data-rdt-type="datetime" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.finalitzat"/></th>
 				<th data-rdt-property="estat.nom" data-rdt-template="cellEstatTemplate" data-rdt-visible="true">
@@ -577,6 +596,7 @@ function refrescaEstatSegonPla() {
 			<div id="btnTramitacio" class="btn-group">
 				<a class="btn btn-default" href="../v3/expedient/seleccioTots" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.tots"/>"><span class="fa fa-check-square-o"></span></a>
 				<a class="btn btn-default" href="../v3/expedient/seleccioNetejar" data-rdt-link-ajax="true" title="<spring:message code="expedient.llistat.accio.seleccio.netejar"/>"><span class="fa fa-square-o"></span></a>
+				<a id="btnBdades" class="btn btn-default" href="../v3/expedient/descarregardades"><span class="fa fa-download"></span> <spring:message code="expedient.llistat.accio.descarregar"/></a>
 				<a class="btn btn-default" href="../v3/expedient/massiva"><spring:message code="expedient.llistat.accio.massiva"/>&nbsp;<span id="tramitacioMassivaCount" class="badge">&nbsp;</span></a>
 			</div>
 		</div>
@@ -596,6 +616,5 @@ function refrescaEstatSegonPla() {
 			</div>
 		</div>
 	</div>
-
 </body>
 </html>

@@ -45,6 +45,7 @@
 		.cabecera_reducida .navbar-btn {margin-top: 0px;}
 		.cabecera_reducida .navbar-btn .btn {padding: 3px 12px;}
 		.cabecera_reducida-main {margin-top: -30px;}
+		.navbar-right {margin-right: 0px;}
 		.nav-consulta-tipus {    
 			color: black;
 		    list-style-type: none;
@@ -95,7 +96,19 @@
 		.dada-heretada{
 			color:gray !important; 
 		}
-		
+		#overlay {
+			background-color: rgba(0,0,0, 0.25);
+			color: #666666;
+			position: fixed;
+			height: 100%;
+			width: 100%;
+			z-index: 5000;
+			top: 0;
+			left: 0;
+			float: left;
+			text-align: center;
+			padding-top: 25%;
+		}
 		
 <c:choose>
 	<c:when test="${entornActual.colorFons!=null  && not empty entornActual.colorFons}">
@@ -515,6 +528,10 @@
 
 	<div id="topBtn" class="arrow-top" title="<spring:message code="decorator.arrow-top"/>">
 		<span class="fa fa-4 fa-angle-double-up"></span>
+	</div>
+
+	<div id="overlay" style="display:none;">
+		<span id="overlay-spin" class="fa fa-circle-o-notch fa-spin fa-3x"></span>
 	</div>
 </body>
 </html>

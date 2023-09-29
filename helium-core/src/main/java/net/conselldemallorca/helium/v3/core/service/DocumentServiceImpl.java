@@ -16,9 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.core.helper.NotificacioHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.HerenciaHelper;
+import net.conselldemallorca.helium.core.helper.NotificacioHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
@@ -27,8 +27,10 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
+import net.conselldemallorca.helium.v3.core.regles.ReglaHelper;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
@@ -58,6 +60,8 @@ public class DocumentServiceImpl implements DocumentService {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private NotificacioHelper notificacioHelper;
+	@Resource
+	private ReglaHelper reglaHelper;
 
 	/**
 	 * {@inheritDoc}
@@ -228,6 +232,12 @@ public class DocumentServiceImpl implements DocumentService {
 			throw new NoTrobatException(Document.class);
 		}
 		documentRepository.delete(entity);	
+		
+		reglaHelper.deleteReglaValor(
+				entity.getExpedientTipus(), 
+				entity.getCodi() + " | " + entity.getNom(),
+				QueEnum.DOCUMENT);
+
 	}
 	
 	@Override
@@ -281,6 +291,13 @@ public class DocumentServiceImpl implements DocumentService {
 				"document =" + document + ", " +
 				"actualitzarContingut=" + actualitzarContingut + ")");
 		Document entity = documentRepository.findOne(document.getId());
+		
+		reglaHelper.updateReglaValor(
+				entity.getExpedientTipus(), 
+				entity.getCodi() + " | " + entity.getNom(),
+				document.getCodi() + " | " + document.getNom(),
+				QueEnum.DOCUMENT);
+
 		entity.setCodi(document.getCodi());
 		entity.setNom(document.getNom());
 		entity.setDescripcio(document.getDescripcio());

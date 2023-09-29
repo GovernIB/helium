@@ -57,7 +57,13 @@ public class AplicacioServiceBean implements AplicacioService {
 		return delegate.findPersonaLikeNomSencer(text);
 	}
 
-	/**
+    @Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+    public List<PersonaDto> findPersonaLikeCodiOrNomSencer(String text) throws SistemaExternException {
+        return delegate.findPersonaLikeCodiOrNomSencer(text);
+    }
+
+    /**
 	 * {@inheritDoc}
 	 */
 	@Override

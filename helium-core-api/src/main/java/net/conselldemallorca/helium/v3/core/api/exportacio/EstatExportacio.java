@@ -4,6 +4,16 @@
 package net.conselldemallorca.helium.v3.core.api.exportacio;
 
 import java.io.Serializable;
+import java.util.List;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisEstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatAccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
 
 
 /**
@@ -11,42 +21,21 @@ import java.io.Serializable;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Builder
+@NoArgsConstructor @AllArgsConstructor
 public class EstatExportacio implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 
+	@EqualsAndHashCode.Include
 	private String codi;
 	private String nom;
 	private int ordre;
-	
-	public EstatExportacio(String codi, String nom, int ordre) {
-		super();
-		this.codi = codi;
-		this.nom = nom;
-		this.ordre = ordre;
-	}
 
-	public EstatExportacio() {
-	}
-	public String getCodi() {
-		return codi;
-	}
-	public void setCodi(String codi) {
-		this.codi = codi;
-	}
-	public String getNom() {
-		return nom;
-	}
-	public void setNom(String nom) {
-		this.nom = nom;
-	}
-
-	public int getOrdre() {
-		return ordre;
-	}
-
-	public void setOrdre(int ordre) {
-		this.ordre = ordre;
-	}
-
+	private List<EstatReglaDto> regles;
+	private List<PermisEstatDto> permisos;
+	private List<EstatAccioDto> accionsEntrada;
+	private List<EstatAccioDto> accionsSortida;
 }

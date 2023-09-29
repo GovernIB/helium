@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>net.conselldemallorca.helium</groupId>
 		<artifactId>helium</artifactId>
-		<version>3.2</version>
+		<version>3.3.1</version>
 	</parent>
 	<artifactId>helium-core-api</artifactId>
 	<dependencies>
@@ -56,6 +56,12 @@
 			<groupId>commons-lang</groupId>
   			<artifactId>commons-lang</artifactId>
   			<version>2.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.24</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 	<build>

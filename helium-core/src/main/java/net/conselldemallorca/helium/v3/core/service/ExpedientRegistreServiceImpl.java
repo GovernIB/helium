@@ -137,6 +137,25 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 	 */
 	@Override
 	@Transactional(readOnly = true)
+	public List<ExpedientLogDto> registreFindExpedientCanvisEstat(
+			Long expedientId,
+			boolean detall) throws NoTrobatException {
+		
+		List<ExpedientLogDto> logs = new ArrayList<ExpedientLogDto>();
+		for (ExpedientLog log : expedientLogRepository.findAmbExpedientIdOrdenatsPerData(expedientId)) {
+			if (detall || log.getAccioTipus().equals(ExpedientLogAccioTipus.EXPEDIENT_ESTAT_CANVIAR)) {
+				logs.add(conversioTipusHelper.convertir(log, ExpedientLogDto.class));
+			}
+		}
+		return logs;
+	}
+
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
 	public Map<String, ExpedientTascaDto> registreFindTasquesPerLogExpedient(
 			Long expedientId) throws NoTrobatException, PermisDenegatException {
 		logger.debug("Consultant tasques per la pipella de registre de l'expedient (expedientId=" + expedientId + ")");

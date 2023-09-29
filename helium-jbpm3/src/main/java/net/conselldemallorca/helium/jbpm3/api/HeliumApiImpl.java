@@ -302,7 +302,12 @@ public class HeliumApiImpl implements HeliumApi {
 		}
 		executionContext.getContextInstance().setVariable(varCodi, varValor);
 	}
-	
+
+	@Override
+	public void setVariable(String varCodi, Object varValor) {
+		setVariableInstanciaProces(varCodi, varValor);
+	}
+
 	@Override
 	public ExpedientInfo getExpedient() {
 		return ConversioTipusHelper.toExpedientInfo(getExpedientActual());

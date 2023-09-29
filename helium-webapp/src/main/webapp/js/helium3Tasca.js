@@ -268,158 +268,18 @@ $(function() {
 	});
 	// Camp múltiple: afegir
 	$("#command").on("click", ".btn_multiple", function() {
-		var previousInput = $(this).closest('.form-group').prev();
-		var newInput = previousInput.clone();
-		$('div.select2-container', newInput).remove();
-		$('input, textarea, select', newInput).each(function(){
-			var input = $(this);
-			input.val('');
-			input.removeAttr("tabindex");
-			input.removeClass("select2-offscreen");
-			input.removeAttr("checked");
-			if (input.attr("id") != null) {
-				var id = input.attr("id");
-				var id_pre = id.substr(0, id.lastIndexOf("["));
-				var id_post = id.substr(id.lastIndexOf("]") + 1);
-				var index = parseInt(id.substr(id.lastIndexOf("[") + 1, id.lastIndexOf("]"))) + 1;
-				input.attr({ 
-					"id" : id_pre + "[" + index + "]" + id_post
-				});
-			}
-			if (input.attr("name") != null) {
-				var nom = input.attr("name");
-				if (nom.indexOf("[") > -1) {
-					var nom_pre = nom.substr(0, nom.lastIndexOf("["));
-					var nom_post = nom.substr(nom.lastIndexOf("]") + 1);
-					var index = parseInt(nom.substr(nom.lastIndexOf("[") + 1, nom.lastIndexOf("]"))) + 1;
-					input.attr({ 
-						"name" : nom_pre + "[" + index + "]" + nom_post
-					});
-				}
-			}
-			$('label', newInput).text('');
-			if ($('label', newInput).hasClass('sr-only') && !$('label', newInput).closest('.input-group-multiple').hasClass('pad-left-col-xs-3')) {
-				$('label', newInput).closest('.input-group-multiple').addClass('pad-left-col-xs-3');
-			}
-		});
-		previousInput.after(newInput);
-		// Camp de tipus price
-		newInput.find(".price").priceFormat({
-				prefix: '',
-				centsSeparator: ',',
-			    thousandsSeparator: '.',
-			    allowNegative: true
-			});
-		//newInput.find(".price").setMask({mask:'99,999.999.999.999',type:'reverse',defaultValue:'+'});
-		// Camp de tipus date
-		newInput.find(".date").mask("99/99/9999").datepicker({language: 'ca', autoclose: true, dateFormat: "dd/mm/yy"});
-		newInput.find(".btn_date").click(function(){
-			$(this).prev(".date").trigger("focus");
-		});
-		// Camp de tipus termini
-		newInput.find(".termdia").keyfilter(/^[-+]?[0-9]*$/);
-		newInput.find(".termini").each(function(){
-			$(this).select2({
-			    width: 'resolve',
-			    allowClear: true,
-			    minimumResultsForSearch: 10
-			});
-		});
-		// Camp de tipus sencer
-		newInput.find(".enter").keyfilter(/^[-+]?[0-9]*$/);
-		// Camp de tipus float
-		newInput.find(".float").keyfilter(/^[-+]?[0-9]*[.]?[0-9]*$/);		
-		// Camp de tipus suggest
-		newInput.find(".suggest").each(function() {
-			$(this).val('');
-			initSuggest(this);
-		});
-		// Camp de tipus seleccio
-		newInput.find(".seleccio").each(function() {
-			$(this).val('');
-			initSeleccio(this);
-		});
+		addMultiple(this);
 	});
 	$(".validada, .formext").each(function(index){
 		validado(true);
 	});
 	// Camp múltiple: eliminar
 	$("#command").on("click", ".btn_eliminar", function() {
-		var multiple = $(this).closest('.multiple');
-		var inputgroupmultiple = $(this).closest('.input-group-multiple');
-		if (multiple.find(".input-group-multiple").size() > 1) {
-			var label = multiple.find(".input-group-multiple:first").find(".control-label").val();
-			inputgroupmultiple.remove();
-			multiple.find(".input-group-multiple:first").find(".control-label").val(label);
-			multiple.find(".input-group-multiple").each(function(index){
-				$('input, textarea, select', this).each(function(){
-					var input = $(this);
-					if (input.attr("id") != null) {
-						var id = input.attr("id");
-						var id_pre = id.substr(0, id.lastIndexOf("["));
-						var id_post = id.substr(id.lastIndexOf("]") + 1);
-						input.attr({"id" : id_pre + "[" + index + "]" + id_post});
-					}
-					if (input.attr("name") != null) {
-						var nom = input.attr("name");
-						if (nom.indexOf("[") > -1) {
-							var nom_pre = nom.substr(0, nom.lastIndexOf("["));
-							var nom_post = nom.substr(nom.lastIndexOf("]") + 1);
-							input.attr({"name" : nom_pre + "[" + index + "]" + nom_post});
-						}
-					}
-					if (index == 0 && input.closest('.input-group-multiple').hasClass('pad-left-col-xs-3')) {
-						input.closest('.input-group-multiple').removeClass('pad-left-col-xs-3');
-					}
-				});
-			});
-		} else {
-			inputgroupmultiple.find("input").each(function(){
-				switch (this.type) {
-				case 'checkbox':
-				case 'radio':
-					this.checked = false;
-					break;
-				default:
-					$(this).val('');
-					break;
-				}
-			});
-			inputgroupmultiple.find("textarea, select").each(function(){
-				$(this).val('');
-			});
-		}
+		delMultiple(this);
 	});
 	// Eliminar fila
 	$("#command").on("click", ".eliminarFila", function() {
-		var table = $(this).closest('table');
-		var tr = $(this).closest('tr');
-		if (tr) {
-			tr.remove();			
-		}
-		// Renumerar filas
-		renumerarFiles(table);
-		/*
-		table.find("tr.multiple").each(function(index){
-			$('input, textarea, select', this).each(function(){
-				var input = $(this);
-				if (input.attr("id") != null) {
-					var id = input.attr("id");
-					var id_pre = id.substr(0, id.lastIndexOf("["));
-					var id_post = id.substr(id.lastIndexOf("]") + 1);
-					input.attr({"id" : id_pre + "[" + index + "]" + id_post});
-				}
-				if (input.attr("name") != null) {
-					var nom = input.attr("name");
-					if (nom.indexOf("[") > -1) {
-						var nom_pre = nom.substr(0, nom.lastIndexOf("["));
-						var nom_post = nom.substr(nom.lastIndexOf("]") + 1);
-						input.attr({"name" : nom_pre + "[" + index + "]" + nom_post});
-					}
-				}
-			});
-		});
-		*/
+		delFila(this);
 	});
 	
 	// Funcionalitats concretes
@@ -437,51 +297,189 @@ $(function() {
 		}
 	});
 	$(".btn_accio").click(function() {
-		if (confirm($(this).data("confirmacio"))) {			
-			modalDivCarregantDades(true);
-			$("#command").attr('action', $("#command").attr('action') + "/accio");
-			$("#command").append('<input type="hidden" id="accioCamp" name="accioCamp" value="'+$(this).data("action")+'"/>');
-			var boto = $(this);
-			setTimeout(function() {
-				boto.attr('disabled', true);
-				$('button[name="accio"]',parent.document).prop('disabled',true);
-				$('button[name="accio"]').prop('disabled',true);
-				boto.prepend('<i class="fa fa-circle-o-notch fa-spin"></i>');
-			}, 1);
-			return true;
-		}
-		return false;
+		return executeAction(this);
 	});
 	$('#boto-formext').click(function() {
-		$.ajax({
-			url: $(this).attr('href'),
-			async: false,
-			timeout: 20000,
-			success: function (data) {
-				if (data.error != null) {
-					alert(data.error);
-				} else {
-					var dialogWidth = parseInt(data.width);
-					var dialogHeight = parseInt(data.height);
-					$('<iframe id="formExtern" src="' + data.url + '"/>').dialog({
-						title: 'Formulari extern',
-		                autoOpen: true,
-		                modal: true,
-		                autoResize: false,
-		                width: dialogWidth,
-		                height: dialogHeight,
-		                close: function() {
-		                	window.location.href = window.location.href;
-		                	//document.location.reload();
-						}
-		            }).width(dialogWidth - 24);
-				}
-			},
-			error: modalAjaxErrorFunction
-	    });
-		return false;
+		return openFormExtern(this);
 	});
 });
+
+function addMultiple(boto) {
+	var previousInput = $(boto).closest('.form-group').prev();
+	var newInput = previousInput.clone();
+	$('div.select2-container', newInput).remove();
+	$('input, textarea, select', newInput).each(function(){
+		var input = $(this);
+		input.val('');
+		input.removeAttr("tabindex");
+		input.removeClass("select2-offscreen");
+		input.removeAttr("checked");
+		if (input.attr("id") != null) {
+			var id = input.attr("id");
+			var id_pre = id.substr(0, id.lastIndexOf("["));
+			var id_post = id.substr(id.lastIndexOf("]") + 1);
+			var index = parseInt(id.substr(id.lastIndexOf("[") + 1, id.lastIndexOf("]"))) + 1;
+			input.attr({
+				"id" : id_pre + "[" + index + "]" + id_post
+			});
+		}
+		if (input.attr("name") != null) {
+			var nom = input.attr("name");
+			if (nom.indexOf("[") > -1) {
+				var nom_pre = nom.substr(0, nom.lastIndexOf("["));
+				var nom_post = nom.substr(nom.lastIndexOf("]") + 1);
+				var index = parseInt(nom.substr(nom.lastIndexOf("[") + 1, nom.lastIndexOf("]"))) + 1;
+				input.attr({
+					"name" : nom_pre + "[" + index + "]" + nom_post
+				});
+			}
+		}
+		$('label', newInput).text('');
+		if ($('label', newInput).hasClass('sr-only') && !$('label', newInput).closest('.input-group-multiple').hasClass('pad-left-col-xs-3')) {
+			$('label', newInput).closest('.input-group-multiple').addClass('pad-left-col-xs-3');
+		}
+	});
+	previousInput.after(newInput);
+	// Camp de tipus price
+	newInput.find(".price").priceFormat({
+		prefix: '',
+		centsSeparator: ',',
+		thousandsSeparator: '.',
+		allowNegative: true
+	});
+	//newInput.find(".price").setMask({mask:'99,999.999.999.999',type:'reverse',defaultValue:'+'});
+	// Camp de tipus date
+	newInput.find(".date").mask("99/99/9999").datepicker({language: 'ca', autoclose: true, dateFormat: "dd/mm/yy"});
+	newInput.find(".btn_date").click(function(){
+		$(this).prev(".date").trigger("focus");
+	});
+	// Camp de tipus termini
+	newInput.find(".termdia").keyfilter(/^[-+]?[0-9]*$/);
+	newInput.find(".termini").each(function(){
+		$(this).select2({
+			width: 'resolve',
+			allowClear: true,
+			minimumResultsForSearch: 10
+		});
+	});
+	// Camp de tipus sencer
+	newInput.find(".enter").keyfilter(/^[-+]?[0-9]*$/);
+	// Camp de tipus float
+	newInput.find(".float").keyfilter(/^[-+]?[0-9]*[.]?[0-9]*$/);
+	// Camp de tipus suggest
+	newInput.find(".suggest").each(function() {
+		$(this).val('');
+		initSuggest(this);
+	});
+	// Camp de tipus seleccio
+	newInput.find(".seleccio").each(function() {
+		$(this).val('');
+		initSeleccio(this);
+	});
+}
+
+function delMultiple(boto) {
+	var multiple = $(boto).closest('.multiple');
+	var inputgroupmultiple = $(boto).closest('.input-group-multiple');
+	if (multiple.find(".input-group-multiple").size() > 1) {
+		var label = multiple.find(".input-group-multiple:first").find(".control-label").val();
+		inputgroupmultiple.remove();
+		multiple.find(".input-group-multiple:first").find(".control-label").val(label);
+		multiple.find(".input-group-multiple").each(function(index){
+			$('input, textarea, select', this).each(function(){
+				var input = $(this);
+				if (input.attr("id") != null) {
+					var id = input.attr("id");
+					var id_pre = id.substr(0, id.lastIndexOf("["));
+					var id_post = id.substr(id.lastIndexOf("]") + 1);
+					input.attr({"id" : id_pre + "[" + index + "]" + id_post});
+				}
+				if (input.attr("name") != null) {
+					var nom = input.attr("name");
+					if (nom.indexOf("[") > -1) {
+						var nom_pre = nom.substr(0, nom.lastIndexOf("["));
+						var nom_post = nom.substr(nom.lastIndexOf("]") + 1);
+						input.attr({"name" : nom_pre + "[" + index + "]" + nom_post});
+					}
+				}
+				if (index == 0 && input.closest('.input-group-multiple').hasClass('pad-left-col-xs-3')) {
+					input.closest('.input-group-multiple').removeClass('pad-left-col-xs-3');
+				}
+			});
+		});
+	} else {
+		inputgroupmultiple.find("input").each(function(){
+			switch (this.type) {
+				case 'checkbox':
+				case 'radio':
+					this.checked = false;
+					break;
+				default:
+					$(this).val('');
+					break;
+			}
+		});
+		inputgroupmultiple.find("textarea, select").each(function(){
+			$(this).val('');
+		});
+	}
+}
+
+function delFila(boto) {
+	var table = $(boto).closest('table');
+	var tr = $(boto).closest('tr');
+	if (tr) {
+		tr.remove();
+	}
+	// Renumerar filas
+	renumerarFiles(table);
+}
+
+function executeAction(boto) {
+	if (confirm($(boto).data("confirmacio"))) {
+		modalDivCarregantDades(true);
+		$("#command").attr('action', $("#command").attr('action') + "/accio");
+		$("#command").append('<input type="hidden" id="accioCamp" name="accioCamp" value="'+$(boto).data("action")+'"/>');
+		setTimeout(function() {
+			$(boto).attr('disabled', true);
+			$('button[name="accio"]',parent.document).prop('disabled',true);
+			$('button[name="accio"]').prop('disabled',true);
+			$(boto).prepend('<i class="fa fa-circle-o-notch fa-spin"></i>');
+		}, 1);
+		return true;
+	}
+	return false;
+}
+
+function openFormExtern(boto) {
+	$.ajax({
+		url: $(boto).attr('href'),
+		async: false,
+		timeout: 20000,
+		success: function (data) {
+			if (data.error != null) {
+				alert(data.error);
+			} else {
+				var dialogWidth = parseInt(data.width);
+				var dialogHeight = parseInt(data.height);
+				$('<iframe id="formExtern" src="' + data.url + '"/>').dialog({
+					title: 'Formulari extern',
+					autoOpen: true,
+					modal: true,
+					autoResize: false,
+					width: dialogWidth,
+					height: dialogHeight,
+					close: function() {
+						window.location.href = window.location.href;
+						//document.location.reload();
+					}
+				}).width(dialogWidth - 24);
+			}
+		},
+		error: modalAjaxErrorFunction
+	});
+	return false;
+}
 
 function validado(validar) {
 	$('#command input[type=text]').each(function(){

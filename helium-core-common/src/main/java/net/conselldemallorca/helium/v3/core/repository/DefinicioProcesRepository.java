@@ -141,6 +141,7 @@ public interface DefinicioProcesRepository extends JpaRepository<DefinicioProces
 			@Param("expedientTipusId") Long expedientTipusId,
 			@Param("incloureGlobals") boolean incloureGlobals);
 	
+	
 	/** Troba totes les definicions de procés relacionades amb un tipus d'expedient. */
 	@Query("from DefinicioProces dp " +
 			"where dp.expedientTipus.id = :expedientTipusId " +

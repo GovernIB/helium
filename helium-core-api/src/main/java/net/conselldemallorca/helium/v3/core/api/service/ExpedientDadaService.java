@@ -6,7 +6,10 @@ package net.conselldemallorca.helium.v3.core.api.service;
 import java.util.List;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampInfoDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadaListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 
@@ -152,4 +155,15 @@ public interface ExpedientDadaService {
 	public List<CampAgrupacioDto> agrupacionsFindAmbInstanciaProces(
 			Long expedientId,
 			String processInstanceId) throws NoTrobatException, PermisDenegatException;
+
+    public List<DadaListDto> findDadesExpedient(
+			Long expedientId,
+			Boolean totes,
+			Boolean ambOcults,
+			Boolean noPendents,
+			PaginacioParamsDto paginacioParams);
+
+	public List<CampInfoDto> getCampsNoUtilitzatsPerEstats(Long expedientId);
+
+	public DadaListDto getDadaList(Long expedientId, String procesId, String varCodi);
 }

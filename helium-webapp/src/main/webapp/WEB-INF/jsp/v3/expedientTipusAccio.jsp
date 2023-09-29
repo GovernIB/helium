@@ -61,11 +61,24 @@
 						</script>
 					</th>
 					<th data-col-name="nom"><spring:message code="expedient.tipus.accio.llistat.columna.nom"/></th>
-					<c:if test="${not empty expedientTipus}">
+					<th data-col-name="tipus" data-template="#cellAccioTipusTemplate">
+						<spring:message code="expedient.tipus.accio.llistat.columna.tipus"/>
+						<script id="cellAccioTipusTemplate" type="text/x-jsrender">
+							{{if tipus == 'HANDLER'}}
+								<spring:message code="accio.tipus.enum.HANDLER"/>
+							{{else tipus == 'HANDLER_PREDEFINIT'}}
+								<spring:message code="accio.tipus.enum.HANDLER_PREDEFINIT"/>
+							{{else tipus == 'SCRIPT'}}
+								<spring:message code="accio.tipus.enum.SCRIPT"/>
+							{{/if}}
+						</div>
+					</script>
+					</th>
+					<c:if test="${not empty expedientTipus && not perEstats}">
 						<!-- Per les accions dels tipus d'expedient es mostra la clau de la definició de procés -->
 						<th data-col-name="defprocJbpmKey"><spring:message code="expedient.tipus.accio.llistat.columna.defprocJbpmKey"/></th>
 					</c:if>
-					<th data-col-name="jbpmAction"><spring:message code="expedient.tipus.accio.llistat.columna.jbpmAction"/></th>
+					<th data-col-name="handler" data-orderable="false"><spring:message code="expedient.tipus.accio.llistat.columna.jbpmAction"/></th>
 					<th data-col-name="id" data-template="#cellAccionsAccioTemplate" data-orderable="false" width="10%">
 						<script id="cellAccionsAccioTemplate" type="text/x-jsrender">
 						<div class="dropdown">
@@ -91,6 +104,9 @@
 
 		<script id="tableButtonsAccionsTemplate" type="text/x-jsrender">
 			<div class="botons-titol text-right">
+				<c:if test="${perEstats}">
+					<a id="desplegar" class="btn btn-default" href="${baseUrl}/accio/desplegar" data-toggle="modal" data-datatable-id="expedientTipusAccio"><span class="fa fa-download"></span>&nbsp;<spring:message code="expedient.tipus.accio.llistat.accio.desplegar.handlers"/></a>
+				</c:if>
 				<a id="nova_accio" class="btn btn-default" href="${baseUrl}/accio/new" data-toggle="modal" data-datatable-id="expedientTipusAccio"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.accio.llistat.accio.nova"/></a>
 			</div>
 		</script>

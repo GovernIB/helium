@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>net.conselldemallorca.helium</groupId>
 		<artifactId>helium</artifactId>
-		<version>3.2</version>
+		<version>3.3.1</version>
 	</parent>
 	<artifactId>helium-webapp</artifactId>
 	<packaging>war</packaging>
@@ -356,8 +356,7 @@
 		      <artifactId>jaxb-impl</artifactId>
 		    </exclusion>
 		  </exclusions>
-		</dependency>	
-	    
+		</dependency>
 		<dependency>
 			<groupId>org.fundaciobit.plugins</groupId>
 			<artifactId>plugin-signatureweb-miniappletinclient</artifactId>
@@ -377,6 +376,13 @@
 			<groupId>org.fundaciobit.plugins</groupId>
 			<artifactId>plugin-signatureweb-miniappletinserver</artifactId>
 			<version>2.0.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.24</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 	<profiles>

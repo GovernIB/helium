@@ -28,6 +28,7 @@ import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
+import net.conselldemallorca.helium.core.model.hibernate.EstatRegla;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
@@ -56,6 +57,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaDefaultAnyDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
 
 /**
  * Helper per a convertir entre diferents formats de documents.
@@ -273,6 +275,7 @@ public class ConversioTipusHelper {
 						target.setRestringirPerGrup(source.isRestringirPerGrup());
 						target.setSeleccionarAny(source.isSeleccionarAny());
 						target.setAmbRetroaccio(source.isAmbRetroaccio());
+						target.setTipus(source.getTipus());
 						target.setAmbInfoPropia(source.isAmbInfoPropia());
 						target.setHeretable(source.isHeretable());
 						target.setExpedientTipusPareId(source.getExpedientTipusPare() != null ? source.getExpedientTipusPare().getId() : null );
@@ -337,6 +340,7 @@ public class ConversioTipusHelper {
 						
 						target.setPinbalActiu(source.isPinbalActiu());
 						target.setPinbalNifCif(source.getPinbalNifCif());
+						target.setTipus(source.getTipus());
 						target.setManualAjudaNom(source.getManualAjudaNom());
 						target.setManualAjudaContent(source.getManualAjudaContent());
 						target.setDistribucioPresencial(source.getDistribucioPresencial());
@@ -492,7 +496,14 @@ public class ConversioTipusHelper {
 						target.setEmail(source.getEmail());
 						return target;
 					}
-		});			
+		});	
+		
+		mapperFactory.classMap(EstatRegla.class, EstatReglaDto.class)
+				.field("expedientTipus.id", "expedientTipusId")
+				.field("estat.id", "estatId")
+				.byDefault()
+				.register();
+		
 		// Converteix la entity Portasignatures a PortasignaturesDto
 		mapperFactory.getConverterFactory().registerConverter(
 				new CustomConverter<Portasignatures, PortasignaturesDto>() {

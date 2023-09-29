@@ -130,11 +130,67 @@ function webutilDownloadAndRefresh(arxiuUrl, event, callbackFunction) {
 	}
 }
 
+function webutilBase64DownloadAndRefresh(arxiuUrl, event, callbackFunction) {
+
+	$("#overlay").show();
+	// Fa la petició a la url de l'arxiu
+	$.get( arxiuUrl, { responseType: 'arraybuffer' })
+		.success(function (data, status, xhr) {
+			// estableix el nom de la descàrrega i el tipus
+			var b64Data = data;
+			var contentType = xhr.getResponseHeader("Content-Type");
+			var disposition = xhr.getResponseHeader('Content-Disposition');
+			var filename = disposition.substring(disposition.lastIndexOf("=") + 1) || "download";
+
+			// Processam les dades rebudes
+			var sliceSize = 512;
+			var byteCharacters = window.atob(b64Data);
+			var byteArrays = [];
+
+			for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+				var slice = byteCharacters.slice(offset, offset + sliceSize);
+				var byteNumbers = new Array(slice.length);
+				for (var i = 0; i < slice.length; i++) {
+					byteNumbers[i] = slice.charCodeAt(i);
+				}
+				var byteArray = new Uint8Array(byteNumbers);
+				byteArrays.push(byteArray);
+			}
+			// Crea un enllaç per obrir la descàrrega
+			var blob = new Blob(byteArrays, { type: contentType });
+			var link=document.createElement('a');
+			link.href=window.URL.createObjectURL(blob);
+			link.download= filename;
+			(document.body || document.documentElement).appendChild(link);
+			link.click();
+		}).always(function(){
+		if (callbackFunction)
+			try {
+				callbackFunction();
+			} catch(e) {
+				console.error("Error executant la funció de callback " + callbackFunction + ": " + e);
+			}
+		webutilRefreshMissatges();
+		$("#overlay").hide();
+	});
+	// Atura els events de l'enllaç
+	if (event != null) {
+		event.preventDefault();
+		event.stopPropagation();
+	}
+}
+
 /** Funció per deshabilitar els camps d'un formulari. Els de text tornen readonly y la resta disabled */
 function webutilDisableInputs(formulari) {
 	$(':input', formulari).attr('readonly', true);
 	$('select', formulari).attr('disabled', true);
 	$('input[type=checkbox]', formulari).attr('disabled', 'disabled');
+}
+/** Funció per tornar a habilitar els camps d'un formulari. */
+function webutilEnableInputs(formulari) {
+	$(':input', formulari).removeAttr('readonly');
+	$('select', formulari).removeAttr('disabled');
+	$('input[type=checkbox]', formulari).removeAttr('disabled');
 }
 
 
@@ -251,9 +307,32 @@ $(document).ajaxError(function(event, jqxhr, ajaxSettings, thrownError) {
 				timeout: 30000,
 				success: function() {
 					webutilRefreshMissatges();
+					// if((!$element.hasAttribute('data-reload-table') || $element.data('reloadTable') == "true") &&
 					if ($element.closest('.dataTables_wrapper')) {
 						var $dataTable = $('table.dataTable', $element.closest('.dataTables_wrapper'));
 						$dataTable.webutilDatatable('refresh');
+					// }
+					// if ($element.hasAttribute('data-callback')) {
+					// 	let callback = $element.data('callback');
+					// 	var sep = callback.indexOf('(');
+					// 	if ( sep != -1) {
+					// 		callbackFunctionName = callback.substring(0, sep);
+					// 		callbackFunctionParams = callback.substring(sep + 1, callback.lastIndexOf(')')).split(",");
+					// 		// modalExecuteFunctionByName(callbackFunctionName, window, callbackFunctionParams, data);
+					// 		let i = 0;
+					// 		let args = [];
+					// 		for(i = 0; i < callbackFunctionParams; i++)
+					// 			args[i] = callbackFunctionParams[i].trim();
+					// 		args[i] = data;
+					// 		let namespaces = callbackFunctionName.split('.');
+					// 		let func = namespaces.pop();
+					// 		let context = window;
+					// 		for(i = 0; i < namespaces; i++)
+					// 			context = context[namespaces[i]];
+					// 		if (context[func] === undefined)
+					// 			return false
+					// 		return context[func].apply(this, args);
+					// 	}
 					}
 				}
 		    });
@@ -309,3 +388,59 @@ $(document).ajaxError(function(event, jqxhr, ajaxSettings, thrownError) {
 	});
 
 }(jQuery));
+
+jQuery.fn.highlight = function(pat) {
+	function innerHighlight(node, pat) {
+		var skip = 0;
+		if (node.nodeType == 3) {
+			var pos = node.data.toUpperCase().indexOf(pat);
+			if (pos >= 0) {
+				var spannode = document.createElement('span');
+				spannode.className = 'highlight';
+				var middlebit = node.splitText(pos);
+				var endbit = middlebit.splitText(pat.length);
+				var middleclone = middlebit.cloneNode(true);
+				spannode.appendChild(middleclone);
+				middlebit.parentNode.replaceChild(spannode, middlebit);
+				skip = 1;
+			}
+		}
+		else if (node.nodeType == 1 && node.childNodes && !/(script|style)/i.test(node.tagName)) {
+			for (var i = 0; i < node.childNodes.length; ++i) {
+				i += innerHighlight(node.childNodes[i], pat);
+			}
+		}
+		return skip;
+	}
+	return this.each(function() {
+		innerHighlight(this, pat.toUpperCase());
+	});
+};
+
+jQuery.fn.removeHighlight = function() {
+	function newNormalize(node) {
+		for (var i = 0, children = node.childNodes, nodeCount = children.length; i < nodeCount; i++) {
+			var child = children[i];
+			if (child.nodeType == 1) {
+				newNormalize(child);
+				continue;
+			}
+			if (child.nodeType != 3) { continue; }
+			var next = child.nextSibling;
+			if (next == null || next.nodeType != 3) { continue; }
+			var combined_text = child.nodeValue + next.nodeValue;
+			new_node = node.ownerDocument.createTextNode(combined_text);
+			node.insertBefore(new_node, child);
+			node.removeChild(child);
+			node.removeChild(next);
+			i--;
+			nodeCount--;
+		}
+	}
+
+	return this.find("span.highlight").each(function() {
+		var thisParent = this.parentNode;
+		thisParent.replaceChild(this.firstChild, this);
+		newNormalize(thisParent);
+	}).end();
+};

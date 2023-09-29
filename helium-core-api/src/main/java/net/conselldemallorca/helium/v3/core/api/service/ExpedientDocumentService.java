@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
@@ -12,6 +13,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentInfoDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
@@ -23,6 +26,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.document.DocumentDetallDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
@@ -188,6 +192,7 @@ public interface ExpedientDocumentService {
 			Long expedientId,
 			String processInstanceId) throws NoTrobatException, PermisDenegatException;
 
+	public List<DocumentListDto> findDocumentsExpedient(Long expedientId, Boolean tots, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException;
 	/**
 	 * Retorna un document d'una instància de procés de
 	 * l'expedient.
@@ -253,6 +258,7 @@ public interface ExpedientDocumentService {
 			String processInstanceId,
 			Long documentStoreId) throws NoTrobatException, PermisDenegatException;
 	
+	public ArxiuDto arxiuPdfFindAmbDocument(Long expedientId, String processInstanceId, Long documentStoreId);
 	/**
 	 * Retorna l'arxiu del document de la versió indicada.
 	 * 
@@ -329,6 +335,10 @@ public interface ExpedientDocumentService {
 	 * @return
 	 */
 	public PortasignaturesDto getPortasignaturesByDocumentStoreId(String processInstanceId, Long documentStoreId);
+
+	public List<PortasignaturesDto> getPortasignaturesByProcessInstanceAndDocumentStoreId(
+			String processInstanceId,
+			Long documentStoreId);
 
 	/**
 	 * Genera l'arxiu d'un document a partir de la seva plantilla.
@@ -418,6 +428,8 @@ public interface ExpedientDocumentService {
 
 	public DocumentDto findDocumentAmbId(Long documentStoreId) throws NoTrobatException;
 
+	public DocumentDetallDto getDocumentDetalls(Long expedientId, Long documentStoreId);
+
 	/**
 	 * Retorna la informació del document emmagatzemada a dins l'arxiu.
 	 * 
@@ -487,6 +499,8 @@ public interface ExpedientDocumentService {
 			Long expedientId,
 			Long documentStoreId) throws NoTrobatException, PermisDenegatException;
 
+    public Set<Long> findIdsDocumentsByExpedient(Long expedientId);
+
 	/** Mètode per processar la firma en passarel·la des de la gestió de documents, validar la firma,
 	 * gurardar el document firmat i deixar una entrada en el registre.
 	 * @param documentStoreId
@@ -543,4 +557,6 @@ public interface ExpedientDocumentService {
 		Integer documentId) throws SistemaExternException;
 
 
+
+    public List<DocumentInfoDto> getDocumentsNoUtilitzatsPerEstats(Long expedientId);
 }

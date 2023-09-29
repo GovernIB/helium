@@ -1,0 +1,2396 @@
+[
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientComentariModificarHandler",
+  "nom" : "Modificar el comentari de l'expedient",
+  "descripcio" : "Aquest handler ens permet modificar el comentari de l'expedient.",
+  "parametres" : [ {
+	"codi": "comentari",
+    "nom" : "Comentari",
+    "obligatori" : false,
+    "param" : "comentari",
+    "paramDesc" : "Comentari de l'expedient",
+    "varParam" : "varComentari",
+    "varParamDesc" : "Variable que conté el comentari de l'expedient"
+  }],
+  "agrupacio" : "EXPEDIENTS"
+ }, 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientEstatModificarHandler",
+  "nom" : "Modificar l'estat de l'expedient",
+  "descripcio" : "Aquest handler ens permet modificar l'estat de l'expedient.",
+  "parametres" : [ 
+  	{
+	"codi": "estatCodi",
+    "nom" : "Codi de l'estat",
+    "obligatori" : false,
+    "param" : "estatCodi",
+    "paramDesc" : "Codi de l'estat",
+    "varParam" : "varEstatCodi",
+    "varParamDesc" : "Variable que conté el codi de l'estat"
+  }],
+  "agrupacio" : "EXPEDIENTS"
+ }, 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientNumeroModificarHandler",
+  "nom" : "Modificar el número de l'expedient",
+  "descripcio" : "Aquest handler ens permet modificar el número d'expedient.",
+  "parametres" : [ 
+  	{
+	"codi": "numero",
+    "nom" : "Número d'expedient",
+    "obligatori" : true,
+    "param" : "numero",
+    "paramDesc" : "Número d'expedient",
+    "varParam" : "varNumero",
+    "varParamDesc" : "Variable que conté el número d'expedient"
+  }],
+  "agrupacio" : "EXPEDIENTS"
+ }, 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientResponsableModificarHandler",
+  "nom" : "Modificar el responsable de l'expedient",
+  "descripcio" : "Aquest handler ens permet modificar la persona responsable de l'expedient.",
+  "parametres" : [ 
+  	{
+	"codi": "responsableCodi",
+    "nom" : "Codi de l'usuari responsable",
+    "obligatori" : false,
+    "param" : "responsableCodi",
+    "paramDesc" : "Codi de l'usuari responsable",
+    "varParam" : "varResponsableCodi",
+    "varParamDesc" : "Variable que conté el codi de l'usuari responsable"
+  }],
+  "agrupacio" : "EXPEDIENTS"
+ }, 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientTitolModificarHandler",
+  "nom" : "Modificar el títol de l'expedient",
+  "descripcio" : "Aquest handler ens permet modificar el títol de l'expedient.",
+  "parametres" : [ 
+  	{
+	"codi": "titol",
+    "nom" : "Títol de l'expedient",
+    "obligatori" : false,
+    "param" : "titol",
+    "paramDesc" : "Títol de l'expedient",
+    "varParam" : "varTitol",
+    "varParamDesc" : "Variable que conté el títol de l'expedient"
+  }],
+  "agrupacio" : "EXPEDIENTS"
+ }, 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientGeorefModificarHandler",
+  "nom" : "Georeferenciació d'un expedient",
+  "descripcio" : "Aquest handler permet modificar les dades necessàries per a la georeferenciació d'un expedient, la qual es pot dur a terme per referència cadastral o coordenades XY.",
+  "parametres" : [ 
+  	{
+	"codi": "posx",
+    "nom" : "Valor de la coordenada X",
+    "obligatori" : false,
+    "param" : "posx",
+    "paramDesc" : "Valor de la coordenada X",
+    "varParam" : "varPosx",
+    "varParamDesc" : "Variable que conté la coordenada X"
+  },
+  	{
+	"codi": "posy",
+    "nom" : "Valor de la coordenada Y",
+    "obligatori" : false,
+    "param" : "posy",
+    "paramDesc" : "Valor de la coordenada Y",
+    "varParam" : "varPosy",
+    "varParamDesc" : "Variable que conté la coordenada Y"
+  },
+  	{
+	"codi": "referencia",
+    "nom" : "Referència cadastral",
+    "obligatori" : false,
+    "param" : "referencia",
+    "paramDesc" : "Referència cadastral",
+    "varParam" : "varReferencia",
+    "varParamDesc" : "Variable que conté la referència cadastral"
+  }],
+  "agrupacio" : "EXPEDIENTS"
+ }, 
+ 
+  {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientGrupModificarHandler",
+  "nom" : "Canviar el grup d'usuaris d'un expedient",
+  "descripcio" : "Aquest handler permet modificar el grup d'usuaris d'un expedient.",
+  "parametres" : [ 
+  	{
+	"codi": "grup",
+    "nom" : "Codi del nou grup",
+    "obligatori" : false,
+    "param" : "grup",
+    "paramDesc" : "Codi del nou grup",
+    "varParam" : "varGrup",
+    "varParamDesc" : "Variable que conté el codi del nou grup"
+  }],
+  "agrupacio" : "EXPEDIENTS"
+  }, 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientAturarHandler",
+  "nom" : "Aturar un expedient",
+  "descripcio" : "Aquest handler ens permet aturar temporalment la tramitació d'un expedient.",
+  "parametres" : [ 
+  	{
+	"codi": "motiu",
+    "nom" : "Motiu",
+    "obligatori" : false,
+    "param" : "motiu",
+    "paramDesc" : "Motiu pel qual s'ha aturat l'expedient",
+    "varParam" : "varMotiu",
+    "varParamDesc" : "Variable que conté el motiu pel qual s'ha aturat l'expedient"
+  }],
+  "agrupacio" : "EXPEDIENTS"
+ }, 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientReprendreHandler",
+  "nom" : "Reprendre un expedient aturat",
+  "descripcio" : "Handler que possibilita reprendre la tramitació d'un expedient aturat.",
+  "parametres" : [],
+  "agrupacio" : "EXPEDIENTS"
+ }, 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientFinalitzarHandler",
+  "nom" : "Finalitzar un expedient",
+  "descripcio" : "Handler que permet finalitzar l'expedient des de qualsevol node.",
+  "parametres" : [],
+  "agrupacio" : "EXPEDIENTS"
+ },
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientDesfinalitzarHandler",
+  "nom" : "Desfer Finalització d'un expedient",
+  "descripcio" : "Aquest handler ens permet desfinalitzar i reprendre un expedient depengent del valor que s'especifiqui als paràmetres.",
+  "parametres" : [ 
+   {
+	"codi": "reprendre",
+    "nom" : "Reprendre",
+    "obligatori" : false,
+    "param" : "reprendre",
+    "paramDesc" : "Indica si es reprèn o no l'expedient",
+    "varParam" : "varReprendre",
+    "varParamDesc" : "Variable que conté el valor per reprendre o no l'expedient"
+   }],
+  "agrupacio" : "EXPEDIENTS"
+ },   
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ProcesTitolModificarHandler",
+  "nom" : "Configuració del títol del subprocés",
+  "descripcio" : "Aquest handler ens permet configurar el títol amb el que es mostrarà el subprocés a dins el desplegable del subprocessos.",
+  "parametres" : [ 
+  	{
+	"codi": "titol",
+    "nom" : "nom",
+    "obligatori" : false,
+    "param" : "titol",
+    "paramDesc" : "Títol de l'expedient",
+    "varParam" : "varTitol",
+    "varParamDesc" : "Variable que conté el títol de l'expedient"
+  }],
+  "agrupacio" : "EXPEDIENTS"
+  },
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientBuidaLogHandler",
+  "nom" : "Buidar els logs",
+  "descripcio" : "Aquest handler ens permet buidar els logs de l'expedient.",
+  "parametres" : [],
+  "agrupacio" : "EXPEDIENTS"
+ },
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ExpedientConsultarHandler",
+  "nom" : "Consultar informació d'un Expedient i deixar la informació en variables",
+  "descripcio" : "Handler que permet consultar la informació d'un expedient.",
+  "parametres" : [ 
+  	{
+	"codi": "varRegistreNumero",
+    "nom" : "Número de registre",
+    "obligatori" : false,
+    "param" : "varRegistreNumero",
+    "paramDesc" : "Codi de la variable on guardar el número de registre de l'expedient",
+    "varParam" : null,
+    "varParamDesc" : null
+  	},{
+	"codi": "varTitol",
+    "nom" : "Títol de l'expedient",
+    "obligatori" : false,
+    "param" : "varTitol",
+    "paramDesc" : "Codi de la variable on guardar el títol de l'expedient",
+    "varParam" : null,
+    "varParamDesc" : null
+  	},{
+	"codi": "varNumero",
+    "nom" : "Número de l'expedient",
+    "obligatori" : false,
+    "param" : "varNumero",
+    "paramDesc" : "Variable on guardar el ´ número de l'expedient",
+    "varParam" : null,
+    "varParamDesc" : null
+  	},{
+	"codi": "varDataInici",
+    "nom" : "Data d'inici de l'expedient",
+    "obligatori" : false,
+    "param" : "varDataInici",
+    "paramDesc" : "Codi de la variable on guardar la data d'inici de l'expedient",
+    "varParam" : null,
+    "varParamDesc" : null
+  	}],
+  "agrupacio" : "EXPEDIENTS"
+  },  
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.DocumentEsborrarHandler",
+  "nom" : "Esborrar document",
+  "descripcio" : "Handler que permet esborrar un document d'un procés.",
+  "parametres" : [ 
+  	{
+	"codi": "documentCodi",
+    "nom" : "Codi del document a esborrar",
+    "obligatori" : false,
+    "param" : "documentCodi",
+    "paramDesc" : "Codi del document a esborrar",
+    "varParam" : "varDocumentCodi",
+    "varParamDesc" : "Variable que conté el codi del document a esborrar"
+  }],
+  "agrupacio" : "DOCUMENTS"
+ },  
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.DocumentEscriureProcesPareHandler",
+  "nom" : "Copiar un document a un procés pare",
+  "descripcio" : "Aquest handler permet lligar un document d'un procés fill al procés pare d'on aquest prové.",
+  "parametres" : [ 
+  	{
+	"codi": "documentCodi",
+    "nom" : "Codi del document a copiar",
+    "obligatori" : false,
+    "param" : "documentCodi",
+    "paramDesc" : "Codi del document a copiar",
+    "varParam" : "varDocumentCodi",
+    "varParamDesc" : "Variable que conté el codi del document a copiar"
+  }],
+  "agrupacio" : "DOCUMENTS"
+ },
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.DocumentLlegirProcesPareHandler",
+  "nom" : "Copiar un document des d'un procés pare",
+  "descripcio" : "Aquest handler permet lligar un document d'un procés pare al procés actual.",
+  "parametres" : [ 
+  	{
+	"codi": "documentCodi",
+    "nom" : "Codi del document a copiar",
+    "obligatori" : false,
+    "param" : "documentCodi",
+    "paramDesc" : "Codi del document a copiar",
+    "varParam" : "varDocumentCodi",
+    "varParamDesc" : "Variable que conté el codi del document a copiar"
+  }],
+  "agrupacio" : "DOCUMENTS"
+ },  
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.DocumentExpedientCopiarDestiHandler",
+  "nom" : "Copiar un document des de l'expedient actual",
+  "descripcio" : "Handler que permet copiar un document des de l'expedient actual a un altre expedient.",
+  "parametres" : [ 
+   {
+	"codi": "destiExpedientTipus",
+    "nom" : "Codi del tipus de l'expedient destí",
+    "obligatori" : false,
+    "param" : "destiExpedientTipus",
+    "paramDesc" : "Codi del tipus de l'expedient destí",
+    "varParam" : "varDestiExpedientTipus",
+    "varParamDesc" : "Variable que conté el codi del tipus de l'expedient destí"
+   },{
+	"codi": "destiExpedientNumero",
+    "nom" : "Número de l'expedient destí",
+    "obligatori" : false,
+    "param" : "destiExpedientNumero",
+    "paramDesc" : "Número de l'expedient destí",
+    "varParam" : "varDestiExpedientNumero",
+    "varParamDesc" : "Variable que conté el número de l'expedient destí"
+   },{
+	"codi": "destiExpedientDocument",
+    "nom" : "Codi del document a l'expedient destí",
+    "obligatori" : false,
+    "param" : "destiExpedientDocument",
+    "paramDesc" : "Codi del document a l'expedient destí",
+    "varParam" : "varDestiExpedientDocument",
+    "varParamDesc" : "Variable que conté el codi del document a l'expedient destí"
+   },{
+	"codi": "documentCodi",
+    "nom" : "Codi del document a copiar",
+    "obligatori" : true,
+    "param" : "documentCodi",
+    "paramDesc" : "Codi del document a copiar",
+    "varParam" : "varDocumentCodi",
+    "varParamDesc" : "Variable que conté el codi del document a copiar"
+   }],
+  "agrupacio" : "DOCUMENTS"
+ },  
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.DocumentExpedientCopiarOrigenHandler",
+  "nom" : "Copiar un document a l'expedient actual",
+  "descripcio" : "Handler que permet copiar un document des d'un expedient origen a l'expedient actual.",
+  "parametres" : [ 
+   {
+	"codi": "origenExpedientTipus",
+    "nom" : "Codi del tipus de l'expedient origen",
+    "obligatori" : false,
+    "param" : "origenExpedientTipus",
+    "paramDesc" : "Codi del tipus de l'expedient origen",
+    "varParam" : "varOrigenExpedientTipus",
+    "varParamDesc" : "Variable que conté el codi del tipus de l'expedient origen"
+   },{
+	"codi": "origenExpedientNumero",
+    "nom" : "Número de l'expedient origen",
+    "obligatori" : false,
+    "param" : "origenExpedientNumero",
+    "paramDesc" : "Número de l'expedient origen",
+    "varParam" : "varOrigenExpedientNumero",
+    "varParamDesc" : "Variable que conté el número de l'expedient origen"
+   },{
+	"codi": "origenExpedientDocument",
+    "nom" : "Codi del document a l'expedient origen",
+    "obligatori" : false,
+    "param" : "origenExpedientDocument",
+    "paramDesc" : "Codi del document a l'expedient origen",
+    "varParam" : "varOrigenExpedientDocument",
+    "varParamDesc" : "Variable que conté el codi del document a l'expedient origen"
+   },{
+	"codi": "documentCodi",
+    "nom" : "Codi del document a copiar",
+    "obligatori" : true,
+    "param" : "documentCodi",
+    "paramDesc" : "Codi del document a copiar",
+    "varParam" : "varDocumentCodi",
+    "varParamDesc" : "Variable que conté el codi del document a copiar"
+   }],  "agrupacio" : "DOCUMENTS"
+ },  
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.DocumentGenerarHandler",
+  "nom" : "Generar un document",
+  "descripcio" : "Handler per generar un document de forma automàtica a partir d'una plantilla.",
+  "parametres" : [ 
+   {
+	"codi": "documentCodi",
+    "nom" : "Codi del document a crear",
+    "obligatori" : true,
+    "param" : "documentCodi",
+    "paramDesc" : "Codi del document a crear",
+    "varParam" : "varDocumentCodi",
+    "varParamDesc" : "Variable que conté el codi del document a crear"
+   },{
+	"codi": "data",
+    "nom" : "Data amb què es crearà el document",
+    "obligatori" : false,
+    "param" : "data",
+    "paramDesc" : "Data amb què es crearà el document",
+    "varParam" : "varData",
+    "varParamDesc" : "Variable que conté la data del document"
+  }],
+  "agrupacio" : "DOCUMENTS"
+ },  
+
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.PortasignaturesHandler",
+  "nom" : "Enviament d'un document al portasignatures",
+  "descripcio" : "Aquest handler ens permet enviar un document a signar al portasignatures. El document pot passar per tres passes de signatura, i on en cada passa es pot signar per una o més persones.",
+  "parametres" : [ 
+  	{
+	"codi": "responsableCodi",
+    "nom" : "Codi del responsable",
+    "obligatori" : false,
+    "param" : "responsableCodi",
+    "paramDesc" : "Codi de l'usuari responsable que ha de signar el document",
+    "varParam" : "varResponsableCodi",
+    "varParamDesc" : "Variable que conté el codi de l'usuari responsable que ha de signar el document."
+	},{
+	"codi": "pas1Responsables",
+    "nom" : "Pas 1: Codis dels usuaris responsables de la signatura del document, separats per comes",
+    "obligatori" : false,
+    "param" : "pas1Responsables",
+    "paramDesc" : "Pas 1: Codis dels usuaris responsables de la signatura del document, separats per comes",
+    "varParam" : "varPas1Responsables",
+    "varParamDesc" : "Pas 1: Variable que conté els codis dels usuaris responsables de la signatura del document"
+	},{
+	"codi": "pas1MinSignataris",
+    "nom" : "Pas 1: Número mínim de responsables que han d'haver signat abans d'anar al pas 2",
+    "obligatori" : false,
+    "param" : "pas1MinSignataris",
+    "paramDesc" : "Pas 1: Número mínim de responsables que han d'haver signat abans d'anar al pas 2",
+    "varParam" : "varPas1MinSignataris",
+    "varParamDesc" : "Pas 1: Variable que conté el número mínim de responsables que han d'haver signat abans d'anar al pas 2"
+	},{
+	"codi": "pas2Responsables",
+    "nom" : "Pas 2: Codis dels usuaris responsables de la signatura del document, separats per comes",
+    "obligatori" : false,
+    "param" : "pas2Responsables",
+    "paramDesc" : "Pas 2: Codis dels usuaris responsables de la signatura del document, separats per comes",
+    "varParam" : "varPas2Responsables",
+    "varParamDesc" : "Pas 2: Variable que conté els codis dels usuaris responsables de la signatura del document"
+	},{
+	"codi": "pas2MinSignataris",
+    "nom" : "Pas 2: Número mínim de responsables que han d'haver signat abans d'anar al pas 3",
+    "obligatori" : false,
+    "param" : "pas2MinSignataris",
+    "paramDesc" : "Pas 2: Número mínim de responsables que han d'haver signat abans d'anar al pas 3",
+    "varParam" : "varPas2MinSignataris",
+    "varParamDesc" : "Pas 2: Variable que conté el número mínim de responsables que han d'haver signat abans d'anar al pas 3"
+	},{
+	"codi": "pas3Responsables",
+    "nom" : "Pas 3: Codis dels usuaris responsables de la signatura del document, separats per comes",
+    "obligatori" : false,
+    "param" : "pas3Responsables",
+    "paramDesc" : "Pas 3: Codis dels usuaris responsables de la signatura del document, separats per comes",
+    "varParam" : "varPas3Responsables",
+    "varParamDesc" : "Pas 3: Variable que conté els codis dels usuaris responsables de la signatura del document"
+	},{
+	"codi": "pas3MinSignataris",
+    "nom" : "Pas 3: Número mínim de responsables que han d'haver signat per considerar el document com signat",
+    "obligatori" : false,
+    "param" : "pas3MinSignataris",
+    "paramDesc" : "Pas 3: Número mínim de responsables que han d'haver signat per considerar el document com signat",
+    "varParam" : "varPas3MinSignataris",
+    "varParamDesc" : "Pas 3: Variable que conté el número mínim de responsables que han d'haver signat per considerar el document com signat"
+	},{
+	"codi": "document",
+    "nom" : "Codi del document a signar",
+    "obligatori" : false,
+    "param" : "document",
+    "paramDesc" : "Codi del document a signar",
+    "varParam" : "varDocument",
+    "varParamDesc" : "Variable que conté el Codi del document a signar"
+	},{
+	"codi": "annexos",
+    "nom" : "Codis dels documents annexos de consulta que acompanyen al document a signar",
+    "obligatori" : false,
+    "param" : "annexos",
+    "paramDesc" : "Codis dels documents annexos de consulta que acompanyen al document a signar",
+    "varParam" : "varAnnexos",
+    "varParamDesc" : "Variable que conté els codis dels documents annexos de consulta que acompanyen al document a signar"
+	},{
+	"codi": "importancia",
+    "nom" : "Importància de la signatura del document",
+    "obligatori" : false,
+    "param" : "importancia",
+    "paramDesc" : "Importància de la signatura del document",
+    "varParam" : "varImportancia",
+    "varParamDesc" : "Variable que conté la importància de la signatura del document"
+	},{
+	"codi": "dataLimit",
+    "nom" : "Data límit per a signar el document",
+    "obligatori" : false,
+    "param" : "dataLimit",
+    "paramDesc" : "Data límit per a signar el document",
+    "varParam" : "varDataLimit",
+    "varParamDesc" : "Variable que conté la data límit per a signar el document"
+	},{
+	"codi": "transicioOK",
+    "nom" : "Transició de sortida per a signatura correcta",
+    "obligatori" : false,
+    "param" : "transicioOK",
+    "paramDesc" : "Transició de sortida per a signatura correcta",
+    "varParam" : "varTransicioOK",
+    "varParamDesc" : "Variable que conté la transició de sortida per a signatura amb errors"
+	}],
+  "agrupacio" : "DOCUMENTS"
+ },
+ 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.DocumentAdjuntarHandler",
+  "nom" : "Adjuntar un document",
+  "descripcio" : "Handler per adjuntar un document al procés.",
+  "parametres" : [ 
+  	{
+	"codi": "documentOrigen",
+    "nom" : "Document original a adjuntar",
+    "obligatori" : true,
+    "param" : "documentOrigen",
+    "paramDesc" : "Codi del document original a adjuntar",
+    "varParam" : "varDocumentOrigen",
+    "varParamDesc" : "Variable que conté el codi del document original a adjuntar"
+  },{
+	"codi": "titol",
+    "nom" : "Text pel títol del document",
+    "obligatori" : false,
+    "param" : "titol",
+    "paramDesc" : "Text pel títol del document",
+    "varParam" : "varTitol",
+    "varParamDesc" : "Variable que conté el text pel títol del document"
+  },{
+	"codi": "data",
+    "nom" : "Valor per la data del document",
+    "obligatori" : false,
+    "param" : "data",
+    "paramDesc" : "Valor per la data del document",
+    "varParam" : "varData",
+    "varParamDesc" : "Variable que conté el valor per la data del document"
+  },{
+	"codi": "concatenarTitol",
+    "nom" : "Indica si concatenar el títol al nom del document original",
+    "obligatori" : false,
+    "param" : "concatenarTitol",
+    "paramDesc" : "Indica si concatenar el títol al nom del document original",
+    "varParam" : null,
+    "varParamDesc" : null
+  },{
+	"codi": "esborrarDocument",
+    "nom" : "Indica si esborrar el document de l'expedient després d'adjuntar-lo",
+    "obligatori" : false,
+    "param" : "esborrarDocument",
+    "paramDesc" : "Indica si esborrar el document de l'expedient després d'adjuntar-lo",
+    "varParam" : null,
+    "varParamDesc" : null
+  }],
+  "agrupacio" : "DOCUMENTS"
+ },
+ 
+ 
+  {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.DocumentConsultarHandler",
+  "nom" : "Consultar el CSV o URL de verificació de firmes d'un document firmat",
+  "descripcio" : "Handler per consultar el codi CSV i/o la URL de verificació de firmes d'un document firmat.",
+  "parametres" : [ 
+  	{
+	"codi": "document",
+    "nom" : "Document",
+    "obligatori" : true,
+    "param" : "document",
+    "paramDesc" : "Codi del document a consultar",
+    "varParam" : "varDocument",
+    "varParamDesc" : "Variable que conté el codi del document a consultar"
+  }, {
+	"codi": "varCsv",
+    "nom" : "Variable pel CSV",
+    "obligatori" : false,
+    "param" : "varCsv",
+    "paramDesc" : "Codi de la variable on guardar el codi CSV del document.",
+    "varParam" : null,
+    "varParamDesc" : null
+  }, {
+	"codi": "varUrl",
+    "nom" : "Variable pel la URL",
+    "obligatori" : false,
+    "param" : "varUrl",
+    "paramDesc" : "Codi de la variable on guardar la URL de verificació de firmes del document.",
+    "varParam" : null,
+    "varParamDesc" : null
+  }],
+  "agrupacio" : "EXPEDIENTS"
+ },
+ 
+ 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.AlertaCrearHandler",
+  "nom" : "Crear alerta",
+  "descripcio" : "Aquest handler ens permet enviar una alerta a un usuari.",
+  "parametres" : [ {
+	"codi": "usuari",
+    "nom" : "Usuari",
+    "obligatori" : false,
+    "param" : "usuari",
+    "paramDesc" : "Usuari destinatari de l'alerta",
+    "varParam" : "varUsuari",
+    "varParamDesc" : "Variable que conté l'usuari destinatari de l'alerta"
+  }, {
+	"codi": "text",
+    "nom" : "Text",
+    "obligatori" : true,
+    "param" : "text",
+    "paramDesc" : "Text de l'alerta",
+    "varParam" : "varText",
+    "varParamDesc" : "Variable que conté el text de l'alerta"
+  } ],
+  "agrupacio" : "ALERTES"
+ },
+ 
+  {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.TerminiIniciarHandler",
+  "nom" : "Iniciar un termini",
+  "descripcio" : "Aquest handler ens permet iniciar un termini. Aquest termini pot ser un termini de la definició de procés o correspondre a una variable de tipus termini. La data d'inici es pot calcular segons la definició del termini o bé passar-se com paràmetre. També es pot calcular la data d'inici passant una data final a partir de la qual s'hagi de calcular.",
+  "parametres" : [ 
+  	{
+	"codi": "terminiCodi",
+    "nom" : "Codi del termin",
+    "obligatori" : true,
+    "param" : "terminiCodi",
+    "paramDesc" : "Codi del termini",
+    "varParam" : "varTerminiCodi",
+    "varParamDesc" : "Variable que conté el codi del termini iniciat"
+  },{
+	"codi": "varData",
+    "nom" : "Variable data",
+    "obligatori" : false,
+    "param" : null,
+    "paramDesc" :null,
+    "varParam" : "varData",
+    "varParamDesc" : "Variable que conté la data en la que s'ha d'iniciar el termini."
+  },{
+	"codi": "sumarUnDia",
+    "nom" : "Sumar un dia",
+    "obligatori" : false,
+    "param" : "sumarUnDia",
+    "paramDesc" : "Indica si sumar un dia a la data d'inici calculada. Basta informar qualsevol valor",
+    "varParam" : null,
+    "varParamDesc" : null
+  },{
+	"codi": "varTermini",
+    "nom" : "Variable termini",
+    "obligatori" : false,
+    "param" : "varTermini",
+    "paramDesc" : "Variable de tipus termini",
+    "varParam" : null,
+    "varParamDesc" : null
+  },{
+	"codi": "esDataFi",
+    "nom" : "És data fi",
+    "obligatori" : false,
+    "param" : "esDataFi",
+    "paramDesc" : "Indica si varData és la data final del termini. En aquest cas, es calcula la data inici a partir de la data final. S'ha de posar el valor 'true'",
+    "varParam" : null,
+    "varParamDesc" : null
+  }],
+  "agrupacio" : "TERMINIS"
+ },
+  {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.TerminiPausarHandler",
+  "nom" : "Aturar un termini",
+  "descripcio" : "Aquest handler ens permet aturar temporalment un termini iniciat.",
+  "parametres" : [ 
+  	{
+	"codi": "terminiCodi",
+    "nom" : "Codi del termini iniciat",
+    "obligatori" : true,
+    "param" : "terminiCodi",
+    "paramDesc" : "Codi del termini iniciat",
+    "varParam" : "varTerminiCodi",
+    "varParamDesc" : "Variable que conté el codi del termini iniciat"
+  },{
+	"codi": "varData",
+    "nom" : "Variable data",
+    "obligatori" : false,
+    "param" : null,
+    "paramDesc" : null,
+    "varParam" : "varData",
+    "varParamDesc" : "Variable que conté la data en la que s'ha d'aturar el termini"
+  }],
+  "agrupacio" : "TERMINIS"
+ },
+  {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.TerminiContinuarHandler",
+  "nom" : "Continuar un termini aturat",
+  "descripcio" : "Aquest handler ens permet continuar un termini aturat.",
+  "parametres" : [ 
+  	{
+	"codi": "terminiCodi",
+    "nom" : "Codi del termini iniciat",
+    "obligatori" : true,
+    "param" : "terminiCodi",
+    "paramDesc" : "Codi del termini iniciat",
+    "varParam" : "varTerminiCodi",
+    "varParamDesc" : "Variable que conté el codi del termini iniciat"
+  },{
+	"codi": "varData",
+    "nom" : "Variable data",
+    "obligatori" : false,
+    "param" : null,
+    "paramDesc" : null,
+    "varParam" : "varData",
+    "varParamDesc" : "Variable que conté la data en la que s'ha de continuar el termini"
+  }],
+  "agrupacio" : "TERMINIS"
+ },
+  {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.TerminiCancelarHandler",
+  "nom" : "Cancel·lar un termini iniciat",
+  "descripcio" : "Aquest handler ens permet cancel·lar un termini iniciat.",
+  "parametres" : [ 
+  	{
+	"codi": "terminiCodi",
+    "nom" : "Codi del termini iniciat",
+    "obligatori" : true,
+    "param" : "terminiCodi",
+    "paramDesc" : "Codi del termini iniciat",
+    "varParam" : "varTerminiCodi",
+    "varParamDesc" : "Variable que conté el codi del termini iniciat"
+  },{
+	"codi": "varData",
+    "nom" : "Variable data",
+    "obligatori" : false,
+    "param" : null,
+    "paramDesc" : null,
+    "varParam" : "varData",
+    "varParamDesc" : "Variable que conté la data en la que s'ha de cancel·lar el termini"
+  }],
+  "agrupacio" : "TERMINIS"
+ },
+  {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.TerminiCalcularDataIniciHandler",
+  "nom" : "Calcular data inici d'un termini",
+  "descripcio" : "Handler que calcula la data d'inici d'un temini. Aquest termini pot ser un termini de la definició de procés o correspondre a una variable de tipus termini.",
+  "parametres" : [ 
+  	{
+	"codi": "terminiCodi",
+    "nom" : "Codi del termini iniciat",
+    "obligatori" : true,
+    "param" : "terminiCodi",
+    "paramDesc" : "Codi del termini iniciat",
+    "varParam" : "varTerminiCodi",
+    "varParamDesc" : "Variable que conté el codi del termini iniciat"
+  },{
+	"codi": "varData",
+    "nom" : "Variable data",
+    "obligatori" : false,
+    "param" : null,
+    "paramDesc" : null,
+    "varParam" : "varData",
+    "varParamDesc" : "Variable que conté la data final a partir de la qual calcular la data inicial del termini"
+  },{
+	"codi": "restarUnDia",
+    "nom" : "Restar un dia",
+    "obligatori" : false,
+    "param" : "restarUnDia",
+    "paramDesc" : "Restar un dia a la data inici calculada",
+    "varParam" : null,
+    "varParamDesc" : null
+  },{
+	"codi": "varTermini",
+    "nom" : "Variable de tipus termini",
+    "obligatori" : false,
+    "param" : "varTermini",
+    "paramDesc" : "Variable de tipus termini",
+    "varParam" : null,
+    "varParamDesc" : null
+  },{
+	"codi": "varDataInici",
+    "nom" : "Variable on guardar la data d'inici",
+    "obligatori" : true,
+    "param" : "varDataInici",
+    "paramDesc" : "Codi de la variable on guardar la data d'inici calculada",
+    "varParam" : null,
+    "varParamDesc" : null
+  	}],
+  "agrupacio" : "TERMINIS"
+ },
+{
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.TerminiCalcularDataFiHandler",
+  "nom" : "Calcular data fi d'un termini",
+  "descripcio" : "Handler que calcula la data fi d'un temini. Aquest termini pot ser un termini de la definició de procés o correspondre a una variable de tipus termini.",
+  "parametres" : [ 
+  	{
+	"codi": "terminiCodi",
+    "nom" : "Codi del termini iniciat",
+    "obligatori" : true,
+    "param" : "terminiCodi",
+    "paramDesc" : "Codi del termini iniciat",
+    "varParam" : "varTerminiCodi",
+    "varParamDesc" : "Variable que conté el codi del termini iniciat"
+  },{
+	"codi": "varData",
+    "nom" : "Variable data",
+    "obligatori" : false,
+    "param" : null,
+    "paramDesc" : null,
+    "varParam" : "varData",
+    "varParamDesc" : "Variable que conté la data final a partir de la qual calcular la data inicial del termini"
+  },{
+	"codi": "sumarUnDia",
+    "nom" : "Sumpar un dia",
+    "obligatori" : false,
+    "param" : "sumarUnDia",
+    "paramDesc" : "Sumar un dia a la data inici calculada",
+    "varParam" : null,
+    "varParamDesc" : null
+  },{
+	"codi": "varTermini",
+    "nom" : "Variable de tipus termini",
+    "obligatori" : false,
+    "param" : "varTermini",
+    "paramDesc" : "Variable de tipus termini",
+    "varParam" : null,
+    "varParamDesc" : null
+  },{
+	"codi": "varDataFi",
+    "nom" : "Variable on guardar la data de fi",
+    "obligatori" : true,
+    "param" : "varDataFi",
+    "paramDesc" : "Codi de la variable on guardar la data de fi calculada",
+    "varParam" : null,
+    "varParamDesc" : null
+  	}],
+  "agrupacio" : "TERMINIS"
+ }, 
+ 
+  {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.TerminiVariableGuardarHandler",
+  "nom" : "Configurar termini",
+  "descripcio" : "Handler que permet configurar una variable de tipus termini. La seva durada es pot definir en anys, mesos i dies.",
+  "parametres" : [ 
+  	{
+	"codi": "varTermini",
+    "nom" : "Variable on guardar el termini",
+    "obligatori" : true,
+    "param" : "varTermini",
+    "paramDesc" : "Variable on guardar el termini",
+    "varParam" : null,
+    "varParamDesc" : null
+  },{
+	"codi": "anys",
+    "nom" : "Anys",
+    "obligatori" : true,
+    "param" : "anys",
+    "paramDesc" : "Número d'anys de la durada del termini",
+    "varParam" : "varAnys",
+    "varParamDesc" : "Variable que conté el número d'anys de la durada del termini"
+  },{
+	"codi": "mesos",
+    "nom" : "Mesos",
+    "obligatori" : true,
+    "param" : "mesos",
+    "paramDesc" : "Número de mesos de la durada del termini",
+    "varParam" : "varMesos",
+    "varParamDesc" : "Variable que conté el número de mesos de la durada del termini"
+  },{
+	"codi": "dies",
+    "nom" : "Dies",
+    "obligatori" : true,
+    "param" : "dies",
+    "paramDesc" : "Número de dies de la durada del termini",
+    "varParam" : "varDies",
+    "varParamDesc" : "Variable que conté el número de dies de la durada del termini"
+  }],
+  "agrupacio" : "TERMINIS"
+ },
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.ConfigurarAmbTerminiHandler",
+  "nom" : "Configuració segons un termini iniciat",
+  "descripcio" : "Aquest handler ens permet configurar la data límit d'una instància de tasca o un timer amb la data de fi d'un termini iniciat.",
+  "parametres" : [ 
+  	{
+	"codi": "terminiCodi",
+    "nom" : "Codi del termini",
+    "obligatori" : true,
+    "param" : "terminiCodi",
+    "paramDesc" : "Codi del termini",
+    "varParam" : "varTerminiCodi",
+    "varParamDesc" : "Variable que conté el codi del termini"
+  }],
+  "agrupacio" : "TERMINIS"
+ },
+
+{
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.RegistreSortidaRegWeb3Handler",
+  "nom" : "Registrar sortida de document",
+  "descripcio" : "Aquest handler ens permet registrar la sortida d’un document.",
+  "parametres" : [ 
+  	{
+	"codi": "entitatCodi",
+    "nom" : "Codi DIR3 de l'entitat on enregistrar la sortida.",
+    "obligatori" : true,
+    "param" : "entitatCodi",
+    "paramDesc" : "Codi DIR3 de l'entitat on enregistrar la sortida.",
+    "varParam" : "varEntitatCodi",
+    "varParamDesc" : "Variable que conté el codi DIR3 de l'entitat on enregistrar la sortida."
+	},
+  	{
+	"codi": "organOrigen",
+    "nom" : "Codi DIR3 de l'òrtgan origen",
+    "obligatori" : true,
+    "param" : "organOrigen",
+    "paramDesc" : "Codi DIR3 de l'òrgan origen del registre de sortida.",
+    "varParam" : "varOrganOrigen",
+    "varParamDesc" : "Variable que conté el codi DIR3 de l'òrgan origen del registre de sortida."
+	},
+  	{
+	"codi": "oficinaCodi",
+    "nom" : "Codi de l'oficina",
+    "obligatori" : true,
+    "param" : "oficinaCodi",
+    "paramDesc" : "Codi de l'oficina on enregistrar la sortida.",
+    "varParam" : "varOficinaCodi",
+    "varParamDesc" : "Variable que conté el codi de l'oficina on enregistrar la sortida."
+	},
+  	{
+	"codi": "llibreCodi",
+    "nom" : "Codi del llibre",
+    "obligatori" : true,
+    "param" : "llibreCodi",
+    "paramDesc" : "Codi del llibre on enregistrar la sortida.",
+    "varParam" : "varLlibreCodi",
+    "varParamDesc" : "Variable que conté el codi del llibre on enregistrar la sortida."
+	},
+  	{
+	"codi": "extracte",
+    "nom" : "Extracte",
+    "obligatori" : true,
+    "param" : "extracte",
+    "paramDesc" : "Extracte del registre de sortida.",
+    "varParam" : "varExtracte",
+    "varParamDesc" : "Variable que conté el text per l'extracte del registre de sortida."
+	},
+  	{
+	"codi": "documentacioFisicaCodi",
+    "nom" : "Codi documentacio física",
+    "obligatori" : false,
+    "param" : "documentacioFisicaCodi",
+    "paramDesc" : "Codi de la documentació física.",
+    "varParam" : "varDocumentacioFisicaCodi",
+    "varParamDesc" : "Variable que conté el codi de la documentació física."
+	},
+  	{
+	"codi": "assumpteTipusCodi",
+    "nom" : "Codi del tipus d'assumpte",
+    "obligatori" : false,
+    "param" : "assumpteTipusCodi",
+    "paramDesc" : "Codi del tipus d'assumpte. En desús.",
+    "varParam" : "varAssumpteTipusCodi",
+    "varParamDesc" : "Variable que conté el codi pel tipus d'assumpte."
+	},
+  	{
+	"codi": "assumpteCodi",
+    "nom" : "Codi assumpte",
+    "obligatori" : false,
+    "param" : "assumpteCodi",
+    "paramDesc" : "Codi de l'assumpte.",
+    "varParam" : "varAssumpteCodi",
+    "varParamDesc" : "varParamDesc"
+	},
+  	{
+	"codi": "usuariCodi",
+    "nom" : "Codi usuari",
+    "obligatori" : false,
+    "param" : "usuariCodi",
+    "paramDesc" : "Codi de l'usuari pel registre de sortida.",
+    "varParam" : "varUsuariCodi",
+    "varParamDesc" : "Variable que conté el codi d'usuari pel registre de sortida."
+	},
+	
+	
+  	{
+	"codi": "interessatTipus",
+    "nom" : "Tipus interessat",
+    "obligatori" : false,
+    "param" : "interessatTipus",
+    "paramDesc" : "Tipus d'interessat. Els possibles valors són: '1' per administració, '2' per persona física i '3' per persona jurídica.",
+    "varParam" : "varInteressatTipus",
+    "varParamDesc" : "Variable que conté el valor pel tipus d'interessat."
+	},
+  	{
+	"codi": "interessatDocumentTipus",
+    "nom" : "Tipus document interessat",
+    "obligatori" : false,
+    "param" : "interessatDocumentTipus",
+    "paramDesc" : "Tipus de document de l'interessat. Els possibles valors són: 'N' per NIF, 'C' per CIF, 'P' per passaport, 'E' per estranger, 'X' per altres i 'O' per codi origen.",
+    "varParam" : "varInteressatDocumentTipus",
+    "varParamDesc" : "Variable que conté el valor pel tipus de document de l'interessat."
+	},
+  	{
+	"codi": "interessatDocumentNum",
+    "nom" : "Número de document de l'interessat.",
+    "obligatori" : false,
+    "param" : "interessatDocumentNum",
+    "paramDesc" : "Número de document de l'interessat.",
+    "varParam" : "varInteressatDocumentNum",
+    "varParamDesc" : "Variable que conté el número de document de l'interessat."
+	},
+  	{
+	"codi": "interessatEmail",
+    "nom" : "Email de l'interessat",
+    "obligatori" : false,
+    "param" : "interessatEmail",
+    "paramDesc" : "Email de l'interessat.",
+    "varParam" : "varInteressatEmail",
+    "varParamDesc" : "Variable que conté l'email de l'interessat."
+	},
+  	{
+	"codi": "interessatTelefon",
+    "nom" : "Teléfon interessat",
+    "obligatori" : false,
+    "param" : "interessatTelefon",
+    "paramDesc" : "Teléfon interessat.",
+    "varParam" : "varInteressatTelefon",
+    "varParamDesc" : "Variable que conté el teléfon de l'interessat."
+	},
+  	{
+	"codi": "interessatNom",
+    "nom" : "Nom de l'interessat",
+    "obligatori" : false,
+    "param" : "interessatNom",
+    "paramDesc" : "Nom de l'interessat.",
+    "varParam" : "varInteressatNom",
+    "varParamDesc" : "Variable que conté el nom de l'interessat."
+	},
+  	{
+	"codi": "interessatLlinatge1",
+    "nom" : "Llinatge 1 interessat",
+    "obligatori" : false,
+    "param" : "interessatLlinatge1",
+    "paramDesc" : "Llinatge 1 de l'interessat en cas de ser una persona física.",
+    "varParam" : "varInteressatLlinatge1",
+    "varParamDesc" : "Variable que conté el llinatge 1 de l'interessat en cas de ser persona física."
+	},
+  	{
+	"codi": "interessatLlinatge2",
+    "nom" : "Llinatge 2 interessat",
+    "obligatori" : false,
+    "param" : "interessatLlinatge2",
+    "paramDesc" : "Llinatge 2 de l'interessat en cas de tenir-ne.",
+    "varParam" : "varInteressatLlinatge2",
+    "varParamDesc" : "Variable que conté el llinatge 2 de l'interessat en cas de tenir-ne."
+	},
+  	{
+	"codi": "interessatRaoSocial",
+    "nom" : "Raó social de l'interessat",
+    "obligatori" : false,
+    "param" : "interessatRaoSocial",
+    "paramDesc" : "Raó social de l'interessat.",
+    "varParam" : "varInteressatRaoSocial",
+    "varParamDesc" : "Variable que conté el nom social de l'interessat."
+	},
+  	{
+	"codi": "interessatPais",
+    "nom" : "Codi país interessat",
+    "obligatori" : false,
+    "param" : "interessatPais",
+    "paramDesc" : "Codi del país de l'interessat.",
+    "varParam" : "varInteressatPais",
+    "varParamDesc" : "Variable que conté el codi del país de l'interessat."
+	},
+  	{
+	"codi": "interessatProvincia",
+    "nom" : "Codi província interessat",
+    "obligatori" : false,
+    "param" : "interessatProvincia",
+    "paramDesc" : "Codi de la província de l'interessat.",
+    "varParam" : "varInteressatProvincia",
+    "varParamDesc" : "Variable que conté el codi de la província de l'interessat."
+	},
+  	{
+	"codi": "interessatMunicipi",
+    "nom" : "Codi de municipi de l'interessat",
+    "obligatori" : false,
+    "param" : "interessatMunicipi",
+    "paramDesc" : "Codi de municipi de l'interessat.",
+    "varParam" : "varInteressatMunicipi",
+    "varParamDesc" : "Variable que conté el codi de municipi de l'interessat"
+	},
+  	{
+	"codi": "interessatCodiPostal",
+    "nom" : "Codi postal de l'interessat",
+    "obligatori" : false,
+    "param" : "interessatCodiPostal",
+    "paramDesc" : "Codi postal de l'interessat.",
+    "varParam" : "varInteressatCodiPostal",
+    "varParamDesc" : "Variable que conté el codi postal de l'interessat."
+	},
+  	{
+	"codi": "interessatAdresa",
+    "nom" : "Adreça interessat",
+    "obligatori" : false,
+    "param" : "interessatAdresa",
+    "paramDesc" : "Adreça interessat.",
+    "varParam" : "varInteressatAdresa",
+    "varParamDesc" : "Variable que conté l'adreça interessat."
+	},
+	
+	{
+	"codi": "representantTipus",
+    "nom" : "Tipus representant",
+    "obligatori" : false,
+    "param" : "representantTipus",
+    "paramDesc" : "Tipus d'representant. Els possibles valors són: '1' per administració, '2' per persona física i '3' per persona jurídica.",
+    "varParam" : "varrepresentantTipus",
+    "varParamDesc" : "Variable que conté el valor pel tipus de representant."
+	},
+  	{
+	"codi": "representantDocumentTipus",
+    "nom" : "Tipus document representant",
+    "obligatori" : false,
+    "param" : "representantDocumentTipus",
+    "paramDesc" : "Tipus de document del representant. Els possibles valors són: 'N' per NIF, 'C' per CIF, 'P' per passaport, 'E' per estranger, 'X' per altres i 'O' per codi origen.",
+    "varParam" : "varrepresentantDocumentTipus",
+    "varParamDesc" : "Variable que conté el valor pel tipus de document del representant."
+	},
+  	{
+	"codi": "representantDocumentNum",
+    "nom" : "Número de document del representant.",
+    "obligatori" : false,
+    "param" : "representantDocumentNum",
+    "paramDesc" : "Número de document del representant.",
+    "varParam" : "varrepresentantDocumentNum",
+    "varParamDesc" : "Variable que conté el número de document del representant."
+	},
+  	{
+	"codi": "representantEmail",
+    "nom" : "Email del representant",
+    "obligatori" : false,
+    "param" : "representantEmail",
+    "paramDesc" : "Email del representant.",
+    "varParam" : "varrepresentantEmail",
+    "varParamDesc" : "Variable que conté l'email del representant."
+	},
+  	{
+	"codi": "representantTelefon",
+    "nom" : "Teléfon representant",
+    "obligatori" : false,
+    "param" : "representantTelefon",
+    "paramDesc" : "Teléfon representant.",
+    "varParam" : "varrepresentantTelefon",
+    "varParamDesc" : "Variable que conté el teléfon del representant."
+	},
+  	{
+	"codi": "representantNom",
+    "nom" : "Nom del representant",
+    "obligatori" : false,
+    "param" : "representantNom",
+    "paramDesc" : "Nom del representant.",
+    "varParam" : "varrepresentantNom",
+    "varParamDesc" : "Variable que conté el nom del representant."
+	},
+  	{
+	"codi": "representantLlinatge1",
+    "nom" : "Llinatge 1 representant",
+    "obligatori" : false,
+    "param" : "representantLlinatge1",
+    "paramDesc" : "Llinatge 1 del representant en cas de ser una persona física.",
+    "varParam" : "varrepresentantLlinatge1",
+    "varParamDesc" : "Variable que conté el llinatge 1 del representant en cas de ser persona física."
+	},
+  	{
+	"codi": "representantLlinatge2",
+    "nom" : "Llinatge 2 representant",
+    "obligatori" : false,
+    "param" : "representantLlinatge2",
+    "paramDesc" : "Llinatge 2 del representant en cas de tenir-ne.",
+    "varParam" : "varrepresentantLlinatge2",
+    "varParamDesc" : "Variable que conté el llinatge 2 del representant en cas de tenir-ne."
+	},
+  	{
+	"codi": "representantRaoSocial",
+    "nom" : "Raó social del representant",
+    "obligatori" : false,
+    "param" : "representantRaoSocial",
+    "paramDesc" : "Raó social del representant.",
+    "varParam" : "varrepresentantRaoSocial",
+    "varParamDesc" : "Variable que conté el nom social del representant."
+	},
+  	{
+	"codi": "representantPais",
+    "nom" : "Codi país representant",
+    "obligatori" : false,
+    "param" : "representantPais",
+    "paramDesc" : "Codi del país del representant.",
+    "varParam" : "varrepresentantPais",
+    "varParamDesc" : "Variable que conté el codi del país del representant."
+	},
+  	{
+	"codi": "representantProvincia",
+    "nom" : "Codi província representant",
+    "obligatori" : false,
+    "param" : "representantProvincia",
+    "paramDesc" : "Codi de la província del representant.",
+    "varParam" : "varrepresentantProvincia",
+    "varParamDesc" : "Variable que conté el codi de la província del representant."
+	},
+  	{
+	"codi": "representantMunicipi",
+    "nom" : "Codi de municipi del representant",
+    "obligatori" : false,
+    "param" : "representantMunicipi",
+    "paramDesc" : "Codi de municipi del representant.",
+    "varParam" : "varrepresentantMunicipi",
+    "varParamDesc" : "Variable que conté el codi de municipi del representant"
+	},
+  	{
+	"codi": "representantCodiPostal",
+    "nom" : "Codi postal del representant",
+    "obligatori" : false,
+    "param" : "representantCodiPostal",
+    "paramDesc" : "Codi postal del representant.",
+    "varParam" : "varrepresentantCodiPostal",
+    "varParamDesc" : "Variable que conté el codi postal del representant."
+	},
+  	{
+	"codi": "representantAdresa",
+    "nom" : "Adreça representant",
+    "obligatori" : false,
+    "param" : "representantAdresa",
+    "paramDesc" : "Adreça representant.",
+    "varParam" : "varrepresentantAdresa",
+    "varParamDesc" : "Variable que conté l'adreça representant."
+	},
+	
+  	{
+	"codi": "idiomaCodi",
+    "nom" : "Codi de l'idioma del registre",
+    "obligatori" : false,
+    "param" : "idiomaCodi",
+    "paramDesc" : "Codi de l'idioma en què es fa l'assentament. Els codis disponibles són: 'ca' pel català, 'es' pel castellà, 'gl' pel gallec, 'eu' pel basc i 'en' per l'anglès.",
+    "varParam" : "varIdiomaCodi",
+    "varParamDesc" : "Variable que conté el codi de l'idioma en què es fa l'assentament."
+	},
+  	{
+	"codi": "codiDocument",
+    "nom" : "Codi del document",
+    "obligatori" : false,
+    "param" : "codiDocument",
+    "paramDesc" : "Codi del document que s'enregistra.",
+    "varParam" : "varCodiDocument",
+    "varParamDesc" : "Variable que conté el codi del document que s'enregistra."
+	},
+  	{
+	"codi": "documentValidesa",
+    "nom" : "Validesa document",
+    "obligatori" : false,
+    "param" : "documentValidesa",
+    "paramDesc" : "Validesa del document.",
+    "varParam" : "varDocumentValidesa",
+    "varParamDesc" : "Variable que conté la validesa del document."
+	},
+  	{
+	"codi": "documentTipus",
+    "nom" : "Tipus de document",
+    "obligatori" : false,
+    "param" : "documentTipus",
+    "paramDesc" : "Tipus de document.",
+    "varParam" : "varDocumentTipus",
+    "varParamDesc" : "Variable que conté el tipus de document."
+	},
+  	{
+	"codi": "documentTipusDocumental",
+    "nom" : "Tipus documental del document",
+    "obligatori" : false,
+    "param" : "documentTipusDocumental",
+    "paramDesc" : "Tipus documental del document.",
+    "varParam" : "varDocumentTipusDocumental",
+    "varParamDesc" : "Variable que conté el tipus documental del document."
+	},
+  	{
+	"codi": "documentOrigen",
+    "nom" : "Origen document",
+    "obligatori" : false,
+    "param" : "documentOrigen",
+    "paramDesc" : "Especifica l'origen del document si és de l'administració o del ciutadà.",
+    "varParam" : "varDocumentOrigen",
+    "varParamDesc" : "Variable per especifica l'origen del document si és de l'administració o del ciutadà."
+	},
+  	{
+	"codi": "documentObservacions",
+    "nom" : "Observacions document",
+    "obligatori" : false,
+    "param" : "documentObservacions",
+    "paramDesc" : "Observacions del document.",
+    "varParam" : "varDocumentObservacions",
+    "varParamDesc" : "Variable que conté el text de les observacions del document."
+	},
+  	{
+	"codi": "documentModeFirma",
+    "nom" : "Mode de firma del document",
+    "obligatori" : false,
+    "param" : "documentModeFirma",
+    "paramDesc" : "Mode de firma del document. És un valor numéric.",
+    "varParam" : "varDocumentModeFirma",
+    "varParamDesc" : "Variable que conté el valor del mode de firma del document."
+	},
+  	{
+	"codi": "varNumeroRegistre",
+    "nom" : "Variable on guardar el número de registre",
+    "obligatori" : false,
+    "param" : "varNumeroRegistre",
+    "paramDesc" : "Codi de la variable on guardar el número de registre un cop enregistrada la sortida del document.",
+    "varParam" : null,
+    "varParamDesc" : null
+	},
+  	{
+	"codi": "varDataRegistre",
+    "nom" : "Variable on guardar la data de registre",
+    "obligatori" : false,
+    "param" : "varDataRegistre",
+    "paramDesc" : "Codi de la variable on guardar la data de registre un cop enregistrada la sortida del document.",
+    "varParam" : null,
+    "varParamDesc" : null
+	}
+	],
+  "agrupacio" : "REGISTRE"
+ },
+ 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.InteressatCrearHandler",
+  "nom" : "Crear interessar",
+  "descripcio" : "Aquest handler crea interessat.",
+  "parametres" : [ 
+  	{
+	"codi": "codi",
+    "nom" : "Codi de l'interessat",
+    "obligatori" : true,
+    "param" : "codi",
+    "paramDesc" : "Codi de l'interessat",
+    "varParam" : "varCodi",
+    "varParamDesc" : "Variable que conté codi de l'interessatCodi de l'interessat"
+  }, {
+	"codi": "nom",
+    "nom" : "Nom de l'interessat",
+    "obligatori" : true,
+    "param" : "nom",
+    "paramDesc" : "Nom de l'interessat",
+    "varParam" : "varNom",
+    "varParamDesc" : "Variable que conté nom de l'interessatCodi de l'interessat"
+  }, {
+	"codi": "nif",
+    "nom" : "Nif de l'interessat",
+    "obligatori" : true,
+    "param" : "nif",
+    "paramDesc" : "Nif de l'interessat",
+    "varParam" : "varNif",
+    "varParamDesc" : "Variable que conté nif de l'interessatCodi de l'interessat"
+  }, {
+	"codi": "dir3Codi",
+    "nom" : "Codi DIR3",
+    "obligatori" : false,
+    "param" : "dir3Codi",
+    "paramDesc" : "Codi DIR3 quan l'interessat és del tipus administració",
+    "varParam" : "varDir3Codi",
+    "varParamDesc" : "Variable que conté el codi DIR3 per interessats de tipus administració."
+  }, {
+	"codi": "llinatge1",
+    "nom" : "Primer llinatge de l'interessat",
+    "obligatori" : false,
+    "param" : "llinatge1",
+    "paramDesc" : "Primer llinatge de l'interessat",
+    "varParam" : "varLlinatge1",
+    "varParamDesc" : "Variable que conté primer llinatge1 de l'interessatCodi de l'interessat"
+  }, {
+	"codi": "llinatge2",
+    "nom" : "Segon llinatge de l'interessat",
+    "obligatori" : false,
+    "param" : "llinatge2",
+    "paramDesc" : "Segon llinatge de l'interessat",
+    "varParam" : "varLlinatge2",
+    "varParamDesc" : "Variable que conté segon llinatge de l'interessatCodi de l'interessat"
+  }, {
+	"codi": "tipus",
+    "nom" : "Tipus de l'interessat",
+    "obligatori" : true,
+    "param" : "tipus",
+    "paramDesc" : "Tipus de l'interessat. Valors 'ADMINISTRACIO', 'FISICA' o 'JURIDICA'.",
+    "varParam" : "varTipus",
+    "varParamDesc" : "Variable que conté el valor pel tipus de l'interessat"
+  }, {
+	"codi": "email",
+    "nom" : "Email de l'interessat",
+    "obligatori" : false,
+    "param" : "email",
+    "paramDesc" : "Email de l'interessat",
+    "varParam" : "varEmail",
+    "varParamDesc" : "Variable que conté email de l'interessat"
+  }, {
+	"codi": "telefon",
+    "nom" : "Telefon de l'interessat",
+    "obligatori" : false,
+    "param" : "telefon",
+    "paramDesc" : "Telefon de l'interessat",
+    "varParam" : "varTelefon",
+    "varParamDesc" : "Variable que conté telefon de l'interessat"
+  }, {
+	"codi": "entregaPostal",
+    "nom" : "Entrega postal activa",
+    "obligatori" : false,
+    "param" : "entregaPostal",
+    "paramDesc" : "Entrega postal activa. Valors 'true' o 'false'.",
+    "varParam" : "varEntregaPostal",
+    "varParamDesc" : "Variable que conté el valor true o false de si l'interessat té l'entrega postal activa"
+  }, {
+	"codi": "entregaTipus",
+    "nom" : "Tipus d'entrega",
+    "obligatori" : false,
+    "param" : "entregaTipus",
+    "paramDesc" : "Valor pel tipus d'entrega. Els valors poden ser 'NACIONAL', 'ESTRANGER', 'APARTAT_CORREUS' o 'SENSE_NORMALITZAR'",
+    "varParam" : "varEntregaTipus",
+    "varParamDesc" : "Valor que conté el valor pel tipus d'entrega."
+  }, {
+	"codi": "linia1",
+    "nom" : "Línia 1 adreça",
+    "obligatori" : false,
+    "param" : "linia1",
+    "paramDesc" : "Línia 1 de l'adreça",
+    "varParam" : "varLinia1",
+    "varParamDesc" : "Variable que conté el valor per la línia 1 de l'adreça"
+  }, {
+	"codi": "linia2",
+    "nom" : "Línia 2 adreça",
+    "obligatori" : false,
+    "param" : "linia2",
+    "paramDesc" : "Línia 2 de l'adreça",
+    "varParam" : "varLinia2",
+    "varParamDesc" : "Variable que conté el valor per la línia 2 de l'adreça"
+  }, {
+	"codi": "entregaDeh",
+    "nom" : "Entrega DEH",
+    "obligatori" : false,
+    "param" : "entregaDeh",
+    "paramDesc" : "Valor per l'entrega DEH. El valor pot ser 'true' o 'false'",
+    "varParam" : "varEntregaDeh",
+    "varParamDesc" : "Variable booleana que conté el valor per a l'entrega DEH"
+  }, {
+	"codi": "entregaDehObligat",
+    "nom" : "Entrega DEH obligat",
+    "obligatori" : false,
+    "param" : "entregaDeh",
+    "paramDesc" : "Valor per l'entrega DEH obligat. El valor pot ser 'true' o 'false'",
+    "varParam" : "varEntregaDehObligat",
+    "varParamDesc" : "Variable booleana que conté el valor per a l'entrega DEH obligat"
+  }, {
+	"codi": "codiPostal",
+    "nom" : "Codi postal",
+    "obligatori" : false,
+    "param" : "codiPostal",
+    "paramDesc" : "Valor pel codi postal",
+    "varParam" : "varCodiPostal",
+    "varParamDesc" : "Variable que conté el valor pel codi postal"
+  }],
+  "agrupacio" : "INTERESSATS"
+ }, 
+ 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.InteressatModificarHandler",
+  "nom" : "Modificar interessar",
+  "descripcio" : "Aquest handler modifica interessat.",
+  "parametres" : [ 
+  	{
+	"codi": "codi",
+    "nom" : "Codi de l'interessat",
+    "obligatori" : true,
+    "param" : "codi",
+    "paramDesc" : "Codi de l'interessat",
+    "varParam" : "varCodi",
+    "varParamDesc" : "Variable que conté codi de l'interessatCodi de l'interessat"
+  }, {
+	"codi": "nom",
+    "nom" : "Nom de l'interessat",
+    "obligatori" : true,
+    "param" : "nom",
+    "paramDesc" : "Nom de l'interessat",
+    "varParam" : "varNom",
+    "varParamDesc" : "Variable que conté nom de l'interessatCodi de l'interessat"
+  }, {
+	"codi": "nif",
+    "nom" : "Nif de l'interessat",
+    "obligatori" : true,
+    "param" : "nif",
+    "paramDesc" : "Nif de l'interessat",
+    "varParam" : "varNif",
+    "varParamDesc" : "Variable que conté nif de l'interessatCodi de l'interessat"
+  }, {
+	"codi": "dir3Codi",
+    "nom" : "Codi DIR3",
+    "obligatori" : false,
+    "param" : "dir3Codi",
+    "paramDesc" : "Codi DIR3 quan l'interessat és del tipus administració",
+    "varParam" : "varDir3Codi",
+    "varParamDesc" : "Variable que conté el codi DIR3 per interessats de tipus administració."
+  }, {
+	"codi": "llinatge1",
+    "nom" : "Primer llinatge de l'interessat",
+    "obligatori" : false,
+    "param" : "llinatge1",
+    "paramDesc" : "Primer llinatge de l'interessat",
+    "varParam" : "varLlinatge1",
+    "varParamDesc" : "Variable que conté primer llinatge1 de l'interessatCodi de l'interessat"
+  }, {
+	"codi": "llinatge2",
+    "nom" : "Segon llinatge de l'interessat",
+    "obligatori" : false,
+    "param" : "llinatge2",
+    "paramDesc" : "Segon llinatge de l'interessat",
+    "varParam" : "varLlinatge2",
+    "varParamDesc" : "Variable que conté segon llinatge de l'interessatCodi de l'interessat"
+  }, {
+	"codi": "tipus",
+    "nom" : "Tipus de l'interessat",
+    "obligatori" : true,
+    "param" : "tipus",
+    "paramDesc" : "Tipus de l'interessat. Valors 'ADMINISTRACIO', 'FISICA' o 'JURIDICA'.",
+    "varParam" : "varTipus",
+    "varParamDesc" : "Variable que conté el valor pel tipus de l'interessat"
+  }, {
+	"codi": "email",
+    "nom" : "Email de l'interessat",
+    "obligatori" : false,
+    "param" : "email",
+    "paramDesc" : "Email de l'interessat",
+    "varParam" : "varEmail",
+    "varParamDesc" : "Variable que conté email de l'interessat"
+  }, {
+	"codi": "telefon",
+    "nom" : "Telefon de l'interessat",
+    "obligatori" : false,
+    "param" : "telefon",
+    "paramDesc" : "Telefon de l'interessat",
+    "varParam" : "varTelefon",
+    "varParamDesc" : "Variable que conté telefon de l'interessat"
+  }, {
+	"codi": "entregaPostal",
+    "nom" : "Entrega postal activa",
+    "obligatori" : false,
+    "param" : "entregaPostal",
+    "paramDesc" : "Entrega postal activa. Valors 'true' o 'false'.",
+    "varParam" : "varEntregaPostal",
+    "varParamDesc" : "Variable que conté el valor true o false de si l'interessat té l'entrega postal activa"
+  }, {
+	"codi": "entregaTipus",
+    "nom" : "Tipus d'entrega",
+    "obligatori" : false,
+    "param" : "entregaTipus",
+    "paramDesc" : "Valor pel tipus d'entrega. Els valors poden ser 'NACIONAL', 'ESTRANGER', 'APARTAT_CORREUS' o 'SENSE_NORMALITZAR'",
+    "varParam" : "varEntregaTipus",
+    "varParamDesc" : "Valor que conté el valor pel tipus d'entrega."
+  }, {
+	"codi": "linia1",
+    "nom" : "Línia 1 adreça",
+    "obligatori" : false,
+    "param" : "linia1",
+    "paramDesc" : "Línia 1 de l'adreça",
+    "varParam" : "varLinia1",
+    "varParamDesc" : "Variable que conté el valor per la línia 1 de l'adreça"
+  }, {
+	"codi": "linia2",
+    "nom" : "Línia 2 adreça",
+    "obligatori" : false,
+    "param" : "linia2",
+    "paramDesc" : "Línia 2 de l'adreça",
+    "varParam" : "varLinia2",
+    "varParamDesc" : "Variable que conté el valor per la línia 2 de l'adreça"
+  }, {
+	"codi": "entregaDeh",
+    "nom" : "Entrega DEH",
+    "obligatori" : false,
+    "param" : "entregaDeh",
+    "paramDesc" : "Valor per l'entrega DEH. El valor pot ser 'true' o 'false'",
+    "varParam" : "varEntregaDeh",
+    "varParamDesc" : "Variable booleana que conté el valor per a l'entrega DEH"
+  }, {
+	"codi": "entregaDehObligat",
+    "nom" : "Entrega DEH obligat",
+    "obligatori" : false,
+    "param" : "entregaDeh",
+    "paramDesc" : "Valor per l'entrega DEH obligat. El valor pot ser 'true' o 'false'",
+    "varParam" : "varEntregaDehObligat",
+    "varParamDesc" : "Variable booleana que conté el valor per a l'entrega DEH obligat"
+  }, {
+	"codi": "codiPostal",
+    "nom" : "Codi postal",
+    "obligatori" : false,
+    "param" : "codiPostal",
+    "paramDesc" : "Valor pel codi postal",
+    "varParam" : "varCodiPostal",
+    "varParamDesc" : "Variable que conté el valor pel codi postal"
+  }],
+  "agrupacio" : "INTERESSATS"
+ },
+ 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.InteressatEliminarHandler",
+  "nom" : "Esborrar interessar",
+  "descripcio" : "Aquest handler esborra l'interessat",
+  "parametres" : [ 
+  	{
+	"codi": "codi",
+    "nom" : "Codi interessat",
+    "obligatori" : true,
+    "param" : "codi",
+    "paramDesc" : "Codi de l'interessat a esborrar",
+    "varParam" : "varCodi",
+    "varParamDesc" : "Variable que conté codi de l'interessatCodi de l'interessat a esborrar"
+  }],
+  "agrupacio" : "INTERESSATS"
+ },
+ 
+  {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.NotificacioAltaHandler",
+  "nom" : "Donar d’alta notificacions al servei de notificacions Notib",
+  "descripcio" : "L'alta de peticions de notificacions al servei de notificacions NOTIB es fa mitjançant un handler d'alta de notificacions.",
+  "parametres" : [
+	{
+	"codi": "emisorDir3Codi",
+    "nom" : "Codi DIR3 emisor",
+    "obligatori" : false,
+    "param" : "emisorDir3Codi",
+    "paramDesc" : "Codi DIR3 de l'emisor de la notificació",
+    "varParam" : "varEmisorDir3Codi",
+    "varParamDesc" : "Variable que conté el codi Dir3 de l’organisme emisor"
+	}, {
+	"codi": "enviamentTipus",
+    "nom" : "Tipus d'enviament",
+    "obligatori" : false,
+    "param" : "enviamentTipus",
+    "paramDesc" : "Indica el tipus d'enviament, els possibles valors són 'NOTIFICACIO' o 'COMUNICACIO'. Si no s'informa per defecte és una notificació",
+    "varParam" : "varEnviamentTipus",
+    "varParamDesc" : "Variable que conté el valor que indica si l’enviament és una comunicació o una notificació."
+	}, {
+	"codi": "concepte",
+    "nom" : "Concepte",
+    "obligatori" : true,
+    "param" : "concepte",
+    "paramDesc" : "Concepte de l’enviament. Si ha d’anar a CIE només s’agafaran els 50 primers caràcters.",
+    "varParam" : "varConcepte",
+    "varParamDesc" : "Variable que conté el concepte de l’enviament"
+	}, {
+	"codi": "descripcio",
+    "nom" : "Descripció",
+    "obligatori" : false,
+    "param" : "descripcio",
+    "paramDesc" : "Descripció detallada de l’enviament.",
+    "varParam" : "varDescripcio",
+    "varParamDesc" : "Variable que conté la descripció detallada de l’enviament."
+	}, {
+	"codi": "enviamentDataProgramada",
+    "nom" : "Data programada",
+    "obligatori" : false,
+    "param" : "enviamentDataProgramada",
+    "paramDesc" : "Data en la que l’enviament es posarà a disposició per a la compareixença. Valor en text en format dd/MM/yyyy",
+    "varParam" : "varEnviamentDataProgramada",
+    "varParamDesc" : "Variable que conté la data en la que l’enviament es posarà a disposició per a la compareixença. Valor Date o en format dd/MM/yyyy"
+	}, {
+	"codi": "retard",
+    "nom" : "Retard",
+    "obligatori" : false,
+    "param" : "retard",
+    "paramDesc" : "Dies que l’enviament estarà a disposició de compareixença en carpeta abans d’entregar-lo per altres mitjans.",
+    "varParam" : "varParam",
+    "varParamDesc" : "Variable que conté els dies que l’enviament estarà a disposició de compareixença en carpeta abans d’entregar-lo per altres mitjans."
+	}, {
+	"codi": "caducitat",
+    "nom" : "Caducitat",
+    "obligatori" : false,
+    "param" : "caducitat",
+    "paramDesc" : "Data d’expiració de l’enviament",
+    "varParam" : "varCaducitat",
+    "varParamDesc" : "Variable que conté la data d’expiració de l’enviament"
+	}, {
+	"codi": "document",
+    "nom" : "Document",
+    "obligatori" : true,
+    "param" : "document",
+    "paramDesc" : "Codi del document que s’envia en la notificació",
+    "varParam" : "varDocument",
+    "varParamDesc" : "Variable que conté el codi del document que s’envia en la notificació"
+	}, {
+	"codi": "procedimentCodi",
+    "nom" : "Codi procediment",
+    "obligatori" : false,
+    "param" : "procedimentCodi",
+    "paramDesc" : "Identificador del procediment SIA al que pertany la notificació. Si no s'informa s'agafa el de la configuració del tipus d'expedient.",
+    "varParam" : "varProcedimentCodi",
+    "varParamDesc" : "Variable que conté l’identificador del procediment SIA al que pertany la notificació"
+	}, {
+	"codi": "serveiTipus",
+    "nom" : "Tipus servei",
+    "obligatori" : false,
+    "param" : "serveiTipus",
+    "paramDesc" : "Enumerat que indica si el servei de l’enviament és de tipus normal o urgent. Els possibles valors són 'NORMAL' o 'URGENT', per defecte el tipus d'enviament és normal.",
+    "varParam" : "varsServeiTipus",
+    "varParamDesc" : "Variable que conté el valor de l’enumerat que indica si el tipus de servei és NORMAL o URGENT."
+	}, {
+	"codi": "grupCodi",
+    "nom" : "Codi grup",
+    "obligatori" : false,
+    "param" : "grupCodi",
+    "paramDesc" : "Codi del grup de Notib al qual va dirigida la notificació. Només podran veure la notificació els usuaris que tinguin un rol assignat al seu usuari corresponent al codi de grup. Aquest valor és opcional.",
+    "varParam" : "varGrupCodi",
+    "varParamDesc" : "Variable que conté el codi del grup al gual va dirigida la notificació."
+	}, {
+	"codi": "idioma",
+    "nom" : "Idioma",
+    "obligatori" : false,
+    "param" : "idioma",
+    "paramDesc" : "Codi de l'idioma per a les notificacions del Notib. Els possibles valors són 'CA' pel català o 'ES' pel castellà.",    "varParam" : "varIdioma",
+    "varParamDesc" : "Variable que conté el codi de l'idioma per a les notificacions."
+	}, {
+	"codi": "titularTipus",
+    "nom" : "Tipus titular",
+    "obligatori" : true,
+    "param" : "titularTipus",
+    "paramDesc" : "Tipus de titular. S'ha d'indicar un dels següents valors: 'ADMINISTRACIO', 'FISICA' o 'JURIDICA'.",
+    "varParam" : "varTitularTipus",
+    "varParamDesc" : "Variable que conté el tipus de titular de l'enviament."
+	}, {
+	"codi": "titularNif",
+    "nom" : "NIF titular",
+    "obligatori" : true,
+    "param" : "titularNif",
+    "paramDesc" : "NIF de la persona física o jurídica titular de l’enviament",
+    "varParam" : "varTitularNif",
+    "varParamDesc" : "Variable que conté el NIF de la persona física o jurídica titular de l’enviament"
+	}, {
+	"codi": "titularDir3Codi",
+    "nom" : "Codi DIR3 del titular",
+    "obligatori" : false,
+    "param" : "titularDir3Codi",
+    "paramDesc" : "Codi Dir3 del titular. Obligatori quan titularTipus = ADMINISTRACIO.",
+    "varParam" : "varTitularDir3Codi",
+    "varParamDesc" : "Variable que conté el codi Dir3 del titular."
+	}, {
+	"codi": "titularNom",
+    "nom" : "Nom titular",
+    "obligatori" : true,
+    "param" : "titularNom",
+    "paramDesc" : "Nom de la persona física, o raó social de persona jurídica titular de l’enviament.",
+    "varParam" : "varTitularNom",
+    "varParamDesc" : "Variable que conté el nom de la persona física, o raó social de persona jurídica titular de l’enviament."
+	}, {
+	"codi": "titularLlin1",
+    "nom" : "Llinatge 1 del titular",
+    "obligatori" : false,
+    "param" : "titularLlin1",
+    "paramDesc" : "Primer llinatge de la persona física titular de l’enviament. Obligatori en cas de persones físiques.",
+    "varParam" : "varTitularLlin1",
+    "varParamDesc" : "Variable que conté el primer llinatge de la persona física titular de l’enviament."
+	}, {
+	"codi": "titularLlin2",
+    "nom" : "Llinatge 2 titular",
+    "obligatori" : false,
+    "param" : "titularLlin2",
+    "paramDesc" : "Segon llinatge de la persona física titular de l’enviament.",
+    "varParam" : "varTitularLlin2",
+    "varParamDesc" : "Variable que conté el segon llinatge de la persona física titular de l’enviament"
+	}, {
+	"codi": "titularEmail",
+    "nom" : "Email titular",
+    "obligatori" : false,
+    "param" : "titularEmail",
+    "paramDesc" : "Correu electrònic del titular de l’enviament.",
+    "varParam" : "varTitularEmail",
+    "varParamDesc" : "Variable que conté el correu electrònic del titular de l’enviament"
+	}, {
+	"codi": "titularMobil",
+    "nom" : "Mòbil del titular",
+    "obligatori" : false,
+    "param" : "titularMobil",
+    "paramDesc" : "Telèfon del titular de l’enviament.",
+    "varParam" : "varTitularMobil",
+    "varParamDesc" : "Variable que conté el telèfon del titular de l’enviament."
+	}, {
+	"codi": "destinatariTipus",
+    "nom" : "Tipus destinatari",
+    "obligatori" : false,
+    "param" : "destinatariTipus",
+    "paramDesc" : "Tipus de destinatari. S'ha d'indicar un dels següents valors: 'ADMINISTRACIO', 'FISICA' o 'JURIDICA'. El destinatari no és obligatori, només si el titular està incapacitat. Si el valor de destinatariTipus es deixa null llavors no s'afegirà destinatari.",
+    "varParam" : "varDestinatariTipus",
+    "varParamDesc" : "Variable que conté el tipus de destinatari de l'enviament."
+	}, {
+	"codi": "destinatariNif",
+    "nom" : "NIF destinatari",
+    "obligatori" : false,
+    "param" : "destinatariNif",
+    "paramDesc" : "NIF de la persona física o jurídica destinatària de l’enviament",
+    "varParam" : "vardestinatariNif",
+    "varParamDesc" : "Variable que conté el NIF de la persona física o jurídica destinatària de l’enviament"
+	}, {
+	"codi": "destinatariDir3Codi",
+    "nom" : "Codi DIR3 del destinatari",
+    "obligatori" : false,
+    "param" : "destinatariDir3Codi",
+    "paramDesc" : "Codi Dir3 del destinatari. Obligatori quan destinatariTipus = ADMINISTRACIO.",
+    "varParam" : "vardestinatariDir3Codi",
+    "varParamDesc" : "Variable que conté el codi Dir3 del destinatari."
+	}, {
+	"codi": "destinatariNom",
+    "nom" : "Nom destinatari",
+    "obligatori" : false,
+    "param" : "destinatariNom",
+    "paramDesc" : "Nom de la persona física, o raó social de persona jurídica destinatària de l’enviament.",
+    "varParam" : "vardestinatariNom",
+    "varParamDesc" : "Variable que conté el nom de la persona física, o raó social de persona jurídica destinatària de l’enviament."
+	}, {
+	"codi": "destinatariLlin1",
+    "nom" : "Llinatge 1 del destinatari",
+    "obligatori" : false,
+    "param" : "destinatariLlin1",
+    "paramDesc" : "Primer llinatge de la persona física destinatària de l’enviament. Obligatori en cas de persones físiques.",
+    "varParam" : "vardestinatariLlin1",
+    "varParamDesc" : "Variable que conté el primer llinatge de la persona física destinatària de l’enviament."
+	}, {
+	"codi": "destinatariLlin2",
+    "nom" : "Llinatge 2 destinatari",
+    "obligatori" : false,
+    "param" : "destinatariLlin2",
+    "paramDesc" : "Segon llinatge de la persona física destinatària de l’enviament.",
+    "varParam" : "vardestinatariLlin2",
+    "varParamDesc" : "Variable que conté el segon llinatge de la persona física destinatària de l’enviament"
+	}, {
+	"codi": "destinatariEmail",
+    "nom" : "Email destinatari",
+    "obligatori" : false,
+    "param" : "destinatariEmail",
+    "paramDesc" : "Correu electrònic del destinatari de l’enviament.",
+    "varParam" : "vardestinatariEmail",
+    "varParamDesc" : "Variable que conté el correu electrònic del destinatari de l’enviament"
+	}, {
+	"codi": "destinatariMobil",
+    "nom" : "Mòbil del destinatari",
+    "obligatori" : false,
+    "param" : "destinatariMobil",
+    "paramDesc" : "Telèfon del destinatari de l’enviament.",
+    "varParam" : "vardestinatariMobil",
+    "varParamDesc" : "Variable que conté el telèfon del destinatari de l’enviament."
+	}, {
+	"codi": "entregaPostalActiva",
+    "nom" : "Entrega postal activa",
+    "obligatori" : false,
+    "param" : "entregaPostalActiva",
+    "paramDesc" : "Indica si la notificació té activada l'entrega postal.",
+    "varParam" : "varEntregaPostalActiva",
+    "varParamDesc" : "Variable amb el valor de si la notificació té l'entrega postal activa."
+  }, {
+	"codi": "entregaPostalTipus",
+    "nom" : "Tipus d'entrega postal",
+    "obligatori" : false,
+    "param" : "entregaPostalTipus",
+    "paramDesc" : "Valor pel tipus d'entrega postal. Els valors poden ser 'NACIONAL', 'ESTRANGER', 'APARTAT_CORREUS' o 'SENSE_NORMALITZAR'",
+    "varParam" : "varEntregaPostalTipus",
+    "varParamDesc" : "Variable que conté l’enumerat que indica el tipus de entrega postal."
+  }, {
+	"codi": "entregaPostalViaTipus",
+    "nom" : "Tipus via entrega postal",
+    "obligatori" : false,
+    "param" : "entregaPostalViaTipus",
+    "paramDesc" : "Enumerat que indica el tipus de via per a entregues postals. Valors possibles: [ALAMEDA, CALLE, CAMINO, CARRER, CARRETERA, GLORIETA, KALEA, PASAJE, PASEO, PLAÇA, PLAZA, RAMBLA, RONDA, RUA, SECTOR, TRAVESIA, URBANIZACION, AVENIDA, AVINGUDA, BARRIO, CALLEJA, CAMI, CAMPO, CARRERA, CUESTA, EDIFICIO, ENPARANTZA, ESTRADA, JARDINES, JARDINS, PARQUE, PASSEIG, PRAZA, PLAZUELA, PLACETA, POBLADO, VIA, TRAVESSERA, PASSATGE,  BULEVAR, POLIGONO, OTROS]. * Obligatori quan tipoDomicili = NACIONAL",
+    "varParam" : "varEntregaPostalViaTipus",
+    "varParamDesc" : "Variable que conté l’enumerat que indica el tipus de via per a entregues postals"
+  }, {
+	"codi": "entregaPostalViaNom",
+    "nom" : "Nom via entrega postal",
+    "obligatori" : false,
+    "param" : "entregaPostalViaNom",
+    "paramDesc" : "Nom de la via per entregues postals. * Obligatori quan tipoDomicili = NACIONAL o ESTRANGER",
+    "varParam" : "varEntregaPostalViaNom",
+    "varParamDesc" : "Variable que conté el nom de la via per entregues postals."
+	}, {
+	"codi": "entregaPostalNumeroCasa",
+    "nom" : "Número casa entrega postal",
+    "obligatori" : false,
+    "param" : "entregaPostalNumeroCasa",
+    "paramDesc" : "Número de la casa per entregues postals. * Obligatori quan tipoDomicili = NACIONAL excepte si s’indica el punt quilomètric.",
+    "varParam" : "varEntregaPostalNumeroCasa",
+    "varParamDesc" : "Variable que conté el número de la casa per entregues postals"
+	}, {
+	"codi": "entregaPostalNumeroQualificador",
+    "nom" : "Qualificador número entrega postal",
+    "obligatori" : false,
+    "param" : "entregaPostalNumeroQualificador",
+    "paramDesc" : "Informació addicional sobre la numeració de l’adreça. P. ex. «bis»",
+    "varParam" : "varEntregaPostalNumeroQualificador",
+    "varParamDesc" : "Variable que conté informació addicional sobre la numeració de l’adreça"
+	}, {
+	"codi": "entregaPostalPuntKm",
+    "nom" : "Punt Km entrega postal",
+    "obligatori" : false,
+    "param" : "entregaPostalPuntKm",
+    "paramDesc" : "Punt quilomètric per entregues postals. * Obligatori quan tipoDomicili = NACIONAL excepte si s’indica numeroCasa.",
+    "varParam" : "varEntregaPostalPuntKm",
+    "varParamDesc" : "Variable que conté  el punt quilomètric per entregues postals"
+	}, {
+	"codi": "entregaPostalApartatCorreus",
+    "nom" : "Apartat de correu entrega postal",
+    "obligatori" : false,
+    "param" : "entregaPostalApartatCorreus",
+    "paramDesc" : "Apartat de correus per entregues postals. * Obligatori quan tipoDomicili = APARTAT_CORREUS.",
+    "varParam" : "varEntregaPostalApartatCorreus",
+    "varParamDesc" : "Variable que conté l’apartat de correus per entregues postals"
+	}, {
+	"codi": "entregaPostalPortal",
+    "nom" : "Portal entrega postal",
+    "obligatori" : false,
+    "param" : "entregaPostalPortal",
+    "paramDesc" : "Portal de la casa per entregues postals",
+    "varParam" : "varEntregaPostalPortal",
+    "varParamDesc" : "Variable que conté el portal de la casa per entregues postals"
+	}, {
+	"codi": "entregaPostalEscala",
+    "nom" : "Escala entrega postal",
+    "obligatori" : false,
+    "param" : "entregaPostalEscala",
+    "paramDesc" : "Escala de la casa per entregues postals",
+    "varParam" : "varEntregaPostalEscala",
+    "varParamDesc" : "Variable que conté l’escala de la casa per entregues postals"
+	}, {
+	"codi": "entregaPostalPlanta",
+    "nom" : "Planta entrega postal",
+    "obligatori" : false,
+    "param" : "entregaPostalPlanta",
+    "paramDesc" : "Planta de la casa per entregues postals",
+    "varParam" : "varEntregaPostalPlanta",
+    "varParamDesc" : "Variable que conté la planta de la casa per entregues postals"
+	}, {
+	"codi": "entregaPostalPorta",
+    "nom" : "Porta entrega postal",
+    "obligatori" : false,
+    "param" : "entregaPostalPorta",
+    "paramDesc" : "Porta de la casa per entregues postals",
+    "varParam" : "varEntregaPostalPorta",
+    "varParamDesc" : "Variable que conté la porta de la casa per entregues postals"
+	}, {
+	"codi": "entregaPostalBloc",
+    "nom" : "Bloc entrega postal",
+    "obligatori" : false,
+    "param" : "entregaPostalBloc",
+    "paramDesc" : "Bloc de la casa per entregues postals",
+    "varParam" : "varEntregaPostalBloc",
+    "varParamDesc" : "Variable que conté el bloc de la casa per entregues postals"
+	}, {
+	"codi": "entregaPostalComplement",
+    "nom" : "Complement entrega postal",
+    "obligatori" : false,
+    "param" : "entregaPostalComplement",
+    "paramDesc" : "Informació extra sobre la casa per entregues postals",
+    "varParam" : "varEntregaPostalComplement",
+    "varParamDesc" : "Variable que conté informació extra sobre la casa per entregues postals"
+	}, {
+	"codi": "entregaPostalCodiPostal",
+    "nom" : "Codi postal entrega postal",
+    "obligatori" : false,
+    "param" : "entregaPostalCodiPostal",
+    "paramDesc" : "Codi postal de la casa per entregues postals. Per enviaments internacionals a països sense codi posatal es pot posar 00000.",
+    "varParam" : "varEntregaPostalCodiPostal",
+    "varParamDesc" : "Variable que conté el codi postal de la casa per entregues postals."
+	}, {
+	"codi": "entregaPostalPoblacio",
+    "nom" : "Poblacó entrega postal",
+    "obligatori" : false,
+    "param" : "entregaPostalPoblacio",
+    "paramDesc" : "Població on s’entrega l’enviament. * Obligatori quan tipoDomicili = NACIONAL, ESTRANGER o APARTAT_POSTAL.",
+    "varParam" : "varEntregaPostalPoblacio",
+    "varParamDesc" : "Variable que conté la població on s’entrega l’enviament"
+	}, {
+	"codi": "entregaPostalMunicipiCodi",
+    "nom" : "Codi municipi entrega postal",
+    "obligatori" : false,
+    "param" : "entregaPostalMunicipiCodi",
+    "paramDesc" : "Codi INE del municipi on s’entrega l’enviament. * Obligatori quan tipoDomicili = NACIONAL o APARTAT_POSTAL.",
+    "varParam" : "varEntregaPostalMunicipiCodi",
+    "varParamDesc" : "Variable que conté el codi INE del municipi on s’entrega l’enviament"
+	}, {
+	"codi": "entregaPostalProvinciaCodi",
+    "nom" : "Codi província entrega postal",
+    "obligatori" : false,
+    "param" : "entregaPostalProvinciaCodi",
+    "paramDesc" : "Codi de la província on s’entrega l’enviament. * Obligatori quan tipoDomicili = NACIONAL o APARTAT_POSTAL.",
+    "varParam" : "varEntregaPostalProvinciaCodi",
+    "varParamDesc" : "Variable que conté el codi de la província on s’entrega l’enviament"
+	}, {
+	"codi": "entregaPostalPaisCodi",
+    "nom" : "Codi país entrega postal",
+    "obligatori" : false,
+    "param" : "entregaPostalPaisCodi",
+    "paramDesc" : "Codi ISO del país on s’entrega l’enviament. * Obligatori quan tipoDomicili = ESTRANGER.",
+    "varParam" : "varEntregaPostalPaisCodi",
+    "varParamDesc" : "Variable que conté el codi ISO del país on s’entrega l’enviament"
+	}, {
+	"codi": "entregaPostalLinea1",
+    "nom" : "Línia 1 entrega postal",
+    "obligatori" : false,
+    "param" : "entregaPostalLinea1",
+    "paramDesc" : "Línia 1 de l’adreça d’entrega de l’enviament sense normalitzar. * Obligatori quan tipoDomicili = SENSE_NORMALITZAR.",
+    "varParam" : "varEntregaPostalLinea1",
+    "varParamDesc" : "Variable que conté la línia 1 de l’adreça d’entrega de l’enviament sense normalitzar"
+	}, {
+	"codi": "entregaPostalLinea2",
+    "nom" : "Línia 2 entrega postal",
+    "obligatori" : false,
+    "param" : "entregaPostalLinea2",
+    "paramDesc" : "Línia 2 de l’adreça d’entrega de l’enviament sense normalitzar.",
+    "varParam" : "varEntregaPostalLinea2",
+    "varParamDesc" : "Variable que conté la línia 2 de l’adreça d’entrega de l’enviament sense normalitzar"
+	}, {
+	"codi": "entregaPostalCie",
+    "nom" : "Identificador CIE a Notific@",
+    "obligatori" : false,
+    "param" : "varEntregaPostalCie",
+    "paramDesc" : "Identificador del CIE en Notific@ per a seleccionar-lo per a l’enviament",
+    "varParam" : "varEntregaPostalCie",
+    "varParamDesc" : "Variable que conté l’identificador del CIE en Notific@ per a seleccionar-lo per a l’enviament"
+	}, {
+	"codi": "entregaPostalFormatSobre",
+    "nom" : "Format sobre entrega postal",
+    "obligatori" : false,
+    "param" : "entregaPostalFormatSobre",
+    "paramDesc" : "Cadena indicant el format del sobre (americano, C5, ...)",
+    "varParam" : "varEntregaPostalFormatSobre",
+    "varParamDesc" : "Variable que conté la cadena indicant el format del sobre (americano, C5, ...)"
+	}, {
+	"codi": "entregaPostalFormatFulla",
+    "nom" : "Format fulla entrega postal",
+    "obligatori" : false,
+    "param" : "entregaPostalFormatFulla",
+    "paramDesc" : "Cadena indicant el format de la fulla (A4, A5, ...)",
+    "varParam" : "varEntregaPostalFormatFulla",
+    "varParamDesc" : "Variable que conté la cadena indicant el format de la fulla (A4, A5, ...)"
+	}, {
+	"codi": "entregaDehObligat",
+    "nom" : "Entrega DEH obligat",
+    "obligatori" : false,
+    "param" : "entregaDehObligat",
+    "paramDesc" : "Indica si l’enviament és obligatori o voluntari. *Opcional. En cas de no indicar-se s’agafa com a voluntari.",
+    "varParam" : "varEntregaDehObligat",
+    "varParamDesc" : "Variable que conté el camp que indica si l’enviament és obligatori o voluntari"
+	}, {
+	"codi": "entregaDehProcedimentCodi",
+    "nom" : "Codi procediment en la DEH per enviaments voluntaris",
+    "obligatori" : false,
+    "param" : "entregaDehProcedimentCodi",
+    "paramDesc" : "Codi del procediment en la DEH per a enviaments voluntaris",
+    "varParam" : "varEntregaDehProcedimentCodi",
+    "varParamDesc" : "Variable que conté el codi del procediment en la DEH per a enviaments voluntaris"
+	}, {
+	"codi": "entregaDehActiva",
+    "nom" : "Entrega DEH activa",
+    "obligatori" : false,
+    "param" : "entregaDehActiva",
+    "paramDesc" : "Indica si la notificació té activada l'entrega DEH.",
+    "varParam" : "varEntregaDehActiva",
+    "varParamDesc" : "Variable amb el valor de si la notificació té l'entrega DEH activa."
+	}
+  	],
+  "agrupacio" : "NOTIB"
+ },
+ 
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.PinbalConsultaGenericaHandler",
+  "nom" : "Consulta genèrica a PINBAL",
+  "descripcio" : "Handler per invocar de forma genèrica una consulta a PINBAL i obtenir el justificant i guardar-lo en un document. Per poder fer la consulta s'ha d'indicar el codi de l'interessat o les dades del titular, les dades genèriques i del procediment i indicar en quin document guardar el justificant.",
+  "parametres" : [ 
+  	{
+	"codi": "serveiCodi",
+    "nom" : "Codi del servei",
+    "obligatori" : true,
+    "param" : "serveiCodi",
+    "paramDesc" : "Codi del servei sol·licitat de PINBAL.",
+    "varParam" : "varServeiCodi",
+    "varParamDesc" : "Variable que conté el codi del servei sol·licitat de PINBAL."
+  }, {
+	"codi": "documentCodi",
+    "nom" : "Codi del document per guardar el justificant",
+    "obligatori" : true,
+    "param" : "documentCodi",
+    "paramDesc" : "Codi del tipus de document en què guardar el document del justificant de la consulta.",
+    "varParam" : "varDocumentCodi",
+    "varParamDesc" : "Codi de la variable que conté el codi de document en què guardar el justificant de la consulta."
+  }, {
+	"codi": "finalitat",
+    "nom" : "Finalitat de la consulta",
+    "obligatori" : true,
+    "param" : "finalitat",
+    "paramDesc" : "Text descriptiu de la finalitzat de la consulta",
+    "varParam" : "varFinalitat",
+    "varParamDesc" : "Codi de la variable que conté el text per la finalitat."
+  }, {
+	"codi": "consentiment",
+    "nom" : "Consentiment",
+    "obligatori" : true,
+    "param" : "consentiment",
+    "paramDesc" : "Indica si la consulta té el consentiment del titular o per llei. Les possibles valors són 'SI' (Es té el consentiment del titular interessat) i 'LLEI' (El consentiment és per llei)",
+    "varParam" : "varConsentiment",
+    "varParamDesc" : "Variable que conté el valor pel consentiment."
+  }, {
+	"codi": "interessatCodi",
+    "nom" : "Codi interessat",
+    "obligatori" : false,
+    "param" : "interessatCodi",
+    "paramDesc" : "Codi de l'interessat per informar les dades del titular. Si no es té interessat es poden informar els paràmetres del titular.",
+    "varParam" : "varInteressatCodi",
+    "varParamDesc" : "Codi de la variable que conté el codi de l'interessat per informar les dades del titular."
+  }, {
+	"codi": "titularNom",
+    "nom" : "Nom titular",
+    "obligatori" : false,
+    "param" : "titularNom",
+    "paramDesc" : "Nom del titular.",
+    "varParam" : "varTitularNom",
+    "varParamDesc" : "Codi de la variable que conté el nom del titular interessat."
+  }, {
+	"codi": "titularLlinatge1",
+    "nom" : "Llinatge1 titular",
+    "obligatori" : false,
+    "param" : "titularLlinatge1",
+    "paramDesc" : "Llinatge 1 del titular.",
+    "varParam" : "varTitularLlinatge1",
+    "varParamDesc" : "Codi de la variable que conté el primer llinatge del titular interessat."
+  }, {
+	"codi": "titularLlinatge2",
+    "nom" : "Llinatge2 titular",
+    "obligatori" : false,
+    "param" : "titularLlinatge2",
+    "paramDesc" : "Llinatge 2 del titular.",
+    "varParam" : "varTitularLlinatge2",
+    "varParamDesc" : "Codi de la variable que conté el segon llinatge del titular interessat."
+  }, {
+	"codi": "titularTipusDocumentacio",
+    "nom" : "Tipus documentacó titular",
+    "obligatori" : true,
+    "param" : "titularTipusDocumentacio",
+    "paramDesc" : "Camp per indicar el tipus de documentació. Els possibles valors són: 'DNI', 'NIE', 'NIF', 'Passaport' i 'Altres'.",
+    "varParam" : "varTitularTipusDocumentacio",
+    "varParamDesc" : "Variable que conté el valor pel tipus de documentació."
+  }, {
+	"codi": "titularDocumentacio",
+    "nom" : "Documentació titular",
+    "obligatori" : false,
+    "param" : "titularDocumentacio",
+    "paramDesc" : "Text amb el valor de la documentació del titular.",
+    "varParam" : "varParam",
+    "varParamDesc" : "Codi de la variable que conté el valor de la documentació del titular interessat."
+  }, {
+	"codi": "dadesEspecifiques",
+    "nom" : "Dades específiques",
+    "obligatori" : false,
+    "param" : "dadesEspecifiques",
+    "paramDesc" : "Valor de text amb l' XML de les dades específiques. Per informar les dades específiques amb variables Helium revisarà el contingut del text de dades específiques i substituirà els valors tipus '${var_codi}' pel valor de la variable que coincideixi amb el codi.",
+    "varParam" : "varDadesExpecifices",
+    "varParamDesc" : "Codi de la variable que conté el valor de text per les dades específiques."
+  }],
+  "agrupacio" : "PINBAL"
+ },
+
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.PinbalSvddgpciws02Handler",
+  "nom" : "Consulta dades d'intentitat a PINBAL",
+  "descripcio" : "Handler de consulta al servei SVDDGPCIWS02 de consulta de dades d'indentitat a partir del número de document",
+  "parametres" : [ 
+  	{
+	"codi": "documentCodi",
+    "nom" : "Codi del document per guardar el justificant",
+    "obligatori" : true,
+    "param" : "documentCodi",
+    "paramDesc" : "Codi del tipus de document en què guardar el document del justificant de la consulta.",
+    "varParam" : "varDocumentCodi",
+    "varParamDesc" : "Codi de la variable que conté el codi de document en què guardar el justificant de la consulta."
+  }, {
+	"codi": "finalitat",
+    "nom" : "Finalitat de la consulta",
+    "obligatori" : true,
+    "param" : "finalitat",
+    "paramDesc" : "Text descriptiu de la finalitzat de la consulta",
+    "varParam" : "varFinalitat",
+    "varParamDesc" : "Codi de la variable que conté el text per la finalitat."
+  }, {
+	"codi": "consentiment",
+    "nom" : "Consentiment",
+    "obligatori" : true,
+    "param" : "consentiment",
+    "paramDesc" : "Indica si la consulta té el consentiment del titular o per llei. Les possibles valors són 'SI' (Es té el consentiment del titular interessat) i 'LLEI' (El consentiment és per llei)",
+    "varParam" : "varConsentiment",
+    "varParamDesc" : "Variable que conté el valor pel consentiment."
+  }, {
+	"codi": "interessatCodi",
+    "nom" : "Codi interessat",
+    "obligatori" : false,
+    "param" : "interessatCodi",
+    "paramDesc" : "Codi de l'interessat per informar les dades del titular. Si no es té interessat es poden informar els paràmetres del titular.",
+    "varParam" : "varInteressatCodi",
+    "varParamDesc" : "Codi de la variable que conté el codi de l'interessat per informar les dades del titular."
+  }, {
+	"codi": "titularNom",
+    "nom" : "Nom titular",
+    "obligatori" : false,
+    "param" : "titularNom",
+    "paramDesc" : "Nom del titular.",
+    "varParam" : "varTitularNom",
+    "varParamDesc" : "Codi de la variable que conté el nom del titular interessat."
+  }, {
+	"codi": "titularLlinatge1",
+    "nom" : "Llinatge1 titular",
+    "obligatori" : false,
+    "param" : "titularLlinatge1",
+    "paramDesc" : "Llinatge 1 del titular.",
+    "varParam" : "varTitularLlinatge1",
+    "varParamDesc" : "Codi de la variable que conté el primer llinatge del titular interessat."
+  }, {
+	"codi": "titularLlinatge2",
+    "nom" : "Llinatge2 titular",
+    "obligatori" : false,
+    "param" : "titularLlinatge2",
+    "paramDesc" : "Llinatge 2 del titular.",
+    "varParam" : "varTitularLlinatge2",
+    "varParamDesc" : "Codi de la variable que conté el segon llinatge del titular interessat."
+  }, {
+	"codi": "titularTipusDocumentacio",
+    "nom" : "Tipus documentacó titular",
+    "obligatori" : true,
+    "param" : "titularTipusDocumentacio",
+    "paramDesc" : "Camp per indicar el tipus de documentació. Els possibles valors són: 'DNI', 'NIE', 'NIF', 'Passaport' i 'Altres'.",
+    "varParam" : "varTitularTipusDocumentacio",
+    "varParamDesc" : "Variable que conté el valor pel tipus de documentació."
+  }, {
+	"codi": "titularDocumentacio",
+    "nom" : "Documentació titular",
+    "obligatori" : false,
+    "param" : "titularDocumentacio",
+    "paramDesc" : "Text amb el valor de la documentació del titular.",
+    "varParam" : "varParam",
+    "varParamDesc" : "Codi de la variable que conté el valor de la documentació del titular interessat."
+  }],
+  "agrupacio" : "PINBAL"
+ },
+
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.PinbalSvddgpviws02Handler",
+  "nom" : "Consulta de verificació de dades d'intentitat a PINBAL",
+  "descripcio" : "Handler de consulta al servei SVDDGPVIWS02 de verificació de dades d'identitat. Conté dades específiques de data, número, província o país",
+  "parametres" : [ 
+  	{
+	"codi": "documentCodi",
+    "nom" : "Codi del document per guardar el justificant",
+    "obligatori" : true,
+    "param" : "documentCodi",
+    "paramDesc" : "Codi del tipus de document en què guardar el document del justificant de la consulta.",
+    "varParam" : "varDocumentCodi",
+    "varParamDesc" : "Codi de la variable que conté el codi de document en què guardar el justificant de la consulta."
+  }, {
+	"codi": "finalitat",
+    "nom" : "Finalitat de la consulta",
+    "obligatori" : true,
+    "param" : "finalitat",
+    "paramDesc" : "Text descriptiu de la finalitzat de la consulta",
+    "varParam" : "varFinalitat",
+    "varParamDesc" : "Codi de la variable que conté el text per la finalitat."
+  }, {
+	"codi": "consentiment",
+    "nom" : "Consentiment",
+    "obligatori" : true,
+    "param" : "consentiment",
+    "paramDesc" : "Indica si la consulta té el consentiment del titular o per llei. Les possibles valors són 'SI' (Es té el consentiment del titular interessat) i 'LLEI' (El consentiment és per llei)",
+    "varParam" : "varConsentiment",
+    "varParamDesc" : "Variable que conté el valor pel consentiment."
+  }, {
+	"codi": "interessatCodi",
+    "nom" : "Codi interessat",
+    "obligatori" : false,
+    "param" : "interessatCodi",
+    "paramDesc" : "Codi de l'interessat per informar les dades del titular. Si no es té interessat es poden informar els paràmetres del titular.",
+    "varParam" : "varInteressatCodi",
+    "varParamDesc" : "Codi de la variable que conté el codi de l'interessat per informar les dades del titular."
+  }, {
+	"codi": "titularNom",
+    "nom" : "Nom titular",
+    "obligatori" : false,
+    "param" : "titularNom",
+    "paramDesc" : "Nom del titular.",
+    "varParam" : "varTitularNom",
+    "varParamDesc" : "Codi de la variable que conté el nom del titular interessat."
+  }, {
+	"codi": "titularLlinatge1",
+    "nom" : "Llinatge1 titular",
+    "obligatori" : false,
+    "param" : "titularLlinatge1",
+    "paramDesc" : "Llinatge 1 del titular.",
+    "varParam" : "varTitularLlinatge1",
+    "varParamDesc" : "Codi de la variable que conté el primer llinatge del titular interessat."
+  }, {
+	"codi": "titularLlinatge2",
+    "nom" : "Llinatge2 titular",
+    "obligatori" : false,
+    "param" : "titularLlinatge2",
+    "paramDesc" : "Llinatge 2 del titular.",
+    "varParam" : "varTitularLlinatge2",
+    "varParamDesc" : "Codi de la variable que conté el segon llinatge del titular interessat."
+  }, {
+	"codi": "titularTipusDocumentacio",
+    "nom" : "Tipus documentacó titular",
+    "obligatori" : true,
+    "param" : "titularTipusDocumentacio",
+    "paramDesc" : "Camp per indicar el tipus de documentació. Els possibles valors són: 'DNI', 'NIE', 'NIF', 'Passaport' i 'Altres'.",
+    "varParam" : "varTitularTipusDocumentacio",
+    "varParamDesc" : "Variable que conté el valor pel tipus de documentació."
+  }, {
+	"codi": "titularDocumentacio",
+    "nom" : "Documentació titular",
+    "obligatori" : false,
+    "param" : "titularDocumentacio",
+    "paramDesc" : "Text amb el valor de la documentació del titular.",
+    "varParam" : "varParam",
+    "varParamDesc" : "Codi de la variable que conté el valor de la documentació del titular interessat."
+  }],
+  "agrupacio" : "PINBAL"
+ },
+
+ {
+  "classe" : "net.conselldemallorca.helium.jbpm3.handlers.PinbalSvdccaacpasws01Handler",
+  "nom" : "Consulta a PINBAL d'estar al corrent d'oblicacions tributàries",
+  "descripcio" : "Handler de consulta al servei SVDCCAACPASWS01 de consulta d'estar al corrent d'obligacions tributàries per la sol·licitud de subvencions i ajudes de la CCAA. Les dades específiques que permetria informar són el codi de la comunitat autònoma o el codi de la província.",
+  "parametres" : [ 
+  	{
+	"codi": "documentCodi",
+    "nom" : "Codi del document per guardar el justificant",
+    "obligatori" : true,
+    "param" : "documentCodi",
+    "paramDesc" : "Codi del tipus de document en què guardar el document del justificant de la consulta.",
+    "varParam" : "varDocumentCodi",
+    "varParamDesc" : "Codi de la variable que conté el codi de document en què guardar el justificant de la consulta."
+  }, {
+	"codi": "finalitat",
+    "nom" : "Finalitat de la consulta",
+    "obligatori" : true,
+    "param" : "finalitat",
+    "paramDesc" : "Text descriptiu de la finalitzat de la consulta",
+    "varParam" : "varFinalitat",
+    "varParamDesc" : "Codi de la variable que conté el text per la finalitat."
+  }, {
+	"codi": "consentiment",
+    "nom" : "Consentiment",
+    "obligatori" : true,
+    "param" : "consentiment",
+    "paramDesc" : "Indica si la consulta té el consentiment del titular o per llei. Les possibles valors són 'SI' (Es té el consentiment del titular interessat) i 'LLEI' (El consentiment és per llei)",
+    "varParam" : "varConsentiment",
+    "varParamDesc" : "Variable que conté el valor pel consentiment."
+  }, {
+	"codi": "interessatCodi",
+    "nom" : "Codi interessat",
+    "obligatori" : false,
+    "param" : "interessatCodi",
+    "paramDesc" : "Codi de l'interessat per informar les dades del titular. Si no es té interessat es poden informar els paràmetres del titular.",
+    "varParam" : "varInteressatCodi",
+    "varParamDesc" : "Codi de la variable que conté el codi de l'interessat per informar les dades del titular."
+  }, {
+	"codi": "titularNom",
+    "nom" : "Nom titular",
+    "obligatori" : false,
+    "param" : "titularNom",
+    "paramDesc" : "Nom del titular.",
+    "varParam" : "varTitularNom",
+    "varParamDesc" : "Codi de la variable que conté el nom del titular interessat."
+  }, {
+	"codi": "titularLlinatge1",
+    "nom" : "Llinatge1 titular",
+    "obligatori" : false,
+    "param" : "titularLlinatge1",
+    "paramDesc" : "Llinatge 1 del titular.",
+    "varParam" : "varTitularLlinatge1",
+    "varParamDesc" : "Codi de la variable que conté el primer llinatge del titular interessat."
+  }, {
+	"codi": "titularLlinatge2",
+    "nom" : "Llinatge2 titular",
+    "obligatori" : false,
+    "param" : "titularLlinatge2",
+    "paramDesc" : "Llinatge 2 del titular.",
+    "varParam" : "varTitularLlinatge2",
+    "varParamDesc" : "Codi de la variable que conté el segon llinatge del titular interessat."
+  }, {
+	"codi": "titularTipusDocumentacio",
+    "nom" : "Tipus documentacó titular",
+    "obligatori" : true,
+    "param" : "titularTipusDocumentacio",
+    "paramDesc" : "Camp per indicar el tipus de documentació. Els possibles valors són: 'DNI', 'NIE', 'NIF', 'Passaport' i 'Altres'.",
+    "varParam" : "varTitularTipusDocumentacio",
+    "varParamDesc" : "Variable que conté el valor pel tipus de documentació."
+  }, {
+	"codi": "titularDocumentacio",
+    "nom" : "Documentació titular",
+    "obligatori" : false,
+    "param" : "titularDocumentacio",
+    "paramDesc" : "Text amb el valor de la documentació del titular.",
+    "varParam" : "varParam",
+    "varParamDesc" : "Codi de la variable que conté el valor de la documentació del titular interessat."
+  }],
+  "agrupacio" : "PINBAL"
+ }
+ 
+]

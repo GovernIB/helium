@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.conselldemallorca.helium.v3.core.api.dto.*;
 import org.springframework.security.acls.model.NotFoundException;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
@@ -24,15 +25,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
@@ -856,6 +848,10 @@ public interface ExpedientService {
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup);
 
+	public List<ExpedientConsultaDissenyDto> findExpedientsExportacio(List<Long> ids, String entornCodi);
+
+    public String getExpedientProcessInstanceId(Long expedientId);
+
 	public enum FiltreAnulat {
 		ACTIUS		("expedient.consulta.anulats.actius"),
 		ANUL_LATS	("expedient.consulta.anulats.anulats"),
@@ -997,6 +993,8 @@ public interface ExpedientService {
 	 */
 	public byte[] getZipDocumentacio(Long expedientId);
 
+	public byte[] getZipDocumentacio(Long expedientId, Set<Long> seleccio);
+
 	/** Actualitza les metadade NTI que falten a partir de la informació de l'Arxiu
 	 * per l'expedient i pels documents. En principi a partir de la versió 3.2.112
 	 * ja no s'haurien de produir errors després de migrar un expedient sense dades
@@ -1014,4 +1012,12 @@ public interface ExpedientService {
 	 */
 	byte[] getZipPerNotificar(Long expedientId, List<ExpedientDocumentDto> documentsPerAfegir);
 
+	/** Mètode per canviar l'estat a l'expedient tenint en compte les accions de sortida de l'estat
+	 * actual i les accions d'entrada de l'estat destí.
+	 * 
+	 * @param expedientId
+	 * @param estatId
+	 * @return
+	 */
+	public EstatDto estatCanviar(Long expedientId, Long estatId);
 }

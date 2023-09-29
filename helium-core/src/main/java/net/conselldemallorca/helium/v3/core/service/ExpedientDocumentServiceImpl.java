@@ -4,13 +4,27 @@
 package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.Resource;
 
+import com.google.common.base.Strings;
+import net.conselldemallorca.helium.core.common.JbpmVars;
+import net.conselldemallorca.helium.core.model.hibernate.*;
+import net.conselldemallorca.helium.v3.core.api.dto.*;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.document.*;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.CampFormProperties;
+import net.conselldemallorca.helium.v3.core.regles.ReglaHelper;
+import net.conselldemallorca.helium.v3.core.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.acls.domain.BasePermission;
@@ -34,26 +48,15 @@ import net.conselldemallorca.helium.core.helper.NotificacioHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
-import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.Interessat;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
+
+import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuEstat;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
@@ -77,13 +80,6 @@ import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
-import net.conselldemallorca.helium.v3.core.repository.DocumentNotificacioRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
-import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
-import net.conselldemallorca.helium.v3.core.repository.InteressatRepository;
-import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
-import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
-import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 
 
 /**
@@ -109,7 +105,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	@Resource
 	private PaginacioHelper paginacioHelper;
 	@Resource
-	NotificacioRepository notificacioRepository;
+	private NotificacioRepository notificacioRepository;
+	@Resource
+	private AnotacioRepository anotacioRepository;
 
 	@Resource
 	private PluginHelper pluginHelper;
@@ -133,6 +131,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private DocumentHelperV3 documentHelperV3;
 	@Resource
 	private NotificacioHelper notificacioHelper;
+	@Resource
+	private ReglaHelper reglaHelper;
 
 	@Override
 	@Transactional
@@ -553,9 +553,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				false,
 				false,
 				false);
-		expedientHelper.comprovarInstanciaProces(
-				expedient,
-				processInstanceId);
 		if (processInstanceId == null) {
 			return documentHelper.findDocumentsPerInstanciaProces(
 					expedient.getProcessInstanceId());
@@ -566,6 +563,182 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			return documentHelper.findDocumentsPerInstanciaProces(
 					processInstanceId);
 		}
+	}
+
+    @Override
+	@Transactional(readOnly = true)
+    public List<DocumentListDto> findDocumentsExpedient(Long expedientId, Boolean tots, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
+		logger.debug("Consulta els documents de l'expedient' (expedientId=" + expedientId + ")");
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+
+		if (tots) {
+			// Comprovam que l'usuari té permisos d'administrador sobre l'expedient
+			try {
+				expedientHelper.getExpedientComprovantPermisos(
+						expedientId,
+						false,
+						false,
+						false,
+						true);
+			} catch (PermisDenegatException pde) {
+				// Si no es tenen permisos d'administrador no es mostraran totes les dades
+				tots = false;
+			}
+		}
+
+		String processInstanceId = expedient.getProcessInstanceId();
+		List<Document> documentsTipusExpedient = documentRepository.findByExpedientTipusId(expedient.getTipus().getId());
+		List<ExpedientDocumentDto> documentsExpedient = findAmbInstanciaProces(expedientId, expedient.getProcessInstanceId());
+		List<PortasignaturesDto> documentsPsignaPendent = portasignaturesFindPendents(expedientId, expedient.getProcessInstanceId());
+		Map<String, CampFormProperties> documentsFormProperties = reglaHelper.getDocumentFormProperties(expedient.getTipus(), expedient.getEstat());
+
+		List<DocumentListDto> documents = new ArrayList<DocumentListDto>();
+		List<String> documentCodis = new ArrayList<String>();
+
+		// Documents definits al tipus d'expedient
+		for (Document dTipExp: documentsTipusExpedient) {
+			documentCodis.add(dTipExp.getCodi());
+			CampFormProperties documentFormProperties = documentsFormProperties.get(dTipExp.getCodi());
+			if (!tots && documentFormProperties != null && !documentFormProperties.isVisible())
+				continue;
+
+			ExpedientDocumentDto dExp = getDocumentExpedient(documentsExpedient, dTipExp.getCodi());
+			PortasignaturesDto dPsigna = dExp != null ? getDocumentPsignaPendent(documentsPsignaPendent, dExp.getId()) : null;
+
+			DocumentListDto document = null;
+			if (dExp == null) {
+				document = DocumentListDto.builder()
+						.codi(dTipExp.getCodi())
+						.nom(dTipExp.getNom())
+						.tipoDocumental(dTipExp.getNtiTipoDocumental())
+						.processInstanceId(processInstanceId)
+						.expedientId(expedientId)
+						.visible(documentFormProperties != null ? documentFormProperties.isVisible() : true)
+						.editable(documentFormProperties != null ? documentFormProperties.isEditable() : true)
+						.obligatori(documentFormProperties != null ? documentFormProperties.isObligatori() : false)
+						.build();
+			} else {
+				document = toDocumentList(expedient, processInstanceId, dTipExp, dExp, dPsigna, documentFormProperties);
+			}
+			documents.add(document);
+		}
+
+		// Documents adjunts
+		for(ExpedientDocumentDto dExp: documentsExpedient) {
+			if (documentCodis.contains(dExp.getDocumentCodi()))
+				continue;
+
+			CampFormProperties documentFormProperties = documentsFormProperties.get(dExp.getDocumentCodi());
+			if (documentFormProperties != null && !documentFormProperties.isVisible())
+				continue;
+
+			PortasignaturesDto dPsigna = dExp != null ? getDocumentPsignaPendent(documentsPsignaPendent, dExp.getId()) : null;
+
+			DocumentListDto document = toDocumentList(expedient, processInstanceId, null, dExp, dPsigna, documentFormProperties);
+			documents.add(document);
+		}
+
+		List<OrdreDto> ordres = paginacioParams.getOrdres();
+		OrdreDto ordreDto = null;
+		OrdreDto ordreDto2 = null;
+
+		if (ordres != null && !ordres.isEmpty()) {
+			ordreDto = ordres.get(0);
+			if (ordres.size() > 1)
+				ordreDto2 = ordres.get(1);
+		}
+
+		final String ordre = ordreDto != null ? ordreDto.getCamp() : "nom";
+		final String ordre2 = ordreDto2 != null ? ordreDto2.getCamp() : null;
+		final OrdreDireccioDto direccio = ordreDto != null ? ordreDto.getDireccio() : OrdreDireccioDto.ASCENDENT;
+		final OrdreDireccioDto direccio2 = ordreDto2 != null ? ordreDto2.getDireccio() : null;
+
+		Collections.sort(documents, new Comparator<DocumentListDto>() {
+			@Override
+			public int compare(DocumentListDto o1, DocumentListDto o2) {
+				int result = compareDocByCamp(o1, o2, ordre);
+				if (result != 0 || ordre2 == null)
+					return OrdreDireccioDto.ASCENDENT.equals(direccio) ? result : -result;
+				result = compareDocByCamp(o1, o2, ordre2);
+				return OrdreDireccioDto.ASCENDENT.equals(direccio2) ? result : -result;
+			}
+		});
+
+		return documents;
+    }
+
+	private int compareDocByCamp(DocumentListDto o1, DocumentListDto o2, String camp) {
+		int result = 0;
+		if ("nom".equals(camp)) {
+			result = o1.getNom() == null ? -1 : o2.getNom() == null ? 1 : o1.getNom().toUpperCase().compareTo(o2.getNom().toUpperCase());
+		} else if ("tipoDocumental".equals(camp)) {
+			result = o1.getTipoDocumental() == null ? -1 : o2.getTipoDocumental() == null ? 1 : o1.getTipoDocumental().name().toUpperCase().compareTo(o2.getTipoDocumental().name().toUpperCase());
+		} else if ("dataCreacio".equals(camp)) {
+			result = o1.getDataCreacio() == null ? -1 : o2.getDataCreacio() == null ? 1 : o1.getDataCreacio().compareTo(o2.getDataCreacio());
+		} else if ("dataDocument".equals(camp)) {
+			result = o1.getDataDocument() == null ? -1 : o2.getDataDocument() == null ? 1 : o1.getDataDocument().compareTo(o2.getDataDocument());
+		}
+		return result;
+	}
+
+	private static DocumentListDto toDocumentList(Expedient expedient, String processInstanceId, Document dTipExp, ExpedientDocumentDto dExp, PortasignaturesDto dPsigna, CampFormProperties documentFormProperties) {
+		DocumentListDto document;
+		document = DocumentListDto.builder()
+				.id(dExp.getId())
+				.codi(dExp.getDocumentCodi())
+				.nom(dExp.isAdjunt() ? dExp.getAdjuntTitol() : dExp.getDocumentNom())
+				.dataCreacio(dExp.getDataCreacio())
+				.dataDocument(dExp.getDataDocument())
+				.tipoDocumental(dTipExp != null ? dTipExp.getNtiTipoDocumental() : dExp.getNtiTipoDocumental())
+				.processInstanceId(processInstanceId)
+				.expedientId(expedient.getId())
+				.adjunt(dExp.isAdjunt())
+				.extensio(dExp.getArxiuExtensio() != null ? dExp.getArxiuExtensio().toUpperCase() : null)
+				.signat(dExp.isSignat())
+				.notificable(dExp.isNotificable())
+				.notificat(dExp.isNotificat())
+				.arxiuActiu(dExp.isArxiuActiu())
+				.ntiActiu(expedient.isNtiActiu())
+				.registrat(dExp.isRegistrat())
+				.docValid(dExp.isDocumentValid())
+				.psError(dPsigna != null ? dPsigna.isError() : false)
+				.signUrlVer(dExp.getSignaturaUrlVerificacio())
+				.psPendent(dPsigna != null)
+				.ntiCsv(dExp.getNtiCsv())
+				.psEstat(dPsigna != null ? dPsigna.getEstat() : null)
+				.psDocId(dPsigna != null ? dPsigna.getDocumentId() : null)
+				.arxiuUuid(dExp.getArxiuUuid())
+				.expUuid(expedient.getArxiuUuid())
+				.anotacioId(dExp.getAnotacioId())
+				.anotacioIdf(dExp.getAnotacioIdentificador())
+				.error(dExp.getError())
+				.docError(dExp.getDocumentError())
+				.visible(documentFormProperties != null ? documentFormProperties.isVisible() : true)
+				.editable(documentFormProperties != null ? documentFormProperties.isEditable() : true)
+				.obligatori(documentFormProperties != null ? documentFormProperties.isObligatori() : false)
+				.build();
+		return document;
+	}
+
+	private ExpedientDocumentDto getDocumentExpedient(List<ExpedientDocumentDto> documentsExpedient, String documentCodi) {
+		for(ExpedientDocumentDto docExpedient: documentsExpedient) {
+			if (docExpedient.getDocumentCodi() != null && docExpedient.getDocumentCodi().equals(documentCodi))
+				return docExpedient;
+		}
+		return null;
+	}
+
+	private PortasignaturesDto getDocumentPsignaPendent(List<PortasignaturesDto> documentsPsignaPendent, Long documentStoreId) {
+		for (PortasignaturesDto docPsigna: documentsPsignaPendent) {
+			if (docPsigna.getDocumentStoreId().equals(documentStoreId))
+				return docPsigna;
+		}
+		return null;
 	}
 
 	/**
@@ -690,6 +863,18 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				versio);
 	}
 	
+	@Override
+	@Transactional(readOnly = true)
+	public ArxiuDto arxiuPdfFindAmbDocument(
+			Long expedientId,
+			String processInstanceId,
+			Long documentStoreId) {
+		ArxiuDto arxiuDto = arxiuFindAmbDocument(expedientId, processInstanceId, documentStoreId);
+		if ("application/pdf".equals(arxiuDto.getTipusMime()))
+			return arxiuDto;
+		return documentHelperV3.converteixPdf(arxiuDto);
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -997,6 +1182,21 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		return conversioTipusHelper.convertir(portasignatures, PortasignaturesDto.class);
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public List<PortasignaturesDto> getPortasignaturesByProcessInstanceAndDocumentStoreId(
+			String processInstanceId,
+			Long documentStoreId) {
+		List<Portasignatures> portasignatures = new ArrayList<Portasignatures>();
+		if (!Strings.isNullOrEmpty(processInstanceId) && documentStoreId != null) {
+			portasignatures = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(
+					processInstanceId,
+					documentStoreId);
+			}
+		return conversioTipusHelper.convertirList(portasignatures, PortasignaturesDto.class);
+	
+	}
+
 	
 	@Override
 	@Transactional(readOnly = true)
@@ -1069,6 +1269,179 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		return dto;
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public DocumentDetallDto getDocumentDetalls(Long expedientId, Long documentStoreId) {
+		// Expedient
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				false,
+				false,
+				false);
+		// Document
+		ExpedientDocumentDto document = findOneAmbInstanciaProces(
+				expedientId,
+				expedient.getProcessInstanceId(),
+				documentStoreId);
+
+		// Detalls del document
+		DocumentDetallDto.DocumentDetallDtoBuilder documentDetallBuilder = DocumentDetallDto.builder()
+				.documentStoreId(documentStoreId)
+				.documentNom(document.getDocumentNom())
+				.arxiuNom(document.getArxiuNom())
+				.extensio(document.getArxiuExtensio())
+				.adjunt(document.isAdjunt())
+				.adjuntTitol(document.getAdjuntTitol())
+				.dataCreacio(document.getDataCreacio())
+				.dataModificacio(document.getDataModificacio())
+				.dataDocument(document.getDataDocument())
+				.notificable(document.isNotificable())
+				.arxiuUuid(document.getArxiuUuid())
+				.ntiCsv(document.getNtiCsv())
+				.nti(expedient.isNtiActiu() && expedient.getArxiuUuid() == null)
+				.arxiu(expedient.isNtiActiu() && expedient.getArxiuUuid() != null)
+				.signat(document.isSignat())
+				.registrat(document.isRegistrat())
+				.deAnotacio(document.getAnotacioId() != null)
+				.notificat(document.isNotificat())
+				.notificable(document.isNotificable())
+				.deAnotacio(document.getAnotacioId() != null);
+
+
+
+		// Registre
+		if (document.isRegistrat()) {
+			documentDetallBuilder.registreDetall(RegistreDetallDto.builder()
+					.registreOficinaNom(document.getRegistreOficinaNom())
+					.registreData(document.getRegistreData())
+					.registreEntrada(document.isRegistreEntrada())
+					.registreNumero(document.getRegistreNumero())
+					.build());
+		}
+
+		// NTI
+		documentDetallBuilder.ntiDetall(NtiDetallDto.builder()
+				.ntiVersion(document.getNtiVersion())
+				.ntiIdentificador(document.getNtiIdentificador())
+				.ntiOrgano(document.getNtiOrgano())
+				.ntiOrigen(document.getNtiOrigen())
+				.ntiEstadoElaboracion(document.getNtiEstadoElaboracion())
+				.ntiNombreFormato(document.getNtiNombreFormato())
+				.ntiTipoDocumental(document.getNtiTipoDocumental())
+				.ntiIdOrigen(document.getNtiIdOrigen())
+				.ntiTipoFirma(document.getNtiTipoFirma())
+				.ntiCsv(document.getNtiCsv())
+				.ntiDefinicionGenCsv(document.getNtiDefinicionGenCsv())
+				.arxiuUuid(document.getArxiuUuid())
+				.build());
+		if (expedient.isArxiuActiu()) {
+			if (!StringUtils.isEmpty(document.getArxiuUuid())) {
+				documentDetallBuilder.arxiuDetall(getArxiuDetall(
+						expedientId,
+						expedient.getProcessInstanceId(),
+						documentStoreId));
+			} else {
+				documentDetallBuilder.errorArxiuNoUuid(true);
+			}
+			if (expedient.getNtiOrgano() == null) {
+				documentDetallBuilder.errorMetadadesNti(true);
+			}
+		}
+
+		// Signatura / Url de verificació
+		if (document.isSignat()) {
+			SignaturaValidacioDetallDto.SignaturaValidacioDetallDtoBuilder signaturaValidacioDetallBuilder = SignaturaValidacioDetallDto.builder().signat(true);
+			if (expedient.isArxiuActiu()) {
+				if (document.getNtiCsv() != null) {
+					signaturaValidacioDetallBuilder.urlVerificacio(document.getSignaturaUrlVerificacio());
+				} else {
+					// La crida a arxiuDetall ha actualitzar el CSV al documnet. Per tant el tornam a consultar
+					ExpedientDocumentDto expedientDocument = findOneAmbInstanciaProces(
+							expedientId,
+							expedient.getProcessInstanceId(),
+							documentStoreId);
+					signaturaValidacioDetallBuilder.urlVerificacio("redirect:" + expedientDocument.getSignaturaUrlVerificacio());
+				}
+			} else {
+				if (!StringUtils.isEmpty(document.getSignaturaUrlVerificacio())) {
+					signaturaValidacioDetallBuilder.urlVerificacio(document.getSignaturaUrlVerificacio());
+				} else {
+					DocumentDto signatura = findDocumentAmbId(documentStoreId);
+					signaturaValidacioDetallBuilder.tokenSignatura(signatura.getTokenSignatura());
+					DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+					if (documentStore == null)
+						throw new NoTrobatException(DocumentStore.class, documentStoreId);
+					List<RespostaValidacioSignaturaDto> signatures = documentHelper.getRespostasValidacioSignatura(documentStore);
+					List<SignaturaDetallDto> signaturaValidacioDetall = new ArrayList<SignaturaDetallDto>();
+					for (RespostaValidacioSignaturaDto sign : signatures) {
+						String nomResponsable = null;
+						String nifResponsable = null;
+						if (sign.getDadesCertificat() != null && !sign.getDadesCertificat().isEmpty()) {
+							nomResponsable = sign.getDadesCertificat().get(0).getNombreCompletoResponsable();
+							nifResponsable = sign.getDadesCertificat().get(0).getNifResponsable();
+						}
+						signaturaValidacioDetall.add(SignaturaDetallDto.builder()
+								.estatOk(sign.isEstatOk())
+								.nomResponsable(nomResponsable)
+								.nifResponsable(nifResponsable)
+								.build());
+					}
+					signaturaValidacioDetallBuilder.signatures(signaturaValidacioDetall);
+				}
+			}
+			documentDetallBuilder.signaturaValidacioDetall(signaturaValidacioDetallBuilder.build());
+		}
+
+		// Psigna
+		List<PortasignaturesDto> portasignatures = getPortasignaturesByProcessInstanceAndDocumentStoreId(
+				expedient.getProcessInstanceId(),
+				documentStoreId);
+		if (!portasignatures.isEmpty()) {
+			for (PortasignaturesDto peticio : portasignatures) {
+				if (!"PROCESSAT".equals(peticio.getEstat())) {
+					documentDetallBuilder
+					.psignaPendent(!"PROCESSAT".equals(peticio.getEstat()))
+					.psignaDetall(PsignaDetallDto.builder()
+							.documentId(peticio.getDocumentId())
+							.dataEnviat(peticio.getDataEnviat())
+							.estat(peticio.getEstat())
+							.error(peticio.isError())
+							.errorProcessant(peticio.getErrorProcessant())
+							.motiuRebuig(peticio.getMotiuRebuig())
+							.dataProcessamentPrimer(peticio.getDataProcessamentPrimer())
+							.dataProcessamentDarrer(peticio.getDataProcessamentDarrer())
+							.build());
+					break;
+				}
+			}
+		} else {
+			documentDetallBuilder.psignaPendent(false);
+		}
+
+
+		// Anotacio
+		if (document.getAnotacioId() != null) {
+			Anotacio anotacio = anotacioRepository.findOne(document.getAnotacioId());
+			if (anotacio == null) {
+				throw new NoTrobatException(Anotacio.class, document.getAnotacioId());
+			}
+			documentDetallBuilder.anotacio(conversioTipusHelper.convertir(anotacio, AnotacioDto.class));
+		}
+
+		// Notificacio
+		if (document.isNotificat()) {
+			 List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
+			 List<DadesNotificacioDto> notificaionsDetalls = new ArrayList<DadesNotificacioDto>();
+			 for (DocumentNotificacio enviament: enviaments) {
+				 notificaionsDetalls.add(notificacioHelper.toDadesNotificacioDto(enviament));
+			 }
+			 documentDetallBuilder.notificacions(notificaionsDetalls);
+		}
+
+		return documentDetallBuilder.build();
+	}
+
 	@Transactional
 	@Override
 	public ArxiuDetallDto getArxiuDetall(
@@ -1116,7 +1489,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			} catch (Exception e) {
 				logger.error("Error obtenint les versions del document amb uuid: " + documentStore.getArxiuUuid(), e);
 			}
-			arxiuDetall.setVersionsDocument(versions);
 			
 			documentHelper.actualitzarNtiFirma(documentStore, arxiuDocument);
 			arxiuDetall.setIdentificador(arxiuDocument.getIdentificador());
@@ -1232,6 +1604,63 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 						break;
 					case ALTRES:
 						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.ALTRES);
+						break;
+					case COMPAREIXENSA:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.COMPAREIXENSA);
+						break;
+					case CONVOCATORIA:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.CONVOCATORIA);
+						break;
+					case DICTAMEN_COMISSIO:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.DICTAMEN_COMISSIO);
+						break;
+					case ESCRIT:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.ESCRIT);
+						break;
+					case ESMENA:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.ESMENA);
+						break;
+					case INFORME_PONENCIA:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.INFORME_PONENCIA);
+						break;
+					case INICIATIVA_LEGISLATIVA:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.INICIATIVA_LEGISLATIVA);
+						break;
+					case INICIATIVA__LEGISLATIVA:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.INICIATIVA__LEGISLATIVA);
+						break;
+					case INSTRUCCIO:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.INSTRUCCIO);
+						break;
+					case INTERPELACIO:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.INTERPELACIO);
+						break;
+					case LLEI:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.LLEI);
+						break;
+					case MOCIO:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.MOCIO);
+						break;
+					case ORDRE_DIA:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.ORDRE_DIA);
+						break;
+					case PETICIO:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.PETICIO);
+						break;
+					case PREGUNTA:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.PREGUNTA);
+						break;
+					case PROPOSICIO_NO_LLEI:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.PROPOSICIO_NO_LLEI);
+						break;
+					case PROPOSTA_RESOLUCIO:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.PROPOSTA_RESOLUCIO);
+						break;
+					case RESPOSTA:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.RESPOSTA);
+						break;
+					case SOLICITUD_INFORMACIO:
+						arxiuDetall.setEniTipusDocumental(NtiTipoDocumentalEnumDto.SOLICITUD_INFORMACIO);
 						break;
 					}
 				}
@@ -1415,6 +1844,36 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		
 	}
 	
+	@Override
+	@Transactional(readOnly = true)
+	public Set<Long> findIdsDocumentsByExpedient(Long expedientId) {
+		Set<Long> documentStoreIds = new HashSet<Long>();
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				new Permission[] {ExtendedPermission.READ});
+		Map<String, Object> variables = jbpmHelper.getProcessInstanceVariables(expedient.getProcessInstanceId());
+		if (variables != null) {
+			if (variables != null) {
+				variables.remove(JbpmVars.VAR_TASCA_VALIDADA);
+				variables.remove(JbpmVars.VAR_TASCA_DELEGACIO);
+				List<String> codisEsborrar = new ArrayList<String>();
+				for (String codi: variables.keySet()) {
+					if (!codi.startsWith(JbpmVars.PREFIX_DOCUMENT) && !codi.startsWith(JbpmVars.PREFIX_ADJUNT)) {
+						codisEsborrar.add(codi);
+					}
+				}
+				for (String codi: codisEsborrar)
+					variables.remove(codi);
+			}
+			for (String var: variables.keySet()) {
+				Long documentStoreId = (Long)variables.get(var);
+				if (documentStoreId != null)
+					documentStoreIds.add(documentStoreId);
+			}
+		}
+		return documentStoreIds;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1578,5 +2037,50 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	
 	}
 	
+        @Override
+		@Transactional(readOnly = true)
+        public List<DocumentInfoDto> getDocumentsNoUtilitzatsPerEstats(Long expedientId) {
+			logger.debug("Consultant els documents no utilitzats de l'expedient (expedientId=" + expedientId + ")");
+			List<DocumentInfoDto> documentsNoUtilitzats = new ArrayList<DocumentInfoDto>();
+			Expedient expedient = expedientHelper.getExpedientComprovantPermisos(expedientId, true, false, false, false);
+
+			List<Document> documents = documentRepository.findByExpedientTipusId(expedient.getTipus().getId());
+			List<ExpedientDocumentDto> documentsExpedient = documentHelper.findDocumentsPerInstanciaProces(expedient.getProcessInstanceId());
+			Map<String, CampFormProperties> documentFormProperties = reglaHelper.getDocumentFormProperties(expedient.getTipus(), expedient.getEstat());
+
+			if (documentsExpedient != null && !documentsExpedient.isEmpty()) {
+				// Posa els codis dels documents utilitzats en un Set
+				Set<String> codisDocumentsExistents = new HashSet<String>();
+				for (ExpedientDocumentDto documentExpedient : documentsExpedient)
+					codisDocumentsExistents.add(documentExpedient.getDocumentCodi());
+				// Mira quins documents no s'han utilitzat i els retorna
+				for(Document document: documents)
+					if (!codisDocumentsExistents.contains(document.getCodi()))
+						documentsNoUtilitzats.add(toDocumentInfo(document, documentFormProperties.get(document.getCodi())));
+				return documentsNoUtilitzats;
+			} else {
+				for(Document document: documents) {
+					documentsNoUtilitzats.add(toDocumentInfo(document, documentFormProperties.get(document.getCodi())));
+				}
+			}
+            return documentsNoUtilitzats;
+        }
+
+		private DocumentInfoDto toDocumentInfo(Document document, CampFormProperties campFormProperties) {
+			return DocumentInfoDto.builder()
+					.codi(document.getCodi())
+					.documentNom(document.getNom())
+					.plantilla(document.isPlantilla())
+					.ntiOrigen(document.getNtiOrigen())
+					.ntiEstadoElaboracion(document.getNtiEstadoElaboracion())
+					.ntiTipoDocumental(document.getNtiTipoDocumental())
+					.generarNomesTasca(document.isGenerarNomesTasca())
+					.visible(campFormProperties != null ? campFormProperties.isVisible() : true)
+					.editable(campFormProperties != null ? campFormProperties.isEditable() : true)
+					.obligatori(campFormProperties != null ? campFormProperties.isObligatori() : false)
+					.build();
+		}
+
+
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientDocumentServiceImpl.class);
 }

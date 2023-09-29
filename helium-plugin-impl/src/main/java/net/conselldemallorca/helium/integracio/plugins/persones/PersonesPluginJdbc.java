@@ -56,6 +56,20 @@ public class PersonesPluginJdbc implements PersonesPlugin {
 		}
 	}
 
+	public List<DadesPersona> findLikeCodiOrNomSencer(String text) throws PersonesPluginException {
+		try {
+			String query = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.filter.codename");
+			Map<String, Object> parametres = new HashMap<String, Object>();
+			parametres.put("text", text);
+			List<DadesPersona> resultat = consultaSql(query, parametres);
+			if (resultat.size() > 0)
+				return resultat;
+			return null;
+		} catch (Exception ex) {
+			throw new PersonesPluginException("No s'ha pogut trobar cap persona", ex);
+		}
+	}
+
 	public List<DadesPersona> findAll() throws PersonesPluginException {
 		try {
 			String query = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.filter.name");

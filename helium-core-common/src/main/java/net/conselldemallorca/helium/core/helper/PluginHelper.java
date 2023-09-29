@@ -263,6 +263,47 @@ public class PluginHelper {
 					ex);
 		}
 	}
+
+	public List<PersonaDto> personaFindLikeCodiOrNomSencer(String text) {
+		long t0 = System.currentTimeMillis();
+		try {
+			List<DadesPersona> persones = getPersonesPlugin().findLikeCodiOrNomSencer(text);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_PERSONA,
+					"Consulta d'usuaris amb codi o nom like",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					new IntegracioParametreDto("text", text));
+			if (persones == null)
+				return new ArrayList<PersonaDto>();
+			return conversioTipusHelper.convertirList(persones, PersonaDto.class);
+		} catch (PersonesPluginException ex) {
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_PERSONA,
+					"Consulta d'usuaris amb cpdo o nom like",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					"El plugin ha retornat una excepció",
+					ex,
+					new IntegracioParametreDto("text", text));
+			logger.error(
+					"No s'han pogut consultar persones amb el text (text=" + text + ")",
+					ex);
+			throw new SistemaExternException(
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					null,
+					MonitorIntegracioHelper.INTCODI_PERSONA,
+					"No s'han pogut consultar persones amb el text (text=" + text + ")",
+					ex);
+		}
+	}
 	
 	/** Consulta les darreres peticions dels documents del procés i retorna només les que 
 	 * estiguin en un estat pendent de processar o processat i rebutjat. 

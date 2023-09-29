@@ -4,11 +4,12 @@
 	<parent>
 		<groupId>net.conselldemallorca.helium</groupId>
 		<artifactId>helium</artifactId>
-		<version>3.2</version>
+		<version>3.3.1</version>
 	</parent>
 	<artifactId>helium-disseny</artifactId>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+<!--		<java.version>1.7</java.version>-->
 	</properties>
 	<dependencies>
 		<dependency>
@@ -34,17 +35,12 @@
 			</exclusions>
 		</dependency>
 	</dependencies>
-	<repositories>
-		<repository>
-			<id>JBOSS</id>
-			<name>JBoss Repository</name>
-			<url>http://repository.jboss.org/nexus/content/groups/public/</url>
-		</repository>
-	</repositories>
+
 	<build>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
 				<configuration>
 					<fork>true</fork>
 					<compilerVersion>${java.version}</compilerVersion>
@@ -52,18 +48,81 @@
 					<target>${java.version}</target>
 				</configuration>
 			</plugin>
-			<!-- Comentar el següent plugin si es vol generar la llibreria helium-disseny.jar --> 
-			<!--  per a emprar al disseny d'expedients -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<excludes>
-						<exclude>**/handlers/*Handler.*</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
-			<!--  -->
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>compilacio</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<excludes>
+								<exclude>**/handlers/*Handler.*</exclude>
+							</excludes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>disseny</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-deploy-plugin</artifactId>
+						<version>2.8.1</version>
+						<configuration>
+							<altDeploymentRepository>internal.repo::default::file://${project.build.directory}/mvn-repo</altDeploymentRepository>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>com.github.github</groupId>
+						<artifactId>site-maven-plugin</artifactId>
+						<version>0.12</version>
+						<configuration>
+							<message>Maven artifacts for ${project.version}</message>
+							<outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>
+							<noJekyll>true</noJekyll>
+							<branch>refs/heads/gh-pages</branch>
+							<includes><include>**/*</include></includes>
+							<path>maven</path>
+							<repositoryName>maven</repositoryName>
+							<repositoryOwner>GovernIB</repositoryOwner>
+							<server>github_governib_maven</server>
+							<merge>true</merge>
+							<dryRun>false</dryRun>
+						</configuration>
+						<executions>
+							<execution>
+								<goals>
+									<goal>site</goal>
+								</goals>
+								<phase>deploy</phase>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+	<repositories>
+		<repository>
+			<id>JBOSS</id>
+			<name>JBoss Repository</name>
+			<url>https://repository.jboss.org/nexus/content/groups/public/</url>
+		</repository>
+	</repositories>
+
 </project>

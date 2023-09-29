@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>net.conselldemallorca.helium</groupId>
 		<artifactId>helium</artifactId>
-		<version>3.2</version>
+		<version>3.3.1</version>
 	</parent>
 	<artifactId>helium-core-common</artifactId>
 	<dependencies>
@@ -313,20 +313,7 @@
 			<artifactId>tika-core</artifactId>
 			<version>1.18</version>
 		</dependency>
-		<!-- plugin-arxiu-caib 1.0.5 
-		<dependency>
-			<groupId>org.fundaciobit.plugins</groupId>
-			<artifactId>plugin-arxiu-caib</artifactId>
-			<version>1.0.5</version>
-			<exclusions>
-				<exclusion>
-					<groupId>log4j</groupId>
-					<artifactId>log4j</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		-->
-		<!-- plugin-arxiu-caib --> 
+		<!-- plugin-arxiu-caib 1.0.5 -->
 		<dependency>
 			<groupId>org.fundaciobit.pluginsib.arxiu</groupId>
 			<artifactId>pluginsib-arxiu-caib</artifactId>
@@ -498,6 +485,12 @@
 					<groupId>com.sun.jersey</groupId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.24</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 	<build>

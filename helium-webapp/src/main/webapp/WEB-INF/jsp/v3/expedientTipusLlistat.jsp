@@ -40,6 +40,16 @@
 				<th data-col-name="id" data-visible="false"/>
 				<th data-col-name="codi" width="20%"><spring:message code="expedient.tipus.llistat.columna.codi"/></th>
 				<th data-col-name="nom"><spring:message code="expedient.tipus.llistat.columna.titol"/></th>
+				<th data-col-name="tipus" width="10%" data-template="#cellExpedientTipusTipusTemplate">
+					<spring:message code="expedient.tipus.llistat.columna.tipus"/>
+						<script id="cellExpedientTipusTipusTemplate" type="text/x-jsrender">
+								{{if tipus == 'FLOW' }}
+									<spring:message code="expedient.tipus.tipus.enum.FLOW"/>
+								{{else}}
+									<spring:message code="expedient.tipus.tipus.enum.ESTAT"/>
+								{{/if}}
+						</script>
+					</th>
 				<th data-col-name="permisCount" data-template="#cellPermisosTemplate" data-orderable="false" width="13%">
 					<script id="cellPermisosTemplate" type="text/x-jsrender">
 						{{if permisAdministration || ${potAdministrarEntorn} }}
@@ -68,7 +78,9 @@
 									<c:if test="${!propagarEsborratExpedients}">
 										<li><a href="expedientTipus/{{:id}}/delete" data-rdt-link-ajax="true" data-confirm="<spring:message code="expedient.tipus.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 									</c:if>
-								<li><a href="expedientTipus/{{:id}}/netejarDp" class="consultar-expedient"><span class="fa fa-trash"></span>&nbsp;<spring:message code="entorn.llistat.netejar.definicions.proces"/></a></li>
+								{{if tipus == 'FLOW' }}
+									<li><a href="expedientTipus/{{:id}}/netejarDp" class="consultar-expedient"><span class="fa fa-trash"></span>&nbsp;<spring:message code="entorn.llistat.netejar.definicions.proces"/></a></li>
+								{{/if}}
 								</c:if>
 							</ul>
 						</div>

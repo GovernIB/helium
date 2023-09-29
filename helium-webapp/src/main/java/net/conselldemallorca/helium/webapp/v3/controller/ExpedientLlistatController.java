@@ -1,18 +1,44 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import com.sun.xml.messaging.saaj.util.ByteInputStream;
+import com.sun.xml.messaging.saaj.util.ByteOutputStream;
+import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
+import net.conselldemallorca.helium.v3.core.api.exception.ExportException;
+import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFRichTextString;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.DataFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
@@ -259,6 +285,142 @@ public class ExpedientLlistatController extends BaseExpedientController {
 	    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 	    dateFormat.setLenient(false);
 	    binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
+	}
+
+	@RequestMapping(value = "/descarregardades", method = RequestMethod.GET)
+	@ResponseBody
+	public void descarregarDades(
+			HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		SessionManager sessionManager = SessionHelper.getSessionManager(request);
+		Set<Long> ids = sessionManager.getSeleccioConsultaGeneral();
+		if (ids == null ||ids.isEmpty()) {
+			String msgErr = getMessage(request, "error.no.exp.selec");
+			MissatgesHelper.error(request, msgErr);
+			throw new ExportException(msgErr);
+		}
+		if (expedientService.isDiferentsTipusExpedients(ids)) {
+			String msgErr = getMessage(request, "error.no.exp.selec.diferenttipus");
+			MissatgesHelper.error(request, msgErr);
+			throw new ExportException(msgErr);
+		}
+
+		try {
+			List<ExpedientConsultaDissenyDto> expedients = expedientService.findExpedientsExportacio(new ArrayList<Long>(ids), entornActual.getCodi());
+			exportXLS(response, expedients);
+		} catch(Exception e) {
+			logger.error("Error generant excel amb les dades dels expedients", e);
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"expedient.llistat.exportacio.error",
+							new Object[]{e.getLocalizedMessage()}));
+			throw(e);
+		}
+	}
+
+	private void exportXLS(HttpServletResponse response, List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto) {
+		HSSFWorkbook wb = new HSSFWorkbook();
+
+		DataFormat format = wb.createDataFormat();
+		HSSFCellStyle dStyle = wb.createCellStyle();
+		dStyle.setDataFormat(format.getFormat("0.00"));
+
+		// GENERAL
+		HSSFSheet sheet = wb.createSheet("Hoja 1");
+
+		if (!expedientsConsultaDissenyDto.isEmpty())
+			createHeader(sheet, expedientsConsultaDissenyDto);
+
+		int rowNum = 1;
+
+		for (ExpedientConsultaDissenyDto  expedientConsultaDissenyDto : expedientsConsultaDissenyDto) {
+			try {
+				HSSFRow xlsRow = sheet.createRow(rowNum++);
+				int colNum = 0;
+
+				ExpedientDto exp = expedientConsultaDissenyDto.getExpedient();
+				Map<String, DadaIndexadaDto> dades = expedientConsultaDissenyDto.getDadesExpedient();
+
+				String titol = "";
+				if (exp != null) {
+					if (exp.getNumero() != null)
+						titol = "[" + exp.getNumero() + "]";
+					if (exp.getTitol() != null)
+						titol += (titol.length() > 0 ? " " : "") + exp.getTitol();
+					if (titol.length() == 0)
+						titol = exp.getNumeroDefault();
+				}
+
+				sheet.autoSizeColumn(colNum);
+				HSSFCell cell = xlsRow.createCell(colNum++);
+				cell.setCellValue(titol);
+				cell.setCellStyle(dStyle);
+
+				Iterator<Map.Entry<String, DadaIndexadaDto>> it = dades.entrySet().iterator();
+				while (it.hasNext()) {
+					Map.Entry<String, DadaIndexadaDto> e = (Map.Entry<String, DadaIndexadaDto>)it.next();
+					sheet.autoSizeColumn(colNum);
+					cell = xlsRow.createCell(colNum++);
+					DadaIndexadaDto val = e.getValue();
+					cell.setCellValue(StringEscapeUtils.unescapeHtml(val.getValorMostrar()));
+					cell.setCellStyle(dStyle);
+				}
+			} catch (Exception e) {
+				logger.error("Export Excel: No s'ha pogut crear la línia: " + rowNum + " - amb ID: " + expedientConsultaDissenyDto.getExpedient().getId(), e);
+			}
+		}
+
+		try {
+			String fileName = "Exportacio_expedients.xls";
+			response.setHeader("Pragma", "");
+			response.setHeader("Expires", "");
+			response.setHeader("Cache-Control", "");
+			response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+			response.setContentType("application/vnd.ms-excel;base64");
+			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+			wb.write(byteArrayOutputStream);
+			String encodedExcel = new String(Base64.encodeBase64(byteArrayOutputStream.toByteArray()));
+			response.getOutputStream().write(encodedExcel.getBytes());
+		} catch (Exception e) {
+			logger.error("No s'ha pogut generar l'excel del llistat d'expedients.");
+		}
+	}
+
+	private void createHeader(HSSFSheet sheet, List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto) {
+
+		HSSFFont bold = sheet.getWorkbook().createFont();
+		bold.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+		bold.setColor(HSSFColor.WHITE.index);
+
+		HSSFCellStyle headerStyle = sheet.getWorkbook().createCellStyle();
+		headerStyle.setFillPattern(HSSFCellStyle.FINE_DOTS);
+		headerStyle.setFillBackgroundColor(HSSFColor.GREY_80_PERCENT.index);
+		headerStyle.setFont(bold);
+
+		int rowNum = 0;
+		int colNum = 0;
+
+		// Capçalera
+		HSSFRow xlsRow = sheet.createRow(rowNum++);
+
+		HSSFCell cell;
+
+		cell = xlsRow.createCell(colNum++);
+		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize("Expedient")));
+		cell.setCellStyle(headerStyle);
+
+		Iterator<Map.Entry<String, DadaIndexadaDto>> it = expedientsConsultaDissenyDto.get(0).getDadesExpedient().entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry<String, DadaIndexadaDto> e = (Map.Entry<String, DadaIndexadaDto>)it.next();
+			sheet.autoSizeColumn(colNum);
+			cell = xlsRow.createCell(colNum++);
+			cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(e.getValue().getEtiqueta())));
+			cell.setCellStyle(headerStyle);
+		}
 	}
 
 	private void omplirModelGet(

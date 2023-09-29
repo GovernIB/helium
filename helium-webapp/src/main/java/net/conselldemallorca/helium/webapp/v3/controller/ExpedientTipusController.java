@@ -47,7 +47,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
@@ -210,6 +212,13 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		if (entornActual != null) {
+			// Tipus
+			List<ParellaCodiValorDto> tipusOpcions = new ArrayList<ParellaCodiValorDto>();
+			for (ExpedientTipusTipusEnumDto tipus : ExpedientTipusTipusEnumDto.values()) {
+				tipusOpcions.add(new ParellaCodiValorDto(tipus.toString(), getMessage(request, "expedient.tipus.tipus.enum." + tipus)));
+			}
+			model.addAttribute("tipus", tipusOpcions);
+
 			List<ExpedientTipusDto> expedientsTipusPares = expedientTipusService.findHeretables(entornActual.getId());
 			// Treu de la llista d'heretables el tipus d'expedient que s'està modificant
 			if (expedientTipusId != null)
@@ -596,15 +605,17 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		}
 		command.setIntegracioSistra(true);
 		command.setIntegracioForms(true);
-		if (exportacio.getExpedientTipusPareCodi() != null) {
-			command.setExpedientTipusPare(exportacio.getExpedientTipusPareCodi());
-			command.setTasquesHerencia(true);
+		if (exportacio != null) {
+			if (exportacio.getExpedientTipusPareCodi() != null) {
+				command.setExpedientTipusPare(exportacio.getExpedientTipusPareCodi());
+				command.setTasquesHerencia(true);
+			}
+		 	EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), exportacio, model);			
 		}
 		
 		model.addAttribute("inici", true); // per marcar tots els checboxs inicialment
-		model.addAttribute("command", command);	
-	 	EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), exportacio, model);
+		model.addAttribute("command", command);
 
 		return "v3/expedientTipusImportarOpcions";
 	}	
@@ -1049,7 +1060,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	}
 	
 	
-	@RequestMapping(value = "/{id}/selectionDp/{global}")
+	@RequestMapping(value = "/{id}/selection/{global}")
 	@ResponseBody
 	public Set<Long> seleccioDp(
 			HttpServletRequest request,

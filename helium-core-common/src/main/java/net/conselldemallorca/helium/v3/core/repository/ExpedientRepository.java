@@ -455,5 +455,13 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 	@Query("update Expedient e set e.reindexarError = :error, e.reindexarData = :data where e.id = :id")
 	public int setReindexarErrorData(@Param("id") Long id, @Param("error") boolean error, @Param("data") Date data);
 
+	/** Mètode per comptar el número d'expedients assignats amb aquest estat. */
+	@Query("select count(e) from Expedient e where e.estat = :estat")
+	public long countByEstat(@Param("estat") Estat estat);
+
+	@Query(	"select e.processInstanceId " +
+			"from Expedient e " +
+			"where e.id = :expedientId ")
+	String getExpedientProcessInstanceId(@Param("expedientId") Long expedientId);
 
 }

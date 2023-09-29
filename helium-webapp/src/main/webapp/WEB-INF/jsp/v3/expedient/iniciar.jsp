@@ -66,12 +66,14 @@ $(document).ready( function() {
 		<display:column>
 			<form class="form-init-exedient" action="<c:url value="/modal/v3/expedient/iniciar"/>" method="post" onsubmit="return confirmar(event, this)">
 				<input type="hidden" name="expedientTipusId" value="${registre.id}"/>
-				<select name="definicioProcesId" id="definicioProcesId" class="span9">
-					<option value="">&lt;&lt; <spring:message code='expedient.iniciar.darrera_versio' /> &gt;&gt;</option>
-					<c:forEach var="df" items="${definicionsProces[registre.id].listIdAmbEtiqueta}" varStatus="status">
-						<option value="${df.id}">${df.etiqueta}</option>
-					</c:forEach>
-				</select>
+				<c:if test="${registre.tipus == 'FLOW' }">
+					<select name="definicioProcesId" id="definicioProcesId" class="span9">
+						<option value="">&lt;&lt; <spring:message code='expedient.iniciar.darrera_versio' /> &gt;&gt;</option>
+						<c:forEach var="df" items="${definicionsProces[registre.id].listIdAmbEtiqueta}" varStatus="status">
+							<option value="${df.id}">${df.etiqueta}</option>
+						</c:forEach>
+					</select>
+				</c:if>
 				<button type="submit" class="btn btn-primary pull-right"><spring:message code='comuns.iniciar' /></button>
 			</form>
 		</display:column>

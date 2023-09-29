@@ -112,6 +112,7 @@ import net.conselldemallorca.helium.core.security.AclServiceDao;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
+import net.conselldemallorca.helium.v3.core.api.dto.AccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
 
 
@@ -2675,8 +2676,12 @@ public class DissenyService {
 					desti,
 					accio.getCodi(),
 					accio.getNom(),
-					accio.getJbpmAction());
+					accio.getTipus());
 			nova.setDescripcio(accio.getDescripcio());
+			nova.setJbpmAction(accio.getJbpmAction());
+			nova.setScript(accio.getScript());
+			nova.setPredefinitClasse(accio.getPredefinitClasse());
+			nova.setPredefinitDades(accio.getPredefinitDades());
 			nova.setOculta(accio.isOculta());
 			nova.setPublica(accio.isPublica());
 			nova.setRols(accio.getRols());
@@ -2874,9 +2879,10 @@ public class DissenyService {
 						definicioProces,
 						accio.getCodi(),
 						accio.getNom(),
-						accio.getJbpmAction());
+						AccioTipusEnumDto.HANDLER);
 			}
 			nova.setDescripcio(accio.getDescripcio());
+			nova.setJbpmAction(accio.getJbpmAction());
 			nova.setPublica(accio.isPublica());
 			nova.setOculta(accio.isOculta());
 			nova.setRols(accio.getRols());

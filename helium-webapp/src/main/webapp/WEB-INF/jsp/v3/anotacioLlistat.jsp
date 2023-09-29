@@ -17,7 +17,7 @@
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
-	<script src="<c:url value="/js/select2-locales/select2_locale_ca.js"/>"></script>
+	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
 	<script src="<c:url value="/js/moment.js"/>"></script>
 	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
 	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
@@ -87,7 +87,6 @@
 			data-default-order="1"
 			data-default-dir="desc"
 			data-selection-enabled="true"
-
 			data-selection-url="anotacio/selection"
 			data-selection-counter="#tramitacioMassivaCount"
 			data-info-type="button"
@@ -110,7 +109,7 @@
 							{{:expedientTipus.codi}}
 							<span class="fa fa-info-circle" 
 								title="{{:expedientTipus.codi}} - {{:expedientTipus.nom}} 
-								(Entrorn {{:expedientTipus.entorn.codi}} - {{:expedientTipus.entorn.nom}})"></span> 
+(Entrorn {{:expedientTipus.entorn.codi}} - {{:expedientTipus.entorn.nom}})"></span> 
 						{{/if}}
 					</script>
 				</th>
@@ -224,7 +223,7 @@
 				</th>
 			</tr>
 		</thead>
-	</table>
+	</table>	
 
 	<div id="modal-error" class="modal fade">
 		<div class="modal-dialog">
@@ -310,11 +309,11 @@
 		    }
 		});
 		            
-		$(document).ready(function() {
-			$('#showModalProcesEstatButton').click(function(e) {
-				$('#modalProcesEstat').modal();
-				e.stopPropagation();
-			});	
+	$(document).ready(function() {
+		$('#showModalProcesEstatButton').click(function(e) {
+			$('#modalProcesEstat').modal();
+			e.stopPropagation();
+		});	
 		
 			var selectButtonsInitialized = false;
 		
@@ -353,7 +352,7 @@
 						$("#tramitacioMassivaCount").html(data);
 					});
 			});
-		});
+	});
 	
 	// ]]>
 	</script>	

@@ -985,7 +985,7 @@ public class DominiHelper {
 		return areaRepository.findByEntornAndPareCodi(entorn, areaCodi);
 	}
 
-	private List<Carrec> getCarrecsAmbPersonaCodi(
+	public List<Carrec> getCarrecsAmbPersonaCodi(
 			String entornCodi,
 			String personaCodi) {
 		if (isHeliumIdentitySource()) {

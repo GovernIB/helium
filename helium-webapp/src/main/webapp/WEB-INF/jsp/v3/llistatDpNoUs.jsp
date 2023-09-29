@@ -30,6 +30,7 @@
 			data-default-order="0"
 			data-selection-enabled="true"
 			data-selection-url="selectionDp/selection"
+		    data-selection-url-clear="selectionDp/clear"
 			data-selection-counter="#eliminacioMassivaCount"
 			data-botons-template="#tableButtonsDpNoUsTemplate"
 			class="table table-striped table-bordered table-hover">

@@ -39,10 +39,11 @@
 </head>
 <body>		
 	<form:form cssClass="form-horizontal" action="${formAction}" enctype="multipart/form-data" method="post" commandName="expedientTipusEstatCommand">
-		<div>        
+		<div>
 			<input type="hidden" name="id" value="${expedientTipusEstatCommand.id}"/>
 			<hel:inputText required="true" name="codi" textKey="expedient.tipus.estat.form.estat.codi" />
 			<hel:inputText required="true" name="nom" textKey="expedient.tipus.estat.form.estat.nom" />
+			<c:if test="${expedientTipus.tipus == 'ESTAT'}"><hel:inputNumber required="true" name="ordre" textKey="comuns.ordre" /></c:if>
 		</div>
 		
 		<div id="modal-botons" class="well">

@@ -34,6 +34,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioException;
@@ -66,11 +67,13 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 		Iterator<ExpedientTipusDto> it = tipus.iterator();
 		while (it.hasNext()) {
 			ExpedientTipusDto expedientTipus = it.next();
-			DefinicioProcesExpedientDto definicioProcesIniciExpedientDto = dissenyService.getDefinicioProcesByTipusExpedientById(expedientTipus.getId());
-			if (definicioProcesIniciExpedientDto != null)
-				definicionsProces.put(expedientTipus.getId(), definicioProcesIniciExpedientDto);
-			else
-				it.remove();
+			if (ExpedientTipusTipusEnumDto.FLOW.equals(expedientTipus.getTipus())) {
+				DefinicioProcesExpedientDto definicioProcesIniciExpedientDto = dissenyService.getDefinicioProcesByTipusExpedientById(expedientTipus.getId());
+				if (definicioProcesIniciExpedientDto != null)
+					definicionsProces.put(expedientTipus.getId(), definicioProcesIniciExpedientDto);
+				else
+					it.remove();
+			}
 		}
 		model.addAttribute("expedientTipus", tipus);
 		model.addAttribute("definicionsProces", definicionsProces);

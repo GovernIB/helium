@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>net.conselldemallorca.helium</groupId>
 		<artifactId>helium</artifactId>
-		<version>3.2</version>
+		<version>3.3.1</version>
 	</parent>
 	<artifactId>helium-core</artifactId>
 	<packaging>ejb</packaging>
@@ -50,12 +50,33 @@
 			<artifactId>helium-core-common</artifactId>
 			<version>${helium.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.24</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jeasy</groupId>
+			<artifactId>easy-rules-core</artifactId>
+			<version>3.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jeasy</groupId>
+			<artifactId>easy-rules-support</artifactId>
+			<version>3.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>20.0</version>
+		</dependency>
 	</dependencies>
 	<repositories>
 		<repository>
 			<id>JBOSS</id>
 			<name>JBoss Repository</name>
-			<url>http://repository.jboss.org/nexus/content/groups/public/</url>
+			<url>https://repository.jboss.org/nexus/content/groups/public/</url>
 		</repository>
 	</repositories>
 	<build>

@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 
@@ -79,6 +80,11 @@ public class BaseExpedientController extends BaseController {
 		}
 		model.addAttribute("subprocessos", subprocessos);
 		model.addAttribute("numAccions", numAccions);
+		model.addAttribute("perEstats", ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus()));
+		if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus())) {
+			model.addAttribute("estatsAvancar", expedientTipusService.estatGetAvancar(expedient.getId()));
+			model.addAttribute("estatsRetrocedir", expedientTipusService.estatGetRetrocedir(expedient.getId()));
+		}
 		return "v3/expedientPipelles";
 	}
 

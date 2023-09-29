@@ -7,10 +7,13 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
@@ -20,6 +23,9 @@ import org.hibernate.annotations.ForeignKey;
 import org.hibernate.annotations.Index;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
+import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
+
+import net.conselldemallorca.helium.v3.core.api.dto.AccioTipusEnumDto;
 
 /**
  * Objecte de domini que representa un document de la definició
@@ -47,6 +53,10 @@ public class Accio implements Serializable, GenericEntity<Long> {
 	private String nom;
 	@MaxLength(255)
 	private String descripcio;
+	
+    @NotNull
+	private AccioTipusEnumDto tipus;
+
 	@NotBlank
 	@MaxLength(255)
 	private String jbpmAction;
@@ -61,20 +71,37 @@ public class Accio implements Serializable, GenericEntity<Long> {
 	
 	@MaxLength(255)
 	private String defprocJbpmKey;
+	
+	@MaxLength(255)
+	private String predefinitClasse;
+	@Lob
+	@MaxLength(20000)
+	private String predefinitDades;
+	
+	@MaxLength(1024)
+	private String script;
+
 
 	public Accio() {}
-	public Accio(DefinicioProces definicioProces, String codi, String nom, String jbpmAction) {
+	public Accio(
+			DefinicioProces definicioProces, 
+			String codi, 
+			String nom, 
+			AccioTipusEnumDto tipus) {
 		this.definicioProces = definicioProces;
 		this.codi = codi;
 		this.nom = nom;
-		this.jbpmAction = jbpmAction;
+		this.tipus = tipus;
 	}
-	public Accio(ExpedientTipus expedientTipus, String codi, String nom, String defprocJbpmKey, String jbpmAction) {
+	public Accio(
+			ExpedientTipus expedientTipus, 
+			String codi, 
+			String nom, 
+			AccioTipusEnumDto tipus) {
 		this.expedientTipus = expedientTipus;
 		this.codi = codi;
 		this.nom = nom;
-		this.defprocJbpmKey = defprocJbpmKey;
-		this.jbpmAction = jbpmAction;
+		this.tipus = tipus;
 	}
 
 	@Id
@@ -112,12 +139,29 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.descripcio = descripcio;
 	}
 
+    @Column(name="tipus")
+    @Enumerated(EnumType.STRING)
+	public AccioTipusEnumDto getTipus() {
+		return tipus;
+	}
+	public void setTipus(AccioTipusEnumDto tipus) {
+		this.tipus = tipus;
+	}
+	
 	@Column(name="jbpm_action", length=255, nullable=false)
 	public String getJbpmAction() {
 		return jbpmAction;
 	}
 	public void setJbpmAction(String jbpmAction) {
 		this.jbpmAction = jbpmAction;
+	}
+
+    @Column(name="script")
+	public String getScript() {
+		return script;
+	}
+	public void setScript(String script) {
+		this.script = script;
 	}
 
 	@Column(name="publica")
@@ -180,6 +224,21 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.defprocJbpmKey = defprocJbpmKey;
 	}
 
+	@Column(name="predefinit_classe", length=255)
+	public String getPredefinitClasse() {
+		return predefinitClasse;
+	}
+	public void setPredefinitClasse(String predefinitClasse) {
+		this.predefinitClasse = predefinitClasse;
+	}
+	
+	@Column(name="predefinit_dades", length=255)
+	public String getPredefinitDades() {
+		return predefinitDades;
+	}
+	public void setPredefinitDades(String predefinitDades) {
+		this.predefinitDades = predefinitDades;
+	}
 
 	@Override
 	public int hashCode() {
@@ -187,11 +246,15 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		int result = 1;
 		result = prime * result + ((codi == null) ? 0 : codi.hashCode());
 		result = prime * result
+				+ ((tipus == null) ? 0 : tipus.hashCode());
+		result = prime * result
 				+ ((definicioProces == null) ? 0 : definicioProces.hashCode());
 		result = prime * result
 				+ ((expedientTipus == null) ? 0 : expedientTipus.hashCode());
 		result = prime * result
 				+ ((defprocJbpmKey == null) ? 0 : defprocJbpmKey.hashCode());
+		result = prime * result
+				+ ((predefinitClasse == null) ? 0 : predefinitClasse.hashCode());
 		return result;
 	}
 	@Override
@@ -208,6 +271,11 @@ public class Accio implements Serializable, GenericEntity<Long> {
 				return false;
 		} else if (!codi.equals(other.codi))
 			return false;
+		if (tipus == null) {
+			if (other.tipus != null)
+				return false;
+		} else if (!tipus.equals(other.tipus))
+			return false;
 		if (definicioProces == null) {
 			if (other.definicioProces != null)
 				return false;
@@ -222,6 +290,16 @@ public class Accio implements Serializable, GenericEntity<Long> {
 			if (other.defprocJbpmKey != null)
 				return false;
 		} else if (!defprocJbpmKey.equals(other.defprocJbpmKey))
+			return false;
+		if (predefinitClasse == null) {
+			if (other.predefinitClasse != null)
+				return false;
+		} else if (!predefinitClasse.equals(other.predefinitClasse))
+			return false;
+		if (predefinitDades == null) {
+			if (other.predefinitDades != null)
+				return false;
+		} else if (!predefinitDades.equals(other.predefinitDades))
 			return false;
 		
 		return true;

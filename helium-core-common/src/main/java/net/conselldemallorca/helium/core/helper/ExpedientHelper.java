@@ -34,6 +34,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.DocumentEstat;
 import es.caib.plugins.arxiu.api.ExpedientEstat;
@@ -41,6 +44,7 @@ import es.caib.plugins.arxiu.api.ExpedientMetadades;
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.helperv26.LuceneHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
+import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
@@ -49,6 +53,8 @@ import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
+import net.conselldemallorca.helium.core.model.hibernate.EstatAccioEntrada;
+import net.conselldemallorca.helium.core.model.hibernate.EstatAccioSortida;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient.IniciadorTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
@@ -56,6 +62,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientL
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.LogInfo;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Interessat;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
@@ -67,6 +74,7 @@ import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
+import net.conselldemallorca.helium.v3.core.api.dto.AccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
@@ -75,7 +83,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -84,6 +94,8 @@ import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
+import net.conselldemallorca.helium.v3.core.repository.EstatAccioEntradaRepository;
+import net.conselldemallorca.helium.v3.core.repository.EstatAccioSortidaRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
@@ -114,6 +126,10 @@ public class ExpedientHelper {
 	private RegistreRepository registreRepository;
 	@Resource
 	private DocumentStoreRepository documentStoreRepository;
+	@Resource
+	private EstatAccioEntradaRepository estatAccioEntradaRepository;
+	@Resource
+	private EstatAccioSortidaRepository estatAccioSortidaRepository;
 
 	@Resource
 	private EntornHelper entornHelper;
@@ -141,6 +157,8 @@ public class ExpedientHelper {
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
 	private DefinicioProcesHelper definicioProcesHelper;
+	@Resource
+	private HerenciaHelper herenciaHelper;
 
 	
 	public static String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";
@@ -204,6 +222,14 @@ public class ExpedientHelper {
 		dto.setAmbRetroaccio(expedient.isAmbRetroaccio());
 		dto.setReindexarData(expedient.getReindexarData());
 		dto.setReindexarError(expedient.isReindexarError());
+		// Interessats
+		List<InteressatDto> interessats = new ArrayList<InteressatDto>() ;
+		if (expedient.getInteressats() != null) {
+			for (Interessat interessat : expedient.getInteressats()) {
+				interessats.add(conversioTipusHelper.convertir(interessat, InteressatDto.class));
+			}			
+		}
+		dto.setInteressats(interessats);
 		return dto;
 	}
 	
@@ -1694,6 +1720,14 @@ public class ExpedientHelper {
 				Registre.Accio.INICIAR);
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Crear registre i convertir expedient");
 					
+		// Si és un expedient bastat en estats fixa l'estat inicial
+		if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedientTipus.getTipus())) {
+			List<Estat> estats = estatRepository.findAllAmbHerencia(expedientTipusId);
+			if (estats != null && !estats.isEmpty()) {
+				this.estatCanviar(expedientPerRetornar, estats.get(0).getId());
+			}
+		}
+		
 		// Crear expedient a l'Arxiu
 		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Metadades NTI i creació a dins l'arxiu");
 		if (expedientTipus.isNtiActiu()) {
@@ -1925,6 +1959,80 @@ public class ExpedientHelper {
 	    String any = String.valueOf(cal.get(Calendar.YEAR));
 	    String org = expedient.getNtiOrgano();
 	    return "ES_" + org + "_" + any + "_EXP_HEL" + id;
+	}
+
+	public Estat estatCanviar(Expedient expedient, Long estatId) {
+		Estat estatActual = expedient.getEstat();
+		Estat estatFutur = estatRepository.findOne(estatId);
+		if (estatFutur.getExpedientTipus().getId() != expedient.getTipus().getId()) {
+			throw new ValidacioException("L'estat " + estatId + " no pertany al tipus d'expedient de l'expedient " + expedient.getId());
+		}
+
+		if (expedient.getEstat() != null) {
+			List<EstatAccioSortida> accionsSortida = estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estatActual);
+			// Executa les accions de sortida
+			for (EstatAccioSortida estatAccioSortida : accionsSortida) {
+				this.executarAccio(null, estatAccioSortida.getAccio(), expedient);
+			}
+		}
+		Estat estat = null;
+		if (estatId != null) {
+			estat = estatRepository.findOne(estatId);
+			List<EstatAccioEntrada> accionsEntrada = estatAccioEntradaRepository.findByEstatOrderByOrdreAsc(estat);
+			// Executa les accions d'entrada
+			for (EstatAccioEntrada estatAccioEntrada : accionsEntrada) {
+				this.executarAccio(null, estatAccioEntrada.getAccio(), expedient);
+			}
+		}
+		expedient.setEstat(estat);
+
+		expedientLoggerHelper.afegirLogExpedientPerExpedient(
+				expedient.getId(),
+				ExpedientLogAccioTipus.EXPEDIENT_ESTAT_CANVIAR,
+				expedient.getEstat() != null ? expedient.getEstat().getNom() : "-");
+		return null;
+	}
+
+	public void executarAccio(String processInstanceId, Accio accio, Expedient expedient) {
+		if (processInstanceId == null) {
+			processInstanceId = expedient.getProcessInstanceId();
+		}
+		boolean perEstats = ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus());
+		// Executa l'acció
+		Map<String, String> dades = new HashMap<String, String>();
+		if ((AccioTipusEnumDto.HANDLER.equals(accio.getTipus()) && perEstats) || AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
+			try {
+				dades = (Map<String, String>) new ObjectMapper()
+						.readValue(
+								accio.getPredefinitDades(),
+								new TypeReference<Map<String, String>>(){});
+			} catch(Exception e) {
+				throw new RuntimeException("Error obtenint les dades predefinides pel handler " + accio.getPredefinitClasse() + ": " + e.getMessage());
+			}
+		}
+		if (AccioTipusEnumDto.HANDLER.equals(accio.getTipus())) {
+			if (perEstats) {
+				jbpmHelper.executeHandler(
+						processInstanceId,
+						accio.getJbpmAction(),
+						dades);
+			} else {
+				jbpmHelper.executeActionInstanciaProces(
+						processInstanceId,
+						accio.getJbpmAction(),
+						herenciaHelper.getProcessDefinitionIdHeretadaAmbExpedient(expedient));
+			}
+		} else if (AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
+			jbpmHelper.executeHandlerPredefinit(
+					processInstanceId,
+					accio.getPredefinitClasse(),
+					dades);				
+		} else if (AccioTipusEnumDto.SCRIPT.equals(accio.getTipus())) {
+			jbpmHelper.evaluateScript(
+					processInstanceId, 
+					accio.getScript(), 
+					new HashSet<String>());
+		}		
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientHelper.class);
