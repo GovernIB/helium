@@ -57,7 +57,7 @@
 									<thead>
 										<tr>
 											<td class="tableDocumentsTd">
-												<c:if test="${!document.signat && expedient.permisDocManagement}">
+												<c:if test="${!document.signat && expedient.permisDocManagement && !document.notificat}">
 													<a 	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/update"
 														data-rdt-link-modal="true" 
 														data-rdt-link-modal-min-height="265" 

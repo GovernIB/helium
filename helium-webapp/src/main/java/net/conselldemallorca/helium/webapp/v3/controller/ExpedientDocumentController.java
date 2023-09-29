@@ -564,9 +564,17 @@ public class ExpedientDocumentController extends BaseExpedientController {
 						dadesNotificacioDto,
 						interessatId,
 						documentNotificacioCommand.getRepresentantId());
+				
+				// Missatge del resultat
+				if (! dadesNotificacio.getError())
+					MissatgesHelper.success(request, getMessage(request, "info.document.notificat", new Object[] {interessat.getFullInfo()}));
+				else
+					MissatgesHelper.warning(request, getMessage(request, "info.document.notificar.avis", new Object[] {interessat.getFullInfo(), dadesNotificacio.getErrorDescripcio()}));
+			}
+			try {
+				//Si estem notificant un zip, un cop notificat firmen en servidor
 				if(dadesNotificacioDto!=null && dadesNotificacioDto.getDocumentArxiuContingut()!=null) {
 					Tika tika = new Tika();
-					//Si estem notificant un zip, un cop notificat firmen en servidor
 					if(tika.detect(dadesNotificacioDto.getDocumentArxiuContingut()).contains("zip")) {	
 						ArxiuDto arxiu = expedientDocumentService.arxiuFindAmbDocument(
 								expedientId,
@@ -575,11 +583,12 @@ public class ExpedientDocumentController extends BaseExpedientController {
 						documentHelper.firmaServidor(processInstanceId, documentStoreId, "notificació de zip", arxiu.getContingut());
 					}
 				}
-				// Missatge del resultat
-				if (! dadesNotificacio.getError())
-					MissatgesHelper.success(request, getMessage(request, "info.document.notificat", new Object[] {interessat.getFullInfo()}));
-				else
-					MissatgesHelper.warning(request, getMessage(request, "info.document.notificar.avis", new Object[] {interessat.getFullInfo(), dadesNotificacio.getErrorDescripcio()}));
+			} catch (Exception e) {
+				String errMsg = getMessage(request, "info.signatura.doc.processat.error", new Object[] {e.getMessage()});
+				logger.error(errMsg, e);
+				MissatgesHelper.error(request, errMsg);
+				this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
+				return "v3/expedientDocumentNotificar";
 			}
 		} catch(Exception e) {
 			String errMsg = getMessage(request, "info.document.notificar.error", new Object[] {e.getMessage()});
@@ -1366,8 +1375,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				for(ExpedientDocumentDto annex: annexos) {
 					if (annexosId.contains(annex.getId()))
 							annexosPerNotificar.add(annex);
-				}
-				
+				}	
 			}
 			Long documentStoreId = null;
 			byte[] contingut = null;
@@ -1376,17 +1384,12 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				String documentCodi = command.getTitol();
 				documentStoreId = expedientDocumentService.guardarDocumentProces(expedient.getProcessInstanceId(), null, new Date(), documentCodi+".zip", contingut, annexosPerNotificar);
 			}
-			//DocumentDto documentZipCreat = expedientDocumentService.findDocumentAmbId(documentStoreId);
-		
-			return "redirect:/modal/v3/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + documentStoreId + "/notificar";
-
-		
+			return "redirect:/modal/v3/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + documentStoreId + "/notificar";	
 		} catch(Exception e) {
 			String errMsg = getMessage(request, "expedient.document.notificat.zip.error", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg);
 		}
-//		return "redirect:/modal/v3/expedientDocumentNotificar";
 		return null;
 	}
 	
