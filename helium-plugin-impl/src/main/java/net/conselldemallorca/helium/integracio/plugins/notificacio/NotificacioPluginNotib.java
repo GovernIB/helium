@@ -4,30 +4,27 @@
 package net.conselldemallorca.helium.integracio.plugins.notificacio;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.codec.binary.Base64;
 
-import es.caib.notib.client.NotificacioRestClient;
 import es.caib.notib.client.NotificacioRestClientFactory;
-import es.caib.notib.ws.notificacio.Certificacio;
-import es.caib.notib.ws.notificacio.DocumentV2;
-import es.caib.notib.ws.notificacio.EntregaDeh;
-import es.caib.notib.ws.notificacio.EntregaPostal;
-import es.caib.notib.ws.notificacio.EntregaPostalViaTipusEnum;
-import es.caib.notib.ws.notificacio.EnviamentEstatEnum;
-import es.caib.notib.ws.notificacio.EnviamentTipusEnum;
-import es.caib.notib.ws.notificacio.NotificaDomiciliConcretTipusEnumDto;
-import es.caib.notib.ws.notificacio.NotificaServeiTipusEnumDto;
-import es.caib.notib.ws.notificacio.NotificacioV2;
-import es.caib.notib.ws.notificacio.RespostaAlta;
+import es.caib.notib.client.NotificacioRestClientV2;
+import es.caib.notib.client.domini.Certificacio;
+import es.caib.notib.client.domini.DocumentV2;
+import es.caib.notib.client.domini.EntregaDeh;
+import es.caib.notib.client.domini.EntregaPostal;
+import es.caib.notib.client.domini.EntregaPostalViaTipusEnum;
+import es.caib.notib.client.domini.EnviamentReferenciaV2;
+import es.caib.notib.client.domini.EnviamentTipusEnum;
+import es.caib.notib.client.domini.NotificaDomiciliConcretTipusEnumDto;
+import es.caib.notib.client.domini.NotificaServeiTipusEnumDto;
+import es.caib.notib.client.domini.NotificacioV2;
+import es.caib.notib.client.domini.RespostaAltaV2;
+import es.caib.notib.client.domini.RespostaConsultaEstatEnviamentV2;
+import es.caib.notib.client.domini.RespostaConsultaEstatNotificacioV2;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+
 
 /**
  * Implementació de del plugin d'enviament de notificacions
@@ -38,7 +35,7 @@ import net.conselldemallorca.helium.core.util.GlobalProperties;
 public class NotificacioPluginNotib implements NotificacioPlugin {
 
 	
-	private NotificacioRestClient clientV2;
+	private NotificacioRestClientV2 clientV2;
 
 	@Override
 	public RespostaEnviar enviar(
@@ -60,21 +57,21 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 			notificacioNotib.setEnviamentTipus(notificacio.getEnviamentTipus() != null ? EnviamentTipusEnum.valueOf(notificacio.getEnviamentTipus().toString()) : null);
 			notificacioNotib.setConcepte(notificacio.getConcepte());
 			notificacioNotib.setDescripcio(notificacio.getDescripcio());
-			notificacioNotib.setEnviamentDataProgramada(toXmlGregorianCalendar(notificacio.getEnviamentDataProgramada()));
+			notificacioNotib.setEnviamentDataProgramada(notificacio.getEnviamentDataProgramada());
 			notificacioNotib.setRetard(notificacio.getRetard());
-			notificacioNotib.setCaducitat(toXmlGregorianCalendar(notificacio.getCaducitat()));
+			notificacioNotib.setCaducitat(notificacio.getCaducitat());
 			notificacioNotib.setDocument(document);
 			notificacioNotib.setProcedimentCodi(notificacio.getProcedimentCodi());
 			notificacioNotib.setGrupCodi(notificacio.getGrupCodi());
 			notificacioNotib.setUsuariCodi(notificacio.getUsuariCodi());
 			notificacioNotib.setNumExpedient(notificacio.getNumExpedient());
 			if (notificacio.getIdioma() != null)
-				notificacioNotib.setIdioma(es.caib.notib.ws.notificacio.IdiomaEnumDto.valueOf(notificacio.getIdioma().toString()));
+				notificacioNotib.setIdioma(es.caib.notib.client.domini.IdiomaEnumDto.valueOf(notificacio.getIdioma().toString()));
 						
 			if (notificacio.getEnviaments() != null) {
 				for (Enviament enviament: notificacio.getEnviaments()) {
 					
-					es.caib.notib.ws.notificacio.Enviament enviamentNotib = new es.caib.notib.ws.notificacio.Enviament();
+					es.caib.notib.client.domini.Enviament enviamentNotib = new es.caib.notib.client.domini.Enviament();
 					enviamentNotib.setServeiTipus(enviament.getServeiTipusEnum() != null ? NotificaServeiTipusEnumDto.valueOf(enviament.getServeiTipusEnum().toString()) : null);
 					enviamentNotib.setTitular(toPersonaNotib(enviament.getTitular()));
 					if (enviament.getDestinataris() != null) {
@@ -123,7 +120,7 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 				}
 			}
 
-			RespostaAlta respostaAlta = getNotificacioService().alta(notificacioNotib);
+			RespostaAltaV2 respostaAlta = getNotificacioService().alta(notificacioNotib);
 			
 			if (respostaAlta.isError() 
 					&& (respostaAlta.getReferencies() == null || respostaAlta.getReferencies().isEmpty())) 
@@ -155,7 +152,7 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 				resposta.setIdentificador(respostaAlta.getIdentificador());
 				if (respostaAlta.getReferencies() != null) {
 					List<EnviamentReferencia> referencies = new ArrayList<EnviamentReferencia>();
-					for (es.caib.notib.ws.notificacio.EnviamentReferencia ref: respostaAlta.getReferencies()) {
+					for (EnviamentReferenciaV2 ref: respostaAlta.getReferencies()) {
 						EnviamentReferencia referencia = new EnviamentReferencia();
 						referencia.setTitularNif(ref.getTitularNif());
 						referencia.setReferencia(ref.getReferencia());
@@ -181,7 +178,7 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 	public RespostaConsultaEstatNotificacio consultarNotificacio(String identificador) throws NotificacioPluginException {
 		RespostaConsultaEstatNotificacio resposta = null;
 		try {
-			es.caib.notib.ws.notificacio.RespostaConsultaEstatNotificacio respostaConsultaEstat = getNotificacioService().consultaEstatNotificacio(identificador);
+			RespostaConsultaEstatNotificacioV2 respostaConsultaEstat = getNotificacioService().consultaEstatNotificacio(identificador);
 			resposta = new RespostaConsultaEstatNotificacio();
 			if (respostaConsultaEstat.getEstat() != null) {
 				switch (respostaConsultaEstat.getEstat()) {
@@ -205,7 +202,7 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 				}
 			}
 			resposta.setError(respostaConsultaEstat.isError());
-			resposta.setErrorData(respostaConsultaEstat.getErrorData() != null ? respostaConsultaEstat.getErrorData().toGregorianCalendar().getTime() : null);
+			resposta.setErrorData(respostaConsultaEstat.getErrorData() != null ? respostaConsultaEstat.getErrorData() : null);
 			resposta.setErrorDescripcio(respostaConsultaEstat.getErrorDescripcio());
 		} catch (Exception ex) {
 			throw new NotificacioPluginException(
@@ -220,19 +217,21 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 	public RespostaConsultaEstatEnviament consultarEnviament(
 			String referencia) throws NotificacioPluginException {
 		try {
-			es.caib.notib.ws.notificacio.RespostaConsultaEstatEnviament respostaConsultaEstat = getNotificacioService().consultaEstatEnviament(referencia);
+			RespostaConsultaEstatEnviamentV2 respostaConsultaEstat = getNotificacioService().consultaEstatEnviament(referencia);
 
 			RespostaConsultaEstatEnviament resposta = new RespostaConsultaEstatEnviament();
 			
 			resposta.setEstat(toEnviamentEstat(respostaConsultaEstat.getEstat()));
-			resposta.setEstatData(toDate(respostaConsultaEstat.getEstatData()));
+			resposta.setEstatData(respostaConsultaEstat.getEstatData());
 			resposta.setEstatDescripcio(respostaConsultaEstat.getEstatDescripcio());
-			resposta.setEstatOrigen(respostaConsultaEstat.getEstatOrigen());
-			resposta.setReceptorNif(respostaConsultaEstat.getReceptorNif());
-			resposta.setReceptorNom(respostaConsultaEstat.getReceptorNom());
+			if (respostaConsultaEstat.getDatat() != null) {
+				resposta.setEstatOrigen(respostaConsultaEstat.getDatat().getOrigen());
+				resposta.setReceptorNif(respostaConsultaEstat.getDatat().getReceptorNif());
+				resposta.setReceptorNom(respostaConsultaEstat.getDatat().getReceptorNom());
+			}
 			if (respostaConsultaEstat.getCertificacio() != null) {
 				Certificacio certificacio = respostaConsultaEstat.getCertificacio();
-				resposta.setCertificacioData(toDate(certificacio.getData()));
+				resposta.setCertificacioData(certificacio.getData());
 				resposta.setCertificacioOrigen(certificacio.getOrigen());
 				resposta.setCertificacioContingut(
 						Base64.decodeBase64(certificacio.getContingutBase64().getBytes()));
@@ -254,7 +253,7 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 	}
 
 
-	private EnviamentEstat toEnviamentEstat(EnviamentEstatEnum estat) {
+	private EnviamentEstat toEnviamentEstat(es.caib.notib.client.domini.EnviamentEstat estat) {
 		EnviamentEstat enviamentEstat = null;
 		if (estat != null) {
 			switch (estat) {
@@ -342,34 +341,27 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 			case REGISTRADA:
 				enviamentEstat = EnviamentEstat.REGISTRADA;
 				break;
+			case ENVIADA_AMB_ERRORS:
+				enviamentEstat = EnviamentEstat.ENVIADA_AMB_ERRORS;
+				break;
+			case FINALITZADA_AMB_ERRORS:
+				enviamentEstat = EnviamentEstat.FINALITZADA_AMB_ERRORS;
+				break;
+			default:
+				break;
 			}
 		}
 		return enviamentEstat;
 	}
 
-	private XMLGregorianCalendar toXmlGregorianCalendar(Date date) throws DatatypeConfigurationException {
-		if (date == null) {
-			return null;
-		}
-		GregorianCalendar gc = new GregorianCalendar();
-		gc.setTime(date);
-		return DatatypeFactory.newInstance().newXMLGregorianCalendar(gc);
-	}
-	private Date toDate(XMLGregorianCalendar calendar) throws DatatypeConfigurationException {
-		if (calendar == null) {
-			return null;
-		}
-		return calendar.toGregorianCalendar().getTime();
-	}
-
-	private es.caib.notib.ws.notificacio.Persona toPersonaNotib(
+	private es.caib.notib.client.domini.Persona toPersonaNotib(
 			Persona persona) {
-		es.caib.notib.ws.notificacio.Persona p = null;
+		es.caib.notib.client.domini.Persona p = null;
 		if (persona != null) {
-			p = new es.caib.notib.ws.notificacio.Persona();
+			p = new es.caib.notib.client.domini.Persona();
 			p.setTelefon(persona.getTelefon());
 			p.setEmail(persona.getEmail());
-			p.setInteressatTipus(es.caib.notib.ws.notificacio.InteressatTipusEnumDto.valueOf(persona.getTipus().name()));
+			p.setInteressatTipus(es.caib.notib.client.domini.InteressatTipusEnumDto.valueOf(persona.getTipus().name()));
 			p.setNif(persona.getNif());
 			p.setNom(persona.getNom());
 			switch(persona.getTipus()){
@@ -390,7 +382,7 @@ public class NotificacioPluginNotib implements NotificacioPlugin {
 		return p;
 	}
 	
-	private NotificacioRestClient getNotificacioService() {
+	private NotificacioRestClientV2 getNotificacioService() {
 		if (clientV2 == null) {
 			clientV2 = NotificacioRestClientFactory.getRestClientV2(
 					getUrl(),

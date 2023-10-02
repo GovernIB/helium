@@ -287,26 +287,28 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 				varDocument);
 		boolean multiDocumentsZip = false;
 		if (doc != null && !doc.isEmpty()) {
-			List<Long> documentsId = null;
-			documentsId = new ArrayList<Long>();
+			
+			List<Long> documentsId = new ArrayList<Long>();
 			List<ExpedientDocumentDto> documentsPerNotificar = new ArrayList<ExpedientDocumentDto>();
 			String[] codis = doc.split(",");
-			if(codis!=null) {
+			if(codis != null && codis.length > 1) {
+				
+				multiDocumentsZip = true;
 				for (String codi: codis) {
-					codi = StringUtils.replace(StringUtils.trim(codi), "\\t", "    ");
+					codi = StringUtils.replace(StringUtils.trim(codi), "\\t", "");
 					Long docId = null;
-					try {
-					docId = (Long)executionContext.getVariable(
-							Jbpm3HeliumBridge.getInstanceService().getCodiVariablePerDocumentCodi(codi));
+					try {	
+						docId = (Long)executionContext.getVariable(
+									Jbpm3HeliumBridge.getInstanceService().getCodiVariablePerDocumentCodi(codi));
 					} catch (Exception e) {
 						throw new JbpmException("No existeix cap document amb documentCodi: " + docId + ".");
 					}
 					if (docId != null) {
 						documentsId.add(docId);
-						ExpedientDocumentDto documentContingutAlZip = Jbpm3HeliumBridge.getInstanceService().findOneAmbInstanciaProces(
+						ExpedientDocumentDto documentPerNotificar = Jbpm3HeliumBridge.getInstanceService().findOneAmbInstanciaProces(
 																			expedient.getId(), expedient.getProcessInstanceId(), docId);
-						if(documentContingutAlZip!=null)
-							documentsPerNotificar.add(documentContingutAlZip);
+						if(documentPerNotificar != null)
+							documentsPerNotificar.add(documentPerNotificar);
 					} 
 					else throw new JbpmException("No existeix cap document amb documentCodi: " + codi + ".");	
 				}
@@ -326,10 +328,9 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 					dadesNotificacio.setDocumentArxiuNom(documentCodi+"."+arxiu.getExtensio());
 					dadesNotificacio.setDocumentArxiuContingut(arxiu.getContingut());
 					dadesNotificacio.setDocumentArxiuUuid(expDocDto.getArxiuUuid());
-					multiDocumentsZip=documentsId.size()>1;
 				}				
-			}
-			else if (codis==null) {			
+			} else {
+				// Un sol document
 				documentInfo = getDocumentInfo(executionContext, doc, false);
 				DocumentDto document = Jbpm3HeliumBridge
 						.getInstanceService().getDocumentInfo(documentInfo.getId(),
@@ -343,10 +344,10 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 				dadesNotificacio.setDocumentArxiuNom(document.getArxiuNom());
 				dadesNotificacio.setDocumentArxiuContingut(document.getArxiuContingut());
 				dadesNotificacio.setDocumentArxiuUuid(document.getArxiuUuid());
-				}
-			} else {
-				throw new JbpmException("No existia ningún documento con documentCodi: " + varDocument + ".");
 			}
+		} else {
+			throw new JbpmException("No s'ha informat cap document per notificar.");
+		}
 	
 		String codiProcediment = (String)getValorOVariable(
 				executionContext,

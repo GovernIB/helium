@@ -58,10 +58,12 @@ public class UpdateService {
 	public static final int VERSIO_310_ORDRE = 310;
 	public static final String VERSIO_320_STR = "3.2.0";
 	public static final int VERSIO_320_ORDRE = 320;
-	public static final String VERSIO_ACTUAL_STR = "3.2.0";
-	public static final int VERSIO_ACTUAL_ORDRE = 320;
+	public static final String VERSIO_330_STR = "3.2.0";
+	public static final int VERSIO_330_ORDRE = 320;
+	public static final String VERSIO_ACTUAL_STR = "3.3.0";
+	public static final int VERSIO_ACTUAL_ORDRE = 330;
 
-	public static final String VERSIO_ACTUAL_RELEASE = "117_Heilum_SW";
+	public static final String VERSIO_ACTUAL_RELEASE = "1";
 	public static final String VERSIO_ACTUAL_DATA = "2023.09.29 13:00";
 
 	private VersioDao versioDao;

@@ -289,13 +289,18 @@
         <dependency>
 			<groupId>es.caib.notib</groupId>
 			<artifactId>notib-client</artifactId>
-			<version>1.1.8</version>
+			<version>1.1.23.1</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>jersey-client</artifactId>
 					<groupId>com.sun.jersey</groupId>
 				</exclusion>
 			</exclusions>
+        </dependency>
+        <dependency>
+			<groupId>es.caib.notib</groupId>
+			<artifactId>notib-client-intf</artifactId>
+			<version>1.1.23</version>
         </dependency>
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
