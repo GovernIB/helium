@@ -133,9 +133,17 @@
 														<span class="fa fa-book fa-2x" title="<spring:message code='expedient.document.registrat' />"></span>
 													</a>
 												</c:if>
-												<c:if test="${expedient.permisDocManagement and (not document.signat or (document.signat and not document.arxiuActiu))}">
+												<c:if test="${expedient.permisDocManagement}">
+													<c:choose>
+														<c:when test="${document.signat and document.arxiuActiu}">
+															<c:set var="esborrarConfirmacioMsg"><spring:message code="expedient.document.firmat.esborrar.confirmacio"/></c:set>
+														</c:when>
+														<c:otherwise>
+															<c:set var="esborrarConfirmacioMsg"><spring:message code='expedient.document.confirm_esborrar_proces' /></c:set>
+														</c:otherwise>
+													</c:choose>
 													<a 	class="icon fa fa-trash-o fa-2x" 
-														data-rdt-link-confirm="<spring:message code='expedient.document.confirm_esborrar_proces' />"
+														data-rdt-link-confirm="${esborrarConfirmacioMsg}"
 														data-rdt-link-ajax=true
 														href='<c:url value="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/esborrar"/>' 
 														data-rdt-link-callback="recargarPanel(${document.processInstanceId});"

@@ -348,8 +348,16 @@
 						{{if !error}}
 							<%--Modificar  TODO: Si no està en estat definitiu ni pendent de firma (portafirmes)--%>
 							{{if editable && !signat}}<li><a data-toggle="modal" href="${expedient.id}/document/{{:id}}/update"><span class="fa fa-pencil fa-fw"></span>&nbsp;<spring:message code="comuns.modificar"/></a></li>{{/if}}
-							<%--Borrar  TODO: Si està a l'arxiu no definitiu també es pot borrar. Si està pendent de firma no es pot borrar   --%>
-							{{if editable && (!signat || !arxiuActiu)}}<li><a href="<c:url value="/v3/expedient/${expedient.id}/proces/${expedient.processInstanceId}/document/{{:id}}/esborrar"/>" data-toggle="ajax" data-confirm="<spring:message code="expedient.llistat.document.confirm_esborrar"/>"><span class="fa fa-trash-o fa-fw"></span>&nbsp;<spring:message code="comuns.esborrar"/></a></li>{{/if}}
+							<%--Borrar --%>
+							{{if editable}}
+								<li>
+									{{if signat && arxiuActiu}}
+										<a href="<c:url value="/v3/expedient/${expedient.id}/proces/${expedient.processInstanceId}/document/{{:id}}/esborrar"/>" data-toggle="ajax" data-confirm="<spring:message code="expedient.document.firmat.esborrar.confirmacio"/>"><span class="fa fa-trash-o fa-fw"></span>&nbsp;<spring:message code="comuns.esborrar"/></a>
+									{{else}}
+										<a href="<c:url value="/v3/expedient/${expedient.id}/proces/${expedient.processInstanceId}/document/{{:id}}/esborrar"/>" data-toggle="ajax" data-confirm="<spring:message code="expedient.llistat.document.confirm_esborrar"/>"><span class="fa fa-trash-o fa-fw"></span>&nbsp;<spring:message code="comuns.esborrar"/></a>
+									{{/if}}
+								</li>
+							{{/if}}
 							<%--Notificar  --%>
 							{{if notificable}}<li><a href="${expedient.id}/document/{{:id}}/notificar" data-toggle="modal"><span class="fa fa-paper-plane-o fa-fw"></span>&nbsp;<spring:message code="expedient.document.notificar"/></a></li>{{/if}}
 							<%--Signat     --%>

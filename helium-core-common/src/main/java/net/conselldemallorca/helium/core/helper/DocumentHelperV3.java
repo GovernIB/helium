@@ -1160,7 +1160,9 @@ public class DocumentHelperV3 {
 			}
 			if (expedient.isArxiuActiu()) {
 				if (documentStore.isSignat()) {
-					throw new ValidacioException("No es pot esborrar un document firmat");
+					logger.info("Es procedeix a esborrar d'HELIUM el document firmat a l'Arxiu (expedient= " + expedient.getNumero() + ", tipus=" + expedient.getTipus().getCodi() + 
+							", entorn=" + expedient.getTipus().getEntorn().getCodi() + ", document= " + documentStoreId  
+							+ (documentStore.isAdjunt() ? documentStore.getAdjuntTitol() : documentStore.getCodiDocument() ) + ")");
 				} else {
 					if (esborrarDocument ) {
 						// No esborra el document de l'Arxiu si té un annex associat
