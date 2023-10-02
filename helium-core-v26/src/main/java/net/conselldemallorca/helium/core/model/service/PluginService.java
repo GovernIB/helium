@@ -353,6 +353,9 @@ public class PluginService {
 								portasignatures.getDocumentId(),
 								documentStore);
 						portasignatures.setDataCustodiaOk(new Date());
+						JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(
+								token.getProcessInstanceId());
+						Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 						if (token != null
 								&& ExpedientTipusTipusEnumDto.FLOW.equals(expedient.getTipus().getTipus())) {
 							// Avança el flux
@@ -390,6 +393,9 @@ public class PluginService {
 								processInstanceId,
 								ExpedientLogAccioTipus.PROCES_DOCUMENT_PORTAFIRMES,
 								new Boolean(false).toString());
+						JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(
+								token.getProcessInstanceId());
+						Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 						if (token != null
 								&& ExpedientTipusTipusEnumDto.FLOW.equals(expedient.getTipus().getTipus())) {
 							jbpmDao.signalToken(
@@ -398,9 +404,6 @@ public class PluginService {
 
 							//Actualitzem l'estat de l'expedient, ja que si tot el procés de firma i de custòdia
 							// ha anat malament també és possible que s'avanci cap al node "fi"
-							JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(
-									token.getProcessInstanceId());
-							Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
 							expedientHelper.verificarFinalitzacioExpedient(
 									expedient);
 							

@@ -19,12 +19,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.core.model.hibernate.Document;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentInfoDto;
-import net.conselldemallorca.helium.v3.core.api.dto.regles.CampFormProperties;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -53,6 +51,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
+import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.util.PdfUtils;
@@ -62,6 +62,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPos
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalViaTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentInfoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
@@ -74,6 +75,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxRespostaDto;
@@ -115,8 +117,8 @@ import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NtiHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.UrlHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.UrlHelper;
 import net.conselldemallorca.helium.webapp.v3.passarelafirma.PassarelaFirmaConfig;
 import net.conselldemallorca.helium.webapp.v3.passarelafirma.PassarelaFirmaHelper;
 
@@ -131,8 +133,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientDocumentService expedientDocumentService;
-	@Autowired
-	private DocumentService documentService;
 	// TODO: eliminar la referencia al core 2.6 i passar el mètode processarDocumentPendentPortasignatures al pluginHelper
 	@Autowired
 	private PluginService pluginService;
@@ -142,6 +142,10 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	private ExpedientInteressatService expedientInteressatService;
 	@Autowired
 	private AplicacioService aplicacioService;
+	@Resource(name="documentHelperV3")
+	private DocumentHelperV3 documentHelper;
+	@Resource
+	private ExpedientHelper expedientHelper;
 	@Autowired
 	private PassarelaFirmaHelper passarelaFirmaHelper;
 	@Autowired

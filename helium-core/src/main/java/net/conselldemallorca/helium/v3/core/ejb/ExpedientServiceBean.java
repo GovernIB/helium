@@ -717,12 +717,13 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-<<<<<<< HEAD
 	public byte[] getZipPerNotificar(Long expedientId, List<ExpedientDocumentDto> documentsPerAfegir) {
 		return delegate.getZipPerNotificar(expedientId, documentsPerAfegir);
-=======
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public EstatDto estatCanviar(Long expedientId, Long estatId) {
 		return delegate.estatCanviar(expedientId, estatId);
->>>>>>> refs/remotes/origin/#1627_HELIUM_sense_motor_de_WF
 	}
 }
