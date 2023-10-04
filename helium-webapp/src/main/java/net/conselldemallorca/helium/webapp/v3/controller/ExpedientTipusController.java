@@ -37,7 +37,6 @@ import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
@@ -268,6 +267,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			HttpServletRequest request,
 			@PathVariable Long id,
 			Model model) {
+		
 		omplirModelExpedientTipusForm( request, id, model);		
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto dto = expedientTipusService.findAmbIdPermisDissenyar(

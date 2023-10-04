@@ -105,6 +105,9 @@ public class ProcessState extends Node implements Parsable {
           String subProcessName = subProcessElement.attributeValue("name");
           if (subProcessName.equals(processDefinition.getName())) {
             subProcessDefinition = processDefinition;
+          } else {
+              // si no s'ha trobat es posa com a mínim el nom per a que després es pugui relacionar bé
+        	  this.subProcessName = subProcessName;
           }
         }
       }

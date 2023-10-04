@@ -989,7 +989,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			expedientTipus.setEntorn(entorn);
 			expedientTipus.setCodi(command.getCodi());
 			expedientTipus.setNom(importacio.getNom());
-			expedientTipus.setTipus(importacio.getTipus());
+			expedientTipus.setTipus(importacio.getTipus() != null ? importacio.getTipus() : ExpedientTipusTipusEnumDto.FLOW);
 			expedientTipus = expedientTipusRepository.saveAndFlush(expedientTipus);
 		} else			
 			// Recupera el tipus d'expedient existent
@@ -1006,7 +1006,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			}
 		if (!expedientTipusExisteix || command.isDadesBasiques()) {
 			expedientTipus.setNom(importacio.getNom());
-			expedientTipus.setTipus(importacio.getTipus());
+			expedientTipus.setTipus(importacio.getTipus() != null ? importacio.getTipus() : ExpedientTipusTipusEnumDto.FLOW);
 			expedientTipus.setAmbInfoPropia(importacio.isAmbInfoPropia());
 			expedientTipus.setTeTitol(importacio.isTeTitol());
 			expedientTipus.setDemanaTitol(importacio.isDemanaTitol());

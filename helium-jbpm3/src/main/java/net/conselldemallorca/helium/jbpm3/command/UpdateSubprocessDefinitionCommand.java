@@ -38,9 +38,11 @@ public class UpdateSubprocessDefinitionCommand extends AbstractGetObjectBaseComm
 				"where id_ in (  " +
 				"	select n.id_  " +
 				"	from jbpm_node n  " +
+				"		left join jbpm_processdefinition spd on n.subprocessdefinition_ = spd.id_  " +
 				"	where  " +
 				"		n.processdefinition_ = :processDefinitionId " +
-				"		and n.subprocname_ = :subprocessDefinitionName " +
+				"		and ( n.subprocname_ = :subprocessDefinitionName " +
+				"				or spd.name_ = :subprocessDefinitionName)" +
 				")");
 		updateQuery.setLong("subprocessDefinitionId", subprocessDefinition.getId());
 		updateQuery.setLong("processDefinitionId", processDefinition.getId());

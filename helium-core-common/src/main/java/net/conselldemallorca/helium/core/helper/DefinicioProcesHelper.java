@@ -169,42 +169,6 @@ public class DefinicioProcesHelper {
 					importacio.getContingutDeploy(),
 					entorn,
 					expedientTipus);
-			
-			JbpmProcessDefinition dpd = jbpmHelper.desplegar(
-					importacio.getNomDeploy(), 
-					importacio.getContingutDeploy());
-			if (dpd != null) {
-				// Crea la nova definició de procés
-				definicio = new DefinicioProces(
-						dpd.getId(),
-						dpd.getKey(),
-						dpd.getVersion(),
-						entorn);
-				definicio.setExpedientTipus(expedientTipus);
-				if (expedientTipus != null)
-					expedientTipus.getDefinicionsProces().add(definicio);
-				definicio = definicioProcesRepository.saveAndFlush(definicio);
-				// Crea les tasques publicades
-				for (String nomTasca: jbpmHelper.getTaskNamesFromDeployedProcessDefinition(dpd)) {
-					Tasca tasca = new Tasca(
-							definicio,
-							nomTasca,
-							nomTasca,
-							TipusTasca.ESTAT);
-					String prefixRecursBo = "forms/" + nomTasca;
-					for (String resourceName: jbpmHelper.getResourceNames(dpd.getId())) {
-						if (resourceName.startsWith(prefixRecursBo)) {
-							tasca.setTipus(TipusTasca.FORM);
-							tasca.setRecursForm(nomTasca);
-							break;
-						}
-					}
-					tascaRepository.save(tasca);
-					definicio.getTasques().add(tasca);
-				}				
-			} else
-				throw new DeploymentException(
-						messageHelper.getMessage("exportar.validacio.definicio.deploy.error"));
 		} else {
 			definicio = definicioProcesRepository.findById(definicioProcesId);
 		}
