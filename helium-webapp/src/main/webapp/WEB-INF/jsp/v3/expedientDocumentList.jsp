@@ -412,7 +412,17 @@
 						{{/if}}
 						<%-- TODO: --%>
 						<%--Firma en portafirmes --%>
-
+						{{if editable && !signat && arxiuUuid != null && !psPendent}}
+								<li>
+									<a 	href="${expedient.id}/proces/${expedient.processInstanceId}/document/{{:id}}/enviarPortasignatures"
+														data-toggle="modal"
+														data-rdt-link-callback="recargarPanel(${expedient.processInstanceId});"
+														class="icon enviarPortasignatures">
+														<span class="fa fa-envelope-o" /></span>
+														<spring:message code='expedient.document.enviar.portasignatures' />
+									</a>
+								</li>
+						{{/if}}
 						<%--Enviar a viafirma?? --%>
 
 						<%-- Exportació ENI --%>
@@ -446,6 +456,12 @@
 				<input type="checkbox" id="boto-dpendents" autocomplete="off" checked><span class="fa fa-plus"></span>
 			</label>
 		</div>
+		<a class="btn btn-default" 
+			href="../../v3/expedient/${expedientId}/document/notificarZip" "
+			data-toggle="modal">
+				<span class="fa fa-paper-plane"></span>
+				<spring:message code="expedient.boto.notificar_zip"/>
+		</a>
 		<a id="descarregarZip" href="<c:url value="/v3/expedient/${expedient.id}/document/descarregar"/>" class="btn btn-default" title="<spring:message code="expedient.document.descarregar.zip"/>">
 			<span class="fa fa-download"></span> <spring:message code="comu.boto.descarregar"/> <span id="descarregarCount" class="badge">&nbsp;</span>
 		</a>
