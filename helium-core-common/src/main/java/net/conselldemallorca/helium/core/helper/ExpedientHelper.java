@@ -2003,32 +2003,30 @@ public class ExpedientHelper {
 		boolean perEstats = ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus());
 		// Executa l'acció
 		Map<String, String> dades = new HashMap<String, String>();
-		if ((AccioTipusEnumDto.HANDLER.equals(accio.getTipus()) && perEstats) || AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
+		if ((AccioTipusEnumDto.HANDLER_PROPI.equals(accio.getTipus())) || AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
 			try {
 				dades = (Map<String, String>) new ObjectMapper()
 						.readValue(
-								accio.getPredefinitDades(),
+								accio.getHandlerDades(),
 								new TypeReference<Map<String, String>>(){});
 			} catch(Exception e) {
-				throw new RuntimeException("Error obtenint les dades predefinides pel handler " + accio.getPredefinitClasse() + ": " + e.getMessage());
+				throw new RuntimeException("Error obtenint les dades predefinides pel handler " + accio.getHandlerClasse() + ": " + e.getMessage());
 			}
 		}
-		if (AccioTipusEnumDto.HANDLER.equals(accio.getTipus())) {
-			if (perEstats) {
-				jbpmHelper.executeHandler(
-						processInstanceId,
-						accio.getJbpmAction(),
-						dades);
-			} else {
-				jbpmHelper.executeActionInstanciaProces(
-						processInstanceId,
-						accio.getJbpmAction(),
-						herenciaHelper.getProcessDefinitionIdHeretadaAmbExpedient(expedient));
-			}
+		if (AccioTipusEnumDto.ACCIO.equals(accio.getTipus())) {
+			jbpmHelper.executeActionInstanciaProces(
+					processInstanceId,
+					accio.getJbpmAction(),
+					herenciaHelper.getProcessDefinitionIdHeretadaAmbExpedient(expedient));
+		} else if (AccioTipusEnumDto.HANDLER_PROPI.equals(accio.getTipus())) {
+			jbpmHelper.executeHandler(
+					processInstanceId,
+					accio.getJbpmAction(),
+					dades);
 		} else if (AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
 			jbpmHelper.executeHandlerPredefinit(
 					processInstanceId,
-					accio.getPredefinitClasse(),
+					accio.getHandlerClasse(),
 					dades);				
 		} else if (AccioTipusEnumDto.SCRIPT.equals(accio.getTipus())) {
 			jbpmHelper.evaluateScript(

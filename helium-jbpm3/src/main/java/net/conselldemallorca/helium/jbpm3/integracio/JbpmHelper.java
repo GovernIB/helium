@@ -1238,14 +1238,14 @@ public class JbpmHelper {
 
 	public void executeHandlerPredefinit(
 			String processInstanceId, 
-			String predefinitClasse, 
-			Map<String, String> predefinitDades) {
+			String handlerClasse, 
+			Map<String, String> handlerDades) {
 		
 		final long id = Long.parseLong(processInstanceId);
 		ExecuteHadlerPredefinitCommand command = new ExecuteHadlerPredefinitCommand(
 				id,
-				predefinitClasse,
-				predefinitDades);
+				handlerClasse,
+				handlerDades);
 		executeCommandWithAutoSave(
 				command,
 				id,

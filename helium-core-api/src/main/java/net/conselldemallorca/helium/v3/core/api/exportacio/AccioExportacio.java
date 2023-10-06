@@ -25,8 +25,8 @@ public class AccioExportacio implements Serializable {
 	private boolean publica;
 	private boolean oculta;
 	private String rols;
-	private String predefinitClasse;
-	private String predefinitDades;
+	private String handlerClasse;
+	private String handlerDades;
 	private String script;
 
 
@@ -38,8 +38,8 @@ public class AccioExportacio implements Serializable {
 			AccioTipusEnumDto tipus,
 			String defprocJbpmKey,
 			String jbpmAction,
-			String predefinitClasse,
-			String predefinitDades,
+			String handlerClasse,
+			String handlerDades,
 			String script,
 			boolean publica,
 			boolean oculta,
@@ -50,8 +50,8 @@ public class AccioExportacio implements Serializable {
 		this.tipus = tipus;
 		this.defprocJbpmKey = defprocJbpmKey;
 		this.jbpmAction = jbpmAction;
-		this.predefinitClasse = predefinitClasse;
-		this.predefinitDades = predefinitDades;
+		this.handlerClasse = handlerClasse;
+		this.handlerDades = handlerDades;
 		this.setScript(script);
 		this.publica = publica;
 		this.oculta = oculta;
@@ -117,20 +117,20 @@ public class AccioExportacio implements Serializable {
 		this.tipus = tipus;
 	}
 
-	public String getPredefinitClasse() {
-		return predefinitClasse;
+	public String getHandlerClasse() {
+		return handlerClasse;
 	}
 
-	public void setPredefinitClasse(String predefinitClasse) {
-		this.predefinitClasse = predefinitClasse;
+	public void setHandlerClasse(String handlerClasse) {
+		this.handlerClasse = handlerClasse;
 	}
 
-	public String getPredefinitDades() {
-		return predefinitDades;
+	public String getHandlerDades() {
+		return handlerDades;
 	}
 
-	public void setPredefinitDades(String predefinitDades) {
-		this.predefinitDades = predefinitDades;
+	public void setHandlerDades(String handlerDades) {
+		this.handlerDades = handlerDades;
 	}
 
 

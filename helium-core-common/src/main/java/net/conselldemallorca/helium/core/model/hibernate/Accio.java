@@ -73,10 +73,10 @@ public class Accio implements Serializable, GenericEntity<Long> {
 	private String defprocJbpmKey;
 	
 	@MaxLength(255)
-	private String predefinitClasse;
+	private String handlerClasse;
 	@Lob
 	@MaxLength(20000)
-	private String predefinitDades;
+	private String handlerDades;
 	
 	@MaxLength(1024)
 	private String script;
@@ -224,20 +224,20 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		this.defprocJbpmKey = defprocJbpmKey;
 	}
 
-	@Column(name="predefinit_classe", length=255)
-	public String getPredefinitClasse() {
-		return predefinitClasse;
+	@Column(name="handler_classe", length=255)
+	public String getHandlerClasse() {
+		return handlerClasse;
 	}
-	public void setPredefinitClasse(String predefinitClasse) {
-		this.predefinitClasse = predefinitClasse;
+	public void setHandlerClasse(String handlerClasse) {
+		this.handlerClasse = handlerClasse;
 	}
 	
-	@Column(name="predefinit_dades", length=255)
-	public String getPredefinitDades() {
-		return predefinitDades;
+	@Column(name="handler_dades", length=255)
+	public String getHandlerDades() {
+		return handlerDades;
 	}
-	public void setPredefinitDades(String predefinitDades) {
-		this.predefinitDades = predefinitDades;
+	public void setHandlerDades(String handlerDades) {
+		this.handlerDades = handlerDades;
 	}
 
 	@Override
@@ -254,7 +254,7 @@ public class Accio implements Serializable, GenericEntity<Long> {
 		result = prime * result
 				+ ((defprocJbpmKey == null) ? 0 : defprocJbpmKey.hashCode());
 		result = prime * result
-				+ ((predefinitClasse == null) ? 0 : predefinitClasse.hashCode());
+				+ ((handlerClasse == null) ? 0 : handlerClasse.hashCode());
 		return result;
 	}
 	@Override
@@ -291,15 +291,15 @@ public class Accio implements Serializable, GenericEntity<Long> {
 				return false;
 		} else if (!defprocJbpmKey.equals(other.defprocJbpmKey))
 			return false;
-		if (predefinitClasse == null) {
-			if (other.predefinitClasse != null)
+		if (handlerClasse == null) {
+			if (other.handlerClasse != null)
 				return false;
-		} else if (!predefinitClasse.equals(other.predefinitClasse))
+		} else if (!handlerClasse.equals(other.handlerClasse))
 			return false;
-		if (predefinitDades == null) {
-			if (other.predefinitDades != null)
+		if (handlerDades == null) {
+			if (other.handlerDades != null)
 				return false;
-		} else if (!predefinitDades.equals(other.predefinitDades))
+		} else if (!handlerDades.equals(other.handlerDades))
 			return false;
 		
 		return true;

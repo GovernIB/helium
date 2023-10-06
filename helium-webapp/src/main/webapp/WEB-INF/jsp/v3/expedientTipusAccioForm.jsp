@@ -62,8 +62,8 @@
 				</c:if>
 			</div>
 			<div id="rowHandlerPredefinit">
-				<hel:inputSelect required="true" name="predefinitClasse" textKey="expedient.tipus.accio.form.accio.handlerPredefinit" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.handlerPredefinit.placeholder" />
-				<span id='predefinitClasseDescripcio' class="text-muted"></span>
+				<hel:inputSelect required="true" name="handlerClasse" textKey="expedient.tipus.accio.form.accio.handlerPredefinit" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.handlerPredefinit.placeholder" />
+				<span id='handlerClasseDescripcio' class="text-muted"></span>
 			</div>
 			<fieldset id="fmapejos">
 				<legend><spring:message code="expedient.tipus.accio.form.legend.handler.predefinit"></spring:message></legend>
@@ -99,11 +99,11 @@
 		// <![CDATA[
 
 		var handlerParams = [];
-		<c:forEach items="${expedientTipusAccioCommand.predefinitDades}" var="handlerParam">
+		<c:forEach items="${expedientTipusAccioCommand.handlerDades}" var="handlerParam">
 		handlerParams["${handlerParam.key}"] = "${handlerParam.value}";
 		</c:forEach>
 	 	var handlersPredefinitsJson = ${handlersPredefinitsJson != null? handlersPredefinitsJson : "[]" };
-	 	var predefinitDades = ${dadesPredefinidesJson}
+	 	var handlerDades = ${dadesHandlerJson}
 
 		$(document).ready(function() {
    			//<c:if test="${heretat}">
@@ -129,7 +129,7 @@
 						webutilEnableInputs('#rowHandlerPredefinit');
 						$('#rowHandlerPredefinit').show();
 						$('#fmapejos').show();
-						$('#predefinitClasse').change();
+						$('#handlerClasse').change();
 						break;
 					case 'SCRIPT':
 						webutilEnableInputs('#rowScript');
@@ -144,10 +144,10 @@
 			});
 			
 			
-			$('#predefinitClasse').after($("#predefinitClasseDescripcio"));
-			$('#predefinitClasse').change(function() {
+			$('#handlerClasse').after($("#handlerClasseDescripcio"));
+			$('#handlerClasse').change(function() {
 				carregarParametresHandlerPredefinit();
-			}).after($("#predefinitClasseDescripcio"));
+			}).after($("#handlerClasseDescripcio"));
 
 			//<c:if test="${perEstats}">
 			$("#rowDefProc").hide();
@@ -196,7 +196,7 @@
 		
 		// Carrega el select de handlers predefinits agrupats
 		function carregarHandlersPredefinits() { 
-			var valor = "${expedientTipusAccioCommand.predefinitClasse}";
+			var valor = "${expedientTipusAccioCommand.handlerClasse}";
 			var mapAgrupacions = new Map();
 			for (i = 0; i < handlersPredefinitsJson.length; i++) {
 				// Recupera agrupació
@@ -204,20 +204,20 @@
 				if (group == null) {
 					group = $("<optgroup/>", {label: handlersPredefinititsGrups[handlersPredefinitsJson[i].agrupacio]})
 					mapAgrupacions[handlersPredefinitsJson[i].agrupacio] = group;
-					$("#predefinitClasse").append(group);
+					$("#handlerClasse").append(group);
 				}
 				// Afegeix la nova opció a l'agrupació
 				group.append($("<option/>", {value: handlersPredefinitsJson[i].classe, text: handlersPredefinitsJson[i].nom}));
 			}
-			$("#predefinitClasse").val('${command.predefinitClasse}').val(valor).change();
+			$("#handlerClasse").val('${command.handlerClasse}').val(valor).change();
 		}
 		
 		// A partir del handler predefinit carrega els paràmetres
 		function carregarParametresHandlerPredefinit() {
 			$('#mapejosHandlerPredefinit').empty();
 
-			$("#predefinitClasseDescripcio").html("")
-			var handlerPredefinit = $("#predefinitClasse").val();
+			$("#handlerClasseDescripcio").html("")
+			var handlerPredefinit = $("#handlerClasse").val();
 			if (handlerPredefinit === '') {
 				return;
 			}
@@ -228,7 +228,7 @@
 					handlerInfo = handlersPredefinitsJson[i];
 				}
 			}
-			$("#predefinitClasseDescripcio").html(handlerInfo.descripcio)
+			$("#handlerClasseDescripcio").html(handlerInfo.descripcio)
 			// Pinta els paràmtres
 			if (handlerInfo != null) {
 				if (handlerInfo.parametres.length > 0) {
@@ -248,7 +248,7 @@
 
 			$label = $('.paramLabel', $parametres)
 			$label.text(parametre.nom);
-			$label.attr('for', 'predefinitDades[' + parametre.param + ']');
+			$label.attr('for', 'handlerDades[' + parametre.param + ']');
 
 			if (parametre.obligatori) {
 				$label.addClass('obligatori');
@@ -264,10 +264,10 @@
 			$inputText = $('.param', $parametres);
 			if (parametre.param != null) {
 				$inputText.attr('id', parametre.param);
-				$inputText.attr('name','predefinitDades[' + parametre.param + ']');
+				$inputText.attr('name','handlerDades[' + parametre.param + ']');
 				$inputText.attr("placeholder", parametre.paramDesc);
 				$inputText.attr("title", parametre.paramDesc);
-				$inputText.val(predefinitDades[parametre.param]);
+				$inputText.val(handlerDades[parametre.param]);
 
 			} else {
 				$inputText.remove();
@@ -284,8 +284,8 @@
 					allowClear: true
 				});
 				$selectVarParam.attr('id',parametre.varParam);
-				$selectVarParam.attr('name','predefinitDades[' + parametre.varParam + ']');
-				$selectVarParam.val(predefinitDades[parametre.varParam]);
+				$selectVarParam.attr('name','handlerDades[' + parametre.varParam + ']');
+				$selectVarParam.val(handlerDades[parametre.varParam]);
 			} else {
 				$selectVarParam.remove();
 				$menuSelect.find('option[value="var"]').remove();
@@ -358,7 +358,7 @@
 		function afegirParametresHandler(parametre) {
 			var $parametres = $('#handlerParametreTemplate2').clone(true);
 			$parametres.attr('id', 'handlerParametre_' + parametre);
-			let codi = 'predefinitDades[' + parametre + ']';
+			let codi = 'handlerDades[' + parametre + ']';
 
 			$label = $('.paramLabel', $parametres)
 			$label.text(parametre);
@@ -393,8 +393,8 @@
 			</div>
 			
 			<div class="col-xs-7">
-				<input id="[parametre.param]" name="predefinitDades[parametre.param]" class="form-control param" type="text" value="predefinitDades[parametre.param]">
-				<select  id="[parametre.varParam] name="predefinitDades[parametre.varParam]" class="varParam">
+				<input id="[parametre.param]" name="handlerDades[parametre.param]" class="form-control param" type="text" value="handlerDades[parametre.param]">
+				<select  id="[parametre.varParam] name="handlerDades[parametre.varParam]" class="varParam">
 					<option/>
 				<c:forEach items="${variables}" var="variable">
 					<option data-agrupacio="${variable.agrupacio.codi }" data-agrupacio-nom="${variable.agrupacio.nom }" value="${variable.codi}">
@@ -414,7 +414,7 @@
 		<div id="handlerParametreTemplate2" class="form-group handlerParametre">
 			<label class="control-label col-xs-4 paramLabel" for="[parametre.param]">[parametre.param]</label>
 			<div class="col-xs-8">
-				<input id="[parametre.param]" name="predefinitDades[parametre.param]" class="form-control param" type="text" value="predefinitDades[parametre.param]">
+				<input id="[parametre.param]" name="handlerDades[parametre.param]" class="form-control param" type="text" value="handlerDades[parametre.param]">
 			</div>
 		</div>
 

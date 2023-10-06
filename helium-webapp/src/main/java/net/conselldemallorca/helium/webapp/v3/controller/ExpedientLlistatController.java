@@ -1,6 +1,5 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -11,20 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
-import com.sun.xml.messaging.saaj.util.ByteInputStream;
-import com.sun.xml.messaging.saaj.util.ByteOutputStream;
-import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
-import net.conselldemallorca.helium.v3.core.api.exception.ExportException;
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -55,13 +44,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.exception.ExportException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientConsultaCommand;

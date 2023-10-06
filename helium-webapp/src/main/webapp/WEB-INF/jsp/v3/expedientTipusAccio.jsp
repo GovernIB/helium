@@ -64,8 +64,10 @@
 					<th data-col-name="tipus" data-template="#cellAccioTipusTemplate">
 						<spring:message code="expedient.tipus.accio.llistat.columna.tipus"/>
 						<script id="cellAccioTipusTemplate" type="text/x-jsrender">
-							{{if tipus == 'HANDLER'}}
-								<spring:message code="accio.tipus.enum.HANDLER"/>
+							{{if tipus == 'ACCIO'}}
+								<spring:message code="accio.tipus.enum.ACCIO"/>
+							{{else tipus == 'HANDLER_PROPI'}}
+								<spring:message code="accio.tipus.enum.HANDLER_PROPI"/>
 							{{else tipus == 'HANDLER_PREDEFINIT'}}
 								<spring:message code="accio.tipus.enum.HANDLER_PREDEFINIT"/>
 							{{else tipus == 'SCRIPT'}}

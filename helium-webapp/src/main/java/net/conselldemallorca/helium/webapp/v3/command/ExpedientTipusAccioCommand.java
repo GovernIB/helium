@@ -53,9 +53,10 @@ public class ExpedientTipusAccioCommand {
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String jbpmAction;
 	
-	// Tipus handler predefinit Helium
-	private String predefinitClasse;
-	private Map<String, String> predefinitDades = new HashMap<String, String>();
+	// Tipus handler propi o predefinit Helium
+	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
+	private String handlerClasse;
+	private Map<String, String> handlerDades = new HashMap<String, String>();
 	
 	// Tipus script
 	@Size(max = 1024, groups = {Creacio.class, Modificacio.class})
@@ -122,17 +123,17 @@ public class ExpedientTipusAccioCommand {
 	public void setJbpmAction(String jbpmAction) {
 		this.jbpmAction = jbpmAction;
 	}
-	public String getPredefinitClasse() {
-		return predefinitClasse;
+	public String getHandlerClasse() {
+		return handlerClasse;
 	}
-	public void setPredefinitClasse(String predefinitClasse) {
-		this.predefinitClasse = predefinitClasse;
+	public void setHandlerClasse(String handlerClasse) {
+		this.handlerClasse = handlerClasse;
 	}
-	public Map<String, String> getPredefinitDades() {
-		return predefinitDades;
+	public Map<String, String> getHandlerDades() {
+		return handlerDades;
 	}
-	public void setPredefinitDades(Map<String, String> predefinitDades) {
-		this.predefinitDades = predefinitDades;
+	public void setHandlerDades(Map<String, String> handlerDades) {
+		this.handlerDades = handlerDades;
 	}
 	public String getScript() {
 		return script;
@@ -175,14 +176,14 @@ public class ExpedientTipusAccioCommand {
 		dto.setDefprocJbpmKey(command.getDefprocJbpmKey());
 		dto.setJbpmAction(command.getJbpmAction());
 		dto.setDescripcio(command.getDescripcio());
-		dto.setPredefinitClasse(command.getPredefinitClasse());
+		dto.setHandlerClasse(command.getHandlerClasse());
 		try {
 			ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-			dto.setPredefinitDades(
-					ow.writeValueAsString(command.getPredefinitDades()));
+			dto.setHandlerDades(
+					ow.writeValueAsString(command.getHandlerDades()));
 		} catch(Exception e) {
 			/* L'error de conversió s'hauria d'haver detectat a la validació */
-			dto.setPredefinitDades("[{'error': 'Error convertint les dades a JSON'}]");
+			dto.setHandlerDades("[{'error': 'Error convertint les dades a JSON'}]");
 		}
 
 		dto.setScript(command.getScript());
@@ -193,13 +194,13 @@ public class ExpedientTipusAccioCommand {
 		return dto;
 	}
 	
-	public String getPredefinitDadesJson() {
+	public String getHandlerDadesJson() {
 	
 		String json = "[]";
 
 		ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 		try {
-			json = ow.writeValueAsString(predefinitDades);
+			json = ow.writeValueAsString(handlerDades);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}

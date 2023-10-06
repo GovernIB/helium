@@ -42,6 +42,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
+import net.conselldemallorca.helium.v3.core.api.dto.AccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
@@ -402,7 +403,7 @@ public class DefinicioProcesHelper {
 									definicio, 
 									accioExportat.getCodi(), 
 									accioExportat.getNom(),
-									accioExportat.getTipus());
+									accioExportat.getTipus()  != null? accioExportat.getTipus() : AccioTipusEnumDto.ACCIO);
 							definicio.getAccions().add(accio);
 							accioRepository.save(accio);
 						} else {
@@ -412,8 +413,8 @@ public class DefinicioProcesHelper {
 						accio.setDescripcio(accioExportat.getDescripcio());
 						accio.setJbpmAction(accioExportat.getJbpmAction());
 						accio.setScript(accioExportat.getScript());
-						accio.setPredefinitClasse(accioExportat.getPredefinitClasse());
-						accio.setPredefinitDades(accioExportat.getPredefinitDades());
+						accio.setHandlerClasse(accioExportat.getHandlerClasse());
+						accio.setHandlerDades(accioExportat.getHandlerDades());
 						accio.setPublica(accioExportat.isPublica());
 						accio.setOculta(accioExportat.isOculta());
 						accio.setRols(accioExportat.getRols());
@@ -1020,8 +1021,8 @@ public class DefinicioProcesHelper {
 							accio.getTipus(),
 							accio.getDefprocJbpmKey(),
 							accio.getJbpmAction(),
-							accio.getPredefinitClasse(),
-							accio.getPredefinitDades(),
+							accio.getHandlerClasse(),
+							accio.getHandlerDades(),
 							accio.getScript(),
 							accio.isPublica(),
 							accio.isOculta(),
@@ -1067,8 +1068,8 @@ public class DefinicioProcesHelper {
 			nova.setDescripcio(accio.getDescripcio());
 			nova.setJbpmAction(accio.getJbpmAction());
 			nova.setScript(accio.getScript());
-			nova.setPredefinitClasse(accio.getPredefinitClasse());
-			nova.setPredefinitDades(accio.getPredefinitDades());
+			nova.setHandlerClasse(accio.getHandlerClasse());
+			nova.setHandlerDades(accio.getHandlerDades());
 			nova.setOculta(accio.isOculta());
 			nova.setPublica(accio.isPublica());
 			nova.setRols(accio.getRols());

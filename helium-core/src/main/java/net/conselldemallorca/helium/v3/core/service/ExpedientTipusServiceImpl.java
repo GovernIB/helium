@@ -83,6 +83,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
+import net.conselldemallorca.helium.v3.core.api.dto.AccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
@@ -880,8 +881,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							accio.getTipus(),
 							accio.getDefprocJbpmKey(),
 							accio.getJbpmAction(),
-							accio.getPredefinitClasse(),
-							accio.getPredefinitDades(),
+							accio.getHandlerClasse(),
+							accio.getHandlerDades(),
 							accio.getScript(),
 							accio.isPublica(),
 							accio.isOculta(),
@@ -1105,7 +1106,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 									expedientTipus, 
 									accioExportat.getCodi(), 
 									accioExportat.getNom(),
-									accioExportat.getTipus());
+									accioExportat.getTipus() != null? accioExportat.getTipus() : AccioTipusEnumDto.ACCIO);
 							expedientTipus.getAccions().add(accio);
 							accioRepository.saveAndFlush(accio);
 						} else {
@@ -1116,8 +1117,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						accio.setJbpmAction(accioExportat.getJbpmAction());
 						accio.setDefprocJbpmKey(accioExportat.getDefprocJbpmKey());
 						accio.setScript(accioExportat.getScript());
-						accio.setPredefinitClasse(accioExportat.getPredefinitClasse());
-						accio.setPredefinitDades(accioExportat.getPredefinitDades());
+						accio.setHandlerClasse(accioExportat.getHandlerClasse());
+						accio.setHandlerDades(accioExportat.getHandlerDades());
 						accio.setPublica(accioExportat.isPublica());
 						accio.setOculta(accioExportat.isOculta());
 						accio.setRols(accioExportat.getRols());
@@ -3440,8 +3441,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					nova.setJbpmAction(accio.getJbpmAction());
 					nova.setScript(accio.getScript());
 					nova.setDefprocJbpmKey(accio.getDefprocJbpmKey());
-					nova.setPredefinitClasse(accio.getPredefinitClasse());
-					nova.setPredefinitDades(accio.getPredefinitDades());
+					nova.setHandlerClasse(accio.getHandlerClasse());
+					nova.setHandlerDades(accio.getHandlerDades());
 					nova.setPublica(accio.isPublica());
 					nova.setOculta(accio.isOculta());
 					nova.setRols(accio.getRols());

@@ -21,17 +21,12 @@ import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtField;
-import net.conselldemallorca.helium.jbpm3.api.HeliumActionHandler;
 import org.jbpm.graph.def.ProcessDefinition;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.jbpm.util.IoUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.asm.ClassReader;
-import org.springframework.asm.FieldVisitor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
@@ -43,6 +38,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.emory.mathcs.backport.java.util.Collections;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtField;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;

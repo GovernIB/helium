@@ -19,8 +19,8 @@ public class AccioDto extends HeretableDto implements Serializable {
 	private AccioTipusEnumDto tipus;
 	private String defprocJbpmKey;
 	private String jbpmAction;
-	private String predefinitClasse;
-	private String predefinitDades;
+	private String handlerClasse;
+	private String handlerDades;
 	private String script;
 	private boolean publica;
 	private boolean oculta;
@@ -101,24 +101,24 @@ public class AccioDto extends HeretableDto implements Serializable {
 		this.tipus = tipus;
 	}
 
-	public String getPredefinitClasse() {
-		return predefinitClasse;
+	public String getHandlerClasse() {
+		return handlerClasse;
 	}
 
-	public void setPredefinitClasse(String predefinitClasse) {
-		this.predefinitClasse = predefinitClasse;
+	public void setHandlerClasse(String handlerClasse) {
+		this.handlerClasse = handlerClasse;
 	}
 
 	public void setDescripcio(String descripcio) {
 		this.descripcio = descripcio;
 	}
 	
-	public String getPredefinitDades() {
-		return predefinitDades;
+	public String getHandlerDades() {
+		return handlerDades;
 	}
 
-	public void setPredefinitDades(String predefinitDades) {
-		this.predefinitDades = predefinitDades;
+	public void setHandlerDades(String handlerDades) {
+		this.handlerDades = handlerDades;
 	}
 
 	public String getScript() {
@@ -132,11 +132,12 @@ public class AccioDto extends HeretableDto implements Serializable {
 	public String getHandler() {
 		String handler;
 		switch(this.tipus) {
-		case HANDLER:
+		case ACCIO:
 			handler = this.jbpmAction;
 			break;
+		case HANDLER_PROPI:
 		case HANDLER_PREDEFINIT:
-			handler = this.getPredefinitClasse();
+			handler = this.getHandlerClasse();
 			break;
 		case SCRIPT:
 		default:

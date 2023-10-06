@@ -20,12 +20,12 @@ public class HandlerDtoTest {
 		String json;
 
 		System.out.println("0) Map<String,String> a JSON i JSON a map: ");
-		Map<String, String> predefinitDades = new HashMap<String, String>();
+		Map<String, String> handlerDades = new HashMap<String, String>();
 		for (int i = 0; i < 10; i ++) {
-			predefinitDades.put("clau_" + i, "valor_" + i);
+			handlerDades.put("clau_" + i, "valor_" + i);
 		}
 		ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-		json = ow.writeValueAsString(predefinitDades);
+		json = ow.writeValueAsString(handlerDades);
 		System.out.println("Conversió a Json: " + json);
 		
 		Map<String, String> result =

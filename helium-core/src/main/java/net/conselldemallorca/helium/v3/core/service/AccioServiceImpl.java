@@ -85,8 +85,8 @@ public class AccioServiceImpl implements AccioService {
 			entity.setExpedientTipus(expedientTipusRepository.findOne(expedientTipusId));		
 		if (definicioProcesId != null)
 			entity.setDefinicioProces(definicioProcesRepository.findOne(definicioProcesId));
-		entity.setPredefinitClasse(accio.getPredefinitClasse());
-		entity.setPredefinitDades(accio.getPredefinitDades());
+		entity.setHandlerClasse(accio.getHandlerClasse());
+		entity.setHandlerDades(accio.getHandlerDades());
 
 		return conversioTipusHelper.convertir(
 				accioRepository.save(entity),
@@ -115,8 +115,8 @@ public class AccioServiceImpl implements AccioService {
 		entity.setPublica(accio.isPublica());
 		entity.setOculta(accio.isOculta());
 		entity.setRols(accio.getRols());
-		entity.setPredefinitClasse(accio.getPredefinitClasse());
-		entity.setPredefinitDades(accio.getPredefinitDades());
+		entity.setHandlerClasse(accio.getHandlerClasse());
+		entity.setHandlerDades(accio.getHandlerDades());
 				
 		return conversioTipusHelper.convertir(
 				accioRepository.save(entity),

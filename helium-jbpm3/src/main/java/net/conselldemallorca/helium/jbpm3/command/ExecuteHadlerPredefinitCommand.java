@@ -23,7 +23,7 @@ import net.conselldemallorca.helium.jbpm3.api.HeliumApiImpl;
 import net.conselldemallorca.helium.jbpm3.handlers.AccioExternaRetrocedirHandler;
 
 /**
- * Command per executar un handler predefinit donada la seva classe i els paràmetres.
+ * Command per executar un handler predefinit o propi donada la seva classe i els paràmetres.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -31,25 +31,25 @@ public class ExecuteHadlerPredefinitCommand extends AbstractGetObjectBaseCommand
 
 	private static final long serialVersionUID = -1908847549444051495L;
 	private long id;
-	private String predefinitClasse;
-	private Map<String, String> predefinitDades;
+	private String handlerClasse;
+	private Map<String, String> handlerDades;
 	private boolean isTaskInstance = false;
 	private boolean goBack = false;
 	private List<String> params;
 
 	public ExecuteHadlerPredefinitCommand(
 			long id,
-			String predefinitClasse,
-			Map<String, String> predefinitDades) {
+			String handlerClasse,
+			Map<String, String> handlerDades) {
 		super();
 		this.id = id;
-		this.predefinitClasse = predefinitClasse;
-		this.predefinitDades = predefinitDades;
+		this.handlerClasse = handlerClasse;
+		this.handlerDades = handlerDades;
 	}
 
 	public Object execute(JbpmContext jbpmContext) throws Exception {
 		
-		Class<?> clazz = Class.forName(predefinitClasse);
+		Class<?> clazz = Class.forName(handlerClasse);
 		Constructor<?> ctor = clazz.getConstructor();
 		Object object = ctor.newInstance();
 		if (object instanceof ActionHandler) {
@@ -57,11 +57,11 @@ public class ExecuteHadlerPredefinitCommand extends AbstractGetObjectBaseCommand
 			// Dades
 			PropertyAccessor pa = PropertyAccessorFactory.forDirectFieldAccess(object);
 			Object valor;
-			for (String camp : predefinitDades.keySet()) {
-				valor = predefinitDades.get(camp);
+			for (String camp : handlerDades.keySet()) {
+				valor = handlerDades.get(camp);
 				if (valor != null && 
 						(!(valor instanceof String) || !((String) valor).isEmpty())) {
-					pa.setPropertyValue(camp, predefinitDades.get(camp));
+					pa.setPropertyValue(camp, handlerDades.get(camp));
 				}
 			}
 			ProcessInstance pi = jbpmContext.getProcessInstance(id);
@@ -99,7 +99,7 @@ public class ExecuteHadlerPredefinitCommand extends AbstractGetObjectBaseCommand
 
 	@Override
 	public String getAdditionalToStringInformation() {
-	    return "id=" + id + ", predefinitClasse=" + predefinitClasse;
+	    return "id=" + id + ", handlerClasse=" + handlerClasse;
 	}
 
 	public void executeGoBack(Action action, ExecutionContext context) throws Exception {

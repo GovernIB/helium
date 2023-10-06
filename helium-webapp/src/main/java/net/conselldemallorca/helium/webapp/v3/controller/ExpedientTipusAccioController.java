@@ -138,7 +138,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
     				expedientTipusId,
     				command.getDefprocJbpmKey(),
     				command.getJbpmAction(),
-    				command.getPredefinitDadesJson(),
+    				command.getHandlerDadesJson(),
 					command,
     				model);
         	return "v3/expedientTipusAccioForm";
@@ -169,17 +169,17 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 		ExpedientTipusAccioCommand command = conversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusAccioCommand.class);
-		if (dto.getPredefinitDades() != null) {
+		if (dto.getHandlerDades() != null) {
 			try {
-				command.setPredefinitDades(
+				command.setHandlerDades(
 						(Map<String, String>) new ObjectMapper()
 							.readValue(
-									dto.getPredefinitDades(), 
+									dto.getHandlerDades(), 
 									new TypeReference<Map<String, String>>(){}));
 			} catch (Exception e) {
 				MissatgesHelper.error(
 						request, 
-						"Error recuperant les dades JSON del handler predefinit: " + e.getMessage());
+						"Error recuperant les dades JSON del handler: " + e.getMessage());
 			}
 		}
 		command.setExpedientTipusId(expedientTipusId);
@@ -190,7 +190,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 				expedientTipusId,
 				dto.getDefprocJbpmKey(),
 				dto.getJbpmAction(),
-				dto.getPredefinitDades(),
+				dto.getHandlerDades(),
 				command, model);
 		model.addAttribute("heretat", dto.isHeretat());
 
@@ -212,7 +212,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
     				expedientTipusId,
     				command.getDefprocJbpmKey(),
     				command.getJbpmAction(),
-    				command.getPredefinitDadesJson(),
+    				command.getHandlerDadesJson(),
 					command, model);
     		model.addAttribute("heretat", accioService.findAmbId(
     				expedientTipusId, 
@@ -236,7 +236,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 			Long expedientTipusId,
 			String definicioProcesCodi,
 			String jbpmAction,
-			String predefinitDades,
+			String handlerDades,
 			ExpedientTipusAccioCommand command,
 			Model model) {
 
@@ -255,19 +255,16 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 
 		// Tipus
 		List<ParellaCodiValorDto> tipusOpcions = new ArrayList<ParellaCodiValorDto>();
-		for (AccioTipusEnumDto tipus : AccioTipusEnumDto.values()) {
-			tipusOpcions.add(new ParellaCodiValorDto(tipus.toString(), getMessage(request, "accio.tipus.enum." + tipus)));
+		if (!perEstats) {
+			tipusOpcions.add(new ParellaCodiValorDto(AccioTipusEnumDto.ACCIO.toString(), getMessage(request, "accio.tipus.enum." + AccioTipusEnumDto.ACCIO.toString())));
 		}
+		tipusOpcions.add(new ParellaCodiValorDto(AccioTipusEnumDto.HANDLER_PROPI.toString(), getMessage(request, "accio.tipus.enum." + AccioTipusEnumDto.HANDLER_PROPI.toString())));
+		tipusOpcions.add(new ParellaCodiValorDto(AccioTipusEnumDto.HANDLER_PREDEFINIT.toString(), getMessage(request, "accio.tipus.enum." + AccioTipusEnumDto.HANDLER_PREDEFINIT.toString())));
+		tipusOpcions.add(new ParellaCodiValorDto(AccioTipusEnumDto.SCRIPT.toString(), getMessage(request, "accio.tipus.enum." + AccioTipusEnumDto.SCRIPT.toString())));
 		model.addAttribute("tipus", tipusOpcions);
 
 		if (perEstats) {
-			DefinicioProcesDto definicioProces = dissenyService.findDarreraVersioForExpedientTipusIDefProcCodi(expedientTipusId, expedientTipus.getJbpmProcessDefinitionKey());
-			List<String> handlers = dissenyService.findHandlersJbpmOrdenats(definicioProces.getId());
-			List<ParellaCodiValorDto> accions = new ArrayList<ParellaCodiValorDto>();
-			for (String accio : handlers) {
-				accions.add(new ParellaCodiValorDto(accio, accio));
-			}
-			model.addAttribute("accions", accions);
+			model.addAttribute("accions", this.getHandlersPropis(expedientTipusId, definicioProcesCodi, jbpmAction));
 		} else {
 			model.addAttribute("definicionsProces",
 					expedientTipusService.definicioProcesFindJbjmKey(
@@ -291,7 +288,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 				this.getHandlersPredefinitsJson());
 
 		model.addAttribute("dadesPredefinidesJson", 
-				predefinitDades);
+				handlerDades);
 
 		// Variables del tipus d'expedient
 		model.addAttribute("variables", 
@@ -438,6 +435,36 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 	 * @return
 	 */
 	private List<ParellaCodiValorDto> getAccions(Long expedientTipusId, String definicioCodi, String jbpmAction) {
+
+		List<ParellaCodiValorDto> ret = new ArrayList<ParellaCodiValorDto>();
+		List<String> accions = new ArrayList<String>();
+		if(expedientTipusId != null && definicioCodi != null) {
+			// Darrera versió de la definició de procés
+			DefinicioProcesDto definicioProces = dissenyService.findDarreraVersioForExpedientTipusIDefProcCodi(expedientTipusId, definicioCodi);
+			accions = dissenyService.findAccionsJbpmOrdenades(definicioProces.getId());
+		}
+		for (String accio : accions) {
+			ret.add(new ParellaCodiValorDto(accio, accio));
+		}
+		if (jbpmAction != null 
+				&& !jbpmAction.isEmpty()
+				&&	!accions.contains(jbpmAction)) {
+			ret.add(0, new ParellaCodiValorDto(
+					jbpmAction,
+					jbpmAction + " (no existeix en la darrera versió de la definició de procés '" + definicioCodi + "')"));
+		}
+		return ret;
+	}
+	
+	/** Consulta la llista d'accions per la darrera versió de la definició de procés per codi del
+	 * tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 * @param definicioCodi
+	 * @param jbpmAction
+	 * @return
+	 */
+	private List<ParellaCodiValorDto> getHandlersPropis(Long expedientTipusId, String definicioCodi, String jbpmAction) {
 
 		List<ParellaCodiValorDto> ret = new ArrayList<ParellaCodiValorDto>();
 		List<String> accions = new ArrayList<String>();
