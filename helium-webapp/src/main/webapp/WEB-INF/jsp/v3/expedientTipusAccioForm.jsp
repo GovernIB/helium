@@ -130,7 +130,9 @@
 					case 'HANDLER_PROPI':
 						webutilEnableInputs('#rowDefProc');
 						webutilEnableInputs('#rowHandlerPropi');
+						//<c:if test="${not perEstats}">
 						$('#rowDefProc').show();
+						//</c:if>
 						$('#rowHandlerPropi').show();
 						$('#fmapejos').show();
 						$('#handlerPropi').change();
@@ -214,21 +216,21 @@
 					data: {handlerPropiActual: handlerPropiActual},
 					async: true,
 					success: function(data) {
-						$("#jbpmAction option").each(function(){
+						$("#handlerPropi option").each(function(){
 						    $(this).remove();
 						});
-						$("#jbpmAction").append($("<option/>"));
+						$("#handlerPropi").append($("<option/>"));
 						for (i = 0; i < data.length; i++) {
-							$("#jbpmAction").append($("<option/>", {value: data[i].codi, text: data[i].valor}));
+							$("#handlerPropi").append($("<option/>", {value: data[i].codi, text: data[i].valor}));
 						}
-						$("#jbpmAction").val(definicioProcesId).change();
+						$("#handlerPropi").val(definicioProcesId).change();
 					},
 					error: function(e) {
-						console.log("Error obtenint les accions de les definicions de procés per l' id " + definicioProcesId + ": " + e);
+						console.log("Error obtenint els handlers propis de les definicions de procés per l' id " + definicioProcesId + ": " + e);
 					}
 				});
 			} else {
-				$('#jbpmAction').val('').change();
+				$('#handlerPropi').val('').change();
 			}
 		}
 				
