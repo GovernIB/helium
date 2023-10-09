@@ -23,7 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tika.Tika;
 import org.apache.tika.mime.MimeTypes;
-import org.fundaciobit.plugins.validatesignature.api.CertificateInfo;
+import org.fundaciobit.plugins.certificate.InformacioCertificat;
 import org.fundaciobit.plugins.validatesignature.api.IValidateSignaturePlugin;
 import org.fundaciobit.plugins.validatesignature.api.SignatureDetailInfo;
 import org.fundaciobit.plugins.validatesignature.api.SignatureRequestedInformation;
@@ -3349,11 +3349,11 @@ public class PluginHelper {
 					} else {
 						detall.setData(signatureInfo.getSignDate());
 					}
-					CertificateInfo certificateInfo = signatureInfo.getCertificateInfo();
+					InformacioCertificat certificateInfo = signatureInfo.getCertificateInfo();
 					if (certificateInfo != null) {
 						detall.setResponsableNif(certificateInfo.getNifResponsable());
-						detall.setResponsableNom(certificateInfo.getNombreApellidosResponsable());
-						detall.setEmissorCertificat(certificateInfo.getOrganizacionEmisora());
+						detall.setResponsableNom(certificateInfo.getNomCompletResponsable());
+						detall.setEmissorCertificat(certificateInfo.getEmissorOrganitzacio());
 					}
 					detalls.add(detall);
 				}
@@ -3444,11 +3444,11 @@ public class PluginHelper {
 					} else {
 						detall.setData(signatureInfo.getSignDate());
 					}
-					CertificateInfo certificateInfo = signatureInfo.getCertificateInfo();
+					InformacioCertificat certificateInfo = signatureInfo.getCertificateInfo();
 					if (certificateInfo != null) {
 						detall.setResponsableNif(certificateInfo.getNifResponsable());
-						detall.setResponsableNom(certificateInfo.getNombreApellidosResponsable());
-						detall.setEmissorCertificat(certificateInfo.getOrganizacionEmisora());
+						detall.setResponsableNom(certificateInfo.getNomCompletResponsable());
+						detall.setEmissorCertificat(certificateInfo.getEmissorOrganitzacio());
 					}
 					detalls.add(detall);
 				}
