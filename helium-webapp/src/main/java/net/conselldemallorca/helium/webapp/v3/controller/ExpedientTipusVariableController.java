@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
@@ -689,9 +688,11 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 		
 		if (perEstats) {
 			// Accions definides al tipus d'expedient
+			command.setDefprocJbpmKey(expedientTipus.getJbpmProcessDefinitionKey());
 			model.addAttribute("accions", 
 					this.getAccions(
-							command.getExpedientTipusId(),
+							request,
+							expedientTipusId,
 							command.getJbpmAction()));
 		} else {
 			//Accions
@@ -930,14 +931,17 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 
 	/**
 	 * Retorna una llista de parella codi - valor amb les diferents accions definides en el tipus d'expedient.
+	 * @param request 
 	 * @param expedientTipusId
 	 * @return
 	 */
-	public List<ParellaCodiValorDto> getAccions(Long expedientTipusId, String accioCodi) {
+	private List<ParellaCodiValorDto> getAccions(HttpServletRequest request, Long expedientTipusId, String accioCodi) {
 		List<ParellaCodiValorDto> opcions = new ArrayList<ParellaCodiValorDto>();
 		Set<String> accionsCodis = new HashSet<String>();
 		for (AccioDto accio  : accioService.findAll(expedientTipusId, null)) {
-			opcions.add(new ParellaCodiValorDto(accio.getCodi(), accio.getCodi() + " - " + accio.getDescripcio() + " (" + accio.getTipus() + ")"));
+			opcions.add(new ParellaCodiValorDto(accio.getCodi(), accio.getCodi() + " - " 
+								+ accio.getNom() 
+								+ " (" + getMessage(request, "accio.tipus.enum." + accio.getTipus().toString()) + ")"));
 			accionsCodis.add(accio.getCodi());
 		}
 		if (accioCodi != null

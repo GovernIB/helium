@@ -76,7 +76,7 @@
 			<legend><spring:message code="expedient.tipus.camp.form.fieldset.accio"></spring:message></legend>
 			<c:choose>
 				<c:when test="${perEstats}">
-					<input type="hidden" name="defprocJbpmKey" value="${expedientTipusAccioCommand.defprocJbpmKey}" />
+					<hel:inputHidden name="defprocJbpmKey" />
 				</c:when>
 				<c:otherwise>
 					<hel:inputSelect required="true" name="defprocJbpmKey" textKey="expedient.tipus.accio.form.accio.defprocJbpmKey" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.defprocJbpmKey.placeholder" optionItems="${definicionsProces}" />

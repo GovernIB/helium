@@ -129,6 +129,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto.ErrorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
@@ -1746,12 +1747,22 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				ExpedientLogAccioTipus.EXPEDIENT_ACCIO,
 				accioCamp);
 		try {
-			// Executa l'acció
-			jbpmHelper.executeActionInstanciaProces(
-					processInstanceId,
-					accioCamp,
-					herenciaHelper.getProcessDefinitionIdHeretadaAmbExpedient(expedient));
-			
+			if ( ExpedientTipusTipusEnumDto.FLOW.equals(expedient.getTipus().getTipus())) {
+				// Acció JBPM
+				jbpmHelper.executeActionInstanciaProces(
+						processInstanceId,
+						accioCamp,
+						herenciaHelper.getProcessDefinitionIdHeretadaAmbExpedient(expedient));
+			} else {
+				// Acció definida al tipus d'expedient
+				Accio accio = accioRepository.findByExpedientTipusIdAndCodi(
+						expedient.getTipus().getId(), 
+						accioCamp);
+				if (accio == null) {
+					throw new NoTrobatException(Accio.class, accioCamp);
+				}
+				this.executarAccio(processInstanceId, accio, expedient);
+			}			
 		} catch (Exception ex) {
 			if (ex instanceof ExecucioHandlerException) {
 				logger.error(
