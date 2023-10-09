@@ -4,8 +4,10 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -22,15 +24,20 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
+import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampRegistreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ValidacioDto;
+import net.conselldemallorca.helium.v3.core.api.service.AccioService;
 import net.conselldemallorca.helium.v3.core.api.service.ValidacioService;
 import net.conselldemallorca.helium.webapp.v3.command.AgrupacioCommand;
 import net.conselldemallorca.helium.webapp.v3.command.CampCommand;
@@ -56,6 +63,8 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Autowired
 	private ValidacioService validacioService;
+	@Autowired
+	private AccioService accioService;
 
 	@RequestMapping(value = "/{expedientTipusId}/variables")
 	public String variables(
@@ -114,15 +123,14 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			@PathVariable Long expedientTipusId,
 			@RequestParam(required = false) Long agrupacioId,
 			Model model) {
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		CampCommand command = new CampCommand();
 		command.setAgrupacioId(agrupacioId);
 		command.setExpedientTipusId(expedientTipusId);
 		model.addAttribute("campCommand", command);
 		this.omplirModelVariableForm(
 				request, 
-				entornActual.getId(),
 				expedientTipusId, 
+				command,
 				model);
 		return "v3/expedientTipusVariableForm";
 	}
@@ -134,11 +142,10 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-    		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
     		this.omplirModelVariableForm(
     				request, 
-    				entornActual.getId(),
     				expedientTipusId, 
+    				command,
     				model);
         	return "v3/expedientTipusVariableForm";
         } else {
@@ -162,7 +169,6 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long id,
 			Model model) {
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		CampDto dto = campService.findAmbId(expedientTipusId, id);
 		CampCommand command = conversioTipusHelper.convertir(
 				dto,
@@ -176,8 +182,8 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 		model.addAttribute("campCommand", command);
 		this.omplirModelVariableForm(
 				request, 
-				entornActual.getId(),
 				expedientTipusId, 
+				command,
 				model);
 		return "v3/expedientTipusVariableForm";
 	}
@@ -190,13 +196,12 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-    		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
     		boolean heretat = campService.findAmbId(expedientTipusId, id) != null ? campService.findAmbId(expedientTipusId, id).isHeretat() : false;
     		model.addAttribute("heretat", heretat);
     		this.omplirModelVariableForm(
     				request, 
-    				entornActual.getId(),
     				expedientTipusId, 
+    				command,
     				model);
         	return "v3/expedientTipusVariableForm";
         } else {
@@ -646,10 +651,18 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 	
 	private void omplirModelVariableForm(
 			HttpServletRequest request,
-			Long entornId,
 			Long expedientTipusId,
+			CampCommand command, 
 			Model model) {
 		
+		// Per estats
+		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+		ExpedientTipusDto expedientTipus = expedientTipusService.findAmbIdPermisDissenyar(
+					entornActual.getId(),
+					expedientTipusId);
+		boolean perEstats = ExpedientTipusTipusEnumDto.ESTAT.equals(expedientTipus.getTipus());
+		model.addAttribute("perEstats", perEstats);
+
 		// TipusCamp
 		List<ParellaCodiValorDto> tipusCamp = new ArrayList<ParellaCodiValorDto>();
 		for (CampTipusDto campTipus : CampTipusDto.values()) {
@@ -674,13 +687,26 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 		// Consultes
 		model.addAttribute("consultes", expedientTipusService.consultaFindAll(expedientTipusId));
 		
-		//Accions
-		model.addAttribute("definicionsProces", 
-				expedientTipusService.definicioProcesFindJbjmKey(
-						entornId, 
-						expedientTipusId, 
-						true,
-						true));
+		if (perEstats) {
+			// Accions definides al tipus d'expedient
+			model.addAttribute("accions", 
+					this.getAccions(
+							command.getExpedientTipusId(),
+							command.getJbpmAction()));
+		} else {
+			//Accions
+			model.addAttribute("definicionsProces", 
+					expedientTipusService.definicioProcesFindJbjmKey(
+							entornActual.getId(),
+							expedientTipusId,
+							true,
+							true));
+			model.addAttribute("accions",
+					this.getAccionsFlux(expedientTipusId, 
+							command.getDefprocJbpmKey(), 
+							command.getJbpmAction()));
+		}
+
 	}
 		
 	// Mètodes pel manteniment dels camps de variables de tipus registre
@@ -901,6 +927,57 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 		}
 		return resposta;
 	}	
+
+	/**
+	 * Retorna una llista de parella codi - valor amb les diferents accions definides en el tipus d'expedient.
+	 * @param expedientTipusId
+	 * @return
+	 */
+	public List<ParellaCodiValorDto> getAccions(Long expedientTipusId, String accioCodi) {
+		List<ParellaCodiValorDto> opcions = new ArrayList<ParellaCodiValorDto>();
+		Set<String> accionsCodis = new HashSet<String>();
+		for (AccioDto accio  : accioService.findAll(expedientTipusId, null)) {
+			opcions.add(new ParellaCodiValorDto(accio.getCodi(), accio.getCodi() + " - " + accio.getDescripcio() + " (" + accio.getTipus() + ")"));
+			accionsCodis.add(accio.getCodi());
+		}
+		if (accioCodi != null
+				&& !accionsCodis.contains(accioCodi)) {
+			opcions.add(0, new ParellaCodiValorDto(
+					accioCodi,
+					accioCodi + " (no existeix cap acció definida amb el codi '" + accioCodi + "')"));	
+		}
+		return opcions;
+	}
+
+	/** Consulta la llista d'accions per la darrera versió de la definició de procés per codi del
+	 * tipus d'expedient.
+	 * 
+	 * @param expedientTipusId
+	 * @param definicioCodi
+	 * @param jbpmAction
+	 * @return
+	 */
+	private List<ParellaCodiValorDto> getAccionsFlux(Long expedientTipusId, String definicioCodi, String jbpmAction) {
+
+		List<ParellaCodiValorDto> ret = new ArrayList<ParellaCodiValorDto>();
+		List<String> accions = new ArrayList<String>();
+		if(expedientTipusId != null && definicioCodi != null) {
+			// Darrera versió de la definició de procés
+			DefinicioProcesDto definicioProces = dissenyService.findDarreraVersioForExpedientTipusIDefProcCodi(expedientTipusId, definicioCodi);
+			accions = dissenyService.findAccionsJbpmOrdenades(definicioProces.getId());
+		}
+		for (String accio : accions) {
+			ret.add(new ParellaCodiValorDto(accio, accio));
+		}
+		if (jbpmAction != null 
+				&& !jbpmAction.isEmpty()
+				&&	!accions.contains(jbpmAction)) {
+			ret.add(0, new ParellaCodiValorDto(
+					jbpmAction,
+					jbpmAction + " (no existeix en la darrera versió de la definició de procés '" + definicioCodi + "')"));
+		}
+		return ret;
+	}
 
 	private static final Log logger = LogFactory.getLog(ExpedientTipusVariableController.class);
 }

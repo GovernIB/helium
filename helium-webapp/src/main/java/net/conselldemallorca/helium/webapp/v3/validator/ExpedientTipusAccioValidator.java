@@ -117,33 +117,33 @@ public class ExpedientTipusAccioValidator implements ConstraintValidator<Expedie
 							.addConstraintViolation();	
 					valid = false;
 				}
-				if (accio.getHandlerClasse() == null || accio.getHandlerClasse().trim().isEmpty()) {
+				if (accio.getHandlerPredefinit() == null || accio.getHandlerPredefinit().trim().isEmpty()) {
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage("NotEmpty", null))
-							.addNode("handlerClasse")
+							.addNode("handlerPropi")
 							.addConstraintViolation();	
 					valid = false;
 				}
 				
 			} else if (AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
-				if (accio.getHandlerClasse() == null || accio.getHandlerClasse().isEmpty()) {
+				if (accio.getHandlerPredefinit() == null || accio.getHandlerPredefinit().isEmpty()) {
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage("NotEmpty", null))
-							.addNode("handlerClasse")
+							.addNode("handlerPredefinit")
 							.addConstraintViolation();	
 					valid = false;					
 				} else {
 					HandlerDto handler = null;
 					for (HandlerDto h : dissenyService.getHandlersPredefinits()) {
-						if (accio.getHandlerClasse().equals(h.getClasse())) {
+						if (accio.getHandlerPredefinit().equals(h.getClasse())) {
 							handler = h;
 							break;
 						}
 					}
 					if (handler == null) {
 						context.buildConstraintViolationWithTemplate(
-								MessageHelper.getInstance().getMessage(this.codiMissatge + ".handler.classe.no.existeix", new Object[] { accio.getHandlerClasse()}))
-								.addNode("handlerClasse")
+								MessageHelper.getInstance().getMessage(this.codiMissatge + ".handler.classe.no.existeix", new Object[] { accio.getHandlerPredefinit()}))
+								.addNode("handlerPredefinit")
 								.addConstraintViolation();	
 						valid = false;
 					} else {
@@ -162,7 +162,7 @@ public class ExpedientTipusAccioValidator implements ConstraintValidator<Expedie
 						if (!parametresObligatoris.isEmpty()) {
 							context.buildConstraintViolationWithTemplate(
 									MessageHelper.getInstance().getMessage(this.codiMissatge + ".handler.parametres.obligatoris", new Object[] { parametresObligatoris}))
-									.addNode("handlerClasse")
+									.addNode("handlerPredefinit")
 									.addConstraintViolation();	
 							valid = false;
 						}

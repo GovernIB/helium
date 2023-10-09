@@ -74,14 +74,15 @@
 		
 		<fieldset id="dadesAccio" class="dades accio" style="display:none;">
 			<legend><spring:message code="expedient.tipus.camp.form.fieldset.accio"></spring:message></legend>
-			<c:if test="${empty campCommand.definicioProcesId}">
-				<hel:inputSelect required="true" name="defprocJbpmKey" textKey="expedient.tipus.accio.form.accio.defprocJbpmKey" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.defprocJbpmKey.placeholder" optionItems="${definicionsProces}" />
-				<hel:inputText required="true" name="jbpmAction" textKey="expedient.tipus.accio.form.accio.jbpmAction" />
-			</c:if>
-			<c:if test="${not empty campCommand.definicioProcesId}">
-				<input type="hidden" name="defprocJbpmKey" value="${expedientTipusAccioCommand.defprocJbpmKey}" />
-				<hel:inputSelect emptyOption="true" required="true" name="jbpmAction" textKey="expedient.tipus.accio.form.accio.jbpmAction" optionItems="${handlers}" placeholderKey="expedient.tipus.camp.form.camp.jbpmAction.placeholder"/>
-			</c:if>
+			<c:choose>
+				<c:when test="${perEstats}">
+					<input type="hidden" name="defprocJbpmKey" value="${expedientTipusAccioCommand.defprocJbpmKey}" />
+				</c:when>
+				<c:otherwise>
+					<hel:inputSelect required="true" name="defprocJbpmKey" textKey="expedient.tipus.accio.form.accio.defprocJbpmKey" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.defprocJbpmKey.placeholder" optionItems="${definicionsProces}" />
+				</c:otherwise>
+			</c:choose>
+			<hel:inputSelect required="true" name="jbpmAction" textKey="expedient.tipus.accio.form.accio.jbpmAction" emptyOption="true" optionItems="${accions}" placeholderKey="expedient.tipus.camp.form.camp.jbpmAction.placeholder" optionValueAttribute="codi" optionTextAttribute="valor"/>
 		</fieldset>
 		
 		<div id="modal-botons" class="well">
@@ -137,6 +138,11 @@
 				canviDadesConsulta();
 			});	
 			
+			// Canvi en la selecció de la definicion
+			$('#defprocJbpmKey').change(function() {
+				refrescaAccions();
+			});
+
    			//<c:if test="${heretat}">
 			webutilDisableInputs($('#campCommand'));
 			//</c:if>
@@ -168,6 +174,35 @@
 			} else if ($('#consultaId').val() != '') {
 				enable('div .parametres.consulta');
 			}					
+		}
+		
+		function refrescaAccions() {
+			var definicioProcesId = $("#defprocJbpmKey").val();
+			var jbpmActionActual = $('#jbpmAction').val();
+			if (definicioProcesId != "") {
+				var getUrl = '<c:url value="/v3/expedientTipus/${campCommand.expedientTipusId}/definicio/"/>' + definicioProcesId + '/accions/select';
+				$.ajax({
+					type: 'GET',
+					url: getUrl,
+					data: {jbpmActionActual: jbpmActionActual},
+					async: true,
+					success: function(data) {
+						$("#jbpmAction option").each(function(){
+						    $(this).remove();
+						});
+						$("#jbpmAction").append($("<option/>"));
+						for (i = 0; i < data.length; i++) {
+							$("#jbpmAction").append($("<option/>", {value: data[i].codi, text: data[i].valor}));
+						}
+						$("#jbpmAction").val(definicioProcesId).change();
+					},
+					error: function(e) {
+						console.log("Error obtenint les accions de les definicions de procés per l' id " + definicioProcesId + ": " + e);
+					}
+				});
+			} else {
+				$('#jbpmAction').val('').change();
+			}
 		}		
 		// ]]>
 	</script>			

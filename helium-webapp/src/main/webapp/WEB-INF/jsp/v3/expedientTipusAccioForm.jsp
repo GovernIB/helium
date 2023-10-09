@@ -49,25 +49,27 @@
 			<hel:inputCheckbox name="oculta" textKey="expedient.tipus.accio.form.accio.oculta" />
 			<hel:inputText name="rols" textKey="expedient.tipus.accio.form.accio.rols" />
 			<hel:inputSelect required="true" name="tipus" textKey="expedient.tipus.accio.form.accio.tipus" placeholderKey="expedient.tipus.accio.form.accio.tipus" optionItems="${tipus}" optionValueAttribute="codi" optionTextAttribute="valor"/>
-			<div id="rowHandler">
+
+			<div id="rowDefProc">
+				<hel:inputSelect required="true" name="defprocJbpmKey" textKey="expedient.tipus.accio.form.accio.defprocJbpmKey" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.defprocJbpmKey.placeholder" optionItems="${definicionsProces}" />
+			</div>
+			<div id="rowAccio">
 				<c:if test="${not empty expedientTipusAccioCommand.expedientTipusId}">
-					<div id="rowDefProc">
-						<hel:inputSelect required="true" name="defprocJbpmKey" textKey="expedient.tipus.accio.form.accio.defprocJbpmKey" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.defprocJbpmKey.placeholder" optionItems="${definicionsProces}" />
-					</div>
 					<hel:inputSelect required="true" name="jbpmAction" textKey="expedient.tipus.accio.form.accio.jbpmAction" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.jbpmAction" optionItems="${accions}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 				</c:if>
-				<c:if test="${not empty expedientTipusAccioCommand.definicioProcesId}">
-					<input type="hidden" name="defprocJbpmKey" value="${expedientTipusAccioCommand.defprocJbpmKey}" />
-					<hel:inputSelect required="true" name="jbpmAction" textKey="expedient.tipus.accio.form.accio.jbpmAction" optionItems="${handlers}" />
+			</div>
+			<div id="rowHandlerPropi">
+				<c:if test="${not empty expedientTipusAccioCommand.expedientTipusId}">
+					<hel:inputSelect required="true" name="handlerPropi" textKey="expedient.tipus.accio.form.accio.handlerPropi" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.handlerPropi" optionItems="${handlersPropis}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 				</c:if>
 			</div>
 			<div id="rowHandlerPredefinit">
-				<hel:inputSelect required="true" name="handlerClasse" textKey="expedient.tipus.accio.form.accio.handlerPredefinit" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.handlerPredefinit.placeholder" />
-				<span id='handlerClasseDescripcio' class="text-muted"></span>
+				<hel:inputSelect required="true" name="handlerPredefinit" textKey="expedient.tipus.accio.form.accio.handlerPredefinit" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.handlerPredefinit.placeholder" />
+				<span id='handlerPredefinitDescripcio' class="text-muted"></span>
 			</div>
 			<fieldset id="fmapejos">
 				<legend><spring:message code="expedient.tipus.accio.form.legend.handler.predefinit"></spring:message></legend>
-				<div id="mapejosHandlerPredefinit">
+				<div id="mapejosHandler">
 					<!-- Div per posar els paràmetres -->
 				</div>
 			</fieldset>
@@ -111,25 +113,33 @@
 			//</c:if>
 			// Canvi del tipus d'acció
 			$('#tipus').change(function(){
-				$('#rowHandler').hide();
+				$('#rowDefProc').hide();
+				$('#rowAccio').hide();
+				$('#rowHandlerPropi').hide();
 				$('#rowHandlerPredefinit').hide();
 				$('#rowScript').hide();
 				$('#fmapejos').hide();
-				webutilDisableInputs('#rowHandler,#rowHandlerPredefinit,#rowScript');
+				webutilDisableInputs('#rowAccio,#rowHandlerPropi,#rowHandlerPredefinit,#rowScript');
 				switch($(this).val()) {
-					case 'HANDLER':
-						webutilEnableInputs('#rowHandler');
-						$('#rowHandler').show();
-						//<c:if test="${perEstats}">
+					case 'ACCIO':
+						webutilEnableInputs('#rowDefProc');
+						webutilEnableInputs('#rowAccio');						
+						$('#rowDefProc').show();
+						$('#rowAccio').show();
+					break;
+					case 'HANDLER_PROPI':
+						webutilEnableInputs('#rowDefProc');
+						webutilEnableInputs('#rowHandlerPropi');
+						$('#rowDefProc').show();
+						$('#rowHandlerPropi').show();
 						$('#fmapejos').show();
-						$('#jbpmAction').change();
-						//</c:if>
+						$('#handlerPropi').change();
 					break;
 					case 'HANDLER_PREDEFINIT':
 						webutilEnableInputs('#rowHandlerPredefinit');
 						$('#rowHandlerPredefinit').show();
 						$('#fmapejos').show();
-						$('#handlerClasse').change();
+						$('#handlerPredefinit').change();
 						break;
 					case 'SCRIPT':
 						webutilEnableInputs('#rowScript');
@@ -141,21 +151,25 @@
 			// Canvi en la selecció de la definicion
 			$('#defprocJbpmKey').change(function() {
 				refrescaAccions();
+				refrescaHandlersPropis();
 			});
 			
 			
-			$('#handlerClasse').after($("#handlerClasseDescripcio"));
-			$('#handlerClasse').change(function() {
+			$('#handlerPredefinit').after($("#handlerPredefinitDescripcio"));
+			$('#handlerPredefinit').change(function() {
 				carregarParametresHandlerPredefinit();
-			}).after($("#handlerClasseDescripcio"));
+			}).after($("#handlerPredefinitDescripcio"));
 
 			//<c:if test="${perEstats}">
 			$("#rowDefProc").hide();
+			//</c:if>
+
 			$('#jbpmAction').val('${expedientTipusAccioCommand.jbpmAction}');
-			$('#jbpmAction').change(function() {
+			
+			$('#handlerPropi').change(function() {
 				carregarParametresHandler();
 			}).change();
-			//</c:if>
+			
 			carregarHandlersPredefinits();			
 		});
 		
@@ -188,6 +202,35 @@
 				$('#jbpmAction').val('').change();
 			}
 		}
+		
+		function refrescaHandlersPropis() {
+			var definicioProcesId = $("#defprocJbpmKey").val();
+			var handlerPropiActual = $('#handlerPropi').val();
+			if (definicioProcesId != "") {
+				var getUrl = '<c:url value="/v3/expedientTipus/${expedientTipusAccioCommand.expedientTipusId}/definicio/"/>' + definicioProcesId + '/handlersPropis/select';
+				$.ajax({
+					type: 'GET',
+					url: getUrl,
+					data: {handlerPropiActual: handlerPropiActual},
+					async: true,
+					success: function(data) {
+						$("#jbpmAction option").each(function(){
+						    $(this).remove();
+						});
+						$("#jbpmAction").append($("<option/>"));
+						for (i = 0; i < data.length; i++) {
+							$("#jbpmAction").append($("<option/>", {value: data[i].codi, text: data[i].valor}));
+						}
+						$("#jbpmAction").val(definicioProcesId).change();
+					},
+					error: function(e) {
+						console.log("Error obtenint les accions de les definicions de procés per l' id " + definicioProcesId + ": " + e);
+					}
+				});
+			} else {
+				$('#jbpmAction').val('').change();
+			}
+		}
 				
 		var handlersPredefinititsGrups = new Map([]);
 		<c:forEach items="${handlersPredefinititsGrups}" var="handlersPredefinititsGrup">
@@ -196,7 +239,7 @@
 		
 		// Carrega el select de handlers predefinits agrupats
 		function carregarHandlersPredefinits() { 
-			var valor = "${expedientTipusAccioCommand.handlerClasse}";
+			var valor = "${expedientTipusAccioCommand.handlerPredefinit}";
 			var mapAgrupacions = new Map();
 			for (i = 0; i < handlersPredefinitsJson.length; i++) {
 				// Recupera agrupació
@@ -204,20 +247,20 @@
 				if (group == null) {
 					group = $("<optgroup/>", {label: handlersPredefinititsGrups[handlersPredefinitsJson[i].agrupacio]})
 					mapAgrupacions[handlersPredefinitsJson[i].agrupacio] = group;
-					$("#handlerClasse").append(group);
+					$("#handlerPredefinit").append(group);
 				}
 				// Afegeix la nova opció a l'agrupació
 				group.append($("<option/>", {value: handlersPredefinitsJson[i].classe, text: handlersPredefinitsJson[i].nom}));
 			}
-			$("#handlerClasse").val('${command.handlerClasse}').val(valor).change();
+			$("#handlerPredefinit").val('${command.handlerPredefinit}').val(valor).change();
 		}
 		
 		// A partir del handler predefinit carrega els paràmetres
 		function carregarParametresHandlerPredefinit() {
-			$('#mapejosHandlerPredefinit').empty();
+			$('#mapejosHandler').empty();
 
-			$("#handlerClasseDescripcio").html("")
-			var handlerPredefinit = $("#handlerClasse").val();
+			$("#handlerPredefinitDescripcio").html("")
+			var handlerPredefinit = $("#handlerPredefinit").val();
 			if (handlerPredefinit === '') {
 				return;
 			}
@@ -228,7 +271,7 @@
 					handlerInfo = handlersPredefinitsJson[i];
 				}
 			}
-			$("#handlerClasseDescripcio").html(handlerInfo.descripcio)
+			$("#handlerPredefinitDescripcio").html(handlerInfo.descripcio)
 			// Pinta els paràmtres
 			if (handlerInfo != null) {
 				if (handlerInfo.parametres.length > 0) {
@@ -236,7 +279,7 @@
 						afegirControlsParametre(handlerInfo, handlerInfo.parametres[i]);
 					}
 				} else {
-					$('#mapejosHandlerPredefinit').append('<p>(<spring:message code="expedient.tipus.accio.form.accio.handlerPredefinit.sense.parametres"/>)</p>');
+					$('#mapejosHandler').append('<p>(<spring:message code="expedient.tipus.accio.form.accio.handlerPredefinit.sense.parametres"/>)</p>');
 				}
 			}
 		}
@@ -296,7 +339,7 @@
 				menuSelectChange($(this));
 			}).change();
 
-			$('#mapejosHandlerPredefinit').append($parametres);
+			$('#mapejosHandler').append($parametres);
 		}
 
 		function menuSelectChange($menuSelect) {
@@ -324,17 +367,17 @@
 		}
 
 		function carregarParametresHandler() {
-			$('#mapejosHandlerPredefinit').empty();
+			$('#mapejosHandler').empty();
 			// Troba la informació del handler
-			var jbpmActionActual = $('#jbpmAction').val();
-			if (jbpmActionActual == null || jbpmActionActual == '') {
+			var handlerPropiActual = $('#handlerPropi').val();
+			if (handlerPropiActual == null || handlerPropiActual == '') {
 				return;
 			}
 			var getUrl = '<c:url value="/v3/expedientTipus/${expedientTipusAccioCommand.expedientTipusId}/accio/params"/>';
 			$.ajax({
 				type: 'GET',
 				url: getUrl,
-				data: {handler: jbpmActionActual},
+				data: {handler: handlerPropiActual},
 				async: true,
 				success: function(data) {
 					// Pinta els paràmetres
@@ -343,11 +386,11 @@
 							afegirParametresHandler(data[i].codi);
 						}
 					} else {
-						$('#mapejosHandlerPredefinit').append('<p>(<spring:message code="expedient.tipus.accio.form.accio.handlerPredefinit.sense.parametres"/>)</p>');
+						$('#mapejosHandler').append('<p>(<spring:message code="expedient.tipus.accio.form.accio.handlerPredefinit.sense.parametres"/>)</p>');
 					}
 				},
 				error: function(e) {
-					console.log("Error obtenint els paràmetres del handler " + jbpmActionActual + ": " + e);
+					console.log("Error obtenint els paràmetres del handler " + handlerPropiActual + ": " + e);
 				}
 			}).done(function() {
 				// Netejem l'array amb els valors que han arribat del controlador
@@ -368,7 +411,7 @@
 			$inputText.attr('id', parametre);
 			$inputText.attr('name',codi);
 			$inputText.val(handlerParams[parametre]);
-			$('#mapejosHandlerPredefinit').append($parametres);
+			$('#mapejosHandler').append($parametres);
 		}
 				
 		// ]]>

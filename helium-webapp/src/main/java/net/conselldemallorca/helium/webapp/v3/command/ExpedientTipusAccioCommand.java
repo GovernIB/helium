@@ -53,9 +53,15 @@ public class ExpedientTipusAccioCommand {
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String jbpmAction;
 	
-	// Tipus handler propi o predefinit Helium
+	// Tipus handler propi
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
-	private String handlerClasse;
+	private String handlerPropi;
+	
+	// Tipus handler predefinit Helium
+	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
+	private String handlerPredefinit;
+	
+	// Dades del handler propi o predefinit
 	private Map<String, String> handlerDades = new HashMap<String, String>();
 	
 	// Tipus script
@@ -123,11 +129,17 @@ public class ExpedientTipusAccioCommand {
 	public void setJbpmAction(String jbpmAction) {
 		this.jbpmAction = jbpmAction;
 	}
-	public String getHandlerClasse() {
-		return handlerClasse;
+	public String getHandlerPropi() {
+		return handlerPropi;
 	}
-	public void setHandlerClasse(String handlerClasse) {
-		this.handlerClasse = handlerClasse;
+	public void setHandlerPropi(String handlerPropi) {
+		this.handlerPropi = handlerPropi;
+	}
+	public String getHandlerPredefinit() {
+		return handlerPredefinit;
+	}
+	public void setHandlerPredefinit(String handlerPredefinit) {
+		this.handlerPredefinit = handlerPredefinit;
 	}
 	public Map<String, String> getHandlerDades() {
 		return handlerDades;
@@ -176,7 +188,16 @@ public class ExpedientTipusAccioCommand {
 		dto.setDefprocJbpmKey(command.getDefprocJbpmKey());
 		dto.setJbpmAction(command.getJbpmAction());
 		dto.setDescripcio(command.getDescripcio());
-		dto.setHandlerClasse(command.getHandlerClasse());
+		switch(command.getTipus()) {
+			case HANDLER_PROPI:
+				dto.setHandlerClasse(command.getHandlerPropi());
+				break;
+			case HANDLER_PREDEFINIT:
+				dto.setHandlerClasse(command.getHandlerPredefinit());
+				break;
+			default:
+				break;		
+		}
 		try {
 			ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 			dto.setHandlerDades(

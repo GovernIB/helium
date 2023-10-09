@@ -134,5 +134,5 @@ public interface AccioService {
 	public AccioDto findAmbCodi(
 			Long expedientTipusId,
 			Long definicioProcesId,
-			String codi) throws NoTrobatException;	
+			String codi) throws NoTrobatException;
 }
