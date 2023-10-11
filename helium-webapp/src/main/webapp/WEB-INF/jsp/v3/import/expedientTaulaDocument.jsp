@@ -67,7 +67,7 @@
 													</a>
 												</c:if>
 												
-												<c:if test="${document.notificable}">
+												<c:if test="${document.notificable && expedient.tipus.notibActiu}">
 													<a 	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/notificar"
 														data-rdt-link-modal="true" 
 														data-rdt-link-modal-min-height="265" 

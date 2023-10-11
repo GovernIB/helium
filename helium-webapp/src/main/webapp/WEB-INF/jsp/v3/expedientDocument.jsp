@@ -78,13 +78,14 @@ div.proces:hover {
 		</table>
 	</div>
 	<div class="pull-left">
-		
-		<a class="btn btn-default" 
-			href="../../v3/expedient/${expedientId}/document/notificarZip" "
-			data-toggle="modal">
-				<span class="fa fa-paper-plane"></span>
-				<spring:message code="expedient.boto.notificar_zip"/>
-		</a>
+		<c:if test="${expedient.tipus.notibActiu}">
+			<a class="btn btn-default" 
+				href="../../v3/expedient/${expedientId}/document/notificarZip" "
+				data-toggle="modal">
+					<span class="fa fa-paper-plane"></span>
+					<spring:message code="expedient.boto.notificar_zip"/>
+			</a>
+		</c:if>
 	</div>
 </div>
 
