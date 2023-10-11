@@ -17,12 +17,14 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentInfoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.FirmaResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
@@ -559,4 +561,31 @@ public interface ExpedientDocumentService {
 
 
     public List<DocumentInfoDto> getDocumentsNoUtilitzatsPerEstats(Long expedientId);
+
+    /** 
+     * Mètode per iniciar una petició de firma per passarel·la web amb el Portafirmes.
+     * 
+     * @param persona Persona que ha de firmar.
+     * @param arxiu Informació de l'arxiu a firmar.
+     * @param motiu Motiu de la firma.
+     * @param lloc Lloc de la firma.
+     * @param urlRetorn URL on es retornarà a Helium després de firmar o cancel·lar.
+     * 
+     * @return URL de retorn que s'ha de visualitzar per seguir amb la petició de firma delegada al Portafirmes.
+     */
+	public String firmaSimpleWebStart(
+			PersonaDto persona, 
+			ArxiuDto arxiu, 
+			String motiu, 
+			String lloc,
+			String urlRetorn);
+
+	/** 
+	 * Mètode per finalitzar la petició de firma de la passarel·la i obtenir-ne el resultat.
+	 * 
+	 * @param transactionID Identificador de la petició de firma web.
+	 * 
+	 * @return Retorna un objecte amb informació del resultat de la firma i el document firmat en cas que hagi anat bé.
+	 */
+	public FirmaResultatDto firmaSimpleWebEnd(String transactionID);
 }

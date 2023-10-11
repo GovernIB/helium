@@ -688,10 +688,10 @@ public class DocumentHelperV3 {
 					documentStoreId,
 					false,
 					false,
-					true,
+					false,
 					true,
 					false, // Per notificar
-					(documentStore.getArxiuUuid() == null));
+					false);
 			
 			// Guarda la firma asociada al document, es dona per fet que és un PDF
 			guardarDocumentFirmat(
@@ -1954,16 +1954,12 @@ public class DocumentHelperV3 {
 				arxiuFirmat.setNom(arxiuNom);
 				arxiuFirmat.setTipusMime(arxiuMime);
 				arxiuFirmat.setContingut(signatura);
-				pluginHelper.arxiuDocumentGuardarDocumentFirmat(
-						expedient,
-						documentStore,
-						documentNom,
-						documentDescripcio,
-						arxiuFirmat,
-						tipusFirma, 
-						tipusFirmaEni, 
-						perfilFirmaEni,
-						arxiuContingut);
+				pluginHelper.arxiuDocumentGuardarPdfFirmat(
+						expedient, 
+						documentStore, 
+						documentNom, 
+						documentDescripcio, 
+						arxiuFirmat);
 			}
 			// Actualitza la informació al document store
 			documentArxiu = pluginHelper.arxiuDocumentInfo(

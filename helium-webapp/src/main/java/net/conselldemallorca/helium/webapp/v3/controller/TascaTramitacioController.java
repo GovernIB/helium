@@ -24,17 +24,12 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-
-import org.fundaciobit.plugins.signature.api.FileInfoSignature;
-import org.fundaciobit.plugins.signature.api.StatusSignature;
-import org.fundaciobit.plugins.signature.api.StatusSignaturesSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -50,7 +45,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
-
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
@@ -62,11 +56,13 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.FirmaResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReproDto;
+import net.conselldemallorca.helium.v3.core.api.dto.StatusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -95,8 +91,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper.SessionManager;
 import net.conselldemallorca.helium.webapp.v3.helper.TascaFormHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.TascaFormValidatorHelper;
-import net.conselldemallorca.helium.webapp.v3.passarelafirma.PassarelaFirmaConfig;
-import net.conselldemallorca.helium.webapp.v3.passarelafirma.PassarelaFirmaHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.UrlHelper;
 
 /**
  * Controlador per a la tramitació de taques.
@@ -122,8 +117,6 @@ public class TascaTramitacioController extends BaseTascaController {
 	private AplicacioService aplicacioService;
 	@Autowired 
 	private DefinicioProcesService definicioProcesService;
-	@Autowired
-	private PassarelaFirmaHelper passarelaFirmaHelper;
 	@Autowired
 	private ReproService reproService;
 	@Resource(name="documentHelperV3")
@@ -528,7 +521,6 @@ public class TascaTramitacioController extends BaseTascaController {
 		model.addAttribute("tasca", tascaService.findAmbIdPerTramitacio(tascaId));
 		model.addAttribute("signatures", tascaService.findDocumentsSignar(tascaId));
 		model.addAttribute("passarelaFirmaEnviarCommand", new PassarelaFirmaEnviarCommand());
-		model.addAttribute("numPluginsPassarela", passarelaFirmaHelper.getNumberPossiblePlugins());
 		return "v3/tascaSignatura";
 	}
 
@@ -538,8 +530,8 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable String tascaId,
 			@PathVariable Long documentId,
 			Model model) throws IOException {
-		try {
 
+		try {
 			// Troba la definició de la tasca
 			ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
 			ExpedientDto expedient = expedientService.findAmbId(tasca.getExpedientId());
@@ -553,19 +545,17 @@ public class TascaTramitacioController extends BaseTascaController {
 			ArxiuDto arxiuPerFirmar = expedientDocumentService.findArxiuAmbTokenPerSignar(
 	        		documentDto.getTokenSignatura()); 
 			PersonaDto usuariActual = aplicacioService.findPersonaActual();
-			String modalStr = (ModalHelper.isModal(request)) ? "/modal" : "";
 			
-			String procesFirmaUrl = passarelaFirmaHelper.iniciarProcesDeFirma(
-					request,
-					arxiuPerFirmar,
-					documentId.toString(),
-					usuariActual.getDni(),
-					"Firma",
-					"Illes Balears",
-					usuariActual.getEmail(),
-					LocaleContextHolder.getLocale().getLanguage(),
-					modalStr + "/v3/tasca/" + tascaId + "/document/" + documentCodi + "/firmaPassarelaFinal",
-					false);
+			String urlReturnToHelium = ((ModalHelper.isRefererUriModal(request)) ? "/modal" : "") 
+										+ "/v3/tasca/" + tascaId + "/document/" + documentCodi + "/firmaPassarelaFinal";
+			urlReturnToHelium = UrlHelper.getAbsoluteControllerBase(request,"").concat(urlReturnToHelium);
+			
+			String procesFirmaUrl = expedientDocumentService.firmaSimpleWebStart(
+											usuariActual,
+											arxiuPerFirmar,
+											"Signatura document tasca Helium",
+											"Illes Balears (HELIUM)",
+											urlReturnToHelium);
 			return "redirect:" + procesFirmaUrl;
 		} catch (Exception e) {
 			String errMsg = getMessage(
@@ -585,31 +575,19 @@ public class TascaTramitacioController extends BaseTascaController {
 			HttpServletRequest request,
 			@PathVariable String tascaId,
 			@PathVariable String documentCodi,
-			@RequestParam("signaturesSetId") String signaturesSetId,
+			@RequestParam(value = "transactionID", required = true) String transactionID,
 			Model model) throws Exception {
-		DocumentDto document = tascaService.getDocumentPerDocumentCodi(
-				tascaId, 
-				documentCodi);
-		PassarelaFirmaConfig signaturesSet = passarelaFirmaHelper.finalitzarProcesDeFirma(
-				request,
-				signaturesSetId);
-		StatusSignaturesSet status = signaturesSet.getStatusSignaturesSet();
-		FileInfoSignature firmaInfo = new FileInfoSignature();
-		StatusSignature firmaStatus = new StatusSignature();
-		if (signaturesSet!=null) {
-			firmaInfo = signaturesSet.getFileInfoSignatureArray()[0];
-			firmaStatus = firmaInfo.getStatusSignature();
-			if(firmaStatus.getStatus()==-1) {
-				status.setErrorMsg(signaturesSet.getFirmaSimpleStatus().getErrorMessage());
-			}
-		}
-		switch (status.getStatus()) {
-		case StatusSignaturesSet.STATUS_FINAL_OK:
-			if (firmaStatus.getStatus() == StatusSignature.STATUS_FINAL_OK) {
-				if (signaturesSet.getSignedData()==null) {
-					firmaStatus.setStatus(StatusSignature.STATUS_FINAL_ERROR);
-					String msg = "L'estat indica que ha finalitzat correctament però el fitxer firmat o no s'ha definit o no existeix";
-					firmaStatus.setErrorMsg(msg);
+		
+		try {
+			DocumentDto document = tascaService.getDocumentPerDocumentCodi(
+					tascaId, 
+					documentCodi);
+			
+			FirmaResultatDto firmaResultat =  expedientDocumentService.firmaSimpleWebEnd(transactionID);
+			
+			if (firmaResultat.getStatus() == StatusEnumDto.OK) {
+				
+				if (firmaResultat.getFitxerFirmatContingut() == null) {
 					MissatgesHelper.error(
 							request,
 							getMessage(
@@ -617,17 +595,17 @@ public class TascaTramitacioController extends BaseTascaController {
 									"document.controller.firma.passarela.final.ok.nofile"));
 				} else {
 					try {
-	
 						tascaService.signarDocumentTascaAmbToken(
 								tascaId, 
 								document.getTokenSignatura(), 
-								signaturesSet.getSignedData());
+								firmaResultat.getFitxerFirmatContingut());
 						
 						MissatgesHelper.success(
 								request,
 								getMessage(
 										request, 
 										"document.controller.firma.passarela.final.ok"));
+						
 					} catch (Exception e) {
 						String errMsg = getMessage(
 								request, 
@@ -639,45 +617,30 @@ public class TascaTramitacioController extends BaseTascaController {
 								errMsg);
 					}
 				}
-			} else {
+			} else if (firmaResultat.getStatus() == StatusEnumDto.WARNING) {
+				MissatgesHelper.warning(
+						request,
+						getMessage(
+								request, 
+								"document.controller.firma.passarela.final.warning",
+								new Object[] {
+										firmaResultat.getMsg()
+								}));
+				
+			} else if (firmaResultat.getStatus() == StatusEnumDto.ERROR) {
 				MissatgesHelper.error(
 						request,
 						getMessage(
 								request, 
-								"document.controller.firma.passarela.final.ok.statuserr",
-								new Object[] {firmaStatus.getStatus(), firmaStatus.getErrorMsg()}));
+								"document.controller.firma.passarela.final.error",
+								new Object[] {
+										firmaResultat.getMsg()
+								}));
 			}
-			break;
-		case StatusSignaturesSet.STATUS_FINAL_ERROR:
-			MissatgesHelper.error(
-					request,
-					getMessage(
-							request, 
-							"document.controller.firma.passarela.final.error",
-							new Object[] {
-									status.getErrorMsg() != null? status.getErrorMsg() : "",
-									status.getErrorException() != null? status.getErrorException().getMessage() : ""
-							}));
-			break;
-		case StatusSignaturesSet.STATUS_CANCELLED:
-			String msg = "La firma del document ha estat cancel.lada";
-			firmaStatus.setErrorMsg(msg);
-			MissatgesHelper.warning(
-					request,
-					getMessage(
-							request, 
-							"document.controller.firma.passarela.final.cancel"));
-			break;
-		default:
-			MissatgesHelper.warning(
-					request,
-					getMessage(
-							request, 
-							"document.controller.firma.passarela.final.desconegut"));
+		} catch(Exception e) {
+			String errMsg = "Error no controlat en el procés de firma en passarel·la web: " + e.getMessage();
+			MissatgesHelper.error(request, errMsg);
 		}
-		passarelaFirmaHelper.closeSignaturesSet(
-				request,
-				signaturesSet);
 		return "v3/passarelaFirma/passarelaFiFirma";
 	}
 

@@ -69,6 +69,7 @@ import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPluginException;
 import net.conselldemallorca.helium.integracio.plugins.firma.FirmaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.firma.FirmaResposta;
+import net.conselldemallorca.helium.integracio.plugins.firmaweb.FirmaWebPlugin;
 import net.conselldemallorca.helium.integracio.plugins.gesdoc.GestioDocumentalPlugin;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.Notificacio;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.NotificacioPlugin;
@@ -135,6 +136,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.FirmaResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEstatEnumDto;
@@ -219,6 +221,8 @@ public class PluginHelper {
 	private IValidateSignaturePlugin validaSignaturaPlugin;
 	private UnitatsOrganiquesPlugin unitatsOrganitzativesPlugin;
 	private PinbalPluginInterface pinbalPlugin;
+	private FirmaWebPlugin firmaWebPlugin;
+	
 	private Tika tika = new Tika();
 
 
@@ -2736,77 +2740,6 @@ public class PluginHelper {
 			throw tractarExcepcioEnSistemaExtern(MonitorIntegracioHelper.INTCODI_ARXIU,errorDescripcio, ex);
 		}
 	}
-
-	public ContingutArxiu arxiuDocumentGuardarDocumentFirmat(
-			Expedient expedient,
-			DocumentStore documentStore,
-			String documentNom,
-			String documentDescripcio,
-			ArxiuDto firma, 
-			String tipusFirma, 
-			String tipusFirmaEni, 
-			String perfilFirmaEni,
-			byte[] arxiuContingut) {
-		
-		String accioDescripcio = "Guardar firma per document";
-		List<IntegracioParametreDto> parametres = new ArrayList<IntegracioParametreDto>();
-		parametres.add( new IntegracioParametreDto("id", documentStore.getId().toString()));
-		parametres.add( new IntegracioParametreDto("documentNom", documentNom));
-		parametres.add( new IntegracioParametreDto("documentDescripcio", documentDescripcio));
-		parametres.add( new IntegracioParametreDto("firmaFitxerNom", firma.getNom()));
-		parametres.add( new IntegracioParametreDto( "firmaFitxerTipusMime", firma.getTipusMime()));
-		parametres.add( new IntegracioParametreDto( "tipusFirma", tipusFirma));
-		parametres.add( new IntegracioParametreDto( "tipusFirmaEni", tipusFirmaEni));
-		parametres.add( new IntegracioParametreDto( "perfilFirma", perfilFirmaEni));
-		parametres.add( new IntegracioParametreDto( "firmaFitxerTamany", new Long(firma.getTamany()).toString()));
-		long t0 = System.currentTimeMillis();
-		try {
-			ArxiuDto arxiu = new ArxiuDto();
-			arxiu.setNom(documentStore.getArxiuNom());
-			arxiu.setContingut(documentStore.getArxiuContingut()!=null ? documentStore.getArxiuContingut() : arxiuContingut);
-			//DocumentExtensio ext = getExtensioPerArxiu(FilenameUtils.getExtension(arxiu.getNom()));
-			//new MimetypesFileTypeMap().getContentType(arxiu.getNom());
-			arxiu.setTipusMime(this.getContentType(arxiu.getNom()));
-			
-			ContingutArxiu documentPerRetornar = getArxiuPlugin().documentModificar(
-					toArxiuDocument(
-							documentStore.getArxiuUuid(),
-							documentStore.getArxiuNom(),
-							documentDescripcio,
-							arxiu,
-							firma,
-							tipusFirma, 
-							tipusFirmaEni,
-							perfilFirmaEni,
-							documentStore.getNtiIdentificador(),
-							obtenirNtiOrigen(documentStore),
-							Arrays.asList(obtenirNtiOrgano(expedient)),
-							documentStore.getDataCreacio(),
-							obtenirNtiEstadoElaboracion(documentStore),
-							obtenirNtiTipoDocumental(documentStore),
-							documentStore.getNtiIdDocumentoOrigen(),
-							getExtensioPerArxiu(arxiu.getExtensio()),
-							DocumentEstat.DEFINITIU));
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_ARXIU,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
-			return documentPerRetornar;
-		} catch (Exception ex) {
-			String errorDescripcio = "No s'ha pogut guardar la firma pel document: " + ex.getMessage();
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_ARXIU,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					parametres.toArray(new IntegracioParametreDto[parametres.size()]));
-			throw tractarExcepcioEnSistemaExtern(MonitorIntegracioHelper.INTCODI_ARXIU,errorDescripcio, ex);
-		}
-	}
 	
 	public List<ArxiuDetallDto> versions(String arxiuUuid, boolean expedientTancat){
 		List<ArxiuDetallDto> versionsDocument = new ArrayList<ArxiuDetallDto>();
@@ -4807,6 +4740,33 @@ public class PluginHelper {
 		}
 		return unitatsOrganitzativesPlugin;
 	}
+	
+	private FirmaWebPlugin getFirmaSimpleWebPlugin() {
+		if (firmaWebPlugin == null) {
+			String pluginClass = GlobalProperties.getInstance().getProperty("app.plugin.passarelafirma.class");
+			if (pluginClass != null && pluginClass.length() > 0) {
+				try {
+					Class<?> clazz = Class.forName(pluginClass);
+					firmaWebPlugin = (FirmaWebPlugin)clazz.getDeclaredConstructor(
+												Properties.class).newInstance(
+												GlobalProperties.getInstance().findAll());
+
+				} catch (Exception ex) {
+					throw tractarExcepcioEnSistemaExtern(
+							MonitorIntegracioHelper.INTCODI_PFIRMA,
+							"Error al crear la instància del plugin de firma web (" +
+							"pluginClass=" + pluginClass + ")",
+							ex);
+				}
+			} else {
+				throw tractarExcepcioEnSistemaExtern(
+						MonitorIntegracioHelper.INTCODI_PFIRMA,
+						"No està configurada la classe per al plugin de firma web",
+						null);
+			}
+		}
+		return firmaWebPlugin;
+	}
 
 	private SistemaExternException tractarExcepcioEnSistemaExtern(
 			String sistemaExtern,
@@ -5390,5 +5350,118 @@ public Object consultaSincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, Ex
 		return resposta;
 	}
 	
+	/** Mètode per iniciar la petició de firma d'un arxiu.
+	 * 
+	 * @param arxiu
+	 * @param motiu
+	 * @param lloc 
+	 * @param persona
+	 * @param urlRetorn
+	 * @return Retorna la URL on l'usuari podrà firmar via web.
+	 */
+	public String firmaSimpleWebStart(ArxiuDto arxiu, String motiu, String lloc, PersonaDto persona, String urlRetorn) {
+
+		String urlReturnHelium = null;
+		String accioDescripcio = "Iniciant petició firma passarel·la web";
+		long t0 = System.currentTimeMillis();
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"arxiu.nom",
+						arxiu.getNom())
+		};
+		try {
+			FirmaWebPlugin firmaWebPlugin = getFirmaSimpleWebPlugin();
+			urlReturnHelium = firmaWebPlugin.firmaSimpleWebStart(arxiu, motiu, lloc, persona, urlRetorn);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_PFIRMA,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametres);
+		} catch(Exception ex) {
+			String errorDescripcio = "Error al iniciant petició de firma per passarel·la web";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_PFIRMA,
+					"Tancar Flux Firma",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);
+			logger.error(
+					errorDescripcio,
+					ex);
+			throw SistemaExternException.tractarSistemaExternException(
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					MonitorIntegracioHelper.INTCODI_PFIRMA,
+					"(PORTASIGNATURES. Iniciar petició de firma passarel·la web: " + errorDescripcio + ")",
+					ex);
+		}
+		return urlReturnHelium;
+	}
+
+	/** Mètode per finalitzar el procés de firma i obtenir el contingut firmat si tot ha anat bé.
+	 * 
+	 * @param transactionID
+	 * @return
+	 */
+	public FirmaResultatDto firmaSimpleWebEnd(String transactionID) {
+
+		FirmaResultatDto firmaWebResultat = null;
+		String accioDescripcio = "Finalitzant petició firma passarel·la web";
+		long t0 = System.currentTimeMillis();
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"transactionID",
+						transactionID)
+		};
+		try {
+			FirmaWebPlugin firmaWebPlugin = getFirmaSimpleWebPlugin();
+			firmaWebResultat = firmaWebPlugin.firmaSimpleWebEnd(transactionID);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_PFIRMA,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametres);
+		} catch(Exception ex) {
+			String errorDescripcio = "Error finalitzant petició de firma per passarel·la web";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_PFIRMA,
+					"Tancar Flux Firma",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);
+			logger.error(
+					errorDescripcio,
+					ex);
+			throw SistemaExternException.tractarSistemaExternException(
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					MonitorIntegracioHelper.INTCODI_PFIRMA,
+					"(PORTASIGNATURES. Finalitzar petició de firma passarel·la web: " + errorDescripcio + ")",
+					ex);			
+		}
+		return firmaWebResultat;
+
+	}
+
 	private static final Log logger = LogFactory.getLog(PluginHelper.class);
 }

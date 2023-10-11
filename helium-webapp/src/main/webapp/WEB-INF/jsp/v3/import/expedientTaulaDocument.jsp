@@ -193,7 +193,7 @@
 															<span class="fa fa-2x fa-envelope-o" title="<spring:message code='expedient.document.enviar.portasignatures' />"></span>
 													</a>
 												</c:if>
-												<c:if test="${!document.signat && expedient.permisDocManagement && empty psignaPendentActual && (! empty expedient.arxiuUuid || ! empty document.custodiaCodi)}">
+												<c:if test="${!document.signat && expedient.permisDocManagement && empty psignaPendentActual && (! empty expedient.arxiuUuid || ! empty document.custodiaCodi) && !document.notificat}">
 													<a 	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/firmaPassarela"
 														data-rdt-link-modal="true" 
 														data-rdt-link-modal-min-height="400" 

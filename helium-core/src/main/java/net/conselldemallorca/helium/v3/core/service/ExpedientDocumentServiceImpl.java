@@ -71,6 +71,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.FirmaResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
@@ -2107,6 +2108,24 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 					.build();
 		}
 
+	@Override
+	public String firmaSimpleWebStart(PersonaDto persona, ArxiuDto arxiu, String motiu, String lloc, String urlRetorn) {
+
+		return pluginHelper.firmaSimpleWebStart(
+				arxiu,
+				motiu,
+				lloc,
+				persona, 
+				urlRetorn);
+	}
+
+	@Override
+	public FirmaResultatDto firmaSimpleWebEnd(String transactionID) {
+
+		return pluginHelper.firmaSimpleWebEnd(transactionID);
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientDocumentServiceImpl.class);
+
+
 }

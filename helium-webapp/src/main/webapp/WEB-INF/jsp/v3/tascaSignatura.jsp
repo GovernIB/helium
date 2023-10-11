@@ -50,7 +50,6 @@
 <c:forEach var="document" items="${signatures}">
 	<div class="signarTramitacio well well-small">
 		<div class="form-horizontal form-tasca">
-			<span class="hide">numPluginsPassarela: ${numPluginsPassarela}</span>
 			<div class="inlineLabels">
 				<h4 class="titol-missatge">
 					<label class="control-label col-xs-1 <c:if test="${document.required}">obligatori</c:if>">${document.documentNom}</label>
@@ -93,21 +92,10 @@
 							<c:if test="${!bloquejarEdicioTasca}">
 								<div id="firmar${document.id}">
 									<c:if test="${not document.signat}">
-										<c:choose>
-											<c:when test="${numPluginsPassarela > 0}"><c:set var="stils" value="uniForm hide"/></c:when>
-											<c:otherwise><c:set var="stils" value="uniForm"/></c:otherwise>
-										</c:choose>
-										
-										<c:if test="${numPluginsPassarela > 0}">
-											<div id="botons${document.id}" class="modal-botons-firma">
-												<button type="button" onclick="obrirFinestraFirma('<c:url value="/modal/v3/tasca/${tasca.id}/document/${document.id}/firmaPassarela"/>');" class="btn btn-default"><spring:message code="tasca.signa.signar.passarela"/></button>
-											</div>
-										</c:if>
-										<c:if test="${numPluginsPassarela == 0}">
-											<div class="alert alert-warning">
-												<span class="fa fa-warning"/> No hi ha plugins de passarel·la de firma disponibles per signar
-											</div>
-										</c:if>
+										<c:set var="stils" value="uniForm hide"/>
+										<div id="botons${document.id}" class="modal-botons-firma">
+											<button type="button" onclick="obrirFinestraFirma('<c:url value="/modal/v3/tasca/${tasca.id}/document/${document.id}/firmaPassarela"/>');" class="btn btn-default"><spring:message code="tasca.signa.signar.passarela"/></button>
+										</div>
 									</c:if>
 								</div>
 							</c:if>

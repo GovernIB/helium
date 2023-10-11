@@ -311,16 +311,13 @@
 			<artifactId>jackson-mapper-asl</artifactId>
 			<version>1.7.1</version>
 		</dependency>
- 		<dependency>
-			<groupId>org.fundaciobit.plugins</groupId>
-			<artifactId>plugins-api</artifactId>
-			<version>1.0.0</version>
-		</dependency>
+		<!-- 
 		<dependency>
 			<groupId>org.fundaciobit.plugins</groupId>
 			<artifactId>plugin-signatureweb-api</artifactId>
 			<version>2.0.0</version>
 		</dependency>
+		 -->
 		<dependency>
 			<groupId>org.fundaciobit.plugins</groupId>
 			<artifactId>plugin-signatureweb-portafib</artifactId>
@@ -357,6 +354,7 @@
 		    </exclusion>
 		  </exclusions>
 		</dependency>
+		<!-- 
 		<dependency>
 			<groupId>org.fundaciobit.plugins</groupId>
 			<artifactId>plugin-signatureweb-miniappletinclient</artifactId>
@@ -376,6 +374,14 @@
 			<groupId>org.fundaciobit.plugins</groupId>
 			<artifactId>plugin-signatureweb-miniappletinserver</artifactId>
 			<version>2.0.0</version>
+		</dependency>
+		 -->
+		
+		<!-- Firma web -->
+		<dependency>
+			<groupId>org.fundaciobit.apisib.apifirmasimple</groupId>
+			<artifactId>apifirmasimple-api</artifactId>
+			<version>1.0.3</version>
 		</dependency>
 
 		<dependency>

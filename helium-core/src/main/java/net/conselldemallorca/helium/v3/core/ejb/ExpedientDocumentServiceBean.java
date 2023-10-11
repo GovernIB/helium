@@ -25,12 +25,14 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.FirmaResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
@@ -461,5 +463,17 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
     public List<DocumentInfoDto> getDocumentsNoUtilitzatsPerEstats(Long expedientId) {
         return delegate.getDocumentsNoUtilitzatsPerEstats(expedientId);
     }
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public String firmaSimpleWebStart(PersonaDto persona, ArxiuDto arxiu, String motiu, String lloc, String urlRetorn) {
+		return delegate.firmaSimpleWebStart(persona, arxiu, motiu, lloc, urlRetorn);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public FirmaResultatDto firmaSimpleWebEnd(String transactionID) {
+		return delegate.firmaSimpleWebEnd(transactionID);
+	}
 
 }

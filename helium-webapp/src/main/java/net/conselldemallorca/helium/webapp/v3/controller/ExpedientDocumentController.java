@@ -28,14 +28,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tika.Tika;
-import org.fundaciobit.plugins.signature.api.FileInfoSignature;
-import org.fundaciobit.plugins.signature.api.StatusSignature;
-import org.fundaciobit.plugins.signature.api.StatusSignaturesSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -69,6 +65,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.FirmaResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IdiomaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
@@ -85,6 +82,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDt
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.StatusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TokenDto;
 import net.conselldemallorca.helium.v3.core.api.dto.document.DocumentDetallDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
@@ -119,8 +117,6 @@ import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NtiHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.UrlHelper;
-import net.conselldemallorca.helium.webapp.v3.passarelafirma.PassarelaFirmaConfig;
-import net.conselldemallorca.helium.webapp.v3.passarelafirma.PassarelaFirmaHelper;
 
 /**
  * Controlador per a la pàgina de documents de l'expedient.
@@ -146,8 +142,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	private DocumentHelperV3 documentHelper;
 	@Resource
 	private ExpedientHelper expedientHelper;
-	@Autowired
-	private PassarelaFirmaHelper passarelaFirmaHelper;
 	@Autowired
 	private PortafirmesFluxService portafirmesFluxService;
 	@Autowired
@@ -1533,26 +1527,25 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			model.addAttribute("potFirmar", true);
 			return "v3/expedientDocumentFirmaPassarelaForm";
 		}
-		String ret = "redirect:/v3/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + documentStoreId + "/firmaPassarela";
+		String ret = "v3/expedientDocumentFirmaPassarelaForm";
 		try {
+			
 			ArxiuDto arxiuPerFirmar = expedientDocumentService.arxiuFindAmbDocument(
 					expedientId,
 					processInstanceId,
 					documentStoreId);
+			
+			String urlReturnToHelium = ((ModalHelper.isRefererUriModal(request)) ? "/modal" : "") 
+											+ "/v3/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + documentStoreId + "/firmaPassarelaFinal";
+			urlReturnToHelium = UrlHelper.getAbsoluteControllerBase(request,"").concat(urlReturnToHelium);
 
-			PersonaDto usuariActual = aplicacioService.findPersonaActual();
-			String modalStr = (ModalHelper.isModal(request)) ? "/modal" : "";
-			String procesFirmaUrl = passarelaFirmaHelper.iniciarProcesDeFirma(
-					request,
+			String procesFirmaUrl = expedientDocumentService.firmaSimpleWebStart(
+					aplicacioService.findPersonaActual(),
 					arxiuPerFirmar,
-					documentStoreId.toString(),
-					usuariActual.getDni(),
 					command.getMotiu(),
 					command.getLloc() != null ? command.getLloc() : "Illes Balears (HELIUM)",
-					usuariActual.getEmail(),
-					LocaleContextHolder.getLocale().getLanguage(),
-					modalStr + "/v3/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + documentStoreId + "/firmaPassarelaFinal",
-					false);
+					urlReturnToHelium);
+			
 			ret = "redirect:" + procesFirmaUrl;
 		} catch(Exception e) {
 			MissatgesHelper.error(
@@ -1574,110 +1567,77 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable String processInstanceId,
 			@PathVariable Long documentStoreId,
-			@RequestParam("signaturesSetId") String signaturesSetId,
+			@RequestParam(value = "transactionID", required = true) String transactionID,
 			Model model) {
 				
 		String ret = "redirect:/v3/expedient/" + expedientId + "/proces/" + processInstanceId + "/document/" + documentStoreId + "/firmaPassarela";
 		try {
-			PassarelaFirmaConfig signaturesSet = passarelaFirmaHelper.finalitzarProcesDeFirma(
-					request,
-					signaturesSetId);
-			StatusSignaturesSet status = signaturesSet.getStatusSignaturesSet();
-			FileInfoSignature firmaInfo = new FileInfoSignature();
-			StatusSignature firmaStatus = new StatusSignature();
-			if (signaturesSet!=null) {
-				firmaInfo = signaturesSet.getFileInfoSignatureArray()[0];
-				firmaStatus = firmaInfo.getStatusSignature();
-				if(firmaStatus.getStatus()==-1) {
-					status.setErrorMsg(signaturesSet.getFirmaSimpleStatus().getErrorMessage());
-				}
-			}
-			switch (status.getStatus()) {
-			case StatusSignaturesSet.STATUS_FINAL_OK:
-				if (firmaStatus.getStatus() == StatusSignature.STATUS_FINAL_OK) {
-					if (signaturesSet.getSignedData()==null) {
-						firmaStatus.setStatus(StatusSignature.STATUS_FINAL_ERROR);
-						String msg = "L'estat indica que ha finalitzat correctament però el fitxer firmat o no s'ha definit o no existeix";
-						firmaStatus.setErrorMsg(msg);
-						MissatgesHelper.error(
-								request,
-								getMessage(
-										request, 
-										"document.controller.firma.passarela.final.ok.nofile"));
-					} else {
-						try {
-							expedientDocumentService.processarFirmaClient(
-									expedientId,
-									processInstanceId,
-									documentStoreId,
-									firmaInfo.getName(), 
-									signaturesSet.getSignedData());
-							
-							MissatgesHelper.success(
-									request,
-									getMessage(
-											request, 
-											"document.controller.firma.passarela.final.ok"));
-							
-							ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
-									expedientId,
-									processInstanceId,
-									documentStoreId);
-							model.addAttribute("document", document);	
-							model.addAttribute("potFirmar", false);
-							
-							ret = "v3/expedientDocumentFirmaPassarelaForm";
-							
-						} catch (Exception e) {
-							String errMsg = getMessage(
-									request, 
-									"document.controller.firma.passarela.final.error.validacio",
-									new Object[] {ExceptionUtils.getRootCauseMessage(e)});
-							logger.error("Error en la signatura del document. " + errMsg, e);
-							MissatgesHelper.error(
-									request,
-									errMsg);
-						}
-					}
-				} else {
+			
+			FirmaResultatDto firmaResultat =  expedientDocumentService.firmaSimpleWebEnd(transactionID);
+			
+			if (firmaResultat.getStatus() == StatusEnumDto.OK) {
+				
+				if (firmaResultat.getFitxerFirmatContingut() == null) {
 					MissatgesHelper.error(
 							request,
 							getMessage(
 									request, 
-									"document.controller.firma.passarela.final.ok.statuserr",
-									new Object[] {firmaStatus.getStatus(), firmaStatus.getErrorMsg()}));
+									"document.controller.firma.passarela.final.ok.nofile"));
+				} else {
+					try {
+						expedientDocumentService.processarFirmaClient(
+								expedientId,
+								processInstanceId,
+								documentStoreId,
+								firmaResultat.getFitxerFirmatNom(), 
+								firmaResultat.getFitxerFirmatContingut());
+						
+						MissatgesHelper.success(
+								request,
+								getMessage(
+										request, 
+										"document.controller.firma.passarela.final.ok"));
+						
+						ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
+								expedientId,
+								processInstanceId,
+								documentStoreId);
+						model.addAttribute("document", document);	
+						model.addAttribute("potFirmar", false);
+						
+						ret = "v3/expedientDocumentFirmaPassarelaForm";
+						
+					} catch (Exception e) {
+						String errMsg = getMessage(
+								request, 
+								"document.controller.firma.passarela.final.error.validacio",
+								new Object[] {ExceptionUtils.getRootCauseMessage(e)});
+						logger.error("Error en la signatura del document. " + errMsg, e);
+						MissatgesHelper.error(
+								request,
+								errMsg);
+					}
 				}
-				break;
-			case StatusSignaturesSet.STATUS_FINAL_ERROR:
+			} else if (firmaResultat.getStatus() == StatusEnumDto.WARNING) {
+				MissatgesHelper.warning(
+						request,
+						getMessage(
+								request, 
+								"document.controller.firma.passarela.final.warning",
+								new Object[] {
+										firmaResultat.getMsg()
+								}));
+				
+			} else if (firmaResultat.getStatus() == StatusEnumDto.ERROR) {
 				MissatgesHelper.error(
 						request,
 						getMessage(
 								request, 
 								"document.controller.firma.passarela.final.error",
 								new Object[] {
-										status.getErrorMsg() != null? status.getErrorMsg() : "",
-										status.getErrorException() != null? status.getErrorException().getMessage() : ""
+										firmaResultat.getMsg()
 								}));
-				break;
-			case StatusSignaturesSet.STATUS_CANCELLED:
-				String msg = "La firma del document ha estat cancel.lada";
-				firmaStatus.setErrorMsg(msg);
-				MissatgesHelper.warning(
-						request,
-						getMessage(
-								request, 
-								"document.controller.firma.passarela.final.cancel"));
-				break;
-			default:
-				MissatgesHelper.warning(
-						request,
-						getMessage(
-								request, 
-								"document.controller.firma.passarela.final.desconegut"));
 			}
-			passarelaFirmaHelper.closeSignaturesSet(
-					request,
-					signaturesSet);
 		} catch(Exception e) {
 			String errMsg = "Error no controlat en el procés de firma en passarel·la web: " + e.getMessage();
 			MissatgesHelper.error(request, errMsg);
