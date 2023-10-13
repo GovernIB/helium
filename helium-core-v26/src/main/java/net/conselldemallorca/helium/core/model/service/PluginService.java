@@ -353,9 +353,7 @@ public class PluginService {
 								portasignatures.getDocumentId(),
 								documentStore);
 						portasignatures.setDataCustodiaOk(new Date());
-						JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(
-								token.getProcessInstanceId());
-						Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
+						Expedient expedient = portasignatures.getExpedient();
 						if (token != null
 								&& ExpedientTipusTipusEnumDto.FLOW.equals(expedient.getTipus().getTipus())) {
 							// Avança el flux
