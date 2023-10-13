@@ -2410,8 +2410,7 @@ public class DocumentHelperV3 {
 			value = jbpmHelper.getTaskInstanceVariable(
 					taskInstanceId,
 					getVarPerDocumentCodi(documentCodi, false));
-		}
-		if (value == null && processInstanceId != null) {
+		} else if (processInstanceId != null) {
 			value = jbpmHelper.getProcessInstanceVariable(
 					processInstanceId,
 					getVarPerDocumentCodi(documentCodi, false));
