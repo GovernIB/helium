@@ -2948,9 +2948,11 @@ public class DocumentHelperV3 {
 		dsDto.setNtiTipusDocumental(ds.getNtiTipoDocumental()!=null ? ds.getNtiTipoDocumental().toString() : null);
 		dsDto.setNtiValorCsv(ds.getNtiCsv());
 		dsDto.setNtiVersion(ds.getNtiVersion());
-		dsDto.setNom(ds.getCodiDocument());
+		dsDto.setAdjunt(ds.isAdjunt());
+		dsDto.setCodiDocument(ds.getCodiDocument());
+		dsDto.setNom(ds.isAdjunt() ? ds.getAdjuntTitol() : ds.getCodiDocument());
 		dsDto.setId(ds.getId());
-		//dsDto.setZips(ds.getZips());
+
 		return dsDto;
 	}
 

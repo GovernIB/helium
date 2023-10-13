@@ -7,7 +7,9 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -28,9 +30,12 @@ import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
@@ -51,6 +56,8 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 	private ExpedientService expedientService;
 	@Autowired
 	private ExpedientDocumentService expedientDocumentService;
+	@Autowired
+	private DocumentService documentService;
 	
 	@RequestMapping(value = "/{expedientId}/notificacio/{notificacioId}/info", method = RequestMethod.GET)
 	public String notificacioInfo(
@@ -135,10 +142,37 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 
 		model.addAttribute("expedient", expedient);
 		model.addAttribute("notificacions", notificacions);
+		modelAddDocumentsNoms(expedient, notificacions, model);
 		
 		return "v3/expedientNotificacioNotib";
 	}
 
+	/** Afegeix al model un Map<documentCodi documentNom> amb els noms dels documents notificats, ja que dels documents notificats només en tenim el codi.
+	 * @param expedient 
+	 * 
+	 * @param notificacions
+	 * @param model
+	 */
+	private void modelAddDocumentsNoms(ExpedientDto expedient, List<DadesNotificacioDto> notificacions, Model model) {
+	
+		Map<String, String> nomsDocuments = new HashMap<String, String>();
+		for (DadesNotificacioDto notificacio : notificacions) {
+			if (notificacio.getDocumentsDinsZip() != null) {
+				for (DocumentStoreDto ds : notificacio.getDocumentsDinsZip()) {
+					if (!ds.isAdjunt() 
+							&& ds.getCodiDocument() != null 
+							&& !nomsDocuments.containsKey(ds.getCodiDocument())) {
+						// Consulta el nom pel codi del document
+						DocumentDto document = documentService.findAmbCodi(expedient.getTipus().getId(), null, ds.getCodiDocument(), true);
+						nomsDocuments.put(ds.getCodiDocument(), document != null ? document.getNom() : ds.getCodiDocument());
+					}
+				}
+			}
+		}
+		model.addAttribute("nomsDocuments", nomsDocuments);
+		
+	}
+	
 	@RequestMapping(value = "/{expedientId}/notificacions/{notificacioId}/consultarEstat", method = RequestMethod.GET)
 	public String consultarEstat(
 			HttpServletRequest request,

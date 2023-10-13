@@ -17,6 +17,8 @@ import java.util.List;
 public class DocumentStoreDto implements Serializable {
 	
 	private Long id;
+	private boolean adjunt = false;
+	private String codiDocument;
 	private String nom;
 	private String ntiVersion;
 	private String ntiIdentificador;
@@ -36,6 +38,7 @@ public class DocumentStoreDto implements Serializable {
 	
 	/** Indica si en la consulta Distribucio el marca com a válid o invàlid */
 	private boolean documentValid;
+	
 	/** Camp on distribucio informa dels possibles errors que pugui tenir el document. */
 	private String documentError;
 	
@@ -164,6 +167,18 @@ public class DocumentStoreDto implements Serializable {
 		this.id = id;
 	}
 	
+	public boolean isAdjunt() {
+		return adjunt;
+	}
+	public void setAdjunt(boolean adjunt) {
+		this.adjunt = adjunt;
+	}
+	public String getCodiDocument() {
+		return codiDocument;
+	}
+	public void setCodiDocument(String codiDocument) {
+		this.codiDocument = codiDocument;
+	}
 	public String getNom() {
 		return nom;
 	}

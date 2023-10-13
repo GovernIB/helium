@@ -33,7 +33,7 @@
 		<form:form 	cssClass="form-horizontal form-tasca" enctype="multipart/form-data" method="post" commandName="documentExpedientNotificarZipCommand">
 			<div>
 				<hel:inputText required="true" name="titol" textKey="expedient.document.notificat.zip.titol"/>
-				<hel:inputSelect required="true" name="annexos" multiple="true" textKey="expedient.document.notificar.zip.documents" placeholderKey="expedient.document.notificar.zip.documents.placeholder" optionItems="${annexos}" optionValueAttribute="id" optionTextAttribute="documentNom" labelSize="4"/>	
+				<hel:inputSelect required="true" name="annexos" multiple="true" textKey="expedient.document.notificar.zip.documents" placeholderKey="expedient.document.notificar.zip.documents.placeholder" optionItems="${annexos}" optionValueAttribute="codi" optionTextAttribute="valor" labelSize="4"/>	
 			</div>
 			
 			<!-- Metadades NTI -->

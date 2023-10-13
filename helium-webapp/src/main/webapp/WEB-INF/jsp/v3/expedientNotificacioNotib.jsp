@@ -78,15 +78,25 @@
 							</a>
 							<c:if test="${not empty notificacio.documentsDinsZip}">
 							<br/><span class="">Conté:</span>
+								<ul>
 								<c:forEach items="${notificacio.documentsDinsZip}" var="docContingut">
-									<div id="docContingut_${docContingut.id}" class="">	
-											-<a href="<c:url value="/v3/expedient/${expedient.id}/proces/${expedient.processInstanceId}/document/${docContingut.id}/descarregar"/>"
-											title="<spring:message code="expedient.notificacio.descarregar.doc"/> ${docContingut.nom}">
-											${docContingut.nom != null? docContingut.nom : docContingut.id}
+									<li data-id="${docContingut.id}" data-codi="${docContingut.codiDocument}">
+										<a href="<c:url value="/v3/expedient/${expedient.id}/proces/${expedient.processInstanceId}/document/${docContingut.id}/descarregar"/>"
+											title="<spring:message code="expedient.notificacio.descarregar.doc"/>">
+											<c:choose>
+												<c:when test="${docContingut.adjunt}">
+													<span class="fa fa-paperclip" title="Document adjunt"></span>
+													${docContingut.nom}
+												</c:when>
+												<c:otherwise>
+													${nomsDocuments[docContingut.codiDocument]}
+												</c:otherwise>
+											</c:choose>
 											<span class="fa fa-download fa-lg"></span>
-											</a>			
-									</div>
+										</a>
+									</li>
 								</c:forEach>
+								</ul>
 							</c:if>					
 						</td>
 						<td>

@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -1654,17 +1655,10 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		ExpedientDto expedientDto = expedientService.findAmbIdAmbPermis(expedientId);	
 		String processInstanceId = expedientDto.getProcessInstanceId();
 		// Possibles annexos
-		List<ExpedientDocumentDto> annexos = expedientDocumentService.findAmbInstanciaProces(expedientId, processInstanceId);		
-		List<ExpedientDocumentDto> annexosNoZip = new ArrayList<ExpedientDocumentDto>();
-		for(ExpedientDocumentDto ann : annexos) {
-			if (!ann.getArxiuExtensio().contains("zip"))
-				annexosNoZip.add(ann);
-		}
-		model.addAttribute("annexos", annexosNoZip);
-		
 		String str = new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date());
 		command.setTitol("Notificació " + str);
 
+		emplenarModelPossiblesAnnexosNotificacioZip(expedientId, processInstanceId, model);		
 		emplenarModelNti(expedientId, model);
 		command.setNtiOrigen(NtiOrigenEnumDto.ADMINISTRACIO);
 		command.setNtiEstadoElaboracion(NtiEstadoElaboracionEnumDto.ORIGINAL);
@@ -1673,6 +1667,22 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return "v3/expedientDocumentNotificarZip";
 	}
 	
+	/** Mètode per afegir al model de la modal de notificar diferents documents els possibles annexos. */
+	private void emplenarModelPossiblesAnnexosNotificacioZip(Long expedientId, String processInstanceId, Model model) {
+		List<ExpedientDocumentDto> annexos = expedientDocumentService.findAmbInstanciaProces(expedientId, processInstanceId);		
+		List<ParellaCodiValorDto> annexosNoZip = new ArrayList<ParellaCodiValorDto>();
+		for(ExpedientDocumentDto ann : annexos) {
+			if (!ann.getArxiuExtensio().contains("zip"))
+				annexosNoZip.add(
+						new ParellaCodiValorDto(
+										String.valueOf(ann.getId()), 
+										ann.isAdjunt() ? 
+												ann.getAdjuntTitol() + " (adjunt)"
+												: ann.getDocumentNom()));
+		}
+		model.addAttribute("annexos", annexosNoZip);
+	}
+
 	@RequestMapping(value = "/{expedientId}/document/notificarZip", method = RequestMethod.POST)
 	public String notificarZipPost(
 			HttpServletRequest request,
@@ -1686,6 +1696,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		
 		if (bindingResult.hasErrors()) {
 			emplenarModelNti(expedientId, model);
+			emplenarModelPossiblesAnnexosNotificacioZip(expedientId, processInstanceId, model);		
 			return "v3/expedientDocumentNotificarZip";
 		}
 		try {
@@ -1755,10 +1766,37 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		model.addAttribute("document", document);
 		model.addAttribute("expedient", expedient);
 		model.addAttribute("notificacions", notificacionsDocument);
+		modelAddDocumentsNoms(expedient, notificacionsDocument, model);
 		
 		return "v3/expedientDocumentNotificacions";
 	}
 	
+	/** Afegeix al model un Map<documentCodi documentNom> amb els noms dels documents notificats, ja que dels documents notificats només en tenim el codi.
+	 * @param expedient 
+	 * 
+	 * @param notificacions
+	 * @param model
+	 */
+	private void modelAddDocumentsNoms(ExpedientDto expedient, List<DadesNotificacioDto> notificacions, Model model) {
+	
+		Map<String, String> nomsDocuments = new HashMap<String, String>();
+		for (DadesNotificacioDto notificacio : notificacions) {
+			if (notificacio.getDocumentsDinsZip() != null) {
+				for (DocumentStoreDto ds : notificacio.getDocumentsDinsZip()) {
+					if (!ds.isAdjunt() 
+							&& ds.getCodiDocument() != null 
+							&& !nomsDocuments.containsKey(ds.getCodiDocument())) {
+						// Consulta el nom pel codi del document
+						DocumentDto document = documentService.findAmbCodi(expedient.getTipus().getId(), null, ds.getCodiDocument(), true);
+						nomsDocuments.put(ds.getCodiDocument(), document != null ? document.getNom() : ds.getCodiDocument());
+					}
+				}
+			}
+		}
+		model.addAttribute("nomsDocuments", nomsDocuments);
+		
+	}
+
 	/** Obre el formulari de l'enviament al portafirmes
 	 * 
 	 */
