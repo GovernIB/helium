@@ -85,6 +85,8 @@ div.proces:hover {
 					<span class="fa fa-paper-plane"></span>
 					<spring:message code="expedient.boto.notificar_zip"/>
 			</a>
+			
+			
 		</c:if>
 	</div>
 </div>

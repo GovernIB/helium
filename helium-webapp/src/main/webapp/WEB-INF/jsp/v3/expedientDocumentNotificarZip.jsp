@@ -26,13 +26,11 @@
 	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
 <script type="text/javascript">
 </script>
+
 </head>
 
 <body>
-		<c:set var="formAction">
-			<c:url value="/v3/expedient/${expedientId}/document/${document.id}/notificarZip"/>
-		</c:set>
-		<form:form 	cssClass="form-horizontal form-tasca" action="${formAction}" enctype="multipart/form-data" method="post" commandName="documentExpedientNotificarZipCommand">
+		<form:form 	cssClass="form-horizontal form-tasca" enctype="multipart/form-data" method="post" commandName="documentExpedientNotificarZipCommand">
 			<div>
 				<hel:inputText required="true" name="titol" textKey="expedient.document.notificat.zip.titol"/>
 				<hel:inputSelect required="true" name="annexos" multiple="true" textKey="expedient.document.notificar.zip.documents" placeholderKey="expedient.document.notificar.zip.documents.placeholder" optionItems="${annexos}" optionValueAttribute="id" optionTextAttribute="documentNom" labelSize="4"/>	
@@ -50,7 +48,5 @@
 					<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel" data-modal-cancel="true"><spring:message code="comu.boto.cancelar"/></button>
 			</div>
 		</form:form>
-
-	
 </body>
 </html>
