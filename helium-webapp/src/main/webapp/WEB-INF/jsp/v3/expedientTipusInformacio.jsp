@@ -96,6 +96,18 @@
 							<dt><spring:message code="expedient.tipus.info.camp.definicio.proces.inicial"/></dt>
 							<dd>${definicioProcesInicial.jbpmKey}</dd>
 						</c:if>
+
+						<c:if test="${expedientTipus.manualAjudaNom != null}">
+							<dt><spring:message code="expedient.tipus.form.camp.manual.ajuda"/></dt>
+							<dd>
+								<c:set var="arxiuUrl">../../v3/expedient/${expedientTipus.id}/documentDownload"</c:set>
+								<a id="descarregarZip"
+									href="<c:url value="${arxiuUrl}"/>" title="<spring:message code="expedient.tipus.form.camp.manual.ajuda.descarregar"/>">
+									<span  class="fa fa-book"></span> ${expedientTipus.manualAjudaNom}
+								</a>
+							</dd>
+						</c:if>	
+						
 					</dl>
 					<c:if test="${potDissenyarExpedientTipusDelegat}">
 						<div id="expedientTipus-info-accio" class="dropdown">

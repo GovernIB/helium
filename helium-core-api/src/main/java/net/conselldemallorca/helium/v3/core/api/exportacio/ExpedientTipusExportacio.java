@@ -49,6 +49,10 @@ public class ExpedientTipusExportacio implements Serializable {
 	private Map<Integer, SequenciaAnyDto> sequenciaAny = new TreeMap<Integer, SequenciaAnyDto>();
 	private Map<Integer, SequenciaDefaultAnyDto> sequenciaDefaultAny = new TreeMap<Integer, SequenciaDefaultAnyDto>();
 
+	private String manualAjudaNom;
+	private byte[] manualAjudaContent;
+
+	
 	// integració amb forms
 	private String formextUrl;
 	private String formextUsuari;
@@ -246,6 +250,18 @@ public class ExpedientTipusExportacio implements Serializable {
 	}
 	public void setSequenciaDefaultAny(Map<Integer, SequenciaDefaultAnyDto> sequenciaDefaultAny) {
 		this.sequenciaDefaultAny = sequenciaDefaultAny;
+	}
+	public String getManualAjudaNom() {
+		return manualAjudaNom;
+	}
+	public void setManualAjudaNom(String manualAjudaNom) {
+		this.manualAjudaNom = manualAjudaNom;
+	}
+	public byte[] getManualAjudaContent() {
+		return manualAjudaContent;
+	}
+	public void setManualAjudaContent(byte[] manualAjudaContent) {
+		this.manualAjudaContent = manualAjudaContent;
 	}
 	public String getFormextUrl() {
 		return formextUrl;

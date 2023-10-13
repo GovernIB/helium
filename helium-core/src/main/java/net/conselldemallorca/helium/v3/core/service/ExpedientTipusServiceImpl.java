@@ -659,6 +659,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		exportacio.setExpedientTipusPareCodi(tipus.getExpedientTipusPare() != null? 
 				tipus.getExpedientTipusPare().getCodi()
 				: null);
+		exportacio.setManualAjudaNom(tipus.getManualAjudaNom());
+		exportacio.setManualAjudaContent(tipus.getManualAjudaContent());
+		
 		Map<Integer,SequenciaAnyDto> sequenciaAnyMap = new HashMap<Integer, SequenciaAnyDto>();
 		for (Entry<Integer, SequenciaAny> entry : tipus.getSequenciaAny().entrySet()) {
 			SequenciaAny value = entry.getValue();
@@ -1028,6 +1031,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				expedientTipusPare = expedientTipusRepository.findByEntornAndCodi(entorn, importacio.getExpedientTipusPareCodi());
 				expedientTipus.setExpedientTipusPare(expedientTipusPare);
 			}
+			expedientTipus.setManualAjudaNom(importacio.getManualAjudaNom());
+			expedientTipus.setManualAjudaContent(importacio.getManualAjudaContent());
+			
 			if (importacio.isReiniciarCadaAny()) {
 				Collection<SequenciaAnyDto> sequencies = importacio.getSequenciaAny().values();
 				for (SequenciaAnyDto sequencia : sequencies) {
