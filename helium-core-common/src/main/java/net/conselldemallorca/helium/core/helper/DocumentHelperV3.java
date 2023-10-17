@@ -367,15 +367,7 @@ public class DocumentHelperV3 {
 			mapAnotacions.put(annex.getId(), annex);
 		
 		// Cosulta els documents notificats de l'expedient per marcar-los com a notificats
-		List<Long> documentsNotificats = documentNotificacioRepository.getDocumentsNotificatsIdsPerExpedient(expedient);		
-		// Afegeix els documents continguts en els possibles .zips notificats
-		if (!documentsNotificats.isEmpty()) {
-			for (DocumentStore dsContingut : documentStoreRepository.findDocumentsContingutsIds(documentsNotificats)) {
-				if (!documentsNotificats.contains(dsContingut.getId())) {
-					documentsNotificats.add(dsContingut.getId());
-				}
-			};
-		}
+		List<Long> documentsNotificats = this.getDocumentsNotificats(expedient);
 				
 		// Consulta els documents de l'instància de procés
 		Map<String, Object> varsInstanciaProces = jbpmHelper.getProcessInstanceVariables(processInstanceId);
@@ -1158,6 +1150,12 @@ public class DocumentHelperV3 {
 				// si té enviaments no s'esborra el document per a que es pugui consultar des de la notificació.
 				esborrarDocument = false;
 			}
+			List<Long> documentsNotificats = this.getDocumentsNotificats(expedient);
+			if (documentsNotificats.contains(documentStore.getId())) {
+				// si el document s'ha notificat no s'esborra el document per a que es pugui continuar consultant.
+				esborrarDocument = false;
+			}
+			
 			if (expedient.isArxiuActiu()) {
 				if (documentStore.isSignat()) {
 					logger.info("Es procedeix a esborrar d'HELIUM el document firmat a l'Arxiu (expedient= " + expedient.getNumero() + ", tipus=" + expedient.getTipus().getCodi() + 
@@ -1214,6 +1212,24 @@ public class DocumentHelperV3 {
 					processInstanceId,
 					documentStore.getJbpmVariable());
 		}
+	}
+
+	/** Mètode per consultar els documents notificats tant directament com dins dels .zip que poden contenir altres documents.
+	 * 
+	 * @param expedient
+	 * @return
+	 */
+	private List<Long> getDocumentsNotificats(Expedient expedient) {
+		List<Long> documentsNotificats = documentNotificacioRepository.getDocumentsNotificatsIdsPerExpedient(expedient);		
+		// Afegeix els documents continguts en els possibles .zips notificats
+		if (!documentsNotificats.isEmpty()) {
+			for (DocumentStore dsContingut : documentStoreRepository.findDocumentsContingutsIds(documentsNotificats)) {
+				if (!documentsNotificats.contains(dsContingut.getId())) {
+					documentsNotificats.add(dsContingut.getId());
+				}
+			};
+		}
+		return documentsNotificats;
 	}
 
 	/** Programa la petició per esborrar el document de custòdia quan el commit acabi i vagi bé. */
@@ -1954,12 +1970,16 @@ public class DocumentHelperV3 {
 				arxiuFirmat.setNom(arxiuNom);
 				arxiuFirmat.setTipusMime(arxiuMime);
 				arxiuFirmat.setContingut(signatura);
-				pluginHelper.arxiuDocumentGuardarPdfFirmat(
+				pluginHelper.arxiuDocumentGuardarDocumentFirmat(
 						expedient, 
 						documentStore, 
 						documentNom, 
 						documentDescripcio, 
-						arxiuFirmat);
+						arxiuFirmat,
+						tipusFirma, 
+						tipusFirmaEni, 
+						perfilFirmaEni,
+						arxiuContingut);
 			}
 			// Actualitza la informació al document store
 			documentArxiu = pluginHelper.arxiuDocumentInfo(

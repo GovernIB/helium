@@ -2979,7 +2979,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Transactional
 	public Long guardarDocumentProces(
 			String processInstanceId, 
-			String documentCodi, 
+			String documentCodi,
+			String titol,
 			Date data, 
 			String arxiu,
 			byte[] contingut,
@@ -2989,6 +2990,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"processInstanceId=" + processInstanceId + ", " +
 				"documentCodi=" + documentCodi + ", " +
 				"data=" + data + ", " +
+				"titol=" + titol + ", " +
 				"arxiu=" + arxiu + ")");
 		
 		Long documentStoreId = null;
@@ -3021,7 +3023,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 					processInstanceId,
 					documentCodi, // null en el cas dels adjunts
 					(data != null ? data : new Date()),
-					null, // Títol en el cas dels adjunts (al crear ja li posa el nom del document)
+					titol, // Títol en el cas dels adjunts (al crear ja li posa el nom del document)
 					arxiu,
 					contingut,
 					documentHelper.getContentType(arxiu),//new MimetypesFileTypeMap().getContentType(arxiu),

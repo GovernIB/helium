@@ -318,7 +318,14 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 				if(documentsId!=null && !documentsId.isEmpty()) {
 					contingut = Jbpm3HeliumBridge.getInstanceService().getZipPerNotificar(expedient.getId(), documentsPerNotificar); 
 					String documentCodi = "Notificació " + new SimpleDateFormat("dd/MM/yyyy HH:mm").format(new Date());
-					documentStoreId = Jbpm3HeliumBridge.getInstanceService().guardarDocumentProces(expedient.getProcessInstanceId(), null, new Date(), documentCodi+".zip", contingut, documentsPerNotificar);
+					documentStoreId = Jbpm3HeliumBridge.getInstanceService().guardarDocumentProces(
+							expedient.getProcessInstanceId(), 
+							null, 
+							documentCodi+".zip",
+							new Date(), 
+							documentCodi+".zip", 
+							contingut, 
+							documentsPerNotificar);
 					ExpedientDocumentDto expDocDto = Jbpm3HeliumBridge.getInstanceService().findOneAmbInstanciaProces(expedient.getId(), expedient.getProcessInstanceId(), documentStoreId);
 					ArxiuDto arxiu = Jbpm3HeliumBridge.getInstanceService().arxiuFindAmbDocument(
 							expedient.getId(),

@@ -1299,6 +1299,7 @@ public interface Jbpm3HeliumService {
 	 * 
 	 * @param processInstanceId
 	 * @param documentCodi
+	 * @param titol
 	 * @param data
 	 * @param arxiu
 	 * @param contingut
@@ -1308,6 +1309,7 @@ public interface Jbpm3HeliumService {
 	public Long guardarDocumentProces(
 			String processInstanceId, 
 			String documentCodi, 
+			String titol,
 			Date data, 
 			String arxiu,
 			byte[] contingut,
