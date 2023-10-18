@@ -93,7 +93,7 @@ public class ExpedientAccioController extends BaseExpedientController {
 	    			request,
 	    			getMessage(request, "error.executar.accio") + ": " + getMessage(request, "error.permisos.modificar.expedient"));
 			logger.error(getMessage(request, "error.executar.accio") +" "+ accioId + ": "+ ex.getLocalizedMessage(), ex);
-		} catch (Exception ex) {
+		} catch (Throwable th) {
 			String nomAccio = accioId.toString();
 			AccioDto accio = expedientService.accioFindAmbId(
 					expedientId,
@@ -102,8 +102,8 @@ public class ExpedientAccioController extends BaseExpedientController {
 			nomAccio = accio.getNom();
 			MissatgesHelper.error(
 	    			request,
-	    			getMessage(request, "error.executar.accio") + " " + nomAccio + ": " + ex.getClass().getSimpleName() + ": "+ exceptionHelper.getRouteCauses(ex));
-			logger.error(getMessage(request, "error.executar.accio") +" "+ accioId + ": "+ exceptionHelper.getRouteCauses(ex), ex);
+	    			getMessage(request, "error.executar.accio") + " " + nomAccio + ": " + th.getClass().getSimpleName() + ": "+ exceptionHelper.getRouteCauses(th));
+			logger.error(getMessage(request, "error.executar.accio") +" "+ accioId + ": "+ exceptionHelper.getRouteCauses(th), th);
 		}
 		model.addAttribute("pipellaActiva", "accions");
 		return "redirect:/v3/expedient/" + expedientId;

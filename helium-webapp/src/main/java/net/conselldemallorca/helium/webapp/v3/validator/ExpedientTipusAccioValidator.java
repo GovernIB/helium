@@ -110,14 +110,14 @@ public class ExpedientTipusAccioValidator implements ConstraintValidator<Expedie
 				}
 			} else if (AccioTipusEnumDto.HANDLER_PROPI.equals(accio.getTipus())) {
 				
-				if (perEstats && (accio.getDefprocJbpmKey() == null || accio.getDefprocJbpmKey().trim().isEmpty())) {
+				if (!perEstats && (accio.getDefprocJbpmKey() == null || accio.getDefprocJbpmKey().trim().isEmpty())) {
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage("NotEmpty", null))
 							.addNode("defprocJbpmKey")
 							.addConstraintViolation();	
 					valid = false;
 				}
-				if (accio.getHandlerPredefinit() == null || accio.getHandlerPredefinit().trim().isEmpty()) {
+				if (accio.getHandlerPropi() == null || accio.getHandlerPropi().trim().isEmpty()) {
 					context.buildConstraintViolationWithTemplate(
 							MessageHelper.getInstance().getMessage("NotEmpty", null))
 							.addNode("handlerPropi")

@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
+import java.io.ByteArrayInputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -41,6 +42,8 @@ import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.DocumentEstat;
 import es.caib.plugins.arxiu.api.ExpedientEstat;
 import es.caib.plugins.arxiu.api.ExpedientMetadades;
+import javassist.ClassPool;
+import javassist.CtClass;
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.helperv26.LuceneHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
@@ -2000,7 +2003,6 @@ public class ExpedientHelper {
 		if (processInstanceId == null) {
 			processInstanceId = expedient.getProcessInstanceId();
 		}
-		boolean perEstats = ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus());
 		// Executa l'acció
 		Map<String, String> dades = new HashMap<String, String>();
 		if ((AccioTipusEnumDto.HANDLER_PROPI.equals(accio.getTipus())) || AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
@@ -2021,7 +2023,9 @@ public class ExpedientHelper {
 		} else if (AccioTipusEnumDto.HANDLER_PROPI.equals(accio.getTipus())) {
 			jbpmHelper.executeHandler(
 					processInstanceId,
-					accio.getJbpmAction(),
+					this.getHandlerClassPerRecurs(
+							processInstanceId,
+							accio.getHandlerClasse()),
 					dades);
 		} else if (AccioTipusEnumDto.HANDLER_PREDEFINIT.equals(accio.getTipus())) {
 			jbpmHelper.executeHandlerPredefinit(
@@ -2034,6 +2038,30 @@ public class ExpedientHelper {
 					accio.getScript(), 
 					new HashSet<String>());
 		}		
+	}
+
+	/** Cerca el nom de la classe continguda en el recurs desplegat en el context de la definició
+	 *  
+	 * @param recurs
+	 * @return Nom de la classe
+	 */
+	private String getHandlerClassPerRecurs(
+			String processInstanceId, 
+			String recurs) {
+		String handlerClass = null;
+		try {
+			DefinicioProces dp = findDefinicioProcesByProcessInstanceId(processInstanceId);
+			byte[] handlerContingut = jbpmHelper.getResourceBytes(
+					dp.getJbpmId(), 
+					recurs);
+			ClassPool cp = ClassPool.getDefault();
+			CtClass ctClass = cp.makeClass(new ByteArrayInputStream(handlerContingut));
+			handlerClass = ctClass.getName();
+			ctClass.detach();
+		} catch(Exception e) {
+			throw new RuntimeException("No s'ha pogut recuperar la classe del handler pel recurs " + recurs + ": " + e.getMessage());
+		}
+		return handlerClass;
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientHelper.class);

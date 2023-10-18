@@ -279,7 +279,7 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 		model.addAttribute("handlersPredefinitsJson", 
 				this.getHandlersPredefinitsJson());
 
-		model.addAttribute("dadesPredefinidesJson", 
+		model.addAttribute("dadesHandlerJson", 
 				command.getHandlerDadesJson());
 
 		// Variables del tipus d'expedient

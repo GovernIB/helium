@@ -105,7 +105,7 @@
 		handlerParams["${handlerParam.key}"] = "${handlerParam.value}";
 		</c:forEach>
 	 	var handlersPredefinitsJson = ${handlersPredefinitsJson != null? handlersPredefinitsJson : "[]" };
-	 	var handlerDades = ${dadesHandlerJson}
+	 	var handlerDades = ${dadesHandlerJson != null? dadesHandlerJson : "[]"};
 
 		$(document).ready(function() {
    			//<c:if test="${heretat}">

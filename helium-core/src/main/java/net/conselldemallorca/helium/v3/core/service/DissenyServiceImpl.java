@@ -209,7 +209,7 @@ public class DissenyServiceImpl implements DissenyService {
 		java.util.Collections.sort(handlers);
 		return handlers;
     }
-
+    
     @Override
     public List<ParellaCodiValorDto> findHandlerParams(Long definicioProcesId, String handler) {
 		List<ParellaCodiValorDto> parametres = new ArrayList<ParellaCodiValorDto>();
@@ -887,9 +887,16 @@ public class DissenyServiceImpl implements DissenyService {
 	@Override
 	@Transactional(readOnly = true)
 	public byte[] getRecursContingut(Long definicioProcesId, String nom) {
-		return jbpmHelper.getResourceBytes(
+		return this.getRecursContingut(
 				definicioProcesRepository.findOne(definicioProcesId).getJbpmId(), 
 				nom);
+		
+	}
+	
+	private byte[] getRecursContingut(String processDefinitionId, String nom) {
+		return jbpmHelper.getResourceBytes(
+				processDefinitionId, 
+				nom);		
 	}
 
 	/** Retorna el contingut del .par de la definició de procés. */
@@ -903,8 +910,9 @@ public class DissenyServiceImpl implements DissenyService {
 		byte[] recursContingut;
 		ZipEntry ze;
 		try {
+			DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
 			for (String recursNom : recursosNoms) {
-				recursContingut = this.getRecursContingut(definicioProcesId, recursNom);
+				recursContingut = this.getRecursContingut(definicioProces.getJbpmId(), recursNom);
 				if (recursContingut != null) {
 					ze = new ZipEntry(recursNom);
 					out.putNextEntry(ze);

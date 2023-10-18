@@ -3,29 +3,21 @@
  */
 package net.conselldemallorca.helium.jbpm3.command;
 
-import net.conselldemallorca.helium.jbpm3.api.HeliumActionHandler;
-import net.conselldemallorca.helium.jbpm3.api.HeliumApi;
-import net.conselldemallorca.helium.jbpm3.api.HeliumApiImpl;
-import net.conselldemallorca.helium.jbpm3.handlers.AccioExternaRetrocedirHandler;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.Query;
-import org.hibernate.Session;
 import org.jbpm.JbpmConfiguration;
 import org.jbpm.JbpmContext;
 import org.jbpm.command.AbstractGetObjectBaseCommand;
-import org.jbpm.file.def.FileDefinition;
-import org.jbpm.graph.def.Action;
 import org.jbpm.graph.def.ProcessDefinition;
 import org.jbpm.graph.exe.ExecutionContext;
 import org.jbpm.graph.exe.ProcessInstance;
 import org.jbpm.instantiation.ProcessClassLoader;
-import org.jbpm.taskmgmt.exe.TaskInstance;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import net.conselldemallorca.helium.jbpm3.api.HeliumApi;
+import net.conselldemallorca.helium.jbpm3.api.HeliumApiImpl;
 
 /**
  * Command per executar una acció global a dins una instància de procés jBPM
