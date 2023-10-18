@@ -4866,74 +4866,77 @@ public class PluginHelper {
 	 */
 	public static List<ArxiuFirmaDto> toArxiusFirmesDto(List<Firma> firmes) {
 
-		List<ArxiuFirmaDto> dtos = new ArrayList<ArxiuFirmaDto>();
-		for (Firma firma: firmes) {
-			ArxiuFirmaDto dto = new ArxiuFirmaDto();
-			if (firma.getTipus() != null) {
-				switch (firma.getTipus()) {
-				case CSV:
-					dto.setTipus(NtiTipoFirmaEnumDto.CSV);
-					break;
-				case XADES_DET:
-					dto.setTipus(NtiTipoFirmaEnumDto.XADES_DET);
-					break;
-				case XADES_ENV:
-					dto.setTipus(NtiTipoFirmaEnumDto.XADES_ENV);
-					break;
-				case CADES_DET:
-					dto.setTipus(NtiTipoFirmaEnumDto.CADES_DET);
-					break;
-				case CADES_ATT:
-					dto.setTipus(NtiTipoFirmaEnumDto.CADES_ATT);
-					break;
-				case PADES:
-					dto.setTipus(NtiTipoFirmaEnumDto.PADES);
-					break;
-				case SMIME:
-					dto.setTipus(NtiTipoFirmaEnumDto.SMIME);
-					break;
-				case ODT:
-					dto.setTipus(NtiTipoFirmaEnumDto.ODT);
-					break;
-				case OOXML:
-					dto.setTipus(NtiTipoFirmaEnumDto.OOXML);
-					break;
+		List<ArxiuFirmaDto> dtos = null;
+		if (firmes != null) {
+			dtos = new ArrayList<ArxiuFirmaDto>();
+			for (Firma firma: firmes) {
+				ArxiuFirmaDto dto = new ArxiuFirmaDto();
+				if (firma.getTipus() != null) {
+					switch (firma.getTipus()) {
+					case CSV:
+						dto.setTipus(NtiTipoFirmaEnumDto.CSV);
+						break;
+					case XADES_DET:
+						dto.setTipus(NtiTipoFirmaEnumDto.XADES_DET);
+						break;
+					case XADES_ENV:
+						dto.setTipus(NtiTipoFirmaEnumDto.XADES_ENV);
+						break;
+					case CADES_DET:
+						dto.setTipus(NtiTipoFirmaEnumDto.CADES_DET);
+						break;
+					case CADES_ATT:
+						dto.setTipus(NtiTipoFirmaEnumDto.CADES_ATT);
+						break;
+					case PADES:
+						dto.setTipus(NtiTipoFirmaEnumDto.PADES);
+						break;
+					case SMIME:
+						dto.setTipus(NtiTipoFirmaEnumDto.SMIME);
+						break;
+					case ODT:
+						dto.setTipus(NtiTipoFirmaEnumDto.ODT);
+						break;
+					case OOXML:
+						dto.setTipus(NtiTipoFirmaEnumDto.OOXML);
+						break;
+					}
 				}
-			}
-			if (firma.getPerfil() != null) {
-				switch (firma.getPerfil()) {
-				case BES:
-					dto.setPerfil(ArxiuFirmaPerfilEnumDto.BES);
-					break;
-				case EPES:
-					dto.setPerfil(ArxiuFirmaPerfilEnumDto.EPES);
-					break;
-				case LTV:
-					dto.setPerfil(ArxiuFirmaPerfilEnumDto.LTV);
-					break;
-				case T:
-					dto.setPerfil(ArxiuFirmaPerfilEnumDto.T);
-					break;
-				case C:
-					dto.setPerfil(ArxiuFirmaPerfilEnumDto.C);
-					break;
-				case X:
-					dto.setPerfil(ArxiuFirmaPerfilEnumDto.X);
-					break;
-				case XL:
-					dto.setPerfil(ArxiuFirmaPerfilEnumDto.XL);
-					break;
-				case A:
-					dto.setPerfil(ArxiuFirmaPerfilEnumDto.A);
-					break;
+				if (firma.getPerfil() != null) {
+					switch (firma.getPerfil()) {
+					case BES:
+						dto.setPerfil(ArxiuFirmaPerfilEnumDto.BES);
+						break;
+					case EPES:
+						dto.setPerfil(ArxiuFirmaPerfilEnumDto.EPES);
+						break;
+					case LTV:
+						dto.setPerfil(ArxiuFirmaPerfilEnumDto.LTV);
+						break;
+					case T:
+						dto.setPerfil(ArxiuFirmaPerfilEnumDto.T);
+						break;
+					case C:
+						dto.setPerfil(ArxiuFirmaPerfilEnumDto.C);
+						break;
+					case X:
+						dto.setPerfil(ArxiuFirmaPerfilEnumDto.X);
+						break;
+					case XL:
+						dto.setPerfil(ArxiuFirmaPerfilEnumDto.XL);
+						break;
+					case A:
+						dto.setPerfil(ArxiuFirmaPerfilEnumDto.A);
+						break;
+					}
 				}
-			}
-			dto.setFitxerNom(firma.getFitxerNom());
-			dto.setContingut(firma.getContingut());
-			dto.setTipusMime(firma.getTipusMime());
-			dto.setCsvRegulacio(firma.getCsvRegulacio());
-			dtos.add(dto);
-		}	
+				dto.setFitxerNom(firma.getFitxerNom());
+				dto.setContingut(firma.getContingut());
+				dto.setTipusMime(firma.getTipusMime());
+				dto.setCsvRegulacio(firma.getCsvRegulacio());
+				dtos.add(dto);
+			}				
+		}
 		return dtos;
 	}
 	

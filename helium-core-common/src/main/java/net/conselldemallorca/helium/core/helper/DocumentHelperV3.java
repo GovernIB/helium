@@ -2542,7 +2542,9 @@ public class DocumentHelperV3 {
 						null,
 						false,
 						true);
-				firmes =PluginHelper.toArxiusFirmesDto(documentArxiu.getFirmes());
+				if (documentArxiu.getFirmes() != null) {
+					firmes =PluginHelper.toArxiusFirmesDto(documentArxiu.getFirmes());
+				}
 			}
 		}
 		String documentNom = documentStore.isAdjunt() ? documentStore.getArxiuNom() : (document!=null ? document.getNom() : "");
