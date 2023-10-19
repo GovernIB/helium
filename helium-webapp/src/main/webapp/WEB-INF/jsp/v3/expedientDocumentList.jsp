@@ -200,6 +200,7 @@
 		<th data-col-name="registrat" data-visible="false"/>
 		<th data-col-name="docValid" data-visible="false"/>
 		<th data-col-name="notificable" data-visible="false"/>
+		<th data-col-name="psActiu" data-visible="false"/>
 		<th data-col-name="psPendent" data-visible="false"/>
 		<th data-col-name="psError" data-visible="false"/>
 		<th data-col-name="psEstat" data-visible="false"/>
@@ -385,7 +386,7 @@
 							{{/if}}
 							<%--Portafirmes--%>
 							{{if psPendent}}
-								<li><a href="${expedient.id}/document/{{:id}}/psignaReintentar/{{:psDocId}}" data-toggle="modal"><span class="fa fa-clock-o fa-fw" data-refrescar="false"></span>&nbsp;<spring:message code="expedient.document.psigna.reintentar"/></a></li>
+								<li><a href="${expedient.id}/proces/${expedient.processInstanceId}/document/{{:id}}/pendentSignatura" data-toggle="modal"><span class="fa fa-clock-o fa-fw" data-refrescar="false"></span>&nbsp;<spring:message code="expedient.document.psigna.reintentar"/></a></li>
 							{{/if}}
 							<%--NTI        --%>
 							{{if ntiActiu}}
@@ -412,7 +413,7 @@
 						{{/if}}
 						<%-- TODO: --%>
 						<%--Firma en portafirmes --%>
-						{{if editable && !signat && arxiuUuid != null && !psPendent}}
+						{{if editable && psActiu && !signat && arxiuUuid != null && !psPendent}}
 								<li>
 									<a 	href="${expedient.id}/proces/${expedient.processInstanceId}/document/{{:id}}/enviarPortasignatures"
 														data-toggle="modal"

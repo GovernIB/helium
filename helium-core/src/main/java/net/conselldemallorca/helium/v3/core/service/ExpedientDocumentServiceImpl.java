@@ -733,6 +733,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				.ntiActiu(expedient.isNtiActiu())
 				.registrat(dExp.isRegistrat())
 				.docValid(dExp.isDocumentValid())
+				.psActiu(dExp.isPortafirmesActiu())
 				.psError(dPsigna != null ? dPsigna.isError() : false)
 				.signUrlVer(dExp.getSignaturaUrlVerificacio())
 				.psPendent(dPsigna != null)
