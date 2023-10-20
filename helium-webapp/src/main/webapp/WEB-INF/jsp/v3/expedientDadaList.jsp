@@ -590,7 +590,7 @@
 						<ul class="dropdown-menu dropdown-menu-right">
 							{{if !error}}
 								<li><a data-toggle="modal" href="${expedient.id}/dada/{{:id}}/update"><span class="fa fa-pencil fa-fw"></span>&nbsp;<spring:message code="comuns.modificar"/></a></li>
-								<li><a href="${expedient.id}/dada/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.llistat.document.confirm_esborrar"/>"><span class="fa fa-trash-o fa-fw"></span>&nbsp;<spring:message code="comuns.esborrar"/></a></li>
+								<li><a href="${expedient.id}/dada/{{:id}}/delete" data-toggle="ajax" data-confirm="<spring:message code="expedient.llistat.dada.confirm_esborrar"/>"><span class="fa fa-trash-o fa-fw"></span>&nbsp;<spring:message code="comuns.esborrar"/></a></li>
 							{{/if}}
 						</ul>
 					</div>

@@ -1990,7 +1990,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				String errMsg = getMessage(request, "expedient.document.enviar.portasignatures.error", new Object[] {e.getMessage()});
 				logger.error(errMsg, e);
 				MissatgesHelper.error(request, errMsg);
-		
+				return "redirect:" + request.getHeader("referer");
 			}
 		}
 		this.emplenarModelPortasigEnviar(

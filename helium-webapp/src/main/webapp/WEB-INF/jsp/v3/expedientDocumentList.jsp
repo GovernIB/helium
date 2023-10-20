@@ -337,7 +337,7 @@
 		<th data-col-name="id" data-template="#cellAccionsTemplate" data-orderable="false" width="5%">
 			<script id="cellAccionsTemplate" type="text/x-jsrender">
 			{{if id == null}}
-				{{if editable}}
+				{{if editable && ${expedient.permisDocManagement}}}
 					<a class="btn btn-default" href="${expedient.id}/document/{{:codi}}/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nou_document"/></a>
 				{{else}}
 					<span class="fa fa-lock pull-right doc-bloquejat" title="Document bloquejat en aquest estat"></span>
@@ -348,10 +348,10 @@
 					<ul class="dropdown-menu dropdown-menu-right">
 						{{if !error}}
 							<%--Modificar  TODO: Si no està en estat definitiu ni pendent de firma (portafirmes)--%>
-							{{if editable && !signat}}<li><a data-toggle="modal" href="${expedient.id}/document/{{:id}}/update"><span class="fa fa-pencil fa-fw"></span>&nbsp;<spring:message code="comuns.modificar"/></a></li>{{/if}}
+							{{if editable && ${expedient.permisDocManagement} && !signat}}<li><a data-toggle="modal" href="${expedient.id}/document/{{:id}}/update"><span class="fa fa-pencil fa-fw"></span>&nbsp;<spring:message code="comuns.modificar"/></a></li>{{/if}}
 							<%--Borrar --%>
-							{{if editable}}
-								<li>
+							{{if editable && ${expedient.permisDocManagement}}} 
+								<li>				
 									{{if signat && arxiuActiu}}
 										<a href="<c:url value="/v3/expedient/${expedient.id}/proces/${expedient.processInstanceId}/document/{{:id}}/esborrar"/>" data-toggle="ajax" data-confirm="<spring:message code="expedient.document.firmat.esborrar.confirmacio"/>"><span class="fa fa-trash-o fa-fw"></span>&nbsp;<spring:message code="comuns.esborrar"/></a>
 									{{else}}
@@ -466,7 +466,9 @@
 		<a id="descarregarZip" href="<c:url value="/v3/expedient/${expedient.id}/document/descarregar"/>" class="btn btn-default" title="<spring:message code="expedient.document.descarregar.zip"/>">
 			<span class="fa fa-download"></span> <spring:message code="comu.boto.descarregar"/> <span id="descarregarCount" class="badge">&nbsp;</span>
 		</a>
-		<a id="nou_document" class="btn btn-default" href="${expedient.id}/document/new" data-toggle="modal" data-datatable-id="expedientDocuments"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nou_document"/></a>
+		<c:if test="${expedient.permisDocManagement}">
+			<a id="nou_document" class="btn btn-default" href="${expedient.id}/document/new" data-toggle="modal" data-datatable-id="expedientDocuments"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nou_document"/></a>
+		</c:if>
 	</div>
 </script>
 <script id="rowhrefTemplateDocuments" type="text/x-jsrender">
