@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>net.conselldemallorca.helium</groupId>
 		<artifactId>helium</artifactId>
-		<version>3.3.1</version>
+		<version>3.3</version>
 	</parent>
 	<artifactId>helium-ear</artifactId>
 	<packaging>ear</packaging>
@@ -41,6 +41,11 @@
 					<groupId>org.slf4j</groupId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk15on</artifactId>
+			<version>1.51</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>

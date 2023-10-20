@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>net.conselldemallorca.helium</groupId>
 		<artifactId>helium</artifactId>
-		<version>3.3.1</version>
+		<version>3.3</version>
 	</parent>
 	<artifactId>helium-core-common</artifactId>
 	<dependencies>
@@ -433,23 +433,14 @@
 					<groupId>org.slf4j</groupId>
 					<artifactId>jul-to-slf4j</artifactId>
 				</exclusion>
-				<exclusion>
-					<groupId>org.bouncycastle</groupId>
-					<artifactId>bcprov-jdk15</artifactId>
-				</exclusion>
-				<exclusion>
-					<artifactId>bcmail-jdk16</artifactId>
-					<groupId>org.bouncycastle</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>bcprov-jdk16</artifactId>
-					<groupId>org.bouncycastle</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>bctsp-jdk16</artifactId>
-					<groupId>org.bouncycastle</groupId>
-				</exclusion>
 			</exclusions>
+		</dependency>
+		<!-- S'ha d'incloure en el lib de l'ear per a que no agafi la del lib del jboss -->
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk15on</artifactId>
+			<version>1.51</version>
+			<scope>provided</scope>
 		</dependency>
 		<!-- xml sec. Inclosa també al pom.xml de l'EAR per evitar problemes en JBoss -->
  		<dependency>
@@ -457,12 +448,6 @@
 			<artifactId>xmlsec</artifactId>
 			<version>1.4.3</version>
 		</dependency>		
-		<!-- bouncy castle -->
-		<dependency>
-			<artifactId>bctsp-jdk15</artifactId>
-			<groupId>org.bouncycastle</groupId>
-			<version>1.45</version>
-		</dependency>
 		<!-- Distribucio -->
 		<dependency>
 			<groupId>es.caib.distribucio</groupId>
