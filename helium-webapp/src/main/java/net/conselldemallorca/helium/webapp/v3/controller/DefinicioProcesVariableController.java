@@ -125,7 +125,8 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 		this.omplirModelVariableForm(
 				request, 
 				entornActual.getId(),
-				definicioProcesId, 
+				definicioProcesId,
+				command,
 				model);
 		return "v3/expedientTipusVariableForm";
 	}
@@ -143,6 +144,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
     				request, 
     				entornActual.getId(),
     				definicioProcesId, 
+    				command,
     				model);
         	return "v3/expedientTipusVariableForm";
         } else {
@@ -184,6 +186,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 				request, 
 				entornActual.getId(),
 				definicioProcesId, 
+				command,
 				model);
 		return "v3/expedientTipusVariableForm";
 	}
@@ -202,6 +205,7 @@ public class DefinicioProcesVariableController extends BaseVariableController {
     				request, 
     				entornActual.getId(),
     				definicioProcesId, 
+    				command,
     				model);
         	return "v3/expedientTipusVariableForm";
         } else {
@@ -450,8 +454,12 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			HttpServletRequest request,
 			Long entornId,
 			Long definicioProcesId,
+			CampCommand command, 
 			Model model) {
 		
+		// Per estats
+		model.addAttribute("perEstats", false);
+
 		// TipusCamp
 		List<ParellaCodiValorDto> tipusCamp = new ArrayList<ParellaCodiValorDto>();
 		for (CampTipusDto campTipus : CampTipusDto.values()) {
@@ -481,8 +489,31 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			model.addAttribute("dominis", dominiService.findGlobals(entornId));
 			model.addAttribute("consultes", definicioProcesService.consultaFindByEntorn(entornId));
 		}
-		// Handlers
-		model.addAttribute("handlers", dissenyService.findAccionsJbpmOrdenades(definicioProcesId));
+		// Accions
+		model.addAttribute("accions", this.getAccionsFlux(definicioProcesId, command.getJbpmAction()));
+	}
+
+	/** Consulta la llista d'accions per la definició per id de la definició de procés.
+	 * 
+	 * @param definicioProcesId
+	 * @param jbpmAction
+	 * @return
+	 */
+	private List<ParellaCodiValorDto> getAccionsFlux(long definicioProcesId, String jbpmAction) {
+
+		List<ParellaCodiValorDto> ret = new ArrayList<ParellaCodiValorDto>();
+		List<String> accions = dissenyService.findAccionsJbpmOrdenades(definicioProcesId);
+		for (String accio : accions) {
+			ret.add(new ParellaCodiValorDto(accio, accio));
+		}
+		if (jbpmAction != null 
+				&& !jbpmAction.isEmpty()
+				&&	!accions.contains(jbpmAction)) {
+			ret.add(0, new ParellaCodiValorDto(
+					jbpmAction,
+					jbpmAction + " (no existeix a la definició de procés)"));
+		}
+		return ret;
 	}
 
 	private void omplirModelVariablesPestanya(HttpServletRequest request, Long definicioProcesId, Model model) {

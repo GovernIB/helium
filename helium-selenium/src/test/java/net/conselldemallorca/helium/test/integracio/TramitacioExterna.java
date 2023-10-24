@@ -73,7 +73,7 @@ public class TramitacioExterna extends BaseTest {
 					propietats.getEntornTestCodi(), 
 					propietats.getUsuariTestCodi(), 
 					propietats.getTipusExpedientCodi(), 
-					"28/2023",
+					"007/2023",
 					SELENIUM_TRAMITACIO_EXTERNA_EXPEDIENT_TITOL, 
 					valorsFormulari);
 		} catch(TramitacioException e) {

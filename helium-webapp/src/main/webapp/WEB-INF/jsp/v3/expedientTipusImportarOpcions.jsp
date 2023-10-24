@@ -22,6 +22,13 @@
 				</p>
 			</c:if>
 
+			<c:if test="${not empty avisImportacioPerDistribucioTipusDiferent}">
+				<p class="help-block" style="color: #8a6d3b">
+					<span class="fa fa-exclamation-triangle"></span> 
+					${avisImportacioPerDistribucioTipusDiferent}
+				</p>
+			</c:if>
+
 			<c:if test="${avisResonsableNoTrobat}">
 				<p class="help-block" style="color: #8a6d3b">
 					<span class="fa fa-exclamation-triangle"></span> 

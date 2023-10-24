@@ -78,6 +78,9 @@
 				<c:when test="${perEstats}">
 					<hel:inputHidden name="defprocJbpmKey" />
 				</c:when>
+				<c:when test="${not empty campCommand.definicioProcesId}">
+					<!-- Per camps definits a la definició de procés no cal el camp defprocJbpmKey -->
+				</c:when>
 				<c:otherwise>
 					<hel:inputSelect required="true" name="defprocJbpmKey" textKey="expedient.tipus.accio.form.accio.defprocJbpmKey" emptyOption="true" placeholderKey="expedient.tipus.accio.form.accio.defprocJbpmKey.placeholder" optionItems="${definicionsProces}" />
 				</c:otherwise>

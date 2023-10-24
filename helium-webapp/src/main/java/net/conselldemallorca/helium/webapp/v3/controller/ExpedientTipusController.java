@@ -297,11 +297,11 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
     		omplirModelExpedientTipusForm( request, id, model);		
         	return "v3/expedientTipusForm";
         } else {
-        	boolean actualitzarContingut = false;
+        	boolean actualitzarContingutManual = false;
         	if (eliminarManualAjudaContent) {
         		command.setManualAjudaContent(null);
         		command.setManualAjudaNom(null);
-        		actualitzarContingut = true;
+        		actualitzarContingutManual = true;
         	}
         	if (manualAjudaContent != null && manualAjudaContent.getSize() > 0) {
 				try {
@@ -311,7 +311,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					logger.error("No s'ha pogut guardar el manual: " + id, e);
 					return "redirect:/v3/expedientTipus";
 				}
-				actualitzarContingut = true;
+				actualitzarContingutManual = true;
 			}
     		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
     		// Transforma els llistats d'anys i valors 
@@ -327,7 +327,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
     						command,
     						ExpedientTipusDto.class),
         			sequenciesAny,
-        			sequenciesValor);
+        			sequenciesValor,
+        			actualitzarContingutManual);
 			return getModalControllerReturnValueSuccess(
 					request,
 					"redirect:/v3/expedientTipus",
@@ -611,7 +612,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				command.setTasquesHerencia(true);
 			}
 		 	EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-			this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), exportacio, model);			
+			this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), exportacio, request, model);			
 		}
 		
 		model.addAttribute("inici", true); // per marcar tots els checboxs inicialment
@@ -646,7 +647,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	 	
 		if (bindingResult.hasErrors()) {
     		model.addAttribute("command", command);	    		
-    		this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), importacio, model);
+    		this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), importacio, request, model);
         	return "v3/expedientTipusImportarOpcions";
         } else {
         	try {
@@ -667,20 +668,15 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 								"expedient.tipus.importar.form.success"));
 	    		// Indica que la importació ha finalitzat per no haver de processar més codi
 	    		model.addAttribute("importacioFinalitzada", true);
-	        	if (command.getId() == null) 
-		    		return modalUrlTancar();
-	        	else {        		
-	        		// retorna la redirecció
-	        		model.addAttribute("redireccioUrl",  request.getContextPath() + "/v3/expedientTipus/" + expedientTipus.getId());
-	            	return "v3/expedientTipusImportarOpcions";
-	        	}
+        		model.addAttribute("redireccioUrl",  request.getContextPath() + "/v3/expedientTipus/" + expedientTipus.getId());
+            	return "v3/expedientTipusImportarOpcions";
         	} catch (Exception e) {
         		MissatgesHelper.error(request, 
         							getMessage(request,
         										"expedient.tipus.importar.form.error.importacio",
         										new Object[] {e.getLocalizedMessage()}));
         		model.addAttribute("command", command);	    		
-        		this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), importacio, model);
+        		this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), importacio, request, model);
             	return "v3/expedientTipusImportarOpcions";
         	}
         }
@@ -690,6 +686,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			Long entornId,
 			Long expedientTipusId,
 			ExpedientTipusExportacio exportacio,
+			HttpServletRequest request,
 			Model model) {
 		ExpedientTipusDto dto = null;
 		if (expedientTipusId != null) {
@@ -704,6 +701,25 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				model.addAttribute("avisImportacioExpedientTipusDiferent", true); 
 			}
 	 	}
+		// Comprova si posar un avís que ja existeix un codi de procediment
+		if (exportacio.isDistribucioActiu()) {
+			ExpedientTipusDto expedientTipusPerDistribucio = 
+					expedientTipusService.findPerDistribucio(exportacio.getDistribucioCodiProcediment(), exportacio.getDistribucioCodiProcediment());
+			if (expedientTipusPerDistribucio != null 
+					&& !expedientTipusPerDistribucio.getId().equals(expedientTipusId) ) {
+				model.addAttribute("avisImportacioPerDistribucioTipusDiferent", 
+							this.getMessage(request, 
+									"expedient.tipus.importar.form.avis.distribucio.procediment.diferent", 
+									new Object[] {
+											expedientTipusPerDistribucio.getCodi(),
+											expedientTipusPerDistribucio.getNom(),
+											expedientTipusPerDistribucio.getEntorn().getCodi(),
+											expedientTipusPerDistribucio.getEntorn().getNom(),
+											exportacio.getDistribucioCodiProcediment(),
+											exportacio.getDistribucioCodiAssumpte() != null ? exportacio.getDistribucioCodiAssumpte() : ""
+									}));
+			}
+		}
 	 	
 		// Per indicar a la pàgina si s'ha pogut fer una importació del fitxer.
 		model.addAttribute("fitxerImportat", exportacio != null);

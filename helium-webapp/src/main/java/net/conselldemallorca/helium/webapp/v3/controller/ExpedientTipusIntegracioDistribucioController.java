@@ -109,9 +109,7 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 	        	for(ObjectError e: bindingResult.getAllErrors()) {
 	        		 MissatgesHelper.error(
 	 						request, 
-	 						getMessage(
-		    						request, 
-		    						e.getDefaultMessage()));
+	 						e.getDefaultMessage());
 	        	}
 		        MissatgesHelper.error(
 						request, 

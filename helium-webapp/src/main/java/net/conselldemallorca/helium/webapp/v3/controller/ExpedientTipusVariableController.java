@@ -172,6 +172,7 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 		CampCommand command = conversioTipusHelper.convertir(
 				dto,
 				CampCommand.class);
+		command.setExpedientTipusId(expedientTipusId);
 		command.setAgrupacioId(dto.getAgrupacio() != null? dto.getAgrupacio().getId() : null);
 		command.setEnumeracioId(dto.getEnumeracio() != null? dto.getEnumeracio().getId() : null);
 		command.setDominiId(dto.getDomini() != null? dto.getDomini().getId() : null);

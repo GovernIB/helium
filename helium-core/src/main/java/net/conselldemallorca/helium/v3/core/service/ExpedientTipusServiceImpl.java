@@ -6,6 +6,7 @@ package net.conselldemallorca.helium.v3.core.service;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -390,14 +391,16 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			Long entornId,
 			ExpedientTipusDto expedientTipus,
 			List<Integer> sequenciesAny,
-			List<Long> sequenciesValor) {
+			List<Long> sequenciesValor, 
+			boolean actualitzarContingutManual) {
 
 		logger.debug(
 				"Modificant tipus d'expedient existent (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipus=" + expedientTipus + ", " +
 				"sequenciesAny=" + sequenciesAny + ", " +
-				"sequenciesValor=" + sequenciesValor + ")");
+				"sequenciesValor=" + sequenciesValor + ", " +
+				"actualitzarContingutManual" + actualitzarContingutManual + ")");
 		
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
@@ -405,12 +408,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				false);
 
 		ExpedientTipus entity = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipus.getId());
-		entity.setManualAjudaContent(expedientTipus.getManualAjudaContent());	
-		entity.setManualAjudaNom(expedientTipus.getManualAjudaNom());
 		entity.setNom(expedientTipus.getNom());
 		entity.setAmbInfoPropia(expedientTipus.isAmbInfoPropia());
 		entity.setHeretable(expedientTipus.isHeretable());
-		entity.setManualAjudaContent(entity.getManualAjudaContent());
 		if (expedientTipus.getExpedientTipusPareId() != null)
 			entity.setExpedientTipusPare(expedientTipusRepository.findOne(expedientTipus.getExpedientTipusPareId()));
 		else
@@ -450,6 +450,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				entity.getSequenciaAny().put(sequenciaEntity.getAny(), sequenciaEntity);
 				sequenciaRepository.save(sequenciaEntity);
 			}
+		}
+		entity.setManualAjudaNom(expedientTipus.getManualAjudaNom());
+		if (actualitzarContingutManual) {
+			entity.setManualAjudaContent(entity.getManualAjudaContent());
 		}
 		// Només poden configurar la retroacció els dissenyadors de l'entorn
 		if (entornHelper.potDissenyarEntorn(entornId)) {
@@ -1053,8 +1057,30 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		expedientTipus.setArxiuActiu(importacio.isArxiuActiu());
 		// Integracio amb DISTRIBUCIO
 		expedientTipus.setDistribucioActiu(importacio.isDistribucioActiu());
-		expedientTipus.setDistribucioCodiAssumpte(importacio.getDistribucioCodiAssumpte());
+		// Si la integració amb Distribucio està activa i canvia el codi de procediment o d'assumpte
+		if (importacio.isDistribucioActiu() 
+				&& (!StringUtils.equals(importacio.getDistribucioCodiProcediment(), expedientTipus.getDistribucioCodiProcediment())
+						|| !StringUtils.equals(importacio.getDistribucioCodiAssumpte(), expedientTipus.getDistribucioCodiAssumpte()))) {
+			// Comprova si hi ha cap altre tipus d'expedient configurat pel nou codi i assumpte
+			List<ExpedientTipus> expedientsTipusPerDistribucio = expedientTipusRepository.findPerDistribuir(
+					importacio.getDistribucioCodiProcediment() == null ? "" : importacio.getDistribucioCodiProcediment(),
+							importacio.getDistribucioCodiAssumpte() == null ? "" : importacio.getDistribucioCodiAssumpte());
+			boolean expedientTipusPerDistribuirDiferent = false;
+			if (expedientsTipusPerDistribucio != null && !expedientsTipusPerDistribucio.isEmpty()) {
+				for (ExpedientTipus expedientTipusPerDistribucio: expedientsTipusPerDistribucio) {
+					if (!expedientTipusPerDistribucio.getId().equals(expedientTipus.getId())) {
+						expedientTipusPerDistribuirDiferent = true;
+						break;
+					}
+				}
+			}
+			// Si s'ha trobat un tipus diferent llavors posa un codi de procediment aleatori.
+			if (expedientTipusPerDistribuirDiferent) {
+				importacio.setDistribucioCodiProcediment(importacio.getDistribucioCodiProcediment() + "_" + new Date().getTime());
+			}
+		}
 		expedientTipus.setDistribucioCodiProcediment(importacio.getDistribucioCodiProcediment());
+		expedientTipus.setDistribucioCodiAssumpte(importacio.getDistribucioCodiAssumpte());
 		expedientTipus.setDistribucioPresencial(importacio.getDistribucioPresencial());
 		expedientTipus.setDistribucioProcesAuto(importacio.isDistribucioProcesAuto());
 		expedientTipus.setDistribucioSistra(importacio.isDistribucioSistra());

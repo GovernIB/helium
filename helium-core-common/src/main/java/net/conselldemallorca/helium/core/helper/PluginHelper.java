@@ -1037,7 +1037,7 @@ public class PluginHelper {
 			RespostaAnotacioRegistre resposta = getRegistrePluginRegWeb3().registrarSortida(
 					toRegistreAssentament(anotacio),
 					"Helium",
-					"3.2");
+					"3.3");
 			if (!resposta.isOk()) {
 				String errorDescripcio = "No s'ha pogut registrar la sortida (" +
 						"errorCodi=" + resposta.getErrorCodi() + ", " +

@@ -71,6 +71,8 @@ public interface ExpedientTipusService {
 	 *            Els anys de les seqüències.
 	 * @param sequenciesValor
 	 *            Els valors de les seqüències.
+	 * @param actualitzarContingutManual 
+	 *            Indica si s'ha d'actualitzar el contingut del manual amb les dades del DTO. 			
 	 * @return el tipus d'expedient modificat.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
@@ -81,7 +83,8 @@ public interface ExpedientTipusService {
 			Long entornId,
 			ExpedientTipusDto expedientTipus,
 			List<Integer> sequenciesAny, 
-			List<Long> sequenciesValor) throws NoTrobatException, PermisDenegatException;
+			List<Long> sequenciesValor, 
+			boolean actualitzarContingutManual) throws NoTrobatException, PermisDenegatException;
 
 	/** 
 	 * Modifica les dades del tipus d'expedient referents a la integració amb formularis externs.

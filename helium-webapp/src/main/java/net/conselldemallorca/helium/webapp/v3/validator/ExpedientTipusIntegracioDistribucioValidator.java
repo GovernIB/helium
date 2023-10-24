@@ -9,7 +9,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusIntegracioDistribucioCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
 /**
  * Validador per a la comanda de modificar les dades d'integració amb Distribució. Valida:

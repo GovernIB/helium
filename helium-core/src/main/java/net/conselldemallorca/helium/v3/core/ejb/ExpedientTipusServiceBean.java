@@ -73,12 +73,14 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			Long entornId,
 			ExpedientTipusDto expedientTipus,
 			List<Integer> sequenciesAny, 
-			List<Long> sequenciesValor) {
+			List<Long> sequenciesValor, 
+			boolean actualitzarContingutManual) {
 		return delegate.update(
 				entornId,
 				expedientTipus,
 				sequenciesAny,
-				sequenciesValor);
+				sequenciesValor,
+				actualitzarContingutManual);
 	}
 
 	@Override

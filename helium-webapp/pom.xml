@@ -497,6 +497,12 @@
 					<artifactId>jsrender</artifactId>
 					<version>1.0.0-rc.70</version>
 				</dependency>
+				<!-- Validació de firmes -->
+				<dependency>
+					<groupId>org.bouncycastle</groupId>
+					<artifactId>bcprov-jdk15on</artifactId>
+					<version>1.51</version>
+				</dependency>
 				<dependency>
 					<groupId>${project.groupId}</groupId>
 					<artifactId>helium-core</artifactId>
