@@ -453,7 +453,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		}
 		entity.setManualAjudaNom(expedientTipus.getManualAjudaNom());
 		if (actualitzarContingutManual) {
-			entity.setManualAjudaContent(entity.getManualAjudaContent());
+			entity.setManualAjudaContent(expedientTipus.getManualAjudaContent());
 		}
 		// Només poden configurar la retroacció els dissenyadors de l'entorn
 		if (entornHelper.potDissenyarEntorn(entornId)) {
