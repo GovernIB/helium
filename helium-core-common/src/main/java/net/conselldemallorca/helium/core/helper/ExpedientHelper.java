@@ -770,8 +770,11 @@ public class ExpedientHelper {
 		}else {
 			//firmem els documents que no estan firmats
 			firmarDocumentsPerArxiuFiExpedient(expedient);	
-			// Modifiquem l'expedient a l'arxiu.
+			// Modifiquem l'expedient a l'arxiu per actualitzar la llista d'interessats
+			Date dataFi = expedient.getDataFi();
+			expedient.setDataFi(null);
 			pluginHelper.arxiuExpedientModificar(expedient);
+			expedient.setDataFi(dataFi);
 			// Tanca l'expedient a l'arxiu.
 			ExpedientMetadades metadades = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid()).getMetadades();
 			if(metadades.getEstat() != ExpedientEstat.TANCAT) {
@@ -1492,16 +1495,6 @@ public class ExpedientHelper {
 		
 		// Si el procés està finalitzat
 		if (processInstance!=null && processInstance.getEnd() != null) {
-			// Actualitzar data de fi de l'expedient
-			Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
-			if (expedient != null) {
-				expedient.setDataFi(processInstance.getEnd());
-				
-				//tancam l'expedient de l'arxiu si escau
-				if (expedient.isArxiuActiu()) {
-					tancarExpedientArxiu(expedient);
-				}
-			}
 			// Finalitzar terminis actius
 			for (TerminiIniciat terminiIniciat: terminiIniciatRepository.findByProcessInstanceId(processInstance.getId())) {
 				if (terminiIniciat.getDataInici() != null) {
@@ -1511,6 +1504,16 @@ public class ExpedientHelper {
 						jbpmHelper.suspendTimer(
 								timerIds[i],
 								new Date(Long.MAX_VALUE));
+				}
+			}
+			// Actualitzar data de fi de l'expedient
+			Expedient expedient = expedientRepository.findByProcessInstanceId(processInstanceId);
+			if (expedient != null) {
+				expedient.setDataFi(processInstance.getEnd());
+				
+				//tancam l'expedient de l'arxiu si escau
+				if (expedient.isArxiuActiu()) {
+					tancarExpedientArxiu(expedient);
 				}
 			}
 		}
