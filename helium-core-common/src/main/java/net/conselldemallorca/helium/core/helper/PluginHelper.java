@@ -2275,7 +2275,7 @@ public class PluginHelper {
 							expedient.getDataInici(),
 							obtenirNtiClasificacion(expedient),
 							false,
-							this.interessatsCodis(expedient.getInteressats()),
+							this.interessatsDocuments(expedient.getInteressats()),
 							obtenirNtiSerieDocumental(expedient),
 							expedient.getArxiuUuid()));
 			monitorIntegracioHelper.addAccioOk(
@@ -2373,7 +2373,7 @@ public class PluginHelper {
 							expedient.getDataInici(),
 							obtenirNtiClasificacion(expedient),
 							expedient.getDataFi() != null,
-							this.interessatsCodis(expedient.getInteressats()),
+							this.interessatsDocuments(expedient.getInteressats()),
 							obtenirNtiSerieDocumental(expedient),
 							expedient.getArxiuUuid()));
 			monitorIntegracioHelper.addAccioOk(
@@ -2396,14 +2396,27 @@ public class PluginHelper {
 		}
 	}
 	
-	private List<String> interessatsCodis( List<Interessat> interessatsExpedient) {
-		List<String> interessatsCodisToReturn = new ArrayList<String>();
+	/** Obté la llista de codis de documents segons el tipus d'interessat
+	 * 
+	 * @param interessatsExpedient
+	 * @return
+	 */
+	private List<String> interessatsDocuments( List<Interessat> interessatsExpedient) {
+		List<String> interessatsDocumentsToReturn = new ArrayList<String>();
 		if (interessatsExpedient != null) {
-			for (Interessat interessat : interessatsExpedient) {	
-				interessatsCodisToReturn.add(interessat.getCodi());		
+			for (Interessat interessat : interessatsExpedient) {
+				switch(interessat.getTipus()){
+				case ADMINISTRACIO:
+					interessatsDocumentsToReturn.add(interessat.getDir3Codi());		
+					break;
+				case FISICA:
+				case JURIDICA:
+					interessatsDocumentsToReturn.add(interessat.getNif());		
+					break;				
+				}
 			}	
 		}
-		return interessatsCodisToReturn;
+		return interessatsDocumentsToReturn;
 	}
 	
 	
@@ -3800,7 +3813,9 @@ public class PluginHelper {
 			metadades.setEstat(ExpedientEstat.TANCAT);
 		}
 		metadades.setOrgans(ntiOrgans);
-		metadades.setInteressats(ntiInteressats);
+		if (ntiInteressats != null && !ntiInteressats.isEmpty()) {
+			metadades.setInteressats(ntiInteressats);
+		}
 		metadades.setSerieDocumental(serieDocumental);
 		expedient.setMetadades(metadades);
 		return expedient;
