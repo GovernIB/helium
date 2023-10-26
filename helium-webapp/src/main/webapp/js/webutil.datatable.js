@@ -103,21 +103,18 @@
 				rowCallback: function(row, data) {
 					if (plugin.settings.selectionEnabled) {
 						$(row).addClass('selectable');
-						var $cell = $('td:first', row);
-						$cell.empty().append('<span class="fa fa-square-o"></span>');
-						$('span', $cell).click(function() {
-							$(this).parent().trigger('click');
-						});
 						
 						var rowServerId = data['DT_Id'];
 						var serverIds = window[$taula.data('id') + '_selected_ids'];
-						
-						var api = $taula.dataTable().api();
+						var $cell = $('td:first', row);
 						if($.inArray(rowServerId, serverIds) !== -1){
-							api.row(row._DT_RowIndex).select();
+							$cell.empty().append('<span class="fa fa-check-square-o"></span>');
 						} else {
-							api.row(row._DT_RowIndex).deselect();
+							$cell.empty().append('<span class="fa fa-square-o"></span>');
 						}
+						$('span', $cell).click(function() {
+							$(this).parent().trigger('click');
+						});
 					}
 					if (plugin.settings.editable) {
 						var deleteUrl = getBaseUrl() + '/' + data['DT_Id'] + '/delete';
@@ -469,15 +466,9 @@
 					}
 
 					$taula.trigger('selectionchange.dt');
-					/*$taula.trigger(
-							'selectionchange.dataTable',
-							[ids]);*/
 				};
 				$taula.on('select.dt', function (e, dt, type, indexes) {
-					console.log('click');
 					if (window[$taula.data('id') + '_prevent_next_select'] && event.type != 'click') {
-//						event.preventDefault();
-//						return false;
 						indexes = [];
 						if (window[$taula.data('id') + '_selected_ids'].length == 0) {
 							var api = $taula.dataTable().api();
@@ -1091,7 +1082,7 @@
 			} else {
 				rowData[$input.attr('name')] = $input.prop('checked');
 			}
-		}
+		};
 		// Inicialització del plugin
         plugin.init();
 	}
