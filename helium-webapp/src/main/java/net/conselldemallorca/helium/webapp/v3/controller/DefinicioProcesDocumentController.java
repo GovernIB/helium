@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,16 +31,24 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxRespostaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesIniciFluxRespostaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
+import net.conselldemallorca.helium.v3.core.api.service.PortafirmesFluxService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDocumentCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NtiHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.UrlHelper;
 
 /**
  * Controlador per a la pipella de variables del disseny de les definicions de
@@ -53,7 +62,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 	@Autowired
 	private DefinicioProcesService definicioProcesService;
 	@Autowired
-	private ConversioTipusHelper conversioTipusHelper;
+	private PortafirmesFluxService portafirmesFluxService;
 	@Autowired
 	private NtiHelper ntiHelper;
 
@@ -151,13 +160,14 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 			@PathVariable Long id,
 			Model model) {
 		DocumentDto dto = documentService.findAmbId(null, id);
-		ExpedientTipusDocumentCommand command = conversioTipusHelper.convertir(
+		ExpedientTipusDocumentCommand command = ConversioTipusHelper.convertir(
 				dto,
 				ExpedientTipusDocumentCommand.class);
 		command.setDefinicioProcesId(definicioProcesId);
 		command.setCampId(dto.getCampData() != null ? dto.getCampData().getId() : null);
 		model.addAttribute("expedientTipusDocumentCommand", command);
 		omplirModelComu(request, definicioProcesId, model);
+		model.addAttribute("portafirmesFluxSeleccionat", dto.getPortafirmesFluxId());
 		return "v3/expedientTipusDocumentForm";
 	}
 
@@ -254,8 +264,121 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 		ntiHelper.omplirOrigen(model);
 		ntiHelper.omplirEstadoElaboracion(model);
 		ntiHelper.omplirTipoDocumental(model);
+		
+		model.addAttribute(
+				"fluxtipEnumOptions",
+				EnumHelper.getOptionsForEnum(
+						PortafirmesTipusEnumDto.class
+						,"enum.document.tipus.portafirmes."));
+		model.addAttribute(
+				"portafirmesSequenciaTipusEnumOptions",
+				EnumHelper.getOptionsForEnum(
+						PortafirmesSimpleTipusEnumDto.class
+						,"enum.document.tipus.portafirmes.sequencia."));
+		
+	}
+	
+	/// Mètodes per l'edició de fluxos del portasignatures
+	
+	@RequestMapping(value = "/{definicioProcesId}/document/flux/plantilles", method = RequestMethod.GET)
+	@ResponseBody
+	public List<PortafirmesFluxRespostaDto> portasigPlantillesDisponibles(
+			HttpServletRequest request, 
+			@PathVariable Long definicioProcesId, 
+			Model model) {		
+		List<PortafirmesFluxRespostaDto> resposta = portafirmesFluxService.recuperarPlantillesDisponibles(null, definicioProcesId, null);
+		return resposta;
 	}
 
+
+	/** Mètode Ajax per iniciar l'edició d'un flux de firma i retornar la URL a carregar per a poder-lo editar des d'Helium.
+	 * 
+	 * @param request
+	 * @param plantillaId
+	 * @param expedientTipusId
+	 * @param model
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 */
+	@RequestMapping(value = "/{definicioProcesId}/document/iniciarTransaccio", method = RequestMethod.GET)
+	@ResponseBody
+	public PortafirmesIniciFluxRespostaDto portasigIniciarTransaccio(
+			HttpServletRequest request,
+			@RequestParam(value = "plantillaId", required = false) String plantillaId,
+			@PathVariable Long definicioProcesId, 
+			Model model) throws UnsupportedEncodingException {
+		String urlReturn;
+		PortafirmesIniciFluxRespostaDto transaccioResponse = null;
+		try {
+			urlReturn = UrlHelper.getAbsoluteControllerBase(
+							request,
+							(ModalHelper.isModal(request) ? "/modal" : "") + "/v3/definicioProces/" +definicioProcesId+ "/document/flux/returnurl/");
+			if (plantillaId != null && !plantillaId.isEmpty()) {
+				transaccioResponse = new PortafirmesIniciFluxRespostaDto();
+				String urlEdicio = portafirmesFluxService.recuperarUrlEdicioPlantilla(plantillaId, urlReturn);
+				transaccioResponse.setUrlRedireccio(urlEdicio);
+			} else {
+				transaccioResponse = portafirmesFluxService.iniciarFluxFirma(null, definicioProcesId, null, urlReturn, true);
+			}
+		} catch (Exception ex) {
+			logger.error("Error al iniciar transacio", ex);
+			transaccioResponse = new PortafirmesIniciFluxRespostaDto();
+			transaccioResponse.setError(true);
+			transaccioResponse.setErrorDescripcio(ex.getMessage());
+		}
+		return transaccioResponse;
+	}
+	
+	@RequestMapping(value = "/{definicioProcesId}/document/flux/esborrar/{plantillaId}", method = RequestMethod.GET)
+	@ResponseBody
+	public boolean portasigEsborrarPlantilla(
+			HttpServletRequest request,
+			@PathVariable String plantillaId,
+			Model model) {
+		
+		return portafirmesFluxService.esborrarPlantilla(plantillaId);
+	}
+	
+	
+	@RequestMapping(value = "/{definicioProcesId}/document/tancarTransaccio/{idTransaccio}", method = RequestMethod.GET)
+	@ResponseBody
+	public void portasigTancarTransaccio(
+			HttpServletRequest request, 
+			@PathVariable String idTransaccio, 
+			Model model) {
+		portafirmesFluxService.tancarTransaccio(idTransaccio);
+	}
+	
+	@RequestMapping(value = "/{definicioProcesId}/document/flux/returnurl/{transactionId}", method = RequestMethod.GET)
+	public String portasigTransaccioEstat(
+			HttpServletRequest request, 
+			@PathVariable String transactionId, 
+			Model model) {
+		PortafirmesFluxRespostaDto resposta = portafirmesFluxService.recuperarFluxFirma(transactionId);
+
+		if (resposta.isError() && resposta.getEstat() != null) {
+			model.addAttribute(
+					"FluxError",
+					getMessage(request, "expedient.tipus.document.form.camp.portafirmes.flux.enum." + resposta.getEstat()));
+		} else {
+			model.addAttribute(
+					"FluxCreat",
+					getMessage(request, "expedient.tipus.document.form.camp.portafirmes.flux.enum.FINAL_OK"));
+			model.addAttribute("fluxId", resposta.getFluxId());
+			model.addAttribute("FluxNom", resposta.getNom());
+		}
+		return "v3/portafirmesModalTancar";
+	}
+
+	@RequestMapping(value = "/{definicioProcesId}/document/flux/returnurl/", method = RequestMethod.GET)
+	public String portasigTransaccioEstat(HttpServletRequest request, Model model) {
+		model.addAttribute(
+				"FluxCreat",
+				getMessage(request, "expedient.tipus.document.form.camp.portafirmes.flux.edicio.enum.FINAL_OK"));
+		return "v3/portafirmesModalTancar";
+	}
+
+	
 	private static final Log logger = LogFactory.getLog(DefinicioProcesDocumentController.class);
 
 }

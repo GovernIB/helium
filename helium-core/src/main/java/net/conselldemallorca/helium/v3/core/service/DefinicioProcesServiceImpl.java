@@ -38,6 +38,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
@@ -1545,5 +1546,16 @@ public class DefinicioProcesServiceImpl implements DefinicioProcesService {
 	}
 	
 	private static final Logger logger = LoggerFactory.getLogger(DefinicioProcesServiceImpl.class);
+
+	@Override
+	public DefinicioProcesDto findAmbProcessInstanceId(String processInstanceId) {
+		logger.debug(
+				"Consultant la definició de procés a partir de la instància de procés (" +
+				"processInstanceId = " + processInstanceId + ")");
+		
+		JbpmProcessInstance pi = jbpmHelper.getProcessInstance(processInstanceId);
+		DefinicioProces dp = definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId());
+		return conversioTipusHelper.convertir(dp, DefinicioProcesDto.class);
+	}
 
 }

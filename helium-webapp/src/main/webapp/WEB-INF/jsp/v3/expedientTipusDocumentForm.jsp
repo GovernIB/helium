@@ -25,6 +25,17 @@
 		<c:set var="formAction">none</c:set>		
 	</c:otherwise>
 </c:choose>
+<!-- URL pels fluxos per tipus d'expedient o definició de proces -->
+<c:set var="fluxosBaseUrl">
+	<c:choose>
+		<c:when test="${not empty expedientTipusDocumentCommand.definicioProcesId}">
+			/v3/definicioProces/${expedientTipusDocumentCommand.definicioProcesId}
+		</c:when>
+		<c:otherwise>
+			/v3/expedientTipus/${expedientTipusDocumentCommand.expedientTipusId}
+		</c:otherwise>
+	</c:choose>
+</c:set>
 
 <html>
 <head>
@@ -311,7 +322,7 @@ div.dropdown-menu.loading .rmodal_carrecs {
 					type: 'GET',
 					dataType: "json",
 					data: {nom: metaDocumentNom, plantillaId: $("#portafirmesFluxId").val()},
-					url: "<c:url value="/v3/expedientTipus/${expedientTipusDocumentCommand.expedientTipusId}/document/iniciarTransaccio"/>",
+					url: "<c:url value="${fluxosBaseUrl}/document/iniciarTransaccio"/>",
 					success: function(transaccioResponse) {
 						if (transaccioResponse != null && !transaccioResponse.error) {
 							localStorage.setItem('transaccioId', transaccioResponse.idTransaccio);
@@ -341,7 +352,7 @@ div.dropdown-menu.loading .rmodal_carrecs {
 			$.ajax({
 					type: 'GET',
 					dataType: "json",
-					url: "<c:url value="/v3/expedientTipus/${expedientTipusDocumentCommand.expedientTipusId}/document/flux/plantilles"/>",
+					url: "<c:url value="${fluxosBaseUrl}/document/flux/plantilles"/>",
 					success: function(data) {
 								var plantillaActual = "${portafirmesFluxSeleccionat}";
 								var selPlantilles = $("#portafirmesFluxId");
@@ -385,7 +396,7 @@ div.dropdown-menu.loading .rmodal_carrecs {
 					$.ajax({
 							type: 'GET',
 							dataType: "json",
-								url: "<c:url value="/v3/expedientTipus/${expedientTipusDocumentCommand.expedientTipusId}/document/flux/esborrar/"/>" + portafirmesFluxId,
+								url: "<c:url value="${fluxosBaseUrl}/document/flux/esborrar/"/>" + portafirmesFluxId,
 									success: function(esborrat) {
 										if (esborrat) {
 											webutilAlertaSuccess("<spring:message code='expedient.tipus.document.form.camp.portafirmes.flux.esborrar.ok'/>", '#divAlertesFlux');

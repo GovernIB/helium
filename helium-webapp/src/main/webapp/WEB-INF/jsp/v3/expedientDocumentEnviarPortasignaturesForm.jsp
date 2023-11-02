@@ -466,7 +466,7 @@ div.dropdown-menu.loading .rmodal_carrecs {
 					contentType: "application/json; charset=utf-8",
 					dataType: "json",
 					data: {nom: documentNom},
-					url: "<c:url value="/v3/expedient/${expedientId}/document/portafirmesFlux/iniciarTransaccio"/>",
+					url: "<c:url value="/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/portafirmesFlux/iniciarTransaccio"/>",
 					success: function(transaccioResponse, textStatus, XmlHttpRequest) {
 						if (transaccioResponse != null && !transaccioResponse.error) {
 							localStorage.setItem('transaccioId', transaccioResponse.idTransaccio);

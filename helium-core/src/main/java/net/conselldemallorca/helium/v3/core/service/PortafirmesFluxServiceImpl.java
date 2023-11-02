@@ -12,6 +12,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
 import net.conselldemallorca.helium.core.helper.PluginHelper;
+import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesCarrecDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxInfoDto;
@@ -20,6 +21,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesIniciFluxResposta
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.v3.core.api.service.PortafirmesFluxService;
+import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 
 
@@ -37,20 +39,24 @@ public class PortafirmesFluxServiceImpl implements PortafirmesFluxService {
 	AplicacioService aplicacioService;
 	@Autowired
 	ExpedientTipusRepository expedientTipusRepository;
+	@Autowired
+	DefinicioProcesRepository definicioProcesRepository;
 	
 	@Override
 	public PortafirmesIniciFluxRespostaDto iniciarFluxFirma(
 			Long expedientTipusId,
+			Long definicioProcesId,
 			String usuariCodi,
 			String urlReturn,
 			boolean isPlantilla) throws SistemaExternException {
 		logger.debug("(Iniciant flux de firma (" +
 				"expedientTipusId=" + expedientTipusId + ", " +
+				"definicioProcesId=" + definicioProcesId + ", " +
 				"isPlantilla=" + isPlantilla + ", " +
 				"urlRedireccio=" + urlReturn + ")");
 		
 		String idioma = LocaleContextHolder.getLocale().getLanguage();
-		String descripcio = this.getDescripcioFiltre(expedientTipusId, usuariCodi);
+		String descripcio = this.getDescripcioFiltre(expedientTipusId, definicioProcesId, usuariCodi);
 		PortafirmesIniciFluxRespostaDto transaccioResponse = pluginHelper.portafirmesIniciarFluxDeFirma(
 				idioma,
 				isPlantilla,
@@ -62,16 +68,28 @@ public class PortafirmesFluxServiceImpl implements PortafirmesFluxService {
 		return transaccioResponse;
 	}
 	
-	/** Construeix el text per la descripció per poder trobar l'usuari per descripció. */
-	private String getDescripcioFiltre(Long expedientTipusId, String usuari) {
+	/** Construeix el text per la descripció per poder trobar l'usuari per descripció. Si la definició de procés és global llavors
+	 * en comptes del codi del tipus d'expedint posa el codi de la definició de procés. */
+	private String getDescripcioFiltre(Long expedientTipusId, Long definicioProcesId, String usuari) {
 		StringBuilder filtre = new StringBuilder();
-		if (expedientTipusId != null) {
-			// Per filtrar per entorn i tipus
+		// entorn=|entornCodi|, tipus/definicio=|codi|
+		if (definicioProcesId != null) {
+			DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+			filtre.append("entorn=|").append(definicioProces.getEntorn().getCodi()).append("|");
+			if (definicioProces.getExpedientTipus() != null) {
+				filtre.append(", tipus=|").append(definicioProces.getExpedientTipus().getCodi()).append("|"); 
+			} else {
+				// Definició de procés global
+				filtre.append(", definicio=|").append(definicioProces.getJbpmKey()).append("|");
+			} 
+		} else if (expedientTipusId != null) {
 			ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
-			filtre.append("entorn=|" + expedientTipus.getEntorn().getCodi() + "|, tipus=|" + expedientTipus.getCodi() + "|");
+			filtre.append("entorn=|").append(expedientTipus.getEntorn().getCodi()).append("|");
+			filtre.append(", tipus=|").append(expedientTipus.getCodi()).append("|");
 		} else {
 			filtre.append("entorn=||, tipus=||");
 		}
+		//, usuari=|usuari|
 		filtre.append(", usuari=|");
 		if (usuari != null) {
 			filtre.append(usuari);
@@ -131,9 +149,10 @@ public class PortafirmesFluxServiceImpl implements PortafirmesFluxService {
 	}
 	
 	@Override
-	public List<PortafirmesFluxRespostaDto> recuperarPlantillesDisponibles(Long expedientTipusId, String usuari) {
+	public List<PortafirmesFluxRespostaDto> recuperarPlantillesDisponibles(Long expedientTipusId, Long definicioProcesId, String usuari) {
+
 		logger.debug("Recuperant plantilles disponibles per l'usuari " + (usuari != null ? usuari : "aplicació"));
-		String descripcioFiltre = getDescripcioFiltre(expedientTipusId, usuari);
+		String descripcioFiltre = getDescripcioFiltre(expedientTipusId, definicioProcesId, usuari);
 		String idioma = LocaleContextHolder.getLocale().getLanguage();
 		return pluginHelper.portafirmesRecuperarPlantillesDisponibles(descripcioFiltre, idioma, true);
 	}

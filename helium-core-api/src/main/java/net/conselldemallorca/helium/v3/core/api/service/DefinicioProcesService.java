@@ -601,5 +601,12 @@ public interface DefinicioProcesService {
 	 */
 	public void relacionarDarreresVersions(Long expedientTipusId);
 
+	/** Mètode per obtenir la definició de procés associada a una instància de procés
+	 * 
+	 * @param processInstanceId
+	 * @return
+	 */
+	public DefinicioProcesDto findAmbProcessInstanceId(String processInstanceId);
+
 
 }

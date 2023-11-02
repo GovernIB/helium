@@ -260,10 +260,9 @@ public class DocumentServiceImpl implements DocumentService {
 		
 		//Portafirmes
 		dto.setPortafirmesActiu(document.isPortafirmesActiu());
-		dto.setPortafirmesFluxId(document.getPortafirmesFluxId());
 		dto.setPortafirmesFluxTipus(document.getPortafirmesFluxTipus());
+		dto.setPortafirmesFluxId(document.getPortafirmesFluxId());
 		dto.setPortafirmesSequenciaTipus(document.getPortafirmesSequenciaTipus());
-//		dto.setPortafirmesResponsables(document.getPortafirmesResponsables()!=null? document.getPortafirmesResponsables().split(",") : null );
 		dto.setPortafirmesResponsables(document.getPortafirmesResponsables());
 		// Herencia
 		ExpedientTipus tipus = expedientTipusId != null? expedientTipusRepository.findOne(expedientTipusId) : null;

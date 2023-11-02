@@ -20,6 +20,8 @@ public interface PortafirmesFluxService {
 	 * 
 	 * @param expedientTipusId
 	 * 				ID del tipus d'expedient pel qual s'està creant el flux. S'usarà per crear el filtre per descripció.
+	 * @param definicioProcesId
+	 * 				ID de la definició de procés on s'està creant el flux. S'usarà per crear el filtre per descripció en el cas de les definicions de procés globals..
 	 * @param usuariCodi
 	 * 				Codi de l'usuari quan es crea des de la gestió de documents per poder esborrar-los. Si es crea des del disseny s'ha de passar buit.
 	 * @param urlReturn
@@ -30,6 +32,7 @@ public interface PortafirmesFluxService {
 	 */
 	public PortafirmesIniciFluxRespostaDto iniciarFluxFirma(
 			Long expedientTipusId,
+			Long definicioProcesId,
 			String usuariCodi,
 			String urlReturn,
 			boolean isPlantilla) throws SistemaExternException;
@@ -65,13 +68,14 @@ public interface PortafirmesFluxService {
 	 * 
 	 * @param expedientTipusId 
 	 * 				Id del tipus d'expedient per filtrar per entorn i tipus d'expedient.
-
+	 * @param definicioProcesId 
+	 * 				Id de la definició de procés quan està definida a nivell de definició de procés per filtrar per entorn, tipus d'expedient i definició de procés.
 	 * @param usuari 
 	 * 				Codi de l'usuari per trobar les plantilles definides per l'usuari. 
 	 * 
 	 * @return La el id del flux de firma o error.
 	 */
-	public List<PortafirmesFluxRespostaDto> recuperarPlantillesDisponibles(Long expedientTipusId, String usuari);
+	public List<PortafirmesFluxRespostaDto> recuperarPlantillesDisponibles(Long expedientTipusId, Long definicioProcesId, String usuari);
 	
 	/**
 	 * Recupera un llistat de les plantilles disponibles per un usuari aplicació

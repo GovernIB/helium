@@ -249,17 +249,6 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 		return "arxiuView";
 	}
 
-	@RequestMapping(value = "/{expedientTipusId}/document/flux/plantilles", method = RequestMethod.GET)
-	@ResponseBody
-	public List<PortafirmesFluxRespostaDto> portasigPlantillesDisponibles(
-			HttpServletRequest request, 
-			@PathVariable Long expedientTipusId, 
-			Model model) {		
-		List<PortafirmesFluxRespostaDto> resposta = portafirmesFluxService.recuperarPlantillesDisponibles(expedientTipusId, null);
-		return resposta;
-	}
-
-
 	private void omplirModelComu(
 			HttpServletRequest request,
 			Long expedientTipusId,
@@ -286,7 +275,19 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 						PortafirmesSimpleTipusEnumDto.class
 						,"enum.document.tipus.portafirmes.sequencia."));
 	}
-	
+
+	/// Mètodes per l'edició de fluxos del portasignatures
+
+	@RequestMapping(value = "/{expedientTipusId}/document/flux/plantilles", method = RequestMethod.GET)
+	@ResponseBody
+	public List<PortafirmesFluxRespostaDto> portasigPlantillesDisponibles(
+			HttpServletRequest request, 
+			@PathVariable Long expedientTipusId, 
+			Model model) {		
+		List<PortafirmesFluxRespostaDto> resposta = portafirmesFluxService.recuperarPlantillesDisponibles(expedientTipusId, null, null);
+		return resposta;
+	}
+
 	/** Mètode Ajax per iniciar l'edició d'un flux de firma i retornar la URL a carregar per a poder-lo editar des d'Helium.
 	 * 
 	 * @param request
@@ -314,7 +315,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 				String urlEdicio = portafirmesFluxService.recuperarUrlEdicioPlantilla(plantillaId, urlReturn);
 				transaccioResponse.setUrlRedireccio(urlEdicio);
 			} else {
-				transaccioResponse = portafirmesFluxService.iniciarFluxFirma(expedientTipusId, null, urlReturn, true);
+				transaccioResponse = portafirmesFluxService.iniciarFluxFirma(expedientTipusId, null, null, urlReturn, true);
 			}
 		} catch (Exception ex) {
 			logger.error("Error al iniciar transacio", ex);

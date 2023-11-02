@@ -36,11 +36,13 @@ public class PortafirmesFluxServiceBean implements PortafirmesFluxService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PortafirmesIniciFluxRespostaDto iniciarFluxFirma(
 			Long expedientTipusId,
+			Long definicioProcesId,
 			String usuariCodi,
 			String urlReturn, 
 			boolean isPlantilla) {
 		return delegate.iniciarFluxFirma(
 				expedientTipusId,
+				definicioProcesId,
 				usuariCodi,
 				urlReturn, 
 				isPlantilla);
@@ -72,8 +74,8 @@ public class PortafirmesFluxServiceBean implements PortafirmesFluxService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<PortafirmesFluxRespostaDto> recuperarPlantillesDisponibles(Long expedientTipusId, String usuari) {
-		return delegate.recuperarPlantillesDisponibles(expedientTipusId, usuari);
+	public List<PortafirmesFluxRespostaDto> recuperarPlantillesDisponibles(Long expedientTipusId, Long definicioProcesId, String usuari) {
+		return delegate.recuperarPlantillesDisponibles(expedientTipusId, definicioProcesId, usuari);
 	}
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})

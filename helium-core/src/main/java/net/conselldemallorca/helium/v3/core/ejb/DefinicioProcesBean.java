@@ -311,4 +311,10 @@ public class DefinicioProcesBean implements DefinicioProcesService {
 	public void relacionarDarreresVersions(Long expedientTipusId) {
 		delegate.relacionarDarreresVersions(expedientTipusId);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DefinicioProcesDto findAmbProcessInstanceId(String processInstanceId) {
+		return delegate.findAmbProcessInstanceId(processInstanceId);
+	}
 }

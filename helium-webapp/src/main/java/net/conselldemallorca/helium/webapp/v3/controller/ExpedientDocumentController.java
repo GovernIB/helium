@@ -58,6 +58,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalViaTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentInfoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
@@ -89,6 +90,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.document.DocumentDetallDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
+import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientInteressatService;
@@ -151,6 +153,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	protected DocumentService documentService;
 	@Autowired
 	protected ExpedientTokenService expedientTokenService;
+	@Autowired
+	protected DefinicioProcesService definicioProcesService;
 
 	/** comparador per ordenar documents per codi de document primer i per títol de l'adjunt si són adjunts després.
 	 *
@@ -1812,7 +1816,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 
 		// Abans d'entrar esborra les plantilles que hagi pogut crear anteriorment l'usuari
 		String usuari = SecurityContextHolder.getContext().getAuthentication().getName();
-		this.esborrarPlantillesUsuari(expedientId, usuari);
+		this.esborrarPlantillesUsuari(expedientId, processInstanceId, usuari);
 		
 		this.emplenarModelPortasigEnviar(
 				model,
@@ -1826,11 +1830,22 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	}
 	
 	/** Consulta les plantilles que hagi pogut crear l'usuari i les esborra. */
-	private void esborrarPlantillesUsuari(Long expedientId, String usuari) {
+	private void esborrarPlantillesUsuari(Long expedientId, String processInstanceId, String usuari) {
 		try {
 			ExpedientDto expedientDto = expedientService.findAmbIdAmbPermis(expedientId);
+			Long expedientTipusId = expedientDto.getTipus().getId();
+			Long definicioProcesId = null;
+			if (!expedientDto.getTipus().isAmbInfoPropia()) {
+				DefinicioProcesDto definicioProcesDto = definicioProcesService.findAmbProcessInstanceId(processInstanceId);
+				definicioProcesId = definicioProcesDto.getId();
+				if (definicioProcesDto.getExpedientTipus() == null) {
+					// Definicio de procés global
+					expedientTipusId = null;
+				}
+			}
 			List<PortafirmesFluxRespostaDto> plantillesUsuari = portafirmesFluxService.recuperarPlantillesDisponibles(
-					expedientDto.getTipus().getId(), 
+					expedientTipusId, 
+					definicioProcesId,
 					usuari);
 			for (PortafirmesFluxRespostaDto plantilla : plantillesUsuari) {
 				portafirmesFluxService.esborrarPlantilla(plantilla.getFluxId());				
@@ -1864,7 +1879,10 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		if(expedientDocumentDto.getDocumentCodi()!=null) {
 
 			if (command != null) {
-				DocumentDto documentDto = documentService.findAmbCodi(expedient.getTipus().getId(), null, expedientDocumentDto.getDocumentCodi(), true);	
+				DocumentDto documentDto = documentService.findAmbId(
+						expedient.getTipus().getId(), 
+						expedientDocumentDto.getDocumentId());
+				
 				command.setPortafirmesPrioritatTipus(PortafirmesPrioritatEnumDto.NORMAL);
 				command.setNom(documentDto.getDocumentNom());
 				command.setId(documentDto.getDocumentId());
@@ -1979,7 +1997,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				
 				// En haver enviat esborra les plantilles de l'usuari
 				String usuari = SecurityContextHolder.getContext().getAuthentication().getName();
-				this.esborrarPlantillesUsuari(expedientId, usuari);
+				this.esborrarPlantillesUsuari(expedientId, processInstanceId, usuari);
 
 				MissatgesHelper.success(
 						request, 
@@ -2102,23 +2120,27 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	}
 
 	/** Mètode ajax per iniciar l'edició d'un flux del portafirmes des de la modal d'enviament del document al portafirmes amb l'opció de flux de firma. */
-	@RequestMapping(value = "/{expedientId}/document/portafirmesFlux/iniciarTransaccio", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/portafirmesFlux/iniciarTransaccio", method = RequestMethod.GET)
 	@ResponseBody
 	public PortafirmesIniciFluxRespostaDto portasigIniciarTransaccio(
 			HttpServletRequest request,
 			@RequestParam(value = "nom", required = false) String nom,
 			@PathVariable Long expedientId, 
+			@PathVariable String processInstanceId, 
+			@PathVariable Long documentStoreId, 
 			Model model) throws UnsupportedEncodingException {
 		String urlReturn;
 		PortafirmesIniciFluxRespostaDto transaccioResponse = null;
 		try {
 			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+			DefinicioProcesDto definicioProcesDto = definicioProcesService.findAmbProcessInstanceId(processInstanceId);
 			urlReturn = UrlHelper.getAbsoluteControllerBase(
 					request,
-					(ModalHelper.isModal(request) ? "/modal" : "") + "/v3/expedient/" +expedientId+ "/document/portafirmesFlux/returnurl/");
+					(ModalHelper.isModal(request) ? "/modal" : "") + "/v3/expedient/" +expedientId+ "/proces/"+processInstanceId+"/document/"+documentStoreId+"/portafirmesFlux/returnurl/");
 			String usuari = SecurityContextHolder.getContext().getAuthentication().getName();
 			transaccioResponse = portafirmesFluxService.iniciarFluxFirma(
 					expedient.getTipus().getId(), 
+					definicioProcesDto.getId(),
 					usuari, 
 					urlReturn, 
 					true);
@@ -2154,14 +2176,26 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable Long documentStoreId,
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
-		List<PortafirmesFluxRespostaDto> resposta = portafirmesFluxService.recuperarPlantillesDisponibles(expedient.getTipus().getId(), null);
+		Long definicioProcesId = null;
+		if (!expedient.getTipus().isAmbInfoPropia()) {
+			DefinicioProcesDto definicioProces = definicioProcesService.findAmbProcessInstanceId(processInstanceId);
+			definicioProcesId = definicioProces.getId();
+		}
+		
+		List<PortafirmesFluxRespostaDto> resposta = portafirmesFluxService.recuperarPlantillesDisponibles(
+				expedient.getTipus().getId(),
+				definicioProcesId,
+				null);
 		return resposta;
 	}
 	
 
-	@RequestMapping(value = "/{expedientId}/document/portafirmesFlux/returnurl/{transactionId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/portafirmesFlux/returnurl/{transactionId}", method = RequestMethod.GET)
 	public String portasigTransaccioEstat(
 			HttpServletRequest request, 
+			@PathVariable Long expedientId, 
+			@PathVariable Long processInstanceId, 
+			@PathVariable Long documentStoreId, 
 			@PathVariable String transactionId, 
 			Model model) {
 		PortafirmesFluxRespostaDto resposta = portafirmesFluxService.recuperarFluxFirma(transactionId);
@@ -2181,7 +2215,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	}
 
 
-	@RequestMapping(value = "/{expedientId}/document/portafirmesFlux/returnurl/", method = RequestMethod.GET)
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/portafirmesFlux/returnurl/", method = RequestMethod.GET)
 	public String portasigTransaccioEstat(HttpServletRequest request, Model model) {
 		model.addAttribute(
 				"FluxCreat",
