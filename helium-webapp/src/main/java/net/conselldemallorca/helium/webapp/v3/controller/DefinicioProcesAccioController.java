@@ -174,12 +174,14 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 						"Error recuperant les dades JSON del handler: " + e.getMessage());
 			}
 		}
+		
 		model.addAttribute("expedientTipusAccioCommand", command);
 
 		this.omplirModelFormulariAccio(
 				request,
 				definicioProcesId,
-				command, model);
+				command, 
+				model);
 		
 		return "v3/expedientTipusAccioForm";
 	}
@@ -250,29 +252,23 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 		DefinicioProcesDto definicioProces = definicioProcesService.findAmbIdPermisDissenyar(
 				entornActual.getId(), 
 				definicioProcesId);
-		boolean perEstats = definicioProces.getExpedientTipus() != null 
-								&& ExpedientTipusTipusEnumDto.ESTAT.equals(definicioProces.getExpedientTipus().getTipus());
-		model.addAttribute("perEstats", perEstats);
-		command.setPerEstats(perEstats);
+		model.addAttribute("perEstats", false);
+		command.setPerEstats(false);
 		command.setExpedientTipusId(definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : 0L);
 
 		// Tipus
 		List<ParellaCodiValorDto> tipusOpcions = new ArrayList<ParellaCodiValorDto>();
-		if (!perEstats) {
-			tipusOpcions.add(new ParellaCodiValorDto(AccioTipusEnumDto.ACCIO.toString(), getMessage(request, "accio.tipus.enum." + AccioTipusEnumDto.ACCIO.toString())));
-		}
+		tipusOpcions.add(new ParellaCodiValorDto(AccioTipusEnumDto.ACCIO.toString(), getMessage(request, "accio.tipus.enum." + AccioTipusEnumDto.ACCIO.toString())));
 		tipusOpcions.add(new ParellaCodiValorDto(AccioTipusEnumDto.HANDLER_PROPI.toString(), getMessage(request, "accio.tipus.enum." + AccioTipusEnumDto.HANDLER_PROPI.toString())));
 		tipusOpcions.add(new ParellaCodiValorDto(AccioTipusEnumDto.HANDLER_PREDEFINIT.toString(), getMessage(request, "accio.tipus.enum." + AccioTipusEnumDto.HANDLER_PREDEFINIT.toString())));
 		tipusOpcions.add(new ParellaCodiValorDto(AccioTipusEnumDto.SCRIPT.toString(), getMessage(request, "accio.tipus.enum." + AccioTipusEnumDto.SCRIPT.toString())));
 		model.addAttribute("tipus", tipusOpcions);
 
 		// Accions
-		if (!perEstats) {
-			model.addAttribute("definicionsProces", 
-					Arrays.asList(new String[] {definicioProces.getJbpmKey()}));
-			model.addAttribute("accions",
-					this.getAccions(definicioProcesId, command.getJbpmAction()));
-		}
+		model.addAttribute("definicionsProces", 
+				Arrays.asList(new String[] {definicioProces.getJbpmKey()}));
+		model.addAttribute("accions",
+				this.getAccions(definicioProcesId, command.getJbpmAction()));
 		// Handlers propis
 		model.addAttribute("handlersPropis", 
 				this.getHandlersPropis(definicioProcesId, command.getHandlerPropi()));
@@ -288,7 +284,7 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 		model.addAttribute("handlersPredefinitsJson", 
 				this.getHandlersPredefinitsJson());
 
-		model.addAttribute("dadesPredefinidesJson", 
+		model.addAttribute("dadesHandlerJson", 
 				command.getHandlerDadesJson());
 
 		// Variables del tipus d'expedient

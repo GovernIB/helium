@@ -100,12 +100,11 @@
 
 		// <![CDATA[
 
-		var handlerParams = [];
-		<c:forEach items="${expedientTipusAccioCommand.handlerDades}" var="handlerParam">
-		handlerParams["${handlerParam.key}"] = "${handlerParam.value}";
-		</c:forEach>
 	 	var handlersPredefinitsJson = ${handlersPredefinitsJson != null? handlersPredefinitsJson : "[]" };
 	 	var handlerDades = ${dadesHandlerJson != null? dadesHandlerJson : "[]"};
+		<c:forEach items="${expedientTipusAccioCommand.handlerDades}" var="handlerDada">
+		handlerDades["${handlerDada.key}"] = "${handlerDada.value}";
+		</c:forEach>
 
 		$(document).ready(function() {
    			//<c:if test="${heretat}">
@@ -259,6 +258,7 @@
 		
 		// A partir del handler predefinit carrega els paràmetres
 		function carregarParametresHandlerPredefinit() {
+
 			$('#mapejosHandler').empty();
 
 			$("#handlerPredefinitDescripcio").html("")
@@ -287,6 +287,7 @@
 		}
 
 		function afegirControlsParametre(handlerInfo, parametre) {
+			debugger;
 			// clona la plantilla
 			var $parametres = $('#handlerParametreTemplate').clone(true);
 			$parametres.attr('id', 'handlerParametre_' + parametre.codi);
@@ -300,8 +301,8 @@
 			}
 
 			$menuSelect = $('.menuSelect', $parametres);
-			$('option[value="text"]', $menuSelect).attr('id', parametre.param);
-			$('option[value="var"]', $menuSelect).attr('id', parametre.varParam);
+			//$('option[value="text"]', $menuSelect).attr('id', parametre.param);
+			//$('option[value="var"]', $menuSelect).attr('id', parametre.varParam);
 			$menuSelect.select2({
 				minimumResultsForSearch: -1
 			});
@@ -312,8 +313,12 @@
 				$inputText.attr('name','handlerDades[' + parametre.param + ']');
 				$inputText.attr("placeholder", parametre.paramDesc);
 				$inputText.attr("title", parametre.paramDesc);
-				$inputText.val(handlerDades[parametre.param]);
-
+				if (handlerDades[parametre.param]) {
+					$inputText.val(handlerDades[parametre.param]);
+					$menuSelect.val('text');
+				} else {
+					$inputText.val('');
+				}
 			} else {
 				$inputText.remove();
 				$menuSelect.find('option[value="text"]').remove();
@@ -330,7 +335,12 @@
 				});
 				$selectVarParam.attr('id',parametre.varParam);
 				$selectVarParam.attr('name','handlerDades[' + parametre.varParam + ']');
-				$selectVarParam.val(handlerDades[parametre.varParam]);
+				if (handlerDades[parametre.varParam]) {
+					$selectVarParam.val(handlerDades[parametre.varParam]).change();
+					$menuSelect.val('var');
+				} else {
+					$selectVarParam.val('').change();
+				}
 			} else {
 				$selectVarParam.remove();
 				$menuSelect.find('option[value="var"]').remove();
@@ -396,7 +406,7 @@
 				}
 			}).done(function() {
 				// Netejem l'array amb els valors que han arribat del controlador
-				handlerParams = [];
+				handlerDades = [];
 			});
 		}
 
@@ -412,7 +422,7 @@
 			$inputText = $('.param', $parametres);
 			$inputText.attr('id', parametre);
 			$inputText.attr('name',codi);
-			$inputText.val(handlerParams[parametre]);
+			$inputText.val(handlerDades[parametre]);
 			$('#mapejosHandler').append($parametres);
 		}
 				
