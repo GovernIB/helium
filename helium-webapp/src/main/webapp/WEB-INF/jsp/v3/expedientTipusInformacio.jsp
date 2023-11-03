@@ -97,6 +97,12 @@
 							<dd>${definicioProcesInicial.jbpmKey}</dd>
 						</c:if>
 
+						<c:if test="${expedientTipus.restringirPerGrup == true}">
+							<dt><spring:message code="expedient.tipus.info.camp.restringirPerGrup"/></dt>
+							<dd>
+								<spring:message code="comu.${expedientTipus.restringirPerGrup}"></spring:message>
+							</dd>
+						</c:if>
 						<c:if test="${expedientTipus.manualAjudaNom != null}">
 							<dt><spring:message code="expedient.tipus.form.camp.manual.ajuda"/></dt>
 							<dd>

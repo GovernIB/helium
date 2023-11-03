@@ -180,7 +180,7 @@
 			</div>						
 			</div>
 			<hel:inputSuggest inline="false" name="responsableDefecteCodi" urlConsultaInicial="/helium/v3/tasca/persona/suggestInici" urlConsultaLlistat="/helium/v3/tasca/persona/suggest" textKey="expedient.tipus.form.camp.responsableDefecteCodi" placeholderKey="expedient.tipus.form.camp.responsableDefecteCodi"/>
-			<hel:inputCheckbox name="restringirPerGrup" textKey="expedient.tipus.form.camp.restringirPerGrup" />
+			<hel:inputCheckbox name="restringirPerGrup" textKey="expedient.tipus.form.camp.restringirPerGrup" info="expedient.tipus.form.camp.restringirPerGrup.info" />
 			<hel:inputCheckbox name="seleccionarAny" textKey="expedient.tipus.form.camp.seleccionarAny" />
 			<c:if test="${potDissenyar}">
 				<hel:inputCheckbox name="ambRetroaccio" textKey="expedient.tipus.form.camp.ambRetroaccio" />
