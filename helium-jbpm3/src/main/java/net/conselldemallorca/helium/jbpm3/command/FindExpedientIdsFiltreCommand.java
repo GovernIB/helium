@@ -55,6 +55,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 	private String sort;
 	private boolean asc;
 	private boolean nomesCount;
+	private String[] grups;
 
 	public FindExpedientIdsFiltreCommand(
 			Long entornId,
@@ -81,6 +82,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
 			boolean nomesTasquesMeves,
+			String[] grups,
 			int firstResult,
 			int maxResults,
 			String sort,
@@ -116,6 +118,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		this.sort = sort;
 		this.asc = asc;
 		this.nomesCount = nomesCount;
+		this.grups = grups;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -229,6 +232,15 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 					"    and al.dataEliminacio is null " +
 					"    and al.expedient.id = pie.id ) ");
 		}
+		if (grups != null) {
+			if (grups.length > 0) {
+				expedientQuerySb.append(" and (pie.tipus.restringirPerGrup = false or pie.grupCodi in (:grups))");
+			} else {
+				expedientQuerySb.append(" and pie.tipus.restringirPerGrup = false ");
+			}
+		} else {
+			// per un usuari administrador no es filtrarà per grup, s'ha de passar grups a null
+		}
 		Query queryCount = jbpmContext.getSession().createQuery(
 				"select count(distinct pie.id) " + expedientQuerySb.toString());
 		setQueryParams(
@@ -253,6 +265,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 				nomesAlertes,
 				nomesErrors,
 				filtrarPerActorId,
+				grups,
 				0,
 				-1);
 		int count = ((Long)queryCount.uniqueResult()).intValue();
@@ -337,6 +350,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 					nomesAlertes,
 					nomesErrors,
 					filtrarPerActorId,
+					grups,
 					firstResult,
 					maxResults);
 			List<Object[]> resultat = (List<Object[]>)queryIds.list();
@@ -381,6 +395,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			boolean nomesAlertes,
 			boolean nomesErrors,
 			boolean filtrarPerActorId,
+			String[] grups,
 			int firstResult,
 			int maxResults) {
 		query.setParameter("entornId", entornId);
@@ -427,6 +442,9 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		}
 		query.setParameter("mostrarAnulats", mostrarAnulats);
 		query.setParameter("mostrarNomesAnulats", mostrarNomesAnulats);
+		if (grups != null && grups.length > 0) {
+			query.setParameterList("grups", grups);
+		}
 //		if (nomesAlertes) {
 //			query.setParameter("nomesAlertes", nomesAlertes);
 //		}

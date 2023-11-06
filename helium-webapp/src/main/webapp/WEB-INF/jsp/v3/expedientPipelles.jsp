@@ -429,7 +429,20 @@ dd.subproc {
 					<c:if test="${not empty expedient.responsablePersona}">
 						<dt><spring:message code='expedient.info.camp.responsable' /></dt>
 						<dd>${expedient.responsablePersona.nomSencer}</dd>
-					</c:if>					
+					</c:if>		
+				<c:if test="${expedient.tipus.restringirPerGrup }">
+						<dt><spring:message code="expedient.info.camp.codi.grup"/></dt>
+						<dd>
+							<c:choose>
+								<c:when test="${not empty expedient.grupCodi}">
+									<span class="fa fa-users"></span> ${expedient.grupCodi}
+								</c:when>
+								<c:otherwise>
+									-
+								</c:otherwise>
+							</c:choose>
+						</dd>	
+				</c:if>								
 					<c:if test="${!perEstats}">
 						<dt><spring:message code="expedient.info.camp.defproc"/></dt>
 						<dd class="proces">	

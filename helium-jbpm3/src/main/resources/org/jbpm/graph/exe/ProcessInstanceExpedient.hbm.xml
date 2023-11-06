@@ -21,6 +21,7 @@
 		<property name="reindexarError" column="REINDEXAR_ERROR" />
 		<property name="processInstanceId" column="PROCESS_INSTANCE_ID" insert="false" update="false"/>
 		<property name="ambRetroaccio" column="AMB_RETROACCIO"/>
+		<property name="grupCodi" column="GRUP_CODI"/>
 		<many-to-one
 				name="entorn"
 				column="ENTORN_ID"

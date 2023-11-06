@@ -19,12 +19,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
+import net.conselldemallorca.helium.core.model.hibernate.AreaMembre;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.repository.AreaJbpmIdRepository;
+import net.conselldemallorca.helium.v3.core.repository.AreaMembreRepository;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 
 /**
- * Helper per a enviament de correus
+ * Helper per consultes de permisos sobre l'usuari actual.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -33,6 +37,10 @@ public class UsuariActualHelper {
 
 	@Resource
 	private EntornRepository entornRepository;
+	@Resource
+	private AreaJbpmIdRepository areaJbpmIdRepository;
+	@Resource
+	private AreaMembreRepository areaMembreRepository;
 
 	@Resource(name="permisosHelperV3")
 	private PermisosHelper permisosHelper;
@@ -111,6 +119,34 @@ public class UsuariActualHelper {
 			throw new AuthenticationCredentialsNotFoundException(null);
 		}
 	}
+	
+	/** Mètode per obtenir la llista d'àrees o grups per l'usuari actual.
+	 * 
+	 * @return
+	 */
+	public String[] getAreesGrupsUsuariActual() {
+		String[] areesGrups;
+		String usuariCodi = getUsuariActual();
+		if (esIdentitySourceHelium()) {
+			List<AreaMembre> membres = areaMembreRepository.findByCodi(usuariCodi);
+
+			List<String> codisArea = new ArrayList<String>();
+			for (AreaMembre membre: membres) {
+				codisArea.add(membre.getArea().getCodi());
+			}
+			areesGrups = codisArea.toArray(new String[membres.size()]);
+		} else {
+			List<String> codisArea = areaJbpmIdRepository.findRolesAmbUsuariCodi(usuariCodi);
+			areesGrups = codisArea.toArray(new String[codisArea.size()]);
+		}
+		return areesGrups;
+	}
+	
+	private boolean esIdentitySourceHelium() {
+		String identitySource = GlobalProperties.getInstance().getProperty("app.jbpm.identity.source");
+		return (identitySource.equalsIgnoreCase("helium"));
+	}
+
 	
 	/** Consulta si l'usuari actual és administrador d'Helium */
 	public boolean isAdministrador() {

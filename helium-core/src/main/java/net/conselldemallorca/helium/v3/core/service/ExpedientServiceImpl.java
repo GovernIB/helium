@@ -65,6 +65,7 @@ import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
+import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.helper.VariableHelper;
 import net.conselldemallorca.helium.core.helperv26.LuceneHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
@@ -282,6 +283,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	private AlertaHelper alertaHelper;
 	@Resource
 	private ExceptionHelper exceptionHelper;
+	@Resource
+	private UsuariActualHelper usuariActualHelper;
 
 	/**
 	 * {@inheritDoc}
@@ -841,6 +844,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				nomesTasquesPersonals,
 				nomesTasquesGrup,
 				true, // nomesTasquesMeves, // TODO Si no te permis SUPERVISION nomesTasquesMeves = false
+				usuariActualHelper.isAdministrador() || entornHelper.esAdminEntorn(entornId)? null : usuariActualHelper.getAreesGrupsUsuariActual(),
 				paginacioParams,
 				false);
 		// Retorna la pàgina amb la resposta
@@ -1000,6 +1004,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				nomesTasquesPersonals,
 				nomesTasquesGrup,
 				true, // nomesTasquesMeves, // TODO Si no te permis SUPERVISION nomesTasquesMeves = false
+				usuariActualHelper.isAdministrador() || entornHelper.esAdminEntorn(entornId)? null : usuariActualHelper.getAreesGrupsUsuariActual(),
 				new PaginacioParamsDto(),
 				false);
 		return expedientsIds.getLlista();
@@ -2454,6 +2459,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					nomesTasquesPersonals,
 					nomesTasquesGrup,
 					nomesMeves,
+					usuariActualHelper.isAdministrador() || entornHelper.esAdminEntorn(entorn.getId())? null : usuariActualHelper.getAreesGrupsUsuariActual(),
 					new PaginacioParamsDto(),
 					false);
 			expedientIdsPermesos = expedientsIds.getLlista();
@@ -2633,6 +2639,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				nomesTasquesPersonals,
 				nomesTasquesGrup,
 				nomesMeves,
+				usuariActualHelper.isAdministrador() || entornHelper.esAdminEntorn(entorn.getId())? null : usuariActualHelper.getAreesGrupsUsuariActual(),
 				new PaginacioParamsDto(),
 				false);
 		// Obte la llista d'ids de lucene passant els expedients permesos

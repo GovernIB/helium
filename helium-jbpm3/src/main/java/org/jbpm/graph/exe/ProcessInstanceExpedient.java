@@ -39,6 +39,7 @@ public class ProcessInstanceExpedient implements Identifiable, Serializable {
 	private boolean reindexarError;
 	private String processInstanceId;
 	private boolean ambRetroaccio;
+	private String grupCodi;
 
 
 
@@ -156,7 +157,14 @@ public class ProcessInstanceExpedient implements Identifiable, Serializable {
 	}
 	public void setRegistreNumero(String registreNumero) {
 		this.registreNumero = registreNumero;
+	}	
+	public String getGrupCodi() {
+		return grupCodi;
 	}
+	public void setGrupCodi(String grupCodi) {
+		this.grupCodi = grupCodi;
+	}
+
 	@Transient
 	public String getNumeroIdentificador() {
 		if (tipus.isTeNumero())

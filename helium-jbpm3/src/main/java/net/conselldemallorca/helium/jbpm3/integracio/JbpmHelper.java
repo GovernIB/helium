@@ -193,6 +193,7 @@ public class JbpmHelper {
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup,
 			boolean nomesTasquesMeves,
+			String [] grups,
 			PaginacioParamsDto paginacioParams,
 			boolean nomesCount) {
 		String ordre = null;
@@ -237,6 +238,7 @@ public class JbpmHelper {
 				nomesTasquesPersonals,
 				nomesTasquesGrup,
 				nomesTasquesMeves,
+				grups,
 				paginacioParams.getPaginaNum() * paginacioParams.getPaginaTamany(),
 				paginacioParams.getPaginaTamany(),
 				ordre,

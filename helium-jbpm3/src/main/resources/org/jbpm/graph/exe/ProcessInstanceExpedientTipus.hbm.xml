@@ -10,5 +10,6 @@
 		<property name="nom" column="NOM" />
 		<property name="teTitol" column="TE_TITOL" />
 		<property name="teNumero" column="TE_NUMERO" />
+		<property name="restringirPerGrup" column="RESTRINGIR_GRUP" />
 	</class>
 </hibernate-mapping>

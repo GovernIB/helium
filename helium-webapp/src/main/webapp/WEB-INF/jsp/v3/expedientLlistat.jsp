@@ -503,12 +503,23 @@ function refrescaEstatSegonPla() {
 								   {{if reindexarError}}<spring:message code="expedient.consulta.reindexacio.error.full"/>{{/if}}"></span>
 						</div>
 					{{/if}}
+					<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
+					</c:if>
+					{{if tipus.restringirPerGrup == true }}
+						<div class="pull-right">
+							{{if grupCodi != null}}
+								<span class="fa fa-users" title="<spring:message code="expedient.consulta.grup.codi"></spring:message> {{:grupCodi}}"></span>
+							{{else}}
+								<span class="fa fa-users text-warning" title="<spring:message code="expedient.consulta.grup.codi.buit.avis"></spring:message>"></span>
+							{{/if}}
+						</div>
+					{{/if}}
 					</script>
 				</th>
 				<th data-rdt-property="tipus.nom" data-rdt-template="cellTipusTemplate" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.tipus"/>
 					<script id="cellTipusTemplate" type="text/x-jsrender">
 					<span class="expedient_tipus" data-tipus="{{:tipus.tipus}}">
-						{{:tipus.nom}}
+						{{:tipus.nom}} 
 					</span>
 					</script>				
 				</th>
@@ -573,6 +584,7 @@ function refrescaEstatSegonPla() {
 				<th data-rdt-property="ambErrors" data-rdt-visible="false"></th>
 				<th data-rdt-property="alertesTotals" data-rdt-visible="false"></th>
 				<th data-rdt-property="alertesPendents" data-rdt-visible="false"></th>
+				<th data-rdt-property="grupCodi" data-rdt-visible="false"></th>
 				<th data-rdt-property="id" data-rdt-template="cellAccionsTemplate" data-rdt-context="true" data-rdt-visible="true" data-rdt-sortable="false" data-rdt-nowrap="true" width="10%">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
 						<div class="dropdown navbar-right">
