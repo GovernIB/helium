@@ -2199,7 +2199,7 @@ public class DocumentHelperV3 {
 		documentStoreId = getDocumentStoreIdDeVariableJbpm(
 				String.valueOf(task.getTask().getId()), 
 				readonly ? task.getProcessInstanceId() : null, // Si és readonly no es troba a la tasca però sí es pot llegir del procés 
-				document.getCodi());
+					document.getCodi());
 		if (documentStoreId != null) {
 			DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 			if (documentStore != null) {
@@ -2430,7 +2430,8 @@ public class DocumentHelperV3 {
 			value = jbpmHelper.getTaskInstanceVariable(
 					taskInstanceId,
 					getVarPerDocumentCodi(documentCodi, false));
-		} else if (processInstanceId != null) {
+		}
+		if (value == null && processInstanceId != null) {
 			value = jbpmHelper.getProcessInstanceVariable(
 					processInstanceId,
 					getVarPerDocumentCodi(documentCodi, false));
