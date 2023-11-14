@@ -2788,7 +2788,7 @@ public class PluginHelper {
 			ContingutArxiu documentPerRetornar = getArxiuPlugin().documentModificar(
 					toArxiuDocument(
 							documentStore.getArxiuUuid(),
-							documentStore.getArxiuNom(),
+							documentNom,
 							documentDescripcio,
 							arxiu,
 							firma,
