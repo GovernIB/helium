@@ -157,6 +157,7 @@ public class ExpedientTokenServiceImpl implements ExpedientTokenService {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
+						ExtendedPermission.READ,
 						ExtendedPermission.TOKEN_MANAGE,
 						ExtendedPermission.SUPERVISION,
 						ExtendedPermission.ADMINISTRATION});
