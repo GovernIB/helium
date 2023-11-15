@@ -497,6 +497,11 @@
 					<artifactId>jsrender</artifactId>
 					<version>1.0.0-rc.70</version>
 				</dependency>
+				<dependency>
+					<groupId>org.webjars.bower</groupId>
+					<artifactId>jstree</artifactId>
+					<version>3.2.1</version>
+				</dependency>
 				<!-- Validació de firmes -->
 				<dependency>
 					<groupId>org.bouncycastle</groupId>

@@ -45,6 +45,7 @@ public class MonitorIntegracioHelper {
 	public static final String INTCODI_NOTIB = "NOTIB";
 	public static final String INTCODI_VALIDASIG = "VALIDASIG";
 	public static final String INTCODI_PINBAL = "PINBAL";
+	public static final String INTCODI_UNITATS = "UNITATS";
 
 	private Map<String, LinkedList<IntegracioAccioDto>> accionsIntegracio = new HashMap<String, LinkedList<IntegracioAccioDto>>();
 	private Map<String, Integer> maxAccionsIntegracio = new HashMap<String, Integer>();
@@ -173,6 +174,7 @@ public class MonitorIntegracioHelper {
 		integracions.add(new IntegracioDto(INTCODI_NOTIB, "Notificació"));
 		integracions.add(new IntegracioDto(INTCODI_VALIDASIG, "Valida sign."));
 		integracions.add(new IntegracioDto(INTCODI_PINBAL, "PINBAL"));
+		integracions.add(new IntegracioDto(INTCODI_UNITATS, "UNITATS"));
 		
 		return integracions;
 	}

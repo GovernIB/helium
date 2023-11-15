@@ -15,6 +15,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientConsultaCommand;
 import net.conselldemallorca.helium.webapp.v3.command.TascaConsultaCommand;
+import net.conselldemallorca.helium.webapp.v3.command.UnitatOrganitzativaCommand;
 
 /**
  * Helper per a gestionar les dades de la sessió d'usuari.
@@ -52,6 +53,7 @@ public class SessionHelper {
 	public static final String VARIABLE_FILTRE_CONSULTA_TIPUS_PARAM = "filtreConsultaTipusParam";
 	public static final String VARIABLE_SELECCIO_MASSIVES = "seleccioMassives";
 	private static final String VARIABLE_SELECCIO_DOCUMENTS = "seleccioDocuments";
+	public static final String VARIABLE_FILTRE_UNITAT_ORGANITZATIVA = "filtreUnitatOrganitzativa";
 
 	public static Object getAttribute(
 			HttpServletRequest request,
@@ -376,6 +378,20 @@ public class SessionHelper {
 					request,
 					VARIABLE_SELECCIO_MASSIVES);
 		}
+		
+		public UnitatOrganitzativaCommand getFiltreUnitatOrganitzativa() {
+			return (UnitatOrganitzativaCommand)getAttribute(
+					request,
+					VARIABLE_FILTRE_UNITAT_ORGANITZATIVA);
+		}
+		public void setFiltreUnitatOrganitzativa(UnitatOrganitzativaCommand filtreUnitatOrganitzativa) {
+			setAttribute(
+					request,
+					VARIABLE_FILTRE_UNITAT_ORGANITZATIVA,
+					filtreUnitatOrganitzativa);
+		}
+		
+		
 	}
 
 }

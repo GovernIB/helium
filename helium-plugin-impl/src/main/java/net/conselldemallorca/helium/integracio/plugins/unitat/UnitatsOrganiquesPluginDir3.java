@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,6 +14,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -28,8 +32,11 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import es.caib.dir3caib.ws.api.unidad.Dir3CaibObtenerUnidadesWs;
 import es.caib.dir3caib.ws.api.unidad.Dir3CaibObtenerUnidadesWsService;
 import es.caib.dir3caib.ws.api.unidad.UnidadTF;
+import net.conselldemallorca.helium.core.helper.PluginHelper;
+import net.conselldemallorca.helium.core.helper.UnitatOrganitzativaHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 
 
 /**
@@ -38,7 +45,10 @@ import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
-
+	@Resource
+	private PluginHelper pluginHelper;
+	@Resource
+	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
 	@Override
 	public List<UnitatOrganica> findAmbPare(String pareCodi) throws SistemaExternException {
 		try {
@@ -253,22 +263,27 @@ public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
 	
 	private String getServiceUrl() {
 		return GlobalProperties.getInstance().getProperty(
-				"app.unitats.organiques.dir3.plugin.service.url");
+//				"app.unitats.organiques.dir3.plugin.service.url");
+				"es.caib.helium.plugin.unitats.organitzatives.dir3.service.url");
 	}
 	private String getServiceUsername() {
 		return GlobalProperties.getInstance().getProperty(
-				"app.unitats.organiques.dir3.plugin.service.username");
+//				"app.unitats.organiques.dir3.plugin.service.username");
+				"es.caib.helium.plugin.unitats.organitzatives.dir3.service.username");
 	}
 	private String getServicePassword() {
 		return GlobalProperties.getInstance().getProperty(
-				"app.unitats.organiques.dir3.plugin.service.password");
+//				"app.unitats.organiques.dir3.plugin.service.password");
+				"es.caib.helium.plugin.unitats.organitzatives.dir3.service.password");
 	}
 	private boolean isLogMissatgesActiu() {
 		return GlobalProperties.getInstance().getAsBoolean(
-				"app.unitats.organiques.dir3.plugin.service.log.actiu");
+//				"app.unitats.organiques.dir3.plugin.service.log.actiu");
+				"es.caib.helium.plugin.unitats.organitzatives.dir3.service.log.actiu");
 	}
 	private Integer getServiceTimeout() {
-		String key = "app.unitats.organiques.dir3.plugin.service.timeout";
+//		String key = "app.unitats.organiques.dir3.plugin.service.timeout";
+		String key = "es.caib.helium.plugin.unitats.organitzatives.dir3.connect.timeout";
 		if (GlobalProperties.getInstance().getProperty(key) != null)
 			return GlobalProperties.getInstance().getAsInt(key);
 		else
@@ -276,12 +291,186 @@ public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
 	}
 	private String getServiceCercaUrl() {
 		String serviceUrl = GlobalProperties.getInstance().getProperty(
-				"app.unitats.organiques.dir3.plugin.service.url");
+				"es.caib.helium.plugin.unitats.organitzatives.dir3.service.url");
 		if (serviceUrl == null) {
 			serviceUrl = GlobalProperties.getInstance().getProperty(
-					"app.unitats.organiques.dir3.plugin.service.url");
+					"es.caib.helium.plugin.unitats.organitzatives.dir3.service.url");
 		}
 		return serviceUrl;
+	}
+	
+	@Override
+	public UnitatOrganitzativaDto findUnidad(
+			String pareCodi, 
+			Timestamp fechaActualizacion, 
+			Timestamp fechaSincronizacion) throws MalformedURLException {
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  
+		UnidadRest unidad = getUnitatsOrganitzativesRestClient().obtenerUnidad(
+				pareCodi,
+				fechaActualizacion != null ? dateFormat.format(fechaActualizacion) : null,
+				fechaSincronizacion != null ? dateFormat.format(fechaSincronizacion) : null, false);
+		if (unidad != null) {
+			return toUnitatOrganitzativa(unidad);
+		} else {
+			return null;
+		}
+
+	}
+	
+	@Override
+	public List<UnitatOrganitzativaDto> findAmbPare(
+			String pareCodi,
+			Timestamp fechaActualizacion,
+			Timestamp fechaSincronizacion) throws SistemaExternException {
+		try {
+			List<UnitatOrganitzativaDto> unitatOrganitzativaDto = new ArrayList<UnitatOrganitzativaDto>();
+			 DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");  
+			List<UnidadRest> unidades = getUnitatsOrganitzativesRestClient().obtenerArbolUnidades(
+					pareCodi,
+					fechaActualizacion != null ? dateFormat.format(fechaActualizacion) : null,
+					fechaSincronizacion != null ? dateFormat.format(fechaSincronizacion) : null, false);
+
+            if (unidades != null) {
+                for (UnidadRest unidad : unidades) {
+                	unitatOrganitzativaDto.add(toUnitatOrganitzativa(unidad));
+                }
+            }
+			return unitatOrganitzativaDto;
+			
+		} catch (Exception ex) {
+			throw new SistemaExternException(
+					"No s'han pogut consultar les unitats organitzatives via WS (" +
+					"pareCodi=" + pareCodi + ")",
+					ex);
+		}
+	}
+	
+
+	public List<UnitatOrganitzativaDto> cercaUnitatsOrganitzativesDto(
+			String codi, 
+			String denominacio,
+			Long nivellAdministracio, 
+			Long comunitatAutonoma, 
+			Boolean ambOficines, 
+			Boolean esUnitatArrel,
+			Long provincia, 
+			String municipi) throws SistemaExternException {
+		try {
+			URL url = new URL(getServiceCercaUrl()
+					+ "?codigo=" + codi
+					+ "&denominacion=" + denominacio
+					+ "&codNivelAdministracion=" + (nivellAdministracio != null ? nivellAdministracio : "-1")
+					+ "&codComunidadAutonoma=" + (comunitatAutonoma != null ? comunitatAutonoma : "-1")
+					+ "&conOficinas=" + (ambOficines != null && ambOficines ? "true" : "false")
+					+ "&unidadRaiz=" + (esUnitatArrel != null && esUnitatArrel ? "true" : "false")
+					+ "&provincia="+ (provincia != null ? provincia : "-1")
+					+ "&localidad=" + (municipi != null ? municipi : "-1")
+					+ "&vigentes=true");
+			HttpURLConnection httpConnection = (HttpURLConnection)url.openConnection();
+			httpConnection.setRequestMethod("GET");
+			httpConnection.setDoInput(true);
+			httpConnection.setDoOutput(true);
+			ObjectMapper mapper = new ObjectMapper();
+			mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+			List<UnitatOrganitzativaDto> unitats = mapper.readValue(
+					httpConnection.getInputStream(), 
+					TypeFactory.defaultInstance().constructCollectionType(
+							List.class,  
+							UnitatOrganitzativaDto.class));
+//			Collections.sort(unitats);
+			return unitats;
+		} catch (Exception ex) {
+			throw new SistemaExternException(
+					"No s'han pogut consultar les unitats organitzatives via REST (" +
+					"codi=" + codi + ", " +
+					"denominacio=" + denominacio + ", " +
+					"nivellAdministracio=" + nivellAdministracio + ", " +
+					"comunitatAutonoma=" + comunitatAutonoma + ", " +
+					"ambOficines=" + ambOficines + ", " +
+					"esUnitatArrel=" + esUnitatArrel + ", " +
+					"provincia=" + provincia + ", " +
+					"municipi=" + municipi + ")",
+					ex);
+		}
+	}
+
+	private UnitatOrganitzativaDto toUnitatOrganitzativaDto(UnidadTF unidad) {
+		UnitatOrganitzativaDto unitat = new UnitatOrganitzativaDto(
+				unidad.getCodigo(),
+				unidad.getDenominacion(),
+				unidad.getCodigo(), // CifNif
+				unidad.getFechaAltaOficial(),
+				unidad.getCodigoEstadoEntidad(),
+				unidad.getCodUnidadSuperior(),
+				unidad.getCodUnidadRaiz(),
+				unidad.getCodigoAmbPais(),
+				unidad.getCodAmbComunidad(),
+				unidad.getCodAmbProvincia(),
+				unidad.getCodPostal(),
+				unidad.getDescripcionLocalidad(),
+				unidad.getCodigoTipoVia(), 
+				unidad.getNombreVia(), 
+				unidad.getNumVia(),
+				unidad.getHistoricosUO());
+		
+		return unitat;
+	}
+	
+	private UnitatsOrganitzativesRestClient getUnitatsOrganitzativesRestClient() {
+		UnitatsOrganitzativesRestClient unitatsOrganitzativesRestClient = new UnitatsOrganitzativesRestClient(
+				getServiceUrl(),
+				getServiceUsername(),
+				getServicePassword());
+
+		return unitatsOrganitzativesRestClient;
+	}
+	
+	private UnitatOrganitzativaDto toUnitatOrganitzativa(UnidadRest unidad) {
+		UnitatOrganitzativaDto unitat = new UnitatOrganitzativaDto(
+				unidad.getCodigo(),
+				unidad.getDenominacionCooficial() != null ? unidad.getDenominacionCooficial() : unidad.getDenominacion(),
+				unidad.getCodigo(), // CifNif
+				unidad.getFechaAltaOficial(),
+				unidad.getCodigoEstadoEntidad(),
+				unidad.getCodUnidadSuperior(),
+				unidad.getCodUnidadRaiz(),
+				unidad.getCodigoAmbPais(),
+				unidad.getCodAmbComunidad(),
+				unidad.getCodAmbProvincia(),
+				unidad.getCodPostal(),
+				unidad.getDescripcionLocalidad(),
+				unidad.getCodigoTipoVia(), 
+				unidad.getNombreVia(), 
+				unidad.getNumVia(),
+				unidad.getHistoricosUO());
+		return unitat;
+	}
+
+	@Override
+	public UnitatOrganitzativaDto findAmbCodiUnitatOrganitzativaDto(String codi) throws SistemaExternException {
+		try {
+			UnitatOrganitzativaDto unitat = null;
+			UnidadTF unidad = getObtenerUnidadesService().obtenerUnidad(
+					codi,
+					null,
+					null);
+			if (unidad != null && "V".equalsIgnoreCase(unidad.getCodigoEstadoEntidad())) {
+				unitat = this.toUnitatOrganitzativaDto(unidad);//  toUnitatOrganitzativa(unidad);
+			} else {
+				throw new SistemaExternException(
+						"La unitat organitzativa no està vigent (" +
+						"codi=" + codi + ")");
+			}
+			return unitat;
+		} catch (SistemaExternException ex) {
+			throw ex;
+		} catch (Exception ex) {
+			throw new SistemaExternException(
+					"No s'ha pogut consultar la unitat organitzativa (" +
+					"codi=" + codi + ")",
+					ex);
+		}
 	}
 
 }
