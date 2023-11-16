@@ -30,7 +30,7 @@ import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaReposi
 
 
 /**
- * Helper per a convertir entre diferents formats de documents.
+ * Helper per a operacions amb unitats organitzatives.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -255,6 +255,34 @@ public class UnitatOrganitzativaHelper {
 				return null;
 			}
 		}
+		
+		public ArbreDto<UnitatOrganitzativaDto> unitatsOrganitzativesFindArbreByPare(String pareCodi) {
+
+			
+			List<UnitatOrganitzativa> unitatsOrganitzativesEntities = unitatOrganitzativaRepository
+					.findByCodiOrderByDenominacioAsc(pareCodi);
+			
+			List<UnitatOrganitzativa> unitatsOrganitzatives = conversioTipusHelper
+					.convertirList(unitatsOrganitzativesEntities, UnitatOrganitzativa.class);
+
+			ArbreDto<UnitatOrganitzativaDto> resposta = new ArbreDto<UnitatOrganitzativaDto>(false);
+			// Cerca l'unitat organitzativa arrel
+			UnitatOrganitzativa unitatOrganitzativaArrel = null;
+			for (UnitatOrganitzativa unitatOrganitzativa : unitatsOrganitzatives) {
+				if (pareCodi.equalsIgnoreCase(unitatOrganitzativa.getCodi())) {
+					unitatOrganitzativaArrel = unitatOrganitzativa;
+					break;
+				}
+			}
+			if (unitatOrganitzativaArrel != null) {
+				// Omple l'arbre d'unitats organitzatives
+				resposta.setArrel(getNodeArbreUnitatsOrganitzatives(unitatOrganitzativaArrel, unitatsOrganitzatives, null));
+				return resposta;
+
+			}
+			return null;
+		}
+
 
 		/**
 		 * 

@@ -46,6 +46,7 @@ public class MonitorIntegracioHelper {
 	public static final String INTCODI_VALIDASIG = "VALIDASIG";
 	public static final String INTCODI_PINBAL = "PINBAL";
 	public static final String INTCODI_UNITATS = "UNITATS";
+	public static final String INTCODI_PROCEDIMENT = "PROCEDIMENT";
 
 	private Map<String, LinkedList<IntegracioAccioDto>> accionsIntegracio = new HashMap<String, LinkedList<IntegracioAccioDto>>();
 	private Map<String, Integer> maxAccionsIntegracio = new HashMap<String, Integer>();

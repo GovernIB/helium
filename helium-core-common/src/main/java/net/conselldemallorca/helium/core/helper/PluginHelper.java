@@ -91,6 +91,8 @@ import net.conselldemallorca.helium.integracio.plugins.portasignatures.Portafirm
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortafirmesIniciFluxResposta;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortasignaturesPlugin;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortasignaturesPluginException;
+import net.conselldemallorca.helium.integracio.plugins.procediment.Procediment;
+import net.conselldemallorca.helium.integracio.plugins.procediment.ProcedimentPlugin;
 import net.conselldemallorca.helium.integracio.plugins.registre.DadesAssumpte;
 import net.conselldemallorca.helium.integracio.plugins.registre.DadesExpedient;
 import net.conselldemallorca.helium.integracio.plugins.registre.DadesInteressat;
@@ -225,6 +227,7 @@ public class PluginHelper {
 	private UnitatsOrganiquesPlugin unitatsOrganitzativesPlugin;
 	private PinbalPluginInterface pinbalPlugin;
 	private FirmaWebPlugin firmaWebPlugin;
+	private ProcedimentPlugin procedimentPlugin;
 	
 	private Tika tika = new Tika();
 
@@ -5829,6 +5832,67 @@ public Object consultaSincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, Ex
 		
 	}
 
+	private ProcedimentPlugin getProcedimentPlugin() {
+		if (procedimentPlugin == null) {
+			String pluginClass = GlobalProperties.getInstance().getProperty("app.procediments.plugin.class");
+			if (pluginClass != null && pluginClass.length() > 0) {
+				try {
+					Class<?> clazz = Class.forName(pluginClass);
+					procedimentPlugin = (ProcedimentPlugin)clazz.newInstance();
+				} catch (Exception ex) {
+					throw tractarExcepcioEnSistemaExtern(
+							MonitorIntegracioHelper.INTCODI_PROCEDIMENT,
+							"Error al crear la instància del plugin de procediments (" +
+							"pluginClass=" + pluginClass + ")",
+							ex);
+				}
+			} else {
+				throw tractarExcepcioEnSistemaExtern(
+						MonitorIntegracioHelper.INTCODI_PROCEDIMENT,
+						"No està configurada la classe per al plugin de procediments",
+						null);
+			}
+		}
+		return procedimentPlugin;
+	}
+	
+	
+	public List<Procediment> procedimentFindByCodiDir3(
+			String codiDir3) {
+		String accioDescripcio = "Consulta dels procediments pel codi DIR3 " + codiDir3;
+		Map<String, Object> accioParams = new HashMap<String, Object>();
+		accioParams.put("codiDir3", codiDir3);
+		
+		long t0 = System.currentTimeMillis();
+		List<Procediment> procediments = null;
+		try {
+			//codiDir3 = "A04003003";
+			procediments = getProcedimentPlugin().findAmbCodiDir3(codiDir3);
+
+			accioParams.put("resultat", procediments != null ? procediments.size() : -1);
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_PROCEDIMENT,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					IntegracioParametreDto.toIntegracioParametres(accioParams));							
+		} catch (Exception ex) {
+			String errorDescripcio = "Error consultant els procediments per codi DIR3 " + codiDir3 + ": " + ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_PROCEDIMENT,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					IntegracioParametreDto.toIntegracioParametres(accioParams));
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_PROCEDIMENT,
+					errorDescripcio, 
+					ex);
+		}
+		return procediments;
+	}
 
 	private Long toLongValue(String text) {
 		if (text == null || text.isEmpty())

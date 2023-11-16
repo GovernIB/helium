@@ -1,6 +1,3 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.Date;

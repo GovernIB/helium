@@ -413,6 +413,9 @@
 									<c:if test="${dadesPersona.admin}">
 										<li><a id="unitatsOrganitzatives" href="<c:url value="/v3/unitatOrganitzativa"/>"><spring:message code="decorator.menu.unitats.organitzatives"/></a></li>
 									</c:if>
+									<c:if test="${dadesPersona.admin}">
+										<li><a id="procediments" href="<c:url value="/v3/procediment"/>"><spring:message code="decorator.menu.procediments"/></a></li>
+									</c:if>
 								</ul>
 								<script type="text/javascript">
 									$('#mesures a').heliumEvalLink({

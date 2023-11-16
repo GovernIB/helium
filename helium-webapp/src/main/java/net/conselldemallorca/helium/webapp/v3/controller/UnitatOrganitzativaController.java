@@ -51,7 +51,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-@Controller(value = "unitatOrganitzativaControllerV3")
+@Controller
 @RequestMapping("/v3/unitatOrganitzativa")
 public class UnitatOrganitzativaController extends BaseController {
 	
