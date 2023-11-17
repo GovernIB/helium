@@ -11,6 +11,7 @@ import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.api.service.TerminiService;
+import net.conselldemallorca.helium.v3.core.api.service.UnitatOrganitzativaService;
 
 /**
  * Controlador base per a les pestanyes del tipus d'expedient.
@@ -37,4 +38,6 @@ public class BaseExpedientTipusController extends BaseDissenyController {
 	protected AccioService accioService;
 	@Autowired
 	protected TerminiService terminiService;
+	@Autowired 
+	protected UnitatOrganitzativaService unitatOrganitzativaService;
 }

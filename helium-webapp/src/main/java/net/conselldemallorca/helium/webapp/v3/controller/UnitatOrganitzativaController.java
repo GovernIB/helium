@@ -31,10 +31,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.core.helper.PluginHelper;
-import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.service.UnitatOrganitzativaService;
 import net.conselldemallorca.helium.webapp.v3.command.UnitatOrganitzativaCommand;
 import net.conselldemallorca.helium.webapp.v3.command.UnitatOrganitzativaCommand.Creacio;
@@ -140,14 +140,14 @@ public class UnitatOrganitzativaController extends BaseController {
 	@ResponseBody
 	public DatatablesResponse datatable(
 			HttpServletRequest request) {
-		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
-
+		UnitatOrganitzativaCommand filtreCommand = getFiltreCommand(request);
 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,
-				unitatOrganitzativaService.findPerDatatable(
-						paginacioParams.getFiltre(),
-						paginacioParams));
+				unitatOrganitzativaService.findAmbFiltrePaginat(
+						ConversioTipusHelper.convertir(filtreCommand, UnitatOrganitzativaFiltreDto.class),
+						DatatablesHelper.getPaginacioDtoFromRequest(request)),
+				"id");		
 	}
 
 	@RequestMapping(value = "/new", method = RequestMethod.GET)
@@ -240,6 +240,7 @@ public class UnitatOrganitzativaController extends BaseController {
 		List<UnitatOrganitzativaDto> unitatsNew = new ArrayList<UnitatOrganitzativaDto>();
 		
 		UnitatOrganitzativaDto unitatDto = unitatOrganitzativaService.findByCodi(ARREL);
+		boolean isFirstSincronization = unitatDto==null;
 		if(unitatDto==null) {
 			 unitatDto =pluginHelper.findUnidad(
 				    ARREL,
@@ -248,7 +249,6 @@ public class UnitatOrganitzativaController extends BaseController {
 			unitatOrganitzativaService.create(unitatDto);
 		}
 
-		boolean isFirstSincronization = unitatDto!=null;
 		if(isFirstSincronization){
 			unitatsVigentsFirstSincro = unitatOrganitzativaService.predictFirstSynchronization(unitatDto.getId());
 		} else {
@@ -391,6 +391,7 @@ public class UnitatOrganitzativaController extends BaseController {
 		UnitatOrganitzativaCommand filtreCommand = (UnitatOrganitzativaCommand) SessionHelper.getAttribute(request, SESSION_ATTRIBUTE_FILTRE);
 		if (filtreCommand == null) {
 			filtreCommand = new UnitatOrganitzativaCommand();
+			filtreCommand.setEstat(UnitatOrganitzativaEstatEnumDto.VIGENTE);		
 			SessionHelper.setAttribute(request, SESSION_ATTRIBUTE_FILTRE, filtreCommand);
 		}
 		return filtreCommand;

@@ -5,6 +5,11 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
+<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
+	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
+	<script src="<c:url value="/js/select2.min.js"/>"></script>
+	<script src="<c:url value="/webjars/jsrender/1.0.0-rc.70/jsrender.min.js"/>"></script>
+	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 <script type="text/javascript">
 // <![CDATA[            
 $(document).ready(function() {
@@ -22,6 +27,15 @@ $(document).ready(function() {
 			$('#arxiuActiu').prop('disabled', true);
 		}
 	});
+	
+	$('#procedimentComu', '#expedientTipusMetadadesNtiCommand').change(function() {
+		if ($(this).is(':checked')) {
+			$('#organo').prop('readonly', true);	
+		} else {
+			$('#organo').prop('readonly', false);
+		}
+	});
+	
 	$('#expedientTipusMetadadesNtiCommand').submit(function(e) {
 		$('#accioGuardarProcessant').show();
 		webutilRefreshMissatges();
@@ -53,8 +67,14 @@ $(document).ready(function() {
 			<div style="height: 400px">        
 				<hel:inputCheckbox name="actiu" textKey="expedient.tipus.metadades.nti.actiu"/>
 				<div id="inputs_metadadesNti">
-					<hel:inputText name="organo" required="true" textKey="expedient.tipus.metadades.nti.organo" readonly="${not expedientTipusMetadadesNtiCommand.actiu}"/>
 					<hel:inputText name="clasificacion" required="true" textKey="expedient.tipus.metadades.nti.clasificacion" readonly="${not expedientTipusMetadadesNtiCommand.actiu}"/>
+					<hel:inputCheckbox name="procedimentComu" textKey="expedient.tipus.metadades.nti.procediment.comu"/>	
+					<hel:inputSuggest 
+						name="organo" 
+						urlConsultaInicial="/helium/v3/expedientTipus/${expedientTipus.id}/suggestInici" 
+						urlConsultaLlistat="/helium/v3/expedientTipus/${expedientTipus.id}/suggest" 
+						textKey="expedient.tipus.metadades.nti.organo" 
+						placeholderKey="expedient.tipus.metadades.nti.organo"/>		
 					<hel:inputText name="serieDocumental" textKey="expedient.tipus.metadades.nti.serie.documental" readonly="${not expedientTipusMetadadesNtiCommand.actiu}"/>
 					<hel:inputCheckbox name="arxiuActiu" textKey="expedient.tipus.metadades.nti.arxiu.actiu" disabled="${not expedientTipusMetadadesNtiCommand.actiu}"/>
 				</div>

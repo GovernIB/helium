@@ -8,6 +8,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArbreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaFiltreDto;
 
 
 /**
@@ -36,9 +37,15 @@ public interface UnitatOrganitzativaService {
 	 *            Paràmetres per a la paginació dels resultats.
 	 * @return La pàgina del llistat d'unitats.
 	 */
-	public PaginaDto<UnitatOrganitzativaDto> findPerDatatable(
-			String filtre, 
-			PaginacioParamsDto paginacioParams);
+//	public PaginaDto<UnitatOrganitzativaDto> findPerDatatable(
+//			String filtre, 
+//			PaginacioParamsDto paginacioParams);
+	
+	
+	/** Mètode per consultar en el llistat les diferents unitats organitzatives */
+	public PaginaDto<UnitatOrganitzativaDto> findAmbFiltrePaginat(
+			UnitatOrganitzativaFiltreDto filtreDto,
+			PaginacioParamsDto paginacioParams); 
 	
 	/**
 	 * Consulta les unitats organitzatives de l'entitat.

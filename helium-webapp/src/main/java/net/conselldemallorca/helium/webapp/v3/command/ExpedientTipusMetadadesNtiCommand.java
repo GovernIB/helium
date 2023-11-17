@@ -22,6 +22,7 @@ public class ExpedientTipusMetadadesNtiCommand {
 	@Size(max = 16, groups = {Modificacio.class})
 	private String serieDocumental;
 	private boolean arxiuActiu;
+	private boolean procedimentComu;
 
 	public boolean isActiu() {
 		return actiu;
@@ -54,13 +55,21 @@ public class ExpedientTipusMetadadesNtiCommand {
 		this.arxiuActiu = arxiuActiu;
 	}
 
+	public boolean isProcedimentComu() {
+		return procedimentComu;
+	}
+	public void setProcedimentComu(boolean procedimentComu) {
+		this.procedimentComu = procedimentComu;
+	}
 	public static ExpedientTipusMetadadesNtiCommand toCommand(ExpedientTipusDto dto) {
 		ExpedientTipusMetadadesNtiCommand command = new ExpedientTipusMetadadesNtiCommand();
 		command.setActiu(dto.isNtiActiu());
+		command.setProcedimentComu(dto.isProcedimentComu());
 		command.setOrgano(dto.getNtiOrgano());
 		command.setClasificacion(dto.getNtiClasificacion());
 		command.setSerieDocumental(dto.getNtiSerieDocumental());
 		command.setArxiuActiu(dto.isArxiuActiu());
+		command.setProcedimentComu(dto.isProcedimentComu());;
 		return command;
 	}
 	

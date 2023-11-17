@@ -19,6 +19,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArbreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.service.UnitatOrganitzativaService;
 import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaRepository;
 
@@ -145,21 +147,48 @@ public class UnitatOrganitzativaServiceImpl implements UnitatOrganitzativaServic
 	 */
 	@Override
 	@Transactional(readOnly = true)
-	public PaginaDto<UnitatOrganitzativaDto> findPerDatatable(
-			String filtre,
+	public PaginaDto<UnitatOrganitzativaDto> findAmbFiltrePaginat(
+			UnitatOrganitzativaFiltreDto filtreDto,
 			PaginacioParamsDto paginacioParams) {
 		logger.debug("Consultant unitats organitzatives per la datatable (" +
-				"filtre=" + filtre + ", " +
+				"filtre=" + filtreDto + ", " +
 				"paginacioParams=" + paginacioParams + ")");
+		String estatBBDD = null;
+		if(filtreDto.getEstat()!=null)
+			 estatBBDD = getEstatBBDD(filtreDto.getEstat());
 		PaginaDto<UnitatOrganitzativaDto> pagina = paginacioHelper.toPaginaDto(
 				unitatOrganitzativaRepository.findByFiltrePaginat(
-						filtre == null || "".equals(filtre),
-						filtre,
+						filtreDto.getCodi() == null || filtreDto.getCodi().isEmpty(),
+						filtreDto.getCodi(),
+						filtreDto.getDenominacio() == null || filtreDto.getDenominacio().isEmpty(),
+						filtreDto.getDenominacio(),
+						filtreDto.getCodiUnitatSuperior() == null || filtreDto.getCodiUnitatSuperior().isEmpty(),
+						filtreDto.getCodiUnitatSuperior(),
+						estatBBDD==null,
+						estatBBDD,
+						paginacioParams.getFiltre() == null || paginacioParams.getFiltre().isEmpty(),
+						paginacioParams.getFiltre(),
 						paginacioHelper.toSpringDataPageable(
 								paginacioParams)),
 				UnitatOrganitzativaDto.class);
 		
 		return pagina;
+	}
+	
+	private String getEstatBBDD(UnitatOrganitzativaEstatEnumDto estat) {
+		String estatBBDD=null;
+		if(estat!=null){
+//		V: Vigente, E: Extinguido, A: Anulado, T: Transitorio
+			if(UnitatOrganitzativaEstatEnumDto.VIGENTE.equals(estat))
+				estatBBDD="V";
+			if(UnitatOrganitzativaEstatEnumDto.EXTINGUIDO.equals(estat))
+				estatBBDD="E";
+			if(UnitatOrganitzativaEstatEnumDto.ANULADO.equals(estat))
+				estatBBDD="A";
+			if(UnitatOrganitzativaEstatEnumDto.TRANSITORIO.equals(estat))
+				estatBBDD="T";
+		} 
+		return estatBBDD;
 	}
 	
 	

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.service.UnitatOrganitzativaService;
 import net.conselldemallorca.helium.v3.core.api.dto.ArbreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -147,16 +148,18 @@ public class UnitatOrganitzativaServiceBean implements UnitatOrganitzativaServic
 		return delegate.getNewFromWS(entitatId);
 	}
 
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto<UnitatOrganitzativaDto> findPerDatatable(String filtre, PaginacioParamsDto paginacioParams) {
-		return delegate.findPerDatatable(filtre, paginacioParams);
-	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<UnitatOrganitzativaDto> findByCodiAndDenominacioFiltre(String text) {
 		return delegate.findByCodiAndDenominacioFiltre(text);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PaginaDto<UnitatOrganitzativaDto> findAmbFiltrePaginat(UnitatOrganitzativaFiltreDto filtreDto,
+			PaginacioParamsDto paginacioParams) {
+		return delegate.findAmbFiltrePaginat(filtreDto, paginacioParams);
 	}	
 
 

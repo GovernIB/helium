@@ -1499,7 +1499,8 @@ public interface ExpedientTipusService {
 	 *            El codi de la serie documental relacionada amb l'expedient.
 	 * @param arxiuActiu
 	 *            Indica si la integració amb l'arxiu està activada.
-	 * 
+	 * @param arxiuActiu
+	 *            Indica si el de procediment és comú.
 	 * @return El tipus d'expedient modificat.
 	 * 
 	 * @throws NoTrobatException
@@ -1514,7 +1515,8 @@ public interface ExpedientTipusService {
 			String organo,
 			String clasificacion,
 			String serieDocumental,
-			boolean arxiuActiu);	
+			boolean arxiuActiu,
+			boolean procedimentComu);	
 		
 	public List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(
 			Integer anyInicial, 

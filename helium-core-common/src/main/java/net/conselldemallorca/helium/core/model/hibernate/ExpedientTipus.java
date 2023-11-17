@@ -204,6 +204,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	@MaxLength(16)
 	private String ntiSerieDocumental;
 	private boolean arxiuActiu;
+	private boolean procedimentComu;
 
 
 	private boolean pinbalActiu;
@@ -919,6 +920,13 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 		this.arxiuActiu = arxiuActiu;
 	}
 	
+	@Column(name="procediment_comu")
+	public boolean isProcedimentComu() {
+		return procedimentComu;
+	}
+	public void setProcedimentComu(boolean procedimentComu) {
+		this.procedimentComu = procedimentComu;
+	}
 	@OneToMany(mappedBy="expedientTipus", fetch=FetchType.LAZY, cascade={CascadeType.ALL})
 	public List<Repro> getRepros() {
 		return repros;

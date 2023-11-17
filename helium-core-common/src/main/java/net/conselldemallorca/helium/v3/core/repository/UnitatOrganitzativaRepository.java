@@ -27,12 +27,24 @@ public interface UnitatOrganitzativaRepository extends JpaRepository<UnitatOrgan
 	UnitatOrganitzativa findByCodi(String codi);
 	
 	@Query(	"from UnitatOrganitzativa uo " +
-			"where " +
-			"    (:esNullFiltre = true "
+			"where  "+
+			" (:esNullCodi = true or lower(uo.codi) like lower('%'||:codi||'%')) " +
+			" and (:esNullDenominacio = true or lower(uo.denominacio) like lower('%'||:denominacio||'%')) " +
+			" and (:esNullCodiUnitatSuperior = true or lower(uo.codiUnitatSuperior) like lower('%'||:codiUnitatSuperior||'%')) "+
+			" and (:esNullEstat = true or uo.estat = :estat) " + 
+			" and   (:esNullFiltre = true "
 			+ "or lower(uo.denominacio) like lower('%'||:filtre||'%') "
 			+ "or lower(uo.codi) like lower('%'||:filtre||'%')  "
 			+ "or lower(uo.estat) like lower('%'||:filtre||'%')) ")
 	Page<UnitatOrganitzativa> findByFiltrePaginat(
+			@Param("esNullCodi") boolean esNullCodi,
+			@Param("codi") String codi,
+			@Param("esNullDenominacio") boolean esNullDenominacio,
+			@Param("denominacio") String denominacio,
+			@Param("esNullCodiUnitatSuperior") boolean esNullCodiUnitatSuperior,
+			@Param("codiUnitatSuperior") String codiUnitatSuperior,
+			@Param("esNullEstat") boolean esNullEstat,
+			@Param("estat") String estat,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre,		
 			Pageable pageable);
@@ -63,6 +75,7 @@ public interface UnitatOrganitzativaRepository extends JpaRepository<UnitatOrgan
 			"and (:ambArrel = true or uo.codi != :codiDir3Entitat) " +
 			"and ((:esNullFiltre = true or lower(uo.codi) like lower('%'||:filtre||'%')) " +
 			"or (:esNullFiltre = true or lower(uo.denominacio) like lower('%'||:filtre||'%'))) " +
+//			"and uo.id in (select distinct b.unitatOrganitzativa.id from BustiaEntity b)" +
 			"and codiUnitatSuperior = :codiUnitatSuperior")
 	List<UnitatOrganitzativa> findByCodiUnitatAmbCodiUnitatSuperiorAndCodiAndDenominacioFiltreNomesAmbBusties(
 			@Param("codi") String codi,
@@ -94,7 +107,8 @@ public interface UnitatOrganitzativaRepository extends JpaRepository<UnitatOrgan
 			"    uo.codi = :codi " +
 			"and (:ambArrel = true ) " +
 			"and ((:esNullFiltre = true or lower(uo.codi) like lower('%'||:filtre||'%')) " +
-			"or (:esNullFiltre = true or lower(uo.denominacio) like lower('%'||:filtre||'%'))) "
+			"or (:esNullFiltre = true or lower(uo.denominacio) like lower('%'||:filtre||'%'))) "// +
+//			 "and uo.id in (select distinct b.unitatOrganitzativa.id from BustiaEntity b)"
 			)
 	List<UnitatOrganitzativa> findByCodiUnitatAndCodiAndDenominacioFiltreNomesAmbBusties(
 			@Param("codi") String codi,

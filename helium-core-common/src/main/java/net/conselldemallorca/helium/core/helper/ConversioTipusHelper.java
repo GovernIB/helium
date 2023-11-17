@@ -303,10 +303,12 @@ public class ConversioTipusHelper {
 						target.setTeTitol(source.getTeTitol());
 						target.setTramitacioMassiva(source.isTramitacioMassiva());
 						target.setNtiActiu(source.isNtiActiu());
+						target.setProcedimentComu(source.isProcedimentComu());
 						target.setNtiOrgano(source.getNtiOrgano());
 						target.setNtiClasificacion(source.getNtiClasificacion());
 						target.setNtiSerieDocumental(source.getNtiSerieDocumental());
 						target.setArxiuActiu(source.isArxiuActiu());
+						target.setProcedimentComu(source.isProcedimentComu());
 						Map<Integer,SequenciaAnyDto> sequenciaAnyMap = new HashMap<Integer, SequenciaAnyDto>();
 						for (Entry<Integer, SequenciaAny> entry : source.getSequenciaAny().entrySet()) {
 							SequenciaAny value = entry.getValue();
@@ -391,6 +393,7 @@ public class ConversioTipusHelper {
 						target.setTeTitol(source.isTeTitol());
 						target.setTramitacioMassiva(source.isTramitacioMassiva());
 						target.setNtiActiu(source.isNtiActiu());
+						target.setProcedimentComu(source.isProcedimentComu());
 						target.setNtiOrgano(source.getNtiOrgano());
 						target.setNtiClasificacion(source.getNtiClasificacion());
 						target.setNtiSerieDocumental(source.getNtiSerieDocumental());

@@ -692,7 +692,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		exportacio.setNtiClasificacion(tipus.getNtiClasificacion());
 		exportacio.setNtiSerieDocumental(tipus.getNtiSerieDocumental());
 		exportacio.setArxiuActiu(tipus.isArxiuActiu());
-		
+		exportacio.setProcedimentComu(tipus.isProcedimentComu());
 		//Integracio amb PINBAL
 		exportacio.setPinbalActiu(tipus.isPinbalActiu());
 		exportacio.setPinbalNifCif(tipus.getPinbalNifCif());
@@ -1055,6 +1055,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		expedientTipus.setNtiClasificacion(importacio.getNtiClasificacion());
 		expedientTipus.setNtiSerieDocumental(importacio.getNtiSerieDocumental());
 		expedientTipus.setArxiuActiu(importacio.isArxiuActiu());
+		expedientTipus.setProcedimentComu(importacio.isProcedimentComu());
 		// Integracio amb DISTRIBUCIO
 		expedientTipus.setDistribucioActiu(importacio.isDistribucioActiu());
 		// Si la integració amb Distribucio està activa i canvia el codi de procediment o d'assumpte
@@ -4501,7 +4502,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			String organo,
 			String clasificacion,
 			String serieDocumental,
-			boolean arxiuActiu) {
+			boolean arxiuActiu,
+			boolean procedimentComu) {
 		logger.debug(
 				"Modificant tipus d'expedient amb les metadades (" +
 				"entornId=" + entornId + ", " +
@@ -4518,6 +4520,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setNtiClasificacion(clasificacion);
 		entity.setNtiSerieDocumental(serieDocumental);
 		entity.setArxiuActiu(arxiuActiu);
+		entity.setProcedimentComu(procedimentComu);
 		return conversioTipusHelper.convertir(
 				expedientTipusRepository.save(entity),
 				ExpedientTipusDto.class);	

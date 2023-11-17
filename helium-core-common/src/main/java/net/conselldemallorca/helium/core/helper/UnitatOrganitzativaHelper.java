@@ -376,9 +376,7 @@ public class UnitatOrganitzativaHelper {
 			// converting from UnitatOrganitzativa to UnitatOrganitzativaDto
 			List<UnitatOrganitzativaDto> newUnitatsDto = new ArrayList<UnitatOrganitzativaDto>();
 			for (UnitatOrganitzativaDto vigent : newUnitatsWS){
-				newUnitatsDto.add(conversioTipusHelper.convertir(
-						vigent, 
-						UnitatOrganitzativaDto.class));
+				newUnitatsDto.add(vigent);
 			}
 			return newUnitatsDto;
 		}

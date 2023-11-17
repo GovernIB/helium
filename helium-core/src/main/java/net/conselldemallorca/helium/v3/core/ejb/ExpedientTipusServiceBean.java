@@ -811,7 +811,8 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			String organo,
 			String clasificacion,
 			String serieDocumental,
-			boolean arxiuActiu) {
+			boolean arxiuActiu,
+			boolean procedimentComu) {
 		return delegate.updateMetadadesNti(
 				entornId,
 				expedientTipusId,
@@ -819,7 +820,8 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 				organo,
 				clasificacion,
 				serieDocumental,
-				arxiuActiu);
+				arxiuActiu,
+				procedimentComu);
 	}
 	
 	@Override

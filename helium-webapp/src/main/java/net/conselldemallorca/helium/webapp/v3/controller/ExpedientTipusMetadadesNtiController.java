@@ -4,9 +4,13 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusMetadadesNtiCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.AjaxHelper;
@@ -92,7 +97,8 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 						command.getOrgano(), 
 						command.getClasificacion(),
 						command.getSerieDocumental(),
-						command.isArxiuActiu());
+						command.isArxiuActiu(),
+						command.isProcedimentComu());
 				MissatgesHelper.success(
 						request, 
 						getMessage(
@@ -102,5 +108,45 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 		}
     	return response;
 	}
+
+	
+	@RequestMapping(value = "/{expedientTipusId}/suggest/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
+	@ResponseBody
+	public String unitatsSuggest(
+			HttpServletRequest request,
+			@PathVariable String text,
+			Model model) {
+		String textDecoded = text;
+		List<UnitatOrganitzativaDto> unitats = unitatOrganitzativaService
+				.findByCodiAndDenominacioFiltre(textDecoded);
+		
+		String json = "[";
+		for (UnitatOrganitzativaDto unitat: unitats) {
+			json += "{\"codi\":\"" + unitat.getCodi() + "\", \"nom\":\"" + unitat.getNom()+ "\"},";
+		}
+		if (json.length() > 1) json = json.substring(0, json.length() - 1);
+		json += "]";
+		return json;
+	}
+	
+	@RequestMapping(value = "/{expedientTipusId}/suggestInici/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
+	@ResponseBody
+	public String unitatsSuggestInici(
+			HttpServletRequest request,
+			@PathVariable String text,
+			Model model) {
+	
+		String decodedToUTF8 = null;
+		try {
+			decodedToUTF8 = new String(text.getBytes("ISO-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.error("No s'ha pogut consultar el text " + text + ": " + e.getMessage());
+		}
+		UnitatOrganitzativaDto unitatDto = unitatOrganitzativaService.findByCodi(decodedToUTF8);
+		return "{\"codi\":\"" + unitatDto.getCodi() + "\", \"nom\":\"" + unitatDto.getNom() + "\"}";
+
+	}
+	
+	private static final Log logger = LogFactory.getLog(ExpedientTipusMetadadesNtiController.class);
 
 }

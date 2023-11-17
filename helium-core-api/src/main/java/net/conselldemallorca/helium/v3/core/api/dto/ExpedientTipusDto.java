@@ -74,11 +74,11 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	private String ntiOrgano;
 	private String ntiClasificacion;
 	private String ntiSerieDocumental;
+	private boolean procedimentComu;
 
 	//Integració amb Pinbal
 	private boolean pinbalActiu;
 	private String pinbalNifCif;
-		
 		
 	private boolean arxiuActiu;
 	
@@ -513,6 +513,12 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 		this.distribucioPresencial = presencial;
 	}
 
+	public boolean isProcedimentComu() {
+		return procedimentComu;
+	}
+	public void setProcedimentComu(boolean procedimentComu) {
+		this.procedimentComu = procedimentComu;
+	}
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;

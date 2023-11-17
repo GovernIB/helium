@@ -67,6 +67,7 @@ public class ExpedientTipusExportacio implements Serializable {
 	private String ntiClasificacion;
 	private String ntiSerieDocumental;
 	private boolean arxiuActiu;
+	private boolean procedimentComu;
 	
 	//Integracio PINBAL
 	private boolean pinbalActiu;
@@ -475,6 +476,13 @@ public class ExpedientTipusExportacio implements Serializable {
 	}
 	public void setSistraActiu(boolean sistraActiu) {
 		this.sistraActiu = sistraActiu;
+	}
+
+	public boolean isProcedimentComu() {
+		return procedimentComu;
+	}
+	public void setProcedimentComu(boolean procedimentComu) {
+		this.procedimentComu = procedimentComu;
 	}
 
 
