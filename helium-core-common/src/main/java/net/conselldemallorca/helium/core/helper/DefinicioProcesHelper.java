@@ -852,7 +852,7 @@ public class DefinicioProcesHelper {
 					tascaExportacio.setAmbRepro(tasca.isAmbRepro());
 					tascaExportacio.setMostrarAgrupacions(tasca.isMostrarAgrupacions());
 					// Afegeix els camps de la tasca
-					for (CampTasca camp: campTascaRepository.findAmbTascaIdOrdenats(tasca.getId(), definicio.getExpedientTipus().getId())) {
+					for (CampTasca camp: campTascaRepository.findAmbTascaIdOrdenats(tasca.getId(), definicio.getExpedientTipus()!=null ? definicio.getExpedientTipus().getId() : null)) {
 						tascaExportacio.addCamp(
 								new CampTascaExportacio(
 									camp.getCamp().getCodi(),
