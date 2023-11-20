@@ -1462,10 +1462,12 @@ public class DistribucioHelper {
 					annex.setError(null);
 					arxiuUuid = annex.getUuid();
 				}
-				// Actualitza l'uuid a tots els documents que fan referència a l'annex que poden contenir l'uuid anterior
-				for (DocumentStore ds : documentStoreRepository.findByAnnexId(annex.getId())) {
-					ds.setArxiuUuid(arxiuUuid);
-				}				
+				if (arxiuUuid != null) {
+					// Actualitza l'uuid a tots els documents que fan referència a l'annex que poden contenir l'uuid anterior
+					for (DocumentStore ds : documentStoreRepository.findByAnnexId(annex.getId())) {
+						ds.setArxiuUuid(arxiuUuid);
+					}				
+				}
 			} else {
 				Annex a = new Annex();
 				a.setUuid(annex.getUuid());
