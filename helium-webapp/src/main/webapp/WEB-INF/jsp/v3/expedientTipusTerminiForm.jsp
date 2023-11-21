@@ -134,7 +134,7 @@
 			<hel:inputText name="diesPrevisAvis" textKey="defproc.termform.dies_previs" comment="defproc.termform.es_generara"/>
 			<hel:inputCheckbox name="alertaPrevia" textKey="defproc.termform.gen_alert_previa" />
 			<hel:inputCheckbox name="alertaFinal" textKey="defproc.termform.gen_alert_final" />
-			<c:if test="${expedientTipus.tipus == 'FLOW' }">
+			<c:if test="${expedientTipus.tipus != 'ESTAT' }">
 				<hel:inputCheckbox name="alertaCompletat" textKey="defproc.termform.gen_alert_complet" />
 			</c:if>
 		</div>
