@@ -345,6 +345,12 @@ public class DefinicioProcesHelper {
 						document.setExtensionsPermeses(documentExportat.getExtensionsPermeses());
 						document.setIgnored(documentExportat.isIgnored());
 						document.setNtiTipoDocumental(documentExportat.getNtiTipoDocumental());
+						document.setPortafirmesActiu(documentExportat.isPortafirmesActiu());
+						
+						document.setPortafirmesFluxId(documentExportat.getPortafirmesFluxId());
+						document.setPortafirmesFluxTipus(documentExportat.getPortafirmesFluxTipus());
+						document.setPortafirmesSequenciaTipus(documentExportat.getPortafirmesSequenciaTipus());
+						document.setPortafirmesResponsables(documentExportat.getPortafirmesResponsables());
 					}
 					documents.put(documentExportat.getCodi(), document);
 				}	
@@ -984,6 +990,12 @@ public class DefinicioProcesHelper {
 					documentExportacio.setExtensionsPermeses(document.getExtensionsPermeses());
 					documentExportacio.setIgnored(document.isIgnored());
 					documentExportacio.setNtiTipoDocumental(document.getNtiTipoDocumental());
+					documentExportacio.setPortafirmesActiu(document.isPortafirmesActiu());
+					documentExportacio.setPortafirmesFluxId(document.getPortafirmesFluxId());
+					documentExportacio.setPortafirmesFluxTipus(document.getPortafirmesFluxTipus());
+					documentExportacio.setPortafirmesSequenciaTipus(document.getPortafirmesSequenciaTipus());
+					documentExportacio.setPortafirmesResponsables(document.getPortafirmesResponsables()!=null? document.getPortafirmesResponsables().split(",") : null );
+					
 					exportacio.getDocuments().add(documentExportacio);
 				}
 		}		
