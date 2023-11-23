@@ -2078,14 +2078,7 @@ public class DocumentHelperV3 {
 		dto.setPlantilla(document.isPlantilla());
 		dto.setSignat(documentStore.isSignat());
 		if (documentStore.isSignat()) {
-			if (documentStore.getArxiuUuid() == null) {
-				dto.setSignaturaUrlVerificacio(
-						pluginHelper.custodiaObtenirUrlComprovacioSignatura(
-								documentStore.getReferenciaCustodia()));
-			} else {
-				dto.setSignaturaUrlVerificacio(
-						getPropertyArxiuVerificacioBaseUrl() + documentStore.getNtiCsv());
-			}
+			this.setSignautraUrlVerificacio(dto, documentStore);
 		} else {
 			dto.setCustodiaCodi(document.getCustodiaCodi());
 		}
@@ -2159,14 +2152,7 @@ public class DocumentHelperV3 {
 		dto.setArxiuUuid(documentStore.getArxiuUuid());
 		dto.setSignat(documentStore.isSignat());
 		if (documentStore.isSignat()) {
-			if (documentStore.getArxiuUuid() == null) {
-				dto.setSignaturaUrlVerificacio(
-						pluginHelper.custodiaObtenirUrlComprovacioSignatura(
-								documentStore.getReferenciaCustodia()));
-			} else {
-				dto.setSignaturaUrlVerificacio(
-						getPropertyArxiuVerificacioBaseUrl() + documentStore.getNtiCsv());
-			}
+			this.setSignautraUrlVerificacio(dto, documentStore);
 		}
 		dto.setDocumentValid(documentStore.isDocumentValid());
 		dto.setDocumentError(documentStore.getDocumentError());
@@ -2371,6 +2357,36 @@ public class DocumentHelperV3 {
 			return baseUrl + "/signatura/verificarExtern.html?token=" + token;
 		}
 	}
+	
+	/** Mètode per obtenir la URL per verificar la signatura. Si el documentStore té uuid s'asumeix que és a l'Arxiu i si no 
+	 * a Custòdia. En cas d'error informa de l'error en el DTO i enregistra l'error als logs.
+	 * 
+	 * @param dto
+	 * @param documentStore
+	 */
+	private void setSignautraUrlVerificacio(ExpedientDocumentDto dto, DocumentStore documentStore) {
+		if (documentStore.getArxiuUuid() == null) {
+			// Custòdia
+			try {
+				dto.setSignaturaUrlVerificacio(
+						pluginHelper.custodiaObtenirUrlComprovacioSignatura(
+								documentStore.getReferenciaCustodia()));
+			} catch(Exception e) {
+				long time = new Date().getTime();
+				String errMsg = time + " Error obtenint la url de verificació: " + e.toString();
+				if (dto.getError() != null) {
+					errMsg = dto.getError() + ". " + errMsg;
+				}
+				dto.setError(errMsg);
+				dto.setSignaturaUrlVerificacio("error_" + time);
+			}			
+		} else {
+			// Arxiu
+			dto.setSignaturaUrlVerificacio(
+					getPropertyArxiuVerificacioBaseUrl() + documentStore.getNtiCsv());			
+		}
+	}
+
 
 	private String getExtensioArxiuSignat() {
 		return (String)GlobalProperties.getInstance().get("app.conversio.signatura.extension");
