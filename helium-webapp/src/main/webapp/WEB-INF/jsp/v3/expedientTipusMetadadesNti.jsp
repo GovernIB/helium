@@ -15,12 +15,12 @@
 $(document).ready(function() {
 	$('#actiu', '#expedientTipusMetadadesNtiCommand').change(function() {
 		if ($(this).is(':checked')) {
-			$('#organo').prop('readonly', false);
+			$('#input_unitatOrganitzativa').hide();
 			$('#clasificacion').prop('readonly', false);
 			$('#serieDocumental').prop('readonly', false);
 			$('#arxiuActiu').prop('disabled', false);
 		} else {
-			$('#organo').prop('readonly', true);
+			$('#input_unitatOrganitzativa').show();
 			$('#clasificacion').prop('readonly', true);
 			$('#serieDocumental').prop('readonly', true);
 			$('arxiuActiu').prop('readonly', true);
@@ -30,9 +30,9 @@ $(document).ready(function() {
 	
 	$('#procedimentComu', '#expedientTipusMetadadesNtiCommand').change(function() {
 		if ($(this).is(':checked')) {
-			$('#organo').prop('readonly', true);	
+			$('#input_unitatOrganitzativa').hide();	
 		} else {
-			$('#organo').prop('readonly', false);
+			$('#input_unitatOrganitzativa').show();
 		}
 	});
 	
@@ -69,12 +69,14 @@ $(document).ready(function() {
 				<div id="inputs_metadadesNti">
 					<hel:inputText name="clasificacion" required="true" textKey="expedient.tipus.metadades.nti.clasificacion" readonly="${not expedientTipusMetadadesNtiCommand.actiu}"/>
 					<hel:inputCheckbox name="procedimentComu" textKey="expedient.tipus.metadades.nti.procediment.comu"/>	
-					<hel:inputSuggest 
-						name="organo" 
-						urlConsultaInicial="/helium/v3/expedientTipus/${expedientTipus.id}/suggestInici" 
-						urlConsultaLlistat="/helium/v3/expedientTipus/${expedientTipus.id}/suggest" 
-						textKey="expedient.tipus.metadades.nti.organo" 
-						placeholderKey="expedient.tipus.metadades.nti.organo"/>		
+					<div id="input_unitatOrganitzativa" style="display:${!expedientTipus.procedimentComu ? 'inline' : 'none'}">
+						<hel:inputSuggest 
+							name="organo" 
+							urlConsultaInicial="/helium/v3/unitatOrganitzativa/suggestInici" 
+							urlConsultaLlistat="/helium/v3/unitatOrganitzativa/suggest" 
+							textKey="expedient.tipus.metadades.nti.organo" 
+							placeholderKey="expedient.tipus.metadades.nti.organo.placeholder"/>	
+					</div>	
 					<hel:inputText name="serieDocumental" textKey="expedient.tipus.metadades.nti.serie.documental" readonly="${not expedientTipusMetadadesNtiCommand.actiu}"/>
 					<hel:inputCheckbox name="arxiuActiu" textKey="expedient.tipus.metadades.nti.arxiu.actiu" disabled="${not expedientTipusMetadadesNtiCommand.actiu}"/>
 				</div>

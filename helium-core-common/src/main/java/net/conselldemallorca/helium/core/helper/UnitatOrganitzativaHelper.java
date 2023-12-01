@@ -25,6 +25,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArbreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArbreNodeDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TipusTransicioEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaRepository;
 
@@ -51,8 +52,15 @@ public class UnitatOrganitzativaHelper {
 	public UnitatOrganitzativaHelper() {
 		
 	}
-		public UnitatOrganitzativaDto toDto(UnitatOrganitzativa entity) {
-			UnitatOrganitzativaDto unitat = new UnitatOrganitzativaDto(
+	
+	public UnitatOrganitzativa findById(Long unitatOrganitzativaId) {
+		return unitatOrganitzativaRepository.findOne(unitatOrganitzativaId);	
+	}
+	
+	public UnitatOrganitzativaDto toDto(UnitatOrganitzativa entity) {
+		UnitatOrganitzativaDto unitat = null;
+		if(entity!=null) {
+			unitat = new UnitatOrganitzativaDto(
 					entity.getId(),
 					entity.getCodi(),
 					entity.getDenominacio()  , //String denominacio,
@@ -70,28 +78,28 @@ public class UnitatOrganitzativaHelper {
 					entity.getNomVia()  , //String nomVia,
 					entity.getNumVia()  , //String numVia,
 					null); //List<String> historicosUO);
-			
-			if (unitat != null) {
-				unitat.setAdressa(unitat.getTipusVia() + " " 
+		}
+		if (unitat != null) {
+			unitat.setAdressa(unitat.getTipusVia() + " " 
 								+ unitat.getNomVia() + " " 
 								+ unitat.getNumVia());
 
-				if (unitat.getCodiPais() != null && !"".equals(unitat.getCodiPais())) {
+			if (unitat.getCodiPais() != null && !"".equals(unitat.getCodiPais())) {
 					unitat.setCodiPais(("000" + unitat.getCodiPais()).substring(unitat.getCodiPais().length()));
-				}
-				if (unitat.getCodiComunitat() != null && !"".equals(unitat.getCodiComunitat())) {
+			}
+			if (unitat.getCodiComunitat() != null && !"".equals(unitat.getCodiComunitat())) {
 					unitat.setCodiComunitat(("00" + unitat.getCodiComunitat()).substring(unitat.getCodiComunitat().length()));
-				}
-				if ((unitat.getCodiProvincia() == null || "".equals(unitat.getCodiProvincia())) && 
-						unitat.getCodiComunitat() != null && !"".equals(unitat.getCodiComunitat())) {
+			}
+			if ((unitat.getCodiProvincia() == null || "".equals(unitat.getCodiProvincia())) && 
+					unitat.getCodiComunitat() != null && !"".equals(unitat.getCodiComunitat())) {
 //					List<ProvinciaDto> provincies = cacheHelper.findProvinciesPerComunitat(unitat.getCodiComunitat());
 //					if (provincies != null && provincies.size() == 1) {
 //						unitat.setCodiProvincia(provincies.get(0).getCodi());
 //					}		
-				}
-				if (unitat.getCodiProvincia() != null && !"".equals(unitat.getCodiProvincia())) {
-					unitat.setCodiProvincia(("00" + unitat.getCodiProvincia()).substring(unitat.getCodiProvincia().length()));
-					if (unitat.getLocalitat() == null && unitat.getNomLocalitat() != null) {
+			}
+			if (unitat.getCodiProvincia() != null && !"".equals(unitat.getCodiProvincia())) {
+				unitat.setCodiProvincia(("00" + unitat.getCodiProvincia()).substring(unitat.getCodiProvincia().length()));
+				if (unitat.getLocalitat() == null && unitat.getNomLocalitat() != null) {
 //						MunicipiDto municipi = findMunicipiAmbNom(
 //								unitat.getCodiProvincia(), 
 //								unitat.getNomLocalitat());
@@ -99,16 +107,14 @@ public class UnitatOrganitzativaHelper {
 //							unitat.setLocalitat(municipi.getCodi());
 //						else
 //							logger.error("UNITAT ORGANITZATIVA. No s'ha trobat la localitat amb el nom: '" + unitat.getNomLocalitat() + "'");
-					}
 				}
 			}
-			return unitat;
 		}
+		return unitat;
+	}
 		
-		public void sincronizarOActualizar(UnitatOrganitzativa entitat) {
+	public void sincronizarOActualizar(UnitatOrganitzativa entitat) {
 			List<UnitatOrganitzativaDto> unitats;
-			/*UnitatOrganitzativa unidadPadreWS = pluginHelper.findUnidad(entitat.getCodiDir3(),
-					null, null);*/
 			unitats =  pluginHelper.findAmbPare(entitat.getCodi(), entitat.getDataActualitzacio(),
 						entitat.getDataSincronitzacio());
 			// Takes all the unitats from WS and saves them to database. If unitat did't exist in db it creates new one if it already existed it overrides existing one.  
@@ -119,7 +125,6 @@ public class UnitatOrganitzativaHelper {
 			for (UnitatOrganitzativaDto unitatDto : unitats) {
 				UnitatOrganitzativa unitat = unitatOrganitzativaRepository
 						.findByCodi(unitatDto.getCodi());
-//						.findByCodiDir3EntitatAndCodi(entitat.getCodiDir3Entitat(), unitatDto.getCodi());
 				sincronizarHistoricosUnitat(unitat, unitatDto);
 			}
 			List<UnitatOrganitzativa> obsoleteUnitats = unitatOrganitzativaRepository
@@ -604,6 +609,38 @@ public class UnitatOrganitzativaHelper {
 				}
 			}
 			return unitatFromCodi;
+		}
+		
+		public String getEstatBBDD(UnitatOrganitzativaEstatEnumDto estat) {
+			String estatBBDD=null;
+			if(estat!=null){
+//			V: Vigente, E: Extinguido, A: Anulado, T: Transitorio
+				if(UnitatOrganitzativaEstatEnumDto.VIGENTE.equals(estat))
+					estatBBDD="V";
+				if(UnitatOrganitzativaEstatEnumDto.EXTINGUIDO.equals(estat))
+					estatBBDD="E";
+				if(UnitatOrganitzativaEstatEnumDto.ANULADO.equals(estat))
+					estatBBDD="A";
+				if(UnitatOrganitzativaEstatEnumDto.TRANSITORIO.equals(estat))
+					estatBBDD="T";
+			} 
+			return estatBBDD;
+		}
+		
+		public UnitatOrganitzativaEstatEnumDto convertUnitatOrganitzativaEstatToEnum(String estat) {
+			UnitatOrganitzativaEstatEnumDto estatEnum=null;
+			if(estat!=null){
+//			V: Vigente, E: Extinguido, A: Anulado, T: Transitorio
+				if("V".equals(estat))
+					estatEnum=UnitatOrganitzativaEstatEnumDto.VIGENTE;
+				if("E".equals(estat))
+					estatEnum=UnitatOrganitzativaEstatEnumDto.EXTINGUIDO;
+				if("A".equals(estat))
+					estatEnum=UnitatOrganitzativaEstatEnumDto.ANULADO;
+				if("T".equals(estat))
+					estatEnum=UnitatOrganitzativaEstatEnumDto.TRANSITORIO;
+			} 
+			return estatEnum;
 		}
 		
 	public <T> T convertir(Object source, Class<T> targetType) {

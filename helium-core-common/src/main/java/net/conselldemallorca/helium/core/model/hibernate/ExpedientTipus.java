@@ -196,6 +196,7 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	private List<ExecucioMassiva> execucionsMassives  = new ArrayList<ExecucioMassiva>();
 	private List<Repro> repros  = new ArrayList<Repro>();
 
+	//MetadadesNti  
 	private boolean ntiActiu;
 	@MaxLength(256)
 	private String ntiOrgano;

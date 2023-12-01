@@ -75,7 +75,8 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	private String ntiClasificacion;
 	private String ntiSerieDocumental;
 	private boolean procedimentComu;
-
+	private String unitatOrganitzativaCodiNom;
+	
 	//Integració amb Pinbal
 	private boolean pinbalActiu;
 	private String pinbalNifCif;
@@ -518,6 +519,13 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	}
 	public void setProcedimentComu(boolean procedimentComu) {
 		this.procedimentComu = procedimentComu;
+	}
+	
+	public String getUnitatOrganitzativaCodiNom() {
+		return unitatOrganitzativaCodiNom;
+	}
+	public void setUnitatOrganitzativaCodiNom(String unitatOrganitzativaCodiNom) {
+		this.unitatOrganitzativaCodiNom = unitatOrganitzativaCodiNom;
 	}
 	public boolean equals(Object obj) {
 		if (this == obj)

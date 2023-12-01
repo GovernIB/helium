@@ -409,6 +409,8 @@ public interface ExpedientTipusService {
 	 *            Atribut id de l'entorn.
 	 * @param expedientTipusId
 	 *            Atribut id del tipus d'expedient.
+	 * @param unitatOrganitzativaId
+	 *            Atribut id de la unitat organitzativa.
 	 * @param permis
 	 *            La informació del permis.
 	 * @param entornAdmin
@@ -421,6 +423,7 @@ public interface ExpedientTipusService {
 	public void permisUpdate(
 			Long entornId,
 			Long expedientTipusId,
+			Long unitatOrganitzativaId,
 			PermisDto permis,
 			boolean entornAdmin) throws NoTrobatException, PermisDenegatException;
 
@@ -435,6 +438,8 @@ public interface ExpedientTipusService {
 	 *            Atribut id del permis.
 	 * @param entornAdmin
 	 * 			  Indica si l'usuari és administrador de l'entorn i per tant pot modifica pot modificar permsios del tipus d'expeient.
+	 * @param unitatOrganitzativaCodi);
+	 * 			  Atribut codi de la unitat organitzativa
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 * @throws PermisDenegatException
@@ -444,7 +449,8 @@ public interface ExpedientTipusService {
 			Long entornId,
 			Long expedientTipusId,
 			Long permisId,
-			boolean entornAdmin) throws NoTrobatException, PermisDenegatException;
+			boolean entornAdmin,
+			String unitatOrganitzativaCodi) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Retorna els permisos per a un tipus d'expedient.
@@ -472,6 +478,8 @@ public interface ExpedientTipusService {
 	 *            Atribut id del tipus d'expedient.
 	 * @param permisId
 	 *            Atribut id del permis.
+	 * @param unitatOrganitzativaCodi
+	 *            Atribut codi de la unitat organitzativa.
 	 * @return el permis amb l'id especificat.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
@@ -481,7 +489,8 @@ public interface ExpedientTipusService {
 	public PermisDto permisFindById(
 			Long entornId,
 			Long expedientTipusId,
-			Long permisId) throws NoTrobatException, PermisDenegatException;
+			Long permisId,
+			String unitatOrganitzativaCodi) throws NoTrobatException, PermisDenegatException;
 
 	/**
 	 * Retorna les enumeracions per a un tipus d'expedient.
@@ -1606,5 +1615,20 @@ public interface ExpedientTipusService {
 			Long expedientTipusId, 
 			boolean pinbalActiu,
 			String pinbalNifCif);
+	
+	/**
+	 * Retorna els permisos per a un tipus d'expedient amb procediment comú (relacionat amb una unitat organitzativa)
+	 * 
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @return els permisos del tipus d'expedient.
+	 * 
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public List<PermisDto> permisFindAllByExpedientTipusProcedimentComu(
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
 
 }

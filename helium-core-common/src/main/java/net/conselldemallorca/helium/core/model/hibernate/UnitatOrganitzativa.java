@@ -70,14 +70,6 @@ public class UnitatOrganitzativa implements Serializable, GenericEntity<Long> {
 	@Column(name = "codi_unitat_arrel", length = 9) 
 	private String codiUnitatArrel;
 			
-//	@Column(name = "codi_dir3_entitat")
-//	private String codiDir3Entitat;
-	
-	//MARTA: DANI aquestes columnes lels posaré com a Date no Timestamp com a distribució, per coherència, també en català
-//	@Column(name = "fecha_actualizacion")
-//	Timestamp fechaActualizacion;
-//	@Column(name = "fecha_sincronizacion")
-//	Timestamp fechaSincronizacion;
 	@Column(name = "data_actualitzacio")
 	Date dataActualitzacio;
 	@Column(name = "data_sincronitzacio")

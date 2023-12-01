@@ -61,8 +61,18 @@
 				<th data-col-name="supervision" data-visible="false"/>
 				<th data-col-name="manage" data-visible="false"/>
 				<th data-col-name="reassignment" data-visible="false"/>
+				<th data-col-name="unitatOrganitzativaCodi" data-visible="false"/>
 				<th data-col-name="principalNom" width="20%"><spring:message code="expedient.tipus.permis.columna.principal"/></th>
 				<th data-col-name="principalTipus" width="20%"><spring:message code="expedient.tipus.permis.columna.tipus"/></th>
+				<c:if test="${expedientTipus.procedimentComu == true}">
+					<th data-col-name="unitatOrganitzativaCodiNom" width="30%" data-template="#cellUnitatOrganitzativaTemplate" data-orderable="false">
+					<spring:message code="expedient.tipus.permis.columna.unitat.organitzativa"/>
+					<script id="cellUnitatOrganitzativaTemplate" type="text/x-jsrender">
+						{{:unitatOrganitzativaCodiNom}}
+					</script>
+					<input type="hidden" id="unitatOrganitzativaCodi" name="unitatOrganitzativaCodi">
+					</th>
+				</c:if>
 				<th data-col-name="id" data-template="#cellPermisosTemplate" data-orderable="false" width="50%">
 					<spring:message code="expedient.tipus.permis.columna.permisos"/>
 					<script id="cellPermisosTemplate" type="text/x-jsrender">
@@ -100,8 +110,8 @@
 						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								<li><a data-toggle="modal" href="permis/{{:id}}"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a></li>
-								<li><a href="permis/{{:id}}/delete" data-rdt-link-ajax="true" data-confirm="<spring:message code="expedient.tipus.permis.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+								<li><a data-toggle="modal" href="permis/{{:id}}?unitatOrganitzativaCodi={{:unitatOrganitzativaCodi}}"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a></li>
+								<li><a href="permis/{{:id}}/delete?unitatOrganitzativaCodi={{:unitatOrganitzativaCodi}}" data-rdt-link-ajax="true" data-confirm="<spring:message code="expedient.tipus.permis.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 							</ul>
 						</div>
 					</script>

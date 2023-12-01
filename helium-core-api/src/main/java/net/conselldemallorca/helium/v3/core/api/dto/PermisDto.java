@@ -20,6 +20,10 @@ public class PermisDto implements Serializable {
 	private Long id;
 	private String principalNom;
 	private PrincipalTipusEnumDto principalTipus;
+	private String unitatOrganitzativaCodi;
+	private String unitatOrganitzativaNom;
+	private UnitatOrganitzativaEstatEnumDto unitatOrganitzativaEstat;
+	private String unitatOrganitzativaCodiNom;
 
 	private boolean read;
 	private boolean write;

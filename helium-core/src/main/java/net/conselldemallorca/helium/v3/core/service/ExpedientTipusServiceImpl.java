@@ -49,6 +49,7 @@ import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
+import net.conselldemallorca.helium.core.helper.UnitatOrganitzativaHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
@@ -74,6 +75,7 @@ import net.conselldemallorca.helium.core.model.hibernate.EstatAccioSortida;
 import net.conselldemallorca.helium.core.model.hibernate.EstatRegla;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
 import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
@@ -81,6 +83,7 @@ import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
+import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
@@ -109,6 +112,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaDefaultAnyDto;
+import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatAccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.DeploymentException;
@@ -157,11 +162,13 @@ import net.conselldemallorca.helium.v3.core.repository.EstatReglaRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusUnitatOrganitzativaRepository;
 import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.MapeigSistraRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.SequenciaAnyRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
+import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaRepository;
 
 /**
  * Implementació del servei per a gestionar tipus d'expedients.
@@ -227,7 +234,11 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private EstatAccioEntradaRepository estatAccioEntradaRepository;
 	@Resource
 	private EstatAccioSortidaRepository estatAccioSortidaRepository;
-
+	@Resource
+	private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
+	@Resource 
+	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
+	
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
@@ -244,6 +255,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private DominiHelper dominiHelper;
 	@Resource
 	private PluginHelper pluginHelper;
+	@Resource
+	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
 
 	/**
 	 * {@inheritDoc}
@@ -2102,7 +2115,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
 				true);
-		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbEntorn(entorn);
+		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbEntorn(entorn);//DANI! aquí seria find per relació UO????
 		// Filtra els expedients deixant només els permesos
 		if (!entornHelper.potDissenyarEntorn(entornId)) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -2142,9 +2155,18 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		Map<Long, List<PermisDto>> permisos = permisosHelper.findPermisos(
 				ids,
 				ExpedientTipus.class);
+		Map<Long, List<PermisDto>> permisosUo = permisosHelper.findPermisos(
+				ids,//TODO canviar els ids! han de sr ids d'ExpedientTipusUnitatOrganitzativa 
+				ExpedientTipusUnitatOrganitzativa.class);
 		for (ExpedientTipusDto dto: pagina.getContingut()) {
-			if (permisos.get(dto.getId()) != null) {
-				dto.setPermisCount(permisos.get(dto.getId()).size());
+			if (! dto.isProcedimentComu() ) {
+				if (permisos.get(dto.getId()) != null) {
+					dto.setPermisCount(permisos.get(dto.getId()).size());
+				}
+			} else {
+				if (permisosUo.get(dto.getId()) != null) {
+					dto.setPermisCount(permisosUo.get(dto.getId()).size());
+				}
 			}
 		}
 		// Informa els permisos
@@ -2192,22 +2214,41 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	public void permisUpdate(
 			Long entornId,
 			Long expedientTipusId,
+			Long unitatOrganitzativaId,
 			PermisDto permis,
-			boolean entornAdmin) {
+			boolean entornAdmin) throws NoTrobatException, PermisDenegatException {
 		logger.debug(
 				"Creant permis per al tipus d'expedient (" +
 				"entornId=" + entornId + ", " +
 				"expedientTipusId=" + expedientTipusId + ", " +
+				"unitatOrganitzativaId=" + unitatOrganitzativaId + ", " +
 				"permis=" + permis + ")");
 
 		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+		UnitatOrganitzativa unitatOrganitzativa =null;
 		Authentication authOrignal = this.permisComprovarPermisAdmin(expedientTipus, entornAdmin);
-    	try {    		
-    		permisosHelper.updatePermis(
-    				expedientTipusId,
-    				ExpedientTipus.class,
-    				permis);
-    	} finally {        		
+		try {   
+			if (expedientTipus.isProcedimentComu() && permis.getUnitatOrganitzativaCodiNom() != null && !permis.getUnitatOrganitzativaCodiNom().isEmpty()) {
+//				ExpedientTipusUnitatOrganitzativa expTipusUnitOrg = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaCodi(expedientTipusId, permis.getUnitatOrganitzativaCodiNom());
+				ExpedientTipusUnitatOrganitzativa expTipusUnitOrg = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaId(expedientTipusId, unitatOrganitzativaId);
+				if (expTipusUnitOrg == null) {
+					unitatOrganitzativa = unitatOrganitzativaRepository.findByCodi(permis.getUnitatOrganitzativaCodiNom());
+					if (unitatOrganitzativa == null) {
+						throw new NoTrobatException(UnitatOrganitzativaDto.class, permis.getUnitatOrganitzativaCodiNom());
+					}
+					expTipusUnitOrg = expedientTipusUnitatOrganitzativaRepository.save(ExpedientTipusUnitatOrganitzativa.getBuilder(expedientTipus, unitatOrganitzativa).build());
+				}
+				permisosHelper.updatePermis(
+						expTipusUnitOrg.getId(), 
+						ExpedientTipusUnitatOrganitzativa.class, 
+						permis);
+			} else {
+				permisosHelper.updatePermis(
+	    				expedientTipusId,
+	    				ExpedientTipus.class,
+	    				permis);
+			}
+		} finally {        		
 			if (authOrignal != null)
 				SecurityContextHolder.getContext().setAuthentication(authOrignal);
     	}
@@ -2222,7 +2263,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			Long entornId,
 			Long expedientTipusId,
 			Long permisId,
-			boolean entornAdmin) {
+			boolean entornAdmin,
+			String unitatOrganitzativaCodi) {
 		logger.debug(
 				"Esborrant permis per al tipus d'expedient (" +
 				"entornId=" + entornId + ", " +
@@ -2231,11 +2273,25 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		
 		ExpedientTipus expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
 		Authentication authOrignal = this.permisComprovarPermisAdmin(expedientTipus, entornAdmin);
-    	try {    		
-			permisosHelper.deletePermis(
+    	try {
+    		ExpedientTipusDto expedientTipusDto =  this.findAmbIdPermisDissenyar(
+    				entornId,
+    				expedientTipusId);
+    		if (expedientTipusDto.isProcedimentComu() && unitatOrganitzativaCodi!=null && !" ".equals(unitatOrganitzativaCodi)) {
+    			ExpedientTipusUnitatOrganitzativa expTipusUnitOrg = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaCodi(
+    					expedientTipusId, 
+    					unitatOrganitzativaCodi);
+    			permisosHelper.deletePermis(
+    					expTipusUnitOrg.getId(),
+    					ExpedientTipusUnitatOrganitzativa.class,
+    					permisId);
+
+    		} else {	
+    			permisosHelper.deletePermis(
 					expedientTipusId,
 					ExpedientTipus.class,
 					permisId);
+    		}
     	} finally {        		
 			if (authOrignal != null)
 				SecurityContextHolder.getContext().setAuthentication(authOrignal);
@@ -2295,6 +2351,46 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				expedientTipusId,
 				ExpedientTipus.class);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<PermisDto> permisFindAllByExpedientTipusProcedimentComu(
+			Long expedientTipusId) {
+		logger.debug(
+				"Consultant permisos del tipus d'expedient amb procediment comú (" +
+				"expedientTipusId=" + expedientTipusId +
+				")");
+		List<PermisDto> permisos = new ArrayList<PermisDto>();
+		List<ExpedientTipusUnitatOrganitzativa> expedientTipusUOList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(expedientTipusId);//1
+		if(expedientTipusUOList!=null && !expedientTipusUOList.isEmpty()) {
+			for(ExpedientTipusUnitatOrganitzativa expTipusUnitOrg : expedientTipusUOList) {
+			List<PermisDto> permisosExpedientTipusUnitatOrganitzativa = permisosHelper.findPermisos(
+					expTipusUnitOrg.getId(),
+					ExpedientTipusUnitatOrganitzativa.class);
+			if(permisosExpedientTipusUnitatOrganitzativa!=null && !permisosExpedientTipusUnitatOrganitzativa.isEmpty()) {
+				String unitatOrganitzativaCodi = expTipusUnitOrg.getUnitatOrganitzativa().getCodi();
+				String unitatOrganitzativaNom = expTipusUnitOrg.getUnitatOrganitzativa().getDenominacio();
+				String unitatOrganitzativaCodiNom = expTipusUnitOrg.getUnitatOrganitzativa().getCodiAndNom();
+				UnitatOrganitzativaEstatEnumDto unitatOrganitzativaEstat = unitatOrganitzativaHelper.convertUnitatOrganitzativaEstatToEnum(expTipusUnitOrg.getUnitatOrganitzativa().getEstat());
+				boolean tePermis = true;
+				if (tePermis) {
+					for (PermisDto permis : permisosExpedientTipusUnitatOrganitzativa) {
+						permis.setUnitatOrganitzativaCodi(unitatOrganitzativaCodi);
+						permis.setUnitatOrganitzativaNom(unitatOrganitzativaNom);
+						permis.setUnitatOrganitzativaCodiNom(unitatOrganitzativaCodiNom);
+						permis.setUnitatOrganitzativaEstat(unitatOrganitzativaEstat);
+						}
+						permisos.addAll(permisosExpedientTipusUnitatOrganitzativa);
+					}			
+				}
+			}
+		}
+		return permisos;
+	}
+
 
 	/**
 	 * {@inheritDoc}
@@ -2304,7 +2400,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	public PermisDto permisFindById(
 			Long entornId,
 			Long expedientTipusId,
-			Long permisId) {
+			Long permisId,
+			String unitatOrganitzativaCodi) throws NoTrobatException, PermisDenegatException {
 		logger.debug(
 				"Consultant un permis donat el seu id (" +
 				"entornId=" + entornId + ", " +
@@ -2312,10 +2409,22 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				"permisId=" + permisId + ")");
 
 		expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
-		
-		List<PermisDto> permisos = permisosHelper.findPermisos(
-				expedientTipusId,
-				ExpedientTipus.class);
+		List<PermisDto> permisos = new ArrayList<PermisDto>();
+		ExpedientTipusDto expedientTipusDto =  this.findAmbIdPermisDissenyar(
+				entornId,
+				expedientTipusId);
+		if (expedientTipusDto.isProcedimentComu() && unitatOrganitzativaCodi!=null && !" ".equals(unitatOrganitzativaCodi)) {
+			ExpedientTipusUnitatOrganitzativa expTipusUnitOrg = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaCodi(
+					expedientTipusId, 
+					unitatOrganitzativaCodi);
+			permisos = permisosHelper.findPermisos(
+					expTipusUnitOrg.getId(),
+				ExpedientTipusUnitatOrganitzativa.class);
+		} else {		
+			permisos = permisosHelper.findPermisos(
+					expedientTipusId,
+					ExpedientTipus.class);
+		}
 		for (PermisDto permis: permisos) {
 			if (permis.getId().equals(permisId)) {
 				return permis;
@@ -4516,7 +4625,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		ExpedientTipus entity = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
 				expedientTipusId);
 		entity.setNtiActiu(actiu);
-		entity.setNtiOrgano(organo);
+		entity.setNtiOrgano(!procedimentComu  ? organo : null);
 		entity.setNtiClasificacion(clasificacion);
 		entity.setNtiSerieDocumental(serieDocumental);
 		entity.setArxiuActiu(arxiuActiu);

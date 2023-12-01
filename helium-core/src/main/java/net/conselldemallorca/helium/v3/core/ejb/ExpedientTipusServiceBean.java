@@ -254,12 +254,13 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public void permisUpdate(
 			Long entornId,
 			Long expedientTipusId,
+			Long unitatOrganitzativaId,
 			PermisDto permis,
 			boolean entornAdmin) throws NoTrobatException, PermisDenegatException {
-		delegate.permisUpdate(
-				entornId,
-				expedientTipusId,
-				permis,
+		delegate.permisUpdate(entornId, 
+				expedientTipusId, 
+				unitatOrganitzativaId, 
+				permis, 
 				entornAdmin);
 	}
 
@@ -269,12 +270,14 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			Long entornId,
 			Long expedientTipusId,
 			Long permisId,
-			boolean entornAdmin) throws NoTrobatException, PermisDenegatException {
+			boolean entornAdmin,
+			String unitatOrganitzativaCodi) throws NoTrobatException, PermisDenegatException {
 		delegate.permisDelete(
 				entornId,
 				expedientTipusId,
 				permisId,
-				entornAdmin);
+				entornAdmin,
+				unitatOrganitzativaCodi);
 	}
 
 	@Override
@@ -292,11 +295,13 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public PermisDto permisFindById(
 			Long entornId,
 			Long expedientTipusId,
-			Long permisId) {
+			Long permisId,
+			String unitatOrganitzativaCodi) throws NoTrobatException, PermisDenegatException {
 		return delegate.permisFindById(
 				entornId,
 				expedientTipusId,
-				permisId);
+				permisId,
+				unitatOrganitzativaCodi);
 	}
 
 	@Override
@@ -918,6 +923,13 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			PaginacioParamsDto paginacioParams) {
 		return delegate.findTipologiesByFiltrePaginat(entornId, filtreDto, paginacioParams);
 		
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<PermisDto> permisFindAllByExpedientTipusProcedimentComu(
+			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
+		return delegate.permisFindAllByExpedientTipusProcedimentComu(expedientTipusId);
 	}
 
 }

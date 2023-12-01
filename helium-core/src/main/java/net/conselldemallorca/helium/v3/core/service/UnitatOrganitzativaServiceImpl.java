@@ -155,7 +155,7 @@ public class UnitatOrganitzativaServiceImpl implements UnitatOrganitzativaServic
 				"paginacioParams=" + paginacioParams + ")");
 		String estatBBDD = null;
 		if(filtreDto.getEstat()!=null)
-			 estatBBDD = getEstatBBDD(filtreDto.getEstat());
+			 estatBBDD = unitatOrganitzativaHelper.getEstatBBDD(filtreDto.getEstat());
 		PaginaDto<UnitatOrganitzativaDto> pagina = paginacioHelper.toPaginaDto(
 				unitatOrganitzativaRepository.findByFiltrePaginat(
 						filtreDto.getCodi() == null || filtreDto.getCodi().isEmpty(),
@@ -173,22 +173,6 @@ public class UnitatOrganitzativaServiceImpl implements UnitatOrganitzativaServic
 				UnitatOrganitzativaDto.class);
 		
 		return pagina;
-	}
-	
-	private String getEstatBBDD(UnitatOrganitzativaEstatEnumDto estat) {
-		String estatBBDD=null;
-		if(estat!=null){
-//		V: Vigente, E: Extinguido, A: Anulado, T: Transitorio
-			if(UnitatOrganitzativaEstatEnumDto.VIGENTE.equals(estat))
-				estatBBDD="V";
-			if(UnitatOrganitzativaEstatEnumDto.EXTINGUIDO.equals(estat))
-				estatBBDD="E";
-			if(UnitatOrganitzativaEstatEnumDto.ANULADO.equals(estat))
-				estatBBDD="A";
-			if(UnitatOrganitzativaEstatEnumDto.TRANSITORIO.equals(estat))
-				estatBBDD="T";
-		} 
-		return estatBBDD;
 	}
 	
 	
@@ -245,7 +229,7 @@ public class UnitatOrganitzativaServiceImpl implements UnitatOrganitzativaServic
 		} else {
 			unitatOrganitzativa.updateDataActualitzacio(new Date());
 		}
-//		MARTA després mirar lo de evict cache
+//		TODO després mirar lo de evict cache
 //		cacheHelper.evictUnitatsOrganitzativesFindArbreByPare(unitatOrganitzativa.getCodiDir3Entitat());
 	}
 	

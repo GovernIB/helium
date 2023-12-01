@@ -23,6 +23,8 @@ public class PermisCommand {
 	private String principalNom;
 	@NotNull
 	private PrincipalTipusEnumDto principalTipus;
+	@NotEmpty
+	private String unitatOrganitzativaCodiNom;
 
 	private boolean read;
 	private boolean write;
@@ -243,6 +245,13 @@ public class PermisCommand {
 		this.reassignment = reassignment;
 	}
 
+	public String getUnitatOrganitzativaCodiNom() {
+		return unitatOrganitzativaCodiNom;
+	}
+	public void setUnitatOrganitzativaCodiNom(String unitatOrganitzativaCodiNom) {
+		this.unitatOrganitzativaCodiNom = unitatOrganitzativaCodiNom;
+	}
+	
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
