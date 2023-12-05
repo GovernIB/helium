@@ -61,6 +61,7 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	private Map<Integer, SequenciaDefaultAnyDto> sequenciaDefaultAny = new TreeMap<Integer, SequenciaDefaultAnyDto>();
 
 	private int permisCount = 0;
+	private int permisUOCount = 0;
 
 	// integració amb forms
 	private String formextUrl;
@@ -350,7 +351,12 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	public void setPermisCount(int permisCount) {
 		this.permisCount = permisCount;
 	}
-
+	public int getPermisUOCount() {
+		return permisUOCount;
+	}
+	public void setPermisUOCount(int permisUOCount) {
+		this.permisUOCount = permisUOCount;
+	}
 	public List<ConsultaDto> getConsultesSort() {
 		if (consultes == null)
 			consultes = new ArrayList<ConsultaDto>();

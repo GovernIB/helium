@@ -54,7 +54,18 @@
 					<script id="cellPermisosTemplate" type="text/x-jsrender">
 						{{if permisAdministration || ${potAdministrarEntorn} }}
 							<a href="expedientTipus/{{:id}}/permis" data-toggle="" class="btn btn-default"><span class="fa fa-key"></span>&nbsp;<spring:message code="expedient.tipus.llistat.accio.permisos"/>&nbsp;<span class="badge">{{:permisCount}}</span></a>
+						{{/if}}		
+					</script>
+				</th>
+				<th data-col-name="procedimentComu"data-visible="false"/>
+				<th data-col-name="permisUOCount" data-template="#cellPermisosUOTemplate" data-orderable="false" width="13%">
+					<spring:message code="expedient.tipus.llistat.accio.permisos.uo"/>
+					<script id="cellPermisosUOTemplate" type="text/x-jsrender">
+					{{if  procedimentComu }}
+						{{if permisAdministration || ${potAdministrarEntorn} }}
+							<a href="expedientTipus/{{:id}}/permisUO" data-toggle="" class="btn btn-default"><span class="fa fa-key"></span>&nbsp;<spring:message code="expedient.tipus.llistat.accio.permisos"/>&nbsp;<span class="badge">{{:permisUOCount}}</span></a>
 						{{/if}}
+					{{/if}}
 					</script>
 				</th>
 				<th data-col-name="permisDesignAdmin" data-visible="false"/>

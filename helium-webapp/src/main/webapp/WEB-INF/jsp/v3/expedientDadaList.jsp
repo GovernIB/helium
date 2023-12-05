@@ -217,7 +217,6 @@
 	}
 
 	const postSubmitForm = (dadaEdit, dadaCodi) => {
-		debugger
 		console.log("Post submit");
 		let fila = dadaEdit.closest('tr');
 		if (fila.hasClass('no-data')) {

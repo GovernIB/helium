@@ -14,6 +14,12 @@
 	</properties>
 	<dependencies>
 		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>${lombok.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>es.caib</groupId>
 			<artifactId>signaturacaib</artifactId>
 			<version>3.1.0</version>

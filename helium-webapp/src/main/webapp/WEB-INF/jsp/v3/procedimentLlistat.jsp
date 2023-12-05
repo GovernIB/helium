@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
@@ -12,58 +13,23 @@
 	<meta name="screen" content="procediments">
 	<meta name="title-icon-class" content="fa fa-book"/>
 	
-	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.keyfilter-1.8.js"/>"></script>
-	<script type="text/javascript" src="<c:url value="/js/jquery.price_format.1.8.min.js"/>"></script>
-	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
-	<script src="<c:url value="/js/moment.js"/>"></script>
-	<script src="<c:url value="/js/moment-with-locales.min.js"/>"></script>
-	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
-	<script src="<c:url value="/js/webutil.common.js"/>"></script>
-	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
 	<script src="<c:url value="/webjars/datatables.net/1.10.13/js/jquery.dataTables.min.js"/>"></script>
 	<script src="<c:url value="/webjars/datatables.net-bs/1.10.13/js/dataTables.bootstrap.min.js"/>"></script>
 	<link href="<c:url value="/webjars/datatables.net-bs/1.10.13/css/dataTables.bootstrap.min.css"/>" rel="stylesheet"></link>
-	<script src="<c:url value="/webjars/datatables.net-select/1.1.0/js/dataTables.select.min.js"/>"></script>
 	<script src="<c:url value="/js/jsrender.min.js"/>"></script>
-	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 	<script src="<c:url value="/js/webutil.datatable.js"/>"></script>
+	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 	<script src="<c:url value="/js/webutil.modal.js"/>"></script>
 	<hel:modalHead/>
 	
 	<style type="text/css">
-		span.badge {
-			font-size: 1.2rem !important;
-			padding-right: 1.2rem !important;
-		}
-		
-		span.fa-cog {
-			margin: 4px 1.5rem 0 0; 
-		}
-		
-		tbody tr.selectable td #div-btn-accions #btn-accions span.caret {
-			margin: 8px 0 0 2px; 
-		}
-		
-		span.select2-container {
-			width: 100% !important;
-		}
-		
-		button#netejarFiltre, 
-		button#filtrar {
-			width: 50%;
-		}
 	</style>
 	
 	<script>
-		function actualitzarProcediments() {
-			$("#span-refresh").addClass('fa-spin');
-			$("#actualitzarProcediments").addClass('disabled');
-		}
-
 		function formatSelectUnitat(item) {
 			if (!item.id) {
 			    return item.text;
@@ -79,18 +45,21 @@
 <body>
 	<form:form action="" method="post" cssClass="well" commandName="procedimentFiltreCommand">
 		<div class="row">
-			<div class="col-md-3">
+			<div class="col-md-2">
 				<hel:inputText name="codiSia" inline="true" placeholderKey="procediment.llistat.columna.codiSia"/>
 			</div>
 			<div class="col-md-3">
 				<hel:inputText name="nom" inline="true" placeholderKey="procediment.llistat.filtre.procediment"/>
 			</div>			
-			<div class="col-md-3">
-				<c:url value="/unitatajax/unitat" var="urlConsultaInicial"/>
-				<c:url value="/unitatajax/senseEntitat" var="urlConsultaLlistat"/>
-				<b>suggest d'unitats</b>
+			<div class="col-md-5">
+				<hel:inputSuggest 
+					name="unitatOrganitzativa" 
+					urlConsultaInicial="/helium/v3/unitatOrganitzativa/suggestInici" 
+					urlConsultaLlistat="/helium/v3/unitatOrganitzativa/suggest" 
+					textKey="procediment.llistat.columna.unitatOrganitzativa" 
+					placeholderKey="procediment.llistat.columna.unitatOrganitzativa"/>			
 			</div>
-			<div class="col-md-3">
+			<div class="col-md-2">
 				<hel:inputSelect inline="true" name="estat" optionItems="${estats}" emptyOption="true" textKey="procediment.llistat.columna.estat" placeholderKey="procediment.llistat.columna.estat" optionValueAttribute="codi" optionTextAttribute="valor"/>
 			</div>
 		</div>
@@ -105,23 +74,21 @@
 		</div>
 	</form:form>
 
-<script id="botonsTemplate" type="text/x-jsrender">
-	<c:if test="${dadesPersona.admin || true}">
-		<div style="float: right;"> 
-			<a href="<c:url value='/v3/procediment/actualitzar'/>" onclick="actualitzarProcediments()" id="actualitzarProcediments" class="btn btn-default"><span id="span-refresh" class="fa fa-refresh"></span>&nbsp; <spring:message code="procediment.taula.actualitzar"/></a>
-		</div>
-	</c:if>
-</script>
+	<div class="text-right" data-toggle="botons-titol">
+		<c:if test="${dadesPersona.admin || true}">
+			<a class="btn btn-default" href="<c:url value='/v3/procediment/actualitzar'/>" data-toggle="modal" data-maximized="true"><span id="span-refresh" class="fa fa-refresh"></span>&nbsp; <spring:message code="procediment.taula.actualitzar"/></a>
+		</c:if>
+	</div>
+
 <table
 	id="procediments"
 	data-refresh-tancar="true"
 	data-toggle="datatable"
 	data-url="<c:url value="/v3/procediment/datatable"/>"
 	data-filter="#procedimentFiltreCommand"
-	data-botons-template="#botonsTemplate"
 	data-default-order="1"
 	data-default-dir="asc"
-	class="table table-striped table-bordered">
+	class="table table-striped table-bordered table-hover">
 	<thead>
 		<tr>
 			<th data-col-name="id" data-visible="false" width="4%">#</th>
@@ -139,8 +106,15 @@
 
 				</script>
 			</th>
+			<th data-col-name="comu" data-template="#cellComuTemplate">
+				<spring:message code="procediment.llistat.columna.comu"/>
+				<script id="cellComuTemplate" type="text/x-jsrender">
+						{{if comu}}<span class="fa fa-check"></span>
+						{{/if}}
+					</script>
+			</th>
 			<th data-col-name="estat" data-template="#cellEstatProcedimentTemplate">
-				<spring:message code="anotacio.llistat.columna.estat"/> <span class="fa fa-list" id="showModalProcesEstatButton" title="<spring:message code="anotacio.llistat.columna.estat.llegenda"/>" style="cursor:over; opacity: 0.5"></span>
+				<spring:message code="anotacio.llistat.columna.estat"/>
 				<script id="cellEstatProcedimentTemplate" type="text/x-jsrender">
 						{{if estat == 'VIGENT'}}
 							<spring:message code="procediment.estat.enum.VIGENT"></spring:message>

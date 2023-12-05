@@ -13,6 +13,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentFiltreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProgresActualitzacioDto;
 import net.conselldemallorca.helium.v3.core.api.service.ProcedimentService;
 
 
@@ -37,12 +38,6 @@ public class ProcedimentServiceBean implements ProcedimentService {
 	}
 
 	@Override
-	@RolesAllowed({"HEL_ADMIN"})
-	public void findAndUpdateProcediments() throws Exception {
-		delegate.findAndUpdateProcediments();
-	}
-
-	@Override
 	public ProcedimentDto findByCodiSia(String codiSia) {
 		return delegate.findByCodiSia(codiSia);		
 	}
@@ -50,5 +45,21 @@ public class ProcedimentServiceBean implements ProcedimentService {
 	@Override
 	public List<ProcedimentDto> findByNomOrCodiSia(String nom) {
 		return delegate.findByNomOrCodiSia(nom);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN"})
+	public void actualitzaProcediments() {
+		delegate.actualitzaProcediments();
+	}
+
+	@Override
+	public boolean isUpdatingProcediments() {
+		return delegate.isUpdatingProcediments();
+	}
+
+	@Override
+	public ProgresActualitzacioDto getProgresActualitzacio() {
+		return delegate.getProgresActualitzacio();
 	}
 }

@@ -35,7 +35,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
+import net.conselldemallorca.helium.core.helper.UnitatOrganitzativaHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
@@ -105,6 +107,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	private EntornHelper entornHelper;
 	@Autowired
 	private ExpedientHelper expedientHelper;
+	@Autowired
+	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
 	@Autowired
 	private UnitatOrganitzativaService unitatOrganitzativaService;
 
@@ -762,41 +766,47 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		}
 	}
 	
-	@RequestMapping(value = "/{id}/permis", method = RequestMethod.GET)
+	@RequestMapping(value = "/{id}/permis{permisUO}", method = RequestMethod.GET)
 	public String permisGet(
 			HttpServletRequest request,
 			@PathVariable Long id,
+			@PathVariable String permisUO,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto expedientTipusDto = expedientTipusService.findAmbIdPermisDissenyar(entornActual.getId(),id);
-		if(expedientTipusDto.getNtiOrgano()!=null) {
-			UnitatOrganitzativaDto unitatOrganitzativaDto = unitatOrganitzativaService.findByCodi(expedientTipusDto.getNtiOrgano());
-			if(unitatOrganitzativaDto!=null) {//omplim aquest camp per validar el command en el POST
-				String codiNomUnitatOrganitzativa = unitatOrganitzativaDto.getCodi() +" - "+ unitatOrganitzativaDto.getNom();
-				expedientTipusDto.setUnitatOrganitzativaCodiNom(codiNomUnitatOrganitzativa);
-				model.addAttribute(
-						"unitatOrganitzativa",
-						codiNomUnitatOrganitzativa);
+		String codiNomUnitatOrganitzativa = null;
+		if(permisUO != null) {
+			List<ExpedientTipusUnitatOrganitzativa> expTipusUnitOrgList = unitatOrganitzativaHelper.findRelacionsExpTipusUnitOrgList(id, null);
+			if(expTipusUnitOrgList!=null) {
+				for(ExpedientTipusUnitatOrganitzativa expTipusUnitOrg: expTipusUnitOrgList) {
+					UnitatOrganitzativaDto unitatOrg = unitatOrganitzativaService.findById(expTipusUnitOrg.getUnitatOrganitzativa().getId());
+					codiNomUnitatOrganitzativa = unitatOrg.getCodi() + "-"+ unitatOrg.getNom();
+					expedientTipusDto.setUnitatOrganitzativaCodiNom(codiNomUnitatOrganitzativa);
 				}
+			}	
+			model.addAttribute(
+					"unitatOrganitzativa",
+					codiNomUnitatOrganitzativa);
 		}
 		model.addAttribute(
 				"expedientTipus",
 				expedientTipusDto);
+		model.addAttribute(
+				"permisUO",
+				permisUO);
 		return "v3/expedientTipusPermis";
 	}
 	
-	@RequestMapping(value = "/{id}/permis/datatable")
+	@RequestMapping(value = "/{id}/permis{permisUO}/datatable")
 	@ResponseBody
 	DatatablesResponse permisDatatable(
 			HttpServletRequest request,
 			@PathVariable Long id,
+			@PathVariable String permisUO,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		ExpedientTipusDto expedientTipusDto =  expedientTipusService.findAmbIdPermisDissenyar(
-				entornActual.getId(),
-				id);
 		List<PermisDto> permisos = null;
-		if(!expedientTipusDto.isProcedimentComu()) {//cerquem permisos del tipus expedient com fins ara
+		if(permisUO == null){
 			permisos = expedientTipusService.permisFindAll(
 				entornActual.getId(),
 				id);
@@ -810,10 +820,11 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				permisos);
 	}
 
-	@RequestMapping(value = "/{id}/permis/new", method = RequestMethod.GET)
+	@RequestMapping(value = "/{id}/permis{permisUO}/new", method = RequestMethod.GET)
 	public String permisNewGet(
 			HttpServletRequest request,
 			@PathVariable Long id,
+			@PathVariable String permisUO,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto expedientTipusDto =  expedientTipusService.findAmbIdPermisDissenyar(
@@ -828,13 +839,15 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				"expedientTipus",
 				expedientTipusDto);
 		model.addAttribute(permisCommand);
+		model.addAttribute("permisUO", permisUO);
 		return "v3/expedientTipusPermisForm";
 	}
 	
-	@RequestMapping(value = "/{id}/permis/new", method = RequestMethod.POST)
+	@RequestMapping(value = "/{id}/permis{permisUO}/new", method = RequestMethod.POST)
 	public String permisNewPost(
 			HttpServletRequest request,
 			@PathVariable Long id,
+			@PathVariable String permisUO,
 			@Valid PermisCommand command,
 			BindingResult bindingResult,
 			Model model) {
@@ -842,16 +855,18 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				request,
 				id,
 				null,
+				permisUO,
 				command,
 				bindingResult,
 				model);
 	}
 		
-	@RequestMapping(value = "/{id}/permis/{permisId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{id}/permis{permisUO}/{permisId}", method = RequestMethod.GET)
 	public String permisUpdateGet(
 			HttpServletRequest request,
 			@PathVariable Long id,
 			@PathVariable Long permisId,
+			@PathVariable String permisUO,
 			@RequestParam(value = "unitatOrganitzativaCodi", required = false) String unitatOrganitzativaCodi,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
@@ -868,8 +883,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		model.addAttribute(
 				"expedientTipus",
 				expedientTipusDto);		
-		
-		if (expedientTipusDto.isProcedimentComu() && unitatOrganitzativaCodi!=null && !" ".equals(unitatOrganitzativaCodi)) {
+		if (permisUO!=null && unitatOrganitzativaCodi!=null && !" ".equals(unitatOrganitzativaCodi)) {
 			UnitatOrganitzativaDto unitatOrganitzativaDto = unitatOrganitzativaService.findByCodi(unitatOrganitzativaCodi);
 			permis.setUnitatOrganitzativaCodiNom(unitatOrganitzativaDto.getCodi());
 //			permis.setAdministration(false);
@@ -880,20 +894,23 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				conversioTipusHelper.convertir(
 						permis,
 						PermisCommand.class));
+		model.addAttribute("permisUO", permisUO);
 		return "v3/expedientTipusPermisForm";
 	}
 	
-	@RequestMapping(value = "/{id}/permis/{permisId}", method = RequestMethod.POST)
+	@RequestMapping(value = "/{id}/permis{permisUO}/{permisId}", method = RequestMethod.POST)
 	public String permisUpdatePost(
 			HttpServletRequest request,
 			@PathVariable Long id,
 			@PathVariable Long permisId,
+			@PathVariable String permisUO,
 			@Valid PermisCommand command,
 			BindingResult bindingResult,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto expedientTipusDto = expedientTipusService.findAmbIdPermisDissenyar(entornActual.getId(),id);
-		if (bindingResult.hasErrors()) {
+		model.addAttribute("permisUO", permisUO);
+		if (bindingResult.hasErrors() && permisUO!=null) {
         	model.addAttribute(
     				"expedientTipus",
     				expedientTipusDto);
@@ -941,10 +958,11 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
         }
 	}
 
-	@RequestMapping(value = "/{id}/permis/{permisId}/delete")
+	@RequestMapping(value = "/{id}/permis{permisUO}/{permisId}/delete")
 	public String permisDelete(
 			HttpServletRequest request,
 			@PathVariable Long id,
+			@PathVariable String permisUO,
 			@PathVariable Long permisId,
 			@RequestParam(value = "unitatOrganitzativaCodi", required = false) String unitatOrganitzativaCodi,
 			Model model) {
@@ -956,9 +974,10 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					permisId,
     				entornActual.isPermisAdministration(),
     				unitatOrganitzativaCodi);
-			MissatgesHelper.success(
-					request,
-					getMessage(request, "expedient.tipus.controller.permis.esborrat"));			
+			return getModalControllerReturnValueSuccess(
+						request,
+						"redirect:/v3/expedientTipus/" + id + "/permis" + (permisUO != null ? permisUO : ""),
+						"expedient.tipus.controller.permis.esborrat");		
 		} catch (Exception e) {
 			String msg = getMessage(request, "expedient.tipus.controller.permis.esborrar.error",
 					new Object[] {e.getMessage()});
@@ -967,7 +986,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					request,
 					msg);			
 		}
-		return "redirect:/v3/expedientTipus/" + id + "/permis";
+		return "redirect:/v3/expedientTipus/" + id + "/permis" + (permisUO != null ? permisUO : "");
 	}
 	
 	//eliminar versions de definicons de procés

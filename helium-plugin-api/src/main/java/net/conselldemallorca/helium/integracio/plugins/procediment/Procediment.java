@@ -1,43 +1,54 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.integracio.plugins.procediment;
 
+import java.util.Date;
+
 /**
- * Informació d'un procediment.
- * 
- * @author Limit Tecnologies <limit@limit.es>
+ * Classe per retornar informació d'un procediment del plugin de procediments.
+ *
  */
 public class Procediment {
 
-	private String codigo;
-	private String codigoSIA;
-	private String codigoSia;
-	private String nombre;
+	private String codi;
+	private String codiSia;
+    private String nom;
+    private String unitatAdministrativacodi;
+    private boolean comu;
+    private Date dataActualitzacio;
 
-	public String getCodigo() {
-		return codigo;
+    public String getCodi() {
+		return codi;
 	}
-	public void setCodigo(String codigo) {
-		this.codigo = codigo;
+	public void setCodi(String codi) {
+		this.codi = codi;
 	}
-	public String getCodigoSIA() {
-		return codigoSIA;
+	public String getCodiSia() {
+		return codiSia;
 	}
-	public void setCodigoSIA(String codigoSIA) {
-		this.codigoSIA = codigoSIA;
+	public void setCodiSia(String codiSia) {
+		this.codiSia = codiSia;
 	}
-	public String getCodigoSia() {
-		return codigoSia;
+	public String getNom() {
+		return nom;
 	}
-	public void setCodigoSia(String codigoSia) {
-		this.codigoSia = codigoSia;
+	public void setNom(String nom) {
+		this.nom = nom;
 	}
-	public String getNombre() {
-		return nombre;
+	public String getUnitatAdministrativacodi() {
+		return unitatAdministrativacodi;
 	}
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
+	public void setUnitatAdministrativacodi(String unitatAdministrativacodi) {
+		this.unitatAdministrativacodi = unitatAdministrativacodi;
 	}
-
+	public boolean isComu() {
+		return comu;
+	}
+	public void setComu(boolean comu) {
+		this.comu = comu;
+	}
+	public Date getDataActualitzacio() {
+		return dataActualitzacio;
+	}
+	public void setDataActualitzacio(Date dataActualitzacio) {
+		this.dataActualitzacio = dataActualitzacio;
+	}
 }

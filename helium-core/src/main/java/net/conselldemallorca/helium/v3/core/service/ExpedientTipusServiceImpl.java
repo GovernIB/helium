@@ -2115,7 +2115,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
 				true);
-		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbEntorn(entorn);//DANI! aquí seria find per relació UO????
+		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbEntorn(entorn);
 		// Filtra els expedients deixant només els permesos
 		if (!entornHelper.potDissenyarEntorn(entornId)) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -2148,25 +2148,41 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					:	new PageImpl<ExpedientTipus>(new ArrayList<ExpedientTipus>()),
 				ExpedientTipusDto.class);
 		// Afegeix el contador de permisos
-		List<Long> ids = new ArrayList<Long>();
+		List<Long> idsTipusExpedient = new ArrayList<Long>();
+		List<Long> idsTipusExpedientUnitatOrganitzativa = new ArrayList<Long>();
+		List<ExpedientTipusUnitatOrganitzativa> expTipUOs = null;
 		for (ExpedientTipusDto dto: pagina.getContingut()) {
-			ids.add(dto.getId());
+			idsTipusExpedient.add(dto.getId());
+			if(expTipUOs ==null) 
+				expTipUOs = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(dto.getId());	
+			else
+				expTipUOs.addAll(expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(dto.getId()));
+			
+			if(expTipUOs!=null) {
+				for(ExpedientTipusUnitatOrganitzativa expTipUO: expTipUOs) {
+					if(!idsTipusExpedientUnitatOrganitzativa.contains(expTipUO.getId()))
+						idsTipusExpedientUnitatOrganitzativa.add(expTipUO.getId());
+				}
+			}
 		}
 		Map<Long, List<PermisDto>> permisos = permisosHelper.findPermisos(
-				ids,
+				idsTipusExpedient,
 				ExpedientTipus.class);
 		Map<Long, List<PermisDto>> permisosUo = permisosHelper.findPermisos(
-				ids,//TODO canviar els ids! han de sr ids d'ExpedientTipusUnitatOrganitzativa 
+				idsTipusExpedientUnitatOrganitzativa,
 				ExpedientTipusUnitatOrganitzativa.class);
 		for (ExpedientTipusDto dto: pagina.getContingut()) {
-			if (! dto.isProcedimentComu() ) {
-				if (permisos.get(dto.getId()) != null) {
+			if (permisos.get(dto.getId()) != null) {
 					dto.setPermisCount(permisos.get(dto.getId()).size());
+			}
+			if(expTipUOs!=null && !expTipUOs.isEmpty()) {
+				int permisosUOCount=0;
+				for(ExpedientTipusUnitatOrganitzativa expTipusUO: expTipUOs) {
+					if(dto.getId()==expTipusUO.getExpedientTipus().getId()) {
+						permisosUOCount = permisosUOCount + permisosUo.get(expTipusUO.getId()).size();
+					}
 				}
-			} else {
-				if (permisosUo.get(dto.getId()) != null) {
-					dto.setPermisCount(permisosUo.get(dto.getId()).size());
-				}
+				dto.setPermisUOCount(permisosUOCount);
 			}
 		}
 		// Informa els permisos
@@ -2228,8 +2244,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		UnitatOrganitzativa unitatOrganitzativa =null;
 		Authentication authOrignal = this.permisComprovarPermisAdmin(expedientTipus, entornAdmin);
 		try {   
-			if (expedientTipus.isProcedimentComu() && permis.getUnitatOrganitzativaCodiNom() != null && !permis.getUnitatOrganitzativaCodiNom().isEmpty()) {
-//				ExpedientTipusUnitatOrganitzativa expTipusUnitOrg = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaCodi(expedientTipusId, permis.getUnitatOrganitzativaCodiNom());
+			if(unitatOrganitzativaId!=null) {
 				ExpedientTipusUnitatOrganitzativa expTipusUnitOrg = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaId(expedientTipusId, unitatOrganitzativaId);
 				if (expTipusUnitOrg == null) {
 					unitatOrganitzativa = unitatOrganitzativaRepository.findByCodi(permis.getUnitatOrganitzativaCodiNom());
@@ -2370,21 +2385,18 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			List<PermisDto> permisosExpedientTipusUnitatOrganitzativa = permisosHelper.findPermisos(
 					expTipusUnitOrg.getId(),
 					ExpedientTipusUnitatOrganitzativa.class);
-			if(permisosExpedientTipusUnitatOrganitzativa!=null && !permisosExpedientTipusUnitatOrganitzativa.isEmpty()) {
-				String unitatOrganitzativaCodi = expTipusUnitOrg.getUnitatOrganitzativa().getCodi();
-				String unitatOrganitzativaNom = expTipusUnitOrg.getUnitatOrganitzativa().getDenominacio();
-				String unitatOrganitzativaCodiNom = expTipusUnitOrg.getUnitatOrganitzativa().getCodiAndNom();
-				UnitatOrganitzativaEstatEnumDto unitatOrganitzativaEstat = unitatOrganitzativaHelper.convertUnitatOrganitzativaEstatToEnum(expTipusUnitOrg.getUnitatOrganitzativa().getEstat());
-				boolean tePermis = true;
-				if (tePermis) {
+				if(permisosExpedientTipusUnitatOrganitzativa!=null && !permisosExpedientTipusUnitatOrganitzativa.isEmpty()) {
+					String unitatOrganitzativaCodi = expTipusUnitOrg.getUnitatOrganitzativa().getCodi();
+					String unitatOrganitzativaNom = expTipusUnitOrg.getUnitatOrganitzativa().getDenominacio();
+					String unitatOrganitzativaCodiNom = expTipusUnitOrg.getUnitatOrganitzativa().getCodiAndNom();
+					UnitatOrganitzativaEstatEnumDto unitatOrganitzativaEstat = unitatOrganitzativaHelper.convertUnitatOrganitzativaEstatToEnum(expTipusUnitOrg.getUnitatOrganitzativa().getEstat());
 					for (PermisDto permis : permisosExpedientTipusUnitatOrganitzativa) {
-						permis.setUnitatOrganitzativaCodi(unitatOrganitzativaCodi);
-						permis.setUnitatOrganitzativaNom(unitatOrganitzativaNom);
-						permis.setUnitatOrganitzativaCodiNom(unitatOrganitzativaCodiNom);
-						permis.setUnitatOrganitzativaEstat(unitatOrganitzativaEstat);
-						}
-						permisos.addAll(permisosExpedientTipusUnitatOrganitzativa);
-					}			
+							permis.setUnitatOrganitzativaCodi(unitatOrganitzativaCodi);
+							permis.setUnitatOrganitzativaNom(unitatOrganitzativaNom);
+							permis.setUnitatOrganitzativaCodiNom(unitatOrganitzativaCodiNom);
+							permis.setUnitatOrganitzativaEstat(unitatOrganitzativaEstat);
+					}
+					permisos.addAll(permisosExpedientTipusUnitatOrganitzativa);			
 				}
 			}
 		}
@@ -2419,7 +2431,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					unitatOrganitzativaCodi);
 			permisos = permisosHelper.findPermisos(
 					expTipusUnitOrg.getId(),
-				ExpedientTipusUnitatOrganitzativa.class);
+					ExpedientTipusUnitatOrganitzativa.class);
 		} else {		
 			permisos = permisosHelper.findPermisos(
 					expedientTipusId,

@@ -40,7 +40,6 @@
 				$(document).ready( function() {
 					
 					$('#tipus').change(function() {
-						//→ tasca definició tipus amagar info pròpia, herència, retrocés i reindexació asíncrona
 						if ($(this).val() == 'ESTAT') {
 							if ( !$('#ambInfoPropia').is(":checked")) {
 								$('#ambInfoPropia').click();

@@ -6,8 +6,16 @@
 
 <html>
 <head>
-	<title><spring:message code="expedient.tipus.permis.titol"/></title>
-	<meta name="title" content="<spring:message code="expedient.tipus.permis.titol"/>"/>
+	<c:choose>
+		<c:when test="${permisUO == null}">
+			<title><spring:message code="expedient.tipus.permis.titol"/></title>
+			<meta name="title" content="<spring:message code="expedient.tipus.permis.titol"/>"/>
+		</c:when>
+		<c:otherwise> 
+		<title><spring:message code="expedient.tipus.permis.UO.titol"/></title>
+			<meta name="title" content="<spring:message code="expedient.tipus.permis.UO.titol"/>"/>
+	 	</c:otherwise>
+	</c:choose>
 	<meta name="screen" content="expedients tipus"/>
 	<meta name="subtitle" content="${expedientTipus.nom}"/>
 	<meta name="title-icon-class" content="fa fa-key"/>
@@ -22,11 +30,11 @@
 </head>
 <body>
 	<div class="text-right" data-toggle="botons-titol">
-		<a class="btn btn-default" href="permis/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.permis.accio.nou"/></a>
+		<a class="btn btn-default" href="permis${permisUO}/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.tipus.permis.accio.nou"/></a>
 	</div>
 	<table	id="expedientTipus"
 			data-toggle="datatable"
-			data-url="permis/datatable"
+			data-url="permis${permisUO}/datatable"
 			data-paging-enabled="true"
 			data-ordering="false"
 			data-default-order="1"
@@ -64,7 +72,8 @@
 				<th data-col-name="unitatOrganitzativaCodi" data-visible="false"/>
 				<th data-col-name="principalNom" width="20%"><spring:message code="expedient.tipus.permis.columna.principal"/></th>
 				<th data-col-name="principalTipus" width="20%"><spring:message code="expedient.tipus.permis.columna.tipus"/></th>
-				<c:if test="${expedientTipus.procedimentComu == true}">
+				
+				<c:if test="${permisUO != null}">
 					<th data-col-name="unitatOrganitzativaCodiNom" width="30%" data-template="#cellUnitatOrganitzativaTemplate" data-orderable="false">
 					<spring:message code="expedient.tipus.permis.columna.unitat.organitzativa"/>
 					<script id="cellUnitatOrganitzativaTemplate" type="text/x-jsrender">
@@ -110,8 +119,8 @@
 						<div class="dropdown">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								<li><a data-toggle="modal" href="permis/{{:id}}?unitatOrganitzativaCodi={{:unitatOrganitzativaCodi}}"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a></li>
-								<li><a href="permis/{{:id}}/delete?unitatOrganitzativaCodi={{:unitatOrganitzativaCodi}}" data-rdt-link-ajax="true" data-confirm="<spring:message code="expedient.tipus.permis.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+								<li><a data-toggle="modal" href="permis${permisUO}/{{:id}}?unitatOrganitzativaCodi={{:unitatOrganitzativaCodi}}"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a></li>
+								<li><a href="permis${permisUO}/{{:id}}/delete?unitatOrganitzativaCodi={{:unitatOrganitzativaCodi}}" data-rdt-link-ajax="true" data-confirm="<spring:message code="expedient.tipus.permis.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 							</ul>
 						</div>
 					</script>

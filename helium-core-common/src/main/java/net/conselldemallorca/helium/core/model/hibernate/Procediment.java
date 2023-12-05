@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
@@ -54,6 +53,9 @@ public class Procediment implements Serializable, GenericEntity<Long>{
 	@JoinColumn(name = "unitat_organitzativa_id")
 	@ForeignKey(name = "hel_procediment_unitat_fk")
 	private UnitatOrganitzativa unitatOrganitzativa;	
+	
+	@Column(name = "comu") 
+	private boolean comu;
 	
 	public Long getId() {
 		return id;
@@ -113,16 +115,24 @@ public class Procediment implements Serializable, GenericEntity<Long>{
 
 	
 	
+	public boolean isComu() {
+		return comu;
+	}
+	public void setComu(boolean comu) {
+		this.comu = comu;
+	}
 	public void update(
 			String codi, 
 			String nom, 
 			String codiSia, 
 			ProcedimentEstatEnumDto estat, 
+			boolean comu,
 			UnitatOrganitzativa unitatOrganitzativa) {
 		this.codi = codi;
 		this.nom = nom;
 		this.codiSia = codiSia;
 		this.estat = estat;
+		this.comu = comu;
 		this.unitatOrganitzativa = unitatOrganitzativa;
 	}
 	
@@ -133,12 +143,14 @@ public class Procediment implements Serializable, GenericEntity<Long>{
 			String nom, 
 			String codiSia, 
 			ProcedimentEstatEnumDto estat, 
+			boolean comu,
 			UnitatOrganitzativa unitatOrganitzativa) {
 		return new Builder(
 				codi, 
 				nom, 
 				codiSia, 
-				estat, 
+				estat,
+				comu,
 				unitatOrganitzativa);
 	}
 	
@@ -149,12 +161,14 @@ public class Procediment implements Serializable, GenericEntity<Long>{
 				String nom, 
 				String codiSia, 
 				ProcedimentEstatEnumDto estat, 
+				boolean comu,
 				UnitatOrganitzativa unitatOrganitzativa) {
 			built = new Procediment();
 			built.codi = codi;
 			built.nom = nom;
 			built.codiSia = codiSia;
 			built.estat = estat;
+			built.comu = comu;
 			built.unitatOrganitzativa = unitatOrganitzativa;
 		}
 		

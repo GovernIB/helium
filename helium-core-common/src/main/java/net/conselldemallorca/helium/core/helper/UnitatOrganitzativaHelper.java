@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
-
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
 import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.v3.core.api.dto.ArbreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArbreNodeDto;
@@ -27,6 +27,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.TipusTransicioEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusUnitatOrganitzativaRepository;
 import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaRepository;
 
 
@@ -48,9 +49,26 @@ public class UnitatOrganitzativaHelper {
 	
 	@Resource
 	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
+	@Resource
+	private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
 
 	public UnitatOrganitzativaHelper() {
 		
+	}
+	
+	public List<ExpedientTipusUnitatOrganitzativa> findRelacionsExpTipusUnitOrgList(Long expedientTipusId, Long unitatOrgId) {
+		if(expedientTipusId!=null && unitatOrgId==null)
+			return expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(expedientTipusId); 
+		else if(expedientTipusId==null && unitatOrgId!=null)
+			return expedientTipusUnitatOrganitzativaRepository.findByUnitatOrganitzativaId(unitatOrgId);
+		return null;	
+	}
+	
+	public ExpedientTipusUnitatOrganitzativa findRelacioExpTipusUnitOrg(Long expedientTipusId, Long unitatOrgId) {
+		if(expedientTipusId!=null && unitatOrgId!=null) {	
+			return expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaId(expedientTipusId, unitatOrgId);
+		}
+		return null;
 	}
 	
 	public UnitatOrganitzativa findById(Long unitatOrganitzativaId) {

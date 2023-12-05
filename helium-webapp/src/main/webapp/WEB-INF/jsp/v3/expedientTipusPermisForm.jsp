@@ -19,9 +19,6 @@
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>
-	<link href="<c:url value="/webjars/bootstrap-datepicker/1.6.1/dist/css/bootstrap-datepicker.min.css"/>" rel="stylesheet"/>
-	<script src="<c:url value="/webjars/bootstrap-datepicker/1.6.1/dist/js/bootstrap-datepicker.min.js"/>"></script>
-	<script src="<c:url value="/webjars/bootstrap-datepicker/1.6.1/dist/locales/bootstrap-datepicker.${requestLocale}.min.js"/>"></script>
 	<script src="<c:url value="/webjars/jsrender/1.0.0-rc.70/jsrender.min.js"/>"></script>
 	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 	<script src="<c:url value="/js/webutil.datatable.js"/>"></script>
@@ -33,14 +30,14 @@
 		<form:hidden path="id"/>
 		<hel:inputSelect name="principalTipus" textKey="expedient.tipus.permis.form.camp.tipus" disabled="${not empty permisCommand.id}" optionItems="${principalTipusEnumOptions}" optionValueAttribute="value" optionTextKeyAttribute="text" labelSize="2"/>
 		<hel:inputText name="principalNom" textKey="expedient.tipus.permis.form.camp.principal" disabled="${not empty permisCommand.id}" labelSize="2"/>
-		<c:if test="${expedientTipus.procedimentComu}">
+		<c:if test="${permisUO != null}">
 			<hel:inputSuggest 
 					name="unitatOrganitzativaCodiNom" 
 					urlConsultaInicial="/helium/v3/unitatOrganitzativa/suggestInici" 
 					urlConsultaLlistat="/helium/v3/unitatOrganitzativa/suggest" 
 					textKey="expedient.tipus.permis.form.camp.unitat.organitzativa" 
 					placeholderKey="expedient.tipus.permis.form.camp.unitat.organitzativa"
-					disabled="${!expedientTipus.procedimentComu}"
+					disabled="${not empty permisCommand.id}"
 					labelSize="2"/>	
 		</c:if>
 		<hr/>
@@ -54,7 +51,7 @@
 			<div class="col-sm-3"><hel:inputCheckbox name="create" textKey="permis.CREATE" labelSize="8" info="permis.CREATE.info"/></div>
 			<div class="col-sm-3"><hel:inputCheckbox name="delete" textKey="permis.DELETE" labelSize="8" info="permis.DELETE.info"/></div>
 		</div>
-		<c:if test="${expedientTipus.procedimentComu == false}">
+		<c:if test="${permisUO == null}">
 			<div class="row">
 				<div class="col-sm-3"><hel:inputCheckbox name="administration" textKey="permis.ADMINISTRATION" labelSize="8" info="permis.ADMINISTRATION.info"/></div>
 				<div class="col-sm-3"></div>
@@ -82,7 +79,7 @@
 		</div>
 		<div class="row">
 			<div class="col-sm-3"><hel:inputCheckbox name="tokenManage" textKey="permis.TOKEN_MANAGE" labelSize="8" info="permis.TOKEN_MANAGE.info"/></div>
-			<c:if test="${expedientTipus.procedimentComu == false}">
+			<c:if test="${permisUO == null}">
 				<div class="col-sm-3"><hel:inputCheckbox name="designAdmin" textKey="permis.DESIGN_ADMIN" labelSize="8" info="permis.DESIGN_ADMIN.info"/></div>
 				<div class="col-sm-3"><hel:inputCheckbox name="designDeleg" textKey="permis.DESIGN_DELEG" labelSize="8" info="permis.DESIGN_DELEG.info"/></div>
 			</c:if>
@@ -98,7 +95,7 @@
 			<strong><spring:message code="expedient.tipus.permis.permisos.descatalogats"/></strong>
 		</div>
 		<div class="row">
-			<c:if test="${expedientTipus.procedimentComu == false}">
+			<c:if test="${permisUO == null}">
 				<div class="col-sm-3"><hel:inputCheckbox name="design" textKey="permis.DESIGN" labelSize="8" info="permis.DESIGN.info"/></div>
 			</c:if>
 			<div class="col-sm-3"><hel:inputCheckbox name="supervision" textKey="permis.SUPERVISION" labelSize="8" info="permis.SUPERVISION.info"/></div>

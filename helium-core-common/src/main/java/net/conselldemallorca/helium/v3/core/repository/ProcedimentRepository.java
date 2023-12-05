@@ -85,5 +85,12 @@ public interface ProcedimentRepository extends JpaRepository<Procediment, Long>{
 			"where pro.unitatOrganitzativa.codi = :unitatOrganitzativaCodi")
 	List<Procediment> findByCodiUnitatOrganitzativa(
 			@Param("unitatOrganitzativaCodi") String unitatOrganitzativaCodi);
+	
+	/** Troba tots els procediments per estat.
+	 * 
+	 * @param estat
+	 * @return Llistat de procediments que tenen aquell estat.
+	 */
+	List<Procediment> findAllByEstat(ProcedimentEstatEnumDto estat);
 
 }
