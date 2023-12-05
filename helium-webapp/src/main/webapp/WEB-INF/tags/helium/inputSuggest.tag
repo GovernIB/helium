@@ -50,7 +50,6 @@ var multiple = "true" == "${multiple == true}";
 
 $(document).ready(function() {
 	
-	debugger;
 	$("[id='${campPath}']").select2({
 	    minimumInputLength: 3,
 	    width: '100%',
@@ -62,12 +61,10 @@ $(document).ready(function() {
 	    //</c:if>
 	    ajax: {
 	        url: function (value) {
-	        	debugger;
 	        	return $(this).data('urlLlistat') + "/" + value;
 	        },
 	        dataType: 'json',
 	        results: function (data, page) {
-	        	debugger;
 	        	var results = [];
 	        	for (var i = 0; i < data.length; i++) {
 	        		results.push({id: data[i].codi, text: data[i].nom});

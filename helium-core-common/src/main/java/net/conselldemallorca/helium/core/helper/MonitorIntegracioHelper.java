@@ -175,7 +175,8 @@ public class MonitorIntegracioHelper {
 		integracions.add(new IntegracioDto(INTCODI_NOTIB, "Notificació"));
 		integracions.add(new IntegracioDto(INTCODI_VALIDASIG, "Valida sign."));
 		integracions.add(new IntegracioDto(INTCODI_PINBAL, "PINBAL"));
-		integracions.add(new IntegracioDto(INTCODI_UNITATS, "UNITATS"));
+		integracions.add(new IntegracioDto(INTCODI_UNITATS, "Unitats"));
+		integracions.add(new IntegracioDto(INTCODI_PROCEDIMENT, "ROLSAC"));
 		
 		return integracions;
 	}

@@ -93,6 +93,7 @@ import net.conselldemallorca.helium.integracio.plugins.portasignatures.Portasign
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortasignaturesPluginException;
 import net.conselldemallorca.helium.integracio.plugins.procediment.Procediment;
 import net.conselldemallorca.helium.integracio.plugins.procediment.ProcedimentPlugin;
+import net.conselldemallorca.helium.integracio.plugins.procediment.UnitatAdministrativa;
 import net.conselldemallorca.helium.integracio.plugins.registre.DadesAssumpte;
 import net.conselldemallorca.helium.integracio.plugins.registre.DadesExpedient;
 import net.conselldemallorca.helium.integracio.plugins.registre.DadesInteressat;
@@ -5893,6 +5894,52 @@ public Object consultaSincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, Ex
 		}
 		return procediments;
 	}
+	
+	/** Mètode per obtenir la informació d'una unitat administrativa a partir del codi de l'unitat
+	 * dins del servei de procediments. S'usa perquè la consulta de procediments a Rolsac retorna
+	 * la llista de procediments però el codi de la UO no és el DIR3 i pot ser que la UO no tingui
+	 * codi DIR3.
+	 * 
+	 * @param codi Codi de la UO a Rolsac.
+	 * @return Retorna informació de la unitat organitzativa
+	 */
+	public UnitatAdministrativa procedimentGetUnitatAdministrativa(String codi) {
+		String accioDescripcio = "Consulta de la unitat organitzativa per codi " + codi;
+		Map<String, Object> accioParams = new HashMap<String, Object>();
+		accioParams.put("codi", codi);
+		
+		long t0 = System.currentTimeMillis();
+		UnitatAdministrativa unitatAdministrativa = null;
+		try {
+			unitatAdministrativa = getProcedimentPlugin().findUnitatAdministrativaAmbCodi(codi);
+
+			accioParams.put("resultat", unitatAdministrativa != null ? 
+					unitatAdministrativa.getCodiDir3() + " " + unitatAdministrativa.getNom() 
+					: "(no trobada)");
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_PROCEDIMENT,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					IntegracioParametreDto.toIntegracioParametres(accioParams));							
+		} catch (Exception ex) {
+			String errorDescripcio = "Error consultant la unitat organitzativa amb codi " + codi+ ": " + ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_PROCEDIMENT,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					IntegracioParametreDto.toIntegracioParametres(accioParams));
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_PROCEDIMENT,
+					errorDescripcio, 
+					ex);
+		}
+		return unitatAdministrativa;
+	}
+	
 
 	private Long toLongValue(String text) {
 		if (text == null || text.isEmpty())

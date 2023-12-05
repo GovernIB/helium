@@ -1,6 +1,7 @@
 package net.conselldemallorca.helium.integracio.plugins.procediment;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -44,10 +45,9 @@ public class ProcedimentPluginRolsac implements ProcedimentPlugin {
 				"codiDir3=" + codiDir3 + ")");
 		ProcedimientosResponse response = null;
 		try {
-			StringBuilder sb = new StringBuilder(getServiceUrl());
 			response = findProcedimentsRolsac(
-					sb.toString(),
-					"lang=ca&filtro={\"codigoUADir3\":\"" + codiDir3 + "\",\"estadoSia\":\"A\",\"buscarEnDescendientesUA\":\"1\"}&filtroPaginacion={\"page\":\"1\", \"size\":\"9999\"}");
+					getServiceUrl() + "/procedimientos",
+					"lang=ca&filtro={\"codigoUADir3\":\"" + codiDir3 + "\",\"estadoSia\":\"A\", \"buscarEnDescendientesUA\":\"1\", \"activo\":\"1\"}&filtroPaginacion={\"page\":\"1\", \"size\":\"9999\"}");
 		} catch (Exception ex) {
 			logger.error("No s'han pogut consultar els procediments de ROLSAC (" +
 					"codiDir3=" + codiDir3 + ")",
@@ -59,7 +59,11 @@ public class ProcedimentPluginRolsac implements ProcedimentPlugin {
 		}
 		
 		if (response != null && response.getStatus().equals("200")) {
-			return response.getResultado();
+			List<Procediment> procediments = new ArrayList<Procediment>();
+			for (ProcedimentRolsac procediment : response.resultado) {
+				procediments.add(this.toProcemiment(procediment));
+			}
+			return procediments;
 		} else {
 			logger.error("No s'han pogut consultar els procediments de ROLSAC (" +
 					"codiDir3=" + codiDir3 + "). Resposta rebuda amb el codi " + response.getStatus());
@@ -67,6 +71,20 @@ public class ProcedimentPluginRolsac implements ProcedimentPlugin {
 					"No s'han pogut consultar els procediments de ROLSAC (" +
 					"codiDir3=" + codiDir3 + "). Resposta rebuda amb el codi " + response.getStatus());
 		}
+	}
+
+	public Procediment toProcemiment (ProcedimentRolsac procediment) throws  SistemaExternException {
+		Procediment dto = new Procediment();
+		if (procediment != null) {
+			dto.setCodi(procediment.getCodigo());
+			dto.setCodiSia(procediment.getCodigoSIA());
+			dto.setNom(procediment.getNombre());
+			dto.setComu(procediment.isComu());
+			if (procediment.getUnidadAdministrativa() != null) {
+				dto.setUnitatAdministrativacodi(procediment.getUnidadAdministrativa().getCodigo());
+			}
+		}
+		return dto;
 	}
 
 	private Client getJerseyClient() {
@@ -111,7 +129,45 @@ public class ProcedimentPluginRolsac implements ProcedimentPlugin {
 				TypeFactory.defaultInstance().constructType(ProcedimientosResponse.class));
 	}
 	
-	public String getServiceUrl() {
+	
+	@Override
+	public UnitatAdministrativa findUnitatAdministrativaAmbCodi(String codi) throws SistemaExternException {
+
+		logger.debug("Consulta de la unitat administrativa amb codi (" +
+				"codi=" + codi + ")");
+
+		UnitatAdministrativa unitatAdministrativa = null;
+		try {
+			String urlAmbMetode = getServiceUrl() + "/unidades_administrativas/" + codi;
+			
+			Client jerseyClient = getJerseyClient();
+			
+			String json = jerseyClient.
+					resource(urlAmbMetode).
+					post(String.class);
+			
+			RespostaUnitatAdministrativa resposta = mapper.readValue(json, RespostaUnitatAdministrativa.class);
+			if (resposta.getResultado() != null && !resposta.getResultado().isEmpty()) {
+				UnitatAdministrativaRolsac unitatAdministrativaRolsac = resposta.getResultado().get(0);
+				unitatAdministrativa = new UnitatAdministrativa();
+				unitatAdministrativa.setCodi(String.valueOf(unitatAdministrativaRolsac.getCodigo()));
+				unitatAdministrativa.setCodiDir3(unitatAdministrativaRolsac.getCodigoDIR3());
+				unitatAdministrativa.setNom(unitatAdministrativaRolsac.getNombre());
+				if (unitatAdministrativaRolsac.getPadre() != null) {
+					unitatAdministrativa.setPareCodi(unitatAdministrativaRolsac.getPadre().getCodigo());					
+				}
+			}
+		} catch (Exception ex) {
+			throw new SistemaExternException(
+					"No s'ha pogut consultar la unitat administrativa amb codi " + codi + " via REST: " + ex.toString(),
+					ex);
+		}
+		return unitatAdministrativa;
+	}
+
+	
+	
+	private String getServiceUrl() {
 		return GlobalProperties.getInstance().getProperty(
 				"app.plugins.procediments.rolsac.service.url");
 	}
@@ -132,31 +188,6 @@ public class ProcedimentPluginRolsac implements ProcedimentPlugin {
 		}
 	}
 	
-	public static class ProcedimientosResponse {
-		private String numeroElementos;
-		private String status;
-		private List<Procediment> resultado;
-		public String getNumeroElementos() {
-			return numeroElementos;
-		}
-		public void setNumeroElementos(String numeroElementos) {
-			this.numeroElementos = numeroElementos;
-		}
-		public String getStatus() {
-			return status;
-		}
-		public void setStatus(String status) {
-			this.status = status;
-		}
-		public List<Procediment> getResultado() {
-			return resultado;
-		}
-		public void setResultado(List<Procediment> resultado) {
-			this.resultado = resultado;
-		}
-	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ProcedimentPluginRolsac.class);
-
-
 }

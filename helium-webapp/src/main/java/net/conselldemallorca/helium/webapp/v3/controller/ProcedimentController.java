@@ -6,6 +6,8 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,13 +18,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProgresActualitzacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProgresActualitzacioDto.ActualitzacioInfo;
 import net.conselldemallorca.helium.v3.core.api.service.ProcedimentService;
 import net.conselldemallorca.helium.webapp.v3.command.ProcedimentFiltreCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
+import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
@@ -76,33 +79,8 @@ public class ProcedimentController extends BaseController{
 		}
 		return "redirect:procediment";
 		
-	}
-	
-	
-	@RequestMapping(value = "/actualitzar")
-	public String actualitzar(
-			HttpServletRequest request, 
-			Model model) throws Exception {
-		
-		try {
-			procedimentService.findAndUpdateProcediments();
-			MissatgesHelper.success(
-					request, 
-					getMessage(
-							request, 
-							"procediment.controller.actualitzar.ok"));
-		} catch (Exception e) {
-			MissatgesHelper.error(
-					request, 
-					getMessage(
-							request, 
-							"procediment.controller.actualitzar.error", 
-							new Object[] {e.getMessage()}));
-		}
-		return "redirect:/v3/procediment";
-	}
-	
-	
+	}	
+
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	public DatatablesResponse datatable(
@@ -146,6 +124,91 @@ public class ProcedimentController extends BaseController{
 		model.addAttribute("estats", opcions);
 	}
 
+	// Mètode per actualitzar procediments
 	
+	@RequestMapping(value = "/actualitzar")
+	public String actualitzar(
+			HttpServletRequest request, 
+			Model model) throws Exception {
+		
+		model.addAttribute("isUpdatingProcediments", procedimentService.isUpdatingProcediments());
+		return "v3/procedimentActualitzacioForm";
+	}
+	
+	@RequestMapping(value = "/actualitzar", method = RequestMethod.POST)
+	public String actualitzacioAutomaticaPost(
+			HttpServletRequest request,
+			Model model) {
 
+		try {
+			procedimentService.actualitzaProcediments();
+		} catch (Exception e) {
+			String errMsg = "Error inesperat al actualitzar els procediments: " + e.toString();
+			logger.error(errMsg, e);
+			MissatgesHelper.error(request, errMsg);
+			return "v3/procedimentActualitzacioForm";
+		}
+
+		return getAjaxControllerReturnValueSuccess(
+				request,
+				"v3/procedimentActualitzacioForm",
+				"procediment.controller.actualitzar.ok");
+	}
+
+	@RequestMapping(value = "/actualitzar/progres", method = RequestMethod.GET)
+	@ResponseBody
+	public ProgresActualitzacioDto getProgresActualitzacio(
+			HttpServletRequest request,
+			@RequestParam(value = "index", required = false) Integer index) {
+		
+		return this.getCopiaProgres(
+					procedimentService.getProgresActualitzacio(), 
+					index);
+	}
+
+
+	/** Mètode per retornar una còpia amb una subllista de informació en comptes de retornar tota
+	 * la informació de progrés.
+	 * 
+	 * @param progres Objecte amb la informació del progrés.
+	 * @param index Índex a partir de la cual es retorna la llista.
+	 * @return
+	 */
+	private ProgresActualitzacioDto getCopiaProgres(ProgresActualitzacioDto progres, Integer index) {
+
+		ProgresActualitzacioDto ret = new ProgresActualitzacioDto();
+		if (progres != null) {
+			ret.setError(progres.isError());
+			ret.setErrorMsg(progres.getErrorMsg());
+			ret.setFinished(progres.isFinished());
+			ret.setNumElementsActualitzats(progres.getNumElementsActualitzats());
+			ret.setNumOperacions(progres.getNumOperacions());
+			ret.setProgres(progres.getProgres());
+			ret.setNNous(progres.getNNous());
+			ret.setNExtingits(progres.getNExtingits());
+			ret.setNCanvis(progres.getNCanvis());
+			ret.setNAvisos(progres.getNAvisos());
+			ret.setNErrors(progres.getNErrors());
+			ret.setAvisos(progres.getAvisos());
+			ret.setNInfo(progres.getNInfo());
+			List<ActualitzacioInfo> infoList = progres.getInfo();
+			if (index != null) {
+				int lenght = infoList.size();
+				for (int i = Math.min(index, lenght - 1); i < lenght; i++) {
+					ret.addInfo(infoList.get(i));
+				}
+			} else {
+				ret.setInfo(infoList);
+			}
+			
+		} else {
+			ret.addInfo("No hi ha cap procés actualment");
+			ret.setFinished(true);
+		}
+
+		return ret;
+	}
+
+
+	private static final Log logger = LogFactory.getLog(ProcedimentController.class);
 }

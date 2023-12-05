@@ -6,6 +6,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentFiltreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProgresActualitzacioDto;
 
 /**
  * Declaració dels mètodes per a gestionar procediments.
@@ -25,14 +26,6 @@ public interface ProcedimentService {
 			PaginacioParamsDto paginacioParams);
 
 	/** 
-	 * Mètode per actualitzar la llista de procediments disponibles.
-	 * @throws Exception 
-	 * 
-	 */
-	public void findAndUpdateProcediments() throws Exception;
-	
-
-	/** 
 	 * Mètode per cercar procediments pel seu codiSia.
 	 * 
 	 */
@@ -45,4 +38,29 @@ public interface ProcedimentService {
 	 */
 	public List<ProcedimentDto> findByNomOrCodiSia(String nom);
 
+	
+	/// Mètodes per actualitzar procediments i obtenir informació de progrés
+	
+    /**
+     * Actualitza els procediments amb la informació dels procediments actual
+     * retornada pel plugin Gestor Documental Administratiu (GDA)
+     *
+     * @param entitat
+     */
+	public void actualitzaProcediments();
+
+    /**
+     * Consulta si existeix un procés en curs actualitzant els procediments.
+     *
+     * @return boolean Valor que indica si existeix un procés en segon pla actualitzant els procediements.
+     */
+	public boolean isUpdatingProcediments();
+
+	/** Obté la informació del progrés d'actualització dels procediments.
+	 * 
+	 * @return Retorna un objecte amb la informació del progrés d'actualització.
+	 */
+	public ProgresActualitzacioDto getProgresActualitzacio();
+
+	
 }

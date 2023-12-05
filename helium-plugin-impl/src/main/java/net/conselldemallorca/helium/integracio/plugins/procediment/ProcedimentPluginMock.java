@@ -19,10 +19,20 @@ public class ProcedimentPluginMock implements ProcedimentPlugin {
 			String codiDir3) throws SistemaExternException {
 		List<Procediment> response = new ArrayList<Procediment>();
 		Procediment p = new Procediment();
-		p.setCodigo("1324");
-		p.setCodigoSIA("1315");
-		p.setNombre("Procediment Mock");
+		p.setCodi("1234");
+		p.setCodiSia("12345");
+		p.setNom("Procediment Mock");
 		response.add(p);
 		return response;
+	}
+
+	@Override
+	public UnitatAdministrativa findUnitatAdministrativaAmbCodi(String codi) throws SistemaExternException {
+		UnitatAdministrativa ua = new UnitatAdministrativa();
+		ua.setCodi(codi);
+		ua.setCodiDir3("123456789");
+		ua.setNom("Unitat Administrativa Mock");
+		ua.setPareCodi(null);
+		return ua;
 	}
 }

@@ -17,6 +17,7 @@ public class ProcedimentDto implements Comparable<ProcedimentDto>{
 	private String nom;
 	private String codiSia;
 	private ProcedimentEstatEnumDto estat;
+	private boolean comu;
 	private UnitatOrganitzativaDto unitatOrganitzativa;
 
 	public Long getId() {
@@ -60,6 +61,13 @@ public class ProcedimentDto implements Comparable<ProcedimentDto>{
 	}
 	public String getCodiNomEstat() {
 		return codiSia + " - " + nom + " => " + estat;
+	}
+	
+	public boolean isComu() {
+		return comu;
+	}
+	public void setComu(boolean comu) {
+		this.comu = comu;
 	}
 	
 	@Override
