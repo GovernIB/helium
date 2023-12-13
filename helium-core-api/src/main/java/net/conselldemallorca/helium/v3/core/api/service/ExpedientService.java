@@ -103,6 +103,7 @@ public interface ExpedientService {
 			Long definicioProcesId,
 			Integer any,
 			String numero,
+			String unitatOrganitzativaCodi,
 			String titol,
 			String registreNumero,
 			Date registreData,

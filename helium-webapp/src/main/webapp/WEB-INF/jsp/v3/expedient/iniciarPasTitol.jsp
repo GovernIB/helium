@@ -75,7 +75,18 @@
 				<spring:message code="anotacio.form.acceptar.crear.info"></spring:message>
 			</div>
 		</c:if>
-
+		<c:if test="${expedientTipus.procedimentComu}">
+			<div class="control-group fila_reducida">
+				<hel:inputSuggest 
+						name="unitatOrganitzativaCodi" 
+						urlConsultaInicial="/helium/v3/unitatOrganitzativa/suggestInici" 
+						urlConsultaLlistat="/helium/v3/unitatOrganitzativa/suggest" 
+						textKey="expedient.tipus.permis.form.camp.unitat.organitzativa" 
+						placeholderKey="expedient.tipus.permis.form.camp.unitat.organitzativa"
+						required="true"
+						labelSize="4"/>	
+			</div>
+		</c:if>		
 		<c:if test="${expedientTipus.teNumero and expedientTipus.demanaNumero}">
 			<div class="controls fila_reducida">
 				<hel:inputText required="true" text="" name="numero" textKey="expedient.consulta.numero" placeholderKey="expedient.consulta.numero" inline="false"/>

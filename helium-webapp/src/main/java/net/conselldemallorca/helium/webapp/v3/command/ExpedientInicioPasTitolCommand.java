@@ -19,6 +19,7 @@ public class ExpedientInicioPasTitolCommand {
 	private String titol;
 	private String responsableCodi;
 	private Integer any;
+	private String unitatOrganitzativaCodi;
 
 	public ExpedientInicioPasTitolCommand() {}
 
@@ -67,5 +68,14 @@ public class ExpedientInicioPasTitolCommand {
 		this.any = any;
 	}
 	
+	public String getUnitatOrganitzativaCodi() {
+		return unitatOrganitzativaCodi;
+	}
+
+	public void setUnitatOrganitzativaCodi(String unitatOrganitzativaCodi) {
+		this.unitatOrganitzativaCodi = unitatOrganitzativaCodi;
+	}
+
+
 	public interface Inici{};
 }

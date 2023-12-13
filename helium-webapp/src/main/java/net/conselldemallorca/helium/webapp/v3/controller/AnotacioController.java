@@ -317,6 +317,9 @@ public class AnotacioController extends BaseExpedientController {
 		else if (expedientTipusId != null) {
 			anotacioAcceptarCommand.setAccio(AnotacioAccioEnumDto.CREAR);
 			anotacioAcceptarCommand.setNumero(expedientService.getNumeroExpedientActual(EntornActual.getEntornId(), expedientTipusId, anotacioAcceptarCommand.getAny()));
+			if(anotacio.getExpedientTipus()!=null && anotacio.getExpedientTipus().isProcedimentComu()) {
+				anotacioAcceptarCommand.setUnitatOrganitzativaCodi(anotacio.getDestiCodi());
+			}
 		}
 		anotacioAcceptarCommand.setAssociarInteressats(true);
 		model.addAttribute("anotacio", anotacio);
@@ -355,6 +358,9 @@ public class AnotacioController extends BaseExpedientController {
 		}
 		String ret = null;
 		try {
+			if(anotacio!=null && anotacio.getExpedientTipus()!=null && anotacio.getExpedientTipus().isProcedimentComu()) {
+				command.setUnitatOrganitzativaCodi(anotacio.getDestiCodi());
+			}
 			switch(command.getAccio()) {
 			case GUARDAR:
 				// Guarda le opcions de tipus d'expedient i expedient
@@ -374,6 +380,7 @@ public class AnotacioController extends BaseExpedientController {
 				break;
 			case CREAR:
 				// Afegeix la informació de l'anotació a la sessió i redirigeix cap al formulari de creació
+				request.getSession().setAttribute(ExpedientIniciController.CLAU_SESSIO_UNITAT_ORGANITZATIVA_CODI, command.getUnitatOrganitzativaCodi());
 				request.getSession().setAttribute(ExpedientIniciController.CLAU_SESSIO_ANOTACIO, command);
 				request.getSession().setAttribute(ExpedientIniciController.CLAU_SESSIO_NUMERO, command.getNumero());
 				request.getSession().setAttribute(ExpedientIniciController.CLAU_SESSIO_TITOL, command.getTitol());

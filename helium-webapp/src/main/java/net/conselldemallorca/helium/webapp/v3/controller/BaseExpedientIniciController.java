@@ -36,6 +36,7 @@ public class BaseExpedientIniciController extends BaseExpedientController {
 	public static final String CLAU_SESSIO_TASKID = "iniciexp_taskId";
 	public static final String CLAU_SESSIO_TITOL = "iniciexp_titol";
 	public static final String CLAU_SESSIO_NUMERO = "iniciexp_numero";
+	public static final String CLAU_SESSIO_UNITAT_ORGANITZATIVA_CODI = "iniciexp_unitat_organitzativa_codi";
 	public static final String CLAU_SESSIO_FORM_VALIDAT = "iniciexp_form_validat";
 	private static final String CLAU_SESSIO_FORM_COMMAND = "iniciexp_form_command";
 	public static final String CLAU_SESSIO_FORM_VALORS = "iniciexp_form_registres";
@@ -64,6 +65,7 @@ public class BaseExpedientIniciController extends BaseExpedientController {
 			Long entornId,
 			Long expedientTipusId,
 			Long definicioProcesId,
+			String unitatOrganitzativaCodi,
 			String numero,
 			String titol,
 			Integer any,
@@ -77,6 +79,7 @@ public class BaseExpedientIniciController extends BaseExpedientController {
 				definicioProcesId,
 				any,
 				numero,
+				unitatOrganitzativaCodi,
 				titol,
 				null, null, null, null, false, null, null, null, null, null, null, false, null, null, false, 
 				valors, 
@@ -121,6 +124,7 @@ public class BaseExpedientIniciController extends BaseExpedientController {
 		}
 		request.getSession().removeAttribute(CLAU_SESSIO_TASKID);
 		request.getSession().removeAttribute(CLAU_SESSIO_NUMERO);
+		request.getSession().removeAttribute(CLAU_SESSIO_UNITAT_ORGANITZATIVA_CODI);
 		request.getSession().removeAttribute(CLAU_SESSIO_TITOL);
 		request.getSession().removeAttribute(CLAU_SESSIO_FORM_VALIDAT);
 		request.getSession().removeAttribute(CLAU_SESSIO_FORM_COMMAND);

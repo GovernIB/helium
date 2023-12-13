@@ -932,4 +932,11 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 		return delegate.permisFindAllByExpedientTipusProcedimentComu(expedientTipusId);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean tePermis(Long expedientId, String unitatOrganitzativaCodi)
+			throws NoTrobatException, PermisDenegatException {
+		return delegate.tePermis(expedientId, unitatOrganitzativaCodi);
+	}
+
 }

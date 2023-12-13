@@ -33,6 +33,7 @@ public class AnotacioAcceptarCommand {
 	private Integer any;
 	private String numero;
 	private boolean associarInteressats;
+	private String unitatOrganitzativaCodi;
 	
 	public Long getEntornId() {
 		return entornId;
@@ -87,6 +88,12 @@ public class AnotacioAcceptarCommand {
 	}
 	public void setAccio(AnotacioAccioEnumDto accio) {
 		this.accio = accio;
+	}
+	public String getUnitatOrganitzativaCodi() {
+		return unitatOrganitzativaCodi;
+	}
+	public void setUnitatOrganitzativaCodi(String unitatOrganitzativaCodi) {
+		this.unitatOrganitzativaCodi = unitatOrganitzativaCodi;
 	}
 	@Override
 	public String toString() {

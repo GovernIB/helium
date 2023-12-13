@@ -123,6 +123,7 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 							entorn.getId(),
 							expedientTipusId,
 							definicioProces.getId(),
+							(String)request.getSession().getAttribute(CLAU_SESSIO_UNITAT_ORGANITZATIVA_CODI),
 							(String)request.getSession().getAttribute(CLAU_SESSIO_NUMERO),
 							(String)request.getSession().getAttribute(CLAU_SESSIO_TITOL),
 							(Integer)request.getSession().getAttribute(CLAU_SESSIO_ANY),

@@ -45,6 +45,7 @@ public class ExpedientIniciarController extends BaseController {
 	public static final String CLAU_SESSIO_TASKID = "iniciexp_taskId";
 	public static final String CLAU_SESSIO_TITOL = "iniciexp_titol";
 	public static final String CLAU_SESSIO_NUMERO = "iniciexp_numero";
+	public static final String CLAU_SESSIO_UNITAT_ORGANITZATIVA_CODI = "iniciexp_unitat_organitzativa_codi";
 	public static final String CLAU_SESSIO_ANY = "iniciexp_any";
 	public static final String CLAU_SESSIO_FORM_VALIDAT = "iniciexp_form_validat";
 	public static final String CLAU_SESSIO_FORM_COMMAND = "iniciexp_form_command";
@@ -187,6 +188,7 @@ public class ExpedientIniciarController extends BaseController {
 		}
 		request.getSession().removeAttribute(ExpedientIniciarController.CLAU_SESSIO_TASKID);
 		request.getSession().removeAttribute(ExpedientIniciarController.CLAU_SESSIO_NUMERO);
+		request.getSession().removeAttribute(ExpedientIniciarController.CLAU_SESSIO_UNITAT_ORGANITZATIVA_CODI);
 		request.getSession().removeAttribute(ExpedientIniciarController.CLAU_SESSIO_TITOL);
 		request.getSession().removeAttribute(ExpedientIniciarController.CLAU_SESSIO_FORM_VALIDAT);
 		request.getSession().removeAttribute(ExpedientIniciarController.CLAU_SESSIO_FORM_COMMAND);

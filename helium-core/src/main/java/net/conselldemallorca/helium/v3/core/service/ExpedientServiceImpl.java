@@ -298,6 +298,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			Long definicioProcesId,
 			Integer any,
 			String numero,
+			String unitatOrganitzativaCodi,
 			String titol,
 			String registreNumero,
 			Date registreData,
@@ -354,6 +355,9 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 						adjunts = new ArrayList<DadesDocumentDto>();
 					adjunts.addAll(resultatMapeig.getAdjunts());
 				}
+				if(expedientTipus.isProcedimentComu() && unitatOrganitzativaCodi==null) {
+					unitatOrganitzativaCodi=anotacio.getDestiCodi();
+				}
 				registreNumero = anotacio.getIdentificador();
 				registreData = anotacio.getData();
 			}
@@ -367,6 +371,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					definicioProcesId, 
 					any, 
 					numero, 
+					unitatOrganitzativaCodi,
 					titol, 
 					registreNumero, 
 					registreData, 

@@ -70,6 +70,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
+import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
@@ -104,6 +105,7 @@ import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
+import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaRepository;
 
 /**
  * Helper per a gestionar els expedients.
@@ -133,6 +135,8 @@ public class ExpedientHelper {
 	private EstatAccioEntradaRepository estatAccioEntradaRepository;
 	@Resource
 	private EstatAccioSortidaRepository estatAccioSortidaRepository;
+	@Resource
+	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
 
 	@Resource
 	private EntornHelper entornHelper;
@@ -1527,6 +1531,7 @@ public class ExpedientHelper {
 			Long definicioProcesId,
 			Integer any,
 			String numero,
+			String unitatOrganitzativaCodi,
 			String titol,
 			String registreNumero,
 			Date registreData,
@@ -1573,7 +1578,11 @@ public class ExpedientHelper {
 		}
 		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom());
 		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Nou expedient");
-		String iniciadorCodiCalculat = (iniciadorTipus.equals(IniciadorTipusDto.INTERN)) ? usuariBo : iniciadorCodi;
+		String iniciadorCodiCalculat = (iniciadorTipus.equals(IniciadorTipusDto.INTERN)) ? usuariBo : iniciadorCodi;		
+		if(unitatOrganitzativaCodi!=null) {
+			UnitatOrganitzativa unitatOrganitzativa = unitatOrganitzativaRepository.findByCodi(unitatOrganitzativaCodi);
+			expedient.setUnitatOrganitzativa(unitatOrganitzativa);
+		}		
 		expedient.setTipus(expedientTipus);
 		expedient.setIniciadorTipus(conversioTipusHelper.convertir(iniciadorTipus, IniciadorTipus.class));
 		expedient.setIniciadorCodi(iniciadorCodiCalculat);

@@ -83,6 +83,7 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 	private ExpedientTipusDto tipus;
 	private EstatTipusDto estatTipus;
 	private EstatDto estat;
+	private UnitatOrganitzativaDto unitatOrganitzativa;
 
 	private String errorDesc;
 	private String errorFull;
@@ -518,6 +519,13 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 		this.interessats = interessats;
 	}
 
+	public UnitatOrganitzativaDto getUnitatOrganitzativa() {
+		return unitatOrganitzativa;
+	}
+
+	public void setUnitatOrganitzativa(UnitatOrganitzativaDto unitatOrganitzativa) {
+		this.unitatOrganitzativa = unitatOrganitzativa;
+	}
 
 	public String getEstatNom() {
 		if (getEstat() != null)

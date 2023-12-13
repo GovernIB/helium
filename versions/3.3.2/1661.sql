@@ -102,6 +102,18 @@ INSERT INTO HEL_ACL_CLASS (ID, CLASS)
 VALUES (HEL_ACL_CLASS_SEQ.NEXTVAL, 'net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa');  
 	
 
+-- Nova relació expedient amb unitat organitzativa (Fase 3)
+ALTER TABLE HEL_EXPEDIENT ADD (	
+		UNITAT_ORGANITZATIVA_ID NUMBER(19));
+ALTER TABLE HEL_EXPEDIENT ADD (
+	CONSTRAINT HEL_UNIT_ORG_EXPEDIENT_FK
+	FOREIGN KEY (UNITAT_ORGANITZATIVA_ID) REFERENCES HEL_UNITAT_ORGANITZATIVA(ID));
+
+
+
+
+
+
 -- Postgesql
 	
 -- Nova taula pels procediments

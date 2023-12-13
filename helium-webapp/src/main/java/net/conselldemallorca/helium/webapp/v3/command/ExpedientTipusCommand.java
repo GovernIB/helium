@@ -38,6 +38,7 @@ public class ExpedientTipusCommand {
 	private boolean teNumero;
 	private boolean demanaTitol;
 	private boolean demanaNumero;
+	private boolean procedimentComu;
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String expressioNumero;
 	private long sequencia = 1;
@@ -223,7 +224,12 @@ public class ExpedientTipusCommand {
 	public void setManualAjudaContent(byte[] manualAjudaContent) {
 		this.manualAjudaContent = manualAjudaContent;
 	}
-
+	public boolean isProcedimentComu() {
+		return procedimentComu;
+	}
+	public void setProcedimentComu(boolean procedimentComu) {
+		this.procedimentComu = procedimentComu;
+	}
 
 	public interface Creacio {}
 	public interface Modificacio {}

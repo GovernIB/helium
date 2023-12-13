@@ -41,6 +41,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerExcep
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.AnotacioAcceptarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientInicioPasTitolCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientInicioPasTitolCommand.Inici;
@@ -77,10 +78,11 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 		Integer any = (Integer)request.getSession().getAttribute(CLAU_SESSIO_ANY);
 		String numero = (String)request.getSession().getAttribute(CLAU_SESSIO_NUMERO);
 		String titol = (String)request.getSession().getAttribute(CLAU_SESSIO_TITOL);
+		String unitatOrganitzativaCodi = (String)request.getSession().getAttribute(CLAU_SESSIO_UNITAT_ORGANITZATIVA_CODI);
 		command.setAny(any != null ? any : Calendar.getInstance().get(Calendar.YEAR));
 		command.setNumero(numero != null && !numero.isEmpty() ? numero : expedientService.getNumeroExpedientActual(entorn.getId(), expedientTipusId, command.getAny()));
 		command.setTitol(titol);
-
+		command.setUnitatOrganitzativaCodi(unitatOrganitzativaCodi);
 		model.addAttribute(command);
 		model.addAttribute("anysSeleccionables", getAnysSeleccionables());
 		model.addAttribute("expedientTipus", expedientTipus);
@@ -106,7 +108,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 			
 			Validator validator = null;
 			try {
-				validator = new ExpedientInicioPasTitolValidator(expedientTipus, expedientService);
+				validator = new ExpedientInicioPasTitolValidator(expedientTipus, expedientService, expedientTipusService);
 				validator.validate(expedientInicioPasTitolCommand, result);
 			} catch (Exception ex) {
 				validator = null;
@@ -133,6 +135,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 								expedientInicioPasTitolCommand.getEntornId(), 
 								expedientInicioPasTitolCommand.getExpedientTipusId(), 
 								definicioProcesId, 
+								expedientInicioPasTitolCommand.getUnitatOrganitzativaCodi(),
 								expedientInicioPasTitolCommand.getNumero(), 
 								expedientInicioPasTitolCommand.getTitol(), 
 								expedientInicioPasTitolCommand.getAny(),
@@ -188,10 +191,12 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 	protected class ExpedientInicioPasTitolValidator implements Validator {
 		private ExpedientTipusDto tipus;
 		private ExpedientService expedientService;
+		private ExpedientTipusService expedientTipusService;
 
-		public ExpedientInicioPasTitolValidator(ExpedientTipusDto tipus, ExpedientService expedientService) {
+		public ExpedientInicioPasTitolValidator(ExpedientTipusDto tipus, ExpedientService expedientService, ExpedientTipusService expedientTipusService) {
 			this.tipus = tipus;
 			this.expedientService = expedientService;
+			this.expedientTipusService = expedientTipusService;
 		}
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -204,6 +209,15 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 			if (tipus == null) {
 				errors.reject("error.expedienttipus.desconegut");
 			} else {
+				if(tipus.isProcedimentComu()){
+					if(command.getUnitatOrganitzativaCodi()==null || command.getUnitatOrganitzativaCodi().isEmpty())
+						errors.rejectValue("unitatOrganitzativaCodi", "not.blank");
+					else {//comprovar que l'usuari té permís sobre la UO (FALTA MIRAR ARBRE per veure els DESCENDENTS--> també tindria permisos)
+						boolean tePermis = expedientTipusService.tePermis(tipus.getId(), command.getUnitatOrganitzativaCodi());
+						if(!tePermis)
+							errors.rejectValue("unitatOrganitzativaCodi", "error.expedient.permis.creacio.unitat.organitzativa");	
+					}
+				}
 				if (tipus.isTeNumero() && tipus.isDemanaNumero()) {
 					if (command.getNumero() == null || command.getNumero().isEmpty())
 						errors.rejectValue("numero", "not.blank");

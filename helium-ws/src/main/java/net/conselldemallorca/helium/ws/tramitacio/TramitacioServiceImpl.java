@@ -168,6 +168,7 @@ public class TramitacioServiceImpl implements TramitacioService {
 					null,
 					null,
 					numero,
+					null,//unitatOrganitzativaCodi
 					titol,
 					null,
 					null,

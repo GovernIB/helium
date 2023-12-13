@@ -71,6 +71,7 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	private String numero;
 	@MaxLength(64)
 	private String numeroDefault;
+	private UnitatOrganitzativa unitatOrganitzativa;
 	@NotNull
 	private Date dataInici = new Date();
 	private Date dataFi;
@@ -224,7 +225,15 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	public void setNumeroDefault(String numeroDefault) {
 		this.numeroDefault = numeroDefault;
 	}
-
+	@ManyToOne(optional=false)
+	@JoinColumn(name="unitat_organitzativa_id")
+	@ForeignKey(name="hel_unit_org_expedient_fk")
+	public UnitatOrganitzativa getUnitatOrganitzativa() {
+		return unitatOrganitzativa;
+	}
+	public void setUnitatOrganitzativa(UnitatOrganitzativa unitatOrganitzativa) {
+		this.unitatOrganitzativa = unitatOrganitzativa;
+	}
 	@Column(name="data_inici", nullable=false)
 	public Date getDataInici() {
 		return dataInici;

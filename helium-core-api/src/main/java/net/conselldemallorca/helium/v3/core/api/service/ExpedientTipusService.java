@@ -1630,5 +1630,23 @@ public interface ExpedientTipusService {
 	 */
 	public List<PermisDto> permisFindAllByExpedientTipusProcedimentComu(
 			Long expedientTipusId) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Retorna un booleà per saber si té permís per a un tipus d'expedient amb procediment comú relacionat amb una unitat organitzativa en concret.
+	 * 
+	 * @param expedientTipusId
+	 *            Atribut id del tipus d'expedient.
+	 * @param unitatOrganitzativaCodi
+	 * 
+	 * @return boolea si té permís
+	 * 
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 * @throws PermisDenegatException
+	 *             Si no es tenen els permisos necessaris.
+	 */
+	public boolean tePermis(Long expedientId, 
+			String unitatOrganitzativaCodi) throws NoTrobatException, PermisDenegatException;
+
 
 }

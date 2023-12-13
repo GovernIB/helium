@@ -373,9 +373,14 @@ dd.subproc {
 								</a>
 						</c:if>	
 					</dd>
+					<c:if test="${expedient.unitatOrganitzativa != null}">
+						<dt><spring:message code='expedient.info.camp.unitat.organitzativa' /></dt>
+						<dd>${expedient.unitatOrganitzativa.codiAndNom}</dd>
+					</c:if>
 					<c:if test="${not empty expedient.registreNumero}">
 						<dt><spring:message code='expedient.info.camp.registre.numero' /></dt>
-						<dd>${expedient.registreNumero}</dd></c:if>
+						<dd>${expedient.registreNumero}</dd>
+					</c:if>
 					<c:if test="${not empty expedient.registreData}">
 						<dt><spring:message code='expedient.info.camp.registre.data' /></dt>
 						<dd><fmt:formatDate value="${expedient.registreData}" pattern="dd/MM/yyyy"/></dd>

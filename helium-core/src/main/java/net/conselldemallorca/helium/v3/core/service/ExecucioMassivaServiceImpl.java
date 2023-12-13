@@ -2339,7 +2339,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 						expedientTipus.getId(), 
 						ome.getDefinicioProcesId(), 
 						any, 
-						numero, 
+						numero,
+						null,//unitat organitzativa codi
 						titol, 
 						null, 
 						null, 

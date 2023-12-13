@@ -2296,6 +2296,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
     			ExpedientTipusUnitatOrganitzativa expTipusUnitOrg = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaCodi(
     					expedientTipusId, 
     					unitatOrganitzativaCodi);
+    			if(expTipusUnitOrg==null)
+    				throw new NoTrobatException(PermisDto.class, permisId);
     			permisosHelper.deletePermis(
     					expTipusUnitOrg.getId(),
     					ExpedientTipusUnitatOrganitzativa.class,
@@ -2311,6 +2313,32 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			if (authOrignal != null)
 				SecurityContextHolder.getContext().setAuthentication(authOrignal);
     	}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean tePermis(Long expedientId, String unitatOrganitzativaCodi) {
+		ExpedientTipusUnitatOrganitzativa expTipusUnitOrg = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaCodi(
+				expedientId, 
+				unitatOrganitzativaCodi);
+		if(expTipusUnitOrg==null) {
+			return false;
+		}
+		List<PermisDto> permisos = permisosHelper.findPermisos(
+				expTipusUnitOrg.getId(),
+				ExpedientTipusUnitatOrganitzativa.class);	
+		Authentication authOriginal = SecurityContextHolder.getContext().getAuthentication();		
+		for(PermisDto permis: permisos) {
+			if(permis.getPrincipalNom()!=null 
+				&& authOriginal!=null 
+				&& authOriginal.getName()!=null 
+				&& permis.getPrincipalNom().equals(authOriginal.getName())
+				&& permis.isCreate())
+					return true;
+		}		
+		return false;
 	}
 	
 	/** Mètode per afegir el rol d'administrador al context en el cas que l'usuari sigui administrador de

@@ -766,6 +766,7 @@ public class DistribucioHelper {
 							null, //definicioProcesId,
 							null, //any, 
 							expedientTipus.getDemanaNumero() ? anotacio.getIdentificador() : null, //numero, 
+							anotacio.getDestiCodi(),  //unitatOrganitzativaCodi
 							expedientTipus.getDemanaTitol() ? anotacio.getExtracte() : null, //titol, 
 							anotacio.getIdentificador(), //registreNumero, 
 							anotacio.getData(), //registreData, 
