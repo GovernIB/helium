@@ -43,7 +43,8 @@
 		<hr/>
 		<c:if test="${not empty permisCommand.id}">
 			<form:hidden path="principalTipus"/>
-			<form:hidden path="principalNom"/>	
+			<form:hidden path="principalNom"/>
+			<form:hidden path="unitatOrganitzativaCodiNom" style="display:none"/>	
 		</c:if>
 		<div class="row">
 			<div class="col-sm-3"><hel:inputCheckbox name="read" textKey="permis.READ" labelSize="8" info="permis.READ.info"/></div>

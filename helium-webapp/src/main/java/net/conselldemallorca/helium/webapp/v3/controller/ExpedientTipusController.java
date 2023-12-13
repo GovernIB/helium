@@ -831,10 +831,6 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				entornActual.getId(),
 				id);
 		PermisCommand permisCommand = new PermisCommand();
-//		if(expedientTipusDto.isProcedimentComu()) {
-//			permisCommand.setAdministration(false);
-//			permisCommand.setDesign(false);
-//		}
 		model.addAttribute(
 				"expedientTipus",
 				expedientTipusDto);
