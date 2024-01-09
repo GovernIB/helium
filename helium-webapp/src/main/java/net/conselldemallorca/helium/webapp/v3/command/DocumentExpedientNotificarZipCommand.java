@@ -14,11 +14,6 @@ import org.hibernate.validator.constraints.NotEmpty;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesPrioritatEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesTipusEnumDto;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDocumentCommand.Creacio;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDocumentCommand.Modificacio;
 
 /**
  * Command pel formulari d'enviament al portasignatures dels documents.
@@ -34,6 +29,7 @@ public class DocumentExpedientNotificarZipCommand {
 	private String titol;
 	@NotEmpty(groups = {NotificarZip.class}) 
 	private List<Long> annexos = new ArrayList<Long>();
+
 	@NotNull
 	private NtiOrigenEnumDto ntiOrigen;
 	@NotNull

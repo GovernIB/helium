@@ -2,6 +2,7 @@
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
 
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
@@ -25,6 +26,20 @@
 	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
 <script type="text/javascript">
+//<![CDATA[            
+
+	$(document).ready(function() {
+		// <c:if test="${expedient.tipus.tipus == 'FLOW'}">
+		$('#annexos').select2({
+			placeholder: "<spring:message code='expedient.document.notificar.zip.documents.placeholder'/>",
+			allowClear: true,
+			closeOnSelect: false,
+			language: "${idioma}"
+		});
+		// </c:if>
+	});
+
+// ]]>
 </script>
 
 </head>
@@ -33,7 +48,45 @@
 		<form:form 	cssClass="form-horizontal form-tasca" enctype="multipart/form-data" method="post" commandName="documentExpedientNotificarZipCommand">
 			<div>
 				<hel:inputText required="true" name="titol" textKey="expedient.document.notificat.zip.titol"/>
-				<hel:inputSelect required="true" name="annexos" multiple="true" textKey="expedient.document.notificar.zip.documents" placeholderKey="expedient.document.notificar.zip.documents.placeholder" optionItems="${annexos}" optionValueAttribute="codi" optionTextAttribute="valor" labelSize="4"/>	
+				<c:choose>
+					<c:when test="${expedient.tipus.tipus == 'ESTAT' }">
+						<hel:inputSelect required="true" name="annexos" multiple="true" textKey="expedient.document.notificar.zip.documents" placeholderKey="expedient.document.notificar.zip.documents.placeholder" optionItems="${annexos}" optionValueAttribute="codi" optionTextAttribute="valor" labelSize="4"/>
+					</c:when>
+					<c:otherwise>
+						<!-- Annexos agrupats per procés-->
+						<div class="form-group">
+							<label class="control-label col-xs-4 obligatori hiddenInfoContainer" for="annexos">
+								<spring:message code="expedient.document.notificar.zip.documents"/>
+							</label>
+							<div class="controls col-xs-8">
+								<select id="annexos" name="annexos" class="js-states form-control" multiple="multiple">
+									<c:forEach var="proces" items="${processos}">
+										<c:set var="proces_titol">
+											<c:choose>
+												<c:when test="${proces.instanciaProcesPareId == null}">
+													<spring:message code='common.tabsexp.proc_princip'/>
+												</c:when>
+												<c:otherwise>${proces.titol}</c:otherwise>
+											</c:choose>
+										</c:set>
+										<!-- Documents per procés -->							
+										<optgroup id="proces_${proces.id}" label="${proces_titol}">
+											<c:forEach var="annex" items="${annexosPerProces[proces.id]}">
+												<option value="${annex.codi}"
+													<c:if test="${fn:contains(documentExpedientNotificarZipCommand.annexos, annex.codi) }">
+														 selected="selected"
+													</c:if>
+												>
+													${annex.valor }
+												</option>
+											</c:forEach>
+										</optgroup>
+									</c:forEach>
+								</select>					
+							</div>
+						</div>					
+					</c:otherwise>
+				</c:choose>
 			</div>
 			
 			<!-- Metadades NTI -->

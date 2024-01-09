@@ -112,6 +112,7 @@ public abstract class BaseBackoffice {
 					null, // expedientNumero
 					expedientTitol,
 					tramit.getRegistreNumero(),
+					null,
 					tramit.getRegistreData(),
 					new Long(tramit.getUnitatAdministrativa()),
 					tramit.getIdioma(),

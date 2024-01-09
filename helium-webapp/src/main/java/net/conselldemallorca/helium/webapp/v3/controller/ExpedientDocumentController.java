@@ -289,25 +289,21 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			return "v3/expedientDocumentList";
 		}
 
+		// Obté l'arbre de processos però retorna un map amb tots els processos consultant només el principal
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
-		Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documents = new LinkedHashMap<InstanciaProcesDto, List<ExpedientDocumentDto>>();
+		Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documents  = new HashMap<InstanciaProcesDto, List<ExpedientDocumentDto>> ();
+		for (InstanciaProcesDto instanciaProces : arbreProcessos) {
+			List<ExpedientDocumentDto> documentsInstancia = null;
+			if (instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
+				documentsInstancia = this.getDocumentsPerProces(expedient, instanciaProces, sort);
+			}
+			documents.put(instanciaProces, documentsInstancia);
+		}
+		
 		List<PortasignaturesDto> portasignaturesPendent = expedientDocumentService.portasignaturesFindPendents(
 				expedientId,
 				expedient.getProcessInstanceId());
-		// Per a cada instància de procés ordenem les dades per agrupació  
-		// (si no tenen agrupació les primeres) i per ordre alfabètic de la etiqueta
-		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
-			List<ExpedientDocumentDto> documentsInstancia = null;
-			if (instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
-				documentsInstancia = expedientDocumentService.findAmbInstanciaProces(
-						expedientId,
-						instanciaProces.getId());
-				// Ordena els documents per codi de document i si són annexos i no en tenen llavors van darrera ordenats per nom
-				Collections.sort(documentsInstancia, new ExpedientDocumentDtoComparador(sort));	
-			}
-			
-			documents.put(instanciaProces, documentsInstancia);
-		}
+
 		model.addAttribute("expedient", expedient);
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("documents", documents);
@@ -322,6 +318,41 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return "v3/expedientDocument";
 	}
 
+	/** Obté un Map<InstanciaProcesDto, List<ExpedientDocumentDto>> amb els documetns per instància de procés
+	 * 
+	 * @param expedient
+	 * @param proces
+	 * @param sort 
+	 * @return
+	 */
+	private Map<InstanciaProcesDto, List<ExpedientDocumentDto>> getDocumentsArbreProcessos(
+			ExpedientDto expedient, 
+			String sort) {
+		List<InstanciaProcesDto> processos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
+		Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documents = new LinkedHashMap<InstanciaProcesDto, List<ExpedientDocumentDto>>();
+		// Per a cada instància de procés ordenem les dades per agrupació  
+		// (si no tenen agrupació les primeres) i per ordre alfabètic de la etiqueta
+		for (InstanciaProcesDto instanciaProces: processos) {
+			List<ExpedientDocumentDto> documentsInstancia = this.getDocumentsPerProces(expedient, instanciaProces, sort);
+			documents.put(instanciaProces, documentsInstancia);
+		}
+		return documents;
+	}
+
+	private List<ExpedientDocumentDto> getDocumentsPerProces(
+			ExpedientDto expedient, 
+			InstanciaProcesDto instanciaProces, 
+			String sort) {
+		// Per a cada instància de procés ordenem les dades per agrupació  
+		// (si no tenen agrupació les primeres) i per ordre alfabètic de la etiqueta
+		List<ExpedientDocumentDto> documentsInstancia = expedientDocumentService.findAmbInstanciaProces(
+				expedient.getId(),
+				instanciaProces.getId());
+		// Ordena els documents per codi de document i si són annexos i no en tenen llavors van darrera ordenats per nom
+		Collections.sort(documentsInstancia, new ExpedientDocumentDtoComparador(sort));	
+		return documentsInstancia;
+	}
+
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document", method = RequestMethod.GET)
 	public String documentProces(
 			HttpServletRequest request,
@@ -332,16 +363,11 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 
 		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(processInstanceId);
-		List<ExpedientDocumentDto> documentsProces = expedientDocumentService.findAmbInstanciaProces(
-				expedientId,
-				processInstanceId);
-		// Ordena els documents per codi de document i si són annexos i no en tenen llavors van darrera ordenats per nom
-		Collections.sort(documentsProces, new ExpedientDocumentDtoComparador(sort));
-		Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documents = new LinkedHashMap<InstanciaProcesDto, List<ExpedientDocumentDto>>();
+		Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documents  = new HashMap<InstanciaProcesDto, List<ExpedientDocumentDto>>();
+		documents.put(instanciaProces, this.getDocumentsPerProces(expedient, instanciaProces, sort));
 		List<PortasignaturesDto> portasignaturesPendent = expedientDocumentService.portasignaturesFindPendents(
 				expedientId,
 				processInstanceId);
-		documents.put(instanciaProces, documentsProces);
 		model.addAttribute("expedient", expedient);
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("documents",documents);
@@ -1673,18 +1699,56 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	
 	/** Mètode per afegir al model de la modal de notificar diferents documents els possibles annexos. */
 	private void emplenarModelPossiblesAnnexosNotificacioZip(Long expedientId, String processInstanceId, Model model) {
-		List<ExpedientDocumentDto> annexos = expedientDocumentService.findAmbInstanciaProces(expedientId, processInstanceId);		
-		List<ParellaCodiValorDto> annexosNoZip = new ArrayList<ParellaCodiValorDto>();
-		for(ExpedientDocumentDto ann : annexos) {
-			if (!ann.getArxiuExtensio().contains("zip"))
-				annexosNoZip.add(
-						new ParellaCodiValorDto(
-										String.valueOf(ann.getId()), 
-										ann.isAdjunt() ? 
-												ann.getAdjuntTitol() + " (adjunt)"
-												: ann.getDocumentNom()));
+
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		model.addAttribute("expedient", expedient);
+
+		List<ParellaCodiValorDto> annexosNoZip;
+		if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus())) {
+			
+			// en el cas d'expedients per estat no hi ha documents en els subprocessos
+			List<ExpedientDocumentDto> annexos = expedientDocumentService.findAmbInstanciaProces(expedientId, processInstanceId);		
+			annexosNoZip = new ArrayList<ParellaCodiValorDto>();
+			for(ExpedientDocumentDto ann : annexos) {
+				if (!ann.getArxiuExtensio().contains("zip"))
+					annexosNoZip.add(
+							new ParellaCodiValorDto(
+											String.valueOf(ann.getId()), 
+											ann.isAdjunt() ? 
+													ann.getAdjuntTitol() + " (adjunt)"
+													: ann.getDocumentNom()));
+			}
+			model.addAttribute("annexos", annexosNoZip);
+		} else {
+			
+			// en el cas d'expedients amb fluxe agrupa els documents per subprocessos
+			Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documentsProces = this.getDocumentsArbreProcessos(expedient, "default");
+			Map<String, List<ParellaCodiValorDto>> annexosPerProces = new LinkedHashMap<String, List<ParellaCodiValorDto>>();
+			List<InstanciaProcesDto> processos = new ArrayList<InstanciaProcesDto>();			
+			for (InstanciaProcesDto instanciaProces: documentsProces.keySet()) {
+				if (instanciaProces.getInstanciaProcesPareId() == null) {
+					// Procés principal
+					processos.add(0, instanciaProces);
+				} else {
+					// Subprocés
+					processos.add(instanciaProces);
+				}
+				annexosNoZip = new ArrayList<ParellaCodiValorDto>();
+				for(ExpedientDocumentDto ann : documentsProces.get(instanciaProces)) {
+					if (!ann.getArxiuExtensio().contains("zip"))
+						annexosNoZip.add(
+								new ParellaCodiValorDto(
+												String.valueOf(ann.getId()), 
+												ann.isAdjunt() ? 
+														ann.getAdjuntTitol() + " (adjunt)"
+														: ann.getDocumentNom()));
+				}
+				
+				annexosPerProces.put(instanciaProces.getId(), annexosNoZip);
+			}
+			model.addAttribute("processos", processos);
+			model.addAttribute("annexosPerProces", annexosPerProces);
 		}
-		model.addAttribute("annexos", annexosNoZip);
 	}
 
 	@RequestMapping(value = "/{expedientId}/document/notificarZip", method = RequestMethod.POST)
@@ -1704,14 +1768,16 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			return "v3/expedientDocumentNotificarZip";
 		}
 		try {
-			List<ExpedientDocumentDto> annexos = expedientDocumentService.findAmbInstanciaProces(expedientId, processInstanceId);
+			Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documentsProces = this.getDocumentsArbreProcessos(expedient, "default");
 			List<Long> annexosId = command.getAnnexos();
 			List<ExpedientDocumentDto> annexosPerNotificar = new ArrayList<ExpedientDocumentDto>();
 			if (annexosId != null) {
-				for(ExpedientDocumentDto annex: annexos) {
-					if (annexosId.contains(annex.getId()))
-							annexosPerNotificar.add(annex);
-				}	
+				for (InstanciaProcesDto instanciaProces : documentsProces.keySet()) {
+					for(ExpedientDocumentDto document: documentsProces.get(instanciaProces)) {
+						if (annexosId.contains(document.getId()))
+								annexosPerNotificar.add(document);
+					}	
+				}
 			}
 			Long documentStoreId = null;
 			byte[] contingut = null;
