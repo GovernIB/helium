@@ -37,6 +37,7 @@ import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
@@ -1422,12 +1423,11 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		expedientTipusService.findAmbIdPermisDissenyarDelegat(
 					entornActual.getId(),
 					expedientTipusId);
-		ExpedientTipusDto expedientTipusDto = expedientTipusService.findAmbIdPermisDissenyar(
-				entornActual.getId(),
-				expedientTipusId);
-		if(expedientTipusDto!=null && expedientTipusDto.getManualAjudaContent()!=null && expedientTipusDto.getManualAjudaNom()!=null) {
-			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, expedientTipusDto.getManualAjudaNom());
-			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, expedientTipusDto.getManualAjudaContent());
+		
+		ArxiuDto arxiu = expedientTipusService.getManualAjuda(expedientTipusId);
+		if (arxiu != null) {
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
 		}
 		return "arxiuView";
 	}

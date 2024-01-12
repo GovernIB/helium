@@ -13,6 +13,7 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
@@ -916,6 +917,12 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			PaginacioParamsDto paginacioParams) {
 		return delegate.findTipologiesByFiltrePaginat(entornId, filtreDto, paginacioParams);
 		
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ArxiuDto getManualAjuda(Long expedientTipusId) {
+		return delegate.getManualAjuda(expedientTipusId);
 	}
 
 }

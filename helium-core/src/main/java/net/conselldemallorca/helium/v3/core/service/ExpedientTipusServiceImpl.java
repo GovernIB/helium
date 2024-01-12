@@ -85,6 +85,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
@@ -1960,6 +1961,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		ExpedientTipusDto tipusDto = conversioTipusHelper.convertir(
 				tipus,
 				ExpedientTipusDto.class); 
+		tipusDto.setManualAjudaContent(tipus.getManualAjudaContent());
+		
 		// Omple els permisos del tipus d'expedient
 		expedientHelper.omplirPermisosExpedientTipus(tipusDto);
 
@@ -4733,4 +4736,23 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 								paginacioParams)),
 				ExpedientTipusDto.class);
 		}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ArxiuDto getManualAjuda(Long expedientTipusId) {
+		logger.debug(
+				"Obtenint el manual d'ajuda (" +
+				"expedientTipusId=" + expedientTipusId + ")");
+		
+		ExpedientTipus expedientTipus = expedientTipusHelper
+				.getExpedientTipusComprovantPermisLectura(expedientTipusId);
+		ArxiuDto arxiu = null;
+		if (expedientTipus.getManualAjudaNom() != null 
+				&&  expedientTipus.getManualAjudaContent() != null) {
+			arxiu = new ArxiuDto(expedientTipus.getManualAjudaNom(), expedientTipus.getManualAjudaContent());
+		}
+		return arxiu;
+	}
 }

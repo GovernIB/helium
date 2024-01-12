@@ -347,7 +347,8 @@ public class ConversioTipusHelper {
 						target.setPinbalNifCif(source.getPinbalNifCif());
 						target.setTipus(source.getTipus());
 						target.setManualAjudaNom(source.getManualAjudaNom());
-						target.setManualAjudaContent(source.getManualAjudaContent());
+						// Es comenta per no carregar el DTO amb el contingut del manual
+						//target.setManualAjudaContent(source.getManualAjudaContent());
 						target.setDistribucioPresencial(source.getDistribucioPresencial());
 						return target;
 					}
