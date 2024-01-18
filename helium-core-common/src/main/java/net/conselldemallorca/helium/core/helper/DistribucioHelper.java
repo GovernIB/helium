@@ -80,6 +80,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
@@ -95,6 +96,7 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioAnnexRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioInteressatRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
+import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
@@ -130,7 +132,8 @@ public class DistribucioHelper {
 	private CampTascaRepository campTascaRepository;
 	@Autowired
 	private MapeigSistraRepository mapeigSistraRepository;
-	
+	@Autowired
+	private CampRepository campRepository;
 	
 	@Autowired
 	private ExpedientHelper expedientHelper;
@@ -983,10 +986,17 @@ public class DistribucioHelper {
 				annexos.put(identificador, annex);
 			}
 		}
-		// Obtenir una llista de variables inicials de la tasca
-		Map<String, CampTasca> campsTasca = new HashMap<String, CampTasca>();
-		for (CampTasca camp : getCampsStartTask(expedientTipus)) {
-			campsTasca.put(camp.getCamp().getCodi(), camp);
+		Map<String, Camp> camps = new HashMap<String, Camp>();
+		if (ExpedientTipusTipusEnumDto.FLOW.equals(expedientTipus.getTipus())) {
+			// Obtenir una llista de variables inicials de la tasca
+			for (CampTasca campTasca : getCampsStartTask(expedientTipus)) {
+				camps.put(campTasca.getCamp().getCodi(), campTasca.getCamp());
+			}
+		} else {//En el cas de tipusExp per ESTATS es fa diferent
+			List<Camp> campsList = campRepository.findByExpedientTipusOrderByCodiAsc(expedientTipus);
+			for(Camp camp: campsList) {
+				camps.put(camp.getCodi(), camp);
+			}	
 		}
 		// Obtenir mapejos
 		List<MapeigSistra> mapejosSistra = mapeigSistraRepository.findByFiltre(expedientTipus.getId(), TipusMapeig.Variable);
@@ -1002,10 +1012,10 @@ public class DistribucioHelper {
 			if (codiSistra.length >= 2) {
 				String annexTitol = codiSistra[0];
 				String campoId = codiSistra[1];
-				CampTasca campTasca = campsTasca.get(mapeig.getCodiHelium());
+				Camp camp = camps.get(mapeig.getCodiHelium());
 				
-				if (annexos.containsKey(annexTitol) && campTasca != null) {
-					logger.debug("{" + mapeig.getCodiHelium() + " (" + campTasca.getCamp().getTipus() + ") - ");
+				if (annexos.containsKey(annexTitol) && camp != null) {
+					logger.debug("{" + mapeig.getCodiHelium() + " (" + camp.getTipus() + ") - ");
 					// Recupera la informació del formulari de l'annex
 					Formulario formulari = formularis.get(annexTitol);
 					if (formulari == null) {
@@ -1023,7 +1033,7 @@ public class DistribucioHelper {
 								logger.debug(campo.getId() + "(" + campo.getTipo() + "): ");
 								Object valorHelium;
 								try {
-									valorHelium = this.valorVariableHelium(campo, campTasca);
+									valorHelium = this.valorVariableHelium(campo, camp);
 									resposta.put(mapeig.getCodiHelium(), valorHelium);
 									logger.debug(valorHelium != null ? valorHelium.toString() : "");
 								} catch (Exception ex) {
@@ -1042,9 +1052,8 @@ public class DistribucioHelper {
 	}
 	
 	
-	private Object valorVariableHelium(Campo campo, CampTasca campTasca) throws Exception {
+	private Object valorVariableHelium(Campo campo, Camp camp) throws Exception {
 		Object valorHelium = null;
-		Camp camp = campTasca.getCamp();
 		if (camp.getTipus().equals(TipusCamp.REGISTRE)) {
 			if (SISTRA2_CAMP_FORM_LISTA.equals(campo.getTipo())) {
 				// Camp registre
