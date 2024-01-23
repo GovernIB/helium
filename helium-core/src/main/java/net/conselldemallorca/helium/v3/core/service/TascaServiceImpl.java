@@ -195,8 +195,6 @@ public class TascaServiceImpl implements TascaService {
 	@Resource
 	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
 
-	private static final String ARREL = "A04003003";//MARTA cnaviar
-
 
 	@Override
 	@Transactional(readOnly = true)
@@ -426,7 +424,6 @@ public class TascaServiceImpl implements TascaService {
 						"llistat.count",
 						entorn.getCodi()));
 		countEntorn.inc();
-		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgListAmbPermisos = new ArrayList<ExpedientTipusUnitatOrganitzativa>();
 		List<Long> idsUnitatsOrganitzativesAmbPermisos = new ArrayList<Long>();
 		try {
 			final Timer timerConsultaTotal = metricRegistry.timer(
@@ -448,52 +445,7 @@ public class TascaServiceImpl implements TascaService {
 							expedientTipusId);
 					if(expTipus.isProcedimentComu()) {
 						//aquí obtinc la llista de les UO's per les quals l'usuari té permís (comptant les uo filles de l'arbre)
-						List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(expedientTipusId);
-						List<ExpedientTipusUnitatOrganitzativa> expTipusUnitOrgUnitatsFilles = new ArrayList<ExpedientTipusUnitatOrganitzativa>();
-						List<PermisDto> permisos = new ArrayList<PermisDto>();
-						boolean tePermisEnTotes = false;
-						Authentication authOriginal = SecurityContextHolder.getContext().getAuthentication();
-						if(expTipUnitOrgList!=null && !expTipUnitOrgList.isEmpty()) {
-							//Mirem les unitats filles
-							List<UnitatOrganitzativa> unitatsOrgFilles = new ArrayList<UnitatOrganitzativa>();
-							for(ExpedientTipusUnitatOrganitzativa expTipUnitOrg: expTipUnitOrgList) {
-								if(ARREL.equals(expTipUnitOrg.getUnitatOrganitzativa().getCodi()) && !tePermisEnTotes){ //En cas que sigui l'arrel tindrà permís sobre totes les UO
-									permisos = permisosHelper.findPermisos(
-											expTipUnitOrg.getId(),
-											ExpedientTipusUnitatOrganitzativa.class);
-									for(PermisDto permis:permisos) {
-										if(tePermisReadOrAdmin(permis,authOriginal)) {
-											idsUnitatsOrganitzativesAmbPermisos = unitatOrganitzativaRepository.findAllUnitatOrganitzativaIds();
-											//tenir en compte Estat = V vigent???
-											tePermisEnTotes = true;
-											break;
-										}		
-									}	
-								}
-							}
-							if(!tePermisEnTotes) {
-								//Mirem si hi ha permisos sobre expTipusUO pare i afegir les UO filles d'aquesta
-								expTipUnitOrgListAmbPermisos.addAll(expTipUnitOrgList);
-								for(ExpedientTipusUnitatOrganitzativa etuo: expTipUnitOrgListAmbPermisos) {
-									permisos = permisosHelper.findPermisos(
-											etuo.getId(),
-											ExpedientTipusUnitatOrganitzativa.class);
-									if(!idsUnitatsOrganitzativesAmbPermisos.contains(etuo.getUnitatOrganitzativa().getId())) {
-										for(PermisDto permis: permisos) {
-											if(tePermisReadOrAdmin(permis, authOriginal)) {
-												idsUnitatsOrganitzativesAmbPermisos.add(etuo.getUnitatOrganitzativa().getId());
-												//Afegir les UO filles d'aquesta que té permís
-												unitatsOrgFilles = unitatOrganitzativaHelper.unitatsOrganitzativesFindLlistaTotesFilles
-													(null, etuo.getUnitatOrganitzativa().getCodi(), null);
-												for(UnitatOrganitzativa uoFilla: unitatsOrgFilles) {
-													idsUnitatsOrganitzativesAmbPermisos.add(uoFilla.getId());
-												}
-											}
-										}		
-									}
-								}
-							}
-						}
+						idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(expedientTipusId);
 					}
 				}
 				// Si no hi ha tipexp seleccionat o no es te permis SUPERVISION
@@ -580,20 +532,6 @@ public class TascaServiceImpl implements TascaService {
 			contextTimerTotal.stop();
 			contextTimerEntorn.stop();
 		}
-	}
-	
-	private boolean tePermisReadOrAdmin(PermisDto permis, Authentication authOriginal) {
-		if (permis.getPrincipalNom()!=null 
-				&& authOriginal!=null 
-				&& authOriginal.getName()!=null 
-				&& (permis.getPrincipalNom().equals(authOriginal.getName())
-						|| (PrincipalTipusEnumDto.ROL.equals(permis.getPrincipalTipus()) 
-							&&  expedientTipusHelper.isAdministrador(authOriginal)))
-				&& (permis.isRead() 
-						|| permis.isAdministration()))
-			return true;
-		else
-			return false;
 	}
 
 	@Override

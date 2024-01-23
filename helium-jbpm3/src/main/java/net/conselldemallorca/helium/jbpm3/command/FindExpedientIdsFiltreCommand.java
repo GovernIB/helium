@@ -28,6 +28,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 	private Long entornId;
 	private String actorId;
 	private Collection<Long> tipusIdPermesos;
+	private List<Long> idsUnitatsOrganitzativesAmbPermisos;
 	private String titol;
 	private String numero;
 	private Long unitatOrganitzativaId;
@@ -62,6 +63,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			Long entornId,
 			String actorId,
 			Collection<Long> tipusIdPermesos,
+			List<Long> idsUnitatsOrganitzativesAmbPermisos,
 			String titol,
 			String numero,
 			Long unitatOrganitzativaId,
@@ -94,6 +96,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		this.entornId = entornId;
 		this.actorId = actorId;
 		this.tipusIdPermesos = tipusIdPermesos;
+		this.idsUnitatsOrganitzativesAmbPermisos = idsUnitatsOrganitzativesAmbPermisos;
 		this.titol = titol;
 		this.numero = numero;
 		this.unitatOrganitzativaId = unitatOrganitzativaId;
@@ -126,7 +129,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 
 	@SuppressWarnings("unchecked")
 	public Object execute(JbpmContext jbpmContext) throws Exception {
-		if (tipusIdPermesos.isEmpty()) {
+		if (tipusIdPermesos.isEmpty() && idsUnitatsOrganitzativesAmbPermisos.isEmpty()) {
 			return new ResultatConsultaPaginadaJbpm<Long>(0);
 		}
 		StringBuilder expedientQuerySb = new StringBuilder();
@@ -134,8 +137,26 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 				"from " +
 				"    org.jbpm.graph.exe.ProcessInstanceExpedient pie " +
 				"where " +
-				"    pie.entorn.id = :entornId " +
-				"and pie.tipus.id in (:tipusIdPermesos) ");
+				"    pie.entorn.id = :entornId " );
+
+		if(idsUnitatsOrganitzativesAmbPermisos!=null && !idsUnitatsOrganitzativesAmbPermisos.isEmpty()) {
+			if(idsUnitatsOrganitzativesAmbPermisos.size()>=1000) {
+				expedientQuerySb.append(
+						"and ( (pie.tipus.id in (:tipusIdPermesos) and pie.tipus.procedimentComu <> 1 ) " +
+						" 	   or ( pie.tipus.procedimentComu = 1 and pie.unitatOrganitzativaId IN ( :idsPart1) ) "+
+						" 	   or ( pie.tipus.procedimentComu = 1 and pie.unitatOrganitzativaId IN ( :idsPart2) ) "+
+						" 	  ) " );
+			} else {
+				expedientQuerySb.append(
+						"and ( (pie.tipus.id in (:tipusIdPermesos) and pie.tipus.procedimentComu <> 1 ) " +
+						" 	   or (pie.tipus.procedimentComu = 1 and pie.unitatOrganitzativaId IN ( :idsUnitatsOrganitzativesAmbPermisos) ) "+
+						" 	  ) " );
+			}
+		} else {
+			expedientQuerySb.append(
+					"and pie.tipus.id in (:tipusIdPermesos) ");
+		}
+		
 		if (titol != null && !titol.isEmpty()) {
 			expedientQuerySb.append("and lower(pie.titol) like lower('%'||:titol||'%') ");
 		}
@@ -152,7 +173,9 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			expedientQuerySb.append("and pie.tipus.id = :tipusId ");
 		}
 		if (unitatOrganitzativaId != null) {
-			expedientQuerySb.append("and pie.unitatOrganitzativaId = :unitatOrganitzativaId ");
+			expedientQuerySb.append(
+					"and pie.unitatOrganitzativaId = :unitatOrganitzativaId  "+
+					"or  (pie.unitatOrganitzativaId IN ( :idsUnitatsOrganitzativesAmbPermisos)) ");
 		}
 		if (dataIniciInici != null) {
 			expedientQuerySb.append("and pie.dataInici >= :dataIniciInici ");
@@ -254,6 +277,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 				entornId,
 				actorId,
 				tipusIdPermesos,
+				idsUnitatsOrganitzativesAmbPermisos,
 				titol,
 				numero,
 				unitatOrganitzativaId,
@@ -340,6 +364,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 					entornId,
 					actorId,
 					tipusIdPermesos,
+					idsUnitatsOrganitzativesAmbPermisos,
 					titol,
 					numero,
 					unitatOrganitzativaId,
@@ -386,6 +411,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			Long entornId,
 			String actorId,
 			Collection<Long> tipusIdPermesos,
+			List<Long> idsUnitatsOrganitzativesAmbPermisos,
 			String titol,
 			String numero,
 			Long unitatOrganitzativaId,
@@ -409,6 +435,17 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			int maxResults) {
 		query.setParameter("entornId", entornId);
 		query.setParameterList("tipusIdPermesos", tipusIdPermesos);
+		if(idsUnitatsOrganitzativesAmbPermisos!=null && !idsUnitatsOrganitzativesAmbPermisos.isEmpty()) {
+			if(idsUnitatsOrganitzativesAmbPermisos.size()>=1000) {
+				int halfSizeList = idsUnitatsOrganitzativesAmbPermisos.size() / 2;
+				List<Long> idsPart1 = idsUnitatsOrganitzativesAmbPermisos.subList(0, halfSizeList-1);
+				List<Long> idsPart2 = idsUnitatsOrganitzativesAmbPermisos.subList(halfSizeList, idsUnitatsOrganitzativesAmbPermisos.size());
+				query.setParameterList("idsPart1", idsPart1);
+				query.setParameterList("idsPart2", idsPart2);
+			} else {
+				query.setParameterList("idsUnitatsOrganitzativesAmbPermisos", idsUnitatsOrganitzativesAmbPermisos);
+			}
+		}
 		if (filtrarPerActorId) {
 			query.setParameter("actorId", actorId);
 		}

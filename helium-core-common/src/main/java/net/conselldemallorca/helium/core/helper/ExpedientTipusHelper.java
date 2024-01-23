@@ -18,6 +18,8 @@ import org.springframework.stereotype.Component;
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
+import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
@@ -27,6 +29,8 @@ import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusUnitatOrganitzativaRepository;
+import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaRepository;
 
 /**
  * Helper per als tipus d'expedient.
@@ -40,14 +44,22 @@ public class ExpedientTipusHelper {
 	private ExpedientTipusRepository expedientTipusRepository;
 	@Resource
 	private ExpedientRepository expedientRepository;
+	@Resource
+	private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
+	@Resource
+	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
 
 	@Resource
 	private JbpmHelper jbpmHelper;
 	@Resource(name = "permisosHelperV3")
 	private PermisosHelper permisosHelper;
+	@Resource 
+	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
 	
 	@Resource
 	private EntornHelper entornHelper;
+	
+	private static final String ARREL = "A04003003";//MARTA canviar
 
 	/** Consulta el tipus d'expedient comprovant el permís de lectura. */
 	public ExpedientTipus getExpedientTipusComprovantPermisLectura(Long id) {
@@ -332,5 +344,86 @@ public class ExpedientTipusHelper {
 	    }
 		return isAdministrador;
 	}
+	
+	
+	/** Consulta les unitats organitzatives per a un Tipus expedient amb procediment comú on l'usuari
+	 * tingui algun dels permisos especificats.  També obtindrà les UO filles.
+	 * @param expedientTipusId
+	 * 			Id del tipus expedient
+	 * @return
+	 * 			Retorna la llista de id's de les unitats organitzatives sobre les quals l'usuari tingui permisos Admin o Read
+	 */
+	public List<Long> findIdsUnitatsOrgAmbPermisosAdminOrRead(
+			Long expedientTipusId){
+		//aquí obtinc la llista de les UO's per les quals l'usuari té permís (comptant les uo filles de l'arbre)
+		List<Long> idsUnitatsOrganitzativesAmbPermisos = new ArrayList<Long>();
+		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgListAmbPermisos = new ArrayList<ExpedientTipusUnitatOrganitzativa>();
+		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = new ArrayList<ExpedientTipusUnitatOrganitzativa>();
+		if(expedientTipusId != null)
+			expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(expedientTipusId);
+		else
+			expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findAll();
+		
+		List<PermisDto> permisosList = new ArrayList<PermisDto>();
+		boolean tePermisEnTotes = false;
+		Authentication authOriginal = SecurityContextHolder.getContext().getAuthentication();
+		if(expTipUnitOrgList!=null && !expTipUnitOrgList.isEmpty()) {
+			//Mirem les unitats filles
+			List<UnitatOrganitzativa> unitatsOrgFilles = new ArrayList<UnitatOrganitzativa>();
+			for(ExpedientTipusUnitatOrganitzativa expTipUnitOrg: expTipUnitOrgList) {
+				if(ARREL.equals(expTipUnitOrg.getUnitatOrganitzativa().getCodi()) && !tePermisEnTotes){ //En cas que sigui l'arrel tindrà permís sobre totes les UO
+					permisosList = permisosHelper.findPermisos(
+							expTipUnitOrg.getId(),
+							ExpedientTipusUnitatOrganitzativa.class);
+					for(PermisDto permis: permisosList) {
+						if(tePermisReadOrAdmin(permis,authOriginal)) {
+							idsUnitatsOrganitzativesAmbPermisos = unitatOrganitzativaRepository.findAllUnitatOrganitzativaIds();
+							//tenir en compte Estat = V vigent???
+							tePermisEnTotes = true;
+							break;
+						}		
+					}	
+				}
+			}
+			if(!tePermisEnTotes) {
+				//Mirem si hi ha permisos sobre expTipusUO pare i afegir les UO filles d'aquesta
+				expTipUnitOrgListAmbPermisos.addAll(expTipUnitOrgList);
+				for(ExpedientTipusUnitatOrganitzativa etuo: expTipUnitOrgListAmbPermisos) {
+					permisosList = permisosHelper.findPermisos(
+							etuo.getId(),
+							ExpedientTipusUnitatOrganitzativa.class);
+					if(!idsUnitatsOrganitzativesAmbPermisos.contains(etuo.getUnitatOrganitzativa().getId())) {
+						for(PermisDto permis: permisosList) {
+							if(tePermisReadOrAdmin(permis, authOriginal)) {
+								idsUnitatsOrganitzativesAmbPermisos.add(etuo.getUnitatOrganitzativa().getId());
+								//Afegir les UO filles d'aquesta que té permís
+								unitatsOrgFilles = unitatOrganitzativaHelper.unitatsOrganitzativesFindLlistaTotesFilles
+									(null, etuo.getUnitatOrganitzativa().getCodi(), null);
+								for(UnitatOrganitzativa uoFilla: unitatsOrgFilles) {
+									idsUnitatsOrganitzativesAmbPermisos.add(uoFilla.getId());
+								}
+							}
+						}		
+					}
+				}
+			}
+		}
+		return idsUnitatsOrganitzativesAmbPermisos;
+	}
+	
+	private boolean tePermisReadOrAdmin(PermisDto permis, Authentication authOriginal) {
+		if (permis.getPrincipalNom()!=null 
+				&& authOriginal!=null 
+				&& authOriginal.getName()!=null 
+				&& (permis.getPrincipalNom().equals(authOriginal.getName())
+						|| (PrincipalTipusEnumDto.ROL.equals(permis.getPrincipalTipus()) 
+							&&  this.isAdministrador(authOriginal)))
+				&& (permis.isRead() 
+						|| permis.isAdministration()))
+			return true;
+		else
+			return false;
+	}
+	
 
 }

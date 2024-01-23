@@ -532,12 +532,13 @@ function refrescaEstatSegonPla() {
 					{{/if}}
 					</script>
 				</th>
+				<th data-rdt-property="unitatOrganitzativa" data-rdt-template="cellTipusTemplate" data-rdt-visible="false">
 				<th data-rdt-property="tipus.nom" data-rdt-template="cellTipusTemplate" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.tipus"/>
 					<script id="cellTipusTemplate" type="text/x-jsrender">
 					<span class="expedient_tipus" data-tipus="{{:tipus.tipus}}">
 						{{:tipus.nom}}
-						{{if tipus.procedimentComu = true }}
-							<span class="fa fa-group" title="{{:unitatOrganitzativa.codi}}"></span>
+						{{if tipus.procedimentComu == true }}
+							<span class="fa fa-university" title="{{:unitatOrganitzativa.codiAndNom}}" style="float:right"></span>
 						{{/if}} 
 					</span>
 					</script>				
