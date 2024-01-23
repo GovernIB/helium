@@ -536,10 +536,10 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			HttpServletRequest request, 
 			@PathVariable Long expedientTipusId, 
 			Model model) {
-		ExpedientTipusDto expedientTipusDto = expedientTipusService.findAmbId(expedientTipusId);
-		if(expedientTipusDto!=null && expedientTipusDto.getManualAjudaContent()!=null && expedientTipusDto.getManualAjudaNom()!=null) {
-			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, expedientTipusDto.getManualAjudaNom());
-			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, expedientTipusDto.getManualAjudaContent());
+		ArxiuDto arxiu = expedientTipusService.getManualAjuda(expedientTipusId);
+		if (arxiu != null) {
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
+			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
 		}
 		return "arxiuView";
 	}

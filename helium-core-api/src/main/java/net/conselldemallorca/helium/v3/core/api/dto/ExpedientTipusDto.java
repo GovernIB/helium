@@ -506,6 +506,7 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	public void setManualAjudaNom(String manualAjudaNom) {
 		this.manualAjudaNom = manualAjudaNom;
 	}
+	/** Obté el contingut però aquest no s'informa en el conversor per evitar passar informació innecessària. */
 	public byte[] getManualAjudaContent() {
 		return manualAjudaContent;
 	}
