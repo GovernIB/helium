@@ -270,6 +270,8 @@ function filtreActiu() {
 		filtre = true;
 	if ($("#numero").val() != "")
 		filtre = true;
+	if ($("#unitatOrganitzativaCodi").val() != "")
+		filtre = true;
 	if ($("#titol").val() != "")
 		filtre = true;
 	if ($("#expedientTipusId").val() != "")
@@ -392,11 +394,17 @@ function refrescaEstatSegonPla() {
 				<hel:inputSelect emptyOption="true" name="expedientTipusId" textKey="expedient.llistat.filtre.camp.expedient.tipus" placeholderKey="expedient.llistat.filtre.camp.expedient.tipus" optionItems="${expedientTipusAccessibles}" optionValueAttribute="id" optionTextAttribute="nom" disabled="${not empty expedientTipusActual}" inline="true"/>
 			</div>
 			<div class="col-md-3">
-				<hel:inputSelect emptyOption="true" name="estatText" textKey="expedient.llistat.filtre.camp.estat" placeholderKey="expedient.llistat.filtre.camp.estat" optionItems="${estats}" optionValueAttribute="id" optionTextAttribute="nom" inline="true"/>
-			</div>
+			<hel:inputSuggest 
+					name="unitatOrganitzativaCodi" 
+					urlConsultaInicial="/helium/v3/unitatOrganitzativa/suggestInici" 
+					urlConsultaLlistat="/helium/v3/unitatOrganitzativa/suggest" 
+					placeholderKey="expedient.tipus.permis.form.camp.unitat.organitzativa"
+					inline="true"
+					/>	
+			</div>	
 		</div>
 		<div class="row">
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<label><spring:message code="expedient.llistat.filtre.camp.data.inici"/></label>
 				<div class="row">
 					<div class="col-md-6">
@@ -407,7 +415,7 @@ function refrescaEstatSegonPla() {
 					</div>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<label><spring:message code="expedient.llistat.filtre.camp.data.fi"/></label>
 				<div class="row">
 					<div class="col-md-6">
@@ -425,6 +433,14 @@ function refrescaEstatSegonPla() {
 						<hel:inputText name="registreNumero"
 							textKey="expedient.llistat.filtre.camp.registreNumero"
 							placeholderKey="expedient.llistat.filtre.camp.registreNumero" inline = "true"/>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-2">
+				<label><spring:message code="expedient.llistat.filtre.camp.estat"/></label>
+				<div class="row">
+					<div class="col-md-12">
+						<hel:inputSelect emptyOption="true" name="estatText" textKey="expedient.llistat.filtre.camp.estat" placeholderKey="expedient.llistat.filtre.camp.estat" optionItems="${estats}" optionValueAttribute="id" optionTextAttribute="nom" inline="true"/>
 					</div>
 				</div>
 			</div>
@@ -519,7 +535,10 @@ function refrescaEstatSegonPla() {
 				<th data-rdt-property="tipus.nom" data-rdt-template="cellTipusTemplate" data-rdt-visible="true"><spring:message code="expedient.llistat.columna.tipus"/>
 					<script id="cellTipusTemplate" type="text/x-jsrender">
 					<span class="expedient_tipus" data-tipus="{{:tipus.tipus}}">
-						{{:tipus.nom}} 
+						{{:tipus.nom}}
+						{{if tipus.procedimentComu = true }}
+							<span class="fa fa-group" title="{{:unitatOrganitzativa.codi}}"></span>
+						{{/if}} 
 					</span>
 					</script>				
 				</th>

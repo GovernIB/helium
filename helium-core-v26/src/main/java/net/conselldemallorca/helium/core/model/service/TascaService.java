@@ -173,8 +173,9 @@ public class TascaService {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
-		
+		List<Long> unitatsOrganitzativesAmbPermisos = null;
 		PaginaLlistatDto resposta = findTasquesFiltre(
+				unitatsOrganitzativesAmbPermisos,
 				entornId,
 				usuariBo,
 				null,
@@ -233,6 +234,7 @@ public class TascaService {
 		paginacioParams.setPaginaNum(0);
 		paginacioParams.setPaginaTamany(-1);
 		ResultatConsultaPaginadaJbpm<JbpmTask> tasks = jbpmDao.tascaFindByFiltrePaginat(
+				null, //unitatsOrganitzativesAmbPermisos,
 				entornId,
 				usuariBo,
 				null,
@@ -290,6 +292,7 @@ public class TascaService {
 		paginacioParams.setPaginaNum(0);
 		paginacioParams.setPaginaTamany(-1);
 		ResultatConsultaPaginadaJbpm<JbpmTask> tasks = jbpmDao.tascaFindByFiltrePaginat(
+				null, //unitatsOrganitzativesAmbPermisos,
 				entornId,
 				usuariBo,
 				null,
@@ -354,6 +357,7 @@ public class TascaService {
 		}
 		
 		PaginaLlistatDto resposta = findTasquesFiltre(
+				null, //unitatsOrganitzativesAmbPermisos,
 				entornId,
 				usuariBo,
 				null,
@@ -480,6 +484,7 @@ public class TascaService {
 		paginacioParams.setPaginaNum(0);
 		paginacioParams.setPaginaTamany(-1);
 		ResultatConsultaPaginadaJbpm<JbpmTask> tasks = jbpmDao.tascaFindByFiltrePaginat(
+				null, //List<String> unitatsOrganitzativesAmbPermisos,
 				entornId,
 				usuariBo,
 				null,
@@ -536,6 +541,7 @@ public class TascaService {
 		paginacioParams.setPaginaNum(0);
 		paginacioParams.setPaginaTamany(-1);
 		ResultatConsultaPaginadaJbpm<JbpmTask> tasks = jbpmDao.tascaFindByFiltrePaginat(
+				null, //List<String> unitatsOrganitzativesAmbPermisos,
 				entornId,
 				usuariBo,
 				null,
@@ -609,6 +615,7 @@ public class TascaService {
 		}
 		
 		PaginaLlistatDto resposta = findTasquesFiltre(
+				null, //List<String> unitatsOrganitzativesAmbPermisos,
 				entornId,
 				usuariBo,
 				null,
@@ -749,6 +756,7 @@ public class TascaService {
 		boolean incloureTasquesPersona = (MostrarTasquesDto.MOSTRAR_TASQUES_NOMES_PERSONALS.equals(mostrarTasques) || MostrarTasquesDto.MOSTRAR_TASQUES_TOTS.equals(mostrarTasques));
 		boolean incloureTasquesGrup = (MostrarTasquesDto.MOSTRAR_TASQUES_NOMES_GROUPS.equals(mostrarTasques) || MostrarTasquesDto.MOSTRAR_TASQUES_TOTS.equals(mostrarTasques));
 		PaginaLlistatDto resposta = findTasquesFiltre(
+				null, //List<String> unitatsOrganitzativesAmbPermisos,
 				entornId,
 				(responsable != null && !responsable.isEmpty()) ? responsable : null,
 				(taskName != null && !taskName.isEmpty()) ? taskName : null,
@@ -857,6 +865,7 @@ public class TascaService {
 			paginacioParams.setPaginaNum(0);
 			paginacioParams.setPaginaTamany(-1);
 			ResultatConsultaPaginadaJbpm<JbpmTask> tasks = jbpmDao.tascaFindByFiltrePaginat(
+					null, //List<String> unitatsOrganitzativesAmbPermisos,
 					entornId,
 					usuariBo,
 					null,
@@ -919,6 +928,7 @@ public class TascaService {
 		}
 		
 		PaginaLlistatDto resposta = findTasquesFiltre(
+				null,// unitatsOrganitzativesAmbPermisos,
 				entornId,
 				usuariBo,
 				null,
@@ -1941,6 +1951,7 @@ public class TascaService {
 	}*/
 
 	private PaginaLlistatDto findTasquesFiltre(
+			List<Long> unitatsOrganitzativesAmbPermisos,
 			Long entornId,
 			String usuari,
 			String taskName,
@@ -1992,6 +2003,7 @@ public class TascaService {
 			try {
 				// Consulta els expedients de l'entorn que compleixen el filtre
 				tasks = jbpmDao.tascaFindByFiltrePaginat(
+						unitatsOrganitzativesAmbPermisos,
 						entornId,
 						usuari,
 						taskName,

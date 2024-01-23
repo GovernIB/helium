@@ -224,6 +224,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		Page<Anotacio> page = anotacioRepository.findAmbFiltrePaginat(
 				filtreDto.getCodiProcediment() == null || filtreDto.getCodiProcediment().isEmpty(),
 				filtreDto.getCodiProcediment(),
+				filtreDto.getUnitatOrganitzativaCodi() == null || filtreDto.getUnitatOrganitzativaCodi().isEmpty(),
+				filtreDto.getUnitatOrganitzativaCodi(),
 				filtreDto.getCodiAssumpte() == null || filtreDto.getCodiAssumpte().isEmpty(),
 				filtreDto.getCodiAssumpte(),
 				filtreDto.getNumeroExpedient() == null || filtreDto.getNumeroExpedient().isEmpty(),

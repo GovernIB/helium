@@ -24,7 +24,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.ResultatConsultaPaginadaJbp
 public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 
 	private static final long serialVersionUID = -1908847549444051495L;
-
+	List<Long> idsUnitatsOrganitzativesAmbPermisos;
 	private Long entornId;
 	private String actorId;
 	private String taskName;
@@ -48,6 +48,7 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 	private boolean nomesCount;
 
 	public FindJbpmTasksFiltreCommand(
+			List<Long> idsUnitatsOrganitzativesAmbPermisos,
 			Long entornId,
 			String actorId,
 			String taskName,
@@ -70,6 +71,7 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 			boolean asc,
 			boolean nomesCount) {
 		super();
+		this.idsUnitatsOrganitzativesAmbPermisos = idsUnitatsOrganitzativesAmbPermisos;
 		this.entornId = entornId;
 		this.actorId = actorId;
 		this.taskName = taskName;
@@ -102,6 +104,7 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 				"select count(distinct ti.id) " + taskQuerySb.toString());
 		setQueryParams(
 				queryCount,
+				idsUnitatsOrganitzativesAmbPermisos,
 				entornId,
 				actorId,
 				taskName,
@@ -125,6 +128,7 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 					"select count(distinct ti.id) " + taskQuerySb2.toString());
 			setQueryParams(
 					queryCount2,
+					idsUnitatsOrganitzativesAmbPermisos,
 					entornId,
 					actorId,
 					taskName,
@@ -185,6 +189,7 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 			Query queryTaskInstances = jbpmContext.getSession().createQuery(taskQuerySb.toString());
 			setQueryParams(
 					queryTaskInstances,
+					idsUnitatsOrganitzativesAmbPermisos,
 					entornId,
 					actorId,
 					taskName,
@@ -218,8 +223,20 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 		if (actorId != null) {
 			taskQuerySb.append(
 					"from " +
-					"    org.jbpm.taskmgmt.exe." + triaTaula(desactivarOptimitzarLlistatTasques) + " ti left join ti.pooledActors pa " +
-					"where ");
+					"    org.jbpm.taskmgmt.exe." + triaTaula(desactivarOptimitzarLlistatTasques) + " ti left join ti.pooledActors pa ");
+
+			if(idsUnitatsOrganitzativesAmbPermisos!=null && !idsUnitatsOrganitzativesAmbPermisos.isEmpty()) {
+				taskQuerySb.append(" join ti.processInstance pi join pi.expedient e join e.tipus et ");
+				
+			}
+			taskQuerySb.append("where ");
+			
+			if(idsUnitatsOrganitzativesAmbPermisos!=null && !idsUnitatsOrganitzativesAmbPermisos.isEmpty()) { //todo: si la llista d'ids és mallor de 1000 llavors s'ha de fer en diferents or id in (:subllista)
+				taskQuerySb.append("((et.procedimentComu = 1 AND e.unitatOrganitzativaId IN ( :idsUnitatsOrganitzativesAmbPermisos))  ");
+				taskQuerySb.append("OR (et.procedimentComu <> 1) ");	
+				taskQuerySb.append(") and ");	
+			}
+			
 			if (mostrarAssignadesUsuari && mostrarAssignadesGrup) {
 				if (desactivarOptimitzarLlistatTasques)
 					taskQuerySb.append("((ti.actorId is not null and ti.actorId = :actorId) or (ti.actorId is null and pa.actorId = :actorId)) ");
@@ -305,8 +322,20 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 		if (actorId != null) {
 			taskQuerySb.append(
 					"from " +
-					"    org.jbpm.taskmgmt.exe." + triaTaula(desactivarOptimitzarLlistatTasques) + " ti left join ti.pooledActors pa " +
-					"where ");
+					"    org.jbpm.taskmgmt.exe." + triaTaula(desactivarOptimitzarLlistatTasques) + " ti left join ti.pooledActors pa ");
+
+			if(idsUnitatsOrganitzativesAmbPermisos!=null && !idsUnitatsOrganitzativesAmbPermisos.isEmpty()) {
+				taskQuerySb.append(" join ti.processInstance pi join pi.expedient e join e.tipus et ");			
+			}
+			
+			taskQuerySb.append("where ");
+			
+			if(idsUnitatsOrganitzativesAmbPermisos!=null && !idsUnitatsOrganitzativesAmbPermisos.isEmpty()) {
+				taskQuerySb.append("((et.procedimentComu = 1 AND e.unitatOrganitzativaId IN ( :idsUnitatsOrganitzativesAmbPermisos))  ");
+				taskQuerySb.append("OR (et.procedimentComu <> 1) ");	
+				taskQuerySb.append(") and ");	
+			}
+			
 			if (mostrarAssignadesUsuari && mostrarAssignadesGrup) {
 				taskQuerySb.append("((ti.actorId is null and pa.actorId = :actorId)) ");
 			} else if (mostrarAssignadesUsuari && !mostrarAssignadesGrup) {
@@ -393,6 +422,7 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 
 	private void setQueryParams(
 			Query query,
+			List<Long> idsUnitatsOrganitzativesAmbPermisos,
 			Long entornId,
 			String actorId,
 			String taskName,
@@ -408,6 +438,9 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 			Date dataLimitFi,
 			int firstResult,
 			int maxResults) {
+		if(idsUnitatsOrganitzativesAmbPermisos!=null && !idsUnitatsOrganitzativesAmbPermisos.isEmpty()) {
+			query.setParameterList("idsUnitatsOrganitzativesAmbPermisos", idsUnitatsOrganitzativesAmbPermisos);
+		}
 		if (actorId != null && (mostrarAssignadesUsuari || mostrarAssignadesGrup)) {
 			query.setParameter("actorId", actorId);
 		}

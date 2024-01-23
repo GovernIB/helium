@@ -29,7 +29,8 @@ public class ExpedientConsultaCommand {
 	private Date dataIniciFinal;
 	private Date dataFiInicial;
 	private Date dataFiFinal;
-	
+	private String unitatOrganitzativaCodi;
+
 	private Double geoPosX;
 	private Double geoPosY;
 	private String geoReferencia;
@@ -170,6 +171,12 @@ public class ExpedientConsultaCommand {
 	}
 	public void setMostrarAnulats(MostrarAnulatsDto mostrarAnulats) {
 		this.mostrarAnulats = mostrarAnulats;
+	}
+	public String getUnitatOrganitzativaCodi() {
+		return unitatOrganitzativaCodi;
+	}
+	public void setUnitatOrganitzativaCodi(String unitatOrganitzativaCodi) {
+		this.unitatOrganitzativaCodi = unitatOrganitzativaCodi;
 	}
 
 	public String getEstatText() {

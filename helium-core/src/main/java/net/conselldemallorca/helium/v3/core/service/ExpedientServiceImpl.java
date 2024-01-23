@@ -65,6 +65,7 @@ import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
+import net.conselldemallorca.helium.core.helper.UnitatOrganitzativaHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.helper.VariableHelper;
 import net.conselldemallorca.helium.core.helperv26.LuceneHelper;
@@ -96,6 +97,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEs
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
+import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
@@ -171,11 +173,13 @@ import net.conselldemallorca.helium.v3.core.repository.ExpedientHeliumRepository
 import net.conselldemallorca.helium.v3.core.repository.ExpedientLoggerRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusUnitatOrganitzativaRepository;
 import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
+import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaRepository;
 
 
 /**
@@ -234,6 +238,11 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	private EstatAccioSortidaRepository estatAccioSortidaRepository;	
 
 	@Resource
+	private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
+	@Resource
+	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
+	
+	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
 	private ExpedientRegistreHelper expedientRegistreHelper;
@@ -285,7 +294,9 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	private ExceptionHelper exceptionHelper;
 	@Resource
 	private UsuariActualHelper usuariActualHelper;
-
+	@Resource
+	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -755,6 +766,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			Long expedientTipusId,
 			String titol,
 			String numero,
+			String unitatOrganitzativaCodi,
 			Date dataInici1,
 			Date dataInici2,
 			Date dataFi1,
@@ -777,6 +789,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"titol=" + titol + ", " +
 				"numero=" + numero + ", " +
+				"unitatOrganitzativaCodi=" + unitatOrganitzativaCodi+ ", " +
 				"dataInici1=" + dataInici1 + ", " +
 				"dataInici2=" + dataInici2 + ", " +
 				"dataFi1=" + dataFi1 + ", " +
@@ -822,6 +835,11 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		
 		// Obté la llista de tipus d'expedient permesos
 		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
+		Long unitatOrganitzativaId = null;
+		if(unitatOrganitzativaCodi!=null) {
+			UnitatOrganitzativa unitatOrg = unitatOrganitzativaRepository.findByCodi(unitatOrganitzativaCodi);
+			unitatOrganitzativaId = unitatOrg!=null? unitatOrg.getId() : null;
+		}
 		// Executa la consulta amb paginació
 		ResultatConsultaPaginadaJbpm<Long> expedientsIds = jbpmHelper.expedientFindByFiltre(
 				entornId,
@@ -829,6 +847,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				tipusPermesosIds,
 				titol,
 				numero,
+				unitatOrganitzativaId,
 				expedientTipusId,
 				dataInici1,
 				dataInici2,
@@ -919,6 +938,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			Long expedientTipusId,
 			String titol,
 			String numero,
+			String unitatOrganitzativaCodi,
 			Date dataInici1,
 			Date dataInici2,
 			Date dataFi1,
@@ -940,6 +960,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"titol=" + titol + ", " +
 				"numero=" + numero + ", " +
+				"unitatOrganitzativaCodi=" + unitatOrganitzativaCodi + ", " +
 				"dataInici1=" + dataInici1 + ", " +
 				"dataInici2=" + dataInici2 + ", " +
 				"dataFi1=" + dataFi1 + ", " +
@@ -983,6 +1004,11 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 
 		// Obté la llista de tipus d'expedient permesos
 		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
+		Long unitatOrganitzativaId=null;
+		if(unitatOrganitzativaCodi!=null) {
+			UnitatOrganitzativa unitatOrg = unitatOrganitzativaRepository.findByCodi(unitatOrganitzativaCodi);
+			unitatOrganitzativaId = unitatOrg!=null? unitatOrg.getId() : null;
+		}
 		// Executa la consulta amb paginació
 		ResultatConsultaPaginadaJbpm<Long> expedientsIds = jbpmHelper.expedientFindByFiltre(
 				entornId,
@@ -990,6 +1016,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				tipusPermesosIds,
 				titol,
 				numero,
+				unitatOrganitzativaId,
 				expedientTipusId,
 				dataInici1,
 				dataInici2,
@@ -2445,6 +2472,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					tipusPermesosIds,
 					null,
 					null,
+					null,//unitatOrganitzativaCodi
 					expedientTipus.getId(),
 					null,
 					null,
@@ -2625,6 +2653,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				tipusPermesosIds,
 				null,
 				null,
+				null,//unitatOrganitzativaCodi
 				expedientTipus.getId(),
 				null,
 				null,

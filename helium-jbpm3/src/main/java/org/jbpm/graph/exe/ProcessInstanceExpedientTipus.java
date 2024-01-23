@@ -20,6 +20,7 @@ public class ProcessInstanceExpedientTipus implements Identifiable, Serializable
 	private boolean teTitol;
 	private boolean teNumero;
 	private boolean restringirPerGrup;
+	private boolean procedimentComu;
 
 	public long getId() {
 		return id;
@@ -58,6 +59,14 @@ public class ProcessInstanceExpedientTipus implements Identifiable, Serializable
 	public void setRestringirPerGrup(boolean restringirPerGrup) {
 		this.restringirPerGrup = restringirPerGrup;
 	}
+
+	public boolean isProcedimentComu() {
+		return procedimentComu;
+	}
+	public void setProcedimentComu(boolean procedimentComu) {
+		this.procedimentComu = procedimentComu;
+	}
+
 
 	private static final long serialVersionUID = 1L;
 

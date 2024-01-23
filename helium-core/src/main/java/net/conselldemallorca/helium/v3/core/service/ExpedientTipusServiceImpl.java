@@ -88,6 +88,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
@@ -258,6 +259,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Resource
 	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
 
+	private static final String ARREL = "A04003003";//MARTA canviar per paràmetre??
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1974,6 +1976,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		ExpedientTipusDto tipusDto = conversioTipusHelper.convertir(
 				tipus,
 				ExpedientTipusDto.class); 
+		tipusDto.setManualAjudaContent(tipus.getManualAjudaContent());
+		
 		// Omple els permisos del tipus d'expedient
 		expedientHelper.omplirPermisosExpedientTipus(tipusDto);
 
@@ -2323,19 +2327,47 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		ExpedientTipusUnitatOrganitzativa expTipusUnitOrg = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaCodi(
 				expedientId, 
 				unitatOrganitzativaCodi);
+		List<ExpedientTipusUnitatOrganitzativa> expTipusUnitOrgUnitatsSuperiors = new ArrayList<ExpedientTipusUnitatOrganitzativa>();
+		List<PermisDto> permisos = new ArrayList<PermisDto>();
 		if(expTipusUnitOrg==null) {
-			return false;
+			//mirem les unitats superiors fins a l'arrel i si l'user té permís sobre aquestes
+			UnitatOrganitzativa uo = unitatOrganitzativaRepository.findByCodi(unitatOrganitzativaCodi);
+			List<UnitatOrganitzativaDto> unitatsSuperiors = unitatOrganitzativaHelper.findPath(ARREL,uo.getCodiUnitatSuperior());
+			if(unitatsSuperiors!=null && !unitatsSuperiors.isEmpty()) {
+				for (UnitatOrganitzativaDto uoSuperior : unitatsSuperiors) {
+					ExpedientTipusUnitatOrganitzativa expTipusUnitOrgSup = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaCodi(
+							expedientId, 
+							uoSuperior.getCodi());
+					if(expTipusUnitOrgSup!=null)
+						expTipusUnitOrgUnitatsSuperiors.add(expTipusUnitOrgSup);		
+				}
+			}
+			if(!expTipusUnitOrgUnitatsSuperiors.isEmpty()) {
+				for(ExpedientTipusUnitatOrganitzativa etuo: expTipusUnitOrgUnitatsSuperiors) {
+					permisos.addAll(permisosHelper.findPermisos(
+							etuo.getId(),
+							ExpedientTipusUnitatOrganitzativa.class));	
+				}
+			}
+
+		}else {
+			permisos.addAll(permisosHelper.findPermisos(
+					expTipusUnitOrg.getId(),
+					ExpedientTipusUnitatOrganitzativa.class));	
 		}
-		List<PermisDto> permisos = permisosHelper.findPermisos(
-				expTipusUnitOrg.getId(),
-				ExpedientTipusUnitatOrganitzativa.class);	
+//		List<PermisDto> permisos = permisosHelper.findPermisos(
+//				expTipusUnitOrg.getId(),
+//				ExpedientTipusUnitatOrganitzativa.class);	
 		Authentication authOriginal = SecurityContextHolder.getContext().getAuthentication();		
 		for(PermisDto permis: permisos) {
 			if(permis.getPrincipalNom()!=null 
 				&& authOriginal!=null 
 				&& authOriginal.getName()!=null 
-				&& permis.getPrincipalNom().equals(authOriginal.getName())
-				&& permis.isCreate())
+				&& (permis.getPrincipalNom().equals(authOriginal.getName())
+						|| (PrincipalTipusEnumDto.ROL.equals(permis.getPrincipalTipus()) 
+							&& expedientTipusHelper.isAdministrador(authOriginal)))
+				&& (permis.isCreate() 
+						|| permis.isAdministration()))
 					return true;
 		}		
 		return false;
@@ -4885,4 +4917,23 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 								paginacioParams)),
 				ExpedientTipusDto.class);
 		}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ArxiuDto getManualAjuda(Long expedientTipusId) {
+		logger.debug(
+				"Obtenint el manual d'ajuda (" +
+				"expedientTipusId=" + expedientTipusId + ")");
+		
+		ExpedientTipus expedientTipus = expedientTipusHelper
+				.getExpedientTipusComprovantPermisLectura(expedientTipusId);
+		ArxiuDto arxiu = null;
+		if (expedientTipus.getManualAjudaNom() != null 
+				&&  expedientTipus.getManualAjudaContent() != null) {
+			arxiu = new ArxiuDto(expedientTipus.getManualAjudaNom(), expedientTipus.getManualAjudaContent());
+		}
+		return arxiu;
+	}
 }

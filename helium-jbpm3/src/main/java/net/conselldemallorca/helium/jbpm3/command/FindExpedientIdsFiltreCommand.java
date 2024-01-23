@@ -30,6 +30,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 	private Collection<Long> tipusIdPermesos;
 	private String titol;
 	private String numero;
+	private Long unitatOrganitzativaId;
 	private Long tipusId;
 	private Date dataIniciInici;
 	private Date dataIniciFi;
@@ -63,6 +64,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			Collection<Long> tipusIdPermesos,
 			String titol,
 			String numero,
+			Long unitatOrganitzativaId,
 			Long tipusId,
 			Date dataIniciInici,
 			Date dataIniciFi,
@@ -94,6 +96,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		this.tipusIdPermesos = tipusIdPermesos;
 		this.titol = titol;
 		this.numero = numero;
+		this.unitatOrganitzativaId = unitatOrganitzativaId;
 		this.tipusId = tipusId;
 		this.dataIniciInici = dataIniciInici;
 		this.dataIniciFi = dataIniciFi;
@@ -147,6 +150,9 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		}
 		if (tipusId != null) {
 			expedientQuerySb.append("and pie.tipus.id = :tipusId ");
+		}
+		if (unitatOrganitzativaId != null) {
+			expedientQuerySb.append("and pie.unitatOrganitzativaId = :unitatOrganitzativaId ");
 		}
 		if (dataIniciInici != null) {
 			expedientQuerySb.append("and pie.dataInici >= :dataIniciInici ");
@@ -250,6 +256,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 				tipusIdPermesos,
 				titol,
 				numero,
+				unitatOrganitzativaId,
 				tipusId,
 				dataIniciInici,
 				dataIniciFi,
@@ -335,6 +342,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 					tipusIdPermesos,
 					titol,
 					numero,
+					unitatOrganitzativaId,
 					tipusId,
 					dataIniciInici,
 					dataIniciFi,
@@ -380,6 +388,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			Collection<Long> tipusIdPermesos,
 			String titol,
 			String numero,
+			Long unitatOrganitzativaId,
 			Long tipusId,
 			Date dataIniciInici,
 			Date dataIniciFi,
@@ -409,6 +418,9 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		if (numero != null && !numero.isEmpty()) {
 //			query.setParameter("numero", numero);
 			query.setParameter("numero", "%" + numero + "%");
+		}
+		if(unitatOrganitzativaId != null) {
+			query.setParameter("unitatOrganitzativaId", unitatOrganitzativaId);
 		}
 		if (tipusId != null) {
 			query.setParameter("tipusId", tipusId);

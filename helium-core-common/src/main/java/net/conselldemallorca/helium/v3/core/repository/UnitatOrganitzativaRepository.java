@@ -21,10 +21,19 @@ import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 public interface UnitatOrganitzativaRepository extends JpaRepository<UnitatOrganitzativa, Long> {
 	
 	List<UnitatOrganitzativa> findByCodiUnitatArrel(String codi);
+	
+	List<UnitatOrganitzativa> findByCodiUnitatSuperior(String codi);
 		
 	List<UnitatOrganitzativa> findByCodiOrderByDenominacioAsc(String codi);
 	
 	UnitatOrganitzativa findByCodi(String codi);
+	
+	
+	@Query("select uo.id " +	
+			"from " +
+			"    UnitatOrganitzativa uo "
+			)
+	List<Long> findAllUnitatOrganitzativaIds();
 	
 	@Query(	"from UnitatOrganitzativa uo " +
 			"where  "+
@@ -75,7 +84,6 @@ public interface UnitatOrganitzativaRepository extends JpaRepository<UnitatOrgan
 			"and (:ambArrel = true or uo.codi != :codiDir3Entitat) " +
 			"and ((:esNullFiltre = true or lower(uo.codi) like lower('%'||:filtre||'%')) " +
 			"or (:esNullFiltre = true or lower(uo.denominacio) like lower('%'||:filtre||'%'))) " +
-//			"and uo.id in (select distinct b.unitatOrganitzativa.id from BustiaEntity b)" +
 			"and codiUnitatSuperior = :codiUnitatSuperior")
 	List<UnitatOrganitzativa> findByCodiUnitatAmbCodiUnitatSuperiorAndCodiAndDenominacioFiltreNomesAmbBusties(
 			@Param("codi") String codi,
@@ -108,7 +116,6 @@ public interface UnitatOrganitzativaRepository extends JpaRepository<UnitatOrgan
 			"and (:ambArrel = true ) " +
 			"and ((:esNullFiltre = true or lower(uo.codi) like lower('%'||:filtre||'%')) " +
 			"or (:esNullFiltre = true or lower(uo.denominacio) like lower('%'||:filtre||'%'))) "// +
-//			 "and uo.id in (select distinct b.unitatOrganitzativa.id from BustiaEntity b)"
 			)
 	List<UnitatOrganitzativa> findByCodiUnitatAndCodiAndDenominacioFiltreNomesAmbBusties(
 			@Param("codi") String codi,

@@ -70,6 +70,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException
 import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.AnotacioAcceptarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.AnotacioAcceptarCommand.CrearIncorporar;
@@ -103,6 +104,9 @@ public class AnotacioController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientDocumentService expedientDocumentService;
+	
+	@Autowired
+	private ExpedientTipusService expedientTipusService;
 
 	private static final String SESSION_ATTRIBUTE_FILTRE = "AnotacioController.session.filtre";
 	
@@ -358,7 +362,11 @@ public class AnotacioController extends BaseExpedientController {
 		}
 		String ret = null;
 		try {
-			if(anotacio!=null && anotacio.getExpedientTipus()!=null && anotacio.getExpedientTipus().isProcedimentComu()) {
+			ExpedientTipusDto expedientTipusDto = null;
+			
+			if(command.getExpedientTipusId()!=null)
+				expedientTipusDto = expedientTipusService.findAmbId((command.getExpedientTipusId())); 
+			if(expedientTipusDto!=null && expedientTipusDto.isProcedimentComu()) {
 				command.setUnitatOrganitzativaCodi(anotacio.getDestiCodi());
 			}
 			switch(command.getAccio()) {

@@ -24,6 +24,7 @@ public class AnotacioFiltreDto {
 	private AnotacioEstatEnumDto estat;
 	private Long expedientTipusId;
 	private Long expedientId;
+	private String unitatOrganitzativaCodi;
 
 	@Override
 	public String toString() {
@@ -107,4 +108,13 @@ public class AnotacioFiltreDto {
 	public void setExpedientId(Long expedientId) {
 		this.expedientId = expedientId;
 	}
+
+	public String getUnitatOrganitzativaCodi() {
+		return unitatOrganitzativaCodi;
+	}
+
+	public void setUnitatOrganitzativaCodi(String unitatOrganitzativaCodi) {
+		this.unitatOrganitzativaCodi = unitatOrganitzativaCodi;
+	}
+	
 }

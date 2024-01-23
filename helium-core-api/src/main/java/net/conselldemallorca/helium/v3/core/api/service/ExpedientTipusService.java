@@ -3,6 +3,7 @@ package net.conselldemallorca.helium.v3.core.api.service;
 import java.util.List;
 import java.util.Map;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
@@ -1648,5 +1649,13 @@ public interface ExpedientTipusService {
 	public boolean tePermis(Long expedientId, 
 			String unitatOrganitzativaCodi) throws NoTrobatException, PermisDenegatException;
 
+
+	/** Mètode per obtenir el contingut del manual d'ajuda del tipus d'expedient.
+	 * 
+	 * @param expedientTipusId Identificador del tipus d'expedient.
+	 * 
+	 * @return Si el tipus d'expedient té manual d'ajuda llavors el retorna, si no retorna null.
+	 */
+	public ArxiuDto getManualAjuda(Long expedientTipusId);
 
 }

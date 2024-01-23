@@ -55,6 +55,7 @@ public interface AnotacioRepository extends JpaRepository<Anotacio, Long> {
 	@Query(	"from Anotacio a " +
 			"where " +
 			"    (:esNullCodiProcediment = true or lower(a.procedimentCodi) like lower('%'||:codiProcediment||'%')) " +
+			"and (:esNullDestiCodi = true or lower(a.destiCodi) like lower('%'||:destiCodi||'%')) " +
 			"and (:esNullCodiAssumpte = true or lower(a.assumpteCodiCodi) like lower('%'||:codiAssumpte||'%')) " +
 			"and (:esNullNumeroExpedient = true or lower(a.expedientNumero) like lower('%'||:numeroExpedient||'%')) " +
 			"and (:esNullNumero = true or lower(a.identificador) like lower('%'||:numero||'%')) " +
@@ -69,6 +70,8 @@ public interface AnotacioRepository extends JpaRepository<Anotacio, Long> {
 	Page<Anotacio> findAmbFiltrePaginat(
 			@Param("esNullCodiProcediment") boolean esNullCodiProcediment,
 			@Param("codiProcediment") String codiProcediment,
+			@Param("esNullDestiCodi") boolean esNullDestiCodi,//unitatOrganitzativa
+			@Param("destiCodi") String destiCodi,//unitatOrganitzativa
 			@Param("esNullCodiAssumpte") boolean esNullCodiAssumpte,
 			@Param("codiAssumpte") String codiAssumpte,
 			@Param("esNullNumeroExpedient") boolean esNullNumeroExpedient,

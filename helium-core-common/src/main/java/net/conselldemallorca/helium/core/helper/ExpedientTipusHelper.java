@@ -126,16 +126,20 @@ public class ExpedientTipusHelper {
 		if (expedientTipus == null) {
 			throw new NoTrobatException(ExpedientTipus.class,id);
 		}
-
-		// Comprova els permisos contra el tipus d'expedient
-		if (! comprovarPermisos(
-				expedientTipus,
-				permisosEntorn,
-				permisosTipusExpedient))
-			throw new PermisDenegatException(
-					id,
-					ExpedientTipus.class,
-					permisosTipusExpedient);
+		// Comprova els permisos contra el tipus d'expedient: pel cas que sigui procediment comú es fa diferent
+		if (!expedientTipus.isProcedimentComu()) {
+			if (! comprovarPermisos(
+					expedientTipus,
+					permisosEntorn,
+					permisosTipusExpedient))
+				throw new PermisDenegatException(
+						id,
+						ExpedientTipus.class,
+						permisosTipusExpedient);
+			
+		} else {
+			return expedientTipus;
+		}
 		return expedientTipus;
 	}
 	
@@ -315,6 +319,18 @@ public class ExpedientTipusHelper {
 		}
 		
 		return rols;
+	}
+	
+	public boolean isAdministrador(Authentication auth) {
+		boolean isAdministrador = false;
+		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(auth.getAuthorities());
+		for (GrantedAuthority grantedAuthority : authorities) {
+	        if ("ROLE_ADMIN".equals(grantedAuthority.getAuthority())) {
+	            isAdministrador = true;
+	            break;
+	        }
+	    }
+		return isAdministrador;
 	}
 
 }

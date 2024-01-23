@@ -19,10 +19,12 @@ import org.springframework.stereotype.Component;
 
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
 import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.v3.core.api.dto.ArbreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArbreNodeDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TipusTransicioEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaEstatEnumDto;
@@ -46,6 +48,8 @@ public class UnitatOrganitzativaHelper {
 	
 	@Resource
 	private PluginHelper pluginHelper;
+	@Resource(name = "permisosHelperV3") 
+	private PermisosHelper permisosHelper;
 	
 	@Resource
 	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
@@ -279,20 +283,14 @@ public class UnitatOrganitzativaHelper {
 			}
 		}
 		
-		public ArbreDto<UnitatOrganitzativaDto> unitatsOrganitzativesFindArbreByPare(String pareCodi) {
-
-			
-			List<UnitatOrganitzativa> unitatsOrganitzativesEntities = unitatOrganitzativaRepository
-					.findByCodiOrderByDenominacioAsc(pareCodi);
-			
-			List<UnitatOrganitzativa> unitatsOrganitzatives = conversioTipusHelper
-					.convertirList(unitatsOrganitzativesEntities, UnitatOrganitzativa.class);
-
+		public ArbreDto<UnitatOrganitzativaDto> unitatsOrganitzativesFindArbreSuperior(String codiUO) {
+			List<UnitatOrganitzativa> unitatsOrganitzatives = unitatOrganitzativaRepository
+					.findByCodiOrderByDenominacioAsc(codiUO);
 			ArbreDto<UnitatOrganitzativaDto> resposta = new ArbreDto<UnitatOrganitzativaDto>(false);
 			// Cerca l'unitat organitzativa arrel
 			UnitatOrganitzativa unitatOrganitzativaArrel = null;
 			for (UnitatOrganitzativa unitatOrganitzativa : unitatsOrganitzatives) {
-				if (pareCodi.equalsIgnoreCase(unitatOrganitzativa.getCodi())) {
+				if (codiUO.equalsIgnoreCase(unitatOrganitzativa.getCodi())) {
 					unitatOrganitzativaArrel = unitatOrganitzativa;
 					break;
 				}
@@ -306,6 +304,26 @@ public class UnitatOrganitzativaHelper {
 			return null;
 		}
 
+		public List<UnitatOrganitzativa> unitatsOrganitzativesFindLlistaTotesFilles(String arrel, String pareCodi, List<UnitatOrganitzativa> llistaFilles){
+			List<UnitatOrganitzativa> unitatsOrganitzativesFilles = unitatOrganitzativaRepository.findByCodiUnitatSuperior(pareCodi);	
+			List<UnitatOrganitzativa> unitatsNetes = null;
+			List<UnitatOrganitzativa> resposta = new ArrayList<UnitatOrganitzativa>();
+			if(llistaFilles!=null)
+				resposta.addAll(llistaFilles);
+			// Cerca si les unitats filles també tenen filles	
+			String codiArrel = pareCodi;
+			if(unitatsOrganitzativesFilles!=null && !unitatsOrganitzativesFilles.isEmpty()) {
+				for (UnitatOrganitzativa unitatOrganitzativaFilla : unitatsOrganitzativesFilles) {
+					//si la unitat filla té fills (unitatsNetes) seguim cridant recursivament aquest mètode
+					unitatsNetes = unitatOrganitzativaRepository.findByCodiUnitatSuperior(unitatOrganitzativaFilla.getCodi());
+					if(unitatsNetes!=null && !unitatsNetes.isEmpty()) {
+						resposta.addAll(unitatsOrganitzativesFindLlistaTotesFilles(codiArrel, unitatOrganitzativaFilla.getCodi(),unitatsNetes));
+					} else {
+						resposta.add(unitatOrganitzativaFilla);						}
+				}
+			}
+			return resposta;
+		}
 
 		/**
 		 * 
@@ -661,6 +679,83 @@ public class UnitatOrganitzativaHelper {
 			return estatEnum;
 		}
 		
+		/**
+		 * Finds path of unitats that starts from given unitat and stops with unitata arrel unitat arrel
+		 * @param codiDir3
+		 * @param unitatOrganitzativaCodi
+		 * @return
+		 */
+		public List<UnitatOrganitzativaDto> findPath(
+				String arrel,
+				String unitatOrganitzativaCodi) {
+			ArbreDto<UnitatOrganitzativaDto> arbre = unitatsOrganitzativesFindArbreSuperior(arrel);
+			List<UnitatOrganitzativaDto> superiors = new ArrayList<UnitatOrganitzativaDto>();
+
+			String codiActual = unitatOrganitzativaCodi;
+			do {
+				arbre = unitatsOrganitzativesFindArbreSuperior(codiActual);
+				UnitatOrganitzativaDto unitatActual = cercaDinsArbreAmbCodi(
+						arbre,
+						codiActual);
+				if (unitatActual != null) {
+					superiors.add(unitatActual);
+					codiActual = unitatActual.getCodiUnitatSuperior();
+				} else {
+					codiActual = null;
+				}
+			} while (codiActual != null);	
+			return superiors;
+		}
+		
+		private UnitatOrganitzativaDto cercaDinsArbreAmbCodi(
+				ArbreDto<UnitatOrganitzativaDto> arbre,
+				String unitatOrganitzativaCodi) {
+			UnitatOrganitzativaDto trobada = null;
+			if(arbre!=null) {
+				for (UnitatOrganitzativaDto unitat: arbre.toDadesList()) {
+					if (unitat.getCodi().equals(unitatOrganitzativaCodi)) {
+						trobada = unitat;
+						break;
+					}
+				}
+			}
+			return trobada;
+		}
+		
+		
+		/**Funció que cerca els organs/unitats organitzatives en els que l'usuari té permisos i ademés afegeix els òrgans fills*/
+	    public List<Long> getOrgansAfegintFillsPermisAdminOrRead(String nomUsuari) {
+	    	List<Long> resposta = new ArrayList<Long>();
+	    	List<ExpedientTipusUnitatOrganitzativa> expTipusUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findAll();
+			List<PermisDto> permisos = new ArrayList<PermisDto>();
+			for(ExpedientTipusUnitatOrganitzativa expTipusUnitOrg: expTipusUnitOrgList) { //mirem si existeixen permisos
+				permisos = permisosHelper.findPermisos(
+						expTipusUnitOrg.getId(),
+						ExpedientTipusUnitatOrganitzativa.class);
+				List<PermisDto> permisosReadOAdminUsuariList = new ArrayList<PermisDto>();
+				for(PermisDto permis: permisos) {
+					if(permis.getPrincipalNom()!=null
+							&& permis.getPrincipalNom().equals(nomUsuari)
+							&& (permis.isAdministration() || permis.isRead())) {
+						permisosReadOAdminUsuariList.add(permis);
+					}
+				}
+				if(!permisosReadOAdminUsuariList.isEmpty()) {
+					//Busquem fills ja que tambÃ© tindrÃ  permisos sobre els fills de les UnitatOrg on tingui permisos 
+					List<UnitatOrganitzativa> unitatsFilles = unitatOrganitzativaRepository.findByCodiUnitatArrel(expTipusUnitOrg.getUnitatOrganitzativa().getCodi());		 
+					 for(UnitatOrganitzativa unitatOrgFilla: unitatsFilles) {
+						//DANI: no seria millor crear els permisos sobre les unitats filles un cop es crea el permÃ­s sobre una unitat pare?
+						 List<ExpedientTipusUnitatOrganitzativa> expTipusUnitOrgListFills = expedientTipusUnitatOrganitzativaRepository.findByUnitatOrganitzativaId(unitatOrgFilla.getId());
+						 for(ExpedientTipusUnitatOrganitzativa expTipusUnitOrgFill: expTipusUnitOrgListFills) {
+							 ExpedientTipus expTipus = expTipusUnitOrgFill.getExpedientTipus();
+							 if(!resposta.contains(expTipus.getId()))
+								 resposta.add(expTipus.getId());
+						 }
+					 }
+				}
+			}
+	        return resposta;
+	    }		
 	public <T> T convertir(Object source, Class<T> targetType) {
 		if (source == null)
 			return null;

@@ -53,6 +53,7 @@ import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierExtractor;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
 import net.conselldemallorca.helium.core.helper.TascaSegonPlaHelper;
+import net.conselldemallorca.helium.core.helper.UnitatOrganitzativaHelper;
 import net.conselldemallorca.helium.core.helper.TascaSegonPlaHelper.InfoSegonPla;
 import net.conselldemallorca.helium.core.helper.VariableHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
@@ -70,9 +71,11 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
+import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.ExecucioHandlerException;
@@ -87,6 +90,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
@@ -106,9 +111,11 @@ import net.conselldemallorca.helium.v3.core.repository.EnumeracioValorsRepositor
 import net.conselldemallorca.helium.v3.core.repository.ExpedientHeliumRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusUnitatOrganitzativaRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
+import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaRepository;
 
 /**
  * Servei per gestionar terminis.
@@ -142,6 +149,10 @@ public class TascaServiceImpl implements TascaService {
 	private AlertaRepository alertaRepository;
 	@Resource
 	private DocumentRepository documentRepository;
+	@Resource
+	private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
+	@Resource
+	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
 
 	@Resource
 	private ExpedientRegistreHelper expedientRegistreHelper;
@@ -181,7 +192,10 @@ public class TascaServiceImpl implements TascaService {
 	private TascaSegonPlaHelper tascaSegonPlaHelper;
 	@Autowired
 	private MetricRegistry metricRegistry;
+	@Resource
+	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
 
+	private static final String ARREL = "A04003003";//MARTA cnaviar
 
 
 	@Override
@@ -412,6 +426,8 @@ public class TascaServiceImpl implements TascaService {
 						"llistat.count",
 						entorn.getCodi()));
 		countEntorn.inc();
+		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgListAmbPermisos = new ArrayList<ExpedientTipusUnitatOrganitzativa>();
+		List<Long> idsUnitatsOrganitzativesAmbPermisos = new ArrayList<Long>();
 		try {
 			final Timer timerConsultaTotal = metricRegistry.timer(
 					MetricRegistry.name(
@@ -428,8 +444,57 @@ public class TascaServiceImpl implements TascaService {
 			try {
 				// Comprova l'accés al tipus d'expedient
 				if (expedientTipusId != null) {
-					expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
+					ExpedientTipus expTipus = expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
 							expedientTipusId);
+					if(expTipus.isProcedimentComu()) {
+						//aquí obtinc la llista de les UO's per les quals l'usuari té permís (comptant les uo filles de l'arbre)
+						List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(expedientTipusId);
+						List<ExpedientTipusUnitatOrganitzativa> expTipusUnitOrgUnitatsFilles = new ArrayList<ExpedientTipusUnitatOrganitzativa>();
+						List<PermisDto> permisos = new ArrayList<PermisDto>();
+						boolean tePermisEnTotes = false;
+						Authentication authOriginal = SecurityContextHolder.getContext().getAuthentication();
+						if(expTipUnitOrgList!=null && !expTipUnitOrgList.isEmpty()) {
+							//Mirem les unitats filles
+							List<UnitatOrganitzativa> unitatsOrgFilles = new ArrayList<UnitatOrganitzativa>();
+							for(ExpedientTipusUnitatOrganitzativa expTipUnitOrg: expTipUnitOrgList) {
+								if(ARREL.equals(expTipUnitOrg.getUnitatOrganitzativa().getCodi()) && !tePermisEnTotes){ //En cas que sigui l'arrel tindrà permís sobre totes les UO
+									permisos = permisosHelper.findPermisos(
+											expTipUnitOrg.getId(),
+											ExpedientTipusUnitatOrganitzativa.class);
+									for(PermisDto permis:permisos) {
+										if(tePermisReadOrAdmin(permis,authOriginal)) {
+											idsUnitatsOrganitzativesAmbPermisos = unitatOrganitzativaRepository.findAllUnitatOrganitzativaIds();
+											//tenir en compte Estat = V vigent???
+											tePermisEnTotes = true;
+											break;
+										}		
+									}	
+								}
+							}
+							if(!tePermisEnTotes) {
+								//Mirem si hi ha permisos sobre expTipusUO pare i afegir les UO filles d'aquesta
+								expTipUnitOrgListAmbPermisos.addAll(expTipUnitOrgList);
+								for(ExpedientTipusUnitatOrganitzativa etuo: expTipUnitOrgListAmbPermisos) {
+									permisos = permisosHelper.findPermisos(
+											etuo.getId(),
+											ExpedientTipusUnitatOrganitzativa.class);
+									if(!idsUnitatsOrganitzativesAmbPermisos.contains(etuo.getUnitatOrganitzativa().getId())) {
+										for(PermisDto permis: permisos) {
+											if(tePermisReadOrAdmin(permis, authOriginal)) {
+												idsUnitatsOrganitzativesAmbPermisos.add(etuo.getUnitatOrganitzativa().getId());
+												//Afegir les UO filles d'aquesta que té permís
+												unitatsOrgFilles = unitatOrganitzativaHelper.unitatsOrganitzativesFindLlistaTotesFilles
+													(null, etuo.getUnitatOrganitzativa().getCodi(), null);
+												for(UnitatOrganitzativa uoFilla: unitatsOrgFilles) {
+													idsUnitatsOrganitzativesAmbPermisos.add(uoFilla.getId());
+												}
+											}
+										}		
+									}
+								}
+							}
+						}
+					}
 				}
 				// Si no hi ha tipexp seleccionat o no es te permis SUPERVISION
 				// a damunt el tipexp es filtra per l'usuari actual.
@@ -460,6 +525,7 @@ public class TascaServiceImpl implements TascaService {
 				boolean mostrarAssignadesUsuari = (nomesTasquesPersonals && !nomesTasquesGrup) || (!nomesTasquesPersonals && !nomesTasquesGrup);
 				boolean mostrarAssignadesGrup = (nomesTasquesGrup && !nomesTasquesPersonals) || (!nomesTasquesPersonals && !nomesTasquesGrup);
 				paginaTasks = jbpmHelper.tascaFindByFiltrePaginat(
+						idsUnitatsOrganitzativesAmbPermisos,
 						entornId,
 						responsable,
 						tasca,
@@ -514,6 +580,20 @@ public class TascaServiceImpl implements TascaService {
 			contextTimerTotal.stop();
 			contextTimerEntorn.stop();
 		}
+	}
+	
+	private boolean tePermisReadOrAdmin(PermisDto permis, Authentication authOriginal) {
+		if (permis.getPrincipalNom()!=null 
+				&& authOriginal!=null 
+				&& authOriginal.getName()!=null 
+				&& (permis.getPrincipalNom().equals(authOriginal.getName())
+						|| (PrincipalTipusEnumDto.ROL.equals(permis.getPrincipalTipus()) 
+							&&  expedientTipusHelper.isAdministrador(authOriginal)))
+				&& (permis.isRead() 
+						|| permis.isAdministration()))
+			return true;
+		else
+			return false;
 	}
 
 	@Override

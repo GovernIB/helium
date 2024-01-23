@@ -26,6 +26,7 @@ public class AnotacioFiltreCommand {
 	private Long expedientTipusId;
 	private AnotacioEstatEnumDto estat;
 	private String anotacioTramitacioMassivaAnotacioId;
+	private String unitatOrganitzativaCodi;
 
 	@Override
 	public String toString() {
@@ -110,6 +111,14 @@ public class AnotacioFiltreCommand {
 
 	public void setAnotacioTramitacioMassivaAnotacioId(String anotacioTramitacioMassivaAnotacioId) {
 		this.anotacioTramitacioMassivaAnotacioId = anotacioTramitacioMassivaAnotacioId;
+	}
+
+	public String getUnitatOrganitzativaCodi() {
+		return unitatOrganitzativaCodi;
+	}
+
+	public void setUnitatOrganitzativaCodi(String unitatOrganitzativaCodi) {
+		this.unitatOrganitzativaCodi = unitatOrganitzativaCodi;
 	}
 
 

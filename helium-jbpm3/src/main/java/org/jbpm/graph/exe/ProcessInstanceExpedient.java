@@ -23,6 +23,7 @@ public class ProcessInstanceExpedient implements Identifiable, Serializable {
 	private long id;
 	private String titol;
 	private String numero;
+	private Long unitatOrganitzativaId;
 	private String numeroDefault;
 	private Date dataInici;
 	private Date dataFi;
@@ -60,6 +61,12 @@ public class ProcessInstanceExpedient implements Identifiable, Serializable {
 	}
 	public void setNumero(String numero) {
 		this.numero = numero;
+	}
+	public Long getUnitatOrganitzativaId() {
+		return unitatOrganitzativaId;
+	}
+	public void setUnitatOrganitzativaId(Long unitatOrganitzativaId) {
+		this.unitatOrganitzativaId = unitatOrganitzativaId;
 	}
 	public String getNumeroDefault() {
 		return numeroDefault;
