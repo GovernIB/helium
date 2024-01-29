@@ -4813,7 +4813,7 @@ public class PluginHelper {
 	
 	public UnitatsOrganiquesPlugin getUnitatsOrganitzativesPlugin() {
 		if (unitatsOrganitzativesPlugin == null) {
-			String pluginClass = GlobalProperties.getInstance().getProperty("es.caib.helium.plugin.unitats.organitzatives.class");
+			String pluginClass = GlobalProperties.getInstance().getProperty("app.unitats.organiques.dir3.plugin.service.class");
 			if (pluginClass != null && pluginClass.length() > 0) {
 				try {
 					Class<?> clazz = Class.forName(pluginClass);
