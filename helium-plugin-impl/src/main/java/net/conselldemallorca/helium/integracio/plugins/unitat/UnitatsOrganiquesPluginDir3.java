@@ -263,27 +263,22 @@ public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
 	
 	private String getServiceUrl() {
 		return GlobalProperties.getInstance().getProperty(
-//				"app.unitats.organiques.dir3.plugin.service.url");
-				"es.caib.helium.plugin.unitats.organitzatives.dir3.service.url");
+				"app.unitats.organiques.dir3.plugin.service.url");
 	}
 	private String getServiceUsername() {
 		return GlobalProperties.getInstance().getProperty(
-//				"app.unitats.organiques.dir3.plugin.service.username");
-				"es.caib.helium.plugin.unitats.organitzatives.dir3.service.username");
+				"app.unitats.organiques.dir3.plugin.service.username");
 	}
 	private String getServicePassword() {
 		return GlobalProperties.getInstance().getProperty(
-//				"app.unitats.organiques.dir3.plugin.service.password");
-				"es.caib.helium.plugin.unitats.organitzatives.dir3.service.password");
+				"app.unitats.organiques.dir3.plugin.service.password");
 	}
 	private boolean isLogMissatgesActiu() {
 		return GlobalProperties.getInstance().getAsBoolean(
-//				"app.unitats.organiques.dir3.plugin.service.log.actiu");
-				"es.caib.helium.plugin.unitats.organitzatives.dir3.service.log.actiu");
+				"app.unitats.organiques.dir3.plugin.service.log.actiu");
 	}
 	private Integer getServiceTimeout() {
-//		String key = "app.unitats.organiques.dir3.plugin.service.timeout";
-		String key = "es.caib.helium.plugin.unitats.organitzatives.dir3.connect.timeout";
+		String key = "app.unitats.organiques.dir3.plugin.service.connect.timeout";
 		if (GlobalProperties.getInstance().getProperty(key) != null)
 			return GlobalProperties.getInstance().getAsInt(key);
 		else
@@ -291,10 +286,10 @@ public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
 	}
 	private String getServiceCercaUrl() {
 		String serviceUrl = GlobalProperties.getInstance().getProperty(
-				"es.caib.helium.plugin.unitats.organitzatives.dir3.service.url");
+				"aapp.unitats.organiques.dir3.plugin.service.cerca.url");
 		if (serviceUrl == null) {
 			serviceUrl = GlobalProperties.getInstance().getProperty(
-					"es.caib.helium.plugin.unitats.organitzatives.dir3.service.url");
+					"app.unitats.organiques.dir3.plugin.service.url");
 		}
 		return serviceUrl;
 	}

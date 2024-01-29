@@ -308,14 +308,13 @@ public class UnitatOrganitzativaController extends BaseController {
 				unitatsNew = unitatOrganitzativaService
 						.getNewFromWS(unitatDto.getId());
 					
-			} catch(Exception e) {
-				String missatgeError = "Error sincronitzant les unitats organitzatives " + e.getCause();
+			} catch(Exception ex) {
+				String missatgeError = "unitat.controller.synchronize.error";
 				logger.warn(missatgeError);
 				MissatgesHelper.error(
-							request,
-							getMessage(
 									request,
-									missatgeError));
+									getMessage(request, missatgeError) + " : " + 
+				        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
 				
 			}	
 		}
