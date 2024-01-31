@@ -563,6 +563,8 @@ public class TascaHelper {
 		dto.setExpedientId(expedientNoNull.getId());
 		dto.setExpedientIdentificador(expedientNoNull.getIdentificador());
 		dto.setExpedientTipusNom(expedientNoNull.getTipus().getNom());
+		dto.setProcedimentComu(expedientNoNull.getTipus().isProcedimentComu());
+		dto.setUnitatOrganitzativaCodiNom(expedientNoNull.getUnitatOrganitzativa()!=null ? expedientNoNull.getUnitatOrganitzativa().getCodiAndNom() : null);
 		dto.setExpedientTipusId(expedientNoNull.getTipus().getId());
 		if (task.getAssignee() != null) {
 			dto.setResponsable(

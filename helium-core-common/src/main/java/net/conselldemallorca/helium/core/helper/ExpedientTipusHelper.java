@@ -400,7 +400,8 @@ public class ExpedientTipusHelper {
 								unitatsOrgFilles = unitatOrganitzativaHelper.unitatsOrganitzativesFindLlistaTotesFilles
 									(null, etuo.getUnitatOrganitzativa().getCodi(), null);
 								for(UnitatOrganitzativa uoFilla: unitatsOrgFilles) {
-									idsUnitatsOrganitzativesAmbPermisos.add(uoFilla.getId());
+									if(!idsUnitatsOrganitzativesAmbPermisos.contains(uoFilla.getId()))
+										idsUnitatsOrganitzativesAmbPermisos.add(uoFilla.getId());
 								}
 							}
 						}		

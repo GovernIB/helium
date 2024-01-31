@@ -231,10 +231,17 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 			}
 			taskQuerySb.append("where ");
 			
-			if(idsUnitatsOrganitzativesAmbPermisos!=null && !idsUnitatsOrganitzativesAmbPermisos.isEmpty()) { //todo: si la llista d'ids és mallor de 1000 llavors s'ha de fer en diferents or id in (:subllista)
-				taskQuerySb.append("((et.procedimentComu = 1 AND e.unitatOrganitzativaId IN ( :idsUnitatsOrganitzativesAmbPermisos))  ");
-				taskQuerySb.append("OR (et.procedimentComu <> 1) ");	
-				taskQuerySb.append(") and ");	
+			if(idsUnitatsOrganitzativesAmbPermisos!=null && !idsUnitatsOrganitzativesAmbPermisos.isEmpty()) {
+				if(idsUnitatsOrganitzativesAmbPermisos.size()>=1000) {
+					taskQuerySb.append("( ((et.procedimentComu = 1 AND e.unitatOrganitzativaId IN ( :idsPart1))  ");
+					taskQuerySb.append("  OR (et.procedimentComu = 1 AND e.unitatOrganitzativaId IN ( :idsPart2))) ");
+					taskQuerySb.append("OR (et.procedimentComu <> 1) ");	
+					taskQuerySb.append(") and ");			
+				} else {
+					taskQuerySb.append("((et.procedimentComu = 1 AND e.unitatOrganitzativaId IN ( :idsUnitatsOrganitzativesAmbPermisos))  ");
+					taskQuerySb.append("OR (et.procedimentComu <> 1) ");	
+					taskQuerySb.append(") and ");			
+				}
 			}
 			
 			if (mostrarAssignadesUsuari && mostrarAssignadesGrup) {
@@ -331,9 +338,16 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 			taskQuerySb.append("where ");
 			
 			if(idsUnitatsOrganitzativesAmbPermisos!=null && !idsUnitatsOrganitzativesAmbPermisos.isEmpty()) {
-				taskQuerySb.append("((et.procedimentComu = 1 AND e.unitatOrganitzativaId IN ( :idsUnitatsOrganitzativesAmbPermisos))  ");
-				taskQuerySb.append("OR (et.procedimentComu <> 1) ");	
-				taskQuerySb.append(") and ");	
+				if(idsUnitatsOrganitzativesAmbPermisos.size()>=1000) {
+					taskQuerySb.append("( ((et.procedimentComu = 1 AND e.unitatOrganitzativaId IN ( :idsPart1))  ");
+					taskQuerySb.append("  OR (et.procedimentComu = 1 AND e.unitatOrganitzativaId IN ( :idsPart2))) ");
+					taskQuerySb.append("OR (et.procedimentComu <> 1) ");	
+					taskQuerySb.append(") and ");			
+				} else {
+					taskQuerySb.append("((et.procedimentComu = 1 AND e.unitatOrganitzativaId IN ( :idsUnitatsOrganitzativesAmbPermisos))  ");
+					taskQuerySb.append("OR (et.procedimentComu <> 1) ");	
+					taskQuerySb.append(") and ");			
+				}
 			}
 			
 			if (mostrarAssignadesUsuari && mostrarAssignadesGrup) {
@@ -439,7 +453,15 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 			int firstResult,
 			int maxResults) {
 		if(idsUnitatsOrganitzativesAmbPermisos!=null && !idsUnitatsOrganitzativesAmbPermisos.isEmpty()) {
-			query.setParameterList("idsUnitatsOrganitzativesAmbPermisos", idsUnitatsOrganitzativesAmbPermisos);
+			if(idsUnitatsOrganitzativesAmbPermisos.size()>=1000) {
+				int halfSizeList = idsUnitatsOrganitzativesAmbPermisos.size() / 2;
+				List<Long> idsPart1 = idsUnitatsOrganitzativesAmbPermisos.subList(0, halfSizeList-1);
+				List<Long> idsPart2 = idsUnitatsOrganitzativesAmbPermisos.subList(halfSizeList, idsUnitatsOrganitzativesAmbPermisos.size());
+				query.setParameterList("idsPart1", idsPart1);
+				query.setParameterList("idsPart2", idsPart2);
+			} else {
+				query.setParameterList("idsUnitatsOrganitzativesAmbPermisos", idsUnitatsOrganitzativesAmbPermisos);
+			}
 		}
 		if (actorId != null && (mostrarAssignadesUsuari || mostrarAssignadesGrup)) {
 			query.setParameter("actorId", actorId);

@@ -480,7 +480,17 @@
 				</th>
 				<th data-rdt-property="expedientIdentificador" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.expedient"/></th>
 				<th data-rdt-property="responsableString" data-rdt-visible="true"><spring:message code="expedient.tasca.columna.asignada_a"/></th>
-				<th data-rdt-property="expedientTipusNom" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.tipexp"/></th>
+				
+				<th data-rdt-property="unitatOrganitzativaCodiNom" data-rdt-template="cellTipusTemplate" data-rdt-visible="false">			
+				<th data-rdt-property="expedientTipusNom" data-rdt-template="cellTipusTemplate"  data-rdt-visible="true">
+					<spring:message code="tasca.llistat.columna.tipexp"/>	
+						<script id="cellTipusTemplate" type="text/x-jsrender">
+							{{:expedientTipusNom}}
+							{{if unitatOrganitzativaCodiNom != null}}
+								<span class="fa fa-university" title="{{:unitatOrganitzativaCodiNom}}" style="float:right"></span>
+							{{/if}}
+						</script>	
+				</th>		
 				<th data-rdt-property="createTime" data-rdt-type="datetime" data-rdt-sorting="desc" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.creada"/></th>
 				<th data-rdt-property="dueDate" data-rdt-type="date" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.limit"/></th>
 				<th data-rdt-property="prioritat" data-rdt-visible="false"><spring:message code="tasca.llistat.columna.prioritat"/></th>

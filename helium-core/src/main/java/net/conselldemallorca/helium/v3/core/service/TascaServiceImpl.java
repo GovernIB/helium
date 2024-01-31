@@ -447,6 +447,8 @@ public class TascaServiceImpl implements TascaService {
 						//aquí obtinc la llista de les UO's per les quals l'usuari té permís (comptant les uo filles de l'arbre)
 						idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(expedientTipusId);
 					}
+				} else { //si no hi ha expedientTipus al filtre, hem de buscar totes les UO per las quals es té permís i obtenir els expedinetTipus
+					idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(null);
 				}
 				// Si no hi ha tipexp seleccionat o no es te permis SUPERVISION
 				// a damunt el tipexp es filtra per l'usuari actual.

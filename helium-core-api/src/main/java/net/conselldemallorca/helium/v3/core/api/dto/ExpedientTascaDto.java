@@ -98,6 +98,9 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 	private boolean assignadaUsuariActual;
 	private boolean ambRepro;
 	private boolean mostrarAgrupacions;
+	private boolean procedimentComu;
+	
+	private String unitatOrganitzativaCodiNom;
 
 
 	SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -483,6 +486,20 @@ public class ExpedientTascaDto extends ControlPermisosDto implements Comparable<
 
 	public boolean isFormExtern() {
 		return (tascaFormExternCodi != null && !tascaFormExternCodi.isEmpty());
+	}
+
+	public String getUnitatOrganitzativaCodiNom() {
+		return unitatOrganitzativaCodiNom;
+	}
+	public void setUnitatOrganitzativaCodiNom(String unitatOrganitzativaCodiNom) {
+		this.unitatOrganitzativaCodiNom = unitatOrganitzativaCodiNom;
+	}
+	
+	public boolean isProcedimentComu() {
+		return procedimentComu;
+	}
+	public void setProcedimentComu(boolean procedimentComu) {
+		this.procedimentComu = procedimentComu;
 	}
 
 	private static final long serialVersionUID = 127420079220181365L;
