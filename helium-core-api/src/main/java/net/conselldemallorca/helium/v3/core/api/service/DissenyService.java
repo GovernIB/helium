@@ -318,8 +318,9 @@ public interface DissenyService {
 	 * @param expedientTipusId
 	 * @param nomArxiu Nom per comprovar que acabi amb jar.
 	 * @param contingut Contingut del fitxer jar que conté els handlers a desplegar.
+	 * @return Retorna la llista de noms de handlers desplegats o actualitzats.
 	 */
-	public void updateHandlersAccions(
+	public List<String> updateHandlersAccions(
 			Long expedientTipusId,
 			String nomArxiu,
 			byte[] contingut);
