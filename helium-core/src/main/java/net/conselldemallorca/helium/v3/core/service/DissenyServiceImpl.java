@@ -1209,8 +1209,9 @@ public class DissenyServiceImpl implements DissenyService {
 
     @Override
 	@Transactional
-    public void updateHandlersAccions(Long expedientTipusId, String nomArxiu, byte[] contingut) {
+    public List<String> updateHandlersAccions(Long expedientTipusId, String nomArxiu, byte[] contingut) {
 
+    	List<String> nomsHandlers = new ArrayList<String>();
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(expedientTipusId);
 		DefinicioProces definicioProces = definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(expedientTipusId, expedientTipus.getJbpmProcessDefinitionKey());
 		if (definicioProces == null) {
@@ -1223,10 +1224,12 @@ public class DissenyServiceImpl implements DissenyService {
 			// Actualitza els handlers de la darrera versió de la definició de procés
 			if (!handlers.isEmpty()) {
 				jbpmHelper.updateHandlers(Long.parseLong(definicioProces.getJbpmId()), handlers);
+				nomsHandlers.addAll(handlers.keySet());
 			}
 		} catch (Exception e) {
 			throw new DeploymentException(messageHelper.getMessage("definicio.proces.actualitzar.error.parse"));
 		}
+		return nomsHandlers;
 
     }
 

@@ -334,8 +334,8 @@ public class DissenyServiceBean implements DissenyService {
 
     @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-    public void updateHandlersAccions(Long expedientTipusId, String nomArxiu, byte[] contingut) {
-        delegate.updateHandlersAccions(expedientTipusId, nomArxiu, contingut);
+    public List<String> updateHandlersAccions(Long expedientTipusId, String nomArxiu, byte[] contingut) {
+        return delegate.updateHandlersAccions(expedientTipusId, nomArxiu, contingut);
     }
 
     @Override

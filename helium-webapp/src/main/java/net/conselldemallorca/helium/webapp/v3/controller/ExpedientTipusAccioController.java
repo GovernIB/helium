@@ -357,11 +357,12 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 					MissatgesHelper.error(request, getMessage(request, "expedient.tipus.accio.desplegar.flow"));
 					error = true;
 				}
-				dissenyService.updateHandlersAccions(
+				List<String> handlers = dissenyService.updateHandlersAccions(
 						expedientTipusId,
 						command.getFile().getOriginalFilename(),
 						command.getFile().getBytes());
-				MissatgesHelper.success(request, getMessage(request, "expedient.tipus.accio.desplegar.form.success"));
+				MissatgesHelper.success(request, getMessage(request, "expedient.tipus.accio.desplegar.form.success",
+										new Object[] {handlers.size(), handlers}));
 			} catch (Exception e) {
 				logger.error("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
 				MissatgesHelper.error(
