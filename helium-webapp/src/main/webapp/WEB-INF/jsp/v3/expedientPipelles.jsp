@@ -134,7 +134,7 @@ dd.subproc {
 			} else {
 				url.searchParams.delete('pipellaActiva');
 			}
-			window.history.pushState({}, '', url);
+			window.history.replaceState({}, '', url);
 		});
 		
 		<c:choose>
