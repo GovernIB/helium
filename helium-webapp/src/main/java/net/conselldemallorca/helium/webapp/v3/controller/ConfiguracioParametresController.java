@@ -1,12 +1,14 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.v3.core.api.dto.ParametreDto;
+import net.conselldemallorca.helium.v3.core.api.service.ParametreService;
 import net.conselldemallorca.helium.webapp.v3.command.ParametresCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
@@ -29,8 +33,14 @@ import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 @RequestMapping("/v3/configuracio/parametres")
 public class ConfiguracioParametresController extends BaseController {
 	
+	@Autowired
+	private ParametreService parametreService;
+	
 	/**Paràmetre true/false per propagar l'esborrat d'expedients quan s'esborri un tipus d'expedient**/
 	private static final String APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS = "app.configuracio.propagar.esborrar.expedients";
+	private static final String APP_CONFIGURACIO_DATA_UO_DARRERA_SINCRONITZACIO = "app.net.caib.helium.unitats.organitzatives.data.darrera.sincronitzacio";
+	private static final String APP_CONFIGURACIO_CODI_ARREL_UO = "app.net.caib.helium.unitats.organitzatives.arrel.codi";
+
 	
 	public enum Accions {
 		RESTAURAR,
@@ -43,15 +53,16 @@ public class ConfiguracioParametresController extends BaseController {
 	@RequestMapping(method = RequestMethod.GET)
 	public String get(
 			HttpServletRequest request,
-			Model model) {
-		
-		
-		ParametresCommand parametresCommand = new ParametresCommand();
-		// Omple amb els valors del fitxer de propietats
-		parametresCommand.setPropagarEsborratExpedients(isPropagarEsbExp());
-		
-		model.addAttribute("parametresCommand", parametresCommand);
-				
+			Model model) {	
+		ParametresCommand parametresCommand = new ParametresCommand();	
+		List<ParametreDto> parametres = parametreService.findAll();
+		for(ParametreDto parametre: parametres) {	
+			if(parametre.getCodi()!=null && parametre.getCodi().equals(APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS)) {
+				parametresCommand.setPropagarEsborratExpedients("0".equals(parametre.getValor()) ? false : true);
+			}
+		}
+		model.addAttribute("parametres", parametres);
+		model.addAttribute("parametresCommand", parametresCommand);		
 		return "v3/parametres";
 	}
 	
@@ -61,20 +72,41 @@ public class ConfiguracioParametresController extends BaseController {
 			@RequestParam(required = false, defaultValue = "GUARDAR") Accions accio,
 			ParametresCommand parametresCommand,
 			Model model) {
-		
-		String messageKey;
-		if (Accions.GUARDAR.equals(accio)) {
-			// Guardar els valors en les propietats
-			logger.info("Guardant els valors dels paràmetres: {propagar_esborrat_expedients: "+parametresCommand.isPropagarEsborratExpedients() +"}");
-			GlobalProperties.getInstance().setProperty(APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS, String.valueOf(parametresCommand.isPropagarEsborratExpedients()));
-			messageKey = "configuracio.parametres.accio.guardar.confirmacio";
+		String messageKey="configuracio.parametres.accio.restaurar.confirmacio";
+		List<ParametreDto> parametres = parametreService.findAll();
+		if (Accions.GUARDAR.equals(accio)) {	
+			for(ParametreDto parametre: parametres) { //De moment només serà configurable des de l'app Helium el paràmetre Propagar Esborrat expedients(els demés via BBDD només)	
+				if(parametre.getCodi()!=null && parametre.getCodi().equals(APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS)) {
+					parametre.setValor(parametresCommand.isPropagarEsborratExpedients() ? "1" : "0");
+					parametreService.update(parametre);
+					messageKey = "configuracio.parametres.accio.guardar.confirmacio";
+//					Guardar els valors en les propietats
+//					logger.info("Guardant els valors dels paràmetres: {propagar_esborrat_expedients: "+parametresCommand.isPropagarEsborratExpedients() +"}");
+//					GlobalProperties.getInstance().setProperty(parametre.getCodi(), String.valueOf(parametresCommand.isPropagarEsborratExpedients()));		
+				}
+			}	
 		} else {
+			if(valorsDefecte==null || valorsDefecte.isEmpty()) {
+				// Omple amb els valors del fitxer de propietats per defecte
+				guardarValorsPerDefecte(parametresCommand);
+			} 
 			// Restaurar els valors
 			logger.info("Restaurant els valors per defecte dels paràmetres");
 			// Restaura els valors per defecte
-			for (String valorDefecte : valorsDefecte.keySet()) 
-				GlobalProperties.getInstance().setProperty(valorDefecte, valorsDefecte.get(valorDefecte));
-			messageKey = "configuracio.parametres.accio.restaurar.confirmacio";
+			for (String valorDefecte : valorsDefecte.keySet()){ 
+				for(ParametreDto parametre: parametres) {
+						//en el cas de la data de darrera sincronització no hi serà al fitxer de properties
+						if (valorsDefecte.containsKey(parametre.getCodi()) && !APP_CONFIGURACIO_DATA_UO_DARRERA_SINCRONITZACIO.equals(parametre.getCodi())) {
+							if(parametre.getCodi()!=null && parametre.getCodi().equals(APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS)) {
+								parametre.setValor(valorsDefecte.get(APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS).equals("true") ? "1" : "0");
+							} else { 
+								parametre.setValor(valorsDefecte.get(valorDefecte));//en els demés casos no és boolean
+							}
+							GlobalProperties.getInstance().setProperty(valorDefecte, valorsDefecte.get(valorDefecte));	
+							parametreService.update(parametre);
+						}
+				}
+			}
 		}
 		MissatgesHelper.success(
 				request, 
@@ -85,13 +117,16 @@ public class ConfiguracioParametresController extends BaseController {
 		return "redirect:/modal/v3/configuracio/parametres";
 	}
 
-	/** Mètode per consultar la propietat de propagació d'esborrat d'expedients si s'esborra el tipus d'expedient.*/
-	private boolean isPropagarEsbExp() {
-		// Guarda el valor per defecte 
-				if (!valorsDefecte.containsKey(APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS)) {
-					valorsDefecte.put(APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS, String.valueOf("true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty(APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS))));
-				}
-				return "true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty(APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS));
+	/** Mètode per guardar el valor per defecte de la propietat de propagació d'esborrat d'expedients.*/
+	private void guardarValorsPerDefecte(ParametresCommand parametresCommand) {
+		// Guarda el valor per defecte del fitxer de propietats
+		if (!valorsDefecte.containsKey(APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS)) {
+			valorsDefecte.put(APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS, String.valueOf("true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty(APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS))));
+			parametresCommand.setPropagarEsborratExpedients(Boolean.valueOf(valorsDefecte.get(GlobalProperties.getInstance().getProperty(APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS))));
+		} else if (!valorsDefecte.containsKey(APP_CONFIGURACIO_CODI_ARREL_UO)) {
+			valorsDefecte.put(APP_CONFIGURACIO_CODI_ARREL_UO, String.valueOf("true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty(APP_CONFIGURACIO_CODI_ARREL_UO))));
+			parametresCommand.setCodi(valorsDefecte.get(GlobalProperties.getInstance().getProperty(APP_CONFIGURACIO_CODI_ARREL_UO)));
+		}
 	}
 	
 	private static final Log logger = LogFactory.getLog(ConfiguracioParametresController.class);

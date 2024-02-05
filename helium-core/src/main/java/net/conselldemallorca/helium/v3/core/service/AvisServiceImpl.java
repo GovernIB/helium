@@ -156,7 +156,7 @@ public class AvisServiceImpl implements AvisService {
 	}	
 
 	
-	private static final Logger logger = LoggerFactory.getLogger(CarrecServiceImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(AvisServiceImpl.class);
 
 
 }

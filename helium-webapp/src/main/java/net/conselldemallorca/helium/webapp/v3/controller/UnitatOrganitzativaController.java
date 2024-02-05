@@ -31,10 +31,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.core.helper.PluginHelper;
+import net.conselldemallorca.helium.v3.core.api.dto.ParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaFiltreDto;
+import net.conselldemallorca.helium.v3.core.api.service.ParametreService;
 import net.conselldemallorca.helium.v3.core.api.service.UnitatOrganitzativaService;
 import net.conselldemallorca.helium.webapp.v3.command.UnitatOrganitzativaCommand;
 import net.conselldemallorca.helium.webapp.v3.command.UnitatOrganitzativaCommand.Creacio;
@@ -58,16 +60,26 @@ public class UnitatOrganitzativaController extends BaseController {
 	@Autowired
 	private UnitatOrganitzativaService unitatOrganitzativaService;
 	@Autowired
+	private ParametreService parametreService;
+	@Autowired
 	private PluginHelper pluginHelper;
 	
 	private static final String SESSION_ATTRIBUTE_FILTRE = "UnitatOrganitzativaController.session.filtre";
-	private static final String ARREL = "A04003003";
+	private static final String APP_CONFIGURACIO_ARREL = "app.net.caib.helium.unitats.organitzatives.arrel.codi";
 	
 	@RequestMapping(method = RequestMethod.GET)
 	public String llistat(
 			HttpServletRequest request,
 			Model model) {
 		UnitatOrganitzativaCommand filtreCommand = getFiltreCommand(request);
+		List<ParametreDto> parametres = parametreService.findAll();
+		for(ParametreDto parametre: parametres) {	
+			if("app.net.caib.helium.unitats.organitzatives.arrel.codi".equals(parametre.getCodi())) {
+				model.addAttribute("codiUnitatArrel", parametre.getValor());
+			} else if("app.net.caib.helium.unitats.organitzatives.data.darrera.sincronitzacio".equals(parametre.getCodi())) {
+				model.addAttribute("dataSincronitzacio", parametre.getValor());
+			}
+		}
 		this.modelEstats(model);
 		model.addAttribute(filtreCommand);
 		return "v3/unitatOrganitzativa";
@@ -238,12 +250,12 @@ public class UnitatOrganitzativaController extends BaseController {
 		List<UnitatOrganitzativaDto> unitatsVigents = new ArrayList<UnitatOrganitzativaDto>();
 		List<UnitatOrganitzativaDto> unitatsVigentsFirstSincro = new ArrayList<UnitatOrganitzativaDto>();
 		List<UnitatOrganitzativaDto> unitatsNew = new ArrayList<UnitatOrganitzativaDto>();
-		
-		UnitatOrganitzativaDto unitatDto = unitatOrganitzativaService.findByCodi(ARREL);
+		ParametreDto parametreArrel = parametreService.findByCodi(APP_CONFIGURACIO_ARREL);
+		UnitatOrganitzativaDto unitatDto = unitatOrganitzativaService.findByCodi(parametreArrel.getValor());
 		boolean isFirstSincronization = unitatDto==null;
 		if(unitatDto==null) {
 			 unitatDto =pluginHelper.findUnidad(
-				    ARREL,
+					 parametreArrel.getValor(),
 					new Timestamp(System.currentTimeMillis()), 
 					new Timestamp(System.currentTimeMillis()));
 			unitatOrganitzativaService.create(unitatDto);
@@ -335,8 +347,8 @@ public class UnitatOrganitzativaController extends BaseController {
 	@RequestMapping(value = "/saveSynchronize", method = RequestMethod.POST)
 	public String synchronizePost(
 			HttpServletRequest request) {
-		
-		UnitatOrganitzativaDto unitatDto = unitatOrganitzativaService.findByCodi(ARREL);
+		ParametreDto parametreArrel = parametreService.findByCodi(APP_CONFIGURACIO_ARREL);
+		UnitatOrganitzativaDto unitatDto = unitatOrganitzativaService.findByCodi(parametreArrel.getValor());
 		unitatOrganitzativaService.synchronize(unitatDto.getId());
 		return getModalControllerReturnValueSuccess(
 				request,
@@ -349,8 +361,8 @@ public class UnitatOrganitzativaController extends BaseController {
 	public String mostrarArbre(
 			HttpServletRequest request,
 			Model model) {
-		
-		UnitatOrganitzativaDto unitatDto = unitatOrganitzativaService.findByCodi(ARREL);
+		ParametreDto parametreArrel = parametreService.findByCodi(APP_CONFIGURACIO_ARREL);
+		UnitatOrganitzativaDto unitatDto = unitatOrganitzativaService.findByCodi(parametreArrel.getValor());
 		
 		model.addAttribute(
 				"arbreUnitatsOrganitzatives",

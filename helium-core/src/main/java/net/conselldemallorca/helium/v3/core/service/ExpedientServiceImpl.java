@@ -92,6 +92,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientL
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Notificacio;
+import net.conselldemallorca.helium.core.model.hibernate.Parametre;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
@@ -175,6 +176,7 @@ import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusUnitatOrganitzativaRepository;
 import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
+import net.conselldemallorca.helium.v3.core.repository.ParametreRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
@@ -241,6 +243,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
 	@Resource
 	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
+	@Resource
+	private ParametreRepository parametreRepository;
 	
 	@Resource
 	private ExpedientHelper expedientHelper;
@@ -297,6 +301,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	@Resource
 	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
 	
+	private static final String APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS = "app.configuracio.propagar.esborrar.expedients";
 	/**
 	 * {@inheritDoc}
 	 */
@@ -3379,7 +3384,10 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	
 	/** Mètode per consultar la propietat de propagació d'esborrat d'expedients si s'esborra el tipus d'expedient.*/
 	private boolean isPropagarEsbExp() {
-				return "true".equalsIgnoreCase(GlobalProperties.getInstance().getProperty("app.configuracio.propagar.esborrar.expedients"));
+		Parametre parametrePropagarEsbExp = parametreRepository.findByCodi(APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS);
+		if(parametrePropagarEsbExp==null)
+			throw new NoTrobatException(Parametre.class,APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS);
+		return "true".equalsIgnoreCase(parametrePropagarEsbExp.getValor());
 	}
 	
 	/** Funció que mira si l'expedient està integrat amb l'arxiu i utlitzarà 

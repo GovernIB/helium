@@ -70,12 +70,12 @@
 			data-toggle="datatable"
 			data-url="unitatOrganitzativa/datatable"
 			data-paging-enabled="true"
-			data-info-type="search"
+			data-info-type="button"
 			data-ordering="true"
 			data-default-order="1"
 			data-rowhref-toggle="modal" 
-			class="table table-striped table-bordered table-hover">
-			
+			data-botons-template="#tableButtonsAccionsTemplate"
+			class="table table-striped table-bordered table-hover">			
 		<thead>
 			<tr>
 				<th data-col-name="codi"><spring:message code="unitat.organitzativa.codi"/></th>
@@ -97,9 +97,13 @@
 				</th>
 			</tr>
 		</thead>
-		
-					
 	</table>
-	
+	<script id="tableButtonsAccionsTemplate" type="text/x-jsrender">	
+				<div class="botons-titol text-right">
+					<b><spring:message code="unitat.organitzativa.llistat.unitat.arrel"/>:</b> ${codiUnitatArrel}<span></span>
+					<span >    </span>&nbsp;
+					<b><spring:message code="unitat.organitzativa.llistat.data.darrera.sinc"/>:</b> ${dataSincronitzacio}<span></span>
+				</div>
+		</script>
 </body>
 </html>

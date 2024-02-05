@@ -9,11 +9,14 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import net.conselldemallorca.helium.core.model.hibernate.Parametre;
 import net.conselldemallorca.helium.core.model.hibernate.Procediment;
 import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.integracio.plugins.procediment.UnitatAdministrativa;
@@ -21,6 +24,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentEstat
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProgresActualitzacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProgresActualitzacioDto.ActualitzacioInfo;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProgresActualitzacioDto.NivellInfo;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.repository.ParametreRepository;
 import net.conselldemallorca.helium.v3.core.repository.ProcedimentRepository;
 import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaRepository;
 
@@ -36,10 +41,14 @@ public class ProcedimentHelper {
 	private ProcedimentRepository procedimentRepository;
 	@Autowired
 	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
+	@Autowired
+	private ParametreRepository parametreRepository;
 
 	@Resource
 	private PluginHelper pluginHelper;
 
+	private static final String APP_CONFIGURACIO_ARREL = "app.net.caib.helium.unitats.organitzatives.arrel.codi";
+	
 	/** Consutla la llista de procediments de BBDD i marca com a extingits els que no hagi retornat la consulta a Rolsac.
 	 * 
 	 * @param procedimentsRolsacMap Map amb els procediments de Rolsac.
@@ -234,11 +243,19 @@ public class ProcedimentHelper {
 						&& codi != null);
 				
 				if (uo == null) {
-					//TODO: no posar l'arrel fixa
-					progres.getAvisos().add("Error, no s'ha pogut trobar la unitat administrativa amb codi " + codi + " pel procediment " + procedimentRolsac.getCodiSia() +
-							". Es posarà com a unitat organitzativa l'unitat arrel amb codi " + "A04003003");
-					uo = unitatOrganitzativaRepository.findByCodi("A04003003");
-					progres.incAvisos();
+					try {
+						Parametre parametreArrel = parametreRepository.findByCodi(APP_CONFIGURACIO_ARREL);
+						if(parametreArrel==null)
+							throw new NoTrobatException(Parametre.class,APP_CONFIGURACIO_ARREL);
+						String arrel = parametreArrel.getValor();
+						progres.getAvisos().add("Error, no s'ha pogut trobar la unitat administrativa amb codi " + codi + " pel procediment " + procedimentRolsac.getCodiSia() +
+								". Es posarà com a unitat organitzativa l'unitat arrel amb codi " + arrel);
+						uo = unitatOrganitzativaRepository.findByCodi(arrel);
+						progres.incAvisos();
+					}catch(Exception e) {
+						logger.debug("No s'ha trobat el paràmetre amb codi "+ APP_CONFIGURACIO_ARREL );
+					}
+					
 				}
 				unitatsOranitzatives.put(procedimentRolsac.getUnitatAdministrativacodi(), uo);				
 			} else {
@@ -247,4 +264,6 @@ public class ProcedimentHelper {
 		}
 		return uo;
 	}
+	
+	private static final Logger logger = LoggerFactory.getLogger(ProcedimentHelper.class);
 }

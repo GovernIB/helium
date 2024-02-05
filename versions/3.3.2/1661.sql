@@ -110,9 +110,34 @@ ALTER TABLE HEL_EXPEDIENT ADD (
 	FOREIGN KEY (UNITAT_ORGANITZATIVA_ID) REFERENCES HEL_UNITAT_ORGANITZATIVA(ID));
 
 
+-- Nova taula de Paràmetres
+CREATE TABLE HEL_PARAMETRE
+(
+  ID                NUMBER(19)               NOT NULL,
+  CODI            	VARCHAR2(512)            NOT NULL,
+  NOM		        VARCHAR2(256)			 NOT NULL,
+  DESCRIPCIO        VARCHAR2(1024),
+  VALOR           	VARCHAR2(256)
+);
 
-
-
+INSERT INTO HEL_PARAMETRE (ID, CODI, NOM, DESCRIPCIO, VALOR)
+      VALUES (1, 
+      		 'app.configuracio.propagar.esborrar.expedients',
+      		 'Propagar esborrat d''expedients', 
+      		 'Si s''habilita es permetrà la propagació de l''esborrat d''expedients quan s''esborri un tipus d''expedient',
+      		 '0');
+INSERT INTO HEL_PARAMETRE (ID, CODI, NOM, DESCRIPCIO, VALOR)
+      VALUES (2, 
+      		 'app.net.caib.helium.unitats.organitzatives.arrel.codi',
+      		 'Codi de l''unitat arrel', 
+      		 NULL,
+      		 'A04003003');
+INSERT INTO HEL_PARAMETRE (ID, CODI, NOM, DESCRIPCIO, VALOR)
+      VALUES (3, 
+      		 'app.net.caib.helium.unitats.organitzatives.data.darrera.sincronitzacio',
+      		 'Data darrera sincronització', 
+      		 NULL,
+      		 '31/01/2024');
 
 -- Postgesql
 	
@@ -126,6 +151,15 @@ CREATE TABLE HEL_PROCEDIMENT
   ID_UNITAT_ORGANITZATIVA	BIGSERIAL,
   ESTAT                     character varying(20) default 'VIGENT' NOT NULL
 );
+
+CREATE TABLE HEL_PARAMETRE
+(
+  ID                BIGSERIAL                		NOT NULL,
+  CODI            	character varying(256)          NOT NULL,
+  DESCRIPCIO        character varying(256)          NOT NULL,
+  VALOR           	character varying(256)          NOT NULL
+);
+
 ALTER TABLE HEL_PROCEDIMENT ADD (
   CONSTRAINT HEL_PROCEDIMENT_PK PRIMARY KEY (ID));
 

@@ -20,17 +20,22 @@
 </head>
 <body>		
 	<form:form cssClass="form-horizontal" enctype="multipart/form-data" method="post" commandName="parametresCommand">
-		<div class="inlineLabels">
-        
-			<script type="text/javascript">
-				// <![CDATA[
-				$(document).ready( function() {
-				}); 
-				// ]]>
-			</script>			
-
-			<hel:inputCheckbox name="propagarEsborratExpedients" textKey="configuracio.parametres.propagarEsborratExpedients" comment="configuracio.parametres.propagarEsborratExpedients.info" />
-		</div>
+		<table class="table">
+			<tbody>
+				<hel:inputCheckbox name="propagarEsborratExpedients" textKey="configuracio.parametres.propagarEsborratExpedients" comment="configuracio.parametres.propagarEsborratExpedients.info" />	
+				<strong><spring:message code="configuracio.parametres.unitats.organitzatives"/></strong>
+				
+				<c:forEach var="parametres" items="${parametres}">
+				<tr>
+					<c:if test="${parametres.codi != 'app.configuracio.propagar.esborrar.expedients'}">
+						<td colspan="1">
+							<hel:inputText  readonly="true" name="valor" text="${parametres.nom}" placeholder="${parametres.valor}"/>
+						</td>
+					</c:if>
+				</tr>
+				</c:forEach>
+			</tbody>
+		</table>									
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true">
 				<spring:message code="comu.boto.tancar"/>

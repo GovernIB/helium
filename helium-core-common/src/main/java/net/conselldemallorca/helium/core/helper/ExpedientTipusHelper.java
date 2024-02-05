@@ -19,6 +19,7 @@ import net.conselldemallorca.helium.core.helper.PermisosHelper.ObjectIdentifierE
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
+import net.conselldemallorca.helium.core.model.hibernate.Parametre;
 import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
@@ -30,6 +31,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusUnitatOrganitzativaRepository;
+import net.conselldemallorca.helium.v3.core.repository.ParametreRepository;
 import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaRepository;
 
 /**
@@ -48,7 +50,9 @@ public class ExpedientTipusHelper {
 	private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
 	@Resource
 	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
-
+	@Resource
+	private ParametreRepository parametreRepository;
+	
 	@Resource
 	private JbpmHelper jbpmHelper;
 	@Resource(name = "permisosHelperV3")
@@ -59,7 +63,8 @@ public class ExpedientTipusHelper {
 	@Resource
 	private EntornHelper entornHelper;
 	
-	private static final String ARREL = "A04003003";//MARTA canviar
+	private static final String APP_CONFIGURACIO_ARREL = "app.net.caib.helium.unitats.organitzatives.arrel.codi";
+
 
 	/** Consulta el tipus d'expedient comprovant el permís de lectura. */
 	public ExpedientTipus getExpedientTipusComprovantPermisLectura(Long id) {
@@ -371,7 +376,11 @@ public class ExpedientTipusHelper {
 			//Mirem les unitats filles
 			List<UnitatOrganitzativa> unitatsOrgFilles = new ArrayList<UnitatOrganitzativa>();
 			for(ExpedientTipusUnitatOrganitzativa expTipUnitOrg: expTipUnitOrgList) {
-				if(ARREL.equals(expTipUnitOrg.getUnitatOrganitzativa().getCodi()) && !tePermisEnTotes){ //En cas que sigui l'arrel tindrà permís sobre totes les UO
+				Parametre parametreArrel = parametreRepository.findByCodi(APP_CONFIGURACIO_ARREL);
+				if(parametreArrel==null)
+					throw new NoTrobatException(Parametre.class,APP_CONFIGURACIO_ARREL);
+				String arrel = parametreArrel.getValor();
+				if(arrel!=null && arrel.equals(expTipUnitOrg.getUnitatOrganitzativa().getCodi()) && !tePermisEnTotes){ //En cas que sigui l'arrel tindrà permís sobre totes les UO
 					permisosList = permisosHelper.findPermisos(
 							expTipUnitOrg.getId(),
 							ExpedientTipusUnitatOrganitzativa.class);
