@@ -60,6 +60,7 @@ public class ExpedientTipusDocumentCommand {
 	private PortafirmesSimpleTipusEnumDto portafirmesSequenciaTipus;
 	private String portafirmesResponsables;
 	private String portafirmesFluxId;
+	private String portafirmesFluxNom;
 	private boolean portafirmesActiu = false;
 
 	public Long getExpedientTipusId() {
@@ -226,6 +227,12 @@ public class ExpedientTipusDocumentCommand {
 	public void setPortafirmesFluxId(String portafirmesFluxId) {
 		this.portafirmesFluxId = portafirmesFluxId;
 	}
+	public String getPortafirmesFluxNom() {
+		return portafirmesFluxNom;
+	}
+	public void setPortafirmesFluxNom(String portafirmesFluxNom) {
+		this.portafirmesFluxNom = portafirmesFluxNom;
+	}
 	public static DocumentDto asDocumentDto(ExpedientTipusDocumentCommand command) {
 		DocumentDto dto = new DocumentDto();
 		dto.setId(command.getId());
@@ -258,6 +265,7 @@ public class ExpedientTipusDocumentCommand {
 			dto.setPortafirmesFluxTipus(command.getPortafirmesFluxTipus());
 			if(dto.getPortafirmesFluxTipus().equals(PortafirmesTipusEnumDto.FLUX)) {
 				dto.setPortafirmesFluxId(command.getPortafirmesFluxId());
+				dto.setPortafirmesFluxNom(command.getPortafirmesFluxNom());
 			}
 			else if(dto.getPortafirmesFluxTipus().equals(PortafirmesTipusEnumDto.SIMPLE)) {
 				dto.setPortafirmesSequenciaTipus(command.getPortafirmesSequenciaTipus());

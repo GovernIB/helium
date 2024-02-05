@@ -56,10 +56,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.ParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxRespostaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exportacio.DefinicioProcesExportacio;
+import net.conselldemallorca.helium.v3.core.api.exportacio.DocumentExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacioCommandDto;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
@@ -67,6 +69,7 @@ import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
+import net.conselldemallorca.helium.v3.core.api.service.PortafirmesFluxService;
 import net.conselldemallorca.helium.v3.core.api.service.ParametreService;
 import net.conselldemallorca.helium.v3.core.api.service.UnitatOrganitzativaService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
@@ -115,6 +118,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
 	@Autowired
 	private UnitatOrganitzativaService unitatOrganitzativaService;
+	@Autowired
+	private PortafirmesFluxService portafirmesFluxService;
 	@Autowired
 	private ParametreService parametreService;
 
@@ -761,6 +766,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			List<DefinicioProcesDto> definicions = new ArrayList<DefinicioProcesDto>(); 
 			for (DefinicioProcesExportacio definicioExportat : exportacio.getDefinicions()) {
 				definicions.add(definicioExportat.getDefinicioProcesDto());
+				
+				this.comprovarDocumentsImportacio(request, model, entornId, expedientTipusId, definicioExportat.getDefinicioProcesDto().getJbpmKey(), definicioExportat.getDocuments());
 			}
 			model.addAttribute("definicions", definicions);		
 
@@ -770,6 +777,67 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			model.addAttribute("accions", exportacio.getAccions());
 			model.addAttribute("dominis", exportacio.getDominis());
 			model.addAttribute("consultes", exportacio.getConsultes());			
+
+			this.comprovarDocumentsImportacio(request, model, entornId, expedientTipusId, null, exportacio.getDocuments());
+		}
+	}
+	
+	/** Comprova els documents a importar. Pot comprovar els documents tant del tipus d'expedient importat com
+	 * d'una definició de procés.
+	 */
+	private void comprovarDocumentsImportacio(
+			HttpServletRequest request, 
+			Model model,
+			Long entornId,
+			Long expedientTipusId,
+			String definicioProcesJbpmKey,
+			List<DocumentExportacio> documents) {
+		List<String> avisosDocuments = new ArrayList<String>();
+		List<String> fluxIds = null;
+		String avisText;
+		Long definicioProcesId = null;
+		if (expedientTipusId != null && documents != null) {
+			if (definicioProcesJbpmKey != null) {
+				DefinicioProcesDto definicioProcesDto = definicioProcesService.findByEntornTipusIdAndJbpmKey(entornId, expedientTipusId, definicioProcesJbpmKey);
+				if (definicioProcesDto != null) {
+					definicioProcesId = definicioProcesDto.getId();
+				}
+			}
+			for (DocumentExportacio document : documents) {
+				if (document.getPortafirmesFluxId() != null ) {
+					if (fluxIds == null) {
+						try {
+							// Recupera les plantilles disponibles
+							List<PortafirmesFluxRespostaDto> portafirmesFluxos = portafirmesFluxService.recuperarPlantillesDisponibles(
+									expedientTipusId,
+									definicioProcesId,
+									null);
+							fluxIds = new ArrayList<String>();
+							for( PortafirmesFluxRespostaDto flux :portafirmesFluxos) {
+								fluxIds.add(flux.getFluxId());
+							}
+						} catch(Exception e) {
+							avisText = "Error recuperant els fluxos disponibles pel tipus d'expedient " + expedientTipusId + " per la importació de documents.";
+							logger.error(avisText, e);
+							avisosDocuments.add(avisText);
+						}
+					}
+					if (fluxIds != null && !fluxIds.contains(document.getPortafirmesFluxId())) {
+						avisText = "Avís importació document \"" + document.getCodi() + " - " + document.getNom() + "\"";
+						if (definicioProcesJbpmKey != null) {
+							avisText += " de la definició de procés \"" + definicioProcesJbpmKey + "\"";
+						}
+						avisText += ". No existeix cap flux de firma definit pel tipus d'expedient amb id " + document.getPortafirmesFluxId();
+						if (document.getPortafirmesFluxNom() != null ) {
+							avisText += " i nom \"" + document.getPortafirmesFluxNom( )+ "\"";
+						}
+						avisosDocuments.add(avisText);
+					}
+				}
+			}
+		}
+		if (!avisosDocuments.isEmpty()) {
+			model.addAttribute("avisosDocuments", avisosDocuments);
 		}
 	}
 	

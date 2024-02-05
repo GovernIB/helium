@@ -36,6 +36,7 @@ if (fluxIframe) {
 		// No actualitza el text seleccionat, hactualitzem el div del select2
 		$modalFlux.find('#s2id_portafirmesFluxId').find('.select2-chosen').html(fluxCreatedNom);
 		$portafirmesFluxId.change();
+		$modalFlux.find('#portafirmesFluxNom').val(fluxCreatedNom);
 	} else if (fluxErrorDesc != null && fluxErrorDesc != '') 		
 	{
 		alerta = fluxErrorDesc;

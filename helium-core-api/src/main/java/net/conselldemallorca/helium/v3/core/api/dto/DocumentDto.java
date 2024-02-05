@@ -37,6 +37,7 @@ public class DocumentDto extends HeretableDto implements Serializable {
 	private PortafirmesSimpleTipusEnumDto portafirmesSequenciaTipus;
 	private String portafirmesResponsables;
 	private String portafirmesFluxId;
+	private String portafirmesFluxNom;
 	
 	private boolean documentPendentSignar = false;
 	private boolean signatRequired = false;
@@ -470,6 +471,14 @@ public class DocumentDto extends HeretableDto implements Serializable {
 	public void setPortafirmesFluxId(String portafirmesFluxId) {
 		this.portafirmesFluxId = portafirmesFluxId;
 	}
+
+	public String getPortafirmesFluxNom() {
+		return portafirmesFluxNom;
+	}
+	public void setPortafirmesFluxNom(String portafirmesFluxNom) {
+		this.portafirmesFluxNom = portafirmesFluxNom;
+	}
+
 	public String getArxiuNomSenseExtensio() {
 		if (getArxiuNom() == null)
 			return null;

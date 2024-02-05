@@ -36,6 +36,14 @@
 				</p>
 			</c:if>
 
+			<c:if test="${avisosDocuments != null && ! empty avisosDocuments }">
+				<c:forEach var="avisDocument" items="${avisosDocuments}">
+				<p class="help-block" style="color: #8a6d3b">
+					<span class="fa fa-exclamation-triangle"></span> 
+					${avisDocument}
+				</p>
+				</c:forEach>
+			</c:if>
 			
 			<c:if test="${empty command.id}">
 				<hel:inputText name="codi" textKey="expedient.tipus.importar.form.camp.codi" required="true" labelSize="2"/> 	

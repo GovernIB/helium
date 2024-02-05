@@ -1452,6 +1452,7 @@ public class DocumentHelperV3 {
 						dto.setAdjuntarAuto(doc.isAdjuntarAuto());
 						dto.setGenerarNomesTasca(doc.isGenerarNomesTasca());
 						dto.setPortafirmesFluxId(doc.getPortafirmesFluxId());
+						dto.setPortafirmesFluxNom(doc.getPortafirmesFluxNom());
 					}
 				}
 				if (documentStore.getArxiuUuid() != null) {

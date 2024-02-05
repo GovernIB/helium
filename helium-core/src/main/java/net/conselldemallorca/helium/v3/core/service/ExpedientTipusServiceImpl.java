@@ -23,6 +23,7 @@ import javax.annotation.Resource;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.security.acls.domain.BasePermission;
@@ -110,6 +111,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisEstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxInfoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
@@ -866,6 +868,23 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					documentExportacio.setNtiTipoDocumental(document.getNtiTipoDocumental());
 					documentExportacio.setPortafirmesActiu(document.isPortafirmesActiu());
 					documentExportacio.setPortafirmesFluxId(document.getPortafirmesFluxId());
+					if (document.getPortafirmesFluxId() != null) {
+						if (document.getPortafirmesFluxNom() == null) {
+							// Consulta el flux per tenir el nom 
+							try {
+								PortafirmesFluxInfoDto fluxInfo = pluginHelper.portafirmesRecuperarInfoFluxDeFirma(
+										document.getPortafirmesFluxId(), 
+										LocaleContextHolder.getLocale().getLanguage());
+								documentExportacio.setPortafirmesFluxNom(fluxInfo.getNom());
+								document.setPortafirmesFluxNom(fluxInfo.getNom());
+							} catch(Exception e) {
+								logger.error("Error consultant la informació del flux de firma " + document.getPortafirmesFluxId() + ": " + e.getMessage());
+							}
+							
+						} else {
+							documentExportacio.setPortafirmesFluxNom(document.getPortafirmesFluxNom());
+						}
+					}
 					documentExportacio.setPortafirmesFluxTipus(document.getPortafirmesFluxTipus());
 					documentExportacio.setPortafirmesSequenciaTipus(document.getPortafirmesSequenciaTipus());
 					documentExportacio.setPortafirmesResponsables(document.getPortafirmesResponsables()!=null? document.getPortafirmesResponsables().split(",") : null );
@@ -1597,6 +1616,21 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						
 						document.setPortafirmesActiu(documentExportat.isPortafirmesActiu());
 						document.setPortafirmesFluxId(documentExportat.getPortafirmesFluxId());
+						if (documentExportat.getPortafirmesFluxId() != null) {
+							if (documentExportat.getPortafirmesFluxNom() == null) {
+								// Consulta el flux per tenir el nom 
+								try {
+									PortafirmesFluxInfoDto fluxInfo = pluginHelper.portafirmesRecuperarInfoFluxDeFirma(
+											document.getPortafirmesFluxId(), 
+											LocaleContextHolder.getLocale().getLanguage());
+									document.setPortafirmesFluxNom(fluxInfo.getNom());
+								} catch(Exception e) {
+									logger.error("Error consultant la informació del flux de firma " + document.getPortafirmesFluxId() + ": " + e.getMessage());
+								}
+							} else {
+								document.setPortafirmesFluxNom(documentExportat.getPortafirmesFluxNom());
+							}
+						}
 						document.setPortafirmesFluxTipus(documentExportat.getPortafirmesFluxTipus());
 						document.setPortafirmesSequenciaTipus(documentExportat.getPortafirmesSequenciaTipus());
 						document.setPortafirmesResponsables(documentExportat.getPortafirmesResponsables());

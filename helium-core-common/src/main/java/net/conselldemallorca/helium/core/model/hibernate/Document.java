@@ -137,6 +137,11 @@ public class Document implements Serializable, GenericEntity<Long> {
 	@MaxLength(64)
 	@Column(name="portafirmes_flux_id", length=64)
 	private String portafirmesFluxId;
+	
+	/** Nom del flux que es guarda per informar en cas quel flux s'esborri o s'importi sense correspondència. */
+	@MaxLength(512)
+	@Column(name="portafirmes_flux_nom", length=512)
+	private String portafirmesFluxNom;
 
 
 	@ManyToOne(optional=true)
@@ -312,6 +317,12 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.portafirmesFluxId = portafirmesFluxId;
 	}
 
+	public String getPortafirmesFluxNom() {
+		return portafirmesFluxNom;
+	}
+	public void setPortafirmesFluxNom(String portafirmesFluxNom) {
+		this.portafirmesFluxNom = portafirmesFluxNom;
+	}
 	public boolean isAdjuntarAuto() {
 		return adjuntarAuto;
 	}

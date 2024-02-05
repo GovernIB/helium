@@ -83,6 +83,7 @@ public class ConversioTipusHelper {
 						target.setDocumentNom(source.getNom());
 						target.setPortafirmesActiu(source.isPortafirmesActiu());
 						target.setPortafirmesFluxId(source.getPortafirmesFluxId());
+						target.setPortafirmesFluxNom(source.getPortafirmesFluxNom());
 						target.setPortafirmesFluxTipus(source.getPortafirmesFluxTipus());
 						target.setPortafirmesResponsables(source.getPortafirmesResponsables());
 						target.setPortafirmesSequenciaTipus(source.getPortafirmesSequenciaTipus());

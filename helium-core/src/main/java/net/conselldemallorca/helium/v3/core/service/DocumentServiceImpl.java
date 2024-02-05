@@ -205,6 +205,7 @@ public class DocumentServiceImpl implements DocumentService {
 			//Portafirmes
 			ret.setPortafirmesActiu(document.isPortafirmesActiu());
 			ret.setPortafirmesFluxId(document.getPortafirmesFluxId());
+			ret.setPortafirmesFluxNom(document.getPortafirmesFluxNom());
 			ret.setPortafirmesFluxTipus(document.getPortafirmesFluxTipus());
 			ret.setPortafirmesSequenciaTipus(document.getPortafirmesSequenciaTipus());
 			ret.setPortafirmesResponsables(document.getPortafirmesResponsables());
@@ -262,6 +263,7 @@ public class DocumentServiceImpl implements DocumentService {
 		dto.setPortafirmesActiu(document.isPortafirmesActiu());
 		dto.setPortafirmesFluxTipus(document.getPortafirmesFluxTipus());
 		dto.setPortafirmesFluxId(document.getPortafirmesFluxId());
+		dto.setPortafirmesFluxNom(document.getPortafirmesFluxNom());
 		dto.setPortafirmesSequenciaTipus(document.getPortafirmesSequenciaTipus());
 		dto.setPortafirmesResponsables(document.getPortafirmesResponsables());
 		// Herencia
@@ -326,7 +328,8 @@ public class DocumentServiceImpl implements DocumentService {
 		entity.setNtiEstadoElaboracion(document.getNtiEstadoElaboracion());
 		entity.setNtiTipoDocumental(document.getNtiTipoDocumental());
 		if(document.getPortafirmesFluxTipus() != null) {
-			entity.setPortafirmesFluxId(document.getPortafirmesFluxId());	
+			entity.setPortafirmesFluxId(document.getPortafirmesFluxId());
+			entity.setPortafirmesFluxNom(document.getPortafirmesFluxNom());
 			entity.setPortafirmesFluxTipus(document.getPortafirmesFluxTipus());
 			entity.setPortafirmesSequenciaTipus(document.getPortafirmesSequenciaTipus());
 			if(document.getPortafirmesResponsables()!=null) {
@@ -334,7 +337,8 @@ public class DocumentServiceImpl implements DocumentService {
 			}
 			entity.setPortafirmesActiu(document.isPortafirmesActiu());
 		} else {
-			entity.setPortafirmesFluxId(null);	
+			entity.setPortafirmesFluxId(null);
+			entity.setPortafirmesFluxNom(null);
 			entity.setPortafirmesFluxTipus(null);
 			entity.setPortafirmesSequenciaTipus(null);
 			entity.setPortafirmesResponsables(null);	

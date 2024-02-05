@@ -38,6 +38,7 @@ public class DocumentExportacio implements Serializable {
 	private PortafirmesSimpleTipusEnumDto portafirmesSequenciaTipus;
 	private String[] portafirmesResponsables;
 	private String portafirmesFluxId;
+	private String portafirmesFluxNom;
 	
 	public DocumentExportacio(
 			String codi,
@@ -230,6 +231,14 @@ public class DocumentExportacio implements Serializable {
 
 	public void setPortafirmesFluxId(String portafirmesFluxId) {
 		this.portafirmesFluxId = portafirmesFluxId;
+	}
+
+	public String getPortafirmesFluxNom() {
+		return portafirmesFluxNom;
+	}
+
+	public void setPortafirmesFluxNom(String portafirmesFluxNom) {
+		this.portafirmesFluxNom = portafirmesFluxNom;
 	}
 
 	private static final long serialVersionUID = 1L;
