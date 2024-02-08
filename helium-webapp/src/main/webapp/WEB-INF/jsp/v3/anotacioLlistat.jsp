@@ -56,20 +56,26 @@
 					name="unitatOrganitzativaCodi" 
 					urlConsultaInicial="/helium/v3/unitatOrganitzativa/suggestInici" 
 					urlConsultaLlistat="/helium/v3/unitatOrganitzativa/suggest" 
-					placeholderKey="expedient.tipus.permis.form.camp.unitat.organitzativa"
+					placeholderKey="anotacio.llistat.filtre.camp.unitat.organitzativa.desti"
 					inline="true"
 					/>	
 		</div>	
 		
 	</div>
 	<div class="row">
-		<div class="col-md-2">							
-			<hel:inputText name="codiProcediment" textKey="anotacio.llistat.filtre.camp.codiProcediment" placeholderKey="anotacio.llistat.filtre.camp.codiProcediment" inline="true"/>
+		<div class="col-md-3">							
+			<hel:inputSuggest 
+					name="codiProcediment" 
+					urlConsultaInicial="/helium/v3/procediment/suggestInici" 
+					urlConsultaLlistat="/helium/v3/procediment/suggest" 
+					placeholderKey="anotacio.llistat.filtre.camp.codiProcediment"
+					inline="true"
+					/>	
 		</div>	
 		<div class="col-md-2">							
 			<hel:inputText name="codiAssumpte" textKey="anotacio.llistat.filtre.camp.codiAssumpte" placeholderKey="anotacio.llistat.filtre.camp.codiAssumpte" inline="true"/>
 		</div>	
-		<div class="col-md-3">							
+		<div class="col-md-2">							
 			<hel:inputText name="numeroExpedient" textKey="anotacio.llistat.filtre.camp.numeroExpedient" placeholderKey="anotacio.llistat.filtre.camp.numeroExpedient" inline="true"/>
 		</div>	
 		<div class="col-md-3">
@@ -115,6 +121,7 @@
 				<th data-col-name="procedimentCodi"><spring:message code="anotacio.llistat.columna.procedimentCodi"/></th>
 				<th data-col-name="expedientNumero"><spring:message code="anotacio.llistat.columna.expedientNumero"/></th>
 				<th data-col-name="dataRecepcio" data-converter="datetime"><spring:message code="anotacio.llistat.columna.dataRecepcio"/></th>				
+				<th data-col-name="destiCodiAndNom" data-visible="false" data-orderable="false"/>
 				<th data-col-name="expedientTipus.codi" data-template="#cellAnotacioExpedientTipusTemplate">
 					<spring:message code="anotacio.llistat.columna.expedientTipus"/>
 					<script id="cellAnotacioExpedientTipusTemplate" type="text/x-jsrender">
@@ -123,6 +130,10 @@
 							<span class="fa fa-info-circle" 
 								title="{{:expedientTipus.codi}} - {{:expedientTipus.nom}} 
 (Entrorn {{:expedientTipus.entorn.codi}} - {{:expedientTipus.entorn.nom}})"></span> 
+						</span>
+							{{if expedientTipus.procedimentComu == true }}							
+								<span class="fa fa-university" title="{{:destiCodiAndNom}}" style="float:right"></span>
+							{{/if}} 
 						{{/if}}
 					</script>
 				</th>

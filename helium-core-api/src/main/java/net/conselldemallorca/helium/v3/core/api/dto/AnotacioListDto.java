@@ -48,8 +48,8 @@ public class AnotacioListDto implements Serializable {
 	private String llibreDescripcio;
 	private String oficinaCodi;
 	private String oficinaDescripcio;
-	
-	
+	private String destiCodi;
+	private String destiDescripcio;	
 
 	// Per mostrar errors d'annexos al llistat
 	private boolean errorAnnexos;
@@ -227,6 +227,23 @@ public class AnotacioListDto implements Serializable {
 	}
 	public void setProcessant(boolean processant) {
 		this.processant = processant;
+	}
+
+	public String getDestiCodi() {
+		return destiCodi;
+	}
+	public void setDestiCodi(String destiCodi) {
+		this.destiCodi = destiCodi;
+	}
+	public String getDestiDescripcio() {
+		return destiDescripcio;
+	}
+	public void setDestiDescripcio(String destiDescripcio) {
+		this.destiDescripcio = destiDescripcio;
+	}
+	
+	public String getDestiCodiAndNom() {
+		return this.destiCodi + " - " + this.destiDescripcio + "";
 	}
 
 	private static final long serialVersionUID = 2160387490004131252L;	

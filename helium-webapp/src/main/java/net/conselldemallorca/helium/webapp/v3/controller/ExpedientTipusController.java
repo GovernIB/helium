@@ -990,12 +990,10 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
         	try {
         		Long unitatOrganitzativaId = null;
         		UnitatOrganitzativaDto unitatOrganitzativaDto = null;
-        		if(command.getUnitatOrganitzativaCodiNom()!=null) {
-        			try {
-        				unitatOrganitzativaDto = unitatOrganitzativaService.findByCodi(command.getUnitatOrganitzativaCodiNom());
-        			}catch (Exception e) {
+        		if(command.getUnitatOrganitzativaCodiNom()!=null) {       			
+        			unitatOrganitzativaDto = unitatOrganitzativaService.findByCodi(command.getUnitatOrganitzativaCodiNom());
+        			if (unitatOrganitzativaDto == null)
         				throw new NoTrobatException(UnitatOrganitzativaDto.class, command.getUnitatOrganitzativaCodiNom());
-        			}
         			unitatOrganitzativaId = unitatOrganitzativaDto.getId();
         		} 
 	    		expedientTipusService.permisUpdate(
@@ -1018,7 +1016,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
         				expedientTipusService.findAmbIdPermisDissenyar(
         						entornActual.getId(),
         						id));
-    			String msg = getMessage(request, "expedient.tipus.controller.permis.esborrar.error",
+    			String msg = getMessage(request, "expedient.tipus.controller.permis.actualitzar.error",
     					new Object[] {e.getMessage()});
     			logger.error(msg, e);
     			MissatgesHelper.error(

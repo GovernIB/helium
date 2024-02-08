@@ -108,9 +108,14 @@ public class UnitatOrganitzativaController extends BaseController {
 				.findByCodiAndDenominacioFiltre(textDecoded);
 		
 		String json = "[";
-		for (UnitatOrganitzativaDto unitat: unitats) {
-			json += "{\"codi\":\"" + unitat.getCodi() + "\", \"nom\":\"" + unitat.getNom()+ "\"},";
+		if(unitats!=null && !unitats.isEmpty()) {
+			for (UnitatOrganitzativaDto unitat: unitats) {
+				json += "{\"codi\":\"" + unitat.getCodi() + "\", \"nom\":\"" + unitat.getCodiAndNom()+ "\"},";
+			}
+		} else {
+			json += "{\"codi\":\"" + textDecoded + "\", \"nom\":\""+ textDecoded  + " (No trobat)"+ "\"},";
 		}
+		
 		if (json.length() > 1) json = json.substring(0, json.length() - 1);
 		json += "]";
 		return json;
@@ -130,7 +135,10 @@ public class UnitatOrganitzativaController extends BaseController {
 			logger.error("No s'ha pogut consultar el text " + text + ": " + e.getMessage());
 		}
 		UnitatOrganitzativaDto unitatDto = unitatOrganitzativaService.findByCodi(decodedToUTF8);
-		return "{\"codi\":\"" + unitatDto.getCodi() + "\", \"nom\":\"" + unitatDto.getNom() + "\"}";
+		if(unitatDto!=null)
+			return "{\"codi\":\"" + unitatDto.getCodi() + "\", \"nom\":\"" + unitatDto.getCodiAndNom() + "\"}";
+		else
+			return "{\"codi\":\"" + decodedToUTF8 + "\", \"nom\":\"" +decodedToUTF8  + " (No trobat)"+ "\"}";
 
 	}
 	

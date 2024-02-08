@@ -67,8 +67,18 @@ $(document).ready(function() {
 			<div style="height: 400px">        
 				<hel:inputCheckbox name="actiu" textKey="expedient.tipus.metadades.nti.actiu"/>
 				<div id="inputs_metadadesNti">
-					<hel:inputText name="clasificacion" required="true" textKey="expedient.tipus.metadades.nti.clasificacion" readonly="${not expedientTipusMetadadesNtiCommand.actiu}"/>
-					<hel:inputCheckbox name="procedimentComu" textKey="expedient.tipus.metadades.nti.procediment.comu"/>	
+					<div id="input_clasificacio">
+						<hel:inputSuggest 
+							name="clasificacion" 
+							urlConsultaInicial="/helium/v3/procediment/suggestInici" 
+							urlConsultaLlistat="/helium/v3/procediment/suggest" 
+							placeholderKey="expedient.tipus.metadades.nti.clasificacion"
+							textKey="expedient.tipus.metadades.nti.clasificacion" 
+							required="true"
+							disabled="${not expedientTipusMetadadesNtiCommand.actiu}"
+							/>	
+					</div>	
+					<hel:inputCheckbox name="procedimentComu" textKey="expedient.tipus.metadades.nti.procediment.comu"/>
 					<div id="input_unitatOrganitzativa" style="display:${!expedientTipus.procedimentComu ? 'inline' : 'none'}">
 						<hel:inputSuggest 
 							name="organo" 

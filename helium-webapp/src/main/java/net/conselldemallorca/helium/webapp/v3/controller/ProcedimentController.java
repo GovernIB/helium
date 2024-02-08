@@ -1,5 +1,6 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,12 +13,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProgresActualitzacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProgresActualitzacioDto.ActualitzacioInfo;
@@ -208,6 +212,54 @@ public class ProcedimentController extends BaseController{
 
 		return ret;
 	}
+	
+	
+	
+	@RequestMapping(value = "/suggest/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
+	@ResponseBody
+	public String procedimentsSuggest(
+			HttpServletRequest request,
+			@PathVariable String text,
+			Model model) {
+		String textDecoded = text;
+		List<ProcedimentDto> procediments = procedimentService
+				.findByNomOrCodiSia(textDecoded);
+		
+		String json = "[";
+		if(procediments!=null && !procediments.isEmpty()) {
+			for (ProcedimentDto procediment: procediments) {
+				json += "{\"codi\":\"" + procediment.getCodiSia() + "\", \"nom\":\"" + procediment.getCodiNom()+ "\"},";
+			}
+		} else {
+			json += "{\"codi\":\"" + textDecoded + "\", \"nom\":\""+ textDecoded  + " (No trobat)"+ "\"},";
+		}
+		
+		if (json.length() > 1) json = json.substring(0, json.length() - 1);
+		json += "]";
+		return json;
+	}
+	
+	@RequestMapping(value = "/suggestInici/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
+	@ResponseBody
+	public String unitatsSuggestInici(
+			HttpServletRequest request,
+			@PathVariable String text,
+			Model model) {
+	
+		String decodedToUTF8 = null;
+		try {
+			decodedToUTF8 = new String(text.getBytes("ISO-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.error("No s'ha pogut consultar el text " + text + ": " + e.getMessage());
+		}
+		ProcedimentDto procedimentDto = procedimentService.findByCodiSia(decodedToUTF8);
+		if(procedimentDto!=null)
+			return "{\"codi\":\"" + procedimentDto.getCodiSia() + "\", \"nom\":\"" + procedimentDto.getCodiNom() + "\"}";
+		else
+			return "{\"codi\":\"" + decodedToUTF8 + "\", \"nom\":\"" +decodedToUTF8  + " (No trobat)"+ "\"}";
+
+	}
+	
 
 
 	private static final Log logger = LogFactory.getLog(ProcedimentController.class);

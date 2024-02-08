@@ -537,7 +537,10 @@ function refrescaEstatSegonPla() {
 					<script id="cellTipusTemplate" type="text/x-jsrender">
 					<span class="expedient_tipus" data-tipus="{{:tipus.tipus}}">
 						{{:tipus.nom}}
-						{{if tipus.procedimentComu == true }}
+						{{if tipus.procedimentComu == true }}							
+							 {{if unitatOrganitzativa.estat !='V' }}
+								<span class="fa fa-exclamation-triangle text-warning"  style="float:right"  title="<spring:message code="expedient.llistat.unitat.organitzativa.obsoleta"></spring:message>"</span>
+							{{/if}} 
 							<span class="fa fa-university" title="{{:unitatOrganitzativa.codiAndNom}}" style="float:right"></span>
 						{{/if}} 
 					</span>
