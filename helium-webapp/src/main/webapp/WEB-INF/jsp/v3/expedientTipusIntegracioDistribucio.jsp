@@ -22,9 +22,18 @@
 				<input type="hidden" id="id" name="id" value="${expedientTipusIntegracioDistribucioCommand.id}"/>
 				<hel:inputCheckbox name="actiu" textKey="expedient.tipus.integracio.distribucio.activar"/>
 				<div id="inputs_integracioDistribucio" style="display:${expedientTipusIntegracioDistribucioCommand.actiu? 'inline' : 'none'}">
-					<hel:inputText name="codiProcediment" textKey="expedient.tipus.integracio.distribucio.codiProcediment" info="expedient.tipus.integracio.distribucio.codiProcediment.comment" />
+					
 					<div class="col-xs-4">
-						
+						<div id="codiProcediment" class="col-xs-4">
+						<hel:inputSuggest 
+							name="codiProcediment" 
+							urlConsultaInicial="/helium/v3/procediment/suggestInici" 
+							urlConsultaLlistat="/helium/v3/procediment/suggest" 
+							placeholderKey="expedient.tipus.integracio.distribucio.codiProcediment"
+							textKey="expedient.tipus.integracio.distribucio.codiProcediment"
+							info="expedient.tipus.integracio.distribucio.codiProcediment.comment"
+							/>	
+						</div>
 						<!-- Botó per crear regles i altres opcions per consultar o canviar l'estat -->
 						<div id="reglaBtn" class="btn-group">
 						  <button id="crearReglaBtn" type="button" class="btn btn-primary">
@@ -80,7 +89,7 @@
 $(document).ready(function() {
 	
 	// Redimensiona controls
-	$("input[name='codiProcediment']").parent('div').removeClass('col-xs-8').addClass('col-xs-4').parent(".form-group").append($('#reglaBtn').parent());
+	$("#codiProcediment").parent('div').removeClass('col-xs-8').addClass('col-xs-4').parent(".form-group").append($('#reglaBtn').parent());
 	$("input[name='codiAssumpte']").parent('div').removeClass('col-xs-8').addClass('col-xs-4');
 	$("select[name='presencial']").parent('div').removeClass('col-xs-8').addClass('col-xs-4');
 	$('#s2id_presencial').css('width', '100%');

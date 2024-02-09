@@ -15,6 +15,7 @@
 <%@ attribute name="id" required="false" rtexprvalue="true"%>
 <%@ attribute name="multiple" required="false" rtexprvalue="true"%>
 <%@ attribute name="labelSize" required="false" rtexprvalue="true"%>
+<%@ attribute name="info" required="false" rtexprvalue="true"%>
 <c:if test="${empty labelSize}"><c:set var="labelSize" value="${4}"/></c:if>
 <c:set var="campPath" value="${name}"/>
 <c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
@@ -32,6 +33,9 @@
 					<c:when test="${not empty text}">${text}</c:when>
 					<c:otherwise>${campPath}</c:otherwise>
 				</c:choose>
+				<c:if test="${not empty info}">
+					<span class="fa fa-info-circle text-info hiddenInfo" data-placement="auto" title="<spring:message code="${info}"/>"></span>
+				</c:if>
 			</label>
 			<div class="controls col-xs-${12 - labelSize}">
 				<form:input path="${campPath}" cssClass="form-control suggest" id="${campPath}" disabled="${disabled}" styleClass="width: 100%"  data-url-llistat="${urlConsultaLlistat}" data-url-inicial="${urlConsultaInicial}" />

@@ -28,10 +28,14 @@ import es.caib.distribucio.rest.client.regla.domini.Regla;
 import es.caib.distribucio.rest.client.regla.domini.ReglaResponse;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.integracio.plugins.unitat.UnitatOrganica;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentDto;
+import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.service.ProcedimentService;
+import net.conselldemallorca.helium.v3.core.api.service.UnitatOrganitzativaService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusIntegracioDistribucioCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.AjaxHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.AjaxHelper.AjaxFormResponse;
@@ -53,8 +57,9 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 public class ExpedientTipusIntegracioDistribucioController extends BaseExpedientTipusController {
 
 	@Autowired
-	private PluginHelper pluginHelper;
-
+	private ProcedimentService procedimentService;
+	@Autowired
+	private UnitatOrganitzativaService unitatOrganitzativaService;
 	
 	@RequestMapping(value = "/{expedientTipusId}/integracioDistribucio")
 	public String distribucio(
@@ -304,7 +309,23 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 		if (!expedientTipus.isNtiActiu()) {
 			throw new Exception("El tipus d'expedient no té les metadades NTI actives");
 		}
-		String codiEntitat = expedientTipus.getNtiOrgano();
+		String codiEntitat = null;
+		UnitatOrganitzativaDto unitatOrganitzativa = null;
+		if (expedientTipus.isProcedimentComu()) {
+			ProcedimentDto procediment = procedimentService.findByCodiSia(codiProcediment);
+			if(procediment!=null)
+				unitatOrganitzativa = procediment.getUnitatOrganitzativa();
+			else {
+				throw new NoTrobatException(ProcedimentDto.class, codiProcediment);
+			}
+			if(unitatOrganitzativa!=null) {
+				codiEntitat = unitatOrganitzativa.getCodi();
+			} else {
+				throw new NoTrobatException(UnitatOrganitzativaDto.class);
+			}
+		} else {
+			codiEntitat = expedientTipus.getNtiOrgano();
+		}	
 		if(codiEntitat == null || "".equals(codiEntitat)) {
 			throw new Exception(
 					getMessage(
@@ -314,8 +335,8 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 		}
 		// Consulta l'unitat arrel de la entitat del tipus d'expedinet
 		try {
-			UnitatOrganica unitatOrganica = pluginHelper.findUnitatOrganica(codiEntitat);
-			codiEntitat = unitatOrganica.getCodiUnitatArrel();
+			unitatOrganitzativa = unitatOrganitzativaService.findByCodi(codiEntitat);
+			codiEntitat = unitatOrganitzativa.getCodiUnitatArrel();
 		} catch (Exception e) {
 			String errMsg = "Error consultant la unitat arrel de l'enitat " + codiEntitat + ": " + e.getMessage() + ". Es provarà la creació amb el codi de l'entitat";
 			logger.error(errMsg, e);
