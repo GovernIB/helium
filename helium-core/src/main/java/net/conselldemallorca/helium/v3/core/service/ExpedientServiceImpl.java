@@ -3341,7 +3341,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			expedient.setNtiSerieDocumental(expedientArxiu.getMetadades().getSerieDocumental());
 			if (expedientArxiu.getMetadades().getOrgans() != null 
 					&& expedientArxiu.getMetadades().getOrgans().size() > 0) {
-				expedient.setNtiOrgano(expedientArxiu.getMetadades().getOrgans().get(0));				
+				expedient.setNtiOrgano(expedient.getUnitatOrganitzativa()!=null ? expedient.getUnitatOrganitzativa().getCodi() 
+						: expedientArxiu.getMetadades().getOrgans().get(0));			
 			}
 			// Per cada document actualitza la informació NTI del document
 			// Consulta l'arbre de processos

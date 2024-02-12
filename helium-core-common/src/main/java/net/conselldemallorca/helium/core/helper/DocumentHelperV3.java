@@ -2742,7 +2742,7 @@ public class DocumentHelperV3 {
 	    documentStore.setNtiIdentificador(
 	    		"ES_" + org + "_" + any + "_HEL" + String.format("%027d", documentStore.getId()));
 		documentStore.setNtiVersion(VERSIO_NTI);
-		documentStore.setNtiOrgano(expedient.getNtiOrgano());
+		documentStore.setNtiOrgano(expedient.getUnitatOrganitzativa()!=null ? expedient.getUnitatOrganitzativa().getCodi() : expedient.getNtiOrgano());
 		NtiOrigenEnumDto ntiOrigenCalculat = ntiOrigen;
 		if (ntiOrigenCalculat == null && document != null) {
 			ntiOrigenCalculat = document.getNtiOrigen();

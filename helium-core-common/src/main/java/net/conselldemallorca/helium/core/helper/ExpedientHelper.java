@@ -852,7 +852,7 @@ public class ExpedientHelper {
 		if (!expedient.isNtiActiu()) {
 			// Informa les metadades NTI de l'expedient
 			expedient.setNtiVersion(VERSIO_NTI);
-			expedient.setNtiOrgano(expedient.getTipus().getNtiOrgano());
+			expedient.setNtiOrgano(expedient.getUnitatOrganitzativa()!=null ? expedient.getUnitatOrganitzativa().getCodi() :  expedient.getTipus().getNtiOrgano());
 			expedient.setNtiClasificacion(expedient.getTipus().getNtiClasificacion());
 			expedient.setNtiSerieDocumental(expedient.getTipus().getNtiSerieDocumental());			
 		}
@@ -1612,7 +1612,7 @@ public class ExpedientHelper {
 		expedient.setNtiActiu(expedientTipus.isNtiActiu());
 		if (expedientTipus.isNtiActiu()) {
 			expedient.setNtiVersion(VERSIO_NTI);
-			expedient.setNtiOrgano(expedientTipus.getNtiOrgano());
+			expedient.setNtiOrgano(expedient.getUnitatOrganitzativa()!=null ? expedient.getUnitatOrganitzativa().getCodi() : expedientTipus.getNtiOrgano());
 			expedient.setNtiClasificacion(expedientTipus.getNtiClasificacion());
 			expedient.setNtiSerieDocumental(expedientTipus.getNtiSerieDocumental());
 			// L'identificador NTI no es pot generar en aquest moment perquè encara no
