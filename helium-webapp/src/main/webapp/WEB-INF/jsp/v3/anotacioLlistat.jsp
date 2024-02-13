@@ -377,6 +377,12 @@
 						$("#tramitacioMassivaCount").html(data);
 					});
 			});
+			
+		$("#netejar").click(function() {
+			$('#codiProcediment').val('').change();
+			$('#unitatOrganitzativaCodi').val('').change();
+		})
+			
 	});
 	
 	// ]]>

@@ -23,7 +23,6 @@
 	<script src="<c:url value="/webjars/jsrender/1.0.0-rc.70/jsrender.min.js"/>"></script>
 	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 	<script src="<c:url value="/js/webutil.datatable.js"/>"></script>
-	<script src="<c:url value="/js/helium.modal.js"/>"></script>
 	<script src="<c:url value="/js/webutil.modal.js"/>"></script>
 	<hel:modalHead/>
 </head>
@@ -51,7 +50,7 @@
 					placeholderKey="unitat.organitzativa.unitat.superior"/>			
 			</div>
 			<div class="col-md-2">
-				<hel:inputSelect emptyOption="false" name="estat"  textKey="unitat.organitzativa.estat" placeholderKey="unitat.organitzativa.estat" optionItems="${estats}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+				<hel:inputSelect emptyOption="true" name="estat"  textKey="unitat.organitzativa.estat" placeholderKey="unitat.organitzativa.estat" optionItems="${estats}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 			</div>
 		</div>
 		<div class="row">	
@@ -100,9 +99,11 @@
 	</table>
 	<script id="tableButtonsAccionsTemplate" type="text/x-jsrender">	
 				<div class="botons-titol text-right">
-					<b><spring:message code="unitat.organitzativa.llistat.unitat.arrel"/>:</b> ${codiUnitatArrel}<span></span>
-					<span >    </span>&nbsp;
-					<b><spring:message code="unitat.organitzativa.llistat.data.darrera.sinc"/>:</b> ${dataSincronitzacio}<span></span>
+					<b><spring:message code="unitat.organitzativa.llistat.unitat.arrel"/>:</b> ${codiUnitatArrel}
+					&nbsp;
+					<b><spring:message code="unitat.organitzativa.llistat.data.sincronitzacio"/>:</b> ${dataSincronitzacio}
+					&nbsp;
+					<b><spring:message code="unitat.organitzativa.llistat.data.actualitzacio"/>:</b> ${dataActualitzacio}
 				</div>
 		</script>
 </body>

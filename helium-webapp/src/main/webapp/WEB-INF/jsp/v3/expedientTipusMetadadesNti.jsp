@@ -26,6 +26,7 @@ $(document).ready(function() {
 			$('arxiuActiu').prop('readonly', true);
 			$('#arxiuActiu').prop('disabled', true);
 		}
+		
 	});
 	
 	$('#procedimentComu', '#expedientTipusMetadadesNtiCommand').change(function() {
@@ -58,7 +59,21 @@ $(document).ready(function() {
 		e.preventDefault();
 		return false;
 	});
+	
 });
+
+function formatSelectUnitat(item) {
+	alert(item);
+	if (!item.id) {
+	    return item.text;
+	}
+	if (item.data && item.data.estat=="V"){
+		return item.text;
+	} else {
+		return $("<span>" + item.text + " <span class='fa fa-exclamation-triangle text-warning' title=\"<spring:message code='unitat.organitzativa.avis.obsoleta'/>\"></span></span>");
+	}
+}
+
 // ]]>
 </script>
 <c:choose>
@@ -79,13 +94,46 @@ $(document).ready(function() {
 							/>	
 					</div>	
 					<hel:inputCheckbox name="procedimentComu" textKey="expedient.tipus.metadades.nti.procediment.comu"/>
+					
+					
 					<div id="input_unitatOrganitzativa" style="display:${!expedientTipus.procedimentComu ? 'inline' : 'none'}">
+
+						<!-- Informació de la unitat organitzativa si no està vigent. -->
+						<c:if test="${unitatOrganitzativaError != null }">
+	
+							<div class="row">
+								<div class="col-sm-4"></div>
+								<div class="col-sm-8">
+									<div class="panel panel-danger" id="unitatOrganitzativaErrorDiv">
+										<div class="panel-heading">
+											<span class="fa fa-warning text-danger"></span>
+											${unitatOrganitzativaError} 
+										</div>
+										<div class="panel-body">
+											<div class="row">
+												<label class="col-xs-4 text-right">Etiqueta</label>
+												<div class="col-xs-8">
+													<ul style="padding-left: 17px;" id="lastHistoricosUnitats">
+														<li>Detalls errors</li>
+													</ul>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						
+						</c:if>
+						<!-- Fi informació de la unitat organitzativa si no està vigent. -->
+					
 						<hel:inputSuggest 
 							name="organo" 
 							urlConsultaInicial="/helium/v3/unitatOrganitzativa/suggestInici" 
 							urlConsultaLlistat="/helium/v3/unitatOrganitzativa/suggest" 
 							textKey="expedient.tipus.metadades.nti.organo" 
-							placeholderKey="expedient.tipus.metadades.nti.organo.placeholder"/>	
+							placeholderKey="expedient.tipus.metadades.nti.organo.placeholder" 
+							optionTemplateFunction="formatSelectUnitat" 
+						/>
 					</div>	
 					<hel:inputText name="serieDocumental" textKey="expedient.tipus.metadades.nti.serie.documental" readonly="${not expedientTipusMetadadesNtiCommand.actiu}"/>
 					<hel:inputCheckbox name="arxiuActiu" textKey="expedient.tipus.metadades.nti.arxiu.actiu" disabled="${not expedientTipusMetadadesNtiCommand.actiu}"/>

@@ -222,13 +222,16 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 			ReglesRestClient client = this.getReglesRestClient();
 
 			// Invoca la consulta de la regla
-			Regla regla = client.consultarRegla(codiProcediment);			
-			model.addAttribute("regla", regla);
-			
-			if (!regla.isActiva()) {
-				MissatgesHelper.warning(request, 
-						"La regla no es troba activa a Distribucio.");
-			}			
+			Regla regla = client.consultarRegla(codiProcediment);
+			if (regla != null) {
+				model.addAttribute("regla", regla);
+				if (!regla.isActiva()) {
+					MissatgesHelper.warning(request, 
+							"La regla no es troba activa a Distribucio.");
+				}							
+			} else {
+				MissatgesHelper.warning(request, "La consulta no ha retornat cap regla amb codi " + codiProcediment + " de DISTRIBUCIO");
+			}
 		} catch(Exception e) {
 			String errMsg = getMessage(
 					request, 

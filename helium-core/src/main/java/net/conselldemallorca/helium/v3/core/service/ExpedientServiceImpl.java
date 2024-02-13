@@ -100,7 +100,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.jbpm3.integracio.ExecucioHandlerException;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
@@ -156,6 +155,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioExc
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.ParametreService;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
@@ -301,7 +301,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	@Resource
 	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
 	
-	private static final String APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS = "app.configuracio.propagar.esborrar.expedients";
 	/**
 	 * {@inheritDoc}
 	 */
@@ -3385,9 +3384,9 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	
 	/** Mètode per consultar la propietat de propagació d'esborrat d'expedients si s'esborra el tipus d'expedient.*/
 	private boolean isPropagarEsbExp() {
-		Parametre parametrePropagarEsbExp = parametreRepository.findByCodi(APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS);
+		Parametre parametrePropagarEsbExp = parametreRepository.findByCodi(ParametreService.APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS);
 		if(parametrePropagarEsbExp==null)
-			throw new NoTrobatException(Parametre.class,APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS);
+			throw new NoTrobatException(Parametre.class, ParametreService.APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS);
 		return "true".equalsIgnoreCase(parametrePropagarEsbExp.getValor());
 	}
 	

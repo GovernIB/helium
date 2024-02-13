@@ -69,12 +69,7 @@ public class UnitatOrganitzativa implements Serializable, GenericEntity<Long> {
 
 	@Column(name = "codi_unitat_arrel", length = 9) 
 	private String codiUnitatArrel;
-			
-	@Column(name = "data_actualitzacio")
-	Date dataActualitzacio;
-	@Column(name = "data_sincronitzacio")
-	Date dataSincronitzacio;	
-	
+				
 	@Column(name = "data_creacio_oficial") 
 	private Date dataCreacioOficial;
 	@Column(name = "data_supressio_oficial") 
@@ -152,31 +147,7 @@ public class UnitatOrganitzativa implements Serializable, GenericEntity<Long> {
 	public String getCodiUnitatArrel() {
 		return codiUnitatArrel;
 	}
-			
-//	public String getCodiDir3Entitat() {
-//		return codiDir3Entitat;
-//	}
-//	
-//	public void setCodiDir3Entitat(String codiDir3Entitat) {
-//		this.codiDir3Entitat = codiDir3Entitat;
-//	}
-	
-	public Date getDataActualitzacio() {
-		return dataActualitzacio;
-	}
-	
-	public void updateDataActualitzacio(Date dataActualitzacio) {
-		this.dataActualitzacio = dataActualitzacio;
-	}
-	
-	public Date getDataSincronitzacio() {
-		return dataSincronitzacio;
-	}
-	
-	public void updateDataSincronitzacio(Date dataSincronitzacio) {
-		this.dataSincronitzacio = dataSincronitzacio;
-	}
-	
+				
 	public Date getDataCreacioOficial() {
 		return dataCreacioOficial;
 	}
@@ -282,8 +253,6 @@ public class UnitatOrganitzativa implements Serializable, GenericEntity<Long> {
 			Date dataSupressioOficial,
 			Date dataExtincioFuncional,
 			Date dataAnulacio,
-			Date dataActualitzacio,
-			Date dataSincronitzacio,
 			String estat, 
 			String codiPais,
 			String codiComunitat,
@@ -304,8 +273,6 @@ public class UnitatOrganitzativa implements Serializable, GenericEntity<Long> {
 				this.dataSupressioOficial = dataSupressioOficial;
 				this.dataExtincioFuncional = dataExtincioFuncional;
 				this.dataAnulacio = dataAnulacio;
-				this.dataActualitzacio = dataActualitzacio;
-				this.dataSincronitzacio = dataSincronitzacio;
 				this.estat = estat;
 				this.codiPais = codiPais;
 				this.codiComunitat = codiComunitat;
@@ -325,8 +292,6 @@ public class UnitatOrganitzativa implements Serializable, GenericEntity<Long> {
 				String nifCif,
 				String codiUnitatSuperior,
 				String codiUnitatArrel,
-				Date dataActualitzacio,
-				Date dataSincronitzacio,
 				Date dataCreacioOficial,
 				Date dataSupressioOficial,
 				Date dataExtincioFuncional,
@@ -348,8 +313,6 @@ public class UnitatOrganitzativa implements Serializable, GenericEntity<Long> {
 					 nifCif,
 					 codiUnitatSuperior,
 					 codiUnitatArrel,
-					 dataActualitzacio,
-					 dataSincronitzacio,
 					 dataCreacioOficial,
 					 dataSupressioOficial,
 					 dataExtincioFuncional,
@@ -376,8 +339,6 @@ public class UnitatOrganitzativa implements Serializable, GenericEntity<Long> {
 				String nifCif,
 				String codiUnitatSuperior,
 				String codiUnitatArrel,
-				Date dataActualitzacio,
-				Date dataSincronitzacio,
 				Date dataCreacioOficial,
 				Date dataSupressioOficial,
 				Date dataExtincioFuncional,
@@ -400,8 +361,6 @@ public class UnitatOrganitzativa implements Serializable, GenericEntity<Long> {
 			built.nifCif = nifCif;
 			built.codiUnitatSuperior = codiUnitatSuperior;
 			built.codiUnitatArrel = codiUnitatArrel;
-			built.dataActualitzacio = dataActualitzacio;
-			built.dataSincronitzacio = dataSincronitzacio;
 			built.dataCreacioOficial = dataCreacioOficial;
 			built.dataSupressioOficial = dataSupressioOficial;
 			built.dataExtincioFuncional = dataExtincioFuncional;

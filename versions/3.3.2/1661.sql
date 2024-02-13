@@ -134,10 +134,17 @@ INSERT INTO HEL_PARAMETRE (ID, CODI, NOM, DESCRIPCIO, VALOR)
       		 'A04003003');
 INSERT INTO HEL_PARAMETRE (ID, CODI, NOM, DESCRIPCIO, VALOR)
       VALUES (3, 
-      		 'app.net.caib.helium.unitats.organitzatives.data.darrera.sincronitzacio',
-      		 'Data darrera sincronització', 
-      		 NULL,
-      		 '31/01/2024');
+      		 'app.net.caib.helium.unitats.organitzatives.data.sincronitzacio',
+      		 'Data sincronització Unitats Organitzatives', 
+      		 'Data de la primera sincronització d''unitats organitzatives. Indica la data inicial de sincronització.',
+      		 NULL);
+      		 
+INSERT INTO HEL_PARAMETRE (ID, CODI, NOM, DESCRIPCIO, VALOR)
+      VALUES (4, 
+      		 'app.net.caib.helium.unitats.organitzatives.data.actualitzacio',
+      		 'Data actualització Unitats Organitzatives', 
+      		 'Data de la darrera actualització d''unitats organitzatives. Indica la darrera data d''actualització a partir de la qual es demanen els canvis.'
+      		 NULL);
 
 -- Postgesql
 	

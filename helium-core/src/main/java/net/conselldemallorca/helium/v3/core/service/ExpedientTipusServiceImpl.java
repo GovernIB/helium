@@ -79,7 +79,6 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
-import net.conselldemallorca.helium.core.model.hibernate.Parametre;
 import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
@@ -169,7 +168,6 @@ import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusUnitatOrganitzativaRepository;
 import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.MapeigSistraRepository;
-import net.conselldemallorca.helium.v3.core.repository.ParametreRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.SequenciaAnyRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
@@ -243,8 +241,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
 	@Resource 
 	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
-	@Resource
-	private ParametreRepository parametreRepository;
 	
 	@Resource
 	private ExpedientHelper expedientHelper;
@@ -265,7 +261,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Resource
 	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
 
-	private static final String APP_CONFIGURACIO_ARREL = "app.net.caib.helium.unitats.organitzatives.arrel.codi";
 	/**
 	 * {@inheritDoc}
 	 */
@@ -2370,10 +2365,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if(expTipusUnitOrg==null) {
 			//mirem les unitats superiors fins a l'arrel i si l'user té permís sobre aquestes
 			UnitatOrganitzativa uo = unitatOrganitzativaRepository.findByCodi(unitatOrganitzativaCodi);
-			Parametre parametreArrel = parametreRepository.findByCodi(APP_CONFIGURACIO_ARREL);
-			if(parametreArrel==null)
-				throw new NoTrobatException(Parametre.class,APP_CONFIGURACIO_ARREL);
-			String arrel = parametreArrel.getValor();
+			String arrel = uo.getCodiUnitatArrel();
 			List<UnitatOrganitzativaDto> unitatsSuperiors = unitatOrganitzativaHelper.findPath(arrel,uo.getCodiUnitatSuperior());
 			if(unitatsSuperiors!=null && !unitatsSuperiors.isEmpty()) {
 				for (UnitatOrganitzativaDto uoSuperior : unitatsSuperiors) {

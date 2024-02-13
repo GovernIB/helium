@@ -4,8 +4,6 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -62,10 +60,33 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 			ExpedientTipusMetadadesNtiCommand command = ExpedientTipusMetadadesNtiCommand.toCommand(
 					expedientTipus);
 			model.addAttribute("expedientTipusMetadadesNtiCommand", command);
+			this.afegirDadesUnitatOrganitzativa(request, model, expedientTipus.getNtiOrgano());
 		}
 		return "v3/expedientTipusMetadadesNti";
 	}
 	
+	/** Mètode per comprovar l'estat de la UO i afegir informació per a que es pinti al model. 
+	 * @param request */
+	private void afegirDadesUnitatOrganitzativa(HttpServletRequest request, Model model, String codiUo) {
+		// Cercar UO, afegir info al model.
+		String unitatOrganitzativaError = null;
+		if (codiUo != null) {
+			UnitatOrganitzativaDto uo = unitatOrganitzativaService.findByCodi(codiUo);
+			model.addAttribute("unitatOrganitzativa", uo);
+			if (uo != null) {
+				if (!"V".equals(uo.getEstat())) {
+					String estat = getMessage(request, "expedient.tipus.metadades.nti.unitat.organitzativa.estat." + uo.getEstat());
+					unitatOrganitzativaError = getMessage(request, "expedient.tipus.metadades.nti.unitat.organitzativa.no.vigent", new Object[] {codiUo, estat});
+				}
+			} else {
+				unitatOrganitzativaError = getMessage(request, "expedient.tipus.metadades.nti.unitat.organitzativa.no.trobada", new Object[] {codiUo});
+			}
+		}
+		model.addAttribute("unitatOrganitzativaError", unitatOrganitzativaError);
+		model.addAttribute("codiUo", codiUo);
+	}
+
+
 	@RequestMapping(value = "/{expedientTipusId}/metadadesNti", method = RequestMethod.POST)
 	@ResponseBody
 	public AjaxFormResponse ntiPost(

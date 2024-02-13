@@ -39,7 +39,6 @@ import net.conselldemallorca.helium.core.helper.UnitatOrganitzativaHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
 import net.conselldemallorca.helium.core.model.hibernate.Parametre;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
@@ -69,8 +68,8 @@ import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
-import net.conselldemallorca.helium.v3.core.api.service.PortafirmesFluxService;
 import net.conselldemallorca.helium.v3.core.api.service.ParametreService;
+import net.conselldemallorca.helium.v3.core.api.service.PortafirmesFluxService;
 import net.conselldemallorca.helium.v3.core.api.service.UnitatOrganitzativaService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCommand;
@@ -122,8 +121,6 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	private PortafirmesFluxService portafirmesFluxService;
 	@Autowired
 	private ParametreService parametreService;
-
-	private static final String APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS = "app.configuracio.propagar.esborrar.expedients";
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String llistat(
@@ -1585,9 +1582,9 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 	
 	/** Mètode per consultar la propietat de propagació d'esborrat d'expedients si s'esborra el tipus d'expedient.*/
 	private boolean isPropagarEsbExp() {
-		ParametreDto parametrePropagarEsbExp = parametreService.findByCodi(APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS);
+		ParametreDto parametrePropagarEsbExp = parametreService.findByCodi(ParametreService.APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS);
 		if(parametrePropagarEsbExp==null)
-			throw new NoTrobatException(Parametre.class,APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS);
+			throw new NoTrobatException(Parametre.class,ParametreService.APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS);
 		return "true".equalsIgnoreCase(parametrePropagarEsbExp.getValor());
 	}
 	

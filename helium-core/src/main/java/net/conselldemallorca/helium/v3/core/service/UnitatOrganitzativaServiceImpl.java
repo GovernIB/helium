@@ -11,15 +11,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
-import net.conselldemallorca.helium.core.helper.UnitatOrganitzativaHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
+import net.conselldemallorca.helium.core.helper.ParametreHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
+import net.conselldemallorca.helium.core.helper.UnitatOrganitzativaHelper;
 import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.v3.core.api.dto.ArbreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.service.UnitatOrganitzativaService;
 import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaRepository;
@@ -32,6 +32,8 @@ import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaReposi
 @Service
 public class UnitatOrganitzativaServiceImpl implements UnitatOrganitzativaService {
 	
+	@Resource
+	private ParametreHelper parametreHelper;
 	@Resource
 	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
 	@Resource
@@ -53,8 +55,6 @@ public class UnitatOrganitzativaServiceImpl implements UnitatOrganitzativaServic
 				unitatDto.getNifCif(),//String nifCif,
 				unitatDto.getCodiUnitatSuperior(),//String codiUnitatSuperior,
 				unitatDto.getCodiUnitatArrel(),//String codiUnitatArrel,
-				unitatDto.getDataActualitzacio(),//Date dataActualitzacio,
-				unitatDto.getDataSincronitzacio(),//Date dataSincronitzacio,
 				unitatDto.getDataCreacioOficial(),//Date dataCreacioOficial,
 				unitatDto.getDataSupressioOficial(),//Date dataSupressioOficial,
 				unitatDto.getDataExtincioFuncional(),//Date dataExtincioFuncional,
@@ -95,8 +95,6 @@ public class UnitatOrganitzativaServiceImpl implements UnitatOrganitzativaServic
 				unitatDto.getDataSupressioOficial(),
 				unitatDto.getDataExtincioFuncional(),
 				unitatDto.getDataAnulacio(),
-				unitatDto.getDataActualitzacio(),
-				unitatDto.getDataSincronitzacio(),
 				unitatDto.getEstat(), 
 				unitatDto.getCodiPais(),
 				unitatDto.getCodiComunitat(),
@@ -222,12 +220,12 @@ public class UnitatOrganitzativaServiceImpl implements UnitatOrganitzativaServic
 		unitatOrganitzativaHelper.sincronizarOActualizar(unitatOrganitzativa);		
 		// if this is first synchronization set current date as a date of first
 		// sinchronization and the last actualization
-		if (unitatOrganitzativa.getDataSincronitzacio() == null) {
-			unitatOrganitzativa.updateDataActualitzacio(new Date());
-			unitatOrganitzativa.updateDataSincronitzacio(new Date());
-		// if this is not the first synchronization only change date of actualization
+		if (parametreHelper.getDataSincronitzacioUos() == null) {
+			parametreHelper.setDataActualitzacioUos(new Date());
+			parametreHelper.setDataSincronitzacioUos(new Date());
 		} else {
-			unitatOrganitzativa.updateDataActualitzacio(new Date());
+			// if this is not the first synchronization only change date of actualization
+			parametreHelper.setDataActualitzacioUos(new Date());
 		}
 //		TODO després mirar lo de evict cache
 //		cacheHelper.evictUnitatsOrganitzativesFindArbreByPare(unitatOrganitzativa.getCodiDir3Entitat());
@@ -256,8 +254,11 @@ public class UnitatOrganitzativaServiceImpl implements UnitatOrganitzativaServic
 	@Override
 	@Transactional
 	public boolean isFirstSincronization(Long entidadId) {
-		UnitatOrganitzativa entitat = unitatOrganitzativaRepository.findOne(entidadId);
-		if (entitat!=null && entitat.getDataSincronitzacio() == null) {
+		String codiArrel = parametreHelper.getArrelUos();
+		UnitatOrganitzativa entitat = codiArrel != null ?
+				unitatOrganitzativaRepository.findByCodi(codiArrel)
+				:null;
+		if (entitat != null && parametreHelper.getDataSincronitzacioUos() == null) {
 			return true;
 		} else {
 			return false;

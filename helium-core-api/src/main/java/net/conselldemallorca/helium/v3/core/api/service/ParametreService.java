@@ -14,18 +14,27 @@ import net.conselldemallorca.helium.v3.core.api.dto.ParametreDto;
  */
 public interface ParametreService {
 	
-	ParametreDto create(ParametreDto parametre);
-
-	ParametreDto update(ParametreDto parametre);
-
-	ParametreDto delete(Long id);
-
-	ParametreDto findById(Long id);
+	/**Paràmetre true/false per propagar l'esborrat d'expedients quan s'esborri un tipus d'expedient**/
+	public static final String APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS = "app.configuracio.propagar.esborrar.expedients";
+	/** Codi DIR3 de la UO arrel de l'arbre d'unitats. */
+	public static final String APP_CONFIGURACIO_CODI_ARREL_UO = "app.net.caib.helium.unitats.organitzatives.arrel.codi";
+	/** Data de la primera sincronització de les UO's. */
+	public static final String APP_CONFIGURACIO_DATA_SINCRONITZACIO_UO = "app.net.caib.helium.unitats.organitzatives.data.sincronitzacio";
+	/** Data de la darrera actualització de les UO's. */
+	public static final String APP_CONFIGURACIO_DATA_ACTUALITZACIO_UO = "app.net.caib.helium.unitats.organitzatives.data.actualitzacio";
 	
-	ParametreDto findByCodi(String codi);
-	
-	List<ParametreDto> findAll();
+	public ParametreDto create(ParametreDto parametre);
 
-	PaginaDto<ParametreDto> findPaginat(PaginacioParamsDto paginacioParams);
+	public ParametreDto update(ParametreDto parametre);
+
+	public ParametreDto delete(Long id);
+
+	public ParametreDto findById(Long id);
+	
+	public ParametreDto findByCodi(String codi);
+	
+	public List<ParametreDto> findAll();
+
+	public PaginaDto<ParametreDto> findPaginat(PaginacioParamsDto paginacioParams);
 
 }

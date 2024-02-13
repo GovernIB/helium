@@ -25,6 +25,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProgresActualitz
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProgresActualitzacioDto.ActualitzacioInfo;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProgresActualitzacioDto.NivellInfo;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.service.ParametreService;
 import net.conselldemallorca.helium.v3.core.repository.ParametreRepository;
 import net.conselldemallorca.helium.v3.core.repository.ProcedimentRepository;
 import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaRepository;
@@ -46,8 +47,6 @@ public class ProcedimentHelper {
 
 	@Resource
 	private PluginHelper pluginHelper;
-
-	private static final String APP_CONFIGURACIO_ARREL = "app.net.caib.helium.unitats.organitzatives.arrel.codi";
 	
 	/** Consutla la llista de procediments de BBDD i marca com a extingits els que no hagi retornat la consulta a Rolsac.
 	 * 
@@ -244,16 +243,16 @@ public class ProcedimentHelper {
 				
 				if (uo == null) {
 					try {
-						Parametre parametreArrel = parametreRepository.findByCodi(APP_CONFIGURACIO_ARREL);
+						Parametre parametreArrel = parametreRepository.findByCodi(ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
 						if(parametreArrel==null)
-							throw new NoTrobatException(Parametre.class,APP_CONFIGURACIO_ARREL);
+							throw new NoTrobatException(Parametre.class, ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
 						String arrel = parametreArrel.getValor();
 						progres.getAvisos().add("Error, no s'ha pogut trobar la unitat administrativa amb codi " + codi + " pel procediment " + procedimentRolsac.getCodiSia() +
 								". Es posarà com a unitat organitzativa l'unitat arrel amb codi " + arrel);
 						uo = unitatOrganitzativaRepository.findByCodi(arrel);
 						progres.incAvisos();
 					}catch(Exception e) {
-						logger.debug("No s'ha trobat el paràmetre amb codi "+ APP_CONFIGURACIO_ARREL );
+						logger.debug("No s'ha trobat el paràmetre amb codi "+ ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO );
 					}
 					
 				}

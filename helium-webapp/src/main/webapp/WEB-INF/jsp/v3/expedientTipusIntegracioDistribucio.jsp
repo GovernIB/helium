@@ -22,9 +22,6 @@
 				<input type="hidden" id="id" name="id" value="${expedientTipusIntegracioDistribucioCommand.id}"/>
 				<hel:inputCheckbox name="actiu" textKey="expedient.tipus.integracio.distribucio.activar"/>
 				<div id="inputs_integracioDistribucio" style="display:${expedientTipusIntegracioDistribucioCommand.actiu? 'inline' : 'none'}">
-					
-					<div class="col-xs-4">
-						<div id="codiProcediment" class="col-xs-4">
 						<hel:inputSuggest 
 							name="codiProcediment" 
 							urlConsultaInicial="/helium/v3/procediment/suggestInici" 
@@ -32,8 +29,8 @@
 							placeholderKey="expedient.tipus.integracio.distribucio.codiProcediment"
 							textKey="expedient.tipus.integracio.distribucio.codiProcediment"
 							info="expedient.tipus.integracio.distribucio.codiProcediment.comment"
-							/>	
-						</div>
+						/>	
+					<div class="col-xs-4">
 						<!-- Botó per crear regles i altres opcions per consultar o canviar l'estat -->
 						<div id="reglaBtn" class="btn-group">
 						  <button id="crearReglaBtn" type="button" class="btn btn-primary">

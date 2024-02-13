@@ -28,6 +28,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.service.ParametreService;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusUnitatOrganitzativaRepository;
@@ -63,9 +64,6 @@ public class ExpedientTipusHelper {
 	@Resource
 	private EntornHelper entornHelper;
 	
-	private static final String APP_CONFIGURACIO_ARREL = "app.net.caib.helium.unitats.organitzatives.arrel.codi";
-
-
 	/** Consulta el tipus d'expedient comprovant el permís de lectura. */
 	public ExpedientTipus getExpedientTipusComprovantPermisLectura(Long id) {
 		return getExpedientTipusComprovantPermisos(
@@ -376,9 +374,9 @@ public class ExpedientTipusHelper {
 			//Mirem les unitats filles
 			List<UnitatOrganitzativa> unitatsOrgFilles = new ArrayList<UnitatOrganitzativa>();
 			for(ExpedientTipusUnitatOrganitzativa expTipUnitOrg: expTipUnitOrgList) {
-				Parametre parametreArrel = parametreRepository.findByCodi(APP_CONFIGURACIO_ARREL);
+				Parametre parametreArrel = parametreRepository.findByCodi(ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
 				if(parametreArrel==null)
-					throw new NoTrobatException(Parametre.class,APP_CONFIGURACIO_ARREL);
+					throw new NoTrobatException(Parametre.class,ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
 				String arrel = parametreArrel.getValor();
 				if(arrel!=null && arrel.equals(expTipUnitOrg.getUnitatOrganitzativa().getCodi()) && !tePermisEnTotes){ //En cas que sigui l'arrel tindrà permís sobre totes les UO
 					permisosList = permisosHelper.findPermisos(

@@ -5,17 +5,14 @@ package net.conselldemallorca.helium.core.helper;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Set;
 
 import javax.annotation.Resource;
-
-import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
 
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
@@ -48,8 +45,12 @@ public class UnitatOrganitzativaHelper {
 	
 	@Resource
 	private PluginHelper pluginHelper;
+
 	@Resource(name = "permisosHelperV3") 
 	private PermisosHelper permisosHelper;
+	
+	@Resource 
+	private ParametreHelper parametreHelper;
 	
 	@Resource
 	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
@@ -137,8 +138,10 @@ public class UnitatOrganitzativaHelper {
 		
 	public void sincronizarOActualizar(UnitatOrganitzativa entitat) {
 			List<UnitatOrganitzativaDto> unitats;
-			unitats =  pluginHelper.findAmbPare(entitat.getCodi(), entitat.getDataActualitzacio(),
-						entitat.getDataSincronitzacio());
+			unitats =  pluginHelper.findAmbPare(
+						entitat.getCodi(), 
+						parametreHelper.getDataActualitzacioUos(),
+						parametreHelper.getDataSincronitzacioUos());
 			// Takes all the unitats from WS and saves them to database. If unitat did't exist in db it creates new one if it already existed it overrides existing one.  
 			for (UnitatOrganitzativaDto unitatDto : unitats) {
 				sincronizarUnitat(unitatDto, entitat.getCodi());
@@ -187,8 +190,6 @@ public class UnitatOrganitzativaHelper {
 							unitatDto.getNifCif(),//String nifCif,
 							unitatDto.getCodiUnitatSuperior(),//String codiUnitatSuperior,
 							unitatDto.getCodiUnitatArrel(),//String codiUnitatArrel,
-							unitatDto.getDataActualitzacio(),//Date dataActualitzacio,
-							unitatDto.getDataSincronitzacio(),//Date dataSincronitzacio,
 							unitatDto.getDataCreacioOficial(),//Date dataCreacioOficial,
 							unitatDto.getDataSupressioOficial(),//Date dataSupressioOficial,
 							unitatDto.getDataExtincioFuncional(),//Date dataExtincioFuncional,
@@ -216,8 +217,6 @@ public class UnitatOrganitzativaHelper {
 							unitatDto.getDataSupressioOficial(),
 							unitatDto.getDataExtincioFuncional(),
 							unitatDto.getDataAnulacio(),
-							unitatDto.getDataActualitzacio(),
-							unitatDto.getDataSincronitzacio(),
 							unitatDto.getEstat(), 
 							unitatDto.getCodiPais(),
 							unitatDto.getCodiComunitat(),
@@ -368,8 +367,8 @@ public class UnitatOrganitzativaHelper {
 			// getting list of syncronization unitats from webservices
 			List<UnitatOrganitzativaDto> unitatsWS = pluginHelper.findAmbPare(
 												entitat.getCodi(),
-												entitat.getDataActualitzacio(), 
-												entitat.getDataSincronitzacio());
+												parametreHelper.getDataActualitzacioUos(), 
+												parametreHelper.getDataSincronitzacioUos());
 			// getting all vigent unitats from database
 			List<UnitatOrganitzativa> vigentUnitatsDB = unitatOrganitzativaRepository
 					.findByCodiAndEstatV(entitat.getCodi());
@@ -464,8 +463,8 @@ public class UnitatOrganitzativaHelper {
 			UnitatOrganitzativa entitat = unitatOrganitzativaRepository.findOne(entidadId);
 			List<UnitatOrganitzativaDto> unitatsVigentsWS = pluginHelper.findAmbPare(
 					entitat.getCodi(),
-					entitat.getDataActualitzacio()!=null?entitat.getDataActualitzacio(): null,//new Date(), 
-					entitat.getDataSincronitzacio()!=null?entitat.getDataSincronitzacio():null);
+					parametreHelper.getDataActualitzacioUos()!=null? parametreHelper.getDataActualitzacioUos(): null,//new Date(), 
+							parametreHelper.getDataSincronitzacioUos()!=null? parametreHelper.getDataSincronitzacioUos():null);
 			return unitatsVigentsWS;
 		}
 		
@@ -479,8 +478,8 @@ public class UnitatOrganitzativaHelper {
 			// getting list of last changes from webservices
 			List<UnitatOrganitzativaDto> unitatsWS = pluginHelper.findAmbPare(
 					entitat.getCodi(),
-					entitat.getDataActualitzacio(), 
-					entitat.getDataSincronitzacio());
+					parametreHelper.getDataActualitzacioUos(), 
+					parametreHelper.getDataSincronitzacioUos());
 			// getting all vigent unitats from database
 			List<UnitatOrganitzativa> vigentUnitats = unitatOrganitzativaRepository
 					.findByCodiAndEstatV(entitat.getCodi());
@@ -519,8 +518,8 @@ public class UnitatOrganitzativaHelper {
 			// getting list of last changes from webservices
 			List<UnitatOrganitzativaDto> unitatsWS = pluginHelper.findAmbPare(
 					entitat.getCodi(),
-					entitat.getDataActualitzacio(), 
-					entitat.getDataSincronitzacio());
+					parametreHelper.getDataActualitzacioUos(), 
+					parametreHelper.getDataSincronitzacioUos());
 
 			// getting all vigent unitats from database
 			List<UnitatOrganitzativa> vigentUnitats = unitatOrganitzativaRepository

@@ -43,8 +43,8 @@ import net.conselldemallorca.helium.webapp.v3.command.UnitatOrganitzativaCommand
 import net.conselldemallorca.helium.webapp.v3.command.UnitatOrganitzativaCommand.Modificacio;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
+import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
@@ -65,21 +65,20 @@ public class UnitatOrganitzativaController extends BaseController {
 	private PluginHelper pluginHelper;
 	
 	private static final String SESSION_ATTRIBUTE_FILTRE = "UnitatOrganitzativaController.session.filtre";
-	private static final String APP_CONFIGURACIO_ARREL = "app.net.caib.helium.unitats.organitzatives.arrel.codi";
 	
 	@RequestMapping(method = RequestMethod.GET)
 	public String llistat(
 			HttpServletRequest request,
 			Model model) {
 		UnitatOrganitzativaCommand filtreCommand = getFiltreCommand(request);
-		List<ParametreDto> parametres = parametreService.findAll();
-		for(ParametreDto parametre: parametres) {	
-			if("app.net.caib.helium.unitats.organitzatives.arrel.codi".equals(parametre.getCodi())) {
-				model.addAttribute("codiUnitatArrel", parametre.getValor());
-			} else if("app.net.caib.helium.unitats.organitzatives.data.darrera.sincronitzacio".equals(parametre.getCodi())) {
-				model.addAttribute("dataSincronitzacio", parametre.getValor());
-			}
-		}
+		
+		ParametreDto param = parametreService.findByCodi(ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
+		model.addAttribute("codiUnitatArrel", param != null ? param.getValor() : "-" );
+		param = parametreService.findByCodi(ParametreService.APP_CONFIGURACIO_DATA_SINCRONITZACIO_UO);
+		model.addAttribute("dataSincronitzacio", param != null ? param.getValor() : "-" );
+		param = parametreService.findByCodi(ParametreService.APP_CONFIGURACIO_DATA_ACTUALITZACIO_UO);
+		model.addAttribute("dataActualitzacio", param != null ? param.getValor() : "-");
+		
 		this.modelEstats(model);
 		model.addAttribute(filtreCommand);
 		return "v3/unitatOrganitzativa";
@@ -110,10 +109,10 @@ public class UnitatOrganitzativaController extends BaseController {
 		String json = "[";
 		if(unitats!=null && !unitats.isEmpty()) {
 			for (UnitatOrganitzativaDto unitat: unitats) {
-				json += "{\"codi\":\"" + unitat.getCodi() + "\", \"nom\":\"" + unitat.getCodiAndNom()+ "\"},";
+				json += "{\"codi\":\"" + unitat.getCodi() + "\", \"nom\":\"" + unitat.getCodiAndNom()+ "\", \"estat\" : \"" + unitat.getEstat() + "\"},";
 			}
 		} else {
-			json += "{\"codi\":\"" + textDecoded + "\", \"nom\":\""+ textDecoded  + " (No trobat)"+ "\"},";
+			json += "{\"codi\":\"" + textDecoded + "\", \"nom\":\""+ textDecoded  + " (No trobat)"+ "\", \"estat\" : \"E\"},";
 		}
 		
 		if (json.length() > 1) json = json.substring(0, json.length() - 1);
@@ -258,7 +257,7 @@ public class UnitatOrganitzativaController extends BaseController {
 		List<UnitatOrganitzativaDto> unitatsVigents = new ArrayList<UnitatOrganitzativaDto>();
 		List<UnitatOrganitzativaDto> unitatsVigentsFirstSincro = new ArrayList<UnitatOrganitzativaDto>();
 		List<UnitatOrganitzativaDto> unitatsNew = new ArrayList<UnitatOrganitzativaDto>();
-		ParametreDto parametreArrel = parametreService.findByCodi(APP_CONFIGURACIO_ARREL);
+		ParametreDto parametreArrel = parametreService.findByCodi(ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
 		UnitatOrganitzativaDto unitatDto = unitatOrganitzativaService.findByCodi(parametreArrel.getValor());
 		boolean isFirstSincronization = unitatDto==null;
 		if(unitatDto==null) {
@@ -355,13 +354,17 @@ public class UnitatOrganitzativaController extends BaseController {
 	@RequestMapping(value = "/saveSynchronize", method = RequestMethod.POST)
 	public String synchronizePost(
 			HttpServletRequest request) {
-		ParametreDto parametreArrel = parametreService.findByCodi(APP_CONFIGURACIO_ARREL);
-		UnitatOrganitzativaDto unitatDto = unitatOrganitzativaService.findByCodi(parametreArrel.getValor());
-		unitatOrganitzativaService.synchronize(unitatDto.getId());
-		return getModalControllerReturnValueSuccess(
-				request,
-				"redirect:unitatOrganitzativa",
-				"unitat.controller.synchronize.ok");
+		try {
+			ParametreDto parametreArrel = parametreService.findByCodi(ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
+			UnitatOrganitzativaDto unitatDto = unitatOrganitzativaService.findByCodi(parametreArrel.getValor());
+			unitatOrganitzativaService.synchronize(unitatDto.getId());
+			MissatgesHelper.success(request, getMessage(request, "unitat.controller.synchronize.ok"));
+		} catch(Exception e) {
+			String errMsg = getMessage(request, "unitat.controller.syncrhonize.ko", new Object[] {e.getMessage()});
+			logger.error(errMsg, e);
+			MissatgesHelper.error(request, errMsg);
+		}
+		return modalUrlTancar();
 	}
 	
 	
@@ -369,7 +372,7 @@ public class UnitatOrganitzativaController extends BaseController {
 	public String mostrarArbre(
 			HttpServletRequest request,
 			Model model) {
-		ParametreDto parametreArrel = parametreService.findByCodi(APP_CONFIGURACIO_ARREL);
+		ParametreDto parametreArrel = parametreService.findByCodi(ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
 		UnitatOrganitzativaDto unitatDto = unitatOrganitzativaService.findByCodi(parametreArrel.getValor());
 		
 		model.addAttribute(
