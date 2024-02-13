@@ -7,8 +7,6 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -70,18 +68,22 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 	private void afegirDadesUnitatOrganitzativa(HttpServletRequest request, Model model, String codiUo) {
 		// Cercar UO, afegir info al model.
 		String unitatOrganitzativaError = null;
+		UnitatOrganitzativaDto uo = null;
 		if (codiUo != null) {
-			UnitatOrganitzativaDto uo = unitatOrganitzativaService.findByCodi(codiUo);
-			model.addAttribute("unitatOrganitzativa", uo);
+			uo = unitatOrganitzativaService.findByCodi(codiUo);
 			if (uo != null) {
 				if (!"V".equals(uo.getEstat())) {
 					String estat = getMessage(request, "expedient.tipus.metadades.nti.unitat.organitzativa.estat." + uo.getEstat());
 					unitatOrganitzativaError = getMessage(request, "expedient.tipus.metadades.nti.unitat.organitzativa.no.vigent", new Object[] {codiUo, estat});
+					// consulta les unitats històriques per la UO
+					uo = unitatOrganitzativaService.getLastHistoricos(uo);
 				}
+				model.addAttribute("unitatOrganitzativaTipusTransicio", uo.getTipusTransicio());
 			} else {
 				unitatOrganitzativaError = getMessage(request, "expedient.tipus.metadades.nti.unitat.organitzativa.no.trobada", new Object[] {codiUo});
 			}
 		}
+		model.addAttribute("unitatOrganitzativa", uo);
 		model.addAttribute("unitatOrganitzativaError", unitatOrganitzativaError);
 		model.addAttribute("codiUo", codiUo);
 	}
@@ -133,6 +135,16 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
     	return response;
 	}
 	
-	private static final Log logger = LogFactory.getLog(ExpedientTipusMetadadesNtiController.class);
+	@RequestMapping(value = "/{expedientTipusId}/comprovarOrgan/{codiUo}", method = RequestMethod.GET)
+	
+	public String comprovarOrgan(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable String codiUo,
+			Model model) {
 
+		this.afegirDadesUnitatOrganitzativa(request, model, codiUo);
+
+    	return "v3/unitatOrganitzativaComprovar";
+	}	
 }

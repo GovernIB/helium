@@ -335,7 +335,7 @@ public class UnitatOrganitzativaServiceImpl implements UnitatOrganitzativaServic
 	@Override
 	@Transactional
 	public UnitatOrganitzativaDto getLastHistoricos(UnitatOrganitzativaDto uo) {
-		return null;
+		return unitatOrganitzativaHelper.getLastHistoricos(uo);
 	}
 
 	@Override

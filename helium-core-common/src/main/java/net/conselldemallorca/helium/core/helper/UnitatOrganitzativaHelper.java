@@ -101,6 +101,7 @@ public class UnitatOrganitzativaHelper {
 					entity.getNomVia()  , //String nomVia,
 					entity.getNumVia()  , //String numVia,
 					null); //List<String> historicosUO);
+			unitat.setTipusTransicio(entity.getTipusTransicio());
 		}
 		if (unitat != null) {
 			unitat.setAdressa(unitat.getTipusVia() + " " 
@@ -259,24 +260,16 @@ public class UnitatOrganitzativaHelper {
 		 */
 		public ArbreDto<UnitatOrganitzativaDto> unitatsOrganitzativesFindArbreByPareAndEstatVigent(String pareCodi) {
 
-			List<UnitatOrganitzativa> unitatsOrganitzativesEntities = unitatOrganitzativaRepository
-					.findByCodiAndEstatV(pareCodi);
-			
-			List<UnitatOrganitzativa> unitatsOrganitzativesAmbArrel = unitatOrganitzativaRepository.findByCodiUnitatArrel(pareCodi);
+			List<UnitatOrganitzativa> unitatsOrganitzativesVigents = unitatOrganitzativaRepository
+					.findByCodiUnitatArrelAndEstatVigent(pareCodi);
+			//List<UnitatOrganitzativa> unitatsOrganitzativesAmbArrel = unitatOrganitzativaRepository.findByCodiUnitatArrel(pareCodi);
 			ArbreDto<UnitatOrganitzativaDto> resposta = new ArbreDto<UnitatOrganitzativaDto>(false);
 			// Cerca l'unitat organitzativa arrel
-			UnitatOrganitzativa unitatOrganitzativaArrel = unitatsOrganitzativesEntities!=null ? unitatsOrganitzativesEntities.get(0): null;
-//			for (UnitatOrganitzativa unitatOrganitzativa : unitatsOrganitzativesEntities) {
-//				if (pareCodi.equalsIgnoreCase(unitatOrganitzativa.getCodi())) {
-//					unitatOrganitzativaArrel = unitatOrganitzativa;
-//					break;
-//				}
-//			}
+			UnitatOrganitzativa unitatOrganitzativaArrel = unitatOrganitzativaRepository.findByCodi(pareCodi);
 			if (unitatOrganitzativaArrel != null) {
 				// Omple l'arbre d'unitats organitzatives
-				resposta.setArrel(getNodeArbreUnitatsOrganitzatives(unitatOrganitzativaArrel, unitatsOrganitzativesAmbArrel, null));
+				resposta.setArrel(getNodeArbreUnitatsOrganitzatives(unitatOrganitzativaArrel, unitatsOrganitzativesVigents, null));
 				return resposta;
-
 			} else {
 				return null;
 			}
@@ -371,7 +364,7 @@ public class UnitatOrganitzativaHelper {
 												parametreHelper.getDataSincronitzacioUos());
 			// getting all vigent unitats from database
 			List<UnitatOrganitzativa> vigentUnitatsDB = unitatOrganitzativaRepository
-					.findByCodiAndEstatV(entitat.getCodi());
+					.findByCodiUnitatArrelAndEstatVigent(entitat.getCodi());
 			//List of new unitats that are vigent
 			List<UnitatOrganitzativaDto> vigentUnitatsWS = new ArrayList<UnitatOrganitzativaDto>();
 			//List of new unitats that are vigent and does not exist in database
@@ -427,13 +420,13 @@ public class UnitatOrganitzativaHelper {
 		 * @param lastHistorcos
 		 */
 		public void getLastHistoricosRecursive(
-				UnitatOrganitzativaDto unitat, 
+				UnitatOrganitzativa unitat, 
 				List<UnitatOrganitzativaDto> lastHistorcos) {
 
 			if (unitat.getNoves() == null || unitat.getNoves().isEmpty()) {
-				lastHistorcos.add(unitat);
+				lastHistorcos.add(toDto(unitat));
 			} else {
-				for (UnitatOrganitzativaDto unitatI : unitat.getNoves()) {
+				for (UnitatOrganitzativa unitatI : unitat.getNoves()) {
 					getLastHistoricosRecursive(unitatI, lastHistorcos);
 				}
 			}
@@ -448,15 +441,15 @@ public class UnitatOrganitzativaHelper {
 		 */
 		public UnitatOrganitzativaDto getLastHistoricos(UnitatOrganitzativaDto uo) {
 			// if there are no historicos leave them empty and don´t go into recursive method
-			if (uo.getNoves() == null || uo.getNoves().isEmpty()) {
-				return uo;
-			} else {
-				List<UnitatOrganitzativaDto> lastHistorcos = new ArrayList<UnitatOrganitzativaDto>();
-				getLastHistoricosRecursive(uo, lastHistorcos);
-				uo.setLastHistoricosUnitats(lastHistorcos);
-
-				return uo;
+			if (uo != null) {
+				UnitatOrganitzativa entity = unitatOrganitzativaRepository.findByCodi(uo.getCodi());
+				if (entity.getNoves() != null && !entity.getNoves().isEmpty()) {
+					List<UnitatOrganitzativaDto> lastHistorcos = new ArrayList<UnitatOrganitzativaDto>();
+					getLastHistoricosRecursive(entity, lastHistorcos);
+					uo.setLastHistoricosUnitats(lastHistorcos);
+				}
 			}
+			return uo;
 		}
 		
 		public List<UnitatOrganitzativaDto> predictFirstSynchronization(Long entidadId) throws SistemaExternException{
@@ -482,7 +475,7 @@ public class UnitatOrganitzativaHelper {
 					parametreHelper.getDataSincronitzacioUos());
 			// getting all vigent unitats from database
 			List<UnitatOrganitzativa> vigentUnitats = unitatOrganitzativaRepository
-					.findByCodiAndEstatV(entitat.getCodi());
+					.findByCodiUnitatArrelAndEstatVigent(entitat.getCodi());
 			// list of vigent unitats from webservice
 			List<UnitatOrganitzativaDto> unitatsVigentsWithChangedAttributes = new ArrayList<UnitatOrganitzativaDto>();
 			for (UnitatOrganitzativa unitatV : vigentUnitats) {
@@ -523,7 +516,7 @@ public class UnitatOrganitzativaHelper {
 
 			// getting all vigent unitats from database
 			List<UnitatOrganitzativa> vigentUnitats = unitatOrganitzativaRepository
-					.findByCodiAndEstatV(entitat.getCodi());
+					.findByCodiUnitatArrelAndEstatVigent(entitat.getCodi());
 			logger.debug("Consulta d'unitats vigents a DB");
 			for(UnitatOrganitzativa uv: vigentUnitats){
 				logger.debug(ToStringBuilder.reflectionToString(uv));

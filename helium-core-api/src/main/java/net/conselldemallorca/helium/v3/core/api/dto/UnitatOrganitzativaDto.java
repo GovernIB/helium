@@ -65,6 +65,21 @@ public class UnitatOrganitzativaDto {
 	public UnitatOrganitzativaDto(
 			String codi,
 			String denominacio,
+			String codiUnitatSuperior,
+			String codiUnitatArrel,
+			String estat,
+			List<String> historicosUO) {
+		this.codi = codi;
+		this.denominacio = denominacio;
+		this.codiUnitatSuperior = codiUnitatSuperior;
+		this.codiUnitatArrel = codiUnitatArrel;
+		this.estat = estat;
+		this.historicosUO = historicosUO;
+	}
+	
+	public UnitatOrganitzativaDto(
+			String codi,
+			String denominacio,
 			String nifCif,
 			Date dataCreacioOficial,
 			String estat,

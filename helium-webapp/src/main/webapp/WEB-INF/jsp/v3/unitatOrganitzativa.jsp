@@ -57,7 +57,7 @@
 			<div class="col-md-12">
 				
 				<div class="pull-right">
-					<input type="hidden" name="consultaRealitzada" value="true"/>
+					<button type="submit" name="accio" value="consultar" class="hidden"></button>
 					<button id="netejar" type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
 					<button id="consultar" type="submit" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
 					

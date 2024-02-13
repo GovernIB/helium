@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.annotation.Resource;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
@@ -32,8 +31,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import es.caib.dir3caib.ws.api.unidad.Dir3CaibObtenerUnidadesWs;
 import es.caib.dir3caib.ws.api.unidad.Dir3CaibObtenerUnidadesWsService;
 import es.caib.dir3caib.ws.api.unidad.UnidadTF;
-import net.conselldemallorca.helium.core.helper.PluginHelper;
-import net.conselldemallorca.helium.core.helper.UnitatOrganitzativaHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
@@ -45,10 +42,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
-	@Resource
-	private PluginHelper pluginHelper;
-	@Resource
-	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
+
 	@Override
 	public List<UnitatOrganica> findAmbPare(String pareCodi) throws SistemaExternException {
 		try {

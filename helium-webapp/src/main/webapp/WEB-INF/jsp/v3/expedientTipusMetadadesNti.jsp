@@ -60,6 +60,11 @@ $(document).ready(function() {
 		return false;
 	});
 	
+	
+	$('#organo').change(function(){
+		carregarInformacioOrgan();
+	}).change();
+	
 });
 
 function formatSelectUnitat(item) {
@@ -72,6 +77,22 @@ function formatSelectUnitat(item) {
 	} else {
 		return $("<span>" + item.text + " <span class='fa fa-exclamation-triangle text-warning' title=\"<spring:message code='unitat.organitzativa.avis.obsoleta'/>\"></span></span>");
 	}
+}
+
+// Consulta al controlador d'unitats organitzatives informació per si l'unitat no està vigent
+function carregarInformacioOrgan() {
+
+	if ($('#organo').val() != '') {
+		$.ajax({
+			url:'<c:url value="/nodeco/v3/expedientTipus/${expedientTipus.id}/comprovarOrgan/"/>' + $('#organo').val(),
+		    success: function(data) {
+				$('#unitatOrganitzativaInfo').html(data);
+		    }
+		});
+	} else {
+		$('#unitatOrganitzativaInfo').html('');
+	}
+
 }
 
 // ]]>
@@ -97,35 +118,11 @@ function formatSelectUnitat(item) {
 					
 					
 					<div id="input_unitatOrganitzativa" style="display:${!expedientTipus.procedimentComu ? 'inline' : 'none'}">
-
-						<!-- Informació de la unitat organitzativa si no està vigent. -->
-						<c:if test="${unitatOrganitzativaError != null }">
-	
-							<div class="row">
-								<div class="col-sm-4"></div>
-								<div class="col-sm-8">
-									<div class="panel panel-danger" id="unitatOrganitzativaErrorDiv">
-										<div class="panel-heading">
-											<span class="fa fa-warning text-danger"></span>
-											${unitatOrganitzativaError} 
-										</div>
-										<div class="panel-body">
-											<div class="row">
-												<label class="col-xs-4 text-right">Etiqueta</label>
-												<div class="col-xs-8">
-													<ul style="padding-left: 17px;" id="lastHistoricosUnitats">
-														<li>Detalls errors</li>
-													</ul>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						
-						</c:if>
-						<!-- Fi informació de la unitat organitzativa si no està vigent. -->
 					
+						<div id="unitatOrganitzativaInfo">
+							<!--  Carregar la info de la UO en cas qeu no estigui vigent per ajax quan canvia la selecció de l'òrgan -->
+						</div>
+
 						<hel:inputSuggest 
 							name="organo" 
 							urlConsultaInicial="/helium/v3/unitatOrganitzativa/suggestInici" 

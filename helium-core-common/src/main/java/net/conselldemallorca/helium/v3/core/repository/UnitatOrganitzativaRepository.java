@@ -71,10 +71,10 @@ public interface UnitatOrganitzativaRepository extends JpaRepository<UnitatOrgan
 	@Query(	"from " +
 			"    UnitatOrganitzativa uo " +
 			"where " +
-			"    uo.codi = :codi " +
+			"    uo.codiUnitatArrel = :codiArrel " +
 			"and uo.estat='V') ")
-	List<UnitatOrganitzativa> findByCodiAndEstatV(
-			@Param("codi") String codi);
+	List<UnitatOrganitzativa> findByCodiUnitatArrelAndEstatVigent(
+			@Param("codiArrel") String codiArrel);
 	
 	
 	@Query(	"from " +
