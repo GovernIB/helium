@@ -29,6 +29,13 @@ public class CodiVariableValidator implements ConstraintValidator<CodiVariable, 
 						.addConstraintViolation();	
 				valid = false;
 			}
+			// Que no comenci amb una minúscula seguida de majúscula
+			if (codi.matches("^[a-z]{1}[A-Z]{1}.*")) {
+				context.buildConstraintViolationWithTemplate(
+						MessageHelper.getInstance().getMessage("error.camp.codi.minmay", null))
+						.addConstraintViolation();	
+				valid = false;
+			}
 			// Que no contingui punts
 			if (codi.contains(".")) {
 				context.buildConstraintViolationWithTemplate(
