@@ -5,7 +5,9 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -98,28 +100,32 @@ public class UnitatOrganitzativaController extends BaseController {
 
 	@RequestMapping(value = "/suggest/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
 	@ResponseBody
-	public String unitatsSuggest(
+	public List<Map<String, String>> unitatsSuggest(
 			HttpServletRequest request,
 			@PathVariable String text,
 			Model model) {
 		String textDecoded = text;
-		List<UnitatOrganitzativaDto> unitats = unitatOrganitzativaService
-				.findByCodiAndDenominacioFiltre(textDecoded);
-		
-		String json = "[";
-		if(unitats!=null && !unitats.isEmpty()) {
+		List<UnitatOrganitzativaDto> unitats = unitatOrganitzativaService.findByCodiAndDenominacioFiltre(textDecoded);
+		List<Map<String, String>> resposta = new ArrayList<Map<String, String>>();
+		if (unitats != null) {
 			for (UnitatOrganitzativaDto unitat: unitats) {
-				json += "{\"codi\":\"" + unitat.getCodi() + "\", \"nom\":\"" + unitat.getCodiAndNom()+ "\", \"estat\" : \"" + unitat.getEstat() + "\"},";
+				Map<String, String> unitatJson = new HashMap<String, String>();
+				String noVigent = "V".equals(unitat.getEstat()) ? "" : " " + getMessage(request, "unitat.controller.suggest.uo.no_vigent");
+				unitatJson.put("codi", unitat.getCodi());
+				unitatJson.put("nom", unitat.getCodiAndNom().replace("\"", "\\\"") + noVigent);
+				unitatJson.put("estat", getMessage(request, "expedient.tipus.metadades.nti.unitat.organitzativa.estat." + unitat.getEstat()));
+				resposta.add(unitatJson);
 			}
 		} else {
-			json += "{\"codi\":\"" + textDecoded + "\", \"nom\":\""+ textDecoded  + " (No trobat)"+ "\", \"estat\" : \"E\"},";
+			Map<String, String> unitatJson = new HashMap<String, String>();
+			unitatJson.put("codi", textDecoded);
+			unitatJson.put("nom", textDecoded + "(No trobat)");
+			unitatJson.put("estat", getMessage(request, "expedient.tipus.metadades.nti.unitat.organitzativa.estat.E"));
+			resposta.add(unitatJson);
 		}
-		
-		if (json.length() > 1) json = json.substring(0, json.length() - 1);
-		json += "]";
-		return json;
+		return resposta;
 	}
-	
+
 	@RequestMapping(value = "/suggestInici/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
 	@ResponseBody
 	public String unitatsSuggestInici(
