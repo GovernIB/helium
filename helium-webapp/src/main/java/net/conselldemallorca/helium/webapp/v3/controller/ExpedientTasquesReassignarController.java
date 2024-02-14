@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -104,7 +105,13 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 	public String personaSuggest(
 			@PathVariable String text,
 			Model model) {
-		List<PersonaDto> lista = aplicacioService.findPersonaLikeNomSencer(text);
+		String decodedToUTF8 = null;
+		try {
+			decodedToUTF8 = new String(text.getBytes("ISO-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.error("No s'ha pogut consultar el text " + decodedToUTF8 + ": " + e.getMessage());
+		}
+		List<PersonaDto> lista = aplicacioService.findPersonaLikeNomSencer(decodedToUTF8);
 		String json = "[";
 		for (PersonaDto persona: lista) {
 			json += "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"},";
