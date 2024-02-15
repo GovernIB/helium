@@ -107,7 +107,7 @@ public class UnitatOrganitzativaController extends BaseController {
 		String textDecoded = text;
 		List<UnitatOrganitzativaDto> unitats = unitatOrganitzativaService.findByCodiAndDenominacioFiltre(textDecoded);
 		List<Map<String, String>> resposta = new ArrayList<Map<String, String>>();
-		if (unitats != null) {
+		if (unitats != null && !unitats.isEmpty()) {
 			for (UnitatOrganitzativaDto unitat: unitats) {
 				Map<String, String> unitatJson = new HashMap<String, String>();
 				String noVigent = "V".equals(unitat.getEstat()) ? "" : " " + getMessage(request, "unitat.controller.suggest.uo.no_vigent");

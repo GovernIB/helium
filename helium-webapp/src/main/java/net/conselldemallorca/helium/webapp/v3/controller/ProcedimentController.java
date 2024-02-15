@@ -226,7 +226,7 @@ public class ProcedimentController extends BaseController{
 		String textDecoded = text;
 		List<ProcedimentDto> procediments = procedimentService.findByNomOrCodiSia(textDecoded);
 		List<Map<String, String>> resposta = new ArrayList<Map<String, String>>();
-		if (procediments != null) {
+		if (procediments != null && !procediments.isEmpty()) {
 			for (ProcedimentDto procediment: procediments) {
 				Map<String, String> procedimentJson = new HashMap<String, String>();
 				procedimentJson.put("codi", procediment.getCodiSia());
