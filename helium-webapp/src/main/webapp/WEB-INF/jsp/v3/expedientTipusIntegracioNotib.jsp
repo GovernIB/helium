@@ -52,19 +52,19 @@ $(document).ready(function() {
 			<div>
 				<hel:inputCheckbox name="notibActiu" textKey="expedient.tipus.integracio.tramits.notificacions.activar"/>
 				<div id="inputs-notib" style="display:${expedientTipusIntegracioNotibCommand.notibActiu? 'inline' : 'none'}">
-					<hel:inputSuggest
-						name="notibCodiProcediment"
-						urlConsultaInicial="/helium/v3/procediment/suggestInici"
-						urlConsultaLlistat="/helium/v3/procediment/suggest"
-						textKey="expedient.tipus.integracio.notib.sia.codiprocediment"
-						placeholderKey="expedient.tipus.integracio.notib.sia.codiprocediment"
-						required="true" />
 					<hel:inputSuggest 
 						name="notibEmisor" 
 						urlConsultaInicial="/helium/v3/unitatOrganitzativa/suggestInici"
 						urlConsultaLlistat="/helium/v3/unitatOrganitzativa/suggest"
 						textKey="expedient.tipus.integracio.notib.organisme.emisor"
 						placeholderKey="expedient.tipus.integracio.notib.organisme.emisor"
+						required="true" />
+					<hel:inputSuggest
+						name="notibCodiProcediment"
+						urlConsultaInicial="/helium/v3/procediment/suggestInici"
+						urlConsultaLlistat="/helium/v3/procediment/suggest"
+						textKey="expedient.tipus.integracio.notib.sia.codiprocediment"
+						placeholderKey="expedient.tipus.integracio.notib.sia.codiprocediment"
 						required="true" />
 				</div>
 			</div>

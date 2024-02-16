@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -914,7 +915,12 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 	public String personaSuggest(
 			@PathVariable String text,
 			Model model) {
-		String textDecoded = text;
+		String textDecoded = null;
+		try {
+			textDecoded = new String(text.getBytes("ISO-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.error("No s'ha pogut consultar el text " + textDecoded + ": " + e.getMessage());
+		}
 		List<PersonaDto> lista = aplicacioService.findPersonaLikeCodiOrNomSencer(textDecoded);
 		String json = "[";
 		for (PersonaDto persona: lista) {
@@ -930,7 +936,13 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 	public String personaSuggestInici(
 			@PathVariable String text,
 			Model model) {
-		PersonaDto persona = aplicacioService.findPersonaAmbCodi(text);
+		String textDecoded = null;
+		try {
+			textDecoded = new String(text.getBytes("ISO-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.error("No s'ha pogut consultar el text " + textDecoded + ": " + e.getMessage());
+		}
+		PersonaDto persona = aplicacioService.findPersonaAmbCodi(textDecoded);
 		if (persona != null) {
 			return "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"}";
 		}

@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.v3.core.service;
 
 import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -1089,15 +1090,21 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		logger.debug("Consulta suggest d'expedients (" +
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"text=" + text + ")");
+		String textDecoded = null;
+		try {
+			textDecoded = new String(text.getBytes("ISO-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.error("No s'ha pogut consultar el text " + textDecoded + ": " + e.getMessage());
+		}
 		List<Expedient> expedients = null;
 		if (expedientTipusId != null) {
 			// Comprova l'accés al tipus d'expedient
 			expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
 					expedientTipusId);
-			expedients = expedientRepository.findByTipusAndNumeroOrTitol(expedientTipusId, text); 
+			expedients = expedientRepository.findByTipusAndNumeroOrTitol(expedientTipusId, textDecoded); 
 			
 			try {
-				Long expedientId = Long.valueOf(text);
+				Long expedientId = Long.valueOf(textDecoded);
 				Expedient expedient = expedientRepository.findOne(expedientId);
 				if (expedient != null && expedient.getTipus().getId() == expedientTipusId) {
 					expedients.add(expedient);
@@ -1930,8 +1937,14 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	@Override
 	@Transactional(readOnly = true)
 	public List<ExpedientDto> findSuggestAmbEntornLikeIdentificador(Long entornId, String text) {
+		String textDecoded = null;
+		try {
+			textDecoded = new String(text.getBytes("ISO-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.error("No s'ha pogut consultar el text " + textDecoded + ": " + e.getMessage());
+		}
 		List<ExpedientDto> resposta = new ArrayList<ExpedientDto>();
-		List<Expedient> expedients = expedientRepository.findAmbEntornLikeIdentificador(entornId, text);
+		List<Expedient> expedients = expedientRepository.findAmbEntornLikeIdentificador(entornId, textDecoded);
 		for (Expedient expedient: expedients) {
 			resposta.add(conversioTipusHelper.convertir(expedient,ExpedientDto.class));
 		}

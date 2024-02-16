@@ -15,7 +15,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Getter @Setter
-public class PermisDto implements Serializable {
+public class PermisDto implements Serializable, Comparable<PermisDto>{
 
 	private Long id;
 	private String principalNom;
@@ -63,5 +63,15 @@ public class PermisDto implements Serializable {
 	}
 
 	private static final long serialVersionUID = -139254994389509932L;
+
+	private int compareStr(String str1, String str2) {
+	    return (str1 == null ? (str2 == null ? 0 : 1) : (str2 == null ? -1 : str1.compareTo(str2)));
+	}
+	
+	@Override
+	public int compareTo(PermisDto o) {
+		int comp = compareStr(this.principalNom, o.principalNom);
+		return comp;
+	}
 
 }

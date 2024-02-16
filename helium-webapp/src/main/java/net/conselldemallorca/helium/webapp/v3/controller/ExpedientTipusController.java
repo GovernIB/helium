@@ -885,7 +885,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		} else {	
 			permisos = expedientTipusService.permisFindAllByExpedientTipusProcedimentComu(id);
 		}
-
+		Collections.sort(permisos);
 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,

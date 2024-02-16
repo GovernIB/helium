@@ -1,5 +1,7 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -85,12 +87,12 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 	public String personaSuggest(
 			@PathVariable String text,
 			Model model) {
-		String textDecoded = text;
-//		try {
-//			textDecoded = URLDecoder.decode(text, "UTF-8");
-//		} catch (UnsupportedEncodingException ex) {
-//			logger.error("MassivaTascaReassignacioController.personaSuggest --> " + ex.getMessage());
-//		}
+		String textDecoded = null;
+		try {
+			textDecoded = URLDecoder.decode(text, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.error("No s'ha pogut consultar el text " + textDecoded + ": " + e.getMessage());
+		}
 		List<PersonaDto> lista = aplicacioService.findPersonaLikeNomSencer(textDecoded);
 		String json = "[";
 		for (PersonaDto persona: lista) {
@@ -106,7 +108,13 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 	public String personaSuggestInici(
 			@PathVariable String text,
 			Model model) {
-		PersonaDto persona = aplicacioService.findPersonaAmbCodi(text);
+		String textDecoded = null;
+		try {
+			textDecoded = new String(text.getBytes("ISO-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.error("No s'ha pogut consultar el text " + textDecoded + ": " + e.getMessage());
+		}
+		PersonaDto persona = aplicacioService.findPersonaAmbCodi(textDecoded);
 		if (persona != null) {
 			return "{\"codi\":\"" + persona.getCodi() + "\", \"nom\":\"" + persona.getNomSencer() + "\"}";
 		}

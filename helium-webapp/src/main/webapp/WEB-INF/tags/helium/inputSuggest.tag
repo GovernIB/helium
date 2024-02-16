@@ -57,7 +57,7 @@ $(document).ready(function() {
 	$("[id='${campPath}']").select2({
 		minimumInputLength: 3,
 		width: '100%',
-		placeholder: '<c:out value="${placeholderText}"/>',
+		placeholder: "${placeholderText}",
 		allowClear: true,
 		//<c:if test="${multiple == true}">
 		tags: true,

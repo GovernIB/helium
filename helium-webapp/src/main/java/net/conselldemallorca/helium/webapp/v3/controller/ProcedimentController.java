@@ -223,10 +223,15 @@ public class ProcedimentController extends BaseController{
 			HttpServletRequest request,
 			@PathVariable String text,
 			Model model) {
-		String textDecoded = text;
+		String textDecoded = null;
+		try {
+			textDecoded = new String(text.getBytes("ISO-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.error("No s'ha pogut consultar el text " + textDecoded + ": " + e.getMessage());
+		}
 		List<ProcedimentDto> procediments = procedimentService.findByNomOrCodiSia(textDecoded);
 		List<Map<String, String>> resposta = new ArrayList<Map<String, String>>();
-		if (procediments != null && !procediments.isEmpty()) {
+		if (procediments != null && !procediments.isEmpty() && textDecoded!=null) {
 			for (ProcedimentDto procediment: procediments) {
 				Map<String, String> procedimentJson = new HashMap<String, String>();
 				procedimentJson.put("codi", procediment.getCodiSia());
@@ -236,7 +241,7 @@ public class ProcedimentController extends BaseController{
 		} else {
 			Map<String, String> procedimentJson = new HashMap<String, String>();
 			procedimentJson.put("codi", textDecoded);
-			procedimentJson.put("nom", textDecoded + "(No trobat)");
+			procedimentJson.put("nom", textDecoded + " (No trobat)");
 			resposta.add(procedimentJson);
 		}
 		return resposta;

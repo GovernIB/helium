@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -153,7 +154,13 @@ public class PersonaController extends BaseController {
 	public String suggestAction(
 			@RequestParam(value = "q", required = true) String text,
 			ModelMap model) {
-		model.addAttribute("persones", pluginService.findPersonaLikeNomSencer(text));
+		String textDecoded = null;
+		try {
+			textDecoded = new String(text.getBytes("ISO-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.error("No s'ha pogut consultar el text " + textDecoded + ": " + e.getMessage());
+		}
+		model.addAttribute("persones", pluginService.findPersonaLikeNomSencer(textDecoded));
 		return "persona/suggest";
 	}
 	
@@ -161,8 +168,13 @@ public class PersonaController extends BaseController {
 	public String suggestPostAction(
 			@RequestParam(value = "q", required = true) String text,
 			ModelMap model) {
-		
-		model.addAttribute("persones", pluginService.findPersonaLikeNomSencer(text));
+		String textDecoded = null;
+		try {
+			textDecoded = new String(text.getBytes("ISO-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.error("No s'ha pogut consultar el text " + textDecoded + ": " + e.getMessage());
+		}
+		model.addAttribute("persones", pluginService.findPersonaLikeNomSencer(textDecoded));
 		return "persona/suggest";
 	}
 

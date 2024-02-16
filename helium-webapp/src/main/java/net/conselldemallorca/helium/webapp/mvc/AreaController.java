@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -176,9 +177,15 @@ public class AreaController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "q", required = true) String text,
 			ModelMap model) {
+		String textDecoded = null;
+		try {
+			textDecoded = new String(text.getBytes("ISO-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.error("No s'ha pogut consultar el text " + textDecoded + ": " + e.getMessage());
+		}
 		Entorn entorn = getEntornActiu(request);
-		if (entorn != null) {
-			model.addAttribute("arees", organitzacioService.findAreaLikeNom(entorn.getId(), text));
+		if (entorn != null && textDecoded != null) {
+			model.addAttribute("arees", organitzacioService.findAreaLikeNom(entorn.getId(), textDecoded));
 		}
 		return "area/suggest";
 	}

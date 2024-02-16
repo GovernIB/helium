@@ -104,10 +104,15 @@ public class UnitatOrganitzativaController extends BaseController {
 			HttpServletRequest request,
 			@PathVariable String text,
 			Model model) {
-		String textDecoded = text;
+		String textDecoded = null;
+		try {
+			textDecoded = new String(text.getBytes("ISO-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.error("No s'ha pogut consultar el text " + textDecoded + ": " + e.getMessage());
+		}
 		List<UnitatOrganitzativaDto> unitats = unitatOrganitzativaService.findByCodiAndDenominacioFiltre(textDecoded);
 		List<Map<String, String>> resposta = new ArrayList<Map<String, String>>();
-		if (unitats != null && !unitats.isEmpty()) {
+		if (unitats != null && !unitats.isEmpty() && textDecoded!=null) {
 			for (UnitatOrganitzativaDto unitat: unitats) {
 				Map<String, String> unitatJson = new HashMap<String, String>();
 				String noVigent = "V".equals(unitat.getEstat()) ? "" : " " + getMessage(request, "unitat.controller.suggest.uo.no_vigent");
@@ -119,7 +124,7 @@ public class UnitatOrganitzativaController extends BaseController {
 		} else {
 			Map<String, String> unitatJson = new HashMap<String, String>();
 			unitatJson.put("codi", textDecoded);
-			unitatJson.put("nom", textDecoded + "(No trobat)");
+			unitatJson.put("nom", textDecoded + " (No trobat)");
 			unitatJson.put("estat", getMessage(request, "expedient.tipus.metadades.nti.unitat.organitzativa.estat.E"));
 			resposta.add(unitatJson);
 		}

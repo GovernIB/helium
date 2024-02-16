@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.webapp.mvc;
 
+import java.io.UnsupportedEncodingException;
+
 import javax.servlet.http.HttpServletRequest;
 
 import net.conselldemallorca.helium.core.model.dto.ExpedientDto;
@@ -154,13 +156,19 @@ public class ExpedientRelacionarController extends BaseController {
 			HttpServletRequest request,
 			@RequestParam(value = "q", required = true) String text,
 			ModelMap model) {
+		String textDecoded = null;
+		try {
+			textDecoded = new String(text.getBytes("ISO-8859-1"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			logger.error("No s'ha pogut consultar el text " + textDecoded + ": " + e.getMessage());
+		}
 		Entorn entorn = getEntornActiu(request);
-		if (entorn != null) {
+		if (entorn != null && textDecoded != null) {
 			model.addAttribute(
 					"expedients",
 					expedientService.findAmbEntornLikeIdentificador(
 							entorn.getId(),
-							text));
+							textDecoded));
 		}
 		return "expedient/suggest";
 	}
