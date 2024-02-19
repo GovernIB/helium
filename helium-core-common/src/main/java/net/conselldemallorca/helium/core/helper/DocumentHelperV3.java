@@ -1685,7 +1685,7 @@ public class DocumentHelperV3 {
 					if ( ! PdfUtils.isArxiuConvertiblePdf(dto.getArxiuNom()) && ! "zip".equals(extensio))
 						throw new ValidacioException("No es pot notificar el document \"" + dto.getNom() + "\" perquè l'arxiu no és de tipus .ZIP ni és convertible a .PDF (" + PdfUtils.getExtensionsConvertiblesPdf() + ")" );
 					// Si no és .zip ni .pdf transforma el contingut a PDF
-					if (!"zip".equals(extensio) && !"pdf".equals(extensio)) {
+					if (!"zip".equals(extensio) && !"pdf".equals(extensio) && ! dto.isSignat()) {
 						dto.setArxiuContingut(getPdfUtils().convertirPdf(dto.getArxiuNom(), dto.getArxiuContingut()));
 						dto.setArxiuNom(dto.getArxiuNomSenseExtensio() + ".pdf");
 						dto.setContentType("application/pdf");
