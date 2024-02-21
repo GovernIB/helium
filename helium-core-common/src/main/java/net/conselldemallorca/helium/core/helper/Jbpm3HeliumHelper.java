@@ -53,6 +53,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
+import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.EntornActual;
@@ -70,7 +71,6 @@ import net.conselldemallorca.helium.integracio.plugins.registre.RegistreNotifica
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaAnotacioRegistre;
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantDetallRecepcio;
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
-import net.conselldemallorca.helium.integracio.plugins.unitat.UnitatOrganica;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
@@ -153,6 +153,7 @@ import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiRepository;
+import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaRepository;
 
 /**
  * Service que implementa la funcionalitat necessària per
@@ -207,6 +208,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private DocumentTascaRepository documentTascaRepository;
 	@Resource
 	private TerminiRepository terminiRepository;
+	@Resource
+	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
 	
 	@Resource
 	private RegistreRepository registreRepository;
@@ -1967,17 +1970,26 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				);
 	
 		dadesDto.setCodiProcediment(expedientTipus.getNtiClasificacion());
-		dadesDto.setEntitat_CIF(expedientTipus.getPinbalNifCif());		
+		dadesDto.setEntitat_CIF(expedientTipus.getPinbalNifCif());
+		String codiUO=null;
 		try
 	    {
-	      UnitatOrganica unitatOrganica = this.pluginHelper.findUnitatOrganica(expedientTipus.getNtiOrgano());
-	      dadesDto.setUnitatTramitadora(abreuja(unitatOrganica.getDenominacio(), 64));
+			UnitatOrganitzativa uo = null;
+			if(expedientTipus.isProcedimentComu() && expedient.getUnitatOrganitzativa()!=null){
+				codiUO = expedient.getUnitatOrganitzativa().getCodi();	
+			} else {
+				codiUO = expedientTipus.getNtiOrgano();
+			}
+			uo = this.unitatOrganitzativaRepository.findByCodi(codiUO);
+			dadesDto.setUnitatTramitadora(abreuja(uo.getDenominacio(), 64));
 	    }
 	    catch (Exception e)
 	    {
-	      logger.error("Error d'integraicó consultant la UO: " + expedientTipus.getNtiOrgano() + " " + e.getMessage(), e);
+	      logger.error("Error d'integraicó consultant la UO: " + 
+	    		  codiUO!=null ? codiUO : expedientTipus.getNtiOrgano()
+	    		+  " " + e.getMessage(), e);
 	      logger.warn("Com a unitat tramitadora per la consulta a PINBAL es fixa el codi DIR3 " + expedientTipus.getNtiOrgano());
-	      dadesDto.setUnitatTramitadora(expedientTipus.getNtiOrgano());
+	      dadesDto.setUnitatTramitadora(codiUO!=null ? codiUO : expedientTipus.getNtiOrgano());
 	    }
 		
 		return new DadesConsultaPinbal(

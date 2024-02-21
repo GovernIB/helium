@@ -52,10 +52,10 @@ import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
+import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.NombreEnCastella;
 import net.conselldemallorca.helium.core.util.NombreEnCatala;
-import net.conselldemallorca.helium.integracio.plugins.unitat.UnitatOrganica;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
@@ -75,6 +75,7 @@ import net.conselldemallorca.helium.v3.core.repository.CarrecRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.DominiRepository;
 import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
+import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaRepository;
 import net.sf.jooreports.templates.DocumentTemplate;
 import net.sf.jooreports.templates.DocumentTemplateException;
 import net.sf.jooreports.templates.DocumentTemplateFactory;
@@ -108,6 +109,8 @@ public class PlantillaHelper {
 	private CarrecJbpmIdRepository carrecJbpmIdRepository;
 	@Resource
 	private DominiRepository dominiRepository;
+	@Resource
+	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
 	@Resource(name="documentHelperV3")
 	private DocumentHelperV3 documentHelper;
 	@Resource
@@ -116,7 +119,6 @@ public class PlantillaHelper {
 	private VariableHelper variableHelper;
 	@Resource
 	private TascaHelper tascaHelper;
-
 
 
 	public ArxiuDto generarDocumentPlantilla(
@@ -750,7 +752,8 @@ public class PlantillaHelper {
 							Object arg0 = args.get(0);
 							if ((arg0 != null) && (arg0 instanceof String)) {
 								String codi = (String)arg0;
-								UnitatOrganica unitat = pluginHelper.findUnitatOrganica(codi);
+//								UnitatOrganica unitat = pluginHelper.findUnitatOrganica(codi);
+								UnitatOrganitzativa unitat = unitatOrganitzativaRepository.findByCodi(codi);
 								return new BeanModel(
 										unitat,
 										new DefaultObjectWrapper());

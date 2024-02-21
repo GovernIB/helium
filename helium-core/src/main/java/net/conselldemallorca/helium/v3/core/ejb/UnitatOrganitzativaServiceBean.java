@@ -70,26 +70,6 @@ public class UnitatOrganitzativaServiceBean implements UnitatOrganitzativaServic
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<UnitatOrganitzativaDto> findByFiltre(
-			String codiDir3, 
-			String denominacio,
-			String nivellAdm, 
-			String comunitat, 
-			String provincia, 
-			String localitat, 
-			Boolean arrel) {
-		return delegate.findByFiltre(
-				codiDir3, 
-				denominacio,
-				nivellAdm, 
-				comunitat, 
-				provincia, 
-				localitat, 
-				arrel);
-	}
-	
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void synchronize(Long entitatId) {
 		delegate.synchronize(entitatId);
 	}

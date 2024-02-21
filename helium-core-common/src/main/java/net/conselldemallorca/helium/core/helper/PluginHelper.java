@@ -5559,90 +5559,7 @@ public Object consultaSincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, Ex
 		return firmaWebResultat;
 
 	}
-	
-	
-	public List<UnitatOrganitzativaDto> unitatsOrganitzativesFindByFiltre(
-			String codiUnitat, 
-			String denominacioUnitat,
-			String codiNivellAdministracio, 
-			String codiComunitat, 
-			String codiProvincia, 
-			String codiLocalitat, 
-			Boolean esUnitatArrel) {
-		String accioDescripcio = "Consulta d'unitats organitzatives donat un filtre";
-//		UnitatsOrganiquesPlugin unitatsOrganitzativesPlugin = this.getUnitatsOrganitzativesPlugin(); 
-		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
-				new IntegracioParametreDto(
-						"codiUnitat",
-						codiUnitat),
-				new IntegracioParametreDto(
-						"denominacioUnitat",
-						denominacioUnitat),
-				new IntegracioParametreDto(
-						"codiNivellAdministracio",
-						codiNivellAdministracio),
-				new IntegracioParametreDto(
-						"codiComunitat",
-						codiComunitat),
-				new IntegracioParametreDto(
-						"codiProvincia",
-						codiProvincia),
-				new IntegracioParametreDto(
-						"codiLocalitat",
-						codiLocalitat),
-				new IntegracioParametreDto(
-						"esUnitatArrel",
-						esUnitatArrel == null ? "null" : esUnitatArrel.toString())
-		};	
-		long t0 = System.currentTimeMillis();
-		try {
-			List<UnitatOrganitzativaDto> unitatsOrganitzatives = conversioTipusHelper.convertirList(
-					getUnitatsOrganitzativesPlugin().cercaUnitats(
-							codiUnitat, 
-							denominacioUnitat, 
-							toLongValue(codiNivellAdministracio), 
-							toLongValue(codiComunitat), 
-							false, 
-							esUnitatArrel, 
-							toLongValue(codiProvincia), 
-							codiLocalitat),
-					UnitatOrganitzativaDto.class);
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_UNITATS,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					parametres);
-			return unitatsOrganitzatives;
-		} catch (Exception ex) {
-			String errorDescripcio = "Error al accedir al realitzar la cerca de unitats organitzatives";
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_UNITATS,
-					"Consulta d'unitats organitzatives per filtre",
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					parametres);
-			logger.error(
-					errorDescripcio,
-					ex);
-			throw SistemaExternException.tractarSistemaExternException(
-					null,
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					null, 
-					MonitorIntegracioHelper.INTCODI_UNITATS,
-					"(UNITATS ORGANITZATIVES. Consulta d'unitats organitzatives per filtre: " + errorDescripcio + ")",
-					ex);			
-		}
-	}
-	
+
 	public List<UnitatOrganitzativaDto> findAmbPare(
 			String pareCodi, 
 			Date dataActualitzacio, 
@@ -5727,29 +5644,6 @@ public Object consultaSincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, Ex
 		}
 	}
 	
-	/**
-	 * Metode per cercar Unitats Organitzatives per codi d'unitat pare
-	 * @param arrel
-	 * 	<i> Codi d'unitat organitzativa pare </i>
-	 * @return
-	 */
-	public List<UnitatOrganitzativaDto> findUnitatsOrganitzatives(String arrel) {
-		if( arrel != null) {
-			try {
-				return getUnitatsOrganitzativesPlugin().findAmbPare(arrel, null, null);
-			} catch (net.conselldemallorca.helium.integracio.plugins.SistemaExternException ex) {
-				throw tractarExcepcioEnSistemaExtern(
-						"DIR3",
-						"Error cercant unitats organitzatives amb unitat arrel: ( " + arrel + " )",
-						ex);
-			}
-		} else {
-			throw tractarExcepcioEnSistemaExtern(
-					"DIR3",
-					"No s'ha especificat el codi de la unitat arrel", null);	
-		}
-	}
-	
 	public UnitatOrganitzativaDto findUnidad(
 			String pareCodi, 
 			Timestamp dataActualitzacio, 
@@ -5812,25 +5706,6 @@ public Object consultaSincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, Ex
 					"(UNITATS ORGANITZATIVES. Consulta d'unitats organitzatives amb pare: " + errorDescripcio + ")",
 					ex);			
 		}
-	}
-	
-	public UnitatOrganitzativaDto unitatOrganitzativaFindAmbCodi(String codi) {
-		if( codi != null) {
-			try {
-				return getUnitatsOrganitzativesPlugin().findAmbCodiUnitatOrganitzativaDto(codi);
-			} catch (net.conselldemallorca.helium.integracio.plugins.SistemaExternException e) {
-				throw tractarExcepcioEnSistemaExtern(
-						MonitorIntegracioHelper.INTCODI_UNITATS,
-						"Error cercant unitats orgàniques amb codi: ( " + codi + " )",
-						e);
-			}
-		} else {
-			throw tractarExcepcioEnSistemaExtern(
-					MonitorIntegracioHelper.INTCODI_UNITATS,
-					"No s'ha especificat el codi de la unitat", 
-					null);
-		}
-		
 	}
 
 	private ProcedimentPlugin getProcedimentPlugin() {
@@ -5940,11 +5815,5 @@ public Object consultaSincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, Ex
 		return unitatAdministrativa;
 	}
 	
-
-	private Long toLongValue(String text) {
-		if (text == null || text.isEmpty())
-			return null;
-		return Long.parseLong(text);
-	}
 	private static final Log logger = LogFactory.getLog(PluginHelper.class);
 }

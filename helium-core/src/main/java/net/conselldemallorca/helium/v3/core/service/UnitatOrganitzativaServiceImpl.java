@@ -194,26 +194,6 @@ public class UnitatOrganitzativaServiceImpl implements UnitatOrganitzativaServic
 	}
 	
 	@Override
-	@Transactional(readOnly = true)
-	public List<UnitatOrganitzativaDto> findByFiltre(
-			String codiDir3, 
-			String denominacio,
-			String nivellAdm, 
-			String comunitat, 
-			String provincia, 
-			String localitat, 
-			Boolean arrel) {
-		return pluginHelper.unitatsOrganitzativesFindByFiltre(
-				codiDir3, 
-				denominacio,
-				nivellAdm, 
-				comunitat, 
-				provincia, 
-				localitat, 
-				arrel);
-	}
-	
-	@Override
 	@Transactional
 	public void synchronize(Long entitatId) {
 		UnitatOrganitzativa unitatOrganitzativa = unitatOrganitzativaRepository.findOne(entitatId);

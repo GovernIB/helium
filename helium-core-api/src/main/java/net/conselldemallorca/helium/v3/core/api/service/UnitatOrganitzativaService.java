@@ -72,50 +72,6 @@ public interface UnitatOrganitzativaService {
 	public UnitatOrganitzativaDto findByCodi(
 			String codi);
 
-	/**
-	 * Consulta les unitats organitzatives segons el filtre.
-	 * 
-	 * @param codiDir3
-	 *            Codi DIR3 de la unitat organitzativa.
-	 * @param denominacio
-	 *            DenominaciÃ³ de la unitat organitzativa.
-	 * @param nivellAdministracio
-	 *            Nivel de l'administraciÃ³.
-	 * @param comunitatAutonoma
-	 *            Valor del parÃ metre comunitatAutonoma.
-	 * @param provincia
-	 *            Valor del parÃ metre provÃ­ncia.
-	 * @param municipi
-	 *            Valor del parÃ metre municipi.
-	 * @param arrel
-	 *            Indica si s'ha de consultar Ãºnicament les unitats arrel.
-	 *            Atribut codi de l'unitat.
-	 * @return La llista d'unitats organitzatives que compleixen el filtre.
-	 */
-	@PreAuthorize("hasRole('tothom')")
-	public List<UnitatOrganitzativaDto> findByFiltre(
-			String codiDir3, 
-			String denominacio, 
-			String nivellAdm,
-			String comunitat, 
-			String provincia, 
-			String localitat, 
-			Boolean arrel);
-
-
-
-
-//	/**
-//	 * @param entitatId
-//	 * @param filtre
-//	 * @param paginacioParams
-//	 * @return La pÃ gina d'unitats organitzatives que compleixen el filtre.
-//	 */
-//	@PreAuthorize("hasRole('tothom')")
-//	public PaginaDto<UnitatOrganitzativaDto> findAmbFiltre(Long entitatId, UnitatOrganitzativaFiltreDto filtre,
-//			PaginacioParamsDto paginacioParams);
-
-
 	public void synchronize(Long entitatId);
 
 	public ArbreDto<UnitatOrganitzativaDto> findTree(Long id);
