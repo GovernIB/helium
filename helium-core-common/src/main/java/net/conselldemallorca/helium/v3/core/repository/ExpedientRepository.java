@@ -463,5 +463,15 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"from Expedient e " +
 			"where e.id = :expedientId ")
 	String getExpedientProcessInstanceId(@Param("expedientId") Long expedientId);
+	
+	/** Compta els expedients amb un tipus d'expedient concret.
+	 * 
+	 * @param expedientTipusId
+	 * @return
+	 */
+	@Query("select count(e) " +
+			"from Expedient e " +
+			"where e.tipus.id = :expedientTipusId ")
+	public Long countExpedientByTipusExpedient(@Param("expedientTipusId") Long expedientTipusId);
 
 }

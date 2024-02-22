@@ -15,16 +15,16 @@
 $(document).ready(function() {
 	$('#actiu', '#expedientTipusMetadadesNtiCommand').change(function() {
 		if ($(this).is(':checked')) {
-			$('#input_unitatOrganitzativa').hide();
+			$('#inputs_metadadesNti').show();
 			$('#clasificacion').prop('readonly', false);
 			$('#serieDocumental').prop('readonly', false);
 			$('#arxiuActiu').prop('disabled', false);
 		} else {
-			$('#input_unitatOrganitzativa').show();
 			$('#clasificacion').prop('readonly', true);
 			$('#serieDocumental').prop('readonly', true);
 			$('arxiuActiu').prop('readonly', true);
 			$('#arxiuActiu').prop('disabled', true);
+			$('#inputs_metadadesNti').hide();
 		}
 		
 	});
@@ -102,7 +102,7 @@ function carregarInformacioOrgan() {
 		<form:form cssClass="form-horizontal" enctype="multipart/form-data" method="post" commandName="expedientTipusMetadadesNtiCommand">
 			<div style="height: 400px">        
 				<hel:inputCheckbox name="actiu" textKey="expedient.tipus.metadades.nti.actiu"/>
-				<div id="inputs_metadadesNti">
+				<div id="inputs_metadadesNti" style="display : ${not expedientTipusMetadadesNtiCommand.actiu ? 'none' : ''}">
 					<div id="input_clasificacio">
 						<hel:inputSuggest 
 							name="clasificacion" 
@@ -111,11 +111,11 @@ function carregarInformacioOrgan() {
 							placeholderKey="expedient.tipus.metadades.nti.clasificacion"
 							textKey="expedient.tipus.metadades.nti.clasificacion" 
 							required="true"
-							disabled="${not expedientTipusMetadadesNtiCommand.actiu}"
 							/>	
 					</div>	
-					<hel:inputCheckbox name="procedimentComu" textKey="expedient.tipus.metadades.nti.procediment.comu"/>
-					
+					<hel:inputCheckbox name="procedimentComu" textKey="expedient.tipus.metadades.nti.procediment.comu" 
+						info="expedient.tipus.metadades.nti.procediment.comu.info"
+						inline="false"/>		
 					
 					<div id="input_unitatOrganitzativa" style="display:${!expedientTipus.procedimentComu ? 'inline' : 'none'}">
 					
@@ -129,6 +129,7 @@ function carregarInformacioOrgan() {
 							urlConsultaLlistat="/helium/v3/unitatOrganitzativa/suggest" 
 							textKey="expedient.tipus.metadades.nti.organo" 
 							placeholderKey="expedient.tipus.metadades.nti.organo.placeholder" 
+							required="true"
 							optionTemplateFunction="formatSelectUnitat" 
 						/>
 					</div>	
