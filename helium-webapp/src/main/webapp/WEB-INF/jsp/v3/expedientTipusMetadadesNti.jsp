@@ -15,6 +15,7 @@
 $(document).ready(function() {
 	$('#actiu', '#expedientTipusMetadadesNtiCommand').change(function() {
 		if ($(this).is(':checked')) {
+			$('#inputs_metadadesNti').show();
 			$('#input_unitatOrganitzativa').hide();
 			$('#clasificacion').prop('readonly', false);
 			$('#serieDocumental').prop('readonly', false);
@@ -25,6 +26,7 @@ $(document).ready(function() {
 			$('#serieDocumental').prop('readonly', true);
 			$('arxiuActiu').prop('readonly', true);
 			$('#arxiuActiu').prop('disabled', true);
+			$('#inputs_metadadesNti').hide();
 		}
 		
 	});
@@ -114,8 +116,9 @@ function carregarInformacioOrgan() {
 							disabled="${not expedientTipusMetadadesNtiCommand.actiu}"
 							/>	
 					</div>	
-					<hel:inputCheckbox name="procedimentComu" textKey="expedient.tipus.metadades.nti.procediment.comu"/>
-					
+					<hel:inputCheckbox name="procedimentComu" textKey="expedient.tipus.metadades.nti.procediment.comu" 
+						info="expedient.tipus.metadades.nti.procediment.comu.info"
+						inline="false"/>		
 					
 					<div id="input_unitatOrganitzativa" style="display:${!expedientTipus.procedimentComu ? 'inline' : 'none'}">
 					
@@ -129,6 +132,7 @@ function carregarInformacioOrgan() {
 							urlConsultaLlistat="/helium/v3/unitatOrganitzativa/suggest" 
 							textKey="expedient.tipus.metadades.nti.organo" 
 							placeholderKey="expedient.tipus.metadades.nti.organo.placeholder" 
+							required="true"
 							optionTemplateFunction="formatSelectUnitat" 
 						/>
 					</div>	

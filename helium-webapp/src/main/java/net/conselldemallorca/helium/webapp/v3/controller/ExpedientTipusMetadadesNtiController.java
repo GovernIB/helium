@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
@@ -37,6 +39,9 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 @RequestMapping("/v3/expedientTipus")
 public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusController {
 
+	@Autowired
+	private ExpedientHelper expedientHelper;
+	
 	@RequestMapping(value = "/{expedientTipusId}/metadadesNti")
 	public String nti(
 			HttpServletRequest request,
@@ -98,22 +103,36 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 			BindingResult bindingResult) throws PermisDenegatException, IOException {
 		AjaxFormResponse response = AjaxHelper.generarAjaxFormOk();
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		if (entornActual != null) {
-			if (command.isActiu() && !command.isProcedimentComu() && (command.getOrgano() == null || "".equals(command.getOrgano().trim()))) {
+		if (entornActual != null && command.isActiu()) {
+			String missatgeError = null;
+			if (!command.isProcedimentComu() && (command.getOrgano() == null || "".equals(command.getOrgano().trim()))) {
 				bindingResult.rejectValue("organo", "NotEmpty");
 			}
-			if (command.isActiu() && (command.getClasificacion() == null || "".equals(command.getClasificacion().trim()))) {
+			if (!command.isProcedimentComu() && command.getOrgano() != null) {
+				Long expedientsExistents = expedientHelper.countByEntornIdAndTipus(expedientTipusId);
+				if(expedientsExistents>0) {
+					bindingResult.rejectValue("procedimentComu", "error.exist.exp.tipexp.no.procediment.comu");
+					missatgeError = "error.exist.exp.tipexp.no.procediment.comu";
+				}
+			}
+			if (command.getClasificacion() == null || "".equals(command.getClasificacion().trim())) {
 				bindingResult.rejectValue("clasificacion", "NotEmpty");
 			}
 			if(command.isProcedimentComu()) {
-				command.setOrgano(null);
+				Long expedientsExistents = expedientHelper.countByEntornIdAndTipus(expedientTipusId);
+				if(expedientsExistents>0) {;
+					bindingResult.rejectValue("procedimentComu", "error.exist.exp.tipexp.no.procediment.comu");
+					missatgeError = "error.exist.exp.tipexp.no.procediment.comu";
+				} else {
+					command.setOrgano(null);
+				}
 			}
 			if (bindingResult.hasErrors()) {
 		        MissatgesHelper.error(
 						request, 
 						getMessage(
 								request, 
-								"expedient.tipus.metadades.nti.validacio"));
+								missatgeError!=null ? missatgeError : "expedient.tipus.metadades.nti.validacio"));
 				response = AjaxHelper.generarAjaxFormErrors(command, bindingResult);
 			} else {
 				expedientTipusService.updateMetadadesNti(

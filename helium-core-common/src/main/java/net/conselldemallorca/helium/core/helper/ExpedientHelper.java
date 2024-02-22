@@ -2076,5 +2076,14 @@ public class ExpedientHelper {
 		return handlerClass;
 	}
 
+	/** Compta els expedients que existeixen per un expedientTipusId
+	 * Id
+	 * @param expedientTipusId
+	 * @return
+	 */
+	public Long countByEntornIdAndTipus(Long expedientTipusId) {
+		return expedientRepository.countExpedientByTipusExpedient(expedientTipusId);
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientHelper.class);
 }
