@@ -16,6 +16,10 @@ $(document).ready(function() {
 	$('#actiu', '#expedientTipusMetadadesNtiCommand').change(function() {
 		if ($(this).is(':checked')) {
 			$('#inputs_metadadesNti').show();
+<<<<<<< HEAD
+=======
+			$('#input_unitatOrganitzativa').hide();
+>>>>>>> branch 'helium-dev' of https://github.com/GovernIB/helium.git
 			$('#clasificacion').prop('readonly', false);
 			$('#serieDocumental').prop('readonly', false);
 			$('#arxiuActiu').prop('disabled', false);
