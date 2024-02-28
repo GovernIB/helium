@@ -42,5 +42,36 @@ SELECT
 FROM DUAL
 WHERE (SELECT COUNT(*) FROM HEL_VERSIO WHERE ORDRE = 300) = 0;
 
+	
+-- Insert a la taula de HEL_ACL_ENTRY
+INSERT INTO HEL_ACL_CLASS (ID, CLASS) 
+VALUES (HEL_ACL_CLASS_SEQ.NEXTVAL, 'net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa');  
 
+INSERT INTO HEL_PARAMETRE (ID, CODI, NOM, DESCRIPCIO, VALOR)
+      VALUES (1, 
+      		 'app.configuracio.propagar.esborrar.expedients',
+      		 'Propagar esborrat d''expedients', 
+      		 'Si s''habilita es permetrà la propagació de l''esborrat d''expedients quan s''esborri un tipus d''expedient',
+      		 '0');
+INSERT INTO HEL_PARAMETRE (ID, CODI, NOM, DESCRIPCIO, VALOR)
+      VALUES (2, 
+      		 'app.net.caib.helium.unitats.organitzatives.arrel.codi',
+      		 'Codi de l''unitat arrel', 
+      		 NULL,
+      		 'A04003003');
+INSERT INTO HEL_PARAMETRE (ID, CODI, NOM, DESCRIPCIO, VALOR)
+      VALUES (3, 
+      		 'app.net.caib.helium.unitats.organitzatives.data.sincronitzacio',
+      		 'Data sincronització Unitats Organitzatives', 
+      		 'Data de la primera sincronització d''unitats organitzatives. Indica la data inicial de sincronització.',
+      		 NULL);
+      		 
+INSERT INTO HEL_PARAMETRE (ID, CODI, NOM, DESCRIPCIO, VALOR)
+      VALUES (4, 
+      		 'app.net.caib.helium.unitats.organitzatives.data.actualitzacio',
+      		 'Data actualització Unitats Organitzatives', 
+      		 'Data de la darrera actualització d''unitats organitzatives. Indica la darrera data d''actualització a partir de la qual es demanen els canvis.'
+      		 NULL);
+      		 
+      		 
 commit;
