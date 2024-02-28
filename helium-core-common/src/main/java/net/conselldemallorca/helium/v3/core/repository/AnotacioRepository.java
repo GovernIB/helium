@@ -65,7 +65,11 @@ public interface AnotacioRepository extends JpaRepository<Anotacio, Long> {
 			"and (:esNullEstat = true or a.estat = :estat) " + 
 			"and (:esNullExpedientTipusId = true or a.expedientTipus.id = :expedientTipusId) " + 
 			"and (:esNullExpedientId = true or a.expedient.id = :expedientId) " + 
-			"and (:esNullExpedientTipusIds = true or a.expedientTipus.id in (:expedientTipusIds)) " + 
+			"and ((:esNullExpedientTipusIds = true or a.expedientTipus.id in (:expedientTipusIds)) " + 
+			"		or "
+			+ " 		((:esNullExpedientTipusIdsPermesosProcedimetComu = true or a.expedientTipus.id in (:expedientTipusIdsPermesosProcedimetComu)) "
+			+ "				and (:esNullUnitatsOrganitvesCodis = true or a.destiCodi in (:unitatsOrganitvesCodis))) "
+			+ "  ) " + 
 			"and (:esNullFiltre = true or (lower(a.identificador) like lower('%'||:filtre||'%')) or lower(a.extracte) like lower('%'||:filtre||'%')) ")
 	Page<Anotacio> findAmbFiltrePaginat(
 			@Param("esNullCodiProcediment") boolean esNullCodiProcediment,
@@ -91,7 +95,11 @@ public interface AnotacioRepository extends JpaRepository<Anotacio, Long> {
 			@Param("esNullExpedientId") boolean esNullExpedientId,
 			@Param("expedientId") Long expedientId, 
 			@Param("esNullExpedientTipusIds") boolean esNullExpedientTipusIds,
-			@Param("expedientTipusIds") List<Long> expedientTipusIds, 
+			@Param("expedientTipusIds") List<Long> expedientTipusIds,
+			@Param("esNullExpedientTipusIdsPermesosProcedimetComu") boolean esNullExpedientTipusIdsPermesosProcedimetComu,
+			@Param("expedientTipusIdsPermesosProcedimetComu") List<Long> expedientTipusIdsPermesosProcedimetComu,
+			@Param("esNullUnitatsOrganitvesCodis") boolean esNullUnitatsOrganitvesCodis,
+			@Param("unitatsOrganitvesCodis") List<String> unitatsOrganitvesCodis, 
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre, 
 			Pageable pageable);

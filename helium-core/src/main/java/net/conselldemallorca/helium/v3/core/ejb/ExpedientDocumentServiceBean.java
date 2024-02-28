@@ -34,6 +34,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -432,9 +433,10 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			Long processInstanceId, 
 			String transicioOK, 
 			String transicioKO, 
-			PortafirmesSimpleTipusEnumDto fluxTipus,
+			PortafirmesSimpleTipusEnumDto portafirmesTipus,
 			String[] responsables, 
-			String portafirmesFluxId) throws SistemaExternException {
+			String portafirmesFluxId,
+			PortafirmesTipusEnumDto fluxTipus) throws SistemaExternException {
 		delegate.enviarPortasignatures(
 				document, 
 				annexos, 
@@ -445,9 +447,10 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 				processInstanceId, 
 				transicioOK, 
 				transicioKO,
-				fluxTipus,
+				portafirmesTipus,
 				responsables,
-				portafirmesFluxId);
+				portafirmesFluxId,
+				fluxTipus);
 		
 	}
 

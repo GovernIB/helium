@@ -65,6 +65,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientL
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.LogInfo;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
 import net.conselldemallorca.helium.core.model.hibernate.Interessat;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
@@ -90,6 +91,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -103,6 +105,7 @@ import net.conselldemallorca.helium.v3.core.repository.EstatAccioSortidaReposito
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusUnitatOrganitzativaRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaRepository;
@@ -137,6 +140,8 @@ public class ExpedientHelper {
 	private EstatAccioSortidaRepository estatAccioSortidaRepository;
 	@Resource
 	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
+	@Resource
+	private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
 
 	@Resource
 	private EntornHelper entornHelper;
@@ -166,6 +171,8 @@ public class ExpedientHelper {
 	private DefinicioProcesHelper definicioProcesHelper;
 	@Resource
 	private HerenciaHelper herenciaHelper;
+	@Resource
+	private ExpedientTipusHelper expedientTipusHelper;
 
 	
 	public static String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";
@@ -343,15 +350,31 @@ public class ExpedientHelper {
 					permisos);
 		}
 		ExpedientTipus expedientTipus = expedient.getTipus();
+		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(expedientTipus.getId());
+		boolean tePermisUO = false;
+		List<PermisDto> permisosAmbUOList  = new ArrayList<PermisDto>();
+		if(expTipUnitOrgList!=null) {
+			for(ExpedientTipusUnitatOrganitzativa etuo: expTipUnitOrgList) {
+				permisosAmbUOList.addAll(permisosHelper.findPermisos(
+						etuo.getId(),
+						ExpedientTipusUnitatOrganitzativa.class));
+			}
+		}
+		
 		if (comprovarPermisRead) {
 			permisos = new Permission[] {
 					ExtendedPermission.READ,
-					ExtendedPermission.ADMINISTRATION};
+					ExtendedPermission.ADMINISTRATION};		
+			tePermisUO = tePermisUO(
+					permisos,
+					expTipUnitOrgList,
+					auth);			
 			if (!permisosHelper.isGrantedAny(
 					expedientTipus.getId(),
 					ExpedientTipus.class,
 					permisos,
-					auth)) {
+					auth) &&
+					!tePermisUO) {
 				throw new PermisDenegatException(
 						id,
 						Expedient.class,
@@ -362,11 +385,16 @@ public class ExpedientHelper {
 			permisos = new Permission[] {
 					ExtendedPermission.WRITE,
 					ExtendedPermission.ADMINISTRATION};
+			tePermisUO = tePermisUO(
+					permisos,
+					expTipUnitOrgList,
+					auth);		
 			if (!permisosHelper.isGrantedAny(
 					expedientTipus.getId(),
 					ExpedientTipus.class,
 					permisos,
-					auth)) {
+					auth) &&
+					!tePermisUO) {
 				throw new PermisDenegatException(
 						id,
 						Expedient.class,
@@ -377,11 +405,16 @@ public class ExpedientHelper {
 			permisos = new Permission[] {
 					ExtendedPermission.DELETE,
 					ExtendedPermission.ADMINISTRATION};
+			tePermisUO = tePermisUO(
+					permisos,
+					expTipUnitOrgList,
+					auth);		
 			if (!permisosHelper.isGrantedAny(
 					expedientTipus.getId(),
 					ExpedientTipus.class,
 					permisos,
-					auth)) {
+					auth) &&
+					!tePermisUO) {
 				throw new PermisDenegatException(
 						id,
 						Expedient.class,
@@ -392,11 +425,16 @@ public class ExpedientHelper {
 			permisos = new Permission[] {
 					ExtendedPermission.SUPERVISION,
 					ExtendedPermission.ADMINISTRATION};
+			tePermisUO = tePermisUO(
+					permisos,
+					expTipUnitOrgList,
+					auth);		
 			if (!permisosHelper.isGrantedAny(
 					expedientTipus.getId(),
 					ExpedientTipus.class,
 					permisos,
-					auth)) {
+					auth) &&
+					!tePermisUO) {
 				throw new PermisDenegatException(
 						id,
 						Expedient.class,
@@ -407,11 +445,16 @@ public class ExpedientHelper {
 			permisos = new Permission[] {
 					ExtendedPermission.REASSIGNMENT,
 					ExtendedPermission.ADMINISTRATION};
+			tePermisUO = tePermisUO(
+					permisos,
+					expTipUnitOrgList,
+					auth);		
 			if (!permisosHelper.isGrantedAny(
 					expedientTipus.getId(),
 					ExpedientTipus.class,
 					permisos,
-					auth)) {
+					auth) &&
+					!tePermisUO) {
 				throw new PermisDenegatException(
 						id,
 						Expedient.class,
@@ -421,6 +464,7 @@ public class ExpedientHelper {
 		if (comprovarPermisAdministration) {
 			permisos = new Permission[] {
 					ExtendedPermission.ADMINISTRATION};
+			//En el cas d'administració no té sentit mirar si té permisos per la UO ja que no és possible
 			if (!permisosHelper.isGrantedAny(
 					expedientTipus.getId(),
 					ExpedientTipus.class,
@@ -437,11 +481,16 @@ public class ExpedientHelper {
 					ExtendedPermission.WRITE,
 					ExtendedPermission.REASSIGNMENT,
 					ExtendedPermission.ADMINISTRATION};
+			tePermisUO = tePermisUO(
+					permisos,
+					expTipUnitOrgList,
+					auth);		
 			if (!permisosHelper.isGrantedAny(
 					expedientTipus.getId(),
 					ExpedientTipus.class,
 					permisos,
-					auth)) {
+					auth)&&
+					!tePermisUO) {
 				throw new PermisDenegatException(
 						id,
 						Expedient.class,
@@ -462,7 +511,22 @@ public class ExpedientHelper {
 				permisos,
 				auth);
 	}
-
+	
+	public boolean tePermisUO (Permission[] permisos, List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList, Authentication auth) {	
+		boolean tePermis = false;
+		for(ExpedientTipusUnitatOrganitzativa etuo: expTipUnitOrgList) {
+			if(permisosHelper.isGrantedAny(
+					etuo.getId(),
+					ExpedientTipusUnitatOrganitzativa.class,
+					permisos,
+					auth)) {
+				tePermis=true;
+				break;
+			}
+		}
+		return tePermis;
+	}
+	
 	public void update(
 			Expedient expedient,
 			String numero,

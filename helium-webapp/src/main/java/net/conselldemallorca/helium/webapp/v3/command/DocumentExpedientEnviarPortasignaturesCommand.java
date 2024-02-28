@@ -14,14 +14,15 @@ import org.hibernate.validator.constraints.NotEmpty;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesPrioritatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesTipusEnumDto;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDocumentCommand.Creacio;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDocumentCommand.Modificacio;
+import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientEnviarPortasignaturesCommand.EnviarPortasignatures;
+import net.conselldemallorca.helium.webapp.v3.validator.DocumentEnviarPortasignatures;
 
 /**
  * Command pel formulari d'enviament al portasignatures dels documents.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
+@DocumentEnviarPortasignatures(groups = {EnviarPortasignatures.class})
 public class DocumentExpedientEnviarPortasignaturesCommand {
 
 	
@@ -29,15 +30,15 @@ public class DocumentExpedientEnviarPortasignaturesCommand {
 	@NotEmpty(groups = {EnviarPortasignatures.class}) 
 	@Size(max=256, groups = {EnviarPortasignatures.class})
 	private String motiu;
-	@Size(max = 64, groups = { Creacio.class, Modificacio.class })
+	@Size(max = 64, groups = {EnviarPortasignatures.class})
 	private String portafirmesEnviarFluxId;
-	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
+	@Size(max = 255, groups = {EnviarPortasignatures.class})
 	private String nom;
 	private List<Long> annexos = new ArrayList<Long>();
 	private boolean portafirmesActiu = false;
-	@NotNull(groups = {Creacio.class, Modificacio.class})
+	@NotNull(groups = {EnviarPortasignatures.class})
 	private PortafirmesTipusEnumDto portafirmesFluxTipus;
-	@NotNull(groups = {Creacio.class, Modificacio.class})
+	@NotNull(groups = {EnviarPortasignatures.class})
 	private PortafirmesPrioritatEnumDto portafirmesPrioritatTipus;
 
 	private PortafirmesSimpleTipusEnumDto portafirmesSequenciaTipus;

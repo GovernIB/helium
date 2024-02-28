@@ -38,6 +38,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
@@ -101,13 +102,14 @@ import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Create;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Update;
-import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientEnviarPortasignaturesCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientEnviarPortasignaturesCommand.EnviarPortasignatures;
+import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientEnviarPortasignaturesCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientFirmaPassarelaCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientFirmaPassarelaCommand.FirmaPassarela;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientNotificarZipCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientNotificarZipCommand.NotificarZip;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentNotificacioCommand;
+import net.conselldemallorca.helium.webapp.v3.helper.AjaxHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
@@ -2057,6 +2059,21 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			BindingResult bindingResult,
 			Model model) {
 		
+		if (bindingResult.hasErrors()) {
+//			return "v3/expedientDocumentEnviarPortasignaturesForm";
+			for(ObjectError e: bindingResult.getAllErrors()) {
+       		 MissatgesHelper.error(
+						request, 
+						e.getDefaultMessage());
+			}
+	        MissatgesHelper.error(
+					request, 
+					getMessage(
+							request, 
+							"error.enviar.portasignatures.validacio"));
+       	return "redirect:" + request.getHeader("referer");
+		}
+		
 		if (!bindingResult.hasErrors()) {
 			try {
 				this.portasigEnviar(command, documentStoreId, expedientId,  processInstanceId);
@@ -2130,7 +2147,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				null, //transicioKO,
 				command.getPortafirmesSequenciaTipus(),
 				command.getPortafirmesResponsables(),
-				portafirmesFluxId);
+				portafirmesFluxId,
+				command.getPortafirmesFluxTipus());
 	}
 	
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/portasignaturesCancelarEnviament/{documentId}")

@@ -360,66 +360,81 @@ public class ExpedientTipusHelper {
 			Long expedientTipusId){
 		//aquí obtinc la llista de les UO's per les quals l'usuari té permís (comptant les uo filles de l'arbre)
 		List<Long> idsUnitatsOrganitzativesAmbPermisos = new ArrayList<Long>();
-		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgListAmbPermisos = new ArrayList<ExpedientTipusUnitatOrganitzativa>();
 		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = new ArrayList<ExpedientTipusUnitatOrganitzativa>();
 		if(expedientTipusId != null)
 			expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(expedientTipusId);
 		else
 			expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findAll();
-		
-		List<PermisDto> permisosList = new ArrayList<PermisDto>();
-		boolean tePermisEnTotes = false;
-		Authentication authOriginal = SecurityContextHolder.getContext().getAuthentication();
 		if(expTipUnitOrgList!=null && !expTipUnitOrgList.isEmpty()) {
 			//Mirem les unitats filles
-			List<UnitatOrganitzativa> unitatsOrgFilles = new ArrayList<UnitatOrganitzativa>();
-			for(ExpedientTipusUnitatOrganitzativa expTipUnitOrg: expTipUnitOrgList) {
-				Parametre parametreArrel = parametreRepository.findByCodi(ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
-				if(parametreArrel==null)
-					throw new NoTrobatException(Parametre.class,ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
-				String arrel = parametreArrel.getValor();
-				if(arrel!=null && arrel.equals(expTipUnitOrg.getUnitatOrganitzativa().getCodi()) && !tePermisEnTotes){ //En cas que sigui l'arrel tindrà permís sobre totes les UO
-					permisosList = permisosHelper.findPermisos(
-							expTipUnitOrg.getId(),
-							ExpedientTipusUnitatOrganitzativa.class);
-					for(PermisDto permis: permisosList) {
-						if(tePermisReadOrAdmin(permis,authOriginal)) {
-							idsUnitatsOrganitzativesAmbPermisos = unitatOrganitzativaRepository.findAllUnitatOrganitzativaIds();
-							//tenir en compte Estat = V vigent???
-							tePermisEnTotes = true;
-							break;
-						}		
-					}	
-				}
-			}
-			if(!tePermisEnTotes) {
-				//Mirem si hi ha permisos sobre expTipusUO pare i afegir les UO filles d'aquesta
-				expTipUnitOrgListAmbPermisos.addAll(expTipUnitOrgList);
-				for(ExpedientTipusUnitatOrganitzativa etuo: expTipUnitOrgListAmbPermisos) {
-					permisosList = permisosHelper.findPermisos(
-							etuo.getId(),
-							ExpedientTipusUnitatOrganitzativa.class);
-					if(!idsUnitatsOrganitzativesAmbPermisos.contains(etuo.getUnitatOrganitzativa().getId())) {
-						for(PermisDto permis: permisosList) {
-							if(tePermisReadOrAdmin(permis, authOriginal)) {
-								idsUnitatsOrganitzativesAmbPermisos.add(etuo.getUnitatOrganitzativa().getId());
-								//Afegir les UO filles d'aquesta que té permís
-								unitatsOrgFilles = unitatOrganitzativaHelper.unitatsOrganitzativesFindLlistaTotesFilles
-									(null, etuo.getUnitatOrganitzativa().getCodi(), null);
-								for(UnitatOrganitzativa uoFilla: unitatsOrgFilles) {
-									if(!idsUnitatsOrganitzativesAmbPermisos.contains(uoFilla.getId()))
-										idsUnitatsOrganitzativesAmbPermisos.add(uoFilla.getId());
-								}
-							}
-						}		
-					}
-				}
-			}
+			idsUnitatsOrganitzativesAmbPermisos = idsUOPermesesOrExpedientTipusComunsPermesos(expTipUnitOrgList, true); //li passem true pq volem la llista de idsUnitatsOrganitzativesAmbPermisos
 		}
 		return idsUnitatsOrganitzativesAmbPermisos;
 	}
 	
-	private boolean tePermisReadOrAdmin(PermisDto permis, Authentication authOriginal) {
+	/**El boolea uo determinarà si retornem la llista de ids de UO's permeses o de ids d'expedientTipus permesos**/
+	public List<Long> idsUOPermesesOrExpedientTipusComunsPermesos (List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList, boolean uo){
+		List<Long> idsUnitatsOrganitzativesAmbPermisos = new ArrayList<Long>();
+		List<Long> idsExpedientTipusComunsPermesos = new ArrayList<Long>();
+		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgListAmbPermisos = new ArrayList<ExpedientTipusUnitatOrganitzativa>();
+		List<PermisDto> permisosList = new ArrayList<PermisDto>();
+		List<UnitatOrganitzativa> unitatsOrgFilles = new ArrayList<UnitatOrganitzativa>();
+		boolean tePermisEnTotes = false;
+		Authentication authOriginal = SecurityContextHolder.getContext().getAuthentication();
+		for(ExpedientTipusUnitatOrganitzativa expTipUnitOrg: expTipUnitOrgList) {
+			Parametre parametreArrel = parametreRepository.findByCodi(ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
+			if(parametreArrel==null)
+				throw new NoTrobatException(Parametre.class,ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
+			String arrel = parametreArrel.getValor();
+			if(arrel!=null && arrel.equals(expTipUnitOrg.getUnitatOrganitzativa().getCodi()) && !tePermisEnTotes){ //En cas que sigui l'arrel tindrà permís sobre totes les UO
+				permisosList = permisosHelper.findPermisos(
+						expTipUnitOrg.getId(),
+						ExpedientTipusUnitatOrganitzativa.class);
+				for(PermisDto permis: permisosList) {
+					if(tePermisReadOrAdmin(permis,authOriginal)) {
+						idsUnitatsOrganitzativesAmbPermisos = unitatOrganitzativaRepository.findAllUnitatOrganitzativaIds();
+						//tenir en compte Estat = V vigent???
+						tePermisEnTotes = true;
+						break;
+					}		
+				}	
+			}
+		}
+		if(!tePermisEnTotes) {
+			//Mirem si hi ha permisos sobre expTipusUO pare i afegir les UO filles d'aquesta
+			expTipUnitOrgListAmbPermisos.addAll(expTipUnitOrgList);
+			for(ExpedientTipusUnitatOrganitzativa etuo: expTipUnitOrgListAmbPermisos) {
+				permisosList = permisosHelper.findPermisos(
+						etuo.getId(),
+						ExpedientTipusUnitatOrganitzativa.class);
+				if(!permisosList.isEmpty() && !idsUnitatsOrganitzativesAmbPermisos.contains(etuo.getUnitatOrganitzativa().getId())) {
+					for(PermisDto permis: permisosList) {
+						if(tePermisReadOrAdmin(permis, authOriginal)) {
+							idsUnitatsOrganitzativesAmbPermisos.add(etuo.getUnitatOrganitzativa().getId());
+							if(etuo.getExpedientTipus().isProcedimentComu() && !idsExpedientTipusComunsPermesos.contains(etuo.getExpedientTipus().getId())) {
+								idsExpedientTipusComunsPermesos.add(etuo.getExpedientTipus().getId());
+							}
+							//Afegir les UO filles d'aquesta que té permís
+							unitatsOrgFilles = unitatOrganitzativaHelper.unitatsOrganitzativesFindLlistaTotesFilles
+								(null, etuo.getUnitatOrganitzativa().getCodi(), null);
+							for(UnitatOrganitzativa uoFilla: unitatsOrgFilles) {
+								if(!idsUnitatsOrganitzativesAmbPermisos.contains(uoFilla.getId())) {
+									idsUnitatsOrganitzativesAmbPermisos.add(uoFilla.getId());
+								}
+							}
+						}
+					}		
+				}
+			}
+		}
+		if (uo) {
+			return idsUnitatsOrganitzativesAmbPermisos;
+		} else {
+			return idsExpedientTipusComunsPermesos;
+		}
+	}
+	
+	public boolean tePermisReadOrAdmin(PermisDto permis, Authentication authOriginal) {
 		if (permis.getPrincipalNom()!=null 
 				&& authOriginal!=null 
 				&& authOriginal.getName()!=null 

@@ -263,7 +263,7 @@ public class ProcedimentController extends BaseController{
 		} else {
 			Map<String, String> procedimentJson = new HashMap<String, String>();
 			procedimentJson.put("codi", textDecoded);
-			procedimentJson.put("nom", textDecoded + "(No trobat)");
+			procedimentJson.put("nom", textDecoded + " (No trobat)");
 			return procedimentJson;
 		}
 	}

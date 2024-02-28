@@ -61,13 +61,13 @@ public class ExpedientTipusDocumentValidator implements ConstraintValidator<Expe
 		// simple: el tipus paral·lel o sèrie i els responsables han d'estar informats. la llargada dels responsables no pot ser major a 1024 comptant el separador
 		// flux: el flux id ha d'estar informat
 		if(document.getPortafirmesFluxTipus() != null) {
-			if(document.getPortafirmesFluxTipus().equals(PortafirmesTipusEnumDto.FLUX) && document.getPortafirmesFluxId()==null) {
-				context.buildConstraintViolationWithTemplate(
-						MessageHelper.getInstance().getMessage("expedient.tipus.document.form.camp.portafirmes.flux.id.buit"))
-						.addNode("portafirmesFluxId")
-						.addConstraintViolation();	
-				valid = false;
-			}
+//			if(document.getPortafirmesFluxTipus().equals(PortafirmesTipusEnumDto.FLUX) && document.getPortafirmesFluxId()==null) {
+//				context.buildConstraintViolationWithTemplate(
+//						MessageHelper.getInstance().getMessage("expedient.tipus.document.form.camp.portafirmes.flux.id.buit"))
+//						.addNode("portafirmesFluxId")
+//						.addConstraintViolation();	
+//				valid = false;
+//			}
 			if((document.getPortafirmesFluxTipus().equals(PortafirmesTipusEnumDto.SIMPLE))&&
 					(document.getPortafirmesResponsables()==null || document.getPortafirmesResponsables().length()==0 || document.getPortafirmesResponsables().length()>1024))
 			{
