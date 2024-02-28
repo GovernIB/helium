@@ -73,7 +73,8 @@ public class PortasignaturesPluginCaib implements PortasignaturesPlugin {
 			String remitent,
 			String importancia,
 			Date dataLimit,
-			String fluxId) throws PortasignaturesPluginException {
+			String fluxId,
+			String fluxTipus) throws PortasignaturesPluginException {
 		CwsProxy factory = new CwsProxy();
 		factory.setEndpoint((String)GlobalProperties.getInstance().getProperty("app.portasignatures.plugin.url"));
 		CWSSoapBindingStub stub = (CWSSoapBindingStub)factory.getCws();

@@ -157,13 +157,14 @@ div.dropdown-menu.loading .rmodal_carrecs {
 				<hel:inputSelect name="portafirmesPrioritatTipus" textKey="expedient.document.enviar.portasignatures.camp.prioritat" 
 							optionItems="${portafirmesPrioritatEnumOptions}" optionValueAttribute="value" optionTextKeyAttribute="text" 
 							disabled="${bloquejarCamps}"/>
-				<hel:inputSelect required="true" name="annexos" multiple="true" textKey="expedient.document.enviar.portasignatures.camp.annexos" placeholderKey="expedient.document.enviar.portasignatures.camp.annexos.placeholder" optionItems="${annexos}" optionValueAttribute="id" optionTextAttribute="documentNom" labelSize="4"/>
+				<hel:inputSelect name="annexos" multiple="true" textKey="expedient.document.enviar.portasignatures.camp.annexos" placeholderKey="expedient.document.enviar.portasignatures.camp.annexos.placeholder" optionItems="${annexos}" optionValueAttribute="id" optionTextAttribute="documentNom" labelSize="4"/>
 				<c:if test="${documentExpedientEnviarPortasignaturesCommand.portafirmesActiu}">
+				<input type="hidden" name="portafirmesFluxTipus" value="${documentExpedientEnviarPortasignaturesCommand.portafirmesFluxTipus}"/> 
 					<c:if test="${documentExpedientEnviarPortasignaturesCommand.portafirmesFluxTipus eq 'FLUX'}">
 						<label class="control-label success-label hidden col-xs-4"></label>
 						<hel:inputSelect name="portafirmesEnviarFluxId" textKey="expedient.tipus.document.form.camp.id.flux.firma" emptyOption="true" botons="true"  
 							icon="fa fa-external-link" iconAddicional="fa fa-eye" buttonMsg="${buttonTitle}"
-							placeholderKey="expedient.tipus.document.form.camp.id.flux.firma.buit" />
+							placeholderKey="expedient.tipus.document.form.camp.id.flux.firma.buit" required="true"/>
 
 						<!-- Camp hidden on s'informarà des de portafirmesModalTancar en el cas de crear-se un flux temporal per part de l'usuari. -->
 						<hel:inputHidden name="portafirmesNouFluxId"/>

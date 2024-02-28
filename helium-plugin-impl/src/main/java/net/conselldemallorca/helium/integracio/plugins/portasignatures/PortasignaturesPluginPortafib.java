@@ -62,7 +62,8 @@ public class PortasignaturesPluginPortafib implements PortasignaturesPlugin {
 			String remitent,
 			String importancia,
 			Date dataLimit,
-			String fluxId) throws PortasignaturesPluginException {
+			String fluxId,
+			String fluxTipus) throws PortasignaturesPluginException {
 		try {
 			PeticioDeFirmaWs requestPeticioDeFirmaWs = new PeticioDeFirmaWs();
 			requestPeticioDeFirmaWs.setTitol(

@@ -631,6 +631,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			estatAccioSortidaRepository.delete(estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estat));		
 		}
 		
+		//En el cas que sigui procediment Comú o hi hagi relacions de permisos amb uos i expedienttipusId esborra aquestes relacions
+		List<ExpedientTipusUnitatOrganitzativa> expTipUoList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(expedientTipusId);
+		if(entity.isProcedimentComu() || expTipUoList!=null && !expTipUoList.isEmpty()) {
+			expedientTipusUnitatOrganitzativaRepository.delete(expTipUoList); 
+		}
+		
 		expedientTipusRepository.delete(entity);
 	}
 
@@ -2339,6 +2345,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
     					expTipusUnitOrg.getId(),
     					ExpedientTipusUnitatOrganitzativa.class,
     					permisId);
+    			expedientTipusUnitatOrganitzativaRepository.delete(expTipusUnitOrg);
 
     		} else {	
     			permisosHelper.deletePermis(
@@ -2356,42 +2363,36 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean tePermis(Long expedientId, String unitatOrganitzativaCodi) {
+	public boolean tePermis(Long expedientTipusId, String unitatOrganitzativaCodi) {
 		ExpedientTipusUnitatOrganitzativa expTipusUnitOrg = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaCodi(
-				expedientId, 
+				expedientTipusId, 
 				unitatOrganitzativaCodi);
 		List<ExpedientTipusUnitatOrganitzativa> expTipusUnitOrgUnitatsSuperiors = new ArrayList<ExpedientTipusUnitatOrganitzativa>();
 		List<PermisDto> permisos = new ArrayList<PermisDto>();
-		if(expTipusUnitOrg==null) {
-			//mirem les unitats superiors fins a l'arrel i si l'user té permís sobre aquestes
-			UnitatOrganitzativa uo = unitatOrganitzativaRepository.findByCodi(unitatOrganitzativaCodi);
-			String arrel = uo.getCodiUnitatArrel();
-			List<UnitatOrganitzativaDto> unitatsSuperiors = unitatOrganitzativaHelper.findPath(arrel,uo.getCodiUnitatSuperior());
-			if(unitatsSuperiors!=null && !unitatsSuperiors.isEmpty()) {
-				for (UnitatOrganitzativaDto uoSuperior : unitatsSuperiors) {
-					ExpedientTipusUnitatOrganitzativa expTipusUnitOrgSup = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaCodi(
-							expedientId, 
-							uoSuperior.getCodi());
-					if(expTipusUnitOrgSup!=null)
-						expTipusUnitOrgUnitatsSuperiors.add(expTipusUnitOrgSup);		
-				}
+		//mirem les unitats superiors fins a l'arrel i si l'user té permís sobre aquestes
+		UnitatOrganitzativa uo = unitatOrganitzativaRepository.findByCodi(unitatOrganitzativaCodi);
+		String arrel = uo.getCodiUnitatArrel();
+		List<UnitatOrganitzativaDto> unitatsSuperiors = unitatOrganitzativaHelper.findPath(arrel,uo.getCodiUnitatSuperior());
+		if(unitatsSuperiors!=null && !unitatsSuperiors.isEmpty()) {
+			for (UnitatOrganitzativaDto uoSuperior : unitatsSuperiors) {
+				ExpedientTipusUnitatOrganitzativa expTipusUnitOrgSup = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaCodi(
+						expedientTipusId, 
+						uoSuperior.getCodi());
+				if(expTipusUnitOrgSup!=null)
+					expTipusUnitOrgUnitatsSuperiors.add(expTipusUnitOrgSup);		
 			}
-			if(!expTipusUnitOrgUnitatsSuperiors.isEmpty()) {
-				for(ExpedientTipusUnitatOrganitzativa etuo: expTipusUnitOrgUnitatsSuperiors) {
-					permisos.addAll(permisosHelper.findPermisos(
-							etuo.getId(),
-							ExpedientTipusUnitatOrganitzativa.class));	
-				}
+		}
+		if(!expTipusUnitOrgUnitatsSuperiors.isEmpty()) {
+			for(ExpedientTipusUnitatOrganitzativa etuo: expTipusUnitOrgUnitatsSuperiors) {
+				permisos.addAll(permisosHelper.findPermisos(
+						etuo.getId(),
+						ExpedientTipusUnitatOrganitzativa.class));	
 			}
-
-		}else {
+		}
+		if(expTipusUnitOrg!=null)
 			permisos.addAll(permisosHelper.findPermisos(
 					expTipusUnitOrg.getId(),
 					ExpedientTipusUnitatOrganitzativa.class));	
-		}
-//		List<PermisDto> permisos = permisosHelper.findPermisos(
-//				expTipusUnitOrg.getId(),
-//				ExpedientTipusUnitatOrganitzativa.class);	
 		Authentication authOriginal = SecurityContextHolder.getContext().getAuthentication();		
 		for(PermisDto permis: permisos) {
 			if(permis.getPrincipalNom()!=null 

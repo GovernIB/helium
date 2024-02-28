@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.repository.query.Param;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Service;
@@ -54,6 +55,7 @@ import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
+import net.conselldemallorca.helium.core.helper.UnitatOrganitzativaHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.helper.VariableHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
@@ -71,6 +73,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientL
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Interessat;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
+import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAnnexEstatEnumDto;
@@ -171,6 +174,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	private IndexHelper indexHelper;
 	@Resource
 	private ExpedientDadaHelper expedientDadaHelper;
+	@Resource
+	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
 	/**
 	 * {@inheritDoc}
 	 */
@@ -187,6 +192,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 
 		// Llista d'expedients tipus amb permís de relacionar
 		List<Long> expedientTipusIdsPermesos = null;
+		List<String> unitatsOrganitvesCodis = new ArrayList<String>();
 		// Pot veure:
 		// - Totes les anotacions si és administrador d'Helium
 		// - Les anotacions dels tipus d'expedient amb permís de relacionar en el cas de no ser-ho
@@ -207,6 +213,28 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				if (expedientTipusIdsPermesos.isEmpty())
 					expedientTipusIdsPermesos.add(0L);
 			}
+			
+			// Comprova l'accés al tipus d'expedient
+			ExpedientTipus expedientTipus = null;
+			List<Long> idsUnitatsOrganitzativesAmbPermisos = new ArrayList<Long>();
+			if (filtreDto.getExpedientTipusId() != null) {
+				expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
+						filtreDto.getExpedientTipusId());
+				
+				//Obté la llista de unitats organitzatives per les quals té permisos (també retornarà les uo filles)
+				if(expedientTipus.isProcedimentComu())
+					idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(filtreDto.getExpedientTipusId());
+
+			} else { //si no hi ha expedientTipus al filtre, hem de buscar totes les UO per las quals es té permís i obtenir els expedinetTipus
+				idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(null);
+				
+			}
+			for(Long id: idsUnitatsOrganitzativesAmbPermisos) {
+				UnitatOrganitzativa uo = unitatOrganitzativaHelper.findById(id);
+				if(uo!=null)
+					unitatsOrganitvesCodis.add(uo.getCodi());
+			}
+		
 		}
 		
 		Date dataFinal = null;
@@ -246,6 +274,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				filtreDto.getExpedientId(),
 				expedientTipusIdsPermesos == null,
 				expedientTipusIdsPermesos == null? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesos,
+				unitatsOrganitvesCodis.isEmpty() ? true : false,
+				unitatsOrganitvesCodis,
 				paginacioParams.getFiltre() == null || paginacioParams.getFiltre().isEmpty(),
 				paginacioParams.getFiltre(),
 				paginacioHelper.toSpringDataPageable(paginacioParams));
