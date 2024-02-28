@@ -53,7 +53,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Permis;
 import net.conselldemallorca.helium.core.model.hibernate.Usuari;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.ws.RestClient;
-import net.conselldemallorca.helium.integracio.plugins.unitat.UnitatOrganica;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
@@ -62,6 +61,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternTimeoutException;
@@ -704,7 +704,7 @@ public class DominiHelper {
 	
 	public List<FilaResultat> unitatOrganica(Map<String, Object> parametres) {
 		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
-		UnitatOrganica uo = null;
+		UnitatOrganitzativaDto uo = null;
 		String codi = (String)parametres.get("unitat");
 		if (codi != null)
 			uo = pluginHelper.findUnitatOrganica(codi);
@@ -713,9 +713,6 @@ public class DominiHelper {
 			fila.addColumna(new ParellaCodiValor("codiDenominacio", uo.getCodi() + " - " + uo.getDenominacio()));
 			fila.addColumna(new ParellaCodiValor("codi", uo.getCodi()));
 			fila.addColumna(new ParellaCodiValor("denominacio", uo.getDenominacio()));
-			fila.addColumna(new ParellaCodiValor("tipusEntitatPublica", uo.getTipusEntitatPublica()));
-			fila.addColumna(new ParellaCodiValor("tipusUnitatOrganica", uo.getTipusUnitatOrganica()));
-			fila.addColumna(new ParellaCodiValor("sigles", uo.getSigles()));
 			fila.addColumna(new ParellaCodiValor("codiUnitatSuperior", uo.getCodiUnitatSuperior()));
 			fila.addColumna(new ParellaCodiValor("codiUnitatArrel", uo.getCodiUnitatArrel()));
 			fila.addColumna(new ParellaCodiValor("estat", uo.getEstat()));
@@ -727,18 +724,15 @@ public class DominiHelper {
 	public List<FilaResultat> unitatsOrganiques(Map<String, Object> parametres) {
 		List<FilaResultat> resposta = new ArrayList<FilaResultat>();
 		String unitatArrel = (String)parametres.get("unitatArrel");
-		List<UnitatOrganica> uos = pluginHelper.findUnitatsOrganiques(unitatArrel);
+		List<UnitatOrganitzativaDto> uos = pluginHelper.findUnitatsOrganiques(unitatArrel);
 		if(uos != null && uos.size() > 1) {
 			uos.remove(0);
 		}
-		for(UnitatOrganica uo : uos) {
+		for(UnitatOrganitzativaDto uo : uos) {
 			FilaResultat fila = new FilaResultat();
 			fila.addColumna(new ParellaCodiValor("codiDenominacio", uo.getCodi() + " - " + uo.getDenominacio()));
 			fila.addColumna(new ParellaCodiValor("codi", uo.getCodi()));
 			fila.addColumna(new ParellaCodiValor("denominacio", uo.getDenominacio()));
-			fila.addColumna(new ParellaCodiValor("tipusEntitatPublica", uo.getTipusEntitatPublica()));
-			fila.addColumna(new ParellaCodiValor("tipusUnitatOrganica", uo.getTipusUnitatOrganica()));
-			fila.addColumna(new ParellaCodiValor("sigles", uo.getSigles()));
 			fila.addColumna(new ParellaCodiValor("codiUnitatSuperior", uo.getCodiUnitatSuperior()));
 			fila.addColumna(new ParellaCodiValor("codiUnitatArrel", uo.getCodiUnitatArrel()));
 			fila.addColumna(new ParellaCodiValor("estat", uo.getEstat()));

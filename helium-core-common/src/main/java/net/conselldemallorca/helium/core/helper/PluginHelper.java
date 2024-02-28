@@ -129,7 +129,6 @@ import net.conselldemallorca.helium.integracio.plugins.tramitacio.PublicarExpedi
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.Signatura;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPlugin;
 import net.conselldemallorca.helium.integracio.plugins.tramitacio.TramitacioPluginException;
-import net.conselldemallorca.helium.integracio.plugins.unitat.UnitatOrganica;
 import net.conselldemallorca.helium.integracio.plugins.unitat.UnitatsOrganiquesPlugin;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
@@ -4392,11 +4391,11 @@ public class PluginHelper {
 	 * 	<i> Codi d'unitat orgànica </i>
 	 * @return
 	 */
-	public UnitatOrganica findUnitatOrganica(String codi) {
+	public UnitatOrganitzativaDto findUnitatOrganica(String codi) {
 		if( codi != null) {
 			try {
-				return getUnitatsOrganitzativesPlugin().findAmbCodi(codi);
-			} catch (net.conselldemallorca.helium.integracio.plugins.SistemaExternException e) {
+				return getUnitatsOrganitzativesPlugin().findUnidad(codi, null, null);
+			} catch (Exception e) {
 				throw tractarExcepcioEnSistemaExtern(
 						MonitorIntegracioHelper.INTCODI_REGISTRE,
 						"Error cercant unitats orgàniques amb codi: ( " + codi + " )",
@@ -4416,10 +4415,10 @@ public class PluginHelper {
 	 * 	<i> Codi d'unitat orgànica pare </i>
 	 * @return
 	 */
-	public List<UnitatOrganica> findUnitatsOrganiques(String arrel) {
+	public List<UnitatOrganitzativaDto> findUnitatsOrganiques(String arrel) {
 		if( arrel != null) {
 			try {
-				return getUnitatsOrganitzativesPlugin().findAmbPare(arrel);
+				return getUnitatsOrganitzativesPlugin().findAmbPare(arrel, null, null);
 			} catch (net.conselldemallorca.helium.integracio.plugins.SistemaExternException ex) {
 				throw tractarExcepcioEnSistemaExtern(
 						"DIR3",

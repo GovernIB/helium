@@ -19,30 +19,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 public class UnitatsOrganiquesPluginMock implements UnitatsOrganiquesPlugin {
 
 	@Override
-	public List<UnitatOrganica> findAmbPare(String pareCodi) throws SistemaExternException {
-		return null;
-	}
-
-	@Override
-	public UnitatOrganica findAmbCodi(String codi) throws SistemaExternException {
-		return null;
-	}
-
-	@Override
-	public List<UnitatOrganica> cercaUnitats(
-			String codi, 
-			String denominacio, 
-			Long nivellAdministracio,
-			Long comunitatAutonoma, 
-			Boolean ambOficines, 
-			Boolean esUnitatArrel, 
-			Long provincia, 
-			String municipi)
-			throws SistemaExternException {
-		return null;
-	}
-
-	@Override
 	public UnitatOrganitzativaDto findUnidad(
 			String pareCodi, 
 			Timestamp fechaActualizacion,
@@ -105,18 +81,6 @@ public class UnitatsOrganiquesPluginMock implements UnitatsOrganiquesPlugin {
 
 		
 		return unitats;
-	}
-
-	@Override
-	public List<UnitatOrganitzativaDto> cercaUnitatsOrganitzativesDto(String codi, String denominacio,
-			Long nivellAdministracio, Long comunitatAutonoma, Boolean ambOficines, Boolean esUnitatArrel,
-			Long provincia, String municipi) throws SistemaExternException {
-		return null;
-	}
-
-	@Override
-	public UnitatOrganitzativaDto findAmbCodiUnitatOrganitzativaDto(String codi) throws SistemaExternException {
-		return null;
 	}
 	
 }
