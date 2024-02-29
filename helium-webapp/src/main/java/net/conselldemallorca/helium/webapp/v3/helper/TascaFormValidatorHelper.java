@@ -126,7 +126,7 @@ public class TascaFormValidatorHelper implements Validator {
 												}
 											}
 											if (emptyVal) {
-												if (campRegistre.isRequired()) {
+												if (campRegistre.isRequired() && camp.isRequired()) {
 													errors.rejectValue(camp.getVarCodi() + (camp.isCampMultiple() ? "[" + i + "]." : ".") + campRegistre.getVarCodi(), "not.blank");
 												}
 											} else {
@@ -230,12 +230,12 @@ public class TascaFormValidatorHelper implements Validator {
 		return empty;
 	}
 	
-	/** Valid el registre i retorna true si el registre és inválid. És invàlid si té algun camp obligatori buit. */
+	/** Valid el registre i retorna true si el registre és inválid. És invàlid si el registre és obligatori i té algun camp obligatori buit. */
 	private boolean registreInvalid(TascaDadaDto camp, Object registre, Errors errors) throws Exception {
 		boolean invalid = false;
 		// Registre
 		if (registre != null) {
-			if  (camp.isCampMultiple()) {
+			if  (camp.isCampMultiple() && camp.isRequired()) {
 				List<TascaDadaDto> registreDades = camp.getMultipleDades().get(0).getRegistreDades();
 				Object[] registres = (Object[])registre;
 				int i = 0;
@@ -252,11 +252,13 @@ public class TascaFormValidatorHelper implements Validator {
 				}
 			} else {
 				List<TascaDadaDto> registreDades = camp.getRegistreDades();
-				for (TascaDadaDto campRegistre : registreDades) {
-					if (campRegistre.isRequired()) {
-						if (isCampRegistreEmpty(PropertyUtils.getProperty(registre, campRegistre.getVarCodi()))) {
-							invalid = true;
-							errors.rejectValue(camp.getVarCodi() + "." + campRegistre.getVarCodi(), "not.blank");								
+				if(registreDades!=null && !registreDades.isEmpty()) {
+					for (TascaDadaDto campRegistre : registreDades) {
+						if (campRegistre.isRequired()) {
+							if (isCampRegistreEmpty(PropertyUtils.getProperty(registre, campRegistre.getVarCodi()))) {
+								invalid = true;
+								errors.rejectValue(camp.getVarCodi() + "." + campRegistre.getVarCodi(), "not.blank");								
+							}
 						}
 					}
 				}
