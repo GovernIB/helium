@@ -22,7 +22,7 @@ public @interface Carrec {
 
 	String message() default "error.carrec.validacio";
 
-	String codiRepetit() default "error.carrec.codi.repetit";
+	String codiGrupRepetit() default "error.carrec.codi.grup.repetit";
 	
 	Class<?>[] groups() default {};
 

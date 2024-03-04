@@ -69,4 +69,10 @@ public class CarrecServiceBean implements CarrecService {
 		delegate.delete(carrecId);	
 	}
 
+	@Override
+	public CarrecJbpmIdDto findAmbCodiAndGrup(String codi, String grup) {
+		return delegate.findAmbCodiAndGrup(codi, grup);
+	}
+	
+
 }

@@ -12,24 +12,26 @@ import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 
 public class CarrecValidator implements ConstraintValidator<Carrec, CarrecCommand> {
 
-	private Carrec anotacio;
+	private Carrec carrec;
 	@Autowired
 	private CarrecService carrecService;
 	
 	@Override
-	public void initialize(Carrec anotacio) {
-		this.anotacio = anotacio;
+	public void initialize(Carrec carrec) {
+		this.carrec = carrec;
 	}
 
 	@Override
 	public boolean isValid(CarrecCommand command, ConstraintValidatorContext context) {
 		boolean valid = true;
-		CarrecJbpmIdDto repetit = carrecService.findAmbCodi(command.getCodi());
+		CarrecJbpmIdDto repetit = carrecService.findAmbCodiAndGrup(command.getCodi(), command.getGrup());
 		if (repetit != null && (command.getId() == null || !command.getId().equals(repetit.getId()))) {
-			context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage(anotacio.codiRepetit()))
+			context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage(carrec.codiGrupRepetit()))
 					.addNode("codi").addConstraintViolation();
 			valid = false;
 		}
+		if (!valid)
+			context.disableDefaultConstraintViolation();
 		return valid;
 	}
 

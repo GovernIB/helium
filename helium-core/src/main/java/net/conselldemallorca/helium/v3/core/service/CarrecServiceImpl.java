@@ -80,6 +80,11 @@ public class CarrecServiceImpl implements CarrecService {
 	public CarrecJbpmIdDto findAmbCodi(String codi) {
 		return conversioTipusHelper.convertir(carrecJbpmIdRepository.findByCodi(codi), CarrecJbpmIdDto.class);
 	}
+	
+	@Override
+	public CarrecJbpmIdDto findAmbCodiAndGrup(String codi, String grup) {
+		return conversioTipusHelper.convertir(carrecJbpmIdRepository.findByCodiAndGrup(codi, grup), CarrecJbpmIdDto.class);
+	}
 
 	@Override
 	public CarrecJbpmIdDto create(CarrecJbpmIdDto carrec) {

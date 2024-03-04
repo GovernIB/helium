@@ -22,6 +22,8 @@ public interface CarrecService {
 
 	public CarrecJbpmIdDto findAmbCodi(String codi);
 	
+	public CarrecJbpmIdDto findAmbCodiAndGrup(String codi, String grup);
+	
 	public CarrecJbpmIdDto create(CarrecJbpmIdDto carrec);
 
 	public CarrecJbpmIdDto update(CarrecJbpmIdDto carrec);
