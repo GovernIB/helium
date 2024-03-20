@@ -91,6 +91,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
@@ -187,7 +188,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	@Override
 	@Transactional(readOnly = true)
 	public PaginaDto<AnotacioListDto> findAmbFiltrePaginat(
-			Long entornId,
+			List<ExpedientTipusDto> expedientTipusDtoAccessibles,
 			AnotacioFiltreDto filtreDto,
 			PaginacioParamsDto paginacioParams) {
 		logger.debug(
@@ -199,6 +200,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		List<Long> expedientTipusIdsPermesosProcedimetComu = new ArrayList<Long>();
 		List<String> unitatsOrganitvesCodis = new ArrayList<String>();
 		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = new ArrayList<ExpedientTipusUnitatOrganitzativa>();
+		List<Long> expedientTipusIdsPermesosProcedimetComuAntic = new ArrayList<Long>();
 		// Pot veure:
 		// - Totes les anotacions si és administrador d'Helium
 		// - Les anotacions dels tipus d'expedient amb permís de relacionar en el cas de no ser-ho
@@ -208,17 +210,16 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			// Comprova que pugui llegir l'expedient pel cas de la pipella d'anotacions de l'expedient
 			expedientHelper.getExpedientComprovantPermisos(filtreDto.getExpedientId(), true, false, false, false);
 		} else {
-			// Comporova que sigui administrador o recupera els tipus permesos per la vista d'anotacions
-			if (!usuariActualHelper.isAdministrador()) {
-				expedientTipusIdsPermesos = expedientTipusHelper.findIdsAmbPermisos(
-						entornHelper.getEntorn(entornId),
-						new Permission[] {
-								ExtendedPermission.RELATE,
-								ExtendedPermission.ADMINISTRATION
-						});
-				if (expedientTipusIdsPermesos.isEmpty())
-					expedientTipusIdsPermesos.add(0L);
+			// Classifiquem els tipusExpedients tipus sense procediment comú  i amb procediment comú, dels que portem des de la caché
+			for(ExpedientTipusDto expTipusDtoCache: expedientTipusDtoAccessibles) {
+				if(!expTipusDtoCache.isProcedimentComu()) {
+					expedientTipusIdsPermesos.add(expTipusDtoCache.getId());
+				} else {
+					expedientTipusIdsPermesosProcedimetComu.add(expTipusDtoCache.getId());
+				}
 			}
+			if (expedientTipusIdsPermesos.isEmpty())
+				expedientTipusIdsPermesos.add(0L);
 			
 			// Comprova l'accés al tipus d'expedient
 			ExpedientTipus expedientTipus = null;
@@ -236,7 +237,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				if (!usuariActualHelper.isAdministrador()) {
 					expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findAll();
 					//Afegim els expedientTipus amb procediment comú permesos
-					expedientTipusIdsPermesosProcedimetComu.addAll(expedientTipusHelper.idsUOPermesesOrExpedientTipusComunsPermesos(expTipUnitOrgList, false));
+					expedientTipusIdsPermesosProcedimetComuAntic.addAll(expedientTipusHelper.idsUOPermesesOrExpedientTipusComunsPermesos(expTipUnitOrgList, false));
 					idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(null);
 				}
 			}
@@ -285,8 +286,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				filtreDto.getExpedientId(),
 				expedientTipusIdsPermesos == null || expedientTipusIdsPermesos.isEmpty(),
 				expedientTipusIdsPermesos == null || expedientTipusIdsPermesos.isEmpty() ? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesos,
-				expedientTipusIdsPermesosProcedimetComu == null || expedientTipusIdsPermesosProcedimetComu.isEmpty(),
-				expedientTipusIdsPermesosProcedimetComu.isEmpty() ? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesosProcedimetComu,
+				expedientTipusIdsPermesosProcedimetComuAntic == null || expedientTipusIdsPermesosProcedimetComuAntic.isEmpty(),
+				expedientTipusIdsPermesosProcedimetComuAntic.isEmpty() ? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesosProcedimetComuAntic,
 				unitatsOrganitvesCodis.isEmpty() ? true : false,
 				unitatsOrganitvesCodis.isEmpty() ? Arrays.asList(ArrayUtils.toArray("")) : unitatsOrganitvesCodis,
 				paginacioParams.getFiltre() == null || paginacioParams.getFiltre().isEmpty(),

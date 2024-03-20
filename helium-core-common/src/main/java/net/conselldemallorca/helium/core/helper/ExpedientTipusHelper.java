@@ -434,6 +434,19 @@ public class ExpedientTipusHelper {
 		}
 	}
 	
+	public List<ExpedientTipus> expedientsTipusComunsPermesos(List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList){
+		 List<ExpedientTipus> expedientsTipusComunsPermesos = new ArrayList<ExpedientTipus>();
+		 List<Long> idsExpedientTipusComunsPermesos = this.idsUOPermesesOrExpedientTipusComunsPermesos(expTipUnitOrgList, false);
+		 ExpedientTipus expTipusPermes = null;
+		 for(Long expTipusId: idsExpedientTipusComunsPermesos) {
+			 expTipusPermes = expedientTipusRepository.findById(expTipusId);
+			 if(expTipusPermes!=null && !expedientsTipusComunsPermesos.contains(expTipusPermes)) {
+				 expedientsTipusComunsPermesos.add(expTipusPermes);
+			 }
+		 }
+		 return expedientsTipusComunsPermesos;		 
+	}
+	
 	public boolean tePermisReadOrAdmin(PermisDto permis, Authentication authOriginal) {
 		if (permis.getPrincipalNom()!=null 
 				&& authOriginal!=null 

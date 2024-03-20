@@ -146,12 +146,14 @@ public class AnotacioController extends BaseExpedientController {
 		
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		AnotacioFiltreCommand filtreCommand = getFiltreCommand(request);
-		
+		List<ExpedientTipusDto> expedientTipusDtoAccessibles = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
+													request,
+													SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES);
 		return DatatablesHelper.getDatatableResponse(
 					request,
 					null,
 					anotacioService.findAmbFiltrePaginat(
-							entornActual.getId(),
+							expedientTipusDtoAccessibles,
 							ConversioTipusHelper.convertir(filtreCommand, AnotacioFiltreDto.class),
 							DatatablesHelper.getPaginacioDtoFromRequest(request)),
 					"id");		
@@ -904,7 +906,7 @@ public class AnotacioController extends BaseExpedientController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		AnotacioFiltreCommand filtreCommand = getFiltreCommand(request);
 		
-		List<AnotacioListDto> anotacions = this.anotacionsList(entornActual, filtreCommand);
+		List<AnotacioListDto> anotacions = this.anotacionsList(entornActual, filtreCommand, request);
 
 		generarExcel(
 				request,
@@ -912,7 +914,7 @@ public class AnotacioController extends BaseExpedientController {
 				anotacions);
 	}
 	
-	private List<AnotacioListDto> anotacionsList (EntornDto entornActual, AnotacioFiltreCommand filtreCommand){
+	private List<AnotacioListDto> anotacionsList (EntornDto entornActual, AnotacioFiltreCommand filtreCommand, HttpServletRequest request){
 		List<AnotacioListDto> anotacions = new ArrayList<AnotacioListDto>();
 		int nPagina = 0;
 		int grandariaPagina = 100;
@@ -926,8 +928,11 @@ public class AnotacioController extends BaseExpedientController {
 		
 		do {
 			paginacio.setPaginaNum(nPagina++);
+			List<ExpedientTipusDto> expedientTipusDtoAccessibles = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
+					request,
+					SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES);
 			paginaDto = anotacioService.findAmbFiltrePaginat(
-					entornActual.getId(),
+					expedientTipusDtoAccessibles,
 					ConversioTipusHelper.convertir(filtreCommand, AnotacioFiltreDto.class),
 					paginacio);	
 			anotacions.addAll(paginaDto.getContingut());			

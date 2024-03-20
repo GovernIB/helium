@@ -6,6 +6,8 @@ package net.conselldemallorca.helium.v3.core.service;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -95,6 +97,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
@@ -1843,27 +1846,14 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			Long entornId) {
 		logger.debug(
 				"Consultant tipus d'expedient per un entorn i amb permisos de consulta (" +
-				"entornId=" + entornId + ")");
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntornOrderByNomAsc(entorn);
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		permisosHelper.filterGrantedAny(
-				tipuss,
-				new ObjectIdentifierExtractor<ExpedientTipus>() {
-					@Override
-					public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
-						return expedientTipus.getId();
-					}
-				},
-				ExpedientTipus.class,
-				new Permission[] {
-						ExtendedPermission.READ,
-						ExtendedPermission.ADMINISTRATION},
-				auth);
+				"entornId=" + entornId + ")");	
 		return conversioTipusHelper.convertirList(
-				tipuss,
+				findTotsExpTipusAmbPermisos(
+						entornId, 
+						new Permission[] {
+								ExtendedPermission.READ,
+								ExtendedPermission.ADMINISTRATION},
+						false),
 				ExpedientTipusDto.class);
 	}
 
@@ -1896,30 +1886,15 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Consultant tipus d'expedient per un entorn i amb permisos de disseny (" +
 				"entornId=" + entornId + ")");
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntornOrderByNomAsc(entorn);
-		if (!entornHelper.potDissenyarEntorn(entornId)) {
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			permisosHelper.filterGrantedAny(
-					tipuss,
-					new ObjectIdentifierExtractor<ExpedientTipus>() {
-						@Override
-						public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
-							return expedientTipus.getId();
-						}
-					},
-					ExpedientTipus.class,
-					new Permission[] {
-							ExtendedPermission.DESIGN, // permís antic
-							ExtendedPermission.DESIGN_ADMIN,
-							ExtendedPermission.DESIGN_DELEG,
-							ExtendedPermission.ADMINISTRATION},
-					auth);
-		}
 		return conversioTipusHelper.convertirList(
-				tipuss,
+				findTotsExpTipusAmbPermisos(
+						entornId, 
+						new Permission[] {
+								ExtendedPermission.DESIGN, // permís antic
+								ExtendedPermission.DESIGN_ADMIN,
+								ExtendedPermission.DESIGN_DELEG,
+								ExtendedPermission.ADMINISTRATION},
+						false),
 				ExpedientTipusDto.class);
 	}
 	
@@ -1933,28 +1908,13 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Consultant tipus d'expedient per un entorn i amb permisos sobre antotacions (" +
 				"entornId=" + entornId + ")");
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntornOrderByCodiAsc(entorn);
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if (!UsuariActualHelper.isAdministrador(auth)) {
-			permisosHelper.filterGrantedAny(
-					tipuss,
-					new ObjectIdentifierExtractor<ExpedientTipus>() {
-						@Override
-						public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
-							return expedientTipus.getId();
-						}
-					},
-					ExpedientTipus.class,
-					new Permission[] {
-							BasePermission.ADMINISTRATION,
-							ExtendedPermission.RELATE},
-					auth);
-		}
 		return conversioTipusHelper.convertirList(
-				tipuss,
+				findTotsExpTipusAmbPermisos(
+						entornId, 
+						new Permission[] {
+								BasePermission.ADMINISTRATION,
+								ExtendedPermission.RELATE},
+						true),
 				ExpedientTipusDto.class);
 	}
 	
@@ -1968,10 +1928,28 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Consultant tipus d'expedient per un entorn i amb permisos d'execució d'scripts (" +
 				"entornId=" + entornId + ")");
+		return conversioTipusHelper.convertirList(
+				findTotsExpTipusAmbPermisos(
+						entornId, 
+						new Permission[] {
+								BasePermission.ADMINISTRATION,
+								ExtendedPermission.SCRIPT_EXE},
+						true),
+				ExpedientTipusDto.class);
+	}
+
+	
+	public List<ExpedientTipus> findTotsExpTipusAmbPermisos(Long entornId, Permission[] permissions, boolean orderByCodiAsc){
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
 				true);
-		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntornOrderByCodiAsc(entorn);
+		List<ExpedientTipus> tipuss = new ArrayList<ExpedientTipus>();
+		
+		if(orderByCodiAsc) {
+			tipuss = expedientTipusRepository.findByEntornOrderByCodiAsc(entorn);
+		} else {
+			tipuss = expedientTipusRepository.findByEntornOrderByNomAsc(entorn);
+		}				
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (!UsuariActualHelper.isAdministrador(auth)) {
 			permisosHelper.filterGrantedAny(
@@ -1983,14 +1961,32 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						}
 					},
 					ExpedientTipus.class,
-					new Permission[] {
-							BasePermission.ADMINISTRATION,
-							ExtendedPermission.SCRIPT_EXE},
+					permissions,
 					auth);
 		}
-		return conversioTipusHelper.convertirList(
-				tipuss,
-				ExpedientTipusDto.class);
+		//Afegim els expedientTipus amb procediment comú permesos depenent de permisos amb UOs
+		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findAll();
+		if(expTipUnitOrgList!=null && !expTipUnitOrgList.isEmpty()){	
+			permisosHelper.filterGrantedAny(
+					expTipUnitOrgList,
+					new ObjectIdentifierExtractor<ExpedientTipusUnitatOrganitzativa>() {
+						@Override
+						public Long getObjectIdentifier(ExpedientTipusUnitatOrganitzativa expedientTipusUnitatOrganitzativa) {
+							return expedientTipusUnitatOrganitzativa.getId();
+						}
+					},
+					ExpedientTipusUnitatOrganitzativa.class,
+					permissions,
+					auth);
+			List<ExpedientTipus> expedientTipusIdsPermesosProcedimetComu = expedientTipusHelper.expedientsTipusComunsPermesos(expTipUnitOrgList);
+			tipuss.addAll(expedientTipusIdsPermesosProcedimetComu);
+			if(orderByCodiAsc) {
+				Collections.sort(tipuss, new ComparadorExpedientTipusCodi());
+			} else {
+				Collections.sort(tipuss, new ComparadorExpedientTipusNom());
+			}
+		}
+		return tipuss;
 	}
 
 	/**
@@ -2062,26 +2058,13 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Consultant tipus d'expedient per un entorn i amb permis de creació (" +
 				"entornId=" + entornId + ")");
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntornOrderByCodiAsc(entorn);
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		permisosHelper.filterGrantedAny(
-				tipuss,
-				new ObjectIdentifierExtractor<ExpedientTipus>() {
-					@Override
-					public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
-						return expedientTipus.getId();
-					}
-				},
-				ExpedientTipus.class,
-				new Permission[] {
-						ExtendedPermission.CREATE,
-						ExtendedPermission.ADMINISTRATION},
-				auth);
 		return conversioTipusHelper.convertirList(
-				tipuss,
+				findTotsExpTipusAmbPermisos(
+						entornId, 
+						new Permission[] {
+								ExtendedPermission.CREATE,
+								ExtendedPermission.ADMINISTRATION},
+						true),
 				ExpedientTipusDto.class);
 	}
 
@@ -4970,5 +4953,17 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			arxiu = new ArxiuDto(expedientTipus.getManualAjudaNom(), expedientTipus.getManualAjudaContent());
 		}
 		return arxiu;
+	}
+	
+	public class ComparadorExpedientTipusNom implements Comparator<ExpedientTipus> {
+	    public int compare(ExpedientTipus e1, ExpedientTipus e2) {
+	        return e1.getNom().compareToIgnoreCase(e2.getNom());
+	    }
+	}
+	
+	public class ComparadorExpedientTipusCodi implements Comparator<ExpedientTipus> {
+	    public int compare(ExpedientTipus e1, ExpedientTipus e2) {
+	        return e1.getCodi().compareToIgnoreCase(e2.getCodi());
+	    }
 	}
 }

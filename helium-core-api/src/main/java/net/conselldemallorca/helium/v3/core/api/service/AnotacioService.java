@@ -8,6 +8,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.AnotacioListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -24,7 +25,7 @@ public interface AnotacioService {
 
 	/** Mètode per consultar en el llistat les diferents anotacions */
 	public PaginaDto<AnotacioListDto> findAmbFiltrePaginat(
-			Long entornId,
+			List<ExpedientTipusDto> expedientTipusDtoAccessibles,
 			AnotacioFiltreDto filtreDto,
 			PaginacioParamsDto paginacioParams);
 	
