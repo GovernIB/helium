@@ -36,10 +36,11 @@ public class AnotacioServiceBean implements AnotacioService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<AnotacioListDto> findAmbFiltrePaginat(
+			Long entornId,
 			List<ExpedientTipusDto> expedientTipusDtoAccessibles,
 			AnotacioFiltreDto filtreDto,
 			PaginacioParamsDto paginacioParams) {
-		return delegate.findAmbFiltrePaginat(expedientTipusDtoAccessibles, filtreDto, paginacioParams);
+		return delegate.findAmbFiltrePaginat(entornId, expedientTipusDtoAccessibles, filtreDto, paginacioParams);
 	}
 	
 	@Override

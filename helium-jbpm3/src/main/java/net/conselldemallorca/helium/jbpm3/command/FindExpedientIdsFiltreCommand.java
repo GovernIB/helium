@@ -132,6 +132,10 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		if (tipusIdPermesos.isEmpty() && idsUnitatsOrganitzativesAmbPermisos.isEmpty()) {
 			return new ResultatConsultaPaginadaJbpm<Long>(0);
 		}
+		if (tipusIdPermesos.isEmpty()) {
+			tipusIdPermesos.add(0L);
+		}
+			
 		StringBuilder expedientQuerySb = new StringBuilder();
 		expedientQuerySb.append(
 				"from " +
@@ -139,19 +143,19 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 				"where " +
 				"    pie.entorn.id = :entornId " );
 
-		if(idsUnitatsOrganitzativesAmbPermisos!=null && !idsUnitatsOrganitzativesAmbPermisos.isEmpty()) {
-			if(idsUnitatsOrganitzativesAmbPermisos.size()>=1000) {
+		if(idsUnitatsOrganitzativesAmbPermisos != null 
+				&& !idsUnitatsOrganitzativesAmbPermisos.isEmpty()) {
+
+			expedientQuerySb.append(
+					"and ( (pie.tipus.id in (:tipusIdPermesos) and pie.tipus.procedimentComu <> 1 ) ");
+			// idsUnitatsOrganitzativesAmbPermisos en subllistes
+			for (int i = 0; i <= idsUnitatsOrganitzativesAmbPermisos.size() / 1000; i++) {
 				expedientQuerySb.append(
-						"and ( (pie.tipus.id in (:tipusIdPermesos) and pie.tipus.procedimentComu <> 1 ) " +
-						" 	   or ( pie.tipus.procedimentComu = 1 and pie.unitatOrganitzativaId IN ( :idsPart1) ) "+
-						" 	   or ( pie.tipus.procedimentComu = 1 and pie.unitatOrganitzativaId IN ( :idsPart2) ) "+
-						" 	  ) " );
-			} else {
-				expedientQuerySb.append(
-						"and ( (pie.tipus.id in (:tipusIdPermesos) and pie.tipus.procedimentComu <> 1 ) " +
-						" 	   or (pie.tipus.procedimentComu = 1 and pie.unitatOrganitzativaId IN ( :idsUnitatsOrganitzativesAmbPermisos) ) "+
-						" 	  ) " );
+						" 	   or ( pie.tipus.procedimentComu = 1 and pie.unitatOrganitzativaId IN ( :idsUnitatsOrganitzativesAmbPermisos" + i + ") ) ");
 			}
+			expedientQuerySb.append(
+					" 	  ) " );
+			
 		} else {
 			expedientQuerySb.append(
 					"and pie.tipus.id in (:tipusIdPermesos) ");
@@ -436,14 +440,11 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		query.setParameter("entornId", entornId);
 		query.setParameterList("tipusIdPermesos", tipusIdPermesos);
 		if(idsUnitatsOrganitzativesAmbPermisos!=null && !idsUnitatsOrganitzativesAmbPermisos.isEmpty()) {
-			if(idsUnitatsOrganitzativesAmbPermisos.size()>=1000) {
-				int halfSizeList = idsUnitatsOrganitzativesAmbPermisos.size() / 2;
-				List<Long> idsPart1 = idsUnitatsOrganitzativesAmbPermisos.subList(0, halfSizeList-1);
-				List<Long> idsPart2 = idsUnitatsOrganitzativesAmbPermisos.subList(halfSizeList, idsUnitatsOrganitzativesAmbPermisos.size());
-				query.setParameterList("idsPart1", idsPart1);
-				query.setParameterList("idsPart2", idsPart2);
-			} else {
-				query.setParameterList("idsUnitatsOrganitzativesAmbPermisos", idsUnitatsOrganitzativesAmbPermisos);
+			// en subllistes
+			for (int i = 0; i <= idsUnitatsOrganitzativesAmbPermisos.size() / 1000; i++ ) {
+				query.setParameterList(
+						"idsUnitatsOrganitzativesAmbPermisos" + i , 
+						idsUnitatsOrganitzativesAmbPermisos.subList(i*1000, Math.min(idsUnitatsOrganitzativesAmbPermisos.size(), (i+1)*1000)));
 			}
 		}
 		if (filtrarPerActorId) {

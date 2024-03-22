@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.repository.query.Param;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Service;
@@ -188,6 +187,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	@Override
 	@Transactional(readOnly = true)
 	public PaginaDto<AnotacioListDto> findAmbFiltrePaginat(
+			Long entornId,
 			List<ExpedientTipusDto> expedientTipusDtoAccessiblesAnotacions,
 			AnotacioFiltreDto filtreDto,
 			PaginacioParamsDto paginacioParams) {
@@ -228,13 +228,13 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 
 				//Obté la llista de unitats organitzatives per les quals té permisos (també retornarà les uo filles)
 				if(expedientTipus.isProcedimentComu())
-					idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(filtreDto.getExpedientTipusId());
+					idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(expedientTipus.getEntorn().getId(), filtreDto.getExpedientTipusId());
 
 			} else { //si no hi ha expedientTipus al filtre, hem de buscar totes les UO per las quals es té permís i obtenir els expedinetTipus
 				if (!usuariActualHelper.isAdministrador()) {
 					expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findAll();
 					//Afegim els expedientTipus amb procediment comú permesos
-					idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(null);
+					idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(entornId, null);
 				}
 			}
 			for(Long id: idsUnitatsOrganitzativesAmbPermisos) {

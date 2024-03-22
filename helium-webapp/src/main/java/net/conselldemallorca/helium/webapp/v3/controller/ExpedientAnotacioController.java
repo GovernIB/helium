@@ -82,7 +82,7 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,
-				anotacioService.findAmbFiltrePaginat(expedientTipusDtoAccessibles, filtreDto, paginacioParams));
+				anotacioService.findAmbFiltrePaginat(entornActual.getId(), expedientTipusDtoAccessibles, filtreDto, paginacioParams));
 	}
 	
 

@@ -156,6 +156,7 @@ public class AnotacioController extends BaseExpedientController {
 					request,
 					null,
 					anotacioService.findAmbFiltrePaginat(
+							entornActual.getId(),
 							expedientTipusDtoAccessibles,
 							ConversioTipusHelper.convertir(filtreCommand, AnotacioFiltreDto.class),
 							DatatablesHelper.getPaginacioDtoFromRequest(request)),
@@ -939,6 +940,7 @@ public class AnotacioController extends BaseExpedientController {
 					request,
 					SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS);
 			paginaDto = anotacioService.findAmbFiltrePaginat(
+					entornActual.getId(),
 					expedientTipusDtoAccessiblesAnotacions,
 					ConversioTipusHelper.convertir(filtreCommand, AnotacioFiltreDto.class),
 					paginacio);	

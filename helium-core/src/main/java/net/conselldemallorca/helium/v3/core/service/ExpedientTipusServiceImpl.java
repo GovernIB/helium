@@ -97,7 +97,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
@@ -1939,7 +1938,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	}
 
 	
-	public List<ExpedientTipus> findTotsExpTipusAmbPermisos(Long entornId, Permission[] permissions, boolean orderByCodiAsc){
+	private List<ExpedientTipus> findTotsExpTipusAmbPermisos(Long entornId, Permission[] permissions, boolean orderByCodiAsc){
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
 				true);
@@ -1965,7 +1964,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					auth);
 		}
 		//Afegim els expedientTipus amb procediment comú permesos depenent de permisos amb UOs
-		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findAll();
+		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusEntornId(entorn.getId());
 		if(expTipUnitOrgList!=null && !expTipUnitOrgList.isEmpty()){	
 			permisosHelper.filterGrantedAny(
 					expTipUnitOrgList,
