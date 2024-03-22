@@ -825,10 +825,10 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			
 			//Obté la llista de unitats organitzatives per les quals té permisos (també retornarà les uo filles)
 			if(expedientTipus.isProcedimentComu())
-				idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(expedientTipusId);
+				idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(entorn.getId(), expedientTipusId);
 
 		} else { //si no hi ha expedientTipus al filtre, hem de buscar totes les UO per las quals es té permís i obtenir els expedinetTipus
-			idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(null);
+			idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(entorn.getId(), null);
 		}
 		// Comprova l'accés a l'estat
 		Estat estat = null;
@@ -1041,7 +1041,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
 		
 		//Obté la llista de UOs permeses
-		List<Long> idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(expedientTipusId);
+		List<Long> idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(entornId, expedientTipusId);
 		
 		Long unitatOrganitzativaId=null;
 		if(unitatOrganitzativaCodi!=null) {
@@ -2517,7 +2517,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			expedientIdsPermesos = new ArrayList<Long>(expedientIdsSeleccio);
 		} else {
 			List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
-			List<Long> idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(null);
+			List<Long> idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(entorn.getId(), null);
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			ResultatConsultaPaginadaJbpm<Long> expedientsIds = jbpmHelper.expedientFindByFiltre(
 					entorn.getId(),

@@ -1,10 +1,10 @@
 package net.conselldemallorca.helium.v3.core.repository;
 
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
 
 /**
  * Definició dels mètodes necessaris per a gestionar una entitat de base
@@ -15,8 +15,12 @@ import java.util.List;
 public interface ExpedientTipusUnitatOrganitzativaRepository extends JpaRepository<ExpedientTipusUnitatOrganitzativa, Long> {
 
 	 ExpedientTipusUnitatOrganitzativa findByExpedientTipusIdAndUnitatOrganitzativaId(Long expedientTipusId, Long unitatOrganitzativaId);
+	 
 	 ExpedientTipusUnitatOrganitzativa findByExpedientTipusIdAndUnitatOrganitzativaCodi(Long expedientTipusId, String unitatOrganitzativaCodi);
 
 	 List<ExpedientTipusUnitatOrganitzativa> findByExpedientTipusId(Long expedientTipusId);
+	 
 	 List<ExpedientTipusUnitatOrganitzativa> findByUnitatOrganitzativaId(Long unitatOrganitzativaId);
+	 
+	 List<ExpedientTipusUnitatOrganitzativa> findByExpedientTipusEntornId(Long entornId);
 }

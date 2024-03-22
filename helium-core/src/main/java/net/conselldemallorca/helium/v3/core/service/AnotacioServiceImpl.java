@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.repository.query.Param;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Service;
@@ -188,6 +187,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	@Override
 	@Transactional(readOnly = true)
 	public PaginaDto<AnotacioListDto> findAmbFiltrePaginat(
+			Long entornId,
 			List<ExpedientTipusDto> expedientTipusDtoAccessiblesAnotacions,
 			AnotacioFiltreDto filtreDto,
 			PaginacioParamsDto paginacioParams) {
@@ -199,7 +199,11 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		List<Long> expedientTipusIdsPermesos = new ArrayList<Long>();
 		List<Long> expedientTipusIdsPermesosProcedimetComu = new ArrayList<Long>();
 		List<String> unitatsOrganitvesCodis = new ArrayList<String>();
+		List<String> unitatsOrganitvesCodis1 = new ArrayList<String>();
+		List<String> unitatsOrganitvesCodis2 = new ArrayList<String>();
+		List<String> unitatsOrganitvesCodis3 = new ArrayList<String>();
 		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = new ArrayList<ExpedientTipusUnitatOrganitzativa>();
+		boolean threePartList = false;
 		// Pot veure:
 		// - Totes les anotacions si és administrador d'Helium
 		// - Les anotacions dels tipus d'expedient amb permís de relacionar en el cas de no ser-ho
@@ -228,19 +232,28 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 
 				//Obté la llista de unitats organitzatives per les quals té permisos (també retornarà les uo filles)
 				if(expedientTipus.isProcedimentComu())
-					idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(filtreDto.getExpedientTipusId());
+					idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(expedientTipus.getEntorn().getId(), filtreDto.getExpedientTipusId());
 
 			} else { //si no hi ha expedientTipus al filtre, hem de buscar totes les UO per las quals es té permís i obtenir els expedinetTipus
 				if (!usuariActualHelper.isAdministrador()) {
 					expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findAll();
 					//Afegim els expedientTipus amb procediment comú permesos
-					idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(null);
+					idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(entornId, null);
 				}
 			}
 			for(Long id: idsUnitatsOrganitzativesAmbPermisos) {
 				UnitatOrganitzativa uo = unitatOrganitzativaHelper.findById(id);
 				if(uo!=null && !unitatsOrganitvesCodis.contains(uo.getCodi()))
 					unitatsOrganitvesCodis.add(uo.getCodi());
+			}
+			if(unitatsOrganitvesCodis.size()>1000) {
+				int threePartListSize = idsUnitatsOrganitzativesAmbPermisos.size() / 3;
+				threePartList=true;
+				int limit1=threePartListSize-1;
+				unitatsOrganitvesCodis1.addAll(unitatsOrganitvesCodis.subList(0, limit1));
+				unitatsOrganitvesCodis2.addAll(unitatsOrganitvesCodis.subList(limit1+1, limit1*2 ));
+				unitatsOrganitvesCodis3.addAll(unitatsOrganitvesCodis.subList((limit1*2)+1, unitatsOrganitvesCodis.size()-1));
+				unitatsOrganitvesCodis.removeAll(unitatsOrganitvesCodis);//buidem la llista principal
 			}
 		
 		}
@@ -284,8 +297,14 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				expedientTipusIdsPermesos == null || expedientTipusIdsPermesos.isEmpty() ? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesos,
 				expedientTipusIdsPermesosProcedimetComu == null || expedientTipusIdsPermesosProcedimetComu.isEmpty(),
 				expedientTipusIdsPermesosProcedimetComu.isEmpty() ? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesosProcedimetComu,
-				unitatsOrganitvesCodis.isEmpty() ? true : false,
+				threePartList /* && unitatsOrganitvesCodis.isEmpty()*/ ? true : false,
 				unitatsOrganitvesCodis.isEmpty() ? Arrays.asList(ArrayUtils.toArray("")) : unitatsOrganitvesCodis,
+				!threePartList && unitatsOrganitvesCodis1.isEmpty() ? true : false,
+				unitatsOrganitvesCodis1.isEmpty() ? Arrays.asList(ArrayUtils.toArray("")) : unitatsOrganitvesCodis1,
+				!threePartList && unitatsOrganitvesCodis2.isEmpty() ? true : false,
+				unitatsOrganitvesCodis2.isEmpty() ? Arrays.asList(ArrayUtils.toArray("")) : unitatsOrganitvesCodis2,
+				!threePartList && unitatsOrganitvesCodis3.isEmpty() ? true : false,
+				unitatsOrganitvesCodis3.isEmpty() ? Arrays.asList(ArrayUtils.toArray("")) : unitatsOrganitvesCodis3,
 				paginacioParams.getFiltre() == null || paginacioParams.getFiltre().isEmpty(),
 				paginacioParams.getFiltre(),
 				paginacioHelper.toSpringDataPageable(paginacioParams));

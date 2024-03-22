@@ -62,7 +62,7 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 		netejarSessio(request);
 		// Prepara el formulari
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
-		List<ExpedientTipusDto> tipus = dissenyService.findExpedientTipusAmbEntorn(entorn);
+		List<ExpedientTipusDto> tipus = expedientTipusService.findAmbEntornPermisCrear(entorn.getId());
 		Map<Long, DefinicioProcesExpedientDto> definicionsProces = new HashMap<Long, DefinicioProcesExpedientDto>();
 		Iterator<ExpedientTipusDto> it = tipus.iterator();
 		while (it.hasNext()) {

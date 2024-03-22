@@ -68,7 +68,14 @@ public interface AnotacioRepository extends JpaRepository<Anotacio, Long> {
 			"and ((:esNullExpedientTipusIds = true or a.expedientTipus.id in (:expedientTipusIds)) " + 
 			"		or "
 			+ " 		((:esNullExpedientTipusIdsPermesosProcedimetComu = true or a.expedientTipus.id in (:expedientTipusIdsPermesosProcedimetComu)) "
-			+ "				and (:esNullUnitatsOrganitvesCodis = true or a.destiCodi in (:unitatsOrganitvesCodis))) "
+			+ "				and (( :esNullUnitatsOrganitvesCodis = true or a.destiCodi in (:unitatsOrganitvesCodis) )"
+			+ "						or	( (:esNullUnitatsOrganitvesCodis1 = true or a.destiCodi in (:unitatsOrganitvesCodis1) ) "
+			+ " 							or ( :esNullUnitatsOrganitvesCodis2 = true or a.destiCodi in (:unitatsOrganitvesCodis2) ) "	
+			+ "								or ( :esNullUnitatsOrganitvesCodis3 = true or a.destiCodi in (:unitatsOrganitvesCodis3) ) "
+			+ "							)"
+			+ "					)"
+			+ ""
+			+ "			) "
 			+ "  ) " + 
 			"and (:esNullFiltre = true or (lower(a.identificador) like lower('%'||:filtre||'%')) or lower(a.extracte) like lower('%'||:filtre||'%')) ")
 	Page<Anotacio> findAmbFiltrePaginat(
@@ -99,7 +106,13 @@ public interface AnotacioRepository extends JpaRepository<Anotacio, Long> {
 			@Param("esNullExpedientTipusIdsPermesosProcedimetComu") boolean esNullExpedientTipusIdsPermesosProcedimetComu,
 			@Param("expedientTipusIdsPermesosProcedimetComu") List<Long> expedientTipusIdsPermesosProcedimetComu,
 			@Param("esNullUnitatsOrganitvesCodis") boolean esNullUnitatsOrganitvesCodis,
-			@Param("unitatsOrganitvesCodis") List<String> unitatsOrganitvesCodis, 
+			@Param("unitatsOrganitvesCodis") List<String> unitatsOrganitvesCodis,
+			@Param("esNullUnitatsOrganitvesCodis1") boolean esNullUnitatsOrganitvesCodis1,
+			@Param("unitatsOrganitvesCodis1") List<String> unitatsOrganitvesCodis1, 
+			@Param("esNullUnitatsOrganitvesCodis2") boolean esNullUnitatsOrganitvesCodis2,
+			@Param("unitatsOrganitvesCodis2") List<String> unitatsOrganitvesCodis2, 
+			@Param("esNullUnitatsOrganitvesCodis3") boolean esNullUnitatsOrganitvesCodis3,
+			@Param("unitatsOrganitvesCodis3") List<String> unitatsOrganitvesCodis3, 
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre, 
 			Pageable pageable);

@@ -25,6 +25,7 @@ public interface AnotacioService {
 
 	/** Mètode per consultar en el llistat les diferents anotacions */
 	public PaginaDto<AnotacioListDto> findAmbFiltrePaginat(
+			Long entornId,
 			List<ExpedientTipusDto> expedientTipusDtoAccessibles,
 			AnotacioFiltreDto filtreDto,
 			PaginacioParamsDto paginacioParams);
