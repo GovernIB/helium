@@ -5,19 +5,28 @@ package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.hibernate.Query;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Service;
@@ -180,6 +189,12 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	private ExpedientDadaHelper expedientDadaHelper;
 	@Resource
 	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
+	
+	@PersistenceContext
+    private EntityManager entityManager;
+
+	
+	private static Boolean consultaDinamica = Boolean.TRUE;
 	/**
 	 * {@inheritDoc}
 	 */
@@ -199,11 +214,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		List<Long> expedientTipusIdsPermesos = new ArrayList<Long>();
 		List<Long> expedientTipusIdsPermesosProcedimetComu = new ArrayList<Long>();
 		List<String> unitatsOrganitvesCodis = new ArrayList<String>();
-		List<String> unitatsOrganitvesCodis1 = new ArrayList<String>();
-		List<String> unitatsOrganitvesCodis2 = new ArrayList<String>();
-		List<String> unitatsOrganitvesCodis3 = new ArrayList<String>();
 		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = new ArrayList<ExpedientTipusUnitatOrganitzativa>();
-		boolean threePartList = false;
 		// Pot veure:
 		// - Totes les anotacions si és administrador d'Helium
 		// - Les anotacions dels tipus d'expedient amb permís de relacionar en el cas de no ser-ho
@@ -245,16 +256,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				UnitatOrganitzativa uo = unitatOrganitzativaHelper.findById(id);
 				if(uo!=null && !unitatsOrganitvesCodis.contains(uo.getCodi()))
 					unitatsOrganitvesCodis.add(uo.getCodi());
-			}
-			if(unitatsOrganitvesCodis.size()>1000) {
-				int threePartListSize = idsUnitatsOrganitzativesAmbPermisos.size() / 3;
-				threePartList=true;
-				int limit1=threePartListSize-1;
-				unitatsOrganitvesCodis1.addAll(unitatsOrganitvesCodis.subList(0, limit1));
-				unitatsOrganitvesCodis2.addAll(unitatsOrganitvesCodis.subList(limit1+1, limit1*2 ));
-				unitatsOrganitvesCodis3.addAll(unitatsOrganitvesCodis.subList((limit1*2)+1, unitatsOrganitvesCodis.size()-1));
-				unitatsOrganitvesCodis.removeAll(unitatsOrganitvesCodis);//buidem la llista principal
-			}
+			}	
 		
 		}
 		
@@ -270,7 +272,356 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			c.set(Calendar.MILLISECOND, 0);
 			dataFinal = c.getTime();
 		}
-		Page<Anotacio> page = anotacioRepository.findAmbFiltrePaginat(
+		
+		// Consulta dinàmica
+		Page<Anotacio> page;
+		
+		if (consultaDinamica.booleanValue()) {
+			// Nova consulta dinàmica
+			page = (Page<Anotacio>) this.findAmbFiltrePaginat(
+					false, // per retornar una pàgina
+					filtreDto.getCodiProcediment() == null || filtreDto.getCodiProcediment().isEmpty(),
+					filtreDto.getCodiProcediment(),
+					filtreDto.getUnitatOrganitzativaCodi() == null || filtreDto.getUnitatOrganitzativaCodi().isEmpty(),
+					filtreDto.getUnitatOrganitzativaCodi(),
+					filtreDto.getCodiAssumpte() == null || filtreDto.getCodiAssumpte().isEmpty(),
+					filtreDto.getCodiAssumpte(),
+					filtreDto.getNumeroExpedient() == null || filtreDto.getNumeroExpedient().isEmpty(),
+					filtreDto.getNumeroExpedient(),
+					filtreDto.getNumero() == null || filtreDto.getNumero().isEmpty(),
+					filtreDto.getNumero(),
+					filtreDto.getExtracte() == null || filtreDto.getExtracte().isEmpty(),
+					filtreDto.getExtracte(),
+					filtreDto.getDataInicial() == null,
+					filtreDto.getDataInicial(),
+					dataFinal == null,
+					dataFinal,
+					filtreDto.getEstat() == null,
+					filtreDto.getEstat(),
+					filtreDto.getExpedientTipusId() == null,
+					filtreDto.getExpedientTipusId(),
+					filtreDto.getExpedientId() == null,
+					filtreDto.getExpedientId(),
+					expedientTipusIdsPermesos == null || expedientTipusIdsPermesos.isEmpty(),
+					expedientTipusIdsPermesos == null || expedientTipusIdsPermesos.isEmpty() ? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesos,
+					expedientTipusIdsPermesosProcedimetComu == null || expedientTipusIdsPermesosProcedimetComu.isEmpty(),
+					expedientTipusIdsPermesosProcedimetComu.isEmpty() ? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesosProcedimetComu,
+					unitatsOrganitvesCodis.isEmpty() ? true : false,
+					unitatsOrganitvesCodis.isEmpty() ? Arrays.asList(ArrayUtils.toArray("")) : unitatsOrganitvesCodis,
+					paginacioParams.getFiltre() == null || paginacioParams.getFiltre().isEmpty(),
+					paginacioParams.getFiltre(),
+					paginacioHelper.toSpringDataPageable(paginacioParams),
+					paginacioParams);
+		} else {
+			// Consulta per repositor
+			page = anotacioRepository.findAmbFiltrePaginat(
+					filtreDto.getCodiProcediment() == null || filtreDto.getCodiProcediment().isEmpty(),
+					filtreDto.getCodiProcediment(),
+					filtreDto.getUnitatOrganitzativaCodi() == null || filtreDto.getUnitatOrganitzativaCodi().isEmpty(),
+					filtreDto.getUnitatOrganitzativaCodi(),
+					filtreDto.getCodiAssumpte() == null || filtreDto.getCodiAssumpte().isEmpty(),
+					filtreDto.getCodiAssumpte(),
+					filtreDto.getNumeroExpedient() == null || filtreDto.getNumeroExpedient().isEmpty(),
+					filtreDto.getNumeroExpedient(),
+					filtreDto.getNumero() == null || filtreDto.getNumero().isEmpty(),
+					filtreDto.getNumero(),
+					filtreDto.getExtracte() == null || filtreDto.getExtracte().isEmpty(),
+					filtreDto.getExtracte(),
+					filtreDto.getDataInicial() == null,
+					filtreDto.getDataInicial(),
+					dataFinal == null,
+					dataFinal,
+					filtreDto.getEstat() == null,
+					filtreDto.getEstat(),
+					filtreDto.getExpedientTipusId() == null,
+					filtreDto.getExpedientTipusId(),
+					filtreDto.getExpedientId() == null,
+					filtreDto.getExpedientId(),
+					expedientTipusIdsPermesos == null || expedientTipusIdsPermesos.isEmpty(),
+					expedientTipusIdsPermesos == null || expedientTipusIdsPermesos.isEmpty() ? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesos,
+					expedientTipusIdsPermesosProcedimetComu == null || expedientTipusIdsPermesosProcedimetComu.isEmpty(),
+					expedientTipusIdsPermesosProcedimetComu.isEmpty() ? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesosProcedimetComu,
+					unitatsOrganitvesCodis.isEmpty() ? true : false,
+					unitatsOrganitvesCodis.isEmpty() ? Arrays.asList(ArrayUtils.toArray("")) : unitatsOrganitvesCodis,
+					paginacioParams.getFiltre() == null || paginacioParams.getFiltre().isEmpty(),
+					paginacioParams.getFiltre(),
+					paginacioHelper.toSpringDataPageable(paginacioParams));
+		}
+		
+		PaginaDto<AnotacioListDto> pagina = paginacioHelper.toPaginaDto(page, AnotacioListDto.class);
+		
+		for(AnotacioListDto anotacio: pagina.getContingut()){
+			if(distribucioHelper.isProcessant(anotacio.getId())) {
+				anotacio.setProcessant(true);
+			}
+		}
+		
+		return pagina;
+	}
+
+	/** Crea la query dinàmicament segons els paràmetres de cerca i retoran una llista d'indentificadors o un resultat paginat.
+	 * 
+	 * @return
+	 */
+	@Transactional(readOnly = true)
+	private Object findAmbFiltrePaginat(
+			boolean nomesIds,
+			boolean esNullCodiProcediment,
+			String codiProcediment,
+			boolean esNullDestiCodi,//unitatOrganitzativa
+			String destiCodi,//unitatOrganitzativa
+			boolean esNullCodiAssumpte,
+			String codiAssumpte,
+			boolean esNullNumeroExpedient,
+			String numeroExpedient,
+			boolean esNullNumero,
+			String numero,
+			boolean esNullExtracte,
+			String extracte,
+			boolean esNullDataInicial,
+			Date dataInicial,
+			boolean esNullDataFinal,
+			Date dataFinal,
+			boolean esNullEstat,
+			AnotacioEstatEnumDto estat, 
+			boolean esNullExpedientTipusId,
+			Long expedientTipusId, 
+			boolean esNullExpedientId,
+			Long expedientId, 
+			boolean esNullExpedientTipusIds,
+			List<Long> expedientTipusIds,
+			boolean esNullExpedientTipusIdsPermesosProcedimetComu,
+			List<Long> expedientTipusIdsPermesosProcedimetComu,
+			boolean esNullUnitatsOrganitvesCodis,
+			List<String> unitatsOrganitvesCodis,
+			boolean esNullFiltre,
+			String filtre, 
+			Pageable pageable,
+			PaginacioParamsDto paginacioParams) {
+
+		Object ret = null; // Retorna una llista d'identificadors o una pàgina
+
+		// Construeix la select
+		String sqlFrom = "from Anotacio a ";
+		// Where
+		Map<String, Object> parametres = new HashMap<String, Object>();
+		StringBuilder sqlWhere = new StringBuilder(" where ");
+
+		StringBuilder sqlOrder = new StringBuilder();
+		if (pageable != null && pageable.getSort() != null) {
+			Iterator<Order> orders = pageable.getSort().iterator();
+			if (orders.hasNext()) {
+				sqlOrder.append(" order by ");
+			}
+			Order order;
+			while (orders.hasNext()) {
+				order = orders.next();
+				sqlOrder.append(order.getProperty()).append(" ").append(order.getDirection());
+				if (orders.hasNext()) {
+					sqlOrder.append(", ");
+				}
+			}
+		}
+		if(!esNullEstat) {
+			sqlWhere.append(" a.estat = :estat ");
+			parametres.put("estat", estat);
+		} else {
+			sqlWhere.append(" 10 > 0 ");
+		}
+
+		if (!esNullCodiProcediment) {
+			sqlWhere.append(" and lower(a.procedimentCodi) like lower('%'||:codiProcediment||'%') ");
+			parametres.put("codiProcediment", codiProcediment);
+		}
+		if (!esNullDestiCodi) {
+			sqlWhere.append(" and lower(a.destiCodi) like lower('%'||:destiCodi||'%') ");
+			parametres.put("destiCodi", destiCodi);
+		}
+		if (!esNullCodiAssumpte) {
+			sqlWhere.append(" and lower(a.assumpteCodiCodi) like lower('%'||:codiAssumpte||'%') ");
+			parametres.put("codiAssumpte", codiAssumpte);
+		}
+		if (!esNullNumeroExpedient) {
+			sqlWhere.append(" and lower(a.expedientNumero) like lower('%'||:numeroExpedient||'%') ");
+			parametres.put("numeroExpedient", numeroExpedient);
+		}
+		if (!esNullNumero) {
+			sqlWhere.append(" and lower(a.identificador) like lower('%'||:numero||'%') ");
+			parametres.put("numero", numero);
+		}
+		if (!esNullExtracte) {
+			sqlWhere.append(" and lower(a.extracte) like lower('%'||:extracte||'%') ");
+			parametres.put("extracte", extracte);
+		}
+		if (!esNullDataInicial) {
+			sqlWhere.append(" and a.data >= :dataInicial ");
+			parametres.put("dataInicial", dataInicial);
+		}
+		if (!esNullDataFinal) {
+			sqlWhere.append(" and a.data <= :dataFinal ");
+			parametres.put("dataFinal", dataFinal);
+		}
+		if (!esNullExpedientTipusId) {
+			sqlWhere.append(" and a.expedientTipus.id = :expedientTipusId ");
+			parametres.put("expedientTipusId", expedientTipusId);
+		}
+		if (!esNullExpedientId) {
+			sqlWhere.append(" and a.expedient.id = :expedientId ");
+			parametres.put("expedientId", expedientId);
+		}
+		if (!esNullExpedientTipusIds) {
+			sqlWhere.append(" and a.expedientTipus.id in (:expedientTipusIds) ");
+			parametres.put("expedientTipusIds", expedientTipusIds);
+		}	
+		if (!esNullExpedientTipusIdsPermesosProcedimetComu && !esNullUnitatsOrganitvesCodis ) {
+			if (esNullExpedientTipusId) {
+				sqlWhere.append(" and ( ");
+				sqlWhere.append(" a.expedientTipus.id in (:expedientTipusIdsPermesosProcedimetComu) ");
+				parametres.put("expedientTipusIdsPermesosProcedimetComu", expedientTipusIdsPermesosProcedimetComu);
+				// en subllistes
+				sqlWhere.append(" and ( ");
+				for (int i = 0; i <= unitatsOrganitvesCodis.size() / 1000; i++ ) {
+					if(i>0) 
+						sqlWhere.append(" or ");
+					sqlWhere.append(" a.destiCodi in (:unitatsOrganitvesCodis" + i + ") ");
+					parametres.put("unitatsOrganitvesCodis"+i, unitatsOrganitvesCodis.subList(i*1000, Math.min(unitatsOrganitvesCodis.size(), (i+1)*1000)));
+				}
+				sqlWhere.append(" )) ");
+
+			}
+			else {
+				sqlWhere.append(" and ( ");
+				// en subllistes
+				for (int i = 0; i <= unitatsOrganitvesCodis.size() / 1000; i++ ) {
+					if(i>0)
+						sqlWhere.append(" or ");
+					sqlWhere.append(" a.destiCodi in (:unitatsOrganitvesCodis" + i + ") ");
+					parametres.put("unitatsOrganitvesCodis"+i, unitatsOrganitvesCodis.subList(i*1000, Math.min(unitatsOrganitvesCodis.size(), (i+1)*1000)));
+				}
+				sqlWhere.append(" ) ");
+			}
+
+		}
+		if (!esNullFiltre) {
+			sqlWhere.append(" and (lower(a.identificador) like lower('%'||:filtre||'%')) or lower(a.extracte) like lower('%'||:filtre||'%') ");
+			parametres.put("filtre", filtre);
+		}
+			
+		
+		String sqlSelect = "select " + (nomesIds ? " a.id " : "a ") + sqlFrom + sqlWhere + sqlOrder;
+		String sqlCount = "select count(a.id) " + sqlFrom + sqlWhere;
+		Session session = entityManager.unwrap(Session.class);
+		Query selectQuery = session.createQuery(sqlSelect);
+		if (pageable != null) {
+			selectQuery = selectQuery.
+					setFirstResult(pageable.getPageNumber() * pageable.getPageSize()).
+					setMaxResults(pageable.getPageSize());
+		}
+		Query countQuery = session.createQuery(sqlCount);
+		Object value;
+		for (String parametre : parametres.keySet()) {
+			value = parametres.get(parametre);
+			if (value instanceof Collection) {
+				selectQuery.setParameterList(parametre, (Collection) value);
+				countQuery.setParameterList(parametre, (Collection) value);
+			} else {
+				selectQuery.setParameter(parametre, value);
+				countQuery.setParameter(parametre, value);
+			}
+		}
+		if (nomesIds) {
+			// select
+			List<Long> ids = (List<Long>) selectQuery.list();
+			ret = ids;
+		} else {
+			// select
+			List<Anotacio> resultats = (List<Anotacio>)selectQuery.list();
+			// count
+			Page<Anotacio> pagina = (Page<Anotacio>) new PageImpl<Anotacio>(
+					resultats,
+					pageable, 
+					(Long)countQuery.uniqueResult()); 
+			ret = pagina;
+		}
+		return ret;
+	}
+
+	@Override
+	public List<Long> findIdsAmbFiltre(
+				Long entornId, 
+				List<ExpedientTipusDto> expedientTipusDtoAccessiblesAnotacions,
+				AnotacioFiltreDto filtreDto,
+				PaginacioParamsDto paginacioParams) {
+		logger.debug(
+				"Consultant els identificadors les anotacions per datatable (" +
+				"anotacioFiltreDto=" + filtreDto + ")");
+
+		// Llista d'expedients tipus amb permís de relacionar
+		List<Long> expedientTipusIdsPermesos = null;
+		List<Long> expedientTipusIdsPermesosProcedimetComu = new ArrayList<Long>();
+		List<String> unitatsOrganitvesCodis = new ArrayList<String>();
+		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = new ArrayList<ExpedientTipusUnitatOrganitzativa>();
+		// Pot veure:
+		// - Totes les anotacions si és administrador d'Helium
+		// - Les anotacions dels tipus d'expedient amb permís de relacionar en el cas de no ser-ho
+		// - Les anotacions d'un expedient en el cas de passar-ho com a filtre
+		// Si el filtre especifica l'id de l'expedient des de la pipella d'anotacions de l'expedient
+
+		if (filtreDto.getExpedientId() != null) {
+			// Comprova que pugui llegir l'expedient pel cas de la pipella d'anotacions de l'expedient
+			expedientHelper.getExpedientComprovantPermisos(filtreDto.getExpedientId(), true, false, false, false);
+		} else {
+			// Classifiquem els tipusExpedients tipus sense procediment comú  i amb procediment comú, dels que portem des de la caché
+			for(ExpedientTipusDto expTipusDtoCache: expedientTipusDtoAccessiblesAnotacions) {
+				if(!expTipusDtoCache.isProcedimentComu()) {
+					expedientTipusIdsPermesos.add(expTipusDtoCache.getId());
+				} else {
+					expedientTipusIdsPermesosProcedimetComu.add(expTipusDtoCache.getId());
+				}
+			}
+			
+			// Comprova l'accés al tipus d'expedient
+			ExpedientTipus expedientTipus = null;
+			List<Long> idsUnitatsOrganitzativesAmbPermisos = new ArrayList<Long>();
+			//Al filtre d'anotacions només tindrem els expedientTipus amb permisos d'admin o de relacionar
+			if (filtreDto.getExpedientTipusId() != null) {
+				expedientTipus = expedientTipusRepository.findById(filtreDto.getExpedientTipusId());
+				expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(filtreDto.getExpedientTipusId());
+
+				//Obté la llista de unitats organitzatives per les quals té permisos (també retornarà les uo filles)
+				if(expedientTipus.isProcedimentComu())
+					idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(expedientTipus.getEntorn().getId(), filtreDto.getExpedientTipusId());
+
+			} else { //si no hi ha expedientTipus al filtre, hem de buscar totes les UO per las quals es té permís i obtenir els expedinetTipus
+				if (!usuariActualHelper.isAdministrador()) {
+					expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findAll();
+					//Afegim els expedientTipus amb procediment comú permesos
+					idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(entornId, null);
+				}
+			}
+			for(Long id: idsUnitatsOrganitzativesAmbPermisos) {
+				UnitatOrganitzativa uo = unitatOrganitzativaHelper.findById(id);
+				if(uo!=null && !unitatsOrganitvesCodis.contains(uo.getCodi()))
+					unitatsOrganitvesCodis.add(uo.getCodi());
+			}	
+		
+		}
+		
+		Date dataFinal = null;
+		if (filtreDto.getDataFinal() != null) {
+			// Corregeix la data final per arribar a les 00:00:00h del dia següent.
+			Calendar c = new GregorianCalendar();
+			c.setTime(filtreDto.getDataFinal());
+			c.add(Calendar.DATE, 1);
+			c.set(Calendar.HOUR_OF_DAY, 0);
+			c.set(Calendar.MINUTE, 0);
+			c.set(Calendar.SECOND, 0);
+			c.set(Calendar.MILLISECOND, 0);
+			dataFinal = c.getTime();
+		}
+		List<Long> ids = new ArrayList<Long>();
+		this.findAmbFiltrePaginat(
+				false, // per retornar una pàgina
 				filtreDto.getCodiProcediment() == null || filtreDto.getCodiProcediment().isEmpty(),
 				filtreDto.getCodiProcediment(),
 				filtreDto.getUnitatOrganitzativaCodi() == null || filtreDto.getUnitatOrganitzativaCodi().isEmpty(),
@@ -297,94 +648,12 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				expedientTipusIdsPermesos == null || expedientTipusIdsPermesos.isEmpty() ? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesos,
 				expedientTipusIdsPermesosProcedimetComu == null || expedientTipusIdsPermesosProcedimetComu.isEmpty(),
 				expedientTipusIdsPermesosProcedimetComu.isEmpty() ? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesosProcedimetComu,
-				threePartList /* && unitatsOrganitvesCodis.isEmpty()*/ ? true : false,
+				unitatsOrganitvesCodis.isEmpty() ? true : false,
 				unitatsOrganitvesCodis.isEmpty() ? Arrays.asList(ArrayUtils.toArray("")) : unitatsOrganitvesCodis,
-				!threePartList && unitatsOrganitvesCodis1.isEmpty() ? true : false,
-				unitatsOrganitvesCodis1.isEmpty() ? Arrays.asList(ArrayUtils.toArray("")) : unitatsOrganitvesCodis1,
-				!threePartList && unitatsOrganitvesCodis2.isEmpty() ? true : false,
-				unitatsOrganitvesCodis2.isEmpty() ? Arrays.asList(ArrayUtils.toArray("")) : unitatsOrganitvesCodis2,
-				!threePartList && unitatsOrganitvesCodis3.isEmpty() ? true : false,
-				unitatsOrganitvesCodis3.isEmpty() ? Arrays.asList(ArrayUtils.toArray("")) : unitatsOrganitvesCodis3,
 				paginacioParams.getFiltre() == null || paginacioParams.getFiltre().isEmpty(),
 				paginacioParams.getFiltre(),
-				paginacioHelper.toSpringDataPageable(paginacioParams));
-		
-		PaginaDto<AnotacioListDto> pagina = paginacioHelper.toPaginaDto(page, AnotacioListDto.class);
-		
-		for(AnotacioListDto anotacio: pagina.getContingut()){
-			if(distribucioHelper.isProcessant(anotacio.getId())) {
-				anotacio.setProcessant(true);
-			}
-		}
-		
-		return pagina;
-	}
-
-	@Override
-	public List<Long> findIdsAmbFiltre(Long entornId, AnotacioFiltreDto filtreDto) {
-		logger.debug(
-				"Consultant eks identificadors les anotacions per datatable (" +
-				"anotacioFiltreDto=" + filtreDto + ")");
-
-		// Llista d'expedients tipus amb permís de relacionar
-		List<Long> expedientTipusIdsPermesos = null;
-		// Pot veure:
-		// - Totes les anotacions si és administrador d'Helium
-		// - Les anotacions dels tipus d'expedient amb permís de relacionar en el cas de no ser-ho
-		// - Les anotacions d'un expedient en el cas de passar-ho com a filtre
-		// Si el filtre especifica l'id de l'expedient des de la pipella d'anotacions de l'expedient
-		if (filtreDto.getExpedientId() != null) {
-			// Comprova que pugui llegir l'expedient pel cas de la pipella d'anotacions de l'expedient
-			expedientHelper.getExpedientComprovantPermisos(filtreDto.getExpedientId(), true, false, false, false);
-		} else {
-			// Comporova que sigui administrador o recupera els tipus permesos per la vista d'anotacions
-			if (!usuariActualHelper.isAdministrador()) {
-				expedientTipusIdsPermesos = expedientTipusHelper.findIdsAmbPermisos(
-						entornHelper.getEntorn(entornId),
-						new Permission[] {
-								ExtendedPermission.RELATE,
-								ExtendedPermission.ADMINISTRATION
-						});
-				if (expedientTipusIdsPermesos.isEmpty())
-					expedientTipusIdsPermesos.add(0L);
-			}
-		}
-		
-		Date dataFinal = null;
-		if (filtreDto.getDataFinal() != null) {
-			// Corregeix la data final per arribar a les 00:00:00h del dia següent.
-			Calendar c = new GregorianCalendar();
-			c.setTime(filtreDto.getDataFinal());
-			c.add(Calendar.DATE, 1);
-			c.set(Calendar.HOUR_OF_DAY, 0);
-			c.set(Calendar.MINUTE, 0);
-			c.set(Calendar.SECOND, 0);
-			c.set(Calendar.MILLISECOND, 0);
-			dataFinal = c.getTime();
-		}
-		List<Long> ids = anotacioRepository.findIdsAmbFiltre(
-				filtreDto.getCodiProcediment() == null || filtreDto.getCodiProcediment().isEmpty(),
-				filtreDto.getCodiProcediment(),
-				filtreDto.getCodiAssumpte() == null || filtreDto.getCodiAssumpte().isEmpty(),
-				filtreDto.getCodiAssumpte(),
-				filtreDto.getNumeroExpedient() == null || filtreDto.getNumeroExpedient().isEmpty(),
-				filtreDto.getNumeroExpedient(),
-				filtreDto.getNumero() == null || filtreDto.getNumero().isEmpty(),
-				filtreDto.getNumero(),
-				filtreDto.getExtracte() == null || filtreDto.getExtracte().isEmpty(),
-				filtreDto.getExtracte(),
-				filtreDto.getDataInicial() == null,
-				filtreDto.getDataInicial(),
-				dataFinal == null,
-				dataFinal,
-				filtreDto.getEstat() == null,
-				filtreDto.getEstat(),
-				filtreDto.getExpedientTipusId() == null,
-				filtreDto.getExpedientTipusId(),
-				filtreDto.getExpedientId() == null,
-				filtreDto.getExpedientId(),
-				expedientTipusIdsPermesos == null,
-				expedientTipusIdsPermesos == null? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesos);
+				paginacioHelper.toSpringDataPageable(paginacioParams),
+				paginacioParams);
 		
 		return ids;	
 	}

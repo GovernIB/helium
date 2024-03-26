@@ -31,7 +31,11 @@ public interface AnotacioService {
 			PaginacioParamsDto paginacioParams);
 	
 	/** Mètode per consultar el llistat d'identificadors de les anotacions a partir d'un filtre. */
-	public List<Long> findIdsAmbFiltre(Long entornId, AnotacioFiltreDto filtreDto);
+	public List<Long> findIdsAmbFiltre(
+			Long entornId, 
+			List<ExpedientTipusDto> expedientTipusDtoAccessiblesAnotacions,
+			AnotacioFiltreDto filtreDto,
+			PaginacioParamsDto paginacioParams);
 
 	/** Mètode per consultar una anotació per identificador.
 	 * 

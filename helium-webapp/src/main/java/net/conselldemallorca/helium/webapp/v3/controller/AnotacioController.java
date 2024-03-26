@@ -248,9 +248,14 @@ public class AnotacioController extends BaseExpedientController {
 			seleccio.clear();
 		} else if ("all".equalsIgnoreCase(tipus)) {
 			seleccio.clear();
+			List<ExpedientTipusDto> expedientTipusDtoAccessibles = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
+					request,
+					SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS);
 			seleccio.addAll(anotacioService.findIdsAmbFiltre(
 					entornActual.getId(), 
-					ConversioTipusHelper.convertir(this.getFiltreCommand(request), AnotacioFiltreDto.class)));
+					expedientTipusDtoAccessibles,
+					ConversioTipusHelper.convertir(this.getFiltreCommand(request), AnotacioFiltreDto.class),
+					DatatablesHelper.getPaginacioDtoFromRequest(request)));
 		}
 
 		sessionManager.setSeleccioAnotacio(seleccio);
