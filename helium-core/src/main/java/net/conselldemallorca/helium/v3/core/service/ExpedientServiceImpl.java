@@ -879,7 +879,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				entornId,
 				auth.getName(),
 				tipusPermesosIds,
-				idsUnitatsOrganitzativesAmbPermisos,
+				idsUnitatsOrganitzativesAmbPermisos, // substituir
+				new HashMap<Long, List<Long>>(), //unitatsPerTipusComu
 				titol,
 				numero,
 				unitatOrganitzativaId,
@@ -1053,7 +1054,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				entornId,
 				auth.getName(),
 				tipusPermesosIds,
-				idsUnitatsOrganitzativesAmbPermisos,
+				idsUnitatsOrganitzativesAmbPermisos, // substituir
+				new HashMap<Long, List<Long>>(), //unitatsPerTipusComu
 				titol,
 				numero,
 				unitatOrganitzativaId,
@@ -2523,7 +2525,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					entorn.getId(),
 					auth.getName(),
 					tipusPermesosIds,
-					idsUnitatsOrganitzativesAmbPermisos,
+					idsUnitatsOrganitzativesAmbPermisos, // substituir
+					new HashMap<Long, List<Long>>(), //unitatsPerTipusComu
 					null,
 					null,
 					null,//unitatOrganitzativaCodi
@@ -2705,7 +2708,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				entorn.getId(),
 				auth.getName(),
 				tipusPermesosIds,
-				null,
+				null, // substituir
+				null, //unitatsPerTipusComu
 				null,
 				null,
 				null,//unitatOrganitzativaCodi

@@ -475,7 +475,7 @@ public class TascaServiceImpl implements TascaService {
 				boolean mostrarAssignadesUsuari = (nomesTasquesPersonals && !nomesTasquesGrup) || (!nomesTasquesPersonals && !nomesTasquesGrup);
 				boolean mostrarAssignadesGrup = (nomesTasquesGrup && !nomesTasquesPersonals) || (!nomesTasquesPersonals && !nomesTasquesGrup);
 				paginaTasks = jbpmHelper.tascaFindByFiltrePaginat(
-						idsUnitatsOrganitzativesAmbPermisos,
+						new HashMap<Long, List<Long>> (), //TODO:  idsUnitatsOrganitzativesAmbPermisos -> unitatsPerTipusComu
 						entornId,
 						responsable,
 						tasca,
