@@ -1585,7 +1585,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		ParametreDto parametrePropagarEsbExp = parametreService.findByCodi(ParametreService.APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS);
 		if(parametrePropagarEsbExp==null)
 			throw new NoTrobatException(Parametre.class,ParametreService.APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS);
-		return "true".equalsIgnoreCase(parametrePropagarEsbExp.getValor());
+		return "1".equalsIgnoreCase(parametrePropagarEsbExp.getValor());
 	}
 	
 	private static final Log logger = LogFactory.getLog(ExpedientTipusController.class);

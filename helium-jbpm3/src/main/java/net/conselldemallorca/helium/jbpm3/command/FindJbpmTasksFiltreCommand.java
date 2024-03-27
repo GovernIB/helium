@@ -232,17 +232,13 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 			}
 			taskQuerySb.append("where ");
 			
-			if(unitatsPerTipusComu!=null && !unitatsPerTipusComu.isEmpty()) {				
-				taskQuerySb.append("( ");
+			if( unitatsPerTipusComu !=null && !unitatsPerTipusComu.isEmpty()) {				
+				taskQuerySb.append("( et.procedimentComu <> 1 ");
 				List<Long> codisUos;
-				boolean filtrePerTipus = false;
 				for (Long expedientTipusComuId : unitatsPerTipusComu.keySet()) {
 					codisUos = unitatsPerTipusComu.get(expedientTipusComuId);
 					if (!codisUos.isEmpty()) {
-						if (filtrePerTipus) {
-							taskQuerySb.append(" or ");
-						}
-						taskQuerySb.append(" ( et.procedimentComu = 1 and et.id = " + expedientTipusComuId);
+						taskQuerySb.append(" or ( et.procedimentComu = 1 and et.id = " + expedientTipusComuId);
 						// en subllistes
 						taskQuerySb.append(" and ( ");
 						for (int i = 0; i <= codisUos.size() / 1000; i++ ) {
@@ -252,7 +248,6 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 							taskQuerySb.append(" e.unitatOrganitzativaId in (:uos_" + expedientTipusComuId + "_" + i + ") ");
 						}
 						taskQuerySb.append(" ) ) ");
-						filtrePerTipus = true;
 					}
 				}
 				taskQuerySb.append(") and ");
