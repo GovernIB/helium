@@ -224,12 +224,14 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			// Comprova que pugui llegir l'expedient pel cas de la pipella d'anotacions de l'expedient
 			expedientHelper.getExpedientComprovantPermisos(filtreDto.getExpedientId(), true, false, false, false);
 		} else {
-			// Classifiquem els tipusExpedients tipus sense procediment comú  i amb procediment comú, dels que portem des de la caché
-			for(ExpedientTipusDto expTipusDtoCache: expedientTipusDtoAccessiblesAnotacions) {
-				if(!expTipusDtoCache.isProcedimentComu()) {
-					expedientTipusIdsPermesos.add(expTipusDtoCache.getId());
-				} else {
-					expedientTipusIdsPermesosProcedimetComu.add(expTipusDtoCache.getId());
+			if (!usuariActualHelper.isAdministrador()) {
+				// Classifiquem els tipusExpedients tipus sense procediment comú  i amb procediment comú, dels que portem des de la caché
+				for(ExpedientTipusDto expTipusDtoCache: expedientTipusDtoAccessiblesAnotacions) {
+					if(!expTipusDtoCache.isProcedimentComu()) {
+						expedientTipusIdsPermesos.add(expTipusDtoCache.getId());
+					} else {
+						expedientTipusIdsPermesosProcedimetComu.add(expTipusDtoCache.getId());
+					}
 				}
 			}
 			
@@ -308,10 +310,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					expedientTipusIdsPermesosProcedimetComu.isEmpty() ? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesosProcedimetComu,
 					unitatsOrganitvesCodis.isEmpty() ? true : false,
 					unitatsOrganitvesCodis.isEmpty() ? Arrays.asList(ArrayUtils.toArray("")) : unitatsOrganitvesCodis,
-					paginacioParams.getFiltre() == null || paginacioParams.getFiltre().isEmpty(),
-					paginacioParams.getFiltre(),
-					paginacioHelper.toSpringDataPageable(paginacioParams),
-					paginacioParams);
+					paginacioHelper.toSpringDataPageable(paginacioParams));
 		} else {
 			// Consulta per repositor
 			page = anotacioRepository.findAmbFiltrePaginat(
@@ -394,10 +393,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			List<Long> expedientTipusIdsPermesosProcedimetComu,
 			boolean esNullUnitatsOrganitvesCodis,
 			List<String> unitatsOrganitvesCodis,
-			boolean esNullFiltre,
-			String filtre, 
-			Pageable pageable,
-			PaginacioParamsDto paginacioParams) {
+			Pageable pageable) {
 
 		Object ret = null; // Retorna una llista d'identificadors o una pàgina
 
@@ -422,12 +418,9 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				}
 			}
 		}
-		if(!esNullEstat) {
-			sqlWhere.append(" a.estat = :estat ");
-			parametres.put("estat", estat);
-		} else {
-			sqlWhere.append(" 10 > 0 ");
-		}
+		sqlWhere.append(" (:esNullEstat = true or a.estat = :estat) ");
+		parametres.put("esNullEstat", esNullEstat);
+		parametres.put("estat", estat);
 
 		if (!esNullCodiProcediment) {
 			sqlWhere.append(" and lower(a.procedimentCodi) like lower('%'||:codiProcediment||'%') ");
@@ -501,12 +494,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				sqlWhere.append(" ) ");
 			}
 
-		}
-		if (!esNullFiltre) {
-			sqlWhere.append(" and (lower(a.identificador) like lower('%'||:filtre||'%')) or lower(a.extracte) like lower('%'||:filtre||'%') ");
-			parametres.put("filtre", filtre);
-		}
-			
+		}			
 		
 		String sqlSelect = "select " + (nomesIds ? " a.id " : "a ") + sqlFrom + sqlWhere + sqlOrder;
 		String sqlCount = "select count(a.id) " + sqlFrom + sqlWhere;
@@ -550,14 +538,13 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	public List<Long> findIdsAmbFiltre(
 				Long entornId, 
 				List<ExpedientTipusDto> expedientTipusDtoAccessiblesAnotacions,
-				AnotacioFiltreDto filtreDto,
-				PaginacioParamsDto paginacioParams) {
+				AnotacioFiltreDto filtreDto) {
 		logger.debug(
 				"Consultant els identificadors les anotacions per datatable (" +
 				"anotacioFiltreDto=" + filtreDto + ")");
 
 		// Llista d'expedients tipus amb permís de relacionar
-		List<Long> expedientTipusIdsPermesos = null;
+		List<Long> expedientTipusIdsPermesos = new ArrayList<Long>();
 		List<Long> expedientTipusIdsPermesosProcedimetComu = new ArrayList<Long>();
 		List<String> unitatsOrganitvesCodis = new ArrayList<String>();
 		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = new ArrayList<ExpedientTipusUnitatOrganitzativa>();
@@ -571,13 +558,15 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			// Comprova que pugui llegir l'expedient pel cas de la pipella d'anotacions de l'expedient
 			expedientHelper.getExpedientComprovantPermisos(filtreDto.getExpedientId(), true, false, false, false);
 		} else {
-			// Classifiquem els tipusExpedients tipus sense procediment comú  i amb procediment comú, dels que portem des de la caché
-			for(ExpedientTipusDto expTipusDtoCache: expedientTipusDtoAccessiblesAnotacions) {
-				if(!expTipusDtoCache.isProcedimentComu()) {
-					expedientTipusIdsPermesos.add(expTipusDtoCache.getId());
-				} else {
-					expedientTipusIdsPermesosProcedimetComu.add(expTipusDtoCache.getId());
-				}
+			if (!usuariActualHelper.isAdministrador()) {
+				// Classifiquem els tipusExpedients tipus sense procediment comú  i amb procediment comú, dels que portem des de la caché
+				for(ExpedientTipusDto expTipusDtoCache: expedientTipusDtoAccessiblesAnotacions) {
+					if(!expTipusDtoCache.isProcedimentComu()) {
+						expedientTipusIdsPermesos.add(expTipusDtoCache.getId());
+					} else {
+						expedientTipusIdsPermesosProcedimetComu.add(expTipusDtoCache.getId());
+					}
+				}				
 			}
 			
 			// Comprova l'accés al tipus d'expedient
@@ -619,9 +608,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			c.set(Calendar.MILLISECOND, 0);
 			dataFinal = c.getTime();
 		}
-		List<Long> ids = new ArrayList<Long>();
-		this.findAmbFiltrePaginat(
-				false, // per retornar una pàgina
+		List<Long> ids = (List<Long>) this.findAmbFiltrePaginat(
+				true, // per retornar una pàgina
 				filtreDto.getCodiProcediment() == null || filtreDto.getCodiProcediment().isEmpty(),
 				filtreDto.getCodiProcediment(),
 				filtreDto.getUnitatOrganitzativaCodi() == null || filtreDto.getUnitatOrganitzativaCodi().isEmpty(),
@@ -650,10 +638,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				expedientTipusIdsPermesosProcedimetComu.isEmpty() ? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesosProcedimetComu,
 				unitatsOrganitvesCodis.isEmpty() ? true : false,
 				unitatsOrganitvesCodis.isEmpty() ? Arrays.asList(ArrayUtils.toArray("")) : unitatsOrganitvesCodis,
-				paginacioParams.getFiltre() == null || paginacioParams.getFiltre().isEmpty(),
-				paginacioParams.getFiltre(),
-				paginacioHelper.toSpringDataPageable(paginacioParams),
-				paginacioParams);
+				null);
 		
 		return ids;	
 	}

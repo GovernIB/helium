@@ -254,8 +254,7 @@ public class AnotacioController extends BaseExpedientController {
 			seleccio.addAll(anotacioService.findIdsAmbFiltre(
 					entornActual.getId(), 
 					expedientTipusDtoAccessibles,
-					ConversioTipusHelper.convertir(this.getFiltreCommand(request), AnotacioFiltreDto.class),
-					DatatablesHelper.getPaginacioDtoFromRequest(request)));
+					ConversioTipusHelper.convertir(this.getFiltreCommand(request), AnotacioFiltreDto.class)));
 		}
 
 		sessionManager.setSeleccioAnotacio(seleccio);

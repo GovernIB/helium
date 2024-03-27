@@ -48,13 +48,11 @@ public class AnotacioServiceBean implements AnotacioService {
 	public List<Long> findIdsAmbFiltre(
 			Long entornId,
 			List<ExpedientTipusDto> expedientTipusDtoAccessiblesAnotacions,
-			AnotacioFiltreDto filtreDto,
-			PaginacioParamsDto paginacioParams) {
+			AnotacioFiltreDto filtreDto) {
 		return delegate.findIdsAmbFiltre( 
 				entornId, 
 				expedientTipusDtoAccessiblesAnotacions,
-				filtreDto,
-				paginacioParams);
+				filtreDto);
 	}
 
 

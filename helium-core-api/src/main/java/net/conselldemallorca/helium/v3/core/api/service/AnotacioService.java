@@ -34,8 +34,7 @@ public interface AnotacioService {
 	public List<Long> findIdsAmbFiltre(
 			Long entornId, 
 			List<ExpedientTipusDto> expedientTipusDtoAccessiblesAnotacions,
-			AnotacioFiltreDto filtreDto,
-			PaginacioParamsDto paginacioParams);
+			AnotacioFiltreDto filtreDto);
 
 	/** Mètode per consultar una anotació per identificador.
 	 * 
