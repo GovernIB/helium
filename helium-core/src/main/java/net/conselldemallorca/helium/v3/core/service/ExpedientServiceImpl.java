@@ -92,6 +92,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
 import net.conselldemallorca.helium.core.model.hibernate.Notificacio;
 import net.conselldemallorca.helium.core.model.hibernate.Parametre;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
@@ -819,15 +820,21 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		// Comprova l'accés al tipus d'expedient
 		ExpedientTipus expedientTipus = null;
 		List<Long> idsUnitatsOrganitzativesAmbPermisos = new ArrayList<Long>();
+		Map<Long,List<Long>> unitatsPerTipusComu = new HashMap<Long, List<Long>>();
 		if (expedientTipusId != null) {
 			expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
 					expedientTipusId);
 			
 			//Obté la llista de unitats organitzatives per les quals té permisos (també retornarà les uo filles)
-			if(expedientTipus.isProcedimentComu())
+			if(expedientTipus.isProcedimentComu()) {
 				idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(entorn.getId(), expedientTipusId);
+				List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(expedientTipusId);
+				unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComuIds(entornId,expTipUnitOrgList);
+			}
 
 		} else { //si no hi ha expedientTipus al filtre, hem de buscar totes les UO per las quals es té permís i obtenir els expedinetTipus
+			List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusEntornId(entorn.getId());
+			unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComuIds(entornId,expTipUnitOrgList);
 			idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(entorn.getId(), null);
 		}
 		// Comprova l'accés a l'estat
@@ -854,33 +861,13 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		if(unitatOrganitzativaCodi!=null) {
 			UnitatOrganitzativa unitatOrg = unitatOrganitzativaRepository.findByCodi(unitatOrganitzativaCodi);
 			unitatOrganitzativaId = unitatOrg!=null? unitatOrg.getId() : null;
-			//Aquí hem de tenir en compte totes les UO's filles, i sobreescriurem les idsUnitatsOrganitzativesAmbPermisos per aquestes
-			List<UnitatOrganitzativa> llistaFilles = unitatOrganitzativaHelper.unitatsOrganitzativesFindLlistaTotesFilles(null, unitatOrganitzativaCodi, null);
-			if(llistaFilles!=null && !llistaFilles.isEmpty()) {
-				boolean tePermisSobreUO = false; 
-
-				for(UnitatOrganitzativa uoFilla: llistaFilles ) {
-						if(idsUnitatsOrganitzativesAmbPermisos.contains(uoFilla.getId())) {
-							tePermisSobreUO = true;
-							break;
-						}	
-				}
-				if(tePermisSobreUO) {//sobreescribim els idsUnitatsOrganitzativesAmbPermisos només per els fills i la uoPare 
-					idsUnitatsOrganitzativesAmbPermisos.clear();
-					idsUnitatsOrganitzativesAmbPermisos.add(unitatOrg.getId());
-					for(UnitatOrganitzativa uoFilla: llistaFilles ) {
-						idsUnitatsOrganitzativesAmbPermisos.add(uoFilla.getId());
-					}
-				}
-			}	
 		}
 		// Executa la consulta amb paginació
 		ResultatConsultaPaginadaJbpm<Long> expedientsIds = jbpmHelper.expedientFindByFiltre(
 				entornId,
 				auth.getName(),
 				tipusPermesosIds,
-				idsUnitatsOrganitzativesAmbPermisos, // substituir
-				new HashMap<Long, List<Long>>(), //unitatsPerTipusComu
+				unitatsPerTipusComu,
 				titol,
 				numero,
 				unitatOrganitzativaId,
@@ -1041,21 +1028,20 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		// Obté la llista de tipus d'expedient permesos
 		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
 		
-		//Obté la llista de UOs permeses
-		List<Long> idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(entornId, expedientTipusId);
-		
 		Long unitatOrganitzativaId=null;
 		if(unitatOrganitzativaCodi!=null) {
 			UnitatOrganitzativa unitatOrg = unitatOrganitzativaRepository.findByCodi(unitatOrganitzativaCodi);
 			unitatOrganitzativaId = unitatOrg!=null? unitatOrg.getId() : null;
 		}
+		Map<Long,List<Long>> unitatsPerTipusComu = new HashMap<Long, List<Long>>();
+		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusEntornId(entorn.getId());
+		unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComuIds(entornId,expTipUnitOrgList);
 		// Executa la consulta amb paginació
 		ResultatConsultaPaginadaJbpm<Long> expedientsIds = jbpmHelper.expedientFindByFiltre(
 				entornId,
 				auth.getName(),
 				tipusPermesosIds,
-				idsUnitatsOrganitzativesAmbPermisos, // substituir
-				new HashMap<Long, List<Long>>(), //unitatsPerTipusComu
+				unitatsPerTipusComu,
 				titol,
 				numero,
 				unitatOrganitzativaId,
@@ -2519,14 +2505,15 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			expedientIdsPermesos = new ArrayList<Long>(expedientIdsSeleccio);
 		} else {
 			List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
-			List<Long> idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(entorn.getId(), null);
+			Map<Long,List<Long>> unitatsPerTipusComu = new HashMap<Long, List<Long>>();
+			List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusEntornId(entorn.getId());
+			unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComuIds(entorn.getId(),expTipUnitOrgList);
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			ResultatConsultaPaginadaJbpm<Long> expedientsIds = jbpmHelper.expedientFindByFiltre(
 					entorn.getId(),
 					auth.getName(),
 					tipusPermesosIds,
-					idsUnitatsOrganitzativesAmbPermisos, // substituir
-					new HashMap<Long, List<Long>>(), //unitatsPerTipusComu
+					unitatsPerTipusComu,
 					null,
 					null,
 					null,//unitatOrganitzativaCodi
@@ -2704,12 +2691,14 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		// Obte la llista d'expedients permesos segons els filtres
 		List<Long> tipusPermesosIds = expedientTipusHelper.findIdsAmbPermisRead(entorn);
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		Map<Long,List<Long>> unitatsPerTipusComu = new HashMap<Long, List<Long>>();
+		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusEntornId(entorn.getId());
+		unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComuIds(entorn.getId(),expTipUnitOrgList);
 		ResultatConsultaPaginadaJbpm<Long> expedientsIds = jbpmHelper.expedientFindByFiltre(
 				entorn.getId(),
 				auth.getName(),
 				tipusPermesosIds,
-				null, // substituir
-				null, //unitatsPerTipusComu
+				unitatsPerTipusComu,
 				null,
 				null,
 				null,//unitatOrganitzativaCodi

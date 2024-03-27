@@ -176,7 +176,6 @@ public class JbpmHelper {
 			Long entornId,
 			String actorId,
 			Collection<Long> tipusIdPermesos,
-			List<Long> xxxidsUnitatsOrganitzativesAmbPermisos, // substituir
 			Map<Long, List<Long>> unitatsPerTipusComu, 
 			String titol,
 			String numero,

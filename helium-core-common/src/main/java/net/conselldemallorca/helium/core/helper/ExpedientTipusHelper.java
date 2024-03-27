@@ -4,7 +4,9 @@
 package net.conselldemallorca.helium.core.helper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -462,6 +464,38 @@ public class ExpedientTipusHelper {
 			 }
 		 }
 		 return expedientsTipusComunsPermesos;		 
+	}
+	
+	public Map<Long,List<String>> unitatsPerTipusComu (Long entornId,List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList){
+		Map<Long,List<String>> unitatsPerTipusComu = new HashMap<Long, List<String>>();
+		List<Long> idsUnitatsOrganitzativesAmbPermisos = new ArrayList<Long>();
+		for(ExpedientTipusUnitatOrganitzativa expTipUo : expTipUnitOrgList ) {
+			if(expTipUo.getExpedientTipus().isProcedimentComu()) {
+				List<String> unitatsOrganitvesCodis = new ArrayList<String>();
+				idsUnitatsOrganitzativesAmbPermisos = this.findIdsUnitatsOrgAmbPermisosAdminOrRead(entornId, expTipUo.getExpedientTipus().getId());
+				for(Long id: idsUnitatsOrganitzativesAmbPermisos) {
+					UnitatOrganitzativa uo = unitatOrganitzativaHelper.findById(id);
+					if(uo!=null && !unitatsOrganitvesCodis.contains(uo.getCodi()))
+						unitatsOrganitvesCodis.add(uo.getCodi());
+				}
+				unitatsPerTipusComu.put(expTipUo.getExpedientTipus().getId(),unitatsOrganitvesCodis);
+			}
+		}
+		return unitatsPerTipusComu;
+	}
+	
+	public Map<Long,List<Long>> unitatsPerTipusComuIds (Long entornId,List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList){
+		Map<Long,List<Long>> unitatsPerTipusComuIds = new HashMap<Long, List<Long>>();
+		List<Long> idsUnitatsOrganitzativesAmbPermisos = new ArrayList<Long>();
+		for(ExpedientTipusUnitatOrganitzativa expTipUo : expTipUnitOrgList ) {
+			if(expTipUo.getExpedientTipus().isProcedimentComu()) {
+				idsUnitatsOrganitzativesAmbPermisos = this.findIdsUnitatsOrgAmbPermisosAdminOrRead(entornId, expTipUo.getExpedientTipus().getId());
+				if(!idsUnitatsOrganitzativesAmbPermisos.isEmpty()) {
+					unitatsPerTipusComuIds.put(expTipUo.getExpedientTipus().getId(),idsUnitatsOrganitzativesAmbPermisos);
+				}
+			}
+		}
+		return unitatsPerTipusComuIds;
 	}
 	
 	public boolean tePermisReadOrAdmin(PermisDto permis, Authentication authOriginal) {

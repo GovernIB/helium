@@ -71,6 +71,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
@@ -420,7 +421,7 @@ public class TascaServiceImpl implements TascaService {
 						"llistat.count",
 						entorn.getCodi()));
 		countEntorn.inc();
-		List<Long> idsUnitatsOrganitzativesAmbPermisos = new ArrayList<Long>();
+		Map<Long,List<Long>> unitatsPerTipusComu = new HashMap<Long, List<Long>>();
 		try {
 			final Timer timerConsultaTotal = metricRegistry.timer(
 					MetricRegistry.name(
@@ -440,11 +441,12 @@ public class TascaServiceImpl implements TascaService {
 					ExpedientTipus expTipus = expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
 							expedientTipusId);
 					if(expTipus.isProcedimentComu()) {
-						//aquí obtinc la llista de les UO's per les quals l'usuari té permís (comptant les uo filles de l'arbre)
-						idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(entorn.getId(), expedientTipusId);
+						List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(expedientTipusId);
+						unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComuIds(entornId,expTipUnitOrgList);
 					}
 				} else { //si no hi ha expedientTipus al filtre, hem de buscar totes les UO per las quals es té permís i obtenir els expedinetTipus
-					idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(entorn.getId(), null);
+					List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusEntornId(entorn.getId());
+					unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComuIds(entornId,expTipUnitOrgList);
 				}
 				// Si no hi ha tipexp seleccionat o no es te permis SUPERVISION
 				// a damunt el tipexp es filtra per l'usuari actual.
@@ -475,7 +477,7 @@ public class TascaServiceImpl implements TascaService {
 				boolean mostrarAssignadesUsuari = (nomesTasquesPersonals && !nomesTasquesGrup) || (!nomesTasquesPersonals && !nomesTasquesGrup);
 				boolean mostrarAssignadesGrup = (nomesTasquesGrup && !nomesTasquesPersonals) || (!nomesTasquesPersonals && !nomesTasquesGrup);
 				paginaTasks = jbpmHelper.tascaFindByFiltrePaginat(
-						new HashMap<Long, List<Long>> (), //TODO:  idsUnitatsOrganitzativesAmbPermisos -> unitatsPerTipusComu
+						unitatsPerTipusComu,
 						entornId,
 						responsable,
 						tasca,
