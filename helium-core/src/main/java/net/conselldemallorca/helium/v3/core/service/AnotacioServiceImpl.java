@@ -310,6 +310,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 					expedientTipusIdsPermesosProcedimetComu.isEmpty() ? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesosProcedimetComu,
 					unitatsOrganitvesCodis.isEmpty() ? true : false,
 					unitatsOrganitvesCodis.isEmpty() ? Arrays.asList(ArrayUtils.toArray("")) : unitatsOrganitvesCodis,
+					new HashMap<Long, List<String>>(),
 					paginacioHelper.toSpringDataPageable(paginacioParams));
 		} else {
 			// Consulta per repositor
@@ -390,9 +391,10 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			boolean esNullExpedientTipusIds,
 			List<Long> expedientTipusIds,
 			boolean esNullExpedientTipusIdsPermesosProcedimetComu,
-			List<Long> expedientTipusIdsPermesosProcedimetComu,
-			boolean esNullUnitatsOrganitvesCodis,
-			List<String> unitatsOrganitvesCodis,
+			List<Long> expedientTipusIdsPermesosProcedimetComu, // Substituir
+			boolean esNullUnitatsOrganitvesCodis, // Substituir
+			List<String> unitatsOrganitvesCodis, // Substituir
+			Map<Long, List<String>> unitatsPerTipusComu, 
 			Pageable pageable) {
 
 		Object ret = null; // Retorna una llista d'identificadors o una pàgina
@@ -638,6 +640,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				expedientTipusIdsPermesosProcedimetComu.isEmpty() ? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesosProcedimetComu,
 				unitatsOrganitvesCodis.isEmpty() ? true : false,
 				unitatsOrganitvesCodis.isEmpty() ? Arrays.asList(ArrayUtils.toArray("")) : unitatsOrganitvesCodis,
+				new HashMap<Long, List<String>>(),
 				null);
 		
 		return ids;	
