@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -1978,11 +1979,16 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					permissions,
 					auth);
 			List<ExpedientTipus> expedientTipusIdsPermesosProcedimetComu = expedientTipusHelper.expedientsTipusComunsPermesos(expTipUnitOrgList);
-			tipuss.addAll(expedientTipusIdsPermesosProcedimetComu);
-			if(orderByCodiAsc) {
-				Collections.sort(tipuss, new ComparadorExpedientTipusCodi());
-			} else {
-				Collections.sort(tipuss, new ComparadorExpedientTipusNom());
+			//Convinem les llistes sense que hi hagi duplicats
+			if(expedientTipusIdsPermesosProcedimetComu!=null && !expedientTipusIdsPermesosProcedimetComu.isEmpty()) {
+				Set<ExpedientTipus> set = new LinkedHashSet<ExpedientTipus>(tipuss);
+				set.addAll(expedientTipusIdsPermesosProcedimetComu);
+				tipuss=new ArrayList<ExpedientTipus>(set);
+				if(orderByCodiAsc) {
+					Collections.sort(tipuss, new ComparadorExpedientTipusCodi());
+				} else {
+					Collections.sort(tipuss, new ComparadorExpedientTipusNom());
+				}
 			}
 		}
 		return tipuss;

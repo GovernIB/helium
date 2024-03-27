@@ -173,9 +173,8 @@ public class TascaService {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			usuariBo = auth.getName();
 		}
-		List<Long> unitatsOrganitzativesAmbPermisos = null;
 		PaginaLlistatDto resposta = findTasquesFiltre(
-				unitatsOrganitzativesAmbPermisos,
+				null, //uos per tipus
 				entornId,
 				usuariBo,
 				null,
@@ -1951,7 +1950,7 @@ public class TascaService {
 	}*/
 
 	private PaginaLlistatDto findTasquesFiltre(
-			List<Long> unitatsOrganitzativesAmbPermisos,
+			Map<Long, List<Long>> unitatsPerTipusComuns,
 			Long entornId,
 			String usuari,
 			String taskName,
@@ -2003,7 +2002,7 @@ public class TascaService {
 			try {
 				// Consulta els expedients de l'entorn que compleixen el filtre
 				tasks = jbpmDao.tascaFindByFiltrePaginat(
-						unitatsOrganitzativesAmbPermisos,
+						unitatsPerTipusComuns,
 						entornId,
 						usuari,
 						taskName,

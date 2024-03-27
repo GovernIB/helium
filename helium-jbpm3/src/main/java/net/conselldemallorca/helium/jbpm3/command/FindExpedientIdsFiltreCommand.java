@@ -194,8 +194,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		}
 		if (unitatOrganitzativaId != null) {
 			expedientQuerySb.append(
-					"and pie.unitatOrganitzativaId = :unitatOrganitzativaId  "+
-					"or  (pie.unitatOrganitzativaId IN ( :idsUnitatsOrganitzativesAmbPermisos)) ");
+					"and pie.unitatOrganitzativaId = :unitatOrganitzativaId  ");
 		}
 		if (dataIniciInici != null) {
 			expedientQuerySb.append("and pie.dataInici >= :dataIniciInici ");
