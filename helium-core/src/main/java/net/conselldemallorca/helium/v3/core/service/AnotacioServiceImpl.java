@@ -363,6 +363,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Transactional(readOnly = true)
 	private Object findAmbFiltrePaginat(
 			boolean nomesIds,
@@ -456,47 +457,57 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			sqlWhere.append(" and a.data <= :dataFinal ");
 			parametres.put("dataFinal", dataFinal);
 		}
-		if (!esNullExpedientTipusId) {
-			sqlWhere.append(" and a.expedientTipus.id = :expedientTipusId ");
-			parametres.put("expedientTipusId", expedientTipusId);
-		}
 		if (!esNullExpedientId) {
 			sqlWhere.append(" and a.expedient.id = :expedientId ");
 			parametres.put("expedientId", expedientId);
 		}
-		if (!esNullExpedientTipusIds) {
-			sqlWhere.append(" and a.expedientTipus.id in (:expedientTipusIds) ");
-			parametres.put("expedientTipusIds", expedientTipusIds);
-		}	
-		if (!esNullExpedientTipusIdsPermesosProcedimetComu && !esNullUnitatsOrganitvesCodis ) {
-			if (esNullExpedientTipusId) {
-				sqlWhere.append(" and ( ");
-				sqlWhere.append(" a.expedientTipus.id in (:expedientTipusIdsPermesosProcedimetComu) ");
-				parametres.put("expedientTipusIdsPermesosProcedimetComu", expedientTipusIdsPermesosProcedimetComu);
-				// en subllistes
-				sqlWhere.append(" and ( ");
-				for (int i = 0; i <= unitatsOrganitvesCodis.size() / 1000; i++ ) {
-					if(i>0) 
-						sqlWhere.append(" or ");
-					sqlWhere.append(" a.destiCodi in (:unitatsOrganitvesCodis" + i + ") ");
-					parametres.put("unitatsOrganitvesCodis"+i, unitatsOrganitvesCodis.subList(i*1000, Math.min(unitatsOrganitvesCodis.size(), (i+1)*1000)));
-				}
-				sqlWhere.append(" )) ");
 
+		if (!esNullExpedientTipusId) {
+			sqlWhere.append(" and a.expedientTipus.id = :expedientTipusId ");
+			parametres.put("expedientTipusId", expedientTipusId);
+		} 
+		
+		if (!esNullExpedientTipusIds || !esNullExpedientTipusIdsPermesosProcedimetComu) {
+			// filtre per tipus d'expedients
+			boolean filtrePerTipus = false;
+			StringBuilder whereTipus = new StringBuilder();
+			// filtre per tipus d'expedients normals
+			if (!esNullExpedientTipusIds) {
+				whereTipus.append(" ( a.expedientTipus.id in (:expedientTipusIds) ) ");
+				parametres.put("expedientTipusIds", expedientTipusIds);
+				filtrePerTipus = true;
 			}
-			else {
-				sqlWhere.append(" and ( ");
-				// en subllistes
-				for (int i = 0; i <= unitatsOrganitvesCodis.size() / 1000; i++ ) {
-					if(i>0)
-						sqlWhere.append(" or ");
-					sqlWhere.append(" a.destiCodi in (:unitatsOrganitvesCodis" + i + ") ");
-					parametres.put("unitatsOrganitvesCodis"+i, unitatsOrganitvesCodis.subList(i*1000, Math.min(unitatsOrganitvesCodis.size(), (i+1)*1000)));
+			// Filtre per tipus d'expedients comuns i les seves UO's
+			if (!esNullExpedientTipusIdsPermesosProcedimetComu 
+					&& unitatsPerTipusComu != null 
+					&& !unitatsPerTipusComu.isEmpty()) 
+			{
+				List<String> codisUos;
+				for (Long expedientTipusComuId : unitatsPerTipusComu.keySet()) {
+					codisUos = unitatsPerTipusComu.get(expedientTipusComuId);
+					if (!codisUos.isEmpty()) {
+						if (filtrePerTipus) {
+							whereTipus.append(" or ");
+						}
+						whereTipus.append(" ( a.expedientTipus.id = " + expedientTipusComuId);
+						// en subllistes
+						whereTipus.append(" and ( ");
+						for (int i = 0; i <= codisUos.size() / 1000; i++ ) {
+							if( i > 0) { 
+								whereTipus.append(" or ");
+							}
+							whereTipus.append(" a.destiCodi in (:uos_" + expedientTipusComuId + "_" + i + ") ");
+							parametres.put("uos_" + i, codisUos.subList(i*1000, Math.min(codisUos.size(), (i + 1)*1000)));
+						}
+						whereTipus.append(" ) ");
+						filtrePerTipus = true;
+					}
 				}
-				sqlWhere.append(" ) ");
 			}
-
-		}			
+			if (filtrePerTipus) {
+				sqlWhere.append(" and ( ").append(whereTipus.toString()).append(" ) ");
+			}
+		}
 		
 		String sqlSelect = "select " + (nomesIds ? " a.id " : "a ") + sqlFrom + sqlWhere + sqlOrder;
 		String sqlCount = "select count(a.id) " + sqlFrom + sqlWhere;
@@ -536,6 +547,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		return ret;
 	}
 
+	@SuppressWarnings({ "unchecked", "unchecked" })
 	@Override
 	public List<Long> findIdsAmbFiltre(
 				Long entornId, 

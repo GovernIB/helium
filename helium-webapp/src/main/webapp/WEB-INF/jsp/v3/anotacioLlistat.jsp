@@ -382,6 +382,8 @@
 		$("#netejar").click(function() {
 			$('#codiProcediment').val('').change();
 			$('#unitatOrganitzativaCodi').val('').change();
+			$('#expedientTipusId').val('').change();
+			//$('#estat').val("PENDENT").change();
 		})
 			
 	});
