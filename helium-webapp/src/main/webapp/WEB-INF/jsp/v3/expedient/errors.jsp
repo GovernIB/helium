@@ -16,6 +16,48 @@
 			margin-top: 10px;
 		}
 	</style>
+	
+	<script type="text/javascript">
+	
+		$(document).ready(function() {
+			
+// 			$("#btnNetejarErrors").heliumEvalLink({
+// 				refrescarAlertes: true,
+// 				refrescarPagina: false,
+// 				alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>",
+// 			});
+			
+			$("#btnNetejarErrors").click(function(event) {
+				netejarErrorsExp();
+			});
+			
+		});
+	
+		function netejarErrorsExp() {
+			if (confirm("<spring:message code="boto.eliminar.errors.confirm"/>")) {
+				$.ajax({
+					url: "<c:url value="/v3/expedient/${expedientId}/netejarErrorsExp"/>",
+				    type:'GET',
+				    dataType: 'text',
+				    cache: false,
+				    beforeSend: function(msg){
+				    	var options = '<option value=""><fmt:message key="js.helforms.carreg_dades"/></option>';
+				    	$("select#estat0").html(options).attr('class', 'inlineLabels');
+					},
+				    success: function(json) {
+				    	window.parent.modalTancar(window.frameElement, true);
+				    },
+				    error: function(jqXHR, textStatus, errorThrown) {
+				    	console.log("Error al actualitzar la llista d'estats: [" + textStatus + "] " + errorThrown);
+	
+				    	var options = '<option value="">&lt;&lt; <fmt:message key="expedient.consulta.select.estat"/> &gt;&gt;</option>';
+				    	$("select#estat0").html(options).attr('class', 'inlineLabels');
+				    }
+				});
+			}
+		}
+	</script>
+	
 </head>
 <body>
 	<div>
@@ -51,6 +93,9 @@
 					<div class="well"><spring:message code="error.tipus.integracions.no"/>...</div>
 				</c:otherwise>
 			</c:choose>
+	    </div>
+	    <div id="modal-botons">
+	    	<button class="btn btn-primary" id="btnNetejarErrors" ><span class="fa fa-eraser"></span>&nbsp;<spring:message code="boto.eliminar.errors"/></button>
 	    </div>
 	  </div>
 	</div>

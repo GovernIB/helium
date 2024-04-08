@@ -1930,6 +1930,27 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		
 		return new Object[]{errors_bas,errors_int};
 	}
+	
+	@Override
+	@Transactional
+	public void netejarErrorsExp(Long id) throws NoTrobatException {
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				id,
+				true,
+				false,
+				false,
+				false);
+		
+		List<Portasignatures> portasignatures = portasignaturesRepository.findByExpedientAndEstat(expedient, TipusEstat.ERROR);
+		if(!portasignatures.isEmpty()){
+			for(Portasignatures ps: portasignatures) {
+				ps.setErrorCallbackProcessant(null);
+			}
+		}
+		expedient.setErrorDesc(null);
+		expedient.setErrorFull(null);
+		expedient.setReindexarError(false);
+	}
 
 	/**
 	 * {@inheritDoc}

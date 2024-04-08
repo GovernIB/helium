@@ -217,6 +217,22 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		model.addAttribute("errors_int",errors_int);
 		return "v3/expedient/errors";
 	}
+	
+	@RequestMapping(value = "/{expedientId}/netejarErrorsExp", method = RequestMethod.GET)
+	@ResponseBody
+	public String netejarErrorsExp(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model) {
+		
+		try {
+			expedientService.netejarErrorsExp(expedientId);
+			MissatgesHelper.success(request, getMessage(request, "boto.eliminar.errors.ok"));
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "boto.eliminar.errors.ko") + "<br/> " + ex.getCause().getMessage());
+		}
+		return "ok";
+	}
 
 	@RequestMapping(value = "/{expedientId}/imatgeDefProces", method = RequestMethod.GET)
 	public String imatgeProces(

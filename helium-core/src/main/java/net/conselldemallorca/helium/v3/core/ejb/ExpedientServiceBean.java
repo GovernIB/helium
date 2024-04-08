@@ -446,6 +446,12 @@ public class ExpedientServiceBean implements ExpedientService {
 	public Object[] findErrorsExpedient(Long id) {
 		return delegate.findErrorsExpedient(id);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void netejarErrorsExp(Long id) throws NoTrobatException {
+		delegate.netejarErrorsExp(id);
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})

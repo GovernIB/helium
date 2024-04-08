@@ -739,7 +739,14 @@ public interface ExpedientService {
 	 * @throws NotAllowedException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	Object[] findErrorsExpedient(Long id) throws NoTrobatException;
+	public Object[] findErrorsExpedient(Long id) throws NoTrobatException;
+	
+	/**
+	 * Neteja els errors de l'expedient.
+	 * @param id Atribut id de l'expedient que es vol consultar.
+	 * @throws NoTrobatException Si no s'ha trobat cap expedient amb l'id especificat.
+	 */
+	public void netejarErrorsExp(Long id) throws NoTrobatException;
 
 	public List<ExpedientDto> findSuggestAmbEntornLikeIdentificador(Long entornid, String text);
 
