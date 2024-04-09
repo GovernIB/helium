@@ -753,7 +753,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		DocumentNotificacioCommand command = new DocumentNotificacioCommand();
 		Calendar caducitat = new GregorianCalendar();
 		caducitat.setTime(new Date());
-		caducitat.add(Calendar.DATE, 1);
+		caducitat.add(Calendar.DATE, 10);
 		command.setCaducitat(caducitat.getTime());
 		command.setEnviamentTipus(EnviamentTipusEnumDto.NOTIFICACIO);
 		command.setIdioma(IdiomaEnumDto.CA);
