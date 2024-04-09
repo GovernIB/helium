@@ -27,7 +27,8 @@
 	.documentTramitacio .div_timer .input-group {padding-left: 15px;}
 	.documentTramitacio .div_timer .input-group-addon {width: 5% !important;}
 	.documentTramitacio .comentari {padding-top: 30px;}
-	.documentTramitacio input[type='checkbox'] {position: relative;}
+	.documentTramitacio .checkbox label {padding-left: 0px;}
+	.documentTramitacio input[type='checkbox'] {position: relative; margin-left: 0px;}
 </style>
 <c:if test="${not tasca.validada}">
 	<div class="alert alert-warning">	
@@ -127,23 +128,26 @@
 				</h4>
 			</div>
 			<c:if test="${tasca.validada and !bloquejarEdicioTasca}">
+			
 				<div id="amagarFile${document.id}" class="form-group <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
-					<label class="control-label col-xs-4" for="contingut${document.id}"><spring:message code='expedient.document.arxiu' /></label>
-			        <div class="col-xs-10 arxiu">
-			            <div class="input-group">
-			                <input id="contingut${document.id}" name="contingut" class="form-control input-file" />
-			                <span class="input-group-btn">
-			                    <span class="btn btn-default btn-file">
-			                        <spring:message code="expedient.document.arxiu"/>… <input type="file" id="arxiu${document.id}" name="arxiu" <c:if test="${not empty document.extensionsPermeses}">accept="${document.extensionsPermeses}"</c:if>>
-			                    </span>
-			                </span>
-			            </div>
+					
+					<div class="form-group">
+						<label class="control-label col-xs-4" for="contingut${document.id}"><spring:message code='expedient.document.arxiu' /></label>
+						
+				        <div class="col-xs-8 arxiu">
+				            <div class="input-group">
+				                <input id="contingut${document.id}" name="contingut" class="form-control input-file" />
+				                <span class="input-group-btn">
+				                    <span class="btn btn-default btn-file">
+				                        <spring:message code="expedient.document.arxiu"/>… <input type="file" id="arxiu${document.id}" name="arxiu" <c:if test="${not empty document.extensionsPermeses}">accept="${document.extensionsPermeses}"</c:if>>
+				                    </span>
+				                </span>
+				            </div>
+						</div>
 					</div>
 										
 					<div class="form-group">
-						<label class="control-label col-xs-4" for="ambFirma${document.id}">
-								<spring:message code="expedient.document.form.camp.amb.firma"></spring:message>
-						</label>
+						<label class="control-label col-xs-4" for="ambFirma${document.id}"><spring:message code="expedient.document.form.camp.amb.firma"></spring:message></label>
 						<div class="controls col-xs-8">
 							<div class="checkbox">
 					  			<label>
@@ -152,6 +156,7 @@
 							</div>
 						</div>
 					</div>
+					
 					<div id="input-firma${document.id}" class="hidden">
 						
 						<div class="form-group">
@@ -171,7 +176,7 @@
 						<div id="input-firma-arxiu${document.id}" class="hidden">
 							<div class="form-group">
 								<label class="control-label col-xs-4 obligatori" for="contingutFirma${document.id}"><spring:message code="expedient.document.form.camp.firma"/></label>
-						        <div class="col-xs-10 firma">
+						        <div class="col-xs-8 firma">
 						            <div class="input-group">
 						                <input id="contingutFirma${document.id}" name="contingutFirma" class="form-control input-file" />
 						                <span class="input-group-btn">
@@ -189,7 +194,7 @@
 				<div id="div_timer${document.id}" class="div_timer form-group <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
 			    	<div class="<c:if test="${not empty campErrors}"> has-error</c:if>">
 						<label class="control-label col-xs-4" for="data${document.id}"><spring:message code='tasca.doc.adjunt.data.document' /></label>
-						<div class="input-group col-xs-10">
+						<div class="input-group col-xs-8">
 							<input class="form-control date" placeholder="dd/mm/aaaa" id="data${document.id}" name="data"/>
 							<span class="input-group-addon btn_date"><span class="fa fa-calendar"></span></span>
 						</div>
