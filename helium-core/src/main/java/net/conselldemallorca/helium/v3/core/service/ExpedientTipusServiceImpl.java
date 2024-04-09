@@ -2324,16 +2324,28 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
     				entornId,
     				expedientTipusId);
     		if (expedientTipusDto.isProcedimentComu() && unitatOrganitzativaCodi!=null && !" ".equals(unitatOrganitzativaCodi)) {
+    			
     			ExpedientTipusUnitatOrganitzativa expTipusUnitOrg = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaCodi(
     					expedientTipusId, 
     					unitatOrganitzativaCodi);
+    			
     			if(expTipusUnitOrg==null)
     				throw new NoTrobatException(PermisDto.class, permisId);
+    			
+    			//S'eliminen els permisos seleccionats (que són d'un usuari concret), sobre la classe ExpedientTipusUnitatOrganitzativa
     			permisosHelper.deletePermis(
     					expTipusUnitOrg.getId(),
     					ExpedientTipusUnitatOrganitzativa.class,
     					permisId);
-    			expedientTipusUnitatOrganitzativaRepository.delete(expTipusUnitOrg);
+    			
+    			List<PermisDto> permisosExpedientTipusUnitatOrganitzativa = permisosHelper.findPermisos(
+    					expTipusUnitOrg.getId(),
+    					ExpedientTipusUnitatOrganitzativa.class);
+
+    			//Només borram la entitat, si no hi ha altres permisos (altres usuaris) configurats per aquesta instancia de la classe 
+    			if (permisosExpedientTipusUnitatOrganitzativa==null || permisosExpedientTipusUnitatOrganitzativa.size()==0) {
+    				expedientTipusUnitatOrganitzativaRepository.delete(expTipusUnitOrg);
+    			}
 
     		} else {	
     			permisosHelper.deletePermis(
