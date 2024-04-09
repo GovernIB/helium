@@ -504,7 +504,7 @@ public class ExpedientTipusHelper {
 				&& authOriginal.getName()!=null 
 				&& (permis.getPrincipalNom().equals(authOriginal.getName())
 						|| (PrincipalTipusEnumDto.ROL.equals(permis.getPrincipalTipus()) 
-							&&  this.isAdministrador(authOriginal)))
+							||  this.isAdministrador(authOriginal)))
 				&& (permis.isRead() 
 						|| permis.isAdministration()))
 			return true;
