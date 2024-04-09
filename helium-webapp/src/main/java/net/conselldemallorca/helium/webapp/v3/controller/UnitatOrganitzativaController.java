@@ -124,7 +124,7 @@ public class UnitatOrganitzativaController extends BaseController {
 		} else {
 			Map<String, String> unitatJson = new HashMap<String, String>();
 			unitatJson.put("codi", textDecoded);
-			unitatJson.put("nom", textDecoded + " (No trobat)");
+			unitatJson.put("nom", textDecoded + " (No trobat en l'arbre intern d'unitats organitzatives)");
 			unitatJson.put("estat", getMessage(request, "expedient.tipus.metadades.nti.unitat.organitzativa.estat.E"));
 			resposta.add(unitatJson);
 		}
@@ -148,7 +148,7 @@ public class UnitatOrganitzativaController extends BaseController {
 		if(unitatDto!=null)
 			return "{\"codi\":\"" + unitatDto.getCodi() + "\", \"nom\":\"" + unitatDto.getCodiAndNom() + "\"}";
 		else
-			return "{\"codi\":\"" + decodedToUTF8 + "\", \"nom\":\"" +decodedToUTF8  + " (No trobat)"+ "\"}";
+			return "{\"codi\":\"" + decodedToUTF8 + "\", \"nom\":\"" +decodedToUTF8  + " (No trobat en l'arbre intern d'unitats organitzatives)"+ "\"}";
 
 	}
 	
