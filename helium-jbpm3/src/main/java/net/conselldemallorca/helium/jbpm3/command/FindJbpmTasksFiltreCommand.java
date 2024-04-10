@@ -6,7 +6,6 @@ package net.conselldemallorca.helium.jbpm3.command;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import org.hibernate.Query;
 import org.jbpm.JbpmContext;
@@ -25,7 +24,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.ResultatConsultaPaginadaJbp
 public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 
 	private static final long serialVersionUID = -1908847549444051495L;
-	Map<Long, List<Long>> unitatsPerTipusComu;
+	//Map<Long, List<Long>> unitatsPerTipusComu;
 	private Long entornId;
 	private String actorId;
 	private String taskName;
@@ -49,7 +48,7 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 	private boolean nomesCount;
 
 	public FindJbpmTasksFiltreCommand(
-			Map<Long, List<Long>> unitatsPerTipusComu,
+			//Map<Long, List<Long>> unitatsPerTipusComu,
 			Long entornId,
 			String actorId,
 			String taskName,
@@ -72,7 +71,7 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 			boolean asc,
 			boolean nomesCount) {
 		super();
-		this.unitatsPerTipusComu = unitatsPerTipusComu;
+		//this.unitatsPerTipusComu = unitatsPerTipusComu;
 		this.entornId = entornId;
 		this.actorId = actorId;
 		this.taskName = taskName;
@@ -105,7 +104,7 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 				"select count(distinct ti.id) " + taskQuerySb.toString());
 		setQueryParams(
 				queryCount,
-				unitatsPerTipusComu,
+				//unitatsPerTipusComu,
 				entornId,
 				actorId,
 				taskName,
@@ -129,7 +128,7 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 					"select count(distinct ti.id) " + taskQuerySb2.toString());
 			setQueryParams(
 					queryCount2,
-					unitatsPerTipusComu,
+					//unitatsPerTipusComu,
 					entornId,
 					actorId,
 					taskName,
@@ -190,7 +189,7 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 			Query queryTaskInstances = jbpmContext.getSession().createQuery(taskQuerySb.toString());
 			setQueryParams(
 					queryTaskInstances,
-					unitatsPerTipusComu,
+					//unitatsPerTipusComu,
 					entornId,
 					actorId,
 					taskName,
@@ -226,32 +225,32 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 					"from " +
 					"    org.jbpm.taskmgmt.exe." + triaTaula(desactivarOptimitzarLlistatTasques) + " ti left join ti.pooledActors pa ");
 
-			if(unitatsPerTipusComu!=null && !unitatsPerTipusComu.isEmpty()) {
-				taskQuerySb.append(" join ti.processInstance pi join pi.expedient e join e.tipus et ");
-				
-			}
+//			if(unitatsPerTipusComu!=null && !unitatsPerTipusComu.isEmpty()) {
+//				taskQuerySb.append(" join ti.processInstance pi join pi.expedient e join e.tipus et ");
+//				
+//			}
 			taskQuerySb.append("where ");
 			
-			if( unitatsPerTipusComu !=null && !unitatsPerTipusComu.isEmpty()) {				
-				taskQuerySb.append("( et.procedimentComu <> 1 ");
-				List<Long> codisUos;
-				for (Long expedientTipusComuId : unitatsPerTipusComu.keySet()) {
-					codisUos = unitatsPerTipusComu.get(expedientTipusComuId);
-					if (!codisUos.isEmpty()) {
-						taskQuerySb.append(" or ( et.procedimentComu = 1 and et.id = " + expedientTipusComuId);
-						// en subllistes
-						taskQuerySb.append(" and ( ");
-						for (int i = 0; i <= codisUos.size() / 1000; i++ ) {
-							if( i > 0) { 
-								taskQuerySb.append(" or ");
-							}
-							taskQuerySb.append(" e.unitatOrganitzativaId in (:uos_" + expedientTipusComuId + "_" + i + ") ");
-						}
-						taskQuerySb.append(" ) ) ");
-					}
-				}
-				taskQuerySb.append(") and ");
-			}
+//			if( unitatsPerTipusComu !=null && !unitatsPerTipusComu.isEmpty()) {				
+//				taskQuerySb.append("( et.procedimentComu <> 1 ");
+//				List<Long> codisUos;
+//				for (Long expedientTipusComuId : unitatsPerTipusComu.keySet()) {
+//					codisUos = unitatsPerTipusComu.get(expedientTipusComuId);
+//					if (!codisUos.isEmpty()) {
+//						taskQuerySb.append(" or ( et.procedimentComu = 1 and et.id = " + expedientTipusComuId);
+//						// en subllistes
+//						taskQuerySb.append(" and ( ");
+//						for (int i = 0; i <= codisUos.size() / 1000; i++ ) {
+//							if( i > 0) { 
+//								taskQuerySb.append(" or ");
+//							}
+//							taskQuerySb.append(" e.unitatOrganitzativaId in (:uos_" + expedientTipusComuId + "_" + i + ") ");
+//						}
+//						taskQuerySb.append(" ) ) ");
+//					}
+//				}
+//				taskQuerySb.append(") and ");
+//			}
 			
 			if (mostrarAssignadesUsuari && mostrarAssignadesGrup) {
 				if (desactivarOptimitzarLlistatTasques)
@@ -340,37 +339,37 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 					"from " +
 					"    org.jbpm.taskmgmt.exe." + triaTaula(desactivarOptimitzarLlistatTasques) + " ti left join ti.pooledActors pa ");
 
-			if(unitatsPerTipusComu!=null && !unitatsPerTipusComu.isEmpty()) {
-				taskQuerySb.append(" join ti.processInstance pi join pi.expedient e join e.tipus et ");			
-			}
+//			if(unitatsPerTipusComu!=null && !unitatsPerTipusComu.isEmpty()) {
+//				taskQuerySb.append(" join ti.processInstance pi join pi.expedient e join e.tipus et ");			
+//			}
 			
 			taskQuerySb.append("where ");
 			
-			if(unitatsPerTipusComu!=null && !unitatsPerTipusComu.isEmpty()) {
-				taskQuerySb.append("( ");
-				List<Long> codisUos;
-				boolean filtrePerTipus = false;
-				for (Long expedientTipusComuId : unitatsPerTipusComu.keySet()) {
-					codisUos = unitatsPerTipusComu.get(expedientTipusComuId);
-					if (!codisUos.isEmpty()) {
-						if (filtrePerTipus) {
-							taskQuerySb.append(" or ");
-						}
-						taskQuerySb.append(" ( et.procedimentComu = 1 and et.id = " + expedientTipusComuId);
-						// en subllistes
-						taskQuerySb.append(" and ( ");
-						for (int i = 0; i <= codisUos.size() / 1000; i++ ) {
-							if( i > 0) { 
-								taskQuerySb.append(" or ");
-							}
-							taskQuerySb.append(" e.unitatOrganitzativaId in (:uos_" + expedientTipusComuId + "_" + i + ") ");
-						}
-						taskQuerySb.append(" ) ) ");
-						filtrePerTipus = true;
-					}
-				}
-				taskQuerySb.append(") and ");
-			}
+//			if(unitatsPerTipusComu!=null && !unitatsPerTipusComu.isEmpty()) {
+//				taskQuerySb.append("( ");
+//				List<Long> codisUos;
+//				boolean filtrePerTipus = false;
+//				for (Long expedientTipusComuId : unitatsPerTipusComu.keySet()) {
+//					codisUos = unitatsPerTipusComu.get(expedientTipusComuId);
+//					if (!codisUos.isEmpty()) {
+//						if (filtrePerTipus) {
+//							taskQuerySb.append(" or ");
+//						}
+//						taskQuerySb.append(" ( et.procedimentComu = 1 and et.id = " + expedientTipusComuId);
+//						// en subllistes
+//						taskQuerySb.append(" and ( ");
+//						for (int i = 0; i <= codisUos.size() / 1000; i++ ) {
+//							if( i > 0) { 
+//								taskQuerySb.append(" or ");
+//							}
+//							taskQuerySb.append(" e.unitatOrganitzativaId in (:uos_" + expedientTipusComuId + "_" + i + ") ");
+//						}
+//						taskQuerySb.append(" ) ) ");
+//						filtrePerTipus = true;
+//					}
+//				}
+//				taskQuerySb.append(") and ");
+//			}
 			
 			if (mostrarAssignadesUsuari && mostrarAssignadesGrup) {
 				taskQuerySb.append("((ti.actorId is null and pa.actorId = :actorId)) ");
@@ -458,7 +457,7 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 
 	private void setQueryParams(
 			Query query,
-			Map<Long, List<Long>> unitatsPerTipusComu,
+			//Map<Long, List<Long>> unitatsPerTipusComu,
 			Long entornId,
 			String actorId,
 			String taskName,
@@ -474,21 +473,21 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 			Date dataLimitFi,
 			int firstResult,
 			int maxResults) {
-		if(unitatsPerTipusComu !=null && !unitatsPerTipusComu.isEmpty()) {
-			// en subllistes
-			List<Long> idsUos;
-			for (Long expedientTipusComuId : unitatsPerTipusComu.keySet()) {
-				idsUos = unitatsPerTipusComu.get(expedientTipusComuId);
-				if (!idsUos.isEmpty()) {
-					// en subllistes
-					for (int i = 0; i <= idsUos.size() / 1000; i++ ) {
-						query.setParameterList(
-								"uos_" + expedientTipusComuId + "_" + i , 
-								idsUos.subList(i*1000, Math.min(idsUos.size(), (i + 1)*1000)));
-					}
-				}
-			}
-		}
+//		if(unitatsPerTipusComu !=null && !unitatsPerTipusComu.isEmpty()) {
+//			// en subllistes
+//			List<Long> idsUos;
+//			for (Long expedientTipusComuId : unitatsPerTipusComu.keySet()) {
+//				idsUos = unitatsPerTipusComu.get(expedientTipusComuId);
+//				if (!idsUos.isEmpty()) {
+//					// en subllistes
+//					for (int i = 0; i <= idsUos.size() / 1000; i++ ) {
+//						query.setParameterList(
+//								"uos_" + expedientTipusComuId + "_" + i , 
+//								idsUos.subList(i*1000, Math.min(idsUos.size(), (i + 1)*1000)));
+//					}
+//				}
+//			}
+//		}
 		if (actorId != null && (mostrarAssignadesUsuari || mostrarAssignadesGrup)) {
 			query.setParameter("actorId", actorId);
 		}

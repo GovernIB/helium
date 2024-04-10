@@ -71,7 +71,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
@@ -421,7 +420,7 @@ public class TascaServiceImpl implements TascaService {
 						"llistat.count",
 						entorn.getCodi()));
 		countEntorn.inc();
-		Map<Long,List<Long>> unitatsPerTipusComu = new HashMap<Long, List<Long>>();
+		//Map<Long,List<Long>> unitatsPerTipusComu = new HashMap<Long, List<Long>>();
 		try {
 			final Timer timerConsultaTotal = metricRegistry.timer(
 					MetricRegistry.name(
@@ -436,18 +435,18 @@ public class TascaServiceImpl implements TascaService {
 			final Timer.Context contextTimerConsultaEntorn = timerConsultaEntorn.time();
 			ResultatConsultaPaginadaJbpm<JbpmTask> paginaTasks = null;
 			try {
-				// Comprova l'accés al tipus d'expedient
-				if (expedientTipusId != null) {
-					ExpedientTipus expTipus = expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
-							expedientTipusId);
-					if(expTipus.isProcedimentComu()) {
-						List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(expedientTipusId);
-						unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComuIds(entornId,expTipUnitOrgList);
-					}
-				} else { //si no hi ha expedientTipus al filtre, hem de buscar totes les UO per las quals es té permís i obtenir els expedinetTipus
-					List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusEntornId(entorn.getId());
-					unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComuIds(entornId,expTipUnitOrgList);
-				}
+//				// Comprova l'accés al tipus d'expedient
+//				if (expedientTipusId != null) {
+//					ExpedientTipus expTipus = expedientTipusHelper.getExpedientTipusComprovantPermisLectura(
+//							expedientTipusId);
+//					if(expTipus.isProcedimentComu()) {
+//						List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(expedientTipusId);
+//						unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComuIds(entornId,expTipUnitOrgList);
+//					}
+//				} else { //si no hi ha expedientTipus al filtre, hem de buscar totes les UO per las quals es té permís i obtenir els expedinetTipus
+//					List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusEntornId(entorn.getId());
+//					unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComuIds(entornId,expTipUnitOrgList);
+//				}
 				// Si no hi ha tipexp seleccionat o no es te permis SUPERVISION
 				// a damunt el tipexp es filtra per l'usuari actual.
 				if (nomesTasquesMeves || expedientTipusId == null || !expedientTipusHelper.comprovarPermisSupervisio(expedientTipusId)) {
@@ -477,7 +476,7 @@ public class TascaServiceImpl implements TascaService {
 				boolean mostrarAssignadesUsuari = (nomesTasquesPersonals && !nomesTasquesGrup) || (!nomesTasquesPersonals && !nomesTasquesGrup);
 				boolean mostrarAssignadesGrup = (nomesTasquesGrup && !nomesTasquesPersonals) || (!nomesTasquesPersonals && !nomesTasquesGrup);
 				paginaTasks = jbpmHelper.tascaFindByFiltrePaginat(
-						unitatsPerTipusComu,
+						//unitatsPerTipusComu,
 						entornId,
 						responsable,
 						tasca,

@@ -233,7 +233,7 @@ public class TascaService {
 		paginacioParams.setPaginaNum(0);
 		paginacioParams.setPaginaTamany(-1);
 		ResultatConsultaPaginadaJbpm<JbpmTask> tasks = jbpmDao.tascaFindByFiltrePaginat(
-				null, //unitatsOrganitzativesAmbPermisos,
+				//null, //unitatsOrganitzativesAmbPermisos,
 				entornId,
 				usuariBo,
 				null,
@@ -291,7 +291,7 @@ public class TascaService {
 		paginacioParams.setPaginaNum(0);
 		paginacioParams.setPaginaTamany(-1);
 		ResultatConsultaPaginadaJbpm<JbpmTask> tasks = jbpmDao.tascaFindByFiltrePaginat(
-				null, //unitatsOrganitzativesAmbPermisos,
+				//null, //unitatsOrganitzativesAmbPermisos,
 				entornId,
 				usuariBo,
 				null,
@@ -483,7 +483,7 @@ public class TascaService {
 		paginacioParams.setPaginaNum(0);
 		paginacioParams.setPaginaTamany(-1);
 		ResultatConsultaPaginadaJbpm<JbpmTask> tasks = jbpmDao.tascaFindByFiltrePaginat(
-				null, //List<String> unitatsOrganitzativesAmbPermisos,
+				//null, //List<String> unitatsOrganitzativesAmbPermisos,
 				entornId,
 				usuariBo,
 				null,
@@ -540,7 +540,7 @@ public class TascaService {
 		paginacioParams.setPaginaNum(0);
 		paginacioParams.setPaginaTamany(-1);
 		ResultatConsultaPaginadaJbpm<JbpmTask> tasks = jbpmDao.tascaFindByFiltrePaginat(
-				null, //List<String> unitatsOrganitzativesAmbPermisos,
+				//null, //List<String> unitatsOrganitzativesAmbPermisos,
 				entornId,
 				usuariBo,
 				null,
@@ -864,7 +864,7 @@ public class TascaService {
 			paginacioParams.setPaginaNum(0);
 			paginacioParams.setPaginaTamany(-1);
 			ResultatConsultaPaginadaJbpm<JbpmTask> tasks = jbpmDao.tascaFindByFiltrePaginat(
-					null, //List<String> unitatsOrganitzativesAmbPermisos,
+					//null, //List<String> unitatsOrganitzativesAmbPermisos,
 					entornId,
 					usuariBo,
 					null,
@@ -2002,7 +2002,7 @@ public class TascaService {
 			try {
 				// Consulta els expedients de l'entorn que compleixen el filtre
 				tasks = jbpmDao.tascaFindByFiltrePaginat(
-						unitatsPerTipusComuns,
+						//unitatsPerTipusComuns,
 						entornId,
 						usuari,
 						taskName,
