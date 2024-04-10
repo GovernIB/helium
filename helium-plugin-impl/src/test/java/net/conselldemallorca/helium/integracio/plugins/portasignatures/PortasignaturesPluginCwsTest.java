@@ -67,6 +67,7 @@ public class PortasignaturesPluginCwsTest {
 				"Helium test",
 				null,
 				null,
+				null,
 				null);
 	}
 

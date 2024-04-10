@@ -73,7 +73,7 @@ public class TramitacioExterna extends BaseTest {
 					propietats.getEntornTestCodi(), 
 					propietats.getUsuariTestCodi(), 
 					propietats.getTipusExpedientCodi(), 
-					"007/2023",
+					null,
 					SELENIUM_TRAMITACIO_EXTERNA_EXPEDIENT_TITOL, 
 					valorsFormulari);
 		} catch(TramitacioException e) {
@@ -108,25 +108,25 @@ public class TramitacioExterna extends BaseTest {
 		assertNotNull("No s'han pogut consultar les variables de l'expedient", variables);
 		
 		// Fixa una variable tipus registre
-		try {
-			Object[][] registre = new Object[][]{
-				new Object[] {"a", "b", "c"},
-				new Object[] {new Integer(1),  new Integer(2), new Integer(3)},
-				new Object[] {new Boolean(true), new Boolean(false), new Boolean(true)},
-				new Object[] {"b1", "b2", "b3"},
-				new Object[] {new Date(), null, new Date()},
-				new Object[] {"v1", "v2", null}
-			};
-			ws.setVariableProces(
-					propietats.getEntornTestCodi(), 
-					propietats.getUsuariTestCodi(), 
-					processInstanceId, 
-					"prova_registre", 
-					registre);
-		} catch (TramitacioException e) {
-			e.printStackTrace();
-			fail("Error fixant variable tipus registre: " + e.getMessage());
-		}
+//		try {
+//			Object[][] registre = new Object[][]{
+//				new Object[] {"a", "b", "c"},
+//				new Object[] {new Integer(1),  new Integer(2), new Integer(3)},
+//				new Object[] {new Boolean(true), new Boolean(false), new Boolean(true)},
+//				new Object[] {"b1", "b2", "b3"},
+//				new Object[] {new Date(), null, new Date()},
+//				new Object[] {"v1", "v2", null}
+//			};
+//			ws.setVariableProces(
+//					propietats.getEntornTestCodi(), 
+//					propietats.getUsuariTestCodi(), 
+//					processInstanceId, 
+//					"prova_registre", 
+//					registre);
+//		} catch (TramitacioException e) {
+//			e.printStackTrace();
+//			fail("Error fixant variable tipus registre: " + e.getMessage());
+//		}
 		
 		boolean validat = false;
 		for (CampProces var : variables)

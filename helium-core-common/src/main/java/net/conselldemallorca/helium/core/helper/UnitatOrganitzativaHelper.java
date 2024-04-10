@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.core.helper;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -299,22 +300,27 @@ public class UnitatOrganitzativaHelper {
 		public List<UnitatOrganitzativa> unitatsOrganitzativesFindLlistaTotesFilles(String arrel, String pareCodi, List<UnitatOrganitzativa> llistaFilles){
 			List<UnitatOrganitzativa> unitatsOrganitzativesFilles = unitatOrganitzativaRepository.findByCodiUnitatSuperior(pareCodi);	
 			List<UnitatOrganitzativa> unitatsNetes = null;
-			List<UnitatOrganitzativa> resposta = new ArrayList<UnitatOrganitzativa>();
-			if(llistaFilles!=null)
-				resposta.addAll(llistaFilles);
+			Set<UnitatOrganitzativa> respostaSet = new LinkedHashSet<UnitatOrganitzativa>();
+			if(llistaFilles!=null) {
+				respostaSet.addAll(llistaFilles);
+			}
 			// Cerca si les unitats filles també tenen filles	
 			String codiArrel = pareCodi;
+			UnitatOrganitzativa uoPare = unitatOrganitzativaRepository.findByCodi(pareCodi);
+			respostaSet.add(uoPare);
 			if(unitatsOrganitzativesFilles!=null && !unitatsOrganitzativesFilles.isEmpty()) {
 				for (UnitatOrganitzativa unitatOrganitzativaFilla : unitatsOrganitzativesFilles) {
 					//si la unitat filla té fills (unitatsNetes) seguim cridant recursivament aquest mètode
 					unitatsNetes = unitatOrganitzativaRepository.findByCodiUnitatSuperior(unitatOrganitzativaFilla.getCodi());
 					if(unitatsNetes!=null && !unitatsNetes.isEmpty()) {
-						resposta.addAll(unitatsOrganitzativesFindLlistaTotesFilles(codiArrel, unitatOrganitzativaFilla.getCodi(),unitatsNetes));
+						List<UnitatOrganitzativa> llistaFillesNova = unitatsOrganitzativesFindLlistaTotesFilles(codiArrel, unitatOrganitzativaFilla.getCodi(),unitatsNetes);
+						respostaSet.addAll(llistaFillesNova);
 					} else {
-						resposta.add(unitatOrganitzativaFilla);						}
+						respostaSet.add(unitatOrganitzativaFilla);
+					}
 				}
 			}
-			return resposta;
+			return new ArrayList<UnitatOrganitzativa>(respostaSet);
 		}
 
 		/**
