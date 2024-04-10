@@ -71,6 +71,7 @@ public class PortasignaturesPluginPortafibTest {
 				"Helium test",
 				null,
 				null,
+				null, 
 				null);
 	}
 	
@@ -107,6 +108,7 @@ public class PortasignaturesPluginPortafibTest {
 					false,
 					blockList,
 					"Helium test",
+					null,
 					null,
 					null,
 					null);
