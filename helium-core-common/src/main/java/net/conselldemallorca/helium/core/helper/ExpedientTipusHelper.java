@@ -417,7 +417,7 @@ public class ExpedientTipusHelper {
 						expTipUnitOrg.getId(),
 						ExpedientTipusUnitatOrganitzativa.class);
 				for(PermisDto permis: permisosList) {
-					if(tePermisReadOrAdmin(permis,authOriginal)) {
+					if(comprovarPermisOrAdmin(permis,authOriginal, true, false)) {
 						idsUnitatsOrganitzativesAmbPermisos = unitatOrganitzativaRepository.findAllUnitatOrganitzativaIds();
 						//tenir en compte Estat = V vigent???
 						tePermisEnTotes = true;
@@ -435,7 +435,7 @@ public class ExpedientTipusHelper {
 						ExpedientTipusUnitatOrganitzativa.class);
 				if(!permisosList.isEmpty() && !idsUnitatsOrganitzativesAmbPermisos.contains(etuo.getUnitatOrganitzativa().getId())) {
 					for(PermisDto permis: permisosList) {
-						if(tePermisReadOrAdmin(permis, authOriginal)) {
+						if(comprovarPermisOrAdmin(permis,authOriginal, true, false)) {
 							idsUnitatsOrganitzativesAmbPermisos.add(etuo.getUnitatOrganitzativa().getId());
 							//Afegir les UO filles d'aquesta que té permís
 							unitatsOrgFilles = unitatOrganitzativaHelper.unitatsOrganitzativesFindLlistaTotesFilles
@@ -498,19 +498,55 @@ public class ExpedientTipusHelper {
 		return unitatsPerTipusComuIds;
 	}
 	
-	public boolean tePermisReadOrAdmin(PermisDto permis, Authentication authOriginal) {
+//	public boolean tePermisReadOrAdmin(PermisDto permis, Authentication authOriginal) {
+//		if (permis.getPrincipalNom()!=null 
+//				&& authOriginal!=null 
+//				&& authOriginal.getName()!=null 
+//				&& (permis.getPrincipalNom().equals(authOriginal.getName())
+//						|| (PrincipalTipusEnumDto.ROL.equals(permis.getPrincipalTipus()) 
+//							||  this.isAdministrador(authOriginal)))
+//				&& (permis.isRead() 
+//						|| permis.isAdministration()))
+//			return true;
+//		else
+//			return false;
+//	}
+	
+
+	public boolean comprovarPermisOrAdmin (
+			PermisDto permis, 
+			Authentication authOriginal, 
+			boolean comprovarRead, 
+			boolean comprovarCreate) {
+		
+		if (comprovarRead && ! permis.isRead()) {
+			return false;
+		}
+		if (comprovarCreate && ! permis.isCreate()) {
+			return false;
+		}
+		if (this.isAdministrador(authOriginal)) {
+			return true;
+		}
+		boolean tePermis = false;
 		if (permis.getPrincipalNom()!=null 
 				&& authOriginal!=null 
-				&& authOriginal.getName()!=null 
-				&& (permis.getPrincipalNom().equals(authOriginal.getName())
-						|| (PrincipalTipusEnumDto.ROL.equals(permis.getPrincipalTipus()) 
-							||  this.isAdministrador(authOriginal)))
-				&& (permis.isRead() 
-						|| permis.isAdministration()))
-			return true;
-		else
-			return false;
+				&& authOriginal.getName()!=null)
+		{
+			if (PrincipalTipusEnumDto.USUARI.equals(permis.getPrincipalTipus())) {
+				// permís per usuari
+				tePermis =  permis.getPrincipalNom().equals(authOriginal.getName());
+			} else {
+				// permís per rol
+				for (GrantedAuthority ga : authOriginal.getAuthorities()) {
+					if (ga.getAuthority().equals(permis.getPrincipalNom())) {
+						tePermis = true;
+						break;
+					}
+				}
+			}
+		}
+		return tePermis;
 	}
-	
 
 }

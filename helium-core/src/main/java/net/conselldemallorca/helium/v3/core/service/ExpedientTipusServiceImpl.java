@@ -2395,15 +2395,18 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					ExpedientTipusUnitatOrganitzativa.class));	
 		Authentication authOriginal = SecurityContextHolder.getContext().getAuthentication();		
 		for(PermisDto permis: permisos) {
-			if(permis.getPrincipalNom()!=null 
-				&& authOriginal!=null 
-				&& authOriginal.getName()!=null 
-				&& (permis.getPrincipalNom().equals(authOriginal.getName())
-						|| (PrincipalTipusEnumDto.ROL.equals(permis.getPrincipalTipus()) 
-							&& expedientTipusHelper.isAdministrador(authOriginal)))
-				&& (permis.isCreate() 
-						|| permis.isAdministration()))
-					return true;
+			if (expedientTipusHelper.comprovarPermisOrAdmin(permis, authOriginal, false, true)) {
+				return true;
+			}
+//			if(permis.getPrincipalNom()!=null 
+//				&& authOriginal!=null 
+//				&& authOriginal.getName()!=null 
+//				&& (permis.getPrincipalNom().equals(authOriginal.getName())
+//						|| (PrincipalTipusEnumDto.ROL.equals(permis.getPrincipalTipus()) 
+//							!! expedientTipusHelper.isAdministrador(authOriginal)))
+//				&& (permis.isCreate() 
+//						|| permis.isAdministration()))
+//					return true;
 		}		
 		return false;
 	}
