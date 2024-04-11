@@ -343,11 +343,11 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 		if (codiEntitat != null) {
 			// Consulta l'unitat arrel de la entitat del tipus d'expedient
 			try {
-				codiEntitat = null;
 				UnitatOrganitzativaDto unitatOrganitzativa = unitatOrganitzativaService.findByCodi(codiEntitat);
 				codiEntitat = unitatOrganitzativa.getCodiUnitatArrel();
 			} catch (Exception e) {
 				String errMsg = "Error consultant la unitat arrel de l'enitat " + codiEntitat + ": " + e.getMessage() + ". Es provarà la creació amb el codi de l'entitat";
+				codiEntitat = null;
 				logger.error(errMsg, e);
 				MissatgesHelper.warning(request, errMsg);
 			}

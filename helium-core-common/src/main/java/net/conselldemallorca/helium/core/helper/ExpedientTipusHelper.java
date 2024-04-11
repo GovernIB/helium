@@ -358,9 +358,10 @@ public class ExpedientTipusHelper {
 	 * @return
 	 * 			Retorna la llista de id's de les unitats organitzatives sobre les quals l'usuari tingui permisos Admin o Read
 	 */
-	public List<Long> findIdsUnitatsOrgAmbPermisosAdminOrRead(
+	public List<Long> findIdsUnitatsOrgAmbPermisos(
 			Long entornId,
-			Long expedientTipusId){
+			Long expedientTipusId,
+			Permission[] permisosRequerits){
 		//aquí obtinc la llista de les UO's per les quals l'usuari té permís (comptant les uo filles de l'arbre)
 		List<Long> idsUnitatsOrganitzativesAmbPermisos = new ArrayList<Long>();
 		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = new ArrayList<ExpedientTipusUnitatOrganitzativa>();
@@ -370,7 +371,7 @@ public class ExpedientTipusHelper {
 			expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusEntornId(entornId);
 		if(expTipUnitOrgList!=null && !expTipUnitOrgList.isEmpty()) {
 			//Mirem les unitats filles
-			idsUnitatsOrganitzativesAmbPermisos = idsUOPermeses(expTipUnitOrgList);
+			idsUnitatsOrganitzativesAmbPermisos = idsUOPermeses(expTipUnitOrgList,permisosRequerits);
 		}
 		return idsUnitatsOrganitzativesAmbPermisos;
 	}
@@ -398,15 +399,15 @@ public class ExpedientTipusHelper {
 	/** Retorna una llista d'identificadors d'UO's a partir de la llista de relacio de tipus d'expedient amb una UO per procediments comuns.
 	 * 
 	 * @param expTipUnitOrgList Llista de relacions d'unitats organitzatives i expedients tipus.
+	 * @param permisosRequerits Llista de permisos requerits sobre les uo's.
 	 * @return La llista d'identificadors de les unitats organitztatives i les seves filles.
 	 */
-	public List<Long> idsUOPermeses (List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList){
+	public List<Long> idsUOPermeses (List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList, Permission[] permisosRequerits){
 		List<Long> idsUnitatsOrganitzativesAmbPermisos = new ArrayList<Long>();
 		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgListAmbPermisos = new ArrayList<ExpedientTipusUnitatOrganitzativa>();
 		List<PermisDto> permisosList = new ArrayList<PermisDto>();
 		List<UnitatOrganitzativa> unitatsOrgFilles = new ArrayList<UnitatOrganitzativa>();
 		boolean tePermisEnTotes = false;
-		Authentication authOriginal = SecurityContextHolder.getContext().getAuthentication();
 		for(ExpedientTipusUnitatOrganitzativa expTipUnitOrg: expTipUnitOrgList) {
 			Parametre parametreArrel = parametreRepository.findByCodi(ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
 			if(parametreArrel==null)
@@ -416,14 +417,12 @@ public class ExpedientTipusHelper {
 				permisosList = permisosHelper.findPermisos(
 						expTipUnitOrg.getId(),
 						ExpedientTipusUnitatOrganitzativa.class);
-				for(PermisDto permis: permisosList) {
-					if(comprovarPermisOrAdmin(permis,authOriginal, true, false)) {
+					if(comprovarPermisosSobreUO(expTipUnitOrg.getId(),permisosRequerits)) {
 						idsUnitatsOrganitzativesAmbPermisos = unitatOrganitzativaRepository.findAllUnitatOrganitzativaIds();
 						//tenir en compte Estat = V vigent???
 						tePermisEnTotes = true;
 						break;
-					}		
-				}	
+					}
 			}
 		}
 		if(!tePermisEnTotes) {
@@ -434,8 +433,7 @@ public class ExpedientTipusHelper {
 						etuo.getId(),
 						ExpedientTipusUnitatOrganitzativa.class);
 				if(!permisosList.isEmpty() && !idsUnitatsOrganitzativesAmbPermisos.contains(etuo.getUnitatOrganitzativa().getId())) {
-					for(PermisDto permis: permisosList) {
-						if(comprovarPermisOrAdmin(permis,authOriginal, true, false)) {
+						if(comprovarPermisosSobreUO(etuo.getId(),permisosRequerits)) {
 							idsUnitatsOrganitzativesAmbPermisos.add(etuo.getUnitatOrganitzativa().getId());
 							//Afegir les UO filles d'aquesta que té permís
 							unitatsOrgFilles = unitatOrganitzativaHelper.unitatsOrganitzativesFindLlistaTotesFilles
@@ -445,7 +443,6 @@ public class ExpedientTipusHelper {
 									idsUnitatsOrganitzativesAmbPermisos.add(uoFilla.getId());
 								}
 							}
-						}
 					}		
 				}
 			}
@@ -466,13 +463,13 @@ public class ExpedientTipusHelper {
 		 return expedientsTipusComunsPermesos;		 
 	}
 	
-	public Map<Long,List<String>> unitatsPerTipusComu (Long entornId,List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList){
+	public Map<Long,List<String>> unitatsPerTipusComu (Long entornId,List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList, Permission[] permisosRequerits){
 		Map<Long,List<String>> unitatsPerTipusComu = new HashMap<Long, List<String>>();
 		List<Long> idsUnitatsOrganitzativesAmbPermisos = new ArrayList<Long>();
 		for(ExpedientTipusUnitatOrganitzativa expTipUo : expTipUnitOrgList ) {
 			if(expTipUo.getExpedientTipus().isProcedimentComu()) {
 				List<String> unitatsOrganitvesCodis = new ArrayList<String>();
-				idsUnitatsOrganitzativesAmbPermisos = this.findIdsUnitatsOrgAmbPermisosAdminOrRead(entornId, expTipUo.getExpedientTipus().getId());
+				idsUnitatsOrganitzativesAmbPermisos = this.findIdsUnitatsOrgAmbPermisos(entornId, expTipUo.getExpedientTipus().getId(), permisosRequerits);
 				for(Long id: idsUnitatsOrganitzativesAmbPermisos) {
 					UnitatOrganitzativa uo = unitatOrganitzativaHelper.findById(id);
 					if(uo!=null && !unitatsOrganitvesCodis.contains(uo.getCodi()))
@@ -484,12 +481,12 @@ public class ExpedientTipusHelper {
 		return unitatsPerTipusComu;
 	}
 	
-	public Map<Long,List<Long>> unitatsPerTipusComuIds (Long entornId,List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList){
+	public Map<Long,List<Long>> unitatsPerTipusComuIds (Long entornId,List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList, Permission[] permisosRequerits){
 		Map<Long,List<Long>> unitatsPerTipusComuIds = new HashMap<Long, List<Long>>();
 		List<Long> idsUnitatsOrganitzativesAmbPermisos = new ArrayList<Long>();
 		for(ExpedientTipusUnitatOrganitzativa expTipUo : expTipUnitOrgList ) {
 			if(expTipUo.getExpedientTipus().isProcedimentComu()) {
-				idsUnitatsOrganitzativesAmbPermisos = this.findIdsUnitatsOrgAmbPermisosAdminOrRead(entornId, expTipUo.getExpedientTipus().getId());
+				idsUnitatsOrganitzativesAmbPermisos = this.findIdsUnitatsOrgAmbPermisos(entornId, expTipUo.getExpedientTipus().getId(), permisosRequerits);
 				if(!idsUnitatsOrganitzativesAmbPermisos.isEmpty()) {
 					unitatsPerTipusComuIds.put(expTipUo.getExpedientTipus().getId(),idsUnitatsOrganitzativesAmbPermisos);
 				}
@@ -498,21 +495,17 @@ public class ExpedientTipusHelper {
 		return unitatsPerTipusComuIds;
 	}
 	
-//	public boolean tePermisReadOrAdmin(PermisDto permis, Authentication authOriginal) {
-//		if (permis.getPrincipalNom()!=null 
-//				&& authOriginal!=null 
-//				&& authOriginal.getName()!=null 
-//				&& (permis.getPrincipalNom().equals(authOriginal.getName())
-//						|| (PrincipalTipusEnumDto.ROL.equals(permis.getPrincipalTipus()) 
-//							||  this.isAdministrador(authOriginal)))
-//				&& (permis.isRead() 
-//						|| permis.isAdministration()))
-//			return true;
-//		else
-//			return false;
-//	}
+	public boolean comprovarPermisosSobreUO (
+			Long expedientTipusUnitatOrganitzativaId, 
+			Permission[] permisos) {
+		boolean tePermis = permisosHelper.isGrantedAny(
+				expedientTipusUnitatOrganitzativaId,
+				ExpedientTipusUnitatOrganitzativa.class,
+				permisos,
+				SecurityContextHolder.getContext().getAuthentication());
+		return tePermis;
+	}
 	
-
 	public boolean comprovarPermisOrAdmin (
 			PermisDto permis, 
 			Authentication authOriginal, 

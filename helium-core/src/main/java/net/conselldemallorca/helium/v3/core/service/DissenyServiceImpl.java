@@ -553,7 +553,7 @@ public class DissenyServiceImpl implements DissenyService {
 					permisosRequerits,
 					SecurityContextHolder.getContext().getAuthentication());
 		} else {
-			List<Long> idsUnitatsOrganitzatives = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(entornId, expedientTipusId);
+			List<Long> idsUnitatsOrganitzatives = expedientTipusHelper.findIdsUnitatsOrgAmbPermisos(entornId, expedientTipusId, permisosRequerits);
 			if(idsUnitatsOrganitzatives!=null && !idsUnitatsOrganitzatives.isEmpty()) {
 				permes = true;
 			}

@@ -237,13 +237,16 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				}				
 			}
 			//Al filtre d'anotacions només tindrem els expedientTipus amb permisos d'admin o de relacionar
+			Permission[] permisosRequerits= new Permission[] {
+					ExtendedPermission.RELATE,
+					ExtendedPermission.ADMINISTRATION};
 			if (filtreDto.getExpedientTipusId() != null) {
 				expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(filtreDto.getExpedientTipusId());
-				unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComu(entornId, expTipUnitOrgList);										
+				unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComu(entornId, expTipUnitOrgList, permisosRequerits);										
 			} else { //si no hi ha expedientTipus al filtre, hem de buscar totes les UO per las quals es té permís i obtenir els expedinetTipus
 				if (!usuariActualHelper.isAdministrador()) {
 					expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findAll();
-					unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComu(entornId, expTipUnitOrgList);										
+					unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComu(entornId, expTipUnitOrgList, permisosRequerits);										
 				}
 			}
 		}
@@ -563,13 +566,16 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				}				
 			}	
 			//Al filtre d'anotacions només tindrem els expedientTipus amb permisos d'admin o de relacionar
+			Permission[] permisosRequerits= new Permission[] {
+					ExtendedPermission.RELATE,
+					ExtendedPermission.ADMINISTRATION};
 			if (filtreDto.getExpedientTipusId() != null) {
 				expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(filtreDto.getExpedientTipusId());
-				unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComu(entornId, expTipUnitOrgList);	
+				unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComu(entornId, expTipUnitOrgList, permisosRequerits);	
 			} else { //si no hi ha expedientTipus al filtre, hem de buscar totes les UO per las quals es té permís i obtenir els expedinetTipus
 				if (!usuariActualHelper.isAdministrador()) {
 					expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findAll();
-					unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComu(entornId, expTipUnitOrgList);					
+					unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComu(entornId, expTipUnitOrgList, permisosRequerits);					
 				}
 			}
 		}
