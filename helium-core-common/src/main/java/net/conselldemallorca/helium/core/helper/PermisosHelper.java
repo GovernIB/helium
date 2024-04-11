@@ -302,11 +302,28 @@ public class PermisosHelper {
 			List<Long> ids,
 			List<? extends ControlPermisosDto> dtos,
 			Class<?> classePermisos) {
+		omplirControlPermisosSegonsUsuariActual(ids, dtos, classePermisos, true);
+	}
+	
+	/**
+	 * Assigna permisos als atributs corresponents dels Dtos, segons si es tenen permisos per els objectes de tipus classePermisos, amb Ids "ids"
+	 * @param ids Identificadors dels objectes de tipus "classePermisos" sobre els quals el usuari o rol haurá de tenir permis.
+	 * @param dtos Objectes sobre els que s'emplenarán els atributs de permisos, segons el resultat de la cerca.
+	 * @param classePermisos Tipus d'objecte sobre el qual cercam permisos.
+	 * @param sobreescriuPermisAnterior Si el Dto té un true (se li ha concedit permis anteriorment), no es posará a false si en aquest cas no té permisos.
+	 */
+	public void omplirControlPermisosSegonsUsuariActual(
+			List<Long> ids,
+			List<? extends ControlPermisosDto> dtos,
+			Class<?> classePermisos,
+			boolean sobreescriuPermisAnterior) {
+		
 		ObjectIdentifierExtractor<Long> oie = new ObjectIdentifierExtractor<Long>() {
 			public Long getObjectIdentifier(Long id) {
 				return id;
 			}
 		};
+		
 		List<Long> idsAmbPermisRead = filtrarIdsPermisos(
 				ids,
 				oie,
@@ -514,62 +531,121 @@ public class PermisosHelper {
 		for (int i = 0; i < ids.size(); i++) {
 			Long id = ids.get(i);
 			ControlPermisosDto dto = dtos.get(i);
-			dto.setPermisRead(
-					idsAmbPermisRead.contains(id));
-			dto.setPermisWrite(
-					idsAmbPermisWrite.contains(id));
-			dto.setPermisCreate(
-					idsAmbPermisCreate.contains(id));
-			dto.setPermisDelete(
-					idsAmbPermisDelete.contains(id));
-			dto.setPermisAdministration(
-					idsAmbPermisAdministration.contains(id));
-			dto.setPermisCancel(
-					idsAmbPermisCancel.contains(id));
-			dto.setPermisStop(
-					idsAmbPermisStop.contains(id));
-			dto.setPermisRelate(
-					idsAmbPermisRelate.contains(id));
-			dto.setPermisDataManagement(
-					idsAmbPermisDataManage.contains(id));
-			dto.setPermisDocManagement(
-					idsAmbPermisDocManage.contains(id));
-			dto.setPermisTermManagement(
-					idsAmbPermisTermManage.contains(id));
-			dto.setPermisTaskManagement(
-					idsAmbPermisTaskManage.contains(id));
-			dto.setPermisTaskSupervision(
-					idsAmbPermisTaskSuperv.contains(id));
-			dto.setPermisTaskAssign(
-					idsAmbPermisTaskAssign.contains(id));
-			dto.setPermisLogRead(
-					idsAmbPermisLogRead.contains(id));
-			dto.setPermisLogManage(
-					idsAmbPermisLogManage.contains(id));
-			dto.setPermisTokenRead(
-					idsAmbPermisTokenRead.contains(id));
-			dto.setPermisTokenManage(
-					idsAmbPermisTokenManage.contains(id));
-			dto.setPermisDesignAdmin(
-					idsAmbPermisDesignAdmin.contains(id));
-			dto.setPermisDesignDeleg(
-					idsAmbPermisDesignDeleg.contains(id));
-			dto.setPermisScriptExe(
-					idsAmbPermisScriptExe.contains(id));
-			dto.setPermisUndoEnd(
-					idsAmbPermisUndoEnd.contains(id));
-			dto.setPermisDefprocUpdate(
-					idsAmbPermisDefprocUpdate.contains(id));
-			dto.setPermisDesign(
-					idsAmbPermisDesign.contains(id));
-			dto.setPermisOrganization(
-					idsAmbPermisOrganization.contains(id));
-			dto.setPermisSupervision(
-					idsAmbPermisSupervision.contains(id));
-			dto.setPermisManage(
-					idsAmbPermisManage.contains(id));
-			dto.setPermisReassignment(
-					idsAmbPermisReassignment.contains(id));
+			
+			//Es sobreescriu valor si el parametre es true (cas més normal)
+			//o en cas de false, si el valor anterior era false (ara podrà posar-se, o no, a true)
+			//Pero mai es canviará de true a false si sobreescriuPermisAnterior es false. 
+			if (sobreescriuPermisAnterior || !dto.isPermisRead()) {
+				dto.setPermisRead(idsAmbPermisRead.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisRead()) {
+				dto.setPermisWrite(idsAmbPermisWrite.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisCreate()) {
+				dto.setPermisCreate(idsAmbPermisCreate.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisDelete()) {
+				dto.setPermisDelete(idsAmbPermisDelete.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisAdministration()) {
+				dto.setPermisAdministration(idsAmbPermisAdministration.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisCancel()) {
+				dto.setPermisCancel(idsAmbPermisCancel.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisStop()) {
+				dto.setPermisStop(idsAmbPermisStop.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisRelate()) {
+				dto.setPermisRelate(idsAmbPermisRelate.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisDataManagement()) {
+				dto.setPermisDataManagement(idsAmbPermisDataManage.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisDocManagement()) {
+				dto.setPermisDocManagement(idsAmbPermisDocManage.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisTermManagement()) {
+				dto.setPermisTermManagement(idsAmbPermisTermManage.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisTaskManagement()) {
+				dto.setPermisTaskManagement(idsAmbPermisTaskManage.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisTaskSupervision()) {
+				dto.setPermisTaskSupervision(idsAmbPermisTaskSuperv.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisTaskAssign()) {
+				dto.setPermisTaskAssign(idsAmbPermisTaskAssign.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisLogRead()) {
+				dto.setPermisLogRead(idsAmbPermisLogRead.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisLogManage()) {
+				dto.setPermisLogManage(idsAmbPermisLogManage.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisTokenRead()) {
+				dto.setPermisTokenRead(idsAmbPermisTokenRead.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisTokenManage()) {
+				dto.setPermisTokenManage(idsAmbPermisTokenManage.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisDesignAdmin()) {
+				dto.setPermisDesignAdmin(idsAmbPermisDesignAdmin.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisDesignDeleg()) {
+				dto.setPermisDesignDeleg(idsAmbPermisDesignDeleg.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisScriptExe()) {
+				dto.setPermisScriptExe(idsAmbPermisScriptExe.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisUndoEnd()) {
+				dto.setPermisUndoEnd(idsAmbPermisUndoEnd.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisDefprocUpdate()) {
+				dto.setPermisDefprocUpdate(idsAmbPermisDefprocUpdate.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisDesign()) {
+				dto.setPermisDesign(idsAmbPermisDesign.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisOrganization()) {
+				dto.setPermisOrganization(idsAmbPermisOrganization.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisSupervision()) {
+				dto.setPermisSupervision(idsAmbPermisSupervision.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisManage()) {
+				dto.setPermisManage(idsAmbPermisManage.contains(id));
+			}
+			
+			if (sobreescriuPermisAnterior || !dto.isPermisReassignment()) {
+				dto.setPermisReassignment(idsAmbPermisReassignment.contains(id));
+			}
 		}
 	}
 
@@ -587,7 +663,21 @@ public class PermisosHelper {
 				classePermisos);
 	}
 
-
+	public void omplirControlPermisosSegonsUsuariActual(
+			Long id,
+			ControlPermisosDto dto,
+			Class<?> classePermisos,
+			boolean sobreescriuPermisAnterior) {
+		List<Long> ids = new ArrayList<Long>();
+		ids.add(id);
+		List<ControlPermisosDto> dtos = new ArrayList<ControlPermisosDto>();
+		dtos.add(dto);
+		omplirControlPermisosSegonsUsuariActual(
+				ids,
+				dtos,
+				classePermisos,
+				sobreescriuPermisAnterior);
+	}
 
 	private List<PermisDto> findPermisosPerAcl(Acl acl) {
 		List<PermisDto> resposta = new ArrayList<PermisDto>();

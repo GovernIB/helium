@@ -768,6 +768,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	@Override
 	@Transactional(readOnly = true)
 	public PaginaDto<ExpedientDto> findAmbFiltrePaginat(
+			List<ExpedientTipusDto> expedientTipusDtoAccessibles,
 			Long entornId,
 			Long expedientTipusId,
 			String titol,
@@ -833,7 +834,13 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			}
 
 		} else { //si no hi ha expedientTipus al filtre, hem de buscar totes les UO per las quals es té permís i obtenir els expedinetTipus
-			List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusEntornId(entorn.getId());
+			List<Long> idsExpTipusAccessibles = new ArrayList<Long>();
+			for(ExpedientTipusDto expTipus: expedientTipusDtoAccessibles) {
+				idsExpTipusAccessibles.add(expTipus.getId());
+			}
+			List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipus(
+					idsExpTipusAccessibles==null || idsExpTipusAccessibles.isEmpty(), 
+					idsExpTipusAccessibles);
 			unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComuIds(entornId,expTipUnitOrgList);
 			idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisosAdminOrRead(entorn.getId(), null);
 		}

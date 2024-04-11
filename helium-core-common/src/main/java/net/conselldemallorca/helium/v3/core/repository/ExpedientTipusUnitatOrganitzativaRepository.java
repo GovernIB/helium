@@ -3,12 +3,14 @@ package net.conselldemallorca.helium.v3.core.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
 
 /**
  * Definició dels mètodes necessaris per a gestionar una entitat de base
- * de dades del tipus procediment òrgan.
+ * de dades de ExpedientTipusUnitatOrganitzativa.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -23,4 +25,21 @@ public interface ExpedientTipusUnitatOrganitzativaRepository extends JpaReposito
 	 List<ExpedientTipusUnitatOrganitzativa> findByUnitatOrganitzativaId(Long unitatOrganitzativaId);
 	 
 	 List<ExpedientTipusUnitatOrganitzativa> findByExpedientTipusEntornId(Long entornId);
+	 
+	 /**
+	  * Mètode per cercar els ExpedientTipusUnitatOrganitzativa que tinguin els tipus d'expedient indicats.
+	  * @param isNullExpedientsTipusIds
+	  * @param expedientsTipusIds
+	  * @return
+	  */
+    @Query(	 "from " 
+			+"    ExpedientTipusUnitatOrganitzativa etuo " 
+			+"where " 
+			+	"(:isNullExpedientsTipusIds = true or "
+    		+" 		etuo.expedientTipus.id in (:expedientsTipusIds)) "
+			)
+    List<ExpedientTipusUnitatOrganitzativa> findByExpedientTipus(
+			@Param("isNullExpedientsTipusIds") boolean isNullExpedientsTipusIds,
+			@Param("expedientsTipusIds") List<Long> expedientsTipusIds
+			);
 }

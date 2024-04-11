@@ -31,6 +31,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
@@ -190,6 +191,7 @@ public class ExpedientServiceBean implements ExpedientService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<ExpedientDto> findAmbFiltrePaginat(
+			List<ExpedientTipusDto> expedientTipusDtoAccessibles,
 			Long entornId,
 			Long expedientTipusId,
 			String titol,
@@ -212,6 +214,7 @@ public class ExpedientServiceBean implements ExpedientService {
 			MostrarAnulatsDto mostrarAnulats,
 			PaginacioParamsDto paginacioParams) {
 		return delegate.findAmbFiltrePaginat(
+				expedientTipusDtoAccessibles,
 				entornId,
 				expedientTipusId,
 				titol,
