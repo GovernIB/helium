@@ -26,14 +26,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import es.caib.distribucio.rest.client.regla.ReglesRestClient;
 import es.caib.distribucio.rest.client.regla.domini.Regla;
 import es.caib.distribucio.rest.client.regla.domini.ReglaResponse;
-import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentDto;
-import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.service.ParametreService;
 import net.conselldemallorca.helium.v3.core.api.service.ProcedimentService;
 import net.conselldemallorca.helium.v3.core.api.service.UnitatOrganitzativaService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusIntegracioDistribucioCommand;
@@ -60,6 +60,8 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 	private ProcedimentService procedimentService;
 	@Autowired
 	private UnitatOrganitzativaService unitatOrganitzativaService;
+	@Autowired
+	private ParametreService parametreService;
 	
 	@RequestMapping(value = "/{expedientTipusId}/integracioDistribucio")
 	public String distribucio(
@@ -291,7 +293,15 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
     	return ajaxResponse;
 	}
 	
-
+	/** Comprova les dades pel tipus d'expedient i retorna el codi d'entitat arrel segons el procediment
+	 * o la unitat arrel configurada en les propietats.
+	 * 
+	 * @param request
+	 * @param expedientTipusId
+	 * @param codiProcediment
+	 * @return
+	 * @throws Exception
+	 */
 	private String comprovarDades (
 			HttpServletRequest request, 
 			Long expedientTipusId, 
@@ -312,39 +322,50 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 		if (!expedientTipus.isNtiActiu()) {
 			throw new Exception("El tipus d'expedient no té les metadades NTI actives");
 		}
+		
 		String codiEntitat = null;
-		UnitatOrganitzativaDto unitatOrganitzativa = null;
 		if (expedientTipus.isProcedimentComu()) {
 			ProcedimentDto procediment = procedimentService.findByCodiSia(codiProcediment);
-			if(procediment!=null)
-				unitatOrganitzativa = procediment.getUnitatOrganitzativa();
-			else {
-				throw new NoTrobatException(ProcedimentDto.class, codiProcediment);
+			if(procediment != null) {
+				if(procediment.getUnitatOrganitzativa() != null) {
+					codiEntitat = procediment.getUnitatOrganitzativa().getCodi();
+				}
 			}
-			if(unitatOrganitzativa!=null) {
-				codiEntitat = unitatOrganitzativa.getCodi();
-			} else {
-				throw new NoTrobatException(UnitatOrganitzativaDto.class);
+			else {
+				// No s'ha trobat el procediment dins d'Helium s'usarà la unitat arrel configurada.
+				String wrnMsg = "No s'ha trobat el procediment " + codiProcediment + " dins d'Helium.";
+				MissatgesHelper.warning(request, wrnMsg);
 			}
 		} else {
 			codiEntitat = expedientTipus.getNtiOrgano();
 		}	
-		if(codiEntitat == null || "".equals(codiEntitat)) {
-			throw new Exception(
-					getMessage(
-							request, 
-							"expedient.tipus.integracio.distribucio.regla.unitatOrganica.error"));
-
+		
+		if (codiEntitat != null) {
+			// Consulta l'unitat arrel de la entitat del tipus d'expedient
+			try {
+				codiEntitat = null;
+				UnitatOrganitzativaDto unitatOrganitzativa = unitatOrganitzativaService.findByCodi(codiEntitat);
+				codiEntitat = unitatOrganitzativa.getCodiUnitatArrel();
+			} catch (Exception e) {
+				String errMsg = "Error consultant la unitat arrel de l'enitat " + codiEntitat + ": " + e.getMessage() + ". Es provarà la creació amb el codi de l'entitat";
+				logger.error(errMsg, e);
+				MissatgesHelper.warning(request, errMsg);
+			}
 		}
-		// Consulta l'unitat arrel de la entitat del tipus d'expedinet
-		try {
-			unitatOrganitzativa = unitatOrganitzativaService.findByCodi(codiEntitat);
-			codiEntitat = unitatOrganitzativa.getCodiUnitatArrel();
-		} catch (Exception e) {
-			String errMsg = "Error consultant la unitat arrel de l'enitat " + codiEntitat + ": " + e.getMessage() + ". Es provarà la creació amb el codi de l'entitat";
-			logger.error(errMsg, e);
-			MissatgesHelper.warning(request, errMsg);
+		
+		// Cerca el codi de l'unitat arrel a partir dle codi de l'entitat
+		if (codiEntitat == null) {
+			ParametreDto param = parametreService.findByCodi(ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
+			if (param != null) {
+				codiEntitat = param.getValor();			
+				MissatgesHelper.warning(request, "S'usarà el codi de l'entitat arrel configurat a Helium \"" + codiEntitat + "\"per les peticions de regles amb Distribucio.");
+			}
 		}
+		
+		if (codiEntitat == null) {
+			throw new Exception("No as'ha pogut resoldre el codi de l'entitat arrel a partir del procediment.");
+		}
+		
 		return codiEntitat;
 	}
 
