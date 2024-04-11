@@ -80,6 +80,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArbreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
@@ -94,6 +95,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
+import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
@@ -173,6 +175,8 @@ public class ExpedientHelper {
 	private HerenciaHelper herenciaHelper;
 	@Resource
 	private ExpedientTipusHelper expedientTipusHelper;
+	@Resource
+	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
 
 	
 	public static String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";
@@ -1300,15 +1304,41 @@ public class ExpedientHelper {
 	}
 
 	public void omplirPermisosExpedients(List<ExpedientDto> expedients) {
+		
 		List<Long> expedientTipusIds = new ArrayList<Long>();
+		
 		for (ExpedientDto expedient: expedients) {
+			
 			expedientTipusIds.add(expedient.getTipus().getId());
+			
+			if (expedient.getTipus().isProcedimentComu() && expedient.getUnitatOrganitzativa()!=null) {
+				//Aqui hem de ficar els IDS de les Uos del expedient tipus actual, i les superiors
+				List<UnitatOrganitzativaDto> uoList = unitatOrganitzativaHelper.findPath(null, expedient.getUnitatOrganitzativa().getCodi());
+				if (uoList!=null && uoList.size()>0) {
+					for (UnitatOrganitzativaDto uo: uoList) {
+						//Anam carregant cada expedient amb els permisos de la UO
+						ExpedientTipusUnitatOrganitzativa etuo = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaId(expedient.getTipus().getId(), uo.getId());
+						//Pot ser no s'hagin configurat permisos per aquest TE i UO.
+						if (etuo!=null) {
+							permisosHelper.omplirControlPermisosSegonsUsuariActual(
+									etuo.getId(),
+									expedient,
+									ExpedientTipusUnitatOrganitzativa.class,
+									false);
+						}
+					}
+				}
+			}
 		}
+		
+		//Completam amb els permisos per tipus de expedient
 		permisosHelper.omplirControlPermisosSegonsUsuariActual(
 				expedientTipusIds,
 				expedients,
-				ExpedientTipus.class);
+				ExpedientTipus.class,
+				false);
 	}
+	
 	public void omplirPermisosExpedient(ExpedientDto expedient) {
 		List<ExpedientDto> expedients = new ArrayList<ExpedientDto>();
 		expedients.add(expedient);
