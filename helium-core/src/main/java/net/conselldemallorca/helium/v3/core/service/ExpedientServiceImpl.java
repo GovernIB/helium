@@ -157,6 +157,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioExc
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.api.service.ParametreService;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
@@ -302,6 +303,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	private UsuariActualHelper usuariActualHelper;
 	@Resource
 	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
+	@Resource
+	private ExpedientTipusService expedientTipusService;
 	
 	/**
 	 * {@inheritDoc}
@@ -1228,22 +1231,29 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				false);
 		
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		
+		Permission[] permisos = new Permission[] {
+				ExtendedPermission.SUPERVISION,
+				ExtendedPermission.TASK_SUPERV,
+				ExtendedPermission.ADMINISTRATION};
 		boolean tasquesAltresUsuaris = permisosHelper.isGrantedAny(
 					expedient.getTipus().getId(),
 					ExpedientTipus.class,
-					new Permission[] {
-						ExtendedPermission.SUPERVISION,
-						ExtendedPermission.TASK_SUPERV,
-						ExtendedPermission.ADMINISTRATION},
+					permisos,
 					auth);
+		boolean tasquesSobreUO = false;
+		if(expedient.getTipus().isProcedimentComu()) {
+				tasquesSobreUO = expedientTipusService.tePermisosSobreUnitatOrganitzativaOrParents(
+					expedient.getTipus().getId(), 
+					expedient.getUnitatOrganitzativa().getCodi(), 
+					permisos);
+		}
 		List<ExpedientTascaDto> resposta = new ArrayList<ExpedientTascaDto>();
 		for (JbpmProcessInstance jpi: jbpmHelper.getProcessInstanceTree(expedient.getProcessInstanceId())) {
 			resposta.addAll(
 					tascaHelper.findTasquesPerExpedientPerInstanciaProces(
 							jpi.getId(),
 							expedient,
-							tasquesAltresUsuaris,
+							tasquesAltresUsuaris || tasquesSobreUO,
 							nomesTasquesPersonals,
 							nomesTasquesGrup));
 		}
