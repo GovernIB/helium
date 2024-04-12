@@ -12,6 +12,7 @@ import javax.interceptor.Interceptors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+import org.springframework.security.acls.model.Permission;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
@@ -942,9 +943,9 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public boolean tePermis(Long expedientId, String unitatOrganitzativaCodi)
+	public boolean tePermisosSobreUnitatOrganitzativaOrParents(Long expedientId, String unitatOrganitzativaCodi, Permission[] permisos)
 			throws NoTrobatException, PermisDenegatException {
-		return delegate.tePermis(expedientId, unitatOrganitzativaCodi);
+		return delegate.tePermisosSobreUnitatOrganitzativaOrParents(expedientId, unitatOrganitzativaCodi, permisos);
 	}
 
 }

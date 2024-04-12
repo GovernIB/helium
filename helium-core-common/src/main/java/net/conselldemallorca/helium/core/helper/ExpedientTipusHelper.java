@@ -4,6 +4,7 @@
 package net.conselldemallorca.helium.core.helper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -506,21 +507,83 @@ public class ExpedientTipusHelper {
 		return tePermis;
 	}
 	
-	public boolean comprovarPermisOrAdmin (
+	public boolean comprovarPermisosAndRoleOrUser (
 			PermisDto permis, 
 			Authentication authOriginal, 
-			boolean comprovarRead, 
-			boolean comprovarCreate) {
+			Permission[] permisos) {
+
+		List<Permission> permisosList = Arrays.asList(permisos);
+		int permisosComplits = 0;
 		
-		if (comprovarRead && ! permis.isRead()) {
+		for (Permission p: permisosList) {
+			if (p.equals(ExtendedPermission.CANCEL) && permis.isCancel()) {
+				permisosComplits++;
+			} else if (p.equals(ExtendedPermission.DATA_MANAGE) && permis.isDataManagement()) {
+				permisosComplits++;
+			} else if (p.equals(ExtendedPermission.DEFPROC_UPDATE) && permis.isDefprocUpdate()) {
+				permisosComplits++;
+			} else if (p.equals(ExtendedPermission.DESIGN) && permis.isDesign()) {
+				permisosComplits++;
+			} else if (p.equals(ExtendedPermission.DESIGN_ADMIN) && permis.isDesignAdmin()) {
+				permisosComplits++;
+			} else if (p.equals(ExtendedPermission.DESIGN_DELEG) && permis.isDesignDeleg()) {
+				permisosComplits++;
+			} else if (p.equals(ExtendedPermission.DOC_MANAGE) && permis.isDocManagement()) {
+				permisosComplits++;
+			} else if (p.equals(ExtendedPermission.LOG_MANAGE) && permis.isLogManage()) {
+				permisosComplits++;
+			} else if (p.equals(ExtendedPermission.LOG_READ) && permis.isLogRead()) {
+				permisosComplits++;
+			} else if (p.equals(ExtendedPermission.MANAGE) && permis.isManage()) {
+				permisosComplits++;
+			} else if (p.equals(ExtendedPermission.ORGANIZATION) && permis.isOrganization()) {
+				permisosComplits++;
+			} else if (p.equals(ExtendedPermission.REASSIGNMENT) && permis.isReassignment()) {
+				permisosComplits++;	
+			} else if (p.equals(ExtendedPermission.RELATE) && permis.isRelate()) {
+				permisosComplits++;	
+			} else if (p.equals(ExtendedPermission.SCRIPT_EXE) && permis.isScriptExe()) {
+				permisosComplits++;	
+			} else if (p.equals(ExtendedPermission.STOP) && permis.isStop()) {
+				permisosComplits++;	
+			} else if (p.equals(ExtendedPermission.SUPERVISION) && permis.isSupervision()) {
+				permisosComplits++;	
+			} else if (p.equals(ExtendedPermission.TASK_ASSIGN) && permis.isTaskAssign()) {
+				permisosComplits++;	
+			} else if (p.equals(ExtendedPermission.TASK_MANAGE) && permis.isTaskManagement()) {
+				permisosComplits++;	
+			} else if (p.equals(ExtendedPermission.TASK_SUPERV) && permis.isTaskSupervision()) {
+				permisosComplits++;
+			} else if (p.equals(ExtendedPermission.TERM_MANAGE) && permis.isTermManagement()) {
+				permisosComplits++;
+			} else if (p.equals(ExtendedPermission.TOKEN_MANAGE) && permis.isTokenManage()) {
+				permisosComplits++;
+			} else if (p.equals(ExtendedPermission.TOKEN_READ) && permis.isTokenRead()) {
+				permisosComplits++;
+			} else if (p.equals(ExtendedPermission.UNDO_END) && permis.isUndoEnd()) {
+				permisosComplits++;
+			} else if (p.equals(ExtendedPermission.ADMINISTRATION) && permis.isAdministration()) {
+				permisosComplits++;
+			} else if (p.equals(ExtendedPermission.CREATE) && permis.isCreate()) {
+				permisosComplits++;
+			} else if (p.equals(ExtendedPermission.DELETE) && permis.isDelete()) {
+				permisosComplits++;
+			} else if (p.equals(ExtendedPermission.READ) && permis.isRead()) {
+				permisosComplits++;
+			} else if (p.equals(ExtendedPermission.WRITE) && permis.isWrite()) {
+				permisosComplits++;				
+			}
+		}
+		
+		//No té cap dels permisos requerits
+		if (permisosComplits==0) {
 			return false;
 		}
-		if (comprovarCreate && ! permis.isCreate()) {
-			return false;
-		}
+		
 		if (this.isAdministrador(authOriginal)) {
 			return true;
 		}
+		
 		boolean tePermis = false;
 		if (permis.getPrincipalNom()!=null 
 				&& authOriginal!=null 

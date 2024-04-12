@@ -80,7 +80,6 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArbreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
@@ -99,6 +98,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
@@ -144,6 +144,8 @@ public class ExpedientHelper {
 	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
 	@Resource
 	private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
+	@Resource
+	private ExpedientTipusService expedientTipusService;
 
 	@Resource
 	private EntornHelper entornHelper;
@@ -298,10 +300,15 @@ public class ExpedientHelper {
 				ExpedientTipus.class,
 				permisos,
 				auth)) {
-			throw new PermisDenegatException(
-					id,
-					Expedient.class,
-					permisos);
+			
+			if (expedient.getUnitatOrganitzativa()!=null && 
+				!expedientTipusService.tePermisosSobreUnitatOrganitzativaOrParents(expedientTipus.getId(), expedient.getUnitatOrganitzativa().getCodi(), permisos)) {
+				
+				throw new PermisDenegatException(
+						expedientTipus.getId(),
+						ExpedientTipus.class,
+						permisos);
+			}
 		}
 		return expedient;
 	}

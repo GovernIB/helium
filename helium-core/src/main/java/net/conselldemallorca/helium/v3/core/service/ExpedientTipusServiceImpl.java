@@ -2363,7 +2363,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean tePermis(Long expedientTipusId, String unitatOrganitzativaCodi) {
+	public boolean tePermisosSobreUnitatOrganitzativaOrParents(Long expedientTipusId, String unitatOrganitzativaCodi, Permission[] permissions) {
 		ExpedientTipusUnitatOrganitzativa expTipusUnitOrg = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaCodi(
 				expedientTipusId, 
 				unitatOrganitzativaCodi);
@@ -2395,18 +2395,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					ExpedientTipusUnitatOrganitzativa.class));	
 		Authentication authOriginal = SecurityContextHolder.getContext().getAuthentication();		
 		for(PermisDto permis: permisos) {
-			if (expedientTipusHelper.comprovarPermisOrAdmin(permis, authOriginal, false, true)) {
+			if (expedientTipusHelper.comprovarPermisosAndRoleOrUser(permis, authOriginal, permissions)) {
 				return true;
 			}
-//			if(permis.getPrincipalNom()!=null 
-//				&& authOriginal!=null 
-//				&& authOriginal.getName()!=null 
-//				&& (permis.getPrincipalNom().equals(authOriginal.getName())
-//						|| (PrincipalTipusEnumDto.ROL.equals(permis.getPrincipalTipus()) 
-//							!! expedientTipusHelper.isAdministrador(authOriginal)))
-//				&& (permis.isCreate() 
-//						|| permis.isAdministration()))
-//					return true;
 		}		
 		return false;
 	}
