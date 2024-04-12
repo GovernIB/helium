@@ -493,14 +493,7 @@ public class UnitatOrganitzativaHelper {
 					}
 				}
 			}
-			// converting from UnitatOrganitzativa to UnitatOrganitzativaDto
-			List<UnitatOrganitzativaDto> unitatsVigentsWithChangedAttributesDto = new ArrayList<UnitatOrganitzativaDto>();
-			for(UnitatOrganitzativaDto vigent : unitatsVigentsWithChangedAttributes){
-				unitatsVigentsWithChangedAttributesDto.add(conversioTipusHelper.convertir(
-						vigent, 
-						UnitatOrganitzativaDto.class));
-			}
-			return unitatsVigentsWithChangedAttributesDto;
+			return unitatsVigentsWithChangedAttributes;
 		}
 		
 		
@@ -554,14 +547,7 @@ public class UnitatOrganitzativaHelper {
 				// what we want is to add direct pointer from unitat A to C (A -> C)
 				vigentObsolete.setLastHistoricosUnitats(getLastHistoricos(vigentObsolete, unitatsWS));
 			}
-			// converting from UnitatOrganitzativa to UnitatOrganitzativaDto
-			List<UnitatOrganitzativaDto> unitatsVigentObsoleteDto = new ArrayList<UnitatOrganitzativaDto>();
-			for(UnitatOrganitzativaDto vigentObsolete : unitatsVigentObsolete){
-				unitatsVigentObsoleteDto.add(conversioTipusHelper.convertir(
-						vigentObsolete, 
-						UnitatOrganitzativaDto.class));
-			}
-			return unitatsVigentObsoleteDto;
+			return unitatsVigentObsolete;
 		}
 
 		
