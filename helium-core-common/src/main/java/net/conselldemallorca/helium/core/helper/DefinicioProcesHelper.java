@@ -348,9 +348,8 @@ public class DefinicioProcesHelper {
 						document.setConvertirExtensio(documentExportat.getConvertirExtensio());
 						document.setExtensionsPermeses(documentExportat.getExtensionsPermeses());
 						document.setIgnored(documentExportat.isIgnored());
-						document.setNtiTipoDocumental(documentExportat.getNtiTipoDocumental());
-						document.setPortafirmesActiu(documentExportat.isPortafirmesActiu());
 						
+						document.setPortafirmesActiu(documentExportat.isPortafirmesActiu());
 						document.setPortafirmesFluxId(documentExportat.getPortafirmesFluxId());
 						if (documentExportat.getPortafirmesFluxId() != null) {
 							if (documentExportat.getPortafirmesFluxNom() == null) {
@@ -370,6 +369,11 @@ public class DefinicioProcesHelper {
 						document.setPortafirmesFluxTipus(documentExportat.getPortafirmesFluxTipus());
 						document.setPortafirmesSequenciaTipus(documentExportat.getPortafirmesSequenciaTipus());
 						document.setPortafirmesResponsables(documentExportat.getPortafirmesResponsables());
+						
+						//Metadades NTI per defecte
+						document.setNtiTipoDocumental(documentExportat.getNtiTipoDocumental());
+						document.setNtiOrigen(documentExportat.getNtiOrigen());
+						document.setNtiEstadoElaboracion(documentExportat.getNtiEstadoElaboracion());
 					}
 					documents.put(documentExportat.getCodi(), document);
 				}	
@@ -1008,7 +1012,7 @@ public class DefinicioProcesHelper {
 					documentExportacio.setConvertirExtensio(document.getConvertirExtensio());
 					documentExportacio.setExtensionsPermeses(document.getExtensionsPermeses());
 					documentExportacio.setIgnored(document.isIgnored());
-					documentExportacio.setNtiTipoDocumental(document.getNtiTipoDocumental());
+
 					documentExportacio.setPortafirmesActiu(document.isPortafirmesActiu());
 					documentExportacio.setPortafirmesFluxId(document.getPortafirmesFluxId());
 					if (document.getPortafirmesFluxId() != null) {
@@ -1030,6 +1034,11 @@ public class DefinicioProcesHelper {
 					documentExportacio.setPortafirmesFluxTipus(document.getPortafirmesFluxTipus());
 					documentExportacio.setPortafirmesSequenciaTipus(document.getPortafirmesSequenciaTipus());
 					documentExportacio.setPortafirmesResponsables(document.getPortafirmesResponsables()!=null? document.getPortafirmesResponsables().split(",") : null );
+					
+					//Metadades NTI per defecte
+					documentExportacio.setNtiTipoDocumental(document.getNtiTipoDocumental());
+					documentExportacio.setNtiOrigen(document.getNtiOrigen());
+					documentExportacio.setNtiEstadoElaboracion(document.getNtiEstadoElaboracion());
 					
 					exportacio.getDocuments().add(documentExportacio);
 				}

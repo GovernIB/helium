@@ -5,6 +5,8 @@ package net.conselldemallorca.helium.v3.core.api.exportacio;
 
 import java.io.Serializable;
 
+import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesTipusEnumDto;
@@ -31,7 +33,6 @@ public class DocumentExportacio implements Serializable {
 	private String convertirExtensio;
 	private String extensionsPermeses;
 	private boolean ignored;
-	private NtiTipoDocumentalEnumDto ntiTipoDocumental;
 	private boolean generarNomesTasca;
 	private boolean portafirmesActiu = false;
 	private PortafirmesTipusEnumDto portafirmesFluxTipus;	
@@ -39,6 +40,9 @@ public class DocumentExportacio implements Serializable {
 	private String[] portafirmesResponsables;
 	private String portafirmesFluxId;
 	private String portafirmesFluxNom;
+	private NtiTipoDocumentalEnumDto ntiTipoDocumental;
+	private NtiOrigenEnumDto ntiOrigen;
+	private NtiEstadoElaboracionEnumDto ntiEstadoElaboracion;	
 	
 	public DocumentExportacio(
 			String codi,
@@ -240,7 +244,22 @@ public class DocumentExportacio implements Serializable {
 	public void setPortafirmesFluxNom(String portafirmesFluxNom) {
 		this.portafirmesFluxNom = portafirmesFluxNom;
 	}
+	
+	public NtiOrigenEnumDto getNtiOrigen() {
+		return ntiOrigen;
+	}
+
+	public void setNtiOrigen(NtiOrigenEnumDto ntiOrigen) {
+		this.ntiOrigen = ntiOrigen;
+	}
+
+	public NtiEstadoElaboracionEnumDto getNtiEstadoElaboracion() {
+		return ntiEstadoElaboracion;
+	}
+
+	public void setNtiEstadoElaboracion(NtiEstadoElaboracionEnumDto ntiEstadoElaboracion) {
+		this.ntiEstadoElaboracion = ntiEstadoElaboracion;
+	}
 
 	private static final long serialVersionUID = 1L;
-
 }
