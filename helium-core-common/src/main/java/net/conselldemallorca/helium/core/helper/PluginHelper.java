@@ -1623,7 +1623,13 @@ public class PluginHelper {
 						"portafirmesFluxId",
 						portafirmesFluxId));
 			}
-			
+
+			if(portafirmesFluxId!=null) {
+				parametresList.add(new IntegracioParametreDto(
+						"fluxTipus",
+						fluxTipus));
+			}
+
 			// Construeix els blocs de firmes
 			List<PortafirmesFluxBloc> flux = new ArrayList<PortafirmesFluxBloc>();
 			if (portafirmesFluxId == null) {

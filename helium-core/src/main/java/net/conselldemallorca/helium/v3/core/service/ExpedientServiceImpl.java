@@ -823,7 +823,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				true);
 		// Comprova l'accés al tipus d'expedient
 		ExpedientTipus expedientTipus = null;
-		List<Long> idsUnitatsOrganitzativesAmbPermisos = new ArrayList<Long>();
 		Map<Long,List<Long>> unitatsPerTipusComu = new HashMap<Long, List<Long>>();
 		Permission[] permisosRequerits= new Permission[] {
 				ExtendedPermission.READ,
@@ -834,7 +833,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			
 			//Obté la llista de unitats organitzatives per les quals té permisos (també retornarà les uo filles)
 			if(expedientTipus.isProcedimentComu()) {
-				idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisos(entorn.getId(), expedientTipusId, permisosRequerits);
 				List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(expedientTipusId);
 				unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComuIds(entornId,expTipUnitOrgList, permisosRequerits);
 			}
@@ -848,7 +846,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					idsExpTipusAccessibles==null || idsExpTipusAccessibles.isEmpty(), 
 					idsExpTipusAccessibles);
 			unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComuIds(entornId,expTipUnitOrgList, permisosRequerits);
-			idsUnitatsOrganitzativesAmbPermisos = expedientTipusHelper.findIdsUnitatsOrgAmbPermisos(entorn.getId(), null, permisosRequerits);
 		}
 		// Comprova l'accés a l'estat
 		Estat estat = null;

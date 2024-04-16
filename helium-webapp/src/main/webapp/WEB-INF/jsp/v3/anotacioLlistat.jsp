@@ -383,7 +383,7 @@
 			$('#codiProcediment').val('').change();
 			$('#unitatOrganitzativaCodi').val('').change();
 			$('#expedientTipusId').val('').change();
-			//$('#estat').val("PENDENT").change();
+			$('#estat').val("PENDENT").change().change();
 		})
 			
 	});

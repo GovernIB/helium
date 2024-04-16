@@ -2327,7 +2327,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 					transicioKO,
 					null,
 					portafirmesFluxId!=null ? portafirmesFluxId : document.getPortafirmesFluxId(),
-					null);//PortafirmesTipusEnumDto fluxTipus
+					document.getPortafirmesFluxTipus());//PortafirmesTipusEnumDto fluxTipus
 	}
 
 	@Override
