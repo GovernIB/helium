@@ -39,6 +39,7 @@ import net.conselldemallorca.helium.core.model.hibernate.UsuariPreferencies;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
@@ -499,10 +500,10 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public List<IntegracioAccioDto> monitorIntegracioFindAccionsByIntegracioEntornActual(String integracioCodi) {
+	public List<IntegracioAccioDto> monitorIntegracioFindAccionsByIntegracioEntornActual(String integracioCodi, EntornDto entornSessio) {
 		logger.debug("Consultant la llista d'accions per a la integració (" +
 				"integracioCodi=" + integracioCodi + ")");
-		return monitorIntegracioHelper.findAccionsByIntegracioCodiEntornActual(integracioCodi);
+		return monitorIntegracioHelper.findAccionsByIntegracioCodiEntornActual(integracioCodi, entornSessio);
 	}
 
 	@Override

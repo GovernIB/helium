@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
@@ -69,8 +70,7 @@ public interface AdminService {
 	 * @param integracioCodi el codi de la integració a consultar
 	 * @return
 	 */
-	public List<IntegracioAccioDto> monitorIntegracioFindAccionsByIntegracioEntornActual(
-			String integracioCodi);
+	public List<IntegracioAccioDto> monitorIntegracioFindAccionsByIntegracioEntornActual(String integracioCodi, EntornDto entornDto);
 	
 	/**
 	 * Retorna la llista de dominis d'un entorn

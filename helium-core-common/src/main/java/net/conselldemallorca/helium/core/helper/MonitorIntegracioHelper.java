@@ -15,6 +15,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.stereotype.Component;
 
 import net.conselldemallorca.helium.core.util.EntornActual;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
@@ -96,13 +97,13 @@ public class MonitorIntegracioHelper {
 		return getLlistaAccions(integracioCodi);
 	}
 	
-	public synchronized List<IntegracioAccioDto> findAccionsByIntegracioCodiEntornActual(
-			String integracioCodi) {
-		Long entornId = EntornActual.getEntornId();
+	public synchronized List<IntegracioAccioDto> findAccionsByIntegracioCodiEntornActual(String integracioCodi, EntornDto entornSessio) {
 		LinkedList<IntegracioAccioDto> accionsFiltrats = new LinkedList<IntegracioAccioDto>();
-		for (IntegracioAccioDto accio: getLlistaAccions(integracioCodi))
-			if(accio.getEntornId() != null && accio.getEntornId().equals(entornId))
-				accionsFiltrats.add(accio);
+		if (entornSessio!=null) {
+			for (IntegracioAccioDto accio: getLlistaAccions(integracioCodi))
+				if(accio.getEntornId() != null && accio.getEntornId().equals(entornSessio.getId()))
+					accionsFiltrats.add(accio);
+		}
 		return accionsFiltrats;
 	}
 
