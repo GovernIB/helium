@@ -30,6 +30,8 @@
 	</style>
 	
 	<script>
+	// <![CDATA[
+
 		function formatSelectUnitat(item) {
 			if (!item.id) {
 			    return item.text;
@@ -40,7 +42,17 @@
 				return $("<span>" + item.text + " <span class='fa fa-exclamation-triangle text-warning' title=\"<spring:message code='unitat.arbre.unitatObsoleta'/>\"></span></span>");
 			}
 		}
-	</script>
+
+		$(document).ready(function() {
+			
+			$("#netejar").click(function() {
+				$('#unitatOrganitzativa').val('').change();
+				$('#estat').val('').change();
+			})
+		});
+		
+		// ]]>
+		</script>	
 </head>
 <body>
 	<form:form action="" method="post" cssClass="well" commandName="procedimentFiltreCommand">
@@ -67,7 +79,7 @@
 			<div class="col-md-12 pull-right">
 				<div class="pull-right">
 					<button type="submit" name="accio" value="filtrar" class="btn btn-primary hidden" ><span class="fa fa-filter"></span></button>
-					<button type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
+					<button id="netejar" type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
 					<button type="submit" name="accio" value="filtrar" class="ml-2 btn btn-primary"><span class="fa fa-filter"></span> <spring:message code="comu.filtre.filtrar"/></button>
 				</div>
 			</div>
