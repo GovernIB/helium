@@ -730,6 +730,7 @@ public class ExpedientService {
 				true, // tasquesPersona
 				true, // tasquesGrup
 				false, // nomesPendents
+				false, //esAdmin (pot veurer les que no tenen actor assignat)
 				paginacioParams);
 		for (JbpmTask task: tasks.getLlista()) {
 			task.setCacheInactiu();
