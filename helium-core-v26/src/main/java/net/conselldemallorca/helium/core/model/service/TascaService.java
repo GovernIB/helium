@@ -252,7 +252,8 @@ public class TascaService {
 				false, // tasquesGrup
 				true, // nomesPendents
 				paginacioParams,
-				true);
+				true,
+				false);
 		/*List<Long> idsExpedients = getExpedientIdsPerConsultaTasques(
 				entornId, 
 				usuariBo, null, null, null, null, false);
@@ -310,7 +311,8 @@ public class TascaService {
 				false, // tasquesGrup
 				true, // nomesPendents
 				paginacioParams,
-				true);
+				true,
+				false);
 		/*List<Long> idsExpedients = getExpedientIdsPerConsultaTasques(
 				entornId, 
 				usuariBo,
@@ -502,7 +504,8 @@ public class TascaService {
 				true, // tasquesGrup
 				true, // nomesPendents
 				paginacioParams,
-				true);
+				true,
+				false);
 		/*List<Long> idsExpedients = getExpedientIdsPerConsultaTasques(
 				entornId, 
 				usuariBo, null, null, null, null, false);*/
@@ -559,7 +562,8 @@ public class TascaService {
 				true, // tasquesGrup
 				true, // nomesPendents
 				paginacioParams,
-				true);
+				true,
+				false);
 		/*List<Long> idsExpedients = getExpedientIdsPerConsultaTasques(
 				entornId, 
 				usuariBo,
@@ -882,6 +886,7 @@ public class TascaService {
 					false, // tasquesPersona
 					true, // tasquesGrup
 					true, // nomesPendents
+					false, //esAdmin (pot veurer les que no tenen actor assignat)
 					paginacioParams);
 			for (JbpmTask task: tasks.getLlista()) {
 				if (task.getId().equals(tascaId)) {
@@ -2020,6 +2025,7 @@ public class TascaService {
 						mostrarAssignadesUsuari,
 						mostrarAssignadesGrup,
 						nomesPendents,
+						false,  //esAdmin (pot veurer les que no tenen actor assignat)
 						paginacioParams);
 			} finally {
 				contextTasques.stop();

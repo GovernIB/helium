@@ -46,6 +46,7 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 	private String sort;
 	private boolean asc;
 	private boolean nomesCount;
+	private boolean isAdministrador;
 
 	public FindJbpmTasksFiltreCommand(
 			List<Long> idsUnitatsOrganitzativesAmbPermisos,
@@ -69,7 +70,8 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 			int maxResults,
 			String sort,
 			boolean asc,
-			boolean nomesCount) {
+			boolean nomesCount,
+			boolean isAdministrador) {
 		super();
 		this.idsUnitatsOrganitzativesAmbPermisos = idsUnitatsOrganitzativesAmbPermisos;
 		this.entornId = entornId;
@@ -93,6 +95,7 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 		this.sort = sort;
 		this.asc = asc;
 		this.nomesCount = nomesCount;
+		this.isAdministrador = isAdministrador;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -229,48 +232,76 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 				taskQuerySb.append(" join ti.processInstance pi join pi.expedient e join e.tipus et ");
 				
 			}
-			taskQuerySb.append("where ");
+			
+			//Posam el entornId que no será mai null el primer, així evitam errors de QuerySyntaxException al tenir un "where and" per haver botat un filtre
+			taskQuerySb.append("where ti.processInstance.expedient.entorn.id = :entornId ");
 			
 			if(idsUnitatsOrganitzativesAmbPermisos!=null && !idsUnitatsOrganitzativesAmbPermisos.isEmpty()) {
 				if(idsUnitatsOrganitzativesAmbPermisos.size()>=1000) {
-					taskQuerySb.append("( ((et.procedimentComu = 1 AND e.unitatOrganitzativaId IN ( :idsPart1))  ");
+					taskQuerySb.append("and ( ((et.procedimentComu = 1 AND e.unitatOrganitzativaId IN ( :idsPart1))  ");
 					taskQuerySb.append("  OR (et.procedimentComu = 1 AND e.unitatOrganitzativaId IN ( :idsPart2))) ");
 					taskQuerySb.append("OR (et.procedimentComu <> 1) ");	
-					taskQuerySb.append(") and ");			
+					taskQuerySb.append(") ");			
 				} else {
-					taskQuerySb.append("((et.procedimentComu = 1 AND e.unitatOrganitzativaId IN ( :idsUnitatsOrganitzativesAmbPermisos))  ");
+					taskQuerySb.append("and ((et.procedimentComu = 1 AND e.unitatOrganitzativaId IN ( :idsUnitatsOrganitzativesAmbPermisos))  ");
 					taskQuerySb.append("OR (et.procedimentComu <> 1) ");	
-					taskQuerySb.append(") and ");			
+					taskQuerySb.append(") ");			
 				}
 			}
 			
 			if (mostrarAssignadesUsuari && mostrarAssignadesGrup) {
 				if (desactivarOptimitzarLlistatTasques)
-					taskQuerySb.append("((ti.actorId is not null and ti.actorId = :actorId) or (ti.actorId is null and pa.actorId = :actorId)) ");
+					taskQuerySb.append("and ((ti.actorId is not null and ti.actorId = :actorId) or (ti.actorId is null and pa.actorId = :actorId)) ");
 				else
-					taskQuerySb.append("((ti.actorId is not null and ti.actorId = :actorId)) ");
+//					taskQuerySb.append("((ti.actorId is null or ti.actorId = :actorId)) ");
+					taskQuerySb.append("and ((ti.actorId is not null and ti.actorId = :actorId)) ");
 			} else if (mostrarAssignadesUsuari && !mostrarAssignadesGrup) {
-				taskQuerySb.append("ti.actorId is not null and ti.actorId = :actorId ");
+				taskQuerySb.append("and ti.actorId is not null and ti.actorId = :actorId ");
 			} else if (!mostrarAssignadesUsuari && mostrarAssignadesGrup) {
-				taskQuerySb.append("ti.actorId is null and pa.actorId = :actorId ");
+				taskQuerySb.append("and ti.actorId is null and pa.actorId = :actorId ");
 			} else {
-				taskQuerySb.append("ti.id is not null ");
+				taskQuerySb.append("and ti.id is not null ");
 			}
 		} else {
+			//El parametre "actor" es null, per tant no tenen marcat el botó de "Nomes amb tasques meves"
+			//per tant en aquest punt, si ets admin, veurás també les que no tenen ningú assignat.
 			taskQuerySb.append(
 					"from " +
 					"    org.jbpm.taskmgmt.exe." + triaTaula(desactivarOptimitzarLlistatTasques) + " ti " +
 					"where ");
+			
+			//Posam el entornId que no será mai null el primer, així evitam errors de QuerySyntaxException al tenir un "where and" per haver botat un filtre
+			taskQuerySb.append("ti.processInstance.expedient.entorn.id = :entornId ");
+			
 			if (mostrarAssignadesUsuari && mostrarAssignadesGrup) {
-				taskQuerySb.append("((ti.actorId is not null) or (ti.actorId is null and exists elements(ti.pooledActors))) ");
+				if (isAdministrador) {
+					//Mostram totes, tenguin o no usuari (TODO: Aqui hauria de deixar el exists elements(ti.pooledActors) ?? )
+//					taskQuerySb.append("((ti.actorId is not null) or (ti.actorId is null and exists elements(ti.pooledActors))) ");
+				} else {
+					//Volem mostrar les que tenen algun usuari individual, o algun usuari en un grup. Pero no es mostren les que no tenen cap usuari.
+					taskQuerySb.append("and ((ti.actorId is not null) or (ti.actorId is null and exists elements(ti.pooledActors))) ");
+				}
 			} else if (mostrarAssignadesUsuari && !mostrarAssignadesGrup) {
-				taskQuerySb.append("ti.actorId is not null ");
+				if (isAdministrador) {
+					//taskQuerySb.append("ti.actorId is not null ");
+				} else {
+					taskQuerySb.append("and ti.actorId is not null ");
+				}
 			} else if (!mostrarAssignadesUsuari && mostrarAssignadesGrup) {
-				taskQuerySb.append("ti.actorId is null and exists elements(ti.pooledActors) ");
+				if (isAdministrador) {
+					
+				} else {
+					taskQuerySb.append("and ti.actorId is null and exists elements(ti.pooledActors) ");
+				}
 			} else {
-				taskQuerySb.append("ti.id is not null ");
+				if (isAdministrador) {
+					
+				} else {
+					taskQuerySb.append("and ti.id is not null ");
+				}
 			}
 		}
+		
 		if (nomesPendents) {
 			taskQuerySb.append("and ti.isSuspended = false and ti.isOpen = true ");
 		}
@@ -298,9 +329,6 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 					"    when (ti.processInstance.expedient.numero is not null AND ti.processInstance.expedient.titol is not null) then ('['||ti.processInstance.expedient.numero||']') " +
 					"    when (ti.processInstance.expedient.numero is not null AND ti.processInstance.expedient.titol is null) then ti.processInstance.expedient.numero " +
 					"    else ti.processInstance.expedient.numeroDefault END) like upper(:expedientNumero))");
-		}
-		if (entornId != null) {
-			taskQuerySb.append("and ti.processInstance.expedient.entorn.id = :entornId ");
 		}
 		if (expedientTipusId != null) {
 			taskQuerySb.append("and ti.processInstance.expedient.tipus.id = :expedientTipusId ");
