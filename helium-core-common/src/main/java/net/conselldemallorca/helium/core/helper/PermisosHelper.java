@@ -539,7 +539,7 @@ public class PermisosHelper {
 				dto.setPermisRead(idsAmbPermisRead.contains(id));
 			}
 			
-			if (sobreescriuPermisAnterior || !dto.isPermisRead()) {
+			if (sobreescriuPermisAnterior || !dto.isPermisWrite()) {
 				dto.setPermisWrite(idsAmbPermisWrite.contains(id));
 			}
 			

@@ -261,104 +261,108 @@ public class UnitatOrganitzativaController extends BaseController {
 			HttpServletRequest request,
 			Model model) {
 	
-		MultiMap splitMap = new MultiHashMap();
-		MultiMap mergeOrSubstMap = new MultiHashMap();
-		MultiMap mergeMap = new MultiHashMap();
-		MultiMap substMap = new MultiHashMap();
-		List<UnitatOrganitzativaDto> unitatsVigents = new ArrayList<UnitatOrganitzativaDto>();
-		List<UnitatOrganitzativaDto> unitatsVigentsFirstSincro = new ArrayList<UnitatOrganitzativaDto>();
-		List<UnitatOrganitzativaDto> unitatsNew = new ArrayList<UnitatOrganitzativaDto>();
-		ParametreDto parametreArrel = parametreService.findByCodi(ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
-		UnitatOrganitzativaDto unitatDto = unitatOrganitzativaService.findByCodi(parametreArrel.getValor());
-		boolean isFirstSincronization = unitatDto==null;
-		if(unitatDto==null) {
-			 unitatDto =pluginHelper.findUnidad(
-					 parametreArrel.getValor(),
-					new Timestamp(System.currentTimeMillis()), 
-					new Timestamp(System.currentTimeMillis()));
-			unitatOrganitzativaService.create(unitatDto);
-		}
+		try {
+			MultiMap splitMap = new MultiHashMap();
+			MultiMap mergeOrSubstMap = new MultiHashMap();
+			MultiMap mergeMap = new MultiHashMap();
+			MultiMap substMap = new MultiHashMap();
+			List<UnitatOrganitzativaDto> unitatsVigents = new ArrayList<UnitatOrganitzativaDto>();
+			List<UnitatOrganitzativaDto> unitatsVigentsFirstSincro = new ArrayList<UnitatOrganitzativaDto>();
+			List<UnitatOrganitzativaDto> unitatsNew = new ArrayList<UnitatOrganitzativaDto>();
+			ParametreDto parametreArrel = parametreService.findByCodi(ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
+			UnitatOrganitzativaDto unitatDto = unitatOrganitzativaService.findByCodi(parametreArrel.getValor());
+			boolean isFirstSincronization = unitatDto==null;
+			if(unitatDto==null) {
+				 unitatDto =pluginHelper.findUnidad(
+						 parametreArrel.getValor(),
+						new Timestamp(System.currentTimeMillis()), 
+						new Timestamp(System.currentTimeMillis()));
+				unitatOrganitzativaService.create(unitatDto);
+			}
 
-		if(isFirstSincronization){
-			unitatsVigentsFirstSincro = unitatOrganitzativaService.predictFirstSynchronization(unitatDto.getId());
-		} else {
-			try {
-				
-	            //Getting list of unitats that are now vigent in db but syncronization is marking them as obsolete
-				List<UnitatOrganitzativaDto> unitatsVigentObsoleteDto = unitatOrganitzativaService
-						.getObsoletesFromWS(unitatDto.getId());
-	
-				// differentiate between split and (subst or merge)
-				for (UnitatOrganitzativaDto vigentObsolete : unitatsVigentObsoleteDto) {
-					if (vigentObsolete.getLastHistoricosUnitats().size() > 1) {
-						for (UnitatOrganitzativaDto hist : vigentObsolete.getLastHistoricosUnitats()) {
-							splitMap.put(vigentObsolete, hist);
-						}
-					} else if (vigentObsolete.getLastHistoricosUnitats().size() == 1) {
-						// check if the map already contains key with this codi
-						UnitatOrganitzativaDto mergeOrSubstKeyWS = vigentObsolete.getLastHistoricosUnitats().get(0);
-						UnitatOrganitzativaDto keyWithTheSameCodi = null;
-						Set<UnitatOrganitzativaDto> keysMergeOrSubst = mergeOrSubstMap.keySet();
-						for (UnitatOrganitzativaDto mergeOrSubstKeyMap : keysMergeOrSubst) {
-							if (mergeOrSubstKeyMap.getCodi().equals(mergeOrSubstKeyWS.getCodi())) {
-								keyWithTheSameCodi = mergeOrSubstKeyMap;
+			if(isFirstSincronization){
+				unitatsVigentsFirstSincro = unitatOrganitzativaService.predictFirstSynchronization(unitatDto.getId());
+			} else {
+				try {
+					
+		            //Getting list of unitats that are now vigent in db but syncronization is marking them as obsolete
+					List<UnitatOrganitzativaDto> unitatsVigentObsoleteDto = unitatOrganitzativaService
+							.getObsoletesFromWS(unitatDto.getId());
+		
+					// differentiate between split and (subst or merge)
+					for (UnitatOrganitzativaDto vigentObsolete : unitatsVigentObsoleteDto) {
+						if (vigentObsolete.getLastHistoricosUnitats().size() > 1) {
+							for (UnitatOrganitzativaDto hist : vigentObsolete.getLastHistoricosUnitats()) {
+								splitMap.put(vigentObsolete, hist);
+							}
+						} else if (vigentObsolete.getLastHistoricosUnitats().size() == 1) {
+							// check if the map already contains key with this codi
+							UnitatOrganitzativaDto mergeOrSubstKeyWS = vigentObsolete.getLastHistoricosUnitats().get(0);
+							UnitatOrganitzativaDto keyWithTheSameCodi = null;
+							Set<UnitatOrganitzativaDto> keysMergeOrSubst = mergeOrSubstMap.keySet();
+							for (UnitatOrganitzativaDto mergeOrSubstKeyMap : keysMergeOrSubst) {
+								if (mergeOrSubstKeyMap.getCodi().equals(mergeOrSubstKeyWS.getCodi())) {
+									keyWithTheSameCodi = mergeOrSubstKeyMap;
+								}
+							}
+							// if it contains already key with the same codi, assign
+							// found key
+							if (keyWithTheSameCodi != null) {
+								mergeOrSubstMap.put(keyWithTheSameCodi, vigentObsolete);
+							} else {
+								mergeOrSubstMap.put(mergeOrSubstKeyWS, vigentObsolete);
 							}
 						}
-						// if it contains already key with the same codi, assign
-						// found key
-						if (keyWithTheSameCodi != null) {
-							mergeOrSubstMap.put(keyWithTheSameCodi, vigentObsolete);
+					}
+		
+		
+					// differantiate between substitution and merge
+					Set<UnitatOrganitzativaDto> keysMergeOrSubst = mergeOrSubstMap.keySet();
+					for (UnitatOrganitzativaDto mergeOrSubstKey : keysMergeOrSubst) {
+						List<UnitatOrganitzativaDto> values = (List<UnitatOrganitzativaDto>) mergeOrSubstMap
+								.get(mergeOrSubstKey);
+						if (values.size() > 1) {
+							for (UnitatOrganitzativaDto value : values) {
+								mergeMap.put(mergeOrSubstKey, value);
+							}
 						} else {
-							mergeOrSubstMap.put(mergeOrSubstKeyWS, vigentObsolete);
+							substMap.put(mergeOrSubstKey, values.get(0));
 						}
 					}
-				}
-	
-	
-				// differantiate between substitution and merge
-				Set<UnitatOrganitzativaDto> keysMergeOrSubst = mergeOrSubstMap.keySet();
-				for (UnitatOrganitzativaDto mergeOrSubstKey : keysMergeOrSubst) {
-					List<UnitatOrganitzativaDto> values = (List<UnitatOrganitzativaDto>) mergeOrSubstMap
-							.get(mergeOrSubstKey);
-					if (values.size() > 1) {
-						for (UnitatOrganitzativaDto value : values) {
-							mergeMap.put(mergeOrSubstKey, value);
-						}
-					} else {
-						substMap.put(mergeOrSubstKey, values.get(0));
-					}
-				}
-	
-				// Getting list of unitats that are now vigent in db and in syncronization are also vigent but with properties changed
-				unitatsVigents = unitatOrganitzativaService
-						.getVigentsFromWebService(unitatDto.getId());
-				
-				
-				// Getting list of unitats that are totally new (doesnt exist in database)
-				unitatsNew = unitatOrganitzativaService
-						.getNewFromWS(unitatDto.getId());
+		
+					// Getting list of unitats that are now vigent in db and in syncronization are also vigent but with properties changed
+					unitatsVigents = unitatOrganitzativaService
+							.getVigentsFromWebService(unitatDto.getId());
 					
-			} catch(Exception ex) {
-				String missatgeError = "unitat.controller.synchronize.error";
-				logger.warn(missatgeError);
-				MissatgesHelper.error(
-									request,
-									getMessage(request, missatgeError) + " : " + 
-				        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
-				
-			}	
+					
+					// Getting list of unitats that are totally new (doesnt exist in database)
+					unitatsNew = unitatOrganitzativaService
+							.getNewFromWS(unitatDto.getId());
+						
+				} catch(Exception ex) {
+					String missatgeError = "unitat.controller.synchronize.error";
+					logger.warn(missatgeError);
+					MissatgesHelper.error(
+										request,
+										getMessage(request, missatgeError) + " : " + 
+					        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+					
+				}	
+			}
+		
+			model.addAttribute("isFirstSincronization", isFirstSincronization);
+			model.addAttribute("unitatsVigentsFirstSincro", unitatsVigentsFirstSincro);
+			
+			model.addAttribute("splitMap", splitMap);
+			model.addAttribute("mergeMap", mergeMap);
+			model.addAttribute("substMap", substMap);
+			model.addAttribute("unitatsVigents", unitatsVigents);
+			model.addAttribute("unitatsNew", unitatsNew);			
+		} catch(Exception e) {
+			String errMsg = "Error construint la predicció de la sincronització: " + e.toString();
+			logger.error(errMsg, e);
+			MissatgesHelper.error(request, errMsg);
 		}
-	
-		model.addAttribute("isFirstSincronization", isFirstSincronization);
-		model.addAttribute("unitatsVigentsFirstSincro", unitatsVigentsFirstSincro);
-		
-		model.addAttribute("splitMap", splitMap);
-		model.addAttribute("mergeMap", mergeMap);
-		model.addAttribute("substMap", substMap);
-		model.addAttribute("unitatsVigents", unitatsVigents);
-		model.addAttribute("unitatsNew", unitatsNew);
-		
-		
 		return "v3/synchronizationPrediction";
 	}
 	
@@ -383,13 +387,22 @@ public class UnitatOrganitzativaController extends BaseController {
 	public String mostrarArbre(
 			HttpServletRequest request,
 			Model model) {
-		ParametreDto parametreArrel = parametreService.findByCodi(ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
-		UnitatOrganitzativaDto unitatDto = unitatOrganitzativaService.findByCodi(parametreArrel.getValor());
-		
-		model.addAttribute(
-				"arbreUnitatsOrganitzatives",
-				unitatOrganitzativaService.findTree(unitatDto.getId()));
-		
+		try {
+			ParametreDto parametreArrel = parametreService.findByCodi(ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
+			UnitatOrganitzativaDto unitatDto = unitatOrganitzativaService.findByCodi(parametreArrel.getValor());
+			
+			if (unitatDto != null) {
+				model.addAttribute(
+						"arbreUnitatsOrganitzatives",
+						unitatOrganitzativaService.findTree(unitatDto.getId()));
+			} else {
+				MissatgesHelper.warning(request, "No s'ha trobat la unitat arrel, provi a sincronitzar l'arbre primer");
+			}
+		} catch(Exception e) {
+			String errMsg = "Error mostrant l'arbre d'unitats organtizatives: " + e.toString();
+			logger.error(errMsg, e);
+			MissatgesHelper.error(request, errMsg);
+		}
 		return "v3/unitatArbre";
 	}
 	

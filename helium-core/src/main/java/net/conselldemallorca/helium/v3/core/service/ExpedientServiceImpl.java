@@ -838,14 +838,16 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			}
 
 		} else { //si no hi ha expedientTipus al filtre, hem de buscar totes les UO per las quals es té permís i obtenir els expedinetTipus
-			List<Long> idsExpTipusAccessibles = new ArrayList<Long>();
-			for(ExpedientTipusDto expTipus: expedientTipusDtoAccessibles) {
-				idsExpTipusAccessibles.add(expTipus.getId());
+			if (expedientTipusDtoAccessibles != null && !expedientTipusDtoAccessibles.isEmpty()) {
+				List<Long> idsExpTipusAccessibles = new ArrayList<Long>();
+				for(ExpedientTipusDto expTipus: expedientTipusDtoAccessibles) {
+					idsExpTipusAccessibles.add(expTipus.getId());
+				}
+				List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = 
+						expedientTipusUnitatOrganitzativaRepository.findByExpedientTipus(idsExpTipusAccessibles);
+				unitatsPerTipusComu = 
+						expedientTipusHelper.unitatsPerTipusComuIds(entornId,expTipUnitOrgList, permisosRequerits);
 			}
-			List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipus(
-					idsExpTipusAccessibles==null || idsExpTipusAccessibles.isEmpty(), 
-					idsExpTipusAccessibles);
-			unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComuIds(entornId,expTipUnitOrgList, permisosRequerits);
 		}
 		// Comprova l'accés a l'estat
 		Estat estat = null;

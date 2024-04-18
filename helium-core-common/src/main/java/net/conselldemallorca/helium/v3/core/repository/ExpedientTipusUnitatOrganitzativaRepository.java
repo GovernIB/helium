@@ -28,18 +28,14 @@ public interface ExpedientTipusUnitatOrganitzativaRepository extends JpaReposito
 	 
 	 /**
 	  * Mètode per cercar els ExpedientTipusUnitatOrganitzativa que tinguin els tipus d'expedient indicats.
-	  * @param isNullExpedientsTipusIds
 	  * @param expedientsTipusIds
 	  * @return
 	  */
     @Query(	 "from " 
 			+"    ExpedientTipusUnitatOrganitzativa etuo " 
 			+"where " 
-			+	"(:isNullExpedientsTipusIds = true or "
-    		+" 		etuo.expedientTipus.id in (:expedientsTipusIds)) "
+			+	"(etuo.expedientTipus.id in (:expedientsTipusIds)) "
 			)
     List<ExpedientTipusUnitatOrganitzativa> findByExpedientTipus(
-			@Param("isNullExpedientsTipusIds") boolean isNullExpedientsTipusIds,
-			@Param("expedientsTipusIds") List<Long> expedientsTipusIds
-			);
+			@Param("expedientsTipusIds") List<Long> expedientsTipusIds);
 }
