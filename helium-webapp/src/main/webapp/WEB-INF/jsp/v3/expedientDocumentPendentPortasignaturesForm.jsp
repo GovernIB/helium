@@ -37,11 +37,8 @@
 		<form:form 	cssClass="form-horizontal" action="${formActionCancelar}" enctype="multipart/form-data" method="get" commandName="psingaReintentarCancelarCommand">
 			<div class="modal-body">
 				<input type="hidden" name="id" value="${documentExpedientEnviarPortasignaturesCommand.id}"/> 
-				<!-- Dades per cancel·lar l'enviament -->
-				<c:if test="${expedient.permisDocManagement}">
-					<input type="hidden" name="id" value="${document.processInstanceId}"/>
-					<input type="hidden" name="psignaId" value="${psignaPendentActual.documentId}"/>
-				</c:if>
+				<input type="hidden" name="id" value="${document.processInstanceId}"/>
+				<input type="hidden" name="psignaId" value="${psignaPendentActual.documentId}"/>
 
 				<div class="container" style="width: 100%;">
 					<div class="row">
