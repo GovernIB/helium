@@ -182,8 +182,6 @@
 							var modalBodyHeight = (bodyHeight > maxBodyHeight) ? (maxBodyHeight + 5) : (bodyHeight + 5);
 							$('div.modal-body', modalobj).height(modalBodyHeight + 'px');
 						}
-						// Elimina els tool tips que hagin pogut quedar
-						$('div.tooltip').remove();
 						// En fer submit dels formularis mostrar una roda carregant
 						$("form", iframe.contents()).submit(function( event ) {
 							$('.modal-body .div-dades-carregant').show();

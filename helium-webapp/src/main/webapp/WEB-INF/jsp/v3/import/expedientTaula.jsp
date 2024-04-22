@@ -43,7 +43,12 @@
 	.taula_registre thead label {color: #666666 !important; }
 	.obligatori {background-position: right 4px !important; padding-right: 10px !important;}
 </style>
-
+<script type="text/javascript">
+	$(document).ready(function() {
+		//#1718 El Tooltip no desapareix https://stackoverflow.com/a/33585981
+		$('[title]').tooltip({trigger : 'hover'});
+	});
+</script>
 <c:set var="grupId" value="grup-default"/>
 <c:if test="${not empty param.id}"><c:set var="grupId" value="${procesId}-grup-${param.id}"/></c:if>
 <c:set var="paramDades" value="${requestScope[param.dadesAttribute]}"/>
