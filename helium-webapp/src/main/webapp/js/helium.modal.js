@@ -388,8 +388,6 @@ function modalRefrescarElements(
 	if (settings.minHeight) {
 		modalAdjustMinHeight($(iframe), settings.minHeight);
 	}
-	// Elimina els tool tips que hagin pogut quedar
-	$('div.tooltip').remove();	
 	// En fer submit dels formularis mostrar una roda carregant
 	$("form", $(iframe).contents()).submit(function( event ) {
 		$('.modal-body .div-dades-carregant').show();

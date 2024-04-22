@@ -203,7 +203,7 @@
 				$("#btnConsultes").remove();
 			}
 			
-			$('[title]').tooltip({container: 'body'});
+			$('[title]').tooltip({container: 'body', trigger : 'hover'});
 			
 			$('#topBtn').click(function(){
 				// Scroll a l'inici
