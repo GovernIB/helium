@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -80,6 +79,7 @@ import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusExportarComm
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusExportarCommand.Importacio;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusExportarCommand.Upload;
 import net.conselldemallorca.helium.webapp.v3.command.PermisCommand;
+import net.conselldemallorca.helium.webapp.v3.command.PermisCommand.Tipus;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
@@ -916,7 +916,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			HttpServletRequest request,
 			@PathVariable Long id,
 			@PathVariable String permisUO,
-			@Valid PermisCommand command,
+			@Validated(Tipus.class) PermisCommand command,
 			BindingResult bindingResult,
 			Model model) {
 		return permisUpdatePost(
@@ -972,7 +972,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			@PathVariable Long id,
 			@PathVariable Long permisId,
 			@PathVariable String permisUO,
-			@Valid PermisCommand command,
+			@Validated(Tipus.class) PermisCommand command,
 			BindingResult bindingResult,
 			Model model) {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
@@ -1585,7 +1585,7 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 		ParametreDto parametrePropagarEsbExp = parametreService.findByCodi(ParametreService.APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS);
 		if(parametrePropagarEsbExp==null)
 			throw new NoTrobatException(Parametre.class,ParametreService.APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS);
-		return "true".equalsIgnoreCase(parametrePropagarEsbExp.getValor());
+		return "1".equalsIgnoreCase(parametrePropagarEsbExp.getValor());
 	}
 	
 	private static final Log logger = LogFactory.getLog(ExpedientTipusController.class);

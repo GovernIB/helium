@@ -115,29 +115,30 @@
 		<thead>
 			<tr>
 				<th data-col-name="id" data-visible="false" data-orderable="false"/>
-				<th data-col-name="data" data-converter="datetime"><spring:message code="anotacio.llistat.columna.data"/></th>
+				<th data-col-name="data" data-converter="datetime" width="7%"><spring:message code="anotacio.llistat.columna.data"/></th>
 				<th data-col-name="identificador"><spring:message code="anotacio.llistat.columna.identificador"/></th>
 				<th data-col-name="extracte" data-renderer="maxLength(50)"><spring:message code="anotacio.llistat.columna.extracte"/></th>
 				<th data-col-name="procedimentCodi"><spring:message code="anotacio.llistat.columna.procedimentCodi"/></th>
 				<th data-col-name="expedientNumero"><spring:message code="anotacio.llistat.columna.expedientNumero"/></th>
-				<th data-col-name="dataRecepcio" data-converter="datetime"><spring:message code="anotacio.llistat.columna.dataRecepcio"/></th>				
+				<th data-col-name="dataRecepcio" data-converter="datetime" width="7%"><spring:message code="anotacio.llistat.columna.dataRecepcio"/></th>				
 				<th data-col-name="destiCodiAndNom" data-visible="false" data-orderable="false"/>
-				<th data-col-name="expedientTipus.codi" data-template="#cellAnotacioExpedientTipusTemplate">
+				<th data-col-name="expedientTipus.codi" data-template="#cellAnotacioExpedientTipusTemplate" width="12%">
 					<spring:message code="anotacio.llistat.columna.expedientTipus"/>
 					<script id="cellAnotacioExpedientTipusTemplate" type="text/x-jsrender">
 						{{if expedientTipus != null }}
+							{{if expedientTipus.procedimentComu == true }}							
+								<span class="fa fa-university" title="{{:destiCodiAndNom}}" style="float:left"></span>&nbsp;
+							{{/if}} 
 							{{:expedientTipus.codi}}
 							<span class="fa fa-info-circle" 
 								title="{{:expedientTipus.codi}} - {{:expedientTipus.nom}} 
 (Entrorn {{:expedientTipus.entorn.codi}} - {{:expedientTipus.entorn.nom}})"></span> 
 						</span>
-							{{if expedientTipus.procedimentComu == true }}							
-								<span class="fa fa-university" title="{{:destiCodiAndNom}}" style="float:right"></span>
-							{{/if}} 
+							 
 						{{/if}}
 					</script>
 				</th>
-				<th data-col-name="expedient.numero" data-template="#cellAnotacioExpedientTemplate">
+				<th data-col-name="expedient.numero" data-template="#cellAnotacioExpedientTemplate" width="12%">
 					<spring:message code="anotacio.llistat.columna.expedient"/>
 					<script id="cellAnotacioExpedientTemplate" type="text/x-jsrender">
 						{{if expedient != null }}
@@ -149,7 +150,7 @@
 				<th data-col-name="annexosInvalids" data-visible="false"/>
 				<th data-col-name="annexosEsborranys" data-visible="false"/>
 				<th data-col-name="processant" data-visible="false"/>
-				<th data-col-name="estat" data-template="#cellEstatExpedientTemplate">
+				<th data-col-name="estat" data-template="#cellEstatExpedientTemplate" width="7%">
 					<spring:message code="anotacio.llistat.columna.estat"/> <span class="fa fa-list" id="showModalProcesEstatButton" title="<spring:message code="anotacio.llistat.columna.estat.llegenda"/>" style="cursor:over; opacity: 0.5"></span>
 					<script id="cellEstatExpedientTemplate" type="text/x-jsrender">
 						{{if estat == 'PENDENT'}}
@@ -381,6 +382,8 @@
 		$("#netejar").click(function() {
 			$('#codiProcediment').val('').change();
 			$('#unitatOrganitzativaCodi').val('').change();
+			$('#expedientTipusId').val('').change();
+			$('#estat').val("PENDENT").change().change();
 		})
 			
 	});

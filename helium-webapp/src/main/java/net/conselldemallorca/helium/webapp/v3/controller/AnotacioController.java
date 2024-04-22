@@ -118,7 +118,10 @@ public class AnotacioController extends BaseExpedientController {
 		AnotacioFiltreCommand filtreCommand = getFiltreCommand(request);
 		model.addAttribute(filtreCommand);
 		this.modelEstats(model);
-		this.modelExpedientsTipus(SessionHelper.getSessionManager(request).getEntornActual(), model);
+		List<ExpedientTipusDto> expedientTipusDtoAccessiblesAnotacions = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
+				request,
+				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS);
+		this.modelExpedientsTipus(expedientTipusDtoAccessiblesAnotacions, model);
 		model.addAttribute("maxConsultaIntents", this.getMaxConsultaIntents());
 		return "v3/anotacioLlistat";
 	}
@@ -146,12 +149,15 @@ public class AnotacioController extends BaseExpedientController {
 		
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		AnotacioFiltreCommand filtreCommand = getFiltreCommand(request);
-		
+		List<ExpedientTipusDto> expedientTipusDtoAccessibles = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
+													request,
+													SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS);
 		return DatatablesHelper.getDatatableResponse(
 					request,
 					null,
 					anotacioService.findAmbFiltrePaginat(
 							entornActual.getId(),
+							expedientTipusDtoAccessibles,
 							ConversioTipusHelper.convertir(filtreCommand, AnotacioFiltreDto.class),
 							DatatablesHelper.getPaginacioDtoFromRequest(request)),
 					"id");		
@@ -242,8 +248,12 @@ public class AnotacioController extends BaseExpedientController {
 			seleccio.clear();
 		} else if ("all".equalsIgnoreCase(tipus)) {
 			seleccio.clear();
+			List<ExpedientTipusDto> expedientTipusDtoAccessibles = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
+					request,
+					SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS);
 			seleccio.addAll(anotacioService.findIdsAmbFiltre(
 					entornActual.getId(), 
+					expedientTipusDtoAccessibles,
 					ConversioTipusHelper.convertir(this.getFiltreCommand(request), AnotacioFiltreDto.class)));
 		}
 
@@ -330,7 +340,10 @@ public class AnotacioController extends BaseExpedientController {
 		model.addAttribute("anotacioAcceptarCommand", anotacioAcceptarCommand);
 		
 		this.modelAccions(model);
-		this.modelExpedientsTipus(entornActual, model);
+		List<ExpedientTipusDto> expedientTipusDtoAccessiblesAnotacions = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
+				request,
+				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS);
+		this.modelExpedientsTipus(expedientTipusDtoAccessiblesAnotacions, model);
 		
 		return "v3/anotacioAcceptar";
 	}
@@ -356,7 +369,10 @@ public class AnotacioController extends BaseExpedientController {
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("anotacio", anotacio);			
 			this.modelAccions(model);
-			this.modelExpedientsTipus(entornActual, model);
+			List<ExpedientTipusDto> expedientTipusDtoAccessiblesAnotacions = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
+					request,
+					SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS);
+			this.modelExpedientsTipus(expedientTipusDtoAccessiblesAnotacions, model);
 			
 			return "v3/anotacioAcceptar";
 		}
@@ -845,16 +861,14 @@ public class AnotacioController extends BaseExpedientController {
 
 	/** Posa els expedients tipus al model als quals l'usuari té permís per consultar a l'entorn i estan configurats amb integració amb Distribucio
 	 * @param entornActual */
-	private void modelExpedientsTipus(EntornDto entornActual, Model model) {
+	private void modelExpedientsTipus(List<ExpedientTipusDto> expedientTipusDtoAccessiblesAnotacions, Model model) {
 		List<ParellaCodiValorDto> opcions = new ArrayList<ParellaCodiValorDto>();
-		
-		if (entornActual != null) {
-			for(ExpedientTipusDto expedientTipus : expedientTipusService.findAmbEntornPermisAnotacio(entornActual.getId()))
+			for(ExpedientTipusDto expedientTipus : expedientTipusDtoAccessiblesAnotacions)
 				if (expedientTipus.isDistribucioActiu())
 					opcions.add(new ParellaCodiValorDto(
 							expedientTipus.getId().toString(),
 							String.format("%s - %s", expedientTipus.getCodi(), expedientTipus.getNom())));		
-		}
+		
 		model.addAttribute("expedientsTipus", opcions);
 	}
 	
@@ -904,7 +918,7 @@ public class AnotacioController extends BaseExpedientController {
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		AnotacioFiltreCommand filtreCommand = getFiltreCommand(request);
 		
-		List<AnotacioListDto> anotacions = this.anotacionsList(entornActual, filtreCommand);
+		List<AnotacioListDto> anotacions = this.anotacionsList(entornActual, filtreCommand, request);
 
 		generarExcel(
 				request,
@@ -912,7 +926,7 @@ public class AnotacioController extends BaseExpedientController {
 				anotacions);
 	}
 	
-	private List<AnotacioListDto> anotacionsList (EntornDto entornActual, AnotacioFiltreCommand filtreCommand){
+	private List<AnotacioListDto> anotacionsList (EntornDto entornActual, AnotacioFiltreCommand filtreCommand, HttpServletRequest request){
 		List<AnotacioListDto> anotacions = new ArrayList<AnotacioListDto>();
 		int nPagina = 0;
 		int grandariaPagina = 100;
@@ -926,8 +940,12 @@ public class AnotacioController extends BaseExpedientController {
 		
 		do {
 			paginacio.setPaginaNum(nPagina++);
+			List<ExpedientTipusDto> expedientTipusDtoAccessiblesAnotacions = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
+					request,
+					SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS);
 			paginaDto = anotacioService.findAmbFiltrePaginat(
 					entornActual.getId(),
+					expedientTipusDtoAccessiblesAnotacions,
 					ConversioTipusHelper.convertir(filtreCommand, AnotacioFiltreDto.class),
 					paginacio);	
 			anotacions.addAll(paginaDto.getContingut());			

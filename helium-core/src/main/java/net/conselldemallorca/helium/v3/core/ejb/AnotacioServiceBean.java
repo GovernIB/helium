@@ -15,6 +15,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.AnotacioListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -36,15 +37,22 @@ public class AnotacioServiceBean implements AnotacioService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PaginaDto<AnotacioListDto> findAmbFiltrePaginat(
 			Long entornId,
+			List<ExpedientTipusDto> expedientTipusDtoAccessibles,
 			AnotacioFiltreDto filtreDto,
 			PaginacioParamsDto paginacioParams) {
-		return delegate.findAmbFiltrePaginat( entornId, filtreDto, paginacioParams);
+		return delegate.findAmbFiltrePaginat(entornId, expedientTipusDtoAccessibles, filtreDto, paginacioParams);
 	}
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<Long> findIdsAmbFiltre(Long entornId, AnotacioFiltreDto filtreDto) {
-		return delegate.findIdsAmbFiltre( entornId, filtreDto);
+	public List<Long> findIdsAmbFiltre(
+			Long entornId,
+			List<ExpedientTipusDto> expedientTipusDtoAccessiblesAnotacions,
+			AnotacioFiltreDto filtreDto) {
+		return delegate.findIdsAmbFiltre( 
+				entornId, 
+				expedientTipusDtoAccessiblesAnotacions,
+				filtreDto);
 	}
 
 

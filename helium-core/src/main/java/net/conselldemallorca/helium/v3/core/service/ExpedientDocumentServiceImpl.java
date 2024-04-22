@@ -84,6 +84,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesCarrecDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxBlocDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.document.DocumentDetallDto;
@@ -1521,6 +1522,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			documentHelper.actualitzarNtiFirma(documentStore, arxiuDocument);
 			arxiuDetall.setIdentificador(arxiuDocument.getIdentificador());
 			arxiuDetall.setNom(arxiuDocument.getNom());
+			arxiuDetall.setVersionsDocument(versions);
 			if (arxiuDocument.getEstat() != null) {
 				switch(arxiuDocument.getEstat()) {
 				case DEFINITIU:
@@ -1982,9 +1984,10 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			Long processInstanceId, 
 			String transicioOK, 
 			String transicioKO,
-			PortafirmesSimpleTipusEnumDto fluxTipus,
+			PortafirmesSimpleTipusEnumDto portafirmesTipus,
 			String[] responsables, 
-			String portafirmesFluxId) throws SistemaExternException {
+			String portafirmesFluxId,
+			PortafirmesTipusEnumDto fluxTipus) throws SistemaExternException {
 		
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(String.valueOf(processInstanceId));
 		
@@ -1993,7 +1996,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			blocList = new ArrayList<PortafirmesFluxBlocDto>();
 			PortafirmesFluxBlocDto bloc = null;
 			String[] responsablesCodis = responsables;
-			if (fluxTipus.equals(PortafirmesSimpleTipusEnumDto.SERIE)) {			
+			if (portafirmesTipus.equals(PortafirmesSimpleTipusEnumDto.SERIE)) {			
 				for (int i = 0; i < responsablesCodis.length; i++) {
 					List<String> personesPas = new ArrayList<String>();
 					bloc = new PortafirmesFluxBlocDto();
@@ -2030,8 +2033,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				processInstanceId, 
 				transicioOK, 
 				transicioKO, 
-				fluxTipus,
-				portafirmesFluxId);
+				portafirmesTipus,
+				portafirmesFluxId,
+				fluxTipus);
 	}
 
 	private PersonaDto findPersonaCarrecAmbCodi(String codi) {

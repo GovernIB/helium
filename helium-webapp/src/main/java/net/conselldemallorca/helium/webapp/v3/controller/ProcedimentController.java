@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProcedimentEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProgresActualitzacioDto;
@@ -241,7 +240,7 @@ public class ProcedimentController extends BaseController{
 		} else {
 			Map<String, String> procedimentJson = new HashMap<String, String>();
 			procedimentJson.put("codi", textDecoded);
-			procedimentJson.put("nom", textDecoded + " (No trobat)");
+			procedimentJson.put("nom", textDecoded + " (No trobat en el llistat intern de codis de procediment)");
 			resposta.add(procedimentJson);
 		}
 		return resposta;
@@ -263,7 +262,7 @@ public class ProcedimentController extends BaseController{
 		} else {
 			Map<String, String> procedimentJson = new HashMap<String, String>();
 			procedimentJson.put("codi", textDecoded);
-			procedimentJson.put("nom", textDecoded + "(No trobat)");
+			procedimentJson.put("nom", textDecoded + " (No trobat en el llistat intern de codis de procediment)");
 			return procedimentJson;
 		}
 	}

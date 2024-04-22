@@ -8,21 +8,19 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 
 import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 /**
  * Controlador base per al llistat d'expedients.

@@ -120,10 +120,14 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		ExpedientConsultaCommand filtreCommand = getFiltreCommand(request);
 		SessionHelper.getSessionManager(request).setFiltreConsultaGeneral(filtreCommand);
 		DatatablesPagina<ExpedientDto> result = null;
+		List<ExpedientTipusDto> expedientTipusDtoAccessibles = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
+				request,
+				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES);
 		try {
 			result = PaginacioHelper.getPaginaPerDatatables(
 					request,
 					expedientService.findAmbFiltrePaginat(
+							expedientTipusDtoAccessibles,
 							entornActual.getId(),
 							filtreCommand.getExpedientTipusId(),
 							filtreCommand.getTitol(),

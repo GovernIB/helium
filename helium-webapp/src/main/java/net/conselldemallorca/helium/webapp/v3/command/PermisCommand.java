@@ -19,11 +19,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.PrincipalTipusEnumDto;
 public class PermisCommand {
 
 	private Long id;
-	@NotEmpty @Size(max=64)
+	@NotEmpty (groups = {Entorn.class, Tipus.class, Estat.class})
+	@Size(max=64, groups = {Entorn.class, Tipus.class, Estat.class})
 	private String principalNom;
-	@NotNull
+	@NotNull (groups = {Entorn.class, Tipus.class, Estat.class})
 	private PrincipalTipusEnumDto principalTipus;
-	@NotEmpty
+	@NotEmpty (groups = {Tipus.class})
 	private String unitatOrganitzativaCodiNom;
 
 	private boolean read;
@@ -257,4 +258,7 @@ public class PermisCommand {
 		return ToStringBuilder.reflectionToString(this);
 	}
 
+	public interface Entorn {}
+	public interface Tipus {}	
+	public interface Estat {}	
 }

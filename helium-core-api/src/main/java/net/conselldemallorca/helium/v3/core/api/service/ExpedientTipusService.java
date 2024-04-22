@@ -3,6 +3,8 @@ package net.conselldemallorca.helium.v3.core.api.service;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.security.acls.model.Permission;
+
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
@@ -1646,8 +1648,7 @@ public interface ExpedientTipusService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos necessaris.
 	 */
-	public boolean tePermis(Long expedientId, 
-			String unitatOrganitzativaCodi) throws NoTrobatException, PermisDenegatException;
+	public boolean tePermisosSobreUnitatOrganitzativaOrParents(Long expedientTipusId, String unitatOrganitzativaCodi, Permission[] permissions) throws NoTrobatException, PermisDenegatException;
 
 
 	/** Mètode per obtenir el contingut del manual d'ajuda del tipus d'expedient.

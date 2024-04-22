@@ -18,6 +18,7 @@ import org.json.simple.JSONValue;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -34,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
 
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
@@ -213,7 +215,12 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 					if(command.getUnitatOrganitzativaCodi()==null || command.getUnitatOrganitzativaCodi().isEmpty())
 						errors.rejectValue("unitatOrganitzativaCodi", "not.blank");
 					else {//comprovar que l'usuari té permís sobre la UO (FALTA MIRAR ARBRE per veure els DESCENDENTS--> també tindria permisos)
-						boolean tePermis = expedientTipusService.tePermis(tipus.getId(), command.getUnitatOrganitzativaCodi());
+						boolean tePermis = expedientTipusService.tePermisosSobreUnitatOrganitzativaOrParents(
+								tipus.getId(),
+								command.getUnitatOrganitzativaCodi(),
+								new Permission[] {
+										ExtendedPermission.READ,
+										ExtendedPermission.ADMINISTRATION});
 						if(!tePermis)
 							errors.rejectValue("unitatOrganitzativaCodi", "error.expedient.permis.creacio.unitat.organitzativa");	
 					}

@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Query;
@@ -28,7 +29,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 	private Long entornId;
 	private String actorId;
 	private Collection<Long> tipusIdPermesos;
-	private List<Long> idsUnitatsOrganitzativesAmbPermisos;
+	private Map<Long, List<Long>> unitatsPerTipusComu;
 	private String titol;
 	private String numero;
 	private Long unitatOrganitzativaId;
@@ -63,7 +64,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			Long entornId,
 			String actorId,
 			Collection<Long> tipusIdPermesos,
-			List<Long> idsUnitatsOrganitzativesAmbPermisos,
+			Map<Long, List<Long>> unitatsPerTipusComu,
 			String titol,
 			String numero,
 			Long unitatOrganitzativaId,
@@ -96,7 +97,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		this.entornId = entornId;
 		this.actorId = actorId;
 		this.tipusIdPermesos = tipusIdPermesos;
-		this.idsUnitatsOrganitzativesAmbPermisos = idsUnitatsOrganitzativesAmbPermisos;
+		this.unitatsPerTipusComu = unitatsPerTipusComu;
 		this.titol = titol;
 		this.numero = numero;
 		this.unitatOrganitzativaId = unitatOrganitzativaId;
@@ -129,9 +130,10 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 
 	@SuppressWarnings("unchecked")
 	public Object execute(JbpmContext jbpmContext) throws Exception {
-		if (tipusIdPermesos.isEmpty() && idsUnitatsOrganitzativesAmbPermisos.isEmpty()) {
+		if (tipusIdPermesos.isEmpty() && unitatsPerTipusComu.isEmpty()) {
 			return new ResultatConsultaPaginadaJbpm<Long>(0);
 		}
+			
 		StringBuilder expedientQuerySb = new StringBuilder();
 		expedientQuerySb.append(
 				"from " +
@@ -139,23 +141,41 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 				"where " +
 				"    pie.entorn.id = :entornId " );
 
-		if(idsUnitatsOrganitzativesAmbPermisos!=null && !idsUnitatsOrganitzativesAmbPermisos.isEmpty()) {
-			if(idsUnitatsOrganitzativesAmbPermisos.size()>=1000) {
-				expedientQuerySb.append(
-						"and ( (pie.tipus.id in (:tipusIdPermesos) and pie.tipus.procedimentComu <> 1 ) " +
-						" 	   or ( pie.tipus.procedimentComu = 1 and pie.unitatOrganitzativaId IN ( :idsPart1) ) "+
-						" 	   or ( pie.tipus.procedimentComu = 1 and pie.unitatOrganitzativaId IN ( :idsPart2) ) "+
-						" 	  ) " );
-			} else {
-				expedientQuerySb.append(
-						"and ( (pie.tipus.id in (:tipusIdPermesos) and pie.tipus.procedimentComu <> 1 ) " +
-						" 	   or (pie.tipus.procedimentComu = 1 and pie.unitatOrganitzativaId IN ( :idsUnitatsOrganitzativesAmbPermisos) ) "+
-						" 	  ) " );
-			}
-		} else {
-			expedientQuerySb.append(
-					"and pie.tipus.id in (:tipusIdPermesos) ");
+		/****/
+		
+		// filtre per tipus d'expedients
+		boolean filtrePerTipus = false;
+		// filtre per tipus d'expedients normals
+		expedientQuerySb.append("and ( ");
+		if (!tipusIdPermesos.isEmpty()) {
+			expedientQuerySb.append(" ( pie.tipus.id in (:tipusIdPermesos) ) ");
+			filtrePerTipus = true;
 		}
+		// Filtre per tipus d'expedients comuns i les seves UO's
+		if (unitatsPerTipusComu != null && !unitatsPerTipusComu.isEmpty()) 
+		{
+			List<Long> codisUos;
+			for (Long expedientTipusComuId : unitatsPerTipusComu.keySet()) {
+				codisUos = unitatsPerTipusComu.get(expedientTipusComuId);
+				if (!codisUos.isEmpty()) {
+					if (filtrePerTipus) {
+						expedientQuerySb.append(" or ");
+					}
+					expedientQuerySb.append(" ( pie.tipus.id = " + expedientTipusComuId);
+					// en subllistes
+					expedientQuerySb.append(" and ( ");
+					for (int i = 0; i <= codisUos.size() / 1000; i++ ) {
+						if( i > 0) { 
+							expedientQuerySb.append(" or ");
+						}
+						expedientQuerySb.append(" pie.unitatOrganitzativaId in (:uos_" + expedientTipusComuId + "_" + i + ") ");
+					}
+					expedientQuerySb.append(" ) ) ");
+					filtrePerTipus = true;
+				}
+			}
+		}
+		expedientQuerySb.append(" ) ");
 		
 		if (titol != null && !titol.isEmpty()) {
 			expedientQuerySb.append("and lower(pie.titol) like lower('%'||:titol||'%') ");
@@ -174,8 +194,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		}
 		if (unitatOrganitzativaId != null) {
 			expedientQuerySb.append(
-					"and pie.unitatOrganitzativaId = :unitatOrganitzativaId  "+
-					"or  (pie.unitatOrganitzativaId IN ( :idsUnitatsOrganitzativesAmbPermisos)) ");
+					"and pie.unitatOrganitzativaId = :unitatOrganitzativaId  ");
 		}
 		if (dataIniciInici != null) {
 			expedientQuerySb.append("and pie.dataInici >= :dataIniciInici ");
@@ -277,7 +296,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 				entornId,
 				actorId,
 				tipusIdPermesos,
-				idsUnitatsOrganitzativesAmbPermisos,
+				unitatsPerTipusComu,
 				titol,
 				numero,
 				unitatOrganitzativaId,
@@ -364,7 +383,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 					entornId,
 					actorId,
 					tipusIdPermesos,
-					idsUnitatsOrganitzativesAmbPermisos,
+					unitatsPerTipusComu,
 					titol,
 					numero,
 					unitatOrganitzativaId,
@@ -411,7 +430,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			Long entornId,
 			String actorId,
 			Collection<Long> tipusIdPermesos,
-			List<Long> idsUnitatsOrganitzativesAmbPermisos,
+			Map<Long, List<Long>> unitatsPerTipusComu,
 			String titol,
 			String numero,
 			Long unitatOrganitzativaId,
@@ -435,15 +454,19 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			int maxResults) {
 		query.setParameter("entornId", entornId);
 		query.setParameterList("tipusIdPermesos", tipusIdPermesos);
-		if(idsUnitatsOrganitzativesAmbPermisos!=null && !idsUnitatsOrganitzativesAmbPermisos.isEmpty()) {
-			if(idsUnitatsOrganitzativesAmbPermisos.size()>=1000) {
-				int halfSizeList = idsUnitatsOrganitzativesAmbPermisos.size() / 2;
-				List<Long> idsPart1 = idsUnitatsOrganitzativesAmbPermisos.subList(0, halfSizeList-1);
-				List<Long> idsPart2 = idsUnitatsOrganitzativesAmbPermisos.subList(halfSizeList, idsUnitatsOrganitzativesAmbPermisos.size());
-				query.setParameterList("idsPart1", idsPart1);
-				query.setParameterList("idsPart2", idsPart2);
-			} else {
-				query.setParameterList("idsUnitatsOrganitzativesAmbPermisos", idsUnitatsOrganitzativesAmbPermisos);
+		if(unitatsPerTipusComu !=null && !unitatsPerTipusComu.isEmpty()) {
+			// en subllistes
+			List<Long> codisUos;
+			for (Long expedientTipusComuId : unitatsPerTipusComu.keySet()) {
+				codisUos = unitatsPerTipusComu.get(expedientTipusComuId);
+				if (!codisUos.isEmpty()) {
+					// en subllistes
+					for (int i = 0; i <= codisUos.size() / 1000; i++ ) {
+						query.setParameterList(
+								"uos_" + expedientTipusComuId + "_" + i , 
+								codisUos.subList(i*1000, Math.min(codisUos.size(), (i + 1)*1000)));
+					}
+				}
 			}
 		}
 		if (filtrarPerActorId) {

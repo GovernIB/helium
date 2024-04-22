@@ -258,6 +258,10 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES,
 				expedientTipusService.findAmbEntornPermisConsultar(
 						entorn.getId()));
+		SessionHelper.setAttribute(
+				request, 
+				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS, 
+				expedientTipusService.findAmbEntornPermisAnotacio(entorn.getId()));
 		
 		// Actualitza si hi ha expedients per iniciar
 		List<ExpedientTipusDto> tipusCrear = expedientTipusService.findAmbEntornPermisCrear(

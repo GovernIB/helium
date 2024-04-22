@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.xml.ws.BindingProvider;
 
 import org.fundaciobit.apisib.apifirmaasyncsimple.v2.ApiFirmaAsyncSimple;
@@ -49,9 +50,13 @@ import es.caib.portafib.ws.api.v1.PortaFIBUsuariEntitatWs;
 import es.caib.portafib.ws.api.v1.PortaFIBUsuariEntitatWsService;
 import es.caib.portafib.ws.api.v1.UsuariPersonaBean;
 import es.caib.portafib.ws.api.v1.WsI18NException;
+import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
 import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
+import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.exception.DeploymentException;
 
 /**
  * Implementació del plugin de portasignatures per l'API REST Simple del PortaFIB.
@@ -64,6 +69,8 @@ import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
 public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugin {
 
 	private OpenOfficeUtils openOfficeUtils;
+	@Resource
+	private MessageHelper messageHelper;
 
 	@Override
 	public Integer uploadDocument(
@@ -74,8 +81,10 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 			String remitent, 
 			String importancia,
 			Date dataLimit,
-			String plantillaFluxId) throws PortasignaturesPluginException {
+			String plantillaFluxId,
+			String fluxTipus) throws PortasignaturesPluginException {
 
+		String errorMessage = null;
 		try {
 			long peticioDeFirmaId = 0;
 			FirmaAsyncSimpleSignatureRequestWithSignBlockList signatureRequest = new FirmaAsyncSimpleSignatureRequestWithSignBlockList();
@@ -134,25 +143,34 @@ public class PortasignaturesPluginPortafibSimple implements PortasignaturesPlugi
 				signatureRequest.setAnnexs(portafirmesAnnexos);
 			}
 			FirmaAsyncSimpleSignatureBlock[] signatureBlocks  = null;
-			if (plantillaFluxId != null ) {
+			if(fluxTipus!=null && fluxTipus.equals(PortafirmesTipusEnumDto.FLUX.toString())) {
+				if (plantillaFluxId != null && !plantillaFluxId.equals("")) {
 				// Convertir en blocs de portafirmes a partir d'un id de transacció o d'una plantilla
 				signatureBlocks = toFirmaAsyncSimpleSignatureBlockFromId(plantillaFluxId, "ca");
 				signatureRequest.setSignatureBlocks(signatureBlocks);
+				} else {
+					errorMessage="expedient.tipus.document.form.camp.portafirmes.flux.id.buit";
+					throw new Exception(messageHelper.getMessage(
+							errorMessage)); 
+				}
 			} else if (blocList!=null && !blocList.isEmpty()) {
 				signatureBlocks  = toFluxDeFirmes(blocList);
 				signatureRequest.setSignatureBlocks(signatureBlocks);
 			}
 			signatureRequest.setSignatureBlocks(signatureBlocks);
-			peticioDeFirmaId = getFirmaAsyncSimpleApi().createAndStartSignatureRequestWithSignBlockList(signatureRequest);//MARTA peta aquí!  
+			peticioDeFirmaId = getFirmaAsyncSimpleApi().createAndStartSignatureRequestWithSignBlockList(signatureRequest); 
 			return new Long(peticioDeFirmaId).intValue();
 		} catch (Exception ex) {
-			throw new PortasignaturesPluginException(
+			if(errorMessage==null)
+				throw new PortasignaturesPluginException(
 					"No s'ha pogut pujar el document al portafirmes (" +
 					"titol=" + document.getTitol() + ", " +
 					"descripcio=" + document.getDescripcio() + ", " +
 					"arxiuNom=" + document.getArxiuNom() + ")" +
 					" error= " + ex.getMessage(),
 					ex);
+			else
+				throw new ValidationException(errorMessage);
 		}
 	}
 	

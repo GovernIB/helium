@@ -156,6 +156,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxInfoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxRespostaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesIniciFluxRespostaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnnexDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
@@ -1580,8 +1581,9 @@ public class PluginHelper {
 			Long processInstanceId,
 			String transicioOK,
 			String transicioKO,
-			PortafirmesSimpleTipusEnumDto fluxTipus,
-			String portafirmesFluxId) {
+			PortafirmesSimpleTipusEnumDto portafirmesTipus,
+			String portafirmesFluxId,
+			PortafirmesTipusEnumDto fluxTipus) {
 		
 		List<IntegracioParametreDto> parametresList = new ArrayList<IntegracioParametreDto>();
 		long t0 = System.currentTimeMillis();
@@ -1621,7 +1623,13 @@ public class PluginHelper {
 						"portafirmesFluxId",
 						portafirmesFluxId));
 			}
-			
+
+			if(portafirmesFluxId!=null) {
+				parametresList.add(new IntegracioParametreDto(
+						"fluxTipus",
+						fluxTipus));
+			}
+
 			// Construeix els blocs de firmes
 			List<PortafirmesFluxBloc> flux = new ArrayList<PortafirmesFluxBloc>();
 			if (portafirmesFluxId == null) {
@@ -1667,7 +1675,8 @@ public class PluginHelper {
 					this.getRemitentNom(expedient.getIdentificador()),
 					importancia,
 					dataLimit,
-					portafirmesFluxId);
+					portafirmesFluxId,
+					fluxTipus!=null ? fluxTipus.toString() : null);//document.getPortafirmesFluxTipus() !=null ? document.getPortafirmesFluxTipus().toString() : null);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_PFIRMA,
 					"Enviar document a firmar",

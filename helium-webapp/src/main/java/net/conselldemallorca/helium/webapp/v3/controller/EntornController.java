@@ -1,7 +1,6 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,6 +20,7 @@ import net.conselldemallorca.helium.webapp.v3.command.EntornCommand;
 import net.conselldemallorca.helium.webapp.v3.command.EntornCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.EntornCommand.Modificacio;
 import net.conselldemallorca.helium.webapp.v3.command.PermisCommand;
+import net.conselldemallorca.helium.webapp.v3.command.PermisCommand.Entorn;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
@@ -164,7 +164,7 @@ public class EntornController extends BaseController {
 	public String permisNewPost(
 			HttpServletRequest request,
 			@PathVariable Long entornId,
-			@Valid PermisCommand command,
+			@Validated(Entorn.class) PermisCommand command,
 			BindingResult bindingResult,
 			Model model) {
 		return permisUpdatePost(
@@ -199,9 +199,12 @@ public class EntornController extends BaseController {
 			HttpServletRequest request,
 			@PathVariable Long entornId,
 			@PathVariable Long permisId,
-			@Valid PermisCommand command,
+			@Validated(Entorn.class) PermisCommand command,
 			BindingResult bindingResult,
 			Model model) {
+		// Comprova que no sigui l'error per unitat organitzativa
+		boolean error = false;
+		
         if (bindingResult.hasErrors()) {
         	model.addAttribute(
     				"entorn",

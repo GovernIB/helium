@@ -45,7 +45,8 @@ public class PortasignaturesPluginMock implements PortasignaturesPlugin {
 			String remitent,
 			String importancia,
 			Date dataLimit,
-			String fluxId) throws PortasignaturesPluginException {
+			String fluxId,
+			String fluxTipus) throws PortasignaturesPluginException {
 		
 		// Calcula un nou id pel document dins custòdia
 		Integer newDocumentId = new Integer(new Long(System.currentTimeMillis()).intValue());

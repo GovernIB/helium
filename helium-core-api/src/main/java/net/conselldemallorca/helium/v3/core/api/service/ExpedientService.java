@@ -11,18 +11,6 @@ import java.util.Set;
 import net.conselldemallorca.helium.v3.core.api.dto.*;
 import org.springframework.security.acls.model.NotFoundException;
 
-import net.conselldemallorca.helium.v3.core.api.dto.AccioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -240,6 +228,8 @@ public interface ExpedientService {
 	/**
 	 * Consulta d'expedients per entorn paginada.
 	 * 
+	 * @param expedientTipusDtoAccessibles
+	 * 			  Llistat d'expedientTipus accessibles per l'usuari
 	 * @param entornId
 	 *            Atribut id de l'entorn l'expedient que es vol consultar.
 	 * @param expedientTipusId
@@ -290,6 +280,7 @@ public interface ExpedientService {
 	 *             especificats mitjançant el seu id (entorn, tipus, estat).
 	 */
 	public PaginaDto<ExpedientDto> findAmbFiltrePaginat(
+			List<ExpedientTipusDto> expedientTipusDtoAccessibles,
 			Long entornId,
 			Long expedientTipusId,
 			String titol,

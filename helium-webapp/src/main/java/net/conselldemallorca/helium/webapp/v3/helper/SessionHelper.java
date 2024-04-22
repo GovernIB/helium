@@ -31,6 +31,7 @@ public class SessionHelper {
 	public static final String VARIABLE_PREFERENCIES_USUARI = "preferenciesUsuari";
 	public static final String VARIABLE_EXPTIP_ACCESSIBLES = "expedientTipusAccessibles";
 	public static final String VARIABLE_EXPTIP_ACCESSIBLES_AMB_CONSULTES_ACTIVES = "expedientTipusAccessiblesAmbConsultesActives";
+	public static final String VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS = "expedientTipusAccessiblesAnotacions";
 	public static final String VARIABLE_PERMIS_EXPTIP_DISSENY = "potDissenyarExpedientTipus";
 	public static final String VARIABLE_PERMIS_ENTORN_DESIGN = "potDissenyarEntorn";
 	public static final String VARIABLE_PERMIS_ENTORN_ADMIN = "potAdministrarEntorn";
@@ -389,6 +390,18 @@ public class SessionHelper {
 					request,
 					VARIABLE_FILTRE_UNITAT_ORGANITZATIVA,
 					filtreUnitatOrganitzativa);
+		}
+		@SuppressWarnings("unchecked")
+		public List<ExpedientTipusDto> getExpedientTipusAccessiblesAnotacions() {
+			return (List<ExpedientTipusDto>)getAttribute(
+					request,
+					VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS);
+		}
+		public void setExpedientTipusAccessiblesAnotacions(List<ExpedientTipusDto> expedientsTipus) {
+			setAttribute(
+					request,
+					VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS,
+					expedientsTipus);
 		}
 		
 		

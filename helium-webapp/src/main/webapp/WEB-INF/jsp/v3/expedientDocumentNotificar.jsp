@@ -54,7 +54,7 @@ $(document).ready(function() {
 		<hel:inputSelect required="true" name="enviamentTipus" optionItems="${enviamentTipusEstats}" optionValueAttribute="codi" optionTextAttribute="valor" textKey="expedient.document.notificar.form.camp.enviamentTipus"/>
 		<hel:inputDate name="enviamentDataProgramada" textKey="expedient.document.notificar.form.camp.dataprogramada" comment="notificacio.form.camp.data.programada.comment"/>
 		<hel:inputDate required="true" name="caducitat" textKey="expedient.document.notificar.form.camp.datacaducitat" comment="notificacio.form.camp.data.caducitat.comment"/>
-		<hel:inputNumber name="retard" textKey="expedient.document.notificar.form.camp.retard" comment="notificacio.form.camp.idioma"/>
+		<hel:inputNumber name="retard" textKey="expedient.document.notificar.form.camp.retard" comment="notificacio.form.camp.retard.comment"/>
 		
 		<hel:inputText name="grupCodi" textKey="expedient.document.notificar.form.camp.grupCodi" />
 

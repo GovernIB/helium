@@ -136,7 +136,7 @@ public class JbpmHelper {
 	}
 
 	public ResultatConsultaPaginadaJbpm<JbpmTask> tascaFindByFiltrePaginat(
-			List<Long> idsUnitatsOrganitzativesAmbPermisos,
+			//Map<Long, List<Long>> unitatsPerTipusComu,
 			Long entornId,
 			String actorId,
 			String taskName,
@@ -156,7 +156,7 @@ public class JbpmHelper {
 			boolean esAdmin,
 			PaginacioParamsDto paginacioParams) {
 		return tascaFindByFiltrePaginat(
-				idsUnitatsOrganitzativesAmbPermisos,
+				//unitatsPerTipusComu,
 				entornId,
 				actorId,
 				taskName,
@@ -179,7 +179,7 @@ public class JbpmHelper {
 	}
 	@SuppressWarnings("unchecked")
 	public ResultatConsultaPaginadaJbpm<JbpmTask> tascaFindByFiltrePaginat(
-			List<Long> idsUnitatsOrganitzativesAmbPermisos,
+			//Map<Long, List<Long>> unitatsPerTipusComu,
 			Long entornId,
 			String actorId,
 			String taskName,
@@ -217,7 +217,7 @@ public class JbpmHelper {
 			asc = !OrdreDireccioDto.DESCENDENT.equals(paginacioParams.getOrdres().get(0).getDireccio());
 		}
 		FindJbpmTasksFiltreCommand command = new FindJbpmTasksFiltreCommand(
-				idsUnitatsOrganitzativesAmbPermisos,
+				//unitatsPerTipusComu,
 				entornId,
 				actorId,
 				taskName,
@@ -248,7 +248,7 @@ public class JbpmHelper {
 			Long entornId,
 			String actorId,
 			Collection<Long> tipusIdPermesos,
-			List<Long> idsUnitatsOrganitzativesAmbPermisos,
+			Map<Long, List<Long>> unitatsPerTipusComu, 
 			String titol,
 			String numero,
 			Long unitatOrganitzativaId,
@@ -295,7 +295,7 @@ public class JbpmHelper {
 				entornId,
 				actorId,
 				tipusIdPermesos,
-				idsUnitatsOrganitzativesAmbPermisos,
+				unitatsPerTipusComu,
 				titol,
 				numero,
 				unitatOrganitzativaId,

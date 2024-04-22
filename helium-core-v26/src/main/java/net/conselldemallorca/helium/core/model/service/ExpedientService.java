@@ -713,7 +713,7 @@ public class ExpedientService {
 		paginacioParams.setPaginaNum(0);
 		paginacioParams.setPaginaTamany(-1);
 		ResultatConsultaPaginadaJbpm<JbpmTask> tasks = jbpmHelper.tascaFindByFiltrePaginat(
-				null, //List<String> unitatsOrganitzativesAmbPermisos,
+				//null, //List<String> unitatsOrganitzativesAmbPermisos,
 				expedient.getEntorn().getId(),
 				null,
 				null,

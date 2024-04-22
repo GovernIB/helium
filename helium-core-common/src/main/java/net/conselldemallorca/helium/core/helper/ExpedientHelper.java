@@ -65,6 +65,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientL
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.LogInfo;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
 import net.conselldemallorca.helium.core.model.hibernate.Interessat;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
@@ -90,11 +91,14 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
+import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
@@ -103,6 +107,7 @@ import net.conselldemallorca.helium.v3.core.repository.EstatAccioSortidaReposito
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusUnitatOrganitzativaRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaRepository;
@@ -137,6 +142,10 @@ public class ExpedientHelper {
 	private EstatAccioSortidaRepository estatAccioSortidaRepository;
 	@Resource
 	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
+	@Resource
+	private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
+	@Resource
+	private ExpedientTipusService expedientTipusService;
 
 	@Resource
 	private EntornHelper entornHelper;
@@ -166,6 +175,10 @@ public class ExpedientHelper {
 	private DefinicioProcesHelper definicioProcesHelper;
 	@Resource
 	private HerenciaHelper herenciaHelper;
+	@Resource
+	private ExpedientTipusHelper expedientTipusHelper;
+	@Resource
+	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
 
 	
 	public static String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";
@@ -287,10 +300,15 @@ public class ExpedientHelper {
 				ExpedientTipus.class,
 				permisos,
 				auth)) {
-			throw new PermisDenegatException(
-					id,
-					Expedient.class,
-					permisos);
+			
+			if (expedient.getUnitatOrganitzativa()!=null && 
+				!expedientTipusService.tePermisosSobreUnitatOrganitzativaOrParents(expedientTipus.getId(), expedient.getUnitatOrganitzativa().getCodi(), permisos)) {
+				
+				throw new PermisDenegatException(
+						expedientTipus.getId(),
+						ExpedientTipus.class,
+						permisos);
+			}
 		}
 		return expedient;
 	}
@@ -343,15 +361,31 @@ public class ExpedientHelper {
 					permisos);
 		}
 		ExpedientTipus expedientTipus = expedient.getTipus();
+		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(expedientTipus.getId());
+		boolean tePermisUO = false;
+		List<PermisDto> permisosAmbUOList  = new ArrayList<PermisDto>();
+		if(expTipUnitOrgList!=null) {
+			for(ExpedientTipusUnitatOrganitzativa etuo: expTipUnitOrgList) {
+				permisosAmbUOList.addAll(permisosHelper.findPermisos(
+						etuo.getId(),
+						ExpedientTipusUnitatOrganitzativa.class));
+			}
+		}
+		
 		if (comprovarPermisRead) {
 			permisos = new Permission[] {
 					ExtendedPermission.READ,
-					ExtendedPermission.ADMINISTRATION};
+					ExtendedPermission.ADMINISTRATION};		
+			tePermisUO = tePermisUO(
+					permisos,
+					expTipUnitOrgList,
+					auth);			
 			if (!permisosHelper.isGrantedAny(
 					expedientTipus.getId(),
 					ExpedientTipus.class,
 					permisos,
-					auth)) {
+					auth) &&
+					!tePermisUO) {
 				throw new PermisDenegatException(
 						id,
 						Expedient.class,
@@ -362,11 +396,16 @@ public class ExpedientHelper {
 			permisos = new Permission[] {
 					ExtendedPermission.WRITE,
 					ExtendedPermission.ADMINISTRATION};
+			tePermisUO = tePermisUO(
+					permisos,
+					expTipUnitOrgList,
+					auth);		
 			if (!permisosHelper.isGrantedAny(
 					expedientTipus.getId(),
 					ExpedientTipus.class,
 					permisos,
-					auth)) {
+					auth) &&
+					!tePermisUO) {
 				throw new PermisDenegatException(
 						id,
 						Expedient.class,
@@ -377,11 +416,16 @@ public class ExpedientHelper {
 			permisos = new Permission[] {
 					ExtendedPermission.DELETE,
 					ExtendedPermission.ADMINISTRATION};
+			tePermisUO = tePermisUO(
+					permisos,
+					expTipUnitOrgList,
+					auth);		
 			if (!permisosHelper.isGrantedAny(
 					expedientTipus.getId(),
 					ExpedientTipus.class,
 					permisos,
-					auth)) {
+					auth) &&
+					!tePermisUO) {
 				throw new PermisDenegatException(
 						id,
 						Expedient.class,
@@ -392,11 +436,16 @@ public class ExpedientHelper {
 			permisos = new Permission[] {
 					ExtendedPermission.SUPERVISION,
 					ExtendedPermission.ADMINISTRATION};
+			tePermisUO = tePermisUO(
+					permisos,
+					expTipUnitOrgList,
+					auth);		
 			if (!permisosHelper.isGrantedAny(
 					expedientTipus.getId(),
 					ExpedientTipus.class,
 					permisos,
-					auth)) {
+					auth) &&
+					!tePermisUO) {
 				throw new PermisDenegatException(
 						id,
 						Expedient.class,
@@ -407,11 +456,16 @@ public class ExpedientHelper {
 			permisos = new Permission[] {
 					ExtendedPermission.REASSIGNMENT,
 					ExtendedPermission.ADMINISTRATION};
+			tePermisUO = tePermisUO(
+					permisos,
+					expTipUnitOrgList,
+					auth);		
 			if (!permisosHelper.isGrantedAny(
 					expedientTipus.getId(),
 					ExpedientTipus.class,
 					permisos,
-					auth)) {
+					auth) &&
+					!tePermisUO) {
 				throw new PermisDenegatException(
 						id,
 						Expedient.class,
@@ -421,6 +475,7 @@ public class ExpedientHelper {
 		if (comprovarPermisAdministration) {
 			permisos = new Permission[] {
 					ExtendedPermission.ADMINISTRATION};
+			//En el cas d'administració no té sentit mirar si té permisos per la UO ja que no és possible
 			if (!permisosHelper.isGrantedAny(
 					expedientTipus.getId(),
 					ExpedientTipus.class,
@@ -437,11 +492,16 @@ public class ExpedientHelper {
 					ExtendedPermission.WRITE,
 					ExtendedPermission.REASSIGNMENT,
 					ExtendedPermission.ADMINISTRATION};
+			tePermisUO = tePermisUO(
+					permisos,
+					expTipUnitOrgList,
+					auth);		
 			if (!permisosHelper.isGrantedAny(
 					expedientTipus.getId(),
 					ExpedientTipus.class,
 					permisos,
-					auth)) {
+					auth)&&
+					!tePermisUO) {
 				throw new PermisDenegatException(
 						id,
 						Expedient.class,
@@ -462,7 +522,22 @@ public class ExpedientHelper {
 				permisos,
 				auth);
 	}
-
+	
+	public boolean tePermisUO (Permission[] permisos, List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList, Authentication auth) {	
+		boolean tePermis = false;
+		for(ExpedientTipusUnitatOrganitzativa etuo: expTipUnitOrgList) {
+			if(permisosHelper.isGrantedAny(
+					etuo.getId(),
+					ExpedientTipusUnitatOrganitzativa.class,
+					permisos,
+					auth)) {
+				tePermis=true;
+				break;
+			}
+		}
+		return tePermis;
+	}
+	
 	public void update(
 			Expedient expedient,
 			String numero,
@@ -1236,15 +1311,41 @@ public class ExpedientHelper {
 	}
 
 	public void omplirPermisosExpedients(List<ExpedientDto> expedients) {
+		
 		List<Long> expedientTipusIds = new ArrayList<Long>();
+		
 		for (ExpedientDto expedient: expedients) {
+			
 			expedientTipusIds.add(expedient.getTipus().getId());
+			
+			if (expedient.getTipus().isProcedimentComu() && expedient.getUnitatOrganitzativa()!=null) {
+				//Aqui hem de ficar els IDS de les Uos del expedient tipus actual, i les superiors
+				List<UnitatOrganitzativaDto> uoList = unitatOrganitzativaHelper.findPath(null, expedient.getUnitatOrganitzativa().getCodi());
+				if (uoList!=null && uoList.size()>0) {
+					for (UnitatOrganitzativaDto uo: uoList) {
+						//Anam carregant cada expedient amb els permisos de la UO
+						ExpedientTipusUnitatOrganitzativa etuo = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaId(expedient.getTipus().getId(), uo.getId());
+						//Pot ser no s'hagin configurat permisos per aquest TE i UO.
+						if (etuo!=null) {
+							permisosHelper.omplirControlPermisosSegonsUsuariActual(
+									etuo.getId(),
+									expedient,
+									ExpedientTipusUnitatOrganitzativa.class,
+									false);
+						}
+					}
+				}
+			}
 		}
+		
+		//Completam amb els permisos per tipus de expedient
 		permisosHelper.omplirControlPermisosSegonsUsuariActual(
 				expedientTipusIds,
 				expedients,
-				ExpedientTipus.class);
+				ExpedientTipus.class,
+				false);
 	}
+	
 	public void omplirPermisosExpedient(ExpedientDto expedient) {
 		List<ExpedientDto> expedients = new ArrayList<ExpedientDto>();
 		expedients.add(expedient);

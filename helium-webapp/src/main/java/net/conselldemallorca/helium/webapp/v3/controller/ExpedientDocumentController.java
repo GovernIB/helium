@@ -38,6 +38,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
@@ -2057,6 +2058,21 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			BindingResult bindingResult,
 			Model model) {
 		
+		if (bindingResult.hasErrors()) {
+//			return "v3/expedientDocumentEnviarPortasignaturesForm";
+			for(ObjectError e: bindingResult.getAllErrors()) {
+       		 MissatgesHelper.error(
+						request, 
+						e.getDefaultMessage());
+			}
+	        MissatgesHelper.error(
+					request, 
+					getMessage(
+							request, 
+							"error.enviar.portasignatures.validacio"));
+       	return "redirect:" + request.getHeader("referer");
+		}
+		
 		if (!bindingResult.hasErrors()) {
 			try {
 				this.portasigEnviar(command, documentStoreId, expedientId,  processInstanceId);
@@ -2130,7 +2146,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				null, //transicioKO,
 				command.getPortafirmesSequenciaTipus(),
 				command.getPortafirmesResponsables(),
-				portafirmesFluxId);
+				portafirmesFluxId,
+				command.getPortafirmesFluxTipus());
 	}
 	
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/document/{documentStoreId}/portasignaturesCancelarEnviament/{documentId}")

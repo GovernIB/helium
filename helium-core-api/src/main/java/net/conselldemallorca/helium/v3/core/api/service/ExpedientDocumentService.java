@@ -26,6 +26,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.document.DocumentDetallDto;
@@ -531,7 +532,7 @@ public interface ExpedientDocumentService {
 	 * @param processInstanceId
 	 * @param transicioOK
 	 * @param transicioKO
-	 * @param fluxTipus
+	 * @param portafirmesTipus
 	 * @param responsables
 	 * @param portafirmesFluxId
 	 * 
@@ -547,9 +548,10 @@ public interface ExpedientDocumentService {
 			Long processInstanceId,
 			String transicioOK,
 			String transicioKO,
-			PortafirmesSimpleTipusEnumDto fluxTipus,
+			PortafirmesSimpleTipusEnumDto portafirmesTipus,
 			String[] responsables, 
-			String portafirmesFluxId) throws SistemaExternException;
+			String portafirmesFluxId,
+			PortafirmesTipusEnumDto fluxTipus) throws SistemaExternException;
 
 	/**
 	 * Cancela l'enviament d'un document a firmar al portafirmes.

@@ -6,10 +6,13 @@ package net.conselldemallorca.helium.v3.core.service;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -629,6 +632,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			estatReglaRepository.delete(estatReglaRepository.findByEstat(estat));
 			estatAccioEntradaRepository.delete(estatAccioEntradaRepository.findByEstatOrderByOrdreAsc(estat));
 			estatAccioSortidaRepository.delete(estatAccioSortidaRepository.findByEstatOrderByOrdreAsc(estat));		
+		}
+		
+		//En el cas que sigui procediment Comú o hi hagi relacions de permisos amb uos i expedienttipusId esborra aquestes relacions
+		List<ExpedientTipusUnitatOrganitzativa> expTipUoList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(expedientTipusId);
+		if(entity.isProcedimentComu() || expTipUoList!=null && !expTipUoList.isEmpty()) {
+			expedientTipusUnitatOrganitzativaRepository.delete(expTipUoList); 
 		}
 		
 		expedientTipusRepository.delete(entity);
@@ -1845,27 +1854,14 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			Long entornId) {
 		logger.debug(
 				"Consultant tipus d'expedient per un entorn i amb permisos de consulta (" +
-				"entornId=" + entornId + ")");
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntornOrderByNomAsc(entorn);
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		permisosHelper.filterGrantedAny(
-				tipuss,
-				new ObjectIdentifierExtractor<ExpedientTipus>() {
-					@Override
-					public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
-						return expedientTipus.getId();
-					}
-				},
-				ExpedientTipus.class,
-				new Permission[] {
-						ExtendedPermission.READ,
-						ExtendedPermission.ADMINISTRATION},
-				auth);
+				"entornId=" + entornId + ")");	
 		return conversioTipusHelper.convertirList(
-				tipuss,
+				findTotsExpTipusAmbPermisos(
+						entornId, 
+						new Permission[] {
+								ExtendedPermission.READ,
+								ExtendedPermission.ADMINISTRATION},
+						false),
 				ExpedientTipusDto.class);
 	}
 
@@ -1898,30 +1894,15 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Consultant tipus d'expedient per un entorn i amb permisos de disseny (" +
 				"entornId=" + entornId + ")");
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntornOrderByNomAsc(entorn);
-		if (!entornHelper.potDissenyarEntorn(entornId)) {
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			permisosHelper.filterGrantedAny(
-					tipuss,
-					new ObjectIdentifierExtractor<ExpedientTipus>() {
-						@Override
-						public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
-							return expedientTipus.getId();
-						}
-					},
-					ExpedientTipus.class,
-					new Permission[] {
-							ExtendedPermission.DESIGN, // permís antic
-							ExtendedPermission.DESIGN_ADMIN,
-							ExtendedPermission.DESIGN_DELEG,
-							ExtendedPermission.ADMINISTRATION},
-					auth);
-		}
 		return conversioTipusHelper.convertirList(
-				tipuss,
+				findTotsExpTipusAmbPermisos(
+						entornId, 
+						new Permission[] {
+								ExtendedPermission.DESIGN, // permís antic
+								ExtendedPermission.DESIGN_ADMIN,
+								ExtendedPermission.DESIGN_DELEG,
+								ExtendedPermission.ADMINISTRATION},
+						false),
 				ExpedientTipusDto.class);
 	}
 	
@@ -1935,28 +1916,13 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Consultant tipus d'expedient per un entorn i amb permisos sobre antotacions (" +
 				"entornId=" + entornId + ")");
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntornOrderByCodiAsc(entorn);
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if (!UsuariActualHelper.isAdministrador(auth)) {
-			permisosHelper.filterGrantedAny(
-					tipuss,
-					new ObjectIdentifierExtractor<ExpedientTipus>() {
-						@Override
-						public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
-							return expedientTipus.getId();
-						}
-					},
-					ExpedientTipus.class,
-					new Permission[] {
-							BasePermission.ADMINISTRATION,
-							ExtendedPermission.RELATE},
-					auth);
-		}
 		return conversioTipusHelper.convertirList(
-				tipuss,
+				findTotsExpTipusAmbPermisos(
+						entornId, 
+						new Permission[] {
+								BasePermission.ADMINISTRATION,
+								ExtendedPermission.RELATE},
+						true),
 				ExpedientTipusDto.class);
 	}
 	
@@ -1970,10 +1936,28 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Consultant tipus d'expedient per un entorn i amb permisos d'execució d'scripts (" +
 				"entornId=" + entornId + ")");
+		return conversioTipusHelper.convertirList(
+				findTotsExpTipusAmbPermisos(
+						entornId, 
+						new Permission[] {
+								BasePermission.ADMINISTRATION,
+								ExtendedPermission.SCRIPT_EXE},
+						true),
+				ExpedientTipusDto.class);
+	}
+
+	
+	private List<ExpedientTipus> findTotsExpTipusAmbPermisos(Long entornId, Permission[] permissions, boolean orderByCodiAsc){
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
 				true);
-		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntornOrderByCodiAsc(entorn);
+		List<ExpedientTipus> tipuss = new ArrayList<ExpedientTipus>();
+		
+		if(orderByCodiAsc) {
+			tipuss = expedientTipusRepository.findByEntornOrderByCodiAsc(entorn);
+		} else {
+			tipuss = expedientTipusRepository.findByEntornOrderByNomAsc(entorn);
+		}				
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (!UsuariActualHelper.isAdministrador(auth)) {
 			permisosHelper.filterGrantedAny(
@@ -1985,14 +1969,37 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						}
 					},
 					ExpedientTipus.class,
-					new Permission[] {
-							BasePermission.ADMINISTRATION,
-							ExtendedPermission.SCRIPT_EXE},
+					permissions,
 					auth);
 		}
-		return conversioTipusHelper.convertirList(
-				tipuss,
-				ExpedientTipusDto.class);
+		//Afegim els expedientTipus amb procediment comú permesos depenent de permisos amb UOs
+		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusEntornId(entorn.getId());
+		if(expTipUnitOrgList!=null && !expTipUnitOrgList.isEmpty()){	
+			permisosHelper.filterGrantedAny(
+					expTipUnitOrgList,
+					new ObjectIdentifierExtractor<ExpedientTipusUnitatOrganitzativa>() {
+						@Override
+						public Long getObjectIdentifier(ExpedientTipusUnitatOrganitzativa expedientTipusUnitatOrganitzativa) {
+							return expedientTipusUnitatOrganitzativa.getId();
+						}
+					},
+					ExpedientTipusUnitatOrganitzativa.class,
+					permissions,
+					auth);
+			List<ExpedientTipus> expedientTipusIdsPermesosProcedimetComu = expedientTipusHelper.expedientsTipusComunsPermesos(expTipUnitOrgList);
+			//Convinem les llistes sense que hi hagi duplicats
+			if(expedientTipusIdsPermesosProcedimetComu!=null && !expedientTipusIdsPermesosProcedimetComu.isEmpty()) {
+				Set<ExpedientTipus> set = new LinkedHashSet<ExpedientTipus>(tipuss);
+				set.addAll(expedientTipusIdsPermesosProcedimetComu);
+				tipuss=new ArrayList<ExpedientTipus>(set);
+				if(orderByCodiAsc) {
+					Collections.sort(tipuss, new ComparadorExpedientTipusCodi());
+				} else {
+					Collections.sort(tipuss, new ComparadorExpedientTipusNom());
+				}
+			}
+		}
+		return tipuss;
 	}
 
 	/**
@@ -2064,26 +2071,13 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		logger.debug(
 				"Consultant tipus d'expedient per un entorn i amb permis de creació (" +
 				"entornId=" + entornId + ")");
-		Entorn entorn = entornHelper.getEntornComprovantPermisos(
-				entornId,
-				true);
-		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntornOrderByCodiAsc(entorn);
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		permisosHelper.filterGrantedAny(
-				tipuss,
-				new ObjectIdentifierExtractor<ExpedientTipus>() {
-					@Override
-					public Long getObjectIdentifier(ExpedientTipus expedientTipus) {
-						return expedientTipus.getId();
-					}
-				},
-				ExpedientTipus.class,
-				new Permission[] {
-						ExtendedPermission.CREATE,
-						ExtendedPermission.ADMINISTRATION},
-				auth);
 		return conversioTipusHelper.convertirList(
-				tipuss,
+				findTotsExpTipusAmbPermisos(
+						entornId, 
+						new Permission[] {
+								ExtendedPermission.CREATE,
+								ExtendedPermission.ADMINISTRATION},
+						true),
 				ExpedientTipusDto.class);
 	}
 
@@ -2338,15 +2332,28 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
     				entornId,
     				expedientTipusId);
     		if (expedientTipusDto.isProcedimentComu() && unitatOrganitzativaCodi!=null && !" ".equals(unitatOrganitzativaCodi)) {
+    			
     			ExpedientTipusUnitatOrganitzativa expTipusUnitOrg = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaCodi(
     					expedientTipusId, 
     					unitatOrganitzativaCodi);
+    			
     			if(expTipusUnitOrg==null)
     				throw new NoTrobatException(PermisDto.class, permisId);
+    			
+    			//S'eliminen els permisos seleccionats (que són d'un usuari concret), sobre la classe ExpedientTipusUnitatOrganitzativa
     			permisosHelper.deletePermis(
     					expTipusUnitOrg.getId(),
     					ExpedientTipusUnitatOrganitzativa.class,
     					permisId);
+    			
+    			List<PermisDto> permisosExpedientTipusUnitatOrganitzativa = permisosHelper.findPermisos(
+    					expTipusUnitOrg.getId(),
+    					ExpedientTipusUnitatOrganitzativa.class);
+
+    			//Només borram la entitat, si no hi ha altres permisos (altres usuaris) configurats per aquesta instancia de la classe 
+    			if (permisosExpedientTipusUnitatOrganitzativa==null || permisosExpedientTipusUnitatOrganitzativa.size()==0) {
+    				expedientTipusUnitatOrganitzativaRepository.delete(expTipusUnitOrg);
+    			}
 
     		} else {	
     			permisosHelper.deletePermis(
@@ -2364,53 +2371,41 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean tePermis(Long expedientId, String unitatOrganitzativaCodi) {
+	public boolean tePermisosSobreUnitatOrganitzativaOrParents(Long expedientTipusId, String unitatOrganitzativaCodi, Permission[] permissions) {
 		ExpedientTipusUnitatOrganitzativa expTipusUnitOrg = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaCodi(
-				expedientId, 
+				expedientTipusId, 
 				unitatOrganitzativaCodi);
 		List<ExpedientTipusUnitatOrganitzativa> expTipusUnitOrgUnitatsSuperiors = new ArrayList<ExpedientTipusUnitatOrganitzativa>();
 		List<PermisDto> permisos = new ArrayList<PermisDto>();
-		if(expTipusUnitOrg==null) {
-			//mirem les unitats superiors fins a l'arrel i si l'user té permís sobre aquestes
-			UnitatOrganitzativa uo = unitatOrganitzativaRepository.findByCodi(unitatOrganitzativaCodi);
-			String arrel = uo.getCodiUnitatArrel();
-			List<UnitatOrganitzativaDto> unitatsSuperiors = unitatOrganitzativaHelper.findPath(arrel,uo.getCodiUnitatSuperior());
-			if(unitatsSuperiors!=null && !unitatsSuperiors.isEmpty()) {
-				for (UnitatOrganitzativaDto uoSuperior : unitatsSuperiors) {
-					ExpedientTipusUnitatOrganitzativa expTipusUnitOrgSup = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaCodi(
-							expedientId, 
-							uoSuperior.getCodi());
-					if(expTipusUnitOrgSup!=null)
-						expTipusUnitOrgUnitatsSuperiors.add(expTipusUnitOrgSup);		
-				}
+		//mirem les unitats superiors fins a l'arrel i si l'user té permís sobre aquestes
+		UnitatOrganitzativa uo = unitatOrganitzativaRepository.findByCodi(unitatOrganitzativaCodi);
+		String arrel = uo.getCodiUnitatArrel();
+		List<UnitatOrganitzativaDto> unitatsSuperiors = unitatOrganitzativaHelper.findPath(arrel,uo.getCodiUnitatSuperior());
+		if(unitatsSuperiors!=null && !unitatsSuperiors.isEmpty()) {
+			for (UnitatOrganitzativaDto uoSuperior : unitatsSuperiors) {
+				ExpedientTipusUnitatOrganitzativa expTipusUnitOrgSup = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusIdAndUnitatOrganitzativaCodi(
+						expedientTipusId, 
+						uoSuperior.getCodi());
+				if(expTipusUnitOrgSup!=null)
+					expTipusUnitOrgUnitatsSuperiors.add(expTipusUnitOrgSup);		
 			}
-			if(!expTipusUnitOrgUnitatsSuperiors.isEmpty()) {
-				for(ExpedientTipusUnitatOrganitzativa etuo: expTipusUnitOrgUnitatsSuperiors) {
-					permisos.addAll(permisosHelper.findPermisos(
-							etuo.getId(),
-							ExpedientTipusUnitatOrganitzativa.class));	
-				}
+		}
+		if(!expTipusUnitOrgUnitatsSuperiors.isEmpty()) {
+			for(ExpedientTipusUnitatOrganitzativa etuo: expTipusUnitOrgUnitatsSuperiors) {
+				permisos.addAll(permisosHelper.findPermisos(
+						etuo.getId(),
+						ExpedientTipusUnitatOrganitzativa.class));	
 			}
-
-		}else {
+		}
+		if(expTipusUnitOrg!=null)
 			permisos.addAll(permisosHelper.findPermisos(
 					expTipusUnitOrg.getId(),
 					ExpedientTipusUnitatOrganitzativa.class));	
-		}
-//		List<PermisDto> permisos = permisosHelper.findPermisos(
-//				expTipusUnitOrg.getId(),
-//				ExpedientTipusUnitatOrganitzativa.class);	
 		Authentication authOriginal = SecurityContextHolder.getContext().getAuthentication();		
 		for(PermisDto permis: permisos) {
-			if(permis.getPrincipalNom()!=null 
-				&& authOriginal!=null 
-				&& authOriginal.getName()!=null 
-				&& (permis.getPrincipalNom().equals(authOriginal.getName())
-						|| (PrincipalTipusEnumDto.ROL.equals(permis.getPrincipalTipus()) 
-							&& expedientTipusHelper.isAdministrador(authOriginal)))
-				&& (permis.isCreate() 
-						|| permis.isAdministration()))
-					return true;
+			if (expedientTipusHelper.comprovarPermisosAndRoleOrUser(permis, authOriginal, permissions)) {
+				return true;
+			}
 		}		
 		return false;
 	}
@@ -4977,5 +4972,17 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			arxiu = new ArxiuDto(expedientTipus.getManualAjudaNom(), expedientTipus.getManualAjudaContent());
 		}
 		return arxiu;
+	}
+	
+	public class ComparadorExpedientTipusNom implements Comparator<ExpedientTipus> {
+	    public int compare(ExpedientTipus e1, ExpedientTipus e2) {
+	        return e1.getNom().compareToIgnoreCase(e2.getNom());
+	    }
+	}
+	
+	public class ComparadorExpedientTipusCodi implements Comparator<ExpedientTipus> {
+	    public int compare(ExpedientTipus e1, ExpedientTipus e2) {
+	        return e1.getCodi().compareToIgnoreCase(e2.getCodi());
+	    }
 	}
 }

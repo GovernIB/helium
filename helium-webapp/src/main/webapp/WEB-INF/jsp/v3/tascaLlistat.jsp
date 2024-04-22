@@ -485,10 +485,11 @@
 				<th data-rdt-property="expedientTipusNom" data-rdt-template="cellTipusTemplate"  data-rdt-visible="true">
 					<spring:message code="tasca.llistat.columna.tipexp"/>	
 						<script id="cellTipusTemplate" type="text/x-jsrender">
-							{{:expedientTipusNom}}
+							
 							{{if unitatOrganitzativaCodiNom != null}}
-								<span class="fa fa-university" title="{{:unitatOrganitzativaCodiNom}}" style="float:right"></span>
+								<span class="fa fa-university" title="{{:unitatOrganitzativaCodiNom}}" style="float:left"></span>
 							{{/if}}
+							&nbsp;{{:expedientTipusNom}}
 						</script>	
 				</th>		
 				<th data-rdt-property="createTime" data-rdt-type="datetime" data-rdt-sorting="desc" data-rdt-visible="true"><spring:message code="tasca.llistat.columna.creada"/></th>

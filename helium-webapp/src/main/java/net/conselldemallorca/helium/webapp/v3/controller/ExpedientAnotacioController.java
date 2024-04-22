@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -20,6 +22,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
@@ -73,11 +76,13 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 		AnotacioFiltreDto filtreDto = new AnotacioFiltreDto();
 		filtreDto.setExpedientId(expedientId);
 		filtreDto.setEstat(AnotacioEstatEnumDto.PROCESSADA);
-		
+		List<ExpedientTipusDto> expedientTipusDtoAccessibles = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
+													request,
+													SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES);
 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,
-				anotacioService.findAmbFiltrePaginat(entornActual.getId(), filtreDto, paginacioParams));
+				anotacioService.findAmbFiltrePaginat(entornActual.getId(), expedientTipusDtoAccessibles, filtreDto, paginacioParams));
 	}
 	
 

@@ -61,6 +61,7 @@ import net.conselldemallorca.helium.webapp.v3.command.EstatReglaCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEstatCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ImportarDadesCommand;
 import net.conselldemallorca.helium.webapp.v3.command.PermisCommand;
+import net.conselldemallorca.helium.webapp.v3.command.PermisCommand.Estat;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
@@ -639,7 +640,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			HttpServletRequest request,
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long estatId,
-			@Valid PermisCommand command,
+			@Validated(Estat.class) PermisCommand command,
 			BindingResult bindingResult,
 			Model model) {
 		return permisUpdatePost(
@@ -669,7 +670,7 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long estatId,
 			@PathVariable Long permisId,
-			@Valid PermisCommand command,
+			@Validated(Estat.class) PermisCommand command,
 			BindingResult bindingResult,
 			Model model) {
 		if (bindingResult.hasErrors()) {

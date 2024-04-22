@@ -212,7 +212,7 @@ div.dropdown-menu.loading .rmodal_carrecs {
 
 					<hel:inputSelect name="portafirmesFluxId" textKey="expedient.tipus.document.form.camp.id.flux.firma" emptyOption="true" botons="true"  
 						icon="fa fa-external-link" iconAddicional="fa fa-trash-o" buttonMsg="${buttonTitle}"
-						placeholderKey="expedient.tipus.document.form.camp.id.flux.firma.buit"  required="true"/>
+						placeholderKey="expedient.tipus.document.form.camp.id.flux.firma.buit" />
 		
 					<div id="avisFluxIdNoDisponible" style="display: none;" class="form-group">
 						<div class="col-xs-4"></div>

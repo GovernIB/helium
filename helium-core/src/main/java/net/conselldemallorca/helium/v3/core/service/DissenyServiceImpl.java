@@ -534,27 +534,36 @@ public class DissenyServiceImpl implements DissenyService {
 					Entorn.class, 
 					entornId);
 		}
-		Permission[] permisosRequerits= new Permission[] {
-				ExtendedPermission.READ,
-				ExtendedPermission.ADMINISTRATION};
-		boolean permes = permisosHelper.isGrantedAny(
-				expedientTipusId,
-				ExpedientTipus.class,
-				permisosRequerits,
-				SecurityContextHolder.getContext().getAuthentication());
-		if (!permes) {
-			throw new PermisDenegatException(
-					expedientTipusId,
-					ExpedientTipus.class,
-					permisosRequerits,
-					null);
-		}
 		ExpedientTipus expedientTipus = expedientTipusRepository.findOne(
 				expedientTipusId);
 		if (expedientTipus.getEntorn() != entorn) {
 			throw new NoTrobatException(
 					ExpedientTipus.class, 
 					expedientTipusId);
+		}
+
+		boolean permes = false;
+		Permission[] permisosRequerits= new Permission[] {
+				ExtendedPermission.READ,
+				ExtendedPermission.ADMINISTRATION};
+		if (!expedientTipus.isProcedimentComu()) {
+			permes = permisosHelper.isGrantedAny(
+					expedientTipusId,
+					ExpedientTipus.class,
+					permisosRequerits,
+					SecurityContextHolder.getContext().getAuthentication());
+		} else {
+			List<Long> idsUnitatsOrganitzatives = expedientTipusHelper.findIdsUnitatsOrgAmbPermisos(entornId, expedientTipusId, permisosRequerits);
+			if(idsUnitatsOrganitzatives!=null && !idsUnitatsOrganitzatives.isEmpty()) {
+				permes = true;
+			}
+		}
+		if (!permes) {
+			throw new PermisDenegatException(
+					expedientTipusId,
+					ExpedientTipus.class,
+					permisosRequerits,
+					null);
 		}
 		List<ExpedientTipusDto> dtos = new ArrayList<ExpedientTipusDto>();
 		dtos.add(conversioTipusHelper.convertir(
