@@ -27,7 +27,7 @@ import org.springmodules.validation.bean.conf.loader.SimpleBeanValidationConfigu
 import org.springmodules.validation.bean.rule.ExpressionValidationRule;
 import org.springmodules.validation.util.cel.valang.ValangConditionExpressionParser;
 
-import net.conselldemallorca.helium.core.common.ExpedientCamps;
+import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;

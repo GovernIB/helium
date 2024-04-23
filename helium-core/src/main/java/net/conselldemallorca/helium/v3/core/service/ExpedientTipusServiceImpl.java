@@ -4359,6 +4359,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			etiqueta = messageHelper.getMessage("etiqueta.exp.responsable");
 		else if (ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI.equals(campCodi)) 
 			etiqueta = messageHelper.getMessage("etiqueta.exp.data_ini");
+		else if (ExpedientCamps.EXPEDIENT_CAMP_DATA_FI.equals(campCodi)) 
+			etiqueta = messageHelper.getMessage("etiqueta.exp.data_fi");
+		else if (ExpedientCamps.EXPEDIENT_CAMP_NIF.equals(campCodi)) 
+			etiqueta = messageHelper.getMessage("etiqueta.exp.nif");		
 		else if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT.equals(campCodi)) 
 			etiqueta = messageHelper.getMessage("etiqueta.exp.estat");
 		else if (ExpedientCamps.EXPEDIENT_CAMP_GEOREF.equals(campCodi)) 

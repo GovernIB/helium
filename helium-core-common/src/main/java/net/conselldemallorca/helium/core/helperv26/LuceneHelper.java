@@ -548,6 +548,14 @@ public class LuceneHelper extends LuceneIndexSupport {
 		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_INICIADOR, (expedient.getIniciadorCodi() != null) ? expedient.getIniciadorCodi() : VALOR_CAMP_BUIT, Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
 		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE, (expedient.getResponsableCodi() != null) ? expedient.getResponsableCodi() : VALOR_CAMP_BUIT, Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
 		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI, dataPerIndexar(expedient.getDataInici()), Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
+		if (expedient.getDataFi()!=null) {
+			createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_DATA_FI, dataPerIndexar(expedient.getDataFi()), Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
+		} else {
+			createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_DATA_FI, VALOR_CAMP_BUIT, Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
+		}
+		String nifsInteressats = expedient.getInteressatsNifs(" ");
+		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_NIF, (nifsInteressats != null) ? nifsInteressats : VALOR_CAMP_BUIT, Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
+
 		createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_TIPUS, expedient.getTipus().getCodi(), Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
 		if (finalitzat) {
 			createOrUpdateDocumentField(document, new Field(ExpedientCamps.EXPEDIENT_CAMP_ESTAT, "-1", Field.Store.YES, Field.Index.NOT_ANALYZED), isUpdate);
@@ -749,13 +757,28 @@ public class LuceneHelper extends LuceneIndexSupport {
 								return new TermQuery(new Term(codiCamp, valorIndex));
 							}
 						}
-					} else if (ExpedientCamps.EXPEDIENT_CAMP_ENTORN.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_INICIADOR.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_GEOX.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_GEOY.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_GEOREF.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_REGNUM.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_REGDATA.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_UNIADM.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_IDIOMA.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_TRAMIT.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_TIPUS.equals(codiCamp)
-							|| ExpedientCamps.EXPEDIENT_CAMP_ESTAT.equals(codiCamp)) {
+					} else if (	ExpedientCamps.EXPEDIENT_CAMP_ENTORN.equals(codiCamp) || 
+								ExpedientCamps.EXPEDIENT_CAMP_INICIADOR.equals(codiCamp) || 
+								ExpedientCamps.EXPEDIENT_CAMP_RESPONSABLE.equals(codiCamp) || 
+								ExpedientCamps.EXPEDIENT_CAMP_GEOX.equals(codiCamp) || 
+								ExpedientCamps.EXPEDIENT_CAMP_GEOY.equals(codiCamp) || 
+								ExpedientCamps.EXPEDIENT_CAMP_GEOREF.equals(codiCamp) || 
+								ExpedientCamps.EXPEDIENT_CAMP_REGNUM.equals(codiCamp) || 
+								ExpedientCamps.EXPEDIENT_CAMP_REGDATA.equals(codiCamp) || 
+								ExpedientCamps.EXPEDIENT_CAMP_UNIADM.equals(codiCamp) || 
+								ExpedientCamps.EXPEDIENT_CAMP_IDIOMA.equals(codiCamp) || 
+								ExpedientCamps.EXPEDIENT_CAMP_TRAMIT.equals(codiCamp) || 
+								ExpedientCamps.EXPEDIENT_CAMP_TIPUS.equals(codiCamp) ||
+								ExpedientCamps.EXPEDIENT_CAMP_ESTAT.equals(codiCamp)) {
 						String valorIndex = valorFiltre.toString();
 						if (valorIndex != null && valorIndex.length() > 0) {
 							return new TermQuery(new Term(codiCamp, valorIndex));
 						}
-					} else if (ExpedientCamps.EXPEDIENT_CAMP_NUMERO.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_TITOL.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_COMENTARI.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_INFOATUR.equals(codiCamp)) {
+					} else if (	ExpedientCamps.EXPEDIENT_CAMP_NUMERO.equals(codiCamp) ||
+								ExpedientCamps.EXPEDIENT_CAMP_TITOL.equals(codiCamp) || 
+								ExpedientCamps.EXPEDIENT_CAMP_COMENTARI.equals(codiCamp) ||
+								ExpedientCamps.EXPEDIENT_CAMP_NIF.equals(codiCamp) ||
+								ExpedientCamps.EXPEDIENT_CAMP_INFOATUR.equals(codiCamp)) {
 						String valorIndex = ((String) valorFiltre).toLowerCase();
 						if (valorIndex != null && valorIndex.length() > 0) {
 							if (ExpedientCamps.EXPEDIENT_CAMP_NUMERO.equals(codiCamp) && valorIndex.contains(EXPEDIENT_NUMERO_SEPARADOR)) {
@@ -769,7 +792,7 @@ public class LuceneHelper extends LuceneIndexSupport {
 								return queryPerStringAmbWildcards(codiCamp, valorIndex);
 							}
 						}
-					} else if (ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI.equals(codiCamp)) {
+					} else if (ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI.equals(codiCamp) || ExpedientCamps.EXPEDIENT_CAMP_DATA_FI.equals(codiCamp)) {
 						Date valorInicial = ((Date[]) valorFiltre)[0];
 						Date valorFinal = ((Date[]) valorFiltre)[1];
 						if (valorInicial != null && valorFinal != null) {
@@ -1138,7 +1161,11 @@ public class LuceneHelper extends LuceneIndexSupport {
 		} else if (camp.getTipus().equals(TipusCamp.BOOLEAN)) {
 			return new Boolean("S".equals(valor));
 		} else if (camp.getTipus().equals(TipusCamp.DATE)) {
-			return new SimpleDateFormat(PATRO_DATES_INDEX).parse(valor);
+			if (!VALOR_CAMP_BUIT.equals(valor)) {
+				return new SimpleDateFormat(PATRO_DATES_INDEX).parse(valor);
+			} else {
+				return "";
+			}
 		} else if (camp.getTipus().equals(TipusCamp.PRICE)) {
 			return new BigDecimal(valor);
 		} else if (camp.getTipus().equals(TipusCamp.TERMINI)) {

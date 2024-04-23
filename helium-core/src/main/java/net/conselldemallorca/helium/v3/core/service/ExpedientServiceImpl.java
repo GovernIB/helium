@@ -44,7 +44,6 @@ import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreEntrada
 import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
 import es.caib.plugins.arxiu.api.ExpedientMetadades;
-import net.conselldemallorca.helium.core.common.ExpedientCamps;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helper.AlertaHelper;
 import net.conselldemallorca.helium.core.helper.ConsultaHelper;
@@ -102,6 +101,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
 import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.jbpm3.integracio.ExecucioHandlerException;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
@@ -2260,7 +2260,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				} else {
 					sort = clau.replace(
 							".",
-							ExpedientCamps.EXPEDIENT_PREFIX_SEPARATOR);
+							ExpedientCamps.EXPEDIENT_PREFIX_SEPARADOR);
 				}
 				break;
 			}

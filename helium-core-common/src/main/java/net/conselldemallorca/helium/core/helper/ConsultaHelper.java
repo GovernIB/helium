@@ -10,7 +10,6 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
-import net.conselldemallorca.helium.core.common.ExpedientCamps;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
@@ -19,6 +18,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsu
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusParamConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
@@ -147,6 +147,11 @@ public class ConsultaHelper {
 		} else if (ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI.equals(campCodi)) {
 			DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 			text = df.format(expedient.getDataInici());
+		} else if (ExpedientCamps.EXPEDIENT_CAMP_DATA_FI.equals(campCodi) && expedient.getDataFi()!=null) {
+			DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+			text = df.format(expedient.getDataFi());
+		} else if (ExpedientCamps.EXPEDIENT_CAMP_NIF.equals(campCodi)) {
+			text = expedient.getInteressatsNifs("</br>");
 		} else if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT_JSP.equals(campCodi)) {
 			if (expedient.getDataFi() != null)
 				text = messageHelper.getMessage("expedient.consulta.finalitzat");
@@ -194,6 +199,14 @@ public class ConsultaHelper {
 			campExpedient.setCodi(campCodi);
 			campExpedient.setTipus(TipusCamp.DATE);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.data_ini"));
+		} else if (ExpedientCamps.EXPEDIENT_CAMP_DATA_FI.equals(campCodi)) {
+			campExpedient.setCodi(campCodi);
+			campExpedient.setTipus(TipusCamp.DATE);
+			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.data_fi"));
+		} else if (ExpedientCamps.EXPEDIENT_CAMP_NIF.equals(campCodi)) {
+			campExpedient.setCodi(campCodi);
+			campExpedient.setTipus(TipusCamp.STRING);
+			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.nif"));			
 		} else if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT.equals(campCodi)) {
 			campExpedient.setCodi(campCodi);
 			campExpedient.setTipus(TipusCamp.SELECCIO);

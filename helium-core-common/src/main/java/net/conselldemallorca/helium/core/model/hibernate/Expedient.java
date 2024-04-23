@@ -568,6 +568,17 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	public void setInteressats(List<Interessat> interessats) {
 		this.interessats = interessats;
 	}
+	public String getInteressatsNifs(String separador) {
+		String resultat = null;
+		if (this.interessats!=null && this.interessats.size()>0) {
+			resultat = "";
+			for (Interessat i: this.interessats) {
+				resultat = resultat+i.getNif()+separador;
+			}
+			resultat = resultat.trim();
+		}
+		return resultat;
+	}
 	@OneToMany(mappedBy="expedient", cascade=CascadeType.REMOVE)
 	public List<Notificacio> getNotificacions() {
 		return notificacions;

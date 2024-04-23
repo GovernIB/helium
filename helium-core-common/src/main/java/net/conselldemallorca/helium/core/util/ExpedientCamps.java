@@ -1,6 +1,3 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.core.util;
 
 /**
@@ -11,7 +8,10 @@ package net.conselldemallorca.helium.core.util;
 public class ExpedientCamps {
 
 	public static final String EXPEDIENT_PREFIX_SEPARADOR = "$";
+	public static final String EXPEDIENT_PREFIX_JSP_SEPARATOR = "__exp__";
 	public static final String EXPEDIENT_PREFIX = "expedient" + EXPEDIENT_PREFIX_SEPARADOR;
+	public static final String EXPEDIENT_PREFIX_JSP = "expedient" + EXPEDIENT_PREFIX_JSP_SEPARATOR;
+	
 	public static final String EXPEDIENT_CAMP_ENTORN = EXPEDIENT_PREFIX + "entorn";
 	public static final String EXPEDIENT_CAMP_ID = EXPEDIENT_PREFIX + "id";
 	public static final String EXPEDIENT_CAMP_NUMERO = EXPEDIENT_PREFIX + "numero";
@@ -27,10 +27,12 @@ public class ExpedientCamps {
 	public static final String EXPEDIENT_CAMP_REGDATA = EXPEDIENT_PREFIX + "regdata";
 	public static final String EXPEDIENT_CAMP_UNIADM = EXPEDIENT_PREFIX + "uniadm";
 	public static final String EXPEDIENT_CAMP_IDIOMA = EXPEDIENT_PREFIX + "idioma";
-	public static final String EXPEDIENT_CAMP_TRAMIT = EXPEDIENT_PREFIX + "idioma";
+	public static final String EXPEDIENT_CAMP_TRAMIT = EXPEDIENT_PREFIX + "sistraTramitCodi";
 	public static final String EXPEDIENT_CAMP_DATA_INICI = EXPEDIENT_PREFIX + "dataInici";
+	public static final String EXPEDIENT_CAMP_DATA_FI = EXPEDIENT_PREFIX + "dataFi";
+	public static final String EXPEDIENT_CAMP_NIF = EXPEDIENT_PREFIX + "interessatNif";
 	public static final String EXPEDIENT_CAMP_TIPUS = EXPEDIENT_PREFIX + "tipus";
 	public static final String EXPEDIENT_CAMP_ESTAT = EXPEDIENT_PREFIX + "estat";
 	public static final String EXPEDIENT_CAMP_ERRORS_REINDEXACIO = EXPEDIENT_PREFIX + "errorsReindexacio";
-
+	public static final String EXPEDIENT_CAMP_ESTAT_JSP = "expedient" + EXPEDIENT_PREFIX_JSP_SEPARATOR + "estat";
 }

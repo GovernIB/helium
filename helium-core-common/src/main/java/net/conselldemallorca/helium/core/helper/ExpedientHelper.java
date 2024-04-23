@@ -1287,6 +1287,10 @@ public class ExpedientHelper {
 		resposta.add(
 				getCampExpedient(ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI));
 		resposta.add(
+				getCampExpedient(ExpedientCamps.EXPEDIENT_CAMP_DATA_FI));
+		resposta.add(
+				getCampExpedient(ExpedientCamps.EXPEDIENT_CAMP_NIF));		
+		resposta.add(
 				getCampExpedient(ExpedientCamps.EXPEDIENT_CAMP_ESTAT));
 		resposta.add(
 				getCampExpedient(ExpedientCamps.EXPEDIENT_CAMP_ERRORS_REINDEXACIO));
@@ -1552,6 +1556,20 @@ public class ExpedientHelper {
 			campExpedient.setCodi(campCodi);
 			campExpedient.setTipus(TipusCamp.DATE);
 			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.data_ini"));
+			return campExpedient;
+		}
+		if (ExpedientCamps.EXPEDIENT_CAMP_DATA_FI.equals(campCodi)) {
+			Camp campExpedient = new Camp();
+			campExpedient.setCodi(campCodi);
+			campExpedient.setTipus(TipusCamp.DATE);
+			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.data_fi"));
+			return campExpedient;
+		}
+		if (ExpedientCamps.EXPEDIENT_CAMP_NIF.equals(campCodi)) {
+			Camp campExpedient = new Camp();
+			campExpedient.setCodi(campCodi);
+			campExpedient.setTipus(TipusCamp.STRING);
+			campExpedient.setEtiqueta(messageHelper.getMessage("etiqueta.exp.nif"));
 			return campExpedient;
 		}
 		if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT.equals(campCodi)) {

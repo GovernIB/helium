@@ -71,6 +71,16 @@ public class CampsProcesDwrService implements MessageSourceAware {
 			obj[2] = null;
 			llista.add(obj);
 			obj = new Object[3];
+			obj[0] = ExpedientCamps.EXPEDIENT_CAMP_DATA_FI;
+			obj[1] = getMessage("etiqueta.exp.data_fi");
+			obj[2] = null;
+			llista.add(obj);
+			obj = new Object[3];
+			obj[0] = ExpedientCamps.EXPEDIENT_CAMP_NIF;
+			obj[1] = getMessage("etiqueta.exp.nif");
+			obj[2] = null;
+			llista.add(obj);			
+			obj = new Object[3];
 			obj[0] = ExpedientCamps.EXPEDIENT_CAMP_ESTAT;
 			obj[1] = getMessage("etiqueta.exp.estat");
 			obj[2] = null;

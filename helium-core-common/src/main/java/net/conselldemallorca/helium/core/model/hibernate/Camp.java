@@ -37,7 +37,7 @@ import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLengt
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
-import net.conselldemallorca.helium.core.common.ExpedientCamps;
+import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.v3.core.api.dto.TerminiDto;
 
 /**

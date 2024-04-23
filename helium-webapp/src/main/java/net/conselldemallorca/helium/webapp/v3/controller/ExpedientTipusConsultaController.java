@@ -677,6 +677,12 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 					ExpedientCamps.EXPEDIENT_CAMP_DATA_INICI, 
 					getMessage(request, "etiqueta.exp.data_ini")));
 			resposta.add(new ParellaCodiValorDto(
+					ExpedientCamps.EXPEDIENT_CAMP_DATA_FI, 
+					getMessage(request, "etiqueta.exp.data_fi")));
+			resposta.add(new ParellaCodiValorDto(
+					ExpedientCamps.EXPEDIENT_CAMP_NIF, 
+					getMessage(request, "etiqueta.exp.nif")));			
+			resposta.add(new ParellaCodiValorDto(
 					ExpedientCamps.EXPEDIENT_CAMP_ESTAT, 
 					getMessage(request, "etiqueta.exp.estat")));
 			
