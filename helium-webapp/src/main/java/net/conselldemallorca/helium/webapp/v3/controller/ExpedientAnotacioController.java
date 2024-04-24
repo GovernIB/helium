@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.core.helper.AnotacioHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
@@ -45,6 +46,8 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 	private AnotacioService anotacioService;
 	@Autowired
 	private ExpedientService expedientService;
+	@Autowired
+	private AnotacioHelper anotacioHelper;
 
 	@RequestMapping(value="/{expedientId}/anotacio", method = RequestMethod.GET)
 	public String llistat(
@@ -107,7 +110,7 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 		try {
 			AnotacioMapeigResultatDto resultatMapeig = new AnotacioMapeigResultatDto();
 			if(!nomesAnnexos)
-				resultatMapeig = anotacioService.reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
+				resultatMapeig = anotacioHelper.reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
 			else {
 				anotacioService.reintentarTraspasAnotacio(anotacioId);
 				MissatgesHelper.success(

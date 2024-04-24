@@ -3,7 +3,9 @@ package net.conselldemallorca.helium.ws.backoffice.distribucio;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.jws.WebService;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -12,9 +14,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
+import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
+import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
+import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
@@ -34,7 +40,7 @@ import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
 		serviceName = "BackofficeService",
 		portName = "BackofficeServicePort",
 		targetNamespace = "http://www.caib.es/distribucio/ws/backoffice")
-public class BackofficeDistribucioWsServiceImpl implements Backoffice {
+public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPluginListener {
 
 	@Autowired
 	private MonitorIntegracioHelper monitorIntegracioHelper;
@@ -48,6 +54,8 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice {
 	private AnotacioInteressatRepository anotacioInteressatRepository;
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
+	@Resource
+	private PluginHelper pluginHelper;
 	
 	// Per donar format a les dates
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -86,12 +94,14 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice {
 					// Si la petició ja existeix determina què fer en cas de cada estat
 					es.caib.distribucio.rest.client.integracio.domini.Estat estat = es.caib.distribucio.rest.client.integracio.domini.Estat.PENDENT;
 					String msg = null;
+					BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
+					backofficeUtils.setArxiuPluginListener(this);
 					switch(anotacio.getEstat()) {
 					case PENDENT:
 						if (anotacio.getExpedientTipus() == null 
 							|| anotacio.getExpedientTipus().isDistribucioProcesAuto()) 
 						{
-							distribucioHelper.reprocessarAnotacio(anotacio.getId());
+							distribucioHelper.reprocessarAnotacio(anotacio.getId(), backofficeUtils);
 						} else {
 							estat = es.caib.distribucio.rest.client.integracio.domini.Estat.REBUDA;
 							msg = "La petició ja s'ha rebut anteriorment i està pendent de processar o rebutjar manualment";
@@ -122,7 +132,7 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice {
 								anotacio.getConsultaData());
 						break;
 					case ERROR_PROCESSANT:
-						distribucioHelper.reprocessarAnotacio(anotacio.getId());
+						distribucioHelper.reprocessarAnotacio(anotacio.getId(), backofficeUtils);
 						break;
 					}
 					if (estat != null) {
@@ -145,6 +155,42 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice {
 				}
 			}
 		}		
+	}
+	
+	/** Mètode per implementar la interfície {@link ArxiuPluginListener} de Distribució per rebre events de quan es crida l'Arxiu i afegir
+	 * els logs al monitor d'integracions. 
+	 * @param metode
+	 * @param parametres
+	 * @param correcte
+	 * @param error
+	 * @param e
+	 * @param timeMs
+	 */
+	@Override
+	public void event(String metode, Map<String, String> parametres, boolean correcte, String error, Exception e, long timeMs) {
+		
+		IntegracioParametreDto[] parametresMonitor = new IntegracioParametreDto[parametres.size()];
+		int i = 0;
+		for (String nom : parametres.keySet())
+			parametresMonitor[i++] = new IntegracioParametreDto(nom, parametres.get(nom));
+		
+		if (correcte) {
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_ARXIU, 
+					"Invocació al mètode del plugin d'Arxiu " + metode, 
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					timeMs, 
+					parametresMonitor);
+		} else {
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_ARXIU, 
+					"Error invocant al mètode del plugin d'Arxiu " + metode, 
+					IntegracioAccioTipusEnumDto.ENVIAMENT, 
+					timeMs,
+					error, 
+					e, 
+					parametresMonitor);	
+		}
 	}
 	
 	private static final Logger logger = LoggerFactory.getLogger(BackofficeDistribucioWsServiceImpl.class);

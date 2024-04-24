@@ -47,6 +47,10 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
+import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
+import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
+import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
+import net.conselldemallorca.helium.core.helper.AnotacioHelper;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DefinicioProcesHelper;
 import net.conselldemallorca.helium.core.helper.DistribucioHelper;
@@ -58,6 +62,7 @@ import net.conselldemallorca.helium.core.helper.HerenciaHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.MailHelper;
 import net.conselldemallorca.helium.core.helper.MessageHelper;
+import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 import net.conselldemallorca.helium.core.helper.PermisosHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
@@ -93,6 +98,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
@@ -129,7 +136,7 @@ import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
  */
 @Service("execucioMassivaServiceV3")
 @Transactional(noRollbackForClassName = "java.lang.Exception")
-public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
+public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , ArxiuPluginListener {
 
 	@Resource
 	private EntornRepository entornRepository;
@@ -195,7 +202,11 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
 	private DistribucioHelper distribucioHelper;
-
+	@Resource
+	private AnotacioHelper anotacioHelper;
+	@Autowired
+	private MonitorIntegracioHelper monitorIntegracioHelper;
+	
 	@Autowired
 	private TascaService tascaService;
 	@Autowired
@@ -2155,7 +2166,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		Anotacio anotacio = anotacioRepository.findOne(ome.getAuxId());
 		try {
 			if(anotacio.getExpedient()!=null) {
-				anotacioService.reprocessarMapeigAnotacioExpedient(anotacio.getExpedient().getId(), ome.getAuxId());
+				anotacioHelper.reprocessarMapeigAnotacioExpedient(anotacio.getExpedient().getId(), ome.getAuxId());
 				ome.setEstat(estat);
 				ome.setError(errorMsg.length() > 0 ? errorMsg.toString() : null);
 				ome.setDataFi(new Date());
@@ -2333,6 +2344,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 				errText.append("].");
 			} else {
 				// Alta de l'expedient
+				BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
+				backofficeUtils.setArxiuPluginListener(this);
 				Expedient expedient = expedientHelper.iniciar(
 						expedientTipus.getEntorn().getId(), 
 						ome.getExecucioMassiva().getUsuari(), 
@@ -2363,7 +2376,11 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 						null,
 						null,
 						null,
-						null);
+						null,
+						null,
+						null,
+						false,
+						backofficeUtils);
 				ome.setExpedient(expedient);
 				ome.setAuxText("Expedient " + expedient.getIdentificador() + " creat correctament per CSV");
 			}
@@ -2461,5 +2478,40 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService {
 		return Math.round(value * 100 / total);
 	}
 
+	/** Mètode per implementar la interfície {@link ArxiuPluginListener} de Distribució per rebre events de quan es crida l'Arxiu i afegir
+	 * els logs al monitor d'integracions. 
+	 * @param metode
+	 * @param parametres
+	 * @param correcte
+	 * @param error
+	 * @param e
+	 * @param timeMs
+	 */
+	@Override
+	public void event(String metode, Map<String, String> parametres, boolean correcte, String error, Exception e, long timeMs) {
+		
+		IntegracioParametreDto[] parametresMonitor = new IntegracioParametreDto[parametres.size()];
+		int i = 0;
+		for (String nom : parametres.keySet())
+			parametresMonitor[i++] = new IntegracioParametreDto(nom, parametres.get(nom));
+		
+		if (correcte) {
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_ARXIU, 
+					"Invocació al mètode del plugin d'Arxiu " + metode, 
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					timeMs, 
+					parametresMonitor);
+		} else {
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_ARXIU, 
+					"Error invocant al mètode del plugin d'Arxiu " + metode, 
+					IntegracioAccioTipusEnumDto.ENVIAMENT, 
+					timeMs,
+					error, 
+					e, 
+					parametresMonitor);	
+		}
+	}
 	private static final Log logger = LogFactory.getLog(ExecucioMassivaService.class);
 }

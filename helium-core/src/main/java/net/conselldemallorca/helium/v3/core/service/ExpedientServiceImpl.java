@@ -29,6 +29,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
+import org.springframework.orm.hibernate3.HibernateJdbcException;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -384,6 +385,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			
 			// Es crida la creació a través del helper per evitar errors de concurrència de creació de dos expedients
 			// a la vegada que ja s'ha donat el cas.
+			BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
+			backofficeUtils.setArxiuPluginListener(this);
 			expedient = expedientHelper.iniciar(
 					entornId, 
 					usuari, 
@@ -414,7 +417,11 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					iniciadorCodi, 
 					responsableCodi, 
 					documents, 
-					adjunts);
+					adjunts,
+					anotacioId,
+					resultatMapeig,
+					anotacioInteressatsAssociar,
+					backofficeUtils);
 
 			if (anotacioId != null) {
 				if (resultatMapeig != null && resultatMapeig.isError()) {
@@ -463,7 +470,10 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					ex.getCause());
 		} catch (ValidationException ex) {
 			throw new TramitacioValidacioException("Error de validació en Handler", ex);
-		} catch (Exception e) {
+		} catch (HibernateJdbcException e) {
+				throw new Exception(messageHelper.getMessage("error.proces.peticio") + ": "
+				+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
+		}catch (Exception e) {
 			Throwable t = ExceptionUtils.getRootCause(e) != null? ExceptionUtils.getCause(e) : e ;
 			throw new Exception(messageHelper.getMessage("error.proces.peticio") + ": "
 					+ ExceptionUtils.getRootCauseMessage(e), t);
