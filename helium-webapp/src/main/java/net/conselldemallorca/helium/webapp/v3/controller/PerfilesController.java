@@ -227,6 +227,10 @@ public class PerfilesController extends BaseController {
 		filtreCommand.setLlinatge1(usuari.getLlinatge1());
 		filtreCommand.setLlinatge2(usuari.getLlinatge2());
 		filtreCommand.setHombre(usuari.getSexe().equals(Sexe.SEXE_HOME));
+		filtreCommand.setRolsUsuari(usuari.getRolsUsuari());
+		
+		model.addAttribute("rolsUsuari", usuari.getRolsUsuari());
+		
 		return filtreCommand;
 	}
 

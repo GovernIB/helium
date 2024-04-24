@@ -35,6 +35,9 @@ import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import es.caib.plugins.arxiu.api.ConsultaFiltre;
@@ -367,6 +370,14 @@ public class PluginHelper {
 				if (dto != null) {
 					personaCache.put(codi, dto);
 				}
+				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+				List<String> roles = new ArrayList<String>();
+				if (auth!=null && auth.getAuthorities()!=null) {
+					for (GrantedAuthority ga: auth.getAuthorities()) {
+						roles.add(ga.getAuthority());
+					}
+				}
+				dto.setRolsUsuari(roles);
 				return dto;
 			} catch (PersonesPluginException ex) {
 				monitorIntegracioHelper.addAccioError(

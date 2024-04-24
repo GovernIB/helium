@@ -149,6 +149,18 @@
 			</div>
 		</div>
 	</c:if>
+		<div class="page-header">
+			<h4><spring:message code='rol.test.rols_usu' /></h4>
+		</div>
+		<div class="well well-white">
+			<div class="row-fluid">
+				<form:form action="" cssClass="form-horizontal form-tasca" commandName="personaUsuariCommand" method="post" style="padding-bottom: 0px;">
+					<div class="control-group fila_reducida">
+						<hel:inputSelect disabled="true" name="rolsUsuari" textKey="rol.llistat.rols" optionItems="${personaUsuariCommand.rolsUsuari}" multiple="true" inline="false"/>
+					</div>
+				</form:form>
+			</div>
+		</div>
 	<div class="page-header">
 		<h4><spring:message code='perfil.info.preferencies' /></h4>
 	</div>		

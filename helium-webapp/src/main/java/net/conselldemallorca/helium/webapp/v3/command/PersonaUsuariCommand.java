@@ -1,5 +1,7 @@
 package net.conselldemallorca.helium.webapp.v3.command;
 
+import java.util.List;
+
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -19,6 +21,7 @@ public class PersonaUsuariCommand {
 	private Long numElementosPagina;
 	private boolean filtroExpedientesActivos;
 	private Long expedientTipusDefecteId;
+	private List<String> rolsUsuari;
 
 	@NotEmpty(message="Per favor, especifiqui algun valor")
 	private String nom;
@@ -119,5 +122,11 @@ public class PersonaUsuariCommand {
 	}
 	public void setExpedientTipusDefecteId(Long expedientTipusDefecteId) {
 		this.expedientTipusDefecteId = expedientTipusDefecteId;
+	}
+	public List<String> getRolsUsuari() {
+		return rolsUsuari;
+	}
+	public void setRolsUsuari(List<String> rolsUsuari) {
+		this.rolsUsuari = rolsUsuari;
 	}
 }
