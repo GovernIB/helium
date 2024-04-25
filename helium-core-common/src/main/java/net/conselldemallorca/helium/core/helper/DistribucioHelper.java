@@ -38,6 +38,7 @@ import com.lowagie.text.pdf.PdfWriter;
 import edu.emory.mathcs.backport.java.util.Arrays;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultatAnnex;
+import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultatAnnex.AnnexAccio;
 import es.caib.distribucio.backoffice.utils.sistra.BackofficeSistra2Utils;
 import es.caib.distribucio.backoffice.utils.sistra.BackofficeSistra2UtilsImpl;
@@ -138,8 +139,6 @@ public class DistribucioHelper {
 	@Autowired
 	private ExpedientHelper expedientHelper;
 	@Autowired
-	private AnotacioService anotacioService;
-	@Autowired
 	private DissenyService dissenyService;
 	@Autowired
 	private ExpedientService expedientService;
@@ -159,6 +158,11 @@ public class DistribucioHelper {
 
 	@Resource
 	private AlertaHelper alertaHelper;
+	
+	@Resource
+	private AnotacioHelper anotacioHelper;
+	@Resource
+	private MessageHelper messageHelper;
 	
 	@Resource
 	private DocumentStoreRepository documentStoreRepository;
@@ -736,8 +740,8 @@ public class DistribucioHelper {
 	public void processarAnotacio(
 			AnotacioRegistreId idWs,
 			AnotacioRegistreEntrada anotacioDistribucio,
-			Anotacio anotacio
-			) throws Exception{
+			Anotacio anotacio,
+			BackofficeArxiuUtils backofficeUtils) throws Exception{
 
 		// Comprova si l'anotació s'ha associat amb un tipus d'expedient amb processament automàtic
 		ExpedientTipus expedientTipus = anotacio.getExpedientTipus();
@@ -762,7 +766,7 @@ public class DistribucioHelper {
 				}
 				// Crear l'expedient
 				try {
-					expedient = expedientHelper.iniciar(
+					expedient = expedientHelper.iniciarNotNewTransaction(
 							expedientTipus.getEntorn().getId(), //entornId
 							null, //usuari, 
 							expedientTipus.getId(), //expedientTipusId, 
@@ -792,7 +796,11 @@ public class DistribucioHelper {
 							null, //iniciadorCodi, 
 							null, //responsableCodi, 
 							documents, //documents, 
-							adjunts); //adjunts);
+							adjunts,
+							null,
+							null,
+							false,
+							backofficeUtils);
 				} catch (Throwable e) {
 					String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e;
 					// Crida fent referència al bean per crear una nova transacció
@@ -823,13 +831,22 @@ public class DistribucioHelper {
 				reprocessar = true;
 			}
 			// Incorporporar l'anotació a l'expedient
-			anotacioService.incorporarReprocessarExpedient(
-					anotacio.getId(), 
-					expedientTipus.getId(), 
-					expedient.getId(),
-					true,
-					false,
-					reprocessar);
+			try {
+				anotacioHelper.incorporarReprocessarExpedient(
+						anotacio,
+						anotacio.getId(), 
+						expedientTipus.getId(), 
+						expedient.getId(),
+						true,
+						false,
+						reprocessar,
+						backofficeUtils);
+			} catch (Exception e) {
+				String errorProcessament = "Error incorporant/reprocessant l'anotació " + idWs.getIndetificador() + " a l'expedient:" + e;
+				this.canviEstatErrorAnotacio(errorProcessament, anotacio, idWs, e);
+				throw new Exception(messageHelper.getMessage("error.proces.peticio") + ": "
+						+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
+			}
 
 			anotacio.setEstat(AnotacioEstatEnumDto.PROCESSADA);
 			anotacio.setDataProcessament(new Date());
@@ -869,6 +886,21 @@ public class DistribucioHelper {
 		logger.info("Rebuda correctament la petició d'anotació de registre amb id de Distribucio =" + (idWs != null ? idWs.getIndetificador() : ""));
 	}
 	
+	public void canviEstatErrorAnotacio(String errorProcessament,Anotacio anotacio, AnotacioRegistreId idWs, Throwable e) {
+		// Crida fent referència al bean per crear una nova transacció
+		self.updateErrorProcessament(anotacio.getId(), errorProcessament);
+		logger.error(errorProcessament, e);
+		 //Es comunica l'estat a Distribucio
+		try {
+			this.canviEstat(
+					idWs, 
+					es.caib.distribucio.rest.client.integracio.domini.Estat.ERROR,
+					errorProcessament);
+		} catch(Exception ed) {
+			logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
+		}
+	}
+	
 	@Transactional
 	public void rebutjar(Anotacio anotacio, String observacions ) {
 		// Canvia l'estat del registre a la BBDD
@@ -896,7 +928,7 @@ public class DistribucioHelper {
 	 * @throws Exception Llença excepció si l'anotació no està en estat d'error de processament o si hi ha error en la consulta.
 	 */
 	@Transactional
-	public Anotacio reprocessarAnotacio(long anotacioId) throws Exception {
+	public Anotacio reprocessarAnotacio(long anotacioId, BackofficeArxiuUtils backofficeUtils) throws Exception {
 		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
 
 		logger.debug("Rerocessant l'anotació " + anotacio.getIdentificador() + ".");
@@ -932,7 +964,7 @@ public class DistribucioHelper {
 			// Torna a consultar si està relacionat amb un tipus d'expedient i/o expedient
 			this.updateRelacioExpedientTipus(anotacio);
 			// Reprocessa l'anotació
-			this.processarAnotacio(idWs, anotacioRegistreEntrada, anotacio);//aquí ja es comunica l'error i el canvi d'estat a Distribució
+			this.processarAnotacio(idWs, anotacioRegistreEntrada, anotacio, backofficeUtils);//aquí ja es comunica l'error i el canvi d'estat a Distribució
 		} catch (Throwable e) {
 			throw new Exception(e);
 		}

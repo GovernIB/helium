@@ -31,13 +31,18 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 
+import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
+import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
+import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
 import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreEntrada;
 import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId;
 import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.helper.ExceptionHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
+import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 import net.conselldemallorca.helium.core.helper.NotificacioHelper;
+import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.TascaProgramadaHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
@@ -48,6 +53,8 @@ import net.conselldemallorca.helium.core.model.hibernate.Notificacio;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentEnviamentEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
@@ -62,7 +69,7 @@ import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Service("tascaProgramadaServiceV3")
-public class TascaProgramadaServiceImpl implements TascaProgramadaService {
+public class TascaProgramadaServiceImpl implements TascaProgramadaService, ArxiuPluginListener {
 	
 	@Resource
 	private ExecucioMassivaExpedientRepository execucioMassivaExpedientRepository;
@@ -88,6 +95,10 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
   	private MetricRegistry metricRegistry;
 	@Resource
 	private ExceptionHelper exceptionHelper;
+	@Resource
+	private PluginHelper pluginHelper;
+	@Autowired
+	private MonitorIntegracioHelper monitorIntegracioHelper;
 	
 	private static Map<Long, String> errorsMassiva = new HashMap<Long, String>();
 	
@@ -370,6 +381,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 
 		@Override
 		public void run() {
+			ExecutorService executor = Executors.newSingleThreadExecutor();
 			// Posa una autenticació per defecte per l'usuari del registre
 			List<GrantedAuthority> rols = new ArrayList<GrantedAuthority>();
 			rols.add(new SimpleGrantedAuthority("tothom"));
@@ -408,7 +420,8 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 					// Processa i comunica l'estat de processada 
 					logger.debug("Processant l'anotació " + idWs.getIndetificador() + ".");
 					distribucioHelper.setProcessant(anotacio.getId(), true);
-					distribucioHelper.processarAnotacio(idWs, anotacioRegistreEntrada, anotacio);
+					BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
+					distribucioHelper.processarAnotacio(idWs, anotacioRegistreEntrada, anotacio, backofficeUtils);
 				} catch (Throwable e) {
 					String message = exceptionHelper.getRouteCauses(e);
 					String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + message;
@@ -424,6 +437,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 					} catch(Exception ed) {
 						logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
 					}
+					executor.shutdownNow();
 				} finally {
 					distribucioHelper.setProcessant(anotacio.getId(), false);
 				}
@@ -529,6 +543,42 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService {
 		String error = errorsMassiva.get(operacioMassivaId);
 		errorsMassiva.remove(operacioMassivaId);
 		return error;
+	}
+	
+	/** Mètode per implementar la interfície {@link ArxiuPluginListener} de Distribució per rebre events de quan es crida l'Arxiu i afegir
+	 * els logs al monitor d'integracions. 
+	 * @param metode
+	 * @param parametres
+	 * @param correcte
+	 * @param error
+	 * @param e
+	 * @param timeMs
+	 */
+	@Override
+	public void event(String metode, Map<String, String> parametres, boolean correcte, String error, Exception e, long timeMs) {
+		
+		IntegracioParametreDto[] parametresMonitor = new IntegracioParametreDto[parametres.size()];
+		int i = 0;
+		for (String nom : parametres.keySet())
+			parametresMonitor[i++] = new IntegracioParametreDto(nom, parametres.get(nom));
+		
+		if (correcte) {
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_ARXIU, 
+					"Invocació al mètode del plugin d'Arxiu " + metode, 
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					timeMs, 
+					parametresMonitor);
+		} else {
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_ARXIU, 
+					"Error invocant al mètode del plugin d'Arxiu " + metode, 
+					IntegracioAccioTipusEnumDto.ENVIAMENT, 
+					timeMs,
+					error, 
+					e, 
+					parametresMonitor);	
+		}
 	}
 	
 	private static final Log logger = LogFactory.getLog(TascaProgramadaService.class);
