@@ -455,6 +455,8 @@ public interface TascaService {
 	public boolean isSignaturesComplet(String tascaId);
 	
 	public void comprovarTasquesSegonPla();
+	
+	public void actualitzarProcedimentsAndUnitatsAutomatic();
 
 	public void carregaTasquesSegonPla();
 	

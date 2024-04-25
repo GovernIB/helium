@@ -92,23 +92,24 @@
 		</c:if>
 	</div>
 
-<table
-	id="procediments"
-	data-refresh-tancar="true"
-	data-toggle="datatable"
-	data-url="<c:url value="/v3/procediment/datatable"/>"
-	data-filter="#procedimentFiltreCommand"
-	data-default-order="1"
-	data-default-dir="asc"
-	class="table table-striped table-bordered table-hover">
-	<thead>
-		<tr>
-			<th data-col-name="id" data-visible="false" width="4%">#</th>
-			<th data-col-name="codiSia" data-orderable="true"><spring:message code="procediment.llistat.columna.codiSia"/></th>
-			<th data-col-name="nom" data-orderable="true"><spring:message code="procediment.llistat.columna.nom"/></th>
-			<th data-col-name="unitatOrganitzativa.codi" data-template="#uoTemplate">
-				<spring:message code="procediment.llistat.columna.unitatOrganitzativa"/>
-				<script id="uoTemplate" type="text/x-jsrender">
+	<table
+		id="procediments"
+		data-refresh-tancar="true"
+		data-toggle="datatable"
+		data-url="<c:url value="/v3/procediment/datatable"/>"
+		data-filter="#procedimentFiltreCommand"
+		data-default-order="1"
+		data-default-dir="asc"
+		data-botons-template="#tableButtonsAccionsTemplate"
+		class="table table-striped table-bordered table-hover">
+		<thead>
+			<tr>
+				<th data-col-name="id" data-visible="false" width="4%">#</th>
+				<th data-col-name="codiSia" data-orderable="true"><spring:message code="procediment.llistat.columna.codiSia"/></th>
+				<th data-col-name="nom" data-orderable="true"><spring:message code="procediment.llistat.columna.nom"/></th>
+				<th data-col-name="unitatOrganitzativa.codi" data-template="#uoTemplate">
+					<spring:message code="procediment.llistat.columna.unitatOrganitzativa"/>
+					<script id="uoTemplate" type="text/x-jsrender">
 
 					{{if unitatOrganitzativa.estat!='V'}}
 						<span class="fa fa-warning text-warning  pull-right" style="margin-top: 3px;" title="<spring:message code="unitat.arbre.unitatObsoleta"/>"></span>
@@ -117,17 +118,17 @@
 					{{:unitatOrganitzativa.codi}} -  {{:unitatOrganitzativa.denominacio}}
 
 				</script>
-			</th>
-			<th data-col-name="comu" data-template="#cellComuTemplate">
-				<spring:message code="procediment.llistat.columna.comu"/>
-				<script id="cellComuTemplate" type="text/x-jsrender">
+				</th>
+				<th data-col-name="comu" data-template="#cellComuTemplate">
+					<spring:message code="procediment.llistat.columna.comu"/>
+					<script id="cellComuTemplate" type="text/x-jsrender">
 						{{if comu}}<span class="fa fa-check"></span>
 						{{/if}}
 					</script>
-			</th>
-			<th data-col-name="estat" data-template="#cellEstatProcedimentTemplate">
-				<spring:message code="anotacio.llistat.columna.estat"/>
-				<script id="cellEstatProcedimentTemplate" type="text/x-jsrender">
+				</th>
+				<th data-col-name="estat" data-template="#cellEstatProcedimentTemplate">
+					<spring:message code="anotacio.llistat.columna.estat"/>
+					<script id="cellEstatProcedimentTemplate" type="text/x-jsrender">
 						{{if estat == 'VIGENT'}}
 							<spring:message code="procediment.estat.enum.VIGENT"></spring:message>
 						{{else estat == 'EXTINGIT'}}
@@ -136,9 +137,16 @@
 							{{:estat}}
 						{{/if}}
 					</script>
-			</th>			
-		</tr>
-	</thead>
-</table>
+				</th>			
+			</tr>
+		</thead>
+	</table>
+	
+	<script id="tableButtonsAccionsTemplate" type="text/x-jsrender">	
+		<div class="text-right" style="padding-top: 8px;">
+			<b><spring:message code="unitat.organitzativa.cron.sync"/>:</b> ${globalProperties['app.massiu.unitats.procediments.sync']}
+			&nbsp;
+		</div>
+	</script>
 
 </body>

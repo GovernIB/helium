@@ -98,13 +98,15 @@
 		</thead>
 	</table>
 	<script id="tableButtonsAccionsTemplate" type="text/x-jsrender">	
-				<div class="botons-titol text-right">
-					<b><spring:message code="unitat.organitzativa.llistat.unitat.arrel"/>:</b> ${codiUnitatArrel}
-					&nbsp;
-					<b><spring:message code="unitat.organitzativa.llistat.data.sincronitzacio"/>:</b> ${dataSincronitzacio}
-					&nbsp;
-					<b><spring:message code="unitat.organitzativa.llistat.data.actualitzacio"/>:</b> ${dataActualitzacio}
-				</div>
-		</script>
+		<div class="text-right" style="padding-top: 8px;">
+			<b><spring:message code="unitat.organitzativa.llistat.unitat.arrel"/>:</b> ${codiUnitatArrel}
+			&nbsp;
+			<b><spring:message code="unitat.organitzativa.llistat.data.sincronitzacio"/>:</b> ${dataSincronitzacio}
+			&nbsp;
+			<b><spring:message code="unitat.organitzativa.llistat.data.actualitzacio"/>:</b> ${dataActualitzacio}
+			&nbsp;
+			<b><spring:message code="unitat.organitzativa.cron.sync"/>:</b> ${globalProperties['app.massiu.unitats.procediments.sync']}
+		</div>
+	</script>
 </body>
 </html>
