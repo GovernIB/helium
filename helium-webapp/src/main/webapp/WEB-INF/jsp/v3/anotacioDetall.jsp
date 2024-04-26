@@ -114,10 +114,13 @@ tr.clicable {
 						<spring:message code="enum.anotacio.estat.${anotacio.estat}"></spring:message>
 						
 						<c:if test="${anotacio.estat == 'ERROR_PROCESSANT'}">
-							<div class="alert alert-danger">
-								<span class="fa fa-exclamation-triangle"></span>
-								<spring:message code="anotacio.detalls.errorProcessament" arguments="${anotacio.errorProcessament}"></spring:message>
+							<div class="alert well-sm alert-danger alert-dismissable" style="margin-bottom: 0px;">
+									<span class="fa fa-exclamation-triangle"></span>
+									<spring:message code="anotacio.detalls.errorProcessament" arguments="${anotacio.id}" /></a>
 							</div>
+						<textarea id="anotacio.errorProcessament" style="width:100%;">
+							${anotacio.errorProcessament}
+						</textarea>		
 						</c:if>
 						<c:if test="${anotacio.estat == 'REBUTJADA'}">
 							<fmt:formatDate value="${anotacio.dataProcessament}" pattern="dd/MM/yyyy HH:mm:ss"/>
