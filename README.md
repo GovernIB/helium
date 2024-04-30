@@ -22,6 +22,10 @@ Gestor d'expedients administratius / Gestor de expedientes administrativos
 * Translations: Catalan
 * User Interface: Web-based
 
+## <a name="docs"></a> Documentació
+
+>- [Manual d'usuari](https://github.com/GovernIB/helium/blob/helium-3.3/doc/pdf/Helium_manual_usuari.pdf)
+>- [Manual de disseny](https://github.com/GovernIB/helium/blob/helium-3.3/doc/pdf/manual_disseny.pdf)
 
 ## <a name="v_estable"></a> Versió estable
 ### [3.3.2](https://github.com/GovernIB/helium/releases/tag/Helium_3.3.2)
