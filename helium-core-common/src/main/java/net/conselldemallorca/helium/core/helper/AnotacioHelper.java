@@ -420,6 +420,32 @@ public class AnotacioHelper {
 		return tipus;
 	}
 	
+	/** Recupera el mapeig de Sistra i l'aplica a la pantalla d'inici d'expedient.
+	 * @return	Retorna un objecte de tipus <code>AnotacioMapeigResultatDto</code> amb el resultat del mapeig
+	 * de variables, documents i adjunts per poder advertir a l'usuari o afegir una alerta dels mapejos que han fallat.
+	 * @throws Exception 
+	 */
+	public AnotacioMapeigResultatDto processarMapeigAnotacioExpedient(Long expedientTipusId, Long anotacioId) {
+		AnotacioMapeigResultatDto resultatMapeig = new AnotacioMapeigResultatDto();
+		logger.debug(
+				"Processant el mapeig de l'anotació per l'inici d'expedient ( " +
+				"anotacioId=" + anotacioId  + ", " +
+				"expedientTipusId=" + expedientTipusId + ")");
+		
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+		resultatMapeig.setAnotacioNumero(anotacio.getIdentificador());
+	
+		// Recupera la informació del tipus d'expedient
+		ExpedientTipus expedientTipus = expedientTipusRepository.findById(expedientTipusId);
+		// Comprovar que té integració amb Sistra2 activada
+		if(expedientTipus.isDistribucioSistra()) {
+			// Extreu variables i documents i annexos segons el mapeig sistra
+			boolean ambContingut =  !expedientTipus.isArxiuActiu(); 
+			resultatMapeig = distribucioHelper.getMapeig(expedientTipus, anotacio, ambContingut);
+		}
+		return resultatMapeig;
+	}
+	
 	/** Recupera el mapeig de Sistra i l'aplica a l'expedient.
 	 * @return	Retorna un objecte de tipus <code>AnotacioMapeigResultatDto</code> amb el resultat del mapeig
 	 * de variables, documents i adjunts per poder advertir a l'usuari o afegir una alerta dels mapejos que han fallat.

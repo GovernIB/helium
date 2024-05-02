@@ -415,7 +415,8 @@ public class AnotacioController extends BaseExpedientController {
 						command.getExpedientTipusId(), 
 						null, 
 						command.getId(), 
-						model);
+						model,
+						anotacio);
 				break;
 			case INCORPORAR:
 				// Incorpora la informació de l'anotació a l'expedient

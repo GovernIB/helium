@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 
 /**
  * DTO amb informació d'una anotació pel detall.
@@ -425,6 +427,11 @@ public class AnotacioDto implements Serializable {
 	}
 	public void setProcessant(boolean processant) {
 		this.processant = processant;
+	}
+	
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
 	}
 	
 }

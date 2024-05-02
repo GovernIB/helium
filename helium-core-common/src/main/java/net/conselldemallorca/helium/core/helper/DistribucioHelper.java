@@ -434,7 +434,7 @@ public class DistribucioHelper {
 	public Anotacio updateErrorProcessament(long anotacioId, String errorProcessament) {
 		
 		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
-		anotacio.setErrorProcessament(errorProcessament.substring(0, Math.min(1024, errorProcessament.length())));
+		anotacio.setErrorProcessament(errorProcessament.substring(0, Math.min(2048, errorProcessament.length())));
 		anotacio.setDataProcessament(new Date());
 		anotacio.setEstat(AnotacioEstatEnumDto.ERROR_PROCESSANT);
 		return anotacio;
@@ -842,7 +842,8 @@ public class DistribucioHelper {
 						reprocessar,
 						backofficeUtils);
 			} catch (Exception e) {
-				String errorProcessament = "Error incorporant/reprocessant l'anotació " + idWs.getIndetificador() + " a l'expedient:" + e;
+				String traçaCompleta = ExceptionUtils.getStackTrace(e);
+				String errorProcessament = "Error incorporant/reprocessant l'anotació " + idWs.getIndetificador() + " a l'expedient:" + traçaCompleta;
 				this.canviEstatErrorAnotacio(errorProcessament, anotacio, idWs, e);
 				throw new Exception(messageHelper.getMessage("error.proces.peticio") + ": "
 						+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));

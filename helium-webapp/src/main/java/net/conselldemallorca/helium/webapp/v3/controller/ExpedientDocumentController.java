@@ -292,7 +292,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 
 		// Obté l'arbre de processos però retorna un map amb tots els processos consultant només el principal
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
-		Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documents  = new HashMap<InstanciaProcesDto, List<ExpedientDocumentDto>> ();
+		Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documents  = new LinkedHashMap<InstanciaProcesDto, List<ExpedientDocumentDto>> ();
 		for (InstanciaProcesDto instanciaProces : arbreProcessos) {
 			List<ExpedientDocumentDto> documentsInstancia = null;
 			if (instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
