@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.support.SessionStatus;
 
+import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
@@ -129,7 +130,9 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 			@PathVariable Long expedientTipusId,
 			@PathVariable Long definicioProcesId,
 			@RequestParam(required=false) Long reproId,
-			Model model) throws Exception {
+			Model model,
+			AnotacioMapeigResultatDto resultatMapeig,
+			boolean isAnotacioMapeig) throws Exception {
 		if (reproId != null) {
 			try {
 				Map<String,Object> valors = reproService.findValorsById(reproId);
@@ -141,6 +144,11 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 		definicioProcesToModel(expedientTipusId, definicioProcesId, model);
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		ExpedientTipusDto expedientTipus = dissenyService.getExpedientTipusById(expedientTipusId);
+		if(resultatMapeig!=null && isAnotacioMapeig) {
+			//mapegem les dades de l'anotació a la pantalla d'inici
+			Map<String,Object> variables = resultatMapeig.getDades();
+			model.addAttribute("command", populateCommand(request, expedientTipusId, definicioProcesId, model, variables));
+		} 
 		if (!model.containsAttribute("command") || model.asMap().get("command") == null)
 			model.addAttribute("command", populateCommand(request, expedientTipusId, definicioProcesId, model,null));
 		ExpedientTascaDto tasca = obtenirTascaInicial(entorn.getId(), expedientTipusId, definicioProcesId, new HashMap<String, Object>(), request);

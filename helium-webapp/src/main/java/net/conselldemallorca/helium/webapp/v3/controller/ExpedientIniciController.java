@@ -12,10 +12,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
@@ -29,6 +31,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.core.helper.AnotacioHelper;
+import net.conselldemallorca.helium.v3.core.api.dto.AnotacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -52,8 +57,12 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 @Controller
 @RequestMapping("/v3/expedient")
 public class ExpedientIniciController extends BaseExpedientIniciController {
+	@Resource
+	private AnotacioHelper anotacioHelper;
 
-
+	@Autowired
+	private ExpedientInicioPasFormController expedientInicioPasFormController;
+	
 	@RequestMapping(value = "/iniciar", method = RequestMethod.GET)
 	public String iniciarGet(
 			HttpServletRequest request,
@@ -89,6 +98,7 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 	 * @param anotacioId
 	 * @param model
 	 * @return
+	 * @throws Exception 
 	 */
 	@RequestMapping(value = "/iniciar", method = RequestMethod.POST)
 	public String iniciarPost(
@@ -96,7 +106,8 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 			@RequestParam(value = "expedientTipusId", required = true) Long expedientTipusId, 
 			@RequestParam(value = "definicioProcesId", required = false) Long definicioProcesId, 
 			@RequestParam(value = "anotacioId", required = false) Long anotacioId, 
-			Model model) {
+			Model model,
+			AnotacioDto anotacio) throws Exception {
 		request.getSession().setAttribute(ExpedientIniciController.CLAU_SESSIO_TASKID, "TIE_" + System.currentTimeMillis());
 		
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
@@ -111,6 +122,18 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 		}
 		
 		if (definicioProces.isHasStartTask()) {
+			//Si venim d'acceptar una anotació, mapejarem les dades d'aquesta, en cas q el tipus d'expedient tingui habilitat isDistribucioSistra
+			if(anotacio!=null && anotacio.getId()!=null && expedientTipus.isDistribucioSistra()) {
+				AnotacioMapeigResultatDto resultatMapeig = anotacioHelper.processarMapeigAnotacioExpedient(expedientTipus.getId(), anotacio.getId());
+				return expedientInicioPasFormController.iniciarFormGet(
+								request,
+								expedientTipus.getId(),
+								definicioProces.getId(),
+								null,
+								model,
+								resultatMapeig,
+								true);
+			}
 			return redirectByModal(request, "/v3/expedient/iniciarForm/" + expedientTipusId + "/" + definicioProces.getId());
 		} else if (expedientTipus.isDemanaNumero() || expedientTipus.isDemanaTitol() || expedientTipus.isSeleccionarAny()) {
 			return redirectByModal(request, "/v3/expedient/iniciarTitol/" + expedientTipusId + "/" + definicioProces.getId());
