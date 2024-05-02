@@ -72,6 +72,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -199,10 +200,21 @@ public class DocumentHelperV3 {
 			boolean perSignar,
 			boolean ambSegellSignatura,
 			String versio) {
+		return getArxiuPerDocumentStoreId(documentStoreId, perSignar, ambSegellSignatura, false, versio);
+	}
+	
+	public ArxiuDto getArxiuPerDocumentStoreId(
+			Long documentStoreId,
+			boolean perSignar,
+			boolean ambSegellSignatura,
+			boolean perNotificar,
+			String versio) {
+		
 		ArxiuDto resposta = new ArxiuDto();
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		// Obtenim el contingut de l'arxiu
 		byte[] arxiuOrigenContingut = null;
+		
 		if (documentStore.getArxiuUuid() != null) {
 
 			// #1697 Es revisa que no retorni contingut null i es reintenta
@@ -257,6 +269,7 @@ public class DocumentHelperV3 {
 				}
 			}
 		} else {
+			
 			if (documentStore.isSignat() && isSignaturaFileAttached()) {
 				arxiuOrigenContingut = pluginHelper.custodiaObtenirSignaturesAmbArxiu(documentStore.getReferenciaCustodia());
 			} else {
@@ -267,72 +280,80 @@ public class DocumentHelperV3 {
 							documentStore.getReferenciaFont());
 				}
 			}
+			
 			// Calculam el nom de l'arxiu
 			String arxiuNomOriginal = calcularArxiuNomOriginal(documentStore);
 			String extensioDesti = calcularArxiuExtensioDesti(
 					arxiuNomOriginal,
 					documentStore,
 					perSignar);
+			
 			// Només podem convertir a extensió de destí PDF
 			if ("pdf".equalsIgnoreCase(extensioDesti)) {
+				
 				resposta.setNom(
 						getNomArxiuAmbExtensio(
 								documentStore.getArxiuNom(),
 								extensioDesti));
+				
 				// Si és un PDF podem estampar
-				try {
-					ByteArrayOutputStream vistaContingut = new ByteArrayOutputStream();
-					DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-					String dataRegistre = null;
-					if (documentStore.getRegistreData() != null)
-						dataRegistre = df.format(documentStore.getRegistreData());
-					String numeroRegistre = documentStore.getRegistreNumero();
-					String urlComprovacioSignatura = null;
-				    if (ambSegellSignatura && documentStore.getReferenciaCustodia() != null) {
-				    	urlComprovacioSignatura = getUrlComprovacioSignatura(documentStore.getId(), documentStore.getReferenciaCustodia());
-				    }
-				    getPdfUtils().estampar(
-					      arxiuNomOriginal,
-					      arxiuOrigenContingut,
-					      ambSegellSignatura && documentStore.getReferenciaCustodia() != null,
-					      urlComprovacioSignatura,
-					      documentStore.isRegistrat(),
-					      numeroRegistre,
-					      dataRegistre,
-					      documentStore.getRegistreOficinaNom(),
-					      documentStore.isRegistreEntrada(),
-					      vistaContingut,
-					      extensioDesti);
-					resposta.setContingut(vistaContingut.toByteArray());
-				} catch (SistemaExternConversioDocumentException ex) {
-					logger.error("Hi ha hagut un problema amb el servidor OpenOffice i el document '" + arxiuNomOriginal + "'", ex.getCause());
-					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
-					throw new SistemaExternConversioDocumentException(
-							expedient.getEntorn().getId(),
-							expedient.getEntorn().getCodi(), 
-							expedient.getEntorn().getNom(), 
-							expedient.getId(), 
-							expedient.getTitol(), 
-							expedient.getNumero(), 
-							expedient.getTipus().getId(), 
-							expedient.getTipus().getCodi(), 
-							expedient.getTipus().getNom(), 
-							messageHelper.getMessage("error.document.conversio.externa"));
-				} catch (Exception ex) {
-					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
-					throw SistemaExternException.tractarSistemaExternException(
-							expedient.getEntorn().getId(),
-							expedient.getEntorn().getCodi(), 
-							expedient.getEntorn().getNom(), 
-							expedient.getId(), 
-							expedient.getTitol(), 
-							expedient.getNumero(), 
-							expedient.getTipus().getId(), 
-							expedient.getTipus().getCodi(), 
-							expedient.getTipus().getNom(), 
-							MonitorIntegracioHelper.INTCODI_CONVDOC , //sistemaExtern
-							"No s'ha pogut generar la vista pel document (id=" + documentStoreId + ", processInstanceId=" + documentStore.getProcessInstanceId() + ")", 
-							ex);
+				if (!perNotificar) {
+					try {
+						ByteArrayOutputStream vistaContingut = new ByteArrayOutputStream();
+						DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+						String dataRegistre = null;
+						if (documentStore.getRegistreData() != null)
+							dataRegistre = df.format(documentStore.getRegistreData());
+						String numeroRegistre = documentStore.getRegistreNumero();
+						String urlComprovacioSignatura = null;
+					    if (ambSegellSignatura && documentStore.getReferenciaCustodia() != null) {
+					    	urlComprovacioSignatura = getUrlComprovacioSignatura(documentStore.getId(), documentStore.getReferenciaCustodia());
+					    }
+					    getPdfUtils().estampar(
+						      arxiuNomOriginal,
+						      arxiuOrigenContingut,
+						      ambSegellSignatura && documentStore.getReferenciaCustodia() != null,
+						      urlComprovacioSignatura,
+						      documentStore.isRegistrat(),
+						      numeroRegistre,
+						      dataRegistre,
+						      documentStore.getRegistreOficinaNom(),
+						      documentStore.isRegistreEntrada(),
+						      vistaContingut,
+						      extensioDesti);
+						resposta.setContingut(vistaContingut.toByteArray());
+					} catch (SistemaExternConversioDocumentException ex) {
+						logger.error("Hi ha hagut un problema amb el servidor OpenOffice i el document '" + arxiuNomOriginal + "'", ex.getCause());
+						Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
+						throw new SistemaExternConversioDocumentException(
+								expedient.getEntorn().getId(),
+								expedient.getEntorn().getCodi(), 
+								expedient.getEntorn().getNom(), 
+								expedient.getId(), 
+								expedient.getTitol(), 
+								expedient.getNumero(), 
+								expedient.getTipus().getId(), 
+								expedient.getTipus().getCodi(), 
+								expedient.getTipus().getNom(), 
+								messageHelper.getMessage("error.document.conversio.externa"));
+					} catch (Exception ex) {
+						Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
+						throw SistemaExternException.tractarSistemaExternException(
+								expedient.getEntorn().getId(),
+								expedient.getEntorn().getCodi(), 
+								expedient.getEntorn().getNom(), 
+								expedient.getId(), 
+								expedient.getTitol(), 
+								expedient.getNumero(), 
+								expedient.getTipus().getId(), 
+								expedient.getTipus().getCodi(), 
+								expedient.getTipus().getNom(), 
+								MonitorIntegracioHelper.INTCODI_CONVDOC , //sistemaExtern
+								"No s'ha pogut generar la vista pel document (id=" + documentStoreId + ", processInstanceId=" + documentStore.getProcessInstanceId() + ")", 
+								ex);
+					}
+				} else {
+					resposta.setContingut(arxiuOrigenContingut);
 				}
 			} else {
 				// Si no és un pdf retornam la vista directament
