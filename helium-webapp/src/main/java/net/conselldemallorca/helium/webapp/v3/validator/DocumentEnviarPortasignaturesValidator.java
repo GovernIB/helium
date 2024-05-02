@@ -26,11 +26,16 @@ public class DocumentEnviarPortasignaturesValidator implements ConstraintValidat
 		boolean valid = true;
 		if(PortafirmesTipusEnumDto.FLUX.equals(command.getPortafirmesFluxTipus()) && 
 				(command.getPortafirmesEnviarFluxId()==null || command.getPortafirmesEnviarFluxId().isEmpty())) {
-			context.buildConstraintViolationWithTemplate(
-					MessageHelper.getInstance().getMessage("expedient.tipus.document.form.camp.portafirmes.flux.id.buit"))
-					.addNode("portafirmesEnviarFluxId")
-					.addConstraintViolation();	
-			valid=false;
+			//En principi no s'ha seleccionat cap flux de firma, pero pot ser hi hagi un flux creat desde el frame de portafib
+			if (command.getPortafirmesNouFluxId()==null || command.getPortafirmesNouFluxId().isEmpty()) {
+				context.buildConstraintViolationWithTemplate(
+						MessageHelper.getInstance().getMessage("expedient.tipus.document.form.camp.portafirmes.flux.id.buit"))
+						.addNode("portafirmesEnviarFluxId")
+						.addConstraintViolation();	
+				valid=false;
+			} else {
+				command.setPortafirmesEnviarFluxId(command.getPortafirmesNouFluxId());
+			}
 		}
 		if(command.getMotiu()==null || command.getMotiu().equals("")) {
 			context.buildConstraintViolationWithTemplate(
