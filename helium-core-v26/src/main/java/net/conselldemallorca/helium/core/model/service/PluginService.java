@@ -391,25 +391,30 @@ public class PluginService {
 								processInstanceId,
 								ExpedientLogAccioTipus.PROCES_DOCUMENT_PORTAFIRMES,
 								new Boolean(false).toString());
-						JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(
-								token.getProcessInstanceId());
-						Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
-						if (token != null
-								&& ExpedientTipusTipusEnumDto.FLOW.equals(expedient.getTipus().getTipus())) {
-							jbpmDao.signalToken(
-									tokenId.longValue(),
-									portasignatures.getTransicioKO());
-
-							//Actualitzem l'estat de l'expedient, ja que si tot el procés de firma i de custòdia
-							// ha anat malament també és possible que s'avanci cap al node "fi"
-							expedientHelper.verificarFinalitzacioExpedient(
-									expedient);
+						if (token != null) {
 							
-							// Reindexa els possibles canvis
-							getServiceUtils().expedientIndexLuceneUpdate(
+							JbpmProcessInstance rootProcessInstance = jbpmDao.getRootProcessInstance(
 									token.getProcessInstanceId());
+							Expedient expedient = expedientDao.findAmbProcessInstanceId(rootProcessInstance.getId());
+							
+							if (ExpedientTipusTipusEnumDto.FLOW.equals(expedient.getTipus().getTipus())) {
+							
+								jbpmDao.signalToken(
+										tokenId.longValue(),
+										portasignatures.getTransicioKO());
+	
+								//Actualitzem l'estat de l'expedient, ja que si tot el procés de firma i de custòdia
+								// ha anat malament també és possible que s'avanci cap al node "fi"
+								expedientHelper.verificarFinalitzacioExpedient(
+										expedient);
+								
+								// Reindexa els possibles canvis
+								getServiceUtils().expedientIndexLuceneUpdate(
+										token.getProcessInstanceId());
+							}
 						}
 						portasignatures.setEstat(TipusEstat.PROCESSAT);
+						portasignatures.setErrorCallbackProcessant(null);
 						resposta = true;
 					} catch (Exception ex) {
 						errorProcesPsigna(

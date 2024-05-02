@@ -43,7 +43,7 @@ public class DocumentExpedientEnviarPortasignaturesCommand {
 
 	private PortafirmesSimpleTipusEnumDto portafirmesSequenciaTipus;
 	
-	private String[] portafirmesResponsables;
+	private String portafirmesResponsables;
 
 	/** Nou flux ID en el cas que l'usuari el creï des de la modal d'enviament. 
 	 * En crear-se el flux es fixarà des de portafirmesModalTancar. */
@@ -67,20 +67,18 @@ public class DocumentExpedientEnviarPortasignaturesCommand {
 	public void setPortafirmesSequenciaTipus(PortafirmesSimpleTipusEnumDto portafirmesSequenciaTipus) {
 		this.portafirmesSequenciaTipus = portafirmesSequenciaTipus;
 	}
-	public String[] getPortafirmesResponsables() {
+	public String getPortafirmesResponsables() {
 		return portafirmesResponsables;
 	}
-	public void setPortafirmesResponsables(String[] portafirmesResponsables) {
+	public void setPortafirmesResponsables(String portafirmesResponsables) {
 		this.portafirmesResponsables = portafirmesResponsables;
 	}
-	
 	public String getMotiu() {
 		return motiu;
 	}
 	public void setMotiu(String motiu) {
 		this.motiu = motiu;
 	}
-
 	public List<Long> getAnnexos() {
 		return annexos;
 	}
@@ -111,15 +109,12 @@ public class DocumentExpedientEnviarPortasignaturesCommand {
 	public void setId(Long id) {
 		this.id = id;
 	}
-
-
 	public String getPortafirmesNouFluxId() {
 		return portafirmesNouFluxId;
 	}
 	public void setPortafirmesNouFluxId(String portafirmesNouFluxId) {
 		this.portafirmesNouFluxId = portafirmesNouFluxId;
 	}
-
 
 	public interface EnviarPortasignatures {}
 

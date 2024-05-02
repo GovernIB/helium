@@ -2204,6 +2204,7 @@ public class DocumentHelperV3 {
 		dto.setGenerarNomesTasca(document.isGenerarNomesTasca());
 		dto.setArxiuNom(document.getArxiuNom());
 		dto.setArxiuContingutDefinit(document.getArxiuContingut() != null && document.getArxiuContingut().length > 0);
+		dto.setPortafirmesActiu(document.isPortafirmesActiu());
 		Long documentStoreId;
 		documentStoreId = getDocumentStoreIdDeVariableJbpm(
 				String.valueOf(task.getTask().getId()), 
@@ -2231,6 +2232,12 @@ public class DocumentHelperV3 {
 								getPropertyArxiuVerificacioBaseUrl() + documentStore.getNtiCsv());
 					}
 				}
+
+				List<Portasignatures>  enviamentsPF = portasignaturesRepository.findByProcessInstanceIdAndDocumentStoreId(documentStore.getProcessInstanceId(), documentStore.getId());
+				if (enviamentsPF!=null && enviamentsPF.size()>0) {
+					dto.setPsignaActual(conversioTipusHelper.convertir(enviamentsPF.get(0), PortasignaturesDto.class));
+				}
+
 				dto.setNtiCsv(documentStore.getNtiCsv());
 				try {
 					dto.setTokenSignatura(getDocumentTokenUtils().xifrarToken(documentStoreId.toString()));
@@ -2246,7 +2253,7 @@ public class DocumentHelperV3 {
 				}
 			}
 		}
-		return dto;
+		return dto;		
 	}
 
 	private ExpedientDocumentDto findOnePerInstanciaProces(

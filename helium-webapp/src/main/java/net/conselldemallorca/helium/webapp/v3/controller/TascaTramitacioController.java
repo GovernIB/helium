@@ -2,6 +2,7 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -30,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -53,6 +55,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
@@ -61,10 +64,15 @@ import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesPrioritatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReproDto;
 import net.conselldemallorca.helium.v3.core.api.dto.StatusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TokenDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternConversioDocumentException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
@@ -80,6 +88,7 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ReproService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
+import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientEnviarPortasignaturesCommand;
 import net.conselldemallorca.helium.webapp.v3.command.PassarelaFirmaEnviarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.TascaConsultaCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
@@ -121,6 +130,10 @@ public class TascaTramitacioController extends BaseTascaController {
 	private ReproService reproService;
 	@Resource(name="documentHelperV3")
 	private DocumentHelperV3 documentHelper;
+	@Autowired
+	private ExpedientDocumentController expedientDocumentController;
+	
+	
 	@ModelAttribute("command")
 	public Object modelAttributeCommand(
 			HttpServletRequest request,
@@ -461,6 +474,7 @@ public class TascaTramitacioController extends BaseTascaController {
 					itDocuments.remove();
 			}
 		}
+		
 		model.addAttribute("documents", documents);
 		model.addAttribute("tasca", tascaService.findAmbIdPerTramitacio(tascaId));
 		model.addAttribute("isModal", ModalHelper.isModal(request));
@@ -948,6 +962,30 @@ public class TascaTramitacioController extends BaseTascaController {
 		return "v3/import/tasquesMassivaTaula";
 	}
 
+	/** Obre el formulari de l'enviament al portafirmes desde el formulari de tasca */
+	@RequestMapping(value = "/{tascaId}/proces/{processInstanceId}/document/{documentStoreId}/enviarPortasignatures", method = RequestMethod.GET)
+	public String portasigEnviarGet(
+			HttpServletRequest request,
+			@PathVariable Long tascaId,
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId,
+			Model model) {		
+		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId.toString());
+		return expedientDocumentController.portasigEnviarGet(request, tasca.getExpedientId(), processInstanceId, documentStoreId, model);
+	}
+	
+	/** Obre la pantalla de consulta de l'enviament al portafirmes desde el formulari de tasca */
+	@RequestMapping(value = "/{tascaId}/proces/{processInstanceId}/document/{documentStoreId}/pendentSignatura")
+	public String portasigDetallPeticio(
+			HttpServletRequest request,
+			@PathVariable Long tascaId, 
+			@PathVariable String processInstanceId,
+			@PathVariable Long documentStoreId,
+			Model model) throws UnsupportedEncodingException {		
+		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId.toString());
+		return expedientDocumentController.portasigDetallPeticio(request, tasca.getExpedientId(), processInstanceId, documentStoreId, model);
+	}
+	
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(

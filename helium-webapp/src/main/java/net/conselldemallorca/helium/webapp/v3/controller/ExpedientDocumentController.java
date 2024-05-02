@@ -1965,7 +1965,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 						model.addAttribute("nouFluxDeFirma", documentDto.getPortafirmesFluxId() == null);
 					}
 					else if(documentDto.getPortafirmesFluxTipus().equals(PortafirmesTipusEnumDto.SIMPLE)) {
-						command.setPortafirmesResponsables(documentDto.getPortafirmesResponsables().split(","));
+						command.setPortafirmesResponsables(documentDto.getPortafirmesResponsables());
 						command.setPortafirmesSequenciaTipus(documentDto.getPortafirmesSequenciaTipus());
 					}
 				}
@@ -2145,7 +2145,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				null, //transicioOK,
 				null, //transicioKO,
 				command.getPortafirmesSequenciaTipus(),
-				command.getPortafirmesResponsables(),
+				command.getPortafirmesResponsables().split(","),
 				portafirmesFluxId,
 				command.getPortafirmesFluxTipus());
 	}
@@ -2210,7 +2210,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@RequestParam(value = "nom", required = false) String nom,
 			@PathVariable Long expedientId, 
 			@PathVariable String processInstanceId, 
-			@PathVariable Long documentStoreId, 
+			@PathVariable Long documentStoreId,
 			Model model) throws UnsupportedEncodingException {
 		String urlReturn;
 		PortafirmesIniciFluxRespostaDto transaccioResponse = null;

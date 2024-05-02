@@ -42,22 +42,20 @@ public class TascaDocumentDto {
 	private boolean registreEntrada = true;
 	private boolean adjuntarAuto;
 	
-	private boolean arxiuContingutDefinit;
-	
-	private boolean plantilla;
-	
+	private boolean arxiuContingutDefinit;	
+	private boolean plantilla;	
 	private String arxiuNom;
-
-	private String error;
-	
-	private String urlVerificacioCustodia;
-		
-	private String extensionsPermeses;
-	
+	private String error;	
+	private String urlVerificacioCustodia;	
+	private String extensionsPermeses;	
 	private boolean generarNomesTasca;
+	
+	private boolean portafirmesActiu;
+	private PortasignaturesDto psignaActual;
 
-	public TascaDocumentDto() {
-	}
+	
+	
+	public TascaDocumentDto() {}
 	
 	public boolean isAdjuntarAuto() {
 		return adjuntarAuto;
@@ -68,11 +66,9 @@ public class TascaDocumentDto {
 	public boolean isArxiuContingutDefinit() {
 		return arxiuContingutDefinit;
 	}
-
 	public void setArxiuContingutDefinit(boolean arxiuContingutDefinit) {
 		this.arxiuContingutDefinit = arxiuContingutDefinit;
 	}
-
 	public Long getId() {
 		return id;
 	}
@@ -226,9 +222,20 @@ public class TascaDocumentDto {
 	public boolean isGenerarNomesTasca() {
 		return generarNomesTasca;
 	}
-
+	public PortasignaturesDto getPsignaActual() {
+		return psignaActual;
+	}
+	public void setPsignaActual(PortasignaturesDto psignaActual) {
+		this.psignaActual = psignaActual;
+	}
 	public void setGenerarNomesTasca(boolean generarNomesTasca) {
 		this.generarNomesTasca = generarNomesTasca;
+	}
+	public boolean isPortafirmesActiu() {
+		return portafirmesActiu;
+	}
+	public void setPortafirmesActiu(boolean portafirmesActiu) {
+		this.portafirmesActiu = portafirmesActiu;
 	}
 
 	public String getArxiuNomSenseExtensio() {
