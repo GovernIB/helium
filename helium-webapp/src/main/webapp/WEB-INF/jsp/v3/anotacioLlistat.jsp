@@ -45,25 +45,18 @@
 		<div class="col-md-2">
 			<hel:inputDate name="dataFinal" textKey="anotacio.llistat.filtre.camp.dataFinal" placeholder="dd/mm/aaaa" inline="true"/>
 		</div>	
-		<div class="col-md-1">							
+		<div class="col-md-2">							
 			<hel:inputText name="numero" textKey="anotacio.llistat.filtre.camp.numero" placeholderKey="anotacio.llistat.filtre.camp.numero" inline="true"/>
 		</div>	
-		<div class="col-md-3">							
+		<div class="col-md-4">							
 			<hel:inputText name="extracte" textKey="anotacio.llistat.filtre.camp.extracte" placeholderKey="anotacio.llistat.filtre.camp.extracte" inline="true"/>
-		</div>
-		<div class="col-md-4">
-			<hel:inputSuggest 
-					name="unitatOrganitzativaCodi" 
-					urlConsultaInicial="/helium/v3/unitatOrganitzativa/suggestInici" 
-					urlConsultaLlistat="/helium/v3/unitatOrganitzativa/suggest" 
-					placeholderKey="anotacio.llistat.filtre.camp.unitat.organitzativa.desti"
-					inline="true"
-					/>	
+		</div>		
+		<div class="col-md-2">
+			<hel:inputSelect inline="true" name="estat" optionItems="${estats}" emptyOption="true" textKey="anotacio.llistat.filtre.camp.estat" placeholderKey="anotacio.llistat.filtre.camp.estat" optionValueAttribute="codi" optionTextAttribute="valor"/>
 		</div>	
-		
 	</div>
 	<div class="row">
-		<div class="col-md-3">							
+		<div class="col-md-4">							
 			<hel:inputSuggest 
 					name="codiProcediment" 
 					urlConsultaInicial="/helium/v3/procediment/suggestInici" 
@@ -75,17 +68,28 @@
 		<div class="col-md-2">							
 			<hel:inputText name="codiAssumpte" textKey="anotacio.llistat.filtre.camp.codiAssumpte" placeholderKey="anotacio.llistat.filtre.camp.codiAssumpte" inline="true"/>
 		</div>	
-		<div class="col-md-2">							
-			<hel:inputText name="numeroExpedient" textKey="anotacio.llistat.filtre.camp.numeroExpedient" placeholderKey="anotacio.llistat.filtre.camp.numeroExpedient" inline="true"/>
-		</div>	
-		<div class="col-md-3">
+		<div class="col-md-4">
 			<hel:inputSelect name="expedientTipusId" textKey="anotacio.llistat.filtre.camp.expedientTipus"
 				optionItems="${expedientsTipus}" optionValueAttribute="codi" emptyOption="true"
 				inline="true" placeholderKey="anotacio.llistat.filtre.camp.expedientTipus" optionTextAttribute="valor" />
 		</div>					
-		<div class="col-md-2">
-			<hel:inputSelect inline="true" name="estat" optionItems="${estats}" emptyOption="true" textKey="anotacio.llistat.filtre.camp.estat" placeholderKey="anotacio.llistat.filtre.camp.estat" optionValueAttribute="codi" optionTextAttribute="valor"/>
+		<div class="col-md-2">							
+			<hel:inputText name="numeroExpedient" textKey="anotacio.llistat.filtre.camp.numeroExpedient" placeholderKey="anotacio.llistat.filtre.camp.numeroExpedient" inline="true"/>
 		</div>	
+	</div>
+	<div class="row">
+
+		<div class="col-md-4">
+			<hel:inputSuggest 
+					name="unitatOrganitzativaCodi" 
+					urlConsultaInicial="/helium/v3/unitatOrganitzativa/suggestInici" 
+					urlConsultaLlistat="/helium/v3/unitatOrganitzativa/suggest" 
+					placeholderKey="anotacio.llistat.filtre.camp.unitat.organitzativa.desti"
+					inline="true"
+					/>	
+		</div>	
+
+	
 		<div class="col-md-2 pull-right">
 			<div class="pull-right">
 					<button id="consultarHidden" type="submit" name="accio" value="consultar" class="btn btn-primary hidden"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>

@@ -381,7 +381,6 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 
 		@Override
 		public void run() {
-			ExecutorService executor = Executors.newSingleThreadExecutor();
 			// Posa una autenticació per defecte per l'usuari del registre
 			List<GrantedAuthority> rols = new ArrayList<GrantedAuthority>();
 			rols.add(new SimpleGrantedAuthority("tothom"));
@@ -437,7 +436,6 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 					} catch(Exception ed) {
 						logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
 					}
-					executor.shutdownNow();
 				} finally {
 					distribucioHelper.setProcessant(anotacio.getId(), false);
 				}

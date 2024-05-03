@@ -1744,6 +1744,7 @@ public class ExpedientHelper {
 		
 	}
 	
+	@Transactional
 	private Expedient iniciarSimple(Long entornId,
 			String usuari,
 			Long expedientTipusId,
