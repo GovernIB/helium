@@ -30,6 +30,7 @@ import net.conselldemallorca.helium.core.helper.HibernateHelper;
 import net.conselldemallorca.helium.core.helper.MailHelper;
 import net.conselldemallorca.helium.core.helper.MonitorDominiHelper;
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
+import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
@@ -39,7 +40,6 @@ import net.conselldemallorca.helium.core.model.hibernate.UsuariPreferencies;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
@@ -88,6 +88,8 @@ public class AdminServiceImpl implements AdminService {
 	private MonitorIntegracioHelper monitorIntegracioHelper;
 	@Resource
 	private MonitorDominiHelper monitorDominiHelper;
+	@Resource
+	private UsuariActualHelper usuariActualHelper;
 	@Resource
 	private MailHelper mailHelper;
 
@@ -500,10 +502,10 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public List<IntegracioAccioDto> monitorIntegracioFindAccionsByIntegracioEntornActual(String integracioCodi, EntornDto entornSessio) {
+	public List<IntegracioAccioDto> monitorIntegracioFindAccionsByIntegracioEntornsAdmin(String integracioCodi) {
 		logger.debug("Consultant la llista d'accions per a la integració (" +
 				"integracioCodi=" + integracioCodi + ")");
-		return monitorIntegracioHelper.findAccionsByIntegracioCodiEntornActual(integracioCodi, entornSessio);
+		return monitorIntegracioHelper.findAccionsByIntegracioCodiEntornsAdmin(integracioCodi, usuariActualHelper.findEntornsActiusPermisAdmin());
 	}
 
 	@Override

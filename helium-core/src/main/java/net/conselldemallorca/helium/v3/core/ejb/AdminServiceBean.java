@@ -252,8 +252,8 @@ public class AdminServiceBean implements AdminService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<IntegracioAccioDto> monitorIntegracioFindAccionsByIntegracioEntornActual(String integracioCodi, EntornDto entornSessio) {
-		return delegate.monitorIntegracioFindAccionsByIntegracioEntornActual(integracioCodi, entornSessio);
+	public List<IntegracioAccioDto> monitorIntegracioFindAccionsByIntegracioEntornsAdmin(String integracioCodi) {
+		return delegate.monitorIntegracioFindAccionsByIntegracioEntornsAdmin(integracioCodi);
 	}
 
 	@Override

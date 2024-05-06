@@ -97,11 +97,16 @@ public class MonitorIntegracioHelper {
 		return getLlistaAccions(integracioCodi);
 	}
 	
-	public synchronized List<IntegracioAccioDto> findAccionsByIntegracioCodiEntornActual(String integracioCodi, EntornDto entornSessio) {
+	public synchronized List<IntegracioAccioDto> findAccionsByIntegracioCodiEntornsAdmin(String integracioCodi, List<EntornDto> entonsAdmin) {
 		LinkedList<IntegracioAccioDto> accionsFiltrats = new LinkedList<IntegracioAccioDto>();
-		if (entornSessio!=null) {
+		if (entonsAdmin!=null && entonsAdmin.size()>0) {
+			
+			List<Long> entonsAdminIds = new ArrayList<Long>();
+			for (EntornDto entornDto: entonsAdmin)
+				entonsAdminIds.add(entornDto.getId());
+			
 			for (IntegracioAccioDto accio: getLlistaAccions(integracioCodi))
-				if(accio.getEntornId() != null && accio.getEntornId().equals(entornSessio.getId()))
+				if(accio.getEntornId() != null && entonsAdminIds.contains(accio.getEntornId()))
 					accionsFiltrats.add(accio);
 		}
 		return accionsFiltrats;

@@ -1960,16 +1960,18 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				false,
 				false,
 				false);
-		
-		List<Portasignatures> portasignatures = portasignaturesRepository.findByExpedientAndEstat(expedient, TipusEstat.ERROR);
-		if(!portasignatures.isEmpty()){
-			for(Portasignatures ps: portasignatures) {
-				ps.setErrorCallbackProcessant(null);
-			}
-		}
+		//No fa falta netejar el error del portafib, a més no tendria sentit si no es canvia també el TipusEstat
+		//Això en teoria ja s'actualitza correctament al metode de processarDocumentPendentPortasignatures del PluginService
+//		List<Portasignatures> portasignatures = portasignaturesRepository.findByExpedientAndEstat(expedient, TipusEstat.ERROR);
+//		if(!portasignatures.isEmpty()){
+//			for(Portasignatures ps: portasignatures) {
+//				ps.setErrorCallbackProcessant(null);
+//			}
+//		}
 		expedient.setErrorDesc(null);
 		expedient.setErrorFull(null);
 		expedient.setReindexarError(false);
+		expedient.setErrorsIntegracions(false);
 	}
 
 	/**

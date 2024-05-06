@@ -70,7 +70,7 @@ public interface AdminService {
 	 * @param integracioCodi el codi de la integració a consultar
 	 * @return
 	 */
-	public List<IntegracioAccioDto> monitorIntegracioFindAccionsByIntegracioEntornActual(String integracioCodi, EntornDto entornDto);
+	public List<IntegracioAccioDto> monitorIntegracioFindAccionsByIntegracioEntornsAdmin(String integracioCodi);
 	
 	/**
 	 * Retorna la llista de dominis d'un entorn
