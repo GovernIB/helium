@@ -2145,7 +2145,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				null, //transicioOK,
 				null, //transicioKO,
 				command.getPortafirmesSequenciaTipus(),
-				command.getPortafirmesResponsables().split(","),
+				command.getPortafirmesResponsables()!=null ?  command.getPortafirmesResponsables().split(",") : null,
 				portafirmesFluxId,
 				command.getPortafirmesFluxTipus());
 	}

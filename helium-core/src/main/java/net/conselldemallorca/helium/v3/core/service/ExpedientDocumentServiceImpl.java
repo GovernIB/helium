@@ -2024,7 +2024,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			blocList = new ArrayList<PortafirmesFluxBlocDto>();
 			PortafirmesFluxBlocDto bloc = null;
 			String[] responsablesCodis = responsables;
-			if (portafirmesTipus.equals(PortafirmesSimpleTipusEnumDto.SERIE)) {			
+			if (responsablesCodis!=null && portafirmesTipus.equals(PortafirmesSimpleTipusEnumDto.SERIE)) {			
 				for (int i = 0; i < responsablesCodis.length; i++) {
 					List<String> personesPas = new ArrayList<String>();
 					bloc = new PortafirmesFluxBlocDto();
