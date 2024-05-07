@@ -37,25 +37,28 @@ if (fluxIframe) {
 		$modalFlux.find('#s2id_portafirmesFluxId').find('.select2-chosen').html(fluxCreatedNom);
 		$portafirmesFluxId.change();
 		$modalFlux.find('#portafirmesFluxNom').val(fluxCreatedNom);
-	} else if (fluxErrorDesc != null && fluxErrorDesc != '') 		
-	{
+	} else if (fluxErrorDesc != null && fluxErrorDesc != '') {
 		alerta = fluxErrorDesc;
 		//desactivar selecció si s'ha creat un nou flux
 		if (localStorage.getItem('transaccioId') == null && localStorage.getItem('transaccioId') == '') {
 			$modalFlux.find('#portafirmesFluxId').attr('disabled', false);
 		}
-
 		$modalFlux.find(".portafirmesEnviarFluxId_btn_addicional").find('i').addClass('fa-eye').removeClass('fa-eye-slash');
 	}
+
 	if (fluxSuccesDesc != null && fluxSuccesDesc != '') {
 
 		// Flux creat des de la modal d'enviament de l'usuari, informa el camp ocult per poder enviar fent referència al nou camp
 		$modalFlux.find('#portafirmesNouFluxId').val(idTransaccioFlux);
 		
+		//Borram el valor del flux seleccionat al desplegable si n´hi ha
 		$modalFlux.find('#portafirmesEnviarFluxId').empty();
+		$modalFlux.find('#s2id_portafirmesEnviarFluxId .select2-chosen').html('');
 		$modalFlux.find('#portafirmesEnviarFluxId').attr('disabled', true);
+		
 		//desactivar botó de visualitzar
 		$modalFlux.find('.portafirmesEnviarFluxId_btn_addicional').attr('disabled', true);
+		
 		alerta = fluxSuccesDesc;
 		if ((fluxCreatedNom != null && fluxCreatedNom != '')) {
 			var $comentari = $modalFlux.find('.comentari');
