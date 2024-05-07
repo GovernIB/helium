@@ -51,6 +51,7 @@ public class PortasignaturesDto {
 	 * error en la llista de pendents. S'informa aquest flag per poder tornar a enviar-les des de la gestió de documents.
 	 */
 	private boolean rebutjadaProcessada = false;
+	private boolean reintentarFirma = false;
 
 	public Long getId() {
 		return id;
@@ -172,7 +173,12 @@ public class PortasignaturesDto {
 	public void setErrorProcessant(String errorProcessant) {
 		this.errorProcessant = errorProcessant;
 	}
-
+	public boolean isReintentarFirma() {
+		return	this.estat!=null && ("REBUTJAT".equals(this.estat) || "CANCELAT".equals(this.estat));
+	}
+	public void setReintentarFirma(boolean reintentarFirma) {
+		this.reintentarFirma = reintentarFirma;
+	}
 	public boolean isPendent() {
 		return	TipusEstat.PENDENT.equals(estat) ||
 				TipusEstat.SIGNAT.equals(estat) ||

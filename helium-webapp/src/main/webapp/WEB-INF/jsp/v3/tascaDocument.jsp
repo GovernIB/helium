@@ -130,13 +130,19 @@
 						</a>
 					</c:if>
 					
-<%-- 					<c:out value="document.psignaActual=${document.psignaActual}"/><br/> --%>
-<%-- 					<c:out value="document.psignaActual!=null=${document.psignaActual!=null}"/><br/> --%>
-<%-- 					<c:out value="document.psignaActual eq null=${document.psignaActual eq null}"/><br/> --%>
-<%-- 					<c:out value="empty document.psignaActual=${empty document.psignaActual}"/><br/> --%>
-<%-- 					<c:out value="document.psignaActual=${document.psignaActual}"/><br/> --%>
-<%-- 					<c:out value="bloquejarEdicioTasca=${bloquejarEdicioTasca}"/><br/> --%>
-<%-- 					<c:out value="tasca.validada=${tasca.validada}"/><br/> --%>
+					<br/><c:out value="document.portafirmesActiu=${document.portafirmesActiu}"/><br/>
+					<c:out value="document.signat=${document.signat}"/><br/>
+					<c:out value="bloquejarEdicioTasca=${bloquejarEdicioTasca}"/><br/>
+					<c:out value="tasca.validada=${tasca.validada}"/><br/>
+					<c:out value="document.tokenSignatura=${document.tokenSignatura}"/><br/>
+					<c:if test="${(document.psignaActual!=null)}">
+						<c:out value="document.psignaActual.reintentarFirma=${document.psignaActual.reintentarFirma}"/><br/>
+						<c:out value="document.psignaActual.error=${document.psignaActual.error}"/><br/>
+						<c:out value="document.psignaActual.estat=${document.psignaActual.estat}"/><br/>
+					</c:if>
+					<c:if test="${(document.psignaActual==null)}">
+						<c:out value="document.psignaActual=null"/><br/>
+					</c:if>
 					
 		 			<%--<c:if test="${	!document.signat && 
 		 								expedient.permisDocManagement && 
@@ -144,46 +150,49 @@
 		 								document.portafirmesActiu && 
 		 								(! empty expedient.arxiuUuid  || ! empty document.custodiaCodi)}">--%>
 		 			<c:if test="${document.portafirmesActiu && !document.signat && !bloquejarEdicioTasca && tasca.validada && ((not empty document.tokenSignatura))}">
-		 				<c:if test="${(document.psignaActual==null)}">
-							<a 	href="<c:url value='/modal/v3/tasca/${tasca.id}/proces/${tasca.processInstanceId}/document/${document.documentStoreId}/enviarPortasignatures'/>"
-								data-rdt-link-modal="true" 
-								data-rdt-link-modal-maximize="false"
-								data-rdt-link-modal-min-height="400"
-								data-rdt-link-callback="callbackModalPortafibTasca(${tasca.id});"									
-								class="icon enviarPortasignatures"
-								title="<spring:message code='expedient.document.enviar.portasignatures' />">
-								<span class="fa fa-envelope-o" /></span>
-							</a>
-						</c:if>
-						<c:if test="${(document.psignaActual!=null)}">
-							<c:choose>
-								<c:when test="${document.psignaActual.error}">
-									<c:set var="iconPendentSignaturaBtn" value="fa-exclamation-triangle"/>
-									<c:choose>
-										<c:when test="${document.psignaActual.rebutjadaProcessada}">
-											<c:set var="titlePendentSignaturaBtn" value="expedient.document.rebutjat.psigna.error"/>
-										</c:when>
-										<c:otherwise>
-											<c:set var="titlePendentSignaturaBtn" value="expedient.document.pendent.psigna.error"/>
-										</c:otherwise>
-									</c:choose>
-								</c:when>
-								<c:otherwise>
-											<c:set var="titlePendentSignaturaBtn" value="expedient.document.pendent.psigna"/>
-											<c:set var="iconPendentSignaturaBtn" value="fa fa-clock-o"/>
-								</c:otherwise>
-							</c:choose>
-							<!-- data-rdt-link-callback="recargarPanel(${tasca.processInstanceId});"  -->
-							<a 	href="<c:url value='/modal/v3/tasca/${tasca.id}/proces/${tasca.processInstanceId}/document/${document.documentStoreId}/pendentSignatura'/>"
-								data-rdt-link-modal="true" 
-								data-rdt-link-modal-maximize="false"
-								data-rdt-link-modal-min-height="400"
-								data-rdt-link-callback="callbackModalPortafibTasca(${tasca.id});"
-								data-
-								class="icon enviarPortasignatures">
-									<span class="icon fa ${iconPendentSignaturaBtn} psigna-info" title="<spring:message code='${titlePendentSignaturaBtn}' />"></span>
-							</a>						
-						</c:if>
+		 				<c:choose>
+		 					<c:when test="${(document.psignaActual==null) || document.psignaActual.reintentarFirma}">
+		 						<!-- S'ha de pintar el sobre: si no hi ha firma, o si la darrera vigent s'ha cancelat o rebutjat -->
+								<a 	href="<c:url value='/modal/v3/tasca/${tasca.id}/proces/${tasca.processInstanceId}/document/${document.documentStoreId}/enviarPortasignatures'/>"
+									data-rdt-link-modal="true" 
+									data-rdt-link-modal-maximize="false"
+									data-rdt-link-modal-min-height="400"
+									data-rdt-link-callback="callbackModalPortafibTasca(${tasca.id});"									
+									class="icon enviarPortasignatures"
+									title="<spring:message code='expedient.document.enviar.portasignatures' />">
+									<span class="fa fa-envelope-o" /></span>
+								</a>
+		 					</c:when>
+		 					<c:otherwise>
+								<c:choose>
+									<c:when test="${document.psignaActual.error}">
+										<c:set var="iconPendentSignaturaBtn" value="fa-exclamation-triangle"/>
+										<c:choose>
+											<c:when test="${document.psignaActual.rebutjadaProcessada}">
+												<c:set var="titlePendentSignaturaBtn" value="expedient.document.rebutjat.psigna.error"/>
+											</c:when>
+											<c:otherwise>
+												<c:set var="titlePendentSignaturaBtn" value="expedient.document.pendent.psigna.error"/>
+											</c:otherwise>
+										</c:choose>
+									</c:when>
+									<c:otherwise>
+												<c:set var="titlePendentSignaturaBtn" value="expedient.document.pendent.psigna"/>
+												<c:set var="iconPendentSignaturaBtn" value="fa fa-clock-o"/>
+									</c:otherwise>
+								</c:choose>
+
+								<a 	href="<c:url value='/modal/v3/tasca/${tasca.id}/proces/${tasca.processInstanceId}/document/${document.documentStoreId}/pendentSignatura'/>"
+									data-rdt-link-modal="true" 
+									data-rdt-link-modal-maximize="false"
+									data-rdt-link-modal-min-height="400"
+									data-rdt-link-callback="callbackModalPortafibTasca(${tasca.id});"
+									data-
+									class="icon enviarPortasignatures">
+										<span class="icon fa ${iconPendentSignaturaBtn} psigna-info" title="<spring:message code='${titlePendentSignaturaBtn}' />"></span>
+								</a>		 					
+		 					</c:otherwise>
+		 				</c:choose>
 		 			</c:if>
 
 					<div id="hideData${document.id}" class="comentari small <c:if test="${empty document.tokenSignatura}">hide</c:if>">
