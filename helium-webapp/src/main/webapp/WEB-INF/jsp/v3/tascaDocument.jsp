@@ -129,26 +129,7 @@
 							<i class="fa fa-trash-o"></i>
 						</a>
 					</c:if>
-					
-					<br/><c:out value="document.portafirmesActiu=${document.portafirmesActiu}"/><br/>
-					<c:out value="document.signat=${document.signat}"/><br/>
-					<c:out value="bloquejarEdicioTasca=${bloquejarEdicioTasca}"/><br/>
-					<c:out value="tasca.validada=${tasca.validada}"/><br/>
-					<c:out value="document.tokenSignatura=${document.tokenSignatura}"/><br/>
-					<c:if test="${(document.psignaActual!=null)}">
-						<c:out value="document.psignaActual.reintentarFirma=${document.psignaActual.reintentarFirma}"/><br/>
-						<c:out value="document.psignaActual.error=${document.psignaActual.error}"/><br/>
-						<c:out value="document.psignaActual.estat=${document.psignaActual.estat}"/><br/>
-					</c:if>
-					<c:if test="${(document.psignaActual==null)}">
-						<c:out value="document.psignaActual=null"/><br/>
-					</c:if>
-					
-		 			<%--<c:if test="${	!document.signat && 
-		 								expedient.permisDocManagement && 
-		 								(empty psignaPendentActual || psignaPendentActual.rebutjadaProcessada) && 
-		 								document.portafirmesActiu && 
-		 								(! empty expedient.arxiuUuid  || ! empty document.custodiaCodi)}">--%>
+
 		 			<c:if test="${document.portafirmesActiu && !document.signat && !bloquejarEdicioTasca && tasca.validada && ((not empty document.tokenSignatura))}">
 		 				<c:choose>
 		 					<c:when test="${(document.psignaActual==null) || document.psignaActual.reintentarFirma}">
