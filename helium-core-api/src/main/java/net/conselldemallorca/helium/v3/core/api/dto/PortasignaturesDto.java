@@ -52,6 +52,7 @@ public class PortasignaturesDto {
 	 */
 	private boolean rebutjadaProcessada = false;
 	private boolean reintentarFirma = false;
+	private boolean firmaEnProces = false;
 
 	public Long getId() {
 		return id;
@@ -173,8 +174,14 @@ public class PortasignaturesDto {
 	public void setErrorProcessant(String errorProcessant) {
 		this.errorProcessant = errorProcessant;
 	}
+	public boolean isFirmaEnProces() {
+		return	this.estat!=null && ("PENDENT".equals(this.estat) || "REBUTJAT".equals(this.estat));
+	}
+	public void setFirmaEnProces(boolean firmaEnProces) {
+		this.firmaEnProces = firmaEnProces;
+	}
 	public boolean isReintentarFirma() {
-		return	this.estat!=null && ("REBUTJAT".equals(this.estat) || "CANCELAT".equals(this.estat));
+		return	this.rebutjadaProcessada || (this.estat!=null && ("REBUTJAT".equals(this.estat) || "CANCELAT".equals(this.estat)));
 	}
 	public void setReintentarFirma(boolean reintentarFirma) {
 		this.reintentarFirma = reintentarFirma;
