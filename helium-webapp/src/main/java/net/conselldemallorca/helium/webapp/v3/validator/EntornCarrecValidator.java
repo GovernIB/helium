@@ -37,15 +37,18 @@ public class EntornCarrecValidator implements ConstraintValidator<EntornCarrec, 
 
 		CarrecDto carrec = entornCarrecService.findByEntornAndCodi(entornActual.getId(), command.getCodi());
 		if (carrec != null && !carrec.getId().equals(command.getId())) {
-			context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage(anotacio.codiRepetit()))
+			context.buildConstraintViolationWithTemplate(anotacio.codiRepetit())
 			.addNode("codi").addConstraintViolation();
 			valid = false;
 		}
 		
 		if (entornAreaService.findAmbId(entornActual.getId(), command.getAreaId()) == null) {
-			context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage(anotacio.areaInexistent()))
+			context.buildConstraintViolationWithTemplate(anotacio.areaInexistent())
 			.addNode("areaId").addConstraintViolation();
 			valid = false;
+		}
+		if (!valid) {
+			context.disableDefaultConstraintViolation();
 		}
 		
 		return valid;
