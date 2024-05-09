@@ -113,6 +113,17 @@
 </head>
 <body>
 	<h3 class="capsalera"><spring:message code='perfil.info.meu_perfil'/></h3>
+
+	<div class="well well-white">
+		<div class="row-fluid">
+			<form:form action="" cssClass="form-horizontal form-tasca" commandName="personaUsuariCommand" method="post" style="padding-bottom: 0px;">
+				<div class="control-group fila_reducida">
+					<hel:inputSelect disabled="true" name="rolsUsuari" textKey="rol.test.rols_usu" optionItems="${personaUsuariCommand.rolsUsuari}" multiple="true" inline="false"/>
+				</div>
+			</form:form>
+		</div>
+	</div>
+
 	<c:set var="esPersonesActiu" value="${globalProperties['app.persones.actiu'] == 'true'}"/>
 	<c:if test="${esPersonesActiu}">
 		<c:set var="esReadOnly" value="${globalProperties['app.persones.readonly'] == 'true'}"/>
@@ -149,18 +160,6 @@
 			</div>
 		</div>
 	</c:if>
-		<div class="page-header">
-			<h4><spring:message code='rol.test.rols_usu' /></h4>
-		</div>
-		<div class="well well-white">
-			<div class="row-fluid">
-				<form:form action="" cssClass="form-horizontal form-tasca" commandName="personaUsuariCommand" method="post" style="padding-bottom: 0px;">
-					<div class="control-group fila_reducida">
-						<hel:inputSelect disabled="true" name="rolsUsuari" textKey="rol.llistat.rols" optionItems="${personaUsuariCommand.rolsUsuari}" multiple="true" inline="false"/>
-					</div>
-				</form:form>
-			</div>
-		</div>
 	<div class="page-header">
 		<h4><spring:message code='perfil.info.preferencies' /></h4>
 	</div>		

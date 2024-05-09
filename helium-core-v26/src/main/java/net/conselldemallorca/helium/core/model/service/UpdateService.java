@@ -63,8 +63,8 @@ public class UpdateService {
 	public static final String VERSIO_ACTUAL_STR = "3.3.0";
 	public static final int VERSIO_ACTUAL_ORDRE = 330;
 
-	public static final String VERSIO_ACTUAL_RELEASE = "2";
-	public static final String VERSIO_ACTUAL_DATA = "2024.05.03 13:00";
+	public static final String VERSIO_ACTUAL_RELEASE = "3";
+	public static final String VERSIO_ACTUAL_DATA = "2024.05.09 10:00";
 
 	private VersioDao versioDao;
 	private PersonaDao personaDao;
