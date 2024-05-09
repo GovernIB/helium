@@ -144,7 +144,7 @@
 	
 	<script id="tableButtonsAccionsTemplate" type="text/x-jsrender">	
 		<div class="text-right" style="padding-top: 8px;">
-			<b><spring:message code="unitat.organitzativa.cron.sync"/>:</b> ${globalProperties['app.massiu.unitats.procediments.sync']}
+			<b><spring:message code="unitat.organitzativa.cron.sync"/>:</b> ${globalProperties['app.unitats.procediments.sync']}
 			&nbsp;
 		</div>
 	</script>

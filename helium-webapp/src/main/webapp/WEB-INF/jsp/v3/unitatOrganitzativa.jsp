@@ -105,7 +105,7 @@
 			&nbsp;
 			<b><spring:message code="unitat.organitzativa.llistat.data.actualitzacio"/>:</b> ${dataActualitzacio}
 			&nbsp;
-			<b><spring:message code="unitat.organitzativa.cron.sync"/>:</b> ${globalProperties['app.massiu.unitats.procediments.sync']}
+			<b><spring:message code="unitat.organitzativa.cron.sync"/>:</b> ${globalProperties['app.unitats.procediments.sync']}
 		</div>
 	</script>
 </body>
