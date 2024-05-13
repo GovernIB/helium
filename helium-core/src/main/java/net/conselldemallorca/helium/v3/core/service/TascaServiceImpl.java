@@ -1533,7 +1533,7 @@ public class TascaServiceImpl implements TascaService {
 	}
 	
 	@Override
-	@Scheduled(cron="${app.massiu.unitats.procediments.sync}")
+	@Scheduled(cron="${app.unitats.procediments.sync}")
 	@Async
 	public void actualitzarProcedimentsAndUnitatsAutomatic() {
 		procedimentService.actualitzaProcediments();
