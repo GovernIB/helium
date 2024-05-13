@@ -2,6 +2,7 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -14,6 +15,8 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -227,9 +230,20 @@ public class PerfilesController extends BaseController {
 		filtreCommand.setLlinatge1(usuari.getLlinatge1());
 		filtreCommand.setLlinatge2(usuari.getLlinatge2());
 		filtreCommand.setHombre(usuari.getSexe().equals(Sexe.SEXE_HOME));
-		filtreCommand.setRolsUsuari(usuari.getRolsUsuari());
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		List<String> rolsUsuari = new ArrayList<String>();
+		if (auth!=null) {
+			Iterator<? extends GrantedAuthority> authorities = auth.getAuthorities().iterator();
+			while(authorities.hasNext()) {
+				String rol = authorities.next().getAuthority();
+				if (!rol.contains("@")) {
+					rolsUsuari.add(rol);
+				}
+			}
+		}
 		
-		model.addAttribute("rolsUsuari", usuari.getRolsUsuari());
+		filtreCommand.setRolsUsuari(rolsUsuari);
 		
 		return filtreCommand;
 	}

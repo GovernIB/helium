@@ -4,7 +4,6 @@
 package net.conselldemallorca.helium.v3.core.api.dto;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * Classe que representa una persona d'un sistema extern
@@ -32,7 +31,6 @@ public class PersonaDto implements Serializable {
 	private String contrasenya;
 	private InteressatTipusEnumDto tipus;
 	private String codiDir3;
-	private List<String> rolsUsuari;
 
 	public PersonaDto(String codi, String nomSencer, String email, Sexe sexe) {
 		this.codi = codi;
@@ -165,12 +163,6 @@ public class PersonaDto implements Serializable {
 	}
 	public void setContrasenya(String contrasenya) {
 		this.contrasenya = contrasenya;
-	}
-	public List<String> getRolsUsuari() {
-		return rolsUsuari;
-	}
-	public void setRolsUsuari(List<String> rolsUsuari) {
-		this.rolsUsuari = rolsUsuari;
 	}
 	
 	public String getInicials() {

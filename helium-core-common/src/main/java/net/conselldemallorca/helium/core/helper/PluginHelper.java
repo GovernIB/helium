@@ -370,14 +370,6 @@ public class PluginHelper {
 				if (dto != null) {
 					personaCache.put(codi, dto);
 				}
-				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-				List<String> roles = new ArrayList<String>();
-				if (auth!=null && auth.getAuthorities()!=null) {
-					for (GrantedAuthority ga: auth.getAuthorities()) {
-						roles.add(ga.getAuthority());
-					}
-				}
-				dto.setRolsUsuari(roles);
 				return dto;
 			} catch (PersonesPluginException ex) {
 				monitorIntegracioHelper.addAccioError(
