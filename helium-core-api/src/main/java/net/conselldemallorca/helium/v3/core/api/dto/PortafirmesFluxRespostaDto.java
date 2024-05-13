@@ -9,6 +9,7 @@ public class PortafirmesFluxRespostaDto implements Serializable {
 	private String fluxId;
 	private boolean error;
 	private PortafirmesFluxEstatDto estat;
+	private boolean fluxComu;
 	
 	public String getNom() {
 		return nom;
@@ -39,6 +40,12 @@ public class PortafirmesFluxRespostaDto implements Serializable {
 	}
 	public void setEstat(PortafirmesFluxEstatDto estat) {
 		this.estat = estat;
+	}
+	public boolean isFluxComu() {
+		return fluxComu;
+	}
+	public void setFluxComu(boolean fluxComu) {
+		this.fluxComu = fluxComu;
 	}
 
 	private static final long serialVersionUID = -6768802833333049841L;

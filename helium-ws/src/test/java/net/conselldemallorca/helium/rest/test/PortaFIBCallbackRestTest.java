@@ -21,7 +21,7 @@ import es.caib.portafib.callback.beans.v1.SigningRequest;
  */
 public class PortaFIBCallbackRestTest {
 
-	private static final String URL_REST_BASE = "http://localhost:8080/helium/rest/portafib/callback";
+	private static final String URL_REST_BASE = "https://proves.caib.es/helium/rest/portafib/callback";
 
 	public static void main(String[] args) {
 		PortaFIBCallbackRestTest.event();
@@ -37,7 +37,7 @@ public class PortaFIBCallbackRestTest {
 			//   60 - DOCUMENT_FIRMAT;
 			//   70 - DOCUMENT_REBUTJAT;
 			//   80 - DOCUMENT_PAUSAT;
-			long psignaDocumentId = 844735;
+			long psignaDocumentId = 1523483;
 			int estat = 60;
 
 			PortaFIBEvent event = new PortaFIBEvent();

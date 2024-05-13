@@ -1881,9 +1881,9 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		
 		DocumentExpedientEnviarPortasignaturesCommand command = new DocumentExpedientEnviarPortasignaturesCommand();
 
-		// Abans d'entrar esborra les plantilles que hagi pogut crear anteriorment l'usuari
-		String usuari = SecurityContextHolder.getContext().getAuthentication().getName();
-		this.esborrarPlantillesUsuari(expedientId, processInstanceId, usuari);
+//		// Abans d'entrar esborra les plantilles que hagi pogut crear anteriorment l'usuari
+//		String usuari = SecurityContextHolder.getContext().getAuthentication().getName();
+//		this.esborrarPlantillesUsuari(expedientId, processInstanceId, usuari);
 		
 		this.emplenarModelPortasigEnviar(
 				model,
@@ -1897,31 +1897,31 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	}
 	
 	/** Consulta les plantilles que hagi pogut crear l'usuari i les esborra. */
-	private void esborrarPlantillesUsuari(Long expedientId, String processInstanceId, String usuari) {
-		try {
-			ExpedientDto expedientDto = expedientService.findAmbIdAmbPermis(expedientId);
-			Long expedientTipusId = expedientDto.getTipus().getId();
-			Long definicioProcesId = null;
-			if (!expedientDto.getTipus().isAmbInfoPropia()) {
-				DefinicioProcesDto definicioProcesDto = definicioProcesService.findAmbProcessInstanceId(processInstanceId);
-				definicioProcesId = definicioProcesDto.getId();
-				if (definicioProcesDto.getExpedientTipus() == null) {
-					// Definicio de procés global
-					expedientTipusId = null;
-				}
-			}
-			List<PortafirmesFluxRespostaDto> plantillesUsuari = portafirmesFluxService.recuperarPlantillesDisponibles(
-					expedientTipusId, 
-					definicioProcesId,
-					usuari);
-			for (PortafirmesFluxRespostaDto plantilla : plantillesUsuari) {
-				portafirmesFluxService.esborrarPlantilla(plantilla.getFluxId());				
-			}
-			
-		} catch(Exception e) {
-			logger.error("Error esborrant les plantilles de l'usuari " + usuari);
-		}
-	}
+//	private void esborrarPlantillesUsuari(Long expedientId, String processInstanceId, String usuari) {
+//		try {
+//			ExpedientDto expedientDto = expedientService.findAmbIdAmbPermis(expedientId);
+//			Long expedientTipusId = expedientDto.getTipus().getId();
+//			Long definicioProcesId = null;
+//			if (!expedientDto.getTipus().isAmbInfoPropia()) {
+//				DefinicioProcesDto definicioProcesDto = definicioProcesService.findAmbProcessInstanceId(processInstanceId);
+//				definicioProcesId = definicioProcesDto.getId();
+//				if (definicioProcesDto.getExpedientTipus() == null) {
+//					// Definicio de procés global
+//					expedientTipusId = null;
+//				}
+//			}
+//			List<PortafirmesFluxRespostaDto> plantillesUsuari = portafirmesFluxService.recuperarPlantillesDisponibles(
+//					expedientTipusId, 
+//					definicioProcesId,
+//					usuari);
+//			for (PortafirmesFluxRespostaDto plantilla : plantillesUsuari) {
+//				portafirmesFluxService.esborrarPlantilla(plantilla.getFluxId());				
+//			}
+//			
+//		} catch(Exception e) {
+//			logger.error("Error esborrant les plantilles de l'usuari " + usuari);
+//		}
+//	}
 
 	private void emplenarModelPortasigEnviar(
 			Model model,
@@ -2078,8 +2078,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				this.portasigEnviar(command, documentStoreId, expedientId,  processInstanceId);
 				
 				// En haver enviat esborra les plantilles de l'usuari
-				String usuari = SecurityContextHolder.getContext().getAuthentication().getName();
-				this.esborrarPlantillesUsuari(expedientId, processInstanceId, usuari);
+//				String usuari = SecurityContextHolder.getContext().getAuthentication().getName();
+//				this.esborrarPlantillesUsuari(expedientId, processInstanceId, usuari);
 
 				MissatgesHelper.success(
 						request, 
@@ -2215,15 +2215,15 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		String urlReturn;
 		PortafirmesIniciFluxRespostaDto transaccioResponse = null;
 		try {
-			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
-			DefinicioProcesDto definicioProcesDto = definicioProcesService.findAmbProcessInstanceId(processInstanceId);
+//			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+//			DefinicioProcesDto definicioProcesDto = definicioProcesService.findAmbProcessInstanceId(processInstanceId);
 			urlReturn = UrlHelper.getAbsoluteControllerBase(
 					request,
 					(ModalHelper.isModal(request) ? "/modal" : "") + "/v3/expedient/" +expedientId+ "/proces/"+processInstanceId+"/document/"+documentStoreId+"/portafirmesFlux/returnurl/");
 			String usuari = SecurityContextHolder.getContext().getAuthentication().getName();
 			transaccioResponse = portafirmesFluxService.iniciarFluxFirma(
-					expedient.getTipus().getId(), 
-					definicioProcesDto.getId(),
+					null, 
+					null,
 					usuari, 
 					urlReturn, 
 					true);
@@ -2258,6 +2258,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@PathVariable String processInstanceId,
 			@PathVariable Long documentStoreId,
 			Model model) {
+		
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		Long definicioProcesId = null;
 		if (!expedient.getTipus().isAmbInfoPropia()) {
@@ -2265,10 +2266,18 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			definicioProcesId = definicioProces.getId();
 		}
 		
-		List<PortafirmesFluxRespostaDto> resposta = portafirmesFluxService.recuperarPlantillesDisponibles(
+		List<PortafirmesFluxRespostaDto> resposta = new ArrayList<PortafirmesFluxRespostaDto>();
+
+		resposta.addAll(portafirmesFluxService.recuperarPlantillesDisponibles(
 				expedient.getTipus().getId(),
 				definicioProcesId,
-				null);
+				null));
+
+		resposta.addAll(portafirmesFluxService.recuperarPlantillesDisponibles(
+				null,
+				null,
+				SecurityContextHolder.getContext().getAuthentication().getName()));
+
 		return resposta;
 	}
 	

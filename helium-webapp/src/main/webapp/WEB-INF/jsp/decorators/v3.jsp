@@ -332,6 +332,8 @@
 						<c:if test="${dadesPersona.admin || potProcessarAnotacions}">
 							<a id="menuAnotacions" class="btn btn-primary" href="<c:url value="/v3/anotacio"/>"><spring:message code="decorator.menu.anotacions"/></a>
 						</c:if>
+						
+						<a id="menuFluxosFirma" class="btn btn-primary" href="<c:url value="/v3/fluxeFirma"/>"><spring:message code="decorator.menu.fluxes"/></a>
 											
 						<c:if test="${potDissenyarEntorn or potDissenyarExpedientTipus}">
 							<div id="menuDisseny" class="btn-group" >
