@@ -5,10 +5,14 @@ package net.conselldemallorca.helium.core.helper;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
+
+import net.conselldemallorca.helium.v3.core.api.dto.ExcepcioLogDto;
 
 /**
  * Helper per a gestionar excepcions.
@@ -18,6 +22,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class ExceptionHelper {
 
+	private LinkedList<ExcepcioLogDto> excepcions = new LinkedList<ExcepcioLogDto>();
+	
 	public boolean cercarMissatgeDinsCadenaExcepcions(String missatge, Throwable ex) {
 		//logger.info(">>> [PSIGN] Cercant missatge dins excepcio (missatge=" + missatge + ", getMessage=" + ex.getMessage() + ")");
 		if (ex.getMessage().contains(missatge))
@@ -53,6 +59,23 @@ public class ExceptionHelper {
 			}
 		} while (!root);
 		return message.toString();
+	}
+	
+	public List<ExcepcioLogDto> findAll() {
+		int index = 0;
+		for (ExcepcioLogDto excepcio: excepcions) {
+			excepcio.setIndex(new Long(index++));
+		}
+		return excepcions;
+	}
+
+	public void addExcepcio(String peticio, String params, Throwable exception) {
+		while (excepcions.size() >= 20) {
+			excepcions.remove(excepcions.size() - 1);
+		}
+		excepcions.add(
+				0,
+				new ExcepcioLogDto(peticio, params, exception));
 	}
 
 	private static final Log logger = LogFactory.getLog(ExceptionHelper.class);

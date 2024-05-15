@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ExcepcioLogDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -57,5 +58,8 @@ public interface AplicacioService {
 	 * @return la informació de la persona o càrrec
 	 */
 	public PersonaDto findPersonaCarrecAmbCodi(String codi) throws NoTrobatException, SistemaExternException;
-
+	
+	public void excepcioSave(String peticio, String params, Throwable exception);
+	public ExcepcioLogDto excepcioFindOne(Long index);
+	public List<ExcepcioLogDto> excepcioFindAll();
 }

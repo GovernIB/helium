@@ -12,6 +12,7 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import net.conselldemallorca.helium.v3.core.api.dto.ExcepcioLogDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -79,5 +80,32 @@ public class AplicacioServiceBean implements AplicacioService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PersonaDto findPersonaCarrecAmbCodi(String codi) {
 		return delegate.findPersonaCarrecAmbCodi(codi);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void excepcioSave(String peticio, String params, Throwable exception) {
+		delegate.excepcioSave(peticio, params, exception);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExcepcioLogDto excepcioFindOne(Long index) {
+		return delegate.excepcioFindOne(index);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExcepcioLogDto> excepcioFindAll() {
+		return delegate.excepcioFindAll();
 	}
 }

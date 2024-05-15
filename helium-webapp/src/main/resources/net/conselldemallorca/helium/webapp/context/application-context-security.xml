@@ -101,6 +101,8 @@
 	</bean>
 
 	<bean class="org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler"/>
+	
+	<bean class="net.conselldemallorca.helium.webapp.v3.interceptor.ExceptionResolver"/>
 
 	<!-- ACL -->
 	<sec:global-method-security pre-post-annotations="enabled">

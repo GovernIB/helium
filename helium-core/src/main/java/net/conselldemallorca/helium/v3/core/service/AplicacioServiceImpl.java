@@ -15,8 +15,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.ExceptionHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
+import net.conselldemallorca.helium.v3.core.api.dto.ExcepcioLogDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesCarrecDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UsuariPreferenciesDto;
@@ -32,17 +34,11 @@ import net.conselldemallorca.helium.v3.core.repository.UsuariPreferenciesReposit
 @Service
 public class AplicacioServiceImpl implements AplicacioService {
 
-	@Autowired
-	private UsuariPreferenciesRepository usuariPreferenciesRepository;
-
-	@Autowired
-	private UsuariActualHelper usuariActualHelper;
-	@Resource
-	private PluginHelper pluginHelper;
-	@Autowired
-	private ConversioTipusHelper conversioTipusHelper;
-
-
+	@Autowired private UsuariPreferenciesRepository usuariPreferenciesRepository;
+	@Autowired private UsuariActualHelper usuariActualHelper;
+	@Autowired private ConversioTipusHelper conversioTipusHelper;
+	@Resource  private PluginHelper pluginHelper;
+	@Resource  private ExceptionHelper exceptionHelper;
 
 	/**
 	 * {@inheritDoc}
@@ -118,7 +114,20 @@ public class AplicacioServiceImpl implements AplicacioService {
 		return pluginHelper.personaFindLikeCodiOrNomSencer(text);
 	}
 
+	@Override
+	public void excepcioSave(String peticio, String params, Throwable exception) {
+		exceptionHelper.addExcepcio(peticio, params, exception);
+	}
+
+	@Override
+	public ExcepcioLogDto excepcioFindOne(Long index) {
+		return exceptionHelper.findAll().get(index.intValue());
+	}
+
+	@Override
+	public List<ExcepcioLogDto> excepcioFindAll() {
+		return exceptionHelper.findAll();
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(AplicacioServiceImpl.class);
-
 }

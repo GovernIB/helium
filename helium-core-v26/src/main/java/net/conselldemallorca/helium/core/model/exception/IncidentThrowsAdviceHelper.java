@@ -3,25 +3,21 @@ package net.conselldemallorca.helium.core.model.exception;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import javax.annotation.Resource;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.Signature;
-import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
+
+import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
+import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 
 @Aspect
 public class IncidentThrowsAdviceHelper {
-
-//	private static Log logger = LogFactory.getLog(IncidentThrowsAdviceHelper.class);
 	
+	@Resource private AplicacioService aplicacioService;
 	private static ThreadLocal<DadesAdvice> dadesAdviceThreadLocal = new ThreadLocal<DadesAdvice>();
 
-	/*public static void setDadesAdvice(DadesAdvice dadesAdvice) {
-		dadesAdviceThreadLocal.set(dadesAdvice);
-	}*/
 	public static DadesAdvice getDadesAdvice() {
 		return dadesAdviceThreadLocal.get();
 	}
@@ -44,46 +40,42 @@ public class IncidentThrowsAdviceHelper {
 		if (dadesAdvice.getSignature().equals(signature)) 
 			dadesAdviceThreadLocal.set(new DadesAdvice());
 	}
-	
-	// Exsecutarem aquesta funció cada cop que s'executi el handler de portasignatures
-	@Before("execution(* net.conselldemallorca.helium.core.model.service.ExpedientService*.*(..)) "
-			+ "|| execution(* net.conselldemallorca.helium.core.model.service.TascaService*.*(..)) "
-			+ "|| execution(* net.conselldemallorca.helium.v3.core.service.ExpedientService*.*(..)) "
-			+ "|| execution(* net.conselldemallorca.helium.v3.core.service.TascaService*.*(..)) "
-			+ "|| execution(* net.conselldemallorca.helium.jbpm3.spring.SpringJobExecutorThread.executeJob(..))")
-	public void before(JoinPoint joinPoint) {
 
+	public void before(JoinPoint joinPoint) {
 		Signature signature = joinPoint.getSignature();
 		initDadesAdvice(signature);
-
 	}
 	
 	/**
 	 * Called between the throw and the catch
 	 */
-	// TODO: Para la interficie v.3 cambiar a net.conselldemallorca.helium.v3.core.service
-	@AfterThrowing(pointcut = "execution(* net.conselldemallorca.helium.core.model.service.ExpedientService*.*(..)) "
-			+ "|| execution(* net.conselldemallorca.helium.core.model.service.TascaService*.*(..)) "
-			+ "|| execution(* net.conselldemallorca.helium.v3.core.service.ExpedientService*.*(..)) "
-			+ "|| execution(* net.conselldemallorca.helium.v3.core.service.TascaService*.*(..))", throwing = "e")
 	public void afterThrowing(JoinPoint joinPoint, Throwable e) {
-
 		Signature signature = joinPoint.getSignature();
-		if (!getDadesAdvice().getIdsPortasignatures().isEmpty()) {
-			for (Integer documentId : getDadesAdvice().getIdsPortasignatures()) {
-				Jbpm3HeliumBridge.getInstanceService().portasignaturesEliminar(documentId);
+		String classOriginal  = signature.getDeclaringTypeName()!=null?signature.getDeclaringTypeName():"";
+		String metodeOriginal = signature.getName()!=null?signature.getName():"";
+		if (classOriginal!=null && (classOriginal.contains("ExpedientService") || classOriginal.contains("TascaService"))) {
+			if (!getDadesAdvice().getIdsPortasignatures().isEmpty()) {
+				for (Integer documentId : getDadesAdvice().getIdsPortasignatures()) {
+					Jbpm3HeliumBridge.getInstanceService().portasignaturesEliminar(documentId);
+				}
 			}
+			clearDadesAdvice(signature);
 		}
-		clearDadesAdvice(signature);
+		String params = "";
+		if (joinPoint.getArgs()!=null && joinPoint.getArgs().length>0) {
+			for (Object arg: joinPoint.getArgs()) {
+				if (arg!=null) {
+					params += arg.toString()+", ";
+				} else {
+					params += "null, ";
+				}
+			}
+			params = params.substring(0, params.length()-2);
+		}
+		aplicacioService.excepcioSave(classOriginal+"."+metodeOriginal, params, e);
 	}
-	
-	@AfterReturning("execution(* net.conselldemallorca.helium.core.model.service.ExpedientService*.*(..)) "
-			+ "|| execution(* net.conselldemallorca.helium.core.model.service.TascaService*.*(..)) "
-			+ "|| execution(* net.conselldemallorca.helium.v3.core.service.ExpedientService*.*(..)) "
-			+ "|| execution(* net.conselldemallorca.helium.v3.core.service.TascaService*.*(..)) "
-			+ "|| execution(* net.conselldemallorca.helium.jbpm3.spring.SpringJobExecutorThread.executeJob(..))")
-	public void after(JoinPoint joinPoint) {
 
+	public void after(JoinPoint joinPoint) {
 		Signature signature = joinPoint.getSignature();
 		clearDadesAdvice(signature);
 	}
