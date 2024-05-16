@@ -386,6 +386,9 @@
 										<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/v3/monitorDomini"/>"><spring:message code='decorator.menu.administracio.monitor.domini' /></a></li>
 									</c:if>
 									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
+										<li><a href="<c:url value="/v3/consultesPinbal"/>"><spring:message code='decorator.menu.administracio.pinbal' /></a></li>
+									</c:if>									
+									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
 										<li><a data-toggle="modal" href="<c:url value="/modal/v3/tasca/pendentsCompletar"/>"><spring:message code='decorator.menu.administracio.tasques.execucio' /></a></li>
 									</c:if>
 									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
