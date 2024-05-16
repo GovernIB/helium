@@ -42,9 +42,9 @@ public class PeticioPinbal implements Serializable, GenericEntity<Long> {
 	private Date dataPrevista;
 	private Date dataDarreraConsulta;
 	@MaxLength(32)
-	private String transicioOk;
+	private String transicioOK;
 	@MaxLength(32)
-	private String transicioKo;
+	private String transicioKO;
 	private Date dataProcessamentPrimer;
 	private Date dataProcessamentDarrer;
 	@MaxLength(4000)
@@ -166,20 +166,20 @@ public class PeticioPinbal implements Serializable, GenericEntity<Long> {
 		this.dataDarreraConsulta = dataDarreraConsulta;
 	}
 
-	public String getTransicioOk() {
-		return transicioOk;
+	public String getTransicioOK() {
+		return transicioOK;
 	}
 
-	public void setTransicioOk(String transicioOk) {
-		this.transicioOk = transicioOk;
+	public void setTransicioOK(String transicioOK) {
+		this.transicioOK = transicioOK;
 	}
 
-	public String getTransicioKo() {
-		return transicioKo;
+	public String getTransicioKO() {
+		return transicioKO;
 	}
 
-	public void setTransicioKo(String transicioKo) {
-		this.transicioKo = transicioKo;
+	public void setTransicioKO(String transicioKO) {
+		this.transicioKO = transicioKO;
 	}
 
 	public Date getDataProcessamentPrimer() {

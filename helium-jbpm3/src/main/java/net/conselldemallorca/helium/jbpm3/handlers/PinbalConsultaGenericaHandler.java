@@ -128,7 +128,23 @@ public class PinbalConsultaGenericaHandler extends BasicActionHandler implements
 	protected String idioma;	// Possibles valors [ES, CA]
 	protected String varIdioma;
 	
-
+	/**Indica si la consulta és asíncrona o no. Per exemple el valor "True" i "true" indiquen una crida asíncrona,
+	 qualsevol altre valor es considerarà fals i es farà una crida síncrona. **/
+	protected String asincrona;
+	protected String varAsincrona;
+	/**Codi opcional de la transició de sortida en el cas que la consulta a PINBAL finalitzi correctament 
+	 i en el cas que el flux estigui aturat en un estat.**/
+	protected String transicioOK;
+	/**Variable que conté la transició de sortida per a la consulta a PINBAL amb finalització correcta.**/
+	protected String varTransicioOK;
+	
+	/**Codi opcional de la transició de sortida en el cas que la consulta a PINBAL finalitzi correctament 
+	 i en el cas que el flux estigui aturat en un estat.**/
+	protected String transicioKO;
+	/**Variable que conté la transició de sortida per a la consulta a PINBAL amb finalització incorrecta.**/
+	protected String varTransicioKO;
+	
+	
 	public void execute(ExecutionContext executionContext) throws Exception {	
 		logger.debug("Inici execució handler genèric a Pinbal");
 		ExpedientDto expedient = getExpedientActual(executionContext);
@@ -451,7 +467,29 @@ public class PinbalConsultaGenericaHandler extends BasicActionHandler implements
 	}
 
 
+	public void setAsincrona(String asincrona) {
+		this.asincrona = asincrona;
+	}
 	
+	public void setVarAsincrona(String varAsincrona) {
+		this.setVarAsincrona(varAsincrona);
+	}
+	
+	public void setTransicioOK(String transicioOK) {
+		this.setTransicioOK(transicioOK);
+	}
+
+	public void setVarTransicioOK(String varTransicioOK) {
+		this.varTransicioOK = varTransicioOK;
+	}
+
+	public void setVarTransicioKO(String varTransicioKO) {
+		this.varTransicioKO = varTransicioKO;
+	}
+
+	public void setTransicioKO(String transicioKO) {
+		this.setVarTransicioKO(transicioKO);	
+	}
 	
 	
 

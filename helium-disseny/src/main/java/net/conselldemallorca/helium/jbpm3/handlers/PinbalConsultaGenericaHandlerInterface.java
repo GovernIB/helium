@@ -39,5 +39,11 @@ public interface PinbalConsultaGenericaHandlerInterface extends ActionHandler {
 	public void setVarDadesEspecifiques(String varDadesEspecifiques);
 	public void setVarTitularTipusDocumentacio(String varTitularTipusDocumentacio);
 	public void setTitularTipusDocumentacio(String titularTipusDocumentacio);
+	public void setAsincrona(String asincrona);
+	public void setVarAsincrona(String varAsincrona);
+	public void setTransicioOK(String transicioOK);
+	public void setVarTransicioOK(String varTransicioOK);
+	public void setTransicioKO(String transicioKO);
+	public void setVarTransicioKO(String varTransicioKO);
 	
 }
