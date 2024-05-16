@@ -80,12 +80,22 @@
 				},
 				info: plugin.settings.infoEnabled,
 				serverSide: true,
+				processing: true,
 				autoWidth: false,
 				searching: plugin.settings.searchEnabled,
 				ajax: {
 					url: getBaseUrl() + '/datatable',
 					type: ajaxRequestType,
 					data: function(data) {
+						// Per reduir la crida
+						for (var i = 0, len = data.columns.length; i < len; i++) {
+							if (! data.columns[i].search.value) delete data.columns[i].search;
+					        if (data.columns[i].searchable === true) delete data.columns[i].searchable;
+					        if (data.columns[i].orderable === true) delete data.columns[i].orderable;
+					        if (data.columns[i].data === data.columns[i].name) delete data.columns[i].name;
+					    }
+					    delete data.search.regex;
+
 						for (var key in plugin.serverParams) {
 							data[key] = plugin.serverParams[key];
 						}
