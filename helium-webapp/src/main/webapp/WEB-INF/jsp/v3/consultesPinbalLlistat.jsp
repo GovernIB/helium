@@ -115,7 +115,7 @@
 				<th data-col-name="estat" width="10%"><spring:message code="consultes.pinbal.camp.estat"/></th>
 				<th data-col-name="expedientId" data-visible="false"></th>
 				<th data-col-name="documentId" data-visible="false"></th>
-				<th data-col-name="id" width="5%" data-template="#cellAccionsTemplate" align="center">
+				<th data-col-name="id" width="5%" data-template="#cellAccionsTemplate" data-orderable="false">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
 						<a href="<c:url value="/v3/expedient/{{:expedientId}}/document/{{:documentId}}/descarregar"/>" style="padding-left: 30%;">
 							<span class="fa fa-file fa-2x no-doc" title="Descarregar justificant"></span>

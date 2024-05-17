@@ -28,6 +28,8 @@ public class PeticioPinbalFiltreDto implements Serializable {
 	private Date dataProcessamentPrimer;
 	private Date dataProcessamentDarrer;
 	private String errorProcessament;
+	//Indica si estas filtrant per el datatable de la pipella de expedients, o del menu de administracio
+	private boolean fromExpedient=false;
 	
 	public Long getId() {
 		return id;
@@ -154,5 +156,11 @@ public class PeticioPinbalFiltreDto implements Serializable {
 	}
 	public void setErrorProcessament(String errorProcessament) {
 		this.errorProcessament = errorProcessament;
-	}	
+	}
+	public boolean isFromExpedient() {
+		return fromExpedient;
+	}
+	public void setFromExpedient(boolean fromExpedient) {
+		this.fromExpedient = fromExpedient;
+	}
 }

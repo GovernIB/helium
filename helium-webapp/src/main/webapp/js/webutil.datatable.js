@@ -751,6 +751,7 @@
 			var $th = $('th:nth-child(' + (index + 1) + ')', headerTrFunction());
 			var renderHtml = data;
 			var template = $th.attr('data-template');
+			debugger;
 			if (template) {
 				var renderHtml = $(template).render(
 					api.row(meta.row).data(), {
@@ -762,9 +763,10 @@
 						}
 					}
 				);
-			} else if (data) {
+			} else if (data != null) {
 				var converter = $th.attr('data-converter');
 				var renderer = $th.attr('data-renderer');
+				debugger;
 				if (converter) {
 					if (converter.indexOf('date') === 0 || converter.indexOf('time') != -1) {
 						var date = new Date(data);
@@ -793,6 +795,13 @@
 							dataAmbFormat = horaAmbFormat;
 						}
 						renderHtml = dataAmbFormat;
+					} else if (converter.toUpperCase() === 'BOOLEAN') {
+						if (data) {
+							renderHtml = "<i class='fa fa-check' style='color: #428bca;' title='Sí'></i>";
+						} else {
+//							renderHtml = "<i class='fa fa-times' style='color: #428bca;' title='No'></i>";
+							renderHtml = "";
+						}
 					}
 				} else if (renderer) {
 					if (renderer.indexOf('maxLength') >= 0) {

@@ -34,14 +34,18 @@ public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
 	public PaginaDto<PeticioPinbalDto> findAmbFiltrePaginat(PaginacioParamsDto paginacioParams, PeticioPinbalFiltreDto filtreDto) {
 		
 		List<Long> entornsPermesos = null;
-		if (!usuariActualHelper.isAdministrador()) {
-			List<EntornDto> entornsAdminUsuari = usuariActualHelper.findEntornsActiusPermisAdmin();
-			entornsPermesos = new ArrayList<Long>();
-			if (entornsAdminUsuari==null || entornsAdminUsuari.size()==0) {
-				entornsPermesos.add(0l);
-			} else {
-				for (EntornDto e: entornsAdminUsuari) {
-					entornsPermesos.add(e.getId());
+		//Si el filtre ve del expedient, no filtrar per permisos de administració del entorn
+		if (!filtreDto.isFromExpedient()) {
+			//Si la cridada ve desde el llistat de peticions del menu Admin, sí que filtram
+			if (!usuariActualHelper.isAdministrador()) {
+				List<EntornDto> entornsAdminUsuari = usuariActualHelper.findEntornsActiusPermisAdmin();
+				entornsPermesos = new ArrayList<Long>();
+				if (entornsAdminUsuari==null || entornsAdminUsuari.size()==0) {
+					entornsPermesos.add(0l);
+				} else {
+					for (EntornDto e: entornsAdminUsuari) {
+						entornsPermesos.add(e.getId());
+					}
 				}
 			}
 		}
@@ -65,6 +69,8 @@ public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
 				filtreDto.getDataPeticioIni(),
 				filtreDto.getDataPeticioFi() == null,
 				filtreDto.getDataPeticioFi(),
+				(paginacioParams.getFiltre() == null || "".equals(paginacioParams.getFiltre())),
+				paginacioParams.getFiltre(),
 				paginacioHelper.toSpringDataPageable(paginacioParams)), PeticioPinbalDto.class);
 
 	}
@@ -75,5 +81,9 @@ public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
 		return conversioTipusHelper.convertir(peticioPinbalRepository.findOne(peticioPinbalId), PeticioPinbalDto.class);
 	}
 
-	
+	@Override
+	@Transactional(readOnly=true)
+	public List<PeticioPinbalDto> findConsultesPinbalPerExpedient(Long expedientId) {
+		return conversioTipusHelper.convertirList(peticioPinbalRepository.findByExpedientId(expedientId), PeticioPinbalDto.class);
+	}
 }
