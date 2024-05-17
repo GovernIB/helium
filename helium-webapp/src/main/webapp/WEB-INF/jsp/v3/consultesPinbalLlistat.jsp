@@ -107,15 +107,19 @@
 			class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
-				<th data-col-name="tipus.nom" width="15%"><spring:message code="consultes.pinbal.camp.tipus"/></th>
-				<th data-col-name="expedient.identificador" width="30%"><spring:message code="consultes.pinbal.camp.exp"/></th>
+				<th data-col-name="tipus.nom" width="18%"><spring:message code="consultes.pinbal.camp.tipus"/></th>
+				<th data-col-name="expedient.identificador" width="32%"><spring:message code="consultes.pinbal.camp.exp"/></th>
 				<th data-col-name="procediment" width="15%"><spring:message code="consultes.pinbal.camp.procediment"/></th>
 				<th data-col-name="usuari" width="10%"><spring:message code="consultes.pinbal.camp.usuari"/></th>
 				<th data-col-name="dataPeticio" width="10%" data-converter="datetime"><spring:message code="consultes.pinbal.camp.dataPeticio"/></th>
 				<th data-col-name="estat" width="10%"><spring:message code="consultes.pinbal.camp.estat"/></th>
-				<th data-col-name="id" width="10%" data-template="#cellAccionsTemplate">
+				<th data-col-name="expedientId" data-visible="false"></th>
+				<th data-col-name="documentId" data-visible="false"></th>
+				<th data-col-name="id" width="5%" data-template="#cellAccionsTemplate" align="center">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
-						<a href="consultesPinbal/{{:id}}" class="btn btn-default" data-toggle="modal"><span class="fa fa-info-circle"></span>&nbsp;&nbsp;<spring:message code="comu.boto.detalls"/></a>
+						<a href="<c:url value="/v3/expedient/{{:expedientId}}/document/{{:documentId}}/descarregar"/>" style="padding-left: 30%;">
+							<span class="fa fa-file fa-2x no-doc" title="Descarregar justificant"></span>
+						</a>
 					</script>
 				</th>
 			</tr>

@@ -25,7 +25,7 @@ public interface PeticioPinbalRepository extends JpaRepository<PeticioPinbal, Lo
 	
 	@Query(	"select pi from PeticioPinbal pi INNER JOIN pi.expedient as ex  " +
 			"where  "+
-			" (:esNullEntorn = true or pi.entorn.id = :entornId) " +
+			" (:esNullEntorn = true or pi.entorn.id IN (:entornsId)) " +
 			" and (:esNullExpTipus = true or pi.tipus.id = :expTipus) " +
 			" and (:esNullExpId = true or ex.id = :expId) " +
 			" and (:esNullNumExp = true or lower(ex.numero) like lower('%'||:numExp||'%') or lower(ex.titol) like lower('%'||:numExp||'%')) " +
@@ -36,7 +36,7 @@ public interface PeticioPinbalRepository extends JpaRepository<PeticioPinbal, Lo
 			" and (:esNullDataFi = true  or pi.dataPeticio <= :dataFi)")
 	public Page<PeticioPinbal> findByFiltrePaginat(
 			@Param("esNullEntorn") boolean esNullEntorn,
-			@Param("entornId") Long entornId,			
+			@Param("entornsId") List<Long> entornsId,			
 			@Param("esNullExpTipus") boolean esNullExpTipus,
 			@Param("expTipus") Long expTipus,
 			@Param("esNullExpId") boolean esNullExpId,

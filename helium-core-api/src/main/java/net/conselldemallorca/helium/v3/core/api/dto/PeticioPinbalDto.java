@@ -30,6 +30,12 @@ public class PeticioPinbalDto implements Serializable {
 	public Long getId() {
 		return id;
 	}
+	public Long getExpedientId() {
+		return expedient.getId();
+	}
+	public Long getDocumentId() {
+		return document.getId();
+	}	
 	public void setId(Long id) {
 		this.id = id;
 	}
