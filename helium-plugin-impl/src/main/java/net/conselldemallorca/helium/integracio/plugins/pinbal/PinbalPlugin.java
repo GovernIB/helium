@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import es.caib.pinbal.client.recobriment.ClientGeneric;
+import es.caib.pinbal.client.recobriment.model.ScspConfirmacionPeticion;
 import es.caib.pinbal.client.recobriment.model.ScspFuncionario;
 import es.caib.pinbal.client.recobriment.model.ScspJustificante;
 import es.caib.pinbal.client.recobriment.model.ScspRespuesta;
@@ -54,6 +55,66 @@ public class PinbalPlugin implements PinbalPluginInterface {
 	
 	public PinbalPlugin() {	
 		}
+	
+	@Override
+	public Object peticioAsincronaClientPinbalGeneric(DadesConsultaPinbal dadesConsultaPinbal) throws Exception {
+		Solicitud solicitud = new Solicitud();
+		
+		if (this.validarDadesObligatories(dadesConsultaPinbal)) {
+			solicitud.setFinalidad(dadesConsultaPinbal.getFinalitat());
+			solicitud.setConsentimiento(compararConsentiment(dadesConsultaPinbal.getConsentiment()));		
+		}
+		//En el cas de client genèric hem de validar que ens passin un codi del Servei
+		if(dadesConsultaPinbal.getServeiCodi()==null || ("").equals(dadesConsultaPinbal.getServeiCodi())) {
+			logger.error("Error al obtenir la petició, el Codi del Servei és obligatori.");
+			throw new IOException(
+					"Error al obtenir la petició, el Codi del Servei és obligatori.");
+		}
+		ClientGeneric clientGeneric = this.getClientGeneric();
+
+		solicitud.setIdentificadorSolicitante(dadesConsultaPinbal.getEntitat_CIF());
+		solicitud.setCodigoProcedimiento(dadesConsultaPinbal.getCodiProcediment());
+		solicitud.setUnidadTramitadora(dadesConsultaPinbal.getUnitatTramitadora());
+		
+		ScspFuncionario funcionario = new ScspFuncionario();		
+		ScspTitular scspTitular = new ScspTitular();
+		
+		this.dadesTitularIFuncionari(funcionario, scspTitular, dadesConsultaPinbal);
+		solicitud.setFuncionario(funcionario);
+		solicitud.setTitular(scspTitular);
+	
+		if(dadesConsultaPinbal.getXmlDadesEspecifiques()!=null) {
+			solicitud.setDatosEspecificos(dadesConsultaPinbal.getXmlDadesEspecifiques());
+		}
+		//El nom complert no cal segons per quin servei, per exemple en el de VERIFICACIÓ peta si se li passa, però va bé en el de CONSULTA 
+		if(!"SVDDGPVIWS02".equals(dadesConsultaPinbal.getServeiCodi()) && dadesConsultaPinbal.getTitular()!=null && dadesConsultaPinbal.getTitular().getNombreCompleto()!=null) {
+			scspTitular.setNombreCompleto(dadesConsultaPinbal.getTitular().getNombreCompleto());
+			solicitud.setTitular(scspTitular);
+		}
+
+		if (ENABLE_LOGGING) {
+			clientGeneric.enableLogginFilter();
+		}
+		ScspConfirmacionPeticion confirmacioPeticio;
+	
+		try {
+			confirmacioPeticio = clientGeneric.peticionAsincrona(dadesConsultaPinbal.getServeiCodi(), Arrays.asList(solicitud));
+			assertNotNull(confirmacioPeticio);
+		} catch (IOException e) {
+			throw new IOException(
+					"No s'ha pogut obtenir la solicitud síncrona del servei genèric de PINBAL",
+					e);
+		}
+		logger.debug("-> peticionSincrona = " + objectToJsonString(confirmacioPeticio));
+	
+//		ScspRespostaPinbal resposta= new ScspRespostaPinbal();
+//		
+//		if(respuesta!=null && respuesta.getAtributos()!=null) {
+//			resposta = convertirFromPinbalIgetJustificant(respuesta, dadesConsultaPinbal.getDocumentCodi());
+//		}
+			
+		return confirmacioPeticio;
+	}
 	
 	@Override
 	public ScspRespostaPinbal peticionSincronaClientPinbalGeneric(DadesConsultaPinbal dadesConsultaPinbal) throws Exception {
@@ -452,6 +513,7 @@ public class PinbalPlugin implements PinbalPluginInterface {
 		resposta.setEstat(scspRespuesta.getAtributos().getEstado().toString());
 		return resposta;	
 	}
+
 
 
 }

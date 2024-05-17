@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -283,7 +284,7 @@ public class PinbalConsultaGenericaHandler extends BasicActionHandler implements
 	}
 
 	
-	protected DadesConsultaPinbal obtenirDadesConsulta (ExecutionContext executionContext) {
+	protected DadesConsultaPinbal obtenirDadesConsulta (ExecutionContext executionContext) throws ParseException {
 		DadesConsultaPinbal dadesConsultaPinbal = new DadesConsultaPinbal();
 		Titular titular = new Titular();
 		titular.setNombre((String)getValorOVariable(
@@ -339,6 +340,10 @@ public class PinbalConsultaGenericaHandler extends BasicActionHandler implements
 				executionContext,
 				this.interessatCodi,
 				this.varInteressatCodi));
+		if(this.asincrona!=null && !this.asincrona.isEmpty()) {
+			boolean asincrona = Boolean.parseBoolean(this.asincrona.toLowerCase().trim());
+			dadesConsultaPinbal.setAsincrona(asincrona);
+		}
 		
 		return dadesConsultaPinbal;
 	}

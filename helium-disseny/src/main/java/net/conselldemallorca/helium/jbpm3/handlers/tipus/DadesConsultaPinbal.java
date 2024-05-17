@@ -21,6 +21,7 @@ public class DadesConsultaPinbal {
 	private String serveiCodi;
 	private String interessatCodi;
 	private String finalitat;
+	private boolean asincrona;
 
 	public enum consentiment {
 		SI,
@@ -96,6 +97,14 @@ public class DadesConsultaPinbal {
 
 	public void setConsentiment(String consentiment) {
 		this.consentiment = consentiment;
+	}
+
+	public boolean isAsincrona() {
+		return asincrona;
+	}
+
+	public void setAsincrona(boolean asincrona) {
+		this.asincrona = asincrona;
 	}
 
 

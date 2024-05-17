@@ -16,7 +16,7 @@ public interface PeticioPinbalRepository extends JpaRepository<PeticioPinbal, Lo
 	
 	public PeticioPinbal findByPinbalId(String pinbalId);
 	
-//	public List<PeticioPinbal> findByEntornIdAndTipusIdAndExpedientId(Long entornId, Long tipusId, Long expedientId);
+	public List<PeticioPinbal> findByExpedientId(Long expedientId);
 	
 //	" and   (:esNullFiltre = true "
 //	+ "or lower(uo.denominacio) like lower('%'||:filtre||'%') "
@@ -33,7 +33,8 @@ public interface PeticioPinbalRepository extends JpaRepository<PeticioPinbal, Lo
 			" and (:esNullUsuari = true or lower(pi.usuari) like lower('%'||:usuari||'%')) "+
 			" and (:esNullEstat = true or pi.estat = :estat) " +
 			" and (:esNullDataIni = true or pi.dataPeticio >= :dataIni) " +
-			" and (:esNullDataFi = true  or pi.dataPeticio <= :dataFi)")
+			" and (:esNullDataFi = true  or pi.dataPeticio <= :dataFi) " +
+			" and (:esNullFiltre = true or (lower(pi.usuari) like lower('%'||:filtre||'%')) or lower(pi.procediment) like lower('%'||:filtre||'%') or lower(pi.estat) like lower('%'||:filtre||'%') or lower(pi.errorMsg) like lower('%'||:filtre||'%'))")
 	public Page<PeticioPinbal> findByFiltrePaginat(
 			@Param("esNullEntorn") boolean esNullEntorn,
 			@Param("entornsId") List<Long> entornsId,			
@@ -52,6 +53,8 @@ public interface PeticioPinbalRepository extends JpaRepository<PeticioPinbal, Lo
 			@Param("esNullDataIni") boolean esNullDataIni,
 			@Param("dataIni") Date dataIni,
 			@Param("esNullDataFi") boolean esNullDataFi,
-			@Param("dataFi") Date dataFi,	
+			@Param("dataFi") Date dataFi,
+			@Param("esNullFiltre") boolean esNullFiltre,
+			@Param("filtre") String filtre,			
 			Pageable pageable);
 }

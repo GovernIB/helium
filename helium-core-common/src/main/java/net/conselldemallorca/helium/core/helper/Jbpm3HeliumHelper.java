@@ -1743,11 +1743,18 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				expedient.getTipus().getCodi());
 		if (expedientTipus == null)
 			throw new NoTrobatException(ExpedientTipus.class, expedient.getTipus().getCodi());
-		
-		ScspRespostaPinbal respostaPinbal = (ScspRespostaPinbal) pluginHelper.consultaSincronaPinbal(
-				this.convertirDadesDeDto(dadesConsultaPinbal, expedientTipus, expedient), 
-				expedient, 
-				null);//Al ser consultaGenèrica, li passen directament ells el serveiCodi
+		ScspRespostaPinbal respostaPinbal=null;
+		if(dadesConsultaPinbal.isAsincrona()) {
+			 respostaPinbal = (ScspRespostaPinbal) pluginHelper.consultaAsincronaPinbal(
+						this.convertirDadesDeDto(dadesConsultaPinbal, expedientTipus, expedient), 
+						expedient, 
+						null);//Al ser consultaGenèrica, li passen directament ells el serveiCodi
+		} else {
+			respostaPinbal = (ScspRespostaPinbal) pluginHelper.consultaSincronaPinbal(
+					this.convertirDadesDeDto(dadesConsultaPinbal, expedientTipus, expedient), 
+					expedient, 
+					null);//Al ser consultaGenèrica, li passen directament ells el serveiCodi
+		}	 
 		ScspJustificant justificant = new ScspJustificant();
 		
 		if (respostaPinbal!=null) {
@@ -1795,39 +1802,46 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				expedient.getTipus().getCodi());
 		if (expedientTipus == null)
 			throw new NoTrobatException(ExpedientTipus.class, expedient.getTipus().getCodi());
-		
-		ScspRespostaPinbal respostaPinbal = (ScspRespostaPinbal) pluginHelper.consultaSincronaPinbal(
+		ScspRespostaPinbal respostaPinbal = null;
+		if(dadesConsultaPinbal.isAsincrona()) {
+			respostaPinbal = (ScspRespostaPinbal) pluginHelper.consultaAsincronaPinbal(
+					this.convertirDadesDeDto(dadesConsultaPinbal, expedientTipus, expedient), 
+					expedient, 
+					PluginHelper.serveiConsultaDades);
+		}else {
+			respostaPinbal = (ScspRespostaPinbal) pluginHelper.consultaSincronaPinbal(
 				this.convertirDadesDeDto(dadesConsultaPinbal, expedientTipus, expedient), 
 				expedient, 
 				PluginHelper.serveiConsultaDades);
 		
-		ScspJustificant justificant = new ScspJustificant();
+			ScspJustificant justificant = new ScspJustificant();
 		
-		if (respostaPinbal!=null) {
-			justificant = respostaPinbal.getJustificant();
+			if (respostaPinbal!=null) {
+				justificant = respostaPinbal.getJustificant();
 
-		} else {
-			throw new SistemaExternException(
-					expedient.getEntorn().getId(),
-					expedient.getEntorn().getCodi(), 
-					expedient.getEntorn().getNom(), 
-					expedient.getId(), 
-					expedient.getTitol(), 
-					expedient.getNumero(), 
-					expedient.getTipus().getId(), 
-					expedient.getTipus().getCodi(), 
-					expedient.getTipus().getNom(), 
-					"(Petició síncrona Pinbal servei : "+PluginHelper.serveiConsultaDades +")", 
-					null);
-		}
-		if(justificant!=null) {
-			this.documentExpedientGuardar(
-					processInstanceId,
-					dadesConsultaPinbal.getDocumentCodi(),
-					new Date(),
-					justificant.getNom(),
-					justificant.getContingut());	
+			}else {
+				throw new SistemaExternException(
+						expedient.getEntorn().getId(),
+						expedient.getEntorn().getCodi(), 
+						expedient.getEntorn().getNom(), 
+						expedient.getId(), 
+						expedient.getTitol(), 
+						expedient.getNumero(), 
+						expedient.getTipus().getId(), 
+						expedient.getTipus().getCodi(), 
+						expedient.getTipus().getNom(), 
+						"(Petició síncrona Pinbal servei : "+PluginHelper.serveiConsultaDades +")", 
+						null);
+			}
+			if(justificant!=null) {
+				this.documentExpedientGuardar(
+						processInstanceId,
+						dadesConsultaPinbal.getDocumentCodi(),
+						new Date(),
+						justificant.getNom(),
+						justificant.getContingut());	
 
+			}
 		}
 		return respostaPinbal;
 	}

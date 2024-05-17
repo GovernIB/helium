@@ -5044,6 +5044,74 @@ public class PluginHelper {
 		}
 		return scspRespostaPinbal;
 	}
+	
+public Object consultaAsincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, Expedient expedient, String servei) {
+		
+		Object scspRespostaPinbal = null;	
+		String accioDescripcio = "Consulta Pinbal (Petició asíncrona)";
+		Date dataPeticioIni = Calendar.getInstance().getTime();	
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"expedient.id",
+						expedient.getId()),
+				new IntegracioParametreDto(
+						"expedient",
+						expedient.getIdentificadorLimitat())//,
+		};
+		long t0 = System.currentTimeMillis();
+		
+		try {
+			
+			if (servei==null) {
+				scspRespostaPinbal= getPinbalPlugin().peticioAsincronaClientPinbalGeneric(dadesConsultaPinbal);
+			}
+			else if(servei.equals(PluginHelper.serveiConsultaDades))// corregir
+				scspRespostaPinbal= getPinbalPlugin().peticioAsincronaClientPinbalGeneric(dadesConsultaPinbal);
+			else if(servei.equals(PluginHelper.serveiVerificacioDades))
+				scspRespostaPinbal= getPinbalPlugin().peticioAsincronaClientPinbalGeneric(dadesConsultaPinbal);
+			else if(servei.equals(PluginHelper.serveiObligacionsTributaries))
+				scspRespostaPinbal= getPinbalPlugin().peticioAsincronaClientPinbalGeneric(dadesConsultaPinbal);
+			
+			
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_PINBAL,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametres);
+			
+			//Cream la petició pinbal per el historic de peticions
+			PeticioPinbal peticio = new PeticioPinbal();
+			peticio.setDataPeticio(dataPeticioIni);
+			peticio.setAsincrona(false);
+			peticio.setEstat(PeticioPinbalEstatEnum.TRAMITADA);
+			peticio.setExpedient(expedient);
+			peticio.setTipus(expedient.getTipus());
+			peticio.setEntorn(expedient.getTipus().getEntorn());
+			peticio.setProcediment(servei);
+			peticio.setUsuari(SecurityContextHolder.getContext().getAuthentication().getName());
+			peticio.setPinbalId(((ScspRespostaPinbal)scspRespostaPinbal).getIdPeticion());
+			peticio.setDocument(documentStoreRepository.findOne(1000l));
+	//		peticio.setDataProcessamentPrimer(dataProcessamentPrimer);
+			peticioPinbalRepository.save(peticio);
+			
+		} catch (Exception ex) {
+			String errorDescripcio = "No s'ha pogut enviar la consulta síncrona a Pinbal: " + ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_PINBAL,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_PINBAL,
+					errorDescripcio, 
+					ex);
+		}
+		return scspRespostaPinbal;
+	}
 
 	public Object obtenirJustificantPinbal(Expedient expedient, DadesNotificacioDto dadesNotificacio) {
 		return null;

@@ -10,6 +10,11 @@ package net.conselldemallorca.helium.integracio.plugins.pinbal;
  */
 public interface PinbalPluginInterface {
 
+//	public Object peticioClientPinbal(DadesConsultaPinbal dadesConsultaPinbal) throws Exception;
+	public Object peticioAsincronaClientPinbalGeneric(DadesConsultaPinbal dadesConsultaPinbal) throws Exception;
+	
+	
+	
 	public Object peticionSincronaClientPinbalGeneric(DadesConsultaPinbal dadesConsultaPinbal) throws Exception;
 
 	public Object peticionSincronaClientPinbalSvddgpciws02(DadesConsultaPinbal dadesConsultaPinbal) throws Exception;

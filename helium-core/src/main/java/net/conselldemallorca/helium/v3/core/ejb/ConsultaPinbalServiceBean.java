@@ -1,5 +1,7 @@
 package net.conselldemallorca.helium.v3.core.ejb;
 
+import java.util.List;
+
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
@@ -27,5 +29,10 @@ public class ConsultaPinbalServiceBean implements ConsultaPinbalService {
 	@Override
 	public PeticioPinbalDto findById(Long peticioPinbalId) {
 		return delegate.findById(peticioPinbalId);
+	}
+
+	@Override
+	public List<PeticioPinbalDto> findConsultesPinbalPerExpedient(Long expedientId) {
+		return delegate.findConsultesPinbalPerExpedient(expedientId);
 	}
 }
