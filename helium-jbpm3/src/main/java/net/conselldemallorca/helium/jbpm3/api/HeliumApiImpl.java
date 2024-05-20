@@ -1141,7 +1141,10 @@ public class HeliumApiImpl implements HeliumApi {
 	public Object consultaPinbal(
 		DadesConsultaPinbal dadesConsultaPinbal) throws JbpmException {
 		Object respostaPinbal = Jbpm3HeliumBridge.getInstanceService().consultaPinbal(
-				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), getExpedient().getId(), getProcessInstanceId());
+				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal),
+				getExpedient().getId(),
+				getProcessInstanceId(),
+				(executionContext!=null && executionContext.getToken()!=null)?executionContext.getToken().getId():null);
 		return respostaPinbal;
 	}
 	
@@ -1157,7 +1160,10 @@ public class HeliumApiImpl implements HeliumApi {
 	public Object consultaPinbalSvddgpciws02(
 			DadesConsultaPinbal dadesConsultaPinbal) {
 		Object respostaPinbal = Jbpm3HeliumBridge.getInstanceService().consultaDadesIdentitatPinbalSVDDGPCIWS02(
-				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), getExpedient().getId(), getProcessInstanceId());
+				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal),
+				getExpedient().getId(),
+				getProcessInstanceId(),
+				(executionContext!=null && executionContext.getToken()!=null)?executionContext.getToken().getId():null);
 		return respostaPinbal;
 	}
 	
@@ -1172,7 +1178,10 @@ public class HeliumApiImpl implements HeliumApi {
 	public Object consultaPinbalSvddgpviws02(
 			DadesConsultaPinbal dadesConsultaPinbal) {
 		Object respostaPinbal = Jbpm3HeliumBridge.getInstanceService().verificacioDadesIdentitatPinbalSVDDGPCIWS02(
-				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal),  getExpedient().getId(), getProcessInstanceId());
+				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal),
+				getExpedient().getId(),
+				getProcessInstanceId(),
+				(executionContext!=null && executionContext.getToken()!=null)?executionContext.getToken().getId():null);
 		//en aquest servei no se li pot passsar NonbreCompleto! MAXLENGTH=0
 		return respostaPinbal;
 	}
@@ -1188,7 +1197,10 @@ public class HeliumApiImpl implements HeliumApi {
 	public Object consultaPinbalSvdccaacpasws01(
 			DadesConsultaPinbal dadesConsultaPinbal) {
 		Object respostaPinbal = Jbpm3HeliumBridge.getInstanceService().dadesTributariesPinbalSVDCCAACPASWS01(
-				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), getExpedient().getId(), getProcessInstanceId());
+				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal),
+				getExpedient().getId(),
+				getProcessInstanceId(),
+				(executionContext!=null && executionContext.getToken()!=null)?executionContext.getToken().getId():null);
 		return respostaPinbal;
 	}
 	

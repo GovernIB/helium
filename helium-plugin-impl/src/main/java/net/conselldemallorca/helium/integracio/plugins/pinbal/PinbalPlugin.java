@@ -33,6 +33,7 @@ import es.caib.pinbal.client.recobriment.svddgpciws02.ClientSvddgpciws02.Solicit
 import es.caib.pinbal.client.recobriment.svddgpviws02.ClientSvddgpviws02;
 import es.caib.pinbal.client.recobriment.svddgpviws02.ClientSvddgpviws02.SolicitudSvddgpviws02;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalEstatEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.ScspJustificant;
 import net.conselldemallorca.helium.v3.core.api.dto.ScspRespostaPinbal;
 
@@ -337,21 +338,22 @@ public class PinbalPlugin implements PinbalPluginInterface {
 	
 
 	@Override
-	public Object getRespuestaPinbal(String peticioId) throws IOException {
+	public ScspRespostaPinbal getRespuestaPinbal(String peticioId) throws Exception {
+		
 		ClientGeneric clientGeneric=this.getClientGeneric();
 		clientGeneric.enableLogginFilter();
-		ScspRespuesta respuesta;
-		try {
-			respuesta = clientGeneric.getRespuesta(peticioId);
-			assertNotNull(respuesta);
-		} catch (IOException e) {
-			throw new IOException(
-					"No s'ha pogut obtenir la resposta (" +
-					"petició=" + peticioId + ")",
-					e);
+		ScspRespuesta respuesta = clientGeneric.getRespuesta(peticioId);
+		
+		if (respuesta==null) throw new Exception("La resposta clientGeneric.getRespuesta ha resultat nula.");
+		
+		ScspRespostaPinbal resultat = new ScspRespostaPinbal();
+		if ("0003".equals(respuesta.getAtributos().getEstado().getCodigoEstado())) {
+			resultat.setEstatAsincron(PeticioPinbalEstatEnum.TRAMITADA);
+			resultat.setJustificant(getJustificantPinbal(peticioId, null));
 		}
+
 		logger.debug("-> getRespuesta(" + peticioId + ") = " + objectToJsonString(respuesta));
-		return respuesta;
+		return resultat;
 	}
 	
 	@Override

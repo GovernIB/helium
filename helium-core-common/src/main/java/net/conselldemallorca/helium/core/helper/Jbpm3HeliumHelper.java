@@ -1739,7 +1739,11 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	}
 
 	@Override
-	public ScspRespostaPinbal consultaPinbal(DadesConsultaPinbalDto dadesConsultaPinbal, Long expedientId, String processInstanceId)
+	public ScspRespostaPinbal consultaPinbal(
+			DadesConsultaPinbalDto dadesConsultaPinbal,
+			Long expedientId,
+			String processInstanceId,
+			Long tokenId)
 			throws SistemaExternException, NoTrobatException {
 		
 		Expedient expedient = expedientRepository.findOne(expedientId);
@@ -1823,15 +1827,20 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				respostaPinbal.getIdPeticion(),
 				dadesConsultaPinbal.isAsincrona(),
 				dataPecicio,
-				respostaPinbal.getDataProcessament());
+				respostaPinbal.getDataProcessament(),
+				tokenId);
 		
 		return respostaPinbal;
 	}
 	
 	@Override
-	public ScspRespostaPinbal consultaDadesIdentitatPinbalSVDDGPCIWS02(DadesConsultaPinbalDto dadesConsultaPinbal, Long expedientId, String processInstanceId)
+	public ScspRespostaPinbal consultaDadesIdentitatPinbalSVDDGPCIWS02(
+			DadesConsultaPinbalDto dadesConsultaPinbal,
+			Long expedientId,
+			String processInstanceId,
+			Long tokenId)
 			throws SistemaExternException, NoTrobatException {
-		
+
 		Expedient expedient = expedientRepository.findOne(expedientId);
 		if (expedient == null)
 			throw new NoTrobatException(Expedient.class, expedientId);
@@ -1912,7 +1921,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				respostaPinbal.getIdPeticion(),
 				dadesConsultaPinbal.isAsincrona(),
 				dataPecicio,
-				respostaPinbal.getDataProcessament());		
+				respostaPinbal.getDataProcessament(),
+				tokenId);		
 		
 		return respostaPinbal;
 	}
@@ -1924,7 +1934,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			String idPeticioPinbal,
 			boolean asincrona,
 			Date dataPeticio,
-			Date dataPrevista) {
+			Date dataPrevista,
+			Long tokenId) {
 		//Cream la petició pinbal per el historic de peticions
 		PeticioPinbal peticio = new PeticioPinbal();
 		peticio.setDataPeticio(dataPeticio);
@@ -1942,12 +1953,16 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		peticio.setUsuari(SecurityContextHolder.getContext().getAuthentication().getName());
 		peticio.setPinbalId(idPeticioPinbal);
 		peticio.setDocument(justificant);
+		peticio.setTokenId(tokenId);
 		peticioPinbalRepository.save(peticio);
 	}
 	
 	@Override
-	public Object verificacioDadesIdentitatPinbalSVDDGPCIWS02(DadesConsultaPinbalDto dadesConsultaPinbal,
-			Long expedientId, String processInstanceId) throws SistemaExternException, NoTrobatException {
+	public Object verificacioDadesIdentitatPinbalSVDDGPCIWS02(
+			DadesConsultaPinbalDto dadesConsultaPinbal,
+			Long expedientId,
+			String processInstanceId,
+			Long tokenId) throws SistemaExternException, NoTrobatException {
 		
 		Expedient expedient = expedientRepository.findOne(expedientId);
 		if (expedient == null)
@@ -2030,14 +2045,18 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				respostaPinbal.getIdPeticion(),
 				dadesConsultaPinbal.isAsincrona(),
 				dataPecicio,
-				respostaPinbal.getDataProcessament());			
+				respostaPinbal.getDataProcessament(),
+				tokenId);			
 		
 		return respostaPinbal;
 	}
 
 	@Override
-	public Object dadesTributariesPinbalSVDCCAACPASWS01(DadesConsultaPinbalDto dadesConsultaPinbal, Long expedientId,
-			String processInstanceId) throws SistemaExternException, NoTrobatException {
+	public Object dadesTributariesPinbalSVDCCAACPASWS01(
+			DadesConsultaPinbalDto dadesConsultaPinbal,
+			Long expedientId,
+			String processInstanceId,
+			Long tokenId) throws SistemaExternException, NoTrobatException {
 		
 		Expedient expedient = expedientRepository.findOne(expedientId);
 		if (expedient == null)
@@ -2120,7 +2139,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				respostaPinbal.getIdPeticion(),
 				dadesConsultaPinbal.isAsincrona(),
 				dataPecicio,
-				respostaPinbal.getDataProcessament());			
+				respostaPinbal.getDataProcessament(),
+				tokenId);			
 		
 		return respostaPinbal;
 	}

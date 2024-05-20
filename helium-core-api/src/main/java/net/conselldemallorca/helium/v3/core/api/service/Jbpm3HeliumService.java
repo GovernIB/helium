@@ -889,16 +889,28 @@ public interface Jbpm3HeliumService {
 	
 	/** PINBAL **/
 	public Object consultaPinbal(
-			DadesConsultaPinbalDto dadesConsultaPinbal, Long expedientId, String processInstanceId) throws SistemaExternException, NoTrobatException;
+			DadesConsultaPinbalDto dadesConsultaPinbal,
+			Long expedientId,
+			String processInstanceId,
+			Long tokenId) throws SistemaExternException, NoTrobatException;
 
 	public Object consultaDadesIdentitatPinbalSVDDGPCIWS02(
-			DadesConsultaPinbalDto dadesConsultaPinbal, Long expedientId, String processInstanceId) throws SistemaExternException, NoTrobatException;
+			DadesConsultaPinbalDto dadesConsultaPinbal,
+			Long expedientId,
+			String processInstanceId,
+			Long tokenId) throws SistemaExternException, NoTrobatException;
 	
 	public Object verificacioDadesIdentitatPinbalSVDDGPCIWS02(
-			DadesConsultaPinbalDto dadesConsultaPinbal, Long expedientId, String processInstanceId) throws SistemaExternException, NoTrobatException;
+			DadesConsultaPinbalDto dadesConsultaPinbal,
+			Long expedientId,
+			String processInstanceId,
+			Long tokenId) throws SistemaExternException, NoTrobatException;
 	
 	public Object dadesTributariesPinbalSVDCCAACPASWS01(
-			DadesConsultaPinbalDto dadesConsultaPinbal, Long expedientId, String processInstanceId) throws SistemaExternException, NoTrobatException;
+			DadesConsultaPinbalDto dadesConsultaPinbal,
+			Long expedientId,
+			String processInstanceId,
+			Long tokenId) throws SistemaExternException, NoTrobatException;
 	
 	
 	

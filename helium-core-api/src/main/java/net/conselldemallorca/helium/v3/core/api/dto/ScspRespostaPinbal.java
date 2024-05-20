@@ -14,7 +14,9 @@ public class ScspRespostaPinbal {
 	private ScspJustificant justificant;
 	private Date dataProcessament;
 	private EstatDto estatDto;
-	private String estat;	
+	private String estat;
+	private PeticioPinbalEstatEnum estatAsincron;
+	private String errorProcessament;
 
 	public String getIdPeticion() {
 		return idPeticion;
@@ -39,5 +41,17 @@ public class ScspRespostaPinbal {
 	}
 	public void setDataProcessament(Date dataProcessament) {
 		this.dataProcessament = dataProcessament;
+	}
+	public PeticioPinbalEstatEnum getEstatAsincron() {
+		return estatAsincron;
+	}
+	public void setEstatAsincron(PeticioPinbalEstatEnum estatAsincron) {
+		this.estatAsincron = estatAsincron;
+	}
+	public String getErrorProcessament() {
+		return errorProcessament;
+	}
+	public void setErrorProcessament(String errorProcessament) {
+		this.errorProcessament = errorProcessament;
 	}
 }

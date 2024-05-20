@@ -1,7 +1,6 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.integracio.plugins.pinbal;
+
+import net.conselldemallorca.helium.v3.core.api.dto.ScspRespostaPinbal;
 
 /**
  * Interfície per accedir a la funcionalitat de pinbal.
@@ -10,10 +9,7 @@ package net.conselldemallorca.helium.integracio.plugins.pinbal;
  */
 public interface PinbalPluginInterface {
 
-//	public Object peticioClientPinbal(DadesConsultaPinbal dadesConsultaPinbal) throws Exception;
 	public Object peticioAsincronaClientPinbalGeneric(DadesConsultaPinbal dadesConsultaPinbal) throws Exception;
-	
-	
 	
 	public Object peticionSincronaClientPinbalGeneric(DadesConsultaPinbal dadesConsultaPinbal) throws Exception;
 
@@ -23,10 +19,7 @@ public interface PinbalPluginInterface {
 
 	public Object peticionSincronaClientPinbalSvdccaacpasws01(DadesConsultaPinbal dadesConsultaPinbal) throws Exception;
 
-	public Object getRespuestaPinbal(String peticioId) throws Exception;
-	
+	public ScspRespostaPinbal getRespuestaPinbal(String peticioId) throws Exception;
 
 	public Object getJustificantPinbal(String peticioId) throws Exception;
-	
-	
 }

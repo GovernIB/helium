@@ -192,7 +192,11 @@ public class PinbalConsultaGenericaHandler extends BasicActionHandler implements
 			dadesConsultaPinbal.setXmlDadesEspecifiques(dadesEspecifiquesXml);
 		}
 		
-		Object resposta = super.consultaPinbal(dadesConsultaPinbal, expedient.getId(), expedient.getProcessInstanceId());
+		Object resposta = super.consultaPinbal(
+				dadesConsultaPinbal,
+				expedient.getId(),
+				expedient.getProcessInstanceId(),
+				(executionContext!=null && executionContext.getToken()!=null)?executionContext.getToken().getId():null);
 
 	}
 	

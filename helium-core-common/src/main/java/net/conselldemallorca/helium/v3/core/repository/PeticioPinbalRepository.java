@@ -18,10 +18,8 @@ public interface PeticioPinbalRepository extends JpaRepository<PeticioPinbal, Lo
 	
 	public List<PeticioPinbal> findByExpedientId(Long expedientId);
 	
-//	" and   (:esNullFiltre = true "
-//	+ "or lower(uo.denominacio) like lower('%'||:filtre||'%') "
-//	+ "or lower(uo.codi) like lower('%'||:filtre||'%')  "
-//	+ "or lower(uo.estat) like lower('%'||:filtre||'%')) "
+	@Query(	"select pi from PeticioPinbal pi where pi.asincrona=true and pi.estat='PENDENT'")
+	public List<PeticioPinbal> findAsincronesPendents();
 	
 	@Query(	"select pi from PeticioPinbal pi INNER JOIN pi.expedient as ex  " +
 			"where  "+

@@ -18,6 +18,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -50,18 +51,22 @@ import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedien
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientReindexacio;
 import net.conselldemallorca.helium.core.model.hibernate.Notificacio;
+import net.conselldemallorca.helium.core.model.hibernate.PeticioPinbal;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentEnviamentEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
+import net.conselldemallorca.helium.v3.core.api.exception.ExecucioMassivaException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.service.ConsultaPinbalService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
 import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientReindexacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
+import net.conselldemallorca.helium.v3.core.repository.PeticioPinbalRepository;
 
 /**
  * Servei per gestionar els terminis dels expedients
@@ -81,6 +86,10 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	private NotificacioRepository notificacioRepository;
 	@Autowired
 	private ExecucioMassivaService execucioMassivaService;
+	@Autowired
+	private PeticioPinbalRepository peticioPinbalRepository;
+	@Resource
+	private ConsultaPinbalService consultaPinbalService;
 	@Resource
 	private IndexHelper indexHelper;
 	@Resource
@@ -575,10 +584,22 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 					timeMs,
 					error, 
 					e, 
-					parametresMonitor);	
+					parametresMonitor);
 		}
 	}
 	
 	private static final Log logger = LogFactory.getLog(TascaProgramadaService.class);
 
+	@Override
+	@Scheduled(fixedDelayString = "300000")
+	@Async
+	@Transactional
+	public void updatePeticionsAsincronesPinbal() throws ExecucioMassivaException {
+		List<PeticioPinbal> peticionsAsincronesPendents = peticioPinbalRepository.findAsincronesPendents();
+		if (peticionsAsincronesPendents!=null) {
+			for (PeticioPinbal pi: peticionsAsincronesPendents) {
+				consultaPinbalService.tractamentPeticioAsincronaPendentPinbal(pi.getId());
+			}
+		}
+	}
 }

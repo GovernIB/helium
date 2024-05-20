@@ -45,6 +45,8 @@ public class PeticioPinbal implements Serializable, GenericEntity<Long> {
 	@ManyToOne(optional=false)
 	@JoinColumn(name="DOCUMENT_ID")
 	private DocumentStore document;
+	@Column(name="TOKEN_ID")
+	private Long tokenId;
 	@MaxLength(32)
 	private String procediment;
 	@MaxLength(64)
@@ -230,5 +232,11 @@ public class PeticioPinbal implements Serializable, GenericEntity<Long> {
 
 	public void setErrorProcessament(String errorProcessament) {
 		this.errorProcessament = errorProcessament;
+	}
+	public Long getTokenId() {
+		return tokenId;
+	}
+	public void setTokenId(Long tokenId) {
+		this.tokenId = tokenId;
 	}
 }

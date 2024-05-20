@@ -5023,7 +5023,7 @@ public class PluginHelper {
 		return scspRespostaPinbal;
 	}
 	
-public ScspRespostaPinbal consultaAsincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, Expedient expedient, String servei) {
+	public ScspRespostaPinbal consultaAsincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, Expedient expedient, String servei) {
 		
 		Object scspRespostaPinbal = null;	
 		String accioDescripcio = "Consulta Pinbal (Petició asíncrona)";
@@ -5078,9 +5078,9 @@ public ScspRespostaPinbal consultaAsincronaPinbal(DadesConsultaPinbal dadesConsu
 					ex);
 		}
 	}
-
-	public Object obtenirJustificantPinbal(Expedient expedient, DadesNotificacioDto dadesNotificacio) {
-		return null;
+	
+	public ScspRespostaPinbal consultaEstatPeticioPinbal(String peticioId) throws Exception {
+		return getPinbalPlugin().getRespuestaPinbal(peticioId);
 	}
 	
 	public PortafirmesIniciFluxRespostaDto portafirmesIniciarFluxDeFirma(String idioma, boolean isPlantilla, String nom, String descripcio, 

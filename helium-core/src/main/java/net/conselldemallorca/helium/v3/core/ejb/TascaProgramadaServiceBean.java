@@ -9,6 +9,7 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import net.conselldemallorca.helium.v3.core.api.exception.ExecucioMassivaException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
 
@@ -73,6 +74,12 @@ public class TascaProgramadaServiceBean implements TascaProgramadaService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void comprovarAnotacionsPendents() throws NoTrobatException {
 		delegate.comprovarAnotacionsPendents();
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void updatePeticionsAsincronesPinbal() throws ExecucioMassivaException {
+		delegate.updatePeticionsAsincronesPinbal();
 	}
 
 }

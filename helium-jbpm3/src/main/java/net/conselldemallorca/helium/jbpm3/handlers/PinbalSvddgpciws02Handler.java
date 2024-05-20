@@ -61,7 +61,11 @@ public class PinbalSvddgpciws02Handler extends PinbalConsultaGenericaHandler {
 		//Al ser un handler específic li setegem el codi del servei
 		dadesConsultaPinbal.setServeiCodi(serveiCodiEspecific);
 			
-		Object resposta = consultaPinbalSvddgpciws02(dadesConsultaPinbal, expedient.getId(), expedient.getProcessInstanceId());
+		Object resposta = consultaPinbalSvddgpciws02(
+				dadesConsultaPinbal,
+				expedient.getId(),
+				expedient.getProcessInstanceId(),
+				(executionContext!=null && executionContext.getToken()!=null)?executionContext.getToken().getId():null);
 
 	}
 	
