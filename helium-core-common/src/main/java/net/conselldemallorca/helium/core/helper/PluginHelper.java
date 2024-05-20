@@ -162,6 +162,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto.RegistreNotificacioTramitSubsanacioParametreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ScspRespostaPinbal;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto.TramitDocumentSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
@@ -5022,7 +5023,7 @@ public class PluginHelper {
 		return scspRespostaPinbal;
 	}
 	
-public Object consultaAsincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, Expedient expedient, String servei) {
+public ScspRespostaPinbal consultaAsincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, Expedient expedient, String servei) {
 		
 		Object scspRespostaPinbal = null;	
 		String accioDescripcio = "Consulta Pinbal (Petició asíncrona)";
@@ -5047,7 +5048,7 @@ public Object consultaAsincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, E
 				scspRespostaPinbal= getPinbalPlugin().peticioAsincronaClientPinbalGeneric(dadesConsultaPinbal);
 			else if(servei.equals(PluginHelper.serveiObligacionsTributaries))
 				scspRespostaPinbal= getPinbalPlugin().peticioAsincronaClientPinbalGeneric(dadesConsultaPinbal);
-
+			
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_PINBAL,
 					accioDescripcio,
@@ -5055,6 +5056,12 @@ public Object consultaAsincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, E
 					System.currentTimeMillis() - t0,
 					parametres);
 
+			/**
+			 * TODO: Fer la conversió del objecte que retorni cada crida, (segurament objecte de la llibreria de pinbal)
+			 * A la classe que pot utilitzar el helper que cridi aqui: net.conselldemallorca.helium.v3.core.api.dto.ScspRespostaPinbal
+			 */
+			return (ScspRespostaPinbal)scspRespostaPinbal;			
+			
 		} catch (Exception ex) {
 			String errorDescripcio = "No s'ha pogut enviar la consulta síncrona a Pinbal: " + ex.getMessage();
 			monitorIntegracioHelper.addAccioError(
@@ -5070,7 +5077,6 @@ public Object consultaAsincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, E
 					errorDescripcio, 
 					ex);
 		}
-		return scspRespostaPinbal;
 	}
 
 	public Object obtenirJustificantPinbal(Expedient expedient, DadesNotificacioDto dadesNotificacio) {

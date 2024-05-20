@@ -96,7 +96,7 @@ public class PinbalPlugin implements PinbalPluginInterface {
 			clientGeneric.enableLogginFilter();
 		}
 		ScspConfirmacionPeticion confirmacioPeticio;
-	
+
 		try {
 			confirmacioPeticio = clientGeneric.peticionAsincrona(dadesConsultaPinbal.getServeiCodi(), Arrays.asList(solicitud));
 			assertNotNull(confirmacioPeticio);
