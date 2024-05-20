@@ -1943,27 +1943,27 @@ public class ExpedientHelper {
 		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
 		Expedient expedientPerRetornar = expedientRepository.saveAndFlush(expedient);
 		//Relacionem amb l'anotació si en té
-				if (anotacioId != null) {
-					if (resultatMapeig != null && resultatMapeig.isError()) {
-						Alerta alerta = alertaHelper.crearAlerta(
-								expedient.getEntorn(), 
-								expedient, 
-								new Date(), 
-								null, 
-								resultatMapeig.getMissatgeAlertaErrors());
-						alerta.setPrioritat(AlertaPrioritat.ALTA);	
-					}
-					// Incorporporar l'anotació a l'expedient
-					anotacioHelper.incorporarReprocessarExpedient(
-							null,
-							anotacioId, 
-							expedientTipusId, 
-							expedient.getId(),
-							anotacioInteressatsAssociar,
-							true,
-							false,
-							backofficeUtils);
-				}
+		if (anotacioId != null) {
+			if (resultatMapeig != null && resultatMapeig.isError()) {
+				Alerta alerta = alertaHelper.crearAlerta(
+						expedient.getEntorn(), 
+						expedient, 
+						new Date(), 
+						null, 
+						resultatMapeig.getMissatgeAlertaErrors());
+				alerta.setPrioritat(AlertaPrioritat.ALTA);	
+			}
+			// Incorporporar l'anotació a l'expedient
+			anotacioHelper.incorporarReprocessarExpedient(
+					null,
+					anotacioId, 
+					expedientTipusId, 
+					expedient.getId(),
+					anotacioInteressatsAssociar,
+					false,
+					false,
+					backofficeUtils);
+		}
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
 
 		// Verificar la ultima vegada que l'expedient va modificar el seu estat

@@ -377,10 +377,10 @@ public class AnotacioHelper {
 		
 		boolean isUsuariAdministrador = usuariActualHelper.isAdministrador();
 		boolean potReassignar = false;
-		// Si no Ã©s administrador d'Helium
+		// Si no és administrador d'Helium
 		if (!isUsuariAdministrador) {
 			if (anotacio.getExpedientTipus() != null) {
-				// Comprova si tÃ© el permÃ­s de reassignar sobre el tipus d'expedient
+				// Comprova si té el permís de reassignar sobre el tipus d'expedient
 				potReassignar = expedientTipusHelper.comprovarPermisos(
 						anotacio.getExpedientTipus(), 
 						null, 

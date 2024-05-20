@@ -796,9 +796,9 @@ public class DistribucioHelper {
 							null, //responsableCodi, 
 							documents, //documents, 
 							adjunts,
+							anotacio != null ? anotacio.getId() : null,
 							null,
-							null,
-							false,
+							true, // incorporar interessats
 							backofficeUtils);
 				} catch (Throwable e) {
 					String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e;
@@ -827,27 +827,26 @@ public class DistribucioHelper {
 				}
 
 			} else {
-				reprocessar = true;
+				// Incorporporar l'anotació a l'expedient
+				try {
+					anotacioHelper.incorporarReprocessarExpedient(
+							anotacio,
+							anotacio.getId(), 
+							expedientTipus.getId(), 
+							expedient.getId(),
+							true,
+							false,
+							reprocessar,
+							backofficeUtils);
+				} catch (Exception e) {
+					String traçaCompleta = ExceptionUtils.getStackTrace(e);
+					String errorProcessament = "Error incorporant/reprocessant l'anotació " + idWs.getIndetificador() + " a l'expedient:" + traçaCompleta;
+					this.canviEstatErrorAnotacio(errorProcessament, anotacio, idWs, e);
+					throw new Exception(messageHelper.getMessage("error.proces.peticio") + ": "
+							+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
+				}
 			}
-			// Incorporporar l'anotació a l'expedient
-			try {
-				anotacioHelper.incorporarReprocessarExpedient(
-						anotacio,
-						anotacio.getId(), 
-						expedientTipus.getId(), 
-						expedient.getId(),
-						true,
-						false,
-						reprocessar,
-						backofficeUtils);
-			} catch (Exception e) {
-				String traçaCompleta = ExceptionUtils.getStackTrace(e);
-				String errorProcessament = "Error incorporant/reprocessant l'anotació " + idWs.getIndetificador() + " a l'expedient:" + traçaCompleta;
-				this.canviEstatErrorAnotacio(errorProcessament, anotacio, idWs, e);
-				throw new Exception(messageHelper.getMessage("error.proces.peticio") + ": "
-						+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
-			}
-
+			
 			anotacio.setEstat(AnotacioEstatEnumDto.PROCESSADA);
 			anotacio.setDataProcessament(new Date());
 
