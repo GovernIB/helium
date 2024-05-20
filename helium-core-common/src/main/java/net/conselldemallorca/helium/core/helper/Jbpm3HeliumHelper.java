@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.core.helper;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -49,6 +50,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Interessat;
+import net.conselldemallorca.helium.core.model.hibernate.PeticioPinbal;
 import net.conselldemallorca.helium.core.model.hibernate.Reassignacio;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
@@ -80,6 +82,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CarrecDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesConsultaPinbalDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDissenyDto;
@@ -103,6 +106,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalEstatEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxBlocDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReassignacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReferenciaNotificacio;
@@ -148,6 +152,7 @@ import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.FestiuRepository;
 import net.conselldemallorca.helium.v3.core.repository.InteressatRepository;
+import net.conselldemallorca.helium.v3.core.repository.PeticioPinbalRepository;
 import net.conselldemallorca.helium.v3.core.repository.ReassignacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
@@ -210,6 +215,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private TerminiRepository terminiRepository;
 	@Resource
 	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
+	@Resource
+	private PeticioPinbalRepository peticioPinbalRepository;	
 	
 	@Resource
 	private RegistreRepository registreRepository;
@@ -265,6 +272,9 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	
 	@Resource
 	private ExpedientRegistreHelper expedientRegistreHelper;
+	
+	@Resource
+	private PlantillaHelper plantillaHelper;	
 
 
 	@Override
@@ -1791,23 +1801,44 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	@Override
 	public ScspRespostaPinbal consultaDadesIdentitatPinbalSVDDGPCIWS02(DadesConsultaPinbalDto dadesConsultaPinbal, Long expedientId, String processInstanceId)
 			throws SistemaExternException, NoTrobatException {
+		
 		Expedient expedient = expedientRepository.findOne(expedientId);
 		if (expedient == null)
 			throw new NoTrobatException(Expedient.class, expedientId);
+		
 		Entorn entorn = entornRepository.findOne(expedient.getEntorn().getId());
 		if (entorn == null)
 			throw new NoTrobatException(Entorn.class, expedient.getEntorn().getId());
+		
 		ExpedientTipus expedientTipus = expedientTipusRepository.findByEntornAndCodi(
 				entorn,
 				expedient.getTipus().getCodi());
 		if (expedientTipus == null)
 			throw new NoTrobatException(ExpedientTipus.class, expedient.getTipus().getCodi());
+		
 		ScspRespostaPinbal respostaPinbal = null;
+		Long documentStoreJusificantId = null;
+		Date dataPecicio = Calendar.getInstance().getTime();
+		
 		if(dadesConsultaPinbal.isAsincrona()) {
 			respostaPinbal = (ScspRespostaPinbal) pluginHelper.consultaAsincronaPinbal(
 					this.convertirDadesDeDto(dadesConsultaPinbal, expedientTipus, expedient), 
 					expedient, 
 					PluginHelper.serveiConsultaDades);
+			
+			//TODO: falta passar-li la data prevista de processament...
+			DadesDocumentDto documentJusificantProvissional = plantillaHelper.generaJustificantTemporalPinbal(
+					dadesConsultaPinbal.getCodiProcediment(),
+					respostaPinbal.getIdPeticion(),
+					null);
+			
+			documentStoreJusificantId = this.documentExpedientGuardar(
+					processInstanceId,
+					dadesConsultaPinbal.getDocumentCodi(),
+					dataPecicio,
+					documentJusificantProvissional.getArxiuNom(),
+					documentJusificantProvissional.getArxiuContingut());
+			
 		}else {
 			respostaPinbal = (ScspRespostaPinbal) pluginHelper.consultaSincronaPinbal(
 				this.convertirDadesDeDto(dadesConsultaPinbal, expedientTipus, expedient), 
@@ -1834,19 +1865,56 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						null);
 			}
 			if(justificant!=null) {
-				this.documentExpedientGuardar(
+				documentStoreJusificantId = this.documentExpedientGuardar(
 						processInstanceId,
 						dadesConsultaPinbal.getDocumentCodi(),
 						new Date(),
 						justificant.getNom(),
-						justificant.getContingut());	
+						justificant.getContingut());
 
 			}
 		}
+		
+		guardaPeticioPinbal(
+				expedient,
+				documentStoreRepository.findOne(documentStoreJusificantId),
+				dadesConsultaPinbal.getCodiProcediment(),
+				respostaPinbal.getIdPeticion(),
+				dadesConsultaPinbal.isAsincrona(),
+				dataPecicio,
+				null); //TODO: falta passar-li la data prevista de processament...		
+		
 		return respostaPinbal;
 	}
-	
 
+	private void guardaPeticioPinbal(
+			Expedient expedient,
+			DocumentStore justificant,
+			String procedimentPinbal,
+			String idPeticioPinbal,
+			boolean asincrona,
+			Date dataPeticio,
+			Date dataPrevista) {
+		//Cream la petició pinbal per el historic de peticions
+		PeticioPinbal peticio = new PeticioPinbal();
+		peticio.setDataPeticio(dataPeticio);
+		peticio.setAsincrona(asincrona);
+		if (asincrona) {
+			peticio.setEstat(PeticioPinbalEstatEnum.PENDENT);
+			peticio.setDataPrevista(dataPrevista);
+		} else {
+			peticio.setEstat(PeticioPinbalEstatEnum.TRAMITADA);
+		}
+		peticio.setExpedient(expedient);
+		peticio.setTipus(expedient.getTipus());
+		peticio.setEntorn(expedient.getTipus().getEntorn());
+		peticio.setProcediment(procedimentPinbal);
+		peticio.setUsuari(SecurityContextHolder.getContext().getAuthentication().getName());
+		peticio.setPinbalId(idPeticioPinbal);
+		peticio.setDocument(justificant);
+		peticioPinbalRepository.save(peticio);
+	}
+	
 	@Override
 	public Object verificacioDadesIdentitatPinbalSVDDGPCIWS02(DadesConsultaPinbalDto dadesConsultaPinbal,
 			Long expedientId, String processInstanceId) throws SistemaExternException, NoTrobatException {

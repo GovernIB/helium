@@ -35,7 +35,6 @@ import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import es.caib.plugins.arxiu.api.ConsultaFiltre;
@@ -64,7 +63,6 @@ import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Interessat;
-import net.conselldemallorca.helium.core.model.hibernate.PeticioPinbal;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
@@ -151,7 +149,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalEstatEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesCarrecDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxBlocDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxEstatDto;
@@ -165,7 +162,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto.RegistreNotificacioTramitSubsanacioParametreDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ScspRespostaPinbal;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto.TramitDocumentSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
@@ -179,7 +175,6 @@ import net.conselldemallorca.helium.v3.core.api.registre.RegistreAnotacio;
 import net.conselldemallorca.helium.v3.core.api.registre.RegistreInteressat;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
-import net.conselldemallorca.helium.v3.core.repository.PeticioPinbalRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
 
 /**
@@ -197,8 +192,6 @@ public class PluginHelper {
 	
 	@Resource
 	private PortasignaturesRepository portasignaturesRepository;
-	@Resource
-	private PeticioPinbalRepository peticioPinbalRepository;
 	@Resource
 	private ExpedientRepository expedientRepository;
 	@Resource
@@ -4981,7 +4974,6 @@ public class PluginHelper {
 		
 		Object scspRespostaPinbal = null;	
 		String accioDescripcio = "Consulta Pinbal (Petició síncrona)";
-		Date dataPeticioIni = Calendar.getInstance().getTime();	
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 				new IntegracioParametreDto(
 						"expedient.id",
@@ -5011,22 +5003,7 @@ public class PluginHelper {
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
 					parametres);
-			
-			//Cream la petició pinbal per el historic de peticions
-			PeticioPinbal peticio = new PeticioPinbal();
-			peticio.setDataPeticio(dataPeticioIni);
-			peticio.setAsincrona(false);
-			peticio.setEstat(PeticioPinbalEstatEnum.TRAMITADA);
-			peticio.setExpedient(expedient);
-			peticio.setTipus(expedient.getTipus());
-			peticio.setEntorn(expedient.getTipus().getEntorn());
-			peticio.setProcediment(servei);
-			peticio.setUsuari(SecurityContextHolder.getContext().getAuthentication().getName());
-			peticio.setPinbalId(((ScspRespostaPinbal)scspRespostaPinbal).getIdPeticion());
-			peticio.setDocument(documentStoreRepository.findOne(1000l));
-	//		peticio.setDataProcessamentPrimer(dataProcessamentPrimer);
-			peticioPinbalRepository.save(peticio);
-			
+
 		} catch (Exception ex) {
 			String errorDescripcio = "No s'ha pogut enviar la consulta síncrona a Pinbal: " + ex.getMessage();
 			monitorIntegracioHelper.addAccioError(
@@ -5049,7 +5026,6 @@ public Object consultaAsincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, E
 		
 		Object scspRespostaPinbal = null;	
 		String accioDescripcio = "Consulta Pinbal (Petició asíncrona)";
-		Date dataPeticioIni = Calendar.getInstance().getTime();	
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 				new IntegracioParametreDto(
 						"expedient.id",
@@ -5071,30 +5047,14 @@ public Object consultaAsincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, E
 				scspRespostaPinbal= getPinbalPlugin().peticioAsincronaClientPinbalGeneric(dadesConsultaPinbal);
 			else if(servei.equals(PluginHelper.serveiObligacionsTributaries))
 				scspRespostaPinbal= getPinbalPlugin().peticioAsincronaClientPinbalGeneric(dadesConsultaPinbal);
-			
-			
+
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_PINBAL,
 					accioDescripcio,
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
 					parametres);
-			
-			//Cream la petició pinbal per el historic de peticions
-			PeticioPinbal peticio = new PeticioPinbal();
-			peticio.setDataPeticio(dataPeticioIni);
-			peticio.setAsincrona(false);
-			peticio.setEstat(PeticioPinbalEstatEnum.TRAMITADA);
-			peticio.setExpedient(expedient);
-			peticio.setTipus(expedient.getTipus());
-			peticio.setEntorn(expedient.getTipus().getEntorn());
-			peticio.setProcediment(servei);
-			peticio.setUsuari(SecurityContextHolder.getContext().getAuthentication().getName());
-			peticio.setPinbalId(((ScspRespostaPinbal)scspRespostaPinbal).getIdPeticion());
-			peticio.setDocument(documentStoreRepository.findOne(1000l));
-	//		peticio.setDataProcessamentPrimer(dataProcessamentPrimer);
-			peticioPinbalRepository.save(peticio);
-			
+
 		} catch (Exception ex) {
 			String errorDescripcio = "No s'ha pogut enviar la consulta síncrona a Pinbal: " + ex.getMessage();
 			monitorIntegracioHelper.addAccioError(
