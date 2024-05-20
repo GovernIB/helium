@@ -19,13 +19,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
-import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
 import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreEntrada;
 import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId;
 import es.caib.distribucio.rest.client.integracio.domini.Estat;
 import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
+import net.conselldemallorca.helium.core.model.hibernate.Alerta.AlertaPrioritat;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioInteressat;
@@ -34,12 +34,11 @@ import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Interessat;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
-import net.conselldemallorca.helium.core.model.hibernate.Alerta.AlertaPrioritat;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAnnexEstatEnumDto;
@@ -48,11 +47,11 @@ import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuEstat;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioAnnexRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
@@ -378,10 +377,10 @@ public class AnotacioHelper {
 		
 		boolean isUsuariAdministrador = usuariActualHelper.isAdministrador();
 		boolean potReassignar = false;
-		// Si no Ã©s administrador d'Helium
+		// Si no és administrador d'Helium
 		if (!isUsuariAdministrador) {
 			if (anotacio.getExpedientTipus() != null) {
-				// Comprova si tÃ© el permÃ­s de reassignar sobre el tipus d'expedient
+				// Comprova si té el permís de reassignar sobre el tipus d'expedient
 				potReassignar = expedientTipusHelper.comprovarPermisos(
 						anotacio.getExpedientTipus(), 
 						null, 
