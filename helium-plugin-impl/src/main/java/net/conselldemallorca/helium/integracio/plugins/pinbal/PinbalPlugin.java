@@ -48,17 +48,12 @@ public class PinbalPlugin implements PinbalPluginInterface {
 
 	private static final Log logger = LogFactory.getLog(PinbalPlugin.class);
 	private static final boolean ENABLE_LOGGING = true;
-
-//	private ClientGeneric clientGeneric;
-//	private ClientSvddgpciws02 clientSvddgpciws02;
-//	private ClientSvddgpviws02 clientSvddgpviws02;
-//	private ClientSvdccaacpasws01 clientSvdccaacpasws01;
 	
 	public PinbalPlugin() {	
 		}
 	
 	@Override
-	public Object peticioAsincronaClientPinbalGeneric(DadesConsultaPinbal dadesConsultaPinbal) throws Exception {
+	public Object peticioClientPinbalGeneric(DadesConsultaPinbal dadesConsultaPinbal) throws Exception {
 		Solicitud solicitud = new Solicitud();
 		
 		if (this.validarDadesObligatories(dadesConsultaPinbal)) {
@@ -96,92 +91,37 @@ public class PinbalPlugin implements PinbalPluginInterface {
 		if (ENABLE_LOGGING) {
 			clientGeneric.enableLogginFilter();
 		}
-		ScspConfirmacionPeticion confirmacioPeticio;
-
+		
 		try {
-			confirmacioPeticio = clientGeneric.peticionAsincrona(dadesConsultaPinbal.getServeiCodi(), Arrays.asList(solicitud));
-			assertNotNull(confirmacioPeticio);
+			if(dadesConsultaPinbal.isAsincrona()){
+				ScspConfirmacionPeticion confirmacioPeticio = clientGeneric.peticionAsincrona(dadesConsultaPinbal.getServeiCodi(), Arrays.asList(solicitud));
+				assertNotNull(confirmacioPeticio);	
+				logger.debug("-> peticioAsincrona = " + objectToJsonString(confirmacioPeticio));
+				return confirmacioPeticio;
+			}else {
+				ScspRespuesta respuesta = clientGeneric.peticionSincrona(dadesConsultaPinbal.getServeiCodi(), Arrays.asList(solicitud));
+				assertNotNull(respuesta);
+				logger.debug("-> peticionSincrona = " + objectToJsonString(respuesta));
+				ScspRespostaPinbal resposta= new ScspRespostaPinbal();
+				if(respuesta!=null && respuesta.getAtributos()!=null) {
+					resposta = convertirFromPinbalIgetJustificant(respuesta, dadesConsultaPinbal.getDocumentCodi());
+				}
+				return resposta;
+			}
 		} catch (IOException e) {
+			String errMsg = "No s'ha pogut obtenir la solicitud " +
+					(dadesConsultaPinbal.isAsincrona() ? "asíncrona " : "síncrona ") + 
+					"del servei genèric de PINBAL";
 			throw new IOException(
-					"No s'ha pogut obtenir la solicitud síncrona del servei genèric de PINBAL",
+					errMsg,
 					e);
 		}
-		logger.debug("-> peticionSincrona = " + objectToJsonString(confirmacioPeticio));
-	
-//		ScspRespostaPinbal resposta= new ScspRespostaPinbal();
-//		
-//		if(respuesta!=null && respuesta.getAtributos()!=null) {
-//			resposta = convertirFromPinbalIgetJustificant(respuesta, dadesConsultaPinbal.getDocumentCodi());
-//		}
-			
-		return confirmacioPeticio;
 	}
-	
-	@Override
-	public ScspRespostaPinbal peticionSincronaClientPinbalGeneric(DadesConsultaPinbal dadesConsultaPinbal) throws Exception {
-		
-		Solicitud solicitud = new Solicitud();
-	
-		if (this.validarDadesObligatories(dadesConsultaPinbal)) {
-			solicitud.setFinalidad(dadesConsultaPinbal.getFinalitat());
-			solicitud.setConsentimiento(compararConsentiment(dadesConsultaPinbal.getConsentiment()));		
-		}
-		//En el cas de client genèric hem de validar que ens passin un codi del Servei
-		if(dadesConsultaPinbal.getServeiCodi()==null || ("").equals(dadesConsultaPinbal.getServeiCodi())) {
-			logger.error("Error al obtenir la petició, el Codi del Servei és obligatori.");
-			throw new IOException(
-					"Error al obtenir la petició, el Codi del Servei és obligatori.");
-		}
-		ClientGeneric clientGeneric = this.getClientGeneric();
 
-		solicitud.setIdentificadorSolicitante(dadesConsultaPinbal.getEntitat_CIF());
-		solicitud.setCodigoProcedimiento(dadesConsultaPinbal.getCodiProcediment());
-		solicitud.setUnidadTramitadora(dadesConsultaPinbal.getUnitatTramitadora());
-		
-		ScspFuncionario funcionario = new ScspFuncionario();		
-		ScspTitular scspTitular = new ScspTitular();
-		
-		this.dadesTitularIFuncionari(funcionario, scspTitular, dadesConsultaPinbal);
-		solicitud.setFuncionario(funcionario);
-		solicitud.setTitular(scspTitular);
-	
-		if(dadesConsultaPinbal.getXmlDadesEspecifiques()!=null) {
-			solicitud.setDatosEspecificos(dadesConsultaPinbal.getXmlDadesEspecifiques());
-		}
-		//El nom complert no cal segons per quin servei, per exemple en el de VERIFICACIÓ peta si se li passa, però va bé en el de CONSULTA 
-		if(!"SVDDGPVIWS02".equals(dadesConsultaPinbal.getServeiCodi()) && dadesConsultaPinbal.getTitular()!=null && dadesConsultaPinbal.getTitular().getNombreCompleto()!=null) {
-			scspTitular.setNombreCompleto(dadesConsultaPinbal.getTitular().getNombreCompleto());
-			solicitud.setTitular(scspTitular);
-		}
-
-		if (ENABLE_LOGGING) {
-			clientGeneric.enableLogginFilter();
-		}
-		ScspRespuesta respuesta;
-	
-		try {
-			respuesta = clientGeneric.peticionSincrona(dadesConsultaPinbal.getServeiCodi(), Arrays.asList(solicitud));
-			assertNotNull(respuesta);
-		} catch (IOException e) {
-			throw new IOException(
-					"No s'ha pogut obtenir la solicitud síncrona del servei genèric de PINBAL",
-					e);
-		}
-		logger.debug("-> peticionSincrona = " + objectToJsonString(respuesta));
-	
-		ScspRespostaPinbal resposta= new ScspRespostaPinbal();
-		
-		if(respuesta!=null && respuesta.getAtributos()!=null) {
-			resposta = convertirFromPinbalIgetJustificant(respuesta, dadesConsultaPinbal.getDocumentCodi());
-		}
-			
-		return resposta;
-	}
-	
 
 	/**Servei de CONSULTA DE DADES D'IDENTITAT**/
 	@Override
-	public Object peticionSincronaClientPinbalSvddgpciws02(DadesConsultaPinbal dadesConsultaPinbal) throws Exception {
+	public Object peticioClientPinbalSvddgpciws02(DadesConsultaPinbal dadesConsultaPinbal) throws Exception {
 		
 		SolicitudSvddgpciws02 solicitud = new SolicitudSvddgpciws02();
 
@@ -213,31 +153,39 @@ public class PinbalPlugin implements PinbalPluginInterface {
 			clientSvddgpciws02.enableLogginFilter();
 		}
 
-		ScspRespuesta respuesta;
-		
 		try {
-			respuesta = clientSvddgpciws02.peticionSincrona(Arrays.asList(solicitud));
-			assertNotNull(respuesta);
+			if(dadesConsultaPinbal.isAsincrona()) {
+				ScspConfirmacionPeticion confirmacioPeticio = clientSvddgpciws02.peticionAsincrona(Arrays.asList(solicitud));
+				assertNotNull(confirmacioPeticio);	
+				logger.debug("-> peticioAsincrona = " + objectToJsonString(confirmacioPeticio));
+				return confirmacioPeticio;
+			}else {
+				ScspRespuesta respuesta = clientSvddgpciws02.peticionSincrona(Arrays.asList(solicitud));
+				assertNotNull(respuesta);
+				logger.debug("-> peticionSincrona = " + objectToJsonString(respuesta));
+				ScspRespostaPinbal resposta= new ScspRespostaPinbal();
+				if(respuesta!=null && respuesta.getAtributos()!=null) {
+					resposta = convertirFromPinbalIgetJustificant(respuesta, dadesConsultaPinbal.getDocumentCodi());
+				}
+				return resposta;
+			}
+		
 		} catch (IOException e) {
+			String errMsg = "No s'ha pogut obtenir la solicitud " +
+					(dadesConsultaPinbal.isAsincrona() ? "asíncrona " : "síncrona ") + 
+					"del servei específic SVDDGPCIWS02 de Consulta de dades d'identitat";
 			throw new IOException(
-					"No s'ha pogut obtenir la solicitud síncrona del servei específic SVDDGPCIWS02 de Consulta de dades d'identitat",
+					errMsg,
 					e);
 		}
-		logger.debug("-> peticionSincrona = " + objectToJsonString(respuesta));
 		
-		ScspRespostaPinbal resposta= new ScspRespostaPinbal();
-		
-		if(respuesta!=null && respuesta.getAtributos()!=null) {
-			resposta = convertirFromPinbalIgetJustificant(respuesta, dadesConsultaPinbal.getDocumentCodi());
-		}
-		return resposta;
 	}
 	
 	
 	/**Servei de VERIRICACIÓ DE DADES D'IDENTITAT**/
 	@Override
-	public Object peticionSincronaClientPinbalSvddgpviws02(DadesConsultaPinbal dadesConsultaPinbal)
-			throws Exception {
+	public Object peticioClientPinbalSvddgpviws02(DadesConsultaPinbal dadesConsultaPinbal) throws Exception {
+		
 		SolicitudSvddgpviws02 solicitud = new SolicitudSvddgpviws02();
 
 		if (this.validarDadesObligatories(dadesConsultaPinbal)) {
@@ -261,31 +209,38 @@ public class PinbalPlugin implements PinbalPluginInterface {
 		if (ENABLE_LOGGING) {
 			clientSvddgpviws02.enableLogginFilter();
 		}
-
-		ScspRespuesta respuesta;
 		
 		try {
-			respuesta = clientSvddgpviws02.peticionSincrona(Arrays.asList(solicitud));
-			assertNotNull(respuesta);
+			if(dadesConsultaPinbal.isAsincrona()) {
+				ScspConfirmacionPeticion confirmacioPeticio = clientSvddgpviws02.peticionAsincrona(Arrays.asList(solicitud));
+				assertNotNull(confirmacioPeticio);	
+				logger.debug("-> peticioAsincrona = " + objectToJsonString(confirmacioPeticio));
+				return confirmacioPeticio;
+			} else {
+				ScspRespuesta respuesta = clientSvddgpviws02.peticionSincrona(Arrays.asList(solicitud));
+				assertNotNull(respuesta);
+				logger.debug("-> peticionSincrona = " + objectToJsonString(respuesta));
+				ScspRespostaPinbal resposta= new ScspRespostaPinbal();
+				if(respuesta!=null && respuesta.getAtributos()!=null) {
+					resposta = convertirFromPinbalIgetJustificant(respuesta, dadesConsultaPinbal.getDocumentCodi());
+				}
+				return resposta;
+			}
 		} catch (IOException e) {
+			String errMsg = "No s'ha pogut obtenir la solicitud " +
+					(dadesConsultaPinbal.isAsincrona() ? "asíncrona " : "síncrona ") + 
+					"del servei específic SVDDGPVIWS02 de Verificació de dades d'identitat";
 			throw new IOException(
-					"No s'ha pogut obtenir la solicitud síncrona del servei específic SVDDGPCIWS02 de Verificació de dades d'identitat",
+					errMsg,
 					e);
 		}
-		logger.debug("-> peticionSincrona = " + objectToJsonString(respuesta));
 		
-		ScspRespostaPinbal resposta= new ScspRespostaPinbal();
-		
-		if(respuesta!=null && respuesta.getAtributos()!=null) {
-			resposta = convertirFromPinbalIgetJustificant(respuesta, dadesConsultaPinbal.getDocumentCodi());
-		}
-		return resposta;
 	}
 	
 	
 	/**Servei d'OBTENCIÓ DE DADES TRIBUTÀRIES**/
 	@Override
-	public Object peticionSincronaClientPinbalSvdccaacpasws01(DadesConsultaPinbal dadesConsultaPinbal)
+	public Object peticioClientPinbalSvdccaacpasws01(DadesConsultaPinbal dadesConsultaPinbal)
 			throws Exception {
 		SolicitudSvdccaacpasws01 solicitud = new SolicitudSvdccaacpasws01();
 
@@ -315,24 +270,30 @@ public class PinbalPlugin implements PinbalPluginInterface {
 			clientSvdccaacpasws01.enableLogginFilter();
 		}
 
-		ScspRespuesta respuesta;
-		
 		try {
-			respuesta = clientSvdccaacpasws01.peticionSincrona(Arrays.asList(solicitud));
-			assertNotNull(respuesta);
+			if(dadesConsultaPinbal.isAsincrona()) {
+				ScspConfirmacionPeticion confirmacioPeticio = clientSvdccaacpasws01.peticionAsincrona(Arrays.asList(solicitud));
+				assertNotNull(confirmacioPeticio);	
+				logger.debug("-> peticioAsincrona = " + objectToJsonString(confirmacioPeticio));
+				return confirmacioPeticio;
+			} else {
+				ScspRespuesta respuesta = clientSvdccaacpasws01.peticionSincrona(Arrays.asList(solicitud));
+				assertNotNull(respuesta);
+				logger.debug("-> peticionSincrona = " + objectToJsonString(respuesta));
+				ScspRespostaPinbal resposta= new ScspRespostaPinbal();
+				if(respuesta!=null && respuesta.getAtributos()!=null) {
+					resposta = convertirFromPinbalIgetJustificant(respuesta, dadesConsultaPinbal.getDocumentCodi());
+				}
+				return resposta;
+			}
 		} catch (IOException e) {
+			String errMsg = "No s'ha pogut obtenir la solicitud " +
+					(dadesConsultaPinbal.isAsincrona() ? "asíncrona " : "síncrona ") + 
+					"del servei específic SVDCCAACPASWS01 de Consulta de dades tributàries";
 			throw new IOException(
-					"No s'ha pogut obtenir la solicitud síncrona del servei específic SVDCCAACPASWS01 de Consulta de dades tributàries",
+					errMsg,
 					e);
 		}
-		logger.debug("-> peticionSincrona = " + objectToJsonString(respuesta));
-		
-		ScspRespostaPinbal resposta= new ScspRespostaPinbal();
-		
-		if(respuesta!=null && respuesta.getAtributos()!=null) {
-			resposta = convertirFromPinbalIgetJustificant(respuesta, dadesConsultaPinbal.getDocumentCodi());
-		}
-		return resposta;
 	}
 
 	

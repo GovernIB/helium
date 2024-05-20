@@ -24,6 +24,7 @@ public class DadesConsultaPinbal {
 	private String codiProcediment;
 	private String entitat_CIF;
 	private String unitatTramitadora;
+	private boolean asincrona;
 	
 
 	public enum consentiment {
@@ -151,7 +152,13 @@ public class DadesConsultaPinbal {
 		this.unitatTramitadora = unitatTramitadora;
 	}
 	
-	
+	public boolean isAsincrona() {
+		return asincrona;
+	}
+
+	public void setAsincrona(boolean asincrona) {
+		this.asincrona = asincrona;
+	}
 	
 
 }
