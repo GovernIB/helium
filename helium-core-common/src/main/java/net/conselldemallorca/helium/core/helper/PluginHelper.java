@@ -4971,10 +4971,14 @@ public class PluginHelper {
 		return dtos;
 	}
 
-	public Object consultaSincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, Expedient expedient, String servei) {
+	public ScspRespostaPinbal consultaEstatPeticioPinbal(String peticioId) throws Exception {
+		return getPinbalPlugin().getRespuestaPinbal(peticioId);
+	}
+
+	public Object consultaPinbal(DadesConsultaPinbal dadesConsultaPinbal, Expedient expedient, String servei) {
 		
 		Object scspRespostaPinbal = null;	
-		String accioDescripcio = "Consulta Pinbal (Petició síncrona)";
+		String accioDescripcio = dadesConsultaPinbal.isAsincrona() ? "Consulta Pinbal (Petició asíncrona)" : "Consulta Pinbal (Petició síncrona)";
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 				new IntegracioParametreDto(
 						"expedient.id",
@@ -4988,14 +4992,14 @@ public class PluginHelper {
 		try {
 			
 			if (servei==null) {
-				scspRespostaPinbal= getPinbalPlugin().peticionSincronaClientPinbalGeneric(dadesConsultaPinbal);
+				scspRespostaPinbal= getPinbalPlugin().peticioClientPinbalGeneric(dadesConsultaPinbal);	
 			}
 			else if(servei.equals(PluginHelper.serveiConsultaDades))
-				scspRespostaPinbal= getPinbalPlugin().peticionSincronaClientPinbalSvddgpciws02(dadesConsultaPinbal);
+				scspRespostaPinbal= getPinbalPlugin().peticioClientPinbalSvddgpciws02(dadesConsultaPinbal);
 			else if(servei.equals(PluginHelper.serveiVerificacioDades))
-				scspRespostaPinbal= getPinbalPlugin().peticionSincronaClientPinbalSvddgpviws02(dadesConsultaPinbal);
+				scspRespostaPinbal= getPinbalPlugin().peticioClientPinbalSvddgpviws02(dadesConsultaPinbal);
 			else if(servei.equals(PluginHelper.serveiObligacionsTributaries))
-				scspRespostaPinbal= getPinbalPlugin().peticionSincronaClientPinbalSvdccaacpasws01(dadesConsultaPinbal);
+				scspRespostaPinbal= getPinbalPlugin().peticioClientPinbalSvdccaacpasws01(dadesConsultaPinbal);
 			
 			
 			monitorIntegracioHelper.addAccioOk(
@@ -5006,7 +5010,9 @@ public class PluginHelper {
 					parametres);
 
 		} catch (Exception ex) {
-			String errorDescripcio = "No s'ha pogut enviar la consulta síncrona a Pinbal: " + ex.getMessage();
+			String errorDescripcio = (dadesConsultaPinbal.isAsincrona() ? "No s'ha pogut enviar la consulta asíncrona a Pinbal: "  :
+					"No s'ha pogut enviar la consulta síncrona a Pinbal: " ) 
+					+ ex.getMessage();
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_PINBAL,
 					accioDescripcio,
@@ -5021,66 +5027,6 @@ public class PluginHelper {
 					ex);
 		}
 		return scspRespostaPinbal;
-	}
-	
-	public ScspRespostaPinbal consultaAsincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, Expedient expedient, String servei) {
-		
-		Object scspRespostaPinbal = null;	
-		String accioDescripcio = "Consulta Pinbal (Petició asíncrona)";
-		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
-				new IntegracioParametreDto(
-						"expedient.id",
-						expedient.getId()),
-				new IntegracioParametreDto(
-						"expedient",
-						expedient.getIdentificadorLimitat())//,
-		};
-		long t0 = System.currentTimeMillis();
-		
-		try {
-			
-			if (servei==null) {
-				scspRespostaPinbal= getPinbalPlugin().peticioAsincronaClientPinbalGeneric(dadesConsultaPinbal);
-			}
-			else if(servei.equals(PluginHelper.serveiConsultaDades))// corregir
-				scspRespostaPinbal= getPinbalPlugin().peticioAsincronaClientPinbalGeneric(dadesConsultaPinbal);
-			else if(servei.equals(PluginHelper.serveiVerificacioDades))
-				scspRespostaPinbal= getPinbalPlugin().peticioAsincronaClientPinbalGeneric(dadesConsultaPinbal);
-			else if(servei.equals(PluginHelper.serveiObligacionsTributaries))
-				scspRespostaPinbal= getPinbalPlugin().peticioAsincronaClientPinbalGeneric(dadesConsultaPinbal);
-			
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_PINBAL,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					parametres);
-
-			/**
-			 * TODO: Fer la conversió del objecte que retorni cada crida, (segurament objecte de la llibreria de pinbal)
-			 * A la classe que pot utilitzar el helper que cridi aqui: net.conselldemallorca.helium.v3.core.api.dto.ScspRespostaPinbal
-			 */
-			return (ScspRespostaPinbal)scspRespostaPinbal;			
-			
-		} catch (Exception ex) {
-			String errorDescripcio = "No s'ha pogut enviar la consulta síncrona a Pinbal: " + ex.getMessage();
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_PINBAL,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex,
-					parametres);
-			throw tractarExcepcioEnSistemaExtern(
-					MonitorIntegracioHelper.INTCODI_PINBAL,
-					errorDescripcio, 
-					ex);
-		}
-	}
-	
-	public ScspRespostaPinbal consultaEstatPeticioPinbal(String peticioId) throws Exception {
-		return getPinbalPlugin().getRespuestaPinbal(peticioId);
 	}
 	
 	public PortafirmesIniciFluxRespostaDto portafirmesIniciarFluxDeFirma(String idioma, boolean isPlantilla, String nom, String descripcio, 

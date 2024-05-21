@@ -21,6 +21,9 @@ public class DadesConsultaPinbal {
 	private String serveiCodi;
 	private String interessatCodi;
 	private String finalitat;
+	private String codiProcediment;
+	private String entitat_CIF;
+	private String unitatTramitadora;
 	private boolean asincrona;
 
 	public enum consentiment {
@@ -105,6 +108,30 @@ public class DadesConsultaPinbal {
 
 	public void setAsincrona(boolean asincrona) {
 		this.asincrona = asincrona;
+	}
+
+	public String getCodiProcediment() {
+		return codiProcediment;
+	}
+
+	public void setCodiProcediment(String codiProcediment) {
+		this.codiProcediment = codiProcediment;
+	}
+
+	public String getEntitat_CIF() {
+		return entitat_CIF;
+	}
+
+	public void setEntitat_CIF(String entitat_CIF) {
+		this.entitat_CIF = entitat_CIF;
+	}
+
+	public String getUnitatTramitadora() {
+		return unitatTramitadora;
+	}
+
+	public void setUnitatTramitadora(String unitatTramitadora) {
+		this.unitatTramitadora = unitatTramitadora;
 	}
 
 
