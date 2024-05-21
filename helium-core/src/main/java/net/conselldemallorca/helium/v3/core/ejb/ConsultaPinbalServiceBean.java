@@ -39,10 +39,4 @@ public class ConsultaPinbalServiceBean implements ConsultaPinbalService {
 	public List<PeticioPinbalDto> findConsultesPinbalPerExpedient(Long expedientId) {
 		return delegate.findConsultesPinbalPerExpedient(expedientId);
 	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public ScspRespostaPinbal tractamentPeticioAsincronaPendentPinbal(Long peticioPinbalId) {
-		return delegate.tractamentPeticioAsincronaPendentPinbal(peticioPinbalId);
-	}
 }

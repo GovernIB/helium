@@ -6,7 +6,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalFiltreDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ScspRespostaPinbal;
 
 public interface ConsultaPinbalService {
 
@@ -15,6 +14,4 @@ public interface ConsultaPinbalService {
 	PeticioPinbalDto findById(Long peticioPinbalId);
 	
 	List<PeticioPinbalDto> findConsultesPinbalPerExpedient(Long expedientId);
-	
-	ScspRespostaPinbal tractamentPeticioAsincronaPendentPinbal(Long peticioPinbalId);
 }

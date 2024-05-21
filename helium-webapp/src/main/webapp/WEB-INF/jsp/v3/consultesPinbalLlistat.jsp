@@ -117,9 +117,13 @@
 				<th data-col-name="documentId" data-visible="false"></th>
 				<th data-col-name="id" width="5%" data-template="#cellAccionsTemplate" data-orderable="false">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
-						<a href="<c:url value="/v3/expedient/{{:expedientId}}/document/{{:documentId}}/descarregar"/>" style="padding-left: 30%;">
-							<span class="fa fa-file fa-2x no-doc" title="Descarregar justificant"></span>
-						</a>
+						<div class="dropdown navbar-right">
+							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
+							<ul class="dropdown-menu">
+								<li><a href="<c:url value="/v3/expedient/{{:expedientId}}/document/{{:documentId}}/descarregar"/>" class="consultar-expedient"><span class="fa fa-file"></span>&nbsp;<spring:message code="consultes.pinbal.boto.just"/></a></li>
+								{{if asincrona && (estat=='PENDENT')}}<li><a href="<c:url value="/v3/consultesPinbal/{{:id}}/actualitzarEstat"/>"><span class="fa fa-refresh"></span>&nbsp;<spring:message code="consultes.pinbal.boto.update"/></a></li>{{/if}}
+							</ul>
+						</div>
 					</script>
 				</th>
 			</tr>

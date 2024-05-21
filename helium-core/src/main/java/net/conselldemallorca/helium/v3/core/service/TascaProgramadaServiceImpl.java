@@ -37,6 +37,7 @@ import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
 import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreEntrada;
 import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId;
+import net.conselldemallorca.helium.core.helper.ConsultaPinbalHelper;
 import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.helper.ExceptionHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
@@ -44,7 +45,6 @@ import net.conselldemallorca.helium.core.helper.IndexHelper;
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 import net.conselldemallorca.helium.core.helper.NotificacioHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
-import net.conselldemallorca.helium.core.helper.TascaProgramadaHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
@@ -59,7 +59,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.exception.ExecucioMassivaException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.service.ConsultaPinbalService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
 import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
@@ -86,18 +85,16 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	private NotificacioRepository notificacioRepository;
 	@Autowired
 	private ExecucioMassivaService execucioMassivaService;
-	@Autowired
+	@Resource
 	private PeticioPinbalRepository peticioPinbalRepository;
 	@Resource
-	private ConsultaPinbalService consultaPinbalService;
+	private ConsultaPinbalHelper consultaPinbalHelper;
 	@Resource
 	private IndexHelper indexHelper;
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
 	private NotificacioHelper notificacioHelper;
-	@Resource
-	private TascaProgramadaHelper tascaProgramadaHelper;
 	@Resource
 	private DistribucioHelper distribucioHelper;
 	@Resource
@@ -215,13 +212,13 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 				for(ExpedientReindexacio reindexacio : reindexacions) {
 					if (!expedientsIdsReindexats.contains(reindexacio.getExpedientId())) {
 						expedientsIdsReindexats.add(reindexacio.getExpedientId());
-						tascaProgramadaHelper.reindexarExpedient(reindexacio.getExpedientId());
+						reindexarExpedient(reindexacio.getExpedientId());
 						
 						// Comprova si mentres s'ha reindexat s'ha programat una nova reindexació per fixar la nova data a l'expedient
 						Date dataReindexacio = expedientReindexacioRepository.findSeguentReindexacioData(reindexacio.getExpedientId(), darreraData);
 						if (dataReindexacio != null) {
 							try {
-								tascaProgramadaHelper.actualitzarExpedientReindexacioData(reindexacio.getExpedientId(), dataReindexacio);
+								actualitzarExpedientReindexacioData(reindexacio.getExpedientId(), dataReindexacio);
 							}catch(Exception e) {
 								logger.error("Error actualtizant les dades de reindexació per l'expedient " + reindexacio.getExpedientId() + ": " + e.getMessage(), e);
 							}
@@ -337,7 +334,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	public void comprovarEstatNotificacions() {
 		List<Notificacio> notificacionsPendentsRevisar = notificacioRepository.findByEstatAndTipusOrderByDataEnviamentAsc(DocumentEnviamentEstatEnumDto.ENVIAT, DocumentNotificacioTipusEnumDto.ELECTRONICA);
 		for (Notificacio notificacio: notificacionsPendentsRevisar) {
-			tascaProgramadaHelper.actualitzarEstatNotificacions(notificacio.getId());
+			actualitzarEstatNotificacions(notificacio.getId());
 		}
 	}
 
@@ -598,7 +595,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 		List<PeticioPinbal> peticionsAsincronesPendents = peticioPinbalRepository.findAsincronesPendents();
 		if (peticionsAsincronesPendents!=null) {
 			for (PeticioPinbal pi: peticionsAsincronesPendents) {
-				consultaPinbalService.tractamentPeticioAsincronaPendentPinbal(pi.getId());
+				consultaPinbalHelper.tractamentPeticioAsincronaPendentPinbal(pi.getId());
 			}
 		}
 	}
