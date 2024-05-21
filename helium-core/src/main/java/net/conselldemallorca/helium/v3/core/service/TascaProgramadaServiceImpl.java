@@ -588,7 +588,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	private static final Log logger = LogFactory.getLog(TascaProgramadaService.class);
 
 	@Override
-	@Scheduled(fixedDelayString = "300000")
+	@Scheduled(fixedDelayString = "600000")
 	@Async
 	@Transactional
 	public void updatePeticionsAsincronesPinbal() throws ExecucioMassivaException {

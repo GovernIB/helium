@@ -60,7 +60,9 @@ public class PinbalSvddgpciws02Handler extends PinbalConsultaGenericaHandler {
 		
 		//Al ser un handler específic li setegem el codi del servei
 		dadesConsultaPinbal.setServeiCodi(serveiCodiEspecific);
-			
+		dadesConsultaPinbal.setTransicioOK(varTransicioOK);
+		dadesConsultaPinbal.setTransicioKO(varTransicioKO);
+		
 		Object resposta = consultaPinbalSvddgpciws02(
 				dadesConsultaPinbal,
 				expedient.getId(),

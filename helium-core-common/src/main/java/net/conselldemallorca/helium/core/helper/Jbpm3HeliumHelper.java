@@ -1812,7 +1812,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			}
 			
 			if(justificant!=null) {
-				this.documentExpedientGuardar(
+				documentStoreJusificantId = this.documentExpedientGuardar(
 						processInstanceId,
 						dadesConsultaPinbal.getDocumentCodi(),
 						new Date(),
@@ -1823,9 +1823,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		guardaPeticioPinbal(
 				expedient,
 				documentStoreRepository.findOne(documentStoreJusificantId),
-				dadesConsultaPinbal.getCodiProcediment(),
+				dadesConsultaPinbal,
 				respostaPinbal.getIdPeticion(),
-				dadesConsultaPinbal.isAsincrona(),
 				dataPecicio,
 				respostaPinbal.getDataProcessament(),
 				tokenId);
@@ -1917,9 +1916,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		guardaPeticioPinbal(
 				expedient,
 				documentStoreRepository.findOne(documentStoreJusificantId),
-				dadesConsultaPinbal.getCodiProcediment(),
+				dadesConsultaPinbal,
 				respostaPinbal.getIdPeticion(),
-				dadesConsultaPinbal.isAsincrona(),
 				dataPecicio,
 				respostaPinbal.getDataProcessament(),
 				tokenId);		
@@ -1930,17 +1928,16 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	private void guardaPeticioPinbal(
 			Expedient expedient,
 			DocumentStore justificant,
-			String procedimentPinbal,
+			DadesConsultaPinbalDto dadesConsultaPinbal,
 			String idPeticioPinbal,
-			boolean asincrona,
 			Date dataPeticio,
 			Date dataPrevista,
 			Long tokenId) {
 		//Cream la petició pinbal per el historic de peticions
 		PeticioPinbal peticio = new PeticioPinbal();
 		peticio.setDataPeticio(dataPeticio);
-		peticio.setAsincrona(asincrona);
-		if (asincrona) {
+		peticio.setAsincrona(dadesConsultaPinbal.isAsincrona());
+		if (dadesConsultaPinbal.isAsincrona()) {
 			peticio.setEstat(PeticioPinbalEstatEnum.PENDENT);
 			peticio.setDataPrevista(dataPrevista);
 		} else {
@@ -1949,11 +1946,13 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		peticio.setExpedient(expedient);
 		peticio.setTipus(expedient.getTipus());
 		peticio.setEntorn(expedient.getTipus().getEntorn());
-		peticio.setProcediment(procedimentPinbal);
+		peticio.setProcediment(dadesConsultaPinbal.getCodiProcediment());
 		peticio.setUsuari(SecurityContextHolder.getContext().getAuthentication().getName());
 		peticio.setPinbalId(idPeticioPinbal);
 		peticio.setDocument(justificant);
 		peticio.setTokenId(tokenId);
+		peticio.setTransicioOK(dadesConsultaPinbal.getTransicioOK());
+		peticio.setTransicioKO(dadesConsultaPinbal.getTransicioKO());
 		peticioPinbalRepository.save(peticio);
 	}
 	
@@ -2029,7 +2028,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			}
 			
 			if(justificant!=null) {
-				this.documentExpedientGuardar(
+				documentStoreJusificantId = this.documentExpedientGuardar(
 						processInstanceId,
 						dadesConsultaPinbal.getDocumentCodi(),
 						new Date(),
@@ -2041,9 +2040,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		guardaPeticioPinbal(
 				expedient,
 				documentStoreRepository.findOne(documentStoreJusificantId),
-				dadesConsultaPinbal.getCodiProcediment(),
+				dadesConsultaPinbal,
 				respostaPinbal.getIdPeticion(),
-				dadesConsultaPinbal.isAsincrona(),
 				dataPeticio,
 				respostaPinbal.getDataProcessament(),
 				tokenId);			
@@ -2124,7 +2122,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			}
 			
 			if(justificant!=null) {
-				this.documentExpedientGuardar(
+				documentStoreJusificantId = this.documentExpedientGuardar(
 						processInstanceId,
 						dadesConsultaPinbal.getDocumentCodi(),
 						new Date(),
@@ -2136,9 +2134,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		guardaPeticioPinbal(
 				expedient,
 				documentStoreRepository.findOne(documentStoreJusificantId),
-				dadesConsultaPinbal.getCodiProcediment(),
+				dadesConsultaPinbal,
 				respostaPinbal.getIdPeticion(),
-				dadesConsultaPinbal.isAsincrona(),
 				dataPecicio,
 				respostaPinbal.getDataProcessament(),
 				tokenId);			

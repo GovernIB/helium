@@ -1,6 +1,3 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.jbpm3.handlers.tipus;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -10,9 +7,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-
 public class DadesConsultaPinbal {
-	
 	
 	private Titular titular;
 	private Funcionari funcionari;
@@ -25,13 +20,14 @@ public class DadesConsultaPinbal {
 	private String entitat_CIF;
 	private String unitatTramitadora;
 	private boolean asincrona;
+	private String	transicioOK;
+	private String	transicioKO;
 
 	public enum consentiment {
 		SI,
 		LLEI
 	}
 	private String consentiment;
-	
 
 	@Override
 	public String toString() {
@@ -134,5 +130,19 @@ public class DadesConsultaPinbal {
 		this.unitatTramitadora = unitatTramitadora;
 	}
 
+	public String getTransicioOK() {
+		return transicioOK;
+	}
 
+	public void setTransicioOK(String transicioOK) {
+		this.transicioOK = transicioOK;
+	}
+
+	public String getTransicioKO() {
+		return transicioKO;
+	}
+
+	public void setTransicioKO(String transicioKO) {
+		this.transicioKO = transicioKO;
+	}
 }

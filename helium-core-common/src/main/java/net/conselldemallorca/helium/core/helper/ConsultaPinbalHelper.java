@@ -4,6 +4,7 @@ import java.util.Calendar;
 
 import javax.annotation.Resource;
 
+import org.jbpm.graph.def.Node.NodeType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,10 +47,12 @@ public class ConsultaPinbalHelper {
 						null);
 			}
 			
-			if (pi.getTokenId()!=null) {
+			if (pi.getTokenId()!=null && pi.getTransicioOK() != null) {
 				JbpmToken token = jbpmDao.getTokenById(pi.getTokenId().toString());
 				if (token!=null) {
-					jbpmDao.signalToken(pi.getTokenId().longValue(), "ok");
+					if (token.getToken().getNode().getNodeType().equals(NodeType.State)
+							&& token.getToken().getNode().getLeavingTransition(pi.getTransicioOK()) != null)
+					jbpmDao.signalToken(pi.getTokenId().longValue(), pi.getTransicioOK());
 				}
 			}
 			

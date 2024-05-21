@@ -306,6 +306,8 @@ public class ConversioTipusHelper {
 		if(dadesConsultaPinbal.isAsincrona()) {
 			dadesDto.setAsincrona(dadesConsultaPinbal.isAsincrona());
 		}
+		dadesDto.setTransicioOK(dadesConsultaPinbal.getTransicioOK());
+		dadesDto.setTransicioKO(dadesConsultaPinbal.getTransicioKO());
 		return dadesDto;	
 	}
 

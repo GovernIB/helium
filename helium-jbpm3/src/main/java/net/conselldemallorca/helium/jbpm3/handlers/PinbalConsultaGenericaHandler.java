@@ -192,6 +192,9 @@ public class PinbalConsultaGenericaHandler extends BasicActionHandler implements
 			dadesConsultaPinbal.setXmlDadesEspecifiques(dadesEspecifiquesXml);
 		}
 		
+		dadesConsultaPinbal.setTransicioOK(varTransicioOK);
+		dadesConsultaPinbal.setTransicioKO(varTransicioKO);
+		
 		Object resposta = super.consultaPinbal(
 				dadesConsultaPinbal,
 				expedient.getId(),

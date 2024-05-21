@@ -95,6 +95,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
 import net.conselldemallorca.helium.core.model.hibernate.Notificacio;
 import net.conselldemallorca.helium.core.model.hibernate.Parametre;
+import net.conselldemallorca.helium.core.model.hibernate.PeticioPinbal;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
@@ -181,6 +182,7 @@ import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusUnitatOrganitzativaRepository;
 import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.ParametreRepository;
+import net.conselldemallorca.helium.v3.core.repository.PeticioPinbalRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
@@ -241,7 +243,9 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	@Resource
 	private EstatAccioEntradaRepository estatAccioEntradaRepository;
 	@Resource
-	private EstatAccioSortidaRepository estatAccioSortidaRepository;	
+	private EstatAccioSortidaRepository estatAccioSortidaRepository;
+	@Resource
+	private PeticioPinbalRepository peticioPinbalRepository;
 
 	@Resource
 	private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
@@ -622,6 +626,16 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		}
 		for (Notificacio notificacio: notificacioRepository.findByExpedientOrderByDataEnviamentDesc(expedient)) {
 			notificacioRepository.delete(notificacio);
+		}
+
+		List<PeticioPinbal> pets = peticioPinbalRepository.findByExpedientId(expedient.getId());
+		if (pets!=null) {
+			for (PeticioPinbal p: pets) {
+				if (p.getDocument()!=null) {
+					documentHelper.esborrarDocument(null, expedient.getProcessInstanceId(), p.getDocument().getId());
+				}
+				peticioPinbalRepository.delete(p);
+			}
 		}
 		
 		anotacioService.esborrarAnotacionsExpedient(expedient.getId());

@@ -121,7 +121,7 @@
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
 								<li><a href="<c:url value="/v3/expedient/{{:expedientId}}/document/{{:documentId}}/descarregar"/>" class="consultar-expedient"><span class="fa fa-file"></span>&nbsp;<spring:message code="consultes.pinbal.boto.just"/></a></li>
-								{{if asincrona && (estat=='PENDENT')}}<li><a href="<c:url value="/v3/consultesPinbal/{{:id}}/actualitzarEstat"/>"><span class="fa fa-refresh"></span>&nbsp;<spring:message code="consultes.pinbal.boto.update"/></a></li>{{/if}}
+								{{if estat=='PENDENT'}}<li><a href="<c:url value="/v3/consultesPinbal/{{:id}}/actualitzarEstat"/>" data-bloquejar data-toggle="ajax"><span class="fa fa-refresh"></span>&nbsp;<spring:message code="consultes.pinbal.boto.update"/></a></li>{{/if}}
 							</ul>
 						</div>
 					</script>

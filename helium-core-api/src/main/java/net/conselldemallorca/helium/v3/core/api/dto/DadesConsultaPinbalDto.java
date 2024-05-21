@@ -1,18 +1,12 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
-
 import org.apache.commons.lang.builder.ToStringBuilder;
-
 
 /**
  * Informació d'una consulta per fer una petició a Pinbal
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-
 public class DadesConsultaPinbalDto {
 	
 	private String serveiCodi;
@@ -26,6 +20,8 @@ public class DadesConsultaPinbalDto {
 	private String entitat_CIF;
 	private String unitatTramitadora;
 	private boolean asincrona;
+	private String	transicioOK;
+	private String	transicioKO;	
 
 	public enum consentiment {
 		SI,
@@ -136,5 +132,19 @@ public class DadesConsultaPinbalDto {
 		this.asincrona = asincrona;
 	}
 
+	public String getTransicioOK() {
+		return transicioOK;
+	}
 
+	public void setTransicioOK(String transicioOK) {
+		this.transicioOK = transicioOK;
+	}
+
+	public String getTransicioKO() {
+		return transicioKO;
+	}
+
+	public void setTransicioKO(String transicioKO) {
+		this.transicioKO = transicioKO;
+	}
 }

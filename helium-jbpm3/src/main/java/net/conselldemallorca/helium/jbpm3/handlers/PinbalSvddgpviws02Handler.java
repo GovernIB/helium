@@ -51,6 +51,8 @@ public class PinbalSvddgpviws02Handler extends PinbalConsultaGenericaHandler {
 		ExpedientDto expedient = getExpedientActual(executionContext);
 	
 		DadesConsultaPinbal dadesConsultaPinbal = obtenirDadesConsulta(executionContext);
+		dadesConsultaPinbal.setTransicioOK(varTransicioOK);
+		dadesConsultaPinbal.setTransicioKO(varTransicioKO);
 		
 		//Al ser un handler específic li setegem el codi del servei
 		dadesConsultaPinbal.setServeiCodi(serveiCodiEspecific);

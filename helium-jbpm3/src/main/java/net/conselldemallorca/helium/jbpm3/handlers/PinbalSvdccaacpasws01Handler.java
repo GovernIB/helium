@@ -62,6 +62,8 @@ public class PinbalSvdccaacpasws01Handler extends PinbalConsultaGenericaHandler 
 		
 		//Al ser un handler específic li setegem el codi del servei
 		dadesConsultaPinbal.setServeiCodi(serveiCodiEspecific);
+		dadesConsultaPinbal.setTransicioOK(varTransicioOK);
+		dadesConsultaPinbal.setTransicioKO(varTransicioKO);
 		
 		Object resposta = consultaPinbalSvdccaacpasws01(
 				dadesConsultaPinbal,

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -16,11 +17,13 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.core.helper.ConsultaPinbalHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPlugin;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
@@ -33,6 +36,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalEstatEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalFiltreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ScspRespostaPinbal;
 import net.conselldemallorca.helium.v3.core.api.service.ConsultaPinbalService;
 import net.conselldemallorca.helium.webapp.v3.command.AnotacioFiltreCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ConsultesPinbalFiltreCommand;
@@ -48,6 +52,7 @@ public class ConsultesPinbalController extends BaseExpedientController {
 
 	private PersonesPlugin personesPlugin;
 	@Autowired private ConsultaPinbalService consultesPinbalService;
+	@Resource  private ConsultaPinbalHelper consultaPinbalHelper;
 	private static final String SESSION_ATTRIBUTE_FILTRE = "ConsultesPinbalController.session.filtre";
 	
 	@RequestMapping(method = RequestMethod.GET)
@@ -80,6 +85,14 @@ public class ConsultesPinbalController extends BaseExpedientController {
 				paginacioParams,
 				ConversioTipusHelper.convertir(filtreCommand, PeticioPinbalFiltreDto.class));
 		return DatatablesHelper.getDatatableResponse(request, null, resultat);
+	}
+	
+	@RequestMapping(value = "/{peticioPinbalId}/actualitzarEstat", method = RequestMethod.GET)
+	@ResponseBody
+	public ScspRespostaPinbal actualitzarEstat(
+			HttpServletRequest request,
+			@PathVariable Long peticioPinbalId) {
+		return consultaPinbalHelper.tractamentPeticioAsincronaPendentPinbal(peticioPinbalId);
 	}
 	
 	private ConsultesPinbalFiltreCommand getFiltreCommand(HttpServletRequest request) {
