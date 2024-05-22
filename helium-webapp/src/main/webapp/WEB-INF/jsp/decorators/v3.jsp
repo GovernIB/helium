@@ -370,6 +370,16 @@
 							</div>
 						</c:if>
 						<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
+							<div id="menuConsultar" class="btn-group">
+								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.consultar"/> <span class="caret"></span></button>
+								<ul class="dropdown-menu" id="consultar">
+									<li><a href="<c:url value="/v3/consultesPinbal"/>"><spring:message code='decorator.menu.consultar.consultes.pinbal' /></a></li>
+									<li><a href="<c:url value="/v3/consultesPinbal"/>"><spring:message code='decorator.menu.consultar.notificacions' /></a></li>
+									<li><a href="<c:url value="/v3/consultesPinbal"/>"><spring:message code='decorator.menu.consultar.documents.enviats.portafib' /></a></li>
+								</ul>
+							</div>
+						</c:if>
+						<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
 							<div id="menuAdministracio" class="btn-group">
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.administracio"/> <span class="caret"></span></button>
 								<ul class="dropdown-menu" id="mesures">
@@ -384,9 +394,6 @@
 									</c:if>
 									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
 										<li><a data-toggle="modal" data-maximized="true" href="<c:url value="/v3/monitorDomini"/>"><spring:message code='decorator.menu.administracio.monitor.domini' /></a></li>
-									</c:if>
-									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
-										<li><a href="<c:url value="/v3/consultesPinbal"/>"><spring:message code='decorator.menu.administracio.pinbal' /></a></li>
 									</c:if>									
 									<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
 										<li><a data-toggle="modal" href="<c:url value="/modal/v3/tasca/pendentsCompletar"/>"><spring:message code='decorator.menu.administracio.tasques.execucio' /></a></li>
