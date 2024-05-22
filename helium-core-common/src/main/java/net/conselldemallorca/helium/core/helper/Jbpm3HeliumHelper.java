@@ -1807,7 +1807,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						expedient.getTipus().getId(), 
 						expedient.getTipus().getCodi(), 
 						expedient.getTipus().getNom(), 
-						"(Petició síncrona Pinbal)", 
+						"(Petició" + (dadesConsultaPinbal.isAsincrona() ? "asíncrona" : "síncrona" ) +"Pinbal)", 
 						null);//"[" + respostaPinbal.getErrorCodi() + "]: " + respostaPlugin.getErrorDescripcio());
 			}
 			
