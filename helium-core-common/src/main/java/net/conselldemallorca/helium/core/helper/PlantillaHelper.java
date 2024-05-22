@@ -207,7 +207,7 @@ public class PlantillaHelper {
 		try {
 		
 			DadesDocumentDto resposta = new DadesDocumentDto();
-			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 			Date dataActual = Calendar.getInstance().getTime();
 			resposta.setData(dataActual);
 			resposta.setArxiuNom("Provissional_"+procedimentPinbal+"_"+idPetició+".pdf");
@@ -220,7 +220,8 @@ public class PlantillaHelper {
 			
 			Font fontTitol = new Font(Font.HELVETICA, 18, Font.BOLD, new Color(255, 149, 35));
 			Paragraph p = new Paragraph("Document temporal de consulta asíncrona PINBAL", fontTitol);
-			p.setExtraParagraphSpace(10f);
+			p.setAlignment(Paragraph.ALIGN_CENTER);
+			p.setSpacingAfter(10f);
 			document.add(p);
 			document.add(new Paragraph("- Procediment PINBAL: "+procedimentPinbal));
 			document.add(new Paragraph("- Identificador de la petició: "+idPetició));

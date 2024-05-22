@@ -121,6 +121,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio.NotificacioEstat;
 import net.conselldemallorca.helium.v3.core.api.dto.ScspAtributos;
 import net.conselldemallorca.helium.v3.core.api.dto.ScspConfirmacioPeticioPinbal;
+import net.conselldemallorca.helium.v3.core.api.dto.ScspEstado;
 import net.conselldemallorca.helium.v3.core.api.dto.ScspJustificant;
 import net.conselldemallorca.helium.v3.core.api.dto.ScspRespostaPinbal;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
@@ -1761,23 +1762,35 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				expedient.getTipus().getCodi());
 		if (expedientTipus == null)
 			throw new NoTrobatException(ExpedientTipus.class, expedient.getTipus().getCodi());
-		
+
+		ScspRespostaPinbal respostaPinbal = new ScspRespostaPinbal();
 		ScspConfirmacioPeticioPinbal scspConfirmacioPeticioPinbal = null;
-		ScspRespostaPinbal respostaPinbal=null;
 		Long documentStoreJusificantId = null;
 		Date dataPecicio = Calendar.getInstance().getTime();
 		
-		if(dadesConsultaPinbal.isAsincrona()) {	
+		if(dadesConsultaPinbal.isAsincrona()) {
+			
 			scspConfirmacioPeticioPinbal = (ScspConfirmacioPeticioPinbal) pluginHelper.consultaPinbal(
 						this.convertirDadesDeDto(dadesConsultaPinbal, expedientTipus, expedient), 
 						expedient, 
 						null);//Al ser consultaGenèrica, li passen directament ells el serveiCodi
+			
 			if(scspConfirmacioPeticioPinbal!=null && scspConfirmacioPeticioPinbal.getAtributos()!=null) {
+
 				ScspAtributos scspAtributos = scspConfirmacioPeticioPinbal.getAtributos();
+				respostaPinbal.setIdPeticion(scspAtributos.getIdPeticion());
+				dadesConsultaPinbal.setCodiProcediment(scspAtributos.getCodigoCertificado());
+				
+				Calendar cal = Calendar.getInstance();
+				if (scspAtributos.getEstado()!=null && scspAtributos.getEstado().getTiempoEstimadoRespuesta()!=null) {
+					cal.add(Calendar.HOUR, scspAtributos.getEstado().getTiempoEstimadoRespuesta());
+				}
+				respostaPinbal.setDataProcessament(cal.getTime()); //Data prevista
+				
 				DadesDocumentDto documentJusificantProvissional = plantillaHelper.generaJustificantTemporalPinbal(
 						dadesConsultaPinbal.getCodiProcediment(),
-						scspAtributos.getIdPeticion(),//respostaPinbal.getIdPeticion(),
-						null); //revisar! --> respostaPinbal.getDataProcessament());
+						scspAtributos.getIdPeticion(),
+						cal.getTime());
 	
 				documentStoreJusificantId = this.documentExpedientGuardar(
 						processInstanceId,
@@ -1854,22 +1867,40 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		if (expedientTipus == null)
 			throw new NoTrobatException(ExpedientTipus.class, expedient.getTipus().getCodi());
 		
-		ScspRespostaPinbal respostaPinbal = null;
+		ScspRespostaPinbal respostaPinbal = new ScspRespostaPinbal();
 		ScspConfirmacioPeticioPinbal scspConfirmacioPeticioPinbal = null;
 		Long documentStoreJusificantId = null;
 		Date dataPecicio = Calendar.getInstance().getTime();
 		
 		if(dadesConsultaPinbal.isAsincrona()) {
+			
 			scspConfirmacioPeticioPinbal = (ScspConfirmacioPeticioPinbal)pluginHelper.consultaPinbal(
 					this.convertirDadesDeDto(dadesConsultaPinbal, expedientTipus, expedient), 
 					expedient, 
 					PluginHelper.serveiConsultaDades);
+
+//			scspConfirmacioPeticioPinbal = new ScspConfirmacioPeticioPinbal();
+//			scspConfirmacioPeticioPinbal.setAtributos(new ScspAtributos());
+//			scspConfirmacioPeticioPinbal.getAtributos().setEstado(new ScspEstado());
+//			scspConfirmacioPeticioPinbal.getAtributos().getEstado().setTiempoEstimadoRespuesta(300);
+//			scspConfirmacioPeticioPinbal.getAtributos().setIdPeticion("PROVA_ASYNC");
+			
 			if(scspConfirmacioPeticioPinbal!=null && scspConfirmacioPeticioPinbal.getAtributos()!=null) {
+				
 				ScspAtributos scspAtributos = scspConfirmacioPeticioPinbal.getAtributos();
+				respostaPinbal.setIdPeticion(scspAtributos.getIdPeticion());
+				dadesConsultaPinbal.setCodiProcediment(PluginHelper.serveiConsultaDades);
+				
+				Calendar cal = Calendar.getInstance();
+				if (scspAtributos.getEstado()!=null && scspAtributos.getEstado().getTiempoEstimadoRespuesta()!=null) {
+					cal.add(Calendar.HOUR, scspAtributos.getEstado().getTiempoEstimadoRespuesta());
+				}
+				respostaPinbal.setDataProcessament(cal.getTime()); //Data prevista
+				
 				DadesDocumentDto documentJusificantProvissional = plantillaHelper.generaJustificantTemporalPinbal(
 					dadesConsultaPinbal.getCodiProcediment(),
 					scspAtributos.getIdPeticion(),
-					null); //Revisar! //respostaPinbal.getDataProcessament());
+					cal.getTime());
 
 				documentStoreJusificantId = this.documentExpedientGuardar(
 					processInstanceId,
@@ -1977,22 +2008,34 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		if (expedientTipus == null)
 			throw new NoTrobatException(ExpedientTipus.class, expedient.getTipus().getCodi());
 		
-		ScspRespostaPinbal respostaPinbal = null;
+		ScspRespostaPinbal respostaPinbal = new ScspRespostaPinbal();
 		ScspConfirmacioPeticioPinbal scspConfirmacioPeticioPinbal = null;
 		Long documentStoreJusificantId = null;
 		Date dataPeticio = Calendar.getInstance().getTime();
 		
 		if(dadesConsultaPinbal.isAsincrona()) {
+			
 			scspConfirmacioPeticioPinbal = (ScspConfirmacioPeticioPinbal)pluginHelper.consultaPinbal(
 					this.convertirDadesDeDto(dadesConsultaPinbal, expedientTipus, expedient), 
 					expedient, 
 					PluginHelper.serveiVerificacioDades);
+			
 			if(scspConfirmacioPeticioPinbal!=null && scspConfirmacioPeticioPinbal.getAtributos()!=null) {
+				
 				ScspAtributos scspAtributos = scspConfirmacioPeticioPinbal.getAtributos();
+				respostaPinbal.setIdPeticion(scspAtributos.getIdPeticion());
+				dadesConsultaPinbal.setCodiProcediment(PluginHelper.serveiVerificacioDades);
+				
+				Calendar cal = Calendar.getInstance();
+				if (scspAtributos.getEstado()!=null && scspAtributos.getEstado().getTiempoEstimadoRespuesta()!=null) {
+					cal.add(Calendar.HOUR, scspAtributos.getEstado().getTiempoEstimadoRespuesta());
+				}				
+				respostaPinbal.setDataProcessament(cal.getTime()); //Data prevista
+				
 				DadesDocumentDto documentJusificantProvissional = plantillaHelper.generaJustificantTemporalPinbal(
 						dadesConsultaPinbal.getCodiProcediment(),
 						scspAtributos.getIdPeticion(),
-						null); //respostaPinbal.getDataProcessament());
+						cal.getTime());
 	
 				documentStoreJusificantId = this.documentExpedientGuardar(
 						processInstanceId,
@@ -2070,7 +2113,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		if (expedientTipus == null)
 			throw new NoTrobatException(ExpedientTipus.class, expedient.getTipus().getCodi());
 		
-		ScspRespostaPinbal respostaPinbal = null;
+		ScspRespostaPinbal respostaPinbal = new ScspRespostaPinbal();
 		ScspConfirmacioPeticioPinbal scspConfirmacioPeticioPinbal = null;
 		Long documentStoreJusificantId = null;
 		Date dataPecicio = Calendar.getInstance().getTime();		
@@ -2081,12 +2124,23 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 					this.convertirDadesDeDto(dadesConsultaPinbal, expedientTipus, expedient), 
 					expedient, 
 					PluginHelper.serveiObligacionsTributaries);
+			
 			if(scspConfirmacioPeticioPinbal!=null && scspConfirmacioPeticioPinbal.getAtributos()!=null) {
+				
 				ScspAtributos scspAtributos = scspConfirmacioPeticioPinbal.getAtributos();
+				respostaPinbal.setIdPeticion(scspAtributos.getIdPeticion());
+				dadesConsultaPinbal.setCodiProcediment(PluginHelper.serveiObligacionsTributaries);
+				
+				Calendar cal = Calendar.getInstance();
+				if (scspAtributos.getEstado()!=null && scspAtributos.getEstado().getTiempoEstimadoRespuesta()!=null) {
+					cal.add(Calendar.HOUR, scspAtributos.getEstado().getTiempoEstimadoRespuesta());
+				}
+				respostaPinbal.setDataProcessament(cal.getTime()); //Data prevista
+				
 				DadesDocumentDto documentJusificantProvissional = plantillaHelper.generaJustificantTemporalPinbal(
 						dadesConsultaPinbal.getCodiProcediment(),
 						scspAtributos.getIdPeticion(),
-						null); // revisar: respostaPinbal.getDataProcessament());
+						cal.getTime());
 	
 				documentStoreJusificantId = this.documentExpedientGuardar(
 						processInstanceId,
@@ -2142,7 +2196,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		
 		return respostaPinbal;
 	}
-	
 	
 	private DadesConsultaPinbal convertirDadesDeDto(DadesConsultaPinbalDto dadesDto, ExpedientTipus expedientTipus, Expedient expedient) {
 		Titular titular = new Titular();

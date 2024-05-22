@@ -1,11 +1,13 @@
 package net.conselldemallorca.helium.v3.core.api.dto;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class PeticioPinbalDto implements Serializable {
 
 	private static final long serialVersionUID = -1115466212214125984L;
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 	
 	private Long id;
 	private EntornDto entorn;
@@ -26,6 +28,8 @@ public class PeticioPinbalDto implements Serializable {
 	private Date dataProcessamentPrimer;
 	private Date dataProcessamentDarrer;
 	private String errorProcessament;
+	@SuppressWarnings("unused")
+	private String dataPrevistaFormat; //nomes getter, per la vista
 	
 	public Long getId() {
 		return id;
@@ -147,6 +151,12 @@ public class PeticioPinbalDto implements Serializable {
 	public void setErrorProcessament(String errorProcessament) {
 		this.errorProcessament = errorProcessament;
 	}
-	
-	
+	public String getDataPrevistaFormat() {
+		if (this.dataPrevista!=null) {
+			return sdf.format(dataPrevista);
+		} else {
+			return "";
+		}
+	}
+		
 }

@@ -628,16 +628,18 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			notificacioRepository.delete(notificacio);
 		}
 
-		List<PeticioPinbal> pets = peticioPinbalRepository.findByExpedientId(expedient.getId());
-		if (pets!=null) {
-			for (PeticioPinbal p: pets) {
-				if (p.getDocument()!=null) {
-					documentHelper.esborrarDocument(null, expedient.getProcessInstanceId(), p.getDocument().getId());
-				}
-				peticioPinbalRepository.delete(p);
-			}
-		}
-		
+//		List<PeticioPinbal> pets = peticioPinbalRepository.findByExpedientId(expedient.getId());
+//		if (pets!=null) {
+//			for (PeticioPinbal p: pets) {
+//				if (p.getDocument()!=null) {
+//					documentHelper.esborrarDocument(null, expedient.getProcessInstanceId(), p.getDocument().getId());
+//				}
+//				peticioPinbalRepository.delete(p);
+//			}
+//		}
+
+		peticioPinbalRepository.delete(peticioPinbalRepository.findByExpedientId(expedient.getId()));
+
 		anotacioService.esborrarAnotacionsExpedient(expedient.getId());
 
 		// Ordena per id de menor a major per evitar errors de dependències

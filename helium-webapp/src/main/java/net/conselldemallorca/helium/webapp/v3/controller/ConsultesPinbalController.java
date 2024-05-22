@@ -95,6 +95,15 @@ public class ConsultesPinbalController extends BaseExpedientController {
 		return consultaPinbalHelper.tractamentPeticioAsincronaPendentPinbal(peticioPinbalId);
 	}
 	
+	@RequestMapping(value = "/{peticioPinbalId}/info", method = RequestMethod.GET)
+	public String info(
+			HttpServletRequest request,
+			@PathVariable Long peticioPinbalId,
+			Model model) {
+		model.addAttribute("peticioPinbalDto", consultesPinbalService.findById(peticioPinbalId));
+		return "v3/consultesPinbalInfo";
+	}
+	
 	private ConsultesPinbalFiltreCommand getFiltreCommand(HttpServletRequest request) {
 		ConsultesPinbalFiltreCommand filtreCommand = (ConsultesPinbalFiltreCommand) SessionHelper.getAttribute(request, SESSION_ATTRIBUTE_FILTRE);
 		if (filtreCommand == null) {

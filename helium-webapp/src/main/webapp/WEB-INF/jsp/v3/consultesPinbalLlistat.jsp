@@ -102,26 +102,54 @@
 			data-url="consultesPinbal/datatable"
 			data-paging-enabled="true"
 			data-ordering="true"
-			data-default-order="4"
+			data-default-order="2"
 			data-default-dir="desc"			
 			class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
-				<th data-col-name="tipus.nom" width="18%"><spring:message code="consultes.pinbal.camp.tipus"/></th>
-				<th data-col-name="expedient.identificador" width="32%"><spring:message code="consultes.pinbal.camp.exp"/></th>
-				<th data-col-name="procediment" width="15%"><spring:message code="consultes.pinbal.camp.procediment"/></th>
-				<th data-col-name="usuari" width="10%"><spring:message code="consultes.pinbal.camp.usuari"/></th>
+				<th data-col-name="tipus.nom" data-template="#cellTipusTemplate" width="10%"><spring:message code="consultes.pinbal.camp.tipus"/>
+					<script id="cellTipusTemplate" type="text/x-jsrender">
+						{{:tipus.codi}} <span class="fa fa-info-circle" title="{{:tipus.codi}} - {{:tipus.nom}}
+(Entorn {{:entorn.codi}} - {{:entorn.nom}})"></span>
+					</script>
+				</th>
+				<th data-col-name="expedient.identificador" data-template="#cellExpTemplate" width="31%"><spring:message code="consultes.pinbal.camp.exp"/>
+					<script id="cellExpTemplate" type="text/x-jsrender">
+						<a href="<c:url value="/v3/expedient/{{:expedientId}}"/>" target="_blank">{{:expedient.identificador}}</a>
+					</script>
+				</th>
 				<th data-col-name="dataPeticio" width="10%" data-converter="datetime"><spring:message code="consultes.pinbal.camp.dataPeticio"/></th>
-				<th data-col-name="estat" width="10%"><spring:message code="consultes.pinbal.camp.estat"/></th>
+				<th data-col-name="usuari" width="9%"><spring:message code="consultes.pinbal.camp.usuari"/></th>				
+				<th data-col-name="procediment" width="15%"><spring:message code="consultes.pinbal.camp.procediment"/></th>
+				<th data-col-name="estat" data-template="#cellEstatTemplate" width="10%"><spring:message code="consultes.pinbal.camp.estat"/>
+					<script id="cellEstatTemplate" type="text/x-jsrender">
+						{{if estat=='PENDENT'}}<span class="fa fa-clock-o" title="{{:dataPrevistaFormat}}"></span> Pendent{{/if}}
+						{{if estat=='TRAMITADA'}}<span class="fa fa-check"></span> Tramitada{{/if}}
+						{{if estat=='ERROR'}}<span class="fa fa-exclamation-triangle" title="{{:errorMsg}} {{:errorProcessament}}"></span> Error{{/if}}
+						{{if estat=='ERROR_PROCESSANT'}}<span class="fa fa-exclamation-triangle" title="{{:errorMsg}} {{:errorProcessament}}"></span> Error processant{{/if}}
+					</script>
+				</th>
+				<th data-col-name="document.nom" data-template="#cellDocTemplate" width="10%"><spring:message code="consultes.pinbal.camp.document"/>
+					<script id="cellDocTemplate" type="text/x-jsrender">
+						<a href="<c:url value="/v3/expedient/{{:expedientId}}/document/{{:documentId}}/descarregar"/>" target="_blank">{{:document.nom}}</a>
+					</script>
+				</th>				
 				<th data-col-name="expedientId" data-visible="false"></th>
 				<th data-col-name="documentId" data-visible="false"></th>
+				<th data-col-name="dataPrevistaFormat" data-visible="false"></th>
+				<th data-col-name="errorMsg" data-visible="false"></th>
+				<th data-col-name="errorProcessament" data-visible="false"></th>
+				<th data-col-name="tipus.codi" data-visible="false"></th>
+				<th data-col-name="tipus.nom" data-visible="false"></th>
+				<th data-col-name="entorn.codi" data-visible="false"></th>
+				<th data-col-name="entorn.nom" data-visible="false"></th>				
 				<th data-col-name="id" width="5%" data-template="#cellAccionsTemplate" data-orderable="false">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
 						<div class="dropdown navbar-right">
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
-								<li><a href="<c:url value="/v3/expedient/{{:expedientId}}/document/{{:documentId}}/descarregar"/>" class="consultar-expedient"><span class="fa fa-file"></span>&nbsp;<spring:message code="consultes.pinbal.boto.just"/></a></li>
-								{{if estat=='PENDENT'}}<li><a href="<c:url value="/v3/consultesPinbal/{{:id}}/actualitzarEstat"/>" data-bloquejar data-toggle="ajax"><span class="fa fa-refresh"></span>&nbsp;<spring:message code="consultes.pinbal.boto.update"/></a></li>{{/if}}
+								<li><a href="<c:url value="/v3/consultesPinbal/{{:id}}/info"/>" data-toggle="modal" class="consultar-expedient"><span class="fa fa-info-circle"></span>&nbsp;<spring:message code="consultes.pinbal.boto.info"/></a></li>
+								{{if estat=='PENDENT'}}<li><a href="<c:url value="/v3/consultesPinbal/{{:id}}/actualitzarEstat"/>" data-toggle="ajax"><span class="fa fa-refresh"></span>&nbsp;<spring:message code="consultes.pinbal.boto.update"/></a></li>{{/if}}
 							</ul>
 						</div>
 					</script>

@@ -9,13 +9,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
+import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
+import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.PeticioPinbal;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalFiltreDto;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ConsultaPinbalService;
 import net.conselldemallorca.helium.v3.core.repository.PeticioPinbalRepository;
 
@@ -26,6 +31,8 @@ public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
 	@Resource private ConversioTipusHelper conversioTipusHelper;
 	@Resource private PaginacioHelper paginacioHelper;
 	@Resource private UsuariActualHelper usuariActualHelper;
+	@Resource private ExpedientHelper expedientHelper;
+	@Resource private DocumentHelperV3 documentHelperV3;
 	
 	@Override
 	@Transactional(readOnly=true)
@@ -48,7 +55,7 @@ public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
 			}
 		}
 		
-		return paginacioHelper.toPaginaDto(peticioPinbalRepository.findByFiltrePaginat(
+		PaginaDto<PeticioPinbalDto> pagina = paginacioHelper.toPaginaDto(peticioPinbalRepository.findByFiltrePaginat(
 				entornsPermesos == null,
 				entornsPermesos,
 				filtreDto.getTipusId() == null,
@@ -70,13 +77,45 @@ public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
 				(paginacioParams.getFiltre() == null || "".equals(paginacioParams.getFiltre())),
 				paginacioParams.getFiltre(),
 				paginacioHelper.toSpringDataPageable(paginacioParams)), PeticioPinbalDto.class);
-
+		
+		for (PeticioPinbalDto peticioPinbal : pagina.getContingut() ) {
+			Document document = documentHelperV3.findDocumentPerInstanciaProcesICodi(
+					peticioPinbal.getExpedient().getProcessInstanceId(),
+					peticioPinbal.getDocument().getCodiDocument());
+			String nom = peticioPinbal.getDocument().getCodiDocument();
+			if (document != null) {
+				nom = document.getNom();
+			}
+			peticioPinbal.getDocument().setNom(nom);
+		}
+		
+		// Map per document.id i document.nom
+//		Map<Long, String> documentsMap = new HashMap<Long, String>();
+//		for (PeticioPinbalDto peticioPinbal : pagina.getContingut() ) {
+//			String nom = peticioPinbal.getDocument().getCodiDocument();
+//			if (documentsMap.containsKey(peticioPinbal.getDocument().getId())) {
+//				nom = documentsMap.get(peticioPinbal.getDocument().getId());
+//			} else {
+//				Document document = documentHelperV3.findDocumentPerInstanciaProcesICodi(
+//						peticioPinbal.getExpedient().getProcessInstanceId(),
+//						peticioPinbal.getDocument().getCodiDocument());
+//				if (document != null) {
+//					nom = document.getNom();
+//				}
+//				documentsMap.put(document.getId(), nom);
+//			}
+//			peticioPinbal.getDocument().setNom(nom);
+//		}
+		
+		return pagina;
 	}
 
 	@Override
 	@Transactional(readOnly=true)
-	public PeticioPinbalDto findById(Long peticioPinbalId) {
-		return conversioTipusHelper.convertir(peticioPinbalRepository.findOne(peticioPinbalId), PeticioPinbalDto.class);
+	public PeticioPinbalDto findById(Long peticioPinbalId) throws PermisDenegatException {
+		PeticioPinbal pi = peticioPinbalRepository.findOne(peticioPinbalId);
+		expedientHelper.getExpedientComprovantPermisos(pi.getExpedient().getId(), true, false, false, false);
+		return conversioTipusHelper.convertir(pi, PeticioPinbalDto.class);
 	}
 
 	@Override
