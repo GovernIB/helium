@@ -118,9 +118,9 @@ tr.clicable {
 									<span class="fa fa-exclamation-triangle"></span>
 									<spring:message code="anotacio.detalls.errorProcessament" arguments="${anotacio.id}" /></a>
 							</div>
-						<textarea id="anotacio.errorProcessament" style="width:100%;">
-							${anotacio.errorProcessament}
-						</textarea>		
+							<pre style="height:300px; white-space: pre-wrap; word-break: keep-all;">
+								<c:out value="${anotacio.errorProcessament}" escapeXml="true"/>
+							</pre>
 						</c:if>
 						<c:if test="${anotacio.estat == 'REBUTJADA'}">
 							<fmt:formatDate value="${anotacio.dataProcessament}" pattern="dd/MM/yyyy HH:mm:ss"/>
