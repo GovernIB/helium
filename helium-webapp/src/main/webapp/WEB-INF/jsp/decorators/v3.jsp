@@ -374,13 +374,8 @@
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.consultar"/> <span class="caret"></span></button>
 								<ul class="dropdown-menu" id="consultar">
 									<li><a href="<c:url value="/v3/consultesPinbal"/>"><spring:message code='decorator.menu.consultar.consultes.pinbal' /></a></li>
-<<<<<<< HEAD
 									<li><a href="<c:url value="/v3/notificacions"/>"><spring:message code='decorator.menu.consultar.notificacions' /></a></li>
 									<li><a href="<c:url value="/v3/enviamentsPortafib"/>"><spring:message code='decorator.menu.consultar.documents.enviats.portafib' /></a></li>
-=======
-									<li><a href="<c:url value="/v3/consultesPinbal"/>"><spring:message code='decorator.menu.consultar.notificacions' /></a></li>
-									<li><a href="<c:url value="/v3/consultesPinbal"/>"><spring:message code='decorator.menu.consultar.documents.enviats.portafib' /></a></li>
->>>>>>> branch 'helium-dev' of https://github.com/GovernIB/helium.git
 								</ul>
 							</div>
 						</c:if>

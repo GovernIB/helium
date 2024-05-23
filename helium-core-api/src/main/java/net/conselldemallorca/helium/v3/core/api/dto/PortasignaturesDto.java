@@ -1,12 +1,6 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
 import java.util.Date;
-
-
-
 
 /**
  * DTO amb informació d'un document enviat al portasignatures
@@ -14,18 +8,6 @@ import java.util.Date;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class PortasignaturesDto {
-	
-	private enum TipusEstat {
-		BLOQUEJAT,
-		PENDENT,	// El document s'ha enviat però encara no s'ha rebut al callback cap resposta
-		SIGNAT,		// S'ha rebut petició al callback indicant que el document ha estat signat
-		REBUTJAT,	// S'ha rebut petició al callback indicant que el document ha estat rebujat
-		PROCESSAT,	// El document signat o rebujat s'ha processat correctament
-		CANCELAT,	// El document s'ha esborrat de l'expedient
-		ERROR,		// El document s'ha intentat processar i ha produit un error
-		ESBORRAT	// S'ha esborrat l'expedient al qual pertany el document
-	}
-	
 
 	private Long id;
 	private Integer documentId;
@@ -187,10 +169,10 @@ public class PortasignaturesDto {
 		this.reintentarFirma = reintentarFirma;
 	}
 	public boolean isPendent() {
-		return	TipusEstat.PENDENT.equals(estat) ||
-				TipusEstat.SIGNAT.equals(estat) ||
-				TipusEstat.REBUTJAT.equals(estat) ||
-				TipusEstat.ERROR.equals(estat);
+		return	PortafirmesEstatEnum.PENDENT.equals(estat) ||
+				PortafirmesEstatEnum.SIGNAT.equals(estat) ||
+				PortafirmesEstatEnum.REBUTJAT.equals(estat) ||
+				PortafirmesEstatEnum.ERROR.equals(estat);
 	}
 	public boolean isRebutjadaProcessada() {
 		return rebutjadaProcessada;
