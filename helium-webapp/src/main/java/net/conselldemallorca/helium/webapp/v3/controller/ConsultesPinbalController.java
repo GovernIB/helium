@@ -104,6 +104,15 @@ public class ConsultesPinbalController extends BaseExpedientController {
 		return "v3/consultesPinbalInfo";
 	}
 	
+	@RequestMapping(value = "/infoByDocument/{expedientId}/{documentStoreId}", method = RequestMethod.GET)
+	public String infoByDocument(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long documentStoreId,
+			Model model) {
+		return info(request, consultesPinbalService.findByExpedientAndDocumentStore(expedientId, documentStoreId).getId(), model);
+	}
+	
 	private ConsultesPinbalFiltreCommand getFiltreCommand(HttpServletRequest request) {
 		ConsultesPinbalFiltreCommand filtreCommand = (ConsultesPinbalFiltreCommand) SessionHelper.getAttribute(request, SESSION_ATTRIBUTE_FILTRE);
 		if (filtreCommand == null) {

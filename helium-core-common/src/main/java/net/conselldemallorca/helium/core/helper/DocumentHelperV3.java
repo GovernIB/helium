@@ -87,6 +87,7 @@ import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
+import net.conselldemallorca.helium.v3.core.repository.PeticioPinbalRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
@@ -147,6 +148,8 @@ public class DocumentHelperV3 {
 	private DocumentNotificacioRepository documentNotificacioRepository; 
 	@Resource
 	private AnotacioAnnexRepository anotacioAnnexRepository;
+	@Resource
+	private PeticioPinbalRepository peticioPinbalRepository;	
 
 	private PdfUtils pdfUtils;
 	private DocumentTokenUtils documentTokenUtils;
@@ -436,7 +439,7 @@ public class DocumentHelperV3 {
 					}
 					// Informació de les notificacions
 					ed.setNotificat(documentsNotificats.contains(documentStoreId));
-					
+					ed.setPinbal(!peticioPinbalRepository.findByExpedientIdAndDocumentIdOrderByDataPeticioDesc(expedient.getId(), documentStoreId).isEmpty());
 					resposta.add(ed);
 				}
 			}

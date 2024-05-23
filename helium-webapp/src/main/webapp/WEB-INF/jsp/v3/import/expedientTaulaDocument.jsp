@@ -236,6 +236,17 @@
 													</a>
 												</c:if>
 												
+												<c:if test="${document.pinbal}">
+													<a 	href="../../v3/consultesPinbal/infoByDocument/${expedientId}/${document.id}"
+														data-rdt-link-modal="true" 
+														data-rdt-link-modal-min-height="500"
+														class="icon modificar" >
+															<span class="label label-success etiqueta-nti-arxiu" id="${contingut.id}" title="<spring:message code="consultes.pinbal.detall.titol"/>">
+																PIN
+															</span>
+													</a>
+												</c:if>												
+												
 												<c:if test="${document.anotacioId != null}">
 													<a href="<c:url value="../../v3/anotacio/${document.anotacioId}?annexId=${document.anotacioAnnexId}"/>"
 														title="<spring:message code="expedient.document.info.etiqueta.anotacio.title" arguments="${document.anotacioIdentificador},${document.anotacioAnnexTitol}" htmlEscape="true"/>"

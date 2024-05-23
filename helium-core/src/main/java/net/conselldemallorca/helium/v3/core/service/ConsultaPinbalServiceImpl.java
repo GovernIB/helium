@@ -117,6 +117,17 @@ public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
 		expedientHelper.getExpedientComprovantPermisos(pi.getExpedient().getId(), true, false, false, false);
 		return conversioTipusHelper.convertir(pi, PeticioPinbalDto.class);
 	}
+	
+	@Override
+	@Transactional(readOnly=true)
+	public PeticioPinbalDto findByExpedientAndDocumentStore(Long expedientId, Long documentStoreId) {
+		List<PeticioPinbal> pins = peticioPinbalRepository.findByExpedientIdAndDocumentIdOrderByDataPeticioDesc(expedientId, documentStoreId);
+		if (pins!=null && pins.size()>0) {
+			return conversioTipusHelper.convertir(pins.get(0), PeticioPinbalDto.class);
+		} else {
+			return null;
+		}
+	}
 
 	@Override
 	@Transactional(readOnly=true)

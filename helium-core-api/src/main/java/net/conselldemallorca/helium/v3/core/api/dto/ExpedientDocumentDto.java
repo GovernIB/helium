@@ -67,6 +67,7 @@ public class ExpedientDocumentDto implements Serializable {
 	private boolean notificable;
 	
 	private boolean notificat;
+	private boolean pinbal;
 	
 	private String custodiaCodi;
 	
@@ -411,6 +412,13 @@ public class ExpedientDocumentDto implements Serializable {
 	}
 	public void setPortafirmesResponsables(String portafirmesResponsables) {
 		this.portafirmesResponsables = portafirmesResponsables;
+	}
+
+	public boolean isPinbal() {
+		return pinbal;
+	}
+	public void setPinbal(boolean pinbal) {
+		this.pinbal = pinbal;
 	}
 
 	private static final long serialVersionUID = -4307890997577367155L;

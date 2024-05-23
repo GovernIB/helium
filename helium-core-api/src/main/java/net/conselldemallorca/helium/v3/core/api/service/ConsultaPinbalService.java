@@ -14,5 +14,7 @@ public interface ConsultaPinbalService {
 	
 	PeticioPinbalDto findById(Long peticioPinbalId) throws PermisDenegatException;
 	
+	PeticioPinbalDto findByExpedientAndDocumentStore(Long expedientId, Long documentStoreId);
+	
 	List<PeticioPinbalDto> findConsultesPinbalPerExpedient(Long expedientId);
 }

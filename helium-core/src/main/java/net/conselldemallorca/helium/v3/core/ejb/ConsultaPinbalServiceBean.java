@@ -13,7 +13,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalFiltreDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ScspRespostaPinbal;
 import net.conselldemallorca.helium.v3.core.api.service.ConsultaPinbalService;
 
 @Stateless
@@ -38,5 +37,11 @@ public class ConsultaPinbalServiceBean implements ConsultaPinbalService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<PeticioPinbalDto> findConsultesPinbalPerExpedient(Long expedientId) {
 		return delegate.findConsultesPinbalPerExpedient(expedientId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public PeticioPinbalDto findByExpedientAndDocumentStore(Long expedientId, Long documentStoreId) {
+		return delegate.findByExpedientAndDocumentStore(expedientId, documentStoreId);
 	}
 }
