@@ -433,7 +433,7 @@ public class DistribucioHelper {
 	public Anotacio updateErrorProcessament(long anotacioId, String errorProcessament) {
 		
 		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
-		anotacio.setErrorProcessament(errorProcessament.substring(0, Math.min(2048, errorProcessament.length())));
+		anotacio.setErrorProcessament(errorProcessament);
 		anotacio.setDataProcessament(new Date());
 		anotacio.setEstat(AnotacioEstatEnumDto.ERROR_PROCESSANT);
 		return anotacio;

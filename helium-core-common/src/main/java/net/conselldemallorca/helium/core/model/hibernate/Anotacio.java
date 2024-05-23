@@ -17,6 +17,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -89,7 +90,8 @@ public class Anotacio implements Serializable, GenericEntity<Long> {
 	/** Data en què s'ha processat amb o sense error o que s'ha rebutjat l'anotació. */
 	@Column(name = "data_processament")
 	private Date dataProcessament;
-	@Column(name = "error_processament", length = 1024)
+	@Lob
+	@Column(name = "error_processament")
 	private String errorProcessament = null;
 	
 	/** Motiu del rebuig en cas de rebutjar l'anotació */
