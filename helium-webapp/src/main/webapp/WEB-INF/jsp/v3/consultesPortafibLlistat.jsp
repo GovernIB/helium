@@ -46,28 +46,19 @@
 		<div class="col-md-4">							
 			<hel:inputText name="numeroExpedient" textKey="anotacio.llistat.filtre.camp.numeroExpedient" placeholderKey="anotacio.llistat.filtre.camp.numeroExpedient" inline="true"/>
 		</div>
-		<div class="col-md-4">							
+		<div class="col-md-4">
+			<hel:inputText name="documentNom" textKey="consultes.potafib.camp.nomDoc" placeholderKey="consultes.potafib.camp.nomDoc" inline="true"/>
 		</div>		
 	</div>
 	
 	<div class="row">
 		<div class="col-md-4">
-			<hel:inputSelect
-				name="usuari"
-				emptyOption="true" 
-				textKey="consultes.pinbal.camp.usuari"
-				placeholderKey="consultes.pinbal.camp.usuari"
-				optionItems="${persones}"
-				optionValueAttribute="codi"
-				optionTextAttribute="nom"
-				disabled="${empty persones}"
-				inline="true"/>
+			<hel:inputDate name="dataPeticioIni" textKey="consultes.potafib.camp.filtreDesde" placeholder="dd/mm/aaaa"/>
 		</div>		
-		<div class="col-md-2">
+		<div class="col-md-4">
+			<hel:inputDate name="dataPeticioIni" textKey="consultes.potafib.camp.filtreFins" placeholder="dd/mm/aaaa"/>
 		</div>	
-		<div class="col-md-2">
-		</div>	
-		<div class="col-md-2">
+		<div class="col-md-4">
 			<hel:inputSelect 
 				inline="true" 
 				name="estat" 
@@ -103,20 +94,41 @@
 			class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
-				<th data-col-name="tipus.nom" data-template="#cellTipusTemplate" width="10%"><spring:message code="consultes.pinbal.camp.tipus"/>
+				<th data-col-name="tipusExpedientNom" data-template="#cellTipusTemplate" width="10%"><spring:message code="consultes.pinbal.camp.tipus"/>
 					<script id="cellTipusTemplate" type="text/x-jsrender">
-						{{:tipus.codi}} <span class="fa fa-info-circle" title="{{:tipus.codi}} - {{:tipus.nom}}
-(Entorn {{:entorn.codi}} - {{:entorn.nom}})"></span>
+						{{:tipusExpedientCodi}} <span class="fa fa-info-circle" title="{{:tipusExpedientCodi}} - {{:tipusExpedientNom}}
+(Entorn {{:entornCodi}} - {{:entornNom}})"></span>
 					</script>
 				</th>
-				<th data-col-name="expedient.identificador" data-template="#cellExpTemplate" width="31%"><spring:message code="consultes.pinbal.camp.exp"/>
+				<th data-col-name="expedientIdentificador" data-template="#cellExpTemplate" width="31%"><spring:message code="consultes.pinbal.camp.exp"/>
 					<script id="cellExpTemplate" type="text/x-jsrender">
-						<a href="<c:url value="/v3/expedient/{{:expedientId}}"/>" target="_blank">{{:expedient.identificador}}</a>
+						<a href="<c:url value="/v3/expedient/{{:expedientId}}"/>" target="_blank">{{:expedientIdentificador}}</a>
 					</script>
 				</th>
-				<th data-col-name="dataPeticio" width="10%" data-converter="datetime"><spring:message code="consultes.pinbal.camp.dataPeticio"/></th>
-				<th data-col-name="usuari" width="9%"><spring:message code="consultes.pinbal.camp.usuari"/></th>				
-				<th data-col-name="expedientId" data-visible="false"></th>			
+				<th data-col-name="dataEnviat" width="10%" data-converter="datetime"><spring:message code="consultes.potafib.camp.dataEnviat"/></th>
+				<th data-col-name="estat" data-template="#cellEstatTemplate" width="10%"><spring:message code="consultes.pinbal.camp.estat"/>
+					<script id="cellEstatTemplate" type="text/x-jsrender">
+						{{if estat=='BLOQUEJAT'}}<span class="fa fa-clock-o"></span> Bloquejat{{/if}}						
+						{{if estat=='PENDENT'}}<span class="fa fa-clock-o"></span> Pendent{{/if}}
+						{{if estat=='SIGNAT'}}<span class="fa fa-check"></span> Signat{{/if}}
+						{{if estat=='REBUTJAT'}}<span class="fa fa-ban"></span> Rebutjat{{/if}}
+						{{if estat=='PROCESSAT'}}<span class="fa fa-check"></span> Processat{{/if}}
+						{{if estat=='CANCELAT'}}<span class="fa fa-times"></span> Cancelat{{/if}}
+						{{if estat=='ERROR'}}<span class="fa fa-exclamation-triangle" title="{{:errorProcessant}}"></span> Error{{/if}}
+						{{if estat=='ESBORRAT'}}<span class="fa fa-times"></span> Esborrat{{/if}}					
+					</script>
+				</th>
+				<th data-col-name="documentNom" data-template="#cellDocTemplate" width="15%"><spring:message code="consultes.potafib.camp.nomDoc"/>
+					<script id="cellDocTemplate" type="text/x-jsrender">
+						<a href="<c:url value="/v3/expedient/{{:expedientId}}/document/{{:documentStoreId}}/descarregar"/>" target="_blank">{{:documentNom}}</a>
+					</script>
+				</th>					
+				<th data-col-name="expedientId" data-visible="false"></th>
+				<th data-col-name="tipusExpedientCodi" data-visible="false"></th>
+				<th data-col-name="entornCodi" data-visible="false"></th>
+				<th data-col-name="documentStoreId" data-visible="false"></th>
+				<th data-col-name="errorProcessant" data-visible="false"></th>
+				<th data-col-name="entornNom" data-visible="false"></th>
 				<th data-col-name="id" width="5%" data-template="#cellAccionsTemplate" data-orderable="false">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
 						<div class="dropdown navbar-right">

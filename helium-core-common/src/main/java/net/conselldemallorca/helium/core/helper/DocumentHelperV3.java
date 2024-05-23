@@ -47,7 +47,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
@@ -72,6 +71,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesEstatEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
@@ -1209,10 +1209,10 @@ public class DocumentHelperV3 {
 				if (processInstanceId != null) {
 					List<Portasignatures> psignaPendents = portasignaturesRepository.findByProcessInstanceIdAndEstatNotIn(
 							processInstanceId,
-							TipusEstat.getPendents());
+							PortafirmesEstatEnum.getPendents());
 					for (Portasignatures psigna: psignaPendents) {
 						if (psigna.getDocumentStoreId().longValue() == documentStore.getId().longValue()) {
-							psigna.setEstat(TipusEstat.ESBORRAT);
+							psigna.setEstat(PortafirmesEstatEnum.ESBORRAT);
 							portasignaturesRepository.save(psigna);
 						}
 					}

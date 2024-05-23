@@ -70,7 +70,7 @@ public class ConsultesPinbalController extends BaseExpedientController {
 				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES);
 		modelExpedientsTipus(expedientTipusDtoAccessibles, model);
 		modelEstats(model);
-		modelPersones(request, model);
+//		modelPersones(request, model);
 		return "v3/consultesPinbalLlistat";
 	}
 	
@@ -160,18 +160,5 @@ public class ConsultesPinbalController extends BaseExpedientController {
 	    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 	    dateFormat.setLenient(false);
 	    binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
-	}	
-	
-	private void modelPersones(HttpServletRequest request, Model model) {
-		
-		try {
-			String pluginClass = GlobalProperties.getInstance().getProperty("app.persones.plugin.class");
-			if (pluginClass != null) {
-				personesPlugin = (PersonesPlugin)(Class.forName(pluginClass).newInstance());
-				model.addAttribute("persones", personesPlugin.findAll());
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 }

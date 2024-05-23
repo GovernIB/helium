@@ -19,12 +19,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import es.caib.portafib.callback.beans.v1.PortaFIBEvent;
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.model.service.ServiceProxy;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesEstatEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.service.AdminService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
@@ -73,20 +73,20 @@ public class PortaFIBCallbackRest {
 		parametres.add(new IntegracioParametreDto("documentId", new Long(documentId).toString()));
 		parametres.add(new IntegracioParametreDto("estat", new Integer(estat).toString()));
 		// Transforma el codi d'estat
-		TipusEstat tipusEstat;
+		PortafirmesEstatEnum tipusEstat;
 		switch (estat) {
 		case 0:
 		case 50:
-			tipusEstat = TipusEstat.PENDENT;
+			tipusEstat = PortafirmesEstatEnum.PENDENT;
 			break;
 		case 60:
-			tipusEstat = TipusEstat.SIGNAT;
+			tipusEstat = PortafirmesEstatEnum.SIGNAT;
 			break;
 		case 70:
-			tipusEstat = TipusEstat.REBUTJAT;
+			tipusEstat = PortafirmesEstatEnum.REBUTJAT;
 			break;
 		case 80:
-			tipusEstat = TipusEstat.BLOQUEJAT;
+			tipusEstat = PortafirmesEstatEnum.BLOQUEJAT;
 			break;
 		default:
 			String errorDescripcio = "No es reconeix el codi d'estat (" + estat + ")";

@@ -40,7 +40,6 @@ import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.model.hibernate.Usuari;
 import net.conselldemallorca.helium.core.security.AclServiceDao;
@@ -56,6 +55,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesEstatEnum;
 
 
 /**
@@ -158,13 +158,13 @@ public class PluginService {
 		try {
 			Portasignatures portasignatures = pluginPortasignaturesDao.findByDocument(id);
 			if (portasignatures != null) {
-				if (TipusEstat.PENDENT.equals(portasignatures.getEstat())) {
+				if (PortafirmesEstatEnum.PENDENT.equals(portasignatures.getEstat())) {
 					portasignatures.setDataSignatRebutjat(new Date());
 					if (!rebujat) {
-						portasignatures.setEstat(TipusEstat.SIGNAT);
+						portasignatures.setEstat(PortafirmesEstatEnum.SIGNAT);
 						portasignatures.setTransition(Transicio.SIGNAT);
 					} else {
-						portasignatures.setEstat(TipusEstat.REBUTJAT);
+						portasignatures.setEstat(PortafirmesEstatEnum.REBUTJAT);
 						portasignatures.setTransition(Transicio.REBUTJAT);
 						portasignatures.setMotiuRebuig(motiuRebuig);
 					}
@@ -181,9 +181,9 @@ public class PluginService {
 					}
 					
 					return true;
-				} else if (TipusEstat.ESBORRAT.equals(portasignatures.getEstat())) {
+				} else if (PortafirmesEstatEnum.ESBORRAT.equals(portasignatures.getEstat())) {
 					return true;
-				} else if (TipusEstat.PROCESSAT.equals(portasignatures.getEstat())) {
+				} else if (PortafirmesEstatEnum.PROCESSAT.equals(portasignatures.getEstat())) {
 					return true;
 				} else {
 					logger.error("El document rebut al callback (id=" + id + ") no està pendent del callback, el seu estat és " + portasignatures.getEstat());
@@ -331,8 +331,8 @@ public class PluginService {
 			}
 			
 			if (documentStore != null) {
-				if (TipusEstat.SIGNAT.equals(portasignatures.getEstat()) ||
-					(TipusEstat.ERROR.equals(portasignatures.getEstat()) && Transicio.SIGNAT.equals(portasignatures.getTransition()))) {
+				if (PortafirmesEstatEnum.SIGNAT.equals(portasignatures.getEstat()) ||
+					(PortafirmesEstatEnum.ERROR.equals(portasignatures.getEstat()) && Transicio.SIGNAT.equals(portasignatures.getTransition()))) {
 					// Processa els documents signats
 					try {
 						ThreadLocalInfo.clearProcessInstanceFinalitzatIds();
@@ -343,7 +343,7 @@ public class PluginService {
 						if (portasignatures.getDataSignalIntent() == null)
 							portasignatures.setDataSignalIntent(new Date());
 						portasignatures.setDataSignalOk(new Date());
-						portasignatures.setEstat(TipusEstat.PROCESSAT);
+						portasignatures.setEstat(PortafirmesEstatEnum.PROCESSAT);
 						
 						// Guarda el document
 						if (portasignatures.getDataCustodiaIntent() == null) {
@@ -383,8 +383,8 @@ public class PluginService {
 						logger.error("Error al processar el document firmat pel callback (id=" + portasignatures.getDocumentId() + ")", ex);
 					}
 					pluginPortasignaturesDao.saveOrUpdate(portasignatures);
-				} else if (TipusEstat.REBUTJAT.equals(portasignatures.getEstat()) ||
-						(TipusEstat.ERROR.equals(portasignatures.getEstat()) && Transicio.REBUTJAT.equals(portasignatures.getTransition()))) {
+				} else if (PortafirmesEstatEnum.REBUTJAT.equals(portasignatures.getEstat()) ||
+						(PortafirmesEstatEnum.ERROR.equals(portasignatures.getEstat()) && Transicio.REBUTJAT.equals(portasignatures.getTransition()))) {
 					// Processa els documents rebujats
 					try {
 						expedientLogHelper.afegirLogExpedientPerProces(
@@ -413,7 +413,7 @@ public class PluginService {
 										token.getProcessInstanceId());
 							}
 						}
-						portasignatures.setEstat(TipusEstat.PROCESSAT);
+						portasignatures.setEstat(PortafirmesEstatEnum.PROCESSAT);
 						portasignatures.setErrorCallbackProcessant(null);
 						resposta = true;
 					} catch (Exception ex) {
@@ -502,7 +502,7 @@ public class PluginService {
 			Portasignatures portasignatures,
 			String errorCallback) {
 		portasignatures.setErrorCallbackProcessant(errorCallback);
-		portasignatures.setEstat(TipusEstat.ERROR);
+		portasignatures.setEstat(PortafirmesEstatEnum.ERROR);
 		String expedientResponsable = portasignatures.getExpedient().getResponsableCodi();
 		if (expedientResponsable != null) {
 			Alerta alerta = new Alerta(

@@ -5,7 +5,7 @@ package net.conselldemallorca.helium.core.model.dto;
 
 import java.util.Date;
 
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesEstatEnum;
 
 
 
@@ -159,10 +159,10 @@ public class PortasignaturesDto {
 	}
 
 	public boolean isPendent() {
-		return	Portasignatures.TipusEstat.PENDENT.toString().equals(estat) ||
-				Portasignatures.TipusEstat.SIGNAT.toString().equals(estat) ||
-				Portasignatures.TipusEstat.REBUTJAT.toString().equals(estat) ||
-				Portasignatures.TipusEstat.ERROR.toString().equals(estat);
+		return	PortafirmesEstatEnum.PENDENT.toString().equals(estat) ||
+				PortafirmesEstatEnum.SIGNAT.toString().equals(estat) ||
+				PortafirmesEstatEnum.REBUTJAT.toString().equals(estat) ||
+				PortafirmesEstatEnum.ERROR.toString().equals(estat);
 	}
 
 }

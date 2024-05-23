@@ -95,9 +95,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
 import net.conselldemallorca.helium.core.model.hibernate.Notificacio;
 import net.conselldemallorca.helium.core.model.hibernate.Parametre;
-import net.conselldemallorca.helium.core.model.hibernate.PeticioPinbal;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
@@ -148,6 +146,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesEstatEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -673,7 +672,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			}
 		}
 		for (Portasignatures psigna: expedient.getPortasignatures()) {
-			psigna.setEstat(TipusEstat.ESBORRAT);
+			psigna.setEstat(PortafirmesEstatEnum.ESBORRAT);
 		}
 		for (ExecucioMassivaExpedient eme: execucioMassivaExpedientRepository.getExecucioMassivaByExpedient(id)) {
 			execucioMassivaExpedientRepository.delete(eme);
@@ -1944,7 +1943,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				false,
 				false,
 				false);
-		List<Portasignatures> portasignatures = portasignaturesRepository.findByExpedientAndEstat(expedient, TipusEstat.ERROR);
+		List<Portasignatures> portasignatures = portasignaturesRepository.findByExpedientAndEstat(expedient, PortafirmesEstatEnum.ERROR);
 		List<ExpedientErrorDto> errors_int = new ArrayList<ExpedientErrorDto>();
 		
 		if(!portasignatures.isEmpty()){
@@ -1978,7 +1977,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				false);
 		//No fa falta netejar el error del portafib, a més no tendria sentit si no es canvia també el TipusEstat
 		//Això en teoria ja s'actualitza correctament al metode de processarDocumentPendentPortasignatures del PluginService
-//		List<Portasignatures> portasignatures = portasignaturesRepository.findByExpedientAndEstat(expedient, TipusEstat.ERROR);
+//		List<Portasignatures> portasignatures = portasignaturesRepository.findByExpedientAndEstat(expedient, PortafirmesEstatEnum.ERROR);
 //		if(!portasignatures.isEmpty()){
 //			for(Portasignatures ps: portasignatures) {
 //				ps.setErrorCallbackProcessant(null);

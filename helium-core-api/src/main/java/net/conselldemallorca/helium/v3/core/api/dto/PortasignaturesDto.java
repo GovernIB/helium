@@ -1,5 +1,6 @@
 package net.conselldemallorca.helium.v3.core.api.dto;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -7,10 +8,14 @@ import java.util.Date;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class PortasignaturesDto {
+public class PortasignaturesDto implements Serializable {
 
+	private static final long serialVersionUID = 2893548848804888891L;
+	
 	private Long id;
 	private Integer documentId;
+	private String documentNom;
+	private String documentUUID;
 	private Long tokenId;
 	private Date dataEnviat;
 	private String estat;
@@ -29,6 +34,17 @@ public class PortasignaturesDto {
 	private String processInstanceId;
 	private boolean error;
 	private String errorProcessant;
+
+	private Long expedientId;
+	private String expedientNumero;
+	private String expedientTitol;
+	private Long entornId;
+	private String entornCodi;
+	private String entornNom;
+	private Long tipusExpedientId;
+	private String tipusExpedientCodi;
+	private String tipusExpedientNom;
+	
 	/** En la conversió les peticions processades per la transició de rebutjades es marcaven com a 
 	 * error en la llista de pendents. S'informa aquest flag per poder tornar a enviar-les des de la gestió de documents.
 	 */
@@ -168,6 +184,66 @@ public class PortasignaturesDto {
 	public void setReintentarFirma(boolean reintentarFirma) {
 		this.reintentarFirma = reintentarFirma;
 	}
+	public Long getExpedientId() {
+		return expedientId;
+	}
+	public void setExpedientId(Long expedientId) {
+		this.expedientId = expedientId;
+	}
+	public String getExpedientNumero() {
+		return expedientNumero;
+	}
+	public void setExpedientNumero(String expedientNumero) {
+		this.expedientNumero = expedientNumero;
+	}
+	public String getExpedientTitol() {
+		return expedientTitol;
+	}
+	public void setExpedientTitol(String expedientTitol) {
+		this.expedientTitol = expedientTitol;
+	}
+	public Long getEntornId() {
+		return entornId;
+	}
+	public void setEntornId(Long entornId) {
+		this.entornId = entornId;
+	}
+	public String getEntornNom() {
+		return entornNom;
+	}
+	public void setEntornNom(String entornNom) {
+		this.entornNom = entornNom;
+	}
+	public Long getTipusExpedientId() {
+		return tipusExpedientId;
+	}
+	public void setTipusExpedientId(Long tipusExpedientId) {
+		this.tipusExpedientId = tipusExpedientId;
+	}
+	public String getTipusExpedientNom() {
+		return tipusExpedientNom;
+	}
+	public void setTipusExpedientNom(String tipusExpedientNom) {
+		this.tipusExpedientNom = tipusExpedientNom;
+	}
+	public String getDocumentNom() {
+		return documentNom;
+	}
+	public void setDocumentNom(String documentNom) {
+		this.documentNom = documentNom;
+	}
+	public String getEntornCodi() {
+		return entornCodi;
+	}
+	public void setEntornCodi(String entornCodi) {
+		this.entornCodi = entornCodi;
+	}
+	public String getTipusExpedientCodi() {
+		return tipusExpedientCodi;
+	}
+	public void setTipusExpedientCodi(String tipusExpedientCodi) {
+		this.tipusExpedientCodi = tipusExpedientCodi;
+	}
 	public boolean isPendent() {
 		return	PortafirmesEstatEnum.PENDENT.equals(estat) ||
 				PortafirmesEstatEnum.SIGNAT.equals(estat) ||
@@ -180,5 +256,13 @@ public class PortasignaturesDto {
 	public void setRebutjadaProcessada(boolean rebutjadaProcessada) {
 		this.rebutjadaProcessada = rebutjadaProcessada;
 	}
-
+	public String getExpedientIdentificador() {
+		return "[" + expedientNumero + "] " + expedientTitol;
+	}
+	public String getDocumentUUID() {
+		return documentUUID;
+	}
+	public void setDocumentUUID(String documentUUID) {
+		this.documentUUID = documentUUID;
+	}
 }

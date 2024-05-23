@@ -5,23 +5,23 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.criterion.Restrictions;
+import org.springframework.stereotype.Component;
+
 import net.conselldemallorca.helium.core.model.dto.DocumentDto;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.model.exception.PluginException;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.DocumentPortasignatures;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PasSignatura;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortafirmesFluxBloc;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortasignaturesPlugin;
 import net.conselldemallorca.helium.integracio.plugins.portasignatures.PortasignaturesPluginException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.criterion.Restrictions;
-import org.springframework.stereotype.Component;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesEstatEnum;
 
 /**
  * Dao per accedir a la funcionalitat del plugin del portasignatures.
@@ -112,8 +112,8 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 	public List<Portasignatures> findPendents() {
 		return getSession()
 			.createCriteria(getPersistentClass())
-			.add(Restrictions.ne("estat", TipusEstat.SIGNAT))
-			.add(Restrictions.ne("estat", TipusEstat.REBUTJAT))
+			.add(Restrictions.ne("estat", PortafirmesEstatEnum.SIGNAT))
+			.add(Restrictions.ne("estat", PortafirmesEstatEnum.REBUTJAT))
 			.list();
 	}
 
@@ -127,10 +127,10 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 		Iterator<Portasignatures> it = psignas.iterator();
 		while (it.hasNext()) {
 			Portasignatures psigna = it.next();
-			if (	!TipusEstat.PENDENT.equals(psigna.getEstat()) &&
-					!TipusEstat.SIGNAT.equals(psigna.getEstat()) &&
-					!TipusEstat.REBUTJAT.equals(psigna.getEstat()) &&
-					!TipusEstat.ERROR.equals(psigna.getEstat())) {
+			if (	!PortafirmesEstatEnum.PENDENT.equals(psigna.getEstat()) &&
+					!PortafirmesEstatEnum.SIGNAT.equals(psigna.getEstat()) &&
+					!PortafirmesEstatEnum.REBUTJAT.equals(psigna.getEstat()) &&
+					!PortafirmesEstatEnum.ERROR.equals(psigna.getEstat())) {
 				it.remove();
 			}
 		}
@@ -143,7 +143,7 @@ public class PluginPortasignaturesDao extends HibernateGenericDao<Portasignature
 		return getSession()
 			.createCriteria(getPersistentClass())
 			.add(Restrictions.eq("expedient.id", expedientId))
-			.add(Restrictions.eq("estat", TipusEstat.ERROR))
+			.add(Restrictions.eq("estat", PortafirmesEstatEnum.ERROR))
 			.list();
 	}
 

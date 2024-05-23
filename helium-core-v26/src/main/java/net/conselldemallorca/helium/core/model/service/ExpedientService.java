@@ -102,7 +102,6 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientL
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.LogInfo;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
@@ -124,6 +123,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 import net.conselldemallorca.helium.jbpm3.integracio.ResultatConsultaPaginadaJbpm;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesEstatEnum;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService.FiltreAnulat;
@@ -774,7 +774,7 @@ public class ExpedientService {
 				
 			
 			for (Portasignatures psigna: expedient.getPortasignatures()) {
-				psigna.setEstat(TipusEstat.ESBORRAT);
+				psigna.setEstat(PortafirmesEstatEnum.ESBORRAT);
 			}
 			for (ExecucioMassivaExpedient eme: execucioMassivaExpedientDao.getExecucioMassivaByExpedient(id)) {
 				execucioMassivaExpedientDao.delete(eme);
@@ -2494,11 +2494,11 @@ public class ExpedientService {
 			dto.setDocumentId(pendent.getDocumentId());
 			dto.setTokenId(pendent.getTokenId());
 			dto.setDataEnviat(pendent.getDataEnviat());
-			if (TipusEstat.ERROR.equals(pendent.getEstat())) {
+			if (PortafirmesEstatEnum.ERROR.equals(pendent.getEstat())) {
 				if (Transicio.SIGNAT.equals(pendent.getTransition()))
-					dto.setEstat(TipusEstat.SIGNAT.toString());
+					dto.setEstat(PortafirmesEstatEnum.SIGNAT.toString());
 				else
-					dto.setEstat(TipusEstat.REBUTJAT.toString());
+					dto.setEstat(PortafirmesEstatEnum.REBUTJAT.toString());
 				dto.setError(true);
 			} else {
 				dto.setEstat(pendent.getEstat().toString());

@@ -64,7 +64,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Interessat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPlugin;
@@ -150,6 +149,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesCarrecDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesEstatEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxBlocDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxEstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxInfoDto;
@@ -334,11 +334,11 @@ public class PluginHelper {
 				}
 		}
 		// De les darreres peticions retorna només les que estiguin en un estat pendent o processades i rebutjades		
-		List<TipusEstat> estatsPendents = TipusEstat.getPendents();
+		List<PortafirmesEstatEnum> estatsPendents = PortafirmesEstatEnum.getPendents();
 		List<Portasignatures> peticionsPendents = new ArrayList<Portasignatures>();
 		for (Portasignatures peticio : peticionsDocuments.values()) {
 			if (estatsPendents.contains(peticio.getEstat()) || 
-					(TipusEstat.PROCESSAT.equals(peticio.getEstat()) 
+					(PortafirmesEstatEnum.PROCESSAT.equals(peticio.getEstat()) 
 							&& Transicio.REBUTJAT.equals(peticio.getTransition())))
 			{
 				peticionsPendents.add(peticio);
@@ -1689,7 +1689,7 @@ public class PluginHelper {
 			portasignatures.setDocumentId(resposta);
 			portasignatures.setTokenId(tokenId);
 			portasignatures.setDataEnviat(cal.getTime());
-			portasignatures.setEstat(TipusEstat.PENDENT);
+			portasignatures.setEstat(PortafirmesEstatEnum.PENDENT);
 			portasignatures.setDocumentStoreId(document.getId());
 			portasignatures.setTransicioOK(transicioOK);
 			portasignatures.setTransicioKO(transicioKO);
@@ -1763,7 +1763,7 @@ public class PluginHelper {
 			if (portasignatures != null) {
 				getPortasignaturesPlugin().deleteDocuments(
 						documentId);
-				portasignatures.setEstat(TipusEstat.CANCELAT);
+				portasignatures.setEstat(PortafirmesEstatEnum.CANCELAT);
 				monitorIntegracioHelper.addAccioOk(
 						MonitorIntegracioHelper.INTCODI_PFIRMA,
 						"Cancel·lació d'enviaments de documents",

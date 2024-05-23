@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,10 +15,13 @@ import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.core.util.GlobalProperties;
@@ -33,6 +37,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalEstatEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesEstatEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.service.PortasignaturesService;
+import net.conselldemallorca.helium.webapp.v3.command.ConsultesPinbalFiltreCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ConsultesPortafibFiltreCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
@@ -78,6 +83,29 @@ public class EnviamentsPortafibController extends BaseExpedientController {
 				paginacioParams,
 				ConversioTipusHelper.convertir(filtreCommand, ConsultesPortafibFiltreDto.class));
 		return DatatablesHelper.getDatatableResponse(request, null, resultat);
+	}
+	
+	@RequestMapping(method = RequestMethod.POST)
+	public String post(
+			HttpServletRequest request,
+			@Valid ConsultesPortafibFiltreCommand filtreCommand,
+			BindingResult bindingResult,
+			@RequestParam(value = "accio", required = false) String accio) {
+		if ("netejar".equals(accio)) {
+			SessionHelper.removeAttribute(request, SESSION_ATTRIBUTE_FILTRE);
+		} else {
+			SessionHelper.setAttribute(request, SESSION_ATTRIBUTE_FILTRE, filtreCommand);
+		}
+		return "redirect:enviamentsPortafib";
+	}
+	
+	@RequestMapping(value = "/{peticioPortafibId}/info", method = RequestMethod.GET)
+	public String info(
+			HttpServletRequest request,
+			@PathVariable Long peticioPortafibId,
+			Model model) {
+		model.addAttribute("dto", portasignaturesService.findById(peticioPortafibId));
+		return "v3/consultesPortafibInfo";
 	}
 	
 	private ConsultesPortafibFiltreCommand getFiltreCommand(HttpServletRequest request) {

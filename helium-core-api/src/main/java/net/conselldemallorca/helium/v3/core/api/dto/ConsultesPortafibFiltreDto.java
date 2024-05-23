@@ -1,16 +1,21 @@
 package net.conselldemallorca.helium.v3.core.api.dto;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class ConsultesPortafibFiltreDto implements Serializable {
 
-	private static final long serialVersionUID = 3043453347135529624L;
+	private static final long serialVersionUID = -2710721490704923382L;
 	
 	private Long id;
 	private Long entornId;
 	private Long tipusId;
 	private Long expedientId;
 	private String numeroExpedient;
+	private String documentNom;
+	private PortafirmesEstatEnum estat;
+	private Date dataPeticioIni;
+	private Date dataPeticioFi;
 	
 	public Long getId() {
 		return id;
@@ -42,4 +47,29 @@ public class ConsultesPortafibFiltreDto implements Serializable {
 	public void setNumeroExpedient(String numeroExpedient) {
 		this.numeroExpedient = numeroExpedient;
 	}
+	public String getDocumentNom() {
+		return documentNom;
+	}
+	public void setDocumentNom(String documentNom) {
+		this.documentNom = documentNom;
+	}
+	public PortafirmesEstatEnum getEstat() {
+		return estat;
+	}
+	public void setEstat(PortafirmesEstatEnum estat) {
+		this.estat = estat;
+	}
+	public Date getDataPeticioIni() {
+		return dataPeticioIni;
+	}
+	public void setDataPeticioIni(Date dataPeticioIni) {
+		this.dataPeticioIni = dataPeticioIni;
+	}
+	public Date getDataPeticioFi() {
+		return dataPeticioFi;
+	}
+	public void setDataPeticioFi(Date dataPeticioFi) {
+		this.dataPeticioFi = dataPeticioFi;
+	}
+	
 }
