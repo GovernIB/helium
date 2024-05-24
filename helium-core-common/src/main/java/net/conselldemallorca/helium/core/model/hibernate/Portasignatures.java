@@ -5,6 +5,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -38,7 +40,9 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 	private Integer documentId;
 	private Long tokenId;
 	private Date dataEnviat;
+	@Enumerated
 	private PortafirmesEstatEnum estat;
+	@Enumerated
 	private Transicio transition;
 	private Long documentStoreId;
 	private String motiuRebuig;

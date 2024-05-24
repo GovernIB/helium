@@ -68,7 +68,7 @@ public class EnviamentsPortafibController extends BaseExpedientController {
 				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES);
 		modelExpedientsTipus(expedientTipusDtoAccessibles, model);
 		modelEstats(model);
-		modelPersones(request, model);
+//		modelPersones(request, model);
 		return "v3/consultesPortafibLlistat";
 	}
 	
@@ -128,9 +128,10 @@ public class EnviamentsPortafibController extends BaseExpedientController {
 	private void modelEstats(Model model) {
 		List<ParellaCodiValorDto> opcions = new ArrayList<ParellaCodiValorDto>();
 		for(PortafirmesEstatEnum estat : PortafirmesEstatEnum.values())
-			opcions.add(new ParellaCodiValorDto(
-					estat.name(),
-					MessageHelper.getInstance().getMessage("enum.portafirmes.estat." + estat.name())));		
+			if (!estat.equals(PortafirmesEstatEnum.BLOQUEJAT))
+				opcions.add(new ParellaCodiValorDto(
+						estat.name(),
+						MessageHelper.getInstance().getMessage("enum.portafirmes.estat." + estat.name())));
 
 		model.addAttribute("estats", opcions);
 	}

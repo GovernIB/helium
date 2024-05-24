@@ -68,6 +68,7 @@ public interface PortasignaturesRepository extends JpaRepository<Portasignatures
 			" and (:esNullExpId = true or pf.expedient.id = :expId) " +
 			" and (:esNullNumExp = true or lower(pf.expedient.numero) like lower('%'||:numExp||'%') or lower(pf.expedient.titol) like lower('%'||:numExp||'%')) " +
 			" and (:esNullEstat = true or pf.estat = :estat) " +
+			" and (:esNullTransicio = true or pf.transition = :transicio) " +
 			" and (:esNullDocument = true or lower(replace(docs.jbpmVariable, 'H3l1um#document.', '')) like lower('%'||:document||'%') or lower(docs.arxiuNom) like lower('%'||:document||'%')) " +
 			" and (:esNullDataIni = true or pf.dataEnviat >= :dataIni) " +
 			" and (:esNullDataFi = true  or pf.dataEnviat <= :dataFi)")	
@@ -84,6 +85,8 @@ public interface PortasignaturesRepository extends JpaRepository<Portasignatures
 			@Param("document") String document,			
 			@Param("esNullEstat") boolean esNullEstat,
 			@Param("estat") PortafirmesEstatEnum estat,
+			@Param("esNullTransicio") boolean esNullTransicio,
+			@Param("transicio") Portasignatures.Transicio transicio,
 			@Param("esNullDataIni") boolean esNullDataIni,
 			@Param("dataIni") Date dataIni,
 			@Param("esNullDataFi") boolean esNullDataFi,
