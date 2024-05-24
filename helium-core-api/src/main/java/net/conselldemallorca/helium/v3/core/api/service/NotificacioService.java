@@ -2,9 +2,9 @@ package net.conselldemallorca.helium.v3.core.api.service;
 
 import java.util.List;
 
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NotificacioFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 
@@ -17,18 +17,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 public interface NotificacioService {
 
 	/** Mètode per consultar en el llistat les diferents notificacions */
-	public PaginaDto<NotificacioDto> findAmbFiltrePaginat(
+	public PaginaDto<DocumentNotificacioDto> findAmbFiltrePaginat(
 			Long entornId,
 			List<ExpedientTipusDto> expedientTipusDtoAccessibles,
-			NotificacioFiltreDto filtreDto,
+			DocumentNotificacioDto filtreDto,
 			PaginacioParamsDto paginacioParams);
 	
-	/** Mètode per consultar el llistat d'identificadors de les notificacions a partir d'un filtre. */
-	public List<Long> findIdsAmbFiltre(
-			Long entornId, 
-			List<ExpedientTipusDto> expedientTipusDtoAccessibles,
-			NotificacioFiltreDto filtreDto);
-
 	/** Mètode per consultar una notificació per identificador.
 	 * 
 	 * @param id

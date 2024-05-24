@@ -52,11 +52,11 @@
 	</div>
 	
 	<div class="row">
-		<div class="col-md-4">
-			<hel:inputDate name="dataPeticioIni" textKey="consultes.potafib.camp.filtreDesde" placeholder="dd/mm/aaaa"/>
+		<div class="col-md-2">
+			<hel:inputDate name="dataPeticioIni" textKey="consultes.potafib.camp.filtreDesde" placeholderKey="consultes.potafib.camp.filtreDesde" inline="true"/>
 		</div>		
-		<div class="col-md-4">
-			<hel:inputDate name="dataPeticioIni" textKey="consultes.potafib.camp.filtreFins" placeholder="dd/mm/aaaa"/>
+		<div class="col-md-2">
+			<hel:inputDate name="dataPeticioIni" textKey="consultes.potafib.camp.filtreFins" placeholderKey="consultes.potafib.camp.filtreFins" inline="true"/>
 		</div>	
 		<div class="col-md-4">
 			<hel:inputSelect 
@@ -69,17 +69,13 @@
 				optionValueAttribute="codi" 
 				optionTextAttribute="valor"/>
 		</div>	
-	</div>
-
-	<div class="row">
-		<div class="col-md-10"></div>	
-		<div class="col-md-2 pull-right">
+		<div class="col-md-4 pull-right">
 			<div class="pull-right">
 					<button id="consultarHidden" type="submit" name="accio" value="consultar" class="btn btn-primary hidden"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
 					<button id="netejar" type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
 					<button id="consultar" type="submit" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
 			</div>
-		</div>				
+		</div>		
 	</div>
 	
 	</form:form>
@@ -112,9 +108,9 @@
 						{{if estat=='PENDENT'}}<span class="fa fa-clock-o"></span> Pendent{{/if}}
 						{{if estat=='SIGNAT'}}<span class="fa fa-check"></span> Signat{{/if}}
 						{{if estat=='REBUTJAT'}}<span class="fa fa-ban"></span> Rebutjat{{/if}}
-						{{if estat=='PROCESSAT'}}<span class="fa fa-check"></span> Processat{{/if}}
+						{{if estat=='PROCESSAT'}}<span class="fa fa-check"></span> Processat ({{:transicio}}){{/if}}
 						{{if estat=='CANCELAT'}}<span class="fa fa-times"></span> Cancelat{{/if}}
-						{{if estat=='ERROR'}}<span class="fa fa-exclamation-triangle" title="{{:errorProcessant}}"></span> Error{{/if}}
+						{{if estat=='ERROR'}}<span class="fa fa-exclamation-triangle" title="{{:errorProcessant}}"></span> Error ({{:transicio}}){{/if}}
 						{{if estat=='ESBORRAT'}}<span class="fa fa-times"></span> Esborrat{{/if}}					
 					</script>
 				</th>
@@ -125,6 +121,7 @@
 				</th>					
 				<th data-col-name="expedientId" data-visible="false"></th>
 				<th data-col-name="tipusExpedientCodi" data-visible="false"></th>
+				<th data-col-name="transicio" data-visible="false"></th>
 				<th data-col-name="entornCodi" data-visible="false"></th>
 				<th data-col-name="documentStoreId" data-visible="false"></th>
 				<th data-col-name="errorProcessant" data-visible="false"></th>

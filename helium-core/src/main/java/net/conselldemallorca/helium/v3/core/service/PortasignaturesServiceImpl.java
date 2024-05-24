@@ -19,6 +19,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesEstatEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.PortasignaturesService;
@@ -52,6 +53,31 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 			}
 		}
 		
+		//Intentam revertir la conversió del estat que es produirá a ConversioTipusHelper lin 532 
+		Portasignatures.Transicio transicio = null;
+		if (filtreDto.getEstat()!=null) {
+			switch (filtreDto.getEstat()) {
+			case BLOQUEJAT: break;	//Es queda com esta: Filtra per estat=BLOQUEJAT
+			case PENDENT: break;	//Es queda com esta: Filtra per estat=PENDENT
+			case SIGNAT:
+				//Filtra per estat=PROCESSAT, TRANSCIO=SIGNAT
+				filtreDto.setEstat(PortafirmesEstatEnum.PROCESSAT);
+				transicio = Portasignatures.Transicio.SIGNAT;
+				break;		
+			case REBUTJAT:
+				//Filtra per estat=PROCESSAT, TRANSCIO=REBUTJAT
+				filtreDto.setEstat(PortafirmesEstatEnum.PROCESSAT);
+				transicio = Portasignatures.Transicio.REBUTJAT;				
+				break;
+			case PROCESSAT: break;	//Es queda com esta: Filtra per estat=PROCESSAT
+			case CANCELAT: break;	//Es queda com esta: Filtra per estat=CANCELAT
+			case ERROR: break;		//Es queda com esta: Filtra per estat=ERROR
+			case ESBORRAT: break;	//Es queda com esta: Filtra per estat=ESBORRAT
+			default:
+				break;
+			}
+		}
+		
 		 PaginaDto<PortasignaturesDto> pagina = paginacioHelper.toPaginaDto(
 				portasignaturesRepository.findByFiltrePaginat(
 						entornsPermesos == null,
@@ -66,6 +92,8 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 						filtreDto.getDocumentNom(),
 						filtreDto.getEstat() == null,
 						filtreDto.getEstat(),
+						transicio == null,
+						transicio,
 						filtreDto.getDataPeticioIni() == null,
 						filtreDto.getDataPeticioIni(),
 						filtreDto.getDataPeticioFi() == null,
@@ -74,6 +102,11 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 						PortasignaturesDto.class);
 		
 		for (PortasignaturesDto pf : pagina.getContingut() ) {
+			
+			if (filtreDto.getEstat()!=null) {
+				pf.setEstat(filtreDto.getEstat().toString());
+			}
+			
 			ExpedientDocumentDto document = documentHelperV3.findDocumentPerDocumentStoreId(
 					pf.getProcessInstanceId(),
 					pf.getDocumentStoreId());

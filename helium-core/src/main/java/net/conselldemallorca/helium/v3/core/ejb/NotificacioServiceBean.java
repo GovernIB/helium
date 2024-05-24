@@ -9,10 +9,9 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NotificacioFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.service.NotificacioService;
@@ -31,20 +30,12 @@ public class NotificacioServiceBean implements NotificacioService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto<NotificacioDto> findAmbFiltrePaginat(Long entornId,
-			List<ExpedientTipusDto> expedientTipusDtoAccessibles, NotificacioFiltreDto filtreDto,
+	public PaginaDto<DocumentNotificacioDto> findAmbFiltrePaginat(Long entornId,
+			List<ExpedientTipusDto> expedientTipusDtoAccessibles, DocumentNotificacioDto filtreDto,
 			PaginacioParamsDto paginacioParams) {
-		// TODO Auto-generated method stub
-		return null;
+		return delegate.findAmbFiltrePaginat(entornId, expedientTipusDtoAccessibles, filtreDto, paginacioParams);
 	}
 
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<Long> findIdsAmbFiltre(Long entornId, List<ExpedientTipusDto> expedientTipusDtoAccessibles,
-			NotificacioFiltreDto filtreDto) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})

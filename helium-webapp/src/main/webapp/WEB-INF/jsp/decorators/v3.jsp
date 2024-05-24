@@ -374,7 +374,7 @@
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.consultar"/> <span class="caret"></span></button>
 								<ul class="dropdown-menu" id="consultar">
 									<li><a href="<c:url value="/v3/consultesPinbal"/>"><spring:message code='decorator.menu.consultar.consultes.pinbal' /></a></li>
-									<li><a href="<c:url value="/v3/notificacions"/>"><spring:message code='decorator.menu.consultar.notificacions' /></a></li>
+									<li><a href="<c:url value="/v3/notificacionsNotib"/>"><spring:message code='decorator.menu.consultar.notificacions' /></a></li>
 									<li><a href="<c:url value="/v3/enviamentsPortafib"/>"><spring:message code='decorator.menu.consultar.documents.enviats.portafib' /></a></li>
 								</ul>
 							</div>

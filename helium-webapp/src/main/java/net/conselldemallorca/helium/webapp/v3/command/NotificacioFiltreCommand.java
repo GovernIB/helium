@@ -7,8 +7,8 @@ import java.util.Date;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEnviamentEstatEnumDto;
 
 /**
  * Command per al filtre d'expedients dels arxius.
@@ -18,9 +18,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEstatEnumDto;
 public class NotificacioFiltreCommand {
 
 
-	private DocumentNotificacioTipusEnumDto tipusEnviament;
+	private EnviamentTipusEnumDto tipusEnviament;
 	private String concepte;
-	private NotificacioEstatEnumDto estat;
+	private NotificacioEnviamentEstatEnumDto estat;
 	private Date dataInicial;
 	private Date dataFinal;
 	private String interessat;
@@ -29,14 +29,22 @@ public class NotificacioFiltreCommand {
 	private String nomDocument;
 	private String unitatOrganitzativaCodi;
 	private String procedimentCodi;
-	
-	
-	public DocumentNotificacioTipusEnumDto getTipusEnviament() {
+	private Long expedientId;
+
+	public EnviamentTipusEnumDto getTipusEnviament() {
 		return tipusEnviament;
 	}
 
-	public void setTipusEnviament(DocumentNotificacioTipusEnumDto tipusEnviament) {
+	public void setTipusEnviament(EnviamentTipusEnumDto tipusEnviament) {
 		this.tipusEnviament = tipusEnviament;
+	}
+
+	public NotificacioEnviamentEstatEnumDto getEstat() {
+		return estat;
+	}
+
+	public void setEstat(NotificacioEnviamentEstatEnumDto estat) {
+		this.estat = estat;
 	}
 
 	public String getConcepte() {
@@ -45,14 +53,6 @@ public class NotificacioFiltreCommand {
 
 	public void setConcepte(String concepte) {
 		this.concepte = concepte;
-	}
-
-	public NotificacioEstatEnumDto getEstat() {
-		return estat;
-	}
-
-	public void setEstat(NotificacioEstatEnumDto estat) {
-		this.estat = estat;
 	}
 
 	public Date getDataInicial() {
@@ -117,6 +117,14 @@ public class NotificacioFiltreCommand {
 	
 	public void setProcedimentCodi(String procedimentCodi) {
 		this.procedimentCodi = procedimentCodi;
+	}
+
+	public Long getExpedientId() {
+		return expedientId;
+	}
+
+	public void setExpedientId(Long expedientId) {
+		this.expedientId = expedientId;
 	}
 
 	@Override

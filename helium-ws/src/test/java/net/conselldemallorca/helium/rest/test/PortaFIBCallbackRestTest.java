@@ -21,7 +21,7 @@ import es.caib.portafib.callback.beans.v1.SigningRequest;
  */
 public class PortaFIBCallbackRestTest {
 
-	private static final String URL_REST_BASE = "https://proves.caib.es/helium/rest/portafib/callback";
+	private static final String URL_REST_BASE = "http://localhost:8080/helium/rest/portafib/callback";
 
 	public static void main(String[] args) {
 		PortaFIBCallbackRestTest.event();
