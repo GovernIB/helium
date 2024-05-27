@@ -81,18 +81,14 @@
 				placeholderKey="consultes.pinbal.camp.estat" 
 				optionValueAttribute="codi" 
 				optionTextAttribute="valor"/>
-		</div>	
-	</div>
-
-	<div class="row">
-		<div class="col-md-10"></div>	
+		</div>
 		<div class="col-md-2 pull-right">
 			<div class="pull-right">
 					<button id="consultarHidden" type="submit" name="accio" value="consultar" class="btn btn-primary hidden"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
 					<button id="netejar" type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
 					<button id="consultar" type="submit" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
 			</div>
-		</div>				
+		</div>
 	</div>
 	
 	</form:form>
