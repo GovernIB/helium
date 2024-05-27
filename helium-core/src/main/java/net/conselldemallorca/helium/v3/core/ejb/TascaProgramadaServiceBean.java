@@ -82,4 +82,10 @@ public class TascaProgramadaServiceBean implements TascaProgramadaService {
 		delegate.updatePeticionsAsincronesPinbal();
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void actualitzarUnitatsIProcediments() {
+		delegate.actualitzarUnitatsIProcediments();
+	}
+
 }

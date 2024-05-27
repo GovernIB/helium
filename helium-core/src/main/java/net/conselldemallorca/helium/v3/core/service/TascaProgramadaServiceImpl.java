@@ -11,11 +11,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.scheduling.annotation.Async;
@@ -58,9 +60,15 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioTipusEnum
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.exception.ExecucioMassivaException;
+import net.conselldemallorca.helium.v3.core.api.dto.ParametreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProgresActualitzacioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.v3.core.api.service.ParametreService;
+import net.conselldemallorca.helium.v3.core.api.service.ProcedimentService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
+import net.conselldemallorca.helium.v3.core.api.service.UnitatOrganitzativaService;
 import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientReindexacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
@@ -75,6 +83,16 @@ import net.conselldemallorca.helium.v3.core.repository.PeticioPinbalRepository;
 @Service("tascaProgramadaServiceV3")
 public class TascaProgramadaServiceImpl implements TascaProgramadaService, ArxiuPluginListener {
 	
+	/** Referència al mateix service per fer crides transaccionals. */
+	private TascaProgramadaService self;
+	@Autowired
+	private ApplicationContext applicationContext;
+	@PostConstruct
+	public void postContruct() {
+		self = applicationContext.getBean(TascaProgramadaService.class);
+	}
+
+	
 	@Resource
 	private ExecucioMassivaExpedientRepository execucioMassivaExpedientRepository;
 	@Resource
@@ -85,6 +103,12 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	private NotificacioRepository notificacioRepository;
 	@Autowired
 	private ExecucioMassivaService execucioMassivaService;
+	private ProcedimentService procedimentService;
+	@Resource
+	private ParametreService parametreService;
+	@Resource
+	private UnitatOrganitzativaService unitatOrganitzativaService;
+
 	@Resource
 	private PeticioPinbalRepository peticioPinbalRepository;
 	@Resource
@@ -218,7 +242,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 						Date dataReindexacio = expedientReindexacioRepository.findSeguentReindexacioData(reindexacio.getExpedientId(), darreraData);
 						if (dataReindexacio != null) {
 							try {
-								actualitzarExpedientReindexacioData(reindexacio.getExpedientId(), dataReindexacio);
+								self.actualitzarExpedientReindexacioData(reindexacio.getExpedientId(), dataReindexacio);
 							}catch(Exception e) {
 								logger.error("Error actualtizant les dades de reindexació per l'expedient " + reindexacio.getExpedientId() + ": " + e.getMessage(), e);
 							}
@@ -334,7 +358,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	public void comprovarEstatNotificacions() {
 		List<Notificacio> notificacionsPendentsRevisar = notificacioRepository.findByEstatAndTipusOrderByDataEnviamentAsc(DocumentEnviamentEstatEnumDto.ENVIAT, DocumentNotificacioTipusEnumDto.ELECTRONICA);
 		for (Notificacio notificacio: notificacionsPendentsRevisar) {
-			actualitzarEstatNotificacions(notificacio.getId());
+			self.actualitzarEstatNotificacions(notificacio.getId());
 		}
 	}
 
@@ -584,8 +608,52 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 					parametresMonitor);
 		}
 	}
+
+	/** Mètode periòdic per sincronitzar les taules internes d'unitats organitzatives i procediments
+	 * segons la propietat app.unitats.procediments.sync.
+	 */
+	@Override
+	@Scheduled(cron="${app.unitats.procediments.sync}")
+	@Async
+	public void actualitzarUnitatsIProcediments() {
+		logger.info("Inici de la tasca periòdica de sincronització d'unitats i procediments.");
+		// Actualitza unitats organitzatives
+		try {
+			ParametreDto parametreArrel = parametreService.findByCodi(ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
+			logger.info("Sincronització d'unitats organitzatives amb codi arrel " + (parametreArrel != null ? parametreArrel.getValor() : null) + "...");
+			UnitatOrganitzativaDto unitatDto = unitatOrganitzativaService.findByCodi(parametreArrel.getValor());
+			unitatOrganitzativaService.synchronize(unitatDto.getId());	
+		} catch(Throwable th) {
+			logger.error("Error no controlat sincronitzant unitats organitzatives: " + th.getMessage(), th);
+		}
+		// Actualtiza procediments
+		try {
+			logger.info("Actualització de procediments...");
+			procedimentService.actualitzaProcediments();
+			ProgresActualitzacioDto data = procedimentService.getProgresActualitzacio();
+			if (data != null) {
+					if (data.getAvisos() != null && !data.getAvisos().isEmpty()) {
+						for (String avis : data.getAvisos()) {
+							logger.warn("Avís en l'actualització de procediments: " + avis);
+						}
+					}
+					logger.info("Resum de l'actualtizació de procediments: \n" + 
+							"\t- Total: " + data.getNumOperacions() + "\n" + 
+							"\t- Nous: " + data.getNNous() + "\n" + 
+							"\t- Extingits: " + data.getNExtingits() + "\n" + 
+							"\t- Canvis: " + data.getNCanvis() + "\n" + 
+							"\t- Avisos: " + data.getNAvisos() + "\n" + 
+							"\t- Errors: " + data.getNErrors()  + "\n");
+				if (data.isError())  {
+					logger.error("Error detectat en l'actualització de procediments: " + data.getErrorMsg());
+				}
+			}
+		} catch(Throwable th) {
+			logger.error("Error no controlat sincronitzant procediments: " + th.getMessage(), th);
+		}
+		logger.info("Fi de la tasca periòdica de sincronització d'unitats i procediments.");
+	}
 	
-	private static final Log logger = LogFactory.getLog(TascaProgramadaService.class);
 
 	@Override
 	@Scheduled(fixedDelayString = "600000")
@@ -598,5 +666,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 				consultaPinbalHelper.tractamentPeticioAsincronaPendentPinbal(pi.getId());
 			}
 		}
-	}
+	}	
+	
+	private static final Log logger = LogFactory.getLog(TascaProgramadaService.class);
 }

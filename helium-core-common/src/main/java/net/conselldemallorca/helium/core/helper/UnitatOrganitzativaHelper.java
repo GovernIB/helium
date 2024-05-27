@@ -250,8 +250,12 @@ public class UnitatOrganitzativaHelper {
 			if (unitatDto.getHistoricosUO()!=null && !unitatDto.getHistoricosUO().isEmpty()) {
 				for (String historicoCodi : unitatDto.getHistoricosUO()) {
 					UnitatOrganitzativa nova = unitatOrganitzativaRepository.findByCodi(historicoCodi);
-					unitat.addNova(nova);
-					nova.addAntiga(unitat);
+					if (!unitat.getNoves().contains(nova)) {
+						unitat.addNova(nova);
+					}
+					if (!nova.getAntigues().contains(unitat)) {
+						nova.addAntiga(unitat);
+					}
 				}
 			}
 		}
