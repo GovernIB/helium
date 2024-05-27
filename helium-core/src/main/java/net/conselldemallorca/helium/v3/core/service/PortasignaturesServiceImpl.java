@@ -1,6 +1,9 @@
 package net.conselldemallorca.helium.v3.core.service;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -78,6 +81,19 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 			}
 		}
 		
+		Date dataFinal = null;
+		if (filtreDto.getDataPeticioFi() != null) {
+			// Corregeix la data final per arribar a les 00:00:00h del dia següent.
+			Calendar c = new GregorianCalendar();
+			c.setTime(filtreDto.getDataPeticioFi());
+			c.add(Calendar.DATE, 1);
+			c.set(Calendar.HOUR_OF_DAY, 0);
+			c.set(Calendar.MINUTE, 0);
+			c.set(Calendar.SECOND, 0);
+			c.set(Calendar.MILLISECOND, 0);
+			dataFinal = c.getTime();
+		}
+		
 		 PaginaDto<PortasignaturesDto> pagina = paginacioHelper.toPaginaDto(
 				portasignaturesRepository.findByFiltrePaginat(
 						entornsPermesos == null,
@@ -96,8 +112,8 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 						transicio,
 						filtreDto.getDataPeticioIni() == null,
 						filtreDto.getDataPeticioIni(),
-						filtreDto.getDataPeticioFi() == null,
-						filtreDto.getDataPeticioFi(),
+						dataFinal == null,
+						dataFinal,
 						paginacioHelper.toSpringDataPageable(paginacioParams)),
 						PortasignaturesDto.class);
 		

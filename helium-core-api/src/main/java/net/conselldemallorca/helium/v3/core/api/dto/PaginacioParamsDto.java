@@ -70,7 +70,40 @@ public class PaginacioParamsDto implements Serializable {
 						camp,
 						direccio));
 	}
-
+	public void eliminaOrdre(String camp) {
+		if (this.ordres!=null) {
+			for (int o=this.ordres.size()-1; o>=0; o--) {
+				if (this.ordres.get(o).getCamp().equals(camp)) {
+					this.ordres.remove(o);
+				}
+			}
+		}
+	}
+	public void eliminaFiltre(String camp) {
+		if (this.filtres!=null) {
+			for (int o=this.filtres.size()-1; o>=0; o--) {
+				if (this.filtres.get(o).getCamp().equals(camp)) {
+					this.filtres.remove(o);
+				}
+			}
+		}
+	}
+	public void canviaCamp(String campOld, String campNew) {
+		if (this.ordres!=null) {
+			for (int o=this.ordres.size()-1; o>=0; o--) {
+				if (this.ordres.get(o).getCamp().equals(campOld)) {
+					this.ordres.get(o).setCamp(campNew);
+				}
+			}
+		}
+		if (this.filtres!=null) {
+			for (int o=this.filtres.size()-1; o>=0; o--) {
+				if (this.filtres.get(o).getCamp().equals(campOld)) {
+					this.filtres.get(o).setCamp(campNew);
+				}
+			}
+		}
+	}
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);

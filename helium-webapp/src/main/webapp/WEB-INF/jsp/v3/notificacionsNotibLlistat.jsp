@@ -61,7 +61,7 @@
 		 <div class="col-md-2">							
 			<hel:inputText name="expedientId" textKey="notificacio.llistat.filtre.camp.expedient" placeholderKey="notificacio.llistat.filtre.camp.expedient" inline="true"/>
 		</div>	
-		<div class="col-md-3">							
+		<div class="col-md-2">
 			<hel:inputText name="nomDocument" textKey="notificacio.llistat.filtre.camp.document.nom" placeholderKey="notificacio.llistat.filtre.camp.document.nom" inline="true"/>
 		</div>	
 		<div class="col-md-3">
@@ -77,17 +77,14 @@
 			<hel:inputSelect name="expedientTipusId" textKey="notificacio.llistat.filtre.camp.expedientTipus"
 				optionItems="${expedientsTipus}" optionValueAttribute="codi" emptyOption="true"
 				inline="true" placeholderKey="notificacio.llistat.filtre.camp.expedientTipus" optionTextAttribute="valor" />
-		</div>		
-	</div>
-	
-	<div class="row">
+		</div>
 		<div class="col-md-2 pull-right">
 			<div class="pull-right">
 					<button id="consultarHidden" type="submit" name="accio" value="consultar" class="btn btn-primary hidden"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
 					<button id="netejar" type="submit" name="accio" value="netejar" class="btn btn-default"><spring:message code="comu.filtre.netejar"/></button>
 					<button id="consultar" type="submit" name="accio" value="consultar" class="btn btn-primary"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
-			</div>
-		</div>				
+			</div>		
+		</div>		
 	</div>
 	
 	</form:form>
@@ -98,26 +95,39 @@
 			data-filter="#notificacioFiltreCommand"
 			data-paging-enabled="true"
 			data-ordering="true"
-			data-default-order="1"
+			data-default-order="3"
 			data-default-dir="desc"	
 			data-info-type="button"
 			class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
 				<th data-col-name="id" data-visible="false" data-orderable="false"/>
-				<th data-col-name="enviatData" data-converter="datetime" width="7%">
+				
+				<th data-col-name="expedientTipusNom" data-template="#cellTipusExpTemplate" width="8%">
+					<spring:message code="notificacio.llistat.filtre.camp.expedientTipus"/>
+					<script id="cellTipusExpTemplate" type="text/x-jsrender">
+						{{:expedientTipusCodi}} <span class="fa fa-info-circle" title="{{:expedientTipusCodi}} - {{:expedientTipusNom}}
+						(Entorn {{:entornCodi}} - {{:entornNom}})"></span>
+					</script>
+				</th>
+				<th data-col-name="expedient.identificador" data-template="#cellExpTemplate" width="20%"><spring:message code="consultes.pinbal.camp.exp"/>
+					<script id="cellExpTemplate" type="text/x-jsrender">
+						<a href="<c:url value="/v3/expedient/{{:expedientId}}"/>" target="_blank">{{:expedient.identificador}}</a>
+					</script>
+				</th>				
+				<th data-col-name="enviatData" data-converter="datetime" width="9%">
 					<spring:message code="notificacio.llistat.columna.data.enviament"/>
 				</th>
-				 <th data-col-name="UOCodiAndNom" data-visible="true" data-orderable="false">
+				 <th data-col-name="UOCodiAndNom" data-visible="true" width="10%" data-orderable="false">
 				 	<spring:message code="notificacio.llistat.columna.organ.emissor"/>
 				 </th>
-				 <th data-col-name="destinatariNomILlinatges" data-visible="true" data-orderable="false">
+				 <th data-col-name="destinatariNomILlinatges" width="10%" data-visible="true" data-orderable="false">
 				 	<spring:message code="notificacio.llistat.columna.destinatari"/>
 				 </th> 
-				  <th data-col-name="titularNomILlinatges" data-visible="true" data-orderable="false">
+				  <th data-col-name="titularNomILlinatges" width="10%" data-visible="true" data-orderable="false">
 				 	<spring:message code="notificacio.llistat.filtre.camp.interessat"/>
 				 </th> 
-			 	<th data-col-name="tipus" data-template="#cellTipusTemplate" width="10%">
+			 	<th data-col-name="tipus" data-template="#cellTipusTemplate" width="9%">
 					<spring:message code="notificacio.llistat.columna.tipus.enviament"/>
 					<script id="cellTipusTemplate" type="text/x-jsrender">
 						{{if tipus=='NOTIFICACIO'}} 
@@ -128,19 +138,8 @@
 						{{/if}}
 					</script>
 				</th>
-				<th data-col-name="concepte"><spring:message code="notificacio.llistat.columna.concepte"/></th>
-				<th data-col-name="documentStoreId" data-visible="false"></th>
-				<th data-col-name="processInstanceId" data-visible="false"></th>
-				<th data-col-name="processInstanceId" data-visible="false"></th>
-				<th data-col-name="expedientId" data-visible="false"></th>
-				<th data-col-name="expedientTipusId" data-visible="false">
-				<th data-col-name="expedientTipusNom" data-visible="false">
-				<th data-col-name="expedientTipusCodi" data-visible="false">
-				<th data-col-name="entornNom" data-visible="false">
-				<th data-col-name="entornCodi" data-visible="false">
-				
-				
-				<th data-col-name="nomDocument" data-template="#cellDocTemplate" width="15%">
+				<th data-col-name="concepte" width="10%"><spring:message code="notificacio.llistat.columna.concepte"/></th>				
+				<th data-col-name="nomDocument" data-template="#cellDocTemplate" width="10%">
 				<spring:message code="notificacio.llistat.filtre.camp.document.nom"/>
 					<script id="cellDocTemplate" type="text/x-jsrender">
 						<a href="<c:url value="/v3/expedient/{{:expedientId}}/proces/{{:processInstanceId}}/document/{{:documentStoreId}}/descarregar"/>" 
@@ -173,16 +172,8 @@
 								</c:if>		
 								 -->	
 				</th>
-				
-				<th data-col-name="expedientTipusNom" data-template="#cellTipusExpTemplate" width="10%">
-					<spring:message code="notificacio.llistat.filtre.camp.expedientTipus"/>
-					<script id="cellTipusExpTemplate" type="text/x-jsrender">
-						{{:expedientTipusCodi}} <span class="fa fa-info-circle" title="{{:expedientTipusCodi}} - {{:expedientTipusNom}}
-						(Entorn {{:entornCodi}} - {{:entornNom}})"></span>
-					</script>
-				</th>
 			
-			  	<th data-col-name="estat" data-template="#cellEstatTemplate" width="7%">
+			  	<th data-col-name="estat" data-template="#cellEstatTemplate" width="9%">
 				<spring:message code="notificacio.llistat.columna.estat"/>
 					<script id="cellEstatTemplate" type="text/x-jsrender">
 						{{if estat == 'PENDENT'}}
@@ -207,6 +198,16 @@
 						{{/if}}
 					</script>				
 				</th>
+				
+				<th data-col-name="documentStoreId" data-visible="false"></th>
+				<th data-col-name="processInstanceId" data-visible="false"></th>
+				<th data-col-name="processInstanceId" data-visible="false"></th>
+				<th data-col-name="expedientId" data-visible="false"></th>
+				<th data-col-name="expedientTipusId" data-visible="false">
+				<th data-col-name="expedientTipusNom" data-visible="false">
+				<th data-col-name="expedientTipusCodi" data-visible="false">
+				<th data-col-name="entornNom" data-visible="false">
+				<th data-col-name="entornCodi" data-visible="false">					
 				
 			<!--	<th data-col-name="expedient.numero" data-template="#cellAnotacioExpedientTemplate" width="12%">
 					<spring:message code="anotacio.llistat.columna.expedient"/>

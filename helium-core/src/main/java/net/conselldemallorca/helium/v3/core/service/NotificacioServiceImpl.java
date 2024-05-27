@@ -103,7 +103,7 @@ public class NotificacioServiceImpl implements NotificacioService, ArxiuPluginLi
 		logger.debug(
 				"Consultant les notificacions per datatable (" +
 				"notificacioFiltreDto=" + filtreDto + ")");
-
+		
 		// Llista d'expedients tipus amb permís de relacionar
 		List<Long> expedientTipusIdsPermesos = new ArrayList<Long>();
 		List<Long> expedientTipusIdsPermesosProcedimetComu = new ArrayList<Long>();

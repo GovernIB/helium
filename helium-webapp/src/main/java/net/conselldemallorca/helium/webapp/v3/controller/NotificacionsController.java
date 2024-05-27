@@ -104,7 +104,7 @@ public class NotificacionsController extends BaseExpedientController {
 		} else {
 			SessionHelper.setAttribute(request, SESSION_ATTRIBUTE_FILTRE, filtreCommand);
 		}
-		return "redirect:notificacions";
+		return "redirect:notificacionsNotib";
 	}
 	
 	
