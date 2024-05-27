@@ -11,7 +11,6 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.service.NotificacioService;
@@ -39,8 +38,7 @@ public class NotificacioServiceBean implements NotificacioService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public NotificacioDto findAmbId(Long id) {
-		// TODO Auto-generated method stub
-		return null;
+	public DocumentNotificacioDto findAmbId(Long id) {
+		return delegate.findAmbId(id);
 	}
 }

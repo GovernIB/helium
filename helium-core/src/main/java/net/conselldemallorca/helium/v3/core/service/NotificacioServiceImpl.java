@@ -192,8 +192,8 @@ public class NotificacioServiceImpl implements NotificacioService, ArxiuPluginLi
 	
 
 	@Override
-	public NotificacioDto findAmbId(Long id) {
-		// TODO Auto-generated method stub
-		return null;
+	@Transactional(readOnly=true)
+	public DocumentNotificacioDto findAmbId(Long id) {
+		return conversioTipusHelper.convertir(documentNotificacioRepository.findOne(id), DocumentNotificacioDto.class);
 	}
 }

@@ -4,7 +4,6 @@ import java.util.List;
 
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 
@@ -28,7 +27,7 @@ public interface NotificacioService {
 	 * @param id
 	 * @return
 	 */
-	public NotificacioDto findAmbId(Long id);
+	public DocumentNotificacioDto findAmbId(Long id);
 
 
 }

@@ -95,14 +95,12 @@
 			data-filter="#notificacioFiltreCommand"
 			data-paging-enabled="true"
 			data-ordering="true"
-			data-default-order="3"
+			data-default-order="2"
 			data-default-dir="desc"	
 			data-info-type="button"
 			class="table table-striped table-bordered table-hover">
 		<thead>
-			<tr>
-				<th data-col-name="id" data-visible="false" data-orderable="false"/>
-				
+			<tr>				
 				<th data-col-name="expedientTipusNom" data-template="#cellTipusExpTemplate" width="8%">
 					<spring:message code="notificacio.llistat.filtre.camp.expedientTipus"/>
 					<script id="cellTipusExpTemplate" type="text/x-jsrender">
@@ -199,6 +197,17 @@
 					</script>				
 				</th>
 				
+				<th data-col-name="id" width="5%" data-template="#cellAccionsTemplate" data-orderable="false">
+					<script id="cellAccionsTemplate" type="text/x-jsrender">
+						<div class="dropdown navbar-right">
+							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
+							<ul class="dropdown-menu">
+								<li><a href="<c:url value="/v3/notificacionsNotib/{{:id}}/info"/>" data-toggle="modal" class="consultar-expedient"><span class="fa fa-info-circle"></span>&nbsp;<spring:message code="consultes.pinbal.boto.info"/></a></li>
+							</ul>
+						</div>
+					</script>
+				</th>				
+				
 				<th data-col-name="documentStoreId" data-visible="false"></th>
 				<th data-col-name="processInstanceId" data-visible="false"></th>
 				<th data-col-name="processInstanceId" data-visible="false"></th>
@@ -207,17 +216,7 @@
 				<th data-col-name="expedientTipusNom" data-visible="false">
 				<th data-col-name="expedientTipusCodi" data-visible="false">
 				<th data-col-name="entornNom" data-visible="false">
-				<th data-col-name="entornCodi" data-visible="false">					
-				
-			<!--	<th data-col-name="expedient.numero" data-template="#cellAnotacioExpedientTemplate" width="12%">
-					<spring:message code="anotacio.llistat.columna.expedient"/>
-					<script id="cellAnotacioExpedientTemplate" type="text/x-jsrender">
-						{{if expedient != null }}
-							{{:expedient.identificador}}
-						{{/if}}
-					</script>
-				</th>
-			-->
+				<th data-col-name="entornCodi" data-visible="false">
 			</tr>
 		</thead>
 	</table>	

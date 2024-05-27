@@ -107,6 +107,14 @@ public class NotificacionsController extends BaseExpedientController {
 		return "redirect:notificacionsNotib";
 	}
 	
+	@RequestMapping(value = "/{enviamentNotibId}/info", method = RequestMethod.GET)
+	public String info(
+			HttpServletRequest request,
+			@PathVariable Long enviamentNotibId,
+			Model model) {
+		model.addAttribute("dto", notificacioService.findAmbId(enviamentNotibId));
+		return "v3/notificacioNotibInfo";
+	}
 	
 	/** Posa els expedients tipus al model als quals l'usuari té permís per consultar a l'entorn
 	 * @param entornActual */
