@@ -26,4 +26,10 @@ public interface TascaProgramadaService {
 	 * a DISTRIBUCIO. */
 	public void comprovarAnotacionsPendents();
 	
+	/** Tasca programada per sincronitzar les unitats organitzatives i els procediments de forma automàtica segons la propietat
+	 * app.unitats.procediments.sync.
+	 */
+	public void actualitzarUnitatsIProcediments();
+
+	
 }

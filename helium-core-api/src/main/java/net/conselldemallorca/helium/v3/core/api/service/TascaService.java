@@ -456,8 +456,6 @@ public interface TascaService {
 	
 	public void comprovarTasquesSegonPla();
 	
-	public void actualitzarProcedimentsAndUnitatsAutomatic();
-
 	public void carregaTasquesSegonPla();
 	
 	public void completaTascaSegonPla(String tascaId, Date iniciFinalitzacio);

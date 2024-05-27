@@ -428,11 +428,4 @@ public class TascaServiceBean implements TascaService {
 	public TascaDto findTascaById(Long id) {
 		return delegate.findTascaById(id);
 	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void actualitzarProcedimentsAndUnitatsAutomatic() {
-		delegate.actualitzarProcedimentsAndUnitatsAutomatic();
-	}
-
 }
