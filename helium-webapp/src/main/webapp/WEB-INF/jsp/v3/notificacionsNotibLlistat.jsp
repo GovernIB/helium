@@ -53,13 +53,13 @@
 			<hel:inputDate name="dataFinal" textKey="notificacio.llistat.filtre.camp.dataFinal" placeholder="dd/mm/aaaa" inline="true"/>
 		</div>	
 		<div class="col-md-2">
-				<hel:inputSuggest required="true" name="interessat" urlConsultaInicial="persona/suggestInici" urlConsultaLlistat="/helium/v3/expedient/persona/suggest" placeholderKey="notificacio.llistat.filtre.camp.interessat" inline="true"/>
+			<hel:inputText name="interessat" textKey="notificacio.llistat.filtre.camp.interessat" placeholderKey="notificacio.llistat.filtre.camp.interessat" inline="true"/>
 		</div>
 	</div>
 		
 	<div class="row">
 		 <div class="col-md-2">							
-			<hel:inputText name="expedientId" textKey="notificacio.llistat.filtre.camp.expedient" placeholderKey="notificacio.llistat.filtre.camp.expedient" inline="true"/>
+			<hel:inputText name="expedientNumero" textKey="notificacio.llistat.filtre.camp.expedient" placeholderKey="notificacio.llistat.filtre.camp.expedient" inline="true"/>
 		</div>	
 		<div class="col-md-2">
 			<hel:inputText name="nomDocument" textKey="notificacio.llistat.filtre.camp.document.nom" placeholderKey="notificacio.llistat.filtre.camp.document.nom" inline="true"/>
@@ -116,15 +116,12 @@
 				<th data-col-name="enviatData" data-converter="datetime" width="9%">
 					<spring:message code="notificacio.llistat.columna.data.enviament"/>
 				</th>
-				 <th data-col-name="UOCodiAndNom" data-visible="true" width="10%" data-orderable="false">
+				 <th data-col-name="organEmissorCodiAndNom" data-visible="true" width="10%" data-orderable="false">
 				 	<spring:message code="notificacio.llistat.columna.organ.emissor"/>
-				 </th>
-				 <th data-col-name="destinatariNomILlinatges" width="10%" data-visible="true" data-orderable="false">
-				 	<spring:message code="notificacio.llistat.columna.destinatari"/>
-				 </th> 
-				  <th data-col-name="titularNomILlinatges" width="10%" data-visible="true" data-orderable="false">
-				 	<spring:message code="notificacio.llistat.filtre.camp.interessat"/>
-				 </th> 
+				</th>
+			
+				<th data-col-name="interessatFullNomNif"><spring:message code="notificacio.llistat.filtre.camp.interessat"/></th>
+				  
 			 	<th data-col-name="tipus" data-template="#cellTipusTemplate" width="9%">
 					<spring:message code="notificacio.llistat.columna.tipus.enviament"/>
 					<script id="cellTipusTemplate" type="text/x-jsrender">
@@ -197,6 +194,10 @@
 					</script>				
 				</th>
 				
+				<th data-col-name="destinatariNomILlinatges" width="10%" data-visible="true" data-orderable="false">
+				 	<spring:message code="notificacio.llistat.columna.destinatari"/>
+				</th>  
+				 
 				<th data-col-name="id" width="5%" data-template="#cellAccionsTemplate" data-orderable="false">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
 						<div class="dropdown navbar-right">
@@ -223,7 +224,7 @@
 
 	
 	
-	<script id="rowhrefTemplate" type="text/x-jsrender"><c:url value="/v3/anotacio/{{:id}}"/></script>	
+	<script id="rowhrefTemplate" type="text/x-jsrender"><c:url value="/v3/notificacionsNotib/{{:id}}/info"/></script>	
 	
 		
 	<script type="text/javascript">

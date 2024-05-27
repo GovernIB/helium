@@ -75,7 +75,6 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
-import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.DelegationInfo;
 import net.conselldemallorca.helium.jbpm3.integracio.ExecucioHandlerException;
@@ -89,22 +88,17 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FormulariExternDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SeleccioOpcioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioException;
 import net.conselldemallorca.helium.v3.core.api.exception.TramitacioHandlerException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.TascaService;
-import net.conselldemallorca.helium.v3.core.api.service.UnitatOrganitzativaService;
-import net.conselldemallorca.helium.v3.core.api.service.ParametreService;
-import net.conselldemallorca.helium.v3.core.api.service.ProcedimentService;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampTascaRepository;
@@ -156,12 +150,6 @@ public class TascaServiceImpl implements TascaService {
 	private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
 	@Resource
 	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
-	@Resource
-	private ProcedimentService procedimentService;
-	@Resource
-	private UnitatOrganitzativaService unitatOrganitzativaService;
-	@Resource
-	private ParametreService parametreService;
 
 	@Resource
 	private ExpedientRegistreHelper expedientRegistreHelper;
@@ -1531,17 +1519,7 @@ public class TascaServiceImpl implements TascaService {
 				expedientTipus,
 				false);
 	}
-	
-	@Override
-	@Scheduled(cron="${app.unitats.procediments.sync}")
-	@Async
-	public void actualitzarProcedimentsAndUnitatsAutomatic() {
-		procedimentService.actualitzaProcediments();
-		ParametreDto parametreArrel = parametreService.findByCodi(ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
-		UnitatOrganitzativaDto unitatDto = unitatOrganitzativaService.findByCodi(parametreArrel.getValor());
-		unitatOrganitzativaService.synchronize(unitatDto.getId());
-	}
-	
+		
 	@Override
 	@Scheduled(fixedRate = 30000)
 	@Async

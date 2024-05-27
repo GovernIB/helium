@@ -25,6 +25,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEstatEnumDto;
  */
 public interface DocumentNotificacioRepository extends JpaRepository<DocumentNotificacio, Long> {
 
+	DocumentNotificacio findById(Long id);
+	
 	DocumentNotificacio findByEnviamentIdentificadorAndEnviamentReferencia(
 			String identificador,
 			String referenciaEnviament);
@@ -75,18 +77,23 @@ public interface DocumentNotificacioRepository extends JpaRepository<DocumentNot
 			"and (:esNullEstat = true or n.estat = :estat) " + 
 			"and (:esNullDataInicial = true or n.enviamentDatatData >= :dataInicial) " +
 			"and (:esNullDataFinal = true or n.enviamentDatatData <= :dataFinal) " +
-//			"and (:esNullInteressat = true or lower(n.inter_docnum) like lower('%'||:interessat||'%')) " +
-//			"and (:esNullExpedientId = true or n.expedient.id = :expedientId) " + 
-//			"and (:esNullNomDocument = true or lower(n.interessatDocumentNum) like lower('%'||:nomDocument||'%')) " +
-//			"and (:esNullUnitatOrganitzativaCodi = true or lower(n.expedient.unitatOrganitzativa.codi) like lower('%'||:unitatOrganitzativaCodi||'%')) " +
-//			"and ((:esNullExpedientTipusIds = true or n.expedientTipus.id in (:expedientTipusIds))) " + 
-//			"and (:esNullExpedientId = true or a.expedient.id = :expedientId) " + 
-//			"		or "
-//			+ " 		((:esNullExpedientTipusIdsPermesosProcedimetComu = true or n.expedientTipus.id in (:expedientTipusIdsPermesosProcedimetComu)) "
-//			+ "				and (:esNullUnitatsOrganitvesCodis = true or n.organCodi in (:unitatsOrganitvesCodis))) "
-//			+ "  ) " + 
-//			"and (:esNullFiltre = true or (lower(n.concepte) like lower('%'||:filtre||'%'))) order by n.enviamentDatatData DESC")
-//			" and (:esNullFiltre = true or (n.concepte) like lower('%'||:filtre||'%')  or (n.destinatariTelefon) like lower('%'||:filtre||'%') )order by n.enviamentDatatData DESC ")
+			"and (:esNullInteressat = true "
+				+ " or lower(n.titularNom) like lower('%'||:interessat||'%')   "
+				+ " or lower(n.titularLlinatge1) like lower('%'||:interessat||'%')  "
+				+ " or lower(n.titularLlinatge2) like lower('%'||:interessat||'%') "
+				+ " or lower(n.titularNif) like lower('%'||:interessat||'%') ) " +
+			"and (:esNullExpedientId = true or n.expedient.id = :expedientId) " +
+			"and (:esNullExpedienNumero = true or lower(n.expedient.numero) like lower('%'||:expedientNumero||'%') or lower(n.expedient.titol) like lower('%'||:expedientNumero||'%')) " +
+
+			"and (:esNullNomDocument = true or lower(n.document.arxiuNom) like lower('%'||:nomDocument||'%')) " +
+			"and (:esNullUnitatOrganitzativaCodi = true or lower(n.emisorDir3Codi) like lower('%'||:unitatOrganitzativaCodi||'%')) " +
+			"and (:esNullExpedientTipusId = true or n.expedient.tipus.id = :expedientTipusId) " +
+			"and ((:esNullExpedientTipusIds = true or n.expedient.tipus.id in (:expedientTipusIds)) " + 
+			"		or "
+			+ " 		((:esNullExpedientTipusIdsPermesosProcedimetComu = true or n.expedient.tipus.id in (:expedientTipusIdsPermesosProcedimetComu)) "
+//			+ "				and (:esNullUnitatsOrganitvesCodis = true or n.organCodi in (:unitatsOrganitvesCodis))"
+			+ "			) "
+			+ "  ) " + 
 			" and (:esNullFiltre = true or (n.errorDescripcio) like lower('%'||:filtre||'%') ) ")
 
 	Page<DocumentNotificacio> findAmbFiltrePaginat(
@@ -100,18 +107,22 @@ public interface DocumentNotificacioRepository extends JpaRepository<DocumentNot
 			@Param("dataInicial") Date dataInicial,
 			@Param("esNullDataFinal") boolean esNullDataFinal,
 			@Param("dataFinal") Date dataFinal,
-//			@Param("esNullInteressat") boolean esNullInteressat,
-//			@Param("interessat") String interessat,
-//			@Param("esNullExpedientId") boolean esNullExpedientId,
-//			@Param("expedientId") Long expedientId, 
-//			@Param("esNullNomDocument") boolean esNullNomDocument,
-//			@Param("nomDocument") String nomDocument,	
-//			@Param("esNullUnitatOrganitzativaCodi") boolean esNullUnitatOrganitzativaCodi,
-//			@Param("unitatOrganitzativaCodi") String unitatOrganitzativaCodi,
-//			@Param("esNullExpedientTipusIds") boolean esNullExpedientTipusIds,
-//			@Param("expedientTipusIds") List<Long> expedientTipusIds,
-//			@Param("esNullExpedientTipusIdsPermesosProcedimetComu") boolean esNullExpedientTipusIdsPermesosProcedimetComu,
-//			@Param("expedientTipusIdsPermesosProcedimetComu") List<Long> expedientTipusIdsPermesosProcedimetComu,
+			@Param("esNullInteressat") boolean esNullInteressat,
+			@Param("interessat") String interessat,
+			@Param("esNullExpedientId") boolean esNullExpedientId,
+			@Param("expedientId") Long expedientId,
+			@Param("esNullExpedienNumero") boolean esNullExpedienNumero,
+			@Param("expedientNumero") String expedientNumero, 
+			@Param("esNullNomDocument") boolean esNullNomDocument,
+			@Param("nomDocument") String nomDocument,	
+			@Param("esNullUnitatOrganitzativaCodi") boolean esNullUnitatOrganitzativaCodi,
+			@Param("unitatOrganitzativaCodi") String unitatOrganitzativaCodi,
+			@Param("esNullExpedientTipusId") boolean esNullExpedientTipusId,
+			@Param("expedientTipusId") Long expedientTipusId,
+			@Param("esNullExpedientTipusIds") boolean esNullExpedientTipusIds,
+			@Param("expedientTipusIds") List<Long> expedientTipusIds,
+			@Param("esNullExpedientTipusIdsPermesosProcedimetComu") boolean esNullExpedientTipusIdsPermesosProcedimetComu,
+			@Param("expedientTipusIdsPermesosProcedimetComu") List<Long> expedientTipusIdsPermesosProcedimetComu,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre, 
 			Pageable pageable);

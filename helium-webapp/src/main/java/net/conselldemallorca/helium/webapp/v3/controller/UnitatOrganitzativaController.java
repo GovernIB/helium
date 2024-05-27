@@ -369,17 +369,19 @@ public class UnitatOrganitzativaController extends BaseController {
 	@RequestMapping(value = "/saveSynchronize", method = RequestMethod.POST)
 	public String synchronizePost(
 			HttpServletRequest request) {
+		String ret = "redirect:" + request.getHeader("Referer");
 		try {
 			ParametreDto parametreArrel = parametreService.findByCodi(ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
 			UnitatOrganitzativaDto unitatDto = unitatOrganitzativaService.findByCodi(parametreArrel.getValor());
 			unitatOrganitzativaService.synchronize(unitatDto.getId());
 			MissatgesHelper.success(request, getMessage(request, "unitat.controller.synchronize.ok"));
+			ret = modalUrlTancar();
 		} catch(Exception e) {
-			String errMsg = getMessage(request, "unitat.controller.syncrhonize.ko", new Object[] {e.getMessage()});
+			String errMsg = getMessage(request, "unitat.controller.synchronize.ko", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg);
 		}
-		return modalUrlTancar();
+		return ret;
 	}
 	
 	

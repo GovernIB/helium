@@ -92,8 +92,8 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 		this.expedient = expedient;
 		this.entregaPostal = entregaPostal;
 		this.entregaTipus = entregaTipus;
-		this.linia1 = linia1;
-		this.linia2 = linia2;
+		this.setLinia1(linia1);
+		this.setLinia2(linia2);
 		this.codiPostal = codiPostal;
 		this.entregaDeh = entregaDeh;
 		this.entregaDehObligat = entregaDehObligat;
@@ -191,13 +191,13 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 		return linia1;
 	}
 	public void setLinia1(String linia1) {
-		this.linia1 = linia1;
+		this.linia1 = linia1 != null ? 	linia1.substring(0, Math.min(linia1.length(), 50)) : null;
 	}
 	public String getLinia2() {
 		return linia2;
 	}
 	public void setLinia2(String linia2) {
-		this.linia2 = linia2;
+		this.linia2 = linia2 != null ? 	linia2.substring(0, Math.min(linia2.length(), 50)) : null;
 	}
 	public String getCodiPostal() {
 		return codiPostal;

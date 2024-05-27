@@ -80,9 +80,10 @@ public class PinbalGenericTest {
 				null,
 				CODIGO_PROCEDIMIENTO, 
 				ENTITAT_CIF,
-				null);
+				null, 
+				false);
 		
-		ScspRespostaPinbal respuestaPlugin = pinbalPlugin.peticionSincronaClientPinbalGeneric(dadesConsulta);
+		ScspRespostaPinbal respuestaPlugin = (ScspRespostaPinbal) pinbalPlugin.peticioClientPinbalGeneric(dadesConsulta);
 		assertNotNull(respuestaPlugin);
 		System.out.println("-> peticionSincrona(" + SERVEI_SCSP + ") = " + objectToJsonString(respuestaPlugin));
 	}
