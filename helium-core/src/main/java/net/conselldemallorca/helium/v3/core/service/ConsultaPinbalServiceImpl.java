@@ -58,6 +58,8 @@ public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
 			}
 		}
 		
+		paginacioParams.canviaCamp("expedient.identificador", "expedient.numero");
+		
 		Date dataFinal = null;
 		if (filtreDto.getDataPeticioFi() != null) {
 			// Corregeix la data final per arribar a les 00:00:00h del dia següent.
@@ -94,16 +96,16 @@ public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
 				paginacioParams.getFiltre(),
 				paginacioHelper.toSpringDataPageable(paginacioParams)), PeticioPinbalDto.class);
 		
-		for (PeticioPinbalDto peticioPinbal : pagina.getContingut() ) {
-			Document document = documentHelperV3.findDocumentPerInstanciaProcesICodi(
-					peticioPinbal.getExpedient().getProcessInstanceId(),
-					peticioPinbal.getDocument().getCodiDocument());
-			String nom = peticioPinbal.getDocument().getCodiDocument();
-			if (document != null) {
-				nom = document.getNom();
-			}
-			peticioPinbal.getDocument().setNom(nom);
-		}
+//		for (PeticioPinbalDto peticioPinbal : pagina.getContingut() ) {
+//			Document document = documentHelperV3.findDocumentPerInstanciaProcesICodi(
+//					peticioPinbal.getExpedient().getProcessInstanceId(),
+//					peticioPinbal.getDocument().getCodiDocument());
+//			String nom = peticioPinbal.getDocument().getCodiDocument();
+//			if (document != null) {
+//				nom = document.getNom();
+//			}
+//			peticioPinbal.getDocument().setNom(nom);
+//		}
 		
 		// Map per document.id i document.nom
 //		Map<Long, String> documentsMap = new HashMap<Long, String>();

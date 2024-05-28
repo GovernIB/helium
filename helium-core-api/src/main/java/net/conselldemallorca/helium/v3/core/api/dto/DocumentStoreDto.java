@@ -20,6 +20,7 @@ public class DocumentStoreDto implements Serializable {
 	private boolean adjunt = false;
 	private String codiDocument;
 	private String nom;
+	private String arxiuNom;
 	private String ntiVersion;
 	private String ntiIdentificador;
 	private String ntiOrgan;
@@ -184,6 +185,12 @@ public class DocumentStoreDto implements Serializable {
 	}
 	public void setNom(String nom) {
 		this.nom = nom;
+	}
+	public String getArxiuNom() {
+		return arxiuNom;
+	}
+	public void setArxiuNom(String arxiuNom) {
+		this.arxiuNom = arxiuNom;
 	}
 
 

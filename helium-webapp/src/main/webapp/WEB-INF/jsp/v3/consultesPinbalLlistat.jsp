@@ -103,7 +103,7 @@
 			class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
-				<th data-col-name="tipus.nom" data-template="#cellTipusTemplate" width="10%"><spring:message code="consultes.pinbal.camp.tipus"/>
+				<th data-col-name="tipus.nom" data-template="#cellTipusTemplate" width="9%"><spring:message code="consultes.pinbal.camp.tipus"/>
 					<script id="cellTipusTemplate" type="text/x-jsrender">
 						{{:tipus.codi}} <span class="fa fa-info-circle" title="{{:tipus.codi}} - {{:tipus.nom}}
 (Entorn {{:entorn.codi}} - {{:entorn.nom}})"></span>
@@ -114,8 +114,8 @@
 						<a href="<c:url value="/v3/expedient/{{:expedientId}}"/>" target="_blank">{{:expedient.identificador}}</a>
 					</script>
 				</th>
-				<th data-col-name="dataPeticio" width="10%" data-converter="datetime"><spring:message code="consultes.pinbal.camp.dataPeticio"/></th>
-				<th data-col-name="usuari" width="9%"><spring:message code="consultes.pinbal.camp.usuari"/></th>				
+				<th data-col-name="dataPeticio" width="9%" data-converter="datetime"><spring:message code="consultes.pinbal.camp.dataPeticio"/></th>
+				<th data-col-name="usuari" width="8%"><spring:message code="consultes.pinbal.camp.usuari"/></th>				
 				<th data-col-name="procediment" width="15%"><spring:message code="consultes.pinbal.camp.procediment"/></th>
 				<th data-col-name="estat" data-template="#cellEstatTemplate" width="10%"><spring:message code="consultes.pinbal.camp.estat"/>
 					<script id="cellEstatTemplate" type="text/x-jsrender">
@@ -125,11 +125,11 @@
 						{{if estat=='ERROR_PROCESSANT'}}<span class="fa fa-exclamation-triangle" title="{{:errorMsg}} {{:errorProcessament}}"></span> Error processant{{/if}}
 					</script>
 				</th>
-				<th data-col-name="document.nom" data-template="#cellDocTemplate" width="10%"><spring:message code="consultes.pinbal.camp.document"/>
+				<th data-col-name="document.arxiuNom" data-template="#cellDocTemplate" width="13%"><spring:message code="consultes.pinbal.camp.document"/>
 					<script id="cellDocTemplate" type="text/x-jsrender">
-						<a href="<c:url value="/v3/expedient/{{:expedientId}}/document/{{:documentId}}/descarregar"/>" target="_blank">{{:document.nom}}</a>
+						<a href="<c:url value="/v3/expedient/{{:expedientId}}/document/{{:documentId}}/descarregar"/>" target="_blank">{{:document.arxiuNom}}</a>
 					</script>
-				</th>				
+				</th>
 				<th data-col-name="expedientId" data-visible="false"></th>
 				<th data-col-name="documentId" data-visible="false"></th>
 				<th data-col-name="dataPrevistaFormat" data-visible="false"></th>

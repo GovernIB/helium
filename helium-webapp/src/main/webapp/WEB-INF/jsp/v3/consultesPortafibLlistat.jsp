@@ -114,7 +114,7 @@
 						{{if estat=='ESBORRAT'}}<span class="fa fa-times"></span> Esborrat{{/if}}					
 					</script>
 				</th>
-				<th data-col-name="documentNom" data-template="#cellDocTemplate" width="15%"><spring:message code="consultes.potafib.camp.nomDoc"/>
+				<th data-col-name="documentNom" data-template="#cellDocTemplate" width="15%" data-orderable="false"><spring:message code="consultes.potafib.camp.nomDoc"/>
 					<script id="cellDocTemplate" type="text/x-jsrender">
 						<a href="<c:url value="/v3/expedient/{{:expedientId}}/document/{{:documentStoreId}}/descarregar"/>" target="_blank">{{:documentNom}}</a>
 					</script>

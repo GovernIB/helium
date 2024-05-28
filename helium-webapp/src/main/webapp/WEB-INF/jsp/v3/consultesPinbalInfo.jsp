@@ -34,7 +34,10 @@
 			<dd>${peticioPinbalDto.procediment}</dd>			
 			
 			<dt><spring:message code="consultes.pinbal.camp.pinbal"/></dt>
-			<dd>${peticioPinbalDto.pinbalId}</dd>	
+			<dd>${peticioPinbalDto.pinbalId}</dd>
+			
+			<dt><spring:message code="consultes.pinbal.camp.document"/></dt>
+			<dd>${peticioPinbalDto.document.arxiuNom}</dd>
 			
 			<dt><spring:message code="consultes.pinbal.camp.estat"/></dt>
 			<dd>${peticioPinbalDto.estat}</dd>			
