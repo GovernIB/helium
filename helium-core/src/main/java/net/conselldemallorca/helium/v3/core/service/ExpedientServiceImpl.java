@@ -3279,12 +3279,14 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 							document, 
 							arxiu,
 							nomsArxius);
-					ze = new ZipEntry(recursNom);
-					out.putNextEntry(ze);
-					out.write(arxiu.getContingut());
-					out.closeEntry();
+					if (recursNom!=null) {
+						ze = new ZipEntry(recursNom);
+						out.putNextEntry(ze);
+						out.write(arxiu.getContingut());
+						out.closeEntry();
+					}
 				}
-			}			
+			}
 			}
 			out.close();
 		} catch (Exception e) {
@@ -3340,10 +3342,12 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 							document, 
 							arxiu,
 							nomsArxius);
-					ze = new ZipEntry(recursNom);
-					out.putNextEntry(ze);
-					out.write(arxiu.getContingut());
-					out.closeEntry();
+					if (recursNom!=null) {
+						ze = new ZipEntry(recursNom);
+						out.putNextEntry(ze);
+						out.write(arxiu.getContingut());
+						out.closeEntry();
+					}
 				}
 			}			
 			out.close();
@@ -3365,40 +3369,48 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	 * @param nomsArxius Per controlar la llista de noms utilitzats.
 	 * @return
 	 */
-	private String getZipRecursNom(Expedient expedient, InstanciaProcesDto instanciaProces,
-			ExpedientDocumentDto document, ArxiuDto arxiu, Set<String> nomsArxius) {
+	private String getZipRecursNom(
+			Expedient expedient,
+			InstanciaProcesDto instanciaProces,
+			ExpedientDocumentDto document,
+			ArxiuDto arxiu,
+			Set<String> nomsArxius) {
+
 		String recursNom;
-		// Nom
 		String nom;
-		// Segons si és adjunt o document
+
 		if (document.isAdjunt())
 			nom = document.getAdjuntTitol();
 		else
 			nom = document.getDocumentNom();
+
 		nom = nom.replaceAll("/", "_");
-		// Carpeta
-		String carpeta = null;
-		if (!instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
+		
+		if (instanciaProces.getId().equals(document.getProcessInstanceId())) {
 			// Carpeta per un altre procés
-			carpeta = instanciaProces.getId() + " - " + instanciaProces.getTitol();
+			String carpeta = instanciaProces.getId() + " - " + instanciaProces.getTitol();
 			carpeta = carpeta.replaceAll("/", "_");
+		
+			// Extensió
+			String extensio = arxiu.getExtensio();
+	
+			// Vigila que no es repeteixi
+			int comptador = 0;
+			do {
+				recursNom = (carpeta != null ? carpeta + "/" : "") +
+							nom + 
+							(comptador > 0 ? " (" + comptador + ")" : "") +
+							"." + extensio;
+				comptador++;
+			} while (nomsArxius.contains(recursNom));
+	
+			// Guarda en nom com a utiltizat
+			nomsArxius.add(recursNom);
+			
+			return recursNom;
+		} else {
+			return null;
 		}
-		// Extensió
-		String extensio = arxiu.getExtensio();
-
-		// Vigila que no es repeteixi
-		int comptador = 0;
-		do {
-			recursNom = (carpeta != null ? carpeta + "/" : "") +
-						nom + 
-						(comptador > 0 ? " (" + comptador + ")" : "") +
-						"." + extensio;
-			comptador++;
-		} while (nomsArxius.contains(recursNom));
-
-		// Guarda en nom com a utiltizat
-		nomsArxius.add(recursNom);
-		return recursNom;
 	}
 	
 	/**
