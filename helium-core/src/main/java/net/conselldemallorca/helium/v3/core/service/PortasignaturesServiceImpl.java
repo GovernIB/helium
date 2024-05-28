@@ -94,6 +94,10 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 			dataFinal = c.getTime();
 		}
 		
+		paginacioParams.canviaCamp("tipusExpedientNom", "expedient.tipus.nom");
+		paginacioParams.canviaCamp("expedientIdentificador", "expedient.numero");
+//		paginacioParams.canviaCamp("documentNom", ".nomArxiu");
+		
 		 PaginaDto<PortasignaturesDto> pagina = paginacioHelper.toPaginaDto(
 				portasignaturesRepository.findByFiltrePaginat(
 						entornsPermesos == null,
@@ -128,7 +132,8 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 					pf.getDocumentStoreId());
 			String nom = pf.getDocumentNom();
 			if (document != null) {
-				nom = document.getDocumentNom();
+//				nom = document.getDocumentNom();
+				nom = document.getArxiuNom();
 			}
 			pf.setDocumentNom(nom);
 			pf.setDocumentUUID(document.getArxiuUuid());
