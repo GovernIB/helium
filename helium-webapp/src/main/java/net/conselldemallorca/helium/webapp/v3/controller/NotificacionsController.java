@@ -79,16 +79,21 @@ public class NotificacionsController extends BaseExpedientController {
 	@ResponseBody
 	public DatatablesResponse datatable(HttpServletRequest request) {
 		NotificacioFiltreCommand filtreCommand = getFiltreCommand(request);
-		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		List<ExpedientTipusDto> expedientTipusDtoAccessibles = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
 				request,
-				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES);		
+				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES);	
+		Map<String, String[]> mapeigOrdenacions = new HashMap<String, String[]>();
+		mapeigOrdenacions.put("interessatFullNomNif", new String[] {"nom", "llinatge1", "llinatge2"});
+		mapeigOrdenacions.put("destinatariFullNomNif", new String[] {"nom", "llinatge1", "llinatge2"});
+		mapeigOrdenacions.put("organEmissorCodiAndNom", new String[] {"codi", "nom"});
+
+		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request, null, mapeigOrdenacions);
 		PaginaDto<DocumentNotificacioDto> resultat = notificacioService.findAmbFiltrePaginat(
 				entornActual.getId(),
 				expedientTipusDtoAccessibles,
 				ConversioTipusHelper.convertir(filtreCommand, DocumentNotificacioDto.class),
-				DatatablesHelper.getPaginacioDtoFromRequest(request));
+				paginacioParams);
 		return DatatablesHelper.getDatatableResponse(request, null, resultat);
 	}
 	

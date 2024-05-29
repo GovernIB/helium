@@ -74,6 +74,7 @@ public class DocumentNotificacioDto {
 	private Date dataModificacio;
 	private Date dataDocument;
 	private Long expedientId;
+	private String expedientNumero;
 	private String unitatOrganitzativaCodi;
 	private String unitatOrganitzativaDescripcio;
 	private Date dataEnviament;
@@ -510,21 +511,29 @@ public class DocumentNotificacioDto {
 	public void setExpedientTipusNom(String expedientTipusNom) {
 		this.expedientTipusNom = expedientTipusNom;
 	}
-	public String getUOCodiAndNom() {
-		return this.unitatOrganitzativaCodi + " - " + this.unitatOrganitzativaDescripcio + "";
-	}
 	
-	public String getDestinatariNomILlinatges() {
+	public String getExpedientNumero() {
+		return expedientNumero;
+	}
+	public void setExpedientNumero(String expedientNumero) {
+		this.expedientNumero = expedientNumero;
+	}
+	public String getDestinatariFullNomNif() {
 		return 	(this.getDestinatariNom() !=null ? this.getDestinatariNom() + " "  : "")+ 
 				(this.getDestinatariLlinatge1() !=null ? this.getDestinatariLlinatge1() + " " :  "")+
-				(this.getDestinatariLlinatge2() !=null ? this.getDestinatariLlinatge2() : "");
+				(this.getDestinatariLlinatge2() !=null ? this.getDestinatariLlinatge2() : "") +
+				(this.getDestinatariNif()!=null ?  (" - " + this.getDestinatariNif()) : "");
 	}
 	
-	public String getTitularNomILlinatges() {
+	public String getInteressatFullNomNif() {
 		return 	(this.getTitularNom()!=null ? this.getTitularNom() + " " : "")+ 
 				(this.getTitularLlinatge1() != null ? this.getTitularLlinatge1() + " " : "")+
-				(this.getTitularLlinatge2() !=null ? this.getTitularLlinatge2() : "");
+				(this.getTitularLlinatge2() !=null ? this.getTitularLlinatge2() : "") +
+				(this.getTitularNif()!=null ?  (" - " + this.getTitularNif()) : "");
 	}
 	
+	public String getOrganEmissorCodiAndNom() {
+		return this.unitatOrganitzativaCodi + " - " + this.unitatOrganitzativaDescripcio + "";
+	}
 	
 }

@@ -95,6 +95,7 @@ public class NotificacioServiceImpl implements NotificacioService, ArxiuPluginLi
 		
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly=true)
 	public PaginaDto<DocumentNotificacioDto> findAmbFiltrePaginat(Long entornId,
@@ -156,6 +157,8 @@ public class NotificacioServiceImpl implements NotificacioService, ArxiuPluginLi
 			dataFinal = c.getTime();
 		}
 		
+		paginacioParams.canviaCamp("expedient.identificador", "expedient.numero");
+
 		PaginaDto<DocumentNotificacioDto> pagina =  paginacioHelper.toPaginaDto(documentNotificacioRepository.findAmbFiltrePaginat(
 				filtreDto.getTipus()==null,
 				filtreDto.getTipus(),
@@ -167,25 +170,28 @@ public class NotificacioServiceImpl implements NotificacioService, ArxiuPluginLi
 				filtreDto.getDataInicial(),
 				dataFinal == null,
 				dataFinal,
-//				filtreDto.getInteressat() == null || filtreDto.getInteressat().isEmpty(), 
-//				filtreDto.getInteressat(), 
-//				filtreDto.getExpedientId() == null , 
-//				filtreDto.getExpedientId(), 
-//				filtreDto.getNomDocument() == null || filtreDto.getNomDocument().isEmpty(), 
-//				filtreDto.getNomDocument(), 
-//				filtreDto.getUnitatOrganitzativaCodi() == null || filtreDto.getUnitatOrganitzativaCodi().isEmpty(), 
-//				filtreDto.getUnitatOrganitzativaCodi(),
-//				expedientTipusIdsPermesos == null || expedientTipusIdsPermesos.isEmpty(),
-//				expedientTipusIdsPermesos == null || expedientTipusIdsPermesos.isEmpty() ? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesos,
-//				expedientTipusIdsPermesosProcedimetComu == null || expedientTipusIdsPermesosProcedimetComu.isEmpty(),
-//				expedientTipusIdsPermesosProcedimetComu.isEmpty() ? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesosProcedimetComu,
+				filtreDto.getInteressat() == null || filtreDto.getInteressat().isEmpty(), 
+				filtreDto.getInteressat(), 
+				filtreDto.getExpedientId() == null,
+				filtreDto.getExpedientId(),
+				filtreDto.getExpedientNumero() == null,
+				filtreDto.getExpedientNumero(),
+				filtreDto.getNomDocument() == null || filtreDto.getNomDocument().isEmpty(), 
+				filtreDto.getNomDocument(), 
+				filtreDto.getUnitatOrganitzativaCodi() == null || filtreDto.getUnitatOrganitzativaCodi().isEmpty(),//organdesti 
+				filtreDto.getUnitatOrganitzativaCodi(),//organdesti
+				filtreDto.getExpedientTipusId() == null,
+				filtreDto.getExpedientTipusId(),
+				expedientTipusIdsPermesos == null || expedientTipusIdsPermesos.isEmpty(),
+				expedientTipusIdsPermesos == null || expedientTipusIdsPermesos.isEmpty() ? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesos,
+				expedientTipusIdsPermesosProcedimetComu == null || expedientTipusIdsPermesosProcedimetComu.isEmpty(),
+				expedientTipusIdsPermesosProcedimetComu.isEmpty() ? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesosProcedimetComu,
 				paginacioParams.getFiltre() == null || paginacioParams.getFiltre().isEmpty(),
 				paginacioParams.getFiltre(),
 				paginacioHelper.toSpringDataPageable(paginacioParams)), DocumentNotificacioDto.class);
 	
 		for(DocumentNotificacioDto dto : pagina.getContingut()) {
 			notificacioHelper.omplirModelNotificacioDto(dto);
-			dto.setProcessInstanceId(dto.getExpedient().getProcessInstanceId());
 		}
 	return pagina;
 	}
@@ -194,6 +200,6 @@ public class NotificacioServiceImpl implements NotificacioService, ArxiuPluginLi
 	@Override
 	@Transactional(readOnly=true)
 	public DocumentNotificacioDto findAmbId(Long id) {
-		return conversioTipusHelper.convertir(documentNotificacioRepository.findOne(id), DocumentNotificacioDto.class);
+		return conversioTipusHelper.convertir(documentNotificacioRepository.findById(id), DocumentNotificacioDto.class);
 	}
 }

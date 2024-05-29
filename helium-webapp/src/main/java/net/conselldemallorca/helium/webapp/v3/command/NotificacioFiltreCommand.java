@@ -24,7 +24,7 @@ public class NotificacioFiltreCommand {
 	private Date dataInicial;
 	private Date dataFinal;
 	private String interessat;
-	private String numeroExpedient;
+	private String expedientNumero;
 	private Long expedientTipusId;
 	private String nomDocument;
 	private String unitatOrganitzativaCodi;
@@ -79,12 +79,12 @@ public class NotificacioFiltreCommand {
 		this.interessat = interessat;
 	}
 
-	public String getNumeroExpedient() {
-		return numeroExpedient;
+	public String getExpedientNumero() {
+		return expedientNumero;
 	}
 
-	public void setNumeroExpedient(String numeroExpedient) {
-		this.numeroExpedient = numeroExpedient;
+	public void setExpedientNumero(String expedientNumero) {
+		this.expedientNumero = expedientNumero;
 	}
 
 	public Long getExpedientTipusId() {
