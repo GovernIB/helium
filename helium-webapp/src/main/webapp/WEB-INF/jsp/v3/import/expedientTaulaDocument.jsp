@@ -57,6 +57,16 @@
 									<thead>
 										<tr>
 											<td class="tableDocumentsTd">
+											
+												<c:if test="${document.arxiuExtensio == 'pdf' or document.arxiuExtensio == 'pdt' or document.arxiuExtensio == 'docx' or document.arxiuExtensio == 'odt'}">
+													<a	href="JavaScript:;"
+														name="previsDocLink${document.id}"
+														onclick="previsualitzaDocument('${expedient.id}', '${document.id}', this, '${document.arxiuExtensio}');"
+														class="previs-icon">
+															<span class="fa fa-eye fa-2x" title="Previsualitzar"></span>
+													</a>
+												</c:if>
+											
 												<c:if test="${!document.signat && expedient.permisDocManagement && !document.notificat}">
 													<a 	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/update"
 														data-rdt-link-modal="true" 

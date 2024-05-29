@@ -167,6 +167,9 @@
 				</c:forEach>
 			</tbody>
 		</table>
+		<div class="viewer mtop-4" style="width: 100%; display:none; text-align: center;">
+			<iframe class="viewer-iframe rmodal_loading" width="100%" height="540" frameborder="0" style="padding: 15px;" src=""></iframe>
+		</div>
 	</div>
 	<div class="clear"></div>
 </div>
@@ -200,6 +203,81 @@ $(document).ready(function() {
 
 var desplegats;
 var panell;
+
+function previsualitzaDocument(expedientId, documentId, anchorElement, extensio) {
+	
+	var viewer = $(anchorElement).closest('div').find('.viewer');	
+	var iconesPrevis = $("a[name^='previsDocLink']");
+	var hemAcabat = false;
+	
+	if ($(anchorElement).find("span").hasClass("fa-eye")) {
+		//Estam obrint una previsualització
+		$("a[name^='previsDocLink']").each(function() {
+			//El botó actual, passa al estil de ull tancat
+			if ($(this).attr("name").endsWith(documentId)) {
+				$(this).html('<span class="fa fa-eye-slash fa-2x" title="Ocultar previsualització"></span>');
+				$(viewer).show();
+			} else {
+				//La resta de enllaços de previsualització, passen al estil de ull obert
+				$(this).html('<span class="fa fa-eye fa-2x" title="Previsualitzar"></span>');
+			}
+		});
+	} else {
+		//Estam tancant una previsualització
+		$("a[name^='previsDocLink']").each(function() {
+			//El botó actual, passa al estil de ull obert, tancam visor i retornam
+			if ($(this).attr("name").endsWith(documentId)) {
+				$(anchorElement).html('<span class="fa fa-eye fa-2x" title="Previsualitzar"></span>');
+				$(viewer).hide();
+				hemAcabat = true;
+			} else {
+				//La resta de enllaços de previsualització, passen al estil de ull obert
+				$(this).html('<span class="fa fa-eye fa-2x" title="Previsualitzar"></span>');
+			}
+		});
+	}
+	
+	if (hemAcabat) return false;
+
+	var contenidor = $(viewer).find(".viewer-iframe");
+	$(contenidor).hide();
+	var urlViewer = '<c:url value="/webjars/pdf-js/2.13.216/web/viewer.html"/>';
+	
+	$(viewer).find('.carregantPrevisDocErr').remove();
+	
+	if (extensio=='pdf') {
+		$(viewer).prepend('<div class="carregantPrevisDoc">Obtenint document per la previsualització <span class="fa fa-circle-o-notch fa-spin"></span></div>');
+	} else {
+		$(viewer).prepend('<div class="carregantPrevisDoc">Obtenint i convertint document per la previsualització <span class="fa fa-circle-o-notch fa-spin"></span></div>');
+	}
+	
+    $.ajax({
+        type: 'GET',
+        url: '/helium/modal/v3/expedient/'+expedientId+'/document/'+documentId+'/returnFitxer',
+        responseType: 'arraybuffer',
+        success: function(json) {
+        	$(viewer).find('.carregantPrevisDoc').remove();
+            if (json.error) {
+                $(viewer).prepend('<div class="carregantPrevisDocErr viewer-padding"><div class="alert alert-danger">' + json.errorMsg + '</div></div>');
+            } else {
+                response = json.data;
+                let blob = base64toBlob(response.contingut, response.contentType);
+                let file = new File([blob], response.contentType, {type: response.contentType});
+                let link = URL.createObjectURL(file);
+
+                var viewerUrl = urlViewer + '?file=' + encodeURIComponent(link);
+                contenidor.attr('src', viewerUrl);
+                $(viewer).data('loaded', "true");
+                $(contenidor).show();
+            }
+        },
+        error: function(xhr, ajaxOptions, thrownError) {
+        	$(viewer).prepend('<div class="carregantPrevisDocErr viewer-padding"><div class="alert alert-danger">' + thrownError + '</div></div>');
+            $(viewer).find('.carregantPrevisDoc').remove();
+            alert(thrownError);
+        }
+    });
+}
 
 function updatePanell() {
 	if (desplegats != null) {

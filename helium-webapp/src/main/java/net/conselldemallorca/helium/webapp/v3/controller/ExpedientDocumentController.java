@@ -1004,7 +1004,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 
 		} catch (SistemaExternException e) {
 			logger.error("Error descarregant i convertint fitxer", e);
-			MissatgesHelper.error(request, e.getPublicMessage());
+//			MissatgesHelper.error(request, e.getPublicMessage());
 			model.addAttribute("pipellaActiva", "documents");
 			return new JsonResponse(true, e.getMessage());
 		}
