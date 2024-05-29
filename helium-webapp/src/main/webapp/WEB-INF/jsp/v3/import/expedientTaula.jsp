@@ -205,21 +205,21 @@ var desplegats;
 var panell;
 
 function previsualitzaDocument(expedientId, documentId, anchorElement, extensio) {
-	
+
 	var viewer = $(anchorElement).closest('div').find('.viewer');	
 	var iconesPrevis = $("a[name^='previsDocLink']");
 	var hemAcabat = false;
 	
-	if ($(anchorElement).find("span").hasClass("fa-eye")) {
+	if ($(anchorElement).find("i[class*='fa-search']").length>0) {
 		//Estam obrint una previsualització
 		$("a[name^='previsDocLink']").each(function() {
 			//El botó actual, passa al estil de ull tancat
 			if ($(this).attr("name").endsWith(documentId)) {
-				$(this).html('<span class="fa fa-eye-slash fa-2x" title="Ocultar previsualització"></span>');
+				$(this).html('<i class="fa fa-file-o fa-stack-2x"></i><i class="fa fa-times fa-stack-1x" title="Ocultar previsualització"></i>');
 				$(viewer).show();
 			} else {
 				//La resta de enllaços de previsualització, passen al estil de ull obert
-				$(this).html('<span class="fa fa-eye fa-2x" title="Previsualitzar"></span>');
+				$(this).html('<i class="fa fa-file-o fa-stack-2x"></i><i class="fa fa-search fa-stack-1x" title="Previsualitzar"></i>');
 			}
 		});
 	} else {
@@ -227,12 +227,12 @@ function previsualitzaDocument(expedientId, documentId, anchorElement, extensio)
 		$("a[name^='previsDocLink']").each(function() {
 			//El botó actual, passa al estil de ull obert, tancam visor i retornam
 			if ($(this).attr("name").endsWith(documentId)) {
-				$(anchorElement).html('<span class="fa fa-eye fa-2x" title="Previsualitzar"></span>');
+				$(anchorElement).html('<i class="fa fa-file-o fa-stack-2x"></i><i class="fa fa-search fa-stack-1x" title="Previsualitzar"></i>');
 				$(viewer).hide();
 				hemAcabat = true;
 			} else {
 				//La resta de enllaços de previsualització, passen al estil de ull obert
-				$(this).html('<span class="fa fa-eye fa-2x" title="Previsualitzar"></span>');
+				$(this).html('<i class="fa fa-file-o fa-stack-2x"></i><i class="fa fa-search fa-stack-1x" title="Previsualitzar"></i>');
 			}
 		});
 	}

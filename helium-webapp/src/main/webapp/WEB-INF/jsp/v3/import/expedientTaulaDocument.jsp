@@ -62,8 +62,9 @@
 													<a	href="JavaScript:;"
 														name="previsDocLink${document.id}"
 														onclick="previsualitzaDocument('${expedient.id}', '${document.id}', this, '${document.arxiuExtensio}');"
-														class="previs-icon">
-															<span class="fa fa-eye fa-2x" title="Previsualitzar"></span>
+														class="previs-icon fa-stack"
+														style="font-size:1.31em; margin-top:-5px;">
+														  <i class="fa fa-file-o fa-stack-2x"></i><i class="fa fa-search fa-stack-1x" title="Previsualitzar"></i>
 													</a>
 												</c:if>
 											
