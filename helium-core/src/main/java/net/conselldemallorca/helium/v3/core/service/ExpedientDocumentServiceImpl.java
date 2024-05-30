@@ -680,6 +680,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 						.build();
 			} else {
 				document = toDocumentList(expedient, processInstanceId, dTipExp, dExp, dPsigna, documentFormProperties);
+				document.setNotificable(PdfUtils.isArxiuConvertiblePdf(dExp.getArxiuNom()));
 			}
 			documents.add(document);
 		}
@@ -696,6 +697,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			PortasignaturesDto dPsigna = dExp != null ? getDocumentPsignaPendent(documentsPsignaPendent, dExp.getId()) : null;
 
 			DocumentListDto document = toDocumentList(expedient, processInstanceId, null, dExp, dPsigna, documentFormProperties);
+			document.setNotificable(PdfUtils.isArxiuConvertiblePdf(dExp.getArxiuNom()));
 			documents.add(document);
 		}
 
@@ -756,7 +758,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				.adjunt(dExp.isAdjunt())
 				.extensio(dExp.getArxiuExtensio() != null ? dExp.getArxiuExtensio().toUpperCase() : null)
 				.signat(dExp.isSignat())
-				.notificable(dExp.isNotificable())
 				.notificat(dExp.isNotificat())
 				.arxiuActiu(dExp.isArxiuActiu())
 				.ntiActiu(expedient.isNtiActiu())
@@ -1353,7 +1354,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				.dataCreacio(document.getDataCreacio())
 				.dataModificacio(document.getDataModificacio())
 				.dataDocument(document.getDataDocument())
-				.notificable(document.isNotificable())
 				.arxiuUuid(document.getArxiuUuid())
 				.ntiCsv(document.getNtiCsv())
 				.nti(expedient.isNtiActiu() && expedient.getArxiuUuid() == null)
@@ -1362,7 +1362,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				.registrat(document.isRegistrat())
 				.deAnotacio(document.getAnotacioId() != null)
 				.notificat(document.isNotificat())
-				.notificable(document.isNotificable())
 				.deAnotacio(document.getAnotacioId() != null);
 
 

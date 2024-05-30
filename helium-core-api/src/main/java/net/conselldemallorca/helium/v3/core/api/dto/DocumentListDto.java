@@ -1,6 +1,3 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
 import lombok.AllArgsConstructor;
@@ -21,7 +18,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DocumentListDto implements Serializable {
-
+	
 	private Long id;
 	private String codi;
 	private String nom;
@@ -30,10 +27,8 @@ public class DocumentListDto implements Serializable {
 	private NtiTipoDocumentalEnumDto tipoDocumental;
 	private String processInstanceId;
 	private Long expedientId;
-
 	private boolean adjunt;
 	private String extensio;
-
 	private boolean signat;
 	private boolean notificable;
 	private boolean notificat;
@@ -45,28 +40,16 @@ public class DocumentListDto implements Serializable {
 	private boolean psPendent;
 	private boolean psError;
 	private boolean arxivat;
-//	private boolean deAnotacio;
-
 	private String signUrlVer;
 	private String ntiCsv;
-
 	private String psEstat;
 	private Integer psDocId;
-//	private Date psignaDataEnviat;
-//	private Date psignaDataProcessamentPrimer;
-//	private Date psignaDataProcessamentDarrer;
-//	private String psignaErrorProcessant;
-//	private String psignaMotiuRebuig;
-
 	private String arxiuUuid;
 	private String expUuid;
-
 	private Long anotacioId = null;
 	private String anotacioIdf = null;
-
 	private String error;
 	private String docError;
-
 	@Builder.Default
 	private boolean visible = true;
 	@Builder.Default
@@ -74,4 +57,5 @@ public class DocumentListDto implements Serializable {
 	@Builder.Default
 	private boolean obligatori = false;
 
+	private static final long serialVersionUID = -2271231227621850341L;
 }

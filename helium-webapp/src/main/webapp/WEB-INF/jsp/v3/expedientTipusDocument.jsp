@@ -43,7 +43,7 @@
 			<thead>
 				<tr>
 					<th data-col-name="id" data-visible="false"/>
-					<th data-col-name="codi" width="20%" data-template="#cellExpedientTipusDocumentCodiTemplate">
+					<th data-col-name="codi" width="15%" data-template="#cellExpedientTipusDocumentCodiTemplate">
 					<spring:message code="expedient.tipus.document.llistat.columna.codi"/>
 						<script id="cellExpedientTipusDocumentCodiTemplate" type="text/x-jsrender">
 								{{if heretat }}
@@ -57,8 +57,16 @@
 								{{/if}}
 						</script>
 					</th>
-					<th data-col-name="nom"><spring:message code="expedient.tipus.document.llistat.columna.nom"/></th>
-					<th data-col-name="plantilla" data-template="#plantillaTemplate">
+					<th data-col-name="nom" width="40%"><spring:message code="expedient.tipus.document.llistat.columna.nom"/></th>
+					<th data-col-name="portafirmesFluxTipus" width="15%" data-template="#portafirmesFluxTipusTemplate">
+						<spring:message code="expedient.tipus.document.llistat.columna.flux"/>
+						<script id="portafirmesFluxTipusTemplate" type="text/x-jsrender">
+							{{if portafirmesFluxTipus==null}}Cap{{/if}}
+							{{if portafirmesFluxTipus!=null && portafirmesFluxTipus=="SIMPLE"}}Simple{{/if}}
+							{{if portafirmesFluxTipus!=null && portafirmesFluxTipus=="FLUX"}}Flux{{if portafirmesFluxNom!=null && portafirmesFluxNom!=""}} ({{:portafirmesFluxNom}}){{/if}}{{/if}}
+						</script>						
+					</th>
+					<th data-col-name="plantilla" width="10%" data-template="#plantillaTemplate">
 						<spring:message code="expedient.tipus.document.llistat.columna.plantilla"/>
 						<script id="plantillaTemplate" type="text/x-jsrender">
 							{{if plantilla }}
@@ -66,15 +74,7 @@
 							{{/if}}
 						</script>
 					</th>
-					<th data-col-name="notificable" data-template="#notificableTemplate">
-						<spring:message code="expedient.tipus.document.llistat.columna.notificable"/>
-						<script id="notificableTemplate" type="text/x-jsrender">
-							{{if notificable }}
-								<spring:message code="comu.check"></spring:message>
-							{{/if}}
-						</script>
-					</th>
-					<th data-col-name="arxiuNom" data-template="#arxiuTemplate">
+					<th data-col-name="arxiuNom"  width="10%" data-template="#arxiuTemplate">
 						<spring:message code="expedient.tipus.document.llistat.columna.arxiu"/>
 						<script id="arxiuTemplate" type="text/x-jsrender">
 							{{if arxiuNom != null }}
@@ -107,6 +107,7 @@
 					<th data-col-name="plantilla" data-visible="false"/>
 					<th data-col-name="sobreescriu" data-visible="false"/>
 					<th data-col-name="heretat" data-visible="false"/>
+					<th data-col-name="portafirmesFluxNom" data-visible="false"/>
 				</tr>
 			</thead>
 		</table>

@@ -21,7 +21,6 @@ public class DocumentDto extends HeretableDto implements Serializable {
 	private Date dataModificacio;
 	private Date dataDocument;
 	private boolean plantilla;
-	private boolean notificable;
 	private boolean required;
 	private boolean readOnly;
 
@@ -144,12 +143,6 @@ public class DocumentDto extends HeretableDto implements Serializable {
 	}
 	public void setPlantilla(boolean plantilla) {
 		this.plantilla = plantilla;
-	}
-	public boolean isNotificable() {
-		return notificable;
-	}
-	public void setNotificable(boolean notificable) {
-		this.notificable = notificable;
 	}
 	public boolean isRequired() {
 		return required;
