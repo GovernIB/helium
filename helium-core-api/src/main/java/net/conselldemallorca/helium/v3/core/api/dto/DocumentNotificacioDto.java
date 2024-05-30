@@ -60,7 +60,6 @@ public class DocumentNotificacioDto {
 	private Integer numIntents;
 	private Date intentData;
 	private Date intentProximData;
-	private String enviamentTipus;
 	private String concepte;
 	private String descripcio;
 	private String processInstanceId;
@@ -86,6 +85,10 @@ public class DocumentNotificacioDto {
 	private Long expedientTipusId;
 	private String interessat;
 	private String nomDocument;
+	private Long justificantId;
+	private String justificantArxiuNom;
+	
+	
 	public Long getId() {
 		return id;
 	}
@@ -357,12 +360,6 @@ public class DocumentNotificacioDto {
 	public void setIntentProximData(Date intentProximData) {
 		this.intentProximData = intentProximData;
 	}
-	public String getEnviamentTipus() {
-		return enviamentTipus;
-	}
-	public void setEnviamentTipus(String enviamentTipus) {
-		this.enviamentTipus = enviamentTipus;
-	}
 	public String getConcepte() {
 		return concepte;
 	}
@@ -518,6 +515,20 @@ public class DocumentNotificacioDto {
 	public void setExpedientNumero(String expedientNumero) {
 		this.expedientNumero = expedientNumero;
 	}
+	
+	public Long getJustificantId() {
+		return justificantId;
+	}
+	public void setJustificantId(Long justificantId) {
+		this.justificantId = justificantId;
+	}
+	public String getJustificantArxiuNom() {
+		return justificantArxiuNom;
+	}
+	public void setJustificantArxiuNom(String justificantArxiuNom) {
+		this.justificantArxiuNom = justificantArxiuNom;
+	}
+	
 	public String getDestinatariFullNomNif() {
 		return 	(this.getDestinatariNom() !=null ? this.getDestinatariNom() + " "  : "")+ 
 				(this.getDestinatariLlinatge1() !=null ? this.getDestinatariLlinatge1() + " " :  "")+

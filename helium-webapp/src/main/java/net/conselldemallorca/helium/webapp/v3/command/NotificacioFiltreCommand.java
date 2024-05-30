@@ -9,6 +9,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEnviamentEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEstatEnumDto;
 
 /**
  * Command per al filtre d'expedients dels arxius.
@@ -18,9 +19,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEnviamentEstatEnu
 public class NotificacioFiltreCommand {
 
 
-	private EnviamentTipusEnumDto tipusEnviament;
+	private EnviamentTipusEnumDto tipus;
 	private String concepte;
-	private NotificacioEnviamentEstatEnumDto estat;
+	private NotificacioEstatEnumDto estat;
 	private Date dataInicial;
 	private Date dataFinal;
 	private String interessat;
@@ -31,19 +32,19 @@ public class NotificacioFiltreCommand {
 	private String procedimentCodi;
 	private Long expedientId;
 
-	public EnviamentTipusEnumDto getTipusEnviament() {
-		return tipusEnviament;
+	public EnviamentTipusEnumDto getTipus() {
+		return tipus;
 	}
 
-	public void setTipusEnviament(EnviamentTipusEnumDto tipusEnviament) {
-		this.tipusEnviament = tipusEnviament;
+	public void setTipus(EnviamentTipusEnumDto tipus) {
+		this.tipus = tipus;
 	}
 
-	public NotificacioEnviamentEstatEnumDto getEstat() {
+	public NotificacioEstatEnumDto getEstat() {
 		return estat;
 	}
 
-	public void setEstat(NotificacioEnviamentEstatEnumDto estat) {
+	public void setEstat(NotificacioEstatEnumDto estat) {
 		this.estat = estat;
 	}
 

@@ -42,7 +42,6 @@ public class ExpedientTipusDocumentCommand {
 	private String arxiuNom;
 	private byte[] arxiuContingut;
 	private boolean plantilla;
-	private boolean notificable;
 	private String convertirExtensio;
 	private boolean adjuntarAuto;
 	private Long campId;
@@ -116,12 +115,6 @@ public class ExpedientTipusDocumentCommand {
 	}
 	public void setPlantilla(boolean plantilla) {
 		this.plantilla = plantilla;
-	}
-	public boolean isNotificable() {
-		return notificable;
-	}
-	public void setNotificable(boolean notificable) {
-		this.notificable = notificable;
 	}
 	public String getConvertirExtensio() {
 		return convertirExtensio;
@@ -242,7 +235,6 @@ public class ExpedientTipusDocumentCommand {
 		dto.setArxiuNom(command.getArxiuNom());
 		dto.setArxiuContingut(command.getArxiuContingut());
 		dto.setPlantilla(command.isPlantilla());
-		dto.setNotificable(command.isNotificable());
 		dto.setConvertirExtensio(command.getConvertirExtensio());
 		dto.setAdjuntarAuto(command.isAdjuntarAuto());
 		dto.setGenerarNomesTasca(command.isGenerarNomesTasca());

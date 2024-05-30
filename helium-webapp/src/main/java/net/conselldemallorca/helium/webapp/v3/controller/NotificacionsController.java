@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import net.conselldemallorca.helium.core.helper.NotificacioHelper;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -36,7 +37,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
-
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.NotificacioService;
 
 import net.conselldemallorca.helium.webapp.v3.command.NotificacioFiltreCommand;
@@ -44,6 +45,8 @@ import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NtiHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
@@ -55,7 +58,11 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 public class NotificacionsController extends BaseExpedientController {
 	
 	@Autowired
+	private NotificacioHelper notificacioHelper;
+	@Autowired
 	private NotificacioService notificacioService;
+	@Autowired
+	private ExpedientDocumentService expedientDocumentService;
 
 	private static final String SESSION_ATTRIBUTE_FILTRE = "NotificacionsController.session.filtre";
 	
@@ -84,9 +91,9 @@ public class NotificacionsController extends BaseExpedientController {
 				request,
 				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES);	
 		Map<String, String[]> mapeigOrdenacions = new HashMap<String, String[]>();
-		mapeigOrdenacions.put("interessatFullNomNif", new String[] {"nom", "llinatge1", "llinatge2"});
-		mapeigOrdenacions.put("destinatariFullNomNif", new String[] {"nom", "llinatge1", "llinatge2"});
-		mapeigOrdenacions.put("organEmissorCodiAndNom", new String[] {"codi", "nom"});
+		mapeigOrdenacions.put("interessatFullNomNif", new String[] {"titularNom", "titularLlinatge1", "titularLlinatge2"});
+		mapeigOrdenacions.put("destinatariFullNomNif", new String[] {"destinatariNom", "destinatariLlinatge1", "destinatariLlinatge2"});
+		mapeigOrdenacions.put("organEmissorCodiAndNom", new String[] {"emisorDir3Codi"});
 
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request, null, mapeigOrdenacions);
 		PaginaDto<DocumentNotificacioDto> resultat = notificacioService.findAmbFiltrePaginat(
@@ -117,8 +124,37 @@ public class NotificacionsController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long enviamentNotibId,
 			Model model) {
-		model.addAttribute("dto", notificacioService.findAmbId(enviamentNotibId));
+		DocumentNotificacioDto dto = notificacioService.findAmbId(enviamentNotibId);
+		notificacioHelper.completarDocumentNotificacioDto(dto);
+		model.addAttribute("dto", dto);
 		return "v3/notificacioNotibInfo";
+	}
+	
+	@RequestMapping(value = "/{enviamentNotibId}/consultarEstat", method = RequestMethod.GET)
+	public String consultarEstat(
+			HttpServletRequest request,
+			@PathVariable Long enviamentNotibId,
+			Model model) {
+		DocumentNotificacioDto dto = notificacioService.findAmbId(enviamentNotibId);
+		//Si volem obtenir els documents dins zip hem de mirar les notificacions de l'expedient
+//		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(dto.getExpedient().getId());
+//		List<DadesNotificacioDto> notificacions = expedientService.findNotificacionsNotibPerExpedientId(expedient.getId());	
+		if (dto != null) {
+			try {
+				// Processa el canvi d'estat
+				expedientDocumentService.notificacioActualitzarEstat(
+						dto.getEnviamentIdentificador(), 
+						dto.getEnviamentReferencia());
+				MissatgesHelper.success(request, getMessage(request, "expedient.notificacio.consultar.estat.success"));
+			} catch (Exception e) {				
+				String errMsg = getMessage(request, "expedient.notificacio.consultar.estat.error", new Object[] {e.getMessage()});
+				logger.error(errMsg, e);
+				MissatgesHelper.error(request, errMsg);
+			}
+		} else {
+			MissatgesHelper.error(request, getMessage(request, "expedient.notificacio.consultar.estat.not.found", new Object[] {enviamentNotibId}));
+		}
+		return "redirect:" + request.getHeader("referer");
 	}
 	
 	/** Posa els expedients tipus al model als quals l'usuari té permís per consultar a l'entorn
@@ -155,7 +191,7 @@ public class NotificacionsController extends BaseExpedientController {
 		for(NotificacioEstatEnumDto estat : NotificacioEstatEnumDto.values())
 			opcions.add(new ParellaCodiValorDto(
 					estat.name(),
-					MessageHelper.getInstance().getMessage("notificacio.enviament.estat.enum." + estat.name())));		
+					MessageHelper.getInstance().getMessage("notificacio.etst.enum." + estat.name())));		
 
 		model.addAttribute("estats", opcions);
 	}
@@ -163,12 +199,12 @@ public class NotificacionsController extends BaseExpedientController {
 	/** Posa els valors de l'enumeració dels tipus d'enviament en el model */
 	private void modelTipusEnviament(Model model) {
 		List<ParellaCodiValorDto> opcions = new ArrayList<ParellaCodiValorDto>();
-		for(EnviamentTipusEnumDto estat : EnviamentTipusEnumDto.values())
+		for(EnviamentTipusEnumDto tipus : EnviamentTipusEnumDto.values())
 			opcions.add(new ParellaCodiValorDto(
-					estat.name(),
-					MessageHelper.getInstance().getMessage("notifica.enviament.tipus.enum." + estat.name())));		
+					tipus.name(),
+					MessageHelper.getInstance().getMessage("notifica.enviament.tipus.enum." + tipus.name())));		
 
-		model.addAttribute("tipusEnviament", opcions);
+		model.addAttribute("tipusEnviaments", opcions);
 	}
 	
 	/** Mètode pel suggest d'expedients inicial

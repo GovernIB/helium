@@ -398,6 +398,34 @@ public class NotificacioHelper {
 			dto.setNomDocument(document.getArxiuNom());
 			dto.setDocumentStoreId(document.getId());
 		}
+		if (dto.getEnviamentCertificacio() != null) {
+			DocumentStore justificant = documentStoreRepository.findOne(dto.getEnviamentCertificacio().getId());
+			dto.setJustificantId(justificant.getId());
+			dto.setJustificantArxiuNom(justificant.getAdjuntTitol() != null? justificant.getAdjuntTitol() : justificant.getArxiuNom());
+		}
+	}
+	
+	public void completarDocumentNotificacioDto(DocumentNotificacioDto dto) {
+		if(dto.getEmisorDir3Codi()!=null) {
+			UnitatOrganitzativa uo = unitatOrganitzativaHelper.findByCodi(dto.getEmisorDir3Codi());
+			if(uo!=null) {
+				dto.setUnitatOrganitzativaCodi(uo.getCodi());
+				dto.setUnitatOrganitzativaDescripcio(uo.getDenominacio());
+			}else {
+				dto.setUnitatOrganitzativaCodi(dto.getEmisorDir3Codi());
+			}	
+		}
+		if(dto.getDocument()!=null) {
+			DocumentStore document = documentHelperV3.findById(dto.getDocument().getId());
+			dto.setNomDocument(document.getArxiuNom());
+			dto.setDocumentStoreId(document.getId());
+		}
+		if(dto.getEnviamentCertificacio()!=null) {
+			DocumentStore justificant = documentStoreRepository.findOne(dto.getEnviamentCertificacio().getId());
+			dto.setJustificantId(justificant.getId());
+			dto.setJustificantArxiuNom(justificant.getAdjuntTitol() != null? justificant.getAdjuntTitol() : justificant.getArxiuNom());
+		}	
+//		dto.setEntornCodi(dto.getento)
 	}
 	
 	

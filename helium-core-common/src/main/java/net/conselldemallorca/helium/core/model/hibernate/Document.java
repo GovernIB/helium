@@ -89,9 +89,6 @@ public class Document implements Serializable, GenericEntity<Long> {
 	@Column(name="plantilla")
 	private boolean plantilla;
 	
-	@Column(name="notificable")
-	private boolean notificable;
-	
 	@MaxLength(255)
 	@Column(name="content_type", length=255)
 	private String contentType;
@@ -185,10 +182,8 @@ public class Document implements Serializable, GenericEntity<Long> {
 	@Column(name="generar_nomes_tasca")
 	private boolean generarNomesTasca;
 
-
-	public Document() {
-		this.notificable = false;
-	}
+	public Document() {}
+	
 	public Document(DefinicioProces definicioProces, String codi, String nom) {
 		this();
 		this.definicioProces = definicioProces;
@@ -250,14 +245,7 @@ public class Document implements Serializable, GenericEntity<Long> {
 	public void setPlantilla(boolean plantilla) {
 		this.plantilla = plantilla;
 	}
-	
-	public boolean isNotificable() {
-		return notificable;
-	}
-	public void setNotificable(boolean notificable) {
-		this.notificable = notificable;
-	}
-	
+
 	public String getContentType() {
 		return contentType;
 	}

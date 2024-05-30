@@ -440,6 +440,7 @@ public class DocumentHelperV3 {
 					// Informació de les notificacions
 					ed.setNotificat(documentsNotificats.contains(documentStoreId));
 					ed.setPinbal(!peticioPinbalRepository.findByExpedientIdAndDocumentIdOrderByDataPeticioDesc(expedient.getId(), documentStoreId).isEmpty());
+					ed.setNotificable(PdfUtils.isArxiuConvertiblePdf(ed.getArxiuNom()));
 					resposta.add(ed);
 				}
 			}
@@ -2099,7 +2100,6 @@ public class DocumentHelperV3 {
 		dto.setDocumentId(document.getId());
 		dto.setDocumentCodi(document.getCodi());
 		dto.setDocumentNom(document.getNom());
-		dto.setNotificable(document.isNotificable());
 		dto.setPortafirmesActiu(document.isPortafirmesActiu());
 		dto.setPlantilla(document.isPlantilla());
 		dto.setSignat(documentStore.isSignat());
