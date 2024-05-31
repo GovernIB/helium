@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +41,7 @@ import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
@@ -98,76 +100,72 @@ public class NotificacioServiceImpl implements NotificacioService, ArxiuPluginLi
 	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly=true)
-	public PaginaDto<DocumentNotificacioDto> findAmbFiltrePaginat(Long entornId,
-			List<ExpedientTipusDto> expedientTipusDtoAccessibles, DocumentNotificacioDto filtreDto,
+	public PaginaDto<DocumentNotificacioDto> findAmbFiltrePaginat(
+			DocumentNotificacioDto filtreDto,
 			PaginacioParamsDto paginacioParams) {
 		logger.debug(
 				"Consultant les notificacions per datatable (" +
 				"notificacioFiltreDto=" + filtreDto + ")");
 		
-		// Llista d'expedients tipus amb permís de relacionar
-		List<Long> expedientTipusIdsPermesos = new ArrayList<Long>();
-		List<Long> expedientTipusIdsPermesosProcedimetComu = new ArrayList<Long>();
-		List<String> unitatsOrganitvesCodis = new ArrayList<String>();
-		List<ExpedientTipusUnitatOrganitzativa> expTipUnitOrgList = new ArrayList<ExpedientTipusUnitatOrganitzativa>();
-		Map<Long,List<String>> unitatsPerTipusComu = new HashMap<Long, List<String>>();
-
-		// Pot veure:
-		// - Totes les notificacions si és administrador d'Helium
-		// - Les notificacions dels tipus d'expedient amb permís
-		// - Les notificacions d'un expedient en el cas de passar-ho com a filtre
-		// Si el filtre especifica l'id de l'expedient des de la pipella de notificacions de l'expedient
-		if (filtreDto.getExpedientId() != null) {
-			// Comprova que pugui llegir l'expedient pel cas de la pipella d'anotacions de l'expedient
-			expedientHelper.getExpedientComprovantPermisos(filtreDto.getExpedientId(), true, false, false, false);
-		} else {
-			if (!usuariActualHelper.isAdministrador()) {
-				// Classifiquem els tipusExpedients tipus sense procediment comú  i amb procediment comú, dels que portem des de la caché
-				for(ExpedientTipusDto expTipusDtoCache: expedientTipusDtoAccessibles) {
-					if(!expTipusDtoCache.isProcedimentComu()) {
-						expedientTipusIdsPermesos.add(expTipusDtoCache.getId());
-					} else {
-						expedientTipusIdsPermesosProcedimetComu.add(expTipusDtoCache.getId());
-					}
-				}				
-			}
-			//Al filtre de notificacions només tindrem els expedientTipus amb permisos
-			Permission[] permisosRequerits= new Permission[] {
-					ExtendedPermission.ADMINISTRATION};
-			if (filtreDto.getExpedientTipusId() != null) {
-				expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findByExpedientTipusId(filtreDto.getExpedientTipusId());
-				unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComu(entornId, expTipUnitOrgList, permisosRequerits);										
-			} else { //si no hi ha expedientTipus al filtre, hem de buscar totes les UO per las quals es té permís i obtenir els expedinetTipus
-				if (!usuariActualHelper.isAdministrador()) {
-					expTipUnitOrgList = expedientTipusUnitatOrganitzativaRepository.findAll();
-					unitatsPerTipusComu = expedientTipusHelper.unitatsPerTipusComu(entornId, expTipUnitOrgList, permisosRequerits);										
+		List<Long> entornsPermesos = null;
+		//Si ets admin, no es filtra per entorn seleccionat
+		if (usuariActualHelper.isAdministrador()) {
+			filtreDto.setEntornId(null);
+			List<EntornDto> entornsActiusAdmin = usuariActualHelper.findEntornsActiusPermesos(
+					SecurityContextHolder.getContext().getAuthentication().getName());
+			
+			if (entornsActiusAdmin!=null && entornsActiusAdmin.size()>0) {
+				entornsPermesos = new ArrayList<Long>();
+				for (EntornDto entornDto: entornsActiusAdmin) {
+					entornsPermesos.add(entornDto.getId());
 				}
 			}
+		} else {
+			//Si no ets admin, es filtra per l'entonr del filtre, que es de la sessió.
+			//JA s'haurá comprovat al controller que tens permisos de administració sobre el entorn
+			entornsPermesos = new ArrayList<Long>();
+			entornsPermesos.add(filtreDto.getEntornId());
 		}
+		
+		Date dataInicial = null;
+		if (filtreDto.getDataInicial() != null) {
+			// Corregeix la data final per arribar a les 00:00:00h del dia següent.
+			Calendar c = new GregorianCalendar();
+			c.setTime(filtreDto.getDataInicial());
+			c.set(Calendar.HOUR_OF_DAY, 0);
+			c.set(Calendar.MINUTE, 0);
+			c.set(Calendar.SECOND, 0);
+			c.set(Calendar.MILLISECOND, 0);
+			dataInicial = c.getTime();
+		}
+		
 		Date dataFinal = null;
 		if (filtreDto.getDataFinal() != null) {
 			// Corregeix la data final per arribar a les 00:00:00h del dia següent.
 			Calendar c = new GregorianCalendar();
 			c.setTime(filtreDto.getDataFinal());
-			c.add(Calendar.DATE, 1);
-			c.set(Calendar.HOUR_OF_DAY, 0);
-			c.set(Calendar.MINUTE, 0);
-			c.set(Calendar.SECOND, 0);
-			c.set(Calendar.MILLISECOND, 0);
+			c.set(Calendar.HOUR_OF_DAY, 23);
+			c.set(Calendar.MINUTE, 59);
+			c.set(Calendar.SECOND, 59);
+			c.set(Calendar.MILLISECOND, 999);
 			dataFinal = c.getTime();
 		}
 		
 		paginacioParams.canviaCamp("expedient.identificador", "expedient.numero");
+		paginacioParams.canviaCamp("expedientTipusNom", "expedient.tipus.nom");
+		paginacioParams.canviaCamp("nomDocument", "document.arxiuNom");
 
 		PaginaDto<DocumentNotificacioDto> pagina =  paginacioHelper.toPaginaDto(documentNotificacioRepository.findAmbFiltrePaginat(
+				entornsPermesos == null,
+				entornsPermesos,				
 				filtreDto.getTipus()==null,
 				filtreDto.getTipus(),
 				filtreDto.getConcepte() == null || filtreDto.getConcepte().isEmpty(), 
 				filtreDto.getConcepte(), 
 				filtreDto.getEstat() == null, 
 				filtreDto.getEstat(), 
-				filtreDto.getDataInicial() == null,
-				filtreDto.getDataInicial(),
+				dataInicial == null,
+				dataInicial,
 				dataFinal == null,
 				dataFinal,
 				filtreDto.getInteressat() == null || filtreDto.getInteressat().isEmpty(), 
@@ -182,10 +180,6 @@ public class NotificacioServiceImpl implements NotificacioService, ArxiuPluginLi
 				filtreDto.getUnitatOrganitzativaCodi(),//organdesti
 				filtreDto.getExpedientTipusId() == null,
 				filtreDto.getExpedientTipusId(),
-				expedientTipusIdsPermesos == null || expedientTipusIdsPermesos.isEmpty(),
-				expedientTipusIdsPermesos == null || expedientTipusIdsPermesos.isEmpty() ? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesos,
-				expedientTipusIdsPermesosProcedimetComu == null || expedientTipusIdsPermesosProcedimetComu.isEmpty(),
-				expedientTipusIdsPermesosProcedimetComu.isEmpty() ? Arrays.asList(ArrayUtils.toArray(0L)) : expedientTipusIdsPermesosProcedimetComu,
 				paginacioParams.getFiltre() == null || paginacioParams.getFiltre().isEmpty(),
 				paginacioParams.getFiltre(),
 				paginacioHelper.toSpringDataPageable(paginacioParams)), DocumentNotificacioDto.class);

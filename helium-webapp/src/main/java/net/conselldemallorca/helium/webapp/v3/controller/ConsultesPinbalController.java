@@ -12,6 +12,8 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.core.helper.ConsultaPinbalHelper;
+import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPlugin;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -41,6 +44,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 @Controller
@@ -53,18 +57,42 @@ public class ConsultesPinbalController extends BaseExpedientController {
 	private static final String SESSION_ATTRIBUTE_FILTRE = "ConsultesPinbalController.session.filtre";
 	
 	@RequestMapping(method = RequestMethod.GET)
-	public String llistat(
-			HttpServletRequest request,
-			Model model) {
+	public String llistat(HttpServletRequest request, Model model) {
+		
 		ConsultesPinbalFiltreCommand filtreCommand = getFiltreCommand(request);
+		List<ExpedientTipusDto> expedientTipusDtoAccessibles = null;
+		
 		ExpedientTipusDto expedientTipusActual = SessionHelper.getSessionManager(request).getExpedientTipusActual();
 		if (expedientTipusActual != null) {
 			filtreCommand.setTipusId(expedientTipusActual.getId());
 		}
+		
+		//Si ets admin, no filtra per entorn actual.
+		//ELs tipus de expedient del filtre son tots els accessibles
+		if (UsuariActualHelper.isAdministrador(SecurityContextHolder.getContext().getAuthentication())) {
+			
+			expedientTipusDtoAccessibles = SessionHelper.getSessionManager(request).getExpedientTipusAccessibles();
+			
+		} else {
+		
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			if (entornActual != null) {
+				filtreCommand.setEntornId(entornActual.getId());
+				expedientTipusDtoAccessibles = expedientTipusService.findAmbEntornPermisAdmin(entornActual.getId());
+			}
+	
+			if (!SessionHelper.getSessionManager(request).getPotAdministrarEntorn()) {
+				MissatgesHelper.error(request, "No teniu permís d'administració sobre l'entorn actual.");
+				return "redirect:/";
+			}
+	
+			if (expedientTipusDtoAccessibles==null || expedientTipusDtoAccessibles.size()==0) {
+				MissatgesHelper.error(request, "No teniu permís d'administració sobre cap tipus d'expedient dins l'entorn actual.");
+				return "redirect:/";
+			}
+		}
+
 		model.addAttribute(filtreCommand);
-		List<ExpedientTipusDto> expedientTipusDtoAccessibles = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
-				request,
-				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES);
 		modelExpedientsTipus(expedientTipusDtoAccessibles, model);
 		modelEstats(model);
 		modelPersones(request, model);

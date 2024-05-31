@@ -948,4 +948,10 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 		return delegate.tePermisosSobreUnitatOrganitzativaOrParents(expedientId, unitatOrganitzativaCodi, permisos);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientTipusDto> findAmbEntornPermisAdmin(Long entornId) throws NoTrobatException {
+		return delegate.findAmbEntornPermisAdmin(entornId);
+	}
+
 }

@@ -61,16 +61,16 @@
 				placeholderKey="consultes.pinbal.camp.usuari"
 				optionItems="${persones}"
 				optionValueAttribute="codi"
-				optionTextAttribute="nom"
+				optionTextAttribute="nomSencer"
 				disabled="${empty persones}"
 				inline="true"/>
-		</div>		
+		</div>
 		<div class="col-md-2">
-			<hel:inputDate name="dataPeticioIni" textKey="anotacio.llistat.filtre.camp.dataInicial" placeholder="dd/mm/aaaa" inline="true"/>
-		</div>	
+			<hel:inputDate name="dataPeticioIni" textKey="anotacio.llistat.filtre.camp.dataInicial" placeholderKey="consultes.potafib.camp.filtreDesde" inline="true"/>
+		</div>
 		<div class="col-md-2">
-			<hel:inputDate name="dataPeticioFi" textKey="anotacio.llistat.filtre.camp.dataFinal" placeholder="dd/mm/aaaa" inline="true"/>
-		</div>	
+			<hel:inputDate name="dataPeticioFi" textKey="anotacio.llistat.filtre.camp.dataFinal" placeholderKey="consultes.potafib.camp.filtreFins" inline="true"/>
+		</div>
 		<div class="col-md-2">
 			<hel:inputSelect 
 				inline="true" 

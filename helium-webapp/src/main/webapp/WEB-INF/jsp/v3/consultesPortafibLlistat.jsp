@@ -9,7 +9,7 @@
 	<title><spring:message code="consultes.potafib.titol"/></title>
 	<meta name="title" content="<spring:message code='consultes.potafib.titol'/>"/>
 	<meta name="screen" content="fluxosFirma">
-	<meta name="title-icon-class" content="fa fa-exchange"/>
+	<meta name="title-icon-class" content="fa fa-pencil"/>
 	<script src="<c:url value="/webjars/datatables.net/1.10.13/js/jquery.dataTables.min.js"/>"></script>
 	<script src="<c:url value="/webjars/datatables.net-bs/1.10.13/js/dataTables.bootstrap.min.js"/>"></script>
 	<script src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
@@ -109,7 +109,7 @@
 						{{if estat=='SIGNAT'}}<span class="fa fa-check"></span> Signat{{/if}}
 						{{if estat=='REBUTJAT'}}<span class="fa fa-ban"></span> Rebutjat{{/if}}
 						{{if estat=='PROCESSAT'}}<span class="fa fa-check"></span> Processat ({{:transicio}}){{/if}}
-						{{if estat=='CANCELAT'}}<span class="fa fa-times"></span> Cancelat{{/if}}
+						{{if estat=='CANCELAT'}}<span class="fa fa-times"></span> Cancel·lat{{/if}}
 						{{if estat=='ERROR'}}<span class="fa fa-exclamation-triangle" title="{{:errorProcessant}}"></span> Error ({{:transicio}}){{/if}}
 						{{if estat=='ESBORRAT'}}<span class="fa fa-times"></span> Esborrat{{/if}}					
 					</script>

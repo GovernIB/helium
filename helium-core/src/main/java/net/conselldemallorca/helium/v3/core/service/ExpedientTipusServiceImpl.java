@@ -1862,6 +1862,20 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						false),
 				ExpedientTipusDto.class);
 	}
+	
+	@Override
+	@Transactional(readOnly=true)
+	public List<ExpedientTipusDto> findAmbEntornPermisAdmin(Long entornId) throws NoTrobatException {
+		logger.debug(
+				"Consultant tipus d'expedient per un entorn i amb permisos de administració (" +
+				"entornId=" + entornId + ")");	
+		return conversioTipusHelper.convertirList(
+				findTotsExpTipusAmbPermisos(
+						entornId, 
+						new Permission[] {ExtendedPermission.ADMINISTRATION},
+						false),
+				ExpedientTipusDto.class);
+	}
 
 	/**
 	 * {@inheritDoc}

@@ -1,9 +1,6 @@
 package net.conselldemallorca.helium.v3.core.api.service;
 
-import java.util.List;
-
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 
@@ -17,8 +14,6 @@ public interface NotificacioService {
 
 	/** Mètode per consultar en el llistat les diferents notificacions */
 	public PaginaDto<DocumentNotificacioDto> findAmbFiltrePaginat(
-			Long entornId,
-			List<ExpedientTipusDto> expedientTipusDtoAccessibles,
 			DocumentNotificacioDto filtreDto,
 			PaginacioParamsDto paginacioParams);
 	

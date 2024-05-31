@@ -1,7 +1,5 @@
 package net.conselldemallorca.helium.v3.core.ejb;
 
-import java.util.List;
-
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
@@ -10,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.service.NotificacioService;
@@ -29,10 +26,10 @@ public class NotificacioServiceBean implements NotificacioService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public PaginaDto<DocumentNotificacioDto> findAmbFiltrePaginat(Long entornId,
-			List<ExpedientTipusDto> expedientTipusDtoAccessibles, DocumentNotificacioDto filtreDto,
+	public PaginaDto<DocumentNotificacioDto> findAmbFiltrePaginat(
+			DocumentNotificacioDto filtreDto,
 			PaginacioParamsDto paginacioParams) {
-		return delegate.findAmbFiltrePaginat(entornId, expedientTipusDtoAccessibles, filtreDto, paginacioParams);
+		return delegate.findAmbFiltrePaginat(filtreDto, paginacioParams);
 	}
 
 

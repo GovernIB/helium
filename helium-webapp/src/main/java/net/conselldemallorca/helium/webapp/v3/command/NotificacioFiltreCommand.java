@@ -3,12 +3,12 @@
  */
 package net.conselldemallorca.helium.webapp.v3.command;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEnviamentEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEstatEnumDto;
 
 /**
@@ -16,9 +16,10 @@ import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEstatEnumDto;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class NotificacioFiltreCommand {
+public class NotificacioFiltreCommand implements Serializable {
 
-
+	private static final long serialVersionUID = 5351582872698404634L;
+	
 	private EnviamentTipusEnumDto tipus;
 	private String concepte;
 	private NotificacioEstatEnumDto estat;
@@ -31,6 +32,8 @@ public class NotificacioFiltreCommand {
 	private String unitatOrganitzativaCodi;
 	private String procedimentCodi;
 	private Long expedientId;
+	private Long entornId;
+	private Long tipusId;
 
 	public EnviamentTipusEnumDto getTipus() {
 		return tipus;
@@ -38,6 +41,22 @@ public class NotificacioFiltreCommand {
 
 	public void setTipus(EnviamentTipusEnumDto tipus) {
 		this.tipus = tipus;
+	}
+
+	public Long getEntornId() {
+		return entornId;
+	}
+
+	public void setEntornId(Long entornId) {
+		this.entornId = entornId;
+	}
+
+	public Long getTipusId() {
+		return tipusId;
+	}
+
+	public void setTipusId(Long tipusId) {
+		this.tipusId = tipusId;
 	}
 
 	public NotificacioEstatEnumDto getEstat() {

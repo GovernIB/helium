@@ -87,13 +87,26 @@ public class DocumentNotificacioDto {
 	private String nomDocument;
 	private Long justificantId;
 	private String justificantArxiuNom;
-	
+	private Long entornId;
+	private Long tipusId;
 	
 	public Long getId() {
 		return id;
 	}
 	public void setId(Long id) {
 		this.id = id;
+	}
+	public Long getEntornId() {
+		return entornId;
+	}
+	public void setEntornId(Long entornId) {
+		this.entornId = entornId;
+	}
+	public Long getTipusId() {
+		return tipusId;
+	}
+	public void setTipusId(Long tipusId) {
+		this.tipusId = tipusId;
 	}
 	public String getUsuariCodi() {
 		return usuariCodi;

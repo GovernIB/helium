@@ -73,6 +73,7 @@ public interface DocumentNotificacioRepository extends JpaRepository<DocumentNot
 	@Query(	"from DocumentNotificacio n " +
 			"where " +
 			" 	 (:esNullTipus = true or n.tipus = :tipus) " + 
+			"and (:esNullEntorn = true or expedient.entorn.id IN (:entornsId)) " +
 			"and (:esNullConcepte = true or lower(n.concepte) like lower('%'||:concepte||'%')) " +
 			"and (:esNullEstat = true or n.estat = :estat) " + 
 			"and (:esNullDataInicial = true or n.enviamentDatatData >= :dataInicial) " +
@@ -88,15 +89,11 @@ public interface DocumentNotificacioRepository extends JpaRepository<DocumentNot
 			"and (:esNullNomDocument = true or lower(n.document.arxiuNom) like lower('%'||:nomDocument||'%')) " +
 			"and (:esNullUnitatOrganitzativaCodi = true or lower(n.emisorDir3Codi) like lower('%'||:unitatOrganitzativaCodi||'%')) " +
 			"and (:esNullExpedientTipusId = true or n.expedient.tipus.id = :expedientTipusId) " +
-			"and ((:esNullExpedientTipusIds = true or n.expedient.tipus.id in (:expedientTipusIds)) " + 
-			"		or "
-			+ " 		((:esNullExpedientTipusIdsPermesosProcedimetComu = true or n.expedient.tipus.id in (:expedientTipusIdsPermesosProcedimetComu)) "
-//			+ "				and (:esNullUnitatsOrganitvesCodis = true or n.organCodi in (:unitatsOrganitvesCodis))"
-			+ "			) "
-			+ "  ) " + 
-			" and (:esNullFiltre = true or (n.errorDescripcio) like lower('%'||:filtre||'%') ) ")
+			"and (:esNullFiltre = true or (n.errorDescripcio) like lower('%'||:filtre||'%') ) ")
 
 	Page<DocumentNotificacio> findAmbFiltrePaginat(
+			@Param("esNullEntorn") boolean esNullEntorn,
+			@Param("entornsId") List<Long> entornsId,			
 			@Param("esNullTipus") boolean esNullTipus,
 			@Param("tipus") EnviamentTipusEnumDto  tipus,
 			@Param("esNullConcepte") boolean esNullConcepte,
@@ -119,10 +116,6 @@ public interface DocumentNotificacioRepository extends JpaRepository<DocumentNot
 			@Param("unitatOrganitzativaCodi") String unitatOrganitzativaCodi,
 			@Param("esNullExpedientTipusId") boolean esNullExpedientTipusId,
 			@Param("expedientTipusId") Long expedientTipusId,
-			@Param("esNullExpedientTipusIds") boolean esNullExpedientTipusIds,
-			@Param("expedientTipusIds") List<Long> expedientTipusIds,
-			@Param("esNullExpedientTipusIdsPermesosProcedimetComu") boolean esNullExpedientTipusIdsPermesosProcedimetComu,
-			@Param("expedientTipusIdsPermesosProcedimetComu") List<Long> expedientTipusIdsPermesosProcedimetComu,
 			@Param("esNullFiltre") boolean esNullFiltre,
 			@Param("filtre") String filtre, 
 			Pageable pageable);

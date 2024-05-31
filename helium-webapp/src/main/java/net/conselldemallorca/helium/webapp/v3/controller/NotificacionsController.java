@@ -1,6 +1,8 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,11 +12,16 @@ import javax.validation.Valid;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,32 +29,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.core.helper.NotificacioHelper;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
-import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
+import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEnviamentEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.NotificacioService;
-
 import net.conselldemallorca.helium.webapp.v3.command.NotificacioFiltreCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.NtiHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 /**
@@ -68,16 +67,44 @@ public class NotificacionsController extends BaseExpedientController {
 	
 	/** Accés al llistat de notificacions des del menú Consultar a la capçalera. */
 	@RequestMapping(method = RequestMethod.GET)
-	public String llistat(
-			HttpServletRequest request,
-			Model model) {
+	public String llistat(HttpServletRequest request, Model model) {
+		
 		NotificacioFiltreCommand filtreCommand = getFiltreCommand(request);
+		List<ExpedientTipusDto> expedientTipusDtoAccessibles = null;
+		
+		ExpedientTipusDto expedientTipusActual = SessionHelper.getSessionManager(request).getExpedientTipusActual();
+		if (expedientTipusActual != null) {
+			filtreCommand.setTipusId(expedientTipusActual.getId());
+		}
+		
+		//Si ets admin, no filtra per entorn actual.
+		//ELs tipus de expedient del filtre son tots els accessibles
+		if (UsuariActualHelper.isAdministrador(SecurityContextHolder.getContext().getAuthentication())) {
+			
+			expedientTipusDtoAccessibles = SessionHelper.getSessionManager(request).getExpedientTipusAccessibles();
+			
+		} else {
+		
+			EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
+			if (entornActual != null) {
+				filtreCommand.setEntornId(entornActual.getId());
+				expedientTipusDtoAccessibles = expedientTipusService.findAmbEntornPermisAdmin(entornActual.getId());
+			}
+	
+			if (!SessionHelper.getSessionManager(request).getPotAdministrarEntorn()) {
+				MissatgesHelper.error(request, "No teniu permís d'administració sobre l'entorn actual.");
+				return "redirect:/";
+			}
+	
+			if (expedientTipusDtoAccessibles==null || expedientTipusDtoAccessibles.size()==0) {
+				MissatgesHelper.error(request, "No teniu permís d'administració sobre cap tipus d'expedient dins l'entorn actual.");
+				return "redirect:/";
+			}
+		}
+		
 		model.addAttribute(filtreCommand);
 		this.modelEstats(model);
 		this.modelTipusEnviament(model);
-		List<ExpedientTipusDto> expedientTipusDtoAccessibles = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
-				request,
-				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES);
 		this.modelExpedientsTipus(expedientTipusDtoAccessibles, model);
 		return "v3/notificacionsNotibLlistat";
 	}
@@ -85,20 +112,18 @@ public class NotificacionsController extends BaseExpedientController {
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	public DatatablesResponse datatable(HttpServletRequest request) {
+		
 		NotificacioFiltreCommand filtreCommand = getFiltreCommand(request);
 		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		List<ExpedientTipusDto> expedientTipusDtoAccessibles = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
-				request,
-				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES);	
+		filtreCommand.setEntornId(entornActual.getId());
+		
 		Map<String, String[]> mapeigOrdenacions = new HashMap<String, String[]>();
 		mapeigOrdenacions.put("interessatFullNomNif", new String[] {"titularNom", "titularLlinatge1", "titularLlinatge2"});
-		mapeigOrdenacions.put("destinatariFullNomNif", new String[] {"destinatariNom", "destinatariLlinatge1", "destinatariLlinatge2"});
+		mapeigOrdenacions.put("destinatariNomILlinatges", new String[] {"destinatariNom", "destinatariLlinatge1", "destinatariLlinatge2"});
 		mapeigOrdenacions.put("organEmissorCodiAndNom", new String[] {"emisorDir3Codi"});
 
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request, null, mapeigOrdenacions);
 		PaginaDto<DocumentNotificacioDto> resultat = notificacioService.findAmbFiltrePaginat(
-				entornActual.getId(),
-				expedientTipusDtoAccessibles,
 				ConversioTipusHelper.convertir(filtreCommand, DocumentNotificacioDto.class),
 				paginacioParams);
 		return DatatablesHelper.getDatatableResponse(request, null, resultat);
@@ -264,7 +289,13 @@ public class NotificacionsController extends BaseExpedientController {
 
 	}
 	
-	
+	@InitBinder
+	public void initBinder(WebDataBinder binder) {
+	    binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
+	    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	    dateFormat.setLenient(false);
+	    binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
+	}
 	
 	private static final Log logger = LogFactory.getLog(NotificacionsController.class);
 }

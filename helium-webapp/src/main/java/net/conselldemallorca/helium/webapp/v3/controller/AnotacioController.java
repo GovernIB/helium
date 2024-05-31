@@ -35,6 +35,8 @@ import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -47,6 +49,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAccioEnumDto;
@@ -121,6 +124,12 @@ public class AnotacioController extends BaseExpedientController {
 		List<ExpedientTipusDto> expedientTipusDtoAccessiblesAnotacions = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
 				request,
 				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if ((expedientTipusDtoAccessiblesAnotacions == null || expedientTipusDtoAccessiblesAnotacions.isEmpty()) 
+				&& UsuariActualHelper.isAdministrador(auth)) {
+			MissatgesHelper.error(request, "No teniu permís de relacionar sobre cap tipus en aquest entorn per gestionar anotacions.");
+			return "redirect:/";
+		}
 		this.modelExpedientsTipus(expedientTipusDtoAccessiblesAnotacions, model);
 		model.addAttribute("maxConsultaIntents", this.getMaxConsultaIntents());
 		return "v3/anotacioLlistat";

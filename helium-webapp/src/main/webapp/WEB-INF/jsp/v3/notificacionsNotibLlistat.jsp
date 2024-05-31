@@ -32,6 +32,26 @@
 	<form:form action="" method="post" cssClass="well" commandName="notificacioFiltreCommand">
 	
 	<div class="row">
+		<div class="col-md-3">
+			<hel:inputSelect name="expedientTipusId" textKey="notificacio.llistat.filtre.camp.expedientTipus"
+				optionItems="${expedientsTipus}" optionValueAttribute="codi" emptyOption="true"
+				inline="true" placeholderKey="notificacio.llistat.filtre.camp.expedientTipus" optionTextAttribute="valor" />
+		</div>
+		 <div class="col-md-3">							
+			<hel:inputText name="expedientNumero" textKey="notificacio.llistat.filtre.camp.expedient" placeholderKey="notificacio.llistat.filtre.camp.expedient" inline="true"/>
+		</div>		
+		<div class="col-md-2">
+			<hel:inputDate name="dataInicial" textKey="notificacio.llistat.filtre.camp.dataInicial" placeholderKey="consultes.potafib.camp.filtreDesde" inline="true"/>
+		</div>	
+		<div class="col-md-2">
+			<hel:inputDate name="dataFinal" textKey="notificacio.llistat.filtre.camp.dataFinal" placeholderKey="consultes.potafib.camp.filtreFins" inline="true"/>
+		</div>	
+		<div class="col-md-2">
+			<hel:inputText name="interessat" textKey="notificacio.llistat.filtre.camp.interessat" placeholderKey="notificacio.llistat.filtre.camp.interessat" inline="true"/>
+		</div>
+	</div>
+		
+	<div class="row">
 		<div class="col-md-2">
 			<hel:inputSelect inline="true" name="tipus" optionItems="${tipusEnviaments}"
 			 emptyOption="true" 
@@ -45,26 +65,11 @@
 		</div>
 		<div class="col-md-2">
 			<hel:inputSelect inline="true" name="estat" optionItems="${estats}" emptyOption="true" textKey="notificacio.llistat.filtre.camp.estat" placeholderKey="notificacio.llistat.filtre.camp.estat" optionValueAttribute="codi" optionTextAttribute="valor"/>
-		</div>	
-		<div class="col-md-2">
-			<hel:inputDate name="dataInicial" textKey="notificacio.llistat.filtre.camp.dataInicial" placeholder="dd/mm/aaaa" inline="true"/>
-		</div>	
-		<div class="col-md-2">
-			<hel:inputDate name="dataFinal" textKey="notificacio.llistat.filtre.camp.dataFinal" placeholder="dd/mm/aaaa" inline="true"/>
-		</div>	
-		<div class="col-md-2">
-			<hel:inputText name="interessat" textKey="notificacio.llistat.filtre.camp.interessat" placeholderKey="notificacio.llistat.filtre.camp.interessat" inline="true"/>
-		</div>
-	</div>
-		
-	<div class="row">
-		 <div class="col-md-2">							
-			<hel:inputText name="expedientNumero" textKey="notificacio.llistat.filtre.camp.expedient" placeholderKey="notificacio.llistat.filtre.camp.expedient" inline="true"/>
-		</div>	
+		</div>		
 		<div class="col-md-2">
 			<hel:inputText name="nomDocument" textKey="notificacio.llistat.filtre.camp.document.nom" placeholderKey="notificacio.llistat.filtre.camp.document.nom" inline="true"/>
 		</div>	
-		<div class="col-md-3">
+		<div class="col-md-2">
 			<hel:inputSuggest 
 					name="unitatOrganitzativaCodi" 
 					urlConsultaInicial="/helium/v3/unitatOrganitzativa/suggestInici" 
@@ -73,11 +78,7 @@
 					inline="true"
 					/>	
 		</div>	
-		<div class="col-md-3">
-			<hel:inputSelect name="expedientTipusId" textKey="notificacio.llistat.filtre.camp.expedientTipus"
-				optionItems="${expedientsTipus}" optionValueAttribute="codi" emptyOption="true"
-				inline="true" placeholderKey="notificacio.llistat.filtre.camp.expedientTipus" optionTextAttribute="valor" />
-		</div>
+
 		<div class="col-md-2 pull-right">
 			<div class="pull-right">
 					<button id="consultarHidden" type="submit" name="accio" value="consultar" class="btn btn-primary hidden"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
@@ -101,30 +102,26 @@
 			class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
-			
+				<th data-col-name="expedientTipusNom" data-template="#cellTipusExpTemplate" width="10%">
+					<spring:message code="notificacio.llistat.filtre.camp.expedientTipus"/>
+					<script id="cellTipusExpTemplate" type="text/x-jsrender">
+						{{:expedientTipusCodi}} <span class="fa fa-info-circle" title="{{:expedientTipusCodi}} - {{:expedientTipusNom}}
+(Entorn {{:entornCodi}} - {{:entornNom}})"></span>
+					</script>
+				</th>
 				<th data-col-name="expedient.identificador" data-template="#cellExpTemplate" width="20%"><spring:message code="consultes.pinbal.camp.exp"/>
 					<script id="cellExpTemplate" type="text/x-jsrender">
 						<a href="<c:url value="/v3/expedient/{{:expedientId}}"/>" target="_blank">{{:expedient.identificador}}</a>
 					</script>
-				</th>				
-				<th data-col-name="expedientTipusNom" data-template="#cellTipusExpTemplate" width="8%">
-					<spring:message code="notificacio.llistat.filtre.camp.expedientTipus"/>
-					<script id="cellTipusExpTemplate" type="text/x-jsrender">
-						{{:expedientTipusCodi}} <span class="fa fa-info-circle" title="{{:expedientTipusCodi}} - {{:expedientTipusNom}}
-						(Entorn {{:entornCodi}} - {{:entornNom}})"></span>
-					</script>
-				</th>
-								
+				</th>								
 				<th data-col-name="enviatData" data-converter="datetime" width="9%">
 					<spring:message code="notificacio.llistat.columna.data.enviament"/>
 				</th>
 				 <th data-col-name="organEmissorCodiAndNom" data-visible="true" width="10%">
 				 	<spring:message code="notificacio.llistat.columna.organ.emissor"/>
 				</th>
-			
 				<th data-col-name="interessatFullNomNif"><spring:message code="notificacio.llistat.filtre.camp.interessat"/></th>
-				  
-			 	<th data-col-name="tipus" data-template="#cellTipusTemplate" width="9%">
+			 	<th data-col-name="tipus" data-template="#cellTipusTemplate" width="10%">
 					<spring:message code="notificacio.llistat.columna.tipus.enviament"/>
 					<script id="cellTipusTemplate" type="text/x-jsrender">
 						{{if tipus=='NOTIFICACIO'}} 
@@ -146,8 +143,7 @@
 						</a>
 					</script>
 				</th>
-			
-			  	<th data-col-name="estat" data-template="#cellEstatTemplate" width="10%">
+			  	<th data-col-name="estat" data-template="#cellEstatTemplate" width="8%">
 				<spring:message code="notificacio.llistat.columna.estat"/>
 					<script id="cellEstatTemplate" type="text/x-jsrender">
 						{{if estat == 'PENDENT'}}
@@ -244,11 +240,7 @@
 					</script>	
 								
 				</th>
-				
-				
-				<th data-col-name="destinatariNomILlinatges" width="10%">
-				 	<spring:message code="notificacio.llistat.columna.destinatari"/>
-				</th>  
+ 
 				<th data-col-name="justificantArxiuNom" data-template="#cellJustificantTemplate" width="8%" data-orderable="false">	
 					<spring:message code="notificacio.detall.camp.justificant"/>
 					<script id="cellJustificantTemplate" type="text/x-jsrender">

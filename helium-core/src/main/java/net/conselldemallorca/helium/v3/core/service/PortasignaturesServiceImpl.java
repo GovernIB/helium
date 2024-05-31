@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,17 +44,23 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 	public PaginaDto<PortasignaturesDto> findAmbFiltrePaginat(PaginacioParamsDto paginacioParams, ConsultesPortafibFiltreDto filtreDto) {
 		
 		List<Long> entornsPermesos = null;
-		//Si la cridada ve desde el llistat de peticions del menu Admin, sí que filtram
-		if (!usuariActualHelper.isAdministrador()) {
-			List<EntornDto> entornsAdminUsuari = usuariActualHelper.findEntornsActiusPermisAdmin();
-			entornsPermesos = new ArrayList<Long>();
-			if (entornsAdminUsuari==null || entornsAdminUsuari.size()==0) {
-				entornsPermesos.add(0l);
-			} else {
-				for (EntornDto e: entornsAdminUsuari) {
-					entornsPermesos.add(e.getId());
+		//Si ets admin, no es filtra per entorn seleccionat
+		if (usuariActualHelper.isAdministrador()) {
+			filtreDto.setEntornId(null);
+			List<EntornDto> entornsActiusAdmin = usuariActualHelper.findEntornsActiusPermesos(
+					SecurityContextHolder.getContext().getAuthentication().getName());
+			
+			if (entornsActiusAdmin!=null && entornsActiusAdmin.size()>0) {
+				entornsPermesos = new ArrayList<Long>();
+				for (EntornDto entornDto: entornsActiusAdmin) {
+					entornsPermesos.add(entornDto.getId());
 				}
 			}
+		} else {
+			//Si no ets admin, es filtra per l'entonr del filtre, que es de la sessió.
+			//JA s'haurá comprovat al controller que tens permisos de administració sobre el entorn
+			entornsPermesos = new ArrayList<Long>();
+			entornsPermesos.add(filtreDto.getEntornId());
 		}
 		
 		//Intentam revertir la conversió del estat que es produirá a ConversioTipusHelper lin 532 
@@ -81,22 +88,32 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 			}
 		}
 		
+		Date dataInicial = null;
+		if (filtreDto.getDataPeticioIni() != null) {
+			// Corregeix la data final per arribar a les 00:00:00h del dia següent.
+			Calendar c = new GregorianCalendar();
+			c.setTime(filtreDto.getDataPeticioIni());
+			c.set(Calendar.HOUR_OF_DAY, 0);
+			c.set(Calendar.MINUTE, 0);
+			c.set(Calendar.SECOND, 0);
+			c.set(Calendar.MILLISECOND, 0);
+			dataInicial = c.getTime();
+		}
+		
 		Date dataFinal = null;
 		if (filtreDto.getDataPeticioFi() != null) {
 			// Corregeix la data final per arribar a les 00:00:00h del dia següent.
 			Calendar c = new GregorianCalendar();
 			c.setTime(filtreDto.getDataPeticioFi());
-			c.add(Calendar.DATE, 1);
-			c.set(Calendar.HOUR_OF_DAY, 0);
-			c.set(Calendar.MINUTE, 0);
-			c.set(Calendar.SECOND, 0);
-			c.set(Calendar.MILLISECOND, 0);
+			c.set(Calendar.HOUR_OF_DAY, 23);
+			c.set(Calendar.MINUTE, 59);
+			c.set(Calendar.SECOND, 59);
+			c.set(Calendar.MILLISECOND, 999);
 			dataFinal = c.getTime();
 		}
 		
 		paginacioParams.canviaCamp("tipusExpedientNom", "expedient.tipus.nom");
 		paginacioParams.canviaCamp("expedientIdentificador", "expedient.numero");
-//		paginacioParams.canviaCamp("documentNom", ".nomArxiu");
 		
 		 PaginaDto<PortasignaturesDto> pagina = paginacioHelper.toPaginaDto(
 				portasignaturesRepository.findByFiltrePaginat(
@@ -114,8 +131,8 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 						filtreDto.getEstat(),
 						transicio == null,
 						transicio,
-						filtreDto.getDataPeticioIni() == null,
-						filtreDto.getDataPeticioIni(),
+						dataInicial == null,
+						dataInicial,
 						dataFinal == null,
 						dataFinal,
 						paginacioHelper.toSpringDataPageable(paginacioParams)),
