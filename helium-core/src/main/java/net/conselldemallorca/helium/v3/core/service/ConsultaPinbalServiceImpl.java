@@ -114,34 +114,13 @@ public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
 				paginacioParams.getFiltre(),
 				paginacioHelper.toSpringDataPageable(paginacioParams)), PeticioPinbalDto.class);
 		
-//		for (PeticioPinbalDto peticioPinbal : pagina.getContingut() ) {
-//			Document document = documentHelperV3.findDocumentPerInstanciaProcesICodi(
-//					peticioPinbal.getExpedient().getProcessInstanceId(),
-//					peticioPinbal.getDocument().getCodiDocument());
-//			String nom = peticioPinbal.getDocument().getCodiDocument();
-//			if (document != null) {
-//				nom = document.getNom();
-//			}
-//			peticioPinbal.getDocument().setNom(nom);
-//		}
-		
-		// Map per document.id i document.nom
-//		Map<Long, String> documentsMap = new HashMap<Long, String>();
-//		for (PeticioPinbalDto peticioPinbal : pagina.getContingut() ) {
-//			String nom = peticioPinbal.getDocument().getCodiDocument();
-//			if (documentsMap.containsKey(peticioPinbal.getDocument().getId())) {
-//				nom = documentsMap.get(peticioPinbal.getDocument().getId());
-//			} else {
-//				Document document = documentHelperV3.findDocumentPerInstanciaProcesICodi(
-//						peticioPinbal.getExpedient().getProcessInstanceId(),
-//						peticioPinbal.getDocument().getCodiDocument());
-//				if (document != null) {
-//					nom = document.getNom();
-//				}
-//				documentsMap.put(document.getId(), nom);
-//			}
-//			peticioPinbal.getDocument().setNom(nom);
-//		}
+		//HttpMessageNotWritableException: Could not write JSON: Infinite recursion (StackOverflowError) si el docStore forma part de un zip.
+		for (PeticioPinbalDto peticioPinbal : pagina.getContingut() ) {
+			if (peticioPinbal.getDocument()!=null) {
+				peticioPinbal.getDocument().setZips(null);
+				peticioPinbal.getDocument().setCodiDocument(null);
+			}
+		}
 		
 		return pagina;
 	}

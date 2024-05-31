@@ -206,13 +206,14 @@ var panell;
 
 function previsualitzaDocument(expedientId, documentId, anchorElement, extensio) {
 
-	var viewer = $(anchorElement).closest('div').find('.viewer');	
+	var taula = $(anchorElement).closest('div');
+	var viewer = $(taula).find('.viewer');	
 	var iconesPrevis = $("a[name^='previsDocLink']");
 	var hemAcabat = false;
 	
 	if ($(anchorElement).find("i[class*='fa-search']").length>0) {
 		//Estam obrint una previsualització
-		$("a[name^='previsDocLink']").each(function() {
+		$("a[name^='previsDocLink']", taula).each(function() {
 			//El botó actual, passa al estil de ull tancat
 			if ($(this).attr("name").endsWith(documentId)) {
 				$(this).html('<i class="fa fa-file-o fa-stack-2x"></i><i class="fa fa-times fa-stack-1x" title="Ocultar previsualització"></i>');
@@ -224,7 +225,7 @@ function previsualitzaDocument(expedientId, documentId, anchorElement, extensio)
 		});
 	} else {
 		//Estam tancant una previsualització
-		$("a[name^='previsDocLink']").each(function() {
+		$("a[name^='previsDocLink']", taula).each(function() {
 			//El botó actual, passa al estil de ull obert, tancam visor i retornam
 			if ($(this).attr("name").endsWith(documentId)) {
 				$(anchorElement).html('<i class="fa fa-file-o fa-stack-2x"></i><i class="fa fa-search fa-stack-1x" title="Previsualitzar"></i>');
