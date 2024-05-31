@@ -1820,7 +1820,9 @@ public class DocumentHelperV3 {
 				true,
 				(documentStore.getArxiuUuid() == null),
 				null);
-		if (! "pdf".equals(arxiuPerFirmar.getExtensio()) &&  !"zip".equals(arxiuPerFirmar.getExtensio())) {
+		if (! "pdf".equals(arxiuPerFirmar.getExtensio()) 
+				&&  !"zip".equals(arxiuPerFirmar.getExtensio())
+				&& PdfUtils.isArxiuConvertiblePdf(arxiuPerFirmar.getNom())) {
 			// Transforma l'arxiu a PDF
 			arxiuPerFirmar = this.converteixPdf(arxiuPerFirmar);							
 		}
@@ -1829,7 +1831,6 @@ public class DocumentHelperV3 {
 				expedient,
 				documentStore,
 				arxiuPerFirmar,
-				net.conselldemallorca.helium.integracio.plugins.firma.FirmaTipus.PADES,
 				(motiu != null) ? motiu : "Firma en servidor HELIUM");
 
 		if (StringUtils.isEmpty(firma.getTipusFirmaEni()) 
@@ -1862,7 +1863,7 @@ public class DocumentHelperV3 {
 				firma.getTipusFirmaEni(),
 				perfil,
 				firma.getContingut(),
-				arxiuContingut);
+				arxiuContingut != null ? arxiuContingut : arxiuPerFirmar.getContingut());
 	}
 
 	
@@ -1981,23 +1982,15 @@ public class DocumentHelperV3 {
 			{
 				// El document ja està firmat a l'Arxiu, es guarda amb un altre uuid
 				documentStore.setArxiuUuid(null);
-				ContingutArxiu documentCreat = pluginHelper.arxiuDocumentCrearActualitzar(
-						expedient, 
-						documentNom,
-						documentDescripcio, 
-						documentStore, 
-						new ArxiuDto(
-								arxiuNom, 
-								signatura, 
-								arxiuMime));
-				documentStore.setArxiuUuid(documentCreat.getIdentificador());
 
-			} else {
-				// S'actualitza el document existent
-				arxiuFirmat.setNom(arxiuNom);
-				arxiuFirmat.setTipusMime(arxiuMime);
-				arxiuFirmat.setContingut(signatura);
-				pluginHelper.arxiuDocumentGuardarDocumentFirmat(
+			} 
+			// Guarda el document
+			arxiuFirmat.setNom(arxiuNom);
+			arxiuFirmat.setTipusMime(arxiuMime);
+			arxiuFirmat.setContingut(signatura);
+			
+			// Crea o modifica segons si el documentStore té id
+			ContingutArxiu documentCreatModificat = pluginHelper.arxiuDocumentGuardarDocumentFirmat(
 						expedient, 
 						documentStore, 
 						documentNom, 
@@ -2007,7 +2000,10 @@ public class DocumentHelperV3 {
 						tipusFirmaEni, 
 						perfilFirmaEni,
 						arxiuContingut);
-			}
+			
+			// Fixa l'uuid del document
+			documentStore.setArxiuUuid(documentCreatModificat.getIdentificador());
+
 			// Actualitza la informació al document store
 			documentArxiu = pluginHelper.arxiuDocumentInfo(
 					documentStore.getArxiuUuid(),

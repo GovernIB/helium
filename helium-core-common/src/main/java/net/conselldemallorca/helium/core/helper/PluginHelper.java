@@ -2202,7 +2202,6 @@ public class PluginHelper {
 			Expedient expedient,
 			DocumentStore documentStore,
 			ArxiuDto arxiu,
-			net.conselldemallorca.helium.integracio.plugins.firma.FirmaTipus firmaTipus,
 			String motiu) {
 		String accioDescripcio = "Firma en servidor de document";
 		String tipusDocumentalNti = documentStore.getNtiTipoDocumental() != null? documentStore.getNtiTipoDocumental().getValorNti() : "";
