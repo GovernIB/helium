@@ -46,7 +46,7 @@ public ProcessDefinition findSubProcess(Element subProcessElement) {
           
           try {
             int version = Integer.parseInt(subProcessVersion);
-            if (entorn != null & entorn.getId() != null) {
+            if (entorn != null && entorn.getId() != null) {
             	DefinicioProcesDto definicioProces = Jbpm3HeliumBridge.getInstanceService().getDefinicioProcesAmbJbpmKeyIVersio(subProcessName, version);
             	if (definicioProces != null && !definicioProces.getEntorn().getId().equals(entorn.getId()))
             		throw new JpdlException("sub-process not accesible: " + subProcessElement.asXML());

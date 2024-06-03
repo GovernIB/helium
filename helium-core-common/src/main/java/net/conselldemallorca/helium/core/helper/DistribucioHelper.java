@@ -70,6 +70,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra.TipusMapeig;
+import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAnnexEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
@@ -747,6 +748,11 @@ public class DistribucioHelper {
 		Expedient expedient = anotacio.getExpedient();
 		if (expedientTipus != null 
 				&& expedientTipus.isDistribucioProcesAuto()) {
+			
+			// Estableix l'entorn actual si no hi ha entorn al thread actual
+			if (EntornActual.getEntornId() == null) {
+				EntornActual.setEntornId(expedientTipus.getEntorn().getId());
+			}
 			
 			boolean reprocessar = false;
 			if (expedient == null) {
