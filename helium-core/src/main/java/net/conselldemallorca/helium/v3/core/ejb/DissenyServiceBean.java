@@ -382,4 +382,10 @@ public class DissenyServiceBean implements DissenyService {
 	public List<HandlerDto> getHandlersPredefinits() {
 		return delegate.getHandlersPredefinits();
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<DefinicioProcesDto> findByEntornAndExpedientTipusOpcional(Long entornId, Long expedientTipusId) {
+		return delegate.findByEntornAndExpedientTipusOpcional(entornId, expedientTipusId);
+	}
 }
