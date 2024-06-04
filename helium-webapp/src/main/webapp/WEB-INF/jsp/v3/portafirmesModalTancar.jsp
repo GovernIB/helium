@@ -72,9 +72,6 @@ if (fluxIframe) {
 		}
 	
 		if (fluxSuccesDesc != null && fluxSuccesDesc != '') {
-			var newOption = new Option(fluxCreatedNom, idTransaccioFlux, true, true);
-			$modalFlux.find('#'+selectFluxNom).append(newOption);
-			$modalFlux.find('#'+selectFluxNom).val(idTransaccioFlux).trigger('change');
 			//desactivar botó de visualitzar
 			$modalFlux.find('.'+selectFluxNom+'_btn_addicional').attr('disabled', true);
 			alerta = fluxSuccesDesc;
