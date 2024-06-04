@@ -19,9 +19,9 @@ public class ExpedientConsultaDissenyDto {
 	private Map<String, DadaIndexadaDto> dadesExpedient;
 
 	public String getEstat() {
-		if (!dadesExpedient.containsKey(ExpedientCamps.EXPEDIENT_CAMP_ESTAT_JSP))
-			return null;
-		return dadesExpedient.get(ExpedientCamps.EXPEDIENT_CAMP_ESTAT_JSP).getValorMostrar();
+		return dadesExpedient.containsKey(ExpedientCamps.EXPEDIENT_CAMP_ESTAT) ?
+				dadesExpedient.get(ExpedientCamps.EXPEDIENT_CAMP_ESTAT).getValorMostrar()
+				: null;
 	}
 
 	public String getComentariAnulat() {

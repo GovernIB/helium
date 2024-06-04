@@ -152,7 +152,7 @@ public class ConsultaHelper {
 			text = df.format(expedient.getDataFi());
 		} else if (ExpedientCamps.EXPEDIENT_CAMP_NIF.equals(campCodi)) {
 			text = expedient.getInteressatsNifs("</br>");
-		} else if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT_JSP.equals(campCodi)) {
+		} else if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT.equals(campCodi)) {
 			if (expedient.getDataFi() != null)
 				text = messageHelper.getMessage("expedient.consulta.finalitzat");
 			else if (expedient.getEstat() != null)

@@ -288,9 +288,9 @@ $(document).ready(function() {
 					</script>
 				</th>
 				<c:forEach var="camp" items="${campsInforme}" varStatus="status">
-					<th <c:if test="${camp.varCodi == 'expedient__exp__estat'}">data-rdt-template="cellEstatTemplate"</c:if> data-rdt-property="dadesExpedient.${camp.varCodi}.valorMostrar" data-visible=true >
+					<th <c:if test="${camp.varCodi == 'expedient\$estat'}">data-rdt-template="cellEstatTemplate"</c:if> data-rdt-property="dadesExpedient.${camp.varCodi}.valorMostrar" data-visible=true >
 					${camp.campEtiqueta}
-					<c:if test="${camp.varCodi == 'expedient__exp__estat'}">
+					<c:if test="${camp.varCodi == 'expedient\$estat'}">
 						<script id="cellEstatTemplate" type="text/x-jsrender">
 							{{if finalitzat}}
 								<spring:message code="comu.estat.finalitzat"/>

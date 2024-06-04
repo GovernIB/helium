@@ -686,7 +686,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 			for (String clau: dadesExpedient.getDadesExpedient().keySet()) {
 				DadaIndexadaDto dada = dadesExpedient.getDadesExpedient().get(clau);
 				String fieldName = dada.getReportFieldName();
-				if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT_JSP.equals(clau)) 
+				if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT.equals(clau)) 
 					fieldName = ExpedientCamps.EXPEDIENT_CAMP_ESTAT.replace('$', '%');
 				mapFila.put(fieldName, toReportField(request, expedient, dada));
 			}
@@ -712,7 +712,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 				dadaIndex.getEtiqueta());
 		if (!dadaIndex.isMultiple()) {
 			field.setValor(dadaIndex.getValor());
-			if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT_JSP.equals(field.getCampCodi())) {
+			if (ExpedientCamps.EXPEDIENT_CAMP_ESTAT.equals(field.getCampCodi())) {
 				if (expedient.getDataFi() != null) {
 					field.setValorMostrar(getMessage(request, "expedient.consulta.finalitzat"));
 				} else {
