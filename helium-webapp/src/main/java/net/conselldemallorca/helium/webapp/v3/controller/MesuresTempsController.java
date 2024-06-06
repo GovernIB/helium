@@ -13,23 +13,18 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.conselldemallorca.helium.v3.core.api.dto.IntervalEventDto;
-import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
-import net.conselldemallorca.helium.v3.core.api.service.AdminService;
-import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.usermodel.HSSFRichTextString;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.springframework.stereotype.Controller;
@@ -37,6 +32,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import net.conselldemallorca.helium.v3.core.api.dto.IntervalEventDto;
+import net.conselldemallorca.helium.v3.core.api.dto.MesuraTemporalDto;
+import net.conselldemallorca.helium.v3.core.api.service.AdminService;
+import net.conselldemallorca.helium.webapp.mvc.util.BaseController;
 
 /**
  * Controlador per a la pàgina inicial (index).
@@ -51,16 +51,16 @@ public class MesuresTempsController extends BaseController {
 	private AdminService adminService;
 
 	// Variables exportació
-	private HSSFWorkbook wb;
-	private HSSFCellStyle headerStyle;
-	private HSSFCellStyle cellStyle;
-	private HSSFCellStyle style;
-	private HSSFCellStyle dStyle;
-	private HSSFFont bold;
-	private HSSFCellStyle cellGreyStyle;
-	private HSSFCellStyle greyStyle;
-	private HSSFCellStyle dGreyStyle;
-	private HSSFFont greyFont;
+	private XSSFWorkbook wb;
+	private XSSFCellStyle headerStyle;
+	private XSSFCellStyle cellStyle;
+	private XSSFCellStyle style;
+	private XSSFCellStyle dStyle;
+	private XSSFFont bold;
+	private XSSFCellStyle cellGreyStyle;
+	private XSSFCellStyle greyStyle;
+	private XSSFCellStyle dGreyStyle;
+	private XSSFFont greyFont;
 	
 	@RequestMapping(method = RequestMethod.GET)
 	public String get(
@@ -167,13 +167,13 @@ public class MesuresTempsController extends BaseController {
 		mesures.addAll(adminService.getHibernateStatistics("", true));
 		logger.debug("[TEMPS] >>>>>>>> Obtenció de mesures de temps Hibernate..." + (mesures.size() - numMesures) + " mesures.");
 
-		wb = new HSSFWorkbook();
+		wb = new XSSFWorkbook();
 
 		bold = wb.createFont();
-		bold.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
-		bold.setColor(HSSFColor.WHITE.index);
+		bold.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
+		bold.setColor(IndexedColors.WHITE.getIndex());
 		greyFont = wb.createFont();
-		greyFont.setColor(HSSFColor.GREY_50_PERCENT.index);
+		greyFont.setColor(IndexedColors.GREY_50_PERCENT.getIndex());
 
 		cellStyle = wb.createCellStyle();
 		cellStyle.setDataFormat(wb.getCreationHelper().createDataFormat().getFormat("dd/MM/yyyy HH:mm"));
@@ -183,10 +183,9 @@ public class MesuresTempsController extends BaseController {
 		cellGreyStyle.setWrapText(true);
 		cellGreyStyle.setFont(greyFont);
 
-
 		headerStyle = wb.createCellStyle();
-		headerStyle.setFillPattern(HSSFCellStyle.FINE_DOTS);
-		headerStyle.setFillBackgroundColor(HSSFColor.BLUE_GREY.index);
+		headerStyle.setFillPattern(XSSFCellStyle.FINE_DOTS);
+		headerStyle.setFillBackgroundColor(IndexedColors.BLUE_GREY.getIndex());
 		headerStyle.setFont(bold);
 
 		style = wb.createCellStyle();
@@ -202,7 +201,7 @@ public class MesuresTempsController extends BaseController {
 		dGreyStyle.setDataFormat(format.getFormat("0.00"));
 
 		// GENERAL
-		HSSFSheet sheet = wb.createSheet("Mesures de temps");
+		XSSFSheet sheet = wb.createSheet("Mesures de temps");
 		sheet.setColumnWidth(0, 15000);
 		sheet.setColumnWidth(1, 3000);
 		sheet.setColumnWidth(2, 3000);
@@ -218,11 +217,11 @@ public class MesuresTempsController extends BaseController {
 
 		for (MesuraTemporalDto mesura: mesures) {
 			try {
-				HSSFRow xlsRow = sheet.createRow(rowNum++);
+				XSSFRow xlsRow = sheet.createRow(rowNum++);
 				int colNum = 0;
 
-				HSSFCell cell = xlsRow.createCell(colNum++);
-				cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(mesura.getNom())));
+				XSSFCell cell = xlsRow.createCell(colNum++);
+				cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(mesura.getNom())));
 				cell.setCellStyle(style);
 
 				cell = xlsRow.createCell(colNum++);
@@ -257,7 +256,7 @@ public class MesuresTempsController extends BaseController {
 				if ("Consultas Helium".equals(mesura.getClau()) || "Consultas Jbpm".equals(mesura.getClau())) {
 
 					int rowNumSeries = 0;
-					HSSFSheet sheetSeries;
+					XSSFSheet sheetSeries;
 					try {
 						String llibre = mesura.getClau().replaceAll("[]*/\\?:()]+", "-");
 						if (llibre.length() > 31) {
@@ -277,23 +276,23 @@ public class MesuresTempsController extends BaseController {
 					xlsRow = sheetSeries.createRow(rowNumSeries++);
 
 					cell = xlsRow.createCell(0);
-					cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage("temps.clau"))));
+					cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.clau"))));
 					cell.setCellStyle(headerStyle);
 
 					cell = xlsRow.createCell(1);
-					cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage("temps.minima"))));
+					cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.minima"))));
 					cell.setCellStyle(headerStyle);
 
 					cell = xlsRow.createCell(2);
-					cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage("temps.maxima"))));
+					cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.maxima"))));
 					cell.setCellStyle(headerStyle);
 
 					cell = xlsRow.createCell(3);
-					cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage("temps.numMesures"))));
+					cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.numMesures"))));
 					cell.setCellStyle(headerStyle);
 
 					cell = xlsRow.createCell(4);
-					cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage("temps.mitja"))));
+					cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.mitja"))));
 					cell.setCellStyle(headerStyle);
 
 					List<MesuraTemporalDto> listStatistics = new ArrayList<MesuraTemporalDto>();
@@ -347,20 +346,20 @@ public class MesuresTempsController extends BaseController {
 
 		for (MesuraTemporalDto mesura: mesuresTipusExpedient) {
 			try {
-				HSSFRow xlsRow = sheet.createRow(rowNum++);
+				XSSFRow xlsRow = sheet.createRow(rowNum++);
 				int colNum = 0;
 
 				String nom = mesura.getNomTE();
-				HSSFCellStyle st = style;
-				HSSFCellStyle dSt = dStyle;
+				XSSFCellStyle st = style;
+				XSSFCellStyle dSt = dStyle;
 				if (mesura.getDetall() != null) {
 					nom = " |---" + nom;
 					st = greyStyle;
 					dSt = dGreyStyle;
 				}
 
-				HSSFCell cell = xlsRow.createCell(colNum++);
-				cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(nom)));
+				XSSFCell cell = xlsRow.createCell(colNum++);
+				cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(nom)));
 				cell.setCellStyle(st);
 
 				cell = xlsRow.createCell(colNum++);
@@ -415,20 +414,20 @@ public class MesuresTempsController extends BaseController {
 
 		for (MesuraTemporalDto mesura: mesuresTasca) {
 			try {
-				HSSFRow xlsRow = sheet.createRow(rowNum++);
+				XSSFRow xlsRow = sheet.createRow(rowNum++);
 				int colNum = 0;
 
 				String nom = mesura.getNom();
-				HSSFCellStyle st = style;
-				HSSFCellStyle dSt = dStyle;
+				XSSFCellStyle st = style;
+				XSSFCellStyle dSt = dStyle;
 				if (mesura.getDetall() != null) {
 					nom = " |---" + nom;
 					st = greyStyle;
 					dSt = dGreyStyle;
 				}
 
-				HSSFCell cell = xlsRow.createCell(colNum++);
-				cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(nom)));
+				XSSFCell cell = xlsRow.createCell(colNum++);
+				cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(nom)));
 				cell.setCellStyle(st);
 
 				cell = xlsRow.createCell(colNum++);
@@ -474,43 +473,43 @@ public class MesuresTempsController extends BaseController {
 		}
 	}
 
-	private void createHeader(HSSFSheet sheet) {
+	private void createHeader(XSSFSheet sheet) {
 		int rowNum = 0;
 		int colNum = 0;
 
 		// Capçalera
-		HSSFRow xlsRow = sheet.createRow(rowNum++);
+		XSSFRow xlsRow = sheet.createRow(rowNum++);
 
-		HSSFCell cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage("temps.clau"))));
+		XSSFCell cell = xlsRow.createCell(colNum++);
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.clau"))));
 		cell.setCellStyle(headerStyle);
 
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage("temps.darrera"))));
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.darrera"))));
 		cell.setCellStyle(headerStyle);
 
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage("temps.minima"))));
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.minima"))));
 		cell.setCellStyle(headerStyle);
 
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage("temps.maxima"))));
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.maxima"))));
 		cell.setCellStyle(headerStyle);
 
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage("temps.numMesures"))));
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.numMesures"))));
 		cell.setCellStyle(headerStyle);
 
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage("temps.mitja"))));
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.mitja"))));
 		cell.setCellStyle(headerStyle);
 
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage("temps.periode"))));
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.periode"))));
 		cell.setCellStyle(headerStyle);
 
 		cell = xlsRow.createCell(colNum);
-		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage("temps.pes"))));
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage("temps.pes"))));
 		cell.setCellStyle(headerStyle);
 	}
 	

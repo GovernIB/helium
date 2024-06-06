@@ -239,16 +239,17 @@
 			<artifactId>groovy-all</artifactId>
 			<version>1.5.5</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.poi</groupId>
-			<artifactId>poi</artifactId>
+		<dependency> 
+			<groupId>org.apache.poi</groupId> 
+			<artifactId>poi-ooxml</artifactId> 
 			<version>3.7</version>
+			<exclusions>
+				<exclusion>
+					<groupId>stax</groupId>
+					<artifactId>stax-api</artifactId> 	
+				</exclusion> 
+			</exclusions>
 		</dependency>
-		<!--dependency>
-		    <groupId>org.slf4j</groupId>
-		    <artifactId>slf4j-log4j12</artifactId>
-		    <version>${slf4j.version}</version>
-		</dependency-->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>

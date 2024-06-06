@@ -15,14 +15,14 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.usermodel.HSSFRichTextString;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.displaytag.Messages;
 import org.displaytag.exception.BaseNestableJspTagException;
 import org.displaytag.exception.SeverityEnum;
@@ -36,7 +36,7 @@ import org.displaytag.model.RowIterator;
 import org.displaytag.model.TableModel;
 
 /**
- * Exportació de dades per Displaytag emprant HSSF
+ * Exportació de dades per Displaytag emprant XSSF
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -91,8 +91,8 @@ public class HeliumHssfExportView implements BinaryExportView {
     {
         try
         {
-            HSSFWorkbook wb = new HSSFWorkbook();
-            HSSFSheet sheet = wb.createSheet("-");
+            XSSFWorkbook wb = new XSSFWorkbook();
+            XSSFSheet sheet = wb.createSheet("-");
 
             int rowNum = 0;
             int colNum = 0;
@@ -100,14 +100,14 @@ public class HeliumHssfExportView implements BinaryExportView {
             if (this.header)
             {
                 // Create an header row
-                HSSFRow xlsRow = sheet.createRow(rowNum++);
+                XSSFRow xlsRow = sheet.createRow(rowNum++);
 
-                HSSFCellStyle headerStyle = wb.createCellStyle();
-                headerStyle.setFillPattern(HSSFCellStyle.FINE_DOTS);
-                headerStyle.setFillBackgroundColor(HSSFColor.BLUE_GREY.index);
-                HSSFFont bold = wb.createFont();
-                bold.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
-                bold.setColor(HSSFColor.WHITE.index);
+                XSSFCellStyle headerStyle = wb.createCellStyle();
+                headerStyle.setFillPattern(XSSFCellStyle.FINE_DOTS);
+                headerStyle.setFillBackgroundColor(IndexedColors.BLUE_GREY.getIndex());
+                XSSFFont bold = wb.createFont();
+                bold.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
+                bold.setColor(IndexedColors.WHITE.getIndex());
                 headerStyle.setFont(bold);
 
                 Iterator iterator = this.model.getHeaderCellList().iterator();
@@ -123,8 +123,8 @@ public class HeliumHssfExportView implements BinaryExportView {
                         columnHeader = StringUtils.capitalize(headerCell.getBeanPropertyName());
                     }
 
-                    HSSFCell cell = xlsRow.createCell(colNum++);
-                    cell.setCellValue(new HSSFRichTextString(columnHeader));
+                    XSSFCell cell = xlsRow.createCell(colNum++);
+                    cell.setCellValue(new XSSFRichTextString(columnHeader));
                     cell.setCellStyle(headerStyle);
                 }
             }
@@ -136,7 +136,7 @@ public class HeliumHssfExportView implements BinaryExportView {
             while (rowIterator.hasNext())
             {
                 Row row = rowIterator.next();
-                HSSFRow xlsRow = sheet.createRow(rowNum++);
+                XSSFRow xlsRow = sheet.createRow(rowNum++);
                 colNum = 0;
 
                 // iterator on columns
@@ -148,7 +148,7 @@ public class HeliumHssfExportView implements BinaryExportView {
 
                     // Get the value to be displayed for the column
                     Object value = column.getValue(this.decorated);
-                    HSSFCell cell = xlsRow.createCell(colNum++);
+                    XSSFCell cell = xlsRow.createCell(colNum++);
                     writeCell(value, cell, wb);
                 }
             }
@@ -174,7 +174,7 @@ public class HeliumHssfExportView implements BinaryExportView {
      * @param value the value of the cell
      * @param cell the cell to write it to
      */
-	protected void writeCell(Object value, HSSFCell cell, HSSFWorkbook wb)
+	protected void writeCell(Object value, XSSFCell cell, XSSFWorkbook wb)
     {
         if (value instanceof Number)
         {
@@ -183,11 +183,11 @@ public class HeliumHssfExportView implements BinaryExportView {
         }
         else if (value instanceof Date)
         {
-        	HSSFCellStyle cellStyle = wb.createCellStyle();
+        	XSSFCellStyle cellStyle = wb.createCellStyle();
 		    cellStyle.setDataFormat(
 		    		wb.getCreationHelper().createDataFormat().getFormat("dd/MM/yyyy HH:mm"));
 		    cell.setCellStyle(cellStyle);
-			cell.setCellType(HSSFCell.CELL_TYPE_NUMERIC);
+			cell.setCellType(XSSFCell.CELL_TYPE_NUMERIC);
             cell.setCellValue((Date) value);
         }
         else if (value instanceof Calendar)
@@ -196,7 +196,7 @@ public class HeliumHssfExportView implements BinaryExportView {
         }
         else
         {
-            cell.setCellValue(new HSSFRichTextString(escapeColumnValue(value)));
+            cell.setCellValue(new XSSFRichTextString(escapeColumnValue(value)));
         }
     }
 
@@ -291,7 +291,7 @@ public class HeliumHssfExportView implements BinaryExportView {
     }
 	
 	/*@Override
-	protected void writeCell(Object value, HSSFCell cell) {
+	protected void writeCell(Object value, XSSFCell cell) {
 		if (value instanceof Number) {
 			Number num = (Number)value;
 			cell.setCellValue(num.doubleValue());
@@ -307,7 +307,7 @@ public class HeliumHssfExportView implements BinaryExportView {
 		} else if (value instanceof Calendar) {
 			cell.setCellValue((Calendar)value);
 		} else {
-			cell.setCellValue(new HSSFRichTextString(escapeColumnValue(value)));
+			cell.setCellValue(new XSSFRichTextString(escapeColumnValue(value)));
 		}
 	}*/
 

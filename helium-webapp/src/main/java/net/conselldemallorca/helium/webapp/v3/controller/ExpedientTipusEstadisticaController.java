@@ -14,15 +14,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.usermodel.HSSFRichTextString;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -308,23 +308,23 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 			List<ExpedientTipusDto> expedientsTipus
 			) {
 		
-		HSSFWorkbook wb;
-		HSSFCellStyle cellStyle;
-		HSSFCellStyle dStyle;
-		HSSFFont bold;
-		HSSFCellStyle cellGreyStyle;
-		HSSFCellStyle greyStyle;
-		HSSFCellStyle dGreyStyle;
-		HSSFFont greyFont;
-		wb = new HSSFWorkbook();
+		XSSFWorkbook wb;
+		XSSFCellStyle cellStyle;
+		XSSFCellStyle dStyle;
+		XSSFFont bold;
+		XSSFCellStyle cellGreyStyle;
+		XSSFCellStyle greyStyle;
+		XSSFCellStyle dGreyStyle;
+		XSSFFont greyFont;
+		wb = new XSSFWorkbook();
 	
 		bold = wb.createFont();
-		bold.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
-		bold.setColor(HSSFColor.WHITE.index);
+		bold.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
+		bold.setColor(IndexedColors.WHITE.getIndex());
 		
 		greyFont = wb.createFont();
-		greyFont.setColor(HSSFColor.GREY_25_PERCENT.index);
-		greyFont.setCharSet(HSSFFont.ANSI_CHARSET);
+		greyFont.setColor(IndexedColors.GREY_25_PERCENT.getIndex());
+		greyFont.setCharSet(XSSFFont.ANSI_CHARSET);
 		
 		cellStyle = wb.createCellStyle();
 		cellStyle.setDataFormat(wb.getCreationHelper().createDataFormat().getFormat("dd/MM/yyyy HH:mm"));
@@ -345,45 +345,45 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		dGreyStyle = wb.createCellStyle();
 		dGreyStyle.setFont(greyFont);
 		dGreyStyle.setDataFormat(format.getFormat("0.00"));
-		HSSFSheet sheet = wb.createSheet("Hoja 1");
+		XSSFSheet sheet = wb.createSheet("Hoja 1");
 		
-		HSSFFont deaderBold;
+		XSSFFont deaderBold;
 		deaderBold = wb.createFont();
-		deaderBold.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
-		deaderBold.setColor(HSSFColor.WHITE.index);
-		HSSFCellStyle headerStyle;
+		deaderBold.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
+		deaderBold.setColor(IndexedColors.WHITE.getIndex());
+		XSSFCellStyle headerStyle;
 		headerStyle = wb.createCellStyle();
-		headerStyle.setFillPattern(HSSFCellStyle.FINE_DOTS);
-		headerStyle.setFillBackgroundColor(HSSFColor.GREY_80_PERCENT.index);
+		headerStyle.setFillPattern(XSSFCellStyle.FINE_DOTS);
+		headerStyle.setFillBackgroundColor(IndexedColors.GREY_80_PERCENT.getIndex());
 		headerStyle.setFont(deaderBold);
 		
-		HSSFFont boldFont = wb.createFont();
-		boldFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
-		HSSFCellStyle boldText = wb.createCellStyle();
+		XSSFFont boldFont = wb.createFont();
+		boldFont.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
+		XSSFCellStyle boldText = wb.createCellStyle();
 		boldText.setFont(boldFont);
 		
 		int rowNum = 0;
 		int colNum = 0;
 		// Capçalera
-		HSSFRow xlsRow = sheet.createRow(rowNum++);
-		HSSFCell cell;
+		XSSFRow xlsRow = sheet.createRow(rowNum++);
+		XSSFCell cell;
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize("Codi")));
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize("Codi")));
 		cell.setCellStyle(headerStyle);
 		sheet.autoSizeColumn(colNum);
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize("Tipus d'expedient")));
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize("Tipus d'expedient")));
 		sheet.autoSizeColumn(colNum);
 		cell.setCellStyle(headerStyle);
 		for (String any : (TreeSet<String>) estadistica.get("anys")) {
 			sheet.autoSizeColumn(colNum);
 			cell = xlsRow.createCell(colNum++);
-			cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(any)));
+			cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(any)));
 			cell.setCellStyle(headerStyle);
 		}
 		
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize("Total tipus")));
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize("Total tipus")));
 		sheet.autoSizeColumn(colNum);
 		cell.setCellStyle(headerStyle);
 		
@@ -397,10 +397,10 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 			colNum = 0;
 			xlsRow = sheet.createRow(rowNum++);
 			cell = xlsRow.createCell(colNum++);
-			cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(expTip.getCodi())));
+			cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(expTip.getCodi())));
 			sheet.autoSizeColumn(colNum);
 			cell = xlsRow.createCell(colNum++);
-			cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(expTip.getNom())));
+			cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(expTip.getNom())));
 			sheet.autoSizeColumn(colNum);
 			
 			for (String any : (TreeSet<String>) estadistica.get("anys")) {
@@ -419,7 +419,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		colNum = 0;
 		xlsRow = sheet.createRow(rowNum++);
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize("Total per any")));
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize("Total per any")));
 		cell.setCellStyle(headerStyle);
 		sheet.autoSizeColumn(colNum);
 		cell = xlsRow.createCell(colNum++);

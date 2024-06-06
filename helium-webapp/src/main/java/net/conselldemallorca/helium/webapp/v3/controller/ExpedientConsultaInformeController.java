@@ -30,15 +30,16 @@ import javax.validation.Valid;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.usermodel.HSSFRichTextString;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -371,23 +372,23 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 		
 		List<TascaDadaDto> informeCamps = expedientService.findConsultaInforme(consultaId);
 		
-		HSSFWorkbook wb;
-		HSSFCellStyle cellStyle;
-		HSSFCellStyle dStyle;
-		HSSFFont bold;
-		HSSFCellStyle cellGreyStyle;
-		HSSFCellStyle greyStyle;
-		HSSFCellStyle dGreyStyle;
-		HSSFFont greyFont;
-		wb = new HSSFWorkbook();
+		XSSFWorkbook wb;
+		XSSFCellStyle cellStyle;
+		XSSFCellStyle dStyle;
+		XSSFFont bold;
+		XSSFCellStyle cellGreyStyle;
+		XSSFCellStyle greyStyle;
+		XSSFCellStyle dGreyStyle;
+		XSSFFont greyFont;
+		wb = new XSSFWorkbook();
 	
 		bold = wb.createFont();
-		bold.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
-		bold.setColor(HSSFColor.WHITE.index);
+		bold.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
+		bold.setColor(IndexedColors.WHITE.getIndex());
 		
 		greyFont = wb.createFont();
-		greyFont.setColor(HSSFColor.GREY_25_PERCENT.index);
-		greyFont.setCharSet(HSSFFont.ANSI_CHARSET);
+		greyFont.setColor(IndexedColors.GREY_25_PERCENT.getIndex());
+		greyFont.setCharSet(XSSFFont.ANSI_CHARSET);
 		
 		cellStyle = wb.createCellStyle();
 		cellStyle.setDataFormat(wb.getCreationHelper().createDataFormat().getFormat("dd/MM/yyyy HH:mm"));
@@ -408,7 +409,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 		dGreyStyle = wb.createCellStyle();
 		dGreyStyle.setFont(greyFont);
 		dGreyStyle.setDataFormat(format.getFormat("0.00"));
-		HSSFSheet sheet = wb.createSheet("Hoja 1");
+		XSSFSheet sheet = wb.createSheet("Hoja 1");
 		if (!expedientsConsultaDissenyDto.isEmpty())
 			createHeader(
 					wb,
@@ -418,7 +419,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 		int colNum = 0;
 		for (ExpedientConsultaDissenyDto  expedientConsultaDissenyDto : expedientsConsultaDissenyDto) {
 			try {
-				HSSFRow xlsRow = sheet.createRow(rowNum++);
+				XSSFRow xlsRow = sheet.createRow(rowNum++);
 				colNum = 0;
 				ExpedientDto exp = expedientConsultaDissenyDto.getExpedient();
 				Map<String, DadaIndexadaDto> dades = expedientConsultaDissenyDto.getDadesExpedient();
@@ -432,7 +433,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 		    		if (titol.length() == 0)
 		    			titol = exp.getNumeroDefault();
 				}
-				HSSFCell cell = xlsRow.createCell(colNum++);
+				XSSFCell cell = xlsRow.createCell(colNum++);
 				cell.setCellValue(titol);
 				cell.setCellStyle(dStyle);
 
@@ -441,7 +442,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 						DadaIndexadaDto dada = dades.get(camp.getVarCodi());
 						cell = xlsRow.createCell(colNum++);
 						if (camp.getCampTipus().equals(CampTipusDto.INTEGER) || camp.getCampTipus().equals(CampTipusDto.FLOAT) || camp.getCampTipus().equals(CampTipusDto.PRICE) ) {
-							cell.setCellType(HSSFCell.CELL_TYPE_NUMERIC);
+							cell.setCellType(XSSFCell.CELL_TYPE_NUMERIC);
 							if(dada.getValor() != null) {
 								if( camp.getCampTipus().equals(CampTipusDto.INTEGER)) {
 									cell.setCellValue((Long) dada.getValor());
@@ -482,30 +483,30 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 	}
 
 	private void createHeader(
-			HSSFWorkbook wb,
-			HSSFSheet sheet,
+			XSSFWorkbook wb,
+			XSSFSheet sheet,
 			List<TascaDadaDto> informeCamps) {
-		HSSFFont bold;
+		XSSFFont bold;
 		bold = wb.createFont();
-		bold.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
-		bold.setColor(HSSFColor.WHITE.index);
-		HSSFCellStyle headerStyle;
+		bold.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
+		bold.setColor(IndexedColors.WHITE.getIndex());
+		XSSFCellStyle headerStyle;
 		headerStyle = wb.createCellStyle();
-		headerStyle.setFillPattern(HSSFCellStyle.FINE_DOTS);
-		headerStyle.setFillBackgroundColor(HSSFColor.GREY_80_PERCENT.index);
+		headerStyle.setFillPattern(XSSFCellStyle.FINE_DOTS);
+		headerStyle.setFillBackgroundColor(IndexedColors.GREY_80_PERCENT.getIndex());
 		headerStyle.setFont(bold);
 		int rowNum = 0;
 		int colNum = 0;
 		// Capçalera
-		HSSFRow xlsRow = sheet.createRow(rowNum++);
-		HSSFCell cell;
+		XSSFRow xlsRow = sheet.createRow(rowNum++);
+		XSSFCell cell;
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize("Expedient")));
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize("Expedient")));
 		cell.setCellStyle(headerStyle);
 		for (TascaDadaDto camp : informeCamps) {
 			sheet.autoSizeColumn(colNum);
 			cell = xlsRow.createCell(colNum++);
-			cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(camp.getCampEtiqueta())));
+			cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(camp.getCampEtiqueta())));
 			cell.setCellStyle(headerStyle);
 		}
 	}
