@@ -134,9 +134,19 @@
 								<span class="fa fa-university" title="{{:destiCodiAndNom}}" style="float:left"></span>&nbsp;
 							{{/if}} 
 							{{:expedientTipus.codi}}
-							<span class="fa fa-info-circle" 
-								title="{{:expedientTipus.codi}} - {{:expedientTipus.nom}} 
-(Entorn {{:expedientTipus.entorn.codi}} - {{:expedientTipus.entorn.nom}})"></span> 
+							{{if expedientTipus.distribucioProcesAuto == true }}	
+								<span class="fa fa-info-circle" style="color:#337ab7"
+									title="{{:expedientTipus.codi}} - {{:expedientTipus.nom}} 
+(Entorn {{:expedientTipus.entorn.codi}} - {{:expedientTipus.entorn.nom}}) 
+(automàtic)">
+								</span> 
+							{{else}}
+								<span class="fa fa-info-circle"
+									title="{{:expedientTipus.codi}} - {{:expedientTipus.nom}} 
+(Entorn {{:expedientTipus.entorn.codi}} - {{:expedientTipus.entorn.nom}})
+(manual)">
+								</span> 
+							{{/if}}
 						</span>
 							 
 						{{/if}}
