@@ -5,22 +5,33 @@ package net.conselldemallorca.helium.core.helper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.springframework.stereotype.Component;
+import javax.annotation.Resource;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
+import net.conselldemallorca.helium.core.model.hibernate.PeticioPinbal;
 import net.conselldemallorca.helium.core.util.EntornActual;
+import net.conselldemallorca.helium.integracio.plugins.pinbal.DadesConsultaPinbal;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalEstatEnum;
+import net.conselldemallorca.helium.v3.core.repository.PeticioPinbalRepository;
 
 /**
  * Mètodes per a la gestió d'integracions.
@@ -30,6 +41,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 @Component
 public class MonitorIntegracioHelper {
 
+	@Resource private PeticioPinbalRepository peticioPinbalRepository;	
+	
 	public static final int MAX_ACCIONS_PER_INTEGRACIO = 50;
 
 	public static final String INTCODI_PERSONA = "PERSONA";
@@ -164,6 +177,29 @@ public class MonitorIntegracioHelper {
 				parametres);
 	}
 
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
+	public void guardaPeticioPinbalAmbError(
+			Expedient expedient,
+			DadesConsultaPinbal dadesConsultaPinbal,
+			Exception ex) {
+		//Cream la petició pinbal per el historic de peticions
+		PeticioPinbal peticio = new PeticioPinbal();
+		peticio.setDataPeticio(Calendar.getInstance().getTime());
+		peticio.setAsincrona(dadesConsultaPinbal.isAsincrona());
+		peticio.setEstat(PeticioPinbalEstatEnum.ERROR);
+		peticio.setExpedient(expedient);
+		peticio.setTipus(expedient.getTipus());
+		peticio.setEntorn(expedient.getTipus().getEntorn());
+		peticio.setProcediment(dadesConsultaPinbal.getCodiProcediment());
+		peticio.setUsuari(SecurityContextHolder.getContext().getAuthentication().getName());
+		String traca = ExceptionUtils.getStackTrace(ex);
+		if (traca.length()>4000) {
+			traca = traca.substring(0, 4000);
+		}
+		peticio.setErrorMsg(traca);
+		peticioPinbalRepository.save(peticio);
+//		peticioPinbalRepository.flush();
+	}	
 
 	private List<IntegracioDto> getLlistaIntegracions() {
 		List<IntegracioDto> integracions = new ArrayList<IntegracioDto>();

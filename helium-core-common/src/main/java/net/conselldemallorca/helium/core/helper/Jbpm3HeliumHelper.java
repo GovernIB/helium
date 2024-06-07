@@ -121,7 +121,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio.NotificacioEstat;
 import net.conselldemallorca.helium.v3.core.api.dto.ScspAtributos;
 import net.conselldemallorca.helium.v3.core.api.dto.ScspConfirmacioPeticioPinbal;
-import net.conselldemallorca.helium.v3.core.api.dto.ScspEstado;
 import net.conselldemallorca.helium.v3.core.api.dto.ScspJustificant;
 import net.conselldemallorca.helium.v3.core.api.dto.ScspRespostaPinbal;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
@@ -1833,7 +1832,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						justificant.getContingut());
 			}			
 		}
-		guardaPeticioPinbal(
+		guardaPeticioPinbalSenseError(
 				expedient,
 				documentStoreRepository.findOne(documentStoreJusificantId),
 				dadesConsultaPinbal,
@@ -1944,7 +1943,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			}
 		}
 		
-		guardaPeticioPinbal(
+		guardaPeticioPinbalSenseError(
 				expedient,
 				documentStoreRepository.findOne(documentStoreJusificantId),
 				dadesConsultaPinbal,
@@ -1956,7 +1955,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		return respostaPinbal;
 	}
 
-	private void guardaPeticioPinbal(
+	private void guardaPeticioPinbalSenseError(
 			Expedient expedient,
 			DocumentStore justificant,
 			DadesConsultaPinbalDto dadesConsultaPinbal,
@@ -2080,7 +2079,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			}
 		}
 		
-		guardaPeticioPinbal(
+		guardaPeticioPinbalSenseError(
 				expedient,
 				documentStoreRepository.findOne(documentStoreJusificantId),
 				dadesConsultaPinbal,
@@ -2185,7 +2184,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			}
 		}
 		
-		guardaPeticioPinbal(
+		guardaPeticioPinbalSenseError(
 				expedient,
 				documentStoreRepository.findOne(documentStoreJusificantId),
 				dadesConsultaPinbal,
