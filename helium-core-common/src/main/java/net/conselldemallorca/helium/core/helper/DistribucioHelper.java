@@ -820,7 +820,10 @@ public class DistribucioHelper {
 					} catch(Exception ed) {
 						logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
 					}
-					throw new Exception(errorProcessament);
+					String traçaCompleta = ExceptionUtils.getStackTrace(e);
+					errorProcessament.concat(traçaCompleta);
+					throw new Exception(errorProcessament + ": "
+							+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
 				}				
 				if (resultatMapeig != null && resultatMapeig.isError()) {
 					Alerta alerta = alertaHelper.crearAlerta(
@@ -971,7 +974,11 @@ public class DistribucioHelper {
 			// Reprocessa l'anotació
 			this.processarAnotacio(idWs, anotacioRegistreEntrada, anotacio, backofficeUtils);//aquí ja es comunica l'error i el canvi d'estat a Distribució
 		} catch (Throwable e) {
-			throw new Exception(e);
+			String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e;
+			String traçaCompleta = ExceptionUtils.getStackTrace(e);
+			errorProcessament.concat(traçaCompleta);
+			throw new Exception(errorProcessament + ": "
+					+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
 		}
 		return anotacio;
 	}
