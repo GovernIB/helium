@@ -5020,6 +5020,7 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
+			monitorIntegracioHelper.guardaPeticioPinbalAmbError(expedient, dadesConsultaPinbal, ex);
 			throw tractarExcepcioEnSistemaExtern(
 					MonitorIntegracioHelper.INTCODI_PINBAL,
 					errorDescripcio, 

@@ -42,7 +42,7 @@ public class PeticioPinbal implements Serializable, GenericEntity<Long> {
 	@JoinColumn(name="EXPEDIENT_ID")
 	@ForeignKey(name="HEL_PETICIO_EXPEDIENT_FK")
 	private Expedient expedient;
-	@ManyToOne(optional=false)
+	@ManyToOne
 	@JoinColumn(name="DOCUMENT_ID")
 	private DocumentStore document;
 	@Column(name="TOKEN_ID")

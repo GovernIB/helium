@@ -472,14 +472,13 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					"", 
 					ex.getCause());
 		} catch (ValidationException ex) {
-			throw new TramitacioValidacioException("Error de validació en Handler", ex);
+			throw new TramitacioValidacioException("Error de validació en Handler: " +ex.getMessage(), ex);
 		} catch (HibernateJdbcException e) {
 				throw new Exception(messageHelper.getMessage("error.proces.peticio") + ": "
 				+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
-		}catch (Exception e) {
-			Throwable t = ExceptionUtils.getRootCause(e) != null? ExceptionUtils.getCause(e) : e ;
+		}catch (Throwable e) {
 			throw new Exception(messageHelper.getMessage("error.proces.peticio") + ": "
-					+ ExceptionUtils.getRootCauseMessage(e), t);
+					+ ExceptionUtils.getStackTrace(e));
 		} 
 	}
 

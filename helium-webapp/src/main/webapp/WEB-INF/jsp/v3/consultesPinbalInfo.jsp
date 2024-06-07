@@ -37,7 +37,7 @@
 			<dd>${peticioPinbalDto.pinbalId}</dd>
 			
 			<dt><spring:message code="consultes.pinbal.camp.document"/></dt>
-			<dd>${peticioPinbalDto.document.arxiuNom}</dd>
+			<dd><c:if test="${peticioPinbalDto.document!=null}">${peticioPinbalDto.document.arxiuNom}</c:if></dd>
 			
 			<dt><spring:message code="consultes.pinbal.camp.estat"/></dt>
 			<dd>${peticioPinbalDto.estat}</dd>			
@@ -52,13 +52,13 @@
 					<dt><spring:message code="consultes.pinbal.camp.dataProcessamentDarrer"/></dt>
 					<dd><fmt:formatDate value="${peticioPinbalDto.dataProcessamentDarrer}" pattern="dd/MM/yyyy HH:mm:ss"/></dd>
 			</c:if>
-			
-			<c:if test="${not empty peticioPinbalDto.errorMsg}">
-				<dt><spring:message code="consultes.pinbal.camp.error"/></dt>
-				<dd>${peticioPinbalDto.errorMsg}</dd>
-			</c:if>
-			
 		</dl>
+		
+		<c:if test="${not empty peticioPinbalDto.errorMsg}">
+			<div class="panel-body" >
+				<pre style="height:300px">${peticioPinbalDto.errorMsg}</pre>
+			</div>
+		</c:if>
 		<c:if test="${not empty peticioPinbalDto.errorProcessament}">
 			<div class="panel-body" >
 				<pre style="height:300px">${peticioPinbalDto.errorProcessament}</pre>
