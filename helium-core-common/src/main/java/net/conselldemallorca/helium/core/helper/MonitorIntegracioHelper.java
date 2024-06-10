@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -192,13 +193,20 @@ public class MonitorIntegracioHelper {
 		peticio.setEntorn(expedient.getTipus().getEntorn());
 		peticio.setProcediment(dadesConsultaPinbal.getCodiProcediment());
 		peticio.setUsuari(SecurityContextHolder.getContext().getAuthentication().getName());
-		String traca = ExceptionUtils.getStackTrace(ex);
-		if (traca.length()>4000) {
-			traca = traca.substring(0, 4000);
-		}
-		peticio.setErrorMsg(traca);
+
+//		String traca = ExceptionUtils.getStackTrace(ex);		
+//		byte[] inputBytes = traca.getBytes(StandardCharsets.UTF_8);
+//		if (inputBytes.length>4000) {
+//			int cutOffIndex = 4000;
+//			while (cutOffIndex > 0 && (inputBytes[cutOffIndex] & 0xC0) == 0x80) {
+//				cutOffIndex--;
+//			}
+//			traca = new String(inputBytes, 0, cutOffIndex, StandardCharsets.UTF_8);
+//		}
+//		peticio.setErrorMsg(traca);
+
+		peticio.setErrorMsg(ExceptionUtils.getStackTrace(ex));
 		peticioPinbalRepository.save(peticio);
-//		peticioPinbalRepository.flush();
 	}	
 
 	private List<IntegracioDto> getLlistaIntegracions() {

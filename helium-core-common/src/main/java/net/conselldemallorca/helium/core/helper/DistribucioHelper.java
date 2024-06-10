@@ -821,8 +821,7 @@ public class DistribucioHelper {
 						logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
 					}
 					String traçaCompleta = ExceptionUtils.getStackTrace(e);
-					errorProcessament.concat(traçaCompleta);
-					throw new Exception(errorProcessament + ": "
+					throw new Exception(errorProcessament.concat(traçaCompleta) + ": "
 							+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
 				}				
 				if (resultatMapeig != null && resultatMapeig.isError()) {
@@ -976,8 +975,7 @@ public class DistribucioHelper {
 		} catch (Throwable e) {
 			String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e;
 			String traçaCompleta = ExceptionUtils.getStackTrace(e);
-			errorProcessament.concat(traçaCompleta);
-			throw new Exception(errorProcessament + ": "
+			throw new Exception(errorProcessament.concat(traçaCompleta) + ": "
 					+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
 		}
 		return anotacio;
