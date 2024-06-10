@@ -38,7 +38,9 @@ public class PeticioPinbalDto implements Serializable {
 		return expedient.getId();
 	}
 	public Long getDocumentId() {
-		return document.getId();
+		if (document!=null)
+			return document.getId();
+		return null;
 	}	
 	public void setId(Long id) {
 		this.id = id;

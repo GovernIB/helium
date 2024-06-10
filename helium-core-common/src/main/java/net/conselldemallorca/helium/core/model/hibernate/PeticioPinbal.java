@@ -11,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
@@ -57,7 +58,7 @@ public class PeticioPinbal implements Serializable, GenericEntity<Long> {
 	private boolean asincrona=false;
 	@Enumerated(EnumType.STRING)
 	private PeticioPinbalEstatEnum estat;
-	@MaxLength(4000)
+	@Lob
 	@Column(name="ERROR_MSG")
 	private String errorMsg;
 	@MaxLength(64)
@@ -77,7 +78,7 @@ public class PeticioPinbal implements Serializable, GenericEntity<Long> {
 	private Date dataProcessamentPrimer;
 	@Column(name="DATA_PROCESSAMENT_DARRER")
 	private Date dataProcessamentDarrer;
-	@MaxLength(4000)
+	@Lob
 	@Column(name="ERROR_PROCESSAMENT")
 	private String errorProcessament;
 	
