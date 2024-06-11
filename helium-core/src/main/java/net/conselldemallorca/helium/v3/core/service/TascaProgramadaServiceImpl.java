@@ -103,6 +103,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	private NotificacioRepository notificacioRepository;
 	@Autowired
 	private ExecucioMassivaService execucioMassivaService;
+	@Autowired
 	private ProcedimentService procedimentService;
 	@Resource
 	private ParametreService parametreService;
