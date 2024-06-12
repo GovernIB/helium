@@ -25,6 +25,20 @@
 	<script src="<c:url value="/js/webutil.datatable.js"/>"></script>
 	<script src="<c:url value="/js/webutil.modal.js"/>"></script>
 	<hel:modalHead/>
+
+	<script>
+	// <![CDATA[
+
+		$(document).ready(function() {
+			
+			$("#netejar").click(function() {
+				$('#codiUnitatSuperior').val('').change();
+				$('#estat').val('VIGENTE').change();
+			})
+		});
+		
+		// ]]>
+		</script>	
 </head>
 <body>
 	<div class="text-right" data-toggle="botons-titol">
@@ -68,6 +82,7 @@
 	<table	id="taulaDades"
 			data-toggle="datatable"
 			data-url="unitatOrganitzativa/datatable"
+			data-filter="#unitatOrganitzativaCommand"
 			data-paging-enabled="true"
 			data-info-type="button"
 			data-ordering="true"

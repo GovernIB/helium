@@ -27,6 +27,22 @@
 	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 	<script src="<c:url value="/js/webutil.datatable.js"/>"></script>
 	<script src="<c:url value="/js/webutil.modal.js"/>"></script>	
+
+	<script type="text/javascript">
+	// <![CDATA[
+
+	$(document).ready(function() {
+		
+		$("#netejar").click(function() {
+			$('#tipusId').val('').change();
+			$('#usuari').val('').change();
+			$('#estat').val('').change();
+		})
+		
+	});
+	// ]]>
+	</script>	
+	
 </head>
 <body>
 
@@ -96,6 +112,7 @@
 	<table	id="consultesPinbalDatatable"
 			data-toggle="datatable"
 			data-url="consultesPinbal/datatable"
+			data-filter="#consultesPinbalFiltreCommand"
 			data-paging-enabled="true"
 			data-ordering="true"
 			data-default-order="2"
@@ -167,13 +184,6 @@
 				</div>
 			</div>
 		</div>
-	</div>	
-	
-	<script type="text/javascript">
-	// <![CDATA[
-		$(document).ready(function() {});
-	// ]]>
-	</script>	
-
+	</div>
 </body>
 </html>

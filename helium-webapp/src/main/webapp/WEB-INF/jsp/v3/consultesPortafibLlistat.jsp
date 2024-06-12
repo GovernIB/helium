@@ -26,6 +26,21 @@
 	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 	<script src="<c:url value="/js/webutil.datatable.js"/>"></script>
 	<script src="<c:url value="/js/webutil.modal.js"/>"></script>	
+
+	<script type="text/javascript">
+	// <![CDATA[
+
+	$(document).ready(function() {
+		
+		$("#netejar").click(function() {
+			$('#tipusId').val('').change();
+			$('#estat').val('').change();
+		})
+		
+	});
+	// ]]>
+	</script>	
+
 </head>
 <body>
 
@@ -83,6 +98,7 @@
 	<table	id="consultesPortafibDatatable"
 			data-toggle="datatable"
 			data-url="enviamentsPortafib/datatable"
+			data-filter="#consultesPortafibFiltreCommand"
 			data-paging-enabled="true"
 			data-ordering="true"
 			data-default-order="2"

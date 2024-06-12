@@ -97,8 +97,7 @@ public class ProcedimentController extends BaseController{
 				request, 
 				procedimentService.findAmbFiltre(
 						ProcedimentFiltreCommand.asDto(procedimentFiltreCommand), 
-						DatatablesHelper.getPaginacioDtoFromRequest(request)), 
-				SESSION_ATTRIBUTE_SELECCIO);
+						DatatablesHelper.getPaginacioDtoFromRequest(request)));
 	}
 	
 	private ProcedimentFiltreCommand getFiltreCommand(
