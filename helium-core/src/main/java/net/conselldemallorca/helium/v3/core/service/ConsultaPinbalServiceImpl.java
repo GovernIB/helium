@@ -8,6 +8,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,7 @@ import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.hibernate.PeticioPinbal;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -26,6 +29,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ConsultaPinbalService;
+import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
 import net.conselldemallorca.helium.v3.core.repository.PeticioPinbalRepository;
 
 @Service
@@ -37,6 +41,7 @@ public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
 	@Resource private UsuariActualHelper usuariActualHelper;
 	@Resource private ExpedientHelper expedientHelper;
 	@Resource private DocumentHelperV3 documentHelperV3;
+	@Resource private PersonaRepository personaRepository;
 	
 	@Override
 	@Transactional(readOnly=true)
@@ -116,6 +121,17 @@ public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
 		
 		//HttpMessageNotWritableException: Could not write JSON: Infinite recursion (StackOverflowError) si el docStore forma part de un zip.
 		for (PeticioPinbalDto peticioPinbal : pagina.getContingut() ) {
+			if(peticioPinbal.getErrorMsg()!=null) {
+				String errMsgSenseCaractersHtml = peticioPinbal.getErrorMsg().replace("<", "");
+				peticioPinbal.setErrorMsg(errMsgSenseCaractersHtml.replace(">", ""));
+			}
+			if(peticioPinbal.getUsuari()!=null) {
+//				Authentication authentication =  new UsernamePasswordAuthenticationToken(peticioPinbal.getUsuari(), null);
+//				SecurityContextHolder.getContext().setAuthentication(authentication);
+				Persona persona = personaRepository.findByCodi(peticioPinbal.getUsuari());
+				if(persona!=null)
+					peticioPinbal.setUsuari(persona.getNomSencer());
+			}
 			if (peticioPinbal.getDocument()!=null) {
 				peticioPinbal.getDocument().setZips(null);
 				peticioPinbal.getDocument().setCodiDocument(null);

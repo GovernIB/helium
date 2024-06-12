@@ -27,6 +27,22 @@
 	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 	<script src="<c:url value="/js/webutil.datatable.js"/>"></script>
 	<script src="<c:url value="/js/webutil.modal.js"/>"></script>	
+
+	<script type="text/javascript">
+	// <![CDATA[
+
+	$(document).ready(function() {
+		
+		$("#netejar").click(function() {
+			$('#tipusId').val('').change();
+			$('#usuari').val('').change();
+			$('#estat').val('').change();
+		})
+		
+	});
+	// ]]>
+	</script>	
+	
 </head>
 <body>
 
@@ -54,16 +70,12 @@
 	
 	<div class="row">
 		<div class="col-md-4">
-			<hel:inputSelect
-				name="usuari"
-				emptyOption="true" 
-				textKey="consultes.pinbal.camp.usuari"
-				placeholderKey="consultes.pinbal.camp.usuari"
-				optionItems="${persones}"
-				optionValueAttribute="codi"
-				optionTextAttribute="nomSencer"
-				disabled="${empty persones}"
-				inline="true"/>
+			<hel:inputSuggest 
+				inline="true" 
+				name="usuari" 
+				urlConsultaInicial="/helium/v3/tasca/persona/suggestInici" 
+				urlConsultaLlistat="/helium/v3/tasca/persona/suggest" 
+				placeholderKey="consultes.pinbal.camp.usuari"/>		
 		</div>
 		<div class="col-md-2">
 			<hel:inputDate name="dataPeticioIni" textKey="anotacio.llistat.filtre.camp.dataInicial" placeholderKey="consultes.potafib.camp.filtreDesde" inline="true"/>
@@ -96,6 +108,7 @@
 	<table	id="consultesPinbalDatatable"
 			data-toggle="datatable"
 			data-url="consultesPinbal/datatable"
+			data-filter="#consultesPinbalFiltreCommand"
 			data-paging-enabled="true"
 			data-ordering="true"
 			data-default-order="2"
@@ -167,13 +180,6 @@
 				</div>
 			</div>
 		</div>
-	</div>	
-	
-	<script type="text/javascript">
-	// <![CDATA[
-		$(document).ready(function() {});
-	// ]]>
-	</script>	
-
+	</div>
 </body>
 </html>
