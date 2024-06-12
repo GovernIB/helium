@@ -271,6 +271,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 				for (Long expedientId : dto.getExpedientIds()) {
 					Expedient expedient = expedientRepository.findOne(expedientId);
 					ExecucioMassivaExpedient eme = new ExecucioMassivaExpedient(execucioMassiva, expedient, ordre++);
+					if (ExecucioMassivaTipus.ANULAR.equals(execucioMassiva.getTipus())) {
+						eme.setAuxText(dto.getAuxText());
+					}
 					execucioMassiva.addExpedient(eme);
 					expedients = true;
 					if (expedientTipus == null && expedient != null)
@@ -947,6 +950,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 			label = messageHelper.getMessage("expedient.massiva.anotacions.reintentar.processament");
 		} else if (tipus.equals(ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS)) {
 			label = messageHelper.getMessage("expedient.massiva.anotacions.reintentar.processament.nomes.annexos");
+		} else if (tipus.equals(ExecucioMassivaTipus.ANULAR)) {
+			label = messageHelper.getMessage("expedient.eines.anular_expedients");			
 		} else {
 			label = tipus.name();
 		}
@@ -1157,6 +1162,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 				mesuresTemporalsHelper.mesuraIniciar("Reintentar processament només annexos anotacions", "massiva", expedient_s);
 				reintentarProcessamentAnotacionsNomesAnnexos(ome);
 				mesuresTemporalsHelper.mesuraCalcular("Reintentar processament només annexos anotacions", "massiva", expedient_s);	
+			} else if (tipus == ExecucioMassivaTipus.ANULAR) {
+				mesuresTemporalsHelper.mesuraIniciar("Anular expedient", "massiva", expedient_s);
+				anularExpedient(ome);
+				mesuresTemporalsHelper.mesuraCalcular("Anular expedient", "massiva", expedient_s);	
 			}
 			SecurityContextHolder.getContext().setAuthentication(orgAuthentication);
 		} catch (Exception ex) {
@@ -1949,6 +1958,20 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 		try {
 			ome.setDataInici(new Date());
 			expedientService.finalitzar(exp.getId());
+			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
+			ome.setDataFi(new Date());
+			execucioMassivaExpedientRepository.save(ome);
+		} catch (Exception ex) {
+			logger.error("OPERACIO:" + ome.getId() + ". No s'ha pogut finalitzar l'expedient", ex);
+			throw ex;
+		}
+	}
+	
+	private void anularExpedient(ExecucioMassivaExpedient ome) throws Exception {
+		Expedient exp = ome.getExpedient();
+		try {
+			ome.setDataInici(new Date());
+			expedientService.anular(exp.getId(), ome.getAuxText());
 			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
 			ome.setDataFi(new Date());
 			execucioMassivaExpedientRepository.save(ome);
