@@ -192,8 +192,21 @@ public class PinbalConsultaGenericaHandler extends BasicActionHandler implements
 			dadesConsultaPinbal.setXmlDadesEspecifiques(dadesEspecifiquesXml);
 		}
 		
-		dadesConsultaPinbal.setTransicioOK(varTransicioOK);
-		dadesConsultaPinbal.setTransicioKO(varTransicioKO);
+		dadesConsultaPinbal.setTransicioOK((String)getValorOVariable(
+				executionContext,
+				this.transicioOK,
+				this.varTransicioOK));
+
+		dadesConsultaPinbal.setTransicioKO((String)getValorOVariable(
+				executionContext,
+				this.transicioKO,
+				this.varTransicioKO));
+
+		Boolean asincrona = getValorOVariableBoolean(
+                executionContext,
+                this.asincrona,
+                this.varAsincrona);
+		dadesConsultaPinbal.setAsincrona(asincrona);
 		
 		Object resposta = super.consultaPinbal(
 				dadesConsultaPinbal,
@@ -484,11 +497,11 @@ public class PinbalConsultaGenericaHandler extends BasicActionHandler implements
 	}
 	
 	public void setVarAsincrona(String varAsincrona) {
-		this.setVarAsincrona(varAsincrona);
+		this.varAsincrona = varAsincrona;
 	}
 	
 	public void setTransicioOK(String transicioOK) {
-		this.setTransicioOK(transicioOK);
+		this.transicioOK = transicioOK;
 	}
 
 	public void setVarTransicioOK(String varTransicioOK) {
@@ -500,7 +513,7 @@ public class PinbalConsultaGenericaHandler extends BasicActionHandler implements
 	}
 
 	public void setTransicioKO(String transicioKO) {
-		this.setVarTransicioKO(transicioKO);	
+		this.varTransicioKO = transicioKO;	
 	}
 	
 	
