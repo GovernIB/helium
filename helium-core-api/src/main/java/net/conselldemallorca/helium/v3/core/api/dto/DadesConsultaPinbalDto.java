@@ -1,6 +1,3 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
 
@@ -25,6 +22,7 @@ public class DadesConsultaPinbalDto {
 	private String codiProcediment;
 	private String entitat_CIF;
 	private String unitatTramitadora;
+	private String anyNaixement;
 
 	public enum consentiment {
 		SI,
@@ -127,5 +125,12 @@ public class DadesConsultaPinbalDto {
 		this.unitatTramitadora = unitatTramitadora;
 	}
 
+	public String getAnyNaixement() {
+		return anyNaixement;
+	}
+
+	public void setAnyNaixement(String anyNaixement) {
+		this.anyNaixement = anyNaixement;
+	}
 
 }

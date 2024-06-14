@@ -1,6 +1,3 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.jbpm3.handlers.tipus;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -21,6 +18,7 @@ public class DadesConsultaPinbal {
 	private String serveiCodi;
 	private String interessatCodi;
 	private String finalitat;
+	private String anyNaixement;
 
 	public enum consentiment {
 		SI,
@@ -98,5 +96,12 @@ public class DadesConsultaPinbal {
 		this.consentiment = consentiment;
 	}
 
+	public String getAnyNaixement() {
+		return anyNaixement;
+	}
+
+	public void setAnyNaixement(String anyNaixement) {
+		this.anyNaixement = anyNaixement;
+	}
 
 }
