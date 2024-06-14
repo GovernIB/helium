@@ -308,6 +308,9 @@ public class ConversioTipusHelper {
 		}
 		dadesDto.setTransicioOK(dadesConsultaPinbal.getTransicioOK());
 		dadesDto.setTransicioKO(dadesConsultaPinbal.getTransicioKO());
+		if(dadesConsultaPinbal.getAnyNaixement()!=null) {
+			dadesDto.setAnyNaixement(dadesConsultaPinbal.getAnyNaixement());
+		}
 		return dadesDto;	
 	}
 

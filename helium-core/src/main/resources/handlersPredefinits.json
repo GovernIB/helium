@@ -2091,6 +2091,22 @@
     "varParam" : "varConsentiment",
     "varParamDesc" : "Variable que conté el valor pel consentiment."
   }, {
+	"codi": "titularTipusDocumentacio",
+    "nom" : "Tipus documentacó titular",
+    "obligatori" : true,
+    "param" : "titularTipusDocumentacio",
+    "paramDesc" : "Camp per indicar el tipus de documentació. Els possibles valors són: 'DNI', 'NIE', 'NIF', 'Passaport' i 'Altres'.",
+    "varParam" : "varTitularTipusDocumentacio",
+    "varParamDesc" : "Variable que conté el valor pel tipus de documentació."
+  }, {
+	"codi": "titularDocumentacio",
+    "nom" : "Documentació titular",
+    "obligatori" : false,
+    "param" : "titularDocumentacio",
+    "paramDesc" : "Text amb el valor de la documentació del titular.",
+    "varParam" : "varParam",
+    "varParamDesc" : "Codi de la variable que conté el valor de la documentació del titular interessat."
+  }, {
 	"codi": "interessatCodi",
     "nom" : "Codi interessat",
     "obligatori" : false,
@@ -2122,22 +2138,6 @@
     "paramDesc" : "Llinatge 2 del titular.",
     "varParam" : "varTitularLlinatge2",
     "varParamDesc" : "Codi de la variable que conté el segon llinatge del titular interessat."
-  }, {
-	"codi": "titularTipusDocumentacio",
-    "nom" : "Tipus documentacó titular",
-    "obligatori" : true,
-    "param" : "titularTipusDocumentacio",
-    "paramDesc" : "Camp per indicar el tipus de documentació. Els possibles valors són: 'DNI', 'NIE', 'NIF', 'Passaport' i 'Altres'.",
-    "varParam" : "varTitularTipusDocumentacio",
-    "varParamDesc" : "Variable que conté el valor pel tipus de documentació."
-  }, {
-	"codi": "titularDocumentacio",
-    "nom" : "Documentació titular",
-    "obligatori" : false,
-    "param" : "titularDocumentacio",
-    "paramDesc" : "Text amb el valor de la documentació del titular.",
-    "varParam" : "varParam",
-    "varParamDesc" : "Codi de la variable que conté el valor de la documentació del titular interessat."
   }, {
 	"codi": "dadesEspecifiques",
     "nom" : "Dades específiques",
@@ -2204,37 +2204,13 @@
     "varParam" : "varConsentiment",
     "varParamDesc" : "Variable que conté el valor pel consentiment."
   }, {
-	"codi": "interessatCodi",
-    "nom" : "Codi interessat",
-    "obligatori" : false,
-    "param" : "interessatCodi",
-    "paramDesc" : "Codi de l'interessat per informar les dades del titular. Si no es té interessat es poden informar els paràmetres del titular.",
-    "varParam" : "varInteressatCodi",
-    "varParamDesc" : "Codi de la variable que conté el codi de l'interessat per informar les dades del titular."
-  }, {
-	"codi": "titularNom",
-    "nom" : "Nom titular",
-    "obligatori" : false,
-    "param" : "titularNom",
-    "paramDesc" : "Nom del titular.",
-    "varParam" : "varTitularNom",
-    "varParamDesc" : "Codi de la variable que conté el nom del titular interessat."
-  }, {
-	"codi": "titularLlinatge1",
-    "nom" : "Llinatge1 titular",
-    "obligatori" : false,
-    "param" : "titularLlinatge1",
-    "paramDesc" : "Llinatge 1 del titular.",
-    "varParam" : "varTitularLlinatge1",
-    "varParamDesc" : "Codi de la variable que conté el primer llinatge del titular interessat."
-  }, {
-	"codi": "titularLlinatge2",
-    "nom" : "Llinatge2 titular",
-    "obligatori" : false,
-    "param" : "titularLlinatge2",
-    "paramDesc" : "Llinatge 2 del titular.",
-    "varParam" : "varTitularLlinatge2",
-    "varParamDesc" : "Codi de la variable que conté el segon llinatge del titular interessat."
+  	"codi": "anyNaixement",
+    "nom" : "Any de naixement del Titular",
+    "obligatori" : true,
+    "param" : "anyNaixement",
+    "paramDesc" : "Indica l'any de naixement del titular",
+    "varParam" : "varAnyNaixement",
+    "varParamDesc" : "Variable que indica l'any de naixement del titular."
   }, {
 	"codi": "titularTipusDocumentacio",
     "nom" : "Tipus documentacó titular",
@@ -2251,7 +2227,39 @@
     "paramDesc" : "Text amb el valor de la documentació del titular.",
     "varParam" : "varParam",
     "varParamDesc" : "Codi de la variable que conté el valor de la documentació del titular interessat."
-    }, {
+  }, {
+	"codi": "titularLlinatge1",
+    "nom" : "Llinatge1 titular",
+    "obligatori" : true,
+    "param" : "titularLlinatge1",
+    "paramDesc" : "Llinatge 1 del titular.",
+    "varParam" : "varTitularLlinatge1",
+    "varParamDesc" : "Codi de la variable que conté el primer llinatge del titular interessat."
+  }, {
+	"codi": "titularLlinatge2",
+    "nom" : "Llinatge2 titular",
+    "obligatori" : false,
+    "param" : "titularLlinatge2",
+    "paramDesc" : "Llinatge 2 del titular.",
+    "varParam" : "varTitularLlinatge2",
+    "varParamDesc" : "Codi de la variable que conté el segon llinatge del titular interessat."
+  }, {
+	"codi": "titularNom",
+    "nom" : "Nom titular",
+    "obligatori" : false,
+    "param" : "titularNom",
+    "paramDesc" : "Nom del titular.",
+    "varParam" : "varTitularNom",
+    "varParamDesc" : "Codi de la variable que conté el nom del titular interessat."
+  }, {
+	"codi": "interessatCodi",
+    "nom" : "Codi interessat",
+    "obligatori" : false,
+    "param" : "interessatCodi",
+    "paramDesc" : "Codi de l'interessat per informar les dades del titular. Si no es té interessat es poden informar els paràmetres del titular.",
+    "varParam" : "varInteressatCodi",
+    "varParamDesc" : "Codi de la variable que conté el codi de l'interessat per informar les dades del titular."
+  }, {
   	"codi": "asincrona",
     "nom" : "Consulta asíncrona",
     "obligatori" : false,
@@ -2309,38 +2317,6 @@
     "varParam" : "varConsentiment",
     "varParamDesc" : "Variable que conté el valor pel consentiment."
   }, {
-	"codi": "interessatCodi",
-    "nom" : "Codi interessat",
-    "obligatori" : false,
-    "param" : "interessatCodi",
-    "paramDesc" : "Codi de l'interessat per informar les dades del titular. Si no es té interessat es poden informar els paràmetres del titular.",
-    "varParam" : "varInteressatCodi",
-    "varParamDesc" : "Codi de la variable que conté el codi de l'interessat per informar les dades del titular."
-  }, {
-	"codi": "titularNom",
-    "nom" : "Nom titular",
-    "obligatori" : false,
-    "param" : "titularNom",
-    "paramDesc" : "Nom del titular.",
-    "varParam" : "varTitularNom",
-    "varParamDesc" : "Codi de la variable que conté el nom del titular interessat."
-  }, {
-	"codi": "titularLlinatge1",
-    "nom" : "Llinatge1 titular",
-    "obligatori" : false,
-    "param" : "titularLlinatge1",
-    "paramDesc" : "Llinatge 1 del titular.",
-    "varParam" : "varTitularLlinatge1",
-    "varParamDesc" : "Codi de la variable que conté el primer llinatge del titular interessat."
-  }, {
-	"codi": "titularLlinatge2",
-    "nom" : "Llinatge2 titular",
-    "obligatori" : false,
-    "param" : "titularLlinatge2",
-    "paramDesc" : "Llinatge 2 del titular.",
-    "varParam" : "varTitularLlinatge2",
-    "varParamDesc" : "Codi de la variable que conté el segon llinatge del titular interessat."
-  }, {
 	"codi": "titularTipusDocumentacio",
     "nom" : "Tipus documentacó titular",
     "obligatori" : true,
@@ -2357,6 +2333,38 @@
     "varParam" : "varParam",
     "varParamDesc" : "Codi de la variable que conté el valor de la documentació del titular interessat."
    }, {
+	"codi": "titularLlinatge1",
+    "nom" : "Llinatge1 titular",
+    "obligatori" : false,
+    "param" : "titularLlinatge1",
+    "paramDesc" : "Llinatge 1 del titular.",
+    "varParam" : "varTitularLlinatge1",
+    "varParamDesc" : "Codi de la variable que conté el primer llinatge del titular interessat."
+  }, {
+	"codi": "titularLlinatge2",
+    "nom" : "Llinatge2 titular",
+    "obligatori" : false,
+    "param" : "titularLlinatge2",
+    "paramDesc" : "Llinatge 2 del titular.",
+    "varParam" : "varTitularLlinatge2",
+    "varParamDesc" : "Codi de la variable que conté el segon llinatge del titular interessat."
+  }, {
+	"codi": "titularNom",
+    "nom" : "Nom titular",
+    "obligatori" : false,
+    "param" : "titularNom",
+    "paramDesc" : "Nom del titular.",
+    "varParam" : "varTitularNom",
+    "varParamDesc" : "Codi de la variable que conté el nom del titular interessat."
+  }, {
+	"codi": "interessatCodi",
+    "nom" : "Codi interessat",
+    "obligatori" : false,
+    "param" : "interessatCodi",
+    "paramDesc" : "Codi de l'interessat per informar les dades del titular. Si no es té interessat es poden informar els paràmetres del titular.",
+    "varParam" : "varInteressatCodi",
+    "varParamDesc" : "Codi de la variable que conté el codi de l'interessat per informar les dades del titular."
+  }, {
   	"codi": "asincrona",
     "nom" : "Consulta asíncrona",
     "obligatori" : false,
@@ -2414,6 +2422,22 @@
     "varParam" : "varConsentiment",
     "varParamDesc" : "Variable que conté el valor pel consentiment."
   }, {
+	"codi": "titularTipusDocumentacio",
+    "nom" : "Tipus documentacó titular",
+    "obligatori" : true,
+    "param" : "titularTipusDocumentacio",
+    "paramDesc" : "Camp per indicar el tipus de documentació. Els possibles valors són: 'DNI', 'NIE', 'NIF', 'Passaport' i 'Altres'.",
+    "varParam" : "varTitularTipusDocumentacio",
+    "varParamDesc" : "Variable que conté el valor pel tipus de documentació."
+  }, {
+	"codi": "titularDocumentacio",
+    "nom" : "Documentació titular",
+    "obligatori" : false,
+    "param" : "titularDocumentacio",
+    "paramDesc" : "Text amb el valor de la documentació del titular.",
+    "varParam" : "varParam",
+    "varParamDesc" : "Codi de la variable que conté el valor de la documentació del titular interessat."
+    }, {
 	"codi": "interessatCodi",
     "nom" : "Codi interessat",
     "obligatori" : false,
@@ -2446,22 +2470,6 @@
     "varParam" : "varTitularLlinatge2",
     "varParamDesc" : "Codi de la variable que conté el segon llinatge del titular interessat."
   }, {
-	"codi": "titularTipusDocumentacio",
-    "nom" : "Tipus documentacó titular",
-    "obligatori" : true,
-    "param" : "titularTipusDocumentacio",
-    "paramDesc" : "Camp per indicar el tipus de documentació. Els possibles valors són: 'DNI', 'NIE', 'NIF', 'Passaport' i 'Altres'.",
-    "varParam" : "varTitularTipusDocumentacio",
-    "varParamDesc" : "Variable que conté el valor pel tipus de documentació."
-  }, {
-	"codi": "titularDocumentacio",
-    "nom" : "Documentació titular",
-    "obligatori" : false,
-    "param" : "titularDocumentacio",
-    "paramDesc" : "Text amb el valor de la documentació del titular.",
-    "varParam" : "varParam",
-    "varParamDesc" : "Codi de la variable que conté el valor de la documentació del titular interessat."
-    }, {
   	"codi": "asincrona",
     "nom" : "Consulta asíncrona",
     "obligatori" : false,

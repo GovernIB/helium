@@ -25,6 +25,7 @@ public class DadesConsultaPinbal {
 	private String entitat_CIF;
 	private String unitatTramitadora;
 	private boolean asincrona;
+	private String anyNaixement;
 	
 
 	public enum consentiment {
@@ -160,6 +161,14 @@ public class DadesConsultaPinbal {
 
 	public void setAsincrona(boolean asincrona) {
 		this.asincrona = asincrona;
+	}
+
+	public String getAnyNaixement() {
+		return anyNaixement;
+	}
+
+	public void setAnyNaixement(String anyNaixement) {
+		this.anyNaixement = anyNaixement;
 	}
 	
 

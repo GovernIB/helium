@@ -22,6 +22,7 @@ public class DadesConsultaPinbal {
 	private boolean asincrona;
 	private String	transicioOK;
 	private String	transicioKO;
+	private String anyNaixement;
 
 	public enum consentiment {
 		SI,
@@ -145,4 +146,14 @@ public class DadesConsultaPinbal {
 	public void setTransicioKO(String transicioKO) {
 		this.transicioKO = transicioKO;
 	}
+
+	public String getAnyNaixement() {
+		return anyNaixement;
+	}
+
+	public void setAnyNaixement(String anyNaixement) {
+		this.anyNaixement = anyNaixement;
+	}
+	
+	
 }
