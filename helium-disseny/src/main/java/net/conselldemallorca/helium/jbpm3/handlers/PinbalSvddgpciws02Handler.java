@@ -40,7 +40,8 @@ public class PinbalSvddgpciws02Handler extends net.conselldemallorca.helium.jbpm
 
 	}
 	
-
+	public void setVarAnyNaixement(String varAnyNaixement) {}
+	public void setAnyNaixement(String anyNaixement) {}
 
 	
 }

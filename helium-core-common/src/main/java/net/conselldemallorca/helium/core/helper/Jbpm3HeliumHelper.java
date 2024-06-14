@@ -2265,7 +2265,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				dadesDto.getCodiProcediment(), 
 				dadesDto.getEntitat_CIF(),
 				dadesDto.getUnitatTramitadora(),
-				dadesDto.isAsincrona());
+				dadesDto.isAsincrona(),
+				dadesDto.getAnyNaixement());
 	}
 	
 	private String abreuja(String text, int maxim) {

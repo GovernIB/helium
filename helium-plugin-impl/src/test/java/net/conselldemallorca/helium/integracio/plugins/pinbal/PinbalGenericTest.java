@@ -81,7 +81,8 @@ public class PinbalGenericTest {
 				CODIGO_PROCEDIMIENTO, 
 				ENTITAT_CIF,
 				null, 
-				false);
+				false,
+				null);
 		
 		ScspRespostaPinbal respuestaPlugin = (ScspRespostaPinbal) pinbalPlugin.peticioClientPinbalGeneric(dadesConsulta);
 		assertNotNull(respuestaPlugin);

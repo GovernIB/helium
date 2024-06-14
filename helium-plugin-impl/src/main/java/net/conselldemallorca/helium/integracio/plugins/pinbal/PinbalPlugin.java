@@ -129,7 +129,7 @@ public class PinbalPlugin implements PinbalPluginInterface {
 			solicitud.setFinalidad(dadesConsultaPinbal.getFinalitat());
 			solicitud.setConsentimiento(compararConsentiment(dadesConsultaPinbal.getConsentiment()));		
 		}
-
+		solicitud.setAnioNacimiento(dadesConsultaPinbal.getAnyNaixement());
 		solicitud.setIdentificadorSolicitante(dadesConsultaPinbal.getEntitat_CIF());
 		solicitud.setCodigoProcedimiento(dadesConsultaPinbal.getCodiProcediment());
 		solicitud.setUnidadTramitadora(dadesConsultaPinbal.getUnitatTramitadora());
@@ -192,7 +192,7 @@ public class PinbalPlugin implements PinbalPluginInterface {
 			solicitud.setFinalidad(dadesConsultaPinbal.getFinalitat());
 			solicitud.setConsentimiento(compararConsentiment(dadesConsultaPinbal.getConsentiment()));		
 		}
-		
+//		solicitud.setAnioNacimiento(dadesConsultaPinbal.getAnyNaixement());
 		solicitud.setIdentificadorSolicitante(dadesConsultaPinbal.getEntitat_CIF());
 		solicitud.setCodigoProcedimiento(dadesConsultaPinbal.getCodiProcediment());
 		solicitud.setUnidadTramitadora(dadesConsultaPinbal.getUnitatTramitadora());

@@ -25,6 +25,7 @@ public class DadesConsultaPinbal {
 	private String entitat_CIF;
 	private String unitatTramitadora;
 	private boolean asincrona;
+	private String anyNaixement;
 	
 
 	public enum consentiment {
@@ -45,7 +46,8 @@ public class DadesConsultaPinbal {
 			String codiProcediment, 
 			String entitat_CIF,
 			String unitatTramitadora,
-			boolean asincrona) {
+			boolean asincrona,
+			String anyNaixement) {
 		this.titular=titular;
 		this.funcionari=funcionari;
 		this.xmlDadesEspecifiques=xmlDadesEspecifiques;
@@ -58,6 +60,7 @@ public class DadesConsultaPinbal {
 		this.entitat_CIF=entitat_CIF;
 		this.unitatTramitadora=unitatTramitadora;
 		this.asincrona=asincrona;
+		this.anyNaixement=anyNaixement;
 	}
 
 	@Override
@@ -160,6 +163,14 @@ public class DadesConsultaPinbal {
 
 	public void setAsincrona(boolean asincrona) {
 		this.asincrona = asincrona;
+	}
+
+	public String getAnyNaixement() {
+		return anyNaixement;
+	}
+
+	public void setAnyNaixement(String anyNaixement) {
+		this.anyNaixement = anyNaixement;
 	}
 	
 

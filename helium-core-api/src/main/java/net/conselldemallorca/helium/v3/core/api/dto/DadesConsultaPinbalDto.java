@@ -21,7 +21,8 @@ public class DadesConsultaPinbalDto {
 	private String unitatTramitadora;
 	private boolean asincrona;
 	private String	transicioOK;
-	private String	transicioKO;	
+	private String	transicioKO;
+	private String anyNaixement;
 
 	public enum consentiment {
 		SI,
@@ -147,4 +148,14 @@ public class DadesConsultaPinbalDto {
 	public void setTransicioKO(String transicioKO) {
 		this.transicioKO = transicioKO;
 	}
+
+	public String getAnyNaixement() {
+		return anyNaixement;
+	}
+
+	public void setAnyNaixement(String anyNaixement) {
+		this.anyNaixement = anyNaixement;
+	}
+	
+	
 }
