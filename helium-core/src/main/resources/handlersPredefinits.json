@@ -2206,7 +2206,7 @@
   }, {
   	"codi": "anyNaixement",
     "nom" : "Any de naixement del Titular",
-    "obligatori" : true,
+    "obligatori" : false,
     "param" : "anyNaixement",
     "paramDesc" : "Indica l'any de naixement del titular",
     "varParam" : "varAnyNaixement",
