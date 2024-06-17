@@ -1921,8 +1921,16 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				false,
 				false);
 		List<Alerta> alertes = alertaRepository.findByExpedientAndDataEliminacioNull(expedient);
+		Collections.sort(alertes, new ComparadorAlertes());
 		// Convertir a AlertaDto
 		return conversioTipusHelper.convertirList(alertes, AlertaDto.class);
+	}
+	
+	public class ComparadorAlertes implements Comparator<Alerta>{
+		public int compare(Alerta a1, Alerta a2) {
+			return a2.getDataCreacio().compareTo(a1.getDataCreacio());
+		}
+		
 	}
 
 	/**
