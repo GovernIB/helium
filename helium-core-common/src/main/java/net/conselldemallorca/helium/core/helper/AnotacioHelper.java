@@ -450,6 +450,7 @@ public class AnotacioHelper {
 	 * de variables, documents i adjunts per poder advertir a l'usuari o afegir una alerta dels mapejos que han fallat.
 	 * @throws Exception 
 	 */
+	@Transactional
 	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId) {
 		AnotacioMapeigResultatDto resultatMapeig = new AnotacioMapeigResultatDto();
 		logger.debug(
@@ -481,7 +482,7 @@ public class AnotacioHelper {
 			resultatMapeig = distribucioHelper.getMapeig(expedientTipus, anotacio, ambContingut);
 			variables = resultatMapeig.getDades();
 			documents = resultatMapeig.getDocuments();
-			annexos = resultatMapeig.getAdjunts();			
+			annexos = resultatMapeig.getAdjunts();
 			if(variables!=null) {
 				for (String varCodi : variables.keySet()) {	
 					// Obtenir la variable de l'expedient, comprovar si aquest mapeig existeix o no	
@@ -499,6 +500,7 @@ public class AnotacioHelper {
 							variableExisteix,
 							mapeigSistra.isEvitarSobreescriptura());
 				}
+				indexHelper.expedientIndexLuceneUpdate(expedient.getProcessInstanceId());
 			}
 			
 			//Fem el mateix per els documents del mapeig
@@ -579,7 +581,6 @@ public class AnotacioHelper {
 				ExpedientLogAccioTipus.PROCES_VARIABLE_CREAR,
 				varCodi);
 		expedientDadaHelper.optimitzarValorPerConsultesDominiGuardar(expedient.getTipus(), processInstanceId, varCodi, varValor);
-		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 	}
 
 	

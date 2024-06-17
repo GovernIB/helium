@@ -144,12 +144,11 @@ public interface AnotacioService {
 	 */
 	public void esborrarAnotacionsExpedient(Long expedientId);
 
-//	/** Recupera el mapeig de Sistra i l'aplica a l'expedient.
-//	 * @return	Retorna un objecte de tipus <code>AnotacioMapeigResultatDto</code> amb el resultat del mapeig
-//	 * de variables, documents i adjunts per poder advertir a l'usuari o afegir una alerta dels mapejos que han fallat.
-//	 * @throws Exception 
-//	 */
-//	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId);
+	/** Recupera el mapeig de Sistra i l'aplica a l'expedient.
+	 * @return	Retorna un objecte de tipus <code>AnotacioMapeigResultatDto</code> amb el resultat del mapeig
+	 * de variables, documents i adjunts per poder advertir a l'usuari o afegir una alerta dels mapejos que han fallat.
+	 */
+	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId);
 
 	/** Reintenta el processament dels annexos d'una anotació per incorporar-los a Helium.
 	 * 
@@ -170,5 +169,4 @@ public interface AnotacioService {
 	 * @param annexId
 	 */
 	public ArxiuDto getAnnexContingutVersioOriginal(Long annexId);
-
 }

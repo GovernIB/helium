@@ -76,6 +76,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.AnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioListDto;
+import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
@@ -1281,6 +1282,19 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				// Altrament les desrelaciona de l'expedient
 				anotacio.setExpedient(null);
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId) {
+		logger.debug(
+				"Reprocessant el mapeig de l'anotació de l'expedient ( " +
+				"anotacioId=" + anotacioId + ", " +
+				"expedientId=" + expedientId + ")");
+		return anotacioHelper.reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(AnotacioServiceImpl.class);
