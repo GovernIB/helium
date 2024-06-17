@@ -1,7 +1,7 @@
 --#1731 Poder notificar qualsevol document
 
 -- Oracle
-ALTER TABLE hel_document DROP COLUMN notificable;
+--ALTER TABLE hel_document DROP COLUMN notificable;
 
 -- #1740 Crides asíncrones a PINBAL
 -- -- Nova taula per les peticions a pinbal (asíncrones i síncrones)
@@ -36,3 +36,4 @@ ALTER TABLE HEL_PETICIO_PINBAL ADD (
   CONSTRAINT HEL_PETICIO_EXPEDIENT_FK FOREIGN KEY (EXPEDIENT_ID) 
     REFERENCES HEL_EXPEDIENT (ID));
     
+GRANT SELECT, UPDATE, INSERT, DELETE ON HEL_PETICIO_PINBAL TO WWW_HELIUM;
