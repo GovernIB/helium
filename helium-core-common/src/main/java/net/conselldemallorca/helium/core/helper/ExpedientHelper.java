@@ -853,8 +853,6 @@ public class ExpedientHelper {
 			pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());
 			expedient.setArxiuUuid(null);
 		}else {
-			//firmem els documents que no estan firmats
-			firmarDocumentsPerArxiuFiExpedient(expedient);	
 			// Modifiquem l'expedient a l'arxiu per actualitzar la llista d'interessats
 			Date dataFi = expedient.getDataFi();
 			expedient.setDataFi(null);
@@ -1089,7 +1087,7 @@ public class ExpedientHelper {
 	 * @param expedient
 	 */
 	@Transactional
-	private void firmarDocumentsPerArxiuFiExpedient(Expedient expedient) {
+	public void firmarDocumentsPerArxiuFiExpedient(Expedient expedient) {
 
 		List<DocumentStore> documents = new ArrayList<DocumentStore>();
 		List<InstanciaProcesDto> arbreProcesInstance = getArbreInstanciesProces(expedient.getProcessInstanceId());

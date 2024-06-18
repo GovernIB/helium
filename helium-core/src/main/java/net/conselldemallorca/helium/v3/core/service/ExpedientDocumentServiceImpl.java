@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +43,7 @@ import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.TascaHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
+import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
@@ -52,6 +54,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientL
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogEstat;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Interessat;
+import net.conselldemallorca.helium.core.model.hibernate.PeticioPinbal;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.PdfUtils;
@@ -66,12 +69,15 @@ import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentFinalitzarDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentInfoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaResultatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
@@ -106,6 +112,7 @@ import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.InteressatRepository;
 import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
+import net.conselldemallorca.helium.v3.core.repository.PeticioPinbalRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 
@@ -136,7 +143,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private NotificacioRepository notificacioRepository;
 	@Resource
 	private AnotacioRepository anotacioRepository;
-
+	@Resource
+	private PeticioPinbalRepository peticioPinbalRepository;
 	@Resource
 	private PluginHelper pluginHelper;
 	@Resource
@@ -592,6 +600,140 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		}
 	}
 
+    @Override
+	@Transactional(readOnly = true)
+	public List<DocumentFinalitzarDto> findDocumentsFinalitzar(Long expedientId) {
+	
+    	List<DocumentFinalitzarDto> resultat =	new ArrayList<DocumentFinalitzarDto>();
+    	
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				true,
+				true, //permís de escritura, el mateix que per mostrar el botó de finalitzar
+				false,
+				false);
+    	
+		//1.- Obtenim la llista inicial de documents del proces principal / subprocessos
+    	if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus())) {
+    		List<DocumentListDto> documentsExpEstat = findDocumentsExpedient(expedientId, true, new PaginacioParamsDto());
+    		resultat = conversioTipusHelper.convertirList(documentsExpEstat, DocumentFinalitzarDto.class);
+    	} else {
+    		
+    		List<InstanciaProcesDto> arbreProcessos = expedientHelper.getArbreInstanciesProces(expedient.getProcessInstanceId());
+    		for (InstanciaProcesDto instanciaProces : arbreProcessos) {
+    			if (instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
+    				resultat.addAll(conversioTipusHelper.convertirList(
+    						findAmbInstanciaProces(expedient.getId(),
+    								instanciaProces.getId()), DocumentFinalitzarDto.class));
+//    				List<ExpedientDocumentDto> documentsExpedientDto = findAmbInstanciaProces(expedient.getId(), instanciaProces.getId());
+//    				if (documentsExpedientDto!=null) {
+//    					for (ExpedientDocumentDto ed: documentsExpedientDto) {
+//    						DocumentFinalitzarDto aux = conversioTipusHelper.convertir(ed, DocumentFinalitzarDto.class);
+//    					}
+//    				}
+    			}
+    		}
+    	}
+    	
+    	//2.- Obtenim els annexes de les ANOTACIONS, pot ser ja estiguin a la llista anterior o pot ser no
+    	List<Anotacio> anotacionsExpedient = anotacioRepository.findByExpedientId(expedientId);
+    	if (anotacionsExpedient!=null) {
+    		for (Anotacio anotacio: anotacionsExpedient) {
+    			if (anotacio.getAnnexos()!=null) {
+    				for (AnotacioAnnex anotacioAnnex: anotacio.getAnnexos()) {
+    					DocumentFinalitzarDto docIncl = anotacioAnnexJaIncluit(anotacioAnnex, resultat);
+    					if (docIncl==null) {
+    						resultat.add(conversioTipusHelper.convertir(anotacioAnnex, DocumentFinalitzarDto.class));
+    					}
+    				}
+    			}
+    		}
+    	}
+    	
+    	//3.- Obtenim els documents NOTIFICATS, pot ser ja estiguin a la llista anterior o pot ser no
+    	List<DocumentNotificacio> notificacionsExpedient = notificacioHelper.findNotificacionsNotibPerExpedientId(expedientId);
+    	if (notificacionsExpedient!=null) {
+    		for (DocumentNotificacio notificacio: notificacionsExpedient) {
+    			if (notificacio.getAnnexos()!=null) {
+    				for (DocumentStore notificacioAnnex: notificacio.getAnnexos()) {
+    					DocumentFinalitzarDto docIncl = notificacioAnnexJaIncluit(notificacioAnnex, resultat);
+    					if (docIncl==null) {
+    						resultat.add(conversioTipusHelper.convertir(notificacioAnnex, DocumentFinalitzarDto.class));
+    					}
+    				}
+    			}
+    		}
+    	}
+    	
+    	//4.- Obtenim els justificants PINBAL, pot ser ja estiguin a la llista anterior o pot ser no
+    	List<PeticioPinbal> pinbalsExpedient = peticioPinbalRepository.findByExpedientId(expedientId);
+    	if (pinbalsExpedient!=null) {
+    		for (PeticioPinbal pinbal: pinbalsExpedient) {
+    			if (pinbal.getDocument()!=null) {
+    				for (DocumentFinalitzarDto expedientDocumentDto: resultat) {
+    					if (pinbal.getDocument().getId().compareTo(expedientDocumentDto.getDocumentStoreId())!=0) {
+    						resultat.add(conversioTipusHelper.convertir(pinbal.getDocument(), DocumentFinalitzarDto.class));
+    					}
+    				}
+    			}
+    		}
+    	}
+
+    	for (DocumentFinalitzarDto df: resultat) {
+    		if (df.getProcessInstanceId()!=null && !"".equals(df.getProcessInstanceId())) {
+    			df.setProcessInstanceNom(expedientHelper.getInstanciaProcesById(df.getProcessInstanceId()).getTitol());
+    		}
+    	}
+    	
+    	return resultat;
+	}
+    
+    private DocumentFinalitzarDto anotacioAnnexJaIncluit(AnotacioAnnex anotacioAnnex, List<DocumentFinalitzarDto> expedientDocuments) {
+    	
+    	if (expedientDocuments!=null && expedientDocuments.size()>0) {
+    		for (DocumentFinalitzarDto expedientDocumentDto: expedientDocuments) {
+    			if (expedientDocumentDto.getAnnexAnotacioId()!=null && expedientDocumentDto.getAnnexAnotacioId().compareTo(anotacioAnnex.getId())==0) {
+    				return expedientDocumentDto; //El annex del parametre 1, ja esta inclós als documents de la instancia de procés (2)
+    			}
+    		}
+    	}
+    	
+    	return null;
+    }
+    
+    private DocumentFinalitzarDto notificacioAnnexJaIncluit(DocumentStore notificacioAnnex, List<DocumentFinalitzarDto> expedientDocuments) {
+    	
+    	if (expedientDocuments!=null && expedientDocuments.size()>0) {
+    		for (DocumentFinalitzarDto expedientDocumentDto: expedientDocuments) {
+    			if (expedientDocumentDto.getDocumentStoreId().compareTo(notificacioAnnex.getId())==0) {
+    				return expedientDocumentDto; //El annex del parametre 1, ja esta inclós als documents de la instancia de procés (2)
+    			}
+    		}
+    	}
+    	
+    	return null;
+    }
+    
+    @Override
+	@Transactional
+    public void finalitzaExpedient(Long expedientId, List<DocumentFinalitzarDto> documentsFirmar, boolean finalitzar) {
+    	
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				new Permission[] {
+						ExtendedPermission.WRITE,
+						ExtendedPermission.ADMINISTRATION});
+		
+		if (expedient.isArxiuActiu() && expedient.getArxiuUuid() != null) {
+			//firmem els documents que no estan firmats
+			expedientHelper.firmarDocumentsPerArxiuFiExpedient(expedient);	
+		}
+    	
+    	if (finalitzar) {
+    		expedientHelper.finalitzar(expedientId);
+    	}
+    }
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -620,7 +762,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 					processInstanceId);
 		}
 	}
-
+	
     @Override
 	@Transactional(readOnly = true)
     public List<DocumentListDto> findDocumentsExpedient(Long expedientId, Boolean tots, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
@@ -681,7 +823,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			} else {
 				document = toDocumentList(expedient, processInstanceId, dTipExp, dExp, dPsigna, documentFormProperties);
 				document.setNotificable(PdfUtils.isArxiuConvertiblePdf(dExp.getArxiuNom()));
-			}
+			}			
 			documents.add(document);
 		}
 

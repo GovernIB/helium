@@ -12,6 +12,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentFinalitzarDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentInfoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
@@ -195,6 +196,15 @@ public interface ExpedientDocumentService {
 			Long expedientId,
 			String processInstanceId) throws NoTrobatException, PermisDenegatException;
 
+	/**
+	 * Al finalitzar un expedient, hem de recuperar tos els seus documents, tant de subprocessos, com de anotacions, notificacions o PINBAL.
+	 * Alguns d'ells poden complir més de una condició: per exemple formar part de un procés i ser un annex de una anotació al mateix temps.
+	 * Perque sigui més reutilitzable, no filtra per document firmat o no firmat. Els retorna tots.
+	 */
+	public List<DocumentFinalitzarDto> findDocumentsFinalitzar(Long expedientId);
+	
+	public void finalitzaExpedient(Long expedientId, List<DocumentFinalitzarDto> documentsFirmar, boolean finalitzar);
+	
 	public List<DocumentListDto> findDocumentsExpedient(Long expedientId, Boolean tots, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException;
 	/**
 	 * Retorna un document d'una instància de procés de

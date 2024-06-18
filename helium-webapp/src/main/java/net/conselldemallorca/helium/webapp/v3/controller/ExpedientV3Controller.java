@@ -37,9 +37,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentFinalitzarDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientFinalitzarDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
@@ -49,6 +52,7 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientRegistreService
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.CanviVersioProcesCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ReassignacioTasquesCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 
@@ -150,6 +154,41 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			MissatgesHelper.error(request, getMessage(request, "error.reindexar.expedient") + ". " + ex.getMessage());
 		}
 		return "redirect:/v3/expedient/" + expedientId;
+	}
+	
+	@RequestMapping(value = "/{expedientId}/prefinalitzar", method = RequestMethod.GET)
+	public String prefinalitzar(
+			HttpServletRequest request,
+			@PathVariable Long expedientId, 
+			Model model) {
+		try {
+			ExpedientDto expedientDto = expedientService.findAmbId(expedientId);
+			ExpedientFinalitzarDto expedientFinalitzarDto = new ExpedientFinalitzarDto();
+			expedientFinalitzarDto.setExpedient(expedientDto);
+			expedientFinalitzarDto.setDocumentsFinalitzar(expedientDocumentService.findDocumentsFinalitzar(expedientId));
+			model.addAttribute(expedientFinalitzarDto);
+		} catch (Exception ex) {
+			String errMsg = getMessage(request, "expedient.error.prefinalitzant.expedient") + ". " + ex.getMessage();
+			logger.error(errMsg, ex);
+			MissatgesHelper.error(request, errMsg);
+		}
+		return "v3/expedient/prefinalitzar";
+	}
+	
+	@RequestMapping(value = "/{expedientId}/prefinalitzar", method = RequestMethod.POST)
+	public  String prefinalitzarPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@ModelAttribute("expedientFinalitzarDto") ExpedientFinalitzarDto expedientFinalitzarDto,
+			Model model) {
+		try {
+			expedientDocumentService.finalitzaExpedient(expedientId, expedientFinalitzarDto.getDocumentsFinalitzar(), "finalitzar".equals(expedientFinalitzarDto.getAccio()));
+		} catch (Exception ex) {
+			String errMsg = getMessage(request, "expedient.error.prefinalitzant.expedient") + ". " + ex.getMessage();
+			logger.error(errMsg, ex);
+			MissatgesHelper.error(request, errMsg);
+		}
+		return modalUrlTancar(true);
 	}
 	
 	@RequestMapping(value = "/{expedientId}/finalitzar", method = RequestMethod.GET)
