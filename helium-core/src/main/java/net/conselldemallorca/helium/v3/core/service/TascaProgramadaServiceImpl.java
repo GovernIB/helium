@@ -237,7 +237,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 				for(ExpedientReindexacio reindexacio : reindexacions) {
 					if (!expedientsIdsReindexats.contains(reindexacio.getExpedientId())) {
 						expedientsIdsReindexats.add(reindexacio.getExpedientId());
-						reindexarExpedient(reindexacio.getExpedientId());
+						self.reindexarExpedient(reindexacio.getExpedientId());
 						
 						// Comprova si mentres s'ha reindexat s'ha programat una nova reindexació per fixar la nova data a l'expedient
 						Date dataReindexacio = expedientReindexacioRepository.findSeguentReindexacioData(reindexacio.getExpedientId(), darreraData);
