@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.core.helper.ConsultaPinbalHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPlugin;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
@@ -94,7 +93,6 @@ public class ConsultesPinbalController extends BaseExpedientController {
 		model.addAttribute(filtreCommand);
 		modelExpedientsTipus(expedientTipusDtoAccessibles, model);
 		modelEstats(model);
-		modelPersones(request, model);
 		return "v3/consultesPinbalLlistat";
 	}
 	
@@ -176,18 +174,6 @@ public class ConsultesPinbalController extends BaseExpedientController {
 					MessageHelper.getInstance().getMessage("enum.pinbal.estat." + estat.name())));		
 
 		model.addAttribute("estats", opcions);
-	}
-	
-	private void modelPersones(HttpServletRequest request, Model model) {
-		try {
-			String pluginClass = GlobalProperties.getInstance().getProperty("app.persones.plugin.class");
-			if (pluginClass != null) {
-				personesPlugin = (PersonesPlugin)(Class.forName(pluginClass).newInstance());
-				model.addAttribute("persones", personesPlugin.findAll());
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 	
 	@InitBinder
