@@ -1817,7 +1817,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 						expedient.getTipus().getId(), 
 						expedient.getTipus().getCodi(), 
 						expedient.getTipus().getNom(), 
-						"Error al executa l'acció '" + accio.getCodi() + "'"+ exceptionHelper.getRouteCauses(ex),
+						"Error al executa l'acció '" + accio.getCodi() + "'"+ ex.getMessage(),
 						ex);
 			}
 			expedientHelper.verificarFinalitzacioExpedient(expedient);

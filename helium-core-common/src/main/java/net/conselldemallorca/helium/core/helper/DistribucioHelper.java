@@ -809,7 +809,8 @@ public class DistribucioHelper {
 				} catch (Throwable e) {
 					String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e;
 					// Crida fent referència al bean per crear una nova transacció
-					self.updateErrorProcessament(anotacio.getId(), errorProcessament);
+					String traçaCompleta = ExceptionUtils.getStackTrace(e);
+					self.updateErrorProcessament(anotacio.getId(), errorProcessament.concat(traçaCompleta) );
 					logger.error(errorProcessament, e);
 					 //Es comunica l'estat a Distribucio
 					try {
@@ -819,9 +820,8 @@ public class DistribucioHelper {
 								errorProcessament);
 					} catch(Exception ed) {
 						logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
-					}
-					String traçaCompleta = ExceptionUtils.getStackTrace(e);
-					throw new Exception(errorProcessament.concat(traçaCompleta) + ": "
+					}	
+					throw new Exception(errorProcessament + ": "
 							+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
 				}				
 				if (resultatMapeig != null && resultatMapeig.isError()) {
@@ -975,7 +975,8 @@ public class DistribucioHelper {
 		} catch (Throwable e) {
 			String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e;
 			String traçaCompleta = ExceptionUtils.getStackTrace(e);
-			throw new Exception(errorProcessament.concat(traçaCompleta) + ": "
+			anotacio.setErrorProcessament(errorProcessament.concat(traçaCompleta));
+			throw new Exception(errorProcessament + ": "
 					+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
 		}
 		return anotacio;
