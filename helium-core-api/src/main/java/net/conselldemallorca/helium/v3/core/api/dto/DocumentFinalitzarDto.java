@@ -11,11 +11,11 @@ public class DocumentFinalitzarDto implements Serializable {
 	private static final DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 	
 	private Long documentStoreId;
-	private String varCodi;
 	private Date dataCreacio;
 	@SuppressWarnings("unused")
 	private String dataCreacioStr;
 	private String arxiuNom;
+	private String documentCodi; //Codi del document a la DP o TE
 	private boolean adjunt; //(Document / Adjunt)
 //	En el cas dels tipus que no són per estat: Procés principal / Procés
 //	Anotacio (Posar el número d'anotació) (avís vermell si no s'han mogut)
@@ -28,12 +28,15 @@ public class DocumentFinalitzarDto implements Serializable {
 	
 	private Long annexAnotacioId;
 	private String anotacioDesc;
+	boolean anotacioAnnexNoMogut = true;
+	boolean firmaInvalida;
 	private Long notificacioId;
 	private String notificacioDesc;
 	private Long peticioPinbalId;
 	private String peticioPinbalDesc;
 	
 	private String arxiuUuid;
+	private ArxiuEstat arxiuEstat;
 	
 	public Long getDocumentStoreId() {
 		return documentStoreId;
@@ -41,11 +44,11 @@ public class DocumentFinalitzarDto implements Serializable {
 	public void setDocumentStoreId(Long documentStoreId) {
 		this.documentStoreId = documentStoreId;
 	}
-	public String getVarCodi() {
-		return varCodi;
+	public String getDocumentCodi() {
+		return documentCodi;
 	}
-	public void setVarCodi(String varCodi) {
-		this.varCodi = varCodi;
+	public void setDocumentCodi(String documentCodi) {
+		this.documentCodi = documentCodi;
 	}
 	public Date getDataCreacio() {
 		return dataCreacio;
@@ -64,6 +67,12 @@ public class DocumentFinalitzarDto implements Serializable {
 	}
 	public void setSeleccionat(boolean seleccionat) {
 		this.seleccionat = seleccionat;
+	}
+	public boolean isAnotacioAnnexNoMogut() {
+		return anotacioAnnexNoMogut;
+	}
+	public void setAnotacioAnnexNoMogut(boolean anotacioAnnexNoMogut) {
+		this.anotacioAnnexNoMogut = anotacioAnnexNoMogut;
 	}
 	public String getDataCreacioStr() {
 		if (dataCreacio!=null) {
@@ -96,6 +105,12 @@ public class DocumentFinalitzarDto implements Serializable {
 	public void setAnotacioDesc(String anotacioDesc) {
 		this.anotacioDesc = anotacioDesc;
 	}
+	public boolean isFirmaInvalida() {
+		return firmaInvalida;
+	}
+	public void setFirmaInvalida(boolean firmaInvalida) {
+		this.firmaInvalida = firmaInvalida;
+	}
 	public String getNotificacioDesc() {
 		return notificacioDesc;
 	}
@@ -113,6 +128,12 @@ public class DocumentFinalitzarDto implements Serializable {
 	}
 	public void setArxiuUuid(String arxiuUuid) {
 		this.arxiuUuid = arxiuUuid;
+	}
+	public ArxiuEstat getArxiuEstat() {
+		return arxiuEstat;
+	}
+	public void setArxiuEstat(ArxiuEstat arxiuEstat) {
+		this.arxiuEstat = arxiuEstat;
 	}
 	public void setDataCreacioStr(String dataCreacioStr) {
 		this.dataCreacioStr = dataCreacioStr;
@@ -137,8 +158,8 @@ public class DocumentFinalitzarDto implements Serializable {
 	}
 	@Override
 	public String toString() {
-		return "DocumentFinalitzarDto [documentStoreId=" + documentStoreId + ", varCodi=" + varCodi + ", arxiuNom=" + arxiuNom + ", seleccionat="
-				+ seleccionat + ", annexAnotacioId=" + annexAnotacioId + "]";
+		return "DocumentFinalitzarDto [documentStoreId=" + documentStoreId + ", documentCodi=" + documentCodi + ", arxiuNom=" + arxiuNom + ", seleccionat="
+				+ seleccionat + ", arxiuUuid=" + arxiuUuid + ", arxiuEstat=" + arxiuEstat + "]";
 	}
 	
 }

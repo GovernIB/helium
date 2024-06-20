@@ -25,6 +25,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientFinalitzarDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
@@ -479,13 +480,13 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<DocumentFinalitzarDto> findDocumentsFinalitzar(Long expedientId) {
+	public ExpedientFinalitzarDto findDocumentsFinalitzar(Long expedientId) throws Exception {
 		return delegate.findDocumentsFinalitzar(expedientId);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void finalitzaExpedient(Long expedientId, List<DocumentFinalitzarDto> documentsFirmar, boolean finalitzar) {
-		delegate.finalitzaExpedient(expedientId, documentsFirmar, finalitzar);
+	public String finalitzaExpedient(Long expedientId, List<DocumentFinalitzarDto> documentsFirmar, boolean finalitzar) throws Exception {
+		return delegate.finalitzaExpedient(expedientId, documentsFirmar, finalitzar);
 	}
 }

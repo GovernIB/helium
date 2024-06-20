@@ -16,34 +16,14 @@
 	//<![CDATA[            
 		$(document).ready(function() {
 			$('#select-all-docs').on('click', function(event) {
-				$('input[class=documentPerFirmarServidor]:checkbox').prop('checked', event.currentTarget.checked);
+				$('input[class=documentPerFirmarServidor]:not(:disabled):checkbox').prop('checked', event.currentTarget.checked);
 			});
 			$('input[class=documentPerFirmarServidor]').on('change', function(event) {
-				const total = $('input[class=documentPerFirmarServidor]:checkbox').length;
-				const countSeleccionats = $('input[class=documentPerFirmarServidor]:checked').length;
+				const total = $('input[class=documentPerFirmarServidor]:not(:disabled):checkbox').length;
+				const countSeleccionats = $('input[class=documentPerFirmarServidor]:not(:disabled):checked').length;
 				$('#select-all-docs').prop('checked', total == countSeleccionats);
 			});
-// 			$("#submitPrefinalitzar").on('click', function(event) {
-// 				debugger;
-// 				$("body").addClass("loading");
-// 		        $.ajax({
-// 		            url: '<c:url value="/prefinalitzar"/>',
-// 		            type: 'post',
-// 		            dataType: 'json',
-// 		            data: {motiu: $("#motiuFinalitzar").val()},
-// 		            success: function(data){
-// 		            	debugger;
-// 		            }
-// 		        })
-// 		        .fail(function( jqxhr, textStatus, error ) {
-// 		             var err = textStatus + ', ' + error;
-// 		             console.log( "Request Failed: " + err);
-// 		        })
-// 		        .always(function() {
-// 		            $("body").removeClass("loading");
-// 		        });		            
-// 			});
-		});		
+		});
 	// ]]>
 	</script>
 </head>
@@ -56,6 +36,8 @@
 		<form:hidden path="expedient.arxiuActiu"/>
 		<form:hidden path="accio"/>
 		
+		<c:if test="${!expedientFinalitzarDto.error}">
+				
 		<c:if test="${expedientFinalitzarDto.documentsFinalitzar!=null && fn:length(expedientFinalitzarDto.documentsFinalitzar)>0}">
 		
 			<div class="alert alert-info" role="alert">
@@ -70,41 +52,54 @@
 						<th width="10%">Tipus</th>
 						<th width="20%">Situacio</th>
 						<th width="20%">Data creació</th>
-						<th width="5%" style="padding-left: 14px;"><input type="checkbox" id="select-all-docs"></th>
+						<th width="5%" style="padding-left: 2%;"><input type="checkbox" id="select-all-docs"></th>
 					</tr>
 				</thead>
 				<tbody>
 		
 				<c:forEach var="doc" varStatus="status" items="${expedientFinalitzarDto.documentsFinalitzar}">
 					<tr>
-						<td>${doc.arxiuNom}</td>
+						<td title="${doc.arxiuNom}">${doc.documentCodi}</td>
 						<td><c:if test="${doc.adjunt}">Adjunt</c:if><c:if test="${!doc.adjunt}">Document</c:if></td>
 						<td>
 							${doc.processInstanceNom}
 							<c:if test="${not empty doc.arxiuUuid}">&nbsp;
-								<span class="label label-info etiqueta-nti-arxiu">
+								<span class="label label-info etiqueta-nti-arxiu" title="${doc.arxiuUuid}">
 									<spring:message code="expedient.info.etiqueta.arxiu"/>
 								</span>
 							</c:if>
 							<c:if test="${not empty doc.annexAnotacioId}">&nbsp;
-								<span class="label label-warning etiqueta-nti-arxiu">
+								<span class="label label-warning etiqueta-nti-arxiu" title="${doc.anotacioDesc}">
 									<spring:message code="expedient.document.info.etiqueta.anotacio"/>
 								</span>
 							</c:if>
+							<c:if test="${not doc.anotacioAnnexNoMogut}">&nbsp;
+								<span class="fa fa-exclamation-triangle text-danger"
+									title="L'anotació conté error amb alguns annexos que poden no haver estat incorporats a l'arxiu."></span>
+							</c:if>
+							<c:if test="${doc.firmaInvalida}">&nbsp;
+								<span class="fa fa-exclamation-triangle text-danger"
+									title="Aquest annex està marcat com a invàlid: El document original tenia firmes invàlides."></span>
+							</c:if>							
 							<c:if test="${not empty doc.notificacioId}">&nbsp;
-								<span class="label label-warning etiqueta-nti-arxiu" title="">
+								<span class="label label-warning etiqueta-nti-arxiu" title="${doc.notificacioDesc}">
 									<spring:message code="expedient.document.info.etiqueta.notificat"/>
 								</span>
 							</c:if>
 							<c:if test="${not empty doc.peticioPinbalId}">&nbsp;
-								<span class="label label-success etiqueta-nti-arxiu" title="">
+								<span class="label label-success etiqueta-nti-arxiu" title="${doc.peticioPinbalDesc}">
 									PIN
 								</span>
 							</c:if>
 						</td>
 						<td>${doc.dataCreacioStr}</td>
 						<td align="center">
-							<input type="checkbox" class="documentPerFirmarServidor" name="documentsFinalitzar[${status.index}].seleccionat">
+							<c:if test="${not empty doc.annexAnotacioId}">
+								<input type="checkbox" class="documentPerFirmarServidor" checked="checked" disabled="true" name="documentsFinalitzar[${status.index}].seleccionat">
+							</c:if>
+							<c:if test="${empty doc.annexAnotacioId}">
+								<input type="checkbox" class="documentPerFirmarServidor" name="documentsFinalitzar[${status.index}].seleccionat">
+							</c:if>
 							<form:hidden path="documentsFinalitzar[${status.index}].documentStoreId"/>
 							<form:hidden path="documentsFinalitzar[${status.index}].processInstanceId"/>
 						</td>
@@ -146,16 +141,31 @@
 			<button type="button" class="modal-tancar btn btn-default" name="submit" value="cancel">
 				<spring:message code='comuns.cancelar' />
 			</button>
-			<button type="submit" name="submit" value="submit" class="btn btn-primary">
-				<span class="fa fa-pencil" onclick="$('#accio').val('firmar')"></span>&nbsp;
-				<spring:message code="finalitzar.expedient.accio1"/>
-			</button>			
-			<button type="submit" name="submit" value="submit" class="btn btn-primary">
-				<span class="fa fa-power-off" onclick="$('#accio').val('finalitzar')"></span>&nbsp;
-				<spring:message code="finalitzar.expedient.accio2"/>
+			<c:if test="${expedientFinalitzarDto.documentsFinalitzar!=null && fn:length(expedientFinalitzarDto.documentsFinalitzar)>0}">
+				<button type="submit" name="submit" value="submit" class="btn btn-primary" onclick="$('#accio').val('firmar')">
+					<span class="fa fa-pencil"></span>&nbsp;
+					<spring:message code="finalitzar.expedient.accio1"/>
+				</button>			
+				<button type="submit" name="submit" value="submit" class="btn btn-primary" onclick="$('#accio').val('finalitzar')">
+					<span class="fa fa-power-off"></span>&nbsp;
+					<spring:message code="finalitzar.expedient.accio2"/>
+				</button>
+			</c:if>
+			<c:if test="${expedientFinalitzarDto.documentsFinalitzar==null or fn:length(expedientFinalitzarDto.documentsFinalitzar)==0}">
+				<button type="submit" name="submit" value="submit" class="btn btn-primary" onclick="$('#accio').val('finalitzar')">
+					<span class="fa fa-power-off"></span>&nbsp;
+					<spring:message code="finalitzar.expedient.accio3"/>
+				</button>
+			</c:if>
+		</div>
+	</c:if>
+	<c:if test="${expedientFinalitzarDto.error}">
+		<div id="modal-botons" class="well">
+			<button type="button" class="modal-tancar btn btn-default" name="submit" value="cancel">
+				<spring:message code='comuns.cancelar' />
 			</button>
 		</div>
-	
+	</c:if>
 	</form:form>
 </body>
 </html>

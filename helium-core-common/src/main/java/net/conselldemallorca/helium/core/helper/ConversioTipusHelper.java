@@ -519,7 +519,8 @@ public class ConversioTipusHelper {
 				.register();
 		
 		mapperFactory.classMap(DocumentFinalitzarDto.class, DocumentListDto.class)
-		.field("varCodi", "codi")
+		.field("documentStoreId", "id")
+		.field("documentCodi", "codi")
 		.field("arxiuNom", "nom")
 		.field("annexAnotacioId", "anotacioId")
 		.field("anotacioDesc", "anotacioIdf")
@@ -527,6 +528,8 @@ public class ConversioTipusHelper {
 		.register();
 		
 		mapperFactory.classMap(DocumentFinalitzarDto.class, ExpedientDocumentDto.class)
+		.field("documentStoreId", "id")
+		.field("documentCodi", "documentNom")
 		.field("annexAnotacioId", "anotacioAnnexId")
 		.field("anotacioDesc", "anotacioAnnexTitol")
 		.byDefault()
@@ -536,13 +539,13 @@ public class ConversioTipusHelper {
 		.field("dataCreacio", "anotacio.dataRecepcio")
 		.field("arxiuNom", "nom")
 		.field("annexAnotacioId", "anotacio.id")
-		.field("anotacioDesc", "anotacio.extracte")
 		.field("arxiuUuid", "uuid")
 		.byDefault()
 		.register();
 		
 		mapperFactory.classMap(DocumentFinalitzarDto.class, DocumentStore.class)
-		.field("varCodi", "jbpmVariable")
+		.field("documentStoreId", "id")
+		.field("documentCodi", "jbpmVariable")
 		.byDefault()
 		.register();
 		

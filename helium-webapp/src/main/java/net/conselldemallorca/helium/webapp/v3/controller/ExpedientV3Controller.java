@@ -161,17 +161,16 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId, 
 			Model model) {
+		ExpedientFinalitzarDto expedientFinalitzarDto = new ExpedientFinalitzarDto();
 		try {
-			ExpedientDto expedientDto = expedientService.findAmbId(expedientId);
-			ExpedientFinalitzarDto expedientFinalitzarDto = new ExpedientFinalitzarDto();
-			expedientFinalitzarDto.setExpedient(expedientDto);
-			expedientFinalitzarDto.setDocumentsFinalitzar(expedientDocumentService.findDocumentsFinalitzar(expedientId));
-			model.addAttribute(expedientFinalitzarDto);
+			expedientFinalitzarDto = expedientDocumentService.findDocumentsFinalitzar(expedientId);
 		} catch (Exception ex) {
 			String errMsg = getMessage(request, "expedient.error.prefinalitzant.expedient") + ". " + ex.getMessage();
 			logger.error(errMsg, ex);
 			MissatgesHelper.error(request, errMsg);
+			expedientFinalitzarDto.setError(true);
 		}
+		model.addAttribute(expedientFinalitzarDto);
 		return "v3/expedient/prefinalitzar";
 	}
 	
@@ -182,33 +181,28 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			@ModelAttribute("expedientFinalitzarDto") ExpedientFinalitzarDto expedientFinalitzarDto,
 			Model model) {
 		try {
-			expedientDocumentService.finalitzaExpedient(expedientId, expedientFinalitzarDto.getDocumentsFinalitzar(), "finalitzar".equals(expedientFinalitzarDto.getAccio()));
+			
+			if (expedientFinalitzarDto.getDocumentsFinalitzar()!=null) {
+				for (DocumentFinalitzarDto dfDto: expedientFinalitzarDto.getDocumentsFinalitzar()) {
+					if (dfDto.getAnnexAnotacioId()!=null) {
+						dfDto.setSeleccionat(true);
+					}
+				}
+			}
+			
+			String resultat = expedientDocumentService.finalitzaExpedient(expedientId, expedientFinalitzarDto.getDocumentsFinalitzar(), "finalitzar".equals(expedientFinalitzarDto.getAccio()));
+			//Algun dels documents no s'ha pogut firmar en servidor
+			if ("".equals(resultat)) {
+				MissatgesHelper.success(request, getMessage(request, "expedient.finalitzat.ok"));
+			} else {
+				MissatgesHelper.warning(request, resultat);
+			}
 		} catch (Exception ex) {
 			String errMsg = getMessage(request, "expedient.error.prefinalitzant.expedient") + ". " + ex.getMessage();
 			logger.error(errMsg, ex);
 			MissatgesHelper.error(request, errMsg);
 		}
-		return modalUrlTancar(true);
-	}
-	
-	@RequestMapping(value = "/{expedientId}/finalitzar", method = RequestMethod.GET)
-	public String finalitzar(
-			HttpServletRequest request,
-			@PathVariable Long expedientId, 
-			Model model) {
-		try {
-			expedientService.finalitzar(expedientId);
-			MissatgesHelper.success(
-					request,
-					getMessage(
-							request,
-							"info.expedient.finalitzat"));
-		} catch (Exception ex) {
-			String errMsg = getMessage(request, "expedient.error.finalitzant.expedient") + ". " + ex.getMessage();
-			logger.error(errMsg, ex);
-			MissatgesHelper.error(request, errMsg);
-		}
-		return "redirect:/v3/expedient/" + expedientId;
+		return modalUrlTancar(false);
 	}
 	
 	@RequestMapping(value = "/{expedientId}/alertes", method = RequestMethod.GET)

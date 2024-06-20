@@ -1086,21 +1086,12 @@ public class ExpedientHelper {
 	 * 
 	 * @param expedient
 	 */
-	@Transactional
-	public void firmarDocumentsPerArxiuFiExpedient(Expedient expedient) {
-
-		List<DocumentStore> documents = new ArrayList<DocumentStore>();
-		List<InstanciaProcesDto> arbreProcesInstance = getArbreInstanciesProces(expedient.getProcessInstanceId());
-		
-		// Genera llista de tots els documents del expedient
-		for(InstanciaProcesDto procesInstance :arbreProcesInstance) {
-			documents.addAll(
-					documentStoreRepository.findByProcessInstanceId(procesInstance.getId())
-					);
-		}
-				
-		// Firma en el servidor els documents pendents de firma
-		for (DocumentStore documentStore: documents) {
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public String firmarDocumentsPerArxiuFiExpedient(Long documentStoreId) {
+		try {
+			
+			DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+			
 			es.caib.plugins.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
 					documentStore.getArxiuUuid(),
 					null,
@@ -1119,7 +1110,10 @@ public class ExpedientHelper {
 				documentHelper.actualitzarNtiFirma(documentStore, arxiuDocument);
 				documentStore.setSignat(arxiuDocument.getFirmes() != null && !arxiuDocument.getFirmes().isEmpty());
 			}
-		}
+			return null;
+		} catch (Exception ex) {
+			return ex.getMessage();
+		}		
 	}
 	
 	public void relacioCrear(

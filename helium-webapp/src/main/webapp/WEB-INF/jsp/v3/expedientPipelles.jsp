@@ -537,7 +537,8 @@ dd.subproc {
 							<c:if test="${expedient.permisWrite}">
 								<c:if test="${empty expedient.dataFi}">
 									<li><a 
-										data-rdt-link-modal="true" 
+										data-toggle="modal"
+										data-maximized="true"
 										href="<c:url value="../../v3/expedient/${expedientId}/prefinalitzar"/>">
 											<span class="fa fa-power-off"></span>&nbsp;<spring:message code="expedient.info.accio.finalitzar"/>
 										</a>

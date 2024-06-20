@@ -60,6 +60,7 @@ import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
+import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAnnexEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
@@ -75,6 +76,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientFinalitzarDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
@@ -602,10 +604,11 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
     @Override
 	@Transactional(readOnly = true)
-	public List<DocumentFinalitzarDto> findDocumentsFinalitzar(Long expedientId) {
+	public ExpedientFinalitzarDto findDocumentsFinalitzar(Long expedientId) throws Exception {
 	
+    	ExpedientFinalitzarDto expedientFinalitzarDto = new ExpedientFinalitzarDto();    	
     	List<DocumentFinalitzarDto> resultat =	new ArrayList<DocumentFinalitzarDto>();
-    	
+   	
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				true,
@@ -613,79 +616,218 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				false,
 				false);
     	
+		expedientFinalitzarDto.setExpedient(conversioTipusHelper.convertir(expedient, ExpedientDto.class));
+		
+		if (expedientFinalitzarDto.getExpedient().getDataFi()!=null) {
+			throw new Exception ("L'expedient ja està finalitzat.");
+		}
+		
 		//1.- Obtenim la llista inicial de documents del proces principal / subprocessos
     	if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus())) {
-    		List<DocumentListDto> documentsExpEstat = findDocumentsExpedient(expedientId, true, new PaginacioParamsDto());
-    		resultat = conversioTipusHelper.convertirList(documentsExpEstat, DocumentFinalitzarDto.class);
+
+    		List<Portasignatures> pendentsFirma = pluginHelper.findPendentsPortasignaturesPerProcessInstanceId(expedient.getProcessInstanceId());
+
+			if (pendentsFirma!=null && pendentsFirma.size()>0) {
+				//Si hi ha documents pendents de firma no fa falta anar a cercar els documents
+				expedientFinalitzarDto.setPendentsFirma(true);
+			} else {
+    		
+	    		List<DocumentListDto> documentsExpEstat = findDocumentsExpedient(expedientId, true, new PaginacioParamsDto());
+				for (DocumentListDto ed: documentsExpEstat) {
+					ArxiuEstat arxiuEstat = null;
+					if (ed.getArxiuUuid()!=null && !"".equals(ed.getArxiuUuid())) {
+						ArxiuDetallDto arxiuDetallDto = getArxiuDetall(expedientId, expedient.getProcessInstanceId(), ed.getId());
+						if (arxiuDetallDto!=null) {
+							arxiuEstat = arxiuDetallDto.getArxiuEstat();
+						}
+					}
+					if (!ed.isSignat() || arxiuEstat==null || arxiuEstat.equals(ArxiuEstat.ESBORRANY)) {
+						DocumentFinalitzarDto aux = conversioTipusHelper.convertir(ed, DocumentFinalitzarDto.class);
+						if (aux.getDocumentCodi()==null) {
+							aux.setDocumentCodi(ed.getNom());
+						}
+						aux.setArxiuEstat(arxiuEstat);
+						resultat.add(aux);
+					}
+				}
+			}
     	} else {
     		
     		List<InstanciaProcesDto> arbreProcessos = expedientHelper.getArbreInstanciesProces(expedient.getProcessInstanceId());
+    		
     		for (InstanciaProcesDto instanciaProces : arbreProcessos) {
-    			if (instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
-    				resultat.addAll(conversioTipusHelper.convertirList(
-    						findAmbInstanciaProces(expedient.getId(),
-    								instanciaProces.getId()), DocumentFinalitzarDto.class));
-//    				List<ExpedientDocumentDto> documentsExpedientDto = findAmbInstanciaProces(expedient.getId(), instanciaProces.getId());
-//    				if (documentsExpedientDto!=null) {
-//    					for (ExpedientDocumentDto ed: documentsExpedientDto) {
-//    						DocumentFinalitzarDto aux = conversioTipusHelper.convertir(ed, DocumentFinalitzarDto.class);
-//    					}
-//    				}
-    			}
+    			
+				List<Portasignatures> pendentsFirma = pluginHelper.findPendentsPortasignaturesPerProcessInstanceId(instanciaProces.getId());
+				
+				if (pendentsFirma!=null && pendentsFirma.size()>0) {
+					//Si hi ha documents pendents de firma no fa falta anar a cercar els documents
+					expedientFinalitzarDto.setPendentsFirma(true);
+				} else {
+					
+    				List<ExpedientDocumentDto> documentsExpedientDto = findAmbInstanciaProces(expedient.getId(), instanciaProces.getId());
+    				if (documentsExpedientDto!=null) {
+    					for (ExpedientDocumentDto ed: documentsExpedientDto) {
+    						ArxiuEstat arxiuEstat = null;
+    						if (ed.getArxiuUuid()!=null && !"".equals(ed.getArxiuUuid())) {
+    							ArxiuDetallDto arxiuDetallDto = getArxiuDetall(expedientId, instanciaProces.getId(), ed.getId());
+    							if (arxiuDetallDto!=null) {
+    								arxiuEstat = arxiuDetallDto.getArxiuEstat();
+    							}
+    						}
+    						if (!ed.isSignat() || arxiuEstat==null || arxiuEstat.equals(ArxiuEstat.ESBORRANY)) {
+	    						DocumentFinalitzarDto aux = conversioTipusHelper.convertir(ed, DocumentFinalitzarDto.class);
+	    						//documentNom (conversor) > documentCodi > titol > nomArxiu
+	    						if (aux.getDocumentCodi()==null) {
+	    							aux.setDocumentCodi(ed.getDocumentCodi());
+		    						if (aux.getDocumentCodi()==null) {
+		    							aux.setDocumentCodi(ed.getAdjuntTitol());
+		        						if (aux.getDocumentCodi()==null) {
+		        							aux.setDocumentCodi(ed.getArxiuNom());
+		        						}  
+		    						}  
+	    						}
+	    						aux.setArxiuEstat(arxiuEstat);
+	    						resultat.add(aux);
+    						}
+    					}
+    				}
+				}
     		}
     	}
     	
     	//2.- Obtenim els annexes de les ANOTACIONS, pot ser ja estiguin a la llista anterior o pot ser no
     	List<Anotacio> anotacionsExpedient = anotacioRepository.findByExpedientId(expedientId);
+    	List<DocumentFinalitzarDto> docsAux = new ArrayList<DocumentFinalitzarDto>(); //Evitam ConcurrentModificationException
     	if (anotacionsExpedient!=null) {
     		for (Anotacio anotacio: anotacionsExpedient) {
     			if (anotacio.getAnnexos()!=null) {
+    				String anotacioDesc = anotacio.getIdentificador();
     				for (AnotacioAnnex anotacioAnnex: anotacio.getAnnexos()) {
-    					DocumentFinalitzarDto docIncl = anotacioAnnexJaIncluit(anotacioAnnex, resultat);
-    					if (docIncl==null) {
-    						resultat.add(conversioTipusHelper.convertir(anotacioAnnex, DocumentFinalitzarDto.class));
+    					if (anotacioAnnex.getFirmaTipus()==null) {
+	    					DocumentFinalitzarDto docIncl = anotacioAnnexJaIncluit(anotacioAnnex, resultat);
+	    					if (docIncl==null) {
+	    						DocumentFinalitzarDto docAnotacio = conversioTipusHelper.convertir(anotacioAnnex, DocumentFinalitzarDto.class);
+	    						docAnotacio.setAnnexAnotacioId(anotacioAnnex.getId());
+	    						docAnotacio.setAnotacioDesc(anotacioDesc);
+	    						docAnotacio.setArxiuNom(anotacioAnnex.getNom());
+	    						docAnotacio.setDocumentCodi(anotacioAnnex.getTitol());
+	    						if (docAnotacio.getDocumentCodi()==null) {
+	    							docAnotacio.setDocumentCodi(anotacioAnnex.getNom());
+	    						}
+	    						docAnotacio.setAnotacioAnnexNoMogut(
+	    								anotacioAnnex.getEstat()==null || 
+	    								!AnotacioAnnexEstatEnumDto.MOGUT.equals(anotacioAnnex.getEstat()));
+	    						docAnotacio.setFirmaInvalida(!anotacioAnnex.isDocumentValid());
+	    						//No fa falta mirar el estat del arxiu, si no esta incorporat al expedient, no tenim uuid propi de document helium.
+	    						
+//	    						ArxiuEstat arxiuEstat = null;
+//	    						if (ed.getArxiuUuid()!=null && !"".equals(ed.getArxiuUuid())) {
+//	    							ArxiuDetallDto arxiuDetallDto = getArxiuDetall(expedientId, expedient.getProcessInstanceId(), ed.getId());
+//	    							if (arxiuDetallDto!=null) {
+//	    								arxiuEstat = arxiuDetallDto.getArxiuEstat();
+//	    							}
+//	    						}
+//	    						aux.setArxiuEstat(arxiuEstat);
+	    						
+	    						docsAux.add(docAnotacio);
+	    					} else {
+	    						docIncl.setAnnexAnotacioId(anotacioAnnex.getId());
+	    						docIncl.setAnotacioDesc(anotacioDesc);
+	    						docIncl.setFirmaInvalida(!anotacioAnnex.isDocumentValid());
+	    						docIncl.setAnotacioAnnexNoMogut(
+	    								anotacioAnnex.getEstat()==null || 
+	    								!AnotacioAnnexEstatEnumDto.MOGUT.equals(anotacioAnnex.getEstat()));
+	    					}
     					}
     				}
     			}
     		}
     	}
+    	resultat.addAll(docsAux);
     	
     	//3.- Obtenim els documents NOTIFICATS, pot ser ja estiguin a la llista anterior o pot ser no
     	List<DocumentNotificacio> notificacionsExpedient = notificacioHelper.findNotificacionsNotibPerExpedientId(expedientId);
+    	docsAux = new ArrayList<DocumentFinalitzarDto>();
     	if (notificacionsExpedient!=null) {
     		for (DocumentNotificacio notificacio: notificacionsExpedient) {
     			if (notificacio.getAnnexos()!=null) {
+    				String notifDesc = notificacio.getConcepte();
     				for (DocumentStore notificacioAnnex: notificacio.getAnnexos()) {
-    					DocumentFinalitzarDto docIncl = notificacioAnnexJaIncluit(notificacioAnnex, resultat);
-    					if (docIncl==null) {
-    						resultat.add(conversioTipusHelper.convertir(notificacioAnnex, DocumentFinalitzarDto.class));
+    					if (!notificacioAnnex.isSignat()) {
+	    					DocumentFinalitzarDto docIncl = notificacioAnnexJaIncluit(notificacioAnnex, resultat);
+	    					if (docIncl==null) {
+	    						DocumentFinalitzarDto docNotificat = conversioTipusHelper.convertir(notificacioAnnex, DocumentFinalitzarDto.class);
+	    						docNotificat.setNotificacioId(notificacioAnnex.getId());
+	    						docNotificat.setNotificacioDesc(notifDesc);
+	    						docNotificat.setDocumentCodi(notificacioAnnex.getCodiDocument());
+	    						if (docNotificat.getDocumentCodi()==null) {
+	    							docNotificat.setDocumentCodi(notificacioAnnex.getArxiuNom());
+	    						}
+	    						docNotificat.setSeleccionat(true);//Seleccionat per defecte, pero no estará disabled.
+	    						//No fa falta mirar el estat del arxiu, si no esta incorporat al expedient, no tenim uuid propi de document helium.
+	    						docsAux.add(docNotificat);
+	    					} else {
+	    						docIncl.setNotificacioId(notificacioAnnex.getId());
+	    						docIncl.setNotificacioDesc(notifDesc);
+	    						docIncl.setSeleccionat(true);//Seleccionat per defecte, pero no estará disabled.
+	    					}
     					}
     				}
     			}
     		}
     	}
+    	resultat.addAll(docsAux);
     	
     	//4.- Obtenim els justificants PINBAL, pot ser ja estiguin a la llista anterior o pot ser no
     	List<PeticioPinbal> pinbalsExpedient = peticioPinbalRepository.findByExpedientId(expedientId);
+    	docsAux = new ArrayList<DocumentFinalitzarDto>();
     	if (pinbalsExpedient!=null) {
     		for (PeticioPinbal pinbal: pinbalsExpedient) {
-    			if (pinbal.getDocument()!=null) {
+    			if (pinbal.getDocument()!=null && !pinbal.getDocument().isSignat()) {
+    				DocumentFinalitzarDto docPinbal = null;
     				for (DocumentFinalitzarDto expedientDocumentDto: resultat) {
-    					if (pinbal.getDocument().getId().compareTo(expedientDocumentDto.getDocumentStoreId())!=0) {
-    						resultat.add(conversioTipusHelper.convertir(pinbal.getDocument(), DocumentFinalitzarDto.class));
+    					if (pinbal.getDocument().getId().compareTo(expedientDocumentDto.getDocumentStoreId())==0) {
+    						docPinbal = expedientDocumentDto; //El document de la peticio pinbal actual, ja es troba dins la llista de documents del expedient.
+    						break;
     					}
+    				}
+    				if (docPinbal==null) {
+						docPinbal = conversioTipusHelper.convertir(pinbal.getDocument(), DocumentFinalitzarDto.class);
+						docPinbal.setPeticioPinbalId(pinbal.getId());
+						docPinbal.setPeticioPinbalDesc(pinbal.getProcediment() + " - " + pinbal.getPinbalId());
+						docPinbal.setDocumentCodi(pinbal.getDocument().getCodiDocument());
+						if (docPinbal.getDocumentCodi()==null) {
+							docPinbal.setDocumentCodi(pinbal.getDocument().getArxiuNom());
+						}
+						docPinbal.setSeleccionat(true);//Seleccionat per defecte, pero no estará disabled.
+						//No fa falta mirar el estat del arxiu, si no esta incorporat al expedient, no tenim uuid propi de document helium.
+						docsAux.add(docPinbal);
+    				} else {
+						docPinbal.setPeticioPinbalId(pinbal.getId());
+						docPinbal.setPeticioPinbalDesc(pinbal.getProcediment() + " - " + pinbal.getPinbalId());
+						docPinbal.setSeleccionat(true);//Seleccionat per defecte, pero no estará disabled.
     				}
     			}
     		}
     	}
+    	resultat.addAll(docsAux);
 
     	for (DocumentFinalitzarDto df: resultat) {
     		if (df.getProcessInstanceId()!=null && !"".equals(df.getProcessInstanceId())) {
-    			df.setProcessInstanceNom(expedientHelper.getInstanciaProcesById(df.getProcessInstanceId()).getTitol());
+    			InstanciaProcesDto ipDto = expedientHelper.getInstanciaProcesById(df.getProcessInstanceId());
+    			if (ipDto!=null) {
+    				if (ipDto.getInstanciaProcesPareId()==null) {
+    					df.setProcessInstanceNom("Procés principal");
+    				} else {
+    					df.setProcessInstanceNom(ipDto.getTitol());
+    				}
+    			}
     		}
     	}
     	
-    	return resultat;
+    	expedientFinalitzarDto.setDocumentsFinalitzar(resultat);
+    	
+    	return expedientFinalitzarDto;
 	}
     
     private DocumentFinalitzarDto anotacioAnnexJaIncluit(AnotacioAnnex anotacioAnnex, List<DocumentFinalitzarDto> expedientDocuments) {
@@ -716,7 +858,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
     
     @Override
 	@Transactional
-    public void finalitzaExpedient(Long expedientId, List<DocumentFinalitzarDto> documentsFirmar, boolean finalitzar) {
+    public String finalitzaExpedient(Long expedientId, List<DocumentFinalitzarDto> documentsFirmar, boolean finalitzar) throws Exception {
     	
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
@@ -724,14 +866,63 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 						ExtendedPermission.WRITE,
 						ExtendedPermission.ADMINISTRATION});
 		
+		String missatgeResultat = "";
+		
+		if (expedient.getDataFi()!=null) {
+			throw new Exception ("L'expedient ja està finalitzat.");
+		}
+		
+		List<Portasignatures> pendentsFirma = new ArrayList<Portasignatures>();
+    	if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus())) {
+    		pendentsFirma.addAll(pluginHelper.findPendentsPortasignaturesPerProcessInstanceId(expedient.getProcessInstanceId()));
+    	} else {
+    		List<InstanciaProcesDto> arbreProcessos = expedientHelper.getArbreInstanciesProces(expedient.getProcessInstanceId());
+    		for (InstanciaProcesDto instanciaProces : arbreProcessos) {
+    			pendentsFirma.addAll(pluginHelper.findPendentsPortasignaturesPerProcessInstanceId(instanciaProces.getId()));
+    		}
+    	}
+		
+    	if (pendentsFirma.size()>0) {
+    		throw new Exception("Hi ha "+pendentsFirma.size()+" documents en procés de firma, cancelau o finalitzau les firmes en curs.");
+    	}
+    	
+		List<Anotacio> anotacionsExpedient = anotacioRepository.findByExpedientId(expedientId);
+    	if (anotacionsExpedient!=null) {
+    		for (Anotacio anotacio: anotacionsExpedient) {
+    			if (anotacio.getAnnexos()!=null) {
+    				for (AnotacioAnnex anotacioAnnex: anotacio.getAnnexos()) {
+    					if (anotacioAnnex.getEstat()==null || !AnotacioAnnexEstatEnumDto.MOGUT.equals(anotacioAnnex.getEstat())) {
+    						throw new Exception("Hi ha annexos d'anotacions de l'expedient que no han estat incorporats a l'arxiu.");
+    					}
+    				}
+    			}
+    		}
+    	}
+		
 		if (expedient.isArxiuActiu() && expedient.getArxiuUuid() != null) {
 			//firmem els documents que no estan firmats
-			expedientHelper.firmarDocumentsPerArxiuFiExpedient(expedient);	
+			if (documentsFirmar!=null) {
+				for (DocumentFinalitzarDto docPerFirmarServidor: documentsFirmar) {
+					if (docPerFirmarServidor.isSeleccionat()) {
+						String resultatFirma = "Error"; //expedientHelper.firmarDocumentsPerArxiuFiExpedient(docPerFirmarServidor.getDocumentStoreId());
+						//Vol dir que ha donat error, i tenim el missatge del error
+						if (resultatFirma!=null) {
+							missatgeResultat+="El document "+ docPerFirmarServidor.getDocumentCodi() + "No s'ha pogut firmar en servidor: "+resultatFirma;
+						}
+					}
+				}
+			}
 		}
     	
-    	if (finalitzar) {
-    		expedientHelper.finalitzar(expedientId);
+    	if (finalitzar && !"".equals(missatgeResultat)) {
+    		//Mètode de finalitzar anterior a la issue #1762
+    		//Modal per seleccionar i firmar els documents en estat esborrany a l'hora de tancar un expedient
+    		//AL que se li ha llevat el mètode de firmar en servidor, que ara es fà per separat al if anterior.
+
+    		//    		expedientHelper.finalitzar(expedientId);
     	}
+    	
+    	return missatgeResultat;
     }
 	
 	/**

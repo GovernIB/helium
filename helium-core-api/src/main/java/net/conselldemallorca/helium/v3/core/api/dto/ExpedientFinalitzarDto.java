@@ -9,7 +9,9 @@ public class ExpedientFinalitzarDto implements Serializable {
 	private ExpedientDto expedient;
 	private List<DocumentFinalitzarDto> documentsFinalitzar;
 	private String motiuFinalitzar;
-	private String accio="finalitzar";
+	private String accio;
+	private boolean error = false;
+	private boolean pendentsFirma = false;
 	
 	public ExpedientDto getExpedient() {
 		return expedient;
@@ -35,4 +37,17 @@ public class ExpedientFinalitzarDto implements Serializable {
 	public void setAccio(String accio) {
 		this.accio = accio;
 	}
+	public boolean isError() {
+		return error;
+	}
+	public void setError(boolean error) {
+		this.error = error;
+	}
+	public boolean isPendentsFirma() {
+		return pendentsFirma;
+	}
+	public void setPendentsFirma(boolean pendentsFirma) {
+		this.pendentsFirma = pendentsFirma;
+	}
+	
 }

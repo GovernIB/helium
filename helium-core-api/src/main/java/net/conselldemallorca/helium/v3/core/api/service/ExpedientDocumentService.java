@@ -13,11 +13,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentFinalitzarDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentInfoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientFinalitzarDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
@@ -201,9 +202,9 @@ public interface ExpedientDocumentService {
 	 * Alguns d'ells poden complir més de una condició: per exemple formar part de un procés i ser un annex de una anotació al mateix temps.
 	 * Perque sigui més reutilitzable, no filtra per document firmat o no firmat. Els retorna tots.
 	 */
-	public List<DocumentFinalitzarDto> findDocumentsFinalitzar(Long expedientId);
+	public ExpedientFinalitzarDto findDocumentsFinalitzar(Long expedientId) throws Exception;
 	
-	public void finalitzaExpedient(Long expedientId, List<DocumentFinalitzarDto> documentsFirmar, boolean finalitzar);
+	public String finalitzaExpedient(Long expedientId, List<DocumentFinalitzarDto> documentsFirmar, boolean finalitzar) throws Exception;
 	
 	public List<DocumentListDto> findDocumentsExpedient(Long expedientId, Boolean tots, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException;
 	/**
