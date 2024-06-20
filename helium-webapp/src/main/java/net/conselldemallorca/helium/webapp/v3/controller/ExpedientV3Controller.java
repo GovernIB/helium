@@ -167,7 +167,8 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		} catch (Exception ex) {
 			String errMsg = getMessage(request, "expedient.error.finalitzant.expedient") + ". " + ex.getMessage();
 			logger.error(errMsg, ex);
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg.substring(0, 
+							Math.min(errMsg.indexOf("\n"), 1024)));
 		}
 		return "redirect:/v3/expedient/" + expedientId;
 	}
