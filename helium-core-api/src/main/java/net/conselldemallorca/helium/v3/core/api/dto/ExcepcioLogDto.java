@@ -18,11 +18,12 @@ public class ExcepcioLogDto implements Serializable {
 
 	public ExcepcioLogDto (String peticio, String params, Throwable exception) {
 		
-		if (exception!=null) {
+		if (exception != null) {
 			this.objectClass = exception.getClass();
 			this.setMessage(exception.getMessage().substring(
-							0, 
-							Math.min(exception.getMessage().indexOf("\n"), 1024)));
+							0,
+							Math.min(exception.getMessage().contains("\n") ? exception.getMessage().indexOf("\n") : exception.getMessage().length(),
+									1024)));
 			this.setStacktrace(ExceptionUtils.getStackTrace(exception));
 		}
 		
