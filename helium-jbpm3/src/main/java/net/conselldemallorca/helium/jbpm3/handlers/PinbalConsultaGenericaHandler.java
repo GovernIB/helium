@@ -206,7 +206,7 @@ public class PinbalConsultaGenericaHandler extends BasicActionHandler implements
                 executionContext,
                 this.asincrona,
                 this.varAsincrona);
-		dadesConsultaPinbal.setAsincrona(asincrona);
+		dadesConsultaPinbal.setAsincrona(asincrona != null ? asincrona.booleanValue() : false);
 		
 		Object resposta = super.consultaPinbal(
 				dadesConsultaPinbal,
