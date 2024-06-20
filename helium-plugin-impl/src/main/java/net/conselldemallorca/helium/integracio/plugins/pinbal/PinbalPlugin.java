@@ -34,6 +34,9 @@ import es.caib.pinbal.client.recobriment.svddgpviws02.ClientSvddgpviws02;
 import es.caib.pinbal.client.recobriment.svddgpviws02.ClientSvddgpviws02.SolicitudSvddgpviws02;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalEstatEnum;
+import net.conselldemallorca.helium.v3.core.api.dto.ScspAtributos;
+import net.conselldemallorca.helium.v3.core.api.dto.ScspConfirmacioPeticioPinbal;
+import net.conselldemallorca.helium.v3.core.api.dto.ScspEstado;
 import net.conselldemallorca.helium.v3.core.api.dto.ScspJustificant;
 import net.conselldemallorca.helium.v3.core.api.dto.ScspRespostaPinbal;
 
@@ -97,7 +100,11 @@ public class PinbalPlugin implements PinbalPluginInterface {
 				ScspConfirmacionPeticion confirmacioPeticio = clientGeneric.peticionAsincrona(dadesConsultaPinbal.getServeiCodi(), Arrays.asList(solicitud));
 				assertNotNull(confirmacioPeticio);	
 				logger.debug("-> peticioAsincrona = " + objectToJsonString(confirmacioPeticio));
-				return confirmacioPeticio;
+				ScspConfirmacioPeticioPinbal respostaAsincrona = new ScspConfirmacioPeticioPinbal();
+				if (confirmacioPeticio!=null) {
+					respostaAsincrona = convertirFromPinbalAsincrona(confirmacioPeticio);
+				}
+				return respostaAsincrona;
 			}else {
 				ScspRespuesta respuesta = clientGeneric.peticionSincrona(dadesConsultaPinbal.getServeiCodi(), Arrays.asList(solicitud));
 				assertNotNull(respuesta);
@@ -477,6 +484,27 @@ public class PinbalPlugin implements PinbalPluginInterface {
 		return resposta;	
 	}
 
+	private ScspConfirmacioPeticioPinbal convertirFromPinbalAsincrona(ScspConfirmacionPeticion scspRespuesta) throws Exception {
+		ScspConfirmacioPeticioPinbal resposta = new ScspConfirmacioPeticioPinbal();
+		ScspAtributos atributos = new ScspAtributos();
+		if (scspRespuesta.getAtributos()!=null) {
+			atributos.setIdPeticion(scspRespuesta.getAtributos().getIdPeticion());
+			atributos.setCodigoCertificado(scspRespuesta.getAtributos().getCodigoCertificado());
+			atributos.setNumElementos(scspRespuesta.getAtributos().getNumElementos());
+			atributos.setTimeStamp(scspRespuesta.getAtributos().getTimeStamp());
+			ScspEstado estado = new ScspEstado();
+			if (scspRespuesta.getAtributos().getEstado()!=null) {
+				estado.setTiempoEstimadoRespuesta(scspRespuesta.getAtributos().getEstado().getTiempoEstimadoRespuesta());
+				estado.setCodigoEstado(scspRespuesta.getAtributos().getEstado().getCodigoEstado());
+				estado.setLiteralError(scspRespuesta.getAtributos().getEstado().getLiteralError());
+				estado.setCodigoEstadoSecundario(scspRespuesta.getAtributos().getEstado().getCodigoEstadoSecundario());
+				estado.setLiteralErrorSec(scspRespuesta.getAtributos().getEstado().getLiteralErrorSec());
+			}
+			atributos.setEstado(estado);
+		}
+		resposta.setAtributos(atributos);
+		return resposta;
+	}
 
 
 }
