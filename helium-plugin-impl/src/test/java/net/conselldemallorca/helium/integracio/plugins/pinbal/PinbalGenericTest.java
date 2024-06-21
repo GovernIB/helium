@@ -80,8 +80,7 @@ public class PinbalGenericTest {
 				null,
 				CODIGO_PROCEDIMIENTO, 
 				ENTITAT_CIF,
-				null,
-				null); // Any naixement
+				null);
 		
 		ScspRespostaPinbal respuestaPlugin = pinbalPlugin.peticionSincronaClientPinbalGeneric(dadesConsulta);
 		assertNotNull(respuestaPlugin);

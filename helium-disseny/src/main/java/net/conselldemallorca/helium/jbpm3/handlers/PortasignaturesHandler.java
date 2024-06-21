@@ -41,6 +41,5 @@ public class PortasignaturesHandler implements ActionHandler, PortasignaturesHan
 	public void setTransicioOK(String transicioOK) {}
 	public void setVarTransicioKO(String varTransicioKO) {}
 	public void setTransicioKO(String transicioKO) {}
-	public void setVarPortafirmesFluxId(String varPortafirmesFluxId) {}
-	public void setPortafirmesFluxId(String portafirmesFluxId) {}
+
 }

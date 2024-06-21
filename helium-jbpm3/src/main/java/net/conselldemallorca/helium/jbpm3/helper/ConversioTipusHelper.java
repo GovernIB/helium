@@ -303,9 +303,6 @@ public class ConversioTipusHelper {
 		if(dadesConsultaPinbal.getInteressatCodi()!=null) {
 			dadesDto.setInteressatCodi(dadesConsultaPinbal.getInteressatCodi());
 		}
-		if(dadesConsultaPinbal.getAnyNaixement()!=null) {
-			dadesDto.setAnyNaixement(dadesConsultaPinbal.getAnyNaixement());
-		}
 		return dadesDto;	
 	}
 

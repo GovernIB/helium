@@ -316,7 +316,7 @@
 		<dependency>
 			<groupId>es.caib.pinbal</groupId>
 			<artifactId>pinbal-client</artifactId>
-			<version>1.4.40.2</version>		
+			<version>1.4.40</version>		
 		</dependency>
 	</dependencies>
 	<build>

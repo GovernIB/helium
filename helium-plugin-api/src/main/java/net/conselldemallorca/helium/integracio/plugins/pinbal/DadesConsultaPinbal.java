@@ -24,7 +24,6 @@ public class DadesConsultaPinbal {
 	private String codiProcediment;
 	private String entitat_CIF;
 	private String unitatTramitadora;
-	private String anyNaixement;
 	
 
 	public enum consentiment {
@@ -44,8 +43,7 @@ public class DadesConsultaPinbal {
 			String interessatCodi,
 			String codiProcediment, 
 			String entitat_CIF,
-			String unitatTramitadora,
-			String anyNaixement) {
+			String unitatTramitadora) {
 		this.titular=titular;
 		this.funcionari=funcionari;
 		this.xmlDadesEspecifiques=xmlDadesEspecifiques;
@@ -57,7 +55,6 @@ public class DadesConsultaPinbal {
 		this.codiProcediment=codiProcediment;
 		this.entitat_CIF=entitat_CIF;
 		this.unitatTramitadora=unitatTramitadora;
-		this.anyNaixement = anyNaixement;
 	}
 
 	@Override
@@ -154,13 +151,7 @@ public class DadesConsultaPinbal {
 		this.unitatTramitadora = unitatTramitadora;
 	}
 	
-	public String getAnyNaixement() {
-		return anyNaixement;
-	}
-
-	public void setAnyNaixement(String anyNaixement) {
-		this.anyNaixement = anyNaixement;
-	}
-		
+	
+	
 
 }

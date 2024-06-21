@@ -43,10 +43,6 @@ public class PinbalSvddgpciws02Handler extends PinbalConsultaGenericaHandler {
 	
 	private static final String serveiCodiEspecific = "SVDDGPCIWS02";
 	
-	/**Codi de la variable que conté l'any de naixement (és específic d'aquest servei SVDDGPCIWS02 de consulta de dades d'identitat).**/
-	protected String varAnyNaixement;
-	protected String anyNaixement;
-	
 	@Override
 	public void execute(ExecutionContext executionContext) throws Exception {		
 		logger.debug("Inici execució handler de consulta a Pinbal");
@@ -64,7 +60,6 @@ public class PinbalSvddgpciws02Handler extends PinbalConsultaGenericaHandler {
 		
 		//Al ser un handler específic li setegem el codi del servei
 		dadesConsultaPinbal.setServeiCodi(serveiCodiEspecific);
-		dadesConsultaPinbal.setAnyNaixement((String) getValorOVariable(executionContext, this.anyNaixement, this.varAnyNaixement));
 			
 		Object resposta = consultaPinbalSvddgpciws02(dadesConsultaPinbal, expedient.getId(), expedient.getProcessInstanceId());
 
@@ -94,10 +89,5 @@ public class PinbalSvddgpciws02Handler extends PinbalConsultaGenericaHandler {
 		return new String(Base64.encode(baos.toByteArray()));
 	}
 
-	public void setVarAnyNaixement(String varAnyNaixement) {
-		this.varAnyNaixement = varAnyNaixement;
-	}
-	public void setAnyNaixement(String anyNaixement) {
-		this.anyNaixement = anyNaixement;
-	}
+	
 }
