@@ -68,7 +68,7 @@ public class ExpedientDocumentDto implements Serializable {
 	
 	private boolean notificat;
 	private boolean pinbal=false;
-	private Date dataPrevistaPinbal;
+	private PeticioPinbalEstatEnum estatPinbal;
 	
 	private String custodiaCodi;
 	
@@ -420,11 +420,12 @@ public class ExpedientDocumentDto implements Serializable {
 	public void setPinbal(boolean pinbal) {
 		this.pinbal = pinbal;
 	}
-	public Date getDataPrevistaPinbal() {
-		return dataPrevistaPinbal;
+	public PeticioPinbalEstatEnum getEstatPinbal() {
+		return estatPinbal;
 	}
-	public void setDataPrevistaPinbal(Date dataPrevistaPinbal) {
-		this.dataPrevistaPinbal = dataPrevistaPinbal;
+	public void setEstatPinbal(PeticioPinbalEstatEnum estatPinbal) {
+		this.estatPinbal = estatPinbal;
 	}
+
 	private static final long serialVersionUID = -4307890997577367155L;
 }

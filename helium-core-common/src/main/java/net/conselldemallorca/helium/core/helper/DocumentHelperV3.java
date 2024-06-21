@@ -443,7 +443,7 @@ public class DocumentHelperV3 {
 					List<PeticioPinbal> pps = peticioPinbalRepository.findByExpedientIdAndDocumentIdOrderByDataPeticioDesc(expedient.getId(), documentStoreId);
 					if (pps!=null && pps.size()>0) {
 						ed.setPinbal(true);
-						ed.setDataPrevistaPinbal(pps.get(0).getDataPrevista());
+						ed.setEstatPinbal(pps.get(0).getEstat());
 					}
 					ed.setNotificable(PdfUtils.isArxiuConvertiblePdf(ed.getArxiuNom()));
 					resposta.add(ed);
