@@ -46,6 +46,7 @@ import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
+import net.conselldemallorca.helium.core.model.hibernate.PeticioPinbal;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
@@ -439,7 +440,11 @@ public class DocumentHelperV3 {
 					}
 					// Informació de les notificacions
 					ed.setNotificat(documentsNotificats.contains(documentStoreId));
-					ed.setPinbal(!peticioPinbalRepository.findByExpedientIdAndDocumentIdOrderByDataPeticioDesc(expedient.getId(), documentStoreId).isEmpty());
+					List<PeticioPinbal> pps = peticioPinbalRepository.findByExpedientIdAndDocumentIdOrderByDataPeticioDesc(expedient.getId(), documentStoreId);
+					if (pps!=null && pps.size()>0) {
+						ed.setPinbal(true);
+						ed.setDataPrevistaPinbal(pps.get(0).getDataPrevista());
+					}
 					ed.setNotificable(PdfUtils.isArxiuConvertiblePdf(ed.getArxiuNom()));
 					resposta.add(ed);
 				}

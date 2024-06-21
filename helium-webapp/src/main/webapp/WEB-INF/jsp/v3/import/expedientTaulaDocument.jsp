@@ -219,7 +219,7 @@
 														data-rdt-link-modal="true"
 														data-rdt-link-modal-min-height="500"
 														class="linkNti">
-														<span class="label label-info etiqueta-nti-arxiu">
+														<span class="label label-info etiqueta-nti-arxiu" title="Metadades NTI i informació de l'arxiu">
 															<c:choose>
 																<c:when test="${empty expedient.arxiuUuid}">
 																	<spring:message code="expedient.info.etiqueta.nti"/>
@@ -253,7 +253,7 @@
 														data-rdt-link-modal-min-height="500"
 														class="icon modificar" >
 															<span class="label label-success etiqueta-nti-arxiu" id="${contingut.id}" title="<spring:message code="consultes.pinbal.detall.titol"/>">
-																PIN
+																PIN<c:if test="${document.dataPrevistaPinbal!=null}">&nbsp;<span class="fa fa-clock-o"></span></c:if>
 															</span>
 													</a>
 												</c:if>												

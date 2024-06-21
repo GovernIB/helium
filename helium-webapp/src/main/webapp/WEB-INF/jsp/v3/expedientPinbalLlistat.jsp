@@ -30,7 +30,7 @@
 				<th data-col-name="procediment" width="15%"><spring:message code="consultes.pinbal.camp.procediment"/></th>
 				<th data-col-name="estat" data-template="#cellEstatTemplate" width="10%"><spring:message code="consultes.pinbal.camp.estat"/>
 					<script id="cellEstatTemplate" type="text/x-jsrender">
-						{{if estat=='PENDENT'}}<span class="fa fa-clock-o" title="{{:dataPrevistaFormat}}"></span> Pendent{{/if}}
+						{{if estat=='PENDENT'}}<span class="fa fa-clock-o" title="Data prevista: {{:dataPrevistaFormat}}"></span> Pendent{{/if}}
 						{{if estat=='TRAMITADA'}}<span class="fa fa-check"></span> Tramitada{{/if}}
 						{{if estat=='ERROR'}}<span class="fa fa-exclamation-triangle" title="{{:errorMsg}} {{:errorProcessament}}"></span> Error{{/if}}
 						{{if estat=='ERROR_PROCESSANT'}}<span class="fa fa-exclamation-triangle" title="{{:errorMsg}} {{:errorProcessament}}"></span> Error processant{{/if}}
@@ -52,7 +52,7 @@
 							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 							<ul class="dropdown-menu">
 								<li><a href="<c:url value="/v3/consultesPinbal/{{:id}}/info"/>" data-toggle="modal" class="consultar-expedient"><span class="fa fa-info-circle"></span>&nbsp;<spring:message code="consultes.pinbal.boto.info"/></a></li>
-								{{if estat=='PENDENT'}}<li><a href="<c:url value="/v3/consultesPinbal/{{:id}}/actualitzarEstat"/>" data-toggle="ajax"><span class="fa fa-refresh"></span>&nbsp;<spring:message code="consultes.pinbal.boto.update"/></a></li>{{/if}}
+								{{if estat=='PENDENT' || estat=='ERROR_PROCESSANT'}}<li><a href="<c:url value="/v3/consultesPinbal/{{:id}}/actualitzarEstat"/>" data-toggle="ajax"><span class="fa fa-refresh"></span>&nbsp;<spring:message code="consultes.pinbal.boto.update"/></a></li>{{/if}}
 							</ul>
 						</div>
 					</script>

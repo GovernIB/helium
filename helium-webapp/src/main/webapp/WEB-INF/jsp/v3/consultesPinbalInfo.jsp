@@ -66,6 +66,6 @@
 		</c:if>
 	</c:if>
 	<div id="modal-botons">
-		<a href="<c:url value="/consultesPinbal"/>" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.tancar"/></a>
+		<a href="<c:url value="/consultesPinbal"/>" class="btn btn-default modal-tancar" data-modal-cancel="true"><spring:message code="comu.boto.tancar"/></a>
 	</div>
 </body>
