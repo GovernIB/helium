@@ -24,8 +24,6 @@ import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
-import net.conselldemallorca.helium.v3.core.repository.AnotacioAnnexRepository;
-import net.conselldemallorca.helium.v3.core.repository.AnotacioInteressatRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
 
 
@@ -48,10 +46,6 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 	private DistribucioHelper distribucioHelper;
 	@Autowired
 	private AnotacioRepository anotacioRepository;
-	@Autowired
-	private AnotacioAnnexRepository anotacioAnnexRepository;
-	@Autowired
-	private AnotacioInteressatRepository anotacioInteressatRepository;
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource

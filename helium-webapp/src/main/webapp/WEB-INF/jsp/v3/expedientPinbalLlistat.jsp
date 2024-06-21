@@ -36,9 +36,9 @@
 						{{if estat=='ERROR_PROCESSANT'}}<span class="fa fa-exclamation-triangle" title="{{:errorMsg}} {{:errorProcessament}}"></span> Error processant{{/if}}
 					</script>
 				</th>
-				<th data-col-name="document.nom" data-template="#cellDocTemplate" width="10%"><spring:message code="consultes.pinbal.camp.document"/>
+				<th data-col-name="document.arxiuNom" data-template="#cellDocTemplate" width="13%"><spring:message code="consultes.pinbal.camp.document"/>
 					<script id="cellDocTemplate" type="text/x-jsrender">
-						<a href="<c:url value="/v3/expedient/{{:expedientId}}/document/{{:documentId}}/descarregar"/>" target="_blank">{{:document.nom}}</a>
+						{{if document!=null}}<a href="<c:url value="/v3/expedient/{{:expedientId}}/document/{{:documentId}}/descarregar"/>" target="_blank">{{:document.arxiuNom}}</a>{{/if}}
 					</script>
 				</th>				
 				<th data-col-name="expedientId" data-visible="false"></th>
