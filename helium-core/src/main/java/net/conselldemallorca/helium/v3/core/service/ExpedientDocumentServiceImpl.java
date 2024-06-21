@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -622,6 +621,11 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			throw new Exception ("L'expedient ja està finalitzat.");
 		}
 		
+		if (!expedient.isArxiuActiu() || expedient.getArxiuUuid() == null) {
+			expedientFinalitzarDto.setExpedientNti(true);
+			return expedientFinalitzarDto;
+		}
+		
 		//1.- Obtenim la llista inicial de documents del proces principal / subprocessos
     	if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus())) {
 
@@ -858,15 +862,14 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
     
     @Override
 	@Transactional
-    public String finalitzaExpedient(Long expedientId, List<DocumentFinalitzarDto> documentsFirmar, boolean finalitzar) throws Exception {
+    public boolean validarFinalitzaExpedient(Long expedientId) throws Exception {
     	
+    	//Retorna excepcio si el expedient no es troba o no es te els permisos indicats
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
 						ExtendedPermission.WRITE,
 						ExtendedPermission.ADMINISTRATION});
-		
-		String missatgeResultat = "";
 		
 		if (expedient.getDataFi()!=null) {
 			throw new Exception ("L'expedient ja està finalitzat.");
@@ -898,31 +901,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
     			}
     		}
     	}
-		
-		if (expedient.isArxiuActiu() && expedient.getArxiuUuid() != null) {
-			//firmem els documents que no estan firmats
-			if (documentsFirmar!=null) {
-				for (DocumentFinalitzarDto docPerFirmarServidor: documentsFirmar) {
-					if (docPerFirmarServidor.isSeleccionat()) {
-						String resultatFirma = "Error"; //expedientHelper.firmarDocumentsPerArxiuFiExpedient(docPerFirmarServidor.getDocumentStoreId());
-						//Vol dir que ha donat error, i tenim el missatge del error
-						if (resultatFirma!=null) {
-							missatgeResultat+="El document "+ docPerFirmarServidor.getDocumentCodi() + "No s'ha pogut firmar en servidor: "+resultatFirma;
-						}
-					}
-				}
-			}
-		}
-    	
-    	if (finalitzar && !"".equals(missatgeResultat)) {
-    		//Mètode de finalitzar anterior a la issue #1762
-    		//Modal per seleccionar i firmar els documents en estat esborrany a l'hora de tancar un expedient
-    		//AL que se li ha llevat el mètode de firmar en servidor, que ara es fà per separat al if anterior.
-
-    		//    		expedientHelper.finalitzar(expedientId);
-    	}
-    	
-    	return missatgeResultat;
+    	return true;
     }
 	
 	/**

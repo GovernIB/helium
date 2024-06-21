@@ -12,6 +12,7 @@ public class ExpedientFinalitzarDto implements Serializable {
 	private String accio;
 	private boolean error = false;
 	private boolean pendentsFirma = false;
+	private boolean expedientNti = false;
 	
 	public ExpedientDto getExpedient() {
 		return expedient;
@@ -48,6 +49,12 @@ public class ExpedientFinalitzarDto implements Serializable {
 	}
 	public void setPendentsFirma(boolean pendentsFirma) {
 		this.pendentsFirma = pendentsFirma;
+	}
+	public boolean isExpedientNti() {
+		return expedientNti;
+	}
+	public void setExpedientNti(boolean expedientNti) {
+		this.expedientNti = expedientNti;
 	}
 	
 }

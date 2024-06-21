@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
+import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaListDto;
@@ -73,7 +75,8 @@ public class ExpedientV3Controller extends BaseExpedientController {
 	private ExpedientDocumentService expedientDocumentService;
 	@Autowired
 	private ExpedientDadaService expedientDadaService;
-
+	@Resource
+	private ExpedientHelper expedientHelper;
 	@Autowired
 	private AplicacioService aplicacioService;
 
@@ -182,21 +185,46 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			Model model) {
 		try {
 			
+			//Els documents de les anotacions, no es poden deseleccionar. Com que estan disabled, seleccionat arriba false.
+			//A part de que poden haver manipulat el codi HTML
 			if (expedientFinalitzarDto.getDocumentsFinalitzar()!=null) {
 				for (DocumentFinalitzarDto dfDto: expedientFinalitzarDto.getDocumentsFinalitzar()) {
-					if (dfDto.getAnnexAnotacioId()!=null) {
+					if (dfDto.getAnnexAnotacioId()!=null && !dfDto.isSeleccionat()) {
 						dfDto.setSeleccionat(true);
 					}
 				}
 			}
 			
-			String resultat = expedientDocumentService.finalitzaExpedient(expedientId, expedientFinalitzarDto.getDocumentsFinalitzar(), "finalitzar".equals(expedientFinalitzarDto.getAccio()));
-			//Algun dels documents no s'ha pogut firmar en servidor
-			if ("".equals(resultat)) {
-				MissatgesHelper.success(request, getMessage(request, "expedient.finalitzat.ok"));
-			} else {
-				MissatgesHelper.warning(request, resultat);
+			// 1- firma els seleccionats
+			String errorsFirmantDocuments = "";
+			if (expedientFinalitzarDto.getDocumentsFinalitzar()!=null &&
+				expedientFinalitzarDto.getExpedient().isArxiuActiu() && 
+				expedientFinalitzarDto.getExpedient().getArxiuUuid() != null) {
+					for (DocumentFinalitzarDto dfDto: expedientFinalitzarDto.getDocumentsFinalitzar()) {
+						if (dfDto.isSeleccionat()) {
+							expedientHelper.firmarDocumentServidorPerArxiuFiExpedient(dfDto.getDocumentStoreId());
+						}
+					}
 			}
+			
+			// 2- si ha anat bé finalitzar (nova funció tancar sense firmar) i si no informa de l'error			
+			if ("".equals(errorsFirmantDocuments) &&
+				"finalitzar".equals(expedientFinalitzarDto.getAccio()) && 
+				expedientDocumentService.validarFinalitzaExpedient(expedientId)) {
+					expedientHelper.finalitzar(expedientId, false);
+			}
+			
+			//Algun dels documents no s'ha pogut firmar en servidor
+			if (!"".equals(errorsFirmantDocuments)) {
+				MissatgesHelper.warning(request, errorsFirmantDocuments);
+			} else {
+				if ("finalitzar".equals(expedientFinalitzarDto.getAccio())) {
+					MissatgesHelper.success(request, getMessage(request, "expedient.finalitzat.ok"));
+				} else {
+					MissatgesHelper.success(request, getMessage(request, "expedient.finalitzat.ok2"));
+				}
+			}
+
 		} catch (Exception ex) {
 			String errMsg = getMessage(request, "expedient.error.prefinalitzant.expedient") + ". " + ex.getMessage();
 			logger.error(errMsg, ex);

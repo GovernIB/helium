@@ -1449,7 +1449,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	@Transactional
 	public void finalitzar(Long id) {		
 		logger.debug("Finalitzar l'expedient (id=" + id + ")");
-		expedientHelper.finalitzar(id);
+		//Tancam expedient al arxiu, firmant els documents sense firma amb firma servidor
+		expedientHelper.finalitzar(id, true);
 	}
 	
 	/**

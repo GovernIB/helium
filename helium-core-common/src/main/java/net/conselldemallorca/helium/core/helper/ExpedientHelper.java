@@ -795,7 +795,7 @@ public class ExpedientHelper {
 	}
 
 	@Transactional
-	public void finalitzar(long expedientId) {
+	public void finalitzar(long expedientId, boolean firmaDocumentsServidor) {
 		
 		Expedient expedient = getExpedientComprovantPermisos(
 				expedientId,
@@ -825,7 +825,7 @@ public class ExpedientHelper {
 
 		//tancam l'expedient de l'arxiu si escau
 		if (expedient.isArxiuActiu() && expedient.getArxiuUuid() != null) {
-			tancarExpedientArxiu(expedient);
+			tancarExpedientArxiu(expedient, firmaDocumentsServidor);
 		}		
 		crearRegistreExpedient(
 				expedient.getId(),
@@ -839,7 +839,7 @@ public class ExpedientHelper {
 	 * @param expedient
 	 * 			Expedient amb la propietat isArxiuActiu a true.
 	 */
-	private void tancarExpedientArxiu(Expedient expedient) {
+	private void tancarExpedientArxiu(Expedient expedient, boolean firmaDocumentsServidor) {
 		es.caib.plugins.arxiu.api.Expedient arxiuExpedient = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
 		if (!ExpedientEstat.OBERT.equals(arxiuExpedient.getMetadades().getEstat())) {
 			logger.debug("L'expedient " + expedient.getIdentificador() + " amb UUID " + expedient.getArxiuUuid() + 
@@ -853,6 +853,9 @@ public class ExpedientHelper {
 			pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());
 			expedient.setArxiuUuid(null);
 		}else {
+			//firmem els documents que no estan firmats
+			if (firmaDocumentsServidor)
+				firmarDocumentsPerArxiuFiExpedient(expedient);
 			// Modifiquem l'expedient a l'arxiu per actualitzar la llista d'interessats
 			Date dataFi = expedient.getDataFi();
 			expedient.setDataFi(null);
@@ -1044,7 +1047,8 @@ public class ExpedientHelper {
 		expedient.setNtiActiu(true);
 
 		if (expedient.getDataFi() != null) {
-			tancarExpedientArxiu(expedient);
+			//Tancam expedient al arxiu, firmant els documents sense firma amb firma servidor
+			tancarExpedientArxiu(expedient, true);
 		}
 	}
 	
@@ -1081,39 +1085,55 @@ public class ExpedientHelper {
 		}
 	}
 
-	/** Mètode per firmar els documents de l'expedient sense firma. Primer fa una validació
-	 * de que es pugui firmar.
-	 * 
-	 * @param expedient
+	/** 
+	 * Mètode per firmar els documents de l'expedient sense firma. Primer fa una validació de que es pugui firmar.
 	 */
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public String firmarDocumentsPerArxiuFiExpedient(Long documentStoreId) {
-		try {
-			
-			DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
-			
-			es.caib.plugins.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
-					documentStore.getArxiuUuid(),
-					null,
-					false,
-					documentStore.isSignat());
-			
-			if (!DocumentEstat.DEFINITIU.equals(arxiuDocument.getEstat())) {
-				// Firma en servidor i el guarda
-				documentHelper.firmaServidor(
-						documentStore.getProcessInstanceId(),
-						documentStore.getId(), 
-						messageHelper.getMessage("document.controller.firma.servidor.default.message"),
-						null);
-			} else {
-				// Actualitza les dades amb el document firmat
-				documentHelper.actualitzarNtiFirma(documentStore, arxiuDocument);
-				documentStore.setSignat(arxiuDocument.getFirmes() != null && !arxiuDocument.getFirmes().isEmpty());
-			}
-			return null;
-		} catch (Exception ex) {
-			return ex.getMessage();
-		}		
+	@Transactional
+	public void firmarDocumentsPerArxiuFiExpedient(Expedient expedient) {
+
+		List<DocumentStore> documents = new ArrayList<DocumentStore>();
+		List<InstanciaProcesDto> arbreProcesInstance = getArbreInstanciesProces(expedient.getProcessInstanceId());
+
+		// Genera llista de tots els documents del expedient
+		for(InstanciaProcesDto procesInstance :arbreProcesInstance) {
+			documents.addAll(documentStoreRepository.findByProcessInstanceId(procesInstance.getId()));
+		}
+
+		// Firma en el servidor els documents pendents de firma
+		for (DocumentStore documentStore: documents) {
+			firmarDocumentServidorPerArxiuFiExpedient(documentStore.getId());
+		}
+	}
+
+	/**
+	 * Firma en servidor un document individual.
+	 * - Es crida desde ExpedientV3Controller (amb una llista de documents seleccionats manualment)
+	 * - O també desde la funcio anterior "firmarDocumentsPerArxiuFiExpedient" quant es finalitza un exepdient desde handler o finalització massiva,
+	 * 	 en aquest segon cas s'intentarán firmar tots els documents del expedient, no només els seleccionats.
+	 */
+	@Transactional
+	public void firmarDocumentServidorPerArxiuFiExpedient(Long documentStoreId) {
+		
+		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		
+		es.caib.plugins.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
+				documentStore.getArxiuUuid(),
+				null,
+				false,
+				documentStore.isSignat());
+		
+		if (!DocumentEstat.DEFINITIU.equals(arxiuDocument.getEstat())) {
+			// Firma en servidor i el guarda
+			documentHelper.firmaServidor(
+					documentStore.getProcessInstanceId(),
+					documentStore.getId(), 
+					messageHelper.getMessage("document.controller.firma.servidor.default.message"),
+					null);
+		} else {
+			// Actualitza les dades amb el document firmat
+			documentHelper.actualitzarNtiFirma(documentStore, arxiuDocument);
+			documentStore.setSignat(arxiuDocument.getFirmes() != null && !arxiuDocument.getFirmes().isEmpty());
+		}
 	}
 	
 	public void relacioCrear(
@@ -1598,9 +1618,9 @@ public class ExpedientHelper {
 			if (expedient != null) {
 				expedient.setDataFi(processInstance.getEnd());
 				
-				//tancam l'expedient de l'arxiu si escau
+				//Tancam expedient al arxiu si escau, firmant els documents sense firma amb firma servidor
 				if (expedient.isArxiuActiu()) {
-					tancarExpedientArxiu(expedient);
+					tancarExpedientArxiu(expedient, true);
 				}
 			}
 		}

@@ -34,6 +34,7 @@
 		<form:hidden path="expedient.id"/>
 		<form:hidden path="expedient.titol"/>
 		<form:hidden path="expedient.arxiuActiu"/>
+		<form:hidden path="expedient.arxiuUuid"/>
 		<form:hidden path="accio"/>
 		
 		<c:if test="${!expedientFinalitzarDto.error}">
@@ -102,6 +103,7 @@
 							</c:if>
 							<form:hidden path="documentsFinalitzar[${status.index}].documentStoreId"/>
 							<form:hidden path="documentsFinalitzar[${status.index}].processInstanceId"/>
+							<form:hidden path="documentsFinalitzar[${status.index}].annexAnotacioId"/>
 						</td>
 					</tr>
 				</c:forEach>

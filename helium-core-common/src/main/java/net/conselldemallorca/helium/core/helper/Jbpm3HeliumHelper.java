@@ -1522,7 +1522,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 	public void finalitzarExpedient(String processInstanceId) throws Exception {
 		logger.debug("Finalitzant expedient (processInstanceId=" + processInstanceId + ")");
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		expedientHelper.finalitzar(expedient.getId());
+		//Tancam expedient al arxiu, firmant els documents sense firma amb firma servidor
+		expedientHelper.finalitzar(expedient.getId(), true);
 	}
 	
 	
