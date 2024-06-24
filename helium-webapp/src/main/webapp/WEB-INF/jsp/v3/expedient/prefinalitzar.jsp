@@ -96,7 +96,7 @@
 						<td>${doc.dataCreacioStr}</td>
 						<td align="center">
 							<c:if test="${not empty doc.annexAnotacioId}">
-								<input type="checkbox" class="documentPerFirmarServidor" checked="checked" disabled="true" name="documentsFinalitzar[${status.index}].seleccionat">
+								<input type="checkbox" class="documentPerFirmarServidor" title="Els documents d'una anotació s'han d'incloure a l'expedient." checked="checked" disabled="true" name="documentsFinalitzar[${status.index}].seleccionat">
 							</c:if>
 							<c:if test="${empty doc.annexAnotacioId}">
 								<input type="checkbox" class="documentPerFirmarServidor" name="documentsFinalitzar[${status.index}].seleccionat">

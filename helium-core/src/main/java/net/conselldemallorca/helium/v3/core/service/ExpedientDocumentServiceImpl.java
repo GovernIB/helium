@@ -707,9 +707,16 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
     			if (anotacio.getAnnexos()!=null) {
     				String anotacioDesc = anotacio.getIdentificador();
     				for (AnotacioAnnex anotacioAnnex: anotacio.getAnnexos()) {
-    					if (anotacioAnnex.getFirmaTipus()==null) {
-	    					DocumentFinalitzarDto docIncl = anotacioAnnexJaIncluit(anotacioAnnex, resultat);
-	    					if (docIncl==null) {
+    					
+    					DocumentFinalitzarDto docIncl = anotacioAnnexJaIncluit(anotacioAnnex, resultat);
+    					
+    					if (docIncl==null) {
+    						//El annex no está incluit als documents del expedient recuperats inicialment
+    						//L'afegim en cas de que no estigui signat o no estigui encara mogut al arxiu
+    						if (anotacioAnnex.getFirmaTipus()==null ||
+    							anotacioAnnex.getEstat()==null ||
+    							!AnotacioAnnexEstatEnumDto.MOGUT.equals(anotacioAnnex.getEstat())) {
+    							
 	    						DocumentFinalitzarDto docAnotacio = conversioTipusHelper.convertir(anotacioAnnex, DocumentFinalitzarDto.class);
 	    						docAnotacio.setAnnexAnotacioId(anotacioAnnex.getId());
 	    						docAnotacio.setAnotacioDesc(anotacioDesc);
@@ -734,14 +741,14 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 //	    						aux.setArxiuEstat(arxiuEstat);
 	    						
 	    						docsAux.add(docAnotacio);
-	    					} else {
-	    						docIncl.setAnnexAnotacioId(anotacioAnnex.getId());
-	    						docIncl.setAnotacioDesc(anotacioDesc);
-	    						docIncl.setFirmaInvalida(!anotacioAnnex.isDocumentValid());
-	    						docIncl.setAnotacioAnnexNoMogut(
-	    								anotacioAnnex.getEstat()==null || 
-	    								!AnotacioAnnexEstatEnumDto.MOGUT.equals(anotacioAnnex.getEstat()));
-	    					}
+    						}
+    					} else {
+    						docIncl.setAnnexAnotacioId(anotacioAnnex.getId());
+    						docIncl.setAnotacioDesc(anotacioDesc);
+    						docIncl.setFirmaInvalida(!anotacioAnnex.isDocumentValid());
+    						docIncl.setAnotacioAnnexNoMogut(
+    								anotacioAnnex.getEstat()==null || 
+    								!AnotacioAnnexEstatEnumDto.MOGUT.equals(anotacioAnnex.getEstat()));
     					}
     				}
     			}
