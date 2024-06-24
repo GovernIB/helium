@@ -428,9 +428,9 @@
 									<c:if test="${dadesPersona.admin}">
 										<li><a id="procediments" href="<c:url value="/v3/procediment"/>"><spring:message code="decorator.menu.procediments"/></a></li>
 									</c:if>
-<%-- 									<c:if test="${dadesPersona.admin}"> --%>
+									<c:if test="${dadesPersona.admin}">
 										<li><a id="excepcions" href="<c:url value="/v3/excepcions"/>"><spring:message code="decorator.menu.excepcions"/></a></li>
-<%-- 									</c:if> --%>
+									</c:if>
 								</ul>
 								<script type="text/javascript">
 									$('#mesures a').heliumEvalLink({

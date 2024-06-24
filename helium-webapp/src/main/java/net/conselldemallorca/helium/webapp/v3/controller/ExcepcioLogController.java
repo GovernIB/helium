@@ -6,6 +6,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,11 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.ExcepcioLogDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
 @Controller
 @RequestMapping("/v3/excepcions")
@@ -29,7 +32,12 @@ public class ExcepcioLogController extends BaseController {
 	public String get(
 			HttpServletRequest request,
 			Model model) {
-		return "v3/excepcio";
+		if (UsuariActualHelper.isAdministrador(SecurityContextHolder.getContext().getAuthentication())) {
+			return "v3/excepcio";
+		} else {
+			MissatgesHelper.error(request, "Es requereix el rol d'administrador per consultar el registre d'excepcions.");
+			return "redirect:/";
+		}
 	}
 
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
