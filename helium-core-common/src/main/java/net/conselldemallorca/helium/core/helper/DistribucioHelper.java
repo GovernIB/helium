@@ -976,6 +976,7 @@ public class DistribucioHelper {
 			String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e;
 			String traçaCompleta = ExceptionUtils.getStackTrace(e);
 			anotacio.setErrorProcessament(errorProcessament.concat(traçaCompleta));
+			anotacio.setEstat(AnotacioEstatEnumDto.ERROR_PROCESSANT);
 			throw new Exception(errorProcessament + ": "
 					+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
 		}
