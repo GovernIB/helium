@@ -96,7 +96,7 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 					case ERROR_PROCESSANT:
 						if (anotacio.getExpedientTipus() == null || anotacio.getExpedientTipus().isDistribucioProcesAuto()) {
 							anotacio = distribucioHelper.reprocessarAnotacio(anotacio.getId(), backofficeUtils);
-							estat = this.toAnotacioDistribucioEstat(anotacio.getEstat());
+							estat = es.caib.distribucio.rest.client.integracio.domini.Estat.PROCESSADA;
 						} else {
 							estat = es.caib.distribucio.rest.client.integracio.domini.Estat.REBUDA;
 							msg = "La petició ja s'ha rebut anteriorment i està pendent de processar o rebutjar manualment";
@@ -148,25 +148,7 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 			}
 		}		
 	}
-	
-	private es.caib.distribucio.rest.client.integracio.domini.Estat toAnotacioDistribucioEstat(AnotacioEstatEnumDto estatAnotacioHelium) {
-		if (estatAnotacioHelium!=null) {
-			switch (estatAnotacioHelium) {
-			case COMUNICADA:
-				return es.caib.distribucio.rest.client.integracio.domini.Estat.REBUDA;
-			case PENDENT:
-				return es.caib.distribucio.rest.client.integracio.domini.Estat.PENDENT;
-			case ERROR_PROCESSANT:
-				return es.caib.distribucio.rest.client.integracio.domini.Estat.ERROR;
-			case PROCESSADA:
-				return es.caib.distribucio.rest.client.integracio.domini.Estat.PROCESSADA;
-			case REBUTJADA:
-				return es.caib.distribucio.rest.client.integracio.domini.Estat.REBUTJADA;
-			}
-		}
-		return null;
-	}
-	
+		
 	/** Mètode per implementar la interfície {@link ArxiuPluginListener} de Distribució per rebre events de quan es crida l'Arxiu i afegir
 	 * els logs al monitor d'integracions. 
 	 * @param metode

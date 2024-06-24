@@ -157,10 +157,6 @@ public class AnotacioHelper {
 		// Comprova els permisos
 		if (comprovarPermis)
 			this.comprovaPermisAccio(anotacio);
-		// Comprova que està  pendent
-		if (! AnotacioEstatEnumDto.PENDENT.equals(anotacio.getEstat())) {
-			throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot actualitzar perquè està en estat " + anotacio.getEstat());
-		}
 
 		// Recupera la informació del tipus d'expedient i l'expedient
 		ExpedientTipus expedientTipus = null;
