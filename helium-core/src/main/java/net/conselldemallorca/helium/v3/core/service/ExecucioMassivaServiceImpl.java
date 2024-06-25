@@ -2177,10 +2177,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 		}
 	}
 	
-	
-	/**Reprocessar mapeig  de les anotacions (les que tenen un expedient associat es tornaria a aplicar el mapeig)
-	 **/
-	
+	/**Reprocessar mapeig  de les anotacions (les que tenen un expedient associat es tornaria a aplicar el mapeig)**/
 	private void reprocessarMapeigAnotacions(ExecucioMassivaExpedient ome) throws Exception {
 		StringBuilder errorMsg = new StringBuilder();
 		ExecucioMassivaEstat estat = ExecucioMassivaEstat.ESTAT_FINALITZAT;
@@ -2189,7 +2186,20 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 		Anotacio anotacio = anotacioRepository.findOne(ome.getAuxId());
 		try {
 			if(anotacio.getExpedient()!=null) {
-				anotacioHelper.reprocessarMapeigAnotacioExpedient(anotacio.getExpedient().getId(), ome.getAuxId());
+				//L'execució massiva es pot configurar per nomes executar el mapeig parcialment
+				//En tal cas s'aprofita el parametre1 de la execucio per guardar la configuració seleccionada
+				if (ome.getExecucioMassiva().getParam1()!=null) {			
+					anotacioHelper.reprocessarMapeigAnotacioExpedient(
+							anotacio.getExpedient().getId(),
+							ome.getAuxId(),
+							ome.getExecucioMassiva().getParam1().charAt(0)=='1',
+							ome.getExecucioMassiva().getParam1().charAt(1)=='1',
+							ome.getExecucioMassiva().getParam1().charAt(2)=='1');
+				} else {
+					anotacioHelper.reprocessarMapeigAnotacioExpedient(
+							anotacio.getExpedient().getId(),
+							ome.getAuxId());
+				}
 				ome.setEstat(estat);
 				ome.setError(errorMsg.length() > 0 ? errorMsg.toString() : null);
 				ome.setDataFi(new Date());
