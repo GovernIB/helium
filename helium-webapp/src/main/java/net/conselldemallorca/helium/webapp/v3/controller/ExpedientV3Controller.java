@@ -187,13 +187,13 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			
 			//Els documents de les anotacions, no es poden deseleccionar. Com que estan disabled, seleccionat arriba false.
 			//A part de que poden haver manipulat el codi HTML
-			if (expedientFinalitzarDto.getDocumentsFinalitzar()!=null) {
-				for (DocumentFinalitzarDto dfDto: expedientFinalitzarDto.getDocumentsFinalitzar()) {
-					if (dfDto.getAnnexAnotacioId()!=null && !dfDto.isSeleccionat()) {
-						dfDto.setSeleccionat(true);
-					}
-				}
-			}
+//			if (expedientFinalitzarDto.getDocumentsFinalitzar()!=null) {
+//				for (DocumentFinalitzarDto dfDto: expedientFinalitzarDto.getDocumentsFinalitzar()) {
+//					if (dfDto.getAnnexAnotacioId()!=null && !dfDto.isSeleccionat()) {
+//						dfDto.setSeleccionat(true);
+//					}
+//				}
+//			}
 			
 			// 1- firma els seleccionats
 			String errorsFirmantDocuments = "";

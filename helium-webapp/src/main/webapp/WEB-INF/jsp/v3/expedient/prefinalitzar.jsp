@@ -95,15 +95,24 @@
 						</td>
 						<td>${doc.dataCreacioStr}</td>
 						<td align="center">
-							<c:if test="${not empty doc.annexAnotacioId}">
-								<input type="checkbox" class="documentPerFirmarServidor" title="Els documents d'una anotació s'han d'incloure a l'expedient." checked="checked" disabled="true" name="documentsFinalitzar[${status.index}].seleccionat">
+							<c:set var="valorDefaultChecked" value=""/>
+							<c:set var="valorDefaultDisabled" value=""/>
+							<c:set var="valorDefaultTitle" value=""/>
+							<c:if test="${not empty doc.annexAnotacioId or not empty doc.notificacioId or not empty doc.peticioPinbalId}">
+								<c:set var="valorDefaultChecked" value="checked='checked'"/>
 							</c:if>
-							<c:if test="${empty doc.annexAnotacioId}">
-								<input type="checkbox" class="documentPerFirmarServidor" name="documentsFinalitzar[${status.index}].seleccionat">
+							<c:if test="${not empty doc.annexAnotacioId and not doc.anotacioAnnexNoMogut}">
+								<c:set var="valorDefaultChecked" value=""/>
+								<c:set var="valorDefaultDisabled" value="disabled='true'"/>
+								<c:set var="valorDefaultTitle" value="L'annex s'ha de mourer correctament a l'arxiu abans de poder enviarse a firmar en servidor."/>						
 							</c:if>
+							<input type="checkbox" class="documentPerFirmarServidor" title="${valorDefaultTitle}" ${valorDefaultChecked} ${valorDefaultDisabled} name="documentsFinalitzar[${status.index}].seleccionat">
 							<form:hidden path="documentsFinalitzar[${status.index}].documentStoreId"/>
 							<form:hidden path="documentsFinalitzar[${status.index}].processInstanceId"/>
 							<form:hidden path="documentsFinalitzar[${status.index}].annexAnotacioId"/>
+							<form:hidden path="documentsFinalitzar[${status.index}].notificacioId"/>
+							<form:hidden path="documentsFinalitzar[${status.index}].peticioPinbalId"/>
+							<form:hidden path="documentsFinalitzar[${status.index}].anotacioAnnexNoMogut"/>
 						</td>
 					</tr>
 				</c:forEach>
