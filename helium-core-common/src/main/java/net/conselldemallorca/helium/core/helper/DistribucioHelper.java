@@ -806,6 +806,7 @@ public class DistribucioHelper {
 							null,
 							true, // incorporar interessats
 							backofficeUtils);
+					anotacio.setExpedient(expedient);
 				} catch (Throwable e) {
 					String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e;
 					// Crida fent referència al bean per crear una nova transacció

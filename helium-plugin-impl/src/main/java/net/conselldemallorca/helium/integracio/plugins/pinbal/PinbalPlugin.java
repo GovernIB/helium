@@ -318,6 +318,8 @@ public class PinbalPlugin implements PinbalPluginInterface {
 		if ("0003".equals(respuesta.getAtributos().getEstado().getCodigoEstado())) {
 			resultat.setEstatAsincron(PeticioPinbalEstatEnum.TRAMITADA);
 			resultat.setJustificant(getJustificantPinbal(peticioId, null));
+		} else {
+			resultat.setEstatAsincron(PeticioPinbalEstatEnum.PENDENT);
 		}
 
 		logger.debug("-> getRespuesta(" + peticioId + ") = " + objectToJsonString(respuesta));
@@ -480,7 +482,7 @@ public class PinbalPlugin implements PinbalPluginInterface {
 		ScspRespostaPinbal resposta = new ScspRespostaPinbal();
 		resposta.setIdPeticion(scspRespuesta.getAtributos().getIdPeticion());
 		resposta.setJustificant(this.getJustificantPinbal(resposta.getIdPeticion(), documentCodi));
-		resposta.setEstat(scspRespuesta.getAtributos().getEstado().toString());
+		//resposta.setEstat(scspRespuesta.getAtributos().getEstado().toString());
 		return resposta;	
 	}
 

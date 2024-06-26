@@ -253,7 +253,7 @@
 														data-rdt-link-modal-min-height="500"
 														class="icon modificar" >
 															<span class="label label-success etiqueta-nti-arxiu" id="${contingut.id}" title="<spring:message code="consultes.pinbal.detall.titol"/>">
-																PIN<c:if test="${document.estatPinbal=='PENDENT'}">&nbsp;<span class="fa fa-clock-o"></span></c:if><c:if test="${document.estatPinbal=='ERROR_PROCESSANT' or document.estatPinbal=='ERROR'}">&nbsp;<span class="fa fa-exclamation-triangle"></span></c:if>
+																PIN<c:if test="${document.estatPinbal=='PENDENT'}">&nbsp;<span class="fa fa-clock-o"></span></c:if><c:if test="${document.estatPinbal=='ERROR_PROCESSANT' or document.estatPinbal=='ERROR'}">&nbsp;<span class="fa fa-exclamation-triangle text-danger"></span></c:if>
 															</span>
 													</a>
 												</c:if>

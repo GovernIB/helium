@@ -32,6 +32,7 @@ public class ConsultaPinbalHelper {
 		ScspRespostaPinbal resultat = new ScspRespostaPinbal();
 		
 		try {
+			// Consulta l'estat
 			resultat = pluginHelper.consultaEstatPeticioPinbal(pi.getPinbalId());
 			if (PeticioPinbalEstatEnum.TRAMITADA.equals(resultat.getEstatAsincron())) {
 				documentHelperV3.crearActualitzarDocument(
@@ -45,17 +46,21 @@ public class ConsultaPinbalHelper {
 						null,
 						null,
 						null);
-			}
-			
-			if (pi.getTokenId()!=null && pi.getTransicioOK() != null) {
-				JbpmToken token = jbpmDao.getTokenById(pi.getTokenId().toString());
-				if (token!=null) {
-					if (token.getToken().getNode().getNodeType().equals(NodeType.State)
-							&& token.getToken().getNode().getLeavingTransition(pi.getTransicioOK()) != null)
-					jbpmDao.signalToken(pi.getTokenId().longValue(), pi.getTransicioOK());
+				
+				// Segons el resultat de la resposta avança l'expedient
+				if (pi.getTokenId() != null) {
+					JbpmToken token = jbpmDao.getTokenById(pi.getTokenId().toString());
+					if (token!=null) {
+						if (token.getToken().getNode().getNodeType().equals(NodeType.State)) {
+							if (pi.getTransicioOK() != null && token.getToken().getNode().getLeavingTransition(pi.getTransicioOK()) != null) {
+								jbpmDao.signalToken(pi.getTokenId().longValue(), pi.getTransicioOK());								
+							} else {
+								jbpmDao.signalToken(pi.getTokenId(), null);
+							}
+						}
+					}
 				}
 			}
-			
 		} catch (Exception ex) {
 			resultat.setEstatAsincron(PeticioPinbalEstatEnum.ERROR_PROCESSANT);
 			String error = ex.getMessage() + ": " + exceptionHelper.getMissageFinalCadenaExcepcions(ex);
