@@ -743,6 +743,36 @@ public class DistribucioHelper {
 			Anotacio anotacio,
 			BackofficeArxiuUtils backofficeUtils) throws Exception{
 
+		// Comprova si ja hi ha una anotació processada per rebutjar possibles anotacions duplicades
+		List<Anotacio> anotacions = anotacioRepository.findByDistribucioId(anotacio.getDistribucioId());
+		if(anotacions!=null && !anotacions.isEmpty() && anotacions.size()>1) {
+			boolean rebutjar=false;
+			Expedient expedientAnotacioIdemNum = null;
+			for(Anotacio anotacioIdemNumero: anotacions) {
+				// expedient no anul·lat o anotació en estat pendent
+				expedientAnotacioIdemNum = anotacioIdemNumero.getExpedient();
+				if((expedientAnotacioIdemNum!=null && expedientAnotacioIdemNum.isAnulat()) || AnotacioEstatEnumDto.PENDENT.equals(anotacioIdemNumero.getEstat()))
+					rebutjar = true;	
+			}
+			if (rebutjar) {
+				//vol dir q és un duplicat i s'ha de rebutjar
+				String motiuRebuig = "L'anotació " + idWs.getIndetificador() + " es rebutja automàticament des d'Helium "
+						+ "ja hi ha una anotació amb el mateix número en estat PROCESSADA/PENDENT rebuda el " + anotacio.getDataRecepcio() 
+						+ (expedientAnotacioIdemNum!=null ? " per l'expedient " + expedientAnotacioIdemNum.getNumero() : "") ;
+				self.rebutjar(anotacio, motiuRebuig);
+				//Es comunica l'estat a Distribucio
+				try {
+					this.canviEstat(
+							idWs, 
+							es.caib.distribucio.rest.client.integracio.domini.Estat.REBUTJADA,
+							motiuRebuig);
+				} catch(Exception ed) {
+					logger.error("Error comunicant el motiu de rebuig a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
+				}
+				return;
+			}
+		}
+		
 		// Comprova si l'anotació s'ha associat amb un tipus d'expedient amb processament automàtic
 		ExpedientTipus expedientTipus = anotacio.getExpedientTipus();
 		Expedient expedient = anotacio.getExpedient();

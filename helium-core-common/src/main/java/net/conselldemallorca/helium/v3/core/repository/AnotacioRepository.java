@@ -171,7 +171,7 @@ public interface AnotacioRepository extends JpaRepository<Anotacio, Long> {
 			@Param("esNullExpedientTipusIds") boolean esNullExpedientTipusIds,
 			@Param("expedientTipusIds") List<Long> expedientTipusIds);
 	
-	/** Mètode per recuperar les peticions d'anotació per id de Distribucio. */
+	/** Mètode per recuperar les peticions d'anotació per id de Distribucio i clau d'accés */
 	List<Anotacio> findByDistribucioIdAndDistribucioClauAcces(String distribucioId, String distribucioClauAcces);
 	
 	/** Mètode per recuperar les anotacions associades a un expedient. */
@@ -191,5 +191,8 @@ public interface AnotacioRepository extends JpaRepository<Anotacio, Long> {
 	public Page<Anotacio> findAnotacionsPendentConsultarPaged(
 			@Param("maxReintents") int maxReintents,
 			Pageable pageable);
+	
+	/** Mètode per recuperar les peticions d'anotació per id de Distribucio. */
+	List<Anotacio> findByDistribucioId(String distribucioId);
 
 }

@@ -793,6 +793,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		try {
 			BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
 			backofficeUtils.setArxiuPluginListener(this);
+			distribucioHelper.setProcessant(anotacioId, true);//posem la rodeta de processant
 			anotacio = distribucioHelper.reprocessarAnotacio(anotacioId, backofficeUtils);
 		} catch(Throwable e) {
 			throw new Exception(e);	
