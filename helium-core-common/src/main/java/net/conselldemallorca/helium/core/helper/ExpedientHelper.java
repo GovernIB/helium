@@ -77,7 +77,6 @@ import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
@@ -922,15 +921,6 @@ public class ExpedientHelper {
 		if (expedient.getArxiuUuid() != null && !expedient.getArxiuUuid().isEmpty())
 			throw new ValidacioException("Aquest expedient ja està vinculat a l'arxiu amb la uuid: " + expedient.getArxiuUuid());
 		
-		// Valida que els documents siguin convertibles
-		List<String> noConvertibles = new ArrayList<String>();
-		for (DocumentStore document: documentStoreRepository.findByProcessInstanceId(expedient.getProcessInstanceId())) {
-			if(!PdfUtils.isArxiuConvertiblePdf(document.getArxiuNom()))
-				noConvertibles.add(document.getArxiuNom());
-		}
-		if (!noConvertibles.isEmpty())
-			throw new ValidacioException("No es pot migrar l'expedient perquè conté els següents documents no convertibles a PDF per persistir-los a l'Arxiu: " + noConvertibles.toString());
-
 		if (!expedient.isNtiActiu()) {
 			// Informa les metadades NTI de l'expedient
 			expedient.setNtiVersion(VERSIO_NTI);
@@ -1110,34 +1100,9 @@ public class ExpedientHelper {
 					documentStoreRepository.findByProcessInstanceId(procesInstance.getId())
 					);
 		}
-		
-		
-		List<DocumentStore> documentsPerSignar = new ArrayList<DocumentStore>();
-		List<DocumentStore> documentsNoValids = new ArrayList<DocumentStore>();
-		
-		// Valida que els documents es puguin firmar
-		for (DocumentStore documentStore : documents) {
-			if (!documentStore.isSignat()) {
-				if (!PdfUtils.isArxiuConvertiblePdf(documentStore.getArxiuNom())) {
-					documentsNoValids.add(documentStore);
-				} else {
-					documentsPerSignar.add(documentStore);
-				}
-			}
-		}
-		if (!documentsNoValids.isEmpty()) {
-			// Informa de l'error de validació
-			StringBuilder llistaDocuments = new StringBuilder();
-			for (DocumentStore d : documentsNoValids) {
-				if(llistaDocuments.length() > 0)
-					llistaDocuments.append(", ");
-				llistaDocuments.append(d.getArxiuNom());
-			}
-			throw new ValidacioException(messageHelper.getMessage("document.controller.firma.servidor.validacio.conversio.documents", new Object[]{ llistaDocuments.toString(), PdfUtils.getExtensionsConvertiblesPdf()}));
-		}
-		
+				
 		// Firma en el servidor els documents pendents de firma
-		for (DocumentStore documentStore: documentsPerSignar) {
+		for (DocumentStore documentStore: documents) {
 			es.caib.plugins.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
 					documentStore.getArxiuUuid(),
 					null,

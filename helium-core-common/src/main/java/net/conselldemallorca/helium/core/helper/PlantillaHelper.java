@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
+import java.awt.Color;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.io.Writer;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +23,10 @@ import javax.annotation.Resource;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import com.lowagie.text.Font;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfWriter;
 
 import freemarker.core.Environment;
 import freemarker.core.NonStringException;
@@ -60,6 +66,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
@@ -68,6 +75,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.HeliumException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.repository.AreaJbpmIdRepository;
 import net.conselldemallorca.helium.v3.core.repository.AreaRepository;
 import net.conselldemallorca.helium.v3.core.repository.CarrecJbpmIdRepository;
@@ -191,7 +199,47 @@ public class PlantillaHelper {
 		}
 	}
 
+	public DadesDocumentDto generaJustificantTemporalPinbal(
+			String procedimentPinbal,
+			String idPetició,
+			Date dataPrevista) throws SistemaExternException {
 
+		try {
+		
+			DadesDocumentDto resposta = new DadesDocumentDto();
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+			Date dataActual = Calendar.getInstance().getTime();
+			resposta.setData(dataActual);
+			resposta.setArxiuNom("Provissional_"+procedimentPinbal+"_"+idPetició+".pdf");
+			resposta.setDocumentValid(false);
+			
+			com.lowagie.text.Document document = new com.lowagie.text.Document();
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			PdfWriter.getInstance(document, bos);   	 
+			document.open();
+			
+			Font fontTitol = new Font(Font.HELVETICA, 18, Font.BOLD, new Color(255, 149, 35));
+			Paragraph p = new Paragraph("Document temporal de consulta asíncrona PINBAL", fontTitol);
+			p.setAlignment(Paragraph.ALIGN_CENTER);
+			p.setSpacingAfter(10f);
+			document.add(p);
+			document.add(new Paragraph("- Procediment PINBAL: "+procedimentPinbal));
+			document.add(new Paragraph("- Identificador de la petició: "+idPetició));
+			document.add(new Paragraph("- Data de la consulta: "+sdf.format(dataActual)));
+			document.add(new Paragraph("- Previssió de resposta: "+sdf.format(dataPrevista)));
+			
+			Paragraph peu = new Paragraph("Aquest document es substituirà amb el document justificant de la consulta un cop acabi la crida asíncrona correctament.");
+			peu.setExtraParagraphSpace(10f);
+			
+			document.close();
+			bos.close();
+			resposta.setArxiuContingut(bos.toByteArray());
+			
+			return resposta;
+		} catch (Exception ex) {
+			throw new SistemaExternException("PINBAL", "Error al generar el justificant provissional PINBAL: "+ex.getMessage(), ex);
+		}
+	}
 
 	private void afegirDadesProcesAlModel(
 			String processInstanceId,

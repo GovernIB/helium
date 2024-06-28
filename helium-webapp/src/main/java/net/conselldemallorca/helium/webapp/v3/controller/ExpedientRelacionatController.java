@@ -99,12 +99,14 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 		return "redirect:/v3/expedient/" + expedientId;
 	}
 	
-	@RequestMapping(value = "/{expedientId}/expedient/suggest/{text}", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
+	@RequestMapping(value = "/{expedientId}/expedient/suggest/**", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
 	@ResponseBody
 	public String suggestAction(
 			HttpServletRequest request,
-			@PathVariable String text,
 			ModelMap model) throws UnsupportedEncodingException {
+		String requestUrl = request.getRequestURL().toString();
+		String text = requestUrl.split("/expedient/suggest/")[1];
+		
 		String json = "[";
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		List<ExpedientDto> lista = expedientService.findSuggestAmbEntornLikeIdentificador(

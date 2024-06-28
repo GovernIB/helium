@@ -30,6 +30,7 @@ public class SessionHelper {
 	public static final String VARIABLE_CONS_EXPTIP_ACTUAL = "consultesExpedientTipusActual";
 	public static final String VARIABLE_PREFERENCIES_USUARI = "preferenciesUsuari";
 	public static final String VARIABLE_EXPTIP_ACCESSIBLES = "expedientTipusAccessibles";
+	public static final String VARIABLE_EXPTIP_ADMIN = "expedientTipusAdmin";
 	public static final String VARIABLE_EXPTIP_ACCESSIBLES_AMB_CONSULTES_ACTIVES = "expedientTipusAccessiblesAmbConsultesActives";
 	public static final String VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS = "expedientTipusAccessiblesAnotacions";
 	public static final String VARIABLE_PERMIS_EXPTIP_DISSENY = "potDissenyarExpedientTipus";

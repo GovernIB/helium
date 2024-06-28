@@ -142,6 +142,7 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
     		Set<String> dominisGlobals = new HashSet<String>();
     		for (DominiDto d : dominiService.findGlobals(entornActual.getId()))
     			dominisGlobals.add(d.getCodi());
+    		List<DefinicioProcesDto> definicionsProcesGlobals = dissenyService.findByEntornAndExpedientTipusOpcional(entornActual.getId(), command.getId());
     		Set<String> enumeracionsTe = new HashSet<String>();
     		Set<String> dominisTe = new HashSet<String>();
     		if (expedientTipus != null) {
@@ -266,7 +267,7 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 						}
 				} else if (camp.getTipus() == CampTipusDto.ACCIO) {
 					// Comprova que la definició de procés també s'exporti
-					if (!command.getDefinicionsProces().contains(camp.getDefprocJbpmKey())) {
+					if (!command.getDefinicionsProces().contains(camp.getDefprocJbpmKey()) && !esDefinicioProcesGlobal(definicionsProcesGlobals, camp.getDefprocJbpmKey())) {
 						context.buildConstraintViolationWithTemplate(
 								MessageHelper.getInstance().getMessage(
 										this.codiMissatge + ".variable.accio", 
@@ -717,6 +718,17 @@ public class ExpedientTipusImportarValidator implements ConstraintValidator<Expe
 			context.disableDefaultConstraintViolation();
 		
 		return valid;
+	}
+	
+	private boolean esDefinicioProcesGlobal(List<DefinicioProcesDto> definicionsProcesGlobals, String jbpmId) {
+		if (definicionsProcesGlobals!=null) {
+			for (DefinicioProcesDto dp: definicionsProcesGlobals) {
+				if (jbpmId.equals(dp.getJbpmKey()) && dp.getExpedientTipus()==null) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 }

@@ -658,6 +658,10 @@ dd.subproc {
 				<c:if test="${expedient.tipus.distribucioActiu}">
 					<li id="pipella-anotacions"><a href="#contingut-anotacions" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.anotacions"/></a></li>
 				</c:if>
+				<c:if test="${numPinbals > 0}">
+					<li id="pipella-pinbal"><a href="#contingut-pinbal" role="tab" data-toggle="tab"><spring:message code="expedient.info.pipella.pinbal"/></a></li>
+				</c:if>				
+				
 			</ul>
 			<div class="tab-content">
 				<div id="contingut-dades" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/dada"/>">
@@ -707,6 +711,11 @@ dd.subproc {
 				</c:if>
 				<c:if test="${expedient.tipus.distribucioActiu}">
 					<div id="contingut-anotacions" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/anotacio"/>">
+						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
+					</div>
+				</c:if>
+				<c:if test="${numPinbals > 0}">
+					<div id="contingut-pinbal" class="tab-pane" data-href="<c:url value="/nodeco/v3/expedient/${expedient.id}/pinbal"/>">
 						<div class="contingut-carregant"><span class="fa fa-circle-o-notch fa-spin fa-3x"></span></div>
 					</div>
 				</c:if>

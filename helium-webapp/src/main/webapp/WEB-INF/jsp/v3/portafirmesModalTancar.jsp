@@ -14,76 +14,80 @@
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.maskedinput.js"/>"></script>
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>
 	<link href="<c:url value="/css/select2-bootstrap.css"/>" rel="stylesheet"/>
+	<script src="<c:url value="/webjars/datatables.net/1.10.13/js/jquery.dataTables.min.js"/>"></script>
+	<script src="<c:url value="/webjars/datatables.net-bs/1.10.13/js/dataTables.bootstrap.min.js"/>"></script>
 	<script src="<c:url value="/js/select2.min.js"/>"></script>
 	<script src="<c:url value="/js/select2-locales/select2_locale_${idioma}.js"/>"></script>	
 	<script src="<c:url value="/js/webutil.modal.js"/>"></script>
 	<script src="<c:url value="/js/webutil.common.js"/>"></script>
+	<script src="<c:url value="/js/webutil.datatable.js"/>"></script>
 <script>
 let fluxIframe = window.frameElement;
 
 if (fluxIframe) {
+	
 	const idTransaccioFlux = "${fluxId}";
 	const fluxErrorDesc = "${FluxError}";
 	const fluxSuccesDesc = "${FluxCreat}";
 	const fluxCreatedNom = "${FluxNom}";
+	const origenFlux = "${OrigenFlux}"
 	const $modalFlux = $(fluxIframe.parentElement.parentElement).prev();
-	var alerta;
-	if (idTransaccioFlux != null && idTransaccioFlux != '') {
-		var newOption = "<option value=\"" + idTransaccioFlux + "\" selected>" + fluxCreatedNom + "</option>";
-		$portafirmesFluxId = $modalFlux.find('#portafirmesFluxId');
-		$portafirmesFluxId.append(newOption).val(idTransaccioFlux);
-		$portafirmesFluxId.val(idTransaccioFlux);
-		// No actualitza el text seleccionat, hactualitzem el div del select2
-		$modalFlux.find('#s2id_portafirmesFluxId').find('.select2-chosen').html(fluxCreatedNom);
-		$portafirmesFluxId.change();
-		$modalFlux.find('#portafirmesFluxNom').val(fluxCreatedNom);
-	} else if (fluxErrorDesc != null && fluxErrorDesc != '') {
-		alerta = fluxErrorDesc;
-		//desactivar selecció si s'ha creat un nou flux
-		if (localStorage.getItem('transaccioId') == null && localStorage.getItem('transaccioId') == '') {
-			$modalFlux.find('#portafirmesFluxId').attr('disabled', false);
-		}
-		$modalFlux.find(".portafirmesEnviarFluxId_btn_addicional").find('i').addClass('fa-eye').removeClass('fa-eye-slash');
-	}
 
-	if (fluxSuccesDesc != null && fluxSuccesDesc != '') {
-
-		// Flux creat des de la modal d'enviament de l'usuari, informa el camp ocult per poder enviar fent referència al nou camp
-		$modalFlux.find('#portafirmesNouFluxId').val(idTransaccioFlux);
+	if (origenFlux=='FluxUsuariList') {
 		
-		//Borram el valor del flux seleccionat al desplegable si n´hi ha
-		$modalFlux.find('#portafirmesEnviarFluxId').empty();
-		$modalFlux.find('#s2id_portafirmesEnviarFluxId .select2-chosen').html('');
-		$modalFlux.find('#portafirmesEnviarFluxId').attr('disabled', true);
-		
-		//desactivar botó de visualitzar
-		$modalFlux.find('.portafirmesEnviarFluxId_btn_addicional').attr('disabled', true);
-		
-		alerta = fluxSuccesDesc;
-		if ((fluxCreatedNom != null && fluxCreatedNom != '')) {
-			var $comentari = $modalFlux.find('.comentari');
-			$comentari = $modalFlux.find('.comentari');
-			$comentari.text('');
-			//if flux success text exists
-			$modalFlux.find('#portafirmesEnviarFluxId').closest('.form-group').prev('p').remove();
-			$modalFlux.find('#portafirmesEnviarFluxId').closest('form').find('.success-label').removeClass('hidden');
-			$modalFlux.find('#portafirmesEnviarFluxId').closest('.form-group').before('<p class="success col-xs-8"></p>');
-			
-			var $success =  $modalFlux.find('.success');
-			var text = '<spring:message code='expedient.tipus.document.form.camp.portafirmes.flux.seleccionat'/>';
-			$success.html(text + " <span>" + fluxCreatedNom + "</span>");
-			$success.css('color', '#3c763d');
-			$success.find('span').css('font-weight', 'bold');
+		if (fluxErrorDesc != null && fluxErrorDesc != '') {
+			window.top.portafibCallback(fluxErrorDesc, true);
+		} else {
+			window.top.portafibCallback(fluxSuccesDesc, false);
 		}
-	}
-	$modalFlux.removeClass('hidden');
-	$modalFlux.find('.alert').remove();
-	if (alerta) {
-		webutilAlertaWarning(alerta, '#divAlertesFlux');
+		
+	} else {
+		
+		var alerta;
+		var selectFluxNom = "portafirmesFluxId";
+		
+		$portafirmesFluxId = $modalFlux.find('#'+selectFluxNom);
+		
+		if ($portafirmesFluxId.length==0) {
+			//Formulari de Expedient, el camp es diu diferent que en el form de TE
+			selectFluxNom = "portafirmesEnviarFluxId";
+		}
+		
+		if (idTransaccioFlux != null && idTransaccioFlux != '') {
+			var newOption = "<option value=\"" + idTransaccioFlux + "\" selected>" + fluxCreatedNom + "</option>";
+			$portafirmesFluxId = $modalFlux.find('#'+selectFluxNom);
+			$portafirmesFluxId.append(newOption).val(idTransaccioFlux);
+			$portafirmesFluxId.val(idTransaccioFlux);
+			// No actualitza el text seleccionat, hactualitzem el div del select2
+			$modalFlux.find('#s2id_'+selectFluxNom).find('.select2-chosen').html(fluxCreatedNom);
+			$portafirmesFluxId.change();
+			$modalFlux.find('#portafirmesFluxNom').val(fluxCreatedNom);
+		} else if (fluxErrorDesc != null && fluxErrorDesc != '') {
+			alerta = fluxErrorDesc;
+			//desactivar selecció si s'ha creat un nou flux
+			if (localStorage.getItem('transaccioId') == null && localStorage.getItem('transaccioId') == '') {
+				$modalFlux.find('#'+selectFluxNom).attr('disabled', false);
+			}
+			$modalFlux.find("."+selectFluxNom+"_btn_addicional").find('i').addClass('fa-eye').removeClass('fa-eye-slash');
+		}
+	
+		if (fluxSuccesDesc != null && fluxSuccesDesc != '') {
+			//desactivar botó de visualitzar
+			$modalFlux.find('.'+selectFluxNom+'_btn_addicional').attr('disabled', true);
+			alerta = fluxSuccesDesc;
+		}
+		
+		$modalFlux.removeClass('hidden');
+		$modalFlux.find('.alert').remove();
+		
+		if (alerta) {
+			webutilAlertaWarning(alerta, '#divAlertesFlux');
+		}
+		
+		//Adjust modal width/height
+		adjustModalPerFluxRemove(fluxCreatedNom);
 	}
 	
-	//Adjust modal width/height
-	adjustModalPerFluxRemove(fluxCreatedNom);
 	$(fluxIframe.parentElement).trigger('remove');
 }
 

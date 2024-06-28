@@ -150,11 +150,16 @@ public class PortafirmesFluxServiceImpl implements PortafirmesFluxService {
 	
 	@Override
 	public List<PortafirmesFluxRespostaDto> recuperarPlantillesDisponibles(Long expedientTipusId, Long definicioProcesId, String usuari) {
-
 		logger.debug("Recuperant plantilles disponibles per l'usuari " + (usuari != null ? usuari : "aplicació"));
 		String descripcioFiltre = getDescripcioFiltre(expedientTipusId, definicioProcesId, usuari);
 		String idioma = LocaleContextHolder.getLocale().getLanguage();
-		return pluginHelper.portafirmesRecuperarPlantillesDisponibles(descripcioFiltre, idioma, true);
+		List<PortafirmesFluxRespostaDto> resultat = pluginHelper.portafirmesRecuperarPlantillesDisponibles(descripcioFiltre, idioma, true);
+		if (resultat!=null) {
+			for (PortafirmesFluxRespostaDto aux: resultat) {
+				aux.setFluxComu(usuari==null);
+			}
+		}
+		return resultat;
 	}
 	
 	@Override

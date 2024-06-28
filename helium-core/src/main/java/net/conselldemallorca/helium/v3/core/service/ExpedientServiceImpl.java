@@ -29,7 +29,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
-import org.springframework.orm.hibernate3.HibernateJdbcException;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -96,7 +95,6 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrg
 import net.conselldemallorca.helium.core.model.hibernate.Notificacio;
 import net.conselldemallorca.helium.core.model.hibernate.Parametre;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
 import net.conselldemallorca.helium.core.model.hibernate.TerminiIniciat;
@@ -147,6 +145,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesEstatEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -181,6 +180,7 @@ import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusUnitatOrganitzativaRepository;
 import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.ParametreRepository;
+import net.conselldemallorca.helium.v3.core.repository.PeticioPinbalRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
@@ -241,7 +241,9 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	@Resource
 	private EstatAccioEntradaRepository estatAccioEntradaRepository;
 	@Resource
-	private EstatAccioSortidaRepository estatAccioSortidaRepository;	
+	private EstatAccioSortidaRepository estatAccioSortidaRepository;
+	@Resource
+	private PeticioPinbalRepository peticioPinbalRepository;
 
 	@Resource
 	private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
@@ -469,14 +471,10 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					"", 
 					ex.getCause());
 		} catch (ValidationException ex) {
-			throw new TramitacioValidacioException("Error de validació en Handler", ex);
-		} catch (HibernateJdbcException e) {
-				throw new Exception(messageHelper.getMessage("error.proces.peticio") + ": "
-				+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
+			throw new TramitacioValidacioException("Error de validació en Handler: " +ex.getMessage(), ex);
 		}catch (Exception e) {
-			Throwable t = ExceptionUtils.getRootCause(e) != null? ExceptionUtils.getCause(e) : e ;
 			throw new Exception(messageHelper.getMessage("error.proces.peticio") + ": "
-					+ ExceptionUtils.getRootCauseMessage(e), t);
+					+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
 		} 
 	}
 
@@ -623,7 +621,19 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		for (Notificacio notificacio: notificacioRepository.findByExpedientOrderByDataEnviamentDesc(expedient)) {
 			notificacioRepository.delete(notificacio);
 		}
-		
+
+//		List<PeticioPinbal> pets = peticioPinbalRepository.findByExpedientId(expedient.getId());
+//		if (pets!=null) {
+//			for (PeticioPinbal p: pets) {
+//				if (p.getDocument()!=null) {
+//					documentHelper.esborrarDocument(null, expedient.getProcessInstanceId(), p.getDocument().getId());
+//				}
+//				peticioPinbalRepository.delete(p);
+//			}
+//		}
+
+		peticioPinbalRepository.delete(peticioPinbalRepository.findByExpedientId(expedient.getId()));
+
 		anotacioService.esborrarAnotacionsExpedient(expedient.getId());
 
 		// Ordena per id de menor a major per evitar errors de dependències
@@ -657,7 +667,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			}
 		}
 		for (Portasignatures psigna: expedient.getPortasignatures()) {
-			psigna.setEstat(TipusEstat.ESBORRAT);
+			psigna.setEstat(PortafirmesEstatEnum.ESBORRAT);
 		}
 		for (ExecucioMassivaExpedient eme: execucioMassivaExpedientRepository.getExecucioMassivaByExpedient(id)) {
 			execucioMassivaExpedientRepository.delete(eme);
@@ -1806,7 +1816,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 						expedient.getTipus().getId(), 
 						expedient.getTipus().getCodi(), 
 						expedient.getTipus().getNom(), 
-						"Error al executa l'acció '" + accio.getCodi() + "'"+ exceptionHelper.getRouteCauses(ex),
+						"Error al executa l'acció '" + accio.getCodi() + "'"+ ex.getMessage(),
 						ex);
 			}
 			expedientHelper.verificarFinalitzacioExpedient(expedient);
@@ -1910,8 +1920,16 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				false,
 				false);
 		List<Alerta> alertes = alertaRepository.findByExpedientAndDataEliminacioNull(expedient);
+		Collections.sort(alertes, new ComparadorAlertes());
 		// Convertir a AlertaDto
 		return conversioTipusHelper.convertirList(alertes, AlertaDto.class);
+	}
+	
+	public class ComparadorAlertes implements Comparator<Alerta>{
+		public int compare(Alerta a1, Alerta a2) {
+			return a2.getDataCreacio().compareTo(a1.getDataCreacio());
+		}
+		
 	}
 
 	/**
@@ -1928,7 +1946,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				false,
 				false,
 				false);
-		List<Portasignatures> portasignatures = portasignaturesRepository.findByExpedientAndEstat(expedient, TipusEstat.ERROR);
+		List<Portasignatures> portasignatures = portasignaturesRepository.findByExpedientAndEstat(expedient, PortafirmesEstatEnum.ERROR);
 		List<ExpedientErrorDto> errors_int = new ArrayList<ExpedientErrorDto>();
 		
 		if(!portasignatures.isEmpty()){
@@ -1962,7 +1980,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				false);
 		//No fa falta netejar el error del portafib, a més no tendria sentit si no es canvia també el TipusEstat
 		//Això en teoria ja s'actualitza correctament al metode de processarDocumentPendentPortasignatures del PluginService
-//		List<Portasignatures> portasignatures = portasignaturesRepository.findByExpedientAndEstat(expedient, TipusEstat.ERROR);
+//		List<Portasignatures> portasignatures = portasignaturesRepository.findByExpedientAndEstat(expedient, PortafirmesEstatEnum.ERROR);
 //		if(!portasignatures.isEmpty()){
 //			for(Portasignatures ps: portasignatures) {
 //				ps.setErrorCallbackProcessant(null);
@@ -3264,12 +3282,14 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 							document, 
 							arxiu,
 							nomsArxius);
-					ze = new ZipEntry(recursNom);
-					out.putNextEntry(ze);
-					out.write(arxiu.getContingut());
-					out.closeEntry();
+					if (recursNom!=null) {
+						ze = new ZipEntry(recursNom);
+						out.putNextEntry(ze);
+						out.write(arxiu.getContingut());
+						out.closeEntry();
+					}
 				}
-			}			
+			}
 			}
 			out.close();
 		} catch (Exception e) {
@@ -3325,10 +3345,12 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 							document, 
 							arxiu,
 							nomsArxius);
-					ze = new ZipEntry(recursNom);
-					out.putNextEntry(ze);
-					out.write(arxiu.getContingut());
-					out.closeEntry();
+					if (recursNom!=null) {
+						ze = new ZipEntry(recursNom);
+						out.putNextEntry(ze);
+						out.write(arxiu.getContingut());
+						out.closeEntry();
+					}
 				}
 			}			
 			out.close();
@@ -3350,40 +3372,48 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	 * @param nomsArxius Per controlar la llista de noms utilitzats.
 	 * @return
 	 */
-	private String getZipRecursNom(Expedient expedient, InstanciaProcesDto instanciaProces,
-			ExpedientDocumentDto document, ArxiuDto arxiu, Set<String> nomsArxius) {
+	private String getZipRecursNom(
+			Expedient expedient,
+			InstanciaProcesDto instanciaProces,
+			ExpedientDocumentDto document,
+			ArxiuDto arxiu,
+			Set<String> nomsArxius) {
+
 		String recursNom;
-		// Nom
 		String nom;
-		// Segons si és adjunt o document
+
 		if (document.isAdjunt())
 			nom = document.getAdjuntTitol();
 		else
 			nom = document.getDocumentNom();
+
 		nom = nom.replaceAll("/", "_");
-		// Carpeta
-		String carpeta = null;
-		if (!instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
+		
+		if (instanciaProces.getId().equals(document.getProcessInstanceId())) {
 			// Carpeta per un altre procés
-			carpeta = instanciaProces.getId() + " - " + instanciaProces.getTitol();
+			String carpeta = instanciaProces.getId() + " - " + instanciaProces.getTitol();
 			carpeta = carpeta.replaceAll("/", "_");
+		
+			// Extensió
+			String extensio = arxiu.getExtensio();
+	
+			// Vigila que no es repeteixi
+			int comptador = 0;
+			do {
+				recursNom = (carpeta != null ? carpeta + "/" : "") +
+							nom + 
+							(comptador > 0 ? " (" + comptador + ")" : "") +
+							"." + extensio;
+				comptador++;
+			} while (nomsArxius.contains(recursNom));
+	
+			// Guarda en nom com a utiltizat
+			nomsArxius.add(recursNom);
+			
+			return recursNom;
+		} else {
+			return null;
 		}
-		// Extensió
-		String extensio = arxiu.getExtensio();
-
-		// Vigila que no es repeteixi
-		int comptador = 0;
-		do {
-			recursNom = (carpeta != null ? carpeta + "/" : "") +
-						nom + 
-						(comptador > 0 ? " (" + comptador + ")" : "") +
-						"." + extensio;
-			comptador++;
-		} while (nomsArxius.contains(recursNom));
-
-		// Guarda en nom com a utiltizat
-		nomsArxius.add(recursNom);
-		return recursNom;
 	}
 	
 	/**

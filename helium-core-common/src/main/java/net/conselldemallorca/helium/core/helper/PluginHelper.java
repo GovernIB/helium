@@ -35,9 +35,6 @@ import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import es.caib.plugins.arxiu.api.ConsultaFiltre;
@@ -67,7 +64,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Interessat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPlugin;
@@ -153,6 +149,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesCarrecDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesEstatEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxBlocDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxEstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxInfoDto;
@@ -165,6 +162,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.RegistreAnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreIdDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RegistreNotificacioDto.RegistreNotificacioTramitSubsanacioParametreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ScspRespostaPinbal;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDocumentDto.TramitDocumentSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TramitDto;
@@ -336,11 +334,11 @@ public class PluginHelper {
 				}
 		}
 		// De les darreres peticions retorna només les que estiguin en un estat pendent o processades i rebutjades		
-		List<TipusEstat> estatsPendents = TipusEstat.getPendents();
+		List<PortafirmesEstatEnum> estatsPendents = PortafirmesEstatEnum.getPendents();
 		List<Portasignatures> peticionsPendents = new ArrayList<Portasignatures>();
 		for (Portasignatures peticio : peticionsDocuments.values()) {
 			if (estatsPendents.contains(peticio.getEstat()) || 
-					(TipusEstat.PROCESSAT.equals(peticio.getEstat()) 
+					(PortafirmesEstatEnum.PROCESSAT.equals(peticio.getEstat()) 
 							&& Transicio.REBUTJAT.equals(peticio.getTransition())))
 			{
 				peticionsPendents.add(peticio);
@@ -1691,7 +1689,7 @@ public class PluginHelper {
 			portasignatures.setDocumentId(resposta);
 			portasignatures.setTokenId(tokenId);
 			portasignatures.setDataEnviat(cal.getTime());
-			portasignatures.setEstat(TipusEstat.PENDENT);
+			portasignatures.setEstat(PortafirmesEstatEnum.PENDENT);
 			portasignatures.setDocumentStoreId(document.getId());
 			portasignatures.setTransicioOK(transicioOK);
 			portasignatures.setTransicioKO(transicioKO);
@@ -1765,7 +1763,7 @@ public class PluginHelper {
 			if (portasignatures != null) {
 				getPortasignaturesPlugin().deleteDocuments(
 						documentId);
-				portasignatures.setEstat(TipusEstat.CANCELAT);
+				portasignatures.setEstat(PortafirmesEstatEnum.CANCELAT);
 				monitorIntegracioHelper.addAccioOk(
 						MonitorIntegracioHelper.INTCODI_PFIRMA,
 						"Cancel·lació d'enviaments de documents",
@@ -2204,7 +2202,6 @@ public class PluginHelper {
 			Expedient expedient,
 			DocumentStore documentStore,
 			ArxiuDto arxiu,
-			net.conselldemallorca.helium.integracio.plugins.firma.FirmaTipus firmaTipus,
 			String motiu) {
 		String accioDescripcio = "Firma en servidor de document";
 		String tipusDocumentalNti = documentStore.getNtiTipoDocumental() != null? documentStore.getNtiTipoDocumental().getValorNti() : "";
@@ -4972,66 +4969,64 @@ public class PluginHelper {
 		}
 		return dtos;
 	}
-	
 
-public Object consultaSincronaPinbal(DadesConsultaPinbal dadesConsultaPinbal, Expedient expedient, String servei) {
-	
-	Object scspRespostaPinbal = null;
-	
-	String accioDescripcio = "Consulta Pinbal (Petició síncrona)";
-	
-	
-	IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
-			new IntegracioParametreDto(
-					"expedient.id",
-					expedient.getId()),
-			new IntegracioParametreDto(
-					"expedient",
-					expedient.getIdentificadorLimitat())//,
-	};
-	long t0 = System.currentTimeMillis();
-	
-	try {
-		if (servei==null) {
-			scspRespostaPinbal= getPinbalPlugin().peticionSincronaClientPinbalGeneric(dadesConsultaPinbal);
-		}
-		else if(servei.equals(PluginHelper.serveiConsultaDades))
-			scspRespostaPinbal= getPinbalPlugin().peticionSincronaClientPinbalSvddgpciws02(dadesConsultaPinbal);
-		else if(servei.equals(PluginHelper.serveiVerificacioDades))
-			scspRespostaPinbal= getPinbalPlugin().peticionSincronaClientPinbalSvddgpviws02(dadesConsultaPinbal);
-		else if(servei.equals(PluginHelper.serveiObligacionsTributaries))
-			scspRespostaPinbal= getPinbalPlugin().peticionSincronaClientPinbalSvdccaacpasws01(dadesConsultaPinbal);
-		
-		
-		monitorIntegracioHelper.addAccioOk(
-				MonitorIntegracioHelper.INTCODI_PINBAL,
-				accioDescripcio,
-				IntegracioAccioTipusEnumDto.ENVIAMENT,
-				System.currentTimeMillis() - t0,
-				parametres);
-		
-	} catch (Exception ex) {
-		String errorDescripcio = "No s'ha pogut enviar la consulta síncrona a Pinbal: " + ex.getMessage();
-		monitorIntegracioHelper.addAccioError(
-				MonitorIntegracioHelper.INTCODI_PINBAL,
-				accioDescripcio,
-				IntegracioAccioTipusEnumDto.ENVIAMENT,
-				System.currentTimeMillis() - t0,
-				errorDescripcio,
-				ex,
-				parametres);
-		throw tractarExcepcioEnSistemaExtern(
-				MonitorIntegracioHelper.INTCODI_PINBAL,
-				errorDescripcio, 
-				ex);
+	public ScspRespostaPinbal consultaEstatPeticioPinbal(String peticioId) throws Exception {
+		return getPinbalPlugin().getRespuestaPinbal(peticioId);
 	}
-	return scspRespostaPinbal;
-}
 
+	public Object consultaPinbal(DadesConsultaPinbal dadesConsultaPinbal, Expedient expedient, String servei) {
+		
+		Object scspRespostaPinbal = null;	
+		String accioDescripcio = dadesConsultaPinbal.isAsincrona() ? "Consulta Pinbal (Petició asíncrona)" : "Consulta Pinbal (Petició síncrona)";
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"expedient.id",
+						expedient.getId()),
+				new IntegracioParametreDto(
+						"expedient",
+						expedient.getIdentificadorLimitat())//,
+		};
+		long t0 = System.currentTimeMillis();
+		
+		try {
+			
+			if (servei==null) {
+				scspRespostaPinbal= getPinbalPlugin().peticioClientPinbalGeneric(dadesConsultaPinbal);	
+			}
+			else if(servei.equals(PluginHelper.serveiConsultaDades))
+				scspRespostaPinbal= getPinbalPlugin().peticioClientPinbalSvddgpciws02(dadesConsultaPinbal);
+			else if(servei.equals(PluginHelper.serveiVerificacioDades))
+				scspRespostaPinbal= getPinbalPlugin().peticioClientPinbalSvddgpviws02(dadesConsultaPinbal);
+			else if(servei.equals(PluginHelper.serveiObligacionsTributaries))
+				scspRespostaPinbal= getPinbalPlugin().peticioClientPinbalSvdccaacpasws01(dadesConsultaPinbal);
+			
+			
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_PINBAL,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametres);
 
-
-	public Object obtenirJustificantPinbal(Expedient expedient, DadesNotificacioDto dadesNotificacio) {
-		return null;
+		} catch (Exception ex) {
+			String errorDescripcio = (dadesConsultaPinbal.isAsincrona() ? "No s'ha pogut enviar la consulta asíncrona a Pinbal: "  :
+					"No s'ha pogut enviar la consulta síncrona a Pinbal: " ) 
+					+ ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_PINBAL,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);
+			monitorIntegracioHelper.guardaPeticioPinbalAmbError(expedient, dadesConsultaPinbal, ex);
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_PINBAL,
+					errorDescripcio, 
+					ex);
+		}
+		return scspRespostaPinbal;
 	}
 	
 	public PortafirmesIniciFluxRespostaDto portafirmesIniciarFluxDeFirma(String idioma, boolean isPlantilla, String nom, String descripcio, 

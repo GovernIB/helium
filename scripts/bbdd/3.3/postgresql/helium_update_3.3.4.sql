@@ -1,0 +1,38 @@
+--#1731 Poder notificar qualsevol document
+
+-- Postgresql
+ALTER TABLE hel_document DROP COLUMN notificable;
+
+
+-- #1740 Crides asíncrones a PINBAL
+-- -- Nova taula per les peticions a pinbal (asíncrones i síncrones)
+CREATE TABLE HEL_PETICIO_PINBAL (
+  ID           				BIGSERIAL       		NOT NULL,
+  ENTORN_ID          		BIGSERIAL				NOT NULL,
+  TIPUS_ID					BIGSERIAL				NOT NULL,
+  EXPEDIENT_ID				BIGSERIAL				NOT NULL,
+  DOCUMENT_ID  				BIGSERIAL,
+  PROCEDIMENT  				character varying(32)   NOT NULL,
+  USUARI	  				character varying(64)   NOT NULL,
+  DATA_PETICIO				TIMESTAMP(6)			NOT NULL,
+  ASINCRONA					BOOLEAN	DEFAULT FALSE 	NOT NULL,
+  ESTAT		  				character varying(32)   NOT NULL,
+  ERROR_MSG					TEXT,
+  PINBAL_ID					character varying(64),
+  TOKEN_ID					BIGSERIAL,
+  
+  DATA_PREVISTA				TIMESTAMP(6),
+  DATA_DARRERA_CONSULTA		TIMESTAMP(6),
+  
+  TRANSICIO_OK 				character varying(32),
+  TRANSICIO_KO 				character varying(32),
+  DATA_PROCESSAMENT_PRIMER	TIMESTAMP(6),
+  DATA_PROCESSAMENT_DARRER	TIMESTAMP(6),  
+  ERROR_PROCESSAMENT		TEXT
+);
+
+ALTER TABLE HEL_PETICIO_PINBAL ADD CONSTRAINT HEL_PETICIO_PINBAL_PK PRIMARY KEY (ID);
+
+ALTER TABLE HEL_PETICIO_PINBAL ADD 
+  CONSTRAINT HEL_PETICIO_EXPEDIENT_FK FOREIGN KEY (EXPEDIENT_ID) 
+    REFERENCES HEL_EXPEDIENT (ID);

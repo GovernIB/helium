@@ -32,7 +32,6 @@ import net.conselldemallorca.helium.core.model.hibernate.EstatRegla;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
@@ -54,6 +53,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesEstatEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaDefaultAnyDto;
@@ -90,7 +90,6 @@ public class ConversioTipusHelper {
 						target.setNom(source.getNom());
 						target.setDescripcio(source.getDescripcio());
 						target.setPlantilla(source.isPlantilla());
-						target.setNotificable(source.isNotificable());
 						target.setExpedientTipus(mapperFacade.map(
 								source.getExpedientTipus(), 
 								ExpedientTipusDto.class));
@@ -529,14 +528,14 @@ public class ConversioTipusHelper {
 						target.setDocumentId(source.getDocumentId());
 						target.setTokenId(source.getTokenId());
 						target.setDataEnviat(source.getDataEnviat());
-						if (TipusEstat.ERROR.equals(source.getEstat())) {
+						if (PortafirmesEstatEnum.ERROR.equals(source.getEstat())) {
 							if (Transicio.SIGNAT.equals(source.getTransition()))
-								target.setEstat(TipusEstat.SIGNAT.toString());
+								target.setEstat(PortafirmesEstatEnum.SIGNAT.toString());
 							else
-								target.setEstat(TipusEstat.REBUTJAT.toString());
+								target.setEstat(PortafirmesEstatEnum.REBUTJAT.toString());
 							target.setError(true);
-						} else if (TipusEstat.PROCESSAT.equals(source.getEstat()) && Transicio.REBUTJAT.equals(source.getTransition())) {
-							 target.setEstat(TipusEstat.PROCESSAT.toString());
+						} else if (PortafirmesEstatEnum.PROCESSAT.equals(source.getEstat()) && Transicio.REBUTJAT.equals(source.getTransition())) {
+							 target.setEstat(PortafirmesEstatEnum.PROCESSAT.toString());
 							 target.setError(true);
 							 target.setRebutjadaProcessada(true);
 						} else {
@@ -558,6 +557,17 @@ public class ConversioTipusHelper {
 						target.setDataSignalOk(source.getDataSignalOk());
 						target.setErrorProcessant(source.getErrorCallbackProcessant());
 						target.setProcessInstanceId(source.getProcessInstanceId());
+						
+						target.setExpedientId(source.getExpedient().getId());
+						target.setExpedientNumero(source.getExpedient().getNumero());
+						target.setExpedientTitol(source.getExpedient().getTitol());
+						target.setEntornId(source.getExpedient().getEntorn().getId());
+						target.setEntornNom(source.getExpedient().getEntorn().getNom());
+						target.setEntornCodi(source.getExpedient().getEntorn().getCodi());
+						target.setTipusExpedientId(source.getExpedient().getTipus().getId());
+						target.setTipusExpedientCodi(source.getExpedient().getTipus().getCodi());
+						target.setTipusExpedientNom(source.getExpedient().getTipus().getNom());			
+						
 						return target;
 					}
 		});			

@@ -2091,6 +2091,22 @@
     "varParam" : "varConsentiment",
     "varParamDesc" : "Variable que conté el valor pel consentiment."
   }, {
+	"codi": "titularTipusDocumentacio",
+    "nom" : "Tipus documentacó titular",
+    "obligatori" : true,
+    "param" : "titularTipusDocumentacio",
+    "paramDesc" : "Camp per indicar el tipus de documentació. Els possibles valors són: 'DNI', 'NIE', 'NIF', 'Passaport' i 'Altres'.",
+    "varParam" : "varTitularTipusDocumentacio",
+    "varParamDesc" : "Variable que conté el valor pel tipus de documentació."
+  }, {
+	"codi": "titularDocumentacio",
+    "nom" : "Documentació titular",
+    "obligatori" : false,
+    "param" : "titularDocumentacio",
+    "paramDesc" : "Text amb el valor de la documentació del titular.",
+    "varParam" : "varParam",
+    "varParamDesc" : "Codi de la variable que conté el valor de la documentació del titular interessat."
+  }, {
 	"codi": "interessatCodi",
     "nom" : "Codi interessat",
     "obligatori" : false,
@@ -2123,22 +2139,6 @@
     "varParam" : "varTitularLlinatge2",
     "varParamDesc" : "Codi de la variable que conté el segon llinatge del titular interessat."
   }, {
-	"codi": "titularTipusDocumentacio",
-    "nom" : "Tipus documentacó titular",
-    "obligatori" : true,
-    "param" : "titularTipusDocumentacio",
-    "paramDesc" : "Camp per indicar el tipus de documentació. Els possibles valors són: 'DNI', 'NIE', 'NIF', 'Passaport' i 'Altres'.",
-    "varParam" : "varTitularTipusDocumentacio",
-    "varParamDesc" : "Variable que conté el valor pel tipus de documentació."
-  }, {
-	"codi": "titularDocumentacio",
-    "nom" : "Documentació titular",
-    "obligatori" : false,
-    "param" : "titularDocumentacio",
-    "paramDesc" : "Text amb el valor de la documentació del titular.",
-    "varParam" : "varParam",
-    "varParamDesc" : "Codi de la variable que conté el valor de la documentació del titular interessat."
-  }, {
 	"codi": "dadesEspecifiques",
     "nom" : "Dades específiques",
     "obligatori" : false,
@@ -2146,6 +2146,30 @@
     "paramDesc" : "Valor de text amb l' XML de les dades específiques. Per informar les dades específiques amb variables Helium revisarà el contingut del text de dades específiques i substituirà els valors tipus '${var_codi}' pel valor de la variable que coincideixi amb el codi.",
     "varParam" : "varDadesExpecifices",
     "varParamDesc" : "Codi de la variable que conté el valor de text per les dades específiques."
+  }, {
+  	"codi": "asincrona",
+    "nom" : "Consulta asíncrona",
+    "obligatori" : false,
+    "param" : "asincrona",
+    "paramDesc" : "Indica si la consulta és asíncrona o no. Per exemple el valor 'True' i 'true' indiquen una crida asíncrona, qualsevol altre valor es considerarà fals i es farà una crida síncrona.",
+   	"varParam" : "varAsincrona",
+    "varParamDesc" : "Variable que conté el valor de text si és consulta asíncrona o no."
+  }, {
+  	"codi": "transicioOK",
+    "nom" : "Transició de sortida a PINBAL correcta",
+    "obligatori" : false,
+    "param" : "transicioOK",
+    "paramDesc" : "Codi opcional de la transició de sortida en el cas que la consulta a PINBAL finalitzi correctament i en el cas que el flux estigui aturat en un estat",
+    "varParam" : "varTransicioOK",
+    "varParamDesc" : "Variable que conté la transició de sortida per a la consulta a PINBAL amb finalització correcta."
+  }, {
+  	"codi": "transicioKO",
+    "nom" : "Transició de sortida a PINBAL incorrecta",
+    "obligatori" : false,
+    "param" : "transicioKO",
+    "paramDesc" : "Codi opcional de la transició de sortida en el cas que la consulta a PINBAL finalitzi incorrectament",
+    "varParam" : "varTransicioKO",
+    "varParamDesc" : "Variable que conté la transició de sortida per a la consulta a PINBAL amb finalització incorrecta."
   }],
   "agrupacio" : "PINBAL"
  },
@@ -2180,37 +2204,13 @@
     "varParam" : "varConsentiment",
     "varParamDesc" : "Variable que conté el valor pel consentiment."
   }, {
-	"codi": "interessatCodi",
-    "nom" : "Codi interessat",
+  	"codi": "anyNaixement",
+    "nom" : "Any de naixement del Titular",
     "obligatori" : false,
-    "param" : "interessatCodi",
-    "paramDesc" : "Codi de l'interessat per informar les dades del titular. Si no es té interessat es poden informar els paràmetres del titular.",
-    "varParam" : "varInteressatCodi",
-    "varParamDesc" : "Codi de la variable que conté el codi de l'interessat per informar les dades del titular."
-  }, {
-	"codi": "titularNom",
-    "nom" : "Nom titular",
-    "obligatori" : false,
-    "param" : "titularNom",
-    "paramDesc" : "Nom del titular.",
-    "varParam" : "varTitularNom",
-    "varParamDesc" : "Codi de la variable que conté el nom del titular interessat."
-  }, {
-	"codi": "titularLlinatge1",
-    "nom" : "Llinatge1 titular",
-    "obligatori" : false,
-    "param" : "titularLlinatge1",
-    "paramDesc" : "Llinatge 1 del titular.",
-    "varParam" : "varTitularLlinatge1",
-    "varParamDesc" : "Codi de la variable que conté el primer llinatge del titular interessat."
-  }, {
-	"codi": "titularLlinatge2",
-    "nom" : "Llinatge2 titular",
-    "obligatori" : false,
-    "param" : "titularLlinatge2",
-    "paramDesc" : "Llinatge 2 del titular.",
-    "varParam" : "varTitularLlinatge2",
-    "varParamDesc" : "Codi de la variable que conté el segon llinatge del titular interessat."
+    "param" : "anyNaixement",
+    "paramDesc" : "Indica l'any de naixement del titular",
+    "varParam" : "varAnyNaixement",
+    "varParamDesc" : "Variable que indica l'any de naixement del titular."
   }, {
 	"codi": "titularTipusDocumentacio",
     "nom" : "Tipus documentacó titular",
@@ -2227,7 +2227,63 @@
     "paramDesc" : "Text amb el valor de la documentació del titular.",
     "varParam" : "varParam",
     "varParamDesc" : "Codi de la variable que conté el valor de la documentació del titular interessat."
-  }],
+  }, {
+	"codi": "titularLlinatge1",
+    "nom" : "Llinatge1 titular",
+    "obligatori" : true,
+    "param" : "titularLlinatge1",
+    "paramDesc" : "Llinatge 1 del titular.",
+    "varParam" : "varTitularLlinatge1",
+    "varParamDesc" : "Codi de la variable que conté el primer llinatge del titular interessat."
+  }, {
+	"codi": "titularLlinatge2",
+    "nom" : "Llinatge2 titular",
+    "obligatori" : false,
+    "param" : "titularLlinatge2",
+    "paramDesc" : "Llinatge 2 del titular.",
+    "varParam" : "varTitularLlinatge2",
+    "varParamDesc" : "Codi de la variable que conté el segon llinatge del titular interessat."
+  }, {
+	"codi": "titularNom",
+    "nom" : "Nom titular",
+    "obligatori" : false,
+    "param" : "titularNom",
+    "paramDesc" : "Nom del titular.",
+    "varParam" : "varTitularNom",
+    "varParamDesc" : "Codi de la variable que conté el nom del titular interessat."
+  }, {
+	"codi": "interessatCodi",
+    "nom" : "Codi interessat",
+    "obligatori" : false,
+    "param" : "interessatCodi",
+    "paramDesc" : "Codi de l'interessat per informar les dades del titular. Si no es té interessat es poden informar els paràmetres del titular.",
+    "varParam" : "varInteressatCodi",
+    "varParamDesc" : "Codi de la variable que conté el codi de l'interessat per informar les dades del titular."
+  }, {
+  	"codi": "asincrona",
+    "nom" : "Consulta asíncrona",
+    "obligatori" : false,
+    "param" : "asincrona",
+    "paramDesc" : "Indica si la consulta és asíncrona o no. Per exemple el valor 'True' i 'true' indiquen una crida asíncrona, qualsevol altre valor es considerarà fals i es farà una crida síncrona.",
+   	"varParam" : "varAsincrona",
+    "varParamDesc" : "Variable que conté el valor de text si és consulta asíncrona o no."
+  }, {
+  	"codi": "transicioOK",
+    "nom" : "Transició de sortida a PINBAL correcta",
+    "obligatori" : false,
+    "param" : "transicioOK",
+    "paramDesc" : "Codi opcional de la transició de sortida en el cas que la consulta a PINBAL finalitzi correctament i en el cas que el flux estigui aturat en un estat",
+    "varParam" : "varTransicioOK",
+    "varParamDesc" : "Variable que conté la transició de sortida per a la consulta a PINBAL amb finalització correcta."
+  }, {
+  	"codi": "transicioKO",
+    "nom" : "Transició de sortida a PINBAL incorrecta",
+    "obligatori" : false,
+    "param" : "transicioKO",
+    "paramDesc" : "Codi opcional de la transició de sortida en el cas que la consulta a PINBAL finalitzi incorrectament",
+    "varParam" : "varTransicioKO",
+    "varParamDesc" : "Variable que conté la transició de sortida per a la consulta a PINBAL amb finalització incorrecta."
+    }],
   "agrupacio" : "PINBAL"
  },
 
@@ -2261,22 +2317,22 @@
     "varParam" : "varConsentiment",
     "varParamDesc" : "Variable que conté el valor pel consentiment."
   }, {
-	"codi": "interessatCodi",
-    "nom" : "Codi interessat",
-    "obligatori" : false,
-    "param" : "interessatCodi",
-    "paramDesc" : "Codi de l'interessat per informar les dades del titular. Si no es té interessat es poden informar els paràmetres del titular.",
-    "varParam" : "varInteressatCodi",
-    "varParamDesc" : "Codi de la variable que conté el codi de l'interessat per informar les dades del titular."
+	"codi": "titularTipusDocumentacio",
+    "nom" : "Tipus documentacó titular",
+    "obligatori" : true,
+    "param" : "titularTipusDocumentacio",
+    "paramDesc" : "Camp per indicar el tipus de documentació. Els possibles valors són: 'DNI', 'NIE', 'NIF', 'Passaport' i 'Altres'.",
+    "varParam" : "varTitularTipusDocumentacio",
+    "varParamDesc" : "Variable que conté el valor pel tipus de documentació."
   }, {
-	"codi": "titularNom",
-    "nom" : "Nom titular",
+	"codi": "titularDocumentacio",
+    "nom" : "Documentació titular",
     "obligatori" : false,
-    "param" : "titularNom",
-    "paramDesc" : "Nom del titular.",
-    "varParam" : "varTitularNom",
-    "varParamDesc" : "Codi de la variable que conté el nom del titular interessat."
-  }, {
+    "param" : "titularDocumentacio",
+    "paramDesc" : "Text amb el valor de la documentació del titular.",
+    "varParam" : "varParam",
+    "varParamDesc" : "Codi de la variable que conté el valor de la documentació del titular interessat."
+   }, {
 	"codi": "titularLlinatge1",
     "nom" : "Llinatge1 titular",
     "obligatori" : false,
@@ -2293,21 +2349,45 @@
     "varParam" : "varTitularLlinatge2",
     "varParamDesc" : "Codi de la variable que conté el segon llinatge del titular interessat."
   }, {
-	"codi": "titularTipusDocumentacio",
-    "nom" : "Tipus documentacó titular",
-    "obligatori" : true,
-    "param" : "titularTipusDocumentacio",
-    "paramDesc" : "Camp per indicar el tipus de documentació. Els possibles valors són: 'DNI', 'NIE', 'NIF', 'Passaport' i 'Altres'.",
-    "varParam" : "varTitularTipusDocumentacio",
-    "varParamDesc" : "Variable que conté el valor pel tipus de documentació."
-  }, {
-	"codi": "titularDocumentacio",
-    "nom" : "Documentació titular",
+	"codi": "titularNom",
+    "nom" : "Nom titular",
     "obligatori" : false,
-    "param" : "titularDocumentacio",
-    "paramDesc" : "Text amb el valor de la documentació del titular.",
-    "varParam" : "varParam",
-    "varParamDesc" : "Codi de la variable que conté el valor de la documentació del titular interessat."
+    "param" : "titularNom",
+    "paramDesc" : "Nom del titular.",
+    "varParam" : "varTitularNom",
+    "varParamDesc" : "Codi de la variable que conté el nom del titular interessat."
+  }, {
+	"codi": "interessatCodi",
+    "nom" : "Codi interessat",
+    "obligatori" : false,
+    "param" : "interessatCodi",
+    "paramDesc" : "Codi de l'interessat per informar les dades del titular. Si no es té interessat es poden informar els paràmetres del titular.",
+    "varParam" : "varInteressatCodi",
+    "varParamDesc" : "Codi de la variable que conté el codi de l'interessat per informar les dades del titular."
+  }, {
+  	"codi": "asincrona",
+    "nom" : "Consulta asíncrona",
+    "obligatori" : false,
+    "param" : "asincrona",
+    "paramDesc" : "Indica si la consulta és asíncrona o no. Per exemple el valor 'True' i 'true' indiquen una crida asíncrona, qualsevol altre valor es considerarà fals i es farà una crida síncrona.",
+   	"varParam" : "varAsincrona",
+    "varParamDesc" : "Variable que conté el valor de text si és consulta asíncrona o no."
+  }, {
+  	"codi": "transicioOK",
+    "nom" : "Transició de sortida a PINBAL correcta",
+    "obligatori" : false,
+    "param" : "transicioOK",
+    "paramDesc" : "Codi opcional de la transició de sortida en el cas que la consulta a PINBAL finalitzi correctament i en el cas que el flux estigui aturat en un estat",
+    "varParam" : "varTransicioOK",
+    "varParamDesc" : "Variable que conté la transició de sortida per a la consulta a PINBAL amb finalització correcta."
+  }, {
+  	"codi": "transicioKO",
+    "nom" : "Transició de sortida a PINBAL incorrecta",
+    "obligatori" : false,
+    "param" : "transicioKO",
+    "paramDesc" : "Codi opcional de la transició de sortida en el cas que la consulta a PINBAL finalitzi incorrectament",
+    "varParam" : "varTransicioKO",
+    "varParamDesc" : "Variable que conté la transició de sortida per a la consulta a PINBAL amb finalització incorrecta."
   }],
   "agrupacio" : "PINBAL"
  },
@@ -2342,6 +2422,22 @@
     "varParam" : "varConsentiment",
     "varParamDesc" : "Variable que conté el valor pel consentiment."
   }, {
+	"codi": "titularTipusDocumentacio",
+    "nom" : "Tipus documentacó titular",
+    "obligatori" : true,
+    "param" : "titularTipusDocumentacio",
+    "paramDesc" : "Camp per indicar el tipus de documentació. Els possibles valors són: 'DNI', 'NIE', 'NIF', 'Passaport' i 'Altres'.",
+    "varParam" : "varTitularTipusDocumentacio",
+    "varParamDesc" : "Variable que conté el valor pel tipus de documentació."
+  }, {
+	"codi": "titularDocumentacio",
+    "nom" : "Documentació titular",
+    "obligatori" : false,
+    "param" : "titularDocumentacio",
+    "paramDesc" : "Text amb el valor de la documentació del titular.",
+    "varParam" : "varParam",
+    "varParamDesc" : "Codi de la variable que conté el valor de la documentació del titular interessat."
+    }, {
 	"codi": "interessatCodi",
     "nom" : "Codi interessat",
     "obligatori" : false,
@@ -2374,21 +2470,29 @@
     "varParam" : "varTitularLlinatge2",
     "varParamDesc" : "Codi de la variable que conté el segon llinatge del titular interessat."
   }, {
-	"codi": "titularTipusDocumentacio",
-    "nom" : "Tipus documentacó titular",
-    "obligatori" : true,
-    "param" : "titularTipusDocumentacio",
-    "paramDesc" : "Camp per indicar el tipus de documentació. Els possibles valors són: 'DNI', 'NIE', 'NIF', 'Passaport' i 'Altres'.",
-    "varParam" : "varTitularTipusDocumentacio",
-    "varParamDesc" : "Variable que conté el valor pel tipus de documentació."
-  }, {
-	"codi": "titularDocumentacio",
-    "nom" : "Documentació titular",
+  	"codi": "asincrona",
+    "nom" : "Consulta asíncrona",
     "obligatori" : false,
-    "param" : "titularDocumentacio",
-    "paramDesc" : "Text amb el valor de la documentació del titular.",
-    "varParam" : "varParam",
-    "varParamDesc" : "Codi de la variable que conté el valor de la documentació del titular interessat."
+    "param" : "asincrona",
+    "paramDesc" : "Indica si la consulta és asíncrona o no. Per exemple el valor 'True' i 'true' indiquen una crida asíncrona, qualsevol altre valor es considerarà fals i es farà una crida síncrona.",
+   	"varParam" : "varAsincrona",
+    "varParamDesc" : "Variable que conté el valor de text si és consulta asíncrona o no."
+  }, {
+  	"codi": "transicioOK",
+    "nom" : "Transició de sortida a PINBAL correcta",
+    "obligatori" : false,
+    "param" : "transicioOK",
+    "paramDesc" : "Codi opcional de la transició de sortida en el cas que la consulta a PINBAL finalitzi correctament i en el cas que el flux estigui aturat en un estat",
+    "varParam" : "varTransicioOK",
+    "varParamDesc" : "Variable que conté la transició de sortida per a la consulta a PINBAL amb finalització correcta."
+  }, {
+  	"codi": "transicioKO",
+    "nom" : "Transició de sortida a PINBAL incorrecta",
+    "obligatori" : false,
+    "param" : "transicioKO",
+    "paramDesc" : "Codi opcional de la transició de sortida en el cas que la consulta a PINBAL finalitzi incorrectament",
+    "varParam" : "varTransicioKO",
+    "varParamDesc" : "Variable que conté la transició de sortida per a la consulta a PINBAL amb finalització incorrecta."
   }],
   "agrupacio" : "PINBAL"
  }

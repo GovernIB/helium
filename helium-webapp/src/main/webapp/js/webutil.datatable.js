@@ -80,12 +80,22 @@
 				},
 				info: plugin.settings.infoEnabled,
 				serverSide: true,
+				processing: true,
 				autoWidth: false,
 				searching: plugin.settings.searchEnabled,
 				ajax: {
 					url: getBaseUrl() + '/datatable',
 					type: ajaxRequestType,
 					data: function(data) {
+						// Per reduir la crida
+						for (var i = 0, len = data.columns.length; i < len; i++) {
+							if (! data.columns[i].search.value) delete data.columns[i].search;
+					        if (data.columns[i].searchable === true) delete data.columns[i].searchable;
+					        if (data.columns[i].orderable === true) delete data.columns[i].orderable;
+					        if (data.columns[i].data === data.columns[i].name) delete data.columns[i].name;
+					    }
+					    delete data.search.regex;
+
 						for (var key in plugin.serverParams) {
 							data[key] = plugin.serverParams[key];
 						}
@@ -752,7 +762,7 @@
 						}
 					}
 				);
-			} else if (data) {
+			} else if (data != null) {
 				var converter = $th.attr('data-converter');
 				var renderer = $th.attr('data-renderer');
 				if (converter) {
@@ -783,6 +793,13 @@
 							dataAmbFormat = horaAmbFormat;
 						}
 						renderHtml = dataAmbFormat;
+					} else if (converter.toUpperCase() === 'BOOLEAN') {
+						if (data) {
+							renderHtml = "<i class='fa fa-check' style='color: #428bca;' title='Sí'></i>";
+						} else {
+//							renderHtml = "<i class='fa fa-times' style='color: #428bca;' title='No'></i>";
+							renderHtml = "";
+						}
 					}
 				} else if (renderer) {
 					if (renderer.indexOf('maxLength') >= 0) {

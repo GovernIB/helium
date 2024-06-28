@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.dom4j.Element;
 import org.jbpm.JbpmConfiguration;
+import org.jbpm.JbpmException;
 import org.jbpm.graph.exe.ExecutionContext;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.jbpm.instantiation.Delegation;
@@ -137,6 +138,14 @@ public class Action implements ActionHandler, Parsable, Serializable {
 
       } else if (actionDelegation != null) {
         ActionHandler actionHandler = (ActionHandler) actionDelegation.getInstance();
+
+        // Es comprova que s'hagi trobat l'acció
+        if (actionHandler == null) {
+        	throw new JbpmException("No és pot executar l'acció \"" + this.getProcessDefinition() + "\" de la definició " + executionContext.getProcessDefinition().getName() + " v" + executionContext.getProcessDefinition().getVersion() 
+        							+ ". No s'ha trobat el handler \"" + actionDelegation.getClassName() + "\""
+        							+ (this.getEvent() != null ? " a l'event \"" + this.getEvent() + "\" del node \"" + this.getEvent().getGraphElement()  : "\"") + ".");
+        }
+        
         MetricRegistry metricRegistry = Jbpm3HeliumBridge.getInstanceService().getMetricRegistry();
         ProcessInstanceExpedient expedient = executionContext.getProcessInstance().getExpedient();
         

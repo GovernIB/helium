@@ -707,9 +707,12 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	 * @return
 	 */
 	public Object consultaPinbal(
-		DadesConsultaPinbal dadesConsultaPinbal, Long expedientId, String processInstanceId) throws JbpmException {
+		DadesConsultaPinbal dadesConsultaPinbal,
+		Long expedientId,
+		String processInstanceId,
+		Long tokenId) throws JbpmException {
 		Object respostaPinbal = Jbpm3HeliumBridge.getInstanceService().consultaPinbal(
-				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), expedientId, processInstanceId);
+				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), expedientId, processInstanceId, tokenId);
 		return respostaPinbal;
 	}
 	
@@ -723,9 +726,12 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	 */
 
 	public Object consultaPinbalSvddgpciws02(
-			DadesConsultaPinbal dadesConsultaPinbal, Long expedientId, String processInstanceId) {
+			DadesConsultaPinbal dadesConsultaPinbal,
+			Long expedientId,
+			String processInstanceId,
+			Long tokenId) {
 		Object respostaPinbal = Jbpm3HeliumBridge.getInstanceService().consultaDadesIdentitatPinbalSVDDGPCIWS02(
-				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), expedientId, processInstanceId);
+				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), expedientId, processInstanceId, tokenId);
 		return respostaPinbal;
 	}
 	
@@ -740,9 +746,12 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	 */
 
 	public Object consultaPinbalSvddgpviws02(
-			DadesConsultaPinbal dadesConsultaPinbal, Long expedientId, String processInstanceId) {
+			DadesConsultaPinbal dadesConsultaPinbal,
+			Long expedientId,
+			String processInstanceId,
+			Long tokenId) {
 		Object respostaPinbal = Jbpm3HeliumBridge.getInstanceService().verificacioDadesIdentitatPinbalSVDDGPCIWS02(
-				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), expedientId, processInstanceId);
+				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), expedientId, processInstanceId, tokenId);
 		//en aquest servei no se li pot passsar NonbreCompleto! MAXLENGTH=0
 		return respostaPinbal;
 	}
@@ -758,9 +767,12 @@ public abstract class BasicActionHandler extends AbstractHeliumActionHandler imp
 	 */
 
 	public Object consultaPinbalSvdccaacpasws01(
-			DadesConsultaPinbal dadesConsultaPinbal, Long expedientId, String processInstanceId) {
+			DadesConsultaPinbal dadesConsultaPinbal,
+			Long expedientId,
+			String processInstanceId,
+			Long tokenId) {
 		Object respostaPinbal = Jbpm3HeliumBridge.getInstanceService().dadesTributariesPinbalSVDCCAACPASWS01(
-				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), expedientId, processInstanceId);
+				ConversioTipusHelper.toDadesConsultaPinbalDto(dadesConsultaPinbal), expedientId, processInstanceId, tokenId);
 		return respostaPinbal;
 	}
 	

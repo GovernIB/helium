@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
-import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
@@ -43,16 +42,6 @@ public class DocumentExpedientValidator implements ConstraintValidator<DocumentE
 				context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage("not.blank"))
 						.addNode("arxiu")
 						.addConstraintViolation();
-				valid = false;
-			}
-			// Valida que si l'arxiu està habilitat per l'expedient llavors que l'adjunt sigui convertible a PDF
-			if (!command.getArxiu().isEmpty() 
-					&& expedient != null 
-					&& expedient.isArxiuActiu()
-					&& !PdfUtils.isArxiuConvertiblePdf(command.getArxiuNom())) {
-				context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage("document.validacio.convertible.error"))
-				.addNode("arxiu")
-				.addConstraintViolation();
 				valid = false;
 			}
 		}

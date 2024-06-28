@@ -67,6 +67,8 @@ public class ExpedientDocumentDto implements Serializable {
 	private boolean notificable;
 	
 	private boolean notificat;
+	private boolean pinbal=false;
+	private PeticioPinbalEstatEnum estatPinbal;
 	
 	private String custodiaCodi;
 	
@@ -412,7 +414,18 @@ public class ExpedientDocumentDto implements Serializable {
 	public void setPortafirmesResponsables(String portafirmesResponsables) {
 		this.portafirmesResponsables = portafirmesResponsables;
 	}
+	public boolean isPinbal() {
+		return pinbal;
+	}
+	public void setPinbal(boolean pinbal) {
+		this.pinbal = pinbal;
+	}
+	public PeticioPinbalEstatEnum getEstatPinbal() {
+		return estatPinbal;
+	}
+	public void setEstatPinbal(PeticioPinbalEstatEnum estatPinbal) {
+		this.estatPinbal = estatPinbal;
+	}
 
 	private static final long serialVersionUID = -4307890997577367155L;
-
 }

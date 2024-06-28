@@ -19,15 +19,15 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.usermodel.HSSFRichTextString;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
@@ -321,14 +321,15 @@ public class ExpedientLlistatController extends BaseExpedientController {
 	}
 
 	private void exportXLS(HttpServletResponse response, List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto) {
-		HSSFWorkbook wb = new HSSFWorkbook();
+		
+		XSSFWorkbook wb = new XSSFWorkbook();
 
 		DataFormat format = wb.createDataFormat();
-		HSSFCellStyle dStyle = wb.createCellStyle();
+		XSSFCellStyle dStyle = wb.createCellStyle();
 		dStyle.setDataFormat(format.getFormat("0.00"));
 
 		// GENERAL
-		HSSFSheet sheet = wb.createSheet("Hoja 1");
+		XSSFSheet sheet = wb.createSheet("Hoja 1");
 
 		if (!expedientsConsultaDissenyDto.isEmpty())
 			createHeader(sheet, expedientsConsultaDissenyDto);
@@ -337,12 +338,10 @@ public class ExpedientLlistatController extends BaseExpedientController {
 
 		for (ExpedientConsultaDissenyDto  expedientConsultaDissenyDto : expedientsConsultaDissenyDto) {
 			try {
-				HSSFRow xlsRow = sheet.createRow(rowNum++);
+				XSSFRow xlsRow = sheet.createRow(rowNum++);
 				int colNum = 0;
-
 				ExpedientDto exp = expedientConsultaDissenyDto.getExpedient();
 				Map<String, DadaIndexadaDto> dades = expedientConsultaDissenyDto.getDadesExpedient();
-
 				String titol = "";
 				if (exp != null) {
 					if (exp.getNumero() != null)
@@ -354,7 +353,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 				}
 
 				sheet.autoSizeColumn(colNum);
-				HSSFCell cell = xlsRow.createCell(colNum++);
+				XSSFCell cell = xlsRow.createCell(colNum++);
 				cell.setCellValue(titol);
 				cell.setCellStyle(dStyle);
 
@@ -388,27 +387,27 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		}
 	}
 
-	private void createHeader(HSSFSheet sheet, List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto) {
+	private void createHeader(XSSFSheet sheet, List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto) {
 
-		HSSFFont bold = sheet.getWorkbook().createFont();
-		bold.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
-		bold.setColor(HSSFColor.WHITE.index);
+		XSSFFont bold = sheet.getWorkbook().createFont();
+		bold.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
+		bold.setColor(IndexedColors.WHITE.getIndex());
 
-		HSSFCellStyle headerStyle = sheet.getWorkbook().createCellStyle();
-		headerStyle.setFillPattern(HSSFCellStyle.FINE_DOTS);
-		headerStyle.setFillBackgroundColor(HSSFColor.GREY_80_PERCENT.index);
+		XSSFCellStyle headerStyle = sheet.getWorkbook().createCellStyle();
+		headerStyle.setFillPattern(XSSFCellStyle.FINE_DOTS);
+		headerStyle.setFillBackgroundColor(IndexedColors.GREY_80_PERCENT.getIndex());
 		headerStyle.setFont(bold);
 
 		int rowNum = 0;
 		int colNum = 0;
 
 		// Capçalera
-		HSSFRow xlsRow = sheet.createRow(rowNum++);
+		XSSFRow xlsRow = sheet.createRow(rowNum++);
 
-		HSSFCell cell;
+		XSSFCell cell;
 
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize("Expedient")));
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize("Expedient")));
 		cell.setCellStyle(headerStyle);
 
 		Iterator<Map.Entry<String, DadaIndexadaDto>> it = expedientsConsultaDissenyDto.get(0).getDadesExpedient().entrySet().iterator();
@@ -416,7 +415,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 			Map.Entry<String, DadaIndexadaDto> e = (Map.Entry<String, DadaIndexadaDto>)it.next();
 			sheet.autoSizeColumn(colNum);
 			cell = xlsRow.createCell(colNum++);
-			cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(e.getValue().getEtiqueta())));
+			cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(e.getValue().getEtiqueta())));
 			cell.setCellStyle(headerStyle);
 		}
 	}

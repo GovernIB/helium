@@ -125,4 +125,28 @@ public class PinbalConsultaGenericaHandler implements PinbalConsultaGenericaHand
 		
 	}
 
+	@Override
+	public void setAsincrona(String asincrona) {
+	}
+
+	@Override
+	public void setVarAsincrona(String varAsincrona) {
+	}
+
+	@Override
+	public void setTransicioOK(String transicioOK) {
+	}
+
+	@Override
+	public void setVarTransicioOK(String varTransicioOK) {
+	}
+
+	@Override
+	public void setTransicioKO(String transicioKO) {
+	}
+
+	@Override
+	public void setVarTransicioKO(String varTransicioKO) {
+	}
+
 }

@@ -39,6 +39,7 @@ import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
 import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreEntrada;
 import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId;
+import net.conselldemallorca.helium.core.helper.ConsultaPinbalHelper;
 import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.helper.ExceptionHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
@@ -52,11 +53,13 @@ import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedien
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientReindexacio;
 import net.conselldemallorca.helium.core.model.hibernate.Notificacio;
+import net.conselldemallorca.helium.core.model.hibernate.PeticioPinbal;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentEnviamentEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
+import net.conselldemallorca.helium.v3.core.api.exception.ExecucioMassivaException;
 import net.conselldemallorca.helium.v3.core.api.dto.ParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProgresActualitzacioDto;
@@ -70,6 +73,7 @@ import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientR
 import net.conselldemallorca.helium.v3.core.repository.ExpedientReindexacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
+import net.conselldemallorca.helium.v3.core.repository.PeticioPinbalRepository;
 
 /**
  * Servei per gestionar els terminis dels expedients
@@ -99,13 +103,17 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	private NotificacioRepository notificacioRepository;
 	@Autowired
 	private ExecucioMassivaService execucioMassivaService;
-	@Resource
+	@Autowired
 	private ProcedimentService procedimentService;
 	@Resource
 	private ParametreService parametreService;
 	@Resource
 	private UnitatOrganitzativaService unitatOrganitzativaService;
 
+	@Resource
+	private PeticioPinbalRepository peticioPinbalRepository;
+	@Resource
+	private ConsultaPinbalHelper consultaPinbalHelper;
 	@Resource
 	private IndexHelper indexHelper;
 	@Resource
@@ -598,11 +606,10 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 					timeMs,
 					error, 
 					e, 
-					parametresMonitor);	
+					parametresMonitor);
 		}
 	}
-	
-	
+
 	/** Mètode periòdic per sincronitzar les taules internes d'unitats organitzatives i procediments
 	 * segons la propietat app.unitats.procediments.sync.
 	 */
@@ -647,7 +654,20 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 		}
 		logger.info("Fi de la tasca periòdica de sincronització d'unitats i procediments.");
 	}
+	
 
+	@Override
+	@Scheduled(fixedDelayString = "600000")
+	@Async
+	@Transactional
+	public void updatePeticionsAsincronesPinbal() throws ExecucioMassivaException {
+		List<PeticioPinbal> peticionsAsincronesPendents = peticioPinbalRepository.findAsincronesPendents();
+		if (peticionsAsincronesPendents!=null) {
+			for (PeticioPinbal pi: peticionsAsincronesPendents) {
+				consultaPinbalHelper.tractamentPeticioAsincronaPendentPinbal(pi.getId());
+			}
+		}
+	}	
+	
 	private static final Log logger = LogFactory.getLog(TascaProgramadaService.class);
-
 }

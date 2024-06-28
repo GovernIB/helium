@@ -24,21 +24,20 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-import net.conselldemallorca.helium.v3.core.api.dto.CampInfoDto;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFPatternFormatting;
-import org.apache.poi.hssf.usermodel.HSSFRichTextString;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -58,6 +57,7 @@ import org.springframework.web.bind.support.SessionStatus;
 
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampInfoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
@@ -1033,47 +1033,46 @@ public class ExpedientDadaController extends BaseExpedientController {
 	}
 
 	private void exportXLS(HttpServletResponse response, ExpedientDto expedient, List<DadaListDto> dades) {
-		HSSFWorkbook wb = new HSSFWorkbook();
+		XSSFWorkbook wb = new XSSFWorkbook();
 
 		// GENERAL
-		HSSFSheet sheet = wb.createSheet("Dades expedient");
+		XSSFSheet sheet = wb.createSheet("Dades expedient");
 
 		// ESTILS
 		// Capçalera
-		HSSFFont headFont = wb.createFont();
-		headFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+		XSSFFont headFont = wb.createFont();
+		headFont.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
 		headFont.setFontHeightInPoints((short) 16);
 
-		HSSFCellStyle headerStyle = wb.createCellStyle();
-//		headerStyle.setFillBackgroundColor(HSSFColor.GREY_80_PERCENT.index);
+		XSSFCellStyle headerStyle = wb.createCellStyle();
+//		headerStyle.setFillBackgroundColor(XSSFColor.GREY_80_PERCENT.index);
 		headerStyle.setFont(headFont);
 
 		// Agrupacions
-		HSSFFont agFont = wb.createFont();
-		agFont.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+		XSSFFont agFont = wb.createFont();
+		agFont.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
 		agFont.setFontHeightInPoints((short) 12);
 
-		HSSFCellStyle agStyle = wb.createCellStyle();
-		agStyle.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
+		XSSFCellStyle agStyle = wb.createCellStyle();
+		agStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
 		agStyle.setFillPattern(HSSFPatternFormatting.SOLID_FOREGROUND);
 		agStyle.setFont(agFont);
 
 		// Nom
-		HSSFFont bold = wb.createFont();
-		bold.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+		XSSFFont bold = wb.createFont();
+		bold.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
 
-		HSSFCellStyle nStyle = wb.createCellStyle();
+		XSSFCellStyle nStyle = wb.createCellStyle();
 		nStyle.setFont(bold);
 
 		// Valor
 		DataFormat format = wb.createDataFormat();
-		HSSFCellStyle dStyle = wb.createCellStyle();
+		XSSFCellStyle dStyle = wb.createCellStyle();
 		dStyle.setDataFormat(format.getFormat("0.00"));
 		dStyle.setWrapText(true);
-		HSSFCellStyle hStyle = wb.createCellStyle();
-		hStyle.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
+		XSSFCellStyle hStyle = wb.createCellStyle();
+		hStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
 		hStyle.setFillPattern(HSSFPatternFormatting.FINE_DOTS);
-
 
 		// CONTINGUT
 
@@ -1088,10 +1087,10 @@ public class ExpedientDadaController extends BaseExpedientController {
 		}
 
 		// Capçalera
-		HSSFRow xlsRow = sheet.createRow(0);
-		HSSFCell cell;
+		XSSFRow xlsRow = sheet.createRow(0);
+		XSSFCell cell;
 		cell = xlsRow.createCell(0);
-		cell.setCellValue(new HSSFRichTextString("Expedient: " + expedient.getIdentificador()));
+		cell.setCellValue(new XSSFRichTextString("Expedient: " + expedient.getIdentificador()));
 		cell.setCellStyle(headerStyle);
 		for (int i = 1; i < (maxColumns + 2); i++)
 			xlsRow.createCell(i);
@@ -1186,14 +1185,14 @@ public class ExpedientDadaController extends BaseExpedientController {
 		}
 	}
 
-	private static void setCellValue(HSSFSheet sheet, String valor, int rowNum, int colNum, HSSFCellStyle style) {
-		HSSFRow xlsRow = sheet.getRow(rowNum);
+	private static void setCellValue(XSSFSheet sheet, String valor, int rowNum, int colNum, XSSFCellStyle style) {
+		XSSFRow xlsRow = sheet.getRow(rowNum);
 		if (xlsRow == null)
 			xlsRow = sheet.createRow(rowNum);
 		setCellValue(xlsRow, valor, colNum, style);
 	}
-	private static void setCellValue(HSSFRow xlsRow, String valor, int colNum, HSSFCellStyle style) {
-		HSSFCell cell = xlsRow.createCell(colNum);
+	private static void setCellValue(XSSFRow xlsRow, String valor, int colNum, XSSFCellStyle style) {
+		XSSFCell cell = xlsRow.createCell(colNum);
 		cell.setCellValue(valor);
 		cell.setCellStyle(style);
 		

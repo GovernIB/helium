@@ -857,8 +857,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 							document.getDescripcio(),
 							document.getArxiuContingut(),
 							document.getArxiuNom(),
-							document.isPlantilla(),
-							document.isNotificable());
+							document.isPlantilla());
 					documentExportacio.setCustodiaCodi(document.getCustodiaCodi());
 					documentExportacio.setContentType(document.getContentType());
 					documentExportacio.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
@@ -1609,7 +1608,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						document.setArxiuNom(documentExportat.getArxiuNom());
 						document.setArxiuContingut(documentExportat.getArxiuContingut());
 						document.setPlantilla(documentExportat.isPlantilla());
-						document.setNotificable(documentExportat.isNotificable());
 						document.setCustodiaCodi(documentExportat.getCustodiaCodi());
 						document.setContentType(documentExportat.getContentType());
 						document.setTipusDocPortasignatures(documentExportat.getTipusDocPortasignatures());
@@ -1861,6 +1859,20 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						new Permission[] {
 								ExtendedPermission.READ,
 								ExtendedPermission.ADMINISTRATION},
+						false),
+				ExpedientTipusDto.class);
+	}
+	
+	@Override
+	@Transactional(readOnly=true)
+	public List<ExpedientTipusDto> findAmbEntornPermisAdmin(Long entornId) throws NoTrobatException {
+		logger.debug(
+				"Consultant tipus d'expedient per un entorn i amb permisos de administració (" +
+				"entornId=" + entornId + ")");	
+		return conversioTipusHelper.convertirList(
+				findTotsExpTipusAmbPermisos(
+						entornId, 
+						new Permission[] {ExtendedPermission.ADMINISTRATION},
 						false),
 				ExpedientTipusDto.class);
 	}

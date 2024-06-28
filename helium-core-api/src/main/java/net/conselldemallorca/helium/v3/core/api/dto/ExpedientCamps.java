@@ -35,6 +35,5 @@ public class ExpedientCamps {
 
 	public static final String EXPEDIENT_PREFIX_JSP_SEPARATOR = "__exp__";
 	public static final String EXPEDIENT_PREFIX_JSP = "expedient" + EXPEDIENT_PREFIX_JSP_SEPARATOR;
-	public static final String EXPEDIENT_CAMP_ESTAT_JSP = "expedient" + EXPEDIENT_PREFIX_JSP_SEPARATOR + "estat";
 
 }

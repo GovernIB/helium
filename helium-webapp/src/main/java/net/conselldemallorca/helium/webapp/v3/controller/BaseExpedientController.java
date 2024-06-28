@@ -17,6 +17,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.service.ConsultaPinbalService;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
@@ -29,12 +30,10 @@ import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
  */
 public class BaseExpedientController extends BaseController {
 
-	@Autowired
-	protected ExpedientService expedientService;
-	@Autowired
-	protected ExpedientTipusService expedientTipusService;
-	@Autowired
-	protected DissenyService dissenyService;
+	@Autowired protected ExpedientService expedientService;
+	@Autowired protected ExpedientTipusService expedientTipusService;
+	@Autowired protected DissenyService dissenyService;
+	@Autowired protected ConsultaPinbalService consultaPinbalService;
 
 	protected String mostrarInformacioExpedientPerPipella(
 			HttpServletRequest request,
@@ -77,6 +76,7 @@ public class BaseExpedientController extends BaseController {
 		}
 		model.addAttribute("subprocessos", subprocessos);
 		model.addAttribute("numAccions", numAccions);
+		model.addAttribute("numPinbals", consultaPinbalService.findConsultesPinbalPerExpedient(expedientId).size());
 		model.addAttribute("perEstats", ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus()));
 		if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus())) {
 			model.addAttribute("estatsAvancar", expedientTipusService.estatGetAvancar(expedient.getId()));

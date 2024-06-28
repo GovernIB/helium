@@ -19,6 +19,7 @@ import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Notificacio;
+import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.RespostaEnviar;
 import net.conselldemallorca.helium.integracio.plugins.registre.RespostaJustificantRecepcio;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
@@ -66,6 +67,8 @@ public class NotificacioHelper {
 	private MonitorIntegracioHelper monitorIntegracioHelper;
 	@Resource
 	private UsuariActualHelper usuariActualHelper;
+	@Resource
+	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
 
 
 	// Notificació SISTRA
@@ -364,6 +367,65 @@ public class NotificacioHelper {
 			dadesNotificacio.setDocumentsDinsZip(documentsContingutsDto);
 		}
 		return dadesNotificacio;
+	}
+	
+	public void omplirModelNotificacioDto (DocumentNotificacioDto dto) {
+		if(dto.getEmisorDir3Codi()!=null) {
+			UnitatOrganitzativa uo = unitatOrganitzativaHelper.findByCodi(dto.getEmisorDir3Codi());
+			if(uo!=null) {
+				dto.setUnitatOrganitzativaCodi(uo.getCodi());
+				dto.setUnitatOrganitzativaDescripcio(uo.getDenominacio());
+			}else {
+				dto.setUnitatOrganitzativaCodi(dto.getEmisorDir3Codi());
+			}	
+		}
+		if(dto.getExpedient()!=null) {
+			dto.setExpedientId(dto.getExpedient().getId());
+			dto.setProcessInstanceId(dto.getExpedient().getProcessInstanceId());
+			if(dto.getExpedient().getEntorn()!=null) {
+				dto.setEntornCodi(dto.getExpedient().getEntorn().getCodi());;
+				dto.setEntornNom(dto.getExpedient().getEntorn().getNom());
+			}
+			if(dto.getExpedient().getTipus()!=null) {
+				dto.setExpedientTipusCodi(dto.getExpedient().getTipus().getCodi());
+				dto.setExpedientTipusNom(dto.getExpedient().getTipus().getNom());
+				dto.setExpedientTipus(dto.getExpedient().getTipus());
+				dto.setExpedientTipusId(dto.getExpedient().getTipus().getId());
+			}
+		}
+		if(dto.getDocument()!=null) {
+			DocumentStore document = documentHelperV3.findById(dto.getDocument().getId());
+			dto.setNomDocument(document.getArxiuNom());
+			dto.setDocumentStoreId(document.getId());
+		}
+		if (dto.getEnviamentCertificacio() != null) {
+			DocumentStore justificant = documentStoreRepository.findOne(dto.getEnviamentCertificacio().getId());
+			dto.setJustificantId(justificant.getId());
+			dto.setJustificantArxiuNom(justificant.getAdjuntTitol() != null? justificant.getAdjuntTitol() : justificant.getArxiuNom());
+		}
+	}
+	
+	public void completarDocumentNotificacioDto(DocumentNotificacioDto dto) {
+		if(dto.getEmisorDir3Codi()!=null) {
+			UnitatOrganitzativa uo = unitatOrganitzativaHelper.findByCodi(dto.getEmisorDir3Codi());
+			if(uo!=null) {
+				dto.setUnitatOrganitzativaCodi(uo.getCodi());
+				dto.setUnitatOrganitzativaDescripcio(uo.getDenominacio());
+			}else {
+				dto.setUnitatOrganitzativaCodi(dto.getEmisorDir3Codi());
+			}	
+		}
+		if(dto.getDocument()!=null) {
+			DocumentStore document = documentHelperV3.findById(dto.getDocument().getId());
+			dto.setNomDocument(document.getArxiuNom());
+			dto.setDocumentStoreId(document.getId());
+		}
+		if(dto.getEnviamentCertificacio()!=null) {
+			DocumentStore justificant = documentStoreRepository.findOne(dto.getEnviamentCertificacio().getId());
+			dto.setJustificantId(justificant.getId());
+			dto.setJustificantArxiuNom(justificant.getAdjuntTitol() != null? justificant.getAdjuntTitol() : justificant.getArxiuNom());
+		}	
+//		dto.setEntornCodi(dto.getento)
 	}
 	
 	

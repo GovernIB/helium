@@ -303,6 +303,14 @@ public class ConversioTipusHelper {
 		if(dadesConsultaPinbal.getInteressatCodi()!=null) {
 			dadesDto.setInteressatCodi(dadesConsultaPinbal.getInteressatCodi());
 		}
+		if(dadesConsultaPinbal.isAsincrona()) {
+			dadesDto.setAsincrona(dadesConsultaPinbal.isAsincrona());
+		}
+		dadesDto.setTransicioOK(dadesConsultaPinbal.getTransicioOK());
+		dadesDto.setTransicioKO(dadesConsultaPinbal.getTransicioKO());
+		if(dadesConsultaPinbal.getAnyNaixement()!=null) {
+			dadesDto.setAnyNaixement(dadesConsultaPinbal.getAnyNaixement());
+		}
 		return dadesDto;	
 	}
 

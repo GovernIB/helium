@@ -810,7 +810,6 @@ public class VariableHelper {
 			// Variable expedient o tipus d'expedient
 			varCodi = camp.getCodi();
 		}
-		varCodi = varCodi.replace(ExpedientCamps.EXPEDIENT_CAMP_ESTAT, ExpedientCamps.EXPEDIENT_CAMP_ESTAT_JSP);
 		tascaDto.setVarCodi(varCodi);
 		tascaDto.setCampId(camp.getId());
 		tascaDto.setCampTipus(conversioTipusHelper.convertir(camp.getTipus(), CampTipusDto.class));

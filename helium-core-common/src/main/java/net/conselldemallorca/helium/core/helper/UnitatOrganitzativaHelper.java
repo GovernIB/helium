@@ -81,6 +81,10 @@ public class UnitatOrganitzativaHelper {
 		return unitatOrganitzativaRepository.findOne(unitatOrganitzativaId);	
 	}
 	
+	public UnitatOrganitzativa findByCodi(String unitatOrganitzativaCodi) {
+		return unitatOrganitzativaRepository.findByCodi(unitatOrganitzativaCodi);
+	}
+	
 	public UnitatOrganitzativaDto toDto(UnitatOrganitzativa entity) {
 		UnitatOrganitzativaDto unitat = null;
 		if(entity!=null) {

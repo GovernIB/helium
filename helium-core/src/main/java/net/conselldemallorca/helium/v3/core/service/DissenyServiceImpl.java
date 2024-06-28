@@ -1339,6 +1339,20 @@ public class DissenyServiceImpl implements DissenyService {
 		return handlers;
 	}
 
+	@Override
+	@Transactional(readOnly=true)
+	public List<DefinicioProcesDto> findByEntornAndExpedientTipusOpcional(Long entornId, Long expedientTipusId) {
+//		return conversioTipusHelper.convertirList(
+//				definicioProcesHelper.findVersionsDefinicioProces(
+//						entornId,
+//						expedientTipusRepository.findById(expedientTipusId),
+//						jbpmKey), DefinicioProcesDto.class);
+		
+		return conversioTipusHelper.convertirList(
+				definicioProcesRepository.findJbfindDarreresVersionsAmbHerencia(entornId, expedientTipusId==null, expedientTipusId, true, true),
+				DefinicioProcesDto.class);
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
+
 }

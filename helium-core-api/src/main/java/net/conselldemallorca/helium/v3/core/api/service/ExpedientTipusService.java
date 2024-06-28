@@ -269,8 +269,18 @@ public interface ExpedientTipusService {
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 */
-	public List<ExpedientTipusDto> findAmbEntornPermisAnotacio(
-			Long entornId) throws NoTrobatException;
+	public List<ExpedientTipusDto> findAmbEntornPermisAnotacio(Long entornId) throws NoTrobatException;
+
+	/**
+	 * Retorna els tipus d'expedient d'un entorn sobre els quals l'usuari pot administrar.
+	 * 
+	 * @param entornId
+	 *            Atribut id de l'entorn.
+	 * @return Els tipus d'expedient amb permisos d'administració.
+	 * @throws NoTrobatException
+	 *             Si no s'ha trobat el registre amb l'id especificat.
+	 */
+	public List<ExpedientTipusDto> findAmbEntornPermisAdmin(Long entornId) throws NoTrobatException;
 	
 	/**
 	 * Retorna els tipus d'expedient d'un entorn sobre els quals l'usuari pot executar scripts.

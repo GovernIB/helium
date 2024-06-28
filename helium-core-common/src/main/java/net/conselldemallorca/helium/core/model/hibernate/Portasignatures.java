@@ -1,12 +1,12 @@
 package net.conselldemallorca.helium.core.model.hibernate;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -19,6 +19,8 @@ import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.ForeignKey;
 
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesEstatEnum;
+
 /**
  * Objecte de domini que representa un document del portasignatures.
  * 
@@ -29,27 +31,6 @@ import org.hibernate.annotations.ForeignKey;
 		uniqueConstraints={@UniqueConstraint(columnNames={"document_id", "token_id"})})
 public class Portasignatures implements Serializable, GenericEntity<Long> {
 
-	public enum TipusEstat {
-		BLOQUEJAT,
-		PENDENT,	// El document s'ha enviat però encara no s'ha rebut al callback cap resposta
-		SIGNAT,		// S'ha rebut petició al callback indicant que el document ha estat signat
-		REBUTJAT,	// S'ha rebut petició al callback indicant que el document ha estat rebujat
-		PROCESSAT,	// El document signat o rebujat s'ha processat correctament
-		CANCELAT,	// El document s'ha esborrat de l'expedient
-		ERROR,		// El document s'ha intentat processar i ha produit un error
-		ESBORRAT;	// S'ha esborrat l'expedient al qual pertany el document
-		
-			
-		public static List<TipusEstat> getPendents() {
-			List<TipusEstat> estats = new ArrayList<TipusEstat>();
-			estats.add(TipusEstat.PENDENT);
-			estats.add(TipusEstat.SIGNAT);
-			estats.add(TipusEstat.REBUTJAT);
-			estats.add(TipusEstat.ERROR);
-			return estats;
-		}
-	}
-
 	public enum Transicio {
 		SIGNAT,
 		REBUTJAT
@@ -59,7 +40,9 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 	private Integer documentId;
 	private Long tokenId;
 	private Date dataEnviat;
-	private TipusEstat estat;
+	@Enumerated
+	private PortafirmesEstatEnum estat;
+	@Enumerated
 	private Transicio transition;
 	private Long documentStoreId;
 	private String motiuRebuig;
@@ -81,7 +64,7 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 			Integer documentId,
 			Long tokenId,
 			Date dataEnviat,
-			TipusEstat estat,
+			PortafirmesEstatEnum estat,
 			Transicio transition,
 			Long documentStoreId,
 			String motiuRebuig,
@@ -134,10 +117,10 @@ public class Portasignatures implements Serializable, GenericEntity<Long> {
 	}
 
 	@Column(name="estat")
-	public TipusEstat getEstat() {
+	public PortafirmesEstatEnum getEstat() {
 		return estat;
 	}
-	public void setEstat(TipusEstat estat) {
+	public void setEstat(PortafirmesEstatEnum estat) {
 		this.estat = estat;
 	}
 

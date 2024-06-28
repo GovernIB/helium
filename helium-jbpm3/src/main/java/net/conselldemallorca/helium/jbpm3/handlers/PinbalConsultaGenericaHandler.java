@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -128,7 +129,23 @@ public class PinbalConsultaGenericaHandler extends BasicActionHandler implements
 	protected String idioma;	// Possibles valors [ES, CA]
 	protected String varIdioma;
 	
-
+	/**Indica si la consulta és asíncrona o no. Per exemple el valor "True" i "true" indiquen una crida asíncrona,
+	 qualsevol altre valor es considerarà fals i es farà una crida síncrona. **/
+	protected String asincrona;
+	protected String varAsincrona;
+	/**Codi opcional de la transició de sortida en el cas que la consulta a PINBAL finalitzi correctament 
+	 i en el cas que el flux estigui aturat en un estat.**/
+	protected String transicioOK;
+	/**Variable que conté la transició de sortida per a la consulta a PINBAL amb finalització correcta.**/
+	protected String varTransicioOK;
+	
+	/**Codi opcional de la transició de sortida en el cas que la consulta a PINBAL finalitzi correctament 
+	 i en el cas que el flux estigui aturat en un estat.**/
+	protected String transicioKO;
+	/**Variable que conté la transició de sortida per a la consulta a PINBAL amb finalització incorrecta.**/
+	protected String varTransicioKO;
+	
+	
 	public void execute(ExecutionContext executionContext) throws Exception {	
 		logger.debug("Inici execució handler genèric a Pinbal");
 		ExpedientDto expedient = getExpedientActual(executionContext);
@@ -175,7 +192,27 @@ public class PinbalConsultaGenericaHandler extends BasicActionHandler implements
 			dadesConsultaPinbal.setXmlDadesEspecifiques(dadesEspecifiquesXml);
 		}
 		
-		Object resposta = super.consultaPinbal(dadesConsultaPinbal, expedient.getId(), expedient.getProcessInstanceId());
+		dadesConsultaPinbal.setTransicioOK((String)getValorOVariable(
+				executionContext,
+				this.transicioOK,
+				this.varTransicioOK));
+
+		dadesConsultaPinbal.setTransicioKO((String)getValorOVariable(
+				executionContext,
+				this.transicioKO,
+				this.varTransicioKO));
+
+		Boolean asincrona = getValorOVariableBoolean(
+                executionContext,
+                this.asincrona,
+                this.varAsincrona);
+		dadesConsultaPinbal.setAsincrona(asincrona != null ? asincrona.booleanValue() : false);
+		
+		Object resposta = super.consultaPinbal(
+				dadesConsultaPinbal,
+				expedient.getId(),
+				expedient.getProcessInstanceId(),
+				(executionContext!=null && executionContext.getToken()!=null)?executionContext.getToken().getId():null);
 
 	}
 	
@@ -267,7 +304,7 @@ public class PinbalConsultaGenericaHandler extends BasicActionHandler implements
 	}
 
 	
-	protected DadesConsultaPinbal obtenirDadesConsulta (ExecutionContext executionContext) {
+	protected DadesConsultaPinbal obtenirDadesConsulta (ExecutionContext executionContext) throws ParseException {
 		DadesConsultaPinbal dadesConsultaPinbal = new DadesConsultaPinbal();
 		Titular titular = new Titular();
 		titular.setNombre((String)getValorOVariable(
@@ -323,6 +360,10 @@ public class PinbalConsultaGenericaHandler extends BasicActionHandler implements
 				executionContext,
 				this.interessatCodi,
 				this.varInteressatCodi));
+		if(this.asincrona!=null && !this.asincrona.isEmpty()) {
+			boolean asincrona = Boolean.parseBoolean(this.asincrona.toLowerCase().trim());
+			dadesConsultaPinbal.setAsincrona(asincrona);
+		}
 		
 		return dadesConsultaPinbal;
 	}
@@ -451,7 +492,29 @@ public class PinbalConsultaGenericaHandler extends BasicActionHandler implements
 	}
 
 
+	public void setAsincrona(String asincrona) {
+		this.asincrona = asincrona;
+	}
 	
+	public void setVarAsincrona(String varAsincrona) {
+		this.varAsincrona = varAsincrona;
+	}
+	
+	public void setTransicioOK(String transicioOK) {
+		this.transicioOK = transicioOK;
+	}
+
+	public void setVarTransicioOK(String varTransicioOK) {
+		this.varTransicioOK = varTransicioOK;
+	}
+
+	public void setVarTransicioKO(String varTransicioKO) {
+		this.varTransicioKO = varTransicioKO;
+	}
+
+	public void setTransicioKO(String transicioKO) {
+		this.varTransicioKO = transicioKO;	
+	}
 	
 	
 

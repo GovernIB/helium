@@ -31,7 +31,6 @@ import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentF
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.core.util.PdfUtils;
@@ -41,6 +40,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesEstatEnum;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
@@ -189,7 +189,7 @@ public class DocumentHelper {
 							documentStore.getId());
 					if (!peticions.isEmpty()) {
 						for (Portasignatures peticio : peticions) {
-							peticio.setEstat(TipusEstat.ESBORRAT);
+							peticio.setEstat(PortafirmesEstatEnum.ESBORRAT);
 							portasignaturesRepository.save(peticio);
 						}
 					}
@@ -237,7 +237,7 @@ public class DocumentHelper {
 							documentStore.getId());
 					if (!peticions.isEmpty()) {
 						for (Portasignatures peticio : peticions) {
-							peticio.setEstat(TipusEstat.ESBORRAT);
+							peticio.setEstat(PortafirmesEstatEnum.ESBORRAT);
 							portasignaturesRepository.save(peticio);
 						}
 					}

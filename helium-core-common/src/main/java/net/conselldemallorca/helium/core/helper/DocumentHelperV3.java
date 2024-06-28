@@ -46,8 +46,8 @@ import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.FirmaTasca;
+import net.conselldemallorca.helium.core.model.hibernate.PeticioPinbal;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
-import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.TipusEstat;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.util.DocumentTokenUtils;
@@ -72,6 +72,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesEstatEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDocumentDto;
@@ -87,6 +88,7 @@ import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentTascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.FirmaTascaRepository;
+import net.conselldemallorca.helium.v3.core.repository.PeticioPinbalRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
@@ -147,6 +149,8 @@ public class DocumentHelperV3 {
 	private DocumentNotificacioRepository documentNotificacioRepository; 
 	@Resource
 	private AnotacioAnnexRepository anotacioAnnexRepository;
+	@Resource
+	private PeticioPinbalRepository peticioPinbalRepository;	
 
 	private PdfUtils pdfUtils;
 	private DocumentTokenUtils documentTokenUtils;
@@ -436,7 +440,12 @@ public class DocumentHelperV3 {
 					}
 					// Informació de les notificacions
 					ed.setNotificat(documentsNotificats.contains(documentStoreId));
-					
+					List<PeticioPinbal> pps = peticioPinbalRepository.findByExpedientIdAndDocumentIdOrderByDataPeticioDesc(expedient.getId(), documentStoreId);
+					if (pps!=null && pps.size()>0) {
+						ed.setPinbal(true);
+						ed.setEstatPinbal(pps.get(0).getEstat());
+					}
+					ed.setNotificable(PdfUtils.isArxiuConvertiblePdf(ed.getArxiuNom()));
 					resposta.add(ed);
 				}
 			}
@@ -1206,10 +1215,10 @@ public class DocumentHelperV3 {
 				if (processInstanceId != null) {
 					List<Portasignatures> psignaPendents = portasignaturesRepository.findByProcessInstanceIdAndEstatNotIn(
 							processInstanceId,
-							TipusEstat.getPendents());
+							PortafirmesEstatEnum.getPendents());
 					for (Portasignatures psigna: psignaPendents) {
 						if (psigna.getDocumentStoreId().longValue() == documentStore.getId().longValue()) {
-							psigna.setEstat(TipusEstat.ESBORRAT);
+							psigna.setEstat(PortafirmesEstatEnum.ESBORRAT);
 							portasignaturesRepository.save(psigna);
 						}
 					}
@@ -1816,7 +1825,9 @@ public class DocumentHelperV3 {
 				true,
 				(documentStore.getArxiuUuid() == null),
 				null);
-		if (! "pdf".equals(arxiuPerFirmar.getExtensio()) &&  !"zip".equals(arxiuPerFirmar.getExtensio())) {
+		if (! "pdf".equals(arxiuPerFirmar.getExtensio()) 
+				&&  !"zip".equals(arxiuPerFirmar.getExtensio())
+				&& PdfUtils.isArxiuConvertiblePdf(arxiuPerFirmar.getNom())) {
 			// Transforma l'arxiu a PDF
 			arxiuPerFirmar = this.converteixPdf(arxiuPerFirmar);							
 		}
@@ -1825,7 +1836,6 @@ public class DocumentHelperV3 {
 				expedient,
 				documentStore,
 				arxiuPerFirmar,
-				net.conselldemallorca.helium.integracio.plugins.firma.FirmaTipus.PADES,
 				(motiu != null) ? motiu : "Firma en servidor HELIUM");
 
 		if (StringUtils.isEmpty(firma.getTipusFirmaEni()) 
@@ -1858,7 +1868,7 @@ public class DocumentHelperV3 {
 				firma.getTipusFirmaEni(),
 				perfil,
 				firma.getContingut(),
-				arxiuContingut);
+				arxiuContingut != null ? arxiuContingut : arxiuPerFirmar.getContingut());
 	}
 
 	
@@ -1977,23 +1987,15 @@ public class DocumentHelperV3 {
 			{
 				// El document ja està firmat a l'Arxiu, es guarda amb un altre uuid
 				documentStore.setArxiuUuid(null);
-				ContingutArxiu documentCreat = pluginHelper.arxiuDocumentCrearActualitzar(
-						expedient, 
-						documentNom,
-						documentDescripcio, 
-						documentStore, 
-						new ArxiuDto(
-								arxiuNom, 
-								signatura, 
-								arxiuMime));
-				documentStore.setArxiuUuid(documentCreat.getIdentificador());
 
-			} else {
-				// S'actualitza el document existent
-				arxiuFirmat.setNom(arxiuNom);
-				arxiuFirmat.setTipusMime(arxiuMime);
-				arxiuFirmat.setContingut(signatura);
-				pluginHelper.arxiuDocumentGuardarDocumentFirmat(
+			} 
+			// Guarda el document
+			arxiuFirmat.setNom(arxiuNom);
+			arxiuFirmat.setTipusMime(arxiuMime);
+			arxiuFirmat.setContingut(signatura);
+			
+			// Crea o modifica segons si el documentStore té id
+			ContingutArxiu documentCreatModificat = pluginHelper.arxiuDocumentGuardarDocumentFirmat(
 						expedient, 
 						documentStore, 
 						documentNom, 
@@ -2003,7 +2005,10 @@ public class DocumentHelperV3 {
 						tipusFirmaEni, 
 						perfilFirmaEni,
 						arxiuContingut);
-			}
+			
+			// Fixa l'uuid del document
+			documentStore.setArxiuUuid(documentCreatModificat.getIdentificador());
+
 			// Actualitza la informació al document store
 			documentArxiu = pluginHelper.arxiuDocumentInfo(
 					documentStore.getArxiuUuid(),
@@ -2096,7 +2101,6 @@ public class DocumentHelperV3 {
 		dto.setDocumentId(document.getId());
 		dto.setDocumentCodi(document.getCodi());
 		dto.setDocumentNom(document.getNom());
-		dto.setNotificable(document.isNotificable());
 		dto.setPortafirmesActiu(document.isPortafirmesActiu());
 		dto.setPlantilla(document.isPlantilla());
 		dto.setSignat(documentStore.isSignat());

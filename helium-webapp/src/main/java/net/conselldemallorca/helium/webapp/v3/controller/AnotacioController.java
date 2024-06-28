@@ -21,20 +21,22 @@ import javax.validation.Valid;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.usermodel.HSSFRichTextString;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomBooleanEditor;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -47,6 +49,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAccioEnumDto;
@@ -121,6 +124,12 @@ public class AnotacioController extends BaseExpedientController {
 		List<ExpedientTipusDto> expedientTipusDtoAccessiblesAnotacions = (List<ExpedientTipusDto>)SessionHelper.getAttribute(
 				request,
 				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS);
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if ((expedientTipusDtoAccessiblesAnotacions == null || expedientTipusDtoAccessiblesAnotacions.isEmpty()) 
+				&& UsuariActualHelper.isAdministrador(auth)) {
+			MissatgesHelper.error(request, "No teniu permís de relacionar sobre cap tipus en aquest entorn per gestionar anotacions.");
+			return "redirect:/";
+		}
 		this.modelExpedientsTipus(expedientTipusDtoAccessiblesAnotacions, model);
 		model.addAttribute("maxConsultaIntents", this.getMaxConsultaIntents());
 		return "v3/anotacioLlistat";
@@ -310,8 +319,6 @@ public class AnotacioController extends BaseExpedientController {
 			@PathVariable Long anotacioId,
 			Model model) {
 		
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-		
 		AnotacioDto anotacio = anotacioService.findAmbId(anotacioId);
 		Long expedientTipusId = anotacio.getExpedientTipus() != null ? 
 											anotacio.getExpedientTipus().getId() 
@@ -364,7 +371,6 @@ public class AnotacioController extends BaseExpedientController {
 			BindingResult bindingResult,
 			Model model) {
 
-		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 		AnotacioDto anotacio = anotacioService.findAmbId(anotacioId);
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("anotacio", anotacio);			
@@ -960,23 +966,23 @@ public class AnotacioController extends BaseExpedientController {
 			List<AnotacioListDto> anotacions) {
 	
 		
-		HSSFWorkbook wb;
-		HSSFCellStyle cellStyle;
-		HSSFCellStyle dStyle;
-		HSSFFont bold;
-		HSSFCellStyle cellGreyStyle;
-		HSSFCellStyle greyStyle;
-		HSSFCellStyle dGreyStyle;
-		HSSFFont greyFont;
-		wb = new HSSFWorkbook();
+		XSSFWorkbook wb;
+		XSSFCellStyle cellStyle;
+		XSSFCellStyle dStyle;
+		XSSFFont bold;
+		XSSFCellStyle cellGreyStyle;
+		XSSFCellStyle greyStyle;
+		XSSFCellStyle dGreyStyle;
+		XSSFFont greyFont;
+		wb = new XSSFWorkbook();
 	
 		bold = wb.createFont();
-		bold.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
-		bold.setColor(HSSFColor.WHITE.index);
+		bold.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
+		bold.setColor(IndexedColors.WHITE.getIndex());
 		
 		greyFont = wb.createFont();
-		greyFont.setColor(HSSFColor.GREY_25_PERCENT.index);
-		greyFont.setCharSet(HSSFFont.ANSI_CHARSET);
+		greyFont.setColor(IndexedColors.GREY_25_PERCENT.getIndex());
+		greyFont.setCharSet(XSSFFont.ANSI_CHARSET);
 		
 		cellStyle = wb.createCellStyle();
 		cellStyle.setDataFormat(wb.getCreationHelper().createDataFormat().getFormat("dd/MM/yyyy HH:mm"));
@@ -997,7 +1003,7 @@ public class AnotacioController extends BaseExpedientController {
 		dGreyStyle = wb.createCellStyle();
 		dGreyStyle.setFont(greyFont);
 		dGreyStyle.setDataFormat(format.getFormat("0.00"));
-		HSSFSheet sheet = wb.createSheet("Hoja 1");
+		XSSFSheet sheet = wb.createSheet("Hoja 1");
 		if (!anotacions.isEmpty())
 			createHeader(
 					wb,
@@ -1008,9 +1014,9 @@ public class AnotacioController extends BaseExpedientController {
 		int colNum = 0;
 		for (AnotacioListDto  anotacioDto : anotacions) {
 			try {
-				HSSFRow xlsRow = sheet.createRow(rowNum++);
+				XSSFRow xlsRow = sheet.createRow(rowNum++);
 				colNum = 0;	
-				HSSFCell cell = xlsRow.createCell(colNum);
+				XSSFCell cell = xlsRow.createCell(colNum);
 
 				cell = xlsRow.createCell(colNum++);
 				cell.setCellValue(anotacioDto.getData());
@@ -1070,77 +1076,77 @@ public class AnotacioController extends BaseExpedientController {
 
 	
 	private void createHeader(
-			HSSFWorkbook wb,
-			HSSFSheet sheet,
+			XSSFWorkbook wb,
+			XSSFSheet sheet,
 			List<AnotacioListDto> anotacions,
 			HttpServletRequest request) {
-		HSSFFont bold;
+		XSSFFont bold;
 		bold = wb.createFont();
-		bold.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
-		bold.setColor(HSSFColor.WHITE.index);
-		HSSFCellStyle headerStyle;
+		bold.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
+		bold.setColor(IndexedColors.WHITE.getIndex());
+		XSSFCellStyle headerStyle;
 		headerStyle = wb.createCellStyle();
-		headerStyle.setFillPattern(HSSFCellStyle.FINE_DOTS);
-		headerStyle.setFillBackgroundColor(HSSFColor.GREY_80_PERCENT.index);
+		headerStyle.setFillPattern(XSSFCellStyle.FINE_DOTS);
+		headerStyle.setFillBackgroundColor(IndexedColors.GREY_80_PERCENT.getIndex());
 		headerStyle.setFont(bold);
 		int rowNum = 0;
 		int colNum = 0;
 		// Capçalera
-		HSSFRow xlsRow = sheet.createRow(rowNum++);
-		HSSFCell cell;
+		XSSFRow xlsRow = sheet.createRow(rowNum++);
+		XSSFCell cell;
 		cell = xlsRow.createCell(colNum);
 		cell.setCellStyle(headerStyle);
 		sheet.autoSizeColumn(colNum);
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage(
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(
 						request, 
 						"anotacio.llistat.columna.data"))));
 		cell.setCellStyle(headerStyle);
 
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage(
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(
 					request, 
 					"anotacio.llistat.columna.identificador"))));
 		cell.setCellStyle(headerStyle);
 
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage(
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(
 					request, 
 					"anotacio.llistat.columna.extracte"))));
 		cell.setCellStyle(headerStyle);
 
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage(
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(
 					request, 
 					"anotacio.llistat.columna.procedimentCodi"))));
 		cell.setCellStyle(headerStyle);
 
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage(
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(
 					request, 
 					"anotacio.llistat.columna.expedientNumero"))));
 		cell.setCellStyle(headerStyle);
 			
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage(
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(
 					request, 
 					"anotacio.llistat.columna.dataRecepcio"))));
 		cell.setCellStyle(headerStyle);
 			
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage(
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(
 					request, 
 					"anotacio.llistat.columna.expedientTipus"))));
 		cell.setCellStyle(headerStyle);
 			
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage(
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(
 					request, 
 					"anotacio.llistat.columna.expedient"))));
 		cell.setCellStyle(headerStyle);
 			
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new HSSFRichTextString(StringUtils.capitalize(getMessage(
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(getMessage(
 					request, 
 					"anotacio.llistat.columna.estat"))));
 		cell.setCellStyle(headerStyle);

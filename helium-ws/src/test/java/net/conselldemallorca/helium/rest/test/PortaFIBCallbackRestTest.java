@@ -37,7 +37,7 @@ public class PortaFIBCallbackRestTest {
 			//   60 - DOCUMENT_FIRMAT;
 			//   70 - DOCUMENT_REBUTJAT;
 			//   80 - DOCUMENT_PAUSAT;
-			long psignaDocumentId = 844735;
+			long psignaDocumentId = 1523483;
 			int estat = 60;
 
 			PortaFIBEvent event = new PortaFIBEvent();

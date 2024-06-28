@@ -57,6 +57,17 @@
 									<thead>
 										<tr>
 											<td class="tableDocumentsTd">
+											
+												<c:if test="${document.arxiuExtensio == 'pdf' or document.arxiuExtensio == 'pdt' or document.arxiuExtensio == 'docx' or document.arxiuExtensio == 'odt'}">
+													<a	href="JavaScript:;"
+														name="previsDocLink${document.id}"
+														onclick="previsualitzaDocument('${expedient.id}', '${document.id}', this, '${document.arxiuExtensio}');"
+														class="previs-icon fa-stack"
+														style="font-size:1.31em; margin-top:-5px;">
+														  <i class="fa fa-file-o fa-stack-2x"></i><i class="fa fa-search fa-stack-1x" title="Previsualitzar"></i>
+													</a>
+												</c:if>
+											
 												<c:if test="${!document.signat && expedient.permisDocManagement && !document.notificat}">
 													<a 	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/update"
 														data-rdt-link-modal="true" 
@@ -208,7 +219,7 @@
 														data-rdt-link-modal="true"
 														data-rdt-link-modal-min-height="500"
 														class="linkNti">
-														<span class="label label-info etiqueta-nti-arxiu">
+														<span class="label label-info etiqueta-nti-arxiu" title="Metadades NTI i informació de l'arxiu">
 															<c:choose>
 																<c:when test="${empty expedient.arxiuUuid}">
 																	<spring:message code="expedient.info.etiqueta.nti"/>
@@ -232,6 +243,17 @@
 														class="icon modificar" >
 															<span class="label label-warning etiqueta-nti-arxiu" id="${contingut.id}" title="<spring:message code="expedient.document.info.etiqueta.notificat.title"/>">
 																<spring:message code="expedient.document.info.etiqueta.notificat"/>
+															</span>
+													</a>
+												</c:if>
+												
+												<c:if test="${document.pinbal}">
+													<a 	href="../../v3/consultesPinbal/infoByDocument/${expedientId}/${document.id}"
+														data-rdt-link-modal="true" 
+														data-rdt-link-modal-min-height="500"
+														class="icon modificar" >
+															<span class="label label-success etiqueta-nti-arxiu" id="${contingut.id}" title="<spring:message code="consultes.pinbal.detall.titol"/>">
+																PIN<c:if test="${document.estatPinbal=='PENDENT'}">&nbsp;<span class="fa fa-clock-o"></span></c:if><c:if test="${document.estatPinbal=='ERROR_PROCESSANT' or document.estatPinbal=='ERROR'}">&nbsp;<span class="fa fa-exclamation-triangle text-danger"></span></c:if>
 															</span>
 													</a>
 												</c:if>

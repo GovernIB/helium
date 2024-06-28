@@ -25,7 +25,6 @@ public class DocumentDetallDto {
     private Date dataCreacio;
     private Date dataModificacio;
     private Date dataDocument;
-    private boolean notificable;
     private String arxiuUuid;
     private String ntiCsv;
     private boolean signat;
@@ -37,7 +36,6 @@ public class DocumentDetallDto {
     private boolean arxiu;
     boolean errorArxiuNoUuid;
     boolean errorMetadadesNti;
-
     private RegistreDetallDto registreDetall;
     private SignaturaValidacioDetallDto signaturaValidacioDetall;
     private PsignaDetallDto psignaDetall;
@@ -45,5 +43,4 @@ public class DocumentDetallDto {
     private NtiDetallDto ntiDetall;
     private AnotacioDto anotacio;
     private List<DadesNotificacioDto> notificacions;
-
 }

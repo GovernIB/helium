@@ -157,26 +157,12 @@
 </c:choose>
 <script>
 $(document).ready(function() {
-	$("#${campPath}").select2({
+	$("#${fn:replace(campPath, '$','\\\\$')}").select2({
 	    width: 'resolve',
 	    theme: "bootstrap",
 	    placeholder: "${campPlaceholder}",
 	    allowClear: true,
 	    minimumResultsForSearch: 10
-	});
-	$("#${campPath}").on('select2-open', function() {
-		/* comentat perquè feia que la pàgina es reposicionés adalt del tot
-		var iframe = $('.modal-body iframe', window.parent.document);
-		var height = $('html').height() + 30;
-		iframe.height(height + 'px');
-		*/
-	});
-	$("#${campPath}").on('select2-close', function() {
-		/* comentat perquè feia que la pàgina es reposicionés adalt del tot
-		var iframe = $('.modal-body iframe', window.parent.document);
-		var height = $('html').height();
-		iframe.height(height + 'px');
-		*/
 	});
 });
 </script>

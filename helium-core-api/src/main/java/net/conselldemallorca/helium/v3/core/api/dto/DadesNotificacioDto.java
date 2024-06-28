@@ -48,7 +48,7 @@ public class DadesNotificacioDto {
 	private List<DocumentStoreDto> documentsDinsZip;
 
 
-	
+	//MARTA veure aquesta classe tb
 	public Long getId() {
 		return id;
 	}

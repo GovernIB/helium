@@ -59,18 +59,26 @@ $(document).ready(function() {
 	$('.datetimepicker').datetimepicker({
 		locale: moment.locale('${idioma}'),
 		format: 'DD/MM/YYYY${time == true ? " HH:mm" : ""}'
-    }).on('dp.show', function() {
-		var iframe = $('.modal-body iframe', window.parent.document);
-		var divField = $('.modal-body iframe', window.parent.document).contents().find('body>div');
-		iframe.height((iframe.height() + 200) + 'px');
-		divField.height((divField.height() + 200) + 'px');
-	}).on('dp.hide', function() {
-		var iframe = $('.modal-body iframe', window.parent.document);
-		var divField = $('.modal-body iframe', window.parent.document).contents().find('body>div');
-		var height = $('html').height();
-		iframe.height((iframe.height() - 200) + 'px');
-		divField.height((divField.height() - 200) + 'px');
 	});
+	
+	//#1760 El selector de data no es veu correctament a les modals
+	//La solució no es augmentar 200px si o sí, es donar suficient espai a la modal
+	
+//  }).on('dp.show', function() {
+// 	debugger;
+//		var iframe = $('.modal-body iframe', window.parent.document);
+//		var divField = $('.modal-body iframe', window.parent.document).contents().find('body>div');
+//		iframe.height((iframe.height() + 200) + 'px');
+//		divField.height((divField.height() + 200) + 'px');
+//	}).on('dp.hide', function() {
+//		debugger;
+//		var iframe = $('.modal-body iframe', window.parent.document);
+//		var divField = $('.modal-body iframe', window.parent.document).contents().find('body>div');
+//		var height = $('html').height();
+//		iframe.height((iframe.height() - 200) + 'px');
+//		divField.height((divField.height() - 200) + 'px');
+//	});
+	
 	$(".btn_date").click(function(){
 		$(this).prev(".date").trigger("focus");
 	});

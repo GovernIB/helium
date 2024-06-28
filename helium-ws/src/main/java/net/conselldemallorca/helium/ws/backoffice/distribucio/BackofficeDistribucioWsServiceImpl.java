@@ -22,10 +22,9 @@ import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
+import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
-import net.conselldemallorca.helium.v3.core.repository.AnotacioAnnexRepository;
-import net.conselldemallorca.helium.v3.core.repository.AnotacioInteressatRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
 
 
@@ -48,10 +47,6 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 	private DistribucioHelper distribucioHelper;
 	@Autowired
 	private AnotacioRepository anotacioRepository;
-	@Autowired
-	private AnotacioAnnexRepository anotacioAnnexRepository;
-	@Autowired
-	private AnotacioInteressatRepository anotacioInteressatRepository;
 	@Autowired
 	private ConversioTipusHelper conversioTipusHelper;
 	@Resource
@@ -98,10 +93,10 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 					backofficeUtils.setArxiuPluginListener(this);
 					switch(anotacio.getEstat()) {
 					case PENDENT:
-						if (anotacio.getExpedientTipus() == null 
-							|| anotacio.getExpedientTipus().isDistribucioProcesAuto()) 
-						{
-							distribucioHelper.reprocessarAnotacio(anotacio.getId(), backofficeUtils);
+					case ERROR_PROCESSANT:
+						if (anotacio.getExpedientTipus() == null || anotacio.getExpedientTipus().isDistribucioProcesAuto()) {
+							anotacio = distribucioHelper.reprocessarAnotacio(anotacio.getId(), backofficeUtils);
+							estat = es.caib.distribucio.rest.client.integracio.domini.Estat.PROCESSADA;
 						} else {
 							estat = es.caib.distribucio.rest.client.integracio.domini.Estat.REBUDA;
 							msg = "La petició ja s'ha rebut anteriorment i està pendent de processar o rebutjar manualment";
@@ -131,9 +126,6 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 								anotacio.getConsultaError(), 
 								anotacio.getConsultaData());
 						break;
-					case ERROR_PROCESSANT:
-						distribucioHelper.reprocessarAnotacio(anotacio.getId(), backofficeUtils);
-						break;
 					}
 					if (estat != null) {
 						// Comunica l'estat actual
@@ -156,7 +148,7 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 			}
 		}		
 	}
-	
+		
 	/** Mètode per implementar la interfície {@link ArxiuPluginListener} de Distribució per rebre events de quan es crida l'Arxiu i afegir
 	 * els logs al monitor d'integracions. 
 	 * @param metode

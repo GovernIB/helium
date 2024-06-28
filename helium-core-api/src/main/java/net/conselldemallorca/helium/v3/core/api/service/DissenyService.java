@@ -167,6 +167,7 @@ public interface DissenyService {
 	/** Troba la darrera versió de la definició de procés inicial tenint en compte l'herència. */
 	public DefinicioProcesDto findDarreraDefinicioProcesForExpedientTipus(Long expedientTipusId) throws NoTrobatException;
 
+	public List<DefinicioProcesDto> findByEntornAndExpedientTipusOpcional(Long entornId, Long expedientTipusId);
 	
 	/** Troba la darrera versió de la definició de procés amb expedient tipus id i codi de la definició de procés tenint en compte l'herència. */
 	public DefinicioProcesDto findDarreraVersioForExpedientTipusIDefProcCodi(Long expedientTipusId, String defProcCodi) throws NoTrobatException;

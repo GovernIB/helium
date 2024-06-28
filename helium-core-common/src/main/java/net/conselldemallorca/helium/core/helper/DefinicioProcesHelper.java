@@ -337,7 +337,6 @@ public class DefinicioProcesHelper {
 						document.setArxiuNom(documentExportat.getArxiuNom());
 						document.setArxiuContingut(documentExportat.getArxiuContingut());
 						document.setPlantilla(documentExportat.isPlantilla());
-						document.setNotificable(documentExportat.isNotificable());
 						document.setCustodiaCodi(documentExportat.getCustodiaCodi());
 						document.setContentType(documentExportat.getContentType());
 						document.setTipusDocPortasignatures(documentExportat.getTipusDocPortasignatures());
@@ -1000,8 +999,7 @@ public class DefinicioProcesHelper {
 							document.getDescripcio(),
 							document.getArxiuContingut(),
 							document.getArxiuNom(),
-							document.isPlantilla(),
-							document.isNotificable());
+							document.isPlantilla());
 					documentExportacio.setCustodiaCodi(document.getCustodiaCodi());
 					documentExportacio.setContentType(document.getContentType());
 					documentExportacio.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
@@ -1201,7 +1199,6 @@ public class DefinicioProcesHelper {
 			nou.setIgnored(document.isIgnored());
 			if (document.getCampData() != null)
 				nou.setCampData(camps.get(document.getCampData().getCodi()));
-			nou.setNotificable(document.isNotificable());
 			nou.setExtensionsPermeses(document.getExtensionsPermeses());
 			nou.setNtiOrigen(document.getNtiOrigen());
 			nou.setNtiEstadoElaboracion(document.getNtiEstadoElaboracion());

@@ -504,28 +504,52 @@ div.dropdown-menu.loading .rmodal_carrecs {
 			}
 			
 			function obtenirPlantilles() {
-
+				debugger;
 				// Càrregal de les opcions del desplegable de fluxos
 				$.ajax({
 					type: 'GET',
 					dataType: "json",
 					url: "<c:url value="/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${documentExpedientEnviarPortasignaturesCommand.id}/flux/plantilles"/>",
 						success: function(data) {
+							debugger;
 							var plantillaActual = "${portafirmesFluxSeleccionat}";
 							var selPlantilles = $("#portafirmesEnviarFluxId");
+							
+							var textFlxComu = "<spring:message code='expedient.tipus.document.form.camp.portafirmes.fluxos.comuns'/>";
+							var textFlxUser = "<spring:message code='expedient.tipus.document.form.camp.portafirmes.fluxos.usuari'/>";
+							
 							selPlantilles.empty();
-							selPlantilles.append("<option value=\"\"></option>");
-							selPlantilles.append("<option value=\"\"></option>");
+// 							selPlantilles.append("<option value=\"\"></option>");
+// 							selPlantilles.append("<option value=\"\"></option>");
+							
+							selPlantilles.append("<option style='font-weight: bold;' disabled><b>"+textFlxComu+"</b></option>");							
 							if (data) {
 								var items = [];
 								$.each(data, function(i, val) {
-									items.push({
-										"id": val.fluxId,
-										"text": val.nom
-									});
-									selPlantilles.append("<option value=\"" + val.fluxId + "\">" + val.nom + "</option>");
+									if (val.fluxComu) {
+										items.push({
+											"id": val.fluxId,
+											"text": val.nom
+										});
+										selPlantilles.append("<option value=\"" + val.fluxId + "\">" + val.nom + "</option>");
+									}
 								});
 							}
+							
+							selPlantilles.append("<option style='font-weight: bold;' disabled><b>"+textFlxUser+"</b></option>");
+							if (data) {
+								var items = [];
+								$.each(data, function(i, val) {
+									if (!val.fluxComu) {
+										items.push({
+											"id": val.fluxId,
+											"text": val.nom
+										});
+										selPlantilles.append("<option value=\"" + val.fluxId + "\">" + val.nom + "</option>");
+									}
+								});
+							}
+							
 							var select2Options = {theme: 'bootstrap', minimumResultsForSearch: "6"};
 							selPlantilles.select2(select2Options);
 							if (plantillaActual != '') {
