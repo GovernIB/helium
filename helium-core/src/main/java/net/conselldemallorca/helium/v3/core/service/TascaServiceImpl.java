@@ -1037,6 +1037,14 @@ public class TascaServiceImpl implements TascaService {
 				null,
 				null,
 				null);
+		//Al actualitzar un document desde una tasca, s'ha de associar la tasca a la variable JBMP
+		//En cas de crear, no fa falta perque ja s'haurà assignat al metode DocumentHelperV3.postProcessarDocument
+		if (documentStore!=null) {
+			jbpmHelper.setTaskInstanceVariable(
+					taskInstanceId,
+					documentStore.getJbpmVariable(),
+					documentStore.getId());
+		}
 		// Registra l'acció
 		if (user == null) {
 			user = SecurityContextHolder.getContext().getAuthentication().getName();
