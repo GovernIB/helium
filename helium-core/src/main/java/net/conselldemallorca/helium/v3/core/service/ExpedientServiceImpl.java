@@ -2416,8 +2416,16 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		if (ids == null || ids.isEmpty()) {
 			return resposta;
 		}
-		ExpedientTipus expedientTipus = expedientRepository.findOne(ids.get(0)).getTipus();
-		List<Camp> camps = campRepository.findByExpedientTipusAmbHerencia(expedientTipus.getId());
+		List<Camp> camps = null;
+		List<Expedient> listExpedients = expedientRepository.findByIdIn(ids);
+		ExpedientTipus expedientTipus = expedientRepository.findOne(listExpedients.get(0).getId()).getTipus();
+		if(expedientTipus.isAmbInfoPropia()) {
+			camps = campRepository.findByExpedientTipusAmbHerencia(expedientTipus.getId());
+		} else {
+			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
+					listExpedients.get(0).getProcessInstanceId());
+			camps = campRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces);
+		}	
 		String sort = "expedient$identificador"; //ExpedientCamps.EXPEDIENT_CAMP_ID;
 		boolean asc = false;
 		int firstRow = 0;
