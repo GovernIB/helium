@@ -52,6 +52,12 @@
 			if (e.stopPropagation) e.stopPropagation();
 			return confirm("<spring:message code='expedient.eines.confirm_executar_script_proces' />");
 		}
+		function confirmarAnular(e) {
+			var e = e || window.event;
+			e.cancelBubble = true;
+			if (e.stopPropagation) e.stopPropagation();
+			return confirm("<spring:message code='expedient.eines.confirm_anular_proces' />");
+		}		
 		function confirmarAturar(e) {
 			var e = e || window.event;
 			e.cancelBubble = true;
@@ -268,6 +274,7 @@
 							<option value="reprendreExpedientMas"><spring:message code='expedient.eines.reprendre_expedients' /></option>
 							<option value="finalitzarExpedientMas"><spring:message code='expedient.eines.finalitzar_expedients' /></option>
 							<option value="migrarExpedientMas"><spring:message code='expedient.eines.migrar_expedients' /></option>
+							<option value="anularExpedientMas"><spring:message code='expedient.eines.anular_expedients' /></option>
 						</select>
 						<script>
 							$(document).ready(function() {
@@ -324,6 +331,20 @@
 						<spring:message code='comuns.executar' />
 					</button>
 				</form:form>	
+			</div>
+		</div>
+	</div>
+	
+	<div class="opcionMasiva control-group right">
+		<div class="label-titol">
+			<label class="control-label"><spring:message code='expedient.eines.anular_expedients' /></label>
+			<div class="form-group">
+				<form:form cssClass="form-horizontal form-tasca" id="anularExpedientMas" name="anularExpedientMas" action="massiva/anularExpedientMas" method="post" commandName="expedientEinesAnularCommand" onsubmit="return confirmarAnular(event)">
+					<hel:inputText required="true" inline="true" name="motiu" textKey="expedient.eines.anular_expedients.motiu" placeholderKey="expedient.eines.anular_expedients.motiu"/>
+					<button class="btn btn-primary right" type="submit" name="accio" value="anular">
+						<spring:message code='expedient.llistat.accio.anular' />
+					</button>
+				</form:form>
 			</div>
 		</div>
 	</div>

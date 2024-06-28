@@ -3,13 +3,14 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
+import java.awt.Color;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -52,6 +53,10 @@ import org.jbpm.taskmgmt.log.TaskEndLog;
 import org.jbpm.taskmgmt.log.TaskLog;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import com.lowagie.text.Font;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfWriter;
 
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
@@ -973,7 +978,7 @@ public class ExpedientLoggerHelper {
 										false,
 										null,
 										"document.pdf",
-										getContingutRecurs("/net/conselldemallorca/helium/core/model/service/document_buit.pdf"),
+										generaDocumentBuid(logo, "esborrat", "del procés "+pid),
 										null,
 										null,
 										null,
@@ -1001,7 +1006,7 @@ public class ExpedientLoggerHelper {
 										false,
 										null,
 										"document.pdf",
-										getContingutRecurs("/net/conselldemallorca/helium/core/model/service/document_buit.pdf"),
+										generaDocumentBuid(logo, "modificació", "del procés "+pid),
 										null,
 										null,
 										null,
@@ -1078,7 +1083,7 @@ public class ExpedientLoggerHelper {
 											false,
 											null,
 											"document.pdf",
-											getContingutRecurs("/net/conselldemallorca/helium/core/model/service/document_buit.pdf"),
+											generaDocumentBuid(logo, "esborrat", "de la tasca "+task.getId()),
 											null,
 											null,
 											null,
@@ -1106,7 +1111,7 @@ public class ExpedientLoggerHelper {
 											false,
 											null,
 											"document.pdf",
-											getContingutRecurs("/net/conselldemallorca/helium/core/model/service/document_buit.pdf"),
+											generaDocumentBuid(logo, "modificació", "de la tasca "+task.getId()),
 											null,
 											null,
 											null,
@@ -1259,7 +1264,40 @@ public class ExpedientLoggerHelper {
 			// Retrocediex la informació de l'expedient
 		}
 	}
+	
+	public byte[] generaDocumentBuid(LogObjectDto logo, String tipusAccio, String origen) {
 
+		try {
+		
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+			Date dataActual = Calendar.getInstance().getTime();
+			
+			com.lowagie.text.Document document = new com.lowagie.text.Document();
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			PdfWriter.getInstance(document, bos);   	 
+			document.open();
+			
+			Font fontTitol = new Font(Font.HELVETICA, 18, Font.BOLD, new Color(255, 149, 35));
+			Paragraph p = new Paragraph("Avís d'HELIUM", fontTitol);
+			p.setAlignment(Paragraph.ALIGN_CENTER);
+			p.setSpacingAfter(10f);
+			document.add(p);
+			
+			Paragraph p2 = new Paragraph("Retroacció de tipus "+tipusAccio+", corresponent al document amb codi "+logo.getName().replace("H3l1um#document.", "")+" "+origen+", realitzada el dia "+sdf.format(dataActual)+"h.");
+			p2.setSpacingAfter(10f);
+			document.add(p2);
+			
+			Paragraph peu = new Paragraph("No s'ha pogut recuperar el contingut previ del document. El contingut que esteu veient ha estat generat automàticament.");
+			document.add(peu);
+			document.close();
+			bos.close();
+			return bos.toByteArray();
+		} catch (Exception ex) {
+			logger.error("Error al generar document buid per retroacció de variable.", ex);
+			return null;
+		}
+	}
+	
 	/** Completa el map de paràmetres <processInstanceId _ actionName, valor> amb els possibles paràmetres associats a accions
 	 * de definicions anteriors. En la versió 3.2.106 s'ha detectat que si un expedient canvia de versió llavors els nodes
 	 * action s'actualitzen i els paràmetres de retroacció amb un ID anterior no es troben bé.
@@ -1346,24 +1384,6 @@ public class ExpedientLoggerHelper {
 			}			
 		} 
 		return null;
-	}
-
-	private byte[] getContingutRecurs(String recurs) {
-		try {
-			InputStream inputStream = getClass().getResourceAsStream(recurs);
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			if(inputStream != null) {
-				for (int readBytes = inputStream.read(); readBytes >= 0; readBytes = inputStream.read())
-					outputStream.write(readBytes);
-			}
-			byte[] byteData = outputStream.toByteArray();
-			inputStream.close();
-			outputStream.close();
-			return byteData;
-		} catch (Exception ex) {
-			logger.error("Error al obtenir el recurs " + recurs, ex);
-			return null;
-		}
 	}
 
 	public List<ExpedientLog> findLogsRetrocedits(Long expedientLogId) {

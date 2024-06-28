@@ -448,6 +448,15 @@ public class AnotacioHelper {
 	 */
 	@Transactional
 	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId) {
+		return reprocessarMapeigAnotacioExpedient(expedientId, anotacioId, true, true, true);
+	}
+	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(
+			Long expedientId,
+			Long anotacioId,
+			boolean mapejarVariables,
+			boolean mapejarDocuments,
+			boolean mapejarAdjunts) {
+		
 		AnotacioMapeigResultatDto resultatMapeig = new AnotacioMapeigResultatDto();
 		logger.debug(
 				"Reprocessant el mapeig de l'anotació de l'expedient ( " +
@@ -479,7 +488,7 @@ public class AnotacioHelper {
 			variables = resultatMapeig.getDades();
 			documents = resultatMapeig.getDocuments();
 			annexos = resultatMapeig.getAdjunts();
-			if(variables!=null) {
+			if(variables!=null && mapejarVariables) {
 				for (String varCodi : variables.keySet()) {	
 					// Obtenir la variable de l'expedient, comprovar si aquest mapeig existeix o no	
 					mapeigSistra = mapeigSistraRepository.findByExpedientTipusAndCodiHelium(expedientTipus, varCodi);	
@@ -500,45 +509,50 @@ public class AnotacioHelper {
 			}
 			
 			//Fem el mateix per els documents del mapeig
-			for (String documentCodi : documents.keySet()) {
-				mapeigSistra = mapeigSistraRepository.findByExpedientTipusAndCodiHelium(expedientTipus, documentCodi);	
-				ExpedientDocumentDto document = documentHelper.findOnePerInstanciaProces(
-						expedient.getProcessInstanceId(), 
-						documentCodi);	
-				
-				boolean documentExisteix = document !=null ? true : false;
-				
-				
-				if (documentExisteix && expedient.isArxiuActiu()) {
-					// Si el document està firmat i a l'Arxiu llavors no es pot modifirar.
-					if (document.isSignat() && !mapeigSistra.isEvitarSobreescriptura()) {
-						// No es pot modificar un document firmat
-						resultatMapeig.getErrorsDocuments().put(documentCodi, "El document no es pot sobreescriure perquè està firmat i no es pot modificar.");
-						continue;						
-					}
-					// Si el document prové d'una anotació llavors ja està mapejat i no cal sobreescriure
-					if (document.getAnotacioAnnexId() != null) {
-						continue;
-					}
-				}	
-				processarDocumentsAnotacio(
-						dadesDocumentDto, 
-						expedient, 
-						document, 
-						documentExisteix, 
-						mapeigSistra.isEvitarSobreescriptura(), 
-						documents, 
-						mapeigSistra.getCodiHelium());
-				
+			if (mapejarDocuments) {
+				for (String documentCodi : documents.keySet()) {
+					mapeigSistra = mapeigSistraRepository.findByExpedientTipusAndCodiHelium(expedientTipus, documentCodi);	
+					ExpedientDocumentDto document = documentHelper.findOnePerInstanciaProces(
+							expedient.getProcessInstanceId(), 
+							documentCodi);	
+					
+					boolean documentExisteix = document !=null ? true : false;
+					
+					
+					if (documentExisteix && expedient.isArxiuActiu()) {
+						// Si el document està firmat i a l'Arxiu llavors no es pot modifirar.
+						if (document.isSignat() && !mapeigSistra.isEvitarSobreescriptura()) {
+							// No es pot modificar un document firmat
+							resultatMapeig.getErrorsDocuments().put(documentCodi, "El document no es pot sobreescriure perquè està firmat i no es pot modificar.");
+							continue;						
+						}
+						// Si el document prové d'una anotació llavors ja està mapejat i no cal sobreescriure
+						if (document.getAnotacioAnnexId() != null) {
+							continue;
+						}
+					}	
+					processarDocumentsAnotacio(
+							dadesDocumentDto, 
+							expedient, 
+							document, 
+							documentExisteix, 
+							mapeigSistra.isEvitarSobreescriptura(), 
+							documents, 
+							mapeigSistra.getCodiHelium());
+					
+				}
 			}
 			
 			//Fem el mateix per els Annexos (adjunts), els creem encara que ja hi siguin
+			if (mapejarAdjunts) {
 			for (DadesDocumentDto adjunt : annexos) {
 				processarAdjuntsAnotacio( 
 						expedient, 
 						adjunt);		
 			}
 		}
+		}
+
 		return resultatMapeig;
 	}
 	

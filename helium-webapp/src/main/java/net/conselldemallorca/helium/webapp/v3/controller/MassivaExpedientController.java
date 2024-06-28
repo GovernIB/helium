@@ -66,6 +66,7 @@ import net.conselldemallorca.helium.webapp.v3.command.CanviVersioProcesCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Massiu;
 import net.conselldemallorca.helium.webapp.v3.command.ExecucioAccioCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesAnularCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesAturarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesReassignarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientEinesScriptCommand;
@@ -167,6 +168,7 @@ public class MassivaExpedientController extends BaseExpedientController {
 			model.addAttribute(new ExecucioAccioCommand());
 			model.addAttribute(new CanviVersioProcesCommand());
 			model.addAttribute(new ExpedientEinesAturarCommand());
+			model.addAttribute(new ExpedientEinesAnularCommand());
 			model.addAttribute(new ModificarVariablesCommand());
 			if(!model.containsAttribute("documentExpedientCommand")) {
 				DocumentExpedientCommand documentExpedientCommand = new DocumentExpedientCommand();
@@ -304,6 +306,19 @@ public class MassivaExpedientController extends BaseExpedientController {
 			Model model) {		
 		return massivaPost(request, inici, correu, command, accio, result, status, model, null, null);
 	}
+	
+	@RequestMapping(value="anularExpedientMas", method = RequestMethod.POST)
+	public String expedientEinesAnularCommandPost(
+			HttpServletRequest request,
+			@RequestParam(value = "inici", required = false) String inici,
+			@RequestParam(value = "correu", required = false) boolean correu,
+			@ModelAttribute ExpedientEinesAnularCommand command, 
+			@RequestParam(value = "accio", required = true) String accio,
+			BindingResult result, 
+			SessionStatus status, 
+			Model model) {		
+		return massivaPost(request, inici, correu, command, accio, result, status, model, null, null);
+	}
 
 	@RequestMapping(value="scriptMas", method = RequestMethod.POST)
 	public String expedientEinesScriptCommandPost(
@@ -391,6 +406,17 @@ public class MassivaExpedientController extends BaseExpedientController {
 				dto.setTipus(ExecucioMassivaTipusDto.MIGRAR_EXPEDIENT);
 				execucioMassivaService.crearExecucioMassiva(dto);
 				MissatgesHelper.success(request, getMessage(request, "info.accio.massiu.migrar_expedient", new Object[] {listIds.size()}));
+			} else if ("anular".equals(accio)) {
+				ExpedientEinesAnularCommand cmd = ((ExpedientEinesAnularCommand)command);
+				if (cmd.getMotiu()==null || "".equals(cmd.getMotiu())) {
+					model.addAttribute("expedientEinesAnularCommand", cmd);
+					MissatgesHelper.error(request, getMessage(request, "expedient.eines.anular_expedients.motiu.err"));
+				} else {
+					dto.setTipus(ExecucioMassivaTipusDto.ANULAR);
+					dto.setAuxText(cmd.getMotiu());
+					execucioMassivaService.crearExecucioMassiva(dto);
+					MissatgesHelper.success(request, getMessage(request, "expedient.eines.anular_expedients.ok", new Object[] {listIds.size()}));
+				}
 			} else if ("executar".equals(accio)) {
 				new ExpedientScriptValidator().validate(command, result);
 				if (result.hasErrors()) {

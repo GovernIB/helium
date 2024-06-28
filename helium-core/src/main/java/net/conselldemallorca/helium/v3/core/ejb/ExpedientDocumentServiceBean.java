@@ -11,9 +11,6 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentInfoDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
-import net.conselldemallorca.helium.v3.core.api.dto.document.DocumentDetallDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
@@ -22,9 +19,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentInfoDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientFinalitzarDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
@@ -37,6 +37,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDt
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaValidacioSignaturaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.document.DocumentDetallDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
@@ -408,7 +409,6 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
     public Set<Long> findIdsDocumentsByExpedient(Long expedientId) {
         return delegate.findIdsDocumentsByExpedient(expedientId);
     }
-    
     	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -451,7 +451,6 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 				responsables,
 				portafirmesFluxId,
 				fluxTipus);
-		
 	}
 
 	@Override
@@ -459,7 +458,6 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	public void portafirmesCancelar(Integer documentId) throws SistemaExternException {
 		delegate.portafirmesCancelar(documentId);		
 	}
-
 
     @Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -479,4 +477,15 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 		return delegate.firmaSimpleWebEnd(transactionID);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientFinalitzarDto findDocumentsFinalitzar(Long expedientId) throws Exception {
+		return delegate.findDocumentsFinalitzar(expedientId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean validarFinalitzaExpedient(Long expedientId) throws Exception {
+		return delegate.validarFinalitzaExpedient(expedientId);
+	}
 }

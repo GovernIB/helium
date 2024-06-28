@@ -509,6 +509,7 @@
 	
 						content = "";
 						for (var i = 0; i < length; i++) {
+							debugger;
 							execucio = data[i];
 							var error_class = (execucio.error > 0 ? "panel-danger" : "");
 							

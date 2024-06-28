@@ -157,8 +157,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	@Autowired
 	protected DefinicioProcesService definicioProcesService;
 
-	/** comparador per ordenar documents per codi de document primer i per títol de l'adjunt si són adjunts després.
-	 *
+	/** 
+	 * comparador per ordenar documents per codi de document primer i per títol de l'adjunt si són adjunts després.
 	 */
 	protected class  ExpedientDocumentDtoComparador implements Comparator<ExpedientDocumentDto>{
 		
@@ -201,6 +201,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		}
 	}
 
+	// Aquest mètode nomes es crida per expedients per estats, no per fluxe.
 	@RequestMapping(value = "/{expedientId}/document/datatable", method = RequestMethod.POST)
 	@ResponseBody
 	public DatatablesResponse documentDatatable(

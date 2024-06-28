@@ -271,6 +271,9 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 				for (Long expedientId : dto.getExpedientIds()) {
 					Expedient expedient = expedientRepository.findOne(expedientId);
 					ExecucioMassivaExpedient eme = new ExecucioMassivaExpedient(execucioMassiva, expedient, ordre++);
+					if (ExecucioMassivaTipus.ANULAR.equals(execucioMassiva.getTipus())) {
+						eme.setAuxText(dto.getAuxText());
+					}
 					execucioMassiva.addExpedient(eme);
 					expedients = true;
 					if (expedientTipus == null && expedient != null)
@@ -947,6 +950,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 			label = messageHelper.getMessage("expedient.massiva.anotacions.reintentar.processament");
 		} else if (tipus.equals(ExecucioMassivaTipus.REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS)) {
 			label = messageHelper.getMessage("expedient.massiva.anotacions.reintentar.processament.nomes.annexos");
+		} else if (tipus.equals(ExecucioMassivaTipus.ANULAR)) {
+			label = messageHelper.getMessage("expedient.eines.anular_expedients");			
 		} else {
 			label = tipus.name();
 		}
@@ -1157,6 +1162,10 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 				mesuresTemporalsHelper.mesuraIniciar("Reintentar processament només annexos anotacions", "massiva", expedient_s);
 				reintentarProcessamentAnotacionsNomesAnnexos(ome);
 				mesuresTemporalsHelper.mesuraCalcular("Reintentar processament només annexos anotacions", "massiva", expedient_s);	
+			} else if (tipus == ExecucioMassivaTipus.ANULAR) {
+				mesuresTemporalsHelper.mesuraIniciar("Anular expedient", "massiva", expedient_s);
+				anularExpedient(ome);
+				mesuresTemporalsHelper.mesuraCalcular("Anular expedient", "massiva", expedient_s);	
 			}
 			SecurityContextHolder.getContext().setAuthentication(orgAuthentication);
 		} catch (Exception ex) {
@@ -1957,6 +1966,20 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 			throw ex;
 		}
 	}
+	
+	private void anularExpedient(ExecucioMassivaExpedient ome) throws Exception {
+		Expedient exp = ome.getExpedient();
+		try {
+			ome.setDataInici(new Date());
+			expedientService.anular(exp.getId(), ome.getAuxText());
+			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
+			ome.setDataFi(new Date());
+			execucioMassivaExpedientRepository.save(ome);
+		} catch (Exception ex) {
+			logger.error("OPERACIO:" + ome.getId() + ". No s'ha pogut finalitzar l'expedient", ex);
+			throw ex;
+		}
+	}
 
 	private void migrarExpedient(ExecucioMassivaExpedient ome) throws Exception {
 		Expedient exp = ome.getExpedient();
@@ -2154,10 +2177,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 		}
 	}
 	
-	
-	/**Reprocessar mapeig  de les anotacions (les que tenen un expedient associat es tornaria a aplicar el mapeig)
-	 **/
-	
+	/**Reprocessar mapeig  de les anotacions (les que tenen un expedient associat es tornaria a aplicar el mapeig)**/
 	private void reprocessarMapeigAnotacions(ExecucioMassivaExpedient ome) throws Exception {
 		StringBuilder errorMsg = new StringBuilder();
 		ExecucioMassivaEstat estat = ExecucioMassivaEstat.ESTAT_FINALITZAT;
@@ -2166,7 +2186,20 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 		Anotacio anotacio = anotacioRepository.findOne(ome.getAuxId());
 		try {
 			if(anotacio.getExpedient()!=null) {
-				anotacioHelper.reprocessarMapeigAnotacioExpedient(anotacio.getExpedient().getId(), ome.getAuxId());
+				//L'execució massiva es pot configurar per nomes executar el mapeig parcialment
+				//En tal cas s'aprofita el parametre1 de la execucio per guardar la configuració seleccionada
+				if (ome.getExecucioMassiva().getParam1()!=null) {			
+					anotacioHelper.reprocessarMapeigAnotacioExpedient(
+							anotacio.getExpedient().getId(),
+							ome.getAuxId(),
+							ome.getExecucioMassiva().getParam1().charAt(0)=='1',
+							ome.getExecucioMassiva().getParam1().charAt(1)=='1',
+							ome.getExecucioMassiva().getParam1().charAt(2)=='1');
+				} else {
+					anotacioHelper.reprocessarMapeigAnotacioExpedient(
+							anotacio.getExpedient().getId(),
+							ome.getAuxId());
+				}
 				ome.setEstat(estat);
 				ome.setError(errorMsg.length() > 0 ? errorMsg.toString() : null);
 				ome.setDataFi(new Date());

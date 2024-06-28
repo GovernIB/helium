@@ -18,12 +18,14 @@ import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import ma.glasnost.orika.metadata.Type;
+import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.CampTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Enumeracio;
@@ -45,11 +47,14 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentFinalitzarDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
@@ -512,6 +517,37 @@ public class ConversioTipusHelper {
 				.field("estat.id", "estatId")
 				.byDefault()
 				.register();
+		
+		mapperFactory.classMap(DocumentFinalitzarDto.class, DocumentListDto.class)
+		.field("documentStoreId", "id")
+		.field("documentCodi", "codi")
+		.field("arxiuNom", "nom")
+		.field("annexAnotacioId", "anotacioId")
+		.field("anotacioDesc", "anotacioIdf")
+		.byDefault()
+		.register();
+		
+		mapperFactory.classMap(DocumentFinalitzarDto.class, ExpedientDocumentDto.class)
+		.field("documentStoreId", "id")
+		.field("documentCodi", "documentNom")
+		.field("annexAnotacioId", "anotacioAnnexId")
+		.field("anotacioDesc", "anotacioAnnexTitol")
+		.byDefault()
+		.register();
+		
+		mapperFactory.classMap(DocumentFinalitzarDto.class, AnotacioAnnex.class)
+		.field("dataCreacio", "anotacio.dataRecepcio")
+		.field("arxiuNom", "nom")
+		.field("annexAnotacioId", "anotacio.id")
+		.field("arxiuUuid", "uuid")
+		.byDefault()
+		.register();
+		
+		mapperFactory.classMap(DocumentFinalitzarDto.class, DocumentStore.class)
+		.field("documentStoreId", "id")
+		.field("documentCodi", "jbpmVariable")
+		.byDefault()
+		.register();
 		
 		// Converteix la entity Portasignatures a PortasignaturesDto
 		mapperFactory.getConverterFactory().registerConverter(

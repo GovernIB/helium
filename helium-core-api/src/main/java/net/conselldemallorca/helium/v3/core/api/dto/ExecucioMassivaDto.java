@@ -1,6 +1,3 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
 import java.util.Date;
@@ -37,7 +34,8 @@ public class ExecucioMassivaDto {
 		REINTENTAR_PROCESSAMENT_ANOTACIONS,
 		REINTENTAR_PROCESSAMENT_ANOTACIONS_NOMES_ANNEXOS,
 		REINTENTAR_MAPEIG_ANOTACIONS,
-		ESBORRAR_ANOTACIONS
+		ESBORRAR_ANOTACIONS,
+		ANULAR
 	}
 
 	private Long id;
@@ -48,15 +46,14 @@ public class ExecucioMassivaDto {
 	private Boolean enviarCorreu;
 	private String param1;
 	private byte[] param2;
-
 	private Long expedientTipusId;
-
 	private List<Long> expedientIds;
 	private String[] tascaIds;
 	private List<String> procInstIds;
 	private Long[] defProcIds;
 	private String[][] contingutCsv;
 	private List<Long> auxIds;
+	private String auxText;
 
 	public Long getId() {
 		return id;
@@ -148,6 +145,10 @@ public class ExecucioMassivaDto {
 	public void setAuxIds(List<Long> auxIds) {
 		this.auxIds = auxIds;
 	}
-
-	
+	public String getAuxText() {
+		return auxText;
+	}
+	public void setAuxText(String auxText) {
+		this.auxText = auxText;
+	}
 }

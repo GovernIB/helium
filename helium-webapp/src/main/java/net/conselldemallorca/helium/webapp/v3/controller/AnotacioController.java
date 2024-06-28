@@ -43,6 +43,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -69,6 +70,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ReprocessarMapeigAnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
@@ -1277,35 +1279,64 @@ public class AnotacioController extends BaseExpedientController {
 	public String reprocessarMapeig(
 			HttpServletRequest request,
 			Model model) {
+		ReprocessarMapeigAnotacioDto reprocessarMapeigAnotacioDto = new ReprocessarMapeigAnotacioDto();
+		reprocessarMapeigAnotacioDto.setIdsAnotacions(SessionHelper.getSessionManager(request).getSeleccioAnotacio());
+		model.addAttribute(reprocessarMapeigAnotacioDto);
+		return "v3/reprocessarMapeigForm";
+	}
+	
+	@RequestMapping(value = "/reprocessarMapeig", method = RequestMethod.POST)
+	public String reprocessarMapeigPost(
+			HttpServletRequest request,
+			@ModelAttribute("reprocessarMapeigAnotacioDto") ReprocessarMapeigAnotacioDto reprocessarMapeigAnotacioDto,
+			Model model) {
+		
 		// Programa la execució massiva
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		ExecucioMassivaDto dto = new ExecucioMassivaDto();
 		dto.setTipus(ExecucioMassivaTipusDto.REINTENTAR_MAPEIG_ANOTACIONS);
 		dto.setEnviarCorreu(false);
+		
+		//Aprofitam el param1 de l'objecte de exec. massiva per guardar la configuració seleccionada.
+		//Per defecte 111 es que s'executen les 3 accions. 100 (nomes variables),  011 (documents i adjunts, pero no variables), etc. 
+		StringBuilder sb = new StringBuilder("111");
+		if (!reprocessarMapeigAnotacioDto.isReprocessarMapeigVariables())	{ sb.setCharAt(0, '0'); } //Variables
+		if (!reprocessarMapeigAnotacioDto.isReprocessarMapeigDocuments())	{ sb.setCharAt(1, '0'); } //Documents
+		if (!reprocessarMapeigAnotacioDto.isReprocessarMapeigAdjunts())		{ sb.setCharAt(2, '0'); } //Adjunts
+		dto.setParam1(sb.toString());
+		
 		List<Long> ids =  sessionManager.getSeleccioAnotacio();
 		if (ids == null || ids.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "error.no.anotacio.selec"));
 		} else {
-			dto.setAuxIds(ids);
-			try {
-				execucioMassivaService.crearExecucioMassiva(dto);
-				MissatgesHelper.success(
-						request,
-						getMessage(
-								request,
-								"anotacio.llistat.accio.massiva.info.reintentar.mapeig.success"));
-			} catch(Exception e) {
-				MissatgesHelper.error(
-						request,
-						getMessage(
-								request,
-								"anotacio.llistat.accio.massiva.info.reintentar.mapeig.error",
-								new Object[] {e.getMessage()}));
-			}					
-			// Neteja la selecció
-			sessionManager.getSeleccioAnotacio().clear();
+			if ("000".equals(dto.getParam1())) {
+				MissatgesHelper.error(request, getMessage(request, "anotacio.llistat.error.no.accio"));
+				model.addAttribute(reprocessarMapeigAnotacioDto);
+				return "v3/reprocessarMapeigForm"; //Tornam al formulari, no tancam la modal
+			} else {
+			
+				dto.setAuxIds(ids);
+				try {
+					execucioMassivaService.crearExecucioMassiva(dto);
+					MissatgesHelper.success(
+							request,
+							getMessage(
+									request,
+									"anotacio.llistat.accio.massiva.info.reintentar.mapeig.success"));
+				} catch(Exception e) {
+					MissatgesHelper.error(
+							request,
+							getMessage(
+									request,
+									"anotacio.llistat.accio.massiva.info.reintentar.mapeig.error",
+									new Object[] {e.getMessage()}));
+				}					
+				// Neteja la selecció
+				sessionManager.getSeleccioAnotacio().clear();
+			}
 		}
-		return "redirect:/v3/anotacio";
+		
+		return modalUrlTancar(false);
 	}
 	
 	/** Acció del menú desplegable d'Accions massives d'anotacions, per iniciar una tasca en segon pla per reintentar el processament dels annexos de les

@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
@@ -33,13 +34,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.support.ByteArrayMultipartFileEditor;
 
+import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentFinalitzarDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientFinalitzarDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
@@ -49,6 +54,7 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientRegistreService
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.CanviVersioProcesCommand;
+import net.conselldemallorca.helium.webapp.v3.command.ReassignacioTasquesCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ObjectTypeEditorHelper;
 
@@ -69,7 +75,8 @@ public class ExpedientV3Controller extends BaseExpedientController {
 	private ExpedientDocumentService expedientDocumentService;
 	@Autowired
 	private ExpedientDadaService expedientDadaService;
-
+	@Resource
+	private ExpedientHelper expedientHelper;
 	@Autowired
 	private AplicacioService aplicacioService;
 
@@ -152,27 +159,81 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		return "redirect:/v3/expedient/" + expedientId;
 	}
 	
-	@RequestMapping(value = "/{expedientId}/finalitzar", method = RequestMethod.GET)
-	public String finalitzar(
+	@RequestMapping(value = "/{expedientId}/prefinalitzar", method = RequestMethod.GET)
+	public String prefinalitzar(
 			HttpServletRequest request,
 			@PathVariable Long expedientId, 
 			Model model) {
+		ExpedientFinalitzarDto expedientFinalitzarDto = new ExpedientFinalitzarDto();
 		try {
-			expedientService.finalitzar(expedientId);
-			MissatgesHelper.success(
-					request,
-					getMessage(
-							request,
-							"info.expedient.finalitzat"));
+			expedientFinalitzarDto = expedientDocumentService.findDocumentsFinalitzar(expedientId);
 		} catch (Exception ex) {
-			String errMsg = getMessage(request, "expedient.error.finalitzant.expedient") + ". " + ex.getMessage();
+			String errMsg = getMessage(request, "expedient.error.prefinalitzant.expedient") + ". " + ex.getMessage();
+			logger.error(errMsg, ex);
+			MissatgesHelper.error(request, errMsg);
+			expedientFinalitzarDto.setError(true);
+		}
+		model.addAttribute(expedientFinalitzarDto);
+		return "v3/expedient/prefinalitzar";
+	}
+	
+	@RequestMapping(value = "/{expedientId}/prefinalitzar", method = RequestMethod.POST)
+	public  String prefinalitzarPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@ModelAttribute("expedientFinalitzarDto") ExpedientFinalitzarDto expedientFinalitzarDto,
+			Model model) {
+		try {
+			
+			//Els documents de les anotacions, no es poden deseleccionar. Com que estan disabled, seleccionat arriba false.
+			//A part de que poden haver manipulat el codi HTML
+//			if (expedientFinalitzarDto.getDocumentsFinalitzar()!=null) {
+//				for (DocumentFinalitzarDto dfDto: expedientFinalitzarDto.getDocumentsFinalitzar()) {
+//					if (dfDto.getAnnexAnotacioId()!=null && !dfDto.isSeleccionat()) {
+//						dfDto.setSeleccionat(true);
+//					}
+//				}
+//			}
+			
+			// 1- firma els seleccionats
+			String errorsFirmantDocuments = "";
+			if (expedientFinalitzarDto.getDocumentsFinalitzar()!=null &&
+				expedientFinalitzarDto.getExpedient().isArxiuActiu() && 
+				expedientFinalitzarDto.getExpedient().getArxiuUuid() != null) {
+					for (DocumentFinalitzarDto dfDto: expedientFinalitzarDto.getDocumentsFinalitzar()) {
+						if (dfDto.isSeleccionat()) {
+							expedientHelper.firmarDocumentServidorPerArxiuFiExpedient(dfDto.getDocumentStoreId());
+						}
+					}
+			}
+			
+			// 2- si ha anat bé finalitzar (nova funció tancar sense firmar) i si no informa de l'error			
+			if ("".equals(errorsFirmantDocuments) &&
+				"finalitzar".equals(expedientFinalitzarDto.getAccio()) && 
+				expedientDocumentService.validarFinalitzaExpedient(expedientId)) {
+					expedientHelper.finalitzar(expedientId, false);
+			}
+			
+			//Algun dels documents no s'ha pogut firmar en servidor
+			if (!"".equals(errorsFirmantDocuments)) {
+				MissatgesHelper.warning(request, errorsFirmantDocuments);
+			} else {
+				if ("finalitzar".equals(expedientFinalitzarDto.getAccio())) {
+					MissatgesHelper.success(request, getMessage(request, "expedient.finalitzat.ok"));
+				} else {
+					MissatgesHelper.success(request, getMessage(request, "expedient.finalitzat.ok2"));
+				}
+			}
+
+		} catch (Exception ex) {
+			String errMsg = getMessage(request, "expedient.error.prefinalitzant.expedient") + ". " + ex.getMessage();
 			logger.error(errMsg, ex);
 			MissatgesHelper.error(request, 
 					errMsg.substring(
 							0, 
 							Math.min(errMsg.contains("\n") ? errMsg.indexOf("\n") : errMsg.length(), 1024)));			
 		}
-		return "redirect:/v3/expedient/" + expedientId;
+		return modalUrlTancar(false);
 	}
 	
 	@RequestMapping(value = "/{expedientId}/alertes", method = RequestMethod.GET)
