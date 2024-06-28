@@ -546,12 +546,35 @@ public class AnotacioHelper {
 				}
 			}
 
-			//Fem el mateix per els Annexos (adjunts), els creem encara que ja hi siguin
+			//S'afegiran al expedient els annexos que coincideixin amb la informació de mapeig per documents adjunts.
+			//Sempre que no existeixin ja com a adjunts, o si existeixen que no provenguin d'una anotació.
 			if (mapejarAdjunts) {
+				
 				for (DadesDocumentDto adjunt : annexos) {
-					processarAdjuntsAnotacio(
-							expedient,
-							adjunt);
+					
+					//Com que els adjunts no tenen codi (cercam per IP) i despres acabam de filtrar
+					List<ExpedientDocumentDto> documentsExpedient = documentHelper.findDocumentsPerInstanciaProces(expedient.getProcessInstanceId());
+					ExpedientDocumentDto adjuntDuplicat = null;
+					if (documentsExpedient!=null) {
+						for (ExpedientDocumentDto edDto: documentsExpedient) {
+							if (edDto.isAdjunt() && edDto.getAdjuntTitol()!=null && edDto.getAdjuntTitol().equals(adjunt.getTitol())) {
+								adjuntDuplicat = edDto;
+								break;
+							}
+						}
+					}
+
+					boolean documentExisteix = adjuntDuplicat !=null ? true : false;
+					
+					//Si el adjunt no existeix ja en el expedient, el crearà.
+					//En cas de existir, si prové de una anotació, ja està mapejat i no cal sobreescriure.
+					if (!documentExisteix || adjuntDuplicat.getAnotacioAnnexId()==null) {
+						processarAdjuntsAnotacio(
+								expedient,
+								adjunt,
+								adjuntDuplicat,
+								documentExisteix);
+					}
 				}
 			}
 		}
@@ -663,9 +686,6 @@ public class AnotacioHelper {
 					dadesDocumentDto.getDocumentError(),
 					dadesDocumentDto.getAnnexId(), 
 					dadesDocumentDto.getUuid());
-			
-			
-			
 		} else if (!documentExisteix) {
 			dadesDocumentDto = documents.get(codiHelium);
 			documentHelper.crearDocument(
@@ -691,34 +711,60 @@ public class AnotacioHelper {
 					dadesDocumentDto.getAnnexId(),
 					null);
 		}
-		
 	}
 
-	private void processarAdjuntsAnotacio(Expedient expedient, DadesDocumentDto adjunt ) {
-		documentHelper.crearDocument(
-				null,
-				expedient.getProcessInstanceId(),
-				null,
-				adjunt.getData(),
-				true, // isAdjunt
-				adjunt.getTitol(),
-				adjunt.getArxiuNom(),
-				adjunt.getArxiuContingut(),
-				adjunt.getUuid(),
-				documentHelper.getContentType(adjunt.getArxiuNom()),
-				expedient.isArxiuActiu() && adjunt.getFirmaTipus() != null,	// amb firma
-				false,	// firma separada
-				null,	// firma contingut
-				adjunt.getNtiOrigen(),
-				adjunt.getNtiEstadoElaboracion(),
-				adjunt.getNtiTipoDocumental(),
-				adjunt.getNtiIdDocumentoOrigen(),
-				adjunt.isDocumentValid(),
-				adjunt.getDocumentError(),
-				adjunt.getAnnexId(),
-				null);
+	private void processarAdjuntsAnotacio(
+			Expedient expedient,
+			DadesDocumentDto adjunt,
+			ExpedientDocumentDto document,
+			boolean documentExisteix) {
+		if (!documentExisteix) {
+			documentHelper.crearDocument(
+					null,
+					expedient.getProcessInstanceId(),
+					null,
+					adjunt.getData(),
+					true, // isAdjunt
+					adjunt.getTitol(),
+					adjunt.getArxiuNom(),
+					adjunt.getArxiuContingut(),
+					adjunt.getUuid(),
+					documentHelper.getContentType(adjunt.getArxiuNom()),
+					expedient.isArxiuActiu() && adjunt.getFirmaTipus() != null,	// amb firma
+					false,	// firma separada
+					null,	// firma contingut
+					adjunt.getNtiOrigen(),
+					adjunt.getNtiEstadoElaboracion(),
+					adjunt.getNtiTipoDocumental(),
+					adjunt.getNtiIdDocumentoOrigen(),
+					adjunt.isDocumentValid(),
+					adjunt.getDocumentError(),
+					adjunt.getAnnexId(),
+					null);
+		} else {
+			DocumentStore documentStore = documentStoreRepository.findOne(document.getId());
+			documentHelper.actualitzarDocument(
+					documentStore.getId(),
+					null,
+					expedient.getProcessInstanceId(),
+					adjunt.getData(),
+					adjunt.getTitol(),
+					adjunt.getArxiuNom(),
+					adjunt.getArxiuContingut(),
+					document.getArxiuExtensio(),
+					document.isSignat(),
+					false,
+					null,
+					document.getNtiOrigen(),
+					document.getNtiEstadoElaboracion(),
+					document.getNtiTipoDocumental(),
+					document.getNtiIdOrigen(),
+					adjunt.isDocumentValid(),
+					adjunt.getDocumentError(),
+					adjunt.getAnnexId(), 
+					adjunt.getUuid());
+		}
 	}
-	
 
 	private static final Logger logger = LoggerFactory.getLogger(AnotacioHelper.class);
 }
