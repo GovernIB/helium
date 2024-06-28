@@ -751,7 +751,7 @@ public class DistribucioHelper {
 			for(Anotacio anotacioIdemNumero: anotacions) {
 				// expedient no anul·lat o anotació en estat pendent
 				expedientAnotacioIdemNum = anotacioIdemNumero.getExpedient();
-				if((expedientAnotacioIdemNum!=null && expedientAnotacioIdemNum.isAnulat()) || AnotacioEstatEnumDto.PENDENT.equals(anotacioIdemNumero.getEstat()))
+				if((expedientAnotacioIdemNum!=null && !expedientAnotacioIdemNum.isAnulat()) || AnotacioEstatEnumDto.PENDENT.equals(anotacioIdemNumero.getEstat()))
 					rebutjar = true;	
 			}
 			if (rebutjar) {
