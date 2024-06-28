@@ -487,7 +487,7 @@ public class AnotacioHelper {
 			resultatMapeig = distribucioHelper.getMapeig(expedientTipus, anotacio, ambContingut);
 			variables = resultatMapeig.getDades();
 			documents = resultatMapeig.getDocuments();
-			annexos = resultatMapeig.getAdjunts();
+			annexos = resultatMapeig.getAdjunts();			
 			if(variables!=null && mapejarVariables) {
 				for (String varCodi : variables.keySet()) {	
 					// Obtenir la variable de l'expedient, comprovar si aquest mapeig existeix o no	
@@ -505,19 +505,19 @@ public class AnotacioHelper {
 							variableExisteix,
 							mapeigSistra.isEvitarSobreescriptura());
 				}
-				indexHelper.expedientIndexLuceneUpdate(expedient.getProcessInstanceId());
 			}
 			
 			//Fem el mateix per els documents del mapeig
 			if (mapejarDocuments) {
 				for (String documentCodi : documents.keySet()) {
-					mapeigSistra = mapeigSistraRepository.findByExpedientTipusAndCodiHelium(expedientTipus, documentCodi);	
+					
+					mapeigSistra = mapeigSistraRepository.findByExpedientTipusAndCodiHelium(expedientTipus, documentCodi);
+					
 					ExpedientDocumentDto document = documentHelper.findOnePerInstanciaProces(
 							expedient.getProcessInstanceId(), 
 							documentCodi);	
 					
-					boolean documentExisteix = document !=null ? true : false;
-					
+					boolean documentExisteix = document !=null;
 					
 					if (documentExisteix && expedient.isArxiuActiu()) {
 						// Si el document està firmat i a l'Arxiu llavors no es pot modifirar.
@@ -542,15 +542,36 @@ public class AnotacioHelper {
 					
 				}
 			}
-			
-			//Fem el mateix per els Annexos (adjunts), els creem encara que ja hi siguin
+
+			//S'afegiran al expedient els annexos que coincideixin amb la informació de mapeig per documents adjunts.
+			//Sempre que no existeixin ja com a adjunts, o si existeixen que no provenguin d'una anotació.
 			if (mapejarAdjunts) {
-			for (DadesDocumentDto adjunt : annexos) {
-				processarAdjuntsAnotacio( 
-						expedient, 
-						adjunt);		
+				for (DadesDocumentDto adjunt : annexos) {
+					
+					//Com que els adjunts no tenen codi (cercam per IP) i despres acabam de filtrar
+					List<ExpedientDocumentDto> documentsExpedient = documentHelper.findDocumentsPerInstanciaProces(expedient.getProcessInstanceId());
+					ExpedientDocumentDto adjuntDuplicat = null;
+					if (documentsExpedient!=null) {
+						for (ExpedientDocumentDto edDto: documentsExpedient) {
+							if (edDto.isAdjunt() && edDto.getAdjuntTitol()!=null && edDto.getAdjuntTitol().equals(adjunt.getTitol())) {
+								adjuntDuplicat = edDto;
+								break;
+							}
+						}
+					}
+
+					boolean documentExisteix = adjuntDuplicat!=null;
+					boolean mateixaAnotacio = anotacio.getId().equals(adjuntDuplicat.getAnotacioAnnexId());
+					
+					//Si el adjunt no existeix ja en el expedient, el crearà.
+					//En cas de existir, si prové de una anotació, ja està mapejat i no cal sobreescriure.				
+					if (!documentExisteix || !mateixaAnotacio) {
+						processarAdjuntsAnotacio(
+								expedient,
+								adjunt);
+					}
+				}
 			}
-		}
 		}
 
 		return resultatMapeig;
@@ -659,9 +680,6 @@ public class AnotacioHelper {
 					dadesDocumentDto.getDocumentError(),
 					dadesDocumentDto.getAnnexId(), 
 					dadesDocumentDto.getUuid());
-			
-			
-			
 		} else if (!documentExisteix) {
 			dadesDocumentDto = documents.get(codiHelium);
 			documentHelper.crearDocument(
@@ -687,10 +705,11 @@ public class AnotacioHelper {
 					dadesDocumentDto.getAnnexId(),
 					null);
 		}
-		
 	}
 
-	private void processarAdjuntsAnotacio(Expedient expedient, DadesDocumentDto adjunt ) {
+	private void processarAdjuntsAnotacio(
+			Expedient expedient,
+			DadesDocumentDto adjunt) {
 		documentHelper.crearDocument(
 				null,
 				expedient.getProcessInstanceId(),
@@ -714,7 +733,6 @@ public class AnotacioHelper {
 				adjunt.getAnnexId(),
 				null);
 	}
-	
 
 	private static final Logger logger = LoggerFactory.getLogger(AnotacioHelper.class);
 }
