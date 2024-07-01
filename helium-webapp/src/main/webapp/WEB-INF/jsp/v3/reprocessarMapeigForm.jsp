@@ -39,7 +39,7 @@
 			</div>
 			
 			<div id="modal-botons" class="well">
-				<button type="button" class="modal-tancar btn btn-default" name="submit" value="cancel">
+				<button type="button" class="modal-tancar btn btn-default" name="submit" value="cancel" data-modal-cancel="true">
 					<spring:message code='comuns.cancelar' />
 				</button>
 				<button type="submit" name="submit" value="submit" class="btn btn-primary">

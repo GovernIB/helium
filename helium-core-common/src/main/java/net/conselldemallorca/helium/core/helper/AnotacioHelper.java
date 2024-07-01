@@ -553,19 +553,18 @@ public class AnotacioHelper {
 					ExpedientDocumentDto adjuntDuplicat = null;
 					if (documentsExpedient!=null) {
 						for (ExpedientDocumentDto edDto: documentsExpedient) {
-							if (edDto.isAdjunt() && edDto.getAdjuntTitol()!=null && edDto.getAdjuntTitol().equals(adjunt.getTitol())) {
+							//Ha de ser un adjunt amb el mateix titol, i que provengui de la mateixa anotació que estam reprocessant.
+							if (edDto.isAdjunt() && 
+								edDto.getAnotacioAnnexTitol()!=null && edDto.getAnotacioAnnexTitol().equals(adjunt.getTitol()) &&
+								anotacioId.equals(edDto.getAnotacioId())) {
 								adjuntDuplicat = edDto;
 								break;
 							}
 						}
 					}
 
-					boolean documentExisteix = adjuntDuplicat!=null;
-					boolean mateixaAnotacio = anotacio.getId().equals(adjuntDuplicat.getAnotacioAnnexId());
-					
 					//Si el adjunt no existeix ja en el expedient, el crearà.
-					//En cas de existir, si prové de una anotació, ja està mapejat i no cal sobreescriure.				
-					if (!documentExisteix || !mateixaAnotacio) {
+					if (adjuntDuplicat==null) {
 						processarAdjuntsAnotacio(
 								expedient,
 								adjunt);
