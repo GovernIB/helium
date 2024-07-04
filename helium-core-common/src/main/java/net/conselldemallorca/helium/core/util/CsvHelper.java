@@ -83,8 +83,10 @@ public class CsvHelper {
 					} else {
 						if(line.charAt(i)!=separador) {
 							for(int j=i; j<line.length();j++) {
-								if(line.charAt(j)!=separador && j!=line.length()-1) 
-									token.append(line.charAt(j));
+								if(line.charAt(j)!=separador && j!=line.length()-1) {
+									if(line.charAt(j)!=delimitadorString)
+										token.append(line.charAt(j));
+								}
 								else if (j==line.length()-1 && line.charAt(j)!=separador) {
 									token.append(line.charAt(j));
 									i=j;
@@ -94,6 +96,9 @@ public class CsvHelper {
 									tokens.add(token.toString());
 									token = new StringBuilder();
 									continue;
+								} else if (j!=line.length()-1 && line.charAt(j)==separador && line.charAt(i+1)==delimitadorString) {
+									token.append(line.charAt(j));
+									i=j;
 								} else if (j!=line.length()-1 && line.charAt(j)==separador) {
 									i=j;
 									token.append("");
@@ -131,8 +136,12 @@ public class CsvHelper {
 		//String line = "2022;22;Expedient 202205260922;\"El valor de text té el caràcter ';' que fa tanta nosa\";2;2022-05-26 12:3:4.567;-65;S";
 		//String line = "\"Valor1\";\"Valor ; 2\";2";
 		//String line = "Any;Número;Títol;var_string;var_float;var_data;var_preu;var_bool";
-		//String line = ";;\"El valor de text té el caràcter ';' que fa tanta nosa\";var_string;var_float;var_data;var_preu;var_bool";
-		String line = "Expedient 2025052609111202523;Text 1;1.1;26/05/22;1234.56;;";
+//		String line = ";;\"El valor de text té el caràcter ';' que fa tanta nosa\";var_string;var_float;var_data;var_preu;var_bool";
+//		String line = "Expedient 2025052609111202523;Text 1;1.1;26/05/22;1234.56;;";
+//		String line = "Expedient 20;\"Text ; 1\";1.1;26/05/22;1234.56;;;;";
+//		String line = "\"Text ; 1\"";
+		String line = "2020;DR3; Declaració Responsable;41428809J;M. DEL CARMEN ;MARÍ;FERRER;ptorrensm76@gmail.com;;;;;609403029;;;;;;;;;;;;VIVIENDAS;8;;7;333;POL 7 PARC 333 T.M. SANTA EULÀRIA DES RIU;7-54;20000;NO;MODERADA;;13/10/20;NOIND;;378264;432146;10/11/20;6;\" - Les coordenades UTM del seu Sistema de Depuració Autònom que va indicar en la seva Declaració Responsable no manifesten localització del SAD. Se’l requereix que indiqui les coordenades UTM que corresponguin al lloc on es localitza el seu Sistema de Depuració Autònom. Per recopilar-les ho podrà realitzar mitjançant diferents aplicacions mòbils, sempre i quan tingui el seu dispositiu un GPS incorporat; també ho podrà realitzar mitjançant el visor cartogràfic https://ideib.caib.es/visor/, introduint en Cerca Avançada → Cadastre el municipi, el polígon i la parcel·la, i després fent un clic amb el botó esquerre del ratolí en el lloc aproximat on es localitza, llavors una finestra emergent li mostrarà les coordenades X i Y.    - Falta el pla de manteniment del Sistema de Depuració Autònom, generalment podrà trobar una guia de com hauria d’ésser dins la fitxa tècnica del sistema  en el manual d’instruccions.      - Falta la fitxa tècnica del fabricant del Sistema de Depuració Autònom i la informació relativa al rendiment .   \";;;960;;;;;c";
+
 		String[] tokens;
 		try {
 			int cont=0;
