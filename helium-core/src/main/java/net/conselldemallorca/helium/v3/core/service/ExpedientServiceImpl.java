@@ -1772,7 +1772,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	/**
 	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional
 	public void accioExecutar(
@@ -1832,11 +1831,9 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void executarAccio(String processInstanceId, Accio accio, Expedient expedient) {
 		expedientHelper.executarAccio(processInstanceId, accio, expedient);
 	}
-
 
 	/**
 	 * {@inheritDoc}
@@ -3285,11 +3282,9 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 							false,
 							null);
 					// Crea l'entrada en el zip
-					String recursNom = this.getZipRecursNom(
-							expedient, 
+					String recursNom = documentHelper.getZipRecursNom(
 							instanciaProces, 
 							document, 
-							arxiu,
 							nomsArxius);
 					if (recursNom!=null) {
 						ze = new ZipEntry(recursNom);
@@ -3348,11 +3343,9 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 							false,
 							null);
 					// Crea l'entrada en el zip
-					String recursNom = this.getZipRecursNom(
-							expedient, 
-							instanciaProces, 
+					String recursNom = documentHelper.getZipRecursNom(
+							instanciaProces,
 							document, 
-							arxiu,
 							nomsArxius);
 					if (recursNom!=null) {
 						ze = new ZipEntry(recursNom);
@@ -3371,60 +3364,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		return baos.toByteArray();
 	}
 
-	/** Estableix en nom de l'arxiu a partir del document i l'extensió de l'arxiu. Afegeix una carpeta
-	 * si el procés no és el principal, corregeix els caràcters estranys i vigila que no es repeteixin.
-	 * 
-	 * @param expedient Per determinar si és el procés principal
-	 * @param instanciaProces Per determinar si és el procés principal i crear una carpeta en cas contrari.
-	 * @param document Per recuperar el nom per l'arxiu
-	 * @param arxiu Per recuperar l'extensió
-	 * @param nomsArxius Per controlar la llista de noms utilitzats.
-	 * @return
-	 */
-	private String getZipRecursNom(
-			Expedient expedient,
-			InstanciaProcesDto instanciaProces,
-			ExpedientDocumentDto document,
-			ArxiuDto arxiu,
-			Set<String> nomsArxius) {
-
-		String recursNom;
-		String nom;
-
-		if (document.isAdjunt())
-			nom = document.getAdjuntTitol();
-		else
-			nom = document.getDocumentNom();
-
-		nom = nom.replaceAll("/", "_");
-		
-		if (instanciaProces.getId().equals(document.getProcessInstanceId())) {
-			// Carpeta per un altre procés
-			String carpeta = instanciaProces.getId() + " - " + instanciaProces.getTitol();
-			carpeta = carpeta.replaceAll("/", "_");
-		
-			// Extensió
-			String extensio = arxiu.getExtensio();
-	
-			// Vigila que no es repeteixi
-			int comptador = 0;
-			do {
-				recursNom = (carpeta != null ? carpeta + "/" : "") +
-							nom + 
-							(comptador > 0 ? " (" + comptador + ")" : "") +
-							"." + extensio;
-				comptador++;
-			} while (nomsArxius.contains(recursNom));
-	
-			// Guarda en nom com a utiltizat
-			nomsArxius.add(recursNom);
-			
-			return recursNom;
-		} else {
-			return null;
-		}
-	}
-	
 	/**
 	 * {@inheritDoc}
 	 */

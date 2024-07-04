@@ -565,6 +565,28 @@ dd.subproc {
 							<c:if test="${expedient.permisLogManage}">
 								<li><a href="<c:url value="../../v3/expedient/${expedientId}/buidalog"/>" onclick="return confirmarBuidarLogExpedient(event)"><span class="fa fa-eraser"></span>&nbsp;<spring:message code="expedient.info.accio.buidarlog"/></a></li>
 							</c:if>
+							
+							<li class="divider"></li>
+							<li><a href="<c:url value="../../v3/expedient/${expedientId}/generarIndexExpedient"/>" target="_blank" title="<spring:message code="expedient.info.accio.exportarIndex.title"/>">
+								<span class="fa fa-list-ol"></span>&nbsp;<spring:message code="expedient.info.accio.exportarIndex"/>
+							</a></li>
+							
+							<c:if test="${not empty expedient.arxiuUuid}">
+								<li><a href="<c:url value="../../v3/expedient/${expedientId}/exportarEniExpedient"/>" target="_blank" title="<spring:message code="expedient.info.accio.eniExp.title"/>">
+									<span class="fa fa-file-code-o"></span>&nbsp;<spring:message code="expedient.info.accio.eniExp"/>
+								</a></li>							
+								<li><a href="<c:url value="../../v3/expedient/${expedientId}/exportarEniDocumentsAmbIndex"/>" target="_blank" title="<spring:message code="expedient.info.accio.eni.title"/>">
+									<span class="fa fa-file-code-o"></span>&nbsp;<span class="fa fa-list-ol"></span>&nbsp;<spring:message code="expedient.info.accio.eni"/>
+								</a></li>
+							</c:if>
+							<c:if test="${empty expedient.arxiuUuid}">
+								<li class="disabled"><a href="#" title="<spring:message code="expedient.exportacio.eniExp.noActiu"/>">
+									<span class="fa fa-file-code-o"></span>&nbsp;<spring:message code="expedient.info.accio.eniExp"/>
+								</a></li>							
+								<li class="disabled"><a href="#" title="<spring:message code="expedient.exportacio.eniExp.noActiu"/>">
+									<span class="fa fa-file-code-o"></span>&nbsp;<span class="fa fa-list-ol"></span>&nbsp;<spring:message code="expedient.info.accio.eni"/>
+								</a></li>
+							</c:if>
 							<c:if test="${expedient.permisAdministration and expedient.tipus.arxiuActiu and empty expedient.arxiuUuid}">
 								<li><a href="<c:url value="../../v3/expedient/${expedientId}/migrarArxiu"/>" onclick="return confirmarMigrarArxiu(event)"><span class="fa fa-suitcase"></span>&nbsp;<spring:message code="expedient.info.accio.migrararxiu"/></a></li>
 							</c:if>

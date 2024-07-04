@@ -2867,6 +2867,14 @@ public class PluginHelper {
 		return versionsDocument;
 	}
 
+	public String expedientExportarEni(String uuId) {
+		return getArxiuPlugin().expedientExportarEni(uuId);
+	}
+	
+	public String documentExportarEni(String uuId) {
+		return getArxiuPlugin().documentExportarEni(uuId);
+	}
+	
 	public es.caib.plugins.arxiu.api.Document arxiuDocumentInfo(
 			String arxiuUuid,
 			String versio,

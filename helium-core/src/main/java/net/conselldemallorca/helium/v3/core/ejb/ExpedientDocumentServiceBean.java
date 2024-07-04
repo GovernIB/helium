@@ -488,4 +488,22 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	public boolean validarFinalitzaExpedient(Long expedientId) throws Exception {
 		return delegate.validarFinalitzaExpedient(expedientId);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DocumentDto generarIndexExpedient(Long expedientId) throws Exception {
+		return delegate.generarIndexExpedient(expedientId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DocumentDto exportarEniDocumentsAmbIndex(Long expedientId) throws Exception {
+		return delegate.exportarEniDocumentsAmbIndex(expedientId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public DocumentDto exportarEniExpedient(Long expedientId) throws Exception {
+		return delegate.exportarEniExpedient(expedientId);
+	}
 }

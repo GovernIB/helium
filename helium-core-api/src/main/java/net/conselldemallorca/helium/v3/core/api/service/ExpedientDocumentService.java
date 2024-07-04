@@ -600,4 +600,21 @@ public interface ExpedientDocumentService {
 	 * @return Retorna un objecte amb informació del resultat de la firma i el document firmat en cas que hagi anat bé.
 	 */
 	public FirmaResultatDto firmaSimpleWebEnd(String transactionID);
+	
+	/**
+	 * Genera un PDF amb una taula resum dels fitxers de l'expedient.
+	 * @param expedientId
+	 */
+	public DocumentDto generarIndexExpedient(Long expedientId) throws Exception;
+	/**
+	 * Genera un ZIP amb els documents definitius de l'expedient i la informació ENI (format XML) per cada document i de l'expedient mateix
+	 * a més de l'index en PDF de l'expedient.
+	 * @param expedientId
+	 */
+	public DocumentDto exportarEniDocumentsAmbIndex(Long expedientId) throws Exception;
+	/**
+	 * Genera el fitxer ENI (format XML) de l'expedient.
+	 * @param expedientId
+	 */
+	public DocumentDto exportarEniExpedient(Long expedientId) throws Exception;
 }

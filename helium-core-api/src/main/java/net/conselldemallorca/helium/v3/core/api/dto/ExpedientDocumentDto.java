@@ -63,6 +63,7 @@ public class ExpedientDocumentDto implements Serializable {
 	private String ntiCsv;
 	private String ntiDefinicionGenCsv;
 	private String arxiuUuid;
+	private String referenciaCustodia;
 	
 	private boolean notificable;
 	
@@ -425,6 +426,12 @@ public class ExpedientDocumentDto implements Serializable {
 	}
 	public void setEstatPinbal(PeticioPinbalEstatEnum estatPinbal) {
 		this.estatPinbal = estatPinbal;
+	}
+	public String getReferenciaCustodia() {
+		return referenciaCustodia;
+	}
+	public void setReferenciaCustodia(String referenciaCustodia) {
+		this.referenciaCustodia = referenciaCustodia;
 	}
 
 	private static final long serialVersionUID = -4307890997577367155L;

@@ -14,6 +14,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,8 +40,10 @@ import net.conselldemallorca.helium.v3.core.api.dto.AlertaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentFinalitzarDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientErrorDto;
@@ -623,6 +626,70 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		return "arxiuView";
 	}
 
+	//Genera un PDF amb una taula resum dels fitxers de l'expedient.
+	@RequestMapping(value = "/{expedientId}/generarIndexExpedient", method = RequestMethod.GET)
+	@ResponseBody
+	public void exportarIndexExpedient(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			@PathVariable Long expedientId) throws Exception {
+    	try { 
+    		DocumentDto resultat = expedientDocumentService.generarIndexExpedient(expedientId);
+    		this.writeFileToResponse(resultat.getArxiuNom(), resultat.getArxiuContingut(), response);
+    	} catch(Exception e) {
+    		MissatgesHelper.error(
+    				request,
+    				getMessage(
+    						request, 
+    						"expedient.exportacio.eni.error",
+    						new Object[]{e.getMessage()}));
+    		response.sendRedirect("/helium/v3/expedient/" + expedientId);
+    	}        
+	}
+	
+	//Genera un ZIP amb els documents definitius de l'expedient i la informació ENI (format XML) per cada document i de l'expedient mateix
+	//a més de l'index en PDF de l'expedient.
+	@RequestMapping(value = "/{expedientId}/exportarEniDocumentsAmbIndex", method = RequestMethod.GET)
+	@ResponseBody
+	public void exportarEniDocuments(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			@PathVariable Long expedientId) throws Exception {
+    	try { 
+    		DocumentDto resultat = expedientDocumentService.exportarEniDocumentsAmbIndex(expedientId);
+    		this.writeFileToResponse(resultat.getArxiuNom(), resultat.getArxiuContingut(), response);
+    	} catch(Exception e) {
+    		MissatgesHelper.error(
+    				request,
+    				getMessage(
+    						request, 
+    						"expedient.exportacio.eni.error",
+    						new Object[]{e.getMessage()}));
+    		response.sendRedirect("/helium/v3/expedient/" + expedientId);
+    	}        
+	}
+	
+	//Genera el fitxer ENI (format XML) de l'expedient.
+	@RequestMapping(value = "/{expedientId}/exportarEniExpedient", method = RequestMethod.GET)
+	@ResponseBody
+	public void exportarEniExpedient(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			@PathVariable Long expedientId) throws Exception {
+    	try { 
+    		DocumentDto resultat = expedientDocumentService.exportarEniExpedient(expedientId);
+    		this.writeFileToResponse(resultat.getArxiuNom(), resultat.getArxiuContingut(), response);
+    	} catch(Exception e) {
+    		MissatgesHelper.error(
+    				request,
+    				getMessage(
+    						request, 
+    						"expedient.exportacio.eni.error",
+    						new Object[]{e.getMessage()}));
+    		response.sendRedirect("/helium/v3/expedient/" + expedientId);
+    	}        
+	}
+	
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		binder.registerCustomEditor(

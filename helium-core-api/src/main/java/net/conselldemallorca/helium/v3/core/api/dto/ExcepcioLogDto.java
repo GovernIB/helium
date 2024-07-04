@@ -20,10 +20,14 @@ public class ExcepcioLogDto implements Serializable {
 		
 		if (exception != null) {
 			this.objectClass = exception.getClass();
-			this.setMessage(exception.getMessage().substring(
-							0,
-							Math.min(exception.getMessage().contains("\n") ? exception.getMessage().indexOf("\n") : exception.getMessage().length(),
-									1024)));
+			if (exception.getMessage()!=null) {
+				this.setMessage(exception.getMessage().substring(
+								0,
+								Math.min(exception.getMessage().contains("\n") ? exception.getMessage().indexOf("\n") : exception.getMessage().length(),
+										1024)));
+			} else {
+				this.setMessage("null");
+			}
 			this.setStacktrace(ExceptionUtils.getStackTrace(exception));
 		}
 		

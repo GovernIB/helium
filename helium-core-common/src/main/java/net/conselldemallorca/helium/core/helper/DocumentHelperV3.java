@@ -4,14 +4,20 @@
 package net.conselldemallorca.helium.core.helper;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
@@ -21,6 +27,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tika.Tika;
 import org.apache.tika.mime.MimeTypes;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +43,7 @@ import es.caib.plugins.arxiu.api.DocumentEstat;
 import es.caib.plugins.arxiu.api.Firma;
 import es.caib.plugins.arxiu.api.FirmaPerfil;
 import es.caib.plugins.arxiu.api.FirmaTipus;
+import es.caib.plugins.arxiu.caib.ArxiuCaibException;
 import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
 import net.conselldemallorca.helium.core.common.JbpmVars;
 import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
@@ -67,6 +78,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiDocumentoFormato;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
@@ -102,7 +114,7 @@ import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 public class DocumentHelperV3 {
 
 	public static final String VERSIO_NTI = "http://administracionelectronica.gob.es/ENI/XSD/v1.0/expediente-e";
-
+	
 	@Resource
 	private PlantillaHelper plantillaHelper;
 	@Resource
@@ -129,6 +141,8 @@ public class DocumentHelperV3 {
 	private PluginHelper pluginHelper;
 	@Resource
 	private JbpmHelper jbpmHelper;
+	@Resource
+	private PdfHelper pdfHelper;
 	@Resource
 	private MesuresTemporalsHelper mesuresTemporalsHelper;
 	@Resource
@@ -2132,6 +2146,7 @@ public class DocumentHelperV3 {
 		dto.setDocumentValid(documentStore.isDocumentValid());
 		dto.setDocumentError(documentStore.getDocumentError());
 		dto.setAnotacioAnnexId(documentStore.getAnnexId());
+		dto.setReferenciaCustodia(documentStore.getReferenciaCustodia());
 		
 		return dto;
 	}
@@ -2184,6 +2199,8 @@ public class DocumentHelperV3 {
 		dto.setDocumentValid(documentStore.isDocumentValid());
 		dto.setDocumentError(documentStore.getDocumentError());
 		dto.setAnotacioAnnexId(documentStore.getAnnexId());
+		dto.setReferenciaCustodia(documentStore.getReferenciaCustodia());
+		
 		return dto;
 	}
 
@@ -3028,6 +3045,206 @@ public class DocumentHelperV3 {
 		return dsDto;
 	}
 
-	private static final Log logger = LogFactory.getLog(DocumentHelperV3.class);
+	public DocumentDto generarIndexExpedient(Expedient expedient) throws Exception {
+		
+		DocumentDto resultat = new DocumentDto();
+		
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
+		String titolExp 	= expedient.getTitol() + " [" + expedient.getNumero()+"]";
+		String subtitolExp	= expedient.getTipus().getNom() + " - Estat del expedient: "+ (expedient.getDataFi()==null?"Obert":"Tancat");
+		com.itextpdf.text.Document pdfIndex = pdfHelper.inicialitzarDocument(out, titolExp, subtitolExp, true);
+		
+		pdfHelper.crearTaulaDocuments(pdfIndex, expedient, false);
+		
+		if (expedient.getRelacionsOrigen()!=null && expedient.getRelacionsOrigen().size()>0) {			
+			for (Expedient expRelacionat: expedient.getRelacionsOrigen()) {
+				String titolExpRel = "Expedient relacionat: "+expRelacionat.getTitol() + " [" + expRelacionat.getNumero()+"]";
+				pdfHelper.crearTitolRelacio(pdfIndex, titolExpRel);
+				pdfHelper.crearTaulaDocuments(pdfIndex, expRelacionat, true);
+			}
+		}
+		
+		pdfIndex.close();
+		
+		resultat.setArxiuContingut(out.toByteArray());
+		resultat.setArxiuNom("Index "+expedient.getTitol()+".pdf");
+		resultat.setContentType("application/pdf");
+		
+		out.close();
+		
+		return resultat;
+	}
+	
+	public DocumentDto exportarEniExpedient(Expedient expedient) throws Exception {
+		DocumentDto resultat = new DocumentDto();
+		
+		String expedientEni = pluginHelper.expedientExportarEni(expedient.getArxiuUuid());
+		
+		resultat.setArxiuContingut(prettyPrintXML(expedientEni).getBytes());
+		resultat.setArxiuNom("ENI "+expedient.getTitol()+".xml");
+		resultat.setContentType("application/xml");
+		
+		return resultat;
+	}
+	
+	private String prettyPrintXML(String xmlIn) throws DocumentException, IOException {
+        OutputFormat format = OutputFormat.createPrettyPrint();
+        format.setIndentSize(4);
+        format.setSuppressDeclaration(false);
+        format.setEncoding("UTF-8");
+
+        org.dom4j.Document document = DocumentHelper.parseText(xmlIn);
+        StringWriter sw = new StringWriter();
+        XMLWriter writer = new XMLWriter(sw, format);
+        writer.write(document);
+        return sw.toString();
+	}
+	
+	public DocumentDto exportarEniDocumentsAmbIndex(Expedient expedient) throws Exception {
+		
+		DocumentDto resultat = new DocumentDto();
+		List<InstanciaProcesDto> arbreProcessos = expedientHelper.getArbreInstanciesProces(expedient.getProcessInstanceId());
+		List<ExpedientDocumentDto> documentsIndex = new ArrayList<ExpedientDocumentDto>();
+		
+		for (InstanciaProcesDto instanciaProces : arbreProcessos) {
+			List<ExpedientDocumentDto> documentsExpedientDto = findDocumentsPerInstanciaProces(instanciaProces.getId());
+			if (documentsExpedientDto!=null) {
+				for (ExpedientDocumentDto ed: documentsExpedientDto) {
+					if (ed.getArxiuUuid()!=null && !"".equals(ed.getArxiuUuid())) {
+						es.caib.plugins.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
+								ed.getArxiuUuid(),
+								null,
+								false,
+								false);
+						if (arxiuDocument!=null && DocumentEstat.DEFINITIU.equals(arxiuDocument.getEstat())) {
+							documentsIndex.add(ed);
+						}
+					}					
+				}
+			}
+		}
+		
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ZipOutputStream out = new ZipOutputStream(baos);
+		ZipEntry ze;
+		Set<String> nomsArxius = new HashSet<String>(); //Llista per no repetir noms al getZipRecursNom
+		
+		/**
+		 * Per cada document, fica al zip 2 entrades: el propi document, i el ENI en format XML del document.
+		 */
+		for (ExpedientDocumentDto documentExpedientDto: documentsIndex) {
+			
+			InstanciaProcesDto instanciaProcesDto = expedientHelper.getInstanciaProcesById(documentExpedientDto.getProcessInstanceId());
+			
+			//1.- Document
+			ze = new ZipEntry(getZipRecursNom(instanciaProcesDto, documentExpedientDto, nomsArxius));
+			out.putNextEntry(ze);
+			out.write(getArxiuPerDocumentStoreId(documentExpedientDto.getId(),
+							false,
+							false,
+							null).getContingut());
+			out.closeEntry();
+			
+			//2.- Eni del document
+			ExpedientDocumentDto eniAux = new ExpedientDocumentDto();
+			eniAux.setAdjunt(documentExpedientDto.isAdjunt());
+			eniAux.setProcessInstanceId(documentExpedientDto.getProcessInstanceId());
+			eniAux.setDocumentNom(documentExpedientDto.getDocumentNom()+"_ENI"); //Així posará bé el nom tant si es adjunt com document.
+			eniAux.setAdjuntTitol(documentExpedientDto.getAdjuntTitol()+"_ENI");
+			
+			String expedientEni = pluginHelper.documentExportarEni(documentExpedientDto.getArxiuUuid());
+			
+			ze = new ZipEntry(getZipRecursNom(instanciaProcesDto, eniAux, "xml", nomsArxius));
+			out.putNextEntry(ze);
+			out.write(prettyPrintXML(expedientEni).getBytes());
+			out.closeEntry();
+		}
+		
+		//Finalment afegim a l'arrel del zip, el index i el ENI del expedient
+		try {
+			DocumentDto eniExpedient = exportarEniExpedient(expedient);
+			ze = new ZipEntry("ENI_"+expedient.getTitol()+".xml");
+			out.putNextEntry(ze);
+			out.write(eniExpedient.getArxiuContingut());
+			out.closeEntry();
+		} catch (ArxiuCaibException acEx) {}
+		
+		DocumentDto indexExpedient = generarIndexExpedient(expedient);
+		ze = new ZipEntry("INDEX_"+expedient.getTitol()+".pdf");
+		out.putNextEntry(ze);
+		out.write(indexExpedient.getArxiuContingut());
+		out.closeEntry();
+		
+		out.close();
+		
+		resultat.setArxiuContingut(baos.toByteArray());
+		resultat.setArxiuNom("Export ENI Index "+expedient.getTitol()+".zip");
+		resultat.setContentType("application/zip");
+		
+		return resultat;
+	}
+	
+	/** Estableix en nom de l'arxiu a partir del document i l'extensió de l'arxiu. Afegeix una carpeta
+	 * si el procés no és el principal, corregeix els caràcters estranys i vigila que no es repeteixin.
+	 * 
+	 * @param expedient Per determinar si és el procés principal
+	 * @param instanciaProces Per determinar si és el procés principal i crear una carpeta en cas contrari.
+	 * @param document Per recuperar el nom per l'arxiu
+	 * @param arxiu Per recuperar l'extensió
+	 * @param nomsArxius Per controlar la llista de noms utilitzats.
+	 * @return
+	 */
+	public String getZipRecursNom(
+			InstanciaProcesDto instanciaProces,
+			ExpedientDocumentDto document,
+			String extensio,
+			Set<String> nomsArxius) {
+
+		String recursNom;
+		String nom;
+
+		if (document.isAdjunt())
+			nom = document.getAdjuntTitol();
+		else
+			nom = document.getDocumentNom();
+
+		nom = nom.replaceAll("/", "_");
+		
+		if (instanciaProces.getId().equals(document.getProcessInstanceId())) {
+			// Carpeta per un altre procés
+			String carpeta = instanciaProces.getId() + " - " + instanciaProces.getTitol();
+			carpeta = carpeta.replaceAll("/", "_");
+		
+			// Extensió
+			if (extensio==null)
+				extensio = document.getArxiuExtensio();
+	
+			// Vigila que no es repeteixi
+			int comptador = 0;
+			do {
+				recursNom = (carpeta != null ? carpeta + "/" : "") +
+							nom + 
+							(comptador > 0 ? " (" + comptador + ")" : "") +
+							"." + extensio;
+				comptador++;
+			} while (nomsArxius.contains(recursNom));
+	
+			// Guarda en nom com a utiltizat
+			nomsArxius.add(recursNom);
+			
+			return recursNom;
+		} else {
+			return null;
+		}
+	}
+	
+	public String getZipRecursNom(
+			InstanciaProcesDto instanciaProces,
+			ExpedientDocumentDto document,
+			Set<String> nomsArxius) {
+		return getZipRecursNom(instanciaProces, document, null, nomsArxius);
+	}
+	
+	private static final Log logger = LogFactory.getLog(DocumentHelperV3.class);
 }
