@@ -128,6 +128,7 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	@MaxLength(255)
 	private String errorDesc;
 	private String errorFull;
+	private String errorArxiu;
 
 	private boolean errorsIntegracions;
 	
@@ -806,7 +807,18 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	public void setArxiuUuid(String arxiuUuid) {
 		this.arxiuUuid = arxiuUuid;
 	}
-
+	@Column(name="error_arxiu", length=512)
+	public String getErrorArxiu() {
+		return errorArxiu;
+	}
+	public void setErrorArxiu(String errorArxiu) {
+		if (this.errorArxiu==null || errorArxiu==null) {
+			this.errorArxiu = errorArxiu;	
+		} else {
+			this.errorArxiu = "- "+this.errorArxiu + "<br/>" + errorArxiu;
+		}
+		
+	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;

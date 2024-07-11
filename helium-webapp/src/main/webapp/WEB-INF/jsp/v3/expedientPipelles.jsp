@@ -346,12 +346,18 @@ dd.subproc {
 							data-rdt-link-modal="true"
 							data-rdt-link-modal-min-height="500"
 							id="nti">
-							<span class="label label-info etiqueta-nti-arxiu">
-								<c:choose>
-									<c:when test="${not expedient.arxiuActiu}"><spring:message code="expedient.info.etiqueta.nti"/></c:when>
-									<c:otherwise><spring:message code="expedient.info.etiqueta.arxiu"/></c:otherwise>
-								</c:choose>
-							</span>
+							<c:if test="${not expedient.arxiuActiu}">
+								<span class="label label-info etiqueta-nti-arxiu"><spring:message code="expedient.info.etiqueta.nti"/></span>
+							</c:if>
+							<c:if test="${expedient.arxiuActiu and empty expedient.errorArxiu}">
+								<span class="label label-info etiqueta-nti-arxiu"><spring:message code="expedient.info.etiqueta.arxiu"/></span>
+							</c:if>
+							<c:if test="${expedient.arxiuActiu and not empty expedient.errorArxiu}">
+								<span class="label label-warning etiqueta-nti-arxiu" title="${expedient.errorArxiu}">
+									<spring:message code="expedient.info.etiqueta.arxiu"/>
+									&nbsp;<span id="triangleErrArxiu" class="fa fa-exclamation-triangle text-danger" style="font-size: 15px;"></span>
+								</span>
+							</c:if>
 						</a>
 					</c:if>
 				</h3>

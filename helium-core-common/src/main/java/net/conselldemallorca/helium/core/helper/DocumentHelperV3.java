@@ -895,21 +895,42 @@ public class DocumentHelperV3 {
 		}
 		DocumentStore documentStoreCreat = documentStoreRepository.save(documentStore);
 		documentStoreRepository.flush();
-		postProcessarDocument(
-				documentStoreCreat,
-				taskInstanceId,
-				processInstanceId,
-				arxiuNom,
-				arxiuContingut,
-				arxiuUuid,
-				arxiuContentType,
-				ambFirma,
-				firmaSeparada,
-				firmaContingut,
-				ntiOrigen,
-				ntiEstadoElaboracion,
-				ntiTipoDocumental,
-				ntiIdDocumentoOrigen);
+		
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		try {
+			postProcessarDocument(
+					documentStoreCreat,
+					taskInstanceId,
+					processInstanceId,
+					arxiuNom,
+					arxiuContingut,
+					arxiuUuid,
+					arxiuContentType,
+					ambFirma,
+					firmaSeparada,
+					firmaContingut,
+					ntiOrigen,
+					ntiEstadoElaboracion,
+					ntiTipoDocumental,
+					ntiIdDocumentoOrigen);
+		} catch (SistemaExternException seex) {
+			expedient.setErrorArxiu("Error de sincronització amb arxiu al crear el document "+documentStore.getId()+": "+seex.getPublicMessage());
+		}
+		
+		// Guarda la referència al nou document a dins el jBPM, és necessari fer-ho fora del postProcessar
+		// sino en cas que falli arxiu, el document no es veurá a la pipella de documents del expedient.
+		if (taskInstanceId != null) {
+			jbpmHelper.setTaskInstanceVariable(
+					taskInstanceId,
+					documentStore.getJbpmVariable(),
+					documentStore.getId());
+		} else {
+			jbpmHelper.setProcessInstanceVariable(
+					processInstanceId,
+					documentStore.getJbpmVariable(),
+					documentStore.getId());
+		}
+		
 		documentStoreCreat.setDocumentValid(documentValid);
 		documentStoreCreat.setDocumentError(documentError);
 		return documentStoreCreat.getId();
@@ -1043,21 +1064,41 @@ public class DocumentHelperV3 {
 			// S'actualitzarà el document amb el nou uuid, l'existent es perdrà en tancar l'expedient
 			arxiuUuid = annexUuid;
 		}
-		postProcessarDocument(
-				documentStore,
-				taskInstanceId,
-				processInstanceId,
-				arxiuNom,
-				arxiuContingut,
-				arxiuUuid,
-				arxiuContentType,
-				ambFirma,
-				firmaSeparada,
-				firmaContingut,
-				ntiOrigen,
-				ntiEstadoElaboracion,
-				ntiTipoDocumental,
-				ntiIdDocumentoOrigen);
+		
+		try {
+			postProcessarDocument(
+					documentStore,
+					taskInstanceId,
+					processInstanceId,
+					arxiuNom,
+					arxiuContingut,
+					arxiuUuid,
+					arxiuContentType,
+					ambFirma,
+					firmaSeparada,
+					firmaContingut,
+					ntiOrigen,
+					ntiEstadoElaboracion,
+					ntiTipoDocumental,
+					ntiIdDocumentoOrigen);
+		} catch (SistemaExternException seex) {
+			expedient.setErrorArxiu("Error de sincronització amb arxiu al actualitzar el document "+documentStore.getId()+": "+seex.getPublicMessage());
+		}
+		
+		// Guarda la referència al nou document a dins el jBPM, és necessari fer-ho fora del postProcessar
+		// sino en cas que falli arxiu, el document no es veurá a la pipella de documents del expedient.
+		if (taskInstanceId != null) {
+			jbpmHelper.setTaskInstanceVariable(
+					taskInstanceId,
+					documentStore.getJbpmVariable(),
+					documentStore.getId());
+		} else {
+			jbpmHelper.setProcessInstanceVariable(
+					processInstanceId,
+					documentStore.getJbpmVariable(),
+					documentStore.getId());
+		}
+		
 		return documentStore.getId();
 	}
 
@@ -2559,7 +2600,7 @@ public class DocumentHelperV3 {
 	 * @param ntiTipoDocumental
 	 * @param ntiIdDocumentoOrigen
 	 */
-	private void postProcessarDocument(
+	public void postProcessarDocument(
 			DocumentStore documentStore,
 			String taskInstanceId,
 			String processInstanceId,
@@ -2577,6 +2618,10 @@ public class DocumentHelperV3 {
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		if (arxiuNom != null && !arxiuNom.equals("")) {
 			documentStore.setArxiuNom(arxiuNom);
+		}
+		boolean prova = false;
+		if (prova) {
+			throw new SistemaExternException("Arxiu", "Error document provocat");
 		}
 		// Actualitza les metadades NTI
 		Document document = findDocumentPerInstanciaProcesICodi(
@@ -2709,18 +2754,6 @@ public class DocumentHelperV3 {
 				documentStore.setReferenciaCustodia(referenciaCustodia);
 				documentStore.setSignat(true);
 			}
-		}
-		// Guarda la referència al nou document a dins el jBPM
-		if (taskInstanceId != null) {
-			jbpmHelper.setTaskInstanceVariable(
-					taskInstanceId,
-					documentStore.getJbpmVariable(),
-					documentStore.getId());
-		} else {
-			jbpmHelper.setProcessInstanceVariable(
-					processInstanceId,
-					documentStore.getJbpmVariable(),
-					documentStore.getId());
 		}
 	}
 	

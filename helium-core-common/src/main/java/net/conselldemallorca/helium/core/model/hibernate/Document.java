@@ -454,6 +454,12 @@ public class Document implements Serializable, GenericEntity<Long> {
 	}
 	
 	@Override
+	public String toString() {
+		return "Document [id=" + id + ", codi=" + codi + ", nom=" + nom + ", arxiuNom=" + arxiuNom + ", contentType="
+				+ contentType + ", definicioProces=" + definicioProces + "]";
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

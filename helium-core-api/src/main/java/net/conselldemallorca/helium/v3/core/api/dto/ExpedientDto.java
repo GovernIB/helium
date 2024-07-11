@@ -87,6 +87,7 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 
 	private String errorDesc;
 	private String errorFull;
+	private String errorArxiu;
 	
 	private List<InteressatDto> interessats;
 	private List<NotificacioDto> notificacions;
@@ -594,6 +595,14 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 	
 	public boolean isAmbErrors () {
 		return (reindexarError || errorsIntegracions || errorDesc != null);
+	}
+
+	public String getErrorArxiu() {
+		return errorArxiu;
+	}
+
+	public void setErrorArxiu(String errorArxiu) {
+		this.errorArxiu = errorArxiu;
 	}
 
 	@Override

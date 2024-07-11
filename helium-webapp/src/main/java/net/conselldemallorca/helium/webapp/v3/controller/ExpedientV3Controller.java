@@ -482,12 +482,32 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			model.addAttribute(
 					"arxiuDetall",
 					expedientService.getArxiuDetall(expedientId));
+			if (expedient.getErrorArxiu()!=null && !"".equals(expedient.getErrorArxiu())) {
+				MissatgesHelper.error(request, "Necessari sincronitzar amb l'Arxiu digital, per els seguents motius:<br/>"+expedient.getErrorArxiu());
+			}
 		} catch (Exception e) {
 			String errMsg = getMessage(request, "expedient.info.error.consulta.arxiu", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
 			MissatgesHelper.error(request, errMsg);
 		}			
 		return "v3/expedientMetadadesNtiInfo";
+	}
+	
+	@RequestMapping(value = "/{expedientId}/sicronitzarArxiu", method = RequestMethod.GET)
+	@ResponseBody
+	public String sicronitzarArxiu(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model) {
+		try {
+			expedientService.migrarArxiu(expedientId);
+			MissatgesHelper.success(request, getMessage(request, "expedient.boto.sincro.arxiu.ok"));
+			return "ok";
+		} catch (Exception ex) {
+			MissatgesHelper.error(request, getMessage(request, "expedient.boto.sincro.arxiu.ko") + "<br/> " + ex.getCause().getMessage());
+			return "ko";
+		}
+		
 	}
 	
 	/** Mètode per incoporar el document a l'Arxiu en el cas que l'expedient estigui integrat però el document no. Acció des

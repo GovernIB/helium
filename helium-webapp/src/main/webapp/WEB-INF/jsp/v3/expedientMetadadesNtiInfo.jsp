@@ -12,6 +12,31 @@
 			<c:otherwise><spring:message code="expedient.metadades.nti.titol.arxiu"/></c:otherwise>
 		</c:choose>
 	</title>
+	<script type="text/javascript">
+		function sicronitzarArxiu(expedientId) {
+			debugger;
+			parent.document.getElementById("overlay").style.display="block";
+	        $.ajax({
+	            url: "<c:url value="/v3/expedient/${expedientId}/sicronitzarArxiu"/>",
+	            dataType: 'text',
+	            async: true,
+	            success: function(data){
+	            	debugger;
+	            	if (data=="ok") {
+	            		parent.document.getElementById("triangleErrArxiu").style.display="none";	            	
+	            	}
+	            	location.reload();
+	            }
+	        }).fail(function( jqxhr, textStatus, error ) {
+	        	debugger;
+	             var err = textStatus + ', ' + error;
+	             console.log( "Request Failed: " + err);
+	        }).always(function() {
+	        	debugger;
+	        	parent.document.getElementById("overlay").style.display="none";
+	        });
+	    }
+	</script>
 	<hel:modalHead/>
 </head>
 <body>
@@ -319,6 +344,9 @@
 	</c:if>
 	<div id="modal-botons" class="well">
 		<button type="button" class="btn btn-default modal-tancar" name="submit" value="cancel"><spring:message code="comu.boto.tancar"/></button>
+		<c:if test="${not empty expedient.errorArxiu}">
+			<button type="submit" class="btn btn-primary" onclick="sicronitzarArxiu(${expedient.id})"><i class="fa fa-upload">&nbsp;</i><spring:message code="expedient.boto.sincro.arxiu"/></button>
+		</c:if>
 	</div>
 </body>
 </html>

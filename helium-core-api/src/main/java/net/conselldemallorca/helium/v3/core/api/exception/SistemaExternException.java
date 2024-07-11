@@ -81,6 +81,12 @@ public class SistemaExternException extends HeliumException {
 		super(cause);
 	}
 	
+	public SistemaExternException(String sistemaExtern, String message) {
+		super();
+		this.publicMessage=message;
+		this.sistemaExtern=sistemaExtern;
+	}
+	
 	public static SistemaExternException tractarSistemaExternException(
 			Long entornId,
 			String entornCodi,

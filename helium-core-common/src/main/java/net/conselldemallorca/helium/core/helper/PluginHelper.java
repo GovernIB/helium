@@ -137,6 +137,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaResultatDto;
@@ -2311,6 +2312,20 @@ public class PluginHelper {
 					ex,
 					parametres);
 			throw tractarExcepcioEnSistemaExtern(MonitorIntegracioHelper.INTCODI_ARXIU,errorDescripcio, ex);
+		}
+	}
+	
+	public void arxiuExpedientCrearOrActualitzar(Expedient expedient) {
+		boolean prova = false;
+		if (prova) {
+			throw new SistemaExternException("Arxiu", "Error provocat");
+		}
+		if (expedient.getArxiuUuid()==null || "".equals(expedient.getArxiuUuid())) {
+			ContingutArxiu expedientCreat = arxiuExpedientCrear(expedient);
+			expedient.setArxiuUuid(expedientCreat.getIdentificador());
+			expedient.setNtiIdentificador(expedientCreat.getExpedientMetadades().getIdentificador());
+		} else {
+			arxiuExpedientModificar(expedient);
 		}
 	}
 	

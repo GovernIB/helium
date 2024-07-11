@@ -214,7 +214,7 @@
 													</a>
 												</c:if>
 												<!-- FI FRAGMENT -->
-												<c:if test="${expedient.ntiActiu and expedient.permisRead}">
+												<c:if test="${expedient.ntiActiu and expedient.permisRead and not empty document.arxiuUuid}">
 													<a	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/metadadesNti"
 														data-rdt-link-modal="true"
 														data-rdt-link-modal-min-height="500"
@@ -226,9 +226,6 @@
 																</c:when>
 																<c:otherwise>
 																	<spring:message code="expedient.info.etiqueta.arxiu"/>
-																	<c:if test="${empty document.arxiuUuid}"> 
-																		<span class="fa fa-warning text-danger" title="<spring:message code='expedient.document.arxiu.error.uuidnoexistent' />"></span>
-																	</c:if>
 																</c:otherwise>
 															</c:choose>
 														</span>

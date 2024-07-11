@@ -19,6 +19,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientInteressatService;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.InteressatRepository;
@@ -31,62 +32,56 @@ import net.conselldemallorca.helium.v3.core.repository.InteressatRepository;
 @Service
 public class ExpedientInteressatServiceImpl implements ExpedientInteressatService {
 
-	@Resource
-	private InteressatRepository interessatRepository;	
-
-	@Resource
-	private ExpedientRepository expedientRepository;	
-
-	@Resource
-	private PaginacioHelper paginacioHelper;
-	
-	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
-	
-	@Resource
-	private PluginHelper pluginHelper;
+	@Resource private InteressatRepository interessatRepository;	
+	@Resource private ExpedientRepository expedientRepository;	
+	@Resource private PaginacioHelper paginacioHelper;
+	@Resource private ConversioTipusHelper conversioTipusHelper;
+	@Resource private PluginHelper pluginHelper;
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	@Transactional
-	public InteressatDto create(
-			InteressatDto interessat) {
+	public InteressatDto create(InteressatDto interessat) {
+		
 		logger.debug("Creant nou interessat (interessat=" + interessat + ")");
 		
 		Expedient expedient = expedientRepository.findOne(interessat.getExpedientId());
 		
-			Interessat interessatEntity = new Interessat(
-				interessat.getId(),
-				interessat.getCodi(),
-				interessat.getNom(),
-				interessat.getNif(),
-				interessat.getDir3Codi(),
-				interessat.getLlinatge1(), 
-				interessat.getLlinatge2(), 
-				interessat.getTipus(),
-				interessat.getEmail(), 
-				interessat.getTelefon(),
-				expedient,
-				interessat.getEntregaPostal(),
-				interessat.getEntregaTipus(),
-				interessat.getLinia1(),
-				interessat.getLinia2(),
-				interessat.getCodiPostal(),
-				interessat.getEntregaDeh(),
-				interessat.getEntregaDehObligat());
-			if(expedient.getInteressats()!=null)
-				expedient.getInteressats().add(interessatEntity);
-			else {
-				List<Interessat> interessatsList = new ArrayList<Interessat>();
-				interessatsList.add(interessatEntity);
-				expedient.setInteressats(interessatsList);
+		Interessat interessatEntity = new Interessat(
+			interessat.getId(),
+			interessat.getCodi(),
+			interessat.getNom(),
+			interessat.getNif(),
+			interessat.getDir3Codi(),
+			interessat.getLlinatge1(), 
+			interessat.getLlinatge2(), 
+			interessat.getTipus(),
+			interessat.getEmail(), 
+			interessat.getTelefon(),
+			expedient,
+			interessat.getEntregaPostal(),
+			interessat.getEntregaTipus(),
+			interessat.getLinia1(),
+			interessat.getLinia2(),
+			interessat.getCodiPostal(),
+			interessat.getEntregaDeh(),
+			interessat.getEntregaDehObligat());
+		if(expedient.getInteressats()!=null)
+			expedient.getInteressats().add(interessatEntity);
+		else {
+			List<Interessat> interessatsList = new ArrayList<Interessat>();
+			interessatsList.add(interessatEntity);
+			expedient.setInteressats(interessatsList);
+		}
+		if (expedient.isArxiuActiu()) {
+			try {
+				pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
+			} catch (SistemaExternException seex) {
+				expedient.setErrorArxiu("Error de sincronització amb arxiu al crear el interessat "+interessat.getNif()+": "+seex.getPublicMessage());
 			}
-			if (expedient.isArxiuActiu()) {
-				// Modifiquem l'expedient a l'arxiu.
-				pluginHelper.arxiuExpedientModificar(expedient);
-			}
+		}
 		return conversioTipusHelper.convertir(
 				interessatRepository.save(interessatEntity),
 				InteressatDto.class);
@@ -118,16 +113,20 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		interessatEntity.setCodiPostal(interessat.getCodiPostal());
 		interessatEntity.setEntregaDeh(interessat.getEntregaDeh());
 		interessatEntity.setEntregaDehObligat(interessat.getEntregaDehObligat());
+
 		Expedient expedient = expedientRepository.findOne(interessat.getExpedientId());
 		if (expedient.isArxiuActiu()) {
-			// Modifiquem l'expedient a l'arxiu.
-			pluginHelper.arxiuExpedientModificar(expedient);
+			try {
+				pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
+			} catch (SistemaExternException seex) {
+				expedient.setErrorArxiu("Error de sincronització amb arxiu al modificar el interessat "+interessat.getNif()+": "+seex.getPublicMessage());
+			}
 		}
+		
 		return conversioTipusHelper.convertir(
 				interessatEntity,
 				InteressatDto.class);
 	}
-	
 
 	public Interessat comprovarInteressat(
 			Long interessatId) {
@@ -139,9 +138,6 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		}
 		return interessat;
 	}
-	
-
-
 
 	/**
 	 * {@inheritDoc}
@@ -159,12 +155,13 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		interessatRepository.delete(interessat);
 		
 		if (expedient.isArxiuActiu()) {
-			// Modifiquem l'expedient a l'arxiu.
-			pluginHelper.arxiuExpedientModificar(expedient);
+			try {
+				pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
+			} catch (SistemaExternException seex) {
+				expedient.setErrorArxiu("Error de sincronització amb arxiu al eliminar el interessat "+interessat.getNif()+": "+seex.getPublicMessage());
+			}
 		}
 	}
-	
-	
 	
 	/**
 	 * {@inheritDoc}

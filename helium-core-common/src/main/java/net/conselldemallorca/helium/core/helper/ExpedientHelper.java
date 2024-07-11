@@ -54,7 +54,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Alerta.AlertaPrioritat;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
@@ -82,7 +81,6 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -99,6 +97,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
@@ -915,12 +914,12 @@ public class ExpedientHelper {
 		if (!expedient.getTipus().isNtiActiu())
 			throw new ValidacioException("Aquest expedient no es pot migrar perquè el tipus d'expedient no té activades les metadades NTI");
 
-		// Fa validacions prèvies
 		if (!expedient.getTipus().isArxiuActiu())
 			throw new ValidacioException("Aquest expedient no es pot migrar perquè el tipus d'expedient no té activada la intagració amb l'arxiu");
-
-		if (expedient.getArxiuUuid() != null && !expedient.getArxiuUuid().isEmpty())
-			throw new ValidacioException("Aquest expedient ja està vinculat a l'arxiu amb la uuid: " + expedient.getArxiuUuid());
+		
+		/**
+		 * 1.- Expedient i interessats. Crea l'expedient a Arxiu amb les metadades. Si esta creat l'actualitza.
+		 */
 		
 		if (!expedient.isNtiActiu()) {
 			// Informa les metadades NTI de l'expedient
@@ -930,128 +929,52 @@ public class ExpedientHelper {
 			expedient.setNtiSerieDocumental(expedient.getTipus().getNtiSerieDocumental());			
 		}
 
-		// Migra a l'Arxiu
-		ContingutArxiu expedientCreat = pluginHelper.arxiuExpedientCrear(expedient);
-		expedient.setArxiuUuid(
-				expedientCreat.getIdentificador());
-		// Consulta l'identificador NTI generat per l'arxiu i el modifica
-		// a dins l'expedient creat.
-		es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(
-				expedientCreat.getIdentificador());
-		expedient.setNtiIdentificador(
-				expedientArxiu.getMetadades().getIdentificador());
+		// Migra a l'Arxiu o actualitzar en el seu cas
+		pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
 		
-		List<DocumentStore> documents = documentStoreRepository.findByProcessInstanceId(expedient.getProcessInstanceId());
+		/**
+		 * 2.- Documents. Crea o actualitza els documents a l'arxiu.
+		 */
 		
-		Set<String> documentsExistents = new HashSet<String>();
-		for (DocumentStore documentStore: documents) {
-			
-			Document document = documentHelper.findDocumentPerInstanciaProcesICodi(
-					expedient.getProcessInstanceId(),
-					documentStore.getCodiDocument());
-			
-			if (!expedient.isNtiActiu()) {
-				// Informa les metadades NTI del document
-				documentHelper.actualizarMetadadesNti(
-						expedient, 
-						document, 
-						documentStore, 
-						null, //ntiOrigen
-						null, //ntiEstadoElaboracion
-						null, //ntiTipoDocumental
-						null); //ntiIdDocumentoOrigen
-			}
-			
-			String documentDescripcio;
-			if (documentStore.isAdjunt()) {
-				documentDescripcio = documentStore.getAdjuntTitol();
-			} else {
-				// El document pot ser null si s'ha esborrat al tipus d'exedient
-				documentDescripcio = document != null ? document.getNom() : documentStore.getCodiDocument();
-			}
-			
-			ArxiuDto arxiu = documentHelper.getArxiuPerDocumentStoreId(
-					documentStore.getId(),
-					false,
-					false,
-					null);
-			
-			String documentNom = arxiu.getNom();
-			
-			if (arxiu.getTipusMime() == null)
-				arxiu.setTipusMime(documentHelper.getContentType(arxiu.getNom()));
-			
-			
-			// Corregeix el nom si ja hi ha un altre document amb el mateix nom i posant l'extensio
-			documentNom = DocumentHelperV3.revisarContingutNom(documentNom);
-			String nouDocumentNom = new String(documentNom);
-			if (documentsExistents.contains(nouDocumentNom)) {
-				int occurrences = 0;
-				if (nouDocumentNom.contains(".")) {
-					// Nom amb extensió
-					String name = nouDocumentNom.substring(0, nouDocumentNom.lastIndexOf('.'));
-					String extension = nouDocumentNom.substring(nouDocumentNom.lastIndexOf('.'));
-					nouDocumentNom = name;
-					while(documentsExistents.contains((nouDocumentNom + extension).toLowerCase())) {
-						occurrences ++;
-						nouDocumentNom = name + " (" + occurrences + ")";
-					}
-					nouDocumentNom += extension;
+		List<DocumentStore> documents = new ArrayList<DocumentStore>();
+		List<InstanciaProcesDto> arbreProcesInstance = getArbreInstanciesProces(expedient.getProcessInstanceId());
 
-				} else {
-					// Nom sense extensió
-					while (documentsExistents.contains(nouDocumentNom.toLowerCase())) {
-						occurrences ++;
-						nouDocumentNom = documentNom + " (" + occurrences + ")";
-					}
-				}
-				documentNom = nouDocumentNom;
-			}
-			documentsExistents.add(documentNom);
-			
-			ContingutArxiu contingutArxiu = pluginHelper.arxiuDocumentCrearActualitzar(
-					expedient,
-					documentNom,
-					documentDescripcio,
+		// Genera llista de tots els documents del expedient
+		for(InstanciaProcesDto procesInstance :arbreProcesInstance) {
+			documents.addAll(documentStoreRepository.findByProcessInstanceId(procesInstance.getId()));
+		}
+		
+		//Comprovar noms de document repetits.
+		Set<String> documentsExistents = new HashSet<String>();
+		
+		for (DocumentStore documentStore: documents) {
+			documentHelper.postProcessarDocument(
 					documentStore,
-					arxiu);
-			documentStore.setArxiuUuid(contingutArxiu.getIdentificador());
-			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentInfo(
-					contingutArxiu.getIdentificador(),
-					null,
-					false,
-					true);
-			documentStore.setNtiIdentificador(
-					documentArxiu.getMetadades().getIdentificador());
-			
-			if (documentStore.isSignat()) {
-				
-				pluginHelper.arxiuDocumentGuardarPdfFirmat(
-						expedient,
-						documentStore,
-						documentNom,
-						documentDescripcio,
-						arxiu);
-				documentArxiu = pluginHelper.arxiuDocumentInfo(
-						documentStore.getArxiuUuid(),
-						null,
-						false,
-						true);
-				documentHelper.actualitzarNtiFirma(documentStore, documentArxiu);
-			}
-			documentStore.setArxiuContingut(null);			
+					null, //taskInstanceId
+					documentStore.getProcessInstanceId(),
+					documentStore.getArxiuNom(),
+					documentStore.getArxiuContingut(),
+					documentStore.getArxiuUuid(),
+					documentHelper.getContentType(documentStore.getArxiuNom()),
+					documentStore.isSignat(),
+					false, //tipusFirma?? firma separada?
+					null, //firmaContingut
+					documentStore.getNtiOrigen(),
+					documentStore.getNtiEstadoElaboracion(),
+					documentStore.getNtiTipoDocumental(),
+					documentStore.getNtiIdDocumentoOrigen());			
 		}
 
 		// Informa convorme l'expedient és NTI i a l'Arxiu
 		expedient.setArxiuActiu(true);
 		expedient.setNtiActiu(true);
+		expedient.setErrorArxiu(null);
 
 		if (expedient.getDataFi() != null) {
 			//Tancam expedient al arxiu, firmant els documents sense firma amb firma servidor
 			tancarExpedientArxiu(expedient, true);
 		}
 	}
-	
 
 	/** Mètode per revisar els expedients que ja estan firmats a l'Arxiu i actualitzar la
 	 * informació dels documents a Helium. Aquest mètode s'invoca quan es detecta que l'expedient
@@ -1976,21 +1899,19 @@ public class ExpedientHelper {
 		}
 		String arxiuUuid = null;
 		if (expedientTipus.isArxiuActiu()) {
-			// Crea l'expedient a l'arxiu i actualitza l'identificador.
-			ContingutArxiu expedientCreat = pluginHelper.arxiuExpedientCrear(expedientPerRetornar);
-			arxiuUuid = expedientCreat.getIdentificador();
-			expedientPerRetornar.setArxiuUuid(
-					expedientCreat.getIdentificador());
-			// Consulta l'identificador NTI generat per l'arxiu i el modifica
-			// a dins l'expedient creat.
-			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(
-					expedientCreat.getIdentificador());
-			expedientPerRetornar.setNtiIdentificador(
-					expedientArxiu.getMetadades().getIdentificador());
+			// Crea l'expedient a l'arxiu i actualitza l'identificador i el uuid.
 			expedientPerRetornar.setArxiuActiu(true);
+			try {
+				ContingutArxiu expedientCreat = pluginHelper.arxiuExpedientCrear(expedientPerRetornar);
+				arxiuUuid = expedientCreat.getIdentificador();
+				expedientPerRetornar.setArxiuUuid(expedientCreat.getIdentificador());
+				expedientPerRetornar.setNtiIdentificador(expedientCreat.getExpedientMetadades().getIdentificador());
+				expedientPerRetornar.setErrorArxiu(null);
+			} catch (SistemaExternException seex) {
+				expedientPerRetornar.setErrorArxiu("Error de sincronització amb arxiu al crear l'expedient: "+seex.getPublicMessage());
+			}
 		}
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Metadades NTI i creació a dins l'arxiu");
-		
 		
 		try {
 			// Afegim els documents
