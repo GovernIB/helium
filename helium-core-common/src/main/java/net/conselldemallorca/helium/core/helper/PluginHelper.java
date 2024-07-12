@@ -2264,6 +2264,12 @@ public class PluginHelper {
 
 	public ContingutArxiu arxiuExpedientCrear(
 			Expedient expedient) {
+		
+//		boolean prova = false;
+//		if (prova) {
+//			throw new SistemaExternException("Arxiu", "Error provocat");
+//		}
+		
 		String accioDescripcio = "Creació d'expedient";
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 				new IntegracioParametreDto(
@@ -2284,6 +2290,7 @@ public class PluginHelper {
 		};
 		long t0 = System.currentTimeMillis();
 		try {
+			
 			ContingutArxiu expedientCreat = getArxiuPlugin().expedientCrear(
 					toArxiuExpedient(
 							this.inArxiuExpedient(expedient.getIdentificador(), null, expedient.getTipus()),
@@ -2316,10 +2323,10 @@ public class PluginHelper {
 	}
 	
 	public void arxiuExpedientCrearOrActualitzar(Expedient expedient) {
-		boolean prova = false;
-		if (prova) {
-			throw new SistemaExternException("Arxiu", "Error provocat");
-		}
+//		boolean prova = false;
+//		if (prova) {
+//			throw new SistemaExternException("Arxiu", "Error provocat");
+//		}
 		if (expedient.getArxiuUuid()==null || "".equals(expedient.getArxiuUuid())) {
 			ContingutArxiu expedientCreat = arxiuExpedientCrear(expedient);
 			expedient.setArxiuUuid(expedientCreat.getIdentificador());

@@ -492,8 +492,11 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 		return true;
 	}
 
-
+	@Override
+	public String toString() {
+		return "DocumentStore [id=" + id + ", jbpmVariable=" + jbpmVariable + ", arxiuNom=" + arxiuNom + ", signat="
+				+ signat + ", adjunt=" + adjunt + ", arxiuUuid=" + arxiuUuid + ", font=" + font + "]";
+	}
 
 	private static final long serialVersionUID = 1L;
-
 }

@@ -1454,7 +1454,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	 */
 	@Override
 	@Transactional
-	public void migrarArxiu(Long id) {
+	public void sincronitzarArxiu(Long id, boolean esborrarExpSiError) {
 		logger.debug("Migrar l'expedient (id=" + id + ") a l'arxiu");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
@@ -1471,7 +1471,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			moureAnnexos(expedient);
 		} catch (Exception ex) {
 			String errorDescripcio = "Error migrant l'expedient " + expedient.getTitol() + " a l'arxiu: " + ex.getMessage();
-			if (expedient.getArxiuUuid() != null && !expedient.getArxiuUuid().isEmpty()) {
+			if (esborrarExpSiError && expedient.getArxiuUuid() != null && !expedient.getArxiuUuid().isEmpty()) {
 				logger.info("Es procedeix a esborrar l'expedient '" + expedient.getTitol() + "' amb uid '" + expedient.getArxiuUuid() + "' de l'arxiu per error en la migració.");
 				try{
 					pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());

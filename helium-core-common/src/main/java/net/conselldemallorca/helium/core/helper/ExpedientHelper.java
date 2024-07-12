@@ -53,6 +53,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta.AlertaPrioritat;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
@@ -81,6 +82,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessInstance;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmToken;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -944,16 +946,22 @@ public class ExpedientHelper {
 			documents.addAll(documentStoreRepository.findByProcessInstanceId(procesInstance.getId()));
 		}
 		
-		//Comprovar noms de document repetits.
-		Set<String> documentsExistents = new HashSet<String>();
-		
 		for (DocumentStore documentStore: documents) {
+			
+			ArxiuDto arxiuContingut = documentHelper.getArxiuPerDocumentStoreId(
+					documentStore.getId(),
+					false,
+					false,
+					true, //perNotificar, si li enviassim a false, intentaria estampar...
+					null);
+			
 			documentHelper.postProcessarDocument(
+					expedient,
 					documentStore,
 					null, //taskInstanceId
 					documentStore.getProcessInstanceId(),
 					documentStore.getArxiuNom(),
-					documentStore.getArxiuContingut(),
+					arxiuContingut.getContingut(),
 					documentStore.getArxiuUuid(),
 					documentHelper.getContentType(documentStore.getArxiuNom()),
 					documentStore.isSignat(),
@@ -962,7 +970,10 @@ public class ExpedientHelper {
 					documentStore.getNtiOrigen(),
 					documentStore.getNtiEstadoElaboracion(),
 					documentStore.getNtiTipoDocumental(),
-					documentStore.getNtiIdDocumentoOrigen());			
+					documentStore.getNtiIdDocumentoOrigen());
+			
+			documentStore.setArxiuContingut(null);
+			documentStore.setFont(DocumentFont.ALFRESCO);
 		}
 
 		// Informa convorme l'expedient és NTI i a l'Arxiu

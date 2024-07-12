@@ -690,8 +690,8 @@ public class ExpedientServiceBean implements ExpedientService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void migrarArxiu(Long id) throws NoTrobatException, PermisDenegatException {
-		delegate.migrarArxiu(id);
+	public void sincronitzarArxiu(Long id, boolean esborrarExpSiError) throws NoTrobatException, PermisDenegatException {
+		delegate.sincronitzarArxiu(id, esborrarExpSiError);
 	}
 
 	@Override

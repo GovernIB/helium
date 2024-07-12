@@ -893,12 +893,21 @@ public class DocumentHelperV3 {
 			}
 			documentStore.setContinguts(documentsContinguts);
 		}
+		
+		//TODO Guardam provissionalment les dades de firma introduides per l'usuari
+		//en el metode seguent de postprocessar, es validaran i actualtizaran,
+		//pero si falla, ha de quedar guardat lo que ha introduit el usuari.
+		documentStore.setSignat(ambFirma);
+		//documentStore.setCon A ON ES GUARDA EL CONTINGUT DE LA FIRMA?
+		//if (contignutFirma!=null) es firma separada, else adjunta
+		
 		DocumentStore documentStoreCreat = documentStoreRepository.save(documentStore);
 		documentStoreRepository.flush();
 		
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 		try {
 			postProcessarDocument(
+					expedient,
 					documentStoreCreat,
 					taskInstanceId,
 					processInstanceId,
@@ -914,6 +923,9 @@ public class DocumentHelperV3 {
 					ntiTipoDocumental,
 					ntiIdDocumentoOrigen);
 		} catch (SistemaExternException seex) {
+			//Ha fallat la integració amb el sistema extern. EL guardam en local (BBDD) fins que es pugui sincronitzar.
+			documentStore.setArxiuContingut(arxiuContingut);
+			documentStore.setFont(DocumentFont.INTERNA);
 			expedient.setErrorArxiu("Error de sincronització amb arxiu al crear el document "+documentStore.getId()+": "+seex.getPublicMessage());
 		}
 		
@@ -1067,6 +1079,7 @@ public class DocumentHelperV3 {
 		
 		try {
 			postProcessarDocument(
+					expedient,
 					documentStore,
 					taskInstanceId,
 					processInstanceId,
@@ -1082,6 +1095,9 @@ public class DocumentHelperV3 {
 					ntiTipoDocumental,
 					ntiIdDocumentoOrigen);
 		} catch (SistemaExternException seex) {
+			//Es guarda temporalment al documentStore, un cop pujat al arxiu, es borra el contingut
+			documentStore.setArxiuContingut(arxiuContingut);
+			documentStore.setFont(DocumentFont.INTERNA);
 			expedient.setErrorArxiu("Error de sincronització amb arxiu al actualitzar el document "+documentStore.getId()+": "+seex.getPublicMessage());
 		}
 		
@@ -1241,7 +1257,7 @@ public class DocumentHelperV3 {
 				esborrarDocument = false;
 			}
 			
-			if (expedient.isArxiuActiu()) {
+			if (expedient.isArxiuActiu() && documentStore.getArxiuUuid()!=null && !"".equals(documentStore.getArxiuUuid())) {
 				if (documentStore.isSignat()) {
 					logger.info("Es procedeix a esborrar d'HELIUM el document firmat a l'Arxiu (expedient= " + expedient.getNumero() + ", tipus=" + expedient.getTipus().getCodi() + 
 							", entorn=" + expedient.getTipus().getEntorn().getCodi() + ", document= " + documentStoreId  
@@ -2601,6 +2617,7 @@ public class DocumentHelperV3 {
 	 * @param ntiIdDocumentoOrigen
 	 */
 	public void postProcessarDocument(
+			Expedient expedient,
 			DocumentStore documentStore,
 			String taskInstanceId,
 			String processInstanceId,
@@ -2615,18 +2632,20 @@ public class DocumentHelperV3 {
 			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
 			String ntiIdDocumentoOrigen) {
-		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
+		
 		if (arxiuNom != null && !arxiuNom.equals("")) {
 			documentStore.setArxiuNom(arxiuNom);
 		}
-		boolean prova = false;
-		if (prova) {
-			throw new SistemaExternException("Arxiu", "Error document provocat");
-		}
+//		boolean prova = false;
+//		if (prova) {
+//			throw new SistemaExternException("Arxiu", "Error document provocat");
+//		}
+		
 		// Actualitza les metadades NTI
 		Document document = findDocumentPerInstanciaProcesICodi(
 				processInstanceId,
 				documentStore.getCodiDocument());
+		
 		if (expedient.isNtiActiu()) {
 			actualizarMetadadesNti(
 					expedient,
@@ -2637,6 +2656,7 @@ public class DocumentHelperV3 {
 					ntiTipoDocumental,
 					ntiIdDocumentoOrigen);
 		}
+		
 		List<ArxiuFirmaDto> firmes = null;
 		es.caib.plugins.arxiu.api.Document documentArxiu = null;
 		if (ambFirma) {
@@ -2660,11 +2680,21 @@ public class DocumentHelperV3 {
 				}
 			}
 		}
+		
 		String documentNom = documentStore.isAdjunt() ? documentStore.getArxiuNom() : (document!=null ? document.getNom() : "");
+		
 		if (expedient.isArxiuActiu()) {
+			
+			if (expedient.getArxiuUuid()==null || "".equals(expedient.getArxiuUuid())) {
+				ContingutArxiu expedientCreat = pluginHelper.arxiuExpedientCrear(expedient);
+				expedient.setArxiuUuid(expedientCreat.getIdentificador());
+				expedient.setNtiIdentificador(expedientCreat.getExpedientMetadades().getIdentificador());
+			}
+			
 			// Document integrat amb l'Arxiu
 			if(firmes!=null && !firmes.isEmpty())
 				comprovarFirmesReconegudes(firmes);
+			
 			if (arxiuUuid == null) {
 				// Actualitza el document a dins l'arxiu
 				ArxiuDto arxiu = new ArxiuDto(

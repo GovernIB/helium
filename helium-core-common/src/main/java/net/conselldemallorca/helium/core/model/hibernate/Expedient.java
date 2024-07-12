@@ -812,12 +812,13 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 		return errorArxiu;
 	}
 	public void setErrorArxiu(String errorArxiu) {
-		if (this.errorArxiu==null || errorArxiu==null) {
-			this.errorArxiu = errorArxiu;	
+		if (errorArxiu==null) {
+			this.errorArxiu = errorArxiu;
+		} else if (this.errorArxiu==null) {
+			this.errorArxiu = "- "+errorArxiu;	
 		} else {
-			this.errorArxiu = "- "+this.errorArxiu + "<br/>" + errorArxiu;
+			this.errorArxiu = this.errorArxiu+"<br/>- "+errorArxiu;
 		}
-		
 	}
 	@Override
 	public int hashCode() {

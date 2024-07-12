@@ -1986,7 +1986,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 		try {
 			ome.setDataInici(new Date());
 			if (exp.getTipus().isArxiuActiu() && exp.getArxiuUuid() == null)
-				expedientService.migrarArxiu(exp.getId());
+				expedientService.sincronitzarArxiu(exp.getId(), true);
 			ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
 			ome.setDataFi(new Date());
 			execucioMassivaExpedientRepository.save(ome);

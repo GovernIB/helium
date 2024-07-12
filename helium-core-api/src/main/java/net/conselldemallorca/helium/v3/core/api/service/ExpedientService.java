@@ -529,8 +529,7 @@ public interface ExpedientService {
 	 * @throws PermisDenegatException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public void migrarArxiu(
-			Long id) throws NoTrobatException, PermisDenegatException;
+	public void sincronitzarArxiu(Long id, boolean esborrarExpSiError) throws NoTrobatException, PermisDenegatException;
 	
 	/**
 	 * Crea una relació entre dos expedients.

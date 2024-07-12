@@ -14,25 +14,22 @@
 	</title>
 	<script type="text/javascript">
 		function sicronitzarArxiu(expedientId) {
-			debugger;
 			parent.document.getElementById("overlay").style.display="block";
 	        $.ajax({
 	            url: "<c:url value="/v3/expedient/${expedientId}/sicronitzarArxiu"/>",
 	            dataType: 'text',
 	            async: true,
 	            success: function(data){
-	            	debugger;
 	            	if (data=="ok") {
-	            		parent.document.getElementById("triangleErrArxiu").style.display="none";	            	
+	            		parent.document.getElementById("triangleErrArxiu").parentElement.className="label label-info etiqueta-nti-arxiu";
+	            		parent.document.getElementById("triangleErrArxiu").style.display="none";            	
 	            	}
 	            	location.reload();
 	            }
 	        }).fail(function( jqxhr, textStatus, error ) {
-	        	debugger;
 	             var err = textStatus + ', ' + error;
 	             console.log( "Request Failed: " + err);
 	        }).always(function() {
-	        	debugger;
 	        	parent.document.getElementById("overlay").style.display="none";
 	        });
 	    }

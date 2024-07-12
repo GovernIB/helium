@@ -500,7 +500,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			Model model) {
 		try {
-			expedientService.migrarArxiu(expedientId);
+			expedientService.sincronitzarArxiu(expedientId, false);
 			MissatgesHelper.success(request, getMessage(request, "expedient.boto.sincro.arxiu.ok"));
 			return "ok";
 		} catch (Exception ex) {
@@ -538,7 +538,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		try {
 			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 			if (expedient.isPermisAdministration()) {
-				expedientService.migrarArxiu(expedient.getId());
+				expedientService.sincronitzarArxiu(expedient.getId(), true);
 				MissatgesHelper.success(request, getMessage(request, "info.expedient.migrat.arxiu"));
 			} else {
 				MissatgesHelper.error(request, getMessage(request, "error.permisos.migrar.expedient.arxiu"));
