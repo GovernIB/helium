@@ -37,6 +37,7 @@ public interface ExpedientInteressatService {
 			String filtre, 
 			PaginacioParamsDto paginacioParams);
 
+	public List<String> checkMidaCampsNotificacio(List<Long> idsInteressats);
 
 	InteressatDto findAmbCodiAndExpedientId(
 			String codi, 

@@ -57,6 +57,7 @@ import net.conselldemallorca.helium.core.model.hibernate.PeticioPinbal;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.PdfUtils;
+import net.conselldemallorca.helium.core.util.StringUtilsHelium;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmTask;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAnnexEstatEnumDto;
@@ -79,6 +80,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientFinalitzarDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
@@ -497,15 +499,22 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
 		// Afegeix un enviament per interessat a la notificació com a titular de la mateixa
 		List<DadesEnviamentDto> enviaments = new ArrayList<DadesEnviamentDto>();
-		// Titular
+		
+		//Titular
 		PersonaDto titular = new PersonaDto();
-		titular.setDni(interessatEntity.getNif());
-		titular.setCodiDir3(interessatEntity.getDir3Codi());
-		titular.setNom(interessatEntity.getNom());
-		titular.setLlinatge1(interessatEntity.getLlinatge1());
-		titular.setLlinatge2(interessatEntity.getLlinatge2());
-		titular.setTelefon(interessatEntity.getTelefon());
-		titular.setEmail(interessatEntity.getEmail());
+		titular.setDni(StringUtilsHelium.retallaString(interessatEntity.getNif(), 9));
+		if (InteressatTipusEnumDto.FISICA.equals(interessatEntity.getTipus())) {
+			titular.setNom(StringUtilsHelium.retallaString(interessatEntity.getNom(), 30));
+		} else {
+			//InteressatTipusEnumDto.ADMINISTRACIO OR InteressatTipusEnumDto.JURIDICA
+			titular.setNom(StringUtilsHelium.retallaString(interessatEntity.getNom(), 255));
+		}
+
+		titular.setLlinatge1(StringUtilsHelium.retallaString(interessatEntity.getLlinatge1(), 30));
+		titular.setLlinatge2(StringUtilsHelium.retallaString(interessatEntity.getLlinatge2(), 30));
+		titular.setCodiDir3(StringUtilsHelium.retallaString(interessatEntity.getDir3Codi(), 9));
+		titular.setTelefon(StringUtilsHelium.retallaString(interessatEntity.getTelefon(), 16));
+		titular.setEmail(StringUtilsHelium.retallaString(interessatEntity.getEmail(), 160));
 		titular.setTipus(interessatEntity.getTipus());
 		dadesEnviamentDto.setTitular(titular);
 		// Destinataris
@@ -513,13 +522,18 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		if (representantId != null) {
 			Interessat representantEntity = interessatRepository.findOne(representantId);
 			PersonaDto destinatari = new PersonaDto();
-			destinatari.setNom(representantEntity.getNom());
-			destinatari.setLlinatge1(representantEntity.getLlinatge1());
-			destinatari.setLlinatge2(representantEntity.getLlinatge2());
-			destinatari.setDni(representantEntity.getNif());
-			destinatari.setCodiDir3(representantEntity.getDir3Codi());
-			destinatari.setTelefon(representantEntity.getTelefon());
-			destinatari.setEmail(representantEntity.getEmail());
+			if (InteressatTipusEnumDto.FISICA.equals(representantEntity.getTipus())) {
+				destinatari.setNom(StringUtilsHelium.retallaString(representantEntity.getNom(), 30));
+			} else {
+				//InteressatTipusEnumDto.ADMINISTRACIO OR InteressatTipusEnumDto.JURIDICA
+				destinatari.setNom(StringUtilsHelium.retallaString(representantEntity.getNom(), 255));
+			}
+			destinatari.setLlinatge1(StringUtilsHelium.retallaString(representantEntity.getLlinatge1(), 30));
+			destinatari.setLlinatge2(StringUtilsHelium.retallaString(representantEntity.getLlinatge2(), 30));
+			destinatari.setDni(StringUtilsHelium.retallaString(representantEntity.getNif(), 9));
+			destinatari.setCodiDir3(StringUtilsHelium.retallaString(representantEntity.getDir3Codi(), 9));
+			destinatari.setTelefon(StringUtilsHelium.retallaString(representantEntity.getTelefon(), 16));
+			destinatari.setEmail(StringUtilsHelium.retallaString(representantEntity.getEmail(), 160));
 			destinatari.setTipus(representantEntity.getTipus());
 			destinataris.add(destinatari);
 		}

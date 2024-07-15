@@ -1,6 +1,3 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.v3.core.ejb;
 
 import java.util.List;
@@ -24,10 +21,7 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientInteressatServi
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ExpedientInteressatServiceBean implements ExpedientInteressatService {
 
-	@Autowired
-	ExpedientInteressatService delegate;
-
-
+	@Autowired ExpedientInteressatService delegate;
 
 	/**
 	 * {@inheritDoc}
@@ -43,48 +37,39 @@ public class ExpedientInteressatServiceBean implements ExpedientInteressatServic
 				paginacioParams);
 	}
 
-
-
 	@Override
 	public InteressatDto create(InteressatDto interessat) {
 		return delegate.create(
 				interessat);
 	}
 
-
-
 	@Override
 	public InteressatDto update(InteressatDto interessat) {
 		return delegate.update(interessat);
 	}
-
-
 
 	@Override
 	public InteressatDto findOne(Long interessatId) {
 		return delegate.findOne(interessatId);
 	}
 
-
-
 	@Override
 	public void delete(Long interessatId) {
 		delegate.delete(interessatId);
 	}
-
-
 
 	@Override
 	public List<InteressatDto> findByExpedient(Long expedientId) {
 		return delegate.findByExpedient(expedientId);
 	}
 
-
-
 	@Override
 	public InteressatDto findAmbCodiAndExpedientId(String codi, Long expedientId) {
 		return delegate.findAmbCodiAndExpedientId(codi, expedientId);
 	}
-	
 
+	@Override
+	public List<String> checkMidaCampsNotificacio(List<Long> idsInteressats) {
+		return delegate.checkMidaCampsNotificacio(idsInteressats);
+	}
 }

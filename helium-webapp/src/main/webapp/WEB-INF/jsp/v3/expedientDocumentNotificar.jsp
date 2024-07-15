@@ -28,6 +28,9 @@
 <script>
 $(document).ready(function() {
 
+	$("#interessatsIds").on('change', function() { checkMidaCampsNotificacio();	});
+	$("#representantId").on('change', function() { checkMidaCampsNotificacio();	});
+	
     $('#entregaPostalActiva').on('change', function() { 
         if (this.checked) {
             $('#entregaPostal').removeClass('hidden');
@@ -37,14 +40,71 @@ $(document).ready(function() {
 
     })
 });
+
+function checkMidaCampsNotificacio() {
+	var getUrl = '<c:url value="/v3/expedient/checkMidaCampsNotificacio"/>';
+
+	var l_interessatsIds = $("#interessatsIds").val();
+	var v_representantId = $("#representantId").val();
+	
+	if (v_representantId!=null && ""!=v_representantId) {
+		l_interessatsIds.push(v_representantId);
+	}
+	
+	if (l_interessatsIds!=null && l_interessatsIds.length>0) {
+		
+		l_interessatsIds = convertirYEliminarDuplicados(l_interessatsIds);
+		
+		var queryString = l_interessatsIds.map(function(id) {
+			return 'nifs=' + encodeURIComponent(id);
+		}).join('&');
+		
+		$.ajax({
+			type: 'GET',
+			url: getUrl + '?' + queryString,
+			async: true,
+			success: function(data) {
+				debugger;
+				if (data!="OK") {
+					refrescarAlertas();
+				} else {
+					$('#contingut-alertes').html("");
+				}
+			},
+			error: function(e) {
+				console.log("Error comprovat la mida dels camps dels interessats: " + e);
+			}
+		});
+	} else {
+		$('#contingut-alertes').html("");
+	}
+}
+
+function convertirYEliminarDuplicados(lista) {
+	const set = new Set();
+	for (let i = 0; i < lista.length; i++) {
+		const numero = parseInt(lista[i], 10);
+		set.add(numero);
+	}
+	return Array.from(set);
+}
+
+function refrescarAlertas() {
+	$.ajax({
+		url: "<c:url value="/nodeco/v3/missatges"/>",
+		async: false,
+		timeout: 20000,
+		success: function (data) {
+			$('#contingut-alertes').html(data);
+		}
+	});
+}
+
 </script>
-
-
 
 </head>
 <body>		
 	<form:form cssClass="form-horizontal form-tasca" action="notificar"  method="post" commandName="documentNotificacioCommand">
-		
 
 		<hel:inputSelect required="true" name="interessatsIds" multiple="true" textKey="expedient.document.notificar.form.camp.titulars" placeholderKey="expedient.document.notificar.form.camp.titulars.placeholder" comment="expedient.document.notificar.form.camp.titulars.info" optionItems="${interessats}" optionValueAttribute="id" optionTextAttribute="fullInfo"/>
 		<hel:inputSelect required="false" name="representantId" multiple="false" emptyOption="true" textKey="expedient.document.notificar.form.camp.representant" placeholderKey="expedient.document.notificar.form.camp.representant.placeholder" comment="expedient.document.notificar.form.camp.representant.info" optionItems="${interessats}" optionValueAttribute="id" optionTextAttribute="fullInfo"/>
@@ -55,9 +115,7 @@ $(document).ready(function() {
 		<hel:inputDate name="enviamentDataProgramada" textKey="expedient.document.notificar.form.camp.dataprogramada" comment="notificacio.form.camp.data.programada.comment"/>
 		<hel:inputDate required="true" name="caducitat" textKey="expedient.document.notificar.form.camp.datacaducitat" comment="notificacio.form.camp.data.caducitat.comment"/>
 		<hel:inputNumber name="retard" textKey="expedient.document.notificar.form.camp.retard" comment="notificacio.form.camp.retard.comment"/>
-		
 		<hel:inputText name="grupCodi" textKey="expedient.document.notificar.form.camp.grupCodi" />
-
 		<hel:inputSelect name="idioma" optionItems="${idiomes}" emptyOption="true" textKey="notificacio.form.camp.idioma" placeholderKey="anotacio.llistat.filtre.camp.estat" optionValueAttribute="codi" optionTextAttribute="valor"/>
 		
 	<!--	<hel:inputCheckbox name="entregaPostalActiva" textKey="expedient.document.notificar.form.camp.entregaPostalActiva" /> -->

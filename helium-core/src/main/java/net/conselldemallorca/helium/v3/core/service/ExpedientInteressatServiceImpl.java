@@ -16,6 +16,7 @@ import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Interessat;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -257,5 +258,54 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientInteressatServiceImpl.class);
+
+	@Override
+	public List<String> checkMidaCampsNotificacio(List<Long> idsInteressats) {
+		List<String> resultat = new ArrayList<String>();
+		if (idsInteressats!=null) {
+			for (Long intId: idsInteressats) {
+				Interessat interessatEntity = interessatRepository.findOne(intId);
+				if (InteressatTipusEnumDto.FISICA.equals(interessatEntity.getTipus())) {
+					if (interessatEntity.getNom()!=null && interessatEntity.getNom().length()>30) {
+						resultat.add("- El camp nom del interessat "+interessatEntity.getNif()+" supera els 30 caracters.");
+					}
+				} else if (InteressatTipusEnumDto.JURIDICA.equals(interessatEntity.getTipus())) {
+					if (interessatEntity.getNom()!=null && interessatEntity.getNom().length()>255) {
+						resultat.add("- El camp rao social del interessat "+interessatEntity.getNif()+" supera els 255 caracters.");
+					}
+				} else {
+					//InteressatTipusEnumDto.ADMINISTRACIO
+					if (interessatEntity.getNom()!=null && interessatEntity.getNom().length()>255) {
+						resultat.add("- El camp nom del interessat "+interessatEntity.getNif()+" supera els 255 caracters.");
+					}
+				}
+				
+				if (interessatEntity.getLlinatge1()!=null && interessatEntity.getLlinatge1().length()>30) {
+					resultat.add("- El camp primer llinatge del interessat "+interessatEntity.getNif()+" supera els 30 caracters.");
+				}
+				
+				if (interessatEntity.getLlinatge2()!=null && interessatEntity.getLlinatge2().length()>30) {
+					resultat.add("- El camp segon llinatge del interessat "+interessatEntity.getNif()+" supera els 30 caracters.");
+				}
+				
+				if (interessatEntity.getNif()!=null && interessatEntity.getNif().length()>9) {
+					resultat.add("- El camp NIF del interessat "+interessatEntity.getNif()+" supera els 9 caracters.");
+				}
+				
+				if (interessatEntity.getDir3Codi()!=null && interessatEntity.getDir3Codi().length()>9) {
+					resultat.add("- El camp Codi DIR3 del interessat "+interessatEntity.getNif()+" supera els 9 caracters.");
+				}
+				
+				if (interessatEntity.getEmail()!=null && interessatEntity.getEmail().length()>160) {
+					resultat.add("- El camp Email del interessat "+interessatEntity.getNif()+" supera els 160 caracters.");
+				}
+				
+				if (interessatEntity.getTelefon()!=null && interessatEntity.getTelefon().length()>16) {
+					resultat.add("- El camp Teléfon del interessat "+interessatEntity.getNif()+" supera els 16 caracters.");
+				}
+			}
+		}
+		return resultat;
+	}
 
 }

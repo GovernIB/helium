@@ -784,6 +784,29 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return "v3/expedientDocumentNotificar";
 	}
 	
+	@RequestMapping(value="/checkMidaCampsNotificacio", method = RequestMethod.GET)
+	@ResponseBody
+	public String checkMidaCampsNotificacio(
+			HttpServletRequest request,
+			@RequestParam List<Long> nifs,
+			Model model) throws IOException {
+		List<String> resultatCheck = expedientInteressatService.checkMidaCampsNotificacio(nifs);
+		if (resultatCheck!=null && resultatCheck.size()>0) {
+			
+			String message = getMessage(request, "expedient.notifica.dades.retallar");
+			
+			for (String aux: resultatCheck) {
+				message = message + "<br/>" + aux;
+			}
+			
+			MissatgesHelper.warning(request, message);
+			
+			return "KO";
+		}
+		
+		return "OK";
+	}
+	
 	@RequestMapping(value="/{expedientId}/document/{documentStoreId}/notificar", method = RequestMethod.POST)
 	public String notificarDocPost(
 			HttpServletRequest request,
