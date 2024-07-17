@@ -95,6 +95,10 @@ function adaptarVisibilitat(tipus){
 	} */
 }
 
+function carregaDadesInteressat(interessatDto) {
+	alert(interessatDto);
+}
+
 $(document).ready(function() {
 
 	//adaptarVisibilitat('');
@@ -103,6 +107,27 @@ $(document).ready(function() {
 		ajustarTipus(this.value);
 	}); */
  	
+	$("#nifPersonaFisica").on('change', function() {
+		debugger;
+		adaptarVisibilitat($FISICA);
+		if (this.value && this.value!='') {
+			$.ajax({
+				url: "<c:url value="/v3/expedient/${expedientId}/interessat"/>"+"/"+this.value,
+			    type:'GET',
+			    dataType: 'json',
+			    async: true,
+			    success: function(json) {
+			    	carregaDadesInteressat(json);
+			    },
+			    error: function(jqXHR, textStatus, errorThrown) {
+			    	console.log("Error al actualitzar la llista d'estats: [" + textStatus + "] " + errorThrown);
+			    }
+			});
+		} else {
+			carregaDadesInteressat(null);
+		}
+	});
+	
  	$('input[type=radio][name=tipus]').on('change', function() {
  		adaptarSuggest(this.value);
  		//adaptarVisibilitat($(this).val());
@@ -193,7 +218,7 @@ $(document).ready(function() {
 					name="nifPersonaFisica" 
 					labelSize="3"
 					urlConsultaInicial="persona/suggestInici" 
-					urlConsultaLlistat="/helium/v3/expedient/persona/suggest" 
+					urlConsultaLlistat="/helium/v3/expedient/persona/suggest"
 					textKey="interessat.form.camp.suggest.persona.fisica" 
 					placeholderKey="interessat.form.camp.suggest.cercar.persona.fisica"/>
 				</div>

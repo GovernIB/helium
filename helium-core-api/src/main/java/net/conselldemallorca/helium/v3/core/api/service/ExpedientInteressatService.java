@@ -42,5 +42,6 @@ public interface ExpedientInteressatService {
 	InteressatDto findAmbCodiAndExpedientId(
 			String codi, 
 			Long expedientId); 
-
+	
+	InteressatDto findByCodi(String codi);
 }

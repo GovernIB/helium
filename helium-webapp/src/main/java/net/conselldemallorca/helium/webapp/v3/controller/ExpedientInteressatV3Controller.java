@@ -36,8 +36,8 @@ import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand.Modificacio;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
+import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
 /**
@@ -49,12 +49,18 @@ import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 @RequestMapping("/v3/expedient")
 public class ExpedientInteressatV3Controller extends BaseExpedientController {
 
+	@Autowired private ExpedientInteressatService expedientInteressatService;
+	@Autowired private ConversioTipusHelper conversioTipusHelper;
 
-	@Autowired
-	private ExpedientInteressatService expedientInteressatService;
-	@Autowired
-	private ConversioTipusHelper conversioTipusHelper;
-
+	@RequestMapping(value="/{expedientId}/interessat/{codiInteressat}", method = RequestMethod.GET)
+	@ResponseBody
+	public InteressatDto info(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String codiInteressat,
+			Model model) {
+		return expedientInteressatService.findByCodi(codiInteressat);
+	}
 
 	@RequestMapping(value="/{expedientId}/interessat", method = RequestMethod.GET)
 	public String llistat(
@@ -116,12 +122,16 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
         if (bindingResult.hasErrors()) {
         	return "v3/interessatForm";
         } else {
-        	expedientInteressatService.create(
-    				conversioTipusHelper.convertir(
-    						command,
-    						InteressatDto.class));
-			MissatgesHelper.success(request, getMessage(request, "interessat.controller.creat") );
-			return modalUrlTancar(false);
+        	try {
+	        	expedientInteressatService.create(
+	    				conversioTipusHelper.convertir(
+	    						command,
+	    						InteressatDto.class));
+				MissatgesHelper.success(request, getMessage(request, "interessat.controller.creat") );
+        	} catch (Exception ex) {
+        		ex.printStackTrace();
+        	}
+        	return modalUrlTancar(false);
         }
 	}
 

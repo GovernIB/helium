@@ -72,7 +72,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			interessat.getTipusDocIdent(),
 			interessat.getDireccio(),
 			interessat.getObservacions(),
-			interessat.getEs_representant());//veure si l'error és a aquest boolean
+			interessat.getEs_representant());
 		if(expedient.getInteressats()!=null)
 			expedient.getInteressats().add(interessatEntity);
 		else {
@@ -86,10 +86,11 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			} catch (SistemaExternException seex) {
 				expedient.setErrorArxiu("Error de sincronització amb arxiu al crear el interessat "+interessat.getDocumentIdent()+": "+seex.getPublicMessage());
 			}
-		}//interessatEntity.setTipusDocIdent(interessatEntity.getTipusDocIdent().getValor());
-		return conversioTipusHelper.convertir(
-				interessatRepository.save(interessatEntity),
-				InteressatDto.class);
+		}
+		
+		interessatEntity = interessatRepository.save(interessatEntity);
+		InteressatDto resultat = conversioTipusHelper.convertir(interessatEntity, InteressatDto.class);
+		return resultat;
 	}
 
 	/**
@@ -196,22 +197,20 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 	 */
 	@Override
 	@Transactional
-	public InteressatDto findAmbCodiAndExpedientId(
-			String codi,
-			Long expedientId
-			) {
-		
+	public InteressatDto findAmbCodiAndExpedientId(String codi, Long expedientId) {
 		Expedient expedient = expedientRepository.findOne(expedientId);
-		
-		return conversioTipusHelper.convertir(
-				interessatRepository.findByCodiAndExpedient(
-						codi, 
-						expedient),
-				InteressatDto.class);
+		Interessat interessat = interessatRepository.findByCodiAndExpedient(codi, expedient);
+		InteressatDto resultat = conversioTipusHelper.convertir(interessat, InteressatDto.class);
+		return resultat;
 	}
 	
-	
-	
+	@Override
+	@Transactional
+	public InteressatDto findByCodi(String codi) {
+		Interessat interessat = interessatRepository.findByCodi(codi);
+		InteressatDto resultat = conversioTipusHelper.convertir(interessat, InteressatDto.class);
+		return resultat;
+	}
 
 	/**
 	 * {@inheritDoc}

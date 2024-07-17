@@ -5,7 +5,6 @@ package net.conselldemallorca.helium.core.model.hibernate;
 
 import java.io.Serializable;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -18,7 +17,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 
-import org.hibernate.annotations.ForeignKey;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
@@ -33,7 +31,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 @Table(	name="hel_interessat")//ADAPTAT A SICRES 4
 public class Interessat implements Serializable, GenericEntity<Long> {
 
-	
 	
 	private InteressatTipusEnumDto tipus;
 	
@@ -59,9 +56,8 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	private boolean entregaDeh;
 	private boolean entregaDehObligat;
 	
-	@Column(name="tipusDocIdent", length=1)
-    @Enumerated(EnumType.STRING)
 	private InteressatDocumentTipusEnumDto tipusDocIdent;
+	
 	@Column(name="codidire", length=21)
 	private String codiDire;
 	@Column(name="direccio", length=160)
@@ -71,20 +67,12 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	@Column(name="raosocial", length=256)
 	private String raoSocial;
 	@Column(name="es_representant")
-    private boolean es_representant = false;
+    private boolean es_representant;
 	@Column(name="observacions", length=256)
 	private String observacions;
-	
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "representat")
-	@ForeignKey(name = "hel_interessat_representat_fk")
+
     private Interessat representat; //només existeix quan es_representant=true
-	
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "representant")
-	@ForeignKey(name = "hel_interessat_representant_fk")
     private Interessat representant; //només existeix quan es_representant=false
-	
 	private Expedient expedient;
 
 	public Interessat() {
@@ -150,14 +138,29 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 		this.id = id;
 	}
 	
-	
 	@ManyToOne(optional=true)
-	@JoinColumn(name="expedient_id")
+	@JoinColumn(name="EXPEDIENT_ID")
 	public Expedient getExpedient() {
 		return expedient;
 	}
 	public void setExpedient(Expedient expedient) {
 		this.expedient = expedient;
+	}
+	@ManyToOne(optional=true)
+	@JoinColumn(name="REPRESENTAT_ID")
+	public Interessat getRepresentat() {
+		return representat;
+	}
+	public void setRepresentat(Interessat representat) {
+		this.representat = representat;
+	}
+	@ManyToOne(optional=true)
+	@JoinColumn(name="REPRESENTANT_ID")
+	public Interessat getRepresentant() {
+		return representant;
+	}
+	public void setRepresentant(Interessat representant) {
+		this.representant = representant;
 	}
 
 	public InteressatTipusEnumDto getTipus() {
@@ -271,6 +274,8 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 		this.codiDire = codiDire;
 	}
 
+	@Column(name="TIPUSDOCIDENT")
+	@Enumerated(EnumType.STRING)
 	public InteressatDocumentTipusEnumDto getTipusDocIdent() {
 		return tipusDocIdent;
 	}
@@ -304,30 +309,5 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 		this.observacions = observacions;
 	}
 
-
-	public Interessat getRepresentat() {
-		return representat;
-	}
-	public void setRepresentat(Interessat representat) {
-		this.representat = representat;
-	}
-	public Interessat getRepresentant() {
-		return representant;
-	}
-	public void setRepresentant(Interessat representant) {
-		this.representant = representant;
-	}
-
-
-
-
-
-
-
 	private static final long serialVersionUID = 1L;
-
-	
-
-
-
 }

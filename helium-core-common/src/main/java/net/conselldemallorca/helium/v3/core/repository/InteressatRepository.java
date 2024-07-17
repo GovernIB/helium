@@ -46,6 +46,7 @@ public interface InteressatRepository extends JpaRepository<Interessat, Long> {
 	List<Interessat> findByExpedient(
 			Expedient expedient);
 	
+	Interessat findByCodi(String codi);
 	
 	Interessat findByCodiAndExpedient(
 			String codi,
