@@ -33,6 +33,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DetalleAvisoDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IdiomaEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDocumentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ReferenciaNotificacio;
@@ -443,9 +444,9 @@ public class ConversioTipusHelper {
 	public static InteressatDto toInteressatDto(Interessat interessat) {
 		InteressatDto interessatDto = new InteressatDto();
 
-		interessatDto.setCodi(interessat.getCodi());
+		interessatDto.setCodi(interessat.getCodi()!=null ? interessat.getCodi() : interessat.getDocumentIdent());
 		interessatDto.setNom(interessat.getNom());
-		interessatDto.setNif(interessat.getNif());
+		interessatDto.setDocumentIdent(interessat.getDocumentIdent());
 		interessatDto.setDir3Codi(interessat.getDir3Codi());
 		interessatDto.setLlinatge1(interessat.getLlinatge1());
 		interessatDto.setLlinatge2(interessat.getLlinatge2());
@@ -476,7 +477,25 @@ public class ConversioTipusHelper {
 		interessatDto.setCodiPostal(interessat.getCodiPostal());
 		interessatDto.setEntregaDeh(interessat.isEntregaDeh());
 		interessatDto.setEntregaDehObligat(interessat.isEntregaDehObligat());
-
+		
+		interessatDto.setObservacions(interessat.getObservacions());
+		interessatDto.setTipusDocIdent(InteressatDocumentTipusEnumDto.valueOf(interessat.getTipus().toUpperCase()));
+		interessatDto.setCodiDire(interessat.getCodiDire());
+		interessatDto.setDireccio(interessat.getDireccio());
+		interessatDto.setRaoSocial(interessat.getRaoSocial());
+		interessatDto.setEs_representant(interessat.isEs_representant());
+		
+		//Tractament pais/provincia/municipi
+		interessatDto.setMunicipiCodi(interessat.getMunicipiCodi());
+		interessatDto.setMunicipi(interessat.getMunicipi());
+		interessatDto.setProvinciaCodi(interessat.getProvinciaCodi());
+		interessatDto.setProvincia(interessat.getProvincia());
+		interessatDto.setPaisCodi(interessat.getPaisCodi());
+		
+		//Tractament si és representat o representant (s'han de convertir a dto)
+//		interessatDto.setRepresentat(interessat.getRepresentat());
+//		interessatDto.setRepresentant(interessat.getRepresentant());
+	  
 		return interessatDto;
 	}	
 }

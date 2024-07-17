@@ -33,7 +33,7 @@ public interface InteressatRepository extends JpaRepository<Interessat, Long> {
 			" 			or (lower(i.nom) like lower('%'||:filtre||'%')) " +
 			" 			or (lower(i.llinatge1) like lower('%'||:filtre||'%')) " +
 			" 			or (lower(i.llinatge2) like lower('%'||:filtre||'%')) " +
-			" 			or (lower(i.nif) like lower('%'||:filtre||'%')) " +
+			" 			or (lower(i.documentIdent) like lower('%'||:filtre||'%')) " +
 			" 			or (lower(i.dir3Codi) like lower('%'||:filtre||'%')) " +
 			" 			or (lower(i.codi) like lower('%'||:filtre||'%'))) ")
 	Page<ExpedientTipus> findByFiltrePaginat(

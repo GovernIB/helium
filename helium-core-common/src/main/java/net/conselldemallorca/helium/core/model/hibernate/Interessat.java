@@ -5,8 +5,11 @@ package net.conselldemallorca.helium.core.model.hibernate;
 
 import java.io.Serializable;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -15,9 +18,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 
+import org.hibernate.annotations.ForeignKey;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDocumentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 
 /**
@@ -25,7 +30,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
-@Table(	name="hel_interessat")
+@Table(	name="hel_interessat")//ADAPTAT A SICRES 4
 public class Interessat implements Serializable, GenericEntity<Long> {
 
 	
@@ -35,9 +40,9 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	private Long id;
 	@NotBlank
 	private String codi;
-	@NotBlank
-	private String nif;
-	@Column(name = "dir3codi", length = 9)
+//	@NotBlank
+//	private String nif;
+	@Column(name = "dir3codi", length = 21)
 	private String dir3Codi;
 	@NotBlank
 	private String nom;
@@ -54,6 +59,32 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	private boolean entregaDeh;
 	private boolean entregaDehObligat;
 	
+	@Column(name="tipusDocIdent", length=1)
+    @Enumerated(EnumType.STRING)
+	private InteressatDocumentTipusEnumDto tipusDocIdent;
+	@Column(name="codidire", length=21)
+	private String codiDire;
+	@Column(name="direccio", length=160)
+	private String direccio;
+	@Column(name="documentident", length=256)
+	private String documentIdent;
+	@Column(name="raosocial", length=256)
+	private String raoSocial;
+	@Column(name="es_representant")
+    private boolean es_representant = false;
+	@Column(name="observacions", length=256)
+	private String observacions;
+	
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "representat")
+	@ForeignKey(name = "hel_interessat_representat_fk")
+    private Interessat representat; //només existeix quan es_representant=true
+	
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "representant")
+	@ForeignKey(name = "hel_interessat_representant_fk")
+    private Interessat representant; //només existeix quan es_representant=false
+	
 	private Expedient expedient;
 
 	public Interessat() {
@@ -63,7 +94,7 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 			Long id, 
 			String codi,
 			String nom, 
-			String nif, 
+			String documentIdent, 
 			String dir3codi,
 			String llinatge1, 
 			String llinatge2, 
@@ -77,12 +108,16 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 			String linia2,
 			String codiPostal,
 			boolean entregaDeh,
-			boolean entregaDehObligat) {
+			boolean entregaDehObligat,
+			InteressatDocumentTipusEnumDto tipusDocIdent,
+			String direccio,
+			String observacions,
+			boolean es_representant) {
 		super();
 		this.id = id;
 		this.codi = codi;
 		this.nom = nom;
-		this.nif = nif;
+		this.documentIdent = documentIdent;
 		this.dir3Codi = dir3codi;
 		this.llinatge1 = llinatge1;
 		this.llinatge2 = llinatge2;
@@ -97,6 +132,10 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 		this.codiPostal = codiPostal;
 		this.entregaDeh = entregaDeh;
 		this.entregaDehObligat = entregaDehObligat;
+		this.tipusDocIdent=tipusDocIdent;
+		this.direccio=direccio;
+		this.observacions=observacions;
+		this.es_representant=es_representant;
 	}
 	
 	
@@ -133,12 +172,12 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	public void setCodi(String codi) {
 		this.codi = codi;
 	}
-	public String getNif() {
-		return nif;
-	}
-	public void setNif(String nif) {
-		this.nif = nif;
-	}
+//	public String getNif() {
+//		return nif;
+//	}
+//	public void setNif(String nif) {
+//		this.nif = nif;
+//	}
 	public String getDir3Codi() {
 		return dir3Codi;
 	}
@@ -217,6 +256,74 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	public void setEntregaDehObligat(boolean entregaDehObligat) {
 		this.entregaDehObligat = entregaDehObligat;
 	}
+	
+	public String getDireccio() {
+		return direccio;
+	}
+	public void setDireccio(String direccio) {
+		this.direccio = direccio;
+	}
+	
+	public String getCodiDire() {
+		return codiDire;
+	}
+	public void setCodiDire(String codiDire) {
+		this.codiDire = codiDire;
+	}
+
+	public InteressatDocumentTipusEnumDto getTipusDocIdent() {
+		return tipusDocIdent;
+	}
+	public void setTipusDocIdent(InteressatDocumentTipusEnumDto tipusDocIdent) {
+		this.tipusDocIdent = tipusDocIdent;
+	}
+
+	public String getDocumentIdent() {
+		return documentIdent;
+	}
+	public void setDocumentIdent(String documentIdent) {
+		this.documentIdent = documentIdent;
+	}
+	public String getRaoSocial() {
+		return raoSocial;
+	}
+	public void setRaoSocial(String raoSocial) {
+		this.raoSocial = raoSocial;
+	}
+
+	public boolean isEs_representant() {
+		return es_representant;
+	}
+	public void setEs_representant(boolean es_representant) {
+		this.es_representant = es_representant;
+	}
+	public String getObservacions() {
+		return observacions;
+	}
+	public void setObservacions(String observacions) {
+		this.observacions = observacions;
+	}
+
+
+	public Interessat getRepresentat() {
+		return representat;
+	}
+	public void setRepresentat(Interessat representat) {
+		this.representat = representat;
+	}
+	public Interessat getRepresentant() {
+		return representant;
+	}
+	public void setRepresentant(Interessat representant) {
+		this.representant = representant;
+	}
+
+
+
+
+
+
+
 	private static final long serialVersionUID = 1L;
 
 	

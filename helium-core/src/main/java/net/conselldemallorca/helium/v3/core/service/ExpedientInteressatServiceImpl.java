@@ -52,9 +52,9 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		
 		Interessat interessatEntity = new Interessat(
 			interessat.getId(),
-			interessat.getCodi(),
+			interessat.getCodi()!=null?interessat.getCodi():interessat.getDocumentIdent(),
 			interessat.getNom(),
-			interessat.getNif(),
+			interessat.getDocumentIdent(),
 			interessat.getDir3Codi(),
 			interessat.getLlinatge1(), 
 			interessat.getLlinatge2(), 
@@ -68,7 +68,11 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			interessat.getLinia2(),
 			interessat.getCodiPostal(),
 			interessat.getEntregaDeh(),
-			interessat.getEntregaDehObligat());
+			interessat.getEntregaDehObligat(),
+			interessat.getTipusDocIdent(),
+			interessat.getDireccio(),
+			interessat.getObservacions(),
+			interessat.getEs_representant());//veure si l'error és a aquest boolean
 		if(expedient.getInteressats()!=null)
 			expedient.getInteressats().add(interessatEntity);
 		else {
@@ -80,9 +84,9 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			try {
 				pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
 			} catch (SistemaExternException seex) {
-				expedient.setErrorArxiu("Error de sincronització amb arxiu al crear el interessat "+interessat.getNif()+": "+seex.getPublicMessage());
+				expedient.setErrorArxiu("Error de sincronització amb arxiu al crear el interessat "+interessat.getDocumentIdent()+": "+seex.getPublicMessage());
 			}
-		}
+		}//interessatEntity.setTipusDocIdent(interessatEntity.getTipusDocIdent().getValor());
 		return conversioTipusHelper.convertir(
 				interessatRepository.save(interessatEntity),
 				InteressatDto.class);
@@ -99,9 +103,9 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		Interessat interessatEntity = interessatRepository.findOne(interessat.getId());
 		interessatEntity.setCodi(interessat.getCodi());
 		interessatEntity.setNom(interessat.getNom());
-		interessatEntity.setNif(interessat.getNif());
+		interessatEntity.setDocumentIdent(interessat.getDocumentIdent());
 		interessatEntity.setDir3Codi(interessat.getDir3Codi());
-		interessatEntity.setNif(interessat.getNif());
+		interessatEntity.setDocumentIdent(interessat.getDocumentIdent());
 		interessatEntity.setLlinatge1(interessat.getLlinatge1());  
 		interessatEntity.setLlinatge2(interessat.getLlinatge2());
 		interessatEntity.setTipus(interessat.getTipus());
@@ -120,7 +124,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			try {
 				pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
 			} catch (SistemaExternException seex) {
-				expedient.setErrorArxiu("Error de sincronització amb arxiu al modificar el interessat "+interessat.getNif()+": "+seex.getPublicMessage());
+				expedient.setErrorArxiu("Error de sincronització amb arxiu al modificar el interessat "+interessat.getDocumentIdent()+": "+seex.getPublicMessage());
 			}
 		}
 		
@@ -159,7 +163,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			try {
 				pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
 			} catch (SistemaExternException seex) {
-				expedient.setErrorArxiu("Error de sincronització amb arxiu al eliminar el interessat "+interessat.getNif()+": "+seex.getPublicMessage());
+				expedient.setErrorArxiu("Error de sincronització amb arxiu al eliminar el interessat "+interessat.getDocumentIdent()+": "+seex.getPublicMessage());
 			}
 		}
 	}
@@ -267,41 +271,41 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 				Interessat interessatEntity = interessatRepository.findOne(intId);
 				if (InteressatTipusEnumDto.FISICA.equals(interessatEntity.getTipus())) {
 					if (interessatEntity.getNom()!=null && interessatEntity.getNom().length()>30) {
-						resultat.add("- El camp nom del interessat "+interessatEntity.getNif()+" supera els 30 caracters.");
+						resultat.add("- El camp nom del interessat "+interessatEntity.getDocumentIdent()+" supera els 30 caracters.");
 					}
 				} else if (InteressatTipusEnumDto.JURIDICA.equals(interessatEntity.getTipus())) {
 					if (interessatEntity.getNom()!=null && interessatEntity.getNom().length()>255) {
-						resultat.add("- El camp rao social del interessat "+interessatEntity.getNif()+" supera els 255 caracters.");
+						resultat.add("- El camp raó social del interessat "+interessatEntity.getDocumentIdent()+" supera els 255 caracters.");
 					}
 				} else {
 					//InteressatTipusEnumDto.ADMINISTRACIO
 					if (interessatEntity.getNom()!=null && interessatEntity.getNom().length()>255) {
-						resultat.add("- El camp nom del interessat "+interessatEntity.getNif()+" supera els 255 caracters.");
+						resultat.add("- El camp nom del interessat "+interessatEntity.getDocumentIdent()+" supera els 255 caracters.");
 					}
 				}
 				
 				if (interessatEntity.getLlinatge1()!=null && interessatEntity.getLlinatge1().length()>30) {
-					resultat.add("- El camp primer llinatge del interessat "+interessatEntity.getNif()+" supera els 30 caracters.");
+					resultat.add("- El camp primer llinatge del interessat "+interessatEntity.getDocumentIdent()+" supera els 30 caracters.");
 				}
 				
 				if (interessatEntity.getLlinatge2()!=null && interessatEntity.getLlinatge2().length()>30) {
-					resultat.add("- El camp segon llinatge del interessat "+interessatEntity.getNif()+" supera els 30 caracters.");
+					resultat.add("- El camp segon llinatge del interessat "+interessatEntity.getDocumentIdent()+" supera els 30 caracters.");
 				}
 				
-				if (interessatEntity.getNif()!=null && interessatEntity.getNif().length()>9) {
-					resultat.add("- El camp NIF del interessat "+interessatEntity.getNif()+" supera els 9 caracters.");
+				if (interessatEntity.getDocumentIdent()!=null && interessatEntity.getDocumentIdent().length()>9) {
+					resultat.add("- El camp NIF de l'interessat "+interessatEntity.getDocumentIdent()+" supera els 9 caracters.");
 				}
 				
 				if (interessatEntity.getDir3Codi()!=null && interessatEntity.getDir3Codi().length()>9) {
-					resultat.add("- El camp Codi DIR3 del interessat "+interessatEntity.getNif()+" supera els 9 caracters.");
+					resultat.add("- El camp Codi DIR3 del interessat "+interessatEntity.getDocumentIdent()+" supera els 9 caracters.");
 				}
 				
 				if (interessatEntity.getEmail()!=null && interessatEntity.getEmail().length()>160) {
-					resultat.add("- El camp Email del interessat "+interessatEntity.getNif()+" supera els 160 caracters.");
+					resultat.add("- El camp Email de l'interessat "+interessatEntity.getDocumentIdent()+" supera els 160 caracters.");
 				}
 				
 				if (interessatEntity.getTelefon()!=null && interessatEntity.getTelefon().length()>16) {
-					resultat.add("- El camp Teléfon del interessat "+interessatEntity.getNif()+" supera els 16 caracters.");
+					resultat.add("- El camp Teléfon de l'interessat "+interessatEntity.getDocumentIdent()+" supera els 16 caracters.");
 				}
 			}
 		}

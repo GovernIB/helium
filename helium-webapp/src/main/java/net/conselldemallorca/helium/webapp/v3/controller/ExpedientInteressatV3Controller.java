@@ -23,8 +23,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import es.caib.notib.client.domini.InteressatTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDocumentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificaDomiciliConcretTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
@@ -35,6 +36,7 @@ import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand.Modificacio;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
@@ -91,6 +93,18 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			Model model) {
 		model.addAttribute(new InteressatCommand());
 		model.addAttribute("expedientId", expedientId);
+		model.addAttribute(
+				"interessatTipusOptions",
+				EnumHelper.getOptionsForEnum(
+						InteressatTipusEnumDto.class,
+						"interessat.form.tipus.enum."));
+		model.addAttribute(
+				"interessatTipusDocuments",
+				this.populateTipusDocuments(request)
+//				EnumHelper.getOptionsForEnum(
+//						InteressatDocumentTipusEnumDto.class,
+//						"interessat.tipus.document.enum.")
+				);
 		return "v3/interessatForm";
 	}
 	@RequestMapping(value = "/{expedientId}/interessat/new", method = RequestMethod.POST)
@@ -119,7 +133,11 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			Model model) {
 		InteressatDto dto = expedientInteressatService.findOne(
 				interessatId);
-		
+//		model.addAttribute(
+//				"interessatTipusOptions",
+//				EnumHelper.getOptionsForEnum(
+//						InteressatTipusEnumDto.class,
+//						"interessat.tipus.enum."));
 		model.addAttribute(
 				conversioTipusHelper.convertir(
 						dto,
@@ -153,6 +171,18 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		resposta.add(new ParellaCodiValorDto(getMessage(request, "interessat.tipus.enum.ADMINISTRACIO"), InteressatTipusEnumDto.ADMINISTRACIO));
 		resposta.add(new ParellaCodiValorDto(getMessage(request, "interessat.tipus.enum.FISICA"), InteressatTipusEnumDto.FISICA));
 		resposta.add(new ParellaCodiValorDto(getMessage(request, "interessat.tipus.enum.JURIDICA"), InteressatTipusEnumDto.JURIDICA));
+		return resposta;
+	}
+	
+	@ModelAttribute("interessatTipusDocuments")
+	public List<ParellaCodiValorDto> populateTipusDocuments(HttpServletRequest request) {
+		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "interessat.tipus.document.enum.NIF"), InteressatDocumentTipusEnumDto.NIF));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "interessat.tipus.document.enum.CIF"), InteressatDocumentTipusEnumDto.CIF));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "interessat.tipus.document.enum.PASSAPORT"), InteressatDocumentTipusEnumDto.PASSAPORT));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "interessat.tipus.document.enum.DOCUMENT_IDENTIFICATIU_ESTRANGERS"), InteressatDocumentTipusEnumDto.DOCUMENT_IDENTIFICATIU_ESTRANGERS));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "interessat.tipus.document.enum.ALTRES_DE_PERSONA_FISICA"), InteressatDocumentTipusEnumDto.ALTRES_DE_PERSONA_FISICA));
+		resposta.add(new ParellaCodiValorDto(getMessage(request, "interessat.tipus.document.enum.CODI_ORIGEN"), InteressatDocumentTipusEnumDto.CODI_ORIGEN));
 		return resposta;
 	}
 	

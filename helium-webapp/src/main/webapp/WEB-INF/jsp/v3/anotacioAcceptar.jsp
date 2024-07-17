@@ -54,7 +54,7 @@ tr.clicable {
 
 		var accio = '${anotacioAcceptarCommand.accio}';
 		
-		function adaptarVisibilitat(accio) {
+		function adaptarVisibilitat(accio) {//veure aquí MARTA
 			if (accio != '')
 				$('.guardar, .crear, .incorporar').addClass('hidden');
 			if (accio == 'GUARDAR') {

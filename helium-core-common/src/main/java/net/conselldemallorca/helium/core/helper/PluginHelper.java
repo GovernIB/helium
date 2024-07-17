@@ -2448,7 +2448,7 @@ public class PluginHelper {
 					break;
 				case FISICA:
 				case JURIDICA:
-					interessatsDocumentsToReturn.add(interessat.getNif());		
+					interessatsDocumentsToReturn.add(interessat.getDocumentIdent());		
 					break;				
 				}
 			}	

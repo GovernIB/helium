@@ -51,12 +51,74 @@ function ajustarTipus(tipus) {
   	}
 }
 
+function adaptarSuggest(tipus) {
+	//alert(tipus);
+	if (tipus == '')
+		$('.cercadors').addClass('hidden');
+	if (tipus == 'ADMINISTRACIO'){
+		$('.cercadors').removeClass('hidden');
+		$('.visibilitatTipus').addClass('hidden');
+		$('.suggestUnitatsOrganitzatives').removeClass('hidden');
+		$('.suggestPersonesFisiques').addClass('hidden');
+		$('.suggestPersonesJuridiques').addClass('hidden');
+
+	} else if (tipus == 'FISICA'){
+		$('.cercadors').removeClass('hidden');
+		$('.visibilitatTipus').addClass('hidden');
+		$('.suggestPersonesFisiques').removeClass('hidden');
+		$('.suggestUnitatsOrganitzatives').addClass('hidden');
+		$('.suggestPersonesJuridiques').addClass('hidden');
+
+	} else if (tipus == 'JURIDICA'){
+		$('.cercadors').removeClass('hidden');
+		$('.visibilitatTipus').addClass('hidden');
+		$('.suggestPersonesJuridiques').removeClass('hidden');
+		$('.suggestPersonesFisiques').addClass('hidden');
+		$('.suggestUnitatsOrganitzatives').addClass('hidden');	
+	}
+}
+	
+function adaptarVisibilitat(tipus){
+		 if (tipus == 'FISICA'){
+			 $('.visibilitatTipus').removeClass('hidden');
+			 $('.personafisica').removeClass('hidden');
+		} else if (tipus == 'JURIDICA'){
+			 $('.visibilitatTipus').removeClass('hidden');
+			 $('.personajuridica').removeClass('hidden');	
+		}
+	/* if (accio == 'GUARDAR') {
+		$('.guardar').removeClass('hidden');				
+	} else if (accio == 'CREAR') {
+		$('.crear').removeClass('hidden');
+	} else if (accio == 'INCORPORAR') {
+		$('.incorporar').removeClass('hidden');
+	} */
+}
+
 $(document).ready(function() {
 
-	
- 	$('#tipus').on('change', function() {
+	//adaptarVisibilitat('');
+
+ 	/* $('#tipus').on('change', function() {
 		ajustarTipus(this.value);
+	}); */
+ 	
+ 	$('input[type=radio][name=tipus]').on('change', function() {
+ 		adaptarSuggest(this.value);
+ 		//adaptarVisibilitat($(this).val());
+		webutilModalAdjustHeight();
 	});
+	
+	$('[id=nova_fisica]').on('click', function() {
+ 		adaptarVisibilitat($FISICA);
+ 		//adaptarVisibilitat($(this).val());
+		webutilModalAdjustHeight();
+	});	
+	$('[id=nova_juridica]').on('click', function() {
+ 		adaptarVisibilitat($JURIDICA);
+ 		//adaptarVisibilitat($(this).val());
+		webutilModalAdjustHeight();
+	});	
  	
 	$('input[type=checkbox][name=entregaDeh]').on('change', function() {
 		if($(this).prop("checked") == true){
@@ -110,49 +172,151 @@ $(document).ready(function() {
 <body>
 	<form:form cssClass="form-horizontal" action="${formAction}"  method="post" commandName="interessatCommand">
 		<form:hidden id="id" path="id"/>
-			
+		
 		<div class="row">
+			<div class="col-xs-10">
+			<hel:inputRadio 
+				name="tipus"
+				labelSize="3" 
+				textKey="interessat.form.camp.tipus" 
+				optionItems="${interessatTipusOptions}" 
+				optionValueAttribute="value" 
+				optionTextKeyAttribute="text"/>
+			</div>
+		</div>
+	<div class="hidden cercadors well">
+			<div class="row hidden suggestPersonesFisiques">
+				<div class="col-xs-9">
+				<hel:inputSuggest 
+					id="suggestPersonesFisiques"
+					inline="false" 
+					name="nifPersonaFisica" 
+					labelSize="3"
+					urlConsultaInicial="persona/suggestInici" 
+					urlConsultaLlistat="/helium/v3/expedient/persona/suggest" 
+					textKey="interessat.form.camp.suggest.persona.fisica" 
+					placeholderKey="interessat.form.camp.suggest.cercar.persona.fisica"/>
+				</div>
+				<button type="button" class="btn btn-default" data-modal-cancel="true">
+					<spring:message code="interessat.form.camp.boto.cercar"/>
+				</button>
+				<button type="button" id="nova_fisica" class="btn btn-default">
+					<span class="fa fa-solid fa-user-plus"></span>
+					<spring:message code="interessat.form.camp.boto.nova"/>
+				</button>
+			</div>
+		
+			<div class="row hidden suggestPersonesJuridiques">
+				<div class="col-xs-9">
+				<hel:inputSuggest 
+					id="suggestPersonesJuridiques"
+					inline="false" 
+					name="cifPersonaJuridica" 
+					labelSize="3"
+					urlConsultaInicial="persona/suggestInici" 
+					urlConsultaLlistat="/helium/v3/expedient/persona/suggest" 
+					textKey="interessat.form.camp.suggest.persona.juridica" 
+					placeholderKey="interessat.form.camp.suggest.cercar.persona.juridica"/>
+				</div>
+				<button type="button" class="btn btn-default" data-modal-cancel="true">
+					<spring:message code="interessat.form.camp.boto.cercar"/>	
+				</button>
+				<button type="button" id="nova_juridica" class="btn btn-default">
+					<span class="fa fa-solid fa-user-plus"></span>
+					<spring:message code="interessat.form.camp.boto.nova"/>
+				</button>
+			</div>
+		
+		
+			<div class="row hidden suggestUnitatsOrganitzatives">
+				<div class="col-xs-9">
+				<hel:inputSuggest 
+						id="suggestUnitatsOrganitzatives"
+						name="cifOrganGestor" 
+						inline="false"
+						labelSize="3" 
+						urlConsultaInicial="/helium/v3/unitatOrganitzativa/suggestInici" 
+						urlConsultaLlistat="/helium/v3/unitatOrganitzativa/suggest" 
+						textKey="interessat.form.camp.suggest.administracio.organ" 
+						placeholderKey="interessat.form.camp.suggest.cercar.administracio.organ"/>	
+				</div>	
+				<button type="button" class="btn btn-default" data-modal-cancel="true">
+					<spring:message code="interessat.form.camp.boto.cercar"/>
+				</button>
+				
+			</div>
+	</div>
+		
+	
+	<div class="hidden visibilitatTipus">	
+		<!--<div class="row">
 			<div class="col-xs-12">
 				<hel:inputText required="true" name="codi" textKey="interessat.form.camp.codi" labelSize="2" />
 			</div>
-		</div>
-		<hel:inputSelect required="true" name="tipus"
-			optionItems="${interessatTipusEstats}" optionValueAttribute="valor"
-			optionTextAttribute="codi" textKey="interessat.form.camp.tipus" labelSize="2" />
-		<div class="row">
-			<div class="col-xs-6">
-				<hel:inputText required="true" name="nif" textKey="interessat.form.camp.nif" />
+		</div>-->
+	<div class="hidden personafisica personajuridica">
+		
+		<div class="row hidden personafisica nomillinatges">
+			<div class="col-xs-4">
+				<hel:inputText required="true" name="nom" textKey="interessat.form.camp.nom" labelSize="3" />
 			</div>
-			<div class="col-xs-6">
-				<hel:inputText required="false" name="dir3Codi" textKey="interessat.form.camp.dir3codi" />
+			<div class="col-xs-4">
+				<hel:inputText name="llinatge1" textKey="interessat.form.camp.llinatge1" labelSize="3" required="true"/>
 			</div>
+			<div class="col-xs-4">
+				<hel:inputText name="llinatge2" textKey="interessat.form.camp.llinatge2" labelSize="3" required="false"/>
+			</div>	
 		</div>
-		<div class="row">
+		
+		
+		
+		<div class="row hidden personajuridica raoSocial">
 			<div class="col-xs-12">
-				<hel:inputText required="true" name="nom" textKey="interessat.form.camp.nom" labelSize="2" />
-			</div>
+				<hel:inputText name="raoSocial" textKey="interessat.form.camp.raosocial" labelSize="2" required="true"/>
+			</div>	
 		</div>
-		<div class="row">
+			
+		<div class="row hidden personafisica tipusdocument">
 			<div class="col-xs-6">
-			<c:choose>
-				<c:when test="${interessatCommand.tipus=='FISICA'}">
-					<hel:inputText name="llinatge1" textKey="interessat.form.camp.llinatge1" required="true"/>
-				</c:when>
-				<c:otherwise>
-					<hel:inputText name="llinatge1" textKey="interessat.form.camp.llinatge1"/>			
-				</c:otherwise>
-			</c:choose>
+				<hel:inputSelect 
+					required="true" 
+					name="tipusDocIdent"
+					optionItems="${interessatTipusDocuments}" 
+					optionValueAttribute="valor"
+					optionTextAttribute="codi" 
+					textKey="interessat.form.camp.tipus.document" 
+					labelSize="3" 
+					inline="false"/>
 			</div>
 			<div class="col-xs-6">
-				<hel:inputText name="llinatge2" textKey="interessat.form.camp.llinatge2" />
+				<hel:inputText required="true" name="documentIdent" textKey="interessat.form.camp.document.identificatiu" labelSize="4" inline="false"/>
 			</div>
+			
 		</div>
-		<div class="row">
+		
+		
+		<div class="row emailTelefon personafisica personajuridica">
 			<div class="col-xs-6">
-				<hel:inputText name="email" textKey="interessat.form.camp.email" />		
+				<hel:inputText name="email" textKey="interessat.form.camp.email" labelSize="3"/>		
 			</div>
 			<div class="col-xs-6">
 				<hel:inputText name="telefon" textKey="interessat.form.camp.telefon" />
+			</div>
+		</div>
+		<div class="row paisProvincia personafisica personajuridica">
+			<div class="col-xs-6">
+				<hel:inputText name="pais" textKey="interessat.form.camp.pais" labelSize="3"/>		
+			</div>
+			<div class="col-xs-6">
+				<hel:inputText name="provincia" textKey="interessat.form.camp.provincia" />
+			</div>
+		</div>
+		<div class="row localitatCodipostal personafisica personajuridica">
+			<div class="col-xs-6">
+				<hel:inputText name="municipi" textKey="interessat.form.camp.localitat" labelSize="3"/>		
+			</div>
+			<div class="col-xs-6">
+				<hel:inputText name="codiPostal" textKey="interessat.form.camp.codipostal" labelSize="3" required="true"/>	
 			</div>
 		</div>
 		<div class="row">
@@ -160,26 +324,34 @@ $(document).ready(function() {
 				<hel:inputCheckbox name="entregaPostal" textKey="interessat.form.camp.entregaPostal" labelSize="11"></hel:inputCheckbox>
 			</div>
 		</div>
-		<div id="entrgePostalForm" class="hidden">
-			<div class="hidden">
+		<div id="entrgePostalForm" class="row direccioObservacions">
+			<!--<div class=" col-xs-6">
 				<hel:inputSelect required="true" name="entregaTipus"
 					optionItems="${NotificaDomiciliConcretTipus}" optionValueAttribute="valor"
 					optionTextAttribute="codi" textKey="interessat.form.camp.entregatipus" labelSize="2"/>
 			</div>
-			<hel:inputSelect required="true" name="entregaTipus"
+			<div class=" col-xs-6">
+				<hel:inputSelect required="true" name="entregaTipus"
 				optionItems="${NotificaDomiciliConcretTipus}" optionValueAttribute="valor"
 				optionTextAttribute="codi" textKey="interessat.form.camp.entregatipus" labelSize="2" disabled="true"/>
-			<hel:inputText name="codiPostal" textKey="interessat.form.camp.codipostal" labelSize="2" required="true"/>
-			<div class="row">
+			</div>-->
+			
+			<div class="col-xs-6 personafisica personajuridica hidden">
+				<hel:inputTextarea name="direccio" textKey="interessat.form.camp.direccio" labelSize="3" /> 					
+			</div>
+			<div class="col-xs-6">
+				<hel:inputTextarea name="observacions" textKey="interessat.form.camp.observacions" labelSize="3" /> 					
+			</div>
+			<!--  <div class="row">
 				<div class="col-xs-6">
 					<hel:inputTextarea name="linia1" textKey="interessat.form.camp.linia1"  required="true"/>
 				</div>
 				<div class="col-xs-6">
 					<hel:inputTextarea name="linia2" textKey="interessat.form.camp.linia2" required="true"/>
 				</div>
-			</div>
+			</div>-->
 		</div>
-		<div class="row">
+		<div class="row hidden">
 			<div class="col-xs-8" style="float: right;">
 				<hel:inputCheckbox name="entregaDeh" textKey="interessat.form.camp.entregadeh" labelSize="11"></hel:inputCheckbox>
 			</div>
@@ -188,8 +360,11 @@ $(document).ready(function() {
 			<div class="col-xs-8" style="float: right;" id="entregaDehObligatDiv">
 				<hel:inputCheckbox name="entregaDehObligat" textKey="interessat.form.camp.entregadehobligat" labelSize="11"></hel:inputCheckbox>
 			</div>
+			<div class="col-xs-6 hidden">
+				<hel:inputText required="false" name="dir3Codi" textKey="interessat.form.camp.dir3codi" />
+			</div>
 		</div>	
-		
+	</div>
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true">
 				<spring:message code="comu.boto.cancelar"/>

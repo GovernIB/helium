@@ -99,7 +99,7 @@ public class InteressatCrearHandler extends BasicActionHandler implements Intere
 				executionContext,
 				nom,
 				varNom));
-		interessat.setNif((String)getValorOVariable(
+		interessat.setDocumentIdent((String)getValorOVariable(
 				executionContext,
 				nif,
 				varNif));
