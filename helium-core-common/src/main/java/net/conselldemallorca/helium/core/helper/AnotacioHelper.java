@@ -317,10 +317,11 @@ public class AnotacioHelper {
 							interessat.getCp(),
 							false, // entregaDeh,
 							false, //entregaDehObligat
-							InteressatDocumentTipusEnumDto.NIF, //interessat.getDocumentTipus(),
+							InteressatDocumentTipusEnumDto.NIF.getValor(), //interessat.getDocumentTipus(),
 							interessat.getAdresa(),
 							interessat.getObservacions(),
-							false);//es_representant
+							false,//es_representant
+							interessat.getRaoSocial());
 				} else {
 					// Actualitza l'interessat existent
 					logger.debug("Modificant l'interessat (interessat=" + interessat + ") a l'expedient " + expedient.getIdentificador());

@@ -81,9 +81,11 @@ function adaptarSuggest(tipus) {
 function adaptarVisibilitat(tipus){
 		 if (tipus == 'FISICA'){
 			 $('.visibilitatTipus').removeClass('hidden');
+			 $('.personajuridica').addClass('hidden');	
 			 $('.personafisica').removeClass('hidden');
 		} else if (tipus == 'JURIDICA'){
 			 $('.visibilitatTipus').removeClass('hidden');
+			 $('.personafisica').addClass('hidden');
 			 $('.personajuridica').removeClass('hidden');	
 		}
 	/* if (accio == 'GUARDAR') {
@@ -95,6 +97,10 @@ function adaptarVisibilitat(tipus){
 	} */
 }
 
+function carregaDadesInteressat(interessatDto) {
+	alert(interessatDto);
+}
+
 $(document).ready(function() {
 
 	//adaptarVisibilitat('');
@@ -103,6 +109,27 @@ $(document).ready(function() {
 		ajustarTipus(this.value);
 	}); */
  	
+	$("#nifPersonaFisica").on('change', function() {
+		debugger;
+		adaptarVisibilitat($FISICA);
+		if (this.value && this.value!='') {
+			$.ajax({
+				url: "<c:url value="/v3/expedient/${expedientId}/interessat"/>"+"/"+this.value,
+			    type:'GET',
+			    dataType: 'json',
+			    async: true,
+			    success: function(json) {
+			    	carregaDadesInteressat(json);
+			    },
+			    error: function(jqXHR, textStatus, errorThrown) {
+			    	console.log("Error al actualitzar la llista d'estats: [" + textStatus + "] " + errorThrown);
+			    }
+			});
+		} else {
+			carregaDadesInteressat(null);
+		}
+	});
+	
  	$('input[type=radio][name=tipus]').on('change', function() {
  		adaptarSuggest(this.value);
  		//adaptarVisibilitat($(this).val());
@@ -193,7 +220,7 @@ $(document).ready(function() {
 					name="nifPersonaFisica" 
 					labelSize="3"
 					urlConsultaInicial="persona/suggestInici" 
-					urlConsultaLlistat="/helium/v3/expedient/persona/suggest" 
+					urlConsultaLlistat="/helium/v3/expedient/persona/suggest"
 					textKey="interessat.form.camp.suggest.persona.fisica" 
 					placeholderKey="interessat.form.camp.suggest.cercar.persona.fisica"/>
 				</div>
@@ -276,7 +303,7 @@ $(document).ready(function() {
 			</div>	
 		</div>
 			
-		<div class="row hidden personafisica tipusdocument">
+		<div class="row hidden personajuridica personafisica tipusdocument">
 			<div class="col-xs-6">
 				<hel:inputSelect 
 					required="true" 

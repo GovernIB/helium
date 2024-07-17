@@ -36,8 +36,8 @@ import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand.Modificacio;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper.DatatablesResponse;
+import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 
 /**
@@ -49,12 +49,18 @@ import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 @RequestMapping("/v3/expedient")
 public class ExpedientInteressatV3Controller extends BaseExpedientController {
 
+	@Autowired private ExpedientInteressatService expedientInteressatService;
+	@Autowired private ConversioTipusHelper conversioTipusHelper;
 
-	@Autowired
-	private ExpedientInteressatService expedientInteressatService;
-	@Autowired
-	private ConversioTipusHelper conversioTipusHelper;
-
+	@RequestMapping(value="/{expedientId}/interessat/{codiInteressat}", method = RequestMethod.GET)
+	@ResponseBody
+	public InteressatDto info(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String codiInteressat,
+			Model model) {
+		return expedientInteressatService.findByCodi(codiInteressat);
+	}
 
 	@RequestMapping(value="/{expedientId}/interessat", method = RequestMethod.GET)
 	public String llistat(
@@ -116,12 +122,16 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
         if (bindingResult.hasErrors()) {
         	return "v3/interessatForm";
         } else {
-        	expedientInteressatService.create(
-    				conversioTipusHelper.convertir(
-    						command,
-    						InteressatDto.class));
-			MissatgesHelper.success(request, getMessage(request, "interessat.controller.creat") );
-			return modalUrlTancar(false);
+        	try {
+	        	expedientInteressatService.create(
+	    				conversioTipusHelper.convertir(
+	    						command,
+	    						InteressatDto.class));
+				MissatgesHelper.success(request, getMessage(request, "interessat.controller.creat") );
+        	} catch (Exception ex) {
+        		ex.printStackTrace();
+        	}
+        	return modalUrlTancar(false);
         }
 	}
 
@@ -138,6 +148,11 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 //				EnumHelper.getOptionsForEnum(
 //						InteressatTipusEnumDto.class,
 //						"interessat.tipus.enum."));
+		//posem el valor de l'enum tal com apareix al llistat
+		if(dto.getTipusDocIdent()==null) { //En el cas d'interessats antics no té tipusDocIdent li posem NIF de moment
+			dto.setTipusDocIdent(InteressatDocumentTipusEnumDto.NIF.getValor());
+		}
+		dto.setTipusDocIdent(InteressatDocumentTipusEnumDto.valorAsEnum(dto.getTipusDocIdent()).name());
 		model.addAttribute(
 				conversioTipusHelper.convertir(
 						dto,
@@ -161,6 +176,47 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
     						InteressatDto.class));
 			MissatgesHelper.success(request, getMessage(request, "interessat.controller.modificat") );
 			return modalUrlTancar(false);
+        }
+	}
+	
+	@RequestMapping(value = "/{expedientId}/interessat/{interessatId}/representant/new", method = RequestMethod.GET)
+	public String newRepresentantGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model) {
+		model.addAttribute(new InteressatCommand());
+		model.addAttribute("expedientId", expedientId);
+		model.addAttribute(
+				"interessatTipusOptions",
+				EnumHelper.getOptionsForEnum(
+						InteressatTipusEnumDto.class,
+						"interessat.form.tipus.enum."));
+		model.addAttribute(
+				"interessatTipusDocuments",
+				this.populateTipusDocuments(request)
+				);
+		return "v3/interessatForm";
+	}
+		
+	@RequestMapping(value = "/{expedientId}/interessat/{interessatId}/representant/new", method = RequestMethod.POST)
+	public String newRepresentant(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long interessatId,
+			@Validated(Modificacio.class) InteressatCommand command,
+			BindingResult bindingResult,
+			Model model) {
+        if (bindingResult.hasErrors()) {
+        	return "v3/interessatForm";
+        } else {
+        	command.setEs_representant(true);
+        	expedientInteressatService.createRepresentant(
+        			interessatId,
+    				conversioTipusHelper.convertir(
+    						command,
+    						InteressatDto.class));
+			MissatgesHelper.success(request, getMessage(request, "interessat.controller.representant.creat") );
+  			return modalUrlTancar(false);
         }
 	}
 	

@@ -43,6 +43,7 @@
 								<ul class="dropdown-menu">
 									<li><a href="${expedientId}/interessat/{{:id}}/update" data-ajax="true" data-callback="callbackModalInteressats()" data-toggle="modal"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a></li>
 									<li><a href="${expedientId}/interessat/{{:id}}/delete" data-ajax="true" data-callback="callbackModalInteressats()" data-confirm="<spring:message code="interessat.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
+									<li><a href="${expedientId}/interessat/{{:id}}/representant/new" data-ajax="true" data-callback="callbackModalInteressats()" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="interessat.llistat.accio.nou.representant"/></a></li>
 								</ul>
 							</div>
 					</script>

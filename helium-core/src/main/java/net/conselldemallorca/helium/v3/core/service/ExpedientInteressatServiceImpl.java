@@ -15,6 +15,7 @@ import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Interessat;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDocumentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -72,7 +73,8 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			interessat.getTipusDocIdent(),
 			interessat.getDireccio(),
 			interessat.getObservacions(),
-			interessat.getEs_representant());//veure si l'error és a aquest boolean
+			interessat.getEs_representant(),
+			interessat.getRaoSocial());
 		if(expedient.getInteressats()!=null)
 			expedient.getInteressats().add(interessatEntity);
 		else {
@@ -86,10 +88,11 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			} catch (SistemaExternException seex) {
 				expedient.setErrorArxiu("Error de sincronització amb arxiu al crear el interessat "+interessat.getDocumentIdent()+": "+seex.getPublicMessage());
 			}
-		}//interessatEntity.setTipusDocIdent(interessatEntity.getTipusDocIdent().getValor());
-		return conversioTipusHelper.convertir(
-				interessatRepository.save(interessatEntity),
-				InteressatDto.class);
+		}
+		interessatEntity.setTipusDocIdent(InteressatDocumentTipusEnumDto.valueOf(interessatEntity.getTipusDocIdent()).getValor())    ;
+		interessatEntity = interessatRepository.save(interessatEntity);
+		InteressatDto resultat = conversioTipusHelper.convertir(interessatEntity, InteressatDto.class);
+		return resultat;
 	}
 
 	/**
@@ -196,22 +199,20 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 	 */
 	@Override
 	@Transactional
-	public InteressatDto findAmbCodiAndExpedientId(
-			String codi,
-			Long expedientId
-			) {
-		
+	public InteressatDto findAmbCodiAndExpedientId(String codi, Long expedientId) {
 		Expedient expedient = expedientRepository.findOne(expedientId);
-		
-		return conversioTipusHelper.convertir(
-				interessatRepository.findByCodiAndExpedient(
-						codi, 
-						expedient),
-				InteressatDto.class);
+		Interessat interessat = interessatRepository.findByCodiAndExpedient(codi, expedient);
+		InteressatDto resultat = conversioTipusHelper.convertir(interessat, InteressatDto.class);
+		return resultat;
 	}
 	
-	
-	
+	@Override
+	@Transactional
+	public InteressatDto findByCodi(String codi) {
+		Interessat interessat = interessatRepository.findByCodi(codi);
+		InteressatDto resultat = conversioTipusHelper.convertir(interessat, InteressatDto.class);
+		return resultat;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -310,6 +311,61 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			}
 		}
 		return resultat;
+	}
+
+	@Override
+	public InteressatDto createRepresentant(Long interessatId, InteressatDto representant) {
+		Interessat interessat = interessatRepository.findOne(interessatId);
+		logger.debug("Creant nou representant per l'interessat (interessat=" + interessat + ")");
+		
+		Expedient expedient = expedientRepository.findOne(representant.getExpedientId());
+		
+		Interessat representantEntity = new Interessat(
+			representant.getId(),
+			representant.getCodi()!=null?interessat.getCodi():interessat.getDocumentIdent(),
+			representant.getNom(),
+			representant.getDocumentIdent(),
+			representant.getDir3Codi(),
+			representant.getLlinatge1(), 
+			representant.getLlinatge2(), 
+			representant.getTipus(),
+			representant.getEmail(), 
+			representant.getTelefon(),
+			expedient,
+			representant.getEntregaPostal(),
+			representant.getEntregaTipus(),
+			representant.getLinia1(),
+			representant.getLinia2(),
+			representant.getCodiPostal(),
+			representant.getEntregaDeh(),
+			representant.getEntregaDehObligat(),
+			representant.getTipusDocIdent(),
+			representant.getDireccio(),
+			representant.getObservacions(),
+			representant.getEs_representant(),
+			representant.getRaoSocial());
+		representantEntity.setTipusDocIdent(InteressatDocumentTipusEnumDto.valueOf(representantEntity.getTipusDocIdent()).getValor())    ;
+		InteressatDto representantDto = conversioTipusHelper.convertir(representantEntity, InteressatDto.class);
+		InteressatDto interessatDto =  conversioTipusHelper.convertir(interessat, InteressatDto.class);
+		if(representant.getEs_representant()) {
+			interessat.setRepresentant(representantEntity);
+			representant.setRepresentat(interessatDto);
+		}
+		representantEntity = interessatRepository.save(representantEntity);
+		interessatRepository.save(interessat);
+		return representantDto;
+	}
+
+	@Override
+	public InteressatDto updateRepresentant(Long interessatId, InteressatDto representant) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public InteressatDto deleteRepresentant(Long interessatId, InteressatDto representant) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

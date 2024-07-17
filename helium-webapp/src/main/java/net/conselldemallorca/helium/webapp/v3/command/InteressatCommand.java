@@ -68,6 +68,7 @@ public class InteressatCommand {
 	private String observacions;
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String raoSocial;
+	private Boolean es_representant;
 	
 	
 	public InteressatTipusEnumDto getTipus() {
@@ -241,6 +242,12 @@ public class InteressatCommand {
 	}
 	public void setRaoSocial(String raoSocial) {
 		this.raoSocial = raoSocial;
+	}
+	public Boolean getEs_representant() {
+		return es_representant;
+	}
+	public void setEs_representant(Boolean es_representant) {
+		this.es_representant = es_representant;
 	}
 
 

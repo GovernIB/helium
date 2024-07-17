@@ -532,7 +532,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				interessat.getTipusDocIdent(),
 				interessat.getDireccio(),
 				interessat.getObservacions(),
-				interessat.getEs_representant());
+				interessat.getEs_representant(),
+				interessat.getRaoSocial());
 		if(expedient.getInteressats()!=null)
 			expedient.getInteressats().add(interessatEntity);
 		else {

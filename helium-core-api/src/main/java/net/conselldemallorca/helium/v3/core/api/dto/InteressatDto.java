@@ -35,7 +35,7 @@ public class InteressatDto {//MARTA
 	private Boolean entregaDehObligat;
 	
 	private String observacions;
-	private InteressatDocumentTipusEnumDto tipusDocIdent;
+	private String tipusDocIdent;
 	private String codiDire;
 	private String direccio;
 	private String raoSocial;
@@ -185,10 +185,10 @@ public class InteressatDto {//MARTA
 	public void setObservacions(String observacions) {
 		this.observacions = observacions;
 	}
-	public InteressatDocumentTipusEnumDto getTipusDocIdent() {
+	public String getTipusDocIdent() {
 		return tipusDocIdent;
 	}
-	public void setTipusDocIdent(InteressatDocumentTipusEnumDto tipusDocIdent) {
+	public void setTipusDocIdent(String tipusDocIdent) {
 		this.tipusDocIdent = tipusDocIdent;
 	}
 	public String getCodiDire() {

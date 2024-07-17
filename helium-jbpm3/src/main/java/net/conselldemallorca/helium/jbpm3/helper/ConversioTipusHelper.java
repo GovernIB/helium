@@ -479,7 +479,8 @@ public class ConversioTipusHelper {
 		interessatDto.setEntregaDehObligat(interessat.isEntregaDehObligat());
 		
 		interessatDto.setObservacions(interessat.getObservacions());
-		interessatDto.setTipusDocIdent(InteressatDocumentTipusEnumDto.valueOf(interessat.getTipus().toUpperCase()));
+//		interessatDto.setTipusDocIdent(InteressatDocumentTipusEnumDto.valueOf(interessat.getTipus().toUpperCase()));
+		interessatDto.setTipusDocIdent(interessat.getTipusDocIdent());
 		interessatDto.setCodiDire(interessat.getCodiDire());
 		interessatDto.setDireccio(interessat.getDireccio());
 		interessatDto.setRaoSocial(interessat.getRaoSocial());
