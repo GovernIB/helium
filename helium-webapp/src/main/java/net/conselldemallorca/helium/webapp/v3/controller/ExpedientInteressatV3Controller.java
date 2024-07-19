@@ -79,10 +79,16 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
-		
 		Map<String, String[]> mapeigOrdenacions = new HashMap<String, String[]>();
-		mapeigOrdenacions.put("fullNom", new String[] {"nom", "llinatge1", "llinatge2"});
-		mapeigOrdenacions.put("representantFullNom", new String[] {"representant.nom", "representant.llinatge1", "representant.llinatge2"});
+		InteressatDto representantInteressat = null;
+		for(InteressatDto interessat: expedientInteressatService.findByExpedient(expedientId)) {
+			if(!interessat.getEs_representant() && interessat.getRepresentant()!=null) {
+				representantInteressat = expedientInteressatService.findOne(interessat.getRepresentant().getId());
+				interessat.setRepresentant(representantInteressat);
+				mapeigOrdenacions.put("representantFullNom", new String[] {"representantInteressat.nom", "representantInteressat.llinatge1", "representantInteressat.llinatge2"});
+			}
+		}
+		mapeigOrdenacions.put("fullNom", new String[] {"nom", "llinatge1", "llinatge2", "raosocial"});
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request, null, mapeigOrdenacions);
 		
 		return DatatablesHelper.getDatatableResponse(
@@ -140,12 +146,14 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 	@RequestMapping(value = "/{expedientId}/interessat/{interessatId}/update", method = RequestMethod.GET)
 	public String updateGet(
 			HttpServletRequest request,
-			@RequestParam(value = "es_representant") boolean es_representant,
+			@RequestParam(value = "es_representant", required=false) boolean es_representant,
 			@PathVariable Long expedientId,
 			@PathVariable Long interessatId,
 			Model model) {
 		InteressatDto dto = expedientInteressatService.findOne(
 				interessatId);
+		model.addAttribute("tipus",dto.getTipus());
+		model.addAttribute("es_representant",dto.getEs_representant());
 //		model.addAttribute(
 //				"interessatTipusOptions",
 //				EnumHelper.getOptionsForEnum(
@@ -165,7 +173,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 	@RequestMapping(value = "/{expedientId}/interessat/{interessatId}/update", method = RequestMethod.POST)
 	public String updatePost(
 			HttpServletRequest request,
-			@RequestParam(value = "es_representant") boolean es_representant,
+			@RequestParam(value = "es_representant" , required=false) boolean es_representant,
 			@PathVariable Long expedientId,
 			@PathVariable Long interessatId,
 			@Validated(Modificacio.class) InteressatCommand command,
@@ -174,6 +182,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
         if (bindingResult.hasErrors()) {
         	return "v3/interessatForm";
         } else {
+        	command.setEs_representant(es_representant);
         	expedientInteressatService.update(
         			conversioTipusHelper.convertir(
     						command,

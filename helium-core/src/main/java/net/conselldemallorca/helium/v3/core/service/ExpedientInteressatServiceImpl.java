@@ -104,7 +104,6 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			InteressatDto interessat) {
 		logger.debug("Modificant interessat (interessat=" + interessat + ")");
 		Interessat interessatEntity = interessatRepository.findOne(interessat.getId());
-		interessatEntity.setCodi(interessat.getCodi());
 		interessatEntity.setNom(interessat.getNom());
 		interessatEntity.setDocumentIdent(interessat.getDocumentIdent());
 		interessatEntity.setDir3Codi(interessat.getDir3Codi());
@@ -124,9 +123,9 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		interessatEntity.setObservacions(interessat.getObservacions());
 		interessatEntity.setTipusDocIdent(interessat.getTipusDocIdent());
 		interessatEntity.setCodiDire(interessat.getCodiDire());
-		interessatEntity.setDireccio(null);
-		interessatEntity.setRaoSocial(null);
-		interessatEntity.setEs_representant(false);
+		interessatEntity.setDireccio(interessat.getDireccio());
+		interessatEntity.setRaoSocial(interessat.getRaoSocial());
+		interessatEntity.setEs_representant(interessat.getEs_representant());
 //		Falten aquestes atributs
 //		municipiCodi;
 //		paisCodi;
@@ -134,15 +133,6 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 //		municipi;
 //		pais;
 //		provincia;
-		
-		if(interessat.getRepresentant()!=null) {
-			Interessat representant = interessatRepository.findOne(interessat.getRepresentant().getId());
-			interessatEntity.setRepresentant(representant);
-		}
-		if(interessat.getRepresentat()!=null) {
-			Interessat representat = interessatRepository.findOne(interessat.getRepresentat().getId());
-			interessatEntity.setRepresentat(representat);
-		}
 
 		Expedient expedient = expedientRepository.findOne(interessat.getExpedientId());
 		if (expedient.isArxiuActiu()) {

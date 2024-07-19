@@ -10,7 +10,12 @@
 		<c:set var="formAction">new</c:set>
 	</c:when>
 	<c:otherwise>
-		<c:set var="titol"><spring:message code="interessat.form.titol.modificar"/></c:set>
+		<c:if test="${!es_representant}">
+			<c:set var="titol"><spring:message code="interessat.form.titol.modificar"/></c:set>
+		</c:if>
+		<c:if test="${es_representant}">
+			<c:set var="titol"><spring:message code="interessat.form.titol.modificar.representant"/></c:set>
+		</c:if>
 		<c:set var="formAction">update</c:set>
 	</c:otherwise>
 </c:choose>
@@ -79,6 +84,7 @@ function adaptarSuggest(tipus) {
 }
 	
 function adaptarVisibilitat(tipus){
+		//alert(tipus);
 		 if (tipus == 'FISICA'){
 			 $('.visibilitatTipus').removeClass('hidden');
 			 $('.personajuridica').addClass('hidden');	
@@ -102,8 +108,9 @@ function carregaDadesInteressat(interessatDto) {
 }
 
 $(document).ready(function() {
-
-	//adaptarVisibilitat('');
+	
+   // alert($("#tipusHiddenId").val());
+	adaptarVisibilitat($("#tipusHiddenId").val());
 
  	/* $('#tipus').on('change', function() {
 		ajustarTipus(this.value);
@@ -199,6 +206,7 @@ $(document).ready(function() {
 <body>
 	<form:form cssClass="form-horizontal" action="${formAction}"  method="post" commandName="interessatCommand">
 		<form:hidden id="id" path="id"/>
+		 <input type="hidden" value="${tipus}" id="tipusHiddenId">
 		
 		<div class="row">
 			<div class="col-xs-10">

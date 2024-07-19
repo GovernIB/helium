@@ -10,6 +10,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDocumentTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand.Modificacio;
@@ -25,7 +26,7 @@ public class InteressatCommand {
 
 	private Long id;
 	//@NotEmpty(groups = {Creacio.class})
-	@Size(max = 64, groups = {Creacio.class})
+	@Size(max = 64, groups = {Creacio.class,  Modificacio.class})
 	private String codi;
 	//@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
@@ -69,6 +70,8 @@ public class InteressatCommand {
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String raoSocial;
 	private Boolean es_representant;
+	private InteressatDto representant;
+	private InteressatDto representat;
 	
 	
 	public InteressatTipusEnumDto getTipus() {
@@ -248,6 +251,19 @@ public class InteressatCommand {
 	}
 	public void setEs_representant(Boolean es_representant) {
 		this.es_representant = es_representant;
+	}
+
+	public InteressatDto getRepresentant() {
+		return representant;
+	}
+	public void setRepresentant(InteressatDto representant) {
+		this.representant = representant;
+	}
+	public InteressatDto getRepresentat() {
+		return representat;
+	}
+	public void setRepresentat(InteressatDto representat) {
+		this.representat = representat;
 	}
 
 
