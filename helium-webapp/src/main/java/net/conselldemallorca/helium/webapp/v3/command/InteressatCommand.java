@@ -6,10 +6,12 @@ package net.conselldemallorca.helium.webapp.v3.command;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDocumentTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand.Modificacio;
@@ -25,7 +27,7 @@ public class InteressatCommand {
 
 	private Long id;
 	//@NotEmpty(groups = {Creacio.class})
-	@Size(max = 64, groups = {Creacio.class})
+	@Size(max = 64, groups = {Creacio.class,  Modificacio.class})
 	private String codi;
 	//@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
@@ -44,11 +46,13 @@ public class InteressatCommand {
 	private String cifPersonaJuridica;
 	private String cifOrganGestor;
 
-	@NotNull
+	@NotNull(groups = { Creacio.class, Modificacio.class })
 	private InteressatTipusEnumDto tipus;
 	
-	@NotNull
+	@NotNull(groups = { Creacio.class, Modificacio.class })
 	private InteressatDocumentTipusEnumDto tipusDocIdent;
+	
+	private String canalNotif;
 	
 	private Boolean entregaPostal;
 	private EntregaPostalTipus entregaTipus;
@@ -69,7 +73,9 @@ public class InteressatCommand {
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String raoSocial;
 	private Boolean es_representant;
-	
+	private InteressatDto representant;
+	private InteressatDto representat;
+	private String codiDire;
 	
 	public InteressatTipusEnumDto getTipus() {
 		return tipus;
@@ -250,8 +256,37 @@ public class InteressatCommand {
 		this.es_representant = es_representant;
 	}
 
+	public InteressatDto getRepresentant() {
+		return representant;
+	}
+	public void setRepresentant(InteressatDto representant) {
+		this.representant = representant;
+	}
+	public InteressatDto getRepresentat() {
+		return representat;
+	}
+	public void setRepresentat(InteressatDto representat) {
+		this.representat = representat;
+	}
 
-
+	public String getCanalNotif() {
+		return canalNotif;
+	}
+	public void setCanalNotif(String canalNotif) {
+		this.canalNotif = canalNotif;
+	}
+	
+	public String getCodiDire() {
+		return codiDire;
+	}
+	public void setCodiDire(String codiDire) {
+		this.codiDire = codiDire;
+	}
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
+	}
+	
 	public interface Creacio {}
 	public interface Modificacio {}
 

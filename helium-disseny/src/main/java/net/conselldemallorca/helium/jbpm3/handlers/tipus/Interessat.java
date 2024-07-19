@@ -8,7 +8,7 @@ package net.conselldemallorca.helium.jbpm3.handlers.tipus;
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class Interessat {//MARTA handler aquí
+public class Interessat {
 
 	private Long id;
 	private String codi;

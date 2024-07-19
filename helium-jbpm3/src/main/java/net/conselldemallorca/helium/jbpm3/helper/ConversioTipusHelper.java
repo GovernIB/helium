@@ -487,11 +487,9 @@ public class ConversioTipusHelper {
 		interessatDto.setEs_representant(interessat.isEs_representant());
 		
 		//Tractament pais/provincia/municipi
-		interessatDto.setMunicipiCodi(interessat.getMunicipiCodi());
 		interessatDto.setMunicipi(interessat.getMunicipi());
-		interessatDto.setProvinciaCodi(interessat.getProvinciaCodi());
 		interessatDto.setProvincia(interessat.getProvincia());
-		interessatDto.setPaisCodi(interessat.getPaisCodi());
+		interessatDto.setPais(interessat.getPais());
 		
 		//Tractament si és representat o representant (s'han de convertir a dto)
 //		interessatDto.setRepresentat(interessat.getRepresentat());

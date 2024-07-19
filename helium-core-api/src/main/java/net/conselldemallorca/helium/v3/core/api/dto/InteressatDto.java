@@ -9,7 +9,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPos
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
-public class InteressatDto {//MARTA
+public class InteressatDto {
 	
 	private Long id;
 	private String codi;
@@ -40,15 +40,12 @@ public class InteressatDto {//MARTA
 	private String direccio;
 	private String raoSocial;
     private Boolean es_representant = false;
-	private String municipiCodi;
-	private String paisCodi;
-	private String provinciaCodi;
 	private String municipi;
 	private String pais;
 	private String provincia;
     private InteressatDto representat; //només existeix quan es_representant=true
     private InteressatDto representant; //només existeix quan es_representant=false
-
+    private String canalNotif; 
 
 
 	public InteressatTipusEnumDto getTipus() {
@@ -215,29 +212,8 @@ public class InteressatDto {//MARTA
 	public void setEs_representant(Boolean es_representant) {
 		this.es_representant = es_representant;
 	}
-//	public boolean isEs_representant() {
-//		return es_representant;
-//	}
 	public void setEs_representant(boolean es_representant) {
 		this.es_representant = es_representant;
-	}
-	public String getMunicipiCodi() {
-		return municipiCodi;
-	}
-	public void setMunicipiCodi(String municipiCodi) {
-		this.municipiCodi = municipiCodi;
-	}
-	public String getPaisCodi() {
-		return paisCodi;
-	}
-	public void setPaisCodi(String paisCodi) {
-		this.paisCodi = paisCodi;
-	}
-	public String getProvinciaCodi() {
-		return provinciaCodi;
-	}
-	public void setProvinciaCodi(String provinciaCodi) {
-		this.provinciaCodi = provinciaCodi;
 	}
 	public String getMunicipi() {
 		return municipi;
@@ -268,6 +244,12 @@ public class InteressatDto {//MARTA
 	}
 	public void setRepresentant(InteressatDto representant) {
 		this.representant = representant;
+	}
+	public String getCanalNotif() {
+		return canalNotif;
+	}
+	public void setCanalNotif(String canalNotif) {
+		this.canalNotif = canalNotif;
 	}
 	
 

@@ -321,7 +321,12 @@ public class AnotacioHelper {
 							interessat.getAdresa(),
 							interessat.getObservacions(),
 							false,//es_representant
-							interessat.getRaoSocial());
+							interessat.getRaoSocial(),
+							interessat.getPais(),
+							interessat.getProvincia(),
+							interessat.getMunicipi(),
+							null//interessat.getCanalNotif()
+							);
 				} else {
 					// Actualitza l'interessat existent
 					logger.debug("Modificant l'interessat (interessat=" + interessat + ") a l'expedient " + expedient.getIdentificador());

@@ -70,7 +70,15 @@ public class Interessat implements Serializable, GenericEntity<Long> {
     private boolean es_representant;
 	@Column(name="observacions", length=256)
 	private String observacions;
-
+	@Column(name = "pais", length = 4)
+	protected String pais;
+	@Column(name = "provincia", length = 2)
+	protected String provincia;
+	@Column(name = "municipi", length = 5)
+	protected String municipi;
+	@Column(name="canalnotif")
+	protected String canalNotif;
+	
     private Interessat representat; //només existeix quan es_representant=true
     private Interessat representant; //només existeix quan es_representant=false
 	private Expedient expedient;
@@ -101,7 +109,12 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 			String direccio,
 			String observacions,
 			boolean es_representant,
-			String raoSocial) {
+			String raoSocial,
+			String pais,
+			String provincia,
+			String municipi,
+			String canalNotif
+			) {
 		super();
 		this.id = id;
 		this.codi = codi;
@@ -126,6 +139,10 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 		this.observacions=observacions;
 		this.es_representant=es_representant;
 		this.raoSocial=raoSocial;
+		this.pais=pais;
+		this.provincia=provincia;
+		this.municipi=municipi;
+		this.canalNotif=canalNotif;
 	}
 	
 	
@@ -307,6 +324,32 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	public void setObservacions(String observacions) {
 		this.observacions = observacions;
 	}
+	public String getPais() {
+		return pais;
+	}
+	public void setPais(String pais) {
+		this.pais = pais;
+	}
+	public String getProvincia() {
+		return provincia;
+	}
+	public void setProvincia(String provincia) {
+		this.provincia = provincia;
+	}
+	public String getMunicipi() {
+		return municipi;
+	}
+	public void setMunicipi(String municipi) {
+		this.municipi = municipi;
+	}
+	public String getCanalNotif() {
+		return canalNotif;
+	}
+	public void setCanalNotif(String canalNotif) {
+		this.canalNotif = canalNotif;
+	}
+
+
 
 	private static final long serialVersionUID = 1L;
 }

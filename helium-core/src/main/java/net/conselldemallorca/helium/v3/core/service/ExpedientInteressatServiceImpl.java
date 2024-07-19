@@ -53,7 +53,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		
 		Interessat interessatEntity = new Interessat(
 			interessat.getId(),
-			interessat.getCodi()!=null?interessat.getCodi():interessat.getDocumentIdent(),
+			interessat.getCodi(),//!=null?interessat.getCodi():interessat.getDocumentIdent(),
 			interessat.getNom(),
 			interessat.getDocumentIdent(),
 			interessat.getDir3Codi(),
@@ -74,7 +74,12 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			interessat.getDireccio(),
 			interessat.getObservacions(),
 			interessat.getEs_representant(),
-			interessat.getRaoSocial());
+			interessat.getRaoSocial(),
+			interessat.getPais(),
+			interessat.getProvincia(),
+			interessat.getMunicipi(),
+			interessat.getCanalNotif()
+			);
 		if(expedient.getInteressats()!=null)
 			expedient.getInteressats().add(interessatEntity);
 		else {
@@ -122,27 +127,16 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		interessatEntity.setEntregaDeh(interessat.getEntregaDeh());
 		interessatEntity.setEntregaDehObligat(interessat.getEntregaDehObligat());
 		interessatEntity.setObservacions(interessat.getObservacions());
-		interessatEntity.setTipusDocIdent(interessat.getTipusDocIdent());
+		interessatEntity.setTipusDocIdent(translateTipusDocIdentToSave(interessat.getTipusDocIdent()));
 		interessatEntity.setCodiDire(interessat.getCodiDire());
-		interessatEntity.setDireccio(null);
-		interessatEntity.setRaoSocial(null);
-		interessatEntity.setEs_representant(false);
-//		Falten aquestes atributs
-//		municipiCodi;
-//		paisCodi;
-//		provinciaCodi;
-//		municipi;
-//		pais;
-//		provincia;
-		
-		if(interessat.getRepresentant()!=null) {
-			Interessat representant = interessatRepository.findOne(interessat.getRepresentant().getId());
-			interessatEntity.setRepresentant(representant);
-		}
-		if(interessat.getRepresentat()!=null) {
-			Interessat representat = interessatRepository.findOne(interessat.getRepresentat().getId());
-			interessatEntity.setRepresentat(representat);
-		}
+		interessatEntity.setDireccio(interessat.getDireccio());
+		interessatEntity.setRaoSocial(interessat.getRaoSocial());
+		interessatEntity.setEs_representant(interessat.getEs_representant());
+		interessatEntity.setPais(interessat.getPais());
+		interessatEntity.setProvincia(interessat.getProvincia());
+		interessatEntity.setMunicipi(interessat.getMunicipi());
+		interessatEntity.setCanalNotif(interessat.getCanalNotif());
+
 
 		Expedient expedient = expedientRepository.findOne(interessat.getExpedientId());
 		if (expedient.isArxiuActiu()) {
@@ -156,6 +150,25 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		return conversioTipusHelper.convertir(
 				interessatEntity,
 				InteressatDto.class);
+	}
+	
+	private String translateTipusDocIdentToSave(String documentTipus) {
+		String valorTraduit=null;
+		if (documentTipus != null) {
+			if(documentTipus.equals(InteressatDocumentTipusEnumDto.NIF.name()))
+					valorTraduit=InteressatDocumentTipusEnumDto.NIF.getValor();
+			else if(documentTipus.equals(InteressatDocumentTipusEnumDto.CIF.name()))
+				valorTraduit=InteressatDocumentTipusEnumDto.NIF.getValor();
+			else if(documentTipus.equals(InteressatDocumentTipusEnumDto.ALTRES_DE_PERSONA_FISICA.name()))
+				valorTraduit=InteressatDocumentTipusEnumDto.ALTRES_DE_PERSONA_FISICA.getValor();
+			else if(documentTipus.equals(InteressatDocumentTipusEnumDto.CODI_ORIGEN.name()))
+				valorTraduit=InteressatDocumentTipusEnumDto.CODI_ORIGEN.getValor();
+			else if(documentTipus.equals(InteressatDocumentTipusEnumDto.DOCUMENT_IDENTIFICATIU_ESTRANGERS.name()))
+				valorTraduit=InteressatDocumentTipusEnumDto.DOCUMENT_IDENTIFICATIU_ESTRANGERS.getValor();
+			else if(documentTipus.equals(InteressatDocumentTipusEnumDto.PASSAPORT.name()))
+				valorTraduit=InteressatDocumentTipusEnumDto.PASSAPORT.getValor();
+			}
+		return valorTraduit;
 	}
 
 	public Interessat comprovarInteressat(
@@ -344,7 +357,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		
 		Interessat representantEntity = new Interessat(
 			representant.getId(),
-			representant.getCodi()!=null?interessat.getCodi():interessat.getDocumentIdent(),
+			representant.getCodi(), //!=null?interessat.getCodi():interessat.getDocumentIdent(),
 			representant.getNom(),
 			representant.getDocumentIdent(),
 			representant.getDir3Codi(),
@@ -365,7 +378,12 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			representant.getDireccio(),
 			representant.getObservacions(),
 			representant.getEs_representant(),
-			representant.getRaoSocial());
+			representant.getRaoSocial(),
+			representant.getPais(),
+			representant.getProvincia(),
+			representant.getMunicipi(),
+			representant.getCanalNotif()
+			);
 		representantEntity.setTipusDocIdent(InteressatDocumentTipusEnumDto.valueOf(representantEntity.getTipusDocIdent()).getValor())    ;
 		if(representant.getEs_representant()) {
 			interessat.setRepresentant(representantEntity);

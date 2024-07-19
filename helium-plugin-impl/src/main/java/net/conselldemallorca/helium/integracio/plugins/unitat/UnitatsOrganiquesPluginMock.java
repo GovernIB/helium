@@ -82,5 +82,11 @@ public class UnitatsOrganiquesPluginMock implements UnitatsOrganiquesPlugin {
 		
 		return unitats;
 	}
+
+	@Override
+	public UnitatOrganitzativaDto unitatsOrganitzativesFindByCodi(String codi) throws SistemaExternException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }

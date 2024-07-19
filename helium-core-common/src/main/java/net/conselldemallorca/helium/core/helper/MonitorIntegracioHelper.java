@@ -62,6 +62,8 @@ public class MonitorIntegracioHelper {
 	public static final String INTCODI_PINBAL = "PINBAL";
 	public static final String INTCODI_UNITATS = "UNITATS";
 	public static final String INTCODI_PROCEDIMENT = "PROCEDIMENT";
+	public static final String INTCODI_DADES_EXTERNES = "DADES EXTERNES";
+
 
 	private Map<String, LinkedList<IntegracioAccioDto>> accionsIntegracio = new HashMap<String, LinkedList<IntegracioAccioDto>>();
 	private Map<String, Integer> maxAccionsIntegracio = new HashMap<String, Integer>();
@@ -227,7 +229,7 @@ public class MonitorIntegracioHelper {
 		integracions.add(new IntegracioDto(INTCODI_PINBAL, "PINBAL"));
 		integracions.add(new IntegracioDto(INTCODI_UNITATS, "Unitats"));
 		integracions.add(new IntegracioDto(INTCODI_PROCEDIMENT, "ROLSAC"));
-		
+		integracions.add(new IntegracioDto(INTCODI_DADES_EXTERNES, "Dades externes"));
 		return integracions;
 	}
 
