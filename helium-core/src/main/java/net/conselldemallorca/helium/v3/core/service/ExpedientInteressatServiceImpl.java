@@ -121,6 +121,28 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		interessatEntity.setCodiPostal(interessat.getCodiPostal());
 		interessatEntity.setEntregaDeh(interessat.getEntregaDeh());
 		interessatEntity.setEntregaDehObligat(interessat.getEntregaDehObligat());
+		interessatEntity.setObservacions(interessat.getObservacions());
+		interessatEntity.setTipusDocIdent(interessat.getTipusDocIdent());
+		interessatEntity.setCodiDire(interessat.getCodiDire());
+		interessatEntity.setDireccio(null);
+		interessatEntity.setRaoSocial(null);
+		interessatEntity.setEs_representant(false);
+//		Falten aquestes atributs
+//		municipiCodi;
+//		paisCodi;
+//		provinciaCodi;
+//		municipi;
+//		pais;
+//		provincia;
+		
+		if(interessat.getRepresentant()!=null) {
+			Interessat representant = interessatRepository.findOne(interessat.getRepresentant().getId());
+			interessatEntity.setRepresentant(representant);
+		}
+		if(interessat.getRepresentat()!=null) {
+			Interessat representat = interessatRepository.findOne(interessat.getRepresentat().getId());
+			interessatEntity.setRepresentat(representat);
+		}
 
 		Expedient expedient = expedientRepository.findOne(interessat.getExpedientId());
 		if (expedient.isArxiuActiu()) {
@@ -345,14 +367,16 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			representant.getEs_representant(),
 			representant.getRaoSocial());
 		representantEntity.setTipusDocIdent(InteressatDocumentTipusEnumDto.valueOf(representantEntity.getTipusDocIdent()).getValor())    ;
-		InteressatDto representantDto = conversioTipusHelper.convertir(representantEntity, InteressatDto.class);
-		InteressatDto interessatDto =  conversioTipusHelper.convertir(interessat, InteressatDto.class);
 		if(representant.getEs_representant()) {
 			interessat.setRepresentant(representantEntity);
-			representant.setRepresentat(interessatDto);
+			representantEntity.setRepresentat(interessat);
 		}
+		InteressatDto representantDto = conversioTipusHelper.convertir(representantEntity, InteressatDto.class);
 		representantEntity = interessatRepository.save(representantEntity);
-		interessatRepository.save(interessat);
+		interessat=interessatRepository.save(interessat);
+		InteressatDto interessatDto =  conversioTipusHelper.convertir(interessat, InteressatDto.class);
+		interessatDto.setExpedientId(interessat.getExpedient().getId());
+		update(interessatDto);
 		return representantDto;
 	}
 

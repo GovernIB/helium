@@ -28,23 +28,36 @@
 			class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
-				<th data-col-name="codi" width="20%"><spring:message code="interessat.llistat.columna.codi"/></th>
+				<th data-col-name="codi" width="10%"><spring:message code="interessat.llistat.columna.codi"/></th>
 				<th data-col-name="tipus"><spring:message code="interessat.llistat.columna.tipus"/></th>
-				<th data-col-name="nif"><spring:message code="interessat.llistat.columna.nif"/></th>
-				<th data-col-name="dir3Codi"><spring:message code="interessat.llistat.columna.dir3Codi"/></th>
+				<th data-col-name="nif" data-visible="false"><spring:message code="interessat.llistat.columna.nif"/></th>
+				<th data-col-name="documentIdent"><spring:message code="interessat.form.camp.document.identificatiu"/></th>
+				<th data-col-name="raoSocial"><spring:message code="interessat.form.camp.raosocial"/></th>
 				<th data-col-name="fullNom"><spring:message code="interessat.llistat.columna.nom"/></th>
+				<th data-col-name="dir3Codi"><spring:message code="interessat.llistat.columna.dir3Codi"/></th>
 				<th data-col-name="email"><spring:message code="interessat.llistat.columna.email"/></th>
 				<th data-col-name="telefon"><spring:message code="interessat.llistat.columna.telefon"/></th>
+				<th data-col-name="representantFullNom"><spring:message code="expedient.document.notificar.form.camp.representant"/></th>
+				
+				<th data-col-name="es_representant" data-visible="false"></th>
 				
  				<th data-col-name="id" data-template="#cellAccionsTemplate" data-orderable="false" width="10%"> 
  					<script id="cellAccionsTemplate" type="text/x-jsrender"> 
 							<div class="dropdown">
 								<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 								<ul class="dropdown-menu">
-									<li><a href="${expedientId}/interessat/{{:id}}/update" data-ajax="true" data-callback="callbackModalInteressats()" data-toggle="modal"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a></li>
-									<li><a href="${expedientId}/interessat/{{:id}}/delete" data-ajax="true" data-callback="callbackModalInteressats()" data-confirm="<spring:message code="interessat.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
-									<li><a href="${expedientId}/interessat/{{:id}}/representant/new" data-ajax="true" data-callback="callbackModalInteressats()" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="interessat.llistat.accio.nou.representant"/></a></li>
-								</ul>
+									{{if !es_representant}}
+										<li><a href="${expedientId}/interessat/{{:id}}/update" data-ajax="true" data-callback="callbackModalInteressats()" data-toggle="modal"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a></li>
+										<li><a href="${expedientId}/interessat/{{:id}}/delete" data-ajax="true" data-callback="callbackModalInteressats()" data-confirm="<spring:message code="interessat.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
+									{{/if}}
+									{{if !es_representant && (representant == null || representant =='')}}
+										<li><a href="${expedientId}/interessat/{{:id}}/representant/new" data-ajax="true" data-callback="callbackModalInteressats()" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="interessat.llistat.accio.nou.representant"/></a></li>
+									{{/if}}	
+									{{if es_representant}}
+										<li><a href="${expedientId}/interessat/{{:id}}/update" data-ajax="true" data-callback="callbackModalInteressats()" data-toggle="modal"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="interessat.llistat.accio.modificar.representant"/></a></li>
+										<li><a href="${expedientId}/interessat/{{:id}}/delete" data-ajax="true" data-callback="callbackModalInteressats()" data-confirm="<spring:message code="interessat.llistat.confirmacio.esborrar.representant"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="interessat.llistat.accio.esborrar.representant"/></a></li>									
+									{{/if}}	
+									</ul>
 							</div>
 					</script>
  				</th> 

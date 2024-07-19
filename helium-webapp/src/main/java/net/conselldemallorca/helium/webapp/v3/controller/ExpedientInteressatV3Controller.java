@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDocumentTipusEnumDto;
@@ -81,6 +82,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		
 		Map<String, String[]> mapeigOrdenacions = new HashMap<String, String[]>();
 		mapeigOrdenacions.put("fullNom", new String[] {"nom", "llinatge1", "llinatge2"});
+		mapeigOrdenacions.put("representantFullNom", new String[] {"representant.nom", "representant.llinatge1", "representant.llinatge2"});
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request, null, mapeigOrdenacions);
 		
 		return DatatablesHelper.getDatatableResponse(
@@ -138,6 +140,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 	@RequestMapping(value = "/{expedientId}/interessat/{interessatId}/update", method = RequestMethod.GET)
 	public String updateGet(
 			HttpServletRequest request,
+			@RequestParam(value = "es_representant") boolean es_representant,
 			@PathVariable Long expedientId,
 			@PathVariable Long interessatId,
 			Model model) {
@@ -162,6 +165,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 	@RequestMapping(value = "/{expedientId}/interessat/{interessatId}/update", method = RequestMethod.POST)
 	public String updatePost(
 			HttpServletRequest request,
+			@RequestParam(value = "es_representant") boolean es_representant,
 			@PathVariable Long expedientId,
 			@PathVariable Long interessatId,
 			@Validated(Modificacio.class) InteressatCommand command,
