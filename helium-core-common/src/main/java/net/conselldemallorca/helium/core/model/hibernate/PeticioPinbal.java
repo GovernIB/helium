@@ -17,6 +17,8 @@ import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 
 import org.hibernate.annotations.ForeignKey;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.MaxLength;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotNull;
 
@@ -44,6 +46,7 @@ public class PeticioPinbal implements Serializable, GenericEntity<Long> {
 	@ForeignKey(name="HEL_PETICIO_EXPEDIENT_FK")
 	private Expedient expedient;
 	@ManyToOne
+	@NotFound(action=NotFoundAction.IGNORE)
 	@JoinColumn(name="DOCUMENT_ID")
 	private DocumentStore document;
 	@Column(name="TOKEN_ID")
