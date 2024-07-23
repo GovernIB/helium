@@ -1185,6 +1185,11 @@ public class DocumentHelperV3 {
 				// si el document s'ha notificat no s'esborra el document per a que es pugui continuar consultant.
 				esborrarDocument = false;
 			}
+			List<PeticioPinbal> peticioPinbals = peticioPinbalRepository.findByDocumentId(documentStoreId);
+			if (peticioPinbals != null && peticioPinbals.size() > 0) {
+				// si és de una petició pinbal no s'esborra el document per a que es pugui consultar des de la notificació.
+				esborrarDocument = false;
+			}
 			
 			if (expedient.isArxiuActiu()) {
 				if (documentStore.isSignat()) {
