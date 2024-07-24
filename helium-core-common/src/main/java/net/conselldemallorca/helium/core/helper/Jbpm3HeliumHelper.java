@@ -930,24 +930,19 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"processInstanceId=" + processInstanceId + ", " +
 				"documentCodi=" + documentCodi + ", " +
 				"dataDocument=" + dataDocument + ")");
+		
 		DefinicioProces definicioProces = getDefinicioProcesDonatProcessInstanceId(processInstanceId);
+		
 		if (definicioProces == null)
 			throw new NoTrobatException(DefinicioProces.class, processInstanceId);
+		
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		ExpedientTipus expedientTipus = expedient.getTipus();
-		Document document;
-		if (expedientTipus.isAmbInfoPropia())
-			document = documentRepository.findByExpedientTipusAndCodi(
-					expedientTipus.getId(),
-					documentCodi,
-					expedientTipus.getExpedientTipusPare() != null);
-		else
-			document = documentRepository.findByDefinicioProcesAndCodi(
-					definicioProces, 
-					documentCodi);
+		Document document = documentHelper.getDocumentByTipusExpedientOrDefinicioProcesAndCodi(expedient.getTipus(), definicioProces, documentCodi);
+
 		if (document == null) {
 			throw new NoTrobatException(Document.class, documentCodi);
 		}
+		
 		ArxiuDto generat = documentHelper.generarDocumentAmbPlantillaIConvertir(
 				expedient,
 				document,
@@ -1763,6 +1758,17 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		if (expedientTipus == null)
 			throw new NoTrobatException(ExpedientTipus.class, expedient.getTipus().getCodi());
 
+		if (dadesConsultaPinbal.getDocumentCodi()==null) {
+			throw new RuntimeException("No s'ha especificat cap codi de document per associar el justificant de la petició PINBAL.");
+		} else {
+			Document document = documentHelper.getDocumentByTipusExpedientOrDefinicioProcesAndCodi(
+					expedientTipus,
+					getDefinicioProcesDonatProcessInstanceId(processInstanceId),
+					dadesConsultaPinbal.getDocumentCodi());
+			if (document==null)
+				throw new RuntimeException("No s'ha trobat el codi de document "+dadesConsultaPinbal.getDocumentCodi()+ " per el procés "+processInstanceId+".");
+		}
+		
 		ScspRespostaPinbal respostaPinbal = new ScspRespostaPinbal();
 		ScspConfirmacioPeticioPinbal scspConfirmacioPeticioPinbal = null;
 		Long documentStoreJusificantId = null;
@@ -1902,6 +1908,17 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				expedient.getTipus().getCodi());
 		if (expedientTipus == null)
 			throw new NoTrobatException(ExpedientTipus.class, expedient.getTipus().getCodi());
+		
+		if (dadesConsultaPinbal.getDocumentCodi()==null) {
+			throw new RuntimeException("No s'ha especificat cap codi de document per associar el justificant de la petició PINBAL.");
+		} else {
+			Document document = documentHelper.getDocumentByTipusExpedientOrDefinicioProcesAndCodi(
+					expedientTipus,
+					getDefinicioProcesDonatProcessInstanceId(processInstanceId),
+					dadesConsultaPinbal.getDocumentCodi());
+			if (document==null)
+				throw new RuntimeException("No s'ha trobat el codi de document "+dadesConsultaPinbal.getDocumentCodi()+ " per el procés "+processInstanceId+".");
+		}
 		
 		ScspRespostaPinbal respostaPinbal = new ScspRespostaPinbal();
 		ScspConfirmacioPeticioPinbal scspConfirmacioPeticioPinbal = null;
@@ -2079,6 +2096,17 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		if (expedientTipus == null)
 			throw new NoTrobatException(ExpedientTipus.class, expedient.getTipus().getCodi());
 		
+		if (dadesConsultaPinbal.getDocumentCodi()==null) {
+			throw new RuntimeException("No s'ha especificat cap codi de document per associar el justificant de la petició PINBAL.");
+		} else {
+			Document document = documentHelper.getDocumentByTipusExpedientOrDefinicioProcesAndCodi(
+					expedientTipus,
+					getDefinicioProcesDonatProcessInstanceId(processInstanceId),
+					dadesConsultaPinbal.getDocumentCodi());
+			if (document==null)
+				throw new RuntimeException("No s'ha trobat el codi de document "+dadesConsultaPinbal.getDocumentCodi()+ " per el procés "+processInstanceId+".");
+		}		
+		
 		ScspRespostaPinbal respostaPinbal = new ScspRespostaPinbal();
 		ScspConfirmacioPeticioPinbal scspConfirmacioPeticioPinbal = null;
 		Long documentStoreJusificantId = null;
@@ -2219,6 +2247,17 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				expedient.getTipus().getCodi());
 		if (expedientTipus == null)
 			throw new NoTrobatException(ExpedientTipus.class, expedient.getTipus().getCodi());
+		
+		if (dadesConsultaPinbal.getDocumentCodi()==null) {
+			throw new RuntimeException("No s'ha especificat cap codi de document per associar el justificant de la petició PINBAL.");
+		} else {
+			Document document = documentHelper.getDocumentByTipusExpedientOrDefinicioProcesAndCodi(
+					expedientTipus,
+					getDefinicioProcesDonatProcessInstanceId(processInstanceId),
+					dadesConsultaPinbal.getDocumentCodi());
+			if (document==null)
+				throw new RuntimeException("No s'ha trobat el codi de document "+dadesConsultaPinbal.getDocumentCodi()+ " per el procés "+processInstanceId+".");
+		}		
 		
 		ScspRespostaPinbal respostaPinbal = new ScspRespostaPinbal();
 		ScspConfirmacioPeticioPinbal scspConfirmacioPeticioPinbal = null;

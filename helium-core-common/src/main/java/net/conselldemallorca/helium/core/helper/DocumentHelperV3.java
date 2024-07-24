@@ -1383,6 +1383,20 @@ public class DocumentHelperV3 {
 		public void afterCompletion(int status) {}
 	}
 	
+	public Document getDocumentByTipusExpedientOrDefinicioProcesAndCodi(
+			ExpedientTipus expedientTipus,
+			DefinicioProces definicioProces,
+			String codiDocument) {
+		if (expedientTipus.isAmbInfoPropia())
+			return documentRepository.findByExpedientTipusAndCodi(
+					expedientTipus.getId(),
+					codiDocument,
+					expedientTipus.getExpedientTipusPare() != null);
+		else
+			return documentRepository.findByDefinicioProcesAndCodi(
+					definicioProces, 
+					codiDocument);
+	}
 	
 	public Document getDocumentDisseny(
 			String taskInstanceId,
