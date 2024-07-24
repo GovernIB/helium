@@ -1791,13 +1791,31 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						dadesConsultaPinbal.getCodiProcediment(),
 						scspAtributos.getIdPeticion(),
 						cal.getTime());
-	
-				documentStoreJusificantId = this.documentExpedientGuardar(
+
+				//Cream sempre un nou documentStore, que s'associará a la variable JBPM.
+				//Aixi mantenim els dos documentStore de les peticions pinbal successives, pero al expedient nomes es veu la darrera.
+				documentStoreJusificantId = documentHelper.crearDocument(
+						null,
 						processInstanceId,
 						dadesConsultaPinbal.getDocumentCodi(),
-						dataPecicio,
+						new Date(),
+						false, //isAdjunt
+						null,  //adjuntTitol
 						documentJusificantProvissional.getArxiuNom(),
-						documentJusificantProvissional.getArxiuContingut());
+						documentJusificantProvissional.getArxiuContingut(),
+						null, // arxiuUuid
+						documentHelper.getContentType(documentJusificantProvissional.getArxiuNom()),
+						false, //ambFirma
+						false, //firmaSeparada
+						null,  //firmaContingut
+						null,  //ntiOrigen
+						null,  //ntiEstadoElaboracion
+						null,  //ntiTipoDocumental
+						null,  //ntiIdDocumentoOrigen
+						true,  //documentValid
+						null,  //documentError
+						null,  //annexId
+						null); //annexosPerNotificar
 			}	 
 		} else {
 			respostaPinbal = (ScspRespostaPinbal) pluginHelper.consultaPinbal(
@@ -1825,12 +1843,30 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			}
 			
 			if(justificant!=null) {
-				documentStoreJusificantId = this.documentExpedientGuardar(
+				//Cream sempre un nou documentStore, que s'associará a la variable JBPM.
+				//Aixi mantenim els dos documentStore de les peticions pinbal successives, pero al expedient nomes es veu la darrera.
+				documentStoreJusificantId = documentHelper.crearDocument(
+						null,
 						processInstanceId,
 						dadesConsultaPinbal.getDocumentCodi(),
 						new Date(),
+						false, //isAdjunt
+						null,  //adjuntTitol
 						justificant.getNom(),
-						justificant.getContingut());
+						justificant.getContingut(),
+						null, // arxiuUuid
+						documentHelper.getContentType(justificant.getNom()),
+						false, //ambFirma
+						false, //firmaSeparada
+						null,  //firmaContingut
+						null,  //ntiOrigen
+						null,  //ntiEstadoElaboracion
+						null,  //ntiTipoDocumental
+						null,  //ntiIdDocumentoOrigen
+						true,  //documentValid
+						null,  //documentError
+						null,  //annexId
+						null); //annexosPerNotificar
 			}			
 		}
 		guardaPeticioPinbalSenseError(
@@ -1902,12 +1938,30 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 					scspAtributos.getIdPeticion(),
 					cal.getTime());
 
-				documentStoreJusificantId = this.documentExpedientGuardar(
-					processInstanceId,
-					dadesConsultaPinbal.getDocumentCodi(),
-					dataPecicio,
-					documentJusificantProvissional.getArxiuNom(),
-					documentJusificantProvissional.getArxiuContingut());
+				//Cream sempre un nou documentStore, que s'associará a la variable JBPM.
+				//Aixi mantenim els dos documentStore de les peticions pinbal successives, pero al expedient nomes es veu la darrera.
+				documentStoreJusificantId = documentHelper.crearDocument(
+						null,
+						processInstanceId,
+						dadesConsultaPinbal.getDocumentCodi(),
+						new Date(),
+						false, //isAdjunt
+						null,  //adjuntTitol
+						documentJusificantProvissional.getArxiuNom(),
+						documentJusificantProvissional.getArxiuContingut(),
+						null, // arxiuUuid
+						documentHelper.getContentType(documentJusificantProvissional.getArxiuNom()),
+						false, //ambFirma
+						false, //firmaSeparada
+						null,  //firmaContingut
+						null,  //ntiOrigen
+						null,  //ntiEstadoElaboracion
+						null,  //ntiTipoDocumental
+						null,  //ntiIdDocumentoOrigen
+						true,  //documentValid
+						null,  //documentError
+						null,  //annexId
+						null); //annexosPerNotificar
 			}
 		}else {
 			respostaPinbal = (ScspRespostaPinbal) pluginHelper.consultaPinbal(
@@ -1934,13 +1988,30 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						null);
 			}
 			if(justificant!=null) {
-				documentStoreJusificantId = this.documentExpedientGuardar(
+				//Cream sempre un nou documentStore, que s'associará a la variable JBPM.
+				//Aixi mantenim els dos documentStore de les peticions pinbal successives, pero al expedient nomes es veu la darrera.
+				documentStoreJusificantId = documentHelper.crearDocument(
+						null,
 						processInstanceId,
 						dadesConsultaPinbal.getDocumentCodi(),
 						new Date(),
+						false, //isAdjunt
+						null,  //adjuntTitol
 						justificant.getNom(),
-						justificant.getContingut());
-
+						justificant.getContingut(),
+						null, // arxiuUuid
+						documentHelper.getContentType(justificant.getNom()),
+						false, //ambFirma
+						false, //firmaSeparada
+						null,  //firmaContingut
+						null,  //ntiOrigen
+						null,  //ntiEstadoElaboracion
+						null,  //ntiTipoDocumental
+						null,  //ntiIdDocumentoOrigen
+						true,  //documentValid
+						null,  //documentError
+						null,  //annexId
+						null); //annexosPerNotificar
 			}
 		}
 		
@@ -2037,12 +2108,30 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						scspAtributos.getIdPeticion(),
 						cal.getTime());
 	
-				documentStoreJusificantId = this.documentExpedientGuardar(
+				//Cream sempre un nou documentStore, que s'associará a la variable JBPM.
+				//Aixi mantenim els dos documentStore de les peticions pinbal successives, pero al expedient nomes es veu la darrera.
+				documentStoreJusificantId = documentHelper.crearDocument(
+						null,
 						processInstanceId,
 						dadesConsultaPinbal.getDocumentCodi(),
-						dataPeticio,
+						new Date(),
+						false, //isAdjunt
+						null,  //adjuntTitol
 						documentJusificantProvissional.getArxiuNom(),
-						documentJusificantProvissional.getArxiuContingut());			
+						documentJusificantProvissional.getArxiuContingut(),
+						null, // arxiuUuid
+						documentHelper.getContentType(documentJusificantProvissional.getArxiuNom()),
+						false, //ambFirma
+						false, //firmaSeparada
+						null,  //firmaContingut
+						null,  //ntiOrigen
+						null,  //ntiEstadoElaboracion
+						null,  //ntiTipoDocumental
+						null,  //ntiIdDocumentoOrigen
+						true,  //documentValid
+						null,  //documentError
+						null,  //annexId
+						null); //annexosPerNotificar
 			}
 		} else {
 		
@@ -2071,12 +2160,30 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			}
 			
 			if(justificant!=null) {
-				documentStoreJusificantId = this.documentExpedientGuardar(
+				//Cream sempre un nou documentStore, que s'associará a la variable JBPM.
+				//Aixi mantenim els dos documentStore de les peticions pinbal successives, pero al expedient nomes es veu la darrera.
+				documentStoreJusificantId = documentHelper.crearDocument(
+						null,
 						processInstanceId,
 						dadesConsultaPinbal.getDocumentCodi(),
 						new Date(),
+						false, //isAdjunt
+						null,  //adjuntTitol
 						justificant.getNom(),
-						justificant.getContingut());	
+						justificant.getContingut(),
+						null, // arxiuUuid
+						documentHelper.getContentType(justificant.getNom()),
+						false, //ambFirma
+						false, //firmaSeparada
+						null,  //firmaContingut
+						null,  //ntiOrigen
+						null,  //ntiEstadoElaboracion
+						null,  //ntiTipoDocumental
+						null,  //ntiIdDocumentoOrigen
+						true,  //documentValid
+						null,  //documentError
+						null,  //annexId
+						null); //annexosPerNotificar
 			}
 		}
 		
@@ -2142,12 +2249,30 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						scspAtributos.getIdPeticion(),
 						cal.getTime());
 	
-				documentStoreJusificantId = this.documentExpedientGuardar(
+				//Cream sempre un nou documentStore, que s'associará a la variable JBPM.
+				//Aixi mantenim els dos documentStore de les peticions pinbal successives, pero al expedient nomes es veu la darrera.
+				documentStoreJusificantId = documentHelper.crearDocument(
+						null,
 						processInstanceId,
 						dadesConsultaPinbal.getDocumentCodi(),
-						dataPecicio,
+						new Date(),
+						false, //isAdjunt
+						null,  //adjuntTitol
 						documentJusificantProvissional.getArxiuNom(),
-						documentJusificantProvissional.getArxiuContingut());			
+						documentJusificantProvissional.getArxiuContingut(),
+						null, // arxiuUuid
+						documentHelper.getContentType(documentJusificantProvissional.getArxiuNom()),
+						false, //ambFirma
+						false, //firmaSeparada
+						null,  //firmaContingut
+						null,  //ntiOrigen
+						null,  //ntiEstadoElaboracion
+						null,  //ntiTipoDocumental
+						null,  //ntiIdDocumentoOrigen
+						true,  //documentValid
+						null,  //documentError
+						null,  //annexId
+						null); //annexosPerNotificar		
 			}
 		} else {
 		
@@ -2176,12 +2301,30 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			}
 			
 			if(justificant!=null) {
-				documentStoreJusificantId = this.documentExpedientGuardar(
+				//Cream sempre un nou documentStore, que s'associará a la variable JBPM.
+				//Aixi mantenim els dos documentStore de les peticions pinbal successives, pero al expedient nomes es veu la darrera.
+				documentStoreJusificantId = documentHelper.crearDocument(
+						null,
 						processInstanceId,
 						dadesConsultaPinbal.getDocumentCodi(),
 						new Date(),
+						false, //isAdjunt
+						null,  //adjuntTitol
 						justificant.getNom(),
-						justificant.getContingut());	
+						justificant.getContingut(),
+						null, // arxiuUuid
+						documentHelper.getContentType(justificant.getNom()),
+						false, //ambFirma
+						false, //firmaSeparada
+						null,  //firmaContingut
+						null,  //ntiOrigen
+						null,  //ntiEstadoElaboracion
+						null,  //ntiTipoDocumental
+						null,  //ntiIdDocumentoOrigen
+						true,  //documentValid
+						null,  //documentError
+						null,  //annexId
+						null); //annexosPerNotificar	
 			}
 		}
 		

@@ -68,7 +68,7 @@
 													</a>
 												</c:if>
 											
-												<c:if test="${!document.signat && expedient.permisDocManagement && !document.notificat}">
+												<c:if test="${!document.signat && expedient.permisDocManagement && !document.notificat && !document.pinbal}">
 													<a 	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/update"
 														data-rdt-link-modal="true" 
 														data-rdt-link-modal-min-height="265" 
