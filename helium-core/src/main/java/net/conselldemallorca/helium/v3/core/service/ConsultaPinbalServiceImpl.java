@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.data.domain.Page;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,20 +23,25 @@ import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.hibernate.PeticioPinbal;
+import net.conselldemallorca.helium.core.model.hibernate.ServeiPinbalEntity;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalFiltreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ServeiPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ConsultaPinbalService;
 import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
 import net.conselldemallorca.helium.v3.core.repository.PeticioPinbalRepository;
+import net.conselldemallorca.helium.v3.core.repository.ServeiPinbalRepository;
 
 @Service
 public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
 
 	@Resource private PeticioPinbalRepository peticioPinbalRepository;
+	@Resource private ServeiPinbalRepository serveiPinbalRepository;
 	@Resource private ConversioTipusHelper conversioTipusHelper;
 	@Resource private PaginacioHelper paginacioHelper;
 	@Resource private UsuariActualHelper usuariActualHelper;
@@ -164,5 +170,37 @@ public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
 	@Transactional(readOnly=true)
 	public List<PeticioPinbalDto> findConsultesPinbalPerExpedient(Long expedientId) {
 		return conversioTipusHelper.convertirList(peticioPinbalRepository.findByExpedientId(expedientId), PeticioPinbalDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly=true)
+	public PaginaDto<ServeiPinbalDto> findServeisPinbalAmbFiltrePaginat(PaginacioParamsDto paginacioParams) {
+		Page<ServeiPinbalEntity> spe = serveiPinbalRepository.findByFiltrePaginat(
+				paginacioParams.getFiltre()==null,
+				paginacioParams.getFiltre(),
+				paginacioHelper.toSpringDataPageable(paginacioParams));
+		PaginaDto<ServeiPinbalDto> resultat = paginacioHelper.toPaginaDto(spe, ServeiPinbalDto.class);
+		return resultat;
+	}
+
+	@Override
+	@Transactional(readOnly=true)
+	public ServeiPinbalDto findServeiPinbalById(Long id) {
+		return conversioTipusHelper.convertir(serveiPinbalRepository.findOne(id), ServeiPinbalDto.class);
+	}
+
+	@Override
+	@Transactional
+	public ServeiPinbalDto updateServeiPinbal(ServeiPinbalDto serveiPinbalDto) {
+		ServeiPinbalEntity spe = serveiPinbalRepository.findOne(serveiPinbalDto.getId());
+		spe.setNom(serveiPinbalDto.getNom());
+		spe.setPinbalServeiDocPermesCif(serveiPinbalDto.isPinbalServeiDocPermesCif());
+		spe.setPinbalServeiDocPermesDni(serveiPinbalDto.isPinbalServeiDocPermesDni());
+		spe.setPinbalServeiDocPermesNie(serveiPinbalDto.isPinbalServeiDocPermesNie());
+		spe.setPinbalServeiDocPermesNif(serveiPinbalDto.isPinbalServeiDocPermesNif());
+		spe.setPinbalServeiDocPermesPas(serveiPinbalDto.isPinbalServeiDocPermesPas());
+		spe.setUpdatedDate(Calendar.getInstance().getTime());
+		spe.setUpdatedUsuari(SecurityContextHolder.getContext().getAuthentication().getName());
+		return conversioTipusHelper.convertir(serveiPinbalRepository.save(spe), ServeiPinbalDto.class);
 	}
 }
