@@ -119,7 +119,7 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 	private boolean arxiuActiu;
 	private String arxiuUuid;
 
-
+	private boolean documentsPinbal = false;
 
 	public Long getId() {
 		return id;
@@ -603,6 +603,14 @@ public class ExpedientDto extends ControlPermisosDto implements Serializable {
 
 	public void setErrorArxiu(String errorArxiu) {
 		this.errorArxiu = errorArxiu;
+	}
+
+	public boolean isDocumentsPinbal() {
+		return documentsPinbal;
+	}
+
+	public void setDocumentsPinbal(boolean documentsPinbal) {
+		this.documentsPinbal = documentsPinbal;
 	}
 
 	@Override

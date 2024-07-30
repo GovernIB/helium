@@ -84,6 +84,12 @@ public class DocumentDto extends HeretableDto implements Serializable {
 	private NtiEstadoElaboracionEnumDto ntiEstadoElaboracion;
 	private NtiTipoDocumentalEnumDto ntiTipoDocumental;
 
+	//#1741 Afegir documents a partir de consultes predefinides a Pinbal
+	private boolean pinbalActiu = false;
+	private String pinbalFinalitat;
+	private PinbalServeiEnumDto pinbalServei;
+	private boolean pinbalCifOrgan = false;
+	
 	private ExpedientTipusDto expedientTipus;
 	private CampDto campData;
 	/* Indica si permetre o no la retroacció.
@@ -472,6 +478,30 @@ public class DocumentDto extends HeretableDto implements Serializable {
 		this.portafirmesFluxNom = portafirmesFluxNom;
 	}
 
+	public boolean isPinbalActiu() {
+		return pinbalActiu;
+	}
+	public void setPinbalActiu(boolean pinbalActiu) {
+		this.pinbalActiu = pinbalActiu;
+	}
+	public String getPinbalFinalitat() {
+		return pinbalFinalitat;
+	}
+	public void setPinbalFinalitat(String pinbalFinalitat) {
+		this.pinbalFinalitat = pinbalFinalitat;
+	}
+	public PinbalServeiEnumDto getPinbalServei() {
+		return pinbalServei;
+	}
+	public void setPinbalServei(PinbalServeiEnumDto pinbalServei) {
+		this.pinbalServei = pinbalServei;
+	}
+	public boolean isPinbalCifOrgan() {
+		return pinbalCifOrgan;
+	}
+	public void setPinbalCifOrgan(boolean pinbalCifOrgan) {
+		this.pinbalCifOrgan = pinbalCifOrgan;
+	}
 	public String getArxiuNomSenseExtensio() {
 		if (getArxiuNom() == null)
 			return null;

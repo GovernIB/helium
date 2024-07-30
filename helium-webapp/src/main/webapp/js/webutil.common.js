@@ -52,6 +52,7 @@ function webutilAlertaError(missatge, divAlertes) {
 }
 
 function webutilModalAdjustHeight(iframe) {
+	debugger;
 	var $iframe = (iframe) ? $(iframe) : $(window.frameElement);
 	var modalobj = $iframe.parent().parent().parent();
 	var taraModal = $('.modal-header', modalobj).outerHeight() + $('.modal-footer', modalobj).outerHeight();
@@ -59,12 +60,12 @@ function webutilModalAdjustHeight(iframe) {
 	var htmlHeight = (iframe) ? $(iframe).contents().find("html").height() : document.documentElement.scrollHeight;
 	if (htmlHeight > maxBodyHeight) {
 		$iframe.height(maxBodyHeight + 'px');
-		$('.modal-body', modalobj).css('height', maxBodyHeight + 'px');
+		$('.modal-body', modalobj).css('height', (maxBodyHeight+5) + 'px');
 		$iframe.contents().find("body").css('height', maxBodyHeight + 'px');
 	} else {
 		$iframe.parent().css('height', htmlHeight + 'px');
 		$iframe.css('min-height', htmlHeight + 'px');
-		$iframe.closest('div.modal-body').height(htmlHeight + 'px');
+		$iframe.closest('div.modal-body').height((htmlHeight+5) + 'px');
 	}
 }
 

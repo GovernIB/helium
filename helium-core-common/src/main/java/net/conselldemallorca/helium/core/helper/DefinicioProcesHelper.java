@@ -373,6 +373,12 @@ public class DefinicioProcesHelper {
 						document.setNtiTipoDocumental(documentExportat.getNtiTipoDocumental());
 						document.setNtiOrigen(documentExportat.getNtiOrigen());
 						document.setNtiEstadoElaboracion(documentExportat.getNtiEstadoElaboracion());
+						
+						//Configuració integracio PINBAL
+						document.setPinbalActiu(documentExportat.isPinbalActiu());
+						document.setPinbalFinalitat(documentExportat.getPinbalFinalitat());
+						document.setPinbalServei(documentExportat.getPinbalServeiId());
+						document.setPinbalCifOrgan(documentExportat.isPinbalCifOrgan());
 					}
 					documents.put(documentExportat.getCodi(), document);
 				}	
@@ -1037,6 +1043,12 @@ public class DefinicioProcesHelper {
 					documentExportacio.setNtiTipoDocumental(document.getNtiTipoDocumental());
 					documentExportacio.setNtiOrigen(document.getNtiOrigen());
 					documentExportacio.setNtiEstadoElaboracion(document.getNtiEstadoElaboracion());
+					
+					//Configuració integracio PINBAL
+					documentExportacio.setPinbalActiu(document.isPinbalActiu());
+					documentExportacio.setPinbalFinalitat(document.getPinbalFinalitat());
+					documentExportacio.setPinbalServeiId(document.getPinbalServei());
+					documentExportacio.setPinbalActiu(document.isPinbalActiu());
 					
 					exportacio.getDocuments().add(documentExportacio);
 				}
@@ -1736,3 +1748,4 @@ public class DefinicioProcesHelper {
 	
 	private static final Logger logger = LoggerFactory.getLogger(DefinicioProcesHelper.class);
 }
+

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.core.helper;
 
 import java.awt.Color;
@@ -72,7 +69,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
+import net.conselldemallorca.helium.v3.core.api.dto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDadaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.HeliumException;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;

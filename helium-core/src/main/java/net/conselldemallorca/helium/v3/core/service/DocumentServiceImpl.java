@@ -12,19 +12,27 @@ import javax.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.HerenciaHelper;
 import net.conselldemallorca.helium.core.helper.NotificacioHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
+import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.Interessat;
+import net.conselldemallorca.helium.core.model.hibernate.ServeiPinbalEntity;
+import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
@@ -35,6 +43,8 @@ import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+import net.conselldemallorca.helium.v3.core.repository.InteressatRepository;
+import net.conselldemallorca.helium.v3.core.repository.ServeiPinbalRepository;
 
 /**
  * Implementació del servei per a gestionar documents dels tipus d'expedients o definicions de procés.
@@ -43,25 +53,19 @@ import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 @Service
 public class DocumentServiceImpl implements DocumentService {
 
-	@Resource
-	private DocumentRepository documentRepository;
-	@Resource
-	private ExpedientTipusRepository expedientTipusRepository;
-	@Resource
-	private DefinicioProcesRepository definicioProcesRepository;
-	@Resource
-	private CampRepository campRepository;
-
-	@Resource
-	private ExpedientTipusHelper expedientTipusHelper;
-	@Resource
-	private PaginacioHelper paginacioHelper;
-	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
-	@Resource
-	private NotificacioHelper notificacioHelper;
-	@Resource
-	private ReglaHelper reglaHelper;
+	@Resource private DocumentRepository documentRepository;
+	@Resource private ExpedientTipusRepository expedientTipusRepository;
+	@Resource private DefinicioProcesRepository definicioProcesRepository;
+	@Resource private CampRepository campRepository;
+	@Resource private ExpedientTipusHelper expedientTipusHelper;
+	@Resource private PaginacioHelper paginacioHelper;
+	@Resource private ConversioTipusHelper conversioTipusHelper;
+	@Resource private NotificacioHelper notificacioHelper;
+	@Resource private ExpedientHelper expedientHelper;
+	@Resource private PluginHelper pluginHelper;
+	@Resource private ReglaHelper reglaHelper;
+	@Resource private ServeiPinbalRepository serveiPinbalRepository;
+	@Resource private InteressatRepository interessatRepository;
 
 	/**
 	 * {@inheritDoc}
@@ -123,7 +127,6 @@ public class DocumentServiceImpl implements DocumentService {
 	@Override
 	@Transactional
 	public DocumentDto create(
-					
 			Long expedientTipusId, 
 			Long definicioProcesId, 
 			DocumentDto document) {
@@ -152,7 +155,6 @@ public class DocumentServiceImpl implements DocumentService {
 		entity.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
 		entity.setIgnored(document.isIgnored());
   
-				
 		entity.setNtiOrigen(document.getNtiOrigen());
 		entity.setNtiEstadoElaboracion(document.getNtiEstadoElaboracion());
 		entity.setNtiTipoDocumental(document.getNtiTipoDocumental());
@@ -167,6 +169,18 @@ public class DocumentServiceImpl implements DocumentService {
 		if (definicioProcesId != null)
 			entity.setDefinicioProces(definicioProcesRepository.findOne(definicioProcesId));
 
+		entity.setPinbalActiu(document.isPinbalActiu());
+		if (document.getPinbalServei()!=null) {
+			ServeiPinbalEntity spe = serveiPinbalRepository.findByCodi(document.getPinbalServei());
+			entity.setPinbalServei(spe.getId());
+		}
+		entity.setPinbalCifOrgan(document.isPinbalCifOrgan());
+		if (document.getPinbalFinalitat()!=null) {
+			entity.setPinbalFinalitat(document.getPinbalFinalitat().length()>250?document.getPinbalFinalitat().substring(0, 250):document.getPinbalFinalitat());
+		} else {
+			entity.setPinbalFinalitat("Tramitació d'expedient HELIUM.");
+		}
+		
 		return conversioTipusHelper.convertir(
 				documentRepository.save(entity),
 				DocumentDto.class);
@@ -276,13 +290,23 @@ public class DocumentServiceImpl implements DocumentService {
 						document.getCodi(),
 						false) != null);					
 		}
+		
+		if (document.isPinbalActiu()) {
+			if (document.getPinbalServei()!=null) {
+				ServeiPinbalEntity spe = serveiPinbalRepository.findOne(document.getPinbalServei());
+				dto.setPinbalServei(spe!=null?spe.getCodi():null);
+			}
+			dto.setPinbalActiu(true);
+			dto.setPinbalFinalitat(document.getPinbalFinalitat());
+			dto.setPinbalCifOrgan(document.isPinbalCifOrgan());
+		}
+		
 		return dto;
 	}
 	
 	@Override
 	@Transactional
 	public DocumentDto update(
-					
 			DocumentDto document,
 			boolean actualitzarContingut) {
 		logger.debug(
@@ -320,7 +344,6 @@ public class DocumentServiceImpl implements DocumentService {
 		entity.setContentType(document.getContentType());
 		entity.setCustodiaCodi(document.getCustodiaCodi());
 		entity.setTipusDocPortasignatures(document.getTipusDocPortasignatures());
-  
 				
 		entity.setNtiOrigen(document.getNtiOrigen());
 		entity.setNtiEstadoElaboracion(document.getNtiEstadoElaboracion());
@@ -342,23 +365,35 @@ public class DocumentServiceImpl implements DocumentService {
 			entity.setPortafirmesResponsables(null);	
 			entity.setPortafirmesActiu(false);
 		}
+		
+		entity.setPinbalActiu(document.isPinbalActiu());
+		if (document.getPinbalServei()!=null) {
+			ServeiPinbalEntity spe = serveiPinbalRepository.findByCodi(document.getPinbalServei());
+			entity.setPinbalServei(spe.getId());
+		}
+		entity.setPinbalCifOrgan(document.isPinbalCifOrgan());
+		if (document.getPinbalFinalitat()!=null) {
+			entity.setPinbalFinalitat(document.getPinbalFinalitat().length()>250?document.getPinbalFinalitat().substring(0, 250):document.getPinbalFinalitat());
+		} else {
+			entity.setPinbalFinalitat("Tramitació d'expedient HELIUM.");
+		}
 
 		return conversioTipusHelper.convertir(
 				documentRepository.save(entity),
 				DocumentDto.class);
 	}
 	
-	private String getResponsablesFromArray(String[] responsables) {
-		StringBuilder responsablesStr = new StringBuilder();
-		if (responsables != null) {
-			for (String responsable: responsables) {
-				if (responsablesStr.length() > 0)
-					responsablesStr.append(",");
-				responsablesStr.append(responsable);
-			}
-		}
-		return responsablesStr.toString();
-	}
+//	private String getResponsablesFromArray(String[] responsables) {
+//		StringBuilder responsablesStr = new StringBuilder();
+//		if (responsables != null) {
+//			for (String responsable: responsables) {
+//				if (responsablesStr.length() > 0)
+//					responsablesStr.append(",");
+//				responsablesStr.append(responsable);
+//			}
+//		}
+//		return responsablesStr.toString();
+//	}
 
 	@Override
 	@Transactional(readOnly = true)
@@ -399,5 +434,38 @@ public class DocumentServiceImpl implements DocumentService {
 	}		
 
 	private static final Logger logger = LoggerFactory.getLogger(DocumentServiceImpl.class);
+
+	@Override
+	public String createDocumentPinbal(ExpedientDocumentPinbalDto expedientDocumentPinbalDto) {
+
+		//1.- Obtenir el expedient i validar permisos i que el document esta configurat
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientDocumentPinbalDto.getExpedientId(),
+				new Permission[] {ExtendedPermission.DOC_MANAGE});
+		
+		//2.- Comprovar que el interessat, té el tipus de document acceptat per el servei Pinbal.
+		Interessat interessat = interessatRepository.findOne(expedientDocumentPinbalDto.getInteressatId());
+		ServeiPinbalEntity serveiPinbal = serveiPinbalRepository.findByCodi(expedientDocumentPinbalDto.getCodiServei());
+		
+//		switch (interessat.getTipus()) {
+//		case value:
+//			
+//			break;
+//
+//		default:
+//			break;
+//		}
+		
+//		if (interessat!=null) {
+//			return "consultes.pinbal.resultat.ko.interessat";
+//		}
+		
+		//3.- Fer la petició pinbal i obtenir el justificant.
+//		pluginHelper.consultaPinbal(dadesConsultaPinbal, expedient, servei);
+		
+		//4.- Guardar el justificant al document del expedient, i la petició pinbal
+		
+		return "consultes.pinbal.resultat.ok";
+	}
 
 }

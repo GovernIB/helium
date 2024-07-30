@@ -5,6 +5,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -24,6 +26,7 @@ public class ServeiPinbalEntity implements Serializable {
 	@Column(name="nom")
 	private String nom;	
 	@Column(name="codi", nullable=false, updatable= false)
+	@Enumerated(EnumType.STRING)
 	private PinbalServeiEnumDto codi;
 	@Column(name = "doc_permes_dni", nullable = false)
 	private boolean pinbalServeiDocPermesDni;

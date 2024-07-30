@@ -8,6 +8,7 @@ import java.io.Serializable;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PinbalServeiEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesTipusEnumDto;
 
@@ -41,7 +42,11 @@ public class DocumentExportacio implements Serializable {
 	private String portafirmesFluxNom;
 	private NtiTipoDocumentalEnumDto ntiTipoDocumental;
 	private NtiOrigenEnumDto ntiOrigen;
-	private NtiEstadoElaboracionEnumDto ntiEstadoElaboracion;	
+	private NtiEstadoElaboracionEnumDto ntiEstadoElaboracion;
+	private boolean pinbalActiu = false;
+	private String pinbalFinalitat;
+	private Long pinbalServeiId;
+	private boolean pinbalCifOrgan = false;
 	
 	public DocumentExportacio(
 			String codi,
@@ -248,6 +253,38 @@ public class DocumentExportacio implements Serializable {
 
 	public void setNtiEstadoElaboracion(NtiEstadoElaboracionEnumDto ntiEstadoElaboracion) {
 		this.ntiEstadoElaboracion = ntiEstadoElaboracion;
+	}
+
+	public boolean isPinbalActiu() {
+		return pinbalActiu;
+	}
+
+	public void setPinbalActiu(boolean pinbalActiu) {
+		this.pinbalActiu = pinbalActiu;
+	}
+
+	public String getPinbalFinalitat() {
+		return pinbalFinalitat;
+	}
+
+	public void setPinbalFinalitat(String pinbalFinalitat) {
+		this.pinbalFinalitat = pinbalFinalitat;
+	}
+
+	public Long getPinbalServeiId() {
+		return pinbalServeiId;
+	}
+
+	public void setPinbalServeiId(Long pinbalServeiId) {
+		this.pinbalServeiId = pinbalServeiId;
+	}
+
+	public boolean isPinbalCifOrgan() {
+		return pinbalCifOrgan;
+	}
+
+	public void setPinbalCifOrgan(boolean pinbalCifOrgan) {
+		this.pinbalCifOrgan = pinbalCifOrgan;
 	}
 
 	private static final long serialVersionUID = 1L;

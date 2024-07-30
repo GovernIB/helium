@@ -263,6 +263,7 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 		ntiHelper.omplirOrigen(model);
 		ntiHelper.omplirEstadoElaboracion(model);
 		ntiHelper.omplirTipoDocumental(model);
+		ntiHelper.omplirServeisPinbal(model);
 
 		model.addAttribute(
 				"fluxtipEnumOptions",

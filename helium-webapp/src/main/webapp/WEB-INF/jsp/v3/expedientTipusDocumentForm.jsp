@@ -278,6 +278,22 @@ div.dropdown-menu.loading .rmodal_carrecs {
 				<hel:inputSelect name="ntiEstadoElaboracion" textKey="expedient.tipus.document.form.camp.nti.estado.elaboracion" optionItems="${ntiEstadoElaboracion}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" comment="expedient.tipus.document.form.camp.nti.estado.elaboracion.comentari"/>
 				<hel:inputSelect name="ntiTipoDocumental" textKey="expedient.tipus.document.form.camp.nti.tipo.documental" optionItems="${ntiTipoDocumental}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" comment="expedient.tipus.document.form.camp.nti.tipo.documental.comentari"/>
 			</fieldset>
+			
+			<!-- Integracio PINBAL -->
+			<fieldset>
+				<legend><spring:message code="serveisPinbal.document.legend.title"></spring:message></legend>
+				<hel:inputCheckbox	name="pinbalActiu"		textKey="serveisPinbal.document.form.pinbalActiu" info="serveisPinbal.document.form.pinbalActiu.info"/>
+				<hel:inputSelect	
+					name="pinbalServei"
+					textKey="serveisPinbal.document.form.pinbalServei"
+					optionItems="${serveisPinbalEnum}"
+					optionValueAttribute="codi"
+					optionTextAttribute="valor"
+					required="true"/>
+				<hel:inputTextarea	name="pinbalFinalitat" 	textKey="serveisPinbal.document.form.pinbalFinalitat" required="true"/>
+				<hel:inputCheckbox	name="pinbalCifOrgan"	textKey="serveisPinbal.document.form.pinbalCifOrgan"/>
+			</fieldset>
+						
 		</div>
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.cancelar"/></button>

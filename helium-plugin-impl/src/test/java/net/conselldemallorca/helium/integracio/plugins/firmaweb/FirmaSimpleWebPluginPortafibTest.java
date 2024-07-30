@@ -13,7 +13,7 @@ import org.apache.commons.io.IOUtils;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
+import net.conselldemallorca.helium.v3.core.api.dto.Sexe;
 
 /** Prova d'enviar a firmar, recollir la URL, obtenir el transaction ID i el document firmat. */
 public class FirmaSimpleWebPluginPortafibTest {

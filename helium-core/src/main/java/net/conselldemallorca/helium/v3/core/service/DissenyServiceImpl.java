@@ -67,6 +67,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Domini;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ServeiPinbalEntity;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
@@ -82,6 +83,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -107,6 +109,7 @@ import net.conselldemallorca.helium.v3.core.repository.EntornRepository;
 import net.conselldemallorca.helium.v3.core.repository.EnumeracioRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
+import net.conselldemallorca.helium.v3.core.repository.ServeiPinbalRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 import net.conselldemallorca.helium.v3.core.repository.TerminiIniciatRepository;
 
@@ -172,7 +175,8 @@ public class DissenyServiceImpl implements DissenyService {
 	private DominiRepository dominiRepository;
 	@Resource
 	private ConsultaCampRepository consultaCampRepository;
-	
+	@Resource
+	private ServeiPinbalRepository serveiPinbalRepository;
 	
 
 
@@ -1354,5 +1358,40 @@ public class DissenyServiceImpl implements DissenyService {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientServiceImpl.class);
+
+	@Override
+	@Transactional(readOnly=true)
+	public ExpedientDocumentPinbalDto findDocumentPinbalByExpedient(Long expedientId, Long documentId) {
+		Long expTipusId = expedientHelper.getExpedientComprovantPermisos(
+				expedientId,
+				new Permission[] {ExtendedPermission.DOC_MANAGE}).getTipus().getId();
+		List<Document> documents = documentRepository.findByExpedientTipusAmbHerencia(expTipusId);
+		Document doc = null;
+		for (Document d: documents) {
+			if (d.getId().equals(documentId)) {
+				doc = d;
+				break;
+			}
+		}
+		
+		ExpedientDocumentPinbalDto resultat = new ExpedientDocumentPinbalDto();
+		resultat.setDocumentId(doc.getId());
+		resultat.setExpedientId(expedientId);
+		resultat.setDocumentNom(doc.getNom());
+		resultat.setFinalitat(doc.getPinbalFinalitat());
+		
+		if (doc.getPinbalServei()!=null) {
+			ServeiPinbalEntity serveiPinbalEntity = serveiPinbalRepository.findOne(doc.getPinbalServei());
+			resultat.setNomServei(serveiPinbalEntity.getNom());
+			resultat.setCodiServei(serveiPinbalEntity.getCodi());
+			resultat.setPinbalServeiDocPermesCif(serveiPinbalEntity.isPinbalServeiDocPermesCif());
+			resultat.setPinbalServeiDocPermesDni(serveiPinbalEntity.isPinbalServeiDocPermesDni());
+			resultat.setPinbalServeiDocPermesNif(serveiPinbalEntity.isPinbalServeiDocPermesNif());
+			resultat.setPinbalServeiDocPermesNie(serveiPinbalEntity.isPinbalServeiDocPermesNie());
+			resultat.setPinbalServeiDocPermesPas(serveiPinbalEntity.isPinbalServeiDocPermesPas());
+		}
+				
+		return resultat;
+	}
 
 }

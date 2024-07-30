@@ -43,6 +43,7 @@ div.procesDocument:hover {
 			<c:set var="proces" value="${dadesProces.key}"/>
 			<div id="dataTable_documents_${proces.id}">
 				<c:if test="${expedient.permisDocManagement && (empty expedient.dataFi || !expedient.arxiuActiu)}">
+					<c:if test="${expedient.documentsPinbal==false}">
 					<div id="dataTables_new">
 						<div id="nou_document_${proces.id}" class="nou_document">
 							<a class="btn btn-default" 
@@ -55,6 +56,38 @@ div.procesDocument:hover {
 							</a>
 						</div>
 					</div>
+					</c:if>
+					<c:if test="${expedient.documentsPinbal==true}">
+					<div id="dataTables_new" style="padding-bottom: 40px;">
+						<div id="menuNouDocument" class="btn-group" style="float: right;">
+							<button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+								<span class="fa fa-plus"></span> <spring:message code="expedient.boto.nou_document"/> <span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu">
+								<li>
+									<a	id="a_nou_document_${proces.id}"
+										href="../../v3/expedient/${expedientId}/proces/${proces.id}/document/new" 
+										data-rdt-link-modal="true" 
+										data-rdt-link-callback="recargarPanel(${proces.id});"
+										data-rdt-link-modal-min-height="180">
+										<span class="fa fa-file-text-o"></span>
+										<spring:message code="expedient.boto.nou_document"/>
+									</a>
+								</li>
+								<li>
+									<a	id="a_nou_document_${proces.id}"
+										href="../../v3/expedient/${expedientId}/proces/${proces.id}/documentPinbal/new" 
+										data-rdt-link-modal="true" 
+										data-rdt-link-callback="recargarPanel(${proces.id});"
+										data-rdt-link-modal-min-height="280">
+										<span class="fa fa-file-text-o"></span>
+										<spring:message code="expedient.boto.nou_documentPinbal"/>
+									</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+					</c:if>
 				</c:if>
 				<div class="panel panel-default">
 					<div id="${proces.id}-titol-documents" class="panel-heading clicable procesDocument" data-processinstanceid="${proces.id}" data-toggle="collapse" data-target="#panel_document_${proces.id}" data-id="${proces.id}_documents" data-carrega="<c:if test='${!procesFirst}'>ajax</c:if>">
@@ -99,7 +132,7 @@ div.procesDocument:hover {
 					refrescarPagina: false,
 					alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"
 				});
-				$('#nou_document_${proces.id} a').heliumEvalLink({
+				$('#nou_document_${proces.id} a, #a_nou_document_${proces.id}').heliumEvalLink({
 					refrescarAlertes: true,
 					refrescarPagina: false,
 					alertesRefreshUrl: "<c:url value="/nodeco/v3/missatges"/>"

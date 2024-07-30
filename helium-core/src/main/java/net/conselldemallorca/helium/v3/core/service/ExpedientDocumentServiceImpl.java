@@ -2447,13 +2447,13 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				codisDocumentsExistents.add(documentExpedient.getDocumentCodi());
 			// Mira quins documents no s'han utilitzat i els retorna
 			for(Document document: documents)
-				if (!codisDocumentsExistents.contains(document.getCodi()))
+				if (!codisDocumentsExistents.contains(document.getCodi()) && !document.isPinbalActiu())
 					documentsNoUtilitzats.add(toDocumentInfo(document, documentFormProperties.get(document.getCodi())));
 			return documentsNoUtilitzats;
 		} else {
-			for(Document document: documents) {
-				documentsNoUtilitzats.add(toDocumentInfo(document, documentFormProperties.get(document.getCodi())));
-			}
+			for(Document document: documents)
+				if (!document.isPinbalActiu())
+					documentsNoUtilitzats.add(toDocumentInfo(document, documentFormProperties.get(document.getCodi())));
 		}
         return documentsNoUtilitzats;
     }

@@ -54,6 +54,7 @@ import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.service.PluginService;
 import net.conselldemallorca.helium.core.util.PdfUtils;
+import net.conselldemallorca.helium.core.util.StringUtilsHelium;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
@@ -66,6 +67,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentStoreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnviamentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaResultatDto;
@@ -85,6 +87,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDt
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.Sexe;
+import net.conselldemallorca.helium.v3.core.api.dto.SexeDto;
 import net.conselldemallorca.helium.v3.core.api.dto.StatusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TokenDto;
 import net.conselldemallorca.helium.v3.core.api.dto.document.DocumentDetallDto;
@@ -408,6 +412,136 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		model.addAttribute("ambDocument", true);
 		return "v3/expedientDocumentForm";
 	}
+	
+	@RequestMapping(value = "/{expedientId}/documentPinbal/{documentId}/info", method = RequestMethod.GET)
+	@ResponseBody
+	public ExpedientDocumentPinbalDto documentPinbalInfo(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long documentId,
+			Model model) {
+		return dissenyService.findDocumentPinbalByExpedient(expedientId, documentId);
+	}
+	
+	@RequestMapping(value = "/{expedientId}/documentPinbal/new", method = RequestMethod.GET)
+	public String documentPinbalNouGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model) {
+		return nouDocumentPinbalGet(request, expedientId, null, model);
+	}
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/documentPinbal/new", method = RequestMethod.GET)
+	public String nouDocumentPinbalGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String processInstanceId,
+			Model model) {
+		ExpedientDocumentPinbalDto command = new ExpedientDocumentPinbalDto();
+		command.setExpedientId(expedientId);
+		command.setProcessInstanceId(processInstanceId);
+		omplirModelFormDocumentPinbal(model, command);
+		return "v3/expedientDocumentPinbalForm";
+	}
+	
+	private void omplirModelFormDocumentPinbal(Model model, ExpedientDocumentPinbalDto command) {
+		model.addAttribute("processInstanceId", command.getProcessInstanceId());
+		model.addAttribute("expedientDocumentPinbalDto", command);
+		model.addAttribute("documentsPinbal", getDocumentsPinbal(command.getExpedientId(), command.getProcessInstanceId()));
+		model.addAttribute("interessats", expedientInteressatService.findByExpedient(command.getExpedientId()));
+		ntiHelper.omplirConsentiment(model);
+		ntiHelper.omplirTipusPassaport(model);
+		ntiHelper.omplirSexe(model);
+		List<ParellaCodiValorDto> tdlist = new ArrayList<ParellaCodiValorDto>();
+		model.addAttribute("comunitats", tdlist);
+		model.addAttribute("provincies", tdlist);
+		model.addAttribute("municipis", tdlist);
+		model.addAttribute("paisos", tdlist);
+	}
+	
+	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/documentPinbal/new", method = RequestMethod.POST)
+	public String nouDocumentPinbalPost(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable String processInstanceId,
+			@ModelAttribute ExpedientDocumentPinbalDto command,
+			BindingResult bindingResult,
+			Model model) {
+		
+		switch (command.getCodiServei()) {
+		case SVDDELSEXWS01:
+			if (StringUtils.isEmpty(command.getDataNaixement())) {
+				bindingResult.rejectValue("dataNaixement", "NotEmpty");
+			}
+			if (command.getPaisNaixament().equals("724") && StringUtils.isEmpty(command.getMunicipiNaixamentSVDDELSEXWS01())) {
+				bindingResult.rejectValue("municipiNaixament", "NotEmpty");
+			}
+			if (!command.getPaisNaixament().equals("724") && StringUtils.isEmpty(command.getPoblacioNaixament())) {
+				bindingResult.rejectValue("poblacioNaixament", "NotEmpty");
+			}			
+			if (command.getCodiNacionalitat().equals("724") && StringUtils.isEmpty(command.getNomPare()) && StringUtils.isEmpty(command.getNomMare())) {
+				bindingResult.rejectValue("nomPare", "NotEmpty");
+			}
+			break;
+		case NIVRENTI:
+			if (command.getExercici() == null) {
+				bindingResult.rejectValue("exercici", "NotEmpty");
+			}
+			break;
+		case SVDDGPRESIDENCIALEGALDOCWS01:
+			if (command.getTipusPassaport() == null && StringUtilsHelium.isEmpty(command.getNumeroSoporte())) {
+				bindingResult.reject("contingut.pinbal.form.camp.tipus.numero.soporte.passaport.comment");
+			}
+			if (command.getTipusPassaport() != null && command.getDataCaducidad() == null) {
+				bindingResult.rejectValue("dataCaducidad", "NotEmpty");
+			}
+			if (command.getTipusPassaport() != null && StringUtilsHelium.isEmpty(command.getCodiNacionalitat())) {
+				bindingResult.rejectValue("codiNacionalitat", "NotEmpty");
+			}
+			break;
+		case SVDRRCCNACIMIENTOWS01:
+			if (StringUtilsHelium.isEmpty(command.getRegistreCivil())) {
+				bindingResult.rejectValue("registreCivil", "NotEmpty");
+			}
+			if (StringUtilsHelium.isEmpty(command.getPagina())) {
+				bindingResult.rejectValue("pagina", "NotEmpty");
+			}
+			if (StringUtilsHelium.isEmpty(command.getTom())) {
+				bindingResult.rejectValue("tom", "NotEmpty");
+			}
+			if (command.getDataRegistre() == null) {
+				bindingResult.rejectValue("dataRegistre", "NotEmpty");
+			}
+			break;
+		case SVDBECAWS01:
+			if (command.getCurs() == null) {
+				bindingResult.rejectValue("curs", "NotEmpty");
+			}
+			break;
+		default:
+			break;
+		}
+		
+		if (bindingResult.hasErrors()) {
+			omplirModelFormDocumentPinbal(model, command);
+			return "v3/expedientDocumentPinbalForm";
+		} else {
+			String resultat = documentService.createDocumentPinbal(command);
+			if (resultat.contains("resultat.ok")) {
+				MissatgesHelper.success(request, 
+						getMessage(
+								request,
+								resultat,
+								new Object[] {command.getDocumentNom(), command.getCodiServei()}));
+			} else {
+				MissatgesHelper.error(request, resultat);
+				omplirModelFormDocumentPinbal(model, command);
+				return "v3/expedientDocumentPinbalForm";
+			}
+		}
+		
+		return modalUrlTancar();
+	}
+	
 	@RequestMapping(value = "/{expedientId}/document/new", method = RequestMethod.GET)
 	public String documentNouGet(
 			HttpServletRequest request,
@@ -1494,18 +1628,35 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				codisDocumentsExistents.add(documentExpedient.getDocumentCodi());
 			// Mira quins documents no s'han utilitzat i els retorna
 			for(DocumentDto document: documents) 
-				if (!codisDocumentsExistents.contains(document.getCodi()))
+				if (!codisDocumentsExistents.contains(document.getCodi()) && !document.isPinbalActiu())
 					documentsNoUtilitzats.add(toDocumentInfo(document));
 		} else {
-			for(DocumentDto document: documents) {
-				documentsNoUtilitzats.add(toDocumentInfo(document));
-			}
+			for(DocumentDto document: documents)
+				if (!document.isPinbalActiu())
+					documentsNoUtilitzats.add(toDocumentInfo(document));
 		}
-			return documentsNoUtilitzats;
-		}
+		
+		return documentsNoUtilitzats;
+	}
+	
+	private List<DocumentInfoDto> getDocumentsPinbal(Long expedientId, String procesId) {
+		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
+		List<DocumentInfoDto> documentsPinbal = new ArrayList<DocumentInfoDto>();
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
+				expedient.getTipus().getId(),
+				instanciaProces.getDefinicioProces().getId(),
+				true);	// amb herència
+
+		for(DocumentDto document: documents)
+			if (document.isPinbalActiu())
+				documentsPinbal.add(toDocumentInfo(document));
+		
+		return documentsPinbal;
+	}
 
 	private DocumentInfoDto toDocumentInfo(DocumentDto document) {
-		return DocumentInfoDto.builder()
+		DocumentInfoDto resultat = DocumentInfoDto.builder()
 				.codi(document.getCodi())
 				.documentNom(document.getDocumentNom())
 				.plantilla(document.isPlantilla())
@@ -1514,6 +1665,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				.ntiTipoDocumental(document.getNtiTipoDocumental())
 				.generarNomesTasca(document.isGenerarNomesTasca())
 				.build();
+		resultat.setId(document.getId());
+		return resultat;
 	}
 
 	private ExpedientDto emplenarModelNti(

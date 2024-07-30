@@ -21,6 +21,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesVersioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -358,5 +359,7 @@ public interface DissenyService {
 
 	/** Retorna una llista amb tots els handlers predefinits a partir del document JSON handlersPredefinits.json. */
 	public List<HandlerDto> getHandlersPredefinits();
+	
+	public ExpedientDocumentPinbalDto findDocumentPinbalByExpedient(Long expedientId, Long documentId);
 
 }

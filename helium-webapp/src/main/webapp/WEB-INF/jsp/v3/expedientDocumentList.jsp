@@ -467,7 +467,43 @@
 			<span class="fa fa-download"></span> <spring:message code="comu.boto.descarregar"/> <span id="descarregarCount" class="badge">&nbsp;</span>
 		</a>
 		<c:if test="${expedient.permisDocManagement}">
-			<a id="nou_document" class="btn btn-default" href="${expedient.id}/document/new" data-toggle="modal" data-datatable-id="expedientDocuments"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nou_document"/></a>
+			<c:if test="${expedient.documentsPinbal==false}">
+			<a	id="nou_document"
+				class="btn btn-default"
+				href="${expedient.id}/document/new"
+				data-toggle="modal"
+				data-datatable-id="expedientDocuments">
+					<span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nou_document"/>
+			</a>
+			</c:if>
+			<c:if test="${expedient.documentsPinbal==true}">
+
+						<div class="btn-group">
+							<button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+								<span class="fa fa-plus"></span> <spring:message code="expedient.boto.nou_document"/> <span class="caret"></span>
+							</button>
+							<ul class="dropdown-menu">
+								<li>
+			<a	id="nou_document"
+				href="${expedient.id}/document/new"
+				data-toggle="modal"
+				data-datatable-id="expedientDocuments">
+					<span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nou_document"/>
+			</a>
+								</li>
+								<li>
+									<a 	href="${expedient.id}/documentPinbal/new"
+										data-rdt-link-modal="true" 
+										data-rdt-link-callback="recargarPanel(${proces.id});"
+										data-rdt-link-modal-min-height="180">
+										<span class="fa fa-file-text-o"></span>
+										<spring:message code="expedient.boto.nou_documentPinbal"/>
+									</a>
+								</li>
+							</ul>
+						</div>
+
+			</c:if>
 		</c:if>
 	</div>
 </script>
