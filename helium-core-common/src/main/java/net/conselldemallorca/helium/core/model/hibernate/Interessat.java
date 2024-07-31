@@ -1,14 +1,8 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.core.model.hibernate;
 
 import java.io.Serializable;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -16,17 +10,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
-
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
-
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
-import net.conselldemallorca.helium.v3.core.api.dto.InteressatDocumentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TitularDto.ScspTipoDocumentacion;
 
-/**
-
- * @author Limit Tecnologies <limit@limit.es>
- */
 @Entity
 @Table(	name="hel_interessat")//ADAPTAT A SICRES 4
 public class Interessat implements Serializable, GenericEntity<Long> {
@@ -349,7 +337,37 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 		this.canalNotif = canalNotif;
 	}
 
-
+	//Retorna el tipus de document a enviar en una petició PINBAL, null en cas de no trobar coincidencia
+	//enum ScspTipoDocumentacion { CIF, CSV, DNI, NIE, NIF, Pasaporte, NumeroIdentificacion, Otros}
+	//enum TipusDocIdentSICRES { NIF ("N"), CIF ("C"), PASSAPORT ("P"), DOCUMENT_IDENTIFICATIU_ESTRANGERS ("E"), ALTRES_DE_PERSONA_FISICA ("X"), CODI_ORIGEN ("O"); }
+	public ScspTipoDocumentacion tipusInteressatCompatible(ServeiPinbalEntity serveiPinbal) {
+		if (this.tipus!=null) {
+			//Persona física
+			if (this.tipus.equals(InteressatTipusEnumDto.FISICA)) {
+				if ("N".equals(this.tipusDocIdent)) {
+					if (serveiPinbal.isPinbalServeiDocPermesNif()) {
+						return ScspTipoDocumentacion.NIF;
+					} else {
+						return ScspTipoDocumentacion.DNI;
+					}
+				} else if ("P".equals(this.tipusDocIdent)) {
+					return ScspTipoDocumentacion.Pasaporte;
+				} else if ("E".equals(this.tipusDocIdent)) {
+					return ScspTipoDocumentacion.NIE;
+				}
+			} else {
+				//Persona jurídica o administració
+				if ("C".equals(this.tipusDocIdent)) {
+					if (serveiPinbal.isPinbalServeiDocPermesCif()) {
+						return ScspTipoDocumentacion.CIF;
+					} else {
+						return ScspTipoDocumentacion.NIF;
+					}
+				}
+			}
+		}
+		return ScspTipoDocumentacion.Otros;
+	}
 
 	private static final long serialVersionUID = 1L;
 }

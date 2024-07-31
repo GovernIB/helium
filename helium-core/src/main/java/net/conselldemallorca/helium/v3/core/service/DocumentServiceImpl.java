@@ -43,6 +43,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TitularDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TitularDto.ScspTipoDocumentacion;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
@@ -456,24 +457,17 @@ public class DocumentServiceImpl implements DocumentService {
 		//2.- Comprovar que el interessat, té el tipus de document acceptat per el servei Pinbal.
 		Interessat interessat = interessatRepository.findOne(expedientDocumentPinbalDto.getInteressatId());
 		ServeiPinbalEntity serveiPinbal = serveiPinbalRepository.findByCodi(expedientDocumentPinbalDto.getCodiServei());
-		
-//		switch (interessat.getTipus()) {
-//		case value:
-//			
-//			break;
-//
-//		default:
-//			break;
-//		}
-		
-//		if (interessat!=null) {
-//			return "consultes.pinbal.resultat.ko.interessat";
-//		}
+		//enum ScspTipoDocumentacion { CIF, CSV, DNI, NIE, NIF, Pasaporte, NumeroIdentificacion, Otros}
+		//enum TipusDocIdentSICRES { NIF ("N"), CIF ("C"), PASSAPORT ("P"), DOCUMENT_IDENTIFICATIU_ESTRANGERS ("E"), ALTRES_DE_PERSONA_FISICA ("X"), CODI_ORIGEN ("O"); }
+		ScspTipoDocumentacion tipusDocumentacio = interessat.tipusInteressatCompatible(serveiPinbal);
+		if (tipusDocumentacio==null) {
+			return "consultes.pinbal.resultat.ko.interessat";
+		}
 		
 		//3.- Fer la petició pinbal (creara la petició pinbal i creara el document indicat amb el justificant)
 		Titular titular = new Titular();
-		titular.setDocumentacion(interessat.getNif());
-		titular.setTipusDocumentacion(TitularDto.ScspTipoDocumentacion.NIF.toString());
+		titular.setDocumentacion(interessat.getDocumentIdent());
+		titular.setTipusDocumentacion(tipusDocumentacio.toString());
 		titular.setNombre(interessat.getNom());
 		titular.setApellido1(interessat.getLlinatge1());
 		titular.setApellido2(interessat.getLlinatge2());
