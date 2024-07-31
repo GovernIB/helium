@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.security.acls.model.Permission;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,12 +30,19 @@ import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Interessat;
 import net.conselldemallorca.helium.core.model.hibernate.ServeiPinbalEntity;
+import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
+import net.conselldemallorca.helium.core.util.StringUtilsHelium;
+import net.conselldemallorca.helium.integracio.plugins.pinbal.DadesConsultaPinbal;
+import net.conselldemallorca.helium.integracio.plugins.pinbal.Funcionari;
+import net.conselldemallorca.helium.integracio.plugins.pinbal.Titular;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TitularDto;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
@@ -45,6 +53,7 @@ import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.InteressatRepository;
 import net.conselldemallorca.helium.v3.core.repository.ServeiPinbalRepository;
+import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaRepository;
 
 /**
  * Implementació del servei per a gestionar documents dels tipus d'expedients o definicions de procés.
@@ -66,7 +75,8 @@ public class DocumentServiceImpl implements DocumentService {
 	@Resource private ReglaHelper reglaHelper;
 	@Resource private ServeiPinbalRepository serveiPinbalRepository;
 	@Resource private InteressatRepository interessatRepository;
-
+	@Resource private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -460,10 +470,68 @@ public class DocumentServiceImpl implements DocumentService {
 //			return "consultes.pinbal.resultat.ko.interessat";
 //		}
 		
-		//3.- Fer la petició pinbal i obtenir el justificant.
-//		pluginHelper.consultaPinbal(dadesConsultaPinbal, expedient, servei);
+		//3.- Fer la petició pinbal (creara la petició pinbal i creara el document indicat amb el justificant)
+		Titular titular = new Titular();
+		titular.setDocumentacion(interessat.getNif());
+		titular.setTipusDocumentacion(TitularDto.ScspTipoDocumentacion.NIF.toString());
+		titular.setNombre(interessat.getNom());
+		titular.setApellido1(interessat.getLlinatge1());
+		titular.setApellido2(interessat.getLlinatge2());
+
+		PersonaDto personaDto = pluginHelper.personaFindAmbCodi(SecurityContextHolder.getContext().getAuthentication().getName());
+		Funcionari funcionari = new Funcionari();
+		funcionari.setNifFuncionario(personaDto.getDni());
+		funcionari.setNombreCompletoFuncionario(personaDto.getNomSencer());
+		funcionari.setSeudonimo(personaDto.getCodi());
 		
-		//4.- Guardar el justificant al document del expedient, i la petició pinbal
+		String xmlDadesEspecifiques = null;
+		switch (expedientDocumentPinbalDto.getCodiServei()) {
+		case SVDDGPVIWS02:
+			 xmlDadesEspecifiques = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><DatosEspecificos><Consulta></Consulta></DatosEspecificos>";
+			 break;
+		default:
+			break;
+		}
+		
+		String codiUO=null;
+		try
+	    {
+			if(expedient.getTipus().isProcedimentComu() && expedient.getUnitatOrganitzativa()!=null){
+				codiUO = expedient.getUnitatOrganitzativa().getCodi();	
+			} else {
+				codiUO = expedient.getTipus().getNtiOrgano();
+			}
+			UnitatOrganitzativa uo = unitatOrganitzativaRepository.findByCodi(codiUO);
+			codiUO= StringUtilsHelium.abreuja(uo.getDenominacio(), 64);
+	    } catch (Exception e) {
+	      logger.error("Error d'integraicó consultant la UO: " + 
+	    		  codiUO!=null ? codiUO : expedient.getTipus().getNtiOrgano()
+	    		+  " " + e.getMessage(), e);
+	      logger.warn("Com a unitat tramitadora per la consulta a PINBAL es fixa el codi DIR3 " + expedient.getTipus().getNtiOrgano());
+	      if (codiUO==null)
+	    	  codiUO = expedient.getTipus().getNtiOrgano();
+	    }
+		
+		DadesConsultaPinbal dadesConsultaPinbal = new DadesConsultaPinbal(
+				titular,
+				funcionari,
+				xmlDadesEspecifiques,
+				expedientDocumentPinbalDto.getCodiServei().toString(),
+				expedientDocumentPinbalDto.getDocumentCodi(),
+				expedientDocumentPinbalDto.getFinalitat(),
+				expedientDocumentPinbalDto.getConsentiment(),
+				null, //interessatCodi
+				expedient.getTipus().getNtiClasificacion(), //codiProcediment
+				expedient.getTipus().getPinbalNifCif(), //entitat_CIF
+				codiUO, //unitatTramitadora
+				false, //asincrona
+				null  //anyNaixement
+				);
+		//No volem guardar la petició pinbal amb error a la taula HEL_PETICIO_PINBAL.
+		//Retornam el error i ja ho reintentarán desde la mateixa modal de document Pinbal.
+		dadesConsultaPinbal.setGuardarError(false);
+		
+		pluginHelper.consultaPinbal(dadesConsultaPinbal, expedient, null);
 		
 		return "consultes.pinbal.resultat.ok";
 	}

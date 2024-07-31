@@ -5030,7 +5030,6 @@ public class PluginHelper {
 			else if(servei.equals(PluginHelper.serveiObligacionsTributaries))
 				scspRespostaPinbal= getPinbalPlugin().peticioClientPinbalSvdccaacpasws01(dadesConsultaPinbal);
 			
-			
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_PINBAL,
 					accioDescripcio,
@@ -5050,7 +5049,10 @@ public class PluginHelper {
 					errorDescripcio,
 					ex,
 					parametres);
-			monitorIntegracioHelper.guardaPeticioPinbalAmbError(expedient, dadesConsultaPinbal, ex);
+			
+			if (dadesConsultaPinbal.isGuardarError())
+				monitorIntegracioHelper.guardaPeticioPinbalAmbError(expedient, dadesConsultaPinbal, ex);
+			
 			throw tractarExcepcioEnSistemaExtern(
 					MonitorIntegracioHelper.INTCODI_PINBAL,
 					errorDescripcio, 

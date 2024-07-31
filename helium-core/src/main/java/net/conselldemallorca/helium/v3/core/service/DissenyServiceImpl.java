@@ -1378,6 +1378,7 @@ public class DissenyServiceImpl implements DissenyService {
 		resultat.setDocumentId(doc.getId());
 		resultat.setExpedientId(expedientId);
 		resultat.setDocumentNom(doc.getNom());
+		resultat.setDocumentCodi(doc.getCodi());
 		resultat.setFinalitat(doc.getPinbalFinalitat());
 		
 		if (doc.getPinbalServei()!=null) {

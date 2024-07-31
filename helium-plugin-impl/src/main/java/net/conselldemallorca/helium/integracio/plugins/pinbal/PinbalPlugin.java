@@ -34,6 +34,7 @@ import es.caib.pinbal.client.recobriment.svddgpviws02.ClientSvddgpviws02;
 import es.caib.pinbal.client.recobriment.svddgpviws02.ClientSvddgpviws02.SolicitudSvddgpviws02;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalEstatEnum;
+import net.conselldemallorca.helium.v3.core.api.dto.PinbalConsentimentEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.ScspAtributos;
 import net.conselldemallorca.helium.v3.core.api.dto.ScspConfirmacioPeticioPinbal;
 import net.conselldemallorca.helium.v3.core.api.dto.ScspEstado;
@@ -421,14 +422,14 @@ public class PinbalPlugin implements PinbalPluginInterface {
 	}
 	
 	/**Compara les dades de Consentiment amb les dades de consentiment de Pinbal**/
-	private ScspConsentimiento compararConsentiment(String consentiment) {
-			if(consentiment.equals(DadesConsultaPinbal.consentiment.SI.toString()))
-				return ScspConsentimiento.Si;
-			else if (consentiment.equals(DadesConsultaPinbal.consentiment.LLEI.toString()))
-				return ScspConsentimiento.Ley;
-		return null;
+	private ScspConsentimiento compararConsentiment(PinbalConsentimentEnum consentiment) {
+		switch (consentiment) {
+		case SI:
+			return ScspConsentimiento.Si;
+		default:
+			return ScspConsentimiento.Ley;
+		}
 	}
-
 	
 	/**Valida les dades obligatòries per fer la consulta a Pinbal**/
 	private boolean validarDadesObligatories(DadesConsultaPinbal dadesConsultaPinbal) throws IOException {

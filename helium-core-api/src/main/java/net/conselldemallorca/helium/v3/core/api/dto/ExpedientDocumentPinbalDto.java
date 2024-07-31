@@ -3,6 +3,8 @@ package net.conselldemallorca.helium.v3.core.api.dto;
 import java.io.Serializable;
 import java.util.Date;
 
+import lombok.NonNull;
+
 public class ExpedientDocumentPinbalDto implements Serializable {
 	
 	private static final long serialVersionUID = 2766735288507498173L;
@@ -11,7 +13,9 @@ public class ExpedientDocumentPinbalDto implements Serializable {
 	private String processInstanceId;
 	private Long documentId;
 	private String documentNom;
+	private String documentCodi;
 	private Long interessatId;
+	private boolean commandValidat = false;
 	
 	private String finalitat;
 	private PinbalConsentimentEnum consentiment;
@@ -27,8 +31,8 @@ public class ExpedientDocumentPinbalDto implements Serializable {
 	private String comunitatAutonomaCodi;
 	private String provinciaCodi;
 	private String municipiCodi;
-	private String dataConsulta;
-	private String dataNaixement;
+	private Date dataConsulta;
+	private Date dataNaixement;
 	private boolean consentimentTipusDiscapacitat = false;
 	private String numeroTitol;
 	private String codiNacionalitat = "724";
@@ -84,6 +88,12 @@ public class ExpedientDocumentPinbalDto implements Serializable {
 	}
 	public void setDocumentNom(String documentNom) {
 		this.documentNom = documentNom;
+	}
+	public String getDocumentCodi() {
+		return documentCodi;
+	}
+	public void setDocumentCodi(String documentCodi) {
+		this.documentCodi = documentCodi;
 	}
 	public Long getInteressatId() {
 		return interessatId;
@@ -163,16 +173,16 @@ public class ExpedientDocumentPinbalDto implements Serializable {
 	public void setMunicipiCodi(String municipiCodi) {
 		this.municipiCodi = municipiCodi;
 	}
-	public String getDataConsulta() {
+	public Date getDataConsulta() {
 		return dataConsulta;
 	}
-	public void setDataConsulta(String dataConsulta) {
+	public void setDataConsulta(Date dataConsulta) {
 		this.dataConsulta = dataConsulta;
 	}
-	public String getDataNaixement() {
+	public Date getDataNaixement() {
 		return dataNaixement;
 	}
-	public void setDataNaixement(String dataNaixement) {
+	public void setDataNaixement(Date dataNaixement) {
 		this.dataNaixement = dataNaixement;
 	}
 	public boolean isConsentimentTipusDiscapacitat() {
@@ -367,4 +377,11 @@ public class ExpedientDocumentPinbalDto implements Serializable {
 	public void setProcessInstanceId(String processInstanceId) {
 		this.processInstanceId = processInstanceId;
 	}
+	public boolean isCommandValidat() {
+		return commandValidat;
+	}
+	public void setCommandValidat(boolean commandValidat) {
+		this.commandValidat = commandValidat;
+	}
+	
 }

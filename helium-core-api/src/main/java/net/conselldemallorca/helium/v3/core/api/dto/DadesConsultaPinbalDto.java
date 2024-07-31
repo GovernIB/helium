@@ -23,14 +23,8 @@ public class DadesConsultaPinbalDto {
 	private String	transicioOK;
 	private String	transicioKO;
 	private String anyNaixement;
-
-	public enum consentiment {
-		SI,
-		LLEI
-	}
-	private String consentiment;
+	private PinbalConsentimentEnum consentiment;
 	
-
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
@@ -93,11 +87,11 @@ public class DadesConsultaPinbalDto {
 		this.interessatCodi = interessatCodi;
 	}
 
-	public String getConsentiment() {
+	public PinbalConsentimentEnum getConsentiment() {
 		return consentiment;
 	}
 
-	public void setConsentiment(String consentiment) {
+	public void setConsentiment(PinbalConsentimentEnum consentiment) {
 		this.consentiment = consentiment;
 	}
 

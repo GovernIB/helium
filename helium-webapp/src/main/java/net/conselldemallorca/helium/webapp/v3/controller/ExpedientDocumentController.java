@@ -37,7 +37,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
@@ -87,8 +89,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDt
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.Sexe;
-import net.conselldemallorca.helium.v3.core.api.dto.SexeDto;
 import net.conselldemallorca.helium.v3.core.api.dto.StatusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TokenDto;
 import net.conselldemallorca.helium.v3.core.api.dto.document.DocumentDetallDto;
@@ -439,11 +439,14 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		ExpedientDocumentPinbalDto command = new ExpedientDocumentPinbalDto();
 		command.setExpedientId(expedientId);
 		command.setProcessInstanceId(processInstanceId);
-		omplirModelFormDocumentPinbal(model, command);
+		omplirModelFormDocumentPinbal(model, command, false);
 		return "v3/expedientDocumentPinbalForm";
 	}
 	
-	private void omplirModelFormDocumentPinbal(Model model, ExpedientDocumentPinbalDto command) {
+	private void omplirModelFormDocumentPinbal(
+			Model model,
+			ExpedientDocumentPinbalDto command,
+			boolean intentGuardar) {
 		model.addAttribute("processInstanceId", command.getProcessInstanceId());
 		model.addAttribute("expedientDocumentPinbalDto", command);
 		model.addAttribute("documentsPinbal", getDocumentsPinbal(command.getExpedientId(), command.getProcessInstanceId()));
@@ -456,6 +459,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		model.addAttribute("provincies", tdlist);
 		model.addAttribute("municipis", tdlist);
 		model.addAttribute("paisos", tdlist);
+		command.setCommandValidat(intentGuardar);
 	}
 	
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/documentPinbal/new", method = RequestMethod.POST)
@@ -469,7 +473,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		
 		switch (command.getCodiServei()) {
 		case SVDDELSEXWS01:
-			if (StringUtils.isEmpty(command.getDataNaixement())) {
+			if (command.getDataNaixement()!=null) {
 				bindingResult.rejectValue("dataNaixement", "NotEmpty");
 			}
 			if (command.getPaisNaixament().equals("724") && StringUtils.isEmpty(command.getMunicipiNaixamentSVDDELSEXWS01())) {
@@ -522,19 +526,28 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		}
 		
 		if (bindingResult.hasErrors()) {
-			omplirModelFormDocumentPinbal(model, command);
+			omplirModelFormDocumentPinbal(model, command, true);
 			return "v3/expedientDocumentPinbalForm";
 		} else {
-			String resultat = documentService.createDocumentPinbal(command);
-			if (resultat.contains("resultat.ok")) {
-				MissatgesHelper.success(request, 
-						getMessage(
-								request,
-								resultat,
-								new Object[] {command.getDocumentNom(), command.getCodiServei()}));
-			} else {
-				MissatgesHelper.error(request, resultat);
-				omplirModelFormDocumentPinbal(model, command);
+			try {
+				String resultat = documentService.createDocumentPinbal(command);
+				if (resultat.contains("resultat.ok")) {
+					MissatgesHelper.success(request, 
+							getMessage(
+									request,
+									resultat,
+									new Object[] {command.getDocumentNom(), command.getCodiServei()}));
+				} else {
+					MissatgesHelper.error(request, resultat);
+					omplirModelFormDocumentPinbal(model, command, true);
+					return "v3/expedientDocumentPinbalForm";
+				}
+			} catch (Exception ex) {
+				MissatgesHelper.error(request, getMessage(
+						request,
+						"consultes.pinbal.resultat.ko",
+						new Object[] {command.getDocumentNom(), command.getCodiServei(), ex.getMessage()}));
+				omplirModelFormDocumentPinbal(model, command, true);
 				return "v3/expedientDocumentPinbalForm";
 			}
 		}

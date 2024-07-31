@@ -5,6 +5,8 @@ package net.conselldemallorca.helium.integracio.plugins.pinbal;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import net.conselldemallorca.helium.v3.core.api.dto.PinbalConsentimentEnum;
+
 /**
  * Informació d'una notificació per al seu enviament.
  * 
@@ -12,7 +14,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  */
 
 public class DadesConsultaPinbal {
-	
 	
 	private Titular titular;
 	private Funcionari funcionari;
@@ -25,14 +26,11 @@ public class DadesConsultaPinbal {
 	private String entitat_CIF;
 	private String unitatTramitadora;
 	private boolean asincrona;
+	//Indicarem si volem guardar la petició pinbal a la taula HEL_PETICIO_PINBAL en cas de error
+	//Si cridam desde handler si, pero si cridam desde modal document Pinbal, no, ja es mostra el error i es pot tornar a intentar.
+	private boolean guardarError=true;
 	private String anyNaixement;
-	
-
-	public enum consentiment {
-		SI,
-		LLEI
-	}
-	private String consentiment;
+	private PinbalConsentimentEnum consentiment;
 	
 	public DadesConsultaPinbal(
 			Titular titular,
@@ -41,7 +39,7 @@ public class DadesConsultaPinbal {
 			String serveiCodi,
 			String documentCodi,
 			String finalitat,
-			String consentiment, 
+			PinbalConsentimentEnum consentiment, 
 			String interessatCodi,
 			String codiProcediment, 
 			String entitat_CIF,
@@ -125,11 +123,11 @@ public class DadesConsultaPinbal {
 		this.interessatCodi = interessatCodi;
 	}
 
-	public String getConsentiment() {
+	public PinbalConsentimentEnum getConsentiment() {
 		return consentiment;
 	}
 
-	public void setConsentiment(String consentiment) {
+	public void setConsentiment(PinbalConsentimentEnum consentiment) {
 		this.consentiment = consentiment;
 	}
 
@@ -171,6 +169,14 @@ public class DadesConsultaPinbal {
 
 	public void setAnyNaixement(String anyNaixement) {
 		this.anyNaixement = anyNaixement;
+	}
+
+	public boolean isGuardarError() {
+		return guardarError;
+	}
+
+	public void setGuardarError(boolean guardarError) {
+		this.guardarError = guardarError;
 	}
 	
 
