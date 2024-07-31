@@ -7,6 +7,8 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -18,6 +20,7 @@ import javax.persistence.TableGenerator;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
 
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDocumentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 
 /**
@@ -25,19 +28,18 @@ import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Entity
-@Table(	name="hel_interessat")
+@Table(	name="hel_interessat")//ADAPTAT A SICRES 4
 public class Interessat implements Serializable, GenericEntity<Long> {
 
-	
 	
 	private InteressatTipusEnumDto tipus;
 	
 	private Long id;
 	@NotBlank
 	private String codi;
-	@NotBlank
-	private String nif;
-	@Column(name = "dir3codi", length = 9)
+//	@NotBlank
+//	private String nif;
+	@Column(name = "dir3codi", length = 21)
 	private String dir3Codi;
 	@NotBlank
 	private String nom;
@@ -54,6 +56,31 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	private boolean entregaDeh;
 	private boolean entregaDehObligat;
 	
+	private String tipusDocIdent;
+	
+	@Column(name="codidire", length=21)
+	private String codiDire;
+	@Column(name="direccio", length=160)
+	private String direccio;
+	@Column(name="documentident", length=256)
+	private String documentIdent;
+	@Column(name="raosocial", length=256)
+	private String raoSocial;
+	@Column(name="es_representant")
+    private boolean es_representant;
+	@Column(name="observacions", length=256)
+	private String observacions;
+	@Column(name = "pais", length = 4)
+	protected String pais;
+	@Column(name = "provincia", length = 2)
+	protected String provincia;
+	@Column(name = "municipi", length = 5)
+	protected String municipi;
+	@Column(name="canalnotif")
+	protected String canalNotif;
+	
+    private Interessat representat; //només existeix quan es_representant=true
+    private Interessat representant; //només existeix quan es_representant=false
 	private Expedient expedient;
 
 	public Interessat() {
@@ -63,7 +90,7 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 			Long id, 
 			String codi,
 			String nom, 
-			String nif, 
+			String documentIdent, 
 			String dir3codi,
 			String llinatge1, 
 			String llinatge2, 
@@ -77,12 +104,22 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 			String linia2,
 			String codiPostal,
 			boolean entregaDeh,
-			boolean entregaDehObligat) {
+			boolean entregaDehObligat,
+			String tipusDocIdent,
+			String direccio,
+			String observacions,
+			boolean es_representant,
+			String raoSocial,
+			String pais,
+			String provincia,
+			String municipi,
+			String canalNotif
+			) {
 		super();
 		this.id = id;
 		this.codi = codi;
 		this.nom = nom;
-		this.nif = nif;
+		this.documentIdent = documentIdent;
 		this.dir3Codi = dir3codi;
 		this.llinatge1 = llinatge1;
 		this.llinatge2 = llinatge2;
@@ -97,6 +134,15 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 		this.codiPostal = codiPostal;
 		this.entregaDeh = entregaDeh;
 		this.entregaDehObligat = entregaDehObligat;
+		this.tipusDocIdent=tipusDocIdent;
+		this.direccio=direccio;
+		this.observacions=observacions;
+		this.es_representant=es_representant;
+		this.raoSocial=raoSocial;
+		this.pais=pais;
+		this.provincia=provincia;
+		this.municipi=municipi;
+		this.canalNotif=canalNotif;
 	}
 	
 	
@@ -111,14 +157,29 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 		this.id = id;
 	}
 	
-	
 	@ManyToOne(optional=true)
-	@JoinColumn(name="expedient_id")
+	@JoinColumn(name="EXPEDIENT_ID")
 	public Expedient getExpedient() {
 		return expedient;
 	}
 	public void setExpedient(Expedient expedient) {
 		this.expedient = expedient;
+	}
+	@ManyToOne(optional=true)
+	@JoinColumn(name="REPRESENTAT_ID")
+	public Interessat getRepresentat() {
+		return representat;
+	}
+	public void setRepresentat(Interessat representat) {
+		this.representat = representat;
+	}
+	@ManyToOne(optional=true)
+	@JoinColumn(name="REPRESENTANT_ID")
+	public Interessat getRepresentant() {
+		return representant;
+	}
+	public void setRepresentant(Interessat representant) {
+		this.representant = representant;
 	}
 
 	public InteressatTipusEnumDto getTipus() {
@@ -133,12 +194,12 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	public void setCodi(String codi) {
 		this.codi = codi;
 	}
-	public String getNif() {
-		return nif;
-	}
-	public void setNif(String nif) {
-		this.nif = nif;
-	}
+//	public String getNif() {
+//		return nif;
+//	}
+//	public void setNif(String nif) {
+//		this.nif = nif;
+//	}
 	public String getDir3Codi() {
 		return dir3Codi;
 	}
@@ -217,10 +278,78 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	public void setEntregaDehObligat(boolean entregaDehObligat) {
 		this.entregaDehObligat = entregaDehObligat;
 	}
-	private static final long serialVersionUID = 1L;
-
 	
+	public String getDireccio() {
+		return direccio;
+	}
+	public void setDireccio(String direccio) {
+		this.direccio = direccio;
+	}
+	
+	public String getCodiDire() {
+		return codiDire;
+	}
+	public void setCodiDire(String codiDire) {
+		this.codiDire = codiDire;
+	}
+
+	public String getDocumentIdent() {
+		return documentIdent;
+	}
+	public String getTipusDocIdent() {
+		return tipusDocIdent;
+	}
+	public void setTipusDocIdent(String tipusDocIdent) {
+		this.tipusDocIdent = tipusDocIdent;
+	}
+	public void setDocumentIdent(String documentIdent) {
+		this.documentIdent = documentIdent;
+	}
+	public String getRaoSocial() {
+		return raoSocial;
+	}
+	public void setRaoSocial(String raoSocial) {
+		this.raoSocial = raoSocial;
+	}
+
+	public boolean isEs_representant() {
+		return es_representant;
+	}
+	public void setEs_representant(boolean es_representant) {
+		this.es_representant = es_representant;
+	}
+	public String getObservacions() {
+		return observacions;
+	}
+	public void setObservacions(String observacions) {
+		this.observacions = observacions;
+	}
+	public String getPais() {
+		return pais;
+	}
+	public void setPais(String pais) {
+		this.pais = pais;
+	}
+	public String getProvincia() {
+		return provincia;
+	}
+	public void setProvincia(String provincia) {
+		this.provincia = provincia;
+	}
+	public String getMunicipi() {
+		return municipi;
+	}
+	public void setMunicipi(String municipi) {
+		this.municipi = municipi;
+	}
+	public String getCanalNotif() {
+		return canalNotif;
+	}
+	public void setCanalNotif(String canalNotif) {
+		this.canalNotif = canalNotif;
+	}
 
 
 
+	private static final long serialVersionUID = 1L;
 }

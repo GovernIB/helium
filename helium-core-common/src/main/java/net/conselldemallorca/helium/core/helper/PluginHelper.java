@@ -2448,7 +2448,7 @@ public class PluginHelper {
 					break;
 				case FISICA:
 				case JURIDICA:
-					interessatsDocumentsToReturn.add(interessat.getNif());		
+					interessatsDocumentsToReturn.add(interessat.getDocumentIdent());		
 					break;				
 				}
 			}	
@@ -5850,6 +5850,50 @@ public class PluginHelper {
 		}
 		return unitatAdministrativa;
 	}
+	
+	public UnitatOrganitzativaDto findByCodi(
+			String codi) {
+//		String accioDescripcio = "Consulta la unitat organitzativa donat el codi";
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"codi",
+						codi)
+		};	
+		
+		long t0 = System.currentTimeMillis();
+		try {
+			UnitatOrganitzativaDto unitatDto = getUnitatsOrganitzativesPlugin().unitatsOrganitzativesFindByCodi(codi);		
+			return unitatDto;
+			
+		} catch (Exception ex) {
+			String errorDescripcio = "Error al accedir al plugin d'unitats organitzatives";
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_UNITATS,
+					"Consulta d'unitats organitzatives amb pare",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);
+			logger.error(
+					errorDescripcio,
+					ex);
+			throw SistemaExternException.tractarSistemaExternException(
+					null,
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					null, 
+					MonitorIntegracioHelper.INTCODI_UNITATS,
+					"(UNITATS ORGANITZATIVES. Consulta d'unitat organitzativa per codi: (" +codi+") "+ errorDescripcio + "))",
+					ex);			
+		}
+	}
+	
 	
 	private static final Log logger = LogFactory.getLog(PluginHelper.class);
 }

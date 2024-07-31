@@ -502,7 +502,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		
 		//Titular
 		PersonaDto titular = new PersonaDto();
-		titular.setDni(StringUtilsHelium.retallaString(interessatEntity.getNif(), 9));
+		titular.setDni(StringUtilsHelium.retallaString(interessatEntity.getDocumentIdent(), 9));
 		if (InteressatTipusEnumDto.FISICA.equals(interessatEntity.getTipus())) {
 			titular.setNom(StringUtilsHelium.retallaString(interessatEntity.getNom(), 30));
 		} else {
@@ -530,7 +530,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			}
 			destinatari.setLlinatge1(StringUtilsHelium.retallaString(representantEntity.getLlinatge1(), 30));
 			destinatari.setLlinatge2(StringUtilsHelium.retallaString(representantEntity.getLlinatge2(), 30));
-			destinatari.setDni(StringUtilsHelium.retallaString(representantEntity.getNif(), 9));
+			destinatari.setDni(StringUtilsHelium.retallaString(representantEntity.getDocumentIdent(), 9));
 			destinatari.setCodiDir3(StringUtilsHelium.retallaString(representantEntity.getDir3Codi(), 9));
 			destinatari.setTelefon(StringUtilsHelium.retallaString(representantEntity.getTelefon(), 16));
 			destinatari.setEmail(StringUtilsHelium.retallaString(representantEntity.getEmail(), 160));

@@ -15,6 +15,7 @@ import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Interessat;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDocumentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -52,9 +53,9 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		
 		Interessat interessatEntity = new Interessat(
 			interessat.getId(),
-			interessat.getCodi(),
+			interessat.getCodi(),//!=null?interessat.getCodi():interessat.getDocumentIdent(),
 			interessat.getNom(),
-			interessat.getNif(),
+			interessat.getDocumentIdent(),
 			interessat.getDir3Codi(),
 			interessat.getLlinatge1(), 
 			interessat.getLlinatge2(), 
@@ -68,7 +69,17 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			interessat.getLinia2(),
 			interessat.getCodiPostal(),
 			interessat.getEntregaDeh(),
-			interessat.getEntregaDehObligat());
+			interessat.getEntregaDehObligat(),
+			interessat.getTipusDocIdent(),
+			interessat.getDireccio(),
+			interessat.getObservacions(),
+			interessat.getEs_representant(),
+			interessat.getRaoSocial(),
+			interessat.getPais(),
+			interessat.getProvincia(),
+			interessat.getMunicipi(),
+			interessat.getCanalNotif()
+			);
 		if(expedient.getInteressats()!=null)
 			expedient.getInteressats().add(interessatEntity);
 		else {
@@ -80,12 +91,13 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			try {
 				pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
 			} catch (SistemaExternException seex) {
-				expedient.setErrorArxiu("Error de sincronització amb arxiu al crear el interessat "+interessat.getNif()+": "+seex.getPublicMessage());
+				expedient.setErrorArxiu("Error de sincronització amb arxiu al crear el interessat "+interessat.getDocumentIdent()+": "+seex.getPublicMessage());
 			}
 		}
-		return conversioTipusHelper.convertir(
-				interessatRepository.save(interessatEntity),
-				InteressatDto.class);
+		interessatEntity.setTipusDocIdent(InteressatDocumentTipusEnumDto.valueOf(interessatEntity.getTipusDocIdent()).getValor())    ;
+		interessatEntity = interessatRepository.save(interessatEntity);
+		InteressatDto resultat = conversioTipusHelper.convertir(interessatEntity, InteressatDto.class);
+		return resultat;
 	}
 
 	/**
@@ -99,9 +111,9 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		Interessat interessatEntity = interessatRepository.findOne(interessat.getId());
 		interessatEntity.setCodi(interessat.getCodi());
 		interessatEntity.setNom(interessat.getNom());
-		interessatEntity.setNif(interessat.getNif());
+		interessatEntity.setDocumentIdent(interessat.getDocumentIdent());
 		interessatEntity.setDir3Codi(interessat.getDir3Codi());
-		interessatEntity.setNif(interessat.getNif());
+		interessatEntity.setDocumentIdent(interessat.getDocumentIdent());
 		interessatEntity.setLlinatge1(interessat.getLlinatge1());  
 		interessatEntity.setLlinatge2(interessat.getLlinatge2());
 		interessatEntity.setTipus(interessat.getTipus());
@@ -114,19 +126,49 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		interessatEntity.setCodiPostal(interessat.getCodiPostal());
 		interessatEntity.setEntregaDeh(interessat.getEntregaDeh());
 		interessatEntity.setEntregaDehObligat(interessat.getEntregaDehObligat());
+		interessatEntity.setObservacions(interessat.getObservacions());
+		interessatEntity.setTipusDocIdent(translateTipusDocIdentToSave(interessat.getTipusDocIdent()));
+		interessatEntity.setCodiDire(interessat.getCodiDire());
+		interessatEntity.setDireccio(interessat.getDireccio());
+		interessatEntity.setRaoSocial(interessat.getRaoSocial());
+		interessatEntity.setEs_representant(interessat.getEs_representant());
+		interessatEntity.setPais(interessat.getPais());
+		interessatEntity.setProvincia(interessat.getProvincia());
+		interessatEntity.setMunicipi(interessat.getMunicipi());
+		interessatEntity.setCanalNotif(interessat.getCanalNotif());
+
 
 		Expedient expedient = expedientRepository.findOne(interessat.getExpedientId());
 		if (expedient.isArxiuActiu()) {
 			try {
 				pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
 			} catch (SistemaExternException seex) {
-				expedient.setErrorArxiu("Error de sincronització amb arxiu al modificar el interessat "+interessat.getNif()+": "+seex.getPublicMessage());
+				expedient.setErrorArxiu("Error de sincronització amb arxiu al modificar el interessat "+interessat.getDocumentIdent()+": "+seex.getPublicMessage());
 			}
 		}
 		
 		return conversioTipusHelper.convertir(
 				interessatEntity,
 				InteressatDto.class);
+	}
+	
+	private String translateTipusDocIdentToSave(String documentTipus) {
+		String valorTraduit=null;
+		if (documentTipus != null) {
+			if(documentTipus.equals(InteressatDocumentTipusEnumDto.NIF.name()))
+					valorTraduit=InteressatDocumentTipusEnumDto.NIF.getValor();
+			else if(documentTipus.equals(InteressatDocumentTipusEnumDto.CIF.name()))
+				valorTraduit=InteressatDocumentTipusEnumDto.NIF.getValor();
+			else if(documentTipus.equals(InteressatDocumentTipusEnumDto.ALTRES_DE_PERSONA_FISICA.name()))
+				valorTraduit=InteressatDocumentTipusEnumDto.ALTRES_DE_PERSONA_FISICA.getValor();
+			else if(documentTipus.equals(InteressatDocumentTipusEnumDto.CODI_ORIGEN.name()))
+				valorTraduit=InteressatDocumentTipusEnumDto.CODI_ORIGEN.getValor();
+			else if(documentTipus.equals(InteressatDocumentTipusEnumDto.DOCUMENT_IDENTIFICATIU_ESTRANGERS.name()))
+				valorTraduit=InteressatDocumentTipusEnumDto.DOCUMENT_IDENTIFICATIU_ESTRANGERS.getValor();
+			else if(documentTipus.equals(InteressatDocumentTipusEnumDto.PASSAPORT.name()))
+				valorTraduit=InteressatDocumentTipusEnumDto.PASSAPORT.getValor();
+			}
+		return valorTraduit;
 	}
 
 	public Interessat comprovarInteressat(
@@ -159,7 +201,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			try {
 				pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
 			} catch (SistemaExternException seex) {
-				expedient.setErrorArxiu("Error de sincronització amb arxiu al eliminar el interessat "+interessat.getNif()+": "+seex.getPublicMessage());
+				expedient.setErrorArxiu("Error de sincronització amb arxiu al eliminar el interessat "+interessat.getDocumentIdent()+": "+seex.getPublicMessage());
 			}
 		}
 	}
@@ -192,22 +234,20 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 	 */
 	@Override
 	@Transactional
-	public InteressatDto findAmbCodiAndExpedientId(
-			String codi,
-			Long expedientId
-			) {
-		
+	public InteressatDto findAmbCodiAndExpedientId(String codi, Long expedientId) {
 		Expedient expedient = expedientRepository.findOne(expedientId);
-		
-		return conversioTipusHelper.convertir(
-				interessatRepository.findByCodiAndExpedient(
-						codi, 
-						expedient),
-				InteressatDto.class);
+		Interessat interessat = interessatRepository.findByCodiAndExpedient(codi, expedient);
+		InteressatDto resultat = conversioTipusHelper.convertir(interessat, InteressatDto.class);
+		return resultat;
 	}
 	
-	
-	
+	@Override
+	@Transactional
+	public InteressatDto findByCodi(String codi) {
+		Interessat interessat = interessatRepository.findByCodi(codi);
+		InteressatDto resultat = conversioTipusHelper.convertir(interessat, InteressatDto.class);
+		return resultat;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -267,45 +307,107 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 				Interessat interessatEntity = interessatRepository.findOne(intId);
 				if (InteressatTipusEnumDto.FISICA.equals(interessatEntity.getTipus())) {
 					if (interessatEntity.getNom()!=null && interessatEntity.getNom().length()>30) {
-						resultat.add("- El camp nom del interessat "+interessatEntity.getNif()+" supera els 30 caracters.");
+						resultat.add("- El camp nom del interessat "+interessatEntity.getDocumentIdent()+" supera els 30 caracters.");
 					}
 				} else if (InteressatTipusEnumDto.JURIDICA.equals(interessatEntity.getTipus())) {
 					if (interessatEntity.getNom()!=null && interessatEntity.getNom().length()>255) {
-						resultat.add("- El camp rao social del interessat "+interessatEntity.getNif()+" supera els 255 caracters.");
+						resultat.add("- El camp raó social del interessat "+interessatEntity.getDocumentIdent()+" supera els 255 caracters.");
 					}
 				} else {
 					//InteressatTipusEnumDto.ADMINISTRACIO
 					if (interessatEntity.getNom()!=null && interessatEntity.getNom().length()>255) {
-						resultat.add("- El camp nom del interessat "+interessatEntity.getNif()+" supera els 255 caracters.");
+						resultat.add("- El camp nom del interessat "+interessatEntity.getDocumentIdent()+" supera els 255 caracters.");
 					}
 				}
 				
 				if (interessatEntity.getLlinatge1()!=null && interessatEntity.getLlinatge1().length()>30) {
-					resultat.add("- El camp primer llinatge del interessat "+interessatEntity.getNif()+" supera els 30 caracters.");
+					resultat.add("- El camp primer llinatge del interessat "+interessatEntity.getDocumentIdent()+" supera els 30 caracters.");
 				}
 				
 				if (interessatEntity.getLlinatge2()!=null && interessatEntity.getLlinatge2().length()>30) {
-					resultat.add("- El camp segon llinatge del interessat "+interessatEntity.getNif()+" supera els 30 caracters.");
+					resultat.add("- El camp segon llinatge del interessat "+interessatEntity.getDocumentIdent()+" supera els 30 caracters.");
 				}
 				
-				if (interessatEntity.getNif()!=null && interessatEntity.getNif().length()>9) {
-					resultat.add("- El camp NIF del interessat "+interessatEntity.getNif()+" supera els 9 caracters.");
+				if (interessatEntity.getDocumentIdent()!=null && interessatEntity.getDocumentIdent().length()>9) {
+					resultat.add("- El camp NIF de l'interessat "+interessatEntity.getDocumentIdent()+" supera els 9 caracters.");
 				}
 				
 				if (interessatEntity.getDir3Codi()!=null && interessatEntity.getDir3Codi().length()>9) {
-					resultat.add("- El camp Codi DIR3 del interessat "+interessatEntity.getNif()+" supera els 9 caracters.");
+					resultat.add("- El camp Codi DIR3 del interessat "+interessatEntity.getDocumentIdent()+" supera els 9 caracters.");
 				}
 				
 				if (interessatEntity.getEmail()!=null && interessatEntity.getEmail().length()>160) {
-					resultat.add("- El camp Email del interessat "+interessatEntity.getNif()+" supera els 160 caracters.");
+					resultat.add("- El camp Email de l'interessat "+interessatEntity.getDocumentIdent()+" supera els 160 caracters.");
 				}
 				
 				if (interessatEntity.getTelefon()!=null && interessatEntity.getTelefon().length()>16) {
-					resultat.add("- El camp Teléfon del interessat "+interessatEntity.getNif()+" supera els 16 caracters.");
+					resultat.add("- El camp Teléfon de l'interessat "+interessatEntity.getDocumentIdent()+" supera els 16 caracters.");
 				}
 			}
 		}
 		return resultat;
+	}
+
+	@Override
+	public InteressatDto createRepresentant(Long interessatId, InteressatDto representant) {
+		Interessat interessat = interessatRepository.findOne(interessatId);
+		logger.debug("Creant nou representant per l'interessat (interessat=" + interessat + ")");
+		
+		Expedient expedient = expedientRepository.findOne(representant.getExpedientId());
+		
+		Interessat representantEntity = new Interessat(
+			representant.getId(),
+			representant.getCodi(), //!=null?interessat.getCodi():interessat.getDocumentIdent(),
+			representant.getNom(),
+			representant.getDocumentIdent(),
+			representant.getDir3Codi(),
+			representant.getLlinatge1(), 
+			representant.getLlinatge2(), 
+			representant.getTipus(),
+			representant.getEmail(), 
+			representant.getTelefon(),
+			expedient,
+			representant.getEntregaPostal(),
+			representant.getEntregaTipus(),
+			representant.getLinia1(),
+			representant.getLinia2(),
+			representant.getCodiPostal(),
+			representant.getEntregaDeh(),
+			representant.getEntregaDehObligat(),
+			representant.getTipusDocIdent(),
+			representant.getDireccio(),
+			representant.getObservacions(),
+			representant.getEs_representant(),
+			representant.getRaoSocial(),
+			representant.getPais(),
+			representant.getProvincia(),
+			representant.getMunicipi(),
+			representant.getCanalNotif()
+			);
+		representantEntity.setTipusDocIdent(InteressatDocumentTipusEnumDto.valueOf(representantEntity.getTipusDocIdent()).getValor())    ;
+		if(representant.getEs_representant()) {
+			interessat.setRepresentant(representantEntity);
+			representantEntity.setRepresentat(interessat);
+		}
+		InteressatDto representantDto = conversioTipusHelper.convertir(representantEntity, InteressatDto.class);
+		representantEntity = interessatRepository.save(representantEntity);
+		interessat=interessatRepository.save(interessat);
+		InteressatDto interessatDto =  conversioTipusHelper.convertir(interessat, InteressatDto.class);
+		interessatDto.setExpedientId(interessat.getExpedient().getId());
+		update(interessatDto);
+		return representantDto;
+	}
+
+	@Override
+	public InteressatDto updateRepresentant(Long interessatId, InteressatDto representant) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public InteressatDto deleteRepresentant(Long interessatId, InteressatDto representant) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

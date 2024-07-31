@@ -3,10 +3,13 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+
 
 /**
- * Enumeració amb els possibles estats del contingut pendent
- * d'una bústia.
+ * Enumeració amb els possibles tipus de documentació.
  * 
  * @author Limit Tecnologies <limit@limit.es>
  */
@@ -18,28 +21,22 @@ public enum InteressatDocumentTipusEnumDto {
 	ALTRES_DE_PERSONA_FISICA ("X"),
 	CODI_ORIGEN ("O");
 	
-	private final String label;
-	private final String id;
-	
-	InteressatDocumentTipusEnumDto(String label) {
-		this.label = label;
-		this.id = this.name();
-		
+	private final String valor;
+	private InteressatDocumentTipusEnumDto(String valor) {
+		this.valor = valor;
 	}
-	public String getLabel() {
-		return label;
+	public String getValor() {
+		return valor;
 	}
-	public String getId() {
-		return id;
+	private static final Map<String, InteressatDocumentTipusEnumDto> lookup;
+	static {
+		lookup = new HashMap<String, InteressatDocumentTipusEnumDto>();
+		for (InteressatDocumentTipusEnumDto s: EnumSet.allOf(InteressatDocumentTipusEnumDto.class))
+			lookup.put(s.getValor(), s);
 	}
-	public static InteressatDocumentTipusEnumDto getType(String label) {
-        if (label == null)
-            return null;
-         for (InteressatDocumentTipusEnumDto interessatDocumentTipusEnum : InteressatDocumentTipusEnumDto.values()) {
-            if (label.equals(interessatDocumentTipusEnum.getLabel())) {
-                return interessatDocumentTipusEnum;
-            }
-        }
-        throw new IllegalArgumentException("No matching type in InteressatDocumentTipusEnumDto for code " + label);
+	public static InteressatDocumentTipusEnumDto valorAsEnum(String valor) {
+		if (valor == null)
+			return null;
+        return lookup.get(valor); 
     }
 }

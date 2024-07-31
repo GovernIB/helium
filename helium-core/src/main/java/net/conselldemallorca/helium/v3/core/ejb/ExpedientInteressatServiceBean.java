@@ -72,4 +72,24 @@ public class ExpedientInteressatServiceBean implements ExpedientInteressatServic
 	public List<String> checkMidaCampsNotificacio(List<Long> idsInteressats) {
 		return delegate.checkMidaCampsNotificacio(idsInteressats);
 	}
+
+	@Override
+	public InteressatDto findByCodi(String codi) {
+		return findByCodi(codi);
+	}
+
+	@Override
+	public InteressatDto createRepresentant(Long interessatId, InteressatDto representant) {
+		return delegate.createRepresentant(interessatId, representant);
+	}
+
+	@Override
+	public InteressatDto updateRepresentant(Long interessatId, InteressatDto representant) {
+		return delegate.updateRepresentant(interessatId, representant);
+	}
+
+	@Override
+	public InteressatDto deleteRepresentant(Long interessatId, InteressatDto representant) {
+		return delegate.deleteRepresentant(interessatId, representant);
+	}
 }

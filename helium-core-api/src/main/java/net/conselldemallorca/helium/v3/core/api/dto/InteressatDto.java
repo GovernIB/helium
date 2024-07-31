@@ -13,7 +13,9 @@ public class InteressatDto {
 	
 	private Long id;
 	private String codi;
-	private String nif;
+	//private String nif;
+	private String documentIdent;
+
 	private String dir3Codi;
 	private String nom;
 	private String llinatge1;  
@@ -31,6 +33,20 @@ public class InteressatDto {
 	private String codiPostal;
 	private Boolean entregaDeh;
 	private Boolean entregaDehObligat;
+	
+	private String observacions;
+	private String tipusDocIdent;
+	private String codiDire;
+	private String direccio;
+	private String raoSocial;
+    private Boolean es_representant = false;
+	private String municipi;
+	private String pais;
+	private String provincia;
+    private InteressatDto representat; //només existeix quan es_representant=true
+    private InteressatDto representant; //només existeix quan es_representant=false
+    private String canalNotif; 
+
 
 	public InteressatTipusEnumDto getTipus() {
 		return tipus;
@@ -56,12 +72,6 @@ public class InteressatDto {
 	}
 	public void setCodi(String codi) {
 		this.codi = codi;
-	}
-	public String getNif() {
-		return nif;
-	}
-	public void setNif(String nif) {
-		this.nif = nif;
 	}
 	public String getDir3Codi() {
 		return dir3Codi;
@@ -157,8 +167,90 @@ public class InteressatDto {
 		if (tipus != null && InteressatTipusEnumDto.ADMINISTRACIO.equals(tipus))
 			codiDocument = dir3Codi;
 		else
-			codiDocument = nif;
+			codiDocument = documentIdent;
 		return codiDocument + " - " + getFullNom();
 	}
+	public String getDocumentIdent() {
+		return documentIdent;
+	}
+	public void setDocumentIdent(String documentIdent) {
+		this.documentIdent = documentIdent;
+	}
+	public String getObservacions() {
+		return observacions;
+	}
+	public void setObservacions(String observacions) {
+		this.observacions = observacions;
+	}
+	public String getTipusDocIdent() {
+		return tipusDocIdent;
+	}
+	public void setTipusDocIdent(String tipusDocIdent) {
+		this.tipusDocIdent = tipusDocIdent;
+	}
+	public String getCodiDire() {
+		return codiDire;
+	}
+	public void setCodiDire(String codiDire) {
+		this.codiDire = codiDire;
+	}
+	public String getDireccio() {
+		return direccio;
+	}
+	public void setDireccio(String direccio) {
+		this.direccio = direccio;
+	}
+	public String getRaoSocial() {
+		return raoSocial;
+	}
+	public void setRaoSocial(String raoSocial) {
+		this.raoSocial = raoSocial;
+	}
+	public Boolean getEs_representant() {
+		return es_representant != null ? es_representant : false;
+	}
+	public void setEs_representant(Boolean es_representant) {
+		this.es_representant = es_representant;
+	}
+	public void setEs_representant(boolean es_representant) {
+		this.es_representant = es_representant;
+	}
+	public String getMunicipi() {
+		return municipi;
+	}
+	public void setMunicipi(String municipi) {
+		this.municipi = municipi;
+	}
+	public String getPais() {
+		return pais;
+	}
+	public void setPais(String pais) {
+		this.pais = pais;
+	}
+	public String getProvincia() {
+		return provincia;
+	}
+	public void setProvincia(String provincia) {
+		this.provincia = provincia;
+	}
+	public InteressatDto getRepresentat() {
+		return representat;
+	}
+	public void setRepresentat(InteressatDto representat) {
+		this.representat = representat;
+	}
+	public InteressatDto getRepresentant() {
+		return representant;
+	}
+	public void setRepresentant(InteressatDto representant) {
+		this.representant = representant;
+	}
+	public String getCanalNotif() {
+		return canalNotif;
+	}
+	public void setCanalNotif(String canalNotif) {
+		this.canalNotif = canalNotif;
+	}
+	
 
 }

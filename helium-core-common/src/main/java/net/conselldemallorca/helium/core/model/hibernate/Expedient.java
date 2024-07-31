@@ -574,7 +574,7 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 		if (this.interessats!=null && this.interessats.size()>0) {
 			resultat = "";
 			for (Interessat i: this.interessats) {
-				resultat = resultat+i.getNif()+separador;
+				resultat = resultat+i.getDocumentIdent()+separador;
 			}
 			resultat = resultat.trim();
 		}

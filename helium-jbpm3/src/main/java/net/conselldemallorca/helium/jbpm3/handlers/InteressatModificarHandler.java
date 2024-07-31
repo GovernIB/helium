@@ -95,7 +95,7 @@ public class InteressatModificarHandler extends BasicActionHandler implements In
 				executionContext,
 				nom,
 				varNom));
-		interessat.setNif((String)getValorOVariable(
+		interessat.setDocumentIdent((String)getValorOVariable(
 				executionContext,
 				nif,
 				varNif));

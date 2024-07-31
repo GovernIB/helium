@@ -514,7 +514,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				interessat.getId(),
 				interessat.getCodi(),
 				interessat.getNom(),
-				interessat.getNif(),
+				interessat.getDocumentIdent(),
 				interessat.getDir3Codi(),
 				interessat.getLlinatge1(), 
 				interessat.getLlinatge2(), 
@@ -528,7 +528,17 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				interessat.getLinia2(),
 				interessat.getCodiPostal(),
 				interessat.getEntregaDeh(),
-				interessat.getEntregaDehObligat());
+				interessat.getEntregaDehObligat(),
+				interessat.getTipusDocIdent(),
+				interessat.getDireccio(),
+				interessat.getObservacions(),
+				interessat.getEs_representant(),
+				interessat.getRaoSocial(),
+				interessat.getPais(),
+				interessat.getProvincia(),
+				interessat.getMunicipi(),
+				interessat.getCanalNotif()
+				);
 		if(expedient.getInteressats()!=null)
 			expedient.getInteressats().add(interessatEntity);
 		else {
@@ -561,7 +571,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				expedient);
 		
 		interessatEntity.setNom(interessat.getNom());
-		interessatEntity.setNif(interessat.getNif());
+		interessatEntity.setDocumentIdent(interessat.getDocumentIdent());
 		interessatEntity.setLlinatge1(interessat.getLlinatge1());
 		interessatEntity.setLlinatge2(interessat.getLlinatge2());
 		interessatEntity.setTipus(interessat.getTipus());
@@ -601,7 +611,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		// Camps obligatoris
 		if (interessat.getCodi() == null || interessat.getCodi().isEmpty())
 			errors.add("El codi és obligatori");
-		if (interessat.getNif() == null || interessat.getNif().isEmpty())
+		if (interessat.getDocumentIdent() == null || interessat.getDocumentIdent().isEmpty())
 			errors.add("El NIF/CIF/DNI és obligatori");
 		if (interessat.getNom() == null || interessat.getNom().isEmpty())
 			errors.add("El nom/raó social és obligatori");
@@ -2387,7 +2397,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			Interessat interessat= interessatRepository.findByCodiAndExpedient(dadesDto.getInteressatCodi(), expedient);
 			if(interessat!=null)
 				titular = new Titular(
-						interessat.getNif(),
+						interessat.getDocumentIdent(),
 						dadesDto.getTitular()!=null ? dadesDto.getTitular().getTipoDocumentacion() : null,//el que ens passin ells??
 						null, //nomComplet no en te
 						interessat.getNom(),

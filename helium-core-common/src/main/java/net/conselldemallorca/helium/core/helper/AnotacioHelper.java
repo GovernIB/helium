@@ -51,6 +51,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPos
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDocumentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioAnnexRepository;
@@ -315,13 +316,22 @@ public class AnotacioHelper {
 							null, // linia2,
 							interessat.getCp(),
 							false, // entregaDeh,
-							false // entregaDehObligat
+							false, //entregaDehObligat
+							InteressatDocumentTipusEnumDto.NIF.getValor(), //interessat.getDocumentTipus(),
+							interessat.getAdresa(),
+							interessat.getObservacions(),
+							false,//es_representant
+							interessat.getRaoSocial(),
+							interessat.getPais(),
+							interessat.getProvincia(),
+							interessat.getMunicipi(),
+							null//interessat.getCanalNotif()
 							);
 				} else {
 					// Actualitza l'interessat existent
 					logger.debug("Modificant l'interessat (interessat=" + interessat + ") a l'expedient " + expedient.getIdentificador());
 					interessatEntity.setNom(interessat.getNom() != null? interessat.getNom() : interessat.getRaoSocial());
-					interessatEntity.setNif(interessat.getDocumentNumero());
+					interessatEntity.setDocumentIdent(interessat.getDocumentNumero());
 					interessatEntity.setLlinatge1(interessat.getLlinatge1());  
 					interessatEntity.setLlinatge2(interessat.getLlinatge2());
 					interessatEntity.setTipus(this.getInteressatTipus(interessat));

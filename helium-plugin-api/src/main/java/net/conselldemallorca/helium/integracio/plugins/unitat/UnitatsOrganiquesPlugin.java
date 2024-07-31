@@ -52,4 +52,18 @@ public interface UnitatsOrganiquesPlugin {
 			String pareCodi,
 			Timestamp fechaActualizacion,
 			Timestamp fechaSincronizacion) throws SistemaExternException;
+	
+	
+	/**
+	 * Retorna la unitat organtizativa donat codi
+	 * 
+	 * @param codi
+	 *            Codi de la unitat.
+	 * @return La unitat organitzativa trobada.
+	 * @throws SistemaExternException
+	 *            Si es produeix un error al consultar les unitats organitzatives.
+	 */
+	public UnitatOrganitzativaDto unitatsOrganitzativesFindByCodi(
+			String codi) throws SistemaExternException;
+
 }

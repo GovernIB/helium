@@ -42,5 +42,18 @@ public interface ExpedientInteressatService {
 	InteressatDto findAmbCodiAndExpedientId(
 			String codi, 
 			Long expedientId); 
-
+	
+	InteressatDto findByCodi(String codi);
+	
+	public InteressatDto createRepresentant(
+			Long interessatId,
+			InteressatDto representant);
+	
+	public InteressatDto updateRepresentant(
+			Long interessatId,
+			InteressatDto representant);
+	
+	public InteressatDto deleteRepresentant(
+			Long interessatId,
+			InteressatDto representant);
 }

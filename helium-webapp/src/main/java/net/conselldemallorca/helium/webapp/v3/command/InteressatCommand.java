@@ -6,9 +6,12 @@ package net.conselldemallorca.helium.webapp.v3.command;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDocumentTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand.Creacio;
 import net.conselldemallorca.helium.webapp.v3.command.InteressatCommand.Modificacio;
@@ -23,15 +26,15 @@ import net.conselldemallorca.helium.webapp.v3.validator.Interessat;
 public class InteressatCommand {
 
 	private Long id;
-	@NotEmpty(groups = {Creacio.class})
-	@Size(max = 64, groups = {Creacio.class})
+	//@NotEmpty(groups = {Creacio.class})
+	@Size(max = 64, groups = {Creacio.class,  Modificacio.class})
 	private String codi;
-	@NotEmpty(groups = {Creacio.class, Modificacio.class})
+	//@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String nom;
 	@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 9, groups = {Creacio.class, Modificacio.class})
-	private String nif;
+	private String documentIdent;
 	@Size(max = 9, groups = {Creacio.class, Modificacio.class})
 	private String dir3Codi;
 	private String llinatge1;  
@@ -39,9 +42,17 @@ public class InteressatCommand {
 
 	private String email;  
 	private Long expedientId;
+	private String nifPersonaFisica;
+	private String cifPersonaJuridica;
+	private String cifOrganGestor;
 
-	@NotNull
+	@NotNull(groups = { Creacio.class, Modificacio.class })
 	private InteressatTipusEnumDto tipus;
+	
+	@NotNull(groups = { Creacio.class, Modificacio.class })
+	private InteressatDocumentTipusEnumDto tipusDocIdent;
+	
+	private String canalNotif;
 	
 	private Boolean entregaPostal;
 	private EntregaPostalTipus entregaTipus;
@@ -49,11 +60,22 @@ public class InteressatCommand {
 	private String linia1;
 	@Size(max=50)
 	private String linia2;
+	@Size(max=100)
+	private String direccio;
 	@Size(max=5, groups = {Creacio.class, Modificacio.class})
 	private String codiPostal;
 	private Boolean entregaDeh;
 	private Boolean entregaDehObligat;
-	
+	private String municipi;
+	private String pais;
+	private String provincia;
+	private String observacions;
+	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
+	private String raoSocial;
+	private Boolean es_representant;
+	private InteressatDto representant;
+	private InteressatDto representat;
+	private String codiDire;
 	
 	public InteressatTipusEnumDto getTipus() {
 		return tipus;
@@ -67,11 +89,11 @@ public class InteressatCommand {
 	public void setExpedientId(Long expedientId) {
 		this.expedientId = expedientId;
 	}
-	public String getNif() {
-		return nif;
+	public String getDocumentIdent() {
+		return documentIdent;
 	}
-	public void setNif(String nif) {
-		this.nif = nif;
+	public void setDocumentIdent(String documentIdent) {
+		this.documentIdent = documentIdent;
 	}
 	public String getDir3Codi() {
 		return dir3Codi;
@@ -165,9 +187,106 @@ public class InteressatCommand {
 	public void setEntregaDehObligat(Boolean entregaDehObligat) {
 		this.entregaDehObligat = entregaDehObligat;
 	}
+	public String getNifPersonaFisica() {
+		return nifPersonaFisica;
+	}
+	public void setNifPersonaFisica(String nifPersonaFisica) {
+		this.nifPersonaFisica = nifPersonaFisica;
+	}
+	public String getCifPersonaJuridica() {
+		return cifPersonaJuridica;
+	}
+	public void setCifPersonaJuridica(String cifPersonaJuridica) {
+		this.cifPersonaJuridica = cifPersonaJuridica;
+	}
+	public String getCifOrganGestor() {
+		return cifOrganGestor;
+	}
+	public void setCifOrganGestor(String cifOrganGestor) {
+		this.cifOrganGestor = cifOrganGestor;
+	}
 
+	public InteressatDocumentTipusEnumDto getTipusDocIdent() {
+		return tipusDocIdent;
+	}
+	public void setTipusDocIdent(InteressatDocumentTipusEnumDto tipusDocIdent) {
+		this.tipusDocIdent = tipusDocIdent;
+	}
+	public String getDireccio() {
+		return direccio;
+	}
+	public void setDireccio(String direccio) {
+		this.direccio = direccio;
+	}
 
+	public String getMunicipi() {
+		return municipi;
+	}
+	public void setMunicipi(String municipi) {
+		this.municipi = municipi;
+	}
+	public String getPais() {
+		return pais;
+	}
+	public void setPais(String pais) {
+		this.pais = pais;
+	}
+	public String getProvincia() {
+		return provincia;
+	}
+	public void setProvincia(String provincia) {
+		this.provincia = provincia;
+	}
+	public String getObservacions() {
+		return observacions;
+	}
+	public void setObservacions(String observacions) {
+		this.observacions = observacions;
+	}
+	public String getRaoSocial() {
+		return raoSocial;
+	}
+	public void setRaoSocial(String raoSocial) {
+		this.raoSocial = raoSocial;
+	}
+	public Boolean getEs_representant() {
+		return es_representant;
+	}
+	public void setEs_representant(Boolean es_representant) {
+		this.es_representant = es_representant;
+	}
 
+	public InteressatDto getRepresentant() {
+		return representant;
+	}
+	public void setRepresentant(InteressatDto representant) {
+		this.representant = representant;
+	}
+	public InteressatDto getRepresentat() {
+		return representat;
+	}
+	public void setRepresentat(InteressatDto representat) {
+		this.representat = representat;
+	}
+
+	public String getCanalNotif() {
+		return canalNotif;
+	}
+	public void setCanalNotif(String canalNotif) {
+		this.canalNotif = canalNotif;
+	}
+	
+	public String getCodiDire() {
+		return codiDire;
+	}
+	public void setCodiDire(String codiDire) {
+		this.codiDire = codiDire;
+	}
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this);
+	}
+	
 	public interface Creacio {}
 	public interface Modificacio {}
 

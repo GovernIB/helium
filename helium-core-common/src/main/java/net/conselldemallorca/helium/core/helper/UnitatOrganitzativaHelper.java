@@ -22,7 +22,9 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrg
 import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.v3.core.api.dto.ArbreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArbreNodeDto;
+import net.conselldemallorca.helium.v3.core.api.dto.MunicipiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ProvinciaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TipusTransicioEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaEstatEnumDto;
@@ -38,7 +40,9 @@ import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaReposi
  */
 @Component
 public class UnitatOrganitzativaHelper {
-
+	@Resource
+	private DadesExternesHelper dadesExternesHelper;
+	
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
 	
@@ -85,6 +89,10 @@ public class UnitatOrganitzativaHelper {
 		return unitatOrganitzativaRepository.findByCodi(unitatOrganitzativaCodi);
 	}
 	
+	public List<UnitatOrganitzativa> findAll() {
+		return unitatOrganitzativaRepository.findAll();
+	}
+	
 	public UnitatOrganitzativaDto toDto(UnitatOrganitzativa entity) {
 		UnitatOrganitzativaDto unitat = null;
 		if(entity!=null) {
@@ -121,25 +129,41 @@ public class UnitatOrganitzativaHelper {
 			}
 			if ((unitat.getCodiProvincia() == null || "".equals(unitat.getCodiProvincia())) && 
 					unitat.getCodiComunitat() != null && !"".equals(unitat.getCodiComunitat())) {
-//					List<ProvinciaDto> provincies = cacheHelper.findProvinciesPerComunitat(unitat.getCodiComunitat());
-//					if (provincies != null && provincies.size() == 1) {
-//						unitat.setCodiProvincia(provincies.get(0).getCodi());
-//					}		
+					List<ProvinciaDto> provincies = dadesExternesHelper.dadesExternesProvinciesFindAmbComunitat(unitat.getCodiComunitat());
+					if (provincies != null && provincies.size() == 1) {
+						unitat.setCodiProvincia(provincies.get(0).getCodi());
+					}		
 			}
 			if (unitat.getCodiProvincia() != null && !"".equals(unitat.getCodiProvincia())) {
 				unitat.setCodiProvincia(("00" + unitat.getCodiProvincia()).substring(unitat.getCodiProvincia().length()));
 				if (unitat.getLocalitat() == null && unitat.getNomLocalitat() != null) {
-//						MunicipiDto municipi = findMunicipiAmbNom(
-//								unitat.getCodiProvincia(), 
-//								unitat.getNomLocalitat());
-//						if (municipi != null)
-//							unitat.setLocalitat(municipi.getCodi());
-//						else
-//							logger.error("UNITAT ORGANITZATIVA. No s'ha trobat la localitat amb el nom: '" + unitat.getNomLocalitat() + "'");
+						MunicipiDto municipi = findMunicipiAmbNom(
+								unitat.getCodiProvincia(), 
+								unitat.getNomLocalitat());
+						if (municipi != null)
+							unitat.setLocalitat(municipi.getCodi());
+						else
+							logger.error("UNITAT ORGANITZATIVA. No s'ha trobat la localitat amb el nom: '" + unitat.getNomLocalitat() + "'");
 				}
 			}
 		}
 		return unitat;
+	}
+	
+	private MunicipiDto findMunicipiAmbNom(
+			String provinciaCodi,
+			String municipiNom) throws SistemaExternException {
+		MunicipiDto municipi = null;
+		List<MunicipiDto> municipis = dadesExternesHelper.findMunicipisPerProvincia(provinciaCodi);
+		if (municipis != null) {
+			for (MunicipiDto mun: municipis) {
+				if (mun.getNom().equalsIgnoreCase(municipiNom)) { 
+					municipi = mun;
+					break;
+				}
+			}
+		}
+		return municipi;
 	}
 		
 	public void sincronizarOActualizar(UnitatOrganitzativa entitat) {
@@ -736,7 +760,6 @@ public class UnitatOrganitzativaHelper {
 					//Busquem fills ja que tambÃ© tindrÃ  permisos sobre els fills de les UnitatOrg on tingui permisos 
 					List<UnitatOrganitzativa> unitatsFilles = unitatOrganitzativaRepository.findByCodiUnitatArrel(expTipusUnitOrg.getUnitatOrganitzativa().getCodi());		 
 					 for(UnitatOrganitzativa unitatOrgFilla: unitatsFilles) {
-						//DANI: no seria millor crear els permisos sobre les unitats filles un cop es crea el permÃ­s sobre una unitat pare?
 						 List<ExpedientTipusUnitatOrganitzativa> expTipusUnitOrgListFills = expedientTipusUnitatOrganitzativaRepository.findByUnitatOrganitzativaId(unitatOrgFilla.getId());
 						 for(ExpedientTipusUnitatOrganitzativa expTipusUnitOrgFill: expTipusUnitOrgListFills) {
 							 ExpedientTipus expTipus = expTipusUnitOrgFill.getExpedientTipus();
