@@ -484,7 +484,6 @@ public class RegistreSortidaRegWeb3Handler extends AbstractHeliumActionHandler {
 		return text;
 	}
 
-
 	/**
 	 * Registra un document de sortida
 	 * 

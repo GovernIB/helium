@@ -896,6 +896,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 					documentExportacio.setNtiOrigen(document.getNtiOrigen());
 					documentExportacio.setNtiEstadoElaboracion(document.getNtiEstadoElaboracion());
 					
+					//Configuració integracio PINBAL
+					documentExportacio.setPinbalActiu(document.isPinbalActiu());
+					documentExportacio.setPinbalFinalitat(document.getPinbalFinalitat());
+					documentExportacio.setPinbalServeiId(document.getPinbalServei());
+					documentExportacio.setPinbalActiu(document.isPinbalActiu());
+					
 					exportacio.getDocuments().add(documentExportacio);
 				}
 		}		
@@ -1644,6 +1650,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						document.setNtiTipoDocumental(documentExportat.getNtiTipoDocumental());
 						document.setNtiOrigen(documentExportat.getNtiOrigen());
 						document.setNtiEstadoElaboracion(documentExportat.getNtiEstadoElaboracion());
+						
+						//Configuració integracio PINBAL
+						document.setPinbalActiu(documentExportat.isPinbalActiu());
+						document.setPinbalFinalitat(documentExportat.getPinbalFinalitat());
+						document.setPinbalServei(documentExportat.getPinbalServeiId());
+						document.setPinbalCifOrgan(documentExportat.isPinbalCifOrgan());
 					}
 					expedientTipus.getDocuments().add(document);
 					documents.put(documentExportat.getCodi(), document);

@@ -13,6 +13,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalFiltreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ServeiPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.service.ConsultaPinbalService;
 
 @Stateless
@@ -43,5 +44,23 @@ public class ConsultaPinbalServiceBean implements ConsultaPinbalService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public PeticioPinbalDto findByExpedientAndDocumentStore(Long expedientId, Long documentStoreId) {
 		return delegate.findByExpedientAndDocumentStore(expedientId, documentStoreId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN"})
+	public PaginaDto<ServeiPinbalDto> findServeisPinbalAmbFiltrePaginat(PaginacioParamsDto paginacioParams) {
+		return delegate.findServeisPinbalAmbFiltrePaginat(paginacioParams);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN"})
+	public ServeiPinbalDto findServeiPinbalById(Long id) {
+		return delegate.findServeiPinbalById(id);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN"})
+	public ServeiPinbalDto updateServeiPinbal(ServeiPinbalDto serveiPinbalDto) {
+		return delegate.updateServeiPinbal(serveiPinbalDto);
 	}
 }

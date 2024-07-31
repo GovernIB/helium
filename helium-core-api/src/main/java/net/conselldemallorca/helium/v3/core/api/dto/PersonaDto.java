@@ -15,10 +15,6 @@ public class PersonaDto implements Serializable {
 		super();
 	}
 
-	public enum Sexe {
-		SEXE_HOME,
-		SEXE_DONA}
-
 	private String codi;
 	private String nom;
 	private String llinatge1;

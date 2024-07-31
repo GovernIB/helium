@@ -264,6 +264,7 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 		ntiHelper.omplirOrigen(model);
 		ntiHelper.omplirEstadoElaboracion(model);
 		ntiHelper.omplirTipoDocumental(model);
+		ntiHelper.omplirServeisPinbal(model);
 		
 		model.addAttribute(
 				"fluxtipEnumOptions",

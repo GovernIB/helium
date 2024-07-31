@@ -11,6 +11,11 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PinbalConsentimentEnum;
+import net.conselldemallorca.helium.v3.core.api.dto.PinbalServeiEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.Sexe;
+import net.conselldemallorca.helium.v3.core.api.dto.SexeDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TipusPassaportEnum;
 
 /**
  * Classe helper amb mètods comuns per treballar amb dades NTi.
@@ -29,7 +34,46 @@ public class NtiHelper {
 					MessageHelper.getInstance().getMessage("nti.document.origen." + or.name())));		
 		model.addAttribute("ntiOrigen", tdlist);
 	}
+	
+	public void omplirServeisPinbal(
+			Model model) {
+		List<ParellaCodiValorDto> tdlist = new ArrayList<ParellaCodiValorDto>();
+		for(PinbalServeiEnumDto or: PinbalServeiEnumDto.values())
+			tdlist.add(new ParellaCodiValorDto(
+					or.name(),
+					MessageHelper.getInstance().getMessage("serveisPinbal.enum." + or.name())));		
+		model.addAttribute("serveisPinbalEnum", tdlist);
+	}
+	
+	public void omplirConsentiment(Model model) {
+		List<ParellaCodiValorDto> tdlist = new ArrayList<ParellaCodiValorDto>();
+		for(PinbalConsentimentEnum or: PinbalConsentimentEnum.values())
+			tdlist.add(new ParellaCodiValorDto(
+					or.name(),
+					MessageHelper.getInstance().getMessage("consentiment.enum." + or.name())));		
+		model.addAttribute("consentimentList", tdlist);
+	}
+	
+	public void omplirTipusPassaport(Model model) {
+		List<ParellaCodiValorDto> tdlist = new ArrayList<ParellaCodiValorDto>();
+		for(TipusPassaportEnum or: TipusPassaportEnum.values())
+			tdlist.add(new ParellaCodiValorDto(or.name(), or.name()));		
+		model.addAttribute("tipusPassaportsList", tdlist);
+	}
 
+	public void omplirSexe(Model model) {
+		List<SexeDto> sexes = new ArrayList<SexeDto>();
+		SexeDto sexe = new SexeDto();
+		sexe.setId(0);
+		sexe.setNom(Sexe.SEXE_HOME.name());
+		sexes.add(sexe);
+		sexe = new SexeDto();
+		sexe.setId(1);
+		sexe.setNom(Sexe.SEXE_DONA.name());
+		sexes.add(sexe);
+		model.addAttribute("sexes", sexes);
+	}
+	
 	public void omplirEstadoElaboracion(
 			Model model) {
 		List<ParellaCodiValorDto> tdlist = new ArrayList<ParellaCodiValorDto>();

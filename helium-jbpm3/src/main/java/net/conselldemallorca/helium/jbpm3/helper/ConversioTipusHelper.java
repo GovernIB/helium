@@ -36,6 +36,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.IdiomaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDocumentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PinbalConsentimentEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.ReferenciaNotificacio;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
@@ -295,8 +296,12 @@ public class ConversioTipusHelper {
 		if(dadesConsultaPinbal.getServeiCodi()!=null) {
 			dadesDto.setServeiCodi(dadesConsultaPinbal.getServeiCodi());
 		}
-		if(dadesConsultaPinbal.getConsentiment()!=null) {
-			dadesDto.setConsentiment(dadesConsultaPinbal.getConsentiment());
+		if (dadesConsultaPinbal.getConsentiment()!=null) {
+			if(dadesConsultaPinbal.getConsentiment().equalsIgnoreCase("SI")) {
+				dadesDto.setConsentiment(PinbalConsentimentEnum.SI);
+			} else {
+				dadesDto.setConsentiment(PinbalConsentimentEnum.LLEI);
+			}
 		}
 		if(dadesConsultaPinbal.getFinalitat()!=null) {
 			dadesDto.setFinalitat(dadesConsultaPinbal.getFinalitat());

@@ -12,6 +12,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PinbalServeiEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesTipusEnumDto;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusDocumentCommand.Creacio;
@@ -62,6 +63,12 @@ public class ExpedientTipusDocumentCommand {
 	private String portafirmesFluxNom;
 	private boolean portafirmesActiu = false;
 
+	//#1741 Afegir documents a partir de consultes predefinides a Pinbal
+	private boolean pinbalActiu = false;
+	private String pinbalFinalitat;
+	private PinbalServeiEnumDto pinbalServei;
+	private boolean pinbalCifOrgan = false;
+	
 	public Long getExpedientTipusId() {
 		return expedientTipusId;
 	}
@@ -226,6 +233,32 @@ public class ExpedientTipusDocumentCommand {
 	public void setPortafirmesFluxNom(String portafirmesFluxNom) {
 		this.portafirmesFluxNom = portafirmesFluxNom;
 	}
+
+	public boolean isPinbalActiu() {
+		return pinbalActiu;
+	}
+	public void setPinbalActiu(boolean pinbalActiu) {
+		this.pinbalActiu = pinbalActiu;
+	}
+	public String getPinbalFinalitat() {
+		return pinbalFinalitat;
+	}
+	public void setPinbalFinalitat(String pinbalFinalitat) {
+		this.pinbalFinalitat = pinbalFinalitat;
+	}
+	public PinbalServeiEnumDto getPinbalServei() {
+		return pinbalServei;
+	}
+	public void setPinbalServei(PinbalServeiEnumDto pinbalServei) {
+		this.pinbalServei = pinbalServei;
+	}
+	public boolean isPinbalCifOrgan() {
+		return pinbalCifOrgan;
+	}
+	public void setPinbalCifOrgan(boolean pinbalCifOrgan) {
+		this.pinbalCifOrgan = pinbalCifOrgan;
+	}
+	
 	public static DocumentDto asDocumentDto(ExpedientTipusDocumentCommand command) {
 		DocumentDto dto = new DocumentDto();
 		dto.setId(command.getId());
@@ -264,6 +297,12 @@ public class ExpedientTipusDocumentCommand {
 				dto.setPortafirmesResponsables(command.getPortafirmesResponsables());
 			}
 			dto.setPortafirmesActiu(command.isPortafirmesActiu());
+		}
+		dto.setPinbalActiu(command.isPinbalActiu());
+		if (command.isPinbalActiu()) {
+			dto.setPinbalCifOrgan(command.isPinbalCifOrgan());
+			dto.setPinbalFinalitat(command.getPinbalFinalitat());
+			dto.setPinbalServei(command.getPinbalServei());
 		}
 		return dto;
 	}

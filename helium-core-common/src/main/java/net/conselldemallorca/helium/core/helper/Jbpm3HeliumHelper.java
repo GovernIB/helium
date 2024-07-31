@@ -60,6 +60,7 @@ import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.core.util.StringUtilsHelium;
 import net.conselldemallorca.helium.integracio.plugins.pinbal.DadesConsultaPinbal;
 import net.conselldemallorca.helium.integracio.plugins.pinbal.Funcionari;
 import net.conselldemallorca.helium.integracio.plugins.pinbal.Titular;
@@ -2435,7 +2436,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				codiUO = expedientTipus.getNtiOrgano();
 			}
 			uo = this.unitatOrganitzativaRepository.findByCodi(codiUO);
-			dadesDto.setUnitatTramitadora(abreuja(uo.getDenominacio(), 64));
+			dadesDto.setUnitatTramitadora(StringUtilsHelium.abreuja(uo.getDenominacio(), 64));
 	    }
 	    catch (Exception e)
 	    {
@@ -2460,13 +2461,6 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				dadesDto.getUnitatTramitadora(),
 				dadesDto.isAsincrona(),
 				dadesDto.getAnyNaixement());
-	}
-	
-	private String abreuja(String text, int maxim) {
-		if ((text.length() > maxim) && (maxim - 3 > 0)) {
-			text = text.substring(0, maxim - 3) + "...";
-		}
-		return text;
 	}
 	
 	@Override

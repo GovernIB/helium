@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -75,5 +76,7 @@ public interface DocumentService {
 		
 	public ArxiuDto getArxiu(
 			Long documentId) throws NoTrobatException;
+	
+	public String createDocumentPinbal(ExpedientDocumentPinbalDto expedientDocumentPinbalDto);
 
 }

@@ -114,6 +114,7 @@ public class ConversioTipusHelper {
 						target.setNtiOrigen(source.getNtiOrigen());
 						target.setNtiEstadoElaboracion(source.getNtiEstadoElaboracion());
 						target.setNtiTipoDocumental(source.getNtiTipoDocumental());
+						target.setPinbalActiu(source.isPinbalActiu());
 						return target;
 					}
 		});

@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import es.caib.pinbal.client.recobriment.model.ScspJustificante;
+import net.conselldemallorca.helium.v3.core.api.dto.PinbalConsentimentEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.ScspRespostaPinbal;
 
 /**
@@ -76,7 +77,7 @@ public class PinbalGenericTest {
 				SERVEI_SCSP,
 				"psigna_doc",
 				"finalitat proves Test",
-				"SI", 
+				PinbalConsentimentEnum.SI, 
 				null,
 				CODIGO_PROCEDIMIENTO, 
 				ENTITAT_CIF,

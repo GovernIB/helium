@@ -383,23 +383,32 @@ public class DocumentHelperV3 {
 		return resposta;
 	}
 
+	public List<Document> findDocumentsExpedient(Expedient expedient, String processInstanceId) {
+		
+		DefinicioProces definicioProces = null;
+		if (processInstanceId!=null) {
+			definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(processInstanceId);
+		}
+		
+		List<Document> documents = new ArrayList<Document>();
+		if (expedient.getTipus().isAmbInfoPropia()) {
+			if (expedient.getTipus().getExpedientTipusPare() == null)
+				documents = documentRepository.findByExpedientTipusId(expedient.getTipus().getId());
+			else
+				documents = documentRepository.findByExpedientTipusAmbHerencia(expedient.getTipus().getId());
+		} else if (definicioProces!=null) {
+			documents = documentRepository.findByDefinicioProcesId(definicioProces.getId());
+		}
+		return documents;
+	}
+	
 	public List<ExpedientDocumentDto> findDocumentsPerInstanciaProces(
 			String processInstanceId) {
 		List<ExpedientDocumentDto> resposta = new ArrayList<ExpedientDocumentDto>();
-		// Consulta els documents de la definició de procés
-		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
-				processInstanceId);
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-		ExpedientTipus expedientTipus = expedient.getTipus();
-		List<Document> documents;
-		if (expedientTipus.isAmbInfoPropia()) {
-			if (expedientTipus.getExpedientTipusPare() == null)
-				documents = documentRepository.findByExpedientTipusId(expedientTipus.getId());
-			else
-				documents = documentRepository.findByExpedientTipusAmbHerencia(expedientTipus.getId());
-		} else {
-			documents = documentRepository.findByDefinicioProcesId(definicioProces.getId());
-		}
+
+		List<Document> documents = findDocumentsExpedient(expedient, processInstanceId);
+		
 		// Consulta els annexos de les anotacions de registre i les guarda en un Map<Long documentStoreId, Anotacio>
 		Map<Long, AnotacioAnnex> mapAnotacions = new HashMap<Long, AnotacioAnnex>();
 		for (AnotacioAnnex annex : anotacioAnnexRepository.findByAnotacioExpedientId(expedient.getId()))

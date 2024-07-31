@@ -182,6 +182,16 @@ public class Document implements Serializable, GenericEntity<Long> {
 	@Column(name="generar_nomes_tasca")
 	private boolean generarNomesTasca;
 
+	//#1741 Afegir documents a partir de consultes predefinides a Pinbal
+	@Column(name = "PINBAL_ACTIU")
+	private boolean pinbalActiu = false;
+	@Column(name="PINBAL_FINALITAT", length=512)
+	private String pinbalFinalitat;
+	@Column(name = "PINBAL_SERVEI")
+	private Long pinbalServei;
+	@Column(name = "PINBAL_CIFORGAN")
+	private boolean pinbalCifOrgan = false;
+	
 	public Document() {}
 	
 	public Document(DefinicioProces definicioProces, String codi, String nom) {
@@ -407,7 +417,38 @@ public class Document implements Serializable, GenericEntity<Long> {
 		this.ignored = ignored;
 	}
 	
-	
+	public boolean isPinbalActiu() {
+		return pinbalActiu;
+	}
+
+	public void setPinbalActiu(boolean pinbalActiu) {
+		this.pinbalActiu = pinbalActiu;
+	}
+
+	public String getPinbalFinalitat() {
+		return pinbalFinalitat;
+	}
+
+	public void setPinbalFinalitat(String pinbalFinalitat) {
+		this.pinbalFinalitat = pinbalFinalitat;
+	}
+
+	public Long getPinbalServei() {
+		return pinbalServei;
+	}
+
+	public void setPinbalServei(Long pinbalServei) {
+		this.pinbalServei = pinbalServei;
+	}
+
+	public boolean isPinbalCifOrgan() {
+		return pinbalCifOrgan;
+	}
+
+	public void setPinbalCifOrgan(boolean pinbalCifOrgan) {
+		this.pinbalCifOrgan = pinbalCifOrgan;
+	}
+
 	public boolean isGenerarNomesTasca() {
 		return generarNomesTasca;
 	}

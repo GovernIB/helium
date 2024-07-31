@@ -74,6 +74,14 @@
 							{{/if}}
 						</script>
 					</th>
+					<th data-col-name="pinbalActiu" width="10%" data-template="#pinbalActiuTemplate">
+						<spring:message code="serveisPinbal.document.legend.title"/>
+						<script id="pinbalActiuTemplate" type="text/x-jsrender">
+							{{if pinbalActiu }}
+								<spring:message code="comu.check"></spring:message>
+							{{/if}}
+						</script>
+					</th>					
 					<th data-col-name="arxiuNom"  width="10%" data-template="#arxiuTemplate">
 						<spring:message code="expedient.tipus.document.llistat.columna.arxiu"/>
 						<script id="arxiuTemplate" type="text/x-jsrender">

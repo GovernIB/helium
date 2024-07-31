@@ -1,7 +1,5 @@
 package net.conselldemallorca.helium.v3.core.api.dto;
 
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto.Sexe;
-
 public class CarrecJbpmIdDto {
 	
 	private Long id;

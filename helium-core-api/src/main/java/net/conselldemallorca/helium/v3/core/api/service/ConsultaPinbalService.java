@@ -6,6 +6,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalFiltreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ServeiPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 
 public interface ConsultaPinbalService {
@@ -17,4 +18,10 @@ public interface ConsultaPinbalService {
 	PeticioPinbalDto findByExpedientAndDocumentStore(Long expedientId, Long documentStoreId);
 	
 	List<PeticioPinbalDto> findConsultesPinbalPerExpedient(Long expedientId);
+	
+	PaginaDto<ServeiPinbalDto> findServeisPinbalAmbFiltrePaginat(PaginacioParamsDto paginacioParams);
+	
+	ServeiPinbalDto findServeiPinbalById(Long id);
+	
+	ServeiPinbalDto updateServeiPinbal(ServeiPinbalDto serveiPinbalDto);
 }
