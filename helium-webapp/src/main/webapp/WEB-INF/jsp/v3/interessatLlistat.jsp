@@ -32,8 +32,7 @@
 				<th data-col-name="tipus"><spring:message code="interessat.llistat.columna.tipus"/></th>
 				<th data-col-name="nif" data-visible="false"><spring:message code="interessat.llistat.columna.nif"/></th>
 				<th data-col-name="documentIdent"><spring:message code="interessat.form.camp.document.identificatiu"/></th>
-				<th data-col-name="raoSocial"><spring:message code="interessat.form.camp.raosocial"/></th>
-				<th data-col-name="fullNom"><spring:message code="interessat.llistat.columna.nom"/></th>
+				<th data-col-name="fullNom" width="30%"><spring:message code="interessat.form.camp.nom.rao.social"/></th>
 				<th data-col-name="dir3Codi"><spring:message code="interessat.llistat.columna.dir3Codi"/></th>
 				<th data-col-name="email"><spring:message code="interessat.llistat.columna.email"/></th>
 				<th data-col-name="telefon"><spring:message code="interessat.llistat.columna.telefon"/></th>
@@ -62,9 +61,16 @@
 									</ul>
 							</div>
 					</script>
+ 				</th>
+ 				<th data-col-name="desplegable" data-template="#cellDesplegableTemplate" data-orderable="false" width="10%"> 
+ 					<script id="cellDesplegableTemplate" type="text/x-jsrender"> 
+ 					<div class="dropdown">
+ 						<button type="button" class="btn btn-default desplegable" href="#detalls_{{:id}}" data-toggle="collapse" aria-expanded="false" aria-controls="detalls_{{:id}}">
+							<span class="fa fa-caret-down"></span>
+						</button>
+					</div>
+					</script>
  				</th> 
- 				<th data-col-name="id" data-template="#cellAccionsTemplate" data-orderable="false" width="10%"> 
- 				
 			</tr>
 		</thead>
 	</table>
@@ -78,7 +84,18 @@
 
 <script type="text/javascript">
 // <![CDATA[			
-$(document).ready(function() {				
+$(document).ready(function() {	
+	$(".desplegable").click(function(){
+		alert("entra");
+		$(this).find("span").toggleClass("fa-caret-up");
+		$(this).find("span").toggleClass("fa-caret-down");
+	});
+	$('.desplegable').click(function(){
+		alert("entra");
+		$(this).find("span").toggleClass("fa-caret-up");
+		$(this).find("span").toggleClass("fa-caret-down");
+	});
+	
 });
 
 function refrescaTaulaInteressats() {

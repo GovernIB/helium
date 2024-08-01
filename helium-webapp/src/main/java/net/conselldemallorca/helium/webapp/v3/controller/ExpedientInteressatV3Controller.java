@@ -57,7 +57,6 @@ import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 public class ExpedientInteressatV3Controller extends BaseExpedientController {
 
 	@Autowired private ExpedientInteressatService expedientInteressatService;
-	@Autowired private ConversioTipusHelper conversioTipusHelper;
 	@Autowired private UnitatOrganitzativaService unitatOrganitzativaService;
 	@Autowired private DadesExternesService dadesExternesService;
 	@Autowired private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
@@ -97,7 +96,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 				mapeigOrdenacions.put("representantFullNom", new String[] {"representantInteressat.nom", "representantInteressat.llinatge1", "representantInteressat.llinatge2"});
 			}
 		}
-		mapeigOrdenacions.put("fullNom", new String[] {"nom", "llinatge1", "llinatge2", "raosocial"});
+		mapeigOrdenacions.put("fullNom", new String[] {"nom", "llinatge1", "llinatge2", "raoSocial"});
 		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request, null, mapeigOrdenacions);
 		
 		return DatatablesHelper.getDatatableResponse(
@@ -136,6 +135,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 				unitatOrganitzativaHelper.findAll()
 				);
 		model.addAttribute(interessatCommand);
+		model.addAttribute("es_representant",false);
 		return "v3/interessatForm";
 	}
 	@RequestMapping(value = "/{expedientId}/interessat/new", method = RequestMethod.POST)
@@ -150,7 +150,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
         	try {
         		populateModel(request, model);
 	        	expedientInteressatService.create(
-	    				conversioTipusHelper.convertir(
+	    				ConversioTipusHelper.convertir(
 	    						command,
 	    						InteressatDto.class));
 				MissatgesHelper.success(request, getMessage(request, "interessat.controller.creat") );
@@ -186,20 +186,16 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		if (dto.getProvincia() != null) {
 			model.addAttribute("municipis", dadesExternesService.findMunicipisPerProvincia(dto.getProvincia()));
 		}
-		
-		interessatCommand = conversioTipusHelper.convertir(
+		interessatCommand = ConversioTipusHelper.convertir(
 				dto,
 				InteressatCommand.class);
 		if (InteressatTipusEnumDto.ADMINISTRACIO.equals(dto.getTipus())) {
-			List<UnitatOrganitzativaDto> unitats = new ArrayList<UnitatOrganitzativaDto>();
-			try {
-				UnitatOrganitzativaDto unitat = unitatOrganitzativaService.findByCodi(
-						interessatCommand.getCifOrganGestor());
-				unitats.add(unitat);
-			} catch (Exception e) {
-				MissatgesHelper.warning(request, getMessage(request, "interessat.controller.unitat.error"));
-			}
-			model.addAttribute("unitatsOrganitzatives", unitats);
+			
+				interessatCommand.setCifOrganGestor(interessatCommand.getDocumentIdent());
+				model.addAttribute(
+						"organs",
+						unitatOrganitzativaHelper.findAll()
+						);			
 		}
 		model.addAttribute(interessatCommand);
 		return "v3/interessatForm";
@@ -219,7 +215,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
     		populateModel(request, model);
         	command.setEs_representant(es_representant);
         	expedientInteressatService.update(
-        			conversioTipusHelper.convertir(
+        			ConversioTipusHelper.convertir(
     						command,
     						InteressatDto.class));
 			MissatgesHelper.success(request, getMessage(request, "interessat.controller.modificat") );
@@ -235,7 +231,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		InteressatCommand interessatCommand= new InteressatCommand();
 		populateModel(request, model);
 		interessatCommand.setPais("724");
-		model.addAttribute(new InteressatCommand());
+		interessatCommand.setEs_representant(true);
 		model.addAttribute("expedientId", expedientId);
 		model.addAttribute(
 				"interessatTipusOptions",
@@ -246,6 +242,16 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 				"interessatTipusDocuments",
 				this.populateTipusDocuments(request)
 				);
+		model.addAttribute(
+				"interessatCanalsNotif", 
+				this.populateCanalsNotif(request)
+				);
+		model.addAttribute(
+				"organs",
+				unitatOrganitzativaHelper.findAll()
+				);
+		model.addAttribute(interessatCommand);
+		model.addAttribute("es_representant",true);
 		return "v3/interessatForm";
 	}
 		
@@ -264,7 +270,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
         	command.setEs_representant(true);
         	expedientInteressatService.createRepresentant(
         			interessatId,
-    				conversioTipusHelper.convertir(
+    				ConversioTipusHelper.convertir(
     						command,
     						InteressatDto.class));
 			MissatgesHelper.success(request, getMessage(request, "interessat.controller.representant.creat") );
@@ -355,7 +361,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		}
 		//dto.setTipusDocIdent(InteressatDocumentTipusEnumDto.valorAsEnum(dto.getTipusDocIdent()).name());
 		model.addAttribute(
-				conversioTipusHelper.convertir(
+				ConversioTipusHelper.convertir(
 						dto,
 						InteressatCommand.class));
 		return "v3/interessatForm";
@@ -374,7 +380,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
         } else {
         	command.setEs_representant(es_representant);
         	expedientInteressatService.update(
-        			conversioTipusHelper.convertir(
+        			ConversioTipusHelper.convertir(
     						command,
     						InteressatDto.class));
 			MissatgesHelper.success(request, getMessage(request, "interessat.controller.modificat") );
