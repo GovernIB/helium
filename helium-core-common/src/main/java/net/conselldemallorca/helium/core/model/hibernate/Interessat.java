@@ -101,7 +101,8 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 			String pais,
 			String provincia,
 			String municipi,
-			String canalNotif
+			String canalNotif,
+			String codiDire
 			) {
 		super();
 		this.id = id;
@@ -131,6 +132,7 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 		this.provincia=provincia;
 		this.municipi=municipi;
 		this.canalNotif=canalNotif;
+		this.codiDire=codiDire;
 	}
 	
 	

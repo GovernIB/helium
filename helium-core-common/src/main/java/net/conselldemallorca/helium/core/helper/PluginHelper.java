@@ -137,7 +137,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DocumentTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaResultatDto;
@@ -3091,6 +3090,9 @@ public class PluginHelper {
 			notificacio.setUsuariCodi(usuariActualHelper.getUsuariActual());		
 			// Informa el número d'expedient
 			notificacio.setNumExpedient(expedient.getNumero());
+			if(notificacio.getEmisorDir3Codi()==null) {//aquí setejar el codiDir3 de l'entitat configurada a NOTIB
+				
+			}
 			// Invoca el servei
 			resposta = getNotificacioPlugin().enviar(notificacio);
 			

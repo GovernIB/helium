@@ -37,7 +37,9 @@ import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
+import net.conselldemallorca.helium.integracio.plugins.notificacio.Enviament;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.InteressatTipusEnum;
+import net.conselldemallorca.helium.integracio.plugins.notificacio.Notificacio;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.Persona;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
@@ -46,6 +48,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentFinalitzarDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
@@ -495,7 +499,12 @@ public class ConversioTipusHelper {
 							target.setTipus(InteressatTipusEnum.valueOf(source.getTipus().name()));
 							target.setNif(source.getDni());
 							target.setNom(source.getNom());
+							target.setCodiDir3(source.getCodiDir3());
 							switch(target.getTipus()) {
+								case JURIDICA:
+									target.setNom(source.getRaoSocial());
+									target.setRaoSocial(source.getRaoSocial());
+									break;
 								case ADMINISTRACIO:
 									target.setCodiDir3(source.getCodiDir3());
 									break;
@@ -512,6 +521,29 @@ public class ConversioTipusHelper {
 						return target;
 					}
 		});	
+		
+		// Converteix la informació de DadesNotificacioDto de Helium a Notificacio de Notib
+		mapperFactory.getConverterFactory().registerConverter(
+						new CustomConverter<DadesNotificacioDto, Notificacio>() {
+							@Override
+							public Notificacio convert(DadesNotificacioDto source, Type<? extends Notificacio> destinationClass) {
+								Notificacio target = new Notificacio();
+								if (source.getEnviaments() != null && !source.getEnviaments().isEmpty()) {
+									List<DadesEnviamentDto> dadesEnviamentPerRetornar=source.getEnviaments();
+									for(DadesEnviamentDto dadesEnviamentDto: dadesEnviamentPerRetornar) {
+										if(dadesEnviamentDto.getDestinataris()!=null && !dadesEnviamentDto.getDestinataris().isEmpty()) {
+											List<PersonaDto> destinataris = convertirList(dadesEnviamentDto.getDestinataris(), 
+																						  PersonaDto.class);
+											dadesEnviamentDto.setDestinataris(destinataris);
+											break;
+										}
+									}
+									target.setEnviaments(convertirList(dadesEnviamentPerRetornar, 
+											  Enviament.class));
+							}
+						return target;
+					}
+				});	
 		
 		mapperFactory.classMap(EstatRegla.class, EstatReglaDto.class)
 				.field("expedientTipus.id", "expedientTipusId")

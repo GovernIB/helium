@@ -27,6 +27,7 @@ public class PersonaDto implements Serializable {
 	private String contrasenya;
 	private InteressatTipusEnumDto tipus;
 	private String codiDir3;
+	private String raoSocial;
 
 	public PersonaDto(String codi, String nomSencer, String email, Sexe sexe) {
 		this.codi = codi;
@@ -160,7 +161,12 @@ public class PersonaDto implements Serializable {
 	public void setContrasenya(String contrasenya) {
 		this.contrasenya = contrasenya;
 	}
-	
+	public String getRaoSocial() {
+		return raoSocial;
+	}
+	public void setRaoSocial(String raoSocial) {
+		this.raoSocial = raoSocial;
+	}
 	public String getInicials() {
 		String[] parts = getNomSencer().split(" ");
 		StringBuilder sb = new StringBuilder();

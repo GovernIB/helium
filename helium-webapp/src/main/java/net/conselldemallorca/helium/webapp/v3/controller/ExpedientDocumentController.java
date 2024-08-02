@@ -2527,6 +2527,19 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return transaccioResponse;
 	}
 	
+	@RequestMapping(value = "/representant/{interessatId}", method = RequestMethod.GET)
+	@ResponseBody
+	public List<InteressatDto> getRepresentantByCodiInteressat(
+			HttpServletRequest request,
+			@PathVariable Long interessatId,
+			Model model) {
+		List<InteressatDto> representants = new ArrayList<InteressatDto>();
+		InteressatDto representant = expedientInteressatService.findRepresentantAmbInteressatId(interessatId);
+		representants.add(representant);
+		model.addAttribute("representant",representant);
+		return representants;
+	}
+	
 	private static final Log logger = LogFactory.getLog(ExpedientDocumentController.class);
 
 }

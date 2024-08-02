@@ -501,15 +501,15 @@ $(document).ready(function() {
 			</div>
 		</div>
 		
-		<div id="dir3Codi" class="row  personafisica personajuridica hidden"  style="margin-right:-14px ; margin-left:-59px">
+		<div id="direCodi" class="row  personafisica personajuridica hidden"  style="margin-right:-14px ; margin-left:-59px">
 			<div class="col-xs-12">
 					<hel:inputText required="false" name="codiDire" textKey="interessat.form.camp.codi.dire" labelSize="2" /> 
 			</div>
 		</div>
 		
-		<div id="dir3Codi" class="row administracio hidden"  style="margin-right:-14px ; margin-left:-59px">
+		<div id="dir3Codi" class="row personafisica personajuridica administracio hidden"  style="margin-right:-14px ; margin-left:-59px">
 			<div class="col-xs-12">
-					<hel:inputText required="false" name="dir3Codi" textKey="interessat.form.camp.dir3codi" labelSize="2" /> 
+					<hel:inputText required="true" name="dir3Codi" textKey="interessat.form.camp.dir3codi" labelSize="2" /> 
 			</div>
 		</div>
 		

@@ -46,6 +46,7 @@ public class InteressatDto {
     private InteressatDto representat; //només existeix quan es_representant=true
     private InteressatDto representant; //només existeix quan es_representant=false
     private String canalNotif; 
+    private boolean teRepresentant;
 
 
 	public InteressatTipusEnumDto getTipus() {
@@ -186,6 +187,24 @@ public class InteressatDto {
 		return null;
 	}
 	
+	public boolean isTeRepresentant() {
+		if(representant!=null)
+			return true;
+		else
+			return false;
+	}
+	
+	public boolean getTeRepresentant() {
+		if(representant!=null)
+			return true;
+		else
+			return false;
+	}
+
+	public void setTeRepresentant(boolean teRepresentant) {
+		this.teRepresentant = teRepresentant;
+	}
+
 	public String getFullInfo() {
 		String codiDocument;
 		if (tipus != null && InteressatTipusEnumDto.ADMINISTRACIO.equals(tipus))

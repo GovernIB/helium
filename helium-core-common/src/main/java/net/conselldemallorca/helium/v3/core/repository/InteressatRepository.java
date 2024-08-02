@@ -52,5 +52,9 @@ public interface InteressatRepository extends JpaRepository<Interessat, Long> {
 			String codi,
 			Expedient expedient
 			);
+	
+	List<Interessat> findByRepresentat(
+			Interessat representat
+			);
 
 }

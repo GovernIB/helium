@@ -94,6 +94,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 				representantInteressat = expedientInteressatService.findOne(interessat.getRepresentant().getId());
 				interessat.setRepresentant(representantInteressat);
 				mapeigOrdenacions.put("representantFullNom", new String[] {"representantInteressat.nom", "representantInteressat.llinatge1", "representantInteressat.llinatge2"});
+				interessat.setTeRepresentant(true);
 			}
 		}
 		mapeigOrdenacions.put("fullNom", new String[] {"nom", "llinatge1", "llinatge2", "raoSocial"});
