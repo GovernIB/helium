@@ -14,7 +14,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PinbalConsentimentEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.PinbalServeiEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.Sexe;
-import net.conselldemallorca.helium.v3.core.api.dto.SexeDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TipusPassaportEnum;
 
 /**
@@ -62,16 +61,12 @@ public class NtiHelper {
 	}
 
 	public void omplirSexe(Model model) {
-		List<SexeDto> sexes = new ArrayList<SexeDto>();
-		SexeDto sexe = new SexeDto();
-		sexe.setId(0);
-		sexe.setNom(Sexe.SEXE_HOME.name());
-		sexes.add(sexe);
-		sexe = new SexeDto();
-		sexe.setId(1);
-		sexe.setNom(Sexe.SEXE_DONA.name());
-		sexes.add(sexe);
-		model.addAttribute("sexes", sexes);
+		List<ParellaCodiValorDto> tdlist = new ArrayList<ParellaCodiValorDto>();
+		for(Sexe or: Sexe.values())
+			tdlist.add(new ParellaCodiValorDto(
+					or.name(),
+					MessageHelper.getInstance().getMessage("enum.sexe." + or.name())));		
+		model.addAttribute("sexes", tdlist);
 	}
 	
 	public void omplirEstadoElaboracion(

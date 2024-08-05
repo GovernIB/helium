@@ -79,6 +79,4 @@ public class TitularDto {
 	public void setTipoDocumentacion(String scspTipoDocumentacion) {	
 		this.tipoDocumentacion = scspTipoDocumentacion;
 	}
-		
-
 }

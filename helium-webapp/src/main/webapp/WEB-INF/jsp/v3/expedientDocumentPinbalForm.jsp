@@ -36,25 +36,11 @@
 	<script src="<c:url value="/js/bootstrap-datetimepicker.js"/>"></script>
 	<script src="<c:url value="/js/webutil.common.js"/>"></script>
 	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
-	
-<style type="text/css">
-	.btn-file {position: relative; overflow: hidden;}
-	.btn-file input[type=file] {position: absolute; top: 0; right: 0; min-width: 100%; min-height: 100%; font-size: 100px; text-align: right; filter: alpha(opacity = 0); opacity: 0; outline: none; background: white; cursor: inherit; display: block;}
-	.col-xs-4 {width: 20%;}
-	.col-xs-8 {width: 80%;}
-	#s2id_estatId {width: 100% !important;}
-	.titol-missatge {margin-left: 3px; padding-top: 10px; padding-bottom: 10px;}
-	.titol-missatge label {padding-right: 10px;}
-	.nav-tabs li.disabled a {pointer-events: none;}
-	.tab-pane {min-height: 300px; margin-top: 25px;}
-	.candau {color: #666666;}
-	.select2-result-label:has(> span.candau) {cursor: not-allowed;}
-</style>
 
 <script type="text/javascript">
 $(document).ready( function() {
 	$('#documentId').on('change', function() {
-		debugger;
+		
 		const varDocumentId = $(this).val();
 // 		const botoConsultar = $("#botoPerConsultar");
 // 		botoConsultar.attr("disabled", "disabled");
@@ -63,15 +49,15 @@ $(document).ready( function() {
 		//Al canviar el tipus de document Pinbal, refrescar els titulars
 		$.get('<c:url value="/v3/expedient/${expedientDocumentPinbalDto.expedientId}/documentPinbal/' + varDocumentId + '/info"/>')
 		.done(function(data) {
-			debugger;
 			
 			<c:if test="${expedientDocumentPinbalDto.commandValidat==false}">
 			if (data.finalitat)  { $("#finalitat").val(data.finalitat); }
+			</c:if>
+
 			if (data.codiServei) { $("#codiServei").val(data.codiServei); }
 			if (data.documentNom) { $("#documentNom").val(data.documentNom); }
 			if (data.documentCodi) { $("#documentCodi").val(data.documentCodi); }
-			</c:if>
-
+			
 			//Ocultam totes les dades específiques, tant les del form con les de fora del form
 			$('#datos-especificos').children().each(function () {
 				if (this.nodeName=="DIV") {
@@ -99,19 +85,49 @@ $(document).ready( function() {
 // 			botoConsultar.removeAttr("disabled");
 // 			botoConsultar.removeClass("disabled");
 			webutilModalAdjustHeight();			
-			
-// 			$('#interessatId').select2('val', '', true);
-// 			$('#interessatId option[value!=""]').remove();
-// 			for (var i = 0; i < data.length; i++) {
-// 				$('#interessatId').append('<option value="' + data[i].id + '">' + data[i].identificador + '</option>');
-// 			}
 		})
 		.fail(function() {
 			alert('Error al recuperar les dades del document: '+varDocumentId);
 		});
 	});
 	
+	$('#provinciaNaixament').on('change', function() {
+		debugger;
+		var selectMuni = $('#municipiNaixament');
+		$(selectMuni).empty();
+		//Al canviar el tipus de document Pinbal, refrescar els titulars
+		$.get('<c:url value="/v3/expedient/getMunicipisPerProvincia/' + $(this).val() + '"/>')
+		.done(function(data) {
+			debugger;
+			if (data) {
+				data.forEach((elemento, indice) => {
+					$(selectMuni).append(new Option(elemento.valor, elemento.codi));
+				});
+				$(selectMuni).trigger('change');
+			}
+		})
+		.fail(function() {
+			alert('Error al recuperar els Municipis Per Provincia: '+$(this).val());
+		});
+	});
+	
+	$('#paisNaixament').on('change', function() {
+		debugger;
+		//Han seleccionat espanya
+		if ($(this).val()=='724') {
+			$("#poblacioNaixament").parent().parent().hide();
+			$("#provinciaNaixament").parent().parent().show();
+			$("#municipiNaixament").parent().parent().show();
+			
+		} else {
+			$("#poblacioNaixament").parent().parent().show();
+			$("#provinciaNaixament").parent().parent().hide();
+			$("#municipiNaixament").parent().parent().hide();			
+		}
+	});
+	
 	$('#documentId').trigger('change');
+	$('#paisNaixament').trigger('change');
 });
 </script>
 
@@ -168,8 +184,8 @@ $(document).ready( function() {
 				</div>
 				
 				<div id="divSCDCPAJU" class="ocult">
-					<hel:inputSelect name="provinciaCodi" textKey="contingut.pinbal.form.camp.provincia" optionItems="${provincies}" optionValueAttribute="codi" optionTextAttribute="valor"/>
-					<hel:inputSelect name="municipiCodi" textKey="contingut.pinbal.form.camp.municipi" optionItems="${municipis}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+					<hel:inputSelect name="provinciaCodi" required="true" textKey="contingut.pinbal.form.camp.provincia" optionItems="${provincies}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+					<hel:inputSelect name="municipiCodi"  required="true" textKey="contingut.pinbal.form.camp.municipi"  optionItems="${municipis}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 				</div>
 
 				<div id="divSVDSCTFNWS01" class="ocult">
@@ -185,29 +201,28 @@ $(document).ready( function() {
 				</div>
 				
 				<div id="divSVDDELSEXWS01" class="ocult">
-					<hel:inputSelect name="codiNacionalitat" textKey="contingut.pinbal.form.camp.pais.nacionalitat" optionItems="${paisos}" optionValueAttribute="codi" optionTextAttribute="valor"/>
-				  	<hel:inputSelect name="sexe" textKey="contingut.pinbal.form.camp.sexe" optionItems="${sexes}" optionValueAttribute="id" optionTextAttribute="nom" emptyOption="true"/>
-				  	<hel:inputSelect name="paisNaixament" textKey="contingut.pinbal.form.camp.pais.naixament" optionItems="${paisos}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+					<hel:inputSelect name="codiNacionalitat" required="true" textKey="contingut.pinbal.form.camp.pais.nacionalitat" optionItems="${paisos}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+					<hel:inputSelect name="paisNaixament" required="true" textKey="contingut.pinbal.form.camp.pais.naixament" optionItems="${paisos}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 				  	<hel:inputSelect name="provinciaNaixament" textKey="contingut.pinbal.form.camp.provincia.naixament" optionItems="${provincies}" optionValueAttribute="codi" optionTextAttribute="valor" comment="contingut.pinbal.form.camp.provincia.naixament.comment"/>
-				  	<hel:inputText name="poblacioNaixament" textKey="contingut.pinbal.form.camp.poblacio.naixament" comment="contingut.pinbal.form.camp.poblacio.naixament.comment"/>
-				  	<hel:inputSelect name="municipiNaixamentSVDDELSEXWS01" textKey="contingut.pinbal.form.camp.municipi.naixament" optionItems="${municipis}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" comment="contingut.pinbal.form.camp.codi.poblacio.naixament.comment"/>
+				  	<hel:inputText	 name="poblacioNaixament" textKey="contingut.pinbal.form.camp.poblacio.naixament" comment="contingut.pinbal.form.camp.poblacio.naixament.comment"/>
+				  	<hel:inputSelect name="municipiNaixament" textKey="contingut.pinbal.form.camp.municipi.naixament" optionItems="${municipis}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true" comment="contingut.pinbal.form.camp.codi.poblacio.naixament.comment"/>					
+					<hel:inputDate	 name="dataNaixement" required="true" placeholder="dd/MM/aaaa" textKey="contingut.pinbal.form.camp.data.naixement" comment="contingut.pinbal.form.delsex.camp.any"/>					
+				  	<hel:inputSelect name="sexe" textKey="contingut.pinbal.form.camp.sexe" optionItems="${sexes}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true"/>
 					<hel:inputText name="nomPare" textKey="contingut.pinbal.form.camp.nom.pare" comment="contingut.pinbal.form.camp.nom.pare.comment"/>
 					<hel:inputText name="nomMare" textKey="contingut.pinbal.form.camp.nom.mare" comment="contingut.pinbal.form.camp.nom.mare.comment"/>
-					<hel:inputDate name="dataNaixement" placeholder="dd/MM/aaaa" textKey="contingut.pinbal.form.camp.data.naixement"/>
 					<hel:inputText name="telefon" textKey="interessat.llistat.columna.telefon"/>
 					<hel:inputText name="email" textKey="interessat.llistat.columna.email"/>
 				</div>
 				
 				<div id="divSCDHPAJU" class="ocult">
-					<hel:inputSelect name="provinciaCodi" textKey="contingut.pinbal.form.camp.provincia" optionItems="${provincies}" optionValueAttribute="codi" optionTextAttribute="valor"/>
-					<hel:inputSelect name="municipiCodi" textKey="contingut.pinbal.form.camp.municipi" optionItems="${municipis}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+					<hel:inputSelect name="provinciaCodi" required="true" textKey="contingut.pinbal.form.camp.provincia" optionItems="${provincies}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+					<hel:inputSelect name="municipiCodi" required="true" textKey="contingut.pinbal.form.camp.municipi" optionItems="${municipis}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 					<hel:inputNumber name="nombreAnysHistoric" textKey="contingut.pinbal.form.camp.data.nombre.anys.historic"/>
 				</div>
 
 				<div id="divNIVRENTI" class="ocult">
-					<hel:inputNumber name="exercici" textKey="contingut.pinbal.form.camp.data.exercici"/>
+					<hel:inputNumber name="exercici" required="true" textKey="contingut.pinbal.form.camp.data.exercici"/>
 				</div>
-
 				
 				<div id="divSVDDGPRESIDENCIALEGALDOCWS01" class="ocult">
 					<hel:inputText name="numeroSoporte" textKey="contingut.pinbal.form.camp.numero.soporte" comment="contingut.pinbal.form.camp.tipus.numero.soporte.passaport.comment"/>
@@ -218,70 +233,60 @@ $(document).ready( function() {
 				</div>
 				
 				<div id="divSVDRRCCNACIMIENTOWS01" class="ocult">
-				
-					<legend><spring:message code="contingut.pinbal.form.legend.dadesRegistrals"/></legend>
-					
+					<legend style="font-size: medium;padding-left: 50px;"><spring:message code="contingut.pinbal.form.legend.dadesRegistrals"/></legend>
 					<hel:inputText name="registreCivil" textKey="contingut.pinbal.form.camp.registreCivil"/>
 					<hel:inputText name="tom" textKey="contingut.pinbal.form.camp.tom"/>
 					<hel:inputText name="pagina" textKey="contingut.pinbal.form.camp.pagina"/>
-					
-					<legend><spring:message code="contingut.pinbal.form.legend.fetRegistral"/></legend>
+					<legend style="font-size: medium;padding-left: 50px;"><spring:message code="contingut.pinbal.form.legend.fetRegistral"/></legend>
 					<hel:inputDate name="dataRegistre" placeholder="dd/MM/aaaa" textKey="contingut.pinbal.form.camp.data"/>
-					<hel:inputSelect name="municipiRegistreSVDRRCCNACIMIENTOWS01" textKey="contingut.pinbal.form.camp.municipi" optionItems="${municipis}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true"/>			
-					
-					<legend><spring:message code="contingut.pinbal.form.legend.naixement"/></legend>		
+					<hel:inputSelect name="municipiRegistre" textKey="contingut.pinbal.form.camp.municipi" optionItems="${municipis}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true"/>			
+					<legend style="font-size: medium;padding-left: 50px;"><spring:message code="contingut.pinbal.form.legend.naixement"/></legend>		
 					<hel:inputDate name="dataNaixement" placeholder="dd/MM/aaaa" textKey="contingut.pinbal.form.camp.data"/>		
-				  	<hel:inputSelect name="municipiNaixamentSVDRRCCNACIMIENTOWS01" textKey="contingut.pinbal.form.camp.municipi" optionItems="${municipis}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true"/>		
-				  	
-				  	<legend><spring:message code="contingut.pinbal.form.legend.dadesAdicionals"/></legend>	
+				  	<hel:inputSelect name="municipiNaixament" textKey="contingut.pinbal.form.camp.municipi" optionItems="${municipis}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true"/>		
+				  	<legend style="font-size: medium;padding-left: 50px;"><spring:message code="contingut.pinbal.form.legend.dadesAdicionals"/></legend>	
 				  	<hel:inputCheckbox name="ausenciaSegundoApellido" textKey="contingut.pinbal.form.camp.ausenciaSegundoApellido"/>
-				  	<hel:inputSelect name="sexe" textKey="contingut.pinbal.form.camp.sexe" optionItems="${sexes}" optionValueAttribute="id" optionTextAttribute="nom" emptyOption="true"/>
+				  	<hel:inputSelect name="sexe" textKey="contingut.pinbal.form.camp.sexe" optionItems="${sexes}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true"/>
 				  	<hel:inputText name="nomPare" textKey="contingut.pinbal.form.camp.nom.pare"/>
 					<hel:inputText name="nomMare" textKey="contingut.pinbal.form.camp.nom.mare"/>	
 				</div>				
 				
 				<div id="divSVDRRCCMATRIMONIOWS01" class="ocult">
-				
-					<legend><spring:message code="contingut.pinbal.form.legend.dadesRegistrals"/></legend>
-					
+					<legend style="font-size: medium;padding-left: 50px;"><spring:message code="contingut.pinbal.form.legend.dadesRegistrals"/></legend>
 					<hel:inputText name="registreCivil" textKey="contingut.pinbal.form.camp.registreCivil"/>
 					<hel:inputText name="tom" textKey="contingut.pinbal.form.camp.tom"/>
 					<hel:inputText name="pagina" textKey="contingut.pinbal.form.camp.pagina"/>
-					
-					<legend><spring:message code="contingut.pinbal.form.legend.fetRegistral"/></legend>
+					<legend style="font-size: medium;padding-left: 50px;"><spring:message code="contingut.pinbal.form.legend.fetRegistral"/></legend>
 					<hel:inputDate name="dataRegistre" placeholder="dd/MM/aaaa" textKey="contingut.pinbal.form.camp.data"/>
-					<hel:inputSelect name="municipiRegistreSVDRRCCMATRIMONIOWS01" textKey="contingut.pinbal.form.camp.municipi" optionItems="${municipis}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true"/>			
-					
-					<legend><spring:message code="contingut.pinbal.form.legend.naixement"/></legend>		
+					<hel:inputSelect name="municipiRegistre" textKey="contingut.pinbal.form.camp.municipi" optionItems="${municipis}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true"/>			
+					<legend style="font-size: medium;padding-left: 50px;"><spring:message code="contingut.pinbal.form.legend.naixement"/></legend>		
 					<hel:inputDate name="dataNaixement" placeholder="dd/MM/aaaa" textKey="contingut.pinbal.form.camp.data"/>		
-				  	<hel:inputSelect name="municipiNaixamentSVDRRCCMATRIMONIOWS01" textKey="contingut.pinbal.form.camp.municipi" optionItems="${municipis}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true"/>		
-				  	
-				  	<legend><spring:message code="contingut.pinbal.form.legend.dadesAdicionals"/></legend>	
+				  	<hel:inputSelect name="municipiNaixament" textKey="contingut.pinbal.form.camp.municipi" optionItems="${municipis}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true"/>		
+				  	<legend style="font-size: medium;padding-left: 50px;"><spring:message code="contingut.pinbal.form.legend.dadesAdicionals"/></legend>	
 				  	<hel:inputCheckbox name="ausenciaSegundoApellido" textKey="contingut.pinbal.form.camp.ausenciaSegundoApellido"/>
-				  	<hel:inputSelect name="sexe" textKey="contingut.pinbal.form.camp.sexe" optionItems="${sexes}" optionValueAttribute="id" optionTextAttribute="nom" emptyOption="true"/>
+				  	<hel:inputSelect name="sexe" textKey="contingut.pinbal.form.camp.sexe" optionItems="${sexes}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true"/>
 				  	<hel:inputText name="nomPare" textKey="contingut.pinbal.form.camp.nom.pare"/>
 					<hel:inputText name="nomMare" textKey="contingut.pinbal.form.camp.nom.mare"/>	
-				</div>					
+				</div>
 				
 				<div id="divSVDRRCCDEFUNCIONWS01" class="ocult">
 				
-					<legend><spring:message code="contingut.pinbal.form.legend.dadesRegistrals"/></legend>
+					<legend style="font-size: medium;padding-left: 50px;"><spring:message code="contingut.pinbal.form.legend.dadesRegistrals"/></legend>
 					
 					<hel:inputText name="registreCivil" textKey="contingut.pinbal.form.camp.registreCivil"/>
 					<hel:inputText name="tom" textKey="contingut.pinbal.form.camp.tom"/>
 					<hel:inputText name="pagina" textKey="contingut.pinbal.form.camp.pagina"/>
 					
-					<legend><spring:message code="contingut.pinbal.form.legend.fetRegistral"/></legend>
+					<legend style="font-size: medium;padding-left: 50px;"><spring:message code="contingut.pinbal.form.legend.fetRegistral"/></legend>
 					<hel:inputDate name="dataRegistre" placeholder="dd/MM/aaaa" textKey="contingut.pinbal.form.camp.data"/>
-					<hel:inputSelect name="municipiRegistreSVDRRCCDEFUNCIONWS01" textKey="contingut.pinbal.form.camp.municipi" optionItems="${municipis}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true"/>			
+					<hel:inputSelect name="municipiRegistre" textKey="contingut.pinbal.form.camp.municipi" optionItems="${municipis}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true"/>			
 					
-					<legend><spring:message code="contingut.pinbal.form.legend.naixement"/></legend>		
+					<legend style="font-size: medium;padding-left: 50px;"><spring:message code="contingut.pinbal.form.legend.naixement"/></legend>		
 					<hel:inputDate name="dataNaixement" placeholder="dd/MM/aaaa" textKey="contingut.pinbal.form.camp.data"/>		
-				  	<hel:inputSelect name="municipiNaixamentSVDRRCCDEFUNCIONWS01" textKey="contingut.pinbal.form.camp.municipi" optionItems="${municipis}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true"/>		
+				  	<hel:inputSelect name="municipiNaixament" textKey="contingut.pinbal.form.camp.municipi" optionItems="${municipis}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true"/>		
 				  	
-				  	<legend><spring:message code="contingut.pinbal.form.legend.dadesAdicionals"/></legend>	
+				  	<legend style="font-size: medium;padding-left: 50px;"><spring:message code="contingut.pinbal.form.legend.dadesAdicionals"/></legend>	
 				  	<hel:inputCheckbox name="ausenciaSegundoApellido" textKey="contingut.pinbal.form.camp.ausenciaSegundoApellido"/>
-				  	<hel:inputSelect name="sexe" textKey="contingut.pinbal.form.camp.sexe" optionItems="${sexes}" optionValueAttribute="id" optionTextAttribute="nom" emptyOption="true"/>
+				  	<hel:inputSelect name="sexe" textKey="contingut.pinbal.form.camp.sexe" optionItems="${sexes}" optionValueAttribute="codi" optionTextAttribute="valor" emptyOption="true"/>
 				  	<hel:inputText name="nomPare" textKey="contingut.pinbal.form.camp.nom.pare"/>
 					<hel:inputText name="nomMare" textKey="contingut.pinbal.form.camp.nom.mare"/>	
 				</div>		

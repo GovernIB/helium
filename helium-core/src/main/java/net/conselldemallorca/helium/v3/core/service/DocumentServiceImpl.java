@@ -3,6 +3,10 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.HerenciaHelper;
@@ -25,10 +30,12 @@ import net.conselldemallorca.helium.core.helper.NotificacioHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
+import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentTasca;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Interessat;
+import net.conselldemallorca.helium.core.model.hibernate.PeticioPinbal;
 import net.conselldemallorca.helium.core.model.hibernate.ServeiPinbalEntity;
 import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
@@ -37,12 +44,16 @@ import net.conselldemallorca.helium.integracio.plugins.pinbal.DadesConsultaPinba
 import net.conselldemallorca.helium.integracio.plugins.pinbal.Funcionari;
 import net.conselldemallorca.helium.integracio.plugins.pinbal.Titular;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadesConsultaPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.TitularDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalEstatEnum;
+import net.conselldemallorca.helium.v3.core.api.dto.PinbalServeiEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ScspRespostaPinbal;
+import net.conselldemallorca.helium.v3.core.api.dto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.dto.TitularDto.ScspTipoDocumentacion;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
@@ -51,8 +62,10 @@ import net.conselldemallorca.helium.v3.core.regles.ReglaHelper;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.InteressatRepository;
+import net.conselldemallorca.helium.v3.core.repository.PeticioPinbalRepository;
 import net.conselldemallorca.helium.v3.core.repository.ServeiPinbalRepository;
 import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaRepository;
 
@@ -74,9 +87,12 @@ public class DocumentServiceImpl implements DocumentService {
 	@Resource private ExpedientHelper expedientHelper;
 	@Resource private PluginHelper pluginHelper;
 	@Resource private ReglaHelper reglaHelper;
+	@Resource(name = "documentHelperV3") private DocumentHelperV3 documentHelper;
 	@Resource private ServeiPinbalRepository serveiPinbalRepository;
 	@Resource private InteressatRepository interessatRepository;
 	@Resource private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
+	@Resource private PeticioPinbalRepository peticioPinbalRepository;
+	@Resource private DocumentStoreRepository documentStoreRepository;
 	
 	/**
 	 * {@inheritDoc}
@@ -449,6 +465,80 @@ public class DocumentServiceImpl implements DocumentService {
 	@Override
 	public String createDocumentPinbal(ExpedientDocumentPinbalDto expedientDocumentPinbalDto) {
 
+		/**
+		//1.- Obtenir el expedient i validar permisos i que el document esta configurat
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				expedientDocumentPinbalDto.getExpedientId(),
+				new Permission[] {ExtendedPermission.DOC_MANAGE});
+		
+		Interessat interessat = interessatRepository.findOne(expedientDocumentPinbalDto.getInteressatId());
+		ServeiPinbalEntity serveiPinbal = serveiPinbalRepository.findByCodi(expedientDocumentPinbalDto.getCodiServei());
+		//enum ScspTipoDocumentacion { CIF, CSV, DNI, NIE, NIF, Pasaporte, NumeroIdentificacion, Otros}
+		//enum TipusDocIdentSICRES { NIF ("N"), CIF ("C"), PASSAPORT ("P"), DOCUMENT_IDENTIFICATIU_ESTRANGERS ("E"), ALTRES_DE_PERSONA_FISICA ("X"), CODI_ORIGEN ("O"); }
+		ScspTipoDocumentacion tipusDocumentacio = interessat.tipusInteressatCompatible(serveiPinbal);
+		if (tipusDocumentacio==null) {
+			return "consultes.pinbal.resultat.ko.interessat";
+		}
+		
+		TitularDto titular = new TitularDto();
+		titular.setDocumentacion(interessat.getDocumentIdent());
+		titular.setScspTipoDocumentacion(tipusDocumentacio);
+		titular.setTipoDocumentacion(tipusDocumentacio.toString());
+		titular.setNombre(interessat.getNom());
+		titular.setApellido1(interessat.getLlinatge1());
+		titular.setApellido2(interessat.getLlinatge2());
+
+		PersonaDto personaDto = pluginHelper.personaFindAmbCodi(SecurityContextHolder.getContext().getAuthentication().getName());
+		FuncionariDto funcionari = new FuncionariDto();
+		funcionari.setNifFuncionari(personaDto.getDni());
+		funcionari.setNombreCompletFuncionari(personaDto.getNomSencer());
+		funcionari.setPseudonim(personaDto.getCodi());
+		
+		String xmlDadesEspecifiques = null;
+		switch (expedientDocumentPinbalDto.getCodiServei()) {
+		case SVDDGPCIWS02:
+			xmlDadesEspecifiques = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><DatosEspecificos><Consulta></Consulta></DatosEspecificos>";
+			 break;
+		default:
+			xmlDadesEspecifiques = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><DatosEspecificos><Consulta></Consulta></DatosEspecificos>";
+			break;
+		}
+		
+		String codiUO=null;
+		try
+	    {
+			if(expedient.getTipus().isProcedimentComu() && expedient.getUnitatOrganitzativa()!=null){
+				codiUO = expedient.getUnitatOrganitzativa().getCodi();	
+			} else {
+				codiUO = expedient.getTipus().getNtiOrgano();
+			}
+			UnitatOrganitzativa uo = unitatOrganitzativaRepository.findByCodi(codiUO);
+			codiUO= StringUtilsHelium.abreuja(uo.getDenominacio(), 64);
+	    } catch (Exception e) {
+	      logger.error("Error d'integraicó consultant la UO: " + 
+	    		  codiUO!=null ? codiUO : expedient.getTipus().getNtiOrgano()
+	    		+  " " + e.getMessage(), e);
+	      logger.warn("Com a unitat tramitadora per la consulta a PINBAL es fixa el codi DIR3 " + expedient.getTipus().getNtiOrgano());
+	      if (codiUO==null)
+	    	  codiUO = expedient.getTipus().getNtiOrgano();
+	    }
+		
+		DadesConsultaPinbalDto dadesConsultaPinbal = new DadesConsultaPinbalDto();
+		dadesConsultaPinbal.setTitular(titular);
+		dadesConsultaPinbal.setFuncionari(funcionari);
+		dadesConsultaPinbal.setXmlDadesEspecifiques(xmlDadesEspecifiques);
+		dadesConsultaPinbal.setCodiProcediment(expedient.getTipus().getNtiClasificacion());
+		dadesConsultaPinbal.setDocumentCodi(expedientDocumentPinbalDto.getDocumentCodi());
+		dadesConsultaPinbal.setFinalitat(expedientDocumentPinbalDto.getFinalitat());
+		dadesConsultaPinbal.setConsentiment(expedientDocumentPinbalDto.getConsentiment());
+		dadesConsultaPinbal.setServeiCodi(expedientDocumentPinbalDto.getCodiServei().toString());
+		dadesConsultaPinbal.setEntitat_CIF(expedient.getTipus().getPinbalNifCif());
+		dadesConsultaPinbal.setUnitatTramitadora(codiUO);
+		dadesConsultaPinbal.setAsincrona(false);
+		
+		jbpm3HeliumHelper.consultaPinbal(dadesConsultaPinbal, expedient.getId(), expedient.getProcessInstanceId(), null);
+		*/
+
 		//1.- Obtenir el expedient i validar permisos i que el document esta configurat
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientDocumentPinbalDto.getExpedientId(),
@@ -478,14 +568,235 @@ public class DocumentServiceImpl implements DocumentService {
 		funcionari.setNombreCompletoFuncionario(personaDto.getNomSencer());
 		funcionari.setSeudonimo(personaDto.getCodi());
 		
-		String xmlDadesEspecifiques = null;
+		String xmlDadesEspecifiques = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><DatosEspecificos>";
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		
 		switch (expedientDocumentPinbalDto.getCodiServei()) {
-		case SVDDGPVIWS02:
-			 xmlDadesEspecifiques = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><DatosEspecificos><Consulta></Consulta></DatosEspecificos>";
+		case SVDCCAACPASWS01:
+		case SVDCCAACPCWS01:
+			xmlDadesEspecifiques += "<Consulta>";
+			if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getComunitatAutonomaCodi())) {
+				xmlDadesEspecifiques += "<CodigoComunidadAutonoma>"+expedientDocumentPinbalDto.getComunitatAutonomaCodi()+"</CodigoComunidadAutonoma>";
+			}
+			if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getProvinciaCodi())) {
+				xmlDadesEspecifiques += "<CodigoProvincia>"+expedientDocumentPinbalDto.getProvinciaCodi()+"</CodigoProvincia>";
+			}
+			xmlDadesEspecifiques += "</Consulta>";
+			break;
+		case SVDDGPCIWS02:
+			xmlDadesEspecifiques += "<Consulta></Consulta>";
 			 break;
+		case SVDSCDDWS01:
+			xmlDadesEspecifiques += "<Consulta>";
+			if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getComunitatAutonomaCodi())) {
+				xmlDadesEspecifiques += "<CodigoComunidadAutonoma>"+expedientDocumentPinbalDto.getComunitatAutonomaCodi()+"</CodigoComunidadAutonoma>";
+			}
+			if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getProvinciaCodi())) {
+				xmlDadesEspecifiques += "<CodigoProvincia>"+expedientDocumentPinbalDto.getProvinciaCodi()+"</CodigoProvincia>";
+			}
+//			if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getExpedient()) {
+//				xmlDadesEspecifiques += "<Expediente>"+expedientDocumentPinbalDto.getProvinciaCodi()+"</Expediente>";
+//			}
+			if (expedientDocumentPinbalDto.getDataConsulta()!=null) {
+				xmlDadesEspecifiques += "<FechaConsulta>"+sdf.format(expedientDocumentPinbalDto.getDataConsulta())+"</FechaConsulta>";
+			}
+			if (expedientDocumentPinbalDto.getDataNaixement()!=null) {
+				xmlDadesEspecifiques += "<FechaNacimiento>"+sdf.format(expedientDocumentPinbalDto.getDataNaixement())+"</FechaNacimiento>";
+			}
+			if (expedientDocumentPinbalDto.isConsentimentTipusDiscapacitat()) {
+				xmlDadesEspecifiques += "<ConsentimientoTiposDiscapacidad>S</ConsentimientoTiposDiscapacidad>";
+			} else {
+				xmlDadesEspecifiques += "<ConsentimientoTiposDiscapacidad>N</ConsentimientoTiposDiscapacidad>";
+			}
+			xmlDadesEspecifiques += "</Consulta>";
+			break;
+		case SCDCPAJU:
+		case SCDHPAJU:
+			xmlDadesEspecifiques += "<Solicitud>";
+			if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getProvinciaCodi())) {
+				xmlDadesEspecifiques += "<ProvinciaSolicitud>"+expedientDocumentPinbalDto.getProvinciaCodi()+"</ProvinciaSolicitud>";
+			}
+			if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getMunicipiCodi())) {
+				xmlDadesEspecifiques += "<MunicipioSolicitud>"+expedientDocumentPinbalDto.getMunicipiCodi()+"</MunicipioSolicitud>";
+			}
+			xmlDadesEspecifiques += "<Titular><Documentacion>";
+				//Tipus permesos (no es controla): El campo Tipo del nodo Documentacion puede tener los siguientes valores:  NIF DNI NIE Pasaporte
+				xmlDadesEspecifiques += "<Tipo>"+titular.getTipusDocumentacion()+"</Tipo>";
+				xmlDadesEspecifiques += "<Valor>"+titular.getDocumentacion()+"</Valor>";
+			xmlDadesEspecifiques += "</Documentacion></Titular>";
+			//La diferencia entre la solicitud normal o del historic, es que s'ha de indicar el nombre de anys.
+			if (expedientDocumentPinbalDto.getCodiServei().equals(PinbalServeiEnumDto.SCDHPAJU)) {
+				xmlDadesEspecifiques += "<NumeroAnyos>"+(expedientDocumentPinbalDto.getNombreAnysHistoric()!=null?expedientDocumentPinbalDto.getNombreAnysHistoric():1)+"</NumeroAnyos>";
+			}
+			xmlDadesEspecifiques += "</Solicitud>";
+			break;
+		case SVDSCTFNWS01:
+			xmlDadesEspecifiques += "<Consulta>";
+			if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getComunitatAutonomaCodi())) {
+				xmlDadesEspecifiques += "<CodigoComunidadAutonoma>"+expedientDocumentPinbalDto.getComunitatAutonomaCodi()+"</CodigoComunidadAutonoma>";
+			}
+			if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getNumeroTitol())) {
+				xmlDadesEspecifiques += "<NumeroTitulo>"+expedientDocumentPinbalDto.getNumeroTitol()+"</NumeroTitulo>";
+			}
+			if (expedientDocumentPinbalDto.getDataConsulta()!=null) {
+				xmlDadesEspecifiques += "<FechaConsulta>"+sdf.format(expedientDocumentPinbalDto.getDataConsulta())+"</FechaConsulta>";
+			}
+			if (expedientDocumentPinbalDto.getDataNaixement()!=null) {
+				xmlDadesEspecifiques += "<FechaNacimiento>"+sdf.format(expedientDocumentPinbalDto.getDataNaixement())+"</FechaNacimiento>";
+			}
+			xmlDadesEspecifiques += "</Consulta>";
+			break;
+		case SVDDELSEXWS01:
+			
+			//Tipus de documents permesos per el titular: NIF, NIE, Pasaporte
+			if (!"NIF".equals(titular.getTipusDocumentacion()) && !"NIE".equals(titular.getTipusDocumentacion()) && !"Pasaporte".equals(titular.getTipusDocumentacion())) {
+				titular.setTipusDocumentacion("NIF");
+			}
+			
+			xmlDadesEspecifiques += "<Consulta>";
+			if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getCodiNacionalitat())) {
+				xmlDadesEspecifiques += "<Nacionalidad>"+expedientDocumentPinbalDto.getCodiNacionalitat()+"</Nacionalidad>";
+			}
+			if (expedientDocumentPinbalDto.getSexe()!=null) {
+				if (expedientDocumentPinbalDto.getSexe().equals(Sexe.SEXE_HOME)) {
+					xmlDadesEspecifiques += "<Sexo>H</Sexo>";
+				} else {
+					xmlDadesEspecifiques += "<Sexo>M</Sexo>";
+				}
+			}
+			if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getNomPare())) {
+				xmlDadesEspecifiques += "<NombrePadre>"+expedientDocumentPinbalDto.getNomPare()+"</NombrePadre>";
+			}
+			if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getNomMare())) {
+				xmlDadesEspecifiques += "<NombreMadre>"+expedientDocumentPinbalDto.getNomMare()+"</NombreMadre>";
+			}			
+			if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getPaisNaixament())) {
+				xmlDadesEspecifiques += "<PaisNacimiento>"+expedientDocumentPinbalDto.getPaisNaixament()+"</PaisNacimiento>";
+			}
+			if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getProvinciaNaixament())) {
+				xmlDadesEspecifiques += "<ProvinciaNacimiento>"+expedientDocumentPinbalDto.getProvinciaNaixament()+"</ProvinciaNacimiento>";
+			}
+			if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getPoblacioNaixament())) {
+				xmlDadesEspecifiques += "<PoblacionNacimiento>"+expedientDocumentPinbalDto.getPoblacioNaixament()+"</PoblacionNacimiento>";
+			}
+			if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getMunicipiNaixament())) {
+				xmlDadesEspecifiques += "<CodPoblacionNacimiento>"+expedientDocumentPinbalDto.getMunicipiNaixementINE()+"</CodPoblacionNacimiento>";
+			}			
+			if (expedientDocumentPinbalDto.getDataNaixement()!=null) {
+				xmlDadesEspecifiques += "<FechaNacimiento>"+sdf.format(expedientDocumentPinbalDto.getDataNaixement())+"</FechaNacimiento>";
+			}
+			if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getEmail())) {
+				xmlDadesEspecifiques += "<Mail>"+expedientDocumentPinbalDto.getEmail()+"</Mail>";
+			}
+			if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getTelefon())) {
+				xmlDadesEspecifiques += "<Telefono>"+expedientDocumentPinbalDto.getTelefon()+"</Telefono>";
+			}
+			xmlDadesEspecifiques += "</Consulta>";
+			break;
+		case NIVRENTI:
+			xmlDadesEspecifiques += "<Consulta>";
+			if (expedientDocumentPinbalDto.getExercici()!=null && expedientDocumentPinbalDto.getExercici()>0) {
+				xmlDadesEspecifiques += "<Ejercicio>"+expedientDocumentPinbalDto.getExercici()+"</Ejercicio>";
+			}
+			xmlDadesEspecifiques += "</Consulta>";
+			break;
+		case Q2827003ATGSS001:
+		case ECOT103:
+			xmlDadesEspecifiques = null;
+			break;
+		case SVDDGPRESIDENCIALEGALDOCWS01:
+			xmlDadesEspecifiques += "<Consulta>";
+			if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getNumeroSoporte())) {
+				xmlDadesEspecifiques += "<NumeroSoporte>"+expedientDocumentPinbalDto.getNumeroSoporte()+"</NumeroSoporte>";
+			}
+			xmlDadesEspecifiques += "<Pasaporte>";
+				if (expedientDocumentPinbalDto.getTipusPassaport()!=null) {
+					xmlDadesEspecifiques += "<Tipo>"+expedientDocumentPinbalDto.getTipusPassaport()+"</Tipo>";
+				}
+				if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getCodiNacionalitat())) {
+					xmlDadesEspecifiques += "<Nacionalidad>"+expedientDocumentPinbalDto.getCodiNacionalitat()+"</Nacionalidad>";
+				}			
+				if (expedientDocumentPinbalDto.getDataExpedicion()!=null) {
+					xmlDadesEspecifiques += "<FechaExpedicion>"+sdf.format(expedientDocumentPinbalDto.getDataExpedicion())+"</FechaExpedicion>";
+				}
+				if (expedientDocumentPinbalDto.getDataCaducidad()!=null) {
+					xmlDadesEspecifiques += "<FechaCaducidad>"+sdf.format(expedientDocumentPinbalDto.getDataCaducidad())+"</FechaCaducidad>";
+				}
+			xmlDadesEspecifiques += "</Pasaporte>";
+			xmlDadesEspecifiques += "</Consulta>";
+			break;
+		case SVDRRCCNACIMIENTOWS01:
+		case SVDRRCCMATRIMONIOWS01:
+		case SVDRRCCDEFUNCIONWS01:
+			
+			//Tipus de documents permesos per el titular: NIF, NIE, Pasaporte
+			if (!"NIF".equals(titular.getTipusDocumentacion()) && !"NIE".equals(titular.getTipusDocumentacion()) && !"Pasaporte".equals(titular.getTipusDocumentacion())) {
+				titular.setTipusDocumentacion("NIF");
+			}
+
+			xmlDadesEspecifiques += "<Consulta>";
+			if (expedientDocumentPinbalDto.conteDadesAddicionals()) {
+				xmlDadesEspecifiques += "<DatosAdicionalesTitular>";
+				if (expedientDocumentPinbalDto.conteDadesFetRegistral()) {
+					xmlDadesEspecifiques += "<HechoRegistral>";
+					if (expedientDocumentPinbalDto.getDataRegistre()!=null) {
+						xmlDadesEspecifiques += "<Fecha>"+sdf.format(expedientDocumentPinbalDto.getDataRegistre())+"</Fecha>";
+					}
+					if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getMunicipiNaixament())) {
+						xmlDadesEspecifiques += "<Municipio><Codigo>"+sdf.format(expedientDocumentPinbalDto.getMunicipiNaixament())+"</Codigo></Municipio>";
+					}
+					xmlDadesEspecifiques += "</HechoRegistral>";
+				}
+				if (expedientDocumentPinbalDto.isAusenciaSegundoApellido()) {
+					xmlDadesEspecifiques += "<AusenciaSegundoApellido>true</AusenciaSegundoApellido>";
+				} else {
+					xmlDadesEspecifiques += "<AusenciaSegundoApellido>false</AusenciaSegundoApellido>";
+				}
+				if (expedientDocumentPinbalDto.getSexe()!=null) {
+					if (expedientDocumentPinbalDto.getSexe().equals(Sexe.SEXE_HOME)) {
+						xmlDadesEspecifiques += "<Sexo>V</Sexo>";
+					} else {
+						xmlDadesEspecifiques += "<Sexo>M</Sexo>";
+					}
+				}
+				if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getNomPare())) {
+					xmlDadesEspecifiques += "<NombrePadre>"+expedientDocumentPinbalDto.getNomPare()+"</NombrePadre>";
+				}
+				if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getNomMare())) {
+					xmlDadesEspecifiques += "<NombreMadre>"+expedientDocumentPinbalDto.getNomMare()+"</NombreMadre>";
+				}
+				xmlDadesEspecifiques += "</DatosAdicionalesTitular>";
+			}
+			
+			if (expedientDocumentPinbalDto.conteDadesRegistrals()) {
+				xmlDadesEspecifiques += "<DatosRegistrales>";
+				if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getRegistreCivil())) {
+					xmlDadesEspecifiques += "<RegistroCivil>"+sdf.format(expedientDocumentPinbalDto.getRegistreCivil())+"</RegistroCivil>";
+				}
+				if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getTom())) {
+					xmlDadesEspecifiques += "<Tomo>"+sdf.format(expedientDocumentPinbalDto.getTom())+"</Tomo>";
+				}
+				if (!StringUtilsHelium.isEmpty(expedientDocumentPinbalDto.getPagina())) {
+					xmlDadesEspecifiques += "<Pagina>"+sdf.format(expedientDocumentPinbalDto.getPagina())+"</Pagina>";
+				}
+				xmlDadesEspecifiques += "</DatosRegistrales>";
+			}
+			xmlDadesEspecifiques += "</Consulta>";
+			break;
+		case SVDBECAWS01:
+			xmlDadesEspecifiques += "<Consulta>";
+			if (expedientDocumentPinbalDto.getCurs()!=null) {
+				xmlDadesEspecifiques += "<Curso>"+expedientDocumentPinbalDto.getCurs()+"</Curso>";
+			}
+			xmlDadesEspecifiques += "</Consulta>";
+			break;
 		default:
 			break;
 		}
+		
+		//En alguns serveis, no es necessita el XML de dades especifiques. Si es el cas i s'ha anulat el valor, no tancam el nodes.
+		if (xmlDadesEspecifiques!=null)
+			xmlDadesEspecifiques += "</DatosEspecificos>";
 		
 		String codiUO=null;
 		try
@@ -525,9 +836,77 @@ public class DocumentServiceImpl implements DocumentService {
 		//Retornam el error i ja ho reintentarán desde la mateixa modal de document Pinbal.
 		dadesConsultaPinbal.setGuardarError(false);
 		
-		pluginHelper.consultaPinbal(dadesConsultaPinbal, expedient, null);
+		ScspRespostaPinbal respostaPinbal = (ScspRespostaPinbal)pluginHelper.consultaPinbal(dadesConsultaPinbal, expedient, null);
+
+		if(respostaPinbal.getJustificant()!=null) {
+			//Cream sempre un nou documentStore, que s'associará a la variable JBPM.
+			//Aixi mantenim els dos documentStore de les peticions pinbal successives, pero al expedient nomes es veu la darrera.
+			Long documentStoreJusificantId = documentHelper.crearDocument(
+					null,
+					expedient.getProcessInstanceId(),
+					dadesConsultaPinbal.getDocumentCodi(),
+					new Date(),
+					false, //isAdjunt
+					null,  //adjuntTitol
+					respostaPinbal.getJustificant().getNom(),
+					respostaPinbal.getJustificant().getContingut(),
+					null, // arxiuUuid
+					documentHelper.getContentType(respostaPinbal.getJustificant().getNom()),
+					false, //ambFirma
+					false, //firmaSeparada
+					null,  //firmaContingut
+					null,  //ntiOrigen
+					null,  //ntiEstadoElaboracion
+					null,  //ntiTipoDocumental
+					null,  //ntiIdDocumentoOrigen
+					true,  //documentValid
+					null,  //documentError
+					null,  //annexId
+					null); //annexosPerNotificar
+			
+			if (documentStoreJusificantId!=null) {
+				guardaPeticioPinbalSenseError(
+						expedient,
+						documentStoreRepository.findOne(documentStoreJusificantId),
+						conversioTipusHelper.convertir(dadesConsultaPinbal, DadesConsultaPinbalDto.class),
+						respostaPinbal.getIdPeticion(),
+						Calendar.getInstance().getTime(),
+						respostaPinbal.getDataProcessament(),
+						null);
+			}
+		}
 		
 		return "consultes.pinbal.resultat.ok";
 	}
 
+	private void guardaPeticioPinbalSenseError(
+			Expedient expedient,
+			DocumentStore justificant,
+			DadesConsultaPinbalDto dadesConsultaPinbal,
+			String idPeticioPinbal,
+			Date dataPeticio,
+			Date dataPrevista,
+			Long tokenId) {
+		//Cream la petició pinbal per el historic de peticions
+		PeticioPinbal peticio = new PeticioPinbal();
+		peticio.setDataPeticio(dataPeticio);
+		peticio.setAsincrona(dadesConsultaPinbal.isAsincrona());
+		if (dadesConsultaPinbal.isAsincrona()) {
+			peticio.setEstat(PeticioPinbalEstatEnum.PENDENT);
+			peticio.setDataPrevista(dataPrevista);
+		} else {
+			peticio.setEstat(PeticioPinbalEstatEnum.TRAMITADA);
+		}
+		peticio.setExpedient(expedient);
+		peticio.setTipus(expedient.getTipus());
+		peticio.setEntorn(expedient.getTipus().getEntorn());
+		peticio.setProcediment(dadesConsultaPinbal.getServeiCodi());
+		peticio.setUsuari(SecurityContextHolder.getContext().getAuthentication().getName());
+		peticio.setPinbalId(idPeticioPinbal);
+		peticio.setDocument(justificant);
+		peticio.setTokenId(tokenId);
+		peticio.setTransicioOK(dadesConsultaPinbal.getTransicioOK());
+		peticio.setTransicioKO(dadesConsultaPinbal.getTransicioKO());
+		peticioPinbalRepository.save(peticio);
+	}
 }

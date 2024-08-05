@@ -127,7 +127,6 @@ $(document).ready(function() {
 });
 function recargarPanel (processInstanceId, correcte) {
 	if (correcte) {
-		debugger;
 		var sort = $('#sortDocuments').data('sort');
 		var url = '<c:url value="/nodeco/v3/expedient/${expedientId}/proces/"/>' + processInstanceId + '/document?sort=' + sort;
 		var panell = $("#dataTable_documents_"+processInstanceId);

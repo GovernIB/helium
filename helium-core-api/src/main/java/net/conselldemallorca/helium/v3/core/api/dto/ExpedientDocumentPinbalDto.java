@@ -3,8 +3,6 @@ package net.conselldemallorca.helium.v3.core.api.dto;
 import java.io.Serializable;
 import java.util.Date;
 
-import lombok.NonNull;
-
 public class ExpedientDocumentPinbalDto implements Serializable {
 	
 	private static final long serialVersionUID = 2766735288507498173L;
@@ -37,7 +35,7 @@ public class ExpedientDocumentPinbalDto implements Serializable {
 	private String numeroTitol;
 	private String codiNacionalitat = "724";
 	private String paisNaixament = "724";
-	private String provinciaNaixament;
+	private String provinciaNaixament = "07";
 	private String poblacioNaixament;
 	private String codiPoblacioNaixament;
 	private Sexe sexe;
@@ -55,22 +53,16 @@ public class ExpedientDocumentPinbalDto implements Serializable {
 	private Date dataExpedicion;
 	private String numeroSoporte;
 	
-	
 	private Integer curs;
-
 	
 	private String registreCivil;
 	private String tom;
 	private String pagina;
 	private Date dataRegistre;
 	private boolean ausenciaSegundoApellido;
-	private String municipiRegistreSVDRRCCDEFUNCIONWS01;
-	private String municipiNaixamentSVDRRCCDEFUNCIONWS01;
-	private String municipiNaixamentSVDRRCCMATRIMONIOWS01;
-	private String municipiRegistreSVDRRCCMATRIMONIOWS01;
-	private String municipiRegistreSVDRRCCNACIMIENTOWS01;
-	private String municipiNaixamentSVDRRCCNACIMIENTOWS01;
-	private String municipiNaixamentSVDDELSEXWS01;
+	private String municipiRegistre;
+	private String municipiNaixament = "407";
+	
 	public Long getExpedientId() {
 		return expedientId;
 	}
@@ -329,48 +321,7 @@ public class ExpedientDocumentPinbalDto implements Serializable {
 	public void setAusenciaSegundoApellido(boolean ausenciaSegundoApellido) {
 		this.ausenciaSegundoApellido = ausenciaSegundoApellido;
 	}
-	public String getMunicipiRegistreSVDRRCCDEFUNCIONWS01() {
-		return municipiRegistreSVDRRCCDEFUNCIONWS01;
-	}
-	public void setMunicipiRegistreSVDRRCCDEFUNCIONWS01(String municipiRegistreSVDRRCCDEFUNCIONWS01) {
-		this.municipiRegistreSVDRRCCDEFUNCIONWS01 = municipiRegistreSVDRRCCDEFUNCIONWS01;
-	}
-	public String getMunicipiNaixamentSVDRRCCDEFUNCIONWS01() {
-		return municipiNaixamentSVDRRCCDEFUNCIONWS01;
-	}
-	public void setMunicipiNaixamentSVDRRCCDEFUNCIONWS01(String municipiNaixamentSVDRRCCDEFUNCIONWS01) {
-		this.municipiNaixamentSVDRRCCDEFUNCIONWS01 = municipiNaixamentSVDRRCCDEFUNCIONWS01;
-	}
-	public String getMunicipiNaixamentSVDRRCCMATRIMONIOWS01() {
-		return municipiNaixamentSVDRRCCMATRIMONIOWS01;
-	}
-	public void setMunicipiNaixamentSVDRRCCMATRIMONIOWS01(String municipiNaixamentSVDRRCCMATRIMONIOWS01) {
-		this.municipiNaixamentSVDRRCCMATRIMONIOWS01 = municipiNaixamentSVDRRCCMATRIMONIOWS01;
-	}
-	public String getMunicipiRegistreSVDRRCCMATRIMONIOWS01() {
-		return municipiRegistreSVDRRCCMATRIMONIOWS01;
-	}
-	public void setMunicipiRegistreSVDRRCCMATRIMONIOWS01(String municipiRegistreSVDRRCCMATRIMONIOWS01) {
-		this.municipiRegistreSVDRRCCMATRIMONIOWS01 = municipiRegistreSVDRRCCMATRIMONIOWS01;
-	}
-	public String getMunicipiRegistreSVDRRCCNACIMIENTOWS01() {
-		return municipiRegistreSVDRRCCNACIMIENTOWS01;
-	}
-	public void setMunicipiRegistreSVDRRCCNACIMIENTOWS01(String municipiRegistreSVDRRCCNACIMIENTOWS01) {
-		this.municipiRegistreSVDRRCCNACIMIENTOWS01 = municipiRegistreSVDRRCCNACIMIENTOWS01;
-	}
-	public String getMunicipiNaixamentSVDRRCCNACIMIENTOWS01() {
-		return municipiNaixamentSVDRRCCNACIMIENTOWS01;
-	}
-	public void setMunicipiNaixamentSVDRRCCNACIMIENTOWS01(String municipiNaixamentSVDRRCCNACIMIENTOWS01) {
-		this.municipiNaixamentSVDRRCCNACIMIENTOWS01 = municipiNaixamentSVDRRCCNACIMIENTOWS01;
-	}
-	public String getMunicipiNaixamentSVDDELSEXWS01() {
-		return municipiNaixamentSVDDELSEXWS01;
-	}
-	public void setMunicipiNaixamentSVDDELSEXWS01(String municipiNaixamentSVDDELSEXWS01) {
-		this.municipiNaixamentSVDDELSEXWS01 = municipiNaixamentSVDDELSEXWS01;
-	}
+
 	public String getProcessInstanceId() {
 		return processInstanceId;
 	}
@@ -383,5 +334,56 @@ public class ExpedientDocumentPinbalDto implements Serializable {
 	public void setCommandValidat(boolean commandValidat) {
 		this.commandValidat = commandValidat;
 	}
+	public String getMunicipiRegistre() {
+		return municipiRegistre;
+	}
+	public void setMunicipiRegistre(String municipiRegistre) {
+		this.municipiRegistre = municipiRegistre;
+	}
+	public String getMunicipiNaixament() {
+		return municipiNaixament;
+	}
+	public void setMunicipiNaixament(String municipiNaixament) {
+		this.municipiNaixament = municipiNaixament;
+	}
+	public boolean conteDadesFetRegistral() {
+		if(	this.dataRegistre!=null ||
+			(this.municipiNaixament!=null && !"".equals(this.municipiNaixament))) {
+			return true;
+		}
+		return false;
+	}	
 	
+	public boolean conteDadesAddicionals() {
+		if(	conteDadesFetRegistral() ||
+			this.ausenciaSegundoApellido ||
+			this.getSexe()!=null ||
+			(this.getNomPare()!=null && !"".equals(this.nomPare)) ||
+			(this.getNomMare()!=null && !"".equals(this.nomMare))) {
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean conteDadesRegistrals() {
+		if(	(this.registreCivil!=null && !"".equals(this.registreCivil)) ||
+			(this.tom!=null && !"".equals(this.tom)) ||
+			(this.pagina!=null && !"".equals(this.pagina))) {
+			return true;
+		}
+		return false;
+	}
+	
+	public String getMunicipiNaixementINE() {
+		
+		String provincia = String.format("%2s", this.provinciaNaixament).replace(' ', '0');
+		
+		String municipio = this.municipiNaixament;
+		// Eliminar el último carácter del municipio (Digit de control)
+		if (municipio.length() > 0) { municipio = municipio.substring(0, municipio.length() - 1); }
+		
+		municipio = String.format("%3s", municipio).replace(' ', '0');
+		
+		return provincia + municipio;
+	}
 }

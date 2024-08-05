@@ -37,9 +37,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
-import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
@@ -76,10 +74,12 @@ import net.conselldemallorca.helium.v3.core.api.dto.FirmaResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IdiomaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.MunicipiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesFluxRespostaDto;
@@ -88,6 +88,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesPrioritatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesSimpleTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ProvinciaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.StatusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TokenDto;
@@ -95,6 +96,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.document.DocumentDetallDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
+import net.conselldemallorca.helium.v3.core.api.service.DadesExternesService;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
 import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
@@ -137,6 +139,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 
 	@Autowired
 	private ExpedientDocumentService expedientDocumentService;
+	@Autowired
+	private DadesExternesService dadesExternesService;
 	// TODO: eliminar la referencia al core 2.6 i passar el mètode processarDocumentPendentPortasignatures al pluginHelper
 	@Autowired
 	private PluginService pluginService;
@@ -430,6 +434,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			Model model) {
 		return nouDocumentPinbalGet(request, expedientId, null, model);
 	}
+	
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/documentPinbal/new", method = RequestMethod.GET)
 	public String nouDocumentPinbalGet(
 			HttpServletRequest request,
@@ -454,12 +459,45 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		ntiHelper.omplirConsentiment(model);
 		ntiHelper.omplirTipusPassaport(model);
 		ntiHelper.omplirSexe(model);
-		List<ParellaCodiValorDto> tdlist = new ArrayList<ParellaCodiValorDto>();
-		model.addAttribute("comunitats", tdlist);
-		model.addAttribute("provincies", tdlist);
-		model.addAttribute("municipis", tdlist);
-		model.addAttribute("paisos", tdlist);
+		
+		List<ParellaCodiValorDto> llistaComunitats = new ArrayList<ParellaCodiValorDto>();
+		llistaComunitats.add(new ParellaCodiValorDto("04", "Illes Balears"));
+		model.addAttribute("comunitats", llistaComunitats);
+		
+		List<ParellaCodiValorDto> llistaProvincies = new ArrayList<ParellaCodiValorDto>();
+		List<ProvinciaDto> provincies = dadesExternesService.findProvincies();
+		if (provincies!=null) {
+			for (ProvinciaDto pDto: provincies) {
+				llistaProvincies.add(new ParellaCodiValorDto(pDto.getCodi(), pDto.getNom()));
+			}
+		}
+		model.addAttribute("provincies", llistaProvincies);
+		model.addAttribute("municipis", getMunicipisPerProvincia(command.getProvinciaNaixament()));
+		
+		List<ParellaCodiValorDto> llistaPaisos = new ArrayList<ParellaCodiValorDto>();
+		List<PaisDto> paisos = dadesExternesService.findPaisos();
+		if (paisos!=null) {
+			for (PaisDto pDto: paisos) {
+				llistaPaisos.add(new ParellaCodiValorDto(pDto.getCodi(), pDto.getNom()));
+			}
+		}
+		model.addAttribute("paisos", llistaPaisos);
+		
 		command.setCommandValidat(intentGuardar);
+	}
+	
+	@RequestMapping(value = "/getMunicipisPerProvincia/{codiProv}", method = RequestMethod.GET)
+	@ResponseBody
+	public List<ParellaCodiValorDto> getMunicipisPerProvincia(
+			@PathVariable String codiProv) {
+		List<ParellaCodiValorDto> llistaMunicipis = new ArrayList<ParellaCodiValorDto>();
+		List<MunicipiDto> municipis = dadesExternesService.findMunicipisPerProvincia(codiProv);
+		if (municipis!=null) {
+			for (MunicipiDto mDto: municipis) {
+				llistaMunicipis.add(new ParellaCodiValorDto(mDto.getCodi(), mDto.getNom()));
+			}
+		}
+		return llistaMunicipis;
 	}
 	
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/documentPinbal/new", method = RequestMethod.POST)
@@ -470,18 +508,26 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@ModelAttribute ExpedientDocumentPinbalDto command,
 			BindingResult bindingResult,
 			Model model) {
-		
+			
 		switch (command.getCodiServei()) {
 		case SVDDELSEXWS01:
-			if (command.getDataNaixement()!=null) {
+			//De cara a enviar el XML, hi ha camps que no corresponent si el pais de naixement es espanya o viceversa
+			if (command.getPaisNaixament().equals("724")) {
+				command.setPoblacioNaixament(null);
+			} else {
+				command.setProvinciaNaixament(null);
+				command.setMunicipiNaixament(null);
+			}
+			
+			if (command.getDataNaixement()==null) {
 				bindingResult.rejectValue("dataNaixement", "NotEmpty");
 			}
-			if (command.getPaisNaixament().equals("724") && StringUtils.isEmpty(command.getMunicipiNaixamentSVDDELSEXWS01())) {
+			if (command.getPaisNaixament().equals("724") && StringUtils.isEmpty(command.getMunicipiNaixament())) {
 				bindingResult.rejectValue("municipiNaixament", "NotEmpty");
 			}
 			if (!command.getPaisNaixament().equals("724") && StringUtils.isEmpty(command.getPoblacioNaixament())) {
 				bindingResult.rejectValue("poblacioNaixament", "NotEmpty");
-			}			
+			}
 			if (command.getCodiNacionalitat().equals("724") && StringUtils.isEmpty(command.getNomPare()) && StringUtils.isEmpty(command.getNomMare())) {
 				bindingResult.rejectValue("nomPare", "NotEmpty");
 			}
@@ -502,23 +548,44 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				bindingResult.rejectValue("codiNacionalitat", "NotEmpty");
 			}
 			break;
-		case SVDRRCCNACIMIENTOWS01:
-			if (StringUtilsHelium.isEmpty(command.getRegistreCivil())) {
-				bindingResult.rejectValue("registreCivil", "NotEmpty");
-			}
-			if (StringUtilsHelium.isEmpty(command.getPagina())) {
-				bindingResult.rejectValue("pagina", "NotEmpty");
-			}
-			if (StringUtilsHelium.isEmpty(command.getTom())) {
-				bindingResult.rejectValue("tom", "NotEmpty");
-			}
-			if (command.getDataRegistre() == null) {
-				bindingResult.rejectValue("dataRegistre", "NotEmpty");
-			}
-			break;
 		case SVDBECAWS01:
 			if (command.getCurs() == null) {
 				bindingResult.rejectValue("curs", "NotEmpty");
+			}
+			break;
+		case SCDCPAJU:
+			if (StringUtilsHelium.isEmpty(command.getProvinciaCodi())) {
+				bindingResult.rejectValue("provinciaCodi", "NotEmpty");
+			}
+			if (StringUtilsHelium.isEmpty(command.getMunicipiCodi())) {
+				bindingResult.rejectValue("municipiCodi", "NotEmpty");
+			}
+			break;
+		case SVDRRCCNACIMIENTOWS01:
+		case SVDRRCCMATRIMONIOWS01:
+		case SVDRRCCDEFUNCIONWS01:
+			
+//			if (StringUtilsHelium.isEmpty(command.getRegistreCivil())) {
+//				bindingResult.rejectValue("registreCivil", "NotEmpty");
+//			}
+//			if (StringUtilsHelium.isEmpty(command.getPagina())) {
+//				bindingResult.rejectValue("pagina", "NotEmpty");
+//			}
+//			if (StringUtilsHelium.isEmpty(command.getTom())) {
+//				bindingResult.rejectValue("tom", "NotEmpty");
+//			}
+//			if (command.getDataRegistre() == null) {
+//				bindingResult.rejectValue("dataRegistre", "NotEmpty");
+//			}
+			
+			if (!command.conteDadesAddicionals() && !command.conteDadesRegistrals()) {
+				bindingResult.rejectValue("registreCivil", "NotEmpty");
+				bindingResult.rejectValue("tom", "NotEmpty");
+				bindingResult.rejectValue("pagina", "NotEmpty");
+				bindingResult.rejectValue("sexe", "NotEmpty");
+				bindingResult.rejectValue("nomPare", "NotEmpty");
+				bindingResult.rejectValue("nomMare", "NotEmpty");
+				MissatgesHelper.error(request, getMessage(request, "contingut.pinbal.form.camp.dadesRegistrals"));
 			}
 			break;
 		default:
