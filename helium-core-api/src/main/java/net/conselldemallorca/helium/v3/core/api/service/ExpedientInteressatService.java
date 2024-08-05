@@ -49,11 +49,6 @@ public interface ExpedientInteressatService {
 			Long interessatId,
 			InteressatDto representant);
 	
-	public InteressatDto updateRepresentant(
-			Long interessatId,
-			InteressatDto representant);
-	
-	public InteressatDto deleteRepresentant(
-			Long interessatId,
-			InteressatDto representant);
+	public InteressatDto findRepresentantAmbInteressatId(
+			Long interessatId);
 }

@@ -6,7 +6,13 @@
 <c:set var="idioma"><%=org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).getLanguage()%></c:set>
 <c:choose>
 	<c:when test="${empty interessatCommand.id}">
-		<c:set var="titol"><spring:message code="interessat.form.titol.nou"/></c:set>
+		<c:if test="${!es_representant}">
+			<c:set var="titol"><spring:message code="interessat.form.titol.nou"/></c:set>
+		</c:if>
+		<c:if test="${es_representant}">
+			<c:set var="titol"><spring:message code="interessat.form.titol.nou.representant"/>
+			</c:set>
+		</c:if>
 		<c:set var="formAction">new</c:set>
 	</c:when>
 	<c:otherwise>
@@ -66,27 +72,41 @@ function ajustarTipus(tipus) {
 function adaptarVisibilitat(tipus){
 		//alert(tipus);
 		//netejar();
+		var select2Options = {theme: 'bootstrap', minimumResultsForSearch: "6"};
+		let nif="NIF";
+		let cif="CIF";
+		let passaport="PASSAPORT";
+		let document_identificatiu_estrangers="DOCUMENT_IDENTIFICATIU_ESTRANGERS";
+		let altres_de_persona_fisica="ALTRES_DE_PERSONA_FISICA";
+		let codi_origen="CODI_ORIGEN";
+
 		 if (tipus == 'FISICA'){
 			 $('.visibilitatCodi').removeClass('hidden');
 			 $('.personajuridica').addClass('hidden');
 			 $('.administracio').addClass('hidden');
 			 $('.personafisica').removeClass('hidden');
+			 $('#tipusDocIdent option[value="'+codi_origen+'"]').prop('disabled',true); 
 		} else if (tipus == 'JURIDICA'){
 			 $('.visibilitatCodi').removeClass('hidden');
 			 $('.personafisica').addClass('hidden');
 			 $('.administracio').addClass('hidden');
 			 $('.personajuridica').removeClass('hidden');	
+			 //$('#tipusDocIdent').prop("readonly", true);
+			 $('#tipusDocIdent option[value="'+codi_origen+'"]').prop('disabled',true); 
+			 $('#tipusDocIdent option[value="'+altres_de_persona_fisica+'"]').prop('disabled',true); 
+			 $('#tipusDocIdent option[value="'+passaport+'"]').prop('disabled',true); 
+			 
 		}else if (tipus == 'ADMINISTRACIO'){
 			 $('.visibilitatCodi').removeClass('hidden');
 			 $('.personafisica').addClass('hidden');
 			 $('.personajuridica').addClass('hidden');
 			 $('.administracio').removeClass('hidden');
-
+	 	 	/*  $('#tipusDocIdent').val("CODI_ORIGEN"); */
+			 $('#tipusDocIdent').prop("readonly", true);
 		}
-}
-
-function carregaDadesInteressat(interessatDto) {
-	alert(interessatDto);
+		 $('#tipusDocIdent').change();
+		 $('#tipusDocIdent').select2("destroy");
+	 	 $('#tipusDocIdent').select2(select2Options);
 }
 
 function netejar(){
@@ -116,58 +136,66 @@ $(document).ready(function() {
 		var tipusInt = 1;
  		if (this.value == '<%=net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto.FISICA%>') {
  			tipusInt = 1;
-			$('#tipusDocIdent').prop("disabled", false);
-			$('#tipusDocIdent').change();
-
+			$('#tipusDocIdent').val("NIF");
+			$('#tipusDocIdent').prop("readonly", false);
+		
  		} else if (this.value == '<%=net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto.JURIDICA%>') {
  			tipusInt = 2;
-			$('#tipusDocIdent').val("NIF");
-			$('#tipusDocIdent').change();
-			$('#tipusDocIdent').prop("disabled", true);
  	 	} else {
- 	 		//alert($('#tipusDocIdent').val());
+ 			tipusInt = 3;
  	 		$('#tipusDocIdent').val("CODI_ORIGEN");
-			$('#tipusDocIdent').change();
-			$('#tipusDocIdent').prop("disabled", true);
-			/* documentIdent
-			cifOrganGestor */
+			$('#tipusDocIdent').prop("readonly", true);
  	 	}
+ 		$('#tipusDocIdent').change();
+		$('#tipusDocIdent').select2("destroy");
+ 	 	$('#tipusDocIdent').select2(select2Options);
 	});
 	
  	
  	$('select#canalNotif').change(function() {
  		//alert($(this).val());
  		if ($(this).val() == '01') { //DIRECCION_POSTAL("01", "Direcció Postal")
- 			alert($(this).val());
+ 			//alert($(this).val());
  			$('select#pais').prop("required", true);
  			$('select#provincia').prop("required", true);
 			$('select#municipi').prop("required", true);
 			$('#direccio').prop("required", true);
 			$('#codiPostal').prop("required", true);
 			$('#email').prop("required", false);
+ 		} else if ($(this).val() == '02' || $(this).val() == '03') {
+ 			//alert($(this).val());
+ 			// DIRECCION_ELECTRONICA_HABILITADA("02", "Direcció electrònica habilitada")
+ 			//COMPARECENCIA_ELECTRONICA("03", "Compareixença electrònica");
+ 			$('select#pais').prop("required", false);
+ 			$('select#provincia').prop("required", false);
+			$('select#municipi').prop("required", false);
+			$('#direccio').prop("required", false);
+			$('#codiPostal').prop("required", false);
+			$('#email').prop("required", true);
  		}
- 		/* DIRECCION_POSTAL("01", "Direcció Postal"),
-	    DIRECCION_ELECTRONICA_HABILITADA("02", "Direcció electrònica habilitada"),
-	    COMPARECENCIA_ELECTRONICA("03", "Compareixença electrònica"); */
  	});
 
  	
 	$('select#pais').change(function() {
  		if ($(this).val() == '724') {
  	 		if ($('select#tipus').val() != '<%=net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto.ADMINISTRACIO%>') {
- 				$('#provincia').prop("disabled", false);
-				$('#municipi').prop("disabled", false);
+				$('#provincia').change();
+ 	 			$('#provincia').prop("readonly", false);
+				$('#municipi').change();
+				$('#municipi').prop("readonly", false);
  	 		} else {
- 	 			$('#provincia').prop("disabled", true);
-				$('#municipi').prop("disabled", true);
+				$('#provincia').change();
+ 	 			$('#provincia').prop("readonly", true);
+				$('#municipi').change();
+				$('#municipi').prop("readonly", true);
  	 	 	}
 		} else {
 			$('#provincia').val("");
  	 		$('#provincia').change();
-			$('#provincia').prop("disabled", true);
+			$('#provincia').prop("readonly", true);
 			$('#municipi').val("");
  	 		$('#municipi').change();
-			$('#municipi').prop("disabled", true);
+			$('#municipi').prop("readonly", true);
 		}
  	});
 	
@@ -220,47 +248,48 @@ $(document).ready(function() {
  	 	 	 	if ($(this).val() != "") {
  	 	 	 		
  	 	 	 		let optionSelected = $("option:selected", this);
-
+ 	 	 	 		var select2Options = {theme: 'bootstrap', minimumResultsForSearch: "6"};
  	 		 		$.ajax({
  	 					type: 'GET',
  	 					url: "<c:url value="/v3/expedient/organ/"/>" + $(this).val(),
  	 					success: function(data) {
+ 	 						$('#tipusDocIdent').val("CODI_ORIGEN");
+ 	 						$('#tipusDocIdent').prop("readonly", true);
+ 	 						$('#tipusDocIdent').change();
+ 	 			 	 		$('#tipusDocIdent').select2("destroy");
+ 	 			 	 		$('#tipusDocIdent').select2(select2Options);
+
  	 						$('#documentIdent').val(data.codi);
- 	 						$('#documentIdent').prop("disabled", true);
+ 	 						$('#documentIdent').prop("readonly", true);
  	 						$('#pais').val(data.codiPais);
+ 	 						$('#pais').prop("readonly", true);
  	 						$('#pais').change();
- 	 						$('#pais').prop("disabled", true);
+ 	 						$('#pais').select2("destroy");
+ 	 			 	 		$('#pais').select2(select2Options);
 
  	 						$('#provincia').val(data.codiProvincia);
  	 						$('#provincia').change();
- 	 						$('#provincia').prop("disabled", true);
+ 	 						$('#provincia').prop("readonly", true);
+ 	 						$('#provincia').select2("destroy");
+ 	 			 	 		$('#provincia').select2(select2Options);
  	 						
  	 			 	 		$('#municipi').val(data.localitat);
- 	 						$('#municipi').prop("disabled", true);
+ 	 						$('#municipi').prop("readonly", true);
  	 			 	 		munOrgan = data.localitat;
  	 			 	 		$('#municipi').change();
  	 			 	 		
  	 			 	 		$('#codiPostal').val(data.codiPostal);
- 	 						$('#codiPostal').prop("disabled", true);
+ 	 						$('#codiPostal').prop("readonly", true);
 
  	 			 	 		$('#direccio').val(data.adressa);
- 	 						$('#direccio').prop("disabled", true);
+ 	 						$('#direccio').prop("readonly", true);
 
  	 			 	 		//$('#ambOficinaSir').val(optionSelected.hasClass('ambOficinaSir'));
  	 					}
  	 				});
  	 	 	 	} else {
  	 	 	 		netejar();
- 	 	 	 	/* 	$('#pais').val("");
- 	 	 	 		$('#pais').change();
- 	 	 	 		$('#provincia').val("");
- 	 	 	 		$('#provincia').change();
- 	 	 	 		$('#municipi').val("");
- 	 	 	 		$('#municipi').change();
- 	 	 	 		$('#codiPostal').val("");
- 	 	 	 		$('#adresa').val("");
- 	 	 	 		$('#documentNum').val("");
- */ 	 	 	 	}
+ 	 	 	 	}
  	 	 	});	
 	$('input[type=checkbox][name=entregaDeh]').on('change', function() {
 		if($(this).prop("checked") == true){
@@ -282,9 +311,9 @@ $(document).ready(function() {
 	});		
 
 
-	var select2Options = {theme: 'bootstrap'};
+/* 	var select2Options = {theme: 'bootstrap'};
 	$('select[name=tipus').select2("destroy");
-	$('select[name=tipus').select2(select2Options);
+	$('select[name=tipus').select2(select2Options); */
 	
 	var select2Options = {theme: 'bootstrap'};
 	$('select[name=entregaTipus').select2("destroy");
@@ -303,7 +332,6 @@ $(document).ready(function() {
 <body>
 <form:form cssClass="form-horizontal" action="${formAction}"  method="post" commandName="interessatCommand">
 	<form:hidden id="id" path="id"/>
-	<form:hidden id="tipusHiddenId" path="tipus"/>
 	<!-- <input type="hidden" value="${tipus}" id="tipusHiddenId"> -->
 	<div class="tipusInteressats">	
 		<div class="row">
@@ -317,6 +345,8 @@ $(document).ready(function() {
 				optionTextKeyAttribute="text"/>
 			</div>
 		</div>
+		<form:hidden id="tipusHiddenId" path="tipus"/>
+		
 	</div>
 
 	
@@ -367,6 +397,7 @@ $(document).ready(function() {
 			<div class="row hidden personajuridica personafisica administracio tipusdocument">
 				<div class="col-xs-6">
 					<hel:inputSelect 
+						readonly="false"
 						required="true" 
 						name="tipusDocIdent"
 						optionItems="${interessatTipusDocuments}" 
@@ -382,7 +413,7 @@ $(document).ready(function() {
 			</div>
 
 		
-			<div class="row emailTelefon personafisica personajuridica">
+			<div class="row emailTelefon personafisica personajuridica administracio">
 				<div class="col-xs-6">
 					<hel:inputText name="email" textKey="interessat.form.camp.email" labelSize="3"/>		
 				</div>
@@ -394,6 +425,7 @@ $(document).ready(function() {
 			<div class="row paisProvincia personafisica personajuridica administracio">
 				<div class="col-xs-6">
 					<hel:inputSelect 
+						readonly="false"
 						emptyOption="true"
 						name="pais"
 						optionItems="${paisos}" 
@@ -405,6 +437,7 @@ $(document).ready(function() {
 				</div>
 				<div class="col-xs-6">
 				<hel:inputSelect 
+						readonly="false"
 						emptyOption="true"
 						required="false" 
 						name="provincia"
@@ -420,6 +453,7 @@ $(document).ready(function() {
 		<div class="row localitatCodipostal personafisica personajuridica administracio">
 			<div class="col-xs-6">
 			<hel:inputSelect 
+					readonly="false"
 					emptyOption="true"
 					required="false" 
 					name="municipi"
@@ -467,15 +501,15 @@ $(document).ready(function() {
 			</div>
 		</div>
 		
-		<div id="dir3Codi" class="row  personafisica personajuridica hidden"  style="margin-right:-14px ; margin-left:-59px">
+		<div id="direCodi" class="row  personafisica personajuridica hidden"  style="margin-right:-14px ; margin-left:-59px">
 			<div class="col-xs-12">
 					<hel:inputText required="false" name="codiDire" textKey="interessat.form.camp.codi.dire" labelSize="2" /> 
 			</div>
 		</div>
 		
-		<div id="dir3Codi" class="row administracio hidden"  style="margin-right:-14px ; margin-left:-59px">
+		<div id="dir3Codi" class="row personafisica personajuridica administracio hidden"  style="margin-right:-14px ; margin-left:-59px">
 			<div class="col-xs-12">
-					<hel:inputText required="false" name="dir3Codi" textKey="interessat.form.camp.dir3codi" labelSize="2" /> 
+					<hel:inputText required="true" name="dir3Codi" textKey="interessat.form.camp.dir3codi" labelSize="2" /> 
 			</div>
 		</div>
 		

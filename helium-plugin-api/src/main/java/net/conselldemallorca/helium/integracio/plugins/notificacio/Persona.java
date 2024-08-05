@@ -19,6 +19,8 @@ public class Persona {
 	private String email;
 	private InteressatTipusEnum tipus;
 	private String codiDir3;
+	private String raoSocial;
+
 	
 	public InteressatTipusEnum getTipus() {
 		return tipus;
@@ -68,5 +70,12 @@ public class Persona {
 	public void setCodiDir3(String codiDir3) {
 		this.codiDir3 = codiDir3;
 	}
+	public String getRaoSocial() {
+		return raoSocial;
+	}
+	public void setRaoSocial(String raoSocial) {
+		this.raoSocial = raoSocial;
+	}
+	
 
 }

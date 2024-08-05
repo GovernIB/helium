@@ -39,7 +39,40 @@ $(document).ready(function() {
         }
 
     })
-});
+    
+    /*  $('select#interessatsIds').on('change', function(valor) {
+    	if ($(this).val() != '' && $(this).val() != "null") {
+    		alert($(this).val());
+ 			$.ajax({
+				type: 'GET',
+				url: "<c:url value="/modal/v3/expedient/representant/"/>" + $(this).val(),
+				success: function(data) {
+					var representantId = $('#representantId');
+					representantId.empty();
+					representantId.append("<option value=\"\"></option>");
+					if (data && data.length > 0) {
+						var items = [];
+						$.each(data, function(i, val) {
+							items.push({
+								"id": val.codi,
+								"text": val.nom
+							});
+							representantId.append("<option value=\"" + val.codi + "\">" + val.nom + "</option>");
+						});
+					}
+					var select2Options = {theme: 'bootstrap', minimumResultsForSearch: "6"};
+					representantId.select2("destroy");
+					representantId.select2(select2Options);
+					representantId.change();
+				}
+			});
+ 	 	} else {
+ 	 		var select2Options = {theme: 'bootstrap', minimumResultsForSearch: "6"};
+ 	 		$('#representantId').select2("destroy");
+ 	 		$('#representantId').select2(select2Options);
+ 	 	}
+    })
+}); */
 
 function checkMidaCampsNotificacio() {
 	var getUrl = '<c:url value="/v3/expedient/checkMidaCampsNotificacio"/>';
@@ -107,7 +140,9 @@ function refrescarAlertas() {
 	<form:form cssClass="form-horizontal form-tasca" action="notificar"  method="post" commandName="documentNotificacioCommand">
 
 		<hel:inputSelect required="true" name="interessatsIds" multiple="true" textKey="expedient.document.notificar.form.camp.titulars" placeholderKey="expedient.document.notificar.form.camp.titulars.placeholder" comment="expedient.document.notificar.form.camp.titulars.info" optionItems="${interessats}" optionValueAttribute="id" optionTextAttribute="fullInfo"/>
-		<hel:inputSelect required="false" name="representantId" multiple="false" emptyOption="true" textKey="expedient.document.notificar.form.camp.representant" placeholderKey="expedient.document.notificar.form.camp.representant.placeholder" comment="expedient.document.notificar.form.camp.representant.info" optionItems="${interessats}" optionValueAttribute="id" optionTextAttribute="fullInfo"/>
+		<hel:inputSelect required="false" name="representantId" multiple="false" emptyOption="true" textKey="expedient.document.notificar.form.camp.representant" placeholderKey="expedient.document.notificar.form.camp.representant.placeholder" comment="expedient.document.notificar.form.camp.representant.info"
+		 		optionItems="${interessats}" 
+		 		optionValueAttribute="id" optionTextAttribute="fullInfo"/>
 		<hel:inputText required="true" name="concepte" textKey="expedient.document.notificar.form.camp.concepte" />
 		<hel:inputSelect required="true" name="serveiTipusEnum" optionItems="${serveiTipusEstats}" optionValueAttribute="codi" optionTextAttribute="valor" textKey="expedient.document.notificar.form.camp.serveiTipus"/>
 		<hel:inputTextarea name="descripcio" textKey="expedient.document.notificar.form.camp.descripcio"></hel:inputTextarea>

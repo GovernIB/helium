@@ -78,7 +78,8 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			interessat.getPais(),
 			interessat.getProvincia(),
 			interessat.getMunicipi(),
-			interessat.getCanalNotif()
+			interessat.getCanalNotif(),
+			interessat.getCodiDire()
 			);
 		if(expedient.getInteressats()!=null)
 			expedient.getInteressats().add(interessatEntity);
@@ -113,6 +114,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		interessatEntity.setNom(interessat.getNom());
 		interessatEntity.setDocumentIdent(interessat.getDocumentIdent());
 		interessatEntity.setDir3Codi(interessat.getDir3Codi());
+		interessatEntity.setCodiDire(interessat.getCodiDire());
 		interessatEntity.setDocumentIdent(interessat.getDocumentIdent());
 		interessatEntity.setLlinatge1(interessat.getLlinatge1());  
 		interessatEntity.setLlinatge2(interessat.getLlinatge2());
@@ -382,7 +384,8 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			representant.getPais(),
 			representant.getProvincia(),
 			representant.getMunicipi(),
-			representant.getCanalNotif()
+			representant.getCanalNotif(),
+			representant.getCodiDire()
 			);
 		representantEntity.setTipusDocIdent(InteressatDocumentTipusEnumDto.valueOf(representantEntity.getTipusDocIdent()).getValor())    ;
 		if(representant.getEs_representant()) {
@@ -398,16 +401,17 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		return representantDto;
 	}
 
+	
 	@Override
-	public InteressatDto updateRepresentant(Long interessatId, InteressatDto representant) {
-		// TODO Auto-generated method stub
+	public InteressatDto findRepresentantAmbInteressatId(Long interessatId) {
+		Interessat interessat = interessatRepository.findOne(interessatId);
+		List<Interessat> representants = interessatRepository.findByRepresentat(interessat);
+		if(representants!=null && !representants.isEmpty()) {//només hi pot haver un representant per interssat
+			InteressatDto resultat = conversioTipusHelper.convertir(representants.get(0), InteressatDto.class);
+			return resultat;
+		}
 		return null;
 	}
 
-	@Override
-	public InteressatDto deleteRepresentant(Long interessatId, InteressatDto representant) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 }

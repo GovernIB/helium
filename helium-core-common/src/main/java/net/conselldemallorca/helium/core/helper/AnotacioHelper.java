@@ -325,8 +325,8 @@ public class AnotacioHelper {
 							interessat.getPais(),
 							interessat.getProvincia(),
 							interessat.getMunicipi(),
-							null//interessat.getCanalNotif()
-							);
+							null,//interessat.getCanalNotif()
+							null);//interessat.getCodiDire()
 				} else {
 					// Actualitza l'interessat existent
 					logger.debug("Modificant l'interessat (interessat=" + interessat + ") a l'expedient " + expedient.getIdentificador());

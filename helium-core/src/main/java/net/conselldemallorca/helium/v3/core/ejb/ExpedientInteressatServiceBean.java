@@ -84,12 +84,7 @@ public class ExpedientInteressatServiceBean implements ExpedientInteressatServic
 	}
 
 	@Override
-	public InteressatDto updateRepresentant(Long interessatId, InteressatDto representant) {
-		return delegate.updateRepresentant(interessatId, representant);
-	}
-
-	@Override
-	public InteressatDto deleteRepresentant(Long interessatId, InteressatDto representant) {
-		return delegate.deleteRepresentant(interessatId, representant);
+	public InteressatDto findRepresentantAmbInteressatId(Long interessatId) {
+		return delegate.findRepresentantAmbInteressatId(interessatId);
 	}
 }

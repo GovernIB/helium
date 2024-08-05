@@ -46,6 +46,7 @@ public class InteressatDto {
     private InteressatDto representat; //només existeix quan es_representant=true
     private InteressatDto representant; //només existeix quan es_representant=false
     private String canalNotif; 
+    private boolean teRepresentant;
 
 
 	public InteressatTipusEnumDto getTipus() {
@@ -154,14 +155,56 @@ public class InteressatDto {
 		this.entregaDehObligat = entregaDehObligat;
 	}
 	public String getFullNom() {
-		StringBuilder fullNom = new StringBuilder(nom);
+		StringBuilder fullNom = new StringBuilder();
+		if(nom!=null) {
+			fullNom.append(nom);
+		}
 		if (llinatge1 != null)
 			fullNom.append(" ").append(llinatge1);
 		if (llinatge2 != null)
 			fullNom.append(" ").append(llinatge2);
+		if (raoSocial != null)
+			fullNom.append(" ").append(raoSocial);
 		return fullNom.toString();
 	}
 	
+	public String getRepresentantFullNom() {
+		if(!isEs_representant()  &&  representant!=null) {
+			StringBuilder representantFullNom = new StringBuilder();
+			if(representant.getNom()!=null) {
+				representantFullNom.append(representant.getNom());
+			}
+			if (representant.getLlinatge1() != null)
+				representantFullNom.append(" ").append(representant.getLlinatge1());
+			if (representant.getLlinatge2() != null)
+				representantFullNom.append(" ").append(representant.getLlinatge2());
+			if (representant.getRaoSocial() != null)
+				representantFullNom.append(" ").append(representant.getRaoSocial());
+			if(InteressatTipusEnumDto.ADMINISTRACIO.equals(representant.getTipus()))
+					representantFullNom.append(" ").append(representant.getDocumentIdent());
+			return representantFullNom.toString();
+		}
+		return null;
+	}
+	
+	public boolean isTeRepresentant() {
+		if(representant!=null)
+			return true;
+		else
+			return false;
+	}
+	
+	public boolean getTeRepresentant() {
+		if(representant!=null)
+			return true;
+		else
+			return false;
+	}
+
+	public void setTeRepresentant(boolean teRepresentant) {
+		this.teRepresentant = teRepresentant;
+	}
+
 	public String getFullInfo() {
 		String codiDocument;
 		if (tipus != null && InteressatTipusEnumDto.ADMINISTRACIO.equals(tipus))
@@ -205,6 +248,9 @@ public class InteressatDto {
 	}
 	public void setRaoSocial(String raoSocial) {
 		this.raoSocial = raoSocial;
+	}
+	public boolean isEs_representant() {
+		return es_representant;
 	}
 	public Boolean getEs_representant() {
 		return es_representant != null ? es_representant : false;
