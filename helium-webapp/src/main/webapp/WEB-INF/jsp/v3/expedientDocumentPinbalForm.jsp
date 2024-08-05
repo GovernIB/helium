@@ -92,13 +92,11 @@ $(document).ready( function() {
 	});
 	
 	$('#provinciaNaixament').on('change', function() {
-		debugger;
 		var selectMuni = $('#municipiNaixament');
 		$(selectMuni).empty();
 		//Al canviar el tipus de document Pinbal, refrescar els titulars
 		$.get('<c:url value="/v3/expedient/getMunicipisPerProvincia/' + $(this).val() + '"/>')
 		.done(function(data) {
-			debugger;
 			if (data) {
 				data.forEach((elemento, indice) => {
 					$(selectMuni).append(new Option(elemento.valor, elemento.codi));
@@ -112,7 +110,6 @@ $(document).ready( function() {
 	});
 	
 	$('#paisNaixament').on('change', function() {
-		debugger;
 		//Han seleccionat espanya
 		if ($(this).val()=='724') {
 			$("#poblacioNaixament").parent().parent().hide();

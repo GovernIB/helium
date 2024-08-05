@@ -492,10 +492,9 @@
 			</a>
 								</li>
 								<li>
-									<a 	href="${expedient.id}/documentPinbal/new"
-										data-rdt-link-modal="true" 
-										data-rdt-link-callback="recargarPanel(${proces.id});"
-										data-rdt-link-modal-min-height="180">
+									<a 	id="a_nou_document_${proces.id}"
+										href="${expedient.id}/documentPinbal/new"
+										data-toggle="modal">
 										<span class="fa fa-file-text-o"></span>
 										<spring:message code="expedient.boto.nou_documentPinbal"/>
 									</a>

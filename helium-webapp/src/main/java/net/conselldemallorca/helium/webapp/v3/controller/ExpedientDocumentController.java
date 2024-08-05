@@ -432,11 +432,19 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
-		return nouDocumentPinbalGet(request, expedientId, null, model);
+		return nouDocumentPinbalGetFluxe(request, expedientId, null, model);
+	}
+	
+	@RequestMapping(value = "/{expedientId}/proces/documentPinbal/new", method = RequestMethod.GET)
+	public String nouDocumentPinbalGetEstats(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model) {
+		return nouDocumentPinbalGetFluxe(request, expedientId, null, model);
 	}
 	
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/documentPinbal/new", method = RequestMethod.GET)
-	public String nouDocumentPinbalGet(
+	public String nouDocumentPinbalGetFluxe(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String processInstanceId,
@@ -500,15 +508,29 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return llistaMunicipis;
 	}
 	
+	@RequestMapping(value = "/{expedientId}/documentPinbal/new", method = RequestMethod.POST)
+	public String nouDocumentPinbalPostEstats(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@ModelAttribute ExpedientDocumentPinbalDto command,
+			BindingResult bindingResult,
+			Model model) {
+		return nouDocumentPinbalPostFluxe(request, expedientId, null, command, bindingResult, model);
+	}
+	
 	@RequestMapping(value = "/{expedientId}/proces/{processInstanceId}/documentPinbal/new", method = RequestMethod.POST)
-	public String nouDocumentPinbalPost(
+	public String nouDocumentPinbalPostFluxe(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable String processInstanceId,
 			@ModelAttribute ExpedientDocumentPinbalDto command,
 			BindingResult bindingResult,
 			Model model) {
-			
+
+		if (StringUtils.isEmpty(command.getFinalitat())) {
+			bindingResult.rejectValue("finalitat", "NotEmpty");
+		}
+		
 		switch (command.getCodiServei()) {
 		case SVDDELSEXWS01:
 			//De cara a enviar el XML, hi ha camps que no corresponent si el pais de naixement es espanya o viceversa
@@ -1720,12 +1742,16 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	}
 	
 	private List<DocumentInfoDto> getDocumentsPinbal(Long expedientId, String procesId) {
-		InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
+		 Long definicioProcesId = null;
+		if (procesId!=null) {
+			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
+			definicioProcesId = instanciaProces.getDefinicioProces().getId();
+		}
 		List<DocumentInfoDto> documentsPinbal = new ArrayList<DocumentInfoDto>();
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		List<DocumentDto> documents = dissenyService.findDocumentsOrdenatsPerCodi(
 				expedient.getTipus().getId(),
-				instanciaProces.getDefinicioProces().getId(),
+				definicioProcesId,
 				true);	// amb herència
 
 		for(DocumentDto document: documents)

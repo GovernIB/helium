@@ -27,8 +27,8 @@ public class ExpedientDocumentPinbalDto implements Serializable {
 	private boolean pinbalServeiDocPermesPas;
 	
 	private String comunitatAutonomaCodi;
-	private String provinciaCodi;
-	private String municipiCodi;
+	private String provinciaCodi = "07";
+	private String municipiCodi = "407";
 	private Date dataConsulta;
 	private Date dataNaixement;
 	private boolean consentimentTipusDiscapacitat = false;
