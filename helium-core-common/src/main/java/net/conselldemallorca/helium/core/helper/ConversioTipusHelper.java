@@ -37,6 +37,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
+import net.conselldemallorca.helium.core.model.hibernate.ServeiPinbalEntity;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.Enviament;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.InteressatTipusEnum;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.Notificacio;
@@ -66,6 +67,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesEstatEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaDefaultAnyDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ServeiPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
 
 /**
@@ -453,7 +455,7 @@ public class ConversioTipusHelper {
 						target.setNom(source.getNom());
 						return target;
 					}
-		});		
+		});
 		mapperFactory.getConverterFactory().registerConverter(
 				new CustomConverter<CampRegistre, CampRegistreDto>() {
 					@Override

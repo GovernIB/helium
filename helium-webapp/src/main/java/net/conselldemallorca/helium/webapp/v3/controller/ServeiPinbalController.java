@@ -1,5 +1,10 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +20,7 @@ import net.conselldemallorca.helium.core.helper.AlertaHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ServeiPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.service.ConsultaPinbalService;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
@@ -43,7 +49,11 @@ public class ServeiPinbalController extends BaseController {
 	@RequestMapping(value = "/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	public DatatablesResponse datatable(HttpServletRequest request) {
-		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request);
+		
+		Map<String, String[]> mapeigOrdenacions = new HashMap<String, String[]>();
+		mapeigOrdenacions.put("documentsRestringits_str", new String[] {"pinbalServeiDocPermesDni", "pinbalServeiDocPermesNif", "pinbalServeiDocPermesCif", "pinbalServeiDocPermesNie", "pinbalServeiDocPermesPas"});
+		
+		PaginacioParamsDto paginacioParams = DatatablesHelper.getPaginacioDtoFromRequest(request, null, mapeigOrdenacions);
 		PaginaDto<ServeiPinbalDto> resultat = consultaPinbalService.findServeisPinbalAmbFiltrePaginat(paginacioParams);		
 		return DatatablesHelper.getDatatableResponse(request, resultat);
 	}
@@ -54,6 +64,18 @@ public class ServeiPinbalController extends BaseController {
 			@PathVariable Long id,
 			Model model) {
 		model.addAttribute("serveiPinbalDto", consultaPinbalService.findServeiPinbalById(id));
+		List<ParellaCodiValorDto> llistaDocsPermesos = new ArrayList<ParellaCodiValorDto>();
+		ParellaCodiValorDto dni = new ParellaCodiValorDto("DNI", "DNI");
+		llistaDocsPermesos.add(dni);
+		ParellaCodiValorDto nif = new ParellaCodiValorDto("NIF", "NIF");
+		llistaDocsPermesos.add(nif);
+		ParellaCodiValorDto nie = new ParellaCodiValorDto("NIE", "NIE");
+		llistaDocsPermesos.add(nie);
+		ParellaCodiValorDto cif = new ParellaCodiValorDto("CIF", "CIF");
+		llistaDocsPermesos.add(cif);
+		ParellaCodiValorDto pas = new ParellaCodiValorDto("Passaport", "Passaport");
+		llistaDocsPermesos.add(pas);
+		model.addAttribute("tipusDocsList", llistaDocsPermesos);
 		return "v3/serveiPinbalForm";
 	}
 	

@@ -9,8 +9,6 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.data.domain.Page;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,11 +18,9 @@ import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.hibernate.PeticioPinbal;
 import net.conselldemallorca.helium.core.model.hibernate.ServeiPinbalEntity;
-import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -180,13 +176,31 @@ public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
 				paginacioParams.getFiltre(),
 				paginacioHelper.toSpringDataPageable(paginacioParams));
 		PaginaDto<ServeiPinbalDto> resultat = paginacioHelper.toPaginaDto(spe, ServeiPinbalDto.class);
+		if (resultat.getContingut()!=null) {
+			for (ServeiPinbalDto sp: resultat.getContingut()) {
+				tipusDocumentsPermesosToList(sp);
+			}
+		}
 		return resultat;
 	}
 
 	@Override
 	@Transactional(readOnly=true)
 	public ServeiPinbalDto findServeiPinbalById(Long id) {
-		return conversioTipusHelper.convertir(serveiPinbalRepository.findOne(id), ServeiPinbalDto.class);
+		ServeiPinbalDto resultat = conversioTipusHelper.convertir(serveiPinbalRepository.findOne(id), ServeiPinbalDto.class);
+		tipusDocumentsPermesosToList(resultat);
+		return resultat;
+	}
+	
+	private void tipusDocumentsPermesosToList(ServeiPinbalDto resultat) {
+		//Convertir els documents permesos en llista de restringits
+		List<String> docsRestreingits = new ArrayList<String>();
+		if (!resultat.isPinbalServeiDocPermesDni()) { docsRestreingits.add("DNI"); }
+		if (!resultat.isPinbalServeiDocPermesNif()) { docsRestreingits.add("NIF"); }
+		if (!resultat.isPinbalServeiDocPermesNie()) { docsRestreingits.add("NIE"); }
+		if (!resultat.isPinbalServeiDocPermesCif()) { docsRestreingits.add("CIF"); }
+		if (!resultat.isPinbalServeiDocPermesPas()) { docsRestreingits.add("Passaport"); }
+		resultat.setDocumentsRestringits(docsRestreingits);
 	}
 
 	@Override
@@ -194,11 +208,31 @@ public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
 	public ServeiPinbalDto updateServeiPinbal(ServeiPinbalDto serveiPinbalDto) {
 		ServeiPinbalEntity spe = serveiPinbalRepository.findOne(serveiPinbalDto.getId());
 		spe.setNom(serveiPinbalDto.getNom());
-		spe.setPinbalServeiDocPermesCif(serveiPinbalDto.isPinbalServeiDocPermesCif());
-		spe.setPinbalServeiDocPermesDni(serveiPinbalDto.isPinbalServeiDocPermesDni());
-		spe.setPinbalServeiDocPermesNie(serveiPinbalDto.isPinbalServeiDocPermesNie());
-		spe.setPinbalServeiDocPermesNif(serveiPinbalDto.isPinbalServeiDocPermesNif());
-		spe.setPinbalServeiDocPermesPas(serveiPinbalDto.isPinbalServeiDocPermesPas());
+		if (serveiPinbalDto.getDocumentsRestringits()!=null && serveiPinbalDto.getDocumentsRestringits().contains("CIF")) {
+			spe.setPinbalServeiDocPermesCif(false);
+		} else {
+			spe.setPinbalServeiDocPermesCif(true);
+		}
+		if (serveiPinbalDto.getDocumentsRestringits()!=null && serveiPinbalDto.getDocumentsRestringits().contains("DNI")) {
+			spe.setPinbalServeiDocPermesDni(false);
+		} else {
+			spe.setPinbalServeiDocPermesDni(true);
+		}
+		if (serveiPinbalDto.getDocumentsRestringits()!=null && serveiPinbalDto.getDocumentsRestringits().contains("NIE")) {
+			spe.setPinbalServeiDocPermesNie(false);
+		} else {
+			spe.setPinbalServeiDocPermesNie(true);
+		}
+		if (serveiPinbalDto.getDocumentsRestringits()!=null && serveiPinbalDto.getDocumentsRestringits().contains("NIF")) {
+			spe.setPinbalServeiDocPermesNif(false);
+		} else {
+			spe.setPinbalServeiDocPermesNif(true);
+		}
+		if (serveiPinbalDto.getDocumentsRestringits()!=null && serveiPinbalDto.getDocumentsRestringits().contains("Passaport")) {
+			spe.setPinbalServeiDocPermesPas(false);
+		} else {
+			spe.setPinbalServeiDocPermesPas(true);
+		}
 		spe.setUpdatedDate(Calendar.getInstance().getTime());
 		spe.setUpdatedUsuari(SecurityContextHolder.getContext().getAuthentication().getName());
 		return conversioTipusHelper.convertir(serveiPinbalRepository.save(spe), ServeiPinbalDto.class);

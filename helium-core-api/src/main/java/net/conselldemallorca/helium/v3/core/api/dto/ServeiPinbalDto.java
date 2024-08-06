@@ -2,6 +2,7 @@ package net.conselldemallorca.helium.v3.core.api.dto;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 public class ServeiPinbalDto implements Serializable {
 
@@ -19,7 +20,8 @@ public class ServeiPinbalDto implements Serializable {
     private boolean actiu;
     private Date updatedDate;
 	private String updatedUsuari;
-    
+	private List<String> documentsRestringits;
+	private String documentsRestringits_str;
     
 	public Long getId() {
 		return id;
@@ -92,6 +94,25 @@ public class ServeiPinbalDto implements Serializable {
 	}
 	public void setUpdatedUsuari(String updatedUsuari) {
 		this.updatedUsuari = updatedUsuari;
+	}
+	public List<String> getDocumentsRestringits() {
+		return documentsRestringits;
+	}
+	public void setDocumentsRestringits(List<String> documentsRestringits) {
+		this.documentsRestringits = documentsRestringits;
+	}
+	public String getDocumentsRestringits_str() {
+		String resultat ="";
+		if (this.documentsRestringits!=null) {
+			for (String s: this.documentsRestringits) {
+				resultat += s+", ";
+			}
+			resultat = resultat.substring(0, resultat.length()-2);
+		}
+		return resultat;
+	}
+	public void setDocumentsRestringits_str(String documentsRestringits_str) {
+		this.documentsRestringits_str = documentsRestringits_str;
 	}
     
     

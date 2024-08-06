@@ -135,6 +135,7 @@ $(document).ready( function() {
 		<hel:inputHidden name="codiServei"/>
 		<hel:inputHidden name="documentNom"/>
 		<hel:inputHidden name="documentCodi"/>
+		<hel:inputHidden name="processInstanceId"/>
 		
 		<hel:inputSelect 
 			name="documentId"

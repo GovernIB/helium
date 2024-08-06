@@ -22,11 +22,13 @@
 			<div class="col-sm-11">
 				<hel:inputText name="codi" textKey="serveisPinbal.col.codi" disabled="true"/>
 				<hel:inputTextarea name="nom" textKey="serveisPinbal.col.nom"/>
-				<hel:inputCheckbox name="pinbalServeiDocPermesDni" textKey="serveisPinbal.col.pinbalServeiDocPermesDni"/>
-				<hel:inputCheckbox name="pinbalServeiDocPermesNif" textKey="serveisPinbal.col.pinbalServeiDocPermesNif"/>
-				<hel:inputCheckbox name="pinbalServeiDocPermesCif" textKey="serveisPinbal.col.pinbalServeiDocPermesCif"/>
-				<hel:inputCheckbox name="pinbalServeiDocPermesNie" textKey="serveisPinbal.col.pinbalServeiDocPermesNie"/>
-				<hel:inputCheckbox name="pinbalServeiDocPermesPas" textKey="serveisPinbal.col.pinbalServeiDocPermesPas"/>
+				<hel:inputSelect 
+					name="documentsRestringits"
+					multiple="true"
+					textKey="serveisPinbal.col.docsRestr"
+					optionItems="${tipusDocsList}"
+					optionValueAttribute="codi"
+					optionTextAttribute="valor"/>
 			</div>
 		</div>
 		<div id="modal-botons" class="well">

@@ -27,38 +27,9 @@
 			class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
-				<th data-col-name="codi" width="17%"><spring:message code="serveisPinbal.col.codi"/></th>
-				<th data-col-name="nom"  width="36%"><spring:message code="serveisPinbal.col.nom"/></th>
-				<th data-col-name="pinbalServeiDocPermesDni" data-template="#pinbalServeiDocPermesDni">
-					<spring:message code="serveisPinbal.col.pinbalServeiDocPermesDni"/>
-					<script id="pinbalServeiDocPermesDni" type="text/x-jsrender">
-						{{if pinbalServeiDocPermesDni}}<span class="fa fa-check"></span>{{/if}}
-					</script>
-				</th>
-				<th data-col-name="pinbalServeiDocPermesNif" data-template="#pinbalServeiDocPermesNif">
-					<spring:message code="serveisPinbal.col.pinbalServeiDocPermesNif"/>
-					<script id="pinbalServeiDocPermesNif" type="text/x-jsrender">
-						{{if pinbalServeiDocPermesNif}}<span class="fa fa-check"></span>{{/if}}
-					</script>
-				</th>
-				<th data-col-name="pinbalServeiDocPermesCif" data-template="#pinbalServeiDocPermesCif">
-					<spring:message code="serveisPinbal.col.pinbalServeiDocPermesCif"/>
-					<script id="pinbalServeiDocPermesCif" type="text/x-jsrender">
-						{{if pinbalServeiDocPermesCif}}<span class="fa fa-check"></span>{{/if}}
-					</script>
-				</th>
-				<th data-col-name="pinbalServeiDocPermesNie" data-template="#pinbalServeiDocPermesNie">
-					<spring:message code="serveisPinbal.col.pinbalServeiDocPermesNie"/>
-					<script id="pinbalServeiDocPermesNie" type="text/x-jsrender">
-						{{if pinbalServeiDocPermesNie}}<span class="fa fa-check"></span>{{/if}}
-					</script>
-				</th>
-				<th data-col-name="pinbalServeiDocPermesPas" data-template="#pinbalServeiDocPermesPas">
-					<spring:message code="serveisPinbal.col.pinbalServeiDocPermesPas"/>
-					<script id="pinbalServeiDocPermesPas" type="text/x-jsrender">
-						{{if pinbalServeiDocPermesPas}}<span class="fa fa-check"></span>{{/if}}
-					</script>
-				</th>
+				<th data-col-name="codi" width="18%"><spring:message code="serveisPinbal.col.codi"/></th>
+				<th data-col-name="nom"  width="50%"><spring:message code="serveisPinbal.col.nom"/></th>
+				<th data-col-name="documentsRestringits_str" width="27%"><spring:message code="serveisPinbal.col.docsRestr"/></th>
 				<th data-col-name="id" width="5%" data-template="#cellAccionsTemplate" data-orderable="false">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
 						<div class="dropdown navbar-right">

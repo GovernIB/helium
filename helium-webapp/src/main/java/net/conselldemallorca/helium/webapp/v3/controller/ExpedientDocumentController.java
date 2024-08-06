@@ -452,11 +452,12 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		ExpedientDocumentPinbalDto command = new ExpedientDocumentPinbalDto();
 		command.setExpedientId(expedientId);
 		command.setProcessInstanceId(processInstanceId);
-		omplirModelFormDocumentPinbal(model, command, false);
+		omplirModelFormDocumentPinbal(request, model, command, false);
 		return "v3/expedientDocumentPinbalForm";
 	}
 	
 	private void omplirModelFormDocumentPinbal(
+			HttpServletRequest request,
 			Model model,
 			ExpedientDocumentPinbalDto command,
 			boolean intentGuardar) {
@@ -472,24 +473,33 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		llistaComunitats.add(new ParellaCodiValorDto("04", "Illes Balears"));
 		model.addAttribute("comunitats", llistaComunitats);
 		
-		List<ParellaCodiValorDto> llistaProvincies = new ArrayList<ParellaCodiValorDto>();
-		List<ProvinciaDto> provincies = dadesExternesService.findProvincies();
-		if (provincies!=null) {
-			for (ProvinciaDto pDto: provincies) {
-				llistaProvincies.add(new ParellaCodiValorDto(pDto.getCodi(), pDto.getNom()));
+		try {
+			List<ParellaCodiValorDto> llistaProvincies = new ArrayList<ParellaCodiValorDto>();
+			List<ProvinciaDto> provincies = dadesExternesService.findProvincies();
+			if (provincies!=null) {
+				for (ProvinciaDto pDto: provincies) {
+					llistaProvincies.add(new ParellaCodiValorDto(pDto.getCodi(), pDto.getNom()));
+				}
 			}
-		}
-		model.addAttribute("provincies", llistaProvincies);
-		model.addAttribute("municipis", getMunicipisPerProvincia(command.getProvinciaNaixament()));
-		
-		List<ParellaCodiValorDto> llistaPaisos = new ArrayList<ParellaCodiValorDto>();
-		List<PaisDto> paisos = dadesExternesService.findPaisos();
-		if (paisos!=null) {
-			for (PaisDto pDto: paisos) {
-				llistaPaisos.add(new ParellaCodiValorDto(pDto.getCodi(), pDto.getNom()));
+			model.addAttribute("provincies", llistaProvincies);
+			model.addAttribute("municipis", getMunicipisPerProvincia(command.getProvinciaNaixament()));
+			
+			List<ParellaCodiValorDto> llistaPaisos = new ArrayList<ParellaCodiValorDto>();
+			List<PaisDto> paisos = dadesExternesService.findPaisos();
+			if (paisos!=null) {
+				for (PaisDto pDto: paisos) {
+					llistaPaisos.add(new ParellaCodiValorDto(pDto.getCodi(), pDto.getNom()));
+				}
 			}
+			model.addAttribute("paisos", llistaPaisos);
+		} catch (Exception ex) {
+			MissatgesHelper.warning(request, "No s'han pogut carregar les dades externes:"+ex.getMessage());
+			
+			List<ParellaCodiValorDto> llistaBuida = new ArrayList<ParellaCodiValorDto>();
+			model.addAttribute("provincies", llistaBuida);
+			model.addAttribute("municipis", llistaBuida);
+			model.addAttribute("paisos", llistaBuida);
 		}
-		model.addAttribute("paisos", llistaPaisos);
 		
 		command.setCommandValidat(intentGuardar);
 	}
@@ -615,7 +625,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		}
 		
 		if (bindingResult.hasErrors()) {
-			omplirModelFormDocumentPinbal(model, command, true);
+			omplirModelFormDocumentPinbal(request, model, command, true);
 			return "v3/expedientDocumentPinbalForm";
 		} else {
 			try {
@@ -628,7 +638,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 									new Object[] {command.getDocumentNom(), command.getCodiServei()}));
 				} else {
 					MissatgesHelper.error(request, resultat);
-					omplirModelFormDocumentPinbal(model, command, true);
+					omplirModelFormDocumentPinbal(request, model, command, true);
 					return "v3/expedientDocumentPinbalForm";
 				}
 			} catch (Exception ex) {
@@ -636,7 +646,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 						request,
 						"consultes.pinbal.resultat.ko",
 						new Object[] {command.getDocumentNom(), command.getCodiServei(), ex.getMessage()}));
-				omplirModelFormDocumentPinbal(model, command, true);
+				omplirModelFormDocumentPinbal(request, model, command, true);
 				return "v3/expedientDocumentPinbalForm";
 			}
 		}
@@ -1730,11 +1740,11 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				codisDocumentsExistents.add(documentExpedient.getDocumentCodi());
 			// Mira quins documents no s'han utilitzat i els retorna
 			for(DocumentDto document: documents) 
-				if (!codisDocumentsExistents.contains(document.getCodi()) && !document.isPinbalActiu())
+				if (!codisDocumentsExistents.contains(document.getCodi())) // && !document.isPinbalActiu()
 					documentsNoUtilitzats.add(toDocumentInfo(document));
 		} else {
 			for(DocumentDto document: documents)
-				if (!document.isPinbalActiu())
+//				if (!document.isPinbalActiu())
 					documentsNoUtilitzats.add(toDocumentInfo(document));
 		}
 		

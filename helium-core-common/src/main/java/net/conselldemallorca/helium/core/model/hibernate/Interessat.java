@@ -349,12 +349,12 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 				if ("N".equals(this.tipusDocIdent)) {
 					if (serveiPinbal.isPinbalServeiDocPermesNif()) {
 						return ScspTipoDocumentacion.NIF;
-					} else {
+					} else if (serveiPinbal.isPinbalServeiDocPermesDni()) {
 						return ScspTipoDocumentacion.DNI;
 					}
-				} else if ("P".equals(this.tipusDocIdent)) {
+				} else if ("P".equals(this.tipusDocIdent) && serveiPinbal.isPinbalServeiDocPermesPas()) {
 					return ScspTipoDocumentacion.Pasaporte;
-				} else if ("E".equals(this.tipusDocIdent)) {
+				} else if ("E".equals(this.tipusDocIdent) && serveiPinbal.isPinbalServeiDocPermesNie()) {
 					return ScspTipoDocumentacion.NIE;
 				}
 			} else {
@@ -362,13 +362,13 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 				if ("C".equals(this.tipusDocIdent)) {
 					if (serveiPinbal.isPinbalServeiDocPermesCif()) {
 						return ScspTipoDocumentacion.CIF;
-					} else {
+					} else if (serveiPinbal.isPinbalServeiDocPermesNif()) {
 						return ScspTipoDocumentacion.NIF;
 					}
 				}
 			}
 		}
-		return ScspTipoDocumentacion.Otros;
+		return null;
 	}
 
 	private static final long serialVersionUID = 1L;

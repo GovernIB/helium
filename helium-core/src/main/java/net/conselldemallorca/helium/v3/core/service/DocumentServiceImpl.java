@@ -839,11 +839,18 @@ public class DocumentServiceImpl implements DocumentService {
 		ScspRespostaPinbal respostaPinbal = (ScspRespostaPinbal)pluginHelper.consultaPinbal(dadesConsultaPinbal, expedient, null);
 
 		if(respostaPinbal.getJustificant()!=null) {
+			
+			//Si es un document de un expedient per fluxe, tendrem el PI com a atribut, en cas de estats, no el tendrem.
+			String processInstanceId = expedientDocumentPinbalDto.getProcessInstanceId();
+			if (StringUtilsHelium.isEmpty(processInstanceId)) {
+				processInstanceId = expedient.getProcessInstanceId();
+			}
+
 			//Cream sempre un nou documentStore, que s'associará a la variable JBPM.
 			//Aixi mantenim els dos documentStore de les peticions pinbal successives, pero al expedient nomes es veu la darrera.
 			Long documentStoreJusificantId = documentHelper.crearDocument(
 					null,
-					expedient.getProcessInstanceId(),
+					processInstanceId,
 					dadesConsultaPinbal.getDocumentCodi(),
 					new Date(),
 					false, //isAdjunt
