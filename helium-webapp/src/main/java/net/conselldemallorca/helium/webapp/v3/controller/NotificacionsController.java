@@ -15,7 +15,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -89,11 +88,6 @@ public class NotificacionsController extends BaseExpedientController {
 			if (entornActual != null) {
 				filtreCommand.setEntornId(entornActual.getId());
 				expedientTipusDtoAccessibles = expedientTipusService.findAmbEntornPermisAdmin(entornActual.getId());
-			}
-	
-			if (!SessionHelper.getSessionManager(request).getPotAdministrarEntorn()) {
-				MissatgesHelper.error(request, "No teniu permís d'administració sobre l'entorn actual.");
-				return "redirect:/";
 			}
 	
 			if (expedientTipusDtoAccessibles==null || expedientTipusDtoAccessibles.size()==0) {

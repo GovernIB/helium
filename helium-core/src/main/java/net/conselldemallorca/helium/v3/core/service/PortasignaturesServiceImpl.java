@@ -21,11 +21,13 @@ import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultesPortafibFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesEstatEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.api.service.PortasignaturesService;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
 
@@ -38,29 +40,33 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 	@Resource private ExpedientHelper expedientHelper;
 	@Resource private UsuariActualHelper usuariActualHelper;
 	@Resource private DocumentHelperV3 documentHelperV3;
+	@Resource private ExpedientTipusService expedientTipusService;
 	
 	@Override
 	@Transactional(readOnly=true)
 	public PaginaDto<PortasignaturesDto> findAmbFiltrePaginat(PaginacioParamsDto paginacioParams, ConsultesPortafibFiltreDto filtreDto) {
 		
-		List<Long> entornsPermesos = null;
+		Long entornActualId = null;
+		List<Long> tipusPermesos = null;
 		//Si ets admin, no es filtra per entorn seleccionat
-		if (usuariActualHelper.isAdministrador()) {
-			filtreDto.setEntornId(null);
-			List<EntornDto> entornsActiusAdmin = usuariActualHelper.findEntornsActiusPermesos(
-					SecurityContextHolder.getContext().getAuthentication().getName());
+		if (!usuariActualHelper.isAdministrador()) {
 			
-			if (entornsActiusAdmin!=null && entornsActiusAdmin.size()>0) {
-				entornsPermesos = new ArrayList<Long>();
-				for (EntornDto entornDto: entornsActiusAdmin) {
-					entornsPermesos.add(entornDto.getId());
+			/**
+			 * Si ets admin, no es filtra per entorn seleccionat ni per tipus permesos
+			 * Pero si has seleccionat un expedient tipus al filtre, si que es té en compte
+			 */
+			//Si no ets admin, es filtra per l'entorn del filtre, que es de la sessió.
+			entornActualId = filtreDto.getEntornId();
+			//També es filtra per els tipus de expedient amb permis admin
+			tipusPermesos = new ArrayList<Long>();
+			if (entornActualId!=null) {
+				List<ExpedientTipusDto> tipusPermisAdmin = expedientTipusService.findAmbEntornPermisAdmin(entornActualId);
+				if (tipusPermisAdmin!=null) {
+					for (ExpedientTipusDto etDto: tipusPermisAdmin) {
+						tipusPermesos.add(etDto.getId());
+					}
 				}
 			}
-		} else {
-			//Si no ets admin, es filtra per l'entonr del filtre, que es de la sessió.
-			//JA s'haurá comprovat al controller que tens permisos de administració sobre el entorn
-			entornsPermesos = new ArrayList<Long>();
-			entornsPermesos.add(filtreDto.getEntornId());
 		}
 		
 		//Intentam revertir la conversió del estat que es produirá a ConversioTipusHelper lin 532 
@@ -117,8 +123,10 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 		
 		 PaginaDto<PortasignaturesDto> pagina = paginacioHelper.toPaginaDto(
 				portasignaturesRepository.findByFiltrePaginat(
-						entornsPermesos == null,
-						entornsPermesos,
+						entornActualId == null,
+						entornActualId,
+						(tipusPermesos==null || tipusPermesos.size()==0),
+						tipusPermesos,
 						filtreDto.getTipusId() == null,
 						filtreDto.getTipusId(),
 						filtreDto.getExpedientId() == null,

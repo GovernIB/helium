@@ -369,7 +369,7 @@
 								</ul>
 							</div>
 						</c:if>
-						<c:if test="${dadesPersona.admin || potAdministrarEntorn}">
+						<c:if test="${dadesPersona.admin || (fn:length(expedientTipusAdmin) gt 0)}">
 							<div id="menuConsultar" class="btn-group">
 								<button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><spring:message code="decorator.menu.consultar"/> <span class="caret"></span></button>
 								<ul class="dropdown-menu" id="consultar">

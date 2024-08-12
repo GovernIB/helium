@@ -13,7 +13,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,8 +26,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
-import net.conselldemallorca.helium.core.util.GlobalProperties;
-import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPlugin;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultesPortafibFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
@@ -53,7 +50,6 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 @RequestMapping("/v3/enviamentsPortafib")
 public class EnviamentsPortafibController extends BaseExpedientController {
 	
-	private PersonesPlugin personesPlugin;
 	@Autowired private PortasignaturesService portasignaturesService;
 	
 	@RequestMapping(method = RequestMethod.GET)
@@ -79,11 +75,6 @@ public class EnviamentsPortafibController extends BaseExpedientController {
 			if (entornActual != null) {
 				filtreCommand.setEntornId(entornActual.getId());
 				expedientTipusDtoAccessibles = expedientTipusService.findAmbEntornPermisAdmin(entornActual.getId());
-			}
-	
-			if (!SessionHelper.getSessionManager(request).getPotAdministrarEntorn()) {
-				MissatgesHelper.error(request, "No teniu permís d'administració sobre l'entorn actual.");
-				return "redirect:/";
 			}
 	
 			if (expedientTipusDtoAccessibles==null || expedientTipusDtoAccessibles.size()==0) {
@@ -170,19 +161,7 @@ public class EnviamentsPortafibController extends BaseExpedientController {
 	    binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
 	}	
 	
-	private void modelPersones(HttpServletRequest request, Model model) {
-		
-		try {
-			String pluginClass = GlobalProperties.getInstance().getProperty("app.persones.plugin.class");
-			if (pluginClass != null) {
-				personesPlugin = (PersonesPlugin)(Class.forName(pluginClass).newInstance());
-				model.addAttribute("persones", personesPlugin.findAll());
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
+	@SuppressWarnings("unused")
 	private static final Log logger = LogFactory.getLog(EnviamentsPortafibController.class);
 	private static final String SESSION_ATTRIBUTE_FILTRE = "EnviamentsPortafibController.session.filtre";
 }

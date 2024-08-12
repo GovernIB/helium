@@ -256,7 +256,11 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 		SessionHelper.setAttribute(
 				request,
 				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES,
-				expedientTipusService.findAmbEntornPermisConsultar(entorn.getId()));		
+				expedientTipusService.findAmbEntornPermisConsultar(entorn.getId()));
+		SessionHelper.setAttribute(
+				request,
+				SessionHelper.VARIABLE_EXPTIP_ADMIN,
+				expedientTipusService.findAmbEntornPermisAdmin(entorn.getId()));		
 		SessionHelper.setAttribute(
 				request, 
 				SessionHelper.VARIABLE_EXPTIP_ACCESSIBLES_ANOTACIONS, 

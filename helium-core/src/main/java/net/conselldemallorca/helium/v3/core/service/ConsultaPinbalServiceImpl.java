@@ -21,7 +21,7 @@ import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Persona;
 import net.conselldemallorca.helium.core.model.hibernate.PeticioPinbal;
 import net.conselldemallorca.helium.core.model.hibernate.ServeiPinbalEntity;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalDto;
@@ -29,6 +29,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PeticioPinbalFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ServeiPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ConsultaPinbalService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.repository.PersonaRepository;
 import net.conselldemallorca.helium.v3.core.repository.PeticioPinbalRepository;
 import net.conselldemallorca.helium.v3.core.repository.ServeiPinbalRepository;
@@ -39,6 +40,7 @@ public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
 	@Resource private PeticioPinbalRepository peticioPinbalRepository;
 	@Resource private ServeiPinbalRepository serveiPinbalRepository;
 	@Resource private ConversioTipusHelper conversioTipusHelper;
+	@Resource private ExpedientTipusService expedientTipusService;
 	@Resource private PaginacioHelper paginacioHelper;
 	@Resource private UsuariActualHelper usuariActualHelper;
 	@Resource private ExpedientHelper expedientHelper;
@@ -49,26 +51,29 @@ public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
 	@Transactional(readOnly=true)
 	public PaginaDto<PeticioPinbalDto> findAmbFiltrePaginat(PaginacioParamsDto paginacioParams, PeticioPinbalFiltreDto filtreDto) {
 		
-		List<Long> entornsPermesos = null;
+		Long entornActualId = null;
+		List<Long> tipusPermesos = null;
 		//Si el filtre ve del expedient, no filtrar per permisos de administració del entorn
 		if (!filtreDto.isFromExpedient()) {
-			//Si ets admin, no es filtra per entorn seleccionat
-			if (usuariActualHelper.isAdministrador()) {
-				filtreDto.setEntornId(null);
-				List<EntornDto> entornsActiusAdmin = usuariActualHelper.findEntornsActiusPermesos(
-						SecurityContextHolder.getContext().getAuthentication().getName());
-				
-				if (entornsActiusAdmin!=null && entornsActiusAdmin.size()>0) {
-					entornsPermesos = new ArrayList<Long>();
-					for (EntornDto entornDto: entornsActiusAdmin) {
-						entornsPermesos.add(entornDto.getId());
+			
+			/**
+			 * Si ets admin, no es filtra per entorn seleccionat ni per tipus permesos
+			 * Pero si has seleccionat un expedient tipus al filtre, si que es té en compte
+			 */
+			
+			if (!usuariActualHelper.isAdministrador()) {
+				//Si no ets admin, es filtra per l'entorn del filtre, que es de la sessió.
+				entornActualId = filtreDto.getEntornId();
+				//També es filtra per els tipus de expedient amb permis admin
+				tipusPermesos = new ArrayList<Long>();
+				if (entornActualId!=null) {
+					List<ExpedientTipusDto> tipusPermisAdmin = expedientTipusService.findAmbEntornPermisAdmin(entornActualId);
+					if (tipusPermisAdmin!=null) {
+						for (ExpedientTipusDto etDto: tipusPermisAdmin) {
+							tipusPermesos.add(etDto.getId());
+						}
 					}
 				}
-			} else {
-				//Si no ets admin, es filtra per l'entonr del filtre, que es de la sessió.
-				//JA s'haurá comprovat al controller que tens permisos de administració sobre el entorn
-				entornsPermesos = new ArrayList<Long>();
-				entornsPermesos.add(filtreDto.getEntornId());
 			}
 		}
 		
@@ -99,8 +104,10 @@ public class ConsultaPinbalServiceImpl implements ConsultaPinbalService {
 		}
 		
 		PaginaDto<PeticioPinbalDto> pagina = paginacioHelper.toPaginaDto(peticioPinbalRepository.findByFiltrePaginat(
-				entornsPermesos == null,
-				entornsPermesos,
+				entornActualId == null,
+				entornActualId,
+				(tipusPermesos==null || tipusPermesos.size()==0),
+				tipusPermesos,
 				filtreDto.getTipusId() == null,
 				filtreDto.getTipusId(),
 				filtreDto.getExpedientId() == null,

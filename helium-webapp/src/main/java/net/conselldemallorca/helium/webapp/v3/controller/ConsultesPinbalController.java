@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.core.helper.ConsultaPinbalHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
-import net.conselldemallorca.helium.integracio.plugins.persones.PersonesPlugin;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
@@ -49,7 +48,6 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 @RequestMapping("/v3/consultesPinbal")
 public class ConsultesPinbalController extends BaseExpedientController {
 
-	private PersonesPlugin personesPlugin;
 	@Autowired private ConsultaPinbalService consultesPinbalService;
 	@Resource  private ConsultaPinbalHelper consultaPinbalHelper;
 	private static final String SESSION_ATTRIBUTE_FILTRE = "ConsultesPinbalController.session.filtre";
@@ -77,11 +75,6 @@ public class ConsultesPinbalController extends BaseExpedientController {
 			if (entornActual != null) {
 				filtreCommand.setEntornId(entornActual.getId());
 				expedientTipusDtoAccessibles = expedientTipusService.findAmbEntornPermisAdmin(entornActual.getId());
-			}
-	
-			if (!SessionHelper.getSessionManager(request).getPotAdministrarEntorn()) {
-				MissatgesHelper.error(request, "No teniu permís d'administració sobre l'entorn actual.");
-				return "redirect:/";
 			}
 	
 			if (expedientTipusDtoAccessibles==null || expedientTipusDtoAccessibles.size()==0) {

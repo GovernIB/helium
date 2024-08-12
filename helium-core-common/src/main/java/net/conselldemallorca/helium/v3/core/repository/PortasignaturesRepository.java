@@ -63,7 +63,8 @@ public interface PortasignaturesRepository extends JpaRepository<Portasignatures
 	
 	@Query(	"select pf from Portasignatures pf, DocumentStore docs where pf.documentStoreId = docs.id " +
 			"and  "+
-			" (:esNullEntorn = true or pf.expedient.entorn.id IN (:entornsId)) " +
+			" (:esNullEntornId = true or pf.expedient.entorn.id = :entornId) " +
+			" and (:esNullTipusPermesos = true or pf.expedient.tipus.id IN (:tipusPermesosIds)) " +
 			" and (:esNullExpTipus = true or pf.expedient.tipus.id = :expTipus) " +
 			" and (:esNullExpId = true or pf.expedient.id = :expId) " +
 			" and (:esNullNumExp = true or lower(pf.expedient.numero) like lower('%'||:numExp||'%') or lower(pf.expedient.titol) like lower('%'||:numExp||'%')) " +
@@ -73,8 +74,10 @@ public interface PortasignaturesRepository extends JpaRepository<Portasignatures
 			" and (:esNullDataIni = true or pf.dataEnviat >= :dataIni) " +
 			" and (:esNullDataFi = true  or pf.dataEnviat <= :dataFi)")	
 	public Page<Portasignatures> findByFiltrePaginat(
-			@Param("esNullEntorn") boolean esNullEntorn,
-			@Param("entornsId") List<Long> entornsId,
+			@Param("esNullEntornId") boolean esNullEntornId,
+			@Param("entornId") Long entornId,
+			@Param("esNullTipusPermesos") boolean esNullTipusPermesos,
+			@Param("tipusPermesosIds") List<Long> tipusPermesosIds,
 			@Param("esNullExpTipus") boolean esNullExpTipus,
 			@Param("expTipus") Long expTipus,
 			@Param("esNullExpId") boolean esNullExpId,

@@ -8,22 +8,16 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.acls.model.Permission;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
@@ -33,23 +27,11 @@ import net.conselldemallorca.helium.core.helper.NotificacioHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.UnitatOrganitzativaHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
-import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
-import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
-import net.conselldemallorca.helium.core.security.ExtendedPermission;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
-import net.conselldemallorca.helium.v3.core.api.dto.NotificacioDto;
-
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.api.service.NotificacioService;
 import net.conselldemallorca.helium.v3.core.repository.DocumentNotificacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
@@ -65,31 +47,21 @@ import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusUnitatOrgan
 @Service
 public class NotificacioServiceImpl implements NotificacioService, ArxiuPluginListener {
 
-	@Resource
-	private ExpedientTipusRepository expedientTipusRepository;
-	@Resource
-	private ExpedientRepository expedientRepository;
-	@Resource
-	private DocumentNotificacioRepository documentNotificacioRepository;
-	@Resource
-	private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
-	@Resource
-	private UsuariActualHelper usuariActualHelper;
-	@Resource
-	private ExpedientHelper expedientHelper;
-	@Resource
-	private ExpedientTipusHelper expedientTipusHelper;
-	@Resource
-	private PaginacioHelper paginacioHelper;
-	@Resource 
-	private DocumentHelperV3 documentHelperV3;
+	@Resource private ExpedientTipusRepository expedientTipusRepository;
+	@Resource private ExpedientRepository expedientRepository;
+	@Resource private DocumentNotificacioRepository documentNotificacioRepository;
+	@Resource private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
+	@Resource private UsuariActualHelper usuariActualHelper;
+	@Resource private ExpedientHelper expedientHelper;
+	@Resource private ExpedientTipusHelper expedientTipusHelper;
+	@Resource private PaginacioHelper paginacioHelper;
+	@Resource private DocumentHelperV3 documentHelperV3;
+	@Resource private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
+	@Resource private ConversioTipusHelper conversioTipusHelper;
+	@Resource private NotificacioHelper notificacioHelper;
+	@Resource private ExpedientTipusService expedientTipusService;
+	
 	private static final Logger logger = LoggerFactory.getLogger(NotificacioServiceImpl.class);
-	@Resource
-	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
-	@Resource
-	private ConversioTipusHelper conversioTipusHelper;
-	@Resource
-	private NotificacioHelper notificacioHelper;
 
 	@Override
 	public void event(String arg0, Map<String, String> arg1, boolean arg2, String arg3, Exception arg4, long arg5) {
@@ -97,34 +69,35 @@ public class NotificacioServiceImpl implements NotificacioService, ArxiuPluginLi
 		
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	@Transactional(readOnly=true)
 	public PaginaDto<DocumentNotificacioDto> findAmbFiltrePaginat(
 			DocumentNotificacioDto filtreDto,
 			PaginacioParamsDto paginacioParams) {
-		logger.debug(
-				"Consultant les notificacions per datatable (" +
-				"notificacioFiltreDto=" + filtreDto + ")");
 		
-		List<Long> entornsPermesos = null;
+		logger.debug("Consultant les notificacions per datatable (notificacioFiltreDto=" + filtreDto + ")");
+		
+		Long entornActualId = null;
+		List<Long> tipusPermesos = null;
 		//Si ets admin, no es filtra per entorn seleccionat
-		if (usuariActualHelper.isAdministrador()) {
-			filtreDto.setEntornId(null);
-			List<EntornDto> entornsActiusAdmin = usuariActualHelper.findEntornsActiusPermesos(
-					SecurityContextHolder.getContext().getAuthentication().getName());
+		if (!usuariActualHelper.isAdministrador()) {
 			
-			if (entornsActiusAdmin!=null && entornsActiusAdmin.size()>0) {
-				entornsPermesos = new ArrayList<Long>();
-				for (EntornDto entornDto: entornsActiusAdmin) {
-					entornsPermesos.add(entornDto.getId());
+			/**
+			 * Si ets admin, no es filtra per entorn seleccionat ni per tipus permesos
+			 * Pero si has seleccionat un expedient tipus al filtre, si que es té en compte
+			 */
+			//Si no ets admin, es filtra per l'entorn del filtre, que es de la sessió.
+			entornActualId = filtreDto.getEntornId();
+			//També es filtra per els tipus de expedient amb permis admin
+			tipusPermesos = new ArrayList<Long>();
+			if (entornActualId!=null) {
+				List<ExpedientTipusDto> tipusPermisAdmin = expedientTipusService.findAmbEntornPermisAdmin(entornActualId);
+				if (tipusPermisAdmin!=null) {
+					for (ExpedientTipusDto etDto: tipusPermisAdmin) {
+						tipusPermesos.add(etDto.getId());
+					}
 				}
 			}
-		} else {
-			//Si no ets admin, es filtra per l'entonr del filtre, que es de la sessió.
-			//JA s'haurá comprovat al controller que tens permisos de administració sobre el entorn
-			entornsPermesos = new ArrayList<Long>();
-			entornsPermesos.add(filtreDto.getEntornId());
 		}
 		
 		Date dataInicial = null;
@@ -156,8 +129,12 @@ public class NotificacioServiceImpl implements NotificacioService, ArxiuPluginLi
 		paginacioParams.canviaCamp("nomDocument", "document.arxiuNom");
 
 		PaginaDto<DocumentNotificacioDto> pagina =  paginacioHelper.toPaginaDto(documentNotificacioRepository.findAmbFiltrePaginat(
-				entornsPermesos == null,
-				entornsPermesos,				
+				entornActualId == null,
+				entornActualId,
+				(tipusPermesos==null || tipusPermesos.size()==0),
+				tipusPermesos,
+				filtreDto.getExpedientTipusId() == null,
+				filtreDto.getExpedientTipusId(),				
 				filtreDto.getTipus()==null,
 				filtreDto.getTipus(),
 				filtreDto.getConcepte() == null || filtreDto.getConcepte().isEmpty(), 
@@ -178,8 +155,6 @@ public class NotificacioServiceImpl implements NotificacioService, ArxiuPluginLi
 				filtreDto.getNomDocument(), 
 				filtreDto.getUnitatOrganitzativaCodi() == null || filtreDto.getUnitatOrganitzativaCodi().isEmpty(),//organdesti 
 				filtreDto.getUnitatOrganitzativaCodi(),//organdesti
-				filtreDto.getExpedientTipusId() == null,
-				filtreDto.getExpedientTipusId(),
 				paginacioParams.getFiltre() == null || paginacioParams.getFiltre().isEmpty(),
 				paginacioParams.getFiltre(),
 				paginacioHelper.toSpringDataPageable(paginacioParams)), DocumentNotificacioDto.class);

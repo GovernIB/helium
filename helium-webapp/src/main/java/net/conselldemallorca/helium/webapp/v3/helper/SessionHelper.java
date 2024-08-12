@@ -1,6 +1,3 @@
-/**
- * 
- */
 package net.conselldemallorca.helium.webapp.v3.helper;
 
 import java.util.HashMap;
