@@ -1,6 +1,7 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,6 +20,8 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -327,7 +330,15 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		DataFormat format = wb.createDataFormat();
 		XSSFCellStyle dStyle = wb.createCellStyle();
 		dStyle.setDataFormat(format.getFormat("0.00"));
+		
+		DataFormat intFormat = wb.createDataFormat();
+		XSSFCellStyle iStyle = wb.createCellStyle();
+		iStyle.setDataFormat(intFormat.getFormat("0"));
 
+		XSSFCellStyle cellDateStyle = wb.createCellStyle();
+		CreationHelper createHelper = wb.getCreationHelper();
+		cellDateStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd/mm/yyyy"));
+		
 		// GENERAL
 		XSSFSheet sheet = wb.createSheet("Hoja 1");
 
@@ -335,11 +346,12 @@ public class ExpedientLlistatController extends BaseExpedientController {
 			createHeader(sheet, expedientsConsultaDissenyDto);
 
 		int rowNum = 1;
+		int numCols = 0;
 
 		for (ExpedientConsultaDissenyDto  expedientConsultaDissenyDto : expedientsConsultaDissenyDto) {
+			int colNum = 0;			
 			try {
 				XSSFRow xlsRow = sheet.createRow(rowNum++);
-				int colNum = 0;
 				ExpedientDto exp = expedientConsultaDissenyDto.getExpedient();
 				Map<String, DadaIndexadaDto> dades = expedientConsultaDissenyDto.getDadesExpedient();
 				String titol = "";
@@ -352,19 +364,64 @@ public class ExpedientLlistatController extends BaseExpedientController {
 						titol = exp.getNumeroDefault();
 				}
 
-				sheet.autoSizeColumn(colNum);
 				XSSFCell cell = xlsRow.createCell(colNum++);
 				cell.setCellValue(titol);
 				cell.setCellStyle(dStyle);
 
 				Iterator<Map.Entry<String, DadaIndexadaDto>> it = dades.entrySet().iterator();
+				numCols = dades.entrySet().size();
+				
 				while (it.hasNext()) {
+					
 					Map.Entry<String, DadaIndexadaDto> e = (Map.Entry<String, DadaIndexadaDto>)it.next();
-					sheet.autoSizeColumn(colNum);
-					cell = xlsRow.createCell(colNum++);
 					DadaIndexadaDto val = e.getValue();
-					cell.setCellValue(StringEscapeUtils.unescapeHtml(val.getValorMostrar()));
-					cell.setCellStyle(dStyle);
+					
+					if (val!=null && val.getValor()!=null) {
+						System.out.println(val.getValorMostrar() +" de tipus "+ val.getValor().getClass());
+						try {
+							if (val.getValor() instanceof BigDecimal) {
+								cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_NUMERIC);
+								BigDecimal valorConvertit = (BigDecimal)e.getValue().getValor();
+								cell.setCellValue(valorConvertit.longValue());
+								cell.setCellStyle(dStyle);
+							} else if (val.getValor() instanceof Integer) {
+								cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_NUMERIC);
+								Integer valorConvertit = (Integer)e.getValue().getValor();
+								cell.setCellValue(valorConvertit);
+								cell.setCellStyle(iStyle);
+							} else if (val.getValor() instanceof Float) {
+								cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_NUMERIC);
+								Float valorConvertit = (Float)e.getValue().getValor();
+								cell.setCellValue(valorConvertit);
+								cell.setCellStyle(dStyle);
+							} else if (val.getValor() instanceof Long) {
+								cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_NUMERIC);
+								Long valorConvertit = (Long)e.getValue().getValor();
+								cell.setCellValue(valorConvertit);
+								cell.setCellStyle(iStyle);
+							} else if (val.getValor() instanceof Double) {
+								cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_NUMERIC);
+								Double valorConvertit = (Double)e.getValue().getValor();
+								cell.setCellValue(valorConvertit);
+								cell.setCellStyle(dStyle);
+							} else if (val.getValor() instanceof Date) {
+								cell = xlsRow.createCell(colNum++);
+								Date valorConvertit = (Date)e.getValue().getValor();
+								cell.setCellValue(valorConvertit);
+								cell.setCellStyle(cellDateStyle);
+							} else {
+								cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_STRING);
+								cell.setCellValue(StringEscapeUtils.unescapeHtml(val.getValorMostrar()));		
+							}
+						} catch (Exception ex) {
+							//En un possible error de conversió, ho posam per defecte com a String
+							cell = xlsRow.createCell(colNum++);
+							cell.setCellValue(StringEscapeUtils.unescapeHtml(val.getValorMostrar()));	
+						}
+					} else {
+						cell = xlsRow.createCell(colNum++);
+						cell.setCellValue("");	
+					}
 				}
 			} catch (Exception e) {
 				logger.error("Export Excel: No s'ha pogut crear la línia: " + rowNum + " - amb ID: " + expedientConsultaDissenyDto.getExpedient().getId(), e);
@@ -372,6 +429,11 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		}
 
 		try {
+			
+			for (int c=0; c<numCols; c++) {
+				sheet.autoSizeColumn(c);
+			}
+			
 			String fileName = "Exportacio_expedients.xls";
 			response.setHeader("Pragma", "");
 			response.setHeader("Expires", "");
