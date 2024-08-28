@@ -29,6 +29,7 @@ public interface InteressatRepository extends JpaRepository<Interessat, Long> {
 	@Query(	"from Interessat i " +
 			"where " +
 			"   i.expedient = :expedient " +
+			"  and i.es_representant = false " +
 			"  and   (:esNullFiltre = true " + 
 			" 			or (lower(i.nom) like lower('%'||:filtre||'%')) " +
 			" 			or (lower(i.llinatge1) like lower('%'||:filtre||'%')) " +
@@ -56,5 +57,15 @@ public interface InteressatRepository extends JpaRepository<Interessat, Long> {
 	List<Interessat> findByRepresentat(
 			Interessat representat
 			);
-
+	
+	List<Interessat> findByRepresentant(
+			Interessat representant
+			);
+	
+	@Query(	"from Interessat i " +
+			"where " +
+			"   i.expedient = :expedient " +
+			"  and i.es_representant = true ") 
+	List<Interessat> findRepresentantsByExpedient(
+			@Param("expedient") Expedient expedient);
 }

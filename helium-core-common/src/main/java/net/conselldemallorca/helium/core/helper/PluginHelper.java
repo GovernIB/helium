@@ -72,6 +72,7 @@ import net.conselldemallorca.helium.integracio.plugins.firma.FirmaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.firma.FirmaResposta;
 import net.conselldemallorca.helium.integracio.plugins.firmaweb.FirmaWebPlugin;
 import net.conselldemallorca.helium.integracio.plugins.gesdoc.GestioDocumentalPlugin;
+import net.conselldemallorca.helium.integracio.plugins.notificacio.Enviament;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.Notificacio;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.NotificacioPlugin;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.RespostaConsultaEstatEnviament;
@@ -3085,14 +3086,24 @@ public class PluginHelper {
 		long t0 = System.currentTimeMillis();
 		
 		try {
-			Notificacio notificacio = conversioTipusHelper.convertir(dadesNotificacio, Notificacio.class);
+			Notificacio notificacio = conversioTipusHelper.convertir(dadesNotificacio, Notificacio.class);//MARTA:aquí no converteix bé
 			// Informa de l'estat actual
 			notificacio.setUsuariCodi(usuariActualHelper.getUsuariActual());		
 			// Informa el número d'expedient
 			notificacio.setNumExpedient(expedient.getNumero());
-			if(notificacio.getEmisorDir3Codi()==null) {//aquí setejar el codiDir3 de l'entitat configurada a NOTIB
-				
-			}
+			if (dadesNotificacio.getEnviaments() != null && !dadesNotificacio.getEnviaments().isEmpty()) {
+				List<DadesEnviamentDto> dadesEnviamentPerRetornar=dadesNotificacio.getEnviaments();
+				for(DadesEnviamentDto dadesEnviamentDto: dadesEnviamentPerRetornar) {
+					if(dadesEnviamentDto.getDestinataris()!=null && !dadesEnviamentDto.getDestinataris().isEmpty()) {
+						List<PersonaDto> destinataris = conversioTipusHelper.convertirList(dadesEnviamentDto.getDestinataris(), 
+																	  PersonaDto.class);
+						dadesEnviamentDto.setDestinataris(destinataris);
+						break;
+					}
+				}
+				notificacio.setEnviaments(conversioTipusHelper.convertirList(dadesEnviamentPerRetornar, 
+						  Enviament.class));
+		}
 			// Invoca el servei
 			resposta = getNotificacioPlugin().enviar(notificacio);
 			

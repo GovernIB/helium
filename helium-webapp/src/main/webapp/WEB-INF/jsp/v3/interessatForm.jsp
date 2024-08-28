@@ -332,7 +332,7 @@ $(document).ready(function() {
 <body>
 <form:form cssClass="form-horizontal" action="${formAction}"  method="post" commandName="interessatCommand">
 	<form:hidden id="id" path="id"/>
-	<!-- <input type="hidden" value="${tipus}" id="tipusHiddenId"> -->
+	<form:hidden id="es_representant" path="es_representant"/>
 	<div class="tipusInteressats">	
 		<div class="row">
 			<div class="col-xs-10">
@@ -345,8 +345,7 @@ $(document).ready(function() {
 				optionTextKeyAttribute="text"/>
 			</div>
 		</div>
-		<form:hidden id="tipusHiddenId" path="tipus"/>
-		
+		<form:hidden id="tipusHiddenId" path="tipus"/>	
 	</div>
 
 	

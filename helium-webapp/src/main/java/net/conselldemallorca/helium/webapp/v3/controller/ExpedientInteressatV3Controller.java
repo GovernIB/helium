@@ -89,10 +89,21 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			Model model) {
 		Map<String, String[]> mapeigOrdenacions = new HashMap<String, String[]>();
 		InteressatDto representantInteressat = null;
+		List<InteressatDto> representantsExpedient = expedientInteressatService.findRepresentantsExpedient(expedientId);
+		model.addAttribute(
+				"representantsExpedient",
+				representantsExpedient
+				);
+		model.addAttribute(
+				"existeixenRepresentantsExpedient",
+				representantsExpedient!=null && !representantsExpedient.isEmpty()
+				);		
 		for(InteressatDto interessat: expedientInteressatService.findByExpedient(expedientId)) {
 			if(!interessat.getEs_representant() && interessat.getRepresentant()!=null) {
 				representantInteressat = expedientInteressatService.findOne(interessat.getRepresentant().getId());
 				interessat.setRepresentant(representantInteressat);
+				interessat.setRepresentant_id(representantInteressat.getId());
+				interessat.setExisteixenRepresentantsExpedient(true);
 				mapeigOrdenacions.put("representantFullNom", new String[] {"representantInteressat.nom", "representantInteressat.llinatge1", "representantInteressat.llinatge2"});
 				interessat.setTeRepresentant(true);
 			}
@@ -219,7 +230,10 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
         			ConversioTipusHelper.convertir(
     						command,
     						InteressatDto.class));
-			MissatgesHelper.success(request, getMessage(request, "interessat.controller.modificat") );
+	        if(es_representant)
+				MissatgesHelper.success(request, getMessage(request, "interessat.controller.representant.modificat") );
+	        else
+	        	MissatgesHelper.success(request, getMessage(request, "interessat.controller.modificat") );
 			return modalUrlTancar(false);
         }
 	}
@@ -279,6 +293,60 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
         }
 	}
 	
+	@RequestMapping(value = "/{expedientId}/interessat/{interessatId}/representant/search", method = RequestMethod.GET)
+	public String searchRepresentantGet(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			Model model) {
+		InteressatCommand interessatCommand= new InteressatCommand();
+		populateModel(request, model);
+		interessatCommand.setPais("724");
+		interessatCommand.setEs_representant(true);
+		model.addAttribute("expedientId", expedientId);
+		model.addAttribute(
+				"interessatTipusOptions",
+				EnumHelper.getOptionsForEnum(
+						InteressatTipusEnumDto.class,
+						"interessat.form.tipus.enum."));
+		model.addAttribute(
+				"interessatTipusDocuments",
+				this.populateTipusDocuments(request)
+				);
+		model.addAttribute(
+				"interessatCanalsNotif", 
+				this.populateCanalsNotif(request)
+				);
+		model.addAttribute(
+				"organs",
+				unitatOrganitzativaHelper.findAll()
+				);
+		model.addAttribute(interessatCommand);
+		model.addAttribute("es_representant",true);
+		return "v3/interessatForm";
+	}
+		
+	@RequestMapping(value = "/{expedientId}/interessat/{interessatId}/representant/search", method = RequestMethod.POST)
+	public String searchRepresentant(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long interessatId,
+			@Validated(Modificacio.class) InteressatCommand command,
+			BindingResult bindingResult,
+			Model model) {
+        if (bindingResult.hasErrors()) {
+        	return "v3/interessatForm";
+        } else {
+    		populateModel(request, model);
+        	command.setEs_representant(true);
+        	expedientInteressatService.createRepresentant(
+        			interessatId,
+    				ConversioTipusHelper.convertir(
+    						command,
+    						InteressatDto.class));
+			MissatgesHelper.success(request, getMessage(request, "interessat.controller.representant.creat") );
+  			return modalUrlTancar(false);
+        }
+	}
 	
 	@ModelAttribute("interessatTipusEstats")
 	public List<ParellaCodiValorDto> populateEstats(HttpServletRequest request) {
@@ -332,14 +400,20 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 	@RequestMapping(value = "/{expedientId}/interessat/{interessatId}/delete", method = RequestMethod.GET)
 	public String delete(
 			HttpServletRequest request,
+			@RequestParam(value = "es_representant", required=false) boolean es_representant,
 			@PathVariable Long expedientId,
 			@PathVariable Long interessatId,
 			Model model) {
 		try {
 			expedientInteressatService.delete(interessatId);
-			MissatgesHelper.success(request, getMessage(request, "interessat.controller.esborrat"));
+			if(es_representant)
+				MissatgesHelper.success(request, getMessage(request, "interessat.controller.representant.esborrat"));
+			else
+				MissatgesHelper.success(request, getMessage(request, "interessat.controller.esborrat"));
 		} catch (Exception ex) {
 			String errMsg = getMessage(request, "interessat.controller.esborrar.error", new Object[] {ex.getMessage()});
+			if(es_representant)
+				errMsg = getMessage(request, "interessat.controller.representant.error", new Object[] {ex.getMessage()});
 			logger.error(errMsg, ex);
 			MissatgesHelper.error(request, errMsg);
 		}

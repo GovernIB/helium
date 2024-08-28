@@ -51,4 +51,7 @@ public interface ExpedientInteressatService {
 	
 	public InteressatDto findRepresentantAmbInteressatId(
 			Long interessatId);
+	
+	public List<InteressatDto> findRepresentantsExpedient(
+			Long expedientId);
 }

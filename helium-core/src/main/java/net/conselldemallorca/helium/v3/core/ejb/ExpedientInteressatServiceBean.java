@@ -87,4 +87,9 @@ public class ExpedientInteressatServiceBean implements ExpedientInteressatServic
 	public InteressatDto findRepresentantAmbInteressatId(Long interessatId) {
 		return delegate.findRepresentantAmbInteressatId(interessatId);
 	}
+
+	@Override
+	public List<InteressatDto> findRepresentantsExpedient(Long expedientId) {
+		return delegate.findRepresentantsExpedient(expedientId);
+	}
 }

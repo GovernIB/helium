@@ -524,29 +524,6 @@ public class ConversioTipusHelper {
 					}
 		});	
 		
-		// Converteix la informació de DadesNotificacioDto de Helium a Notificacio de Notib
-		mapperFactory.getConverterFactory().registerConverter(
-						new CustomConverter<DadesNotificacioDto, Notificacio>() {
-							@Override
-							public Notificacio convert(DadesNotificacioDto source, Type<? extends Notificacio> destinationClass) {
-								Notificacio target = new Notificacio();
-								if (source.getEnviaments() != null && !source.getEnviaments().isEmpty()) {
-									List<DadesEnviamentDto> dadesEnviamentPerRetornar=source.getEnviaments();
-									for(DadesEnviamentDto dadesEnviamentDto: dadesEnviamentPerRetornar) {
-										if(dadesEnviamentDto.getDestinataris()!=null && !dadesEnviamentDto.getDestinataris().isEmpty()) {
-											List<PersonaDto> destinataris = convertirList(dadesEnviamentDto.getDestinataris(), 
-																						  PersonaDto.class);
-											dadesEnviamentDto.setDestinataris(destinataris);
-											break;
-										}
-									}
-									target.setEnviaments(convertirList(dadesEnviamentPerRetornar, 
-											  Enviament.class));
-							}
-						return target;
-					}
-				});	
-		
 		mapperFactory.classMap(EstatRegla.class, EstatReglaDto.class)
 				.field("expedientTipus.id", "expedientTipusId")
 				.field("estat.id", "estatId")

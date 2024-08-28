@@ -195,7 +195,24 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		Interessat interessat = comprovarInteressat(interessatId);
 		Expedient expedient = expedientRepository.findOne(interessat.getExpedient().getId());
 		List<Interessat> interessats = expedient.getInteressats();
-		interessats.remove(interessat);
+		List<Interessat> representants = interessatRepository.findByRepresentat(interessat);
+		if(interessat.isEs_representant()) {
+			//El desassignem del seu interessat representat (o varis reprsentats), i després l'Esborrem.
+			List<Interessat> representats = interessatRepository.findByRepresentant(interessat);
+			if(representats!=null && !representats.isEmpty())
+			for(Interessat representat: representats) {
+				representat.setRepresentant(null);
+			}
+			interessats.remove(interessat);		
+		} else if (representants!=null && !representants.isEmpty()) {//si té respresentants primer els desassignem i després esborrem l'interessat
+			//només hi pot haver un representant per interessat
+			interessat.setRepresentant(null);
+			interessats.remove(interessat);
+			
+		}
+		else {
+			interessats.remove(interessat);
+		}
 		expedient.setInteressats(interessats);
 		interessatRepository.delete(interessat);
 		
@@ -274,7 +291,16 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 						paginacioHelper.toSpringDataPageable(
 								paginacioParams)),
 				InteressatDto.class);
-
+		List<InteressatDto> representantsExpedient = findRepresentantsExpedient(expedientId);
+		for (InteressatDto interessat : pagina.getContingut()) {
+			// Setegem paràmetres que necessitem per el manteniment de representants
+			interessat.setExisteixenRepresentantsExpedient(representantsExpedient!=null && !representantsExpedient.isEmpty());
+			if(!interessat.getEs_representant() && interessat.getRepresentant()!=null) {
+				InteressatDto representantInteressat  = findOne(interessat.getRepresentant().getId());
+				interessat.setRepresentant(representantInteressat);
+				interessat.setRepresentant_id(representantInteressat.getId());
+			}
+		}
 		return pagina;
 	}
 	
@@ -411,6 +437,12 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			return resultat;
 		}
 		return null;
+	}
+	
+	@Override
+	public List<InteressatDto> findRepresentantsExpedient(Long expedientId) {
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		return conversioTipusHelper.convertirList(interessatRepository.findRepresentantsByExpedient(expedient), InteressatDto.class);
 	}
 
 

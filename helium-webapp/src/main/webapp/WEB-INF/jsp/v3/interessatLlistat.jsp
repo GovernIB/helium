@@ -38,9 +38,12 @@
 				<th data-col-name="telefon"><spring:message code="interessat.llistat.columna.telefon"/></th>
 				<!-- <th data-col-name="representant" data-visible="false"></th> -->
 				<th data-col-name="representantFullNom"><spring:message code="expedient.document.notificar.form.camp.representant"/></th>
-				
+				<th data-col-name="representantsExpedient" data-visible="false"></th>
+				<th data-col-name="existeixenRepresentantsExpedient" data-visible="false"></th>
 				<th data-col-name="es_representant" data-visible="false"></th>
 				<th data-col-name="teRepresentant" data-visible="false"></th>
+				<th data-col-name="representant_id" data-visible="false"></th>
+				<!--<th data-col-name="representant" data-visible="false"></th> -->
  				<th data-col-name="id" data-template="#cellAccionsTemplate" data-orderable="false" width="10%"> 
  					<script id="cellAccionsTemplate" type="text/x-jsrender"> 
 							<div class="dropdown">
@@ -48,16 +51,20 @@
 								<ul class="dropdown-menu">
 									{{if !es_representant}}
 										<li><a href="${expedientId}/interessat/{{:id}}/update?{{:es_representant}}" data-ajax="true" data-callback="callbackModalInteressats()" data-toggle="modal"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="comu.boto.modificar"/></a></li>
-										<li><a href="${expedientId}/interessat/{{:id}}/delete" data-ajax="true" data-callback="callbackModalInteressats()" data-confirm="<spring:message code="interessat.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
+										<li><a href="${expedientId}/interessat/{{:id}}/delete?{{:es_representant}}" data-ajax="true" data-callback="callbackModalInteressats()" data-confirm="<spring:message code="interessat.llistat.confirmacio.esborrar"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="comu.boto.esborrar"/></a></li>
 									{{/if}}
 									{{if !es_representant && !teRepresentant}}
 										<li class="divider" role="separator"></li>
 										<li><a href="${expedientId}/interessat/{{:id}}/representant/new" data-ajax="true" data-callback="callbackModalInteressats()" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="interessat.llistat.accio.nou.representant"/></a></li>
-									{{/if}}	
-									{{if es_representant}}
-										<li><a href="${expedientId}/interessat/{{:id}}/update?{{:es_representant}}" data-ajax="true" data-callback="callbackModalInteressats()" data-toggle="modal"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="interessat.llistat.accio.modificar.representant"/></a></li>
-										<li><a href="${expedientId}/interessat/{{:id}}/delete" data-ajax="true" data-callback="callbackModalInteressats()" data-confirm="<spring:message code="interessat.llistat.confirmacio.esborrar.representant"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="interessat.llistat.accio.esborrar.representant"/></a></li>									
-									{{/if}}	
+										{{if existeixenRepresentantsExpedient}}
+											<li><a href="${expedientId}/interessat/{{:id}}/representant/search" data-ajax="true" data-callback="callbackModalInteressats()" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="interessat.llistat.accio.cercar.representant"/></a></li>
+										{{/if}}
+									{{/if}}
+									{{if !es_representant && teRepresentant}}
+										<li class="divider" role="separator"></li>
+										<li><a href="${expedientId}/interessat/{{:representant_id}}/update?es_representant=true" data-ajax="true" data-callback="callbackModalInteressats()" data-toggle="modal"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="interessat.llistat.accio.modificar.representant"/></a></li>
+										<li><a href="${expedientId}/interessat/{{:representant_id}}/delete?es_representant=true" data-ajax="true" data-callback="callbackModalInteressats()" data-confirm="<spring:message code="interessat.llistat.confirmacio.esborrar.representant"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="interessat.llistat.accio.esborrar.representant"/></a></li>																		
+									{{/if}}
 									</ul>
 							</div>
 					</script>

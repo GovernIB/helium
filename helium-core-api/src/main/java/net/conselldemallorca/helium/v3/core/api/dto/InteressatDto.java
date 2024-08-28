@@ -47,6 +47,8 @@ public class InteressatDto {
     private InteressatDto representant; //només existeix quan es_representant=false
     private String canalNotif; 
     private boolean teRepresentant;
+    private Long representant_id;
+    private boolean existeixenRepresentantsExpedient;
 
 
 	public InteressatTipusEnumDto getTipus() {
@@ -205,6 +207,12 @@ public class InteressatDto {
 		this.teRepresentant = teRepresentant;
 	}
 
+	public boolean isExisteixenRepresentantsExpedient() {
+		return existeixenRepresentantsExpedient;
+	}
+	public void setExisteixenRepresentantsExpedient(boolean existeixenRepresentantsExpedient) {
+		this.existeixenRepresentantsExpedient = existeixenRepresentantsExpedient;
+	}
 	public String getFullInfo() {
 		String codiDocument;
 		if (tipus != null && InteressatTipusEnumDto.ADMINISTRACIO.equals(tipus))
@@ -296,6 +304,15 @@ public class InteressatDto {
 	}
 	public void setCanalNotif(String canalNotif) {
 		this.canalNotif = canalNotif;
+	}
+	public Long getRepresentant_id() {
+		if(representant!=null)
+			return representant.getId();
+		else
+			return null;
+	}
+	public void setRepresentant_id(Long representant_id) {
+		this.representant_id = representant_id;
 	}
 	
 
