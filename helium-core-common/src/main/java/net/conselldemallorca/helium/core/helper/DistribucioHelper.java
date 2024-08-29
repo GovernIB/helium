@@ -1134,7 +1134,7 @@ public class DistribucioHelper {
 				// Camp registre
 				
 				if (camp.isMultiple()) {
-					Object[] resposta = new Object[campo.getElementos() != null ? campo.getElementos().size() : 0];
+					Object[][] resposta = new Object[campo.getElementos() != null ? campo.getElementos().size() : 0][];
 					for (int i = 0; i < resposta.length; i++) {
 						Elemento elemento = campo.getElementos().get(i);
 						Object[] filaResposta = new Object[camp.getRegistreMembres().size()];
