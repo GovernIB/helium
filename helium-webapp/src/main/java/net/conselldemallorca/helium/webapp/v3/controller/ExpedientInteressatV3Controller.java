@@ -119,6 +119,23 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 						paginacioParams.getFiltre(),
 						paginacioParams));
 	}
+	
+	/** Mètode per obtenir el detall d'un interessat. Es consulta quan s'expandeix la seva fila a la taula d'interessats. */
+	@RequestMapping(value="/{expedientId}/interessat/{interessatId}/detall", method = RequestMethod.GET)
+	public String detall(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long interessatId,
+			Model model) {
+		model.addAttribute("expedientId", expedientId);	
+		
+		InteressatDto interessat = expedientInteressatService.findOne(
+				interessatId);
+		model.addAttribute("interessat", interessat);
+		
+		return "v3/interessatDetall";
+	}
+
 
 	@RequestMapping(value = "/{expedientId}/interessat/new", method = RequestMethod.GET)
 	public String newGet(

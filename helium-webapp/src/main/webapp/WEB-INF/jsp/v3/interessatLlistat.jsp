@@ -22,9 +22,8 @@
 			data-info-type="search+button"
 			data-ordering="true"
 			data-default-order="0"
-			data-rowhref-template="#rowhrefTemplateInteressats"
 			data-botons-template="#tableButtonsInteressatTemplate"
-			data-rowhref-toggle="modal" 
+			data-row-info="true"
 			class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
@@ -69,19 +68,9 @@
 							</div>
 					</script>
  				</th>
- 				<th data-col-name="desplegable" data-template="#cellDesplegableTemplate" data-orderable="false" width="10%"> 
- 					<script id="cellDesplegableTemplate" type="text/x-jsrender"> 
- 					<div class="dropdown">
- 						<button type="button" class="btn btn-default desplegable" href="#detalls_{{:id}}" data-toggle="collapse" aria-expanded="false" aria-controls="detalls_{{:id}}">
-							<span class="fa fa-caret-down"></span>
-						</button>
-					</div>
-					</script>
- 				</th> 
 			</tr>
 		</thead>
 	</table>
-	<script id="rowhrefTemplateInteressats" type="text/x-jsrender">${expedientId}/interessat/{{:id}}/update</script>
 
 	<script id="tableButtonsInteressatTemplate" type="text/x-jsrender">
 		<div class="botons-titol text-right">
@@ -103,6 +92,16 @@ $(document).ready(function() {
 		$(this).find("span").toggleClass("fa-caret-down");
 	});
 	
+	$('#interessat').on('rowinfo.dataTable', function (e, td, rowData) {
+		$(td).addClass('text-center');
+		$(td).append('<span class="fa fa-spinner fa-spin"/>');
+		var getUrl = "<c:url value="/nodeco/v3/expedient/${expedientId}/interessat/"/>" + rowData.id + "/detall";
+		$.get(getUrl).done(function (data) {
+			$(td).removeClass('text-center');
+			$(td).empty();
+			$(td).append(data);
+		});
+	});
 });
 
 function refrescaTaulaInteressats() {
