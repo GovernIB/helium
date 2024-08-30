@@ -1280,7 +1280,17 @@ public class DocumentHelperV3 {
 					if (esborrarDocument ) {
 						// No esborra el document de l'Arxiu si té un annex associat
 						if (documentStore.getAnnexId() == null) {
-							pluginHelper.arxiuDocumentEsborrar(documentStore.getArxiuUuid());
+							// Consulta si existeix abans cridar a esborrar per a que no falli
+							boolean arxiuExisteixDocument = false;
+							try {
+								arxiuExisteixDocument = null != pluginHelper.arxiuDocumentInfo(documentStore.getArxiuUuid(), null, false, documentStore.isSignat());
+							} catch (Exception ex) {
+								// Si no existeix falla la consulta.
+							}
+							if ( arxiuExisteixDocument) {
+								// Esborra el document de l'Arxiu
+								pluginHelper.arxiuDocumentEsborrar(documentStore.getArxiuUuid());
+							}
 						}
 					}
 				}
