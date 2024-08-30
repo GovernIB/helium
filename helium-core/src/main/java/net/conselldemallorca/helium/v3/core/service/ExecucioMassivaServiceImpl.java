@@ -2486,7 +2486,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 					valorHelium = new BigDecimal(valor.replace(",", "."));
 					break;
 				case INTEGER:
-					valorHelium = Integer.parseInt(valor);
+					valorHelium = Long.parseLong(valor);
+					break;
 				case STRING:
 				case SELECCIO:
 				case SUGGEST:
