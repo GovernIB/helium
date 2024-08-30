@@ -39,7 +39,7 @@ public class InteressatCommand {
 	private String dir3Codi;
 	private String llinatge1;  
 	private String llinatge2;  
-
+	private String representantSeleccionatId;
 	private String email;  
 	private Long expedientId;
 	private String nifPersonaFisica;
@@ -281,6 +281,13 @@ public class InteressatCommand {
 	}
 	public void setCodiDire(String codiDire) {
 		this.codiDire = codiDire;
+	}
+	
+	public String getRepresentantSeleccionatId() {
+		return representantSeleccionatId;
+	}
+	public void setRepresentantSeleccionatId(String representantSeleccionatId) {
+		this.representantSeleccionatId = representantSeleccionatId;
 	}
 	@Override
 	public String toString() {

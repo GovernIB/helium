@@ -25,6 +25,7 @@ public class InteressatDto {
 	private String telefon;
 	private Long expedientId;
 	private InteressatTipusEnumDto tipus;
+	private String tipusNom;
 	
 	private Boolean entregaPostal;
 	private EntregaPostalTipus entregaTipus;
@@ -49,7 +50,10 @@ public class InteressatDto {
     private boolean teRepresentant;
     private Long representant_id;
     private boolean existeixenRepresentantsExpedient;
-
+    private String municipiNom;
+    private String paisNom;
+    private String provinciaNom;
+    private Long representantSeleccionatId;
 
 	public InteressatTipusEnumDto getTipus() {
 		return tipus;
@@ -182,8 +186,8 @@ public class InteressatDto {
 				representantFullNom.append(" ").append(representant.getLlinatge2());
 			if (representant.getRaoSocial() != null)
 				representantFullNom.append(" ").append(representant.getRaoSocial());
-			if(InteressatTipusEnumDto.ADMINISTRACIO.equals(representant.getTipus()))
-					representantFullNom.append(" ").append(representant.getDocumentIdent());
+//			if(InteressatTipusEnumDto.ADMINISTRACIO.equals(representant.getTipus()))
+//					representantFullNom.append(" ").append(representant.getDocumentIdent());
 			return representantFullNom.toString();
 		}
 		return null;
@@ -313,6 +317,36 @@ public class InteressatDto {
 	}
 	public void setRepresentant_id(Long representant_id) {
 		this.representant_id = representant_id;
+	}
+	public String getMunicipiNom() {
+		return municipiNom;
+	}
+	public void setMunicipiNom(String municipiNom) {
+		this.municipiNom = municipiNom;
+	}
+	public String getPaisNom() {
+		return paisNom;
+	}
+	public void setPaisNom(String paisNom) {
+		this.paisNom = paisNom;
+	}
+	public String getProvinciaNom() {
+		return provinciaNom;
+	}
+	public void setProvinciaNom(String provinciaNom) {
+		this.provinciaNom = provinciaNom;
+	}
+	public Long getRepresentantSeleccionatId() {
+		return representantSeleccionatId;
+	}
+	public void setRepresentantSeleccionatId(Long representantSeleccionatId) {
+		this.representantSeleccionatId = representantSeleccionatId;
+	}
+	public String getTipusNom() {
+		return tipusNom;
+	}
+	public void setTipusNom(String tipusNom) {
+		this.tipusNom = tipusNom;
 	}
 	
 

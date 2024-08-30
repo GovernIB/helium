@@ -28,14 +28,13 @@
 		<thead>
 			<tr>
 				<th data-col-name="codi" width="10%"><spring:message code="interessat.llistat.columna.codi"/></th>
-				<th data-col-name="tipus"><spring:message code="interessat.llistat.columna.tipus"/></th>
+				<th data-col-name="tipusNom"><spring:message code="interessat.llistat.columna.tipus"/></th>
 				<th data-col-name="nif" data-visible="false"><spring:message code="interessat.llistat.columna.nif"/></th>
 				<th data-col-name="documentIdent"><spring:message code="interessat.form.camp.document.identificatiu"/></th>
 				<th data-col-name="fullNom" width="30%"><spring:message code="interessat.form.camp.nom.rao.social"/></th>
 				<th data-col-name="dir3Codi"><spring:message code="interessat.llistat.columna.dir3Codi"/></th>
 				<th data-col-name="email"><spring:message code="interessat.llistat.columna.email"/></th>
 				<th data-col-name="telefon"><spring:message code="interessat.llistat.columna.telefon"/></th>
-				<!-- <th data-col-name="representant" data-visible="false"></th> -->
 				<th data-col-name="representantFullNom"><spring:message code="expedient.document.notificar.form.camp.representant"/></th>
 				<th data-col-name="representantsExpedient" data-visible="false"></th>
 				<th data-col-name="existeixenRepresentantsExpedient" data-visible="false"></th>
@@ -56,7 +55,7 @@
 										<li class="divider" role="separator"></li>
 										<li><a href="${expedientId}/interessat/{{:id}}/representant/new" data-ajax="true" data-callback="callbackModalInteressats()" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="interessat.llistat.accio.nou.representant"/></a></li>
 										{{if existeixenRepresentantsExpedient}}
-											<li><a href="${expedientId}/interessat/{{:id}}/representant/search" data-ajax="true" data-callback="callbackModalInteressats()" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="interessat.llistat.accio.cercar.representant"/></a></li>
+											<li><a href="${expedientId}/interessat/{{:id}}/representant/search" data-ajax="true" data-callback="callbackModalInteressats()" data-toggle="modal"><span class="fa fa-magnifying-glass"></span>&nbsp;<spring:message code="interessat.llistat.accio.cercar.representant"/></a></li>
 										{{/if}}
 									{{/if}}
 									{{if !es_representant && teRepresentant}}

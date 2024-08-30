@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.core.helper.UnitatOrganitzativaHelper;
+import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.v3.core.api.dto.CanalNotifEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDocumentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
@@ -32,7 +33,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MunicipiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NotificaDomiciliConcretTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ProvinciaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ServeiTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.api.service.DadesExternesService;
@@ -128,11 +131,19 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			@PathVariable Long interessatId,
 			Model model) {
 		model.addAttribute("expedientId", expedientId);	
-		
 		InteressatDto interessat = expedientInteressatService.findOne(
 				interessatId);
-		model.addAttribute("interessat", interessat);
 		
+		this.populateDadesInteressat(interessat);
+		if(interessat.getRepresentant()!=null) {
+			this.populateDadesInteressat(interessat.getRepresentant());
+		}
+		model.addAttribute(
+				"interessatCanalsNotif", 
+				this.populateCanalsNotif(request)
+				);
+		model.addAttribute("interessat", interessat);
+
 		return "v3/interessatDetall";
 	}
 
@@ -314,32 +325,26 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 	public String searchRepresentantGet(
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
+			@PathVariable Long interessatId,
 			Model model) {
 		InteressatCommand interessatCommand= new InteressatCommand();
-		populateModel(request, model);
-		interessatCommand.setPais("724");
+//		populateModel(request, model);
+//		interessatCommand.setPais("724");
+		List<InteressatDto> representantsExpedient = expedientInteressatService.findRepresentantsExpedient(expedientId);
+		model.addAttribute(
+				"representantsExpedient",
+				representantsExpedient
+				);
+		model.addAttribute(
+				"existeixenRepresentantsExpedient",
+				representantsExpedient!=null && !representantsExpedient.isEmpty()
+				);	
 		interessatCommand.setEs_representant(true);
 		model.addAttribute("expedientId", expedientId);
-		model.addAttribute(
-				"interessatTipusOptions",
-				EnumHelper.getOptionsForEnum(
-						InteressatTipusEnumDto.class,
-						"interessat.form.tipus.enum."));
-		model.addAttribute(
-				"interessatTipusDocuments",
-				this.populateTipusDocuments(request)
-				);
-		model.addAttribute(
-				"interessatCanalsNotif", 
-				this.populateCanalsNotif(request)
-				);
-		model.addAttribute(
-				"organs",
-				unitatOrganitzativaHelper.findAll()
-				);
-		model.addAttribute(interessatCommand);
+		model.addAttribute("interessatId", interessatId);
+		model.addAttribute(interessatCommand);//MARTA després esborrar el command
 		model.addAttribute("es_representant",true);
-		return "v3/interessatForm";
+		return "v3/interessatCercarRepresentant";
 	}
 		
 	@RequestMapping(value = "/{expedientId}/interessat/{interessatId}/representant/search", method = RequestMethod.POST)
@@ -347,31 +352,24 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			@PathVariable Long interessatId,
-			@Validated(Modificacio.class) InteressatCommand command,
+			InteressatCommand command,
 			BindingResult bindingResult,
 			Model model) {
         if (bindingResult.hasErrors()) {
-        	return "v3/interessatForm";
+        	return "v3/interessatCercarRepresentant";
         } else {
-    		populateModel(request, model);
-        	command.setEs_representant(true);
-        	expedientInteressatService.createRepresentant(
-        			interessatId,
-    				ConversioTipusHelper.convertir(
-    						command,
-    						InteressatDto.class));
-			MissatgesHelper.success(request, getMessage(request, "interessat.controller.representant.creat") );
+        	InteressatDto interessat =expedientInteressatService.findOne(interessatId);
+        	String representantId = command.getRepresentantSeleccionatId();
+        	if(representantId !=null) {
+	        	//Assignem el representant a l'interessat
+	        	InteressatDto representat =expedientInteressatService.findOne(Long.valueOf(representantId));
+	        	interessat.setRepresentant(representat);
+	        	interessat.setRepresentant_id(representat.getId());
+	        	expedientInteressatService.update(interessat);
+        	}
+			MissatgesHelper.success(request, getMessage(request, "interessat.controller.representant.assignat") );
   			return modalUrlTancar(false);
         }
-	}
-	
-	@ModelAttribute("interessatTipusEstats")
-	public List<ParellaCodiValorDto> populateEstats(HttpServletRequest request) {
-		List<ParellaCodiValorDto> resposta = new ArrayList<ParellaCodiValorDto>();
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "interessat.tipus.enum.ADMINISTRACIO"), InteressatTipusEnumDto.ADMINISTRACIO));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "interessat.tipus.enum.FISICA"), InteressatTipusEnumDto.FISICA));
-		resposta.add(new ParellaCodiValorDto(getMessage(request, "interessat.tipus.enum.JURIDICA"), InteressatTipusEnumDto.JURIDICA));
-		return resposta;
 	}
 	
 	@ModelAttribute("interessatTipusDocuments")
@@ -436,50 +434,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		}
 		return "redirect:/v3/expedient/"+expedientId+"?pipellaActiva=interessats";
 	}
-	
-	@RequestMapping(value = "/{expedientId}/interessat/cercar", method = RequestMethod.GET)
-	public String cercarGet(
-			HttpServletRequest request,
-			@PathVariable Long expedientId,
-			@PathVariable Long interessatId,
-			Model model) {
-		InteressatDto dto = expedientInteressatService.findOne(
-				interessatId);
-		model.addAttribute("tipus",dto.getTipus());
-		model.addAttribute("es_representant",dto.getEs_representant());
-		//posem el valor de l'enum tal com apareix al llistat
-		if(dto.getTipusDocIdent()==null) { //En el cas d'interessats antics no té tipusDocIdent li posem NIF de moment
-			dto.setTipusDocIdent(InteressatDocumentTipusEnumDto.NIF.getValor());
-		}
-		//dto.setTipusDocIdent(InteressatDocumentTipusEnumDto.valorAsEnum(dto.getTipusDocIdent()).name());
-		model.addAttribute(
-				ConversioTipusHelper.convertir(
-						dto,
-						InteressatCommand.class));
-		return "v3/interessatForm";
-	}
-	@RequestMapping(value = "/{expedientId}/interessat/cercar", method = RequestMethod.POST)
-	public String cercarPost(
-			HttpServletRequest request,
-			@RequestParam(value = "es_representant" , required=false) boolean es_representant,
-			@PathVariable Long expedientId,
-			@PathVariable Long interessatId,
-			@Validated(Modificacio.class) InteressatCommand command,
-			BindingResult bindingResult,
-			Model model) {
-        if (bindingResult.hasErrors()) {
-        	return "v3/interessatForm";
-        } else {
-        	command.setEs_representant(es_representant);
-        	expedientInteressatService.update(
-        			ConversioTipusHelper.convertir(
-    						command,
-    						InteressatDto.class));
-			MissatgesHelper.success(request, getMessage(request, "interessat.controller.modificat") );
-			return modalUrlTancar(false);
-        }
-	}
-	
+
 	private void populateModel(HttpServletRequest request, Model model) {
 		try {
 			model.addAttribute("paisos", dadesExternesService.findPaisos());
@@ -524,6 +479,41 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			@PathVariable String codi,
 			Model model) {
 		return unitatOrganitzativaService.findByCodi(codi);
+	}
+	
+	private void populateDadesInteressat(InteressatDto interessat) {
+		if(InteressatTipusEnumDto.ADMINISTRACIO.equals(interessat.getTipus())){
+			UnitatOrganitzativa uo= unitatOrganitzativaHelper.findByCodi(interessat.getDocumentIdent());
+			if(uo!=null)
+				interessat.setRaoSocial(uo.getDenominacio());
+		}
+		if(interessat.getPais()!=null && !interessat.getPais().isEmpty()) {
+			List<PaisDto> paisos =  dadesExternesService.findPaisos();
+			for(PaisDto pais: paisos) {
+				if(pais.getCodi().equals(interessat.getPais())) {
+					interessat.setPaisNom(pais.getNom());
+					break;
+				}
+			}
+		}
+		if(interessat.getProvincia()!=null && !interessat.getProvincia().isEmpty()) {
+			List<ProvinciaDto> provincies = dadesExternesService.findProvincies();
+			for(ProvinciaDto provincia: provincies) {
+				if(provincia.getCodi().equals(interessat.getProvincia())) {
+					interessat.setProvinciaNom(provincia.getNom());
+					if(interessat.getMunicipi()!=null && !interessat.getMunicipi().isEmpty()) {
+						List<MunicipiDto> municipis = dadesExternesService.findMunicipisPerProvincia(provincia.getCodi());
+						for(MunicipiDto municipi: municipis) {
+							if(municipi.getCodi().equals(interessat.getMunicipi())) {
+								interessat.setMunicipiNom(municipi.getNom());
+								break;
+							}
+						}
+					}
+					break;
+				}
+			}
+		}	
 	}
 	
 	

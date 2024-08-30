@@ -11,10 +11,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
+import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
+import net.conselldemallorca.helium.core.helper.UnitatOrganitzativaHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Interessat;
+import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDocumentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
@@ -39,7 +42,8 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 	@Resource private PaginacioHelper paginacioHelper;
 	@Resource private ConversioTipusHelper conversioTipusHelper;
 	@Resource private PluginHelper pluginHelper;
-	
+	@Resource private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
+	@Resource private MessageHelper messageHelper;
 	/**
 	 * {@inheritDoc}
 	 */
@@ -138,8 +142,9 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		interessatEntity.setProvincia(interessat.getProvincia());
 		interessatEntity.setMunicipi(interessat.getMunicipi());
 		interessatEntity.setCanalNotif(interessat.getCanalNotif());
-
-
+		if(interessat.getRepresentant_id()!=null) {
+				interessatEntity.setRepresentant(interessatRepository.findOne(interessat.getRepresentant_id()));
+		}
 		Expedient expedient = expedientRepository.findOne(interessat.getExpedientId());
 		if (expedient.isArxiuActiu()) {
 			try {
@@ -293,12 +298,23 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 				InteressatDto.class);
 		List<InteressatDto> representantsExpedient = findRepresentantsExpedient(expedientId);
 		for (InteressatDto interessat : pagina.getContingut()) {
+			interessat.setTipusNom(messageHelper.getMessage("interessat.form.tipus.enum."+interessat.getTipus()));
 			// Setegem paràmetres que necessitem per el manteniment de representants
 			interessat.setExisteixenRepresentantsExpedient(representantsExpedient!=null && !representantsExpedient.isEmpty());
+			if(InteressatTipusEnumDto.ADMINISTRACIO.equals(interessat.getTipus())){
+				UnitatOrganitzativa uo= unitatOrganitzativaHelper.findByCodi(interessat.getDocumentIdent());
+				if(uo!=null)
+					interessat.setRaoSocial(uo.getDenominacio());
+			}
 			if(!interessat.getEs_representant() && interessat.getRepresentant()!=null) {
 				InteressatDto representantInteressat  = findOne(interessat.getRepresentant().getId());
 				interessat.setRepresentant(representantInteressat);
 				interessat.setRepresentant_id(representantInteressat.getId());
+				if(InteressatTipusEnumDto.ADMINISTRACIO.equals(representantInteressat.getTipus())){
+					UnitatOrganitzativa uo= unitatOrganitzativaHelper.findByCodi(representantInteressat.getDocumentIdent());
+					if(uo!=null)
+						representantInteressat.setRaoSocial(uo.getDenominacio());
+				}
 			}
 		}
 		return pagina;
