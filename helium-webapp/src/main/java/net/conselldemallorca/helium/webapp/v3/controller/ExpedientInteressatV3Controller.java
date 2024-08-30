@@ -434,6 +434,24 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		}
 		return "redirect:/v3/expedient/"+expedientId+"?pipellaActiva=interessats";
 	}
+	
+	@RequestMapping(value = "/{expedientId}/interessat/{representantId}/deleteRepresentant", method = RequestMethod.GET)
+	public String deleteRepresentant(
+			HttpServletRequest request,
+			@RequestParam(value = "interessatId", required=false) Long interessatId,
+			@PathVariable Long expedientId,
+			@PathVariable Long representantId,
+			Model model) {
+		try {
+			expedientInteressatService.deleteOrUnassignRepresentant(representantId, interessatId);
+			MissatgesHelper.success(request, getMessage(request, "interessat.controller.representant.esborrat"));
+		} catch (Exception ex) {
+			String errMsg = getMessage(request, "interessat.controller.representant.error", new Object[] {ex.getMessage()});
+			logger.error(errMsg, ex);
+			MissatgesHelper.error(request, errMsg);
+		}
+		return "redirect:/v3/expedient/"+expedientId+"?pipellaActiva=interessats";
+	}
 
 	private void populateModel(HttpServletRequest request, Model model) {
 		try {

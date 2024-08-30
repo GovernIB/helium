@@ -145,7 +145,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		if(interessat.getRepresentant_id()!=null) {
 				interessatEntity.setRepresentant(interessatRepository.findOne(interessat.getRepresentant_id()));
 		}
-		Expedient expedient = expedientRepository.findOne(interessat.getExpedientId());
+		Expedient expedient = interessatEntity.getExpedient();//expedientRepository.findOne(interessat.getExpedientId());
 		if (expedient.isArxiuActiu()) {
 			try {
 				pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
@@ -200,24 +200,17 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		Interessat interessat = comprovarInteressat(interessatId);
 		Expedient expedient = expedientRepository.findOne(interessat.getExpedient().getId());
 		List<Interessat> interessats = expedient.getInteressats();
-		List<Interessat> representants = interessatRepository.findByRepresentat(interessat);
-		if(interessat.isEs_representant()) {
-			//El desassignem del seu interessat representat (o varis reprsentats), i després l'Esborrem.
-			List<Interessat> representats = interessatRepository.findByRepresentant(interessat);
-			if(representats!=null && !representats.isEmpty())
-			for(Interessat representat: representats) {
-				representat.setRepresentant(null);
+		if (interessat.getRepresentant()!=null) {//si té respresentant primer el desassignem i després esborrem l'interessat
+			Interessat representant = comprovarInteressat(interessat.getRepresentant().getId());
+			if(representant.getRepresentats()!=null && !representant.getRepresentats().isEmpty()) {
+				interessat.setRepresentant(null);
+				if(representant.getRepresentats().size()==1) {
+					//Si aquest interessat té un representant que no representa a ningú més també l'esborrem (el representant)
+					interessatRepository.delete(representant);
+				}
 			}
-			interessats.remove(interessat);		
-		} else if (representants!=null && !representants.isEmpty()) {//si té respresentants primer els desassignem i després esborrem l'interessat
-			//només hi pot haver un representant per interessat
-			interessat.setRepresentant(null);
-			interessats.remove(interessat);
-			
 		}
-		else {
-			interessats.remove(interessat);
-		}
+		interessats.remove(interessat);	
 		expedient.setInteressats(interessats);
 		interessatRepository.delete(interessat);
 		
@@ -432,7 +425,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		representantEntity.setTipusDocIdent(InteressatDocumentTipusEnumDto.valueOf(representantEntity.getTipusDocIdent()).getValor())    ;
 		if(representant.getEs_representant()) {
 			interessat.setRepresentant(representantEntity);
-			representantEntity.setRepresentat(interessat);
+//			representantEntity.setRepresentat(interessat);
 		}
 		InteressatDto representantDto = conversioTipusHelper.convertir(representantEntity, InteressatDto.class);
 		representantEntity = interessatRepository.save(representantEntity);
@@ -445,21 +438,28 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 
 	
 	@Override
-	public InteressatDto findRepresentantAmbInteressatId(Long interessatId) {
-		Interessat interessat = interessatRepository.findOne(interessatId);
-		List<Interessat> representants = interessatRepository.findByRepresentat(interessat);
-		if(representants!=null && !representants.isEmpty()) {//només hi pot haver un representant per interssat
-			InteressatDto resultat = conversioTipusHelper.convertir(representants.get(0), InteressatDto.class);
-			return resultat;
-		}
-		return null;
-	}
-	
-	@Override
 	public List<InteressatDto> findRepresentantsExpedient(Long expedientId) {
 		Expedient expedient = expedientRepository.findOne(expedientId);
 		return conversioTipusHelper.convertirList(interessatRepository.findRepresentantsByExpedient(expedient), InteressatDto.class);
 	}
 
+	@Override
+	public void deleteOrUnassignRepresentant(Long representantId, Long interessatId) {
+		logger.debug("Esborrant/desassignant representant (representantId=" + representantId + ") de l'interessat (interessatId=" + interessatId + ")");
+		Interessat interessat = comprovarInteressat(interessatId);
+		Interessat representant = comprovarInteressat(representantId);
+		Expedient expedient = expedientRepository.findOne(interessat.getExpedient().getId());
+		List<Interessat> interessats = expedient.getInteressats();
+		List<Interessat> representats = interessatRepository.findByRepresentant(representant);
+		if(representats!=null && !representats.isEmpty()) {
+			interessat.setRepresentant(null);//Desassignem el representant
+			interessats.remove(representant);
+			if(representats.size()==1) {//Esborrem el representant
+				expedient.setInteressats(interessats);
+				interessatRepository.delete(representant);
+			} 
+			interessatRepository.save(interessat);
+		}	
+	}
 
 }

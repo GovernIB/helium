@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.webapp.v3.command;
 
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -74,7 +76,7 @@ public class InteressatCommand {
 	private String raoSocial;
 	private Boolean es_representant;
 	private InteressatDto representant;
-	private InteressatDto representat;
+	private List<InteressatDto> representat;
 	private String codiDire;
 	
 	public InteressatTipusEnumDto getTipus() {
@@ -262,10 +264,11 @@ public class InteressatCommand {
 	public void setRepresentant(InteressatDto representant) {
 		this.representant = representant;
 	}
-	public InteressatDto getRepresentat() {
+
+	public List<InteressatDto> getRepresentat() {
 		return representat;
 	}
-	public void setRepresentat(InteressatDto representat) {
+	public void setRepresentat(List<InteressatDto> representat) {
 		this.representat = representat;
 	}
 

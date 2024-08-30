@@ -1,13 +1,18 @@
 package net.conselldemallorca.helium.core.model.hibernate;
 
 import java.io.Serializable;
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
@@ -67,7 +72,7 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	@Column(name="canalnotif")
 	protected String canalNotif;
 	
-    private Interessat representat; //només existeix quan es_representant=true
+    private List<Interessat> representats; //només existeix quan es_representant=true
     private Interessat representant; //només existeix quan es_representant=false
 	private Expedient expedient;
 
@@ -155,19 +160,25 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	public void setExpedient(Expedient expedient) {
 		this.expedient = expedient;
 	}
-	@ManyToOne(optional=true)
-	@JoinColumn(name="REPRESENTAT_ID")
-	public Interessat getRepresentat() {
-		return representat;
+
+	@OneToMany(
+			mappedBy = "representant",
+			cascade = { CascadeType.ALL },
+			fetch = FetchType.LAZY)	
+	public List<Interessat> getRepresentats() {
+		return representats;
 	}
-	public void setRepresentat(Interessat representat) {
-		this.representat = representat;
+	public void setRepresentats(List<Interessat> representats) {
+		this.representats = representats;
 	}
+	
+	
 	@ManyToOne(optional=true)
 	@JoinColumn(name="REPRESENTANT_ID")
 	public Interessat getRepresentant() {
 		return representant;
 	}
+	
 	public void setRepresentant(Interessat representant) {
 		this.representant = representant;
 	}

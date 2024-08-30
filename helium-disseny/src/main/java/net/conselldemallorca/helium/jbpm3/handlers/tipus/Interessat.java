@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.jbpm3.handlers.tipus;
 
+import java.util.List;
 
 /**
  * 
@@ -44,7 +45,7 @@ public class Interessat {
 	private String municipi;
 	private String pais;
 	private String provincia;
-    private Interessat representat; //només existeix quan es_representant=true
+    private List<Interessat> representats; //només existeix quan es_representant=true
     private Interessat representant; //només existeix quan es_representant=false
 
 	public Long getId() {
@@ -243,11 +244,15 @@ public class Interessat {
 	public void setProvincia(String provincia) {
 		this.provincia = provincia;
 	}
-	public Interessat getRepresentat() {
-		return representat;
+
+	public List<Interessat> getRepresentats() {
+		return representats;
 	}
-	public void setRepresentat(Interessat representat) {
-		this.representat = representat;
+	public void setRepresentats(List<Interessat> representats) {
+		this.representats = representats;
+	}
+	public void setEs_representant(boolean es_representant) {
+		this.es_representant = es_representant;
 	}
 	public Interessat getRepresentant() {
 		return representant;

@@ -54,10 +54,6 @@ public interface InteressatRepository extends JpaRepository<Interessat, Long> {
 			Expedient expedient
 			);
 	
-	List<Interessat> findByRepresentat(
-			Interessat representat
-			);
-	
 	List<Interessat> findByRepresentant(
 			Interessat representant
 			);
