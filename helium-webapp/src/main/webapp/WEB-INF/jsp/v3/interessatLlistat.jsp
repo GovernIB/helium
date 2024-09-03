@@ -61,7 +61,7 @@
 									{{if !es_representant && teRepresentant}}
 										<li class="divider" role="separator"></li>
 										<li><a href="${expedientId}/interessat/{{:representant_id}}/update?es_representant=true" data-ajax="true" data-callback="callbackModalInteressats()" data-toggle="modal"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="interessat.llistat.accio.modificar.representant"/></a></li>
-										<li><a href="${expedientId}/interessat/{{:representant_id}}/delete?es_representant=true" data-ajax="true" data-callback="callbackModalInteressats()" data-confirm="<spring:message code="interessat.llistat.confirmacio.esborrar.representant"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="interessat.llistat.accio.esborrar.representant"/></a></li>																		
+										<li><a href="${expedientId}/interessat/{{:representant_id}}/deleteRepresentant?interessatId={{:id}}" data-ajax="true" data-callback="callbackModalInteressats()" data-confirm="<spring:message code="interessat.llistat.confirmacio.esborrar.representant"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="interessat.llistat.accio.esborrar.representant"/></a></li>																		
 									{{/if}}
 									</ul>
 							</div>

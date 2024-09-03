@@ -122,7 +122,6 @@
 											<dl class="dl-horizontal">
 												<dt><spring:message code="interessat.form.camp.document"/></dt><dd>${representant.documentIdent}</dd>
 												<dt><spring:message code="interessat.form.camp.email"/></dt><dd>${representant.email}</dd>
-												<dt><spring:message code="anotacio.interessat.detalls.camp.telefon"/></dt><dd>${representant.telefon}</dd>
 												<dt><spring:message code="interessat.form.camp.telefon"/></dt><dd>${representant.telefon}</dd>
 												<dt><spring:message code="interessat.form.camp.canal.notif"/></dt>	
 													<dd>

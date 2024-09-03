@@ -49,9 +49,10 @@ public interface ExpedientInteressatService {
 			Long interessatId,
 			InteressatDto representant);
 	
-	public InteressatDto findRepresentantAmbInteressatId(
-			Long interessatId);
-	
 	public List<InteressatDto> findRepresentantsExpedient(
 			Long expedientId);
+	
+	public void deleteOrUnassignRepresentant(
+			Long representantId,
+			Long interessatId);
 }

@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
+import java.util.List;
+
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 
 /**
@@ -44,7 +46,7 @@ public class InteressatDto {
 	private String municipi;
 	private String pais;
 	private String provincia;
-    private InteressatDto representat; //només existeix quan es_representant=true
+    private List<InteressatDto> representat; //només existeix quan es_representant=true
     private InteressatDto representant; //només existeix quan es_representant=false
     private String canalNotif; 
     private boolean teRepresentant;
@@ -291,10 +293,11 @@ public class InteressatDto {
 	public void setProvincia(String provincia) {
 		this.provincia = provincia;
 	}
-	public InteressatDto getRepresentat() {
+	
+	public List<InteressatDto> getRepresentat() {
 		return representat;
 	}
-	public void setRepresentat(InteressatDto representat) {
+	public void setRepresentat(List<InteressatDto> representat) {
 		this.representat = representat;
 	}
 	public InteressatDto getRepresentant() {

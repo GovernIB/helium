@@ -84,12 +84,13 @@ public class ExpedientInteressatServiceBean implements ExpedientInteressatServic
 	}
 
 	@Override
-	public InteressatDto findRepresentantAmbInteressatId(Long interessatId) {
-		return delegate.findRepresentantAmbInteressatId(interessatId);
+	public List<InteressatDto> findRepresentantsExpedient(Long expedientId) {
+		return delegate.findRepresentantsExpedient(expedientId);
 	}
 
 	@Override
-	public List<InteressatDto> findRepresentantsExpedient(Long expedientId) {
-		return delegate.findRepresentantsExpedient(expedientId);
+	public void deleteOrUnassignRepresentant(Long representantId, Long interessatId) {
+		delegate.deleteOrUnassignRepresentant(representantId, interessatId);
+		
 	}
 }
