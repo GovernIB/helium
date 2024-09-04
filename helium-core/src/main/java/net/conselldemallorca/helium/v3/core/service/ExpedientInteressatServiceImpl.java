@@ -92,16 +92,19 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			interessatsList.add(interessatEntity);
 			expedient.setInteressats(interessatsList);
 		}
+		boolean propArxiu = true;
 		if (expedient.isArxiuActiu()) {
 			try {
 				pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
 			} catch (SistemaExternException seex) {
-				expedient.setErrorArxiu("Error de sincronització amb arxiu al crear el interessat "+interessat.getDocumentIdent()+": "+seex.getPublicMessage());
+				expedient.addErrorArxiu("Error de sincronització amb arxiu al crear el interessat "+interessat.getDocumentIdent()+": "+seex.getPublicMessage());
+				propArxiu = false;
 			}
 		}
 		interessatEntity.setTipusDocIdent(InteressatDocumentTipusEnumDto.valueOf(interessatEntity.getTipusDocIdent()).getValor())    ;
 		interessatEntity = interessatRepository.save(interessatEntity);
 		InteressatDto resultat = conversioTipusHelper.convertir(interessatEntity, InteressatDto.class);
+		resultat.setPropagatArxiu(propArxiu);
 		return resultat;
 	}
 
@@ -146,17 +149,19 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 				interessatEntity.setRepresentant(interessatRepository.findOne(interessat.getRepresentant_id()));
 		}
 		Expedient expedient = interessatEntity.getExpedient();//expedientRepository.findOne(interessat.getExpedientId());
+		
+		InteressatDto resultat = conversioTipusHelper.convertir(interessatEntity, InteressatDto.class);
+		
 		if (expedient.isArxiuActiu()) {
 			try {
 				pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
 			} catch (SistemaExternException seex) {
-				expedient.setErrorArxiu("Error de sincronització amb arxiu al modificar el interessat "+interessat.getDocumentIdent()+": "+seex.getPublicMessage());
+				expedient.addErrorArxiu("Error de sincronització amb arxiu al modificar el interessat "+interessat.getDocumentIdent()+": "+seex.getPublicMessage());
+				resultat.setPropagatArxiu(false);
 			}
 		}
 		
-		return conversioTipusHelper.convertir(
-				interessatEntity,
-				InteressatDto.class);
+		return resultat;
 	}
 	
 	private String translateTipusDocIdentToSave(String documentTipus) {
@@ -194,7 +199,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 	 */
 	@Override
 	@Transactional
-	public void delete(
+	public InteressatDto delete(
 			Long interessatId) {
 		logger.debug("Esborrant interessat (interessatId=" + interessatId + ")");
 		Interessat interessat = comprovarInteressat(interessatId);
@@ -214,13 +219,18 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		expedient.setInteressats(interessats);
 		interessatRepository.delete(interessat);
 		
+		InteressatDto resultat = conversioTipusHelper.convertir(interessat, InteressatDto.class);
+		
 		if (expedient.isArxiuActiu()) {
 			try {
 				pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
 			} catch (SistemaExternException seex) {
-				expedient.setErrorArxiu("Error de sincronització amb arxiu al eliminar el interessat "+interessat.getDocumentIdent()+": "+seex.getPublicMessage());
+				expedient.addErrorArxiu("Error de sincronització amb arxiu al eliminar el interessat "+interessat.getDocumentIdent()+": "+seex.getPublicMessage());
+				resultat.setPropagatArxiu(false);
 			}
 		}
+		
+		return resultat;
 	}
 	
 	/**

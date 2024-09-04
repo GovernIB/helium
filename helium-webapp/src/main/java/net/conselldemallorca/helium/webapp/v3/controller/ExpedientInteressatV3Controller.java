@@ -189,11 +189,15 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
         } else {
         	try {
         		populateModel(request, model);
-	        	expedientInteressatService.create(
+        		InteressatDto resultat = expedientInteressatService.create(
 	    				ConversioTipusHelper.convertir(
 	    						command,
 	    						InteressatDto.class));
-				MissatgesHelper.success(request, getMessage(request, "interessat.controller.creat") );
+        		if (resultat.isPropagatArxiu()) {
+        			MissatgesHelper.success(request, getMessage(request, "interessat.controller.creat") );
+        		} else {
+        			MissatgesHelper.warning(request, getMessage(request, "interessat.controller.creat.err") );
+        		}
         	} catch (Exception ex) {
         		ex.printStackTrace();
         	}
@@ -254,14 +258,24 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
         } else {
     		populateModel(request, model);
         	command.setEs_representant(es_representant);
-        	expedientInteressatService.update(
+        	InteressatDto resultat = expedientInteressatService.update(
         			ConversioTipusHelper.convertir(
     						command,
     						InteressatDto.class));
-	        if(es_representant)
-				MissatgesHelper.success(request, getMessage(request, "interessat.controller.representant.modificat") );
-	        else
-	        	MissatgesHelper.success(request, getMessage(request, "interessat.controller.modificat") );
+        	
+	        if(es_representant) {
+	        	if (resultat.isPropagatArxiu()) {
+	        		MissatgesHelper.success(request, getMessage(request, "interessat.controller.representant.modificat") );
+	        	} else {
+	        		MissatgesHelper.warning(request, getMessage(request, "interessat.controller.representant.modificat.err") );
+	        	}
+	        } else {
+	        	if (resultat.isPropagatArxiu()) {
+	        		MissatgesHelper.success(request, getMessage(request, "interessat.controller.modificat") );
+	        	} else {
+	        		MissatgesHelper.warning(request, getMessage(request, "interessat.controller.modificat.err") );
+	        	}
+	        }
 			return modalUrlTancar(false);
         }
 	}
@@ -420,11 +434,21 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			@PathVariable Long interessatId,
 			Model model) {
 		try {
-			expedientInteressatService.delete(interessatId);
-			if(es_representant)
-				MissatgesHelper.success(request, getMessage(request, "interessat.controller.representant.esborrat"));
-			else
-				MissatgesHelper.success(request, getMessage(request, "interessat.controller.esborrat"));
+			InteressatDto resultat = expedientInteressatService.delete(interessatId);
+			
+			if(es_representant) {
+				if (resultat.isPropagatArxiu()) {
+					MissatgesHelper.success(request, getMessage(request, "interessat.controller.representant.esborrat"));
+				} else {
+					MissatgesHelper.warning(request, getMessage(request, "interessat.controller.representant.esborrat.err"));
+				}
+			} else {
+				if (resultat.isPropagatArxiu()) {
+					MissatgesHelper.success(request, getMessage(request, "interessat.controller.esborrat"));
+				} else {
+					MissatgesHelper.warning(request, getMessage(request, "interessat.controller.esborrat.err"));
+				}					
+			}
 		} catch (Exception ex) {
 			String errMsg = getMessage(request, "interessat.controller.esborrar.error", new Object[] {ex.getMessage()});
 			if(es_representant)

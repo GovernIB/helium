@@ -56,6 +56,7 @@ public class InteressatDto {
     private String paisNom;
     private String provinciaNom;
     private Long representantSeleccionatId;
+    private boolean propagatArxiu = true;
 
 	public InteressatTipusEnumDto getTipus() {
 		return tipus;
@@ -350,6 +351,12 @@ public class InteressatDto {
 	}
 	public void setTipusNom(String tipusNom) {
 		this.tipusNom = tipusNom;
+	}
+	public boolean isPropagatArxiu() {
+		return propagatArxiu;
+	}
+	public void setPropagatArxiu(boolean propagatArxiu) {
+		this.propagatArxiu = propagatArxiu;
 	}
 	
 

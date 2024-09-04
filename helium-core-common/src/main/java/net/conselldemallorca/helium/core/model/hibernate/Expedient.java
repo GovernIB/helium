@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.core.model.hibernate;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -811,13 +812,18 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	public String getErrorArxiu() {
 		return errorArxiu;
 	}
-	public void setErrorArxiu(String errorArxiu) {
-		if (errorArxiu==null) {
-			this.errorArxiu = errorArxiu;
-		} else if (this.errorArxiu==null) {
-			this.errorArxiu = "- "+errorArxiu;	
-		} else {
-			this.errorArxiu = this.errorArxiu+"<br/>- "+errorArxiu;
+	public void setErrorArxiu(String nouErrorArxiu) {
+		this.errorArxiu = nouErrorArxiu;
+	}
+	public void addErrorArxiu(String nouErrorArxiu) {
+		if (nouErrorArxiu!=null && !"".equals(nouErrorArxiu)) {
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+			nouErrorArxiu = "[" + sdf.format(new Date()) + "] " + nouErrorArxiu;
+			if (this.errorArxiu==null) {
+				this.errorArxiu = "- "+nouErrorArxiu;	
+			} else {
+				this.errorArxiu = this.errorArxiu+"<br/>- "+nouErrorArxiu;
+			}
 		}
 	}
 	@Override

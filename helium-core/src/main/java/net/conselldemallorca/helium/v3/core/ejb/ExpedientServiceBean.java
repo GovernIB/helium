@@ -128,7 +128,7 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void update(
+	public boolean update(
 			Long id,
 			String numero,
 			String titol,
@@ -141,7 +141,7 @@ public class ExpedientServiceBean implements ExpedientService {
 			String geoReferencia,
 			String grupCodi,
 			boolean execucioDinsHandler) {
-		delegate.update(
+		return delegate.update(
 				id,
 				numero,
 				titol,

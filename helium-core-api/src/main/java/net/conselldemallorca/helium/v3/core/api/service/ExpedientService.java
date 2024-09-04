@@ -121,6 +121,10 @@ public interface ExpedientService {
 	/**
 	 * Modifica la informació d'un expedient.
 	 * 
+	 * - Retornará true si s'ha pogut actualitzar tant a BBDD com a Axiu.
+	 * - False si només s'ha pogut actualitzar parcialment.
+	 * - Error en cas de que es produeixi un error no controlat que no permeti actualtizar.
+	 * 
 	 * @param id
 	 *            Atribut id de l'expedient que es vol modificar.
 	 * @param numero
@@ -150,7 +154,7 @@ public interface ExpedientService {
 	 * @throws NotAllowedException
 	 *             Si no es tenen els permisos adequats.
 	 */
-	public void update(
+	public boolean update(
 			Long id,
 			String numero,
 			String titol,

@@ -541,7 +541,12 @@ public class ExpedientHelper {
 		return tePermis;
 	}
 	
-	public void update(
+	/**
+	 * Retornará true si s'ha pogut actualitzar tant a BBDD com a Axiu.
+	 * False si només s'ha pogut actualitzar parcialment.
+	 * Error en cas de que es produeixi un error no controlat que no permeti actualtizar.
+	 */
+	public boolean update(
 			Expedient expedient,
 			String numero,
 			String titol,
@@ -670,12 +675,22 @@ public class ExpedientHelper {
 				false);
 		
 		//Actualitzem el nom de l'expedient a l'arxiu
-		if (expedient.isArxiuActiu() &&
-			expedient.getArxiuUuid() != null &&
-			atributsArxiuCanviats) {
-			// Modifiquem l'expedient a l'arxiu.
-			pluginHelper.arxiuExpedientModificar(expedient);
+		if (expedient.isArxiuActiu() && atributsArxiuCanviats) {
+			try {
+				if (expedient.getArxiuUuid() != null) {
+					// Modifiquem l'expedient a l'arxiu.
+					pluginHelper.arxiuExpedientModificar(expedient);
+				} else {
+					//El cream en cas de que hagui fallat al crear l'expedient.
+					pluginHelper.arxiuExpedientCrear(expedient);
+				}
+			} catch (SistemaExternException seex) {
+				expedient.addErrorArxiu("Error de sincronització amb l'arxiu al modificar l'expedient: "+seex.getPublicMessage());
+				return false;
+			}
 		}
+		
+		return true;
 		
 		// TODO
 		/*String informacioNova = getInformacioExpedient(expedient);
@@ -1915,7 +1930,7 @@ public class ExpedientHelper {
 				expedientPerRetornar.setNtiIdentificador(expedientCreat.getExpedientMetadades().getIdentificador());
 				expedientPerRetornar.setErrorArxiu(null);
 			} catch (SistemaExternException seex) {
-				expedientPerRetornar.setErrorArxiu("Error de sincronització amb arxiu al crear l'expedient: "+seex.getPublicMessage());
+				expedientPerRetornar.addErrorArxiu("Error de sincronització amb arxiu al crear l'expedient: "+seex.getPublicMessage());
 			}
 		}
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Metadades NTI i creació a dins l'arxiu");

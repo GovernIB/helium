@@ -27,7 +27,7 @@ public interface ExpedientInteressatService {
 	public InteressatDto findOne(
 			Long interessatId);
 
-	public void delete(
+	public InteressatDto delete(
 			Long interessatId);
 
 	public List<InteressatDto> findByExpedient(Long expedientId);

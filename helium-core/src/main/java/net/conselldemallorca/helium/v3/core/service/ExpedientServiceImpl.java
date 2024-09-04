@@ -484,7 +484,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	 */
 	@Override
 	@Transactional
-	public void update(
+	public boolean update(
 			Long id,
 			String numero,
 			String titol,
@@ -532,7 +532,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					null);
 			estatId = null;
 		}
-		expedientHelper.update(
+
+		return expedientHelper.update(
 				expedient,
 				numero,
 				titol,

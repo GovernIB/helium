@@ -54,8 +54,8 @@ public class ExpedientInteressatServiceBean implements ExpedientInteressatServic
 	}
 
 	@Override
-	public void delete(Long interessatId) {
-		delegate.delete(interessatId);
+	public InteressatDto delete(Long interessatId) {
+		return delegate.delete(interessatId);
 	}
 
 	@Override

@@ -86,7 +86,8 @@ public class ExpedientInformacioController extends BaseExpedientController {
 			model.addAttribute("estats", estats);
 			return "v3/expedient/modificarInformacio";
 		}
-		expedientService.update(
+		
+		boolean fullActualitzat = expedientService.update(
 				command.getExpedientId(),
 				command.getNumero(),
 				command.getTitol(),
@@ -99,11 +100,12 @@ public class ExpedientInformacioController extends BaseExpedientController {
 				command.getGeoReferencia(),
 				command.getGrupCodi(),
 				false);
-		MissatgesHelper.success(
-				request,
-				getMessage(
-						request,
-						"info.informacio.modificat"));
+		
+		if (fullActualitzat) {
+			MissatgesHelper.success(request, getMessage(request, "info.informacio.modificat"));
+		} else {
+			MissatgesHelper.warning(request, getMessage(request, "info.informacio.modificat.err"));
+		}
 		return modalUrlTancar();
 	}
 	

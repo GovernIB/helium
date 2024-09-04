@@ -2262,14 +2262,8 @@ public class PluginHelper {
 		}
 	}
 
-	public ContingutArxiu arxiuExpedientCrear(
-			Expedient expedient) {
-		
-//		boolean prova = false;
-//		if (prova) {
-//			throw new SistemaExternException("Arxiu", "Error provocat");
-//		}
-		
+	public ContingutArxiu arxiuExpedientCrear(Expedient expedient) {
+
 		String accioDescripcio = "Creació d'expedient";
 		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 				new IntegracioParametreDto(

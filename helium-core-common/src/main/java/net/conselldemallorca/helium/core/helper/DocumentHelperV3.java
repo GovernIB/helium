@@ -935,7 +935,7 @@ public class DocumentHelperV3 {
 			//Ha fallat la integració amb el sistema extern. EL guardam en local (BBDD) fins que es pugui sincronitzar.
 			documentStore.setArxiuContingut(arxiuContingut);
 			documentStore.setFont(DocumentFont.INTERNA);
-			expedient.setErrorArxiu("Error de sincronització amb arxiu al crear el document "+documentStore.getId()+": "+seex.getPublicMessage());
+			expedient.addErrorArxiu("Error de sincronització amb arxiu al crear el document "+documentStore.getId()+": "+seex.getPublicMessage());
 		}
 		
 		// Guarda la referència al nou document a dins el jBPM, és necessari fer-ho fora del postProcessar
@@ -1107,7 +1107,7 @@ public class DocumentHelperV3 {
 			//Es guarda temporalment al documentStore, un cop pujat al arxiu, es borra el contingut
 			documentStore.setArxiuContingut(arxiuContingut);
 			documentStore.setFont(DocumentFont.INTERNA);
-			expedient.setErrorArxiu("Error de sincronització amb arxiu al actualitzar el document "+documentStore.getId()+": "+seex.getPublicMessage());
+			expedient.addErrorArxiu("Error de sincronització amb arxiu al actualitzar el document "+documentStore.getId()+": "+seex.getPublicMessage());
 		}
 		
 		// Guarda la referència al nou document a dins el jBPM, és necessari fer-ho fora del postProcessar

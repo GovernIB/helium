@@ -89,7 +89,11 @@ public class BaseExpedientIniciController extends BaseExpedientController {
 				anotacioAcceptarCommand != null? anotacioAcceptarCommand.getId() : null,
 				anotacioAcceptarCommand != null? anotacioAcceptarCommand.isAssociarInteressats() : false);
 
-		MissatgesHelper.success(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
+		if (iniciat.getErrorArxiu()==null) {
+			MissatgesHelper.success(request, getMessage(request, "info.expedient.iniciat", new Object[] { iniciat.getIdentificador() }));
+		} else {
+			MissatgesHelper.warning(request, getMessage(request, "info.expedient.iniciat.err", new Object[] { iniciat.getIdentificador() }));
+		}
 		if (anotacioAcceptarCommand != null) {
 			AnotacioDto anotacio = anotacioService.findAmbId(anotacioAcceptarCommand.getId());
 				MissatgesHelper.success(
