@@ -1036,7 +1036,7 @@ public class TascaServiceImpl implements TascaService {
 				null,
 				null,
 				null,
-				null);
+				null).getId();
 		//Al actualitzar un document desde una tasca, s'ha de associar la tasca a la variable JBMP
 		//En cas de crear, no fa falta perque ja s'haurà assignat al metode DocumentHelperV3.postProcessarDocument
 		if (documentStore!=null) {

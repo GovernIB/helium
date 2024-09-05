@@ -353,7 +353,7 @@ dd.subproc {
 								<span class="label label-info etiqueta-nti-arxiu"><spring:message code="expedient.info.etiqueta.arxiu"/></span>
 							</c:if>
 							<c:if test="${expedient.arxiuActiu and not empty expedient.errorArxiu}">
-								<span class="label label-warning etiqueta-nti-arxiu" title="${expedient.errorArxiu}">
+								<span class="label label-warning etiqueta-nti-arxiu" title="Hi ha errors de sincronització amb l'Arxiu.">
 									<spring:message code="expedient.info.etiqueta.arxiu"/>
 									&nbsp;<span id="triangleErrArxiu" class="fa fa-exclamation-triangle text-danger" style="font-size: 15px;"></span>
 								</span>

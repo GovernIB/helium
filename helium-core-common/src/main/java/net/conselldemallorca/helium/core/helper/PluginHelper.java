@@ -3255,7 +3255,7 @@ public class PluginHelper {
 							NtiOrigenEnumDto.ADMINISTRACIO, 
 							NtiEstadoElaboracionEnumDto.ALTRES, 
 							NtiTipoDocumentalEnumDto.CERTIFICAT, 
-							null);
+							null).getId();
 				} else if (gestioDocumentalId == null) {
 					gestioDocumentalId = documentHelperV3.crearDocument(
 							null, 
@@ -3269,7 +3269,7 @@ public class PluginHelper {
 							NtiOrigenEnumDto.ADMINISTRACIO, 
 							NtiEstadoElaboracionEnumDto.ALTRES, 
 							NtiTipoDocumentalEnumDto.CERTIFICAT, 
-							null);
+							null).getId();
 				}
 			}
 			

@@ -224,7 +224,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		if(dto.getTipusDocIdent()==null) { //En el cas d'interessats antics no té tipusDocIdent li posem NIF de moment
 			dto.setTipusDocIdent(InteressatDocumentTipusEnumDto.NIF.name());
 		} else {
-			dto.setTipusDocIdent(InteressatDocumentTipusEnumDto.valorAsEnum(dto.getTipusDocIdent()).name());
+			dto.setTipusDocIdent(this.populateInteressatDocumentTipus(dto));
 		}
 		populateModel(request, model);
 		if (dto.getProvincia() != null) {
@@ -396,6 +396,25 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		resposta.add(new ParellaCodiValorDto(getMessage(request, "interessat.tipus.document.enum.ALTRES_DE_PERSONA_FISICA"), InteressatDocumentTipusEnumDto.ALTRES_DE_PERSONA_FISICA));
 		resposta.add(new ParellaCodiValorDto(getMessage(request, "interessat.tipus.document.enum.CODI_ORIGEN"), InteressatDocumentTipusEnumDto.CODI_ORIGEN));
 		return resposta;
+	}
+	
+	public String populateInteressatDocumentTipus(InteressatDto interessatDto) {
+		//Si ve buit, per defecte posarem NIF
+		String docIdentTipus = interessatDto.getTipusDocIdent() != null ? interessatDto.getTipusDocIdent() : InteressatDocumentTipusEnumDto.NIF.toString();
+		if("NIF".equals(docIdentTipus) || "N".equals(docIdentTipus)) {
+			docIdentTipus = InteressatDocumentTipusEnumDto.NIF.toString();
+		} else if("CIF".equals(docIdentTipus) || "C".equals(docIdentTipus)) {
+			docIdentTipus = InteressatDocumentTipusEnumDto.CIF.toString();
+		} else if("PASSAPORT".equals(docIdentTipus) || "P".equals(docIdentTipus)) {
+			docIdentTipus = InteressatDocumentTipusEnumDto.PASSAPORT.toString();
+		} else if("NIE".equals(docIdentTipus) || "DOCUMENT_IDENTIFICATIU_ESTRANGERS".equals(docIdentTipus) || "E".equals(docIdentTipus)) {
+			docIdentTipus = InteressatDocumentTipusEnumDto.DOCUMENT_IDENTIFICATIU_ESTRANGERS.toString();
+		} else if("CODI_ORIGEN".equals(docIdentTipus) || "O".equals(docIdentTipus)) {
+			docIdentTipus = InteressatDocumentTipusEnumDto.CODI_ORIGEN.toString();
+		} else if("ALTRES".equals(docIdentTipus) || "X".equals(docIdentTipus)) {
+			docIdentTipus = InteressatDocumentTipusEnumDto.ALTRES_DE_PERSONA_FISICA.toString();
+		}
+		return docIdentTipus;
 	}
 	
 	@ModelAttribute("interessatCanalsNotif")

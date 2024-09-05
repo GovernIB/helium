@@ -1593,7 +1593,7 @@ public class DistribucioHelper {
 						annex.isDocumentValid(),
 						annex.getDocumentError(),
 						annex.getId(),
-						null);
+						null).getId();
 				annex.setDocumentStoreId(documentStoreId);
 			}
 		} catch(Exception e) {

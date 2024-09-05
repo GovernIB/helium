@@ -57,7 +57,7 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public Long create(
+	public DocumentStoreDto create(
 			Long expedientId,
 			String processInstanceId,
 			String documentCodi,
@@ -95,7 +95,7 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void update(
+	public DocumentStoreDto update(
 			Long expedientId,
 			String processInstanceId,
 			Long documentStoreId,
@@ -111,7 +111,7 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 			NtiEstadoElaboracionEnumDto ntiEstadoElaboracion,
 			NtiTipoDocumentalEnumDto ntiTipoDocumental,
 			String ntiIdOrigen) {
-		delegate.update(
+		return delegate.update(
 				expedientId,
 				processInstanceId,
 				documentStoreId,

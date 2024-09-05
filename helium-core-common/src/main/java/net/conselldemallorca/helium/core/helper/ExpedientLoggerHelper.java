@@ -982,7 +982,7 @@ public class ExpedientLoggerHelper {
 										null,
 										null,
 										null,
-										null);
+										null).getId();
 								jbpmHelper.setProcessInstanceVariable(
 										pid,
 										logo.getName(),
@@ -1012,7 +1012,7 @@ public class ExpedientLoggerHelper {
 										null,
 										null,
 										true,
-										null);
+										null).getId();
 								jbpmHelper.setProcessInstanceVariable(
 										pid,
 										logo.getName(),
@@ -1087,7 +1087,7 @@ public class ExpedientLoggerHelper {
 											null,
 											null,
 											null,
-											null);
+											null).getId();
 									jbpmHelper.setTaskInstanceVariable(
 											task.getId(),
 											logo.getName(),
@@ -1115,7 +1115,7 @@ public class ExpedientLoggerHelper {
 											null,
 											null,
 											null,
-											null);
+											null).getId();
 									jbpmHelper.setTaskInstanceVariable(
 											task.getId(),
 											logo.getName(),
