@@ -869,7 +869,7 @@ public class DocumentServiceImpl implements DocumentService {
 					true,  //documentValid
 					null,  //documentError
 					null,  //annexId
-					null); //annexosPerNotificar
+					null).getId(); //annexosPerNotificar
 			
 			if (documentStoreJusificantId!=null) {
 				guardaPeticioPinbalSenseError(

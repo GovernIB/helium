@@ -985,6 +985,8 @@ public class ExpedientHelper {
 			
 			documentStore.setArxiuContingut(null);
 			documentStore.setFont(DocumentFont.ALFRESCO);
+			documentStore.setDocumentValid(true);
+			documentStore.setDocumentError(null);
 		}
 
 		// Informa convorme l'expedient és NTI i a l'Arxiu

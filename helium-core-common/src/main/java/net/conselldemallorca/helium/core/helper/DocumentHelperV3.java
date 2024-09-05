@@ -775,9 +775,8 @@ public class DocumentHelperV3 {
 			throw new RuntimeException("Format de token ('" + token + "') incorrecte", ex);
 		}
 	}
-
 	
-	public Long crearDocument(
+	public DocumentStore crearDocument(
 			String taskInstanceId,
 			String processInstanceId,
 			String documentCodi,
@@ -814,7 +813,7 @@ public class DocumentHelperV3 {
 				null);
 	}
 	
-	public Long crearDocument(
+	public DocumentStore crearDocument(
 			String taskInstanceId,
 			String processInstanceId,
 			String documentCodi,
@@ -853,7 +852,7 @@ public class DocumentHelperV3 {
 				null);
 	}
 
-	public Long crearDocument(
+	public DocumentStore crearDocument(
 			String taskInstanceId,
 			String processInstanceId,
 			String documentCodi,
@@ -926,16 +925,20 @@ public class DocumentHelperV3 {
 					arxiuContentType,
 					ambFirma,
 					firmaSeparada,
-					firmaContingut,
+					firmaContingut, //No es guarda a BBDD, o es guarda a l'arxiu o no es guarda.
 					ntiOrigen,
 					ntiEstadoElaboracion,
 					ntiTipoDocumental,
 					ntiIdDocumentoOrigen);
+			
 		} catch (SistemaExternException seex) {
 			//Ha fallat la integració amb el sistema extern. EL guardam en local (BBDD) fins que es pugui sincronitzar.
 			documentStore.setArxiuContingut(arxiuContingut);
 			documentStore.setFont(DocumentFont.INTERNA);
 			expedient.addErrorArxiu("Error de sincronització amb arxiu al crear el document "+documentStore.getId()+": "+seex.getPublicMessage());
+
+			documentValid = false;
+			documentError = "No està sincronitzat amb l'arxiu.";
 		}
 		
 		// Guarda la referència al nou document a dins el jBPM, és necessari fer-ho fora del postProcessar
@@ -951,13 +954,13 @@ public class DocumentHelperV3 {
 					documentStore.getJbpmVariable(),
 					documentStore.getId());
 		}
-		
+
 		documentStoreCreat.setDocumentValid(documentValid);
 		documentStoreCreat.setDocumentError(documentError);
-		return documentStoreCreat.getId();
+		return documentStoreCreat;
 	}
 
-	public Long actualitzarDocument(
+	public DocumentStore actualitzarDocument(
 			Long documentStoreId,
 			String taskInstanceId,
 			String processInstanceId,
@@ -988,7 +991,7 @@ public class DocumentHelperV3 {
 
 	}
 	
-	public Long actualitzarDocument(
+	public DocumentStore actualitzarDocument(
 			Long documentStoreId,
 			String taskInstanceId,
 			String processInstanceId,
@@ -1027,7 +1030,7 @@ public class DocumentHelperV3 {
 				null);	// annexUuid	
 	}
 		
-	public Long actualitzarDocument(
+	public DocumentStore actualitzarDocument(
 			Long documentStoreId,
 			String taskInstanceId,
 			String processInstanceId,
@@ -1047,6 +1050,7 @@ public class DocumentHelperV3 {
 			String documentError,
 			Long annexId,
 			String annexUuid) {
+		
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		if (documentStore == null) {
 			throw new NoTrobatException(
@@ -1067,8 +1071,10 @@ public class DocumentHelperV3 {
 												"S'ha de reprocessar el traspàs o esborrar-lo i ajuntar-ne un altre.");
 			}
 		}
+		
 		documentStore.setDataDocument(documentData);
 		documentStore.setDataModificacio(new Date());
+		
 		if (documentStore.isAdjunt()) {
 			documentStore.setAdjuntTitol(adjuntTitol);
 		}
@@ -1077,8 +1083,10 @@ public class DocumentHelperV3 {
 					documentStore.getReferenciaFont(),
 					expedient);
 		}
+		
 		documentStore.setDocumentValid(documentValid);
 		documentStore.setDocumentError(documentError);
+		
 		String arxiuUuid = null;
 		if (annexId != null) {
 			documentStore.setAnnexId(annexId);
@@ -1098,7 +1106,7 @@ public class DocumentHelperV3 {
 					arxiuContentType,
 					ambFirma,
 					firmaSeparada,
-					firmaContingut,
+					firmaContingut, //No es guarda a BBDD, o es guarda a l'arxiu o no es guarda.
 					ntiOrigen,
 					ntiEstadoElaboracion,
 					ntiTipoDocumental,
@@ -1108,6 +1116,9 @@ public class DocumentHelperV3 {
 			documentStore.setArxiuContingut(arxiuContingut);
 			documentStore.setFont(DocumentFont.INTERNA);
 			expedient.addErrorArxiu("Error de sincronització amb arxiu al actualitzar el document "+documentStore.getId()+": "+seex.getPublicMessage());
+			
+			documentStore.setDocumentValid(false);
+			documentStore.setDocumentError("No està sincronitzat amb l'arxiu.");
 		}
 		
 		// Guarda la referència al nou document a dins el jBPM, és necessari fer-ho fora del postProcessar
@@ -1124,10 +1135,10 @@ public class DocumentHelperV3 {
 					documentStore.getId());
 		}
 		
-		return documentStore.getId();
+		return documentStore;
 	}
 
-	public Long crearActualitzarDocument(
+	public DocumentStore crearActualitzarDocument(
 			String taskInstanceId,
 			String processInstanceId,
 			String documentCodi,
@@ -1157,7 +1168,7 @@ public class DocumentHelperV3 {
 				ntiIdDocumentoOrigen);
 	}
 
-	public Long crearActualitzarDocument(
+	public DocumentStore crearActualitzarDocument(
 			String taskInstanceId,
 			String processInstanceId,
 			String documentCodi,

@@ -175,7 +175,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 
 	@Override
 	@Transactional
-	public Long create(
+	public DocumentStoreDto create(
 			Long expedientId,
 			String processInstanceId,
 			String documentCodi,
@@ -223,7 +223,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 						ExpedientLogAccioTipus.PROCES_DOCUMENT_ADJUNTAR 
 						: ExpedientLogAccioTipus.PROCES_DOCUMENT_AFEGIR,
 				documentCodi);
-		Long documentStoreId = documentHelper.crearDocument(
+		DocumentStore documentStoreCreat = documentHelper.crearDocument(
 				null,
 				processInstanceId,
 				documentCodi,
@@ -252,12 +252,12 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				SecurityContextHolder.getContext().getAuthentication().getName(),
 				documentCodi,
 				arxiuNom);
-		return documentStoreId;
+		return conversioTipusHelper.convertir(documentStoreCreat, DocumentStoreDto.class);
 	}
 
 	@Override
 	@Transactional
-	public void update(
+	public DocumentStoreDto update(
 			Long expedientId,
 			String processInstanceId,
 			Long documentStoreId,
@@ -311,7 +311,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				processInstanceId,
 				ExpedientLogAccioTipus.PROCES_DOCUMENT_MODIFICAR,
 				documentCodi);
-		documentHelper.actualitzarDocument(
+		
+		DocumentStore documentStoreModificat = documentHelper.actualitzarDocument(
 				documentStoreId,
 				null,
 				processInstanceId,
@@ -335,6 +336,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				documentCodi,
 				arxiuNomAntic,
 				arxiuNom);
+		
+		return conversioTipusHelper.convertir(documentStoreModificat, DocumentStoreDto.class);
 	}
 	
 	@Override
@@ -356,8 +359,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		Long documentStoreId = null;
 		
 		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
-
 		ExpedientDocumentDto expDocDto = this.findOneAmbInstanciaProces(expedient.getId(), processInstanceId, documentCodi);
+		
 		if(expDocDto != null) { 
 			documentStoreId = expDocDto.getId();
 			this.update( 
@@ -394,7 +397,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 					null, //command.getNtiEstadoElaboracion(),
 					null, //command.getNtiTipoDocumental(),
 					null,  //command.getNtiIdOrigen()
-					annexosPerNotificar);
+					annexosPerNotificar).getId();
 		}
 		return documentStoreId;
 	}

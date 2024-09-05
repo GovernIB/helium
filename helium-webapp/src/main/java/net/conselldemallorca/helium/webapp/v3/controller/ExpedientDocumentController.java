@@ -756,7 +756,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			}
 			if (arxiuContingut != null) {
 				try {
-					expedientDocumentService.create(
+					DocumentStoreDto documentStoreDto = expedientDocumentService.create(
 							expedientId,
 							processInstanceId,
 							documentCodi, // null en el cas dels adjunts
@@ -774,7 +774,11 @@ public class ExpedientDocumentController extends BaseExpedientController {
 							command.getNtiIdOrigen(),
 							null);
 					
-					MissatgesHelper.success(request, getMessage(request, "info.document.guardat") );
+					if (documentStoreDto.isDocumentValid()) {
+						MissatgesHelper.success(request, getMessage(request, "info.document.guardat") );
+					} else {
+						MissatgesHelper.warning(request, getMessage(request, "info.document.guardat.err") );
+					}
 					return modalUrlTancar(false);
 				} catch(Exception e) {
 					String errMsg = getMessage(request, "info.document.guardat.error", new Object[] {e.getMessage()});
@@ -917,7 +921,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 
 			if (arxiuContingut != null) {
 				try {
-					expedientDocumentService.update(
+					DocumentStoreDto documentStoreDto = expedientDocumentService.update(
 							expedientId,
 							processInstanceId,
 							documentStoreId,
@@ -936,7 +940,11 @@ public class ExpedientDocumentController extends BaseExpedientController {
 							command.getNtiTipoDocumental(),
 							command.getNtiIdOrigen());
 					
-					MissatgesHelper.success(request, getMessage(request, "info.document.guardat"));
+					if (documentStoreDto.isDocumentValid()) {
+						MissatgesHelper.success(request, getMessage(request, "info.document.modificat"));
+					} else {
+						MissatgesHelper.warning(request, getMessage(request, "info.document.modificat.err"));
+					}
 					return modalUrlTancar(false);				
 				} catch(Exception e) {
 					String errMsg = getMessage(request, "info.document.guardat.error", new Object[] {e.getMessage()});

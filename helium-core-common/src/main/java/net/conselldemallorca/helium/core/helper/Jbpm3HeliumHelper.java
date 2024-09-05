@@ -1513,7 +1513,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				null,
 				null,
 				null,
-				null);
+				null).getId();
 	}
 
 	@Override
@@ -1574,7 +1574,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				null,
 				null,
 				null,
-				null);
+				null).getId();
 	}
 
 	@Override
@@ -1833,7 +1833,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						true,  //documentValid
 						null,  //documentError
 						null,  //annexId
-						null); //annexosPerNotificar
+						null).getId(); //annexosPerNotificar
 			}	 
 		} else {
 			respostaPinbal = (ScspRespostaPinbal) pluginHelper.consultaPinbal(
@@ -1884,7 +1884,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						true,  //documentValid
 						null,  //documentError
 						null,  //annexId
-						null); //annexosPerNotificar
+						null).getId(); //annexosPerNotificar
 			}			
 		}
 		guardaPeticioPinbalSenseError(
@@ -1990,7 +1990,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						true,  //documentValid
 						null,  //documentError
 						null,  //annexId
-						null); //annexosPerNotificar
+						null).getId(); //annexosPerNotificar
 			}
 		}else {
 			respostaPinbal = (ScspRespostaPinbal) pluginHelper.consultaPinbal(
@@ -2040,7 +2040,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						true,  //documentValid
 						null,  //documentError
 						null,  //annexId
-						null); //annexosPerNotificar
+						null).getId(); //annexosPerNotificar
 			}
 		}
 		
@@ -2171,7 +2171,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						true,  //documentValid
 						null,  //documentError
 						null,  //annexId
-						null); //annexosPerNotificar
+						null).getId(); //annexosPerNotificar
 			}
 		} else {
 		
@@ -2223,7 +2223,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						true,  //documentValid
 						null,  //documentError
 						null,  //annexId
-						null); //annexosPerNotificar
+						null).getId(); //annexosPerNotificar
 			}
 		}
 		
@@ -2323,7 +2323,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						true,  //documentValid
 						null,  //documentError
 						null,  //annexId
-						null); //annexosPerNotificar		
+						null).getId(); //annexosPerNotificar		
 			}
 		} else {
 		
@@ -2375,7 +2375,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 						true,  //documentValid
 						null,  //documentError
 						null,  //annexId
-						null); //annexosPerNotificar	
+						null).getId(); //annexosPerNotificar	
 			}
 		}
 		
@@ -3683,7 +3683,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				true,
 				null,
 				null,
-				annexosPerNotificar);
+				annexosPerNotificar).getId();
 		indexHelper.expedientIndexLuceneUpdate(processInstanceId);
 		expedientRegistreHelper.crearRegistreCrearDocumentInstanciaProces(
 				expedient.getId(),
