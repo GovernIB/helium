@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientL
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Interessat;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
+import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAnnexEstatEnumDto;
@@ -46,6 +48,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.AnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuEstat;
+import net.conselldemallorca.helium.v3.core.api.dto.CanalNotifEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
@@ -291,6 +294,8 @@ public class AnotacioHelper {
 		if (associarInteressats) {
 			// Incorpora els interessats a l'expedient
 			Interessat interessatEntity;
+			Interessat representantEntity = null;
+			List<Interessat> representats = new ArrayList<Interessat>();
 			for(AnotacioInteressat interessat : anotacio.getInteressats()) {
 				// Comprova si ja existeix
 				interessatEntity = interessatRepository.findByCodiAndExpedient(
@@ -300,7 +305,7 @@ public class AnotacioHelper {
 					logger.debug("Creant l'interessat (interessat=" + interessat + ") a l'expedient " + expedient.getIdentificador());
 					interessatEntity = new Interessat(
 							interessat.getId(),
-							interessat.getDocumentNumero(), // Codi
+							interessat.getDocumentNumero(), // Codi de l'interessat
 							interessat.getNom() != null? interessat.getNom() : interessat.getRaoSocial(),
 							interessat.getDocumentNumero(),
 							interessat.getOrganCodi(), //codiDir3
@@ -312,33 +317,101 @@ public class AnotacioHelper {
 							expedient,
 							false, //interessat.getAdresa() != null && interessat.getCp() != null, // entregaPostalActiva o el nom correcte de la propietat //Forcem false issue #1675
 							EntregaPostalTipus.SENSE_NORMALITZAR,
-							interessat.getAdresa(), // adreça línia 1
+							null, //línia 1 queda substituit amb Adresa
 							null, // linia2,
 							interessat.getCp(),
 							false, // entregaDeh,
 							false, //entregaDehObligat
-							InteressatDocumentTipusEnumDto.NIF.getValor(), //interessat.getDocumentTipus(),
+							this.populateInteressatDocumentTipus(null, interessat),//interessat.getDocumentTipus()
 							interessat.getAdresa(),
 							interessat.getObservacions(),
 							false,//es_representant
 							interessat.getRaoSocial(),
-							interessat.getPais(),
-							interessat.getProvincia(),
-							interessat.getMunicipi(),
-							null,//interessat.getCanalNotif()
+							interessat.getPaisCodi(),
+							interessat.getProvinciaCodi(),
+							interessat.getMunicipiCodi(),
+							this.populateInteressatCanalNotif(null, interessat),//interessat.getCanal(),
 							null);//interessat.getCodiDire()
+					if(interessat.getRepresentant()!=null) {//Si té un representant també el crea
+						AnotacioInteressat representant = interessat.getRepresentant();
+						representantEntity = new Interessat(
+								representant.getId(),
+								representant.getDocumentNumero(), // Codi de l'interessat
+								representant.getNom() != null? representant.getNom() : representant.getRaoSocial(),
+								representant.getDocumentNumero(),
+								representant.getOrganCodi(), //codiDir3
+								representant.getLlinatge1(), 
+								representant.getLlinatge2(), 
+								this.getInteressatTipus(representant),
+								representant.getEmail(), 
+								representant.getTelefon(),
+								expedient,
+								false, //interessat.getAdresa() != null && interessat.getCp() != null, // entregaPostalActiva o el nom correcte de la propietat //Forcem false issue #1675
+								EntregaPostalTipus.SENSE_NORMALITZAR,
+								null, //línia 1 queda substituit amb Adresa
+								null, // linia2,
+								representant.getCp(),
+								false, // entregaDeh,
+								false, //entregaDehObligat
+								this.populateInteressatDocumentTipus(null, representant),//interessat.getDocumentTipus()
+								representant.getAdresa(),
+								representant.getObservacions(),
+								false,//es_representant
+								representant.getRaoSocial(),
+								representant.getPaisCodi(),
+								representant.getProvinciaCodi(),
+								representant.getMunicipiCodi(),
+								this.populateInteressatCanalNotif(null, representant),//interessat.getCanal(),
+								null);//interessat.getCodiDire()
+						representantEntity.setEs_representant(true);
+						representats.add(representantEntity);
+//						interessatEntity.setRepresentant(representantEntity);
+					}
 				} else {
 					// Actualitza l'interessat existent
 					logger.debug("Modificant l'interessat (interessat=" + interessat + ") a l'expedient " + expedient.getIdentificador());
-					interessatEntity.setNom(interessat.getNom() != null? interessat.getNom() : interessat.getRaoSocial());
+					if(InteressatTipusEnumDto.FISICA.equals(interessatEntity.getTipus())) {
+						interessatEntity.setNom(interessat.getNom());
+						interessatEntity.setLlinatge1(interessat.getLlinatge1());
+						interessatEntity.setLlinatge2(interessat.getLlinatge2());
+					} else if(InteressatTipusEnumDto.JURIDICA.equals(interessatEntity.getTipus())) {
+						interessatEntity.setRaoSocial(interessat.getRaoSocial());
+					} else if(InteressatTipusEnumDto.ADMINISTRACIO.equals(interessatEntity.getTipus())) {
+						if(interessat.getOrganCodi()!=null) {
+							interessatEntity.setDocumentIdent(interessat.getOrganCodi());
+							UnitatOrganitzativa uo= unitatOrganitzativaHelper.findByCodi(interessat.getOrganCodi());//MARTA revisar si li arriba organCodi o altre document d'identificació
+							if(uo!=null)
+								interessat.setRaoSocial(uo.getDenominacio());
+						}
+					}
+					this.populateInteressatDocumentTipus(interessatEntity, interessat);
 					interessatEntity.setDocumentIdent(interessat.getDocumentNumero());
-					interessatEntity.setLlinatge1(interessat.getLlinatge1());  
-					interessatEntity.setLlinatge2(interessat.getLlinatge2());
+					this.populateInteressatCanalNotif(interessatEntity, interessat);
 					interessatEntity.setTipus(this.getInteressatTipus(interessat));
 					interessatEntity.setEmail(interessat.getEmail());
 					interessatEntity.setTelefon(interessat.getTelefon());
+					interessatEntity.setPais(interessat.getPaisCodi());
+					interessatEntity.setProvincia(interessat.getProvinciaCodi());
+					interessatEntity.setMunicipi(interessat.getMunicipiCodi());
+					interessatEntity.setCodiPostal(interessat.getCp());
+					interessatEntity.setDireccio(interessat.getAdresa());
+					interessatEntity.setCodi(interessat.getDocumentNumero());
+					if(interessat.getRepresentant()!=null) {
+						// Comprova si ja existeix el representant
+						representantEntity = interessatRepository.findByCodiAndExpedient(
+								interessat.getRepresentant().getDocumentNumero(), expedient);
+						representantEntity.setEs_representant(true);
+						interessatEntity.setRepresentant(representantEntity);
+					}
 				}
+				
 				interessatRepository.save(interessatEntity);
+				if(representantEntity!=null &&interessat.getRepresentant()!=null) {
+					if(!representats.isEmpty()) {
+						representantEntity.setRepresentats(representats);
+					}
+					interessatRepository.save(representantEntity);
+				}
 			}
 		}
 		
@@ -371,6 +444,46 @@ public class AnotacioHelper {
 		return conversioTipusHelper.convertir(
 				anotacio, 
 				AnotacioDto.class);
+	}
+	
+	public String populateInteressatDocumentTipus(Interessat interessatEntity, AnotacioInteressat anotacioInteressat) {
+		//Si ve buit, per defecte posarem NIF
+		String docTipusAnotacio = anotacioInteressat.getDocumentTipus() != null ? anotacioInteressat.getDocumentTipus() : InteressatDocumentTipusEnumDto.NIF.getValor();
+		//Possibles valors que ens arriben de l'anotació:  NIF, CIF, PASSAPORT, NIE, CODI_ORIGEN, ALTRES;
+		if("NIF".equals(docTipusAnotacio)) {
+			docTipusAnotacio = InteressatDocumentTipusEnumDto.NIF.getValor();
+		} else if("CIF".equals(docTipusAnotacio)) {
+			docTipusAnotacio = InteressatDocumentTipusEnumDto.CIF.getValor();
+		} else if("PASSAPORT".equals(docTipusAnotacio)) {
+			docTipusAnotacio = InteressatDocumentTipusEnumDto.PASSAPORT.getValor();
+		} else if("NIE".equals(docTipusAnotacio)) {
+			docTipusAnotacio = InteressatDocumentTipusEnumDto.DOCUMENT_IDENTIFICATIU_ESTRANGERS.getValor();
+		} else if("CODI_ORIGEN".equals(docTipusAnotacio)) {
+			docTipusAnotacio = InteressatDocumentTipusEnumDto.CODI_ORIGEN.getValor();
+		} else if("ALTRES".equals(docTipusAnotacio)) {
+			docTipusAnotacio = InteressatDocumentTipusEnumDto.ALTRES_DE_PERSONA_FISICA.getValor();
+		} else {
+			docTipusAnotacio = InteressatDocumentTipusEnumDto.NIF.getValor();
+		}	
+		if(interessatEntity!=null)
+			interessatEntity.setTipusDocIdent(docTipusAnotacio);
+		return docTipusAnotacio;
+	}
+	
+	public String populateInteressatCanalNotif(Interessat interessatEntity, AnotacioInteressat anotacioInteressat) {
+		//Si ve buit, per defecte posarem DIRECCION_ELECTRONICA_HABILITADA (02)
+		String canalNotifAnotacio = anotacioInteressat.getCanal() != null ? anotacioInteressat.getCanal() : CanalNotifEnumDto.DIRECCION_ELECTRONICA_HABILITADA.getValue();
+		//Possibles valors que ens arriben de l'anotació:  ADRESA_POSTAL, ADRESA_ELECTR, COMPAR_ELECTR;
+		if("ADRECA_ELEC_HAB".equals(canalNotifAnotacio) || "ADRESA_ELECTR".equals(canalNotifAnotacio)) {
+			canalNotifAnotacio = CanalNotifEnumDto.DIRECCION_ELECTRONICA_HABILITADA.getValue();
+		} else if("ADRESA_POSTAL".equals(canalNotifAnotacio)) {
+			canalNotifAnotacio = CanalNotifEnumDto.DIRECCION_POSTAL.getValue();
+		} else if("COMPAR_ELECTR".equals(canalNotifAnotacio)) {
+			canalNotifAnotacio = CanalNotifEnumDto.COMPARECENCIA_ELECTRONICA.getValue();
+		} 
+		if(interessatEntity!=null)
+			interessatEntity.setCanalNotif(canalNotifAnotacio);
+		return canalNotifAnotacio;
 	}
 	
 	/** Poden realitzar accions els usuaris:

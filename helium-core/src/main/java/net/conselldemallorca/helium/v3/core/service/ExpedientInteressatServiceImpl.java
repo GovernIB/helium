@@ -118,6 +118,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 		logger.debug("Modificant interessat (interessat=" + interessat + ")");
 		Interessat interessatEntity = interessatRepository.findOne(interessat.getId());
 		interessatEntity.setCodi(interessat.getCodi());
+		interessatEntity.setRaoSocial(interessat.getRaoSocial());
 		interessatEntity.setNom(interessat.getNom());
 		interessatEntity.setDocumentIdent(interessat.getDocumentIdent());
 		interessatEntity.setDir3Codi(interessat.getDir3Codi());

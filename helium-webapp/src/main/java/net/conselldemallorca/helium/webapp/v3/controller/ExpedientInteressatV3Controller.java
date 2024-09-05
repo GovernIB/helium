@@ -189,6 +189,13 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
         } else {
         	try {
         		populateModel(request, model);
+        		if (command.getTipus() != null && InteressatTipusEnumDto.ADMINISTRACIO.equals(command.getTipus())) {
+        			this.populateUOsCommand(command);
+            	}
+				model.addAttribute(
+						"organs",
+						unitatOrganitzativaHelper.findAll()
+						);		
         		InteressatDto resultat = expedientInteressatService.create(
 	    				ConversioTipusHelper.convertir(
 	    						command,
@@ -224,7 +231,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		if(dto.getTipusDocIdent()==null) { //En el cas d'interessats antics no té tipusDocIdent li posem NIF de moment
 			dto.setTipusDocIdent(InteressatDocumentTipusEnumDto.NIF.name());
 		} else {
-			dto.setTipusDocIdent(InteressatDocumentTipusEnumDto.valorAsEnum(dto.getTipusDocIdent()).name());
+			dto.setTipusDocIdent(this.populateInteressatDocumentTipus(dto));
 		}
 		populateModel(request, model);
 		if (dto.getProvincia() != null) {
@@ -233,14 +240,14 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		interessatCommand = ConversioTipusHelper.convertir(
 				dto,
 				InteressatCommand.class);
-		if (InteressatTipusEnumDto.ADMINISTRACIO.equals(dto.getTipus())) {
-			
-				interessatCommand.setCifOrganGestor(interessatCommand.getDocumentIdent());
-				model.addAttribute(
-						"organs",
-						unitatOrganitzativaHelper.findAll()
-						);			
-		}
+		if (interessatCommand.getTipus() != null && InteressatTipusEnumDto.ADMINISTRACIO.equals(interessatCommand.getTipus())) {
+    		this.populateUOsCommand(interessatCommand);
+    		interessatCommand.setCifOrganGestor(interessatCommand.getDocumentIdent());
+			model.addAttribute(
+					"organs",
+					unitatOrganitzativaHelper.findAll()
+					);		
+    	}
 		model.addAttribute(interessatCommand);
 		return "v3/interessatForm";
 	}
@@ -258,6 +265,9 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
         } else {
     		populateModel(request, model);
         	command.setEs_representant(es_representant);
+        	if (command.getTipus() != null && InteressatTipusEnumDto.ADMINISTRACIO.equals(command.getTipus())) {
+    			this.populateUOsCommand(command);
+        	}
         	InteressatDto resultat = expedientInteressatService.update(
         			ConversioTipusHelper.convertir(
     						command,
@@ -325,6 +335,9 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
         } else {
     		populateModel(request, model);
         	command.setEs_representant(true);
+        	if (command.getTipus() != null && InteressatTipusEnumDto.ADMINISTRACIO.equals(command.getTipus())) {
+    			this.populateUOsCommand(command);
+        	}
         	expedientInteressatService.createRepresentant(
         			interessatId,
     				ConversioTipusHelper.convertir(
@@ -396,6 +409,25 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		resposta.add(new ParellaCodiValorDto(getMessage(request, "interessat.tipus.document.enum.ALTRES_DE_PERSONA_FISICA"), InteressatDocumentTipusEnumDto.ALTRES_DE_PERSONA_FISICA));
 		resposta.add(new ParellaCodiValorDto(getMessage(request, "interessat.tipus.document.enum.CODI_ORIGEN"), InteressatDocumentTipusEnumDto.CODI_ORIGEN));
 		return resposta;
+	}
+	
+	public String populateInteressatDocumentTipus(InteressatDto interessatDto) {
+		//Si ve buit, per defecte posarem NIF
+		String docIdentTipus = interessatDto.getTipusDocIdent() != null ? interessatDto.getTipusDocIdent() : InteressatDocumentTipusEnumDto.NIF.toString();
+		if("NIF".equals(docIdentTipus) || "N".equals(docIdentTipus)) {
+			docIdentTipus = InteressatDocumentTipusEnumDto.NIF.toString();
+		} else if("CIF".equals(docIdentTipus) || "C".equals(docIdentTipus)) {
+			docIdentTipus = InteressatDocumentTipusEnumDto.CIF.toString();
+		} else if("PASSAPORT".equals(docIdentTipus) || "P".equals(docIdentTipus)) {
+			docIdentTipus = InteressatDocumentTipusEnumDto.PASSAPORT.toString();
+		} else if("NIE".equals(docIdentTipus) || "DOCUMENT_IDENTIFICATIU_ESTRANGERS".equals(docIdentTipus) || "E".equals(docIdentTipus)) {
+			docIdentTipus = InteressatDocumentTipusEnumDto.DOCUMENT_IDENTIFICATIU_ESTRANGERS.toString();
+		} else if("CODI_ORIGEN".equals(docIdentTipus) || "O".equals(docIdentTipus)) {
+			docIdentTipus = InteressatDocumentTipusEnumDto.CODI_ORIGEN.toString();
+		} else if("ALTRES".equals(docIdentTipus) || "X".equals(docIdentTipus)) {
+			docIdentTipus = InteressatDocumentTipusEnumDto.ALTRES_DE_PERSONA_FISICA.toString();
+		}
+		return docIdentTipus;
 	}
 	
 	@ModelAttribute("interessatCanalsNotif")
@@ -526,8 +558,24 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 	private void populateDadesInteressat(InteressatDto interessat) {
 		if(InteressatTipusEnumDto.ADMINISTRACIO.equals(interessat.getTipus())){
 			UnitatOrganitzativa uo= unitatOrganitzativaHelper.findByCodi(interessat.getDocumentIdent());
-			if(uo!=null)
+			if(uo!=null) {
 				interessat.setRaoSocial(uo.getDenominacio());
+				interessat.setPais(uo.getCodiPais());
+				interessat.setCodiPostal(uo.getCodiPostal());
+				interessat.setDireccio(uo.getNomVia() +", "+ uo.getNumVia());//tampoc està arribant l'adreça completa, faltaria el tipusVia mapejat
+//				interessat.setMunicipi(uo.getLocalitat());//El plugin no està retornant aquest codi
+				if(uo.getCodiProvincia()!=null) {
+					String codiProvinciaDosDigits = String.format("%02d", uo.getCodiProvincia());//Fa falta que sigui de dos digits pq busqui bé els municipis
+					interessat.setProvincia(codiProvinciaDosDigits);
+					List<MunicipiDto> municipis = dadesExternesService.findMunicipisPerProvincia(codiProvinciaDosDigits);
+					for(MunicipiDto municipi: municipis) {
+						if(municipi.getNom().equals(uo.getNomLocalitat())) {//No ens ve informat el número de localitat/municipi en el plugin de uos
+							interessat.setMunicipi(municipi.getCodi());
+							break;
+						}
+					}		
+				}
+			}
 		}
 		if(interessat.getPais()!=null && !interessat.getPais().isEmpty()) {
 			List<PaisDto> paisos =  dadesExternesService.findPaisos();
@@ -557,6 +605,29 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			}
 		}	
 	}
+	
+	private void populateUOsCommand(InteressatCommand command) {
+		UnitatOrganitzativa uo= unitatOrganitzativaHelper.findByCodi(command.getDocumentIdent());
+		if(uo!=null) {
+			command.setRaoSocial(uo.getDenominacio());
+			command.setPais(uo.getCodiPais());
+			command.setMunicipi(uo.getLocalitat());//El plugin no està retornant aquest codi
+			command.setCodiPostal(uo.getCodiPostal());
+			command.setDireccio(uo.getNomVia() +", "+ uo.getNumVia());//tampoc està arribant l'adreça completa, faltaria el tipusVia mapejat
+			if(uo.getCodiProvincia()!=null) {
+				String codiProvinciaDosDigits = String.format("%02d", Long.valueOf(uo.getCodiProvincia()));//Fa falta que sigui de dos digits pq busqui bé els municipis
+				command.setProvincia(codiProvinciaDosDigits);
+				List<MunicipiDto> municipis = dadesExternesService.findMunicipisPerProvincia(codiProvinciaDosDigits);
+				for(MunicipiDto municipi: municipis) {
+					if(municipi.getNom().equals(uo.getNomLocalitat())) {//No ens ve informat el número de localitat/municipi en el plugin de uos
+						command.setMunicipi(municipi.getCodi());
+						break;
+					}
+				}		
+			}
+		}
+	}
+	
 	
 	
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientInteressatV3Controller.class);
