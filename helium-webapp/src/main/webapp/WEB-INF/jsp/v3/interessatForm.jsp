@@ -508,7 +508,7 @@ $(document).ready(function() {
 		
 		<div id="dir3Codi" class="row personafisica personajuridica administracio hidden"  style="margin-right:-14px ; margin-left:-59px">
 			<div class="col-xs-12">
-					<hel:inputText required="true" name="dir3Codi" textKey="interessat.form.camp.dir3codi" labelSize="2" /> 
+					<hel:inputText required="false" name="dir3Codi" textKey="interessat.form.camp.dir3codi" labelSize="2" /> 
 			</div>
 		</div>
 		
