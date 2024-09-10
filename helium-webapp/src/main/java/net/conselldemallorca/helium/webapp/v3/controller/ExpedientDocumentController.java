@@ -1826,6 +1826,13 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			MissatgesHelper.error(request, getMessage(request, "expedient.document.firmaPassarela.validacio.custodia.codi"));
 			potFirmar = false;
 		} 
+		// Validar que l'arxiu sigui convertible a pdf o zip
+		if (!PdfUtils.isArxiuConvertiblePdf(document.getArxiuNom())) {
+			MissatgesHelper.warning(request, 
+					getMessage(request, 
+							"expedient.document.firmaPassarela.validacio.no.convertible",
+							new Object[] {PdfUtils.getExtensionsConvertiblesPdf()}));
+		}
 		DocumentExpedientFirmaPassarelaCommand command = new DocumentExpedientFirmaPassarelaCommand();
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		command.setMotiu(getMessage(request, "expedient.document.firmaPassarela.camp.motiu.default", new Object[] {expedient.getNumero()}));
@@ -1849,12 +1856,12 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			BindingResult bindingResult,
 			Model model) {
 		
+		ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
+				expedientId,
+				processInstanceId,
+				documentStoreId);
+		model.addAttribute("document", document);	
 		if (bindingResult.hasErrors()) {
-			ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
-					expedientId,
-					processInstanceId,
-					documentStoreId);
-			model.addAttribute("document", document);	
 			model.addAttribute("expedientId", expedientId);
 			model.addAttribute("documentExpedientFirmaPassarelaCommand", command);
 			model.addAttribute("potFirmar", true);
@@ -1863,7 +1870,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		String ret = "v3/expedientDocumentFirmaPassarelaForm";
 		try {
 			
-			ArxiuDto arxiuPerFirmar = expedientDocumentService.arxiuFindAmbDocument(
+			ArxiuDto arxiuPerFirmar = expedientDocumentService.arxiuPdfFindAmbDocument(
 					expedientId,
 					processInstanceId,
 					documentStoreId);
