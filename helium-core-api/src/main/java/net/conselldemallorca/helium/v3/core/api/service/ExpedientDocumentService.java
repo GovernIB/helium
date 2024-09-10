@@ -271,7 +271,15 @@ public interface ExpedientDocumentService {
 			String processInstanceId,
 			Long documentStoreId) throws NoTrobatException, PermisDenegatException;
 	
+	/** Retorna l'arxiu PDF del document, si no és un PDF el converteix primer.
+	 * 
+	 * @param expedientId
+	 * @param processInstanceId
+	 * @param documentStoreId
+	 * @return
+	 */
 	public ArxiuDto arxiuPdfFindAmbDocument(Long expedientId, String processInstanceId, Long documentStoreId);
+
 	/**
 	 * Retorna l'arxiu del document de la versió indicada.
 	 * 
