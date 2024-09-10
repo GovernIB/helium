@@ -370,12 +370,10 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 				}
 			} else {
 				//Persona jurídica o administració
-				if ("C".equals(this.tipusDocIdent)) {
-					if (serveiPinbal.isPinbalServeiDocPermesCif()) {
-						return ScspTipoDocumentacion.CIF;
-					} else if (serveiPinbal.isPinbalServeiDocPermesNif()) {
-						return ScspTipoDocumentacion.NIF;
-					}
+				if ("C".equals(this.tipusDocIdent) && serveiPinbal.isPinbalServeiDocPermesCif()) {
+					return ScspTipoDocumentacion.CIF;
+				} else if ("N".equals(this.tipusDocIdent) && serveiPinbal.isPinbalServeiDocPermesNif()) {
+					return ScspTipoDocumentacion.NIF;
 				}
 			}
 		}

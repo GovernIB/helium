@@ -1956,10 +1956,10 @@ public class ExpedientService {
 				expedient.setErrorFull(errorFull);
 				expedient = expedientDao.saveOrUpdate(expedient);
 			} else {
-				logger.error("Error al actualitzar l'error de l'expedient amb pi=" + processInstanceId + ". No s'ha trobat l'expedient");
+				logger.error("Error actualitzant l'error de l'expedient amb pi=" + processInstanceId + ". No s'ha trobat l'expedient");
 			}
 		} catch (Exception e) {
-			logger.error("Error al actualitzar l'error de l'expedient amb pi=" + processInstanceId, e);
+			logger.error("Error actualitzant l'error de l'expedient amb pi=" + processInstanceId, e);
 		}
 		return expedient;
 	}

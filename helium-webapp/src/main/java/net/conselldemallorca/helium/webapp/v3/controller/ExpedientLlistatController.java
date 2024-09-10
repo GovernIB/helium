@@ -2,6 +2,7 @@ package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -382,8 +383,14 @@ public class ExpedientLlistatController extends BaseExpedientController {
 							if (val.getValor() instanceof BigDecimal) {
 								cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_NUMERIC);
 								BigDecimal valorConvertit = (BigDecimal)e.getValue().getValor();
-								cell.setCellValue(valorConvertit.longValue());
-								cell.setCellStyle(dStyle);
+								String valor_s = new DecimalFormat("#,##0.00").format(valorConvertit);
+								valor_s = valor_s.replace(".", "").replace(",", ".");
+								if (valor_s!=null && !"".equals(valor_s)) {
+									cell.setCellValue(Float.parseFloat(valor_s));
+									cell.setCellStyle(dStyle);
+								} else {
+									cell.setCellValue("");
+								}
 							} else if (val.getValor() instanceof Integer) {
 								cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_NUMERIC);
 								Integer valorConvertit = (Integer)e.getValue().getValor();

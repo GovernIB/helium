@@ -637,7 +637,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 									resultat,
 									new Object[] {command.getDocumentNom(), command.getCodiServei()}));
 				} else {
-					MissatgesHelper.error(request, resultat);
+					MissatgesHelper.error(request, getMessage(request, resultat));
 					omplirModelFormDocumentPinbal(request, model, command, true);
 					return "v3/expedientDocumentPinbalForm";
 				}

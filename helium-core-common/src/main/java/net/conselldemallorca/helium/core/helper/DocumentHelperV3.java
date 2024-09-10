@@ -1115,7 +1115,7 @@ public class DocumentHelperV3 {
 			//Es guarda temporalment al documentStore, un cop pujat al arxiu, es borra el contingut
 			documentStore.setArxiuContingut(arxiuContingut);
 			documentStore.setFont(DocumentFont.INTERNA);
-			expedient.addErrorArxiu("Error de sincronització amb arxiu al actualitzar el document "+documentStore.getId()+": "+seex.getPublicMessage());
+			expedient.addErrorArxiu("Error de sincronització amb arxiu actualitzant el document "+documentStore.getId()+": "+seex.getPublicMessage());
 			
 			documentStore.setDocumentValid(false);
 			documentStore.setDocumentError("No està sincronitzat amb l'arxiu.");
@@ -1297,6 +1297,7 @@ public class DocumentHelperV3 {
 								arxiuExisteixDocument = null != pluginHelper.arxiuDocumentInfo(documentStore.getArxiuUuid(), null, false, documentStore.isSignat());
 							} catch (Exception ex) {
 								// Si no existeix falla la consulta.
+								logger.error("No s'ha pogut borrar el document "+documentStore.getArxiuUuid()+" del arxiu perque no existeix.");
 							}
 							if ( arxiuExisteixDocument) {
 								// Esborra el document de l'Arxiu
