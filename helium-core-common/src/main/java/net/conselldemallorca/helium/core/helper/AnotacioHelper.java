@@ -356,7 +356,7 @@ public class AnotacioHelper {
 								this.populateInteressatDocumentTipus(null, representant),//interessat.getDocumentTipus()
 								representant.getAdresa(),
 								representant.getObservacions(),
-								false,//es_representant
+								true,//es_representant
 								representant.getRaoSocial(),
 								representant.getPaisCodi(),
 								representant.getProvinciaCodi(),
@@ -408,6 +408,7 @@ public class AnotacioHelper {
 				interessatRepository.save(interessatEntity);
 				if(representantEntity!=null &&interessat.getRepresentant()!=null) {
 					if(!representats.isEmpty()) {
+						interessatEntity.setRepresentant(representantEntity);
 						representantEntity.setRepresentats(representats);
 					}
 					interessatRepository.save(representantEntity);
