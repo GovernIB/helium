@@ -467,8 +467,8 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public String firmaSimpleWebStart(PersonaDto persona, ArxiuDto arxiu, String motiu, String lloc, String urlRetorn) {
-		return delegate.firmaSimpleWebStart(persona, arxiu, motiu, lloc, urlRetorn);
+	public String firmaSimpleWebStart(PersonaDto persona, ArxiuDto arxiu, String signId, String motiu, String lloc, String urlRetorn) {
+		return delegate.firmaSimpleWebStart(persona, arxiu, signId, motiu, lloc, urlRetorn);
 	}
 
 	@Override

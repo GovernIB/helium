@@ -85,13 +85,16 @@ function adaptarVisibilitat(tipus){
 			 $('.personajuridica').addClass('hidden');
 			 $('.administracio').addClass('hidden');
 			 $('.personafisica').removeClass('hidden');
+			 $('#tipusDocIdent option[value="'+altres_de_persona_fisica+'"]').prop('disabled',false); 
+			 $('#tipusDocIdent option[value="'+passaport+'"]').prop('disabled',false); 
+			 $('#tipusDocIdent option[value="'+cif+'"]').prop('disabled',true); 
 			 $('#tipusDocIdent option[value="'+codi_origen+'"]').prop('disabled',true); 
 		} else if (tipus == 'JURIDICA'){
 			 $('.visibilitatCodi').removeClass('hidden');
 			 $('.personafisica').addClass('hidden');
 			 $('.administracio').addClass('hidden');
 			 $('.personajuridica').removeClass('hidden');	
-			 //$('#tipusDocIdent').prop("readonly", true);
+			 $('#tipusDocIdent option[value="'+cif+'"]').prop('disabled',false); 
 			 $('#tipusDocIdent option[value="'+codi_origen+'"]').prop('disabled',true); 
 			 $('#tipusDocIdent option[value="'+altres_de_persona_fisica+'"]').prop('disabled',true); 
 			 $('#tipusDocIdent option[value="'+passaport+'"]').prop('disabled',true); 
@@ -101,8 +104,9 @@ function adaptarVisibilitat(tipus){
 			 $('.personafisica').addClass('hidden');
 			 $('.personajuridica').addClass('hidden');
 			 $('.administracio').removeClass('hidden');
-	 	 	/*  $('#tipusDocIdent').val("CODI_ORIGEN"); */
-			 $('#tipusDocIdent').prop("readonly", true);
+			 $('#tipusDocIdent option[value="'+codi_origen+'"]').prop('disabled',false); 
+	 	 	 $('#tipusDocIdent').val(codi_origen);	
+	 	 	 $('#tipusDocIdent').prop("readonly", true);
 		}
 		 $('#tipusDocIdent').change();
 		 $('#tipusDocIdent').select2("destroy");
@@ -141,10 +145,10 @@ $(document).ready(function() {
 		
  		} else if (this.value == '<%=net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto.JURIDICA%>') {
  			tipusInt = 2;
+ 			$('#tipusDocIdent').val("NIF");
+ 			$('#tipusDocIdent').prop("readonly", false);
  	 	} else {
  			tipusInt = 3;
- 	 		$('#tipusDocIdent').val("CODI_ORIGEN");
-			$('#tipusDocIdent').prop("readonly", true);
  	 	}
  		$('#tipusDocIdent').change();
 		$('#tipusDocIdent').select2("destroy");
@@ -178,6 +182,7 @@ $(document).ready(function() {
  	
 	$('select#pais').change(function() {
  		if ($(this).val() == '724') {
+			$('#provincia').prop('disabled',false); 
  	 		if ($('select#tipus').val() != '<%=net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto.ADMINISTRACIO%>') {
 				$('#provincia').change();
  	 			$('#provincia').prop("readonly", false);
@@ -196,6 +201,7 @@ $(document).ready(function() {
 			$('#municipi').val("");
  	 		$('#municipi').change();
 			$('#municipi').prop("readonly", true);
+			$('#provincia').prop('disabled',true); 
 		}
  	});
 	
@@ -506,7 +512,7 @@ $(document).ready(function() {
 			</div>
 		</div>
 		
-		<div id="dir3Codi" class="row personafisica personajuridica administracio hidden"  style="margin-right:-14px ; margin-left:-59px">
+		<div id="dir3Codi" class="row administracio hidden"  style="margin-right:-14px ; margin-left:-59px">
 			<div class="col-xs-12">
 					<hel:inputText required="false" name="dir3Codi" textKey="interessat.form.camp.dir3codi" labelSize="2" /> 
 			</div>

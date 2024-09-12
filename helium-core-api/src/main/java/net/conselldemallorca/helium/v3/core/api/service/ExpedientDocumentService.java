@@ -587,6 +587,7 @@ public interface ExpedientDocumentService {
      * 
      * @param persona Persona que ha de firmar.
      * @param arxiu Informació de l'arxiu a firmar.
+     * @param signId Identificador assigat a la firma.
      * @param motiu Motiu de la firma.
      * @param lloc Lloc de la firma.
      * @param urlRetorn URL on es retornarà a Helium després de firmar o cancel·lar.
@@ -596,6 +597,7 @@ public interface ExpedientDocumentService {
 	public String firmaSimpleWebStart(
 			PersonaDto persona, 
 			ArxiuDto arxiu, 
+			String signId,
 			String motiu, 
 			String lloc,
 			String urlRetorn);

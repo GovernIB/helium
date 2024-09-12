@@ -21,7 +21,7 @@ public interface FirmaWebPlugin {
 	 * 
 	 * @return URL on es redirigirà per a que l'usuari pugui firmar.
 	 */
-	public String firmaSimpleWebStart(ArxiuDto arxiu, String motiu, String lloc, PersonaDto persona, String urlRetorn);
+	public String firmaSimpleWebStart(String signId, ArxiuDto arxiu, String motiu, String lloc, PersonaDto persona, String urlRetorn);
 
 	/** Mètode per finalitzar una petició i recuperar el resultat.
 	 * 

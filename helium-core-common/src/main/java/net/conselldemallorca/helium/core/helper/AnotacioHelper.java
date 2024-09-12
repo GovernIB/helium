@@ -412,6 +412,7 @@ public class AnotacioHelper {
 						representantEntity.setRepresentats(representats);
 					}
 					interessatRepository.save(representantEntity);
+					interessatRepository.save(interessatEntity);
 				}
 			}
 		}

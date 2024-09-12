@@ -2477,10 +2477,11 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	}
 
 	@Override
-	public String firmaSimpleWebStart(PersonaDto persona, ArxiuDto arxiu, String motiu, String lloc, String urlRetorn) {
+	public String firmaSimpleWebStart(PersonaDto persona, ArxiuDto arxiu, String signId, String motiu, String lloc, String urlRetorn) {
 
 		return pluginHelper.firmaSimpleWebStart(
 				arxiu,
+				signId,
 				motiu,
 				lloc,
 				persona, 

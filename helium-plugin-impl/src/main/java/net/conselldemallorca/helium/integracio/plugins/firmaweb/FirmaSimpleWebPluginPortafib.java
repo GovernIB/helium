@@ -41,6 +41,7 @@ public class FirmaSimpleWebPluginPortafib implements FirmaWebPlugin {
 
 	@Override
 	public String firmaSimpleWebStart(
+			String signId,
 			ArxiuDto arxiu, 
 			String motiu,
 			String lloc,
@@ -73,7 +74,6 @@ public class FirmaSimpleWebPluginPortafib implements FirmaWebPlugin {
 					arxiu.getTipusMime(),
 					arxiu.getContingut());
 
-			String signID = "1";
 			String name = fileToSign.getNom();
 
 			final String reason = motiu;
@@ -83,7 +83,7 @@ public class FirmaSimpleWebPluginPortafib implements FirmaWebPlugin {
 
 			FirmaSimpleFileInfoSignature fileInfoSignature = new FirmaSimpleFileInfoSignature(
 					fileToSign,
-					signID,
+					signId,
 					name,
 					reason,
 					location,

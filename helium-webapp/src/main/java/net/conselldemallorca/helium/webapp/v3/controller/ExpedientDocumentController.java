@@ -1882,6 +1882,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			String procesFirmaUrl = expedientDocumentService.firmaSimpleWebStart(
 					aplicacioService.findPersonaActual(),
 					arxiuPerFirmar,
+					String.valueOf(documentStoreId),
 					command.getMotiu(),
 					command.getLloc() != null ? command.getLloc() : "Illes Balears (HELIUM)",
 					urlReturnToHelium);
