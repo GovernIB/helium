@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Date;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
@@ -42,6 +43,7 @@ public class FirmaSimpleWebPluginPortafibTest {
 			
 			System.out.println("Iniciant la petició de firma per passarel·la web...");
 			String urlFirma = plugin.firmaSimpleWebStart(
+					String.valueOf(new Date().getTime()),
 					arxiu, 
 					"Motiu prova", 
 					"Lloc firma", 

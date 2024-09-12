@@ -5501,7 +5501,7 @@ public class PluginHelper {
 	 * @param urlRetorn
 	 * @return Retorna la URL on l'usuari podrà firmar via web.
 	 */
-	public String firmaSimpleWebStart(ArxiuDto arxiu, String motiu, String lloc, PersonaDto persona, String urlRetorn) {
+	public String firmaSimpleWebStart(ArxiuDto arxiu, String signId, String motiu, String lloc, PersonaDto persona, String urlRetorn) {
 
 		String urlReturnHelium = null;
 		String accioDescripcio = "Iniciant petició firma passarel·la web";
@@ -5513,7 +5513,7 @@ public class PluginHelper {
 		};
 		try {
 			FirmaWebPlugin firmaWebPlugin = getFirmaSimpleWebPlugin();
-			urlReturnHelium = firmaWebPlugin.firmaSimpleWebStart(arxiu, motiu, lloc, persona, urlRetorn);
+			urlReturnHelium = firmaWebPlugin.firmaSimpleWebStart(signId, arxiu, motiu, lloc, persona, urlRetorn);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_PFIRMA,
 					accioDescripcio,

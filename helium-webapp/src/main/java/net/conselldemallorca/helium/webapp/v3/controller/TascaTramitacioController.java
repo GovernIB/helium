@@ -558,6 +558,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			String procesFirmaUrl = expedientDocumentService.firmaSimpleWebStart(
 											usuariActual,
 											arxiuPerFirmar,
+											String.valueOf(documentId),
 											"Signatura document tasca Helium",
 											"Illes Balears (HELIUM)",
 											urlReturnToHelium);
