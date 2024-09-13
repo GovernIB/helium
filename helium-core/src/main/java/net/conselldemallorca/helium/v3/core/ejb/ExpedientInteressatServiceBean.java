@@ -75,7 +75,7 @@ public class ExpedientInteressatServiceBean implements ExpedientInteressatServic
 
 	@Override
 	public InteressatDto findByCodi(String codi) {
-		return findByCodi(codi);
+		return delegate.findByCodi(codi);
 	}
 
 	@Override
