@@ -1362,17 +1362,19 @@ public class DissenyServiceImpl implements DissenyService {
 	@Override
 	@Transactional(readOnly=true)
 	public ExpedientDocumentPinbalDto findDocumentPinbalByExpedient(Long expedientId, Long documentId) {
-		Long expTipusId = expedientHelper.getExpedientComprovantPermisos(
+		/*Long expTipusId = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {ExtendedPermission.DOC_MANAGE}).getTipus().getId();
-		List<Document> documents = documentRepository.findByExpedientTipusAmbHerencia(expTipusId);
+		//List<Document> documents = documentRepository.findByExpedientTipusAmbHerencia(expTipusId);
+		List<Document> documents = findDocumentsOrdenatsPerCodi(expedientTipusId, definicioProcesId, ambHerencia)
 		Document doc = null;
 		for (Document d: documents) {
 			if (d.getId().equals(documentId)) {
 				doc = d;
 				break;
 			}
-		}
+		}*/
+		Document doc = documentRepository.findOne(documentId);
 		
 		ExpedientDocumentPinbalDto resultat = new ExpedientDocumentPinbalDto();
 		resultat.setDocumentId(doc.getId());
