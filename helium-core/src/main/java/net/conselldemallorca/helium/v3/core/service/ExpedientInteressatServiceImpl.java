@@ -171,7 +171,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 			if(documentTipus.equals(InteressatDocumentTipusEnumDto.NIF.name()))
 					valorTraduit=InteressatDocumentTipusEnumDto.NIF.getValor();
 			else if(documentTipus.equals(InteressatDocumentTipusEnumDto.CIF.name()))
-				valorTraduit=InteressatDocumentTipusEnumDto.NIF.getValor();
+				valorTraduit=InteressatDocumentTipusEnumDto.CIF.getValor();
 			else if(documentTipus.equals(InteressatDocumentTipusEnumDto.ALTRES_DE_PERSONA_FISICA.name()))
 				valorTraduit=InteressatDocumentTipusEnumDto.ALTRES_DE_PERSONA_FISICA.getValor();
 			else if(documentTipus.equals(InteressatDocumentTipusEnumDto.CODI_ORIGEN.name()))
@@ -212,8 +212,11 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 				interessat.setRepresentant(null);
 				if(representant.getRepresentats().size()==1) {
 					//Si aquest interessat té un representant que no representa a ningú més també l'esborrem (el representant)
+					representant.getRepresentats().remove(interessat);
 					interessatRepository.delete(representant);
+					interessats.remove(representant);
 				}
+				interessatRepository.save(interessat);
 			}
 		}
 		interessats.remove(interessat);	
