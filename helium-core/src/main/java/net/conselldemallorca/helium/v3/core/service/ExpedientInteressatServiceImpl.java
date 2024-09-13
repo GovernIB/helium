@@ -215,16 +215,16 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 					representant.getRepresentats().remove(interessat);
 					interessatRepository.delete(representant);
 					interessats.remove(representant);
+				} else {
+					representant.getRepresentats().remove(interessat);
+					interessatRepository.save(representant);
 				}
 				interessatRepository.save(interessat);
 			}
 		}
 		interessats.remove(interessat);	
 		expedient.setInteressats(interessats);
-		interessatRepository.delete(interessat);
-		
 		InteressatDto resultat = conversioTipusHelper.convertir(interessat, InteressatDto.class);
-		
 		if (expedient.isArxiuActiu()) {
 			try {
 				pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
@@ -233,7 +233,7 @@ public class ExpedientInteressatServiceImpl implements ExpedientInteressatServic
 				resultat.setPropagatArxiu(false);
 			}
 		}
-		
+		interessatRepository.delete(interessat);
 		return resultat;
 	}
 	

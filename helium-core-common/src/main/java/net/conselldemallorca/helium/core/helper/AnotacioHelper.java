@@ -364,7 +364,7 @@ public class AnotacioHelper {
 								this.populateInteressatCanalNotif(null, representant),//interessat.getCanal(),
 								null);//interessat.getCodiDire()
 						representantEntity.setEs_representant(true);
-						representats.add(representantEntity);
+						representats.add(interessatEntity);//representats.removeAll(representats);
 //						interessatEntity.setRepresentant(representantEntity);
 					}
 				} else {

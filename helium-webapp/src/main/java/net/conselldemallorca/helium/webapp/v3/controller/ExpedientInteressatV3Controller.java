@@ -467,24 +467,13 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			Model model) {
 		try {
 			InteressatDto resultat = expedientInteressatService.delete(interessatId);
-			
-			if(es_representant) {
-				if (resultat.isPropagatArxiu()) {
-					MissatgesHelper.success(request, getMessage(request, "interessat.controller.representant.esborrat"));
-				} else {
-					MissatgesHelper.warning(request, getMessage(request, "interessat.controller.representant.esborrat.err"));
-				}
+			if (resultat.isPropagatArxiu()) {
+				MissatgesHelper.success(request, getMessage(request, "interessat.controller.esborrat"));
 			} else {
-				if (resultat.isPropagatArxiu()) {
-					MissatgesHelper.success(request, getMessage(request, "interessat.controller.esborrat"));
-				} else {
-					MissatgesHelper.warning(request, getMessage(request, "interessat.controller.esborrat.err"));
-				}					
-			}
+				MissatgesHelper.warning(request, getMessage(request, "interessat.controller.esborrat.err"));
+			}						
 		} catch (Exception ex) {
 			String errMsg = getMessage(request, "interessat.controller.esborrar.error", new Object[] {ex.getMessage()});
-			if(es_representant)
-				errMsg = getMessage(request, "interessat.controller.representant.error", new Object[] {ex.getMessage()});
 			logger.error(errMsg, ex);
 			MissatgesHelper.error(request, errMsg);
 		}
