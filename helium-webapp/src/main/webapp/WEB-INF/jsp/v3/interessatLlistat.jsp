@@ -36,7 +36,6 @@
 				<th data-col-name="email"><spring:message code="interessat.llistat.columna.email"/></th>
 				<th data-col-name="telefon"><spring:message code="interessat.llistat.columna.telefon"/></th>
 				<th data-col-name="representantFullNom"><spring:message code="expedient.document.notificar.form.camp.representant"/></th>
-				<th data-col-name="representantsExpedient" data-visible="false"></th>
 				<th data-col-name="existeixenRepresentantsExpedient" data-visible="false"></th>
 				<th data-col-name="es_representant" data-visible="false"></th>
 				<th data-col-name="teRepresentant" data-visible="false"></th>

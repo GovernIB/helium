@@ -801,7 +801,7 @@ public class DistribucioHelper {
 				}
 				// Crear l'expedient
 				try {
-					expedient = expedientHelper.iniciar( //.iniciarNotNewTransaction(
+					expedient = expedientHelper.iniciar( //.iniciar( //.iniciarNotNewTransaction(
 							expedientTipus.getEntorn().getId(), //entornId
 							null, //usuari, 
 							expedientTipus.getId(), //expedientTipusId, 
