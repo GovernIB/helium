@@ -108,6 +108,7 @@
 							</c:if>
 							<input type="checkbox" class="documentPerFirmarServidor" title="${valorDefaultTitle}" ${valorDefaultChecked} ${valorDefaultDisabled} name="documentsFinalitzar[${status.index}].seleccionat">
 							<form:hidden path="documentsFinalitzar[${status.index}].documentStoreId"/>
+							<form:hidden path="documentsFinalitzar[${status.index}].documentCodi"/>
 							<form:hidden path="documentsFinalitzar[${status.index}].processInstanceId"/>
 							<form:hidden path="documentsFinalitzar[${status.index}].annexAnotacioId"/>
 							<form:hidden path="documentsFinalitzar[${status.index}].notificacioId"/>

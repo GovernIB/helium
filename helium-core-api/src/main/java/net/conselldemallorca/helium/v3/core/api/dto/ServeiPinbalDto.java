@@ -30,7 +30,13 @@ public class ServeiPinbalDto implements Serializable {
 		this.id = id;
 	}
 	public String getNom() {
-		return nom;
+		if (this.nom!=null) {
+			if (this.nom.length()>125) {
+				return nom.substring(0, 125)+"...";
+			} else {
+				return nom;
+			}
+		} else return "";
 	}
 	public void setNom(String nom) {
 		this.nom = nom;
@@ -103,7 +109,7 @@ public class ServeiPinbalDto implements Serializable {
 	}
 	public String getDocumentsRestringits_str() {
 		String resultat ="";
-		if (this.documentsRestringits!=null) {
+		if (this.documentsRestringits!=null && this.documentsRestringits.size()>0) {
 			for (String s: this.documentsRestringits) {
 				resultat += s+", ";
 			}
@@ -114,6 +120,5 @@ public class ServeiPinbalDto implements Serializable {
 	public void setDocumentsRestringits_str(String documentsRestringits_str) {
 		this.documentsRestringits_str = documentsRestringits_str;
 	}
-    
-    
+
 }

@@ -197,7 +197,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 //					}
 //				}
 //			}
-			
+
 			// 1- firma els seleccionats
 			String errorsFirmantDocuments = "";
 			if (expedientFinalitzarDto.getDocumentsFinalitzar()!=null &&
@@ -205,7 +205,17 @@ public class ExpedientV3Controller extends BaseExpedientController {
 				expedientFinalitzarDto.getExpedient().getArxiuUuid() != null) {
 					for (DocumentFinalitzarDto dfDto: expedientFinalitzarDto.getDocumentsFinalitzar()) {
 						if (dfDto.isSeleccionat()) {
-							expedientHelper.firmarDocumentServidorPerArxiuFiExpedient(dfDto.getDocumentStoreId());
+							try {
+								expedientHelper.firmarDocumentServidorPerArxiuFiExpedient(dfDto.getDocumentStoreId());
+							} catch (Exception ex) {
+								String errMsg = ex.getMessage();
+								if (errMsg!=null) {
+									errMsg = errMsg.substring(
+											0, 
+											Math.min(errMsg.contains("\n") ? errMsg.indexOf("\n") : errMsg.length(), 1024));
+								}
+								errorsFirmantDocuments += "- Error firmant en servidor el document " + dfDto.getDocumentCodi() + ": " + errMsg +"</br>";
+							}
 						}
 					}
 			}
@@ -217,14 +227,17 @@ public class ExpedientV3Controller extends BaseExpedientController {
 					expedientHelper.finalitzar(expedientId, false);
 			}
 			
-			//Algun dels documents no s'ha pogut firmar en servidor
+			//Algun dels documents no s'ha pogut firmar en servidor, llavors l'expedient no s'ha finalitzat
 			if (!"".equals(errorsFirmantDocuments)) {
-				MissatgesHelper.warning(request, errorsFirmantDocuments);
+				MissatgesHelper.warning(request, "</br>"+errorsFirmantDocuments);
+				return modalUrlTancar(false);
 			} else {
 				if ("finalitzar".equals(expedientFinalitzarDto.getAccio())) {
 					MissatgesHelper.success(request, getMessage(request, "expedient.finalitzat.ok"));
+					return modalUrlTancar(true);
 				} else {
 					MissatgesHelper.success(request, getMessage(request, "expedient.finalitzat.ok2"));
+					return modalUrlTancar(false); //l'expedient no s'ha finalitzat, no fa falta refrescar
 				}
 			}
 
@@ -234,9 +247,13 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			MissatgesHelper.error(request, 
 					errMsg.substring(
 							0, 
-							Math.min(errMsg.contains("\n") ? errMsg.indexOf("\n") : errMsg.length(), 1024)));			
+							Math.min(errMsg.contains("\n") ? errMsg.indexOf("\n") : errMsg.length(), 1024)));
+			
+			return modalUrlTancar(false);
 		}
-		return modalUrlTancar(false);
+		//return modalUrlTancar(false);
+		//return tancar info(request, expedientId, model);
+//		return "redirect:/v3/expedient/" + expedientId;
 	}
 	
 	@RequestMapping(value = "/{expedientId}/alertes", method = RequestMethod.GET)

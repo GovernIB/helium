@@ -619,6 +619,11 @@ public class Camp implements Serializable, GenericEntity<Long> {
 		this.dominiIntern = dominiIntern;
 	}
 	
+	@Override
+	public String toString() {
+		return "Camp [id=" + id + ", codi=" + codi + ", tipus=" + tipus + ", DP= "+ (this.definicioProces!=null?this.definicioProces.getJbpmKey():"null")  +"]";
+	}
+	
 	@ManyToOne(optional=true)
     @JoinColumn(name="consulta_id")
     @ForeignKey(name="hel_consulta_camp_fk")
