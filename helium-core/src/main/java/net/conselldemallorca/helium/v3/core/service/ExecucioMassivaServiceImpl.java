@@ -803,8 +803,12 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 		try {
 			Object obj = (Object) deserialize(exe.getParam2());
 			Long dfId = null;
+			int dfIdInt;
 			if (obj instanceof Long) {
 				dfId = (Long) obj;
+			} else if (obj instanceof Integer) {
+				dfIdInt = (Integer) obj;
+				dfId = Long.valueOf(dfIdInt);
 			} else {
 				Object[] arobj = (Object[]) deserialize(exe.getParam2());
 				if (arobj[0] instanceof Long) {
