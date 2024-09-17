@@ -50,6 +50,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Alerta.AlertaPrioritat;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
@@ -1353,13 +1354,24 @@ public class ExpedientHelper {
 		}
 	}
 
-	public List<InstanciaProcesDto> getArbreInstanciesProces(
-			String processInstanceId) {
+	public List<InstanciaProcesDto> getArbreInstanciesProces(String processInstanceId) {
+		
 		List<InstanciaProcesDto> resposta = new ArrayList<InstanciaProcesDto>();
 		JbpmProcessInstance rootProcessInstance = jbpmHelper.getRootProcessInstance(processInstanceId);
 		List<JbpmProcessInstance> piTree = jbpmHelper.getProcessInstanceTree(rootProcessInstance.getId());
+		
 		for (JbpmProcessInstance jpi: piTree) {
-			resposta.add(getInstanciaProcesById(jpi.getId()));
+			InstanciaProcesDto ip = getInstanciaProcesById(jpi.getId());
+			
+			List<Document> documents = documentHelper.findDocumentsExpedient(findExpedientByProcessInstanceId(processInstanceId), jpi.getId());
+			for (Document doc: documents) {
+				if (doc.isPinbalActiu()) {
+					ip.setDocumentsPinbal(true);
+					break;
+				}
+			}
+			
+			resposta.add(ip);
 		}
 		return resposta;
 	}

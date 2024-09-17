@@ -27,6 +27,7 @@ public class InstanciaProcesDto {
 	private Date dataFi;
 	private DefinicioProcesDto definicioProces;
 	private boolean imatgeDisponible;
+	private boolean documentsPinbal;
 	
 	private Set<CampDto> camps;
 
@@ -112,12 +113,20 @@ public class InstanciaProcesDto {
 		return resposta;
 	}
 
+	public boolean isDocumentsPinbal() {
+		return documentsPinbal;
+	}
+	public void setDocumentsPinbal(boolean documentsPinbal) {
+		this.documentsPinbal = documentsPinbal;
+	}
+	
 	public Map<String, DocumentDto> getVarsDocuments() {
 		return varsDocuments;
 	}
 	public void setVarsDocuments(Map<String, DocumentDto> varsDocuments) {
 		this.varsDocuments = varsDocuments;
 	}
+	
 	public boolean isFinalitzat() {
 		return dataFi != null;
 	}
@@ -133,8 +142,6 @@ public class InstanciaProcesDto {
 		}
 	}
 
-
-
 	private static void getClassAsString(StringBuilder sb, Object o) {
 		if (o.getClass().isArray()) {
 			sb.append("[");
@@ -149,6 +156,7 @@ public class InstanciaProcesDto {
 			sb.append(o.getClass().getName());
 		}
 	}
+	
 	public boolean isImatgeDisponible() {
 		return imatgeDisponible;
 	}

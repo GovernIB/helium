@@ -43,7 +43,7 @@ div.procesDocument:hover {
 			<c:set var="proces" value="${dadesProces.key}"/>
 			<div id="dataTable_documents_${proces.id}">
 				<c:if test="${expedient.permisDocManagement && (empty expedient.dataFi || !expedient.arxiuActiu)}">
-					<c:if test="${expedient.documentsPinbal==false}">
+					<c:if test="${proces.documentsPinbal==false}">
 					<div id="dataTables_new">
 						<div id="nou_document_${proces.id}" class="nou_document">
 							<a class="btn btn-default" 
@@ -57,7 +57,7 @@ div.procesDocument:hover {
 						</div>
 					</div>
 					</c:if>
-					<c:if test="${expedient.documentsPinbal==true}">
+					<c:if test="${proces.documentsPinbal==true}">
 					<div id="dataTables_new" style="padding-bottom: 40px;">
 						<div id="menuNouDocument" class="btn-group" style="float: right;">
 							<button class="btn btn-default dropdown-toggle" data-toggle="dropdown">

@@ -728,16 +728,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		expedientHelper.omplirPermisosExpedient(expedientDto);
 		expedientHelper.trobarAlertesExpedient(expedient, expedientDto);
 		
-		if (expedientDto.isPermisDocManagement()) {
-			List<Document> documents = documentHelper.findDocumentsExpedient(expedient, expedient.getProcessInstanceId());
-			for (Document doc: documents) {
-				if (doc.isPinbalActiu()) {
-					expedientDto.setDocumentsPinbal(true);
-					break;
-				}
-			}
-		}
-		
 		return expedientDto;
 	}
 	
