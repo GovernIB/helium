@@ -410,9 +410,9 @@ public class AnotacioHelper {
 								null);//interessat.getCodiDire()
 						representantEntity.setEs_representant(true);
 						representantEntity = interessatRepository.save(representantEntity);
-						interessatEntity.setRepresentant(representantEntity);
-						
 						interessats.put(representantEntity.getCodi(), representantEntity);
+						interessatEntity.setRepresentant(representantEntity);
+
 					}
 				}				
 			}
