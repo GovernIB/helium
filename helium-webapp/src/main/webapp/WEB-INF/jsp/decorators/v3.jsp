@@ -186,16 +186,21 @@
 	<script type="text/javascript">	
 		$(document).ready(function(){
 
+			$('#menuEntorns').click(function () {
+				setTimeout( function(){ 
+						$('#searchEntorns').focus(); 
+					}, 0);
+			});	
+			
 			$('#searchEntorns').on('input', function(){
 				searchEntorns($('#searchEntorns').val());
 				
 			}).click(function(e){
 				e.preventDefault();
 				e.stopPropagation();
-				$('#searchEntorns').focus();
+				$('#searchEntorns').focus().select();
 				return false;
-			}
-			);
+			});
 			
 			$(".dropdown-menu").css("max-height", ($(window).height() - 75) +"px");
 

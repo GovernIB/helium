@@ -13,7 +13,6 @@ public class Interessat {
 
 	private Long id;
 	private String codi;
-//	private String nif; //Si falla el handler veuere aquí
 	private String documentIdent;
 
 	private String dir3Codi;
@@ -67,12 +66,29 @@ public class Interessat {
 	public void setCodi(String codi) {
 		this.codi = codi;
 	}
-//	public String getNif() {
-//		return nif;
-//	}
-//	public void setNif(String nif) {
-//		this.nif = nif;
-//	}
+	/** A partir de la versió 3.3.5 els interessats passen a tenir document d'identitat en comptes de NIF per adaptar-los a SICRES4.
+	 * 
+	 * @deprecated Emprar {@link #getDocumentIdent()} en comptes d'aquest mètode.
+	 * @see 
+	 * 
+	 * @return
+	 */
+	@Deprecated
+	public String getNif() {
+		return this.documentIdent;
+	}
+	/** A partir de la versió 3.3.5 els interessats passen a tenir document d'identitat en comptes de NIF per adaptar-los a SICRES4.
+	 * 
+	 * @deprecated Emprar {@link #setDocumentIdent()} en comptes d'aquest mètode.
+	 * @see 
+	 * 
+	 * @return
+	 */
+	@Deprecated
+	public void setNif(String nif) {
+		this.documentIdent = nif;
+	}
+
 	public String getDir3Codi() {
 		return dir3Codi;
 	}
