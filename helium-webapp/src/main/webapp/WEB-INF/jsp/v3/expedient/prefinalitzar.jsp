@@ -172,6 +172,16 @@
 		</div>
 	</c:if>
 	<c:if test="${expedientFinalitzarDto.error}">
+	
+		<c:if test="${expedientFinalitzarDto.documentsPendentsFirma!=null && fn:length(expedientFinalitzarDto.documentsPendentsFirma)>0}">
+			<div class="alert alert-warning" role="alert">
+				<span class="fa fa-warning"></span>&nbsp;<spring:message code="prefinalitzar.expedient.errorPendents"/></br>
+				<c:forEach var="docPf" varStatus="statusPf" items="${expedientFinalitzarDto.documentsPendentsFirma}">
+					- ${docPf.arxiuNom} (${docPf.documentCodi}): ${docPf.anotacioDesc}</br>
+				</c:forEach>
+			</div>
+		</c:if>
+
 		<div id="modal-botons" class="well">
 			<button type="button" class="modal-tancar btn btn-default" name="submit" value="cancel">
 				<spring:message code='comuns.cancelar' />

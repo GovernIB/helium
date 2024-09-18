@@ -8,6 +8,7 @@ public class ExpedientFinalitzarDto implements Serializable {
 	private static final long serialVersionUID = -4499497016646517392L;
 	private ExpedientDto expedient;
 	private List<DocumentFinalitzarDto> documentsFinalitzar;
+	private List<DocumentFinalitzarDto> documentsPendentsFirma;
 	private String motiuFinalitzar;
 	private String accio;
 	private boolean error = false;
@@ -56,5 +57,10 @@ public class ExpedientFinalitzarDto implements Serializable {
 	public void setExpedientNti(boolean expedientNti) {
 		this.expedientNti = expedientNti;
 	}
-	
+	public List<DocumentFinalitzarDto> getDocumentsPendentsFirma() {
+		return documentsPendentsFirma;
+	}
+	public void setDocumentsPendentsFirma(List<DocumentFinalitzarDto> documentsPendentsFirma) {
+		this.documentsPendentsFirma = documentsPendentsFirma;
+	}
 }

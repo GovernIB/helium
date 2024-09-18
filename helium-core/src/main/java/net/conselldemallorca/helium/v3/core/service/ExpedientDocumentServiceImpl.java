@@ -624,6 +624,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	
     	ExpedientFinalitzarDto expedientFinalitzarDto = new ExpedientFinalitzarDto();    	
     	List<DocumentFinalitzarDto> resultat =	new ArrayList<DocumentFinalitzarDto>();
+    	List<DocumentFinalitzarDto> pendents =	new ArrayList<DocumentFinalitzarDto>();
    	
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
@@ -651,6 +652,14 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			if (pendentsFirma!=null && pendentsFirma.size()>0) {
 				//Si hi ha documents pendents de firma no fa falta anar a cercar els documents
 				expedientFinalitzarDto.setPendentsFirma(true);
+				for (Portasignatures p: pendentsFirma) {
+					DocumentFinalitzarDto dpf = new DocumentFinalitzarDto();
+					DocumentStore sdPf = documentStoreRepository.findOne(p.getDocumentStoreId());
+					dpf.setArxiuNom(sdPf.getArxiuNom());
+					dpf.setDocumentCodi(sdPf.getCodiDocument());
+					dpf.setAnotacioDesc((p.getEstat()!=null?p.getEstat().toString():"")+(p.getTransition()!=null?" "+p.getTransition().toString():""));
+					pendents.add(dpf);
+				}
 			} else {
     		
 	    		List<DocumentListDto> documentsExpEstat = findDocumentsExpedient(expedientId, true, new PaginacioParamsDto());
@@ -679,10 +688,19 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
     		for (InstanciaProcesDto instanciaProces : arbreProcessos) {
     			
 				List<Portasignatures> pendentsFirma = pluginHelper.findPendentsPortasignaturesPerProcessInstanceId(instanciaProces.getId());
-				
+
 				if (pendentsFirma!=null && pendentsFirma.size()>0) {
 					//Si hi ha documents pendents de firma no fa falta anar a cercar els documents
 					expedientFinalitzarDto.setPendentsFirma(true);
+					
+					for (Portasignatures p: pendentsFirma) {
+						DocumentFinalitzarDto dpf = new DocumentFinalitzarDto();
+						DocumentStore sdPf = documentStoreRepository.findOne(p.getDocumentStoreId());
+						dpf.setArxiuNom(sdPf.getArxiuNom());
+						dpf.setDocumentCodi(sdPf.getCodiDocument());
+						dpf.setAnotacioDesc((p.getEstat()!=null?p.getEstat().toString():"")+(p.getTransition()!=null?" "+p.getTransition().toString():""));
+						pendents.add(dpf);
+					}
 				} else {
 					
     				List<ExpedientDocumentDto> documentsExpedientDto = findAmbInstanciaProces(expedient.getId(), instanciaProces.getId());
@@ -854,6 +872,10 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
     	}
     	
     	expedientFinalitzarDto.setDocumentsFinalitzar(resultat);
+    	expedientFinalitzarDto.setDocumentsPendentsFirma(pendents);
+    	if (pendents.size()>0) {
+    		expedientFinalitzarDto.setError(true);
+    	}
     	
     	return expedientFinalitzarDto;
 	}
