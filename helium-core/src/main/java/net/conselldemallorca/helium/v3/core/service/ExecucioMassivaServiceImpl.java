@@ -2198,7 +2198,8 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 							ome.getAuxId(),
 							ome.getExecucioMassiva().getParam1().charAt(0)=='1',
 							ome.getExecucioMassiva().getParam1().charAt(1)=='1',
-							ome.getExecucioMassiva().getParam1().charAt(2)=='1');
+							ome.getExecucioMassiva().getParam1().charAt(2)=='1',
+							ome.getExecucioMassiva().getParam1().charAt(3)=='1');
 				} else {
 					anotacioHelper.reprocessarMapeigAnotacioExpedient(
 							anotacio.getExpedient().getId(),

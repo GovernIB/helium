@@ -74,6 +74,7 @@ import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAnnexEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.AnotacioInteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuEstat;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
@@ -142,8 +143,8 @@ public class DistribucioHelper {
 	private DissenyService dissenyService;
 	@Autowired
 	private ExpedientService expedientService;
-	
-	
+	@Resource
+	private ConversioTipusHelper conversioTipusHelper;	
 	@Autowired
 	private MonitorIntegracioHelper monitorIntegracioHelper;
 	
@@ -1028,6 +1029,11 @@ public class DistribucioHelper {
 		resultat.setDades(this.getDadesInicials(expedientTipus, anotacio, resultat.getErrorsDades()));
 		resultat.setDocuments(this.getDocumentsInicials(expedientTipus, anotacio, ambContingut, resultat.getErrorsDocuments()));
 		resultat.setAdjunts(this.getDocumentsAdjunts(expedientTipus, anotacio, ambContingut, resultat.getErrorsAdjunts()));
+		List<AnotacioInteressat> interessats = anotacio.getInteressats();
+		List<AnotacioInteressatDto> interessatsDto = conversioTipusHelper.convertirList(
+				interessats, 
+				AnotacioInteressatDto.class);
+		resultat.setInteressats(interessatsDto);
 		return resultat;
 	}
 

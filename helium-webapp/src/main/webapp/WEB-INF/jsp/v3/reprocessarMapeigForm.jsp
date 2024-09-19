@@ -31,10 +31,11 @@
 			</div>
 			
 			<div class="row">
-				<div class="col-sm-11">
+				<div class="col-sm-12">
 					<hel:inputCheckbox name="reprocessarMapeigVariables"	textKey="anotacio.llistat.reintentar.mapeig.vars"></hel:inputCheckbox>
 					<hel:inputCheckbox name="reprocessarMapeigDocuments"	textKey="anotacio.llistat.reintentar.mapeig.docs"></hel:inputCheckbox>
 					<hel:inputCheckbox name="reprocessarMapeigAdjunts"		textKey="anotacio.llistat.reintentar.mapeig.adjn"></hel:inputCheckbox>
+					<hel:inputCheckbox name="reprocessarMapeigInteressats"	textKey="anotacio.llistat.reintentar.mapeig.interessats"></hel:inputCheckbox>
 				</div>
 			</div>
 			
