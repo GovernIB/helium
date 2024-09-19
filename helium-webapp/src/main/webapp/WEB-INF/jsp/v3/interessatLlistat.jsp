@@ -29,7 +29,6 @@
 			<tr>
 				<th data-col-name="codi" width="10%"><spring:message code="interessat.llistat.columna.codi"/></th>
 				<th data-col-name="tipusNom"><spring:message code="interessat.llistat.columna.tipus"/></th>
-				<th data-col-name="nif" data-visible="false"><spring:message code="interessat.llistat.columna.nif"/></th>
 				<th data-col-name="documentIdent"><spring:message code="interessat.form.camp.document.identificatiu"/></th>
 				<th data-col-name="fullNom" width="30%"><spring:message code="interessat.form.camp.nom.rao.social"/></th>
 				<th data-col-name="dir3Codi"><spring:message code="interessat.llistat.columna.dir3Codi"/></th>

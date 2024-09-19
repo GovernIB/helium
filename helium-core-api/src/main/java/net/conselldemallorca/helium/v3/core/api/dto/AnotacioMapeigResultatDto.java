@@ -27,12 +27,14 @@ public class AnotacioMapeigResultatDto implements Serializable {
 	Map<String, Object> dades = null;
 	Map<String, DadesDocumentDto> documents = null;
 	List<DadesDocumentDto> adjunts = null;
+	List<AnotacioInteressatDto> interessats = null;
 	
 	// Conjunts d'errors amb el codi SISTRA com a clau i la descripció de l'error com a valor
 	
 	public Map<String, String> errorsDades = new HashMap<String, String>();
 	public Map<String, String> errorsDocuments = new HashMap<String, String>();
 	public Map<String, String> errorsAdjunts = new HashMap<String, String>();
+	public Map<String, String> errorsInteressats = new HashMap<String, String>();
 
 	public void setAnotacioNumero(String anotacioNumero) {
 		this.anotacioNumero = anotacioNumero;
@@ -43,7 +45,7 @@ public class AnotacioMapeigResultatDto implements Serializable {
 	}
 	
 	public boolean isError() {
-		return !errorsDades.isEmpty() || !errorsDocuments.isEmpty() || !errorsAdjunts.isEmpty();
+		return !errorsDades.isEmpty() || !errorsDocuments.isEmpty() || !errorsAdjunts.isEmpty() || !errorsInteressats.isEmpty();
 	}
 	
 	public Map<String, Object> getDades() {
@@ -70,6 +72,14 @@ public class AnotacioMapeigResultatDto implements Serializable {
 		this.adjunts = adjunts;
 	}
 
+	public List<AnotacioInteressatDto> getInteressats() {
+		return interessats;
+	}
+
+	public void setInteressats(List<AnotacioInteressatDto> interessats) {
+		this.interessats = interessats;
+	}
+
 	public String getMissatgeAlerta() {
 		StringBuilder msg = new StringBuilder();
 		if (this.isError()) {
@@ -91,6 +101,9 @@ public class AnotacioMapeigResultatDto implements Serializable {
 			if (!this.getErrorsAdjunts().isEmpty()) {
 				msg.append(this.getErrorsDocuments().size()).append(" errors d'adjunts");
 			}
+			if (!this.getErrorsInteressats().isEmpty()) {
+				msg.append(this.getErrorsInteressats().size()).append(" errors d'interessats");
+			}
 			msg.append(". Es recomana reprocessar el mapeig de l'anotació i revisar els documents de l'expedient.");
 		} else {
 			msg.append("No s'ha produït cap error en el mapeig.");
@@ -107,6 +120,7 @@ public class AnotacioMapeigResultatDto implements Serializable {
 		mapejos.addAll(this.errorsDades.keySet());
 		mapejos.addAll(this.errorsDocuments.keySet());
 		mapejos.addAll(this.errorsAdjunts.keySet());
+		mapejos.addAll(this.errorsInteressats.keySet());
 		return StringUtils.join(mapejos, ", ");
 	}
 	
@@ -129,6 +143,10 @@ public class AnotacioMapeigResultatDto implements Serializable {
 
 	public Map<String, String> getErrorsAdjunts() {
 		return errorsAdjunts;
+	}
+	
+	public Map<String, String> getErrorsInteressats() {
+		return errorsInteressats;
 	}
 	
 }

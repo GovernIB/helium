@@ -3,8 +3,11 @@
  */
 package net.conselldemallorca.helium.webapp.v3.controller;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -13,17 +16,20 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.core.helper.AnotacioHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ReprocessarMapeigAnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.helper.DatatablesHelper;
@@ -39,8 +45,8 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 @Controller
 @RequestMapping("/v3/expedient")
 public class ExpedientAnotacioController extends BaseExpedientController {
-
-
+	@Resource
+	private AnotacioHelper anotacioHelper;
 	@Autowired
 	private AnotacioService anotacioService;
 	@Autowired
@@ -175,6 +181,57 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 		}
  
 		return "redirect:/v3/expedient/" + expedientId;
+	}
+	
+	
+	/** Acció del menú desplegable d'Accions massives d'anotacions, per iniciar una tasca en segon pla per reprocessar el mapeig de les
+	 * anotacions seleccionades a le taula d'anotacions (les que tenen un expedient associat es tornaria a aplicar el mapeig)
+	 */
+	@RequestMapping(value = "/{expedientId}/anotacio/{anotacioId}/{nomesAnnexos}/reprocessarMapeig", method = RequestMethod.GET)
+	public String reprocessarMapeig(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long anotacioId,
+			@PathVariable boolean nomesAnnexos,
+			Model model) {
+		ReprocessarMapeigAnotacioDto reprocessarMapeigAnotacioDto = new ReprocessarMapeigAnotacioDto();
+		reprocessarMapeigAnotacioDto.setIdsAnotacions(new ArrayList<Long>(Arrays.asList(anotacioId)));
+		model.addAttribute(reprocessarMapeigAnotacioDto);
+		return "v3/reprocessarMapeigForm";
+	}
+	
+	@RequestMapping(value = "/{expedientId}/anotacio/{anotacioId}/{nomesAnnexos}/reprocessarMapeig", method = RequestMethod.POST)
+	public String reprocessarMapeigPost(
+			HttpServletRequest request,
+			@PathVariable Long anotacioId,
+			@PathVariable Long expedientId,
+			@PathVariable boolean nomesAnnexos,
+			@ModelAttribute("reprocessarMapeigAnotacioDto") ReprocessarMapeigAnotacioDto reprocessarMapeigAnotacioDto,
+			Model model) {
+		
+		try {
+			anotacioHelper.reprocessarMapeigAnotacioExpedient(
+					expedientId,
+					anotacioId,
+					reprocessarMapeigAnotacioDto.isReprocessarMapeigVariables(),
+					reprocessarMapeigAnotacioDto.isReprocessarMapeigDocuments(),
+					reprocessarMapeigAnotacioDto.isReprocessarMapeigAdjunts(),
+					reprocessarMapeigAnotacioDto.isReprocessarMapeigInteressats());
+			
+			MissatgesHelper.success(
+					request, 
+					getMessage(
+							request, 
+							"expedient.anotacio.llistat.processar.mapeig.ok"));
+			}  catch(Exception e) {
+			MissatgesHelper.error(
+			request,
+			getMessage(
+					request,
+					"expedient.anotacio.llistat.processar.mapeig.ko",
+					new Object[] {e.getMessage()}));
+			}		
+		return modalUrlTancar(false);
 	}
 	
 	private static final Log logger = LogFactory.getLog(ExpedientAnotacioController.class);

@@ -46,6 +46,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAnnexEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.AnotacioInteressatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuEstat;
 import net.conselldemallorca.helium.v3.core.api.dto.CanalNotifEnumDto;
@@ -292,130 +293,8 @@ public class AnotacioHelper {
 		}
 		
 		if (associarInteressats) {
-			// Consulta els interessats existents a l'expedient
-			Map<String, Interessat> interessats = new HashMap<String, Interessat>();
-			for (Interessat i : interessatRepository.findByExpedient(expedient)) {
-				interessats.put(i.getDocumentIdent(), i);
-			}
 			// Incorpora els interessats a l'expedient
-			Interessat interessatEntity;
-			Interessat representantEntity;
-			for(AnotacioInteressat interessat : anotacio.getInteressats()) {
-				
-				// Comprova si ja existeix
-				interessatEntity = interessats.get(interessat.getDocumentNumero());
-				
-				if (interessatEntity == null) {
-					// Crea el nou interessat
-					logger.debug("Creant l'interessat (interessat=" + interessat + ") a l'expedient " + expedient.getIdentificador());
-					interessatEntity = new Interessat(
-							interessat.getId(),
-							interessat.getDocumentNumero(), // Codi de l'interessat
-							interessat.getNom() != null? interessat.getNom() : interessat.getRaoSocial(),
-							interessat.getDocumentNumero(),
-							interessat.getOrganCodi(), //codiDir3
-							interessat.getLlinatge1(), 
-							interessat.getLlinatge2(), 
-							this.getInteressatTipus(interessat),
-							interessat.getEmail(), 
-							interessat.getTelefon(),
-							expedient,
-							false, //interessat.getAdresa() != null && interessat.getCp() != null, // entregaPostalActiva o el nom correcte de la propietat //Forcem false issue #1675
-							EntregaPostalTipus.SENSE_NORMALITZAR,
-							null, //línia 1 queda substituit amb Adresa
-							null, // linia2,
-							interessat.getCp(),
-							false, // entregaDeh,
-							false, //entregaDehObligat
-							this.populateInteressatDocumentTipus(null, interessat),//interessat.getDocumentTipus()
-							interessat.getAdresa(),
-							interessat.getObservacions(),
-							false,//es_representant
-							interessat.getRaoSocial(),
-							interessat.getPaisCodi(),
-							interessat.getProvinciaCodi(),
-							interessat.getMunicipiCodi(),
-							this.populateInteressatCanalNotif(null, interessat),//interessat.getCanal(),
-							null);//interessat.getCodiDire()
-					interessatEntity = interessatRepository.save(interessatEntity);
-					interessats.put(interessatEntity.getCodi(), interessatEntity);
-				} else {
-					// Actualitza l'interessat existent
-					logger.debug("Modificant l'interessat (interessat=" + interessat + ") a l'expedient " + expedient.getIdentificador());
-					if(InteressatTipusEnumDto.FISICA.equals(interessatEntity.getTipus())) {
-						interessatEntity.setNom(interessat.getNom());
-						interessatEntity.setLlinatge1(interessat.getLlinatge1());
-						interessatEntity.setLlinatge2(interessat.getLlinatge2());
-					} else if(InteressatTipusEnumDto.JURIDICA.equals(interessatEntity.getTipus())) {
-						interessatEntity.setRaoSocial(interessat.getRaoSocial());
-					} else if(InteressatTipusEnumDto.ADMINISTRACIO.equals(interessatEntity.getTipus())) {
-						if(interessat.getOrganCodi()!=null) {
-							interessatEntity.setDocumentIdent(interessat.getOrganCodi());
-							UnitatOrganitzativa uo= unitatOrganitzativaHelper.findByCodi(interessat.getOrganCodi());//MARTA revisar si li arriba organCodi o altre document d'identificació
-							if(uo!=null)
-								interessat.setRaoSocial(uo.getDenominacio());
-						}
-					}
-					this.populateInteressatDocumentTipus(interessatEntity, interessat);
-					interessatEntity.setDocumentIdent(interessat.getDocumentNumero());
-					this.populateInteressatCanalNotif(interessatEntity, interessat);
-					interessatEntity.setTipus(this.getInteressatTipus(interessat));
-					interessatEntity.setEmail(interessat.getEmail());
-					interessatEntity.setTelefon(interessat.getTelefon());
-					interessatEntity.setPais(interessat.getPaisCodi());
-					interessatEntity.setProvincia(interessat.getProvinciaCodi());
-					interessatEntity.setMunicipi(interessat.getMunicipiCodi());
-					interessatEntity.setCodiPostal(interessat.getCp());
-					interessatEntity.setDireccio(interessat.getAdresa());
-					interessatEntity.setCodi(interessat.getDocumentNumero());
-					if(interessat.getRepresentant()!=null) {
-						// Comprova si ja existeix el representant
-						representantEntity = interessatRepository.findByCodiAndExpedient(
-								interessat.getRepresentant().getDocumentNumero(), expedient);
-						representantEntity.setEs_representant(true);
-						interessatEntity.setRepresentant(representantEntity);
-					}
-				}
-				if(interessat.getRepresentant()!=null) { //Si té un representant també el crea o actualitza
-					AnotacioInteressat representant = interessat.getRepresentant();
-					if (!interessats.containsKey(representant.getDocumentNumero())) {
-						representantEntity = new Interessat(
-								representant.getId(),
-								representant.getDocumentNumero(), // Codi de l'interessat
-								representant.getNom() != null? representant.getNom() : representant.getRaoSocial(),
-								representant.getDocumentNumero(),
-								representant.getOrganCodi(), //codiDir3
-								representant.getLlinatge1(), 
-								representant.getLlinatge2(), 
-								this.getInteressatTipus(representant),
-								representant.getEmail(), 
-								representant.getTelefon(),
-								expedient,
-								false, //interessat.getAdresa() != null && interessat.getCp() != null, // entregaPostalActiva o el nom correcte de la propietat //Forcem false issue #1675
-								EntregaPostalTipus.SENSE_NORMALITZAR,
-								null, //línia 1 queda substituit amb Adresa
-								null, // linia2,
-								representant.getCp(),
-								false, // entregaDeh,
-								false, //entregaDehObligat
-								this.populateInteressatDocumentTipus(null, representant),//interessat.getDocumentTipus()
-								representant.getAdresa(),
-								representant.getObservacions(),
-								true,//es_representant
-								representant.getRaoSocial(),
-								representant.getPaisCodi(),
-								representant.getProvinciaCodi(),
-								representant.getMunicipiCodi(),
-								this.populateInteressatCanalNotif(null, representant),//interessat.getCanal(),
-								null);//interessat.getCodiDire()
-						representantEntity.setEs_representant(true);
-						representantEntity = interessatRepository.save(representantEntity);
-						interessats.put(representantEntity.getCodi(), representantEntity);
-						interessatEntity.setRepresentant(representantEntity);
-
-					}
-				}				
-			}
+			incorporarInteressatsAlExpedient(anotacio, expedient);
 		}
 		
 		// Canvia l'estat del registre a la BBDD
@@ -447,6 +326,134 @@ public class AnotacioHelper {
 		return conversioTipusHelper.convertir(
 				anotacio, 
 				AnotacioDto.class);
+	}
+	
+	public void incorporarInteressatsAlExpedient(
+			Anotacio anotacio, 
+			Expedient expedient) {
+		// Consulta els interessats existents a l'expedient
+		Map<String, Interessat> interessats = new HashMap<String, Interessat>();
+		for (Interessat i : interessatRepository.findByExpedient(expedient)) {
+				interessats.put(i.getDocumentIdent(), i);
+		}
+		Interessat interessatEntity;
+		Interessat representantEntity;
+		for(AnotacioInteressat interessat : anotacio.getInteressats()) {
+			
+			// Comprova si ja existeix
+			interessatEntity = interessats.get(interessat.getDocumentNumero());
+			
+			if (interessatEntity == null) {
+				// Crea el nou interessat
+				logger.debug("Creant l'interessat (interessat=" + interessat + ") a l'expedient " + expedient.getIdentificador());
+				interessatEntity = new Interessat(
+						interessat.getId(),
+						interessat.getDocumentNumero(), // Codi de l'interessat
+						interessat.getNom() != null? interessat.getNom() : interessat.getRaoSocial(),
+						interessat.getDocumentNumero(),
+						interessat.getOrganCodi(), //codiDir3
+						interessat.getLlinatge1(), 
+						interessat.getLlinatge2(), 
+						this.getInteressatTipus(interessat),
+						interessat.getEmail(), 
+						interessat.getTelefon(),
+						expedient,
+						false, //interessat.getAdresa() != null && interessat.getCp() != null, // entregaPostalActiva o el nom correcte de la propietat //Forcem false issue #1675
+						EntregaPostalTipus.SENSE_NORMALITZAR,
+						null, //línia 1 queda substituit amb Adresa
+						null, // linia2,
+						interessat.getCp(),
+						false, // entregaDeh,
+						false, //entregaDehObligat
+						this.populateInteressatDocumentTipus(null, interessat),//interessat.getDocumentTipus()
+						interessat.getAdresa(),
+						interessat.getObservacions(),
+						false,//es_representant
+						interessat.getRaoSocial(),
+						interessat.getPaisCodi(),
+						interessat.getProvinciaCodi(),
+						interessat.getMunicipiCodi(),
+						this.populateInteressatCanalNotif(null, interessat),//interessat.getCanal(),
+						null);//interessat.getCodiDire()
+				interessatEntity = interessatRepository.save(interessatEntity);
+				interessats.put(interessatEntity.getCodi(), interessatEntity);
+			} else {
+				// Actualitza l'interessat existent
+				logger.debug("Modificant l'interessat (interessat=" + interessat + ") a l'expedient " + expedient.getIdentificador());
+				if(InteressatTipusEnumDto.FISICA.equals(interessatEntity.getTipus())) {
+					interessatEntity.setNom(interessat.getNom());
+					interessatEntity.setLlinatge1(interessat.getLlinatge1());
+					interessatEntity.setLlinatge2(interessat.getLlinatge2());
+				} else if(InteressatTipusEnumDto.JURIDICA.equals(interessatEntity.getTipus())) {
+					interessatEntity.setRaoSocial(interessat.getRaoSocial());
+				} else if(InteressatTipusEnumDto.ADMINISTRACIO.equals(interessatEntity.getTipus())) {
+					if(interessat.getOrganCodi()!=null) {
+						interessatEntity.setDocumentIdent(interessat.getOrganCodi());
+						UnitatOrganitzativa uo= unitatOrganitzativaHelper.findByCodi(interessat.getOrganCodi());//MARTA revisar si li arriba organCodi o altre document d'identificació
+						if(uo!=null)
+							interessat.setRaoSocial(uo.getDenominacio());
+					}
+				}
+				this.populateInteressatDocumentTipus(interessatEntity, interessat);
+				interessatEntity.setDocumentIdent(interessat.getDocumentNumero());
+				this.populateInteressatCanalNotif(interessatEntity, interessat);
+				interessatEntity.setTipus(this.getInteressatTipus(interessat));
+				interessatEntity.setEmail(interessat.getEmail());
+				interessatEntity.setTelefon(interessat.getTelefon());
+				interessatEntity.setPais(interessat.getPaisCodi());
+				interessatEntity.setProvincia(interessat.getProvinciaCodi());
+				interessatEntity.setMunicipi(interessat.getMunicipiCodi());
+				interessatEntity.setCodiPostal(interessat.getCp());
+				interessatEntity.setDireccio(interessat.getAdresa());
+				interessatEntity.setCodi(interessat.getDocumentNumero());
+				if(interessat.getRepresentant()!=null) {
+					// Comprova si ja existeix el representant
+					representantEntity = interessatRepository.findByCodiAndExpedient(
+							interessat.getRepresentant().getDocumentNumero(), expedient);
+					representantEntity.setEs_representant(true);
+					interessatEntity.setRepresentant(representantEntity);
+				}
+			}
+			if(interessat.getRepresentant()!=null) { //Si té un representant també el crea o actualitza
+				AnotacioInteressat representant = interessat.getRepresentant();
+				if (!interessats.containsKey(representant.getDocumentNumero())) {
+					representantEntity = new Interessat(
+							representant.getId(),
+							representant.getDocumentNumero(), // Codi de l'interessat
+							representant.getNom() != null? representant.getNom() : representant.getRaoSocial(),
+							representant.getDocumentNumero(),
+							representant.getOrganCodi(), //codiDir3
+							representant.getLlinatge1(), 
+							representant.getLlinatge2(), 
+							this.getInteressatTipus(representant),
+							representant.getEmail(), 
+							representant.getTelefon(),
+							expedient,
+							false, //interessat.getAdresa() != null && interessat.getCp() != null, // entregaPostalActiva o el nom correcte de la propietat //Forcem false issue #1675
+							EntregaPostalTipus.SENSE_NORMALITZAR,
+							null, //línia 1 queda substituit amb Adresa
+							null, // linia2,
+							representant.getCp(),
+							false, // entregaDeh,
+							false, //entregaDehObligat
+							this.populateInteressatDocumentTipus(null, representant),//interessat.getDocumentTipus()
+							representant.getAdresa(),
+							representant.getObservacions(),
+							true,//es_representant
+							representant.getRaoSocial(),
+							representant.getPaisCodi(),
+							representant.getProvinciaCodi(),
+							representant.getMunicipiCodi(),
+							this.populateInteressatCanalNotif(null, representant),//interessat.getCanal(),
+							null);//interessat.getCodiDire()
+					representantEntity.setEs_representant(true);
+					representantEntity = interessatRepository.save(representantEntity);
+					interessats.put(representantEntity.getCodi(), representantEntity);
+					interessatEntity.setRepresentant(representantEntity);
+
+				}
+			}				
+		}
 	}
 	
 	public String populateInteressatDocumentTipus(Interessat interessatEntity, AnotacioInteressat anotacioInteressat) {
@@ -574,14 +581,15 @@ public class AnotacioHelper {
 	 */
 	@Transactional
 	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId) {
-		return reprocessarMapeigAnotacioExpedient(expedientId, anotacioId, true, true, true);
+		return reprocessarMapeigAnotacioExpedient(expedientId, anotacioId, true, true, true, true);
 	}
 	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(
 			Long expedientId,
 			Long anotacioId,
 			boolean mapejarVariables,
 			boolean mapejarDocuments,
-			boolean mapejarAdjunts) {
+			boolean mapejarAdjunts,
+			boolean mapejarInteressats) {
 		
 		AnotacioMapeigResultatDto resultatMapeig = new AnotacioMapeigResultatDto();
 		logger.debug(
@@ -604,6 +612,7 @@ public class AnotacioHelper {
 			Map<String, Object> variables = null;
 			Map<String, DadesDocumentDto> documents = null;
 			List<DadesDocumentDto> annexos = null;
+			List<AnotacioInteressatDto> interessats = null;
 			MapeigSistra mapeigSistra = null;
 			ExpedientDadaDto dada = null;
 			DadesDocumentDto dadesDocumentDto = null;
@@ -613,7 +622,8 @@ public class AnotacioHelper {
 			resultatMapeig = distribucioHelper.getMapeig(expedientTipus, anotacio, ambContingut);
 			variables = resultatMapeig.getDades();
 			documents = resultatMapeig.getDocuments();
-			annexos = resultatMapeig.getAdjunts();			
+			annexos = resultatMapeig.getAdjunts();
+			interessats = resultatMapeig.getInteressats();
 			if(variables!=null && mapejarVariables) {
 				for (String varCodi : variables.keySet()) {	
 					// Obtenir la variable de l'expedient, comprovar si aquest mapeig existeix o no	
@@ -696,6 +706,12 @@ public class AnotacioHelper {
 								adjunt);
 					}
 				}
+			}
+			
+			if(mapejarInteressats && interessats!=null && !interessats.isEmpty()) {
+				incorporarInteressatsAlExpedient(
+							anotacio,
+							expedient);
 			}
 		}
 

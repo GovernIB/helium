@@ -68,8 +68,8 @@
 									<c:choose>
 										<c:when test="${dadesPersona.admin || potProcessarAnotacions}">
 											<li>
-												<a href="<c:url value="/v3/expedient/{{:expedient.id}}/anotacio/{{:id}}/{{:false}}"/>" title="<spring:message code="expedient.anotacio.llistat.processar.mapeig.title"/>">
-													<span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.anotacio.llistat.processar.mapeig"/>
+												<a id="selection" href="<c:url value="/v3/expedient/{{:expedient.id}}/anotacio/{{:id}}/{{:false}}/reprocessarMapeig"/>" data-toggle="modal" data-datatable-id="" title="<spring:message code="expedient.anotacio.llistat.reprocessar.mapeig.title"/>">
+													<span class="fa fa-cog"></span>&nbsp;<spring:message code="expedient.anotacio.llistat.reprocessar.mapeig"/>
 												</a>
 											</li>
 											<li>
