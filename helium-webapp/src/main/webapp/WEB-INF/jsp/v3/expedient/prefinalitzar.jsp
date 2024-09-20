@@ -15,14 +15,14 @@
 	<script type="text/javascript">
 	//<![CDATA[            
 		$(document).ready(function() {
-			$('#select-all-docs').on('click', function(event) {
-				$('input[class=documentPerFirmarServidor]:not(:disabled):checkbox').prop('checked', event.currentTarget.checked);
-			});
 			$('input[class=documentPerFirmarServidor]').on('change', function(event) {
 				const total = $('input[class=documentPerFirmarServidor]:not(:disabled):checkbox').length;
 				const countSeleccionats = $('input[class=documentPerFirmarServidor]:not(:disabled):checked').length;
 				$('#select-all-docs').prop('checked', total == countSeleccionats);
 			});
+			$('#select-all-docs').on('click', function(event) {
+				$('input[class=documentPerFirmarServidor]:not(:disabled):checkbox').prop('checked', event.currentTarget.checked);
+			}).click();
 		});
 	// ]]>
 	</script>

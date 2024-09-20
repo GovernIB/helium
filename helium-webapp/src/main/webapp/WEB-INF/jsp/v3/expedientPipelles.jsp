@@ -542,12 +542,21 @@ dd.subproc {
 							<li class="divider"></li>
 							<c:if test="${expedient.permisWrite}">
 								<c:if test="${empty expedient.dataFi}">
-									<li><a 
-										data-toggle="modal"
-										data-maximized="true"
-										href="<c:url value="../../v3/expedient/${expedientId}/prefinalitzar"/>">
-											<span class="fa fa-power-off"></span>&nbsp;<spring:message code="expedient.info.accio.finalitzar"/>
-										</a>
+									<li>
+										<c:choose>
+											<c:when test="${expedient.arxiuActiu}">
+												<!--  Modal per seleccionar i firmar documents -->
+												<a 
+												data-toggle="modal"
+												data-maximized="true"
+												href="<c:url value="../../v3/expedient/${expedientId}/prefinalitzar"/>">
+													<span class="fa fa-power-off"></span>&nbsp;<spring:message code="expedient.info.accio.finalitzar"/> ...
+												</a>
+											</c:when>
+											<c:otherwise>
+												<li><a data-rdt-link-confirm="<spring:message code="expedient.eines.finalitzar"/>" href="<c:url value="../../v3/expedient/${expedientId}/finalitzar"/>"><span class="fa fa-power-off"></span>&nbsp;<spring:message code="expedient.info.accio.finalitzar"/></a></li>
+											</c:otherwise>
+										</c:choose>
 									</li>
 								</c:if>
 							</c:if>
@@ -571,6 +580,10 @@ dd.subproc {
 							<c:if test="${expedient.permisLogManage}">
 								<li><a href="<c:url value="../../v3/expedient/${expedientId}/buidalog"/>" onclick="return confirmarBuidarLogExpedient(event)"><span class="fa fa-eraser"></span>&nbsp;<spring:message code="expedient.info.accio.buidarlog"/></a></li>
 							</c:if>
+							<c:if test="${expedient.permisAdministration and expedient.tipus.arxiuActiu and empty expedient.arxiuUuid}">
+								<li><a href="<c:url value="../../v3/expedient/${expedientId}/migrarArxiu"/>" onclick="return confirmarMigrarArxiu(event)"><span class="fa fa-suitcase"></span>&nbsp;<spring:message code="expedient.info.accio.migrararxiu"/></a></li>
+							</c:if>
+							
 							
 							<li class="divider"></li>
 							<li><a href="<c:url value="../../v3/expedient/${expedientId}/generarIndexExpedient"/>" target="_blank" title="<spring:message code="expedient.info.accio.exportarIndex.title"/>">
@@ -592,9 +605,6 @@ dd.subproc {
 								<li class="disabled"><a href="#" title="<spring:message code="expedient.exportacio.eniExp.noActiu"/>">
 									<span class="fa fa-file-code-o"></span>&nbsp;<span class="fa fa-list-ol"></span>&nbsp;<spring:message code="expedient.info.accio.eni"/>
 								</a></li>
-							</c:if>
-							<c:if test="${expedient.permisAdministration and expedient.tipus.arxiuActiu and empty expedient.arxiuUuid}">
-								<li><a href="<c:url value="../../v3/expedient/${expedientId}/migrarArxiu"/>" onclick="return confirmarMigrarArxiu(event)"><span class="fa fa-suitcase"></span>&nbsp;<spring:message code="expedient.info.accio.migrararxiu"/></a></li>
 							</c:if>
 							
 							<c:if test="${perEstats == true }">

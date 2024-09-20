@@ -58,7 +58,6 @@ public class BaseExpedientController extends BaseController {
 			expedient.getTipus().setManualAjudaNom(expedientTipusDto.getManualAjudaNom());
 		}
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
-//		Map<InstanciaProcesDto, List<AccioDto>> accions = new LinkedHashMap<InstanciaProcesDto, List<AccioDto>>();
 		int numAccions = 0;
 		List<String> subprocessos = new ArrayList<String>();
 		for (InstanciaProcesDto instanciaProces: arbreProcessos) {
@@ -71,7 +70,6 @@ public class BaseExpedientController extends BaseController {
 			List<AccioDto> accionsTrobades = expedientService.accioFindVisiblesAmbProcessInstanceId(
 					expedientId,
 					instanciaProces.getId());
-//			accions.put(instanciaProces, accionsTrobades);
 			numAccions += accionsTrobades.size();
 		}
 		model.addAttribute("subprocessos", subprocessos);
