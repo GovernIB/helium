@@ -1364,10 +1364,12 @@ public class ExpedientHelper {
 			InstanciaProcesDto ip = getInstanciaProcesById(jpi.getId());
 			
 			List<Document> documents = documentHelper.findDocumentsExpedient(findExpedientByProcessInstanceId(processInstanceId), jpi.getId());
-			for (Document doc: documents) {
-				if (doc.isPinbalActiu()) {
-					ip.setDocumentsPinbal(true);
-					break;
+			if (documents!=null) {
+				for (Document doc: documents) {
+					if (doc.isPinbalActiu()) {
+						ip.setDocumentsPinbal(true);
+						break;
+					}
 				}
 			}
 			

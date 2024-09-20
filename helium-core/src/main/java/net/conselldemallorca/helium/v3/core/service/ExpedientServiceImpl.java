@@ -2165,10 +2165,18 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		DefinicioProces definicioProces = definicioProcesRepository.findByJbpmId(pi.getProcessDefinitionId());
 		dto.setDefinicioProces(conversioTipusHelper.convertir(definicioProces, DefinicioProcesDto.class));
 		List<ExpedientDocumentDto> documents = documentHelper.findDocumentsPerInstanciaProces(processInstanceId);
-				//documentRepository.findByDefinicioProces(definicioProces);
 		Map<String, DocumentDto> documentsDto = new HashMap<String, DocumentDto>();
 		for(ExpedientDocumentDto doc : documents) {
 			documentsDto.put(doc.getDocumentCodi(), conversioTipusHelper.convertir(doc, DocumentDto.class));
+		}
+		List<Document> documentsIP = documentHelper.findDocumentsExpedient(expedientHelper.findExpedientByProcessInstanceId(processInstanceId), pi.getId());
+		if (documentsIP!=null) {
+			for (Document doc: documentsIP) {
+				if (doc.isPinbalActiu()) {
+					dto.setDocumentsPinbal(true);
+					break;
+				}
+			}
 		}
 		dto.setVarsDocuments(documentsDto);
 		return dto;
