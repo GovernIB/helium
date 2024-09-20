@@ -1298,11 +1298,12 @@ public class AnotacioController extends BaseExpedientController {
 		dto.setEnviarCorreu(false);
 		
 		//Aprofitam el param1 de l'objecte de exec. massiva per guardar la configuració seleccionada.
-		//Per defecte 111 es que s'executen les 3 accions. 100 (nomes variables),  011 (documents i adjunts, pero no variables), etc. 
-		StringBuilder sb = new StringBuilder("111");
+		//Per defecte 111 es que s'executen les 4 accions. 100 (nomes variables),  011 (documents i adjunts, pero no variables), etc. 
+		StringBuilder sb = new StringBuilder("1111");
 		if (!reprocessarMapeigAnotacioDto.isReprocessarMapeigVariables())	{ sb.setCharAt(0, '0'); } //Variables
 		if (!reprocessarMapeigAnotacioDto.isReprocessarMapeigDocuments())	{ sb.setCharAt(1, '0'); } //Documents
 		if (!reprocessarMapeigAnotacioDto.isReprocessarMapeigAdjunts())		{ sb.setCharAt(2, '0'); } //Adjunts
+		if (!reprocessarMapeigAnotacioDto.isReprocessarMapeigAdjunts())		{ sb.setCharAt(3, '0'); } //Interessats
 		dto.setParam1(sb.toString());
 		
 		List<Long> ids =  sessionManager.getSeleccioAnotacio();
