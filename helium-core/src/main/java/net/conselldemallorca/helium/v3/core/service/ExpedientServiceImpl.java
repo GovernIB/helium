@@ -1470,7 +1470,12 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 
 		try {
 			expedientHelper.migrarArxiu(expedient);
-			moureAnnexos(expedient);
+			//Si l'expedient esta tancat, el migrar la l'haura tancat a arxiu, i no es podran mourer els annexos
+			//a més si l'expedient ja estava tancat probablement l'estat de l'anotació era de processada 
+			//i si Distribucio tanca l'expedient de l'anotació llavors ja no es poden "moure***" els annexos
+			if (expedient.getDataFi()==null) {
+				moureAnnexos(expedient);
+			}
 		} catch (Exception ex) {
 			String errorDescripcio = "Error migrant l'expedient " + expedient.getTitol() + " a l'arxiu: " + ex.getMessage();
 			if (esborrarExpSiError && expedient.getArxiuUuid() != null && !expedient.getArxiuUuid().isEmpty()) {
