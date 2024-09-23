@@ -223,9 +223,19 @@ public class InteressatDto {
 	public String getFullInfo() {
 		String codiDocument;
 		if (tipus != null && InteressatTipusEnumDto.ADMINISTRACIO.equals(tipus))
-			codiDocument = dir3Codi + " - " + documentIdent;
-		else
-			codiDocument = documentIdent;
+			codiDocument = dir3Codi!=null ? dir3Codi+ " - " : ""  + documentIdent;
+		else {
+			if(es_representant) {
+				return documentIdent + " - " + getFullNom() + " (Representant)";
+			} else {
+				if(representant!=null) {//Si té representant indiquem quin és
+					return documentIdent + " - " + getFullNom() + " (Representat per " + representant.getDocumentIdent() + ")";
+				} else {
+					codiDocument = documentIdent;
+				}			
+			}
+		}
+			
 		return codiDocument + " - " + getFullNom();
 	}
 	public String getDocumentIdent() {
