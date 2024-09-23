@@ -945,6 +945,8 @@ public class ExpedientHelper {
 
 		// Migra a l'Arxiu o actualitzar en el seu cas
 		pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
+		//Si no posam a true ara, el prostprocessar no pujará els fitxers a l'arxiu
+		expedient.setArxiuActiu(true);
 		
 		/**
 		 * 2.- Documents. Crea o actualitza els documents a l'arxiu.
@@ -991,7 +993,6 @@ public class ExpedientHelper {
 		}
 
 		// Informa convorme l'expedient és NTI i a l'Arxiu
-		expedient.setArxiuActiu(true);
 		expedient.setNtiActiu(true);
 		expedient.setErrorArxiu(null);
 
