@@ -125,6 +125,9 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 			if (command.getClasificacion() == null || "".equals(command.getClasificacion().trim())) {
 				bindingResult.rejectValue("clasificacion", "NotEmpty");
 			}
+			if (command.getSerieDocumental() == null || "".equals(command.getSerieDocumental().trim())) {
+				bindingResult.rejectValue("serieDocumental", "NotEmpty");
+			}
 			if(!expedientTipus.isProcedimentComu() && command.isProcedimentComu()) {
 				Long expedientsExistents = expedientHelper.countByEntornIdAndTipus(expedientTipusId);
 				if(expedientsExistents>0) {;
