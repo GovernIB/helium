@@ -223,7 +223,7 @@ public class InteressatDto {
 	public String getFullInfo() {
 		String codiDocument;
 		if (tipus != null && InteressatTipusEnumDto.ADMINISTRACIO.equals(tipus))
-			codiDocument = dir3Codi!=null ? dir3Codi+ " - " : ""  + documentIdent;
+			codiDocument = (dir3Codi!=null ? dir3Codi+ " - " : "" )+ documentIdent;
 		else {
 			if(es_representant) {
 				return documentIdent + " - " + getFullNom() + " (Representant)";

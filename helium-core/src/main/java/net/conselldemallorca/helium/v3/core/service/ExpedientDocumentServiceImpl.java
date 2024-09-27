@@ -506,16 +506,21 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		//Titular
 		PersonaDto titular = new PersonaDto();
 		titular.setDni(StringUtilsHelium.retallaString(interessatEntity.getDocumentIdent(), 9));
+		titular.setCodiDir3(StringUtilsHelium.retallaString(interessatEntity.getDir3Codi(), 9));
 		if (InteressatTipusEnumDto.FISICA.equals(interessatEntity.getTipus())) {
 			titular.setNom(StringUtilsHelium.retallaString(interessatEntity.getNom(), 30));
 		} else {
 			//InteressatTipusEnumDto.ADMINISTRACIO OR InteressatTipusEnumDto.JURIDICA
-			titular.setNom(StringUtilsHelium.retallaString(interessatEntity.getNom(), 255));
+			titular.setRaoSocial(StringUtilsHelium.retallaString(interessatEntity.getRaoSocial(), 255));
+			titular.setNom(StringUtilsHelium.retallaString(interessatEntity.getRaoSocial(), 255));
+			if (InteressatTipusEnumDto.ADMINISTRACIO.equals(interessatEntity.getTipus())) {
+				//Exemple Govern Illes Balears: El codi Dir3 és A04003003 i el dni S0711001H
+				titular.setDni(StringUtilsHelium.retallaString(interessatEntity.getDir3Codi(), 9));
+				titular.setCodiDir3(StringUtilsHelium.retallaString(interessatEntity.getDocumentIdent(), 9));
+			}
 		}
-
 		titular.setLlinatge1(StringUtilsHelium.retallaString(interessatEntity.getLlinatge1(), 30));
 		titular.setLlinatge2(StringUtilsHelium.retallaString(interessatEntity.getLlinatge2(), 30));
-		titular.setCodiDir3(StringUtilsHelium.retallaString(interessatEntity.getDir3Codi(), 9));
 		titular.setTelefon(StringUtilsHelium.retallaString(interessatEntity.getTelefon(), 16));
 		titular.setEmail(StringUtilsHelium.retallaString(interessatEntity.getEmail(), 160));
 		titular.setTipus(interessatEntity.getTipus());
