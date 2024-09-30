@@ -47,6 +47,7 @@ import net.conselldemallorca.helium.core.helperv26.MesuresTemporalsHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Accio;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta.AlertaPrioritat;
+import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
@@ -100,6 +101,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
+import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.EstatAccioEntradaRepository;
@@ -136,6 +138,8 @@ public class ExpedientHelper {
 	private RegistreRepository registreRepository;
 	@Resource
 	private DocumentStoreRepository documentStoreRepository;
+	@Resource
+	private AnotacioRepository anotacioRepository;
 	@Resource
 	private EstatAccioEntradaRepository estatAccioEntradaRepository;
 	@Resource
@@ -1588,56 +1592,6 @@ public class ExpedientHelper {
 		}
 	}
 
-	/** Mètode per iniciar un expedient sense crear-lo en una nova transacció per poder fer rollback en cas d'errors posteriors.
-	 * 
-	 * @return Retorna el mateix que ExpedientHelper.iniciar.
-	 * 
-	 * @throws Exception
-	 */
-	@Transactional
-	public Expedient iniciarNotNewTransaction(
-			Long entornId,
-			String usuari,
-			Long expedientTipusId,
-			Long definicioProcesId,
-			Integer any,
-			String numero,
-			String unitatOrganitzativaCodi,
-			String titol,
-			String registreNumero,
-			Date registreData,
-			Long unitatAdministrativa,
-			String idioma,
-			boolean autenticat,
-			String tramitadorNif,
-			String tramitadorNom,
-			String interessatNif,
-			String interessatNom,
-			String representantNif,
-			String representantNom,
-			boolean avisosHabilitats,
-			String avisosEmail,
-			String avisosMobil,
-			boolean notificacioTelematicaHabilitada,
-			Map<String, Object> variables,
-			String transitionName,
-			IniciadorTipusDto iniciadorTipus,
-			String iniciadorCodi,
-			String responsableCodi,
-			Map<String, DadesDocumentDto> documents,
-			List<DadesDocumentDto> adjunts,
-			Long anotacioId,
-			AnotacioMapeigResultatDto resultatMapeig,
-			boolean anotacioInteressatsAssociar,
-			BackofficeArxiuUtils backofficeUtils) throws Exception {
-		return this.iniciarSimple(entornId, usuari, expedientTipusId, definicioProcesId, any, numero, unitatOrganitzativaCodi,
-				titol, registreNumero, registreData, unitatAdministrativa, idioma, autenticat, tramitadorNif,
-				tramitadorNom, interessatNif, interessatNom, representantNif, representantNom, avisosHabilitats,
-				avisosEmail, avisosMobil, notificacioTelematicaHabilitada, variables, transitionName, iniciadorTipus,
-				iniciadorCodi, responsableCodi, documents, adjunts, anotacioId, resultatMapeig,
-				anotacioInteressatsAssociar, backofficeUtils);
-	}			
-
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public Expedient iniciar(
 			Long entornId,
@@ -1674,50 +1628,7 @@ public class ExpedientHelper {
 			AnotacioMapeigResultatDto resultatMapeig,
 			boolean anotacioInteressatsAssociar,
 			BackofficeArxiuUtils backofficeUtils) throws Exception {
-		return this.iniciarSimple(entornId, usuari, expedientTipusId, definicioProcesId, any, numero, unitatOrganitzativaCodi,
-				titol, registreNumero, registreData, unitatAdministrativa, idioma, autenticat, tramitadorNif,
-				tramitadorNom, interessatNif, interessatNom, representantNif, representantNom, avisosHabilitats,
-				avisosEmail, avisosMobil, notificacioTelematicaHabilitada, variables, transitionName, iniciadorTipus,
-				iniciadorCodi, responsableCodi, documents, adjunts, anotacioId, resultatMapeig,
-				anotacioInteressatsAssociar, backofficeUtils);
 		
-	}
-	
-	@Transactional
-	private Expedient iniciarSimple(Long entornId,
-			String usuari,
-			Long expedientTipusId,
-			Long definicioProcesId,
-			Integer any,
-			String numero,
-			String unitatOrganitzativaCodi,
-			String titol,
-			String registreNumero,
-			Date registreData,
-			Long unitatAdministrativa,
-			String idioma,
-			boolean autenticat,
-			String tramitadorNif,
-			String tramitadorNom,
-			String interessatNif,
-			String interessatNom,
-			String representantNif,
-			String representantNom,
-			boolean avisosHabilitats,
-			String avisosEmail,
-			String avisosMobil,
-			boolean notificacioTelematicaHabilitada,
-			Map<String, Object> variables,
-			String transitionName,
-			IniciadorTipusDto iniciadorTipus,
-			String iniciadorCodi,
-			String responsableCodi,
-			Map<String, DadesDocumentDto> documents,
-			List<DadesDocumentDto> adjunts,
-			Long anotacioId,
-			AnotacioMapeigResultatDto resultatMapeig,
-			boolean anotacioInteressatsAssociar,
-			BackofficeArxiuUtils backofficeUtils) throws Exception {
 		Expedient expedient = new Expedient();
 		Entorn entorn = entornHelper.getEntorn(entornId);
 		String usuariBo = null;
@@ -1892,16 +1803,10 @@ public class ExpedientHelper {
 						resultatMapeig.getMissatgeAlertaErrors());
 				alerta.setPrioritat(AlertaPrioritat.ALTA);	
 			}
-			// Incorporporar l'anotació a l'expedient
-			anotacioHelper.incorporarReprocessarExpedient(
-					null,
-					anotacioId, 
-					expedientTipusId, 
-					expedient.getId(),
-					anotacioInteressatsAssociar,
-					false,
-					false,
-					backofficeUtils);
+			// Relaciona l'anotació amb l'expedient
+			Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+			anotacio.setExpedientTipus(expedientTipus);
+			anotacio.setExpedient(expedient);
 		}
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
 

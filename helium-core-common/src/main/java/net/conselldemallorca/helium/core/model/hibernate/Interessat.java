@@ -3,7 +3,6 @@ package net.conselldemallorca.helium.core.model.hibernate;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -15,9 +14,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.TableGenerator;
+
 import org.springmodules.validation.bean.conf.loader.annotation.handler.NotBlank;
+
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PinbalServeiDocPermesEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TitularDto.ScspTipoDocumentacion;
 
 @Entity
@@ -30,8 +32,6 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	private Long id;
 	@NotBlank
 	private String codi;
-//	@NotBlank
-//	private String nif;
 	@Column(name = "dir3codi", length = 21)
 	private String dir3Codi;
 	@NotBlank
@@ -163,7 +163,6 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 
 	@OneToMany(
 			mappedBy = "representant",
-			//cascade = { CascadeType.ALL },
 			fetch = FetchType.LAZY)	
 	public List<Interessat> getRepresentats() {
 		return representats;
@@ -355,13 +354,14 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 	//enum TipusDocIdentSICRES { NIF ("N"), CIF ("C"), PASSAPORT ("P"), DOCUMENT_IDENTIFICATIU_ESTRANGERS ("E"), ALTRES_DE_PERSONA_FISICA ("X"), CODI_ORIGEN ("O"); }
 	public ScspTipoDocumentacion tipusInteressatCompatible(ServeiPinbalEntity serveiPinbal) {
 		if (this.tipus!=null) {
+			List<PinbalServeiDocPermesEnumDto> pinbalServeiDocsPermesos = serveiPinbal.getPinbalServeiDocsPermesos();
 			//Persona física
 			if (this.tipus.equals(InteressatTipusEnumDto.FISICA)) {
 				if ("N".equals(this.tipusDocIdent)) {
-					if (serveiPinbal.isPinbalServeiDocPermesNif()) {
-						return ScspTipoDocumentacion.NIF;
-					} else if (serveiPinbal.isPinbalServeiDocPermesDni()) {
+					if (pinbalServeiDocsPermesos.isEmpty() || pinbalServeiDocsPermesos.contains(PinbalServeiDocPermesEnumDto.DNI)) {
 						return ScspTipoDocumentacion.DNI;
+					} else if (serveiPinbal.isPinbalServeiDocPermesDni()) {
+						return ScspTipoDocumentacion.NIF;
 					}
 				} else if ("P".equals(this.tipusDocIdent) && serveiPinbal.isPinbalServeiDocPermesPas()) {
 					return ScspTipoDocumentacion.Pasaporte;

@@ -1,7 +1,9 @@
 package net.conselldemallorca.helium.core.model.hibernate;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,6 +14,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import net.conselldemallorca.helium.v3.core.api.dto.PinbalServeiDocPermesEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PinbalServeiEnumDto;
 
 @Entity
@@ -120,5 +123,28 @@ public class ServeiPinbalEntity implements Serializable {
 	public void setUpdatedUsuari(String updatedUsuari) {
 		this.updatedUsuari = updatedUsuari;
 	}
+	
+	public List<PinbalServeiDocPermesEnumDto> getPinbalServeiDocsPermesos() {
+		List<PinbalServeiDocPermesEnumDto> pinbalServeiDocsPermesosEnumDto = new ArrayList<PinbalServeiDocPermesEnumDto>();
+		
+		if (this.pinbalServeiDocPermesDni) {
+			pinbalServeiDocsPermesosEnumDto.add(PinbalServeiDocPermesEnumDto.DNI);
+		}
+		if (this.pinbalServeiDocPermesNif) {
+			pinbalServeiDocsPermesosEnumDto.add(PinbalServeiDocPermesEnumDto.NIF);
+		}
+		if (this.pinbalServeiDocPermesCif) {
+			pinbalServeiDocsPermesosEnumDto.add(PinbalServeiDocPermesEnumDto.CIF);
+		}
+		if (this.pinbalServeiDocPermesNie) {
+			pinbalServeiDocsPermesosEnumDto.add(PinbalServeiDocPermesEnumDto.NIE);
+		}
+		if (this.pinbalServeiDocPermesPas) {
+			pinbalServeiDocsPermesosEnumDto.add(PinbalServeiDocPermesEnumDto.PASSAPORT);
+		}
+		
+		return pinbalServeiDocsPermesosEnumDto;
+	}
+
 	
 }

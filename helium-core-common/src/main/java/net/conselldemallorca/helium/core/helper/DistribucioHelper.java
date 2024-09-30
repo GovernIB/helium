@@ -865,26 +865,25 @@ public class DistribucioHelper {
 							resultatMapeig.getMissatgeAlertaErrors());
 					alerta.setPrioritat(AlertaPrioritat.ALTA);	
 				}
-
-			} else {
-				// Incorporporar l'anotació a l'expedient
-				try {
-					anotacioHelper.incorporarReprocessarExpedient(
-							anotacio,
-							anotacio.getId(), 
-							expedientTipus.getId(), 
-							expedient.getId(),
-							true,
-							false,
-							reprocessar,
-							backofficeUtils);
-				} catch (Exception e) {
-					String traçaCompleta = ExceptionUtils.getStackTrace(e);
-					String errorProcessament = "Error incorporant/reprocessant l'anotació " + idWs.getIndetificador() + " a l'expedient:" + traçaCompleta;
-					this.canviEstatErrorAnotacio(errorProcessament, anotacio, idWs, e);
-					throw new Exception(messageHelper.getMessage("error.proces.peticio") + ": "
-							+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
-				}
+			}
+			
+			// Incorporporar l'anotació a l'expedient
+			try {
+				anotacioHelper.incorporarReprocessarExpedient(
+						anotacio,
+						anotacio.getId(), 
+						expedientTipus.getId(), 
+						expedient.getId(),
+						true,
+						false,
+						reprocessar,
+						backofficeUtils);
+			} catch (Exception e) {
+				String traçaCompleta = ExceptionUtils.getStackTrace(e);
+				String errorProcessament = "Error incorporant/reprocessant l'anotació " + idWs.getIndetificador() + " a l'expedient:" + traçaCompleta;
+				this.canviEstatErrorAnotacio(errorProcessament, anotacio, idWs, e);
+				throw new Exception(messageHelper.getMessage("error.proces.peticio") + ": "
+						+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
 			}
 			
 			anotacio.setEstat(AnotacioEstatEnumDto.PROCESSADA);
