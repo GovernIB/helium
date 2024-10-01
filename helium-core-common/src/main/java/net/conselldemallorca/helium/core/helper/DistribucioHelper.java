@@ -840,9 +840,9 @@ public class DistribucioHelper {
 					anotacio.setExpedient(expedient);
 				} catch (Throwable e) {
 					String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e;
-					// Crida fent referència al bean per crear una nova transacció
 					String traçaCompleta = ExceptionUtils.getStackTrace(e);
-					self.updateErrorProcessament(anotacio.getId(), errorProcessament.concat(traçaCompleta) );
+					// Crida sense fer referència al bean per no crear una nova transacció
+					this.updateErrorProcessament(anotacio.getId(), errorProcessament.concat(traçaCompleta) );
 					logger.error(errorProcessament, e);
 					 //Es comunica l'estat a Distribucio
 					try {
