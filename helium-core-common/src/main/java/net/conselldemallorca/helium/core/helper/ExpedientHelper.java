@@ -1792,22 +1792,6 @@ public class ExpedientHelper {
 		// Emmagatzema el nou expedient
 		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
 		Expedient expedientPerRetornar = expedientRepository.saveAndFlush(expedient);
-		//Relacionem amb l'anotació si en té
-		if (anotacioId != null) {
-			if (resultatMapeig != null && resultatMapeig.isError()) {
-				Alerta alerta = alertaHelper.crearAlerta(
-						expedient.getEntorn(), 
-						expedient, 
-						new Date(), 
-						null, 
-						resultatMapeig.getMissatgeAlertaErrors());
-				alerta.setPrioritat(AlertaPrioritat.ALTA);	
-			}
-			// Relaciona l'anotació amb l'expedient
-			Anotacio anotacio = anotacioRepository.findOne(anotacioId);
-			anotacio.setExpedientTipus(expedientTipus);
-			anotacio.setExpedient(expedient);
-		}
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
 
 		// Verificar la ultima vegada que l'expedient va modificar el seu estat
@@ -1880,16 +1864,34 @@ public class ExpedientHelper {
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
 			
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
-			// Actualitza les variables del procés
+			// Inicia el flux del procés
 			jbpmHelper.signalProcessInstance(expedient.getProcessInstanceId(), transitionName);
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
-			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
+			
+			//Relacionem amb l'anotació si en té
+			if (anotacioId != null) {
+				if (resultatMapeig != null && resultatMapeig.isError()) {
+					Alerta alerta = alertaHelper.crearAlerta(
+							expedient.getEntorn(), 
+							expedient, 
+							new Date(), 
+							null, 
+							resultatMapeig.getMissatgeAlertaErrors());
+					alerta.setPrioritat(AlertaPrioritat.ALTA);	
+				}
+				// Relaciona l'anotació amb l'expedient
+				Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+				anotacio.setExpedientTipus(expedientTipus);
+				anotacio.setExpedient(expedient);
+			}
+
 			// Comprova si després de l'inici ja està en un node fi
 			verificarFinalitzacioExpedient(expedientPerRetornar);
 			// Indexam l'expedient
 			logger.debug("Indexant nou expedient (id=" + expedient.getProcessInstanceId() + ")");
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
 			indexHelper.expedientIndexLuceneCreate(expedient.getProcessInstanceId());
-			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");			
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
 		} catch( Throwable ex) {
 			// Rollback de la creació de l'expedient a l'arxiu
 			if (arxiuUuid != null)
