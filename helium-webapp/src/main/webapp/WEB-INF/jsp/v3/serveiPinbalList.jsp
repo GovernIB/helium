@@ -29,7 +29,9 @@
 			<tr>
 				<th data-col-name="codi" width="18%"><spring:message code="serveisPinbal.col.codi"/></th>
 				<th data-col-name="nom"  width="50%"><spring:message code="serveisPinbal.col.nom"/></th>
-				<th data-col-name="documentsRestringits_str" width="27%"><spring:message code="serveisPinbal.col.docsRestr"/></th>
+				<th data-col-name="documentsRestringits_str" width="27%"><spring:message code="serveisPinbal.col.docsRestr"/>
+					<span class="fa fa-info-circle" title="<spring:message code="serveisPinbal.col.docsRestr.info"></spring:message>"></span>
+				</th>
 				<th data-col-name="id" width="5%" data-template="#cellAccionsTemplate" data-orderable="false">
 					<script id="cellAccionsTemplate" type="text/x-jsrender">
 						<div class="dropdown navbar-right">

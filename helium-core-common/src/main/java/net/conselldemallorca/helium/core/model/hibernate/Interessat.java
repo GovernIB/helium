@@ -358,7 +358,7 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 			//Persona física
 			if (this.tipus.equals(InteressatTipusEnumDto.FISICA)) {
 				if ("N".equals(this.tipusDocIdent)) {
-					if (pinbalServeiDocsPermesos.isEmpty() || pinbalServeiDocsPermesos.contains(PinbalServeiDocPermesEnumDto.DNI)) {
+					if (pinbalServeiDocsPermesos.isEmpty() || !pinbalServeiDocsPermesos.contains(PinbalServeiDocPermesEnumDto.DNI)) {
 						return ScspTipoDocumentacion.DNI;
 					} else if (serveiPinbal.isPinbalServeiDocPermesDni()) {
 						return ScspTipoDocumentacion.NIF;
