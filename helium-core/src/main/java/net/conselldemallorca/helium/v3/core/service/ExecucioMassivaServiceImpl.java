@@ -962,6 +962,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 		return label;
 	}
 
+
 	@Override
 	public Long getExecucionsMassivesActiva(Long ultimaExecucioMassiva) {
 		Date ara = new Date();
