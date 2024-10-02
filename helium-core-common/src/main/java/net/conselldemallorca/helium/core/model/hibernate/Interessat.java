@@ -163,7 +163,7 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 
 	@OneToMany(
 			mappedBy = "representant",
-			fetch = FetchType.LAZY)	
+			fetch = FetchType.EAGER)	
 	public List<Interessat> getRepresentats() {
 		return representats;
 	}
