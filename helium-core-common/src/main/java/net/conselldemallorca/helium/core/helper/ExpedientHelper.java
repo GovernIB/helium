@@ -15,6 +15,7 @@ import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.hibernate.Hibernate;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.jbpm.jpdl.el.ELException;
 import org.jbpm.jpdl.el.ExpressionEvaluator;
@@ -1791,6 +1792,9 @@ public class ExpedientHelper {
 		
 		// Emmagatzema el nou expedient
 		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
+		for (Interessat interessat: expedient.getInteressats()) {
+			Hibernate.initialize(interessat.getRepresentats());
+		}
 		Expedient expedientPerRetornar = expedientRepository.saveAndFlush(expedient);
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
 
