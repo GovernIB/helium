@@ -15,6 +15,7 @@ import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.hibernate.Hibernate;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.jbpm.jpdl.el.ELException;
 import org.jbpm.jpdl.el.ExpressionEvaluator;
