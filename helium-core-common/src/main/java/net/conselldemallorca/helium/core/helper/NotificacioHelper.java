@@ -287,7 +287,7 @@ public class NotificacioHelper {
 
 		return notificacio;
 	}
-	public DadesNotificacioDto toDadesNotificacioDto(DocumentNotificacio notificacio) {
+	public DadesNotificacioDto toDadesNotificacioDto(DocumentNotificacio notificacio, boolean arxiuActiu) {
 		DadesNotificacioDto dadesNotificacio = new DadesNotificacioDto();
 		
 		dadesNotificacio.setId(notificacio.getId());
@@ -296,7 +296,7 @@ public class NotificacioHelper {
 		dadesNotificacio.setDocumentId(document.getId());
 		dadesNotificacio.setDocumentArxiuNom(document.getArxiuNom());
 		if (!document.isAdjunt()) {
-			dadesNotificacio.setDocumentNom(documentHelperV3.findDocumentPerDocumentStoreId(document.getProcessInstanceId(), document.getId()).getDocumentNom());
+			dadesNotificacio.setDocumentNom(documentHelperV3.findDocumentPerDocumentStoreId(document.getProcessInstanceId(), document.getId(),arxiuActiu).getDocumentNom());
 		}
 		if (notificacio.getEnviamentCertificacio() != null) {
 			DocumentStore justificant = documentStoreRepository.findOne(notificacio.getEnviamentCertificacio().getId());

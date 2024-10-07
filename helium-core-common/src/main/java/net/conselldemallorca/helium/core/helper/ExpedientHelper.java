@@ -1792,9 +1792,6 @@ public class ExpedientHelper {
 		
 		// Emmagatzema el nou expedient
 		mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
-		for (Interessat interessat: expedient.getInteressats()) {
-			Hibernate.initialize(interessat.getRepresentats());
-		}
 		Expedient expedientPerRetornar = expedientRepository.saveAndFlush(expedient);
 		mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Desar el nou expedient");
 

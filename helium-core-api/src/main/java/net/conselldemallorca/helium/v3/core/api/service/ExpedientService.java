@@ -925,7 +925,7 @@ public interface ExpedientService {
 
 	public List<DadesNotificacioDto> findNotificacionsNotibPerExpedientId(Long expedientId) throws NoTrobatException;
 	
-	public NotificacioDto findNotificacioPerId(Long notificacioId) throws NoTrobatException;
+	public NotificacioDto findNotificacioPerId(Long notificacioId, boolean arxiuActiu) throws NoTrobatException;
 
 	/**
 	 * Mètode per consulta els ids de les instàncies de procés per a una definició de procés

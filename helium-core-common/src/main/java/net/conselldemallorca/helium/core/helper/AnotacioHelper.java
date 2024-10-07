@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -375,10 +376,12 @@ public class AnotacioHelper {
 						interessat.getMunicipiCodi(),
 						this.populateInteressatCanalNotif(null, interessat),//interessat.getCanal(),
 						null);//interessat.getCodiDire()
+				Hibernate.initialize(interessatEntity.getRepresentats());
 				interessatEntity = interessatRepository.save(interessatEntity);
 				interessats.put(interessatEntity.getCodi(), interessatEntity);
 			} else {
 				// Actualitza l'interessat existent
+				Hibernate.initialize(interessatEntity.getRepresentats());
 				logger.debug("Modificant l'interessat (interessat=" + interessat + ") a l'expedient " + expedient.getIdentificador());
 				if(InteressatTipusEnumDto.FISICA.equals(interessatEntity.getTipus())) {
 					interessatEntity.setNom(interessat.getNom());
@@ -651,7 +654,8 @@ public class AnotacioHelper {
 					
 					ExpedientDocumentDto document = documentHelper.findOnePerInstanciaProces(
 							expedient.getProcessInstanceId(), 
-							documentCodi);	
+							documentCodi,
+							expedient!=null? expedient.isArxiuActiu(): expedientTipus.isArxiuActiu());	
 					
 					boolean documentExisteix = document !=null;
 					
