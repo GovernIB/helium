@@ -672,8 +672,8 @@ public class ExpedientServiceBean implements ExpedientService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public NotificacioDto findNotificacioPerId(Long notificacioId) throws NoTrobatException {
-		return delegate.findNotificacioPerId(notificacioId);
+	public NotificacioDto findNotificacioPerId(Long notificacioId, boolean arxiuActiu) throws NoTrobatException {
+		return delegate.findNotificacioPerId(notificacioId, arxiuActiu);
 	}
 
 	@Override

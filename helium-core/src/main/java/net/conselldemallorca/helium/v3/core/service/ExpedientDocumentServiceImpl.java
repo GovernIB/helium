@@ -569,7 +569,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		// Notifica i guarda la informació
 		DocumentNotificacio notificacio = notificacioHelper.altaNotificacio(expedient, dadesNotificacioDto);
 		
-		return notificacioHelper.toDadesNotificacioDto(notificacio);
+		return notificacioHelper.toDadesNotificacioDto(notificacio, expedient.isArxiuActiu());
 	}
 
 	/**
@@ -595,7 +595,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				processInstanceId);
 		ExpedientDocumentDto document = documentHelper.findOnePerInstanciaProces(
 				processInstanceId,
-				documentStoreId);
+				documentStoreId,
+				expedient.isArxiuActiu());
 		if (processInstanceId == null) {
 			documentHelper.esborrarDocument(
 					null,
@@ -1186,7 +1187,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				processInstanceId);
 		return documentHelper.findOnePerInstanciaProces(
 				processInstanceId,
-				documentStoreId);
+				documentStoreId,
+				expedient.isArxiuActiu());
 	}
 
 	/**
@@ -1213,7 +1215,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				processInstanceId);
 		return documentHelper.findOnePerInstanciaProces(
 				processInstanceId,
-				documentCodi);
+				documentCodi,
+				expedient.isArxiuActiu());
 	}
 
 	/**
@@ -1853,7 +1856,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			 List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStoreId);
 			 List<DadesNotificacioDto> notificaionsDetalls = new ArrayList<DadesNotificacioDto>();
 			 for (DocumentNotificacio enviament: enviaments) {
-				 notificaionsDetalls.add(notificacioHelper.toDadesNotificacioDto(enviament));
+				 notificaionsDetalls.add(notificacioHelper.toDadesNotificacioDto(enviament, expedient.isArxiuActiu()));
 			 }
 			 documentDetallBuilder.notificacions(notificaionsDetalls);
 		}

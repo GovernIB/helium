@@ -654,7 +654,8 @@ public class AnotacioHelper {
 					
 					ExpedientDocumentDto document = documentHelper.findOnePerInstanciaProces(
 							expedient.getProcessInstanceId(), 
-							documentCodi);	
+							documentCodi,
+							expedient!=null? expedient.isArxiuActiu(): expedientTipus.isArxiuActiu());	
 					
 					boolean documentExisteix = document !=null;
 					

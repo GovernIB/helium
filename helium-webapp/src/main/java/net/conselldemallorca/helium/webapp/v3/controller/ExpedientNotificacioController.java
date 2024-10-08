@@ -66,7 +66,7 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 			@PathVariable Long notificacioId,
 			Model model) {		
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
-		NotificacioDto notificacio = expedientService.findNotificacioPerId(notificacioId);
+		NotificacioDto notificacio = expedientService.findNotificacioPerId(notificacioId, expedient.isArxiuActiu());
 		
 		model.addAttribute("expedient",expedient);
 		model.addAttribute("notificacio",notificacio);
@@ -80,8 +80,8 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			@PathVariable Long notificacioId,
 			Model model) {		
-		expedientService.findAmbIdAmbPermis(expedientId);
-		NotificacioDto notificacio = expedientService.findNotificacioPerId(notificacioId);
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+		NotificacioDto notificacio = expedientService.findNotificacioPerId(notificacioId, expedient.isArxiuActiu());
 		
 		model.addAttribute("notificacio",notificacio);
 		

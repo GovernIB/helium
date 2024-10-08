@@ -3436,7 +3436,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				processInstanceId);
 		return documentHelper.findOnePerInstanciaProces(
 				processInstanceId,
-				documentStoreId);
+				documentStoreId,
+				expedient.isArxiuActiu());
 	}
 	
 	@Override
@@ -3527,7 +3528,8 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				processInstanceId);
 		return documentHelper.findOnePerInstanciaProces(
 				processInstanceId,
-				documentCodi);
+				documentCodi,
+				expedient.isArxiuActiu());
 	}
 	
 	@Override

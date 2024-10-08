@@ -3236,7 +3236,7 @@ public class PluginHelper {
 			if (resposta.getCertificacioData() != null) {
 				byte[] certificacioContingut = resposta.getCertificacioContingut();
 				// Cetificació Títol: [títol document notificat] - Justificant [NIF interessat]
-				ExpedientDocumentDto expedientDocument = documentHelperV3.findDocumentPerDocumentStoreId(document.getProcessInstanceId(), document.getId());
+				ExpedientDocumentDto expedientDocument = documentHelperV3.findDocumentPerDocumentStoreId(document.getProcessInstanceId(), document.getId(), expedient.isArxiuActiu());
 				String certificacioTitol = expedientDocument.getDocumentNom() + " - Justificant " + notificacio.getTitularNif();
 				String certificacioArxiuExtensio = resposta.getCertificacioTipusMime() != null 
 													&& resposta.getCertificacioTipusMime().toLowerCase().contains("xml") ?

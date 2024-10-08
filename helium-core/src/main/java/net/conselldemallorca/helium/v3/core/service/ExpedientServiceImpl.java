@@ -3159,11 +3159,12 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		List<NotificacioDto> notificacions =  conversioTipusHelper.convertirList(
 				notificacioHelper.findNotificacionsPerExpedientId(expedientId), 
 				NotificacioDto.class);
-		
+		Expedient expedient = expedientRepository.findOne(expedientId);
 		for (NotificacioDto notificacio: notificacions) {
 			ExpedientDocumentDto document = documentHelper.findDocumentPerDocumentStoreId(
 					notificacio.getDocument().getProcessInstanceId(), 
-					notificacio.getDocument().getId());
+					notificacio.getDocument().getId(),
+					expedient.isArxiuActiu());
 			notificacio.getDocument().setDocumentNom(document.getDocumentNom());
 		}
 		
@@ -3174,10 +3175,10 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	@Transactional(readOnly = true)
 	public List<DadesNotificacioDto> findNotificacionsNotibPerExpedientId(Long expedientId) throws NoTrobatException {
 		List<DadesNotificacioDto> notificaionsDto = new ArrayList<DadesNotificacioDto>();
-		
+		Expedient expedient = expedientRepository.findOne(expedientId);
 		List<DocumentNotificacio> notificacions = notificacioHelper.findNotificacionsNotibPerExpedientId(expedientId);
 		for (DocumentNotificacio notificacio: notificacions) {
-			DadesNotificacioDto notificaicoDto = notificacioHelper.toDadesNotificacioDto(notificacio);
+			DadesNotificacioDto notificaicoDto = notificacioHelper.toDadesNotificacioDto(notificacio, expedient.isArxiuActiu());
 			notificaionsDto.add(notificaicoDto);
 		}
 		return notificaionsDto;
@@ -3185,13 +3186,14 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	
 	@Override
 	@Transactional(readOnly = true)
-	public NotificacioDto findNotificacioPerId(Long notificacioId) {
+	public NotificacioDto findNotificacioPerId(Long notificacioId, boolean arxiuActiu) {
 		NotificacioDto notificacio =  conversioTipusHelper.convertir(notificacioRepository.findOne(notificacioId), NotificacioDto.class);
 		
 		if (notificacio.getDocument() != null) {
 			ExpedientDocumentDto document = documentHelper.findDocumentPerDocumentStoreId(
 					notificacio.getDocument().getProcessInstanceId(), 
-					notificacio.getDocument().getId());
+					notificacio.getDocument().getId(),
+					arxiuActiu);
 			notificacio.getDocument().setDocumentNom(document.getDocumentNom());
 			notificacio.getDocument().setArxiuExtensio(document.getArxiuExtensio());
 			notificacio.getDocument().setDataCreacio(document.getDataCreacio());
@@ -3202,7 +3204,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			for(DocumentNotificacioDto annex: notificacio.getAnnexos()) {
 				ExpedientDocumentDto document = documentHelper.findDocumentPerDocumentStoreId(
 						annex.getProcessInstanceId(), 
-						annex.getId());
+						annex.getId(),
+						arxiuActiu);
 				annex.setDocumentNom(document.getDocumentNom());
 				annex.setArxiuExtensio(document.getArxiuExtensio());
 				annex.setDataCreacio(document.getDataCreacio());
