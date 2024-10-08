@@ -43,7 +43,7 @@
 								<c:if test="${document.adjunt}">
 									<span class="adjuntIcon icon fa fa-paperclip fa-2x"></span>
 								</c:if>
-								<%--c:if test="${document.arxiuActiu and document.signat}">
+								<%--c:if test="${expedient.arxiuActiu and document.signat}">
 									<span class="adjuntIcon icon fa fa-certificate fa-2x"></span>
 								</c:if--%>
 								<span class="extensionIcon">
@@ -91,14 +91,14 @@
 
 												<c:if test="${document.signat}">
 													<c:choose>
-														<c:when test="${not document.arxiuActiu}">
+														<c:when test="${not expedient.arxiuActiu}">
 															<c:choose>
 																<c:when test="${not empty document.signaturaUrlVerificacio}">
 																	<a class="icon signature" href="${document.signaturaUrlVerificacio}" target="_blank">
 																		<span class="fa fa-2x fa-certificate" title="<spring:message code="expedient.document.signat"/>"></span>
 																	</a>
 																</c:when>
-																<c:otherwise>																			
+																<c:otherwise>			
 																	<a 	data-rdt-link-modal="true"
 																		class="icon signature" 
 																		href="<c:url value="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/signatura/verificar"/>?urlVerificacioCustodia=${document.signaturaUrlVerificacio}">
@@ -146,7 +146,7 @@
 												</c:if>
 												<c:if test="${expedient.permisDocManagement}">
 													<c:choose>
-														<c:when test="${document.signat and document.arxiuActiu}">
+														<c:when test="${document.signat and expedient.arxiuActiu}">
 															<c:set var="esborrarConfirmacioMsg"><spring:message code="expedient.document.firmat.esborrar.confirmacio"/></c:set>
 														</c:when>
 														<c:otherwise>

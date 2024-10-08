@@ -244,13 +244,13 @@
 					{{if ntiActiu}}
 						<a href="${expedient.id}/proces/${expedient.processInstanceId}/document/{{:id}}/metadadesNti" data-toggle="modal">
 						<span id="nti_{{:id}}" class="label label-info label-doc">
-							{{if expUuid == null}}
-								<spring:message code="expedient.info.etiqueta.nti"/>
-							{{else}}
+							{{if arxiuActiu}}
 								<spring:message code="expedient.info.etiqueta.arxiu"/>
 								{{if arxiuUuid == null}}
 									<span class="fa fa-warning text-danger" title="<spring:message code='expedient.document.arxiu.error.uuidnoexistent' />"></span>
 								{{/if}}
+							{{else}}
+								<spring:message code="expedient.info.etiqueta.nti"/>
 							{{/if}}
 						</span>
 						</a>

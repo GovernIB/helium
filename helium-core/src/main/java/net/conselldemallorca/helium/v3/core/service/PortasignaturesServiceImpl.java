@@ -17,6 +17,7 @@ import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultesPortafibFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
@@ -151,10 +152,11 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 			if (filtreDto.getEstat()!=null) {
 				pf.setEstat(filtreDto.getEstat().toString());
 			}
-			
+			Expedient expedient = expedientHelper.getExpedientComprovantPermisos(pf.getExpedientId(), true, false, false, false);
 			ExpedientDocumentDto document = documentHelperV3.findDocumentPerDocumentStoreId(
 					pf.getProcessInstanceId(),
-					pf.getDocumentStoreId());
+					pf.getDocumentStoreId(),
+					expedient.isArxiuActiu());
 			String nom = pf.getDocumentNom();
 			if (document != null) {
 //				nom = document.getDocumentNom();
@@ -171,12 +173,13 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 	@Transactional(readOnly=true)
 	public PortasignaturesDto findById(Long portafirmesId) throws PermisDenegatException {
 		Portasignatures ps = portasignaturesRepository.findById(portafirmesId);
-		expedientHelper.getExpedientComprovantPermisos(ps.getExpedient().getId(), true, false, false, false);
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(ps.getExpedient().getId(), true, false, false, false);
 		PortasignaturesDto resultat = conversioTipusHelper.convertir(ps, PortasignaturesDto.class);
 		
 		ExpedientDocumentDto document = documentHelperV3.findDocumentPerDocumentStoreId(
 				resultat.getProcessInstanceId(),
-				resultat.getDocumentStoreId());
+				resultat.getDocumentStoreId(),
+				expedient.isArxiuActiu());
 		String nom = resultat.getDocumentNom();
 		if (document != null) {
 			nom = document.getDocumentNom();

@@ -174,14 +174,16 @@ public class DocumentHelperV3 {
 
 	public ExpedientDocumentDto findOnePerInstanciaProces(
 			String processInstanceId,
-			Long documentStoreId) {
+			Long documentStoreId,
+			boolean arxiuActiu) {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
-		return findOnePerInstanciaProces(processInstanceId, documentStore);
+		return findOnePerInstanciaProces(processInstanceId, documentStore, arxiuActiu);
 	}
 
 	public ExpedientDocumentDto findOnePerInstanciaProces(
 			String processInstanceId,
-			String documentCodi) {
+			String documentCodi,
+			boolean arxiuActiu) {
 		ExpedientDocumentDto expedientDocumentDto = null;
 		Long documentStoreId = findDocumentStorePerInstanciaProcesAndDocumentCodi(
 				processInstanceId,
@@ -190,7 +192,7 @@ public class DocumentHelperV3 {
 		if (documentStoreId != null)
 		 documentStore = documentStoreRepository.findOne(documentStoreId);
 		if (documentStore != null)
-			expedientDocumentDto = findOnePerInstanciaProces(processInstanceId, documentStore);
+			expedientDocumentDto = findOnePerInstanciaProces(processInstanceId, documentStore, arxiuActiu);
 		return expedientDocumentDto;
 	}
 
@@ -230,47 +232,58 @@ public class DocumentHelperV3 {
 		
 		ArxiuDto resposta = new ArxiuDto();
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+		Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
+
 		// Obtenim el contingut de l'arxiu
 		byte[] arxiuOrigenContingut = null;
 		
-		if (documentStore.getArxiuUuid() != null) {
+		if (expedient.isArxiuActiu()) {
 
 			// #1697 Es revisa que no retorni contingut null i es reintenta
 			es.caib.plugins.arxiu.api.Document documentArxiu = null;
 			int intents = 0;
-			do {
-				documentArxiu = pluginHelper.arxiuDocumentInfo(
-					documentStore.getArxiuUuid(),
-					versio,
-					true,
-					documentStore.isSignat());
-				if (documentArxiu == null || documentArxiu.getContingut() == null) {
-					logger.warn("La consulta del contingut pel document amb id=" + documentStore.getId() + 
-								" ha retornat " + (documentArxiu == null ? "": "documentArxiu.contingut") + " null" );
-				}
-			} while (intents++ < 5
-						&& (documentArxiu == null
-							|| documentArxiu.getContingut() == null));
+			byte[] arxiuContingut = documentStore.getArxiuContingut();
+			if(arxiuContingut==null) {
+				do {
+					if(documentStore.getArxiuUuid()!=null) {
+						documentArxiu = pluginHelper.arxiuDocumentInfo(
+							documentStore.getArxiuUuid(),
+							versio,
+							true,
+							documentStore.isSignat());
+					}
+					if (documentArxiu == null || documentArxiu.getContingut() == null) {
+						logger.warn("La consulta del contingut pel document amb id=" + documentStore.getId() + 
+									" ha retornat " + (documentArxiu == null ? "": "documentArxiu.contingut") + " null" );
+					}
+				} while (intents++ < 5
+							&& (documentArxiu == null
+								|| documentArxiu.getContingut() == null));
 			
-			if (documentArxiu == null
-					|| documentArxiu.getContingut() == null )
-			{
-				throw new SistemaExternException(
-						MonitorIntegracioHelper.INTCODI_ARXIU,
-						"No s'ha pogut consultar el contingut a l'Arxiu pel document id=" + documentStore.getId() + 
-						" amb uuid=" + documentStore.getArxiuUuid() + " i " + (documentStore.isAdjunt() ? "títol d'adjunt " + documentStore.getAdjuntTitol() : "codi de document " + documentStore.getCodiDocument()) +
-						" després de " + intents + "intents.",
-						null);
+				if (documentArxiu == null
+						|| documentArxiu.getContingut() == null )
+				{
+					throw new SistemaExternException(
+							MonitorIntegracioHelper.INTCODI_ARXIU,
+							"No s'ha pogut consultar el contingut a l'Arxiu pel document id=" + documentStore.getId() + 
+							" amb uuid=" + documentStore.getArxiuUuid() + " i " + (documentStore.isAdjunt() ? "títol d'adjunt " + documentStore.getAdjuntTitol() : "codi de document " + documentStore.getCodiDocument()) +
+							" després de " + intents + "intents.",
+							null);
+				}
+				resposta.setContingut(documentArxiu.getContingut().getContingut());
+				resposta.setTipusMime(
+						documentArxiu.getContingut().getTipusMime() != null ? 
+								documentArxiu.getContingut().getTipusMime() : 
+									getContentType(documentStore.getArxiuNom()));
+
+			} else {
+				resposta.setContingut(arxiuContingut);
+				resposta.setTipusMime(getContentType(documentStore.getArxiuNom()));
 			}
 			resposta.setNom(documentStore.getArxiuNom());
-			resposta.setContingut(documentArxiu.getContingut().getContingut());
-			resposta.setTipusMime(
-					documentArxiu.getContingut().getTipusMime() != null ? 
-							documentArxiu.getContingut().getTipusMime() : 
-								getContentType(documentStore.getArxiuNom()));
 			// Si els documents estan firmats amb PADES sempre tindran extensió PDF
 			boolean isFirmaPades = false;
-			if (documentStore.isSignat() && documentArxiu.getFirmes() != null) {
+			if (documentStore.isSignat() && documentArxiu!= null && documentArxiu.getFirmes() != null) {
 				for (Firma firma: documentArxiu.getFirmes()) {
 					if (FirmaTipus.PADES.equals(firma.getTipus())) {
 						isFirmaPades = true;
@@ -342,7 +355,6 @@ public class DocumentHelperV3 {
 						resposta.setContingut(vistaContingut.toByteArray());
 					} catch (SistemaExternConversioDocumentException ex) {
 						logger.error("Hi ha hagut un problema amb el servidor OpenOffice i el document '" + arxiuNomOriginal + "'", ex.getCause());
-						Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
 						throw new SistemaExternConversioDocumentException(
 								expedient.getEntorn().getId(),
 								expedient.getEntorn().getCodi(), 
@@ -355,7 +367,6 @@ public class DocumentHelperV3 {
 								expedient.getTipus().getNom(), 
 								messageHelper.getMessage("error.document.conversio.externa"));
 					} catch (Exception ex) {
-						Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
 						throw SistemaExternException.tractarSistemaExternException(
 								expedient.getEntorn().getId(),
 								expedient.getEntorn().getCodi(), 
@@ -438,7 +449,8 @@ public class DocumentHelperV3 {
 						if (document != null) {
 							ed = crearDtoPerDocumentExpedient(
 									document,
-									documentStoreId);
+									documentStoreId,
+									expedient.isArxiuActiu());
 							ed.setAnotacioId(null); // De moment només arriben per anotació els annexos
 						} else {
 							ExpedientDocumentDto dto = new ExpedientDocumentDto();
@@ -452,7 +464,8 @@ public class DocumentHelperV3 {
 						// Afegeix l'adjunt
 						ed = crearDtoPerAdjuntExpedient(
 								getAdjuntIdDeVariableJbpm(var),
-								documentStoreId);
+								documentStoreId,
+								expedient.isArxiuActiu());
 					}
 					// Afegeix informació de l'annex relacionat amb el document
 					if (ed != null && mapAnotacions.containsKey(ed.getAnotacioAnnexId())) {
@@ -487,7 +500,8 @@ public class DocumentHelperV3 {
 	
 	public ExpedientDocumentDto findDocumentPerDocumentStoreId(
 			String processInstanceId,
-			Long documentStoreId) {
+			Long documentStoreId,
+			boolean arxiuActiu) {
 		// Consulta els documents de la definició de procés
 		DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
 				processInstanceId);
@@ -496,7 +510,8 @@ public class DocumentHelperV3 {
 			if (documentStore.isAdjunt()) {
 				return crearDtoPerAdjuntExpedient(
 						getAdjuntIdDeVariableJbpm(documentStore.getJbpmVariable()),
-						documentStoreId);
+						documentStoreId,
+						arxiuActiu);
 			} else {
 				Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 				ExpedientTipus expedientTipus = expedient.getTipus();
@@ -514,7 +529,8 @@ public class DocumentHelperV3 {
 				if (document != null) {
 					return crearDtoPerDocumentExpedient(
 									document,
-									documentStoreId);
+									documentStoreId,
+									arxiuActiu);
 				} else {
 					ExpedientDocumentDto dto = new ExpedientDocumentDto();
 					dto.setId(documentStoreId);
@@ -2195,10 +2211,11 @@ public class DocumentHelperV3 {
 
 	private ExpedientDocumentDto crearDtoPerDocumentExpedient(
 			Document document,
-			Long documentStoreId) {
+			Long documentStoreId,
+			boolean arxiuActiu) {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		if (documentStore != null) {
-			return crearDtoPerDocumentExpedient(document, documentStore);
+			return crearDtoPerDocumentExpedient(document, documentStore, arxiuActiu);
 		} else {
 			ExpedientDocumentDto dto = new ExpedientDocumentDto();
 			dto.setId(documentStoreId);
@@ -2211,7 +2228,8 @@ public class DocumentHelperV3 {
 
 	private ExpedientDocumentDto crearDtoPerDocumentExpedient(
 			Document document,
-			DocumentStore documentStore) {
+			DocumentStore documentStore,
+			boolean arxiuActiu) {
 		ExpedientDocumentDto dto = new ExpedientDocumentDto();
 		dto.setId(documentStore.getId());
 		dto.setDataCreacio(documentStore.getDataCreacio());
@@ -2226,7 +2244,7 @@ public class DocumentHelperV3 {
 		dto.setPlantilla(document.isPlantilla());
 		dto.setSignat(documentStore.isSignat());
 		if (documentStore.isSignat()) {
-			this.setSignautraUrlVerificacio(dto, documentStore);
+			this.setSignautraUrlVerificacio(dto, documentStore, arxiuActiu);
 		} else {
 			dto.setCustodiaCodi(document.getCustodiaCodi());
 		}
@@ -2260,10 +2278,11 @@ public class DocumentHelperV3 {
 
 	private ExpedientDocumentDto crearDtoPerAdjuntExpedient(
 			String adjuntId,
-			Long documentStoreId) {
+			Long documentStoreId,
+			boolean arxiuActiu) {
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		if (documentStore != null) {
-			return crearDtoPerAdjuntExpedient(adjuntId, documentStore);
+			return crearDtoPerAdjuntExpedient(adjuntId, documentStore, arxiuActiu);
 		} else {
 			ExpedientDocumentDto dto = new ExpedientDocumentDto();
 			dto.setId(documentStoreId);
@@ -2276,7 +2295,8 @@ public class DocumentHelperV3 {
 
 	private ExpedientDocumentDto crearDtoPerAdjuntExpedient(
 			String adjuntId,
-			DocumentStore documentStore) {
+			DocumentStore documentStore,
+			boolean arxiuActiu) {
 		ExpedientDocumentDto dto = new ExpedientDocumentDto();
 		dto.setId(documentStore.getId());
 		dto.setDataCreacio(documentStore.getDataCreacio());
@@ -2301,7 +2321,7 @@ public class DocumentHelperV3 {
 		dto.setArxiuUuid(documentStore.getArxiuUuid());
 		dto.setSignat(documentStore.isSignat());
 		if (documentStore.isSignat()) {
-			this.setSignautraUrlVerificacio(dto, documentStore);
+			this.setSignautraUrlVerificacio(dto, documentStore, arxiuActiu);
 		}
 		dto.setDocumentValid(documentStore.isDocumentValid());
 		dto.setDocumentError(documentStore.getDocumentError());
@@ -2386,7 +2406,8 @@ public class DocumentHelperV3 {
 
 	private ExpedientDocumentDto findOnePerInstanciaProces(
 			String processInstanceId,
-			DocumentStore documentStore) {
+			DocumentStore documentStore,
+			boolean arxiuActiu) {
 		if (documentStore == null) {
 			return null;
 		}
@@ -2398,7 +2419,8 @@ public class DocumentHelperV3 {
 			if (document != null) {
 				ed = crearDtoPerDocumentExpedient(
 								document,
-								documentStore);
+								documentStore,
+								arxiuActiu);
 				Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(processInstanceId);
 				List<DocumentNotificacio> enviaments = documentNotificacioRepository.findByExpedientAndDocumentId(expedient, documentStore.getId());
 				ed.setNotificat(!enviaments.isEmpty());
@@ -2411,7 +2433,8 @@ public class DocumentHelperV3 {
 		} else {
 			ed = crearDtoPerAdjuntExpedient(
 					getAdjuntIdDeVariableJbpm(documentStore.getJbpmVariable()),
-					documentStore);
+					documentStore,
+					arxiuActiu);
 		}
 		// Consulta els annexos de les anotacions de registre i les guarda en un Map<Long documentStoreId, Anotacio>
 		List<AnotacioAnnex> annexos = anotacioAnnexRepository.findByDocumentStoreId(documentStore.getId());
@@ -2522,8 +2545,8 @@ public class DocumentHelperV3 {
 	 * @param dto
 	 * @param documentStore
 	 */
-	private void setSignautraUrlVerificacio(ExpedientDocumentDto dto, DocumentStore documentStore) {
-		if (documentStore.getArxiuUuid() == null) {
+	private void setSignautraUrlVerificacio(ExpedientDocumentDto dto, DocumentStore documentStore, boolean arxiuActiu) {
+		if (!arxiuActiu) {
 			// Custòdia
 			try {
 				dto.setSignaturaUrlVerificacio(
