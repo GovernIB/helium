@@ -948,13 +948,17 @@ public class DocumentHelperV3 {
 					ntiIdDocumentoOrigen);
 			
 		} catch (SistemaExternException seex) {
-			//Ha fallat la integració amb el sistema extern. EL guardam en local (BBDD) fins que es pugui sincronitzar.
-			documentStore.setArxiuContingut(arxiuContingut);
-			documentStore.setFont(DocumentFont.INTERNA);
-			expedient.addErrorArxiu("Error de sincronització amb arxiu al crear el document "+documentStore.getId()+": "+seex.getPublicMessage());
-
-			documentValid = false;
-			documentError = "No està sincronitzat amb l'arxiu.";
+			if(MonitorIntegracioHelper.INTCODI_VALIDASIG.equals(seex.getSistemaExtern())){
+				throw new SistemaExternException(MonitorIntegracioHelper.INTCODI_VALIDASIG, seex.getMessage(), seex);
+			} else {		
+				//Ha fallat la integració amb el sistema extern. EL guardam en local (BBDD) fins que es pugui sincronitzar.
+				documentStore.setArxiuContingut(arxiuContingut);
+				documentStore.setFont(DocumentFont.INTERNA);
+				expedient.addErrorArxiu("Error de sincronització amb arxiu al crear el document "+documentStore.getId()+": "+seex.getPublicMessage());
+	
+				documentValid = false;
+				documentError = "No està sincronitzat amb l'arxiu.";
+			}
 		}
 		
 		// Guarda la referència al nou document a dins el jBPM, és necessari fer-ho fora del postProcessar
