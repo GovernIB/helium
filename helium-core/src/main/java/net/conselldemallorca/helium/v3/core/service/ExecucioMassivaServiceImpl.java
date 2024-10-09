@@ -1837,7 +1837,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 			ExpedientDocumentDto doc = null;
 			if (docId != null) {
 				aux = documentRepository.findOne(docId);
-				doc = documentHelperV3.findOnePerInstanciaProces(exp.getProcessInstanceId(), aux.getCodi());
+				doc = documentHelperV3.findOnePerInstanciaProces(exp.getProcessInstanceId(), aux.getCodi(), exp.isArxiuActiu());
 			}
 			String documentCodi = aux != null ? aux.getCodi() : null;
 			boolean isAdjunt = documentCodi == null;
