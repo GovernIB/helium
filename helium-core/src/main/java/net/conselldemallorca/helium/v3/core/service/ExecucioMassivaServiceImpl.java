@@ -2145,7 +2145,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 		ome.setDataInici(new Date());
 		// Recupera l'anotació 
 		try {
-			distribucioHelper.setProcessant(ome.getAuxId(), true);
 			anotacioService.reprocessar(ome.getAuxId());
 			ome.setEstat(estat);
 			ome.setError(errorMsg.length() > 0 ? errorMsg.toString() : null);
@@ -2156,8 +2155,6 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 			logger.error("OPERACIO:" + ome.getId()
 			+ ". " + errMsg, ex);
 			throw ex;
-		} finally {
-			distribucioHelper.setProcessant(ome.getAuxId(), false);
 		}
 	}
 	
@@ -2385,7 +2382,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 				// Alta de l'expedient
 				BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
 				backofficeUtils.setArxiuPluginListener(this);
-				Expedient expedient = expedientHelper.iniciar(
+				Expedient expedient = expedientHelper.iniciarNewTransaction(
 						expedientTipus.getEntorn().getId(), 
 						ome.getExecucioMassiva().getUsuari(), 
 						expedientTipus.getId(), 
