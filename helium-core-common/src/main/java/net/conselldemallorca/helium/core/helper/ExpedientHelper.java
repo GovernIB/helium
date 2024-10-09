@@ -1592,7 +1592,81 @@ public class ExpedientHelper {
 		}
 	}
 
+	/** Mètode per iniciar l'expedient en una nova transacció. */
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public Expedient iniciarNewTransaction(
+			Long entornId,
+			String usuari,
+			Long expedientTipusId,
+			Long definicioProcesId,
+			Integer any,
+			String numero,
+			String unitatOrganitzativaCodi,
+			String titol,
+			String registreNumero,
+			Date registreData,
+			Long unitatAdministrativa,
+			String idioma,
+			boolean autenticat,
+			String tramitadorNif,
+			String tramitadorNom,
+			String interessatNif,
+			String interessatNom,
+			String representantNif,
+			String representantNom,
+			boolean avisosHabilitats,
+			String avisosEmail,
+			String avisosMobil,
+			boolean notificacioTelematicaHabilitada,
+			Map<String, Object> variables,
+			String transitionName,
+			IniciadorTipusDto iniciadorTipus,
+			String iniciadorCodi,
+			String responsableCodi,
+			Map<String, DadesDocumentDto> documents,
+			List<DadesDocumentDto> adjunts,
+			Long anotacioId,
+			AnotacioMapeigResultatDto resultatMapeig,
+			boolean anotacioInteressatsAssociar,
+			BackofficeArxiuUtils backofficeUtils) throws Exception {
+		return this.iniciar(
+				entornId, 
+				usuari, 
+				expedientTipusId, 
+				definicioProcesId, 
+				any, 
+				numero, 
+				unitatOrganitzativaCodi, 
+				titol, 
+				registreNumero, 
+				registreData, 
+				unitatAdministrativa, 
+				idioma, 
+				autenticat, 
+				tramitadorNif,
+				tramitadorNom,
+				interessatNif,
+				interessatNom,
+				representantNif,
+				representantNom,
+				avisosHabilitats,
+				avisosEmail,
+				avisosMobil,
+				notificacioTelematicaHabilitada,
+				variables,
+				transitionName,
+				iniciadorTipus,
+				iniciadorCodi,
+				responsableCodi,
+				documents,
+				adjunts,
+				anotacioId,
+				resultatMapeig,
+				anotacioInteressatsAssociar,
+				backofficeUtils);
+	}
+	/** Mètode per iniciar l'expedient en una nova transacció. */
+	@Transactional
 	public Expedient iniciar(
 			Long entornId,
 			String usuari,
@@ -1832,8 +1906,10 @@ public class ExpedientHelper {
 			try {
 				ContingutArxiu expedientCreat = pluginHelper.arxiuExpedientCrear(expedientPerRetornar);
 				arxiuUuid = expedientCreat.getIdentificador();
-				expedientPerRetornar.setArxiuUuid(expedientCreat.getIdentificador());
-				expedientPerRetornar.setNtiIdentificador(expedientCreat.getExpedientMetadades().getIdentificador());
+				expedientPerRetornar.setArxiuUuid(
+						expedientCreat.getIdentificador());
+				expedientPerRetornar.setNtiIdentificador(
+						expedientCreat.getExpedientMetadades().getIdentificador());
 				expedientPerRetornar.setErrorArxiu(null);
 			} catch (SistemaExternException seex) {
 				expedientPerRetornar.addErrorArxiu("Error de sincronització amb arxiu al crear l'expedient: "+seex.getPublicMessage());
@@ -1863,10 +1939,6 @@ public class ExpedientHelper {
 			}
 			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
 			
-			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
-			// Inicia el flux del procés
-			jbpmHelper.signalProcessInstance(expedient.getProcessInstanceId(), transitionName);
-			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
 			
 			//Relacionem amb l'anotació si en té
 			if (anotacioId != null) {
@@ -1885,13 +1957,21 @@ public class ExpedientHelper {
 				anotacio.setExpedient(expedient);
 			}
 
+			
+			// Inicia el flux del procés
+			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
+			jbpmHelper.signalProcessInstance(expedient.getProcessInstanceId(), transitionName);
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
+
 			// Comprova si després de l'inici ja està en un node fi
 			verificarFinalitzacioExpedient(expedientPerRetornar);
+
 			// Indexam l'expedient
 			logger.debug("Indexant nou expedient (id=" + expedient.getProcessInstanceId() + ")");
-			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
+			mesuresTemporalsHelper.mesuraIniciar("Indexar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
 			indexHelper.expedientIndexLuceneCreate(expedient.getProcessInstanceId());
-			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
+			mesuresTemporalsHelper.mesuraCalcular("Indexar", "expedient", expedientTipus.getNom(), null, "Indexar expedient");
+
 		} catch( Throwable ex) {
 			// Rollback de la creació de l'expedient a l'arxiu
 			if (arxiuUuid != null)

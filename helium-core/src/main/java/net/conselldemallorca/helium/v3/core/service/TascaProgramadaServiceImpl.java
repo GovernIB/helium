@@ -446,7 +446,6 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 					distribucioHelper.updateAnotacio(anotacioId, anotacioRegistreEntrada);
 					// Processa i comunica l'estat de processada 
 					logger.debug("Processant l'anotació " + idWs.getIndetificador() + ".");
-					distribucioHelper.setProcessant(anotacioId, true);
 					BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
 					distribucioHelper.processarAnotacio(idWs, anotacioRegistreEntrada, anotacioId, backofficeUtils);
 				} catch (Throwable e) {
@@ -464,8 +463,6 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 					} catch(Exception ed) {
 						logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
 					}
-				} finally {
-					distribucioHelper.setProcessant(anotacioId, false);
 				}
 			}					
 		}	
