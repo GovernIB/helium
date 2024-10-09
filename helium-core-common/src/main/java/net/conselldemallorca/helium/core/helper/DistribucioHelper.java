@@ -731,7 +731,17 @@ public class DistribucioHelper {
 		anotacioRepository.save(anotacioEntity);
 	}
 
-	
+
+	@Transactional
+	public void processarAnotacio(
+			AnotacioRegistreId idWs,
+			AnotacioRegistreEntrada anotacioDistribucio,
+			long anotacioId,
+			BackofficeArxiuUtils backofficeUtils) throws Exception{
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+		this.processarAnotacio(idWs, anotacioDistribucio, anotacio, backofficeUtils);
+	}
+
 	/** Processa l'anotació consultada per crear un expedient si cal i incorporar la informació a l'expedient
 	 * automàticament si cal i comunicar l'estat.
 	 * 
@@ -1502,6 +1512,7 @@ public class DistribucioHelper {
 	 * @param maxAnotacions Indica el nombre màxim de resultats.
 	 * @return
 	 */
+	@Transactional(readOnly = true)
 	public List<Anotacio> findPendentConsultar(int maxReintents, int maxAnotacions) {
 		
 		PaginacioParamsDto paginacioParams = new PaginacioParamsDto();

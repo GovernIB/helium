@@ -381,7 +381,6 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	 */
 	public class GuardarAnotacioPendentThread implements Runnable {
 
-		private Anotacio anotacio;	
 	    private Long anotacioId;
 	    private AnotacioRegistreId idWs;
 	    private int maxReintents;
@@ -394,14 +393,12 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 		 * @param maxReintents 
 		 * @param consultaError */
 		public GuardarAnotacioPendentThread(
-				Anotacio anotacio,
 				Long anotacioId,
 				AnotacioRegistreId idWs,
 				int maxReintents,
 				int consultaIntents,
 				String consultaError,
 				Date consultaData) {
-			this.anotacio = anotacio;
 			this.anotacioId = anotacioId;
 			this.idWs = idWs;
 			this.maxReintents = maxReintents;
@@ -425,7 +422,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 			try {
 				anotacioRegistreEntrada = distribucioHelper.consulta(idWs);
 			} catch(Exception e) {
-				consultaError  = "Error consultant l'anotació " + idWs.getIndetificador() + " i clau " + idWs.getClauAcces() + ". Intent " + anotacio.getConsultaIntents() + " de " + maxReintents + ": " + e.getMessage();
+				consultaError  = "Error consultant l'anotació " + idWs.getIndetificador() + " i clau " + idWs.getClauAcces() + ". Intent " + consultaIntents + " de " + maxReintents + ": " + e.getMessage();
 				logger.error(consultaError, e);
 							
 				if (consultaIntents >= maxReintents) {
@@ -446,17 +443,17 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 				
 			if (anotacioRegistreEntrada != null ) {
 				try {
-					anotacio = distribucioHelper.updateAnotacio(anotacio.getId(), anotacioRegistreEntrada);
+					distribucioHelper.updateAnotacio(anotacioId, anotacioRegistreEntrada);
 					// Processa i comunica l'estat de processada 
 					logger.debug("Processant l'anotació " + idWs.getIndetificador() + ".");
-					distribucioHelper.setProcessant(anotacio.getId(), true);
+					distribucioHelper.setProcessant(anotacioId, true);
 					BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
-					distribucioHelper.processarAnotacio(idWs, anotacioRegistreEntrada, anotacio, backofficeUtils);
+					distribucioHelper.processarAnotacio(idWs, anotacioRegistreEntrada, anotacioId, backofficeUtils);
 				} catch (Throwable e) {
 					String message = exceptionHelper.getRouteCauses(e);
 					String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + message;
 					logger.error(errorProcessament, e);
-					anotacio = distribucioHelper.updateErrorProcessament(anotacioId, errorProcessament);
+					distribucioHelper.updateErrorProcessament(anotacioId, errorProcessament);
 	
 					// Es comunica l'estat a Distribucio
 					try {
@@ -468,7 +465,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 						logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
 					}
 				} finally {
-					distribucioHelper.setProcessant(anotacio.getId(), false);
+					distribucioHelper.setProcessant(anotacioId, false);
 				}
 			}					
 		}	
@@ -503,7 +500,6 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 				int consultaIntents = anotacioPendent.getConsultaIntents() + 1;
 				Runnable thread =
 						new GuardarAnotacioPendentThread(
-								anotacioPendent,
 								anotacioPendent.getId(),
 								idWs,
 								maxReintents,
