@@ -1303,7 +1303,7 @@ public class AnotacioController extends BaseExpedientController {
 		if (!reprocessarMapeigAnotacioDto.isReprocessarMapeigVariables())	{ sb.setCharAt(0, '0'); } //Variables
 		if (!reprocessarMapeigAnotacioDto.isReprocessarMapeigDocuments())	{ sb.setCharAt(1, '0'); } //Documents
 		if (!reprocessarMapeigAnotacioDto.isReprocessarMapeigAdjunts())		{ sb.setCharAt(2, '0'); } //Adjunts
-		if (!reprocessarMapeigAnotacioDto.isReprocessarMapeigAdjunts())		{ sb.setCharAt(3, '0'); } //Interessats
+		if (!reprocessarMapeigAnotacioDto.isReprocessarMapeigInteressats())		{ sb.setCharAt(3, '0'); } //Interessats
 		dto.setParam1(sb.toString());
 		
 		List<Long> ids =  sessionManager.getSeleccioAnotacio();

@@ -753,185 +753,192 @@ public class DistribucioHelper {
 			AnotacioRegistreEntrada anotacioDistribucio,
 			Anotacio anotacio,
 			BackofficeArxiuUtils backofficeUtils) throws Exception{
-
-		// Comprova si ja hi ha una anotació processada per rebutjar possibles anotacions duplicades
-		List<Anotacio> anotacions = anotacioRepository.findByDistribucioId(anotacio.getDistribucioId());
-		if(anotacions!=null && !anotacions.isEmpty() && anotacions.size()>1) {
-			boolean rebutjar=false;
-			Expedient expedientAnotacioIdemNum = null;
-			for(Anotacio anotacioIdemNumero: anotacions) {
-				// expedient no anul·lat o anotació en estat pendent
-				expedientAnotacioIdemNum = anotacioIdemNumero.getExpedient();
-				if((expedientAnotacioIdemNum!=null && !expedientAnotacioIdemNum.isAnulat()) || AnotacioEstatEnumDto.PENDENT.equals(anotacioIdemNumero.getEstat()))
-					rebutjar = true;	
-			}
-			if (rebutjar) {
-				//vol dir q és un duplicat i s'ha de rebutjar
-				String motiuRebuig = "L'anotació " + idWs.getIndetificador() + " es rebutja automàticament des d'Helium "
-						+ "ja hi ha una anotació amb el mateix número en estat PROCESSADA/PENDENT rebuda el " + anotacio.getDataRecepcio() 
-						+ (expedientAnotacioIdemNum!=null ? " per l'expedient " + expedientAnotacioIdemNum.getNumero() : "") ;
-				self.rebutjar(anotacio, motiuRebuig);
-				//Es comunica l'estat a Distribucio
-				try {
-					this.canviEstat(
-							idWs, 
-							es.caib.distribucio.rest.client.integracio.domini.Estat.REBUTJADA,
-							motiuRebuig);
-				} catch(Exception ed) {
-					logger.error("Error comunicant el motiu de rebuig a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
-				}
-				return;
-			}
-		}
 		
-		// Comprova si l'anotació s'ha associat amb un tipus d'expedient amb processament automàtic
-		ExpedientTipus expedientTipus = anotacio.getExpedientTipus();
-		Expedient expedient = anotacio.getExpedient();
-		if (expedientTipus != null 
-				&& expedientTipus.isDistribucioProcesAuto()) {
-			
-			// Estableix l'entorn actual si no hi ha entorn al thread actual
-			if (EntornActual.getEntornId() == null) {
-				EntornActual.setEntornId(expedientTipus.getEntorn().getId());
-			}
-			
-			boolean reprocessar = false;
-			if (expedient == null) {
-				Map<String, Object> variables = null;
-				Map<String, DadesDocumentDto> documents = null;
-				List<DadesDocumentDto> adjunts = null;
-				AnotacioMapeigResultatDto resultatMapeig = null;
-				
-				if (expedientTipus.isDistribucioSistra()) {
-					boolean ambContingut = expedient != null ? !expedient.isArxiuActiu() : !expedientTipus.isArxiuActiu(); 
-					resultatMapeig = this.getMapeig(expedientTipus, anotacio, ambContingut);
-					// Extreu documents i variables segons el mapeig sistra
-					variables = resultatMapeig.getDades();
-					documents = resultatMapeig.getDocuments();
-					adjunts = resultatMapeig.getAdjunts();
+		try {
+			// Marca que s'està processant
+			this.setProcessant(anotacio.getId(), true);
+
+			// Comprova si ja hi ha una anotació processada per rebutjar possibles anotacions duplicades
+			List<Anotacio> anotacions = anotacioRepository.findByDistribucioId(anotacio.getDistribucioId());
+			if(anotacions!=null && !anotacions.isEmpty() && anotacions.size()>1) {
+				boolean rebutjar=false;
+				Expedient expedientAnotacioIdemNum = null;
+				for(Anotacio anotacioIdemNumero: anotacions) {
+					// expedient no anul·lat o anotació en estat pendent
+					expedientAnotacioIdemNum = anotacioIdemNumero.getExpedient();
+					if((expedientAnotacioIdemNum!=null && !expedientAnotacioIdemNum.isAnulat()) || AnotacioEstatEnumDto.PENDENT.equals(anotacioIdemNumero.getEstat()))
+						rebutjar = true;	
 				}
-				// Crear l'expedient
-				try {
-					expedient = expedientHelper.iniciar( //.iniciar( //.iniciarNotNewTransaction(
-							expedientTipus.getEntorn().getId(), //entornId
-							null, //usuari, 
-							expedientTipus.getId(), //expedientTipusId, 
-							null, //definicioProcesId,
-							null, //any, 
-							expedientTipus.getDemanaNumero() ? anotacio.getIdentificador() : null, //numero, 
-							anotacio.getDestiCodi(),  //unitatOrganitzativaCodi
-							expedientTipus.getDemanaTitol() ? anotacio.getExtracte() : null, //titol, 
-							anotacio.getIdentificador(), //registreNumero, 
-							anotacio.getData(), //registreData, 
-							null, //unitatAdministrativa, 
-							null, //idioma, 
-							false, //autenticat, 
-							null, //tramitadorNif, 
-							null, //tramitadorNom, 
-							null, //interessatNif, 
-							null, //interessatNom, 
-							null, //representantNif, 
-							null, //representantNom, 
-							false, //avisosHabilitats, 
-							null, //avisosEmail, 
-							null, //avisosMobil, 
-							false, //notificacioTelematicaHabilitada, 
-							variables, //variables, 
-							null, //transitionName, 
-							IniciadorTipusDto.INTERN, //IniciadorTipus 
-							null, //iniciadorCodi, 
-							null, //responsableCodi, 
-							documents, //documents, 
-							adjunts,
-							anotacio != null ? anotacio.getId() : null,
-							null,
-							true, // incorporar interessats
-							backofficeUtils);
-					anotacio.setExpedient(expedient);
-				} catch (Throwable e) {
-					String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e;
-					String traçaCompleta = ExceptionUtils.getStackTrace(e);
-					// Crida sense fer referència al bean per no crear una nova transacció
-					this.updateErrorProcessament(anotacio.getId(), errorProcessament.concat(traçaCompleta) );
-					logger.error(errorProcessament, e);
-					 //Es comunica l'estat a Distribucio
+				if (rebutjar) {
+					//vol dir q és un duplicat i s'ha de rebutjar
+					String motiuRebuig = "L'anotació " + idWs.getIndetificador() + " es rebutja automàticament des d'Helium "
+							+ "ja hi ha una anotació amb el mateix número en estat PROCESSADA/PENDENT rebuda el " + anotacio.getDataRecepcio() 
+							+ (expedientAnotacioIdemNum!=null ? " per l'expedient " + expedientAnotacioIdemNum.getNumero() : "") ;
+					self.rebutjar(anotacio, motiuRebuig);
+					//Es comunica l'estat a Distribucio
 					try {
 						this.canviEstat(
 								idWs, 
-								es.caib.distribucio.rest.client.integracio.domini.Estat.ERROR,
-								errorProcessament);
+								es.caib.distribucio.rest.client.integracio.domini.Estat.REBUTJADA,
+								motiuRebuig);
 					} catch(Exception ed) {
-						logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
-					}	
-					throw new Exception(errorProcessament + ": "
-							+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
-				}				
-				if (resultatMapeig != null && resultatMapeig.isError()) {
-					Alerta alerta = alertaHelper.crearAlerta(
-							expedient.getEntorn(), 
-							expedient, 
-							new Date(), 
-							null, 
-							resultatMapeig.getMissatgeAlertaErrors());
-					alerta.setPrioritat(AlertaPrioritat.ALTA);	
+						logger.error("Error comunicant el motiu de rebuig a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
+					}
+					return;
 				}
 			}
 			
-			// Incorporporar l'anotació a l'expedient
-			try {
-				anotacioHelper.incorporarReprocessarExpedient(
+			// Comprova si l'anotació s'ha associat amb un tipus d'expedient amb processament automàtic
+			ExpedientTipus expedientTipus = anotacio.getExpedientTipus();
+			Expedient expedient = anotacio.getExpedient();
+			if (expedientTipus != null 
+					&& expedientTipus.isDistribucioProcesAuto()) {
+				
+				// Estableix l'entorn actual si no hi ha entorn al thread actual
+				if (EntornActual.getEntornId() == null) {
+					EntornActual.setEntornId(expedientTipus.getEntorn().getId());
+				}
+				
+				boolean reprocessar = false;
+				if (expedient == null) {
+					Map<String, Object> variables = null;
+					Map<String, DadesDocumentDto> documents = null;
+					List<DadesDocumentDto> adjunts = null;
+					AnotacioMapeigResultatDto resultatMapeig = null;
+					
+					if (expedientTipus.isDistribucioSistra()) {
+						boolean ambContingut = expedient != null ? !expedient.isArxiuActiu() : !expedientTipus.isArxiuActiu(); 
+						resultatMapeig = this.getMapeig(expedientTipus, anotacio, ambContingut);
+						// Extreu documents i variables segons el mapeig sistra
+						variables = resultatMapeig.getDades();
+						documents = resultatMapeig.getDocuments();
+						adjunts = resultatMapeig.getAdjunts();
+					}
+					// Crear l'expedient
+					try {
+						expedient = expedientHelper.iniciar(
+								expedientTipus.getEntorn().getId(), //entornId
+								null, //usuari, 
+								expedientTipus.getId(), //expedientTipusId, 
+								null, //definicioProcesId,
+								null, //any, 
+								expedientTipus.getDemanaNumero() ? anotacio.getIdentificador() : null, //numero, 
+								anotacio.getDestiCodi(),  //unitatOrganitzativaCodi
+								expedientTipus.getDemanaTitol() ? anotacio.getExtracte() : null, //titol, 
+								anotacio.getIdentificador(), //registreNumero, 
+								anotacio.getData(), //registreData, 
+								null, //unitatAdministrativa, 
+								null, //idioma, 
+								false, //autenticat, 
+								null, //tramitadorNif, 
+								null, //tramitadorNom, 
+								null, //interessatNif, 
+								null, //interessatNom, 
+								null, //representantNif, 
+								null, //representantNom, 
+								false, //avisosHabilitats, 
+								null, //avisosEmail, 
+								null, //avisosMobil, 
+								false, //notificacioTelematicaHabilitada, 
+								variables, //variables, 
+								null, //transitionName, 
+								IniciadorTipusDto.INTERN, //IniciadorTipus 
+								null, //iniciadorCodi, 
+								null, //responsableCodi, 
+								documents, //documents, 
+								adjunts,
+								anotacio != null ? anotacio.getId() : null,
+								null,
+								true, // incorporar interessats
+								backofficeUtils);
+						anotacio.setExpedient(expedient);
+					} catch (Throwable e) {
+						String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e;
+						String traçaCompleta = ExceptionUtils.getStackTrace(e);
+						// Crida sense fer referència al bean per no crear una nova transacció
+						this.updateErrorProcessament(anotacio.getId(), errorProcessament.concat(traçaCompleta) );
+						logger.error(errorProcessament, e);
+						 //Es comunica l'estat a Distribucio
+						try {
+							this.canviEstat(
+									idWs, 
+									es.caib.distribucio.rest.client.integracio.domini.Estat.ERROR,
+									errorProcessament);
+						} catch(Exception ed) {
+							logger.error("Error comunicant l'error de processament a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
+						}	
+						throw new Exception(errorProcessament + ": "
+								+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
+					}				
+					if (resultatMapeig != null && resultatMapeig.isError()) {
+						Alerta alerta = alertaHelper.crearAlerta(
+								expedient.getEntorn(), 
+								expedient, 
+								new Date(), 
+								null, 
+								resultatMapeig.getMissatgeAlertaErrors());
+						alerta.setPrioritat(AlertaPrioritat.ALTA);	
+					}
+				}
+				
+				// Incorporporar l'anotació a l'expedient
+				try {
+					anotacioHelper.incorporarReprocessarExpedient(
+							anotacio,
+							anotacio.getId(), 
+							expedientTipus.getId(), 
+							expedient.getId(),
+							true,
+							false,
+							reprocessar,
+							backofficeUtils);
+				} catch (Exception e) {
+					String traçaCompleta = ExceptionUtils.getStackTrace(e);
+					String errorProcessament = "Error incorporant/reprocessant l'anotació " + idWs.getIndetificador() + " a l'expedient:" + traçaCompleta;
+					this.canviEstatErrorAnotacio(errorProcessament, anotacio, idWs, e);
+					throw new Exception(messageHelper.getMessage("error.proces.peticio") + ": "
+							+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
+				}
+				
+				anotacio.setEstat(AnotacioEstatEnumDto.PROCESSADA);
+				anotacio.setDataProcessament(new Date());
+
+				// Canvi d'estat a processada
+				// Notifica a Distribucio que s'ha rebut correctament
+				try {
+					this.canviEstat(
+							idWs, 
+							es.caib.distribucio.rest.client.integracio.domini.Estat.PROCESSADA,
+							"Anotació incorporada a l'expedient d'Helium " + expedient.getIdentificadorLimitat());
+				} catch(Exception e) {
+					String errMsg = "Error comunicant l'estat de processada a Distribucio:" + e.getMessage();
+					logger.warn(errMsg, e);				
+				}
+			} else if (expedientTipus==null){
+
+				this.rebutjar(
 						anotacio,
-						anotacio.getId(), 
-						expedientTipus.getId(), 
-						expedient.getId(),
-						true,
-						false,
-						reprocessar,
-						backofficeUtils);
-			} catch (Exception e) {
-				String traçaCompleta = ExceptionUtils.getStackTrace(e);
-				String errorProcessament = "Error incorporant/reprocessant l'anotació " + idWs.getIndetificador() + " a l'expedient:" + traçaCompleta;
-				this.canviEstatErrorAnotacio(errorProcessament, anotacio, idWs, e);
-				throw new Exception(messageHelper.getMessage("error.proces.peticio") + ": "
-						+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
-			}
+						"No hi ha cap tipus d'expedient per processar anotacions amb codi de procediment " + anotacio.getProcedimentCodi() + 
+						" i assumpte " + (anotacio.getAssumpteCodiCodi()!=null ? anotacio.getAssumpteCodiCodi() : "(sense assumpte)") +", es rebutja automàticament amb data " 
+						+ new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()) +
+						". Petició rebutjada a Helium.");				
 			
-			anotacio.setEstat(AnotacioEstatEnumDto.PROCESSADA);
-			anotacio.setDataProcessament(new Date());
-
-			// Canvi d'estat a processada
-			// Notifica a Distribucio que s'ha rebut correctament
-			try {
-				this.canviEstat(
-						idWs, 
-						es.caib.distribucio.rest.client.integracio.domini.Estat.PROCESSADA,
-						"Anotació incorporada a l'expedient d'Helium " + expedient.getIdentificadorLimitat());
-			} catch(Exception e) {
-				String errMsg = "Error comunicant l'estat de processada a Distribucio:" + e.getMessage();
-				logger.warn(errMsg, e);				
+			} else {
+				
+				try {
+					this.canviEstat(
+							idWs, 
+							es.caib.distribucio.rest.client.integracio.domini.Estat.REBUDA,
+							"Petició rebuda a Helium.");
+				} catch(Exception e) {
+					String errMsg = "Error comunicant l'estat de rebuda a Distribucio:" + e.getMessage();
+					logger.warn(errMsg, e);				
+				}			
 			}
-		} else if (expedientTipus==null){
-
-			this.rebutjar(
-					anotacio,
-					"No hi ha cap tipus d'expedient per processar anotacions amb codi de procediment " + anotacio.getProcedimentCodi() + 
-					" i assumpte " + (anotacio.getAssumpteCodiCodi()!=null ? anotacio.getAssumpteCodiCodi() : "(sense assumpte)") +", es rebutja automàticament amb data " 
-					+ new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()) +
-					". Petició rebutjada a Helium.");				
-		
-		} else {
-			
-			try {
-				this.canviEstat(
-						idWs, 
-						es.caib.distribucio.rest.client.integracio.domini.Estat.REBUDA,
-						"Petició rebuda a Helium.");
-			} catch(Exception e) {
-				String errMsg = "Error comunicant l'estat de rebuda a Distribucio:" + e.getMessage();
-				logger.warn(errMsg, e);				
-			}			
+			logger.info("Fi el processament de l anotacio de registre amb id de Distribucio =" + (idWs != null ? idWs.getIndetificador() : ""));
+		} finally {
+			this.setProcessant(anotacio.getId(), false);	
 		}
-		logger.info("Rebuda correctament la petició d'anotació de registre amb id de Distribucio =" + (idWs != null ? idWs.getIndetificador() : ""));
 	}
 	
 	public void canviEstatErrorAnotacio(String errorProcessament,Anotacio anotacio, AnotacioRegistreId idWs, Throwable e) {
@@ -977,49 +984,56 @@ public class DistribucioHelper {
 	 */
 	@Transactional
 	public Anotacio reprocessarAnotacio(long anotacioId, BackofficeArxiuUtils backofficeUtils) throws Exception {
+
 		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
 
 		logger.debug("Rerocessant l'anotació " + anotacio.getIdentificador() + ".");
-
-		// Comprova que està en error de processament o que està rebutjada o pendent i sense expedient relacionat
-		if (!AnotacioEstatEnumDto.ERROR_PROCESSANT.equals(anotacio.getEstat())
-				&& !( Arrays.asList(ArrayUtils.toArray(AnotacioEstatEnumDto.PENDENT, AnotacioEstatEnumDto.REBUTJADA)).contains(anotacio.getEstat())
-						&& anotacio.getExpedient() == null) ) {
-			throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot reprocessar perquè està en estat " + anotacio.getEstat() + (anotacio.getExpedient() != null ? " i té un expedient associat" : ""));
-		}		
-		
-		// Consulta l'anotació
-		AnotacioRegistreId idWs = new AnotacioRegistreId();
-		idWs.setIndetificador(anotacio.getIdentificador());
-		idWs.setClauAcces(anotacio.getDistribucioClauAcces());
-		logger.debug("Consultant l'anotació " + idWs.getIndetificador() + " i clau " + idWs.getClauAcces());
-
-		// Consulta la anotació a Distribucio
-		AnotacioRegistreEntrada anotacioRegistreEntrada = null;
 		try {
-			anotacioRegistreEntrada = this.consulta(idWs);
-		} catch(Exception e) {
-			String errMsg = "Error consultant l'anotació " + idWs.getIndetificador() + " i clau " + idWs.getClauAcces() + ": " + e.getMessage();
-			logger.error(errMsg, e);
-			throw new Exception(errMsg, e);
-		}			
+			// Marca que s'està processant per a que aparegui la rodeta al llistat d'anotacions
+			this.setProcessant(anotacioId, true);
+			
+			// Comprova que està en error de processament o que està rebutjada o pendent i sense expedient relacionat
+			if (!AnotacioEstatEnumDto.ERROR_PROCESSANT.equals(anotacio.getEstat())
+					&& !( Arrays.asList(ArrayUtils.toArray(AnotacioEstatEnumDto.PENDENT, AnotacioEstatEnumDto.REBUTJADA)).contains(anotacio.getEstat())
+							&& anotacio.getExpedient() == null) ) {
+				throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot reprocessar perquè està en estat " + anotacio.getEstat() + (anotacio.getExpedient() != null ? " i té un expedient associat" : ""));
+			}		
+			
+			// Consulta l'anotació
+			AnotacioRegistreId idWs = new AnotacioRegistreId();
+			idWs.setIndetificador(anotacio.getIdentificador());
+			idWs.setClauAcces(anotacio.getDistribucioClauAcces());
+			logger.debug("Consultant l'anotació " + idWs.getIndetificador() + " i clau " + idWs.getClauAcces());
 
-		// Processa i comunica l'estat de processada 
-		try {
-			logger.debug("Rerocessant l'anotació " + idWs.getIndetificador() + ".");
-			anotacio.setEstat(AnotacioEstatEnumDto.PENDENT);
-			anotacio.setErrorProcessament(null);
-			// Torna a consultar si està relacionat amb un tipus d'expedient i/o expedient
-			this.updateRelacioExpedientTipus(anotacio);
-			// Reprocessa l'anotació
-			this.processarAnotacio(idWs, anotacioRegistreEntrada, anotacio, backofficeUtils);//aquí ja es comunica l'error i el canvi d'estat a Distribució
-		} catch (Throwable e) {
-			String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e;
-			String traçaCompleta = ExceptionUtils.getStackTrace(e);
-			anotacio.setErrorProcessament(errorProcessament.concat(traçaCompleta));
-			anotacio.setEstat(AnotacioEstatEnumDto.ERROR_PROCESSANT);
-			throw new Exception(errorProcessament + ": "
-					+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
+			// Consulta la anotació a Distribucio
+			AnotacioRegistreEntrada anotacioRegistreEntrada = null;
+			try {
+				anotacioRegistreEntrada = this.consulta(idWs);
+			} catch(Exception e) {
+				String errMsg = "Error consultant l'anotació " + idWs.getIndetificador() + " i clau " + idWs.getClauAcces() + ": " + e.getMessage();
+				logger.error(errMsg, e);
+				throw new Exception(errMsg, e);
+			}			
+
+			// Processa i comunica l'estat de processada 
+			try {
+				logger.debug("Rerocessant l'anotació " + idWs.getIndetificador() + ".");
+				anotacio.setEstat(AnotacioEstatEnumDto.PENDENT);
+				anotacio.setErrorProcessament(null);
+				// Torna a consultar si està relacionat amb un tipus d'expedient i/o expedient
+				this.updateRelacioExpedientTipus(anotacio);
+				// Reprocessa l'anotació
+				this.processarAnotacio(idWs, anotacioRegistreEntrada, anotacio, backofficeUtils);//aquí ja es comunica l'error i el canvi d'estat a Distribució
+			} catch (Throwable e) {
+				String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e;
+				String traçaCompleta = ExceptionUtils.getStackTrace(e);
+				anotacio.setErrorProcessament(errorProcessament.concat(traçaCompleta));
+				anotacio.setEstat(AnotacioEstatEnumDto.ERROR_PROCESSANT);
+				throw new Exception(errorProcessament + ": "
+						+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
+			}
+		} finally {
+			this.setProcessant(anotacioId, false);
 		}
 		return anotacio;
 	}
