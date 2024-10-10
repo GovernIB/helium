@@ -413,8 +413,13 @@ public class AnotacioHelper {
 					// Comprova si ja existeix el representant
 					representantEntity = interessatRepository.findByCodiAndExpedient(
 							interessat.getRepresentant().getDocumentNumero(), expedient);
-					representantEntity.setEs_representant(true);
-					interessatEntity.setRepresentant(representantEntity);
+					if(representantEntity!=null) {
+						representantEntity.setEs_representant(true);
+						representantEntity = interessatRepository.save(representantEntity);
+						interessats.put(representantEntity.getCodi(), representantEntity);
+						interessatEntity.setRepresentant(representantEntity);
+						interessatRepository.save(interessatEntity);
+					}	
 				}
 			}
 			if(interessat.getRepresentant()!=null) { //Si té un representant també el crea o actualitza
@@ -453,7 +458,7 @@ public class AnotacioHelper {
 					representantEntity = interessatRepository.save(representantEntity);
 					interessats.put(representantEntity.getCodi(), representantEntity);
 					interessatEntity.setRepresentant(representantEntity);
-
+					interessatRepository.save(interessatEntity);
 				}
 			}				
 		}
