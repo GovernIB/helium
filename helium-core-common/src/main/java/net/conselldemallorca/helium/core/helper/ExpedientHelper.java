@@ -30,6 +30,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -1937,10 +1939,8 @@ public class ExpedientHelper {
 							adjunt);
 				}
 			}
-			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");
+			mesuresTemporalsHelper.mesuraCalcular("Iniciar", "expedient", expedientTipus.getNom(), null, "Afegir documents");			
 			
-			
-			//Relacionem amb l'anotació si en té
 			if (anotacioId != null) {
 				if (resultatMapeig != null && resultatMapeig.isError()) {
 					Alerta alerta = alertaHelper.crearAlerta(
@@ -1951,12 +1951,12 @@ public class ExpedientHelper {
 							resultatMapeig.getMissatgeAlertaErrors());
 					alerta.setPrioritat(AlertaPrioritat.ALTA);	
 				}
-				// Relaciona l'anotació amb l'expedient
-				Anotacio anotacio = anotacioRepository.findOne(anotacioId);
-				anotacio.setExpedientTipus(expedientTipus);
-				anotacio.setExpedient(expedient);
+				// Programa que es relacioni l'anotació amb l'expedient després del commit.
+				TransactionSynchronizationManager.registerSynchronization(
+						new RelacionarAnotacioAmbExpedientHandler(
+								anotacioId, 
+								expedientPerRetornar.getId()));
 			}
-
 			
 			// Inicia el flux del procés
 			mesuresTemporalsHelper.mesuraIniciar("Iniciar", "expedient", expedientTipus.getNom(), null, "Iniciar flux");
@@ -1994,6 +1994,48 @@ public class ExpedientHelper {
 		return expedientPerRetornar;
 	}
 
+	
+	/** Classe que implementa la sincronització de transacció per relacionar l'anotació amb l'expedient que s'acaba de crear.
+	 * És necessari fer-ho després del commit perquè si s'intenta de relacionar l'expedient amb l'anotació en una nova transacció
+	 * llavors es produeix un bloqueig i és necessari relacionar l'expedient a l'anotació després de crear-lo.
+	 */
+	public class RelacionarAnotacioAmbExpedientHandler implements TransactionSynchronization {
+		
+		private Long anotacioId;
+		private Long expedientId;
+		
+		public RelacionarAnotacioAmbExpedientHandler(
+				Long anotacioId,
+				Long expedientId) {
+			this.anotacioId = anotacioId;
+			this.expedientId = expedientId;
+		}
+		
+		/** Mètode que s'executa després que s'hagi guardat correctament a BBDD i per tants els temporals es poden guardar correctament. */
+		@Override
+		@Transactional
+		public void afterCommit() {
+			Expedient expedient = expedientRepository.findOne(expedientId);
+			Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+			logger.info("Relacionant l anotacio "  + anotacio.getIdentificador() + " "+ " amb l expedient " + expedientId + " " + expedient.getNumero());
+			anotacio.setExpedient(expedient);
+			anotacio.setExpedientTipus(expedient.getTipus());
+		}
+		
+		@Override
+		public void suspend() {}
+		@Override
+		public void resume() {}
+		@Override
+		public void flush() {}
+		@Override
+		public void beforeCommit(boolean readOnly) {}
+		@Override
+		public void beforeCompletion() {}
+		@Override
+		public void afterCompletion(int status) {}
+	}
+	
 	/** Mètode per afegir els documents inicials a l'expedient com a document o adjunt. Si l'expedient no està integrat amb l'Arxiu i 
 	 * el document o adjunt sí llavors recupera el contingut.
 	 * 

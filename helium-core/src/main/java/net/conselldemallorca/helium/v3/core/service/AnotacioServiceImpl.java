@@ -776,7 +776,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	}
 	
 	@Override
-	@Transactional
+	//@Transactional
 	public AnotacioDto reprocessar(Long anotacioId) throws Exception {
 		logger.debug(
 				"Reprocessant la petició d'anotació de registre (" +
