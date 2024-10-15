@@ -591,6 +591,8 @@ public class AnotacioHelper {
 	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId) {
 		return reprocessarMapeigAnotacioExpedient(expedientId, anotacioId, true, true, true, true);
 	}
+	
+	@Transactional
 	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(
 			Long expedientId,
 			Long anotacioId,
