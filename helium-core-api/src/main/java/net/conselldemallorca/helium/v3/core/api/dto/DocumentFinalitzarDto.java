@@ -17,6 +17,8 @@ public class DocumentFinalitzarDto implements Serializable {
 	private String arxiuNom;
 	private String documentCodi; //Codi del document a la DP o TE
 	private boolean adjunt; //(Document / Adjunt)
+	private boolean documentValid;
+	private String documentError;
 //	En el cas dels tipus que no són per estat: Procés principal / Procés
 //	Anotacio (Posar el número d'anotació) (avís vermell si no s'han mogut)
 //	Notificació (Quan tenen una notificació)
@@ -155,6 +157,18 @@ public class DocumentFinalitzarDto implements Serializable {
 	}
 	public void setPeticioPinbalId(Long peticioPinbalId) {
 		this.peticioPinbalId = peticioPinbalId;
+	}
+	public boolean isDocumentValid() {
+		return documentValid;
+	}
+	public void setDocumentValid(boolean documentValid) {
+		this.documentValid = documentValid;
+	}
+	public String getDocumentError() {
+		return documentError;
+	}
+	public void setDocumentError(String documentError) {
+		this.documentError = documentError;
 	}
 	@Override
 	public String toString() {

@@ -92,6 +92,9 @@
 									PIN
 								</span>
 							</c:if>
+							<c:if test="${!doc.documentValid}">
+								<span class="fa fa-exclamation-triangle text-danger" title="<spring:message htmlEscape="true" code="expedient.document.invalid" arguments="${doc.documentError}"/>""></span>
+							</c:if>
 						</td>
 						<td>${doc.dataCreacioStr}</td>
 						<td align="center">

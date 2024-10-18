@@ -160,7 +160,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 	}
 	
 	/** Mètode per finalitzar un expedient. Es crida al mètode de servei de finalitzar. Els expedients
-	 * integrats amb l'Arxiu passen pelo mètode prefinalitzar que permet escollir quins documents signar.
+	 * integrats amb l'Arxiu passen pel mètode prefinalitzar que permet escollir quins documents signar.
 	 */
 	@RequestMapping(value = "/{expedientId}/finalitzar", method = RequestMethod.GET)
 	public String finalitzar(

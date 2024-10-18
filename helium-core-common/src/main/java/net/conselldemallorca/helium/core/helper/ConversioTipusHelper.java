@@ -37,10 +37,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Portasignatures;
 import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transicio;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaAny;
 import net.conselldemallorca.helium.core.model.hibernate.SequenciaDefaultAny;
-import net.conselldemallorca.helium.core.model.hibernate.ServeiPinbalEntity;
-import net.conselldemallorca.helium.integracio.plugins.notificacio.Enviament;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.InteressatTipusEnum;
-import net.conselldemallorca.helium.integracio.plugins.notificacio.Notificacio;
 import net.conselldemallorca.helium.integracio.plugins.notificacio.Persona;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampDto;
@@ -49,8 +46,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.CampTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
-import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentFinalitzarDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentListDto;
@@ -67,7 +62,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesEstatEnum;
 import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaAnyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.SequenciaDefaultAnyDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ServeiPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
 
 /**
