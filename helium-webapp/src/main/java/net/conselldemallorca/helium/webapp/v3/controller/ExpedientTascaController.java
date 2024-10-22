@@ -257,6 +257,7 @@ public class ExpedientTascaController extends BaseExpedientController {
 			Model model) {
 		
 		try {
+			model.addAttribute("expedient", expedientService.findAmbIdAmbPermis(expedientId));
 			List<String[]> missatges = tascaService.getMissatgesExecucioSegonPla(tascaId);
 			model.addAttribute("tasca", tascaService.findAmbIdPerExpedient(tascaId, expedientId));
 			model.addAttribute("missatges", missatges);

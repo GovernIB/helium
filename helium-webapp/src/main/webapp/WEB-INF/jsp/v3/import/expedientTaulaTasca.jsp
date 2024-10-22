@@ -49,7 +49,7 @@
 				</c:if>
 			</div>
 			<c:if test="${not empty tasca.errorFinalitzacio or not empty tasca.marcadaFinalitzar or not empty tasca.iniciFinalitzacio}">
-				<a class="segon-pla-link" data-rdt-link-modal="true" href="<c:url value="/modal/v3/expedient/${expedient.id}/execucioInfo/${tasca.id}"/>">
+				<a class="icon" data-rdt-link-modal="true" href="<c:url value="/modal/v3/expedient/${expedient.id}/execucioInfo/${tasca.id}"/>">
 				<span class="segon-pla-icona" id="spi-${tasca.id}">
 				<c:choose>
 					<c:when test="${not empty tasca.errorFinalitzacio}">
