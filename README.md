@@ -31,4 +31,4 @@ Gestor d'expedients administratius / Gestor de expedientes administrativos
 ### [3.3.5](https://github.com/GovernIB/helium/releases/tag/Helium_3.3.5)
 
 ## <a name="v_heilum-disseny.jar"></a> Llibreria de disseny
->- [helium-disseny.jar](https://github.com/GovernIB/helium/blob/helium-3.3/doc/disseny-lib/helium-disseny.jar): Llibreria de disseny per desenvolupar expedients d'Helium en la seva darrera versió 3.3.4.
+>- [helium-disseny.jar](https://github.com/GovernIB/helium/blob/helium-3.3/doc/disseny-lib/helium-disseny.jar): Llibreria de disseny per desenvolupar expedients d'Helium en la seva darrera versió 3.3.5.
