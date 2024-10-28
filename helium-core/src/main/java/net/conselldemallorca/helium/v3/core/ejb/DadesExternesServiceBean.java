@@ -15,6 +15,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.MunicipiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NivellAdministracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ProvinciaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 
 
 
@@ -34,37 +35,37 @@ public class DadesExternesServiceBean implements DadesExternesService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<PaisDto> findPaisos() {
+	public List<PaisDto> findPaisos()  throws SistemaExternException {
 		return delegate.findPaisos();
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ProvinciaDto> findProvincies() {
+	public List<ProvinciaDto> findProvincies() throws SistemaExternException {
 		return delegate.findProvincies();
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ComunitatAutonomaDto> findComunitats() {
+	public List<ComunitatAutonomaDto> findComunitats() throws SistemaExternException {
 		return delegate.findComunitats();
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ProvinciaDto> findProvinciesPerComunitat(String comunitatCodi) {
+	public List<ProvinciaDto> findProvinciesPerComunitat(String comunitatCodi) throws SistemaExternException {
 		return delegate.findProvinciesPerComunitat(comunitatCodi);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<MunicipiDto> findMunicipisPerProvincia(String provinciaCodi) {
+	public List<MunicipiDto> findMunicipisPerProvincia(String provinciaCodi) throws SistemaExternException {
 		return delegate.findMunicipisPerProvincia(provinciaCodi);
 	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<NivellAdministracioDto> findNivellAdministracions() {
+	public List<NivellAdministracioDto> findNivellAdministracions() throws SistemaExternException {
 		return delegate.findNivellAdministracions();
 	}
 

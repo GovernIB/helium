@@ -3,7 +3,7 @@ package net.conselldemallorca.helium.v3.core.service;
 import java.util.List;
 
 
-import org.springframework.beans.factory.annotation.Autowired;
+import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import net.conselldemallorca.helium.core.helper.DadesExternesHelper;
@@ -12,6 +12,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.MunicipiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NivellAdministracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ProvinciaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.DadesExternesService;
 
 
@@ -23,39 +24,39 @@ import net.conselldemallorca.helium.v3.core.api.service.DadesExternesService;
 @Service
 public class DadesExternesServiceImpl implements DadesExternesService {
 
-	@Autowired
+	@Resource
 	private DadesExternesHelper dadesExternesHelper;
 	
 	
 	@Override
-	public List<PaisDto> findPaisos() {
+	public List<PaisDto> findPaisos()  throws SistemaExternException {
 		return dadesExternesHelper.dadesExternesPaisosFindAll();
 	}
 
 	@Override
-	public List<ProvinciaDto> findProvincies() {
+	public List<ProvinciaDto> findProvincies()  throws SistemaExternException {
 		return dadesExternesHelper.dadesExternesProvinciesFindAll();
 	}
 
 	@Override
-	public List<ComunitatAutonomaDto> findComunitats() {
+	public List<ComunitatAutonomaDto> findComunitats()  throws SistemaExternException {
 //		return dadesExternesHelper.dadesExternesComunitatsFindAll();
 		return null;
 
 	}
 
 	@Override
-	public List<ProvinciaDto> findProvinciesPerComunitat(String comunitatCodi) {
+	public List<ProvinciaDto> findProvinciesPerComunitat(String comunitatCodi) throws SistemaExternException { 
 		return dadesExternesHelper.dadesExternesProvinciesFindAmbComunitat(comunitatCodi);
 	}
 
 	@Override
-	public List<MunicipiDto> findMunicipisPerProvincia(String provinciaCodi) {
+	public List<MunicipiDto> findMunicipisPerProvincia(String provinciaCodi)  throws SistemaExternException {
 		return dadesExternesHelper.dadesExternesMunicipisFindAmbProvincia(provinciaCodi);
 	}
 
 	@Override
-	public List<NivellAdministracioDto> findNivellAdministracions() {
+	public List<NivellAdministracioDto> findNivellAdministracions() throws SistemaExternException {
 		return dadesExternesHelper.dadesExternesNivellsAdministracioAll();
 	}
 
