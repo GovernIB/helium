@@ -7,6 +7,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.MunicipiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NivellAdministracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ProvinciaDto;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 
 
 /**
@@ -22,28 +23,28 @@ public interface DadesExternesService {
 	 * 
 	 * @return el llistat de països.
 	 */
-	public List<PaisDto> findPaisos();
+	public List<PaisDto> findPaisos()  throws SistemaExternException ;
 
 	/**
 	 * Retorna el llistat de totes les províncies.
 	 * 
 	 * @return el llistat de províncies.
 	 */
-	public List<ProvinciaDto> findProvincies();
+	public List<ProvinciaDto> findProvincies()  throws SistemaExternException ;
 
 	/**
 	 * Retorna el llistat de totes les comunitats.
 	 * 
 	 * @return el llistat de comunitats.
 	 */
-	public List<ComunitatAutonomaDto> findComunitats();
+	public List<ComunitatAutonomaDto> findComunitats()  throws SistemaExternException ;
 	
 	/**
 	 * Retorna el llistat de totes les províncies d'una comunitat.
 	 * 
 	 * @return el llistat de províncies.
 	 */
-	public List<ProvinciaDto> findProvinciesPerComunitat(String comunitatCodi);
+	public List<ProvinciaDto> findProvinciesPerComunitat(String comunitatCodi)  throws SistemaExternException ;
 
 	/**
 	 * Retorna el llistat dels municipis d'una província.
@@ -52,7 +53,7 @@ public interface DadesExternesService {
 	 *            El codi de la província.
 	 * @return el llistat de municipis.
 	 */
-	public List<MunicipiDto> findMunicipisPerProvincia(String provinciaCodi);
+	public List<MunicipiDto> findMunicipisPerProvincia(String provinciaCodi)  throws SistemaExternException ;
 
 	/**
 	 * Retorna el llistat dels nivells de les administracions.
@@ -61,7 +62,7 @@ public interface DadesExternesService {
 	 *            El codi de la província.
 	 * @return el llistat de nivells de administracions.
 	 */
-	public List<NivellAdministracioDto> findNivellAdministracions();
+	public List<NivellAdministracioDto> findNivellAdministracions()  throws SistemaExternException ;
 
 	public List<MunicipiDto> findMunicipisPerProvinciaPinbal(
 			String provinciaCodi);

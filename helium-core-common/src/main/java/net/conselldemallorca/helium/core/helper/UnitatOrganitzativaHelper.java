@@ -116,38 +116,39 @@ public class UnitatOrganitzativaHelper {
 					null); //List<String> historicosUO);
 			unitat.setTipusTransicio(entity.getTipusTransicio());
 		}
-		if (unitat != null) {
-			unitat.setAdressa(unitat.getTipusVia() + " " 
-								+ unitat.getNomVia() + " " 
-								+ unitat.getNumVia());
-
-			if (unitat.getCodiPais() != null && !"".equals(unitat.getCodiPais())) {
-					unitat.setCodiPais(("000" + unitat.getCodiPais()).substring(unitat.getCodiPais().length()));
-			}
-			if (unitat.getCodiComunitat() != null && !"".equals(unitat.getCodiComunitat())) {
-					unitat.setCodiComunitat(("00" + unitat.getCodiComunitat()).substring(unitat.getCodiComunitat().length()));
-			}
-			if ((unitat.getCodiProvincia() == null || "".equals(unitat.getCodiProvincia())) && 
-					unitat.getCodiComunitat() != null && !"".equals(unitat.getCodiComunitat())) {
-					List<ProvinciaDto> provincies = dadesExternesHelper.dadesExternesProvinciesFindAmbComunitat(unitat.getCodiComunitat());
-					if (provincies != null && provincies.size() == 1) {
-						unitat.setCodiProvincia(provincies.get(0).getCodi());
-					}		
-			}
-			if (unitat.getCodiProvincia() != null && !"".equals(unitat.getCodiProvincia())) {
-				unitat.setCodiProvincia(("00" + unitat.getCodiProvincia()).substring(unitat.getCodiProvincia().length()));
-				if (unitat.getLocalitat() == null && unitat.getNomLocalitat() != null) {
-						MunicipiDto municipi = findMunicipiAmbNom(
-								unitat.getCodiProvincia(), 
-								unitat.getNomLocalitat());
-						if (municipi != null)
-							unitat.setLocalitat(municipi.getCodi());
-						else
-							logger.error("UNITAT ORGANITZATIVA. No s'ha trobat la localitat amb el nom: '" + unitat.getNomLocalitat() + "'");
-				}
+		return unitat;
+	}
+	
+	public void populateDadesExternesUO(UnitatOrganitzativaDto unitat) {
+		unitat.setAdressa(unitat.getTipusVia() + " " 
+				+ unitat.getNomVia() + " " 
+				+ unitat.getNumVia());
+		
+		if (unitat.getCodiPais() != null && !"".equals(unitat.getCodiPais())) {
+			unitat.setCodiPais(("000" + unitat.getCodiPais()).substring(unitat.getCodiPais().length()));
+		}
+		if (unitat.getCodiComunitat() != null && !"".equals(unitat.getCodiComunitat())) {
+			unitat.setCodiComunitat(("00" + unitat.getCodiComunitat()).substring(unitat.getCodiComunitat().length()));
+		}
+		if ((unitat.getCodiProvincia() == null || "".equals(unitat.getCodiProvincia())) && 
+			unitat.getCodiComunitat() != null && !"".equals(unitat.getCodiComunitat())) {
+			List<ProvinciaDto> provincies = dadesExternesHelper.dadesExternesProvinciesFindAmbComunitat(unitat.getCodiComunitat());
+			if (provincies != null && provincies.size() == 1) {
+				unitat.setCodiProvincia(provincies.get(0).getCodi());
+			}		
+		}
+		if (unitat.getCodiProvincia() != null && !"".equals(unitat.getCodiProvincia())) {
+			unitat.setCodiProvincia(("00" + unitat.getCodiProvincia()).substring(unitat.getCodiProvincia().length()));
+			if (unitat.getLocalitat() == null && unitat.getNomLocalitat() != null) {
+					MunicipiDto municipi = findMunicipiAmbNom(
+							unitat.getCodiProvincia(), 
+							unitat.getNomLocalitat());
+					if (municipi != null)
+						unitat.setLocalitat(municipi.getCodi());
+					else
+						logger.error("UNITAT ORGANITZATIVA. No s'ha trobat la localitat amb el nom: '" + unitat.getNomLocalitat() + "'");
 			}
 		}
-		return unitat;
 	}
 	
 	private MunicipiDto findMunicipiAmbNom(
@@ -164,8 +165,7 @@ public class UnitatOrganitzativaHelper {
 			}
 		}
 		return municipi;
-	}
-		
+	}	
 	public void sincronizarOActualizar(UnitatOrganitzativa entitat) {
 			List<UnitatOrganitzativaDto> unitats;
 			unitats =  pluginHelper.findAmbPare(

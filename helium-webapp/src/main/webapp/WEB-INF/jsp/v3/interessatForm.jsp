@@ -89,6 +89,7 @@ function adaptarVisibilitat(tipus){
 			 $('#tipusDocIdent option[value="'+passaport+'"]').prop('disabled',false); 
 			 $('#tipusDocIdent option[value="'+cif+'"]').prop('disabled',true); 
 			 $('#tipusDocIdent option[value="'+codi_origen+'"]').prop('disabled',true); 
+			 $('#documentIdent').prop("readonly", false);
 		} else if (tipus == 'JURIDICA'){
 			 $('.visibilitatCodi').removeClass('hidden');
 			 $('.personafisica').addClass('hidden');
@@ -98,7 +99,7 @@ function adaptarVisibilitat(tipus){
 			 $('#tipusDocIdent option[value="'+codi_origen+'"]').prop('disabled',true); 
 			 $('#tipusDocIdent option[value="'+altres_de_persona_fisica+'"]').prop('disabled',true); 
 			 $('#tipusDocIdent option[value="'+passaport+'"]').prop('disabled',true); 
-			 
+			 $('#documentIdent').prop("readonly", false);
 		}else if (tipus == 'ADMINISTRACIO'){
 			 $('.visibilitatCodi').removeClass('hidden');
 			 $('.personafisica').addClass('hidden');
@@ -116,13 +117,18 @@ function adaptarVisibilitat(tipus){
 function netejar(){
 		$('#pais').val("");
 		$('#pais').val("724");
+		$('#pais').prop("readonly", false);
 		$('#pais').change();
 		$('#provincia').val("");
 		$('#provincia').change();
+		$('#provincia').prop("readonly", false);
 		$('#municipi').val("");
 		$('#municipi').change();
+		$('#municipi').prop("readonly", false);
 		$('#codiPostal').val("");
+		$('#codiPostal').prop("readonly", false);
 		$('#direccio').val("");
+		$('#direccio').prop("readonly", false);
 		$('#documentIdent').val("");
 		$('#tipusDocIdent').val("NIF");
 }
@@ -137,6 +143,7 @@ $(document).ready(function() {
  		//adaptarSuggest(this.value);
  		adaptarVisibilitat($(this).val());
 		webutilModalAdjustHeight();
+		netejar();
 		var tipusInt = 1;
  		if (this.value == '<%=net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto.FISICA%>') {
  			tipusInt = 1;

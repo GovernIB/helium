@@ -237,6 +237,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		if (dto.getProvincia() != null) {
 			model.addAttribute("municipis", dadesExternesService.findMunicipisPerProvincia(dto.getProvincia()));
 		}
+		this.populateUOsCommand(interessatCommand);
 		interessatCommand = ConversioTipusHelper.convertir(
 				dto,
 				InteressatCommand.class);
@@ -541,7 +542,11 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable String codi,
 			Model model) {
-		return unitatOrganitzativaService.findByCodi(codi);
+		UnitatOrganitzativaDto unitat = unitatOrganitzativaService.findByCodi(codi);
+		if (unitat != null) {
+			unitatOrganitzativaHelper.populateDadesExternesUO(unitat);
+		}
+		return unitat;
 	}
 	
 	private void populateDadesInteressat(InteressatDto interessat) {
