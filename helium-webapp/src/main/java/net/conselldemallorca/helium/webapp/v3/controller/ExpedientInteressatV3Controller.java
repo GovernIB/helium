@@ -24,8 +24,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import net.conselldemallorca.helium.core.helper.UnitatOrganitzativaHelper;
-import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.v3.core.api.dto.CanalNotifEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDocumentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
@@ -62,7 +60,6 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 	@Autowired private ExpedientInteressatService expedientInteressatService;
 	@Autowired private UnitatOrganitzativaService unitatOrganitzativaService;
 	@Autowired private DadesExternesService dadesExternesService;
-	@Autowired private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
 
 	@RequestMapping(value="/{expedientId}/interessat/{codiInteressat}", method = RequestMethod.GET)
 	@ResponseBody
@@ -79,7 +76,6 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			HttpServletRequest request,
 			@PathVariable Long expedientId,
 			Model model) {
-		//populateModel(request, model);
 		model.addAttribute("expedientId", expedientId);	
 		return "v3/interessatLlistat";
 	}
@@ -154,26 +150,9 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			Model model) {
 		InteressatCommand interessatCommand= new InteressatCommand();
-		populateModel(request, model);
+		populateModel(request, model, null);
 		interessatCommand.setPais("724");
 		model.addAttribute("expedientId", expedientId);
-		model.addAttribute(
-				"interessatTipusOptions",
-				EnumHelper.getOptionsForEnum(
-						InteressatTipusEnumDto.class,
-						"interessat.form.tipus.enum."));
-		model.addAttribute(
-				"interessatTipusDocuments",
-				this.populateTipusDocuments(request)
-				);
-		model.addAttribute(
-				"interessatCanalsNotif", 
-				this.populateCanalsNotif(request)
-				);
-		model.addAttribute(
-				"organs",
-				unitatOrganitzativaHelper.findAll()
-				);
 		model.addAttribute(interessatCommand);
 		model.addAttribute("es_representant",false);
 		return "v3/interessatForm";
@@ -184,18 +163,14 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			@Validated(Creacio.class) InteressatCommand command,
 			BindingResult bindingResult,
 			Model model) {
+		boolean error = false;
         if (bindingResult.hasErrors()) {
-        	return "v3/interessatForm";
+        	error = true;
         } else {
         	try {
-        		populateModel(request, model);
         		if (command.getTipus() != null && InteressatTipusEnumDto.ADMINISTRACIO.equals(command.getTipus())) {
         			this.populateUOsCommand(command);
             	}
-				model.addAttribute(
-						"organs",
-						unitatOrganitzativaHelper.findAll()
-						);		
         		InteressatDto resultat = expedientInteressatService.create(
 	    				ConversioTipusHelper.convertir(
 	    						command,
@@ -206,10 +181,17 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
         			MissatgesHelper.warning(request, getMessage(request, "interessat.controller.creat.err") );
         		}
         	} catch (Exception ex) {
-        		ex.printStackTrace();
+        		String errMsg = getMessage(request, "interessat.controller.crear.error", new Object[] {ex.toString()});
+        		MissatgesHelper.error(request, errMsg);
+        		error = true;
         	}
-        	return modalUrlTancar(false);
         }
+    	if (error) {
+    		populateModel(request, model, null);
+    		return "v3/interessatForm";
+    	} else {
+        	return modalUrlTancar(false);
+    	}
 	}
 
 	@RequestMapping(value = "/{expedientId}/interessat/{interessatId}/update", method = RequestMethod.GET)
@@ -225,6 +207,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		if(dto.getPais()==null) {
 			dto.setPais("724");
 		}
+		populateModel(request, model, dto.getProvincia());
 		model.addAttribute("tipus",dto.getTipus());
 		model.addAttribute("es_representant",dto.getEs_representant());
 		//posem el valor de l'enum tal com apareix al llistat
@@ -233,10 +216,6 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		} else {
 			dto.setTipusDocIdent(this.populateInteressatDocumentTipus(dto));
 		}
-		populateModel(request, model);
-		if (dto.getProvincia() != null) {
-			model.addAttribute("municipis", dadesExternesService.findMunicipisPerProvincia(dto.getProvincia()));
-		}
 		this.populateUOsCommand(interessatCommand);
 		interessatCommand = ConversioTipusHelper.convertir(
 				dto,
@@ -244,10 +223,6 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		if (interessatCommand.getTipus() != null && InteressatTipusEnumDto.ADMINISTRACIO.equals(interessatCommand.getTipus())) {
     		this.populateUOsCommand(interessatCommand);
     		interessatCommand.setCifOrganGestor(interessatCommand.getDocumentIdent());
-			model.addAttribute(
-					"organs",
-					unitatOrganitzativaHelper.findAll()
-					);		
     	}
 		model.addAttribute(interessatCommand);
 		return "v3/interessatForm";
@@ -261,33 +236,44 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			@Validated(Modificacio.class) InteressatCommand command,
 			BindingResult bindingResult,
 			Model model) {
+		boolean error = false;
         if (bindingResult.hasErrors()) {
-        	return "v3/interessatForm";
+        	error = true;
         } else {
-    		populateModel(request, model);
+        	try {
+            	InteressatDto resultat = expedientInteressatService.update(
+            			ConversioTipusHelper.convertir(
+        						command,
+        						InteressatDto.class));
+            	
+    	        if(es_representant) {
+    	        	if (resultat.isPropagatArxiu()) {
+    	        		MissatgesHelper.success(request, getMessage(request, "interessat.controller.representant.modificat") );
+    	        	} else {
+    	        		MissatgesHelper.warning(request, getMessage(request, "interessat.controller.representant.modificat.err") );
+    	        	}
+    	        } else {
+    	        	if (resultat.isPropagatArxiu()) {
+    	        		MissatgesHelper.success(request, getMessage(request, "interessat.controller.modificat") );
+    	        	} else {
+    	        		MissatgesHelper.warning(request, getMessage(request, "interessat.controller.modificat.err") );
+    	        	}
+    	        }
+        	} catch(Exception ex) {
+        		String errMsg = getMessage(request, "interessat.controller.modificar.error", new Object[] {ex.toString()});
+        		MissatgesHelper.error(request, errMsg);
+        		error = true; 		
+        	}
+        }
+        if (error) {
+    		populateModel(request, model, command.getProvincia());
         	command.setEs_representant(es_representant);
         	if (command.getTipus() != null && InteressatTipusEnumDto.ADMINISTRACIO.equals(command.getTipus())) {
     			this.populateUOsCommand(command);
         	}
-        	InteressatDto resultat = expedientInteressatService.update(
-        			ConversioTipusHelper.convertir(
-    						command,
-    						InteressatDto.class));
-        	
-	        if(es_representant) {
-	        	if (resultat.isPropagatArxiu()) {
-	        		MissatgesHelper.success(request, getMessage(request, "interessat.controller.representant.modificat") );
-	        	} else {
-	        		MissatgesHelper.warning(request, getMessage(request, "interessat.controller.representant.modificat.err") );
-	        	}
-	        } else {
-	        	if (resultat.isPropagatArxiu()) {
-	        		MissatgesHelper.success(request, getMessage(request, "interessat.controller.modificat") );
-	        	} else {
-	        		MissatgesHelper.warning(request, getMessage(request, "interessat.controller.modificat.err") );
-	        	}
-	        }
-			return modalUrlTancar(false);
+        	return "v3/interessatForm";
+        } else {
+			return modalUrlTancar(false);        	
         }
 	}
 	
@@ -297,27 +283,10 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			@PathVariable Long expedientId,
 			Model model) {
 		InteressatCommand interessatCommand= new InteressatCommand();
-		populateModel(request, model);
+		populateModel(request, model, null);
 		interessatCommand.setPais("724");
 		interessatCommand.setEs_representant(true);
 		model.addAttribute("expedientId", expedientId);
-		model.addAttribute(
-				"interessatTipusOptions",
-				EnumHelper.getOptionsForEnum(
-						InteressatTipusEnumDto.class,
-						"interessat.form.tipus.enum."));
-		model.addAttribute(
-				"interessatTipusDocuments",
-				this.populateTipusDocuments(request)
-				);
-		model.addAttribute(
-				"interessatCanalsNotif", 
-				this.populateCanalsNotif(request)
-				);
-		model.addAttribute(
-				"organs",
-				unitatOrganitzativaHelper.findAll()
-				);
 		model.addAttribute(interessatCommand);
 		model.addAttribute("es_representant",true);
 		return "v3/interessatForm";
@@ -331,20 +300,31 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			@Validated(Modificacio.class) InteressatCommand command,
 			BindingResult bindingResult,
 			Model model) {
+		boolean error = false;
         if (bindingResult.hasErrors()) {
+        	error = true;
+        } else {
+        	try {
+            	command.setEs_representant(true);
+            	if (command.getTipus() != null && InteressatTipusEnumDto.ADMINISTRACIO.equals(command.getTipus())) {
+        			this.populateUOsCommand(command);
+            	}
+            	expedientInteressatService.createRepresentant(
+            			interessatId,
+        				ConversioTipusHelper.convertir(
+        						command,
+        						InteressatDto.class));
+    			MissatgesHelper.success(request, getMessage(request, "interessat.controller.representant.creat") );
+        	} catch(Exception ex) {
+        		String errMsg = getMessage(request, "interessat.controller.representant.creat.error", new Object[] {ex.toString()});
+        		MissatgesHelper.error(request, errMsg);
+        		error = true;
+        	}
+        }
+        if (error) {
+    		populateModel(request, model, command.getProvincia());
         	return "v3/interessatForm";
         } else {
-    		populateModel(request, model);
-        	command.setEs_representant(true);
-        	if (command.getTipus() != null && InteressatTipusEnumDto.ADMINISTRACIO.equals(command.getTipus())) {
-    			this.populateUOsCommand(command);
-        	}
-        	expedientInteressatService.createRepresentant(
-        			interessatId,
-    				ConversioTipusHelper.convertir(
-    						command,
-    						InteressatDto.class));
-			MissatgesHelper.success(request, getMessage(request, "interessat.controller.representant.creat") );
   			return modalUrlTancar(false);
         }
 	}
@@ -356,8 +336,6 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			@PathVariable Long interessatId,
 			Model model) {
 		InteressatCommand interessatCommand= new InteressatCommand();
-//		populateModel(request, model);
-//		interessatCommand.setPais("724");
 		List<InteressatDto> representantsExpedient = expedientInteressatService.findRepresentantsExpedient(expedientId);
 		model.addAttribute(
 				"representantsExpedient",
@@ -370,7 +348,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		interessatCommand.setEs_representant(true);
 		model.addAttribute("expedientId", expedientId);
 		model.addAttribute("interessatId", interessatId);
-		model.addAttribute(interessatCommand);//MARTA després esborrar el command
+		model.addAttribute(interessatCommand);
 		model.addAttribute("es_representant",true);
 		return "v3/interessatCercarRepresentant";
 	}
@@ -499,32 +477,42 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		return "redirect:/v3/expedient/"+expedientId+"?pipellaActiva=interessats";
 	}
 
-	private void populateModel(HttpServletRequest request, Model model) {
+	private void populateModel(HttpServletRequest request, Model model, String provincia) {
+		model.addAttribute(
+				"interessatTipusOptions",
+				EnumHelper.getOptionsForEnum(
+						InteressatTipusEnumDto.class,
+						"interessat.form.tipus.enum."));
+		model.addAttribute(
+				"interessatTipusDocuments",
+				this.populateTipusDocuments(request)
+				);
+		model.addAttribute(
+				"interessatCanalsNotif", 
+				this.populateCanalsNotif(request)
+				);
 		try {
 			model.addAttribute("paisos", dadesExternesService.findPaisos());
 		} catch (Exception e) {
 			MissatgesHelper.warning(request, getMessage(request, "interessat.controller.paisos.error"));
 		}
-//		try {
-//			model.addAttribute("comunitats", dadesExternesService.findComunitats());
-//		} catch (Exception e) {
-//			MissatgesHelper.warning(request, getMessage(request, "interessat.controller.comunitats.error"));
-//		}
 		try {
 			model.addAttribute("provincies", dadesExternesService.findProvincies());
 		} catch (Exception e) {
 			MissatgesHelper.warning(request, getMessage(request, "interessat.controller.provincies.error"));
 		}
-//		try {
-//			model.addAttribute("nivellAdministracions", dadesExternesService.findNivellAdministracions());
-//		} catch (Exception e) {
-//			MissatgesHelper.warning(request, getMessage(request, "interessat.controller.nivell.administracio.error"));
-//		}
-//		boolean dehActiu = false;
-//		try {
-//			dehActiu = Boolean.parseBoolean(configService.getConfigValue("es.caib.ripea.notificacio.enviament.deh.activa"));
-//		} catch (Exception e) {}
-//		model.addAttribute("dehActiu", dehActiu);
+		try {
+			model.addAttribute("organs", unitatOrganitzativaService.findAll());
+		} catch (Exception e) {
+			MissatgesHelper.warning(request, getMessage(request, "interessat.controller.unitats.error"));
+		}
+		if (provincia != null) {
+			try {
+				model.addAttribute("municipis", dadesExternesService.findMunicipisPerProvincia(provincia));
+			} catch (Exception e) {
+				MissatgesHelper.warning(request, getMessage(request, "interessat.controller.municipis.error"));
+			}
+		}
 	}
 	
 	@RequestMapping(value = "/municipis/{codiProvincia}", method = RequestMethod.GET)
@@ -544,14 +532,14 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			Model model) {
 		UnitatOrganitzativaDto unitat = unitatOrganitzativaService.findByCodi(codi);
 		if (unitat != null) {
-			unitatOrganitzativaHelper.populateDadesExternesUO(unitat);
+			unitatOrganitzativaService.populateDadesExternesUO(unitat);
 		}
 		return unitat;
 	}
 	
 	private void populateDadesInteressat(InteressatDto interessat) {
 		if(InteressatTipusEnumDto.ADMINISTRACIO.equals(interessat.getTipus())){
-			UnitatOrganitzativa uo= unitatOrganitzativaHelper.findByCodi(interessat.getDocumentIdent());
+			UnitatOrganitzativaDto uo= unitatOrganitzativaService.findByCodi(interessat.getDocumentIdent());
 			if(uo!=null) {
 				interessat.setRaoSocial(uo.getDenominacio());
 				interessat.setPais(uo.getCodiPais());
@@ -601,7 +589,8 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 	}
 	
 	private void populateUOsCommand(InteressatCommand command) {
-		UnitatOrganitzativa uo= unitatOrganitzativaHelper.findByCodi(command.getDocumentIdent());
+		UnitatOrganitzativaDto uo= unitatOrganitzativaService.findByCodi(command.getDocumentIdent());
+		unitatOrganitzativaService.populateDadesExternesUO(uo);
 		if(uo!=null) {
 			command.setRaoSocial(uo.getDenominacio());
 			command.setPais(uo.getCodiPais());

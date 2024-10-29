@@ -92,7 +92,9 @@ public interface UnitatOrganitzativaService {
 
 	public List<UnitatOrganitzativaDto> getNewFromWS(Long entitatId);	
 	
-	public List<UnitatOrganitzativaDto> findByCodiAndDenominacioFiltre(String text);	
+	public List<UnitatOrganitzativaDto> findByCodiAndDenominacioFiltre(String text);
 
+	public List<UnitatOrganitzativaDto> findAll();
 
+	void populateDadesExternesUO(UnitatOrganitzativaDto unitat);
 }

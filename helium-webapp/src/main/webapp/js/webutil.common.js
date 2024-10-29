@@ -52,7 +52,6 @@ function webutilAlertaError(missatge, divAlertes) {
 }
 
 function webutilModalAdjustHeight(iframe) {
-	debugger;
 	var $iframe = (iframe) ? $(iframe) : $(window.frameElement);
 	var modalobj = $iframe.parent().parent().parent();
 	var taraModal = $('.modal-header', modalobj).outerHeight() + $('.modal-footer', modalobj).outerHeight();

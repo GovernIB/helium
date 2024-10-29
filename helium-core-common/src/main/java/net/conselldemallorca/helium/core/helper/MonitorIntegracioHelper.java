@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -62,7 +61,7 @@ public class MonitorIntegracioHelper {
 	public static final String INTCODI_PINBAL = "PINBAL";
 	public static final String INTCODI_UNITATS = "UNITATS";
 	public static final String INTCODI_PROCEDIMENT = "PROCEDIMENT";
-	public static final String INTCODI_DADES_EXTERNES = "DADES EXTERNES";
+	public static final String INTCODI_DADES_EXTERNES = "DADES_EXTERNES";
 
 
 	private Map<String, LinkedList<IntegracioAccioDto>> accionsIntegracio = new HashMap<String, LinkedList<IntegracioAccioDto>>();

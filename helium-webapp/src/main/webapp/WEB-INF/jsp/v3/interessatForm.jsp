@@ -70,8 +70,6 @@ function ajustarTipus(tipus) {
 
 	
 function adaptarVisibilitat(tipus){
-		//alert(tipus);
-		//netejar();
 		var select2Options = {theme: 'bootstrap', minimumResultsForSearch: "6"};
 		let nif="NIF";
 		let cif="CIF";
@@ -140,7 +138,6 @@ $(document).ready(function() {
 	adaptarVisibilitat($("#tipusHiddenId").val());
 
  	$('input[type=radio][name=tipus]').on('change', function() {
- 		//adaptarSuggest(this.value);
  		adaptarVisibilitat($(this).val());
 		webutilModalAdjustHeight();
 		netejar();
@@ -164,9 +161,7 @@ $(document).ready(function() {
 	
  	
  	$('select#canalNotif').change(function() {
- 		//alert($(this).val());
  		if ($(this).val() == '01') { //DIRECCION_POSTAL("01", "Direcció Postal")
- 			//alert($(this).val());
  			$('select#pais').prop("required", true);
  			$('select#provincia').prop("required", true);
 			$('select#municipi').prop("required", true);
@@ -174,9 +169,6 @@ $(document).ready(function() {
 			$('#codiPostal').prop("required", true);
 			$('#email').prop("required", false);
  		} else if ($(this).val() == '02' || $(this).val() == '03') {
- 			//alert($(this).val());
- 			// DIRECCION_ELECTRONICA_HABILITADA("02", "Direcció electrònica habilitada")
- 			//COMPARECENCIA_ELECTRONICA("03", "Compareixença electrònica");
  			$('select#pais').prop("required", false);
  			$('select#provincia').prop("required", false);
 			$('select#municipi').prop("required", false);
@@ -257,7 +249,6 @@ $(document).ready(function() {
  	
  	$('select#cifOrganGestor').change(function() {
  	 	 		munOrgan = '';
- 	 	 		//alert($(this).val());
  	 	 	 	if ($(this).val() != "") {
  	 	 	 		
  	 	 	 		let optionSelected = $("option:selected", this);
@@ -296,8 +287,6 @@ $(document).ready(function() {
 
  	 			 	 		$('#direccio').val(data.adressa);
  	 						$('#direccio').prop("readonly", true);
-
- 	 			 	 		//$('#ambOficinaSir').val(optionSelected.hasClass('ambOficinaSir'));
  	 					}
  	 				});
  	 	 	 	} else {
@@ -323,10 +312,6 @@ $(document).ready(function() {
 		}
 	});		
 
-
-/* 	var select2Options = {theme: 'bootstrap'};
-	$('select[name=tipus').select2("destroy");
-	$('select[name=tipus').select2(select2Options); */
 	
 	var select2Options = {theme: 'bootstrap'};
 	$('select[name=entregaTipus').select2("destroy");
@@ -335,9 +320,7 @@ $(document).ready(function() {
 	$('input[type=checkbox][name=entregaDeh').trigger('change');
 	$('input[type=checkbox][name=entregaDehObligat').trigger('change');	
 
-
 	$('#tipus').change();
-
 });
 </script>
 

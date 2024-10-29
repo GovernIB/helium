@@ -142,5 +142,16 @@ public class UnitatOrganitzativaServiceBean implements UnitatOrganitzativaServic
 		return delegate.findAmbFiltrePaginat(filtreDto, paginacioParams);
 	}	
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<UnitatOrganitzativaDto> findAll() {
+		return delegate.findAll();
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void populateDadesExternesUO(UnitatOrganitzativaDto unitat) {
+		delegate.populateDadesExternesUO(unitat);
+	}	
 
 }
