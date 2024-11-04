@@ -21,7 +21,7 @@ public class UnitatOrganitzativaCommand {
 	
 	private String codi;
 	private String denominacio;
-	
+	private String cif;
 	private String codiUnitatSuperior;
 	private UnitatOrganitzativaEstatEnumDto estat;
 	
@@ -51,6 +51,12 @@ public class UnitatOrganitzativaCommand {
 	}
 	public void setDenominacio(String denominacio) {
 		this.denominacio = denominacio;
+	}
+	public String getCif() {
+		return cif;
+	}
+	public void setCif(String cif) {
+		this.cif = cif;
 	}
 	public static UnitatOrganitzativaCommand asCommand(UnitatOrganitzativaDto dto) {
 		UnitatOrganitzativaCommand command = ConversioTipusHelper.convertir(

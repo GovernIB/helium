@@ -15,6 +15,7 @@ public class UnitatOrganitzativaFiltreDto {
 
 	private String codi;
 	private String denominacio;
+	private String cif;
 	
 	private String codiUnitatSuperior;
 	private UnitatOrganitzativaEstatEnumDto estat;
@@ -38,6 +39,14 @@ public class UnitatOrganitzativaFiltreDto {
 
 	public void setDenominacio(String denominacio) {
 		this.denominacio = denominacio;
+	}
+
+	public String getCif() {
+		return cif;
+	}
+
+	public void setCif(String cif) {
+		this.cif = cif;
 	}
 
 	public String getCodiUnitatSuperior() {

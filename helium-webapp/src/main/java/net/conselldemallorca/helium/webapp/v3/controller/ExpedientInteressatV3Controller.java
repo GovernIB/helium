@@ -182,6 +182,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
         		}
         	} catch (Exception ex) {
         		String errMsg = getMessage(request, "interessat.controller.crear.error", new Object[] {ex.toString()});
+        		logger.error(errMsg, ex);
         		MissatgesHelper.error(request, errMsg);
         		error = true;
         	}
@@ -502,7 +503,11 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			MissatgesHelper.warning(request, getMessage(request, "interessat.controller.provincies.error"));
 		}
 		try {
-			model.addAttribute("organs", unitatOrganitzativaService.findAll());
+			List<ParellaCodiValorDto> organs = new ArrayList<ParellaCodiValorDto>();
+			for (UnitatOrganitzativaDto uo : unitatOrganitzativaService.findAll()) {
+				organs.add(new ParellaCodiValorDto(uo.getCodi(), uo.getCodi() + " - " + uo.getDenominacio()));
+			}
+			model.addAttribute("organs", organs);
 		} catch (Exception e) {
 			MissatgesHelper.warning(request, getMessage(request, "interessat.controller.unitats.error"));
 		}
@@ -589,9 +594,9 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 	}
 	
 	private void populateUOsCommand(InteressatCommand command) {
-		UnitatOrganitzativaDto uo= unitatOrganitzativaService.findByCodi(command.getDocumentIdent());
-		unitatOrganitzativaService.populateDadesExternesUO(uo);
+		UnitatOrganitzativaDto uo= unitatOrganitzativaService.findByCodi(command.getCodi());
 		if(uo!=null) {
+			unitatOrganitzativaService.populateDadesExternesUO(uo);
 			command.setRaoSocial(uo.getDenominacio());
 			command.setPais(uo.getCodiPais());
 			command.setMunicipi(uo.getLocalitat());//El plugin no està retornant aquest codi

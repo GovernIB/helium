@@ -55,16 +55,20 @@
 			<div class="col-md-3">
 				<hel:inputText name="denominacio" textKey="unitat.organitzativa.denominacio" placeholderKey="unitat.organitzativa.denominacio" inline="true"/>
 			</div>
-			<div class="col-md-5">
+			<div class="col-md-3">
 				<hel:inputSuggest 
 					name="codiUnitatSuperior" 
 					urlConsultaInicial="/helium/v3/unitatOrganitzativa/suggestInici" 
 					urlConsultaLlistat="/helium/v3/unitatOrganitzativa/suggest" 
 					textKey="unitat.organitzativa.unitat.superior" 
-					placeholderKey="unitat.organitzativa.unitat.superior"/>			
+					placeholderKey="unitat.organitzativa.unitat.superior"
+					inline="true"/>
 			</div>
 			<div class="col-md-2">
-				<hel:inputSelect emptyOption="true" name="estat"  textKey="unitat.organitzativa.estat" placeholderKey="unitat.organitzativa.estat" optionItems="${estats}" optionValueAttribute="codi" optionTextAttribute="valor"/>
+				<hel:inputText name="cif" textKey="unitat.organitzativa.cif" placeholderKey="unitat.organitzativa.cif" inline="true"/>
+			</div>
+			<div class="col-md-2">
+				<hel:inputSelect emptyOption="true" name="estat"  textKey="unitat.organitzativa.estat" placeholderKey="unitat.organitzativa.estat" optionItems="${estats}" optionValueAttribute="codi" optionTextAttribute="valor" inline="true"/>
 			</div>
 		</div>
 		<div class="row">	
@@ -95,6 +99,7 @@
 				<th data-col-name="codi"><spring:message code="unitat.organitzativa.codi"/></th>
 				<th data-col-name="denominacio" width="50%"><spring:message code="unitat.organitzativa.denominacio"/></th>
 				<th data-col-name="codiUnitatSuperior" ><spring:message code="unitat.organitzativa.unitat.superior"/></th>
+				<th data-col-name="nifCif" ><spring:message code="unitat.organitzativa.cif"/></th>
 				<th data-col-name="estat" data-template="#estatTemplate">
 					<spring:message code="unitat.organitzativa.estat"/>
 					<script id="estatTemplate" type="text/x-jsrender">

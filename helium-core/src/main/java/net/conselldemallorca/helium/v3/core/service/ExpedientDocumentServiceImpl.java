@@ -513,11 +513,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			//InteressatTipusEnumDto.ADMINISTRACIO OR InteressatTipusEnumDto.JURIDICA
 			titular.setRaoSocial(StringUtilsHelium.retallaString(interessatEntity.getRaoSocial(), 255));
 			titular.setNom(StringUtilsHelium.retallaString(interessatEntity.getRaoSocial(), 255));
-			if (InteressatTipusEnumDto.ADMINISTRACIO.equals(interessatEntity.getTipus())) {
-				//Exemple Govern Illes Balears: El codi Dir3 és A04003003 i el dni S0711001H
-				titular.setDni(StringUtilsHelium.retallaString(interessatEntity.getDir3Codi(), 9));
-				titular.setCodiDir3(StringUtilsHelium.retallaString(interessatEntity.getDocumentIdent(), 9));
-			}
 		}
 		titular.setLlinatge1(StringUtilsHelium.retallaString(interessatEntity.getLlinatge1(), 30));
 		titular.setLlinatge2(StringUtilsHelium.retallaString(interessatEntity.getLlinatge2(), 30));

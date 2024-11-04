@@ -160,6 +160,8 @@ public class UnitatOrganitzativaServiceImpl implements UnitatOrganitzativaServic
 						filtreDto.getCodi(),
 						filtreDto.getDenominacio() == null || filtreDto.getDenominacio().isEmpty(),
 						filtreDto.getDenominacio(),
+						filtreDto.getCif() == null || filtreDto.getCif().isEmpty(),
+						filtreDto.getCif(),
 						filtreDto.getCodiUnitatSuperior() == null || filtreDto.getCodiUnitatSuperior().isEmpty(),
 						filtreDto.getCodiUnitatSuperior(),
 						estatBBDD==null,

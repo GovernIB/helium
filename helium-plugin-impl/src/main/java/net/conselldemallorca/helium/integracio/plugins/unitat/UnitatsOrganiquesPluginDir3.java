@@ -164,7 +164,7 @@ public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
 		UnitatOrganitzativaDto unitat = new UnitatOrganitzativaDto(
 				unidad.getCodigo(),
 				unidad.getDenominacionCooficial() != null ? unidad.getDenominacionCooficial() : unidad.getDenominacion(),
-				unidad.getCodigo(), // CifNif
+				unidad.getNifCif(),
 				unidad.getFechaAltaOficial(),
 				unidad.getCodigoEstadoEntidad(),
 				unidad.getCodUnidadSuperior(),
