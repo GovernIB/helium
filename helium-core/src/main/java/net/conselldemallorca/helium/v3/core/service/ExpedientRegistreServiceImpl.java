@@ -175,7 +175,7 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 							tascaHelper.toExpedientTascaDto(
 									task,
 									expedient,
-									true,
+									false,
 									false));
 				}
 			}
