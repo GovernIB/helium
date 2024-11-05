@@ -511,8 +511,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 			titular.setNom(StringUtilsHelium.retallaString(interessatEntity.getNom(), 30));
 		} else {
 			//InteressatTipusEnumDto.ADMINISTRACIO OR InteressatTipusEnumDto.JURIDICA
-			titular.setRaoSocial(StringUtilsHelium.retallaString(interessatEntity.getRaoSocial(), 255));
-			titular.setNom(StringUtilsHelium.retallaString(interessatEntity.getRaoSocial(), 255));
+			titular.setRaoSocial(StringUtilsHelium.retallaString(interessatEntity.getRaoSocial(), 30));
+			titular.setNom(StringUtilsHelium.retallaString(interessatEntity.getRaoSocial(), 30));
 		}
 		titular.setLlinatge1(StringUtilsHelium.retallaString(interessatEntity.getLlinatge1(), 30));
 		titular.setLlinatge2(StringUtilsHelium.retallaString(interessatEntity.getLlinatge2(), 30));
@@ -529,7 +529,9 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				destinatari.setNom(StringUtilsHelium.retallaString(representantEntity.getNom(), 30));
 			} else {
 				//InteressatTipusEnumDto.ADMINISTRACIO OR InteressatTipusEnumDto.JURIDICA
-				destinatari.setNom(StringUtilsHelium.retallaString(representantEntity.getNom(), 255));
+				destinatari.setRaoSocial(StringUtilsHelium.retallaString(representantEntity.getRaoSocial(), 30));
+				destinatari.setNom(StringUtilsHelium.retallaString(representantEntity.getRaoSocial(), 30));
+
 			}
 			destinatari.setLlinatge1(StringUtilsHelium.retallaString(representantEntity.getLlinatge1(), 30));
 			destinatari.setLlinatge2(StringUtilsHelium.retallaString(representantEntity.getLlinatge2(), 30));
