@@ -223,7 +223,6 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 				InteressatCommand.class);
 		if (interessatCommand.getTipus() != null && InteressatTipusEnumDto.ADMINISTRACIO.equals(interessatCommand.getTipus())) {
     		this.populateUOsCommand(interessatCommand);
-    		interessatCommand.setCifOrganGestor(interessatCommand.getDocumentIdent());
     	}
 		model.addAttribute(interessatCommand);
 		return "v3/interessatForm";

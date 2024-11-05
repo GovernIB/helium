@@ -107,10 +107,11 @@ function adaptarVisibilitat(tipus){
 	 	 	 $('#tipusDocIdent').val(codi_origen);	
 	 	 	 $('#tipusDocIdent').prop("readonly", true);
 		}
+		 $('#cifOrganGestor').val($('#dir3Codi').val()).change();
 		 $('#tipusDocIdent').change();
 		 $('#tipusDocIdent').select2("destroy");
 	 	 $('#tipusDocIdent').select2(select2Options);
-	 	$("#tipusHiddenId").val(tipus);
+	 	 $("#tipusHiddenId").val(tipus);
 }
 
 function netejar(){
