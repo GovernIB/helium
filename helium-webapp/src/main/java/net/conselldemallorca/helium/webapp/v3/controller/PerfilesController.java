@@ -222,7 +222,9 @@ public class PerfilesController extends BaseController {
 		filtreCommand.setListado(preferencies.getListado());
 		filtreCommand.setNumElementosPagina(preferencies.getNumElementosPagina());
 		filtreCommand.setExpedientTipusDefecteId(preferencies.getExpedientTipusDefecteId());
-		
+		filtreCommand.setCorreusBustia(preferencies.isCorreusBustia());
+		filtreCommand.setCorreusBustiaAgrupatsDia(preferencies.isCorreusBustiaAgrupatsDia());
+		filtreCommand.setEmailAlternatiu(preferencies.getEmailAlternatiu());
 		PersonaDto usuari = getPersonaActual(request);
 		filtreCommand.setNom(usuari.getNom());
 		filtreCommand.setDni(usuari.getDni());
@@ -266,6 +268,9 @@ public class PerfilesController extends BaseController {
 	        	preferencies.setFiltroTareasActivas(personaUsuariCommand.isFiltroExpedientesActivos());
 	        	preferencies.setListado(personaUsuariCommand.getListado());
 	        	preferencies.setNumElementosPagina(personaUsuariCommand.getNumElementosPagina());
+	        	preferencies.setCorreusBustia(personaUsuariCommand.isCorreusBustia());
+	        	preferencies.setCorreusBustiaAgrupatsDia(personaUsuariCommand.isCorreusBustiaAgrupatsDia());
+	        	preferencies.setEmailAlternatiu(personaUsuariCommand.getEmailAlternatiu());
 	        	adminService.updatePerfil(preferencies);
 	        	SessionHelper.getSessionManager(request).setPreferenciesUsuari(preferencies);		        	
         	} else if ("Modificar".equals(accio) && !result.hasErrors()) {
@@ -290,7 +295,8 @@ public class PerfilesController extends BaseController {
                 personaUsuariCommand.setFiltroExpedientesActivos(pars.isFiltroExpedientesActivos());
                 personaUsuariCommand.setListado(pars.getListado());
                 personaUsuariCommand.setNumElementosPagina(pars.getNumElementosPagina());
-                	                
+                personaUsuariCommand.setCorreusBustia(pars.isCorreusBustia());
+                personaUsuariCommand.setCorreusBustiaAgrupatsDia(pars.isCorreusBustiaAgrupatsDia()); 	                
         		return "v3/persona/perfil";
         	}
     		SessionHelper.getSessionManager(request).setFiltreConsultaGeneral(null);

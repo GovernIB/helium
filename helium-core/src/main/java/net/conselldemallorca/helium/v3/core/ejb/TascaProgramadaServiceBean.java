@@ -88,4 +88,14 @@ public class TascaProgramadaServiceBean implements TascaProgramadaService {
 		delegate.actualitzarUnitatsIProcediments();
 	}
 
+	@Override
+	public void comprovarEmailAnotacionsNoAgrupats() {
+		delegate.comprovarEmailAnotacionsNoAgrupats();
+	}
+
+	@Override
+	public void comprovarEmailAnotacionsAgrupats() {
+		delegate.comprovarEmailAnotacionsAgrupats();
+	}
+
 }

@@ -393,6 +393,9 @@ public class AdminServiceImpl implements AdminService {
 		usuari.setFiltroTareasActivas(preferencies.isFiltroTareasActivas());
 		usuari.setListado(preferencies.getListado());
 		usuari.setNumElementosPagina(preferencies.getNumElementosPagina());
+		usuari.setCorreusBustia(preferencies.isCorreusBustia());
+		usuari.setCorreusBustiaAgrupatsDia(preferencies.isCorreusBustiaAgrupatsDia());
+		usuari.setEmailAlternatiu(preferencies.getEmailAlternatiu());
 		usuariPreferenciesRepository.save(usuari);
 	}
 

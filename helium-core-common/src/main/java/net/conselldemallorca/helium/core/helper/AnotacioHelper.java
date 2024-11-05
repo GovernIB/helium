@@ -30,6 +30,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta.AlertaPrioritat;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
+import net.conselldemallorca.helium.core.model.hibernate.AnotacioEmail;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioInteressat;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
@@ -42,6 +43,7 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Interessat;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
 import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
+import net.conselldemallorca.helium.core.model.hibernate.UsuariPreferencies;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAnnexEstatEnumDto;
@@ -53,13 +55,16 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuEstat;
 import net.conselldemallorca.helium.v3.core.api.dto.CanalNotifEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
+import net.conselldemallorca.helium.v3.core.api.dto.EmailTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDocumentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioAnnexRepository;
+import net.conselldemallorca.helium.v3.core.repository.AnotacioEmailRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
@@ -69,6 +74,7 @@ import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusUnitatOrganitzativaRepository;
 import net.conselldemallorca.helium.v3.core.repository.InteressatRepository;
 import net.conselldemallorca.helium.v3.core.repository.MapeigSistraRepository;
+import net.conselldemallorca.helium.v3.core.repository.UsuariPreferenciesRepository;
 
 
 /**
@@ -98,7 +104,10 @@ public class AnotacioHelper {
 	private CampRepository campRepository;
 	@Resource
 	private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
-	
+	@Resource 
+	private UsuariPreferenciesRepository usuariPreferenciesRepository;
+	@Resource
+	private AnotacioEmailRepository anotacioEmailRepository;
 	@Resource
 	private EntornHelper entornHelper;
 	@Autowired
@@ -323,7 +332,24 @@ public class AnotacioHelper {
 				);
 		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
 
-		
+		//Encuem l'enviament d' email d'incorporació d'antoació a l'usuari si té activada l'opció al seu perfil
+		String usuariCodi = usuariActualHelper.getUsuariActual();
+		UsuariPreferencies usuariPreferencies = usuariPreferenciesRepository.findByCodi(usuariCodi);
+		if(usuariPreferencies.isCorreusBustia() || usuariPreferencies.isCorreusBustiaAgrupatsDia()) {
+			PersonaDto usuariActual =  pluginHelper.personaFindAmbCodi(usuariCodi);
+			AnotacioEmail anotacioEmail = new AnotacioEmail(
+											anotacio, 
+											expedient, 
+											usuariCodi, 
+											"Helium", //MARTA: quin és el remitentCodi???
+											reprocessar ? EmailTipusEnumDto.INCORPORADA : EmailTipusEnumDto.PROCESSADA, 
+											usuariPreferencies.getEmailAlternatiu()!=null ? usuariPreferencies.getEmailAlternatiu() : usuariActual.getEmail(), //MARTA: veure si no en té usar el mail normal
+											usuariPreferencies.isCorreusBustiaAgrupatsDia(),
+											new Date(),
+											0);
+			anotacioEmailRepository.save(anotacioEmail);
+		}
+
 		return conversioTipusHelper.convertir(
 				anotacio, 
 				AnotacioDto.class);

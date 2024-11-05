@@ -91,7 +91,7 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 			command.setProcesAuto(expedientTipus.isDistribucioProcesAuto());
 			command.setSistra(expedientTipus.isDistribucioSistra());
 			command.setPresencial(expedientTipus.getDistribucioPresencial());
-			
+			command.setEnviarCorreuAnotacions(expedientTipus.isEnviarCorreuAnotacions());			
 			model.addAttribute("expedientTipusIntegracioDistribucioCommand", command);
 			model.addAttribute("sino", getSiNo());
 		}
@@ -133,7 +133,8 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 	        				command.getCodiAssumpte(),
 	        				command.isProcesAuto(),
 	        				command.isSistra(),
-							command.getPresencial());
+							command.getPresencial(),
+							command.isEnviarCorreuAnotacions());
 		        MissatgesHelper.success(
 						request, 
 						getMessage(

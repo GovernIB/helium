@@ -60,6 +60,7 @@
 					<hel:inputText name="codiAssumpte" textKey="expedient.tipus.integracio.distribucio.codiAssumpte" info="expedient.tipus.integracio.distribucio.codiAssumpte.comment"/>
 					<hel:inputCheckbox name="procesAuto" textKey="expedient.tipus.integracio.distribucio.procesAuto" info="expedient.tipus.integracio.distribucio.procesAuto.comment"/>
 					<hel:inputCheckbox name="sistra" textKey="expedient.tipus.integracio.distribucio.sistra" info="expedient.tipus.integracio.distribucio.sistra.comment"/>
+					<hel:inputCheckbox name="enviarCorreuAnotacions" textKey="expedient.tipus.integracio.distribucio.enviar.correu.anotacions"/>
 				</div>
 			</div>			
 			

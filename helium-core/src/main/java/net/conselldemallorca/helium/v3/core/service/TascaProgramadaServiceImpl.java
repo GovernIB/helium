@@ -41,6 +41,7 @@ import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreEntrada
 import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId;
 import net.conselldemallorca.helium.core.helper.ConsultaPinbalHelper;
 import net.conselldemallorca.helium.core.helper.DistribucioHelper;
+import net.conselldemallorca.helium.core.helper.EmailHelper;
 import net.conselldemallorca.helium.core.helper.ExceptionHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
@@ -48,6 +49,7 @@ import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 import net.conselldemallorca.helium.core.helper.NotificacioHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
+import net.conselldemallorca.helium.core.model.hibernate.AnotacioEmail;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassiva.ExecucioMassivaTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExecucioMassivaExpedient;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
@@ -64,11 +66,13 @@ import net.conselldemallorca.helium.v3.core.api.dto.ParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProgresActualitzacioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exportacio.TascaExportacio;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ParametreService;
 import net.conselldemallorca.helium.v3.core.api.service.ProcedimentService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
 import net.conselldemallorca.helium.v3.core.api.service.UnitatOrganitzativaService;
+import net.conselldemallorca.helium.v3.core.repository.AnotacioEmailRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientReindexacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
@@ -111,6 +115,8 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	private UnitatOrganitzativaService unitatOrganitzativaService;
 
 	@Resource
+	private AnotacioEmailRepository anotacioEmailRepository;
+	@Resource
 	private PeticioPinbalRepository peticioPinbalRepository;
 	@Resource
 	private ConsultaPinbalHelper consultaPinbalHelper;
@@ -130,7 +136,8 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	private PluginHelper pluginHelper;
 	@Autowired
 	private MonitorIntegracioHelper monitorIntegracioHelper;
-	
+	@Resource
+	private EmailHelper emailHelper;
 	private static Map<Long, String> errorsMassiva = new HashMap<Long, String>();
 	
 	@Override
@@ -662,5 +669,91 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 		}
 	}	
 	
+	
+	/** Tasca programada per comprovar si hi ha enviment de correus no agrupats no pendents
+	 */
+	@Override
+	@Transactional
+	@Scheduled(fixedDelayString = "60000")
+	public void comprovarEmailAnotacionsNoAgrupats() {
+		// Consultar entrades de la taula HEL_ANOTACIO_EMAIL amb agrupat = 0
+		// Agruparles per usuari o no, mira't Distribucio
+		List<AnotacioEmail> anotacioEmailListNoAgrupats=anotacioEmailRepository.findByEnviamentAgrupatOrderByDestinatariCodi(false);
+		boolean fi = anotacioEmailListNoAgrupats!=null && anotacioEmailListNoAgrupats.isEmpty();	
+		while(!fi) {
+			try {
+				for(AnotacioEmail anotacioEmail: anotacioEmailListNoAgrupats) {
+					//enviar email correu (no agrupat) de creació/incorporació/arribada d'anotació
+					emailHelper.sendAnotacioEmailNoAgrupat(anotacioEmail, anotacioEmailListNoAgrupats);
+					// Esborrar les que s'hagin pogut enviar
+					anotacioEmailListNoAgrupats.remove(anotacioEmail);
+					anotacioEmailRepository.delete(anotacioEmail);
+				}
+			}catch(Exception e) {
+				// Si l'error és que l'email no existeix o no és correcte, igualment eliminar-lo.
+				// Posarem un número de reintents i passat aquest límit s'eliminarà.
+				logger.error("Error enviant l'email d'anotació: " + e.getMessage(), e);
+			}
+			fi = anotacioEmailListNoAgrupats!=null && anotacioEmailListNoAgrupats.isEmpty();
+		}	
+		// Eliminar correus més antics de 3 dies pedents d'enviar
+		for (AnotacioEmail anotacioEmail : anotacioEmailListNoAgrupats) {
+			// remove pending email if it is older that one week
+			Date formattedToday = new Date();
+			Date formattedExpired = anotacioEmail.getDataCreacio();//DANI MARTA revisar
+			int diffInDays = (int)( (formattedToday.getTime() - formattedExpired.getTime()) / (1000 * 60 * 60 * 24) );
+			if (diffInDays > 2) {
+				anotacioEmailRepository.delete(anotacioEmail);
+			}
+		}
+	}
+	
+	/** Mètode periòdic per enviar correus agrupats de noves anotacions
+	 * segons la propietat app.anotacions.emails.agrupats.cron , Per defecte a les 20h
+	 */
+	@Override
+	@Scheduled(cron="${app.anotacions.emails.agrupats.cron}")
+	@Async
+	public void comprovarEmailAnotacionsAgrupats() {
+		logger.info("Inici de la tasca periòdica d'enviament de correus agrupats de noves anotacions de distribució.");
+	
+		List<AnotacioEmail> anotacioEmailAgrupatList = anotacioEmailRepository.findByEnviamentAgrupatOrderByDestinatariCodi(true);
+		
+		// Agrupa per destinataris
+		Map<String, List<AnotacioEmail>> anotacioEmailAgrupatMap = new HashMap<String, List<AnotacioEmail>>();
+		for (AnotacioEmail anotacioEmail : anotacioEmailAgrupatList) {
+			if (anotacioEmailAgrupatMap.containsKey(anotacioEmail.getDestinatariEmail())) {
+				anotacioEmailAgrupatMap.get(anotacioEmail.getDestinatariEmail()).add(anotacioEmail);
+			} else {
+				List<AnotacioEmail> lContingutEmails = new ArrayList<AnotacioEmail>();
+				lContingutEmails.add(anotacioEmail);
+				anotacioEmailAgrupatMap.put(anotacioEmail.getDestinatariEmail(), lContingutEmails);
+			}
+		}
+		
+		// Envia i esborra per agrupació
+		for (String email: anotacioEmailAgrupatMap.keySet()) {	
+			anotacioEmailAgrupatList = anotacioEmailAgrupatMap.get(email);
+			try {
+				emailHelper.sendAnotacioEmailsPendentsAgrupats(
+						email, 
+						anotacioEmailAgrupatList);	
+				logger.info("Enviat el correu de " + anotacioEmailAgrupatList.size() + " anotacions agrupades al destinatari " + email);
+						
+			} catch (Exception e) {
+				logger.error("Error enviant el correu de " + anotacioEmailAgrupatList.size() + " anotacions agrupades al destinatari " + email + ": " + e.getMessage());		
+				for (AnotacioEmail anotacioEmail : anotacioEmailAgrupatList) {
+						// remove pending email if it is older than 3 days
+						Date formattedToday = new Date();
+						Date formattedExpired = anotacioEmail.getDataCreacio();
+						int diffInDays = (int)( (formattedToday.getTime() - formattedExpired.getTime()) / (1000 * 60 * 60 * 24) );
+						if (diffInDays > 2) {
+							anotacioEmailRepository.delete(anotacioEmail);
+						}
+				}
+			}
+		}
+	}
+			
 	private static final Log logger = LogFactory.getLog(TascaProgramadaService.class);
 }

@@ -53,6 +53,7 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	private String notificacioAvisTextSms;
 	private String notificacioOficiTitol;
 	private String notificacioOficiText;
+	private boolean enviarCorreuAnotacions;
 
 	private EntornDto entorn;
 	private List<EstatDto> estats = new ArrayList<EstatDto>();
@@ -533,6 +534,13 @@ public class ExpedientTipusDto extends ControlPermisosDto implements Serializabl
 	}
 	public void setUnitatOrganitzativaCodiNom(String unitatOrganitzativaCodiNom) {
 		this.unitatOrganitzativaCodiNom = unitatOrganitzativaCodiNom;
+	}
+		
+	public boolean isEnviarCorreuAnotacions() {
+		return enviarCorreuAnotacions;
+	}
+	public void setEnviarCorreuAnotacions(boolean enviarCorreuAnotacions) {
+		this.enviarCorreuAnotacions = enviarCorreuAnotacions;
 	}
 	public boolean equals(Object obj) {
 		if (this == obj)

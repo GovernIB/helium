@@ -31,6 +31,7 @@ public class ExpedientTipusIntegracioDistribucioCommand {
 	private boolean procesAuto;
 	private boolean sistra;
 	private Boolean presencial;
+	private boolean enviarCorreuAnotacions;
 
 	public Long getId() {
 		return id;
@@ -75,6 +76,13 @@ public class ExpedientTipusIntegracioDistribucioCommand {
 	}
 	public void setPresencial(Boolean presencial) {
 		this.presencial = presencial;
+	}
+
+	public boolean isEnviarCorreuAnotacions() {
+		return enviarCorreuAnotacions;
+	}
+	public void setEnviarCorreuAnotacions(boolean enviarCorreuAnotacions) {
+		this.enviarCorreuAnotacions = enviarCorreuAnotacions;
 	}
 
 	public interface Modificacio {}

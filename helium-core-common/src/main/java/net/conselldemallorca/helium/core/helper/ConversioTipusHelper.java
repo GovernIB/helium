@@ -350,7 +350,7 @@ public class ConversioTipusHelper {
 						target.setDistribucioCodiAssumpte(source.getDistribucioCodiAssumpte());
 						target.setDistribucioProcesAuto(source.isDistribucioProcesAuto());
 						target.setDistribucioSistra(source.isDistribucioSistra());
-						
+						target.setEnviarCorreuAnotacions(source.isEnviarCorreuAnotacions());
 						target.setPinbalActiu(source.isPinbalActiu());
 						target.setPinbalNifCif(source.getPinbalNifCif());
 						target.setTipus(source.getTipus());

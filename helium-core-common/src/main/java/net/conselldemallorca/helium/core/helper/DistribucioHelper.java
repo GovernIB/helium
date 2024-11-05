@@ -61,6 +61,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta.AlertaPrioritat;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
+import net.conselldemallorca.helium.core.model.hibernate.AnotacioEmail;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioInteressat;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
@@ -69,6 +70,7 @@ import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
+import net.conselldemallorca.helium.core.model.hibernate.UsuariPreferencies;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra.TipusMapeig;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
@@ -81,6 +83,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EmailTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.IniciadorTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
@@ -91,11 +94,13 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioAnnexRepository;
+import net.conselldemallorca.helium.v3.core.repository.AnotacioEmailRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioInteressatRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
@@ -104,6 +109,7 @@ import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.MapeigSistraRepository;
+import net.conselldemallorca.helium.v3.core.repository.UsuariPreferenciesRepository;
 
 /**
  * Mètodes comuns per cridar WebService de Distribucio
@@ -164,7 +170,12 @@ public class DistribucioHelper {
 	private AnotacioHelper anotacioHelper;
 	@Resource
 	private MessageHelper messageHelper;
-	
+	@Resource
+	private UsuariActualHelper usuariActualHelper;
+	@Resource 
+	private UsuariPreferenciesRepository usuariPreferenciesRepository;
+	@Resource
+	private AnotacioEmailRepository anotacioEmailRepository;
 	@Resource
 	private DocumentStoreRepository documentStoreRepository;
 
@@ -359,6 +370,25 @@ public class DistribucioHelper {
 				destiDescripcio(anotacioEntrada.getDestiDescripcio()).
 				build();
 		anotacioRepository.save(anotacioEntity);
+		//Si no és processament automàtic, enviem/encuem email per comunicar que s'ha rebut l'anotació i està pendent
+		if(!expedientTipus.isDistribucioProcesAuto() && expedientTipus.isEnviarCorreuAnotacions()) {
+			String usuariCodi = usuariActualHelper.getUsuariActual();
+			UsuariPreferencies usuariPreferencies = usuariPreferenciesRepository.findByCodi(usuariCodi);
+			if(usuariPreferencies.isCorreusBustia() || usuariPreferencies.isCorreusBustiaAgrupatsDia()) {
+				PersonaDto usuariActual =  pluginHelper.personaFindAmbCodi(usuariCodi);
+				AnotacioEmail anotacioEmail = new AnotacioEmail(
+												anotacioEntity, 
+												expedient, 
+												usuariCodi, 
+												"Helium", //MARTA: quin és el remitentCodi???
+												EmailTipusEnumDto.REBUDA_PENDENT,
+												usuariPreferencies.getEmailAlternatiu()!=null ? usuariPreferencies.getEmailAlternatiu() : usuariActual.getEmail(), //MARTA: veure si no en té usar el mail normal
+												usuariPreferencies.isCorreusBustiaAgrupatsDia(),
+												new Date(),
+												0);
+				anotacioEmailRepository.save(anotacioEmail);
+			}
+		}	
 				
 		// Crea els interessats
 		for (Interessat interessat: anotacioEntrada.getInteressats()) {
@@ -729,6 +759,27 @@ public class DistribucioHelper {
 				.extracte("(anotació comunicada pendent de consultar detalls)")
 				.build();
 		anotacioRepository.save(anotacioEntity);
+		ExpedientTipus expedientTipus = anotacioEntity.getExpedientTipus();
+		Expedient expedient = anotacioEntity.getExpedient();
+		//Si no és processament automàtic, enviem/encuem email per comunicar que s'ha rebut l'anotació i està pendent
+		if(expedientTipus !=null && !expedientTipus.isDistribucioProcesAuto() && expedientTipus.isEnviarCorreuAnotacions()) {
+			String usuariCodi = usuariActualHelper.getUsuariActual();
+			UsuariPreferencies usuariPreferencies = usuariPreferenciesRepository.findByCodi(usuariCodi);
+			if(usuariPreferencies.isCorreusBustia() || usuariPreferencies.isCorreusBustiaAgrupatsDia()) {
+				PersonaDto usuariActual =  pluginHelper.personaFindAmbCodi(usuariCodi);
+				AnotacioEmail anotacioEmail = new AnotacioEmail(
+												anotacioEntity, 
+												expedient, 
+												usuariCodi, 
+												"Helium", //MARTA: quin és el remitentCodi???
+												EmailTipusEnumDto.REBUDA_PENDENT,
+												usuariPreferencies.getEmailAlternatiu()!=null ? usuariPreferencies.getEmailAlternatiu() : usuariActual.getEmail(), //MARTA: veure si no en té usar el mail normal
+												usuariPreferencies.isCorreusBustiaAgrupatsDia(),
+												new Date(),
+												0);
+				anotacioEmailRepository.save(anotacioEmail);
+			}
+		}	
 	}
 
 

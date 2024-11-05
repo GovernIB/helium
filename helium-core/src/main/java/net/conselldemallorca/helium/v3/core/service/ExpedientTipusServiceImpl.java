@@ -533,7 +533,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			String codiAssumpte,
 			boolean procesAuto,
 			boolean sistra,
-			Boolean presencial) {
+			Boolean presencial,
+			boolean enviarCorreuAnotacions) {
 		logger.debug(
 				"Modificant tipus d'expedient amb dades d'integracio amb distribucio externs (" +
 				"entornId=" + entornId + ", " +
@@ -553,7 +554,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		entity.setDistribucioProcesAuto(procesAuto);
 		entity.setDistribucioSistra(sistra);
 		entity.setDistribucioPresencial(presencial);
-
+		entity.setEnviarCorreuAnotacions(enviarCorreuAnotacions);
 		return conversioTipusHelper.convertir(
 				expedientTipusRepository.save(entity),
 				ExpedientTipusDto.class);	

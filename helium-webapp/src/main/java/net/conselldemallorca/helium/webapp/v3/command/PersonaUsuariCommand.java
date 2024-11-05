@@ -22,6 +22,8 @@ public class PersonaUsuariCommand {
 	private boolean filtroExpedientesActivos;
 	private Long expedientTipusDefecteId;
 	private List<String> rolsUsuari;
+	private boolean correusBustia;
+	private boolean correusBustiaAgrupatsDia;
 
 	@NotEmpty(message="Per favor, especifiqui algun valor")
 	private String nom;
@@ -36,6 +38,9 @@ public class PersonaUsuariCommand {
 	@NotEmpty(message="Per favor, especifiqui algun valor")
 	@Email(message="El contingut d''aquest camp ha de ser una adreça de correu vàlida")
 	private String email;
+	
+	@Email(message="El contingut d''aquest camp ha de ser una adreça de correu vàlida")
+	private String emailAlternatiu;
 	
 	private boolean hombre;
 
@@ -129,4 +134,23 @@ public class PersonaUsuariCommand {
 	public void setRolsUsuari(List<String> rolsUsuari) {
 		this.rolsUsuari = rolsUsuari;
 	}
+	public boolean isCorreusBustia() {
+		return correusBustia;
+	}
+	public void setCorreusBustia(boolean correusBustia) {
+		this.correusBustia = correusBustia;
+	}
+	public boolean isCorreusBustiaAgrupatsDia() {
+		return correusBustiaAgrupatsDia;
+	}
+	public void setCorreusBustiaAgrupatsDia(boolean correusBustiaAgrupatsDia) {
+		this.correusBustiaAgrupatsDia = correusBustiaAgrupatsDia;
+	}
+	public String getEmailAlternatiu() {
+		return emailAlternatiu;
+	}
+	public void setEmailAlternatiu(String emailAlternatiu) {
+		this.emailAlternatiu = emailAlternatiu;
+	}
+	
 }

@@ -39,7 +39,9 @@ public class UsuariPreferencies implements Serializable, GenericEntity<String> {
 	private Boolean filtroTareasActivas;
 	@MaxLength(255)
 	private Long numElementosPagina;
-
+	private Boolean correusBustia;
+	private Boolean correusBustiaAgrupatsDia;
+	private String emailAlternatiu;
 	public UsuariPreferencies() {}
 	public UsuariPreferencies(String codi) {
 		this.codi = codi;
@@ -115,6 +117,31 @@ public class UsuariPreferencies implements Serializable, GenericEntity<String> {
 	public void setNumElementosPagina(Long numElementosPagina) {
 		this.numElementosPagina = numElementosPagina;
 	}
+	
+	@Column(name="correus_bustia", nullable=true)
+	public Boolean isCorreusBustia() {
+		return correusBustia;
+	}
+	public void setCorreusBustia(Boolean correusBustia) {
+		this.correusBustia = correusBustia;
+	}
+	
+	@Column(name="correus_bustia_agrupats_dia", nullable=true)
+	public Boolean isCorreusBustiaAgrupatsDia() {
+		return correusBustiaAgrupatsDia;
+	}
+	public void setCorreusBustiaAgrupatsDia(Boolean correusBustiaAgrupatsDia) {
+		this.correusBustiaAgrupatsDia = correusBustiaAgrupatsDia;
+	}
+	
+	@Column(name="email_alternatiu", nullable=true)
+	public String getEmailAlternatiu() {
+		return emailAlternatiu;
+	}
+	public void setEmailAlternatiu(String emailAlternatiu) {
+		this.emailAlternatiu = emailAlternatiu;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

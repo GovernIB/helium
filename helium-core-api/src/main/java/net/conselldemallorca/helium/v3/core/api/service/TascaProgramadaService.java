@@ -36,5 +36,11 @@ public interface TascaProgramadaService {
 	 */
 	public void actualitzarUnitatsIProcediments();
 
+	/** Tasca programada per comprovar si hi ha enviment de correus no agrupats no pendents**/
+	public void comprovarEmailAnotacionsNoAgrupats();
+		
+	/** Mètode periòdic per enviar correus agrupats de noves anotacions
+	 * segons la propietat app.anotacions.emails.agrupats.chron. Per defecte a les 20h */
+	public void comprovarEmailAnotacionsAgrupats();
 	
 }

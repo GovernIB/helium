@@ -166,6 +166,20 @@
 	<div class="well well-white">
 		<div class="row-fluid">    
 			<form:form action="" method="post" cssClass="formbox form-horizontal" commandName="personaUsuariCommand">
+			<div class="control-group">
+					<div class="label-titol">
+						<label class="control-label"><spring:message code="perfil.usuari.nota.enviament.correus"/></label>
+						<div class="form-group">
+							<div class="help-block">
+								<hel:inputCheckbox name="correusBustia" textKey="perfil.usuari.nota.enviament.correus.avisos.bustia" inline="true"/>
+								<hel:inputCheckbox name="correusBustiaAgrupatsDia" textKey="perfil.usuari.nota.enviament.correus.bustia.agrupats" inline="true"/>
+							</div>
+							<div class="control-group fila_reducida">
+								<hel:inputText disabled="${esReadOnly}" name="emailAlternatiu" textKey="persona.consulta.email.alternatiu" placeholderKey="persona.consulta.email" inline="false"/>
+							</div>
+						</div>
+					</div>
+				</div>
 				<div class="control-group">
 					<div class="label-titol">
 						<label class="control-label" for="lc_time"><spring:message code="perfil.usuari.nota.generales"/></label>

@@ -71,7 +71,7 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>helium-disseny</artifactId>
-			<version>${helium.version}</version>
+			<version>3.3.5</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>

@@ -19,6 +19,9 @@ public class UsuariPreferenciesDto {
 	private Long expedientTipusDefecteId;
 	private boolean filtroTareasActivas;
 	private Long numElementosPagina;
+	private boolean correusBustia;
+	private boolean correusBustiaAgrupatsDia;
+	private String emailAlternatiu;
 
 	public String getCodi() {
 		return codi;
@@ -74,4 +77,23 @@ public class UsuariPreferenciesDto {
 	public void setExpedientTipusDefecteId(Long expedientTipusDefecteId) {
 		this.expedientTipusDefecteId = expedientTipusDefecteId;
 	}
+	public boolean isCorreusBustia() {
+		return correusBustia;
+	}
+	public void setCorreusBustia(boolean correusBustia) {
+		this.correusBustia = correusBustia;
+	}
+	public boolean isCorreusBustiaAgrupatsDia() {
+		return correusBustiaAgrupatsDia;
+	}
+	public void setCorreusBustiaAgrupatsDia(boolean correusBustiaAgrupatsDia) {
+		this.correusBustiaAgrupatsDia = correusBustiaAgrupatsDia;
+	}
+	public String getEmailAlternatiu() {
+		return emailAlternatiu;
+	}
+	public void setEmailAlternatiu(String emailAlternatiu) {
+		this.emailAlternatiu = emailAlternatiu;
+	}
+	
 }

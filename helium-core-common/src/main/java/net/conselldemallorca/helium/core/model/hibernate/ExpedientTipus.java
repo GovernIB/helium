@@ -88,7 +88,8 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	private boolean seleccionarAny;
 	private boolean ambRetroaccio;
 	private boolean reindexacioAsincrona;
-	
+	private boolean enviarCorreuAnotacions;
+
 	/** Indica si el tipus d'expedient està basat en un flux o en estats
 	 * 
 	 */
@@ -954,7 +955,14 @@ public class ExpedientTipus  implements Serializable, GenericEntity<Long> {
 	public void setManualAjudaContent(byte[] manualAjudaContent) {
 		this.manualAjudaContent = manualAjudaContent;
 	}
-
+	
+	@Column(name="enviar_correu_anotacions")
+	public boolean isEnviarCorreuAnotacions() {
+		return enviarCorreuAnotacions;
+	}
+	public void setEnviarCorreuAnotacions(boolean enviarCorreuAnotacions) {
+		this.enviarCorreuAnotacions = enviarCorreuAnotacions;
+	}
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
