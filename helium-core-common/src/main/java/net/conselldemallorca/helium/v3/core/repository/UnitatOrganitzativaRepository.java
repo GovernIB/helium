@@ -39,6 +39,7 @@ public interface UnitatOrganitzativaRepository extends JpaRepository<UnitatOrgan
 			"where  "+
 			" (:esNullCodi = true or lower(uo.codi) like lower('%'||:codi||'%')) " +
 			" and (:esNullDenominacio = true or lower(uo.denominacio) like lower('%'||:denominacio||'%')) " +
+			" and (:esNullCif = true or lower(uo.nifCif) like lower('%'||:cif||'%')) " +
 			" and (:esNullCodiUnitatSuperior = true or lower(uo.codiUnitatSuperior) like lower('%'||:codiUnitatSuperior||'%')) "+
 			" and (:esNullEstat = true or uo.estat = :estat) " + 
 			" and   (:esNullFiltre = true "
@@ -50,6 +51,8 @@ public interface UnitatOrganitzativaRepository extends JpaRepository<UnitatOrgan
 			@Param("codi") String codi,
 			@Param("esNullDenominacio") boolean esNullDenominacio,
 			@Param("denominacio") String denominacio,
+			@Param("esNullCif") boolean esNullCif,
+			@Param("cif") String cif,
 			@Param("esNullCodiUnitatSuperior") boolean esNullCodiUnitatSuperior,
 			@Param("codiUnitatSuperior") String codiUnitatSuperior,
 			@Param("esNullEstat") boolean esNullEstat,

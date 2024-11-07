@@ -1980,7 +1980,7 @@ public class DocumentHelperV3 {
 				(motiu != null) ? motiu : "Firma en servidor HELIUM");
 
 		if (StringUtils.isEmpty(firma.getTipusFirmaEni()) 
-				|| StringUtils.isEmpty(firma.getTipusFirmaEni())) {
+				|| StringUtils.isEmpty(firma.getPerfilFirmaEni())) {
 			logger.warn("El tipus o perfil de firma s'ha retornat buit i això pot provocar error guardant a l'Arxiu [tipus: " + 
 					firma.getTipusFirmaEni() + ", perfil: " + firma.getPerfilFirmaEni() + "]");
 			if ("cades".equals(StringUtils.lowerCase(firma.getTipusFirma()))) {

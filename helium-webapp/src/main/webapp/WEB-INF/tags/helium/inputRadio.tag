@@ -29,7 +29,7 @@
 			<c:otherwise>${campPath}</c:otherwise>
 		</c:choose>
 	</label>
-	<div class="controls col-xs-${campInputSize} btn-group" data-toggle="buttons">
+	<div class="controls col-xs-${campInputSize} btn-group">
 		
 		<c:forEach var="opt" items="${optionItems}">
 			<c:set var="labelClass" value="checkbox-inline"/>

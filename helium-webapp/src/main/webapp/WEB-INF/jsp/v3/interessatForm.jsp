@@ -70,8 +70,6 @@ function ajustarTipus(tipus) {
 
 	
 function adaptarVisibilitat(tipus){
-		//alert(tipus);
-		//netejar();
 		var select2Options = {theme: 'bootstrap', minimumResultsForSearch: "6"};
 		let nif="NIF";
 		let cif="CIF";
@@ -109,9 +107,11 @@ function adaptarVisibilitat(tipus){
 	 	 	 $('#tipusDocIdent').val(codi_origen);	
 	 	 	 $('#tipusDocIdent').prop("readonly", true);
 		}
+		 $('#cifOrganGestor').val($('#dir3Codi').val()).change();
 		 $('#tipusDocIdent').change();
 		 $('#tipusDocIdent').select2("destroy");
 	 	 $('#tipusDocIdent').select2(select2Options);
+	 	 $("#tipusHiddenId").val(tipus);
 }
 
 function netejar(){
@@ -140,7 +140,6 @@ $(document).ready(function() {
 	adaptarVisibilitat($("#tipusHiddenId").val());
 
  	$('input[type=radio][name=tipus]').on('change', function() {
- 		//adaptarSuggest(this.value);
  		adaptarVisibilitat($(this).val());
 		webutilModalAdjustHeight();
 		netejar();
@@ -164,9 +163,7 @@ $(document).ready(function() {
 	
  	
  	$('select#canalNotif').change(function() {
- 		//alert($(this).val());
  		if ($(this).val() == '01') { //DIRECCION_POSTAL("01", "Direcció Postal")
- 			//alert($(this).val());
  			$('select#pais').prop("required", true);
  			$('select#provincia').prop("required", true);
 			$('select#municipi').prop("required", true);
@@ -174,9 +171,6 @@ $(document).ready(function() {
 			$('#codiPostal').prop("required", true);
 			$('#email').prop("required", false);
  		} else if ($(this).val() == '02' || $(this).val() == '03') {
- 			//alert($(this).val());
- 			// DIRECCION_ELECTRONICA_HABILITADA("02", "Direcció electrònica habilitada")
- 			//COMPARECENCIA_ELECTRONICA("03", "Compareixença electrònica");
  			$('select#pais').prop("required", false);
  			$('select#provincia').prop("required", false);
 			$('select#municipi').prop("required", false);
@@ -257,7 +251,6 @@ $(document).ready(function() {
  	
  	$('select#cifOrganGestor').change(function() {
  	 	 		munOrgan = '';
- 	 	 		//alert($(this).val());
  	 	 	 	if ($(this).val() != "") {
  	 	 	 		
  	 	 	 		let optionSelected = $("option:selected", this);
@@ -272,7 +265,8 @@ $(document).ready(function() {
  	 			 	 		$('#tipusDocIdent').select2("destroy");
  	 			 	 		$('#tipusDocIdent').select2(select2Options);
 
- 	 						$('#documentIdent').val(data.codi);
+ 	 						$('#dir3Codi').val(data.codi).change();
+ 	 						$('#documentIdent').val(data.nifCif);
  	 						$('#documentIdent').prop("readonly", true);
  	 						$('#pais').val(data.codiPais);
  	 						$('#pais').prop("readonly", true);
@@ -296,8 +290,6 @@ $(document).ready(function() {
 
  	 			 	 		$('#direccio').val(data.adressa);
  	 						$('#direccio').prop("readonly", true);
-
- 	 			 	 		//$('#ambOficinaSir').val(optionSelected.hasClass('ambOficinaSir'));
  	 					}
  	 				});
  	 	 	 	} else {
@@ -323,10 +315,6 @@ $(document).ready(function() {
 		}
 	});		
 
-
-/* 	var select2Options = {theme: 'bootstrap'};
-	$('select[name=tipus').select2("destroy");
-	$('select[name=tipus').select2(select2Options); */
 	
 	var select2Options = {theme: 'bootstrap'};
 	$('select[name=entregaTipus').select2("destroy");
@@ -335,10 +323,20 @@ $(document).ready(function() {
 	$('input[type=checkbox][name=entregaDeh').trigger('change');
 	$('input[type=checkbox][name=entregaDehObligat').trigger('change');	
 
-
+	// Per inicialitzar el codi buit a partir de les dades de l'interessat
+	$('#documentIdent,#dir3Codi').change(function(){
+		if ($('#codi').val() == '') {
+			if($("#tipusHiddenId").val() == 'ADMINISTRACIO') {
+				$('#codi').val($('#dir3Codi').val());
+			} else {
+				$('#codi').val($('#documentIdent').val());
+			}
+		}
+	})
 	$('#tipus').change();
-
 });
+
+
 </script>
 
 </head>
@@ -377,7 +375,7 @@ $(document).ready(function() {
 				name="cifOrganGestor"
 				optionItems="${organs}" 
 				optionValueAttribute="codi"
-				optionTextAttribute="denominacio" 
+				optionTextAttribute="valor" 
 				textKey="interessat.form.camp.suggest.administracio" 
 				emptyOption="true"
 				labelSize="2" 
@@ -519,7 +517,7 @@ $(document).ready(function() {
 			</div>
 		</div>
 		
-		<div id="dir3Codi" class="row administracio hidden"  style="margin-right:-14px ; margin-left:-59px">
+		<div id="dir3CodiDiv" class="row administracio hidden"  style="margin-right:-14px ; margin-left:-59px">
 			<div class="col-xs-12">
 					<hel:inputText required="false" name="dir3Codi" textKey="interessat.form.camp.dir3codi" labelSize="2" /> 
 			</div>
@@ -545,14 +543,6 @@ $(document).ready(function() {
 				<hel:inputCheckbox name="entregaDeh" textKey="interessat.form.camp.entregadeh" labelSize="11"></hel:inputCheckbox>
 			</div>
 		</div>		
-		<!--  <div class="row" class="hidden">		
-			<div class="col-xs-8" style="float: right;" id="entregaDehObligatDiv">
-				<hel:inputCheckbox name="entregaDehObligat" textKey="interessat.form.camp.entregadehobligat" labelSize="11"></hel:inputCheckbox>
-			</div>
-			<div class="col-xs-6 hidden">
-				<hel:inputText required="false" name="dir3Codi" textKey="interessat.form.camp.dir3codi" />
-			</div>
-		</div>	-->
 
 		<div id="modal-botons" class="well">
 			<button type="button" class="btn btn-default" data-modal-cancel="true">

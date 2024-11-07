@@ -28,10 +28,9 @@ import net.conselldemallorca.helium.webapp.v3.validator.Interessat;
 public class InteressatCommand {
 
 	private Long id;
-	//@NotEmpty(groups = {Creacio.class})
+	@NotEmpty(groups = {Creacio.class,  Modificacio.class})
 	@Size(max = 64, groups = {Creacio.class,  Modificacio.class})
 	private String codi;
-	//@NotEmpty(groups = {Creacio.class, Modificacio.class})
 	@Size(max = 255, groups = {Creacio.class, Modificacio.class})
 	private String nom;
 	@NotEmpty(groups = {Creacio.class, Modificacio.class})

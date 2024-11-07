@@ -160,6 +160,8 @@ public class UnitatOrganitzativaServiceImpl implements UnitatOrganitzativaServic
 						filtreDto.getCodi(),
 						filtreDto.getDenominacio() == null || filtreDto.getDenominacio().isEmpty(),
 						filtreDto.getDenominacio(),
+						filtreDto.getCif() == null || filtreDto.getCif().isEmpty(),
+						filtreDto.getCif(),
 						filtreDto.getCodiUnitatSuperior() == null || filtreDto.getCodiUnitatSuperior().isEmpty(),
 						filtreDto.getCodiUnitatSuperior(),
 						estatBBDD==null,
@@ -340,7 +342,21 @@ public class UnitatOrganitzativaServiceImpl implements UnitatOrganitzativaServic
 				unitats,
 				UnitatOrganitzativaDto.class);
 	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public List<UnitatOrganitzativaDto> findAll() {
+		
+		return conversioTipusHelper.convertirList(
+				unitatOrganitzativaHelper.findAll(),
+				UnitatOrganitzativaDto.class);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public void populateDadesExternesUO(UnitatOrganitzativaDto unitat) {
+		unitatOrganitzativaHelper.populateDadesExternesUO(unitat);
+	}
+
 	private static final Logger logger = LoggerFactory.getLogger(CarrecServiceImpl.class);
-
-
 }

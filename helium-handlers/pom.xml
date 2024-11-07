@@ -37,7 +37,7 @@
         <dependency>
             <groupId>net.conselldemallorca.helium</groupId>
             <artifactId>helium-disseny</artifactId>
-            <version>3.3</version>
+            <version>3.3.5</version>
             <exclusions>
                 <exclusion>
                     <groupId>net.conselldemallorca.helium</groupId>
