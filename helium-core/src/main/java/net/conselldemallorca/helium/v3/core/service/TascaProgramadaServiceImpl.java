@@ -141,7 +141,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	private static Map<Long, String> errorsMassiva = new HashMap<Long, String>();
 	
 	@Override
-	@Scheduled(fixedDelayString = "${app.massiu.periode.noves}")
+//	@Scheduled(fixedDelayString = "${app.massiu.periode.noves}")
 	public void comprovarExecucionsMassives() {
 		boolean active = true;
 		Long ultimaExecucioMassiva = null;
@@ -192,7 +192,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	 * propera execució.
 	 */
 	@Override
-	@Scheduled(fixedDelay=10000)
+//	@Scheduled(fixedDelay=10000)
 	public void comprovarReindexacioAsincrona() {
 		
 		Counter countMetodeAsincronTotal = metricRegistry.counter(MetricRegistry.name(TascaProgramadaService.class, "reindexacio.asincrona.metode.count"));
@@ -484,7 +484,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	 * de 5 reintents.
 	 */
 	@Override
-	@Scheduled(fixedDelayString = "10000")
+	//@Scheduled(fixedDelayString = "10000")
 	public void comprovarAnotacionsPendents() {
 		int maxReintents = this.getConsultaAnotacioMaxReintents();
 		int maxAnotacions = 100;
@@ -614,7 +614,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	 * segons la propietat app.unitats.procediments.sync.
 	 */
 	@Override
-	@Scheduled(cron="${app.unitats.procediments.sync}")
+//	@Scheduled(cron="${app.unitats.procediments.sync}")
 	@Async
 	public void actualitzarUnitatsIProcediments() {
 		logger.info("Inici de la tasca periòdica de sincronització d'unitats i procediments.");
@@ -657,7 +657,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	
 
 	@Override
-	@Scheduled(fixedDelayString = "600000")
+//	@Scheduled(fixedDelayString = "600000")
 	@Async
 	@Transactional
 	public void updatePeticionsAsincronesPinbal() throws ExecucioMassivaException {
@@ -674,7 +674,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	 */
 	@Override
 	@Transactional
-	@Scheduled(fixedDelayString = "60000")
+//	@Scheduled(fixedDelayString = "60000")
 	public void comprovarEmailAnotacionsNoAgrupats() {
 		// Consultar entrades de la taula HEL_ANOTACIO_EMAIL amb agrupat = 0
 		// Agruparles per usuari o no, mira't Distribucio
@@ -712,7 +712,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	 * segons la propietat app.anotacions.emails.agrupats.cron , Per defecte a les 20h
 	 */
 	@Override
-	@Scheduled(cron="${app.anotacions.emails.agrupats.cron}")
+//	@Scheduled(cron="${app.anotacions.emails.agrupats.cron}")
 	@Async
 	public void comprovarEmailAnotacionsAgrupats() {
 		logger.info("Inici de la tasca periòdica d'enviament de correus agrupats de noves anotacions de distribució.");

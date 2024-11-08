@@ -193,6 +193,17 @@ function webutilEnableInputs(formulari) {
 	$('input[type=checkbox]', formulari).removeAttr('disabled');
 }
 
+//dd/MM/yyyy HH:mm:ss
+function formatDate(date) {
+	var dateFormatted =
+			("00" + date.getDate()).slice(-2) + "/" +
+			("00" + (date.getMonth() + 1)).slice(-2) + "/" +
+			date.getFullYear() + " " +
+		  	("00" + date.getHours()).slice(-2) + ":" +
+		  	("00" + date.getMinutes()).slice(-2) + ":" +
+		  	("00" + date.getSeconds()).slice(-2);
+	return dateFormatted;
+}
 
 $(document).ajaxError(function(event, jqxhr, ajaxSettings, thrownError) {
 	var message = "Error AJAX: [" + jqxhr.status + "] " + thrownError;
