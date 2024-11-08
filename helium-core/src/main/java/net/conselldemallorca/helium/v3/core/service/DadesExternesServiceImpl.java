@@ -12,6 +12,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.MunicipiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NivellAdministracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ProvinciaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TipusViaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.DadesExternesService;
 
@@ -64,6 +65,11 @@ public class DadesExternesServiceImpl implements DadesExternesService {
 	public List<MunicipiDto> findMunicipisPerProvinciaPinbal(String provinciaCodi) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public List<TipusViaDto> findTipusVia() throws SistemaExternException {
+		return dadesExternesHelper.dadesExternesTipusViaFindAll();
 	}
 
 }

@@ -26,6 +26,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.MunicipiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ProvinciaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TipusTransicioEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TipusViaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
@@ -120,9 +121,16 @@ public class UnitatOrganitzativaHelper {
 	}
 	
 	public void populateDadesExternesUO(UnitatOrganitzativaDto unitat) {
-		unitat.setAdressa(unitat.getTipusVia() + " " 
-				+ unitat.getNomVia() + " " 
-				+ unitat.getNumVia());
+		List<TipusViaDto> tipusVia = dadesExternesHelper.dadesExternesTipusViaFindAll();
+		for(TipusViaDto tVia: tipusVia) {
+			if(tVia.getCodi().equals(String.valueOf(unitat.getTipusVia()))) {
+				unitat.setAdressa(capitalizeWords(tVia.getDescripcio())+" "+unitat.getNomVia() +", "+ unitat.getNumVia());
+				break;
+			}
+		}
+//		unitat.setAdressa(unitat.getTipusVia() + " " 
+//				+ unitat.getNomVia() + " " 
+//				+ unitat.getNumVia());
 		
 		if (unitat.getCodiPais() != null && !"".equals(unitat.getCodiPais())) {
 			unitat.setCodiPais(("000" + unitat.getCodiPais()).substring(unitat.getCodiPais().length()));
@@ -150,6 +158,27 @@ public class UnitatOrganitzativaHelper {
 			}
 		}
 	}
+	
+	 // function to capitalize the first letter of each word
+    public static String capitalizeWords(String input) {
+        // split the input string into an array of words
+        String[] words = input.split("\\s");
+
+        // StringBuilder to store the result
+        StringBuilder result = new StringBuilder();
+
+        // iterate through each word
+        for (String word : words) {
+            // capitalize the first letter, append the rest of the word, and add a space
+            result.append(Character.toTitleCase(word.charAt(0)))
+                  .append(word.substring(1))
+                  .append(" ");
+        }
+
+        // convert StringBuilder to String and trim leading/trailing spaces
+        return result.toString().trim();
+    }
+    
 	
 	private MunicipiDto findMunicipiAmbNom(
 			String provinciaCodi,

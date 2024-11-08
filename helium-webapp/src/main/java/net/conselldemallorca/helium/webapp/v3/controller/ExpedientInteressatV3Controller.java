@@ -130,10 +130,10 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		InteressatDto interessat = expedientInteressatService.findOne(
 				interessatId);
 		
-		this.populateDadesInteressat(interessat);
-		if(interessat.getRepresentant()!=null) {
-			this.populateDadesInteressat(interessat.getRepresentant());
-		}
+//		this.populateDadesInteressat(interessat);
+//		if(interessat.getRepresentant()!=null) {
+//			this.populateDadesInteressat(interessat.getRepresentant());
+//		}
 		model.addAttribute(
 				"interessatCanalsNotif", 
 				this.populateCanalsNotif(request)
@@ -543,14 +543,14 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 	
 	private void populateDadesInteressat(InteressatDto interessat) {
 		if(InteressatTipusEnumDto.ADMINISTRACIO.equals(interessat.getTipus())){
-			UnitatOrganitzativaDto uo= unitatOrganitzativaService.findByCodi(interessat.getDocumentIdent());
+			UnitatOrganitzativaDto uo= unitatOrganitzativaService.findByCodi(interessat.getDir3Codi());
 			if(uo!=null) {
+				unitatOrganitzativaService.populateDadesExternesUO(uo);
 				interessat.setRaoSocial(uo.getDenominacio());
 				interessat.setPais(uo.getCodiPais());
 				interessat.setCodiPostal(uo.getCodiPostal());
-				interessat.setDireccio(uo.getNomVia() +", "+ uo.getNumVia());//tampoc està arribant l'adreça completa, faltaria el tipusVia mapejat
-//				interessat.setMunicipi(uo.getLocalitat());//El plugin no està retornant aquest codi
-				if(uo.getCodiProvincia()!=null) {
+				interessat.setDireccio(uo.getAdressa());
+				if(uo.getCodiProvincia()!=null && !uo.getCodiProvincia().isEmpty()) {
 					String codiProvinciaDosDigits = String.format("%02d", uo.getCodiProvincia());//Fa falta que sigui de dos digits pq busqui bé els municipis
 					interessat.setProvincia(codiProvinciaDosDigits);
 					List<MunicipiDto> municipis = dadesExternesService.findMunicipisPerProvincia(codiProvinciaDosDigits);
@@ -596,11 +596,11 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		UnitatOrganitzativaDto uo= unitatOrganitzativaService.findByCodi(command.getCodi());
 		if(uo!=null) {
 			unitatOrganitzativaService.populateDadesExternesUO(uo);
+			command.setDireccio(uo.getAdressa());
 			command.setRaoSocial(uo.getDenominacio());
 			command.setPais(uo.getCodiPais());
 			command.setMunicipi(uo.getLocalitat());//El plugin no està retornant aquest codi
 			command.setCodiPostal(uo.getCodiPostal());
-			command.setDireccio(uo.getNomVia() +", "+ uo.getNumVia());//tampoc està arribant l'adreça completa, faltaria el tipusVia mapejat
 			if(uo.getCodiProvincia()!=null) {
 				String codiProvinciaDosDigits = String.format("%02d", Long.valueOf(uo.getCodiProvincia()));//Fa falta que sigui de dos digits pq busqui bé els municipis
 				command.setProvincia(codiProvinciaDosDigits);

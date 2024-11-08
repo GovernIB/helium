@@ -15,6 +15,7 @@ import net.conselldemallorca.helium.integracio.plugins.dadesext.Municipi;
 import net.conselldemallorca.helium.integracio.plugins.dadesext.NivellAdministracio;
 import net.conselldemallorca.helium.integracio.plugins.dadesext.Pais;
 import net.conselldemallorca.helium.integracio.plugins.dadesext.Provincia;
+import net.conselldemallorca.helium.integracio.plugins.dadesext.TipusVia;
 import net.conselldemallorca.helium.v3.core.api.dto.ComunitatAutonomaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
@@ -22,6 +23,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.MunicipiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NivellAdministracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ProvinciaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TipusViaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 
 @Component
@@ -274,6 +276,42 @@ public class DadesExternesHelper {
 			return conversioTipusHelper.convertirList(nivellAdministracio,NivellAdministracioDto.class);
 		} catch (Exception ex) {
 			String errorDescripcio = "Error al accedir al plugin de dades externes. No s'ha pogut obtenir la llista de nivells d'administracions:  "+ ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_DADES_EXTERNES,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex);
+			throw tractarExcepcioEnSistemaExtern(
+					MonitorIntegracioHelper.INTCODI_DADES_EXTERNES,
+					errorDescripcio, 
+					ex);	
+		}
+	}
+	
+	public List<TipusViaDto> dadesExternesTipusViaFindAll() {
+
+		String accioDescripcio = "Consulta dels tipus de via";
+		long t0 = System.currentTimeMillis();
+		
+		try {
+			List<TipusVia> tipusVia = getDadesExternesPlugin().tipusViaFindAll();
+			IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+					new IntegracioParametreDto(
+							"tipusVia",
+							tipusVia.size())
+			};
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_DADES_EXTERNES,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametres);			
+			return conversioTipusHelper.convertirList(tipusVia, TipusViaDto.class);
+					
+		} catch (Exception ex) {
+			String errorDescripcio = "Error al accedir al plugin de dades externes. No s'ha pogut obtenir la llista de tipus de via: " + ex.getMessage();
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_DADES_EXTERNES,
 					accioDescripcio,

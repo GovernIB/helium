@@ -10,6 +10,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
+import net.conselldemallorca.helium.core.helper.UnitatOrganitzativaHelper;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
@@ -23,7 +24,9 @@ import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
  * @author Limit Tecnologies <limit@limit.es>
  */
 public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
-
+	@Resource
+	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
+	
 	@Resource
 	private MonitorIntegracioHelper monitorIntegracioHelper;
 	
@@ -178,6 +181,7 @@ public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
 				unidad.getNombreVia(), 
 				unidad.getNumVia(),
 				unidad.getHistoricosUO());
+    	unitatOrganitzativaHelper.populateDadesExternesUO(unitat);
 		return unitat;
 	}
 	

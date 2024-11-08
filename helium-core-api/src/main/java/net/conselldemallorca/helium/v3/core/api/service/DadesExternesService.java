@@ -7,6 +7,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.MunicipiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NivellAdministracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ProvinciaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TipusViaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 
 
@@ -66,6 +67,12 @@ public interface DadesExternesService {
 
 	public List<MunicipiDto> findMunicipisPerProvinciaPinbal(
 			String provinciaCodi);
+	
+	/**
+	 * Retorna el llistat de tipus de via
+	 * @return el llistat  de tipus de via
+	 */
+	public List<TipusViaDto> findTipusVia()  throws SistemaExternException ;
 
 	
 }

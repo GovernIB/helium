@@ -15,6 +15,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.MunicipiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NivellAdministracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ProvinciaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TipusViaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 
 
@@ -73,6 +74,12 @@ public class DadesExternesServiceBean implements DadesExternesService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<MunicipiDto> findMunicipisPerProvinciaPinbal(String provinciaCodi) {
 		return delegate.findMunicipisPerProvinciaPinbal(provinciaCodi);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<TipusViaDto> findTipusVia() throws SistemaExternException {
+		return delegate.findTipusVia();
 	}	
 
 
