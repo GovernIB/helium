@@ -221,22 +221,19 @@ public class InteressatDto {
 		this.existeixenRepresentantsExpedient = existeixenRepresentantsExpedient;
 	}
 	public String getFullInfo() {
-		String codiDocument;
-		if (tipus != null && InteressatTipusEnumDto.ADMINISTRACIO.equals(tipus))
-			codiDocument = (dir3Codi!=null ? dir3Codi+ " - " : "" )+ documentIdent;
-		else {
-			if(es_representant) {
-				return documentIdent + " - " + getFullNom() + " (Representant)";
-			} else {
-				if(representant!=null) {//Si té representant indiquem quin és
-					return documentIdent + " - " + getFullNom() + " (Representat per " + representant.getDocumentIdent() + ")";
-				} else {
-					codiDocument = documentIdent;
-				}			
+		StringBuilder fullInfo = new StringBuilder();
+		if (tipus != null && InteressatTipusEnumDto.ADMINISTRACIO.equals(tipus)) {
+			if (dir3Codi != null) {
+				fullInfo.append(dir3Codi + " - ");
 			}
 		}
-			
-		return codiDocument + " - " + getFullNom();
+		fullInfo.append(documentIdent).append(" - ").append(getFullNom());
+		if(es_representant) {
+			fullInfo.append(" (Representant)");
+		} else if(representant!=null) {//Si té representant indiquem quin és
+				fullInfo.append(" (Representat per ").append(representant.getDocumentIdent()).append(")");
+		}
+		return fullInfo.toString();		
 	}
 	public String getDocumentIdent() {
 		return documentIdent;
