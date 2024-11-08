@@ -33,11 +33,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.core.helper.PluginHelper;
+import net.conselldemallorca.helium.v3.core.api.dto.PaisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParellaCodiValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ProvinciaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaFiltreDto;
+import net.conselldemallorca.helium.v3.core.api.service.DadesExternesService;
 import net.conselldemallorca.helium.v3.core.api.service.ParametreService;
 import net.conselldemallorca.helium.v3.core.api.service.UnitatOrganitzativaService;
 import net.conselldemallorca.helium.webapp.v3.command.UnitatOrganitzativaCommand;
@@ -62,11 +65,16 @@ public class UnitatOrganitzativaController extends BaseController {
 	@Autowired
 	private UnitatOrganitzativaService unitatOrganitzativaService;
 	@Autowired
+	private DadesExternesService dadesExternesService;
+	@Autowired
 	private ParametreService parametreService;
 	@Autowired
 	private PluginHelper pluginHelper;
 	
 	private static final String SESSION_ATTRIBUTE_FILTRE = "UnitatOrganitzativaController.session.filtre";
+	
+	private static  List<PaisDto> paisos = null;
+	private static  List<ProvinciaDto> provincies = null;
 	
 	@RequestMapping(method = RequestMethod.GET)
 	public String llistat(
@@ -420,6 +428,56 @@ public class UnitatOrganitzativaController extends BaseController {
 				"redirect:../../unitatOrganitzativa",
 				"unitat.organitzativa.controller.esborrat.ok");
 	}
+	
+	@RequestMapping(value = "/{unitatOrganitzativaId}/info", method = RequestMethod.GET)
+	public String info(
+			HttpServletRequest request,
+			@PathVariable Long unitatOrganitzativaId,
+			Model model) {
+		try {
+			UnitatOrganitzativaDto unitatDto = unitatOrganitzativaService.findById(unitatOrganitzativaId);
+			UnitatOrganitzativaDto unitatArrel = unitatOrganitzativaService.findByCodi(unitatDto.getCodiUnitatArrel());
+			UnitatOrganitzativaDto unitatSuperior = unitatOrganitzativaService.findByCodi(unitatDto.getCodiIDenominacioUnitatSuperior());
+
+			model.addAttribute("unitatOrganitzativaDto", unitatDto);
+			model.addAttribute("unitatArrel", unitatArrel);
+			model.addAttribute("unitatSuperior", unitatSuperior);
+			
+			
+			if(paisos==null || paisos.isEmpty()) {
+				paisos = dadesExternesService.findPaisos();
+			} 
+			
+			if(unitatDto.getNomPais()==null || unitatDto.getNomPais().isEmpty()){
+				for(PaisDto pais: paisos ) {
+					if(pais.getCodi().equals(unitatDto.getCodiPais())) {
+						unitatDto.setNomPais(pais.getNom());
+						break;
+					}
+				}
+			}
+			
+			if(provincies==null || provincies.isEmpty()) {
+				provincies=dadesExternesService.findProvincies();
+			} 
+			
+			if(unitatDto.getNomProvincia()==null || unitatDto.getNomProvincia().isEmpty()){
+				for(ProvinciaDto provincia:provincies) {
+					if(provincia.getCodi().equals(unitatDto.getCodiProvincia())) {
+						unitatDto.setNomProvincia(provincia.getNom());
+						break;
+					}
+				}
+			}
+			
+		} catch(Exception e) {
+			String errMsg = "Error obtenint la informació de la unitat organitzativa: " +unitatOrganitzativaId +" " + e.toString();
+			logger.error(errMsg, e);
+			MissatgesHelper.error(request, errMsg);
+		}
+		return "v3/unitatOrganitzativaInfo";
+	}
+	
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {

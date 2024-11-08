@@ -42,8 +42,8 @@
 </head>
 <body>
 	<div class="text-right" data-toggle="botons-titol">
+		<a href="<c:url value="/v3/unitatOrganitzativa/mostrarArbre"/>" data-toggle="modal"  class="btn btn-default"><span class="fa fa-sitemap"></span> <spring:message code="unitat.organitzativa.list.boto.mostrarArbre"/></a>
 		<c:if test="${dadesPersona.admin}">
-			<a href="<c:url value="/v3/unitatOrganitzativa/mostrarArbre"/>" data-toggle="modal"  class="btn btn-default"><span class="fa fa-sitemap"></span> <spring:message code="unitat.organitzativa.list.boto.mostrarArbre"/></a>
 			<a href="<c:url value="/v3/unitatOrganitzativa/synchronizeGet"/>" data-toggle="modal" class="btn btn-default"><span class="fa fa-refresh"></span> <spring:message code="unitat.organitzativa.list.boto.synchronize"/></a>
 		</c:if>
 	</div>
@@ -112,6 +112,17 @@
 						{{else estat =='T'}}
 							<spring:message code="unitat.organitzativa.estat.transitori"/>
 						{{/if}}
+					</script>
+				</th>
+				<th data-col-name="id" width="5%" data-template="#cellAccionsTemplate" data-orderable="false">
+
+					<script id="cellAccionsTemplate" type="text/x-jsrender">
+						<div class="dropdown navbar-right">
+							<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
+							<ul class="dropdown-menu">
+								<li><a href="<c:url value="/v3/unitatOrganitzativa/{{:id}}/info"/>" data-toggle="modal" class="consultar-expedient"><span class="fa fa-info-circle"></span>&nbsp;<spring:message code="unitat.organitzativa.controller.boto.info"/></a></li>
+							</ul>
+						</div>
 					</script>
 				</th>
 			</tr>
