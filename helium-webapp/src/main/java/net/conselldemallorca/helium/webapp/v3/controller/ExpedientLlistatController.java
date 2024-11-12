@@ -331,7 +331,11 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		DataFormat format = wb.createDataFormat();
 		XSSFCellStyle dStyle = wb.createCellStyle();
 		dStyle.setDataFormat(format.getFormat("0.00"));
-		
+
+		DataFormat bdFormat = wb.createDataFormat();
+		XSSFCellStyle bdStyle = wb.createCellStyle();
+		bdStyle.setDataFormat(bdFormat.getFormat("#,##0.00"));
+
 		DataFormat intFormat = wb.createDataFormat();
 		XSSFCellStyle iStyle = wb.createCellStyle();
 		iStyle.setDataFormat(intFormat.getFormat("0"));
@@ -378,7 +382,6 @@ public class ExpedientLlistatController extends BaseExpedientController {
 					DadaIndexadaDto val = e.getValue();
 					
 					if (val!=null && val.getValor()!=null) {
-						System.out.println(val.getValorMostrar() +" de tipus "+ val.getValor().getClass());
 						try {
 							if (val.getValor() instanceof BigDecimal) {
 								cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_NUMERIC);
@@ -387,7 +390,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 								valor_s = valor_s.replace(".", "").replace(",", ".");
 								if (valor_s!=null && !"".equals(valor_s)) {
 									cell.setCellValue(Float.parseFloat(valor_s));
-									cell.setCellStyle(dStyle);
+									cell.setCellStyle(bdStyle);
 								} else {
 									cell.setCellValue("");
 								}
@@ -410,7 +413,6 @@ public class ExpedientLlistatController extends BaseExpedientController {
 								cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_NUMERIC);
 								Double valorConvertit = (Double)e.getValue().getValor();
 								cell.setCellValue(valorConvertit);
-								cell.setCellStyle(dStyle);
 							} else if (val.getValor() instanceof Date) {
 								cell = xlsRow.createCell(colNum++);
 								Date valorConvertit = (Date)e.getValue().getValor();
