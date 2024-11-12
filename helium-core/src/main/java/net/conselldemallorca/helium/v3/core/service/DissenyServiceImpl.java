@@ -323,9 +323,13 @@ public class DissenyServiceImpl implements DissenyService {
 		List<String> jbpmIds = new ArrayList<String>(); 
 		afegirJbpmIdProcesAmbSubprocessos(jbpmHelper.getProcessDefinition(jbpmId), jbpmIds, false);
 		List<DefinicioProcesExpedientDto> subprocessos = new ArrayList<DefinicioProcesExpedientDto>();
+		DefinicioProcesExpedientDto dp;
 		for(String id: jbpmIds){
 			JbpmProcessDefinition jb = jbpmHelper.getProcessDefinition(id);
-			subprocessos.add(getDefinicioProcesByEntornIdAmbJbpmId(definicioProces.getEntorn().getId(), jb.getKey(), expedientTipus));
+			dp = getDefinicioProcesByEntornIdAmbJbpmId(definicioProces.getEntorn().getId(), jb.getKey(), expedientTipus);
+			if (dp != null) {
+				subprocessos.add(dp);
+			}
 		}
 		return subprocessos;
 	}
