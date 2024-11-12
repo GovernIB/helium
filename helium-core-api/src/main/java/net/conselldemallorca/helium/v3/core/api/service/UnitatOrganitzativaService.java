@@ -7,8 +7,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import net.conselldemallorca.helium.v3.core.api.dto.ArbreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ProvinciaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaFiltreDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TipusViaDto;
 
 
 /**
@@ -96,5 +98,5 @@ public interface UnitatOrganitzativaService {
 
 	public List<UnitatOrganitzativaDto> findAll();
 
-	void populateDadesExternesUO(UnitatOrganitzativaDto unitat);
+	public void populateDadesExternesUO(UnitatOrganitzativaDto unitat, List<TipusViaDto> tipusViaList, List<ProvinciaDto> provincies);
 }

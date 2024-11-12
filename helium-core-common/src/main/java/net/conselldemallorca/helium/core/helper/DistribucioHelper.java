@@ -380,9 +380,9 @@ public class DistribucioHelper {
 												anotacioEntity, 
 												expedient, 
 												usuariCodi, 
-												"Helium", //MARTA: quin és el remitentCodi???
+												"Helium",
 												EmailTipusEnumDto.REBUDA_PENDENT,
-												usuariPreferencies.getEmailAlternatiu()!=null ? usuariPreferencies.getEmailAlternatiu() : usuariActual.getEmail(), //MARTA: veure si no en té usar el mail normal
+												usuariPreferencies.getEmailAlternatiu()!=null ? usuariPreferencies.getEmailAlternatiu() : usuariActual.getEmail(),
 												usuariPreferencies.isCorreusBustiaAgrupatsDia(),
 												new Date(),
 												0);
@@ -771,9 +771,9 @@ public class DistribucioHelper {
 												anotacioEntity, 
 												expedient, 
 												usuariCodi, 
-												"Helium", //MARTA: quin és el remitentCodi???
+												"Helium",
 												EmailTipusEnumDto.REBUDA_PENDENT,
-												usuariPreferencies.getEmailAlternatiu()!=null ? usuariPreferencies.getEmailAlternatiu() : usuariActual.getEmail(), //MARTA: veure si no en té usar el mail normal
+												usuariPreferencies.getEmailAlternatiu()!=null ? usuariPreferencies.getEmailAlternatiu() : usuariActual.getEmail(),
 												usuariPreferencies.isCorreusBustiaAgrupatsDia(),
 												new Date(),
 												0);

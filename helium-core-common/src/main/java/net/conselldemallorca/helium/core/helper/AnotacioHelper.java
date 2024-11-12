@@ -341,9 +341,9 @@ public class AnotacioHelper {
 											anotacio, 
 											expedient, 
 											usuariCodi, 
-											"Helium", //MARTA: quin és el remitentCodi???
+											"Helium",
 											reprocessar ? EmailTipusEnumDto.INCORPORADA : EmailTipusEnumDto.PROCESSADA, 
-											usuariPreferencies.getEmailAlternatiu()!=null ? usuariPreferencies.getEmailAlternatiu() : usuariActual.getEmail(), //MARTA: veure si no en té usar el mail normal
+											usuariPreferencies.getEmailAlternatiu()!=null ? usuariPreferencies.getEmailAlternatiu() : usuariActual.getEmail(),
 											usuariPreferencies.isCorreusBustiaAgrupatsDia(),
 											new Date(),
 											0);
@@ -418,7 +418,7 @@ public class AnotacioHelper {
 				} else if(InteressatTipusEnumDto.ADMINISTRACIO.equals(interessatEntity.getTipus())) {
 					if(interessat.getOrganCodi()!=null) {
 						interessatEntity.setDocumentIdent(interessat.getOrganCodi());
-						UnitatOrganitzativa uo= unitatOrganitzativaHelper.findByCodi(interessat.getOrganCodi());//MARTA revisar si li arriba organCodi o altre document d'identificació
+						UnitatOrganitzativa uo= unitatOrganitzativaHelper.findByCodi(interessat.getOrganCodi());
 						if(uo!=null)
 							interessat.setRaoSocial(uo.getDenominacio());
 					}

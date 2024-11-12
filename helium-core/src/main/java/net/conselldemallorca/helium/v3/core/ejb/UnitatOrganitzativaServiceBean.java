@@ -15,6 +15,8 @@ import net.conselldemallorca.helium.v3.core.api.service.UnitatOrganitzativaServi
 import net.conselldemallorca.helium.v3.core.api.dto.ArbreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ProvinciaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TipusViaDto;
 
 
 
@@ -150,8 +152,8 @@ public class UnitatOrganitzativaServiceBean implements UnitatOrganitzativaServic
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public void populateDadesExternesUO(UnitatOrganitzativaDto unitat) {
-		delegate.populateDadesExternesUO(unitat);
+	public void populateDadesExternesUO(UnitatOrganitzativaDto unitat, List<TipusViaDto> tipusViaList, List<ProvinciaDto> provincies) {
+		delegate.populateDadesExternesUO(unitat, tipusViaList, provincies);
 	}	
 
 }

@@ -3080,7 +3080,7 @@ public class PluginHelper {
 		long t0 = System.currentTimeMillis();
 		
 		try {
-			Notificacio notificacio = conversioTipusHelper.convertir(dadesNotificacio, Notificacio.class);//MARTA:aquí no converteix bé
+			Notificacio notificacio = conversioTipusHelper.convertir(dadesNotificacio, Notificacio.class);
 			// Informa de l'estat actual
 			notificacio.setUsuariCodi(usuariActualHelper.getUsuariActual());		
 			// Informa el número d'expedient

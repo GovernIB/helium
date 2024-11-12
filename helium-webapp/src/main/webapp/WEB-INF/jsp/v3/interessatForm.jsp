@@ -264,7 +264,7 @@ $(document).ready(function() {
  	 						$('#tipusDocIdent').change();
  	 			 	 		$('#tipusDocIdent').select2("destroy");
  	 			 	 		$('#tipusDocIdent').select2(select2Options);
-
+ 	 						$('#codi').val(data.codi).change();
  	 						$('#dir3Codi').val(data.codi).change();
  	 						$('#documentIdent').val(data.nifCif);
  	 						$('#documentIdent').prop("readonly", true);
@@ -281,9 +281,11 @@ $(document).ready(function() {
  	 			 	 		$('#provincia').select2(select2Options);
  	 						
  	 			 	 		$('#municipi').val(data.localitat);
+ 	 			 	 		$('#municipi').change();
  	 						$('#municipi').prop("readonly", true);
  	 			 	 		munOrgan = data.localitat;
- 	 			 	 		$('#municipi').change();
+ 	 			 	 		$('#provincia').select2("destroy");
+	 			 	 		$('#provincia').select2(select2Options);
  	 			 	 		
  	 			 	 		$('#codiPostal').val(data.codiPostal);
  	 						$('#codiPostal').prop("readonly", true);

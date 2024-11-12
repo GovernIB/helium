@@ -60,6 +60,13 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 	@Autowired private ExpedientInteressatService expedientInteressatService;
 	@Autowired private UnitatOrganitzativaService unitatOrganitzativaService;
 	@Autowired private DadesExternesService dadesExternesService;
+	private static final String CODI_COMUNITAT_ILLES_BALEARS = "04";
+	private static final String CODI_PROVINCIA = "07";
+	private static final String CODI_PAIS_ESPANYA = "724";
+
+	private static  List<PaisDto> paisos = null;
+	private static  List<ProvinciaDto> provincies = null;
+
 
 	@RequestMapping(value="/{expedientId}/interessat/{codiInteressat}", method = RequestMethod.GET)
 	@ResponseBody
@@ -130,10 +137,10 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		InteressatDto interessat = expedientInteressatService.findOne(
 				interessatId);
 		
-//		this.populateDadesInteressat(interessat);
-//		if(interessat.getRepresentant()!=null) {
-//			this.populateDadesInteressat(interessat.getRepresentant());
-//		}
+		this.populateDadesInteressat(interessat);
+		if(interessat.getRepresentant()!=null) {
+			this.populateDadesInteressat(interessat.getRepresentant());
+		}
 		model.addAttribute(
 				"interessatCanalsNotif", 
 				this.populateCanalsNotif(request)
@@ -151,7 +158,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			Model model) {
 		InteressatCommand interessatCommand= new InteressatCommand();
 		populateModel(request, model, null);
-		interessatCommand.setPais("724");
+		interessatCommand.setPais(CODI_PAIS_ESPANYA);
 		model.addAttribute("expedientId", expedientId);
 		model.addAttribute(interessatCommand);
 		model.addAttribute("es_representant",false);
@@ -206,7 +213,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 				interessatId);
 		InteressatCommand interessatCommand = new InteressatCommand();
 		if(dto.getPais()==null) {
-			dto.setPais("724");
+			dto.setPais(CODI_PAIS_ESPANYA);
 		}
 		populateModel(request, model, dto.getProvincia());
 		model.addAttribute("tipus",dto.getTipus());
@@ -217,7 +224,6 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		} else {
 			dto.setTipusDocIdent(this.populateInteressatDocumentTipus(dto));
 		}
-		this.populateUOsCommand(interessatCommand);
 		interessatCommand = ConversioTipusHelper.convertir(
 				dto,
 				InteressatCommand.class);
@@ -284,7 +290,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			Model model) {
 		InteressatCommand interessatCommand= new InteressatCommand();
 		populateModel(request, model, null);
-		interessatCommand.setPais("724");
+		interessatCommand.setPais(CODI_PAIS_ESPANYA);
 		interessatCommand.setEs_representant(true);
 		model.addAttribute("expedientId", expedientId);
 		model.addAttribute(interessatCommand);
@@ -492,12 +498,18 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 				this.populateCanalsNotif(request)
 				);
 		try {
-			model.addAttribute("paisos", dadesExternesService.findPaisos());
+			if(this.paisos==null || this.paisos.isEmpty()) {
+				this.paisos = dadesExternesService.findPaisos();
+			}
+			model.addAttribute("paisos", this.paisos);
 		} catch (Exception e) {
 			MissatgesHelper.warning(request, getMessage(request, "interessat.controller.paisos.error"));
 		}
 		try {
-			model.addAttribute("provincies", dadesExternesService.findProvincies());
+			if(this.provincies==null || this.provincies.isEmpty()) {
+				this.provincies=dadesExternesService.findProvincies();
+			}
+			model.addAttribute("provincies", this.provincies );
 		} catch (Exception e) {
 			MissatgesHelper.warning(request, getMessage(request, "interessat.controller.provincies.error"));
 		}
@@ -535,9 +547,6 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			@PathVariable String codi,
 			Model model) {
 		UnitatOrganitzativaDto unitat = unitatOrganitzativaService.findByCodi(codi);
-		if (unitat != null) {
-			unitatOrganitzativaService.populateDadesExternesUO(unitat);
-		}
 		return unitat;
 	}
 	
@@ -545,27 +554,20 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		if(InteressatTipusEnumDto.ADMINISTRACIO.equals(interessat.getTipus())){
 			UnitatOrganitzativaDto uo= unitatOrganitzativaService.findByCodi(interessat.getDir3Codi());
 			if(uo!=null) {
-				unitatOrganitzativaService.populateDadesExternesUO(uo);
 				interessat.setRaoSocial(uo.getDenominacio());
 				interessat.setPais(uo.getCodiPais());
 				interessat.setCodiPostal(uo.getCodiPostal());
 				interessat.setDireccio(uo.getAdressa());
-				if(uo.getCodiProvincia()!=null && !uo.getCodiProvincia().isEmpty()) {
-					String codiProvinciaDosDigits = String.format("%02d", uo.getCodiProvincia());//Fa falta que sigui de dos digits pq busqui bé els municipis
-					interessat.setProvincia(codiProvinciaDosDigits);
-					List<MunicipiDto> municipis = dadesExternesService.findMunicipisPerProvincia(codiProvinciaDosDigits);
-					for(MunicipiDto municipi: municipis) {
-						if(municipi.getNom().equals(uo.getNomLocalitat())) {//No ens ve informat el número de localitat/municipi en el plugin de uos
-							interessat.setMunicipi(municipi.getCodi());
-							break;
-						}
-					}		
-				}
+				interessat.setProvincia(uo.getCodiProvincia());
+				interessat.setMunicipi(uo.getLocalitat());
+				interessat.setDireccio(uo.getAdressa());
 			}
 		}
 		if(interessat.getPais()!=null && !interessat.getPais().isEmpty()) {
-			List<PaisDto> paisos =  dadesExternesService.findPaisos();
-			for(PaisDto pais: paisos) {
+			if(this.paisos==null || this.paisos.isEmpty()) {
+				this.paisos = dadesExternesService.findPaisos();
+			}
+			for(PaisDto pais: this.paisos) {
 				if(pais.getCodi().equals(interessat.getPais())) {
 					interessat.setPaisNom(pais.getNom());
 					break;
@@ -573,44 +575,57 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			}
 		}
 		if(interessat.getProvincia()!=null && !interessat.getProvincia().isEmpty()) {
-			List<ProvinciaDto> provincies = dadesExternesService.findProvincies();
-			for(ProvinciaDto provincia: provincies) {
+			if(this.provincies==null || this.provincies.isEmpty()) {
+				this.provincies=dadesExternesService.findProvincies();
+			}
+			for(ProvinciaDto provincia:this. provincies) {
 				if(provincia.getCodi().equals(interessat.getProvincia())) {
 					interessat.setProvinciaNom(provincia.getNom());
 					if(interessat.getMunicipi()!=null && !interessat.getMunicipi().isEmpty()) {
-						List<MunicipiDto> municipis = dadesExternesService.findMunicipisPerProvincia(provincia.getCodi());
-						for(MunicipiDto municipi: municipis) {
-							if(municipi.getCodi().equals(interessat.getMunicipi())) {
-								interessat.setMunicipiNom(municipi.getNom());
-								break;
+						List<MunicipiDto> municipis=dadesExternesService.findMunicipisPerProvincia(provincia.getCodi());
+						if(municipis!=null) {
+							for(MunicipiDto municipi: municipis) {
+								if(municipi.getCodi().equals(interessat.getMunicipi())) {
+									interessat.setMunicipiNom(municipi.getNom());
+									break;
+								}
 							}
 						}
 					}
 					break;
 				}
 			}
-		}	
+		}
 	}
 	
 	private void populateUOsCommand(InteressatCommand command) {
 		UnitatOrganitzativaDto uo= unitatOrganitzativaService.findByCodi(command.getCodi());
 		if(uo!=null) {
-			unitatOrganitzativaService.populateDadesExternesUO(uo);
 			command.setDireccio(uo.getAdressa());
 			command.setRaoSocial(uo.getDenominacio());
 			command.setPais(uo.getCodiPais());
 			command.setMunicipi(uo.getLocalitat());//El plugin no està retornant aquest codi
 			command.setCodiPostal(uo.getCodiPostal());
-			if(uo.getCodiProvincia()!=null) {
-				String codiProvinciaDosDigits = String.format("%02d", Long.valueOf(uo.getCodiProvincia()));//Fa falta que sigui de dos digits pq busqui bé els municipis
-				command.setProvincia(codiProvinciaDosDigits);
-				List<MunicipiDto> municipis = dadesExternesService.findMunicipisPerProvincia(codiProvinciaDosDigits);
+			String codiProvinciaDosDigits = null;
+			if(uo.getCodiProvincia()!=null && !uo.getCodiProvincia().isEmpty()) {
+				codiProvinciaDosDigits = String.format("%02d", Long.valueOf(uo.getCodiProvincia()));//Fa falta que sigui de dos digits pq busqui bé els municipis	
+			} else {
+				if(this.provincies==null || this.provincies.isEmpty()) {
+					this.provincies=dadesExternesService.findProvinciesPerComunitat(CODI_COMUNITAT_ILLES_BALEARS);
+				}
+				if(this.provincies!=null && !this.provincies.isEmpty()) {
+					codiProvinciaDosDigits = String.format("%02d", Long.valueOf(provincies.get(0).getCodi()));
+				}
+			}
+			command.setProvincia(codiProvinciaDosDigits);
+			List<MunicipiDto> municipis=dadesExternesService.findMunicipisPerProvincia(codiProvinciaDosDigits);
+			if(municipis!=null) {
 				for(MunicipiDto municipi: municipis) {
 					if(municipi.getNom().equals(uo.getNomLocalitat())) {//No ens ve informat el número de localitat/municipi en el plugin de uos
 						command.setMunicipi(municipi.getCodi());
 						break;
 					}
-				}		
+				}
 			}
 		}
 	}

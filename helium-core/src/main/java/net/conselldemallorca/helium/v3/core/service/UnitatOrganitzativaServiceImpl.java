@@ -19,6 +19,8 @@ import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.v3.core.api.dto.ArbreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ProvinciaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.TipusViaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.service.UnitatOrganitzativaService;
@@ -354,8 +356,8 @@ public class UnitatOrganitzativaServiceImpl implements UnitatOrganitzativaServic
 
 	@Override
 	@Transactional(readOnly = true)
-	public void populateDadesExternesUO(UnitatOrganitzativaDto unitat) {
-		unitatOrganitzativaHelper.populateDadesExternesUO(unitat);
+	public void populateDadesExternesUO(UnitatOrganitzativaDto unitat, List<TipusViaDto> tipusViaList, List<ProvinciaDto> provincies) {
+		unitatOrganitzativaHelper.populateDadesExternesUO(unitat, tipusViaList, provincies);
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(CarrecServiceImpl.class);

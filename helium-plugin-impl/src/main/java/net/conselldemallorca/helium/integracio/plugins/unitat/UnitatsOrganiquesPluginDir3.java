@@ -181,7 +181,6 @@ public class UnitatsOrganiquesPluginDir3 implements UnitatsOrganiquesPlugin {
 				unidad.getNombreVia(), 
 				unidad.getNumVia(),
 				unidad.getHistoricosUO());
-    	unitatOrganitzativaHelper.populateDadesExternesUO(unitat);
 		return unitat;
 	}
 	

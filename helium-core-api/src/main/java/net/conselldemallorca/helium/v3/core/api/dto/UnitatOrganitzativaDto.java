@@ -121,14 +121,15 @@ public class UnitatOrganitzativaDto {
 			String estat,
 			String codiUnitatSuperior,
 			String codiUnitatArrel,
-			Long codiPais,
-			Long codiComunitat,
-			Long codiProvincia,
+			String codiPais,
+			String codiComunitat,
+			String codiProvincia,
 			String codiPostal,
 			String nomLocalitat,
 			Long tipusVia,
 			String nomVia,
 			String numVia,
+			String adressa,
 			List<String> historicosUO) {
 		this.id = id;
 		this.codi = codi;
@@ -139,13 +140,14 @@ public class UnitatOrganitzativaDto {
 		this.codiUnitatSuperior = codiUnitatSuperior;
 		this.codiUnitatArrel = codiUnitatArrel;
 		this.codiPais = codiPais != null? codiPais.toString() : "";
-		this.codiComunitat = codiComunitat != null? codiComunitat.toString() : "";
-		this.codiProvincia = codiProvincia != null? codiProvincia.toString() : "";
+		this.codiComunitat = codiComunitat;
+		this.codiProvincia = codiProvincia;
 		this.codiPostal = codiPostal;
 		this.nomLocalitat = nomLocalitat;
 		this.tipusVia = tipusVia;
 		this.nomVia = nomVia;
 		this.numVia = numVia;
+		this.adressa=adressa;
 		this.historicosUO = historicosUO;
 	}
 	public String getCodiIDenominacioUnitatSuperior() {

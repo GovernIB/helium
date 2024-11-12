@@ -1,0 +1,9 @@
+-- #1795 Avís per email de nova anotació rebuda a Helium
+
+-- Oracle
+ALTER TABLE HEL_UNITAT_ORGANITZATIVA MODIFY (ADRESSA VARCHAR(255 CHAR));
+
+
+    
+-- Postgresql
+ALTER TABLE HEL_UNITAT_ORGANITZATIVA MODIFY (ADRESSA VARCHAR(255));

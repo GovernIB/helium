@@ -62,6 +62,9 @@ public class UnitatOrganitzativaHelper {
 	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
 	@Resource
 	private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
+	private static final String CODI_COMUNITAT_ILLES_BALEARS = "04";
+	private static final String CODI_PROVINCIA = "07";
+	private static final String CODI_PAIS_ESPANYA = "724";
 
 	public UnitatOrganitzativaHelper() {
 		
@@ -97,6 +100,13 @@ public class UnitatOrganitzativaHelper {
 	public UnitatOrganitzativaDto toDto(UnitatOrganitzativa entity) {
 		UnitatOrganitzativaDto unitat = null;
 		if(entity!=null) {
+			String codiComunitat =entity.getCodiComunitat() !=null ? 
+					("00" + entity.getCodiComunitat()).substring(entity.getCodiComunitat().length()) :
+					this.CODI_COMUNITAT_ILLES_BALEARS;
+			String codiProvincia = entity.getCodiProvincia()!=null ?
+					("00" + entity.getCodiProvincia()).substring(entity.getCodiProvincia().length()) : 
+					this.CODI_PROVINCIA;
+			String codiPais = entity.getCodiPais()!=null ? entity.getCodiPais(): this.CODI_PAIS_ESPANYA;
 			unitat = new UnitatOrganitzativaDto(
 					entity.getId(),
 					entity.getCodi(),
@@ -106,41 +116,43 @@ public class UnitatOrganitzativaHelper {
 					entity.getEstat()!=null? entity.getEstat().toString() : null  , //String estat,
 					entity.getCodiUnitatSuperior()  , //String codiUnitatSuperior,
 					entity.getCodiUnitatArrel() , //String codiUnitatArrel,
-					entity.getCodiPais()!=null ? Long.valueOf(entity.getCodiPais()) : null , //Long codiPais,
-					entity.getCodiComunitat()!=null ? Long.valueOf(entity.getCodiComunitat()): null , //Long codiComunitat,
-					entity.getCodiProvincia()!=null ? Long.valueOf(entity.getCodiProvincia()): null  , //Long codiProvincia,
+					codiPais, 
+					codiComunitat,
+					codiProvincia,
 					entity.getCodiPostal()  , //String codiPostal,
 					entity.getNomLocalitat()  , //String nomLocalitat,
 					entity.getTipusVia() , //Long tipusVia,
 					entity.getNomVia()  , //String nomVia,
 					entity.getNumVia()  , //String numVia,
+					entity.getAdressa(),
 					null); //List<String> historicosUO);
 			unitat.setTipusTransicio(entity.getTipusTransicio());
 		}
 		return unitat;
 	}
 	
-	public void populateDadesExternesUO(UnitatOrganitzativaDto unitat) {
-		List<TipusViaDto> tipusVia = dadesExternesHelper.dadesExternesTipusViaFindAll();
-		for(TipusViaDto tVia: tipusVia) {
-			if(tVia.getCodi().equals(String.valueOf(unitat.getTipusVia()))) {
-				unitat.setAdressa(capitalizeWords(tVia.getDescripcio())+" "+unitat.getNomVia() +", "+ unitat.getNumVia());
-				break;
+	public void populateDadesExternesUO(UnitatOrganitzativaDto unitat, List<TipusViaDto> tipusVia, List<ProvinciaDto> provincies) {
+		if(tipusVia!=null && !tipusVia.isEmpty()){
+			for(TipusViaDto tVia: tipusVia) {
+				if(tVia.getCodi().equals(String.valueOf(unitat.getTipusVia()))) {
+					unitat.setAdressa(capitalizeWords(tVia.getDescripcio())+" "+unitat.getNomVia() +", "+ unitat.getNumVia());
+					break;
+				}
 			}
 		}
-//		unitat.setAdressa(unitat.getTipusVia() + " " 
-//				+ unitat.getNomVia() + " " 
-//				+ unitat.getNumVia());
 		
+		if(unitat.getAdressa()==null || unitat.getAdressa().isEmpty()){
+			unitat.setAdressa(unitat.getTipusVia() + " " 
+					+ unitat.getNomVia() + " " 
+					+ unitat.getNumVia());
+		}	
 		if (unitat.getCodiPais() != null && !"".equals(unitat.getCodiPais())) {
 			unitat.setCodiPais(("000" + unitat.getCodiPais()).substring(unitat.getCodiPais().length()));
 		}
 		if (unitat.getCodiComunitat() != null && !"".equals(unitat.getCodiComunitat())) {
 			unitat.setCodiComunitat(("00" + unitat.getCodiComunitat()).substring(unitat.getCodiComunitat().length()));
 		}
-		if ((unitat.getCodiProvincia() == null || "".equals(unitat.getCodiProvincia())) && 
-			unitat.getCodiComunitat() != null && !"".equals(unitat.getCodiComunitat())) {
-			List<ProvinciaDto> provincies = dadesExternesHelper.dadesExternesProvinciesFindAmbComunitat(unitat.getCodiComunitat());
+		if ((unitat.getCodiProvincia() == null || "".equals(unitat.getCodiProvincia()))) {
 			if (provincies != null && provincies.size() == 1) {
 				unitat.setCodiProvincia(provincies.get(0).getCodi());
 			}		
@@ -201,9 +213,11 @@ public class UnitatOrganitzativaHelper {
 						entitat.getCodi(), 
 						parametreHelper.getDataActualitzacioUos(),
 						parametreHelper.getDataSincronitzacioUos());
+			List<TipusViaDto> tipusViaList = dadesExternesHelper.dadesExternesTipusViaFindAll();
+			List<ProvinciaDto> provincies = dadesExternesHelper.dadesExternesProvinciesFindAmbComunitat(CODI_COMUNITAT_ILLES_BALEARS);
 			// Takes all the unitats from WS and saves them to database. If unitat did't exist in db it creates new one if it already existed it overrides existing one.  
 			for (UnitatOrganitzativaDto unitatDto : unitats) {
-				sincronizarUnitat(unitatDto, entitat.getCodi());
+				sincronizarUnitat(unitatDto, entitat.getCodi(), tipusViaList, provincies);
 			}
 			// historicos
 			for (UnitatOrganitzativaDto unitatDto : unitats) {
@@ -236,11 +250,17 @@ public class UnitatOrganitzativaHelper {
 		 * @param entidadId
 		 * @throws Exception
 		 */
-		public UnitatOrganitzativa sincronizarUnitat(UnitatOrganitzativaDto unitatDto, String codiEntitat) {
+		public UnitatOrganitzativa sincronizarUnitat(
+				UnitatOrganitzativaDto unitatDto, 
+				String codiEntitat, 
+				List<TipusViaDto> tipusViaList,
+				List<ProvinciaDto> provincies
+				) {
 			UnitatOrganitzativa unitat = null;
 			if (unitatDto != null) {					
 				// checks if unitat already exists in database
 				unitat = unitatOrganitzativaRepository.findByCodi(unitatDto.getCodi());
+		    	this.populateDadesExternesUO(unitatDto, tipusViaList, provincies);
 				//if not it creates a new one
 				if (unitat == null) {
 					 unitat = UnitatOrganitzativa.getBuilder(

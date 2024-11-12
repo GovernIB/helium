@@ -700,7 +700,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 		for (AnotacioEmail anotacioEmail : anotacioEmailListNoAgrupats) {
 			// remove pending email if it is older that one week
 			Date formattedToday = new Date();
-			Date formattedExpired = anotacioEmail.getDataCreacio();//DANI MARTA revisar
+			Date formattedExpired = anotacioEmail.getDataCreacio();
 			int diffInDays = (int)( (formattedToday.getTime() - formattedExpired.getTime()) / (1000 * 60 * 60 * 24) );
 			if (diffInDays > 2) {
 				anotacioEmailRepository.delete(anotacioEmail);
