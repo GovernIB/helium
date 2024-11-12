@@ -126,6 +126,7 @@ public class UnitatOrganitzativaDto {
 			String codiProvincia,
 			String codiPostal,
 			String nomLocalitat,
+			String localitat,
 			Long tipusVia,
 			String nomVia,
 			String numVia,
@@ -144,6 +145,7 @@ public class UnitatOrganitzativaDto {
 		this.codiProvincia = codiProvincia;
 		this.codiPostal = codiPostal;
 		this.nomLocalitat = nomLocalitat;
+		this.localitat=localitat;
 		this.tipusVia = tipusVia;
 		this.nomVia = nomVia;
 		this.numVia = numVia;

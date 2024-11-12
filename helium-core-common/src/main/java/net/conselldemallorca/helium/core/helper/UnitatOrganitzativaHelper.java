@@ -121,6 +121,7 @@ public class UnitatOrganitzativaHelper {
 					codiProvincia,
 					entity.getCodiPostal()  , //String codiPostal,
 					entity.getNomLocalitat()  , //String nomLocalitat,
+					entity.getLocalitat(),
 					entity.getTipusVia() , //Long tipusVia,
 					entity.getNomVia()  , //String nomVia,
 					entity.getNumVia()  , //String numVia,
