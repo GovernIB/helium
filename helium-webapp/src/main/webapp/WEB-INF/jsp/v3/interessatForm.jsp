@@ -118,12 +118,9 @@ function netejar(){
 		$('#pais').val("");
 		$('#pais').val("724");
 		$('#pais').prop("readonly", false);
-		$('#pais').change();
 		$('#provincia').val("");
-		$('#provincia').change();
 		$('#provincia').prop("readonly", false);
 		$('#municipi').val("");
-		$('#municipi').change();
 		$('#municipi').prop("readonly", false);
 		$('#codiPostal').val("");
 		$('#codiPostal').prop("readonly", false);
@@ -187,12 +184,10 @@ $(document).ready(function() {
  	 		if ($('select#tipus').val() != '<%=net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto.ADMINISTRACIO%>') {
 				$('#provincia').change();
  	 			$('#provincia').prop("readonly", false);
-				$('#municipi').change();
 				$('#municipi').prop("readonly", false);
  	 		} else {
 				$('#provincia').change();
  	 			$('#provincia').prop("readonly", true);
-				$('#municipi').change();
 				$('#municipi').prop("readonly", true);
  	 	 	}
 		} else {
@@ -200,16 +195,15 @@ $(document).ready(function() {
  	 		$('#provincia').change();
 			$('#provincia').prop("readonly", true);
 			$('#municipi').val("");
- 	 		$('#municipi').change();
 			$('#municipi').prop("readonly", true);
 			$('#provincia').prop('disabled',true); 
 		}
  	});
 	
 	
-	var municipiActual = $('#municipi').val();
  	$('select#provincia').change(function(valor) {
  		if ($(this).val() != '') {
+ 			var municipiActual = $('#municipi').val();
  			$.ajax({
 				type: 'GET',
 				url: "<c:url value="/v3/expedient/municipis/"/>" + $(this).val(),
@@ -268,24 +262,24 @@ $(document).ready(function() {
  	 						$('#dir3Codi').val(data.codi).change();
  	 						$('#documentIdent').val(data.nifCif);
  	 						$('#documentIdent').prop("readonly", true);
+
+ 	 						$('#provincia').val(data.codiProvincia);
+ 	 						$('#provincia').prop("readonly", true);
+ 	 						$('#provincia').select2("destroy");
+ 	 			 	 		$('#provincia').select2(select2Options);
+ 	 						
+ 	 			 	 		$('#municipi').val(data.localitat);
+ 	 						$('#municipi').prop("readonly", true);
+ 	 			 	 		munOrgan = data.localitat;
+ 	 			 	 		$('#municipi').select2("destroy");
+	 			 	 		$('#municipi').select2(select2Options);
+ 	 			 	 		
  	 						$('#pais').val(data.codiPais);
  	 						$('#pais').prop("readonly", true);
  	 						$('#pais').change();
  	 						$('#pais').select2("destroy");
  	 			 	 		$('#pais').select2(select2Options);
 
- 	 						$('#provincia').val(data.codiProvincia);
- 	 						$('#provincia').change();
- 	 						$('#provincia').prop("readonly", true);
- 	 						$('#provincia').select2("destroy");
- 	 			 	 		$('#provincia').select2(select2Options);
- 	 						
- 	 			 	 		$('#municipi').val(data.localitat);
- 	 			 	 		$('#municipi').change();
- 	 						$('#municipi').prop("readonly", true);
- 	 			 	 		munOrgan = data.localitat;
- 	 			 	 		$('#provincia').select2("destroy");
-	 			 	 		$('#provincia').select2(select2Options);
  	 			 	 		
  	 			 	 		$('#codiPostal').val(data.codiPostal);
  	 						$('#codiPostal').prop("readonly", true);

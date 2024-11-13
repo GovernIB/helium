@@ -61,7 +61,6 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 	@Autowired private UnitatOrganitzativaService unitatOrganitzativaService;
 	@Autowired private DadesExternesService dadesExternesService;
 	private static final String CODI_COMUNITAT_ILLES_BALEARS = "04";
-	private static final String CODI_PROVINCIA = "07";
 	private static final String CODI_PAIS_ESPANYA = "724";
 
 	private static  List<PaisDto> paisos = null;
@@ -578,7 +577,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 			if(this.provincies==null || this.provincies.isEmpty()) {
 				this.provincies=dadesExternesService.findProvincies();
 			}
-			for(ProvinciaDto provincia:this. provincies) {
+			for(ProvinciaDto provincia:this.provincies) {
 				if(provincia.getCodi().equals(interessat.getProvincia())) {
 					interessat.setProvinciaNom(provincia.getNom());
 					if(interessat.getMunicipi()!=null && !interessat.getMunicipi().isEmpty()) {
@@ -618,15 +617,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 				}
 			}
 			command.setProvincia(codiProvinciaDosDigits);
-			List<MunicipiDto> municipis=dadesExternesService.findMunicipisPerProvincia(codiProvinciaDosDigits);
-			if(municipis!=null) {
-				for(MunicipiDto municipi: municipis) {
-					if(municipi.getNom().equals(uo.getNomLocalitat())) {//No ens ve informat el número de localitat/municipi en el plugin de uos
-						command.setMunicipi(municipi.getCodi());
-						break;
-					}
-				}
-			}
+			command.setMunicipi(uo.getLocalitat());
 		}
 	}
 	

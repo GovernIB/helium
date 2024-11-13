@@ -126,7 +126,8 @@
 
 	<c:set var="esPersonesActiu" value="${globalProperties['app.persones.actiu'] == 'true'}"/>
 	<c:if test="${esPersonesActiu}">
-		<c:set var="esReadOnly" value="${globalProperties['app.persones.readonly'] == 'true'}"/>
+	<!--<c:set var="esReadOnly" value="${globalProperties['app.persones.readonly'] == 'true'}"/>-->	
+		<c:set var="esReadOnly" value="true"/>
 		<c:set var="tipusText"><c:choose><c:when test="${not esReadOnly}">text</c:when><c:otherwise>static</c:otherwise></c:choose></c:set>
 		<c:set var="tipusSelect"><c:choose><c:when test="${not esReadOnly}">select</c:when><c:otherwise>static</c:otherwise></c:choose></c:set>
 		<div class="page-header">
@@ -153,9 +154,10 @@
 					<div class="control-group fila_reducida">
 						<hel:inputSelect disabled="${esReadOnly}" name="hombre" textKey="comuns.sexe" placeholderKey="comuns.sexe" optionItems="${sexes}" optionValueAttribute="codi" optionTextAttribute="valor" inline="false"/>
 					</div>
+					<!--  
 					<div class="pull-right">
 						<input <c:if test="${esReadOnly}">disabled="disabled"</c:if> class="btn btn-primary" type="submit" id="guardar" name="accio" value="Modificar" />
-					</div>				
+					</div>	-->			
 				</form:form>			
 			</div>
 		</div>
