@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -551,7 +552,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 				interessat.setDireccio(uo.getNomVia() +", "+ uo.getNumVia());//tampoc està arribant l'adreça completa, faltaria el tipusVia mapejat
 //				interessat.setMunicipi(uo.getLocalitat());//El plugin no està retornant aquest codi
 				if(uo.getCodiProvincia()!=null) {
-					String codiProvinciaDosDigits = String.format("%02d", uo.getCodiProvincia());//Fa falta que sigui de dos digits pq busqui bé els municipis
+					String codiProvinciaDosDigits = StringUtils.repeat("0", 2 - uo.getCodiProvincia().length()) + uo.getCodiProvincia(); //Fa falta que sigui de dos digits pq busqui bé els municipis
 					interessat.setProvincia(codiProvinciaDosDigits);
 					List<MunicipiDto> municipis = dadesExternesService.findMunicipisPerProvincia(codiProvinciaDosDigits);
 					for(MunicipiDto municipi: municipis) {
@@ -559,7 +560,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 							interessat.setMunicipi(municipi.getCodi());
 							break;
 						}
-					}		
+					}								
 				}
 			}
 		}

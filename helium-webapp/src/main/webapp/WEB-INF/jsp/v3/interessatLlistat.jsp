@@ -40,8 +40,8 @@
 				<th data-col-name="teRepresentant" data-visible="false"></th>
 				<th data-col-name="representant_id" data-visible="false"></th>
 				<!--<th data-col-name="representant" data-visible="false"></th> -->
- 				<th data-col-name="id" data-template="#cellAccionsTemplate" data-orderable="false" width="10%"> 
- 					<script id="cellAccionsTemplate" type="text/x-jsrender"> 
+ 				<th data-col-name="id" data-template="#cellInteressatAccionsTemplate" data-orderable="false" width="10%"> 
+ 					<script id="cellInteressatAccionsTemplate" type="text/x-jsrender"> 
 							<div class="dropdown">
 								<button class="btn btn-primary" data-toggle="dropdown"><span class="fa fa-cog"></span>&nbsp;<spring:message code="comu.boto.accions"/>&nbsp;<span class="caret"></span></button>
 								<ul class="dropdown-menu">

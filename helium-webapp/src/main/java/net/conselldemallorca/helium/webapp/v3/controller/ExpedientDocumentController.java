@@ -286,44 +286,42 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			@RequestParam(defaultValue = "default") String sort,
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
-		if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus())) {
-			model.addAttribute("expedient", expedient);
-			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
-			if (!NodecoHelper.isNodeco(request)) {
-				return mostrarInformacioExpedientPerPipella(
-						request,
-						expedientId,
-						model,
-						"documents");
-			}
-			return "v3/expedientDocumentList";
-		}
-
-		// Obté l'arbre de processos però retorna un map amb tots els processos consultant només el principal
-		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
-		Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documents  = new LinkedHashMap<InstanciaProcesDto, List<ExpedientDocumentDto>> ();
-		for (InstanciaProcesDto instanciaProces : arbreProcessos) {
-			List<ExpedientDocumentDto> documentsInstancia = null;
-			if (instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
-				documentsInstancia = this.getDocumentsPerProces(expedient, instanciaProces, sort);
-			}
-			documents.put(instanciaProces, documentsInstancia);
-		}
-		
-		List<PortasignaturesDto> portasignaturesPendent = expedientDocumentService.portasignaturesFindPendents(
-				expedientId,
-				expedient.getProcessInstanceId());
-
 		model.addAttribute("expedient", expedient);
-		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
-		model.addAttribute("documents", documents);
-		model.addAttribute("portasignaturesPendent", portasignaturesPendent);
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioExpedientPerPipella(
 					request,
 					expedientId,
 					model,
 					"documents");
+		}
+
+		// Obté l'arbre de processos però retorna un map amb tots els processos consultant només el principal
+		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
+		if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus())) {
+			
+			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
+			boolean documentsPinbal = false;
+			for (InstanciaProcesDto instanciaProces : arbreProcessos) {
+				documentsPinbal = documentsPinbal || instanciaProces.isDocumentsPinbal();
+			}
+			model.addAttribute("documentsPinbal", documentsPinbal);
+			return "v3/expedientDocumentList";
+			
+		} else {
+			
+			Map<InstanciaProcesDto, List<ExpedientDocumentDto>> documents  = new LinkedHashMap<InstanciaProcesDto, List<ExpedientDocumentDto>> ();
+			List<PortasignaturesDto> portasignaturesPendent = expedientDocumentService.portasignaturesFindPendents(
+					expedientId,
+					expedient.getProcessInstanceId());
+			model.addAttribute("portasignaturesPendent", portasignaturesPendent);
+			for (InstanciaProcesDto instanciaProces : arbreProcessos) {
+				List<ExpedientDocumentDto> documentsInstancia = null;
+				if (instanciaProces.getId().equals(expedient.getProcessInstanceId())) {
+					documentsInstancia = this.getDocumentsPerProces(expedient, instanciaProces, sort);
+				}
+				documents.put(instanciaProces, documentsInstancia);
+			}
+			model.addAttribute("documents", documents);
 		}
 		return "v3/expedientDocument";
 	}
@@ -1761,7 +1759,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	
 	private List<DocumentInfoDto> getDocumentsPinbal(Long expedientId, String procesId) {
 		 Long definicioProcesId = null;
-		if (procesId!=null) {
+		if (procesId != null
+				&& !procesId.trim().equals("")) {
 			InstanciaProcesDto instanciaProces = expedientService.getInstanciaProcesById(procesId);
 			definicioProcesId = instanciaProces.getDefinicioProces().getId();
 		}
