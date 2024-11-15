@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
@@ -673,11 +674,18 @@ public class AnotacioHelper {
 							resultatMapeig.getErrorsDocuments().put(documentCodi, "El document no es pot sobreescriure perquè està firmat i no es pot modificar.");
 							continue;						
 						}
-						// Si el document prové d'una anotació llavors ja està mapejat i no cal sobreescriure
-						if (document.getAnotacioAnnexId() != null) {
-							continue;
-						}
-					}	
+					}
+					// Si el document existeix però és d'una anotació llavors primer s'ha d'esborrar per a que es torni a crear i el substituieixi
+					if (documentExisteix 
+							&& document.getAnotacioAnnexId() != null
+							&& !mapeigSistra.isEvitarSobreescriptura()) 
+					{
+						documentHelper.esborrarDocument(
+								null, //taskInstanceId 
+								expedient.getProcessInstanceId(),
+								document.getId());
+						documentExisteix = false;
+					}
 					processarDocumentsAnotacio(
 							dadesDocumentDto, 
 							expedient, 
@@ -885,6 +893,24 @@ public class AnotacioHelper {
 				adjunt.getAnnexId(),
 				null);
 	}
+	
+	/** Fixa l'expedient a l'anotació en una nova transacció.
+	 * 
+	 * @param anotacioId
+	 * @param expedientId
+	 */
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void setExpedient(
+			Long anotacioId, 
+			Long expedientId) {
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+		logger.info("Relacionant l anotacio "  + anotacio.getIdentificador() + " "+ " amb l expedient " + expedientId + " " + expedient.getNumero());
+		anotacio.setExpedient(expedient);
+		anotacio.setExpedientTipus(expedient.getTipus());
+		anotacioRepository.save(anotacio);
+	}
+
 
 	private static final Logger logger = LoggerFactory.getLogger(AnotacioHelper.class);
 }

@@ -879,7 +879,12 @@ public class DistribucioHelper {
 								resultatMapeig.getMissatgeAlertaErrors());
 						alerta.setPrioritat(AlertaPrioritat.ALTA);	
 					}
+				} else {
+					reprocessar = true;
 				}
+				
+				// Relaciona l'anotació amb l'expedient
+				anotacioHelper.setExpedient(anotacio.getId(), expedient.getId());
 				
 				// Incorporporar l'anotació a l'expedient
 				try {

@@ -224,12 +224,12 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 							request, 
 							"expedient.anotacio.llistat.processar.mapeig.ok"));
 			}  catch(Exception e) {
-			MissatgesHelper.error(
-			request,
-			getMessage(
-					request,
-					"expedient.anotacio.llistat.processar.mapeig.ko",
-					new Object[] {e.getMessage()}));
+				String errMsg = getMessage(
+						request,
+						"expedient.anotacio.llistat.processar.mapeig.ko",
+						new Object[] {e.getMessage()});
+				MissatgesHelper.error( request, errMsg);
+				logger.error(errMsg, e);
 			}		
 		return modalUrlTancar(false);
 	}
