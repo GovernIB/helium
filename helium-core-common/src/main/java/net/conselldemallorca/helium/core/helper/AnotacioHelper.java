@@ -666,26 +666,29 @@ public class AnotacioHelper {
 							expedient!=null? expedient.isArxiuActiu(): expedientTipus.isArxiuActiu());	
 					
 					boolean documentExisteix = document !=null;
-					
-					if (documentExisteix && expedient.isArxiuActiu()) {
-						// Si el document està firmat i a l'Arxiu llavors no es pot modifirar.
-						if (document.isSignat() && !mapeigSistra.isEvitarSobreescriptura()) {
-							// No es pot modificar un document firmat
-							resultatMapeig.getErrorsDocuments().put(documentCodi, "El document no es pot sobreescriure perquè està firmat i no es pot modificar.");
+					// si el document existeix
+					if (documentExisteix) {
+
+						// si té el flag d'evitar sobreescriptura llavors posar l'advertència i continuar
+						if (mapeigSistra.isEvitarSobreescriptura()) {
+							resultatMapeig.getErrorsDocuments().put(documentCodi, "El document de l'anotació no d'actualitzarà a l'expedient perquè per disseny s'evita la sobreescriptura de l'existent.");
 							continue;						
+						}	
+						else {
+							// si és a l'Arxiu, està firmat o és d'una anotació diferent llavors s'esborra per poder crear-lo sense esborrar l'anterior de l'arxiu
+							if (expedient.isArxiuActiu() 
+									&& document.getAnotacioAnnexId() != null
+									&& document.getAnotacioId() != anotacioId) 
+							{
+								documentHelper.esborrarDocument(
+										null, //taskInstanceId 
+										expedient.getProcessInstanceId(),
+										document.getId());
+								documentExisteix = false;
+							}							
 						}
 					}
-					// Si el document existeix però és d'una anotació llavors primer s'ha d'esborrar per a que es torni a crear i el substituieixi
-					if (documentExisteix 
-							&& document.getAnotacioAnnexId() != null
-							&& !mapeigSistra.isEvitarSobreescriptura()) 
-					{
-						documentHelper.esborrarDocument(
-								null, //taskInstanceId 
-								expedient.getProcessInstanceId(),
-								document.getId());
-						documentExisteix = false;
-					}
+					
 					processarDocumentsAnotacio(
 							dadesDocumentDto, 
 							expedient, 
