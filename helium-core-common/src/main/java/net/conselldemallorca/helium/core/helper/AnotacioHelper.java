@@ -671,7 +671,7 @@ public class AnotacioHelper {
 
 						// si té el flag d'evitar sobreescriptura llavors posar l'advertència i continuar
 						if (mapeigSistra.isEvitarSobreescriptura()) {
-							resultatMapeig.getErrorsDocuments().put(documentCodi, "El document de l'anotació no d'actualitzarà a l'expedient perquè per disseny s'evita la sobreescriptura de l'existent.");
+							resultatMapeig.getErrorsDocuments().put(documentCodi, "El document de l'anotació no s'actualitzarà a l'expedient perquè per disseny s'evita la sobreescriptura de l'existent.");
 							continue;						
 						}	
 						else {
