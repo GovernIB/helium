@@ -28,8 +28,10 @@ public class UnitatOrganitzativaDto {
 	private String estat; // V: Vigente, E: Extinguido, A: Anulado, T: Transitorio
 
 	private String codiPais;
+	private String nomPais;
 	private String codiComunitat;
 	private String codiProvincia;
+	private String nomProvincia;
 	private String codiPostal;
 	private String nomLocalitat;
 	private String localitat;
@@ -346,6 +348,22 @@ public class UnitatOrganitzativaDto {
 
 	public void setHistoricosUO(List<String> historicosUO) {
 		this.historicosUO = historicosUO;
+	}
+
+	public String getNomPais() {
+		return nomPais;
+	}
+
+	public void setNomPais(String nomPais) {
+		this.nomPais = nomPais;
+	}
+
+	public String getNomProvincia() {
+		return nomProvincia;
+	}
+
+	public void setNomProvincia(String nomProvincia) {
+		this.nomProvincia = nomProvincia;
 	}
 
 
