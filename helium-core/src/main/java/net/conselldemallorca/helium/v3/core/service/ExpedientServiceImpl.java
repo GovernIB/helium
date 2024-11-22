@@ -613,11 +613,11 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			for (JbpmProcessInstance processInstance: processInstancesTree) {
 				processInstanceIds.add(processInstance.getId());
 			}
-			List<DocumentStore> documentsSignats = documentStoreRepository.findByProcessInstanceIdInAndSignatTrue(
-					processInstanceIds);
-			if (!documentsSignats.isEmpty()) {
-				throw new ValidacioException("Aquest expedient no es pot esborrar perquè conté documents firmats");
-			}
+//			List<DocumentStore> documentsSignats = documentStoreRepository.findByProcessInstanceIdInAndSignatTrue(
+//					processInstanceIds);
+//			if (!documentsSignats.isEmpty()) {
+//				throw new ValidacioException("Aquest expedient no es pot esborrar perquè conté documents firmats");
+//			}
 		}
 		for (Notificacio notificacio: notificacioRepository.findByExpedientOrderByDataEnviamentDesc(expedient)) {
 			notificacioRepository.delete(notificacio);
