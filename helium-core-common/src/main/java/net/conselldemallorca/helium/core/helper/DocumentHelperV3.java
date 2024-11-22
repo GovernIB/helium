@@ -1353,21 +1353,22 @@ public class DocumentHelperV3 {
 			}
 			if (esborrarDocument)
 				documentStoreRepository.delete(documentStoreId);
-		}
-		if (taskInstanceId != null) {
-			jbpmHelper.deleteTaskInstanceVariable(
-					taskInstanceId,
-					documentStore.getJbpmVariable());
-			String documentCodi = getDocumentCodiPerVariableJbpm(
-					documentStore.getJbpmVariable());
-			jbpmHelper.deleteTaskInstanceVariable(
-					taskInstanceId,
-					JbpmVars.PREFIX_SIGNATURA + documentCodi);
-		}
-		if (processInstanceId != null) {
-			jbpmHelper.deleteProcessInstanceVariable(
-					processInstanceId,
-					documentStore.getJbpmVariable());
+			
+			if (taskInstanceId != null) {
+				jbpmHelper.deleteTaskInstanceVariable(
+						taskInstanceId,
+						documentStore.getJbpmVariable());
+				String documentCodi = getDocumentCodiPerVariableJbpm(
+						documentStore.getJbpmVariable());
+				jbpmHelper.deleteTaskInstanceVariable(
+						taskInstanceId,
+						JbpmVars.PREFIX_SIGNATURA + documentCodi);
+			}
+			if (processInstanceId != null) {
+				jbpmHelper.deleteProcessInstanceVariable(
+						processInstanceId,
+						documentStore.getJbpmVariable());
+			}			
 		}
 	}
 

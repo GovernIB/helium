@@ -506,6 +506,7 @@ public class TascaHelper {
 				dto.setIniciFinalitzacio(infoSegonPla.getIniciFinalitzacio());
 				dto.setErrorFinalitzacio(infoSegonPla.getError());
 			}
+			dto.setTascaNom(tasca.getNom());
 		}
 		Expedient expedientNoNull = expedient;
 		if (expedientNoNull == null) {
@@ -518,7 +519,6 @@ public class TascaHelper {
 			// Opcional dades tasca?
 			
 			dto.setTascaId(tasca.getId());
-			dto.setTascaNom(tasca.getNom());
 			dto.setTascaTipus(
 					conversioTipusHelper.convertir(
 							tasca.getTipus(),

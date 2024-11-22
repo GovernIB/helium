@@ -297,7 +297,7 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 		return documentIdent;
 	}
 	public String getTipusDocIdent() {
-		return tipusDocIdent;
+		return tipusDocIdent != null ? this.tipusDocIdent : "N";
 	}
 	public void setTipusDocIdent(String tipusDocIdent) {
 		this.tipusDocIdent = tipusDocIdent;
@@ -357,22 +357,22 @@ public class Interessat implements Serializable, GenericEntity<Long> {
 			List<PinbalServeiDocPermesEnumDto> pinbalServeiDocsPermesos = serveiPinbal.getPinbalServeiDocsPermesos();
 			//Persona física
 			if (this.tipus.equals(InteressatTipusEnumDto.FISICA)) {
-				if ("N".equals(this.tipusDocIdent)) {
+				if ("N".equals(this.getTipusDocIdent())) {
 					if (pinbalServeiDocsPermesos.isEmpty() || pinbalServeiDocsPermesos.contains(PinbalServeiDocPermesEnumDto.DNI)) {
 						return ScspTipoDocumentacion.DNI;
 					} else {
 						return ScspTipoDocumentacion.NIF;
 					}
-				} else if ("P".equals(this.tipusDocIdent) && serveiPinbal.isPinbalServeiDocPermesPas()) {
+				} else if ("P".equals(this.getTipusDocIdent()) && serveiPinbal.isPinbalServeiDocPermesPas()) {
 					return ScspTipoDocumentacion.Pasaporte;
-				} else if ("E".equals(this.tipusDocIdent) && serveiPinbal.isPinbalServeiDocPermesNie()) {
+				} else if ("E".equals(this.getTipusDocIdent()) && serveiPinbal.isPinbalServeiDocPermesNie()) {
 					return ScspTipoDocumentacion.NIE;
 				}
 			} else {
 				//Persona jurídica o administració
-				if ("C".equals(this.tipusDocIdent) && serveiPinbal.isPinbalServeiDocPermesCif()) {
+				if ("C".equals(this.getTipusDocIdent()) && serveiPinbal.isPinbalServeiDocPermesCif()) {
 					return ScspTipoDocumentacion.CIF;
-				} else if ("N".equals(this.tipusDocIdent) && serveiPinbal.isPinbalServeiDocPermesNif()) {
+				} else if ("N".equals(this.getTipusDocIdent()) && serveiPinbal.isPinbalServeiDocPermesNif()) {
 					return ScspTipoDocumentacion.NIF;
 				}
 			}

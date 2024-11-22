@@ -125,44 +125,7 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 				
 			// Si hi ha errors posa alertes, afegeix elements span i title per abreujar el missatge sense perdre informació.
 			if (resultatMapeig.isError()) {
-				StringBuilder errMsg = new StringBuilder();
-				errMsg.append(resultatMapeig.getMissatgeAlerta()).append("<ul>");
-				int i;
-				if (!resultatMapeig.getErrorsDades().isEmpty()) {
-					errMsg.append("<li>Variables : ");
-					i = 0;
-					for (String clau : resultatMapeig.getErrorsDades().keySet()) {
-						errMsg.append("<span title=\"").append(StringEscapeUtils.escapeHtml4(resultatMapeig.getErrorsDades().get(clau))).append("\">").append(clau).append("</span>");
-						if (i++ < resultatMapeig.getErrorsDades().size() - 1) {
-							errMsg.append(", ");
-						}
-					}
-					errMsg.append("</li>"); 
-				}
-				if (!resultatMapeig.getErrorsDocuments().isEmpty()) {
-					errMsg.append("<li>Documents : ");
-					i = 0;
-					for (String clau : resultatMapeig.getErrorsDocuments().keySet()) {
-						errMsg.append("<span title=\"").append(StringEscapeUtils.escapeHtml4(resultatMapeig.getErrorsDocuments().get(clau))).append("\">").append(clau).append("</span>");
-						if (i++ < resultatMapeig.getErrorsDocuments().size() - 1) {
-							errMsg.append(", ");
-						}
-					}
-					errMsg.append("</li>");
-				}
-				if (!resultatMapeig.getErrorsAdjunts().isEmpty()) {
-					errMsg.append("<li>Adjunts : ");
-					i = 0;
-					for (String clau : resultatMapeig.getErrorsAdjunts().keySet()) {
-						errMsg.append("<span title=\"").append(StringEscapeUtils.escapeHtml4(resultatMapeig.getErrorsAdjunts().get(clau))).append("\">").append(clau).append("</span>");
-						if (i++ < resultatMapeig.getErrorsAdjunts().size() - 1) {
-							errMsg.append(", ");
-						}
-					}
-					errMsg.append("</li>");
-				}
-				errMsg.append("</ul>");
-				MissatgesHelper.error(request, errMsg.toString());
+				this.missatgeErrorResultatMapeig(request, resultatMapeig);
 			} else {
 				MissatgesHelper.success(
 						request, 
@@ -183,7 +146,38 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 		return "redirect:/v3/expedient/" + expedientId;
 	}
 	
-	
+	/** Mostra els missatges d'error dels mapejos en un missatge. */
+	private void missatgeErrorResultatMapeig(
+			HttpServletRequest request, 
+			AnotacioMapeigResultatDto resultatMapeig) 
+	{
+		StringBuilder errMsg = new StringBuilder();
+		errMsg.append(resultatMapeig.getMissatgeAlerta()).append("<ul>");
+		if (!resultatMapeig.getErrorsDades().isEmpty()) {
+			errMsg.append("<li>Variables : <ul>");
+			for (String clau : resultatMapeig.getErrorsDades().keySet()) {
+				errMsg.append("<li>").append(clau).append(": ").append(resultatMapeig.getErrorsDades().get(clau)).append("</li>");
+			}
+			errMsg.append("<ul> </li>"); 
+		}
+		if (!resultatMapeig.getErrorsDocuments().isEmpty()) {
+			errMsg.append("<li>Documents : <ul>");
+			for (String clau : resultatMapeig.getErrorsDocuments().keySet()) {
+				errMsg.append("<li>").append(clau).append(": ").append(resultatMapeig.getErrorsDocuments().get(clau)).append("</li>");
+			}
+			errMsg.append("<ul> </li>");
+		}
+		if (!resultatMapeig.getErrorsAdjunts().isEmpty()) {
+			errMsg.append("<li>Adjunts : <ul>");
+			for (String clau : resultatMapeig.getErrorsAdjunts().keySet()) {
+				errMsg.append("<li>").append(clau).append(": ").append(resultatMapeig.getErrorsAdjunts().get(clau)).append("</li>");
+			}
+			errMsg.append("<ul> </li>");
+		}
+		errMsg.append("</ul>");
+		MissatgesHelper.error(request, errMsg.toString());
+	}
+
 	/** Acció del menú desplegable d'Accions massives d'anotacions, per iniciar una tasca en segon pla per reprocessar el mapeig de les
 	 * anotacions seleccionades a le taula d'anotacions (les que tenen un expedient associat es tornaria a aplicar el mapeig)
 	 */
@@ -210,27 +204,32 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 			Model model) {
 		
 		try {
-			anotacioHelper.reprocessarMapeigAnotacioExpedient(
+			AnotacioMapeigResultatDto resultatMapeig = 
+				anotacioHelper.reprocessarMapeigAnotacioExpedient(
 					expedientId,
 					anotacioId,
 					reprocessarMapeigAnotacioDto.isReprocessarMapeigVariables(),
 					reprocessarMapeigAnotacioDto.isReprocessarMapeigDocuments(),
 					reprocessarMapeigAnotacioDto.isReprocessarMapeigAdjunts(),
 					reprocessarMapeigAnotacioDto.isReprocessarMapeigInteressats());
-			
-			MissatgesHelper.success(
-					request, 
-					getMessage(
-							request, 
-							"expedient.anotacio.llistat.processar.mapeig.ok"));
-			}  catch(Exception e) {
-			MissatgesHelper.error(
-			request,
-			getMessage(
+			if (resultatMapeig.isError()) {
+				this.missatgeErrorResultatMapeig(request, resultatMapeig);
+			} else {
+				MissatgesHelper.success(
+						request, 
+						getMessage(
+								request, 
+								"expedient.anotacio.llistat.processar.mapeig.ok"));
+				
+			}
+		}  catch(Exception e) {
+			String errMsg = getMessage(
 					request,
 					"expedient.anotacio.llistat.processar.mapeig.ko",
-					new Object[] {e.getMessage()}));
-			}		
+					new Object[] {e.getMessage()});
+			MissatgesHelper.error( request, errMsg);
+			logger.error(errMsg, e);
+		}		
 		return modalUrlTancar(false);
 	}
 	

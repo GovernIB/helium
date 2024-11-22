@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
@@ -691,19 +692,29 @@ public class AnotacioHelper {
 							expedient!=null? expedient.isArxiuActiu(): expedientTipus.isArxiuActiu());	
 					
 					boolean documentExisteix = document !=null;
-					
-					if (documentExisteix && expedient.isArxiuActiu()) {
-						// Si el document està firmat i a l'Arxiu llavors no es pot modifirar.
-						if (document.isSignat() && !mapeigSistra.isEvitarSobreescriptura()) {
-							// No es pot modificar un document firmat
-							resultatMapeig.getErrorsDocuments().put(documentCodi, "El document no es pot sobreescriure perquè està firmat i no es pot modificar.");
+					// si el document existeix
+					if (documentExisteix) {
+
+						// si té el flag d'evitar sobreescriptura llavors posar l'advertència i continuar
+						if (mapeigSistra.isEvitarSobreescriptura()) {
+							resultatMapeig.getErrorsDocuments().put(documentCodi, "El document de l'anotació no s'actualitzarà a l'expedient perquè per disseny s'evita la sobreescriptura de l'existent.");
 							continue;						
+						}	
+						else {
+							// si és a l'Arxiu, està firmat o és d'una anotació diferent llavors s'esborra per poder crear-lo sense esborrar l'anterior de l'arxiu
+							if (expedient.isArxiuActiu() 
+									&& document.getAnotacioAnnexId() != null
+									&& document.getAnotacioId() != anotacioId) 
+							{
+								documentHelper.esborrarDocument(
+										null, //taskInstanceId 
+										expedient.getProcessInstanceId(),
+										document.getId());
+								documentExisteix = false;
+							}							
 						}
-						// Si el document prové d'una anotació llavors ja està mapejat i no cal sobreescriure
-						if (document.getAnotacioAnnexId() != null) {
-							continue;
-						}
-					}	
+					}
+					
 					processarDocumentsAnotacio(
 							dadesDocumentDto, 
 							expedient, 
@@ -911,6 +922,24 @@ public class AnotacioHelper {
 				adjunt.getAnnexId(),
 				null);
 	}
+	
+	/** Fixa l'expedient a l'anotació en una nova transacció.
+	 * 
+	 * @param anotacioId
+	 * @param expedientId
+	 */
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void setExpedient(
+			Long anotacioId, 
+			Long expedientId) {
+		Expedient expedient = expedientRepository.findOne(expedientId);
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+		logger.info("Relacionant l anotacio "  + anotacio.getIdentificador() + " "+ " amb l expedient " + expedientId + " " + expedient.getNumero());
+		anotacio.setExpedient(expedient);
+		anotacio.setExpedientTipus(expedient.getTipus());
+		anotacioRepository.save(anotacio);
+	}
+
 
 	private static final Logger logger = LoggerFactory.getLogger(AnotacioHelper.class);
 }

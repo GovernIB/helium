@@ -334,8 +334,8 @@
 		</th>
 		<th data-col-name="dataDocument" data-converter="date" data-orderable="true" width="10%"><spring:message code="expedient.document.data"/></th>
 		<th data-col-name="dataCreacio" data-converter="datetimeminute" data-orderable="true" width="10%"><spring:message code="expedient.document.adjuntat"/></th>
-		<th data-col-name="id" data-template="#cellAccionsTemplate" data-orderable="false" width="5%">
-			<script id="cellAccionsTemplate" type="text/x-jsrender">
+		<th data-col-name="id" data-template="#cellDocumentAccionsTemplate" data-orderable="false" width="5%">
+			<script id="cellDocumentAccionsTemplate" type="text/x-jsrender">
 			{{if id == null}}
 				{{if editable && ${expedient.permisDocManagement}}}
 					<a class="btn btn-default" href="${expedient.id}/document/{{:codi}}/new" data-toggle="modal"><span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nou_document"/></a>
@@ -445,7 +445,7 @@
 	<div class="botons-titol text-right">
 		<span style="padding-left: 5px">
 			<span class="fa fa-search" style="position: absolute;float: left;padding-left: 10px;padding-top: 10px;"></span>
-			<input id="searchDocuments" class="form-control" placeholder="<spring:message code="expedient.document.filtrar"/>" autocomplete="off" spellcheck="false" autocorrect="off" tabindex="1" style="padding-left: 35px;">
+			<input id="searchDocuments" class="form-control" placeholder="<spring:message code="expedient.document.filtrar"/>" autocomplete="off" spellcheck="false" autocorrect="off" tabindex="1" style="padding-left: 35px; max-width: 165px;">
 		</span>
 		<div class="btn-group" data-toggle="buttons">
 			<c:if test="${expedient.permisAdministration}">
@@ -467,7 +467,7 @@
 			<span class="fa fa-download"></span> <spring:message code="comu.boto.descarregar"/> <span id="descarregarCount" class="badge">&nbsp;</span>
 		</a>
 		<c:if test="${expedient.permisDocManagement}">
-			<c:if test="${expedient.documentsPinbal==false}">
+			<c:if test="${documentsPinbal==false}">
 			<a	id="nou_document"
 				class="btn btn-default"
 				href="${expedient.id}/document/new"
@@ -476,7 +476,7 @@
 					<span class="fa fa-plus"></span>&nbsp;<spring:message code="expedient.boto.nou_document"/>
 			</a>
 			</c:if>
-			<c:if test="${expedient.documentsPinbal==true}">
+			<c:if test="${documentsPinbal==true}">
 
 						<div class="btn-group">
 							<button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
