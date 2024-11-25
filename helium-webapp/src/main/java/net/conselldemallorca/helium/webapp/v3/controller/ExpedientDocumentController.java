@@ -287,6 +287,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			Model model) {
 		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		model.addAttribute("expedient", expedient);
+		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
+
 		if (!NodecoHelper.isNodeco(request)) {
 			return mostrarInformacioExpedientPerPipella(
 					request,
@@ -299,7 +301,6 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		List<InstanciaProcesDto> arbreProcessos = expedientService.getArbreInstanciesProces(Long.parseLong(expedient.getProcessInstanceId()));
 		if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedient.getTipus().getTipus())) {
 			
-			model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 			boolean documentsPinbal = false;
 			for (InstanciaProcesDto instanciaProces : arbreProcessos) {
 				documentsPinbal = documentsPinbal || instanciaProces.isDocumentsPinbal();
