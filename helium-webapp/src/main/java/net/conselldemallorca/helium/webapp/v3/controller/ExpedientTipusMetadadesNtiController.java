@@ -115,7 +115,7 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 			if (!command.isProcedimentComu() && (command.getOrgano() == null || "".equals(command.getOrgano().trim()))) {
 				bindingResult.rejectValue("organo", "NotEmpty");
 			}
-			if (!expedientTipus.isNtiActiu() && !command.isProcedimentComu() && command.getOrgano() != null) {
+			if (expedientTipus.isProcedimentComu() && !command.isProcedimentComu() && command.getOrgano() != null) {
 				Long expedientsExistents = expedientHelper.countByEntornIdAndTipus(expedientTipusId);
 				if(expedientsExistents>0) {
 					bindingResult.rejectValue("procedimentComu", "error.exist.exp.tipexp.no.procediment.comu");

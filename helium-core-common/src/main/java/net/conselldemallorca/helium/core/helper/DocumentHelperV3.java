@@ -2805,8 +2805,8 @@ public class DocumentHelperV3 {
 							null,
 							false,
 							true);
-				documentStore.setNtiIdentificador(documentArxiu.getMetadades().getIdentificador());
 			}
+			documentStore.setNtiIdentificador(documentArxiu.getMetadades().getIdentificador());
 			if(ambFirma) {
 				this.actualitzarNtiFirma(documentStore, documentArxiu);
 			}

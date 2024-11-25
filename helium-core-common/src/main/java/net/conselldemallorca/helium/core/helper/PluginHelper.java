@@ -2317,10 +2317,6 @@ public class PluginHelper {
 	}
 	
 	public void arxiuExpedientCrearOrActualitzar(Expedient expedient) {
-//		boolean prova = false;
-//		if (prova) {
-//			throw new SistemaExternException("Arxiu", "Error provocat");
-//		}
 		if (expedient.getArxiuUuid()==null || "".equals(expedient.getArxiuUuid())) {
 			ContingutArxiu expedientCreat = arxiuExpedientCrear(expedient);
 			expedient.setArxiuUuid(expedientCreat.getIdentificador());

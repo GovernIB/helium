@@ -55,7 +55,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore.DocumentFont;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.EstatAccioEntrada;
@@ -946,7 +945,8 @@ public class ExpedientHelper {
 			expedient.setNtiVersion(VERSIO_NTI);
 			expedient.setNtiOrgano(expedient.getUnitatOrganitzativa()!=null ? expedient.getUnitatOrganitzativa().getCodi() :  expedient.getTipus().getNtiOrgano());
 			expedient.setNtiClasificacion(expedient.getTipus().getNtiClasificacion());
-			expedient.setNtiSerieDocumental(expedient.getTipus().getNtiSerieDocumental());			
+			expedient.setNtiSerieDocumental(expedient.getTipus().getNtiSerieDocumental());
+			expedient.setNtiActiu(true);
 		}
 
 		// Migra a l'Arxiu o actualitzar en el seu cas
@@ -993,7 +993,6 @@ public class ExpedientHelper {
 					documentStore.getNtiIdDocumentoOrigen());
 			
 			documentStore.setArxiuContingut(null);
-			documentStore.setFont(DocumentFont.ALFRESCO);
 			documentStore.setDocumentValid(true);
 			documentStore.setDocumentError(null);
 		}
