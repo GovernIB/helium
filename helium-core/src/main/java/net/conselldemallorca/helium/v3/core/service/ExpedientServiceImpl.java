@@ -664,7 +664,12 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				if (documentStore.getFont().equals(DocumentFont.ALFRESCO))
 					pluginHelper.gestioDocumentalDeleteDocument(
 							documentStore.getReferenciaFont(), expedient);
-				documentStoreRepository.delete(documentStore.getId());
+				//Si el document pertany a un zip, de moment no l'esborrem, esperarem a esborrar el zip
+				if(documentStore.getZips()!=null && !documentStore.getZips().isEmpty()) {
+					continue;
+				} else {
+					documentStoreRepository.delete(documentStore.getId());
+				}
 			}
 		}
 		for (Portasignatures psigna: expedient.getPortasignatures()) {
