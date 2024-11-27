@@ -333,23 +333,28 @@ public class AnotacioHelper {
 				);
 		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
 
-		//Encuem l'enviament d' email d'incorporació d'antoació a l'usuari si té activada l'opció al seu perfil
-		String usuariCodi = usuariActualHelper.getUsuariActual();
-		UsuariPreferencies usuariPreferencies = usuariPreferenciesRepository.findByCodi(usuariCodi);
-		if(usuariPreferencies.isCorreusBustia() || usuariPreferencies.isCorreusBustiaAgrupatsDia()) {
-			PersonaDto usuariActual =  pluginHelper.personaFindAmbCodi(usuariCodi);
-			AnotacioEmail anotacioEmail = new AnotacioEmail(
-											anotacio, 
-											expedient, 
-											usuariCodi, 
-											"Helium",
-											reprocessar ? EmailTipusEnumDto.INCORPORADA : EmailTipusEnumDto.PROCESSADA, 
-											usuariPreferencies.getEmailAlternatiu()!=null ? usuariPreferencies.getEmailAlternatiu() : usuariActual.getEmail(),
-											usuariPreferencies.isCorreusBustiaAgrupatsDia(),
-											new Date(),
-											0);
-			anotacioEmailRepository.save(anotacioEmail);
-		}
+		//Encuem l'enviament d' email d'incorporació d'antoació als usuaris que tenen activada l'opció al seu perfil	
+		List<PersonaDto> persones= pluginHelper.personesFindAll();
+		if(persones!=null) {
+			for(PersonaDto persona: persones) {
+				String usuariCodi = persona.getCodi();// usuariActualHelper.getUsuariActual();
+				UsuariPreferencies usuariPreferencies = usuariPreferenciesRepository.findByCodi(usuariCodi);
+				if(usuariPreferencies!=null && (usuariPreferencies.isCorreusBustia() || usuariPreferencies.isCorreusBustiaAgrupatsDia())) {
+					PersonaDto usuariActual =  pluginHelper.personaFindAmbCodi(usuariCodi);
+					AnotacioEmail anotacioEmail = new AnotacioEmail(
+													anotacio, 
+													expedient, 
+													usuariCodi, 
+													"Helium",
+													reprocessar ? EmailTipusEnumDto.INCORPORADA : EmailTipusEnumDto.PROCESSADA, 
+													usuariPreferencies.getEmailAlternatiu()!=null ? usuariPreferencies.getEmailAlternatiu() : usuariActual.getEmail(),
+													usuariPreferencies.isCorreusBustiaAgrupatsDia(),
+													new Date(),
+													0);
+					anotacioEmailRepository.save(anotacioEmail);
+				}
+			}	
+		}	
 
 		return conversioTipusHelper.convertir(
 				anotacio, 

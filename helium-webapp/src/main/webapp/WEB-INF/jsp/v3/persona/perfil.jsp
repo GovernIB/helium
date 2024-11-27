@@ -124,7 +124,7 @@
 		</div>
 	</div>
 
-	<c:set var="esPersonesActiu" value="${globalProperties['app.persones.actiu'] == 'true'}"/>
+	<c:set var="esPersonesActiu" value="true"/>
 	<c:if test="${esPersonesActiu}">
 	<!--<c:set var="esReadOnly" value="${globalProperties['app.persones.readonly'] == 'true'}"/>-->	
 		<c:set var="esReadOnly" value="true"/>
@@ -177,7 +177,7 @@
 								<hel:inputCheckbox name="correusBustiaAgrupatsDia" textKey="perfil.usuari.nota.enviament.correus.bustia.agrupats" inline="true"/>
 							</div>
 							<div class="control-group fila_reducida">
-								<hel:inputText disabled="${esReadOnly}" name="emailAlternatiu" textKey="persona.consulta.email.alternatiu" placeholderKey="persona.consulta.email" inline="false"/>
+								<hel:inputText name="emailAlternatiu" textKey="persona.consulta.email.alternatiu" placeholderKey="persona.consulta.email" inline="false"/>
 							</div>
 						</div>
 					</div>

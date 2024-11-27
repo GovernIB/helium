@@ -677,7 +677,6 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 //	@Scheduled(fixedDelayString = "60000")
 	public void comprovarEmailAnotacionsNoAgrupats() {
 		// Consultar entrades de la taula HEL_ANOTACIO_EMAIL amb agrupat = 0
-		// Agruparles per usuari o no, mira't Distribucio
 		List<AnotacioEmail> anotacioEmailListNoAgrupats=anotacioEmailRepository.findByEnviamentAgrupatOrderByDestinatariCodi(false);
 		boolean fi = anotacioEmailListNoAgrupats!=null && anotacioEmailListNoAgrupats.isEmpty();	
 		while(!fi) {
@@ -718,38 +717,38 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 		logger.info("Inici de la tasca periòdica d'enviament de correus agrupats de noves anotacions de distribució.");
 	
 		List<AnotacioEmail> anotacioEmailAgrupatList = anotacioEmailRepository.findByEnviamentAgrupatOrderByDestinatariCodi(true);
-		
-		// Agrupa per destinataris
-		Map<String, List<AnotacioEmail>> anotacioEmailAgrupatMap = new HashMap<String, List<AnotacioEmail>>();
-		for (AnotacioEmail anotacioEmail : anotacioEmailAgrupatList) {
-			if (anotacioEmailAgrupatMap.containsKey(anotacioEmail.getDestinatariEmail())) {
-				anotacioEmailAgrupatMap.get(anotacioEmail.getDestinatariEmail()).add(anotacioEmail);
-			} else {
-				List<AnotacioEmail> lContingutEmails = new ArrayList<AnotacioEmail>();
-				lContingutEmails.add(anotacioEmail);
-				anotacioEmailAgrupatMap.put(anotacioEmail.getDestinatariEmail(), lContingutEmails);
-			}
-		}
-		
-		// Envia i esborra per agrupació
-		for (String email: anotacioEmailAgrupatMap.keySet()) {	
-			anotacioEmailAgrupatList = anotacioEmailAgrupatMap.get(email);
-			try {
-				emailHelper.sendAnotacioEmailsPendentsAgrupats(
-						email, 
-						anotacioEmailAgrupatList);	
-				logger.info("Enviat el correu de " + anotacioEmailAgrupatList.size() + " anotacions agrupades al destinatari " + email);
-						
-			} catch (Exception e) {
-				logger.error("Error enviant el correu de " + anotacioEmailAgrupatList.size() + " anotacions agrupades al destinatari " + email + ": " + e.getMessage());		
-				for (AnotacioEmail anotacioEmail : anotacioEmailAgrupatList) {
-						// remove pending email if it is older than 3 days
-						Date formattedToday = new Date();
-						Date formattedExpired = anotacioEmail.getDataCreacio();
-						int diffInDays = (int)( (formattedToday.getTime() - formattedExpired.getTime()) / (1000 * 60 * 60 * 24) );
-						if (diffInDays > 2) {
-							anotacioEmailRepository.delete(anotacioEmail);
-						}
+		if(anotacioEmailAgrupatList!=null && !anotacioEmailAgrupatList.isEmpty()) {
+			// Agrupa per destinataris
+			Map<String, List<AnotacioEmail>> anotacioEmailAgrupatMap = new HashMap<String, List<AnotacioEmail>>();
+			for (AnotacioEmail anotacioEmail : anotacioEmailAgrupatList) {
+				if (anotacioEmailAgrupatMap.containsKey(anotacioEmail.getDestinatariEmail())) {
+					anotacioEmailAgrupatMap.get(anotacioEmail.getDestinatariEmail()).add(anotacioEmail);
+				} else {
+					List<AnotacioEmail> lContingutEmails = new ArrayList<AnotacioEmail>();
+					lContingutEmails.add(anotacioEmail);
+					anotacioEmailAgrupatMap.put(anotacioEmail.getDestinatariEmail(), lContingutEmails);
+				}
+			}	
+			// Envia i esborra per agrupació
+			for (String email: anotacioEmailAgrupatMap.keySet()) {	
+				anotacioEmailAgrupatList = anotacioEmailAgrupatMap.get(email);
+				try {
+					emailHelper.sendAnotacioEmailsPendentsAgrupats(
+							email, 
+							anotacioEmailAgrupatList);	
+					logger.info("Enviat el correu de " + anotacioEmailAgrupatList.size() + " anotacions agrupades al destinatari " + email);
+							
+				} catch (Exception e) {
+					logger.error("Error enviant el correu de " + anotacioEmailAgrupatList.size() + " anotacions agrupades al destinatari " + email + ": " + e.getMessage());		
+					for (AnotacioEmail anotacioEmail : anotacioEmailAgrupatList) {
+							// remove pending email if it is older than 3 days
+							Date formattedToday = new Date();
+							Date formattedExpired = anotacioEmail.getDataCreacio();
+							int diffInDays = (int)( (formattedToday.getTime() - formattedExpired.getTime()) / (1000 * 60 * 60 * 24) );
+							if (diffInDays > 2) {
+								anotacioEmailRepository.delete(anotacioEmail);
+							}
+					}
 				}
 			}
 		}

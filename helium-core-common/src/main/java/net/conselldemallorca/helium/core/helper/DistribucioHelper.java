@@ -370,23 +370,28 @@ public class DistribucioHelper {
 				destiDescripcio(anotacioEntrada.getDestiDescripcio()).
 				build();
 		anotacioRepository.save(anotacioEntity);
-		//Si no és processament automàtic, enviem/encuem email per comunicar que s'ha rebut l'anotació i està pendent
+		//Si no és processament automàtic, enviem/encuem email als usuaris que ho tenen activat, per comunicar que s'ha rebut l'anotació i està pendent
 		if(!expedientTipus.isDistribucioProcesAuto() && expedientTipus.isEnviarCorreuAnotacions()) {
-			String usuariCodi = usuariActualHelper.getUsuariActual();
-			UsuariPreferencies usuariPreferencies = usuariPreferenciesRepository.findByCodi(usuariCodi);
-			if(usuariPreferencies.isCorreusBustia() || usuariPreferencies.isCorreusBustiaAgrupatsDia()) {
-				PersonaDto usuariActual =  pluginHelper.personaFindAmbCodi(usuariCodi);
-				AnotacioEmail anotacioEmail = new AnotacioEmail(
-												anotacioEntity, 
-												expedient, 
-												usuariCodi, 
-												"Helium",
-												EmailTipusEnumDto.REBUDA_PENDENT,
-												usuariPreferencies.getEmailAlternatiu()!=null ? usuariPreferencies.getEmailAlternatiu() : usuariActual.getEmail(),
-												usuariPreferencies.isCorreusBustiaAgrupatsDia(),
-												new Date(),
-												0);
-				anotacioEmailRepository.save(anotacioEmail);
+			List<PersonaDto> persones= pluginHelper.personesFindAll();
+			if(persones!=null) {
+				for(PersonaDto persona: persones) {
+					String usuariCodi = persona.getCodi(); //usuariActualHelper.getUsuariActual();
+					UsuariPreferencies usuariPreferencies = usuariPreferenciesRepository.findByCodi(usuariCodi);
+					if(usuariPreferencies!=null && (usuariPreferencies.isCorreusBustia() || usuariPreferencies.isCorreusBustiaAgrupatsDia())) {
+						PersonaDto usuariActual =  pluginHelper.personaFindAmbCodi(usuariCodi);
+						AnotacioEmail anotacioEmail = new AnotacioEmail(
+														anotacioEntity, 
+														expedient, 
+														usuariCodi, 
+														"Helium",
+														EmailTipusEnumDto.REBUDA_PENDENT,
+														usuariPreferencies.getEmailAlternatiu()!=null ? usuariPreferencies.getEmailAlternatiu() : usuariActual.getEmail(),
+														usuariPreferencies.isCorreusBustiaAgrupatsDia(),
+														new Date(),
+														0);
+						anotacioEmailRepository.save(anotacioEmail);
+					}	
+				}
 			}
 		}	
 				
@@ -761,26 +766,32 @@ public class DistribucioHelper {
 		anotacioRepository.save(anotacioEntity);
 		ExpedientTipus expedientTipus = anotacioEntity.getExpedientTipus();
 		Expedient expedient = anotacioEntity.getExpedient();
-		//Si no és processament automàtic, enviem/encuem email per comunicar que s'ha rebut l'anotació i està pendent
+		//Si no és processament automàtic, enviem/encuem email als usuaris que tenen activada l'opció d'emails, per comunicar que s'ha rebut l'anotació i està pendent
 		if(expedientTipus !=null && !expedientTipus.isDistribucioProcesAuto() && expedientTipus.isEnviarCorreuAnotacions()) {
-			String usuariCodi = usuariActualHelper.getUsuariActual();
-			UsuariPreferencies usuariPreferencies = usuariPreferenciesRepository.findByCodi(usuariCodi);
-			if(usuariPreferencies.isCorreusBustia() || usuariPreferencies.isCorreusBustiaAgrupatsDia()) {
-				PersonaDto usuariActual =  pluginHelper.personaFindAmbCodi(usuariCodi);
-				AnotacioEmail anotacioEmail = new AnotacioEmail(
-												anotacioEntity, 
-												expedient, 
-												usuariCodi, 
-												"Helium",
-												EmailTipusEnumDto.REBUDA_PENDENT,
-												usuariPreferencies.getEmailAlternatiu()!=null ? usuariPreferencies.getEmailAlternatiu() : usuariActual.getEmail(),
-												usuariPreferencies.isCorreusBustiaAgrupatsDia(),
-												new Date(),
-												0);
-				anotacioEmailRepository.save(anotacioEmail);
+			List<PersonaDto> persones= pluginHelper.personesFindAll();
+			if(persones!=null) {
+				for(PersonaDto persona: persones) {
+					String usuariCodi = persona.getCodi();// usuariActualHelper.getUsuariActual();
+					UsuariPreferencies usuariPreferencies = usuariPreferenciesRepository.findByCodi(usuariCodi);
+					if(usuariPreferencies!=null && (usuariPreferencies.isCorreusBustia() || usuariPreferencies.isCorreusBustiaAgrupatsDia())) {
+						PersonaDto usuariActual =  pluginHelper.personaFindAmbCodi(usuariCodi);
+						AnotacioEmail anotacioEmail = new AnotacioEmail(
+														anotacioEntity, 
+														expedient, 
+														usuariCodi, 
+														"Helium",
+														EmailTipusEnumDto.REBUDA_PENDENT,
+														usuariPreferencies.getEmailAlternatiu()!=null ? usuariPreferencies.getEmailAlternatiu() : usuariActual.getEmail(),
+														usuariPreferencies.isCorreusBustiaAgrupatsDia(),
+														new Date(),
+														0);
+						anotacioEmailRepository.save(anotacioEmail);
+					}
+				}	
 			}
-		}	
+		}
 	}
+		
 
 
 	@Transactional
