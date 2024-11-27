@@ -24,11 +24,14 @@ import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioEmail;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
+import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
 import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.core.model.hibernate.UsuariPreferencies;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.EmailTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioEmailRepository;
 import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaRepository;
 import net.conselldemallorca.helium.v3.core.repository.UsuariPreferenciesRepository;
@@ -53,8 +56,15 @@ public class EmailHelper {
 	private UsuariPreferenciesRepository usuariPreferenciesRepository;
 	@Resource
 	private PluginHelper pluginHelper;
+	@Resource(name = "permisosHelperV3") 
+	private PermisosHelper permisosHelper;
+	@Resource
+	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
 
 	/** Consulta els usuaris amb permís sobre l'anotació i l'expedient per usuari o rol i programa els enviaments.
+	 * Per fer-ho primer cerca els pemisos sobre el tipus d'expedient o per tipus d'expedient i UO si és procediment comú.
+	 * Seguidament cerca els usuaris assignats als permisos o els usuaris dels rols assignats en els permisos.
+	 * Cerca en la configuració personal si estan configurats per enviar correus i s'envien els correus.
 	 * 
 	 * @param anotacio
 	 * @param expedient
@@ -64,15 +74,102 @@ public class EmailHelper {
 			Anotacio anotacio, 
 			Expedient expedient, 
 			EmailTipusEnumDto emailTipus) {
-		// Cerca els destinataris
-		List<PersonaDto> persones= pluginHelper.personaFindAmbGrup("HEL_ADMIN");
 		
+		// Llistat de destinataris
+		List<PersonaDto> persones= new ArrayList<PersonaDto>();
+		
+		ExpedientTipus expedientTipus = anotacio.getExpedientTipus();
+		
+		// Cerca els permisos sobre el tipus d'expedient 
+		List<PermisDto> permisos = permisosHelper.findPermisos(expedientTipus.getId(), ExpedientTipus.class);
+
+		// Si és un procediment comú llavors cerca tots els permisos pel tipus d'expedient i la unitat organitzativa de l'anotació o les seves superiors
+		if (expedientTipus.isProcedimentComu()) {
+
+			UnitatOrganitzativa uoAnotacio = 
+					expedient != null && expedient.getUnitatOrganitzativa() != null? 
+							expedient.getUnitatOrganitzativa()
+							: unitatOrganitzativaRepository.findByCodi(anotacio.getEntitatCodi());
+			if (uoAnotacio != null) {
+				// Consulta totes les unitats des de la de l'expedient o anotació fins la unitat superior arrel
+				List<UnitatOrganitzativaDto> unitats = unitatOrganitzativaHelper.findPath(uoAnotacio.getCodiUnitatArrel(), uoAnotacio.getCodi());
+				for (UnitatOrganitzativaDto uo : unitats) {
+					// Cerca la relació entre UO's i el tipus d'expedient
+					ExpedientTipusUnitatOrganitzativa expedientTipusUnitatOrganitzativa = 
+							unitatOrganitzativaHelper.findRelacioExpTipusUnitOrg(expedientTipus.getId(), uo.getId());
+					// Cerca  el permisos sobre la relació entre la UO i el tipus d'expedient.
+					if (expedientTipusUnitatOrganitzativa != null) {
+						permisos.addAll(permisosHelper.findPermisos(
+								expedientTipusUnitatOrganitzativa.getId(), 
+								ExpedientTipusUnitatOrganitzativa.class));
+					}
+				}
+			} else {
+				logger.warn("No s'ha resolt la unitat organitzativa per l'anotació " + anotacio.getIdentificador() + " per poder comprovar permisos sobre UO's.");
+			}			
+		}
+		// Si s'han trobat permisos llavors comença a resoldre les persones destinatàries
+		if (permisos != null && !permisos.isEmpty()) {
+			PersonaDto persona;
+			for (PermisDto permis: permisos) {
+				// Si s'ha rebut sense associar expedient llavors ha de ser un permís de relacionar per veure l'anotació
+				if (EmailTipusEnumDto.REBUDA_PENDENT.equals(emailTipus) 
+						&& expedient == null
+						&& ! permis.isRelate() && !permis.isAdministration()) {
+					continue;
+				}
+				// Si s'ha processat llavors s'ha de ser un permís de relacionar o lectura per veure l'anotació
+				if (!EmailTipusEnumDto.REBUDA_PENDENT.equals(emailTipus)
+					&& ! permis.isRelate()
+					&& ! permis.isRead()
+					&& ! permis.isAdministration()) {
+					continue;
+				}
+				
+				switch (permis.getPrincipalTipus()) {
+				case USUARI:
+					try {
+						persona = pluginHelper.personaFindAmbCodi(permis.getPrincipalNom());
+						if (persona != null) {
+							persones.add(persona);
+						}
+					} catch(Exception e) {
+						logger.error("Error cercant les dades de la persona " + permis.getPrincipalNom(), e);
+					}
+					break;
+				case ROL:
+					try {
+						String rol = permis.getPrincipalNom();
+						if ("ROLE_ADMIN".equals(rol)) {
+							rol = "HEL_ADMIN";
+						} else if ("tothom".equals(rol.toLowerCase())) {
+							continue; // NO es consulten els correus de tothom
+						}
+						
+						List<PersonaDto> usuarisGrup = pluginHelper.personaFindAmbGrup(
+								permis.getPrincipalNom());
+						if (usuarisGrup != null) {
+							for (PersonaDto usuariGrup: usuarisGrup) {
+								persones.add(usuariGrup);
+							}
+						}
+					} catch(Exception e) {
+						logger.error("Error cercant les persones pel grup " + permis.getPrincipalNom(), e);
+					}
+					break;
+				}
+			}
+		}
+		// Programa els correus
 		if( persones != null && ! persones.isEmpty()) {
-			// Programa els correus
 			for(PersonaDto persona: persones) {
 				String usuariCodi = persona.getCodi();
 				UsuariPreferencies usuariPreferencies = usuariPreferenciesRepository.findByCodi(usuariCodi);
-				if(usuariPreferencies != null && (usuariPreferencies.isCorreusBustia() || usuariPreferencies.isCorreusBustiaAgrupatsDia())) {
+				// Només s'envien a usuaris que ho indiquin en les preferències.
+				if(usuariPreferencies != null 
+						&& (usuariPreferencies.isCorreusBustia() 
+								|| usuariPreferencies.isCorreusBustiaAgrupatsDia())) 
+				{
 					String email = usuariPreferencies.getEmailAlternatiu();
 					if (email == null || "".equals(email)) {
 						PersonaDto usuari =  pluginHelper.personaFindAmbCodi(usuariCodi);
@@ -80,17 +177,19 @@ public class EmailHelper {
 							email = usuari.getEmail();
 						}
 					}
-					AnotacioEmail anotacioEmail = new AnotacioEmail(
-													anotacio, 
-													expedient, 
-													usuariCodi, 
-													"Helium",
-													emailTipus, 
-													email,
-													usuariPreferencies.isCorreusBustiaAgrupatsDia(),
-													new Date(),
-													0);
-					anotacioEmailRepository.save(anotacioEmail);
+					if (email != null) {
+						AnotacioEmail anotacioEmail = new AnotacioEmail(
+								anotacio, 
+								expedient, 
+								usuariCodi, 
+								"Helium",
+								emailTipus, 
+								email,
+								usuariPreferencies.isCorreusBustiaAgrupatsDia(),
+								new Date(),
+								0);
+						anotacioEmailRepository.save(anotacioEmail);
+					}
 				}
 			}	
 		}
