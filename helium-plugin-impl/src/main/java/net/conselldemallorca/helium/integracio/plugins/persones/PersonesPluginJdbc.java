@@ -118,6 +118,21 @@ public class PersonesPluginJdbc implements PersonesPlugin {
 		return rols;
 	}
 
+	@Override
+	public List<DadesPersona> findAmbGrup(String grupCodi) throws PersonesPluginException {
+		try {
+			String query = GlobalProperties.getInstance().getProperty("app.persones.plugin.jdbc.filter.grup");
+			Map<String, Object> parametres = new HashMap<String, Object>();
+			parametres.put("grup", grupCodi);
+			List<DadesPersona> resultat = consultaSql(query, parametres);
+			if (resultat.size() > 0)
+				return resultat;
+			return new ArrayList<DadesPersona>();
+		} catch (Exception ex) {
+			throw new PersonesPluginException("No s'ha pogut trobar cap persona", ex);
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	private List<DadesPersona> consultaSql(
 			String query,
@@ -194,5 +209,6 @@ public class PersonesPluginJdbc implements PersonesPlugin {
 			return true;
 		return junt.equalsIgnoreCase("false");
 	}
+
 
 }

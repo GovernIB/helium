@@ -5,6 +5,7 @@ package net.conselldemallorca.helium.core.helper;
 
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,12 +20,18 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioEmail;
+import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
+import net.conselldemallorca.helium.core.model.hibernate.UsuariPreferencies;
+import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.EmailTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioEmailRepository;
 import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaRepository;
+import net.conselldemallorca.helium.v3.core.repository.UsuariPreferenciesRepository;
 
 
 /**
@@ -42,7 +49,54 @@ public class EmailHelper {
 	private AnotacioEmailRepository anotacioEmailRepository;
 	@Resource
 	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
+	@Resource 
+	private UsuariPreferenciesRepository usuariPreferenciesRepository;
+	@Resource
+	private PluginHelper pluginHelper;
 
+	/** Consulta els usuaris amb permís sobre l'anotació i l'expedient per usuari o rol i programa els enviaments.
+	 * 
+	 * @param anotacio
+	 * @param expedient
+	 * @param emailTipus
+	 */
+	public void createEmailsAnotacioToSend(
+			Anotacio anotacio, 
+			Expedient expedient, 
+			EmailTipusEnumDto emailTipus) {
+		// Cerca els destinataris
+		List<PersonaDto> persones= pluginHelper.personaFindAmbGrup("HEL_ADMIN");
+		
+		if( persones != null && ! persones.isEmpty()) {
+			// Programa els correus
+			for(PersonaDto persona: persones) {
+				String usuariCodi = persona.getCodi();
+				UsuariPreferencies usuariPreferencies = usuariPreferenciesRepository.findByCodi(usuariCodi);
+				if(usuariPreferencies != null && (usuariPreferencies.isCorreusBustia() || usuariPreferencies.isCorreusBustiaAgrupatsDia())) {
+					String email = usuariPreferencies.getEmailAlternatiu();
+					if (email == null || "".equals(email)) {
+						PersonaDto usuari =  pluginHelper.personaFindAmbCodi(usuariCodi);
+						if (usuari != null) {
+							email = usuari.getEmail();
+						}
+					}
+					AnotacioEmail anotacioEmail = new AnotacioEmail(
+													anotacio, 
+													expedient, 
+													usuariCodi, 
+													"Helium",
+													emailTipus, 
+													email,
+													usuariPreferencies.isCorreusBustiaAgrupatsDia(),
+													new Date(),
+													0);
+					anotacioEmailRepository.save(anotacioEmail);
+				}
+			}	
+		}
+	}
+	
+	
 	/** Envia un email avisant al destinatari que ha arribat una nova anotació 
 	 * (ja sigui via incorporació, creació o pendent).
 	 *  Es diferencia del mètode agrupat perquè només envia
@@ -204,7 +258,7 @@ public class EmailHelper {
 	
 	
 	private String getPrefixHelium() {
-		String entorn = null; //configHelper.getConfig("es.caib.distribucio.default.user.entorn");
+		String entorn = GlobalProperties.getInstance().getProperty("app.entorn.helium");
 		String prefix;
 		if (entorn != null) {
 			prefix = "[HELIUM-" + entorn + "]";			

@@ -46,4 +46,15 @@ public interface PersonesPlugin {
 	 * @return els rols de la persona
 	 */
 	public List<String> findRolsAmbCodi(String codi) throws PersonesPluginException;
+
+	/**
+	 * Retorna la llista d'usuaris d'un grup.
+	 * 
+	 * @param grupCodi
+	 *            Codi del grup que es vol consultar.
+	 * @return La llista d'usuaris del grup.
+	 * @throws PersonesPluginException
+	 *            Si es produeix un error al consultar les dades de l'usuari.
+	 */
+	public List<DadesPersona> findAmbGrup(String grupCodi) throws PersonesPluginException;
 }

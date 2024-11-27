@@ -31,7 +31,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta.AlertaPrioritat;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
-import net.conselldemallorca.helium.core.model.hibernate.AnotacioEmail;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioInteressat;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
@@ -44,7 +43,6 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Interessat;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
 import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
-import net.conselldemallorca.helium.core.model.hibernate.UsuariPreferencies;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAnnexEstatEnumDto;
@@ -62,7 +60,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDocumentTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioAnnexRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioEmailRepository;
@@ -75,7 +72,6 @@ import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusUnitatOrganitzativaRepository;
 import net.conselldemallorca.helium.v3.core.repository.InteressatRepository;
 import net.conselldemallorca.helium.v3.core.repository.MapeigSistraRepository;
-import net.conselldemallorca.helium.v3.core.repository.UsuariPreferenciesRepository;
 
 
 /**
@@ -105,8 +101,6 @@ public class AnotacioHelper {
 	private CampRepository campRepository;
 	@Resource
 	private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
-	@Resource 
-	private UsuariPreferenciesRepository usuariPreferenciesRepository;
 	@Resource
 	private AnotacioEmailRepository anotacioEmailRepository;
 	@Resource
@@ -147,6 +141,8 @@ public class AnotacioHelper {
 	private ExpedientDadaHelper expedientDadaHelper;
 	@Resource
 	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
+	@Resource
+	private EmailHelper emailHelper;
 	
 	@Transactional
 	public AnotacioDto incorporarReprocessarExpedient(
@@ -334,27 +330,12 @@ public class AnotacioHelper {
 		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
 
 		//Encuem l'enviament d' email d'incorporació d'antoació als usuaris que tenen activada l'opció al seu perfil	
-		List<PersonaDto> persones= pluginHelper.personesFindAll();
-		if(persones!=null) {
-			for(PersonaDto persona: persones) {
-				String usuariCodi = persona.getCodi();// usuariActualHelper.getUsuariActual();
-				UsuariPreferencies usuariPreferencies = usuariPreferenciesRepository.findByCodi(usuariCodi);
-				if(usuariPreferencies!=null && (usuariPreferencies.isCorreusBustia() || usuariPreferencies.isCorreusBustiaAgrupatsDia())) {
-					PersonaDto usuariActual =  pluginHelper.personaFindAmbCodi(usuariCodi);
-					AnotacioEmail anotacioEmail = new AnotacioEmail(
-													anotacio, 
-													expedient, 
-													usuariCodi, 
-													"Helium",
-													reprocessar ? EmailTipusEnumDto.INCORPORADA : EmailTipusEnumDto.PROCESSADA, 
-													usuariPreferencies.getEmailAlternatiu()!=null ? usuariPreferencies.getEmailAlternatiu() : usuariActual.getEmail(),
-													usuariPreferencies.isCorreusBustiaAgrupatsDia(),
-													new Date(),
-													0);
-					anotacioEmailRepository.save(anotacioEmail);
-				}
-			}	
-		}	
+		emailHelper.createEmailsAnotacioToSend(
+				anotacio,
+				expedient,
+				reprocessar ? 
+						EmailTipusEnumDto.INCORPORADA 
+						: EmailTipusEnumDto.PROCESSADA);
 
 		return conversioTipusHelper.convertir(
 				anotacio, 

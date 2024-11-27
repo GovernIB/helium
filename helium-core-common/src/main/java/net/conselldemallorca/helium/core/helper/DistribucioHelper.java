@@ -61,7 +61,6 @@ import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta.AlertaPrioritat;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
-import net.conselldemallorca.helium.core.model.hibernate.AnotacioEmail;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioInteressat;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
@@ -70,7 +69,6 @@ import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra;
-import net.conselldemallorca.helium.core.model.hibernate.UsuariPreferencies;
 import net.conselldemallorca.helium.core.model.hibernate.MapeigSistra.TipusMapeig;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
@@ -94,7 +92,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.NtiOrigenEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoDocumentalEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
-import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto.OrdreDireccioDto;
 import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.DissenyService;
@@ -172,6 +169,8 @@ public class DistribucioHelper {
 	private MessageHelper messageHelper;
 	@Resource
 	private UsuariActualHelper usuariActualHelper;
+	@Resource
+	private EmailHelper emailHelper;
 	@Resource 
 	private UsuariPreferenciesRepository usuariPreferenciesRepository;
 	@Resource
@@ -372,27 +371,10 @@ public class DistribucioHelper {
 		anotacioRepository.save(anotacioEntity);
 		//Si no és processament automàtic, enviem/encuem email als usuaris que ho tenen activat, per comunicar que s'ha rebut l'anotació i està pendent
 		if(!expedientTipus.isDistribucioProcesAuto() && expedientTipus.isEnviarCorreuAnotacions()) {
-			List<PersonaDto> persones= pluginHelper.personesFindAll();
-			if(persones!=null) {
-				for(PersonaDto persona: persones) {
-					String usuariCodi = persona.getCodi(); //usuariActualHelper.getUsuariActual();
-					UsuariPreferencies usuariPreferencies = usuariPreferenciesRepository.findByCodi(usuariCodi);
-					if(usuariPreferencies!=null && (usuariPreferencies.isCorreusBustia() || usuariPreferencies.isCorreusBustiaAgrupatsDia())) {
-						PersonaDto usuariActual =  pluginHelper.personaFindAmbCodi(usuariCodi);
-						AnotacioEmail anotacioEmail = new AnotacioEmail(
-														anotacioEntity, 
-														expedient, 
-														usuariCodi, 
-														"Helium",
-														EmailTipusEnumDto.REBUDA_PENDENT,
-														usuariPreferencies.getEmailAlternatiu()!=null ? usuariPreferencies.getEmailAlternatiu() : usuariActual.getEmail(),
-														usuariPreferencies.isCorreusBustiaAgrupatsDia(),
-														new Date(),
-														0);
-						anotacioEmailRepository.save(anotacioEmail);
-					}	
-				}
-			}
+			emailHelper.createEmailsAnotacioToSend(
+					anotacioEntity,
+					expedient,
+					EmailTipusEnumDto.REBUDA_PENDENT);
 		}	
 				
 		// Crea els interessats
@@ -768,27 +750,10 @@ public class DistribucioHelper {
 		Expedient expedient = anotacioEntity.getExpedient();
 		//Si no és processament automàtic, enviem/encuem email als usuaris que tenen activada l'opció d'emails, per comunicar que s'ha rebut l'anotació i està pendent
 		if(expedientTipus !=null && !expedientTipus.isDistribucioProcesAuto() && expedientTipus.isEnviarCorreuAnotacions()) {
-			List<PersonaDto> persones= pluginHelper.personesFindAll();
-			if(persones!=null) {
-				for(PersonaDto persona: persones) {
-					String usuariCodi = persona.getCodi();// usuariActualHelper.getUsuariActual();
-					UsuariPreferencies usuariPreferencies = usuariPreferenciesRepository.findByCodi(usuariCodi);
-					if(usuariPreferencies!=null && (usuariPreferencies.isCorreusBustia() || usuariPreferencies.isCorreusBustiaAgrupatsDia())) {
-						PersonaDto usuariActual =  pluginHelper.personaFindAmbCodi(usuariCodi);
-						AnotacioEmail anotacioEmail = new AnotacioEmail(
-														anotacioEntity, 
-														expedient, 
-														usuariCodi, 
-														"Helium",
-														EmailTipusEnumDto.REBUDA_PENDENT,
-														usuariPreferencies.getEmailAlternatiu()!=null ? usuariPreferencies.getEmailAlternatiu() : usuariActual.getEmail(),
-														usuariPreferencies.isCorreusBustiaAgrupatsDia(),
-														new Date(),
-														0);
-						anotacioEmailRepository.save(anotacioEmail);
-					}
-				}	
-			}
+			emailHelper.createEmailsAnotacioToSend(
+					anotacioEntity,
+					expedient,
+					EmailTipusEnumDto.REBUDA_PENDENT);
 		}
 	}
 		

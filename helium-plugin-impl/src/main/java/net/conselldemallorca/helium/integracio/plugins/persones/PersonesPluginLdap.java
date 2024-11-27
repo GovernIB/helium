@@ -113,6 +113,17 @@ public class PersonesPluginLdap implements PersonesPlugin {
 		return roles;
 	}
 
+	@Override
+	public List<DadesPersona> findAmbGrup(String grupCodi) throws PersonesPluginException {
+		try {
+			String likeFilter = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.search.filter.grup");
+			String filter = new String(likeFilter).replace("###", grupCodi);
+			return findPersonesLdap(filter);
+		} catch (Exception ex) {
+			throw new PersonesPluginException("No s'ha pogut trobar cap persona", ex);
+		}
+	}
+
 
 	private List<DadesPersona> findPersonesLdap(String filter) throws Exception {
 		String[] returnedAtts = GlobalProperties.getInstance().getProperty("app.persones.plugin.ldap.attributes").split(",");
@@ -206,5 +217,4 @@ public class PersonesPluginLdap implements PersonesPlugin {
 		else
 			return email + "@" +  dominiEmail;
 	}
-
 }

@@ -235,13 +235,16 @@ public class PluginHelper {
 	private Tika tika = new Tika();
 
 
-	public List<PersonaDto> personesFindAll() {
+	public List<PersonaDto> personaFindAmbGrup(
+			String grupCodi) {
+		String accioDescripcio = "Consulta d'usuaris d'un grup " + grupCodi;
 		long t0 = System.currentTimeMillis();
 		try {
-			List<DadesPersona> persones = getPersonesPlugin().findAll();
+			List<DadesPersona> persones = getPersonesPlugin().findAmbGrup(
+					grupCodi);
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_PERSONA,
-					"Consulta de tots els usuaris",
+					accioDescripcio,
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0);
 			if (persones == null)
@@ -250,7 +253,7 @@ public class PluginHelper {
 		} catch (PersonesPluginException ex) {
 			monitorIntegracioHelper.addAccioError(
 					MonitorIntegracioHelper.INTCODI_PERSONA,
-					"Consulta de tots els usuaris",
+					accioDescripcio,
 					IntegracioAccioTipusEnumDto.ENVIAMENT,
 					System.currentTimeMillis() - t0,
 					"El plugin ha retornat una excepció",
@@ -273,6 +276,7 @@ public class PluginHelper {
 					ex);
 		}
 	}
+	
 	public List<PersonaDto> personaFindLikeNomSencer(String text) {
 		long t0 = System.currentTimeMillis();
 		try {
