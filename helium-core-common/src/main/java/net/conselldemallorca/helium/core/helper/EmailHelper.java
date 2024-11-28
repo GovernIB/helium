@@ -226,7 +226,7 @@ public class EmailHelper {
 		else if(EmailTipusEnumDto.REBUDA_PENDENT.equals(anotacioEmail.getEmailTipus())) {
 			subject +=  " en estat pendent";
 		}	
-		missatge.setSubject(this.getPrefixHelium() + subject);	
+		missatge.setSubject(subject);	
 		missatge.setText(
 				subject +"\n" +
 				"\tEntitat: " + ( anotacioEmail.getAnotacio() != null ?  anotacioEmail.getAnotacio().getEntitatDescripcio() : "") + "\n" +

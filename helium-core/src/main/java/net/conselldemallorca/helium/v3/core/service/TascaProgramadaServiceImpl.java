@@ -680,14 +680,16 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 		List<AnotacioEmail> anotacioEmailListNoAgrupats=anotacioEmailRepository.findByEnviamentAgrupatOrderByDestinatariCodi(false);
 		boolean fi = anotacioEmailListNoAgrupats!=null && anotacioEmailListNoAgrupats.isEmpty();	
 		while(!fi) {
+			List<AnotacioEmail> emailsPerEsborrar=new ArrayList<AnotacioEmail>();
 			try {
 				for(AnotacioEmail anotacioEmail: anotacioEmailListNoAgrupats) {
 					//enviar email correu (no agrupat) de creació/incorporació/arribada d'anotació
 					emailHelper.sendAnotacioEmailNoAgrupat(anotacioEmail, anotacioEmailListNoAgrupats);
 					// Esborrar les que s'hagin pogut enviar
-					anotacioEmailListNoAgrupats.remove(anotacioEmail);
+					emailsPerEsborrar.add(anotacioEmail);
 					anotacioEmailRepository.delete(anotacioEmail);
 				}
+				anotacioEmailListNoAgrupats.removeAll(emailsPerEsborrar);
 			}catch(Exception e) {
 				// Si l'error és que l'email no existeix o no és correcte, igualment eliminar-lo.
 				// Posarem un número de reintents i passat aquest límit s'eliminarà.
