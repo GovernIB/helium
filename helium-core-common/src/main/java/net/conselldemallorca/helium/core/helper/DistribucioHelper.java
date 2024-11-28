@@ -746,15 +746,6 @@ public class DistribucioHelper {
 				.extracte("(anotació comunicada pendent de consultar detalls)")
 				.build();
 		anotacioRepository.save(anotacioEntity);
-		ExpedientTipus expedientTipus = anotacioEntity.getExpedientTipus();
-		Expedient expedient = anotacioEntity.getExpedient();
-		//Si no és processament automàtic, enviem/encuem email als usuaris que tenen activada l'opció d'emails, per comunicar que s'ha rebut l'anotació i està pendent
-		if(expedientTipus !=null && !expedientTipus.isDistribucioProcesAuto() && expedientTipus.isEnviarCorreuAnotacions()) {
-			emailHelper.createEmailsAnotacioToSend(
-					anotacioEntity,
-					expedient,
-					EmailTipusEnumDto.REBUDA_PENDENT);
-		}
 	}
 		
 
@@ -934,7 +925,13 @@ public class DistribucioHelper {
 				
 				anotacio.setEstat(AnotacioEstatEnumDto.PROCESSADA);
 				anotacio.setDataProcessament(new Date());
-
+				//Encuem l'enviament d' email d'incorporació d'antoació als usuaris que tenen activada l'opció al seu perfil	
+				emailHelper.createEmailsAnotacioToSend(
+						anotacio,
+						expedient,
+						reprocessar ? 
+								EmailTipusEnumDto.INCORPORADA 
+								: EmailTipusEnumDto.PROCESSADA);
 				// Canvi d'estat a processada
 				// Notifica a Distribucio que s'ha rebut correctament
 				try {
@@ -956,7 +953,13 @@ public class DistribucioHelper {
 						". Petició rebutjada a Helium.");				
 			
 			} else {
-				
+				//Si no és processament automàtic, enviem/encuem email als usuaris que tenen activada l'opció d'emails, per comunicar que s'ha rebut l'anotació i està pendent
+				if(expedientTipus !=null && !expedientTipus.isDistribucioProcesAuto() && expedientTipus.isEnviarCorreuAnotacions()) {
+					emailHelper.createEmailsAnotacioToSend(
+							anotacio,
+							expedient,
+							EmailTipusEnumDto.REBUDA_PENDENT);
+				}
 				try {
 					this.canviEstat(
 							idWs, 
