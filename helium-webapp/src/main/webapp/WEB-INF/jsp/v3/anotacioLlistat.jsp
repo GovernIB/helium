@@ -256,6 +256,20 @@
 								{{if estat == 'COMUNICADA' && consultaIntents >= ${maxConsultaIntents}}}
  									<li><a href="<c:url value="/v3/anotacio/{{:id}}/reintentarConsulta"/>" data-rdt-link-ajax="true"><span class="fa fa-eraser"></span>&nbsp;<spring:message code="anotacio.llistat.accio.reintentarConsulta"/></a></li>
 								{{/if}}
+								<!-- Opció de comunicar per email -->
+								{{if estat == 'PENDENT' || estat =='PROCESSADA'  }}
+									<li>
+										<a href="<c:url value="/v3/anotacio/{{:id}}/email"/>" data-rdt-link-ajax="true" 
+												{{if estat == 'PENDENT'}}
+													data-confirm="<spring:message code="anotacio.llistat.email.avisar.confirmacio.pedent"/>"
+												{{else}}
+													data-confirm="<spring:message code="anotacio.llistat.email.avisar.confirmacio.processada"/>"
+												{{/if}}
+											>
+											<span class="fa fa-envelope"></span>&nbsp;<spring:message code="anotacio.llistat.email.avisar"/>
+										</a>
+									</li>
+								{{/if}}
 							</ul>
 						</div>
 					</script>

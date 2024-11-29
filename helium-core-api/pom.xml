@@ -80,6 +80,7 @@
 				<artifactId>jaxws-maven-plugin</artifactId>
 				<version>2.4.1</version>
 				<executions>
+					<!--  Per generar les classes a partir del WSDL del servei SOAP
 					<execution>
 						<id>generate-reports-ws-code</id>
 						<phase>generate-sources</phase>
@@ -97,7 +98,8 @@
 							<sourceDestDir>${basedir}/src/main/java</sourceDestDir>
 							<packageName>net.conselldemallorca.helium.ws.backoffice.distribucio</packageName>
 						</configuration>
-					</execution>					
+					</execution>
+					 -->
 				</executions>
 			</plugin>
 		</plugins>

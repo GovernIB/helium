@@ -20,7 +20,6 @@ import javax.persistence.TableGenerator;
 
 import org.hibernate.annotations.ForeignKey;
 
-import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EmailTipusEnumDto;
 
 /**

@@ -76,90 +76,9 @@ public class EmailHelper {
 			EmailTipusEnumDto emailTipus) {
 		
 		// Llistat de destinataris
-		List<PersonaDto> persones= new ArrayList<PersonaDto>();
-		
-		ExpedientTipus expedientTipus = anotacio.getExpedientTipus();
-		
-		// Cerca els permisos sobre el tipus d'expedient 
-		List<PermisDto> permisos = permisosHelper.findPermisos(expedientTipus.getId(), ExpedientTipus.class);
+		List<PersonaDto> persones = 
+				this.findPersonesPermisAnotacio(anotacio, expedient, emailTipus);
 
-		// Si és un procediment comú llavors cerca tots els permisos pel tipus d'expedient i la unitat organitzativa de l'anotació o les seves superiors
-		if (expedientTipus.isProcedimentComu()) {
-
-			UnitatOrganitzativa uoAnotacio = 
-					expedient != null && expedient.getUnitatOrganitzativa() != null? 
-							expedient.getUnitatOrganitzativa()
-							: unitatOrganitzativaRepository.findByCodi(anotacio.getEntitatCodi());
-			if (uoAnotacio != null) {
-				// Consulta totes les unitats des de la de l'expedient o anotació fins la unitat superior arrel
-				List<UnitatOrganitzativaDto> unitats = unitatOrganitzativaHelper.findPath(uoAnotacio.getCodiUnitatArrel(), uoAnotacio.getCodi());
-				for (UnitatOrganitzativaDto uo : unitats) {
-					// Cerca la relació entre UO's i el tipus d'expedient
-					ExpedientTipusUnitatOrganitzativa expedientTipusUnitatOrganitzativa = 
-							unitatOrganitzativaHelper.findRelacioExpTipusUnitOrg(expedientTipus.getId(), uo.getId());
-					// Cerca  el permisos sobre la relació entre la UO i el tipus d'expedient.
-					if (expedientTipusUnitatOrganitzativa != null) {
-						permisos.addAll(permisosHelper.findPermisos(
-								expedientTipusUnitatOrganitzativa.getId(), 
-								ExpedientTipusUnitatOrganitzativa.class));
-					}
-				}
-			} else {
-				logger.warn("No s'ha resolt la unitat organitzativa per l'anotació " + anotacio.getIdentificador() + " per poder comprovar permisos sobre UO's.");
-			}			
-		}
-		// Si s'han trobat permisos llavors comença a resoldre les persones destinatàries
-		if (permisos != null && !permisos.isEmpty()) {
-			PersonaDto persona;
-			for (PermisDto permis: permisos) {
-				// Si s'ha rebut sense associar expedient llavors ha de ser un permís de relacionar per veure l'anotació
-				if (EmailTipusEnumDto.REBUDA_PENDENT.equals(emailTipus) 
-						&& expedient == null
-						&& ! permis.isRelate() && !permis.isAdministration()) {
-					continue;
-				}
-				// Si s'ha processat llavors s'ha de ser un permís de relacionar o lectura per veure l'anotació
-				if (!EmailTipusEnumDto.REBUDA_PENDENT.equals(emailTipus)
-					&& ! permis.isRelate()
-					&& ! permis.isRead()
-					&& ! permis.isAdministration()) {
-					continue;
-				}
-				
-				switch (permis.getPrincipalTipus()) {
-				case USUARI:
-					try {
-						persona = pluginHelper.personaFindAmbCodi(permis.getPrincipalNom());
-						if (persona != null) {
-							persones.add(persona);
-						}
-					} catch(Exception e) {
-						logger.error("Error cercant les dades de la persona " + permis.getPrincipalNom(), e);
-					}
-					break;
-				case ROL:
-					try {
-						String rol = permis.getPrincipalNom();
-						if ("ROLE_ADMIN".equals(rol)) {
-							rol = "HEL_ADMIN";
-						} else if ("tothom".equals(rol.toLowerCase())) {
-							continue; // NO es consulten els correus de tothom
-						}
-						
-						List<PersonaDto> usuarisGrup = pluginHelper.personaFindAmbGrup(
-								permis.getPrincipalNom());
-						if (usuarisGrup != null) {
-							for (PersonaDto usuariGrup: usuarisGrup) {
-								persones.add(usuariGrup);
-							}
-						}
-					} catch(Exception e) {
-						logger.error("Error cercant les persones pel grup " + permis.getPrincipalNom(), e);
-					}
-					break;
-				}
-			}
-		}
 		// Programa els correus
 		if( persones != null && ! persones.isEmpty()) {
 			for(PersonaDto persona: persones) {
@@ -195,7 +114,103 @@ public class EmailHelper {
 		}
 	}
 	
-	
+	/** Mètode per trobar els destinataris per avisar per email de la nova anotació.
+	 * 
+	 * @param anotacio
+	 * @param expedient
+	 * @param emailTipus
+	 * @return
+	 */
+	public List<PersonaDto> findPersonesPermisAnotacio (Anotacio anotacio, Expedient expedient, EmailTipusEnumDto emailTipus) {
+		
+		List<PersonaDto> personesAmbPermis = new ArrayList<PersonaDto>();
+		
+		ExpedientTipus expedientTipus = anotacio.getExpedientTipus();
+		
+		// Cerca els permisos sobre el tipus d'expedient 
+		List<PermisDto> permisos = permisosHelper.findPermisos(expedientTipus.getId(), ExpedientTipus.class);
+
+		// Si és un procediment comú llavors cerca tots els permisos pel tipus d'expedient i la unitat organitzativa de l'anotació o les seves superiors
+		if (expedientTipus.isProcedimentComu()) {
+
+			UnitatOrganitzativa uoAnotacio = 
+					expedient != null && expedient.getUnitatOrganitzativa() != null? 
+							expedient.getUnitatOrganitzativa()
+							: unitatOrganitzativaRepository.findByCodi(anotacio.getEntitatCodi());
+			if (uoAnotacio != null) {
+				// Consulta totes les unitats des de la de l'expedient o anotació fins la unitat superior arrel
+				List<UnitatOrganitzativaDto> unitats = unitatOrganitzativaHelper.findPath(uoAnotacio.getCodiUnitatArrel(), uoAnotacio.getCodi());
+				for (UnitatOrganitzativaDto uo : unitats) {
+					// Cerca la relació entre UO's i el tipus d'expedient
+					ExpedientTipusUnitatOrganitzativa expedientTipusUnitatOrganitzativa = 
+							unitatOrganitzativaHelper.findRelacioExpTipusUnitOrg(expedientTipus.getId(), uo.getId());
+					// Cerca  el permisos sobre la relació entre la UO i el tipus d'expedient.
+					if (expedientTipusUnitatOrganitzativa != null) {
+						permisos.addAll(permisosHelper.findPermisos(
+								expedientTipusUnitatOrganitzativa.getId(), 
+								ExpedientTipusUnitatOrganitzativa.class));
+					}
+				}
+			} else {
+				logger.warn("No s'ha resolt la unitat organitzativa per l'anotació " + anotacio.getIdentificador() + " per poder comprovar permisos sobre UO's.");
+			}			
+		}
+		// Si s'han trobat permisos llavors comença a resoldre les persones amb permís
+		if (permisos != null && !permisos.isEmpty()) {
+			PersonaDto persona;
+			for (PermisDto permis: permisos) {
+				// Si s'ha rebut sense associar expedient llavors ha de ser un permís de relacionar per veure l'anotació
+				if (EmailTipusEnumDto.REBUDA_PENDENT.equals(emailTipus) 
+						&& expedient == null
+						&& ! permis.isRelate() && !permis.isAdministration()) {
+					continue;
+				}
+				// Si s'ha processat llavors s'ha de ser un permís de relacionar o lectura per veure l'anotació
+				if (!EmailTipusEnumDto.REBUDA_PENDENT.equals(emailTipus)
+					&& ! permis.isRelate()
+					&& ! permis.isRead()
+					&& ! permis.isAdministration()) {
+					continue;
+				}
+				
+				switch (permis.getPrincipalTipus()) {
+				case USUARI:
+					try {
+						persona = pluginHelper.personaFindAmbCodi(permis.getPrincipalNom());
+						if (persona != null) {
+							personesAmbPermis.add(persona);
+						}
+					} catch(Exception e) {
+						logger.error("Error cercant les dades de la persona " + permis.getPrincipalNom(), e);
+					}
+					break;
+				case ROL:
+					try {
+						String rol = permis.getPrincipalNom();
+						if ("ROLE_ADMIN".equals(rol)) {
+							rol = "HEL_ADMIN";
+						} else if ("tothom".equals(rol.toLowerCase())) {
+							continue; // NO es consulten els correus de tothom
+						}
+						
+						List<PersonaDto> usuarisGrup = pluginHelper.personaFindAmbGrup(
+								permis.getPrincipalNom());
+						if (usuarisGrup != null) {
+							for (PersonaDto usuariGrup: usuarisGrup) {
+								personesAmbPermis.add(usuariGrup);
+							}
+						}
+					} catch(Exception e) {
+						logger.error("Error cercant les persones pel grup " + permis.getPrincipalNom(), e);
+					}
+					break;
+				}
+			}
+		}
+		return personesAmbPermis;
+	}
+
+
 	/** Envia un email avisant al destinatari que ha arribat una nova anotació 
 	 * (ja sigui via incorporació, creació o pendent).
 	 *  Es diferencia del mètode agrupat perquè només envia
@@ -210,7 +225,10 @@ public class EmailHelper {
 	public void sendAnotacioEmailNoAgrupat(
 			AnotacioEmail anotacioEmail,
 			List<AnotacioEmail> anotacioEmailListNoAgrupats) throws Exception {
-		logger.trace("Enviament email anotació a destinatari");
+		
+		logger.debug("Enviament email anotació " + anotacioEmail.getAnotacio().getIdentificador() + 
+				" al destinatari " + anotacioEmail.getDestinatariCodi() + " " + anotacioEmail.getDestinatariEmail() +
+				". Intent " + anotacioEmail.getNumIntents());
 
 		SimpleMailMessage missatge = new SimpleMailMessage();
 		missatge.setTo(anotacioEmail.getDestinatariEmail());
@@ -244,7 +262,8 @@ public class EmailHelper {
 		try {
 			mailSender.send(missatge);
 		} catch (Exception e) {
-			logger.error("Error enviant l'email de l'anotació " + anotacioEmail.getId() + " al destinatari " + anotacioEmail.getDestinatariEmail() + ": " + e.getMessage());
+			String errMsg = "Error enviant l'email de l'anotació " + anotacioEmail.getId() + " al destinatari " + anotacioEmail.getDestinatariEmail() + ": " + e.getMessage();
+			logger.error(errMsg);
 			anotacioEmail.setNumIntents(anotacioEmail.getNumIntents()+1);
 			List<AnotacioEmail> emailsToRemove = new ArrayList<AnotacioEmail>();
 			if(anotacioEmail.getNumIntents()>2) {
@@ -256,7 +275,7 @@ public class EmailHelper {
 			if(!emailsToRemove.isEmpty()) {
 				anotacioEmailListNoAgrupats.removeAll(emailsToRemove);
 			}
-			throw new Exception("Error enviant l'email de l'anotació " + anotacioEmail.getId() + " al destinatari " + anotacioEmail.getDestinatariEmail() + ": " + e.getMessage());
+			throw new Exception(errMsg);
 		}
 	}  
 	

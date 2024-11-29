@@ -17,7 +17,7 @@ import javax.xml.ws.WebServiceFeature;
  * Generated source version: 2.2
  * 
  */
-@WebServiceClient(name = "BackofficeService", targetNamespace = "http://www.caib.es/distribucio/ws/backoffice", wsdlLocation = "file:/C:/Users/andre/git/helium/helium-core-api/src/main/resources/net/conselldemallorca/helium/core/api/wsdl/backoffice-distribucio.wsdl")
+@WebServiceClient(name = "BackofficeService", targetNamespace = "http://www.caib.es/distribucio/ws/backoffice", wsdlLocation = "file:/C:/helium/helium-core-api/src/main/resources/net/conselldemallorca/helium/core/api/wsdl/backoffice-distribucio.wsdl")
 public class BackofficeService
     extends Service
 {
@@ -30,7 +30,7 @@ public class BackofficeService
         URL url = null;
         WebServiceException e = null;
         try {
-            url = new URL("file:/C:/Users/andre/git/helium/helium-core-api/src/main/resources/net/conselldemallorca/helium/core/api/wsdl/backoffice-distribucio.wsdl");
+            url = new URL("file:/C:/helium/helium-core-api/src/main/resources/net/conselldemallorca/helium/core/api/wsdl/backoffice-distribucio.wsdl");
         } catch (MalformedURLException ex) {
             e = new WebServiceException(ex);
         }
