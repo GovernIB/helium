@@ -75,6 +75,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Alerta;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta.AlertaPrioritat;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
+import net.conselldemallorca.helium.core.model.hibernate.AnotacioEmail;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.Consulta;
 import net.conselldemallorca.helium.core.model.hibernate.ConsultaCamp.TipusConsultaCamp;
@@ -160,6 +161,7 @@ import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.api.service.ParametreService;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
+import net.conselldemallorca.helium.v3.core.repository.AnotacioEmailRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.ConsultaRepository;
@@ -250,7 +252,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
 	@Resource
 	private ParametreRepository parametreRepository;
-	
+	@Resource
+	private AnotacioEmailRepository anotacioEmailRepository;
 	@Resource
 	private ExpedientHelper expedientHelper;
 	@Resource
@@ -633,7 +636,14 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 //		}
 
 		peticioPinbalRepository.delete(peticioPinbalRepository.findByExpedientId(expedient.getId()));
-
+		
+		List<AnotacioEmail> anotacioEmails = anotacioEmailRepository.findByExpedientId(expedient.getId());
+		if(anotacioEmails!=null && !anotacioEmails.isEmpty()) {
+			for (AnotacioEmail anotacioEmail : anotacioEmails) {
+				anotacioEmailRepository.delete(anotacioEmail);
+			}
+		}
+		
 		anotacioService.esborrarAnotacionsExpedient(expedient.getId());
 
 		// Ordena per id de menor a major per evitar errors de dependències
