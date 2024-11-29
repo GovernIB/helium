@@ -68,6 +68,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Portasignatures.Transic
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.custodia.CustodiaPluginException;
+import net.conselldemallorca.helium.integracio.plugins.dadesext.DadesExternesPlugin;
 import net.conselldemallorca.helium.integracio.plugins.firma.FirmaPlugin;
 import net.conselldemallorca.helium.integracio.plugins.firma.FirmaResposta;
 import net.conselldemallorca.helium.integracio.plugins.firmaweb.FirmaWebPlugin;
@@ -231,6 +232,8 @@ public class PluginHelper {
 	private PinbalPluginInterface pinbalPlugin;
 	private FirmaWebPlugin firmaWebPlugin;
 	private ProcedimentPlugin procedimentPlugin;
+	private DadesExternesPlugin dadesExternesPlugin;
+
 	
 	private Tika tika = new Tika();
 
@@ -5940,6 +5943,28 @@ public class PluginHelper {
 		}
 	}
 	
-	
+	public DadesExternesPlugin getDadesExternesPlugin() {
+		if(dadesExternesPlugin == null) {
+			String pluginClass = GlobalProperties.getInstance().getProperty("app.dadesext.dir3.plugin.service.class");
+			if (pluginClass != null && pluginClass.length() > 0) {
+				try {
+					Class<?> clazz = Class.forName(pluginClass);
+					dadesExternesPlugin = (DadesExternesPlugin)clazz.newInstance();
+				} catch (Exception ex) {
+					throw tractarExcepcioEnSistemaExtern(
+							"DIR3",
+							"Error al crear la instància del plugin dades externes (" +
+							"pluginClass=" + pluginClass + ")",
+							ex);
+				}
+			} else {
+				throw tractarExcepcioEnSistemaExtern(
+						MonitorIntegracioHelper.INTCODI_DADES_EXTERNES,
+						"No està configurada la classe per al plugin de dades externes",
+						null);
+			}
+		}
+		return dadesExternesPlugin;	
+	}
 	private static final Log logger = LogFactory.getLog(PluginHelper.class);
 }

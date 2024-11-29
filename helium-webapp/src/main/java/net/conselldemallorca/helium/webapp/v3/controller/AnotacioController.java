@@ -50,10 +50,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import net.conselldemallorca.helium.core.helper.EmailHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
-import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
-import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.util.EntornActual;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioAccioEnumDto;
@@ -63,7 +60,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.AnotacioFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioListDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EmailTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
@@ -80,8 +76,6 @@ import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
-import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
-import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.AnotacioAcceptarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.AnotacioAcceptarCommand.CrearIncorporar;
@@ -118,16 +112,7 @@ public class AnotacioController extends BaseExpedientController {
 	
 	@Autowired
 	private ExpedientTipusService expedientTipusService;
-	
-	@Autowired
-	private ExpedientRepository expedientRepository;
-	
-	@Autowired
-	private AnotacioRepository anotacioRepository;
 
-	@Autowired
-	private EmailHelper emailHelper;
-	
 	private static final String SESSION_ATTRIBUTE_FILTRE = "AnotacioController.session.filtre";
 	
 	/** Accés al llistat d'anotacions des de l'opció a la capçalera per ususaris amb permís de relacionar expedients. */
@@ -450,14 +435,7 @@ public class AnotacioController extends BaseExpedientController {
 						command.isAssociarInteressats(),
 						true,
 						true);
-				//Encuem l'enviament d' email d'incorporació d'antoació als usuaris que tenen activada l'opció al seu perfil
-				Expedient expedientEntity = expedientRepository.findOne(command.getExpedientId());
-				Anotacio anotacioEntity = anotacioRepository.findOne(command.getId());
-				emailHelper.createEmailsAnotacioToSend(
-							anotacioEntity,
-							expedientEntity,
-							EmailTipusEnumDto.INCORPORADA);
-					
+			
 				MissatgesHelper.success(
 						request, 
 						getMessage(

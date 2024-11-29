@@ -33,16 +33,16 @@ public class DadesExternesHelper {
 	private MonitorIntegracioHelper monitorIntegracioHelper;
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
+	@Resource
+	private PluginHelper pluginHelper;
 	
-	private DadesExternesPlugin dadesExternesPlugin;
-
 	public List<PaisDto> dadesExternesPaisosFindAll() {
 
 		String accioDescripcio = "Consulta de tots els paisos";
 		long t0 = System.currentTimeMillis();
 		
 		try {
-			List<Pais> paisos = getDadesExternesPlugin().paisFindAll();
+			List<Pais> paisos =  pluginHelper.getDadesExternesPlugin().paisFindAll();
 			IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 					new IntegracioParametreDto(
 							"paisos",
@@ -77,7 +77,7 @@ public class DadesExternesHelper {
 		String accioDescripcio = "Consulta de totes les comunitats";
 		long t0 = System.currentTimeMillis();
 		try {
-			List<ComunitatAutonoma> comunitats = getDadesExternesPlugin().comunitatFindAll();
+			List<ComunitatAutonoma> comunitats = pluginHelper.getDadesExternesPlugin().comunitatFindAll();
 			IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 					new IntegracioParametreDto(
 							"comunitats",
@@ -111,7 +111,7 @@ public class DadesExternesHelper {
 		String accioDescripcio = "Consulta de totes les provincies";
 		long t0 = System.currentTimeMillis();
 		try {
-			List<Provincia> provincies = getDadesExternesPlugin().provinciaFindAll();
+			List<Provincia> provincies =  pluginHelper.getDadesExternesPlugin().provinciaFindAll();
 			IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 					new IntegracioParametreDto(
 							"provincies",
@@ -157,7 +157,7 @@ public class DadesExternesHelper {
 		accioParams.put("provinciaCodi", provinciaCodi);
 		long t0 = System.currentTimeMillis();
 		try {
-			List<Municipi> municipis = getDadesExternesPlugin().municipiFindByProvincia(provinciaCodi);
+			List<Municipi> municipis =  pluginHelper.getDadesExternesPlugin().municipiFindByProvincia(provinciaCodi);
 			IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 					new IntegracioParametreDto(
 							"municipis_per_provincia",
@@ -191,7 +191,7 @@ public class DadesExternesHelper {
 		String accioDescripcio = "Consulta de municipis";
 		long t0 = System.currentTimeMillis();
 		try {
-			List<Municipi> municipis = getDadesExternesPlugin().municipiFindByProvincia(provinciaCodi);
+			List<Municipi> municipis =  pluginHelper.getDadesExternesPlugin().municipiFindByProvincia(provinciaCodi);
 			IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 					new IntegracioParametreDto(
 							"municipis",
@@ -226,7 +226,7 @@ public class DadesExternesHelper {
 		String accioDescripcio = "Consulta de les províncies d'una comunitat";
 		long t0 = System.currentTimeMillis();
 		try {
-			List<Provincia> provincies = getDadesExternesPlugin().provinciaFindByComunitat(comunitatCodi);
+			List<Provincia> provincies =  pluginHelper.getDadesExternesPlugin().provinciaFindByComunitat(comunitatCodi);
 			IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 					new IntegracioParametreDto(
 							"comunitatCodi",
@@ -261,7 +261,7 @@ public class DadesExternesHelper {
 		String accioDescripcio = "Consulta de nivells d'administració";
 		long t0 = System.currentTimeMillis();
 		try {
-			List<NivellAdministracio> nivellAdministracio = getDadesExternesPlugin().nivellAdministracioFindAll();
+			List<NivellAdministracio> nivellAdministracio =  pluginHelper.getDadesExternesPlugin().nivellAdministracioFindAll();
 			IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 					new IntegracioParametreDto(
 							"nivellAdministracio",
@@ -296,7 +296,7 @@ public class DadesExternesHelper {
 		long t0 = System.currentTimeMillis();
 		
 		try {
-			List<TipusVia> tipusVia = getDadesExternesPlugin().tipusViaFindAll();
+			List<TipusVia> tipusVia =  pluginHelper.getDadesExternesPlugin().tipusViaFindAll();
 			IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
 					new IntegracioParametreDto(
 							"tipusVia",
@@ -324,31 +324,7 @@ public class DadesExternesHelper {
 					errorDescripcio, 
 					ex);	
 		}
-	}
-	
-	private DadesExternesPlugin getDadesExternesPlugin() {
-		if(dadesExternesPlugin == null) {
-			String pluginClass = GlobalProperties.getInstance().getProperty("app.dadesext.dir3.plugin.service.class");
-			if (pluginClass != null && pluginClass.length() > 0) {
-				try {
-					Class<?> clazz = Class.forName(pluginClass);
-					dadesExternesPlugin = (DadesExternesPlugin)clazz.newInstance();
-				} catch (Exception ex) {
-					throw tractarExcepcioEnSistemaExtern(
-							"DIR3",
-							"Error al crear la instància del plugin dades externes (" +
-							"pluginClass=" + pluginClass + ")",
-							ex);
-				}
-			} else {
-				throw tractarExcepcioEnSistemaExtern(
-						MonitorIntegracioHelper.INTCODI_DADES_EXTERNES,
-						"No està configurada la classe per al plugin de dades externes",
-						null);
-			}
-		}
-		return dadesExternesPlugin;	
-	}
+	}	
 	
 	private SistemaExternException tractarExcepcioEnSistemaExtern(
 			String sistemaExtern,
