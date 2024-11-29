@@ -668,13 +668,13 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	    		List<DocumentListDto> documentsExpEstat = findDocumentsExpedient(expedientId, true, new PaginacioParamsDto());
 				for (DocumentListDto ed: documentsExpEstat) {
 					ArxiuEstat arxiuEstat = null;
-					if (ed.getArxiuUuid()!=null && !"".equals(ed.getArxiuUuid())) {
+					if (ed.getId() != null && ed.getArxiuUuid()!=null && !"".equals(ed.getArxiuUuid())) {
 						ArxiuDetallDto arxiuDetallDto = getArxiuDetall(expedientId, expedient.getProcessInstanceId(), ed.getId());
 						if (arxiuDetallDto!=null) {
 							arxiuEstat = arxiuDetallDto.getArxiuEstat();
 						}
 					}
-					if (!ed.isSignat() || arxiuEstat==null || arxiuEstat.equals(ArxiuEstat.ESBORRANY)) {
+					if (ed.getId()!=null && (!ed.isSignat() || arxiuEstat==null || arxiuEstat.equals(ArxiuEstat.ESBORRANY))) {
 						DocumentFinalitzarDto aux = conversioTipusHelper.convertir(ed, DocumentFinalitzarDto.class);
 						if (aux.getDocumentCodi()==null) {
 							aux.setDocumentCodi(ed.getNom());
@@ -716,7 +716,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
     								arxiuEstat = arxiuDetallDto.getArxiuEstat();
     							}
     						}
-    						if (!ed.isSignat() || arxiuEstat==null || arxiuEstat.equals(ArxiuEstat.ESBORRANY)) {
+    						if (ed.getId()!=null && (!ed.isSignat() || arxiuEstat==null || arxiuEstat.equals(ArxiuEstat.ESBORRANY))) {
 	    						DocumentFinalitzarDto aux = conversioTipusHelper.convertir(ed, DocumentFinalitzarDto.class);
 	    						//documentNom (conversor) > documentCodi > titol > nomArxiu
 	    						if (aux.getDocumentCodi()==null) {
