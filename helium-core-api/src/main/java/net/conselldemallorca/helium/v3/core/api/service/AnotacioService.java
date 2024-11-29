@@ -170,4 +170,11 @@ public interface AnotacioService {
 	 * @param annexId
 	 */
 	public ArxiuDto getAnnexContingutVersioOriginal(Long annexId);
+
+	/** Mètode enviar manualment l'avís per per email que ha arribat o s'ha processat una anotació. 
+	 * 
+	 * @param annexId Identificador de l'anotació.
+	 * @return Retorna la llista de persones avisades per les quals s'ha programat l'avís.
+	 */
+	public List<String>[] emailAnotacio(long anotacioId);
 }

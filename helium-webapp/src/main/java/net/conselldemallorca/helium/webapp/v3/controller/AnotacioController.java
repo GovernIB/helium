@@ -19,6 +19,7 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.DataFormat;
@@ -1377,6 +1378,56 @@ public class AnotacioController extends BaseExpedientController {
 		}
 		return "redirect:/v3/anotacio";
 	}
-	
+
+	/** Acció del menú desplegable d'accions sobre una anotació per programar manualmnet l'avís per email de nova anotació.
+	 */
+	@RequestMapping(value = "/{id}/email", method = RequestMethod.GET)
+	public String email(
+			HttpServletRequest request,
+			@PathVariable Long id,
+			Model model) {
+		
+		// Envia els correus
+		try {
+			List<String>[] destinataris = anotacioService.emailAnotacio(id);
+			List<String> correctes = destinataris[0];
+			List<String> errors = destinataris[1];
+			if (correctes.isEmpty() && errors.isEmpty()) {
+				MissatgesHelper.warning(
+						request,
+						getMessage(
+								request,
+								"anotacio.llistat.email.avisar.resultat.sense.destinataris"));
+			} else {
+				if (! errors.isEmpty()) {
+					MissatgesHelper.error(
+							request,
+							StringEscapeUtils.escapeHtml4(
+									getMessage(
+									request,
+									"anotacio.llistat.email.avisar.resultat.errors",
+									new Object[] {errors.size(), errors})));
+				}
+				if (! correctes.isEmpty()) {
+					MissatgesHelper.success(
+							request,
+							StringEscapeUtils.escapeHtml4(
+								getMessage(
+										request,
+										"anotacio.llistat.email.avisar.resultat.correctes",
+										new Object[] {correctes.size(), correctes})));
+				}
+			}
+		} catch(Exception e) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"anotacio.llistat.email.avisar.error",
+							new Object[] {e.getMessage()}));
+		}
+		return "redirect:/v3/anotacio";
+	}
+
 	private static final Log logger = LogFactory.getLog(AnotacioController.class);
 }

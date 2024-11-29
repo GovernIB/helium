@@ -50,6 +50,7 @@ import net.conselldemallorca.helium.core.helper.AnotacioHelper;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
+import net.conselldemallorca.helium.core.helper.EmailHelper;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.helper.ExceptionHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientDadaHelper;
@@ -67,9 +68,11 @@ import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.helper.VariableHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
 import net.conselldemallorca.helium.core.model.hibernate.AnotacioAnnex;
+import net.conselldemallorca.helium.core.model.hibernate.AnotacioEmail;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
+import net.conselldemallorca.helium.core.model.hibernate.UsuariPreferencies;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioDto;
@@ -80,12 +83,14 @@ import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EmailTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiTipoFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
@@ -99,6 +104,7 @@ import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusUnitatOrganitzativaRepository;
 import net.conselldemallorca.helium.v3.core.repository.InteressatRepository;
 import net.conselldemallorca.helium.v3.core.repository.MapeigSistraRepository;
+import net.conselldemallorca.helium.v3.core.repository.UsuariPreferenciesRepository;
 
 /**
  * Implementació del servei per a gestionar anotacions de distribució.
@@ -136,6 +142,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	private CampRepository campRepository;
 	@Resource
 	private ExpedientTipusUnitatOrganitzativaRepository expedientTipusUnitatOrganitzativaRepository;
+	@Resource 
+	private UsuariPreferenciesRepository usuariPreferenciesRepository;
 	@Resource
 	private PaginacioHelper paginacioHelper;
 	@Resource
@@ -170,6 +178,8 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
 	@Resource
 	private AnotacioHelper anotacioHelper;
+	@Resource
+	private EmailHelper emailHelper;
 	
 	@PersistenceContext
     private EntityManager entityManager;
@@ -1295,6 +1305,71 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				"anotacioId=" + anotacioId + ", " +
 				"expedientId=" + expedientId + ")");
 		return anotacioHelper.reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional
+	public List<String>[] emailAnotacio(long anotacioId) {
+		logger.debug(
+				"Enviar avís per email d'anotació ( " +
+				"anotacioId=" + anotacioId + ")");
+		
+
+		// Anotacio 
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+		Expedient expedient = anotacio.getExpedient();
+		EmailTipusEnumDto emailTipus = null;
+		if (AnotacioEstatEnumDto.PENDENT.equals(anotacio.getEstat())) {
+			emailTipus = EmailTipusEnumDto.REBUDA_PENDENT;
+		} else {
+			emailTipus = expedient != null && expedient.getDataInici().after(anotacio.getDataRecepcio()) ?
+								EmailTipusEnumDto.PROCESSADA
+								: EmailTipusEnumDto.INCORPORADA;
+		}
+		// Obtenir la llista de persones amb permís
+		List<PersonaDto> personesAmbPermis = 
+				emailHelper.findPersonesPermisAnotacio(anotacio, expedient, emailTipus);
+		
+		// Envia correus als que tinguin l'usuari configurat.
+		List<String> correctes = new ArrayList<String>();
+		List<String> errors = new ArrayList<String>();
+		for (PersonaDto persona : personesAmbPermis) {
+			String destinatari = persona.getNomSencer();
+			try {
+				// Consutla les preferències de l'usuari per veure si té un email alternatiu
+				UsuariPreferencies usuariPreferencies = 
+						usuariPreferenciesRepository.findByCodi(persona.getCodi());
+				// Només s'envien a usuaris que ho indiquin en les preferències.
+				if(usuariPreferencies != null 
+						&& (usuariPreferencies.isCorreusBustia() 
+								|| usuariPreferencies.isCorreusBustiaAgrupatsDia())) 
+				{
+					String email = usuariPreferencies.getEmailAlternatiu() != null ?
+										usuariPreferencies.getEmailAlternatiu() 
+										: persona.getEmail();
+					AnotacioEmail anotacioEmail = new AnotacioEmail(
+							anotacio, 
+							expedient, 
+							persona.getCodi(), 
+							"Helium",
+							emailTipus, 
+							email,
+							usuariPreferencies.isCorreusBustiaAgrupatsDia(),
+							new Date(),
+							0);
+					destinatari += " <" + email + ">";
+					// Envia el correu
+					emailHelper.sendAnotacioEmailNoAgrupat(anotacioEmail, new ArrayList<AnotacioEmail>());
+					correctes.add(destinatari);
+				}
+			} catch(Exception e) {
+				errors.add(destinatari);
+			}
+		}
+		return (List<String>[]) new List[]  {correctes, errors};
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(AnotacioServiceImpl.class);

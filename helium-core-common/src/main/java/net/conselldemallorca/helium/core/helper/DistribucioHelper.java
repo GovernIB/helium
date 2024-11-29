@@ -106,7 +106,6 @@ import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientTipusRepository;
 import net.conselldemallorca.helium.v3.core.repository.MapeigSistraRepository;
-import net.conselldemallorca.helium.v3.core.repository.UsuariPreferenciesRepository;
 
 /**
  * Mètodes comuns per cridar WebService de Distribucio
@@ -171,8 +170,6 @@ public class DistribucioHelper {
 	private UsuariActualHelper usuariActualHelper;
 	@Resource
 	private EmailHelper emailHelper;
-	@Resource 
-	private UsuariPreferenciesRepository usuariPreferenciesRepository;
 	@Resource
 	private AnotacioEmailRepository anotacioEmailRepository;
 	@Resource

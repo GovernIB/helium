@@ -147,4 +147,10 @@ public class AnotacioServiceBean implements AnotacioService {
 		delegate.reintentarTraspasAnotacio(anotacioId);
 		
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<String>[] emailAnotacio(long anotacioId) {
+		return delegate.emailAnotacio(anotacioId);
+	}
 }
