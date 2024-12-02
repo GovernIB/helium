@@ -25,14 +25,17 @@ import net.conselldemallorca.helium.core.model.hibernate.AnotacioEmail;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipusUnitatOrganitzativa;
+import net.conselldemallorca.helium.core.model.hibernate.Procediment;
 import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.core.model.hibernate.UsuariPreferencies;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.core.util.StringUtilsHelium;
 import net.conselldemallorca.helium.v3.core.api.dto.EmailTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PermisDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.UnitatOrganitzativaDto;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioEmailRepository;
+import net.conselldemallorca.helium.v3.core.repository.ProcedimentRepository;
 import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaRepository;
 import net.conselldemallorca.helium.v3.core.repository.UsuariPreferenciesRepository;
 
@@ -54,6 +57,8 @@ public class EmailHelper {
 	private UnitatOrganitzativaRepository unitatOrganitzativaRepository;
 	@Resource 
 	private UsuariPreferenciesRepository usuariPreferenciesRepository;
+	@Resource
+	private ProcedimentRepository procedimentRepository;
 	@Resource
 	private PluginHelper pluginHelper;
 	@Resource(name = "permisosHelperV3") 
@@ -232,33 +237,12 @@ public class EmailHelper {
 
 		SimpleMailMessage missatge = new SimpleMailMessage();
 		missatge.setTo(anotacioEmail.getDestinatariEmail());
-		missatge.setFrom(anotacioEmail.getRemitentCodi());
+		String fromAddress = GlobalProperties.getInstance().getProperty("app.correu.remitent");
+		missatge.setFrom(fromAddress != null ? fromAddress : "HELIUM");
 		//Depenent del tipus tindrem un Assumpte o un altre
-		String subject = this.getPrefixHelium() + " Nova anotació " +anotacioEmail.getAnotacio().getIdentificador() ;
-		if(EmailTipusEnumDto.PROCESSADA.equals(anotacioEmail.getEmailTipus())) {
-			subject +=  " processada i creació de l'expedient: " + anotacioEmail.getExpedient().getNumeroIdentificador();
-		}
-		else if(EmailTipusEnumDto.INCORPORADA.equals(anotacioEmail.getEmailTipus())) {
-			subject +=  " processada i incorporada a l'expedient: " + anotacioEmail.getExpedient().getNumeroIdentificador();
-		}
-		else if(EmailTipusEnumDto.REBUDA_PENDENT.equals(anotacioEmail.getEmailTipus())) {
-			subject +=  " en estat pendent";
-		}	
-		missatge.setSubject(subject);	
-		missatge.setText(
-				subject +"\n" +
-				"\tEntitat: " + ( anotacioEmail.getAnotacio() != null ?  anotacioEmail.getAnotacio().getEntitatDescripcio() : "") + "\n" +
-				"\tUnitat organitzativa: " + ( anotacioEmail.getAnotacio() != null ?   this.getDadesNtiOrgan(anotacioEmail.getAnotacio().getExpedientTipus()): "") + "\n" +
-				"\tAnotació: " + ( anotacioEmail.getAnotacio() != null ?  anotacioEmail.getAnotacio().getIdentificador() : "") + "\n" +
-				"Dades de l'element: \n" +
-				"\tTipus: Anotació " + 	messageHelper.getMessage("anotacio.email.tipus."+ anotacioEmail.getEmailTipus().toString()) + "\n" +
-				"\tNom: "+ ( anotacioEmail.getAnotacio() != null ?  anotacioEmail.getAnotacio().getIdentificador() +" - " + anotacioEmail.getAnotacio().getExtracte() : "") + "\n" +
-				"\tExpedient: "+((anotacioEmail.getAnotacio() != null && anotacioEmail.getAnotacio().getExpedient() != null) ?  
-									(anotacioEmail.getAnotacio().getExpedient().getNumero() +" - " + anotacioEmail.getAnotacio().getExpedient().getTitol()) : 
-									anotacioEmail.getAnotacio().getExpedientNumero() 
-								)+ "\n" +				
-				"\tRemitent: " + anotacioEmail.getRemitentCodi() + "\n" 
-		);
+		String subject = this.getSubject(anotacioEmail);
+		missatge.setSubject(subject);
+		missatge.setText(this.getTextMissatge(subject, anotacioEmail));
 		try {
 			mailSender.send(missatge);
 		} catch (Exception e) {
@@ -278,24 +262,16 @@ public class EmailHelper {
 			throw new Exception(errMsg);
 		}
 	}  
-	
-	private String getDadesNtiOrgan(ExpedientTipus expTipus) {
-		if(expTipus!=null) {
-			String codiUo = expTipus.getNtiOrgano();
-			UnitatOrganitzativa uo = unitatOrganitzativaRepository.findByCodi(codiUo);
-			if(uo!=null)
-				return uo.getCodiAndNom();
-		}
-		return null;
-	}
-	
+		
 	public void sendAnotacioEmailsPendentsAgrupats(
 			String emailDestinatari,
 			List<AnotacioEmail> emailPendents) throws Exception {	
-			
+		
 		SimpleMailMessage missatge = new SimpleMailMessage();
+
 		missatge.setTo(emailDestinatari);
-		missatge.setFrom(emailPendents.get(0).getRemitentCodi());
+		String fromAddress = GlobalProperties.getInstance().getProperty("app.correu.remitent");
+		missatge.setFrom(fromAddress != null ? fromAddress : "HELIUM");
 		missatge.setSubject(getPrefixHelium() + " Emails agrupats");
 		
 		// Agrupa per email tipus
@@ -323,29 +299,8 @@ public class EmailHelper {
 			text += "--------------------------------------------------------------------------\n\n";
 
 			for (AnotacioEmail anotacioEmail : entry.getValue()) {
-				String subject = this.getPrefixHelium() + " Nova anotació " +anotacioEmail.getAnotacio().getIdentificador() ;
-				if(EmailTipusEnumDto.PROCESSADA.equals(anotacioEmail.getEmailTipus())) {
-					subject +=  " processada i creació de l'expedient: " + anotacioEmail.getExpedient().getNumeroIdentificador();
-				}
-				else if(EmailTipusEnumDto.INCORPORADA.equals(anotacioEmail.getEmailTipus())) {
-					subject +=  " processada i incorporada a l'expedient: " + anotacioEmail.getExpedient().getNumeroIdentificador();
-				}
-				else if(EmailTipusEnumDto.REBUDA_PENDENT.equals(anotacioEmail.getEmailTipus())) {
-					subject +=  " en estat pendent";
-				}	
-				text += subject +"\n" +
-						"\tEntitat: " + ( anotacioEmail.getAnotacio() != null ?  anotacioEmail.getAnotacio().getEntitatDescripcio() : "") + "\n" +
-						"\tUnitat organitzativa: " + ( anotacioEmail.getAnotacio() != null ?   this.getDadesNtiOrgan(anotacioEmail.getAnotacio().getExpedientTipus()): "") + "\n" +
-						"\tAnotació: " + ( anotacioEmail.getAnotacio() != null ?  anotacioEmail.getAnotacio().getIdentificador() : "") + "\n" +
-						"Dades de l'element: \n" +
-						"\tTipus: Anotació " + 	messageHelper.getMessage("anotacio.email.tipus."+ anotacioEmail.getEmailTipus().toString()) + "\n" +
-						"\tNom: "+ ( anotacioEmail.getAnotacio() != null ?  anotacioEmail.getAnotacio().getIdentificador() +" - " + anotacioEmail.getAnotacio().getExtracte() : "") + "\n" +
-						"\tExpedient: "+((anotacioEmail.getAnotacio() != null && anotacioEmail.getAnotacio().getExpedient() != null) ?  
-											(anotacioEmail.getAnotacio().getExpedient().getNumero() +" - " + anotacioEmail.getAnotacio().getExpedient().getTitol()) : 
-											anotacioEmail.getAnotacio().getExpedientNumero() 
-										)+ "\n" +
-						"\tRemitent: " + anotacioEmail.getRemitentCodi() + "\n" +
-						"\n\n";
+				String subject = this.getSubject(anotacioEmail);				
+				text += this.getTextMissatge(subject, anotacioEmail) +"\n";
 			}
 			text += "\n";
 		}
@@ -374,7 +329,66 @@ public class EmailHelper {
 		}	
 	}
 	
+	/** Construeix el text pel títol del correu depenenet de la informació de l'anotació email.
+	 * 
+	 * @param anotacioEmail
+	 * @return
+	 */
+	private String getSubject(AnotacioEmail anotacioEmail) {
+		
+		String subject = this.getPrefixHelium() + " Nova anotació " + anotacioEmail.getAnotacio().getIdentificador();
+		if(EmailTipusEnumDto.PROCESSADA.equals(anotacioEmail.getEmailTipus())) {
+			subject +=  " processada i creació de l'expedient [" + anotacioEmail.getExpedient().getNumeroIdentificador() + "]";
+		}
+		else if(EmailTipusEnumDto.INCORPORADA.equals(anotacioEmail.getEmailTipus())) {
+			subject +=  " processada i incorporada a l'expedient [" + anotacioEmail.getExpedient().getNumeroIdentificador() + "]";
+		}
+		else if(EmailTipusEnumDto.REBUDA_PENDENT.equals(anotacioEmail.getEmailTipus())) {
+			subject +=  " en estat pendent";
+		}	
+		return subject;
+	}
 	
+	/** Obté el text corresponent a una anotació
+	 * 
+	 * @param subject
+	 * @param anotacioEmail
+	 * @return
+	 */
+	private String getTextMissatge(String subject, AnotacioEmail anotacioEmail) {
+		StringBuilder text = new StringBuilder(subject);
+		Anotacio anotacio = anotacioEmail.getAnotacio();
+		if (anotacio != null) {
+			text.append("\nDades de l'anotació ").append(anotacioEmail.getAnotacio().getIdentificador()).append(":")
+			.append("\n\t Data: ").append(StringUtilsHelium.formatDateTime(anotacioEmail.getAnotacio().getData()))
+			.append("\n\t Extracte: ").append(anotacio.getExtracte())
+			.append("\n\t Òrgan destí: ").append(anotacio.getDestiCodi()).append(" ").append(anotacio.getDestiDescripcio())
+			.append("\n\t Procediment: ").append(anotacio.getProcedimentCodi())
+			.append("\n\t Estat anotació: ").append(messageHelper.getMessage("anotacio.email.tipus." + anotacioEmail.getEmailTipus().toString()));
+			Procediment procediment = procedimentRepository.findByCodiSia(anotacio.getProcedimentCodi());
+			if (procediment != null)
+				text.append(" ").append(procediment.getNom());
+
+			Expedient expedient = anotacio.getExpedient();
+			if (expedient != null) {
+				text.append("\nDades de l'expedient associat:")
+					.append("\n\t Número: ").append(expedient.getNumeroIdentificador());
+				if( expedient.getTitol() != null) {
+					text.append("\n\t Títol: ").append(expedient.getTitol());
+				}
+				text.append("\n\t Data: ").append(StringUtilsHelium.formatDateTime(expedient.getDataInici()));
+			}
+
+			ExpedientTipus expedientTipus = anotacio.getExpedientTipus();
+			if (expedientTipus != null) {
+				text.append("\n\t Tipus d'expedient: ").append(expedientTipus.getCodi()).append(" - ").append(expedientTipus.getNom())
+					.append("\n\t Entorn: ").append(expedientTipus.getEntorn().getNom());	
+			}
+		}
+		return text.toString();
+	}
+
+
 	private String getPrefixHelium() {
 		String entorn = GlobalProperties.getInstance().getProperty("app.entorn.helium");
 		String prefix;
