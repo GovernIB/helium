@@ -329,14 +329,6 @@ public class AnotacioHelper {
 				);
 		expedientLog.setEstat(ExpedientLogEstat.IGNORAR);
 
-		//Encuem l'enviament d' email d'incorporació d'antoació als usuaris que tenen activada l'opció al seu perfil
-		if(!reprocessar) {
-			emailHelper.createEmailsAnotacioToSend(
-					anotacio,
-					expedient,
-					EmailTipusEnumDto.INCORPORADA);
-		}	
-
 		return conversioTipusHelper.convertir(
 				anotacio, 
 				AnotacioDto.class);
