@@ -2,6 +2,7 @@ package net.conselldemallorca.helium.ws.backoffice.distribucio;
 
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +23,6 @@ import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Anotacio;
-import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
@@ -59,7 +59,8 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 	@Override
 	public synchronized void comunicarAnotacionsPendents(List<AnotacioRegistreId> ids) {
 		
-		logger.info("Rebuda petició d'anotacions de registre de Distribucio " + ids + ". Inici del processament.");
+		logger.info("Rebuda la comunicació de " + ids.size() + "anotacions de registre de Distribucio. Inici del processament.");
+		
 		monitorIntegracioHelper.addAccioOk(
 				MonitorIntegracioHelper.INTCODI_DISTRIBUCIO, 
 				"Rebuda petició de " + (ids != null ? ids.size() : "null") + " anotacions de registre de Distribucio", 
@@ -70,6 +71,7 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 		es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId idWs;
 		List<Anotacio> anotacions;
 		Anotacio anotacio;
+		List<Long> idsAnotacionsReprocessar =  new ArrayList<Long>();
 		for (AnotacioRegistreId id : ids) {
 			idWs = conversioTipusHelper.convertir(id, es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId.class);
 			try {
@@ -85,6 +87,7 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 				if (anotacio == null) {
 					// Guarda la informació mínima a la taula d'anotacions per a que la tasca en segon pla la consulti i processi
 					distribucioHelper.encuarAnotacio(idWs);
+					logger.info("Anotació " + id.getIndetificador() + " encuada com a pendent de consulta");
 				} else {
 					// Si la petició ja existeix determina què fer en cas de cada estat
 					es.caib.distribucio.rest.client.integracio.domini.Estat estat = es.caib.distribucio.rest.client.integracio.domini.Estat.PENDENT;
@@ -95,11 +98,13 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 					case PENDENT:
 					case ERROR_PROCESSANT:
 						if (anotacio.getExpedientTipus() == null || anotacio.getExpedientTipus().isDistribucioProcesAuto()) {
-							anotacio = distribucioHelper.reprocessarAnotacio(anotacio.getId(), backofficeUtils);
-							estat = es.caib.distribucio.rest.client.integracio.domini.Estat.PROCESSADA;
+							idsAnotacionsReprocessar.add(anotacio.getId());
+							msg = "La petició està en error de processament";
+							logger.info("L'anotació " + id.getIndetificador() + " de moment no es reprocessarà automàticament.");
 						} else {
-							estat = es.caib.distribucio.rest.client.integracio.domini.Estat.REBUDA;
 							msg = "La petició ja s'ha rebut anteriorment i està pendent de processar o rebutjar manualment";
+							estat = es.caib.distribucio.rest.client.integracio.domini.Estat.REBUDA;
+							logger.info("Anotació " + id.getIndetificador() + "." + msg);
 						}
 						break;
 					case PROCESSADA:
@@ -116,6 +121,7 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 								"i motiu: " + anotacio.getRebuigMotiu() + ". Es marca com a comunicada per tornar a consultar-la i processar-la.";
 						logger.debug(msg);
 						distribucioHelper.resetConsulta(anotacio.getId(), null);
+						logger.info("L'anotació " + id.getIndetificador() + " estava com a rebutjada. Es tornarà a consultar.");
 						break;
 					case COMUNICADA:
 						estat = null;
@@ -125,6 +131,7 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 								0, 
 								anotacio.getConsultaError(), 
 								anotacio.getConsultaData());
+						logger.info("L'anotació " + id.getIndetificador() + " estava comunicada. Es tornarà a consultar.");
 						break;
 					}
 					if (estat != null) {
@@ -146,7 +153,8 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 					logger.error("Error comunicant l'error de recepció a Distribucio de la petició amb id : " + id.getIndetificador() + ": " + ed.getMessage(), ed);
 				}
 			}
-		}		
+		}
+		logger.info("Fi del processament de comunicació de " + ids.size() + "anotacions de registre de Distribucio.");
 	}
 		
 	/** Mètode per implementar la interfície {@link ArxiuPluginListener} de Distribució per rebre events de quan es crida l'Arxiu i afegir
