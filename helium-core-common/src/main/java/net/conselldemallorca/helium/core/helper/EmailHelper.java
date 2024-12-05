@@ -382,7 +382,7 @@ public class EmailHelper {
 			ExpedientTipus expedientTipus = anotacio.getExpedientTipus();
 			if (expedientTipus != null) {
 				text.append("\n\t Tipus d'expedient: ").append(expedientTipus.getCodi()).append(" - ").append(expedientTipus.getNom())
-					.append("\n\t Entorn: ").append(expedientTipus.getEntorn().getNom());	
+					.append("\n\t Entorn: ").append(expedientTipus.getEntorn().getNom()).append("\n");	
 			}
 		}
 		return text.toString();
