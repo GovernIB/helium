@@ -1032,7 +1032,7 @@ public class DistribucioHelper {
 			} catch (Throwable e) {
 				String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e;
 				String traçaCompleta = ExceptionUtils.getStackTrace(e);
-				this.updateErrorProcessament(anotacio.getId(), errorProcessament.concat(traçaCompleta) );
+				self.updateErrorProcessament(anotacio.getId(), errorProcessament.concat(traçaCompleta) );
 				throw new Exception(errorProcessament + ": "
 						+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
 			}
