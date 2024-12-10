@@ -92,13 +92,12 @@ public interface AnotacioService {
 	/** Mètode per reprocessar una anotació que està en estat d'error de processament.
 	 * 
 	 * @param anotacioId
-	 * @return 
-	 * @throws Exception Llença excepció si no es té permís, no es troba l'anotació o hi ha algun
+	 * @return Throwable Llença excepció si no es té permís, no es troba l'anotació o hi ha algun
 	 * error en el reprocessament.
 	 * 
 	 */
-	public AnotacioDto reprocessar(
-			Long anotacioId) throws Exception;
+	public Throwable reprocessar(
+			Long anotacioId);
 
 	/** Mètode per marcar com a pendent una anotació en estat de processament error.
 	 * 

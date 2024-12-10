@@ -776,31 +776,30 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	}
 	
 	@Override
-	//@Transactional
-	public AnotacioDto reprocessar(Long anotacioId) throws Exception {
+	@Transactional
+	public Throwable reprocessar(Long anotacioId) {
 		logger.debug(
 				"Reprocessant la petició d'anotació de registre (" +
 				"anotacioId=" + anotacioId + ")");
-		
-		Anotacio anotacio = anotacioRepository.findOne(anotacioId);		
-		// Comprova els permisos
-		this.comprovaPermisAccio(anotacio);
-		// Comprova que està en error de processament o que està rebutjada o pendent i sense expedient relacionat
-		if (!AnotacioEstatEnumDto.ERROR_PROCESSANT.equals(anotacio.getEstat())
-				&& !( Arrays.asList(ArrayUtils.toArray(AnotacioEstatEnumDto.PENDENT, AnotacioEstatEnumDto.REBUTJADA)).contains(anotacio.getEstat())
-						&& anotacio.getExpedient() == null) ) {
-			throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot reprocessar perquè està en estat " + anotacio.getEstat() + (anotacio.getExpedient() != null ? " i té un expedient associat" : ""));
-		}
+		Throwable ret = null;
 		try {
+			Anotacio anotacio = anotacioRepository.findOne(anotacioId);		
+			// Comprova els permisos
+			this.comprovaPermisAccio(anotacio);
+			// Comprova que està en error de processament o que està rebutjada o pendent i sense expedient relacionat
+			if (!AnotacioEstatEnumDto.ERROR_PROCESSANT.equals(anotacio.getEstat())
+					&& !( Arrays.asList(ArrayUtils.toArray(AnotacioEstatEnumDto.PENDENT, AnotacioEstatEnumDto.REBUTJADA)).contains(anotacio.getEstat())
+							&& anotacio.getExpedient() == null) ) {
+				return new Exception("L'anotació " + anotacio.getIdentificador() + " no es pot reprocessar perquè està en estat " + anotacio.getEstat() + (anotacio.getExpedient() != null ? " i té un expedient associat" : ""));
+			}
+
 			BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
 			backofficeUtils.setArxiuPluginListener(this);
-			anotacio = distribucioHelper.reprocessarAnotacio(anotacioId, backofficeUtils);
+			ret = distribucioHelper.reprocessarAnotacio(anotacioId, backofficeUtils);
 		} catch(Throwable e) {
-			throw new Exception(e);	
+			return new Exception(e);	
 		}
-		return conversioTipusHelper.convertir(
-				anotacio,
-				AnotacioDto.class);
+		return ret;
 	}
 
 	@Override

@@ -988,7 +988,9 @@ public class DistribucioHelper {
 	 * @throws Exception Llença excepció si l'anotació no està en estat d'error de processament o si hi ha error en la consulta.
 	 */
 	@Transactional
-	public Anotacio reprocessarAnotacio(long anotacioId, BackofficeArxiuUtils backofficeUtils) throws Exception {
+	public Throwable reprocessarAnotacio(long anotacioId, BackofficeArxiuUtils backofficeUtils) throws Exception {
+
+		Throwable ret = null;
 
 		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
 
@@ -1001,7 +1003,7 @@ public class DistribucioHelper {
 			if (!AnotacioEstatEnumDto.ERROR_PROCESSANT.equals(anotacio.getEstat())
 					&& !( Arrays.asList(ArrayUtils.toArray(AnotacioEstatEnumDto.PENDENT, AnotacioEstatEnumDto.REBUTJADA)).contains(anotacio.getEstat())
 							&& anotacio.getExpedient() == null) ) {
-				throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot reprocessar perquè està en estat " + anotacio.getEstat() + (anotacio.getExpedient() != null ? " i té un expedient associat" : ""));
+				throw new Exception("L'anotació " + anotacio.getIdentificador() + " no es pot reprocessar perquè està en estat " + anotacio.getEstat() + (anotacio.getExpedient() != null ? " i té un expedient associat" : ""));
 			}		
 			
 			// Consulta l'anotació
@@ -1032,14 +1034,17 @@ public class DistribucioHelper {
 			} catch (Throwable e) {
 				String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e;
 				String traçaCompleta = ExceptionUtils.getStackTrace(e);
-				self.updateErrorProcessament(anotacio.getId(), errorProcessament.concat(traçaCompleta) );
-				throw new Exception(errorProcessament + ": "
+				anotacio.setErrorProcessament(errorProcessament.concat(traçaCompleta));
+				anotacio.setEstat(AnotacioEstatEnumDto.ERROR_PROCESSANT);
+				ret = new Exception(errorProcessament + ": "
 						+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
 			}
+		} catch (Throwable th) {
+			ret = th;
 		} finally {
 			this.setProcessant(anotacioId, false);
 		}
-		return anotacio;
+		return ret;
 	}
 
 	/** Processa el mapeig amb Sistra2 de les variables, documents i adjunts. Retorna el resultat amb els

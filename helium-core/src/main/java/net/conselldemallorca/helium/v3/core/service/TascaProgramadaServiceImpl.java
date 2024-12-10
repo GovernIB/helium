@@ -547,15 +547,8 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 
 	public static void saveError(Long operacioMassivaId, Throwable error, ExecucioMassivaTipus tipus) {
 		if (tipus != ExecucioMassivaTipus.ELIMINAR_VERSIO_DEFPROC) {
-			StringBuilder sb = new StringBuilder();
-			if (error != null) {
-				sb.append(error.getLocalizedMessage());
-				for (StackTraceElement element : error.getStackTrace()) {
-			        sb.append("\nat ");
-			        sb.append(element.toString());
-			    }
-			}
-			errorsMassiva.put(operacioMassivaId, sb.toString());
+			String errorText = ExceptionHelper.getErrorText(error);
+			errorsMassiva.put(operacioMassivaId, errorText);
 		} else {
 			errorsMassiva.put(operacioMassivaId, error.getMessage());
 		}

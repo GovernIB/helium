@@ -88,7 +88,7 @@ public class AnotacioServiceBean implements AnotacioService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public AnotacioDto reprocessar(Long anotacioId) throws Exception {
+	public Throwable reprocessar(Long anotacioId) {
 		return delegate.reprocessar(anotacioId);
 	}
 

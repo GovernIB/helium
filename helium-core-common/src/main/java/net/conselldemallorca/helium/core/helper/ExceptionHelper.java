@@ -78,5 +78,21 @@ public class ExceptionHelper {
 				new ExcepcioLogDto(peticio, params, exception));
 	}
 
+	/** Mètode per obtenir el text de l'error i tot l'stacktrace.
+	 * 
+	 * @param error
+	 * @return
+	 */
+	public static String getErrorText(Throwable error) {
+		StringBuilder sb = new StringBuilder();
+		if (error != null) {
+			sb.append(error.getLocalizedMessage());
+			for (StackTraceElement element : error.getStackTrace()) {
+		        sb.append("\nat ");
+		        sb.append(element.toString());
+		    }
+		}
+		return sb.toString();
+	}
 	private static final Log logger = LogFactory.getLog(ExceptionHelper.class);
 }
