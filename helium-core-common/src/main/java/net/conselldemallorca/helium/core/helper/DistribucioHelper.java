@@ -1015,7 +1015,9 @@ public class DistribucioHelper {
 	 * @throws Exception Llença excepció si l'anotació no està en estat d'error de processament o si hi ha error en la consulta.
 	 */
 	@Transactional
-	public Anotacio reprocessarAnotacio(long anotacioId, BackofficeArxiuUtils backofficeUtils) throws Exception {
+	public Throwable reprocessarAnotacio(long anotacioId, BackofficeArxiuUtils backofficeUtils) throws Exception {
+
+		Throwable ret = null;
 
 		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
 
@@ -1028,27 +1030,26 @@ public class DistribucioHelper {
 			if (!AnotacioEstatEnumDto.ERROR_PROCESSANT.equals(anotacio.getEstat())
 					&& !( Arrays.asList(ArrayUtils.toArray(AnotacioEstatEnumDto.PENDENT, AnotacioEstatEnumDto.REBUTJADA)).contains(anotacio.getEstat())
 							&& anotacio.getExpedient() == null) ) {
-				throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot reprocessar perquè està en estat " + anotacio.getEstat() + (anotacio.getExpedient() != null ? " i té un expedient associat" : ""));
+				throw new Exception("L'anotació " + anotacio.getIdentificador() + " no es pot reprocessar perquè està en estat " + anotacio.getEstat() + (anotacio.getExpedient() != null ? " i té un expedient associat" : ""));
 			}		
 			
-			// Consulta l'anotació
+
 			AnotacioRegistreId idWs = new AnotacioRegistreId();
 			idWs.setIndetificador(anotacio.getIdentificador());
 			idWs.setClauAcces(anotacio.getDistribucioClauAcces());
-			logger.debug("Consultant l'anotació " + idWs.getIndetificador() + " i clau " + idWs.getClauAcces());
-
-			// Consulta la anotació a Distribucio
-			AnotacioRegistreEntrada anotacioRegistreEntrada = null;
 			try {
-				anotacioRegistreEntrada = this.consulta(idWs);
-			} catch(Exception e) {
-				String errMsg = "Error consultant l'anotació " + idWs.getIndetificador() + " i clau " + idWs.getClauAcces() + ": " + e.getMessage();
-				logger.error(errMsg, e);
-				throw new Exception(errMsg, e);
-			}			
+				// Consulta l'anotació
+				logger.debug("Consultant l'anotació " + idWs.getIndetificador() + " i clau " + idWs.getClauAcces());
+				AnotacioRegistreEntrada anotacioRegistreEntrada = null;
+				try {
+					anotacioRegistreEntrada = this.consulta(idWs);
+				} catch(Exception e) {
+					String errMsg = "Error consultant l'anotació " + idWs.getIndetificador() + " i clau " + idWs.getClauAcces() + ": " + e.getMessage();
+					logger.error(errMsg, e);
+					throw new Exception(errMsg, e);
+				}			
 
-			// Processa i comunica l'estat de processada 
-			try {
+				// Processa i comunica l'estat de processada 
 				logger.debug("Rerocessant l'anotació " + idWs.getIndetificador() + ".");
 				anotacio.setEstat(AnotacioEstatEnumDto.PENDENT);
 				anotacio.setErrorProcessament(null);
@@ -1061,13 +1062,15 @@ public class DistribucioHelper {
 				String traçaCompleta = ExceptionUtils.getStackTrace(e);
 				anotacio.setErrorProcessament(errorProcessament.concat(traçaCompleta));
 				anotacio.setEstat(AnotacioEstatEnumDto.ERROR_PROCESSANT);
-				throw new Exception(errorProcessament + ": "
+				ret = new Exception(errorProcessament + ": "
 						+ ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getRootCause(e));
 			}
+		} catch (Throwable th) {
+			ret = th;
 		} finally {
 			this.setProcessant(anotacioId, false);
 		}
-		return anotacio;
+		return ret;
 	}
 
 	/** Processa el mapeig amb Sistra2 de les variables, documents i adjunts. Retorna el resultat amb els

@@ -647,13 +647,22 @@ public class AnotacioController extends BaseExpedientController {
 			@PathVariable Long id,
 			Model model) {
 		try {
-			AnotacioDto anotacio = anotacioService.reprocessar(id);
-			MissatgesHelper.success(
-					request,
-					getMessage(
-							request,
-							"anotacio.llistat.accio.reprocessar.success",
-							new Object[] {anotacio.getIdentificador()}));
+			Throwable error = anotacioService.reprocessar(id);
+			if (error == null) {
+				MissatgesHelper.success(
+						request,
+						getMessage(
+								request,
+								"anotacio.llistat.accio.reprocessar.success",
+								new Object[] {id}));
+			} else {
+				MissatgesHelper.error(
+						request,
+						getMessage(
+								request,
+								"anotacio.llistat.accio.reprocessar.error",
+								new Object[] {id, error.getMessage()}));				
+			}
 		} catch (Exception e) {
 			MissatgesHelper.error(
 					request,

@@ -56,6 +56,7 @@ import net.conselldemallorca.helium.core.helper.DefinicioProcesHelper;
 import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
+import net.conselldemallorca.helium.core.helper.ExceptionHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientTipusHelper;
 import net.conselldemallorca.helium.core.helper.HerenciaHelper;
@@ -2140,16 +2141,16 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 	 * **/
 	
 	private void reintentarProcessamentAnotacions(ExecucioMassivaExpedient ome) throws Exception {
-		StringBuilder errorMsg = new StringBuilder();
-		ExecucioMassivaEstat estat = ExecucioMassivaEstat.ESTAT_FINALITZAT;
 		ome.setDataInici(new Date());
-		// Recupera l'anotació 
 		try {
-			anotacioService.reprocessar(ome.getAuxId());
-			ome.setEstat(estat);
-			ome.setError(errorMsg.length() > 0 ? errorMsg.toString() : null);
+			Throwable th = anotacioService.reprocessar(ome.getAuxId());
 			ome.setDataFi(new Date());
-			execucioMassivaExpedientRepository.save(ome);
+			if (th == null) {
+				ome.setEstat(ExecucioMassivaEstat.ESTAT_FINALITZAT);
+			} else {
+				ome.setEstat(ExecucioMassivaEstat.ESTAT_ERROR);
+				ome.setError(ExceptionHelper.getErrorText(th));
+			}
 		}catch(Exception ex) {
 			String errMsg = "No s'ha pogut reintentar el processament de les anotacions: " + ex.getMessage(); 
 			logger.error("OPERACIO:" + ome.getId()

@@ -906,7 +906,7 @@ public class AnotacioHelper {
 	 * @param anotacioId
 	 * @param expedientId
 	 */
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@Transactional
 	public void setExpedient(
 			Long anotacioId, 
 			Long expedientId) {
