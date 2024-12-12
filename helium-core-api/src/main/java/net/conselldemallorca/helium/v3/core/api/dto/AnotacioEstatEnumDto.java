@@ -14,5 +14,6 @@ public enum AnotacioEstatEnumDto {
 	PROCESSADA, // Anotació processada i relacionada amb un nou expedient no un expedient existent
 	REBUTJADA, 	// Anotació rebutjada	
 	COMUNICADA,	// Estat conforme l'anotació està comunicada i en cua a la bústia
-	ERROR_PROCESSANT	// Anotació amb error processant
+	ERROR_PROCESSANT,	// Anotació amb error processant
+	PENDENT_AUTO //Anotació pendent de processar automàticament.
 }
