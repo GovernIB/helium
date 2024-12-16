@@ -469,8 +469,9 @@ public class DistribucioHelper {
 		return anotacioAnnex;
 	}
 	
-	/** Mètode per guardar a Helium la informació d'una anotació de registre consultada a Distribucio.
-	 *  
+	/** Mètode per guardar a Helium la informació d'una anotació de registre consultada a Distribucio i determinar
+	 * el seu estat pendent o pendent de processar automàticament.
+	 * 
 	 * @param anotacioId
 	 */
 	@Transactional
@@ -478,8 +479,7 @@ public class DistribucioHelper {
 		
 		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
 		
-				// Actualitza l'anotació
-		anotacio.setEstat(AnotacioEstatEnumDto.PENDENT);
+		// Actualitza l'anotació
 		anotacio.setAssumpteCodiCodi(anotacioEntrada.getAssumpteTipusCodi());
 		anotacio.setData(anotacioEntrada.getData());
 		anotacio.setEntitatCodi(anotacioEntrada.getEntitatCodi());
@@ -532,6 +532,15 @@ public class DistribucioHelper {
 		
 		// Relaciona amb un tipus d'expedient i un expedient segons el codi de procediment de l'anotació
 		this.updateRelacioExpedientTipus(anotacio);
+		
+		AnotacioEstatEnumDto estat = AnotacioEstatEnumDto.PENDENT;
+		if (anotacio.getExpedientTipus() != null 
+				&& anotacio.getExpedientTipus().isDistribucioProcesAuto()) 
+		{
+			// Si es relaciona amb un tipus d'expedient que està configurat per processar automàticament llavors passa a estar a l'estat de processament automàtic
+			estat = AnotacioEstatEnumDto.PENDENT_AUTO;
+		}
+		anotacio.setEstat(estat);
 		
 		return anotacio;
 	}
@@ -750,11 +759,10 @@ public class DistribucioHelper {
 	@Transactional
 	public void processarAnotacio(
 			AnotacioRegistreId idWs,
-			AnotacioRegistreEntrada anotacioDistribucio,
 			long anotacioId,
 			BackofficeArxiuUtils backofficeUtils) throws Exception{
 		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
-		this.processarAnotacio(idWs, anotacioDistribucio, anotacio, backofficeUtils);
+		this.processarAnotacio(idWs, anotacio, backofficeUtils);
 	}
 
 	/** Processa l'anotació consultada per crear un expedient si cal i incorporar la informació a l'expedient
@@ -765,7 +773,6 @@ public class DistribucioHelper {
 	@Transactional
 	public void processarAnotacio(
 			AnotacioRegistreId idWs,
-			AnotacioRegistreEntrada anotacioDistribucio,
 			Anotacio anotacio,
 			BackofficeArxiuUtils backofficeUtils) throws Exception{
 		
@@ -779,9 +786,11 @@ public class DistribucioHelper {
 				boolean rebutjar=false;
 				Expedient expedientAnotacioIdemNum = null;
 				for(Anotacio anotacioIdemNumero: anotacions) {
-					// expedient no anul·lat o anotació en estat pendent
+					// expedient no anul·lat o anotació en estat pendent o pendent_auto
 					expedientAnotacioIdemNum = anotacioIdemNumero.getExpedient();
-					if((expedientAnotacioIdemNum!=null && !expedientAnotacioIdemNum.isAnulat()) || AnotacioEstatEnumDto.PENDENT.equals(anotacioIdemNumero.getEstat()))
+					if((expedientAnotacioIdemNum!=null && !expedientAnotacioIdemNum.isAnulat()) 
+							|| AnotacioEstatEnumDto.PENDENT.equals(anotacioIdemNumero.getEstat())
+							|| AnotacioEstatEnumDto.PENDENT_AUTO.equals(anotacioIdemNumero.getEstat()))
 						rebutjar = true;	
 				}
 				if (rebutjar) {
@@ -969,7 +978,7 @@ public class DistribucioHelper {
 			}
 			logger.info("Fi el processament de l anotacio de registre amb id de Distribucio =" + (idWs != null ? idWs.getIndetificador() : ""));
 		} finally {
-			this.setProcessant(anotacio.getId(), false);	
+			this.setProcessant(anotacio.getId(), false);
 		}
 	}
 	
@@ -1026,9 +1035,9 @@ public class DistribucioHelper {
 			// Marca que s'està processant per a que aparegui la rodeta al llistat d'anotacions
 			this.setProcessant(anotacioId, true);
 			
-			// Comprova que està en error de processament o que està rebutjada o pendent i sense expedient relacionat
+			// Comprova que està en error de processament o que està rebutjada o pendent  pendent_auto i sense expedient relacionat
 			if (!AnotacioEstatEnumDto.ERROR_PROCESSANT.equals(anotacio.getEstat())
-					&& !( Arrays.asList(ArrayUtils.toArray(AnotacioEstatEnumDto.PENDENT, AnotacioEstatEnumDto.REBUTJADA)).contains(anotacio.getEstat())
+					&& !( Arrays.asList(ArrayUtils.toArray(AnotacioEstatEnumDto.PENDENT, AnotacioEstatEnumDto.REBUTJADA, AnotacioEstatEnumDto.PENDENT_AUTO)).contains(anotacio.getEstat())
 							&& anotacio.getExpedient() == null) ) {
 				throw new Exception("L'anotació " + anotacio.getIdentificador() + " no es pot reprocessar perquè està en estat " + anotacio.getEstat() + (anotacio.getExpedient() != null ? " i té un expedient associat" : ""));
 			}		
@@ -1037,18 +1046,7 @@ public class DistribucioHelper {
 			AnotacioRegistreId idWs = new AnotacioRegistreId();
 			idWs.setIndetificador(anotacio.getIdentificador());
 			idWs.setClauAcces(anotacio.getDistribucioClauAcces());
-			try {
-				// Consulta l'anotació
-				logger.debug("Consultant l'anotació " + idWs.getIndetificador() + " i clau " + idWs.getClauAcces());
-				AnotacioRegistreEntrada anotacioRegistreEntrada = null;
-				try {
-					anotacioRegistreEntrada = this.consulta(idWs);
-				} catch(Exception e) {
-					String errMsg = "Error consultant l'anotació " + idWs.getIndetificador() + " i clau " + idWs.getClauAcces() + ": " + e.getMessage();
-					logger.error(errMsg, e);
-					throw new Exception(errMsg, e);
-				}			
-
+			try {		
 				// Processa i comunica l'estat de processada 
 				logger.debug("Rerocessant l'anotació " + idWs.getIndetificador() + ".");
 				anotacio.setEstat(AnotacioEstatEnumDto.PENDENT);
@@ -1056,7 +1054,7 @@ public class DistribucioHelper {
 				// Torna a consultar si està relacionat amb un tipus d'expedient i/o expedient
 				this.updateRelacioExpedientTipus(anotacio);
 				// Reprocessa l'anotació
-				this.processarAnotacio(idWs, anotacioRegistreEntrada, anotacio, backofficeUtils);//aquí ja es comunica l'error i el canvi d'estat a Distribució
+				this.processarAnotacio(idWs, anotacio, backofficeUtils);//aquí ja es comunica l'error i el canvi d'estat a Distribució
 			} catch (Throwable e) {
 				String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + e;
 				String traçaCompleta = ExceptionUtils.getStackTrace(e);
@@ -1576,6 +1574,25 @@ public class DistribucioHelper {
 		return pagina.getContent();
 
 	}
+	
+	/** consulta la llista d'anotacions en estat pendent de processament automàtic . 
+	 * 
+	 * @param maxAnotacions Indica el nombre màxim de resultats.
+	 * @return
+	 */
+	@Transactional(readOnly = true)
+	public List<Anotacio> findPendentProcessarAuto(int maxAnotacions) {
+		
+		PaginacioParamsDto paginacioParams = new PaginacioParamsDto();
+		paginacioParams.setPaginaNum(0);
+		paginacioParams.setPaginaTamany(maxAnotacions);
+		paginacioParams.afegirOrdre("dataRecepcio", OrdreDireccioDto.ASCENDENT);
+		
+		Page<Anotacio> pagina = anotacioRepository.findAnotacionsPendentProcessarPaged(
+				paginacioHelper.toSpringDataPageable(paginacioParams));
+		return pagina.getContent();
+	}
+
 
 	/** Incorpora l'annex a l'expedient segons el resultat. Si s'ha pogut moure
 	 * llavors crea un nou document si no està mapejat com a Sistra.

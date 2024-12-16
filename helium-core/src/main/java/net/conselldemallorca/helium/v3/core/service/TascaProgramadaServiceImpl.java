@@ -448,11 +448,18 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 				
 			if (anotacioRegistreEntrada != null ) {
 				try {
-					distribucioHelper.updateAnotacio(anotacioId, anotacioRegistreEntrada);
-					// Processa i comunica l'estat de processada 
-					logger.debug("Processant l'anotació " + idWs.getIndetificador() + ".");
-					BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
-					distribucioHelper.processarAnotacio(idWs, anotacioRegistreEntrada, anotacioId, backofficeUtils);
+					// Es guarda l'anotació i es determina si queda com a pendent o pendent de processament automàtic
+					Anotacio anotacio = distribucioHelper.updateAnotacio(anotacioId, anotacioRegistreEntrada);
+					// Es comunica l'estat a Distribucio
+					try {
+						distribucioHelper.canviEstat(
+								idWs, 
+								es.caib.distribucio.rest.client.integracio.domini.Estat.PENDENT,
+								"Anotació " + idWs.getIndetificador() + " rebuda correctament." );
+					} catch(Exception ed) {
+						logger.error("Error comunicant l'estat d'anotació rebuda a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
+					}
+					logger.debug("Anotació " + idWs.getIndetificador() + " consultada correctament amb estat " + anotacio.getEstat());
 				} catch (Throwable e) {
 					String message = exceptionHelper.getRouteCauses(e);
 					String errorProcessament = "Error processant l'anotació " + idWs.getIndetificador() + ":" + message;
@@ -482,7 +489,6 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	 * de 5 reintents.
 	 */
 	@Override
-	//@Scheduled(fixedDelayString = "10000")
 	public void comprovarAnotacionsPendents() {
 		int maxReintents = this.getConsultaAnotacioMaxReintents();
 		int maxAnotacions = 100;
@@ -522,7 +528,34 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 		}				
 	}
 	
-
+	/** Tasca programada per comprovar les anotacions que estan en estat de pendents de processament
+	 * automàtic. Entre comrpovació i comprovació hi ha un període de 10 segons.
+	 */
+	@Override
+	public void processarAnotacionsAutomatiques() {
+		int maxAnotacions = 100;
+		AnotacioRegistreId idWs;
+		int maxThreadsParallel = this.getMaxThreadsParallel();		
+		List<Anotacio> anotacionsPendentsProcessar = distribucioHelper.findPendentProcessarAuto(maxAnotacions);
+		if (anotacionsPendentsProcessar != null && !anotacionsPendentsProcessar.isEmpty()) {
+	        long startTime = new Date().getTime();
+			for (Anotacio anotacioPendent : anotacionsPendentsProcessar) {
+				idWs = new AnotacioRegistreId();
+				idWs.setIndetificador(anotacioPendent.getIdentificador());
+				idWs.setClauAcces(anotacioPendent.getDistribucioClauAcces());
+				// Processa i comunica l'estat de processada 
+				logger.debug("Processant l'anotació " + idWs.getIndetificador() + ".");
+				BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
+				try {
+					distribucioHelper.processarAnotacio(idWs, anotacioPendent.getId(), backofficeUtils);
+				} catch(Exception e) {
+					logger.error("Error processant automàticament l'anotació " + anotacioPendent.getIdentificador() + ": " + e.getMessage());
+				}
+			}
+	        long stopTime = new Date().getTime();
+			logger.trace("Finished processing annotacions with " + maxThreadsParallel + " threads. " + anotacionsPendentsProcessar.size() + " annotacions processed in " + (stopTime - startTime) + "ms");	
+		}
+	}
 	
 	private int getConsultaAnotacioMaxReintents() {
 		int maxReintents = 5;

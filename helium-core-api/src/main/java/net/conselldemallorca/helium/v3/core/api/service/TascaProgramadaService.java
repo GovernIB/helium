@@ -30,7 +30,10 @@ public interface TascaProgramadaService {
 	
 	/** Tasca programada per comprovar les anotacions pendents de consultar periòdicament a DISTRIBUCIO. */
 	public void comprovarAnotacionsPendents();
-		
+	
+	/** Tasca programada per processar les anotacions pendents de processament automàtic periòdicament a DISTRIBUCIO. */
+	public void processarAnotacionsAutomatiques();
+	
 	/** Tasca programada per sincronitzar les unitats organitzatives i els procediments de forma automàtica segons la propietat
 	 * app.unitats.procediments.sync.
 	 */

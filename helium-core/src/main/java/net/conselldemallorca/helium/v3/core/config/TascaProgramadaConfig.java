@@ -163,6 +163,38 @@ public class TascaProgramadaConfig implements SchedulingConfigurer {
 	                }
 	        );
 		
+		final String processarAnotacionsAutomatiques = "processarAnotacionsAutomatiques";
+		/** Tasca programada per comprovar les anotacions que estan en estat de pendents de processament
+		 * automàtic. Entre comrpovació i comprovació hi ha un període de 10 segons.
+		 */
+		monitorTasquesService.addTasca(processarAnotacionsAutomatiques);
+		taskRegistrar.addTriggerTask(
+	                new Runnable() {
+	                    @Override
+	                    public void run() {
+	                    	monitorTasquesService.inici(processarAnotacionsAutomatiques);
+	                        try{ 
+	                        	tascaProgramadaService.processarAnotacionsAutomatiques();
+	                        	monitorTasquesService.fi(processarAnotacionsAutomatiques);
+	                        } catch(Throwable th) {
+	                        	tractarErrorTascaSegonPla(th, processarAnotacionsAutomatiques);
+	                        }
+	                    }
+	                },
+	                new Trigger() {
+	                    @Override
+	                    public Date nextExecutionTime(TriggerContext triggerContext) {
+	                    	Long value = new Long("10000");
+	                        PeriodicTrigger trigger = new PeriodicTrigger(value, TimeUnit.MILLISECONDS);
+	                        trigger.setInitialDelay(value);
+	                        Date nextExecution = trigger.nextExecutionTime(triggerContext);
+	                        Long longNextExecution = nextExecution.getTime() - System.currentTimeMillis();
+	        				monitorTasquesService.updateProperaExecucio(processarAnotacionsAutomatiques, longNextExecution);
+	                        return nextExecution;
+	                    }
+	                }
+	        );
+		
 		
 		final String actualitzarUnitatsIProcediments = "actualitzarUnitatsIProcediments";
 		/** Mètode periòdic per sincronitzar les taules internes d'unitats organitzatives i procediments
