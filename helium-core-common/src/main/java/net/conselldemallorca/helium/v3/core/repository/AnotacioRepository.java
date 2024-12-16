@@ -182,6 +182,12 @@ public interface AnotacioRepository extends JpaRepository<Anotacio, Long> {
 	@Query("from Anotacio a where a.expedientTipus.id = :expedientTipusId")
 	List<Anotacio> findByExpedientTipusId(@Param("expedientTipusId") Long expedientTipusId);
 
+	/** Consulta les anotacions comunicades pendents de consultar amb un màxim de reintents.
+	 * 
+	 * @param maxReintents
+	 * @param pageable
+	 * @return
+	 */
 	@Query(
 			"from" +
 			"    Anotacio a " +
@@ -191,6 +197,20 @@ public interface AnotacioRepository extends JpaRepository<Anotacio, Long> {
 	public Page<Anotacio> findAnotacionsPendentConsultarPaged(
 			@Param("maxReintents") int maxReintents,
 			Pageable pageable);
+	
+	/** Consulta les anotacions pendents de processament automàtic de forma paginada.
+	 * 
+	 * @param pageable
+	 * @return
+	 */
+	@Query(
+			"from" +
+			"    Anotacio a " +
+			"where " +
+			"    a.estat = net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto.PENDENT_AUTO ")
+	public Page<Anotacio> findAnotacionsPendentProcessarPaged(
+			Pageable pageable);
+	
 	
 	/** Mètode per recuperar les peticions d'anotació per id de Distribucio. */
 	List<Anotacio> findByDistribucioId(String distribucioId);

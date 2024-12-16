@@ -169,6 +169,8 @@
 					<script id="cellEstatExpedientTemplate" type="text/x-jsrender">
 						{{if estat == 'PENDENT'}}
 							<spring:message code="enum.anotacio.estat.PENDENT"></spring:message>
+						{{else estat == 'PENDENT_AUTO'}}
+							<spring:message code="enum.anotacio.estat.PENDENT_AUTO"></spring:message>
 						{{else estat == 'PROCESSADA'}}
 							<spring:message code="enum.anotacio.estat.PROCESSADA"></spring:message>
 						{{else estat == 'REBUTJADA'}}
@@ -212,6 +214,12 @@
 							<div class="pull-right">
 								<span class="fa fa-cog fa-spin"
 								title="<spring:message code="expedient.anotacio.llistat.processant"/>"></span>
+							</div>
+						{{/if}}
+						{{if (estat == 'PENDENT_AUTO') &&  !processant}}
+							<div class="pull-right">
+								<span class="fa fa-clock-o"
+								title="<spring:message code="expedient.anotacio.llistat.processar.auto"/>"></span>
 							</div>
 						{{/if}}
 						{{if estat == 'COMUNICADA'}}
@@ -311,6 +319,9 @@
 						  		<span><spring:message code="anotacio.proces.estat.enum.${enumValue}.info"/></span>
 						  	</li>
 						</c:forEach>
+						<li>
+							<span><spring:message code="anotacio.proces.estat.rodeta.info"/></span>
+						</li>
 					</ul>
 				</div>
 				<div class="modal-footer">

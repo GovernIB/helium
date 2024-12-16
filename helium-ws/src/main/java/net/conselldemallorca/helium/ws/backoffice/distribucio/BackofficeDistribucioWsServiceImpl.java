@@ -90,12 +90,24 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 					logger.info("Anotació " + id.getIndetificador() + " encuada com a pendent de consulta");
 				} else {
 					// Si la petició ja existeix determina què fer en cas de cada estat
-					es.caib.distribucio.rest.client.integracio.domini.Estat estat = es.caib.distribucio.rest.client.integracio.domini.Estat.PENDENT;
+					es.caib.distribucio.rest.client.integracio.domini.Estat estatDistribucio = es.caib.distribucio.rest.client.integracio.domini.Estat.PENDENT;
 					String msg = null;
 					BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
 					backofficeUtils.setArxiuPluginListener(this);
 					switch(anotacio.getEstat()) {
+					case PENDENT_AUTO:
+						msg = "La petició està pendent de processar-se automàticament.";
+						estatDistribucio = es.caib.distribucio.rest.client.integracio.domini.Estat.PENDENT;
+						logger.info("Anotació " + id.getIndetificador() + "." + msg);
+						break;
 					case PENDENT:
+						msg = "La petició està amb estat pendent pendent ";
+						if (anotacio.getExpedientTipus() != null) {
+							msg += " pel tipus d'expedient "  + anotacio.getExpedientTipus().getCodi() + " - " + anotacio.getExpedientTipus().getCodi();
+						}
+						estatDistribucio = es.caib.distribucio.rest.client.integracio.domini.Estat.PENDENT;
+						logger.info("Anotació " + id.getIndetificador() + "." + msg);
+						break;
 					case ERROR_PROCESSANT:
 						if (anotacio.getExpedientTipus() == null || anotacio.getExpedientTipus().isDistribucioProcesAuto()) {
 							idsAnotacionsReprocessar.add(anotacio.getId());
@@ -103,28 +115,28 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 							logger.info("L'anotació " + id.getIndetificador() + " de moment no es reprocessarà automàticament.");
 						} else {
 							msg = "La petició ja s'ha rebut anteriorment i està pendent de processar o rebutjar manualment";
-							estat = es.caib.distribucio.rest.client.integracio.domini.Estat.REBUDA;
+							estatDistribucio = es.caib.distribucio.rest.client.integracio.domini.Estat.REBUDA;
 							logger.info("Anotació " + id.getIndetificador() + "." + msg);
 						}
 						break;
 					case PROCESSADA:
-						estat = es.caib.distribucio.rest.client.integracio.domini.Estat.PROCESSADA;
+						estatDistribucio = es.caib.distribucio.rest.client.integracio.domini.Estat.PROCESSADA;
 						msg = "La petició ja s'ha processat anteriorment.";
 						if (anotacio.getExpedient() != null) {
 							msg += " L'anotació ha estat processada a l'expedient " + anotacio.getExpedient().getIdentificador();
 						}
 						break;
 					case REBUTJADA:
-						estat = null;
+						estatDistribucio = es.caib.distribucio.rest.client.integracio.domini.Estat.REBUDA;
 						msg = "L'anotació \"" + anotacio.getIdentificador() + "\" s'havia rebutjat anteriorment " + 
 								(anotacio.getDataProcessament() != null? "amb data " + sdf.format(anotacio.getDataProcessament()) : "") + 
 								"i motiu: " + anotacio.getRebuigMotiu() + ". Es marca com a comunicada per tornar a consultar-la i processar-la.";
-						logger.debug(msg);
+						logger.info(msg);
 						distribucioHelper.resetConsulta(anotacio.getId(), null);
 						logger.info("L'anotació " + id.getIndetificador() + " estava com a rebutjada. Es tornarà a consultar.");
 						break;
 					case COMUNICADA:
-						estat = null;
+						estatDistribucio = null;
 						// Posa a 0 el número d'intents per a que es torni a processar pel thread de la tasca programada de consultar anotacions pendents
 						distribucioHelper.updateConsulta(
 								anotacio.getId(), 
@@ -134,11 +146,11 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 						logger.info("L'anotació " + id.getIndetificador() + " estava comunicada. Es tornarà a consultar.");
 						break;
 					}
-					if (estat != null) {
+					if (estatDistribucio != null) {
 						// Comunica l'estat actual
 						distribucioHelper.canviEstat(
 								idWs, 
-								estat,
+								estatDistribucio,
 								msg);
 					}
 				}

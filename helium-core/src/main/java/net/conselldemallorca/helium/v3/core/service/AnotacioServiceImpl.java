@@ -654,7 +654,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 		// Comprova els permisos
 		this.comprovaPermisAccio(anotacio);
 		// Comprova que no està processada ni rebutjada
-		if (! AnotacioEstatEnumDto.PENDENT.equals(anotacio.getEstat())) {
+		if (!AnotacioEstatEnumDto.PENDENT.equals(anotacio.getEstat()) && !AnotacioEstatEnumDto.PENDENT_AUTO.equals(anotacio.getEstat())) {
 			throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot rebutjar perquè està en estat " + anotacio.getEstat());
 		}
 		distribucioHelper.rebutjar(anotacio, observacions);
@@ -796,9 +796,9 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			Anotacio anotacio = anotacioRepository.findOne(anotacioId);		
 			// Comprova els permisos
 			this.comprovaPermisAccio(anotacio);
-			// Comprova que està en error de processament o que està rebutjada o pendent i sense expedient relacionat
+			// Comprova que està en error de processament o que està rebutjada o pendent o pendent_auto i sense expedient relacionat
 			if (!AnotacioEstatEnumDto.ERROR_PROCESSANT.equals(anotacio.getEstat())
-					&& !( Arrays.asList(ArrayUtils.toArray(AnotacioEstatEnumDto.PENDENT, AnotacioEstatEnumDto.REBUTJADA)).contains(anotacio.getEstat())
+					&& !( Arrays.asList(ArrayUtils.toArray(AnotacioEstatEnumDto.PENDENT_AUTO, AnotacioEstatEnumDto.PENDENT, AnotacioEstatEnumDto.REBUTJADA)).contains(anotacio.getEstat())
 							&& anotacio.getExpedient() == null) ) {
 				return new Exception("L'anotació " + anotacio.getIdentificador() + " no es pot reprocessar perquè està en estat " + anotacio.getEstat() + (anotacio.getExpedient() != null ? " i té un expedient associat" : ""));
 			}
@@ -829,7 +829,12 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 			throw new RuntimeException("L'anotació " + anotacio.getIdentificador() + " no es pot consultar perquè està en estat " + anotacio.getEstat() 
 			+ ", ha d'estar en estat de error de processament.");
 		}
-		anotacio.setEstat(AnotacioEstatEnumDto.PENDENT);
+		ExpedientTipus expTipus = anotacio.getExpedientTipus();
+		if(expTipus!=null && expTipus.isDistribucioProcesAuto()) {
+			anotacio.setEstat(AnotacioEstatEnumDto.PENDENT_AUTO);
+		} else {
+			anotacio.setEstat(AnotacioEstatEnumDto.PENDENT);
+		}
 		anotacio.setDataProcessament(null);
 		anotacio.setErrorProcessament(null);
 

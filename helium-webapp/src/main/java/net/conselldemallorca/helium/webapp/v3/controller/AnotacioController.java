@@ -858,11 +858,31 @@ public class AnotacioController extends BaseExpedientController {
 	/** Posa els valors de l'enumeració estats en el model */
 	private void modelEstats(Model model) {
 		List<ParellaCodiValorDto> opcions = new ArrayList<ParellaCodiValorDto>();
-		for(AnotacioEstatEnumDto estat : AnotacioEstatEnumDto.values())
-			opcions.add(new ParellaCodiValorDto(
-					estat.name(),
-					MessageHelper.getInstance().getMessage("enum.anotacio.estat." + estat.name())));		
-
+		//Ordre del llistat del select: Comunicada, rebutjada, pendent, pendent de processar automàticament, error processant
+		opcions.add(0, 
+				new ParellaCodiValorDto(
+						AnotacioEstatEnumDto.COMUNICADA.toString(),
+						MessageHelper.getInstance().getMessage("enum.anotacio.estat." + AnotacioEstatEnumDto.COMUNICADA)));	
+		opcions.add(1,
+				new ParellaCodiValorDto(
+						AnotacioEstatEnumDto.REBUTJADA.toString(),
+						MessageHelper.getInstance().getMessage("enum.anotacio.estat." + AnotacioEstatEnumDto.REBUTJADA)));	
+		opcions.add(2, 
+				new ParellaCodiValorDto(
+						AnotacioEstatEnumDto.PENDENT.toString(),
+						MessageHelper.getInstance().getMessage("enum.anotacio.estat." + AnotacioEstatEnumDto.PENDENT)));
+		opcions.add(3, 
+				new ParellaCodiValorDto(
+						AnotacioEstatEnumDto.PENDENT_AUTO.toString(),
+						MessageHelper.getInstance().getMessage("enum.anotacio.estat." + AnotacioEstatEnumDto.PENDENT_AUTO)));	
+		opcions.add(4, 
+				new ParellaCodiValorDto(
+						AnotacioEstatEnumDto.ERROR_PROCESSANT.toString(),
+						MessageHelper.getInstance().getMessage("enum.anotacio.estat." + AnotacioEstatEnumDto.ERROR_PROCESSANT)));
+		opcions.add(5, 
+				new ParellaCodiValorDto(
+						AnotacioEstatEnumDto.PROCESSADA.toString(),
+						MessageHelper.getInstance().getMessage("enum.anotacio.estat." + AnotacioEstatEnumDto.PROCESSADA)));	
 		model.addAttribute("estats", opcions);
 	}
 

@@ -12,5 +12,5 @@ package net.conselldemallorca.helium.v3.core.api.dto;
 public enum EmailTipusEnumDto {
 	REBUDA_PENDENT,// L'anotació ha arribat i està pendent (no es processarà automàticament) --> tampoc té expedient associat??
 	PROCESSADA, // L'anotació s'ha processat i s'ha creat un expedient
-	INCORPORADA // L'anotació s'ha incorporat a un expedient existent.	
+	INCORPORADA // L'anotació s'ha incorporat a un expedient existent.
 }
