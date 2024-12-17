@@ -535,9 +535,16 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	public void processarAnotacionsAutomatiques() {
 		int maxAnotacions = 100;
 		AnotacioRegistreId idWs;
-		int maxThreadsParallel = this.getMaxThreadsParallel();		
 		List<Anotacio> anotacionsPendentsProcessar = distribucioHelper.findPendentProcessarAuto(maxAnotacions);
 		if (anotacionsPendentsProcessar != null && !anotacionsPendentsProcessar.isEmpty()) {
+			// Posa una autenticació per defecte per l'usuari del registre
+			List<GrantedAuthority> rols = new ArrayList<GrantedAuthority>();
+			rols.add(new SimpleGrantedAuthority("tothom"));
+			Authentication authentication = new AnonymousAuthenticationToken(
+					"DISTRIBUCIO", 
+					"DISTRIBUCIO",
+					rols);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
 	        long startTime = new Date().getTime();
 			for (Anotacio anotacioPendent : anotacionsPendentsProcessar) {
 				idWs = new AnotacioRegistreId();
@@ -553,7 +560,7 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 				}
 			}
 	        long stopTime = new Date().getTime();
-			logger.trace("Finished processing annotacions with " + maxThreadsParallel + " threads. " + anotacionsPendentsProcessar.size() + " annotacions processed in " + (stopTime - startTime) + "ms");	
+			logger.trace("Finished processing annotacions. " + anotacionsPendentsProcessar.size() + " annotacions processed in " + (stopTime - startTime) + "ms");	
 		}
 	}
 	
