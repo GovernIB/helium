@@ -2186,7 +2186,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 		ExecucioMassivaEstat estat = ExecucioMassivaEstat.ESTAT_FINALITZAT;
 		ome.setDataInici(new Date());
 		// Recupera l'anotació 
-		Anotacio anotacio = anotacioRepository.findOne(ome.getAuxId());
+		Anotacio anotacio = anotacioRepository.findByIdAmbBloqueig(ome.getAuxId());
 		try {
 			if(anotacio.getExpedient()!=null) {
 				//L'execució massiva es pot configurar per nomes executar el mapeig parcialment
@@ -2226,7 +2226,7 @@ public class ExecucioMassivaServiceImpl implements ExecucioMassivaService , Arxi
 		ExecucioMassivaEstat estat = ExecucioMassivaEstat.ESTAT_FINALITZAT;
 		ome.setDataInici(new Date());
 		// Recupera l'anotació 
-		Anotacio anotacio = anotacioRepository.findOne(ome.getAuxId());
+		Anotacio anotacio = anotacioRepository.findByIdAmbBloqueig(ome.getAuxId());
 		try {
 			ome.setAuxText(anotacio.getIdentificador());
 			anotacioService.delete(anotacio.getId());

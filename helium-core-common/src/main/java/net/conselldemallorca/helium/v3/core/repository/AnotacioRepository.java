@@ -3,9 +3,12 @@ package net.conselldemallorca.helium.v3.core.repository;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.LockModeType;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -214,5 +217,14 @@ public interface AnotacioRepository extends JpaRepository<Anotacio, Long> {
 	
 	/** Mètode per recuperar les peticions d'anotació per id de Distribucio. */
 	List<Anotacio> findByDistribucioId(String distribucioId);
+	
+	
+	/** Per consultar l'anotació amb bloqueig de BBDD per evitar problemes de concurrència en el processament d'anotacions
+	 * @param anotacioId
+	 * @return
+	 */
+	@Lock(LockModeType.PESSIMISTIC_WRITE)
+	@Query("from Anotacio where id = :anotacioId")
+	public Anotacio findByIdAmbBloqueig(@Param("anotacioId") Long anotacioId);
 
 }

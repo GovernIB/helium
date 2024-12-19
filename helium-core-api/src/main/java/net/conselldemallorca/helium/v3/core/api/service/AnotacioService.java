@@ -42,6 +42,13 @@ public interface AnotacioService {
 	 * @return
 	 */
 	public AnotacioDto findAmbId(Long id);
+	
+	/** Mètode per consultar una anotació per identificador amb bloqueig.
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public AnotacioDto findByIdAmbBloqueig(Long id);
 
 	/** Mètode per rebutjar una petició d'anotació de registre passant l'identificador i les observacions.
 	 * Aquest mètode s'encarrega de canviar l'estat i notificar el canvi a Distribució.
@@ -149,6 +156,20 @@ public interface AnotacioService {
 	 * de variables, documents i adjunts per poder advertir a l'usuari o afegir una alerta dels mapejos que han fallat.
 	 */
 	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId);
+	
+	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(
+			Long expedientId,
+			Long anotacioId,
+			boolean mapejarVariables,
+			boolean mapejarDocuments,
+			boolean mapejarAdjunts,
+			boolean mapejarInteressats);
+	
+	/** Recupera el mapeig de Sistra i l'aplica a la pantalla d'inici d'expedient.
+	 * @return	Retorna un objecte de tipus <code>AnotacioMapeigResultatDto</code> amb el resultat del mapeig
+	 * de variables, documents i adjunts per poder advertir a l'usuari o afegir una alerta dels mapejos que han fallat.
+	 */
+	public AnotacioMapeigResultatDto processarMapeigAnotacioExpedient(Long expedientTipusId, Long anotacioId);
 
 	/** Reintenta el processament dels annexos d'una anotació per incorporar-los a Helium.
 	 * 

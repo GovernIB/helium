@@ -64,6 +64,13 @@ public class AnotacioServiceBean implements AnotacioService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public AnotacioDto findByIdAmbBloqueig(Long id) throws NoTrobatException {
+		return delegate.findByIdAmbBloqueig(id);
+	}
+
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public void rebutjar(Long anotacioId, String observacions) {
 		delegate.rebutjar(anotacioId, observacions);
 	}
@@ -152,5 +159,18 @@ public class AnotacioServiceBean implements AnotacioService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<String>[] emailAnotacio(long anotacioId) {
 		return delegate.emailAnotacio(anotacioId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public AnotacioMapeigResultatDto processarMapeigAnotacioExpedient(Long expedientTipusId, Long anotacioId) {
+		return delegate.processarMapeigAnotacioExpedient(expedientTipusId, anotacioId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(Long expedientId, Long anotacioId,
+			boolean mapejarVariables, boolean mapejarDocuments, boolean mapejarAdjunts, boolean mapejarInteressats) {
+		return delegate.reprocessarMapeigAnotacioExpedient(expedientId, anotacioId, mapejarVariables, mapejarDocuments, mapejarAdjunts, mapejarInteressats);
 	}
 }

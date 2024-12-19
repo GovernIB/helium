@@ -638,6 +638,26 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				AnotacioDto.class);
 		return dto;	
 	}
+	
+	
+	@Override
+	public AnotacioDto findByIdAmbBloqueig(Long id) {
+		logger.debug(
+				"Consultant l'anotació amb id (" +
+				"id=" + id +  ")");
+		Anotacio anotacio = anotacioRepository.findByIdAmbBloqueig(id);
+		
+		// Comprovar permís de lectura
+		this.comprovaPermisLectura(anotacio);
+		
+		if (anotacio == null) {
+			throw new NoTrobatException(Anotacio.class, id);
+		}
+		AnotacioDto dto = conversioTipusHelper.convertir(
+				anotacio,
+				AnotacioDto.class);
+		return dto;	
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -650,7 +670,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				"anotacioId=" + anotacioId + ", " +
 				"observacions=" + observacions + ")");
 		
-		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+		Anotacio anotacio = anotacioRepository.findByIdAmbBloqueig(anotacioId);
 		// Comprova els permisos
 		this.comprovaPermisAccio(anotacio);
 		// Comprova que no està processada ni rebutjada
@@ -673,7 +693,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				"expedientTipusId=" + expedientTipusId + ", " +
 				"expedientId=" + expedientId + ")");
 		
-		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+		Anotacio anotacio = anotacioRepository.findByIdAmbBloqueig(anotacioId);
 		// Comprova els permisos
 		this.comprovaPermisAccio(anotacio);
 		// Comprova que no està processada ni rebutjada 
@@ -768,7 +788,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				"Esborrant la petició d'anotació de registre (" +
 				"anotacioId=" + anotacioId + ")");
 
-		Anotacio anotacio = anotacioRepository.findOne(anotacioId);		
+		Anotacio anotacio = anotacioRepository.findByIdAmbBloqueig(anotacioId);		
 		// Comprova els permisos
 		this.comprovaPermisAccio(anotacio);
 		// Comprova que no està processada ni rebutjada
@@ -793,7 +813,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				"anotacioId=" + anotacioId + ")");
 		Throwable ret = null;
 		try {
-			Anotacio anotacio = anotacioRepository.findOne(anotacioId);		
+			Anotacio anotacio = anotacioRepository.findByIdAmbBloqueig(anotacioId);		
 			// Comprova els permisos
 			this.comprovaPermisAccio(anotacio);
 			// Comprova que està en error de processament o que està rebutjada o pendent o pendent_auto i sense expedient relacionat
@@ -816,7 +836,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 	@Transactional
 	public AnotacioDto marcarPendent(Long anotacioId) throws Exception {
 
-		Anotacio anotacio = anotacioRepository.findOne(anotacioId);		
+		Anotacio anotacio = anotacioRepository.findByIdAmbBloqueig(anotacioId);		
 		
 		logger.debug(
 				"Marcant com a pendent l'anotació de registre (" +
@@ -865,7 +885,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				"Consultant la petició d'anotació de registre (" +
 				"anotacioId=" + anotacioId + ")");
 
-		Anotacio anotacio = anotacioRepository.findOne(anotacioId);		
+		Anotacio anotacio = anotacioRepository.findByIdAmbBloqueig(anotacioId);		
 		// Comprova els permisos
 		this.comprovaPermisAccio(anotacio);
 		// Comprova que està en error de processament
@@ -1080,7 +1100,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				"Reintentant el processament de l'annex (" +
 				"anotacioId=" + anotacioId + ", annexId=" + annexId + ")");
 
-		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+		Anotacio anotacio = anotacioRepository.findByIdAmbBloqueig(anotacioId);
 		// Comprova els permisos
 		this.comprovaPermisAccio(anotacio);
 		if (anotacio.getExpedient() == null)
@@ -1183,7 +1203,7 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				"Reintentant el traspàs de l'anotació (" +
 				"anotacioId=" + anotacioId + ")");
 
-		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+		Anotacio anotacio = anotacioRepository.findByIdAmbBloqueig(anotacioId);
 		// Comprova els permisos
 		this.comprovaPermisAccio(anotacio);
 		if (anotacio.getExpedient() == null)
@@ -1309,6 +1329,37 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 				"anotacioId=" + anotacioId + ", " +
 				"expedientId=" + expedientId + ")");
 		return anotacioHelper.reprocessarMapeigAnotacioExpedient(expedientId, anotacioId);
+	}
+	
+	
+	@Override
+	@Transactional
+	public AnotacioMapeigResultatDto reprocessarMapeigAnotacioExpedient(
+			Long expedientId,
+			Long anotacioId,
+			boolean mapejarVariables,
+			boolean mapejarDocuments,
+			boolean mapejarAdjunts,
+			boolean mapejarInteressats) {
+		
+		return anotacioHelper.reprocessarMapeigAnotacioExpedient(
+				expedientId,
+				anotacioId,
+				mapejarVariables,
+				mapejarDocuments,
+				mapejarAdjunts,
+				mapejarInteressats);
+	}
+	
+	
+	/** Recupera el mapeig de Sistra i l'aplica a la pantalla d'inici d'expedient.
+	 * @return	Retorna un objecte de tipus <code>AnotacioMapeigResultatDto</code> amb el resultat del mapeig
+	 * de variables, documents i adjunts per poder advertir a l'usuari o afegir una alerta dels mapejos que han fallat.
+	 */
+	@Override
+	@Transactional
+	public AnotacioMapeigResultatDto processarMapeigAnotacioExpedient(Long expedientTipusId, Long anotacioId) {
+		return anotacioHelper.processarMapeigAnotacioExpedient(expedientTipusId, anotacioId);
 	}
 
 	/**
