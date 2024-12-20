@@ -272,7 +272,9 @@
 							<option value="documentMas"><spring:message code='expedient.massiva.documents' /></option>
 							<option value="buidarlogMas"><spring:message code='expedient.eines.buidarlog.expedients' /></option>
 							<option value="reprendreExpedientMas"><spring:message code='expedient.eines.reprendre_expedients' /></option>
-							<option value="finalitzarExpedientMas"><spring:message code='expedient.eines.finalitzar_expedients' /></option>
+							<c:if test="${dadesPersona.admin}"><!--l'usuari ha de tenir rol HEL_ADMIN-->
+								<option value="finalitzarExpedientMas"><spring:message code='expedient.eines.finalitzar_expedients' /></option>
+							</c:if>
 							<option value="migrarExpedientMas"><spring:message code='expedient.eines.migrar_expedients' /></option>
 							<option value="anularExpedientMas"><spring:message code='expedient.eines.anular_expedients' /></option>
 						</select>

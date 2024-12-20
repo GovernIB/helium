@@ -542,11 +542,12 @@ dd.subproc {
 							<li class="divider"></li>
 							<c:if test="${expedient.permisWrite}">
 								<c:if test="${empty expedient.dataFi}">
-									<li>
+									<li
 										<c:choose>
 											<c:when test="${expedient.arxiuActiu}">
 												<!--  Modal per seleccionar i firmar documents -->
 												<a 
+												data-rdt-link-confirm="<spring:message code="expedient.eines.confirm.finalitzar.expedient.arxiu"/>"
 												data-toggle="modal"
 												data-maximized="true"
 												href="<c:url value="../../v3/expedient/${expedientId}/prefinalitzar"/>">
@@ -571,7 +572,14 @@ dd.subproc {
 							</c:if>
 							<c:if test="${expedient.permisUndoEnd}">
 								<c:if test="${not empty expedient.dataFi}">
-									<li><a data-rdt-link-confirm="<spring:message code="expedient.consulta.confirm.desfinalitzar"/>" href="<c:url value="../../v3/expedient/${expedientId}/desfinalitzar"/>"><span class="fa fa-reply"></span>&nbsp;<spring:message code="expedient.info.accio.desfinalitzar"/></a></li>
+									<c:choose>
+										<c:when test="${expedient.arxiuActiu}">
+											<li><a data-rdt-link-confirm="<spring:message code="expedient.eines.confirm.desfinalitzar.expedient.arxiu"/>" href="<c:url value="../../v3/expedient/${expedientId}/desfinalitzar"/>"><span class="fa fa-reply"></span>&nbsp;<spring:message code="expedient.info.accio.desfinalitzar"/></a></li>
+										</c:when>
+										<c:otherwise>
+											<li><a data-rdt-link-confirm="<spring:message code="expedient.consulta.confirm.desfinalitzar"/>" href="<c:url value="../../v3/expedient/${expedientId}/desfinalitzar"/>"><span class="fa fa-reply"></span>&nbsp;<spring:message code="expedient.info.accio.desfinalitzar"/></a></li>
+										</c:otherwise>
+									</c:choose>
 								</c:if>
 							</c:if>
 							<c:if test="${expedient.permisWrite}">
