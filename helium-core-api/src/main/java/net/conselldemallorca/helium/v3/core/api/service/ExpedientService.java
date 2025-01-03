@@ -852,7 +852,7 @@ public interface ExpedientService {
 			boolean nomesTasquesPersonals,
 			boolean nomesTasquesGrup);
 
-	public List<ExpedientConsultaDissenyDto> findExpedientsExportacio(List<Long> ids, String entornCodi);
+	public List<ExpedientConsultaDissenyDto> findExpedientsExportacio(List<Long> ids, EntornDto entornActual);
 
     public String getExpedientProcessInstanceId(Long expedientId);
 

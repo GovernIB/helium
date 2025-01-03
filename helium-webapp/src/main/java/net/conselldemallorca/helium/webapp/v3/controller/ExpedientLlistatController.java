@@ -310,7 +310,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		}
 
 		try {
-			List<ExpedientConsultaDissenyDto> expedients = expedientService.findExpedientsExportacio(new ArrayList<Long>(ids), entornActual.getCodi());
+			List<ExpedientConsultaDissenyDto> expedients = expedientService.findExpedientsExportacio(new ArrayList<Long>(ids), entornActual);
 			exportXLS(response, expedients);
 		} catch(Exception e) {
 			logger.error("Error generant excel amb les dades dels expedients", e);

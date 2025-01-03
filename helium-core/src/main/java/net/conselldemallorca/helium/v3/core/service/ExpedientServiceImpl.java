@@ -124,6 +124,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
@@ -2433,20 +2434,26 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 
 	@Override
 	@Transactional(readOnly=true)
-	public List<ExpedientConsultaDissenyDto> findExpedientsExportacio(List<Long> ids, String entornCodi) {
+	public List<ExpedientConsultaDissenyDto> findExpedientsExportacio(List<Long> ids, EntornDto entornActual) {
 		List<ExpedientConsultaDissenyDto> resposta = new ArrayList<ExpedientConsultaDissenyDto>();
 		if (ids == null || ids.isEmpty()) {
 			return resposta;
 		}
-		List<Camp> camps = null;
+		List<Camp> camps = new ArrayList<Camp>();
 		List<Expedient> listExpedients = expedientRepository.findByIdIn(ids);
 		ExpedientTipus expedientTipus = expedientRepository.findOne(listExpedients.get(0).getId()).getTipus();
 		if(expedientTipus.isAmbInfoPropia()) {
 			camps = campRepository.findByExpedientTipusAmbHerencia(expedientTipus.getId());
 		} else {
-			DefinicioProces definicioProces = expedientHelper.findDefinicioProcesByProcessInstanceId(
-					listExpedients.get(0).getProcessInstanceId());
-			camps = campRepository.findByDefinicioProcesOrderByCodiAsc(definicioProces);
+			List<Long> defProcIds = definicioProcesRepository.findIdsDarreraVersioAmbEntornIdIExpedientTipusId(
+					entornActual.getId(),
+					expedientTipus.getId());
+			if(defProcIds!=null && !defProcIds.isEmpty()) {
+				for(Long idDefProc : defProcIds) {
+					DefinicioProces defProces = definicioProcesRepository.findById(idDefProc);	
+					camps.addAll(campRepository.findByDefinicioProcesOrderByCodiAsc(defProces));
+				}			
+			}	
 		}	
 		String sort = "expedient$identificador"; //ExpedientCamps.EXPEDIENT_CAMP_ID;
 		boolean asc = false;
@@ -2454,7 +2461,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		int maxResults = -1;
 
 		List<Map<String, DadaIndexadaDto>> dadesExpedients = luceneHelper.findAmbDadesExpedientPaginatV3(
-				entornCodi,
+				entornActual.getCodi(),
 				ids,
 				camps,
 				sort,

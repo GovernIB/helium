@@ -987,40 +987,61 @@ public class LuceneHelper extends LuceneIndexSupport {
 								}
 							}
 							if (coincideix) {
-								for (String valorIndex : fila.get(codi)) {
-									DadaIndexadaDto dadaCamp = null;
+								List<String> valorsIndex = fila.get(codi);
+								int i=0;
+								DadaIndexadaDto dadaCamp = null;
+								Object valor = null;
+								for (String valorIndex : valorsIndex) {//MARTA quan coincideix test-sub.text entra aquí
 									try {
-										Object valor = valorCampPerIndex(camp, valorIndex);
+										valor = valorCampPerIndex(camp, valorIndex);
 										if (valor != null) {
 											if (codi.startsWith(ExpedientCamps.EXPEDIENT_PREFIX)) {
 												dadaCamp = new DadaIndexadaDto(camp.getCodi(), camp.getEtiqueta());
 											} else {
-												if (partsCodi.length == 2)
-													dadaCamp = new DadaIndexadaDto(partsCodi[0], partsCodi[1], camp.getEtiqueta());
-												else 
-													dadaCamp = new DadaIndexadaDto(partsCodi[0], camp.getEtiqueta());
+												if(i==0) {
+													if (partsCodi.length == 2)
+														dadaCamp = new DadaIndexadaDto(partsCodi[0], partsCodi[1], camp.getEtiqueta());
+													else 
+														dadaCamp = new DadaIndexadaDto(partsCodi[0], camp.getEtiqueta());
+												}
 											}
 											if (camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST))
 												dadaCamp.setOrdenarPerValorMostrar(true);
 											dadaCamp.setMultiple(false);
 											dadaCamp.setValorIndex(valorIndex);
-											dadaCamp.setValor(valor);
-											String textDomini = null;
-											List<String> textDominiIndex = fila.get(codi + VALOR_DOMINI_SUFIX + valor);
-											if (textDominiIndex != null)
-												textDomini = textDominiIndex.get(0);
-											if (textDomini == null)
-												textDomini = (valor != null && valor.toString().length() > 0) ? "¿" + valor.toString() + "?" : null;
-											dadaCamp.setValorMostrar(Camp.getComText(camp.getTipus(), valor, textDomini));
-											dadesFila.add(dadaCamp);
+											if(i!=0 && TipusCamp.STRING.equals(camp.getTipus())) {
+												Object valorConcat = String.valueOf(valor).concat(" , ").concat(dadaCamp.getValor().toString());
+												dadaCamp.setValor(valorConcat);
+												String textDomini = null;
+												List<String> textDominiIndex = fila.get(codi + VALOR_DOMINI_SUFIX + valorConcat);
+												if (textDominiIndex != null)
+													textDomini = textDominiIndex.get(0);
+												if (textDomini == null)
+													textDomini = (valorConcat != null && valorConcat.toString().length() > 0) ? "¿" + valorConcat.toString() + "?" : null;
+												dadaCamp.setValorMostrar(Camp.getComText(camp.getTipus(), valorConcat, textDomini));
+											}
+											else {
+												dadaCamp.setValor(valor);
+												String textDomini = null;
+												List<String> textDominiIndex = fila.get(codi + VALOR_DOMINI_SUFIX + valor);
+												if (textDominiIndex != null)
+													textDomini = textDominiIndex.get(0);
+												if (textDomini == null)
+													textDomini = (valor != null && valor.toString().length() > 0) ? "¿" + valor.toString() + "?" : null;
+												dadaCamp.setValorMostrar(Camp.getComText(camp.getTipus(), valor, textDomini));
+											}
+											if(i==0) {
+												dadesFila.add(dadaCamp);
+											}
 										}
 									} catch (Exception ex) {
 										logger.error("Error al obtenir el valor de l'índex pel camp " + codi, ex);
 										if (dadaCamp != null)
 											dadaCamp.setError(ex.getMessage());
 									}
+									i++;
 								}
-								break;
+								//break;
 							}
 						}
 					}
