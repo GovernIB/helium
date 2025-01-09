@@ -9,6 +9,9 @@
 		<c:set var="titol"><spring:message code="area.helium.configurar.form.titol"/></c:set>
 		<c:set var="formAction">new</c:set>
 	</c:when>
+	<c:otherwise>
+		<c:set var="titol"><spring:message code="area.form.titol.modificar"/></c:set>
+	</c:otherwise>
 </c:choose>
 <html>
 <head>

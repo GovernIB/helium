@@ -7,7 +7,7 @@
 
 <html>
 <head>
-	<title><spring:message code='alerta.llistat.expedient' />: ${expedientIdentificador}</title>
+	<title><spring:message code='reassign.llistat.tasca' /></title>
 	<meta name="capsaleraTipus" content="llistat"/>
 	<hel:modalHead/>
 	<link href="<c:url value="/css/select2.css"/>" rel="stylesheet"/>

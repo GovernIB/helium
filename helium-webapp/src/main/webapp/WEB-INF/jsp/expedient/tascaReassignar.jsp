@@ -5,7 +5,7 @@
 
 <html>
 <head>
-	<title><fmt:message key='alerta.llistat.expedient' />: ${expedient.identificadorLimitat}</title>
+	<title><fmt:message key='reassign.llistat.tasca'/></title>
 	<meta name="titolcmp" content="<fmt:message key='comuns.consultes' />" />
 	<link href="<c:url value="/css/tabs.css"/>" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
