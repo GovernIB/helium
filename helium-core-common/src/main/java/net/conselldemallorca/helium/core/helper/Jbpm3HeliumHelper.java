@@ -767,7 +767,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				expedient.getGeoPosY(),
 				expedient.getGeoReferencia(),
 				expedient.getGrupCodi(),
-				false);
+				true);
 	}
 
 	@Override

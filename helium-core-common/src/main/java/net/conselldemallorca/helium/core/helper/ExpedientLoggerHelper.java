@@ -170,8 +170,13 @@ public class ExpedientLoggerHelper {
 				processInstanceId,
 				tipus);
 		expedientLog.setProcessInstanceId(new Long(processInstanceId));
+		Long jbpmLogId = jbpmHelper.addProcessInstanceMessageLog(
+				expedientLog.getExpedient().getProcessInstanceId(),
+				getMessageLogPerTipus(tipus));
+		expedientLog.setJbpmLogId(jbpmLogId);
 		if (accioParams != null)
 			expedientLog.setAccioParams(accioParams);
+		expedientLog.setJbpmLogId(jbpmLogId);
 		expedientLoggerRepository.save(expedientLog);
 		return expedientLog;
 	}
@@ -346,7 +351,7 @@ public class ExpedientLoggerHelper {
 								Object oldValue = vulog.getOldValue();
 								if (oldValue instanceof ByteArray) {
 									try {
-										oldValue = new ObjectInputStream(new ByteArrayInputStream(((ByteArray)vulog.getNewValue()).getBytes())).readObject();
+										oldValue = new ObjectInputStream(new ByteArrayInputStream(((ByteArray)vulog.getOldValue()).getBytes())).readObject();
 									} catch (Exception e) {
 										logger.error("Error obtenint el valor del ByteArray de la variable " + vulog.getVariableInstance().getName(), e);
 									}
