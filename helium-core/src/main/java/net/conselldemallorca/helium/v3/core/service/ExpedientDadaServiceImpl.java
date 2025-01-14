@@ -155,7 +155,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		Object valorVell = variableHelper.getVariableJbpmProcesValor(
 				processInstanceId,
 				varCodi);
-		jbpmHelper.deleteProcessInstanceVariable(processInstanceId, varCodi);
+//		jbpmHelper.deleteProcessInstanceVariable(processInstanceId, varCodi);
 		// Esborra la descripció per variables que mantenen el valor de la consulta
 		Camp camp;
 		InstanciaProcesDto instanciaProces = expedientHelper.getInstanciaProcesById(processInstanceId);
@@ -189,6 +189,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 			registre.setValorVell(valorVell.toString());
 		if (varValor != null)
 			registre.setValorNou(varValor.toString());
+		registre.setProcessInstanceId(processInstanceId);
 	}
 
 	/**

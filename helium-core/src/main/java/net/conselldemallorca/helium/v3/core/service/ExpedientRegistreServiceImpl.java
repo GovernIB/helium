@@ -208,7 +208,7 @@ public class ExpedientRegistreServiceImpl implements ExpedientRegistreService {
 			ExpedientLog logRetroces = expedientLoggerHelper.afegirLogExpedientPerExpedient(
 					log.getExpedient().getId(),
 					retrocedirPerTasques ? ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR_TASQUES : ExpedientLogAccioTipus.EXPEDIENT_RETROCEDIR,
-							logId.toString());
+							log.getAccioParams());
 			expedientLoggerHelper.retrocedirFinsLog(log, retrocedirPerTasques, logRetroces.getId());
 			logRetroces.setEstat(ExpedientLogEstat.IGNORAR);
 			indexHelper.expedientIndexLuceneUpdate(
