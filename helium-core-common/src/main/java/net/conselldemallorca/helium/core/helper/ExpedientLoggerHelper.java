@@ -841,7 +841,7 @@ public class ExpedientLoggerHelper {
 			// Executa les accions necessàries per a retrocedir l'expedient
 			for (LogObjectDto logo: LogObjectDtos) {
 				boolean created = logo.getAccions().contains(LogObjectDto.LOG_ACTION_CREATE);
-				// boolean update = logo.getAccions().contains(LogObjectDto.LOG_ACTION_UPDATE);
+				boolean updated = logo.getAccions().contains(LogObjectDto.LOG_ACTION_UPDATE);
 				boolean deleted = logo.getAccions().contains(LogObjectDto.LOG_ACTION_DELETE);
 				boolean started = logo.getAccions().contains(LogObjectDto.LOG_ACTION_START);
 				boolean ended = logo.getAccions().contains(LogObjectDto.LOG_ACTION_END);
@@ -958,7 +958,7 @@ public class ExpedientLoggerHelper {
 				case LogObjectDto.LOG_OBJECT_VARPROCES:
 					if (logo.getName() != null) {
 						String pid = new Long(logo.getProcessInstanceId()).toString();
-						if (created && !deleted) {
+						if ((created && !deleted && !updated) || (created && updated)) {
 							if (debugRetroces)
 								logger.info(">>> [RETLOG] Esborrar variable " + logo.getName() + " del proces (" + pid + ")");
 							jbpmHelper.deleteProcessInstanceVariable(
@@ -998,7 +998,7 @@ public class ExpedientLoggerHelper {
 										logo.getName(),
 										logo.getValorInicial());
 							}
-						} else if (!created && !deleted) {
+						} else if (updated && !created) {
 							if (debugRetroces)
 								logger.info(">>> [RETLOG] Actualitzar variable " + logo.getName() + " del proces (" + pid + ") amb el valor (" + logo.getValorInicial() + ")");
 							if (logo.getName().startsWith(JbpmVars.PREFIX_DOCUMENT)) {
