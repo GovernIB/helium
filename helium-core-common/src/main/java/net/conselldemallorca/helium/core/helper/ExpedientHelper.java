@@ -310,7 +310,7 @@ public class ExpedientHelper {
 				permisos,
 				auth)) {
 			
-			if (expedient.getUnitatOrganitzativa()!=null && 
+			if (expedient.getUnitatOrganitzativa() == null || 
 				!expedientTipusService.tePermisosSobreUnitatOrganitzativaOrParents(expedientTipus.getId(), expedient.getUnitatOrganitzativa().getCodi(), permisos)) {
 				
 				throw new PermisDenegatException(
