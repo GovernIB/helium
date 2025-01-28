@@ -51,7 +51,7 @@ public class ExpedientTipusIntegracioNotibController extends BaseExpedientTipusC
 			model.addAttribute("expedientTipus", expedientTipus);
 			
 			ExpedientTipusIntegracioNotibCommand command = new ExpedientTipusIntegracioNotibCommand();			
-			
+			command.setCodiSiaError(!expedientTipus.getNtiClasificacion().equals(expedientTipus.getNotibCodiProcediment()))
 			command.setNotibActiu(expedientTipus.getNotibActiu());
 			command.setNotibEmisor(expedientTipus.getNotibEmisor());
 			command.setNotibCodiProcediment(expedientTipus.getNotibCodiProcediment());
