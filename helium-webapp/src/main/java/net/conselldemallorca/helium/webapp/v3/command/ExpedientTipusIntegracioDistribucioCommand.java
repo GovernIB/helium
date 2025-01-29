@@ -32,6 +32,7 @@ public class ExpedientTipusIntegracioDistribucioCommand {
 	private boolean sistra;
 	private Boolean presencial;
 	private boolean enviarCorreuAnotacions;
+	private Boolean codiSiaError;
 
 	public Long getId() {
 		return id;
@@ -84,6 +85,14 @@ public class ExpedientTipusIntegracioDistribucioCommand {
 	public void setEnviarCorreuAnotacions(boolean enviarCorreuAnotacions) {
 		this.enviarCorreuAnotacions = enviarCorreuAnotacions;
 	}
+	
+	public Boolean getCodiSiaError() {
+		return codiSiaError;
+	}
+	public void setCodiSiaError(Boolean codiSiaError) {
+		this.codiSiaError = codiSiaError;
+	}
+
 
 	public interface Modificacio {}
 }

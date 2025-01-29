@@ -69,34 +69,19 @@ $(document).ready(function() {
 						
 				</div>
 				<c:if test="${expedientTipusIntegracioNotibCommand.codiSiaError}">
-					<div class="row">
-						<div class="col-sm-4"></div>
+				 	<div class="row">
+						<div class="col-sm-4"></div>	
 						<div class="col-sm-8">
-						<div class="panel panel-danger" id="codiSiaErrorDiv">
-							<div class="panel-heading">
-								<span class="fa fa-warning text-danger">El codi SIA no coincideix amb el de metadades NTI</span>
-								
+							<div class="alert alert-warning">
+								<span class="fa fa-exclamation-triangle"></span>
+								<spring:message code="expedient.tipus.metadades.nti.clasificacion.codi.erroni"/>
+								<b>${expedientTipus.ntiClasificacion}</b>					
 							</div>
-							<div class="panel-body">
-								<div class="row">
-									<!-- Tipus de transició -->
-										<label class="col-xs-4 text-right">
-											<spring:message code="expedient.tipus.metadades.nti.clasificacion"></spring:message>													
-										</label>
-										<div class="col-xs-8">
-											<ul style="padding-left: 17px;">
-												<li>${expedientTipus.ntiClasificacion}</li>
-											</ul>
-										</div>
-									
-									
-								
-								</div>
-							</div>
-						</div>
+						</div>		
 					</div>
-				</div>
+				</c:if>			
 			</div>
+				
 			<div id="modal-botons" class="well" style="text-align: right;">
 				<span id="accioGuardarProcessant" style="display:none;">
 					<span class="fa fa-spinner fa-spin fa-fw" title="<spring:message code="comu.processant"/>..."></span><span class="sr-only">&hellip;</span>

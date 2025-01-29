@@ -29,7 +29,19 @@
 							placeholderKey="expedient.tipus.integracio.distribucio.codiProcediment"
 							textKey="expedient.tipus.integracio.distribucio.codiProcediment"
 							info="expedient.tipus.integracio.distribucio.codiProcediment.comment"
-						/>	
+						/>
+						<c:if test="${expedientTipusIntegracioDistribucioCommand.codiSiaError}">
+					 		<div class="row">
+								<div class="col-sm-4"></div>	
+								<div class="col-sm-8">
+									<div class="alert alert-warning">
+										<span class="fa fa-exclamation-triangle"></span>
+										<spring:message code="expedient.tipus.metadades.nti.clasificacion.codi.erroni"/>
+										<b>${expedientTipus.ntiClasificacion}</b>					
+									</div>
+								</div>		
+							</div>
+						</c:if>				
 					<div class="col-xs-4">
 						<!-- Botó per crear regles i altres opcions per consultar o canviar l'estat -->
 						<div id="reglaBtn" class="btn-group">
