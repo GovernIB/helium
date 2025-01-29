@@ -30,18 +30,17 @@
 							textKey="expedient.tipus.integracio.distribucio.codiProcediment"
 							info="expedient.tipus.integracio.distribucio.codiProcediment.comment"
 						/>
-						<c:if test="${expedientTipusIntegracioDistribucioCommand.codiSiaError}">
-					 		<div class="row">
-								<div class="col-sm-4"></div>	
-								<div class="col-sm-8">
-									<div class="alert alert-warning">
-										<span class="fa fa-exclamation-triangle"></span>
-										<spring:message code="expedient.tipus.metadades.nti.clasificacion.codi.erroni"/>
-										<b>${expedientTipus.ntiClasificacion}</b>					
-									</div>
-								</div>		
-							</div>
-						</c:if>				
+						
+					 	<div class="row" id="divCodiSiaError">
+							<div class="col-sm-4"></div>	
+							<div class="col-sm-8">
+								<div class="alert alert-warning">
+									<span class="fa fa-exclamation-triangle"></span>
+									<spring:message code="expedient.tipus.metadades.nti.clasificacion.codi.erroni"/>
+									<b>${expedientTipus.ntiClasificacion}</b>					
+								</div>
+							</div>		
+						</div>
 					<div class="col-xs-4">
 						<!-- Botó per crear regles i altres opcions per consultar o canviar l'estat -->
 						<div id="reglaBtn" class="btn-group">
@@ -103,7 +102,16 @@ $(document).ready(function() {
 	$("input[name='codiAssumpte']").parent('div').removeClass('col-xs-8').addClass('col-xs-4');
 	$("select[name='presencial']").parent('div').removeClass('col-xs-8').addClass('col-xs-4');
 	$('#s2id_presencial').css('width', '100%');
-
+	
+	$("#codiProcediment").change(function(){
+		if($(this).val() != '${expedientTipus.ntiClasificacion}'){
+			$("#divCodiSiaError").show();
+		}
+		else {
+			$("#divCodiSiaError").hide();
+		}	
+	}).change();
+	
 	$('#actiu','#expedientTipusIntegracioDistribucioCommand').change(function() {
 		if ($(this).is(':checked')) {
 			$('#inputs_integracioDistribucio').show();

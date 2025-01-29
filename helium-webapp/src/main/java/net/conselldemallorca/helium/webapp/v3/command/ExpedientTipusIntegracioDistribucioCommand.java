@@ -94,5 +94,6 @@ public class ExpedientTipusIntegracioDistribucioCommand {
 	}
 
 
+
 	public interface Modificacio {}
 }

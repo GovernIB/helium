@@ -17,7 +17,6 @@ public class ExpedientTipusIntegracioNotibCommand {
 	
 	private String notibEmisor;
 	private String notibCodiProcediment;
-	private Boolean codiSiaError;
 	private Boolean notibActiu;
 	
 	
@@ -44,15 +43,6 @@ public class ExpedientTipusIntegracioNotibCommand {
 	public void setNotibActiu(Boolean notibActiu) {
 		this.notibActiu = notibActiu;
 	}
-
-	public Boolean getCodiSiaError() {
-		return codiSiaError;
-	}
-
-	public void setCodiSiaError(Boolean codiSiaError) {
-		this.codiSiaError = codiSiaError;
-	}
-
 
 
 	public interface Creacio {}

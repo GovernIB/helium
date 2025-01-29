@@ -21,6 +21,16 @@ $(document).ready(function() {
 			$('#inputs-notib').hide();
 		}
 	});
+	
+	$("#notibCodiProcediment").change(function(){
+		if($(this).val() != '${expedientTipus.ntiClasificacion}'){
+			$("#divCodiSiaError").show();
+		}
+		else {
+			$("#divCodiSiaError").hide();
+		}	
+	}).change();
+	
 	$('#expedientTipusIntegracioNotibCommand').submit(function(e){
 		$('#contingut-alertes').empty();
 		$('#accioGuardarProcessant').show();
@@ -68,18 +78,16 @@ $(document).ready(function() {
 						required="true" />
 						
 				</div>
-				<c:if test="${expedientTipusIntegracioNotibCommand.codiSiaError}">
-				 	<div class="row">
-						<div class="col-sm-4"></div>	
-						<div class="col-sm-8">
-							<div class="alert alert-warning">
-								<span class="fa fa-exclamation-triangle"></span>
-								<spring:message code="expedient.tipus.metadades.nti.clasificacion.codi.erroni"/>
-								<b>${expedientTipus.ntiClasificacion}</b>					
-							</div>
-						</div>		
-					</div>
-				</c:if>			
+				 <div class="row" id="divCodiSiaError">
+					<div class="col-sm-4"></div>	
+					<div class="col-sm-8">
+						<div class="alert alert-warning">
+							<span class="fa fa-exclamation-triangle"></span>
+							<spring:message code="expedient.tipus.metadades.nti.clasificacion.codi.erroni"/>
+							<b>${expedientTipus.ntiClasificacion}</b>					
+						</div>
+					</div>		
+				</div>
 			</div>
 				
 			<div id="modal-botons" class="well" style="text-align: right;">
