@@ -3121,6 +3121,9 @@ public class PluginHelper {
 		
 		try {
 			Notificacio notificacio = conversioTipusHelper.convertir(dadesNotificacio, Notificacio.class);
+			if(notificacio.getDocumentArxiuContingut()!=null && notificacio.getDocumentArxiuUuid()!=null) {
+				notificacio.setDocumentArxiuContingut(null);
+			}
 			// Informa de l'estat actual
 			notificacio.setUsuariCodi(usuariActualHelper.getUsuariActual());		
 			// Informa el número d'expedient

@@ -84,10 +84,6 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 			
 			
 			ExpedientTipusIntegracioDistribucioCommand command = new ExpedientTipusIntegracioDistribucioCommand();	
-<<<<<<< HEAD
-=======
-			command.setCodiSiaError(!expedientTipus.getNtiClasificacion().equals(expedientTipus.getDistribucioCodiProcediment()));
->>>>>>> branch 'helium-dev-3.3.7' of https://github.com/GovernIB/helium.git
 			command.setId(expedientTipusId);
 			command.setActiu(expedientTipus.isDistribucioActiu());
 			command.setCodiProcediment(expedientTipus.getDistribucioCodiProcediment());

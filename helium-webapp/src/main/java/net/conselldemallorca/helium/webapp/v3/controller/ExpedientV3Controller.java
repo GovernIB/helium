@@ -532,7 +532,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			MissatgesHelper.success(request, getMessage(request, "expedient.boto.sincro.arxiu.ok"));
 			return "ok";
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "expedient.boto.sincro.arxiu.ko") + "<br/> " + ex.getCause().getMessage());
+			MissatgesHelper.error(request, getMessage(request, "expedient.boto.sincro.arxiu.ko") + "<br/> " + ex.getLocalizedMessage());
 			return "ko";
 		}
 		
