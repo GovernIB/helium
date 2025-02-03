@@ -339,17 +339,31 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 			} else {
 				// Un sol document
 				documentInfo = getDocumentInfo(executionContext, doc, false);
-				DocumentDto document = Jbpm3HeliumBridge
-						.getInstanceService().getDocumentInfo(documentInfo.getId(),
-																true, // Amb contingut
-																false,
-																false,
-																false,
-																true, // Per notificar
-																false);
-				dadesNotificacio.setDocumentId(document.getId());
-				dadesNotificacio.setDocumentArxiuNom(document.getArxiuNom());
-				dadesNotificacio.setDocumentArxiuContingut(document.getArxiuContingut());
+				dadesNotificacio.setDocumentId(documentInfo.getId());
+				DocumentDto document;
+				if (documentInfo.isSignat()) {
+					document = Jbpm3HeliumBridge
+							.getInstanceService().getDocumentInfo(documentInfo.getId(),
+																	false,
+																	true, // Amb contingut signat
+																	false,
+																	false,
+																	true, // Per notificar
+																	false);
+					dadesNotificacio.setDocumentArxiuNom(document.getSignatNom());
+					dadesNotificacio.setDocumentArxiuContingut(document.getSignatContingut());
+				} else {
+					document = Jbpm3HeliumBridge
+							.getInstanceService().getDocumentInfo(documentInfo.getId(),
+																	true, // Amb contingut original
+																	false,
+																	false,
+																	false,
+																	true, // Per notificar
+																	false);
+					dadesNotificacio.setDocumentArxiuNom(document.getArxiuNom());
+					dadesNotificacio.setDocumentArxiuContingut(document.getArxiuContingut());
+				}
 				dadesNotificacio.setDocumentArxiuUuid(document.getArxiuUuid());
 			}
 		} else {
