@@ -1749,6 +1749,15 @@ public class DocumentHelperV3 {
 						byte[] signatura = pluginHelper.custodiaObtenirSignaturesAmbArxiu(documentStore.getReferenciaCustodia());
 						dto.setSignatContingut(signatura);
 					}
+					if (perNotificar && documentStore.isSignat()) {
+						// Si és per notificar posa el contingut signat i el nom
+						dto.setArxiuNom(
+								getNomArxiuAmbExtensio(
+										documentStore.getArxiuNom(),
+										getExtensioArxiuSignat()));
+						byte[] signatura = pluginHelper.custodiaObtenirSignaturesAmbArxiu(documentStore.getReferenciaCustodia());
+						dto.setArxiuContingut(signatura);
+					}
 					if (ambContingutVista) {
 						String arxiuOrigenNom;
 						byte[] arxiuOrigenContingut;
