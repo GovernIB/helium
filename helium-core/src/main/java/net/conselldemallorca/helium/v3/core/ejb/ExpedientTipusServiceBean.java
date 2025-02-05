@@ -20,6 +20,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsult
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
@@ -953,6 +954,13 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findAmbEntornPermisAdmin(Long entornId) throws NoTrobatException {
 		return delegate.findAmbEntornPermisAdmin(entornId);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<DefinicioProcesDto> definicioFindDefinicionsProcDarreraVersio(ExpedientTipusDto expedientTipus,
+			EntornDto entornActual) {
+		return delegate.definicioFindDefinicionsProcDarreraVersio(expedientTipus, entornActual);
 	}
 
 }

@@ -49,6 +49,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientConsultaDissenyDto;
@@ -311,7 +312,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 
 		try {
 			List<ExpedientConsultaDissenyDto> expedients = expedientService.findExpedientsExportacio(new ArrayList<Long>(ids), entornActual);
-			exportXLS(response, expedients);
+			exportXLS(response, expedients, expedients.get(0).getTipus(), entornActual);
 		} catch(Exception e) {
 			logger.error("Error generant excel amb les dades dels expedients", e);
 			MissatgesHelper.error(
@@ -324,7 +325,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		}
 	}
 
-	private void exportXLS(HttpServletResponse response, List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto) {
+	private void exportXLS(HttpServletResponse response, List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto, ExpedientTipusDto expTipus, EntornDto entornActual) {
 		
 		XSSFWorkbook wb = new XSSFWorkbook();
 
@@ -344,15 +345,55 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		CreationHelper createHelper = wb.getCreationHelper();
 		cellDateStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd/mm/yyyy"));
 		
-		// GENERAL
-		XSSFSheet sheet = wb.createSheet("Hoja 1");
+		if(!expTipus.isAmbInfoPropia()) {
+			
 
-		if (!expedientsConsultaDissenyDto.isEmpty())
-			createHeader(sheet, expedientsConsultaDissenyDto);
+			List<DefinicioProcesDto> definicionsProces = expedientTipusService.definicioFindDefinicionsProcDarreraVersio(expTipus, entornActual);
+			for(DefinicioProcesDto defProc : definicionsProces) {
+				String sheetName = defProc.getJbpmKey();
+				XSSFSheet sheet = wb.createSheet(sheetName);
+				if(defProc.getJbpmKey().equals(expTipus.getJbpmProcessDefinitionKey())){
+					wb.setSheetOrder(sheetName, 0);//Primera fulla la del procés principal
+				}
+				createBook(sheetName, sheet, wb, expedientsConsultaDissenyDto, dStyle, iStyle, bdStyle, cellDateStyle);
+			}
+		}
+		else {
+			String sheetName = expTipus.getJbpmProcessDefinitionKey();
+			XSSFSheet sheet = wb.createSheet(sheetName);
+			createBook(sheetName, sheet, wb, expedientsConsultaDissenyDto, dStyle, iStyle, bdStyle, cellDateStyle);
+		}
 
-		int rowNum = 1;
+		try {
+			String fileName = "Exportacio_expedients.xls";
+			response.setHeader("Pragma", "");
+			response.setHeader("Expires", "");
+			response.setHeader("Cache-Control", "");
+			response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+			response.setContentType("application/vnd.ms-excel;base64");
+			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+			wb.write(byteArrayOutputStream);
+			String encodedExcel = new String(Base64.encodeBase64(byteArrayOutputStream.toByteArray()));
+			response.getOutputStream().write(encodedExcel.getBytes());
+		} catch (Exception e) {
+			logger.error("No s'ha pogut generar l'excel del llistat d'expedients.");
+		}
+	}
+	
+	private void createBook(String sheetName, 
+			XSSFSheet sheet,
+			XSSFWorkbook wb, 
+			List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto, 
+			XSSFCellStyle dStyle, 
+			XSSFCellStyle iStyle,
+			XSSFCellStyle bdStyle, 
+			XSSFCellStyle cellDateStyle) {		
 		int numCols = 0;
+		int rowNum = 1;
 
+		if (!expedientsConsultaDissenyDto.isEmpty()) {
+			numCols = createHeader(sheet, expedientsConsultaDissenyDto, sheetName);
+		}
 		for (ExpedientConsultaDissenyDto  expedientConsultaDissenyDto : expedientsConsultaDissenyDto) {
 			int colNum = 0;			
 			try {
@@ -374,91 +415,30 @@ public class ExpedientLlistatController extends BaseExpedientController {
 				cell.setCellStyle(dStyle);
 
 				Iterator<Map.Entry<String, DadaIndexadaDto>> it = dades.entrySet().iterator();
-				numCols = dades.entrySet().size();
-				
-				while (it.hasNext()) {
-					
+				while (it.hasNext()) {		
 					Map.Entry<String, DadaIndexadaDto> e = (Map.Entry<String, DadaIndexadaDto>)it.next();
 					DadaIndexadaDto val = e.getValue();
-					
-					if (val!=null && val.getValor()!=null) {
-						try {
-							if (val.getValor() instanceof BigDecimal) {
-								cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_NUMERIC);
-								BigDecimal valorConvertit = (BigDecimal)e.getValue().getValor();
-								String valor_s = new DecimalFormat("#,##0.00").format(valorConvertit);
-								valor_s = valor_s.replace(".", "").replace(",", ".");
-								if (valor_s!=null && !"".equals(valor_s)) {
-									cell.setCellValue(Float.parseFloat(valor_s));
-									cell.setCellStyle(bdStyle);
-								} else {
-									cell.setCellValue("");
-								}
-							} else if (val.getValor() instanceof Integer) {
-								cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_NUMERIC);
-								Integer valorConvertit = (Integer)e.getValue().getValor();
-								cell.setCellValue(valorConvertit);
-								cell.setCellStyle(iStyle);
-							} else if (val.getValor() instanceof Float) {
-								cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_NUMERIC);
-								Float valorConvertit = (Float)e.getValue().getValor();
-								cell.setCellValue(valorConvertit);
-								cell.setCellStyle(dStyle);
-							} else if (val.getValor() instanceof Long) {
-								cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_NUMERIC);
-								Long valorConvertit = (Long)e.getValue().getValor();
-								cell.setCellValue(valorConvertit);
-								cell.setCellStyle(iStyle);
-							} else if (val.getValor() instanceof Double) {
-								cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_NUMERIC);
-								Double valorConvertit = (Double)e.getValue().getValor();
-								cell.setCellValue(valorConvertit);
-							} else if (val.getValor() instanceof Date) {
-								cell = xlsRow.createCell(colNum++);
-								Date valorConvertit = (Date)e.getValue().getValor();
-								cell.setCellValue(valorConvertit);
-								cell.setCellStyle(cellDateStyle);
-							} else {
-								cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_STRING);
-								cell.setCellValue(StringEscapeUtils.unescapeHtml(val.getValorMostrar()));		
-							}
-						} catch (Exception ex) {
-							//En un possible error de conversió, ho posam per defecte com a String
-							cell = xlsRow.createCell(colNum++);
-							cell.setCellValue(StringEscapeUtils.unescapeHtml(val.getValorMostrar()));	
+					String dadaKey = e.getKey();
+					if(dadaKey.contains("/")) {
+						String[] spliDadatKey = (e.getKey()).split("/");
+						if(spliDadatKey!=null && spliDadatKey[0].equals(sheetName)) {
+							addValues(val, cell, xlsRow, colNum++, iStyle, bdStyle, cellDateStyle, dStyle, e);
 						}
-					} else {
-						cell = xlsRow.createCell(colNum++);
-						cell.setCellValue("");	
+					}
+					else {
+						addValues(val, cell, xlsRow, colNum++, iStyle, bdStyle, cellDateStyle, dStyle, e);
 					}
 				}
+				for (int c=0; c<numCols; c++) {
+					sheet.autoSizeColumn(c);
+				}	
 			} catch (Exception e) {
 				logger.error("Export Excel: No s'ha pogut crear la línia: " + rowNum + " - amb ID: " + expedientConsultaDissenyDto.getExpedient().getId(), e);
 			}
 		}
-
-		try {
-			
-			for (int c=0; c<numCols; c++) {
-				sheet.autoSizeColumn(c);
-			}
-			
-			String fileName = "Exportacio_expedients.xls";
-			response.setHeader("Pragma", "");
-			response.setHeader("Expires", "");
-			response.setHeader("Cache-Control", "");
-			response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
-			response.setContentType("application/vnd.ms-excel;base64");
-			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-			wb.write(byteArrayOutputStream);
-			String encodedExcel = new String(Base64.encodeBase64(byteArrayOutputStream.toByteArray()));
-			response.getOutputStream().write(encodedExcel.getBytes());
-		} catch (Exception e) {
-			logger.error("No s'ha pogut generar l'excel del llistat d'expedients.");
-		}
 	}
-
-	private void createHeader(XSSFSheet sheet, List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto) {
+	
+	private int createHeader(XSSFSheet sheet, List<ExpedientConsultaDissenyDto> expedientsConsultaDissenyDto, String sheetName) {
 
 		XSSFFont bold = sheet.getWorkbook().createFont();
 		bold.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
@@ -482,12 +462,87 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		cell.setCellStyle(headerStyle);
 
 		Iterator<Map.Entry<String, DadaIndexadaDto>> it = expedientsConsultaDissenyDto.get(0).getDadesExpedient().entrySet().iterator();
+		int numCols = 1;
 		while (it.hasNext()) {
 			Map.Entry<String, DadaIndexadaDto> e = (Map.Entry<String, DadaIndexadaDto>)it.next();
-			sheet.autoSizeColumn(colNum);
+			if(e.getKey().contains("/")) {
+				String[] splitKey = (e.getKey()).split("/");
+				if(splitKey!=null && splitKey[0].equals(sheetName)) {
+					numCols++;
+					sheet.autoSizeColumn(colNum);
+					cell = xlsRow.createCell(colNum++);
+					cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(e.getValue().getEtiqueta())));
+					cell.setCellStyle(headerStyle);
+				}
+			} else {
+				numCols++;
+				sheet.autoSizeColumn(colNum);
+				cell = xlsRow.createCell(colNum++);
+				cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(e.getValue().getEtiqueta())));
+				cell.setCellStyle(headerStyle);
+			}
+		}
+		return numCols;
+	}
+	
+	private void addValues(DadaIndexadaDto val, 
+			XSSFCell cell, 
+			XSSFRow xlsRow, 
+			int colNum, 
+			XSSFCellStyle iStyle, 
+			XSSFCellStyle bdStyle, 
+			XSSFCellStyle cellDateStyle,
+			XSSFCellStyle dStyle,
+			Map.Entry<String, DadaIndexadaDto> e) {
+		if (val!=null && val.getValor()!=null) {
+			try {
+				if (val.getValor() instanceof BigDecimal) {
+					cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_NUMERIC);
+					BigDecimal valorConvertit = (BigDecimal)e.getValue().getValor();
+					String valor_s = new DecimalFormat("#,##0.00").format(valorConvertit);
+					valor_s = valor_s.replace(".", "").replace(",", ".");
+					if (valor_s!=null && !"".equals(valor_s)) {
+						cell.setCellValue(Float.parseFloat(valor_s));
+						cell.setCellStyle(bdStyle);
+					} else {
+						cell.setCellValue("");
+					}
+				} else if (val.getValor() instanceof Integer) {
+					cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_NUMERIC);
+					Integer valorConvertit = (Integer)e.getValue().getValor();
+					cell.setCellValue(valorConvertit);
+					cell.setCellStyle(iStyle);
+				} else if (val.getValor() instanceof Float) {
+					cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_NUMERIC);
+					Float valorConvertit = (Float)e.getValue().getValor();
+					cell.setCellValue(valorConvertit);
+					cell.setCellStyle(dStyle);
+				} else if (val.getValor() instanceof Long) {
+					cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_NUMERIC);
+					Long valorConvertit = (Long)e.getValue().getValor();
+					cell.setCellValue(valorConvertit);
+					cell.setCellStyle(iStyle);
+				} else if (val.getValor() instanceof Double) {
+					cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_NUMERIC);
+					Double valorConvertit = (Double)e.getValue().getValor();
+					cell.setCellValue(valorConvertit);
+				} else if (val.getValor() instanceof Date) {
+					cell = xlsRow.createCell(colNum++);
+					Date valorConvertit = (Date)e.getValue().getValor();
+					cell.setCellValue(valorConvertit);
+					cell.setCellStyle(cellDateStyle);
+				} else {
+					cell = xlsRow.createCell(colNum++, Cell.CELL_TYPE_STRING);
+					cell.setCellValue(StringEscapeUtils.unescapeHtml(val.getValorMostrar()));		
+				}
+			} catch (Exception ex) {
+				//En un possible error de conversió, ho posam per defecte com a String
+				cell = xlsRow.createCell(colNum++);
+				cell.setCellValue(StringEscapeUtils.unescapeHtml(val.getValorMostrar()));	
+			}
+		} else {
 			cell = xlsRow.createCell(colNum++);
-			cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize(e.getValue().getEtiqueta())));
-			cell.setCellStyle(headerStyle);
+			cell.setCellValue("");	
 		}
 	}
 

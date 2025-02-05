@@ -11,6 +11,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsult
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
@@ -1669,5 +1670,14 @@ public interface ExpedientTipusService {
 	 * @return Si el tipus d'expedient té manual d'ajuda llavors el retorna, si no retorna null.
 	 */
 	public ArxiuDto getManualAjuda(Long expedientTipusId);
+	
+	/** Mètode per obtenir les darreres versions de definicions de procés d'un tipus d'expedient.
+	 * 
+	 * @param expedientTipus
+	 * @param entornActual
+	 * @return
+	 */
+	public List<DefinicioProcesDto> definicioFindDefinicionsProcDarreraVersio(
+			ExpedientTipusDto expedientTipus, EntornDto entornActual);
 
 }

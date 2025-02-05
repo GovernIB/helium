@@ -99,6 +99,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsult
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
@@ -2643,6 +2644,31 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			Long expedientTipusId) throws NoTrobatException, PermisDenegatException {
 				
 		List<DefinicioProces> definicions = definicioProcesRepository.findAmbExpedientTipus(expedientTipusId);
+		return conversioTipusHelper.convertirList(
+									definicions, 
+									DefinicioProcesDto.class);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<DefinicioProcesDto> definicioFindDefinicionsProcDarreraVersio(
+			ExpedientTipusDto expedientTipus, EntornDto entornActual) throws NoTrobatException, PermisDenegatException {
+		
+		List<DefinicioProces> definicions = new ArrayList<DefinicioProces>();
+		List<Long> defProcIds = definicioProcesRepository.findIdsDarreraVersioAmbEntornIdIExpedientTipusId(
+				entornActual.getId(),
+				expedientTipus.getId());
+		if(defProcIds!=null && !defProcIds.isEmpty()) {
+			for(Long idDefProc : defProcIds) {
+				DefinicioProces defProces = definicioProcesRepository.findById(idDefProc);	
+				if(!definicions.contains(defProces)) {
+					definicions.add(defProces);
+				}
+			}			
+		}	
 		return conversioTipusHelper.convertirList(
 									definicions, 
 									DefinicioProcesDto.class);
