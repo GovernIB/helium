@@ -71,12 +71,14 @@
 			data-rowhref-maximized="true"
 			class="table table-striped table-bordered table-hover"
 			style="width:100%">	
-		<thead>
+		<thead>	
 			<tr>
 				<th data-col-name="id" data-visible="false"/>
 				<th data-col-name="codi"><spring:message code='expedient.tipus.cercador.tipologies.codi.tipologia'/></th>
 				<th data-col-name="nom"><spring:message code='expedient.tipus.cercador.tipologies.tipus.expedient.titol'/></th>
-				<th data-col-name="ntiClasificacion"><spring:message code='expedient.tipus.cercador.tipologies.codi.sia'/></th>				
+				<th data-col-name="ntiClasificacion"><spring:message code='expedient.tipus.cercador.tipologies.codi.sia.nti'/></th>	
+				<th data-col-name="notibCodiProcediment"><spring:message code='expedient.tipus.cercador.tipologies.codi.sia.notib'/></th>				
+				<th data-col-name="distribucioCodiProcediment"><spring:message code='expedient.tipus.cercador.tipologies.codi.sia.distribucio'/></th>							
 				<th data-col-name="entorn.codi" width="20%" data-template="#cellExpedientTipusEntornTemplate">
 					<spring:message code="expedient.tipus.cercador.tipologies.entorn"/>
 						<script id="cellExpedientTipusEntornTemplate" type="text/x-jsrender">

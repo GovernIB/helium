@@ -17,7 +17,6 @@ public class ExpedientTipusIntegracioNotibCommand {
 	
 	private String notibEmisor;
 	private String notibCodiProcediment;
-	
 	private Boolean notibActiu;
 	
 	
@@ -44,6 +43,7 @@ public class ExpedientTipusIntegracioNotibCommand {
 	public void setNotibActiu(Boolean notibActiu) {
 		this.notibActiu = notibActiu;
 	}
+
 
 	public interface Creacio {}
 	public interface Modificacio {}

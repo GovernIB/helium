@@ -83,7 +83,7 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 			model.addAttribute("expedientTipus", expedientTipus);
 			
 			
-			ExpedientTipusIntegracioDistribucioCommand command = new ExpedientTipusIntegracioDistribucioCommand();			
+			ExpedientTipusIntegracioDistribucioCommand command = new ExpedientTipusIntegracioDistribucioCommand();	
 			command.setId(expedientTipusId);
 			command.setActiu(expedientTipus.isDistribucioActiu());
 			command.setCodiProcediment(expedientTipus.getDistribucioCodiProcediment());

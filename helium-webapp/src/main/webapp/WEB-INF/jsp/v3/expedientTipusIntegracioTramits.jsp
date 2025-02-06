@@ -73,9 +73,10 @@
 				<div >
 					<!-- Botons per obrir els formularis dels mapejos -->
 					<div id="inputs_integracioTramits" style="display:${expedientTipusIntegracioTramitsCommand.actiu? 'inline' : 'none'}">
-					
-						<hel:inputText name="tramitCodi" textKey="expedient.tipus.integracio.tramits.tramitCodi" />
-					
+						<hel:inputText name="tramitCodi" 
+						 textKey="expedient.tipus.integracio.tramits.tramitCodi" 
+						 comment="expedient.tipus.integracio.tramits.tramitCodi.comment" 
+						/>
 						<div class="form-group">
 							<label class="control-label col-xs-4" for="mapeigVariables">
 								<spring:message code="expedient.tipus.integracio.tramits.mapeig.variables"></spring:message>

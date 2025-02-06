@@ -21,6 +21,16 @@ $(document).ready(function() {
 			$('#inputs-notib').hide();
 		}
 	});
+	
+	$("#notibCodiProcediment").change(function(){
+		if($(this).val() != '${expedientTipus.ntiClasificacion}'){
+			$("#divCodiSiaError").show();
+		}
+		else {
+			$("#divCodiSiaError").hide();
+		}	
+	}).change();
+	
 	$('#expedientTipusIntegracioNotibCommand').submit(function(e){
 		$('#contingut-alertes').empty();
 		$('#accioGuardarProcessant').show();
@@ -66,8 +76,20 @@ $(document).ready(function() {
 						textKey="expedient.tipus.integracio.notib.sia.codiprocediment"
 						placeholderKey="expedient.tipus.integracio.notib.sia.codiprocediment"
 						required="true" />
+						
+				</div>
+				 <div class="row" id="divCodiSiaError">
+					<div class="col-sm-4"></div>	
+					<div class="col-sm-8">
+						<div class="alert alert-warning">
+							<span class="fa fa-exclamation-triangle"></span>
+							<spring:message code="expedient.tipus.metadades.nti.clasificacion.codi.erroni"/>
+							<b>${expedientTipus.ntiClasificacion}</b>					
+						</div>
+					</div>		
 				</div>
 			</div>
+				
 			<div id="modal-botons" class="well" style="text-align: right;">
 				<span id="accioGuardarProcessant" style="display:none;">
 					<span class="fa fa-spinner fa-spin fa-fw" title="<spring:message code="comu.processant"/>..."></span><span class="sr-only">&hellip;</span>
