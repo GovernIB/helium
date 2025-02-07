@@ -570,6 +570,8 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		ExpedientTipusDto expedientTipusActual = SessionHelper.getSessionManager(request).getExpedientTipusActual();
 		if (expedientTipusActual != null) {
 			filtreCommand.setExpedientTipusId(expedientTipusActual.getId());
+		} else {
+			filtreCommand.setExpedientTipusId(null);
 		}
 		if (filtreCommand.getExpedientTipusId() != null)
 			// comprova l'accès de lectura al tipus d'expedient o si existeix
