@@ -257,7 +257,7 @@
 					</div>
 				</div>
 				<div id="modal-botons${document.id}" class="modal-botons <c:if test="${not empty document.tokenSignatura}">hide</c:if>">
-					<button type="submit" class="btn btn-primary pull-right"><span class="fa fa-floppy-o"></span>&nbsp;<spring:message code="comuns.guardar"/></button>
+					<button type="submit" class="guardar btn btn-primary pull-right"><span class="fa fa-floppy-o"></span>&nbsp;<spring:message code="comuns.guardar"/></button>
 				</div>
 			</c:if>
 		</form>
@@ -332,6 +332,9 @@
 			} else {
 				$('#input-firma-arxiu' + documentId).addClass('hidden');
 			}
+		});	
+		$('.guardar').click(function(e) {
+			$('.div-dades-carregant', window.parent.document).show();	
 		});		
 	});
 	
