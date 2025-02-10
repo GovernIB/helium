@@ -35,6 +35,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -47,6 +48,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadaIndexadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
@@ -573,8 +575,8 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		} else {
 			filtreCommand.setExpedientTipusId(null);
 		}
-		if (filtreCommand.getExpedientTipusId() != null)
-			// comprova l'accès de lectura al tipus d'expedient o si existeix
+		if (filtreCommand.getExpedientTipusId() != null && !UsuariActualHelper.isAdministrador(SecurityContextHolder.getContext().getAuthentication()))
+			// comprova l'accès de lectura al tipus d'expedient o si existeix només pels usuaris no administradors
 			try {
 				EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 				expedientTipusService.findAmbIdPermisConsultar(entornActual.getId(), filtreCommand.getExpedientTipusId());
