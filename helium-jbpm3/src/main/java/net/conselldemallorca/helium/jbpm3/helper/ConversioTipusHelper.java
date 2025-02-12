@@ -346,7 +346,14 @@ public class ConversioTipusHelper {
 			
 			PersonaInfo dadesTitular = dadesEnviament.getTitular();
 			PersonaDto titular = new PersonaDto();
-			titular.setNom(dadesTitular.getNom());
+			if (InteressatTipusEnumDto.FISICA.toString().equals(dadesTitular.getTipus())) {
+				titular.setNom(retallaString(dadesTitular.getNom(), 30));
+			} else {
+				//InteressatTipusEnumDto.ADMINISTRACIO OR InteressatTipusEnumDto.JURIDICA
+				titular.setRaoSocial(retallaString(dadesTitular.getNom(), 30));
+				titular.setNom(retallaString(dadesTitular.getNom(), 30));
+			}
+//			titular.setNom(dadesTitular.getNom());
 			titular.setLlinatge1(dadesTitular.getLlinatge1());
 			titular.setLlinatge2(dadesTitular.getLlinatge2());
 			titular.setDni(dadesTitular.getDni());
@@ -360,7 +367,15 @@ public class ConversioTipusHelper {
 			for (PersonaInfo dadesDestinatari: dadesEnviament.getDestinataris()) {
 				
 				PersonaDto destinatari = new PersonaDto();
-				destinatari.setNom(dadesDestinatari.getNom());
+				if (InteressatTipusEnumDto.FISICA.toString().equals(dadesDestinatari.getTipus())) {
+					destinatari.setNom(retallaString(dadesDestinatari.getNom(), 30));
+				} else {
+					//InteressatTipusEnumDto.ADMINISTRACIO OR InteressatTipusEnumDto.JURIDICA
+					destinatari.setRaoSocial(retallaString(dadesDestinatari.getNom(), 30));
+					destinatari.setNom(retallaString(dadesDestinatari.getNom(), 30));
+
+				}
+//				destinatari.setNom(dadesDestinatari.getNom());
 				destinatari.setLlinatge1(dadesDestinatari.getLlinatge1());
 				destinatari.setLlinatge2(dadesDestinatari.getLlinatge2());
 				destinatari.setDni(dadesDestinatari.getDni());
@@ -410,6 +425,14 @@ public class ConversioTipusHelper {
 		notificacio.setEnviaments(enviaments);
 		
 		return notificacio;
+	}
+	
+	private static String retallaString(String in, int midaMax) {
+		if (in!=null && in.length()>midaMax) {
+			return in.substring(0, midaMax);
+		} else {
+			return in;
+		}
 	}
 
 	public static RespostaEnviar toRespostaEnviar(RespostaNotificacio respostaNotificacio) {
