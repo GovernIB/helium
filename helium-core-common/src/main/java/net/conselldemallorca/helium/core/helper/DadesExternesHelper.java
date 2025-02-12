@@ -186,41 +186,6 @@ public class DadesExternesHelper {
 		}
 	}
 	
-	public List<MunicipiDto> findMunicipisPerProvincia(String provinciaCodi) throws SistemaExternException {
-		
-		String accioDescripcio = "Consulta de municipis";
-		long t0 = System.currentTimeMillis();
-		try {
-			List<Municipi> municipis =  pluginHelper.getDadesExternesPlugin().municipiFindByProvincia(provinciaCodi);
-			IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
-					new IntegracioParametreDto(
-							"municipis",
-							municipis.size())
-			};
-			monitorIntegracioHelper.addAccioOk(
-					MonitorIntegracioHelper.INTCODI_DADES_EXTERNES,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					parametres);				
-			return   conversioTipusHelper.convertirList(municipis, MunicipiDto.class);
-
-		} catch (Exception ex) {
-			String errorDescripcio = "Error al accedir al plugin de dades externes. No s'ha pogut obtenir la llista de municipis:  "+ ex.getMessage();
-			monitorIntegracioHelper.addAccioError(
-					MonitorIntegracioHelper.INTCODI_DADES_EXTERNES,
-					accioDescripcio,
-					IntegracioAccioTipusEnumDto.ENVIAMENT,
-					System.currentTimeMillis() - t0,
-					errorDescripcio,
-					ex);
-			throw tractarExcepcioEnSistemaExtern(
-					MonitorIntegracioHelper.INTCODI_DADES_EXTERNES,
-					errorDescripcio, 
-					ex);	
-		}
-	}
-	
 	public List<ProvinciaDto> dadesExternesProvinciesFindAmbComunitat(String comunitatCodi) {
 
 		String accioDescripcio = "Consulta de les províncies d'una comunitat";

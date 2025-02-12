@@ -33,12 +33,6 @@ public interface DadesExternesService {
 	 */
 	public List<ProvinciaDto> findProvincies()  throws SistemaExternException ;
 
-	/**
-	 * Retorna el llistat de totes les comunitats.
-	 * 
-	 * @return el llistat de comunitats.
-	 */
-	public List<ComunitatAutonomaDto> findComunitats()  throws SistemaExternException ;
 	
 	/**
 	 * Retorna el llistat de totes les províncies d'una comunitat.
@@ -56,14 +50,6 @@ public interface DadesExternesService {
 	 */
 	public List<MunicipiDto> findMunicipisPerProvincia(String provinciaCodi)  throws SistemaExternException ;
 
-	/**
-	 * Retorna el llistat dels nivells de les administracions.
-	 * 
-	 * @param provinciaCodi
-	 *            El codi de la província.
-	 * @return el llistat de nivells de administracions.
-	 */
-	public List<NivellAdministracioDto> findNivellAdministracions()  throws SistemaExternException ;
 
 	public List<MunicipiDto> findMunicipisPerProvinciaPinbal(
 			String provinciaCodi);

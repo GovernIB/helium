@@ -48,12 +48,6 @@ public class DadesExternesServiceBean implements DadesExternesService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<ComunitatAutonomaDto> findComunitats() throws SistemaExternException {
-		return delegate.findComunitats();
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ProvinciaDto> findProvinciesPerComunitat(String comunitatCodi) throws SistemaExternException {
 		return delegate.findProvinciesPerComunitat(comunitatCodi);
 	}
@@ -62,12 +56,6 @@ public class DadesExternesServiceBean implements DadesExternesService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<MunicipiDto> findMunicipisPerProvincia(String provinciaCodi) throws SistemaExternException {
 		return delegate.findMunicipisPerProvincia(provinciaCodi);
-	}
-
-	@Override
-	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<NivellAdministracioDto> findNivellAdministracions() throws SistemaExternException {
-		return delegate.findNivellAdministracions();
 	}
 
 	@Override

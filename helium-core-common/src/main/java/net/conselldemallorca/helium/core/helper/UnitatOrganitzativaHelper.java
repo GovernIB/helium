@@ -43,6 +43,8 @@ import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaReposi
 public class UnitatOrganitzativaHelper {
 	@Resource
 	private DadesExternesHelper dadesExternesHelper;
+	@Resource
+	private CacheHelper cacheHelper;
 	
 	@Resource
 	private ConversioTipusHelper conversioTipusHelper;
@@ -197,7 +199,7 @@ public class UnitatOrganitzativaHelper {
 			String provinciaCodi,
 			String municipiNom) throws SistemaExternException {
 		MunicipiDto municipi = null;
-		List<MunicipiDto> municipis = dadesExternesHelper.findMunicipisPerProvincia(provinciaCodi);
+		List<MunicipiDto> municipis = cacheHelper.findMunicipisPerProvincia(provinciaCodi);
 		if (municipis != null) {
 			for (MunicipiDto mun: municipis) {
 				if (mun.getNom().equalsIgnoreCase(municipiNom)) { 
@@ -214,7 +216,7 @@ public class UnitatOrganitzativaHelper {
 						entitat.getCodi(), 
 						parametreHelper.getDataActualitzacioUos(),
 						parametreHelper.getDataSincronitzacioUos());
-			List<TipusViaDto> tipusViaList = dadesExternesHelper.dadesExternesTipusViaFindAll();
+			List<TipusViaDto> tipusViaList = dadesExternesHelper.dadesExternesTipusViaFindAll();//MARTA canviar-ho per cacheHelper??
 			List<ProvinciaDto> provincies = dadesExternesHelper.dadesExternesProvinciesFindAmbComunitat(CODI_COMUNITAT_ILLES_BALEARS);
 			// Takes all the unitats from WS and saves them to database. If unitat did't exist in db it creates new one if it already existed it overrides existing one.  
 			for (UnitatOrganitzativaDto unitatDto : unitats) {
