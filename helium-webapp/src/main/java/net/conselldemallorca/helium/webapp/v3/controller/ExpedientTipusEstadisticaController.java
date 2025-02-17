@@ -445,7 +445,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 			sheet.autoSizeColumn(i);
 		
 		try {
-			String fileName = "Estadistica.ods";
+			String fileName = "Estadistica.xls";
 			response.setHeader("Pragma", "");
 			response.setHeader("Expires", "");
 			response.setHeader("Cache-Control", "");
