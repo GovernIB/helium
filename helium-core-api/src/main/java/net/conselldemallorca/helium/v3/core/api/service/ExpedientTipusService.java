@@ -346,12 +346,15 @@ public interface ExpedientTipusService {
 	 * 
 	 * @param entornId
 	 *            Atribut id de l'entorn.
+	 * @param comprovarPermisos
+	 *            Atribut per comprovar permisos.
 	 * @return Els tipus d'expedient de l'entorn.
 	 * @throws NoTrobatException
 	 *             Si no s'ha trobat el registre amb l'id especificat.
 	 */
 	public List<ExpedientTipusDto> findAmbEntorn(
-			Long entornId) throws NoTrobatException;
+			Long entornId,
+			boolean comprovarPermisos) throws NoTrobatException;
 
 	
 	/**
@@ -1552,7 +1555,8 @@ public interface ExpedientTipusService {
 			String titol,
 			EstatTipusDto estatTipus,
 			Long estatId,
-			Boolean aturat
+			Boolean aturat,
+			Boolean comprovarPermisos
 			);
 	
 	/**

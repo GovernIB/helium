@@ -204,8 +204,9 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findAmbEntorn(
-			Long entornId) throws NoTrobatException {
-		return findAmbEntorn(entornId);
+			Long entornId, 
+			boolean comprovarPermisos) throws NoTrobatException {
+		return delegate.findAmbEntorn(entornId, comprovarPermisos);
 	}
 	
 	@Override
@@ -906,7 +907,8 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 			String titol, 
 			EstatTipusDto estatTipus,
 			Long estatId,
-			Boolean aturat) {
+			Boolean aturat,
+			Boolean comprovarPermisos) {
 		return delegate.findEstadisticaByFiltre(
 				anyInicial, 
 				anyFinal, 
@@ -917,7 +919,8 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 				titol, 
 				estatTipus,
 				estatId,
-				aturat);
+				aturat,
+				comprovarPermisos);
 	}
 
 	@Override

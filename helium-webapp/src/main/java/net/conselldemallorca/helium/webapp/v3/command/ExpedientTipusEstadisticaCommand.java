@@ -1,5 +1,10 @@
 package net.conselldemallorca.helium.webapp.v3.command;
 
+import java.util.List;
+import java.util.Map;
+
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.MostrarAnulatsDto;
 
 public class ExpedientTipusEstadisticaCommand {
@@ -12,6 +17,8 @@ public class ExpedientTipusEstadisticaCommand {
 	private MostrarAnulatsDto mostrarAnulats = MostrarAnulatsDto.NO;
 	private Boolean aturat;
 	private String estat;
+	private Long entornId;
+	private Map<EntornDto, List<ExpedientTipusDto>> expTipusAgrupatsPerEntorn;
 	
 	public Long getExpedientTipusId() {
 		return expedientTipusId;
@@ -62,4 +69,18 @@ public class ExpedientTipusEstadisticaCommand {
 	public void setEstat(String estat) {
 		this.estat = estat;
 	}
+	public Long getEntornId() {
+		return entornId;
+	}
+	public void setEntornId(Long entornId) {
+		this.entornId = entornId;
+	}
+	public Map<EntornDto, List<ExpedientTipusDto>> getExpTipusAgrupatsPerEntorn() {
+		return expTipusAgrupatsPerEntorn;
+	}
+	public void setExpTipusAgrupatsPerEntorn(Map<EntornDto, List<ExpedientTipusDto>> expTipusAgrupatsPerEntorn) {
+		this.expTipusAgrupatsPerEntorn = expTipusAgrupatsPerEntorn;
+	}
+	
+	
 }
