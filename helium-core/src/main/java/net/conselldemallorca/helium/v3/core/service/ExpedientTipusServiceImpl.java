@@ -2113,13 +2113,14 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	@Override
 	@Transactional
 	public List<ExpedientTipusDto> findAmbEntorn(
-			Long entornId) {
+			Long entornId,
+			boolean comprovarPermisos) {
 		logger.debug(
 				"Consultant tipus d'expedient per un entorn (" +
 				"entornId=" + entornId + ")");
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
-				true);
+				comprovarPermisos);
 		List<ExpedientTipus> tipuss = expedientTipusRepository.findByEntornOrderByCodiAsc(entorn);
 		return conversioTipusHelper.convertirList(
 				tipuss,
@@ -4916,12 +4917,13 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			String titol, 
 			EstatTipusDto estatTipus,
 			Long estatId,
-			Boolean aturat) {
+			Boolean aturat,
+			Boolean comprovarPermisos) {
 		
 		
 		Entorn entorn = entornHelper.getEntornComprovantPermisos(
 				entornId,
-				true);
+				comprovarPermisos);
 		ExpedientTipus expedientTipus = null;
 		if(expedientTipusId != null) {
 			expedientTipus = expedientTipusRepository.findOne(expedientTipusId);

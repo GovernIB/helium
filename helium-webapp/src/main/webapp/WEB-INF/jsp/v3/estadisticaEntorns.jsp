@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ taglib tagdir="/WEB-INF/tags/helium" prefix="hel"%>
@@ -29,6 +30,16 @@
 	<link href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" rel="stylesheet">
 	
 	<style type="text/css">
+		div.tauladades {
+			color: #666666  !important;
+			background-color: #e5e5e5 !important;
+			border-color: #ccc !important;
+			font-weight: bold;
+		}
+		div.tauladades:hover {
+			background-color: #ccc !important;
+			border-color: #ccc !important;
+		}
 		.col-md-1.btn-group {width: 4.333%;}
 		.col-md-6.btn-group {width: 54%;}
 		.alert-envelope {
@@ -105,6 +116,32 @@ $(document).ready(function() {
 				alert("<spring:message code="expedient.llistat.estats.ajax.error"/>");
 			});
 		});
+		
+		$('#entornId').on('change', function() {
+			var entorn = $(this).val();
+			if (!entorn){
+               history.go(0);
+               return;
+			  //entorn = '-1';
+			}	
+			$('#expedientTipusId').select2('val', '', true);
+			$('#expedientTipusId option[value!=""]').remove();
+			$('#expedientTipusId optgroup[value!=""]').remove();
+			$('#expedientTipusId').children().remove("optgroup");			  
+			$.get('<c:url value="/v3/estadistica/expedientTipusPerEntorn/"/>' + entorn)
+			.done(function(data) {
+				var $optgroup = $('#expedientTipusId').append('<optgroup label="' + data[0].valor + '">' + data[0].valor);
+				for (var i = 1; i < data.length; i++) {
+					$optgroup.append('<option value="' + data[i].codi + '">'+" " + data[i].valor + '</option>');
+					//$('#expedientTipusId').append('<option value="' + data[i].codi + '">'+" " + data[i].valor + '</option>');
+				}
+				$('#expedientTipusId').append('</optgroup>');
+			})
+			.fail(function() {
+				alert("<spring:message code="expedient.llistat.expedient.tipus.ajax.error"/>");
+			});
+		});
+		
 });
 </script>
 </head>
@@ -118,16 +155,27 @@ $(document).ready(function() {
 				<hel:inputText name="titol" textKey="expedient.llistat.filtre.camp.titol" placeholderKey="expedient.llistat.filtre.camp.titol" inline="true"/>
 			</div>
 			<div class="col-md-3">
-				<hel:inputSelect emptyOption="true" name="expedientTipusId" textKey="expedient.llistat.filtre.camp.expedient.tipus" placeholderKey="expedient.llistat.filtre.camp.expedient.tipus" optionItems="${expedientsTipus}" optionValueAttribute="id" optionTextAttribute="nom" disabled="${not empty expedientTipusActual}" inline="true"/>
+				<hel:inputSelect emptyOption="true" name="entornId" textKey="expedient.tipus.estadistica.filtre.camp.entorn" placeholderKey="expedient.tipus.estadistica.filtre.camp.entorn" optionItems="${entorns}" optionValueAttribute="id" optionTextAttribute="nom" disabled="${!dadesPersona.admin}" inline="true"/>
 			</div>
 			<div class="col-md-3">
-				<hel:inputSelect emptyOption="true" name="estat" textKey="expedient.llistat.filtre.camp.estat" placeholderKey="expedient.llistat.filtre.camp.estat" optionItems="${estats}" optionValueAttribute="codi" optionTextAttribute="valor" inline="true"/>
-			</div>
-			<div class="col-md-3">
-				<label><spring:message code="expedient.info.aturat"/></label>
-				<hel:inputSelect emptyOption="true" name="aturat" textKey="expedient.info.aturat" optionItems="${aturats}" optionValueAttribute="valor" optionTextAttribute="codi" placeholderKey="expedient.info.aturat" inline="true"/>
-			</div>
-			<div class="col-md-6">
+			
+					<div class="form-group">
+						<div class="select2-container form-control" style="background-color:white;padding-left:12px;">
+							<select title="expedientTipusId" id="expedientTipusId" name="expedientTipusId" class="select2-container form-control select2-allowclear">
+								<option value="" ><spring:message code="expedient.llistat.filtre.camp.expedient.tipus"/></option>
+								<c:forEach items="${expTipusAgrupatsPerEntornTableData}" var="expTipusEntorn">
+										<optgroup label="${expTipusEntorn.key.nom}">
+											<c:forEach items="${expTipusEntorn.value}" var="expTipus">
+												<option value="${expTipus.id}" ${expedientTipusEstadisticaCommand.expedientTipusId == expTipus.id? "selected='selected'" : ""} >${expTipus.nom}</option>
+											</c:forEach>			
+										</optgroup>
+								</c:forEach>										
+							</select>		
+						</div>	
+					</div>		
+				</div>
+			
+			<div class="col-md-4">
 				<label><spring:message code="expedient.llistat.filtre.camp.data.inici"/></label>
 				<div class="row">
 					<div class="col-md-6">
@@ -144,6 +192,10 @@ $(document).ready(function() {
 					</div>
 				</div>
 			</div>
+			<div class="col-md-2">
+				<label><spring:message code="expedient.info.aturat"/></label>
+				<hel:inputSelect emptyOption="true" name="aturat" textKey="expedient.info.aturat" optionItems="${aturats}" optionValueAttribute="valor" optionTextAttribute="codi" placeholderKey="expedient.info.aturat" inline="true"/>
+			</div>
 			<div class="col-md-3">
 				<label><spring:message code="expedient.llistat.filtre.camp.anulats"/></label>
 				<div class="row">
@@ -151,6 +203,10 @@ $(document).ready(function() {
 						<hel:inputSelect inline="true" name="mostrarAnulats" optionItems="${anulats}" optionValueAttribute="valor" optionTextAttribute="codi"/>
 					</div>
 				</div>
+			</div>
+			<div class="col-md-3">
+				<label><spring:message code="expedient.llistat.filtre.camp.estat"/></label>
+				<hel:inputSelect emptyOption="true" name="estat" textKey="expedient.llistat.filtre.camp.estat" placeholderKey="expedient.llistat.filtre.camp.estat" optionItems="${estats}" optionValueAttribute="codi" optionTextAttribute="valor" inline="true"/>
 			</div>
 			<div class="col-md-12 d-flex align-items-end">
 				<div class="pull-right">
@@ -170,77 +226,100 @@ $(document).ready(function() {
 	<input type="hidden" name="mostrarAnulats" value="${expedientTipusEstadisticaCommand.mostrarAnulats}"/>
 </form:form>
 
+		
+
 <div class="col-12" style="overflow: auto;">
-	<c:if test="${ empty tableData}">
-		<div class="alert alert-warning">
-		  <spring:message code='expedient.tipus.taula.estadistica.warning.senseresultats'/>
-		</div>
-	</c:if>
-	<c:if test="${ not empty tableData}">
-		<table id="estadistica" class="table table-striped table-bordered">
-		<thead>
-			<tr>
-			<th><spring:message code='expedient.tipus.taula.estadistica.titol.codi'/></th>
-			<th><spring:message code='expedient.tipus.taula.estadistica.titol.nom'/></th>
-			<c:forEach items="${anys}" var="item">
-					<th> ${ item } </th>
-			</c:forEach>
-				<th><spring:message code='expedient.tipus.taula.estadistica.totaltipus'/></th>
-			</tr>
-		 </thead>
-		  		<c:forEach items="${expedientsTipus}" var="items">
-		  			<c:if test="${ not empty tableData[items.codi] }">
-					<tr>
-						<th>${ items.codi }</th>
-						<th>${ items.nom } </th>
+
+	<c:if test="${ not empty expTipusAgrupatsPerEntornTableData}">
+	<c:forEach  items="${expTipusAgrupatsPerEntornTableData}" var="expTipusAgrupatEntorn">
+		<c:set var="tableData" value="${estadisticaPerEntorn[expTipusAgrupatEntorn.key.codi].tableData}"/>
+		<c:set var="totalTipus" value="${estadisticaPerEntorn[expTipusAgrupatEntorn.key.codi].totalTipus}"/>
+		<c:set var="anys" value="${estadisticaPerEntorn[expTipusAgrupatEntorn.key.codi].anys}"/>
+		<c:set var="totalAny" value="${estadisticaPerEntorn[expTipusAgrupatEntorn.key.codi].totalAny}"/>
+		<c:set var="titols" value="${estadisticaPerEntorn[expTipusAgrupatEntorn.key.codi].titols}"/>
+		<c:set var="entornIdExpTipusAgrupat" value="${expTipusAgrupatEntorn.key.id}"/>
+		<c:if test="${(expedientTipusEstadisticaCommand.entornId!=null && entornIdExpTipusAgrupat==expedientTipusEstadisticaCommand.entornId) ||(expedientTipusEstadisticaCommand.entornId==null)}">
+		<div class="panel panel-default alt_panel">
+			<div id="${entornIdExpTipusAgrupat}-titol-expTipusAgrupatsEntorn" class="panel-heading clicable tauladades" data-toggle="collapse"> 
+				${expTipusAgrupatEntorn.key.nom} 
+			</div>
+			
+				<c:if test="${ empty tableData}">
+					<div class="alert alert-warning">
+				 	 <spring:message code='expedient.tipus.taula.estadistica.warning.senseresultats'/>
+					</div>
+				</c:if>	
+				<c:if test="${ not empty tableData}">
+					<table id="estadistica" class="table table-striped table-bordered">
+					<thead>
+						<tr>
+						<th><spring:message code='expedient.tipus.taula.estadistica.titol.codi'/></th>
+						<th><spring:message code='expedient.tipus.taula.estadistica.titol.nom'/></th>
 						<c:forEach items="${anys}" var="item">
-							<td class="text-right">
-								<c:choose>
-								    <c:when test="${ not empty tableData[items.codi][item] }">
-								        ${ tableData[items.codi][item] }
-								    </c:when>    
-								    <c:otherwise>
-								        <span style="color:rgba(0,0,0,0);">0</span>
-								    </c:otherwise>
-								</c:choose>
-							</td>
+								<th> ${ item } </th>
 						</c:forEach>
-						<th class="text-right">
-							<c:choose>
-							    <c:when test="${ not empty totalTipus[items.codi] }">
-							        ${ totalTipus[items.codi] }
-							    </c:when>    
-							    <c:otherwise>
-							        0
-							    </c:otherwise>
-							</c:choose>
-						</th>
-					</tr>
-					</c:if>
-				</c:forEach>
-						<c:set var = "totalTotal" value = "${0}"/>
-					<tr>
-					<th><spring:message code='expedient.tipus.taula.estadistica.totalany'/></th>
-					<th></th>
-						<c:forEach items="${anys}" var="item">
-							<th class="text-right">
-								<c:choose>
-								    <c:when test="${ not empty totalAny[item] }">
-								        ${ totalAny[item] }
-									<c:set var = "totalTotal" value = "${totalTotal + totalAny[item]}"/>
-								    </c:when>    
-								    <c:otherwise>
-								        0
-								    </c:otherwise>
-								</c:choose>
-							</th>
-						</c:forEach>
-						<th class="text-right">
-							<c:out value = "${totalTotal}"/>
-						</th>
-					</tr>
-		</table>
+							<th><spring:message code='expedient.tipus.taula.estadistica.totaltipus'/></th>
+						</tr>
+					 </thead>
+					  		<c:forEach items="${expTipusAgrupatEntorn.value}" var="items">
+					  			<c:if test="${ not empty tableData[items.codi] }">
+								<tr>
+									<th>${ items.codi }</th>
+									<th>${ items.nom } </th>
+									<c:forEach items="${anys}" var="item">
+										<td class="text-right">
+											<c:choose>
+											    <c:when test="${ not empty tableData[items.codi][item] }">
+											        ${ tableData[items.codi][item] }
+											    </c:when>    
+											    <c:otherwise>
+											        <span style="color:rgba(0,0,0,0);">0</span>
+											    </c:otherwise>
+											</c:choose>
+										</td>
+									</c:forEach>
+									<th class="text-right">
+										<c:choose>
+										    <c:when test="${ not empty totalTipus[items.codi] }">
+										        ${ totalTipus[items.codi] }
+										    </c:when>    
+										    <c:otherwise>
+										        0
+										    </c:otherwise>
+										</c:choose>
+									</th>
+								</tr>
+								</c:if>
+							</c:forEach>
+									<c:set var = "totalTotal" value = "${0}"/>
+								<tr>
+								<th><spring:message code='expedient.tipus.taula.estadistica.totalany'/></th>
+								<th></th>
+									<c:forEach items="${anys}" var="item">
+										<th class="text-right">
+											<c:choose>
+											    <c:when test="${ not empty totalAny[item] }">
+											        ${ totalAny[item] }
+												<c:set var = "totalTotal" value = "${totalTotal + totalAny[item]}"/>
+											    </c:when>    
+											    <c:otherwise>
+											        0
+											    </c:otherwise>
+											</c:choose>
+										</th>
+									</c:forEach>
+									<th class="text-right">
+										<c:out value = "${totalTotal}"/>
+									</th>
+								</tr>
+					</table>
+				</c:if>
+			
+			</div>
+		</c:if>
+	</c:forEach>
 	</c:if>
+
 </div>
 </c:if>
 
