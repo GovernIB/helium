@@ -699,10 +699,12 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 					for (Portasignatures p: pendentsFirma) {
 						DocumentFinalitzarDto dpf = new DocumentFinalitzarDto();
 						DocumentStore sdPf = documentStoreRepository.findOne(p.getDocumentStoreId());
-						dpf.setArxiuNom(sdPf.getArxiuNom());
-						dpf.setDocumentCodi(sdPf.getCodiDocument());
-						dpf.setAnotacioDesc((p.getEstat()!=null?p.getEstat().toString():"")+(p.getTransition()!=null?" "+p.getTransition().toString():""));
-						pendents.add(dpf);
+						if(sdPf!=null) {
+							dpf.setArxiuNom(sdPf.getArxiuNom());
+							dpf.setDocumentCodi(sdPf.getCodiDocument());
+							dpf.setAnotacioDesc((p.getEstat()!=null?p.getEstat().toString():"")+(p.getTransition()!=null?" "+p.getTransition().toString():""));
+							pendents.add(dpf);
+						}	
 					}
 				} else {
 					
