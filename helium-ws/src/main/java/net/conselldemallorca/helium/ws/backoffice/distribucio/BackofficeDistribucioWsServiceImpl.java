@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtilsImpl;
+import es.caib.distribucio.rest.client.integracio.domini.Estat;
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DistribucioHelper;
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
@@ -72,6 +73,9 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 		List<Anotacio> anotacions;
 		Anotacio anotacio;
 		List<Long> idsAnotacionsReprocessar =  new ArrayList<Long>();
+		// Si la petició ja existeix determina què fer en cas de cada estat
+		es.caib.distribucio.rest.client.integracio.domini.Estat estatDistribucio = es.caib.distribucio.rest.client.integracio.domini.Estat.PENDENT;
+		List<ComunicarEstat> comunicarEstats = new ArrayList<ComunicarEstat>();
 		for (AnotacioRegistreId id : ids) {
 			idWs = conversioTipusHelper.convertir(id, es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId.class);
 			try {
@@ -89,8 +93,6 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 					distribucioHelper.encuarAnotacio(idWs);
 					logger.info("Anotació " + id.getIndetificador() + " encuada com a pendent de consulta");
 				} else {
-					// Si la petició ja existeix determina què fer en cas de cada estat
-					es.caib.distribucio.rest.client.integracio.domini.Estat estatDistribucio = es.caib.distribucio.rest.client.integracio.domini.Estat.PENDENT;
 					String msg = null;
 					BackofficeArxiuUtils backofficeUtils = new BackofficeArxiuUtilsImpl(pluginHelper.getArxiuPlugin());
 					backofficeUtils.setArxiuPluginListener(this);
@@ -146,13 +148,10 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 						logger.info("L'anotació " + id.getIndetificador() + " estava comunicada. Es tornarà a consultar.");
 						break;
 					}
-					if (estatDistribucio != null) {
-						// Comunica l'estat actual
-						distribucioHelper.canviEstat(
-								idWs, 
-								estatDistribucio,
-								msg);
-					}
+					comunicarEstats.add(new ComunicarEstat(
+							idWs, 
+							estatDistribucio, 
+							msg));
 				}
 			} catch(Exception e) {
 				logger.error("Error rebent la petició d'anotació de registre amb id=" + id.getIndetificador() + " : " + e.getMessage() + ". Es comunica l'error a Distribucio", e);
@@ -165,8 +164,63 @@ public class BackofficeDistribucioWsServiceImpl implements Backoffice, ArxiuPlug
 					logger.error("Error comunicant l'error de recepció a Distribucio de la petició amb id : " + id.getIndetificador() + ": " + ed.getMessage(), ed);
 				}
 			}
+		}		
+		Thread thread = new ComunicarEstatsThread("Comunicar " + comunicarEstats.size(), comunicarEstats);
+		thread.start();	
+		logger.info("Fi del processament de comunicació de " + ids.size() + "anotacions de registre de Distribucio. Es comunicaran " + comunicarEstats.size());		
+	}
+	
+	private class ComunicarEstatsThread extends Thread {
+		private List<ComunicarEstat> comunicarEstats;
+		
+		public ComunicarEstatsThread(String name, List<ComunicarEstat> comunicarEstats) {
+			super(name);
+			this.comunicarEstats = comunicarEstats;
 		}
-		logger.info("Fi del processament de comunicació de " + ids.size() + "anotacions de registre de Distribucio.");
+		
+		@Override
+		public void run() {
+			comunicarEstats(this.comunicarEstats);
+		}	
+	}
+	
+	private void comunicarEstats(List<ComunicarEstat> comunicarEstats) {
+		for(ComunicarEstat comunicarEstat: comunicarEstats) {
+			try {
+				logger.info("Comunicant l'estat " + comunicarEstat.getEstat() + " de l'anotació " + comunicarEstat.getIdWs().getIndetificador() + " a DISTRIBUCIO.");
+				if(comunicarEstat.getEstat()!=null)
+					// Comunica l'estat actual
+					distribucioHelper.canviEstat(
+							comunicarEstat.getIdWs(),
+							comunicarEstat.getEstat(),
+							comunicarEstat.getMissatge());
+			} catch(Exception e) {
+				logger.error("Error comunicant l'estat a Distribucio de la petició amb id : " + comunicarEstat.getIdWs() + ": " + comunicarEstat.getEstat(), comunicarEstat.getMissatge());
+			}
+		}
+	}
+	
+	
+	private class ComunicarEstat {
+		private es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId idWs;
+		private es.caib.distribucio.rest.client.integracio.domini.Estat estat;
+		private String missatge;
+		
+		public ComunicarEstat(es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId idWs2,
+				Estat estatDistribucio, String msg) {
+			this.idWs=idWs2;
+			this.estat=estatDistribucio;
+			this.missatge=msg;
+		}
+		public es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId getIdWs() {
+			return idWs;
+		}
+		public es.caib.distribucio.rest.client.integracio.domini.Estat getEstat() {
+			return estat;
+		}
+		public String getMissatge() {
+			return missatge;
+		}	
 	}
 		
 	/** Mètode per implementar la interfície {@link ArxiuPluginListener} de Distribució per rebre events de quan es crida l'Arxiu i afegir
