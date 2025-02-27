@@ -7,8 +7,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.core.helper.AnotacioHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioFiltreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
@@ -42,6 +45,8 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 @Controller
 @RequestMapping("/v3/expedient")
 public class ExpedientAnotacioController extends BaseExpedientController {
+	@Resource
+	private AnotacioHelper anotacioHelper;
 	@Autowired
 	private AnotacioService anotacioService;
 	@Autowired
@@ -200,7 +205,7 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 		
 		try {
 			AnotacioMapeigResultatDto resultatMapeig = 
-				anotacioService.reprocessarMapeigAnotacioExpedient(
+				anotacioHelper.reprocessarMapeigAnotacioExpedient(
 					expedientId,
 					anotacioId,
 					reprocessarMapeigAnotacioDto.isReprocessarMapeigVariables(),

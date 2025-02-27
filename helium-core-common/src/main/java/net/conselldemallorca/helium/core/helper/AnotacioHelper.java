@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
@@ -163,7 +164,7 @@ public class AnotacioHelper {
 				"comprovarPermis=" + comprovarPermis + ")");
 				
 		if(anotacio==null) {
-			anotacio = anotacioRepository.findByIdAmbBloqueig(anotacioId);
+			anotacio = anotacioRepository.findOne(anotacioId);
 		}
 		// Comprova els permisos
 		if (comprovarPermis)
@@ -572,7 +573,7 @@ public class AnotacioHelper {
 				"anotacioId=" + anotacioId  + ", " +
 				"expedientTipusId=" + expedientTipusId + ")");
 		
-		Anotacio anotacio = anotacioRepository.findByIdAmbBloqueig(anotacioId);
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
 		resultatMapeig.setAnotacioNumero(anotacio.getIdentificador());
 	
 		// Recupera la informació del tipus d'expedient
@@ -611,7 +612,7 @@ public class AnotacioHelper {
 				"anotacioId=" + anotacioId + ", " +
 				"expedientId=" + expedientId + ")");
 		
-		Anotacio anotacio = anotacioRepository.findByIdAmbBloqueig(anotacioId);
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
 		resultatMapeig.setAnotacioNumero(anotacio.getIdentificador());
 	
 		// Recupera la informació del tipus d'expedient i l'expedient
@@ -910,7 +911,7 @@ public class AnotacioHelper {
 			Long anotacioId, 
 			Long expedientId) {
 		Expedient expedient = expedientRepository.findOne(expedientId);
-		Anotacio anotacio = anotacioRepository.findByIdAmbBloqueig(anotacioId);
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
 		logger.info("Relacionant l anotacio "  + anotacio.getIdentificador() + " "+ " amb l expedient " + expedientId + " " + expedient.getNumero());
 		anotacio.setExpedient(expedient);
 		anotacio.setExpedientTipus(expedient.getTipus());

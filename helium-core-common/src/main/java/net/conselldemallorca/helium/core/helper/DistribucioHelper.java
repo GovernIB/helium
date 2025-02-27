@@ -407,7 +407,7 @@ public class DistribucioHelper {
 									Date consultaData) 
 	{
 		
-		Anotacio anotacio = anotacioRepository.findByIdAmbBloqueig(anotacioId);
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
 		anotacio.setConsultaIntents(consultaIntents);
 		anotacio.setConsultaError(consultaError);
 		anotacio.setConsultaData(consultaData);
@@ -425,7 +425,7 @@ public class DistribucioHelper {
 	public Anotacio resetConsulta(long anotacioId, String errorProcessament) 
 	{
 		
-		Anotacio anotacio = anotacioRepository.findByIdAmbBloqueig(anotacioId);
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
 		anotacio.setErrorProcessament(errorProcessament);
 		anotacio.setConsultaIntents(0);
 		anotacio.setEstat(AnotacioEstatEnumDto.COMUNICADA);
@@ -448,7 +448,7 @@ public class DistribucioHelper {
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public Anotacio updateErrorProcessament(long anotacioId, String errorProcessament) {
 		
-		Anotacio anotacio = anotacioRepository.findByIdAmbBloqueig(anotacioId);
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
 		anotacio.setErrorProcessament(errorProcessament);
 		anotacio.setDataProcessament(new Date());
 		anotacio.setEstat(AnotacioEstatEnumDto.ERROR_PROCESSANT);
@@ -477,7 +477,7 @@ public class DistribucioHelper {
 	@Transactional
 	public Anotacio updateAnotacio(long anotacioId, AnotacioRegistreEntrada anotacioEntrada) {
 		
-		Anotacio anotacio = anotacioRepository.findByIdAmbBloqueig(anotacioId);
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
 		
 		// Actualitza l'anotació
 		anotacio.setAssumpteCodiCodi(anotacioEntrada.getAssumpteTipusCodi());
@@ -761,7 +761,7 @@ public class DistribucioHelper {
 			AnotacioRegistreId idWs,
 			long anotacioId,
 			BackofficeArxiuUtils backofficeUtils) throws Exception{
-		Anotacio anotacio = anotacioRepository.findByIdAmbBloqueig(anotacioId);
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
 		this.processarAnotacio(idWs, anotacio, backofficeUtils);
 	}
 
@@ -1028,7 +1028,7 @@ public class DistribucioHelper {
 
 		Throwable ret = null;
 
-		Anotacio anotacio = anotacioRepository.findByIdAmbBloqueig(anotacioId);
+		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
 
 		logger.debug("Rerocessant l'anotació " + anotacio.getIdentificador() + ".");
 		try {

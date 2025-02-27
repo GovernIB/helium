@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import net.conselldemallorca.helium.core.helper.AnotacioHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DefinicioProcesDto;
@@ -55,6 +57,8 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 @Controller
 @RequestMapping("/v3/expedient")
 public class ExpedientIniciController extends BaseExpedientIniciController {
+	@Resource
+	private AnotacioHelper anotacioHelper;
 
 	@Autowired
 	private ExpedientInicioPasFormController expedientInicioPasFormController;
@@ -120,7 +124,7 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 		if (definicioProces.isHasStartTask()) {
 			//Si venim d'acceptar una anotació, mapejarem les dades d'aquesta, en cas q el tipus d'expedient tingui habilitat isDistribucioSistra
 			if(anotacio!=null && anotacio.getId()!=null && expedientTipus.isDistribucioSistra()) {
-				AnotacioMapeigResultatDto resultatMapeig = anotacioService.processarMapeigAnotacioExpedient(expedientTipus.getId(), anotacio.getId());
+				AnotacioMapeigResultatDto resultatMapeig = anotacioHelper.processarMapeigAnotacioExpedient(expedientTipus.getId(), anotacio.getId());
 				return expedientInicioPasFormController.iniciarFormGet(
 								request,
 								expedientTipus.getId(),
