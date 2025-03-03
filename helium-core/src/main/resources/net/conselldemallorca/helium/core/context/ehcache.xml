@@ -27,7 +27,7 @@
 		timeToLiveSeconds="3600" 
 		overflowToDisk="false" />
 	<cache name="personaPluginCache" 
-		maxElementsInMemory="2000" 
+		maxElementsInMemory="10000" 
 		eternal="true" 
 		overflowToDisk="false" />
 	<cache name="paisos" 
