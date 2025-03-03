@@ -1950,11 +1950,11 @@ public class ExpedientHelper {
 							resultatMapeig.getMissatgeAlertaErrors());
 					alerta.setPrioritat(AlertaPrioritat.ALTA);	
 				}
-				// Programa que es relacioni l'anotació amb l'expedient després del commit.
-				TransactionSynchronizationManager.registerSynchronization(
-						new RelacionarAnotacioAmbExpedientHandler(
-								anotacioId, 
-								expedientPerRetornar.getId()));
+//				// Programa que es relacioni l'anotació amb l'expedient després del commit.
+//				TransactionSynchronizationManager.registerSynchronization(
+//						new RelacionarAnotacioAmbExpedientHandler(
+//								anotacioId, 
+//								expedientPerRetornar.getId()));
 			}
 			
 			// Inicia el flux del procés

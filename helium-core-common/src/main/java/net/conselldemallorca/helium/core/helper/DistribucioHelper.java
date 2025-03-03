@@ -798,16 +798,7 @@ public class DistribucioHelper {
 					String motiuRebuig = "L'anotació " + idWs.getIndetificador() + " es rebutja automàticament des d'Helium "
 							+ "ja hi ha una anotació amb el mateix número en estat PROCESSADA/PENDENT rebuda el " + anotacio.getDataRecepcio() 
 							+ (expedientAnotacioIdemNum!=null ? " per l'expedient " + expedientAnotacioIdemNum.getNumero() : "") ;
-					self.rebutjar(anotacio, motiuRebuig);
-					//Es comunica l'estat a Distribucio
-					try {
-						this.canviEstat(
-								idWs, 
-								es.caib.distribucio.rest.client.integracio.domini.Estat.REBUTJADA,
-								motiuRebuig);
-					} catch(Exception ed) {
-						logger.error("Error comunicant el motiu de rebuig a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
-					}
+					this.rebutjar(anotacio, motiuRebuig);
 					return;
 				}
 			}
@@ -907,8 +898,9 @@ public class DistribucioHelper {
 					reprocessar = true;
 				}
 				
-				// Relaciona l'anotació amb l'expedient
-				anotacioHelper.setExpedient(anotacio.getId(), expedient.getId());
+				// Programa la relació entre l'anotació i l'expedient quan es completi la transacció
+				anotacioHelper.relacionarAnotacioExpedientAfterCompletion(	anotacio.getId(), 
+																			expedient.getId());
 				
 				// Incorporporar l'anotació a l'expedient
 				try {
@@ -949,7 +941,7 @@ public class DistribucioHelper {
 					String errMsg = "Error comunicant l'estat de processada a Distribucio:" + e.getMessage();
 					logger.warn(errMsg, e);				
 				}
-			} else if (expedientTipus==null){
+			} else if (expedientTipus == null){
 
 				this.rebutjar(
 						anotacio,
@@ -984,7 +976,7 @@ public class DistribucioHelper {
 	
 	public void canviEstatErrorAnotacio(String errorProcessament,Anotacio anotacio, AnotacioRegistreId idWs, Throwable e) {
 		// Crida fent referència al bean per crear una nova transacció
-		self.updateErrorProcessament(anotacio.getId(), errorProcessament);
+		this.updateErrorProcessament(anotacio.getId(), errorProcessament);
 		logger.error(errorProcessament, e);
 		 //Es comunica l'estat a Distribucio
 		try {

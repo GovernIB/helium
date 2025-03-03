@@ -17,8 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuResultat;
 import es.caib.distribucio.backoffice.utils.arxiu.BackofficeArxiuUtils;
@@ -54,7 +55,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuEstat;
 import net.conselldemallorca.helium.v3.core.api.dto.CanalNotifEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
-import net.conselldemallorca.helium.v3.core.api.dto.EmailTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
@@ -226,10 +226,10 @@ public class AnotacioHelper {
 			alerta.setPrioritat(AlertaPrioritat.ALTA);
 		}
 
-		// Si l'expedient està  integrat amb l'arxiu s'utlitzarà la llibreria d'utilitats de backoffice de DistribuciÃ³ per moure tots els annexos i incorporar
+		// Si l'expedient està  integrat amb l'arxiu s'utlitzarà la llibreria d'utilitats de backoffice de Distribució per moure tots els annexos i incorporar
 		// la informació dels interessats.
 		ArxiuResultat resultat = null;
-		if (expedient.isArxiuActiu()) {
+		if (expedient.isArxiuActiu() && expedient.getArxiuUuid() != null) {
 
 			// Utilitza la llibreria d'utilitats de Distribució per incorporar la informació de l'anotació directament a l'expedient dins l'Arxiu
 			es.caib.plugins.arxiu.api.Expedient expedientArxiu = pluginHelper.arxiuExpedientInfo(expedient.getArxiuUuid());
@@ -901,23 +901,65 @@ public class AnotacioHelper {
 				null);
 	}
 	
-	/** Fixa l'expedient a l'anotació en una nova transacció.
-	 * 
-	 * @param anotacioId
-	 * @param expedientId
-	 */
-	@Transactional
-	public void setExpedient(
-			Long anotacioId, 
-			Long expedientId) {
-		Expedient expedient = expedientRepository.findOne(expedientId);
-		Anotacio anotacio = anotacioRepository.findOne(anotacioId);
-		logger.info("Relacionant l anotacio "  + anotacio.getIdentificador() + " "+ " amb l expedient " + expedientId + " " + expedient.getNumero());
-		anotacio.setExpedient(expedient);
-		anotacio.setExpedientTipus(expedient.getTipus());
-		anotacioRepository.save(anotacio);
+	/** Mètode privat per relacionar l'anotació amb l'expedient un cop completat el mètode transactional vagi o no bé. */
+	public void relacionarAnotacioExpedientAfterCompletion(Long anotacioId, Long expedientId) {
+		// Programa que es relacioni l'anotació amb l'expedient després del commit.
+		TransactionSynchronizationManager.registerSynchronization(
+				new RelacionarAnotacioAmbTransactionSynchronization(
+						anotacioId, 
+						expedientId));
 	}
+	/** Classe que implementa la sincronització de transacció per relacionar l'anotació amb l'expedient que s'acaba de crear.
+	 * És necessari fer-ho després del commit perquè si s'intenta de relacionar l'expedient amb l'anotació en una nova transacció
+	 * llavors es produeix un bloqueig i és necessari relacionar l'expedient a l'anotació després de crear-lo.
+	 */
+	public class RelacionarAnotacioAmbTransactionSynchronization implements TransactionSynchronization {
+		
+		private Long anotacioId;
+		private Long expedientId;
+		
+		public RelacionarAnotacioAmbTransactionSynchronization(
+				Long anotacioId,
+				Long expedientId) {
+			this.anotacioId = anotacioId;
+			this.expedientId = expedientId;
+		}
+		
+		@Override
+		public void afterCommit() {}
 
+		@Override
+		public void suspend() {}
 
+		@Override
+		public void resume() {}
+
+		@Override
+		public void flush() {}
+
+		@Override
+		public void beforeCommit(boolean readOnly) {}
+
+		@Override
+		public void beforeCompletion() {}
+		
+		/** Mètode que s'executa després que s'hagi acabat el mètode transactional des d'on es crida en un 
+		 * nou thread. */
+		@Override
+		@Transactional
+		public void afterCompletion(int status) {
+			new Thread(new Runnable() {				
+				@Override
+				public void run() {
+					Expedient expedient = expedientRepository.findOne(expedientId);
+					Anotacio anotacio = anotacioRepository.findOne(anotacioId);
+					logger.info("Relacionant l anotacio "  + anotacio.getIdentificador() + " "+ " amb l expedient " + expedientId + " " + expedient.getNumero());
+					anotacio.setExpedient(expedient);
+					anotacio.setExpedientTipus(expedient.getTipus());
+					anotacioRepository.save(anotacio);
+				}
+			}).start();
+		}
+	}
 	private static final Logger logger = LoggerFactory.getLogger(AnotacioHelper.class);
 }
