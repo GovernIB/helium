@@ -243,7 +243,7 @@ public class DocumentHelperV3 {
 			es.caib.plugins.arxiu.api.Document documentArxiu = null;
 			int intents = 0;
 			byte[] arxiuContingut = documentStore.getArxiuContingut();
-			if(arxiuContingut==null) {
+			if(arxiuContingut==null && documentStore.getArxiuNom()==null) {
 				do {
 					if(documentStore.getArxiuUuid()!=null) {
 						documentArxiu = pluginHelper.arxiuDocumentInfo(
@@ -1576,8 +1576,10 @@ public class DocumentHelperV3 {
 				} catch (Exception ex) {
 					logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
 				}
-				if (documentStore.isSignat()) {
-					if (documentStore.getArxiuUuid() == null) {
+				Expedient expedient = 
+						expedientRepository.findByProcessInstanceId(documentStore.getProcessInstanceId());
+ 				if (documentStore.isSignat()) {
+					if (!expedient.isArxiuActiu()) {
 						dto.setUrlVerificacioCustodia(
 								pluginHelper.custodiaObtenirUrlComprovacioSignatura(
 										documentStore.getReferenciaCustodia()));
@@ -1601,7 +1603,6 @@ public class DocumentHelperV3 {
 					DefinicioProces definicioProces = definicioProcesRepository.findByJbpmKeyAndVersio(
 							jpd.getKey(),
 							jpd.getVersion());
-					Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
 					ExpedientTipus expedientTipus = expedient.getTipus();
 					Document doc;
 					if (expedientTipus.isAmbInfoPropia()) {
@@ -1704,7 +1705,6 @@ public class DocumentHelperV3 {
 									dto.setVistaContingut(vistaContingut.toByteArray());
 								} catch (SistemaExternConversioDocumentException ex) {
 									logger.error("Hi ha hagut un problema amb el servidor OpenOffice i el document '" + documentStore.getCodiDocument() + "'", ex.getCause());
-									Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
 									throw new SistemaExternConversioDocumentException(
 											expedient.getEntorn().getId(),
 											expedient.getEntorn().getCodi(), 
@@ -1718,7 +1718,6 @@ public class DocumentHelperV3 {
 											messageHelper.getMessage("error.document.conversio.externa"));
 								} catch (Exception ex) {
 									logger.error("No s'ha pogut generar la vista pel document '" + documentStore.getCodiDocument() + "'", ex);
-									Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
 									throw SistemaExternException.tractarSistemaExternException(
 											expedient.getEntorn().getId(),
 											expedient.getEntorn().getCodi(), 
@@ -1825,7 +1824,6 @@ public class DocumentHelperV3 {
 								dto.setVistaContingut(vistaContingut.toByteArray());
 							} catch (SistemaExternConversioDocumentException ex) {
 								logger.error("Hi ha hagut un problema amb el servidor OpenOffice i el document '" + documentStore.getCodiDocument() + "'", ex.getCause());
-								Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
 								throw new SistemaExternConversioDocumentException(
 										expedient.getEntorn().getId(),
 										expedient.getEntorn().getCodi(), 
@@ -1839,7 +1837,6 @@ public class DocumentHelperV3 {
 										messageHelper.getMessage("error.document.conversio.externa"));
 							} catch (Exception ex) {
 								logger.error("No s'ha pogut generar la vista pel document '" + documentStore.getCodiDocument() + "'", ex);
-								Expedient expedient = expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
 								throw SistemaExternException.tractarSistemaExternException(
 										expedient.getEntorn().getId(),
 										expedient.getEntorn().getCodi(), 
