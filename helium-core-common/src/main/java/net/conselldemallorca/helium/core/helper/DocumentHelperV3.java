@@ -243,7 +243,7 @@ public class DocumentHelperV3 {
 			es.caib.plugins.arxiu.api.Document documentArxiu = null;
 			int intents = 0;
 			byte[] arxiuContingut = documentStore.getArxiuContingut();
-			if(arxiuContingut==null && documentStore.getArxiuNom()==null) {
+			if(arxiuContingut==null) {
 				do {
 					if(documentStore.getArxiuUuid()!=null) {
 						documentArxiu = pluginHelper.arxiuDocumentInfo(

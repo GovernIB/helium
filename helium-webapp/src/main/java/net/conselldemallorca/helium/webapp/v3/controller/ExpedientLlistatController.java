@@ -572,7 +572,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 		ExpedientTipusDto expedientTipusActual = SessionHelper.getSessionManager(request).getExpedientTipusActual();
 		if (expedientTipusActual != null) {
 			filtreCommand.setExpedientTipusId(expedientTipusActual.getId());
-		} else {
+		} else if (filtreCommand.getExpedientTipusId()==null){
 			filtreCommand.setExpedientTipusId(null);
 		}
 		if (filtreCommand.getExpedientTipusId() != null && !UsuariActualHelper.isAdministrador(SecurityContextHolder.getContext().getAuthentication()))
