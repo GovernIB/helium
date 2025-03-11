@@ -1445,9 +1445,9 @@ public class DistribucioHelper {
 						resposta.setArxiuContingut(contingut);
 					}
 				}
-			} else {
+			} //else {
 				resposta.setUuid(document.getUuid());	
-			}
+			//}
 		}
 		return resposta;
 	}
