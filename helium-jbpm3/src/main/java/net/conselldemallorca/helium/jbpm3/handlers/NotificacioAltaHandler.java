@@ -339,7 +339,11 @@ public class NotificacioAltaHandler extends BasicActionHandler implements Notifi
 			} else {
 				// Un sol document
 				documentInfo = getDocumentInfo(executionContext, doc, false);
-				dadesNotificacio.setDocumentId(documentInfo.getId());
+				try {
+					dadesNotificacio.setDocumentId(documentInfo.getId());
+				} catch (Exception e) {
+					throw new JbpmException("No existeix cap document amb documentCodi: " + doc + ".");
+				}
 				DocumentDto document;
 				if (documentInfo.isSignat()) {
 					document = Jbpm3HeliumBridge
