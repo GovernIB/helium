@@ -222,7 +222,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 			try {
 				super.iniciarExpedient(
 						request,
-						entorn.getId(),
+						expedientTipus.getEntorn().getId(),//entorn.getId(),
 						expedientTipusId,
 						definicioProcesId,
 						(String)request.getSession().getAttribute(CLAU_SESSIO_UNITAT_ORGANITZATIVA_CODI),

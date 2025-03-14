@@ -134,7 +134,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 
 					super.iniciarExpedient(
 								request,
-								expedientInicioPasTitolCommand.getEntornId(), 
+								expedientTipus.getEntorn().getId(),//expedientInicioPasTitolCommand.getEntornId(), 
 								expedientInicioPasTitolCommand.getExpedientTipusId(), 
 								definicioProcesId, 
 								expedientInicioPasTitolCommand.getUnitatOrganitzativaCodi(),
