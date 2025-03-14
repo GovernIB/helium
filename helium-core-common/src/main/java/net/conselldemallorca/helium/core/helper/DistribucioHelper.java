@@ -923,13 +923,15 @@ public class DistribucioHelper {
 				
 				anotacio.setEstat(AnotacioEstatEnumDto.PROCESSADA);
 				anotacio.setDataProcessament(new Date());
-				//Encuem l'enviament d' email d'incorporació d'antoació als usuaris que tenen activada l'opció al seu perfil	
-				emailHelper.createEmailsAnotacioToSend(
-						anotacio,
-						expedient,
-						reprocessar ? 
-								EmailTipusEnumDto.INCORPORADA 
-								: EmailTipusEnumDto.PROCESSADA);
+				//Encuem l'enviament d' email d'incorporació d'antoació als usuaris que tenen activada l'opció al seu perfil, sempre que estigui activada l'opció a l'expedientTipus
+				if(expedientTipus!=null && expedientTipus.isEnviarCorreuAnotacions()) {
+					emailHelper.createEmailsAnotacioToSend(
+							anotacio,
+							expedient,
+							reprocessar ? 
+									EmailTipusEnumDto.INCORPORADA 
+									: EmailTipusEnumDto.PROCESSADA);
+				}
 				// Canvi d'estat a processada
 				// Notifica a Distribucio que s'ha rebut correctament
 				try {
