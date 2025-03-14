@@ -56,8 +56,10 @@ import net.conselldemallorca.helium.core.model.hibernate.ExpedientReindexacio;
 import net.conselldemallorca.helium.core.model.hibernate.Notificacio;
 import net.conselldemallorca.helium.core.model.hibernate.PeticioPinbal;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
+import net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentEnviamentEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentNotificacioTipusEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.EmailTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ParametreDto;
@@ -456,6 +458,16 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 								idWs, 
 								es.caib.distribucio.rest.client.integracio.domini.Estat.PENDENT,
 								"Anotació " + idWs.getIndetificador() + " rebuda correctament." );
+						//Si l'estat és Pendent manual, encuem l'email
+						if(AnotacioEstatEnumDto.PENDENT.equals(anotacio.getEstat()) &&
+								anotacio.getExpedientTipus()!=null &&
+								!anotacio.getExpedientTipus().isDistribucioProcesAuto() && 
+								anotacio.getExpedientTipus().isEnviarCorreuAnotacions()) {
+							emailHelper.createEmailsAnotacioToSend(
+									anotacio,
+									anotacio.getExpedient(),
+									EmailTipusEnumDto.REBUDA_PENDENT);
+						}	
 					} catch(Exception ed) {
 						logger.error("Error comunicant l'estat d'anotació rebuda a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
 					}
