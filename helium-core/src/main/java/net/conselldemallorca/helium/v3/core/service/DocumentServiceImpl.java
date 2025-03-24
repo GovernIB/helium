@@ -542,8 +542,9 @@ public class DocumentServiceImpl implements DocumentService {
 		//1.- Obtenir el expedient i validar permisos i que el document esta configurat
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientDocumentPinbalDto.getExpedientId(),
-				new Permission[] {ExtendedPermission.DOC_MANAGE});
-		
+				new Permission[] {
+						ExtendedPermission.DOC_MANAGE,
+						ExtendedPermission.ADMINISTRATION});
 		//2.- Comprovar que el interessat, té el tipus de document acceptat per el servei Pinbal.
 		Interessat interessat = interessatRepository.findOne(expedientDocumentPinbalDto.getInteressatId());
 		ServeiPinbalEntity serveiPinbal = serveiPinbalRepository.findByCodi(expedientDocumentPinbalDto.getCodiServei());
