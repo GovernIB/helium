@@ -954,7 +954,10 @@ public class DocumentHelperV3 {
 				//Ha fallat la integració amb el sistema extern. EL guardam en local (BBDD) fins que es pugui sincronitzar.
 				documentStore.setArxiuContingut(arxiuContingut);
 				documentStore.setFont(DocumentFont.INTERNA);
-				expedient.addErrorArxiu("Error de sincronització amb arxiu al crear el document "+documentStore.getId()+": "+seex.getPublicMessage());
+				ExpedientDocumentDto dExp = findDocumentPerDocumentStoreId(expedient.getProcessInstanceId(), documentStore.getId(), expedient.isArxiuActiu());
+				String nomDoc = dExp.isAdjunt() ? dExp.getAdjuntTitol() : dExp.getDocumentNom();
+				expedient.addErrorArxiu("Error de sincronització amb arxiu al crear el document:  <b>" + nomDoc +
+						"</b> amb id <b>"+documentStore.getId()+"</b>: "+seex.getPublicMessage());
 	
 				documentValid = false;
 				documentError = "No està sincronitzat amb l'arxiu.";
