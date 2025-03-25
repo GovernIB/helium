@@ -19,10 +19,10 @@ import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.FirmaTascaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.TascaDto;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
+import net.conselldemallorca.helium.v3.core.api.service.EntornService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 /**
  * Validador per al manteniment de tipus d'expedients:
@@ -44,7 +44,7 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 	@Autowired
 	private DefinicioProcesService definicioProcesService;
 	@Autowired
-	private HttpServletRequest request;
+	private EntornService entornService;
 
 	@Override
 	public void initialize(ExpedientTipus anotacio) {
@@ -58,15 +58,20 @@ public class ExpedientTipusValidator implements ConstraintValidator<ExpedientTip
 				: expedientTipusService.findAmbId(command.getId());
 		// Comprova si ja hi ha un tipus d'expedient amb el mateix codi
 		if (command.getCodi() != null) {
-    		EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
-			ExpedientTipusDto repetit = expedientTipusService.findAmbCodiPerValidarRepeticio(
-					entornActual.getId(),
+			List<ExpedientTipusDto> repetits = expedientTipusService.findAmbCodiPerValidarRepeticioTotsEntorns(
 					command.getCodi());
-			if(repetit != null && (command.getId() == null || !command.getId().equals(repetit.getId()))) {
-				context.buildConstraintViolationWithTemplate(
-						MessageHelper.getInstance().getMessage(this.codiMissatge + ".codi.repetit", null))
-						.addNode("codi")
-						.addConstraintViolation();	
+			if(repetits!=null && !repetits.isEmpty()) {
+				EntornDto entornTipusRepetit = null;
+				for(ExpedientTipusDto repetit: repetits) {
+					if(repetit != null && (command.getId() == null || !command.getId().equals(repetit.getId()))) {
+						entornTipusRepetit = entornService.findOne(repetit.getEntorn().getId());
+						context.buildConstraintViolationWithTemplate(
+								MessageHelper.getInstance().getMessage(this.codiMissatge + ".codi.repetit.entorn", 
+										new Object[] {entornTipusRepetit.getCodi(),entornTipusRepetit.getNom()}))
+								.addNode("codi")
+								.addConstraintViolation();			
+					}
+				}
 				valid = false;
 			}
 		}

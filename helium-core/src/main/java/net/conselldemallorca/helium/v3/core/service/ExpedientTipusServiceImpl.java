@@ -2147,6 +2147,21 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				ExpedientTipusDto.class);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public List<ExpedientTipusDto> findAmbCodiPerValidarRepeticioTotsEntorns(
+			String codi) {
+		logger.debug(
+				"Consultant tipus d'expedient a tots els entorns amb codi (" +
+				"codi = " + codi + ")");
+		return conversioTipusHelper.convertirList(
+				expedientTipusRepository.findByCodi(codi),
+				ExpedientTipusDto.class);
+	}
+	
 	
 	/**
 	 * {@inheritDoc}

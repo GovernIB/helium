@@ -966,4 +966,10 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 		return delegate.definicioFindDefinicionsProcDarreraVersio(expedientTipus, entornActual);
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public List<ExpedientTipusDto> findAmbCodiPerValidarRepeticioTotsEntorns(String codi) throws NoTrobatException {
+		return delegate.findAmbCodiPerValidarRepeticioTotsEntorns(codi);
+	}
+
 }
