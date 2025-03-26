@@ -539,6 +539,14 @@ public class DistribucioHelper {
 		{
 			// Si es relaciona amb un tipus d'expedient que està configurat per processar automàticament llavors passa a estar a l'estat de processament automàtic
 			estat = AnotacioEstatEnumDto.PENDENT_AUTO;
+		} else if(anotacio.getExpedientTipus() == null) {
+			anotacio.setRebuigMotiu("No hi ha cap tipus d'expedient per processar anotacions amb codi de procediment " + anotacio.getProcedimentCodi() + 
+					" i assumpte " + (anotacio.getAssumpteCodiCodi()!=null ? anotacio.getAssumpteCodiCodi() : "(sense assumpte)") +", es rebutja automàticament amb data " 
+					+ new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()) +
+					". Petició rebutjada a Helium.");
+			anotacio.setDataProcessament(new Date());	
+			estat = AnotacioEstatEnumDto.REBUTJADA;
+			
 		}
 		anotacio.setEstat(estat);
 		

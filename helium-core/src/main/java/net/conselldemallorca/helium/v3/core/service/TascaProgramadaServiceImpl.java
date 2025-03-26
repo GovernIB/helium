@@ -1,5 +1,6 @@
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -454,20 +455,30 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 					Anotacio anotacio = distribucioHelper.updateAnotacio(anotacioId, anotacioRegistreEntrada);
 					// Es comunica l'estat a Distribucio
 					try {
-						distribucioHelper.canviEstat(
-								idWs, 
-								es.caib.distribucio.rest.client.integracio.domini.Estat.PENDENT,
-								"Anotació " + idWs.getIndetificador() + " rebuda correctament." );
-						//Si l'estat és Pendent manual, encuem l'email
-						if(AnotacioEstatEnumDto.PENDENT.equals(anotacio.getEstat()) &&
-								anotacio.getExpedientTipus()!=null &&
-								!anotacio.getExpedientTipus().isDistribucioProcesAuto() && 
-								anotacio.getExpedientTipus().isEnviarCorreuAnotacions()) {
-							emailHelper.createEmailsAnotacioToSend(
+						if(anotacio.getEstat() == AnotacioEstatEnumDto.REBUTJADA) {
+						// if(anotacio.getExpedientTipus() == null) {
+							distribucioHelper.rebutjar(
 									anotacio,
-									anotacio.getExpedient(),
-									EmailTipusEnumDto.REBUDA_PENDENT);
-						}	
+									"No hi ha cap tipus d'expedient per processar anotacions amb codi de procediment " + anotacio.getProcedimentCodi() + 
+									" i assumpte " + (anotacio.getAssumpteCodiCodi()!=null ? anotacio.getAssumpteCodiCodi() : "(sense assumpte)") +", es rebutja automàticament amb data " 
+									+ new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()) +
+									". Petició rebutjada a Helium.");
+						} else {
+							distribucioHelper.canviEstat(
+									idWs, 
+									es.caib.distribucio.rest.client.integracio.domini.Estat.PENDENT,
+									"Anotació " + idWs.getIndetificador() + " rebuda correctament." );
+							//Si l'estat és Pendent manual, encuem l'email
+							if(AnotacioEstatEnumDto.PENDENT.equals(anotacio.getEstat()) &&
+									anotacio.getExpedientTipus()!=null &&
+									!anotacio.getExpedientTipus().isDistribucioProcesAuto() && 
+									anotacio.getExpedientTipus().isEnviarCorreuAnotacions()) {
+								emailHelper.createEmailsAnotacioToSend(
+										anotacio,
+										anotacio.getExpedient(),
+										EmailTipusEnumDto.REBUDA_PENDENT);
+							}
+					}
 					} catch(Exception ed) {
 						logger.error("Error comunicant l'estat d'anotació rebuda a Distribucio de la petició amb id : " + idWs.getIndetificador() + ": " + ed.getMessage(), ed);
 					}
