@@ -826,7 +826,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		model.addAttribute("expedient", expedient);
 		model.addAttribute("arbreProcessos", arbreProcessos);
 		model.addAttribute("dades", dades);
-		model.addAttribute("ambOcults", !expedient.isPermisAdministration() ? false : ambOcults);
+		model.addAttribute("ambOcults", ambOcults);
 		model.addAttribute("totalsPerProces", totalsPerProces);
 	}
 
