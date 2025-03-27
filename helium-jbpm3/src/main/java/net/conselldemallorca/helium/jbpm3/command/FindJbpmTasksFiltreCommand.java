@@ -283,31 +283,17 @@ public class FindJbpmTasksFiltreCommand extends AbstractBaseCommand {
 			taskQuerySb.append("ti.processInstance.expedient.entorn.id = :entornId ");
 			
 			if (mostrarAssignadesUsuari && mostrarAssignadesGrup) {
-				if (isAdministrador) {
 					//Mostram totes, tenguin o no usuari (TODO: Aqui hauria de deixar el exists elements(ti.pooledActors) ?? )
 //					taskQuerySb.append("((ti.actorId is not null) or (ti.actorId is null and exists elements(ti.pooledActors))) ");
-				} else {
 					//Volem mostrar les que tenen algun usuari individual, o algun usuari en un grup. Pero no es mostren les que no tenen cap usuari.
+				if(!isAdministrador)
 					taskQuerySb.append("and ((ti.actorId is not null) or (ti.actorId is null and exists elements(ti.pooledActors))) ");
-				}
 			} else if (mostrarAssignadesUsuari && !mostrarAssignadesGrup) {
-				if (isAdministrador) {
-					//taskQuerySb.append("ti.actorId is not null ");
-				} else {
-					taskQuerySb.append("and ti.actorId is not null ");
-				}
+				taskQuerySb.append("and ti.actorId is not null ");
 			} else if (!mostrarAssignadesUsuari && mostrarAssignadesGrup) {
-				if (isAdministrador) {
-					
-				} else {
-					taskQuerySb.append("and ti.actorId is null and exists elements(ti.pooledActors) ");
-				}
+				taskQuerySb.append("and ti.actorId is null and exists elements(ti.pooledActors) ");
 			} else {
-				if (isAdministrador) {
-					
-				} else {
-					taskQuerySb.append("and ti.id is not null ");
-				}
+				taskQuerySb.append("and ti.id is not null ");
 			}
 		}
 		
