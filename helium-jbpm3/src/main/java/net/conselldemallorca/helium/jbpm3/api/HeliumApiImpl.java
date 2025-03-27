@@ -666,7 +666,8 @@ public class HeliumApiImpl implements HeliumApi {
 				resposta.setRegistreEntrada(document.isRegistreEntrada());
 			}
 //			if (ambArxiu) {
-			ArxiuDto arxiu = Jbpm3HeliumBridge.getInstanceService().getArxiuPerMostrar(documentStoreId);
+			Long expedientId = executionContext.getProcessInstance().getExpedient().getId();
+			ArxiuDto arxiu = Jbpm3HeliumBridge.getInstanceService().getArxiuVersioOriginal(expedientId,documentStoreId);
 			resposta.setArxiuNom(arxiu.getNom());
 			resposta.setArxiuContingut(arxiu.getContingut());
 //			}
