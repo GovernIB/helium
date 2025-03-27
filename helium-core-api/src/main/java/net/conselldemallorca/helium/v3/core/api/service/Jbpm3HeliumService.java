@@ -695,10 +695,19 @@ public interface Jbpm3HeliumService {
 	
 	/**
 	 * Obté l'arxiu d'un document d'un expedient d'Helium.
+	 * Obté la versió imprimible de l'arxiu.
 	 * @param documentStoreId
 	 * @return
 	 */
 	public ArxiuDto getArxiuPerMostrar(Long documentStoreId);
+	
+	/**
+	 * Obté la versió original d'un document d'un expedient d'Helium.
+	 * @param expedientId
+	 * @param documentStoreId
+	 * @return
+	 */
+	public ArxiuDto getArxiuVersioOriginal(Long expedientId, Long documentStoreId);
 
 	/**
 	 * 

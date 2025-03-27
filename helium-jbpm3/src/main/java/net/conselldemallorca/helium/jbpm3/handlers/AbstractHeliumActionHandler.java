@@ -122,7 +122,10 @@ abstract class AbstractHeliumActionHandler implements ActionHandler {
 				resposta.setRegistreEntrada(document.isRegistreEntrada());
 			}
 			if (ambArxiu) {
-				ArxiuDto arxiu = Jbpm3HeliumBridge.getInstanceService().getArxiuPerMostrar(id);
+//				ArxiuDto arxiu = Jbpm3HeliumBridge.getInstanceService().getArxiuPerMostrar(id);
+				//Versió original enlloc de imprimible
+				Long expedientId = executionContext.getProcessInstance().getExpedient().getId();
+				ArxiuDto arxiu = Jbpm3HeliumBridge.getInstanceService().getArxiuVersioOriginal(expedientId,id);
 				resposta.setArxiuNom(arxiu.getNom());
 				resposta.setArxiuContingut(arxiu.getContingut());
 			}
