@@ -1577,7 +1577,8 @@ public class DocumentHelperV3 {
 					logger.error("No s'ha pogut generar el token pel document " + documentStoreId, ex);
 				}
 				Expedient expedient = 
-						expedientRepository.findByProcessInstanceId(documentStore.getProcessInstanceId());
+						expedientHelper.findExpedientByProcessInstanceId(documentStore.getProcessInstanceId());
+
  				if (documentStore.isSignat()) {
 					if (!expedient.isArxiuActiu()) {
 						dto.setUrlVerificacioCustodia(
