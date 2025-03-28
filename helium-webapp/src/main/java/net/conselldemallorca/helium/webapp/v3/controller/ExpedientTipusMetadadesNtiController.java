@@ -145,6 +145,18 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 								missatgeError!=null ? missatgeError : "expedient.tipus.metadades.nti.validacio"));
 				response = AjaxHelper.generarAjaxFormErrors(command, bindingResult);
 			} else {
+				
+				if(command.isArxiuActiu() && !expedientTipusService.arxiuCheckSerieDocumental(
+						command.getSerieDocumental(),
+						command.getOrgano(),
+						command.getClasificacion())) {
+					MissatgesHelper.warning(
+							request, 
+							getMessage(
+								request, 
+								"expedient.tipus.metadades.nti.serie.documental.noTrobada"));
+				}
+
 				expedientTipusService.updateMetadadesNti(
 						entornActual.getId(),
 						expedientTipusId,
@@ -155,7 +167,7 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 						command.isArxiuActiu(),
 						command.isProcedimentComu());
 				MissatgesHelper.success(
-						request, 
+						request,
 						getMessage(
 								request, 
 								"expedient.tipus.metadades.nti.controller.guardat"));
@@ -171,6 +183,12 @@ public class ExpedientTipusMetadadesNtiController extends BaseExpedientTipusCont
 								missatgeError!=null ? missatgeError : "expedient.tipus.metadades.nti.validacio"));
 				response = AjaxHelper.generarAjaxFormErrors(command, bindingResult);
 			} else {
+
+				expedientTipusService.arxiuCheckSerieDocumental(
+						command.getSerieDocumental(),
+						command.getOrgano(),
+						command.getClasificacion());
+				
 				expedientTipusService.updateMetadadesNti(
 						entornActual.getId(),
 						expedientTipusId,

@@ -38,6 +38,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.caib.distribucio.core.api.exception.SistemaExternException;
 import lombok.SneakyThrows;
 import net.conselldemallorca.helium.core.extern.domini.FilaResultat;
 import net.conselldemallorca.helium.core.extern.domini.ParellaCodiValor;
@@ -1102,6 +1103,12 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				}
 			}
 		}
+		
+		if(command.getNtiSerieDocumental() != null && 
+			!command.getNtiSerieDocumental().equals(importacio.getNtiSerieDocumental())) {
+			importacio.setNtiSerieDocumental(command.getNtiSerieDocumental());
+		}
+		
 		// Metadades NTI i Arxiu
 		expedientTipus.setNtiActiu(importacio.isNtiActiu());
 		expedientTipus.setNtiOrgano(importacio.getNtiOrgano());
@@ -5056,5 +5063,13 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	    public int compare(ExpedientTipus e1, ExpedientTipus e2) {
 	        return e1.getCodi().compareToIgnoreCase(e2.getCodi());
 	    }
+	}
+
+	@Override
+	public boolean arxiuCheckSerieDocumental(
+			String serieDocumental,
+			String organ,
+			String clasificacio) throws SistemaExternException {
+		return pluginHelper.arxiuCheckSerieDocumental(serieDocumental, clasificacio, organ);
 	}
 }

@@ -70,6 +70,10 @@ public class ExpedientTipusExportarCommand {
 	/** Indica si exportar les dades de relación amb tasques heretades i variables*/
 	private boolean tasquesHerencia;
 	
+	// Dades de la integració amb arxiu
+	private boolean ntiActiu;
+	private String ntiSerieDocumental;
+	
 	public ExpedientTipusExportarCommand() {
 		this.estats = new ArrayList<String>();
 		this.variables = new ArrayList<String>();
@@ -253,6 +257,24 @@ public class ExpedientTipusExportarCommand {
 		this.exportacio = exportacio;
 	}
 	
+	public boolean isNtiActiu() {
+		return ntiActiu;
+	}
+
+	public void setNtiActiu(boolean ntiActiu) {
+		this.ntiActiu = ntiActiu;
+	}
+
+	public String getNtiSerieDocumental() {
+		return ntiSerieDocumental;
+	}
+
+	public void setNtiSerieDocumental(String ntiSerieDocumental) {
+		this.ntiSerieDocumental = ntiSerieDocumental;
+	}
+
+
+
 	public interface Exportacio {}
 	public interface Upload{}	
 	public interface Importacio {}	

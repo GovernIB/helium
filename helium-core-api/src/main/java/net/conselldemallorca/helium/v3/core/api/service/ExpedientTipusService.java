@@ -30,6 +30,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.regles.EstatReglaDto;
 import net.conselldemallorca.helium.v3.core.api.exception.ExportException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.exportacio.EstatExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ExpedientTipusExportacioCommandDto;;
@@ -1558,7 +1559,7 @@ public interface ExpedientTipusService {
 			String clasificacion,
 			String serieDocumental,
 			boolean arxiuActiu,
-			boolean procedimentComu);	
+			boolean procedimentComu);
 		
 	public List<ExpedientTipusEstadisticaDto> findEstadisticaByFiltre(
 			Integer anyInicial, 
@@ -1698,5 +1699,18 @@ public interface ExpedientTipusService {
 	 */
 	public List<DefinicioProcesDto> definicioFindDefinicionsProcDarreraVersio(
 			ExpedientTipusDto expedientTipus, EntornDto entornActual);
+	
+	/**
+	 *  Compova si la serie documental existeix a Arxiu
+	 *  
+	 * @param serieDocumental
+	 * @param organ
+	 * @param clasificacio
+	 * @return 
+	 */
+	public boolean arxiuCheckSerieDocumental(
+			String serieDocumental,
+			String organ,
+			String clasificacio) throws SistemaExternException;
 
 }

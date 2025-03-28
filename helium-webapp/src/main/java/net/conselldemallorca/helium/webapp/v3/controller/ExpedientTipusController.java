@@ -628,6 +628,10 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 				command.setExpedientTipusPare(exportacio.getExpedientTipusPareCodi());
 				command.setTasquesHerencia(true);
 			}
+			
+			command.setNtiActiu(exportacio.isNtiActiu());
+			command.setNtiSerieDocumental(exportacio.getNtiSerieDocumental());
+			
 		 	EntornDto entornActual = SessionHelper.getSessionManager(request).getEntornActual();
 			this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), exportacio, request, model);			
 		}
@@ -736,6 +740,13 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 											exportacio.getDistribucioCodiAssumpte() != null ? exportacio.getDistribucioCodiAssumpte() : ""
 									}));
 			}
+		}
+		
+		if(exportacio.isArxiuActiu() && !expedientTipusService.arxiuCheckSerieDocumental(
+				exportacio.getNtiSerieDocumental(),
+				exportacio.getNtiOrgano(),
+				exportacio.getNtiClasificacion())) {
+			model.addAttribute("avisSerieDocumentalNoTrobada", true);
 		}
 	 	
 		// Per indicar a la pàgina si s'ha pogut fer una importació del fitxer.

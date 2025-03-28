@@ -37,6 +37,7 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
+import es.caib.plugins.arxiu.api.ArxiuException;
 import es.caib.plugins.arxiu.api.ConsultaFiltre;
 import es.caib.plugins.arxiu.api.ConsultaOperacio;
 import es.caib.plugins.arxiu.api.ConsultaResultat;
@@ -55,6 +56,7 @@ import es.caib.plugins.arxiu.api.Firma;
 import es.caib.plugins.arxiu.api.FirmaPerfil;
 import es.caib.plugins.arxiu.api.FirmaTipus;
 import es.caib.plugins.arxiu.api.IArxiuPlugin;
+import es.caib.plugins.arxiu.api.SerieDocumentalNotFoundException;
 import es.caib.plugins.arxiu.caib.ArxiuCaibException;
 import es.caib.plugins.arxiu.caib.ArxiuConversioHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Alerta;
@@ -2305,6 +2307,70 @@ public class PluginHelper {
 					ex);
 		}
 	}
+	
+	public boolean arxiuCheckSerieDocumental(
+			String serieDocumental,
+			String clasificacioNti,
+			String organNti) throws SistemaExternException {
+		
+		IntegracioParametreDto[] parametres = new IntegracioParametreDto[] {
+				new IntegracioParametreDto(
+						"serieDocumental",
+						serieDocumental),
+				new IntegracioParametreDto(
+						"clasificacioNti",
+						clasificacioNti),
+				new IntegracioParametreDto(
+						"organNti",
+						organNti)
+		};
+		
+		String accioDescripcio = "Comprovació de sèrie documental: [" + serieDocumental + "]";
+		long t0 = System.currentTimeMillis();
+		try {
+			Date now = new Date();
+			ContingutArxiu expedientCreat = getArxiuPlugin().expedientCrear(
+					toArxiuExpedient(
+							"SD_CHECK_" + new SimpleDateFormat("yyyyMMddHHmmssS").format(now),
+							Arrays.asList(organNti),
+							now,
+							clasificacioNti,
+							false,
+							new ArrayList<String>(),
+							serieDocumental,
+							null));
+			
+			getArxiuPlugin().expedientEsborrar(expedientCreat.getIdentificador());
+			
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio + " trobada",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametres);
+			return true;
+		} catch(SerieDocumentalNotFoundException ex) {
+			monitorIntegracioHelper.addAccioOk(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio + " no trobada",
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					parametres);
+			return false;
+		} catch(Exception ex) {
+			String errorDescripcio = "No s'han pogut comprovar la serie documental: [" + serieDocumental + "] " + ex.getMessage();
+			monitorIntegracioHelper.addAccioError(
+					MonitorIntegracioHelper.INTCODI_ARXIU,
+					accioDescripcio,
+					IntegracioAccioTipusEnumDto.ENVIAMENT,
+					System.currentTimeMillis() - t0,
+					errorDescripcio,
+					ex,
+					parametres);
+			throw tractarExcepcioEnSistemaExtern(MonitorIntegracioHelper.INTCODI_ARXIU,errorDescripcio, ex);
+		}
+	}
+	
 
 	public ContingutArxiu arxiuExpedientCrear(Expedient expedient) {
 

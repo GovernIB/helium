@@ -35,6 +35,13 @@
 					<spring:message code="expedient.tipus.importar.form.avis.responsable.no.trobat" arguments="${exportacio.responsableDefecteCodi}"></spring:message>
 				</p>
 			</c:if>
+			
+			<c:if test="${avisSerieDocumentalNoTrobada}">
+				<p class="help-block" style="color: #8a6d3b">
+					<span class="fa fa-exclamation-triangle"></span> 
+					<spring:message code="expedient.tipus.metadades.nti.serie.documental.invalida" /> [${command.ntiSerieDocumental}]
+				</p>
+			</c:if>
 
 			<c:if test="${avisosDocuments != null && ! empty avisosDocuments }">
 				<c:forEach var="avisDocument" items="${avisosDocuments}">

@@ -44,6 +44,9 @@ public class ExpedientTipusExportacioCommandDto {
 	/** Indica si exportar les dades de relación amb tasques heretades i variables*/
 	private boolean tasquesHerencia;
 
+	// Dades de la integració amb arxiu
+	private boolean ntiActiu;
+	private String ntiSerieDocumental;
 	
 	public Long getId() {
 		return id;
@@ -175,5 +178,18 @@ public class ExpedientTipusExportacioCommandDto {
 
 	public void setExpedientTipusPare(String expedientTipusPare) {
 		this.expedientTipusPare = expedientTipusPare;
-	}	
+	}
+	public boolean isNtiActiu() {
+		return ntiActiu;
+	}
+	public void setNtiActiu(boolean ntiActiu) {
+		this.ntiActiu = ntiActiu;
+	}
+	public String getNtiSerieDocumental() {
+		return ntiSerieDocumental;
+	}
+	public void setNtiSerieDocumental(String ntiSerieDocumental) {
+		this.ntiSerieDocumental = ntiSerieDocumental;
+	}
+	
 }

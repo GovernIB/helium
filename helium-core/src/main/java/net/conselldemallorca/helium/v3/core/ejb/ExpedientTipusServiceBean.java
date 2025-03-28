@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import org.springframework.security.acls.model.Permission;
 
+import es.caib.distribucio.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ConsultaCampDto.TipusConsultaCamp;
@@ -971,5 +972,16 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	public List<ExpedientTipusDto> findAmbCodiPerValidarRepeticioTotsEntorns(String codi) throws NoTrobatException {
 		return delegate.findAmbCodiPerValidarRepeticioTotsEntorns(codi);
 	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean arxiuCheckSerieDocumental(
+			String serieDocumental,
+			String organ,
+			String clasificacio) throws SistemaExternException {
+		return delegate.arxiuCheckSerieDocumental(serieDocumental, organ, clasificacio);
+	}
+	
+	
 
 }
