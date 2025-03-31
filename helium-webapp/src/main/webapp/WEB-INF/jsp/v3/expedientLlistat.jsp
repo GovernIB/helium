@@ -530,6 +530,13 @@ function refrescaEstatSegonPla() {
 							{{/if}}
 						</div>
 					{{/if}}
+
+					{{if arxiuActiu && errorArxiu }}
+						<span class="label label-warning etiqueta-nti-arxiu" title="Hi ha errors de sincronització amb l'Arxiu: {{:errorArxiu}}">
+							<spring:message code="expedient.info.etiqueta.arxiu"/>
+							&nbsp;<span id="triangleErrArxiu" class="fa fa-exclamation-triangle text-danger" style="font-size: 10px;"></span>
+						</span>
+					{{/if}}
 					</script>
 				</th>
 				<th data-rdt-property="unitatOrganitzativa" data-rdt-template="cellTipusTemplate" data-rdt-visible="false">
@@ -628,6 +635,8 @@ function refrescaEstatSegonPla() {
 						</div>
 					</script>
 				</th>
+				<th data-rdt-property="errorArxiu" data-rdt-visible="false"></th>
+				<th data-rdt-property="arxiuActiu" data-rdt-visible="false"></th>
 			</tr>
 		</thead>
 	</table>
