@@ -62,4 +62,11 @@ public interface AplicacioService {
 	public void excepcioSave(String peticio, String params, Throwable exception);
 	public ExcepcioLogDto excepcioFindOne(Long index);
 	public List<ExcepcioLogDto> excepcioFindAll();
+	
+	/**
+	 * Actualitza la preferencia del entorn actual per l'usuari
+	 * @param entorn
+	 * @throws NoTrobatException
+	 */
+	public void updateEntronActual(String entorn) throws NoTrobatException;
 }

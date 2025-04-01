@@ -4,19 +4,24 @@
 package net.conselldemallorca.helium.webapp.mvc.interceptor;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.ModelAndViewDefiningException;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
+import freemarker.template.utility.DateUtil;
 import net.conselldemallorca.helium.core.common.ThreadLocalInfo;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
 import net.conselldemallorca.helium.core.model.service.AlertaService;
@@ -79,6 +84,7 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 						if (entorn.getId().longValue() == entornId.longValue()) {
 							entornActual = entorn;
 							setEntornActual(request, entornActual);
+							aplicacioService.updateEntronActual(entornActual.getCodi());
 							break;
 						}
 					}
@@ -86,7 +92,24 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 					if (entornSessio == null) {
 						UsuariPreferenciesDto prefs = aplicacioService.getUsuariPreferencies();
 						if (prefs != null) {
-							if (prefs.getDefaultEntornCodi() != null) {
+							Date now = new Date();
+							// si existeix entorn actual i el valor es va modificar fa menys de 8 hores
+							if(prefs.getCurrentEntornCodi() != null && 
+							   prefs.getCurrentEntornData() != null &&
+							   TimeUnit.HOURS.convert(now.getTime() - prefs.getCurrentEntornData().getTime(), TimeUnit.MILLISECONDS) < 8  
+							   ) {
+								for (EntornDto entorn: entorns) {
+									if (entorn.getCodi() != null && entorn.getCodi().equals(prefs.getCurrentEntornCodi())) {
+										entornActual = entorn;
+										setEntornActual(request, entornActual);
+										break;
+									}
+								}
+								if (entornActual == null) {
+									entornActual = entorns.get(0);
+									setEntornActual(request, entornActual);
+								}
+							} else if (prefs.getDefaultEntornCodi() != null) {
 								for (EntornDto entorn: entorns) {
 									if (entorn.getCodi() != null && entorn.getCodi().equals(prefs.getDefaultEntornCodi())) {
 										entornActual = entorn;
@@ -118,6 +141,10 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 							entornActual = entorns.get(0);
 							setEntornActual(request, entornActual);
 						}
+						
+						// Actualitzam l'entorn actual a base de dades
+						if(entornActual != null)
+							aplicacioService.updateEntronActual(entornActual.getCodi());						
 					} else {
 						for (EntornDto entorn: entorns) {
 							if (entorn.getCodi().equals(entornSessio.getCodi())) {

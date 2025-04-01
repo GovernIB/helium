@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -18,6 +19,7 @@ import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.ExceptionHelper;
 import net.conselldemallorca.helium.core.helper.PluginHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
+import net.conselldemallorca.helium.core.model.hibernate.UsuariPreferencies;
 import net.conselldemallorca.helium.v3.core.api.dto.ExcepcioLogDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PersonaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesCarrecDto;
@@ -53,7 +55,7 @@ public class AplicacioServiceImpl implements AplicacioService {
 				usuariPreferenciesRepository.findByCodi(usuariActual),
 				UsuariPreferenciesDto.class);
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -130,4 +132,16 @@ public class AplicacioServiceImpl implements AplicacioService {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(AplicacioServiceImpl.class);
+
+	@Override
+	@Transactional
+	public void updateEntronActual(String entorn) throws NoTrobatException {
+		String usuariActual = usuariActualHelper.getUsuariActual();
+		logger.debug("Modificant entorn actual per a l'usuari actual ("
+				+ "usuariActual=" + usuariActual + ", entorn=" + entorn + ")");
+		UsuariPreferencies pref = usuariPreferenciesRepository.findByCodi(usuariActual);
+		pref.setCurrentEntornCodi(entorn);
+		pref.setCurrentEntornData(new Date());
+		usuariPreferenciesRepository.save(pref);
+	}
 }

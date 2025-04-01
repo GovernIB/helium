@@ -3,6 +3,8 @@
  */
 package net.conselldemallorca.helium.v3.core.api.dto;
 
+import java.util.Date;
+
 /**
  * DTO amb informació de preferències d'usuari.
  * 
@@ -22,6 +24,8 @@ public class UsuariPreferenciesDto {
 	private boolean correusBustia;
 	private boolean correusBustiaAgrupatsDia;
 	private String emailAlternatiu;
+	private String currentEntornCodi;
+	private Date currentEntornData;
 
 	public String getCodi() {
 		return codi;
@@ -94,6 +98,18 @@ public class UsuariPreferenciesDto {
 	}
 	public void setEmailAlternatiu(String emailAlternatiu) {
 		this.emailAlternatiu = emailAlternatiu;
+	}
+	public String getCurrentEntornCodi() {
+		return currentEntornCodi;
+	}
+	public void setCurrentEntornCodi(String currentEntornCodi) {
+		this.currentEntornCodi = currentEntornCodi;
+	}
+	public Date getCurrentEntornData() {
+		return currentEntornData;
+	}
+	public void setCurrentEntornData(Date currentEntornData) {
+		this.currentEntornData = currentEntornData;
 	}
 	
 }

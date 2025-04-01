@@ -1,6 +1,7 @@
 package net.conselldemallorca.helium.core.model.hibernate;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -42,6 +43,14 @@ public class UsuariPreferencies implements Serializable, GenericEntity<String> {
 	private Boolean correusBustia;
 	private Boolean correusBustiaAgrupatsDia;
 	private String emailAlternatiu;
+	
+	
+	@MaxLength(64)
+	private String currentEntornCodi;
+	private Date currentEntornData;
+	
+	
+	
 	public UsuariPreferencies() {}
 	public UsuariPreferencies(String codi) {
 		this.codi = codi;
@@ -141,7 +150,22 @@ public class UsuariPreferencies implements Serializable, GenericEntity<String> {
 	public void setEmailAlternatiu(String emailAlternatiu) {
 		this.emailAlternatiu = emailAlternatiu;
 	}
+
+	@Column(name="ENTORN_ACTUAL", length=64, nullable=true)
+	public String getCurrentEntornCodi() {
+		return currentEntornCodi;
+	}
+	public void setCurrentEntornCodi(String currentEntornCodi) {
+		this.currentEntornCodi = currentEntornCodi;
+	}
 	
+	@Column(name="ENTORN_ACTUAL_DATA", nullable=true)
+	public Date getCurrentEntornData() {
+		return currentEntornData;
+	}
+	public void setCurrentEntornData(Date currentEntornData) {
+		this.currentEntornData = currentEntornData;
+	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;
