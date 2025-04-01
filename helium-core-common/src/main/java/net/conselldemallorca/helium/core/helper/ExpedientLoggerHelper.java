@@ -1247,12 +1247,21 @@ public class ExpedientLoggerHelper {
 				String codi = JbpmVars.PREFIX_DOCUMENT + document.getDocument().getCodi();
 				if (!document.isReadOnly()) {
 					Object valor = ci.getVariable(JbpmVars.PREFIX_DOCUMENT + document.getDocument().getCodi());
-					if (valor != null)
+					if (valor != null) {
 						if (debugRetroces)
 							logger.info(">>> [RETDOC] Carregar document del procés " + codi + " a la tasca " + task.getTaskName() + " (" + task.getId() + ")");
 						ti.setVariableLocally(
 								codi,
 								ci.getVariable(codi));
+
+						if(!document.getDocument().isIgnored()) {
+							String pid = new Long(ti.getProcessInstance().getId()).toString();
+							documentHelper.esborrarDocument(
+									null,
+									pid,
+									DocumentHelperV3.getDocumentCodiPerVariableJbpm(codi));
+						}
+					}
 				}
 			}
 		}
