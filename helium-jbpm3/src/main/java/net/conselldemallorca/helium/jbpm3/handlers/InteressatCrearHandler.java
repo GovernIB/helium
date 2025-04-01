@@ -25,6 +25,7 @@ import net.conselldemallorca.helium.jbpm3.integracio.Jbpm3HeliumBridge;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.InteressatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InteressatTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.RespostaNotificacio;
 
 /**
@@ -95,10 +96,11 @@ public class InteressatCrearHandler extends BasicActionHandler implements Intere
 				executionContext,
 				codi,
 				varCodi));
-		interessat.setNom((String)getValorOVariable(
+		String nomValue = (String)getValorOVariable(
 				executionContext,
 				nom,
-				varNom));
+				varNom);
+		interessat.setNom(nomValue);
 		interessat.setDocumentIdent((String)getValorOVariable(
 				executionContext,
 				nif,
@@ -111,10 +113,16 @@ public class InteressatCrearHandler extends BasicActionHandler implements Intere
 				executionContext,
 				llinatge2,
 				varLlinatge2));
-		interessat.setTipus((String)getValorOVariable(
+		
+		String tipusValue = (String)getValorOVariable(
 				executionContext,
 				tipus,
-				varTipus));
+				varTipus);
+		
+		if(InteressatTipusEnumDto.valueOf(tipusValue) == InteressatTipusEnumDto.JURIDICA)			
+			interessat.setRaoSocial(nomValue);
+		
+		interessat.setTipus(tipusValue);
 		interessat.setEmail((String)getValorOVariable(
 				executionContext,
 				email,
