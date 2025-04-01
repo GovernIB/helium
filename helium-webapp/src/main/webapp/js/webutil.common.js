@@ -396,9 +396,19 @@ $(document).ajaxError(function(event, jqxhr, ajaxSettings, thrownError) {
 				$(this).attr('data-botons-titol-eval', 'true');
 			}
 		});
+		
+		$('body').on('change', 'input', trimInput);
+		$('body').on('change', 'textarea', trimInput);
 	});
 
 }(jQuery));
+
+
+var trimInput = function() {
+	if(this.type !== 'file') {
+		this.value = this.value.trim();
+	}
+} 
 
 jQuery.fn.highlight = function(pat) {
 	function innerHighlight(node, pat) {
