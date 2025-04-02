@@ -24,10 +24,10 @@ $(document).ready(function() {
 	
 	$("#notibCodiProcediment").change(function(){
 		if($(this).val() != '${expedientTipus.ntiClasificacion}'){
-			$("#divCodiSiaError").show();
+			$("#notibDivCodiSiaError").show();
 		}
 		else {
-			$("#divCodiSiaError").hide();
+			$("#notibDivCodiSiaError").hide();
 		}	
 	}).change();
 	
@@ -78,7 +78,7 @@ $(document).ready(function() {
 						required="true" />
 						
 				</div>
-				 <div class="row" id="divCodiSiaError">
+				 <div class="row" id="notibDivCodiSiaError">
 					<div class="col-sm-4"></div>	
 					<div class="col-sm-8">
 						<div class="alert alert-warning">
