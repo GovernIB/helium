@@ -1466,25 +1466,54 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		expedientHelper.finalitzar(id, true);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
+	
+	
 	@Transactional
-	public void sincronitzarArxiu(Long id, boolean esborrarExpSiError) {
-		logger.debug("Migrar l'expedient (id=" + id + ") a l'arxiu");
+	private void migrarArxiu(Long id, boolean esborrarExpSiError) {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				id,
 				new Permission[] {
 						ExtendedPermission.WRITE,
 						ExtendedPermission.ADMINISTRATION});
-		expedientLoggerHelper.afegirLogExpedientPerExpedient(
-				expedient.getId(),
-				ExpedientLogAccioTipus.EXPEDIENT_MIGRAR_ARXIU,
-				null);
 
 		try {
-			expedientHelper.migrarArxiu(expedient);
+			expedientHelper.migrarExpedientArxiu(expedient);
+		} catch (Exception ex) {
+			String errorDescripcio = "Error migrant l'expedient " + expedient.getTitol() + " a l'arxiu: " + ex.getMessage();
+			if (esborrarExpSiError && expedient.getArxiuUuid() != null && !expedient.getArxiuUuid().isEmpty()) {
+				logger.info("Es procedeix a esborrar l'expedient '" + expedient.getTitol() + "' amb uid '" + expedient.getArxiuUuid() + "' de l'arxiu per error en la migració.");
+				try{
+					pluginHelper.arxiuExpedientEsborrar(expedient.getArxiuUuid());
+				} catch(Exception aex) {
+					logger.error("Error esborrant l'expedient '" + expedient.getTitol() + "' amb uid '" + expedient.getArxiuUuid() + "' de l'arxiu per error en la migració.", aex);
+				}
+			}
+			throw new TramitacioException(
+					expedient.getEntorn().getId(), 
+					expedient.getEntorn().getCodi(), 
+					expedient.getEntorn().getNom(), 
+					expedient.getId(), 
+					expedient.getTitol(), 
+					expedient.getNumero(), 
+					expedient.getTipus().getId(), 
+					expedient.getTipus().getCodi(), 
+					expedient.getTipus().getNom(), 
+					errorDescripcio, 
+					ex);
+		}
+	}
+	
+	
+	@Transactional
+	private void migrarDocumentsArxiu(Long id, boolean esborrarExpSiError) {
+		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+				id,
+				new Permission[] {
+						ExtendedPermission.WRITE,
+						ExtendedPermission.ADMINISTRATION});
+
+		try {
+			expedientHelper.migrarDocumentsArxiu(expedient);
 			//Si l'expedient esta tancat, el migrar la l'haura tancat a arxiu, i no es podran mourer els annexos
 			//a més si l'expedient ja estava tancat probablement l'estat de l'anotació era de processada 
 			//i si Distribucio tanca l'expedient de l'anotació llavors ja no es poden "moure***" els annexos
@@ -1514,6 +1543,21 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					errorDescripcio, 
 					ex);
 		}
+	}
+	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void sincronitzarArxiu(Long id, boolean esborrarExpSiError) {
+		logger.debug("Migrar l'expedient (id=" + id + ") a l'arxiu");
+		expedientLoggerHelper.afegirLogExpedientPerExpedient(
+				id,
+				ExpedientLogAccioTipus.EXPEDIENT_MIGRAR_ARXIU,
+				null);
+		this.migrarArxiu(id, esborrarExpSiError);
+		this.migrarDocumentsArxiu(id, esborrarExpSiError);
 	}
 
 	/**

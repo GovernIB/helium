@@ -927,6 +927,101 @@ public class ExpedientHelper {
         }
 	}
 	
+	
+	@Transactional
+	public void migrarExpedientArxiu(Expedient expedient) {
+
+		if (!expedient.getTipus().isNtiActiu())
+			throw new ValidacioException("Aquest expedient no es pot migrar perquè el tipus d'expedient no té activades les metadades NTI");
+
+		if (!expedient.getTipus().isArxiuActiu())
+			throw new ValidacioException("Aquest expedient no es pot migrar perquè el tipus d'expedient no té activada la intagració amb l'arxiu");
+		
+		/**
+		 * 1.- Expedient i interessats. Crea l'expedient a Arxiu amb les metadades. Si esta creat l'actualitza.
+		 */
+		
+		if (!expedient.isNtiActiu()) {
+			// Informa les metadades NTI de l'expedient
+			expedient.setNtiVersion(VERSIO_NTI);
+			expedient.setNtiOrgano(expedient.getUnitatOrganitzativa()!=null ? expedient.getUnitatOrganitzativa().getCodi() :  expedient.getTipus().getNtiOrgano());
+			expedient.setNtiClasificacion(expedient.getTipus().getNtiClasificacion());
+			expedient.setNtiSerieDocumental(expedient.getTipus().getNtiSerieDocumental());
+			expedient.setNtiActiu(true);
+		}
+
+		// Migra a l'Arxiu o actualitzar en el seu cas
+		pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
+		// Si no posam a true ara, el prostprocessar no pujará els fitxers a l'arxiu
+		expedient.setArxiuActiu(true);
+		
+		// Informa convorme l'expedient és NTI i a l'Arxiu
+		expedient.setNtiActiu(true);
+		expedient.setErrorArxiu(null);
+		
+	}
+	
+	@Transactional
+	public void migrarDocumentsArxiu(Expedient expedient) {
+		
+		if (!expedient.getTipus().isNtiActiu())
+			throw new ValidacioException("Aquest expedient no es pot migrar perquè el tipus d'expedient no té activades les metadades NTI");
+
+		if (!expedient.getTipus().isArxiuActiu())
+			throw new ValidacioException("Aquest expedient no es pot migrar perquè el tipus d'expedient no té activada la intagració amb l'arxiu");
+		
+		/**
+		 * 2.- Documents. Crea o actualitza els documents a l'arxiu.
+		 */
+		
+		List<DocumentStore> documents = new ArrayList<DocumentStore>();
+		List<InstanciaProcesDto> arbreProcesInstance = getArbreInstanciesProces(expedient.getProcessInstanceId());
+
+		// Genera llista de tots els documents del expedient
+		for(InstanciaProcesDto procesInstance :arbreProcesInstance) {
+			documents.addAll(documentStoreRepository.findByProcessInstanceId(procesInstance.getId()));
+		}
+		
+		for (DocumentStore documentStore: documents) {
+			try {
+				ArxiuDto arxiuContingut = documentHelper.getArxiuPerDocumentStoreId(
+						documentStore.getId(),
+						false,
+						false,
+						true, //perNotificar, si li enviassim a false, intentaria estampar...
+						null);
+				
+				documentHelper.postProcessarDocument(
+						expedient,
+						documentStore,
+						null, //taskInstanceId
+						documentStore.getProcessInstanceId(),
+						documentStore.getArxiuNom(),
+						arxiuContingut.getContingut(),
+						documentStore.getArxiuUuid(),
+						documentHelper.getContentType(documentStore.getArxiuNom()),
+						documentStore.isSignat(),
+						false, //tipusFirma?? firma separada?
+						null, //firmaContingut
+						documentStore.getNtiOrigen(),
+						documentStore.getNtiEstadoElaboracion(),
+						documentStore.getNtiTipoDocumental(),
+						documentStore.getNtiIdDocumentoOrigen());
+				
+				documentStore.setArxiuContingut(null);
+				documentStore.setDocumentValid(true);
+				documentStore.setDocumentError(null);
+			} catch(Exception ex) {
+				documentStore.setDocumentError(ex.getMessage());
+			}
+		}
+
+		if (expedient.getDataFi() != null) {
+			//Tancam expedient al arxiu, firmant els documents sense firma amb firma servidor
+			tancarExpedientArxiu(expedient, true);
+		}
+	}
+	
 	@Transactional
 	public void migrarArxiu(Expedient expedient) {
 		
@@ -951,8 +1046,13 @@ public class ExpedientHelper {
 
 		// Migra a l'Arxiu o actualitzar en el seu cas
 		pluginHelper.arxiuExpedientCrearOrActualitzar(expedient);
-		//Si no posam a true ara, el prostprocessar no pujará els fitxers a l'arxiu
+		// Si no posam a true ara, el prostprocessar no pujará els fitxers a l'arxiu
 		expedient.setArxiuActiu(true);
+		
+		// issue #1851
+		// Desam les dades de la sincronització d'Arxiu 
+		// per evitar que es perdin si el metode fa rollback per algun error provocat pels documents
+		expedient = expedientRepository.saveAndFlush(expedient);
 		
 		/**
 		 * 2.- Documents. Crea o actualitza els documents a l'arxiu.
