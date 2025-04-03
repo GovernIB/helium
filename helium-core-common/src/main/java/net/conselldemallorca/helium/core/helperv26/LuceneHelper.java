@@ -49,6 +49,7 @@ import net.conselldemallorca.helium.core.model.hibernate.Camp.TipusCamp;
 import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Entorn;
+import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Termini;
@@ -1019,16 +1020,51 @@ public class LuceneHelper extends LuceneIndexSupport {
 												if (textDomini == null)
 													textDomini = (valorConcat != null && valorConcat.toString().length() > 0) ? "¿" + valorConcat.toString() + "?" : null;
 												dadaCamp.setValorMostrar(Camp.getComText(camp.getTipus(), valorConcat, textDomini));
+											} else if(i!=0 && camp.isMultiple()) {
+												if(camp.getEnumeracio() != null) {
+													String textValue = valor.toString();
+													for(EnumeracioValors v : camp.getEnumeracio().getEnumeracioValors()) {
+														if(v.getCodi().equals(valor.toString())) {
+															textValue = v.getNom();
+															break;
+														}	
+													}
+													String valorConcat = textValue.concat(" , ").concat(dadaCamp.getValor().toString());
+													dadaCamp.setValor(valorConcat);
+													dadaCamp.setValorMostrar(valorConcat);
+												} else {
+													Object valorConcat = String.valueOf(valor).concat(" , ").concat(dadaCamp.getValor().toString());
+													dadaCamp.setValor(valorConcat);
+													String textDomini = null;
+													List<String> textDominiIndex = fila.get(codi + VALOR_DOMINI_SUFIX + valorConcat);
+													if (textDominiIndex != null)
+														textDomini = textDominiIndex.get(0);
+													if (textDomini == null)
+														textDomini = (valorConcat != null && valorConcat.toString().length() > 0) ? "¿" + valorConcat.toString() + "?" : null;
+													dadaCamp.setValorMostrar(Camp.getComText(camp.getTipus(), valorConcat, textDomini));
+												}
 											}
 											else {
-												dadaCamp.setValor(valor);
-												String textDomini = null;
-												List<String> textDominiIndex = fila.get(codi + VALOR_DOMINI_SUFIX + valor);
-												if (textDominiIndex != null)
-													textDomini = textDominiIndex.get(0);
-												if (textDomini == null)
-													textDomini = (valor != null && valor.toString().length() > 0) ? "¿" + valor.toString() + "?" : null;
-												dadaCamp.setValorMostrar(Camp.getComText(camp.getTipus(), valor, textDomini));
+												if(camp.getEnumeracio() != null) {
+													String textValue = valor.toString();
+													for(EnumeracioValors v : camp.getEnumeracio().getEnumeracioValors()) {
+														if(v.getCodi().equals(valor.toString())) {
+															textValue = v.getNom();
+															break;
+														}	
+													}
+													dadaCamp.setValor(textValue);
+													dadaCamp.setValorMostrar(textValue);
+												} else {
+													dadaCamp.setValor(valor);
+													String textDomini = null;
+													List<String> textDominiIndex = fila.get(codi + VALOR_DOMINI_SUFIX + valor);
+													if (textDominiIndex != null)
+														textDomini = textDominiIndex.get(0);
+													if (textDomini == null)
+														textDomini = (valor != null && valor.toString().length() > 0) ? "¿" + valor.toString() + "?" : null;
+													dadaCamp.setValorMostrar(Camp.getComText(camp.getTipus(), valor, textDomini));
+												}
 											}
 											if(i==0) {
 												dadesFila.add(dadaCamp);
