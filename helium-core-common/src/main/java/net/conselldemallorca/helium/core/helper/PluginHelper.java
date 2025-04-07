@@ -2452,7 +2452,7 @@ public class PluginHelper {
 		filtre.add(consultaFiltre2);
 		ConsultaResultat consultaResultat = getArxiuPlugin().expedientConsulta(filtre, 0, 10);
 		String sufix = "";
-		int MAX_LENGTH_ARXIU = 255;
+		int MAX_LENGTH_ARXIU = 200;
 		do {
 			nouNomExpedient = this.treureCaractersEstranys(identificador);
 			if (n > 0) {
