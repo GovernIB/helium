@@ -25,9 +25,16 @@
 				<hel:inputCheckbox name="propagarEsborratExpedients" textKey="configuracio.parametres.propagarEsborratExpedients" comment="configuracio.parametres.propagarEsborratExpedients.info" />	
 				<strong><spring:message code="configuracio.parametres.unitats.organitzatives"/></strong>
 				
+				
+				<tr>
+					<td colspan="1">
+						<hel:inputText  readonly="false" name="fitxerMidaMaxim" textKey="configuracio.parametres.fitxerMidaMaxim"/>
+						<strong><spring:message code="configuracio.parametres.fitxerMidaMaxim.info"/></strong>
+					</td>
+				</tr>
 				<c:forEach var="parametres" items="${parametres}">
 				<tr>
-					<c:if test="${parametres.codi != 'app.configuracio.propagar.esborrar.expedients'}">
+					<c:if test="${parametres.codi != 'app.configuracio.propagar.esborrar.expedients' and parametres.codi != 'app.configuracio.fitxer.mida.maxim'}">
 						<td colspan="1">
 							<hel:inputText  readonly="true" name="valor" text="${parametres.nom}" placeholder="${parametres.valor}"/>
 						</td>

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import net.conselldemallorca.helium.core.model.hibernate.Parametre;
 import net.conselldemallorca.helium.v3.core.api.service.ParametreService;
@@ -46,6 +47,32 @@ public class ParametreHelper {
 	public String getArrelUos() {
 		Parametre parametre = parametreRepository.findByCodi(ParametreService.APP_CONFIGURACIO_CODI_ARREL_UO);
 		return parametre != null ? parametre.getValor() : null; 
+	}
+	
+	public String getMidaMaximaFitxer() {
+		Parametre param = parametreRepository.findByCodi(ParametreService.APP_CONFIGURACIO_FITXER_MIDA_MAXIM);
+		return param.getValor();
+	}
+	
+	
+	public Long getMidaMaximaFitxerInBytes() {
+		Parametre param = parametreRepository.findByCodi(ParametreService.APP_CONFIGURACIO_FITXER_MIDA_MAXIM);
+		
+		if(param == null || param.getValor() == null || StringUtils.isEmpty(param.getValor()))
+			return null;
+		
+		String valor = param.getValor();
+		
+		String unit = valor.replaceAll("\\d|\\W", "");
+		Double amount = Double.parseDouble(valor.replaceAll("[a-zA-Z]", ""));
+	    
+	    if(unit.toUpperCase().equals("MB")) {
+	        return Math.round(amount * 1000000);
+	    } else if(unit.toUpperCase().equals("KB")) {
+	        return Math.round(amount * 1000);
+	    }
+		
+		return Math.round(amount);
 	}
 
 	/** Llegeix el valor com a Date o el fixa a null si no es pot parsejar. */

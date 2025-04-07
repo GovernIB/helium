@@ -22,6 +22,9 @@ public interface ParametreService {
 	public static final String APP_CONFIGURACIO_DATA_SINCRONITZACIO_UO = "app.net.caib.helium.unitats.organitzatives.data.sincronitzacio";
 	/** Data de la darrera actualització de les UO's. */
 	public static final String APP_CONFIGURACIO_DATA_ACTUALITZACIO_UO = "app.net.caib.helium.unitats.organitzatives.data.actualitzacio";
+	/** Mida màxima d'un fitxer que es pot pujar. */
+	public static final String APP_CONFIGURACIO_FITXER_MIDA_MAXIM = "app.configuracio.fitxer.mida.maxim";
+	
 	
 	public ParametreDto create(ParametreDto parametre);
 

@@ -47,6 +47,7 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
+import net.conselldemallorca.helium.core.helper.ParametreHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
@@ -83,6 +84,7 @@ import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.PassarelaFirmaEnviarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.TascaConsultaCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
@@ -123,6 +125,8 @@ public class TascaTramitacioController extends BaseTascaController {
 	private DocumentHelperV3 documentHelper;
 	@Autowired
 	private ExpedientDocumentController expedientDocumentController;
+	@Autowired
+	private ParametreHelper parametreHelper;
 	
 	
 	@ModelAttribute("command")
@@ -701,6 +705,15 @@ public class TascaTramitacioController extends BaseTascaController {
 			ExpedientDto expedient = expedientService.findAmbId(tasca.getExpedientId());
 			// Validacions
 			boolean error = false;
+			
+			Long MAX_FILE_SIZE = parametreHelper.getMidaMaximaFitxerInBytes();
+			// Si la mida del fitxer es major que MAX_FILE_SIZE es retrona un error de validació  
+			if (MAX_FILE_SIZE != null && arxiu.getSize() > MAX_FILE_SIZE) {
+				String max = parametreHelper.getMidaMaximaFitxer();
+				MissatgesHelper.error(request, getMessage(request, "error.fixer.max.size", new String[] {max}));
+				error = true;
+			}
+			
 			if (!tasca.isValidada()) {
 				MissatgesHelper.error(request, getMessage(request, "error.validar.dades"));
 				error = true;

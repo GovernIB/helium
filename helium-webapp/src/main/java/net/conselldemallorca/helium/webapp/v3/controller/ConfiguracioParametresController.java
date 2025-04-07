@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.google.common.reflect.Parameter;
+
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.v3.core.api.dto.ParametreDto;
 import net.conselldemallorca.helium.v3.core.api.service.ParametreService;
@@ -54,6 +56,9 @@ public class ConfiguracioParametresController extends BaseController {
 			if(parametre.getCodi()!=null && parametre.getCodi().equals(ParametreService.APP_CONFIGURACIO_PROPAGAR_ESBORRAR_EXPEDIENTS)) {
 				parametresCommand.setPropagarEsborratExpedients("0".equals(parametre.getValor()) ? false : true);
 			}
+			if(parametre.getCodi()!=null && parametre.getCodi().equals(ParametreService.APP_CONFIGURACIO_FITXER_MIDA_MAXIM)) {
+				parametresCommand.setFitxerMidaMaxim(parametre.getValor());
+			}
 		}
 		model.addAttribute("parametres", parametres);
 		model.addAttribute("parametresCommand", parametresCommand);		
@@ -77,6 +82,10 @@ public class ConfiguracioParametresController extends BaseController {
 //					Guardar els valors en les propietats
 //					logger.info("Guardant els valors dels paràmetres: {propagar_esborrat_expedients: "+parametresCommand.isPropagarEsborratExpedients() +"}");
 //					GlobalProperties.getInstance().setProperty(parametre.getCodi(), String.valueOf(parametresCommand.isPropagarEsborratExpedients()));		
+				}
+				if(parametre.getCodi()!=null && parametre.getCodi().equals(ParametreService.APP_CONFIGURACIO_FITXER_MIDA_MAXIM)) {
+					parametre.setValor(parametresCommand.getFitxerMidaMaxim());
+					parametreService.update(parametre);
 				}
 			}	
 		} else {

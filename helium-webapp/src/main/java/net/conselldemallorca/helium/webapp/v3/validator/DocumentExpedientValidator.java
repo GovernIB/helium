@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
+import net.conselldemallorca.helium.core.helper.ParametreHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
@@ -25,6 +26,8 @@ public class DocumentExpedientValidator implements ConstraintValidator<DocumentE
 	private ExpedientService expedientService;
 	@Resource(name="documentHelperV3")
 	private DocumentHelperV3 documentHelper;
+	@Resource
+	private ParametreHelper parametreHelper;
 	
 	@Override
 	public void initialize(DocumentExpedient anotacio) {
@@ -45,6 +48,17 @@ public class DocumentExpedientValidator implements ConstraintValidator<DocumentE
 				valid = false;
 			}
 		}
+		
+		Long MAX_FILE_SIZE = parametreHelper.getMidaMaximaFitxerInBytes();
+		// Si la mida del fitxer es major que MAX_FILE_SIZE es retrona un error de validació  
+		if (MAX_FILE_SIZE != null && command.getArxiu() != null && command.getArxiu().getSize() > MAX_FILE_SIZE) {
+			String max = parametreHelper.getMidaMaximaFitxer();
+			context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage("error.fixer.max.size", new String[] {max}))
+					.addNode("arxiu")
+					.addConstraintViolation();
+			valid = false;
+		}
+		
 		if (ntiActiu) {
 
 			if(command.getNtiEstadoElaboracion() != null

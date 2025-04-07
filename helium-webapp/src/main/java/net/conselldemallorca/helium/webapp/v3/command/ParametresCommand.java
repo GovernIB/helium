@@ -15,6 +15,7 @@ public class ParametresCommand {
 	private String codi;
 	private String descripcio;
 	private String valor;
+	private String fitxerMidaMaxim;
 	
 	
 	public String getNom() {
@@ -41,13 +42,17 @@ public class ParametresCommand {
 	public void setValor(String valor) {
 		this.valor = valor;
 	}
-	
 	public boolean isPropagarEsborratExpedients() {
 		return propagarEsborratExpedients;
 	}
 	public void setPropagarEsborratExpedients(boolean propagarEsborratExpedients) {
 		this.propagarEsborratExpedients = propagarEsborratExpedients;
 	}
-	
+	public String getFitxerMidaMaxim() {
+		return fitxerMidaMaxim;
+	}
+	public void setFitxerMidaMaxim(String fitxerMidaMaxim) {
+		this.fitxerMidaMaxim = fitxerMidaMaxim;
+	}
 
 }
