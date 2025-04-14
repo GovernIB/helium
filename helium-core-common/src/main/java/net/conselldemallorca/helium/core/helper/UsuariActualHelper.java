@@ -110,6 +110,10 @@ public class UsuariActualHelper {
 	@CacheEvict(value = "entornsUsuariActual")
 	public void netejarCacheUsuari(String usuariCodi) {
 	}
+	
+	@CacheEvict(value = "aclCache", allEntries = true)
+	public void netejarCacheAcl() {
+	}
 
 	public String getUsuariActual() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();

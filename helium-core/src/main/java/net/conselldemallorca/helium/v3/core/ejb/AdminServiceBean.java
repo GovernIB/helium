@@ -12,7 +12,6 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
@@ -260,6 +259,15 @@ public class AdminServiceBean implements AdminService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<TascaCompleteDto> getTasquesCompletarAdminEntorn() {
 		return delegate.getTasquesCompletarAdminEntorn();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@RolesAllowed({"HEL_ADMIN"})
+	public Long canviarCodiUsusari(String codiActual, String codiNou) throws Exception {
+		return delegate.canviarCodiUsusari(codiActual, codiNou);
 	}
 
 }

@@ -96,8 +96,6 @@ public class AdminServiceImpl implements AdminService {
 	@Autowired
 	private MetricRegistry metricRegistry;
 
-
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -116,30 +114,22 @@ public class AdminServiceImpl implements AdminService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	@Scheduled(cron="0 30 23 * * *")
+	@Scheduled(cron = "0 30 23 * * *")
 	public void metricsEmailResponsables() {
 		logger.debug("Enviant email amb les mètriques de l'aplicació");
 		String destinataris = getCorreuMetriquesDestinataris();
 		if (destinataris != null && !destinataris.isEmpty()) {
 			try {
 				List<String> recipients = new ArrayList<String>();
-				for (String recipient: destinataris.split(",")) {
+				for (String recipient : destinataris.split(",")) {
 					recipients.add(recipient.trim());
 				}
 				String fromAddress = getCorreuRemitent();
 				List<ArxiuDto> attachments = new ArrayList<ArxiuDto>();
-				attachments.add(
-						new ArxiuDto(
-								"metrics.json",
-								getApplictionMetrics().getBytes()));
-				mailHelper.send(
-						fromAddress,
-						recipients,
-						null,
-						null,
+				attachments.add(new ArxiuDto("metrics.json", getApplictionMetrics().getBytes()));
+				mailHelper.send(fromAddress, recipients, null, null,
 						"Mètriques Helium " + new SimpleDateFormat("dd/MM/yyyy").format(new Date()),
-						"Mètriques generades per a monitoritzar l'ús de l'aplicació.",
-						attachments);
+						"Mètriques generades per a monitoritzar l'ús de l'aplicació.", attachments);
 			} catch (Exception ex) {
 				logger.error("Error al enviar per correu les mètriques de l'aplicació", ex);
 			}
@@ -159,10 +149,8 @@ public class AdminServiceImpl implements AdminService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<IntegracioAccioDto> monitorIntegracioFindAccionsByIntegracio(
-			String integracioCodi) {
-		logger.debug("Consultant la llista d'accions per a la integració (" +
-				"integracioCodi=" + integracioCodi + ")");
+	public List<IntegracioAccioDto> monitorIntegracioFindAccionsByIntegracio(String integracioCodi) {
+		logger.debug("Consultant la llista d'accions per a la integració (" + "integracioCodi=" + integracioCodi + ")");
 		return monitorIntegracioHelper.findAccionsByIntegracioCodi(integracioCodi);
 	}
 
@@ -170,15 +158,13 @@ public class AdminServiceImpl implements AdminService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<DominiDto> monitorDominiFindByEntorn(
-			Long entornId) {
-		logger.debug("Consultant la llista de dominis donat un entorn (" +
-				"entornId=" + entornId + ")");
+	public List<DominiDto> monitorDominiFindByEntorn(Long entornId) {
+		logger.debug("Consultant la llista de dominis donat un entorn (" + "entornId=" + entornId + ")");
 		Entorn entorn = null;
 		if (entornId != null) {
 			entorn = entornRepository.findOne(entornId);
 			if (entorn == null) {
-				throw new NoTrobatException(Entorn.class,entornId);
+				throw new NoTrobatException(Entorn.class, entornId);
 			}
 		}
 		return monitorDominiHelper.findByEntorn(entorn);
@@ -188,54 +174,36 @@ public class AdminServiceImpl implements AdminService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<IntegracioAccioDto> monitorDominiFindAccionsByDomini(
-			Long dominiId) {
-		logger.debug("Consultant la llista d'accions per al domini (" +
-				"dominiId=" + dominiId + ")");
+	public List<IntegracioAccioDto> monitorDominiFindAccionsByDomini(Long dominiId) {
+		logger.debug("Consultant la llista d'accions per al domini (" + "dominiId=" + dominiId + ")");
 		if (dominiId != 0L) {
 			// Domini no intern
 			Domini domini = dominiRepository.findOne(dominiId);
 			if (domini == null) {
-				throw new NoTrobatException(Domini.class,dominiId);
+				throw new NoTrobatException(Domini.class, dominiId);
 			}
 		}
 		return monitorDominiHelper.findAccionsByDomini(dominiId);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void monitorAddAccio(
-			String integracioCodi,
-			String descripcio,
-			IntegracioAccioTipusEnumDto tipus,
-			IntegracioAccioEstatEnumDto estat,
-			long tempsResposta,
-			String errorDescripcio,
-			Throwable throwable,
+	public void monitorAddAccio(String integracioCodi, String descripcio, IntegracioAccioTipusEnumDto tipus,
+			IntegracioAccioEstatEnumDto estat, long tempsResposta, String errorDescripcio, Throwable throwable,
 			List<IntegracioParametreDto> parametres) {
-		
+
 		IntegracioParametreDto[] params = new IntegracioParametreDto[parametres.size()];
-		for (int i = 0; i < parametres.size(); i ++)
+		for (int i = 0; i < parametres.size(); i++)
 			params[i] = parametres.get(i);
-		switch(estat) {
+		switch (estat) {
 		case ERROR:
-			monitorIntegracioHelper.addAccioError(
-					integracioCodi, 
-					descripcio, 
-					tipus, 
-					tempsResposta, 
-					errorDescripcio, 
+			monitorIntegracioHelper.addAccioError(integracioCodi, descripcio, tipus, tempsResposta, errorDescripcio,
 					params);
 			break;
 		case OK:
-			monitorIntegracioHelper.addAccioOk(
-					integracioCodi, 
-					descripcio, 
-					tipus, 
-					tempsResposta,  
-					params);
+			monitorIntegracioHelper.addAccioOk(integracioCodi, descripcio, tipus, tempsResposta, params);
 			break;
 		}
 	}
@@ -244,12 +212,9 @@ public class AdminServiceImpl implements AdminService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<MesuraTemporalDto> mesuraTemporalFindByFamilia(
-			String familia,
-			boolean ambDetall) {
-		logger.debug("Consultant el llistat de mesures temporals per família (" +
-				"familia=" + familia + ", " +
-				"ambDetall=" + ambDetall + ")");
+	public List<MesuraTemporalDto> mesuraTemporalFindByFamilia(String familia, boolean ambDetall) {
+		logger.debug("Consultant el llistat de mesures temporals per família (" + "familia=" + familia + ", "
+				+ "ambDetall=" + ambDetall + ")");
 		return mesuresTemporalsHelper.getEstadistiques(familia, ambDetall);
 	}
 
@@ -284,76 +249,41 @@ public class AdminServiceImpl implements AdminService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void mesuraTemporalIniciar(
-			String clau,
-			String familia) {
+	public void mesuraTemporalIniciar(String clau, String familia) {
 		logger.debug("Consultant el llistat de famílies de mesures temporals");
-		mesuresTemporalsHelper.mesuraIniciar(
-				clau,
-				familia);
+		mesuresTemporalsHelper.mesuraIniciar(clau, familia);
 	}
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void mesuraTemporalIniciar(
-			String clau,
-			String familia,
-			String tipusExpedient) {
-		mesuresTemporalsHelper.mesuraIniciar(
-				clau,
-				familia,
-				tipusExpedient);
+	public void mesuraTemporalIniciar(String clau, String familia, String tipusExpedient) {
+		mesuresTemporalsHelper.mesuraIniciar(clau, familia, tipusExpedient);
 	}
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void mesuraTemporalIniciar(
-			String clau,
-			String familia,
-			String tipusExpedient,
-			String tasca,
-			String detall) {
-		mesuresTemporalsHelper.mesuraIniciar(
-				clau,
-				familia,
-				tipusExpedient,
-				tasca,
-				detall);
+	public void mesuraTemporalIniciar(String clau, String familia, String tipusExpedient, String tasca, String detall) {
+		mesuresTemporalsHelper.mesuraIniciar(clau, familia, tipusExpedient, tasca, detall);
 	}
 
 	@Override
-	public void mesuraTemporalCalcular(
-			String clau,
-			String familia) {
-		mesuresTemporalsHelper.mesuraCalcular(
-				clau,
-				familia);
+	public void mesuraTemporalCalcular(String clau, String familia) {
+		mesuresTemporalsHelper.mesuraCalcular(clau, familia);
 	}
+
 	@Override
-	public void mesuraTemporalCalcular(
-			String clau,
-			String familia,
-			String tipusExpedient) {
-		mesuresTemporalsHelper.mesuraCalcular(
-				clau,
-				familia,
-				tipusExpedient);
+	public void mesuraTemporalCalcular(String clau, String familia, String tipusExpedient) {
+		mesuresTemporalsHelper.mesuraCalcular(clau, familia, tipusExpedient);
 	}
+
 	@Override
-	public void mesuraTemporalCalcular(
-			String clau,
-			String familia,
-			String tipusExpedient,
-			String tasca,
+	public void mesuraTemporalCalcular(String clau, String familia, String tipusExpedient, String tasca,
 			String detall) {
-		mesuresTemporalsHelper.mesuraCalcular(
-				clau,
-				familia,
-				tipusExpedient,
-				tasca,
-				detall);
+		mesuresTemporalsHelper.mesuraCalcular(clau, familia, tipusExpedient, tasca, detall);
 	}
 
 	@Override
@@ -367,24 +297,22 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
-	public List<MesuraTemporalDto> getHibernateStatistics(
-			String familia,
-			boolean exportar) {
+	public List<MesuraTemporalDto> getHibernateStatistics(String familia, boolean exportar) {
 		return hibernateHelper.getHibernateStatistics(familia, exportar);
 	}
-	
+
 	@Override
 	public List<TascaCompleteDto> getTasquesCompletar() {
 		return mesuresTemporalsHelper.getTasquesCompletar();
 	}
-	
+
 	@Transactional
 	@Override
 	public void updatePerfil(UsuariPreferenciesDto preferencies) {
 		UsuariPreferencies usuari = usuariPreferenciesRepository.findByCodi(preferencies.getCodi());
 		if (usuari == null)
 			usuari = new UsuariPreferencies();
-		
+
 		usuari.setCodi(preferencies.getCodi());
 		usuari.setCabeceraReducida(preferencies.isCabeceraReducida());
 		usuari.setConsultaId(preferencies.getConsultaId());
@@ -411,22 +339,18 @@ public class AdminServiceImpl implements AdminService {
 		persona.setSexe(personaDto.getSexe().equals(Sexe.SEXE_HOME) ? Persona.Sexe.SEXE_HOME : Persona.Sexe.SEXE_DONA);
 		personaRepository.save(persona);
 	}
-	
+
 	@Transactional(readOnly = true)
 	@Override
 	public List<ReassignacioDto> llistaReassignacions() {
-		return conversioTipusHelper.convertirList(reassignacioRepository.findLlistaActius(Calendar.getInstance().getTime()), ReassignacioDto.class);
+		return conversioTipusHelper.convertirList(
+				reassignacioRepository.findLlistaActius(Calendar.getInstance().getTime()), ReassignacioDto.class);
 	}
-	
+
 	@Transactional
 	@Override
-	public void createReassignacio(
-			String usuariOrigen,
-			String usuariDesti,
-			Date dataInici,
-			Date dataFi,
-			Date dataCancelacio,
-			Long tipusExpedientId) {
+	public void createReassignacio(String usuariOrigen, String usuariDesti, Date dataInici, Date dataFi,
+			Date dataCancelacio, Long tipusExpedientId) {
 		Reassignacio reassignacio = new Reassignacio();
 		reassignacio.setUsuariOrigen(usuariOrigen);
 		reassignacio.setUsuariDesti(usuariDesti);
@@ -439,14 +363,8 @@ public class AdminServiceImpl implements AdminService {
 
 	@Transactional
 	@Override
-	public void updateReassignacio(
-			Long id,
-			String usuariOrigen,
-			String usuariDesti,
-			Date dataInici,
-			Date dataFi,
-			Date dataCancelacio,
-			Long tipusExpedientId) {
+	public void updateReassignacio(Long id, String usuariOrigen, String usuariDesti, Date dataInici, Date dataFi,
+			Date dataCancelacio, Long tipusExpedientId) {
 		Reassignacio reassignacio = reassignacioRepository.findOne(id);
 		reassignacio.setUsuariOrigen(usuariOrigen);
 		reassignacio.setUsuariDesti(usuariDesti);
@@ -473,27 +391,21 @@ public class AdminServiceImpl implements AdminService {
 		return conversioTipusHelper.convertir(reassignacioRepository.findOne(id), ReassignacioDto.class);
 	}
 
-
-
 	private String getApplictionMetrics() throws JsonProcessingException {
 		ObjectMapper mapper = new ObjectMapper();
-		mapper.registerModule(
-				new MetricsModule(
-						TimeUnit.SECONDS,
-						TimeUnit.MILLISECONDS,
-						false));
+		mapper.registerModule(new MetricsModule(TimeUnit.SECONDS, TimeUnit.MILLISECONDS, false));
 		return mapper.writeValueAsString(metricRegistry);
 	}
 
 	private String getCorreuRemitent() {
 		return GlobalProperties.getInstance().getProperty("app.correu.remitent");
 	}
+
 	private String getCorreuMetriquesDestinataris() {
 		return GlobalProperties.getInstance().getProperty("app.correu.metrics.recipients");
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(AdminServiceImpl.class);
-
 
 	/**
 	 * {@inheritDoc}
@@ -506,14 +418,38 @@ public class AdminServiceImpl implements AdminService {
 
 	@Override
 	public List<IntegracioAccioDto> monitorIntegracioFindAccionsByIntegracioEntornsAdmin(String integracioCodi) {
-		logger.debug("Consultant la llista d'accions per a la integració (" +
-				"integracioCodi=" + integracioCodi + ")");
-		return monitorIntegracioHelper.findAccionsByIntegracioCodiEntornsAdmin(integracioCodi, usuariActualHelper.findEntornsActiusPermisAdmin());
+		logger.debug("Consultant la llista d'accions per a la integració (" + "integracioCodi=" + integracioCodi + ")");
+		return monitorIntegracioHelper.findAccionsByIntegracioCodiEntornsAdmin(integracioCodi,
+				usuariActualHelper.findEntornsActiusPermisAdmin());
 	}
 
 	@Override
 	public List<TascaCompleteDto> getTasquesCompletarAdminEntorn() {
 		return mesuresTemporalsHelper.getTasquesCompletarAdminEntiorn();
+	}
+
+	@Override
+	@Transactional
+	public Long canviarCodiUsusari(String codiActual, String codiNou) throws Exception {
+		Long updatedRows = 0L;
+		updatedRows += usuariPreferenciesRepository.updateCodiUsuariUsuariPreferencies(codiActual, codiNou);
+		updatedRows += usuariPreferenciesRepository.updateCodiUsuariActionLog(codiActual, codiNou);
+		updatedRows += usuariPreferenciesRepository.updateCodiUsuariAlerta(codiActual, codiNou);
+		updatedRows += usuariPreferenciesRepository.updateCodiUsuariDocumentNotificacio(codiActual, codiNou);
+		updatedRows += usuariPreferenciesRepository.updateCodiUsuariRepro(codiActual, codiNou);
+		updatedRows += usuariPreferenciesRepository.updateCodiUsuariExecucioMassiva(codiActual, codiNou);
+		updatedRows += usuariPreferenciesRepository.updateCodiUsuariExpedientLog(codiActual, codiNou);
+		updatedRows += usuariPreferenciesRepository.updateCodiUsuariPeticioPinbal(codiActual, codiNou);
+		updatedRows += usuariPreferenciesRepository.updateCodiUsuariAclSid(codiActual, codiNou);
+		updatedRows += usuariPreferenciesRepository.updateCodiUsuariJbpmIdUser(codiActual, codiNou);
+		updatedRows += usuariPreferenciesRepository.updateCodiUsuariJbpmLogTaskActor(codiActual, codiNou);
+		updatedRows += usuariPreferenciesRepository.updateCodiUsuariJbpmLogTaskOldActor(codiActual, codiNou);
+		updatedRows += usuariPreferenciesRepository.updateCodiUsuariJbpmPoolActor(codiActual, codiNou);
+		updatedRows += usuariPreferenciesRepository.updateCodiUsuariJbpmTaskInstance(codiActual, codiNou);
+
+		usuariActualHelper.netejarCacheAcl();
+		usuariActualHelper.netejarCacheUsuariTots();
+		return updatedRows;
 	}
 
 }

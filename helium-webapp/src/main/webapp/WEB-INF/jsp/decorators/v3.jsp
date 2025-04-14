@@ -433,6 +433,9 @@
 									</c:if>
 									<c:if test="${dadesPersona.admin}">
 										<li><a id="serveisPinbal" href="<c:url value="/v3/serveisPinbal"/>"><spring:message code="decorator.menu.serveisPinbal"/></a></li>
+									</c:if>
+									<c:if test="${dadesPersona.admin}">
+										<li><a id="usernames" href="<c:url value="/v3/usernames"/>"><spring:message code="decorator.usuari.codi.mapeig"/></a></li>
 									</c:if>									
 								</ul>
 								<script type="text/javascript">
