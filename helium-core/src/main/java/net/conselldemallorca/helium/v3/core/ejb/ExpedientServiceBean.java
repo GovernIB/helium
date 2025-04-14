@@ -212,6 +212,7 @@ public class ExpedientServiceBean implements ExpedientService {
 			boolean nomesTasquesGrup,
 			boolean nomesAlertes,
 			boolean nomesErrors,
+			boolean nomesErrorsArxiu,
 			MostrarAnulatsDto mostrarAnulats,
 			PaginacioParamsDto paginacioParams) {
 		return delegate.findAmbFiltrePaginat(
@@ -235,6 +236,7 @@ public class ExpedientServiceBean implements ExpedientService {
 				nomesTasquesGrup,
 				nomesAlertes,
 				nomesErrors,
+				nomesErrorsArxiu,
 				mostrarAnulats,
 				paginacioParams);
 	}
@@ -261,6 +263,7 @@ public class ExpedientServiceBean implements ExpedientService {
 			boolean nomesTasquesGrup,
 			boolean nomesAlertes,
 			boolean nomesErrors,
+			boolean nomesErrorsArxiu,
 			MostrarAnulatsDto mostrarAnulats) {
 		return delegate.findIdsAmbFiltre(
 				entornId,
@@ -282,6 +285,7 @@ public class ExpedientServiceBean implements ExpedientService {
 				nomesTasquesGrup,
 				nomesAlertes,
 				nomesErrors,
+				nomesErrorsArxiu,
 				mostrarAnulats);
 	}
 	
@@ -480,6 +484,7 @@ public class ExpedientServiceBean implements ExpedientService {
 			boolean nomesMeves,
 			boolean nomesAlertes,
 			boolean nomesErrors,
+			boolean nomesErrorsArxiu,
 			MostrarAnulatsDto mostrarAnulats,
 			PaginacioParamsDto paginacioParams) {
 		return consultaFindPaginat(
@@ -491,6 +496,7 @@ public class ExpedientServiceBean implements ExpedientService {
 				nomesMeves,
 				nomesAlertes,
 				nomesErrors,
+				nomesErrorsArxiu,
 				mostrarAnulats,
 				paginacioParams);
 	}
@@ -505,6 +511,7 @@ public class ExpedientServiceBean implements ExpedientService {
 			boolean nomesMeves,
 			boolean nomesAlertes,
 			boolean nomesErrors,
+			boolean nomesErrorsArxiu,
 			MostrarAnulatsDto mostrarAnulats,
 			PaginacioParamsDto paginacioParams) {
 		return consultaFindNomesIdsPaginat(
@@ -515,6 +522,7 @@ public class ExpedientServiceBean implements ExpedientService {
 				nomesMeves,
 				nomesAlertes,
 				nomesErrors,
+				nomesErrorsArxiu,
 				mostrarAnulats,
 				paginacioParams);
 	}	

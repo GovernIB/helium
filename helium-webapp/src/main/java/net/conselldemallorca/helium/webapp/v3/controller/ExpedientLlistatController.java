@@ -154,6 +154,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 							filtreCommand.isNomesTasquesGrup(),
 							filtreCommand.isNomesAlertes(),
 							filtreCommand.isNomesErrors(),
+							filtreCommand.isNomesErrorsArxiu(),
 							filtreCommand.getMostrarAnulats(),
 							PaginacioHelper.getPaginacioDtoFromDatatable(request)));
 		} catch (Exception e) {
@@ -222,6 +223,7 @@ public class ExpedientLlistatController extends BaseExpedientController {
 				filtreCommand.isNomesTasquesGrup(),
 				filtreCommand.isNomesAlertes(),
 				filtreCommand.isNomesErrors(),
+				filtreCommand.isNomesErrorsArxiu(),
 				filtreCommand.getMostrarAnulats());		
 		SessionManager sessionManager = SessionHelper.getSessionManager(request);
 		Set<Long> seleccio = sessionManager.getSeleccioConsultaGeneral();

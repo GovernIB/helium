@@ -202,6 +202,7 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 				(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesMeves"),
 				(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesAlertes"),
 				false, //nomesErrors
+				false, //nomesErrorsArxiu
 				MostrarAnulatsDto.NO, //mostrarAnulats
 				PaginacioHelper.getPaginacioDtoFromDatatable(request));
 		SessionHelper.setAttribute(
@@ -260,6 +261,7 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 				(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesMeves"),
 				(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesAlertes"),
 				false, //nomesErrors
+				false, //nomesErrorsArxiu
 				MostrarAnulatsDto.NO, //mostrarAnulats
 				PaginacioHelper.getPaginacioDtoTotsElsResultats());
 		List<Long> ids = paginaIds.getContingut();

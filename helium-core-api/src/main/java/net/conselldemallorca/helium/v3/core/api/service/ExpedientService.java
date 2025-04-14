@@ -304,6 +304,7 @@ public interface ExpedientService {
 			boolean nomesTasquesGrup,
 			boolean nomesAlertes,
 			boolean nomesErrors,
+			boolean nomesErrorsArxiu,
 			MostrarAnulatsDto mostrarAnulats,
 			PaginacioParamsDto paginacioParams) throws NoTrobatException;
 
@@ -377,6 +378,7 @@ public interface ExpedientService {
 			boolean nomesTasquesGrup,
 			boolean nomesAlertes,
 			boolean nomesErrors,
+			boolean nomesErrorsArxiu,
 			MostrarAnulatsDto mostrarAnulats);
 	
 	/** Mètode per cercar expedients pel suggest d'expedients. Filtra pel tipus d'expedient i busca
@@ -787,6 +789,7 @@ public interface ExpedientService {
 			boolean nomesMeves,
 			boolean nomesAlertes,
 			boolean nomesErrors,
+			boolean nomesErrorsArxiu,
 			MostrarAnulatsDto mostrarAnulats,
 			PaginacioParamsDto paginacioParams);
 
@@ -827,6 +830,7 @@ public interface ExpedientService {
 			boolean nomesMeves,
 			boolean nomesAlertes,
 			boolean nomesErrors,
+			boolean nomesErrorsArxiu,
 			MostrarAnulatsDto mostrarAnulats,
 			PaginacioParamsDto paginacioParams);	
 	

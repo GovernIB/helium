@@ -828,6 +828,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			boolean nomesTasquesGrup,
 			boolean nomesAlertes,
 			boolean nomesErrors,
+			boolean nomesErrorsArxiu,
 			MostrarAnulatsDto mostrarAnulats,
 			PaginacioParamsDto paginacioParams) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -851,6 +852,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				"nomesTasquesGrup=" + nomesTasquesGrup + ", " +
 				"nomesAlertes=" + nomesAlertes + ", " +
 				"nomesErrors=" + nomesErrors + ", " +
+				"nomesErrorsArxiu=" + nomesErrorsArxiu + ", " +
 				"mostrarAnulats=" + mostrarAnulats + 
 				"nomesTasquesPersonals=" + nomesTasquesPersonals + ", " +
 				"nomesTasquesGrup=" + nomesTasquesGrup + ")");
@@ -942,7 +944,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				true, // nomesTasquesMeves, // TODO Si no te permis SUPERVISION nomesTasquesMeves = false
 				usuariActualHelper.isAdministrador() || entornHelper.esAdminEntorn(entornId)? null : usuariActualHelper.getAreesGrupsUsuariActual(),
 				paginacioParams,
-				false);
+				false,
+				nomesErrorsArxiu);
 		// Retorna la pàgina amb la resposta
 		List<ExpedientDto> expedients = new ArrayList<ExpedientDto>(); 
 		if (expedientsIds.getCount() > 0) {
@@ -1025,6 +1028,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			boolean nomesTasquesGrup,
 			boolean nomesAlertes,
 			boolean nomesErrors,
+			boolean nomesErrorsArxiu,
 			MostrarAnulatsDto mostrarAnulats) {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		logger.debug("Consulta general d'expedients només ids (" +
@@ -1118,7 +1122,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				true, // nomesTasquesMeves, // TODO Si no te permis SUPERVISION nomesTasquesMeves = false
 				usuariActualHelper.isAdministrador() || entornHelper.esAdminEntorn(entornId)? null : usuariActualHelper.getAreesGrupsUsuariActual(),
 				new PaginacioParamsDto(),
-				false);
+				false,
+				nomesErrorsArxiu);
 		return expedientsIds.getLlista();
 	}
 	/**
@@ -2622,6 +2627,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			boolean nomesMeves,
 			boolean nomesAlertes,
 			boolean nomesErrors,
+			boolean nomesErrorsArxiu,
 			MostrarAnulatsDto mostrarAnulats,
 			PaginacioParamsDto paginacioParams) {
 		logger.debug("Consulta general d'expedients paginada (" +
@@ -2700,7 +2706,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					nomesMeves,
 					usuariActualHelper.isAdministrador() || entornHelper.esAdminEntorn(entorn.getId())? null : usuariActualHelper.getAreesGrupsUsuariActual(),
 					new PaginacioParamsDto(),
-					false);
+					false,
+					nomesErrorsArxiu);
 			expedientIdsPermesos = expedientsIds.getLlista();
 		}
 		// Obte la llista d'expedients de lucene passant els expedients permesos
@@ -2826,6 +2833,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			boolean nomesMeves,
 			boolean nomesAlertes,
 			boolean nomesErrors,
+			boolean nomesErrorsArxiu,
 			MostrarAnulatsDto mostrarAnulats,
 			PaginacioParamsDto paginacioParams) {
 		logger.debug("Consulta general d'expedients paginada (" +
@@ -2888,7 +2896,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				nomesMeves,
 				usuariActualHelper.isAdministrador() || entornHelper.esAdminEntorn(entorn.getId())? null : usuariActualHelper.getAreesGrupsUsuariActual(),
 				new PaginacioParamsDto(),
-				false);
+				false,
+				nomesErrorsArxiu);
 		// Obte la llista d'ids de lucene passant els expedients permesos
 		// com a paràmetres
 		List<Camp> filtreCamps = consultaHelper.toListCamp(

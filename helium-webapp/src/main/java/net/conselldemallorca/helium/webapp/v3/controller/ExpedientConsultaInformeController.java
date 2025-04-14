@@ -148,6 +148,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 				(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesMeves"),
 				(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesAlertes"),
 				false, //nomesErrors
+				false, //nomesErrorsArxiu
 				MostrarAnulatsDto.NO, //mostrarAnulats
 				PaginacioHelper.getPaginacioDtoTotsElsResultats());
 		generarExcel(
@@ -554,6 +555,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 					(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesMeves"),
 					(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesAlertes"),
 					false, //nomesErrors
+					false, //nomesErrorsArxiu
 					MostrarAnulatsDto.NO, //mostrarAnulats
 					PaginacioHelper.getPaginacioDtoTotsElsResultats());
 			ids = paginaIds.getContingut();
@@ -606,6 +608,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 					(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesMeves"),
 					(Boolean)PropertyUtils.getSimpleProperty(filtreCommand, "nomesAlertes"),
 					false, //nomesErrors
+					false, //nomesErrorsArxiu
 					MostrarAnulatsDto.NO, //mostrarAnulats
 					paginacio);
 			dadesDataSource.addAll(

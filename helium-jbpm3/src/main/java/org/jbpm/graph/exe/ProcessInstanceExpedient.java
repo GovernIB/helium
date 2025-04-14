@@ -41,7 +41,7 @@ public class ProcessInstanceExpedient implements Identifiable, Serializable {
 	private String processInstanceId;
 	private boolean ambRetroaccio;
 	private String grupCodi;
-
+	private String errorArxiu;
 
 
 	public long getId() {
@@ -170,6 +170,12 @@ public class ProcessInstanceExpedient implements Identifiable, Serializable {
 	}
 	public void setGrupCodi(String grupCodi) {
 		this.grupCodi = grupCodi;
+	}
+	public String getErrorArxiu() {
+		return errorArxiu;
+	}
+	public void setErrorArxiu(String errorArxiu) {
+		this.errorArxiu = errorArxiu;
 	}
 
 	@Transient

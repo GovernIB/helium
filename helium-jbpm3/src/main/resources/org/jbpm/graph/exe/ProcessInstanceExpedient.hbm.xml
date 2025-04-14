@@ -23,6 +23,7 @@
 		<property name="processInstanceId" column="PROCESS_INSTANCE_ID" insert="false" update="false"/>
 		<property name="ambRetroaccio" column="AMB_RETROACCIO"/>
 		<property name="grupCodi" column="GRUP_CODI"/>
+		<property name="errorArxiu" column="ERROR_ARXIU"/>
 		<many-to-one
 				name="entorn"
 				column="ENTORN_ID"

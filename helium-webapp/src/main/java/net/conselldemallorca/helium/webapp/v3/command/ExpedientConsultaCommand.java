@@ -48,6 +48,9 @@ public class ExpedientConsultaCommand {
 	
 	private boolean nomesTasquesPersonals = false;
 	private boolean nomesTasquesGrup = false;
+	
+
+	private boolean nomesErrorsArxiu;
 
 	public ExpedientConsultaCommand() {
 	}
@@ -226,6 +229,12 @@ public class ExpedientConsultaCommand {
 		this.registreNumero = registreNumero;
 	}
 
-	
+	public boolean isNomesErrorsArxiu() {
+		return nomesErrorsArxiu;
+	}
+
+	public void setNomesErrorsArxiu(boolean nomesErrorsArxiu) {
+		this.nomesErrorsArxiu = nomesErrorsArxiu;
+	}
 	
 }

@@ -268,6 +268,8 @@ function filtreActiu() {
 		filtre = true;
 	if ($("#nomesErrorsCheck").hasClass("active"))
 		filtre = true;
+	if ($("#nomesErrorsArxiuCheck").hasClass("active"))
+		filtre = true;
 	if ($("#numero").val() != "")
 		filtre = true;
 	if ($("#unitatOrganitzativaCodi").val() != "")
@@ -474,6 +476,7 @@ function refrescaEstatSegonPla() {
 			<div class="col-md-12">
 				<form:hidden path="nomesAlertes"/>
 				<form:hidden path="nomesErrors"/>
+				<form:hidden path="nomesErrorsArxiu"/>
 				<form:hidden path="nomesTasquesPersonals"/>
 				<form:hidden path="nomesTasquesGrup"/>
 				<button id="consultarOcult" style="display:none" type="submit" name="accio" value="consultar"></button>
@@ -484,6 +487,10 @@ function refrescaEstatSegonPla() {
 							<button id="nomesTasquesGrupCheck" data-path="nomesTasquesGrup" title="<spring:message code="expedient.llistat.filtre.camp.grup"/>" class="btn btn-default filtre-button<c:if test="${expedientConsultaCommand.nomesTasquesGrup}"> active</c:if>" data-toggle="button"><span class="fa fa-users"></span></button>
 						</div>
 						<button id="nomesErrorsCheck" data-path="nomesErrors" title="<spring:message code="expedient.llistat.filtre.camp.errors"/>" class="btn btn-default filtre-button<c:if test="${expedientConsultaCommand.nomesErrors}"> active</c:if>" data-toggle="button"><span class="fa fa-exclamation-triangle"></span></button>
+						<button id="nomesErrorsArxiuCheck" data-path="nomesErrorsArxiu" title="<spring:message code="expedient.llistat.filtre.camp.errors.arxiu"/>" class="btn btn-default filtre-button<c:if test="${expedientConsultaCommand.nomesErrorsArxiu}"> active</c:if>" data-toggle="button">
+							<span><spring:message code="expedient.tipus.document.form.camp.arxiu"/></span>
+							<span class="fa fa-exclamation-triangle"></span>
+						</button>
 						<button id="nomesAlertesCheck" data-path="nomesAlertes" title="<spring:message code="expedient.llistat.filtre.camp.alertes"/>" class="btn btn-default filtre-button<c:if test="${expedientConsultaCommand.nomesAlertes}"> active</c:if>" data-toggle="button"><span class="fa  fa-envelope"></span></button>
 					</div>
 					<div class="col-md-6">

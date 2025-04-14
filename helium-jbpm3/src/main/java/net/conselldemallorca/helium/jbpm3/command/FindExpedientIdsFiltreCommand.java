@@ -58,6 +58,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 	private String sort;
 	private boolean asc;
 	private boolean nomesCount;
+	private boolean nomesErrorsArxiu;
 	private String[] grups;
 
 	public FindExpedientIdsFiltreCommand(
@@ -92,7 +93,8 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 			int maxResults,
 			String sort,
 			boolean asc,
-			boolean nomesCount) {
+			boolean nomesCount,
+			boolean nomesErrorsArxiu) {
 		super();
 		this.entornId = entornId;
 		this.actorId = actorId;
@@ -125,6 +127,7 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		this.sort = sort;
 		this.asc = asc;
 		this.nomesCount = nomesCount;
+		this.nomesErrorsArxiu = nomesErrorsArxiu;
 		this.grups = grups;
 	}
 
@@ -270,6 +273,11 @@ public class FindExpedientIdsFiltreCommand extends AbstractBaseCommand {
 		if (nomesErrors) {
 			expedientQuerySb.append("and (pie.errorDesc is not null or (pie.errorsIntegs is not null and pie.errorsIntegs > 0) or (pie.reindexarError is not null and pie.reindexarError > 0))");
 		}
+
+		if (nomesErrorsArxiu) {
+			expedientQuerySb.append("and pie.errorArxiu is not null ");
+		}
+
 		if (nomesAlertes) {
 			expedientQuerySb.append(
 					"and exists (" + 
