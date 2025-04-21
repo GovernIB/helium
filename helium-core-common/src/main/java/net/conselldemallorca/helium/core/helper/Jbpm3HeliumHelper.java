@@ -511,6 +511,10 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			throw new ValidacioException("Ja existeix un interessat amb aquest codi");
 		}
 		
+		if(interessat.getTipus() == InteressatTipusEnumDto.JURIDICA && (interessat.getRaoSocial() == null || interessat.getRaoSocial().isEmpty())) {
+			interessat.setRaoSocial(interessat.getFullNom());
+		}
+		
 		Interessat interessatEntity = new Interessat(
 				interessat.getId(),
 				interessat.getCodi(),
@@ -3739,7 +3743,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 		
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
-				true,
+				false,
 				false,
 				false,
 				false);
