@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import lombok.Builder;
+import lombok.Data;
 import net.conselldemallorca.helium.core.helper.EntornHelper;
 import net.conselldemallorca.helium.core.model.dto.PersonaDto;
 import net.conselldemallorca.helium.core.util.EntornActual;
@@ -34,7 +36,7 @@ import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
  * @author Limit Tecnologies <limit@limit.es>
  */
 @Controller
-public class AplicacioController {
+public class AplicacioController extends BaseController {
 
 	@Autowired
 	private AdminService adminService;
@@ -152,6 +154,105 @@ public class AplicacioController {
 		return portafirmesFluxService.recuperarCarrecs();
 	}
 	
+//	@RequestMapping(value = "/v3/usuari/codi", method = RequestMethod.POST)
+//	public String canviCodiUsuari(
+//			HttpServletRequest request,
+//			@Valid UsuariCodiCommand command,
+//			Model model) {
+//		try {
+//			List<CanviCodiUsuariDto> canvisUsuaris = new ArrayList<CanviCodiUsuariDto>();
+//			for(String linia : command.getCodis().split("\n")) {
+//				// S'espera que cada línia estigui formatada de la següent manera:
+//				// 		codiActual=codiNou
+//				// La línia serà ignorada si comença per #
+//				if(linia.contains("=") && !linia.trim().startsWith("#")) {
+//					String[] codis = linia.trim().split("=");
+//					
+//					if(codis.length < 2)
+//						continue;
+//	
+//					String codiActual = codis[0];
+//					String codiNou = codis[1];
+//					
+//					CanviCodiUsuariDto canvi = new CanviCodiUsuariDto();
+//					canvi.setCodiActual(codiActual);
+//					canvi.setCodiNou(codiNou);
+//					canvisUsuaris.add(canvi);
+//				}
+//			}
+//			List<String> errors = adminService.canviarCodiUsusaris(canvisUsuaris);
+//			model.addAttribute("errors", errors);
+//			if(errors.isEmpty()) {
+//				MissatgesHelper.success(
+//						request, 
+//						getMessage(
+//								request, 
+//								"usuari.codi.mapeig.success"));	
+//			} else {
+//				MissatgesHelper.warning(
+//						request, 
+//						getMessage(
+//								request, 
+//								"usuari.codi.mapeig.errors"));
+//			}
+//			
+//		} catch(Exception e) {
+//			MissatgesHelper.error(
+//					request, 
+//					e.getMessage());
+//		}
+//
+//		return "v3/usuariCodiForm";
+//	}
+	
+	@RequestMapping(value = "/v3/usernames", method = RequestMethod.GET)
+	public String canviCodiUsuariView(
+			HttpServletRequest request,
+			Model model) {
+		return "v3/usuariCodiForm";
+	}
+
+	@RequestMapping(value = "/v3/usernames/{codiAntic}/changeTo/{codiNou}", method = RequestMethod.POST, produces = "application/json" )
+	@ResponseBody
+	public UsuariChangeResponse setCanviCodis(
+			HttpServletRequest request,
+			@PathVariable("codiAntic") String codiAntic,
+			@PathVariable("codiNou") String codiNou) {
+		Long t0 = System.currentTimeMillis();
+		try {
+
+			Long registresModificats = adminService.canviarCodiUsusari(codiAntic, codiNou);
+			return UsuariChangeResponse.builder()
+					.estat(ResultatEstatEnum.OK)
+					.registresModificats(registresModificats)
+					.duracio(System.currentTimeMillis() - t0)
+					.build();
+		} catch (Exception e) {
+			return UsuariChangeResponse.builder()
+					.estat(ResultatEstatEnum.ERROR)
+					.errorMessage(getMessage(request, "usuari.codi.mapeig.error", null) + ": " + e.getMessage())
+					.duracio(System.currentTimeMillis() - t0)
+					.build();
+		}
+	}
+	
+	@Data
+	@Builder
+	public static class UsuariChangeValidation {
+		private boolean usuariAnticExists;
+		private boolean usuariNouExists;
+	}
+
+	@Data
+	@Builder
+	public static class UsuariChangeResponse {
+		private ResultatEstatEnum estat;
+		private String errorMessage;
+		private Long registresModificats;
+		private Long duracio;
+	}
+	
+	public enum ResultatEstatEnum { OK, ERROR }
 
 
 //	@RequestMapping(value = "/send/sistra1", method = RequestMethod.GET)

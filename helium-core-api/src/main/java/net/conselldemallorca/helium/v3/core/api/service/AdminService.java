@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Set;
 
 import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
@@ -190,5 +189,16 @@ public interface AdminService {
 	public abstract ReassignacioDto findReassignacioById(Long id);
 	
 	public abstract List<TascaCompleteDto> getTasquesCompletarAdminEntorn();
+	
+	/**
+	 * 
+	 * Modifica el codi d'usuari de tots els registres on s'utilitza 
+	 *  
+	 * @param codiActual
+	 * @param codiNou
+	 * @throws Exception
+	 */
+	public Long canviarCodiUsusari(String codiActual, String codiNou) throws Exception;
+
 
 }
