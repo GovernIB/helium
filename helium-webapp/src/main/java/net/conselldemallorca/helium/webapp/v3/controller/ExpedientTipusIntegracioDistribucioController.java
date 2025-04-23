@@ -401,9 +401,9 @@ public class ExpedientTipusIntegracioDistribucioController extends BaseExpedient
 
 	private List<HtmlOption> getSiNo() {
 		List<HtmlOption> sino = new ArrayList<HtmlOption>();
-		sino.add(new HtmlOption("", "-"));
-		sino.add(new HtmlOption("true", "Sí"));
-		sino.add(new HtmlOption("false", "No"));
+		sino.add(new HtmlOption("", "-, totes"));
+		sino.add(new HtmlOption("true", "Sí, només presencials"));
+		sino.add(new HtmlOption("false", "No, només no presencials"));
 		return sino;
 	}
 	

@@ -67,8 +67,6 @@
 			data-ordering="true"
 			data-default-order="1"
 			data-default-dir="asc"
-			data-rowhref-template="#rowhrefTemplate"
-			data-rowhref-maximized="true"
 			class="table table-striped table-bordered table-hover"
 			style="width:100%">	
 		<thead>	
@@ -85,12 +83,20 @@
 							<span title="{{:entorn.nom}}">{{:entorn.codi}}</span>
 						</script>
 					</th>
+				<th data-col-name="id" width="5%" data-template="#cellAccionsTemplate" data-orderable="false">
+					<script id="cellAccionsTemplate" type="text/x-jsrender">
+						<a 
+							href="expedientTipus/{{:id}}?entornCanviarAmbId={{:entorn.id}}" 
+							class="btn btn-default consultar-expedient">
+								<span class="fa fa-folder-open"></span>&nbsp;<spring:message code="expedient.tipus.llistat.accio.dissenyar"/>
+						</a>
+					</script>
+				</th>
 				<th data-col-name="entorn.nom" data-visible="false"/>
-			</tr>	
+			</tr>
 		 </thead>
 						
 		</table>
-		<script id="rowhrefTemplate"></script>	
 
 
 	<script type="text/javascript">

@@ -3741,12 +3741,7 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"expedientId=" + expedientId + ", " +
 				"documentStoreId=" + documentStoreId + ")");
 		
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
-				expedientId,
-				false,
-				false,
-				false,
-				false);
+		Expedient expedient = expedientRepository.findOne(expedientId);
 		
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		if (documentStore == null) {
