@@ -135,11 +135,15 @@ public class AplicacioServiceImpl implements AplicacioService {
 
 	@Override
 	@Transactional
-	public void updateEntronActual(String entorn) throws NoTrobatException {
+	public void updateEntornActual(String entorn) throws NoTrobatException {
 		String usuariActual = usuariActualHelper.getUsuariActual();
 		logger.debug("Modificant entorn actual per a l'usuari actual ("
 				+ "usuariActual=" + usuariActual + ", entorn=" + entorn + ")");
 		UsuariPreferencies pref = usuariPreferenciesRepository.findByCodi(usuariActual);
+		if(pref == null) {
+			pref = new UsuariPreferencies();
+			pref.setCodi(usuariActual);
+		}
 		pref.setCurrentEntornCodi(entorn);
 		pref.setCurrentEntornData(new Date());
 		usuariPreferenciesRepository.save(pref);

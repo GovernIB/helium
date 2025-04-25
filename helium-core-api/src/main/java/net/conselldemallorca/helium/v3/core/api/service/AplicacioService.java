@@ -68,5 +68,5 @@ public interface AplicacioService {
 	 * @param entorn
 	 * @throws NoTrobatException
 	 */
-	public void updateEntronActual(String entorn) throws NoTrobatException;
+	public void updateEntornActual(String entorn) throws NoTrobatException;
 }

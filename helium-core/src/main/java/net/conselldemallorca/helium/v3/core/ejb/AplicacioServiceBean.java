@@ -111,7 +111,7 @@ public class AplicacioServiceBean implements AplicacioService {
 
 	@Override
 	@RolesAllowed({ "HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom" })
-	public void updateEntronActual(String entorn) throws NoTrobatException {
-		delegate.updateEntronActual(entorn);
+	public void updateEntornActual(String entorn) throws NoTrobatException {
+		delegate.updateEntornActual(entorn);
 	}
 }

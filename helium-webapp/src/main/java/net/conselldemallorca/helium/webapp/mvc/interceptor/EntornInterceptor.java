@@ -84,7 +84,7 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 						if (entorn.getId().longValue() == entornId.longValue()) {
 							entornActual = entorn;
 							setEntornActual(request, entornActual);
-							aplicacioService.updateEntronActual(entornActual.getCodi());
+							aplicacioService.updateEntornActual(entornActual.getCodi());
 							break;
 						}
 					}
@@ -144,7 +144,7 @@ public class EntornInterceptor extends HandlerInterceptorAdapter {
 						
 						// Actualitzam l'entorn actual a base de dades
 						if(entornActual != null)
-							aplicacioService.updateEntronActual(entornActual.getCodi());						
+							aplicacioService.updateEntornActual(entornActual.getCodi());						
 					} else {
 						for (EntornDto entorn: entorns) {
 							if (entorn.getCodi().equals(entornSessio.getCodi())) {

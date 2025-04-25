@@ -539,7 +539,7 @@ function refrescaEstatSegonPla() {
 					{{/if}}
 
 					{{if arxiuActiu && errorArxiu }}
-						<span class="label label-warning etiqueta-nti-arxiu" title="Hi ha errors de sincronització amb l'Arxiu: {{:errorArxiu}}">
+						<span class="label label-warning etiqueta-nti-arxiu" title="<spring:message code="expedientmetadades.arxiu.errors"></spring:message>: {{html:errorArxiu}}">
 							<spring:message code="expedient.info.etiqueta.arxiu"/>
 							&nbsp;<span id="triangleErrArxiu" class="fa fa-exclamation-triangle text-danger" style="font-size: 10px;"></span>
 						</span>
