@@ -264,6 +264,39 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
 		return "v3/definicioProcesTascaVariable";
 	}
 	
+	/** Modal per veure els camps de la tasca de tipus filtre. */
+	@RequestMapping(value = "/{expedientTipusId}/tasca/{id}/variable/disseny", method = RequestMethod.GET)
+	public String variablesDisseny(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long id,
+			Model model) {
+
+		DefinicioProcesTascaVariableCommand command = new DefinicioProcesTascaVariableCommand();
+		command.setTascaId(id);
+		command.setReadFrom(true);
+		command.setWriteTo(true);
+		command.setAmpleCols(12);
+		command.setBuitCols(0);
+		model.addAttribute("definicioProcesTascaVariableCommand", command);
+
+		omplirModelVariables(expedientTipusId, id, model);
+
+		return "v3/definicioProcesTascaVariableDisseny";
+	}
+	
+	@RequestMapping(value = "/{expedientTipusId}/tasca/{tascaId}/variable/all", method = RequestMethod.GET)
+	@ResponseBody
+	List<CampTascaDto> variablesAll(
+			HttpServletRequest request,
+			@PathVariable Long expedientTipusId,
+			@PathVariable Long tascaId,
+			Model model) {
+		return definicioProcesService.tascaCampFindAll(
+				expedientTipusId,
+						tascaId);
+	}
+	
 	@RequestMapping(value = "/{expedientTipusId}/tasca/{tascaId}/variable/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse variablesDatatable(
@@ -296,14 +329,19 @@ public class ExpedientTipusTascaController extends BaseTascaDissenyController {
     		return "v3/definicioProcesTascaVariable";
         } else {
         	// Verificar permisos
-    		definicioProcesService.tascaCampCreate(
+        	CampTascaDto camp = definicioProcesService.tascaCampCreate(
     				id,
-    				DefinicioProcesTascaVariableCommand.asCampTascaDto(command));    		
+    				DefinicioProcesTascaVariableCommand.asCampTascaDto(command));
 			MissatgesHelper.success(
 					request,
 					getMessage(
 							request,
 							"definicio.proces.tasca.controller.variable.creat"));
+			
+			if(command.getOrder() != null) {
+				definicioProcesService.tascaCampMourePosicio(camp.getId(), expedientTipusId, command.getOrder());
+			}
+			
         	return variables(request, expedientTipusId, id, model);
         }
 	}
