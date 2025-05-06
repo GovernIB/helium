@@ -17,6 +17,7 @@
 <%@ attribute name="labelSize" required="false" rtexprvalue="true"%>
 <%@ attribute name="info" required="false" rtexprvalue="true"%>
 <%@ attribute name="optionTemplateFunction" required="false" rtexprvalue="true"%>
+<%@ attribute name="useparam" required="false" rtexprvalue="true"%>
 <c:if test="${empty labelSize}"><c:set var="labelSize" value="${4}"/></c:if>
 <c:set var="campPath" value="${name}"/>
 <c:set var="campErrors"><form:errors path="${campPath}"/></c:set>
@@ -64,9 +65,24 @@ $(document).ready(function() {
 		tokenSeparators: [','],
 		//</c:if>
 		ajax: {
+			
+			<c:choose>
+			<c:when test="${useparam}">
+			url: function (value) {
+				return $(this).data('urlLlistat');
+			},
+			data: function (value) {
+				return {
+					q: value,
+				}
+			},
+			</c:when>
+			<c:otherwise>
 			url: function (value) {
 				return $(this).data('urlLlistat') + "/" + value;
 			},
+			</c:otherwise>
+			</c:choose>
 			dataType: 'json',
 			results: function (data, page) {
 				var results = [];

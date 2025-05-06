@@ -962,7 +962,7 @@
 <body>
 	<div id="modal-botons" class="well">
 		<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.tancar"/></button>
-		<button id="goBack" type="button" class="btn btn-primary"><spring:message code="comu.boto.tornar"/>r</button>
+		<button id="goBack" type="button" class="btn btn-primary"><spring:message code="comu.boto.tornar"/></button>
 	</div>
 	
 	<div style="height: 100px">

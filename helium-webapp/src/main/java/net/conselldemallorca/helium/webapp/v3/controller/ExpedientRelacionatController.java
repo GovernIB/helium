@@ -4,17 +4,10 @@
 package net.conselldemallorca.helium.webapp.v3.controller;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-
-import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
-import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
-import net.conselldemallorca.helium.webapp.v3.command.ExpedientRelacionarCommand;
-import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,6 +23,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.SessionStatus;
+
+import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
+import net.conselldemallorca.helium.webapp.v3.command.ExpedientRelacionarCommand;
+import net.conselldemallorca.helium.webapp.v3.command.SuggestItemCommand;
+import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
+import net.conselldemallorca.helium.webapp.v3.helper.SessionHelper;
 
 /**
  * Controlador per a la relació d'expedients
@@ -99,24 +100,22 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 		return "redirect:/v3/expedient/" + expedientId;
 	}
 	
-	@RequestMapping(value = "/{expedientId}/expedient/suggest/**", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
+	@RequestMapping(value = "/{expedientId}/expedient/suggest", method = RequestMethod.GET, produces={"application/json; charset=UTF-8"})
 	@ResponseBody
-	public String suggestAction(
+	public List<SuggestItemCommand> suggestAction(
 			HttpServletRequest request,
+			@RequestParam(value = "q", required = false) String search,
 			ModelMap model) throws UnsupportedEncodingException {
-		String requestUrl = request.getRequestURL().toString();
-		String text = requestUrl.split("/expedient/suggest/")[1];
 		
-		String json = "[";
+		List<SuggestItemCommand> json = new ArrayList<SuggestItemCommand>();
 		EntornDto entorn = SessionHelper.getSessionManager(request).getEntornActual();
 		List<ExpedientDto> lista = expedientService.findSuggestAmbEntornLikeIdentificador(
 					entorn.getId(),
-					URLDecoder.decode(text, "UTF-8"));
+					search);
 		for (ExpedientDto expediente: lista) {
-			json += "{\"codi\":\"" + expediente.getId() + "\", \"nom\":\"" + expediente.getIdentificador() + "\"},";
+			json.add(new SuggestItemCommand(expediente.getId().toString(), expediente.getIdentificador()));
 		}
-		if (json.length() > 1) json = json.substring(0, json.length() - 1);
-		json += "]";
+		
 		return json;
 	}
 
