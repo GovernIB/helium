@@ -27,6 +27,8 @@ public class DefinicioProcesTascaVariableCommand {
 	private int buitCols;
 	private Long expedientTipusId;
 	
+	private Integer order;
+	
 	public Long getTascaId() {
 		return TascaId;
 	}
@@ -82,6 +84,14 @@ public class DefinicioProcesTascaVariableCommand {
 	public void setExpedientTipusId(Long expedientTipusId) {
 		this.expedientTipusId = expedientTipusId;
 	}
+	
+	public Integer getOrder() {
+		return order;
+	}
+	public void setOrder(Integer order) {
+		this.order = order;
+	}
+	
 	public static CampTascaDto asCampTascaDto(DefinicioProcesTascaVariableCommand command) {
 		CampTascaDto dto = new CampTascaDto();
 		CampDto camp = new CampDto();

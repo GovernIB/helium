@@ -165,6 +165,46 @@ public class DefinicioProcesTascaController extends BaseTascaDissenyController {
 		return "v3/definicioProcesTascaVariable";
 	}	
 	
+	// Manteniment de variables de la tasca
+	
+	/** Modal per veure els camps de la tasca de tipus filtre. */
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{id}/variable/disseny", method = RequestMethod.GET)
+	public String variablesDisseny(
+			HttpServletRequest request,
+			@PathVariable String jbpmKey,
+			@PathVariable Long definicioProcesId,
+			@PathVariable Long id,
+			Model model) {
+
+		DefinicioProcesTascaVariableCommand command = new DefinicioProcesTascaVariableCommand();
+		command.setTascaId(id);
+		command.setReadFrom(true);
+		command.setWriteTo(true);
+		command.setAmpleCols(12);
+		command.setBuitCols(0);
+		model.addAttribute("definicioProcesTascaVariableCommand", command);
+
+		omplirModelVariables(jbpmKey, definicioProcesId, id, model);
+
+		return "v3/definicioProcesTascaVariableDisseny";
+	}
+	
+	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/variable/all", method = RequestMethod.GET)
+	@ResponseBody
+	List<CampTascaDto> variablesAll(
+			HttpServletRequest request,
+			@PathVariable String jbpmKey,
+			@PathVariable Long definicioProcesId,
+			@PathVariable Long tascaId,
+			Model model) {
+		DefinicioProcesDto definicioProces = definicioProcesService.findById(definicioProcesId);
+		Long expedientTipusId = definicioProces.getExpedientTipus() != null ? definicioProces.getExpedientTipus().getId() : null;
+		return definicioProcesService.tascaCampFindAll(
+				expedientTipusId,
+						tascaId);
+	}
+	
+	
 	@RequestMapping(value = "/{jbpmKey}/{definicioProcesId}/tasca/{tascaId}/variable/datatable", method = RequestMethod.GET)
 	@ResponseBody
 	DatatablesResponse variablesDatatable(
