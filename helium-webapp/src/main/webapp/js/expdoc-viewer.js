@@ -135,7 +135,7 @@ const showDocument = (viewer) => {
 
     let documentId = $(viewer).data('documentid');
     let arxiuUrl = urlDescarregaBase + documentId + '/returnFitxer';
-    let contenidor = $(viewer).find('iframe');
+    let contenidor = $(viewer).find('.viewer-iframe');
 
     $(viewer).prepend('<span class="fa fa-circle-o-notch fa-spin"></span>');
     contenidor.addClass('rmodal_loading');
@@ -153,11 +153,7 @@ const showDocument = (viewer) => {
                 $(viewer).before('<div class="viewer-padding"><div class="alert alert-warning">' + msgViewer['warning'] + '</div></div>');
             } else {
                 response = json.data;
-                let blob = base64toBlob(response.contingut, response.contentType);
-                let file = new File([blob], response.contentType, {type: response.contentType});
-                let link = URL.createObjectURL(file);
-
-                var viewerUrl = urlViewer + '?file=' + encodeURIComponent(link);
+                var viewerUrl = 'data:application/pdf;base64,' + response.contingut;
                 contenidor.attr('src', viewerUrl);
                 $(viewer).data('loaded', "true");
             }
