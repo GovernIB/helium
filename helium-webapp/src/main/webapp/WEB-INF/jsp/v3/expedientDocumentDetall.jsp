@@ -889,7 +889,7 @@
 			<c:choose>
 				<c:when test="${detall.extensio == 'pdf' or detall.extensio == 'pdt' or detall.extensio == 'docx'}">
 					<div class="viewer mtop-4" data-documentid="${detall.documentStoreId}" style="display: none; width: 100%;">
-						<iframe class="viewer-iframe" width="100%" height="540" frameBorder="0" style="padding: 15px;"></iframe>
+						<embed class="viewer-iframe" src="" width="100%" height="540" style="padding: 15px;" type="application/pdf"/>
 					</div>
 				</c:when>
 				<c:otherwise>

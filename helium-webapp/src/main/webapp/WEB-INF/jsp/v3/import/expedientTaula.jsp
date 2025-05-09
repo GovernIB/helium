@@ -168,7 +168,7 @@
 			</tbody>
 		</table>
 		<div class="viewer mtop-4" style="width: 100%; display:none; text-align: center;">
-			<iframe class="viewer-iframe rmodal_loading" width="100%" height="540" frameborder="0" style="padding: 15px;" src=""></iframe>
+			<embed class="viewer-iframe" src="" width="100%" height="540" style="padding: 15px;" type="application/pdf"/>
 		</div>
 	</div>
 	<div class="clear"></div>
@@ -242,7 +242,7 @@ function previsualitzaDocument(expedientId, documentId, anchorElement, extensio)
 
 	var contenidor = $(viewer).find(".viewer-iframe");
 	$(contenidor).hide();
-	var urlViewer = '<c:url value="/webjars/pdf-js/2.13.216/web/viewer.html"/>';
+	//var urlViewer = '<c:url value="/webjars/pdf-js/2.13.216/web/viewer.html"/>';
 	
 	$(viewer).find('.carregantPrevisDocErr').remove();
 	
@@ -262,11 +262,7 @@ function previsualitzaDocument(expedientId, documentId, anchorElement, extensio)
                 $(viewer).prepend('<div class="carregantPrevisDocErr viewer-padding"><div class="alert alert-danger">' + json.errorMsg + '</div></div>');
             } else {
                 response = json.data;
-                let blob = base64toBlob(response.contingut, response.contentType);
-                let file = new File([blob], response.contentType, {type: response.contentType});
-                let link = URL.createObjectURL(file);
-
-                var viewerUrl = urlViewer + '?file=' + encodeURIComponent(link);
+                var viewerUrl = 'data:application/pdf;base64,' + response.contingut;
                 contenidor.attr('src', viewerUrl);
                 $(viewer).data('loaded', "true");
                 $(contenidor).show();
