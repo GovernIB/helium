@@ -2187,13 +2187,17 @@ public class DocumentHelperV3 {
 			if (referenciaCustodia == null) {
 				referenciaCustodia = documentStore.getId() + "_" + new Date().getTime();
 			}
+			
+			boolean hasErrors = false;
 			try {
+
 				referenciaCustodia = pluginHelper.custodiaAfegirSignatura(
 						referenciaCustodia, // custodiaId
 						documentStore.getReferenciaFont(),
 						documentStore.getArxiuNom(),
 						document.getCustodiaCodi(),
 						signatura);
+				documentStore.setReferenciaCustodia(referenciaCustodia);
 			} catch (SistemaExternException ex) {
 				// Si dona error perquè el document ja està arxivat l'esborra
 				// i el torna a crear.
@@ -2205,10 +2209,16 @@ public class DocumentHelperV3 {
 				if (exceptionHelper.cercarMissatgeDinsCadenaExcepcions("ERROR_DOCUMENTO_ARCHIVADO", ex)) {
 					// ja està archivat
 				} else {
-					throw ex;
+					hasErrors = true;
+					//throw ex;
 				}
 			}
-			documentStore.setReferenciaCustodia(referenciaCustodia);
+			
+			if(hasErrors) {
+				documentStore.setArxiuContingut(signatura);
+				documentStore.setArxiuNom(arxiuNom);
+			}
+
 			if (expedient.isNtiActiu()) {
 				actualitzarNtiFirma(documentStore, null);
 			}
