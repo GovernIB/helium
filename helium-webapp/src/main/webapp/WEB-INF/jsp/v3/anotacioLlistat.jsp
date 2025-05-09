@@ -303,7 +303,7 @@
 	</div>	
 	<!-- Modal pels estats del processament -->
 	<div id="modalProcesEstat" class="modal fade">
-		<div class="modal-dialog">
+		<div class="modal-dialog" style="width: 100%;max-width: 950px;">
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="<spring:message code="comu.boto.tancar"/>"><span aria-hidden="true">&times;</span></button>
@@ -311,18 +311,20 @@
 				</div>
 				<div class="modal-body">
 					<ul>
-						<c:set var="enumValues" value="<%=net.conselldemallorca.helium.v3.core.api.dto.AnotacioEstatEnumDto.values()%>"/>
-						<c:forEach items="${enumValues}" var="enumValue">
+						<c:forEach items="${estats}" var="enumValue">
 						  	<li>
-						  		<strong><spring:message code="anotacio.proces.estat.enum.${enumValue}"/></strong> :
+						  		<strong><spring:message code="anotacio.proces.estat.enum.${enumValue.codi}"/></strong> :
 						  		<br/>
-						  		<span><spring:message code="anotacio.proces.estat.enum.${enumValue}.info"/></span>
+						  		<span><spring:message code="anotacio.proces.estat.enum.${enumValue.codi}.info"/></span>
 						  	</li>
 						</c:forEach>
 						<li>
 							<span><spring:message code="anotacio.proces.estat.rodeta.info"/></span>
 						</li>
 					</ul>
+					<div class="image-wraper" style="width: 100%;">
+						<img src="<c:url value="/img/diagrama_distribucio.png?"/>" alt="<spring:message code='expedient.anotacio.llistat.diagrama.alt'/>" height="400px"/>
+					</div>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal"><spring:message code="comu.boto.tancar"/></button>
