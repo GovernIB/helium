@@ -25,6 +25,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.jfree.util.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +85,6 @@ import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.PassarelaFirmaEnviarCommand;
 import net.conselldemallorca.helium.webapp.v3.command.TascaConsultaCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.EnumHelper;
-import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.MissatgesHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.ModalHelper;
 import net.conselldemallorca.helium.webapp.v3.helper.NodecoHelper;
@@ -1123,6 +1123,19 @@ public class TascaTramitacioController extends BaseTascaController {
 			model.addAttribute("command", tascaFormCommand);
 		}
 		model.addAttribute("isModal", ModalHelper.isModal(request));
+
+		// Determina si s'ha establer per propietat del sistema un màxim de paràmetres diferent al per defecte de 512
+		int maxHttpParameters = 512;
+		String maxCountProperty = "org.apache.tomcat.util.http.Parameters.MAX_COUNT";
+		String maxCountStr = System.getProperty(maxCountProperty);
+		if (maxCountStr != null) {
+			try {
+				maxHttpParameters = Integer.valueOf(maxCountStr);
+			} catch(Exception e) {
+				Log.error("Error convertint a int el valor de la propietat de sistema " + maxCountProperty + "=" + maxCountStr);
+			}
+		}
+		model.addAttribute("maxHttpParameters", maxHttpParameters);
 	}
 
 	private Object inicialitzarTascaFormCommand(
