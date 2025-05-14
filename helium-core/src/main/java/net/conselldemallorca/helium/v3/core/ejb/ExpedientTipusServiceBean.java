@@ -133,6 +133,15 @@ public class ExpedientTipusServiceBean implements ExpedientTipusService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public int refrescaProcessExpedients(
+			Long entornId,
+			ExpedientTipusExportacioCommandDto command,
+			ExpedientTipusExportacio importacio) {
+		return delegate.refrescaProcessExpedients(entornId, command, importacio);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public List<ExpedientTipusDto> findAmbEntornPermisConsultar(
 			Long entornId) throws NoTrobatException {
 		return findAmbEntornPermisConsultar(entornId);

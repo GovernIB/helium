@@ -26,6 +26,7 @@ import javax.annotation.Resource;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -103,6 +104,8 @@ import net.conselldemallorca.helium.v3.core.api.dto.DominiDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EstatDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExecucioMassivaDto.ExecucioMassivaTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto.EstatTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEstadisticaDto;
@@ -148,6 +151,8 @@ import net.conselldemallorca.helium.v3.core.api.exportacio.TascaExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.TerminiExportacio;
 import net.conselldemallorca.helium.v3.core.api.exportacio.ValidacioExportacio;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
+import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
@@ -265,6 +270,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private PluginHelper pluginHelper;
 	@Resource
 	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
+	@Autowired
+	private ExecucioMassivaService execucioMassivaService;
+	@Autowired
+	private ExpedientService expedientService;
 
 	/**
 	 * {@inheritDoc}
@@ -1843,6 +1852,45 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				expedientTipusRepository.save(expedientTipus),
 				ExpedientTipusDto.class);
 	}
+	
+	
+	@Override
+	@Transactional
+	public int refrescaProcessExpedients(
+			Long entornId,
+			ExpedientTipusExportacioCommandDto command,
+			ExpedientTipusExportacio importacio) {
+		int numExpRefrescar = 0;
+		for(DefinicioProcesExportacio definicioExportat : importacio.getDefinicions() ) {
+			if (command.getDefinicionsProces().contains(definicioExportat.getDefinicioProcesDto().getJbpmKey())){
+				DefinicioProces darreraVersio =
+							definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(command.getId(), 
+									definicioExportat.getDefinicioProcesDto().getJbpmKey());
+				try {
+				// Programació de la tasca d'actualització d'expedients actius
+				ExecucioMassivaDto dto = new ExecucioMassivaDto();
+				dto.setDataInici(new Date());
+				dto.setEnviarCorreu(false);
+				dto.setParam1(definicioExportat.getDefinicioProcesDto().getJbpmKey());
+				dto.setParam2(execucioMassivaService.serialize(Integer.valueOf(darreraVersio.getVersio())));
+				dto.setTipus(ExecucioMassivaTipusDto.ACTUALITZAR_VERSIO_DEFPROC);
+				dto.setProcInstIds(
+						expedientService.findProcesInstanceIdsAmbEntornTipusAndProcessDefinitionName(
+											entornId,
+											definicioExportat.getDefinicioProcesDto().getExpedientTipus() != null? 
+													definicioExportat.getDefinicioProcesDto().getExpedientTipus().getId() : null,
+													definicioExportat.getDefinicioProcesDto().getJbpmKey()));
+					execucioMassivaService.crearExecucioMassiva(dto);
+					numExpRefrescar += dto.getProcInstIds().size();
+				} catch(Exception e) {
+					logger.error("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
+					throw new DeploymentException(e.getMessage());
+				}
+			}
+		}
+		return numExpRefrescar;
+	}
+	
 	
 	/**
 	 * {@inheritDoc}

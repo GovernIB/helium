@@ -44,6 +44,8 @@ public class ExpedientTipusExportarCommand {
 	private boolean sobreEscriure;
 	/** Determina si s'han de desplegar el .par de les definicions de procés quan aquestes ja existeixen. */
 	private boolean desplegarDefinicions;
+	/** Determina si s'han de actualitzar les definicions de process dels expedients actius. */
+	private boolean actualitzarExistents;
 	@Codi(groups = {Importacio.class})
 	/** Codi per a la importació sobre un nou tipus d'expedient. */
 	private String codi;
@@ -110,6 +112,14 @@ public class ExpedientTipusExportarCommand {
 
 	public void setDadesBasiques(boolean dadesBasiques) {
 		this.dadesBasiques = dadesBasiques;
+	}
+
+	public boolean isActualitzarExistents() {
+		return actualitzarExistents;
+	}
+
+	public void setActualitzarExistents(boolean actualitzarExistents) {
+		this.actualitzarExistents = actualitzarExistents;
 	}
 
 	public boolean isSobreEscriure() {

@@ -672,17 +672,29 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
         	return "v3/expedientTipusImportarOpcions";
         } else {
         	try {
+        		
+        		ExpedientTipusExportacioCommandDto expCommandDto = ConversioTipusHelper.convertir(
+						command, 
+						ExpedientTipusExportacioCommandDto.class);
+        		
 	        	ExpedientTipusDto expedientTipus = expedientTipusService.importar(
 	        			entornActual.getId(),
-	        			command.getId(), 
-	        			conversioTipusHelper.convertir(
-								command, 
-								ExpedientTipusExportacioCommandDto.class),
-	        			importacio);
-	        	// Invoca al mètode per relacionar les darreres definicions de procés
-	        	definicioProcesService.relacionarDarreresVersions(expedientTipus.getId());
-	        	
-	    		MissatgesHelper.success(
+	        			command.getId(),
+	        			expCommandDto,
+						importacio);
+						
+				// Invoca al mètode per relacionar les darreres definicions de procés
+				definicioProcesService.relacionarDarreresVersions(expedientTipus.getId());
+				
+				if(command.isDesplegarDefinicions() && command.isActualitzarExistents()) {
+					int numExpRefrescar = expedientTipusService.refrescaProcessExpedients(
+							entornActual.getId(),
+							expCommandDto,
+							importacio);
+					MissatgesHelper.success(request, getMessage(request, "info.canvi.versio.massiu", new Object[] {numExpRefrescar}));
+				}
+
+				MissatgesHelper.success(
 						request, 
 						getMessage(
 								request, 

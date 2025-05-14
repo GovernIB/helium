@@ -79,8 +79,17 @@
 						e.stopPropagation();
 						importarFormPostSubmit();
 						return false;
-					})
-				}); 	
+					});
+					
+					changeActualitzarExistents();
+					$('#desplegarDefinicions').on('change', changeActualitzarExistents);
+				});
+				
+				function changeActualitzarExistents() {
+					var checked = $('#desplegarDefinicions').is(':checked');
+					$('#actualitzarExistents').prop('checked', checked);
+					$('#actualitzarExistents').prop('disabled', !checked);
+				}
 				
 				/** Funció que fa el post del formulari d'importació per ajax per carregar 
 				la part del contingut de les opcions mantenint la selecció del fitxer. */
@@ -288,6 +297,9 @@
 			<hel:inputCheckbox name="dadesBasiques" textKey="expedient.tipus.importar.form.opcions.dadesBasiques" labelSize="6" info="expedient.tipus.importar.form.opcions.dadesBasiques.info" />
 			<div style="display:${expedientTipus.tipus eq 'FLOW'? 'inline':'none'};">
 				<hel:inputCheckbox name="desplegarDefinicions" textKey="expedient.tipus.importar.form.opcions.desplegarDefinicions" labelSize="6" info="expedient.tipus.importar.form.opcions.desplegarDefinicions.info" />
+			</div>
+			<div style="display:${expedientTipus.tipus eq 'FLOW'? 'inline':'none'};">
+				<hel:inputCheckbox name="actualitzarExistents" textKey="definicio.proces.desplegar.form.actualitzarExpedientsActius" labelSize="6" info="definicio.proces.desplegar.form.actualitzarExpedientsActius" />
 			</div>
 		</c:if>
 		

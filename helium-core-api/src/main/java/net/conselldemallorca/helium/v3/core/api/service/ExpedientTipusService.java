@@ -213,6 +213,18 @@ public interface ExpedientTipusService {
 			Long expedientTipusId, 
 			ExpedientTipusExportacioCommandDto command,
 			ExpedientTipusExportacio importacio);
+	
+	/**
+	 * Mètode per refrescar les definicions de porcess dels expedients d'un tipus d'expedient
+	 * 
+	 * @param entornId
+	 * @param command
+	 * @param importacio
+	 */
+	public int refrescaProcessExpedients(
+			Long entornId,
+			ExpedientTipusExportacioCommandDto command,
+			ExpedientTipusExportacio importacio);
 
 	/**
 	 * Retorna els tipus d'expedient d'un entorn que es poden consultar.

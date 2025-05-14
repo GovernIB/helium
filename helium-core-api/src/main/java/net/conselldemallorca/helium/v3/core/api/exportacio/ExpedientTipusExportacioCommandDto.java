@@ -20,6 +20,7 @@ public class ExpedientTipusExportacioCommandDto {
 	private boolean dadesBasiques;
 	private boolean sobreEscriure;
 	private boolean desplegarDefinicions;
+	private boolean actualitzarExistents;
 	/** Codi per a la nova importació. */
 	private String codi;
 	
@@ -72,6 +73,12 @@ public class ExpedientTipusExportacioCommandDto {
 	}
 	public void setDesplegarDefinicions(boolean desplegarDefinicions) {
 		this.desplegarDefinicions = desplegarDefinicions;
+	}
+	public boolean isActualitzarExistents() {
+		return actualitzarExistents;
+	}
+	public void setActualitzarExistents(boolean actualitzarExistents) {
+		this.actualitzarExistents = actualitzarExistents;
 	}
 	public String getCodi() {
 		return codi;
