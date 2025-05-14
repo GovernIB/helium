@@ -159,6 +159,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioExc
 import net.conselldemallorca.helium.v3.core.api.service.AnotacioService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
+import net.conselldemallorca.helium.v3.core.api.service.Jbpm3HeliumService;
 import net.conselldemallorca.helium.v3.core.api.service.ParametreService;
 import net.conselldemallorca.helium.v3.core.repository.AccioRepository;
 import net.conselldemallorca.helium.v3.core.repository.AlertaRepository;
@@ -311,6 +312,8 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	private UnitatOrganitzativaHelper unitatOrganitzativaHelper;
 	@Resource
 	private ExpedientTipusService expedientTipusService;
+	@Resource
+	private Jbpm3HeliumService jbpm3HeliumService;
 	
 	/**
 	 * {@inheritDoc}
@@ -3351,6 +3354,10 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		ZipOutputStream out = new ZipOutputStream(baos);
 		ZipEntry ze;
 		ArxiuDto arxiu;
+		
+		List<String> avisos = new ArrayList<String>();
+		List<String> errors = new ArrayList<String>();
+		
 		try {
 			// Consulta l'arbre de processos
 			List<InstanciaProcesDto> arbreProcessos = expedientHelper.getArbreInstanciesProces(String.valueOf(expedient.getProcessInstanceId()));
@@ -3362,31 +3369,77 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				// Per cada document de la instància
 				for (ExpedientDocumentDto document : documentsInstancia) {
 					if (seleccio == null || seleccio.contains(document.getId())) {
-					// Consulta l'arxiu del document
-					DocumentStore documentStore = documentStoreRepository.findOne(document.getId());
-					if (documentStore == null) {
-							throw new NoTrobatException(DocumentStore.class, document.getId());
-					}
-					// Consulta el contingut.
-					arxiu = documentHelper.getArxiuPerDocumentStoreId(
-							document.getId(),
-							false,
-							false,
-							null);
-					// Crea l'entrada en el zip
-					String recursNom = documentHelper.getZipRecursNom(
-							instanciaProces, 
-							document, 
-							nomsArxius);
-					if (recursNom!=null) {
-						ze = new ZipEntry(recursNom);
-						out.putNextEntry(ze);
-						out.write(arxiu.getContingut());
-						out.closeEntry();
+						// Consulta l'arxiu del document
+						DocumentStore documentStore = documentStoreRepository.findOne(document.getId());
+						if (documentStore == null) {
+							errors.add("No s'ha pogut obtenir i adjuntar l'adjunt '" + document.getDocumentNom() + "'.");
+							continue;
+							//throw new NoTrobatException(DocumentStore.class, document.getId());
+						}
+						
+						try {
+							// Consulta el contingut.
+							arxiu = documentHelper.getArxiuPerDocumentStoreId(
+									document.getId(),
+									false,
+									false,
+									null);
+						} catch (SistemaExternException ex) {
+							arxiu = null;
+						}
+						
+						// En cas d'error al consultar l'arxiu, s'intenta cercar la versió original
+						if(arxiu == null) {
+							try {
+								arxiu = jbpm3HeliumService.getArxiuVersioOriginal(expedientId, document.getId());
+								avisos.add("No s'ha pogut obtenir la versió imprimible del document \"" + document.getDocumentNom() + "\", s'ha obtingut la versió original.");
+							} catch (Exception ex) {
+								errors.add("No s'ha pogut obtenir i adjuntar l'adjunt " + document.getDocumentNom() + ".");
+								continue;
+							}
+						}
+						
+						// Crea l'entrada en el zip
+						String recursNom = documentHelper.getZipRecursNom(
+								instanciaProces, 
+								document, 
+								nomsArxius);
+						if (recursNom!=null) {
+							ze = new ZipEntry(recursNom);
+							out.putNextEntry(ze);
+							out.write(arxiu.getContingut());
+							out.closeEntry();
+						}
 					}
 				}
 			}
+			
+			// Generam i afegim el fitxer d'avisos al zip
+			StringBuilder avisosContent = new StringBuilder();
+			if(avisos.isEmpty() && errors.isEmpty()) {
+				avisosContent.append("No s'han produït avisos ni errors en la descàrrega de documents.");
+			} else {
+				avisosContent.append("S'han produït " + avisos.size() + " avisos i " + errors.size() + " errors en la descàrrega de documents.\n\n");
+				if(!avisos.isEmpty()) {
+					avisosContent.append("\nAvisos:\n");
+					for(String avis : avisos) {
+						avisosContent.append("- " + avis + "\n");
+					}
+				}
+				
+				if(!errors.isEmpty()) {
+					avisosContent.append("\nErrors:\n");
+					for(String error : errors) {
+						avisosContent.append("- " + error + "\n");
+					}
+				}
 			}
+			
+			ze = new ZipEntry(errors.isEmpty()? "avisos.txt" : "errors.txt");
+			out.putNextEntry(ze);
+			out.write(avisosContent.toString().getBytes());
+			out.closeEntry();
+			
 			out.close();
 		} catch (Exception e) {
 			String errMsg = "Error construint el zip dels documents per l'expedient " + expedient.getIdentificador() + ": " + e.getMessage();
