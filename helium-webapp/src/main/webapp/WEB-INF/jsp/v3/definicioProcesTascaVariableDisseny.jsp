@@ -35,6 +35,14 @@
 	
 	<style>
 	
+	.b-radius-r {
+		border-radius: 0 0.5em 0.5em 0;
+	}
+	
+	.b-radius-l {
+		border-radius: 0.5em 0 0 0.5em;
+	}
+	
 	.floating-form {
 		position: fixed;
 		left: 0;
@@ -59,14 +67,28 @@
 	}
 	
 	.variable {
-		border: 2px solid #ccc;
+		min-height: 95px;
 		display: flex;
 		justify-content: space-between;
-		padding: 0;
-		height: 60px;
 		cursor: move;
+		padding: 0;
 		position: relative;
+		padding: 0.5em;
 	}
+	
+	.camp {
+		border: 2px solid #f1f1f1;
+		border-radius: 0.5em;
+	}
+	
+	.var-spacing ~ .camp {
+		border-radius: 0 0.5em 0.5em 0;
+	}
+	
+	.camp:has(+.var-spacing) {
+		border-radius: 0.5em 0 0 0.5em;
+	}
+	
 	
 	.variable-label {
 		flex: auto;
@@ -170,14 +192,17 @@
 	}
 	
 	.var-spacing {
-		background-color: #eeeeee;
-		height: 60px;
+		background-color: #f8f8f8;
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
 		align-items: center;
-		border: 1px solid #ff4444;
 		cursor: pointer;
+		color: transparent;
+	}
+	
+	.var-spacing:hover {
+		color: #7f7f7f;
 	}
 	
 	.readonly_label {
@@ -273,8 +298,7 @@
 			var variableEl = $(id);
 			var buitCols = variableEl.data('buit-cols');
 			
-			if(buitCols > 0)
-				buitCols--;
+			buitCols -= buitCols > 0? 1 : -1;
 			
 			variableEl.data('buit-cols', buitCols);
 			addSpaceElement(variableEl.data('id'), buitCols);
@@ -467,6 +491,9 @@
 	}
 	
 	function onClickEvent(ev) {
+		if($(ev.target).parents('.resize').length)
+			return;
+		
 		var el = $(ev.target).closest('.variable');
 		var currentSelected = el.data('id');
 		$('.row-options').hide();
@@ -478,6 +505,7 @@
 	}
 	
 	function showEditionDialog(currentSelected, el) {
+		
 		selectedId = currentSelected;
 		var resizeEl = el.children('.row-options');
 		resizeEl.show();
@@ -510,12 +538,14 @@
 			for(a of agrupacions) {
 				var agrupacioEl = '<div class="agrupacio">' +
 				'<fieldset><legend>'+ a.nom +'</legend></fieldset>' +
-				'<div id="vars_a_'+ a.id +'" class="vars row" ondrop="dropHandler(event)" ondragover="dragoverHandler(event)" >' +
+				'<div id="vars_a_'+ a.id +'" class="vars" ondrop="dropHandler(event)" ondragover="dragoverHandler(event)" >' +
 				'</div></div>';
 				$('#vars_w_container').append(agrupacioEl);
 			}
 		}
 		
+		var currentRow = $('<div class="row"><div>');
+		var totalColsRow = 0;
 		for(v of variables) {
 			var agrupacioId = v.camp.agrupacio? v.camp.agrupacio.id : 0;
 			
@@ -525,7 +555,7 @@
 							' data-ample-cols="'+ v.ampleCols +'"' +
 							' data-agrupacio-id="'+ agrupacioId +'"' +
 							' class="variable col-xs-' + v.ampleCols + '">' +
-								'<div id="camp_'+ v.id +'" class="col-xs-12 p-0" onclick="onClickEvent(event)" ' +
+								'<div id="camp_'+ v.id +'" class="col-xs-12 p-2 camp" onclick="onClickEvent(event)" ' +
 								' draggable="true" ondrop="dropHandler(event)" ondragover="dragoverHandler(event)" ondragstart="dragstartHandler(event)">' +
 									'<b class="readonly_label p-2">' + v.camp.etiqueta + '</b>' +
 									makeField(v.camp.tipus, v.camp.etiqueta, v.required) +
@@ -588,15 +618,27 @@
 									'</div>' +
 								'</div>' +
 							'</div>';
-							
+			
 			if(v.readOnly) {
 				$('#vars_r').append(variableElement);
 			} else {
-				if(mostrarAgrupacions && v.camp.agrupacio) {
-					$('#vars_a_'+v.camp.agrupacio.id).append(variableElement);
-				} else {
-					$('#vars_w').append(variableElement);
+				var cols = Math.abs(v.buitCols) + v.ampleCols;
+				
+				if(totalColsRow + cols > 12) {
+					currentRow = $('<div class="row"><div>');
+					totalColsRow = 0;
 				}
+				
+				if(totalColsRow == 0) {
+					
+					if(mostrarAgrupacions && v.camp.agrupacio) {
+						$('#vars_a_'+v.camp.agrupacio.id).append(currentRow);
+					} else {
+						$('#vars_w').append(currentRow);
+					}
+				}
+				totalColsRow += cols;
+				currentRow.append(variableElement);
 			}
 		}
 		drawSpaces();
@@ -660,12 +702,12 @@
 		var buitCols = el.data('buit-cols');
 		var ampleCols = el.data('ample-cols');
 		
-		if((buitCols + ampleCols) >= 12) {
+		if((Math.abs(buitCols) + ampleCols) >= 12) {
 			$('#spinner').hide();
 			return;
 		}
 		
-		buitCols++;
+		buitCols += buitCols >= 0 ? 1 : -1;
 		
 		el.data('buit-cols', buitCols);
 		canviarValorTascaVariable(el.data('id'), buitCols, 'buitCols', function() {
@@ -673,13 +715,13 @@
 				$('#spinner').hide();
 			});
 		});
-		
+		$('.row-options').hide();
 	}
 	
 	function drawSpaces() {
 		$('.var-spacing').remove();
 		for(v of variables) {
-			if(v.buitCols) {
+			if(Math.abs(v.buitCols)) {
 				addSpaceElement(v.id, v.buitCols);
 			}
 		}
@@ -700,7 +742,7 @@
 				}
 			}
 			
-			var cols = v.buitCols + v.ampleCols;
+			var cols = Math.abs(v.buitCols) + v.ampleCols;
 			var totalCols = (rowCols + cols);
 			if(totalCols > 12) {
 				var remainingSpace = 12 - rowCols;
@@ -737,9 +779,9 @@
 		if(campColClass)
 			campElement.removeClass(campColClass);
 		
-		var totalCols = (cols + ampleCols)
+		var totalCols = (Math.abs(cols) + ampleCols)
 		var campCols = Math.round((ampleCols/totalCols)*12)||1;
-		var spaceCols = Math.round((cols/totalCols)*12)||1;
+		var spaceCols = Math.round((Math.abs(cols)/totalCols)*12)||1;
 		
 		variableElement.addClass('col-xs-' + totalCols);
 		campElement.addClass('col-xs-' + campCols);
@@ -751,7 +793,11 @@
 			spaceElement.removeClass(colClass);
 			spaceElement.addClass('col-xs-' + spaceCols);
 		} else {
-			variableElement.append('<div class="var-spacing col-xs-'+ spaceCols +'" id="'+ elSpaceId +'" data-variable-id="'+ elVariableId +'"><i class="fa fa-minus text-muted" /></div>');
+			if(cols > 0) {
+				campElement.after('<div class="var-spacing b-radius-r col-xs-'+ spaceCols +'" id="'+ elSpaceId +'" data-variable-id="'+ elVariableId +'">buit[' + cols + ']</div>');
+			} else {
+				campElement.before('<div class="var-spacing b-radius-l col-xs-'+ spaceCols +'" id="'+ elSpaceId +'" data-variable-id="'+ elVariableId +'">buit[' + cols + ']</div>');
+			}
 		}
 	}
 	
@@ -902,7 +948,7 @@
 		switch(tipus) {
 		case 'ACCIO':
 			return '<div class="form-group p-2">' +
-						'<label for="interessats_helium_accion" class="control-label " style="width: 130px; float: left; padding-right: 11px;">'+ etiqueta +'</label>' +
+						'<label for="interessats_helium_accion" class="control-label " style="width: 130px; float: left; padding-right: 11px;text-align: right;">'+ etiqueta +'</label>' +
 						'<div class="controls  like-cols   no-obligatori" style="width: calc(100% - 130px);">' +
 						'	<button class="btn btn-primary pull-lef btn_accio tasca-boto" name="accio" value="accio">' +
 							'<spring:message code="expedient.info.accio.executar"/>' +
@@ -918,21 +964,21 @@
 		case 'SUGGEST':
 		case 'TEXTAREA':
 			return '<div class="form-group p-2">' +
-						'<label class="control-label '+ (required?'obligatori': '') +'" style="width: 130px; float: left; padding-right: 11px;">'+ etiqueta +'</label>' +
+						'<label class="control-label '+ (required?'obligatori': '') +'" style="width: 130px; float: left; padding-right: 11px;text-align: right;">'+ etiqueta +'</label>' +
 						'<div class="controls like-cols" style="width: calc(100% - 130px);">' +
 							'<span class="form-control">' +
 						'</div>' +
 					'</div>';
 		case 'BOOLEAN':
 			return '<div class="form-group p-2">'+
-						'<label class="control-label '+ (required?'obligatori': '') +'" style="width: 130px; float: left; padding-right: 11px;">'+ etiqueta +'</label>'+
+						'<label class="control-label '+ (required?'obligatori': '') +'" style="width: 130px; float: left; padding-right: 11px;text-align: right;">'+ etiqueta +'</label>'+
 						'<div class="controls like-cols '+ (required?'obligatori': 'no-obligatori') +'" style="width: calc(100% - 130px);">'+
 						'<span class="checkbox readonly-checkbox" style="max-width: 27px;">'+
 						'</div>'+
 					'</div>';
 		case 'REGISTRE':
 					return '<div class="form-group registre p-2">' +
-					'	<label class="control-label" style="width: 130px; float: left; padding-right: 11px;">' + etiqueta + '</label>' +
+					'	<label class="control-label" style="width: 130px; float: left; padding-right: 11px;text-align: right;">' + etiqueta + '</label>' +
 					'	<div class="controls registre like-cols" style="width: calc(100% - 130px);">' +
 					'		<div class="registre_taula">' +
 					'			<table class="table table-bordered table-condensed">' +
@@ -951,7 +997,7 @@
 					'</div>';
 		default:
 			return  '<div class="form-group p-2">' +
-						'<label class="control-label" style="width: 130px; float: left; padding-right: 11px;">'+ etiqueta +'</label>' +
+						'<label class="control-label" style="width: 130px; float: left; padding-right: 11px;text-align: right;">'+ etiqueta +'</label>' +
 					'</div>';
 		}
 	}
@@ -1009,7 +1055,7 @@
 		</div>
 		
 		<div id="vars_w_container" class="well bg-white">
-			<div id="vars_w" class="vars row" ondrop="dropHandler(event)" ondragover="dragoverHandler(event)" >
+			<div id="vars_w" class="vars" ondrop="dropHandler(event)" ondragover="dragoverHandler(event)" >
 			</div>
 		</div>
 		
