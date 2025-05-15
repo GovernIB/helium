@@ -432,7 +432,24 @@
 						<%-- FI TODO --%>
 
 						<%--Descarregar--%>
-						<li><a href="${expedient.id}/document/{{:id}}/descarregar"><span class="fa fa-download fa-fw"></span>&nbsp;<spring:message code="expedient.document.descarregar"/></a></li>
+						{{if !signat}}
+							<li><a href="${expedient.id}/document/{{:id}}/descarregar"><span class="fa fa-download fa-fw"></span>&nbsp;<spring:message code="expedient.document.descarregar"/></a></li>
+						{{/if}}
+						{{if signat}}
+							<li>
+								<a href="${expedient.id}/document/{{:id}}/descarregar/original">
+									<span class="fa fa-download"></span>
+									<spring:message code="comu.boto.descarregar"/>
+								</a>
+							</li>
+						
+							<li>
+								<a href="${expedient.id}/document/{{:id}}/descarregar/imprimible">
+									<span class="fa fa-print"></span>
+									<spring:message code="expedient.document.descarregar.autentica.imprimible"/>
+								</a>
+							</li>
+						{{/if}}
 					</ul>
 				</div>
 			{{/if}}

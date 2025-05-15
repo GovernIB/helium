@@ -1255,6 +1255,58 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return ret;
 	}
 	
+	@RequestMapping(value="/{expedientId}/document/{documentStoreId}/descarregar/original")
+	public String descarregarOriginal(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long documentStoreId,
+			Model model) {
+		String ret;
+		try {
+			ArxiuDto arxiu = expedientDocumentService.arxiuFindOriginal(expedientId, documentStoreId);
+			if (arxiu != null) {
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
+			}
+			ret = "arxiuView";
+		} catch (SistemaExternException exception) {
+			logger.error("Error obtenint el document", exception);
+			MissatgesHelper.error(request, exception.getMessage());
+			model.addAttribute("pipellaActiva", "documents");
+			ret = "redirect:/v3/expedient/" + expedientId;
+		}
+		return ret;
+	}
+	
+	@RequestMapping(value="/{expedientId}/document/{documentStoreId}/descarregar/imprimible")
+	public String descarregarImprimible(
+			HttpServletRequest request,
+			@PathVariable Long expedientId,
+			@PathVariable Long documentStoreId,
+			Model model) {
+		String ret;
+		try {
+			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
+			String processInstanceId = expedient.getProcessInstanceId();
+			ArxiuDto arxiu = expedientDocumentService.arxiuFindAmbDocument(
+					expedientId,
+					processInstanceId,
+					documentStoreId);
+			if (arxiu != null) {
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
+				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
+			}
+			ret = "arxiuView";
+		} catch (SistemaExternException exception) {
+			logger.error("Error obtenint el document", exception);
+			MissatgesHelper.error(request, exception.getMessage());
+			model.addAttribute("pipellaActiva", "documents");
+			ret = "redirect:/v3/expedient/" + expedientId;
+		}
+		return ret;
+	}
+	
+	
 	@RequestMapping(value="/{expedientId}/document/{documentStoreId}/descarregar")
 	public String docDescarregar(
 			HttpServletRequest request,

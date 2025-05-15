@@ -51,7 +51,7 @@
 								</span>
 							</a>
 						</td>
-						<td class="right">
+						<td class="right" style="position: relative;">
 							<c:if test="${not empty document.id}">
 								<table class="marTop6 tableDocuments">
 									<thead>
@@ -213,6 +213,7 @@
 															<span class="fa fa-2x fa-pencil-square-o" title="<spring:message code='expedient.document.firmaPassarela' />"></span>
 													</a>
 												</c:if>
+												
 												<!-- FI FRAGMENT -->
 												<c:if test="${expedient.ntiActiu and expedient.permisRead}">
 													<a	href="../../v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/metadadesNti"
@@ -265,7 +266,6 @@
 														<span class="label label-warning etiqueta-nti-arxiu"><spring:message code="expedient.document.info.etiqueta.anotacio"/></span>
 													</a>													
 												</c:if>
-												
 											</td>
 										</tr>
 										<tr>
@@ -283,6 +283,30 @@
 									</thead>
 								</table>
 							</c:if>
+							
+							<span class="dropdown" style="position: absolute; right: 0; top: 0;">
+								<a class="linkNti dropdown-toggle hiddenInfo" data-toggle="dropdown" href="#">
+									<span style="font-size: 19px;background-color: #ffffff;color: #2979b5;font-weight: bold;padding: 0 0.5em;">
+										<i class="fa fa-ellipsis-v" />
+									</span>
+								</a>
+								<ul class="dropdown-menu">
+									<li>
+										<a href="<c:url value="/v3/expedient/${expedientId}/document/${document.id}/descarregar/original"/>">
+											<span class="fa fa-download"></span>
+											<spring:message code="comu.boto.descarregar"/>
+										</a>
+									</li>
+									<c:if test="${document.signat}">
+										<li>
+											<a href="<c:url value="/v3/expedient/${expedientId}/document/${document.id}/descarregar/imprimible"/>">
+												<span class="fa fa-print"></span>
+												<spring:message code="expedient.document.descarregar.autentica.imprimible"/>
+											</a>
+										</li>
+									</c:if>
+								</ul>
+							</span>
 						</td>
 					</tr>
 				</thead>
