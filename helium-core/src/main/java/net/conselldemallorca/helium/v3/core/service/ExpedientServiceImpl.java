@@ -3416,9 +3416,7 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 			
 			// Generam i afegim el fitxer d'avisos al zip
 			StringBuilder avisosContent = new StringBuilder();
-			if(avisos.isEmpty() && errors.isEmpty()) {
-				avisosContent.append("No s'han produït avisos ni errors en la descàrrega de documents.");
-			} else {
+			if(!(avisos.isEmpty() && errors.isEmpty())) {
 				avisosContent.append("S'han produït " + avisos.size() + " avisos i " + errors.size() + " errors en la descàrrega de documents.\n\n");
 				if(!avisos.isEmpty()) {
 					avisosContent.append("\nAvisos:\n");
@@ -3433,13 +3431,12 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 						avisosContent.append("- " + error + "\n");
 					}
 				}
+			
+				ze = new ZipEntry(errors.isEmpty()? "avisos.txt" : "errors.txt");
+				out.putNextEntry(ze);
+				out.write(avisosContent.toString().getBytes());
+				out.closeEntry();
 			}
-			
-			ze = new ZipEntry(errors.isEmpty()? "avisos.txt" : "errors.txt");
-			out.putNextEntry(ze);
-			out.write(avisosContent.toString().getBytes());
-			out.closeEntry();
-			
 			out.close();
 		} catch (Exception e) {
 			String errMsg = "Error construint el zip dels documents per l'expedient " + expedient.getIdentificador() + ": " + e.getMessage();
