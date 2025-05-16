@@ -3761,7 +3761,12 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 			if (documentArxiu != null && documentArxiu.getContingut() != null) {
 				arxiu.setContingut(documentArxiu.getContingut().getContingut());
 				arxiu.setTipusMime(documentArxiu.getContingut().getTipusMime());
-				arxiu.setNom(documentArxiu.getNom());
+				String nom = documentArxiu.getNom();
+			    if(!nom.contains(".")) {
+			     String extensio = documentArxiu.getMetadades().getExtensio().toString();
+			     nom += extensio;
+			    }			    
+			    arxiu.setNom(nom);
 			}
 		} else {
 			arxiu.setContingut(documentStore.getArxiuContingut());

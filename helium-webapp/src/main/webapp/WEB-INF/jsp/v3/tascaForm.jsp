@@ -290,4 +290,18 @@ $('.dropdown-menu').find('.reproForm').click(function (e) {
 					$('#command').attr('action','<c:url value="/v3/repro/"/>${tasca.expedientTipusId}/${tasca.definicioProcesId}/deleteRepro/' + reproId);
 					return true;
 				});
+				
+ // Màxim de camps per poder fer el commit, si el formuari supera el màxim es mostra un avís
+ var maxHttpParameters = ${maxHttpParameters};
+ var maxHttpParametersMsg = "<spring:message code='tasca.tramitacio.form.maxHttpParameters' arguments='${maxHttpParameters}'></spring:message>";
+ $(document).ready(function(){
+	 if ($(':input', $('form[id=command]')).length > maxHttpParameters) {
+		 webutilAlertaWarning(maxHttpParametersMsg);
+	 }
+	 $('form[id=command]').submit(function(){
+		 if ($(':input', this).length > maxHttpParameters) {
+			 alert(maxHttpParametersMsg);
+		 }
+	 });
+ });
 </script>
