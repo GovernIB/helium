@@ -35,6 +35,18 @@
 	
 	<style>
 	
+	.checkbox-frm {
+		display: flex;
+		flex-direction: row;
+		gap: 4px;
+		align-items: center;
+	}
+	
+	.checkbox-frm > input {
+		width: auto;
+		margin: 0;
+	}
+	
 	.b-radius-r {
 		border-radius: 0 0.5em 0.5em 0;
 	}
@@ -74,6 +86,10 @@
 		padding: 0;
 		position: relative;
 		padding: 0.5em;
+	}
+	
+	.variable:hover {
+		border: 4px dashed #5288ff;
 	}
 	
 	.camp {
@@ -146,7 +162,7 @@
 		position: absolute;
 		border-left: 20px solid transparent;
 		border-right: 20px solid transparent;
-		border-bottom: 20px solid #ccc;
+		border-bottom: 20px solid #e3e3e3;
 	}
 	
 	#vars_r .resize {
@@ -280,15 +296,25 @@
 	var resize = null;
 	var variables = [];
 	var selectedId;
-	
+	var sessionScrollId = 'disseny-scroll-${definicioProcesTascaVariableCommand.tascaId}';
+	var currentScroll = 0;
 	var mostrarAgrupacions = ${tasca.mostrarAgrupacions};
 	
 	$(function() {
+		
+		currentScroll = sessionStorage.getItem(sessionScrollId);
+		if(currentScroll)
+			$('body > div:first-child').scrollTop(currentScroll);
 		
 		refrescaVariables();
 		
 		$('#goBack').on('click', function() {
 			document.location = '${baseModalUrl}/variable';
+		});
+		
+		$('body > div:first-child').on('scroll', function(e) {
+			currentScroll = $('body > div:first-child').scrollTop();
+			sessionStorage.setItem(sessionScrollId, currentScroll);
 		});
 		
 		$('body').on('click', '.var-spacing', function(ev) {
@@ -542,10 +568,13 @@
 				'</div></div>';
 				$('#vars_w_container').append(agrupacioEl);
 			}
+			
+			variables = variables.sort((a, b) => (a.camp.agrupacio?.id || 0) - (b.camp.agrupacio?.id || 0));
 		}
 		
 		var currentRow = $('<div class="row"><div>');
 		var totalColsRow = 0;
+		
 		for(v of variables) {
 			var agrupacioId = v.camp.agrupacio? v.camp.agrupacio.id : 0;
 			
@@ -693,6 +722,8 @@
 			var currentSelected = el.data('id');
 			showEditionDialog(currentSelected, el);
 		}
+		
+		$('body > div:first-child').scrollTop(currentScroll);
 	}
 	
 	function addSpace(e) {
@@ -1005,10 +1036,13 @@
 	</script>
 	
 </head>
-<body>
+<body id="diseny-body">
 	<div id="modal-botons" class="well">
 		<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.tancar"/></button>
-		<button id="goBack" type="button" class="btn btn-primary"><spring:message code="comu.boto.tornar"/></button>
+		<button id="goBack" type="button" class="btn btn-primary">
+			<i class="fa fa-table"></i>
+			<spring:message code="comu.taula"/>
+		</button>
 	</div>
 	
 	<div style="height: 100px">
@@ -1016,23 +1050,39 @@
 			<form:form id="tasca-camp-form" cssClass="well" action="${baseModalUrl}/variable/new" enctype="multipart/form-data" method="post" commandName="definicioProcesTascaVariableCommand" draggable="true" ondragstart="dragstartHandler(event)">
 				<input type="hidden" name="tascaId" id="inputTascaId" value="${definicioProcesTascaVariableCommand.tascaId}"/>
 				<input type="hidden" name="order" id="order" value="${definicioProcesTascaVariableCommand.order}"/>
-				<div class="row">
+				<div class="row" style="display: flex;align-items: center;">
 					<div class="col-sm-4">
 						<hel:inputSelect inline="true" required="true" emptyOption="true" name="campId" textKey="definicio.proces.tasca.variable.form.variable" placeholderKey="definicio.proces.tasca.variable.form.variable.placeholder" optionItems="${variables}" optionValueAttribute="codi" optionTextAttribute="valor"/>
 					</div>
 					<div class="col-sm-6">
 						<div class="row">
 							<div class="col-sm-3">
-								<hel:inputCheckbox inline="true" name="readFrom" textKey="definicio.proces.tasca.variable.columna.readFrom" />
+								<label class="checkbox-frm">
+									<input id="readFrom" name="readFrom" type="checkbox" value="true">
+									<input type="hidden" name="_readFrom" value="on">
+									<span><spring:message code="definicio.proces.tasca.variable.columna.readFrom"/></span>
+								</label>
 							</div>
 							<div class="col-sm-3">
-								<hel:inputCheckbox inline="true" name="writeTo" textKey="definicio.proces.tasca.variable.columna.writeTo" />
+								<label class="checkbox-frm">
+									<input id="writeTo" name="writeTo" type="checkbox" value="true">
+									<input type="hidden" name="_writeTo" value="on">
+									<span><spring:message code="definicio.proces.tasca.variable.columna.writeTo"/></span>
+								</label>
 							</div>
 							<div class="col-sm-3">
-								<hel:inputCheckbox inline="true" name="required" textKey="definicio.proces.tasca.variable.columna.required" />
+								<label class="checkbox-frm">
+									<input id="required" name="required" type="checkbox" value="true">
+									<input type="hidden" name="_required" value="on">
+									<span><spring:message code="definicio.proces.tasca.variable.columna.required"/></span>
+								</label>
 							</div>
 							<div class="col-sm-3">
-								<hel:inputCheckbox inline="true" name="readOnly" textKey="definicio.proces.tasca.variable.columna.readOnly" />
+								<label class="checkbox-frm">
+									<input id="required" name="readOnly" type="checkbox" value="true">
+									<input type="hidden" name="_readOnly" value="on">
+									<span><spring:message code="definicio.proces.tasca.variable.columna.readOnly"/></span>
+								</label>
 							</div>
 						</div>
 					</div>

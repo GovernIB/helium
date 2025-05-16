@@ -41,7 +41,9 @@
 <body>			
 	<div id="modal-botons" class="well">
 		<button type="button" class="btn btn-default" data-modal-cancel="true"><spring:message code="comu.boto.tancar"/></button>
-		<button id="changeToDisseny" type="button" class="btn btn-primary">Disseny</button>
+		<button id="changeToDisseny" type="button" class="btn btn-primary">
+			<i class="fa fa-pencil"></i> <spring:message code="comu.boto.dissenyar"/>
+		</button>
 	</div>
 	
 	<form:form id="tasca-camp-form" cssClass="well" action="${baseModalUrl}/variable/new" enctype="multipart/form-data" method="post" commandName="definicioProcesTascaVariableCommand">
