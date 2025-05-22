@@ -99,4 +99,6 @@ public interface EnumeracioService {
 
 	List<ExpedientTipusEnumeracioValorDto> valorsFind(Long enumeracioId) throws NoTrobatException;
 	
+	public boolean valorInUse(
+			Long valorId) throws NoTrobatException, PermisDenegatException;
 }

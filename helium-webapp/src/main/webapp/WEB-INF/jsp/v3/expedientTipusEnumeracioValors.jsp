@@ -125,7 +125,7 @@
 								<ul class="dropdown-menu">
 									<li><a href="${baseUrl}/{{:id}}/update" class="validacioUpdate" data-validacioid="{{:id}}"><span class="fa fa-pencil"></span>&nbsp;<spring:message code="expedient.tipus.info.accio.modificar"/></a></li>
 									<c:if test="${permisDisseny}">
-										<li><a href="${baseUrl}/{{:id}}/delete" data-confirm="<spring:message code="expedient.tipus.enumeracio.valors.llistat.confirm.esborra"/>"><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
+										<li><a href="${baseUrl}/{{:id}}/delete" onclick="deleteValue(event)" ><span class="fa fa-trash-o"></span>&nbsp;<spring:message code="expedient.llistat.accio.esborrar"/></a></li>
 									</c:if>
 								</ul>
 							</div>
@@ -377,6 +377,17 @@
 			e.preventDefault();
 		}
 	});
+	
+	function deleteValue(event) {
+		event.preventDefault();
+		if(!confirm("<spring:message code="expedient.tipus.enumeracio.valors.llistat.confirm.esborra"/>")) {
+			return;
+		}
+		$(".datatable-dades-carregant").show();
+		var srcElement = $(event.srcElement);
+		console.log(srcElement);
+		window.location = srcElement.prop('href')
+	}
 	// ]]>
 	</script>	
 </body>

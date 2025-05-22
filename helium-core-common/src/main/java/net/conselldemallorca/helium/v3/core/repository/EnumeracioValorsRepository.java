@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
@@ -61,4 +62,21 @@ public interface EnumeracioValorsRepository extends JpaRepository<EnumeracioValo
 			"    v.enumeracio.id in (:enumeracionsId) " +
 			"group by v.enumeracio.id ")
 	List<Object[]> countValors(@Param("enumeracionsId") Set<Long> enumeracionsId);
+	
+	// Aquesta query no te en compte Herencia
+	@Query(value = "SELECT COUNT(vi.ID_) " + 
+					" FROM HEL_CAMP c " + 
+					" JOIN JBPM_VARIABLEINSTANCE vi ON c.CODI = vi.NAME_ " + 
+					" JOIN JBPM_PROCESSINSTANCE pi ON pi.ID_ = vi.PROCESSINSTANCE_ " + 
+					" LEFT JOIN HEL_EXPEDIENT e ON e.ID = pi.EXPEDIENT_ID_ AND e.TIPUS_ID = c.EXPEDIENT_TIPUS_ID " + 
+					" LEFT JOIN HEL_DEFINICIO_PROCES dp ON (pi.EXPEDIENT_ID_ IS NULL AND c.DEFINICIO_PROCES_ID = dp.ID AND pi.PROCESSDEFINITION_ = dp.JBPM_ID) " + 
+					" WHERE  " + 
+					" c.ENUMERACIO_ID = :enumeracioId " + 
+					" AND ( " + 
+					"	(pi.EXPEDIENT_ID_ IS NOT NULL AND c.EXPEDIENT_TIPUS_ID = e.TIPUS_ID) " + 
+					"	OR " + 
+					"	(pi.EXPEDIENT_ID_ IS NULL AND c.DEFINICIO_PROCES_ID = dp.ID) " + 
+					" ) " + 
+					" AND TO_CHAR(DBMS_LOB.SUBSTR(vi.STRINGVALUE_, 64, 1)) = :valorCodi", nativeQuery = true)
+	public List<BigDecimal> countValueUsage(@Param("enumeracioId") Long enumeracioId, @Param("valorCodi") String valorCodi);
 }

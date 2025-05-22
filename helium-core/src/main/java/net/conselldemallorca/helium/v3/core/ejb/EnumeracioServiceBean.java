@@ -143,5 +143,11 @@ public class EnumeracioServiceBean implements EnumeracioService {
 		// TODO Auto-generated method stub
 		return delegate.valorsFind(enumeracioId);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public boolean valorInUse(Long valorId) throws NoTrobatException, PermisDenegatException {
+		return delegate.valorInUse(valorId);
+	}
 
 }

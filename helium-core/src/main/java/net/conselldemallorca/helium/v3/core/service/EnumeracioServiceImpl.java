@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -535,6 +536,17 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 			}
 		}
 		return ret;
+	}
+	
+	@Override
+	@Transactional(readOnly = true)
+	public boolean valorInUse(Long valorId) throws NoTrobatException, PermisDenegatException {
+		EnumeracioValors valor = enumeracioValorsRepository.findOne(valorId);
+		if (valor == null)
+			throw new NoTrobatException(EnumeracioValors.class, valorId);
+		Long enumeracioId = valor.getEnumeracio().getId();
+		BigDecimal count = enumeracioValorsRepository.countValueUsage(enumeracioId, valor.getCodi()).get(0);
+		return count.compareTo(BigDecimal.ZERO) > 0;
 	}
 		
 	private static final Logger logger = LoggerFactory.getLogger(EnumeracioServiceImpl.class);

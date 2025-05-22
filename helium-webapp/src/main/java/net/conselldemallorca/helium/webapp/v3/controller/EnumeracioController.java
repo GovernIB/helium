@@ -308,19 +308,30 @@ public class EnumeracioController extends BaseDissenyController {
 			@PathVariable Long id,
 			Model model) {
 		try {
+			
+			if(enumeracioService.valorInUse(id)) {
+				ompleDadesModel(request, enumeracioId, model, true);
+				MissatgesHelper.error(
+						request,
+						getMessage(
+								request,
+								"expedient.tipus.enumeracio.valors.controller.eliminat.us"));
+				return "v3/expedientTipusEnumeracioValors";
+			}
+			
 			enumeracioService.valorDelete(id);
 			
 			MissatgesHelper.success(
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.enumeracio.valors.controller.eliminat"));			
+							"expedient.tipus.enumeracio.valors.controller.eliminat"));
 		} catch(Exception e) {
 			MissatgesHelper.error(
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.enumeracio.valors.controller.eliminat.us"));
+							"expedient.tipus.enumeracio.valors.controller.eliminat.error"));
 			logger.error("S'ha produit un error al intentar eliminar el valor del enumerat amb id '" + id + "'", e);
 		}
 		

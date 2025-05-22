@@ -150,6 +150,17 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 			@PathVariable Long id,
 			Model model) {
 		try {
+			
+			if(enumeracioService.valorInUse(id)) {
+				ompleDadesModel(request, expedientTipusId, enumeracioId, model, true);
+				MissatgesHelper.error(
+						request,
+						getMessage(
+								request,
+								"expedient.tipus.enumeracio.valors.controller.eliminat.us"));
+				return "v3/expedientTipusEnumeracioValors";
+			}
+			
 			enumeracioService.valorDelete(id);
 			
 			MissatgesHelper.success(
@@ -162,7 +173,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.enumeracio.valors.controller.eliminat.us"));
+							"expedient.tipus.enumeracio.valors.controller.eliminat.error"));
 			logger.error("S'ha produit un error al intentar eliminar el valor del enumerat amb id '" + id + "' del tipus d'expedient amb id '" + expedientTipusId, e);
 		}
 		
