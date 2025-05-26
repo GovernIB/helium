@@ -445,15 +445,17 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		XSSFCellStyle boldText = wb.createCellStyle();
 		boldText.setFont(boldFont);
 		
-		LinkedHashMap<EntornDto, Long> totalEntornsMap = new LinkedHashMap<EntornDto, Long>(); 
+		LinkedHashMap<EntornDto, Long> totalEntornsMap = new LinkedHashMap<EntornDto, Long>();
+		LinkedHashMap<EntornDto, Integer> totalTipusExpedientEntornsMap = new LinkedHashMap<EntornDto, Integer>();
 		long totalEntorns = 0;
 		for (Map.Entry<EntornDto, List<ExpedientTipusDto>> entry : expTipusAgrupatsPerEntornTableData.entrySet()) {
-			long totalEntorn = generarPagina(wb, headerStyle, boldText, entry.getKey(), entry.getValue());
+			long totalEntorn = generarPagina(wb, headerStyle, boldText, entry.getKey(), entry.getValue(), entry.getValue().size());
 			totalEntornsMap.put(entry.getKey(), totalEntorn);
+			totalTipusExpedientEntornsMap.put(entry.getKey(), entry.getValue().size());
 			totalEntorns += totalEntorn;
 		}
 		
-		generarPaginaTotalEntorns(wb, headerStyle, boldText, totalEntornsMap, totalEntorns);
+		generarPaginaTotalEntorns(wb, headerStyle, boldText, totalEntornsMap, totalTipusExpedientEntornsMap, totalEntorns);
 		
 		try {
 			String fileName = "Estadistica.xls";
@@ -468,7 +470,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private long generarPagina(XSSFWorkbook wb,  XSSFCellStyle headerStyle, XSSFCellStyle boldText, EntornDto entorn, List<ExpedientTipusDto> expedientsTipus) {
+	private long generarPagina(XSSFWorkbook wb,  XSSFCellStyle headerStyle, XSSFCellStyle boldText, EntornDto entorn, List<ExpedientTipusDto> expedientsTipus, Integer totatTipologies) {
 		XSSFSheet sheet = wb.createSheet(entorn.getNom());
 	
 		int rowNum = 0;
@@ -561,12 +563,23 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 			totalEntorn += total;
 			for(int i=0; i<colNum; i++)
 				sheet.autoSizeColumn(i);
+			
+			colNum = 0;
+			xlsRow = sheet.createRow(rowNum++);
+			cell = xlsRow.createCell(colNum++);
+			cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize("Nre. Tipologies")));
+			cell.setCellStyle(headerStyle);
+			sheet.autoSizeColumn(colNum);
+			cell = xlsRow.createCell(colNum++);
+			cell.setCellValue(totatTipologies);
+			cell.setCellStyle(boldText);
+			sheet.autoSizeColumn(colNum);
 		}
 		return totalEntorn;
 	}
 	
 	
-	private void generarPaginaTotalEntorns(XSSFWorkbook wb, XSSFCellStyle headerStyle, XSSFCellStyle boldText, LinkedHashMap<EntornDto, Long> totalEntornsMap, long totalEntorns) {
+	private void generarPaginaTotalEntorns(XSSFWorkbook wb, XSSFCellStyle headerStyle, XSSFCellStyle boldText, LinkedHashMap<EntornDto, Long> totalEntornsMap, LinkedHashMap<EntornDto, Integer> totalTipusExpedientEntornsMap, long totalEntorns) {
 		XSSFSheet sheet = wb.createSheet("Resum per entorns");
 		
 		int rowNum = 0;
@@ -589,6 +602,13 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize("Total Entorn")));
 		cell.setCellStyle(headerStyle);
 		sheet.autoSizeColumn(colNum);
+		
+		cell = xlsRow.createCell(colNum++);
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize("Nre. tipologies")));
+		cell.setCellStyle(headerStyle);
+		sheet.autoSizeColumn(colNum);
+		
+		Integer totalTipologies = 0;
 			
 		for(Map.Entry<EntornDto, Long> entry : totalEntornsMap.entrySet()) {
 			colNum=0;
@@ -603,6 +623,13 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 			cell.setCellValue(entry.getValue());
 			cell.setCellStyle(boldText);
 			sheet.autoSizeColumn(colNum);
+			cell = xlsRow.createCell(colNum++);
+			Integer totalTipus = totalTipusExpedientEntornsMap.get(entry.getKey());
+			totalTipologies += totalTipus;
+			cell.setCellValue(totalTipus);
+			cell.setCellStyle(boldText);
+			sheet.autoSizeColumn(colNum);
+			
 		}
 			
 		colNum = 0;
