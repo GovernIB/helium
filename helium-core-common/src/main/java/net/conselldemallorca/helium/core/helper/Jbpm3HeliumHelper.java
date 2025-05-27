@@ -1507,17 +1507,56 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				"data=" + data + ", " +
 				"arxiuNom=" + arxiuNom + ", " +
 				"arxiuContingut=" + arxiuContingut + ")");
-		return documentHelper.crearActualitzarDocument(
-				null,
+		return documentExpedientGuardar(
 				processInstanceId,
 				documentCodi,
 				data,
 				arxiuNom,
 				arxiuContingut,
+				false);
+	}
+	
+	public Long documentExpedientGuardar(
+			String processInstanceId,
+			String documentCodi,
+			Date data,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			boolean firmat) {
+		logger.debug("Guardant un document a dins l'expedient (" +
+				"processInstanceId=" + processInstanceId + ", " +
+				"documentCodi=" + documentCodi + ", " +
+				"data=" + data + ", " +
+				"arxiuNom=" + arxiuNom + ", " +
+				"arxiuContingut=" + arxiuContingut + ")");
+		
+		return documentHelper.crearActualitzarDocument(
+				null, 
+				processInstanceId, 
+				documentCodi, 
+				data, 
+				arxiuNom, 
+				arxiuContingut, 
+				documentHelper.getContentType(arxiuNom),
+				firmat,	
+				false,	// firma separada
+				null,	// firma contingut
 				null,
 				null,
 				null,
 				null).getId();
+		
+//		return documentHelper.crearActualitzarDocument(
+//				null,
+//				processInstanceId,
+//				documentCodi,
+//				data,
+//				arxiuNom,
+//				arxiuContingut,
+//				null,
+//				null,
+//				null,
+//				null).getId();
 	}
 
 	@Override

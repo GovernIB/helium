@@ -724,6 +724,24 @@ public interface Jbpm3HeliumService {
 			Date data,
 			String arxiuNom,
 			byte[] arxiuContingut);
+	
+	/**
+	 * 
+	 * @param processInstanceId
+	 * @param documentCodi
+	 * @param data
+	 * @param arxiuNom
+	 * @param arxiuContingut
+	 * @param firmat
+	 * @return
+	 */
+	public Long documentExpedientGuardar(
+			String processInstanceId,
+			String documentCodi,
+			Date data,
+			String arxiuNom,
+			byte[] arxiuContingut,
+			boolean firmat);
 
 	/**
 	 * 

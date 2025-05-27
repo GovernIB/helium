@@ -68,7 +68,11 @@ public class DocumentExpedientCopiarOrigenHandler extends AbstractHeliumActionHa
 						documentDestiCodi,
 						docInfo.getDataDocument(),
 						docInfo.getArxiuNom(),
-						docInfo.getArxiuContingut());
+						docInfo.getArxiuContingut(),
+						docInfo.isSignat());
+				
+				
+				
 				if (docInfo.isRegistrat()) {
 					Jbpm3HeliumBridge.getInstanceService().documentExpedientGuardarDadesRegistre(
 							documentStoreId,
