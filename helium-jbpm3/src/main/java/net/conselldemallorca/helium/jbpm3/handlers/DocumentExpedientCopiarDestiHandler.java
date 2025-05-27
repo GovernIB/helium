@@ -71,7 +71,8 @@ public class DocumentExpedientCopiarDestiHandler extends AbstractHeliumActionHan
 						documentDestiCodi,
 						docInfo.getDataDocument(),
 						docInfo.getArxiuNom(),
-						docInfo.getArxiuContingut());
+						docInfo.getArxiuContingut(),
+						docInfo.isSignat());
 				if (docInfo.isRegistrat()) {
 					Jbpm3HeliumBridge.getInstanceService().documentExpedientGuardarDadesRegistre(
 							documentStoreId,
