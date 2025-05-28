@@ -421,6 +421,8 @@ public class GraphSession {
 			//for (Action action : findReferencingDelegatingActions(processDefinition.getId())) {
 			List<Action> accions = findReferencedActions(processDefinition.getId());
 			if (accions != null && !accions.isEmpty()) {
+				
+				List<List<Action>> actionChunks = new ArrayList<List<Action>>();
 				for (Action action : accions) {
 					action.setActionDelegation(null);
 					session.save(action);
@@ -428,8 +430,30 @@ public class GraphSession {
 	//				session.flush();
 					log.debug("   ||- " + action.getName() + "(" + action.getId() + ")");
 					
+					// Dividint les accions en una llista de llistes de 100 acions
+					// per poder cercar els logs d'accions ja que a mes de 1000 items oracle llança
+					// l'error ORA-01795
+					List<Action> actionsLog;
+					
+					int index = actionChunks.size() - 1;
+					
+					if(actionChunks.isEmpty() || actionChunks.get(index).size() == 100) {
+						actionsLog = new ArrayList<Action>();
+						actionChunks.add(actionsLog);
+					} else {
+						actionsLog = actionChunks.get(index);
+					}
+					
+					actionsLog.add(action);
 				}
+				
+				List<ActionLog> actionsLogs = new ArrayList<ActionLog>();
 			
+				
+				for(List<Action> chunk : actionChunks) {
+					actionsLogs.addAll(findReferencedActionLogs(accions));
+				}
+				
 				log.debug("   | ");
 			
 				log.debug("   |- Dereferenciam les accions del logs:");
@@ -437,7 +461,7 @@ public class GraphSession {
 					//for (ActionLog al : findReferencingEventActions(processDefinition)) {
 				// Mapa de reemplaç de accions
 				Map<Long, Action> reAccions = new HashMap<Long, Action>();
-				for (ActionLog al : findReferencedActionLogs(accions)) {
+				for (ActionLog al : actionsLogs) {
 					log.debug("   ||- Log: " + al.getId() + ", Action: " + al.getAction().getId());
 					ProcessDefinition newProcessDefinition = al.getToken().getProcessInstance().getProcessDefinition();
 					Action oldAction = al.getAction();
