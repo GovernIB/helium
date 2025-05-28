@@ -19,6 +19,8 @@
 	<c:set var="titol">${titol}: ${documentExpedientCommand.nom}</c:set>
 </c:if>
 
+<c:url value="/v3/expedient/document/firma/validate" var="validateFirmaUrl"/>
+
 <html>
 <head>
 	<title>${titol}</title>
@@ -67,6 +69,10 @@ $(document).ready( function() {
 	$('#arxiuNom').on('click', function() {
 		$('input[name=arxiu]').click();
 	});
+	
+	$('input[name=arxiu]').on('change', validateFirma);
+	$('input[name=firma]').on('change', validateFirma);
+	
 	$('#firmaNom').on('click', function() {
 		$('input[name=firma]').click();
 	});
@@ -189,6 +195,29 @@ function mostrarAmagarFile() {
 	$("#removeUrl").hide();
 	$("#modificarArxiu").val(true);
 }
+
+function validateFirma() {
+	var formData = new FormData($('#documentExpedientCommand')[0]);
+	$('#firmaAlert').hide();
+	$.ajax({
+		url: '${validateFirmaUrl}',
+		type: 'POST',
+		data: formData,
+		async: false,
+		success: function (data) {
+			if((data.firmat && !$(ambFirma).prop('checked')) || 
+				(!data.firmat && $(ambFirma).prop('checked'))) {
+				$(ambFirma).trigger('click');
+			}
+			if(data.alert) {
+				$('#firmaAlert').html(data.alert).show();
+			}
+		},
+		cache: false,
+		contentType: false,
+		processData: false
+	});
+}
 // ]]>
 </script>
 </head>
@@ -238,6 +267,10 @@ function mostrarAmagarFile() {
 		</c:otherwise>
 	</c:choose>
 </c:if>
+			<div class="alert alert-warning" id="firmaAlert" style="display: none;">
+				
+			</div>
+			
 			<c:if test="${expedient.ntiActiu}">
 				<div>
 					<ul class="nav nav-tabs" role="tablist">

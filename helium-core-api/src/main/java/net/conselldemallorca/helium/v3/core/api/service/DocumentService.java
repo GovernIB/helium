@@ -3,7 +3,9 @@ package net.conselldemallorca.helium.v3.core.api.service;
 import java.util.List;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.AvisNivellEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -78,5 +80,18 @@ public interface DocumentService {
 			Long documentId) throws NoTrobatException;
 	
 	public String createDocumentPinbal(ExpedientDocumentPinbalDto expedientDocumentPinbalDto);
+	
+	/**
+	 * 
+	 * @param documentContingut
+	 * @param contentType
+	 * @return 
+	 * 	1 <i>(te firmes valides)</i> 
+	 * 	0 <i>(no te firmes)</i> 
+	 * 	-1 <i> (te firmes invalides)</i>
+	 */
+	public int checkFirmaDocument(byte[] documentContingut, String contentType, DocumentTipusFirmaEnumDto tipusFirma,
+			byte[] firmaContingut);
+
 
 }

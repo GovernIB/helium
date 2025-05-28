@@ -11,6 +11,8 @@
 <script src="<c:url value="/js/bootstrap-datepicker.js"/>"></script>
 <script src="<c:url value="/js/locales/bootstrap-datepicker.ca.js"/>"></script>
 
+<c:url value="/v3/expedient/document/firma/validate" var="validateFirmaUrl"/>
+
 <style type="text/css">
 	#tasca-document .well.well-small {margin: 0 0 15px;}
 	#tasca-document .form-tasca .modal-botons {padding-bottom: 25px;}
@@ -274,6 +276,10 @@
 	});
 	
 	$(document).ready( function() {
+		
+		$('input[name=arxiu]').on('change', validateFirma);
+		$('input[name=firma]').on('change', validateFirma);
+		
 		$('.documentTramitacio .icon').heliumEvalLink({
 			refrescarAlertes: true,
 			refrescarPagina: false,
@@ -350,5 +356,34 @@
         }
         return true;
     }
+	
+	function validateFirma(e) {
+		
+		var form = $(this).closest('form');
+		var formData = new FormData(form[0]);
+		$('#firmaAlert').remove();
+		$.ajax({
+			url: '${validateFirmaUrl}',
+			type: 'POST',
+			data: formData,
+			async: false,
+			success: function (data) {
+				
+				if((data.firmat && !$('input[name=ambFirma]', form).prop('checked')) || 
+					(!data.firmat && $('input[name=ambFirma]', form).prop('checked'))) {
+					$('input[name=ambFirma]', form).trigger('click');
+				}
+				if(data.alert) {
+					form.prepend('<div id="firmaAlert" class="alert alert-warning">' + data.alert + '</div>');
+				}
+				
+			},
+			cache: false,
+			contentType: false,
+			processData: false
+		});
+		
+	}
+	
 	// ]]>
 </script>

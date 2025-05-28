@@ -11,6 +11,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -91,6 +92,13 @@ public class DocumentServiceBean implements DocumentService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public String createDocumentPinbal(ExpedientDocumentPinbalDto expedientDocumentPinbalDto) {
 		return delegate.createDocumentPinbal(expedientDocumentPinbalDto);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public int checkFirmaDocument(byte[] documentContingut, String contentType, DocumentTipusFirmaEnumDto tipusFirma,
+			byte[] firmaContingut) {
+		return delegate.checkFirmaDocument(documentContingut, contentType, tipusFirma, firmaContingut);
 	}
 
 }

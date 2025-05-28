@@ -107,6 +107,7 @@ import net.conselldemallorca.helium.v3.core.api.service.PortafirmesFluxService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Create;
+import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Massiu;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Update;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientEnviarPortasignaturesCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientEnviarPortasignaturesCommand.EnviarPortasignatures;
@@ -2696,6 +2697,39 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			transaccioResponse.setErrorDescripcio(ex.getMessage());
 		}
 		return transaccioResponse;
+	}
+	
+	@RequestMapping(
+			value = "/document/firma/validate", 
+			method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> validateFirmaDocPost(
+			HttpServletRequest request,
+			@ModelAttribute DocumentExpedientCommand command) throws IOException {
+		DocumentTipusFirmaEnumDto tipusFirma = command.getTipusFirma() != null? 
+				command.getTipusFirma() 
+				: DocumentTipusFirmaEnumDto.ADJUNT;
+		int firmaEstat = documentService.checkFirmaDocument(
+									command.getArxiu().getBytes(),
+									command.getArxiu().getContentType(),
+									command.getTipusFirma(),
+									command.getFirma() != null && !command.getFirma().isEmpty() ? command.getFirma().getBytes() : null);
+		Map<String, Object> response = new HashMap<String, Object>();
+		
+				
+		if(firmaEstat > 0) {
+			response.put("firmat", true);
+		} else if (firmaEstat < 0) {
+			response.put("firmat", false);
+			response.put("alert", getMessage(request, 
+											tipusFirma == DocumentTipusFirmaEnumDto.ADJUNT? 
+													"expedient.document.firmata.invalida" : 
+													"expedient.document.firmade.invalida"));
+		} else {
+			response.put("firmat", false);
+		}
+		
+		return response;
 	}
 	
 //	@RequestMapping(value = "/representant/{interessatId}", method = RequestMethod.GET)

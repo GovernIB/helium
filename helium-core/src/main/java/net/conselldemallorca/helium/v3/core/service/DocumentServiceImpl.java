@@ -4,7 +4,6 @@
 package net.conselldemallorca.helium.v3.core.service;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -20,6 +19,9 @@ import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.itextpdf.text.pdf.AcroFields;
+import com.itextpdf.text.pdf.PdfReader;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
@@ -44,8 +46,10 @@ import net.conselldemallorca.helium.integracio.plugins.pinbal.DadesConsultaPinba
 import net.conselldemallorca.helium.integracio.plugins.pinbal.Funcionari;
 import net.conselldemallorca.helium.integracio.plugins.pinbal.Titular;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesConsultaPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
@@ -57,6 +61,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.dto.TitularDto.ScspTipoDocumentacion;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
+import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
 import net.conselldemallorca.helium.v3.core.regles.ReglaHelper;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
@@ -885,6 +890,34 @@ public class DocumentServiceImpl implements DocumentService {
 		}
 		
 		return "consultes.pinbal.resultat.ok";
+	}
+	
+	public int checkFirmaDocument(byte[] documentContingut, String contentType, DocumentTipusFirmaEnumDto tipusFirma,
+			byte[] firmaContingut) {
+		try {
+			if(tipusFirma != DocumentTipusFirmaEnumDto.SEPARAT && !contentType.equals("application/pdf"))
+				return 0;
+			if(tipusFirma != DocumentTipusFirmaEnumDto.SEPARAT) {
+				try {
+					PdfReader pdfReader = new PdfReader(documentContingut);
+					AcroFields acroFields = pdfReader.getAcroFields();
+					List<String> signatures = acroFields.getSignatureNames();
+					if(signatures == null || signatures.isEmpty())
+						return 0;
+				} catch(Exception e) {
+					logger.error(e.getMessage());
+				}
+			}
+			
+			List<ArxiuFirmaDto> firmes = pluginHelper.validaSignaturaObtenirFirmes(
+					null, 
+					documentContingut, 
+					firmaContingut, 
+					contentType);
+			return firmes.isEmpty() ? 0 : 1;
+		} catch(SistemaExternException e) {
+			return -1;
+		}
 	}
 
 	private void guardaPeticioPinbalSenseError(
