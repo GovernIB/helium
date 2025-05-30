@@ -32,12 +32,12 @@ import org.fundaciobit.plugins.validatesignature.api.SignatureRequestedInformati
 import org.fundaciobit.plugins.validatesignature.api.TimeStampInfo;
 import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureRequest;
 import org.fundaciobit.plugins.validatesignature.api.ValidateSignatureResponse;
+import org.fundaciobit.plugins.validatesignature.api.ValidationStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
-import es.caib.plugins.arxiu.api.ArxiuException;
 import es.caib.plugins.arxiu.api.ConsultaFiltre;
 import es.caib.plugins.arxiu.api.ConsultaOperacio;
 import es.caib.plugins.arxiu.api.ConsultaResultat;
@@ -138,6 +138,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaPerfilEnumDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaValidacioDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
@@ -3511,10 +3512,11 @@ public class PluginHelper {
 			sri.setReturnCertificateInfo(true);
 			sri.setReturnValidationChecks(false);
 			sri.setValidateCertificateRevocation(false);
-			sri.setReturnCertificates(false);
+			sri.setReturnCertificates(true);
 			sri.setReturnTimeStampInfo(true);
 			validationRequest.setSignatureRequestedInformation(sri);
 			ValidateSignatureResponse validateSignatureResponse = getValidaSignaturaPlugin().validateSignature(validationRequest);
+			
 			List<ArxiuFirmaDetallDto> detalls = new ArrayList<ArxiuFirmaDetallDto>();
 			List<ArxiuFirmaDto> firmes = new ArrayList<ArxiuFirmaDto>();
 			ArxiuFirmaDto firma = new ArxiuFirmaDto();
@@ -3587,7 +3589,7 @@ public class PluginHelper {
 	 * 			Contingut de la firma en cas que sigui dettached.
 	 * @return
 	 */
-	public List<ArxiuFirmaDetallDto> validaSignaturaObtenirDetalls(
+	public ArxiuFirmaValidacioDetallDto validaSignaturaObtenirDetalls(
 			byte[] documentContingut,
 			byte[] firmaContingut) {
 		String accioDescripcio = "Obtenir informació de document firmat";
@@ -3595,7 +3597,11 @@ public class PluginHelper {
 		accioParams.put("documentContingut.length", documentContingut != null? documentContingut.length : -1);
 		accioParams.put("firmaContingut.length", firmaContingut != null? firmaContingut.length : -1);
 		long t0 = System.currentTimeMillis();
+		
+		
 		try {
+			ArxiuFirmaValidacioDetallDto validacioDetalls = new ArxiuFirmaValidacioDetallDto();
+			
 			ValidateSignatureRequest validationRequest = new ValidateSignatureRequest();
 			if (firmaContingut != null) {
 				validationRequest.setSignedDocumentData(documentContingut);
@@ -3612,6 +3618,11 @@ public class PluginHelper {
 			sri.setReturnTimeStampInfo(true);
 			validationRequest.setSignatureRequestedInformation(sri);
 			ValidateSignatureResponse validateSignatureResponse = getValidaSignaturaPlugin().validateSignature(validationRequest);
+			
+			ValidationStatus validationStatus = validateSignatureResponse.getValidationStatus();
+			validacioDetalls.setValid(validationStatus.getStatus() == 1);
+			validacioDetalls.setMessage(validationStatus.getErrorMsg());
+			
 			List<ArxiuFirmaDetallDto> detalls = new ArrayList<ArxiuFirmaDetallDto>();
 			if (validateSignatureResponse.getSignatureDetailInfo() != null) {
 				for (SignatureDetailInfo signatureInfo: validateSignatureResponse.getSignatureDetailInfo()) {
@@ -3638,7 +3649,9 @@ public class PluginHelper {
 					System.currentTimeMillis() - t0,
 					IntegracioParametreDto.toIntegracioParametres(accioParams));
 			
-			return detalls;
+			validacioDetalls.setDetalls(detalls);
+			
+			return validacioDetalls;
 		} catch (Exception ex) {
 			String errorDescripcio = ex.getMessage();
 			monitorIntegracioHelper.addAccioError(

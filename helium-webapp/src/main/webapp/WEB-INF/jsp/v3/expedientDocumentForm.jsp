@@ -73,6 +73,11 @@ $(document).ready( function() {
 	$('input[name=arxiu]').on('change', validateFirma);
 	$('input[name=firma]').on('change', validateFirma);
 	
+	$('.input-group:has( > #arxiuNom)').on('click', showLoader);
+	$('.input-group:has( > #firmaNom)').on('click', showLoader);
+	$('input[name=arxiu]').on('cancel', hideLoader);
+	$('input[name=firma]').on('cancel', hideLoader);
+	
 	$('#firmaNom').on('click', function() {
 		$('input[name=firma]').click();
 	});
@@ -199,25 +204,44 @@ function mostrarAmagarFile() {
 function validateFirma() {
 	var formData = new FormData($('#documentExpedientCommand')[0]);
 	$('#firmaAlert').hide();
+	$('#firmaError').hide();
 	$.ajax({
 		url: '${validateFirmaUrl}',
 		type: 'POST',
 		data: formData,
 		async: false,
 		success: function (data) {
-			if((data.firmat && !$(ambFirma).prop('checked')) || 
-				(!data.firmat && $(ambFirma).prop('checked'))) {
+			if((data.firmat && data.valid && !$(ambFirma).prop('checked')) || 
+			   ($(ambFirma).prop('checked') && !data.firmat && !data.valid)) {
 				$(ambFirma).trigger('click');
 			}
 			if(data.alert) {
-				$('#firmaAlert').html(data.alert).show();
+				$('#firmaAlert').html('<i class="fa fa-exclamation-triangle pr-2" />' + data.alert).show();
 			}
+			if(data.error) {
+				$('#firmaError').html(data.error).show();
+			}
+			if(data.valid) {
+				$('button[name="accio"]', window.parent.document).removeAttr('disabled');
+			}
+			hideLoader();
 		},
 		cache: false,
 		contentType: false,
 		processData: false
 	});
 }
+
+function showLoader() {
+	$('input', this).val(undefined);
+	$('button[name="accio"]', window.parent.document).attr('disabled', true);
+	$('.div-dades-carregant', window.parent.document).show();
+}
+
+function hideLoader() {
+	$('.div-dades-carregant', window.parent.document).hide();
+}
+
 // ]]>
 </script>
 </head>
@@ -267,9 +291,7 @@ function validateFirma() {
 		</c:otherwise>
 	</c:choose>
 </c:if>
-			<div class="alert alert-warning" id="firmaAlert" style="display: none;">
-				
-			</div>
+			<div class="alert alert-danger" id="firmaError" style="display: none;"></div>
 			
 			<c:if test="${expedient.ntiActiu}">
 				<div>
@@ -317,6 +339,9 @@ function validateFirma() {
 					</div>
 
 					<hel:inputCheckbox name="ambFirma" textKey="expedient.document.form.camp.amb.firma"></hel:inputCheckbox>
+					
+					<div class="alert alert-warning" id="firmaAlert" style="display: none;"></div>
+					
 					<div id="input-firma" class="hidden">
 						<hel:inputRadio name="tipusFirma" textKey="expedient.document.form.camp.tipus.firma" botons="true" optionItems="${tipusFirmaOptions}" optionValueAttribute="value" optionTextKeyAttribute="text"/>
 						<div id="input-firma-arxiu" class="hidden">

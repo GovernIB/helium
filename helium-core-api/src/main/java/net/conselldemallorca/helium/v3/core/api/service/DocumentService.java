@@ -3,6 +3,7 @@ package net.conselldemallorca.helium.v3.core.api.service;
 import java.util.List;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaValidacioDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.AvisNivellEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
@@ -85,13 +86,10 @@ public interface DocumentService {
 	 * 
 	 * @param documentContingut
 	 * @param contentType
-	 * @return 
-	 * 	1 <i>(te firmes valides)</i> 
-	 * 	0 <i>(no te firmes)</i> 
-	 * 	-1 <i> (te firmes invalides)</i>
+	 * @return ArxiuFirmaValidacioDetallDto
 	 */
-	public int checkFirmaDocument(byte[] documentContingut, String contentType, DocumentTipusFirmaEnumDto tipusFirma,
-			byte[] firmaContingut);
+	public ArxiuFirmaValidacioDetallDto validateFirmaDocument(byte[] documentContingut, String contentType, DocumentTipusFirmaEnumDto tipusFirma,
+			byte[] firmaContingut) throws Exception;
 
 
 }

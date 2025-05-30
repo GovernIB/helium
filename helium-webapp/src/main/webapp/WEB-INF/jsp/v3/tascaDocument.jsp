@@ -280,6 +280,11 @@
 		$('input[name=arxiu]').on('change', validateFirma);
 		$('input[name=firma]').on('change', validateFirma);
 		
+		$('.input-group:has( > input[name=contingut])').on('click', showLoader);
+		$('.input-group:has( > input[name=contingutFirma])').on('click', showLoader);
+		$('input[name=arxiu]').on('cancel', hideLoader);
+		$('input[name=firma]').on('cancel', hideLoader);
+		
 		$('.documentTramitacio .icon').heliumEvalLink({
 			refrescarAlertes: true,
 			refrescarPagina: false,
@@ -341,7 +346,7 @@
 		});	
 		$('.guardar').click(function(e) {
 			$('.div-dades-carregant', window.parent.document).show();	
-		});		
+		});
 	});
 	
 	function checkFile(docId) {
@@ -362,6 +367,7 @@
 		var form = $(this).closest('form');
 		var formData = new FormData(form[0]);
 		$('#firmaAlert').remove();
+		$('#firmaError').remove();
 		$.ajax({
 			url: '${validateFirmaUrl}',
 			type: 'POST',
@@ -369,20 +375,38 @@
 			async: false,
 			success: function (data) {
 				
-				if((data.firmat && !$('input[name=ambFirma]', form).prop('checked')) || 
-					(!data.firmat && $('input[name=ambFirma]', form).prop('checked'))) {
+				if((data.firmat && data.valid && !$('input[name=ambFirma]', form).prop('checked')) || 
+					($('input[name=ambFirma]', form).prop('checked') && !data.valid && !data.firmat)) {
 					$('input[name=ambFirma]', form).trigger('click');
 				}
 				if(data.alert) {
-					form.prepend('<div id="firmaAlert" class="alert alert-warning">' + data.alert + '</div>');
+					form.prepend('<div id="firmaAlert" class="alert alert-warning"> <i class="fa fa-exclamation-triangle pr-2" />' + data.alert + '</div>');
+				}
+
+				if(data.error) {
+					form.prepend('<div id="firmaError" class="alert alert-danger">' + data.error + '</div>');
 				}
 				
+				if(data.valid) {
+					$('button[type=submit]', form).removeAttr('disabled');
+				}
+				hideLoader();
 			},
 			cache: false,
 			contentType: false,
 			processData: false
 		});
 		
+	}
+	
+	function showLoader() {
+		$('input', this).val(undefined);
+		$('button[type=submit]', $(this).closest('form')).attr('disabled', true);
+		$('.div-dades-carregant', window.parent.document).show();
+	}
+
+	function hideLoader() {
+		$('.div-dades-carregant', window.parent.document).hide();
 	}
 	
 	// ]]>

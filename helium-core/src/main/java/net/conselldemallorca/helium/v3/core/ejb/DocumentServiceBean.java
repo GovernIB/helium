@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaValidacioDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDocumentPinbalDto;
@@ -96,9 +97,9 @@ public class DocumentServiceBean implements DocumentService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public int checkFirmaDocument(byte[] documentContingut, String contentType, DocumentTipusFirmaEnumDto tipusFirma,
-			byte[] firmaContingut) {
-		return delegate.checkFirmaDocument(documentContingut, contentType, tipusFirma, firmaContingut);
+	public ArxiuFirmaValidacioDetallDto validateFirmaDocument(byte[] documentContingut, String contentType, DocumentTipusFirmaEnumDto tipusFirma,
+			byte[] firmaContingut) throws Exception {
+		return delegate.validateFirmaDocument(documentContingut, contentType, tipusFirma, firmaContingut);
 	}
 
 }

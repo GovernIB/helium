@@ -83,6 +83,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.AnotacioMapeigResultatDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaValidacioDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EmailTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
@@ -1056,9 +1057,10 @@ public class AnotacioServiceImpl implements AnotacioService, ArxiuPluginListener
 							NtiTipoFirmaEnumDto.CADES_DET.equals(firma.getTipus())) {
 						firmaContingut = firma.getContingut();
 					}
-					List<ArxiuFirmaDetallDto> detalls = pluginHelper.validaSignaturaObtenirDetalls(
+					ArxiuFirmaValidacioDetallDto firmaDetalls = pluginHelper.validaSignaturaObtenirDetalls(
 							documentContingut, 
 							firmaContingut);
+					List<ArxiuFirmaDetallDto> detalls = firmaDetalls.getDetalls();
 					firma.setDetalls(detalls);
 				} catch(Exception e) {
 					logger.error("Error validant la firma " + firma.getFitxerNom() + " pel document " + document.getNom() + " de l'annex " + annexId + ": " + e.getMessage(), e);

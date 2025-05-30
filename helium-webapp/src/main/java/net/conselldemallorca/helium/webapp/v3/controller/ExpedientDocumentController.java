@@ -57,6 +57,7 @@ import net.conselldemallorca.helium.core.util.PdfUtils;
 import net.conselldemallorca.helium.core.util.StringUtilsHelium;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaValidacioDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesEnviamentDto.EntregaPostalViaTipus;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesNotificacioDto;
@@ -107,7 +108,6 @@ import net.conselldemallorca.helium.v3.core.api.service.PortafirmesFluxService;
 import net.conselldemallorca.helium.webapp.mvc.ArxiuView;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Create;
-import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Massiu;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand.Update;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientEnviarPortasignaturesCommand;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientEnviarPortasignaturesCommand.EnviarPortasignatures;
@@ -2705,30 +2705,37 @@ public class ExpedientDocumentController extends BaseExpedientController {
 	@ResponseBody
 	public Map<String, Object> validateFirmaDocPost(
 			HttpServletRequest request,
-			@ModelAttribute DocumentExpedientCommand command) throws IOException {
-		DocumentTipusFirmaEnumDto tipusFirma = command.getTipusFirma() != null? 
-				command.getTipusFirma() 
-				: DocumentTipusFirmaEnumDto.ADJUNT;
-		int firmaEstat = documentService.checkFirmaDocument(
-									command.getArxiu().getBytes(),
-									command.getArxiu().getContentType(),
-									command.getTipusFirma(),
-									command.getFirma() != null && !command.getFirma().isEmpty() ? command.getFirma().getBytes() : null);
+			@ModelAttribute DocumentExpedientCommand command) throws Exception {
 		Map<String, Object> response = new HashMap<String, Object>();
-		
-				
-		if(firmaEstat > 0) {
-			response.put("firmat", true);
-		} else if (firmaEstat < 0) {
-			response.put("firmat", false);
-			response.put("alert", getMessage(request, 
-											tipusFirma == DocumentTipusFirmaEnumDto.ADJUNT? 
-													"expedient.document.firmata.invalida" : 
-													"expedient.document.firmade.invalida"));
-		} else {
-			response.put("firmat", false);
+		try {
+			DocumentTipusFirmaEnumDto tipusFirma = command.getTipusFirma() != null? 
+					command.getTipusFirma() 
+					: DocumentTipusFirmaEnumDto.ADJUNT;
+			ArxiuFirmaValidacioDetallDto firmaEstat = documentService.validateFirmaDocument(
+										command.getArxiu().getBytes(),
+										command.getArxiu().getContentType(),
+										command.isAmbFirma() ? command.getTipusFirma() : DocumentTipusFirmaEnumDto.ADJUNT,
+										command.isAmbFirma() && command.getFirma() != null && !command.getFirma().isEmpty() ? command.getFirma().getBytes() : null);
+			
+			if(firmaEstat == null) {
+				response.put("firmat", false);
+				response.put("valid", true);
+			} else if(firmaEstat.isValid()) {
+				response.put("firmat", true);
+				response.put("valid", true);
+			} else {
+				response.put("firmat", true);
+				response.put("valid", false);
+				String message = getMessage(request, 
+						tipusFirma == DocumentTipusFirmaEnumDto.ADJUNT? 
+								"expedient.document.firmata.invalida" : 
+								"expedient.document.firmade.invalida");
+				response.put("alert", message.concat(": ").concat(firmaEstat.getMessage()));
+			}
+		} catch(Exception e) {
+			response.put("error", e.getMessage());
+			response.put("valid", false);
 		}
-		
 		return response;
 	}
 	

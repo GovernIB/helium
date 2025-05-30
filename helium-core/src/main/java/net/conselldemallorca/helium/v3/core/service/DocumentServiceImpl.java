@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -47,6 +48,7 @@ import net.conselldemallorca.helium.integracio.plugins.pinbal.Funcionari;
 import net.conselldemallorca.helium.integracio.plugins.pinbal.Titular;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaValidacioDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesConsultaPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
@@ -61,7 +63,6 @@ import net.conselldemallorca.helium.v3.core.api.dto.Sexe;
 import net.conselldemallorca.helium.v3.core.api.dto.TitularDto.ScspTipoDocumentacion;
 import net.conselldemallorca.helium.v3.core.api.dto.regles.QueEnum;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
-import net.conselldemallorca.helium.v3.core.api.exception.SistemaExternException;
 import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
 import net.conselldemallorca.helium.v3.core.regles.ReglaHelper;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
@@ -892,32 +893,17 @@ public class DocumentServiceImpl implements DocumentService {
 		return "consultes.pinbal.resultat.ok";
 	}
 	
-	public int checkFirmaDocument(byte[] documentContingut, String contentType, DocumentTipusFirmaEnumDto tipusFirma,
-			byte[] firmaContingut) {
-		try {
-			if(tipusFirma != DocumentTipusFirmaEnumDto.SEPARAT && !contentType.equals("application/pdf"))
-				return 0;
-			if(tipusFirma != DocumentTipusFirmaEnumDto.SEPARAT) {
-				try {
+	public ArxiuFirmaValidacioDetallDto validateFirmaDocument(byte[] documentContingut, String contentType, DocumentTipusFirmaEnumDto tipusFirma,
+			byte[] firmaContingut) throws Exception {
+			if(tipusFirma != DocumentTipusFirmaEnumDto.SEPARAT && contentType.equals("application/pdf")) {
 					PdfReader pdfReader = new PdfReader(documentContingut);
 					AcroFields acroFields = pdfReader.getAcroFields();
 					List<String> signatures = acroFields.getSignatureNames();
 					if(signatures == null || signatures.isEmpty())
-						return 0;
-				} catch(Exception e) {
-					logger.error(e.getMessage());
-				}
+						return null;
 			}
 			
-			List<ArxiuFirmaDto> firmes = pluginHelper.validaSignaturaObtenirFirmes(
-					null, 
-					documentContingut, 
-					firmaContingut, 
-					contentType);
-			return firmes.isEmpty() ? 0 : 1;
-		} catch(SistemaExternException e) {
-			return -1;
-		}
+			return pluginHelper.validaSignaturaObtenirDetalls(documentContingut, firmaContingut);
 	}
 
 	private void guardaPeticioPinbalSenseError(
