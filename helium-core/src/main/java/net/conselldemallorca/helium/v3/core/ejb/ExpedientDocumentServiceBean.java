@@ -406,6 +406,14 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void trySincronitzarArxiu(
+			Long expedientId,
+			Long documentStoreId) {
+		delegate.trySincronitzarArxiu(expedientId, documentStoreId);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
     public Set<Long> findIdsDocumentsByExpedient(Long expedientId) {
         return delegate.findIdsDocumentsByExpedient(expedientId);
     }
@@ -505,5 +513,11 @@ public class ExpedientDocumentServiceBean implements ExpedientDocumentService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public DocumentDto exportarEniExpedient(Long expedientId) throws Exception {
 		return delegate.exportarEniExpedient(expedientId);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void migrateDocument(Long expedientId, Long documentStoreId) {
+		delegate.migrateDocument(expedientId, documentStoreId);
 	}
 }

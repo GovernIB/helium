@@ -474,4 +474,12 @@ public interface ExpedientRepository extends JpaRepository<Expedient, Long> {
 			"where e.tipus.id = :expedientTipusId ")
 	public Long countExpedientByTipusExpedient(@Param("expedientTipusId") Long expedientTipusId);
 
+	@Query( "select e.id from Expedient e " +
+			"where e.arxiuUuid is null " +
+			"and e.tipus.arxiuActiu = true " +
+			"and e.tipus.ntiActiu = true " +
+			"and (e.syncReintents is null OR " +
+			"	  e.syncReintents < :maxReintents) ")
+	public List<Long> findPendentsArxiu(@Param("maxReintents") Long maxReintents);
+
 }

@@ -13,14 +13,18 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.activation.MimetypesFileTypeMap;
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
@@ -113,6 +117,7 @@ import net.conselldemallorca.helium.v3.core.repository.AnotacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentNotificacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.InteressatRepository;
 import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.PeticioPinbalRepository;
@@ -127,7 +132,12 @@ import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
  */
 @Service
 public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
+	
+	private static List<Long> currentlyMigratingDocuments = Collections.synchronizedList(new ArrayList<Long>());
 
+	private ExpedientDocumentService self;
+	@Autowired
+	private ApplicationContext applicationContext;
 	@Resource
 	private RegistreRepository registreRepository;
 	@Resource
@@ -148,6 +158,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private AnotacioRepository anotacioRepository;
 	@Resource
 	private PeticioPinbalRepository peticioPinbalRepository;
+	@Resource
+	private ExpedientRepository expedientRepository;
 	@Resource
 	private PluginHelper pluginHelper;
 	@Resource
@@ -172,6 +184,11 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private NotificacioHelper notificacioHelper;
 	@Resource
 	private ReglaHelper reglaHelper;
+	
+	@PostConstruct
+	public void postContruct() {
+		self = applicationContext.getBean(ExpedientDocumentService.class);
+	}
 
 	@Override
 	@Transactional
@@ -2206,13 +2223,49 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	@Override
 	@Transactional
 	public void migrarArxiu(Long expedientId, Long documentStoreId) {
+		// Comprovam si ja s'esta executant la migració per aquest document
+		if(isCurrentlyMigrating(documentStoreId))
+			return;
 		logger.debug("Migrar el document (documentStoreId=" + documentStoreId + ") a l'arxiu");
 
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+		// Es llança una excepció si l'usuari conectat no te permisos sobre l'expedient
+		expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
 				new Permission[] {
 						ExtendedPermission.WRITE,
 						ExtendedPermission.ADMINISTRATION});
+		try {
+			addCurrentlyMigrating(documentStoreId);
+			this.migrateDocument(expedientId, documentStoreId);
+		} finally {
+			deleteCurrentlyMigrating(documentStoreId);
+		}
+	}
+	
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
+	public void trySincronitzarArxiu(
+			Long expedientId,
+			Long documentStoreId) {
+		// Comprovam si ja s'esta executant la migració per aquest document
+		if(isCurrentlyMigrating(documentStoreId))
+			return;
+		try {
+			addCurrentlyMigrating(documentStoreId);
+			self.migrateDocument(expedientId, documentStoreId);
+		} catch(Exception e) {
+			logger.debug(e.getMessage());
+			DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
+			Long reintents = documentStore.getSyncReintents();
+			documentStore.setSyncReintentData(new Date());
+			documentStore.setSyncReintents(reintents != null? reintents + 1 : 1);
+		} finally {
+			deleteCurrentlyMigrating(documentStoreId);
+		}
+	}
+	
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
+	public void migrateDocument(Long expedientId, Long documentStoreId) {
+		Expedient expedient = expedientRepository.findOne(expedientId);
 		DocumentStore documentStore = documentStoreRepository.findOne(documentStoreId);
 		try {
 			// Fa validacions prèvies
@@ -2282,7 +2335,6 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 					errorDescripcio,
 					ex);
 		}
-		
 	}
 	
 	@Override
@@ -2561,7 +2613,26 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	public DocumentDto exportarEniExpedient(Long expedientId) throws Exception {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(expedientId, new Permission[] {ExtendedPermission.READ});
 		return documentHelperV3.exportarEniExpedient(expedient);
-	}	
+	}
+	
+	private static void addCurrentlyMigrating(Long expedientId) {
+		synchronized(currentlyMigratingDocuments) {
+			if(!currentlyMigratingDocuments.contains(expedientId))
+				currentlyMigratingDocuments.add(expedientId);
+		}
+	}
+	
+	private static void deleteCurrentlyMigrating(Long id) {
+		synchronized(currentlyMigratingDocuments) {
+			currentlyMigratingDocuments.remove(id);
+		}
+	}
+	
+	private static boolean isCurrentlyMigrating(Long id) {
+		synchronized(currentlyMigratingDocuments) {
+			return currentlyMigratingDocuments.contains(id);
+		}
+	}
 
 	private static final Logger logger = LoggerFactory.getLogger(ExpedientDocumentServiceImpl.class);
 }

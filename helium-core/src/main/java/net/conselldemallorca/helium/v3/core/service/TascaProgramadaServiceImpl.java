@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,6 +42,7 @@ import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreEntrada
 import es.caib.distribucio.rest.client.integracio.domini.AnotacioRegistreId;
 import net.conselldemallorca.helium.core.helper.ConsultaPinbalHelper;
 import net.conselldemallorca.helium.core.helper.DistribucioHelper;
+import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.EmailHelper;
 import net.conselldemallorca.helium.core.helper.ExceptionHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientHelper;
@@ -69,11 +71,14 @@ import net.conselldemallorca.helium.v3.core.api.dto.procediment.ProgresActualitz
 import net.conselldemallorca.helium.v3.core.api.exception.ExecucioMassivaException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
+import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.v3.core.api.service.ParametreService;
 import net.conselldemallorca.helium.v3.core.api.service.ProcedimentService;
 import net.conselldemallorca.helium.v3.core.api.service.TascaProgramadaService;
 import net.conselldemallorca.helium.v3.core.api.service.UnitatOrganitzativaService;
 import net.conselldemallorca.helium.v3.core.repository.AnotacioEmailRepository;
+import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExecucioMassivaExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientReindexacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
@@ -114,6 +119,15 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 	private ParametreService parametreService;
 	@Resource
 	private UnitatOrganitzativaService unitatOrganitzativaService;
+	@Resource
+	private DocumentStoreRepository documentStoreRepository;
+	@Autowired
+	private ExpedientService expedientService;
+	@Autowired
+	private ExpedientDocumentService expedientDocumentService;
+	@Resource(name = "documentHelperV3")
+	private DocumentHelperV3 documentHelper;
+	
 
 	@Resource
 	private AnotacioEmailRepository anotacioEmailRepository;
@@ -807,6 +821,43 @@ public class TascaProgramadaServiceImpl implements TascaProgramadaService, Arxiu
 					}
 				}
 			}
+		}
+	}
+	
+	/**
+	 * Mètode per cercar i intentar mirgrar a arxiu tots els expedients pendents
+	 */
+	@Override
+	@Transactional
+	public void migrarExpedientsDocumentsArxiu() {
+		try {
+			String value = GlobalProperties.getInstance().getProperty("app.arxiu.migracio.reintents");
+			Long maxReintents = (value == null || value.isEmpty())? 0L : Long.parseLong(value);
+			// Provam de migrar els expedients que pertanyen a un tipus amb integració amb arxiu activat 
+			// i no estiguin sicronitzats amb Arxiu
+			List<Long> expedientsPendents = expedientRepository.findPendentsArxiu(maxReintents);
+			for(Long expedientId : expedientsPendents) {
+				try {
+					expedientService.trySincronitzarArxiu(expedientId);
+				} catch (Exception ex) {
+					logger.debug("Error inesperat migrant expedient amb id:" + expedientId + " a l'arxiu: " + ex.getMessage());
+				}
+			}
+			
+			// Cercam els documents pendents de sincronitzar amb arxiu
+			Iterator documentsPendents = documentStoreRepository.findDocumentsPendentsArxiu(maxReintents).iterator();
+			while(documentsPendents.hasNext()) {
+				Object[] obj = (Object[]) documentsPendents.next();
+				Long expedientId = Long.valueOf(obj[0].toString());
+				Long documentStoreId = Long.valueOf(obj[1].toString());
+				try {
+					expedientDocumentService.trySincronitzarArxiu(expedientId, documentStoreId);
+				} catch (Exception ex) {
+					logger.debug("Error inesperat migrant document amb id: " + documentStoreId + " del expedient :" + expedientId + " a l'arxiu: " + ex.getMessage());
+				}
+			}
+		} catch(Exception e) {
+			logger.error("Error migrant expedients a Arxiu: " + e.getMessage());
 		}
 	}
 			

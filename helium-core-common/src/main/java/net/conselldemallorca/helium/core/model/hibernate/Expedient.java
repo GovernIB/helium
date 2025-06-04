@@ -172,6 +172,9 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	private boolean arxiuActiu;
 	@MaxLength(32)
 	private String arxiuUuid;
+	
+	private Date syncReintentData;
+	private Long syncReintents;
 
 	public Expedient() {}
 	public Expedient(IniciadorTipus iniciadorTipus, String iniciadorCodi, ExpedientTipus tipus, Entorn entorn, String processInstanceId) {
@@ -814,6 +817,20 @@ public class Expedient implements Serializable, GenericEntity<Long> {
 	}
 	public void setErrorArxiu(String nouErrorArxiu) {
 		this.errorArxiu = nouErrorArxiu;
+	}
+	@Column(name="SYNC_REINTENT_DATA", nullable=true)
+	public Date getSyncReintentData() {
+		return syncReintentData;
+	}
+	public void setSyncReintentData(Date syncReintentData) {
+		this.syncReintentData = syncReintentData;
+	}
+	@Column(name="SYNC_REINTENTS", nullable=true)
+	public Long getSyncReintents() {
+		return syncReintents;
+	}
+	public void setSyncReintents(Long syncReintents) {
+		this.syncReintents = syncReintents;
 	}
 	public void addErrorArxiu(String nouErrorArxiu) {
 		if (nouErrorArxiu!=null && !"".equals(nouErrorArxiu)) {

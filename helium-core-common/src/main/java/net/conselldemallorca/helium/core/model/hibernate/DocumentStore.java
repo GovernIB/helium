@@ -115,6 +115,9 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 	/** Camp on distribucio informa dels possibles errors que pugui tenir el document. */
 	@MaxLength(100)
 	private String documentError;
+	
+	private Date syncReintentData;
+	private Long syncReintents;
 
 	/** Identificador de l'annex de l'anotació del qual prové el document o adjunt. */
 	private Long annexId;
@@ -449,6 +452,20 @@ public class DocumentStore implements Serializable, GenericEntity<Long> {
 		this.annexId = annexId;
 	}
 	
+	@Column(name="SYNC_REINTENT_DATA", nullable=true)
+	public Date getSyncReintentData() {
+		return syncReintentData;
+	}
+	public void setSyncReintentData(Date syncReintentData) {
+		this.syncReintentData = syncReintentData;
+	}
+	@Column(name="SYNC_REINTENTS", nullable=true)
+	public Long getSyncReintents() {
+		return syncReintents;
+	}
+	public void setSyncReintents(Long syncReintents) {
+		this.syncReintents = syncReintents;
+	}
 	
 	@JoinTable(name = "hel_document_contingut", joinColumns = {
 	@JoinColumn(name = "id", referencedColumnName = "id", nullable = false) }, inverseJoinColumns = {

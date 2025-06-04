@@ -338,6 +338,39 @@ public class TascaProgramadaConfig implements SchedulingConfigurer {
 	                    }
 	                }
 	        );
+		
+		
+		final String migrarExpedientsArxiu = "migrarExpedientsArxiu";
+		/** Tasca programada per migrar expedients a Arxiu.
+		 */
+		monitorTasquesService.addTasca(migrarExpedientsArxiu);
+		taskRegistrar.addTriggerTask(
+			new Runnable() {
+				@Override
+				public void run() {
+					monitorTasquesService.inici(migrarExpedientsArxiu);
+					try{ 
+						tascaProgramadaService.migrarExpedientsDocumentsArxiu();
+						monitorTasquesService.fi(migrarExpedientsArxiu);
+					} catch(Throwable th) {
+						tractarErrorTascaSegonPla(th, migrarExpedientsArxiu);
+					}
+				}
+			},
+			new Trigger() {
+				@Override
+				public Date nextExecutionTime(TriggerContext triggerContext) {
+					
+					Long value = 60L;
+					PeriodicTrigger trigger = new PeriodicTrigger(value, TimeUnit.MINUTES);
+					trigger.setInitialDelay(value);
+					Date nextExecution = trigger.nextExecutionTime(triggerContext);
+					Long longNextExecution = nextExecution.getTime() - System.currentTimeMillis();
+					monitorTasquesService.updateProperaExecucio(migrarExpedientsArxiu, longNextExecution);
+					return nextExecution;
+				}
+			}
+		);
 	}
 
 	/** Enregistre l'error als logs i marca la tasca amb error. */

@@ -5,11 +5,11 @@ package net.conselldemallorca.helium.v3.core.repository;
 
 import java.util.List;
 
-import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
 
 /**
  * Especifica els mètodes que s'han d'emprar per obtenir i modificar la
@@ -57,5 +57,21 @@ public interface DocumentStoreRepository extends JpaRepository<DocumentStore, Lo
 	public List<DocumentStore> findDocumentsContingutsIds(
 			@Param("documentsContinentsIds") List<Long> documentsContinentsIds);
 	
-	
+	@Query( value = "SELECT DISTINCT e.ID AS EXP, ds.ID AS DOC " +
+					"FROM " +
+					"HEL_DOCUMENT_STORE ds, " +
+					"JBPM_PROCESSINSTANCE pi, " +
+					"HEL_EXPEDIENT e, " +
+					"JBPM_VARIABLEINSTANCE vi " +
+					"WHERE " +
+						"ds.PROCESS_INSTANCE_ID = pi.ID_ AND " +
+						"pi.EXPEDIENT_ID_ = e.ID AND " +
+						"e.ARXIU_ACTIU  = 1 AND " +
+						"vi.NAME_ = ds.JBPM_VARIABLE AND " +
+						"vi.PROCESSINSTANCE_ = pi.ID_ AND " +
+						"e.ARXIU_UUID IS NOT NULL AND " +
+						"ds.ARXIU_UUID IS NULL AND " +
+						"(ds.SYNC_REINTENTS IS NULL OR ds.SYNC_REINTENTS < :maxReintents) ",
+			nativeQuery = true)
+	public List<List<Long>> findDocumentsPendentsArxiu(@Param("maxReintents") Long maxReintents);
 }

@@ -46,4 +46,9 @@ public interface TascaProgramadaService {
 	 * segons la propietat app.anotacions.emails.agrupats.chron. Per defecte a les 20h */
 	public void comprovarEmailAnotacionsAgrupats();
 	
+	/**
+	 * Mètode periòdic per migrar expedients i documents a Arxiu
+	 */
+	public void migrarExpedientsDocumentsArxiu();
+	
 }

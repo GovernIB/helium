@@ -19,12 +19,15 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -34,6 +37,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.caib.distribucio.backoffice.utils.arxiu.ArxiuPluginListener;
@@ -198,7 +202,12 @@ import net.conselldemallorca.helium.v3.core.repository.UnitatOrganitzativaReposi
  */
 @Service("expedientServiceV3")
 public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListener {
-
+	
+	private static List<Long> currentlyMigratingExpedients = Collections.synchronizedList(new ArrayList<Long>());
+	
+	private ExpedientService self;
+	@Autowired
+	private ApplicationContext applicationContext;
 	@Resource
 	private DocumentRepository documentRepository;
 	@Resource
@@ -314,6 +323,11 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	private ExpedientTipusService expedientTipusService;
 	@Resource
 	private Jbpm3HeliumService jbpm3HeliumService;
+	
+	@PostConstruct
+	public void postContruct() {
+		self = applicationContext.getBean(ExpedientService.class);
+	}
 	
 	/**
 	 * {@inheritDoc}
@@ -1475,7 +1489,6 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	}
 	
 	
-	
 	@Transactional
 	private void migrarArxiu(Long id, boolean esborrarExpSiError) {
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
@@ -1483,7 +1496,12 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 				new Permission[] {
 						ExtendedPermission.WRITE,
 						ExtendedPermission.ADMINISTRATION});
-
+		self.syncArxiu(expedient.getId(), esborrarExpSiError);
+	}
+	
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
+	public void syncArxiu(Long expedientId, boolean esborrarExpSiError) {
+		Expedient expedient = expedientRepository.findOne(expedientId);
 		try {
 			expedientHelper.migrarExpedientArxiu(expedient);
 		} catch (Exception ex) {
@@ -1514,12 +1532,18 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 	
 	@Transactional
 	private void migrarDocumentsArxiu(Long id, boolean esborrarExpSiError) {
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
+		// Si el usuari no te permisos es llança una excepció
+		expedientHelper.getExpedientComprovantPermisos(
 				id,
 				new Permission[] {
 						ExtendedPermission.WRITE,
 						ExtendedPermission.ADMINISTRATION});
-
+		self.syncDocumentsArxiu(id, esborrarExpSiError);
+	}
+	
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
+	public void syncDocumentsArxiu(Long expedientId, boolean esborrarExpSiError) {
+		Expedient expedient = expedientRepository.findOne(expedientId);
 		try {
 			expedientHelper.migrarDocumentsArxiu(expedient);
 			//Si l'expedient esta tancat, el migrar la l'haura tancat a arxiu, i no es podran mourer els annexos
@@ -1553,19 +1577,48 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 		}
 	}
 	
-	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void sincronitzarArxiu(Long id, boolean esborrarExpSiError) {
+		// Comprovam si ja s'esta executant la migració per aquest expedient
+		if(isCurrentlyMigrating(id))
+			return;
 		logger.debug("Migrar l'expedient (id=" + id + ") a l'arxiu");
 		expedientLoggerHelper.afegirLogExpedientPerExpedient(
 				id,
 				ExpedientLogAccioTipus.EXPEDIENT_MIGRAR_ARXIU,
 				null);
-		this.migrarArxiu(id, esborrarExpSiError);
-		this.migrarDocumentsArxiu(id, esborrarExpSiError);
+		try {
+			addCurrentlyMigrating(id);
+			this.migrarArxiu(id, esborrarExpSiError);
+			this.migrarDocumentsArxiu(id, esborrarExpSiError);
+		} finally {
+			deleteCurrentlyMigrating(id);
+		}
+	}
+	
+	@Override
+	@Transactional(propagation=Propagation.REQUIRES_NEW)
+	public void trySincronitzarArxiu(Long id) throws NoTrobatException{
+		// Comprovam si ja s'esta executant la migració per aquest expedient
+		if(isCurrentlyMigrating(id))
+			return;
+		
+		logger.debug("Migrar l'expedient (id=" + id + ") a l'arxiu");
+		try {
+			addCurrentlyMigrating(id);
+			self.syncArxiu(id, true);
+			self.syncDocumentsArxiu(id, true);
+		} catch(Exception e) {
+			Expedient expedient = expedientRepository.findOne(id);
+			Long reintents = expedient.getSyncReintents();
+			expedient.setSyncReintentData(new Date());
+			expedient.setSyncReintents(reintents != null? reintents + 1 : 1);
+		} finally {
+			deleteCurrentlyMigrating(id);
+		}
 	}
 
 	/**
@@ -3719,6 +3772,25 @@ public class ExpedientServiceImpl implements ExpedientService, ArxiuPluginListen
 					error, 
 					e, 
 					parametresMonitor);	
+		}
+	}
+	
+	private static void addCurrentlyMigrating(Long expedientId) {
+		synchronized(currentlyMigratingExpedients) {
+			if(!currentlyMigratingExpedients.contains(expedientId))
+				currentlyMigratingExpedients.add(expedientId);
+		}
+	}
+	
+	private static void deleteCurrentlyMigrating(Long expedientId) {
+		synchronized(currentlyMigratingExpedients) {
+			currentlyMigratingExpedients.remove(expedientId);
+		}
+	}
+	
+	private static boolean isCurrentlyMigrating(Long expedientId) {
+		synchronized(currentlyMigratingExpedients) {
+			return currentlyMigratingExpedients.contains(expedientId);
 		}
 	}
 	

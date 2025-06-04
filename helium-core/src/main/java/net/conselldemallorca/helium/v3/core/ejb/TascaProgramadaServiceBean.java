@@ -104,4 +104,10 @@ public class TascaProgramadaServiceBean implements TascaProgramadaService {
 		delegate.comprovarEmailAnotacionsAgrupats();
 	}
 
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void migrarExpedientsDocumentsArxiu() {
+		delegate.migrarExpedientsDocumentsArxiu();
+	}
+
 }

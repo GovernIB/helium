@@ -702,6 +702,12 @@ public class ExpedientServiceBean implements ExpedientService {
 	public void sincronitzarArxiu(Long id, boolean esborrarExpSiError) throws NoTrobatException, PermisDenegatException {
 		delegate.sincronitzarArxiu(id, esborrarExpSiError);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void trySincronitzarArxiu(Long id) throws NoTrobatException {
+		delegate.trySincronitzarArxiu(id);
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
@@ -749,5 +755,17 @@ public class ExpedientServiceBean implements ExpedientService {
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
 	public EstatDto estatCanviar(Long expedientId, Long estatId) {
 		return delegate.estatCanviar(expedientId, estatId);
+	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void syncArxiu(Long id, boolean esborrarExpSiError) {
+		delegate.syncArxiu(id, esborrarExpSiError);
+	}
+
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public void syncDocumentsArxiu(Long id, boolean esborrarExpSiError) {
+		delegate.syncDocumentsArxiu(id, esborrarExpSiError);
 	}
 }

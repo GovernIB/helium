@@ -519,6 +519,15 @@ public interface ExpedientDocumentService {
 	public void migrarArxiu(
 			Long expedientId,
 			Long documentStoreId) throws NoTrobatException, PermisDenegatException;
+	
+	/**
+	 * Migra el document a l'arxiu
+	 * @param expedientId
+	 * @param documentStoreId
+	 */
+	public void trySincronitzarArxiu(
+			Long expedientId,
+			Long documentStoreId);
 
     public Set<Long> findIdsDocumentsByExpedient(Long expedientId);
 
@@ -627,4 +636,11 @@ public interface ExpedientDocumentService {
 	 * @param expedientId
 	 */
 	public DocumentDto exportarEniExpedient(Long expedientId) throws Exception;
+
+	/**
+	 * Mètode per migrar documents a Arxiu
+	 * @param expedientId
+	 * @param documentStoreId
+	 */
+	public void migrateDocument(Long expedientId, Long documentStoreId);
 }
