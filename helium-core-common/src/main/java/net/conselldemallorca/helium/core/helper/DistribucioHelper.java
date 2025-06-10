@@ -1198,18 +1198,20 @@ public class DistribucioHelper {
 				// Camp registre
 				
 				if (camp.isMultiple()) {
-					Object[][] resposta = new Object[campo.getElementos() != null ? campo.getElementos().size() : 0][];
-					for (int i = 0; i < resposta.length; i++) {
-						Elemento elemento = campo.getElementos().get(i);
-						Object[] filaResposta = new Object[camp.getRegistreMembres().size()];
-						for (int j = 0; j < filaResposta.length && j < elemento.getCampo().size(); j++) {
-							Camp campRegistre = camp.getRegistreMembres().get(j).getMembre();
-							Campo campoElemento = elemento.getCampo().get(j);
-							filaResposta[j] = valorPerHeliumSimple(getValorSistra(campoElemento, 0), campRegistre);
+					if (campo.getElementos() != null && !campo.getElementos().isEmpty()) {
+						Object[][] resposta = new Object[campo.getElementos().size()][];
+						for (int i = 0; i < resposta.length; i++) {
+							Elemento elemento = campo.getElementos().get(i);
+							Object[] filaResposta = new Object[camp.getRegistreMembres().size()];
+							for (int j = 0; j < filaResposta.length && j < elemento.getCampo().size(); j++) {
+								Camp campRegistre = camp.getRegistreMembres().get(j).getMembre();
+								Campo campoElemento = elemento.getCampo().get(j);
+								filaResposta[j] = valorPerHeliumSimple(getValorSistra(campoElemento, 0), campRegistre);
+							}
+							resposta[i] = filaResposta;
 						}
-						resposta[i] = filaResposta;
+						valorHelium = resposta;
 					}
-					valorHelium = resposta;
 				} else {
 					Object[] resposta = new Object[camp.getRegistreMembres().size()];
 					Elemento elemento = campo.getElementos().get(0);
