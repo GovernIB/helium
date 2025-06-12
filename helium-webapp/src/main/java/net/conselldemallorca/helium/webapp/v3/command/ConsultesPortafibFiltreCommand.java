@@ -18,6 +18,7 @@ public class ConsultesPortafibFiltreCommand implements Serializable {
 	private PortafirmesEstatEnum estat;
 	private Date dataPeticioIni;
 	private Date dataPeticioFi;
+	private Integer documentId;
 	
 	public Long getId() {
 		return id;
@@ -72,5 +73,11 @@ public class ConsultesPortafibFiltreCommand implements Serializable {
 	}
 	public void setDocumentNom(String documentNom) {
 		this.documentNom = documentNom;
+	}
+	public Integer getDocumentId() {
+		return documentId;
+	}
+	public void setDocumentId(Integer documentId) {
+		this.documentId = documentId;
 	}
 }

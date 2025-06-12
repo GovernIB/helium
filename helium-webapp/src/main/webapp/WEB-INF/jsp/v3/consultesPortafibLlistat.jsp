@@ -35,6 +35,7 @@
 		$("#netejar").click(function() {
 			$('#tipusId').val('').change();
 			$('#estat').val('').change();
+			$('#documentId').val('').change();
 		})
 		
 	});
@@ -83,7 +84,10 @@
 				placeholderKey="consultes.pinbal.camp.estat" 
 				optionValueAttribute="codi" 
 				optionTextAttribute="valor"/>
-		</div>	
+		</div>
+		<div class="col-md-2">
+			<hel:inputNumber name="documentId" textKey="consultes.potafib.camp.documentId" placeholderKey="consultes.potafib.camp.documentId" inline="true"/>
+		</div>
 		<div class="col-md-4 pull-right">
 			<div class="pull-right">
 					<button id="consultarHidden" type="submit" name="accio" value="consultar" class="btn btn-primary hidden"><span class="fa fa-filter"></span>&nbsp;<spring:message code="comu.filtre.filtrar"/></button>
@@ -106,6 +110,7 @@
 			class="table table-striped table-bordered table-hover">
 		<thead>
 			<tr>
+				<th data-col-name=documentId width="10%"><spring:message code="consultes.potafib.camp.documentId"/></th>
 				<th data-col-name="tipusExpedientNom" data-template="#cellTipusTemplate" width="10%"><spring:message code="consultes.pinbal.camp.tipus"/>
 					<script id="cellTipusTemplate" type="text/x-jsrender">
 						{{:tipusExpedientCodi}} <span class="fa fa-info-circle" title="{{:tipusExpedientCodi}} - {{:tipusExpedientNom}}

@@ -150,7 +150,7 @@ public class PluginService {
 			Integer documentId) throws PluginException {
 		pluginPortasignaturesDao.deleteDocument(documentId);
 	}
-			
+	
 	public boolean processarDocumentCallbackPortasignatures(
 			Integer id,
 			boolean rebujat,
