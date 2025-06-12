@@ -72,7 +72,8 @@ public interface PortasignaturesRepository extends JpaRepository<Portasignatures
 			" and (:esNullTransicio = true or pf.transition = :transicio) " +
 			" and (:esNullDocument = true or lower(replace(docs.jbpmVariable, 'H3l1um#document.', '')) like lower('%'||:document||'%') or lower(docs.arxiuNom) like lower('%'||:document||'%')) " +
 			" and (:esNullDataIni = true or pf.dataEnviat >= :dataIni) " +
-			" and (:esNullDataFi = true  or pf.dataEnviat <= :dataFi)")	
+			" and (:esNullDataFi = true  or pf.dataEnviat <= :dataFi)" +
+			" and (:esNullDocumentId = true or pf.documentId = :documentId) ")
 	public Page<Portasignatures> findByFiltrePaginat(
 			@Param("esNullEntornId") boolean esNullEntornId,
 			@Param("entornId") Long entornId,
@@ -85,7 +86,7 @@ public interface PortasignaturesRepository extends JpaRepository<Portasignatures
 			@Param("esNullNumExp") boolean esNullNumExp,
 			@Param("numExp") String numExp,
 			@Param("esNullDocument") boolean esNullDocument,
-			@Param("document") String document,			
+			@Param("document") String document,
 			@Param("esNullEstat") boolean esNullEstat,
 			@Param("estat") PortafirmesEstatEnum estat,
 			@Param("esNullTransicio") boolean esNullTransicio,
@@ -94,5 +95,8 @@ public interface PortasignaturesRepository extends JpaRepository<Portasignatures
 			@Param("dataIni") Date dataIni,
 			@Param("esNullDataFi") boolean esNullDataFi,
 			@Param("dataFi") Date dataFi,
+			@Param("esNullDocumentId") boolean esNullDocumentId,
+			@Param("documentId") Integer documentId,
 			Pageable pageable);
+	
 }

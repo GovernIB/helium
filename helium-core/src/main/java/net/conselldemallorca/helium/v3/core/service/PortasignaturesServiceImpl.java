@@ -142,6 +142,8 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 						dataInicial,
 						dataFinal == null,
 						dataFinal,
+						filtreDto.getDocumentId() == null,
+						filtreDto.getDocumentId(),
 						paginacioHelper.toSpringDataPageable(paginacioParams)),
 						PortasignaturesDto.class);
 		

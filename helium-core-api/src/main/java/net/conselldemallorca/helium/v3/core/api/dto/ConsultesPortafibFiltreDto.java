@@ -16,6 +16,7 @@ public class ConsultesPortafibFiltreDto implements Serializable {
 	private PortafirmesEstatEnum estat;
 	private Date dataPeticioIni;
 	private Date dataPeticioFi;
+	private Integer documentId;
 	
 	public Long getId() {
 		return id;
@@ -70,6 +71,12 @@ public class ConsultesPortafibFiltreDto implements Serializable {
 	}
 	public void setDataPeticioFi(Date dataPeticioFi) {
 		this.dataPeticioFi = dataPeticioFi;
+	}
+	public Integer getDocumentId() {
+		return documentId;
+	}
+	public void setDocumentId(Integer documentId) {
+		this.documentId = documentId;
 	}
 	
 }

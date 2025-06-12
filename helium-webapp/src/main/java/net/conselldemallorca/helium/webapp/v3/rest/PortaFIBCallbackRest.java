@@ -57,7 +57,6 @@ public class PortaFIBCallbackRest {
 	@RequestMapping(value = "/event", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<String> event(@RequestBody PortaFIBEvent event) {
-
 		Long documentId = event.getSigningRequest().getID();
 		Integer estat = event.getEventTypeID();
 		String motiuRebuig = null;
@@ -102,8 +101,8 @@ public class PortaFIBCallbackRest {
 			Double resposta = -1D;
 			boolean processamentOk = false;
 			String accio = null;
+			ProcessDocumentPortafibRunnable runnable = null;
 			try {
-				PluginService pluginService = ServiceProxy.getInstance().getPluginService();
 				switch (tipusEstat) {
 				case BLOQUEJAT:
 					resposta = 1D;
@@ -117,29 +116,25 @@ public class PortaFIBCallbackRest {
 					break;
 				case SIGNAT:
 					accio = "Signat";
-					processamentOk = pluginService.processarDocumentCallbackPortasignatures(documentId.intValue(),
-							false, null);
-					resposta = (processamentOk) ? 1D : -1D;
+					runnable = new ProcessDocumentPortafibRunnable(documentId.intValue(), false, null);
 					break;
 				case REBUTJAT:
 					accio = "Rebutjat";
 					String motiu = null;
 					if (event.getSigningRequest() != null)
 						motiu = event.getSigningRequest().getRejectionReason();
-					processamentOk = pluginService.processarDocumentCallbackPortasignatures(documentId.intValue(), true,
-							motiu);
-					resposta = (processamentOk) ? 1D : -1D;
+					runnable = new ProcessDocumentPortafibRunnable(documentId.intValue(), true, motiu);
 					break;
 				default:
 					break;
 				}
+				
+				// Processam el document en segon plà #1898
+				if(runnable != null)
+					(new Thread(runnable)).start();
+				
 				logger.info("Fi procés petició callback portasignatures (id=" + documentId + ", estat=" + estat + "-"
 						+ accio + ", resposta=" + resposta + ")");
-				if (!processamentOk) {
-					return new ResponseEntity<String>(
-							"El document no s'ha processat correctament (id=" + documentId + ", estat=" + estat + "-Signat, resposta=" + resposta + ")", 
-							HttpStatus.INTERNAL_SERVER_ERROR);
-				}
 			} catch (Exception ex) {
 				logger.error("Error procés petició callback portasignatures (id=" + documentId + ", estat=" + estat
 						+ ", resposta=" + resposta + "): " + ex.getMessage());
