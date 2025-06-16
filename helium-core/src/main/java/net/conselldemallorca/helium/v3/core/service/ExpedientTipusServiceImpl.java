@@ -351,7 +351,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	}
 
 	private DefinicioProces getDefinicioProcesEstats(ExpedientTipus expedientTipus, Entorn entorn) {
-		DefinicioProces definicioProces = definicioProcesHelper.findDarreraVersioDefinicioProces(expedientTipus, DefinicioProcesService.HELIUM_JBPM_FLOW + expedientTipus.getCodi());
+		DefinicioProces definicioProces = definicioProcesHelper.findDarreraVersioDefinicioProces(expedientTipus, expedientTipus.getCodi());
 		if (definicioProces == null) {
 			definicioProces = definicioProcesHelper.desplegarJbpm(
 					DefinicioProcesService.HELIUM_JBPM_FLOW + expedientTipus.getCodi() + ".par",
