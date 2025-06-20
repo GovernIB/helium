@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import net.conselldemallorca.helium.core.helper.ConversioTipusHelper;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
-import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.PaginacioHelper;
 import net.conselldemallorca.helium.core.helper.UsuariActualHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
@@ -28,6 +27,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.PortasignaturesDto;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientTipusService;
 import net.conselldemallorca.helium.v3.core.api.service.PortasignaturesService;
+import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
 import net.conselldemallorca.helium.v3.core.repository.PortasignaturesRepository;
 
 @Service
@@ -36,7 +36,7 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 	@Resource private PortasignaturesRepository portasignaturesRepository;
 	@Resource private ConversioTipusHelper conversioTipusHelper;
 	@Resource private PaginacioHelper paginacioHelper;
-	@Resource private ExpedientHelper expedientHelper;
+	@Resource private ExpedientRepository expedientRepository;
 	@Resource private UsuariActualHelper usuariActualHelper;
 	@Resource private DocumentHelperV3 documentHelperV3;
 	@Resource private ExpedientTipusService expedientTipusService;
@@ -152,14 +152,13 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 			if (filtreDto.getEstat()!=null) {
 				pf.setEstat(filtreDto.getEstat().toString());
 			}
-			Expedient expedient = expedientHelper.getExpedientComprovantPermisos(pf.getExpedientId(), true, false, false, false);
+			Expedient expedient = expedientRepository.findOne(pf.getExpedientId());
 			ExpedientDocumentDto document = documentHelperV3.findDocumentPerDocumentStoreId(
 					pf.getProcessInstanceId(),
 					pf.getDocumentStoreId(),
 					expedient.isArxiuActiu());
 			String nom = pf.getDocumentNom();
 			if (document != null) {
-//				nom = document.getDocumentNom();
 				nom = document.getArxiuNom();
 			}
 			pf.setDocumentNom(nom);
@@ -173,8 +172,8 @@ public class PortasignaturesServiceImpl implements PortasignaturesService {
 	@Transactional(readOnly=true)
 	public PortasignaturesDto findById(Long portafirmesId) throws PermisDenegatException {
 		Portasignatures ps = portasignaturesRepository.findById(portafirmesId);
-		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(ps.getExpedient().getId(), true, false, false, false);
 		PortasignaturesDto resultat = conversioTipusHelper.convertir(ps, PortasignaturesDto.class);
+		Expedient expedient = expedientRepository.findOne(resultat.getExpedientId());
 		
 		ExpedientDocumentDto document = documentHelperV3.findDocumentPerDocumentStoreId(
 				resultat.getProcessInstanceId(),
