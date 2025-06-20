@@ -105,7 +105,7 @@
 			data-filter="#consultesPortafibFiltreCommand"
 			data-paging-enabled="true"
 			data-ordering="true"
-			data-default-order="2"
+			data-default-order="3"
 			data-default-dir="desc"			
 			class="table table-striped table-bordered table-hover">
 		<thead>
