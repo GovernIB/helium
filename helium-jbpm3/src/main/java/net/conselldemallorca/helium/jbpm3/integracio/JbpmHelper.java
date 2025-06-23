@@ -43,6 +43,7 @@ import org.jbpm.job.Timer;
 import org.jbpm.logging.log.ProcessLog;
 import org.jbpm.taskmgmt.def.Task;
 import org.jbpm.taskmgmt.exe.TaskInstance;
+import org.springframework.asm.ClassReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -470,6 +471,47 @@ public class JbpmHelper {
 			FileDefinition fd = processDefinition.getFileDefinition();
 			if (fd != null)
 				resources = fd.getBytesMap().keySet();
+			else
+				resources = new HashSet<String>();
+		} else {
+			resources = new HashSet<String>();
+		}
+		//adminService.mesuraCalcular("jBPM getResourceNames", "jbpmDao");
+		return resources;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Set<String> getHandlerNames(String jbpmId) {
+		//adminService.mesuraIniciar("jBPM getResourceNames", "jbpmDao");
+		Set<String> resources = null;
+		final long pdid = Long.parseLong(jbpmId);
+		GetProcessDefinitionByIdCommand command = new GetProcessDefinitionByIdCommand(pdid);
+		ProcessDefinition processDefinition = (ProcessDefinition)commandService.execute(command);
+		if (processDefinition != null) {
+			FileDefinition fd = processDefinition.getFileDefinition();
+			
+			if (fd != null) {
+				resources = new HashSet<String>();
+				Set<String> keys = fd.getBytesMap().keySet();
+				for(String key : keys) {
+					byte[] bytes = (byte[]) fd.getBytesMap().get(key);
+					// Es comprova que el fitxer es un class de java
+					byte[] magicNumbers = {-54,-2,-70,-66};
+					boolean isClass = true;
+					for(int i = 0; i < 4; i++) {
+						if(bytes.length > 4 && magicNumbers[i] != bytes[i]) {
+							isClass = false;
+							break;
+						}
+					}
+					if(!isClass) continue;
+					
+					ClassReader cr = new ClassReader(bytes);
+					if ("net/conselldemallorca/helium/jbpm3/api/HeliumActionHandler".equalsIgnoreCase(cr.getSuperName())) {
+						resources.add(key);
+					}
+				}
+			}
 			else
 				resources = new HashSet<String>();
 		} else {
