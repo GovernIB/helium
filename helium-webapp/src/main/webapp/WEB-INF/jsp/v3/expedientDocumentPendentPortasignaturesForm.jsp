@@ -114,7 +114,7 @@
 										</div>
 										<div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
 											<div class="panel-body panell-error">
-												${psignaPendentActual.errorProcessant}
+												<c:out value="${psignaPendentActual.errorProcessant}" escapeXml="true"/>
 											</div>
 										</div>
 									</div>
