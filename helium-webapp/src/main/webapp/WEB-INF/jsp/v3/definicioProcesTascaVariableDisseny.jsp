@@ -463,7 +463,7 @@
 			$('#spinner').hide();
 			return;
 		}
-		
+
 		if(draggedId.includes('tasca-camp-form')) {
 			dropedNew = true;
 			var order = null;
@@ -485,13 +485,16 @@
 		}
 		
 		var readOnly = draggedEl.data('readonly');
+		//let beforeId = null;
 		if (dropedOnEl.attr('id') == 'vars_r'){
 			draggedEl.data('readonly', true);
 			dropedOnEl.append(draggedEl);
 			readOnly = true;
 		} else if(dropedOnEl.closest('.vars').attr('id') == 'vars_r') {
 			draggedEl.data('readonly', true);
-			dropedOnEl.closest('.variable').before(draggedEl);
+			const pvariable = dropedOnEl.closest('.variable');
+			beforeId = pvariable.data('id');
+			pvariable.before(draggedEl);
 			readOnly = true;
 		} else {
 			if(draggedEl.data('readonly')) {
@@ -507,12 +510,23 @@
 		} 
 		
 		canviarValorTascaVariable(draggedEl.data('id'), readOnly, 'readOnly', function() {
-			refreshOrder(draggedId, function() {
-				refrescaVariables(function() {
-					$('#spinner').hide();
-					processing = false;
+			/* if(beforeId) {
+				refreshOrder(beforeId, function() {
+					refreshOrder(draggedId, function() {
+						refrescaVariables(function() {
+							$('#spinner').hide();
+							processing = false;
+						});
+					});
 				});
-			});
+			} else { */
+				refreshOrder(draggedId, function() {
+					refrescaVariables(function() {
+						$('#spinner').hide();
+						processing = false;
+					});
+				});
+			/* } */
 		});
 	}
 	
@@ -865,11 +879,21 @@
 			}
 		});
 		var wVarsLen = wVars.length;
+		var nextVarOrder = null;
+		
 		$('#vars_r>.variable').each(function(i, e) {
+			if(currentOrder && !nextVarOrder) {
+				nextVarOrder = $(e).data('order');
+			}
+			
 			if(campId == $(e).data('id')) {
 				currentOrder = wVarsLen+i;
 			}
 		});
+		
+		if(nextVarOrder && nextVarOrder < currentOrder) {
+			currentOrder = nextVarOrder;
+		}
 		
 		canviarPosicioTascaVariable(campId, currentOrder, callback);
 	}
