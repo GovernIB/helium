@@ -37,7 +37,6 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
-import es.caib.plugins.arxiu.api.ArxiuException;
 import es.caib.plugins.arxiu.api.ConsultaFiltre;
 import es.caib.plugins.arxiu.api.ConsultaOperacio;
 import es.caib.plugins.arxiu.api.ConsultaResultat;
@@ -2905,6 +2904,7 @@ public class PluginHelper {
 		String accioDescripcio = "Guardar firma per document";
 		List<IntegracioParametreDto> parametres = new ArrayList<IntegracioParametreDto>();
 		parametres.add( new IntegracioParametreDto("id", documentStore.getId().toString()));
+		parametres.add( new IntegracioParametreDto("uuid", documentStore.getArxiuUuid()));
 		parametres.add( new IntegracioParametreDto("documentNom", documentNom));
 		parametres.add( new IntegracioParametreDto("documentDescripcio", documentDescripcio));
 		parametres.add( new IntegracioParametreDto("firmaFitxerNom", firma.getNom()));
@@ -2921,26 +2921,31 @@ public class PluginHelper {
 			//DocumentExtensio ext = getExtensioPerArxiu(FilenameUtils.getExtension(arxiu.getNom()));
 			//new MimetypesFileTypeMap().getContentType(arxiu.getNom());
 			arxiu.setTipusMime(this.getContentType(arxiu.getNom()));
-			
-			ContingutArxiu documentPerRetornar = getArxiuPlugin().documentModificar(
-					toArxiuDocument(
-							documentStore.getArxiuUuid(),
-							documentNom,
-							documentDescripcio,
-							arxiu,
-							firma,
-							tipusFirma, 
-							tipusFirmaEni,
-							perfilFirmaEni,
-							documentStore.getNtiIdentificador(),
-							obtenirNtiOrigen(documentStore),
-							Arrays.asList(obtenirNtiOrgano(expedient)),
-							documentStore.getDataCreacio(),
-							obtenirNtiEstadoElaboracion(documentStore),
-							obtenirNtiTipoDocumental(documentStore),
-							documentStore.getNtiIdDocumentoOrigen(),
-							getExtensioPerArxiu(arxiu.getExtensio()),
-							DocumentEstat.DEFINITIU));
+			es.caib.plugins.arxiu.api.Document document = toArxiuDocument(
+					documentStore.getArxiuUuid(),
+					documentNom,
+					documentDescripcio,
+					arxiu,
+					firma,
+					tipusFirma, 
+					tipusFirmaEni,
+					perfilFirmaEni,
+					documentStore.getNtiIdentificador(),
+					obtenirNtiOrigen(documentStore),
+					Arrays.asList(obtenirNtiOrgano(expedient)),
+					documentStore.getDataCreacio(),
+					obtenirNtiEstadoElaboracion(documentStore),
+					obtenirNtiTipoDocumental(documentStore),
+					documentStore.getNtiIdDocumentoOrigen(),
+					getExtensioPerArxiu(arxiu.getExtensio()),
+					DocumentEstat.DEFINITIU);
+
+	ContingutArxiu documentPerRetornar =  documentStore.getArxiuUuid() == null ?
+						getArxiuPlugin().documentCrear(
+									document,
+									expedient.getArxiuUuid())
+						:getArxiuPlugin().documentModificar(document);
+
 			monitorIntegracioHelper.addAccioOk(
 					MonitorIntegracioHelper.INTCODI_ARXIU,
 					accioDescripcio,

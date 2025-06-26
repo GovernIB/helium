@@ -20,8 +20,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import es.caib.portafib.callback.beans.v1.PortaFIBEvent;
 import net.conselldemallorca.helium.core.helper.MonitorIntegracioHelper;
-import net.conselldemallorca.helium.core.model.service.PluginService;
-import net.conselldemallorca.helium.core.model.service.ServiceProxy;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioEstatEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioAccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.IntegracioParametreDto;

@@ -450,9 +450,7 @@ public class PluginService {
 	private void afegirDocumentCustodia(
 			Integer psignaId,
 			DocumentStore documentStore) throws Exception {
-		Long documentStoreId = documentStore.getId();
-		DocumentDto document = documentHelper.getDocumentSenseContingut(documentStoreId);
-		if (document != null) {
+		if (documentStore != null) {
 			List<byte[]> signatures = pluginPortasignaturesDao.obtenirSignaturesDocument(
 					psignaId);
 			if (signatures != null && signatures.size() == 1) {
