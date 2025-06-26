@@ -635,7 +635,7 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		colNum = 0;
 		xlsRow = sheet.createRow(rowNum++);
 		cell = xlsRow.createCell(colNum++);
-		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize("Total entorns")));
+		cell.setCellValue(new XSSFRichTextString(StringUtils.capitalize("Totals")));
 		cell.setCellStyle(headerStyle);
 		sheet.autoSizeColumn(colNum);
 		cell = xlsRow.createCell(colNum++);
@@ -647,7 +647,12 @@ public class ExpedientTipusEstadisticaController extends BaseController {
 		cell = xlsRow.createCell(colNum++);
 		cell.setCellValue(totalEntorns);
 		cell.setCellStyle(boldText);
-			
+
+		sheet.autoSizeColumn(colNum);
+		cell = xlsRow.createCell(colNum++);
+		cell.setCellValue(totalTipologies);
+		cell.setCellStyle(boldText);
+
 		for(int i=0; i<colNum; i++)
 			sheet.autoSizeColumn(i);
 	}
