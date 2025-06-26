@@ -36,7 +36,6 @@ import net.conselldemallorca.helium.core.model.hibernate.EnumeracioValors;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Tasca;
-import net.conselldemallorca.helium.core.util.ExpedientCamps;
 import net.conselldemallorca.helium.core.util.GlobalProperties;
 import net.conselldemallorca.helium.jbpm3.handlers.BasicActionHandler;
 import net.conselldemallorca.helium.jbpm3.integracio.DominiCodiDescripcio;
@@ -951,7 +950,9 @@ public class VariableHelper {
 				} else {
 					Object[] valorsMultiples = null;
 					// Comprovam que el valor desat actual és de tipus array. En cas contrari el convertim a array
-					if (varValor == null || varValor instanceof Object[]) {
+					if (varValor == null 
+							|| (varValor instanceof Object[] 
+									&& ((Object[]) varValor).length > 0)) {
 						valorsMultiples = (Object[])varValor;
 					} else { 
 						valorsMultiples = new Object[] {varValor};

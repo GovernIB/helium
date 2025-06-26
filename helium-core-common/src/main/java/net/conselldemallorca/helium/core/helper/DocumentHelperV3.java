@@ -2114,23 +2114,24 @@ public class DocumentHelperV3 {
 		
 		String documentDescripcio = documentStore.isAdjunt() ? documentStore.getAdjuntTitol(): document.getNom();		
 		
-		if (documentStore.getArxiuUuid() != null) {
+		if (expedient.isArxiuActiu()) {
 			// Guardar firma a l'Arxiu
 						
 			ArxiuDto arxiuFirmat = new ArxiuDto();
-			es.caib.plugins.arxiu.api.Document documentArxiu;
+			es.caib.plugins.arxiu.api.Document documentArxiu = null;
 						
-			// Consulta l'arxiu per si ja està definitiu no intentar guardar sobre el mateix
-			documentArxiu = pluginHelper.arxiuDocumentInfo(
-					documentStore.getArxiuUuid(), 
-					null, 
-					false, 
-					true);
-			
+			if (documentStore.getArxiuUuid() != null) {
+				// Consulta l'arxiu per si ja està definitiu no intentar guardar sobre el mateix
+				documentArxiu = pluginHelper.arxiuDocumentInfo(
+						documentStore.getArxiuUuid(), 
+						null, 
+						false, 
+						true);
+			}
 			// Mira que no hi hagi un document amb el mateix nom o que com a mínim sigui ell mateix en cas d'actualitzar
 			String documentNom = inArxiu(
 					processInstanceId, 
-					DocumentEstat.DEFINITIU.equals(documentArxiu.getEstat()) ? 
+					documentArxiu != null && DocumentEstat.DEFINITIU.equals(documentArxiu.getEstat()) ? 
 							null 							// Nou document a l'Arxiu
 							: documentStore.getArxiuUuid(), // Actualització del documetn
 					arxiuNom);
@@ -2139,7 +2140,6 @@ public class DocumentHelperV3 {
 			{
 				// El document ja està firmat a l'Arxiu, es guarda amb un altre uuid
 				documentStore.setArxiuUuid(null);
-
 			} 
 			// Guarda el document
 			arxiuFirmat.setNom(arxiuNom);

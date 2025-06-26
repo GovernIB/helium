@@ -58,7 +58,9 @@
 		</dl>
 		<c:if test="${not empty dto.errorProcessant}">
 			<div class="panel-body" >
-				<pre style="height:300px">${dto.errorProcessant}</pre>
+				<pre style="height:300px; white-space: pre-wrap; word-break: keep-all;">
+					<c:out value="${dto.errorProcessant}" escapeXml="true"/>
+				</pre>
 			</div>
 		</c:if>
 	</c:if>

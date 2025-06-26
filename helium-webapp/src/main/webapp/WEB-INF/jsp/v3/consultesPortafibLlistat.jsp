@@ -105,7 +105,7 @@
 			data-filter="#consultesPortafibFiltreCommand"
 			data-paging-enabled="true"
 			data-ordering="true"
-			data-default-order="2"
+			data-default-order="3"
 			data-default-dir="desc"			
 			class="table table-striped table-bordered table-hover">
 		<thead>
@@ -131,7 +131,7 @@
 						{{if estat=='REBUTJAT'}}<span class="fa fa-ban"></span> Rebutjat{{/if}}
 						{{if estat=='PROCESSAT'}}<span class="fa fa-check"></span> Processat ({{:transicio}}){{/if}}
 						{{if estat=='CANCELAT'}}<span class="fa fa-times"></span> Cancel·lat{{/if}}
-						{{if estat=='ERROR'}}<span class="fa fa-exclamation-triangle" title="{{:errorProcessant}}"></span> Error ({{:transicio}}){{/if}}
+						{{if estat=='ERROR'}}<span class="fa fa-exclamation-triangle" title="{{>errorProcessant}}"></span> Error ({{:transicio}}){{/if}}
 						{{if estat=='ESBORRAT'}}<span class="fa fa-times"></span> Esborrat{{/if}}					
 					</script>
 				</th>

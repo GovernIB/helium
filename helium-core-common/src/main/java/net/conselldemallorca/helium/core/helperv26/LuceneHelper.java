@@ -1008,8 +1008,11 @@ public class LuceneHelper extends LuceneIndexSupport {
 											}
 											if (camp.getTipus().equals(TipusCamp.SELECCIO) || camp.getTipus().equals(TipusCamp.SUGGEST))
 												dadaCamp.setOrdenarPerValorMostrar(true);
-											dadaCamp.setMultiple(false);
-											dadaCamp.setValorIndex(valorIndex);
+											dadaCamp.setMultiple(camp.isMultiple());
+											dadaCamp.addValorIndex(valorIndex);
+											dadaCamp.addValorMultiple(valor.toString());
+											dadaCamp.addValorIndexMultiple(valorIndex);
+											
 											if(i!=0 && TipusCamp.STRING.equals(camp.getTipus())) {
 												Object valorConcat = String.valueOf(valor).concat(" , ").concat(dadaCamp.getValor().toString());
 												dadaCamp.setValor(valorConcat);

@@ -85,6 +85,11 @@ public class DadaIndexadaDto {
 	public void setValorIndex(String valorIndex) {
 		this.valorIndex = valorIndex;
 	}
+	public void addValorIndex(String valorIndex) {
+		this.valorIndex = this.valorIndex == null? 
+							valorIndex : 
+							String.valueOf(this.valorIndex).concat(", ").concat(valorIndex);
+	}
 	public String getValorMostrar() {		
 		return toString();
 	}

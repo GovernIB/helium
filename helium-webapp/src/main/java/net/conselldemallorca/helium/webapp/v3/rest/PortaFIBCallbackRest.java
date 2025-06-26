@@ -11,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -102,6 +103,7 @@ public class PortaFIBCallbackRest {
 			boolean processamentOk = false;
 			String accio = null;
 			ProcessDocumentPortafibRunnable runnable = null;
+			String usuariCodi = SecurityContextHolder.getContext().getAuthentication().getName();
 			try {
 				switch (tipusEstat) {
 				case BLOQUEJAT:
@@ -116,14 +118,14 @@ public class PortaFIBCallbackRest {
 					break;
 				case SIGNAT:
 					accio = "Signat";
-					runnable = new ProcessDocumentPortafibRunnable(documentId.intValue(), false, null);
+					runnable = new ProcessDocumentPortafibRunnable(documentId.intValue(), false, null, usuariCodi);
 					break;
 				case REBUTJAT:
 					accio = "Rebutjat";
 					String motiu = null;
 					if (event.getSigningRequest() != null)
 						motiu = event.getSigningRequest().getRejectionReason();
-					runnable = new ProcessDocumentPortafibRunnable(documentId.intValue(), true, motiu);
+					runnable = new ProcessDocumentPortafibRunnable(documentId.intValue(), true, motiu, usuariCodi);
 					break;
 				default:
 					break;

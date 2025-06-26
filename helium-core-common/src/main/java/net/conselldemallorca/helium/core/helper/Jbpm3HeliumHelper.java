@@ -18,6 +18,9 @@ import java.util.zip.ZipOutputStream;
 import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.Resource;
 
+import org.apache.tika.mime.MimeType;
+import org.apache.tika.mime.MimeTypeException;
+import org.apache.tika.mime.MimeTypes;
 import org.hibernate.Hibernate;
 import org.jbpm.graph.exe.ProcessInstanceExpedient;
 import org.slf4j.Logger;
@@ -3802,7 +3805,20 @@ public class Jbpm3HeliumHelper implements Jbpm3HeliumService {
 				arxiu.setTipusMime(documentArxiu.getContingut().getTipusMime());
 				String nom = documentArxiu.getNom();
 			    if(!nom.contains(".")) {
-			     String extensio = documentArxiu.getMetadades().getExtensio().toString();
+				     String extensio = "";
+			    	if (documentArxiu.getMetadades().getExtensio() != null) {
+			    		// Extensió a partir de les dades de les metadades.
+			    		extensio = documentArxiu.getMetadades().getExtensio().toString();
+			    	} else if (documentArxiu.getContingut().getTipusMime() != null) {
+			    		// Extensió a partir del mime type
+			    		MimeType mimeType;
+						try {
+							mimeType = MimeTypes.getDefaultMimeTypes().forName(documentArxiu.getContingut().getTipusMime());
+				            extensio = mimeType.getExtension();
+						} catch (MimeTypeException e) {
+							logger.warn("Error obtenint l'extensió pel mime type " + documentArxiu.getContingut().getTipusMime() + " pel documentStore " + documentStore.getId(), e);
+						}
+			    	}
 			     nom += extensio;
 			    }			    
 			    arxiu.setNom(nom);
