@@ -10,6 +10,7 @@ public class RuleAccio extends ActivationRuleGroup {
         addRule(new RuleAccioEditar());
         addRule(new RuleAccioBloquejar());
         addRule(new RuleAccioRequerir());
+        addRule(new RuleAccioRequerirEntrar());
     }
 
     @Override

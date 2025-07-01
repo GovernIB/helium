@@ -15,12 +15,6 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import net.conselldemallorca.helium.core.helper.MessageHelper;
-import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
-import net.conselldemallorca.helium.v3.core.api.dto.*;
-import net.conselldemallorca.helium.v3.core.api.dto.regles.CampFormProperties;
-import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
-import net.conselldemallorca.helium.v3.core.regles.ReglaHelper;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,20 +30,35 @@ import net.conselldemallorca.helium.core.helper.ExpedientHelper;
 import net.conselldemallorca.helium.core.helper.ExpedientLoggerHelper;
 import net.conselldemallorca.helium.core.helper.HerenciaHelper;
 import net.conselldemallorca.helium.core.helper.IndexHelper;
+import net.conselldemallorca.helium.core.helper.MessageHelper;
 import net.conselldemallorca.helium.core.helper.VariableHelper;
 import net.conselldemallorca.helium.core.model.hibernate.Camp;
 import net.conselldemallorca.helium.core.model.hibernate.CampAgrupacio;
+import net.conselldemallorca.helium.core.model.hibernate.CampRegistre;
 import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
+import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientTipus;
 import net.conselldemallorca.helium.core.model.hibernate.Registre;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
+import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampInfoDto;
+import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadaListDto;
+import net.conselldemallorca.helium.v3.core.api.dto.DadaValorDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDadaDto;
+import net.conselldemallorca.helium.v3.core.api.dto.InstanciaProcesDto;
+import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.dto.regles.CampFormProperties;
+import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDadaService;
+import net.conselldemallorca.helium.v3.core.regles.ReglaHelper;
 import net.conselldemallorca.helium.v3.core.repository.CampAgrupacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.CampRepository;
 import net.conselldemallorca.helium.v3.core.repository.DefinicioProcesRepository;
+import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.RegistreRepository;
 import net.conselldemallorca.helium.v3.core.repository.TascaRepository;
 
@@ -89,6 +98,8 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 	private TascaRepository tascaRepository;
 	@Resource
 	private MessageHelper messageHelper;
+	@Resource
+	private EstatRepository estatRepository;
 
 	@Resource
 	private ReglaHelper reglaHelper;
@@ -372,7 +383,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 
     @Override
 	@Transactional(readOnly = true)
-    public List<DadaListDto> findDadesExpedient(Long expedientId, Boolean totes, Boolean ambOcults, Boolean noPendents, PaginacioParamsDto paginacioParams) {
+    public List<DadaListDto> findDadesExpedient(Long expedientId, Long estatId, Boolean totes, Boolean ambOcults, Boolean noPendents, PaginacioParamsDto paginacioParams) {
 		logger.debug("Consultant les dades de l'expedient (expedientId=" + expedientId + ")");
 		Expedient expedient = null;
 
@@ -395,7 +406,10 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 
 		List<ExpedientDadaDto> dadesExpedient = variableHelper.findDadesPerInstanciaProces(processInstanceId, true);
 		List<Camp> camps = campRepository.findByExpedientTipusOrderByCodiAsc(expedient.getTipus());
-		Map<String, CampFormProperties> campsFormProperties = reglaHelper.getCampFormProperties(expedient.getTipus(), expedient.getEstat());
+		
+		Estat estat = estatId != null? estatRepository.findOne(estatId) : expedient.getEstat();
+		
+		Map<String, CampFormProperties> campsFormProperties = reglaHelper.getCampFormProperties(expedient.getTipus(), estat);
 
 		List<DadaListDto> dades = new ArrayList<DadaListDto>();
 		List<String> dadesCodis = new ArrayList<String>();
@@ -472,7 +486,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		});
 
 		return dades;
-    }
+	}
 
 	private static DadaListDto toDadaListDto(Camp camp, ExpedientDadaDto dadaExp, CampFormProperties campFormProperties, String processInstanceId, Long expedientId) {
 		return DadaListDto.builder()
@@ -495,6 +509,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				.visible(campFormProperties != null ? campFormProperties.isVisible() : true)
 				.editable(campFormProperties != null ? campFormProperties.isEditable() : true)
 				.obligatori(campFormProperties != null ? campFormProperties.isObligatori() : false)
+				.obligatoriEntrada(campFormProperties != null ? campFormProperties.isObligatoriEntrada() : false)
 				.build();
 	}
 

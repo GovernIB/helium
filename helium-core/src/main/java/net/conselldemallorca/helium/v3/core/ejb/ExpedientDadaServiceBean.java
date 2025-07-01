@@ -112,8 +112,8 @@ public class ExpedientDadaServiceBean implements ExpedientDadaService {
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
-	public List<DadaListDto> findDadesExpedient(Long expedientId, Boolean totes, Boolean ambOcults, Boolean noPendents, PaginacioParamsDto paginacioParams) {
-		return delegate.findDadesExpedient(expedientId, totes, ambOcults, noPendents, paginacioParams);
+	public List<DadaListDto> findDadesExpedient(Long expedientId, Long estatId, Boolean totes, Boolean ambOcults, Boolean noPendents, PaginacioParamsDto paginacioParams) {
+		return delegate.findDadesExpedient(expedientId, estatId, totes, ambOcults, noPendents, paginacioParams);
 	}
 
     @Override

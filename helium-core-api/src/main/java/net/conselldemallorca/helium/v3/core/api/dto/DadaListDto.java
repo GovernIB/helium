@@ -48,4 +48,6 @@ public class DadaListDto {
 	private boolean editable = true;
 	@Builder.Default
 	private boolean obligatori = false;
+	@Builder.Default
+	private boolean obligatoriEntrada = false;
 }

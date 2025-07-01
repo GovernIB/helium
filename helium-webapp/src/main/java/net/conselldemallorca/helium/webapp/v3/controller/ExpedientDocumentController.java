@@ -222,7 +222,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,
-				expedientDocumentService.findDocumentsExpedient(expedientId, tots, paginacioParams),
+				expedientDocumentService.findDocumentsExpedient(expedientId, null, tots, paginacioParams),
 				"id");
 	}
 

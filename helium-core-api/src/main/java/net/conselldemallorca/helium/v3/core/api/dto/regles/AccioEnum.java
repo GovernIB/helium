@@ -5,5 +5,6 @@ public enum AccioEnum {
     OCULTAR,
     EDITAR,
     BLOQUEJAR,
-    REQUERIR
+    REQUERIR,
+    REQUERIR_ENTRAR
 }

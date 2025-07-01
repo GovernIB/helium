@@ -205,7 +205,7 @@ public interface ExpedientDocumentService {
 	
 	public boolean validarFinalitzaExpedient(Long expedientId) throws Exception;
 	
-	public List<DocumentListDto> findDocumentsExpedient(Long expedientId, Boolean tots, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException;
+	public List<DocumentListDto> findDocumentsExpedient(Long expedientId, Long nextEstatId, Boolean tots, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException;
 	/**
 	 * Retorna un document d'una instància de procés de
 	 * l'expedient.
