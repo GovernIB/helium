@@ -183,7 +183,15 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			int ret;
 			if ("data".equals(this.sort)) {
 				// Ordena per data
-				ret = doc1.getDataDocument().compareTo(doc2.getDataDocument());
+				if (doc1.getDataDocument() != null && doc2.getDataCreacio() != null) {
+					ret = doc1.getDataDocument().compareTo(doc2.getDataDocument());
+				} else if(doc1.getDataDocument() != null) {
+					ret = 1;
+				} else if(doc2.getDataDocument() != null) {
+					ret = -1;
+				} else {
+					ret = 0;
+				}
 			} else if ("titol".equals(this.sort)) {
 				// Ordena per títol
 				String titol1 = doc1.isAdjunt() ? doc1.getAdjuntTitol() : doc1.getDocumentNom();
