@@ -1370,26 +1370,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		ArxiuDto arxiu = new ArxiuDto();
 		arxiu.setNom(documentStore.getArxiuNom());
 		if (documentStore.getArxiuContingut() == null && documentStore.getArxiuUuid() != null) {
-			
-			boolean expedientTancat = false;
-			es.caib.plugins.arxiu.api.Document arxiuDocument = pluginHelper.arxiuDocumentInfo(
-					documentStore.getArxiuUuid(),
-					null,
-					false,
-					true);
-			DocumentMetadades metadades = arxiuDocument.getMetadades();
-			Map<String,Object> metadadesAdicionals = metadades!=null ? metadades.getMetadadesAddicionals() : null;
-			if(metadadesAdicionals!=null) {
-				expedientTancat = metadadesAdicionals.get("eni:fecha_fin_exp")!=null;
-			}
-			
-			List<ArxiuDetallDto> versions = pluginHelper.versions(documentStore.getArxiuUuid(), expedientTancat);
-			
-			// Agafam la primera versió del document
-			// El llistat de versions esta ordenat de major a menor
-			String version = versions.isEmpty()? null : versions.get(versions.size() - 1).getEniVersio();
-			
-			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentOriginal(documentStore.getArxiuUuid(), version);
+			es.caib.plugins.arxiu.api.Document documentArxiu = pluginHelper.arxiuDocumentOriginal(documentStore.getArxiuUuid(), null);
 			if (documentArxiu != null && documentArxiu.getContingut() != null) {
 				arxiu.setContingut(documentArxiu.getContingut().getContingut());
 				arxiu.setTipusMime(documentArxiu.getContingut().getTipusMime());

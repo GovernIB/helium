@@ -56,7 +56,6 @@ import net.conselldemallorca.helium.core.util.OpenOfficeUtils;
 import net.conselldemallorca.helium.integracio.plugins.SistemaExternException;
 import net.conselldemallorca.helium.jbpm3.handlers.exception.ValidationException;
 import net.conselldemallorca.helium.v3.core.api.dto.PortafirmesTipusEnumDto;
-import net.conselldemallorca.helium.v3.core.api.exception.DeploymentException;
 
 /**
  * Implementació del plugin de portasignatures per l'API REST Simple del PortaFIB.
