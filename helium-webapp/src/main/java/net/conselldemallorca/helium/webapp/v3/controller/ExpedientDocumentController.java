@@ -381,6 +381,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("documents",documents);
 		model.addAttribute("portasignaturesPendent", portasignaturesPendent);
+		model.addAttribute("isPinbalActiu", expedient.getTipus().isPinbalActiu());
 		return "v3/procesDocuments";
 	}
 

@@ -74,16 +74,18 @@ div.procesDocument:hover {
 										<spring:message code="expedient.boto.nou_document"/>
 									</a>
 								</li>
-								<li>
-									<a	id="a_nou_document_${proces.id}"
-										href="../../v3/expedient/${expedientId}/proces/${proces.id}/documentPinbal/new" 
-										data-rdt-link-modal="true" 
-										data-rdt-link-callback="recargarPanel(${proces.id});"
-										data-rdt-link-modal-min-height="280">
-										<span class="fa fa-file-text-o"></span>
-										<spring:message code="expedient.boto.nou_documentPinbal"/>
-									</a>
-								</li>
+								<c:if test="${isPinbalActiu}">
+									<li>
+										<a	id="a_nou_document_${proces.id}"
+											href="../../v3/expedient/${expedientId}/proces/${proces.id}/documentPinbal/new" 
+											data-rdt-link-modal="true" 
+											data-rdt-link-callback="recargarPanel(${proces.id});"
+											data-rdt-link-modal-min-height="280">
+											<span class="fa fa-file-text-o"></span>
+											<spring:message code="expedient.boto.nou_documentPinbal"/>
+										</a>
+									</li>
+								</c:if>
 							</ul>
 						</div>
 					</div>
