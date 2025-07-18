@@ -41,6 +41,8 @@ public class DadaListDto {
 
 	private String processInstanceId;
 	private Long expedientId;
+	
+	private Integer ordre;
 
 	@Builder.Default
 	private boolean visible = true;

@@ -493,7 +493,7 @@
 		  data-ajax-request-type="POST"
 		  data-paging-enabled="false"
 		  data-ordering="true"
-		  data-default-order="8"
+		  data-default-order="7"
 		  data-info-type="button"
 		  data-rowcolid-nullclass="no-data"
 		  data-selection-enabled="false"
@@ -512,6 +512,7 @@
 		<th data-col-name="obligatori" data-visible="false"/>
 		<th data-col-name="editable" data-visible="false"/>
 		<th data-col-name="ocult" data-visible="false"/>
+		<th data-col-name="ordre" data-visible="false" data-orderable="true"/>
 		<th data-col-name="tipus" data-orderable="true" width="1%" data-template="#cellDadaTipusTemplate" data-class="text-center">
 			<script id="cellDadaTipusTemplate" type="text/x-jsrender">
 				{{if tipus == null}}

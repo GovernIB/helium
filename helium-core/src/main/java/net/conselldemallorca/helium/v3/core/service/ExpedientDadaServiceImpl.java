@@ -437,6 +437,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 							.agrupacioOrdre(camp.getAgrupacio() != null ? camp.getAgrupacio().getOrdre() : Integer.MAX_VALUE - 1)
 							.agrupacioNom(camp.getAgrupacio() != null ? camp.getAgrupacio().getNom() : "Sense agrupacio")
 							.ocult(camp.isOcult())
+							.ordre(camp.getOrdre())
 							.visible(campFormProperties != null ? campFormProperties.isVisible() : true)
 							.editable(campFormProperties != null ? campFormProperties.isEditable() : true)
 							.obligatori(campFormProperties != null ? campFormProperties.isObligatori() : false)
@@ -464,6 +465,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 					.agrupacioNom("Dades adjuntes")
 					.processInstanceId(processInstanceId)
 					.expedientId(expedientId)
+					.ordre(dadaExp.getOrdre())
 					.build();
 			dades.add(dada);
 		}
@@ -510,6 +512,7 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 				.editable(campFormProperties != null ? campFormProperties.isEditable() : true)
 				.obligatori(campFormProperties != null ? campFormProperties.isObligatori() : false)
 				.obligatoriEntrada(campFormProperties != null ? campFormProperties.isObligatoriEntrada() : false)
+				.ordre(camp.getOrdre())
 				.build();
 	}
 
@@ -574,12 +577,17 @@ public class ExpedientDadaServiceImpl implements ExpedientDadaService {
 		if (result != 0)
 			return result;
 		if ("tipus".equals(camp)) {
-			result = o1.getTipus() == null ? -1 : o2.getTipus() == null ? 1 : o1.getTipus().name().toUpperCase().compareTo(o2.getTipus().name().toUpperCase());
+			result = (o1.getTipus() == null && o2.getTipus() == null) ? 0 : o1.getTipus() == null ? -1 : o2.getTipus() == null ? 1 : o1.getTipus().name().toUpperCase().compareTo(o2.getTipus().name().toUpperCase());
 		}
-		if ("nom".equals(camp) || result == 0) {
-			result = o1.getNom() == null ? -1 : o2.getNom() == null ? 1 : o1.getNom().toUpperCase().compareTo(o2.getNom().toUpperCase());
+		
+		if ("ordre".equals(camp)) {
+			result = (o1.getOrdre() == null && o2.getOrdre() == null)? 0 : o1.getOrdre() == null ? -1 : o2.getOrdre() == null ? 1 : o1.getOrdre().compareTo(o2.getOrdre());
 		}
-			return result;
+		
+		if ("codi".equals(camp) || result == 0) {
+			result = (o1.getCampCodi() == null && o2.getCampCodi() == null) ? 0 : o1.getCampCodi() == null ? -1 : o2.getCampCodi() == null ? 1 : o1.getCampCodi().toUpperCase().compareTo(o2.getCampCodi().toUpperCase());
+		}
+		return result;
 	}
 
 	private ExpedientDadaDto getDadaExpedient(List<ExpedientDadaDto> dadesExpedient, Long campId) {
