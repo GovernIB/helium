@@ -1,4 +1,5 @@
-# ![Logo](https://github.com/GovernIB/maven/raw/binaris/helium/projectinfo_Attachments/icon.jpg) Helium (Gestor d'expedients administratius)
+![Logo](https://github.com/GovernIB/maven/raw/binaris/helium/projectinfo_Attachments/logoHelium.png) 
+# Helium (Gestor d'expedients administratius)
 
 > - Versió Estable: __3.3.8.5__ (branca [helium-3.3](https://github.com/GovernIB/helium/tree/helium-3.3))
 > - Versió Desenvolupament: __3.3.9__ (branca [helium-dev](https://github.com/GovernIB/helium/tree/helium-dev))
