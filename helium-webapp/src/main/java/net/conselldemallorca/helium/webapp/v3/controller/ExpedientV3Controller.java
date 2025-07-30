@@ -585,7 +585,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			@PathVariable Long estatId) {
 		try {
 			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
-			if (this.validarVariablesDocumentsCanviEstat(request, expedient)) {
+			if (this.validarVariablesDocumentsCanviEstat(request, expedient, estatId)) {
 				expedientService.estatCanviar(expedient.getId(), estatId);
 				MissatgesHelper.success(request, getMessage(request, "expedient.info.estat.canviar.correcte"));
 			}
@@ -609,11 +609,11 @@ public class ExpedientV3Controller extends BaseExpedientController {
 	}
 
 
-	private boolean validarVariablesDocumentsCanviEstat(HttpServletRequest request, ExpedientDto expedient) {
+	private boolean validarVariablesDocumentsCanviEstat(HttpServletRequest request, ExpedientDto expedient, Long nextEstatId) {
 		boolean correcte = true;
 		// Comrova les variables obligatòries
 		List<String> variablesObligatories = new ArrayList<String>();
-		for (DadaListDto dada : expedientDadaService.findDadesExpedient(expedient.getId(), true, true, false, new PaginacioParamsDto())) {
+		for (DadaListDto dada : expedientDadaService.findDadesExpedient(expedient.getId(), null, true, true, false, new PaginacioParamsDto())) {
 			if (dada.isObligatori()) {
 				if (this.dadaBuidaONula(dada)) {
 					variablesObligatories.add(dada.getNom());
@@ -621,18 +621,36 @@ public class ExpedientV3Controller extends BaseExpedientController {
 				}
 			}
 		}
+		
+		for (DadaListDto dada : expedientDadaService.findDadesExpedient(expedient.getId(), nextEstatId, true, true, false, new PaginacioParamsDto())) {
+			if (dada.isObligatoriEntrada()) {
+				if (this.dadaBuidaONula(dada)) {
+					variablesObligatories.add(dada.getNom());
+					correcte = false;
+				}
+			}
+		}
+		
 		if (!variablesObligatories.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.info.estat.canviar.dades.obligatories", new Object[] {variablesObligatories.size(), variablesObligatories}));
 		}
 		
 		// Comprova els documents obligatoris
 		List<String> documentsObligatoris = new ArrayList<String>();
-		for (DocumentListDto document : expedientDocumentService.findDocumentsExpedient(expedient.getId(), true, new PaginacioParamsDto())) {
+		for (DocumentListDto document : expedientDocumentService.findDocumentsExpedient(expedient.getId(), null, true, new PaginacioParamsDto())) {
 			if (document.isObligatori() && document.getId() == null) {
 				documentsObligatoris.add(document.getNom());
 				correcte = false;
 			}
 		}
+		
+		for (DocumentListDto document : expedientDocumentService.findDocumentsExpedient(expedient.getId(), nextEstatId, true, new PaginacioParamsDto())) {
+			if (document.isObligatoriEntrada() && document.getId() == null) {
+				documentsObligatoris.add(document.getNom());
+				correcte = false;
+			}
+		}
+		
 		if (!documentsObligatoris.isEmpty()) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.info.estat.canviar.documents.obligatoris", new Object[] {documentsObligatoris.size(), documentsObligatoris}));
 		}

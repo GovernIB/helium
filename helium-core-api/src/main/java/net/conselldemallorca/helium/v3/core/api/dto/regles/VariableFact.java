@@ -34,6 +34,7 @@ public class VariableFact {
     private boolean visible;
     private boolean editable;
     private boolean obligatori;
+    private boolean obligatoriEntrada;
 
 }
 

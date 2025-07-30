@@ -41,6 +41,8 @@ public class DadaListDto {
 
 	private String processInstanceId;
 	private Long expedientId;
+	
+	private Integer ordre;
 
 	@Builder.Default
 	private boolean visible = true;
@@ -48,4 +50,6 @@ public class DadaListDto {
 	private boolean editable = true;
 	@Builder.Default
 	private boolean obligatori = false;
+	@Builder.Default
+	private boolean obligatoriEntrada = false;
 }

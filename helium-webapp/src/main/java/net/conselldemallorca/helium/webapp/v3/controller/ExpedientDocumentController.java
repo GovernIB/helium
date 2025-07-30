@@ -231,7 +231,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,
-				expedientDocumentService.findDocumentsExpedient(expedientId, tots, paginacioParams),
+				expedientDocumentService.findDocumentsExpedient(expedientId, null, tots, paginacioParams),
 				"id");
 	}
 
@@ -390,6 +390,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		model.addAttribute("inicialProcesInstanceId", expedient.getProcessInstanceId());
 		model.addAttribute("documents",documents);
 		model.addAttribute("portasignaturesPendent", portasignaturesPendent);
+		model.addAttribute("isPinbalActiu", expedient.getTipus().isPinbalActiu());
 		return "v3/procesDocuments";
 	}
 

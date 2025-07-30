@@ -51,6 +51,7 @@ import net.conselldemallorca.helium.core.model.hibernate.DefinicioProces;
 import net.conselldemallorca.helium.core.model.hibernate.Document;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentNotificacio;
 import net.conselldemallorca.helium.core.model.hibernate.DocumentStore;
+import net.conselldemallorca.helium.core.model.hibernate.Estat;
 import net.conselldemallorca.helium.core.model.hibernate.Expedient;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog;
 import net.conselldemallorca.helium.core.model.hibernate.ExpedientLog.ExpedientLogAccioTipus;
@@ -118,6 +119,7 @@ import net.conselldemallorca.helium.v3.core.repository.DocumentNotificacioReposi
 import net.conselldemallorca.helium.v3.core.repository.DocumentRepository;
 import net.conselldemallorca.helium.v3.core.repository.DocumentStoreRepository;
 import net.conselldemallorca.helium.v3.core.repository.ExpedientRepository;
+import net.conselldemallorca.helium.v3.core.repository.EstatRepository;
 import net.conselldemallorca.helium.v3.core.repository.InteressatRepository;
 import net.conselldemallorca.helium.v3.core.repository.NotificacioRepository;
 import net.conselldemallorca.helium.v3.core.repository.PeticioPinbalRepository;
@@ -160,6 +162,8 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	private PeticioPinbalRepository peticioPinbalRepository;
 	@Resource
 	private ExpedientRepository expedientRepository;
+	@Resource
+	private EstatRepository estatRepository;
 	@Resource
 	private PluginHelper pluginHelper;
 	@Resource
@@ -682,7 +686,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				}
 			} else {
     		
-	    		List<DocumentListDto> documentsExpEstat = findDocumentsExpedient(expedientId, true, new PaginacioParamsDto());
+	    		List<DocumentListDto> documentsExpEstat = findDocumentsExpedient(expedientId, null, true, new PaginacioParamsDto());
 				for (DocumentListDto ed: documentsExpEstat) {
 					ArxiuEstat arxiuEstat = null;
 					if (ed.getId() != null && ed.getArxiuUuid()!=null && !"".equals(ed.getArxiuUuid())) {
@@ -1003,7 +1007,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 	
     @Override
 	@Transactional(readOnly = true)
-    public List<DocumentListDto> findDocumentsExpedient(Long expedientId, Boolean tots, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
+    public List<DocumentListDto> findDocumentsExpedient(Long expedientId, Long nextEstatId, Boolean tots, PaginacioParamsDto paginacioParams) throws NoTrobatException, PermisDenegatException {
 		logger.debug("Consulta els documents de l'expedient' (expedientId=" + expedientId + ")");
 		Expedient expedient = expedientHelper.getExpedientComprovantPermisos(
 				expedientId,
@@ -1031,7 +1035,13 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 		List<Document> documentsTipusExpedient = documentRepository.findByExpedientTipusId(expedient.getTipus().getId());
 		List<ExpedientDocumentDto> documentsExpedient = findAmbInstanciaProces(expedientId, expedient.getProcessInstanceId());
 		List<PortasignaturesDto> documentsPsignaPendent = portasignaturesFindPendents(expedientId, expedient.getProcessInstanceId());
-		Map<String, CampFormProperties> documentsFormProperties = reglaHelper.getDocumentFormProperties(expedient.getTipus(), expedient.getEstat());
+
+		Estat estat = expedient.getEstat();
+		if(nextEstatId != null) {
+			estat = estatRepository.findOne(nextEstatId);
+		}
+		
+		Map<String, CampFormProperties> documentsFormProperties = reglaHelper.getDocumentFormProperties(expedient.getTipus(), estat);
 
 		List<DocumentListDto> documents = new ArrayList<DocumentListDto>();
 		List<String> documentCodis = new ArrayList<String>();
@@ -1057,6 +1067,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 						.visible(documentFormProperties != null ? documentFormProperties.isVisible() : true)
 						.editable(documentFormProperties != null ? documentFormProperties.isEditable() : true)
 						.obligatori(documentFormProperties != null ? documentFormProperties.isObligatori() : false)
+						.obligatoriEntrada(documentFormProperties != null ? documentFormProperties.isObligatoriEntrada() : false)
 						.build();
 			} else {
 				document = toDocumentList(expedient, processInstanceId, dTipExp, dExp, dPsigna, documentFormProperties);
@@ -1159,6 +1170,7 @@ public class ExpedientDocumentServiceImpl implements ExpedientDocumentService {
 				.visible(documentFormProperties != null ? documentFormProperties.isVisible() : true)
 				.editable(documentFormProperties != null ? documentFormProperties.isEditable() : true)
 				.obligatori(documentFormProperties != null ? documentFormProperties.isObligatori() : false)
+				.obligatoriEntrada(documentFormProperties != null ? documentFormProperties.isObligatoriEntrada() : false)
 				.build();
 		return document;
 	}

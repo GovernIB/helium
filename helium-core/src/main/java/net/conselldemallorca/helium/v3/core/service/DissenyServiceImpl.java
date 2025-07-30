@@ -207,7 +207,7 @@ public class DissenyServiceImpl implements DissenyService {
 
     @Override
     public List<String> findHandlersJbpmOrdenats(Long definicioProcesId) {
-		Set<String> recursosNom = getRecursosNom(definicioProcesId);
+		Set<String> recursosNom = getHandlersNom(definicioProcesId);
 		List<String> handlers = new ArrayList<String>(recursosNom);
 		handlers.remove("processdefinition.xml");
 		java.util.Collections.sort(handlers);
@@ -900,6 +900,15 @@ public class DissenyServiceImpl implements DissenyService {
 			resposta = jbpmHelper.getResourceNames(definicioProces.getJbpmId());
 		return resposta;
 	}
+	
+	@Transactional(readOnly = true)
+	public Set<String> getHandlersNom(Long definicioProcesId) {
+		Set<String> resposta = null;
+		DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+		if (definicioProces != null)
+			resposta = jbpmHelper.getHandlerNames(definicioProces.getJbpmId());
+		return resposta;
+	}
 
 	@Override
 	@Transactional(readOnly = true)
@@ -928,10 +937,15 @@ public class DissenyServiceImpl implements DissenyService {
 		ZipEntry ze;
 		try {
 			DefinicioProces definicioProces = definicioProcesRepository.findOne(definicioProcesId);
+			Map<String, Integer> existingResources = new HashMap<String, Integer>();
 			for (String recursNom : recursosNoms) {
 				recursContingut = this.getRecursContingut(definicioProces.getJbpmId(), recursNom);
 				if (recursContingut != null) {
-					ze = new ZipEntry(recursNom);
+					String key = recursNom.replaceAll("\\.class$", "").replaceAll("/", ".");
+					Integer num = existingResources.get(key);
+					existingResources.put(key, num != null? num + 1 : 1);
+					String zipRecursNom = packageResource(recursNom, recursContingut, num);
+					ze = new ZipEntry(zipRecursNom);
 					out.putNextEntry(ze);
 					out.write(recursContingut);
 					out.closeEntry();
@@ -946,6 +960,19 @@ public class DissenyServiceImpl implements DissenyService {
 		return baos.toByteArray();
 	}
 
+	private String packageResource(String resource, byte[] content, Integer num) {
+		if(content.length < 4)
+			return resource;
+		// Es comprova que el fitxer es un class de java
+		byte[] magicNumbers = {-54,-2,-70,-66};
+		for(int i = 0; i < 4; i++) {
+			if(magicNumbers[i] != content[i]) {
+				return resource;
+			}
+		}
+		
+		return  resource.replaceAll("\\.class$", "").replaceAll("\\.", "/") + (num != null? num : "") + ".class";
+	}
 	
 	@Override
 	@Transactional(readOnly = true)
@@ -1260,9 +1287,11 @@ public class DissenyServiceImpl implements DissenyService {
 				byte[] bytes = IoUtil.readBytes(zipInputStream);
 				if (bytes != null) {
 					ClassReader cr = new ClassReader(bytes);
-					if ("net/conselldemallorca/helium/jbpm3/api/HeliumActionHandler".equalsIgnoreCase(cr.getSuperName())) {
-						handlers.put(nom.replace("/", ".").substring(0, nom.length() - 6), bytes);
-					}
+					//if ("net/conselldemallorca/helium/jbpm3/api/HeliumActionHandler".equalsIgnoreCase(cr.getSuperName())) {
+					//	handlers.put(nom.replace("/", ".").substring(0, nom.length() - 6), bytes);
+					//}
+					//handlers.put(nom.replace("/", ".").substring(0, nom.length() - 6), bytes);
+					handlers.put(nom.substring(0, nom.length() - 6), bytes);
 				}
 			}
 			zipEntry = zipInputStream.getNextEntry();

@@ -158,6 +158,7 @@ public interface ExpedientDadaService {
 
     public List<DadaListDto> findDadesExpedient(
 			Long expedientId,
+			Long estatId,
 			Boolean totes,
 			Boolean ambOcults,
 			Boolean noPendents,

@@ -56,6 +56,8 @@ public class DocumentListDto implements Serializable {
 	private boolean editable = true;
 	@Builder.Default
 	private boolean obligatori = false;
+	@Builder.Default
+	private boolean obligatoriEntrada = false;
 
 	private static final long serialVersionUID = -2271231227621850341L;
 }

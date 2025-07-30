@@ -110,7 +110,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		return DatatablesHelper.getDatatableResponse(
 				request,
 				null,
-				expedientDadaService.findDadesExpedient(expedientId, totes, ambOcults, noPendents, paginacioParams),
+				expedientDadaService.findDadesExpedient(expedientId, null, totes, ambOcults, noPendents, paginacioParams),
 				"id");
 	}
 
@@ -121,7 +121,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 			@PathVariable Long expedientId)  {
 		try {
 			ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
-			List<DadaListDto> dades = expedientDadaService.findDadesExpedient(expedientId, true, true, false, new PaginacioParamsDto());
+			List<DadaListDto> dades = expedientDadaService.findDadesExpedient(expedientId, null, true, true, false, new PaginacioParamsDto());
 			exportXLS(response, expedient, dades);
 		} catch(Exception e) {
 			logger.error("Error generant excel amb les dades de l'expedient: " + expedientId, e);
