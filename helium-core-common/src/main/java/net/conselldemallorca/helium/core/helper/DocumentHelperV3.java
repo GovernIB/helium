@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.core.helper;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -36,6 +37,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+import com.itextpdf.text.pdf.PdfReader;
 
 import es.caib.distribucio.core.api.service.ws.backoffice.NtiEstadoElaboracion;
 import es.caib.plugins.arxiu.api.ContingutArxiu;
@@ -3405,6 +3408,50 @@ public class DocumentHelperV3 {
 			ExpedientDocumentDto document,
 			Set<String> nomsArxius) {
 		return getZipRecursNom(instanciaProces, document, null, nomsArxius);
+	}
+	
+	public byte[] removeSignaturesPdfUsingPdfWriterCopyPdf(
+			byte[] contingut,
+			String contentType) {
+		if (contentType.equals("application/pdf")) {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+			try {
+				PdfReader reader = new PdfReader(contingut);
+				ByteArrayInputStream bais = null;
+
+				com.lowagie.text.Document document = new com.lowagie.text.Document();
+
+				bais = new ByteArrayInputStream(contingut);
+				baos = new ByteArrayOutputStream();
+
+				com.lowagie.text.pdf.PdfReader inputPDF = new com.lowagie.text.pdf.PdfReader(bais);
+
+				// create a writer for the outputstream
+				com.lowagie.text.pdf.PdfWriter writer = com.lowagie.text.pdf.PdfWriter.getInstance(document, baos);
+
+				document.open();
+				com.lowagie.text.pdf.PdfContentByte cb = writer.getDirectContent();
+
+				com.lowagie.text.pdf.PdfImportedPage page;
+
+				for (int pageC = 1; pageC <= reader.getNumberOfPages(); pageC++) {
+					document.newPage();
+					page = writer.getImportedPage(inputPDF, pageC);
+					cb.addTemplate(page, 0, 0);
+				}
+
+				document.close();
+				reader.close();
+
+				return baos.toByteArray();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+
+		} else {
+			throw new RuntimeException("L'eliminació de la firma invàlida només està suportada pels fitxers pdf");
+		}
 	}
 	
 	private static final Log logger = LogFactory.getLog(DocumentHelperV3.class);

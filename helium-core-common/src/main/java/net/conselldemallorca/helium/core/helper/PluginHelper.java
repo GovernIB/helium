@@ -2269,12 +2269,23 @@ public class PluginHelper {
 
 		long t0 = System.currentTimeMillis();
 		try {
+			
+			
+			byte[] contingut = arxiu.getContingut();
+			ArxiuFirmaValidacioDetallDto firmaValidacio = null;
+			
+			if(arxiu.getTipusMime().equalsIgnoreCase("application/pdf"))
+				firmaValidacio = validaSignaturaObtenirDetalls(arxiu.getContingut(), null);
+			
+			if(firmaValidacio != null && !firmaValidacio.isValid()) {
+				contingut = documentHelperV3.removeSignaturesPdfUsingPdfWriterCopyPdf(contingut, "");
+			}
 
 			FirmaResposta firmaResposta = getFirmaPlugin().firmar(
 					documentStore.getId().toString(),
 					arxiu.getNom(),
 					motiu,
-					arxiu.getContingut(),
+					contingut,
 					arxiu.getTipusMime(),
 					tipusDocumentalNti);
 			
