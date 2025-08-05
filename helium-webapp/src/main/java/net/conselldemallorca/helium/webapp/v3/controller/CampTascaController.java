@@ -71,7 +71,7 @@ public class CampTascaController extends BaseExpedientController {
 					false);
 			model.addAttribute("command", command);
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, ex.getMessage());
+			MissatgesHelper.error(request, ex.getMessage(), ex);
 			logger.error("No s'ha pogut obtenir la informació del camp amb id " + campId + ": " + ex.getMessage(), ex);
 		}
 		return "v3/campsTascaRegistreRow";

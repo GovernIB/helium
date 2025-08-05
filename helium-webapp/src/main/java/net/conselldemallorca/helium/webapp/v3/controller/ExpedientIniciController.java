@@ -172,7 +172,8 @@ public class ExpedientIniciController extends BaseExpedientIniciController {
 				MissatgesHelper.error(
 	        			request,
 	        			getMessage(request, "error.iniciar.expedient") + ": " + 
-	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()),
+	        			ex);
 				logger.error("No s'ha pogut iniciar l'expedient", ex);
 			}
 		}

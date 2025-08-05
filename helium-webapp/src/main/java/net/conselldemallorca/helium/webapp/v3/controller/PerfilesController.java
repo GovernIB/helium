@@ -302,7 +302,7 @@ public class PerfilesController extends BaseController {
     		SessionHelper.getSessionManager(request).setFiltreConsultaGeneral(null);
 			MissatgesHelper.success(request,getMessage(request, "info.perfil.guardat"));
         } catch (Exception ex) {
-        	MissatgesHelper.error(request, getMessage(request, "error.guardar.perfil"));
+        	MissatgesHelper.error(request, getMessage(request, "error.guardar.perfil"), ex);
         	logger.error("No s'ha pogut guardar el perfil", ex);
         }
 		return get(request, model);

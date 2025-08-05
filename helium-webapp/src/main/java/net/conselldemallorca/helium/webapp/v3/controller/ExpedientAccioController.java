@@ -102,7 +102,8 @@ public class ExpedientAccioController extends BaseExpedientController {
 			nomAccio = accio.getNom();
 			MissatgesHelper.error(
 	    			request,
-	    			getMessage(request, "error.executar.accio") + " " + nomAccio + ": " + th.getClass().getSimpleName() + ": "+ th.getMessage());
+	    			getMessage(request, "error.executar.accio") + " " + nomAccio + ": " + th.getClass().getSimpleName() + ": "+ th.getMessage(),
+	    			th);
 			logger.error(getMessage(request, "error.executar.accio") +" "+ accioId + ": "+ th.getMessage(), th);
 		}
 		model.addAttribute("pipellaActiva", "accions");

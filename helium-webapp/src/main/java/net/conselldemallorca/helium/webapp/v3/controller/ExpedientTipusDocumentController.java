@@ -225,7 +225,8 @@ public class ExpedientTipusDocumentController extends BaseExpedientTipusControll
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.document.llistat.accio.esborrar.error"));
+							"expedient.tipus.document.llistat.accio.esborrar.error"),
+					e);
 			logger.error("S'ha produït un error al intentar eliminar el document amb id '" + id + "' del tipus d'expedient amb id '" + expedientTipusId, e);
 			return false;
 		}

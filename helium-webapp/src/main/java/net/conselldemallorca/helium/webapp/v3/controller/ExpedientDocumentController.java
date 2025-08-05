@@ -654,7 +654,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				MissatgesHelper.error(request, getMessage(
 						request,
 						"consultes.pinbal.resultat.ko",
-						new Object[] {command.getDocumentNom(), command.getCodiServei(), ex.getMessage()}));
+						new Object[] {command.getDocumentNom(), command.getCodiServei(), ex.getMessage()}),
+						ex);
 				omplirModelFormDocumentPinbal(request, model, command, true);
 				return "v3/expedientDocumentPinbalForm";
 			}
@@ -752,7 +753,10 @@ public class ExpedientDocumentController extends BaseExpedientController {
 					arxiuContingut = generat.getContingut();
 					arxiuContentType = generat.getTipusMime();
 				} catch (Exception ex) {
-					MissatgesHelper.error(request, getMessage(request, "error.generar.document.info", new Object[] {ex.getMessage()}));
+					MissatgesHelper.error(
+							request,
+							getMessage(request, "error.generar.document.info", new Object[] {ex.getMessage()}),
+							ex);
 					logger.error("Error generant el document: " + documentCodi, ex);
 				} 
 			} else {
@@ -792,7 +796,10 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				} catch(Exception e) {
 					String errMsg = getMessage(request, "info.document.guardat.error", new Object[] {e.getMessage()});
 					logger.error(errMsg, e);
-					MissatgesHelper.error(request, errMsg);
+					MissatgesHelper.error(
+							request,
+							errMsg,
+							e);
 				}
 			}
 		}
@@ -910,7 +917,10 @@ public class ExpedientDocumentController extends BaseExpedientController {
 					arxiuContingut = generat.getContingut();
 					arxiuContentType = generat.getTipusMime();
 				} catch (Exception ex) {
-					MissatgesHelper.error(request, getMessage(request, "error.generar.document.info", new Object[] {ex.getMessage()}));
+					MissatgesHelper.error(
+							request,
+							getMessage(request, "error.generar.document.info", new Object[] {ex.getMessage()}),
+							ex);
 					logger.error("Error generant el document: " + document.getDocumentCodi(), ex);
 				} 				
 			} else {
@@ -958,7 +968,10 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				} catch(Exception e) {
 					String errMsg = getMessage(request, "info.document.guardat.error", new Object[] {e.getMessage()});
 					logger.error(errMsg, e);
-					MissatgesHelper.error(request, errMsg);				
+					MissatgesHelper.error(
+							request,
+							errMsg,
+							e);
 				}
 			}
 		}
@@ -1139,14 +1152,14 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			} catch (Exception e) {
 				String errMsg = getMessage(request, "info.signatura.doc.processat.error", new Object[] {e.getMessage()});
 				logger.error(errMsg, e);
-				MissatgesHelper.error(request, errMsg);
+				MissatgesHelper.error(request, errMsg, e);
 				this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
 				return "v3/expedientDocumentNotificar";
 			}
 		} catch(Exception e) {
 			String errMsg = getMessage(request, "info.document.notificar.error", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg, e);
 			this.emplenarModelNotificacioDocument(expedientId, processInstanceId, documentStoreId, model);
 			return "v3/expedientDocumentNotificar";
 		}
@@ -1252,7 +1265,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		// Missatge d'error
 		if (exception != null) {
 			logger.error("Error obtenint el document", exception);
-			MissatgesHelper.error(request, exception.getMessage());
+			MissatgesHelper.error(request, exception.getMessage(), exception);
 			model.addAttribute("pipellaActiva", "documents");
 			ret = "redirect:/v3/expedient/" + expedientId;
 		} else {
@@ -1281,7 +1294,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			ret = "arxiuView";
 		} catch (SistemaExternException exception) {
 			logger.error("Error obtenint el document", exception);
-			MissatgesHelper.error(request, exception.getMessage());
+			MissatgesHelper.error(request, exception.getMessage(), exception);
 			model.addAttribute("pipellaActiva", "documents");
 			ret = "redirect:/v3/expedient/" + expedientId;
 		}
@@ -1309,7 +1322,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			ret = "arxiuView";
 		} catch (SistemaExternException exception) {
 			logger.error("Error obtenint el document", exception);
-			MissatgesHelper.error(request, exception.getMessage());
+			MissatgesHelper.error(request, exception.getMessage(), exception);
 			model.addAttribute("pipellaActiva", "documents");
 			ret = "redirect:/v3/expedient/" + expedientId;
 		}
@@ -1370,7 +1383,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			}
 		} catch (SistemaExternException e) {
 			logger.error("Error descarregant fitxer", e);
-			MissatgesHelper.error(request, e.getPublicMessage());
+			MissatgesHelper.error(request, e.getPublicMessage(), e);
 			model.addAttribute("pipellaActiva", "documents");
 			return "redirect:/v3/expedient/" + expedientId;
 		}
@@ -1412,7 +1425,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		} catch(Exception e) {
 			String errMsg = "Error consultant les dades de l'Arxiu del document: " + e.getMessage(); 
 			logger.error(errMsg, e);
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg, e);
 		}
 		return "v3/expedientDocumentMetadadesNti";
 	}
@@ -1434,7 +1447,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		} catch(Exception e) {
 			String errMsg = "Error incorporant el document a l'Arxiu: " + e.getMessage(); 
 			logger.error(errMsg, e);
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg, e);
 		}
 		return "redirect:" + request.getHeader("Referer");
 	}
@@ -1468,7 +1481,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			}
 		} catch (SistemaExternException e) {
 			logger.error("Error descarregant l'arxiu de firma", e);
-			MissatgesHelper.error(request, e.getPublicMessage());
+			MissatgesHelper.error(request, e.getPublicMessage(), e);
 			model.addAttribute("pipellaActiva", "documents");
 			return "redirect:/v3/expedient/" + expedientId;
 		}
@@ -1494,7 +1507,10 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			response = true; 
 		} catch (Exception ex) {
 			logger.error(getMessage(request, "error.esborrar.doc.proces"), ex);
-			MissatgesHelper.error(request, getMessage(request, "error.esborrar.doc.proces") + ": " + ex.getLocalizedMessage());
+			MissatgesHelper.error(
+					request,
+					getMessage(request, "error.esborrar.doc.proces") + ": " + ex.getLocalizedMessage(),
+					ex);
 		}
 		return response;
 	}
@@ -1516,7 +1532,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, generat.getNom());
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, generat.getContingut());
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.generar.document.info", new Object[] {ex.getMessage()}));
+			MissatgesHelper.error(request, getMessage(request, "error.generar.document.info", new Object[] {ex.getMessage()}), ex);
 			logger.error("Error generant el document: " + documentCodi, ex);
 			ExpedientDocumentDto document = expedientDocumentService.findOneAmbInstanciaProces(
 					expedientId,
@@ -1615,7 +1631,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		} catch(Exception ex) {
 			String errMsg = getMessage(request, "expedient.document.verificar.csv.error", new Object[] {ex.getClass(), ex.getMessage()});
 			logger.error(errMsg, ex);
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg, ex);
 	    }
 		return ret;
 	}
@@ -1645,7 +1661,10 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			response = true; 
 		} catch (Exception ex) {
 			logger.error(getMessage(request, "error.esborrar.signatura"), ex);
-			MissatgesHelper.error(request, getMessage(request, "error.esborrar.signatura") + ": " + ex.getLocalizedMessage());
+			MissatgesHelper.error(
+					request,
+					getMessage(request, "error.esborrar.signatura") + ": " + ex.getLocalizedMessage(),
+					ex);
 		}
 		return response;
 	}
@@ -1720,10 +1739,10 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				arxiu = expedientDocumentService.findArxiuAmbTokenPerSignar(token);
 			} catch (SistemaExternException ex) {
 				logger.error("Error al obtenir el document a partir del token '" + token + "'", ex);
-				MissatgesHelper.error(request,ex.getPublicMessage());
+				MissatgesHelper.error(request, ex.getPublicMessage(), ex);
 			} catch (Exception ex) {
 				logger.error("Error al obtenir el document a partir del token '" + token + "'", ex);
-				MissatgesHelper.error(request,ex.getMessage());
+				MissatgesHelper.error(request, ex.getMessage(), ex);
 			}	
 		if (arxiu != null) {
 			model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_FILENAME, arxiu.getNom());
@@ -1747,7 +1766,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 					ArxiuView.MODEL_ATTRIBUTE_DATA,
 					expedientService.getZipDocumentacio(expedientId));
 		} catch(Exception e) {
-			MissatgesHelper.error(request, getMessage(request, "expedient.document.descarregar.zip.error", new Object[]{ e.getMessage() } ));
+			MissatgesHelper.error(request, getMessage(request, "expedient.document.descarregar.zip.error", new Object[]{ e.getMessage() } ), e);
 		}
 		return "arxiuView";
 	}
@@ -1766,7 +1785,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 					ArxiuView.MODEL_ATTRIBUTE_DATA,
 					expedientService.getZipDocumentacio(expedientId, seleccio));
 		} catch(Exception e) {
-			MissatgesHelper.error(request, getMessage(request, "expedient.document.descarregar.zip.error", new Object[]{ e.getMessage() } ));
+			MissatgesHelper.error(request, getMessage(request, "expedient.document.descarregar.zip.error", new Object[]{ e.getMessage() } ), e);
 		}
 		return "arxiuView";
 	}
@@ -1956,7 +1975,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 					getMessage(
 							request, 
 							"document.controller.firma.passarela.inici.error",
-							new Object[] {e.getMessage()}));
+							new Object[] {e.getMessage()}),
+					e);
 		}
 		return ret;
 	}
@@ -2018,7 +2038,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 						logger.error("Error en la signatura del document. " + errMsg, e);
 						MissatgesHelper.error(
 								request,
-								errMsg);
+								errMsg,
+								e);
 					}
 				}
 			} else if (firmaResultat.getStatus() == StatusEnumDto.WARNING) {
@@ -2043,7 +2064,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			}
 		} catch(Exception e) {
 			String errMsg = "Error no controlat en el procés de firma en passarel·la web: " + e.getMessage();
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg, e);
 		}
 		return ret;
 	}
@@ -2162,7 +2183,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		} catch(Exception e) {
 			String errMsg = getMessage(request, "expedient.document.notificat.zip.error", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg, e);
 		}
 		return null;
 	}
@@ -2460,7 +2481,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			} catch(Exception e) {
 				String errMsg = getMessage(request, "expedient.document.enviar.portasignatures.error", new Object[] {e.getMessage()});
 				logger.error(errMsg, e);
-				MissatgesHelper.error(request, errMsg);
+				MissatgesHelper.error(request, errMsg, e);
 				return "redirect:" + request.getHeader("referer");
 			}
 		}
@@ -2568,7 +2589,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		} catch(Exception e) {
 			String errMsg = getMessage(request, "expedient.document.portasignatures.enviament.cancelat.error", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg, e);
 		}		
 		return "redirect:" + request.getHeader("referer");
 	}

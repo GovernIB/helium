@@ -176,7 +176,8 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 			} catch (Exception e) {
 				MissatgesHelper.error(
 						request, 
-						"Error recuperant les dades JSON del handler: " + e.getMessage());
+						"Error recuperant les dades JSON del handler: " + e.getMessage(),
+						e);
 			}
 		}
 		
@@ -314,7 +315,8 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.accio.llistat.accio.esborrar.error"));
+							"expedient.tipus.accio.llistat.accio.esborrar.error"),
+					e);
 			logger.error("S'ha produit un error al intentar eliminar la accio amb id '" + id + "' del tipus d'expedient amb id '" + expedientTipusId, e);
 			return false;
 		}
@@ -367,7 +369,8 @@ public class ExpedientTipusAccioController extends BaseExpedientTipusController 
 				logger.error("Error : (" + e.getClass() + ") " + e.getLocalizedMessage());
 				MissatgesHelper.error(
 						request,
-						getMessage(request, "definicio.proces.actualitzar.excepcio", new Object[]{e.getMessage()}));
+						getMessage(request, "definicio.proces.actualitzar.excepcio", new Object[]{e.getMessage()}),
+						e);
 				error = true;
 			}
 		}

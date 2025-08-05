@@ -125,7 +125,10 @@ public class ExpedientDadaController extends BaseExpedientController {
 			exportXLS(response, expedient, dades);
 		} catch(Exception e) {
 			logger.error("Error generant excel amb les dades de l'expedient: " + expedientId, e);
-			MissatgesHelper.error(request, getMessage(request, "expedient.dada.descarregar.error", new Object[]{ e.getMessage() } ));
+			MissatgesHelper.error(
+					request,
+					getMessage(request, "expedient.dada.descarregar.error", new Object[]{ e.getMessage() } ),
+					e);
 		}
 	}
 
@@ -244,7 +247,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 					request,
 					getMessage(
 							request,
-							"expedient.dada.borrar.error"));
+							"expedient.dada.borrar.error"),
+					ex);
 			logger.error("S'ha produit un error al intentar eliminar la variable '" + varCodi + "' de l'expedient amb id '" + expedientId + "' (proces: " + procesId + ")", ex);
 		}
 		return false;
@@ -290,7 +294,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 						campsAddicionalsClasses,
 						false);
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, ex.getMessage());
+			MissatgesHelper.error(request, ex.getMessage(), ex);
 			logger.error("No s'ha pogut obtenir la informació de la dada " + varCodi + ": "  + ex.getMessage(), ex);
 		} 
 	}
@@ -389,7 +393,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		} catch (PermisDenegatException ex) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.info.permis.no") );
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "expedient.dada.modificar.error"));
+			MissatgesHelper.error(request, getMessage(request, "expedient.dada.modificar.error"), ex);
 			logger.error("S'ha produit un error al intentar modificar la variable '" + varCodi + "' de l'expedient amb id '" + expedientId + "' (proces: " + procesId + ")", ex);
 		}
 		return modalUrlTancar(false);
@@ -474,7 +478,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 						campsAddicionalsClasses,
 						false);
 			} catch (Exception ex) {
-				MissatgesHelper.error(request, ex.getMessage());
+				MissatgesHelper.error(request, ex.getMessage(), ex);
 				logger.error("No s'ha pogut obtenir la informació de la dada " + varCodi + ": "  + ex.getMessage(), ex);
 			} 
 		}
@@ -649,7 +653,7 @@ public class ExpedientDadaController extends BaseExpedientController {
 		} catch (PermisDenegatException ex) {
 			MissatgesHelper.error(request, getMessage(request, "expedient.info.permis.no") );
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "expedient.dada.modificar.error"));
+			MissatgesHelper.error(request, getMessage(request, "expedient.dada.modificar.error"), ex);
 			logger.error("S'ha produit un error al intentar modificar la variable '" + varCodi + "' de l'expedient amb id '" + expedientId + "' (proces: " + procesId + ")", ex);
 		}
 		return modalUrlTancar(false);
@@ -677,7 +681,10 @@ public class ExpedientDadaController extends BaseExpedientController {
 			model.addAttribute("inline", true);
 		} catch (UnsupportedEncodingException e) {
 			logger.error(e);
-			MissatgesHelper.error(request, getMessage(request, "expedient.dada.modificar.error") );
+			MissatgesHelper.error(
+					request,
+					getMessage(request, "expedient.dada.modificar.error"),
+					e);
 		}
 
 		return "v3/expedientDadaEdit";
@@ -741,7 +748,10 @@ public class ExpedientDadaController extends BaseExpedientController {
 			return "v3/expedientDadaShow";
 		} catch (Exception ex) {
 			logger.error(ex);
-			MissatgesHelper.error(request, getMessage(request, "expedient.dada.modificar.error") + ": " + ex.getMessage() );
+			MissatgesHelper.error(
+					request,
+					getMessage(request, "expedient.dada.modificar.error") + ": " + ex.getMessage(),
+					ex);
 			throw ex;
 		}
 
@@ -1026,7 +1036,8 @@ public class ExpedientDadaController extends BaseExpedientController {
 			String errMsg = getMessage(request, "error.executar.accio.camp", new Object[] {accioCamp, varCodi, expedientId});
 			MissatgesHelper.error(
 	    			request,
-	    			errMsg + ": " + ex.getMessage());
+	    			errMsg + ": " + ex.getMessage(),
+					ex);
 			logger.error(errMsg + ": "+ ex.getLocalizedMessage(), ex);
 		}
 		

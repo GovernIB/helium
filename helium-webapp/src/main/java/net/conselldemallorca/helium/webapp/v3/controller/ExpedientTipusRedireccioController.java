@@ -179,7 +179,8 @@ public class ExpedientTipusRedireccioController extends BaseExpedientTipusContro
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.redireccio.llistat.accio.esborrar.error"));
+							"expedient.tipus.redireccio.llistat.accio.esborrar.error"),
+					e);
 			logger.error("S'ha produit un error al intentar eliminar la redireccio amb id '" + id + "' del tipus d'expedient amb id '" + expedientTipusId, e);
 			return false;
 		}
@@ -202,7 +203,8 @@ public class ExpedientTipusRedireccioController extends BaseExpedientTipusContro
 					getMessage(
 							request, 
 							"expedient.tipus.redireccio.controller.getPersones.error",
-							new Object[] {e.getMessage()}));
+							new Object[] {e.getMessage()}),
+					e);
 		}
 		model.addAttribute("persones", resposta);		
 	}

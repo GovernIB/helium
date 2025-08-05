@@ -88,7 +88,7 @@ public class ExpedientExecucionsController extends BaseExpedientController {
 			Throwable t = (ex.getCause() != null? ex.getCause() : ex);
 			String errMsg = getMessage(request, "error.executar.script") + ": " + t.getClass() + ": " + t.getMessage();
 			logger.error("ENTORNID:" + entornId + " NUMEROEXPEDIENT:" + expedientId + errMsg, ex);
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg, ex);
         }
 		return modalUrlTancar();
 	}

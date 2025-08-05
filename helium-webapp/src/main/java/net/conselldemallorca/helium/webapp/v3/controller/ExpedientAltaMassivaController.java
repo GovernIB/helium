@@ -124,7 +124,7 @@ public class ExpedientAltaMassivaController extends BaseExpedientController {
 			} catch(Exception e) {
 				String errMsg = this.getMessage(request, "expedient.alta.massiva.form.error", new Object[] {e.getMessage()});
 				logger.error(errMsg, e);
-				MissatgesHelper.error(request, errMsg);
+				MissatgesHelper.error(request, errMsg, e);
 			}
 		}		
 		return "v3/expedientAltaMassiva";
@@ -185,7 +185,8 @@ public class ExpedientAltaMassivaController extends BaseExpedientController {
     		logger.error(errMsg, e);
     		MissatgesHelper.error(
     				request,
-    				errMsg);
+    				errMsg,
+					e);
     		throw(e);
     	}        
 	}
@@ -223,7 +224,8 @@ public class ExpedientAltaMassivaController extends BaseExpedientController {
     				getMessage(
     						request, 
     						"expedient.alta.massiva.exemple.error",
-    						new Object[]{e.getLocalizedMessage()}));
+    						new Object[]{e.getLocalizedMessage()}),
+					e);
     	}        
 	}
 	

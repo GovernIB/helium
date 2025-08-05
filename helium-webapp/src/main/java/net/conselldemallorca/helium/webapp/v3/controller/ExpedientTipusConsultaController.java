@@ -233,7 +233,8 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.consulta.llistat.accio.esborrar.error"));
+							"expedient.tipus.consulta.llistat.accio.esborrar.error"),
+					e);
 			logger.error("S'ha produit un error al intentar eliminar la consulta amb id '" + id + "' del tipus d'expedient amb id '" + expedientTipusId, e);
 			return false;
 		}
@@ -565,7 +566,8 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
     						getMessage(
     								request,
     								"expedient.tipus.consulta.vars.controller.crear.error",
-    								new Object[] {commandDto.getCampCodi(), e.getLocalizedMessage()}));
+    								new Object[] {commandDto.getCampCodi(), e.getLocalizedMessage()}),
+    						e);
     			}
     		}
         	// Esborra de la sessió el filtre
@@ -607,7 +609,8 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.consulta.vars.controller.eliminar.error"));
+							"expedient.tipus.consulta.vars.controller.eliminar.error"),
+					e);
 			logger.error("S'ha produit un error al intentar eliminar la variable de la consulta amb id '" + id + "' del tipus d'expedient amb id '" + expedientTipusId + "'", e);
 			return false;
 		}
@@ -859,7 +862,8 @@ public class ExpedientTipusConsultaController extends BaseExpedientTipusControll
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.consulta.params.controller.eliminar.error"));
+							"expedient.tipus.consulta.params.controller.eliminar.error"),
+					e);
 			logger.error("S'ha produit un error al intentar eliminar el paràmetre de la consulta registre amb id '" + id + "' del tipus d'expedient amb id '" + expedientTipusId + "'", e);
 			return false;
 		}

@@ -91,7 +91,8 @@ public class ServeiPinbalController extends BaseController {
 			MissatgesHelper.error(request, getMessage(
 					request,
 					"serveisPinbal.form.modificar.ko",
-					new Object[] {serveiPinbalDto.getNom(), ex.getMessage()}));
+					new Object[] {serveiPinbalDto.getNom(), ex.getMessage()}),
+					ex);
 		}
 		return modalUrlTancar(false);
 	}

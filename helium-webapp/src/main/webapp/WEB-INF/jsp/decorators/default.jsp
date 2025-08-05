@@ -35,6 +35,7 @@ pageContext.setAttribute(
 	<link href="<c:url value="/css/layout.css"/>" rel="stylesheet" type="text/css"/>
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.js"/>"></script>
 	<script type="text/javascript" src="<c:url value="/js/jquery/ui/ui.core.js"/>"></script>
+	<script src="<c:url value="/webjars/jquery/1.12.0/dist/jquery-ui.js"/>"></script>
 	<script  type="text/javascript" src="<c:url value="/js/jquery/ui/jquery-ui-1.7.2.custom.js"/>"></script>
 	<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="<c:url value="/js/jquery/excanvas.min.js"/>"></script><![endif]-->
 	<script type="text/javascript" src="<c:url value="/js/jquery/jquery.flot.js"/>"></script>
@@ -49,6 +50,7 @@ pageContext.setAttribute(
 	<link href="<c:url value="/js/jquery/ui/themes/base/jquery-ui.css"/>" media="all" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/js/jquery/ui/themes/base/ui.dialog.css"/>" media="all" rel="stylesheet" type="text/css"/>
 	<link href="<c:url value="/css/displaytag.css"/>" rel="stylesheet" type="text/css"/>
+	<link href="<c:url value="/css/jquery-ui.css"/>" rel="stylesheet">
 <!--[if lt IE 7]>
 <script type="text/javascript">
 </script>

@@ -120,7 +120,7 @@ public class ReproController extends BaseController {
 					campsAddicionalsClasses,
 					false);
 		} catch (NoTrobatException ex) {
-			MissatgesHelper.error(request, ex.getMessage());
+			MissatgesHelper.error(request, ex.getMessage(), ex);
 			logger.error("No s'han pogut encontrar la tasca: " + ex.getMessage(), ex);
 		}
 		return null;
@@ -156,7 +156,8 @@ public class ReproController extends BaseController {
 					getMessage(request, "repro.missatge.repro") + 
 					" " + nomRepro + " " + 
 					getMessage(request, "repro.missatge.error.creat") +
-					": " + ex.getMessage());
+					": " + ex.getMessage(),
+					ex);
 		}
 		
 		String referer = request.getHeader("Referer");
@@ -178,7 +179,7 @@ public class ReproController extends BaseController {
 			String nomRepro = reproService.deleteById(reproIdEsborrar);
 			MissatgesHelper.success(request, getMessage(request, "repro.missatge.repro") + " '" + nomRepro + "' " + getMessage(request, "repro.missatge.eliminat"));
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "repro.missatge.error.eliminat"));
+			MissatgesHelper.error(request, getMessage(request, "repro.missatge.error.eliminat"), ex);
 		}
 		String referer = request.getHeader("Referer");
 	    return "redirect:"+ UriBuilder.fromUri(referer).replaceQueryParam("reproId", "").build();
@@ -198,7 +199,7 @@ public class ReproController extends BaseController {
 			String nomRepro = reproService.deleteById(reproId);
 			MissatgesHelper.success(request, getMessage(request, "repro.missatge.repro") + " '" + nomRepro + "' " + getMessage(request, "repro.missatge.eliminat"));
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "repro.missatge.error.eliminat"));
+			MissatgesHelper.error(request, getMessage(request, "repro.missatge.error.eliminat"), ex);
 		}
 		
 		String referer = request.getHeader("Referer");
@@ -271,7 +272,8 @@ public class ReproController extends BaseController {
 					getMessage(request, "repro.missatge.repro") + 
 					" " + nomRepro + " " + 
 					getMessage(request, "repro.missatge.error.creat") +
-					": " + ex.getMessage());
+					": " + ex.getMessage(),
+					ex);
 		}
 		String referer = request.getHeader("Referer");
 	    return "redirect:"+ UriBuilder.fromUri(referer).replaceQueryParam("reproId", repro != null? repro.getId() : "").build();

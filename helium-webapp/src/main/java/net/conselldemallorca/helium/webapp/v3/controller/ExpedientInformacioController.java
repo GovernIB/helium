@@ -149,7 +149,10 @@ public class ExpedientInformacioController extends BaseExpedientController {
 			try {
 				personaResponsable = aplicacioService.findPersonaAmbCodi(expedient.getResponsableCodi());
 			} catch(Exception e) {
-				MissatgesHelper.error(request, getMessage(request, "expedient.info.error.consulta.responsable", new Object[] {expedient.getResponsableCodi(), e.getMessage()}));
+				MissatgesHelper.error(request, getMessage(
+						request,
+						"expedient.info.error.consulta.responsable", new Object[] {expedient.getResponsableCodi(), e.getMessage()}),
+						e);
 			}
 		}
 		expedient.setResponsablePersona(personaResponsable);

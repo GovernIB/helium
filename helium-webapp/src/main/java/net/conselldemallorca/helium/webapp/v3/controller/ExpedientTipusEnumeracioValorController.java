@@ -173,7 +173,8 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.enumeracio.valors.controller.eliminat.error"));
+							"expedient.tipus.enumeracio.valors.controller.eliminat.error"),
+					e);
 			logger.error("S'ha produit un error al intentar eliminar el valor del enumerat amb id '" + id + "' del tipus d'expedient amb id '" + expedientTipusId, e);
 		}
 		
@@ -285,7 +286,8 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.enumeracio.valors.importats.error", new Object[] {ex.getMessage()}));
+							"expedient.tipus.enumeracio.valors.importats.error", new Object[] {ex.getMessage()}),
+					ex);
         	return valors(request, expedientTipusId, enumeracioId, model);
         }
 	}

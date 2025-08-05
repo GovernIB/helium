@@ -133,7 +133,8 @@ public class DominiController extends BaseDissenyController {
 						getMessage(
 								request, 
 								"expedient.tipus.domini.controller.creat.error",
-								new Object[] {ex.getLocalizedMessage()}));
+								new Object[] {ex.getLocalizedMessage()}),
+						ex);
 				logger.error("No s'ha pogut guardar l'enumeració", ex);
 				return "v3/expedientTipusDominiForm";
 		    }
@@ -190,7 +191,8 @@ public class DominiController extends BaseDissenyController {
 						getMessage(
 								request, 
 								"expedient.tipus.domini.controller.creat.error",
-								new Object[] {ex.getLocalizedMessage()}));
+								new Object[] {ex.getLocalizedMessage()}),
+						ex);
 				logger.error("No s'ha pogut guardar l'enumerat: " + id, ex);
 	    		model.addAttribute("heretat", dominiService.findAmbId(null, id).isHeretat());
 				return "v3/expedientTipusDominiForm";
@@ -213,7 +215,7 @@ public class DominiController extends BaseDissenyController {
 				dominiService.delete(dominiId);
 				MissatgesHelper.success(request, getMessage(request, "expedient.tipus.domini.controller.eliminat"));
 			}catch (ValidacioException ex) {
-				MissatgesHelper.error(request, ex.getMessage());
+				MissatgesHelper.error(request, ex.getMessage(), ex);
 			}
 			return modalUrlTancar(false);
 		} else {

@@ -77,7 +77,7 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 					command.getExpedientIdDesti());
 			MissatgesHelper.success(request, getMessage(request, "expedient.relacionar.ok"));
 		} catch (Exception ex) {
-		  	MissatgesHelper.error(request, getMessage(request, "error.expedient.relacionar"));
+		  	MissatgesHelper.error(request, getMessage(request, "error.expedient.relacionar"), ex);
 		  	logger.error("No s'ha pogut relacionar l'expedient " + expedientOrig.getIdentificador(), ex);
 		}
 		return modalUrlTancar();
@@ -94,7 +94,7 @@ public class ExpedientRelacionatController extends BaseExpedientController {
 			expedientService.relacioDelete(expedientIdOrigen, expedientIdDesti);
 			MissatgesHelper.success(request, getMessage(request, "expedient.relacio.esborrar.ok"));
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.expedient.relacio.esborrar"));
+			MissatgesHelper.error(request, getMessage(request, "error.expedient.relacio.esborrar"), ex);
 			logger.error("No s'ha pogut relacionar l'expedient " + expedientId, ex);
 		}
 		return "redirect:/v3/expedient/" + expedientId;

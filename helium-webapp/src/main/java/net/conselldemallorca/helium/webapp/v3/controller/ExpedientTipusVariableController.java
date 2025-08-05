@@ -287,7 +287,8 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 					getMessage(
 							request,
 							"expedient.tipus.camp.llistat.accio.esborrar.error", 
-							new Object[] {e.getMessage()}));
+							new Object[] {e.getMessage()}),
+					e);
 		}
 		return false;
 	}
@@ -435,7 +436,8 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.camp.llistat.agrupacio.boto.esborrar.error"));
+							"expedient.tipus.camp.llistat.agrupacio.boto.esborrar.error"),
+					e);
 			logger.error("S'ha produit un error al intentar eliminar la agrupació amb id '" + id + "' del tipus d'expedient amb id '" + expedientTipusId, e);
 			return false;
 		}
@@ -577,7 +579,8 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.campValidacio.controller.eliminar.error"));
+							"expedient.tipus.campValidacio.controller.eliminar.error"),
+					e);
 			logger.error("S'ha produit un error al intentar eliminar la validació amb id '" + id + "' del tipus d'expedient amb id '" + expedientTipusId, e);
 			return false;
 		}
@@ -838,7 +841,8 @@ public class ExpedientTipusVariableController extends BaseVariableController {
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.campRegistre.controller.eliminar.error"));
+							"expedient.tipus.campRegistre.controller.eliminar.error"),
+					e);
 			logger.error("S'ha produit un error al intentar eliminar el camp registre amb id '" + id + "' del tipus d'expedient amb id '" + expedientTipusId + "'", e);
 			return false;
 		}

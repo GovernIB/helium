@@ -131,7 +131,8 @@ public class EnumeracioController extends BaseDissenyController {
 						getMessage(
 								request, 
 								"expedient.tipus.enumeracio.controller.creat.error",
-								new Object[] {ex.getLocalizedMessage()}));
+								new Object[] {ex.getLocalizedMessage()}),
+						ex);
 				logger.error("No s'ha pogut guardar l'enumeració", ex);
 				return "v3/expedientTipusEnumeracioForm";
 		    }
@@ -183,7 +184,8 @@ public class EnumeracioController extends BaseDissenyController {
 						getMessage(
 								request, 
 								"expedient.tipus.enumeracio.controller.creat.error",
-								new Object[] {ex.getLocalizedMessage()}));
+								new Object[] {ex.getLocalizedMessage()}),
+						ex);
 				logger.error("No s'ha pogut guardar l'enumerat: " + id, ex);
 				return "v3/expedientTipusEnumeracioForm";
 		    }
@@ -206,7 +208,7 @@ public class EnumeracioController extends BaseDissenyController {
 				enumeracioService.delete(enumeracioId);
 				MissatgesHelper.success(request, getMessage(request, "expedient.tipus.enumeracio.controller.eliminat"));
 			}catch (ValidacioException ex) {
-				MissatgesHelper.error(request, ex.getMessage());
+				MissatgesHelper.error(request, ex.getMessage(), ex);
 			}
 			return modalUrlTancar(false);
 		} else {

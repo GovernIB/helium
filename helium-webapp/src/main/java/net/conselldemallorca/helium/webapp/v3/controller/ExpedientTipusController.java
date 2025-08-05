@@ -376,7 +376,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 							request,
 							getMessage(
 									request,
-									"expedient.tipus.controller.eliminar.expedients.noTePermisEsborrar"));
+									"expedient.tipus.controller.eliminar.expedients.noTePermisEsborrar"),
+							e);
 					error=true;
 					break;
 				}
@@ -707,8 +708,9 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
         		MissatgesHelper.error(request, 
         							getMessage(request,
         										"expedient.tipus.importar.form.error.importacio",
-        										new Object[] {e.getLocalizedMessage()}));
-        		model.addAttribute("command", command);	    		
+        										new Object[] {e.getLocalizedMessage()}),
+        							e);
+        		model.addAttribute("command", command);
         		this.omplirModelFormulariImportacio(entornActual.getId(), command.getId(), importacio, request, model);
             	return "v3/expedientTipusImportarOpcions";
         	}
@@ -1041,7 +1043,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
     			logger.error(msg, e);
     			MissatgesHelper.error(
     					request,
-    					msg);			
+    					msg,
+    					e);
             	return "v3/expedientTipusPermisForm";
         	}
         }
@@ -1073,7 +1076,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 			logger.error(msg, e);
 			MissatgesHelper.error(
 					request,
-					msg);			
+					msg,
+					e);
 		}
 		return "redirect:/v3/expedientTipus/" + id + "/permis" + (permisUO != null ? permisUO : "");
 	}
@@ -1150,7 +1154,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					request, 
 					getMessage(
 							request, 
-							"error.proces.peticio"));
+							"error.proces.peticio"),
+					ex);
         	logger.error("No s'han pogut programar l'eliminació de les definicions de procés", ex);
 		}
 		
@@ -1234,7 +1239,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 					request, 
 					getMessage(
 							request, 
-							"error.proces.peticio"));
+							"error.proces.peticio"),
+					ex);
         	logger.error("No s'han pogut programar l'eliminació dels logs dels expedients seleccionats", ex);
 		}
 		
@@ -1408,7 +1414,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 						getMessage(
 								request,
 								"exptipus.info.propagar.plantilles.error",
-								new Object[] {e.getMessage()}));
+								new Object[] {e.getMessage()}),
+						e);
 			}			
 		}
 		return "redirect:/v3/expedientTipus/"+expedientTipusId;
@@ -1451,7 +1458,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
 						getMessage(
 								request,
 								"exptipus.info.propagar.consultes.error",
-								new Object[] {e.getMessage()}));
+								new Object[] {e.getMessage()}),
+						e);
 			}
 		}
 		return "redirect:/v3/expedientTipus/"+expedientTipusId;
@@ -1569,7 +1577,8 @@ public class ExpedientTipusController extends BaseExpedientTipusController {
     				logger.error(msgErr, e);
     				MissatgesHelper.error(
     						request,
-    						msgErr);
+    						msgErr,
+    						e);
 				}
 		}
 		return this.propagarHandlers(

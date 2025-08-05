@@ -438,3 +438,4 @@ span.herencia {
 /* Color de fons per les opcions seleccionades. Es posa més gris per destacar-les més, sobreescriu el vaor #f5f5f5 */
 .select2-container--bootstrap .select2-results__option[aria-selected="true"] { background-color: #dfdfdf !important; }
 .select2-results .select2-disabled { font-weight: bold; color: darkgray; }
+

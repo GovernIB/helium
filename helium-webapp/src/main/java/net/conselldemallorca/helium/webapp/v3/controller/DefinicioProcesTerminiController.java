@@ -196,7 +196,8 @@ public class DefinicioProcesTerminiController extends BaseDefinicioProcesControl
 		} catch (Exception e) {
 			MissatgesHelper.error(
 					request, 
-					getMessage(request, "expedient.tipus.termini.controller.eliminat"));
+					getMessage(request, "expedient.tipus.termini.controller.eliminat"),
+					e);
 			return false;
 		}
 	}

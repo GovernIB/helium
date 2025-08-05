@@ -198,7 +198,10 @@ public class MassivaTascaReassignacioController extends BaseExpedientController 
 			MissatgesHelper.success(request, getMessage(request, "info.accio.massiu.reassignat", new Object[] {ids.size()}));
 			ids.clear();
 		} catch (Exception e) {
-			MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
+			MissatgesHelper.error(
+					request,
+					getMessage(request, "error.no.massiu"),
+					e);
 			logger.error("Error al programar les accions massives", e);
 			return "v3/tasquesReassignacio";
 		}

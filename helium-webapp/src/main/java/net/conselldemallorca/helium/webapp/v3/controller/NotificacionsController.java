@@ -168,7 +168,7 @@ public class NotificacionsController extends BaseExpedientController {
 			} catch (Exception e) {				
 				String errMsg = getMessage(request, "expedient.notificacio.consultar.estat.error", new Object[] {e.getMessage()});
 				logger.error(errMsg, e);
-				MissatgesHelper.error(request, errMsg);
+				MissatgesHelper.error(request, errMsg, e);
 			}
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "expedient.notificacio.consultar.estat.not.found", new Object[] {enviamentNotibId}));

@@ -158,7 +158,10 @@ public class FluxosFirmaController extends BaseExpedientController {
 			portafirmesFluxService.esborrarPlantilla(fluxId);
 			MissatgesHelper.success(request, getMessage(request, "fluxosFirma.taula.boto.eliminar.ok"));
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "fluxosFirma.taula.boto.eliminar.ko") + ": " + ex.getMessage());
+			MissatgesHelper.error(
+					request,
+					getMessage(request, "fluxosFirma.taula.boto.eliminar.ko") + ": " + ex.getMessage(),
+					ex);
 		}
 		return "redirect:/v3/fluxeFirma";
 	}

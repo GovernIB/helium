@@ -471,7 +471,8 @@ public class AnotacioController extends BaseExpedientController {
 					getMessage(
 							request, 
 							"anotacio.form.acceptar.error",
-							new Object[] {command.getAccio(), e.getMessage()}));
+							new Object[] {command.getAccio(), e.getMessage()}),
+        			e);
 			ret = this.modalUrlTancar(false);
 		}
 		return ret;
@@ -596,7 +597,8 @@ public class AnotacioController extends BaseExpedientController {
 					getMessage(
 							request, 
 							"anotacio.form.rebutjar.accio.rebutjar.error",
-							new Object[] {e.getMessage()}));
+							new Object[] {e.getMessage()}),
+        			e);
 			ret = "v3/anotacioRebutjar";
 		}
 		return ret; 
@@ -629,7 +631,8 @@ public class AnotacioController extends BaseExpedientController {
 					getMessage(
 							request,
 							"anotacio.llistat.accio.esborrar.error",
-							new Object[] {id, e.getMessage()}));
+							new Object[] {id, e.getMessage()}),
+        			e);
 		}
 		return "redirect:/v3/anotacio";
 	}
@@ -661,7 +664,8 @@ public class AnotacioController extends BaseExpedientController {
 						getMessage(
 								request,
 								"anotacio.llistat.accio.reprocessar.error",
-								new Object[] {id, error.getMessage()}));				
+								new Object[] {id, error.getMessage()}),
+	        			error);
 			}
 		} catch (Exception e) {
 			MissatgesHelper.error(
@@ -669,7 +673,8 @@ public class AnotacioController extends BaseExpedientController {
 					getMessage(
 							request,
 							"anotacio.llistat.accio.reprocessar.error",
-							new Object[] {id, e.getMessage()}));
+							new Object[] {id, e.getMessage()}),
+        			e);
 		}
 		return "redirect:/v3/anotacio";
 	}
@@ -700,7 +705,8 @@ public class AnotacioController extends BaseExpedientController {
 					getMessage(
 							request,
 							"anotacio.llistat.accio.marcarPendent.error",
-							new Object[] {id, e.getMessage()}));
+							new Object[] {id, e.getMessage()}),
+					e);
 		}
 		return "redirect:/v3/anotacio";
 	}
@@ -731,7 +737,8 @@ public class AnotacioController extends BaseExpedientController {
 					getMessage(
 							request,
 							"anotacio.llistat.accio.reintentarConsulta.error",
-							new Object[] {id, e.getMessage()}));
+							new Object[] {id, e.getMessage()}),
+					e);
 		}
 		return "redirect:/v3/anotacio";
 	}
@@ -770,7 +777,8 @@ public class AnotacioController extends BaseExpedientController {
 			logger.error(errMsg, ex);
 			MissatgesHelper.error(
 					request, 
-					errMsg);
+					errMsg,
+					ex);
 			return "redirect:" + request.getHeader("referer");
 		}
 	}
@@ -809,7 +817,8 @@ public class AnotacioController extends BaseExpedientController {
 			logger.error(errMsg, ex);
 			MissatgesHelper.error(
 					request, 
-					errMsg);
+					errMsg,
+					ex);
 			return "redirect:" + request.getHeader("referer");
 		}
 	}
@@ -849,7 +858,8 @@ public class AnotacioController extends BaseExpedientController {
 			logger.error(errMsg, e);
 			MissatgesHelper.error(
 					request, 
-					errMsg);
+					errMsg,
+					e);
 		}
 		return "redirect:/modal/v3/anotacio/" + anotacioId;
 	}	
@@ -1254,7 +1264,8 @@ public class AnotacioController extends BaseExpedientController {
 						getMessage(
 								request,
 								"anotacio.llistat.accio.massiva.info.esborrar.anotacions.error",
-								new Object[] {e.getMessage()}));
+								new Object[] {e.getMessage()}),
+						e);
 			}					
 			// Neteja la selecció
 			sessionManager.getSeleccioAnotacio().clear();
@@ -1294,7 +1305,8 @@ public class AnotacioController extends BaseExpedientController {
 						getMessage(
 								request,
 								"anotacio.llistat.accio.massiva.info.reintentar.processament.error",
-								new Object[] {e.getMessage()}));
+								new Object[] {e.getMessage()}),
+						e);
 			}					
 			// Neteja la selecció
 			sessionManager.getSeleccioAnotacio().clear();
@@ -1360,7 +1372,8 @@ public class AnotacioController extends BaseExpedientController {
 							getMessage(
 									request,
 									"anotacio.llistat.accio.massiva.info.reintentar.mapeig.error",
-									new Object[] {e.getMessage()}));
+									new Object[] {e.getMessage()}),
+							e);
 				}					
 				// Neteja la selecció
 				sessionManager.getSeleccioAnotacio().clear();
@@ -1401,7 +1414,8 @@ public class AnotacioController extends BaseExpedientController {
 						getMessage(
 								request,
 								"anotacio.llistat.accio.massiva.info.reintentar.processament.nomes.annexos.error",
-								new Object[] {e.getMessage()}));
+								new Object[] {e.getMessage()}),
+						e);
 			}					
 			sessionManager.getSeleccioAnotacio().clear();
 		}
@@ -1453,7 +1467,8 @@ public class AnotacioController extends BaseExpedientController {
 					getMessage(
 							request,
 							"anotacio.llistat.email.avisar.error",
-							new Object[] {e.getMessage()}));
+							new Object[] {e.getMessage()}),
+					e);
 		}
 		return "redirect:/v3/anotacio";
 	}

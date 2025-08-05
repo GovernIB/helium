@@ -176,7 +176,8 @@ public class ExpedientTipusDefinicioProcesController extends BaseExpedientTipusC
 						getMessage(
 								request, 
 								"expedient.tipus.definicioProces.llistat.definicioProces.incorporar.error",
-								new Object[] {e.getLocalizedMessage()}));
+								new Object[] {e.getLocalizedMessage()}),
+						e);
         	}
 			return modalUrlTancar(false);
 			
@@ -215,7 +216,8 @@ public class ExpedientTipusDefinicioProcesController extends BaseExpedientTipusC
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.definicioProces.llistat.definicioProces.esborrar.error"));
+							"expedient.tipus.definicioProces.llistat.definicioProces.esborrar.error"),
+					e);
 			logger.error("S'ha produit un error al intentar eliminar la definicio de proces amb id '" + id + "' del tipus d'expedient amb id '" + expedientTipusId, e);
 			return false;
 		}

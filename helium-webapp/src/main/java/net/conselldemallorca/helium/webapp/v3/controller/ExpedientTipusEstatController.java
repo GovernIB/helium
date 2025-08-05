@@ -271,7 +271,8 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 					getMessage(
 							request, 
 							"expedient.tipus.estat.controller.eliminat.no",
-							new Object[] {e.getLocalizedMessage()}));
+							new Object[] {e.getLocalizedMessage()}),
+					e);
 			return false;
 		}
 	}
@@ -396,7 +397,8 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
         				getMessage(
         						request, 
         						"expedient.tipus.estat.exportar.controller.error",
-        						new Object[]{e.getLocalizedMessage()}));
+        						new Object[]{e.getLocalizedMessage()}),
+    					e);
         		throw(e);
         	}        
 	}	
@@ -575,14 +577,18 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 						esborrats++;
 					} catch (Exception e) {
 						EstatDto estat = estatsEsborrar.get(estatId);
-						MissatgesHelper.error(request, getMessage(request, "expedient.tipus.estat.importar.controller.error.estat.antic.esborrar", new Object[] {estat.getCodi(), estat.getNom(), e.getMessage()}));
+						MissatgesHelper.error(
+								request,
+								getMessage(request, "expedient.tipus.estat.importar.controller.error.estat.antic.esborrar", new Object[] {estat.getCodi(), estat.getNom(), e.getMessage()}),
+								e);
 					}
 				}
         	} catch(Exception e) {
         		logger.error(e);
         		MissatgesHelper.error(
         				request,
-        				getMessage(request, "expedient.tipus.estat.importar.controller.error", new Object[]{e.getLocalizedMessage()}));
+        				getMessage(request, "expedient.tipus.estat.importar.controller.error", new Object[]{e.getLocalizedMessage()}),
+    					e);
         	}
     		MissatgesHelper.success(
 					request, 
@@ -1054,7 +1060,8 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 					getMessage(
 							request,
 							"expedient.tipus.estat.controller.accio.afegir.error",
-							new Object[] {e.getMessage()}));
+							new Object[] {e.getMessage()}),
+					e);
 		}
 		return false;
 	}	
@@ -1090,7 +1097,8 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 					getMessage(
 							request,
 							"expedient.tipus.estat.controller.accio.esborrar.error",
-							new Object[] {e.getMessage()}));
+							new Object[] {e.getMessage()}),
+					e);
 		}
 		return false;
 	}
@@ -1161,7 +1169,8 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 					getMessage(
 							request,
 							"expedient.tipus.estat.controller.accio.afegir.error",
-							new Object[] {e.getMessage()}));
+							new Object[] {e.getMessage()}),
+					e);
 		}
 		return false;
 	}	
@@ -1197,7 +1206,8 @@ public class ExpedientTipusEstatController extends BaseExpedientTipusController 
 					getMessage(
 							request,
 							"expedient.tipus.estat.controller.accio.esborrar.error",
-							new Object[] {e.getMessage()}));
+							new Object[] {e.getMessage()}),
+					e);
 		}
 		return false;
 	}

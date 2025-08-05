@@ -293,7 +293,8 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 						getMessage(
 								request,
 								"expedient.tipus.camp.llistat.accio.esborrar.error", 
-								new Object[] {e.getMessage()}));
+								new Object[] {e.getMessage()}),
+						e);
 				logger.error("S'ha produit un error al intentar eliminar la variable amb id '" + id + "' de la definicio de procés amb id '" + definicioProcesId, e);
 			}
 		}
@@ -422,7 +423,8 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.campValidacio.controller.eliminar.error"));
+							"expedient.tipus.campValidacio.controller.eliminar.error"),
+					e);
 			logger.error("S'ha produit un error al intentar eliminar la validació amb id '" + id + "' de la definició de procés amb id '" + definicioProcesId, e);
 			return false;
 		}
@@ -666,7 +668,8 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 			return true;
 		} catch (Exception e) {
 			MissatgesHelper.error(request,
-					getMessage(request, "expedient.tipus.camp.llistat.agrupacio.boto.esborrar.error"));
+					getMessage(request, "expedient.tipus.camp.llistat.agrupacio.boto.esborrar.error"),
+					e);
 			logger.error("S'ha produit un error al intentar eliminar la agrupació amb id '" + id
 					+ "' de la definició de procés amb id '" + definicioProcesId, e);
 			return false;
@@ -827,7 +830,8 @@ public class DefinicioProcesVariableController extends BaseVariableController {
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.campRegistre.controller.eliminar.error"));
+							"expedient.tipus.campRegistre.controller.eliminar.error"),
+					e);
 			logger.error("S'ha produit un error al intentar eliminar el camp registre amb id '" + id + "' de la defincio de proces amb id '" + definicioProcesId + "'", e);
 			return false;
 		}

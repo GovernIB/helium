@@ -128,7 +128,7 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 				MissatgesHelper.error(request, getMessage(request, cadenaMissatgeError));
 			}
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, cadenaMissatgeError));
+			MissatgesHelper.error(request, getMessage(request, cadenaMissatgeError), ex);
 			logger.error("No s'ha pogut activar/desactivar el token", ex);
 		}
 		return response;
@@ -186,7 +186,7 @@ public class ExpedientTokenV3Controller extends BaseExpedientController {
 					command.isCancelar());
 			MissatgesHelper.success(request, getMessage(request, "info.token.retrocedit") );
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.retrocedir.token", new Object[] {String.valueOf(tokenId)} ));
+			MissatgesHelper.error(request, getMessage(request, "error.retrocedir.token", new Object[] {String.valueOf(tokenId)} ), ex);
 	    	logger.error("No s'ha pogut retrocedir el token " + String.valueOf(tokenId), ex);
 		}
 		

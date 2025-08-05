@@ -124,7 +124,7 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 				model.addAttribute(ArxiuView.MODEL_ATTRIBUTE_DATA, arxiu.getContingut());
 			}
 		} catch (SistemaExternException e) {
-			MissatgesHelper.error(request, e.getPublicMessage());
+			MissatgesHelper.error(request, e.getPublicMessage(), e);
  			modalUrlTancar(true);
 		}
 		return "arxiuView";
@@ -199,7 +199,7 @@ public class ExpedientNotificacioController extends BaseExpedientController {
 			} catch (Exception e) {				
 				String errMsg = getMessage(request, "expedient.notificacio.consultar.estat.error", new Object[] {e.getMessage()});
 				logger.error(errMsg, e);
-				MissatgesHelper.error(request, errMsg);
+				MissatgesHelper.error(request, errMsg, e);
 			}
 		} else {
 			MissatgesHelper.error(request, getMessage(request, "expedient.notificacio.consultar.estat.not.found", new Object[] {notificacioId}));

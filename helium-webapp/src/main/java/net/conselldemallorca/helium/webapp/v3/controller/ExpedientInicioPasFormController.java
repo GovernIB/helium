@@ -118,7 +118,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 						false);
 			}
 		} catch (NoTrobatException ex) {
-			MissatgesHelper.error(request, ex.getMessage());
+			MissatgesHelper.error(request, ex.getMessage(), ex);
 			logger.error("No s'han pogut encontrar la tasca: " + ex.getMessage(), ex);
 		}
 		return null;
@@ -138,7 +138,7 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 				Map<String,Object> valors = reproService.findValorsById(reproId);
 				model.addAttribute("command", populateCommand(request, expedientTipusId, definicioProcesId, model, valors));
 			} catch (Exception e) {
-				MissatgesHelper.error(request, getMessage(request, "repro.missatge.error.carregat"));
+				MissatgesHelper.error(request, getMessage(request, "repro.missatge.error.carregat"), e);
 			}
 		}
 		definicioProcesToModel(expedientTipusId, definicioProcesId, model);
@@ -249,7 +249,8 @@ public class ExpedientInicioPasFormController extends BaseExpedientIniciControll
 					MissatgesHelper.error(
 		        			request,
 		        			getMessage(request, "error.iniciar.expedient") + ": " + 
-		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()),
+							ex);
 		        }
 				
 				logger.error("No s'ha pogut iniciar l'expedient", ex);

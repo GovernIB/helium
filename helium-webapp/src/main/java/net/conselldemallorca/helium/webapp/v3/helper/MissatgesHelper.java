@@ -9,6 +9,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 
@@ -27,10 +28,18 @@ public class MissatgesHelper {
 	public static void error(
 			HttpServletRequest request,
 			String text) {
+		error(request, text, null);
+	}
+	
+	public static void error(
+			HttpServletRequest request,
+			String text,
+			Throwable ex) {
 		newAlert(
 				request,
 				SESSION_ATTRIBUTE_ERROR,
-				text);
+				text,
+				ex);
 	}
 	public static void warning(
 			HttpServletRequest request,
@@ -38,7 +47,8 @@ public class MissatgesHelper {
 		newAlert(
 				request,
 				SESSION_ATTRIBUTE_WARNING,
-				text);
+				text,
+				null);
 	}
 	public static void success(
 			HttpServletRequest request,
@@ -46,7 +56,8 @@ public class MissatgesHelper {
 		newAlert(
 				request,
 				SESSION_ATTRIBUTE_SUCCESS,
-				text);
+				text,
+				null);
 	}
 	public static void info(
 			HttpServletRequest request,
@@ -54,10 +65,11 @@ public class MissatgesHelper {
 		newAlert(
 				request,
 				SESSION_ATTRIBUTE_INFO,
-				text);
+				text,
+				null);
 	}
 
-	public List<String> getErrors(
+	public List<Alert> getErrors(
 			HttpServletRequest request,
 			boolean delete) {
 		return getAlerts(
@@ -65,7 +77,7 @@ public class MissatgesHelper {
 				SESSION_ATTRIBUTE_ERROR,
 				delete);
 	}
-	public List<String> getWarnings(
+	public List<Alert> getWarnings(
 			HttpServletRequest request,
 			boolean delete) {
 		return getAlerts(
@@ -73,7 +85,7 @@ public class MissatgesHelper {
 				SESSION_ATTRIBUTE_WARNING,
 				delete);
 	}
-	public List<String> getSuccesses(
+	public List<Alert> getSuccesses(
 			HttpServletRequest request,
 			boolean delete) {
 		return getAlerts(
@@ -81,7 +93,7 @@ public class MissatgesHelper {
 				SESSION_ATTRIBUTE_SUCCESS,
 				delete);
 	}
-	public List<String> getInfos(
+	public List<Alert> getInfos(
 			HttpServletRequest request,
 			boolean delete) {
 		return getAlerts(
@@ -95,23 +107,27 @@ public class MissatgesHelper {
 	private static void newAlert(
 			HttpServletRequest request,
 			String attributeName,
-			String text) {
+			String text,
+			Throwable ex) {
 		HttpSession session = request.getSession();
-		List<String> alerts = (List<String>)session.getAttribute(attributeName);
+		List<Alert> alerts = (List<Alert>)session.getAttribute(attributeName);
 		if (alerts == null) {
-			alerts = new ArrayList<String>();
+			alerts = new ArrayList<Alert>();
 			session.setAttribute(attributeName, alerts);
 		}
-		alerts.add(text);
+		alerts.add(Alert.builder()
+					.text(text)
+					.trace(ex != null ? ExceptionUtils.getStackTrace(ex) : null)
+					.build());
 	}
 
 	@SuppressWarnings("unchecked")
-	private static List<String> getAlerts(
+	private static List<Alert> getAlerts(
 			HttpServletRequest request,
 			String attributeName,
 			boolean delete) {
 		HttpSession session = request.getSession();
-		List<String> alerts = (List<String>)session.getAttribute(attributeName);
+		List<Alert> alerts = (List<Alert>)session.getAttribute(attributeName);
 		if (delete)
 			session.removeAttribute(attributeName);
 		return alerts;
@@ -123,7 +139,7 @@ public class MissatgesHelper {
 			String textValidacio) {
 		for (ObjectError error: result.getAllErrors()) {
 			String errorText = (error.getDefaultMessage() == null || error.getDefaultMessage().isEmpty()) ? textValidacio : error.getDefaultMessage();
-			error(request, errorText);
+			error(request, errorText, null);
 		}		
 	}
 	
@@ -133,7 +149,7 @@ public class MissatgesHelper {
 			String textValidacio) {
 		for (ObjectError error: result.getGlobalErrors()) {
 			String errorText = (error.getDefaultMessage() == null || error.getDefaultMessage().isEmpty()) ? textValidacio : error.getDefaultMessage();
-			error(request, errorText);
+			error(request, errorText, null);
 		}
 	}
 

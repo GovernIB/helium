@@ -56,7 +56,7 @@ public class ExpedientLuceneController extends BaseExpedientController {
 		} catch (Exception e) {
 			String errMsg = "Error consultant les dades indexades de l'expedient amb id " + expedientId + ": " + e.getMessage();
 			logger.error(errMsg, e);
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg, e);
 			return "redirect:/v3/expedient" + (expedient != null ? "/" + expedient.getId() : "");
 		}
 	}
@@ -115,7 +115,7 @@ public class ExpedientLuceneController extends BaseExpedientController {
 			} catch(Exception e) {
 				String errMsg = "Error llegint els errors de sincronització de l'índex per l'expedient " + expedient.getId() + ": " + e.getMessage();
 				logger.error(errMsg, e);
-				MissatgesHelper.error(request, errMsg);
+				MissatgesHelper.error(request, errMsg, e);
 				errorsReindexacio = new HashMap<String, String>();
 			}
 			
@@ -241,7 +241,7 @@ public class ExpedientLuceneController extends BaseExpedientController {
 								"info.expedient.reindexat.error"));
 				
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.reindexar.expedient") + ". " + ex.getMessage());
+			MissatgesHelper.error(request, getMessage(request, "error.reindexar.expedient") + ". " + ex.getMessage(), ex);
 		}
 		return "redirect:/modal/v3/expedient/lucene/" + expedientId;
 	}

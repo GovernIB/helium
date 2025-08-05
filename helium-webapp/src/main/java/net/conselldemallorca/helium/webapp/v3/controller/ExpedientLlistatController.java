@@ -159,9 +159,9 @@ public class ExpedientLlistatController extends BaseExpedientController {
 							PaginacioHelper.getPaginacioDtoFromDatatable(request)));
 		} catch (Exception e) {
 			if (entornActual == null)
-				MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
+				MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"), e);
 			else {
-				MissatgesHelper.error(request, e.getMessage());
+				MissatgesHelper.error(request, e.getMessage(), e);
 				logger.error("No se pudo obtener la lista de expedientes", e);
 			}
 			result = PaginacioHelper.getPaginaPerDatatables(
@@ -324,7 +324,8 @@ public class ExpedientLlistatController extends BaseExpedientController {
 					getMessage(
 							request,
 							"expedient.llistat.exportacio.error",
-							new Object[]{e.getLocalizedMessage()}));
+							new Object[]{e.getLocalizedMessage()}),
+					e);
 			throw(e);
 		}
 	}

@@ -353,7 +353,8 @@ public class UnitatOrganitzativaController extends BaseController {
 					MissatgesHelper.error(
 										request,
 										getMessage(request, missatgeError) + " : " + 
-					        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+											(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()),
+										ex);
 					
 				}	
 			}
@@ -369,7 +370,7 @@ public class UnitatOrganitzativaController extends BaseController {
 		} catch(Exception e) {
 			String errMsg = "Error construint la predicció de la sincronització: " + e.toString();
 			logger.error(errMsg, e);
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg, e);
 		}
 		return "v3/synchronizationPrediction";
 	}
@@ -387,7 +388,7 @@ public class UnitatOrganitzativaController extends BaseController {
 		} catch(Exception e) {
 			String errMsg = getMessage(request, "unitat.controller.synchronize.ko", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg, e);
 		}
 		return ret;
 	}
@@ -411,7 +412,7 @@ public class UnitatOrganitzativaController extends BaseController {
 		} catch(Exception e) {
 			String errMsg = "Error mostrant l'arbre d'unitats organtizatives: " + e.toString();
 			logger.error(errMsg, e);
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg, e);
 		}
 		return "v3/unitatArbre";
 	}
@@ -473,7 +474,7 @@ public class UnitatOrganitzativaController extends BaseController {
 		} catch(Exception e) {
 			String errMsg = "Error obtenint la informació de la unitat organitzativa: " +unitatOrganitzativaId +" " + e.toString();
 			logger.error(errMsg, e);
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg, e);
 		}
 		return "v3/unitatOrganitzativaInfo";
 	}

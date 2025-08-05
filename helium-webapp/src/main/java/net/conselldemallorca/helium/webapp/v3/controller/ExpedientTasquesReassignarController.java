@@ -91,7 +91,7 @@ public class ExpedientTasquesReassignarController extends BaseExpedientControlle
 				MissatgesHelper.success(request, getMessage(request, "info.tasca.reassignada"));
 			} catch (Exception ex) {
 				String errMsg = getMessage(request, "expedient.tasca.accio.reassignar.errror", new Object[] {tascaId, ExceptionUtils.getRootCauseMessage(ex)} );
-				MissatgesHelper.error(request, errMsg);
+				MissatgesHelper.error(request, errMsg, ex);
 	        	logger.error(errMsg, ex);
 	        	return "v3/expedient/tasca/reassignar";
 			}

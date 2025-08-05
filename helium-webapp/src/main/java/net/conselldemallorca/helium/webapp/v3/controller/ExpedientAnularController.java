@@ -67,7 +67,7 @@ public class ExpedientAnularController extends BaseExpedientController {
 				expedientService.anular(expedientId, cancelExpedient.getMotiu());
 				MissatgesHelper.success(request, getMessage(request, "info.expedient.anulat") );
 			} catch (Exception ex) {
-				MissatgesHelper.error(request, getMessage(request, "error.cancelar.expedient"));
+				MissatgesHelper.error(request, getMessage(request, "error.cancelar.expedient"), ex);
 				logger.error(getMessage(request, "error.cancelar.expedient"), ex);
 			}
 		} else {
@@ -86,7 +86,7 @@ public class ExpedientAnularController extends BaseExpedientController {
 			expedientService.desanular(expedientId);
 			MissatgesHelper.success(request, getMessage(request, "info.expedient.reactivat") );
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.activar.expedient"));
+			MissatgesHelper.error(request, getMessage(request, "error.activar.expedient"), ex);
 			logger.error(getMessage(request, "error.activar.expedient"), ex);
 		}
 		return "redirect:/v3/expedient/" + expedientId;

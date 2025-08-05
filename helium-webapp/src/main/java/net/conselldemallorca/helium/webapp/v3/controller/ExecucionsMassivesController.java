@@ -71,7 +71,8 @@ public class ExecucionsMassivesController extends BaseExpedientController {
     		logger.error(errMsg, e);
     		MissatgesHelper.error(
     				request,
-    				errMsg);
+    				errMsg,
+    				e);
     		throw(e);
     	}        
 	}
@@ -106,7 +107,8 @@ public class ExecucionsMassivesController extends BaseExpedientController {
     				getMessage(
     						request, 
     						"expedient.alta.massiva.exemple.error",
-    						new Object[]{e.getLocalizedMessage()}));
+    						new Object[]{e.getLocalizedMessage()}),
+					e);
     	}        
 	}
 	

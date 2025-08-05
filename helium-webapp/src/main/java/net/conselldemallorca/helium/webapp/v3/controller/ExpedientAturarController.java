@@ -74,7 +74,7 @@ public class ExpedientAturarController extends BaseExpedientController {
 				MissatgesHelper.error(request, getMessage(request, "error.expedient.ja.aturat"));
 			}
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.aturar.expedient"));
+			MissatgesHelper.error(request, getMessage(request, "error.aturar.expedient"), ex);
 			ex.getLocalizedMessage();
 		}
 		return modalUrlTancar();
@@ -89,7 +89,7 @@ public class ExpedientAturarController extends BaseExpedientController {
 			expedientService.reprendre(expedientId);
 			MissatgesHelper.success(request, getMessage(request, "info.expedient.reprendre") );
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.reprendre.expedient"));
+			MissatgesHelper.error(request, getMessage(request, "error.reprendre.expedient"), ex);
 			logger.error(getMessage(request, "error.reprendre.expedient"), ex);
 		}
 		

@@ -165,7 +165,7 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 			MissatgesHelper.success(request, getMessage(request, "info.termini.iniciat"));
 			response = true;
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.iniciar.termini"));
+			MissatgesHelper.error(request, getMessage(request, "error.iniciar.termini"), ex);
         	logger.error("No s'ha pogut iniciar el termini", ex);
 		}
 		return response;
@@ -189,7 +189,7 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 			MissatgesHelper.success(request, getMessage(request, "info.termini.aturat"));
 			response = true;
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.aturar.termini"));
+			MissatgesHelper.error(request, getMessage(request, "error.aturar.termini"), ex);
 			logger.error("No s'ha pogut aturar el termini", ex);
 		}
 		return response;
@@ -213,7 +213,7 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 			MissatgesHelper.success(request, getMessage(request, "info.termini.continuat"));
 			response = true;
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.continuat.termini"));
+			MissatgesHelper.error(request, getMessage(request, "error.continuat.termini"), ex);
 			logger.error("No s'ha pogut continuat el termini", ex);
 		}
 		return response;
@@ -237,7 +237,7 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 			MissatgesHelper.success(request, getMessage(request, "info.termini.cancelat"));
 			response = true;
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.cancelat.termini"));
+			MissatgesHelper.error(request, getMessage(request, "error.cancelat.termini"), ex);
 			logger.error("No s'ha pogut cancel·lar el termini", ex);
 		}
 		return response;
@@ -301,7 +301,7 @@ public class ExpedientTerminiV3Controller extends BaseExpedientController {
 					TerminiModificacioTipus.DATA_FI.name().equals(expedientTerminiModificarCommand.getTipus()));
 			MissatgesHelper.success(request, getMessage(request, "info.termini.modificat"));
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.modificar.termini"));
+			MissatgesHelper.error(request, getMessage(request, "error.modificar.termini"), ex);
         	logger.error("No s'ha pogut modificar el termini", ex);
 		}
 		return modalUrlTancar(false);

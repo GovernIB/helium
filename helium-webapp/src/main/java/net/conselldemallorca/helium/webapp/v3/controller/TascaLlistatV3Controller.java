@@ -150,7 +150,7 @@ public class TascaLlistatV3Controller extends BaseController {
 			SessionHelper.getSessionManager(request).setFiltreConsultaTasca(filtreCommand);
 			return "v3/tascaLlistat";
 		} catch (Exception e) {
-			MissatgesHelper.error(request, e.getMessage());
+			MissatgesHelper.error(request, e.getMessage(), e);
 			filtreCommand.setConsultaTramitacioMassivaTascaId(null);
 			SessionHelper.getSessionManager(request).setFiltreConsultaTasca(filtreCommand);
 			return "redirect:../../../v3/tasca";
@@ -202,9 +202,9 @@ public class TascaLlistatV3Controller extends BaseController {
 							PaginacioHelper.getPaginacioDtoFromDatatable(request)));
 		} catch (Exception e) {
 			if (entornActual == null)
-				MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"));
+				MissatgesHelper.error(request, getMessage(request, "error.cap.entorn"), e);
 			else {
-				MissatgesHelper.error(request, e.getMessage());
+				MissatgesHelper.error(request, e.getMessage(), e);
 				logger.error("No se pudo obtener la lista de tareas", e);
 			}
 			result = PaginacioHelper.getPaginaPerDatatables(

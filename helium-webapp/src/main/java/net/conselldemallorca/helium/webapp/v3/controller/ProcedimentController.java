@@ -149,7 +149,7 @@ public class ProcedimentController extends BaseController{
 		} catch (Exception e) {
 			String errMsg = "Error inesperat actualitzant els procediments: " + e.toString();
 			logger.error(errMsg, e);
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg, e);
 			return "v3/procedimentActualitzacioForm";
 		}
 

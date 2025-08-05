@@ -891,24 +891,29 @@ public class TascaFormController extends BaseController {
 	        	if (ex instanceof ValidacioException) {
 					MissatgesHelper.error(
 		        			request,
-		        			getMessage("error.validacio.tasca") + " " + tascaIdLog + ": " + ex.getMessage());
+		        			getMessage("error.validacio.tasca") + " " + tascaIdLog + ": " + ex.getMessage(),
+		        			ex);
 				}  else if (ex instanceof TramitacioValidacioException) {
 					MissatgesHelper.error(
 		        			request,
-		        			getMessage("error.validacio.tasca") + " " + tascaIdLog + ": " + ex.getMessage());
+		        			getMessage("error.validacio.tasca") + " " + tascaIdLog + ": " + ex.getMessage(),
+		        			ex);
 				} else if (ex instanceof TramitacioHandlerException) {
 					MissatgesHelper.error(
 		        			request,
-		        			getMessage("error.executar.accio") + " " + tascaIdLog + ": " + ((TramitacioHandlerException)ex).getPublicMessage());
+		        			getMessage("error.executar.accio") + " " + tascaIdLog + ": " + ((TramitacioHandlerException)ex).getPublicMessage(),
+		        			ex);
 				} else if (ex instanceof TramitacioException) {
 					MissatgesHelper.error(
 		        			request,
-		        			getMessage("error.executar.accio") + " " + tascaIdLog + ": " + ((TramitacioException)ex).getPublicMessage());
+		        			getMessage("error.executar.accio") + " " + tascaIdLog + ": " + ((TramitacioException)ex).getPublicMessage(),
+		        			ex);
 				} else {
 					MissatgesHelper.error(
 		        			request,
 		        			getMessage("error.executar.accio") + " " + tascaIdLog + ": " + 
-		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()),
+		        			ex);
 		        }
 	        	logger.error("No s'ha pogut executar l'acció '" + accio + "' en la tasca " + tascaIdLog, ex);
 	        	

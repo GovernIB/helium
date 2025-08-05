@@ -114,7 +114,8 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 					getMessage(
 							request, 
 							"expedient.tipus.enumeracio.controller.creat.error",
-							new Object[] {ex.getLocalizedMessage()}));
+							new Object[] {ex.getLocalizedMessage()}),
+					ex);
 			return "v3/expedientTipusEnumeracioForm";
 	    }
 	}
@@ -161,7 +162,8 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 					getMessage(
 							request, 
 							"expedient.tipus.enumeracio.controller.modificat.error",
-							new Object[] {ex.getLocalizedMessage()}));
+							new Object[] {ex.getLocalizedMessage()}),
+					ex);
 			return "v3/expedientTipusEnumeracioForm";
 	    }
 	}
@@ -181,7 +183,8 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 					getMessage(
 							request, 
 							"expedient.tipus.enumeracio.controller.eliminat.error",
-							new Object[] {ex.getLocalizedMessage()}));
+							new Object[] {ex.getLocalizedMessage()}),
+					ex);
 			return false;
 		}
 	}
@@ -224,7 +227,8 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
     				getMessage(
     						request, 
     						"expedient.tipus.enumeracio.valors.exportats.error",
-    						new Object[]{e.getLocalizedMessage()}));
+    						new Object[]{e.getLocalizedMessage()}),
+					e);
     		throw(e);
     	}        
 	}

@@ -118,7 +118,7 @@ public class ExpedientRegistreV3Controller extends BaseExpedientController {
 			MissatgesHelper.success(request, getMessage(request, "expedient.registre.correcte"));
 			response = true;
 		} catch (JbpmException ex ) {
-			MissatgesHelper.error(request, getMessage(request, "error.executar.retroces") + ": "+ ex.getCause().getMessage());
+			MissatgesHelper.error(request, getMessage(request, "error.executar.retroces") + ": "+ ex.getCause().getMessage(), ex);
 			logger.error(" NUMEROEXPEDIENT:"+expedientId+" No s'ha pogut executar el retrocés", ex);
 		}
 		return response;

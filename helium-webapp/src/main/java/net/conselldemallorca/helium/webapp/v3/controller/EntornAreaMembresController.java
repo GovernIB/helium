@@ -164,7 +164,8 @@ public class EntornAreaMembresController extends BaseController {
 					request,
 					getMessage(
 							request,
-							"area.membre.esborrar.error"));
+							"area.membre.esborrar.error"),
+					e);
 			logger.error("S'ha produit un error al intentar el membre amb id '" + id + "' de l'àrea amb id '" + entornAreaId, e);
 		}
 		

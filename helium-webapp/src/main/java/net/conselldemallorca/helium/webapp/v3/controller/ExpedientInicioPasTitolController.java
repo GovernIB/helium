@@ -114,7 +114,7 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 				validator.validate(expedientInicioPasTitolCommand, result);
 			} catch (Exception ex) {
 				validator = null;
-				MissatgesHelper.error(request, getMessage(request, "error.validacio") + ": " + ex.getLocalizedMessage());
+				MissatgesHelper.error(request, getMessage(request, "error.validacio") + ": " + ex.getLocalizedMessage(), ex);
 				logger.error(getMessage(request, "error.validacio"), ex);
 			}
 			DefinicioProcesDto definicioProces = null;
@@ -162,7 +162,8 @@ public class ExpedientInicioPasTitolController extends BaseExpedientIniciControl
 						MissatgesHelper.error(
 			        			request,
 			        			getMessage(request, "error.iniciar.expedient") + ": " + 
-			        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+			        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()),
+						ex);
 			        }
 					logger.error("No s'ha pogut iniciar l'expedient", ex);
 				}				

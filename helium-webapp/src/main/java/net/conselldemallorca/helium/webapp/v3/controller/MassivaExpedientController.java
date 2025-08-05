@@ -133,7 +133,10 @@ public class MassivaExpedientController extends BaseExpedientController {
 			expedients = expedientService.findAmbIds(ids);
 		} catch (Exception e) {
 			expedients = new ArrayList<ExpedientDto>();
-			MissatgesHelper.error(request, getMessage(request, "error.no.massiu.expedients"));
+			MissatgesHelper.error(
+					request,
+					getMessage(request, "error.no.massiu.expedients"),
+					e);
 			logger.error("Error en recuperar la llista dels expedients seleccionats", e);
 		}
 		model.addAttribute("expedients", expedients);
@@ -626,7 +629,10 @@ public class MassivaExpedientController extends BaseExpedientController {
 				return modalUrlTancar();
 			}
 		} catch (Exception e) {
-			MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
+			MissatgesHelper.error(
+					request,
+					getMessage(request, "error.no.massiu"),
+					e);
 			logger.error("Error al programar les accions massives", e);
 		}
 		

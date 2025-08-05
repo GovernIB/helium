@@ -230,7 +230,8 @@ public class DefinicioProcesDocumentController extends BaseDefinicioProcesContro
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.document.llistat.accio.esborrar.error"));
+							"expedient.tipus.document.llistat.accio.esborrar.error"),
+					e);
 			logger.error("S'ha produït un error al intentar eliminar el document amb id '" + id + "' de la definicio de proces amb id '" + definicioProcesId, e);
 			return false;
 		}

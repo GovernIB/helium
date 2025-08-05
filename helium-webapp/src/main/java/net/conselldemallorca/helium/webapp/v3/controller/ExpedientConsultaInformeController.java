@@ -312,7 +312,7 @@ public class ExpedientConsultaInformeController extends BaseExpedientController 
 		} catch(Exception e) {
 			String msg = "Error exportant el report: " + e.getMessage();
 			logger.error(msg, e);
-			MissatgesHelper.error(request, msg);
+			MissatgesHelper.error(request, msg, e);
 			response.sendRedirect(request.getContextPath() +"/v3/expedient/consulta/" + consultaId);
 		}
 	}	

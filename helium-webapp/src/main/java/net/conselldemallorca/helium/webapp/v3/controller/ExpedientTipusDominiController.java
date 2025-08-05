@@ -235,7 +235,8 @@ public class ExpedientTipusDominiController extends BaseExpedientTipusController
 			logger.error("No s'ha pogut eliminar el nomini", e);
 			MissatgesHelper.error(
 					request, 
-					getMessage(request, "expedient.tipus.domini.controller.eliminat.no"));
+					getMessage(request, "expedient.tipus.domini.controller.eliminat.no"),
+					e);
 			return false;
 		}
 	}

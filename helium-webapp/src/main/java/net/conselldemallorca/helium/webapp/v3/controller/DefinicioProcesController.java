@@ -137,7 +137,7 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 			definicioProcesAnteriorId = definicioProces.getId();
 		} catch (Exception e) {
 			logger.error("Error : (" + e.getClass() + ") " + e.getLocalizedMessage(), e);
-			MissatgesHelper.error(request, getMessage(request, "definicio.proces.delete.error", new Object[] {e.getLocalizedMessage()}));
+			MissatgesHelper.error(request, getMessage(request, "definicio.proces.delete.error", new Object[] {e.getLocalizedMessage()}), e);
 		}
 		// Retorna a la pàgina de pipelles		
 		return "redirect:/v3/definicioProces/"+jbmpKey + (definicioProcesAnteriorId != null ? "/" + definicioProcesAnteriorId : "");
@@ -432,7 +432,8 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
     					dto);
         		MissatgesHelper.error(
     					request,
-    					"Error exportant : " + e.getMessage());
+    					"Error exportant : " + e.getMessage(),
+    					e);
         		return "v3/definicioProcesExportarForm";
         	}
         }
@@ -710,7 +711,8 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
 		        						getMessage(
 		        								request,
 		        								"definicio.proces.desplegar.error.actualitzarExpedientActius",
-		        								new Object[] {e.getMessage()}));
+		        								new Object[] {e.getMessage()}),
+		        						e);
 		        				error = true;
 		        			}
             		}
@@ -748,7 +750,8 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         						getMessage(
         								request,
         								"definicio.proces.actualitzar.excepcio",
-        								new Object[] {e.getMessage()}));
+        								new Object[] {e.getMessage()}),
+        						e);
         				error = true;
         			}
             	}
@@ -758,7 +761,8 @@ public class DefinicioProcesController extends BaseDefinicioProcesController {
         				getMessage(
         						request, 
         						"definicio.proces.desplegar.form.error",
-        						new Object[] {e.getLocalizedMessage()}));
+        						new Object[] {e.getLocalizedMessage()}),
+    					e);
         		error = true;
         	}
         	if (error) {

@@ -189,7 +189,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
         	} catch (Exception ex) {
         		String errMsg = getMessage(request, "interessat.controller.crear.error", new Object[] {ex.toString()});
         		logger.error(errMsg, ex);
-        		MissatgesHelper.error(request, errMsg);
+        		MissatgesHelper.error(request, errMsg, ex);
         		error = true;
         	}
         }
@@ -266,7 +266,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
     	        }
         	} catch(Exception ex) {
         		String errMsg = getMessage(request, "interessat.controller.modificar.error", new Object[] {ex.toString()});
-        		MissatgesHelper.error(request, errMsg);
+        		MissatgesHelper.error(request, errMsg, ex);
         		error = true; 		
         	}
         }
@@ -322,7 +322,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
     			MissatgesHelper.success(request, getMessage(request, "interessat.controller.representant.creat") );
         	} catch(Exception ex) {
         		String errMsg = getMessage(request, "interessat.controller.representant.creat.error", new Object[] {ex.toString()});
-        		MissatgesHelper.error(request, errMsg);
+        		MissatgesHelper.error(request, errMsg, ex);
         		error = true;
         	}
         }
@@ -459,7 +459,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		} catch (Exception ex) {
 			String errMsg = getMessage(request, "interessat.controller.esborrar.error", new Object[] {ex.getMessage()});
 			logger.error(errMsg, ex);
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg, ex);
 		}
 		return "redirect:/v3/expedient/"+expedientId+"?pipellaActiva=interessats";
 	}
@@ -477,7 +477,7 @@ public class ExpedientInteressatV3Controller extends BaseExpedientController {
 		} catch (Exception ex) {
 			String errMsg = getMessage(request, "interessat.controller.representant.error", new Object[] {ex.getMessage()});
 			logger.error(errMsg, ex);
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg, ex);
 		}
 		return "redirect:/v3/expedient/"+expedientId+"?pipellaActiva=interessats";
 	}

@@ -153,7 +153,8 @@ public class TascaTramitacioController extends BaseTascaController {
 						getMessage(
 								request,
 								"expedient.tipus.camp.llistat.accio.modificar.error", 
-								new Object[] {ex.getMessage()}));
+								new Object[] {ex.getMessage()}),
+						ex);
 			}
 		}
 		return null;
@@ -388,7 +389,7 @@ public class TascaTramitacioController extends BaseTascaController {
 		try {
 			accioRestaurarForm(request, tascaId); 	
         } catch (Exception ex) {
-        	MissatgesHelper.error(request, ex.getMessage());
+        	MissatgesHelper.error(request, ex.getMessage(), ex);
         	logger.error("No s'ha pogut restaurar el formulari en la tasca " + tascaId, ex);
         }
 		status.setComplete();
@@ -575,7 +576,8 @@ public class TascaTramitacioController extends BaseTascaController {
 			logger.error(errMsg, e);
 			MissatgesHelper.error(
 					request,
-					errMsg);			
+					errMsg,
+					e);
 			return "v3/passarelaFirma/passarelaFiFirma";
 		}
 	}
@@ -624,7 +626,8 @@ public class TascaTramitacioController extends BaseTascaController {
 						logger.error("Error en la signatura del document. " + errMsg, e);
 						MissatgesHelper.error(
 								request,
-								errMsg);
+								errMsg,
+								e);
 					}
 				}
 			} else if (firmaResultat.getStatus() == StatusEnumDto.WARNING) {
@@ -649,7 +652,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			}
 		} catch(Exception e) {
 			String errMsg = "Error no controlat en el procés de firma en passarel·la web: " + e.getMessage();
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg, e);
 		}
 		return "v3/passarelaFirma/passarelaFiFirma";
 	}
@@ -750,7 +753,10 @@ public class TascaTramitacioController extends BaseTascaController {
 						firmaContingut);
 			}
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.guardar.document") + ": " + ex.getLocalizedMessage());
+			MissatgesHelper.error(
+					request,
+					getMessage(request, "error.guardar.document") + ": " + ex.getLocalizedMessage(),
+					ex);
 			logger.error("Error al adjuntar el document a la tasca(" +
 					"tascaId=" + tascaId + ", " +
 					"documentId=" + documentId + ")",
@@ -792,7 +798,10 @@ public class TascaTramitacioController extends BaseTascaController {
 				}
 			}
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.generar.document") + ": " + ex.getLocalizedMessage());
+			MissatgesHelper.error(
+					request,
+					getMessage(request, "error.generar.document") + ": " + ex.getLocalizedMessage(),
+					ex);
 			logger.error("Error generant el document (" +
 					"tascaId=" + tascaId + ", " +
 					"documentCodi=" + documentCodi + ")",
@@ -825,9 +834,9 @@ public class TascaTramitacioController extends BaseTascaController {
 		} catch (Exception ex) {
 			logger.error("Error al descarregar el document", ex);
 			if (ex instanceof SistemaExternException)
-				MissatgesHelper.error(request,((SistemaExternException)ex).getPublicMessage());
+				MissatgesHelper.error(request, ((SistemaExternException)ex).getPublicMessage());
 			else
-				MissatgesHelper.error(request,ex.getMessage());
+				MissatgesHelper.error(request, ex.getMessage(), ex);
 			
 			return "redirect:/modal/v3/tasca/" + tascaId + "/document";
 		}	
@@ -891,7 +900,8 @@ public class TascaTramitacioController extends BaseTascaController {
 			logger.error("Error rebent la signatura del document", ex);
 			MissatgesHelper.error(
         			request,
-        			getMessage(request, "error.rebre.signatura") );
+        			getMessage(request, "error.rebre.signatura"),
+					ex);
 	    }
 
 		return mostrarInformacioTascaPerPipelles(
@@ -1231,7 +1241,10 @@ public class TascaTramitacioController extends BaseTascaController {
 				resposta = true;
 			} catch (Exception ex) {
 				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
-				MissatgesHelper.error(request, getMessage(request, "error.proces.peticio") + " " + descripcioTasca);
+				MissatgesHelper.error(
+						request,
+						getMessage(request, "error.proces.peticio") + " " + descripcioTasca,
+						ex);
 				logger.error("No s'ha pogut restaurat les dades del formulari en la tasca " + descripcioTasca, ex);
 			}
 		}
@@ -1278,7 +1291,10 @@ public class TascaTramitacioController extends BaseTascaController {
 				resposta = true;
 				esborrarSeleccio(request);
 			} catch (Exception ex) {
-				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
+				MissatgesHelper.error(
+						request,
+						getMessage(request, "error.no.massiu"),
+						ex);
 				logger.error("No s'ha pogut guardar les dades del formulari massiu en la tasca " + tascaId, ex);
 			}
 		} else {
@@ -1288,7 +1304,10 @@ public class TascaTramitacioController extends BaseTascaController {
 				resposta = true;
 			} catch (Exception ex) {
 				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
-				MissatgesHelper.error(request, getMessage(request, "error.proces.peticio") + " " + descripcioTasca);
+				MissatgesHelper.error(
+						request,
+						getMessage(request, "error.proces.peticio") + " " + descripcioTasca,
+						ex);
 				logger.error("No s'ha pogut guardar les dades del formulari en la tasca " + descripcioTasca, ex);
 			}
 		}
@@ -1341,7 +1360,10 @@ public class TascaTramitacioController extends BaseTascaController {
 				resposta = true;
 			} catch (Exception ex) {
 				String descripcioTasca = getDescripcioTascaPerMissatgeUsuari(tascaId);
-				MissatgesHelper.error(request, getMessage(request, "error.validar.formulari") + " " + descripcioTasca);
+				MissatgesHelper.error(
+						request,
+						getMessage(request, "error.validar.formulari") + " " + descripcioTasca,
+						ex);
 				logger.error("No s'ha pogut validar el formulari en la tasca " + descripcioTasca, ex);
 			}
 		}
@@ -1382,7 +1404,10 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.success(request, getMessage(request, "info.tasca.massiu.accio", new Object[] {tascaIds.length}));
 				resposta = true;
 			} catch (Exception ex) {
-				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
+				MissatgesHelper.error(
+						request,
+						getMessage(request, "error.no.massiu"),
+						ex);
 				logger.error("No s'ha pogut guardar les dades del formulari massiu en la tasca " + tascaId, ex);
 			}
 		} else {
@@ -1413,7 +1438,8 @@ public class TascaTramitacioController extends BaseTascaController {
 					MissatgesHelper.error(
 		        			request,
 		        			getMessage(request, "error.executar.accio") + " " + descripcioTasca + ": " + 
-		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+		        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()),
+        					ex);
 		        }
 				logger.error("No s'ha pogut executar l'acció " + tascaId, ex);
 			}
@@ -1496,7 +1522,8 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.error(
 	        			request,
 	        			getMessage(request, "error.finalitzar.tasca") + " " + getDescripcioTascaPerMissatgeUsuari(tasca) + ": " + 
-	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()),
+    					ex);
 				logger.error("No s'ha pogut finalitzar la tasca massiu" + tascaId, ex);
 			}	
 		} else {
@@ -1539,7 +1566,8 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.error(
 	        			request,
 	        			getMessage(request, "error.finalitzar.tasca") + " " + getDescripcioTascaPerMissatgeUsuari(tasca) + ": " + 
-	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()),
+    					ex);
 				logger.error("No s'ha pogut finalitzar la tasca " + tascaId, ex);
 			}
 		}
@@ -1600,7 +1628,7 @@ public class TascaTramitacioController extends BaseTascaController {
 						null);
 				MissatgesHelper.success(request, getMessage(request, "info.tasca.massiu.document.guardar", new Object[] {tascaIds.length}));
 			} catch (Exception ex) {
-				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
+				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"), ex);
 				logger.error("No s'ha pogut guardar les dades del formulari massiu en la tasca " + tascaId, ex);
 			}
 		} else {
@@ -1624,7 +1652,8 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.error(
 	        			request,
 	        			getMessage(request, "error.guardar.document") + " " + descripcioTasca + ": " + 
-	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()),
+    					ex);
 				logger.error("No s'ha pogut guardar el document " + tascaId, ex);
 			}
 
@@ -1663,7 +1692,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				
 				resposta = true;
 			} catch (Exception ex) {
-				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
+				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"), ex);
 				logger.error("No s'ha pogut guardar les dades del formulari massiu a la tasca " + tascaId, ex);
 			}
 		} else {
@@ -1679,7 +1708,8 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.error(
 	        			request,
 	        			getMessage(request, "error.esborrar.document") + " " + descripcioTasca + ": " + 
-	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()),
+    					ex);
 				logger.error("No s'ha pogut esborrar el document de la tasca (" +
 						"tascaId=" + tascaId + ", " +
 						"documentCodi=" + documentCodi + ")", ex);
@@ -1727,7 +1757,7 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.error(request, getMessage(request, "error.no.massiu") + " : " + ex.getPublicMessage());
 				logger.error("No s'ha pogut generar el document massiu en la tasca " + tascaId, ex);
 			} catch (Exception ex) {
-				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"));
+				MissatgesHelper.error(request, getMessage(request, "error.no.massiu"), ex);
 				logger.error("No s'ha pogut generar el document massiu en la tasca " + tascaId, ex);
 			}
 		} else {
@@ -1746,7 +1776,8 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.error(
 	        			request,
 	        			getMessage(request, "error.generar.document") + " : " + 
-	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()));
+	        					(ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage()),
+    					ex);
 				logger.error("No s'ha pogut generar el document '" + documentCodi + "' de la tasca '" + tascaId + "'", ex);
 			}
 		}

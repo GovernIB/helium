@@ -140,7 +140,7 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 			else
 				errMsg = this.getMessage(request, "expedient.anotacio.llistat.processar.traspas.ko", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg, e);
 		}
  
 		return "redirect:/v3/expedient/" + expedientId;
@@ -227,7 +227,7 @@ public class ExpedientAnotacioController extends BaseExpedientController {
 					request,
 					"expedient.anotacio.llistat.processar.mapeig.ko",
 					new Object[] {e.getMessage()});
-			MissatgesHelper.error( request, errMsg);
+			MissatgesHelper.error( request, errMsg, e);
 			logger.error(errMsg, e);
 		}		
 		return modalUrlTancar(false);

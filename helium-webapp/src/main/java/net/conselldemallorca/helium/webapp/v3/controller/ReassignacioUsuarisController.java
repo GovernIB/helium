@@ -115,7 +115,7 @@ public class ReassignacioUsuarisController extends BaseExpedientController {
         	MissatgesHelper.success(request, getMessage(request, "info.reassignacio.produit") );
         	status.setComplete();
         } catch (Exception ex) {
-        	MissatgesHelper.error(request, getMessage(request, "error.proces.peticio"));
+        	MissatgesHelper.error(request, getMessage(request, "error.proces.peticio"), ex);
         	logger.error("No s'ha pogut guardar el registre", ex);
         	return "v3/expedient/tasca/reassignarUsuaris";
         }

@@ -129,7 +129,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		} catch (Exception e) {
 			String errMsg = getMessage(request, "error.esborrant.expedient", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg, e);
 			String referer = request.getHeader("Referer");
 		    return "redirect:"+ referer;
 		}			
@@ -154,7 +154,10 @@ public class ExpedientV3Controller extends BaseExpedientController {
 								request,
 								"info.expedient.reindexat.error"));
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.reindexar.expedient") + ". " + ex.getMessage());
+			MissatgesHelper.error(
+					request,
+					getMessage(request, "error.reindexar.expedient") + ". " + ex.getMessage(),
+					ex);
 		}
 		return "redirect:/v3/expedient/" + expedientId;
 	}
@@ -180,7 +183,8 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			MissatgesHelper.error(request, 
 					errMsg.substring(
 							0, 
-							Math.min(errMsg.contains("\n") ? errMsg.indexOf("\n") : errMsg.length(), 1024)));			
+							Math.min(errMsg.contains("\n") ? errMsg.indexOf("\n") : errMsg.length(), 1024)),
+					ex);
 		}
 		return "redirect:/v3/expedient/" + expedientId;
 	}
@@ -199,7 +203,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		} catch (Exception ex) {
 			String errMsg = getMessage(request, "expedient.error.prefinalitzant.expedient") + ". " + ex.getMessage();
 			logger.error(errMsg, ex);
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg, ex);
 			expedientFinalitzarDto.setError(true);
 		}
 		model.addAttribute(expedientFinalitzarDto);
@@ -231,7 +235,10 @@ public class ExpedientV3Controller extends BaseExpedientController {
 											0, 
 											Math.min(errMsg.contains("\n") ? errMsg.indexOf("\n") : errMsg.length(), 1024));
 								}
-								MissatgesHelper.error(request, getMessage(request, "expedient.prefinalitzar.document.error", new Object[]{document, errMsg} ));
+								MissatgesHelper.error(
+										request,
+										getMessage(request, "expedient.prefinalitzar.document.error", new Object[]{document, errMsg} ),
+										ex);
 								error = true;
 							}
 						}
@@ -255,7 +262,8 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			MissatgesHelper.error(request, 
 					errMsg.substring(
 							0, 
-							Math.min(errMsg.contains("\n") ? errMsg.indexOf("\n") : errMsg.length(), 1024)));
+							Math.min(errMsg.contains("\n") ? errMsg.indexOf("\n") : errMsg.length(), 1024)),
+					ex);
 			
 			error = true;
 		}
@@ -323,7 +331,10 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			expedientService.netejarErrorsExp(expedientId);
 			MissatgesHelper.success(request, getMessage(request, "boto.eliminar.errors.ok"));
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "boto.eliminar.errors.ko") + "<br/> " + ex.getCause().getMessage());
+			MissatgesHelper.error(
+					request,
+					getMessage(request, "boto.eliminar.errors.ko") + "<br/> " + ex.getCause().getMessage(),
+					ex);
 		}
 		return "ok";
 	}
@@ -363,7 +374,10 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			model.addAttribute("subDefinicioProces", subDefinicioProces);
 		} catch (Exception ex) {
 			logger.error("Canviant versió de la definició de procés (" + "id=" + expedientId + ")", ex);
-			MissatgesHelper.error(request, getMessage(request, "error.canviar.versio.proces"));
+			MissatgesHelper.error(
+					request,
+					getMessage(request, "error.canviar.versio.proces"),
+					ex);
 		}
 		return "v3/expedient/canviVersio";
 	}
@@ -387,7 +401,10 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			MissatgesHelper.success(request, getMessage(request, "info.expedient.canviversio"));
 		} catch (Exception ex) {
 			logger.error("Canviant versió de la definició de procés (" + "id=" + expedientId + ")", ex);
-			MissatgesHelper.error(request, getMessage(request, "error.canviar.versio.proces"));
+			MissatgesHelper.error(
+					request,
+					getMessage(request, "error.canviar.versio.proces"),
+					ex);
 		}
 		return modalUrlTancar();
 	}
@@ -432,7 +449,10 @@ public class ExpedientV3Controller extends BaseExpedientController {
 				MissatgesHelper.error(request, getMessage(request, "error.permisos.buidar.logs"));
 			}
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "error.buidarlog.expedient") + ": " + ex.getLocalizedMessage());
+			MissatgesHelper.error(
+					request,
+					getMessage(request, "error.buidarlog.expedient") + ": " + ex.getLocalizedMessage(),
+					ex);
 		}
 		return "redirect:/v3/expedient/" + expedientId;
 	}
@@ -448,7 +468,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		} catch (Exception e) {
 			String errMsg = getMessage(request, "error.desfinalitzant.expedient", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg, e);
 		}		
 		return "redirect:/v3/expedient/" + expedientId;
 	}
@@ -516,7 +536,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		} catch (Exception e) {
 			String errMsg = getMessage(request, "expedient.info.error.consulta.arxiu", new Object[] {e.getMessage()});
 			logger.error(errMsg, e);
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg, e);
 		}			
 		return "v3/expedientMetadadesNtiInfo";
 	}
@@ -532,7 +552,10 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			MissatgesHelper.success(request, getMessage(request, "expedient.boto.sincro.arxiu.ok"));
 			return "ok";
 		} catch (Exception ex) {
-			MissatgesHelper.error(request, getMessage(request, "expedient.boto.sincro.arxiu.ko") + "<br/> " + ex.getLocalizedMessage());
+			MissatgesHelper.error(
+					request,
+					getMessage(request, "expedient.boto.sincro.arxiu.ko") + "<br/> " + ex.getLocalizedMessage(),
+					ex);
 			return "ko";
 		}
 		
@@ -553,7 +576,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 		} catch(Exception e) {
 			String errMsg = getMessage(request, "expedient.metadades.nti.dades.error.arreglar.error", new Object[] {e.getMessage()}); 
 			logger.error(errMsg, e);
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg, e);
 		}
 		return "redirect:" + request.getHeader("Referer");
 	}
@@ -573,7 +596,10 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			}
 		} catch (Exception ex) {
 			logger.error("Error migrant l'expedient a l'arxiu: ", ex);
-			MissatgesHelper.error(request, getMessage(request, "error.migrar.expedient.arxiu") + ": " + ex.getLocalizedMessage());
+			MissatgesHelper.error(
+					request,
+					getMessage(request, "error.migrar.expedient.arxiu") + ": " + ex.getLocalizedMessage(),
+					ex);
 		}
 		return "redirect:/v3/expedient/" + expedientId;
 	}
@@ -603,7 +629,7 @@ public class ExpedientV3Controller extends BaseExpedientController {
 			} while (!root);
 			String errMsg = getMessage(request, "expedient.info.estat.canviar.error", new Object[] {message.toString()});
 			logger.error(errMsg, ex);
-			MissatgesHelper.error(request, errMsg);
+			MissatgesHelper.error(request, errMsg, ex);
 		}
 		return "redirect:/v3/expedient/" + expedientId;
 	}
@@ -708,7 +734,8 @@ public class ExpedientV3Controller extends BaseExpedientController {
     				getMessage(
     						request, 
     						"expedient.exportacio.eni.error",
-    						new Object[]{e.getMessage()}));
+    						new Object[]{e.getMessage()}),
+					e);
     		response.sendRedirect("/helium/v3/expedient/" + expedientId);
     	}        
 	}
@@ -730,7 +757,8 @@ public class ExpedientV3Controller extends BaseExpedientController {
     				getMessage(
     						request, 
     						"expedient.exportacio.eni.error",
-    						new Object[]{e.getMessage()}));
+    						new Object[]{e.getMessage()}),
+					e);
     		response.sendRedirect("/helium/v3/expedient/" + expedientId);
     	}        
 	}
@@ -751,7 +779,8 @@ public class ExpedientV3Controller extends BaseExpedientController {
     				getMessage(
     						request, 
     						"expedient.exportacio.eni.error",
-    						new Object[]{e.getMessage()}));
+    						new Object[]{e.getMessage()}),
+					e);
     		response.sendRedirect("/helium/v3/expedient/" + expedientId);
     	}        
 	}

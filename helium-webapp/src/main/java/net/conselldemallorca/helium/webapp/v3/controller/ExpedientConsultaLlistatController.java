@@ -112,7 +112,10 @@ public class ExpedientConsultaLlistatController extends BaseExpedientController 
 		try {
 			consulta = dissenyService.findConsulteById(consultaId);			
 		} catch (Exception e) {
-			MissatgesHelper.error(request, "Error accedint a la consulta amb id " + consultaId + ": " + e.getMessage() + ". Si és la consulta per defecte revisi el seu perfil.");
+			MissatgesHelper.error(
+					request, 
+					"Error accedint a la consulta amb id " + consultaId + ": " + e.getMessage() + ". Si és la consulta per defecte revisi el seu perfil.",
+					e);
 			return "redirect:/v3/expedient";
 		}
 		

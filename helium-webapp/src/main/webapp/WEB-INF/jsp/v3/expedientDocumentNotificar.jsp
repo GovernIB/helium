@@ -27,52 +27,18 @@
 </style>
 <script>
 $(document).ready(function() {
-
 	$("#interessatsIds").on('change', function() { checkMidaCampsNotificacio();	});
 	$("#representantId").on('change', function() { checkMidaCampsNotificacio();	});
 	
-    $('#entregaPostalActiva').on('change', function() { 
-        if (this.checked) {
-            $('#entregaPostal').removeClass('hidden');
-        } else {
-            $('#entregaPostal').addClass('hidden');
-        }
+	$('#entregaPostalActiva').on('change', function() { 
+		if (this.checked) {
+			$('#entregaPostal').removeClass('hidden');
+		} else {
+			$('#entregaPostal').addClass('hidden');
+		}
+	})
+});
 
-    })
-    
-    /*  $('select#interessatsIds').on('change', function(valor) {
-    	if ($(this).val() != '' && $(this).val() != "null") {
-    		alert($(this).val());
- 			$.ajax({
-				type: 'GET',
-				url: "<c:url value="/modal/v3/expedient/representant/"/>" + $(this).val(),
-				success: function(data) {
-					var representantId = $('#representantId');
-					representantId.empty();
-					representantId.append("<option value=\"\"></option>");
-					if (data && data.length > 0) {
-						var items = [];
-						$.each(data, function(i, val) {
-							items.push({
-								"id": val.codi,
-								"text": val.nom
-							});
-							representantId.append("<option value=\"" + val.codi + "\">" + val.nom + "</option>");
-						});
-					}
-					var select2Options = {theme: 'bootstrap', minimumResultsForSearch: "6"};
-					representantId.select2("destroy");
-					representantId.select2(select2Options);
-					representantId.change();
-				}
-			});
- 	 	} else {
- 	 		var select2Options = {theme: 'bootstrap', minimumResultsForSearch: "6"};
- 	 		$('#representantId').select2("destroy");
- 	 		$('#representantId').select2(select2Options);
- 	 	}
-    })
-}); */
 
 function checkMidaCampsNotificacio() {
 	var getUrl = '<c:url value="/v3/expedient/checkMidaCampsNotificacio"/>';

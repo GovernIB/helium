@@ -171,7 +171,8 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 			} catch (Exception e) {
 				MissatgesHelper.error(
 						request, 
-						"Error recuperant les dades JSON del handler: " + e.getMessage());
+						"Error recuperant les dades JSON del handler: " + e.getMessage(),
+						e);
 			}
 		}
 		
@@ -235,7 +236,8 @@ public class DefinicioProcesAccioController extends BaseDefinicioProcesControlle
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.accio.llistat.accio.esborrar.error"));
+							"expedient.tipus.accio.llistat.accio.esborrar.error"),
+					e);
 			logger.error("S'ha produit un error al intentar eliminar la accio amb id '" + id + "' de la definció de procés amb id '" + definicioProcesId, e);
 			return false;
 		}
