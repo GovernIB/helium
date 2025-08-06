@@ -16,6 +16,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.exception.InUseException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
@@ -134,7 +135,7 @@ public class EnumeracioServiceBean implements EnumeracioService {
 
 	@Override
 	public void enumeracioDeleteAllByEnumeracio(Long enumeracioId)
-			throws NoTrobatException, PermisDenegatException, ValidacioException {
+			throws NoTrobatException, PermisDenegatException, ValidacioException, InUseException {
 		delegate.enumeracioDeleteAllByEnumeracio(enumeracioId);
 	}
 

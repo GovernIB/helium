@@ -32,6 +32,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EntornDto;
 import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.exception.InUseException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.EnumeracioService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEnumeracioCommand;
@@ -207,7 +208,9 @@ public class EnumeracioController extends BaseDissenyController {
 			try {
 				enumeracioService.delete(enumeracioId);
 				MissatgesHelper.success(request, getMessage(request, "expedient.tipus.enumeracio.controller.eliminat"));
-			}catch (ValidacioException ex) {
+			} catch (ValidacioException ex) {
+				MissatgesHelper.error(request, ex.getMessage());
+			} catch (Exception ex) {
 				MissatgesHelper.error(request, ex.getMessage(), ex);
 			}
 			return modalUrlTancar(false);
@@ -263,6 +266,15 @@ public class EnumeracioController extends BaseDissenyController {
 			@PathVariable Long enumeracioId,
 			@PathVariable Long id,
 			Model model) {
+		if(enumeracioService.valorInUse(id)) {
+			ompleDadesModel(request, enumeracioId, model, true);
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.enumeracio.valors.controller.modificar.us"));
+			return "v3/expedientTipusEnumeracioValors";
+		}
 		ExpedientTipusEnumeracioValorDto dto = enumeracioService.valorFindAmbId(id);
 		ExpedientTipusEnumeracioValorCommand command = conversioTipusHelper.convertir(dto, ExpedientTipusEnumeracioValorCommand.class);
 		ompleDadesModel(request, enumeracioId, model, false);		
@@ -437,7 +449,13 @@ public class EnumeracioController extends BaseDissenyController {
 								request,
 								"expedient.tipus.enumeracio.valors.importats"));
 			}
-		} catch (Exception ex) {
+		} catch (InUseException ex) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.enumeracio.valors.controller.action.us"));
+        } catch (Exception ex) {
 			MissatgesHelper.error(
 					request,
 					getMessage(

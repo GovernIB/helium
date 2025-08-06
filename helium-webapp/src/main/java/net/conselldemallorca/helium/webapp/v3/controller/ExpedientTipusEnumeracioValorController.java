@@ -28,6 +28,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.exception.InUseException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.EnumeracioService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEnumeracioValorCommand;
@@ -99,9 +100,18 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 			@PathVariable Long enumeracioId,
 			@PathVariable Long id,
 			Model model) {
+		if(enumeracioService.valorInUse(id)) {
+			ompleDadesModel(request, expedientTipusId, enumeracioId, model, true);
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.enumeracio.valors.controller.modificar.us"));
+			return "v3/expedientTipusEnumeracioValors";
+		}
 		ExpedientTipusEnumeracioValorDto dto = enumeracioService.valorFindAmbId(id);
 		ExpedientTipusEnumeracioValorCommand command = conversioTipusHelper.convertir(dto, ExpedientTipusEnumeracioValorCommand.class);
-		ompleDadesModel(request, expedientTipusId, enumeracioId, model, false);		
+		ompleDadesModel(request, expedientTipusId, enumeracioId, model, false);
 		model.addAttribute("expedientTipusEnumeracioValorCommand", command);
 		model.addAttribute("mostraUpdate", true);
 		return "v3/expedientTipusEnumeracioValors";
@@ -136,7 +146,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 					request,
 					getMessage(
 							request,
-							"expedient.tipus.enumeracio.valors.controller.modificat"));				
+							"expedient.tipus.enumeracio.valors.controller.modificat"));
 			
 			return "v3/expedientTipusEnumeracioValors";
 		}
@@ -230,9 +240,7 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 						getMessage(
 								request,
 								"error.especificar.arxiu.importar"));
-	        	return valors(request, expedientTipusId, enumeracioId, model);				
 			} else {
-				
 				if (eliminarValorsAntics != null && eliminarValorsAntics) {
 					enumeracioService.enumeracioDeleteAllByEnumeracio(enumeracioId);
 				}
@@ -279,8 +287,19 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 						getMessage(
 								request,
 								"expedient.tipus.enumeracio.valors.importats"));
-	        	return valors(request, expedientTipusId, enumeracioId, model);
 			}
+		} catch (InUseException ex) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.enumeracio.valors.controller.action.us"));
+        } catch (ValidacioException ex) {
+			MissatgesHelper.error(
+					request,
+					getMessage(
+							request,
+							"expedient.tipus.enumeracio.valors.importats.error", new Object[] {ex.getMessage()}));
 		} catch (Exception ex) {
 			MissatgesHelper.error(
 					request,
@@ -288,8 +307,8 @@ public class ExpedientTipusEnumeracioValorController extends BaseExpedientTipusC
 							request,
 							"expedient.tipus.enumeracio.valors.importats.error", new Object[] {ex.getMessage()}),
 					ex);
-        	return valors(request, expedientTipusId, enumeracioId, model);
-        }
+		}
+		return valors(request, expedientTipusId, enumeracioId, model);
 	}
 	
 	private void ompleDadesModel(

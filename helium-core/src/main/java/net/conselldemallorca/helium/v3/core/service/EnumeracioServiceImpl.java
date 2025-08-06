@@ -32,6 +32,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.exception.InUseException;
 import net.conselldemallorca.helium.v3.core.api.exception.NoTrobatException;
 import net.conselldemallorca.helium.v3.core.api.exception.PermisDenegatException;
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
@@ -462,7 +463,7 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 	
 	@Override
 	@Transactional
-	public void enumeracioDeleteAllByEnumeracio(Long enumeracioId) throws NoTrobatException, PermisDenegatException, ValidacioException {
+	public void enumeracioDeleteAllByEnumeracio(Long enumeracioId) throws NoTrobatException, PermisDenegatException, ValidacioException, InUseException {
 		
 		logger.debug(
 				"Esborrant els valors de l'enumeració (" +
@@ -479,6 +480,14 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 			entornHelper.getEntornComprovantPermisos(entity.getEntorn().getId(), true, true);
 		
 		List<EnumeracioValors> valors = enumeracioValorsRepository.findByEnumeracioOrdenat(entity.getId());
+		
+		// Comprovam que no hi hagui cap valor en us
+		for(EnumeracioValors valor : valors) {
+			BigDecimal count = enumeracioValorsRepository.countValueUsage(enumeracioId, valor.getCodi()).get(0);
+			if(count.compareTo(BigDecimal.ZERO) > 0)
+				throw new InUseException(valor.getCodi());
+		}
+		
 		if (valors!=null) {
 			for (int o=0; o<valors.size(); o++) {
 				enumeracioValorsRepository.delete(valors.get(o));

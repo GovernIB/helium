@@ -22,6 +22,7 @@ import net.conselldemallorca.helium.v3.core.api.dto.EnumeracioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientTipusEnumeracioValorDto;
 import net.conselldemallorca.helium.v3.core.api.dto.PaginacioParamsDto;
+import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.EnumeracioService;
 import net.conselldemallorca.helium.webapp.v3.command.ExpedientTipusEnumeracioCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.ConversioTipusHelper;
@@ -172,12 +173,19 @@ public class ExpedientTipusEnumeracioController extends BaseExpedientTipusContro
 	@ResponseBody
 	public boolean delete(HttpServletRequest request, @PathVariable Long expedientTipusId, @PathVariable Long id,
 			Model model) {
-
 		try {
 			enumeracioService.delete(id);
 			MissatgesHelper.success(request, getMessage(request, "expedient.tipus.enumeracio.controller.eliminat"));
 			return true;
-		}catch (Exception ex) {
+		} catch (ValidacioException ex) {
+    		MissatgesHelper.error(
+					request, 
+					getMessage(
+							request, 
+							"expedient.tipus.enumeracio.controller.eliminat.error",
+							new Object[] {ex.getLocalizedMessage()}));
+			return false;
+		} catch (Exception ex) {
     		MissatgesHelper.error(
 					request, 
 					getMessage(
