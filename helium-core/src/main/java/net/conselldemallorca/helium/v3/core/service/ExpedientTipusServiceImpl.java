@@ -3,6 +3,7 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,11 +20,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import javax.annotation.Resource;
 
 import org.apache.commons.lang.StringUtils;
+import org.jbpm.graph.def.ProcessDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,6 +96,8 @@ import net.conselldemallorca.helium.core.model.hibernate.UnitatOrganitzativa;
 import net.conselldemallorca.helium.core.model.hibernate.Validacio;
 import net.conselldemallorca.helium.core.security.ExtendedPermission;
 import net.conselldemallorca.helium.core.util.ExpedientCamps;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmHelper;
+import net.conselldemallorca.helium.jbpm3.integracio.JbpmProcessDefinition;
 import net.conselldemallorca.helium.v3.core.api.dto.AccioTipusEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampTipusDto;
@@ -274,6 +279,9 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 	private ExecucioMassivaService execucioMassivaService;
 	@Autowired
 	private ExpedientService expedientService;
+	@Resource
+	private JbpmHelper jbpmHelper;
+
 
 	/**
 	 * {@inheritDoc}
@@ -343,7 +351,8 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if (ExpedientTipusTipusEnumDto.ESTAT.equals(entity.getTipus())) {
 			// Associa el tipus al flux senzill
 			expedientTipusRepository.saveAndFlush(entity);
-			entity.setJbpmProcessDefinitionKey(this.getDefinicioProcesEstats(entity, entorn).getJbpmKey());
+			DefinicioProces definicioProcesEstat = definicioProcesRepository.saveAndFlush(this.getDefinicioProcesEstats(entity, entorn));
+			entity.setJbpmProcessDefinitionKey(definicioProcesEstat.getJbpmKey());
 
 			// Crea un estata per defecte
 			Estat estat = new Estat();
@@ -1062,7 +1071,17 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			expedientTipus.setNom(importacio.getNom());
 			expedientTipus.setTipus(importacio.getTipus() != null ? importacio.getTipus() : ExpedientTipusTipusEnumDto.FLOW);
 			expedientTipus = expedientTipusRepository.saveAndFlush(expedientTipus);
-		} else			
+			if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedientTipus.getTipus())) {
+				// En el cas d'expedients per estats crea el nou flux i un estat per defecte
+				expedientTipus.setJbpmProcessDefinitionKey(this.getDefinicioProcesEstats(expedientTipus, entorn).getJbpmKey());
+				Estat estat = new Estat();
+				estat.setExpedientTipus(expedientTipus);
+				estat.setCodi("inici");
+				estat.setNom("Estat inicial");
+				estat.setOrdre(1);
+				estat = estatRepository.save(estat);
+			}
+		} else {
 			// Recupera el tipus d'expedient existent
 			if (entornHelper.potDissenyarEntorn(entornId)) {
 				// Si te permisos de disseny a damunt l'entorn pot veure tots els tipus
@@ -1075,6 +1094,7 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				expedientTipus = expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(
 						command.getId());
 			}
+		}
 		if (!expedientTipusExisteix || command.isDadesBasiques()) {
 			expedientTipus.setNom(importacio.getNom());
 			expedientTipus.setTipus(importacio.getTipus() != null ? importacio.getTipus() : ExpedientTipusTipusEnumDto.FLOW);
@@ -1084,7 +1104,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			expedientTipus.setTeNumero(importacio.isTeNumero());
 			expedientTipus.setDemanaNumero(importacio.isDemanaNumero());
 			expedientTipus.setExpressioNumero(importacio.getExpressioNumero());
-			expedientTipus.setJbpmProcessDefinitionKey(importacio.getJbpmProcessDefinitionKey());
+			if (ExpedientTipusTipusEnumDto.FLOW.equals(expedientTipus.getTipus())) {
+				// Si és de tipus flow posa la definició per defecte igual que la importaicó, si no queda amb el codi igual que l'expedient tipus on s'importa
+				expedientTipus.setJbpmProcessDefinitionKey(importacio.getJbpmProcessDefinitionKey());
+			}
 			expedientTipus.setReiniciarCadaAny(importacio.isReiniciarCadaAny());
 			expedientTipus.setSequencia(importacio.getSequencia());
 			expedientTipus.setResponsableDefecteCodi(importacio.getResponsableDefecteCodi());
@@ -1723,27 +1746,39 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		if (command.getDefinicionsProces().size() > 0) {
 			for(DefinicioProcesExportacio definicioExportat : importacio.getDefinicions() )
 				if (command.getDefinicionsProces().contains(definicioExportat.getDefinicioProcesDto().getJbpmKey())){
-					// Id de la definició de procés sobre la qual s'importa la informacó
-					Long definicioProcesId = null;
-					if (!command.isDesplegarDefinicions()) {
-						// Busca la darrera versió de la definició de procés pel tipus d'expedient
-						if (expedientTipusId != null) {
-							DefinicioProces darreraVersio =
-										definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(expedientTipusId, 
-												definicioExportat.getDefinicioProcesDto().getJbpmKey());
-							if (darreraVersio != null) {
-								definicioProcesId = darreraVersio.getId();
+					if (ExpedientTipusTipusEnumDto.FLOW.equals(expedientTipus.getTipus())) {
+						// En el cas dels flow es poden importar i desplegar sobre el nou tipus
+						// Id de la definició de procés sobre la qual s'importa la informacó
+						Long definicioProcesId = null;
+						if (!command.isDesplegarDefinicions()) {
+							// Busca la darrera versió de la definició de procés pel tipus d'expedient
+							if (expedientTipusId != null) {
+								DefinicioProces darreraVersio =
+											definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(expedientTipusId, 
+													definicioExportat.getDefinicioProcesDto().getJbpmKey());
+								if (darreraVersio != null) {
+									definicioProcesId = darreraVersio.getId();
+								}
 							}
 						}
+						definicioProces = definicioProcesHelper.importar(
+								entornId,
+								expedientTipus.getId(),
+								definicioProcesId,
+								definicioExportat,
+								null,
+								command.isSobreEscriure());
+						expedientTipus.addDefinicioProces(definicioProces);
+					} else {
+						// En el cas dels expedients per estats s'actualitzen els handlers sobre la definició existent.ç
+						DefinicioProces definicioProcesEstat =
+								definicioProcesRepository.findDarreraVersioAmbTipusExpedientIJbpmKey(
+										expedientTipus.getId(), 
+										expedientTipus.getJbpmProcessDefinitionKey());
+						this.updateHandlers(
+								definicioProcesEstat,
+								definicioExportat.getContingutDeploy());
 					}
-					definicioProces = definicioProcesHelper.importar(
-							entornId,
-							expedientTipus.getId(),
-							definicioProcesId,
-							definicioExportat,
-							null,
-							command.isSobreEscriure());
-					expedientTipus.addDefinicioProces(definicioProces);
 				}
 		}
 
@@ -1853,7 +1888,34 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 				ExpedientTipusDto.class);
 	}
 	
-	
+	/** Publica els recursos del .par en la definició de procés per estats. */
+	private void updateHandlers(
+			DefinicioProces definicioProcesEstat, 
+			byte[] contingut) 
+	{
+		ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(contingut));
+		ProcessDefinition processDefinition;
+		try {
+			processDefinition = ProcessDefinition.parseParZipInputStream(zipInputStream);
+		} catch (Exception e) {
+			throw new DeploymentException(
+					messageHelper.getMessage("definicio.proces.actualitzar.error.parse"));		
+		}
+		JbpmProcessDefinition jbpmProcessDefinition = new JbpmProcessDefinition(processDefinition);
+		// Construeix la llista de handlers a partir del contingut del fitxer .par que acabin amb .class
+		@SuppressWarnings("unchecked")
+		Map<String, byte[]> bytesMap = jbpmProcessDefinition.getProcessDefinition().getFileDefinition().getBytesMap();
+		Map<String, byte[]> handlers = new HashMap<String, byte[]>();
+		for (String nom : bytesMap.keySet()) 
+			if (nom.endsWith(".class")) {
+				handlers.put(nom, bytesMap.get(nom));
+			}
+		// Actualitza els handlers de la darrera versió de la definició de procés
+		jbpmHelper.updateHandlers(
+				Long.parseLong(definicioProcesEstat.getJbpmId()), 
+				handlers);
+	}
+
 	@Override
 	@Transactional
 	public int refrescaProcessExpedients(
