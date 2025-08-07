@@ -415,6 +415,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				.generarPlantilla(document.isPlantilla())
 				.build();
 		model.addAttribute("processInstanceId", expedient.getProcessInstanceId());
+		model.addAttribute("isArxiuActiu", expedient.isArxiuActiu() && expedient.getArxiuUuid() != null);
 		model.addAttribute("documentExpedientCommand", command);
 		emplenarModelNti(expedientId, model);
 		model.addAttribute(
@@ -683,12 +684,15 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		} else {
 			model.addAttribute("documentsNoUtilitzats", getDocumentsNoUtilitzats(expedientId, processInstanceId));
 		}
+		ExpedientDto expedient = expedientService.findAmbIdAmbPermis(expedientId);
 		DocumentExpedientCommand command = new DocumentExpedientCommand();
 		command.setExpedientId(expedientId);
 		command.setData(new Date());
 		command.setValidarArxius(true);
 		model.addAttribute("processInstanceId", processInstanceId);
 		model.addAttribute("documentExpedientCommand", command);
+		model.addAttribute("isArxiuActiu", expedient.isArxiuActiu() && expedient.getArxiuUuid() != null);
+		
 		emplenarModelNti(expedientId, model);
 		model.addAttribute(
 				"tipusFirmaOptions",
@@ -769,6 +773,12 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			}
 			if (arxiuContingut != null) {
 				try {
+					
+					// Si el fitxer te firmes invalides s'han de eliminar
+					if(command.isClearFirmes()) {
+						arxiuContingut = documentHelper.removeSignaturesPdfUsingPdfWriterCopyPdf(arxiuContingut, arxiuContentType);
+					}
+					
 					DocumentStoreDto documentStoreDto = expedientDocumentService.create(
 							expedientId,
 							processInstanceId,
@@ -811,6 +821,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
     	model.addAttribute("documentsNoUtilitzats", getDocumentsNoUtilitzats(expedientId, processInstanceId));
 		model.addAttribute("processInstanceId", processInstanceId);
 		model.addAttribute("documentExpedientCommand", command);
+		model.addAttribute("isArxiuActiu", expedient.isArxiuActiu() && expedient.getArxiuUuid() != null);
 		emplenarModelNti(expedientId, model);
 		model.addAttribute(
 				"tipusFirmaOptions",
@@ -866,6 +877,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			command.setNtiIdOrigen(document.getNtiIdOrigen());
 		}
 		model.addAttribute("documentExpedientCommand", command);
+		model.addAttribute("isArxiuActiu", expedient.isArxiuActiu() && expedient.getArxiuUuid() != null);
 		model.addAttribute(
 				"tipusFirmaOptions",
 				EnumHelper.getOptionsForEnum(
@@ -940,6 +952,11 @@ public class ExpedientDocumentController extends BaseExpedientController {
 
 			if (arxiuContingut != null) {
 				try {
+					// Si el fitxer te firmes invalides s'han de eliminar
+					if(command.isClearFirmes()) {
+						arxiuContingut = documentHelper.removeSignaturesPdfUsingPdfWriterCopyPdf(arxiuContingut, arxiuContentType);
+					}
+					
 					DocumentStoreDto documentStoreDto = expedientDocumentService.update(
 							expedientId,
 							processInstanceId,
@@ -979,6 +996,7 @@ public class ExpedientDocumentController extends BaseExpedientController {
 		model.addAttribute("processInstanceId", processInstanceId);
 		model.addAttribute("document", document);
 		emplenarModelNti(expedientId, model);
+		model.addAttribute("isArxiuActiu", expedient.isArxiuActiu() && expedient.getArxiuUuid() != null);
 		model.addAttribute(
 				"tipusFirmaOptions",
 				EnumHelper.getOptionsForEnum(
@@ -2559,10 +2577,12 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				documentStoreId);
 		
 		if (bindingResult.hasErrors()) {
+			ExpedientDto expedient = expedientService.findAmbId(expedientId);
 			model.addAttribute("document", document);	
 			model.addAttribute("expedientId", expedientId);
 			model.addAttribute("documentExpedientCommand", command);
 			model.addAttribute("potFirmar", true);
+			model.addAttribute("isArxiuActiu", expedient.isArxiuActiu() && expedient.getArxiuUuid() != null);
 			return "v3/expedientDocumentForm";
 		}
 		

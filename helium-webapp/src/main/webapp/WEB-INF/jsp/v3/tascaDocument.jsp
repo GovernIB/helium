@@ -78,6 +78,7 @@
 	
 		<form id="documentsForm" class="form-horizontal form-tasca" action="${tascaDocumentAction}" enctype="multipart/form-data" method="post" data-document-id="${document.id}">
 			<input type="hidden" id="docId${document.id}" name="docId" value="${document.id}"/>
+			<input type="hidden" id="clearFirmes_${document.id}" name="clearFirmes" value="false"/>
 			<div class="inlineLabels">
 				<h4 class="titol-missatge">
 					<label class="control-label col-xs-1 <c:if test="${document.required}">obligatori</c:if>">${document.documentNom}</label>
@@ -268,6 +269,7 @@
 
 <script type="text/javascript">
 	// <![CDATA[	
+	var esFirmaValida = true;
 	$(document).on('change', '.btn-file :file', function() {
 		var input = $(this),
 		numFiles = input.get(0).files ? input.get(0).files.length : 1,
@@ -277,8 +279,8 @@
 	
 	$(document).ready( function() {
 		
-		$('input[name=arxiu]').on('change', validateFirma);
-		$('input[name=firma]').on('change', validateFirma);
+		$('input[name=arxiu]').on('change', function(e) { validateFirma(this, 'arxiu')});
+		$('input[name=firma]').on('change', function(e) { validateFirma(this, 'firma')});
 		
 		$('.input-group:has( > input[name=contingut])').on('click', showLoader);
 		$('.input-group:has( > input[name=contingutFirma])').on('click', showLoader);
@@ -328,12 +330,20 @@
 			}
 		});
 		$('input[type=checkbox][name=ambFirma]').on('change', function() {
+			var form= $(this).closest('form')
 			var documentId= $(this).closest('form').data('document-id');
 			if($(this).prop("checked") == true){
 				$('#input-firma' + documentId).removeClass('hidden');
 				$('input[type=radio][name=tipusFirma][id*=' + documentId + ']:checked').change();
 			} else {
 				$('#input-firma' + documentId).addClass('hidden');
+				if(!esFirmaValida) {
+					esFirmaValida = true;
+					$('input[name=contingutFirma]', form).val(null);
+					$('input[name=firma]', form).val(null);
+					$('input[type=radio][name=tipusFirma][value=ADJUNT]', form).click();
+					$('button[type=submit]', form).removeAttr('disabled');
+				}
 			}
 		});
 		$('input[type=radio][name=tipusFirma]').change(function() {
@@ -362,12 +372,20 @@
         return true;
     }
 	
-	function validateFirma(e) {
+	function validateFirma(self, tipus) {
+		if(!${isArxiuActiu}) {
+			hideLoader();		
+			return;
+		}
 		
-		var form = $(this).closest('form');
+		var form = $(self).closest('form');
 		var formData = new FormData(form[0]);
 		$('#firmaAlert').remove();
 		$('#firmaError').remove();
+		if(tipus == 'arxiu' && $('input[name=ambFirma]', form).prop('checked')) {
+			$('input[name=ambFirma]', form).trigger('click');
+			$('input[name=clearFirmes]', form).val(false);
+		}
 		$.ajax({
 			url: '${validateFirmaUrl}',
 			type: 'POST',
@@ -387,9 +405,14 @@
 					form.prepend('<div id="firmaError" class="alert alert-danger">' + data.error + '</div>');
 				}
 				
-				if(data.valid) {
+				if(tipus == 'arxiu' && !data.firmat)
+					$('input[name=clearFirmes]', form).val(true);
+				if(tipus == 'firma' && !data.firmat) {
+					esFirmaValida = false;
+				} else {
 					$('button[type=submit]', form).removeAttr('disabled');
 				}
+				
 				hideLoader();
 			},
 			cache: false,

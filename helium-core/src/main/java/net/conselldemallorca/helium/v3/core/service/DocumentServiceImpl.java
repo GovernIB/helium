@@ -895,6 +895,9 @@ public class DocumentServiceImpl implements DocumentService {
 	
 	public ArxiuFirmaValidacioDetallDto validateFirmaDocument(byte[] documentContingut, String contentType, DocumentTipusFirmaEnumDto tipusFirma,
 			byte[] firmaContingut) throws Exception {
+			if(tipusFirma == DocumentTipusFirmaEnumDto.ADJUNT && !contentType.equals("application/pdf"))
+				return null;
+
 			if(tipusFirma != DocumentTipusFirmaEnumDto.SEPARAT && contentType.equals("application/pdf")) {
 					PdfReader pdfReader = new PdfReader(documentContingut);
 					AcroFields acroFields = pdfReader.getAcroFields();

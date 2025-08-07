@@ -461,7 +461,6 @@ public class TascaTramitacioController extends BaseTascaController {
 		}
 		// Omple els documents per adjuntar i els de només lectura
 		List<TascaDocumentDto> documents = tascaService.findDocuments(tascaId);
-		
 		Iterator<TascaDocumentDto> itDocuments = documents.iterator();
 		while (itDocuments.hasNext()) {
 			TascaDocumentDto document = itDocuments.next();
@@ -471,9 +470,13 @@ public class TascaTramitacioController extends BaseTascaController {
 			}
 		}
 		
+		ExpedientTascaDto tasca = tascaService.findAmbIdPerTramitacio(tascaId);
+		ExpedientDto expedient = this.expedientService.findAmbId(tasca.getExpedientId());
+		
 		model.addAttribute("documents", documents);
-		model.addAttribute("tasca", tascaService.findAmbIdPerTramitacio(tascaId));
+		model.addAttribute("tasca", tasca);
 		model.addAttribute("isModal", ModalHelper.isModal(request));
+		model.addAttribute("isArxiuActiu", expedient.isArxiuActiu() && expedient.getArxiuUuid() != null);
 		model.addAttribute(
 				"tipusFirmaOptions",
 				EnumHelper.getOptionsForEnum(
@@ -691,6 +694,7 @@ public class TascaTramitacioController extends BaseTascaController {
 			@PathVariable Long documentId,
 			@RequestParam(value = "arxiu", required = false) final CommonsMultipartFile arxiu,
 			@RequestParam(value = "ambFirma", required = false, defaultValue = "false") boolean ambFirma,
+			@RequestParam(value = "clearFirmes", required = false, defaultValue = "false") Boolean clearFirmes,
 			@RequestParam(value = "tipusFirma", required = false, defaultValue = "ADJUNT") DocumentTipusFirmaEnumDto tipusFirma,
 			@RequestParam(value = "firma", required = false) final CommonsMultipartFile firma,	
 			@RequestParam(value = "data", required = false) Date data,
@@ -739,6 +743,12 @@ public class TascaTramitacioController extends BaseTascaController {
 				error = true;
 			} 
 			if (!error) {
+				
+				// Si el fitxer te firmes invalides s'han de eliminar
+				if(clearFirmes) {
+					contingutArxiu = documentHelper.removeSignaturesPdfUsingPdfWriterCopyPdf(contingutArxiu, arxiuContentType);
+				}
+				
 				TascaDocumentDto doc = tascaService.findDocument(tascaId, documentId, expedient.getTipus().getId());
 				accioDocumentAdjuntar(
 						request,

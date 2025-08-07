@@ -59,6 +59,8 @@ public class DocumentExpedientCommand {
 	private DocumentTipusFirmaEnumDto tipusFirma = DocumentTipusFirmaEnumDto.ADJUNT;
 	/** Indica al validador si ha de validar que els arxius s'hagin adjuntat */
 	private boolean validarArxius = false;
+	
+	private boolean clearFirmes = false;
 
 	public interface Create {}
 	public interface Update {}

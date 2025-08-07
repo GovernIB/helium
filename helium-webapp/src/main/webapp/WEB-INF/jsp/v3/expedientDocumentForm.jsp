@@ -64,14 +64,16 @@ dadesNti['${d.codi}'].generarNomesTasca = ${d.generarNomesTasca};
 	</c:forEach>
 </c:if>
 
+var esFirmaValida = true;
+
 $(document).ready( function() {
 
 	$('#arxiuNom').on('click', function() {
 		$('input[name=arxiu]').click();
 	});
 	
-	$('input[name=arxiu]').on('change', validateFirma);
-	$('input[name=firma]').on('change', validateFirma);
+	$('input[name=arxiu]').on('change', () => validateFirma('arxiu'));
+	$('input[name=firma]').on('change', () => validateFirma('firma'));
 	
 	$('.input-group:has( > #arxiuNom)').on('click', showLoader);
 	$('.input-group:has( > #firmaNom)').on('click', showLoader);
@@ -173,8 +175,16 @@ $(document).ready( function() {
 			$('input[tpe=radio][name=tipusFirma]:checked').change();
 		} else {
 			$('#input-firma').addClass('hidden');
+			if(!esFirmaValida) {
+				esFirmaValida = true;
+				$('#firma').val(null);
+				$('#firmaNom').val(null);
+				$('input[type=radio][name=tipusFirma][value=ADJUNT]').click();
+				$('button[name="accio"]', window.parent.document).removeAttr('disabled');
+			}
 		}
 	});
+	
 	$('input[type=radio][name=tipusFirma]').change(function() {
 		if ($(this).val() == 'SEPARAT') {
 			$('#input-firma-arxiu').removeClass('hidden');
@@ -201,10 +211,21 @@ function mostrarAmagarFile() {
 	$("#modificarArxiu").val(true);
 }
 
-function validateFirma() {
+function validateFirma(tipus) {
+	
+	if(!${isArxiuActiu}) {
+		hideLoader();
+		$('button[name="accio"]', window.parent.document).removeAttr('disabled');
+		return;
+	}
+	
 	var formData = new FormData($('#documentExpedientCommand')[0]);
 	$('#firmaAlert').hide();
 	$('#firmaError').hide();
+	if(tipus == 'arxiu' && $(ambFirma).prop('checked')) {
+		$(ambFirma).trigger('click');
+		$('#clearFirmes').val(false);
+	}
 	$.ajax({
 		url: '${validateFirmaUrl}',
 		type: 'POST',
@@ -215,16 +236,24 @@ function validateFirma() {
 			   ($(ambFirma).prop('checked') && !data.firmat && !data.valid)) {
 				$(ambFirma).trigger('click');
 			}
-			if(data.alert) {
+			
+			if(data.alert)
 				$('#firmaAlert').html('<i class="fa fa-exclamation-triangle pr-2" />' + data.alert).show();
-			}
-			if(data.error) {
+			
+			if(data.error)
 				$('#firmaError').html(data.error).show();
-			}
-			if(data.valid) {
+			
+			if(tipus == 'arxiu' && !data.firmat)
+				$('#clearFirmes').val(true);
+			
+			if(tipus == 'firma' && !data.firmat) {
+				esFirmaValida = false;
+			} else {
 				$('button[name="accio"]', window.parent.document).removeAttr('disabled');
 			}
+			
 			hideLoader();
+			
 		},
 		cache: false,
 		contentType: false,
@@ -249,10 +278,11 @@ function hideLoader() {
 	<c:url value="/v3/expedient/${expedientId}/proces/${document.processInstanceId}/document/${document.id}/descarregar" var="downloadUrl"/>
 	<form:form cssClass="form-horizontal form-tasca" action="${formAction}" enctype="multipart/form-data" method="post" commandName="documentExpedientCommand">
 		<div class="inlineLabels">
+			<form:hidden path="codi"/>
 			<form:hidden path="docId"/>
 			<form:hidden path="expedientId"/>
+			<form:hidden path="clearFirmes"/>
 			<form:hidden path="validarArxius"/>
-			<form:hidden path="codi"/>
 			<c:if test="${ambDocument}"><form:hidden path="documentCodi"/></c:if>
 			<input type="hidden" id="processInstanceId" name="processInstanceId" value="${document.processInstanceId}"/>
 			<input type="hidden" id="modificarArxiu" name="modificarArxiu" value="false"/>
