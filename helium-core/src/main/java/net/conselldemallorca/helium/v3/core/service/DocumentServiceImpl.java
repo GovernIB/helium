@@ -3,7 +3,6 @@
  */
 package net.conselldemallorca.helium.v3.core.service;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -47,7 +46,6 @@ import net.conselldemallorca.helium.integracio.plugins.pinbal.DadesConsultaPinba
 import net.conselldemallorca.helium.integracio.plugins.pinbal.Funcionari;
 import net.conselldemallorca.helium.integracio.plugins.pinbal.Titular;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
-import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaValidacioDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DadesConsultaPinbalDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;

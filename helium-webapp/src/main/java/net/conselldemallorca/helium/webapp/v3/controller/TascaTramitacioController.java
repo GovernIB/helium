@@ -50,6 +50,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.ParametreHelper;
 import net.conselldemallorca.helium.v3.core.api.dto.ArxiuDto;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaValidacioDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.CampAgrupacioDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
@@ -76,6 +77,7 @@ import net.conselldemallorca.helium.v3.core.api.exception.TramitacioValidacioExc
 import net.conselldemallorca.helium.v3.core.api.exception.ValidacioException;
 import net.conselldemallorca.helium.v3.core.api.service.AplicacioService;
 import net.conselldemallorca.helium.v3.core.api.service.DefinicioProcesService;
+import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExecucioMassivaService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientDocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
@@ -111,6 +113,8 @@ public class TascaTramitacioController extends BaseTascaController {
 	protected ExpedientService expedientService;
 	@Autowired
 	protected ExpedientDocumentService expedientDocumentService;
+	@Autowired
+	protected DocumentService documentService;
 	@Autowired
 	protected TascaService tascaService;
 	@Autowired
@@ -742,10 +746,33 @@ public class TascaTramitacioController extends BaseTascaController {
 				MissatgesHelper.error(request, getMessage(request, "error.especificar.document.firma"));
 				error = true;
 			} 
+			if (ambFirma 
+					&& contingutArxiu != null) {
+				// Valida la firma del document
+				try {
+					ArxiuFirmaValidacioDetallDto firmaEstat = documentService.validateFirmaDocument(
+							contingutArxiu,
+							arxiuContentType,
+							tipusFirma,
+							firmaContingut);
+					if (firmaEstat == null) {
+						MissatgesHelper.error(request, getMessage(request, "error.document.firma.nula"));
+						error = true;
+					} else if (!firmaEstat.isValid()) {
+						MissatgesHelper.error(request, getMessage(request, "error.document.firma.invalida"));
+						error = true;
+					}
+				} catch(Exception e) {
+					String errMsg = getMessage(request, "error.document.validacio.firma.error", new Object[] {e.getMessage()});
+					MissatgesHelper.error(request, getMessage(request, errMsg), e);
+					error = true;
+				}
+			}
 			if (!error) {
 				
 				// Si el fitxer te firmes invalides s'han de eliminar
-				if(clearFirmes) {
+				if(clearFirmes&& arxiuContentType.equals("application/pdf") 
+						&& false) {
 					contingutArxiu = documentHelper.removeSignaturesPdfUsingPdfWriterCopyPdf(contingutArxiu, arxiuContentType);
 				}
 				

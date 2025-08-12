@@ -775,7 +775,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 				try {
 					
 					// Si el fitxer te firmes invalides s'han de eliminar
-					if(command.isClearFirmes()) {
+					if(command.isClearFirmes() && arxiuContentType.equals("application/pdf") 
+							&& false) {
 						arxiuContingut = documentHelper.removeSignaturesPdfUsingPdfWriterCopyPdf(arxiuContingut, arxiuContentType);
 					}
 					
@@ -953,7 +954,8 @@ public class ExpedientDocumentController extends BaseExpedientController {
 			if (arxiuContingut != null) {
 				try {
 					// Si el fitxer te firmes invalides s'han de eliminar
-					if(command.isClearFirmes()) {
+					if(command.isClearFirmes() && arxiuContentType.equals("application/pdf") 
+							&& false) {
 						arxiuContingut = documentHelper.removeSignaturesPdfUsingPdfWriterCopyPdf(arxiuContingut, arxiuContentType);
 					}
 					

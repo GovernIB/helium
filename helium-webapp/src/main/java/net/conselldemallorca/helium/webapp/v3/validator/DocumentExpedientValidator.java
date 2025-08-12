@@ -4,14 +4,17 @@ import javax.annotation.Resource;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 import net.conselldemallorca.helium.core.helper.DocumentHelperV3;
 import net.conselldemallorca.helium.core.helper.ParametreHelper;
+import net.conselldemallorca.helium.v3.core.api.dto.ArxiuFirmaValidacioDetallDto;
 import net.conselldemallorca.helium.v3.core.api.dto.DocumentTipusFirmaEnumDto;
 import net.conselldemallorca.helium.v3.core.api.dto.ExpedientDto;
 import net.conselldemallorca.helium.v3.core.api.dto.NtiEstadoElaboracionEnumDto;
+import net.conselldemallorca.helium.v3.core.api.service.DocumentService;
 import net.conselldemallorca.helium.v3.core.api.service.ExpedientService;
 import net.conselldemallorca.helium.webapp.v3.command.DocumentExpedientCommand;
 import net.conselldemallorca.helium.webapp.v3.helper.MessageHelper;
@@ -24,6 +27,8 @@ public class DocumentExpedientValidator implements ConstraintValidator<DocumentE
 
 	@Autowired
 	private ExpedientService expedientService;
+	@Autowired
+	private DocumentService documentService;
 	@Resource(name="documentHelperV3")
 	private DocumentHelperV3 documentHelper;
 	@Resource
@@ -90,7 +95,44 @@ public class DocumentExpedientValidator implements ConstraintValidator<DocumentE
 			.addNode("nom")
 			.addConstraintViolation();
 			valid = false;				
-		}		
+		}
+		
+		if (command.isAmbFirma() 
+				&& command.getArxiu() != null && !command.getArxiu().isEmpty()) {
+			// Valida la firma del document ja sigui inclosa o separada
+			try {
+				byte[] contingutArxiu = IOUtils.toByteArray(command.getArxiu().getInputStream());
+				String arxiuContentType = command.getArxiu().getContentType();
+				byte[] firmaContingut = null;
+				if (command.getFirma() != null && command.getFirma().getSize() > 0) {
+					firmaContingut = IOUtils.toByteArray(command.getFirma().getInputStream());
+				}
+				ArxiuFirmaValidacioDetallDto firmaEstat = documentService.validateFirmaDocument(
+						contingutArxiu,
+						arxiuContentType,
+						command.getTipusFirma(),
+						firmaContingut);
+				if (firmaEstat == null) {
+					// sense firmes
+					context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage("error.document.firma.nula"))
+					.addNode("ambFirma")
+					.addConstraintViolation();
+					valid = false;				
+				} else if (!firmaEstat.isValid()) {
+					// Firma invàlida
+					context.buildConstraintViolationWithTemplate(MessageHelper.getInstance().getMessage("error.document.firma.invalida"))
+					.addNode("ambFirma")
+					.addConstraintViolation();
+					valid = false;				
+				}
+			} catch(Exception e) {
+				String errMsg = MessageHelper.getInstance().getMessage("error.document.validacio.firma.error", new Object[] {e.getMessage()});
+				context.buildConstraintViolationWithTemplate(errMsg)
+				.addNode("ambFirma")
+				.addConstraintViolation();
+				valid = false;				
+			}
+		}
 		if (!valid)
 			context.disableDefaultConstraintViolation();
 		

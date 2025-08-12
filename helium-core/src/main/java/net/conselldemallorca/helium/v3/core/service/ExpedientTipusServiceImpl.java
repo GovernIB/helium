@@ -1074,12 +1074,6 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 			if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedientTipus.getTipus())) {
 				// En el cas d'expedients per estats crea el nou flux i un estat per defecte
 				expedientTipus.setJbpmProcessDefinitionKey(this.getDefinicioProcesEstats(expedientTipus, entorn).getJbpmKey());
-				Estat estat = new Estat();
-				estat.setExpedientTipus(expedientTipus);
-				estat.setCodi("inici");
-				estat.setNom("Estat inicial");
-				estat.setOrdre(1);
-				estat = estatRepository.save(estat);
 			}
 		} else {
 			// Recupera el tipus d'expedient existent
@@ -1256,8 +1250,10 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 		
 		// Estats
 		Estat estat;
-		if (command.getEstats().size() > 0)
-			for(EstatExportacio estatExportat : importacio.getEstats() )
+		if (command.getEstats().size() > 0) 
+		{
+			for(EstatExportacio estatExportat : importacio.getEstats() ) 
+			{
 				if (command.getEstats().contains(estatExportat.getCodi())){
 					estat = null;
 					if (expedientTipusExisteix) {
@@ -1369,7 +1365,19 @@ public class ExpedientTipusServiceImpl implements ExpedientTipusService {
 						}					
 					}
 				}
-		
+			}
+		}
+		// Per expedients per estats com a mínim han de tenir 1 estat inicial
+		if (ExpedientTipusTipusEnumDto.ESTAT.equals(expedientTipus.getTipus())
+				&& expedientTipus.getEstats().isEmpty()) {
+			estat = new Estat();
+			estat.setExpedientTipus(expedientTipus);
+			estat.setCodi("inici");
+			estat.setNom("Estat inicial");
+			estat.setOrdre(1);
+			estat = estatRepository.save(estat);
+		}
+
 		// Agrupacions
 		Map<String, CampAgrupacio> agrupacions = new HashMap<String, CampAgrupacio>();
 		CampAgrupacio agrupacio;
