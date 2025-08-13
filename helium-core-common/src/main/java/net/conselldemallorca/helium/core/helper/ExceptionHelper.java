@@ -8,6 +8,7 @@ import java.io.StringWriter;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
@@ -94,5 +95,10 @@ public class ExceptionHelper {
 		}
 		return sb.toString();
 	}
+	
+	public static Throwable getRootCauseOrItself(Throwable e) {
+		return ExceptionUtils.getRootCause(e) != null ? ExceptionUtils.getRootCause(e) : e;
+	}
+	
 	private static final Log logger = LogFactory.getLog(ExceptionHelper.class);
 }

@@ -80,6 +80,12 @@ public interface EnumeracioService {
 			Long entornId,
 			ExpedientTipusEnumeracioValorDto enumeracio) throws PermisDenegatException;
 	
+	public ExpedientTipusEnumeracioValorDto valorsUpsert(
+			Long expedientTipusId, 
+			Long enumeracioId,
+			Long entornId,
+			ExpedientTipusEnumeracioValorDto enumeracio) throws PermisDenegatException;
+	
 	public void valorDelete(
 			Long valorId) throws NoTrobatException, PermisDenegatException;
 	

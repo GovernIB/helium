@@ -381,6 +381,42 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 				enumeracioValorsRepository.save(entity),
 				ExpedientTipusEnumeracioValorDto.class);
 	}
+	
+	@Override
+	@Transactional
+	public ExpedientTipusEnumeracioValorDto valorsUpsert(
+			Long expedientTipusId,
+			Long enumeracioId,
+			Long entornId,
+			ExpedientTipusEnumeracioValorDto enumeracio) throws PermisDenegatException {
+		logger.debug(
+				"Creant nou valor de enumeracio (" +
+				"expedientTipusId =" + expedientTipusId + ", " +
+				"enumeracioId =" + enumeracioId + ", " +
+				"entornId =" + entornId + ", " +
+				"document=" + enumeracio + ")");
+				
+		Enumeracio enumer = enumeracioRepository.findOne(enumeracioId);
+		
+		//Es llançará un PermisDenegatException si escau
+		if (expedientTipusId != null)
+			expedientTipusHelper.getExpedientTipusComprovantPermisDisseny(expedientTipusId);
+		else
+			entornHelper.getEntornComprovantPermisos(entornId, true, true);
+		
+		EnumeracioValors entity = enumeracioValorsRepository.findByEnumeracioAndCodi(enumer, enumeracio.getCodi());
+		if(entity == null) {
+			entity = new EnumeracioValors();
+			entity.setCodi(enumeracio.getCodi());
+			entity.setOrdre(enumeracioValorsRepository.getNextOrdre(enumeracioId));
+			entity.setEnumeracio(enumer);
+		}
+		entity.setNom(enumeracio.getNom());
+		
+		return conversioTipusHelper.convertir(
+				enumeracioValorsRepository.save(entity),
+				ExpedientTipusEnumeracioValorDto.class);
+	}
 
 	@Override
 	@Transactional
@@ -464,7 +500,6 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 	@Override
 	@Transactional
 	public void enumeracioDeleteAllByEnumeracio(Long enumeracioId) throws NoTrobatException, PermisDenegatException, ValidacioException, InUseException {
-		
 		logger.debug(
 				"Esborrant els valors de l'enumeració (" +
 				"enumeracioId=" + enumeracioId +  ")");
@@ -485,13 +520,8 @@ public class EnumeracioServiceImpl implements EnumeracioService {
 		for(EnumeracioValors valor : valors) {
 			BigDecimal count = enumeracioValorsRepository.countValueUsage(enumeracioId, valor.getCodi()).get(0);
 			if(count.compareTo(BigDecimal.ZERO) > 0)
-				throw new InUseException(valor.getCodi());
-		}
-		
-		if (valors!=null) {
-			for (int o=0; o<valors.size(); o++) {
-				enumeracioValorsRepository.delete(valors.get(o));
-			}
+				continue;
+			enumeracioValorsRepository.delete(valor);
 		}
 		enumeracioValorsRepository.flush();
 	}	

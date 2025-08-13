@@ -266,20 +266,12 @@ public class EnumeracioController extends BaseDissenyController {
 			@PathVariable Long enumeracioId,
 			@PathVariable Long id,
 			Model model) {
-		if(enumeracioService.valorInUse(id)) {
-			ompleDadesModel(request, enumeracioId, model, true);
-			MissatgesHelper.error(
-					request,
-					getMessage(
-							request,
-							"expedient.tipus.enumeracio.valors.controller.modificar.us"));
-			return "v3/expedientTipusEnumeracioValors";
-		}
 		ExpedientTipusEnumeracioValorDto dto = enumeracioService.valorFindAmbId(id);
 		ExpedientTipusEnumeracioValorCommand command = conversioTipusHelper.convertir(dto, ExpedientTipusEnumeracioValorCommand.class);
 		ompleDadesModel(request, enumeracioId, model, false);		
 		model.addAttribute("expedientTipusEnumeracioValorCommand", command);
 		model.addAttribute("mostraUpdate", true);
+		model.addAttribute("inUse", enumeracioService.valorInUse(id));
 		return "v3/expedientTipusEnumeracioValors";
 	}
 	
@@ -291,10 +283,10 @@ public class EnumeracioController extends BaseDissenyController {
 			@Validated(ExpedientTipusEnumeracioValorCommand.Modificacio.class) ExpedientTipusEnumeracioValorCommand command,
 			BindingResult bindingResult, Model model) {
 
+		ompleDadesModel(request, enumeracioId, model, false);
 		if (bindingResult.hasErrors()) {
-			ompleDadesModel(request, enumeracioId, model, false);
 			model.addAttribute("expedientTipusEnumeracioValorCommand", command);
-			model.addAttribute("mostraUpdate", true);			
+			model.addAttribute("mostraUpdate", true);	
 			return "v3/expedientTipusEnumeracioValors";
 		} else {		
 		
@@ -422,12 +414,6 @@ public class EnumeracioController extends BaseDissenyController {
 			        	}
 			        	enumeracioValors.setCodi(codi);
 			        	enumeracioValors.setNom(columnes[1]);
-			        	if(valorExisteix(null, enumeracioId,codi))
-			        		throw new ValidacioException(
-			        				getMessage(
-											request,
-											"expedient.tipus.enumeracio.valors.importats.duplicat",
-											new Object[] {codi}));
 			        	// Valida que no s'importin dos codis
 			        	if (valorsCodis.contains(codi))
 			        		throw new ValidacioException(
@@ -435,14 +421,14 @@ public class EnumeracioController extends BaseDissenyController {
 											request,
 											"expedient.tipus.enumeracio.valors.importats.duplicat",
 											new Object[] {codi}));
-			        	else
-			        		valorsCodis.add(codi);
+			        	
+		        		valorsCodis.add(codi);
 			        	valors.add(enumeracioValors);
 					}
 					linia = br.readLine();
 				}
 				for(ExpedientTipusEnumeracioValorDto valor : valors)
-					enumeracioService.valorsCreate(null, enumeracioId, entornActual.getId(), valor);
+					enumeracioService.valorsUpsert(null, enumeracioId, entornActual.getId(), valor);
 				MissatgesHelper.success(
 						request,
 						getMessage(

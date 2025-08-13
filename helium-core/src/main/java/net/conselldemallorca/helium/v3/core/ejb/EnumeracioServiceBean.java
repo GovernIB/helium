@@ -101,6 +101,13 @@ public class EnumeracioServiceBean implements EnumeracioService {
 			Long entornId, ExpedientTipusEnumeracioValorDto enumeracio) throws PermisDenegatException {
 		return delegate.valorsCreate(expedientTipusId, enumeracioId, entornId, enumeracio);
 	}
+	
+	@Override
+	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
+	public ExpedientTipusEnumeracioValorDto valorsUpsert(Long expedientTipusId, Long enumeracioId,
+			Long entornId, ExpedientTipusEnumeracioValorDto enumeracio) throws PermisDenegatException {
+		return delegate.valorsUpsert(expedientTipusId, enumeracioId, entornId, enumeracio);
+	}
 
 	@Override
 	@RolesAllowed({"HEL_ADMIN", "HEL_USER", "TOTHOM", "tothom"})
